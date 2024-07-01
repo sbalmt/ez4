@@ -1,0 +1,68 @@
+{
+  "4ec0f49614c37b151fa65315b8f40402:Union": {
+    "type": "interface",
+    "name": "Union",
+    "modifiers": {
+      "export": true
+    },
+    "members": [
+      {
+        "type": "property",
+        "name": "regular",
+        "value": {
+          "type": "union",
+          "elements": [
+            {
+              "type": "any"
+            },
+            {
+              "type": "void"
+            },
+            {
+              "type": "never"
+            }
+          ]
+        }
+      },
+      {
+        "type": "property",
+        "name": "template1",
+        "value": {
+          "type": "union",
+          "elements": [
+            {
+              "type": "unknown"
+            },
+            {
+              "type": "undefined"
+            }
+          ]
+        }
+      },
+      {
+        "type": "property",
+        "name": "template2",
+        "value": {
+          "type": "union",
+          "elements": [
+            {
+              "type": "union",
+              "elements": [
+                {
+                  "type": "any"
+                },
+                {
+                  "type": "null",
+                  "literal": true
+                }
+              ]
+            },
+            {
+              "type": "never"
+            }
+          ]
+        }
+      }
+    ]
+  }
+}

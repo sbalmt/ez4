@@ -1,0 +1,106 @@
+import type { EntryState, EntryStates } from '@ez4/stateful';
+
+import { describe, it } from 'node:test';
+import { ok, equal } from 'node:assert/strict';
+import { join } from 'node:path';
+
+import { deepClone } from '@ez4/utils';
+import { createFunction, createMapping, createQueue, isMapping } from '@ez4/aws-queue';
+import { createPolicy, createRole } from '@ez4/aws-identity';
+import { deploy } from '@ez4/aws-common';
+
+import { getRoleDocument } from './common/role.js';
+import { getPolicyDocument } from './common/policy.js';
+
+const assertDeploy = async <E extends EntryState>(
+  resourceId: string,
+  newState: EntryStates<E>,
+  oldState: EntryStates<E> | undefined
+) => {
+  const { result: state } = await deploy(newState, oldState);
+
+  const resource = state[resourceId];
+
+  ok(resource?.result);
+  ok(isMapping(resource));
+
+  const { eventId, functionName, queueArn } = resource.result;
+
+  ok(eventId);
+  ok(functionName);
+  ok(queueArn);
+
+  return {
+    result: resource.result,
+    state
+  };
+};
+
+describe.only('queue', () => {
+  const baseDir = join(import.meta.dirname, '../test/files');
+
+  let lastState: EntryStates | undefined;
+  let mappingId: string | undefined;
+
+  it('assert :: deploy', async () => {
+    const localState: EntryStates = {};
+
+    const queueResource = createQueue(localState, {
+      queueName: 'EZ4: Test queue mapping'
+    });
+
+    const policyResource = createPolicy(localState, {
+      policyName: 'EZ4: Test queue mapping policy',
+      policyDocument: getPolicyDocument()
+    });
+
+    const roleResource = createRole(localState, [policyResource], {
+      roleName: 'EZ4: Test queue mapping role',
+      roleDocument: getRoleDocument()
+    });
+
+    const functionResource = await createFunction(localState, roleResource, {
+      sourceFile: join(baseDir, 'lambda.js'),
+      functionName: 'EZ4: Test queue  mapping lambda',
+      handlerName: 'main'
+    });
+
+    const resource = createMapping(localState, queueResource, functionResource, {
+      enabled: true,
+      batchSize: 100,
+      maxBatchWindow: 5
+    });
+
+    mappingId = resource.entryId;
+
+    const { state } = await assertDeploy(mappingId, localState, undefined);
+
+    lastState = state;
+  });
+
+  it('assert :: update', async () => {
+    ok(mappingId && lastState);
+
+    const localState = deepClone(lastState) as EntryStates;
+    const resource = localState[mappingId];
+
+    ok(resource && isMapping(resource));
+
+    resource.parameters.batchSize = 10;
+    resource.parameters.enabled = false;
+
+    const { state } = await assertDeploy(mappingId, localState, lastState);
+
+    lastState = state;
+  });
+
+  it('assert :: destroy', async () => {
+    ok(mappingId && lastState);
+
+    ok(lastState[mappingId]);
+
+    const { result } = await deploy(undefined, lastState);
+
+    equal(result[mappingId], undefined);
+  });
+});

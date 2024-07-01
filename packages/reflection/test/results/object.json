@@ -1,0 +1,105 @@
+{
+  "0a156658005290072d647e4db75bb9d8:Object": {
+    "type": "interface",
+    "name": "Object",
+    "modifiers": {
+      "export": true
+    },
+    "members": [
+      {
+        "type": "property",
+        "name": "regular1",
+        "value": {
+          "type": "object",
+          "members": [
+            {
+              "type": "property",
+              "name": "property1",
+              "value": {
+                "type": "any"
+              }
+            },
+            {
+              "type": "property",
+              "name": "property2",
+              "value": {
+                "type": "any"
+              }
+            },
+            {
+              "type": "property",
+              "name": "property3",
+              "value": {
+                "type": "any"
+              }
+            }
+          ]
+        }
+      },
+      {
+        "type": "property",
+        "name": "regular2",
+        "value": {
+          "type": "object",
+          "members": [
+            {
+              "type": "property",
+              "name": "level1",
+              "value": {
+                "type": "object",
+                "members": [
+                  {
+                    "type": "property",
+                    "name": "level2",
+                    "value": {
+                      "type": "object",
+                      "members": [
+                        {
+                          "type": "property",
+                          "name": "property",
+                          "value": {
+                            "type": "any"
+                          }
+                        }
+                      ]
+                    }
+                  }
+                ]
+              }
+            }
+          ]
+        }
+      },
+      {
+        "type": "property",
+        "name": "template",
+        "value": {
+          "type": "object",
+          "members": [
+            {
+              "type": "property",
+              "name": "property",
+              "value": {
+                "type": "any"
+              }
+            }
+          ]
+        }
+      },
+      {
+        "type": "property",
+        "name": "computed1",
+        "value": {
+          "type": "any"
+        }
+      },
+      {
+        "type": "property",
+        "name": "computed2",
+        "value": {
+          "type": "void"
+        }
+      }
+    ]
+  }
+}

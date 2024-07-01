@@ -1,0 +1,127 @@
+{
+  "988d986b8b2854d11263a148a23e201b:regular1": {
+    "type": "function",
+    "name": "regular1",
+    "modifiers": {
+      "export": true,
+      "declare": true
+    }
+  },
+  "988d986b8b2854d11263a148a23e201b:regular2": {
+    "type": "function",
+    "name": "regular2",
+    "modifiers": {
+      "export": true,
+      "declare": true
+    },
+    "return": {
+      "type": "void"
+    }
+  },
+  "988d986b8b2854d11263a148a23e201b:regular3": {
+    "type": "function",
+    "name": "regular3",
+    "modifiers": {
+      "export": true,
+      "declare": true
+    },
+    "parameters": [
+      {
+        "type": "parameter",
+        "name": "param",
+        "value": {
+          "type": "any"
+        }
+      }
+    ]
+  },
+  "988d986b8b2854d11263a148a23e201b:regular4": {
+    "type": "function",
+    "name": "regular4",
+    "modifiers": {
+      "export": true,
+      "declare": true
+    },
+    "parameters": [
+      {
+        "type": "parameter",
+        "name": "param1",
+        "value": {
+          "type": "any"
+        }
+      },
+      {
+        "type": "parameter",
+        "name": "param2",
+        "value": {
+          "type": "any"
+        }
+      }
+    ],
+    "return": {
+      "type": "void"
+    }
+  },
+  "988d986b8b2854d11263a148a23e201b:regular5": {
+    "type": "function",
+    "name": "regular5",
+    "modifiers": {
+      "export": true,
+      "declare": true
+    },
+    "parameters": [
+      {
+        "type": "parameter",
+        "name": "param1",
+        "value": {
+          "type": "any"
+        }
+      },
+      {
+        "type": "parameter",
+        "name": "param2",
+        "value": {
+          "type": "array",
+          "spread": true,
+          "element": {
+            "type": "any"
+          }
+        }
+      }
+    ],
+    "return": {
+      "type": "void"
+    }
+  },
+  "988d986b8b2854d11263a148a23e201b:regular6": {
+    "type": "function",
+    "name": "regular6",
+    "modifiers": {
+      "export": true
+    },
+    "parameters": [
+      {
+        "type": "parameter",
+        "name": "_param",
+        "value": {
+          "type": "null",
+          "default": true
+        }
+      }
+    ],
+    "return": {
+      "type": "void"
+    }
+  },
+  "988d986b8b2854d11263a148a23e201b:regular7": {
+    "type": "function",
+    "name": "regular7",
+    "modifiers": {
+      "async": true,
+      "export": true
+    },
+    "return": {
+      "type": "void"
+    }
+  }
+}

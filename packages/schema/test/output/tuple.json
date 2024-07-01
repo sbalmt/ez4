@@ -1,0 +1,58 @@
+{
+  "type": "object",
+  "description": "Tuple test object.",
+  "properties": {
+    "foo": {
+      "type": "tuple",
+      "description": "Foo property.",
+      "elements": [
+        {
+          "type": "boolean"
+        },
+        {
+          "type": "number"
+        }
+      ]
+    },
+    "nullable": {
+      "type": "tuple",
+      "elements": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "boolean"
+        }
+      ],
+      "nullable": true
+    },
+    "optional": {
+      "type": "tuple",
+      "elements": [
+        {
+          "type": "number"
+        },
+        {
+          "type": "string"
+        }
+      ],
+      "optional": true
+    },
+    "both": {
+      "type": "tuple",
+      "elements": [
+        {
+          "type": "boolean"
+        },
+        {
+          "type": "number"
+        },
+        {
+          "type": "string"
+        }
+      ],
+      "optional": true,
+      "nullable": true
+    }
+  }
+}

@@ -1,0 +1,30 @@
+{
+  "type": "object",
+  "description": "Number type enriched with decimal format.",
+  "properties": {
+    "any": {
+      "type": "number",
+      "description": "Number following a decimal format.",
+      "format": "decimal"
+    },
+    "min": {
+      "type": "number",
+      "description": "Number following a decimal format with minimum value.",
+      "minValue": 1.1,
+      "format": "decimal"
+    },
+    "max": {
+      "type": "number",
+      "description": "Number following a decimal format with maximum value.",
+      "maxValue": 9.9,
+      "format": "decimal"
+    },
+    "range": {
+      "type": "number",
+      "description": "Number following a decimal format with range value.",
+      "minValue": 2.5,
+      "maxValue": 5.5,
+      "format": "decimal"
+    }
+  }
+}

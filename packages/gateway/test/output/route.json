@@ -1,0 +1,45 @@
+{
+  "TestService": {
+    "type": "@ez4/http",
+    "description": "Service for testing routes.",
+    "id": "ez4-test-service",
+    "name": "Test Service",
+    "routes": [
+      {
+        "path": "ANY /test-route-1",
+        "handler": {
+          "name": "testRoute",
+          "file": "test/input/route.ts",
+          "response": {
+            "type": "object",
+            "properties": {
+              "status": {
+                "type": "number",
+                "description": "Response status code."
+              }
+            }
+          }
+        }
+      },
+      {
+        "path": "GET /test-route-2",
+        "variables": {
+          "TEST_VAR": "test-literal-value"
+        },
+        "handler": {
+          "name": "testRoute",
+          "file": "test/input/route.ts",
+          "response": {
+            "type": "object",
+            "properties": {
+              "status": {
+                "type": "number",
+                "description": "Response status code."
+              }
+            }
+          }
+        }
+      }
+    ]
+  }
+}

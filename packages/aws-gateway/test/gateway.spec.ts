@@ -1,0 +1,100 @@
+import type { EntryState, EntryStates } from '@ez4/stateful';
+
+import { describe, it } from 'node:test';
+import { ok, equal } from 'node:assert/strict';
+
+import { deepClone } from '@ez4/utils';
+import { createGateway, isGateway } from '@ez4/aws-gateway';
+import { deploy } from '@ez4/aws-common';
+
+const assertDeploy = async <E extends EntryState>(
+  resourceId: string,
+  newState: EntryStates<E>,
+  oldState: EntryStates<E> | undefined
+) => {
+  const { result: state } = await deploy(newState, oldState);
+
+  const resource = state[resourceId];
+
+  ok(resource?.result);
+  ok(isGateway(resource));
+
+  const { apiId, apiArn, endpoint } = resource.result;
+
+  ok(apiId);
+  ok(apiArn);
+  ok(endpoint);
+
+  return {
+    result: resource.result,
+    state
+  };
+};
+
+describe.only('gateway', () => {
+  let lastState: EntryStates | undefined;
+  let gatewayId: string | undefined;
+
+  it('assert :: deploy', async () => {
+    const localState: EntryStates = {};
+
+    const resource = createGateway(localState, {
+      gatewayId: 'ez4-test-gateway',
+      gatewayName: 'EZ4: Test gateway',
+      description: 'EZ4: Test gateway description',
+      tags: {
+        test1: 'ez4-tag'
+      }
+    });
+
+    gatewayId = resource.entryId;
+
+    const { state } = await assertDeploy(gatewayId, localState, undefined);
+
+    lastState = state;
+  });
+
+  it('assert :: tag gateway', async () => {
+    ok(gatewayId && lastState);
+
+    const localState = deepClone(lastState) as EntryStates;
+    const resource = localState[gatewayId];
+
+    ok(resource && isGateway(resource));
+
+    resource.parameters.tags = {
+      test1: 'ez4-tag-update',
+      test2: 'ez4-tag-new'
+    };
+
+    const { state } = await assertDeploy(gatewayId, localState, lastState);
+
+    lastState = state;
+  });
+
+  it('assert :: update gateway', async () => {
+    ok(gatewayId && lastState);
+
+    const localState = deepClone(lastState) as EntryStates;
+    const resource = localState[gatewayId];
+
+    ok(resource && isGateway(resource));
+
+    resource.parameters.gatewayName = 'EZ4: New gateway name';
+    resource.parameters.description = 'EZ4: New gateway description';
+
+    const { state } = await assertDeploy(gatewayId, localState, lastState);
+
+    lastState = state;
+  });
+
+  it('assert :: destroy', async () => {
+    ok(gatewayId && lastState);
+
+    ok(lastState[gatewayId]);
+
+    const { result } = await deploy(undefined, lastState);
+
+    equal(result[gatewayId], undefined);
+  });
+});

@@ -1,0 +1,11 @@
+*
+
+!package.json
+!README.md
+!LICENSE
+
+!lib/*.ts
+
+!dist/**/*.d.ts
+!dist/**/*.cjs
+!dist/**/*.mjs

@@ -1,0 +1,100 @@
+{
+  "88eaca00b03b98e66f21ede684ab4095:Callback": {
+    "type": "interface",
+    "name": "Callback",
+    "modifiers": {
+      "export": true
+    },
+    "members": [
+      {
+        "type": "property",
+        "name": "regular1",
+        "value": {
+          "type": "callback",
+          "return": {
+            "type": "any"
+          }
+        }
+      },
+      {
+        "type": "property",
+        "name": "regular2",
+        "value": {
+          "type": "callback",
+          "parameters": [
+            {
+              "type": "parameter",
+              "name": "param",
+              "value": {
+                "type": "any"
+              }
+            }
+          ],
+          "return": {
+            "type": "void"
+          }
+        }
+      },
+      {
+        "type": "property",
+        "name": "regular3",
+        "value": {
+          "type": "callback",
+          "parameters": [
+            {
+              "type": "parameter",
+              "name": "param1",
+              "value": {
+                "type": "any"
+              }
+            },
+            {
+              "type": "parameter",
+              "name": "param2",
+              "value": {
+                "type": "array",
+                "spread": true,
+                "element": {
+                  "type": "void"
+                }
+              }
+            }
+          ],
+          "return": {
+            "type": "never"
+          }
+        }
+      },
+      {
+        "type": "property",
+        "name": "template",
+        "value": {
+          "type": "callback",
+          "parameters": [
+            {
+              "type": "parameter",
+              "name": "param1",
+              "value": {
+                "type": "any"
+              }
+            },
+            {
+              "type": "parameter",
+              "name": "param2",
+              "value": {
+                "type": "array",
+                "spread": true,
+                "element": {
+                  "type": "void"
+                }
+              }
+            }
+          ],
+          "return": {
+            "type": "never"
+          }
+        }
+      }
+    ]
+  }
+}

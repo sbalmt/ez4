@@ -1,0 +1,38 @@
+{
+  "name": "@ez4/schema",
+  "description": "EZ4: Components to build entity schema based on reflection inputs",
+  "version": "0.0.0",
+  "author": "Silas B.",
+  "license": "MIT",
+  "type": "module",
+  "exports": {
+    ".": {
+      "types": "./dist/main.d.ts",
+      "require": "./dist/main.cjs",
+      "import": "./dist/main.mjs"
+    },
+    "./library": {
+      "types": "./dist/library.d.ts",
+      "require": "./dist/library.cjs",
+      "import": "./dist/library.mjs"
+    }
+  },
+  "workspaces": [
+    "packages/*"
+  ],
+  "scripts": {
+    "clean": "rm -f *.tsbuildinfo && rm -rf dist/*",
+    "build": "tsc -p tsconfig.json && node tools/bundler.mjs",
+    "test": "npm run test:types && node --test --import ../../tools/tsnode.mjs test/*.spec.ts",
+    "test:only": "npm run test:types && node --test-only --test --import ../../tools/tsnode.mjs test/*.spec.ts",
+    "test:types": "npm run build && tsc -p tsconfig.test.json",
+    "local:publish": "npm run build && npm run clean:registry && npm publish --registry http://localhost:4873",
+    "clean:registry": "rm -rf ../../.registry/@ez4/schema",
+    "prepublishOnly": "npm run clean && npm run build && npm run test",
+    "publish": "npm publish --access public"
+  },
+  "dependencies": {
+    "@ez4/project": "^0.0.0",
+    "@ez4/reflection": "^0.0.0"
+  }
+}

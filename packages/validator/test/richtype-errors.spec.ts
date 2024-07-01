@@ -1,0 +1,103 @@
+import type { AnySchema } from '@ez4/schema';
+
+import { describe, it } from 'node:test';
+
+import {
+  ExpectedDateTimeTypeError,
+  ExpectedDateTypeError,
+  ExpectedEmailTypeError,
+  ExpectedIntegerTypeError,
+  ExpectedTimeTypeError,
+  ExpectedUUIDTypeError,
+  UnexpectedMaxLengthError,
+  UnexpectedMaxRangeError,
+  UnexpectedMinLengthError,
+  UnexpectedMinRangeError
+} from '@ez4/validator';
+
+import { SchemaTypeName } from '@ez4/schema';
+
+import { assertError } from './common.js';
+
+describe.only('rich type validation errors', () => {
+  it('assert :: decimal errors', async () => {
+    const schema: AnySchema = {
+      type: SchemaTypeName.Number,
+      format: 'decimal',
+      minValue: 0.99,
+      maxValue: 1.99
+    };
+
+    await assertError(0.98, schema, [UnexpectedMinRangeError]);
+    await assertError(2.0, schema, [UnexpectedMaxRangeError]);
+  });
+
+  it('assert :: integer errors', async () => {
+    const schema: AnySchema = {
+      type: SchemaTypeName.Number,
+      format: 'integer',
+      minValue: 99,
+      maxValue: 199
+    };
+
+    await assertError(98, schema, [UnexpectedMinRangeError]);
+    await assertError(200, schema, [UnexpectedMaxRangeError]);
+    await assertError(5.1, schema, [ExpectedIntegerTypeError]);
+  });
+
+  it('assert :: string errors', async () => {
+    const schema: AnySchema = {
+      type: SchemaTypeName.String,
+      minLength: 1,
+      maxLength: 3
+    };
+
+    await assertError('', schema, [UnexpectedMinLengthError]);
+    await assertError('abcd', schema, [UnexpectedMaxLengthError]);
+  });
+
+  it('assert :: uuid errors', async () => {
+    const schema: AnySchema = {
+      type: SchemaTypeName.String,
+      format: 'uuid'
+    };
+
+    await assertError('', schema, [ExpectedUUIDTypeError]);
+  });
+
+  it('assert :: email errors', async () => {
+    const schema: AnySchema = {
+      type: SchemaTypeName.String,
+      format: 'email'
+    };
+
+    await assertError('', schema, [ExpectedEmailTypeError]);
+  });
+
+  it('assert :: time errors', async () => {
+    const schema: AnySchema = {
+      type: SchemaTypeName.String,
+      format: 'time'
+    };
+
+    await assertError('abc', schema, [ExpectedTimeTypeError]);
+  });
+
+  it('assert :: date errors', async () => {
+    const schema: AnySchema = {
+      type: SchemaTypeName.String,
+      format: 'date'
+    };
+
+    await assertError('abc', schema, [ExpectedDateTypeError]);
+  });
+
+  it('assert :: date-date errors', async () => {
+    const schema: AnySchema = {
+      type: SchemaTypeName.String,
+      format: 'date-time'
+    };
+
+    await assertError('abc', schema, [ExpectedDateTimeTypeError]);
+  });
+});

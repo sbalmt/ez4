@@ -1,0 +1,36 @@
+import type { AllType, TypeCallback, TypeClass, TypeFunction, TypeModel } from '@ez4/reflection';
+
+import { hasHeritageType, isClassDeclaration, isModelDeclaration } from '@ez4/common/library';
+import { isTypeCallback, isTypeFunction } from '@ez4/reflection';
+
+export const isHttpService = (type: AllType): type is TypeClass => {
+  return isClassDeclaration(type) && hasHeritageType(type, 'Http.Service');
+};
+
+export const isHttpRoute = (type: AllType): type is TypeModel => {
+  return isModelDeclaration(type) && hasHeritageType(type, 'Http.Route');
+};
+
+export const isHttpRequest = (type: TypeModel) => {
+  return hasHeritageType(type, 'Http.Request');
+};
+
+export const isHttpResponse = (type: TypeModel) => {
+  return hasHeritageType(type, 'Http.Response');
+};
+
+export const isHttpQuery = (type: TypeModel) => {
+  return hasHeritageType(type, 'Http.QueryStrings');
+};
+
+export const isHttpParameters = (type: TypeModel) => {
+  return hasHeritageType(type, 'Http.PathParameters');
+};
+
+export const isJsonBody = (type: TypeModel) => {
+  return hasHeritageType(type, 'Http.JsonBody');
+};
+
+export const isHttpHandler = (type: AllType): type is TypeCallback | TypeFunction => {
+  return isTypeCallback(type) || isTypeFunction(type);
+};

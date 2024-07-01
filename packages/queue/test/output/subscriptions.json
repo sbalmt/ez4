@@ -1,0 +1,51 @@
+{
+  "TestQueue": {
+    "type": "@ez4/queue",
+    "description": "Queue to test subscriptions.",
+    "name": "Test Queue",
+    "services": {
+      "selfClient": "TestQueue"
+    },
+    "schema": {
+      "type": "object",
+      "properties": {
+        "foo": {
+          "type": "string"
+        }
+      }
+    },
+    "subscriptions": [
+      {
+        "handler": {
+          "name": "testHandler",
+          "file": "test/input/subscriptions.ts",
+          "schema": {
+            "type": "object",
+            "properties": {
+              "foo": {
+                "type": "string"
+              }
+            }
+          }
+        }
+      },
+      {
+        "handler": {
+          "name": "testHandler",
+          "file": "test/input/subscriptions.ts",
+          "schema": {
+            "type": "object",
+            "properties": {
+              "foo": {
+                "type": "string"
+              }
+            }
+          }
+        },
+        "variables": {
+          "TEST_VAR": "test-literal-value"
+        }
+      }
+    ]
+  }
+}

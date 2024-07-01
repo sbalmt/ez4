@@ -1,0 +1,60 @@
+{
+  "29a974ac0ad8d09a93e9122be537f05f:Tuple": {
+    "type": "interface",
+    "name": "Tuple",
+    "modifiers": {
+      "export": true
+    },
+    "members": [
+      {
+        "type": "property",
+        "name": "regular",
+        "value": {
+          "type": "tuple",
+          "elements": [
+            {
+              "type": "any"
+            },
+            {
+              "type": "void"
+            },
+            {
+              "type": "never"
+            }
+          ]
+        }
+      },
+      {
+        "type": "property",
+        "name": "template1",
+        "value": {
+          "type": "tuple",
+          "elements": [
+            {
+              "type": "unknown"
+            },
+            {
+              "type": "undefined"
+            }
+          ]
+        }
+      },
+      {
+        "type": "property",
+        "name": "template2",
+        "value": {
+          "type": "tuple",
+          "elements": [
+            {
+              "type": "any"
+            },
+            {
+              "type": "null",
+              "literal": true
+            }
+          ]
+        }
+      }
+    ]
+  }
+}

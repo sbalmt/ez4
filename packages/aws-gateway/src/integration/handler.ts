@@ -1,0 +1,102 @@
+import type { StepContext, StepHandler } from '@ez4/stateful';
+import type { IntegrationState, IntegrationResult, IntegrationParameters } from './types.js';
+
+import { ReplaceResourceError } from '@ez4/aws-common';
+import { getFunctionArn } from '@ez4/aws-function';
+import { deepEqual } from '@ez4/utils';
+
+import { createIntegration, deleteIntegration, updateIntegration } from './client.js';
+
+import { getGatewayId } from '../gateway/utils.js';
+import { IntegrationServiceName } from './types.js';
+
+export const getIntegrationHandler = (): StepHandler<IntegrationState> => ({
+  equals: equalsResource,
+  replace: replaceResource,
+  create: createResource,
+  update: updateResource,
+  delete: deleteResource
+});
+
+const equalsResource = (candidate: IntegrationState, current: IntegrationState) => {
+  return !!candidate.result && candidate.result.integrationId === current.result?.integrationId;
+};
+
+const replaceResource = async (
+  candidate: IntegrationState,
+  current: IntegrationState,
+  context: StepContext
+) => {
+  if (current.result) {
+    throw new ReplaceResourceError(IntegrationServiceName, candidate.entryId, current.entryId);
+  }
+
+  return createResource(candidate, context);
+};
+
+const createResource = async (
+  candidate: IntegrationState,
+  context: StepContext
+): Promise<IntegrationResult> => {
+  const apiId = getGatewayId(IntegrationServiceName, 'integration', context);
+  const functionArn = getFunctionArn(IntegrationServiceName, 'integration', context);
+
+  const response = await createIntegration(apiId, {
+    ...candidate.parameters,
+    functionArn
+  });
+
+  return {
+    apiId,
+    integrationId: response.integrationId,
+    functionArn
+  };
+};
+
+const updateResource = async (
+  candidate: IntegrationState,
+  current: IntegrationState,
+  context: StepContext
+) => {
+  const result = candidate.result;
+
+  if (!result) {
+    return;
+  }
+
+  const integrationId = result.integrationId;
+
+  const newFunctionArn = getFunctionArn(IntegrationServiceName, integrationId, context);
+  const oldFunctionArn = current.result?.functionArn ?? newFunctionArn;
+
+  const newRequest = { ...candidate.parameters, functionArn: newFunctionArn };
+  const oldRequest = { ...current.parameters, functionArn: oldFunctionArn };
+
+  await checkGeneralUpdates(result.apiId, integrationId, newRequest, oldRequest);
+
+  return {
+    ...result,
+    functionArn: newFunctionArn
+  };
+};
+
+const deleteResource = async (candidate: IntegrationState) => {
+  const result = candidate.result;
+
+  if (result) {
+    await deleteIntegration(result.apiId, result.integrationId);
+  }
+};
+
+const checkGeneralUpdates = async <T extends IntegrationParameters>(
+  apiId: string,
+  integrationId: string,
+  candidate: T,
+  current: T
+) => {
+  const hasChanges = !deepEqual(candidate, current);
+
+  if (hasChanges) {
+    await updateIntegration(apiId, integrationId, candidate);
+  }
+};

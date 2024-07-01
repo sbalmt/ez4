@@ -1,0 +1,40 @@
+{
+  "TestService": {
+    "type": "@ez4/http",
+    "description": "Service for testing query strings.",
+    "id": "ez4-test-service",
+    "name": "Test Service",
+    "routes": [
+      {
+        "path": "GET /test-route",
+        "handler": {
+          "name": "testRoute",
+          "file": "test/input/query.ts",
+          "request": {
+            "query": {
+              "type": "object",
+              "properties": {
+                "foo": {
+                  "type": "string"
+                },
+                "bar": {
+                  "type": "number"
+                }
+              },
+              "description": "Expected fields for query strings."
+            }
+          },
+          "response": {
+            "type": "object",
+            "properties": {
+              "status": {
+                "type": "number",
+                "description": "Response status code."
+              }
+            }
+          }
+        }
+      }
+    ]
+  }
+}

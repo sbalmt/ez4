@@ -1,0 +1,38 @@
+import { readFileSync, writeFileSync } from 'node:fs';
+import { deepEqual, equal } from 'node:assert/strict';
+import { describe, it } from 'node:test';
+
+import { getReflection } from '@ez4/project';
+import { registerTriggers, getHttpServices } from '@ez4/gateway/library';
+
+const testFile = (fileName: string, overwrite = false) => {
+  const sourceFile = `./test/input/${fileName}.ts`;
+  const outputFile = `./test/output/${fileName}.json`;
+
+  const reflection = getReflection([sourceFile]);
+  const result = getHttpServices(reflection);
+
+  result.errors.forEach((error) => {
+    console.error(error.message);
+  });
+
+  equal(result.errors.length, 0);
+
+  if (overwrite) {
+    writeFileSync(outputFile, JSON.stringify(result.services, undefined, 2));
+  } else {
+    deepEqual(result.services, JSON.parse(readFileSync(outputFile).toString()));
+  }
+};
+
+describe.only('http metadata', () => {
+  registerTriggers();
+
+  process.env.TEST_ENV_VAR = 'test-env-var-value';
+
+  it('assert :: empty services', () => testFile('service'));
+  it('assert :: service routes', () => testFile('route'));
+  it('assert :: route query', () => testFile('query'));
+  it('assert :: route parameters', () => testFile('parameters'));
+  it('assert :: route body', () => testFile('body'));
+});

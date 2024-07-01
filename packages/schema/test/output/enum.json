@@ -1,0 +1,22 @@
+{
+  "type": "object",
+  "description": "Enum test object.",
+  "properties": {
+    "foo": {
+      "type": "array",
+      "description": "Foo property.",
+      "element": {
+        "type": "enum",
+        "options": [
+          {
+            "value": "foo",
+            "description": "Foo option."
+          },
+          {
+            "value": "bar"
+          }
+        ]
+      }
+    }
+  }
+}

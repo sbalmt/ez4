@@ -1,0 +1,106 @@
+{
+  "80336e3df1e60a2406dce18e4882987c:Enum": {
+    "type": "interface",
+    "name": "Enum",
+    "modifiers": {
+      "export": true
+    },
+    "members": [
+      {
+        "type": "property",
+        "name": "regular1",
+        "value": {
+          "type": "reference",
+          "path": "80336e3df1e60a2406dce18e4882987c:EmptyEnum"
+        }
+      },
+      {
+        "type": "property",
+        "name": "regular2",
+        "value": {
+          "type": "reference",
+          "path": "80336e3df1e60a2406dce18e4882987c:SingleEnum"
+        }
+      },
+      {
+        "type": "property",
+        "name": "regular3",
+        "value": {
+          "type": "reference",
+          "path": "80336e3df1e60a2406dce18e4882987c:FullEnum"
+        }
+      },
+      {
+        "type": "property",
+        "name": "regular4",
+        "value": {
+          "type": "string",
+          "literal": "v1"
+        }
+      },
+      {
+        "type": "property",
+        "name": "template1",
+        "value": {
+          "type": "reference",
+          "path": "80336e3df1e60a2406dce18e4882987c:EmptyEnum"
+        }
+      },
+      {
+        "type": "property",
+        "name": "template2",
+        "value": {
+          "type": "reference",
+          "path": "80336e3df1e60a2406dce18e4882987c:SingleEnum"
+        }
+      },
+      {
+        "type": "property",
+        "name": "template3",
+        "value": {
+          "type": "reference",
+          "path": "80336e3df1e60a2406dce18e4882987c:FullEnum"
+        }
+      },
+      {
+        "type": "property",
+        "name": "template4",
+        "value": {
+          "type": "number",
+          "literal": 2
+        }
+      }
+    ]
+  },
+  "80336e3df1e60a2406dce18e4882987c:EmptyEnum": {
+    "type": "enum",
+    "name": "EmptyEnum"
+  },
+  "80336e3df1e60a2406dce18e4882987c:SingleEnum": {
+    "type": "enum",
+    "name": "SingleEnum",
+    "members": [
+      {
+        "type": "string",
+        "name": "V",
+        "value": "v"
+      }
+    ]
+  },
+  "80336e3df1e60a2406dce18e4882987c:FullEnum": {
+    "type": "enum",
+    "name": "FullEnum",
+    "members": [
+      {
+        "type": "string",
+        "name": "V1",
+        "value": "v1"
+      },
+      {
+        "type": "number",
+        "name": "V2",
+        "value": 2
+      }
+    ]
+  }
+}

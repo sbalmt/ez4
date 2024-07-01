@@ -1,0 +1,51 @@
+{
+  "type": "object",
+  "description": "Array test object.",
+  "properties": {
+    "foo": {
+      "type": "array",
+      "description": "Foo property.",
+      "element": {
+        "type": "boolean"
+      }
+    },
+    "bar": {
+      "type": "array",
+      "description": "Bar property.",
+      "element": {
+        "type": "union",
+        "optional": true,
+        "elements": [
+          {
+            "type": "number"
+          },
+          {
+            "type": "string"
+          }
+        ]
+      }
+    },
+    "nullable": {
+      "type": "array",
+      "element": {
+        "type": "boolean"
+      },
+      "nullable": true
+    },
+    "optional": {
+      "type": "array",
+      "element": {
+        "type": "number"
+      },
+      "optional": true
+    },
+    "both": {
+      "type": "array",
+      "element": {
+        "type": "string"
+      },
+      "optional": true,
+      "nullable": true
+    }
+  }
+}

@@ -1,0 +1,57 @@
+{
+  "78a29781cffb7f495b7fafb3f242b950:Boolean": {
+    "type": "interface",
+    "name": "Boolean",
+    "modifiers": {
+      "export": true
+    },
+    "members": [
+      {
+        "type": "property",
+        "name": "regular1",
+        "value": {
+          "type": "boolean"
+        }
+      },
+      {
+        "type": "property",
+        "name": "regular2",
+        "value": {
+          "type": "boolean",
+          "literal": true
+        }
+      },
+      {
+        "type": "property",
+        "name": "regular3",
+        "value": {
+          "type": "boolean",
+          "literal": false
+        }
+      },
+      {
+        "type": "property",
+        "name": "template1",
+        "value": {
+          "type": "boolean"
+        }
+      },
+      {
+        "type": "property",
+        "name": "template2",
+        "value": {
+          "type": "boolean",
+          "literal": true
+        }
+      },
+      {
+        "type": "property",
+        "name": "template3",
+        "value": {
+          "type": "boolean",
+          "literal": false
+        }
+      }
+    ]
+  }
+}

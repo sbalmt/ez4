@@ -1,0 +1,282 @@
+{
+  "1fde277bbe30d908b1d5721b183bbe7a:MergeInterface": {
+    "type": "interface",
+    "name": "MergeInterface",
+    "members": [
+      {
+        "type": "property",
+        "name": "field1",
+        "value": {
+          "type": "any"
+        }
+      },
+      {
+        "type": "property",
+        "name": "field2",
+        "value": {
+          "type": "void"
+        }
+      }
+    ]
+  },
+  "1fde277bbe30d908b1d5721b183bbe7a:Interface": {
+    "type": "interface",
+    "name": "Interface",
+    "modifiers": {
+      "export": true
+    },
+    "members": [
+      {
+        "type": "property",
+        "name": "regular1",
+        "value": {
+          "type": "reference",
+          "path": "1fde277bbe30d908b1d5721b183bbe7a:EmptyInterface"
+        }
+      },
+      {
+        "type": "property",
+        "name": "regular2",
+        "value": {
+          "type": "reference",
+          "path": "1fde277bbe30d908b1d5721b183bbe7a:DeclareInterface"
+        }
+      },
+      {
+        "type": "property",
+        "name": "regular3",
+        "value": {
+          "type": "reference",
+          "path": "1fde277bbe30d908b1d5721b183bbe7a:HeritageInterface"
+        }
+      },
+      {
+        "type": "property",
+        "name": "regular4",
+        "value": {
+          "type": "reference",
+          "path": "1fde277bbe30d908b1d5721b183bbe7a:ConcreteInterface"
+        }
+      },
+      {
+        "type": "property",
+        "name": "regular5",
+        "value": {
+          "type": "reference",
+          "path": "1fde277bbe30d908b1d5721b183bbe7a:MergeInterface"
+        }
+      },
+      {
+        "type": "method",
+        "name": "method1",
+        "return": {
+          "type": "void"
+        }
+      },
+      {
+        "type": "method",
+        "name": "method2",
+        "parameters": [
+          {
+            "type": "parameter",
+            "name": "param",
+            "value": {
+              "type": "any"
+            }
+          }
+        ],
+        "return": {
+          "type": "void"
+        }
+      },
+      {
+        "type": "method",
+        "name": "method3",
+        "parameters": [
+          {
+            "type": "parameter",
+            "name": "param",
+            "value": {
+              "type": "array",
+              "spread": true,
+              "element": {
+                "type": "any"
+              }
+            }
+          }
+        ],
+        "return": {
+          "type": "void"
+        }
+      },
+      {
+        "type": "property",
+        "name": "template1",
+        "value": {
+          "type": "reference",
+          "path": "1fde277bbe30d908b1d5721b183bbe7a:EmptyInterface"
+        }
+      },
+      {
+        "type": "property",
+        "name": "template2",
+        "value": {
+          "type": "reference",
+          "path": "1fde277bbe30d908b1d5721b183bbe7a:HeritageInterface"
+        }
+      },
+      {
+        "type": "property",
+        "name": "template3",
+        "value": {
+          "type": "object",
+          "members": [
+            {
+              "type": "property",
+              "name": "regular",
+              "value": {
+                "type": "void"
+              }
+            },
+            {
+              "type": "property",
+              "name": "template",
+              "value": {
+                "type": "void"
+              }
+            },
+            {
+              "type": "method",
+              "name": "templateMethod",
+              "parameters": [
+                {
+                  "type": "parameter",
+                  "name": "input",
+                  "value": {
+                    "type": "void"
+                  }
+                }
+              ],
+              "return": {
+                "type": "void"
+              }
+            }
+          ]
+        }
+      },
+      {
+        "type": "property",
+        "name": "computed1",
+        "value": {
+          "type": "any"
+        }
+      },
+      {
+        "type": "property",
+        "name": "computed2",
+        "value": {
+          "type": "void"
+        }
+      }
+    ]
+  },
+  "1fde277bbe30d908b1d5721b183bbe7a:EmptyInterface": {
+    "type": "interface",
+    "name": "EmptyInterface"
+  },
+  "1fde277bbe30d908b1d5721b183bbe7a:DeclareInterface": {
+    "type": "interface",
+    "name": "DeclareInterface",
+    "modifiers": {
+      "declare": true
+    }
+  },
+  "1fde277bbe30d908b1d5721b183bbe7a:HeritageInterface": {
+    "type": "interface",
+    "name": "HeritageInterface",
+    "heritage": [
+      {
+        "path": "1fde277bbe30d908b1d5721b183bbe7a:EmptyInterface"
+      },
+      {
+        "path": "1fde277bbe30d908b1d5721b183bbe7a:EmptyInterface2"
+      }
+    ]
+  },
+  "1fde277bbe30d908b1d5721b183bbe7a:ConcreteInterface": {
+    "type": "interface",
+    "name": "ConcreteInterface",
+    "heritage": [
+      {
+        "path": "1fde277bbe30d908b1d5721b183bbe7a:TemplateInterface",
+        "members": [
+          {
+            "type": "property",
+            "name": "regular",
+            "value": {
+              "type": "void"
+            }
+          },
+          {
+            "type": "property",
+            "name": "template",
+            "value": {
+              "type": "never"
+            }
+          },
+          {
+            "type": "method",
+            "name": "templateMethod",
+            "parameters": [
+              {
+                "type": "parameter",
+                "name": "input",
+                "value": {
+                  "type": "never"
+                }
+              }
+            ],
+            "return": {
+              "type": "never"
+            }
+          }
+        ]
+      }
+    ]
+  },
+  "1fde277bbe30d908b1d5721b183bbe7a:EmptyInterface2": {
+    "type": "interface",
+    "name": "EmptyInterface2"
+  },
+  "1fde277bbe30d908b1d5721b183bbe7a:TemplateInterface": {
+    "type": "interface",
+    "name": "TemplateInterface",
+    "heritage": [
+      {
+        "path": "1fde277bbe30d908b1d5721b183bbe7a:BaseInterface"
+      }
+    ],
+    "members": [
+      {
+        "type": "property",
+        "name": "regular",
+        "value": {
+          "type": "void"
+        }
+      }
+    ]
+  },
+  "1fde277bbe30d908b1d5721b183bbe7a:BaseInterface": {
+    "type": "interface",
+    "name": "BaseInterface",
+    "members": [
+      {
+        "type": "property",
+        "name": "regular",
+        "value": {
+          "type": "any"
+        }
+      }
+    ]
+  }
+}

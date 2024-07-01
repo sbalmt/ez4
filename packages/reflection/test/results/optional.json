@@ -1,0 +1,26 @@
+{
+  "50d6450e72dc69b85c53bceaa7d71d6f:Optional": {
+    "type": "interface",
+    "name": "Optional",
+    "modifiers": {
+      "export": true
+    },
+    "members": [
+      {
+        "type": "property",
+        "name": "regular",
+        "value": {
+          "type": "union",
+          "elements": [
+            {
+              "type": "any"
+            },
+            {
+              "type": "undefined"
+            }
+          ]
+        }
+      }
+    ]
+  }
+}

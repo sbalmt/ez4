@@ -1,0 +1,19 @@
+import type { EntryState } from '@ez4/stateful';
+import type { CreateRequest, CreateResponse } from './client.js';
+
+export const RouteServiceName = 'AWS:API/Route';
+
+export const RouteServiceType = 'aws:api.route';
+
+export type RouteParameters = Omit<CreateRequest, 'integrationId'>;
+
+export type RouteResult = CreateResponse & {
+  integrationId: string;
+  apiId: string;
+};
+
+export type RouteState = EntryState & {
+  type: typeof RouteServiceType;
+  parameters: RouteParameters;
+  result?: RouteResult;
+};

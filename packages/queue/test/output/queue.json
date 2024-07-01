@@ -1,0 +1,29 @@
+{
+  "TestQueue1": {
+    "type": "@ez4/queue",
+    "description": "First test queue description.",
+    "name": "Test Queue 1",
+    "subscriptions": [],
+    "services": {
+      "testQueue": "TestQueue2"
+    },
+    "schema": {
+      "properties": {},
+      "type": "object"
+    }
+  },
+  "TestQueue2": {
+    "type": "@ez4/queue",
+    "description": "Description of the second test queue.",
+    "name": "Test Queue 2",
+    "subscriptions": [],
+    "schema": {
+      "properties": {},
+      "type": "object"
+    },
+    "variables": {
+      "TEST_VAR1": "test-literal-value",
+      "TEST_VAR2": "test-env-var-value"
+    }
+  }
+}

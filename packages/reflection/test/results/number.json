@@ -1,0 +1,121 @@
+{
+  "e542fbcb632d2537a3efda5cdbb3fa5c:Number": {
+    "type": "interface",
+    "name": "Number",
+    "modifiers": {
+      "export": true
+    },
+    "members": [
+      {
+        "type": "property",
+        "name": "regular1",
+        "value": {
+          "type": "number"
+        }
+      },
+      {
+        "type": "property",
+        "name": "regular2",
+        "value": {
+          "type": "number",
+          "literal": -123
+        }
+      },
+      {
+        "type": "property",
+        "name": "regular3",
+        "value": {
+          "type": "number",
+          "literal": 456
+        }
+      },
+      {
+        "type": "property",
+        "name": "regular4",
+        "value": {
+          "type": "number",
+          "literal": 7.89
+        }
+      },
+      {
+        "type": "property",
+        "name": "regular5",
+        "value": {
+          "type": "number",
+          "literal": 255
+        }
+      },
+      {
+        "type": "property",
+        "name": "regular6",
+        "value": {
+          "type": "number",
+          "literal": 3
+        }
+      },
+      {
+        "type": "property",
+        "name": "regular7",
+        "value": {
+          "type": "number",
+          "literal": 61
+        }
+      },
+      {
+        "type": "property",
+        "name": "template1",
+        "value": {
+          "type": "number"
+        }
+      },
+      {
+        "type": "property",
+        "name": "template2",
+        "value": {
+          "type": "number",
+          "literal": -123
+        }
+      },
+      {
+        "type": "property",
+        "name": "template3",
+        "value": {
+          "type": "number",
+          "literal": 456
+        }
+      },
+      {
+        "type": "property",
+        "name": "template4",
+        "value": {
+          "type": "number",
+          "literal": 7.89
+        }
+      },
+      {
+        "type": "property",
+        "name": "template5",
+        "value": {
+          "type": "number",
+          "literal": 255
+        }
+      },
+      {
+        "type": "property",
+        "name": "template6",
+        "value": {
+          "type": "number",
+          "literal": 3
+        }
+      },
+      {
+        "type": "property",
+        "name": "template7",
+        "value": {
+          "type": "number",
+          "literal": 61
+        }
+      }
+    ]
+  }
+}

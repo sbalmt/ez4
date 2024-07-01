@@ -1,0 +1,68 @@
+{
+  "640073facdace3ec31d6c53cd61c4476:Internal": {
+    "type": "interface",
+    "name": "Internal",
+    "modifiers": {
+      "export": true
+    },
+    "members": [
+      {
+        "type": "property",
+        "name": "regular1",
+        "value": {
+          "type": "reference",
+          "internal": true,
+          "path": ":Object"
+        }
+      },
+      {
+        "type": "property",
+        "name": "regular2",
+        "value": {
+          "type": "reference",
+          "internal": true,
+          "path": ":Object"
+        }
+      },
+      {
+        "type": "property",
+        "name": "regular3",
+        "value": {
+          "type": "reference",
+          "path": "640073facdace3ec31d6c53cd61c4476:InternalHeritage"
+        }
+      },
+      {
+        "type": "property",
+        "name": "template2",
+        "value": {
+          "type": "reference",
+          "internal": true,
+          "path": ":Set"
+        }
+      },
+      {
+        "type": "property",
+        "name": "template3",
+        "value": {
+          "type": "reference",
+          "internal": true,
+          "path": ":Array"
+        }
+      },
+      {
+        "type": "property",
+        "name": "template4",
+        "value": {
+          "type": "reference",
+          "internal": true,
+          "path": ":Map"
+        }
+      }
+    ]
+  },
+  "640073facdace3ec31d6c53cd61c4476:InternalHeritage": {
+    "type": "interface",
+    "name": "InternalHeritage"
+  }
+}

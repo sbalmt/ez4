@@ -1,0 +1,91 @@
+{
+  "fd0a3ebbd6101482004328124830ac6c:Array": {
+    "type": "interface",
+    "name": "Array",
+    "modifiers": {
+      "export": true
+    },
+    "members": [
+      {
+        "type": "property",
+        "name": "regular1",
+        "value": {
+          "type": "array",
+          "element": {
+            "type": "any"
+          }
+        }
+      },
+      {
+        "type": "property",
+        "name": "regular2",
+        "value": {
+          "type": "array",
+          "element": {
+            "type": "array",
+            "element": {
+              "type": "any"
+            }
+          }
+        }
+      },
+      {
+        "type": "property",
+        "name": "regular3",
+        "value": {
+          "type": "array",
+          "element": {
+            "type": "any"
+          }
+        }
+      },
+      {
+        "type": "property",
+        "name": "tuple",
+        "value": {
+          "type": "tuple",
+          "elements": [
+            {
+              "type": "any"
+            },
+            {
+              "type": "array",
+              "spread": true,
+              "element": {
+                "type": "any"
+              }
+            }
+          ]
+        }
+      },
+      {
+        "type": "property",
+        "name": "union",
+        "value": {
+          "type": "array",
+          "element": {
+            "type": "union",
+            "elements": [
+              {
+                "type": "any"
+              },
+              {
+                "type": "void"
+              }
+            ]
+          }
+        }
+      },
+      {
+        "type": "property",
+        "name": "template",
+        "value": {
+          "type": "array",
+          "element": {
+            "type": "any"
+          }
+        }
+      }
+    ]
+  }
+}

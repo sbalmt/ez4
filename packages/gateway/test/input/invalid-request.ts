@@ -1,0 +1,25 @@
+import type { Http, SuccessResponse } from '@ez4/gateway';
+
+// Concrete class is not allowed.
+class TestRequest implements Http.Request {
+  query = {};
+}
+
+export declare class TestService extends Http.Service<[TestRequest]> {
+  id: 'ez4-test-service';
+
+  name: 'Test Service';
+
+  routes: [
+    {
+      path: 'ANY /test-route';
+      handler: typeof testRoute;
+    }
+  ];
+}
+
+export function testRoute(_request: TestRequest): SuccessResponse {
+  return {
+    status: 204
+  };
+}

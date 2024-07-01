@@ -1,0 +1,73 @@
+{
+  "2026ad6af87b566974d78e7cc3b12371:Typeof": {
+    "type": "interface",
+    "name": "Typeof",
+    "modifiers": {
+      "export": true
+    },
+    "members": [
+      {
+        "type": "property",
+        "name": "regular1",
+        "value": {
+          "type": "reference",
+          "path": "2026ad6af87b566974d78e7cc3b12371:Enum"
+        }
+      },
+      {
+        "type": "property",
+        "name": "regular2",
+        "value": {
+          "type": "reference",
+          "path": "2026ad6af87b566974d78e7cc3b12371:Class"
+        }
+      },
+      {
+        "type": "property",
+        "name": "regular3",
+        "value": {
+          "type": "callback",
+          "name": "Function",
+          "return": {
+            "type": "void"
+          }
+        }
+      },
+      {
+        "type": "property",
+        "name": "template1",
+        "value": {
+          "type": "reference",
+          "path": "2026ad6af87b566974d78e7cc3b12371:Enum"
+        }
+      },
+      {
+        "type": "property",
+        "name": "template2",
+        "value": {
+          "type": "reference",
+          "path": "2026ad6af87b566974d78e7cc3b12371:Class"
+        }
+      },
+      {
+        "type": "property",
+        "name": "template3",
+        "value": {
+          "type": "callback",
+          "name": "Function",
+          "return": {
+            "type": "void"
+          }
+        }
+      }
+    ]
+  },
+  "2026ad6af87b566974d78e7cc3b12371:Enum": {
+    "type": "enum",
+    "name": "Enum"
+  },
+  "2026ad6af87b566974d78e7cc3b12371:Class": {
+    "type": "class",
+    "name": "Class"
+  }
+}

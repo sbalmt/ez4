@@ -1,0 +1,30 @@
+{
+  "type": "object",
+  "description": "Number type enriched with integer format.",
+  "properties": {
+    "any": {
+      "type": "number",
+      "description": "Number following an integer format.",
+      "format": "integer"
+    },
+    "min": {
+      "type": "number",
+      "description": "Number following an integer format with minimum value.",
+      "minValue": 10,
+      "format": "integer"
+    },
+    "max": {
+      "type": "number",
+      "description": "Number following an integer format with maximum value.",
+      "maxValue": 99,
+      "format": "integer"
+    },
+    "range": {
+      "type": "number",
+      "description": "Number following an integer format with range value.",
+      "minValue": 25,
+      "maxValue": 50,
+      "format": "integer"
+    }
+  }
+}

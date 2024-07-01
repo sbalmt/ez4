@@ -1,0 +1,48 @@
+import { equal, deepEqual } from 'assert/strict';
+import { describe, it } from 'node:test';
+
+import { registerTriggers, getLinkedVariables, getLinkedServices } from '@ez4/common/library';
+import { createTrigger } from '@ez4/project';
+
+import { loadTestMember } from './common.js';
+
+describe.only('common metadata', () => {
+  registerTriggers();
+
+  process.env.TEST_ENV_VAR = 'test-env-var';
+
+  it('assert :: environment variable', () => {
+    const { member } = loadTestMember('variable');
+    const testErrors: Error[] = [];
+
+    const variables = getLinkedVariables(member, testErrors);
+
+    equal(testErrors.length, 0);
+
+    deepEqual(variables, {
+      TEST_VAR: 'test-var',
+      TEST_ENV_VAR: 'test-env-var'
+    });
+  });
+
+  it('assert :: environment service', () => {
+    const { member, reflection } = loadTestMember('service');
+    const testErrors: Error[] = [];
+
+    createTrigger('@ez4/project:test-service', {
+      'metadata:getLinkedService': (type) => {
+        equal(type.name, 'TestService');
+
+        return 'test-ok';
+      }
+    });
+
+    const services = getLinkedServices(member, reflection, testErrors);
+
+    equal(testErrors.length, 0);
+
+    deepEqual(services, {
+      testService: 'test-ok'
+    });
+  });
+});

@@ -1,0 +1,109 @@
+{
+  "eb634eefe473208716bf977f9b7f71c9:Enum": {
+    "type": "enum",
+    "name": "Enum",
+    "description": "Enum doc comments test.",
+    "members": [
+      {
+        "type": "string",
+        "name": "Option",
+        "value": "option",
+        "description": "Enum option."
+      }
+    ]
+  },
+  "eb634eefe473208716bf977f9b7f71c9:Class": {
+    "type": "class",
+    "name": "Class",
+    "description": "Class doc comments test.",
+    "modifiers": {
+      "export": true
+    },
+    "members": [
+      {
+        "type": "property",
+        "name": "property",
+        "description": "Class property.",
+        "value": {
+          "type": "any"
+        }
+      },
+      {
+        "type": "method",
+        "name": "method",
+        "description": "Class method.",
+        "parameters": [
+          {
+            "type": "parameter",
+            "name": "_param",
+            "description": "Class method parameter.",
+            "value": {
+              "type": "any"
+            }
+          }
+        ],
+        "return": {
+          "type": "void"
+        }
+      }
+    ]
+  },
+  "eb634eefe473208716bf977f9b7f71c9:Interface": {
+    "type": "interface",
+    "name": "Interface",
+    "description": "Interface doc comments test.",
+    "modifiers": {
+      "export": true
+    },
+    "members": [
+      {
+        "type": "property",
+        "name": "property",
+        "description": "Interface property.",
+        "value": {
+          "type": "any"
+        }
+      },
+      {
+        "type": "method",
+        "name": "method",
+        "description": "Interface method.",
+        "parameters": [
+          {
+            "type": "parameter",
+            "name": "param",
+            "description": "Interface method parameter.",
+            "value": {
+              "type": "any"
+            }
+          }
+        ],
+        "return": {
+          "type": "void"
+        }
+      }
+    ]
+  },
+  "eb634eefe473208716bf977f9b7f71c9:Function": {
+    "type": "function",
+    "name": "Function",
+    "description": "Function doc comments test.",
+    "modifiers": {
+      "export": true,
+      "declare": true
+    },
+    "parameters": [
+      {
+        "type": "parameter",
+        "name": "param",
+        "description": "Function parameter.",
+        "value": {
+          "type": "any"
+        }
+      }
+    ],
+    "return": {
+      "type": "void"
+    }
+  }
+}

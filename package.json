@@ -1,0 +1,48 @@
+{
+  "name": "@ez4/monorepo",
+  "description": "EZ4 Monorepo",
+  "version": "0.0.0",
+  "author": "Silas B.",
+  "license": "MIT",
+  "type": "module",
+  "private": true,
+  "engines": {
+    "node": ">=20.0.0"
+  },
+  "workspaces": [
+    "packages/utils",
+    "packages/stateful",
+    "packages/reflection",
+    "packages/project",
+    "packages/common",
+    "packages/schema",
+    "packages/validator",
+    "packages/transform",
+    "packages/gateway",
+    "packages/queue",
+    "packages/aws-common",
+    "packages/aws-identity",
+    "packages/aws-function",
+    "packages/aws-queue",
+    "packages/aws-bucket",
+    "packages/aws-gateway"
+  ],
+  "scripts": {
+    "prettify": "npx prettier 'packages/**/*.ts' --write",
+    "clean": "npm run clean --workspaces --if-present",
+    "build": "npm run build --workspaces --if-present",
+    "test": "npm run test --workspaces --if-present",
+    "test:only": "npm run test:only --workspaces --if-present",
+    "local:publish": "npm run local:publish --workspaces --if-present",
+    "local:registry": "rm -rf .registry/* && node tools/verdaccio.mjs",
+    "publish": "npm run publish --workspaces --if-present"
+  },
+  "devDependencies": {
+    "@types/node": "^20.14.8",
+    "esbuild": "^0.23.0",
+    "prettier": "^3.3.2",
+    "ts-node": "^10.9.2",
+    "typescript": "^5.5.2",
+    "verdaccio": "^5.31.1"
+  }
+}

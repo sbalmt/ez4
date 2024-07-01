@@ -1,0 +1,21 @@
+{
+  "type": "object",
+  "description": "String type enriched with date and time formats.",
+  "properties": {
+    "time": {
+      "type": "string",
+      "description": "String following a time format.",
+      "format": "time"
+    },
+    "date": {
+      "type": "string",
+      "description": "String following a date format.",
+      "format": "date"
+    },
+    "dateTime": {
+      "type": "string",
+      "description": "String following a date & time format.",
+      "format": "date-time"
+    }
+  }
+}

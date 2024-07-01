@@ -1,0 +1,186 @@
+import type { Arn } from '@ez4/aws-common';
+import type { StepContext, StepHandler } from '@ez4/stateful';
+import type { PolicyState } from '../policy/types.js';
+import type { RoleState, RoleResult, RoleParameters } from './types.js';
+
+import { applyTagUpdates, IncompleteResourceError, ReplaceResourceError } from '@ez4/aws-common';
+import { deepEqual } from '@ez4/utils';
+
+import {
+  attachPolicy,
+  createRole,
+  deleteRole,
+  detachPolicy,
+  tagRole,
+  untagRole,
+  updateAssumeRole,
+  updateRole
+} from './client.js';
+
+import { PolicyServiceType } from '../policy/types.js';
+import { RoleServiceName } from './types.js';
+
+type ContextResources = RoleState | PolicyState;
+
+export const getRoleHandler = (): StepHandler<RoleState> => ({
+  equals: equalsResource,
+  replace: replaceResource,
+  create: createResource,
+  update: updateResource,
+  delete: deleteResource
+});
+
+const equalsResource = (candidate: RoleState, current: RoleState) => {
+  return !!candidate.result && candidate.result.roleArn === current.result?.roleArn;
+};
+
+const replaceResource = async (
+  candidate: RoleState,
+  current: RoleState,
+  context: StepContext<ContextResources>
+) => {
+  if (current.result) {
+    throw new ReplaceResourceError(RoleServiceName, candidate.entryId, current.entryId);
+  }
+
+  return createResource(candidate, context);
+};
+
+const createResource = async (
+  candidate: RoleState,
+  context: StepContext<ContextResources>
+): Promise<RoleResult> => {
+  const response = await createRole(candidate.parameters);
+
+  const policies = context.getDependencies(PolicyServiceType);
+  const policyArns = getPolicyArns(response.roleName, policies);
+
+  if (policyArns.length) {
+    await attachPolicies(response.roleName, policyArns);
+  }
+
+  return {
+    roleName: response.roleName,
+    roleArn: response.roleArn,
+    policyArns
+  };
+};
+
+const updateResource = async (
+  candidate: RoleState,
+  current: RoleState,
+  context: StepContext<ContextResources>
+) => {
+  const result = candidate.result;
+
+  if (!result) {
+    return;
+  }
+
+  const policies = context.getDependencies(PolicyServiceType);
+  const policyArns = getPolicyArns(result.roleName, policies);
+
+  await Promise.all([
+    checkGeneralUpdates(result.roleName, candidate.parameters, current.parameters),
+    checkDocumentUpdates(result.roleName, candidate.parameters, current.parameters),
+    checkPolicyUpdates(result.roleName, policyArns, result.policyArns),
+    checkTagUpdates(result.roleName, candidate.parameters, current.parameters)
+  ]);
+
+  return {
+    ...result,
+    policyArns
+  };
+};
+
+const deleteResource = async (candidate: RoleState) => {
+  const result = candidate.result;
+
+  if (!result) {
+    return;
+  }
+
+  if (result.policyArns.length) {
+    await detachPolicies(result.roleName, result.policyArns);
+  }
+
+  await deleteRole(result.roleName);
+};
+
+const getPolicyArns = (roleName: string, policyStates: PolicyState[]) => {
+  return policyStates.map(({ parameters, result }) => {
+    if (!result) {
+      throw new IncompleteResourceError(RoleServiceName, roleName, parameters.policyName);
+    }
+
+    return result.policyArn;
+  });
+};
+
+const checkGeneralUpdates = async (
+  roleName: string,
+  candidate: RoleParameters,
+  current: RoleParameters
+) => {
+  if (candidate.description !== current.description) {
+    await updateRole(roleName, candidate.description);
+  }
+};
+
+const checkDocumentUpdates = async (
+  roleName: string,
+  candidate: RoleParameters,
+  current: RoleParameters
+) => {
+  if (!deepEqual(candidate.roleDocument, current.roleDocument)) {
+    await updateAssumeRole(roleName, candidate.roleDocument);
+  }
+};
+
+const checkPolicyUpdates = async (roleName: string, newPolicyArns: Arn[], oldPolicyArns: Arn[]) => {
+  const newPolicyArnSet = new Set(newPolicyArns);
+  const oldPolicyArnSet = new Set(oldPolicyArns);
+
+  const policiesToAttach = newPolicyArns.filter((policyArn) => !oldPolicyArnSet.has(policyArn));
+  const policiesToDetach = oldPolicyArns.filter((policyArn) => !newPolicyArnSet.has(policyArn));
+
+  await Promise.all([
+    attachPolicies(roleName, policiesToAttach),
+    detachPolicies(roleName, policiesToDetach)
+  ]);
+
+  return newPolicyArns;
+};
+
+const checkTagUpdates = async (
+  roleName: string,
+  candidate: RoleParameters,
+  current: RoleParameters
+) => {
+  await applyTagUpdates(
+    candidate.tags,
+    current.tags,
+    (tags) => tagRole(roleName, tags),
+    (tags) => untagRole(roleName, tags)
+  );
+};
+
+const attachPolicies = async (roleName: string, policyArns: Arn[]) => {
+  const operations = policyArns.map(async (policyArn) => {
+    await attachPolicy(roleName, policyArn);
+
+    return policyArn;
+  });
+
+  return await Promise.all(operations);
+};
+
+const detachPolicies = async (roleName: string, policyArns: Arn[]) => {
+  const operations = policyArns.map(async (policyArn) => {
+    await detachPolicy(roleName, policyArn);
+
+    return policyArn;
+  });
+
+  return await Promise.all(operations);
+};

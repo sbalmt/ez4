@@ -1,0 +1,161 @@
+{
+  "fbe7e90b1e5bf6fb192fdf23fc4ea18c:Template": {
+    "type": "interface",
+    "name": "Template",
+    "modifiers": {
+      "export": true
+    },
+    "members": [
+      {
+        "type": "property",
+        "name": "generic1",
+        "value": {
+          "type": "object",
+          "members": [
+            {
+              "type": "property",
+              "name": "field1",
+              "value": {
+                "type": "any"
+              }
+            },
+            {
+              "type": "property",
+              "name": "field2",
+              "value": {
+                "type": "never"
+              }
+            }
+          ]
+        }
+      },
+      {
+        "type": "property",
+        "name": "generic2",
+        "value": {
+          "type": "object",
+          "members": [
+            {
+              "type": "property",
+              "name": "field1",
+              "value": {
+                "type": "null",
+                "literal": true
+              }
+            },
+            {
+              "type": "property",
+              "name": "field2",
+              "value": {
+                "type": "void"
+              }
+            }
+          ]
+        }
+      },
+      {
+        "type": "property",
+        "name": "generic3",
+        "value": {
+          "type": "object",
+          "members": [
+            {
+              "type": "property",
+              "name": "field1",
+              "value": {
+                "type": "null",
+                "literal": true
+              }
+            },
+            {
+              "type": "property",
+              "name": "field2",
+              "value": {
+                "type": "unknown"
+              }
+            }
+          ]
+        }
+      },
+      {
+        "type": "property",
+        "name": "generic4",
+        "value": {
+          "type": "object",
+          "members": [
+            {
+              "type": "property",
+              "name": "field1",
+              "value": {
+                "type": "null",
+                "literal": true
+              }
+            },
+            {
+              "type": "property",
+              "name": "field2",
+              "value": {
+                "type": "undefined"
+              }
+            }
+          ]
+        }
+      },
+      {
+        "type": "property",
+        "name": "array1",
+        "value": {
+          "type": "object",
+          "members": [
+            {
+              "type": "property",
+              "name": "field1",
+              "value": {
+                "type": "null",
+                "literal": true
+              }
+            },
+            {
+              "type": "property",
+              "name": "field2",
+              "value": {
+                "type": "array",
+                "element": {
+                  "type": "null",
+                  "literal": true
+                }
+              }
+            }
+          ]
+        }
+      },
+      {
+        "type": "property",
+        "name": "array2",
+        "value": {
+          "type": "array",
+          "element": {
+            "type": "object",
+            "members": [
+              {
+                "type": "property",
+                "name": "field1",
+                "value": {
+                  "type": "null",
+                  "literal": true
+                }
+              },
+              {
+                "type": "property",
+                "name": "field2",
+                "value": {
+                  "type": "unknown"
+                }
+              }
+            ]
+          }
+        }
+      }
+    ]
+  }
+}

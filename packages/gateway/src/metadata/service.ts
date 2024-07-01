@@ -1,0 +1,105 @@
+import type { Incomplete } from '@ez4/utils';
+import type { ModelProperty, SourceMap } from '@ez4/reflection';
+import type { HttpService } from '../types/service.js';
+import type { HttpRoute } from '../types/route.js';
+
+import {
+  getLinkedServices,
+  getLinkedVariables,
+  getModelMembers,
+  getPropertyString,
+  getPropertyTuple
+} from '@ez4/common/library';
+
+import { isModelProperty } from '@ez4/reflection';
+
+import { ServiceType } from '../types/service.js';
+import { IncompleteServiceError } from '../errors/service.js';
+import { getHttpRoute } from './route.js';
+import { isHttpService } from './utils.js';
+
+export const getHttpServices = (reflection: SourceMap) => {
+  const httpServices: Record<string, HttpService> = {};
+  const errorList: Error[] = [];
+
+  for (const identity in reflection) {
+    const statement = reflection[identity];
+
+    if (!isHttpService(statement)) {
+      continue;
+    }
+
+    const service: Incomplete<HttpService> = { type: ServiceType };
+
+    const properties = new Set(['id', 'name', 'routes']);
+
+    if (statement.description) {
+      service.description = statement.description;
+    }
+
+    for (const member of getModelMembers(statement)) {
+      if (!isModelProperty(member)) {
+        continue;
+      }
+
+      switch (member.name) {
+        case 'id':
+          if ((service.id = getPropertyString(member))) {
+            properties.delete(member.name);
+          }
+          break;
+
+        case 'name':
+          if ((service.name = getPropertyString(member))) {
+            properties.delete(member.name);
+          }
+          break;
+
+        case 'routes':
+          if ((service.routes = getAllRoutes(member, reflection, errorList))) {
+            properties.delete(member.name);
+          }
+          break;
+
+        case 'variables':
+          service.variables = getLinkedVariables(member, errorList);
+          break;
+
+        case 'services':
+          service.services = getLinkedServices(member, reflection, errorList);
+          break;
+      }
+    }
+
+    if (!isValidService(service)) {
+      errorList.push(new IncompleteServiceError([...properties], statement.file));
+      continue;
+    }
+
+    httpServices[statement.name] = service;
+  }
+
+  return {
+    services: httpServices,
+    errors: errorList
+  };
+};
+
+const isValidService = (type: Incomplete<HttpService>): type is HttpService => {
+  return !!type.id && !!type.name && !!type.routes;
+};
+
+const getAllRoutes = (member: ModelProperty, reflection: SourceMap, errorList: Error[]) => {
+  const routeItems = getPropertyTuple(member) ?? [];
+  const routeList: HttpRoute[] = [];
+
+  for (const route of routeItems) {
+    const result = getHttpRoute(route, reflection, errorList);
+
+    if (result) {
+      routeList.push(result);
+    }
+  }
+
+  return routeList;
+};

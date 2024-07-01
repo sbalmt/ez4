@@ -1,0 +1,31 @@
+{
+  "type": "object",
+  "description": "Scalar test object.",
+  "properties": {
+    "foo": {
+      "type": "string",
+      "description": "Foo property."
+    },
+    "bar": {
+      "type": "number",
+      "description": "Bar property."
+    },
+    "baz": {
+      "type": "boolean",
+      "description": "Baz property."
+    },
+    "nullable": {
+      "type": "boolean",
+      "nullable": true
+    },
+    "optional": {
+      "type": "number",
+      "optional": true
+    },
+    "both": {
+      "type": "string",
+      "optional": true,
+      "nullable": true
+    }
+  }
+}

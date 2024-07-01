@@ -1,0 +1,57 @@
+{
+  "ca22826a98d5fb9f7890b2fb31ad7cc9:String": {
+    "type": "interface",
+    "name": "String",
+    "modifiers": {
+      "export": true
+    },
+    "members": [
+      {
+        "type": "property",
+        "name": "regular1",
+        "value": {
+          "type": "string"
+        }
+      },
+      {
+        "type": "property",
+        "name": "regular2",
+        "value": {
+          "type": "string",
+          "literal": "abc"
+        }
+      },
+      {
+        "type": "property",
+        "name": "regular3",
+        "value": {
+          "type": "string",
+          "literal": "def"
+        }
+      },
+      {
+        "type": "property",
+        "name": "template1",
+        "value": {
+          "type": "string"
+        }
+      },
+      {
+        "type": "property",
+        "name": "template2",
+        "value": {
+          "type": "string",
+          "literal": "abc"
+        }
+      },
+      {
+        "type": "property",
+        "name": "template3",
+        "value": {
+          "type": "string",
+          "literal": "def"
+        }
+      }
+    ]
+  }
+}

@@ -1,0 +1,403 @@
+{
+  "432b7cf5a23289932dc9b8dadae79de1:Class": {
+    "type": "class",
+    "name": "Class",
+    "modifiers": {
+      "export": true
+    },
+    "members": [
+      {
+        "type": "property",
+        "name": "regular1",
+        "value": {
+          "type": "reference",
+          "path": "432b7cf5a23289932dc9b8dadae79de1:EmptyClass"
+        }
+      },
+      {
+        "type": "property",
+        "name": "regular2",
+        "value": {
+          "type": "reference",
+          "path": "432b7cf5a23289932dc9b8dadae79de1:DeclareClass"
+        }
+      },
+      {
+        "type": "property",
+        "name": "regular3",
+        "value": {
+          "type": "reference",
+          "path": "432b7cf5a23289932dc9b8dadae79de1:AbstractClass"
+        }
+      },
+      {
+        "type": "property",
+        "name": "regular4",
+        "value": {
+          "type": "reference",
+          "path": "432b7cf5a23289932dc9b8dadae79de1:HeritageClass"
+        }
+      },
+      {
+        "type": "property",
+        "name": "regular5",
+        "value": {
+          "type": "reference",
+          "path": "432b7cf5a23289932dc9b8dadae79de1:ConcreteClass"
+        }
+      },
+      {
+        "type": "method",
+        "name": "method1",
+        "return": {
+          "type": "void"
+        }
+      },
+      {
+        "type": "method",
+        "name": "method2",
+        "parameters": [
+          {
+            "type": "parameter",
+            "name": "_param",
+            "value": {
+              "type": "any"
+            }
+          }
+        ],
+        "return": {
+          "type": "void"
+        }
+      },
+      {
+        "type": "method",
+        "name": "method3",
+        "parameters": [
+          {
+            "type": "parameter",
+            "name": "_param",
+            "value": {
+              "type": "array",
+              "spread": true,
+              "element": {
+                "type": "any"
+              }
+            }
+          }
+        ],
+        "return": {
+          "type": "void"
+        }
+      },
+      {
+        "type": "method",
+        "name": "method4",
+        "modifiers": {
+          "async": true
+        },
+        "parameters": [
+          {
+            "type": "parameter",
+            "name": "_param",
+            "value": {
+              "type": "null",
+              "default": true
+            }
+          }
+        ],
+        "return": {
+          "type": "void"
+        }
+      },
+      {
+        "type": "property",
+        "name": "template1",
+        "value": {
+          "type": "reference",
+          "path": "432b7cf5a23289932dc9b8dadae79de1:EmptyClass"
+        }
+      },
+      {
+        "type": "property",
+        "name": "template2",
+        "value": {
+          "type": "reference",
+          "path": "432b7cf5a23289932dc9b8dadae79de1:HeritageClass"
+        }
+      },
+      {
+        "type": "property",
+        "name": "template3",
+        "value": {
+          "type": "object",
+          "members": [
+            {
+              "type": "property",
+              "name": "regular",
+              "value": {
+                "type": "void"
+              }
+            },
+            {
+              "type": "property",
+              "name": "template",
+              "value": {
+                "type": "void"
+              }
+            },
+            {
+              "type": "method",
+              "name": "templateMethod",
+              "parameters": [
+                {
+                  "type": "parameter",
+                  "name": "input",
+                  "value": {
+                    "type": "void"
+                  }
+                }
+              ],
+              "return": {
+                "type": "void"
+              }
+            }
+          ]
+        }
+      },
+      {
+        "type": "property",
+        "name": "computed1",
+        "value": {
+          "type": "any"
+        }
+      },
+      {
+        "type": "property",
+        "name": "computed2",
+        "value": {
+          "type": "void"
+        }
+      }
+    ]
+  },
+  "432b7cf5a23289932dc9b8dadae79de1:ClassWithModifiers": {
+    "type": "class",
+    "name": "ClassWithModifiers",
+    "modifiers": {
+      "export": true,
+      "declare": true
+    },
+    "members": [
+      {
+        "type": "property",
+        "name": "property1",
+        "modifiers": {
+          "private": true
+        },
+        "value": {
+          "type": "any"
+        }
+      },
+      {
+        "type": "property",
+        "name": "property2",
+        "modifiers": {
+          "protected": true
+        },
+        "value": {
+          "type": "any"
+        }
+      },
+      {
+        "type": "property",
+        "name": "property3",
+        "modifiers": {
+          "public": true
+        },
+        "value": {
+          "type": "any"
+        }
+      },
+      {
+        "type": "method",
+        "name": "method1",
+        "modifiers": {
+          "private": true
+        },
+        "return": {
+          "type": "void"
+        }
+      },
+      {
+        "type": "method",
+        "name": "method2",
+        "modifiers": {
+          "protected": true
+        },
+        "return": {
+          "type": "void"
+        }
+      },
+      {
+        "type": "method",
+        "name": "method3",
+        "modifiers": {
+          "public": true
+        },
+        "return": {
+          "type": "void"
+        }
+      }
+    ]
+  },
+  "432b7cf5a23289932dc9b8dadae79de1:EmptyClass": {
+    "type": "class",
+    "name": "EmptyClass"
+  },
+  "432b7cf5a23289932dc9b8dadae79de1:DeclareClass": {
+    "type": "class",
+    "name": "DeclareClass",
+    "modifiers": {
+      "declare": true
+    }
+  },
+  "432b7cf5a23289932dc9b8dadae79de1:AbstractClass": {
+    "type": "class",
+    "name": "AbstractClass",
+    "modifiers": {
+      "abstract": true
+    },
+    "members": [
+      {
+        "type": "property",
+        "name": "property",
+        "modifiers": {
+          "abstract": true
+        },
+        "value": {
+          "type": "any"
+        }
+      },
+      {
+        "type": "method",
+        "name": "method",
+        "modifiers": {
+          "abstract": true
+        },
+        "return": {
+          "type": "void"
+        }
+      }
+    ]
+  },
+  "432b7cf5a23289932dc9b8dadae79de1:HeritageClass": {
+    "type": "class",
+    "name": "HeritageClass",
+    "heritage": [
+      {
+        "path": "432b7cf5a23289932dc9b8dadae79de1:AbstractClass"
+      },
+      {
+        "path": "432b7cf5a23289932dc9b8dadae79de1:EmptyInterface"
+      }
+    ],
+    "members": [
+      {
+        "type": "property",
+        "name": "property",
+        "modifiers": {
+          "override": true
+        },
+        "value": {
+          "type": "void"
+        }
+      },
+      {
+        "type": "method",
+        "name": "method",
+        "modifiers": {
+          "override": true
+        },
+        "return": {
+          "type": "void"
+        }
+      }
+    ]
+  },
+  "432b7cf5a23289932dc9b8dadae79de1:ConcreteClass": {
+    "type": "class",
+    "name": "ConcreteClass",
+    "heritage": [
+      {
+        "path": "432b7cf5a23289932dc9b8dadae79de1:TemplateClass",
+        "members": [
+          {
+            "type": "property",
+            "name": "regular",
+            "value": {
+              "type": "void"
+            }
+          },
+          {
+            "type": "property",
+            "name": "template",
+            "value": {
+              "type": "never"
+            }
+          },
+          {
+            "type": "method",
+            "name": "templateMethod",
+            "parameters": [
+              {
+                "type": "parameter",
+                "name": "input",
+                "value": {
+                  "type": "never"
+                }
+              }
+            ],
+            "return": {
+              "type": "never"
+            }
+          }
+        ]
+      }
+    ]
+  },
+  "432b7cf5a23289932dc9b8dadae79de1:EmptyInterface": {
+    "type": "interface",
+    "name": "EmptyInterface"
+  },
+  "432b7cf5a23289932dc9b8dadae79de1:TemplateClass": {
+    "type": "class",
+    "name": "TemplateClass",
+    "heritage": [
+      {
+        "path": "432b7cf5a23289932dc9b8dadae79de1:BaseClass"
+      }
+    ],
+    "members": [
+      {
+        "type": "property",
+        "name": "regular",
+        "value": {
+          "type": "void"
+        }
+      }
+    ]
+  },
+  "432b7cf5a23289932dc9b8dadae79de1:BaseClass": {
+    "type": "class",
+    "name": "BaseClass",
+    "members": [
+      {
+        "type": "property",
+        "name": "regular",
+        "value": {
+          "type": "any"
+        }
+      }
+    ]
+  }
+}

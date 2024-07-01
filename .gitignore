@@ -1,0 +1,10 @@
+node_modules/
+dist/
+
+.*/
+
+*.tsbuildinfo
+*.ezstate
+*.env
+
+!example.env

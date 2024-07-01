@@ -1,0 +1,61 @@
+{
+  "type": "object",
+  "description": "Union test object.",
+  "properties": {
+    "foo": {
+      "type": "union",
+      "description": "Foo property.",
+      "elements": [
+        {
+          "type": "boolean"
+        },
+        {
+          "type": "number"
+        },
+        {
+          "type": "string"
+        }
+      ]
+    },
+    "nullable": {
+      "type": "union",
+      "description": "Nullable property.",
+      "nullable": true,
+      "elements": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "boolean"
+        }
+      ]
+    },
+    "optional": {
+      "type": "union",
+      "description": "Optional property.",
+      "optional": true,
+      "elements": [
+        {
+          "type": "number"
+        },
+        {
+          "type": "string"
+        }
+      ]
+    },
+    "both": {
+      "type": "union",
+      "description": "Nullable and optional property.",
+      "optional": true,
+      "nullable": true,
+      "elements": [
+        {
+          "type": "boolean"
+        },
+        {
+          "type": "number"
+        }
+      ]
+    }
+  }
+}

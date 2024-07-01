@@ -1,0 +1,50 @@
+export class TypeError extends Error {
+  constructor(
+    message: string,
+    public fileName?: string
+  ) {
+    super(`${fileName ? `${fileName}:\n\t` : ``}${message}`);
+  }
+}
+
+export class IncompleteTypeError extends TypeError {
+  constructor(
+    message: string,
+    public properties: string[],
+    public fileName?: string
+  ) {
+    if (properties.length > 1) {
+      super(`${message}, properties [${properties.join(', ')}] are missing.`, fileName);
+    } else {
+      super(`${message}, property ${properties[0]} is missing.`, fileName);
+    }
+  }
+}
+
+export class InvalidTypeError extends TypeError {
+  constructor(
+    message: string,
+    public modelType?: string,
+    public baseType?: string,
+    public fileName?: string
+  ) {
+    const type = modelType ?? 'it';
+
+    if (baseType) {
+      super(`${message}, ${type} must be a declaration and derive from ${baseType}.`, fileName);
+    } else {
+      super(`${message}, ${type} must be a declaration.`, fileName);
+    }
+  }
+}
+
+export class IncorrectTypeError extends TypeError {
+  constructor(
+    message: string,
+    public modelType: string,
+    public baseType: string,
+    public fileName?: string
+  ) {
+    super(`${message}, ${modelType} must derive from ${baseType}.`, fileName);
+  }
+}
