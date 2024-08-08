@@ -67,8 +67,10 @@ describe.only('queue', () => {
 
     const resource = createMapping(localState, queueResource, functionResource, {
       enabled: true,
-      batchSize: 100,
-      maxBatchWindow: 5
+      batch: {
+        batchSize: 100,
+        maxWindow: 5
+      }
     });
 
     mappingId = resource.entryId;
@@ -85,8 +87,9 @@ describe.only('queue', () => {
     const resource = localState[mappingId];
 
     ok(resource && isMapping(resource));
+    ok(resource.parameters.batch);
 
-    resource.parameters.batchSize = 10;
+    resource.parameters.batch.batchSize = 10;
     resource.parameters.enabled = false;
 
     const { state } = await assertDeploy(mappingId, localState, lastState);

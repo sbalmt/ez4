@@ -13,38 +13,37 @@ import { MappingServiceName } from './types.js';
 
 const client = new LambdaClient({});
 
-export type RequestForBatch = {
+export type BatchOptions = {
   batchSize: number;
-  maxBatchWindow: number;
+  maxWindow: number;
 };
 
-export type CreateRequestBase = {
+export type CreateRequest = {
   functionName: string;
+  batch?: BatchOptions;
   queueArn: string;
   enabled?: boolean;
 };
-
-export type CreateRequest = CreateRequestBase | (CreateRequestBase & RequestForBatch);
 
 export type CreateResponse = {
   eventId: string;
 };
 
-export type UpdateRequestBase = Partial<Omit<CreateRequestBase, 'queueArn'>>;
-
-export type UpdateRequest = UpdateRequestBase | (UpdateRequestBase & RequestForBatch);
+export type UpdateRequest = Partial<Omit<CreateRequest, 'queueArn'>>;
 
 export const createMapping = async (request: CreateRequest): Promise<CreateResponse> => {
   Logger.logCreate(MappingServiceName, request.functionName);
+
+  const { batch } = request;
 
   const response = await client.send(
     new CreateEventSourceMappingCommand({
       FunctionName: request.functionName,
       EventSourceArn: request.queueArn,
       Enabled: request.enabled,
-      ...('batchSize' in request && {
-        BatchSize: request.batchSize,
-        MaximumBatchingWindowInSeconds: request.maxBatchWindow
+      ...(batch && {
+        BatchSize: batch.batchSize,
+        MaximumBatchingWindowInSeconds: batch.maxWindow
       })
     })
   );
@@ -61,14 +60,16 @@ export const createMapping = async (request: CreateRequest): Promise<CreateRespo
 export const updateMapping = async (eventId: string, request: UpdateRequest) => {
   Logger.logUpdate(MappingServiceName, eventId);
 
+  const { batch } = request;
+
   await client.send(
     new UpdateEventSourceMappingCommand({
       UUID: eventId,
       FunctionName: request.functionName,
       Enabled: request.enabled,
-      ...('batchSize' in request && {
-        BatchSize: request.batchSize,
-        MaximumBatchingWindowInSeconds: request.maxBatchWindow
+      ...(batch && {
+        BatchSize: batch.batchSize,
+        MaximumBatchingWindowInSeconds: batch.maxWindow
       })
     })
   );
