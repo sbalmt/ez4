@@ -6,6 +6,8 @@ import { FunctionServiceType } from './function/types.js';
 import { getPermissionHandler } from './permission/handler.js';
 import { PermissionServiceType } from './permission/types.js';
 
+export * from './types/variables.js';
+
 export * from './function/service.js';
 export * from './function/types.js';
 export * from './function/utils.js';

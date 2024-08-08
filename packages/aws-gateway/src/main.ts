@@ -12,6 +12,8 @@ import { IntegrationServiceType } from './integration/types.js';
 import { getRouteHandler } from './route/handler.js';
 import { RouteServiceType } from './route/types.js';
 
+export * from './types/variables.js';
+
 export * from './gateway/service.js';
 export * from './gateway/types.js';
 export * from './gateway/utils.js';
