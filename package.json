@@ -21,11 +21,12 @@
     "packages/gateway",
     "packages/queue",
     "packages/aws-common",
+    "packages/aws-bucket",
     "packages/aws-identity",
     "packages/aws-function",
-    "packages/aws-queue",
-    "packages/aws-bucket",
-    "packages/aws-gateway"
+    "packages/aws-dynamodb",
+    "packages/aws-gateway",
+    "packages/aws-queue"
   ],
   "scripts": {
     "prettify": "npx prettier 'packages/**/*.ts' --write",
