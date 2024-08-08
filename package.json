@@ -18,6 +18,7 @@
     "packages/schema",
     "packages/validator",
     "packages/transform",
+    "packages/database",
     "packages/gateway",
     "packages/queue",
     "packages/aws-common",
@@ -36,7 +37,7 @@
     "test:only": "npm run test:only --workspaces --if-present",
     "local:publish": "npm run local:publish --workspaces --if-present",
     "local:registry": "rm -rf .registry/* && node tools/verdaccio.mjs",
-    "publish": "npm run publish --workspaces --if-present"
+    "live:publish": "npm run live:publish --workspaces --if-present"
   },
   "devDependencies": {
     "@types/node": "^20.14.8",
