@@ -10,6 +10,7 @@ export * from './errors/resource.js';
 export * from './common/bundler.js';
 export * from './common/provider.js';
 export * from './common/logger.js';
+export * from './common/waiter.js';
 
 export * from './types/tags.js';
 export * from './types/arn.js';

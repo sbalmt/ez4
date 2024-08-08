@@ -5,7 +5,7 @@ import type { FunctionState, FunctionResult, FunctionParameters } from './types.
 import { InvalidParameterValueException } from '@aws-sdk/client-lambda';
 
 import { getRoleArn } from '@ez4/aws-identity';
-import { applyTagUpdates, ReplaceResourceError } from '@ez4/aws-common';
+import { applyTagUpdates, ReplaceResourceError, waitDeletion } from '@ez4/aws-common';
 import { deepEqual, hashFile, waitFor } from '@ez4/utils';
 
 import {
@@ -131,7 +131,7 @@ const deleteResource = async (candidate: FunctionState) => {
   const result = candidate.result;
 
   if (result) {
-    await deleteFunction(result.functionName);
+    await waitDeletion(() => deleteFunction(result.functionName));
   }
 };
 
