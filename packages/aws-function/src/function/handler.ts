@@ -57,6 +57,8 @@ const createResource = async (
 
   let lastError;
 
+  // If the given roleArn is new and still propagating on AWS, the creation
+  // will fail, `waitFor` will keep retrying until max attempts.
   const response = await waitFor(async () => {
     try {
       return await createFunction({

@@ -4,15 +4,15 @@ import type { Variables } from '../types/variables.js';
 import {
   CreateFunctionCommand,
   DeleteFunctionCommand,
-  GetFunctionConfigurationCommand,
   LambdaClient,
   TagResourceCommand,
   UntagResourceCommand,
   UpdateFunctionCodeCommand,
-  UpdateFunctionConfigurationCommand
+  UpdateFunctionConfigurationCommand,
+  waitUntilFunctionActive,
+  waitUntilFunctionUpdated
 } from '@aws-sdk/client-lambda';
 
-import { waitFor } from '@ez4/utils';
 import { Logger } from '@ez4/aws-common';
 
 import { assertVariables } from './helpers/variables.js';
@@ -20,6 +20,11 @@ import { getZipBuffer } from './helpers/zip.js';
 import { FunctionServiceName } from './types.js';
 
 const client = new LambdaClient({});
+
+const waiter = {
+  maxWaitTime: 30,
+  client
+};
 
 export type CreateRequest = {
   roleArn: Arn;
@@ -81,7 +86,7 @@ export const createFunction = async (request: CreateRequest): Promise<CreateResp
   const functionName = response.FunctionName!;
   const functionArn = response.FunctionArn as Arn;
 
-  await waitForReadyState(functionName);
+  await waitUntilFunctionActive(waiter, { FunctionName: functionName });
 
   return {
     functionName,
@@ -125,7 +130,7 @@ export const updateSourceCode = async (functionName: string, sourceFile: string)
     })
   );
 
-  await waitForReadyState(functionName);
+  await waitUntilFunctionUpdated(waiter, { FunctionName: functionName });
 };
 
 export const updateConfiguration = async (functionName: string, request: UpdateConfigRequest) => {
@@ -151,7 +156,7 @@ export const updateConfiguration = async (functionName: string, request: UpdateC
     })
   );
 
-  await waitForReadyState(functionName);
+  await waitUntilFunctionUpdated(waiter, { FunctionName: functionName });
 };
 
 export const deleteFunction = async (functionName: string) => {
@@ -170,22 +175,4 @@ const getSourceZipFile = (sourceFile: string) => {
 
 const getSourceHandlerName = (handlerName: string) => {
   return `main.${handlerName}`;
-};
-
-const getFunctionStates = async (functionName: string) => {
-  const response = await client.send(
-    new GetFunctionConfigurationCommand({
-      FunctionName: functionName
-    })
-  );
-
-  return [response.State, response.LastUpdateStatus];
-};
-
-const waitForReadyState = async (functionName: string) => {
-  await waitFor(async () => {
-    const [state, updateStatus] = await getFunctionStates(functionName);
-
-    return state !== 'Pending' && updateStatus !== 'InProgress';
-  });
 };
