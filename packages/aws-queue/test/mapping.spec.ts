@@ -36,7 +36,7 @@ const assertDeploy = async <E extends EntryState>(
   };
 };
 
-describe.only('queue', () => {
+describe.only('queue mapping', () => {
   const baseDir = join(import.meta.dirname, '../test/files');
 
   let lastState: EntryStates | undefined;

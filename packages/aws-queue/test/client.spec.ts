@@ -8,7 +8,7 @@ import { SchemaTypeName } from '@ez4/schema';
 import { Client } from '@ez4/aws-queue/client';
 import { deploy } from '@ez4/aws-common';
 
-describe.only('queue', () => {
+describe.only('queue client', () => {
   let lastState: EntryStates | undefined;
   let queueId: string | undefined;
   let queueClient: any;
