@@ -1,5 +1,5 @@
 import type { Arn, ResourceTags } from '@ez4/aws-common';
-import type { SchemaDefinition } from '../types/schema.js';
+import type { AttributeSchema } from '../types/schema.js';
 
 import { getTagList, Logger } from '@ez4/aws-common';
 
@@ -14,8 +14,8 @@ import {
   waitUntilTableNotExists
 } from '@aws-sdk/client-dynamodb';
 
+import { getAttributeTypes, getAttributeKeyTypes } from './helpers/schema.js';
 import { TableServiceName } from './types.js';
-import { getAttributeTypes, getKeySchema } from './helpers/schema.js';
 
 const client = new DynamoDBClient({});
 
@@ -31,8 +31,8 @@ export type CapacityUnits = {
 
 export type CreateRequest = {
   tableName: string;
-  capacityUnits: CapacityUnits;
-  schemaDefinitions: SchemaDefinition[];
+  attributeSchema: AttributeSchema[];
+  capacityUnits?: CapacityUnits;
   allowDeletion?: boolean;
   tags?: ResourceTags;
 };
@@ -47,17 +47,17 @@ export type UpdateRequest = Partial<Omit<CreateRequest, 'tableName' | 'tags'>>;
 export const createTable = async (request: CreateRequest): Promise<CreateResponse> => {
   Logger.logCreate(TableServiceName, request.tableName);
 
-  const { capacityUnits } = request;
+  const { attributeSchema, capacityUnits } = request;
 
   const response = await client.send(
     new CreateTableCommand({
       TableName: request.tableName,
       DeletionProtectionEnabled: !request.allowDeletion,
-      AttributeDefinitions: getAttributeTypes(request.schemaDefinitions),
-      KeySchema: getKeySchema(request.schemaDefinitions),
+      AttributeDefinitions: getAttributeTypes(attributeSchema),
+      KeySchema: getAttributeKeyTypes(attributeSchema),
       ProvisionedThroughput: {
-        ReadCapacityUnits: capacityUnits.readCapacity,
-        WriteCapacityUnits: capacityUnits.writeCapacity
+        ReadCapacityUnits: capacityUnits?.readCapacity ?? 5,
+        WriteCapacityUnits: capacityUnits?.writeCapacity ?? 5
       },
       Tags: getTagList({
         ...request.tags,
@@ -84,15 +84,15 @@ export const createTable = async (request: CreateRequest): Promise<CreateRespons
 export const updateTable = async (tableName: string, request: UpdateRequest) => {
   Logger.logUpdate(TableServiceName, tableName);
 
-  const { capacityUnits } = request;
+  const { attributeSchema, capacityUnits } = request;
 
   await client.send(
     new UpdateTableCommand({
       TableName: tableName,
       DeletionProtectionEnabled: !request.allowDeletion,
-      ...(request.schemaDefinitions && {
-        AttributeDefinitions: getAttributeTypes(request.schemaDefinitions),
-        KeySchema: getKeySchema(request.schemaDefinitions)
+      ...(attributeSchema && {
+        AttributeDefinitions: getAttributeTypes(attributeSchema),
+        KeySchema: getAttributeKeyTypes(attributeSchema)
       }),
       ...(capacityUnits && {
         ProvisionedThroughput: {

@@ -1,0 +1,30 @@
+{
+  "TestDatabase": {
+    "type": "@ez4/database",
+    "name": "Test Database",
+    "tables": [
+      {
+        "name": "Inline Table",
+        "schema": {
+          "type": "object",
+          "properties": {
+            "id": {
+              "type": "string"
+            }
+          }
+        }
+      },
+      {
+        "name": "Test Table",
+        "schema": {
+          "type": "object",
+          "properties": {
+            "id": {
+              "type": "string"
+            }
+          }
+        }
+      }
+    ]
+  }
+}

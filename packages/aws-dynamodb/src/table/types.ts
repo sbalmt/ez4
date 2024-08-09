@@ -7,7 +7,9 @@ export const TableServiceType = 'aws:dynamodb.table';
 
 export type TableParameters = CreateRequest;
 
-export type TableResult = CreateResponse;
+export type TableResult = CreateResponse & {
+  allowDeletion: boolean;
+};
 
 export type TableState = EntryState & {
   type: typeof TableServiceType;

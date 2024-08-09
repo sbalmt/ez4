@@ -4,7 +4,7 @@ import { describe, it } from 'node:test';
 import { ok, equal } from 'node:assert/strict';
 
 import { deepClone } from '@ez4/utils';
-import { createTable, isTable, AttributeType, KeyType } from '@ez4/aws-dynamodb';
+import { createTable, isTable, AttributeType, AttributeKeyType } from '@ez4/aws-dynamodb';
 import { deploy } from '@ez4/aws-common';
 
 const assertDeploy = async <E extends EntryState>(
@@ -30,7 +30,7 @@ const assertDeploy = async <E extends EntryState>(
   };
 };
 
-describe.only('dynamodb resources', () => {
+describe.only('dynamodb table', () => {
   let lastState: EntryStates | undefined;
   let tableId: string | undefined;
 
@@ -38,18 +38,19 @@ describe.only('dynamodb resources', () => {
     const localState: EntryStates = {};
 
     const resource = createTable(localState, {
-      tableName: 'EZ4 Test Table',
-      schemaDefinitions: [
+      tableName: 'ez4-test-table',
+      attributeSchema: [
         {
-          attributeName: 'Name',
+          attributeName: 'id',
           attributeType: AttributeType.String,
-          keyType: KeyType.Hash
+          keyType: AttributeKeyType.Hash
+        },
+        {
+          attributeName: 'order',
+          attributeType: AttributeType.Number,
+          keyType: AttributeKeyType.Range
         }
       ],
-      capacityUnits: {
-        readCapacity: 25,
-        writeCapacity: 25
-      },
       tags: {
         test1: 'ez4-tag1',
         test2: 'ez4-tag2'
@@ -98,7 +99,6 @@ describe.only('dynamodb resources', () => {
 
   it('assert :: destroy', async () => {
     ok(tableId && lastState);
-
     ok(lastState[tableId]);
 
     const { result } = await deploy(undefined, lastState);

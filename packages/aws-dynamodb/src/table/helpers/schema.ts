@@ -1,15 +1,21 @@
-import type { SchemaDefinition } from '../../types/schema.js';
+import type { AttributeSchema } from '../../types/schema.js';
 
-export const getAttributeTypes = (schemas: SchemaDefinition[]) => {
-  return schemas.map(({ attributeName, attributeType }) => ({
+export const getAttributeTypes = (schema: AttributeSchema[]) => {
+  return schema.map(({ attributeName, attributeType }) => ({
     AttributeName: attributeName,
     AttributeType: attributeType
   }));
 };
 
-export const getKeySchema = (schemas: SchemaDefinition[]) => {
-  return schemas.map(({ attributeName, keyType }) => ({
-    AttributeName: attributeName,
-    KeyType: keyType
-  }));
+export const getAttributeKeyTypes = (schema: AttributeSchema[]) => {
+  const keyTypes = [];
+
+  for (const { attributeName, keyType } of schema) {
+    keyTypes.push({
+      AttributeName: attributeName,
+      KeyType: keyType
+    });
+  }
+
+  return keyTypes;
 };

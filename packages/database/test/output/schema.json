@@ -1,0 +1,28 @@
+{
+  "TestDatabase": {
+    "type": "@ez4/database",
+    "name": "Test Database",
+    "tables": [
+      {
+        "name": "Test Table",
+        "schema": {
+          "type": "object",
+          "properties": {
+            "primaryId": {
+              "type": "string",
+              "extra": {
+                "index": "primary"
+              }
+            },
+            "indexedNumber": {
+              "type": "number",
+              "extra": {
+                "index": "regular"
+              }
+            }
+          }
+        }
+      }
+    ]
+  }
+}

@@ -1,4 +1,4 @@
-export const enum KeyType {
+export const enum AttributeKeyType {
   Hash = 'HASH',
   Range = 'RANGE'
 }
@@ -9,8 +9,8 @@ export const enum AttributeType {
   String = 'S'
 }
 
-export type SchemaDefinition = {
+export type AttributeSchema = {
   attributeName: string;
   attributeType: AttributeType;
-  keyType?: KeyType;
+  keyType: AttributeKeyType;
 };

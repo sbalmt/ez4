@@ -34,6 +34,7 @@ const createResource = async (candidate: TableState): Promise<TableResult> => {
   const response = await createTable(parameters);
 
   return {
+    allowDeletion: parameters.allowDeletion ?? false,
     tableName: response.tableName,
     tableArn: response.tableArn
   };
@@ -54,7 +55,7 @@ const updateResource = async (candidate: TableState, current: TableState) => {
 const deleteResource = async (candidate: TableState) => {
   const result = candidate.result;
 
-  if (!result || !candidate.parameters.allowDeletion) {
+  if (!result || !result.allowDeletion) {
     return;
   }
 

@@ -1,0 +1,12 @@
+{
+  "TestDatabase1": {
+    "type": "@ez4/database",
+    "name": "Test Database 1",
+    "tables": []
+  },
+  "TestDatabase2": {
+    "type": "@ez4/database",
+    "name": "Test Database 2",
+    "tables": []
+  }
+}

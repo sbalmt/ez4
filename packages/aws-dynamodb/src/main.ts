@@ -9,4 +9,6 @@ export * from './types/schema.js';
 export * from './table/service.js';
 export * from './table/types.js';
 
+export * from './triggers/register.js';
+
 registerProvider(TableServiceType, getTableHandler());
