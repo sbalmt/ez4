@@ -1,4 +1,4 @@
-import type { AnySchema, SchemaTypeName } from './common.js';
+import type { AnySchema, ExtraSchema, SchemaTypeName } from './common.js';
 
 export type TupleSchema = {
   type: SchemaTypeName.Tuple;
@@ -6,4 +6,5 @@ export type TupleSchema = {
   description?: string;
   optional?: boolean;
   nullable?: boolean;
+  extra?: ExtraSchema;
 };

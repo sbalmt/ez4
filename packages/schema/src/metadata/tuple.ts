@@ -1,5 +1,5 @@
-import type { AllType, SourceMap } from '@ez4/reflection';
-import type { AnySchema } from '../types/common.js';
+import type { AllType, SourceMap, TypeTuple } from '@ez4/reflection';
+import type { AnySchema, ExtraSchema } from '../types/common.js';
 import type { TupleSchema } from '../types/tuple.js';
 
 import { isTypeTuple } from '@ez4/reflection';
@@ -7,15 +7,25 @@ import { isTypeTuple } from '@ez4/reflection';
 import { SchemaTypeName } from '../types/common.js';
 import { getAnySchema } from './any.js';
 
+export type RichTypeTuple = TypeTuple & {
+  extra?: ExtraSchema;
+};
+
 export const createTupleSchema = (
   elements: AnySchema[],
-  description: string | undefined
+  description: string | undefined,
+  extra: ExtraSchema | undefined
 ): TupleSchema => {
   return {
     type: SchemaTypeName.Tuple,
     ...(description && { description }),
+    ...(extra && { extra }),
     elements
   };
+};
+
+export const isRichTypeTuple = (type: AllType): type is RichTypeTuple => {
+  return isTypeTuple(type);
 };
 
 export const getTupleSchema = (
@@ -23,14 +33,14 @@ export const getTupleSchema = (
   reflection: SourceMap,
   description?: string
 ): TupleSchema | null => {
-  if (!isTypeTuple(type)) {
+  if (!isRichTypeTuple(type)) {
     return null;
   }
 
   const schemas = getAnySchemaFromTypeList(reflection, type.elements);
 
   if (schemas) {
-    return createTupleSchema(schemas, description);
+    return createTupleSchema(schemas, description, type.extra);
   }
 
   return null;

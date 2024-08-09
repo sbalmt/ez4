@@ -1,19 +1,29 @@
-import type { AllType, EnumMember, SourceMap } from '@ez4/reflection';
+import type { AllType, EnumMember, SourceMap, TypeEnum } from '@ez4/reflection';
 import type { EnumSchema, EnumSchemaOption } from '../types/enum.js';
 
 import { isTypeEnum, isTypeReference } from '@ez4/reflection';
 
-import { SchemaTypeName } from '../types/common.js';
+import { ExtraSchema, SchemaTypeName } from '../types/common.js';
+
+export type RichTypeEnum = TypeEnum & {
+  extra?: ExtraSchema;
+};
 
 export const createEnumSchema = (
   options: EnumSchemaOption[],
-  description: string | undefined
+  description: string | undefined,
+  extra: ExtraSchema | undefined
 ): EnumSchema => {
   return {
     type: SchemaTypeName.Enum,
     ...(description && { description }),
+    ...(extra && { extra }),
     options
   };
+};
+
+export const isRichTypeEnum = (type: AllType): type is RichTypeEnum => {
+  return isTypeEnum(type);
 };
 
 export const getEnumSchema = (
@@ -31,8 +41,8 @@ export const getEnumSchema = (
     return null;
   }
 
-  if (isTypeEnum(type) && type.members?.length) {
-    return createEnumSchema(getAnySchemaFromMembers(type.members), description);
+  if (isRichTypeEnum(type) && type.members?.length) {
+    return createEnumSchema(getAnySchemaFromMembers(type.members), description, type.extra);
   }
 
   return null;

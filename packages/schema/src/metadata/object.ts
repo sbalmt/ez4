@@ -1,23 +1,40 @@
-import type { AllType, ModelProperty, SourceMap } from '@ez4/reflection';
+import type { AllType, ModelProperty, SourceMap, TypeModel, TypeObject } from '@ez4/reflection';
 import type { ObjectSchema, ObjectSchemaProperties } from '../types/object.js';
 
 import { isTypeModel, isTypeObject, isTypeReference } from '@ez4/reflection';
 
 import { getObjectProperties } from '../reflection/object.js';
 import { getModelProperties } from '../reflection/model.js';
-import { SchemaTypeName } from '../types/common.js';
+import { ExtraSchema, SchemaTypeName } from '../types/common.js';
 import { getAnySchema } from './any.js';
 
+export type RichTypeObject = TypeObject & {
+  extra?: ExtraSchema;
+};
+
+export type RichTypeModel = TypeModel & {
+  extra?: ExtraSchema;
+};
+
 export const createObjectSchema = (data: Omit<ObjectSchema, 'type'>): ObjectSchema => {
-  const { properties, description, optional, nullable } = data;
+  const { properties, description, optional, nullable, extra } = data;
 
   return {
     type: SchemaTypeName.Object,
     ...(description && { description }),
     ...(optional && { optional }),
     ...(nullable && { nullable }),
+    ...(extra && { extra }),
     properties
   };
+};
+
+export const isRichTypeObject = (type: AllType): type is RichTypeObject => {
+  return isTypeObject(type);
+};
+
+export const isRichTypeModel = (type: AllType): type is RichTypeModel => {
+  return isTypeModel(type);
 };
 
 export const getObjectSchema = (
@@ -25,16 +42,18 @@ export const getObjectSchema = (
   reflection: SourceMap,
   description?: string
 ): ObjectSchema | null => {
-  if (isTypeObject(type)) {
+  if (isRichTypeObject(type)) {
     return createObjectSchema({
       properties: getAnySchemaFromMembers(reflection, getObjectProperties(type)),
+      extra: type.extra,
       description
     });
   }
 
-  if (isTypeModel(type)) {
+  if (isRichTypeModel(type)) {
     return createObjectSchema({
       properties: getAnySchemaFromMembers(reflection, getModelProperties(type)),
+      extra: type.extra,
       description: description ?? type.description
     });
   }
