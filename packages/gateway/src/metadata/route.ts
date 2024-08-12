@@ -8,7 +8,8 @@ import {
   getLinkedVariables,
   getModelMembers,
   getPropertyString,
-  getObjectMembers
+  getObjectMembers,
+  getPropertyNumber
 } from '@ez4/common/library';
 
 import { isHttpPath } from '../types/path.js';
@@ -61,23 +62,29 @@ const getTypeFromMembers = (
     }
 
     switch (member.name) {
-      case 'handler': {
-        if ((route.handler = getHttpHandler(member.value, reflection, errorList))) {
-          properties.delete(member.name);
-        }
-        break;
-      }
-
       case 'path': {
         const path = getPropertyString(member);
-
         if (path && isHttpPath(path)) {
           properties.delete(member.name);
           route.path = path;
         }
-
         break;
       }
+
+      case 'timeout':
+      case 'memory': {
+        const value = getPropertyNumber(member);
+        if (value !== undefined && value !== null) {
+          route[member.name] = value;
+        }
+        break;
+      }
+
+      case 'handler':
+        if ((route.handler = getHttpHandler(member.value, reflection, errorList))) {
+          properties.delete(member.name);
+        }
+        break;
 
       case 'variables':
         route.variables = getLinkedVariables(member, errorList);

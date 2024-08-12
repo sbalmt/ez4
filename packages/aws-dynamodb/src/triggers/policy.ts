@@ -1,0 +1,15 @@
+import type { PolicyResourceEvent } from '@ez4/project';
+
+import { createPolicy } from '@ez4/aws-identity';
+
+import { getPolicyDocument } from '../utils/policy.js';
+
+export const prepareExecutionPolicy = async (event: PolicyResourceEvent) => {
+  const { state, options } = event;
+  const { resourcePrefix, projectName } = options;
+
+  return createPolicy(state, {
+    policyName: `${resourcePrefix}-${projectName}-dynamodb-policy`,
+    policyDocument: await getPolicyDocument(resourcePrefix, true)
+  });
+};

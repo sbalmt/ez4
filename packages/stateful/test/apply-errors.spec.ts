@@ -27,7 +27,7 @@ describe.only('apply errors tests', () => {
       }
     };
 
-    const steps = planSteps(state, undefined, commonStepHandlers);
+    const steps = await planSteps(state, undefined, commonStepHandlers);
 
     // Can't find handler for TestEntryType.A.
     await rejects(() => applySteps(steps, state, undefined, {}), HandlerNotFoundError);

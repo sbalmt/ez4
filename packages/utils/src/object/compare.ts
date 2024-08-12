@@ -1,13 +1,13 @@
-import type { AnyObject, ObjectProperties } from './types.js';
+import type { AnyObject, PartialProperties } from './generics.js';
 
 import { deepCompareArray } from '../array/compare.js';
 import { isAnyObject } from './any.js';
 
-type Exclude<T extends AnyObject, S extends AnyObject> = ObjectProperties<T & S>;
+type Exclude<T extends AnyObject, S extends AnyObject> = PartialProperties<T & S>;
 
 export type ObjectComparison = {
   counts: number;
-  nested?: Record<any, ObjectComparison>;
+  nested?: Record<string, ObjectComparison>;
   create?: AnyObject;
   update?: AnyObject;
   remove?: AnyObject;
@@ -25,7 +25,7 @@ export type ObjectComparison = {
 export const deepCompareObject = <T extends AnyObject, S extends AnyObject>(
   target: T,
   source: S,
-  exclude?: Partial<Exclude<T, S>>
+  exclude?: Exclude<T, S>
 ): ObjectComparison => {
   const allKeys = new Set([...Object.keys(target), ...Object.keys(source)]);
 
@@ -71,7 +71,11 @@ export const deepCompareObject = <T extends AnyObject, S extends AnyObject>(
     }
 
     if (isAnyObject(targetValue) && isAnyObject(sourceValue)) {
-      const changes = deepCompareObject<AnyObject, AnyObject>(targetValue, sourceValue, keyState);
+      const changes = deepCompareObject<AnyObject, AnyObject>(
+        targetValue,
+        sourceValue,
+        keyState || undefined
+      );
 
       if (changes.counts > 0) {
         nested[key] = changes;

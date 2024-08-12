@@ -19,16 +19,22 @@ export type BundleOptions = {
 
 const getExtraContext = (extras: Record<string, ExtraSource>) => {
   const packages: string[] = [];
-  const properties: string[] = [];
+  const services: string[] = [];
 
   for (const contextName in extras) {
-    const service = extras[contextName];
+    const { module, from, constructor } = extras[contextName];
 
-    packages.push(`import { ${service.module} } from '${service.from}';`);
-    properties.push(`${contextName}: ${service.module}.${service.constructor}`);
+    const service = `${contextName}${module}`;
+
+    packages.push(`import { ${module} as ${service} } from '${from}';`);
+
+    services.push(`${contextName}: ${service}.${constructor}`);
   }
 
-  return `${packages.join('\n')}\nconst __EZ4_CONTEXT = {${properties.join(',\n')}}`;
+  return {
+    packages: packages.join('\n'),
+    services: `{${services.join(',\n')}}`
+  };
 };
 
 export const bundleFunction = async (serviceName: string, options: BundleOptions) => {
@@ -40,6 +46,8 @@ export const bundleFunction = async (serviceName: string, options: BundleOptions
 
   const outputFile = join('.ez4/tmp', targetPath, targetFile);
   const incomeFile = await readFile(options.wrapperFile);
+
+  const context = getExtraContext(options.extras ?? {});
 
   const result = await build({
     bundle: true,
@@ -57,13 +65,20 @@ export const bundleFunction = async (serviceName: string, options: BundleOptions
       sourcefile: 'wrapper.ts',
       resolveDir: dirname(sourceFile),
       contents: `
-        ${getExtraContext(options.extras ?? {})}
-        import { ${options.handlerName} as next } from '${sourceFile}';
-        ${incomeFile}
+import { dirname } from 'path';
+import { fileURLToPath } from 'url';
+import { createRequire as topLevelCreateRequire } from 'module';
+import { ${options.handlerName} as next } from '${sourceFile}';
+${context.packages}
+
+const __EZ4_CONTEXT = ${context.services};
+
+${incomeFile}
       `
     },
     banner: {
-      js: `import { dirname } from 'path';
+      js: `
+import { dirname } from 'path';
 import { fileURLToPath } from 'url';
 import { createRequire as topLevelCreateRequire } from 'module';
 

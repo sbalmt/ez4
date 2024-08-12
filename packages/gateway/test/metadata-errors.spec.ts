@@ -35,18 +35,12 @@ describe.only('http metadata errors', () => {
   it('assert :: incomplete service', () => {
     const errors = parseFile('incomplete-service');
 
-    equal(errors.length, 3);
+    equal(errors.length, 1);
 
-    const [error1, error2, error3] = errors;
+    const [error1] = errors;
 
     ok(error1 instanceof IncompleteServiceError);
-    deepEqual(error1.properties, ['id']);
-
-    ok(error2 instanceof IncompleteServiceError);
-    deepEqual(error2.properties, ['routes']);
-
-    ok(error3 instanceof IncompleteServiceError);
-    deepEqual(error3.properties, ['name']);
+    deepEqual(error1.properties, ['routes']);
   });
 
   it('assert :: incomplete service routes', () => {

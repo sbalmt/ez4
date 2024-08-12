@@ -16,14 +16,17 @@
     },
     "nullable": {
       "type": "boolean",
+      "description": "Nullable property.",
       "nullable": true
     },
     "optional": {
       "type": "number",
+      "description": "Optional property.",
       "optional": true
     },
     "both": {
       "type": "string",
+      "description": "Nullable and optional property.",
       "optional": true,
       "nullable": true
     }

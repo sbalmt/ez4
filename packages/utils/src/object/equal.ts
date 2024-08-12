@@ -1,9 +1,9 @@
-import type { AnyObject, ObjectProperties } from './types.js';
+import type { AnyObject, PartialProperties } from './generics.js';
 
 import { deepEqualArray } from '../array/equal.js';
 import { isAnyObject } from './any.js';
 
-type Exclude<T extends AnyObject, S extends AnyObject> = ObjectProperties<T & S>;
+type Exclude<T extends AnyObject, S extends AnyObject> = PartialProperties<T & S>;
 
 /**
  * Check whether `target` and `source` objects are equal ignoring any property
@@ -40,7 +40,7 @@ export const deepEqualObject = <T extends AnyObject, S extends AnyObject>(
     }
 
     if (isAnyObject(targetValue) && isAnyObject(sourceValue)) {
-      if (!deepEqualObject(targetValue, sourceValue, keyState)) {
+      if (!deepEqualObject(targetValue, sourceValue, keyState || undefined)) {
         return false;
       }
 

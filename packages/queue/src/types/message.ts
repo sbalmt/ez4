@@ -1,3 +1,3 @@
-import type { AnySchema } from '@ez4/schema';
+import type { ObjectSchema, UnionSchema } from '@ez4/schema';
 
-export type QueueMessage = AnySchema;
+export type QueueMessage = ObjectSchema | UnionSchema;

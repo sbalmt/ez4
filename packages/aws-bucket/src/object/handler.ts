@@ -2,6 +2,7 @@ import type { StepContext, StepHandler } from '@ez4/stateful';
 import type { ObjectState, ObjectResult, ObjectParameters } from './types.js';
 
 import { ReplaceResourceError } from '@ez4/aws-common';
+import { deepCompare } from '@ez4/utils';
 
 import { putObject, deleteObject, tagObject } from './client.js';
 import { getBucketName, getObjectKey } from './utils.js';
@@ -9,14 +10,29 @@ import { ObjectServiceName } from './types.js';
 
 export const getObjectHandler = (): StepHandler<ObjectState> => ({
   equals: equalsResource,
-  replace: replaceResource,
   create: createResource,
+  replace: replaceResource,
+  preview: previewResource,
   update: updateResource,
   delete: deleteResource
 });
 
 const equalsResource = (candidate: ObjectState, current: ObjectState) => {
   return !!candidate.result && candidate.result.objectKey === current.result?.objectKey;
+};
+
+const previewResource = async (candidate: ObjectState, current: ObjectState) => {
+  const parameters = candidate.parameters;
+  const changes = deepCompare(parameters, current.parameters);
+
+  if (!changes.counts) {
+    return undefined;
+  }
+
+  return {
+    ...changes,
+    name: getObjectKey(parameters)
+  };
 };
 
 const replaceResource = async (

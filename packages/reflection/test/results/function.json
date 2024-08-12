@@ -117,8 +117,8 @@
     "type": "function",
     "name": "regular7",
     "modifiers": {
-      "async": true,
-      "export": true
+      "export": true,
+      "async": true
     },
     "return": {
       "type": "void"

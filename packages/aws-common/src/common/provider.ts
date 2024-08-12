@@ -33,7 +33,7 @@ export const deploy = async <E extends EntryState>(
 
   Logger.logInfo(serviceName, 'Started');
 
-  const plannedSteps = planSteps(newState, oldState, allProviderHandlers);
+  const plannedSteps = await planSteps(newState, oldState, allProviderHandlers);
   const resultState = await applySteps(plannedSteps, newState, oldState, allProviderHandlers);
 
   resultState.errors.forEach((error) => {

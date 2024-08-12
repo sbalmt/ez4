@@ -1,13 +1,10 @@
-import type { Http, SuccessResponse } from '@ez4/gateway';
+import type { Http } from '@ez4/gateway';
+import type { SuccessResponse } from './common.js';
 
 // Missing Http.Request inheritance.
 interface TestRequest {}
 
 export declare class TestService extends Http.Service {
-  id: 'ez4-test-service';
-
-  name: 'Test Service';
-
   routes: [
     {
       path: 'ANY /test-route';

@@ -29,7 +29,8 @@ describe.only('object utils', () => {
   it('assert :: deep clone (with exclude)', () => {
     const result = deepClone(object, {
       first: {
-        second: true
+        second: true,
+        level: false // do not exclude.
       }
     });
 

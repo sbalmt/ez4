@@ -1,9 +1,13 @@
 import type { ModelProperty } from '@ez4/reflection';
 
-import { isTypeObject, isTypeString, isTypeTuple } from '@ez4/reflection';
+import { isTypeNumber, isTypeObject, isTypeString, isTypeTuple } from '@ez4/reflection';
 
 export const getPropertyString = (type: ModelProperty) => {
   return isTypeString(type.value) ? type.value.literal : null;
+};
+
+export const getPropertyNumber = (type: ModelProperty) => {
+  return isTypeNumber(type.value) ? type.value.literal : null;
 };
 
 export const getPropertyTuple = (type: ModelProperty) => {

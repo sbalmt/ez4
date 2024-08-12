@@ -1,9 +1,10 @@
 {
   "3f680985f5c327d1c59fbc8c3b10b276:Special": {
-    "type": "interface",
+    "type": "class",
     "name": "Special",
     "modifiers": {
-      "export": true
+      "export": true,
+      "declare": true
     },
     "members": [
       {
@@ -90,6 +91,38 @@
         "value": {
           "type": "null",
           "literal": true
+        }
+      },
+      {
+        "type": "property",
+        "name": "self1",
+        "value": {
+          "type": "reference",
+          "path": "3f680985f5c327d1c59fbc8c3b10b276:Special"
+        }
+      },
+      {
+        "type": "property",
+        "name": "self2",
+        "value": {
+          "type": "reference",
+          "path": "3f680985f5c327d1c59fbc8c3b10b276:Special"
+        }
+      },
+      {
+        "type": "property",
+        "name": "self3",
+        "value": {
+          "type": "reference",
+          "path": "3f680985f5c327d1c59fbc8c3b10b276:Special"
+        }
+      },
+      {
+        "type": "property",
+        "name": "self4",
+        "value": {
+          "type": "reference",
+          "path": "3f680985f5c327d1c59fbc8c3b10b276:Special"
         }
       }
     ]

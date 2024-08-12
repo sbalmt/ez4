@@ -47,10 +47,10 @@ export const getTypeArguments = (
     const type = types?.at(index);
 
     if (type) {
-      const name = parameter.name.getText();
+      const parameterName = parameter.name.getText();
       const parameterType = tryTypes(type, context, state);
 
-      newTypes[name] = parameterType;
+      newTypes[parameterName] = parameterType;
     }
   });
 

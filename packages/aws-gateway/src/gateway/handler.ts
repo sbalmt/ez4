@@ -3,21 +3,36 @@ import type { StepHandler } from '@ez4/stateful';
 import type { GatewayState, GatewayResult, GatewayParameters } from './types.js';
 
 import { applyTagUpdates, ReplaceResourceError } from '@ez4/aws-common';
-import { deepEqual } from '@ez4/utils';
+import { deepCompare, deepEqual } from '@ez4/utils';
 
 import { createGateway, deleteGateway, tagGateway, untagGateway, updateGateway } from './client.js';
 import { GatewayServiceName } from './types.js';
 
 export const getGatewayHandler = (): StepHandler<GatewayState> => ({
   equals: equalsResource,
-  replace: replaceResource,
   create: createResource,
+  replace: replaceResource,
+  preview: previewResource,
   update: updateResource,
   delete: deleteResource
 });
 
 const equalsResource = (candidate: GatewayState, current: GatewayState) => {
   return !!candidate.result && candidate.result.apiId === current.result?.apiId;
+};
+
+const previewResource = async (candidate: GatewayState, current: GatewayState) => {
+  const parameters = candidate.parameters;
+  const changes = deepCompare(parameters, current.parameters);
+
+  if (!changes.counts) {
+    return undefined;
+  }
+
+  return {
+    ...changes,
+    name: parameters.gatewayId
+  };
 };
 
 const replaceResource = async (candidate: GatewayState, current: GatewayState) => {

@@ -10,6 +10,7 @@ import { hasModifierExport } from '../helpers/modifier.js';
 import { tryModelMembers } from './model-members.js';
 import { getTypeArguments } from './type-parameter.js';
 import { isTypeInterface } from './type-interface.js';
+import { isTypeAlias } from './type-alias.js';
 import { isTypeClass } from './type-class.js';
 import { getNewState } from './common.js';
 
@@ -36,11 +37,7 @@ export const tryHeritageMember = (node: Node, context: Context, state: State) =>
 
   const declaration = getNodeTypeDeclaration(node.expression, context.checker);
 
-  if (!declaration) {
-    return null;
-  }
-
-  if ((!isTypeClass(declaration) && !isTypeInterface(declaration)) || isInternalType(declaration)) {
+  if (!declaration || isInternalType(declaration)) {
     return null;
   }
 
@@ -52,13 +49,17 @@ export const tryHeritageMember = (node: Node, context: Context, state: State) =>
   const namespace = getAccessNamespace(node.expression);
   const types = node.typeArguments;
 
-  if (!types) {
+  if (!types || isTypeAlias(declaration)) {
     return createModelHeritage(identity, namespace);
   }
 
-  const newState = getNewState({ types: state.types });
-  const newTypes = getTypeArguments(declaration, types, context, newState);
-  const results = tryModelMembers(declaration, context, { ...state, types: newTypes });
+  if (isTypeClass(declaration) || isTypeInterface(declaration)) {
+    const newState = getNewState({ types: state.types });
+    const newTypes = getTypeArguments(declaration, types, context, newState);
+    const results = tryModelMembers(declaration, context, { ...state, types: newTypes });
 
-  return createModelHeritage(identity, namespace, results);
+    return createModelHeritage(identity, namespace, results);
+  }
+
+  return null;
 };

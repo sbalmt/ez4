@@ -3,10 +3,9 @@ import type { StepContext, StepHandler } from '@ez4/stateful';
 import type { FunctionState, FunctionResult, FunctionParameters } from './types.js';
 
 import { InvalidParameterValueException } from '@aws-sdk/client-lambda';
-
+import { applyTagUpdates, ReplaceResourceError, waitDeletion } from '@ez4/aws-common';
+import { deepCompare, deepEqual, hashFile, waitFor } from '@ez4/utils';
 import { getRoleArn } from '@ez4/aws-identity';
-import { applyTagUpdates, ReplaceResourceError } from '@ez4/aws-common';
-import { deepEqual, hashFile, waitFor } from '@ez4/utils';
 
 import {
   createFunction,
@@ -21,14 +20,39 @@ import { FunctionServiceName } from './types.js';
 
 export const getFunctionHandler = (): StepHandler<FunctionState> => ({
   equals: equalsResource,
-  replace: replaceResource,
   create: createResource,
+  replace: replaceResource,
+  preview: previewResource,
   update: updateResource,
   delete: deleteResource
 });
 
 const equalsResource = (candidate: FunctionState, current: FunctionState) => {
   return !!candidate.result && candidate.result.functionArn === current.result?.functionArn;
+};
+
+const previewResource = async (candidate: FunctionState, current: FunctionState) => {
+  const parameters = candidate.parameters;
+
+  const changes = deepCompare(
+    {
+      ...candidate.parameters,
+      sourceHash: await hashFile(parameters.sourceFile)
+    },
+    {
+      ...current.parameters,
+      sourceHash: current.result?.sourceHash
+    }
+  );
+
+  if (!changes.counts) {
+    return undefined;
+  }
+
+  return {
+    ...changes,
+    name: parameters.functionName
+  };
 };
 
 const replaceResource = async (
@@ -57,6 +81,8 @@ const createResource = async (
 
   let lastError;
 
+  // If the given roleArn is new and still propagating on AWS, the creation
+  // will fail, `waitFor` will keep retrying until max attempts.
   const response = await waitFor(async () => {
     try {
       return await createFunction({
@@ -129,7 +155,7 @@ const deleteResource = async (candidate: FunctionState) => {
   const result = candidate.result;
 
   if (result) {
-    await deleteFunction(result.functionName);
+    await waitDeletion(() => deleteFunction(result.functionName));
   }
 };
 
@@ -171,7 +197,7 @@ const checkSourceCodeUpdates = async (
   const sourceHash = await hashFile(sourceFile);
 
   if (sourceHash !== current?.sourceHash) {
-    await updateSourceCode(functionName, sourceFile);
+    await updateSourceCode(functionName, candidate);
   }
 
   return sourceHash;

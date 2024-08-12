@@ -23,7 +23,7 @@ export const prepareExecutionRole = async (state: EntryStates, options: DeployOp
   );
 
   if (!role) {
-    throw new MissingProviderError(`'deploy:prepareExecutionRole'`);
+    throw new MissingProviderError('deploy:prepareExecutionRole');
   }
 
   return role;

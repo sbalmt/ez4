@@ -1,4 +1,4 @@
-import type { SchemaTypeName } from './common.js';
+import type { ExtraSchema, SchemaTypeName } from './common.js';
 
 export type EnumSchemaOption = {
   value: string | number;
@@ -11,4 +11,5 @@ export type EnumSchema = {
   description?: string;
   optional?: boolean;
   nullable?: boolean;
+  extra?: ExtraSchema;
 };

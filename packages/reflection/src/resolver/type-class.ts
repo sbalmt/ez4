@@ -56,11 +56,11 @@ export const tryTypeClass = (node: Node, context: Context, state: State) => {
   const heritageTypes = tryModelHeritage(node, context, state);
   const memberTypes = tryModelMembers(node, context, state);
 
-  if (heritageTypes?.length) {
+  if (heritageTypes.length) {
     reflectedType.heritage = heritageTypes;
   }
 
-  if (memberTypes?.length) {
+  if (memberTypes.length) {
     reflectedType.members = memberTypes;
   }
 

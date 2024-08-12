@@ -1,4 +1,4 @@
-import type { ObjectSchema } from '@ez4/schema';
+import type { ObjectSchema, UnionSchema } from '@ez4/schema';
 import type { Queue } from '@ez4/queue';
 
 import { getUniqueErrorMessages } from '@ez4/validator';
@@ -8,7 +8,7 @@ import { MalformedMessageError } from './errors.js';
 
 export const getJsonMessage = async <T extends Queue.Message>(
   rawInput: T,
-  schema: ObjectSchema
+  schema: ObjectSchema | UnionSchema
 ) => {
   const errors = await validate(rawInput, schema);
 

@@ -6,4 +6,6 @@ export type HttpRoute = {
   path: HttpPath;
   handler: HttpHandler;
   variables?: LinkedVariables | null;
+  timeout?: number;
+  memory?: number;
 };

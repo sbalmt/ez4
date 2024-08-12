@@ -1,0 +1,110 @@
+import type { EntryState, EntryStates } from '@ez4/stateful';
+
+import { describe, it } from 'node:test';
+import { ok, equal } from 'node:assert/strict';
+
+import { deepClone } from '@ez4/utils';
+import { createTable, isTable, AttributeType, AttributeKeyType } from '@ez4/aws-dynamodb';
+import { deploy } from '@ez4/aws-common';
+
+const assertDeploy = async <E extends EntryState>(
+  resourceId: string,
+  newState: EntryStates<E>,
+  oldState: EntryStates<E> | undefined
+) => {
+  const { result: state } = await deploy(newState, oldState);
+
+  const resource = state[resourceId];
+
+  ok(resource?.result);
+  ok(isTable(resource));
+
+  const { tableName, tableArn } = resource.result;
+
+  ok(tableName);
+  ok(tableArn);
+
+  return {
+    result: resource.result,
+    state
+  };
+};
+
+describe.only('dynamodb table', () => {
+  let lastState: EntryStates | undefined;
+  let tableId: string | undefined;
+
+  it('assert :: deploy', async () => {
+    const localState: EntryStates = {};
+
+    const resource = createTable(localState, {
+      tableName: 'ez4TestTable',
+      enableStreams: true,
+      attributeSchema: [
+        {
+          attributeName: 'id',
+          attributeType: AttributeType.String,
+          keyType: AttributeKeyType.Hash
+        },
+        {
+          attributeName: 'order',
+          attributeType: AttributeType.Number,
+          keyType: AttributeKeyType.Range
+        }
+      ],
+      tags: {
+        test1: 'ez4-tag1',
+        test2: 'ez4-tag2'
+      }
+    });
+
+    tableId = resource.entryId;
+
+    const { state } = await assertDeploy(tableId, localState, undefined);
+
+    lastState = state;
+  });
+
+  it('assert :: update', async () => {
+    ok(tableId && lastState);
+
+    const localState = deepClone(lastState) as EntryStates;
+    const resource = localState[tableId];
+
+    ok(resource && isTable(resource));
+
+    resource.parameters.allowDeletion = true;
+    resource.parameters.enableStreams = false;
+
+    const { state } = await assertDeploy(tableId, localState, lastState);
+
+    lastState = state;
+  });
+
+  it('assert :: update tags', async () => {
+    ok(tableId && lastState);
+
+    const localState = deepClone(lastState) as EntryStates;
+    const resource = localState[tableId];
+
+    ok(resource && isTable(resource));
+
+    resource.parameters.tags = {
+      test2: 'ez4-tag2',
+      test3: 'ez4-tag3'
+    };
+
+    const { state } = await assertDeploy(tableId, localState, lastState);
+
+    lastState = state;
+  });
+
+  it('assert :: destroy', async () => {
+    ok(tableId && lastState);
+    ok(lastState[tableId]);
+
+    const { result } = await deploy(undefined, lastState);
+
+    equal(result[tableId], undefined);
+  });
+});

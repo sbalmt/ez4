@@ -1,3 +1,5 @@
+import type { Object } from '@ez4/schema';
+
 /**
  * Referenced object.
  */
@@ -56,4 +58,9 @@ export interface ObjectTestSchema {
    * Nullable and optional property.
    */
   both?: ObjectType | null;
+
+  /**
+   * Any object type.
+   */
+  any: Object.Any;
 }

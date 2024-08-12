@@ -16,7 +16,7 @@ export const getSubscriptionHandler = (
   }
 
   const handler: Incomplete<SubscriptionHandler> = {};
-  const properties = new Set(['name', 'file', 'schema']);
+  const properties = new Set(['name', 'file', 'request']);
 
   if (type.description) {
     handler.description = type.description;
@@ -30,13 +30,11 @@ export const getSubscriptionHandler = (
     properties.delete('file');
   }
 
-  if (type.parameters) {
-    if ((handler.schema = getQueueMessage(type.parameters[0].value, type, reflection, errorList))) {
-      properties.delete('schema');
-    }
+  if (type.parameters && getQueueMessage(type.parameters[0].value, type, reflection, errorList)) {
+    properties.delete('request');
   }
 
-  if (isValidHandler(handler)) {
+  if (properties.size === 0 && isValidHandler(handler)) {
     return handler;
   }
 
@@ -46,5 +44,5 @@ export const getSubscriptionHandler = (
 };
 
 const isValidHandler = (type: Incomplete<SubscriptionHandler>): type is SubscriptionHandler => {
-  return !!type.name && !!type.file && !!type.schema;
+  return !!type.name && !!type.file;
 };

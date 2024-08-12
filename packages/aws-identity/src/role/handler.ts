@@ -4,7 +4,7 @@ import type { PolicyState } from '../policy/types.js';
 import type { RoleState, RoleResult, RoleParameters } from './types.js';
 
 import { applyTagUpdates, IncompleteResourceError, ReplaceResourceError } from '@ez4/aws-common';
-import { deepEqual } from '@ez4/utils';
+import { deepCompare, deepEqual } from '@ez4/utils';
 
 import {
   attachPolicy,
@@ -24,14 +24,29 @@ type ContextResources = RoleState | PolicyState;
 
 export const getRoleHandler = (): StepHandler<RoleState> => ({
   equals: equalsResource,
-  replace: replaceResource,
   create: createResource,
+  replace: replaceResource,
+  preview: previewResource,
   update: updateResource,
   delete: deleteResource
 });
 
 const equalsResource = (candidate: RoleState, current: RoleState) => {
   return !!candidate.result && candidate.result.roleArn === current.result?.roleArn;
+};
+
+const previewResource = async (candidate: RoleState, current: RoleState) => {
+  const parameters = candidate.parameters;
+  const changes = deepCompare(parameters, current.parameters);
+
+  if (!changes.counts) {
+    return undefined;
+  }
+
+  return {
+    ...changes,
+    name: parameters.roleName
+  };
 };
 
 const replaceResource = async (

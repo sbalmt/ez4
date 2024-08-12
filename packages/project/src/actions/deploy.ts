@@ -9,7 +9,7 @@ export const applyDeploy = async (newState: EntryStates, oldState: EntryStates) 
   );
 
   if (!result) {
-    throw new MissingProviderError(`'deploy:apply'`);
+    throw new MissingProviderError('deploy:apply');
   }
 
   return result;

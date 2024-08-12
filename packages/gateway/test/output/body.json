@@ -1,15 +1,15 @@
 {
   "TestService": {
     "type": "@ez4/http",
+    "id": "TestService",
+    "name": null,
     "description": "Service for testing query strings.",
-    "id": "ez4-test-service",
-    "name": "Test Service",
     "routes": [
       {
         "path": "GET /test-route",
         "handler": {
           "name": "testRoute",
-          "file": "test/input/body.ts",
+          "file": "test/input/output-body.ts",
           "request": {
             "body": {
               "type": "object",

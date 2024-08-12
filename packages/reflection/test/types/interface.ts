@@ -19,7 +19,7 @@ interface TemplateInterface<T> extends BaseInterface {
   templateMethod(input: T): T;
 }
 
-interface ConcreteInterface extends TemplateInterface<never> {}
+interface ConcreteInterface extends TemplateInterface<never>, Type<{ field: unknown }> {}
 
 // Merged interfaces must have an export modifier to be in the reflection result.
 // Otherwise only one interface will be in the reflection result when referenced.
@@ -39,7 +39,7 @@ export interface Interface {
   regular4: ConcreteInterface;
   regular5: MergeInterface;
 
-  // Regular Method
+  // Regular method
   method1(): void;
   method2(param: any): void;
   method3(...param: any[]): void;

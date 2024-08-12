@@ -1,15 +1,14 @@
 {
   "TestService": {
     "type": "@ez4/http",
+    "id": "TestService",
     "description": "Service for testing routes.",
-    "id": "ez4-test-service",
-    "name": "Test Service",
     "routes": [
       {
         "path": "ANY /test-route-1",
         "handler": {
           "name": "testRoute",
-          "file": "test/input/route.ts",
+          "file": "test/input/output-route.ts",
           "response": {
             "type": "object",
             "properties": {
@@ -23,12 +22,14 @@
       },
       {
         "path": "GET /test-route-2",
+        "timeout": 30,
+        "memory": 512,
         "variables": {
           "TEST_VAR": "test-literal-value"
         },
         "handler": {
           "name": "testRoute",
-          "file": "test/input/route.ts",
+          "file": "test/input/output-route.ts",
           "response": {
             "type": "object",
             "properties": {

@@ -1,10 +1,7 @@
-import type { Http, SuccessResponse } from '@ez4/gateway';
+import type { Http } from '@ez4/gateway';
+import type { SuccessResponse } from './common.js';
 
 export declare class TestService1 extends Http.Service {
-  id: 'ez4-test-service';
-
-  name: 'Test Service 1';
-
   // @ts-ignore Missing required route path.
   routes: [
     {
@@ -14,10 +11,6 @@ export declare class TestService1 extends Http.Service {
 }
 
 export declare class TestService2 extends Http.Service {
-  id: 'ez4-test-service';
-
-  name: 'Test Service 2';
-
   // @ts-ignore Missing required route handler.
   routes: [
     {

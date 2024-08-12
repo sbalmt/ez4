@@ -53,13 +53,15 @@ export const createRoute = async (
 export const updateRoute = async (apiId: string, routeId: string, request: UpdateRequest) => {
   Logger.logUpdate(RouteServiceName, routeId);
 
+  const { integrationId, operationName, routePath } = request;
+
   await client.send(
     new UpdateRouteCommand({
       ApiId: apiId,
       RouteId: routeId,
-      OperationName: request.operationName,
-      RouteKey: request.routePath,
-      ...(request.integrationId && { Target: `integrations/${request.integrationId}` })
+      OperationName: operationName,
+      RouteKey: routePath,
+      ...(integrationId && { Target: `integrations/${integrationId}` })
     })
   );
 };

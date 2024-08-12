@@ -2,8 +2,8 @@ import type { EntryStates, StepHandlers } from '@ez4/stateful';
 import type { TestEntryState } from './common/entry.js';
 
 import { planSteps, applySteps } from '@ez4/stateful';
+import { ok, equal, deepEqual, notEqual } from 'node:assert/strict';
 import { describe, it, mock } from 'node:test';
-import { ok, equal, notEqual } from 'node:assert/strict';
 
 import { commonStepHandler } from './common/handler.js';
 import { TestEntryType } from './common/entry.js';
@@ -34,12 +34,14 @@ describe.only('apply tests', () => {
       }
     };
 
-    const steps = planSteps(baseState, undefined, handlers);
+    const steps = await planSteps(baseState, undefined, handlers);
 
     const { result } = await applySteps(steps, baseState, undefined, handlers);
 
     equal(createHandler.mock.callCount(), 1);
-    equal(result.entryA?.result, 'created');
+    deepEqual(result.entryA?.result, {
+      type: 'created'
+    });
   });
 
   it('assert :: replace action', async () => {
@@ -61,12 +63,14 @@ describe.only('apply tests', () => {
       }
     };
 
-    const steps = planSteps(newState, baseState, handlers);
+    const steps = await planSteps(newState, baseState, handlers);
 
     const { result } = await applySteps(steps, newState, baseState, handlers);
 
     equal(replaceHandler.mock.callCount(), 1);
-    equal(result.entryA?.result, 'replaced');
+    deepEqual(result.entryA?.result, {
+      type: 'replaced'
+    });
   });
 
   it('assert :: update action', async () => {
@@ -83,12 +87,14 @@ describe.only('apply tests', () => {
       ...baseState
     };
 
-    const steps = planSteps(newState, baseState, handlers);
+    const steps = await planSteps(newState, baseState, handlers);
 
     const { result } = await applySteps(steps, newState, baseState, handlers);
 
     equal(updateHandler.mock.callCount(), 1);
-    equal(result.entryA?.result, 'updated');
+    deepEqual(result.entryA?.result, {
+      type: 'updated'
+    });
   });
 
   it('assert :: delete action', async () => {
@@ -101,12 +107,34 @@ describe.only('apply tests', () => {
       }
     };
 
-    const steps = planSteps(undefined, baseState, handlers);
+    const steps = await planSteps(undefined, baseState, handlers);
 
     const { result } = await applySteps(steps, undefined, baseState, handlers);
 
     equal(deleteHandler.mock.callCount(), 1);
     equal(result.entryA, undefined);
+  });
+
+  it('assert :: update no preview', async () => {
+    const previewHandler = mock.fn(() => undefined);
+
+    const handlers: StepHandlers<TestEntryState> = {
+      [TestEntryType.A]: {
+        ...commonStepHandler,
+        preview: previewHandler
+      }
+    };
+
+    const newState = {
+      ...baseState
+    };
+
+    const steps = await planSteps(newState, baseState, handlers);
+
+    const { result } = await applySteps(steps, newState, baseState, handlers);
+
+    equal(previewHandler.mock.callCount(), 1);
+    equal(result.entryA?.result, undefined);
   });
 
   it('assert :: update rollback', async () => {
@@ -125,13 +153,14 @@ describe.only('apply tests', () => {
       ...baseState
     };
 
-    const steps = planSteps(newState, baseState, handlers);
+    const steps = await planSteps(newState, baseState, handlers);
 
     const { result, errors } = await applySteps(steps, newState, baseState, handlers);
 
     equal(updateHandler.mock.callCount(), 1);
-
-    notEqual(result.entryA?.result, 'updated');
+    notEqual(result.entryA?.result, {
+      type: 'updated'
+    });
 
     equal(errors.length, 1);
     ok(errors[0] instanceof TestError);
@@ -149,7 +178,7 @@ describe.only('apply tests', () => {
       }
     };
 
-    const steps = planSteps(undefined, baseState, handlers);
+    const steps = await planSteps(undefined, baseState, handlers);
 
     const { result, errors } = await applySteps(steps, undefined, baseState, handlers);
 

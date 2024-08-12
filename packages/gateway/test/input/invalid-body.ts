@@ -1,4 +1,5 @@
-import type { Http, SuccessResponse } from '@ez4/gateway';
+import type { Http } from '@ez4/gateway';
+import type { SuccessResponse } from './common.js';
 
 // Concrete class is not allowed.
 class TestBody implements Http.JsonBody {}
@@ -8,10 +9,6 @@ declare class TestRequest implements Http.Request {
 }
 
 export declare class TestService extends Http.Service<[TestRequest]> {
-  id: 'ez4-test-service';
-
-  name: 'Test Service';
-
   routes: [
     {
       path: 'ANY /test-route';

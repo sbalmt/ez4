@@ -5,7 +5,8 @@ import {
   createString,
   isTypeNumber,
   isModelProperty,
-  isTypeString
+  isTypeString,
+  createObject
 } from '@ez4/reflection';
 
 export type RichTypes = {
@@ -76,6 +77,12 @@ export const createRichType = (richTypes: RichTypes) => {
         ...createString(),
         ...(minLength && { minLength }),
         ...(maxLength && { maxLength })
+      };
+
+    case 'object':
+      return {
+        ...createObject('@ez4/schema'),
+        extensible: true
       };
 
     default:

@@ -41,8 +41,8 @@ const baseState: EntryStates<TestEntryState> = {
 };
 
 describe.only('plan tests', () => {
-  it('assert :: create actions order', () => {
-    const steps = planSteps(baseState, undefined, commonStepHandlers);
+  it('assert :: create actions order', async () => {
+    const steps = await planSteps(baseState, undefined, commonStepHandlers);
 
     equal(steps.length, 4);
 
@@ -63,7 +63,7 @@ describe.only('plan tests', () => {
     equal(steps[3].order, 3);
   });
 
-  it('assert :: replace actions order', () => {
+  it('assert :: replace actions order', async () => {
     ok(baseState.entryC);
 
     const newState: EntryStates<TestEntryState> = {
@@ -75,7 +75,7 @@ describe.only('plan tests', () => {
       }
     };
 
-    const steps = planSteps(newState, baseState, commonStepHandlers);
+    const steps = await planSteps(newState, baseState, commonStepHandlers);
 
     equal(steps.length, 4);
 
@@ -96,7 +96,7 @@ describe.only('plan tests', () => {
     equal(steps[3].order, 3);
   });
 
-  it('assert :: update actions order', () => {
+  it('assert :: update actions order', async () => {
     ok(baseState.entryA);
 
     const newState: EntryStates<TestEntryState> = {
@@ -112,7 +112,7 @@ describe.only('plan tests', () => {
       }
     };
 
-    const steps = planSteps(newState, baseState, commonStepHandlers);
+    const steps = await planSteps(newState, baseState, commonStepHandlers);
 
     equal(steps.length, 5);
 
@@ -137,8 +137,8 @@ describe.only('plan tests', () => {
     equal(steps[4].order, 0);
   });
 
-  it('assert :: delete actions order', () => {
-    const steps = planSteps(undefined, baseState, commonStepHandlers);
+  it('assert :: delete actions order', async () => {
+    const steps = await planSteps(undefined, baseState, commonStepHandlers);
 
     equal(steps.length, 4);
 

@@ -55,16 +55,18 @@ export const updateStage = async (
 ) => {
   Logger.logUpdate(StageServiceName, stageName);
 
-  if (request.stageVariables) {
-    assertVariables(StageServiceName, request.stageVariables);
+  const { stageVariables, autoDeploy } = request;
+
+  if (stageVariables) {
+    assertVariables(StageServiceName, stageVariables);
   }
 
   await client.send(
     new UpdateStageCommand({
       ApiId: apiId,
       StageName: stageName,
-      StageVariables: request.stageVariables,
-      AutoDeploy: request.autoDeploy
+      StageVariables: stageVariables,
+      AutoDeploy: autoDeploy
     })
   );
 };

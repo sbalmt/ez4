@@ -6,7 +6,7 @@ import { CorruptedStateReferences, HandlerNotFoundError, EntriesNotFoundError } 
 import { hydrateState } from './hydrate.js';
 import { StepAction } from './step.js';
 
-export const planSteps = <E extends EntryState>(
+export const planSteps = async <E extends EntryState>(
   newEntries: EntryStates<E> | undefined,
   oldEntries: EntryStates<E> | undefined,
   handlers: StepHandlers<E>
@@ -28,7 +28,13 @@ export const planSteps = <E extends EntryState>(
         break;
       }
 
-      const nextSteps = planPendingToCreate(entries, newEntrySet, oldEntries, handlers, order);
+      const nextSteps = await planPendingToCreate(
+        entries,
+        newEntrySet,
+        oldEntries,
+        handlers,
+        order
+      );
 
       stepList.push(...nextSteps);
     }
@@ -83,14 +89,16 @@ const findPendingToDelete = <E extends EntryState>(
   });
 };
 
-const planPendingToCreate = <E extends EntryState<T>, T extends string>(
+const planPendingToCreate = async <E extends EntryState<T>, T extends string>(
   entryList: E[],
   visitSet: Set<string>,
   oldEntries: EntryStates<E> | undefined,
   handlers: StepHandlers<E>,
   order: number
 ) => {
-  return entryList.map<StepState>((candidate) => {
+  const stateList: StepState[] = [];
+
+  for (const candidate of entryList) {
     const { type, entryId } = candidate;
 
     const current = oldEntries && oldEntries[entryId];
@@ -103,15 +111,21 @@ const planPendingToCreate = <E extends EntryState<T>, T extends string>(
     visitSet.add(entryId);
 
     if (!current) {
-      return { action: StepAction.Create, entryId, order };
+      stateList.push({ action: StepAction.Create, entryId, order });
+      continue;
     }
 
     if (type !== current.type || !handler.equals(candidate, current)) {
-      return { action: StepAction.Replace, entryId, order };
+      stateList.push({ action: StepAction.Replace, entryId, order });
+      continue;
     }
 
-    return { action: StepAction.Update, entryId, order };
-  });
+    const preview = await handler.preview(candidate, current);
+
+    stateList.push({ action: StepAction.Update, entryId, order, preview });
+  }
+
+  return stateList;
 };
 
 const planPendingToDelete = <E extends EntryState>(

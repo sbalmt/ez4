@@ -1,18 +1,10 @@
 import type { Queue } from '@ez4/queue';
 
 export declare class TestQueue extends Queue.Service {
-  name: 'Test Queue';
+  schema: TestMessage;
 
-  schema: {};
-
-  subscriptions: [
-    {
-      handler: typeof testHandler;
-    }
-  ];
+  subscriptions: [];
 }
 
 // Missing Queue.Message inheritance.
 declare class TestMessage {}
-
-export function testHandler(_message: TestMessage) {}

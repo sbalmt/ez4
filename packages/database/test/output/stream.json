@@ -1,0 +1,54 @@
+{
+  "TestDatabase": {
+    "type": "@ez4/database",
+    "name": "TestDatabase",
+    "tables": [
+      {
+        "name": "inlineTestTable",
+        "schema": {
+          "type": "object",
+          "properties": {
+            "foo": {
+              "type": "string"
+            }
+          }
+        },
+        "indexes": {},
+        "stream": {
+          "handler": {
+            "description": "Test table stream.",
+            "name": "streamHandler",
+            "file": "test/input/output-stream.ts"
+          },
+          "timeout": 10,
+          "memory": 256
+        }
+      },
+      {
+        "name": "testTable",
+        "schema": {
+          "type": "object",
+          "properties": {
+            "foo": {
+              "type": "string"
+            }
+          }
+        },
+        "indexes": {},
+        "stream": {
+          "handler": {
+            "description": "Test table stream.",
+            "name": "streamHandler",
+            "file": "test/input/output-stream.ts"
+          },
+          "variables": {
+            "TEST_VAR": "test-literal-value"
+          }
+        }
+      }
+    ],
+    "services": {
+      "selfClient": "TestDatabase"
+    }
+  }
+}

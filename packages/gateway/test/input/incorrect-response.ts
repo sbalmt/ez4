@@ -4,10 +4,6 @@ import type { Http } from '@ez4/gateway';
 interface TestResponse {}
 
 export declare class TestService extends Http.Service {
-  id: 'ez4-test-service';
-
-  name: 'Test Service';
-
   // @ts-ignore doesn't respect typing.
   routes: [
     {

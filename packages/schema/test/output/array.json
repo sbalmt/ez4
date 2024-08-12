@@ -27,6 +27,7 @@
     },
     "nullable": {
       "type": "array",
+      "description": "Nullable property.",
       "element": {
         "type": "boolean"
       },
@@ -34,6 +35,7 @@
     },
     "optional": {
       "type": "array",
+      "description": "Optional property.",
       "element": {
         "type": "number"
       },
@@ -41,6 +43,7 @@
     },
     "both": {
       "type": "array",
+      "description": "Nullable and optional property.",
       "element": {
         "type": "string"
       },

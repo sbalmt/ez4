@@ -1,11 +1,11 @@
-import { AnyObject } from '@ez4/utils';
+import type { AnyObject, ObjectComparison } from '@ez4/utils';
+import type { EntryState } from '@ez4/stateful';
 
 import { toGray, toGreen, toRed } from '../console/format.js';
 
 export const formatReportChanges = (
-  changes: AnyObject,
-  target: AnyObject,
-  source: AnyObject,
+  changes: ObjectComparison,
+  source: EntryState | undefined,
   path?: string
 ) => {
   const length = getMaxPropertyLength({
@@ -13,6 +13,11 @@ export const formatReportChanges = (
     ...changes.update,
     ...changes.create
   });
+
+  const current = {
+    ...source?.parameters,
+    ...source?.result
+  };
 
   const createSign = toGreen(`+`);
   const removeSign = toRed(`-`);
@@ -24,45 +29,51 @@ export const formatReportChanges = (
   };
 
   const getOutputValue = (property: string, value: unknown) => {
-    return `${getOutputName(property).padEnd(length, ' ')} = ${toGray(formatValue(value))}`;
+    const name = getOutputName(property);
+    const size = length + (path ? path.length + 1 : 0);
+
+    return `${name.padEnd(size, ' ')} = ${toGray(formatValue(value))}`;
   };
 
   if (changes.remove) {
     for (const property in changes.remove) {
-      output.push(`${removeSign} ${getOutputValue(property, source[property])}`);
+      const oldValue = getOutputValue(property, changes.remove[property]);
+
+      output.push(`${removeSign} ${oldValue}`);
     }
   }
 
   if (changes.update) {
     for (const property in changes.update) {
-      output.push(`${removeSign} ${getOutputValue(property, source[property])}`);
-      output.push(`${createSign} ${getOutputValue(property, target[property])}`);
+      const newValue = getOutputValue(property, changes.update[property]);
+      const oldValue = getOutputValue(property, current[property]);
+
+      output.push(`${removeSign} ${newValue}`);
+      output.push(`${createSign} ${oldValue}`);
     }
   }
 
   if (changes.create) {
     for (const property in changes.create) {
-      output.push(`${createSign} ${getOutputValue(property, target[property])}`);
+      const newValue = getOutputValue(property, changes.create[property]);
+
+      output.push(`${createSign} ${newValue}`);
     }
   }
 
   if (changes.nested) {
     for (const property in changes.nested) {
-      output.push(
-        ...formatReportChanges(
-          changes.nested[property],
-          target[property],
-          source[property],
-          getOutputName(property)
-        )
-      );
+      const newValue = changes.nested[property];
+      const oldValue = current[property];
+
+      output.push(...formatReportChanges(newValue, oldValue, getOutputName(property)));
     }
   }
 
   return output;
 };
 
-const getMaxPropertyLength = (object: Record<string, unknown>) => {
+const getMaxPropertyLength = (object: AnyObject) => {
   let maxWidth = 0;
 
   for (const property in object) {
@@ -74,7 +85,11 @@ const getMaxPropertyLength = (object: Record<string, unknown>) => {
 
 const formatValue = (value: unknown) => {
   if (value instanceof Array) {
-    return `Array(${value.length})`;
+    return `[Array]`;
+  }
+
+  if (value instanceof Object) {
+    return `[Object]`;
   }
 
   return `${value}`;

@@ -14,6 +14,7 @@ const client = new ApiGatewayV2Client({});
 export type CreateRequest = {
   functionArn: Arn;
   description?: string;
+  timeout?: number;
   vpcId?: string;
 };
 
@@ -36,6 +37,7 @@ export const createIntegration = async (
       IntegrationType: 'AWS_PROXY',
       IntegrationMethod: 'POST',
       IntegrationUri: request.functionArn,
+      TimeoutInMillis: (request.timeout ?? 30) * 1000,
       ConnectionType: request.vpcId ? 'VPC_LINK' : 'INTERNET',
       ConnectionId: request.vpcId,
       PayloadFormatVersion: '2.0'

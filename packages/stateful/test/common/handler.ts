@@ -5,9 +5,10 @@ import { TestEntryType } from './entry.js';
 
 export const commonStepHandler: StepHandler<TestEntryState> = {
   equals: (_candidate, _current) => true,
-  create: (_candidate) => 'created',
-  replace: (_candidate, _current) => 'replaced',
-  update: (_candidate, _current) => 'updated',
+  create: (_candidate) => ({ type: 'created' }),
+  replace: (_candidate, _current) => ({ type: 'replaced' }),
+  preview: (_candidate, _current) => ({ counts: 1 }),
+  update: (_candidate, _current) => ({ type: 'updated' }),
   delete: (_candidate) => {}
 };
 

@@ -1,4 +1,4 @@
-import type { AnyObject } from './types.js';
+import type { AnyObject } from './generics.js';
 
 /**
  * Check whether the given value is an object.

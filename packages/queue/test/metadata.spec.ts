@@ -6,7 +6,7 @@ import { getReflection } from '@ez4/project';
 import { registerTriggers, getQueueServices } from '@ez4/queue/library';
 
 const testFile = (fileName: string, overwrite = false) => {
-  const sourceFile = `./test/input/${fileName}.ts`;
+  const sourceFile = `./test/input/output-${fileName}.ts`;
   const outputFile = `./test/output/${fileName}.json`;
 
   const reflection = getReflection([sourceFile]);

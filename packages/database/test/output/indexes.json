@@ -1,0 +1,56 @@
+{
+  "TestDatabase": {
+    "type": "@ez4/database",
+    "name": "TestDatabase",
+    "tables": [
+      {
+        "name": "inlineTestTable",
+        "schema": {
+          "type": "object",
+          "properties": {
+            "foo": {
+              "type": "string"
+            },
+            "bar": {
+              "type": "number"
+            },
+            "ttl": {
+              "type": "number"
+            }
+          }
+        },
+        "indexes": {
+          "foo": "primary",
+          "bar": "regular",
+          "ttl": "ttl",
+          "foo:ttl": "regular",
+          "bar:foo": "unique"
+        }
+      },
+      {
+        "name": "testTable",
+        "schema": {
+          "type": "object",
+          "properties": {
+            "baz": {
+              "type": "string"
+            },
+            "qux": {
+              "type": "number"
+            },
+            "ttl": {
+              "type": "number"
+            }
+          }
+        },
+        "indexes": {
+          "baz": "primary",
+          "qux": "regular",
+          "ttl": "ttl",
+          "baz:ttl": "regular",
+          "qux:baz": "unique"
+        }
+      }
+    ]
+  }
+}

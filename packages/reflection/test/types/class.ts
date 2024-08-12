@@ -11,7 +11,7 @@ abstract class AbstractClass {
   abstract method(): void;
 }
 
-class HeritageClass extends AbstractClass implements EmptyInterface {
+class HeritageClass extends AbstractClass implements EmptyInterface, Type<{ property: unknown }> {
   // @ts-ignore
   override property: void;
 
@@ -44,7 +44,7 @@ export class Class {
   regular4!: HeritageClass;
   regular5!: ConcreteClass;
 
-  // Regular Method
+  // Regular method
   method1(): void {}
   method2(_param: any): void {}
   method3(..._param: any[]): void {}
@@ -63,12 +63,12 @@ export class Class {
 }
 
 export declare class ClassWithModifiers {
-  // Property Modifiers
+  // Property modifiers
   private property1: any;
   protected property2: any;
   public property3: any;
 
-  // Method Modifiers
+  // Method modifiers
   private method1(): void;
   protected method2(): void;
   public method3(): void;

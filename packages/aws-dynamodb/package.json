@@ -1,0 +1,54 @@
+{
+  "name": "@ez4/aws-dynamodb",
+  "description": "EZ4: Self-managed AWS DynamoDB",
+  "version": "0.1.0",
+  "author": "Silas B.",
+  "license": "MIT",
+  "type": "module",
+  "exports": {
+    ".": {
+      "types": "./dist/main.d.ts",
+      "require": "./dist/main.cjs",
+      "import": "./dist/main.mjs"
+    },
+    "./runtime": {
+      "types": "./dist/runtime.d.ts",
+      "require": "./dist/runtime.cjs",
+      "import": "./dist/runtime.mjs"
+    },
+    "./client": {
+      "types": "./dist/client.d.ts",
+      "require": "./dist/client.cjs",
+      "import": "./dist/client.mjs"
+    }
+  },
+  "workspaces": [
+    "packages/*"
+  ],
+  "scripts": {
+    "clean": "rm -f *.tsbuildinfo && rm -rf dist/*",
+    "build": "tsc -p tsconfig.json && node tools/bundler.mjs",
+    "test": "npm run test:types && node --env-file ../../local.env --test --import ../../tools/tsnode.mjs test/*.spec.ts",
+    "test:only": "npm run test:types && node --env-file ../../local.env --test-only --test --import ../../tools/tsnode.mjs test/*.spec.ts",
+    "test:types": "npm run build && tsc -p tsconfig.test.json",
+    "local:publish": "npm run build && npm run clean:registry && npm publish --registry http://localhost:4873",
+    "clean:registry": "rm -rf ../../.registry/@ez4/aws-dynamodb",
+    "live:publish": "npm run test && npm publish --access public"
+  },
+  "devDependencies": {
+    "@types/aws-lambda": "^8.10.141"
+  },
+  "dependencies": {
+    "@aws-sdk/client-dynamodb": "^3.624.0",
+    "@aws-sdk/lib-dynamodb": "^3.624.0",
+    "@aws-sdk/util-dynamodb": "^3.624.0",
+    "@ez4/aws-common": "^0.1.0",
+    "@ez4/aws-identity": "^0.1.0",
+    "@ez4/database": "^0.1.0",
+    "@ez4/project": "^0.1.0",
+    "@ez4/schema": "^0.1.0",
+    "@ez4/stateful": "^0.1.0",
+    "@ez4/utils": "^0.1.0",
+    "@ez4/validator": "^0.1.0"
+  }
+}

@@ -20,25 +20,29 @@ export const validateObject = async (value: unknown, schema: ObjectSchema, prope
   const parentProperty = property;
   const allErrors: Error[] = [];
 
-  for (const property in schema.properties) {
-    allProperties.delete(property);
+  for (const childProperty in schema.properties) {
+    allProperties.delete(childProperty);
 
-    const objectProperty = `${parentProperty}.${property}`;
-    const valueSchema = schema.properties[property];
-    const objectValue = value[property];
+    const propertyPath = getObjectProperty(childProperty, parentProperty);
+    const childSchema = schema.properties[childProperty];
+    const childValue = value[childProperty];
 
-    const errorList = await validateAny(objectValue, valueSchema, objectProperty);
+    const errorList = await validateAny(childValue, childSchema, propertyPath);
 
     allErrors.push(...errorList);
   }
 
-  if (allProperties.size > 0) {
+  if (!schema.extensible && allProperties.size > 0) {
     const extraProperties = [...allProperties.values()].map((property) => {
-      return `${parentProperty}.${property}`;
+      return getObjectProperty(property, parentProperty);
     });
 
     allErrors.push(new UnexpectedPropertiesError(extraProperties));
   }
 
   return allErrors;
+};
+
+const getObjectProperty = (childProperty: string, parentProperty: string | undefined) => {
+  return parentProperty ? `${parentProperty}.${childProperty}` : childProperty;
 };

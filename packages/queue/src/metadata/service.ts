@@ -7,7 +7,7 @@ import {
   getLinkedServices,
   getLinkedVariables,
   getModelMembers,
-  getPropertyString,
+  getPropertyNumber,
   getPropertyTuple
 } from '@ez4/common/library';
 
@@ -31,8 +31,9 @@ export const getQueueServices = (reflection: SourceMap) => {
     }
 
     const service: Incomplete<QueueService> = { type: ServiceType };
+    const properties = new Set(['subscriptions', 'schema']);
 
-    const properties = new Set(['name', 'subscriptions', 'schema']);
+    service.name = statement.name;
 
     if (statement.description) {
       service.description = statement.description;
@@ -44,17 +45,21 @@ export const getQueueServices = (reflection: SourceMap) => {
       }
 
       switch (member.name) {
-        case 'name':
-          if ((service.name = getPropertyString(member))) {
-            properties.delete(member.name);
-          }
-          break;
-
         case 'schema':
           if ((service.schema = getQueueMessage(member.value, statement, reflection, errorList))) {
             properties.delete(member.name);
           }
           break;
+
+        case 'timeout':
+        case 'retention':
+        case 'delay': {
+          const value = getPropertyNumber(member);
+          if (value !== undefined && value !== null) {
+            service[member.name] = value;
+          }
+          break;
+        }
 
         case 'subscriptions':
           if ((service.subscriptions = getAllSubscription(member, reflection, errorList))) {

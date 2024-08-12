@@ -2,6 +2,7 @@ import type { Arn, ResourceTags } from '@ez4/aws-common';
 
 import {
   CreateQueueCommand,
+  SetQueueAttributesCommand,
   DeleteQueueCommand,
   SQSClient,
   TagQueueCommand,
@@ -17,6 +18,9 @@ const client = new SQSClient({});
 
 export type CreateRequest = {
   queueName: string;
+  timeout?: number;
+  retention?: number;
+  delay?: number;
   tags?: ResourceTags;
 };
 
@@ -25,8 +29,16 @@ export type CreateResponse = {
   queueArn: Arn;
 };
 
+export type UpdateRequest = {
+  timeout?: number;
+  retention?: number;
+  delay?: number;
+};
+
 export const createQueue = async (request: CreateRequest): Promise<CreateResponse> => {
   Logger.logCreate(QueueServiceName, request.queueName);
+
+  const { timeout, retention, delay } = request;
 
   const [region, accountId, response] = await Promise.all([
     getRegion(),
@@ -34,6 +46,11 @@ export const createQueue = async (request: CreateRequest): Promise<CreateRespons
     client.send(
       new CreateQueueCommand({
         QueueName: request.queueName,
+        Attributes: {
+          ...(timeout !== undefined && { VisibilityTimeout: timeout.toString() }),
+          ...(retention !== undefined && { MessageRetentionPeriod: (retention * 60).toString() }),
+          ...(delay !== undefined && { DelaySeconds: delay.toString() })
+        },
         tags: {
           ...request.tags,
           ManagedBy: 'EZ4'
@@ -46,6 +63,23 @@ export const createQueue = async (request: CreateRequest): Promise<CreateRespons
     queueUrl: response.QueueUrl!,
     queueArn: `arn:aws:sqs:${region}:${accountId}:${request.queueName}` as Arn
   };
+};
+
+export const updateQueue = async (queueUrl: string, request: UpdateRequest) => {
+  Logger.logUpdate(QueueServiceName, queueUrl);
+
+  const { timeout, retention, delay } = request;
+
+  await client.send(
+    new SetQueueAttributesCommand({
+      QueueUrl: queueUrl,
+      Attributes: {
+        ...(timeout !== undefined && { VisibilityTimeout: timeout.toString() }),
+        ...(retention !== undefined && { MessageRetentionPeriod: (retention * 60).toString() }),
+        ...(delay !== undefined && { DelaySeconds: delay.toString() })
+      }
+    })
+  );
 };
 
 export const tagQueue = async (queueUrl: string, tags: ResourceTags) => {

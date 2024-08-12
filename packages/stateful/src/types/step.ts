@@ -1,3 +1,4 @@
+import type { ObjectComparison } from '@ez4/utils';
 import type { StepAction } from '../state/step.js';
 
 import type { EntryState, TypedEntryState } from './entry.js';
@@ -9,6 +10,7 @@ export type StepState = {
   action: StepAction;
   entryId: string;
   order: number;
+  preview?: ObjectComparison;
 };
 
 /**
@@ -40,40 +42,55 @@ export type StepHandler<E extends EntryState = EntryState> = {
   /**
    * Handle entry creation.
    * @param candidate Candidate entry.
+   * @param context Action context.
    * @returns Must returns the resulting state of the create action.
    */
   create: (
     candidate: Readonly<E>,
     context: StepContext<E>
-  ) => unknown | undefined | Promise<unknown>;
+  ) => Record<string, any> | undefined | Promise<Record<string, any> | unknown>;
 
   /**
    * Handle entry replacement.
    * @param candidate Candidate entry.
    * @param current Current entry.
+   * @param context Action context.
    * @returns Must returns the resulting state of the replace action.
    */
   replace: (
     candidate: Readonly<E>,
     current: Readonly<E>,
     context: StepContext<E>
-  ) => unknown | undefined | Promise<unknown>;
+  ) => Record<string, any> | undefined | Promise<Record<string, any> | undefined>;
+
+  /**
+   * Handle entry preview.
+   * @param candidate Candidate entry.
+   * @param current Current entry.
+   * @returns Must returns the comparison object from the preview action.
+   */
+  preview: (
+    candidate: Readonly<E>,
+    current: Readonly<E>
+  ) => ObjectComparison | undefined | Promise<ObjectComparison | undefined>;
 
   /**
    * Handle entry updates.
    * @param candidate Candidate entry.
    * @param current Current entry.
+   * @param context Action context.
    * @returns Must returns the resulting state of the update action.
    */
   update: (
     candidate: Readonly<E>,
     current: Readonly<E>,
     context: StepContext<E>
-  ) => unknown | undefined | Promise<unknown>;
+  ) => Record<string, any> | undefined | Promise<Record<string, any> | undefined>;
 
   /**
    * Handle entry deletion.
    * @param candidate Candidate entry.
+   * @param context Action context.
    * @returns Must returns the resulting state of the delete action.
    */
   delete: (candidate: Readonly<E>, context: StepContext<E>) => void | Promise<void>;

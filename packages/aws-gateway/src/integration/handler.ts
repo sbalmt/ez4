@@ -1,25 +1,31 @@
 import type { StepContext, StepHandler } from '@ez4/stateful';
 import type { IntegrationState, IntegrationResult, IntegrationParameters } from './types.js';
 
-import { ReplaceResourceError } from '@ez4/aws-common';
 import { getFunctionArn } from '@ez4/aws-function';
-import { deepEqual } from '@ez4/utils';
-
-import { createIntegration, deleteIntegration, updateIntegration } from './client.js';
+import { ReplaceResourceError } from '@ez4/aws-common';
+import { deepCompare, deepEqual } from '@ez4/utils';
 
 import { getGatewayId } from '../gateway/utils.js';
+import { createIntegration, deleteIntegration, updateIntegration } from './client.js';
 import { IntegrationServiceName } from './types.js';
 
 export const getIntegrationHandler = (): StepHandler<IntegrationState> => ({
   equals: equalsResource,
-  replace: replaceResource,
   create: createResource,
+  replace: replaceResource,
+  preview: previewResource,
   update: updateResource,
   delete: deleteResource
 });
 
 const equalsResource = (candidate: IntegrationState, current: IntegrationState) => {
   return !!candidate.result && candidate.result.integrationId === current.result?.integrationId;
+};
+
+const previewResource = async (candidate: IntegrationState, current: IntegrationState) => {
+  const changes = deepCompare(candidate.parameters, current.parameters);
+
+  return changes.counts ? changes : undefined;
 };
 
 const replaceResource = async (

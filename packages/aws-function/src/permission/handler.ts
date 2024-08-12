@@ -9,14 +9,20 @@ import { PermissionServiceName } from './types.js';
 
 export const getPermissionHandler = (): StepHandler<PermissionState> => ({
   equals: equalsResource,
-  replace: replaceResource,
   create: createResource,
+  replace: replaceResource,
+  preview: previewResource,
   update: updateResource,
   delete: deleteResource
 });
 
 const equalsResource = (candidate: PermissionState, current: PermissionState) => {
   return !!candidate.result && candidate.result.functionName === current.result?.functionName;
+};
+
+const previewResource = async (_candidate: PermissionState, _current: PermissionState) => {
+  // Permission is generated dynamically, no changes to compare.
+  return undefined;
 };
 
 const replaceResource = async (
@@ -35,14 +41,15 @@ const createResource = async (
   candidate: PermissionState,
   context: StepContext<PermissionState>
 ): Promise<PermissionResult> => {
-  const functionName = getFunctionName(PermissionServiceName, 'permission', context);
+  const parameters = candidate.parameters;
 
-  const parameters = await candidate.parameters(context);
+  const functionName = getFunctionName(PermissionServiceName, 'permission', context);
+  const permission = await parameters.getPermission(context);
 
   const response = await createPermission({
     functionName,
-    principal: parameters.principal,
-    sourceArn: parameters.sourceArn,
+    principal: permission.principal,
+    sourceArn: permission.sourceArn,
     action: 'lambda:InvokeFunction'
   });
 

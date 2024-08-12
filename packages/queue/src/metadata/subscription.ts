@@ -2,7 +2,13 @@ import type { Incomplete } from '@ez4/utils';
 import type { AllType, EveryMemberType, SourceMap, TypeModel, TypeObject } from '@ez4/reflection';
 import type { QueueSubscription } from '../types/subscription.js';
 
-import { getLinkedVariables, getModelMembers, getObjectMembers } from '@ez4/common/library';
+import {
+  getLinkedVariables,
+  getModelMembers,
+  getObjectMembers,
+  getPropertyNumber
+} from '@ez4/common/library';
+
 import { isModelProperty, isTypeObject, isTypeReference } from '@ez4/reflection';
 
 import { IncompleteSubscriptionError } from '../errors/subscription.js';
@@ -57,6 +63,14 @@ const getTypeFromMembers = (
       case 'handler': {
         if ((subscription.handler = getSubscriptionHandler(member.value, reflection, errorList))) {
           properties.delete(member.name);
+        }
+        break;
+      }
+
+      case 'memory': {
+        const value = getPropertyNumber(member);
+        if (value !== undefined && value !== null) {
+          subscription.memory = value;
         }
         break;
       }

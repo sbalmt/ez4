@@ -1,4 +1,4 @@
-import type { SchemaTypeName } from './common.js';
+import type { ExtraSchema, SchemaTypeName } from './common.js';
 
 export type StringSchema = {
   type: SchemaTypeName.String;
@@ -8,4 +8,5 @@ export type StringSchema = {
   minLength?: number;
   maxLength?: number;
   format?: string;
+  extra?: ExtraSchema;
 };

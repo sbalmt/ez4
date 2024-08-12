@@ -1,15 +1,15 @@
-/**
- * It resolves to `true` when the given array is empty or contains `undefined` in
- * its first item, `false` otherwise.
- */
-export type IsArrayEmpty<T extends any[]> = T[0] extends undefined ? true : false;
+import type { IsAny } from '../main.js';
 
 /**
- * Given an array, return all items, except the first one.
+ * Based on the given array type `T`, it return `true` when `T` is empty or `any`,
+ * otherwise returns `false`.
  */
-export type ArrayRest<T extends any[]> = ((...unfold: T) => void) extends (
-  skip: any,
-  ...fold: infer R
-) => void
-  ? R
-  : never;
+export type IsArrayEmpty<T extends unknown[]> =
+  IsAny<T> extends true ? true : T extends [unknown, ...unknown[]] ? false : true;
+
+/**
+ * Based on the given array type `T`, it returns another array skipping the first
+ * element.
+ */
+export type ArrayRest<T extends unknown[]> =
+  IsAny<T> extends true ? [] : T extends [unknown, ...infer Rest] ? Rest : [];

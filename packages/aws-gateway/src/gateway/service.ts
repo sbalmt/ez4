@@ -14,13 +14,17 @@ export const createGateway = <E extends EntryState>(
   state: EntryStates<E>,
   parameters: GatewayParameters
 ) => {
-  const gatewayId = hashData(GatewayServiceType, toKebabCase(parameters.gatewayId));
+  const gatewayId = toKebabCase(parameters.gatewayId);
+  const entryId = hashData(GatewayServiceType, gatewayId);
 
   return attachEntry<E | GatewayState, GatewayState>(state, {
     type: GatewayServiceType,
-    entryId: gatewayId,
+    entryId,
     dependencies: [],
-    parameters
+    parameters: {
+      ...parameters,
+      gatewayId
+    }
   });
 };
 

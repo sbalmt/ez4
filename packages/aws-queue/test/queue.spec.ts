@@ -37,7 +37,7 @@ describe.only('queue', () => {
     const localState: EntryStates = {};
 
     const resource = createQueue(localState, {
-      queueName: 'EZ4: Test queue',
+      queueName: 'ez4-test-queue',
       tags: {
         test1: 'ez4-tag1',
         test2: 'ez4-tag2'

@@ -24,11 +24,18 @@ export async function apiEntryPoint(
   event: APIGatewayProxyEventV2,
   context: Context
 ): Promise<APIGatewayProxyResultV2> {
+  const { cookies, headers, requestContext } = event;
+
   try {
     const request = {
+      requestId: context.awsRequestId,
+      method: requestContext.http.method,
+      path: requestContext.http.path,
       query: __EZ4_QUERY_SCHEMA && (await getRequestQuery(event)),
       parameters: __EZ4_PARAMETERS_SCHEMA && (await getRequestParameters(event)),
-      body: __EZ4_BODY_SCHEMA && (await getRequestBody(event))
+      body: __EZ4_BODY_SCHEMA && (await getRequestBody(event)),
+      headers,
+      cookies
     };
 
     const response = await next(request, __EZ4_CONTEXT);

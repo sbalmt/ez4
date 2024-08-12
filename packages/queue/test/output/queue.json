@@ -2,7 +2,7 @@
   "TestQueue1": {
     "type": "@ez4/queue",
     "description": "First test queue description.",
-    "name": "Test Queue 1",
+    "name": "TestQueue1",
     "subscriptions": [],
     "services": {
       "testQueue": "TestQueue2"
@@ -15,7 +15,9 @@
   "TestQueue2": {
     "type": "@ez4/queue",
     "description": "Description of the second test queue.",
-    "name": "Test Queue 2",
+    "name": "TestQueue2",
+    "timeout": 5,
+    "delay": 15,
     "subscriptions": [],
     "schema": {
       "properties": {},

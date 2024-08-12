@@ -5,6 +5,6 @@ export type HttpHandler = {
   name: string;
   file: string;
   description?: string;
-  response?: HttpResponse;
-  request: HttpRequest;
+  response: HttpResponse;
+  request?: HttpRequest;
 };

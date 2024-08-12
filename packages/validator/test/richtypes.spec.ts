@@ -83,4 +83,18 @@ describe.only('rich types validation', () => {
 
     equal((await validate('1991-04-23T19:45:00-03:00', schema)).length, 0);
   });
+
+  it('assert :: extensible object', async () => {
+    const schema: AnySchema = {
+      type: SchemaTypeName.Object,
+      extensible: true,
+      properties: {
+        foo: {
+          type: SchemaTypeName.String
+        }
+      }
+    };
+
+    equal((await validate({ foo: 'abc', bar: 123 }, schema)).length, 0);
+  });
 });

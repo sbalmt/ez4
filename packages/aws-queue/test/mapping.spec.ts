@@ -5,7 +5,8 @@ import { ok, equal } from 'node:assert/strict';
 import { join } from 'node:path';
 
 import { deepClone } from '@ez4/utils';
-import { createFunction, createMapping, createQueue, isMapping } from '@ez4/aws-queue';
+import { isMapping } from '@ez4/aws-function';
+import { createFunction, createMapping, createQueue } from '@ez4/aws-queue';
 import { createPolicy, createRole } from '@ez4/aws-identity';
 import { deploy } from '@ez4/aws-common';
 
@@ -24,11 +25,11 @@ const assertDeploy = async <E extends EntryState>(
   ok(resource?.result);
   ok(isMapping(resource));
 
-  const { eventId, functionName, queueArn } = resource.result;
+  const { eventId, functionName, sourceArn } = resource.result;
 
   ok(eventId);
   ok(functionName);
-  ok(queueArn);
+  ok(sourceArn);
 
   return {
     result: resource.result,
@@ -36,7 +37,7 @@ const assertDeploy = async <E extends EntryState>(
   };
 };
 
-describe.only('queue', () => {
+describe.only('queue mapping', () => {
   const baseDir = join(import.meta.dirname, '../test/files');
 
   let lastState: EntryStates | undefined;
@@ -46,7 +47,7 @@ describe.only('queue', () => {
     const localState: EntryStates = {};
 
     const queueResource = createQueue(localState, {
-      queueName: 'EZ4: Test queue mapping'
+      queueName: 'ez4-test-queue-mapping'
     });
 
     const policyResource = createPolicy(localState, {
@@ -61,14 +62,16 @@ describe.only('queue', () => {
 
     const functionResource = await createFunction(localState, roleResource, {
       sourceFile: join(baseDir, 'lambda.js'),
-      functionName: 'EZ4: Test queue  mapping lambda',
+      functionName: 'EZ4: Test queue mapping lambda',
       handlerName: 'main'
     });
 
     const resource = createMapping(localState, queueResource, functionResource, {
       enabled: true,
-      batchSize: 100,
-      maxBatchWindow: 5
+      batch: {
+        batchSize: 100,
+        maxWindow: 5
+      }
     });
 
     mappingId = resource.entryId;
@@ -85,8 +88,9 @@ describe.only('queue', () => {
     const resource = localState[mappingId];
 
     ok(resource && isMapping(resource));
+    ok(resource.parameters.batch);
 
-    resource.parameters.batchSize = 10;
+    resource.parameters.batch.batchSize = 10;
     resource.parameters.enabled = false;
 
     const { state } = await assertDeploy(mappingId, localState, lastState);

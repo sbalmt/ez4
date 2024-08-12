@@ -1,0 +1,19 @@
+{
+  "TestDatabase1": {
+    "type": "@ez4/database",
+    "name": "TestDatabase1",
+    "tables": [],
+    "services": {
+      "testQueue": "TestDatabase2"
+    }
+  },
+  "TestDatabase2": {
+    "type": "@ez4/database",
+    "name": "TestDatabase2",
+    "tables": [],
+    "variables": {
+      "TEST_VAR1": "test-literal-value",
+      "TEST_VAR2": "test-env-var-value"
+    }
+  }
+}

@@ -1,6 +1,6 @@
 import type { EntryState, EntryStates } from '@ez4/stateful';
 import type { FunctionState } from '../function/types.js';
-import type { PermissionParametersGenerator, PermissionState } from './types.js';
+import type { PermissionParameters, PermissionState } from './types.js';
 
 import { hashData } from '@ez4/utils';
 import { attachEntry } from '@ez4/stateful';
@@ -15,7 +15,7 @@ export const createPermission = <E extends EntryState>(
   state: EntryStates<E>,
   sourceState: EntryState,
   functionState: FunctionState,
-  getParameters: PermissionParametersGenerator
+  parameters: PermissionParameters
 ) => {
   const permissionId = hashData(PermissionServiceType, sourceState.entryId, functionState.entryId);
 
@@ -23,6 +23,6 @@ export const createPermission = <E extends EntryState>(
     type: PermissionServiceType,
     entryId: permissionId,
     dependencies: [sourceState.entryId, functionState.entryId],
-    parameters: getParameters
+    parameters
   });
 };

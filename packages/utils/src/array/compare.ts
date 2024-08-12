@@ -1,4 +1,4 @@
-import type { AnyObject } from '../object/types.js';
+import type { AnyObject } from '../object/generics.js';
 
 import { deepCompareObject } from '../object/compare.js';
 import { isAnyObject } from '../object/any.js';

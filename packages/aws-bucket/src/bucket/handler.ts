@@ -2,20 +2,36 @@ import type { StepHandler } from '@ez4/stateful';
 import type { BucketState, BucketResult, BucketParameters } from './types.js';
 
 import { ReplaceResourceError } from '@ez4/aws-common';
+import { deepCompare } from '@ez4/utils';
 
 import { createBucket, deleteBucket, tagBucket } from './client.js';
 import { BucketServiceName } from './types.js';
 
 export const getBucketHandler = (): StepHandler<BucketState> => ({
   equals: equalsResource,
-  replace: replaceResource,
   create: createResource,
+  replace: replaceResource,
+  preview: previewResource,
   update: updateResource,
   delete: deleteResource
 });
 
 const equalsResource = (candidate: BucketState, current: BucketState) => {
   return !!candidate.result && candidate.result.bucketName === current.result?.bucketName;
+};
+
+const previewResource = async (candidate: BucketState, current: BucketState) => {
+  const parameters = candidate.parameters;
+  const changes = deepCompare(parameters, current.parameters);
+
+  if (!changes.counts) {
+    return undefined;
+  }
+
+  return {
+    ...changes,
+    name: parameters.bucketName
+  };
 };
 
 const replaceResource = async (candidate: BucketState, current: BucketState) => {

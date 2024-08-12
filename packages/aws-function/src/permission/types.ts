@@ -5,18 +5,20 @@ export const PermissionServiceName = 'AWS:Lambda/Permission';
 
 export const PermissionServiceType = 'aws:lambda.permission';
 
-export type PermissionParameters = Omit<CreateRequest, 'functionName' | 'statementId' | 'action'>;
+export type Permission = Omit<CreateRequest, 'functionName' | 'statementId' | 'action'>;
+
+export type GetPermission = (context: StepContext) => Promise<Permission> | Permission;
+
+export type PermissionParameters = {
+  getPermission: GetPermission;
+};
 
 export type PermissionResult = CreateResponse & {
   functionName: string;
 };
 
-export type PermissionParametersGenerator = (
-  context: StepContext
-) => Promise<PermissionParameters> | PermissionParameters;
-
 export type PermissionState = EntryState & {
   type: typeof PermissionServiceType;
-  parameters: PermissionParametersGenerator;
+  parameters: PermissionParameters;
   result?: PermissionResult;
 };

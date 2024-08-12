@@ -1,0 +1,123 @@
+import type { Incomplete } from '@ez4/utils';
+import type { ObjectSchema } from '@ez4/schema';
+import type { AllType, EveryMemberType, SourceMap, TypeModel, TypeObject } from '@ez4/reflection';
+import type { TableIndexes } from '../types/indexes.js';
+import type { DatabaseTable } from '../types/table.js';
+
+import { getModelMembers, getObjectMembers, getPropertyString } from '@ez4/common/library';
+import { isModelProperty, isTypeObject, isTypeReference } from '@ez4/reflection';
+
+import { IncompleteTableError } from '../errors/table.js';
+import { InvalidIndexReferenceError } from '../errors/indexes.js';
+import { isDatabaseTable } from './utils.js';
+import { getTableSchema } from './schema.js';
+import { getTableIndexes } from './indexes.js';
+import { getTableStream } from './stream.js';
+
+export const getDatabaseTable = (type: AllType, reflection: SourceMap, errorList: Error[]) => {
+  if (!isTypeReference(type)) {
+    return getTypeTable(type, reflection, errorList);
+  }
+
+  const statement = reflection[type.path];
+
+  if (statement) {
+    return getTypeTable(statement, reflection, errorList);
+  }
+
+  return null;
+};
+
+const isValidTable = (type: Incomplete<DatabaseTable>): type is DatabaseTable => {
+  return !!type.name && !!type.schema && !!type.indexes;
+};
+
+const getTypeTable = (type: AllType, reflection: SourceMap, errorList: Error[]) => {
+  if (isDatabaseTable(type)) {
+    return getTypeFromMembers(type, getModelMembers(type), reflection, errorList);
+  }
+
+  if (isTypeObject(type)) {
+    return getTypeFromMembers(type, getObjectMembers(type), reflection, errorList);
+  }
+
+  return null;
+};
+
+const getTypeFromMembers = (
+  type: TypeObject | TypeModel,
+  members: EveryMemberType[],
+  reflection: SourceMap,
+  errorList: Error[]
+) => {
+  const table: Incomplete<DatabaseTable> = {};
+  const properties = new Set(['name', 'schema', 'indexes']);
+
+  for (const member of members) {
+    if (!isModelProperty(member)) {
+      continue;
+    }
+
+    switch (member.name) {
+      case 'name':
+        if ((table.name = getPropertyString(member))) {
+          properties.delete(member.name);
+        }
+        break;
+
+      case 'schema': {
+        if ((table.schema = getTableSchema(member.value, type, reflection, errorList))) {
+          properties.delete(member.name);
+        }
+        break;
+      }
+
+      case 'indexes': {
+        if ((table.indexes = getTableIndexes(member.value, type, reflection, errorList))) {
+          properties.delete(member.name);
+        }
+        break;
+      }
+
+      case 'stream': {
+        table.stream = getTableStream(member.value, reflection, errorList);
+        break;
+      }
+    }
+  }
+
+  if (!isValidTable(table)) {
+    errorList.push(new IncompleteTableError([...properties], type.file));
+    return null;
+  }
+
+  const indexErrors = validateIndexSchema(type, table.indexes, table.schema);
+
+  if (indexErrors.length) {
+    errorList.push(...indexErrors);
+    return null;
+  }
+
+  return table;
+};
+
+const validateIndexSchema = (
+  type: TypeObject | TypeModel,
+  indexes: TableIndexes,
+  schema: ObjectSchema
+) => {
+  const allColumns = schema.properties;
+  const errorList = [];
+
+  for (const indexName in indexes) {
+    for (const columnName of indexName.split(':')) {
+      const columnSchema = allColumns[columnName];
+
+      if (!columnSchema) {
+        errorList.push(new InvalidIndexReferenceError(indexName, type.file));
+      }
+    }
+  }
+
+  return errorList;
+};

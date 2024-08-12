@@ -1,23 +1,42 @@
-import type { AllType, ModelProperty, SourceMap } from '@ez4/reflection';
+import type { AllType, ModelProperty, SourceMap, TypeModel, TypeObject } from '@ez4/reflection';
 import type { ObjectSchema, ObjectSchemaProperties } from '../types/object.js';
 
 import { isTypeModel, isTypeObject, isTypeReference } from '@ez4/reflection';
 
 import { getObjectProperties } from '../reflection/object.js';
 import { getModelProperties } from '../reflection/model.js';
-import { SchemaTypeName } from '../types/common.js';
+import { ExtraSchema, SchemaTypeName } from '../types/common.js';
 import { getAnySchema } from './any.js';
 
+type RichTypeBase = {
+  extensible?: boolean;
+  extra?: ExtraSchema;
+};
+
+export type RichTypeObject = TypeObject & RichTypeBase;
+
+export type RichTypeModel = TypeModel & RichTypeBase;
+
 export const createObjectSchema = (data: Omit<ObjectSchema, 'type'>): ObjectSchema => {
-  const { properties, description, optional, nullable } = data;
+  const { properties, description, extensible, optional, nullable, extra } = data;
 
   return {
     type: SchemaTypeName.Object,
     ...(description && { description }),
+    ...(extensible && { extensible }),
     ...(optional && { optional }),
     ...(nullable && { nullable }),
+    ...(extra && { extra }),
     properties
   };
+};
+
+export const isRichTypeObject = (type: AllType): type is RichTypeObject => {
+  return isTypeObject(type);
+};
+
+export const isRichTypeModel = (type: AllType): type is RichTypeModel => {
+  return isTypeModel(type);
 };
 
 export const getObjectSchema = (
@@ -25,17 +44,21 @@ export const getObjectSchema = (
   reflection: SourceMap,
   description?: string
 ): ObjectSchema | null => {
-  if (isTypeObject(type)) {
+  if (isRichTypeObject(type)) {
     return createObjectSchema({
       properties: getAnySchemaFromMembers(reflection, getObjectProperties(type)),
-      description
+      description,
+      extensible: type.extensible,
+      extra: type.extra
     });
   }
 
-  if (isTypeModel(type)) {
+  if (isRichTypeModel(type)) {
     return createObjectSchema({
       properties: getAnySchemaFromMembers(reflection, getModelProperties(type)),
-      description: description ?? type.description
+      description: description ?? type.description,
+      extensible: type.extensible,
+      extra: type.extra
     });
   }
 

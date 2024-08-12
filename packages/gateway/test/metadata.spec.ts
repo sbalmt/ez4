@@ -6,7 +6,7 @@ import { getReflection } from '@ez4/project';
 import { registerTriggers, getHttpServices } from '@ez4/gateway/library';
 
 const testFile = (fileName: string, overwrite = false) => {
-  const sourceFile = `./test/input/${fileName}.ts`;
+  const sourceFile = `./test/input/output-${fileName}.ts`;
   const outputFile = `./test/output/${fileName}.json`;
 
   const reflection = getReflection([sourceFile]);

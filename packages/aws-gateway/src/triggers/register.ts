@@ -13,10 +13,10 @@ import { createTrigger } from '@ez4/project';
 import { isHttpService } from '@ez4/gateway/library';
 import { getFunction } from '@ez4/aws-function';
 
+import { getIntegration, createIntegration } from '../integration/service.js';
 import { createFunction } from '../function/service.js';
 import { createGateway } from '../gateway/service.js';
 import { createStage } from '../stage/service.js';
-import { getIntegration, createIntegration } from '../integration/service.js';
 import { createRoute } from '../route/service.js';
 
 let isRegistered = false;
@@ -75,6 +75,7 @@ const createHttpRoutes = async (
     const request = handler.request;
 
     const functionName = `${serviceName}-${handler.name}`;
+    const routeTimeout = route.timeout ?? 30;
 
     const functionState =
       getFunction(state, executionRole, functionName) ??
@@ -83,9 +84,11 @@ const createHttpRoutes = async (
         description: handler.description,
         sourceFile: handler.file,
         handlerName: handler.name,
-        querySchema: request.query,
-        parametersSchema: request.parameters,
-        bodySchema: request.body,
+        timeout: routeTimeout,
+        memory: route.memory,
+        querySchema: request?.query,
+        parametersSchema: request?.parameters,
+        bodySchema: request?.body,
         extras: service.extras,
         variables: {
           ...service.variables,
@@ -96,7 +99,8 @@ const createHttpRoutes = async (
     const integrationState =
       getIntegration(state, gatewayState, functionState) ??
       createIntegration(state, gatewayState, functionState, {
-        description: handler.description
+        description: handler.description,
+        timeout: routeTimeout
       });
 
     createRoute(state, gatewayState, integrationState, {

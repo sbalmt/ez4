@@ -1,5 +1,5 @@
 import type { EntryState, EntryStates, StepContext } from '@ez4/stateful';
-import type { FunctionState, PermissionParameters } from '@ez4/aws-function';
+import type { FunctionState, Permission } from '@ez4/aws-function';
 import type { GatewayState } from '../gateway/types.js';
 import type { IntegrationParameters, IntegrationState } from './types.js';
 
@@ -27,11 +27,8 @@ export const createIntegration = <E extends EntryState>(
     functionState.entryId
   );
 
-  const permissionState = createPermission(
-    state,
-    gatewayState,
-    functionState,
-    async (context: StepContext): Promise<PermissionParameters> => {
+  const permissionState = createPermission(state, gatewayState, functionState, {
+    getPermission: async (context: StepContext): Promise<Permission> => {
       const [region, account, apiId] = await Promise.all([
         getRegion(),
         getAccountId(),
@@ -43,7 +40,7 @@ export const createIntegration = <E extends EntryState>(
         sourceArn: `arn:aws:execute-api:${region}:${account}:${apiId}/*`
       };
     }
-  );
+  });
 
   return attachEntry<E | IntegrationState, IntegrationState>(state, {
     type: IntegrationServiceType,

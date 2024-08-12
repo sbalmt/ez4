@@ -1,4 +1,4 @@
-import type { AnyObject, ObjectProperties, PartialObject } from './types.js';
+import type { AnyObject, PartialProperties, PartialObject } from './generics.js';
 
 import { isAnyObject } from './any.js';
 
@@ -10,9 +10,9 @@ import { isAnyObject } from './any.js';
  * @param exclude Set of `source` properties to not clone.
  * @returns Returns a new object.
  */
-export const deepClone = <T extends AnyObject>(
+export const deepClone = <T extends AnyObject, U extends PartialProperties<T>>(
   source: T,
-  exclude?: Partial<ObjectProperties<T>>
+  exclude?: U
 ) => {
   let clone: AnyObject = {};
 
@@ -27,11 +27,11 @@ export const deepClone = <T extends AnyObject>(
     if (Array.isArray(value)) {
       clone[key] = [...value];
     } else if (isAnyObject(value)) {
-      clone[key] = deepClone(value, state);
+      clone[key] = deepClone(value, state as any);
     } else {
       clone[key] = value;
     }
   }
 
-  return clone as PartialObject<T, ObjectProperties<T>>;
+  return clone as PartialObject<T, U>;
 };

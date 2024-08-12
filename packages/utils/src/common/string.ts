@@ -1,11 +1,48 @@
 /**
- * Convert the given value into kebab-case.
+ * Convert the given `text` into kebab-case.
  *
- * @param value Value to convert.
- * @returns Returns the converted value.
+ * @param text Text to convert.
+ * @returns Returns the converted text.
  */
-export const toKebabCase = (value: string) => {
-  return value
-    .replace(/[A-Z]+(?![a-z])|[A-Z]/g, (text, offset) => (offset ? '-' : '') + text.toLowerCase())
-    .replace(/[^\w\-]/g, '');
+export const toKebabCase = (text: string) => {
+  const output: string[] = [];
+  const length = text.length;
+
+  for (let offset = 0, pending = false, uppercase = 0; offset < length; offset++) {
+    const character = text[offset];
+    const hasOutput = output.length > 0;
+
+    if (/[a-z0-9]/.test(character)) {
+      if (pending) {
+        output.push('-');
+      }
+
+      output.push(character);
+
+      pending = false;
+      uppercase = 0;
+
+      continue;
+    }
+
+    if (/[\-_ ]/.test(character)) {
+      pending = hasOutput && offset + 1 < length;
+      uppercase = 0;
+
+      continue;
+    }
+
+    if (/[A-Z]/.test(character)) {
+      if (hasOutput && (!uppercase || (uppercase > 1 && /[a-z]/.test(text[offset + 1])))) {
+        output.push('-');
+      }
+
+      output.push(character.toLowerCase());
+
+      pending = false;
+      uppercase++;
+    }
+  }
+
+  return output.join('');
 };

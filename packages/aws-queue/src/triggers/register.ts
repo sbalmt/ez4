@@ -4,6 +4,7 @@ import type {
   ServiceResourceEvent,
   ServiceEvent
 } from '@ez4/project';
+
 import type { QueueService } from '@ez4/queue/library';
 import type { RoleState } from '@ez4/aws-identity';
 import type { EntryStates } from '@ez4/stateful';
@@ -97,8 +98,13 @@ const prepareQueueServices = async (event: ServiceResourceEvent) => {
     return;
   }
 
+  const { timeout, retention, delay } = service;
+
   const queueState = createQueue(state, {
-    queueName: getQueueName(service, options.resourcePrefix)
+    queueName: getQueueName(service, options.resourcePrefix),
+    ...(timeout !== undefined && { timeout }),
+    ...(retention !== undefined && { retention }),
+    ...(delay !== undefined && { timeout })
   });
 
   await prepareSubscriptions(state, service, role, queueState);
@@ -116,6 +122,7 @@ const prepareSubscriptions = async (
     const handler = subscription.handler;
 
     const functionName = `${serviceName}-${handler.name}`;
+    const queueTimeout = service.timeout ?? 30;
 
     const functionState =
       getFunction(state, executionRole, functionName) ??
@@ -124,6 +131,8 @@ const prepareSubscriptions = async (
         description: handler.description,
         sourceFile: handler.file,
         handlerName: handler.name,
+        timeout: queueTimeout,
+        memory: subscription.memory,
         messageSchema: service.schema,
         extras: service.extras,
         variables: {

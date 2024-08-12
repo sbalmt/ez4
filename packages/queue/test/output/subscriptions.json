@@ -2,7 +2,7 @@
   "TestQueue": {
     "type": "@ez4/queue",
     "description": "Queue to test subscriptions.",
-    "name": "Test Queue",
+    "name": "TestQueue",
     "services": {
       "selfClient": "TestQueue"
     },
@@ -18,29 +18,14 @@
       {
         "handler": {
           "name": "testHandler",
-          "file": "test/input/subscriptions.ts",
-          "schema": {
-            "type": "object",
-            "properties": {
-              "foo": {
-                "type": "string"
-              }
-            }
-          }
+          "file": "test/input/output-subscriptions.ts"
         }
       },
       {
+        "memory": 128,
         "handler": {
           "name": "testHandler",
-          "file": "test/input/subscriptions.ts",
-          "schema": {
-            "type": "object",
-            "properties": {
-              "foo": {
-                "type": "string"
-              }
-            }
-          }
+          "file": "test/input/output-subscriptions.ts"
         },
         "variables": {
           "TEST_VAR": "test-literal-value"

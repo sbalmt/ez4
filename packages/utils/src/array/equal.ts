@@ -1,4 +1,4 @@
-import { deepEqualObject } from '../main.js';
+import { deepEqualObject } from '../object/equal.js';
 import { isAnyObject } from '../object/any.js';
 
 /**

@@ -1,4 +1,4 @@
-import type { AnyObject, ObjectProperties } from '../object/types.js';
+import type { AnyObject, PartialProperties } from '../object/generics.js';
 
 import { ArrayComparison, deepCompareArray } from '../array/compare.js';
 import { deepCompareObject, ObjectComparison } from '../object/compare.js';
@@ -6,7 +6,7 @@ import { deepEqualObject } from '../object/equal.js';
 import { deepEqualArray } from '../array/equal.js';
 import { isAnyObject } from '../object/any.js';
 
-type Exclude<T extends AnyObject | unknown[]> = ObjectProperties<T extends any[] ? never : T>;
+type Exclude<T extends AnyObject | unknown[]> = PartialProperties<T extends any[] ? never : T>;
 
 type Return<T extends AnyObject | unknown[]> = T extends any[] ? ArrayComparison : ObjectComparison;
 
@@ -33,7 +33,7 @@ export const deepCompare = <T extends AnyObject | unknown[], S extends AnyObject
     return deepCompareObject<T, S>(target, source, exclude);
   }
 
-  throw new TypeError(`Target and Source must be the same type.`);
+  throw new TypeError(`Unsupported target and/or source parameter.`);
 };
 
 /**

@@ -10,6 +10,9 @@ export type QueueService = ServiceMetadata & {
   schema: QueueMessage;
   description?: string;
   subscriptions: QueueSubscription[];
+  timeout?: number;
+  retention?: number;
+  delay?: number;
 };
 
 export const isQueueService = (service: ServiceMetadata): service is QueueService => {

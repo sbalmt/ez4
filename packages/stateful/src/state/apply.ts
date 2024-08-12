@@ -96,6 +96,10 @@ const applyPendingStep = async <E extends EntryState<T>, T extends string>(
       }
 
       case StepAction.Update: {
+        if (!step.preview || step.preview.counts === 0) {
+          return getEntry(oldEntries, entryId);
+        }
+
         const context = buildContext(tmpEntries, candidate);
         const result = await handler.update(candidate, getEntry(oldEntries, entryId), context);
 

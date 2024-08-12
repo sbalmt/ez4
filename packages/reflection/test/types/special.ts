@@ -1,6 +1,6 @@
 type Type<T> = T;
 
-export interface Special {
+export declare class Special {
   // Regular
   regular1: any;
   regular2: void;
@@ -16,4 +16,10 @@ export interface Special {
   template4: Type<unknown>;
   template5: Type<undefined>;
   template6: Type<null>;
+
+  // Cyclic dependency
+  self1: typeof this;
+  self2: Special;
+  self3: Type<typeof this>;
+  self4: Type<Special>;
 }

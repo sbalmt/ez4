@@ -3,16 +3,17 @@ import type { NumberSchema } from '../types/number.js';
 
 import { isTypeNumber } from '@ez4/reflection';
 
-import { SchemaTypeName } from '../types/common.js';
+import { ExtraSchema, SchemaTypeName } from '../types/common.js';
 
 export type RichTypeNumber = TypeNumber & {
   minValue?: number;
   maxValue?: number;
   format?: string;
+  extra?: ExtraSchema;
 };
 
 export const createNumberSchema = (data: Omit<NumberSchema, 'type'>): NumberSchema => {
-  const { description, optional, nullable, minValue, maxValue, format } = data;
+  const { description, optional, nullable, minValue, maxValue, format, extra } = data;
 
   return {
     type: SchemaTypeName.Number,
@@ -21,7 +22,8 @@ export const createNumberSchema = (data: Omit<NumberSchema, 'type'>): NumberSche
     ...(nullable && { nullable }),
     ...(minValue && { minValue }),
     ...(maxValue && { maxValue }),
-    ...(format && { format })
+    ...(format && { format }),
+    ...(extra && { extra })
   };
 };
 
@@ -34,12 +36,13 @@ export const getNumberSchema = (type: AllType, description?: string): NumberSche
     return null;
   }
 
-  const { minValue, maxValue, format } = type;
+  const { minValue, maxValue, format, extra } = type;
 
   return createNumberSchema({
     description,
     minValue,
     maxValue,
-    format
+    format,
+    extra
   });
 };

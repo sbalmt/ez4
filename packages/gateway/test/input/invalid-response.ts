@@ -6,10 +6,6 @@ class TestResponse implements Http.Response {
 }
 
 export declare class TestService extends Http.Service {
-  id: 'ez4-test-service';
-
-  name: 'Test Service';
-
   routes: [
     {
       path: 'ANY /test-route';

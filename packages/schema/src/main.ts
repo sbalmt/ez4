@@ -1,6 +1,7 @@
 export * from './richtypes/integer.js';
 export * from './richtypes/decimal.js';
 export * from './richtypes/string.js';
+export * from './richtypes/object.js';
 
 export * from './types/common.js';
 export * from './types/boolean.js';

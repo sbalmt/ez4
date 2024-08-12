@@ -16,6 +16,7 @@
     },
     "nullable": {
       "type": "tuple",
+      "description": "Nullable property.",
       "elements": [
         {
           "type": "string"
@@ -28,6 +29,7 @@
     },
     "optional": {
       "type": "tuple",
+      "description": "Optional property.",
       "elements": [
         {
           "type": "number"
@@ -40,6 +42,7 @@
     },
     "both": {
       "type": "tuple",
+      "description": "Nullable and optional property.",
       "elements": [
         {
           "type": "boolean"

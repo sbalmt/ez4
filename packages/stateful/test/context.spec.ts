@@ -52,7 +52,7 @@ describe.only('context tests', () => {
       }
     };
 
-    const steps = planSteps(baseState, undefined, handlers);
+    const steps = await planSteps(baseState, undefined, handlers);
 
     await applySteps(steps, baseState, undefined, handlers);
 
@@ -72,7 +72,7 @@ describe.only('context tests', () => {
       }
     };
 
-    const steps = planSteps(undefined, baseState, handlers);
+    const steps = await planSteps(undefined, baseState, handlers);
 
     await applySteps(steps, undefined, baseState, handlers);
 
@@ -96,7 +96,7 @@ describe.only('context tests', () => {
 
     const newState = { ...baseState };
 
-    const steps = planSteps(newState, baseState, handlers);
+    const steps = await planSteps(newState, baseState, handlers);
 
     await applySteps(steps, newState, baseState, handlers);
 

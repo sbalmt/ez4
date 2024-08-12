@@ -1,5 +1,5 @@
-import type { AnyObject, ObjectComparison } from '@ez4/utils';
-import type { EntryStates } from '@ez4/stateful';
+import type { EntryState, EntryStates } from '@ez4/stateful';
+import type { ObjectComparison } from '@ez4/utils';
 
 import { StepAction } from '@ez4/stateful';
 import { deepCompare } from '@ez4/utils';
@@ -15,7 +15,7 @@ export const reportResourceChanges = async (newState: EntryStates, oldState: Ent
   const steps = await triggerAllAsync('deploy:plan', (handler) => handler(event));
 
   if (!steps) {
-    throw new MissingProviderError(`'deploy:plan'`);
+    throw new MissingProviderError('deploy:plan');
   }
 
   let changes = 0;
@@ -28,7 +28,9 @@ export const reportResourceChanges = async (newState: EntryStates, oldState: Ent
 
       case StepAction.Update:
       case StepAction.Replace:
-        changes += reportResourceUpdate(step.entryId, newState, oldState);
+        if (step.preview) {
+          changes += reportResourceUpdate(step.entryId, step.preview, newState, oldState);
+        }
         break;
 
       case StepAction.Delete:
@@ -47,15 +49,18 @@ const reportResourceCreate = (entryId: string, newState: EntryStates) => {
     throw new MissingEntryResourceError('candidate', entryId);
   }
 
-  const target = { ...candidate.parameters, dependencies: candidate.dependencies };
-  const source = {};
+  const target = candidate.parameters;
+  const changes = deepCompare(target, {});
 
-  const changes = deepCompare(target, source);
-
-  return printResourceChanges(candidate.type, changes, target, source, 'will be created');
+  return printResourceChanges(candidate.type, changes, candidate, 'will be created');
 };
 
-const reportResourceUpdate = (entryId: string, newState: EntryStates, oldState: EntryStates) => {
+const reportResourceUpdate = (
+  entryId: string,
+  comparison: ObjectComparison,
+  newState: EntryStates,
+  oldState: EntryStates
+) => {
   const candidate = newState[entryId];
   const current = oldState[entryId];
 
@@ -67,12 +72,7 @@ const reportResourceUpdate = (entryId: string, newState: EntryStates, oldState: 
     throw new MissingEntryResourceError('current', entryId);
   }
 
-  const target = { ...candidate.parameters, dependencies: candidate.dependencies };
-  const source = { ...current.parameters, dependencies: current.dependencies };
-
-  const changes = deepCompare(target, source);
-
-  return printResourceChanges(candidate.type, changes, target, source, 'will be updated');
+  return printResourceChanges(candidate.type, comparison, current, 'will be updated');
 };
 
 const reportResourceDelete = (entryId: string, oldState: EntryStates) => {
@@ -82,28 +82,26 @@ const reportResourceDelete = (entryId: string, oldState: EntryStates) => {
     throw new MissingEntryResourceError('current', entryId);
   }
 
-  const target = {};
-  const source = { ...current.parameters, dependencies: current.dependencies };
+  const changes = deepCompare({}, current.parameters);
 
-  const changes = deepCompare(target, source);
-
-  return printResourceChanges(current.type, changes, target, source, 'will be deleted');
+  return printResourceChanges(current.type, changes, current, 'will be deleted');
 };
 
 const printResourceChanges = (
   type: string,
   changes: ObjectComparison,
-  target: AnyObject,
-  source: AnyObject,
+  current: EntryState,
   action: string
 ) => {
-  const output = formatReportChanges(changes, target, source);
+  const output = formatReportChanges(changes, current);
 
   if (output.length > 0) {
-    console.group(`# ${toBold(type)} ${action}`);
-    console.log(output.join('\n'));
+    const name = 'name' in changes ? changes.name : 'unnamed';
 
+    console.group(`# ${toBold(type)} (${name}) ${action}`);
+    console.log(output.join('\n'));
     console.groupEnd();
+
     console.log('');
   }
 

@@ -8,16 +8,16 @@ import { SchemaTypeName } from '@ez4/schema';
 import { Client } from '@ez4/aws-queue/client';
 import { deploy } from '@ez4/aws-common';
 
-describe.only('queue', () => {
+describe.only('queue client', () => {
   let lastState: EntryStates | undefined;
   let queueId: string | undefined;
-  let queueClient: any;
+  let queueClient: ReturnType<typeof Client.make>;
 
   it('assert :: deploy', async () => {
     const localState: EntryStates = {};
 
     const resource = createQueue(localState, {
-      queueName: 'EZ4: Test queue client'
+      queueName: 'ez4-test-queue-client'
     });
 
     queueId = resource.entryId;
