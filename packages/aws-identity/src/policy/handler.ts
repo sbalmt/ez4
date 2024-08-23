@@ -31,8 +31,10 @@ const equalsResource = (candidate: PolicyState, current: PolicyState) => {
 };
 
 const previewResource = async (candidate: PolicyState, current: PolicyState) => {
-  const parameters = candidate.parameters;
-  const changes = deepCompare(parameters, current.parameters);
+  const target = { ...candidate.parameters, dependencies: candidate.dependencies };
+  const source = { ...current.parameters, dependencies: current.dependencies };
+
+  const changes = deepCompare(target, source);
 
   if (!changes.counts) {
     return undefined;
@@ -40,7 +42,7 @@ const previewResource = async (candidate: PolicyState, current: PolicyState) => 
 
   return {
     ...changes,
-    name: parameters.policyName
+    name: target.policyName
   };
 };
 

@@ -1,5 +1,5 @@
 import type { AllType, SourceMap, TypeModel, TypeObject } from '@ez4/reflection';
-import type { AnySchema } from '@ez4/schema';
+import type { ObjectSchema, UnionSchema } from '@ez4/schema';
 
 import { isTypeObject, isTypeReference, isTypeUnion } from '@ez4/reflection';
 import { createUnionSchema, getObjectSchema } from '@ez4/schema/library';
@@ -32,7 +32,7 @@ const getTypeBody = (
   parent: TypeObject | TypeModel,
   reflection: SourceMap,
   errorList: Error[]
-): AnySchema | null => {
+): ObjectSchema | UnionSchema | null => {
   if (isTypeUnion(type)) {
     return getBodyFromUnion(type.elements, parent, reflection, errorList);
   }

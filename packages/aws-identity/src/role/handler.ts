@@ -36,8 +36,10 @@ const equalsResource = (candidate: RoleState, current: RoleState) => {
 };
 
 const previewResource = async (candidate: RoleState, current: RoleState) => {
-  const parameters = candidate.parameters;
-  const changes = deepCompare(parameters, current.parameters);
+  const target = { ...candidate.parameters, dependencies: candidate.dependencies };
+  const source = { ...current.parameters, dependencies: current.dependencies };
+
+  const changes = deepCompare(target, source);
 
   if (!changes.counts) {
     return undefined;
@@ -45,7 +47,7 @@ const previewResource = async (candidate: RoleState, current: RoleState) => {
 
   return {
     ...changes,
-    name: parameters.roleName
+    name: target.roleName
   };
 };
 

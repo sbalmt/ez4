@@ -1,0 +1,55 @@
+{
+  "TestService": {
+    "type": "@ez4/http",
+    "id": "TestService",
+    "description": "Service for testing route authorizers.",
+    "routes": [
+      {
+        "path": "ANY /test-route",
+        "authorizer": {
+          "name": "testAuthorizer",
+          "file": "test/input/output-authorizer.ts",
+          "request": {
+            "query": {
+              "type": "object",
+              "properties": {
+                "apiKey": {
+                  "type": "string"
+                }
+              },
+              "description": "Expected query strings."
+            }
+          },
+          "response": {
+            "type": "object",
+            "properties": {
+              "identity": {
+                "type": "object",
+                "properties": {
+                  "id": {
+                    "type": "string"
+                  }
+                },
+                "description": "Authorization identity.",
+                "optional": true
+              }
+            }
+          }
+        },
+        "handler": {
+          "name": "testHandler",
+          "file": "test/input/output-authorizer.ts",
+          "response": {
+            "type": "object",
+            "properties": {
+              "status": {
+                "type": "number",
+                "description": "Response status code."
+              }
+            }
+          }
+        }
+      }
+    ]
+  }
+}

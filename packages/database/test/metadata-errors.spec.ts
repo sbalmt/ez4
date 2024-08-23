@@ -14,7 +14,7 @@ import {
   InvalidIndexReferenceError
 } from '@ez4/database/library';
 
-import { getReflection } from '@ez4/project';
+import { getReflection } from '@ez4/project/library';
 import { registerTriggers, getDatabaseServices } from '@ez4/database/library';
 
 const parseFile = (fileName: string) => {

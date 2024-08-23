@@ -2,8 +2,8 @@ import type { Database, Query, Table as DbTable } from '@ez4/database';
 import type { DynamoDBDocumentClient } from '@aws-sdk/lib-dynamodb';
 import type { ObjectSchema } from '@ez4/schema';
 
-import { ExecuteStatementCommand } from '@aws-sdk/lib-dynamodb';
 import { getJsonChanges } from '@ez4/aws-dynamodb/runtime';
+import { ExecuteStatementCommand } from '@aws-sdk/lib-dynamodb';
 
 import { prepareInsert, prepareUpdate, prepareSelect, prepareDelete } from './query.js';
 
@@ -27,6 +27,42 @@ export class Table<T extends Database.Schema = Database.Schema> implements DbTab
         })
       })
     );
+  }
+
+  async findOne<U extends Query.SelectInput<T>>(
+    input: Query.FindOneInput<T, U>
+  ): Promise<Query.FindOneResult<T, U>> {
+    const result = await this.findMany({
+      select: input.select,
+      where: input.where,
+      limit: 1
+    });
+
+    return result.records[0];
+  }
+
+  async upsertOne<U extends Query.SelectInput<T>>(
+    query: Query.UpsertOneInput<T, U>
+  ): Promise<Query.UpsertOneResult<T, U>> {
+    const previous = await this.findOne({
+      select: query.select ?? ({} as U),
+      where: query.where
+    });
+
+    if (!previous) {
+      await this.insertOne({
+        data: query.insert
+      });
+    } else {
+      await this.updateMany({
+        select: query.select,
+        where: query.where,
+        data: query.update,
+        limit: 1
+      });
+    }
+
+    return previous;
   }
 
   async updateMany<U extends Query.SelectInput<T>>(
@@ -73,18 +109,6 @@ export class Table<T extends Database.Schema = Database.Schema> implements DbTab
       records: (result.Items ?? []) as Query.Record<T, U>[],
       cursor: result.NextToken
     };
-  }
-
-  async findFirst<U extends Query.SelectInput<T>>(
-    input: Query.FindFirstInput<T, U>
-  ): Promise<Query.FindFirstResult<T, U>> {
-    const result = await this.findMany({
-      select: input.select,
-      where: input.where,
-      limit: 1
-    });
-
-    return result.records[0];
   }
 
   async deleteMany<U extends Query.SelectInput<T>>(

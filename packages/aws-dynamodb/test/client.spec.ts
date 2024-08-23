@@ -73,7 +73,7 @@ describe.only('dynamodb client', () => {
       }
     });
 
-    dbTable = (client.table as any).testTable;
+    dbTable = (client as any).testTable;
 
     ok(dbTable);
   });
@@ -159,6 +159,38 @@ describe.only('dynamodb client', () => {
         value: 'updated test value'
       }
     ]);
+  });
+
+  it('assert :: upsert item', async () => {
+    ok(dbTable);
+
+    const query = {
+      select: {
+        value: true
+      },
+      where: {
+        id: 'id2',
+        order: 101
+      },
+      insert: {
+        id: 'id2',
+        value: 'initial test value',
+        order: 101
+      },
+      update: {
+        value: 'updated test value'
+      }
+    };
+
+    const insertResult = await dbTable.upsertOne(query);
+
+    equal(insertResult, undefined);
+
+    const updateResult = await dbTable.upsertOne(query);
+
+    deepEqual(updateResult, {
+      value: 'initial test value'
+    });
   });
 
   it('assert :: destroy', async () => {

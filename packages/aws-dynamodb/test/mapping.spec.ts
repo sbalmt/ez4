@@ -7,7 +7,7 @@ import { join } from 'node:path';
 import {
   AttributeKeyType,
   AttributeType,
-  createFunction,
+  createStreamFunction,
   createMapping,
   createTable
 } from '@ez4/aws-dynamodb';
@@ -76,7 +76,7 @@ describe.only('dynamodb mapping', () => {
       roleDocument: getRoleDocument()
     });
 
-    const functionResource = await createFunction(localState, roleResource, {
+    const functionResource = await createStreamFunction(localState, roleResource, {
       sourceFile: join(baseDir, 'lambda.js'),
       functionName: 'EZ4: Test table mapping lambda',
       handlerName: 'main'

@@ -1,11 +1,11 @@
-import type { EntryState, EntryStates } from '@ez4/stateful';
-import type { ObjectComparison } from '@ez4/utils';
+import type { AnyObject, ObjectComparison } from '@ez4/utils';
+import type { EntryStates } from '@ez4/stateful';
 
 import { StepAction } from '@ez4/stateful';
+import { triggerAllAsync } from '@ez4/project/library';
 import { deepCompare } from '@ez4/utils';
 
 import { toBold } from '../console/format.js';
-import { triggerAllAsync } from '../library/triggers.js';
 import { MissingEntryResourceError } from '../errors/resource.js';
 import { MissingProviderError } from '../errors/provider.js';
 import { formatReportChanges } from './format.js';
@@ -72,7 +72,12 @@ const reportResourceUpdate = (
     throw new MissingEntryResourceError('current', entryId);
   }
 
-  return printResourceChanges(candidate.type, comparison, current, 'will be updated');
+  const values = {
+    ...current.parameters,
+    ...current.result
+  };
+
+  return printResourceChanges(candidate.type, comparison, values, 'will be updated');
 };
 
 const reportResourceDelete = (entryId: string, oldState: EntryStates) => {
@@ -90,10 +95,10 @@ const reportResourceDelete = (entryId: string, oldState: EntryStates) => {
 const printResourceChanges = (
   type: string,
   changes: ObjectComparison,
-  current: EntryState,
+  values: AnyObject,
   action: string
 ) => {
-  const output = formatReportChanges(changes, current);
+  const output = formatReportChanges(changes, values);
 
   if (output.length > 0) {
     const name = 'name' in changes ? changes.name : 'unnamed';

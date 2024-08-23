@@ -1,6 +1,6 @@
 import type { Database } from '@ez4/database';
-import type { ObjectSchema } from '@ez4/schema';
-import type { ServiceResourceEvent } from '@ez4/project';
+import type { ObjectSchema, ObjectSchemaProperties } from '@ez4/schema';
+import type { ServiceResourceEvent } from '@ez4/project/library';
 import type { AttributeSchema } from '../types/schema.js';
 
 import { Index } from '@ez4/database';
@@ -10,7 +10,7 @@ import { getFunction } from '@ez4/aws-function';
 import { isRole } from '@ez4/aws-identity';
 
 import { AttributeType, AttributeKeyType } from '../types/schema.js';
-import { createFunction } from '../function/service.js';
+import { createStreamFunction } from '../mapping/function/service.js';
 import { createMapping } from '../mapping/service.js';
 import { createTable } from '../table/service.js';
 import { getTableName } from './utils.js';
@@ -18,7 +18,7 @@ import { getTableName } from './utils.js';
 export const prepareDatabaseServices = async (event: ServiceResourceEvent) => {
   const { state, service, role, options } = event;
 
-  if (!isDatabaseService(service) || !isRole(role)) {
+  if (!isDatabaseService(service)) {
     return;
   }
 
@@ -26,19 +26,26 @@ export const prepareDatabaseServices = async (event: ServiceResourceEvent) => {
     const tableName = getTableName(service, table, options.resourcePrefix);
     const tableStream = table.stream;
 
+    const { attributeSchema, ttlAttribute } = getAttributeSchema(table.indexes, table.schema);
+
     const tableState = createTable(state, {
-      attributeSchema: getAttributeSchema(table.indexes, table.schema),
       enableStreams: !!tableStream,
+      attributeSchema,
+      ttlAttribute,
       tableName
     });
 
     if (tableStream) {
+      if (!role || !isRole(role)) {
+        throw new Error(`Execution role for DynamoDB stream is missing.`);
+      }
+
       const streamHandler = tableStream.handler;
       const functionName = `${tableName}-${streamHandler.name}`;
 
       const functionState =
         getFunction(state, role, functionName) ??
-        (await createFunction(state, role, {
+        (await createStreamFunction(state, role, {
           functionName,
           description: streamHandler.description,
           sourceFile: streamHandler.file,
@@ -58,60 +65,89 @@ export const prepareDatabaseServices = async (event: ServiceResourceEvent) => {
   }
 };
 
-const getAttributeSchema = (indexes: Database.Indexes, schema: ObjectSchema): AttributeSchema[] => {
+const getAttributeSchema = (indexes: Database.Indexes, schema: ObjectSchema) => {
   const attributeSchema: AttributeSchema[] = [];
-  const allColumns = schema.properties;
 
-  let position = 0;
+  let ttlAttribute: string | undefined;
 
   for (const indexName in indexes) {
     const indexType = indexes[indexName as keyof Database.Indexes];
 
-    if (indexType !== Index.Primary) {
-      throw new Error(`DynamoDB only supports primary keys.`);
+    switch (indexType) {
+      case Index.TTL:
+        ttlAttribute = getTimeToLiveIndex(indexName, schema.properties);
+        break;
+
+      case Index.Primary:
+        attributeSchema.push(...getAttributeIndex(indexName, schema.properties));
+        break;
+
+      default:
+        throw new Error(`DynamoDB index type ${indexType} isn't supported.`);
+    }
+  }
+
+  if (attributeSchema.length === 0) {
+    throw new Error(`DynamoDB needs at least one partition key.`);
+  }
+
+  if (attributeSchema.length > 2) {
+    throw new Error(`DynamoDB only supports one partition key.`);
+  }
+
+  return {
+    attributeSchema,
+    ttlAttribute
+  };
+};
+
+const getTimeToLiveIndex = (indexName: string, allColumns: ObjectSchemaProperties) => {
+  const columnSchema = allColumns[indexName];
+
+  if (!columnSchema) {
+    throw new Error(`DynamoDB TTL index ${indexName} doesn't exists or it's a compound index.`);
+  }
+
+  if (columnSchema.type !== SchemaTypeName.Number) {
+    throw new Error(`DynamoDB TTL index ${indexName} must be a number.`);
+  }
+
+  return indexName;
+};
+
+const getAttributeIndex = (indexName: string, allColumns: ObjectSchemaProperties) => {
+  const attributeSchema: AttributeSchema[] = [];
+
+  for (const columnName of indexName.split(':')) {
+    const columnSchema = allColumns[columnName];
+
+    if (!columnSchema) {
+      throw new Error(`Column ${columnName} doesn't exists, ensure the given schema is correct.`);
     }
 
-    if (position > 1) {
-      throw new Error(`DynamoDB only supports one index key.`);
-    }
+    switch (columnSchema.type) {
+      case SchemaTypeName.Boolean:
+        attributeSchema.push({
+          keyType: AttributeKeyType.Hash,
+          attributeType: AttributeType.Boolean,
+          attributeName: columnName
+        });
+        break;
 
-    for (const columnName of indexName.split(':')) {
-      const columnSchema = allColumns[columnName];
+      case SchemaTypeName.Number:
+        attributeSchema.push({
+          keyType: attributeSchema.length === 0 ? AttributeKeyType.Hash : AttributeKeyType.Range,
+          attributeType: AttributeType.Number,
+          attributeName: columnName
+        });
+        break;
 
-      if (position > 1) {
-        throw new Error(`DynamoDB only supports one compound index key.`);
-      }
-
-      if (!columnSchema) {
-        throw new Error(`Unable column ${columnName}, ensure the given schema is correct.`);
-      }
-
-      switch (columnSchema.type) {
-        case SchemaTypeName.Boolean:
-          attributeSchema.push({
-            keyType: AttributeKeyType.Hash,
-            attributeType: AttributeType.Boolean,
-            attributeName: columnName
-          });
-          break;
-
-        case SchemaTypeName.Number:
-          attributeSchema.push({
-            keyType: position === 0 ? AttributeKeyType.Hash : AttributeKeyType.Range,
-            attributeType: AttributeType.Number,
-            attributeName: columnName
-          });
-          break;
-
-        default:
-          attributeSchema.push({
-            keyType: AttributeKeyType.Hash,
-            attributeType: AttributeType.String,
-            attributeName: columnName
-          });
-      }
-
-      position++;
+      default:
+        attributeSchema.push({
+          keyType: AttributeKeyType.Hash,
+          attributeType: AttributeType.String,
+          attributeName: columnName
+        });
     }
   }
 

@@ -3,8 +3,8 @@ import type { AllType, SourceMap } from '@ez4/reflection';
 import type { HttpHandler } from '../types/handler.js';
 
 import { IncompleteHandlerError } from '../errors/handler.js';
-import { getHttpResponse } from './response.js';
-import { getHttpRequest } from './request.js';
+import { getHttpHandlerResponse } from './response.js';
+import { getHttpHandlerRequest } from './request.js';
 import { isHttpHandler } from './utils.js';
 
 export const getHttpHandler = (type: AllType, reflection: SourceMap, errorList: Error[]) => {
@@ -28,11 +28,13 @@ export const getHttpHandler = (type: AllType, reflection: SourceMap, errorList: 
   }
 
   if (type.parameters) {
-    handler.request = getHttpRequest(type.parameters[0].value, type, reflection, errorList);
+    const requestType = type.parameters[0].value;
+
+    handler.request = getHttpHandlerRequest(requestType, type, reflection, errorList);
   }
 
   if (type.return) {
-    if ((handler.response = getHttpResponse(type.return, type, reflection, errorList))) {
+    if ((handler.response = getHttpHandlerResponse(type.return, type, reflection, errorList))) {
       properties.delete('response');
     }
   }

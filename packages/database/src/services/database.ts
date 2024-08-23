@@ -1,5 +1,5 @@
 import type { Service } from '@ez4/common';
-import type { LinkedVariables } from '@ez4/project';
+import type { LinkedVariables } from '@ez4/project/library';
 import type { TableTypes } from './helpers.js';
 import type { StreamChange } from './stream.js';
 import type { Index } from './indexes.js';

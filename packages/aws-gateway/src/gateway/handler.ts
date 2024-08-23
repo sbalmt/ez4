@@ -22,8 +22,10 @@ const equalsResource = (candidate: GatewayState, current: GatewayState) => {
 };
 
 const previewResource = async (candidate: GatewayState, current: GatewayState) => {
-  const parameters = candidate.parameters;
-  const changes = deepCompare(parameters, current.parameters);
+  const target = { ...candidate.parameters, dependencies: candidate.dependencies };
+  const source = { ...current.parameters, dependencies: current.dependencies };
+
+  const changes = deepCompare(target, source);
 
   if (!changes.counts) {
     return undefined;
@@ -31,7 +33,7 @@ const previewResource = async (candidate: GatewayState, current: GatewayState) =
 
   return {
     ...changes,
-    name: parameters.gatewayId
+    name: target.gatewayId
   };
 };
 

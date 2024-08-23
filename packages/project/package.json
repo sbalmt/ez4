@@ -1,14 +1,21 @@
 {
   "name": "@ez4/project",
   "description": "EZ4: Components to build a project and combine all framework pieces",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "author": "Silas B.",
   "license": "MIT",
   "type": "module",
   "exports": {
-    "types": "./dist/main.d.ts",
-    "require": "./dist/main.cjs",
-    "import": "./dist/main.mjs"
+    ".": {
+      "types": "./dist/main.d.ts",
+      "require": "./dist/main.cjs",
+      "import": "./dist/main.mjs"
+    },
+    "./library": {
+      "types": "./dist/library.d.ts",
+      "require": "./dist/library.cjs",
+      "import": "./dist/library.mjs"
+    }
   },
   "workspaces": [
     "packages/*"
@@ -24,8 +31,8 @@
     "live:publish": "npm run test && npm publish --access public"
   },
   "dependencies": {
-    "@ez4/reflection": "^0.1.0",
-    "@ez4/stateful": "^0.1.0",
-    "@ez4/utils": "^0.1.0"
+    "@ez4/reflection": "^0.2.0",
+    "@ez4/stateful": "^0.2.0",
+    "@ez4/utils": "^0.2.0"
   }
 }

@@ -1,4 +1,4 @@
-import type { ServiceMetadata } from '@ez4/project';
+import type { ServiceMetadata } from '@ez4/project/library';
 import type { HttpRoute } from './route.js';
 
 export const ServiceType = '@ez4/http';

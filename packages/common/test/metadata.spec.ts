@@ -2,7 +2,7 @@ import { equal, deepEqual } from 'assert/strict';
 import { describe, it } from 'node:test';
 
 import { registerTriggers, getLinkedVariables, getLinkedServices } from '@ez4/common/library';
-import { createTrigger } from '@ez4/project';
+import { createTrigger } from '@ez4/project/library';
 
 import { loadTestMember } from './common.js';
 

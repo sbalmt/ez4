@@ -1,5 +1,5 @@
 import type { AllType, ModelProperty } from '@ez4/reflection';
-import type { LinkedVariables } from '@ez4/project';
+import type { LinkedVariables } from '@ez4/project/library';
 
 import { isModelProperty, isTypeObject } from '@ez4/reflection';
 

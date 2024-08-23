@@ -23,7 +23,10 @@ const equalsResource = (candidate: StageState, current: StageState) => {
 };
 
 const previewResource = async (candidate: StageState, current: StageState) => {
-  const changes = deepCompare(candidate.parameters, current.parameters);
+  const target = { ...candidate.parameters, dependencies: candidate.dependencies };
+  const source = { ...current.parameters, dependencies: current.dependencies };
+
+  const changes = deepCompare(target, source);
 
   return changes.counts ? changes : undefined;
 };

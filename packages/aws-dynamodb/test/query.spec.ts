@@ -213,9 +213,9 @@ describe.only('dynamodb query', () => {
       id: { isIn: ['abc', 'def'] }
     });
 
-    equal(whereStatement, `WHERE "id" IN ?`);
+    equal(whereStatement, `WHERE "id" IN [?, ?]`);
 
-    deepEqual(variables, [['abc', 'def']]);
+    deepEqual(variables, ['abc', 'def']);
   });
 
   it('assert :: prepare where (is between)', () => {

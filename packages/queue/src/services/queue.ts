@@ -1,4 +1,4 @@
-import type { LinkedVariables } from '@ez4/project';
+import type { LinkedVariables } from '@ez4/project/library';
 import type { Service } from '@ez4/common';
 
 /**

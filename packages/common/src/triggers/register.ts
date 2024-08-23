@@ -2,7 +2,7 @@ import type { TypeObject } from '@ez4/reflection';
 
 import { join } from 'node:path';
 
-import { createTrigger } from '@ez4/project';
+import { createTrigger } from '@ez4/project/library';
 
 import { createRichType, getRichTypes } from '../richtypes/utils.js';
 

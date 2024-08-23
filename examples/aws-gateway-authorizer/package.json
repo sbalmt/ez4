@@ -1,0 +1,24 @@
+{
+  "name": "@ez4/aws-gateway-authorizer",
+  "description": "Example of a service using AWS API Gateway authorizers.",
+  "version": "0.0.0",
+  "author": "Silas B.",
+  "license": "MIT",
+  "type": "module",
+  "private": true,
+  "engines": {
+    "node": ">=20.15.0"
+  },
+  "workspaces": [
+    "packages/*"
+  ],
+  "scripts": {
+    "deploy": "tsc -p tsconfig.json && node --env-file ../../local.env tools/deploy.mjs",
+    "destroy": "node --env-file ../../local.env tools/destroy.mjs"
+  },
+  "dependencies": {
+    "@ez4/aws-gateway": "^0.1.0",
+    "@ez4/gateway": "^0.1.0",
+    "@ez4/project": "^0.1.0"
+  }
+}

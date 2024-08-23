@@ -5,7 +5,9 @@ export const TableServiceName = 'AWS:DynamoDB/Table';
 
 export const TableServiceType = 'aws:dynamodb.table';
 
-export type TableParameters = CreateRequest;
+export type TableParameters = CreateRequest & {
+  ttlAttribute?: string;
+};
 
 export type TableResult = CreateResponse;
 

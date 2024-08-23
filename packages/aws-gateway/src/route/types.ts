@@ -8,8 +8,9 @@ export const RouteServiceType = 'aws:api.route';
 export type RouteParameters = Omit<CreateRequest, 'integrationId'>;
 
 export type RouteResult = CreateResponse & {
-  integrationId: string;
   apiId: string;
+  integrationId: string;
+  authorizerId?: string;
 };
 
 export type RouteState = EntryState & {

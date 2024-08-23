@@ -1,9 +1,8 @@
 import type { SourceMap, TypeObject } from '@ez4/reflection';
 
-import { createProgram } from 'typescript';
-
 import { createReflection, createCompilerHost, createCompilerOptions } from '@ez4/reflection';
-import { triggerAllSync } from './triggers.js';
+import { triggerAllSync } from '@ez4/project/library';
+import { createProgram } from 'typescript';
 
 export const getReflection = (sourceFiles: string[]): SourceMap => {
   const options = createCompilerOptions();

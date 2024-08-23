@@ -5,7 +5,7 @@ import type { Database } from './database.js';
 /**
  * Database client.
  */
-export interface Client<T extends Database.Service<any>> {
+export type Client<T extends Database.Service<any>> = ClientTables<T> & {
   /**
    * Prepare and execute the given query.
    *
@@ -14,12 +14,7 @@ export interface Client<T extends Database.Service<any>> {
    * @returns Returns the results for the given query.
    */
   rawQuery(query: string, values?: unknown[]): Promise<Record<string, unknown>[]>;
-
-  /**
-   * Table clients.
-   */
-  table: ClientTables<T>;
-}
+};
 
 export type ClientTables<T extends Database.Service<any>> = {
   [P in keyof TableSchemas<T>]: TableSchemas<T>[P] extends Database.Schema
@@ -30,13 +25,17 @@ export type ClientTables<T extends Database.Service<any>> = {
 export interface Table<T extends Database.Schema> {
   insertOne(query: Query.InsertOneInput<T>): Promise<Query.InsertOneResult>;
 
+  findOne<U extends Query.SelectInput<T>>(
+    query: Query.FindOneInput<T, U>
+  ): Promise<Query.FindOneResult<T, U>>;
+
+  upsertOne<U extends Query.SelectInput<T>>(
+    query: Query.UpsertOneInput<T, U>
+  ): Promise<Query.UpsertOneResult<T, U>>;
+
   updateMany<U extends Query.SelectInput<T>>(
     query: Query.UpdateManyInput<T, U>
   ): Promise<Query.UpdateManyResult<T, U>>;
-
-  findFirst<U extends Query.SelectInput<T>>(
-    query: Query.FindFirstInput<T, U>
-  ): Promise<Query.FindFirstResult<T, U>>;
 
   findMany<U extends Query.SelectInput<T>>(
     query: Query.FindManyInput<T, U>
@@ -50,6 +49,18 @@ export interface Table<T extends Database.Schema> {
 export namespace Query {
   export type InsertOneInput<T extends Database.Schema> = {
     data: T;
+  };
+
+  export type FindOneInput<T extends Database.Schema, S extends Database.Schema> = {
+    select: S;
+    where: WhereInput<T>;
+  };
+
+  export type UpsertOneInput<T extends Database.Schema, S extends Database.Schema> = {
+    select?: S;
+    insert: T;
+    update: DeepPartial<T>;
+    where: WhereInput<T>;
   };
 
   export type UpdateManyInput<T extends Database.Schema, S extends Database.Schema> = {
@@ -74,18 +85,17 @@ export namespace Query {
     limit?: number;
   };
 
-  export type FindFirstInput<T extends Database.Schema, S extends Database.Schema> = {
-    select: S;
-    where: WhereInput<T>;
-  };
-
   export type InsertOneResult = void;
 
-  export type UpdateManyResult<T extends Database.Schema, S extends AnyObject> = Record<T, S>[];
-
-  export type FindFirstResult<T extends Database.Schema, S extends AnyObject> =
+  export type FindOneResult<T extends Database.Schema, S extends AnyObject> =
     | Record<T, S>
     | undefined;
+
+  export type UpsertOneResult<T extends Database.Schema, S extends AnyObject> =
+    | FindOneResult<T, S>
+    | undefined;
+
+  export type UpdateManyResult<T extends Database.Schema, S extends AnyObject> = Record<T, S>[];
 
   export type FindManyResult<T extends Database.Schema, S extends AnyObject> = {
     records: Record<T, S>[];

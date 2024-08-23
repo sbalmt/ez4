@@ -2,8 +2,9 @@ import type { EntryState, EntryStates } from '@ez4/stateful';
 import type { IdentityAccount, IdentityGrant } from '../types/identity.js';
 import type { DeployOptions } from '../types/deploy.js';
 
+import { triggerAllAsync } from '@ez4/project/library';
+
 import { MissingProviderError } from '../errors/provider.js';
-import { triggerAllAsync } from '../library/triggers.js';
 
 export const prepareExecutionRole = async (state: EntryStates, options: DeployOptions) => {
   const [grantsList, accountList, policyList] = await Promise.all([
@@ -22,7 +23,7 @@ export const prepareExecutionRole = async (state: EntryStates, options: DeployOp
     })
   );
 
-  if (!role) {
+  if (role === undefined) {
     throw new MissingProviderError('deploy:prepareExecutionRole');
   }
 

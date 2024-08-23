@@ -1,4 +1,4 @@
-import type { ExtraSource, ServiceEvent } from '@ez4/project';
+import type { ExtraSource, ServiceEvent } from '@ez4/project/library';
 
 import { isDatabaseService } from '@ez4/database/library';
 import { getTableName } from './utils.js';

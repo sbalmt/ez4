@@ -1,8 +1,8 @@
-import type { IdentityAccount, PolicyResourceEvent } from '@ez4/project';
+import type { IdentityAccount, PolicyResourceEvent } from '@ez4/project/library';
 
 import { registerTriggers as registerAwsTriggers } from '@ez4/aws-common';
 import { createPolicy, registerTriggers as registerAwsIdentityTriggers } from '@ez4/aws-identity';
-import { createTrigger } from '@ez4/project';
+import { createTrigger } from '@ez4/project/library';
 
 import { getPolicyDocument } from '../utils/policy.js';
 

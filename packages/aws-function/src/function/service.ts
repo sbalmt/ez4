@@ -35,8 +35,10 @@ export const getFunction = <E extends EntryState>(
   roleState: RoleState,
   functionName: string
 ) => {
-  const functionId = hashData(toKebabCase(functionName));
-  const functionState = state[(roleState.entryId, functionId)];
+  const formattedName = toKebabCase(functionName);
+  const functionId = hashData(FunctionServiceType, roleState.entryId, formattedName);
+
+  const functionState = state[functionId];
 
   if (functionState && isFunction(functionState)) {
     return functionState;

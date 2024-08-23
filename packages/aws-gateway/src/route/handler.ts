@@ -8,6 +8,7 @@ import { getGatewayId } from '../gateway/utils.js';
 import { getIntegrationId } from '../integration/utils.js';
 import { createRoute, deleteRoute, updateRoute } from './client.js';
 import { RouteServiceName } from './types.js';
+import { getAuthorizerId } from '../authorizer/utils.js';
 
 export const getRouteHandler = (): StepHandler<RouteState> => ({
   equals: equalsResource,
@@ -23,7 +24,10 @@ const equalsResource = (candidate: RouteState, current: RouteState) => {
 };
 
 const previewResource = async (candidate: RouteState, current: RouteState) => {
-  const changes = deepCompare(candidate.parameters, current.parameters);
+  const target = { ...candidate.parameters, dependencies: candidate.dependencies };
+  const source = { ...current.parameters, dependencies: current.dependencies };
+
+  const changes = deepCompare(target, source);
 
   return changes.counts ? changes : undefined;
 };
@@ -44,18 +48,21 @@ const createResource = async (
   candidate: RouteState,
   context: StepContext
 ): Promise<RouteResult> => {
+  const authorizerId = getAuthorizerId(context);
   const integrationId = getIntegrationId(RouteServiceName, 'route', context);
   const apiId = getGatewayId(RouteServiceName, 'route', context);
 
   const response = await createRoute(apiId, {
     ...candidate.parameters,
-    integrationId
+    integrationId,
+    authorizerId
   });
 
   return {
     routeId: response.routeId,
     routeArn: response.routeArn,
     integrationId,
+    authorizerId,
     apiId
   };
 };

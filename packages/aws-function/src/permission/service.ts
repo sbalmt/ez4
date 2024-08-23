@@ -26,3 +26,19 @@ export const createPermission = <E extends EntryState>(
     parameters
   });
 };
+
+export const getPermission = <E extends EntryState>(
+  state: EntryStates<E>,
+  sourceState: EntryState,
+  functionState: FunctionState
+) => {
+  const permissionId = hashData(PermissionServiceType, sourceState.entryId, functionState.entryId);
+
+  const permissionState = state[permissionId];
+
+  if (permissionState && isPermission(permissionState)) {
+    return permissionState;
+  }
+
+  return null;
+};

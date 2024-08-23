@@ -1,6 +1,6 @@
 import { ok } from 'node:assert/strict';
 
-import { getReflection } from '@ez4/project';
+import { getReflection } from '@ez4/project/library';
 import { isClassDeclaration } from '@ez4/common/library';
 import { isModelProperty } from '@ez4/reflection';
 

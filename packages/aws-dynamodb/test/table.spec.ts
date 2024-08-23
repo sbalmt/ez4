@@ -38,8 +38,9 @@ describe.only('dynamodb table', () => {
     const localState: EntryStates = {};
 
     const resource = createTable(localState, {
-      tableName: 'ez4TestTable',
+      tableName: 'ez4TestTable2',
       enableStreams: true,
+      ttlAttribute: 'ttl',
       attributeSchema: [
         {
           attributeName: 'id',
@@ -75,6 +76,21 @@ describe.only('dynamodb table', () => {
 
     resource.parameters.allowDeletion = true;
     resource.parameters.enableStreams = false;
+
+    const { state } = await assertDeploy(tableId, localState, lastState);
+
+    lastState = state;
+  });
+
+  it('assert :: update ttl', async () => {
+    ok(tableId && lastState);
+
+    const localState = deepClone(lastState);
+    const resource = localState[tableId];
+
+    ok(resource && isTable(resource));
+
+    resource.parameters.ttlAttribute = undefined;
 
     const { state } = await assertDeploy(tableId, localState, lastState);
 

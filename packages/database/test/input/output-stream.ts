@@ -51,5 +51,5 @@ export async function streamHandler(
   context: Service.Context<TestDatabase>
 ) {
   context.selfClient.rawQuery;
-  context.selfClient.table.testTable.findMany;
+  context.selfClient.testTable.findMany;
 }

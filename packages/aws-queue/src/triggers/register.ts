@@ -3,11 +3,10 @@ import type {
   PolicyResourceEvent,
   ServiceResourceEvent,
   ServiceEvent
-} from '@ez4/project';
+} from '@ez4/project/library';
 
 import type { QueueService } from '@ez4/queue/library';
-import type { RoleState } from '@ez4/aws-identity';
-import type { EntryStates } from '@ez4/stateful';
+import type { EntryState, EntryStates } from '@ez4/stateful';
 import type { QueueState } from '../queue/types.js';
 
 import { registerTriggers as registerAwsTriggers } from '@ez4/aws-common';
@@ -22,13 +21,13 @@ import {
   registerTriggers as registerAwsIdentityTriggers
 } from '@ez4/aws-identity';
 
-import { createTrigger } from '@ez4/project';
+import { createTrigger } from '@ez4/project/library';
 import { isQueueService } from '@ez4/queue/library';
 import { getFunction } from '@ez4/aws-function';
 import { toKebabCase } from '@ez4/utils';
 
 import { getPolicyDocument } from '../utils/policy.js';
-import { createFunction } from '../function/service.js';
+import { createQueueFunction } from '../mapping/function/service.js';
 import { createMapping } from '../mapping/service.js';
 import { createQueue } from '../queue/service.js';
 
@@ -94,7 +93,7 @@ const prepareLinkedService = async (event: ServiceEvent): Promise<ExtraSource | 
 const prepareQueueServices = async (event: ServiceResourceEvent) => {
   const { state, service, options, role } = event;
 
-  if (!isQueueService(service) || !isRole(role)) {
+  if (!isQueueService(service)) {
     return;
   }
 
@@ -113,9 +112,13 @@ const prepareQueueServices = async (event: ServiceResourceEvent) => {
 const prepareSubscriptions = async (
   state: EntryStates,
   service: QueueService,
-  executionRole: RoleState,
+  execRole: EntryState | null,
   queueState: QueueState
 ) => {
+  if (!execRole || !isRole(execRole)) {
+    throw new Error(`Execution role for SQS mapping is missing.`);
+  }
+
   const serviceName = queueState.parameters.queueName;
 
   for (const subscription of service.subscriptions) {
@@ -125,8 +128,8 @@ const prepareSubscriptions = async (
     const queueTimeout = service.timeout ?? 30;
 
     const functionState =
-      getFunction(state, executionRole, functionName) ??
-      (await createFunction(state, executionRole, {
+      getFunction(state, execRole, functionName) ??
+      (await createQueueFunction(state, execRole, {
         functionName,
         description: handler.description,
         sourceFile: handler.file,

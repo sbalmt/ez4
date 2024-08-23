@@ -21,8 +21,10 @@ const equalsResource = (candidate: BucketState, current: BucketState) => {
 };
 
 const previewResource = async (candidate: BucketState, current: BucketState) => {
-  const parameters = candidate.parameters;
-  const changes = deepCompare(parameters, current.parameters);
+  const target = { ...candidate.parameters, dependencies: candidate.dependencies };
+  const source = { ...current.parameters, dependencies: current.dependencies };
+
+  const changes = deepCompare(target, source);
 
   if (!changes.counts) {
     return undefined;
@@ -30,7 +32,7 @@ const previewResource = async (candidate: BucketState, current: BucketState) => 
 
   return {
     ...changes,
-    name: parameters.bucketName
+    name: target.bucketName
   };
 };
 

@@ -65,7 +65,7 @@ export type ServiceResourceEvent = {
   state: EntryStates;
   service: ServiceMetadata;
   options: DeployOptions;
-  role: EntryState;
+  role: EntryState | null;
 };
 
 export type DeployEvent = {

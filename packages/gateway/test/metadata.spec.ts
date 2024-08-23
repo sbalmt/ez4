@@ -2,7 +2,7 @@ import { readFileSync, writeFileSync } from 'node:fs';
 import { deepEqual, equal } from 'node:assert/strict';
 import { describe, it } from 'node:test';
 
-import { getReflection } from '@ez4/project';
+import { getReflection } from '@ez4/project/library';
 import { registerTriggers, getHttpServices } from '@ez4/gateway/library';
 
 const testFile = (fileName: string, overwrite = false) => {
@@ -32,7 +32,10 @@ describe.only('http metadata', () => {
 
   it('assert :: empty services', () => testFile('service'));
   it('assert :: service routes', () => testFile('route'));
-  it('assert :: route query', () => testFile('query'));
+  it('assert :: route authorizers', () => testFile('authorizer'));
+  it('assert :: route headers', () => testFile('headers'));
+  it('assert :: route identity', () => testFile('identity'));
   it('assert :: route parameters', () => testFile('parameters'));
+  it('assert :: route query', () => testFile('query'));
   it('assert :: route body', () => testFile('body'));
 });

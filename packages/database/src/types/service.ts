@@ -1,4 +1,4 @@
-import type { ServiceMetadata } from '@ez4/project';
+import type { ServiceMetadata } from '@ez4/project/library';
 import type { DatabaseTable } from './table.js';
 
 export const ServiceType = '@ez4/database';

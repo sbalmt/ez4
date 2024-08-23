@@ -2,6 +2,8 @@ import type { Arn } from '@ez4/aws-common';
 import type { StepContext, StepHandler } from '@ez4/stateful';
 import type { FunctionState, FunctionResult, FunctionParameters } from './types.js';
 
+import { stat } from 'node:fs/promises';
+
 import { InvalidParameterValueException } from '@aws-sdk/client-lambda';
 import { applyTagUpdates, ReplaceResourceError, waitDeletion } from '@ez4/aws-common';
 import { deepCompare, deepEqual, hashFile, waitFor } from '@ez4/utils';
@@ -16,6 +18,7 @@ import {
   untagFunction
 } from './client.js';
 
+import { protectVariables } from './helpers/variables.js';
 import { FunctionServiceName } from './types.js';
 
 export const getFunctionHandler = (): StepHandler<FunctionState> => ({
@@ -27,20 +30,36 @@ export const getFunctionHandler = (): StepHandler<FunctionState> => ({
   delete: deleteResource
 });
 
+const lockSensitiveData = (candidate: FunctionState) => {
+  const { parameters } = candidate;
+
+  if (parameters.variables) {
+    parameters.variables = protectVariables(parameters.variables);
+  }
+
+  return candidate;
+};
+
 const equalsResource = (candidate: FunctionState, current: FunctionState) => {
   return !!candidate.result && candidate.result.functionArn === current.result?.functionArn;
 };
 
 const previewResource = async (candidate: FunctionState, current: FunctionState) => {
-  const parameters = candidate.parameters;
+  const target = candidate.parameters;
+  const source = current.parameters;
 
   const changes = deepCompare(
     {
-      ...candidate.parameters,
-      sourceHash: await hashFile(parameters.sourceFile)
+      ...target,
+      dependencies: candidate.dependencies,
+      sourceHash: await hashFile(target.sourceFile),
+      ...(target.variables && {
+        variables: protectVariables(target.variables)
+      })
     },
     {
-      ...current.parameters,
+      ...source,
+      dependencies: current.dependencies,
       sourceHash: current.result?.sourceHash
     }
   );
@@ -51,7 +70,7 @@ const previewResource = async (candidate: FunctionState, current: FunctionState)
 
   return {
     ...changes,
-    name: parameters.functionName
+    name: target.functionName
   };
 };
 
@@ -77,7 +96,8 @@ const createResource = async (
   const roleArn = getRoleArn(FunctionServiceName, functionName, context);
 
   const sourceFile = parameters.sourceFile;
-  const sourceHash = await hashFile(sourceFile);
+
+  const [sourceStat, sourceHash] = await Promise.all([stat(sourceFile), hashFile(sourceFile)]);
 
   let lastError;
 
@@ -105,9 +125,12 @@ const createResource = async (
     throw lastError;
   }
 
+  lockSensitiveData(candidate);
+
   return {
-    functionName: response.functionName,
     functionArn: response.functionArn,
+    functionName: response.functionName,
+    sourceTime: sourceStat.mtime.getTime(),
     sourceHash,
     roleArn
   };
@@ -118,36 +141,37 @@ const updateResource = async (
   current: FunctionState,
   context: StepContext
 ) => {
-  const result = candidate.result;
+  const { parameters, result } = candidate;
 
   if (!result) {
     return;
   }
 
-  const functionName = candidate.parameters.functionName;
+  const functionName = parameters.functionName;
+  const roleArn = getRoleArn(FunctionServiceName, functionName, context);
 
-  const newRoleArn = getRoleArn(FunctionServiceName, functionName, context);
-  const oldRoleArn = current.result?.roleArn ?? newRoleArn;
-
-  const newConfig = { ...candidate.parameters, roleArn: newRoleArn };
-  const oldConfig = { ...current.parameters, roleArn: oldRoleArn };
+  const newConfig = { ...parameters, roleArn };
+  const oldConfig = { ...current.parameters, roleArn: current.result?.roleArn ?? roleArn };
 
   await Promise.all([
     checkConfigurationUpdates(functionName, newConfig, oldConfig),
-    checkTagUpdates(result.functionArn, candidate.parameters, current.parameters)
+    checkTagUpdates(result.functionArn, parameters, current.parameters)
   ]);
 
   // Should always perform for last.
-  const newSourceHash = await checkSourceCodeUpdates(
+  const { sourceTime, sourceHash } = await checkSourceCodeUpdates(
     functionName,
-    candidate.parameters,
+    parameters,
     current.result
   );
 
+  lockSensitiveData(candidate);
+
   return {
     ...result,
-    sourceHash: newSourceHash,
-    roleArn: newRoleArn
+    sourceTime,
+    sourceHash,
+    roleArn
   };
 };
 
@@ -164,7 +188,14 @@ const checkConfigurationUpdates = async <T extends FunctionParameters>(
   candidate: T,
   current: T
 ) => {
-  const hasChanges = !deepEqual(candidate, current, {
+  const protectedCandidate = {
+    ...candidate,
+    ...(candidate.variables && {
+      variables: protectVariables(candidate.variables)
+    })
+  };
+
+  const hasChanges = !deepEqual(protectedCandidate, current, {
     sourceFile: true,
     functionName: true,
     tags: true
@@ -194,11 +225,28 @@ const checkSourceCodeUpdates = async (
   current: FunctionResult | undefined
 ) => {
   const sourceFile = candidate.sourceFile;
-  const sourceHash = await hashFile(sourceFile);
 
-  if (sourceHash !== current?.sourceHash) {
-    await updateSourceCode(functionName, candidate);
+  const oldSourceTime = current?.sourceTime ?? 0;
+  const oldSourceHash = current?.sourceHash;
+
+  const newSourceStat = await stat(sourceFile);
+  const newSourceTime = newSourceStat.mtime.getTime();
+
+  if (newSourceTime > oldSourceTime) {
+    const newSourceHash = await hashFile(sourceFile);
+
+    if (newSourceHash !== oldSourceHash) {
+      await updateSourceCode(functionName, candidate);
+    }
+
+    return {
+      sourceTime: newSourceTime,
+      sourceHash: newSourceHash
+    };
   }
 
-  return sourceHash;
+  return {
+    sourceTime: oldSourceTime,
+    sourceHash: oldSourceHash
+  };
 };

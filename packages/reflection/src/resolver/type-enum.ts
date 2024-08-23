@@ -6,7 +6,7 @@ import { isEnumDeclaration } from 'typescript';
 import { TypeName } from '../types.js';
 import { getNodeFilePath } from '../helpers/node.js';
 import { getNodeDocumentation } from '../helpers/documentation.js';
-import { tryEnumMember } from './enum-member.js';
+import { tryEnumMembers } from './enum-member.js';
 
 export type EnumNodes = EnumDeclaration;
 
@@ -14,14 +14,14 @@ export const createEnum = (
   name: string,
   file: string | null,
   description: string | null,
-  members: EnumMember[]
+  members?: EnumMember[]
 ): TypeEnum => {
   return {
     type: TypeName.Enum,
     name,
     ...(file && { file }),
     ...(description && { description }),
-    ...(members.length && { members })
+    ...(members?.length && { members })
   };
 };
 
@@ -34,18 +34,23 @@ export const tryTypeEnum = (node: Node, context: Context) => {
     return null;
   }
 
+  if (context.cache.has(node)) {
+    return context.cache.get(node) as TypeEnum;
+  }
+
   const name = node.name.getText();
   const file = context.options.includePath ? getNodeFilePath(node) : null;
   const description = getNodeDocumentation(node.name, context.checker);
-  const memberList: EnumMember[] = [];
 
-  node.members.forEach((member) => {
-    const result = tryEnumMember(member, context);
+  const reflectedType = createEnum(name, file, description);
 
-    if (result) {
-      memberList.push(result);
-    }
-  });
+  context.cache.set(node, reflectedType);
 
-  return createEnum(name, file, description, memberList);
+  const memberTypes = tryEnumMembers(node, context);
+
+  if (memberTypes?.length) {
+    reflectedType.members = memberTypes;
+  }
+
+  return reflectedType;
 };

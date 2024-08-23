@@ -8,9 +8,6 @@ declare class TestRequest implements Http.Request {
   };
 }
 
-/**
- * Service for testing query strings.
- */
 export declare class TestService extends Http.Service<[TestRequest]> {
   routes: [
     {

@@ -1,7 +1,7 @@
 {
   "name": "@ez4/reflection",
   "description": "EZ4: Components to extract reflection data from typescript files",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "author": "Silas B.",
   "license": "MIT",
   "type": "module",

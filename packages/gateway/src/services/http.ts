@@ -1,56 +1,34 @@
 import type { Service } from '@ez4/common';
-import type { LinkedVariables } from '@ez4/project';
-import type { RouteTypes } from './helpers.js';
+import type { LinkedVariables } from '@ez4/project/library';
 import type { HttpPath } from '../types/path.js';
+import type { HttpAuthResponse, HttpResponse } from './response.js';
+import type { HttpRequest, HttpAuthRequest } from './request.js';
+import type { RouteTypes } from './helpers.js';
+
+import type {
+  HttpHeaders,
+  HttpIdentity,
+  HttpPathParameters,
+  HttpQueryStrings,
+  HttpJsonBody
+} from './common.js';
 
 /**
  * Provide all contracts for a self-managed HTTP service.
  */
 export namespace Http {
-  /**
-   * Definition of path parameters.
-   */
-  export interface PathParameters {}
+  export type Headers = HttpHeaders;
+  export type Identity = HttpIdentity;
 
-  /**
-   * Definition of query strings.
-   */
-  export interface QueryStrings {}
+  export type PathParameters = HttpPathParameters;
+  export type QueryStrings = HttpQueryStrings;
+  export type JsonBody = HttpJsonBody;
 
-  /**
-   * Definition of a JSON body.
-   */
-  export interface JsonBody {}
+  export type AuthRequest = HttpAuthRequest;
+  export type Request = HttpRequest;
 
-  /**
-   * HTTP request.
-   */
-  export interface Request {
-    /**
-     * Expected fields for query strings.
-     */
-    query?: QueryStrings;
-
-    /**
-     * Expected field for path parameters.
-     */
-    parameters?: PathParameters;
-
-    /**
-     * Expected field for body payload.
-     */
-    body?: JsonBody;
-  }
-
-  /**
-   * Incoming request cookies.
-   */
-  export type Cookies = string[];
-
-  /**
-   * Incoming request headers.
-   */
-  export type Headers = Record<string, string | undefined>;
+  export type AuthResponse = HttpAuthResponse;
+  export type Response = HttpResponse;
 
   /**
    * Incoming request.
@@ -62,25 +40,23 @@ export namespace Http {
     requestId: string;
 
     /**
-     * Request method.
-     */
-    method: string;
-
-    /**
      * Request path.
      */
     path: string;
 
     /**
-     * Request headers.
+     * Request method.
      */
-    headers: Headers;
-
-    /**
-     * Request cookies.
-     */
-    cookies?: Cookies;
+    method: string;
   };
+
+  /**
+   * Incoming request authorizer.
+   */
+  export type Authorizer<T extends AuthRequest, U extends AuthResponse> = (
+    request: T,
+    context: Service.Context<Service<any, any>>
+  ) => Promise<U> | U;
 
   /**
    * Incoming request handler.
@@ -91,37 +67,23 @@ export namespace Http {
   ) => Promise<U> | U;
 
   /**
-   * HTTP response.
-   */
-  export interface Response {
-    /**
-     * Response status code.
-     */
-    status: number;
-
-    /**
-     * Response body.
-     */
-    body?: JsonBody;
-  }
-
-  /**
    * HTTP route.
    */
-  export interface Route<T extends Request = Request, U extends Response = Response> {
+  export interface Route<I extends Request = Request, O extends Response = Response> {
     /**
      * Route path.
      */
     path: HttpPath;
 
     /**
-     * Route handler.
-     *
-     * @param request Incoming request.
-     * @param context Handler context.
-     * @returns Outgoing response.
+     * Route authorizer.
      */
-    handler: Handler<T, U> | Handler<Incoming<T>, U>;
+    authorizer?: Authorizer<any, any>;
+
+    /**
+     * Route handler.
+     */
+    handler: Handler<I, O> | Handler<Incoming<I>, O>;
 
     /**
      * Variables associated to the route.

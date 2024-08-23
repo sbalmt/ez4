@@ -1,4 +1,4 @@
-import type { PolicyResourceEvent } from '@ez4/project';
+import type { PolicyResourceEvent } from '@ez4/project/library';
 
 import { createPolicy } from '@ez4/aws-identity';
 

@@ -5,26 +5,32 @@ import {
   IncompleteHandlerError,
   IncompleteRouteError,
   IncompleteServiceError,
-  IncorrectBodyTypeError,
+  IncorrectHeadersTypeError,
+  IncorrectIdentityTypeError,
   IncorrectParameterTypeError,
   IncorrectQueryTypeError,
+  IncorrectBodyTypeError,
   IncorrectRequestTypeError,
   IncorrectResponseTypeError,
-  InvalidBodyTypeError,
+  InvalidHeadersTypeError,
+  InvalidIdentityTypeError,
   InvalidParameterTypeError,
   InvalidQueryTypeError,
+  InvalidBodyTypeError,
   InvalidRequestTypeError,
   InvalidResponseTypeError
 } from '@ez4/gateway/library';
 
-import { getReflection } from '@ez4/project';
+import { getReflection } from '@ez4/project/library';
 import { registerTriggers, getHttpServices } from '@ez4/gateway/library';
 
-const parseFile = (fileName: string) => {
+const parseFile = (fileName: string, errorCount: number) => {
   const sourceFile = `./test/input/${fileName}.ts`;
 
   const reflection = getReflection([sourceFile]);
   const result = getHttpServices(reflection);
+
+  equal(result.errors.length, errorCount);
 
   return result.errors;
 };
@@ -33,22 +39,14 @@ describe.only('http metadata errors', () => {
   registerTriggers();
 
   it('assert :: incomplete service', () => {
-    const errors = parseFile('incomplete-service');
-
-    equal(errors.length, 1);
-
-    const [error1] = errors;
+    const [error1] = parseFile('incomplete-service', 1);
 
     ok(error1 instanceof IncompleteServiceError);
     deepEqual(error1.properties, ['routes']);
   });
 
   it('assert :: incomplete service routes', () => {
-    const errors = parseFile('incomplete-route');
-
-    equal(errors.length, 2);
-
-    const [error1, error2] = errors;
+    const [error1, error2] = parseFile('incomplete-route', 2);
 
     ok(error1 instanceof IncompleteRouteError);
     deepEqual(error1.properties, ['path']);
@@ -58,11 +56,7 @@ describe.only('http metadata errors', () => {
   });
 
   it('assert :: incomplete route handler', () => {
-    const errors = parseFile('incomplete-handler');
-
-    equal(errors.length, 2);
-
-    const [error1, error2] = errors;
+    const [error1, error2] = parseFile('incomplete-handler', 2);
 
     ok(error1 instanceof IncompleteHandlerError);
     deepEqual(error1.properties, ['response']);
@@ -72,11 +66,7 @@ describe.only('http metadata errors', () => {
   });
 
   it('assert :: incorrect handler response', () => {
-    const errors = parseFile('incorrect-response');
-
-    equal(errors.length, 3);
-
-    const [error1, error2, error3] = errors;
+    const [error1, error2, error3] = parseFile('incorrect-response', 3);
 
     ok(error1 instanceof IncorrectResponseTypeError);
     equal(error1.baseType, 'Http.Response');
@@ -90,11 +80,7 @@ describe.only('http metadata errors', () => {
   });
 
   it('assert :: invalid handler response', () => {
-    const errors = parseFile('invalid-response');
-
-    equal(errors.length, 3);
-
-    const [error1, error2, error3] = errors;
+    const [error1, error2, error3] = parseFile('invalid-response', 3);
 
     ok(error1 instanceof InvalidResponseTypeError);
     equal(error1.baseType, 'Http.Response');
@@ -107,11 +93,7 @@ describe.only('http metadata errors', () => {
   });
 
   it('assert :: incorrect handler request', () => {
-    const errors = parseFile('incorrect-request');
-
-    equal(errors.length, 1);
-
-    const [error1] = errors;
+    const [error1] = parseFile('incorrect-request', 1);
 
     ok(error1 instanceof IncorrectRequestTypeError);
     equal(error1.baseType, 'Http.Request');
@@ -119,45 +101,59 @@ describe.only('http metadata errors', () => {
   });
 
   it('assert :: invalid handler request', () => {
-    const errors = parseFile('invalid-request');
-
-    equal(errors.length, 1);
-
-    const [error1] = errors;
+    const [error1] = parseFile('invalid-request', 1);
 
     ok(error1 instanceof InvalidRequestTypeError);
     equal(error1.baseType, 'Http.Request');
   });
 
-  it('assert :: incorrect query strings', () => {
-    const errors = parseFile('incorrect-query');
+  it('assert :: incorrect authorizer request', () => {
+    const [error1] = parseFile('incorrect-authorizer', 1);
 
-    equal(errors.length, 1);
-
-    const [error1] = errors;
-
-    ok(error1 instanceof IncorrectQueryTypeError);
-    equal(error1.baseType, 'Http.QueryStrings');
-    equal(error1.queryType, 'TestQueryStrings');
+    ok(error1 instanceof IncorrectRequestTypeError);
+    equal(error1.baseType, 'Http.AuthRequest');
+    equal(error1.modelType, 'TestAuthRequest');
   });
 
-  it('assert :: invalid query strings', () => {
-    const errors = parseFile('invalid-query');
+  it('assert :: invalid authorizer request', () => {
+    const [error1] = parseFile('invalid-authorizer', 1);
 
-    equal(errors.length, 1);
+    ok(error1 instanceof InvalidRequestTypeError);
+    equal(error1.baseType, 'Http.AuthRequest');
+  });
 
-    const [error1] = errors;
+  it('assert :: incorrect headers', () => {
+    const [error1] = parseFile('incorrect-headers', 1);
 
-    ok(error1 instanceof InvalidQueryTypeError);
-    equal(error1.baseType, 'Http.QueryStrings');
+    ok(error1 instanceof IncorrectHeadersTypeError);
+    equal(error1.baseType, 'Http.Headers');
+    equal(error1.headersType, 'TestHeaders');
+  });
+
+  it('assert :: invalid headers', () => {
+    const [error1] = parseFile('invalid-headers', 1);
+
+    ok(error1 instanceof InvalidHeadersTypeError);
+    equal(error1.baseType, 'Http.Headers');
+  });
+
+  it('assert :: incorrect identity', () => {
+    const [error1] = parseFile('incorrect-identity', 1);
+
+    ok(error1 instanceof IncorrectIdentityTypeError);
+    equal(error1.baseType, 'Http.Identity');
+    equal(error1.identityType, 'TestIdentity');
+  });
+
+  it('assert :: invalid identity', () => {
+    const [error1] = parseFile('invalid-identity', 1);
+
+    ok(error1 instanceof InvalidIdentityTypeError);
+    equal(error1.baseType, 'Http.Identity');
   });
 
   it('assert :: incorrect path parameters', () => {
-    const errors = parseFile('incorrect-parameter');
-
-    equal(errors.length, 1);
-
-    const [error1] = errors;
+    const [error1] = parseFile('incorrect-parameter', 1);
 
     ok(error1 instanceof IncorrectParameterTypeError);
     equal(error1.baseType, 'Http.PathParameters');
@@ -165,22 +161,29 @@ describe.only('http metadata errors', () => {
   });
 
   it('assert :: invalid path parameters', () => {
-    const errors = parseFile('invalid-parameter');
-
-    equal(errors.length, 1);
-
-    const [error1] = errors;
+    const [error1] = parseFile('invalid-parameter', 1);
 
     ok(error1 instanceof InvalidParameterTypeError);
     equal(error1.baseType, 'Http.PathParameters');
   });
 
+  it('assert :: incorrect query strings', () => {
+    const [error1] = parseFile('incorrect-query', 1);
+
+    ok(error1 instanceof IncorrectQueryTypeError);
+    equal(error1.baseType, 'Http.QueryStrings');
+    equal(error1.queryType, 'TestQueryStrings');
+  });
+
+  it('assert :: invalid query strings', () => {
+    const [error1] = parseFile('invalid-query', 1);
+
+    ok(error1 instanceof InvalidQueryTypeError);
+    equal(error1.baseType, 'Http.QueryStrings');
+  });
+
   it('assert :: incorrect body', () => {
-    const errors = parseFile('incorrect-body');
-
-    equal(errors.length, 1);
-
-    const [error1] = errors;
+    const [error1] = parseFile('incorrect-body', 1);
 
     ok(error1 instanceof IncorrectBodyTypeError);
     equal(error1.baseType, 'Http.JsonBody');
@@ -188,11 +191,7 @@ describe.only('http metadata errors', () => {
   });
 
   it('assert :: invalid body', () => {
-    const errors = parseFile('invalid-body');
-
-    equal(errors.length, 1);
-
-    const [error1] = errors;
+    const [error1] = parseFile('invalid-body', 1);
 
     ok(error1 instanceof InvalidBodyTypeError);
     equal(error1.baseType, 'Http.JsonBody');

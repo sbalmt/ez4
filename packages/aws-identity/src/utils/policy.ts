@@ -1,5 +1,5 @@
 import type { PolicyDocument, PolicyStatement } from '@ez4/aws-identity';
-import type { IdentityGrant } from '@ez4/project';
+import type { IdentityGrant } from '@ez4/project/library';
 
 export const createPolicyDocument = (grants: IdentityGrant[]): PolicyDocument => {
   return {

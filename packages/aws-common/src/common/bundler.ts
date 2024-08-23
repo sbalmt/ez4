@@ -1,4 +1,4 @@
-import type { ExtraSource } from '@ez4/project';
+import type { ExtraSource } from '@ez4/project/library';
 
 import { build, formatMessages } from 'esbuild';
 

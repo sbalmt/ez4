@@ -5,9 +5,11 @@ import { ok, equal } from 'node:assert/strict';
 import { join } from 'node:path';
 
 import {
-  createFunction,
   createGateway,
   createIntegration,
+  createAuthorizer,
+  createIntegrationFunction,
+  createAuthorizerFunction,
   createRoute,
   isRoute
 } from '@ez4/aws-gateway';
@@ -30,10 +32,11 @@ const assertDeploy = async <E extends EntryState>(
   ok(resource?.result);
   ok(isRoute(resource));
 
-  const { apiId, integrationId, routeId, routeArn } = resource.result;
+  const { apiId, integrationId, authorizerId, routeId, routeArn } = resource.result;
 
   ok(apiId);
   ok(integrationId);
+  ok(authorizerId);
   ok(routeId);
   ok(routeArn);
 
@@ -62,20 +65,46 @@ describe.only('gateway route', () => {
       roleDocument: getRoleDocument()
     });
 
-    const functionResource = await createFunction(localState, roleResource, {
+    const integrationLambdaResource = await createIntegrationFunction(localState, roleResource, {
       sourceFile: join(baseDir, 'lambda.js'),
-      functionName: 'EZ4: Test route lambda',
+      functionName: 'EZ4: Test integration handler lambda',
       handlerName: 'main'
     });
 
-    const integrationResource = createIntegration(localState, gatewayResource, functionResource, {
-      description: 'EZ4: Test route integration'
+    const integrationResource = createIntegration(
+      localState,
+      gatewayResource,
+      integrationLambdaResource,
+      {
+        description: 'EZ4: Test route integration'
+      }
+    );
+
+    const authorizerLambdaResource = await createAuthorizerFunction(localState, roleResource, {
+      sourceFile: join(baseDir, 'lambda.js'),
+      functionName: 'EZ4: Test route authorizer lambda',
+      handlerName: 'main'
     });
 
-    const resource = createRoute(localState, gatewayResource, integrationResource, {
-      routePath: 'GET /ez4-test',
-      operationName: 'EZ4: Test route operation name'
-    });
+    const authorizerResource = createAuthorizer(
+      localState,
+      gatewayResource,
+      authorizerLambdaResource,
+      {
+        name: 'EZ4: Test route authorizer'
+      }
+    );
+
+    const resource = createRoute(
+      localState,
+      gatewayResource,
+      integrationResource,
+      authorizerResource,
+      {
+        routePath: 'GET /ez4-test',
+        operationName: 'EZ4: Test route operation name'
+      }
+    );
 
     routeId = resource.entryId;
 

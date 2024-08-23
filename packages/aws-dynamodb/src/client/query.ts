@@ -40,7 +40,7 @@ export const prepareUpdate = <T extends Database.Schema, U extends Query.SelectI
 
 export const prepareSelect = <T extends Database.Schema, U extends Query.SelectInput<T> = {}>(
   table: string,
-  query: Query.FindFirstInput<T, U> | Query.FindManyInput<T, U>
+  query: Query.FindOneInput<T, U> | Query.FindManyInput<T, U>
 ): PrepareResult => {
   const [whereFields, whereVariables] = prepareWhereFields(query.where);
 

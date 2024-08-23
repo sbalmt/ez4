@@ -1,8 +1,9 @@
+import { triggerAllSync } from '@ez4/project/library';
+
 import { DuplicateMetadataError } from '../errors/metadata.js';
 import { MetadataReflection } from '../types/metadata.js';
 import { assertNoErrors } from '../utils/errors.js';
 import { getReflection } from './reflection.js';
-import { triggerAllSync } from './triggers.js';
 
 export const getMetadata = (sourceFiles: string[]) => {
   const reflection = getReflection(sourceFiles);

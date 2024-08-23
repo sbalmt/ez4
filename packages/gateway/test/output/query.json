@@ -3,7 +3,6 @@
     "type": "@ez4/http",
     "id": "TestService",
     "name": null,
-    "description": "Service for testing query strings.",
     "routes": [
       {
         "path": "GET /test-route",
@@ -21,7 +20,7 @@
                   "type": "number"
                 }
               },
-              "description": "Expected fields for query strings."
+              "description": "Expected query strings."
             }
           },
           "response": {

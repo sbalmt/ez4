@@ -1,7 +1,8 @@
 import type { EntryStates } from '@ez4/stateful';
 
+import { triggerAllAsync } from '@ez4/project/library';
+
 import { MissingProviderError } from '../errors/provider.js';
-import { triggerAllAsync } from '../library/triggers.js';
 
 export const applyDeploy = async (newState: EntryStates, oldState: EntryStates) => {
   const result = await triggerAllAsync('deploy:apply', (handler) =>

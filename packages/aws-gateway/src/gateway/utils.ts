@@ -18,3 +18,17 @@ export const getGatewayId = <E extends EntryState>(
 
   return resource.apiId;
 };
+
+export const getGatewayArn = <E extends EntryState>(
+  serviceName: string,
+  resourceId: string,
+  context: StepContext<E | GatewayState>
+) => {
+  const resource = context.getDependencies(GatewayServiceType).at(0)?.result;
+
+  if (!resource?.apiArn) {
+    throw new IncompleteResourceError(serviceName, resourceId, 'apiArn');
+  }
+
+  return resource.apiArn;
+};

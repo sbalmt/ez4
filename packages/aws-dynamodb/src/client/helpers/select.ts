@@ -25,5 +25,9 @@ export const prepareSelectFields = <T extends Database.Schema>(
     selectFields.push(fieldPath);
   }
 
-  return selectFields.join(', ');
+  if (selectFields.length) {
+    return selectFields.join(', ');
+  }
+
+  return '*';
 };

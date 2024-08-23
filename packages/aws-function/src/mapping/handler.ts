@@ -22,7 +22,10 @@ const equalsResource = (candidate: MappingState, current: MappingState) => {
 };
 
 const previewResource = async (candidate: MappingState, current: MappingState) => {
-  const changes = deepCompare(candidate.parameters, current.parameters, {
+  const target = { ...candidate.parameters, dependencies: candidate.dependencies };
+  const source = { ...current.parameters, dependencies: current.dependencies };
+
+  const changes = deepCompare(target, source, {
     getSourceArn: true
   });
 

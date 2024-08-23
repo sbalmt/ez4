@@ -1,9 +1,8 @@
 import type { MetadataReflection } from '../types/metadata.js';
 import type { ServiceMetadata } from '../types/service.js';
-
 import type { DeployOptions } from '../types/deploy.js';
 
-import { triggerAllAsync } from '../library/triggers.js';
+import { triggerAllAsync } from '@ez4/project/library';
 
 export const prepareAllLinkedServices = async (
   metadata: MetadataReflection,

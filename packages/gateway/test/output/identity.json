@@ -1,0 +1,36 @@
+{
+  "TestService": {
+    "type": "@ez4/http",
+    "id": "TestService",
+    "name": null,
+    "routes": [
+      {
+        "path": "GET /test-route",
+        "handler": {
+          "name": "testRoute",
+          "file": "test/input/output-identity.ts",
+          "request": {
+            "identity": {
+              "type": "object",
+              "properties": {
+                "foo": {
+                  "type": "string"
+                }
+              },
+              "description": "Expected identity."
+            }
+          },
+          "response": {
+            "type": "object",
+            "properties": {
+              "status": {
+                "type": "number",
+                "description": "Response status code."
+              }
+            }
+          }
+        }
+      }
+    ]
+  }
+}

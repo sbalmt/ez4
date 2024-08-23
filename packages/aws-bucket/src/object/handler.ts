@@ -22,8 +22,10 @@ const equalsResource = (candidate: ObjectState, current: ObjectState) => {
 };
 
 const previewResource = async (candidate: ObjectState, current: ObjectState) => {
-  const parameters = candidate.parameters;
-  const changes = deepCompare(parameters, current.parameters);
+  const target = { ...candidate.parameters, dependencies: candidate.dependencies };
+  const source = { ...current.parameters, dependencies: current.dependencies };
+
+  const changes = deepCompare(target, source);
 
   if (!changes.counts) {
     return undefined;
@@ -31,7 +33,7 @@ const previewResource = async (candidate: ObjectState, current: ObjectState) => 
 
   return {
     ...changes,
-    name: getObjectKey(parameters)
+    name: getObjectKey(target)
   };
 };
 

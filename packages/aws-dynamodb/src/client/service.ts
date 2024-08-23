@@ -1,4 +1,4 @@
-import type { Database, Client as DbClient, ClientTables } from '@ez4/database';
+import type { Database, Client as DbClient } from '@ez4/database';
 import type { ObjectSchema } from '@ez4/schema';
 
 import { DynamoDBDocumentClient, ExecuteStatementCommand } from '@aws-sdk/lib-dynamodb';
@@ -17,9 +17,9 @@ export namespace Client {
   export const make = <T extends Database.Service>(
     tableRepository: Record<string, Repository>
   ): DbClient<T> => {
-    const tableCache: Record<string, Table> = {};
+    const cache: Record<string, Table> = {};
 
-    return new (class {
+    const instance = new (class {
       async rawQuery(query: string, values: unknown[]) {
         const result = await client.send(
           new ExecuteStatementCommand({
@@ -31,28 +31,24 @@ export namespace Client {
 
         return result.Items ?? [];
       }
+    })();
 
-      table = new Proxy({} as ClientTables<T>, {
-        get: (_target, property) => {
-          const tableAlias = property.toString();
+    return new Proxy(instance as DbClient<T>, {
+      get: (_target, property) => {
+        const tableAlias = property.toString();
 
-          let tableService = tableCache[tableAlias];
-
-          if (!tableService) {
-            if (!(tableAlias in tableRepository)) {
-              throw new Error(`Table ${tableAlias} isn't part of the given table repository.`);
-            }
-
-            const { tableName, tableSchema } = tableRepository[tableAlias];
-
-            tableService = new Table(tableName, tableSchema, client);
-
-            tableCache[tableAlias] = tableService;
+        if (!cache[tableAlias]) {
+          if (!(tableAlias in tableRepository)) {
+            throw new Error(`Table ${tableAlias} isn't part of the table repository.`);
           }
 
-          return tableService;
+          const { tableName, tableSchema } = tableRepository[tableAlias];
+
+          cache[tableAlias] = new Table(tableName, tableSchema, client);
         }
-      });
-    })();
+
+        return cache[tableAlias];
+      }
+    });
   };
 }

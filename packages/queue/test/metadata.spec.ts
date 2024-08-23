@@ -2,7 +2,7 @@ import { readFileSync, writeFileSync } from 'node:fs';
 import { deepEqual, equal } from 'node:assert/strict';
 import { describe, it } from 'node:test';
 
-import { getReflection } from '@ez4/project';
+import { getReflection } from '@ez4/project/library';
 import { registerTriggers, getQueueServices } from '@ez4/queue/library';
 
 const testFile = (fileName: string, overwrite = false) => {

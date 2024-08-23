@@ -2,13 +2,13 @@ import type { EntryState, EntryStates } from '@ez4/stateful';
 import type { MetadataReflection } from '../types/metadata.js';
 import type { DeployOptions } from '../types/deploy.js';
 
-import { triggerAllAsync } from '../library/triggers.js';
+import { triggerAllAsync } from '@ez4/project/library';
 
 export const prepareDeployResources = async (
   newState: EntryStates,
   oldState: EntryStates,
   metadata: MetadataReflection,
-  executionRole: EntryState,
+  execRole: EntryState | null,
   options: DeployOptions
 ) => {
   const operations = [];
@@ -17,7 +17,7 @@ export const prepareDeployResources = async (
     const service = metadata[identity];
 
     const promise = triggerAllAsync('deploy:prepareResources', (handler) =>
-      handler({ state: newState, role: executionRole, service, options })
+      handler({ state: newState, role: execRole, service, options })
     );
 
     operations.push(promise);

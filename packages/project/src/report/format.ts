@@ -1,11 +1,10 @@
 import type { AnyObject, ObjectComparison } from '@ez4/utils';
-import type { EntryState } from '@ez4/stateful';
 
 import { toGray, toGreen, toRed } from '../console/format.js';
 
 export const formatReportChanges = (
   changes: ObjectComparison,
-  source: EntryState | undefined,
+  values: AnyObject,
   path?: string
 ) => {
   const length = getMaxPropertyLength({
@@ -13,11 +12,6 @@ export const formatReportChanges = (
     ...changes.update,
     ...changes.create
   });
-
-  const current = {
-    ...source?.parameters,
-    ...source?.result
-  };
 
   const createSign = toGreen(`+`);
   const removeSign = toRed(`-`);
@@ -46,7 +40,7 @@ export const formatReportChanges = (
   if (changes.update) {
     for (const property in changes.update) {
       const newValue = getOutputValue(property, changes.update[property]);
-      const oldValue = getOutputValue(property, current[property]);
+      const oldValue = getOutputValue(property, values[property]);
 
       output.push(`${removeSign} ${newValue}`);
       output.push(`${createSign} ${oldValue}`);
@@ -64,7 +58,7 @@ export const formatReportChanges = (
   if (changes.nested) {
     for (const property in changes.nested) {
       const newValue = changes.nested[property];
-      const oldValue = current[property];
+      const oldValue = values[property];
 
       output.push(...formatReportChanges(newValue, oldValue, getOutputName(property)));
     }

@@ -1,7 +1,7 @@
 import { readFileSync, writeFileSync } from 'node:fs';
 import { deepEqual, ok } from 'node:assert/strict';
 
-import { getReflection } from '@ez4/project';
+import { getReflection } from '@ez4/project/library';
 import { getAnySchema } from '@ez4/schema/library';
 
 export const testFile = (fileName: string, overwrite = false) => {

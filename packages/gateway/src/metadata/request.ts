@@ -1,4 +1,4 @@
-import type { HttpRequest } from '../types/request.js';
+import type { HttpAuthRequest, HttpRequest } from '../types/request.js';
 
 import type {
   AllType,
@@ -10,31 +10,57 @@ import type {
   TypeObject
 } from '@ez4/reflection';
 
-import { isModelDeclaration, getModelMembers, getObjectMembers } from '@ez4/common/library';
+import {
+  isModelDeclaration,
+  getModelMembers,
+  getObjectMembers,
+  hasHeritageType
+} from '@ez4/common/library';
+
 import { isModelProperty, isTypeObject, isTypeReference } from '@ez4/reflection';
 
 import { IncorrectRequestTypeError, InvalidRequestTypeError } from '../errors/request.js';
+import { getHttpHeaders } from './headers.js';
+import { getHttpIdentity } from './identity.js';
 import { getHttpParameters } from './parameters.js';
-import { isHttpRequest } from './utils.js';
 import { getHttpQuery } from './query.js';
 import { getHttpBody } from './body.js';
 
 type TypeParent = TypeModel | TypeCallback | TypeFunction;
 
-export const getHttpRequest = (
+export const getHttpAuthorizerRequest = (
   type: AllType,
   parent: TypeParent,
   reflection: SourceMap,
   errorList: Error[]
 ) => {
+  return getHttpRequest(type, parent, reflection, errorList, 'Http.AuthRequest');
+};
+
+export const getHttpHandlerRequest = (
+  type: AllType,
+  parent: TypeParent,
+  reflection: SourceMap,
+  errorList: Error[]
+) => {
+  return getHttpRequest(type, parent, reflection, errorList, 'Http.Request');
+};
+
+const getHttpRequest = (
+  type: AllType,
+  parent: TypeParent,
+  reflection: SourceMap,
+  errorList: Error[],
+  baseType: string
+) => {
   if (!isTypeReference(type)) {
-    return getTypeRequest(type, parent, reflection, errorList);
+    return getTypeRequest(type, parent, reflection, errorList, baseType);
   }
 
   const statement = reflection[type.path];
 
   if (statement) {
-    return getTypeRequest(statement, parent, reflection, errorList);
+    return getTypeRequest(statement, parent, reflection, errorList, baseType);
   }
 
   return null;
@@ -44,19 +70,20 @@ const getTypeRequest = (
   type: AllType,
   parent: TypeParent,
   reflection: SourceMap,
-  errorList: Error[]
+  errorList: Error[],
+  baseType: string
 ) => {
   if (isTypeObject(type)) {
     return getTypeFromMembers(type, getObjectMembers(type), reflection, errorList);
   }
 
   if (!isModelDeclaration(type)) {
-    errorList.push(new InvalidRequestTypeError(parent.file));
+    errorList.push(new InvalidRequestTypeError(baseType, parent.file));
     return null;
   }
 
-  if (!isHttpRequest(type)) {
-    errorList.push(new IncorrectRequestTypeError(type.name, type.file));
+  if (!hasHeritageType(type, baseType)) {
+    errorList.push(new IncorrectRequestTypeError(type.name, baseType, type.file));
     return null;
   }
 
@@ -69,7 +96,7 @@ const getTypeFromMembers = (
   reflection: SourceMap,
   errorList: Error[]
 ) => {
-  const request: HttpRequest = {};
+  const request: HttpAuthRequest & HttpRequest = {};
 
   for (const member of members) {
     if (!isModelProperty(member)) {
@@ -77,6 +104,26 @@ const getTypeFromMembers = (
     }
 
     switch (member.name) {
+      case 'headers': {
+        request.headers = getHttpHeaders(member.value, type, reflection, errorList);
+
+        if (request.headers && member.description) {
+          request.headers.description = member.description;
+        }
+
+        break;
+      }
+
+      case 'identity': {
+        request.identity = getHttpIdentity(member.value, type, reflection, errorList);
+
+        if (request.identity && member.description) {
+          request.identity.description = member.description;
+        }
+
+        break;
+      }
+
       case 'query': {
         request.query = getHttpQuery(member.value, type, reflection, errorList);
 

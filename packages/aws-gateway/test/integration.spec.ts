@@ -4,10 +4,16 @@ import { describe, it } from 'node:test';
 import { ok, equal } from 'node:assert/strict';
 import { join } from 'node:path';
 
-import { deepClone } from '@ez4/utils';
-import { createFunction, createGateway, createIntegration, isIntegration } from '@ez4/aws-gateway';
+import {
+  createGateway,
+  createIntegration,
+  createIntegrationFunction,
+  isIntegration
+} from '@ez4/aws-gateway';
+
 import { createRole } from '@ez4/aws-identity';
 import { deploy } from '@ez4/aws-common';
+import { deepClone } from '@ez4/utils';
 
 import { getRoleDocument } from './common/role.js';
 
@@ -54,13 +60,13 @@ describe.only('gateway integration', () => {
       roleDocument: getRoleDocument()
     });
 
-    const functionResource = await createFunction(localState, roleResource, {
+    const lambdaResource = await createIntegrationFunction(localState, roleResource, {
       sourceFile: join(baseDir, 'lambda.js'),
       functionName: 'EZ4: Test integration lambda',
       handlerName: 'main'
     });
 
-    const resource = createIntegration(localState, gatewayResource, functionResource, {
+    const resource = createIntegration(localState, gatewayResource, lambdaResource, {
       description: 'EZ4: Test integration'
     });
 

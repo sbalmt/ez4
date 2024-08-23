@@ -12,11 +12,13 @@ import {
   TagResourceCommand,
   UntagResourceCommand,
   UpdateTableCommand,
+  UpdateTimeToLiveCommand,
   waitUntilTableExists,
   waitUntilTableNotExists
 } from '@aws-sdk/client-dynamodb';
 
 import { getAttributeTypes, getAttributeKeyTypes } from './helpers/schema.js';
+import { waitForTimeToLive } from './helpers/waiters.js';
 import { TableServiceName } from './types.js';
 
 const client = new DynamoDBClient({});
@@ -48,7 +50,14 @@ export type CreateResponse = {
   tableArn: Arn;
 };
 
-export type UpdateRequest = Partial<Omit<CreateRequest, 'tableName' | 'allowDeletion' | 'tags'>>;
+export type UpdateRequest = Partial<
+  Omit<CreateRequest, 'tableName' | 'allowDeletion' | 'enableStreams' | 'tags'>
+>;
+
+export type UpdateTimeToLiveRequest = {
+  enabled: boolean;
+  attributeName: string;
+};
 
 export const createTable = async (request: CreateRequest): Promise<CreateResponse> => {
   Logger.logCreate(TableServiceName, request.tableName);
@@ -130,6 +139,24 @@ export const updateTable = async (tableName: string, request: UpdateRequest) => 
     streamArn,
     tableArn
   };
+};
+
+export const updateTimeToLive = async (tableName: string, request: UpdateTimeToLiveRequest) => {
+  Logger.logUpdate(TableServiceName, tableName);
+
+  const { enabled, attributeName } = request;
+
+  await client.send(
+    new UpdateTimeToLiveCommand({
+      TableName: tableName,
+      TimeToLiveSpecification: {
+        AttributeName: attributeName,
+        Enabled: enabled
+      }
+    })
+  );
+
+  await waitForTimeToLive(tableName);
 };
 
 export const updateDeletion = async (tableName: string, allowDeletion: boolean) => {

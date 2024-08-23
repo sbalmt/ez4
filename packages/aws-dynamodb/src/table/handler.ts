@@ -10,9 +10,10 @@ import {
   deleteTable,
   tagTable,
   untagTable,
-  updateStreams,
+  updateTable,
+  updateTimeToLive,
   updateDeletion,
-  updateTable
+  updateStreams
 } from './client.js';
 
 import { TableServiceName } from './types.js';
@@ -31,8 +32,10 @@ const equalsResource = (candidate: TableState, current: TableState) => {
 };
 
 const previewResource = async (candidate: TableState, current: TableState) => {
-  const parameters = candidate.parameters;
-  const changes = deepCompare(parameters, current.parameters);
+  const target = { ...candidate.parameters, dependencies: candidate.dependencies };
+  const source = { ...current.parameters, dependencies: current.dependencies };
+
+  const changes = deepCompare(target, source);
 
   if (!changes.counts) {
     return undefined;
@@ -40,7 +43,7 @@ const previewResource = async (candidate: TableState, current: TableState) => {
 
   return {
     ...changes,
-    name: parameters.tableName
+    name: target.tableName
   };
 };
 
@@ -56,6 +59,13 @@ const createResource = async (candidate: TableState): Promise<TableResult> => {
   const parameters = candidate.parameters;
 
   const response = await createTable(parameters);
+
+  if (parameters.ttlAttribute) {
+    await updateTimeToLive(response.tableName, {
+      attributeName: parameters.ttlAttribute,
+      enabled: true
+    });
+  }
 
   return {
     tableName: response.tableName,
@@ -73,11 +83,13 @@ const updateResource = async (candidate: TableState, current: TableState) => {
 
   const parameters = candidate.parameters;
 
-  await checkTagUpdates(result.tableArn, parameters, current.parameters);
+  await checkTimeToLiveUpdates(result.tableName, parameters, current.parameters);
   await checkDeletionUpdates(result.tableName, parameters, current.parameters);
   await checkStreamsUpdates(result.tableName, parameters, current.parameters);
 
   const newResult = await checkGeneralUpdates(result, parameters, current.parameters);
+
+  await checkTagUpdates(result.tableArn, parameters, current.parameters);
 
   return newResult;
 };
@@ -115,6 +127,22 @@ const checkStreamsUpdates = async (
 
   if (enableStreams !== !!current.enableStreams) {
     await updateStreams(tableName, enableStreams);
+  }
+};
+
+const checkTimeToLiveUpdates = async (
+  tableName: string,
+  candidate: TableParameters,
+  current: TableParameters
+) => {
+  const newAttributeName = candidate.ttlAttribute;
+  const oldAttributeName = current.ttlAttribute;
+
+  if (newAttributeName !== oldAttributeName && (newAttributeName || oldAttributeName)) {
+    await updateTimeToLive(tableName, {
+      attributeName: newAttributeName ?? oldAttributeName!,
+      enabled: !!newAttributeName
+    });
   }
 };
 

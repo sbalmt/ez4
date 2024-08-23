@@ -1,3 +1,5 @@
-import type { AnySchema } from '@ez4/schema';
+import type { ObjectSchema } from '@ez4/schema';
 
-export type HttpResponse = AnySchema;
+export type HttpAuthResponse = ObjectSchema;
+
+export type HttpResponse = ObjectSchema;

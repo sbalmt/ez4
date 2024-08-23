@@ -1,4 +1,4 @@
-import { createTrigger, DeployEvent } from '@ez4/project';
+import { createTrigger, DeployEvent } from '@ez4/project/library';
 
 import { deploy, report } from '../common/provider.js';
 

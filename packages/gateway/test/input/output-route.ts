@@ -1,9 +1,6 @@
 import type { Http } from '@ez4/gateway';
 import type { SuccessResponse } from './common.js';
 
-/**
- * Service for testing routes.
- */
 export declare class TestService extends Http.Service {
   routes: [
     // Inline route.

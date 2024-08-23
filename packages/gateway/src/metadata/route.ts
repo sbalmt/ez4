@@ -14,6 +14,7 @@ import {
 
 import { isHttpPath } from '../types/path.js';
 import { IncompleteRouteError } from '../errors/route.js';
+import { getHttpAuthorizer } from './authorizer.js';
 import { getHttpHandler } from './handler.js';
 import { isHttpRoute } from './utils.js';
 
@@ -85,6 +86,14 @@ const getTypeFromMembers = (
           properties.delete(member.name);
         }
         break;
+
+      case 'authorizer': {
+        const value = getHttpAuthorizer(member.value, reflection, errorList);
+        if (value) {
+          route.authorizer = value;
+        }
+        break;
+      }
 
       case 'variables':
         route.variables = getLinkedVariables(member, errorList);

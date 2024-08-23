@@ -1,11 +1,11 @@
-import type { RoleResourceEvent } from '@ez4/project';
+import type { RoleResourceEvent } from '@ez4/project/library';
 
 import { registerTriggers as registerAwsTriggers } from '@ez4/aws-common';
-import { createTrigger } from '@ez4/project';
+import { createTrigger } from '@ez4/project/library';
 
-import { createPolicyDocument } from '../utils/policy.js';
-import { createAssumeRoleDocument } from '../utils/role.js';
 import { isPolicy, createPolicy } from '../policy/service.js';
+import { createPolicyDocument } from '../utils/policy.js';
+import { createRoleDocument } from '../utils/role.js';
 import { createRole } from '../role/service.js';
 
 let isRegistered = false;
@@ -31,6 +31,10 @@ const prepareExecutionRole = async (event: RoleResourceEvent) => {
   const { state, grants, accounts, policies, options } = event;
   const { resourcePrefix, projectName } = options;
 
+  if (!accounts.length) {
+    return null;
+  }
+
   const policyList = policies.filter((policy) => isPolicy(policy));
 
   if (grants.length > 0) {
@@ -44,6 +48,6 @@ const prepareExecutionRole = async (event: RoleResourceEvent) => {
 
   return createRole(state, policyList, {
     roleName: `${resourcePrefix}-${projectName}-role`,
-    roleDocument: createAssumeRoleDocument(accounts)
+    roleDocument: createRoleDocument(accounts)
   });
 };

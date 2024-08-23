@@ -1,3 +1,5 @@
+import type { Arn } from '@ez4/aws-common';
+
 import {
   ApiGatewayV2Client,
   CreateIntegrationCommand,
@@ -5,7 +7,7 @@ import {
   UpdateIntegrationCommand
 } from '@aws-sdk/client-apigatewayv2';
 
-import { Arn, Logger } from '@ez4/aws-common';
+import { Logger } from '@ez4/aws-common';
 
 import { IntegrationServiceName } from './types.js';
 

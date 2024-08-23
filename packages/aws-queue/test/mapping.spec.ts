@@ -6,7 +6,7 @@ import { join } from 'node:path';
 
 import { deepClone } from '@ez4/utils';
 import { isMapping } from '@ez4/aws-function';
-import { createFunction, createMapping, createQueue } from '@ez4/aws-queue';
+import { createQueueFunction, createMapping, createQueue } from '@ez4/aws-queue';
 import { createPolicy, createRole } from '@ez4/aws-identity';
 import { deploy } from '@ez4/aws-common';
 
@@ -60,7 +60,7 @@ describe.only('queue mapping', () => {
       roleDocument: getRoleDocument()
     });
 
-    const functionResource = await createFunction(localState, roleResource, {
+    const functionResource = await createQueueFunction(localState, roleResource, {
       sourceFile: join(baseDir, 'lambda.js'),
       functionName: 'EZ4: Test queue mapping lambda',
       handlerName: 'main'

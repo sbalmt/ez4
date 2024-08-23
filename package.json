@@ -1,13 +1,13 @@
 {
   "name": "@ez4/monorepo",
   "description": "EZ4 Monorepo",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "author": "Silas B.",
   "license": "MIT",
   "type": "module",
   "private": true,
   "engines": {
-    "node": ">=20.0.0"
+    "node": ">=20.15.0"
   },
   "workspaces": [
     "packages/utils",

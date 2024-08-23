@@ -5,6 +5,7 @@ import type { Context } from './common.js';
 import { isEnumMember } from 'typescript';
 import { getNodeDocumentation } from '../helpers/documentation.js';
 import { TypeName } from '../types.js';
+import { EnumNodes } from './type-enum.js';
 
 export const createEnumMember = <T extends EnumMember>(
   type: T['type'],
@@ -38,4 +39,18 @@ export const tryEnumMember = (node: Node, context: Context) => {
   }
 
   return null;
+};
+
+export const tryEnumMembers = (node: EnumNodes, context: Context) => {
+  const memberList: EnumMember[] = [];
+
+  node.members.forEach((member) => {
+    const result = tryEnumMember(member, context);
+
+    if (result) {
+      memberList.push(result);
+    }
+  });
+
+  return memberList;
 };

@@ -2,6 +2,7 @@ import type { Arn } from '@ez4/aws-common';
 
 import {
   ApiGatewayV2Client,
+  AuthorizationType,
   CreateRouteCommand,
   DeleteRouteCommand,
   UpdateRouteCommand
@@ -17,6 +18,7 @@ export type CreateRequest = {
   routePath: string;
   integrationId: string;
   operationName?: string;
+  authorizerId?: string;
 };
 
 export type CreateResponse = {
@@ -32,14 +34,20 @@ export const createRoute = async (
 ): Promise<CreateResponse> => {
   Logger.logCreate(RouteServiceName, request.routePath);
 
+  const { integrationId, authorizerId, operationName, routePath } = request;
+
   const [region, response] = await Promise.all([
     client.config.region(),
     client.send(
       new CreateRouteCommand({
         ApiId: apiId,
-        RouteKey: request.routePath,
-        OperationName: request.operationName,
-        Target: `integrations/${request.integrationId}`
+        RouteKey: routePath,
+        OperationName: operationName,
+        Target: `integrations/${integrationId}`,
+        ...(authorizerId && {
+          AuthorizationType: AuthorizationType.CUSTOM,
+          AuthorizerId: authorizerId
+        })
       })
     )
   ]);
@@ -53,15 +61,21 @@ export const createRoute = async (
 export const updateRoute = async (apiId: string, routeId: string, request: UpdateRequest) => {
   Logger.logUpdate(RouteServiceName, routeId);
 
-  const { integrationId, operationName, routePath } = request;
+  const { integrationId, authorizerId, operationName, routePath } = request;
 
   await client.send(
     new UpdateRouteCommand({
       ApiId: apiId,
       RouteId: routeId,
-      OperationName: operationName,
       RouteKey: routePath,
-      ...(integrationId && { Target: `integrations/${integrationId}` })
+      OperationName: operationName,
+      ...(integrationId && {
+        Target: `integrations/${integrationId}`
+      }),
+      ...(authorizerId && {
+        AuthorizationType: AuthorizationType.CUSTOM,
+        AuthorizerId: authorizerId
+      })
     })
   );
 };
