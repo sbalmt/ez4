@@ -15,8 +15,8 @@ import { isModelProperty } from '@ez4/reflection';
 
 import { ServiceType } from '../types/service.js';
 import { IncompleteServiceError } from '../errors/service.js';
-import { getHttpRoute } from './route.js';
 import { isHttpService } from './utils.js';
+import { getHttpRoute } from './route.js';
 
 export const getHttpServices = (reflection: SourceMap) => {
   const httpServices: Record<string, HttpService> = {};

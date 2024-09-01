@@ -122,7 +122,7 @@ export namespace Http {
     /**
      * Variables associated to all the routes.
      */
-    variables: LinkedVariables;
+    variables?: LinkedVariables;
 
     /**
      * Service client.
