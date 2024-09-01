@@ -23,7 +23,7 @@ export const prepareUpdate = <T extends Database.Schema, U extends Query.SelectI
   query: Query.UpdateManyInput<T, U>
 ): PrepareResult => {
   const [updateFields, updateVariables] = prepareUpdateFields(query.data);
-  const [whereFields, whereVariables] = prepareWhereFields(query.where);
+  const [whereFields, whereVariables] = prepareWhereFields(query.where ?? {});
 
   const statement = [`UPDATE "${table}" ${updateFields}`];
 
@@ -42,7 +42,7 @@ export const prepareSelect = <T extends Database.Schema, U extends Query.SelectI
   table: string,
   query: Query.FindOneInput<T, U> | Query.FindManyInput<T, U>
 ): PrepareResult => {
-  const [whereFields, whereVariables] = prepareWhereFields(query.where);
+  const [whereFields, whereVariables] = prepareWhereFields(query.where ?? {});
 
   const selectFields = prepareSelectFields(query.select);
 
@@ -59,7 +59,7 @@ export const prepareDelete = <T extends Database.Schema, U extends Query.SelectI
   table: string,
   query: Query.DeleteManyInput<T, U>
 ): PrepareResult => {
-  const [whereFields, whereVariables] = prepareWhereFields(query.where);
+  const [whereFields, whereVariables] = prepareWhereFields(query.where ?? {});
 
   const statement = [`DELETE FROM "${table}"`];
 

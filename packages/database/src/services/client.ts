@@ -66,21 +66,21 @@ export namespace Query {
   export type UpdateManyInput<T extends Database.Schema, S extends Database.Schema> = {
     select?: S;
     data: DeepPartial<T>;
-    where: WhereInput<T>;
+    where?: WhereInput<T>;
     cursor?: number | string;
     limit?: number;
   };
 
   export type FindManyInput<T extends Database.Schema, S extends Database.Schema> = {
     select: S;
-    where: WhereInput<T>;
+    where?: WhereInput<T>;
     cursor?: number | string;
     limit?: number;
   };
 
   export type DeleteManyInput<T extends Database.Schema, S extends Database.Schema> = {
     select?: S;
-    where: WhereInput<T>;
+    where?: WhereInput<T>;
     cursor?: number | string;
     limit?: number;
   };
