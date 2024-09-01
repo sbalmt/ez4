@@ -1,7 +1,7 @@
 import { HttpAuthorizer, HttpHandler, HttpService } from '@ez4/gateway/library';
 
 export const getServiceName = (service: HttpService, prefix: string) => {
-  return `${prefix}-${service.id}`;
+  return `${prefix}-${service.name}`;
 };
 
 export const getFunctionName = (

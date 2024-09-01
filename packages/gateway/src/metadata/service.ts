@@ -32,7 +32,7 @@ export const getHttpServices = (reflection: SourceMap) => {
     const service: Incomplete<HttpService> = { type: ServiceType };
     const properties = new Set(['routes']);
 
-    service.id = statement.name;
+    service.name = statement.name;
 
     if (statement.description) {
       service.description = statement.description;
@@ -44,9 +44,13 @@ export const getHttpServices = (reflection: SourceMap) => {
       }
 
       switch (member.name) {
-        case 'name':
-          service.name = getPropertyString(member);
-          break;
+        case 'name': {
+          const value = getPropertyString(member);
+          if (value) {
+            service.displayName = value;
+            break;
+          }
+        }
 
         case 'routes':
           if ((service.routes = getAllRoutes(member, reflection, errorList))) {
@@ -79,7 +83,7 @@ export const getHttpServices = (reflection: SourceMap) => {
 };
 
 const isValidService = (type: Incomplete<HttpService>): type is HttpService => {
-  return !!type.id && !!type.routes;
+  return !!type.name && !!type.routes;
 };
 
 const getAllRoutes = (member: ModelProperty, reflection: SourceMap, errorList: Error[]) => {

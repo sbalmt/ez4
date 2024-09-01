@@ -57,8 +57,8 @@ const prepareHttpServices = async (event: ServiceResourceEvent) => {
   }
 
   const gatewayState = createGateway(state, {
-    gatewayId: service.id,
-    gatewayName: service.name,
+    gatewayId: service.name,
+    gatewayName: service.displayName ?? service.name,
     description: service.description
   });
 

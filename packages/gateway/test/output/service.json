@@ -1,14 +1,14 @@
 {
   "TestService1": {
     "type": "@ez4/http",
-    "id": "TestService1",
+    "name": "TestService1",
+    "displayName": "Test Service 1",
     "description": "First test service description.",
-    "name": "Test Service 1",
     "routes": []
   },
   "TestService2": {
     "type": "@ez4/http",
-    "id": "TestService2",
+    "name": "TestService2",
     "description": "Description of the second test service.",
     "routes": [],
     "variables": {
