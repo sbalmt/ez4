@@ -111,13 +111,13 @@ const deleteResource = async (candidate: RouteState) => {
 
 const checkGeneralUpdates = async <T extends RouteParameters>(
   apiId: string,
-  integrationId: string,
+  routeId: string,
   candidate: T,
   current: T
 ) => {
   const hasChanges = !deepEqual(candidate, current);
 
   if (hasChanges) {
-    await updateRoute(apiId, integrationId, candidate);
+    await updateRoute(apiId, routeId, candidate);
   }
 };
