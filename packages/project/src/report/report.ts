@@ -74,7 +74,8 @@ const reportResourceUpdate = (
 
   const values = {
     ...current.parameters,
-    ...current.result
+    ...current.result,
+    dependencies: current.dependencies
   };
 
   return printResourceChanges(candidate.type, comparison, values, 'will be updated');
