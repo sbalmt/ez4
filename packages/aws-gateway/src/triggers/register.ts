@@ -191,10 +191,6 @@ const getAuthorizerFunction = async (
       }
     }));
 
-  if (route.variables) {
-    assignVariables(functionState.parameters, route.variables);
-  }
-
   return (
     getAuthorizer(state, gatewayState, functionState) ??
     createAuthorizer(state, gatewayState, functionState, {
