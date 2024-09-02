@@ -5,14 +5,12 @@ import type { Context, State } from './common.js';
 import { isTypeReferenceNode } from 'typescript';
 
 import { getNodeTypeDeclaration } from '../helpers/declaration.js';
-import { tryTypeCallback } from './type-callback.js';
 import { tryTypeAlias } from './type-alias.js';
-import { tryGenericReference } from './generic-reference.js';
 import { tryTypeParameter } from './type-parameter.js';
 import { tryInternalReference } from './internal-reference.js';
+import { tryGenericReference } from './generic-reference.js';
 import { tryModelReference } from './model-reference.js';
-import { tryTypeObject } from './type-object.js';
-import { tryEnumReference } from './enum-reference.js';
+import { tryTypes } from './types.js';
 
 export const isTypeReference = (node: Node): node is TypeReferenceNode => {
   return isTypeReferenceNode(node);
@@ -33,11 +31,9 @@ export const tryTypeReference = (node: Node, context: Context, state: State): Ev
   return (
     tryTypeAlias(declaration, types, context, state) ||
     tryTypeParameter(declaration, context, state) ||
-    (types && tryInternalReference(declaration, types, context, state)) ||
-    (types && tryGenericReference(declaration, types, context, state)) ||
+    tryInternalReference(declaration, types, context, state) ||
+    tryGenericReference(declaration, types, context, state) ||
     tryModelReference(declaration, context) ||
-    tryTypeCallback(declaration, context, state) ||
-    tryTypeObject(declaration, context, state) ||
-    tryEnumReference(declaration, context)
+    tryTypes(declaration, context, state)
   );
 };

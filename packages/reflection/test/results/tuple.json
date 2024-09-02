@@ -54,6 +54,36 @@
             }
           ]
         }
+      },
+      {
+        "type": "property",
+        "name": "import1",
+        "value": {
+          "type": "tuple",
+          "elements": [
+            {
+              "type": "void"
+            },
+            {
+              "type": "never"
+            }
+          ]
+        }
+      },
+      {
+        "type": "property",
+        "name": "import2",
+        "value": {
+          "type": "tuple",
+          "elements": [
+            {
+              "type": "void"
+            },
+            {
+              "type": "never"
+            }
+          ]
+        }
       }
     ]
   }

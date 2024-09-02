@@ -40,10 +40,10 @@ export const tryModelReference = (node: Node, context: Context) => {
 
   if (!internal) {
     context.pending.add(node);
-  }
 
-  if (event) {
-    return event(result);
+    if (event) {
+      return event(result);
+    }
   }
 
   return result;

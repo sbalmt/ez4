@@ -1,3 +1,5 @@
+import type { LiteralBooleanType } from '../shared/types.js';
+
 type Type<T> = T;
 
 export interface Boolean {
@@ -10,4 +12,8 @@ export interface Boolean {
   template1: Type<boolean>;
   template2: Type<true>;
   template3: Type<false>;
+
+  // Import
+  import1: LiteralBooleanType;
+  import2: Type<LiteralBooleanType>;
 }

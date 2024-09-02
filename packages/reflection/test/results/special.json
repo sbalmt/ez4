@@ -95,6 +95,20 @@
       },
       {
         "type": "property",
+        "name": "import1",
+        "value": {
+          "type": "any"
+        }
+      },
+      {
+        "type": "property",
+        "name": "import2",
+        "value": {
+          "type": "any"
+        }
+      },
+      {
+        "type": "property",
         "name": "self1",
         "value": {
           "type": "reference",

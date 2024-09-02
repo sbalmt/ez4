@@ -85,6 +85,26 @@
             "type": "any"
           }
         }
+      },
+      {
+        "type": "property",
+        "name": "import1",
+        "value": {
+          "type": "array",
+          "element": {
+            "type": "unknown"
+          }
+        }
+      },
+      {
+        "type": "property",
+        "name": "import2",
+        "value": {
+          "type": "array",
+          "element": {
+            "type": "unknown"
+          }
+        }
       }
     ]
   }

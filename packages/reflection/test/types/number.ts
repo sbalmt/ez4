@@ -1,3 +1,5 @@
+import type { LiteralNumberType } from '../shared/types.js';
+
 type Type<T> = T;
 
 export interface Number {
@@ -18,4 +20,8 @@ export interface Number {
   template5: Type<0xff>;
   template6: Type<0b11>;
   template7: Type<0o75>;
+
+  // Import
+  import1: LiteralNumberType;
+  import2: Type<LiteralNumberType>;
 }

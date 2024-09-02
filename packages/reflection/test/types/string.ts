@@ -1,3 +1,5 @@
+import type { LiteralStringType } from '../shared/types.js';
+
 type Type<T> = T;
 
 export interface String {
@@ -10,4 +12,8 @@ export interface String {
   template1: Type<string>;
   template2: Type<'abc'>;
   template3: Type<`def`>;
+
+  // Import
+  import1: LiteralStringType;
+  import2: Type<LiteralStringType>;
 }

@@ -1,3 +1,5 @@
+import type { LiteralArrayType } from '../shared/types.js';
+
 type Type<T> = T;
 
 export interface Array {
@@ -14,4 +16,8 @@ export interface Array {
 
   // Template
   template: Type<any[]>;
+
+  // Import
+  import1: LiteralArrayType;
+  import2: Type<LiteralArrayType>;
 }

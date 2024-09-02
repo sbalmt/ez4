@@ -115,6 +115,22 @@
           "type": "number",
           "literal": 61
         }
+      },
+      {
+        "type": "property",
+        "name": "import1",
+        "value": {
+          "type": "number",
+          "literal": 123
+        }
+      },
+      {
+        "type": "property",
+        "name": "import2",
+        "value": {
+          "type": "number",
+          "literal": 123
+        }
       }
     ]
   }

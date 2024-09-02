@@ -1,3 +1,5 @@
+import type { LiteralAnyType } from '../shared/types.js';
+
 type Type<T> = T;
 
 export declare class Special {
@@ -16,6 +18,10 @@ export declare class Special {
   template4: Type<unknown>;
   template5: Type<undefined>;
   template6: Type<null>;
+
+  // Import
+  import1: LiteralAnyType;
+  import2: Type<LiteralAnyType>;
 
   // Cyclic dependency
   self1: typeof this;

@@ -20,11 +20,11 @@ export const isGenericReference = (node: Node): node is ClassNodes | InterfaceNo
 
 export const tryGenericReference = (
   node: Node,
-  types: TypeArguments,
+  types: TypeArguments | undefined,
   context: Context,
   state: State
 ) => {
-  if (!isGenericReference(node) || isInternalType(node)) {
+  if (!types || !isGenericReference(node) || isInternalType(node)) {
     return null;
   }
 
