@@ -75,7 +75,7 @@ const updateResource = async (candidate: RouteState, current: RouteState, contex
   }
 
   const newAuthorizerId = getAuthorizerId(context);
-  const oldAuthorizerId = current.result?.authorizerId ?? newAuthorizerId;
+  const oldAuthorizerId = current.result?.authorizerId;
 
   const newIntegrationId = getIntegrationId(RouteServiceName, result.routeId, context);
   const oldIntegrationId = current.result?.integrationId ?? newIntegrationId;

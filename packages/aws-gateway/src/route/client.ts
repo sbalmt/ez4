@@ -63,18 +63,18 @@ export const updateRoute = async (apiId: string, routeId: string, request: Updat
 
   const { integrationId, authorizerId, operationName, routePath } = request;
 
+  const authorizationType = authorizerId ? AuthorizationType.CUSTOM : AuthorizationType.NONE;
+
   await client.send(
     new UpdateRouteCommand({
       ApiId: apiId,
       RouteId: routeId,
       RouteKey: routePath,
       OperationName: operationName,
+      AuthorizationType: authorizationType,
+      AuthorizerId: authorizerId,
       ...(integrationId && {
         Target: `integrations/${integrationId}`
-      }),
-      ...(authorizerId && {
-        AuthorizationType: AuthorizationType.CUSTOM,
-        AuthorizerId: authorizerId
       })
     })
   );
