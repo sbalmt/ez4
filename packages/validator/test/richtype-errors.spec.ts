@@ -7,6 +7,7 @@ import {
   ExpectedDateTypeError,
   ExpectedEmailTypeError,
   ExpectedIntegerTypeError,
+  ExpectedRegexTypeError,
   ExpectedTimeTypeError,
   ExpectedUUIDTypeError,
   UnexpectedMaxLengthError,
@@ -54,6 +55,16 @@ describe.only('rich type validation errors', () => {
 
     await assertError('', schema, [UnexpectedMinLengthError]);
     await assertError('abcd', schema, [UnexpectedMaxLengthError]);
+  });
+
+  it('assert :: uuid errors', async () => {
+    const schema: AnySchema = {
+      type: SchemaTypeName.String,
+      pattern: '^[a-b]+$',
+      format: 'regex'
+    };
+
+    await assertError('123', schema, [ExpectedRegexTypeError]);
   });
 
   it('assert :: uuid errors', async () => {

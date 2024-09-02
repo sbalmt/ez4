@@ -49,7 +49,6 @@
     },
     "nullable": {
       "type": "object",
-      "description": "Nullable property.",
       "properties": {
         "foo1": {
           "type": "boolean"
@@ -61,11 +60,11 @@
           "type": "string"
         }
       },
+      "description": "Nullable property.",
       "nullable": true
     },
     "optional": {
       "type": "object",
-      "description": "Optional property.",
       "properties": {
         "foo1": {
           "type": "boolean"
@@ -77,11 +76,11 @@
           "type": "string"
         }
       },
+      "description": "Optional property.",
       "optional": true
     },
     "both": {
       "type": "object",
-      "description": "Nullable and optional property.",
       "properties": {
         "foo1": {
           "type": "boolean"
@@ -93,6 +92,7 @@
           "type": "string"
         }
       },
+      "description": "Nullable and optional property.",
       "optional": true,
       "nullable": true
     },

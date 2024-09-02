@@ -19,6 +19,11 @@ export namespace String {
     maxLength: MaxLength;
   };
 
+  export type Regex<Pattern extends string> = {
+    '@ez4/schema': 'regex';
+    pattern: Pattern;
+  };
+
   export type Date = {
     '@ez4/schema': 'date';
   };

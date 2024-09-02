@@ -27,26 +27,26 @@
     },
     "nullable": {
       "type": "array",
-      "description": "Nullable property.",
       "element": {
         "type": "boolean"
       },
+      "description": "Nullable property.",
       "nullable": true
     },
     "optional": {
       "type": "array",
-      "description": "Optional property.",
       "element": {
         "type": "number"
       },
+      "description": "Optional property.",
       "optional": true
     },
     "both": {
       "type": "array",
-      "description": "Nullable and optional property.",
       "element": {
         "type": "string"
       },
+      "description": "Nullable and optional property.",
       "optional": true,
       "nullable": true
     }

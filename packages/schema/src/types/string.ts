@@ -7,6 +7,7 @@ export type StringSchema = {
   nullable?: boolean;
   minLength?: number;
   maxLength?: number;
+  pattern?: string;
   format?: string;
   extra?: ExtraSchema;
 };

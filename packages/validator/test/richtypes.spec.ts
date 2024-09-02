@@ -39,6 +39,16 @@ describe.only('rich types validation', () => {
     equal((await validate('test', schema)).length, 0);
   });
 
+  it('assert :: regex', async () => {
+    const schema: AnySchema = {
+      type: SchemaTypeName.String,
+      pattern: '^[a-z]+$',
+      format: 'regex'
+    };
+
+    equal((await validate('abc', schema)).length, 0);
+  });
+
   it('assert :: uuid', async () => {
     const schema: AnySchema = {
       type: SchemaTypeName.String,

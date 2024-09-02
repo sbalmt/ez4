@@ -1,0 +1,12 @@
+{
+  "type": "object",
+  "description": "String type enriched with regex format.",
+  "properties": {
+    "test": {
+      "type": "string",
+      "description": "String following a regex format.",
+      "pattern": "^[a-b]+$",
+      "format": "regex"
+    }
+  }
+}

@@ -15,6 +15,7 @@ export * from './schema/array.js';
 export * from './schema/tuple.js';
 export * from './schema/enum.js';
 
+export * from './formats/regex.js';
 export * from './formats/uuid.js';
 export * from './formats/email.js';
 export * from './formats/date.js';
@@ -29,6 +30,7 @@ export * from './errors/object.js';
 export * from './errors/array.js';
 export * from './errors/tuple.js';
 export * from './errors/enum.js';
+export * from './errors/regex.js';
 export * from './errors/uuid.js';
 export * from './errors/email.js';
 export * from './errors/date.js';

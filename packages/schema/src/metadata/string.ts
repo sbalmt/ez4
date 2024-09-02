@@ -8,12 +8,13 @@ import { ExtraSchema, SchemaTypeName } from '../types/common.js';
 export type RichTypeString = TypeString & {
   minLength?: number;
   maxLength?: number;
+  pattern?: string;
   format?: string;
   extra?: ExtraSchema;
 };
 
 export const createStringSchema = (data: Omit<StringSchema, 'type'>): StringSchema => {
-  const { description, optional, nullable, minLength, maxLength, format, extra } = data;
+  const { description, optional, nullable, minLength, maxLength, pattern, format, extra } = data;
 
   return {
     type: SchemaTypeName.String,
@@ -22,6 +23,7 @@ export const createStringSchema = (data: Omit<StringSchema, 'type'>): StringSche
     ...(nullable && { nullable }),
     ...(minLength && { minLength }),
     ...(maxLength && { maxLength }),
+    ...(pattern && { pattern }),
     ...(format && { format }),
     ...(extra && { extra })
   };
@@ -36,12 +38,13 @@ export const getStringSchema = (type: AllType, description?: string): StringSche
     return null;
   }
 
-  const { minLength, maxLength, format, extra } = type;
+  const { minLength, maxLength, pattern, format, extra } = type;
 
   return createStringSchema({
     description,
     minLength,
     maxLength,
+    pattern,
     format,
     extra
   });

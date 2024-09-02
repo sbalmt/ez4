@@ -11,6 +11,7 @@ import {
 
 export type RichTypes = {
   format?: string;
+  pattern?: string;
 
   minLength?: number;
   maxLength?: number;
@@ -34,6 +35,12 @@ export const getRichTypes = (type: TypeObject) => {
       case '@ez4/schema':
         if (isTypeString(type)) {
           richTypes.format = type.literal;
+        }
+        break;
+
+      case 'pattern':
+        if (isTypeString(type)) {
+          richTypes[name] = type.literal;
         }
         break;
 
@@ -86,9 +93,12 @@ export const createRichType = (richTypes: RichTypes) => {
       };
 
     default:
+      const { pattern } = richTypes;
+
       return {
         ...createString(),
-        ...(format && { format })
+        ...(format && { format }),
+        ...(pattern && { pattern })
       };
   }
 };
