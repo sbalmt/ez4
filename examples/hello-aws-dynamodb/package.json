@@ -13,8 +13,8 @@
     "packages/*"
   ],
   "scripts": {
-    "deploy": "tsc -p tsconfig.json && node --env-file ../../local.env tools/deploy.mjs",
-    "destroy": "node --env-file ../../local.env tools/destroy.mjs"
+    "deploy": "tsc -p tsconfig.json && node --env-file local.env tools/deploy.mjs",
+    "destroy": "node --env-file local.env tools/destroy.mjs"
   },
   "dependencies": {
     "@ez4/aws-dynamodb": "^0.2.0",
