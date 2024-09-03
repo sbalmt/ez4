@@ -71,17 +71,36 @@ describe.only('type validation errors', () => {
       type: SchemaTypeName.Union,
       elements: [
         {
-          type: SchemaTypeName.Boolean
+          type: SchemaTypeName.Object,
+          properties: {
+            foo: {
+              type: SchemaTypeName.String
+            },
+            bar: {
+              type: SchemaTypeName.String
+            }
+          }
         },
         {
-          type: SchemaTypeName.String
+          type: SchemaTypeName.Object,
+          properties: {
+            baz: {
+              type: SchemaTypeName.Number
+            },
+            qux: {
+              type: SchemaTypeName.Number
+            }
+          }
         }
       ]
     };
 
-    await assertError(null, schema, [ExpectedBooleanTypeError]);
-    await assertError(undefined, schema, [ExpectedBooleanTypeError]);
-    await assertError(123, schema, [ExpectedBooleanTypeError]);
+    // No matching objects
+    await assertError(null, schema, [ExpectedObjectTypeError, ExpectedObjectTypeError]);
+    await assertError(undefined, schema, [ExpectedObjectTypeError, ExpectedObjectTypeError]);
+
+    // First matching object properties only.
+    await assertError({ foo: 123 }, schema, [ExpectedStringTypeError, ExpectedStringTypeError]);
   });
 
   it('assert :: array errors', async () => {
