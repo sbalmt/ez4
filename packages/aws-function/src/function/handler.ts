@@ -2,8 +2,6 @@ import type { Arn } from '@ez4/aws-common';
 import type { StepContext, StepHandler } from '@ez4/stateful';
 import type { FunctionState, FunctionResult, FunctionParameters } from './types.js';
 
-import { stat } from 'node:fs/promises';
-
 import { InvalidParameterValueException } from '@aws-sdk/client-lambda';
 import { applyTagUpdates, ReplaceResourceError, waitDeletion } from '@ez4/aws-common';
 import { deepCompare, deepEqual, hashFile, waitFor } from '@ez4/utils';
@@ -96,8 +94,7 @@ const createResource = async (
   const roleArn = getRoleArn(FunctionServiceName, functionName, context);
 
   const sourceFile = parameters.sourceFile;
-
-  const [sourceStat, sourceHash] = await Promise.all([stat(sourceFile), hashFile(sourceFile)]);
+  const sourceHash = await hashFile(sourceFile);
 
   let lastError;
 
@@ -130,7 +127,6 @@ const createResource = async (
   return {
     functionArn: response.functionArn,
     functionName: response.functionName,
-    sourceTime: sourceStat.mtime.getTime(),
     sourceHash,
     roleArn
   };
@@ -159,17 +155,12 @@ const updateResource = async (
   ]);
 
   // Should always perform for last.
-  const { sourceTime, sourceHash } = await checkSourceCodeUpdates(
-    functionName,
-    parameters,
-    current.result
-  );
+  const sourceHash = await checkSourceCodeUpdates(functionName, parameters, current.result);
 
   lockSensitiveData(candidate);
 
   return {
     ...result,
-    sourceTime,
     sourceHash,
     roleArn
   };
@@ -226,27 +217,14 @@ const checkSourceCodeUpdates = async (
 ) => {
   const sourceFile = candidate.sourceFile;
 
-  const oldSourceTime = current?.sourceTime ?? 0;
+  const newSourceHash = await hashFile(sourceFile);
   const oldSourceHash = current?.sourceHash;
 
-  const newSourceStat = await stat(sourceFile);
-  const newSourceTime = newSourceStat.mtime.getTime();
+  if (newSourceHash !== oldSourceHash) {
+    await updateSourceCode(functionName, candidate);
 
-  if (newSourceTime > oldSourceTime) {
-    const newSourceHash = await hashFile(sourceFile);
-
-    if (newSourceHash !== oldSourceHash) {
-      await updateSourceCode(functionName, candidate);
-    }
-
-    return {
-      sourceTime: newSourceTime,
-      sourceHash: newSourceHash
-    };
+    return newSourceHash;
   }
 
-  return {
-    sourceTime: oldSourceTime,
-    sourceHash: oldSourceHash
-  };
+  return oldSourceHash;
 };

@@ -4,9 +4,12 @@ import { build, formatMessages } from 'esbuild';
 
 import { dirname, join, parse, relative } from 'node:path';
 import { readFile } from 'node:fs/promises';
+import { existsSync } from 'node:fs';
 
 import { SourceFileError } from '../errors/bundler.js';
 import { Logger } from './logger.js';
+
+const filesCache = new Map<string, string>();
 
 export type BundleOptions = {
   sourceFile: string;
@@ -17,37 +20,22 @@ export type BundleOptions = {
   define?: Record<string, string>;
 };
 
-const getExtraContext = (extras: Record<string, ExtraSource>) => {
-  const packages: string[] = [];
-  const services: string[] = [];
+export const bundleFunction = async (serviceName: string, options: BundleOptions) => {
+  const { sourceFile, handlerName } = options;
 
-  for (const contextName in extras) {
-    const { module, from, constructor } = extras[contextName];
+  const cacheKey = `${sourceFile}:${handlerName}`;
+  const cacheFile = filesCache.get(cacheKey);
 
-    const service = `${contextName}${module}`;
-
-    packages.push(`import { ${module} as ${service} } from '${from}';`);
-
-    services.push(`${contextName}: ${service}.${constructor}`);
+  if (cacheFile && existsSync(cacheFile)) {
+    return cacheFile;
   }
 
-  return {
-    packages: packages.join('\n'),
-    services: `{${services.join(',\n')}}`
-  };
-};
-
-export const bundleFunction = async (serviceName: string, options: BundleOptions) => {
-  const sourceFile = options.sourceFile;
   const sourceName = parse(options.sourceFile).name;
 
   const targetPath = dirname(relative(process.cwd(), options.sourceFile));
   const targetFile = `${options.filePrefix}.${sourceName}.${options.handlerName}.mjs`;
 
   const outputFile = join('.ez4/tmp', targetPath, targetFile);
-  const incomeFile = await readFile(options.wrapperFile);
-
-  const context = getExtraContext(options.extras ?? {});
 
   const result = await build({
     bundle: true,
@@ -64,29 +52,10 @@ export const bundleFunction = async (serviceName: string, options: BundleOptions
       loader: 'ts',
       sourcefile: 'wrapper.ts',
       resolveDir: dirname(sourceFile),
-      contents: `
-import { dirname } from 'path';
-import { fileURLToPath } from 'url';
-import { createRequire as topLevelCreateRequire } from 'module';
-import { ${options.handlerName} as next } from '${sourceFile}';
-${context.packages}
-
-const __EZ4_CONTEXT = ${context.services};
-
-${incomeFile}
-      `
+      contents: await getEntrypointCode(options)
     },
     banner: {
-      js: `
-import { dirname } from 'path';
-import { fileURLToPath } from 'url';
-import { createRequire as topLevelCreateRequire } from 'module';
-
-const require = topLevelCreateRequire(import.meta.url);
-
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = dirname(__filename);
-`
+      js: getCompatibilityCode()
     }
   });
 
@@ -113,5 +82,52 @@ const __dirname = dirname(__filename);
     throw new SourceFileError(sourceFile);
   }
 
+  filesCache.set(cacheKey, outputFile);
+
   return outputFile;
+};
+
+const getCompatibilityCode = () => {
+  return `
+import { dirname } from 'path';
+import { fileURLToPath } from 'url';
+import { createRequire as topLevelCreateRequire } from 'module';
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = dirname(__filename);
+const require = topLevelCreateRequire(import.meta.url);
+`;
+};
+
+const getEntrypointCode = async (options: BundleOptions) => {
+  const wrapper = await readFile(options.wrapperFile);
+  const context = getExtraContext(options.extras ?? {});
+
+  return `
+import { ${options.handlerName} as next } from '${options.sourceFile}';
+${context.packages}
+
+const __EZ4_CONTEXT = ${context.services};
+
+${wrapper}
+`;
+};
+
+const getExtraContext = (extras: Record<string, ExtraSource>) => {
+  const packages: string[] = [];
+  const services: string[] = [];
+
+  for (const contextName in extras) {
+    const { module, from, constructor } = extras[contextName];
+
+    const service = `${contextName}${module}`;
+
+    packages.push(`import { ${module} as ${service} } from '${from}';`);
+
+    services.push(`${contextName}: ${service}.${constructor}`);
+  }
+
+  return {
+    packages: packages.join('\n'),
+    services: `{${services.join(',\n')}}`
+  };
 };
