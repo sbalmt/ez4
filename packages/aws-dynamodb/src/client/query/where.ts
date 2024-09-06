@@ -3,11 +3,11 @@ import type { AnyObject } from '@ez4/utils';
 
 import { isAnyObject } from '@ez4/utils';
 
-type PrepareWhereResult = [string, unknown[]];
+type PrepareResult = [string, unknown[]];
 
 export const prepareWhereFields = <T extends Database.Schema>(
   input: Query.WhereInput<T>
-): PrepareWhereResult => {
+): PrepareResult => {
   const prepareFields = (data: AnyObject, path?: string): [string[], unknown[]] => {
     const operations: string[] = [];
     const variables: unknown[] = [];
@@ -136,5 +136,6 @@ const prepareOperation = (operation: AnyObject, path: string) => {
       return [`contains(${path}, ?)`, value];
   }
 
-  return null;
+  // Should never fall here.
+  throw new Error(`Operator '${operator}' isn't implemented.`);
 };

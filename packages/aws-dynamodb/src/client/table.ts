@@ -3,9 +3,13 @@ import type { DynamoDBDocumentClient } from '@aws-sdk/lib-dynamodb';
 import type { ObjectSchema } from '@ez4/schema';
 
 import { getJsonChanges } from '@ez4/aws-dynamodb/runtime';
-import { ExecuteStatementCommand, ExecuteTransactionCommand } from '@aws-sdk/lib-dynamodb';
+import { ExecuteStatementCommand } from '@aws-sdk/lib-dynamodb';
 
-import { prepareInsert, prepareUpdate, prepareSelect, prepareDelete } from './query.js';
+import { batchTransactions } from './utils/transaction.js';
+import { prepareInsert } from './query/insert.js';
+import { prepareUpdate } from './query/update.js';
+import { prepareSelect } from './query/select.js';
+import { prepareDelete } from './query/delete.js';
 
 export class Table<T extends Database.Schema = Database.Schema> implements DbTable<T> {
   constructor(
@@ -245,19 +249,3 @@ export class Table<T extends Database.Schema = Database.Schema> implements DbTab
     return records;
   }
 }
-
-const batchTransactions = async (client: DynamoDBDocumentClient, transactions: any[]) => {
-  const maxLength = transactions.length;
-  const operations = [];
-  const batchSize = 100;
-
-  for (let offset = 0; offset < maxLength; offset += batchSize) {
-    const command = new ExecuteTransactionCommand({
-      TransactStatements: transactions.slice(offset, offset + batchSize)
-    });
-
-    operations.push(client.send(command));
-  }
-
-  await Promise.all(operations);
-};
