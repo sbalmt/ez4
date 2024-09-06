@@ -5,26 +5,33 @@
     "any": {
       "type": "number",
       "description": "Number following an integer format.",
-      "format": "integer"
+      "format": "integer",
+      "extra": {}
     },
     "min": {
       "type": "number",
       "description": "Number following an integer format with minimum value.",
-      "minValue": 10,
-      "format": "integer"
+      "format": "integer",
+      "extra": {
+        "minValue": 10
+      }
     },
     "max": {
       "type": "number",
       "description": "Number following an integer format with maximum value.",
-      "maxValue": 99,
-      "format": "integer"
+      "format": "integer",
+      "extra": {
+        "maxValue": 99
+      }
     },
     "range": {
       "type": "number",
       "description": "Number following an integer format with range value.",
-      "minValue": 25,
-      "maxValue": 50,
-      "format": "integer"
+      "format": "integer",
+      "extra": {
+        "minValue": 25,
+        "maxValue": 50
+      }
     }
   }
 }

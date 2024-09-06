@@ -11,8 +11,10 @@ describe.only('rich types validation', () => {
     const schema: AnySchema = {
       type: SchemaTypeName.Number,
       format: 'decimal',
-      minValue: 0.99,
-      maxValue: 1.99
+      extra: {
+        minValue: 0.99,
+        maxValue: 1.99
+      }
     };
 
     equal((await validate(1.55, schema)).length, 0);
@@ -22,8 +24,10 @@ describe.only('rich types validation', () => {
     const schema: AnySchema = {
       type: SchemaTypeName.Number,
       format: 'integer',
-      minValue: 99,
-      maxValue: 199
+      extra: {
+        minValue: 99,
+        maxValue: 199
+      }
     };
 
     equal((await validate(155, schema)).length, 0);
@@ -32,8 +36,10 @@ describe.only('rich types validation', () => {
   it('assert :: string', async () => {
     const schema: AnySchema = {
       type: SchemaTypeName.String,
-      minLength: 1,
-      maxLength: 9
+      extra: {
+        minLength: 1,
+        maxLength: 9
+      }
     };
 
     equal((await validate('test', schema)).length, 0);
@@ -42,8 +48,10 @@ describe.only('rich types validation', () => {
   it('assert :: regex', async () => {
     const schema: AnySchema = {
       type: SchemaTypeName.String,
-      pattern: '^[a-z]+$',
-      format: 'regex'
+      format: 'regex',
+      extra: {
+        pattern: '^[a-z]+$'
+      }
     };
 
     equal((await validate('abc', schema)).length, 0);
@@ -97,7 +105,9 @@ describe.only('rich types validation', () => {
   it('assert :: extensible object', async () => {
     const schema: AnySchema = {
       type: SchemaTypeName.Object,
-      extensible: true,
+      extra: {
+        extensible: true
+      },
       properties: {
         foo: {
           type: SchemaTypeName.String

@@ -5,9 +5,11 @@
     "test": {
       "type": "string",
       "description": "String following a regex format.",
-      "pattern": "^[a-b]+$",
       "format": "regex",
-      "name": "test"
+      "extra": {
+        "name": "test",
+        "pattern": "^[a-b]+$"
+      }
     }
   }
 }

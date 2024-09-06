@@ -25,8 +25,10 @@ describe.only('rich type validation errors', () => {
     const schema: AnySchema = {
       type: SchemaTypeName.Number,
       format: 'decimal',
-      minValue: 0.99,
-      maxValue: 1.99
+      extra: {
+        minValue: 0.99,
+        maxValue: 1.99
+      }
     };
 
     await assertError(0.98, schema, [UnexpectedMinRangeError]);
@@ -37,8 +39,10 @@ describe.only('rich type validation errors', () => {
     const schema: AnySchema = {
       type: SchemaTypeName.Number,
       format: 'integer',
-      minValue: 99,
-      maxValue: 199
+      extra: {
+        minValue: 99,
+        maxValue: 199
+      }
     };
 
     await assertError(98, schema, [UnexpectedMinRangeError]);
@@ -49,8 +53,10 @@ describe.only('rich type validation errors', () => {
   it('assert :: string errors', async () => {
     const schema: AnySchema = {
       type: SchemaTypeName.String,
-      minLength: 1,
-      maxLength: 3
+      extra: {
+        minLength: 1,
+        maxLength: 3
+      }
     };
 
     await assertError('', schema, [UnexpectedMinLengthError]);
@@ -60,8 +66,10 @@ describe.only('rich type validation errors', () => {
   it('assert :: uuid errors', async () => {
     const schema: AnySchema = {
       type: SchemaTypeName.String,
-      pattern: '^[a-b]+$',
-      format: 'regex'
+      format: 'regex',
+      extra: {
+        pattern: '^[a-b]+$'
+      }
     };
 
     await assertError('123', schema, [ExpectedRegexTypeError]);

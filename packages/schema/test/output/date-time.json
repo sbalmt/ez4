@@ -5,17 +5,20 @@
     "time": {
       "type": "string",
       "description": "String following a time format.",
-      "format": "time"
+      "format": "time",
+      "extra": {}
     },
     "date": {
       "type": "string",
       "description": "String following a date format.",
-      "format": "date"
+      "format": "date",
+      "extra": {}
     },
     "dateTime": {
       "type": "string",
       "description": "String following a date & time format.",
-      "format": "date-time"
+      "format": "date-time",
+      "extra": {}
     }
   }
 }

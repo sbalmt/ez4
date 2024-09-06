@@ -19,12 +19,14 @@ export const validateNumber = (value: unknown, schema: NumberSchema, property?: 
       return [new ExpectedIntegerTypeError(property)];
     }
 
-    if (schema.minValue && value < schema.minValue) {
-      return [new UnexpectedMinRangeError(schema.minValue, property)];
+    const { extra } = schema;
+
+    if (extra?.minValue && value < extra.minValue) {
+      return [new UnexpectedMinRangeError(extra.minValue, property)];
     }
 
-    if (schema.maxValue && value > schema.maxValue) {
-      return [new UnexpectedMaxRangeError(schema.maxValue, property)];
+    if (extra?.maxValue && value > extra.maxValue) {
+      return [new UnexpectedMaxRangeError(extra.maxValue, property)];
     }
   }
 

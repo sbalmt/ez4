@@ -1,18 +1,22 @@
 import type { TypeObject } from '@ez4/reflection';
 
 import {
+  isModelProperty,
+  isTypeBoolean,
+  isTypeNumber,
+  isTypeString,
   createNumber,
   createString,
-  isTypeNumber,
-  isModelProperty,
-  isTypeString,
   createObject
 } from '@ez4/reflection';
 
 export type RichTypes = {
   format?: string;
-  pattern?: string;
+
   name?: string;
+  pattern?: string;
+
+  extensible?: boolean;
 
   minLength?: number;
   maxLength?: number;
@@ -23,6 +27,8 @@ export type RichTypes = {
 
 export const getRichTypes = (type: TypeObject) => {
   const richTypes: RichTypes = {};
+
+  let isValid = false;
 
   type.members?.forEach((member) => {
     if (!isModelProperty(member)) {
@@ -36,6 +42,7 @@ export const getRichTypes = (type: TypeObject) => {
       case '@ez4/schema':
         if (isTypeString(type)) {
           richTypes.format = type.literal;
+          isValid = true;
         }
         break;
 
@@ -43,6 +50,14 @@ export const getRichTypes = (type: TypeObject) => {
       case 'pattern':
         if (isTypeString(type)) {
           richTypes[name] = type.literal;
+          isValid = true;
+        }
+        break;
+
+      case 'extensible':
+        if (isTypeBoolean(type)) {
+          richTypes[name] = type.literal;
+          isValid = true;
         }
         break;
 
@@ -52,16 +67,13 @@ export const getRichTypes = (type: TypeObject) => {
       case 'minLength':
         if (isTypeNumber(type)) {
           richTypes[name] = type.literal;
+          isValid = true;
         }
         break;
     }
   });
 
-  if (Object.values(richTypes).length) {
-    return richTypes;
-  }
-
-  return null;
+  return isValid ? richTypes : null;
 };
 
 export const createRichType = (richTypes: RichTypes) => {
@@ -75,8 +87,10 @@ export const createRichType = (richTypes: RichTypes) => {
       return {
         ...createNumber(),
         format,
-        ...(minValue && { minValue }),
-        ...(maxValue && { maxValue })
+        extra: {
+          ...(minValue && { minValue }),
+          ...(maxValue && { maxValue })
+        }
       };
 
     case 'string':
@@ -84,14 +98,20 @@ export const createRichType = (richTypes: RichTypes) => {
 
       return {
         ...createString(),
-        ...(minLength && { minLength }),
-        ...(maxLength && { maxLength })
+        extra: {
+          ...(minLength && { minLength }),
+          ...(maxLength && { maxLength })
+        }
       };
 
     case 'object':
+      const { extensible } = richTypes;
+
       return {
         ...createObject('@ez4/schema'),
-        extensible: true
+        extra: {
+          ...(extensible && { extensible })
+        }
       };
 
     default:
@@ -100,8 +120,10 @@ export const createRichType = (richTypes: RichTypes) => {
       return {
         ...createString(),
         ...(format && { format }),
-        ...(pattern && { pattern }),
-        ...(name && { name })
+        extra: {
+          ...(pattern && { pattern }),
+          ...(name && { name })
+        }
       };
   }
 };

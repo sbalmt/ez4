@@ -4,23 +4,30 @@
   "properties": {
     "any": {
       "type": "string",
-      "description": "String following any format."
+      "description": "String following any format.",
+      "extra": {}
     },
     "min": {
       "type": "string",
       "description": "String with minimum length.",
-      "minLength": 1
+      "extra": {
+        "minLength": 1
+      }
     },
     "max": {
       "type": "string",
       "description": "String with maximum length.",
-      "maxLength": 80
+      "extra": {
+        "maxLength": 80
+      }
     },
     "size": {
       "type": "string",
       "description": "String with minimum and maximum length.",
-      "minLength": 1,
-      "maxLength": 80
+      "extra": {
+        "minLength": 1,
+        "maxLength": 80
+      }
     }
   }
 }

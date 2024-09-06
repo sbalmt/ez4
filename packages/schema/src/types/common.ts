@@ -5,7 +5,7 @@ import type { ArraySchema } from './array.js';
 import type { TupleSchema } from './tuple.js';
 import type { EnumSchema } from './enum.js';
 
-export type ExtraSchema = Record<string, unknown>;
+export type ExtraSchema = {};
 
 export const enum SchemaTypeName {
   Boolean = 'boolean',

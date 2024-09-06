@@ -99,8 +99,10 @@
     "any": {
       "type": "object",
       "description": "Any object type.",
-      "extensible": true,
-      "properties": {}
+      "properties": {},
+      "extra": {
+        "extensible": true
+      }
     }
   }
 }

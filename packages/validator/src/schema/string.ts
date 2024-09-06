@@ -18,12 +18,14 @@ export const validateString = (value: unknown, schema: StringSchema, property?: 
       return [new ExpectedStringTypeError(property)];
     }
 
-    if (schema.minLength && value.length < schema.minLength) {
-      return [new UnexpectedMinLengthError(schema.minLength, property)];
+    const { extra } = schema;
+
+    if (extra?.minLength && value.length < extra.minLength) {
+      return [new UnexpectedMinLengthError(extra.minLength, property)];
     }
 
-    if (schema.maxLength && value.length > schema.maxLength) {
-      return [new UnexpectedMaxLengthError(schema.maxLength, property)];
+    if (extra?.maxLength && value.length > extra.maxLength) {
+      return [new UnexpectedMaxLengthError(extra.maxLength, property)];
     }
 
     return validateStringFormat(value, schema, property);

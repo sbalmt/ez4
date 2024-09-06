@@ -4,12 +4,15 @@ export type ObjectSchemaProperties = {
   [property: string]: AnySchema;
 };
 
+export type ObjectExtraSchema = ExtraSchema & {
+  extensible?: boolean;
+};
+
 export type ObjectSchema = {
   type: SchemaTypeName.Object;
   properties: ObjectSchemaProperties;
-  extensible?: boolean;
   description?: string;
   optional?: boolean;
   nullable?: boolean;
-  extra?: ExtraSchema;
+  extra?: ObjectExtraSchema;
 };
