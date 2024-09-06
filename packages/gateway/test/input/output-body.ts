@@ -8,7 +8,7 @@ declare class TestRequest implements Http.Request {
   };
 }
 
-export declare class TestService extends Http.Service<[TestRequest], SuccessResponse> {
+export declare class TestService extends Http.Service<[TestRequest]> {
   routes: [
     {
       path: 'GET /test-route';
