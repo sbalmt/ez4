@@ -1,12 +1,8 @@
+import { registerTriggers } from '@ez4/aws-queue';
 import { deploy } from '@ez4/project';
 
-import { registerTriggers as registerQueueTriggers } from '@ez4/aws-queue';
+import { config } from '../ez4.config.js';
 
-registerQueueTriggers();
+registerTriggers();
 
-await deploy({
-  projectName: 'aws-sqs-example',
-  resourcePrefix: 'ez4',
-  stateFile: `ez4-deploy`,
-  sourceFiles: ['./src/service.ts']
-});
+await deploy(config);

@@ -1,12 +1,8 @@
+import { registerTriggers } from '@ez4/aws-gateway';
 import { destroy } from '@ez4/project';
 
-import { registerTriggers as registerGatewayTriggers } from '@ez4/aws-gateway';
+import { config } from '../ez4.config.js';
 
-registerGatewayTriggers();
+registerTriggers();
 
-await destroy({
-  projectName: 'aws-api-authorizer-example',
-  resourcePrefix: 'ez4',
-  stateFile: `ez4-deploy`,
-  sourceFiles: ['./src/service.ts']
-});
+await destroy(config);

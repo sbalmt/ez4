@@ -1,12 +1,12 @@
 import type { Http } from '@ez4/gateway';
-import type { publicRequestHandler, privateRequestHandler } from './handlers.js';
-import type { headerRequestAuthorizer, queryRequestAuthorizer } from './authorizer.js';
+import type { publicHandler, privateHandler } from './handlers.js';
+import type { headerAuthorizer, queryAuthorizer } from './authorizer.js';
 import type { PublicRequest, PrivateRequest } from './types.js';
 
 /**
  * Example of AWS API deployed with EZ4.
  */
-export declare class ApiExample extends Http.Service<[PublicRequest, PrivateRequest]> {
+export declare class Api extends Http.Service<[PublicRequest, PrivateRequest]> {
   /**
    * Display name for this API.
    */
@@ -18,17 +18,17 @@ export declare class ApiExample extends Http.Service<[PublicRequest, PrivateRequ
   routes: [
     {
       path: 'GET /public-route';
-      handler: typeof publicRequestHandler;
+      handler: typeof publicHandler;
     },
     {
       path: 'GET /private-header-route';
-      handler: typeof privateRequestHandler;
-      authorizer: typeof headerRequestAuthorizer;
+      handler: typeof privateHandler;
+      authorizer: typeof headerAuthorizer;
     },
     {
       path: 'GET /private-query-route';
-      handler: typeof privateRequestHandler;
-      authorizer: typeof queryRequestAuthorizer;
+      handler: typeof privateHandler;
+      authorizer: typeof queryAuthorizer;
     }
   ];
 }

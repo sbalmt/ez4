@@ -1,15 +1,15 @@
 import type { Database, Index } from '@ez4/database';
 import type { streamHandler } from './stream.js';
-import type { TableSchema } from './schema.js';
+import type { ExampleSchema } from './schema.js';
 
 /**
  * Example of AWS DynamoDB with Stream deployed with EZ4.
  */
-export declare class DbStreamExample extends Database.Service<[TableSchema]> {
+export declare class Db extends Database.Service<[ExampleSchema]> {
   tables: [
     {
-      name: 'stream';
-      schema: TableSchema;
+      name: 'example';
+      schema: ExampleSchema;
       indexes: {
         id: Index.Primary;
         expire_at: Index.TTL;

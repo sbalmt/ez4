@@ -1,12 +1,8 @@
+import { registerTriggers } from '@ez4/aws-gateway';
 import { deploy } from '@ez4/project';
 
-import { registerTriggers as registerGatewayTriggers } from '@ez4/aws-gateway';
+import { config } from '../ez4.config.js';
 
-registerGatewayTriggers();
+registerTriggers();
 
-await deploy({
-  projectName: 'aws-api-example',
-  resourcePrefix: 'ez4',
-  stateFile: `ez4-deploy`,
-  sourceFiles: ['./src/service.ts']
-});
+await deploy(config);
