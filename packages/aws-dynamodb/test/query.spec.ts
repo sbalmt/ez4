@@ -7,6 +7,7 @@ import {
   prepareSelect,
   prepareUpdate
 } from '@ez4/aws-dynamodb/client';
+
 import { Query } from '@ez4/database';
 
 type TestSchema = {

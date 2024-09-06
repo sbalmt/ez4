@@ -12,6 +12,7 @@ export namespace Client {
   export type Repository = {
     tableName: string;
     tableSchema: ObjectSchema;
+    tableIndexes: string[];
   };
 
   export const make = <T extends Database.Service>(
@@ -42,9 +43,9 @@ export namespace Client {
             throw new Error(`Table ${tableAlias} isn't part of the table repository.`);
           }
 
-          const { tableName, tableSchema } = tableRepository[tableAlias];
+          const { tableName, tableSchema, tableIndexes } = tableRepository[tableAlias];
 
-          cache[tableAlias] = new Table(tableName, tableSchema, client);
+          cache[tableAlias] = new Table(tableName, tableSchema, tableIndexes, client);
         }
 
         return cache[tableAlias];

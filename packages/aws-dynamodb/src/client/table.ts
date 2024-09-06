@@ -3,7 +3,7 @@ import type { DynamoDBDocumentClient } from '@aws-sdk/lib-dynamodb';
 import type { ObjectSchema } from '@ez4/schema';
 
 import { getJsonChanges } from '@ez4/aws-dynamodb/runtime';
-import { ExecuteStatementCommand } from '@aws-sdk/lib-dynamodb';
+import { ExecuteStatementCommand, ExecuteTransactionCommand } from '@aws-sdk/lib-dynamodb';
 
 import { prepareInsert, prepareUpdate, prepareSelect, prepareDelete } from './query.js';
 
@@ -11,6 +11,7 @@ export class Table<T extends Database.Schema = Database.Schema> implements DbTab
   constructor(
     private name: string,
     private schema: ObjectSchema,
+    private indexes: string[],
     private client: DynamoDBDocumentClient
   ) {}
 
@@ -29,12 +30,25 @@ export class Table<T extends Database.Schema = Database.Schema> implements DbTab
     );
   }
 
+  async updateOne<U extends Query.SelectInput<T>>(
+    query: Query.UpdateOneInput<T, U>
+  ): Promise<Query.UpdateOneResult<T, U>> {
+    const result = await this.updateMany({
+      select: query.select,
+      where: query.where,
+      data: query.data,
+      limit: 1
+    });
+
+    return result[0];
+  }
+
   async findOne<U extends Query.SelectInput<T>>(
-    input: Query.FindOneInput<T, U>
+    query: Query.FindOneInput<T, U>
   ): Promise<Query.FindOneResult<T, U>> {
     const result = await this.findMany({
-      select: input.select,
-      where: input.where,
+      select: query.select,
+      where: query.where,
       limit: 1
     });
 
@@ -65,25 +79,100 @@ export class Table<T extends Database.Schema = Database.Schema> implements DbTab
     return previous;
   }
 
-  async updateMany<U extends Query.SelectInput<T>>(
-    query: Query.UpdateManyInput<T, U>
-  ): Promise<Query.UpdateManyResult<T, U>> {
-    const [statement, variables] = prepareUpdate(this.name, query);
-
-    const { cursor, limit } = query;
+  async deleteOne<U extends Query.SelectInput<T>>(
+    query: Query.DeleteOneInput<T, U>
+  ): Promise<Query.DeleteOneResult<T, U>> {
+    const [statement, variables] = prepareDelete(this.name, query);
 
     const result = await this.client.send(
       new ExecuteStatementCommand({
-        NextToken: cursor?.toString(),
         Statement: statement,
-        Limit: limit,
+        Limit: 1,
         ...(variables.length && {
           Parameters: variables
         })
       })
     );
 
-    return (result.Items ?? []) as Query.Record<T, U>[];
+    return result.Items?.at(0) as Query.DeleteOneResult<T, U>;
+  }
+
+  async insertMany(query: Query.InsertManyInput<T>): Promise<Query.InsertManyResult> {
+    const [partitionKey, sortKey] = this.indexes;
+
+    const identifiers = new Set<string>();
+    const transactions = [];
+
+    for (const data of query.data as any) {
+      const { [partitionKey]: partitionId, [sortKey]: sortId } = data;
+
+      const uniqueId = `${partitionId}${sortId ?? ''}`;
+
+      if (identifiers.has(uniqueId)) {
+        continue;
+      }
+
+      identifiers.add(uniqueId);
+
+      const [statement, variables] = prepareInsert(this.name, {
+        data
+      });
+
+      transactions.push({
+        Statement: statement,
+        ...(variables.length && {
+          Parameters: variables
+        })
+      });
+    }
+
+    await batchTransactions(this.client, transactions);
+  }
+
+  async updateMany<U extends Query.SelectInput<T>>(
+    query: Query.UpdateManyInput<T, U>
+  ): Promise<Query.UpdateManyResult<T, U>> {
+    const [partitionKey, sortKey] = this.indexes;
+
+    const result = await this.findMany({
+      ...query,
+      select: {
+        ...query.select,
+        ...(sortKey && { [sortKey]: true }),
+        [partitionKey]: true
+      }
+    });
+
+    const records = result.records as any[];
+
+    if (!records.length) {
+      return [];
+    }
+
+    const transactions = [];
+
+    for (const record of records) {
+      const { [partitionKey]: partitionId, [sortKey]: sortId } = record;
+
+      const [statement, variables] = prepareUpdate(this.name, {
+        data: query.data,
+        where: {
+          ...(sortKey && { [sortKey]: sortId }),
+          [partitionKey]: partitionId
+        } as T
+      });
+
+      transactions.push({
+        Statement: statement,
+        ...(variables.length && {
+          Parameters: variables
+        })
+      });
+    }
+
+    await batchTransactions(this.client, transactions);
+
+    return records;
   }
 
   async findMany<U extends Query.SelectInput<T>>(
@@ -114,21 +203,61 @@ export class Table<T extends Database.Schema = Database.Schema> implements DbTab
   async deleteMany<U extends Query.SelectInput<T>>(
     query: Query.DeleteManyInput<T, U>
   ): Promise<Query.DeleteManyResult<T, U>> {
-    const [statement, variables] = prepareDelete(this.name, query);
+    const [partitionKey, sortKey] = this.indexes;
 
-    const { cursor, limit } = query;
+    const result = await this.findMany({
+      ...query,
+      select: {
+        ...query.select,
+        ...(sortKey && { [sortKey]: true }),
+        [partitionKey]: true
+      }
+    });
 
-    const result = await this.client.send(
-      new ExecuteStatementCommand({
-        NextToken: cursor?.toString(),
+    const records = result.records as any[];
+
+    if (!records.length) {
+      return [];
+    }
+
+    const transactions = [];
+
+    for (const record of records) {
+      const { [partitionKey]: partitionId, [sortKey]: sortId } = record;
+
+      const [statement, variables] = prepareDelete(this.name, {
+        where: {
+          ...(sortKey && { [sortKey]: sortId }),
+          [partitionKey]: partitionId
+        }
+      });
+
+      transactions.push({
         Statement: statement,
-        Limit: limit,
         ...(variables.length && {
           Parameters: variables
         })
-      })
-    );
+      });
+    }
 
-    return (result.Items ?? []) as Query.Record<T, U>[];
+    await batchTransactions(this.client, transactions);
+
+    return records;
   }
 }
+
+const batchTransactions = async (client: DynamoDBDocumentClient, transactions: any[]) => {
+  const maxLength = transactions.length;
+  const operations = [];
+  const batchSize = 100;
+
+  for (let offset = 0; offset < maxLength; offset += batchSize) {
+    const command = new ExecuteTransactionCommand({
+      TransactStatements: transactions.slice(offset, offset + batchSize)
+    });
+
+    operations.push(client.send(command));
+  }
+
+  await Promise.all(operations);
+};

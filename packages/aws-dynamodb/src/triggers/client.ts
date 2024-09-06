@@ -1,5 +1,7 @@
 import type { ExtraSource, ServiceEvent } from '@ez4/project/library';
+import type { Database } from '@ez4/database';
 
+import { Index } from '@ez4/database';
 import { isDatabaseService } from '@ez4/database/library';
 import { getTableName } from './utils.js';
 
@@ -15,6 +17,7 @@ export const prepareLinkedService = async (event: ServiceEvent): Promise<ExtraSo
       ...current,
       [table.name]: {
         tableName: getTableName(service, table, options.resourcePrefix),
+        tableIndexes: getPrimaryIndex(table.indexes),
         tableSchema: table.schema
       }
     };
@@ -25,4 +28,16 @@ export const prepareLinkedService = async (event: ServiceEvent): Promise<ExtraSo
     module: 'Client',
     from: '@ez4/aws-dynamodb/client'
   };
+};
+
+const getPrimaryIndex = (tableIndexes: Database.Indexes<any>) => {
+  for (const indexName in tableIndexes) {
+    const indexType = tableIndexes[indexName];
+
+    if (indexType === Index.Primary) {
+      return indexName.split(':');
+    }
+  }
+
+  return [];
 };

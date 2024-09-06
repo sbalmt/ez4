@@ -25,6 +25,10 @@ export type ClientTables<T extends Database.Service<any>> = {
 export interface Table<T extends Database.Schema> {
   insertOne(query: Query.InsertOneInput<T>): Promise<Query.InsertOneResult>;
 
+  updateOne<U extends Query.SelectInput<T>>(
+    query: Query.UpdateOneInput<T, U>
+  ): Promise<Query.UpdateOneResult<T, U>>;
+
   findOne<U extends Query.SelectInput<T>>(
     query: Query.FindOneInput<T, U>
   ): Promise<Query.FindOneResult<T, U>>;
@@ -32,6 +36,12 @@ export interface Table<T extends Database.Schema> {
   upsertOne<U extends Query.SelectInput<T>>(
     query: Query.UpsertOneInput<T, U>
   ): Promise<Query.UpsertOneResult<T, U>>;
+
+  deleteOne<U extends Query.SelectInput<T>>(
+    query: Query.DeleteOneInput<T, U>
+  ): Promise<Query.DeleteOneResult<T, U>>;
+
+  insertMany(query: Query.InsertManyInput<T>): Promise<Query.InsertManyResult>;
 
   updateMany<U extends Query.SelectInput<T>>(
     query: Query.UpdateManyInput<T, U>
@@ -51,6 +61,12 @@ export namespace Query {
     data: T;
   };
 
+  export type UpdateOneInput<T extends Database.Schema, S extends Database.Schema> = {
+    select?: S;
+    data: DeepPartial<T>;
+    where: WhereInput<T>;
+  };
+
   export type FindOneInput<T extends Database.Schema, S extends Database.Schema> = {
     select: S;
     where: WhereInput<T>;
@@ -63,11 +79,19 @@ export namespace Query {
     where: WhereInput<T>;
   };
 
+  export type DeleteOneInput<T extends Database.Schema, S extends Database.Schema> = {
+    select?: S;
+    where: WhereInput<T>;
+  };
+
+  export type InsertManyInput<T extends Database.Schema> = {
+    data: T[];
+  };
+
   export type UpdateManyInput<T extends Database.Schema, S extends Database.Schema> = {
     select?: S;
     data: DeepPartial<T>;
     where?: WhereInput<T>;
-    cursor?: number | string;
     limit?: number;
   };
 
@@ -81,11 +105,14 @@ export namespace Query {
   export type DeleteManyInput<T extends Database.Schema, S extends Database.Schema> = {
     select?: S;
     where?: WhereInput<T>;
-    cursor?: number | string;
     limit?: number;
   };
 
   export type InsertOneResult = void;
+
+  export type UpdateOneResult<T extends Database.Schema, S extends AnyObject> =
+    | FindOneResult<T, S>
+    | undefined;
 
   export type FindOneResult<T extends Database.Schema, S extends AnyObject> =
     | Record<T, S>
@@ -94,6 +121,12 @@ export namespace Query {
   export type UpsertOneResult<T extends Database.Schema, S extends AnyObject> =
     | FindOneResult<T, S>
     | undefined;
+
+  export type DeleteOneResult<T extends Database.Schema, S extends AnyObject> =
+    | FindOneResult<T, S>
+    | undefined;
+
+  export type InsertManyResult = void;
 
   export type UpdateManyResult<T extends Database.Schema, S extends AnyObject> = Record<T, S>[];
 

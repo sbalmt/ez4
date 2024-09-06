@@ -20,7 +20,7 @@ export const prepareInsert = <T extends Database.Schema>(
 
 export const prepareUpdate = <T extends Database.Schema, U extends Query.SelectInput<T> = {}>(
   table: string,
-  query: Query.UpdateManyInput<T, U>
+  query: Query.UpdateOneInput<T, U> | Query.UpdateManyInput<T, U>
 ): PrepareResult => {
   const [updateFields, updateVariables] = prepareUpdateFields(query.data);
   const [whereFields, whereVariables] = prepareWhereFields(query.where ?? {});
@@ -57,7 +57,7 @@ export const prepareSelect = <T extends Database.Schema, U extends Query.SelectI
 
 export const prepareDelete = <T extends Database.Schema, U extends Query.SelectInput<T> = {}>(
   table: string,
-  query: Query.DeleteManyInput<T, U>
+  query: Query.DeleteOneInput<T, U> | Query.DeleteManyInput<T, U>
 ): PrepareResult => {
   const [whereFields, whereVariables] = prepareWhereFields(query.where ?? {});
 
