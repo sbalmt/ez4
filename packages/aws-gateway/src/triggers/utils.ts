@@ -1,13 +1,17 @@
-import { HttpAuthorizer, HttpHandler, HttpService } from '@ez4/gateway/library';
+import type { HttpAuthorizer, HttpHandler, HttpService } from '@ez4/gateway/library';
+import type { DeployOptions } from '@ez4/project/library';
 
-export const getServiceName = (service: HttpService, prefix: string) => {
-  return `${prefix}-${service.name}`;
-};
+import { toKebabCase } from '@ez4/utils';
 
 export const getFunctionName = (
   service: HttpService,
   functionType: HttpHandler | HttpAuthorizer,
-  prefix: string
+  options: DeployOptions
 ) => {
-  return `${getServiceName(service, prefix)}-${functionType.name}`;
+  const resourcePrefix = toKebabCase(options.resourcePrefix);
+  const projectName = toKebabCase(options.projectName);
+  const serviceName = toKebabCase(service.name);
+  const functionName = toKebabCase(functionType.name);
+
+  return `${resourcePrefix}-${projectName}-${serviceName}-${functionName}`;
 };
