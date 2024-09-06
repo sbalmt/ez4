@@ -15,14 +15,14 @@ export namespace Queue {
    */
   export type Incoming<T extends Message> = {
     /**
-     * Message payload.
-     */
-    message: T;
-
-    /**
      * Request Id.
      */
     requestId: string;
+
+    /**
+     * Message payload.
+     */
+    message: T;
   };
 
   /**

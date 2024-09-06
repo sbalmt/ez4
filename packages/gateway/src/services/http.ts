@@ -40,14 +40,14 @@ export namespace Http {
     requestId: string;
 
     /**
-     * Request path.
-     */
-    path: string;
-
-    /**
      * Request method.
      */
     method: string;
+
+    /**
+     * Request path.
+     */
+    path: string;
   };
 
   /**
