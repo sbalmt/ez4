@@ -7,7 +7,7 @@ export namespace String {
   /**
    * A string matching regex.
    */
-  export type Regex<_Pattern extends string, _Name extends string = 'regex'> = string;
+  export type Regex<_Pattern extends string, _Name extends string> = string;
 
   /**
    * A string within a minimum length constraint.
