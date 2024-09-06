@@ -6,7 +6,8 @@
       "type": "string",
       "description": "String following a regex format.",
       "pattern": "^[a-b]+$",
-      "format": "regex"
+      "format": "regex",
+      "name": "test"
     }
   }
 }

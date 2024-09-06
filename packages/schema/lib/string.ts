@@ -19,9 +19,10 @@ export namespace String {
     maxLength: MaxLength;
   };
 
-  export type Regex<Pattern extends string> = {
+  export type Regex<Pattern extends string, Name extends string> = {
     '@ez4/schema': 'regex';
     pattern: Pattern;
+    name: Name;
   };
 
   export type Date = {

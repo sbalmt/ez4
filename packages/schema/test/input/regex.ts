@@ -7,5 +7,5 @@ export interface RegexTestSchema {
   /**
    * String following a regex format.
    */
-  test: String.Regex<'^[a-b]+$'>;
+  test: String.Regex<'^[a-b]+$', 'test'>;
 }

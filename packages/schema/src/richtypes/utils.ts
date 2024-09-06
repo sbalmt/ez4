@@ -12,6 +12,7 @@ import {
 export type RichTypes = {
   format?: string;
   pattern?: string;
+  name?: string;
 
   minLength?: number;
   maxLength?: number;
@@ -38,6 +39,7 @@ export const getRichTypes = (type: TypeObject) => {
         }
         break;
 
+      case 'name':
       case 'pattern':
         if (isTypeString(type)) {
           richTypes[name] = type.literal;
@@ -93,12 +95,13 @@ export const createRichType = (richTypes: RichTypes) => {
       };
 
     default:
-      const { pattern } = richTypes;
+      const { pattern, name } = richTypes;
 
       return {
         ...createString(),
         ...(format && { format }),
-        ...(pattern && { pattern })
+        ...(pattern && { pattern }),
+        ...(name && { name })
       };
   }
 };

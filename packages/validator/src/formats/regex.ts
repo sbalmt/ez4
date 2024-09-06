@@ -4,15 +4,13 @@ import { ExpectedRegexTypeError } from '../errors/regex.js';
 import { registerStringFormat } from '../main.js';
 
 registerStringFormat('regex', (value: string, schema: StringSchema, property?: string) => {
-  if (!schema.pattern) {
-    return [new ExpectedRegexTypeError(property)];
+  if (schema.pattern) {
+    const regex = new RegExp(schema.pattern, 'g');
+
+    if (regex.test(value)) {
+      return [];
+    }
   }
 
-  const regex = new RegExp(schema.pattern, 'g');
-
-  if (!regex.test(value)) {
-    return [new ExpectedRegexTypeError(property)];
-  }
-
-  return [];
+  return [new ExpectedRegexTypeError(schema.name, property)];
 });
