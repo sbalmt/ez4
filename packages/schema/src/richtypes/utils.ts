@@ -28,8 +28,6 @@ export type RichTypes = {
 export const getRichTypes = (type: TypeObject) => {
   const richTypes: RichTypes = {};
 
-  let isValid = false;
-
   type.members?.forEach((member) => {
     if (!isModelProperty(member)) {
       return;
@@ -42,7 +40,6 @@ export const getRichTypes = (type: TypeObject) => {
       case '@ez4/schema':
         if (isTypeString(type)) {
           richTypes.format = type.literal;
-          isValid = true;
         }
         break;
 
@@ -50,14 +47,12 @@ export const getRichTypes = (type: TypeObject) => {
       case 'pattern':
         if (isTypeString(type)) {
           richTypes[name] = type.literal;
-          isValid = true;
         }
         break;
 
       case 'extensible':
         if (isTypeBoolean(type)) {
           richTypes[name] = type.literal;
-          isValid = true;
         }
         break;
 
@@ -67,13 +62,16 @@ export const getRichTypes = (type: TypeObject) => {
       case 'minLength':
         if (isTypeNumber(type)) {
           richTypes[name] = type.literal;
-          isValid = true;
         }
         break;
     }
   });
 
-  return isValid ? richTypes : null;
+  if (richTypes.format) {
+    return richTypes;
+  }
+
+  return null;
 };
 
 export const createRichType = (richTypes: RichTypes) => {
