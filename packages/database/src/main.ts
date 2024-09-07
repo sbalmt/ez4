@@ -1,3 +1,4 @@
+export * from './services/query.js';
 export * from './services/client.js';
 export * from './services/helpers.js';
 export * from './services/database.js';
