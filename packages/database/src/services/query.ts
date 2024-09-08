@@ -6,27 +6,43 @@ export namespace Query {
     data: T;
   };
 
-  export type UpdateOneInput<T extends Database.Schema, S extends Database.Schema> = {
+  export type UpdateOneInput<
+    T extends Database.Schema,
+    S extends Database.Schema,
+    I extends string | never
+  > = {
     select?: S;
     data: DeepPartial<T>;
-    where: WhereInput<T>;
+    where: WhereInput<T, I>;
   };
 
-  export type FindOneInput<T extends Database.Schema, S extends Database.Schema> = {
+  export type FindOneInput<
+    T extends Database.Schema,
+    S extends Database.Schema,
+    I extends string | never
+  > = {
     select: S;
-    where: WhereInput<T>;
+    where: WhereInput<T, I>;
   };
 
-  export type UpsertOneInput<T extends Database.Schema, S extends Database.Schema> = {
+  export type UpsertOneInput<
+    T extends Database.Schema,
+    S extends Database.Schema,
+    I extends string | never
+  > = {
     select?: S;
     insert: T;
     update: DeepPartial<T>;
-    where: WhereInput<T>;
+    where: WhereInput<T, I>;
   };
 
-  export type DeleteOneInput<T extends Database.Schema, S extends Database.Schema> = {
+  export type DeleteOneInput<
+    T extends Database.Schema,
+    S extends Database.Schema,
+    I extends string | never
+  > = {
     select?: S;
-    where: WhereInput<T>;
+    where: WhereInput<T, I>;
   };
 
   export type InsertManyInput<T extends Database.Schema> = {
@@ -86,25 +102,43 @@ export namespace Query {
 
   export type SelectInput<T extends Database.Schema> = PartialProperties<T>;
 
-  export type WhereInput<T extends Database.Schema> = WhereFields<T> &
-    WhereNot<T> &
-    WhereAnd<T> &
-    WhereOr<T>;
+  export type WhereInput<T extends Database.Schema, I extends string | never = never> = WhereFields<
+    T,
+    I
+  > &
+    WhereNot<T, I> &
+    WhereAnd<T, I> &
+    WhereOr<T, I>;
 
-  export type WhereFields<T extends Database.Schema> = {
-    [P in keyof T]?: T[P] extends AnyObject ? WhereFields<T[P]> : T[P] | WhereOperations<T[P]>;
+  export type WhereRequiredFields<T extends Database.Schema, I extends string | never> = {
+    [P in I]: P extends keyof T
+      ? T[P] extends AnyObject
+        ? WhereFields<T[P], I>
+        : T[P] | WhereOperations<T[P]>
+      : never;
   };
 
-  export type WhereNot<T extends Database.Schema> = {
-    NOT?: WhereInput<T> | WhereAnd<T> | WhereOr<T>;
+  export type WhereOptionalFields<T extends Database.Schema, I extends string | never> = {
+    [P in Exclude<keyof T, I>]?: T[P] extends AnyObject
+      ? WhereFields<T[P], I>
+      : T[P] | WhereOperations<T[P]>;
   };
 
-  export type WhereAnd<T extends Database.Schema> = {
-    AND?: (WhereInput<T> | WhereOr<T> | WhereNot<T>)[];
+  export type WhereFields<
+    T extends Database.Schema,
+    I extends string | never
+  > = WhereRequiredFields<T, I> & WhereOptionalFields<T, I>;
+
+  export type WhereNot<T extends Database.Schema, I extends string | never> = {
+    NOT?: WhereInput<T, I> | WhereAnd<T, I> | WhereOr<T, I>;
   };
 
-  export type WhereOr<T extends Database.Schema> = {
-    OR?: (WhereInput<T> | WhereAnd<T> | WhereNot<T>)[];
+  export type WhereAnd<T extends Database.Schema, I extends string | never> = {
+    AND?: (WhereInput<T, I> | WhereOr<T, I> | WhereNot<T, I>)[];
+  };
+
+  export type WhereOr<T extends Database.Schema, I extends string | never> = {
+    OR?: (WhereInput<T, I> | WhereAnd<T, I> | WhereNot<T, I>)[];
   };
 
   export type WhereOperations<T> =

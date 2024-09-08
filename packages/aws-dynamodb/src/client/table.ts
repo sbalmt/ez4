@@ -11,7 +11,9 @@ import { prepareUpdate } from './query/update.js';
 import { prepareSelect } from './query/select.js';
 import { prepareDelete } from './query/delete.js';
 
-export class Table<T extends Database.Schema = Database.Schema> implements DbTable<T> {
+export class Table<T extends Database.Schema = Database.Schema, I extends string | never = never>
+  implements DbTable<T, I>
+{
   constructor(
     private name: string,
     private schema: ObjectSchema,
@@ -34,9 +36,9 @@ export class Table<T extends Database.Schema = Database.Schema> implements DbTab
     );
   }
 
-  async updateOne<U extends Query.SelectInput<T>>(
-    query: Query.UpdateOneInput<T, U>
-  ): Promise<Query.UpdateOneResult<T, U>> {
+  async updateOne<S extends Query.SelectInput<T>>(
+    query: Query.UpdateOneInput<T, S, I>
+  ): Promise<Query.UpdateOneResult<T, S>> {
     const result = await this.updateMany({
       select: query.select,
       where: query.where,
@@ -47,9 +49,9 @@ export class Table<T extends Database.Schema = Database.Schema> implements DbTab
     return result[0];
   }
 
-  async findOne<U extends Query.SelectInput<T>>(
-    query: Query.FindOneInput<T, U>
-  ): Promise<Query.FindOneResult<T, U>> {
+  async findOne<S extends Query.SelectInput<T>>(
+    query: Query.FindOneInput<T, S, I>
+  ): Promise<Query.FindOneResult<T, S>> {
     const result = await this.findMany({
       select: query.select,
       where: query.where,
@@ -59,11 +61,11 @@ export class Table<T extends Database.Schema = Database.Schema> implements DbTab
     return result.records[0];
   }
 
-  async upsertOne<U extends Query.SelectInput<T>>(
-    query: Query.UpsertOneInput<T, U>
-  ): Promise<Query.UpsertOneResult<T, U>> {
+  async upsertOne<S extends Query.SelectInput<T>>(
+    query: Query.UpsertOneInput<T, S, I>
+  ): Promise<Query.UpsertOneResult<T, S>> {
     const previous = await this.findOne({
-      select: query.select ?? ({} as U),
+      select: query.select ?? ({} as S),
       where: query.where
     });
 
@@ -83,9 +85,9 @@ export class Table<T extends Database.Schema = Database.Schema> implements DbTab
     return previous;
   }
 
-  async deleteOne<U extends Query.SelectInput<T>>(
-    query: Query.DeleteOneInput<T, U>
-  ): Promise<Query.DeleteOneResult<T, U>> {
+  async deleteOne<S extends Query.SelectInput<T>>(
+    query: Query.DeleteOneInput<T, S, I>
+  ): Promise<Query.DeleteOneResult<T, S>> {
     const [statement, variables] = prepareDelete(this.name, query);
 
     const result = await this.client.send(
@@ -98,7 +100,7 @@ export class Table<T extends Database.Schema = Database.Schema> implements DbTab
       })
     );
 
-    return result.Items?.at(0) as Query.DeleteOneResult<T, U>;
+    return result.Items?.at(0) as Query.DeleteOneResult<T, S>;
   }
 
   async insertMany(query: Query.InsertManyInput<T>): Promise<Query.InsertManyResult> {
@@ -133,9 +135,9 @@ export class Table<T extends Database.Schema = Database.Schema> implements DbTab
     await batchTransactions(this.client, transactions);
   }
 
-  async updateMany<U extends Query.SelectInput<T>>(
-    query: Query.UpdateManyInput<T, U>
-  ): Promise<Query.UpdateManyResult<T, U>> {
+  async updateMany<S extends Query.SelectInput<T>>(
+    query: Query.UpdateManyInput<T, S>
+  ): Promise<Query.UpdateManyResult<T, S>> {
     const [partitionKey, sortKey] = this.indexes;
 
     const result = await this.findMany({
@@ -179,9 +181,9 @@ export class Table<T extends Database.Schema = Database.Schema> implements DbTab
     return records;
   }
 
-  async findMany<U extends Query.SelectInput<T>>(
-    query: Query.FindManyInput<T, U>
-  ): Promise<Query.FindManyResult<T, U>> {
+  async findMany<S extends Query.SelectInput<T>>(
+    query: Query.FindManyInput<T, S>
+  ): Promise<Query.FindManyResult<T, S>> {
     const [statement, variables] = prepareSelect(this.name, query);
 
     const { cursor, limit } = query;
@@ -199,14 +201,14 @@ export class Table<T extends Database.Schema = Database.Schema> implements DbTab
     );
 
     return {
-      records: (result.Items ?? []) as Query.Record<T, U>[],
+      records: (result.Items ?? []) as Query.Record<T, S>[],
       cursor: result.NextToken
     };
   }
 
-  async deleteMany<U extends Query.SelectInput<T>>(
-    query: Query.DeleteManyInput<T, U>
-  ): Promise<Query.DeleteManyResult<T, U>> {
+  async deleteMany<S extends Query.SelectInput<T>>(
+    query: Query.DeleteManyInput<T, S>
+  ): Promise<Query.DeleteManyResult<T, S>> {
     const [partitionKey, sortKey] = this.indexes;
 
     const result = await this.findMany({

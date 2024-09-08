@@ -6,9 +6,9 @@ import { prepareWhereFields } from './where.js';
 
 type PrepareResult = [string, unknown[]];
 
-export const prepareUpdate = <T extends Database.Schema, U extends Query.SelectInput<T> = {}>(
+export const prepareUpdate = <T extends Database.Schema, S extends Query.SelectInput<T> = {}>(
   table: string,
-  query: Query.UpdateOneInput<T, U> | Query.UpdateManyInput<T, U>
+  query: Query.UpdateOneInput<T, S, never> | Query.UpdateManyInput<T, S>
 ): PrepareResult => {
   const [updateFields, updateVariables] = prepareUpdateFields(query.data);
   const [whereFields, whereVariables] = prepareWhereFields(query.where ?? {});

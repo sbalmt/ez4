@@ -6,7 +6,7 @@ import { isAnyObject } from '@ez4/utils';
 type PrepareResult = [string, unknown[]];
 
 export const prepareWhereFields = <T extends Database.Schema>(
-  input: Query.WhereInput<T>
+  input: Query.WhereInput<T, never>
 ): PrepareResult => {
   const prepareFields = (data: AnyObject, path?: string): [string[], unknown[]] => {
     const operations: string[] = [];

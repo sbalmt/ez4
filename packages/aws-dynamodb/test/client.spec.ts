@@ -18,7 +18,7 @@ type TestSchema = {
 describe.only('dynamodb client', () => {
   let lastState: EntryStates | undefined;
   let tableId: string | undefined;
-  let dbTable: Table<TestSchema>;
+  let dbTable: Table<TestSchema, 'id' | 'order'>;
 
   const tableName = 'ez4-test-table-client';
 

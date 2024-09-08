@@ -4,9 +4,9 @@ import { prepareWhereFields } from './where.js';
 
 type PrepareResult = [string, unknown[]];
 
-export const prepareDelete = <T extends Database.Schema, U extends Query.SelectInput<T> = {}>(
+export const prepareDelete = <T extends Database.Schema, S extends Query.SelectInput<T> = {}>(
   table: string,
-  query: Query.DeleteOneInput<T, U> | Query.DeleteManyInput<T, U>
+  query: Query.DeleteOneInput<T, S, never> | Query.DeleteManyInput<T, S>
 ): PrepareResult => {
   const [whereFields, whereVariables] = prepareWhereFields(query.where ?? {});
 
