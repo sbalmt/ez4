@@ -9,3 +9,7 @@ It provides all the common components to manage resources on AWS.
 ```sh
 npm install @ez4/aws-common -D
 ```
+
+## License
+
+MIT License

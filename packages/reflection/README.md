@@ -9,3 +9,7 @@ It provides an API on top of TypeScript compiler to make it easy to build reflec
 ```sh
 npm install @ez4/reflection -D
 ```
+
+## License
+
+MIT License

@@ -9,3 +9,7 @@ It wires up all EZ4 project components.
 ```sh
 npm install @ez4/project -D
 ```
+
+## License
+
+MIT License

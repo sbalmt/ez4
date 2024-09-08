@@ -9,3 +9,7 @@ It provides all the components to manage DynamoDB tables and streams on AWS.
 ```sh
 npm install @ez4/aws-dynamodb -D
 ```
+
+## License
+
+MIT License

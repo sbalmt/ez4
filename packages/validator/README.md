@@ -9,3 +9,7 @@ It provides an API for validating data against a given [schema](../schema/).
 ```sh
 npm install @ez4/validator -D
 ```
+
+## License
+
+MIT License

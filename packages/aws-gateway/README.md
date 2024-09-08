@@ -9,3 +9,7 @@ It provides all the components to manage API gateways on AWS.
 ```sh
 npm install @ez4/aws-gateway -D
 ```
+
+## License
+
+MIT License

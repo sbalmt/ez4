@@ -9,3 +9,7 @@ It uses the power of [reflection](../reflection/) to provide an API containing a
 ```sh
 npm install @ez4/common -D
 ```
+
+## License
+
+MIT License

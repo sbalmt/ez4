@@ -9,3 +9,7 @@ It provides all the components to manage roles and policies on AWS.
 ```sh
 npm install @ez4/aws-identity -D
 ```
+
+## License
+
+MIT License

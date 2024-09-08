@@ -9,3 +9,7 @@ It uses the power of [reflection](../reflection/) to provide a seamless schema g
 ```sh
 npm install @ez4/schema -D
 ```
+
+## License
+
+MIT License

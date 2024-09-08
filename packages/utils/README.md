@@ -9,3 +9,7 @@ A set of utilities used across all `ez4` packages.
 ```sh
 npm install @ez4/utils -D
 ```
+
+## License
+
+MIT License

@@ -9,3 +9,7 @@ It provides an API for state management.
 ```sh
 npm install @ez4/stateful -D
 ```
+
+## License
+
+MIT License

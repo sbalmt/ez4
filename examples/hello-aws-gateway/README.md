@@ -27,3 +27,7 @@ npm run destroy
 ```
 
 > This action will delete all the previously created resources on the given AWS account.
+
+## License
+
+MIT License

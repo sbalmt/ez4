@@ -9,3 +9,7 @@ It provides all the components to manage lambda functions on AWS.
 ```sh
 npm install @ez4/aws-function -D
 ```
+
+## License
+
+MIT License

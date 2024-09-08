@@ -9,3 +9,7 @@ It provides all the components to manage buckets and objects on AWS.
 ```sh
 npm install @ez4/aws-bucket -D
 ```
+
+## License
+
+MIT License

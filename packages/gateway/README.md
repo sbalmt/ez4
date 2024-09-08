@@ -9,3 +9,7 @@ It uses the power of [reflection](../reflection/) to provide an API which determ
 ```sh
 npm install @ez4/gateway -D
 ```
+
+## License
+
+MIT License
