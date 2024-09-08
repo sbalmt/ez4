@@ -115,4 +115,17 @@ const main = async () => {
   }
 };
 
+const processEmit = process.emit;
+
+// Suppress experimental warnings.
+process.emit = (...args: any[]): any => {
+  const [event, data] = args;
+
+  if (event !== 'warning' || typeof data !== `object` || data.name !== 'ExperimentalWarning') {
+    return processEmit.apply(process, [event, data]);
+  }
+
+  return false;
+};
+
 await main();
