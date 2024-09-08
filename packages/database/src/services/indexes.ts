@@ -20,10 +20,10 @@ export type DecomposeIndexName<T> = T extends `${infer L}:${infer R}`
   : T;
 
 /**
- * Given an index object `T`, it produces an index object containing only primary indexes.
+ * Given an index object `T`, it produces an index object containing only unique indexes.
  */
-export type PrimaryIndexes<T> = {
-  [P in keyof T as T[P] extends Index.Primary ? P : never]: T[P];
+export type UniqueIndexes<T> = {
+  [P in keyof T as T[P] extends Index.Primary | Index.Unique ? P : never]: T[P];
 };
 
 /**
@@ -47,7 +47,7 @@ type TableIndex<T> = T extends {
 }
   ? N extends string
     ? {
-        [P in N]: DecomposeIndexName<keyof PrimaryIndexes<I>>;
+        [P in N]: DecomposeIndexName<keyof UniqueIndexes<I>>;
       }
     : {}
   : {};
