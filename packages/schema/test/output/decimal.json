@@ -5,26 +5,33 @@
     "any": {
       "type": "number",
       "description": "Number following a decimal format.",
-      "format": "decimal"
+      "format": "decimal",
+      "extra": {}
     },
     "min": {
       "type": "number",
       "description": "Number following a decimal format with minimum value.",
-      "minValue": 1.1,
-      "format": "decimal"
+      "format": "decimal",
+      "extra": {
+        "minValue": 1.1
+      }
     },
     "max": {
       "type": "number",
       "description": "Number following a decimal format with maximum value.",
-      "maxValue": 9.9,
-      "format": "decimal"
+      "format": "decimal",
+      "extra": {
+        "maxValue": 9.9
+      }
     },
     "range": {
       "type": "number",
       "description": "Number following a decimal format with range value.",
-      "minValue": 2.5,
-      "maxValue": 5.5,
-      "format": "decimal"
+      "format": "decimal",
+      "extra": {
+        "minValue": 2.5,
+        "maxValue": 5.5
+      }
     }
   }
 }

@@ -1,9 +1,9 @@
 import type { Service } from '@ez4/common';
 import type { LinkedVariables } from '@ez4/project/library';
+import type { StreamChange } from './streams.js';
 import type { TableTypes } from './helpers.js';
-import type { StreamChange } from './stream.js';
-import type { Index } from './indexes.js';
 import type { Client } from './client.js';
+import type { Index } from './indexes.js';
 
 /**
  * Provide all contracts for a self-managed database service.

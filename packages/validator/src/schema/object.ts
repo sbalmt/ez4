@@ -32,7 +32,7 @@ export const validateObject = async (value: unknown, schema: ObjectSchema, prope
     allErrors.push(...errorList);
   }
 
-  if (!schema.extensible && allProperties.size > 0) {
+  if (!schema.extra?.extensible && allProperties.size > 0) {
     const extraProperties = [...allProperties.values()].map((property) => {
       return getObjectProperty(property, parentProperty);
     });

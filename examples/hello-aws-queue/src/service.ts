@@ -5,7 +5,7 @@ import type { messageHandlerA, messageHandlerB } from './handlers.js';
 /**
  * Example of AWS SQS deployed with EZ4.
  */
-export declare class SqsExample extends Queue.Service<MessageRequest> {
+export declare class Sqs extends Queue.Service<MessageRequest> {
   /**
    * Predefined delay for any message to be delivered.
    */

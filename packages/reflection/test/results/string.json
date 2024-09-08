@@ -51,6 +51,22 @@
           "type": "string",
           "literal": "def"
         }
+      },
+      {
+        "type": "property",
+        "name": "import1",
+        "value": {
+          "type": "string",
+          "literal": "foo"
+        }
+      },
+      {
+        "type": "property",
+        "name": "import2",
+        "value": {
+          "type": "string",
+          "literal": "foo"
+        }
       }
     ]
   }

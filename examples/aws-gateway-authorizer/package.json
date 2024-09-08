@@ -13,12 +13,12 @@
     "packages/*"
   ],
   "scripts": {
-    "deploy": "tsc -p tsconfig.json && node --env-file ../../local.env tools/deploy.mjs",
-    "destroy": "node --env-file ../../local.env tools/destroy.mjs"
+    "deploy": "tsc -p tsconfig.json && ez4 deploy -e local.env -p ez4.project.js",
+    "destroy": "ez4 destroy -e local.env -p ez4.project.js"
   },
   "dependencies": {
-    "@ez4/aws-gateway": "^0.1.0",
-    "@ez4/gateway": "^0.1.0",
-    "@ez4/project": "^0.1.0"
+    "@ez4/aws-gateway": "^0.3.0",
+    "@ez4/gateway": "^0.3.0",
+    "@ez4/project": "^0.3.0"
   }
 }

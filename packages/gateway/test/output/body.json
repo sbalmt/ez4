@@ -1,8 +1,7 @@
 {
   "TestService": {
     "type": "@ez4/http",
-    "id": "TestService",
-    "name": null,
+    "name": "TestService",
     "routes": [
       {
         "path": "GET /test-route",

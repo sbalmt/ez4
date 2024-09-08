@@ -7,7 +7,7 @@ import { randomUUID } from 'node:crypto';
  * @param request Incoming post request.
  * @returns Outgoing post response.
  */
-export function postRequestHandler(request: PostRequest): PostResponse {
+export function postHandler(request: PostRequest): PostResponse {
   const { body } = request;
 
   // Do some stuff...
@@ -26,7 +26,7 @@ export function postRequestHandler(request: PostRequest): PostResponse {
  * Handler for `get` requests.
  * @returns Outgoing get response.
  */
-export function getRequestHandler(request: GetRequest): GetResponse {
+export function getHandler(request: GetRequest): GetResponse {
   const { parameters } = request;
 
   // Do some stuff...

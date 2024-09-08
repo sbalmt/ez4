@@ -3,11 +3,11 @@ import type { AnyObject } from '@ez4/utils';
 
 import { isAnyObject } from '@ez4/utils';
 
-type PrepareWhereResult = [string, unknown[]];
+type PrepareResult = [string, unknown[]];
 
 export const prepareWhereFields = <T extends Database.Schema>(
-  input: Query.WhereInput<T>
-): PrepareWhereResult => {
+  input: Query.WhereInput<T, never>
+): PrepareResult => {
   const prepareFields = (data: AnyObject, path?: string): [string[], unknown[]] => {
     const operations: string[] = [];
     const variables: unknown[] = [];
@@ -98,7 +98,7 @@ export const prepareWhereFields = <T extends Database.Schema>(
 const prepareOperation = (operation: AnyObject, path: string) => {
   const [operator, value] = Object.entries(operation)[0];
 
-  switch (operator as Query.WhereOperators) {
+  switch (operator) {
     case 'equal':
       return [`${path} = ?`, value];
 

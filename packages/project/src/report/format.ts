@@ -42,8 +42,8 @@ export const formatReportChanges = (
       const newValue = getOutputValue(property, changes.update[property]);
       const oldValue = getOutputValue(property, values[property]);
 
-      output.push(`${removeSign} ${newValue}`);
-      output.push(`${createSign} ${oldValue}`);
+      output.push(`${removeSign} ${oldValue}`);
+      output.push(`${createSign} ${newValue}`);
     }
   }
 

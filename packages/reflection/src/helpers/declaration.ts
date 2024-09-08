@@ -1,10 +1,12 @@
-import { isImportSpecifier, type Node, type TypeChecker } from 'typescript';
+import type { Node } from 'typescript';
 import type { EnumNodes } from '../resolver/type-enum.js';
 import type { ClassNodes } from '../resolver/type-class.js';
 import type { InterfaceNodes } from '../resolver/type-interface.js';
 import type { PropertyNodes } from '../resolver/model-property.js';
 import type { MethodNodes } from '../resolver/model-method.js';
 import type { FunctionNodes } from '../resolver/type-function.js';
+
+import { isImportSpecifier, TypeChecker } from 'typescript';
 
 import { isTypeEnum } from '../resolver/type-enum.js';
 import { isTypeClass } from '../resolver/type-class.js';
@@ -34,15 +36,18 @@ export const isTypeDeclaration = (node: Node): node is DeclarationNodes => {
 
 export const getNodeTypeDeclaration = (node: Node, checker: TypeChecker) => {
   const symbol = checker.getSymbolAtLocation(node);
-  const symbolDeclaration = symbol?.declarations?.at(0);
+  const declaration = symbol?.declarations?.at(0);
 
-  if (symbolDeclaration && isImportSpecifier(symbolDeclaration)) {
+  if (declaration && isImportSpecifier(declaration)) {
     const type = checker.getTypeAtLocation(node);
-    const typeSymbol = type.symbol ?? type.aliasSymbol;
-    const typeDeclaration = typeSymbol?.declarations?.at(0);
+    const typeSymbol = type.aliasSymbol ?? type.symbol;
 
-    return typeDeclaration;
+    if (!typeSymbol) {
+      return checker.typeToTypeNode(type, undefined, undefined);
+    }
+
+    return typeSymbol?.declarations?.at(0);
   }
 
-  return symbolDeclaration;
+  return declaration;
 };

@@ -14,11 +14,11 @@ export const isInternalReference = (node: Node): node is InterfaceDeclaration =>
 
 export const tryInternalReference = (
   node: Node,
-  types: TypeArguments,
+  types: TypeArguments | undefined,
   context: Context,
   state: State
 ) => {
-  if (!isInternalReference(node)) {
+  if (!types || !isInternalReference(node)) {
     return null;
   }
 

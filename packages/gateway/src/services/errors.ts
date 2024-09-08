@@ -15,8 +15,8 @@ export class HttpError extends Error {
  * HTTP Bad Request error.
  */
 export class HttpBadRequestError extends HttpError {
-  constructor(message: string, details?: string[]) {
-    super(400, message, details);
+  constructor(message?: string, details?: string[]) {
+    super(400, message || 'Bad request', details);
   }
 }
 
@@ -24,8 +24,8 @@ export class HttpBadRequestError extends HttpError {
  * HTTP Unauthorized error.
  */
 export class HttpUnauthorizedError extends HttpError {
-  constructor(message: string, details?: string[]) {
-    super(401, message, details);
+  constructor(message?: string, details?: string[]) {
+    super(401, message || 'Unauthorized', details);
   }
 }
 
@@ -33,8 +33,8 @@ export class HttpUnauthorizedError extends HttpError {
  * HTTP Forbidden error.
  */
 export class HttpForbiddenError extends HttpError {
-  constructor(message: string, details?: string[]) {
-    super(403, message, details);
+  constructor(message?: string, details?: string[]) {
+    super(403, message || 'Forbidden', details);
   }
 }
 
@@ -42,7 +42,7 @@ export class HttpForbiddenError extends HttpError {
  * HTTP Internal Server error.
  */
 export class HttpInternalServerError extends HttpError {
-  constructor(message: string, details?: string[]) {
-    super(500, message, details);
+  constructor(message?: string, details?: string[]) {
+    super(500, message || 'Internal server error', details);
   }
 }

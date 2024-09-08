@@ -6,9 +6,12 @@ import { applyDeploy } from '../actions/deploy.js';
 import { loadState, saveState } from '../actions/state.js';
 import { reportResourceChanges } from '../report/report.js';
 import { waitConfirmation } from '../console/prompt.js';
+import { loadProviders } from './providers.js';
 
-export const destroy = async (options: ProjectOptions) => {
-  const stateFile = `${options.stateFile}.ezstate`;
+export const destroy = async (project: ProjectOptions) => {
+  await loadProviders(project);
+
+  const stateFile = `${project.stateFile}.ezstate`;
 
   const oldState = loadState(stateFile);
   const newState: EntryStates = {};
@@ -20,7 +23,7 @@ export const destroy = async (options: ProjectOptions) => {
     return;
   }
 
-  if (options.confirmDeploy !== false) {
+  if (project.confirmDeploy !== false) {
     const proceed = await waitConfirmation('Are you sure to proceed?');
 
     if (!proceed) {

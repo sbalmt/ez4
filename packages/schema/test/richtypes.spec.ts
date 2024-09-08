@@ -12,4 +12,5 @@ describe.only('rich type schemas', () => {
   it('assert :: string', () => testFile('string'));
   it('assert :: date time', () => testFile('date-time'));
   it('assert :: identity', () => testFile('identity'));
+  it('assert :: regex', () => testFile('regex'));
 });

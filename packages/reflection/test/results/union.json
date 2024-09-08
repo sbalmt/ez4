@@ -62,6 +62,40 @@
             }
           ]
         }
+      },
+      {
+        "type": "property",
+        "name": "import1",
+        "value": {
+          "type": "union",
+          "elements": [
+            {
+              "type": "string",
+              "literal": "abc"
+            },
+            {
+              "type": "number",
+              "literal": 123
+            }
+          ]
+        }
+      },
+      {
+        "type": "property",
+        "name": "import2",
+        "value": {
+          "type": "union",
+          "elements": [
+            {
+              "type": "string",
+              "literal": "abc"
+            },
+            {
+              "type": "number",
+              "literal": 123
+            }
+          ]
+        }
       }
     ]
   }

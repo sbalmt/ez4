@@ -55,10 +55,10 @@ export async function apiEntryPoint(event: RequestEvent, context: Context): Prom
     return formatJsonResponse(status, JSON.stringify(body));
   } catch (error) {
     if (!(error instanceof HttpError)) {
-      error = new HttpInternalServerError(error.message ?? error);
-    }
+      console.error(error.message ?? error);
 
-    console.error(error.message);
+      error = new HttpInternalServerError();
+    }
 
     return formatJsonResponse(error.status, formatJsonError(error));
   }

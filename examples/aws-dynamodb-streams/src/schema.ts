@@ -3,7 +3,7 @@ import type { Database } from '@ez4/database';
 /**
  * Table schema example.
  */
-export declare class TableSchema implements Database.Schema {
+export declare class ExampleSchema implements Database.Schema {
   /**
    * Example of identifier property.
    */

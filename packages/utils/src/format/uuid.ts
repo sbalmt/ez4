@@ -1,4 +1,4 @@
-const uuidPattern = /^[0-9A-F]{8}-[0-9A-F]{4}-[1-5][0-9A-F]{3}-[89AB][0-9A-F]{3}-[0-9A-F]{12}$/i;
+const uuidRegEx = /^[0-9A-F]{8}-[0-9A-F]{4}-[1-5][0-9A-F]{3}-[89AB][0-9A-F]{3}-[0-9A-F]{12}$/i;
 
 /**
  * Determines whether or not the given value is a valid UUID format.
@@ -7,5 +7,5 @@ const uuidPattern = /^[0-9A-F]{8}-[0-9A-F]{4}-[1-5][0-9A-F]{3}-[89AB][0-9A-F]{3}
  * @returns Returns true for a valid UUID, false otherwise.
  */
 export const isUUID = (value: string) => {
-  return uuidPattern.test(value);
+  return uuidRegEx.test(value);
 };

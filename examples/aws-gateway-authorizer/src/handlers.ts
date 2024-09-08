@@ -5,7 +5,7 @@ import type { PublicRequest, PrivateRequest, GeneralResponse } from './types.js'
  * @param _request Incoming request.
  * @returns Outgoing response.
  */
-export function publicRequestHandler(_request: PublicRequest): GeneralResponse {
+export function publicHandler(_request: PublicRequest): GeneralResponse {
   return {
     status: 200,
     body: {
@@ -19,7 +19,7 @@ export function publicRequestHandler(_request: PublicRequest): GeneralResponse {
  * @param request Incoming request.
  * @returns Outgoing response.
  */
-export function privateRequestHandler(request: PrivateRequest): GeneralResponse {
+export function privateHandler(request: PrivateRequest): GeneralResponse {
   const { identity } = request;
 
   return {

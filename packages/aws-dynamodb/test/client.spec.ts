@@ -18,7 +18,7 @@ type TestSchema = {
 describe.only('dynamodb client', () => {
   let lastState: EntryStates | undefined;
   let tableId: string | undefined;
-  let dbTable: Table<TestSchema>;
+  let dbTable: Table<TestSchema, 'id' | 'order'>;
 
   const tableName = 'ez4-test-table-client';
 
@@ -56,6 +56,7 @@ describe.only('dynamodb client', () => {
     const client = Client.make({
       testTable: {
         tableName,
+        tableIndexes: ['id', 'order'],
         tableSchema: {
           type: SchemaTypeName.Object,
           properties: {
@@ -78,19 +79,40 @@ describe.only('dynamodb client', () => {
     ok(dbTable);
   });
 
-  it('assert :: insert item', async () => {
+  it('assert :: insert many', async () => {
     ok(dbTable);
 
-    await dbTable.insertOne({
-      data: {
-        id: 'id1',
-        value: 'initial test value',
-        order: 100
-      }
+    const data: any[] = [];
+
+    for (let index = 0; index < 150; index++) {
+      data.push({
+        id: `bulk-${index}`,
+        value: 'test',
+        order: 1000 + index
+      });
+    }
+
+    await dbTable.insertMany({
+      data
     });
   });
 
-  it('assert :: select item', async () => {
+  it('assert :: update many', async () => {
+    ok(dbTable);
+
+    const result = await dbTable.updateMany({
+      data: {
+        value: 'updated'
+      },
+      select: {
+        value: true
+      }
+    });
+
+    equal(result.length, 150);
+  });
+
+  it('assert :: find many', async () => {
     ok(dbTable);
 
     const result = await dbTable.findMany({
@@ -99,69 +121,89 @@ describe.only('dynamodb client', () => {
         order: true,
         value: true
       },
-      where: {}
+      where: {
+        order: 1149
+      }
     });
 
     deepEqual(result, {
       cursor: undefined,
       records: [
         {
-          id: 'id1',
-          order: 100,
-          value: 'initial test value'
+          id: 'bulk-149',
+          order: 1149,
+          value: 'updated'
         }
       ]
     });
   });
 
-  it('assert :: update item', async () => {
-    ok(dbTable);
-
-    const result = await dbTable.updateMany({
-      data: {
-        value: 'updated test value'
-      },
-      where: {
-        id: 'id1',
-        order: 100
-      },
-      select: {
-        value: true
-      }
-    });
-
-    deepEqual(result, [
-      {
-        id: 'id1',
-        order: 100,
-        value: 'initial test value'
-      }
-    ]);
-  });
-
-  it('assert :: delete item', async () => {
+  it('assert :: delete many', async () => {
     ok(dbTable);
 
     const result = await dbTable.deleteMany({
-      where: {
-        id: 'id1',
-        order: 100
-      },
       select: {
         value: true
       }
     });
 
-    deepEqual(result, [
-      {
-        id: 'id1',
-        order: 100,
-        value: 'updated test value'
-      }
-    ]);
+    equal(result.length, 150);
   });
 
-  it('assert :: upsert item', async () => {
+  it('assert :: insert one', async () => {
+    ok(dbTable);
+
+    await dbTable.insertOne({
+      data: {
+        id: 'single',
+        order: 0,
+        value: 'initial'
+      }
+    });
+  });
+
+  it('assert :: update one', async () => {
+    ok(dbTable);
+
+    const result = await dbTable.updateOne({
+      data: {
+        value: 'updated'
+      },
+      select: {
+        value: true
+      },
+      where: {
+        id: 'single',
+        order: 0
+      }
+    });
+
+    deepEqual(result, {
+      id: 'single',
+      order: 0,
+      value: 'initial'
+    });
+  });
+
+  it('assert :: find one', async () => {
+    ok(dbTable);
+
+    const result = await dbTable.findOne({
+      select: {
+        value: true
+      },
+      where: {
+        id: 'single',
+        order: 0
+      }
+    });
+
+    deepEqual(result, {
+      value: 'updated'
+    });
+  });
+
+  it('assert :: upsert one', async () => {
     ok(dbTable);
 
     const query = {
@@ -169,16 +211,16 @@ describe.only('dynamodb client', () => {
         value: true
       },
       where: {
-        id: 'id2',
-        order: 101
+        id: 'upsert',
+        order: 0
       },
       insert: {
-        id: 'id2',
-        value: 'initial test value',
-        order: 101
+        id: 'upsert',
+        order: 0,
+        value: 'initial'
       },
       update: {
-        value: 'updated test value'
+        value: 'updated'
       }
     };
 
@@ -189,7 +231,27 @@ describe.only('dynamodb client', () => {
     const updateResult = await dbTable.upsertOne(query);
 
     deepEqual(updateResult, {
-      value: 'initial test value'
+      value: 'initial'
+    });
+  });
+
+  it('assert :: delete one', async () => {
+    ok(dbTable);
+
+    const result = await dbTable.deleteOne({
+      select: {
+        value: true
+      },
+      where: {
+        id: 'upsert',
+        order: 0
+      }
+    });
+
+    deepEqual(result, {
+      id: 'upsert',
+      order: 0,
+      value: 'updated'
     });
   });
 

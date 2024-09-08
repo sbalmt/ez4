@@ -5,12 +5,14 @@
     "email": {
       "type": "string",
       "description": "String following an email format.",
-      "format": "email"
+      "format": "email",
+      "extra": {}
     },
     "uuid": {
       "type": "string",
       "description": "String following a UUID format.",
-      "format": "uuid"
+      "format": "uuid",
+      "extra": {}
     }
   }
 }

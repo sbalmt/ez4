@@ -40,36 +40,36 @@ export namespace Http {
     requestId: string;
 
     /**
-     * Request path.
-     */
-    path: string;
-
-    /**
      * Request method.
      */
     method: string;
+
+    /**
+     * Request path.
+     */
+    path: string;
   };
 
   /**
    * Incoming request authorizer.
    */
-  export type Authorizer<T extends AuthRequest, U extends AuthResponse> = (
+  export type Authorizer<T extends AuthRequest> = (
     request: T,
-    context: Service.Context<Service<any, any>>
-  ) => Promise<U> | U;
+    context: Service.Context<Service<any>>
+  ) => Promise<AuthResponse> | AuthResponse;
 
   /**
    * Incoming request handler.
    */
-  export type Handler<T extends Request, U extends Response> = (
+  export type Handler<T extends Request> = (
     request: T,
-    context: Service.Context<Service<any, U>>
-  ) => Promise<U> | U;
+    context: Service.Context<Service<any>>
+  ) => Promise<Response> | Response;
 
   /**
    * HTTP route.
    */
-  export interface Route<I extends Request = Request, O extends Response = Response> {
+  export interface Route<T extends Request = Request> {
     /**
      * Route path.
      */
@@ -78,12 +78,12 @@ export namespace Http {
     /**
      * Route authorizer.
      */
-    authorizer?: Authorizer<any, any>;
+    authorizer?: Authorizer<any>;
 
     /**
      * Route handler.
      */
-    handler: Handler<I, O> | Handler<Incoming<I>, O>;
+    handler: Handler<T> | Handler<Incoming<T>>;
 
     /**
      * Variables associated to the route.
@@ -104,15 +104,13 @@ export namespace Http {
   /**
    * HTTP service.
    */
-  export declare abstract class Service<
-    T extends Request[] = Request[],
-    U extends Response = Response
-  > implements Service.Provider
+  export declare abstract class Service<T extends Request[] = Request[]>
+    implements Service.Provider
   {
     /**
      * All expected routes.
      */
-    abstract routes: RouteTypes<T, U>[];
+    abstract routes: RouteTypes<T>[];
 
     /**
      * Display name for the service.
@@ -122,7 +120,7 @@ export namespace Http {
     /**
      * Variables associated to all the routes.
      */
-    variables: LinkedVariables;
+    variables?: LinkedVariables;
 
     /**
      * Service client.

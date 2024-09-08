@@ -5,6 +5,11 @@ export namespace String {
   export type Any = string;
 
   /**
+   * A string matching regex.
+   */
+  export type Regex<_Pattern extends string, _Name extends string> = string;
+
+  /**
    * A string within a minimum length constraint.
    */
   export type Min<_Length extends number> = string;

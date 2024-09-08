@@ -5,8 +5,7 @@ export const ServiceType = '@ez4/http';
 
 export type HttpService = ServiceMetadata & {
   type: typeof ServiceType;
-  id: string;
-  name: string;
+  displayName?: string;
   description?: string;
   routes: HttpRoute[];
 };

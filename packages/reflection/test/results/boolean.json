@@ -51,6 +51,22 @@
           "type": "boolean",
           "literal": false
         }
+      },
+      {
+        "type": "property",
+        "name": "import1",
+        "value": {
+          "type": "boolean",
+          "literal": true
+        }
+      },
+      {
+        "type": "property",
+        "name": "import2",
+        "value": {
+          "type": "boolean",
+          "literal": true
+        }
       }
     ]
   }

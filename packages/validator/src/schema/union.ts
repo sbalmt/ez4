@@ -8,20 +8,27 @@ export const validateUnion = async (value: unknown, schema: UnionSchema, propert
     return [];
   }
 
-  let lessErrors: Error[] | undefined;
+  let lastErrorList: Error[] = [];
+  let lastErrorSize = +Infinity;
 
   for (const elementSchema of schema.elements) {
     const errorList = await validateAny(value, elementSchema, property);
+    const errorSize = errorList.length;
 
-    if (!errorList.length) {
+    if (errorSize === 0) {
       return [];
     }
 
-    // Union with less errors is the best fit.
-    if (!lessErrors || lessErrors.length > errorList.length) {
-      lessErrors = errorList;
+    if (errorSize === lastErrorSize) {
+      lastErrorList.push(...errorList);
+      continue;
+    }
+
+    if (lastErrorSize > errorSize) {
+      lastErrorList = errorList;
+      lastErrorSize = errorSize;
     }
   }
 
-  return lessErrors ?? [];
+  return lastErrorList;
 };

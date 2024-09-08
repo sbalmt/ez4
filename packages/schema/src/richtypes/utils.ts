@@ -1,16 +1,22 @@
 import type { TypeObject } from '@ez4/reflection';
 
 import {
+  isModelProperty,
+  isTypeBoolean,
+  isTypeNumber,
+  isTypeString,
   createNumber,
   createString,
-  isTypeNumber,
-  isModelProperty,
-  isTypeString,
   createObject
 } from '@ez4/reflection';
 
 export type RichTypes = {
   format?: string;
+
+  name?: string;
+  pattern?: string;
+
+  extensible?: boolean;
 
   minLength?: number;
   maxLength?: number;
@@ -37,6 +43,19 @@ export const getRichTypes = (type: TypeObject) => {
         }
         break;
 
+      case 'name':
+      case 'pattern':
+        if (isTypeString(type)) {
+          richTypes[name] = type.literal;
+        }
+        break;
+
+      case 'extensible':
+        if (isTypeBoolean(type)) {
+          richTypes[name] = type.literal;
+        }
+        break;
+
       case 'minValue':
       case 'maxValue':
       case 'maxLength':
@@ -48,7 +67,7 @@ export const getRichTypes = (type: TypeObject) => {
     }
   });
 
-  if (Object.values(richTypes).length) {
+  if (richTypes.format) {
     return richTypes;
   }
 
@@ -66,8 +85,10 @@ export const createRichType = (richTypes: RichTypes) => {
       return {
         ...createNumber(),
         format,
-        ...(minValue && { minValue }),
-        ...(maxValue && { maxValue })
+        extra: {
+          ...(minValue && { minValue }),
+          ...(maxValue && { maxValue })
+        }
       };
 
     case 'string':
@@ -75,20 +96,32 @@ export const createRichType = (richTypes: RichTypes) => {
 
       return {
         ...createString(),
-        ...(minLength && { minLength }),
-        ...(maxLength && { maxLength })
+        extra: {
+          ...(minLength && { minLength }),
+          ...(maxLength && { maxLength })
+        }
       };
 
     case 'object':
+      const { extensible } = richTypes;
+
       return {
         ...createObject('@ez4/schema'),
-        extensible: true
+        extra: {
+          ...(extensible && { extensible })
+        }
       };
 
     default:
+      const { pattern, name } = richTypes;
+
       return {
         ...createString(),
-        ...(format && { format })
+        ...(format && { format }),
+        extra: {
+          ...(pattern && { pattern }),
+          ...(name && { name })
+        }
       };
   }
 };

@@ -9,7 +9,6 @@ import { ExtraSchema, SchemaTypeName } from '../types/common.js';
 import { getAnySchema } from './any.js';
 
 type RichTypeBase = {
-  extensible?: boolean;
   extra?: ExtraSchema;
 };
 
@@ -18,12 +17,11 @@ export type RichTypeObject = TypeObject & RichTypeBase;
 export type RichTypeModel = TypeModel & RichTypeBase;
 
 export const createObjectSchema = (data: Omit<ObjectSchema, 'type'>): ObjectSchema => {
-  const { properties, description, extensible, optional, nullable, extra } = data;
+  const { properties, description, optional, nullable, extra } = data;
 
   return {
     type: SchemaTypeName.Object,
     ...(description && { description }),
-    ...(extensible && { extensible }),
     ...(optional && { optional }),
     ...(nullable && { nullable }),
     ...(extra && { extra }),
@@ -48,7 +46,6 @@ export const getObjectSchema = (
     return createObjectSchema({
       properties: getAnySchemaFromMembers(reflection, getObjectProperties(type)),
       description,
-      extensible: type.extensible,
       extra: type.extra
     });
   }
@@ -57,7 +54,6 @@ export const getObjectSchema = (
     return createObjectSchema({
       properties: getAnySchemaFromMembers(reflection, getModelProperties(type)),
       description: description ?? type.description,
-      extensible: type.extensible,
       extra: type.extra
     });
   }

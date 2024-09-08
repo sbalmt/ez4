@@ -74,17 +74,30 @@ const updateResource = async (candidate: RouteState, current: RouteState, contex
     return;
   }
 
+  const newAuthorizerId = getAuthorizerId(context);
+  const oldAuthorizerId = current.result?.authorizerId;
+
   const newIntegrationId = getIntegrationId(RouteServiceName, result.routeId, context);
   const oldIntegrationId = current.result?.integrationId ?? newIntegrationId;
 
-  const newRequest = { ...candidate.parameters, integrationId: newIntegrationId };
-  const oldRequest = { ...current.parameters, integrationId: oldIntegrationId };
+  const newRequest = {
+    ...candidate.parameters,
+    integrationId: newIntegrationId,
+    authorizerId: newAuthorizerId
+  };
+
+  const oldRequest = {
+    ...current.parameters,
+    integrationId: oldIntegrationId,
+    authorizerId: oldAuthorizerId
+  };
 
   await checkGeneralUpdates(result.apiId, result.routeId, newRequest, oldRequest);
 
   return {
     ...result,
-    integrationId: newIntegrationId
+    integrationId: newIntegrationId,
+    authorizerId: newAuthorizerId
   };
 };
 
@@ -98,13 +111,13 @@ const deleteResource = async (candidate: RouteState) => {
 
 const checkGeneralUpdates = async <T extends RouteParameters>(
   apiId: string,
-  integrationId: string,
+  routeId: string,
   candidate: T,
   current: T
 ) => {
   const hasChanges = !deepEqual(candidate, current);
 
   if (hasChanges) {
-    await updateRoute(apiId, integrationId, candidate);
+    await updateRoute(apiId, routeId, candidate);
   }
 };

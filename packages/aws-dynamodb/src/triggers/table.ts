@@ -9,11 +9,11 @@ import { isDatabaseService } from '@ez4/database/library';
 import { getFunction } from '@ez4/aws-function';
 import { isRole } from '@ez4/aws-identity';
 
-import { AttributeType, AttributeKeyType } from '../types/schema.js';
-import { createStreamFunction } from '../mapping/function/service.js';
 import { createMapping } from '../mapping/service.js';
+import { createStreamFunction } from '../mapping/function/service.js';
+import { AttributeType, AttributeKeyType } from '../types/schema.js';
 import { createTable } from '../table/service.js';
-import { getTableName } from './utils.js';
+import { getStreamName, getTableName } from './utils.js';
 
 export const prepareDatabaseServices = async (event: ServiceResourceEvent) => {
   const { state, service, role, options } = event;
@@ -23,7 +23,7 @@ export const prepareDatabaseServices = async (event: ServiceResourceEvent) => {
   }
 
   for (const table of service.tables) {
-    const tableName = getTableName(service, table, options.resourcePrefix);
+    const tableName = getTableName(service, table, options);
     const tableStream = table.stream;
 
     const { attributeSchema, ttlAttribute } = getAttributeSchema(table.indexes, table.schema);
@@ -41,7 +41,7 @@ export const prepareDatabaseServices = async (event: ServiceResourceEvent) => {
       }
 
       const streamHandler = tableStream.handler;
-      const functionName = `${tableName}-${streamHandler.name}`;
+      const functionName = getStreamName(service, table, streamHandler.name, options);
 
       const functionState =
         getFunction(state, role, functionName) ??

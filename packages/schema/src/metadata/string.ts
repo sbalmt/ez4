@@ -6,22 +6,18 @@ import { isTypeString } from '@ez4/reflection';
 import { ExtraSchema, SchemaTypeName } from '../types/common.js';
 
 export type RichTypeString = TypeString & {
-  minLength?: number;
-  maxLength?: number;
   format?: string;
   extra?: ExtraSchema;
 };
 
 export const createStringSchema = (data: Omit<StringSchema, 'type'>): StringSchema => {
-  const { description, optional, nullable, minLength, maxLength, format, extra } = data;
+  const { description, optional, nullable, format, extra } = data;
 
   return {
     type: SchemaTypeName.String,
     ...(description && { description }),
     ...(optional && { optional }),
     ...(nullable && { nullable }),
-    ...(minLength && { minLength }),
-    ...(maxLength && { maxLength }),
     ...(format && { format }),
     ...(extra && { extra })
   };
@@ -36,12 +32,10 @@ export const getStringSchema = (type: AllType, description?: string): StringSche
     return null;
   }
 
-  const { minLength, maxLength, format, extra } = type;
+  const { format, extra } = type;
 
   return createStringSchema({
     description,
-    minLength,
-    maxLength,
     format,
     extra
   });
