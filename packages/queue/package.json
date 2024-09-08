@@ -1,7 +1,7 @@
 {
   "name": "@ez4/queue",
   "description": "EZ4: Components to build queue services",
-  "version": "0.2.0",
+  "version": "0.3.0",
   "author": "Silas B.",
   "license": "MIT",
   "type": "module",
@@ -31,9 +31,9 @@
     "live:publish": "npm run test && npm publish --access public"
   },
   "dependencies": {
-    "@ez4/common": "^0.2.0",
-    "@ez4/project": "^0.2.0",
-    "@ez4/reflection": "^0.2.0",
-    "@ez4/schema": "^0.2.0"
+    "@ez4/common": "^0.3.0",
+    "@ez4/project": "^0.3.0",
+    "@ez4/reflection": "^0.3.0",
+    "@ez4/schema": "^0.3.0"
   }
 }

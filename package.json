@@ -1,7 +1,7 @@
 {
   "name": "@ez4/monorepo",
   "description": "EZ4 Monorepo",
-  "version": "0.2.0",
+  "version": "0.3.0",
   "author": "Silas B.",
   "license": "MIT",
   "type": "module",
