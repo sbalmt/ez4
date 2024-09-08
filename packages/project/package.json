@@ -5,6 +5,9 @@
   "author": "Silas B.",
   "license": "MIT",
   "type": "module",
+  "bin": {
+    "ez4": "./bin/cli.mjs"
+  },
   "exports": {
     ".": {
       "types": "./dist/main.d.ts",

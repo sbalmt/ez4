@@ -13,18 +13,21 @@ import { prepareExecutionRole } from '../actions/identity.js';
 import { reportResourceChanges } from '../report/report.js';
 import { waitConfirmation } from '../console/prompt.js';
 import { getMetadata } from '../library/metadata.js';
+import { loadProviders } from './providers.js';
 
-export const deploy = async (options: ProjectOptions) => {
-  const metadata = getMetadata(options.sourceFiles);
+export const deploy = async (project: ProjectOptions) => {
+  await loadProviders(project);
+
+  const metadata = getMetadata(project.sourceFiles);
 
   const deploy: DeployOptions = {
-    resourcePrefix: options.resourcePrefix ?? 'ez4',
-    projectName: toKebabCase(options.projectName)
+    resourcePrefix: project.resourcePrefix ?? 'ez4',
+    projectName: toKebabCase(project.projectName)
   };
 
   await prepareAllLinkedServices(metadata, deploy);
 
-  const stateFile = `${options.stateFile}.ezstate`;
+  const stateFile = `${project.stateFile}.ezstate`;
 
   const oldState = loadState(stateFile);
   const newState: EntryStates = {};
@@ -40,7 +43,7 @@ export const deploy = async (options: ProjectOptions) => {
     return;
   }
 
-  if (options.confirmDeploy !== false) {
+  if (project.confirmDeploy !== false) {
     const proceed = await waitConfirmation('Are you sure to proceed?');
 
     if (!proceed) {

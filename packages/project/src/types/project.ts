@@ -9,13 +9,18 @@ export type ProjectOptions = {
   confirmDeploy?: boolean;
 
   /**
+   * Set the new package.json location relative to the current working directory.
+   */
+  packageLocation?: string;
+
+  /**
    * Prefix to be used as part of the resource names.
    * Default is: `ez4`
    */
   resourcePrefix: string;
 
   /**
-   * Project name.
+   * Project name that's combined with the `resourcePrefix`.
    */
   projectName: string;
 

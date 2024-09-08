@@ -1,7 +1,7 @@
 const Reset = '\x1b[0m';
 const Bold = '\x1b[1m';
 
-const enum Color {
+export const enum Color {
   Red = '\x1b[31m',
   Green = '\x1b[32m',
   Yellow = '\x1b[33m',
