@@ -98,7 +98,7 @@ export const prepareWhereFields = <T extends Database.Schema>(
 const prepareOperation = (operation: AnyObject, path: string) => {
   const [operator, value] = Object.entries(operation)[0];
 
-  switch (operator as Query.WhereOperators) {
+  switch (operator) {
     case 'equal':
       return [`${path} = ?`, value];
 
@@ -136,6 +136,5 @@ const prepareOperation = (operation: AnyObject, path: string) => {
       return [`contains(${path}, ?)`, value];
   }
 
-  // Should never fall here.
-  throw new Error(`Operator '${operator}' isn't implemented.`);
+  return null;
 };
