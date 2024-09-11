@@ -1,0 +1,17 @@
+{
+  "TestScheduler": {
+    "type": "@ez4/cron",
+    "name": "TestScheduler",
+    "description": "Scheduler cron description.",
+    "handler": {
+      "name": "schedulerHandler",
+      "file": "test/input/output-service.ts"
+    },
+    "timeout": 30,
+    "memory": 128,
+    "variables": {
+      "TEST_VAR1": "test-literal-value",
+      "TEST_VAR2": "test-env-var-value"
+    }
+  }
+}
