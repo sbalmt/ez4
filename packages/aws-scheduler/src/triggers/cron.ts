@@ -3,10 +3,9 @@ import type { ServiceResourceEvent } from '@ez4/project/library';
 import { isCronService } from '@ez4/scheduler/library';
 import { isRole } from '@ez4/aws-identity';
 
-import { createRule } from '../rule/service.js';
-import { getRuleName, getTargetName } from './utils.js';
-import { createTargetFunction } from '../target/function/service.js';
-import { createTarget } from '../target/service.js';
+import { getScheduleName, getTargetName } from './utils.js';
+import { createTargetFunction } from '../schedule/function/service.js';
+import { createSchedule } from '../schedule/service.js';
 
 export const prepareCronServices = async (event: ServiceResourceEvent) => {
   const { state, service, options, role } = event;
@@ -16,19 +15,12 @@ export const prepareCronServices = async (event: ServiceResourceEvent) => {
   }
 
   if (!role || !isRole(role)) {
-    throw new Error(`Execution role for EventBridge is missing.`);
+    throw new Error(`Execution role for EventBridge Scheduler is missing.`);
   }
 
   const { handler, expression, disabled, description } = service;
 
   const { variables, timeout, memory, extras } = service;
-
-  const ruleState = createRule(state, {
-    ruleName: getRuleName(service, options),
-    enabled: !disabled,
-    description,
-    expression
-  });
 
   const functionName = getTargetName(service, handler.name, options);
 
@@ -45,5 +37,10 @@ export const prepareCronServices = async (event: ServiceResourceEvent) => {
     memory
   });
 
-  createTarget(state, ruleState, functionState);
+  createSchedule(state, role, functionState, {
+    scheduleName: getScheduleName(service, options),
+    enabled: !disabled,
+    description,
+    expression
+  });
 };

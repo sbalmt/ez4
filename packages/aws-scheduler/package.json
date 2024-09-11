@@ -39,7 +39,7 @@
     "@types/aws-lambda": "^8.10.141"
   },
   "dependencies": {
-    "@aws-sdk/client-eventbridge": "^3.614.0",
+    "@aws-sdk/client-scheduler": "^3.614.0",
     "@ez4/aws-common": "^0.3.0",
     "@ez4/aws-identity": "^0.3.0",
     "@ez4/aws-function": "^0.3.0",

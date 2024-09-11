@@ -9,7 +9,7 @@ export const getRoleDocument = (): RoleDocument => {
         Effect: 'Allow',
         Action: 'sts:AssumeRole',
         Principal: {
-          Service: ['lambda.amazonaws.com']
+          Service: ['lambda.amazonaws.com', 'scheduler.amazonaws.com']
         }
       }
     ]

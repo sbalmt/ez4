@@ -3,7 +3,7 @@ import type { DeployOptions } from '@ez4/project/library';
 
 import { toKebabCase } from '@ez4/utils';
 
-export const getRuleName = (service: CronService, options: DeployOptions) => {
+export const getScheduleName = (service: CronService, options: DeployOptions) => {
   const resourcePrefix = toKebabCase(options.resourcePrefix);
   const projectName = toKebabCase(options.projectName);
   const ruleName = toKebabCase(service.name);
@@ -16,5 +16,5 @@ export const getTargetName = (
   handlerName: string,
   options: DeployOptions
 ) => {
-  return `${getRuleName(service, options)}-${toKebabCase(handlerName)}`;
+  return `${getScheduleName(service, options)}-${toKebabCase(handlerName)}`;
 };
