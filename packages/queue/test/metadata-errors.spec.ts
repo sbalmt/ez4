@@ -25,7 +25,7 @@ describe.only('queue metadata errors', () => {
   registerTriggers();
 
   it('assert :: incomplete queue', () => {
-    const errors = parseFile('incomplete-queue');
+    const errors = parseFile('incomplete-service');
 
     equal(errors.length, 2);
 
