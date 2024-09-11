@@ -126,7 +126,6 @@ const createResource = async (
 
   return {
     functionArn: response.functionArn,
-    functionName: response.functionName,
     sourceHash,
     roleArn
   };
@@ -167,10 +166,10 @@ const updateResource = async (
 };
 
 const deleteResource = async (candidate: FunctionState) => {
-  const result = candidate.result;
+  const { result, parameters } = candidate;
 
   if (result) {
-    await waitDeletion(() => deleteFunction(result.functionName));
+    await waitDeletion(() => deleteFunction(parameters.functionName));
   }
 };
 
