@@ -18,9 +18,7 @@ export const prepareCronServices = async (event: ServiceResourceEvent) => {
     throw new Error(`Execution role for EventBridge Scheduler is missing.`);
   }
 
-  const { handler, expression, disabled, description } = service;
-
-  const { variables, timeout, memory, extras } = service;
+  const { handler, variables, timeout, memory, extras } = service;
 
   const functionName = getTargetName(service, handler.name, options);
 
@@ -37,10 +35,15 @@ export const prepareCronServices = async (event: ServiceResourceEvent) => {
     memory
   });
 
+  const { description, disabled, expression, timezone, startDate, endDate } = service;
+
   createSchedule(state, role, functionState, {
     scheduleName: getScheduleName(service, options),
     enabled: !disabled,
     description,
-    expression
+    expression,
+    timezone,
+    startDate,
+    endDate
   });
 };

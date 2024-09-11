@@ -51,7 +51,10 @@ export const getCronServices = (reflection: SourceMap) => {
           break;
         }
 
-        case 'expression': {
+        case 'expression':
+        case 'timezone':
+        case 'startDate':
+        case 'endDate': {
           const value = getPropertyString(member);
           if (value !== undefined && value !== null) {
             properties.delete(member.name);

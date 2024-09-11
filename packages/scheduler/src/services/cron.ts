@@ -27,6 +27,21 @@ export namespace Cron {
     abstract expression: string;
 
     /**
+     * Specify the scheduler expression timezone.
+     */
+    timezone?: string;
+
+    /**
+     * An ISO date to determine when the scheduler should start to work.
+     */
+    startDate?: string;
+
+    /**
+     * An ISO date to determine when the scheduler should stop to work.
+     */
+    endDate?: string;
+
+    /**
      * Determines whether or not the scheduler is disabled.
      */
     disabled?: boolean;

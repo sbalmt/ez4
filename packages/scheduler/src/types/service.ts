@@ -7,9 +7,12 @@ export const ServiceType = '@ez4/cron';
 export type CronService = ServiceMetadata & {
   type: typeof ServiceType;
   name: string;
+  description?: string;
   handler: CronHandler;
   expression: string;
-  description?: string;
+  timezone?: string;
+  startDate?: string;
+  endDate?: string;
   disabled?: boolean;
   variables?: LinkedVariables | null;
   timeout?: number;

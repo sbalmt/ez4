@@ -9,6 +9,12 @@ export declare class TestScheduler extends Cron.Service {
 
   expression: 'rate(1 minute)';
 
+  timezone: 'America/Sao_Paulo';
+
+  startDate: '2024-01-01T:00:00:00Z';
+
+  endDate: '2024-01-01T:23:59:59Z';
+
   disabled: true;
 
   timeout: 30;
