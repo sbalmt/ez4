@@ -22,6 +22,16 @@ export namespace Cron {
     abstract handler: Handler;
 
     /**
+     * Scheduler expression.
+     */
+    abstract expression: string;
+
+    /**
+     * Determines whether or not the scheduler is disabled.
+     */
+    disabled?: boolean;
+
+    /**
      * Variables associated to the handler.
      */
     variables?: LinkedVariables;

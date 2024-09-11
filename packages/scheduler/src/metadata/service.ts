@@ -5,8 +5,10 @@ import type { CronService } from '../types/service.js';
 import {
   getLinkedServices,
   getLinkedVariables,
-  getModelMembers,
-  getPropertyNumber
+  getPropertyBoolean,
+  getPropertyNumber,
+  getPropertyString,
+  getModelMembers
 } from '@ez4/common/library';
 
 import { isModelProperty } from '@ez4/reflection';
@@ -28,7 +30,7 @@ export const getCronServices = (reflection: SourceMap) => {
     }
 
     const service: Incomplete<CronService> = { type: ServiceType };
-    const properties = new Set(['handler']);
+    const properties = new Set(['handler', 'expression']);
 
     service.name = statement.name;
 
@@ -45,6 +47,23 @@ export const getCronServices = (reflection: SourceMap) => {
         case 'handler': {
           if ((service.handler = getCronHandler(member.value, errorList))) {
             properties.delete(member.name);
+          }
+          break;
+        }
+
+        case 'expression': {
+          const value = getPropertyString(member);
+          if (value !== undefined && value !== null) {
+            properties.delete(member.name);
+            service[member.name] = value;
+          }
+          break;
+        }
+
+        case 'disabled': {
+          const value = getPropertyBoolean(member);
+          if (value !== undefined && value !== null) {
+            service[member.name] = value;
           }
           break;
         }
@@ -83,5 +102,5 @@ export const getCronServices = (reflection: SourceMap) => {
 };
 
 const isValidService = (type: Incomplete<CronService>): type is CronService => {
-  return !!type.name && !!type.handler;
+  return !!type.name && !!type.handler && !!type.expression;
 };

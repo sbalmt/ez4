@@ -7,6 +7,8 @@
       "name": "schedulerHandler",
       "file": "test/input/output-service.ts"
     },
+    "expression": "rate(1 minute)",
+    "disabled": true,
     "timeout": 30,
     "memory": 128,
     "variables": {

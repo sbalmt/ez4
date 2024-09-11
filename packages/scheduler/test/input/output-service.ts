@@ -7,6 +7,10 @@ import type { Cron } from '@ez4/scheduler';
 export declare class TestScheduler extends Cron.Service {
   handler: typeof schedulerHandler;
 
+  expression: 'rate(1 minute)';
+
+  disabled: true;
+
   timeout: 30;
 
   memory: 128;
