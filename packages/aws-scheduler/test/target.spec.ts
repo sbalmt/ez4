@@ -4,7 +4,7 @@ import { describe, it } from 'node:test';
 import { ok, equal } from 'node:assert/strict';
 import { join } from 'node:path';
 
-import { createRule, createTarget, createTargetFunction, isTarget } from '@ez4/aws-eventbridge';
+import { createRule, createTarget, createTargetFunction, isTarget } from '@ez4/aws-scheduler';
 
 import { createRole } from '@ez4/aws-identity';
 import { deploy } from '@ez4/aws-common';
@@ -35,7 +35,7 @@ const assertDeploy = async <E extends EntryState>(
   };
 };
 
-describe.only('event bridge :: target', () => {
+describe.only('scheduler :: target', () => {
   const baseDir = join(import.meta.dirname, '../test/files');
 
   let lastState: EntryStates | undefined;

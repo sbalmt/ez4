@@ -1,7 +1,7 @@
 import type { FunctionState } from '@ez4/aws-function';
 import type { EntryState, EntryStates } from '@ez4/stateful';
-import type { TargetState } from './types.js';
 import type { RuleState } from '../rule/types.js';
+import type { TargetState } from './types.js';
 
 import { attachEntry } from '@ez4/stateful';
 import { hashData } from '@ez4/utils';

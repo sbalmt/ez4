@@ -6,8 +6,9 @@ import { isRole } from '@ez4/aws-identity';
 import { createRule } from '../rule/service.js';
 import { getRuleName, getTargetName } from './utils.js';
 import { createTargetFunction } from '../target/function/service.js';
+import { createTarget } from '../target/service.js';
 
-export const prepareRuleServices = async (event: ServiceResourceEvent) => {
+export const prepareCronServices = async (event: ServiceResourceEvent) => {
   const { state, service, options, role } = event;
 
   if (!isCronService(service)) {
@@ -18,10 +19,11 @@ export const prepareRuleServices = async (event: ServiceResourceEvent) => {
     throw new Error(`Execution role for EventBridge is missing.`);
   }
 
-  const { handler, expression, disabled, description, variables, timeout, memory, extras } =
-    service;
+  const { handler, expression, disabled, description } = service;
 
-  createRule(state, {
+  const { variables, timeout, memory, extras } = service;
+
+  const ruleState = createRule(state, {
     ruleName: getRuleName(service, options),
     enabled: !disabled,
     description,
@@ -30,7 +32,7 @@ export const prepareRuleServices = async (event: ServiceResourceEvent) => {
 
   const functionName = getTargetName(service, handler.name, options);
 
-  await createTargetFunction(state, role, {
+  const functionState = await createTargetFunction(state, role, {
     functionName,
     description: handler.description,
     sourceFile: handler.file,
@@ -42,4 +44,6 @@ export const prepareRuleServices = async (event: ServiceResourceEvent) => {
     timeout,
     memory
   });
+
+  createTarget(state, ruleState, functionState);
 };

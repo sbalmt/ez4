@@ -4,7 +4,7 @@ import { describe, it } from 'node:test';
 import { ok, equal } from 'node:assert/strict';
 
 import { deepClone } from '@ez4/utils';
-import { createRule, isRule } from '@ez4/aws-eventbridge';
+import { createRule, isRule } from '@ez4/aws-scheduler';
 import { deploy } from '@ez4/aws-common';
 
 const assertDeploy = async <E extends EntryState>(
@@ -29,7 +29,7 @@ const assertDeploy = async <E extends EntryState>(
   };
 };
 
-describe.only('event bridge :: rule', () => {
+describe.only('scheduler :: rule', () => {
   let lastState: EntryStates | undefined;
   let ruleId: string | undefined;
 

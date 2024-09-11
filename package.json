@@ -26,7 +26,7 @@
     "packages/aws-bucket",
     "packages/aws-identity",
     "packages/aws-function",
-    "packages/aws-eventbridge",
+    "packages/aws-scheduler",
     "packages/aws-dynamodb",
     "packages/aws-gateway",
     "packages/aws-queue"

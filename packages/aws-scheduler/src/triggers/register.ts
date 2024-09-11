@@ -6,7 +6,7 @@ import { registerTriggers as registerSchedulerTriggers } from '@ez4/scheduler/li
 import { createTrigger } from '@ez4/project/library';
 
 import { prepareExecutionPolicy } from './policy.js';
-import { prepareRuleServices } from './rule.js';
+import { prepareCronServices } from './cron.js';
 
 let isRegistered = false;
 
@@ -20,9 +20,9 @@ export const registerTriggers = () => {
     registerAwsFunctionTriggers();
     registerSchedulerTriggers();
 
-    createTrigger('@ez4/aws-eventbridge', {
+    createTrigger('@ez4/aws-scheduler', {
       'deploy:prepareExecutionPolicy': prepareExecutionPolicy,
-      'deploy:prepareResources': prepareRuleServices
+      'deploy:prepareResources': prepareCronServices
     });
 
     isRegistered = true;
