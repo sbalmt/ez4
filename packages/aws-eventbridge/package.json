@@ -45,9 +45,7 @@
     "@ez4/aws-function": "^0.3.0",
     "@ez4/project": "^0.3.0",
     "@ez4/scheduler": "^0.3.0",
-    "@ez4/schema": "^0.3.0",
     "@ez4/stateful": "^0.3.0",
-    "@ez4/validator": "^0.3.0",
     "@ez4/utils": "^0.3.0"
   }
 }
