@@ -60,6 +60,10 @@ const getTypeFromMembers = (
     }
 
     switch (member.name) {
+      case 'handler':
+        stream.handler = getStreamHandler(member.value, reflection, errorList);
+        break;
+
       case 'timeout':
       case 'memory': {
         const value = getPropertyNumber(member);
@@ -68,10 +72,6 @@ const getTypeFromMembers = (
         }
         break;
       }
-
-      case 'handler':
-        stream.handler = getStreamHandler(member.value, reflection, errorList);
-        break;
 
       case 'variables':
         stream.variables = getLinkedVariables(member, errorList);
