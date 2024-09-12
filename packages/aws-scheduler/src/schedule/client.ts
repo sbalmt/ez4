@@ -1,5 +1,10 @@
 import type { Arn } from '@ez4/aws-common';
 
+import type {
+  CreateScheduleCommandInput,
+  UpdateScheduleCommandInput
+} from '@aws-sdk/client-scheduler';
+
 import {
   CreateScheduleCommand,
   DeleteScheduleCommand,
@@ -23,6 +28,8 @@ export type CreateRequest = {
   enabled: boolean;
   startDate?: string;
   endDate?: string;
+  maxRetryAttempts?: number;
+  maxEventAge?: number;
   description?: string;
 };
 
@@ -35,26 +42,10 @@ export type UpdateRequest = Partial<Omit<CreateRequest, 'scheduleName'>>;
 export const createSchedule = async (request: CreateRequest): Promise<CreateResponse> => {
   Logger.logCreate(ScheduleServiceName, request.scheduleName);
 
-  const { scheduleName, description, enabled } = request;
-  const { expression, timezone, startDate, endDate } = request;
-  const { functionArn, roleArn } = request;
-
   const response = await client.send(
     new CreateScheduleCommand({
-      Name: scheduleName,
-      Description: description,
-      ScheduleExpression: expression,
-      ScheduleExpressionTimezone: timezone,
-      State: enabled ? ScheduleState.ENABLED : ScheduleState.DISABLED,
-      ...(startDate && { StartDate: new Date(startDate) }),
-      ...(endDate && { EndDate: new Date(endDate) }),
-      FlexibleTimeWindow: {
-        Mode: FlexibleTimeWindowMode.OFF
-      },
-      Target: {
-        Arn: functionArn,
-        RoleArn: roleArn
-      }
+      Name: request.scheduleName,
+      ...upsertScheduleRequest(request)
     })
   );
 
@@ -68,28 +59,10 @@ export const createSchedule = async (request: CreateRequest): Promise<CreateResp
 export const updateSchedule = async (scheduleName: string, request: UpdateRequest) => {
   Logger.logUpdate(ScheduleServiceName, scheduleName);
 
-  const { description, enabled } = request;
-  const { expression, timezone, startDate, endDate } = request;
-  const { functionArn, roleArn } = request;
-
   await client.send(
     new UpdateScheduleCommand({
       Name: scheduleName,
-      Description: description,
-      ScheduleExpression: expression,
-      ScheduleExpressionTimezone: timezone,
-      ...(startDate && { StartDate: new Date(startDate) }),
-      ...(endDate && { EndDate: new Date(endDate) }),
-      ...(enabled !== undefined && {
-        State: enabled ? ScheduleState.ENABLED : ScheduleState.DISABLED
-      }),
-      FlexibleTimeWindow: {
-        Mode: FlexibleTimeWindowMode.OFF
-      },
-      Target: {
-        Arn: functionArn,
-        RoleArn: roleArn
-      }
+      ...upsertScheduleRequest(request)
     })
   );
 };
@@ -102,4 +75,41 @@ export const deleteSchedule = async (scheduleName: string) => {
       Name: scheduleName
     })
   );
+};
+
+const upsertScheduleRequest = (
+  request: CreateRequest | UpdateRequest
+): Omit<CreateScheduleCommandInput | UpdateScheduleCommandInput, 'Name'> => {
+  const { expression, timezone, startDate, endDate, maxRetryAttempts, maxEventAge } = request;
+  const { description, enabled, functionArn, roleArn } = request;
+
+  const hasMaxRetryAttempts = maxRetryAttempts !== undefined;
+
+  const hasMaxEventAge = maxEventAge !== undefined;
+
+  const hasRetryPolicy = hasMaxEventAge || hasMaxRetryAttempts;
+
+  return {
+    Description: description,
+    ScheduleExpression: expression,
+    ScheduleExpressionTimezone: timezone,
+    ...(startDate && { StartDate: new Date(startDate) }),
+    ...(endDate && { EndDate: new Date(endDate) }),
+    ...(enabled !== undefined && {
+      State: enabled ? ScheduleState.ENABLED : ScheduleState.DISABLED
+    }),
+    FlexibleTimeWindow: {
+      Mode: FlexibleTimeWindowMode.OFF
+    },
+    Target: {
+      Arn: functionArn,
+      RoleArn: roleArn,
+      ...(hasRetryPolicy && {
+        RetryPolicy: {
+          ...(hasMaxEventAge && { MaximumEventAgeInSeconds: maxEventAge }),
+          ...(hasMaxRetryAttempts && { MaximumRetryAttempts: maxRetryAttempts })
+        }
+      })
+    }
+  };
 };

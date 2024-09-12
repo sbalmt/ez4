@@ -72,7 +72,9 @@ export const getCronServices = (reflection: SourceMap) => {
         }
 
         case 'timeout':
-        case 'memory': {
+        case 'memory':
+        case 'maxRetryAttempts':
+        case 'maxEventAge': {
           const value = getPropertyNumber(member);
           if (value !== undefined && value !== null) {
             service[member.name] = value;

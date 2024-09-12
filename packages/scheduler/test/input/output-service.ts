@@ -15,6 +15,10 @@ export declare class TestScheduler extends Cron.Service {
 
   endDate: '2024-01-01T:23:59:59Z';
 
+  maxEventAge: 20;
+
+  maxRetryAttempts: 0;
+
   disabled: true;
 
   timeout: 30;

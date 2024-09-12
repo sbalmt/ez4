@@ -13,6 +13,8 @@ export type CronService = ServiceMetadata & {
   timezone?: string;
   startDate?: string;
   endDate?: string;
+  maxEventAge?: number;
+  maxRetryAttempts?: number;
   disabled?: boolean;
   variables?: LinkedVariables | null;
   timeout?: number;

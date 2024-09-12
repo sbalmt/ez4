@@ -21,6 +21,11 @@ export declare class Event extends Cron.Service {
   timezone: 'America/Sao_Paulo';
 
   /**
+   * Retry up to 10 times in case it fails.
+   */
+  maxRetryAttempts: 10;
+
+  /**
    * Define the scheduler start date
    * If defined, it should be higher than the current timestamp.
    */

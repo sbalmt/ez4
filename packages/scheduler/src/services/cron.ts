@@ -42,6 +42,17 @@ export namespace Cron {
     endDate?: string;
 
     /**
+     * Maximum retry attempts for the event before it fails.
+     * Default is: 0
+     */
+    maxRetryAttempts?: number;
+
+    /**
+     * Maximum age (in seconds) for the event to be eligible for retry attempts.
+     */
+    maxEventAge?: number;
+
+    /**
      * Determines whether or not the scheduler is disabled.
      */
     disabled?: boolean;

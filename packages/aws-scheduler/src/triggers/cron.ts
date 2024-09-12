@@ -36,6 +36,7 @@ export const prepareCronServices = async (event: ServiceResourceEvent) => {
   });
 
   const { description, disabled, expression, timezone, startDate, endDate } = service;
+  const { maxRetryAttempts = 0, maxEventAge } = service;
 
   createSchedule(state, role, functionState, {
     scheduleName: getScheduleName(service, options),
@@ -44,6 +45,8 @@ export const prepareCronServices = async (event: ServiceResourceEvent) => {
     expression,
     timezone,
     startDate,
-    endDate
+    endDate,
+    maxRetryAttempts,
+    maxEventAge
   });
 };
