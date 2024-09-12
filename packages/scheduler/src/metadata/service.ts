@@ -39,7 +39,7 @@ export const getCronServices = (reflection: SourceMap) => {
     }
 
     for (const member of getModelMembers(statement)) {
-      if (!isModelProperty(member)) {
+      if (!isModelProperty(member) || member.inherited) {
         continue;
       }
 

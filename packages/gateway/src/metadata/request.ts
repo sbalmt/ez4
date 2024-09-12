@@ -1,8 +1,8 @@
+import type { MemberType } from '@ez4/common/library';
 import type { HttpAuthRequest, HttpRequest } from '../types/request.js';
 
 import type {
   AllType,
-  EveryMemberType,
   SourceMap,
   TypeCallback,
   TypeFunction,
@@ -92,65 +92,55 @@ const getTypeRequest = (
 
 const getTypeFromMembers = (
   type: TypeObject | TypeModel,
-  members: EveryMemberType[],
+  members: MemberType[],
   reflection: SourceMap,
   errorList: Error[]
 ) => {
   const request: HttpAuthRequest & HttpRequest = {};
 
   for (const member of members) {
-    if (!isModelProperty(member)) {
+    if (!isModelProperty(member) || member.inherited) {
       continue;
     }
 
     switch (member.name) {
       case 'headers': {
         request.headers = getHttpHeaders(member.value, type, reflection, errorList);
-
         if (request.headers && member.description) {
           request.headers.description = member.description;
         }
-
         break;
       }
 
       case 'identity': {
         request.identity = getHttpIdentity(member.value, type, reflection, errorList);
-
         if (request.identity && member.description) {
           request.identity.description = member.description;
         }
-
         break;
       }
 
       case 'query': {
         request.query = getHttpQuery(member.value, type, reflection, errorList);
-
         if (request.query && member.description) {
           request.query.description = member.description;
         }
-
         break;
       }
 
       case 'parameters': {
         request.parameters = getHttpParameters(member.value, type, reflection, errorList);
-
         if (request.parameters && member.description) {
           request.parameters.description = member.description;
         }
-
         break;
       }
 
       case 'body': {
         request.body = getHttpBody(member.value, type, reflection, errorList);
-
         if (request.body && member.description) {
           request.body.description = member.description;
         }
-
         break;
       }
     }

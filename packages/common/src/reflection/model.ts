@@ -31,19 +31,21 @@ export const getHeritageType = (type: TypeModel, name: string) => {
   });
 };
 
-export const getModelMembers = (type: TypeModel) => {
+export const getModelMembers = (type: TypeModel, heritage?: boolean) => {
   const membersMap = new Map<string, MemberType>();
 
-  type.heritage?.forEach((heritage) => {
-    heritage.members?.forEach((member) => {
-      if (!member.modifiers?.abstract) {
-        membersMap.set(member.name, {
-          ...member,
-          inherited: true
-        });
-      }
+  if (heritage) {
+    type.heritage?.forEach((heritage) => {
+      heritage.members?.forEach((member) => {
+        if (!member.modifiers?.abstract) {
+          membersMap.set(member.name, {
+            ...member,
+            inherited: true
+          });
+        }
+      });
     });
-  });
+  }
 
   type.members?.forEach((member) => {
     if (!member.modifiers?.abstract) {

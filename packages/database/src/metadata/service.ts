@@ -34,7 +34,7 @@ export const getDatabaseServices = (reflection: SourceMap) => {
     service.name = statement.name;
 
     for (const member of getModelMembers(statement)) {
-      if (!isModelProperty(member)) {
+      if (!isModelProperty(member) || member.inherited) {
         continue;
       }
 

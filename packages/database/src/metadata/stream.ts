@@ -1,5 +1,6 @@
 import type { Incomplete } from '@ez4/utils';
-import type { AllType, EveryMemberType, SourceMap, TypeModel, TypeObject } from '@ez4/reflection';
+import type { MemberType } from '@ez4/common/library';
+import type { AllType, SourceMap, TypeModel, TypeObject } from '@ez4/reflection';
 import type { TableStream } from '../types/stream.js';
 
 import {
@@ -71,7 +72,7 @@ const getTypeStream = (
 
 const getTypeFromMembers = (
   type: TypeObject | TypeModel,
-  members: EveryMemberType[],
+  members: MemberType[],
   reflection: SourceMap,
   errorList: Error[]
 ) => {
@@ -79,7 +80,7 @@ const getTypeFromMembers = (
   const properties = new Set(['handler']);
 
   for (const member of members) {
-    if (!isModelProperty(member)) {
+    if (!isModelProperty(member) || member.inherited) {
       continue;
     }
 
