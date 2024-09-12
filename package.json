@@ -21,6 +21,7 @@
     "packages/scheduler",
     "packages/database",
     "packages/gateway",
+    "packages/storage",
     "packages/queue",
     "packages/aws-common",
     "packages/aws-bucket",

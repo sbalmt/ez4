@@ -19,9 +19,10 @@ Check out some examples to get started with.
 
 ## Components
 
-- [API Gateway](./packages/gateway/)
+- [Gateway](./packages/gateway/)
 - [Database](./packages/database/)
 - [Scheduler](./packages/scheduler/)
+- [Storage](./packages/storage/)
 - [Queue](./packages/queue/)
 
 ## Providers
