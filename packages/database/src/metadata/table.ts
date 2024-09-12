@@ -1,6 +1,7 @@
 import type { Incomplete } from '@ez4/utils';
 import type { ObjectSchema } from '@ez4/schema';
-import type { AllType, EveryMemberType, SourceMap, TypeModel, TypeObject } from '@ez4/reflection';
+import type { MemberType } from '@ez4/common/library';
+import type { AllType, SourceMap, TypeModel, TypeObject } from '@ez4/reflection';
 import type { TableIndexes } from '../types/indexes.js';
 import type { DatabaseTable } from '../types/table.js';
 
@@ -46,7 +47,7 @@ const getTypeTable = (type: AllType, reflection: SourceMap, errorList: Error[]) 
 
 const getTypeFromMembers = (
   type: TypeObject | TypeModel,
-  members: EveryMemberType[],
+  members: MemberType[],
   reflection: SourceMap,
   errorList: Error[]
 ) => {
@@ -54,7 +55,7 @@ const getTypeFromMembers = (
   const properties = new Set(['name', 'schema', 'indexes']);
 
   for (const member of members) {
-    if (!isModelProperty(member)) {
+    if (!isModelProperty(member) || member.inherited) {
       continue;
     }
 
@@ -65,13 +66,6 @@ const getTypeFromMembers = (
         }
         break;
 
-      case 'schema': {
-        if ((table.schema = getTableSchema(member.value, type, reflection, errorList))) {
-          properties.delete(member.name);
-        }
-        break;
-      }
-
       case 'indexes': {
         if ((table.indexes = getTableIndexes(member.value, type, reflection, errorList))) {
           properties.delete(member.name);
@@ -79,8 +73,15 @@ const getTypeFromMembers = (
         break;
       }
 
+      case 'schema': {
+        if ((table.schema = getTableSchema(member.value, type, reflection, errorList))) {
+          properties.delete(member.name);
+        }
+        break;
+      }
+
       case 'stream': {
-        table.stream = getTableStream(member.value, reflection, errorList);
+        table.stream = getTableStream(member.value, type, reflection, errorList);
         break;
       }
     }

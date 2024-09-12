@@ -6,24 +6,37 @@ import {
   getLinkedVariables,
   getModelMembers,
   getObjectMembers,
-  getPropertyNumber
+  getPropertyNumber,
+  isModelDeclaration
 } from '@ez4/common/library';
 
 import { isModelProperty, isTypeObject, isTypeReference } from '@ez4/reflection';
 
-import { IncompleteStreamError } from '../errors/stream.js';
+import {
+  IncompleteStreamError,
+  IncorrectStreamTypeError,
+  InvalidStreamTypeError
+} from '../errors/stream.js';
+
 import { getStreamHandler } from './handler.js';
 import { isTableStream } from './utils.js';
 
-export const getTableStream = (type: AllType, reflection: SourceMap, errorList: Error[]) => {
+type TypeParent = TypeModel | TypeObject;
+
+export const getTableStream = (
+  type: AllType,
+  parent: TypeParent,
+  reflection: SourceMap,
+  errorList: Error[]
+) => {
   if (!isTypeReference(type)) {
-    return getTypeStream(type, reflection, errorList);
+    return getTypeStream(type, parent, reflection, errorList);
   }
 
   const statement = reflection[type.path];
 
   if (statement) {
-    return getTypeStream(statement, reflection, errorList);
+    return getTypeStream(statement, parent, reflection, errorList);
   }
 
   return null;
@@ -33,16 +46,27 @@ const isValidStream = (type: Incomplete<TableStream>): type is TableStream => {
   return !!type.handler;
 };
 
-const getTypeStream = (type: AllType, reflection: SourceMap, errorList: Error[]) => {
-  if (isTableStream(type)) {
-    return getTypeFromMembers(type, getModelMembers(type), reflection, errorList);
-  }
-
+const getTypeStream = (
+  type: AllType,
+  parent: TypeParent,
+  reflection: SourceMap,
+  errorList: Error[]
+) => {
   if (isTypeObject(type)) {
     return getTypeFromMembers(type, getObjectMembers(type), reflection, errorList);
   }
 
-  return null;
+  if (!isModelDeclaration(type)) {
+    errorList.push(new InvalidStreamTypeError(parent.file));
+    return null;
+  }
+
+  if (!isTableStream(type)) {
+    errorList.push(new IncorrectStreamTypeError(type.name, type.file));
+    return null;
+  }
+
+  return getTypeFromMembers(type, getModelMembers(type), reflection, errorList);
 };
 
 const getTypeFromMembers = (

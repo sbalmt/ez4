@@ -1,10 +1,5 @@
-import type {
-  AllType,
-  EveryMemberType,
-  TypeClass,
-  TypeInterface,
-  TypeModel
-} from '@ez4/reflection';
+import type { AllType, TypeClass, TypeInterface, TypeModel } from '@ez4/reflection';
+import type { MemberType } from './types.js';
 
 import { isTypeClass, isTypeInterface } from '@ez4/reflection';
 
@@ -37,19 +32,25 @@ export const getHeritageType = (type: TypeModel, name: string) => {
 };
 
 export const getModelMembers = (type: TypeModel) => {
-  const membersMap = new Map<string, EveryMemberType>();
+  const membersMap = new Map<string, MemberType>();
 
   type.heritage?.forEach((heritage) => {
     heritage.members?.forEach((member) => {
       if (!member.modifiers?.abstract) {
-        membersMap.set(member.name, member);
+        membersMap.set(member.name, {
+          ...member,
+          inherited: true
+        });
       }
     });
   });
 
   type.members?.forEach((member) => {
     if (!member.modifiers?.abstract) {
-      membersMap.set(member.name, member);
+      membersMap.set(member.name, {
+        ...member,
+        inherited: false
+      });
     }
   });
 
