@@ -11,15 +11,40 @@ export namespace Cron {
   export type Handler = (context: Service.Context<Service>) => Promise<void> | void;
 
   /**
+   * Cron target.
+   */
+  export interface Target {
+    /**
+     * Target handler.
+     *
+     * @param context Handler context.
+     */
+    handler: Handler;
+
+    /**
+     * Variables associated to the target.
+     */
+    variables?: LinkedVariables;
+
+    /**
+     * Max execution time (in seconds) for the handler.
+     */
+    timeout?: number;
+
+    /**
+     * Amount of memory available for the handler.
+     */
+    memory?: number;
+  }
+
+  /**
    * Cron service.
    */
   export declare abstract class Service implements Service.Provider {
     /**
-     * Scheduler handler.
-     *
-     * @param context Handler context.
+     * Scheduler target.
      */
-    abstract handler: Handler;
+    abstract target: Target;
 
     /**
      * Scheduler expression.
@@ -58,19 +83,9 @@ export namespace Cron {
     disabled?: boolean;
 
     /**
-     * Variables associated to the handler.
+     * Variables associated to the target.
      */
     variables?: LinkedVariables;
-
-    /**
-     * Max execution time (in seconds) for the handler.
-     */
-    timeout?: number;
-
-    /**
-     * Amount of memory available for the handler.
-     */
-    memory?: number;
 
     /**
      * Service client.

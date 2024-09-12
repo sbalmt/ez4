@@ -1,15 +1,10 @@
 import type { Cron } from '@ez4/scheduler';
-import type { cronHandler } from './handlers.js';
+import type { targetHandler } from './handlers.js';
 
 /**
  * Example of AWS EventBridge Scheduler deployed with EZ4.
  */
 export declare class Event extends Cron.Service {
-  /**
-   * Event handler.
-   */
-  handler: typeof cronHandler;
-
   /**
    * Execute every 5 minutes.
    */
@@ -19,6 +14,13 @@ export declare class Event extends Cron.Service {
    * Execute using the specified timezone.
    */
   timezone: 'America/Sao_Paulo';
+
+  /**
+   * Event target.
+   */
+  target: {
+    handler: typeof targetHandler;
+  };
 
   /**
    * Retry up to 10 times in case it fails.

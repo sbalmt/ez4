@@ -5,8 +5,6 @@ import type { Cron } from '@ez4/scheduler';
  * Scheduler cron description.
  */
 export declare class TestScheduler extends Cron.Service {
-  handler: typeof schedulerHandler;
-
   expression: 'rate(1 minute)';
 
   timezone: 'America/Sao_Paulo';
@@ -15,20 +13,27 @@ export declare class TestScheduler extends Cron.Service {
 
   endDate: '2024-01-01T:23:59:59Z';
 
-  maxEventAge: 20;
-
   maxRetryAttempts: 0;
+
+  maxEventAge: 20;
 
   disabled: true;
 
-  timeout: 30;
+  target: {
+    handler: typeof targetHandler;
 
-  memory: 128;
+    timeout: 30;
+
+    memory: 128;
+
+    variables: {
+      TEST_VAR1: 'test-literal-value';
+    };
+  };
 
   variables: {
-    TEST_VAR1: 'test-literal-value';
     TEST_VAR2: Environment.Variable<'TEST_ENV_VAR'>;
   };
 }
 
-function schedulerHandler() {}
+function targetHandler() {}

@@ -1,16 +1,16 @@
 import type { Incomplete } from '@ez4/utils';
 import type { AllType } from '@ez4/reflection';
-import type { CronHandler } from '../types/handler.js';
+import type { TargetHandler } from '../types/handler.js';
 
 import { IncompleteHandlerError } from '../errors/handler.js';
-import { isCronHandler } from './utils.js';
+import { isTargetHandler } from './utils.js';
 
-export const getCronHandler = (type: AllType, errorList: Error[]) => {
-  if (!isCronHandler(type)) {
+export const getTargetHandler = (type: AllType, errorList: Error[]) => {
+  if (!isTargetHandler(type)) {
     return null;
   }
 
-  const handler: Incomplete<CronHandler> = {};
+  const handler: Incomplete<TargetHandler> = {};
   const properties = new Set(['name', 'file']);
 
   if (type.description) {
@@ -34,6 +34,6 @@ export const getCronHandler = (type: AllType, errorList: Error[]) => {
   return null;
 };
 
-const isValidHandler = (type: Incomplete<CronHandler>): type is CronHandler => {
+const isValidHandler = (type: Incomplete<TargetHandler>): type is TargetHandler => {
   return !!type.name && !!type.file;
 };

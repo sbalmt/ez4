@@ -1,6 +1,5 @@
 import type { ServiceMetadata } from '@ez4/project/library';
-import type { LinkedVariables } from '@ez4/project/library';
-import type { CronHandler } from './handler.js';
+import type { CronTarget } from './target.js';
 
 export const ServiceType = '@ez4/cron';
 
@@ -8,7 +7,7 @@ export type CronService = ServiceMetadata & {
   type: typeof ServiceType;
   name: string;
   description?: string;
-  handler: CronHandler;
+  target: CronTarget;
   expression: string;
   timezone?: string;
   startDate?: string;
@@ -16,9 +15,6 @@ export type CronService = ServiceMetadata & {
   maxEventAge?: number;
   maxRetryAttempts?: number;
   disabled?: boolean;
-  variables?: LinkedVariables | null;
-  timeout?: number;
-  memory?: number;
 };
 
 export const isCronService = (service: ServiceMetadata): service is CronService => {

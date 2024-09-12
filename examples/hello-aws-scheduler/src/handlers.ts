@@ -1,6 +1,6 @@
 /**
- * Cron handler.
+ * Cron target handler.
  */
-export function cronHandler(): void {
+export function targetHandler(): void {
   // Do some stuff...
 }

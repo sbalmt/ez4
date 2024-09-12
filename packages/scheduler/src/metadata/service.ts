@@ -15,7 +15,7 @@ import { isModelProperty } from '@ez4/reflection';
 
 import { ServiceType } from '../types/service.js';
 import { IncompleteServiceError } from '../errors/service.js';
-import { getCronHandler } from './handler.js';
+import { getCronTarget } from './target.js';
 import { isCronService } from './utils.js';
 
 export const getCronServices = (reflection: SourceMap) => {
@@ -30,7 +30,7 @@ export const getCronServices = (reflection: SourceMap) => {
     }
 
     const service: Incomplete<CronService> = { type: ServiceType };
-    const properties = new Set(['handler', 'expression']);
+    const properties = new Set(['target', 'expression']);
 
     service.name = statement.name;
 
@@ -44,8 +44,8 @@ export const getCronServices = (reflection: SourceMap) => {
       }
 
       switch (member.name) {
-        case 'handler': {
-          if ((service.handler = getCronHandler(member.value, errorList))) {
+        case 'target': {
+          if ((service.target = getCronTarget(member.value, statement, reflection, errorList))) {
             properties.delete(member.name);
           }
           break;
@@ -71,8 +71,6 @@ export const getCronServices = (reflection: SourceMap) => {
           break;
         }
 
-        case 'timeout':
-        case 'memory':
         case 'maxRetryAttempts':
         case 'maxEventAge': {
           const value = getPropertyNumber(member);
@@ -107,5 +105,5 @@ export const getCronServices = (reflection: SourceMap) => {
 };
 
 const isValidService = (type: Incomplete<CronService>): type is CronService => {
-  return !!type.name && !!type.handler && !!type.expression;
+  return !!type.name && !!type.target && !!type.expression;
 };
