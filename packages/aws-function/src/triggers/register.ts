@@ -39,8 +39,10 @@ const prepareExecutionPolicy = async (event: PolicyResourceEvent) => {
   const { state, options } = event;
   const { resourcePrefix, projectName } = options;
 
+  const prefix = `${resourcePrefix}-${projectName}`;
+
   return createPolicy(state, {
-    policyName: `${resourcePrefix}-${projectName}-lambda-policy`,
-    policyDocument: await getPolicyDocument(resourcePrefix)
+    policyName: `${prefix}-lambda-policy`,
+    policyDocument: await getPolicyDocument(prefix)
   });
 };

@@ -36,10 +36,11 @@ const prepareExecutionRole = async (event: RoleResourceEvent) => {
   }
 
   const policyList = policies.filter((policy) => isPolicy(policy));
+  const namePrefix = `${resourcePrefix}-${projectName}`;
 
   if (grants.length > 0) {
     const policyResource = createPolicy(state, {
-      policyName: `${resourcePrefix}-${projectName}-policy`,
+      policyName: `${namePrefix}-policy`,
       policyDocument: createPolicyDocument(grants)
     });
 
@@ -47,7 +48,7 @@ const prepareExecutionRole = async (event: RoleResourceEvent) => {
   }
 
   return createRole(state, policyList, {
-    roleName: `${resourcePrefix}-${projectName}-role`,
+    roleName: `${namePrefix}-role`,
     roleDocument: createRoleDocument(accounts)
   });
 };

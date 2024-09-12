@@ -8,8 +8,10 @@ export const prepareExecutionPolicy = async (event: PolicyResourceEvent) => {
   const { state, options } = event;
   const { resourcePrefix, projectName } = options;
 
+  const prefix = `${resourcePrefix}-${projectName}`;
+
   return createPolicy(state, {
-    policyName: `${resourcePrefix}-${projectName}-scheduler-policy`,
-    policyDocument: await getPolicyDocument(resourcePrefix)
+    policyName: `${prefix}-scheduler-policy`,
+    policyDocument: await getPolicyDocument(prefix)
   });
 };

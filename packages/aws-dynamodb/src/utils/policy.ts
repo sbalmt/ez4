@@ -4,14 +4,14 @@ import type { IdentityGrant } from '@ez4/project/library';
 import { getAccountId, getRegion, createPolicyDocument } from '@ez4/aws-identity';
 
 export const getPolicyDocument = async (
-  resourcePrefix: string,
-  hasStreams: boolean
+  prefix: string,
+  useStreams: boolean
 ): Promise<PolicyDocument> => {
   const [region, accountId] = await Promise.all([getRegion(), getAccountId()]);
 
   const grants: IdentityGrant[] = [
     {
-      resourceIds: [`arn:aws:dynamodb:${region}:${accountId}:table/${resourcePrefix}-*`],
+      resourceIds: [`arn:aws:dynamodb:${region}:${accountId}:table/${prefix}-*`],
       permissions: [
         'dynamodb:PartiQLInsert',
         'dynamodb:PartiQLSelect',
@@ -21,9 +21,9 @@ export const getPolicyDocument = async (
     }
   ];
 
-  if (hasStreams) {
+  if (useStreams) {
     grants.push({
-      resourceIds: [`arn:aws:dynamodb:${region}:${accountId}:table/${resourcePrefix}-*/stream/*`],
+      resourceIds: [`arn:aws:dynamodb:${region}:${accountId}:table/${prefix}-*/stream/*`],
       permissions: [
         'dynamodb:GetRecords',
         'dynamodb:GetShardIterator',
