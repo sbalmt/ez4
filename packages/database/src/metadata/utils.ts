@@ -11,18 +11,18 @@ export const isDatabaseTable = (type: AllType): type is TypeModel => {
   return isModelDeclaration(type) && hasHeritageType(type, 'Database.Table');
 };
 
-export const isTableSchema = (type: TypeModel) => {
-  return hasHeritageType(type, 'Database.Schema');
+export const isStreamHandler = (type: AllType): type is TypeCallback | TypeFunction => {
+  return isTypeCallback(type) || isTypeFunction(type);
 };
 
 export const isTableIndexes = (type: TypeModel) => {
   return hasHeritageType(type, 'Database.Indexes');
 };
 
-export const isTableStream = (type: AllType): type is TypeModel => {
-  return isModelDeclaration(type) && hasHeritageType(type, 'Database.Stream');
+export const isTableSchema = (type: TypeModel) => {
+  return hasHeritageType(type, 'Database.Schema');
 };
 
-export const isStreamHandler = (type: AllType): type is TypeCallback | TypeFunction => {
-  return isTypeCallback(type) || isTypeFunction(type);
+export const isTableStream = (type: TypeModel) => {
+  return hasHeritageType(type, 'Database.Stream');
 };

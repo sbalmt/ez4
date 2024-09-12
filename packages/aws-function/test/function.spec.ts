@@ -23,9 +23,8 @@ const assertDeploy = async <E extends EntryState>(
   ok(resource?.result);
   ok(isFunction(resource));
 
-  const { functionName, functionArn, roleArn, sourceHash } = resource.result;
+  const { functionArn, roleArn, sourceHash } = resource.result;
 
-  ok(functionName);
   ok(functionArn);
   ok(roleArn);
   ok(sourceHash);

@@ -10,13 +10,13 @@ export const getFunctionName = <E extends EntryState>(
   resourceId: string,
   context: StepContext<E | FunctionState>
 ) => {
-  const resource = context.getDependencies(FunctionServiceType).at(0)?.result;
+  const resource = context.getDependencies(FunctionServiceType).at(0);
 
-  if (!resource?.functionName) {
+  if (!resource?.parameters.functionName) {
     throw new IncompleteResourceError(serviceName, resourceId, 'functionName');
   }
 
-  return resource.functionName;
+  return resource.parameters.functionName;
 };
 
 export const getFunctionArn = <E extends EntryState>(

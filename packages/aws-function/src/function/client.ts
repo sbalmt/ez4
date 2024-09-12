@@ -40,7 +40,6 @@ export type CreateRequest = {
 
 export type CreateResponse = {
   functionArn: Arn;
-  functionName: string;
 };
 
 export type UpdateConfigRequest = {
@@ -57,43 +56,45 @@ export type UpdateSourceCodeRequest = {
 };
 
 export const createFunction = async (request: CreateRequest): Promise<CreateResponse> => {
-  Logger.logCreate(FunctionServiceName, request.functionName);
+  const { functionName, variables } = request;
 
-  if (request.variables) {
-    assertVariables(request.variables);
+  Logger.logCreate(FunctionServiceName, functionName);
+
+  if (variables) {
+    assertVariables(variables);
   }
+
+  const { description, memory, timeout, roleArn, handlerName, sourceFile, tags } = request;
 
   const response = await client.send(
     new CreateFunctionCommand({
       Publish: true,
-      FunctionName: request.functionName,
-      Description: request.description,
-      MemorySize: request.memory,
-      Timeout: request.timeout,
-      Role: request.roleArn,
+      FunctionName: functionName,
+      Description: description,
+      MemorySize: memory,
+      Timeout: timeout,
+      Role: roleArn,
       PackageType: 'Zip',
-      Handler: getSourceHandlerName(request.handlerName),
+      Handler: getSourceHandlerName(handlerName),
       Runtime: 'nodejs20.x',
       Code: {
-        ZipFile: await getSourceZipFile(request.sourceFile)
+        ZipFile: await getSourceZipFile(sourceFile)
       },
       Environment: {
-        Variables: request.variables
+        Variables: variables
       },
       Tags: {
-        ...request.tags,
+        ...tags,
         ManagedBy: 'EZ4'
       }
     })
   );
 
-  const functionName = response.FunctionName!;
   const functionArn = response.FunctionArn as Arn;
 
   await waitUntilFunctionActive(waiter, { FunctionName: functionName });
 
   return {
-    functionName,
     functionArn
   };
 };
@@ -140,26 +141,28 @@ export const updateSourceCode = async (functionName: string, request: UpdateSour
 };
 
 export const updateConfiguration = async (functionName: string, request: UpdateConfigRequest) => {
+  const { variables } = request;
+
   Logger.logUpdate(FunctionServiceName, `${functionName} configuration`);
 
-  if (request.variables) {
-    assertVariables(request.variables);
+  if (variables) {
+    assertVariables(variables);
   }
 
-  const { handlerName } = request;
+  const { description, memory, timeout, roleArn, handlerName } = request;
 
   await client.send(
     new UpdateFunctionConfigurationCommand({
       FunctionName: functionName,
-      Description: request.description,
-      MemorySize: request.memory,
-      Timeout: request.timeout,
-      Role: request.roleArn,
+      Description: description,
+      MemorySize: memory,
+      Timeout: timeout,
+      Role: roleArn,
       ...(handlerName && {
         Handler: getSourceHandlerName(handlerName)
       }),
       Environment: {
-        Variables: request.variables
+        Variables: variables
       }
     })
   );

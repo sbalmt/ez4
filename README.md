@@ -12,6 +12,7 @@ Check out some examples to get started with.
 
 - [Get started with API Gateway](./examples/hello-aws-gateway)
 - [Get started with DynamoDB](./examples/hello-aws-dynamodb)
+- [Get started with Scheduler](./examples/hello-aws-scheduler)
 - [Get started with Queue](./examples/hello-aws-queue)
 - [API Gateway authorizer](./examples/aws-gateway-authorizer)
 - [DynamoDB streams](./examples/aws-dynamodb-streams)
@@ -20,13 +21,15 @@ Check out some examples to get started with.
 
 - [API Gateway](./packages/gateway/)
 - [Database](./packages/database/)
+- [Scheduler](./packages/scheduler/)
 - [Queue](./packages/queue/)
 
 ## Providers
 
 - [AWS API Gateway](./packages/aws-gateway/)
 - [AWS DynamoDB](./packages/aws-dynamodb/)
-- [AWS SQS](./packages//aws-queue/)
+- [AWS Scheduler](./packages/aws-scheduler/)
+- [AWS Queue](./packages/aws-queue/)
 
 ## Requirements
 

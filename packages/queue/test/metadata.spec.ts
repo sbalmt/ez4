@@ -30,6 +30,6 @@ describe.only('queue metadata', () => {
 
   process.env.TEST_ENV_VAR = 'test-env-var-value';
 
-  it('assert :: empty queues', () => testFile('queue'));
+  it('assert :: empty queues', () => testFile('service'));
   it('assert :: queue subscriptions', () => testFile('subscriptions'));
 });

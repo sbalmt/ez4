@@ -39,7 +39,7 @@ export const getQueueServices = (reflection: SourceMap) => {
       service.description = statement.description;
     }
 
-    for (const member of getModelMembers(statement)) {
+    for (const member of getModelMembers(statement, true)) {
       if (!isModelProperty(member)) {
         continue;
       }
@@ -54,25 +54,34 @@ export const getQueueServices = (reflection: SourceMap) => {
         case 'timeout':
         case 'retention':
         case 'delay': {
-          const value = getPropertyNumber(member);
-          if (value !== undefined && value !== null) {
-            service[member.name] = value;
+          if (!member.inherited) {
+            const value = getPropertyNumber(member);
+            if (value !== undefined && value !== null) {
+              service[member.name] = value;
+            }
           }
           break;
         }
 
-        case 'subscriptions':
-          if ((service.subscriptions = getAllSubscription(member, reflection, errorList))) {
-            properties.delete(member.name);
+        case 'subscriptions': {
+          if (!member.inherited) {
+            if ((service.subscriptions = getAllSubscription(member, reflection, errorList))) {
+              properties.delete(member.name);
+            }
+          }
+          break;
+        }
+
+        case 'variables':
+          if (!member.inherited) {
+            service.variables = getLinkedVariables(member, errorList);
           }
           break;
 
-        case 'variables':
-          service.variables = getLinkedVariables(member, errorList);
-          break;
-
         case 'services':
-          service.services = getLinkedServices(member, reflection, errorList);
+          if (!member.inherited) {
+            service.services = getLinkedServices(member, reflection, errorList);
+          }
           break;
       }
     }

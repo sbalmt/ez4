@@ -1,10 +1,13 @@
 {
   "name": "@ez4/aws-identity",
   "description": "EZ4: Self-managed AWS roles and policies",
-  "version": "0.3.0",
+  "version": "0.4.0",
   "author": "Silas B.",
   "license": "MIT",
   "type": "module",
+  "engines": {
+    "node": ">=20.15.0"
+  },
   "exports": {
     ".": {
       "types": "./dist/main.d.ts",
@@ -28,9 +31,9 @@
   "dependencies": {
     "@aws-sdk/client-iam": "^3.614.0",
     "@aws-sdk/client-sts": "^3.614.0",
-    "@ez4/aws-common": "^0.3.0",
-    "@ez4/project": "^0.3.0",
-    "@ez4/stateful": "^0.3.0",
-    "@ez4/utils": "^0.3.0"
+    "@ez4/aws-common": "^0.4.0",
+    "@ez4/project": "^0.4.0",
+    "@ez4/stateful": "^0.4.0",
+    "@ez4/utils": "^0.4.0"
   }
 }

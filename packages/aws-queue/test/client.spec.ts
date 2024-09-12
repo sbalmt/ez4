@@ -46,16 +46,21 @@ describe.only('queue client', () => {
   it('assert :: send message', async () => {
     ok(queueClient);
 
-    await queueClient.sendMessage({
-      test: 'EZ4 Test Message'
-    });
+    await queueClient.sendMessage(
+      {
+        test: 'EZ4 Test Message'
+      },
+      {
+        delay: 5
+      }
+    );
   });
 
   it('assert :: receive message', async () => {
     ok(queueClient);
 
     const messages = await queueClient.receiveMessage({
-      maxWait: 3
+      maxWait: 10
     });
 
     equal(messages.length, 1);

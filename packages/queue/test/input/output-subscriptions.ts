@@ -9,8 +9,6 @@ declare class TestMessage implements Queue.Message {
  * Queue to test subscriptions.
  */
 export declare class TestQueue extends Queue.Service<TestMessage> {
-  schema: TestMessage;
-
   subscriptions: [
     // Inline subscription.
     {

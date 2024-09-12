@@ -1,7 +1,7 @@
 {
   "name": "@ez4/monorepo",
   "description": "EZ4 Monorepo",
-  "version": "0.3.0",
+  "version": "0.4.0",
   "author": "Silas B.",
   "license": "MIT",
   "type": "module",
@@ -18,6 +18,7 @@
     "packages/schema",
     "packages/validator",
     "packages/transform",
+    "packages/scheduler",
     "packages/database",
     "packages/gateway",
     "packages/queue",
@@ -25,6 +26,7 @@
     "packages/aws-bucket",
     "packages/aws-identity",
     "packages/aws-function",
+    "packages/aws-scheduler",
     "packages/aws-dynamodb",
     "packages/aws-gateway",
     "packages/aws-queue"
@@ -45,6 +47,6 @@
     "prettier": "^3.3.2",
     "ts-node": "^10.9.2",
     "typescript": "^5.5.2",
-    "verdaccio": "^5.31.1"
+    "verdaccio": "^5.32.1"
   }
 }

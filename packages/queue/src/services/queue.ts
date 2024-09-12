@@ -1,5 +1,6 @@
 import type { LinkedVariables } from '@ez4/project/library';
 import type { Service } from '@ez4/common';
+import type { Client } from './client.js';
 
 /**
  * Provide all contracts for a self-managed Queue service.
@@ -90,39 +91,4 @@ export namespace Queue {
      */
     client: Client<T>;
   }
-
-  /**
-   * Queue client.
-   */
-  export interface Client<T extends Queue.Message> {
-    /**
-     * Send a new JSON message to the queue.
-     *
-     * @param message Message object.
-     */
-    sendMessage(message: T): Promise<void>;
-
-    /**
-     * Receive JSON messages from the queue.
-     *
-     * @param options Receive options.
-     * @returns Returns a list containing zero or more messages.
-     */
-    receiveMessage(options?: ReceiveOptions): Promise<T[]>;
-  }
-
-  /**
-   * Options for receiving messages with queue client.
-   */
-  export type ReceiveOptions = {
-    /**
-     * Max amount of messages.
-     */
-    maxMessages?: number;
-
-    /**
-     * Max wait time (in seconds) for messages.
-     */
-    maxWait?: number;
-  };
 }

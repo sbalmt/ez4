@@ -1,5 +1,6 @@
-import type { AllType, EveryMemberType, SourceMap, TypeModel, TypeObject } from '@ez4/reflection';
 import type { Incomplete } from '@ez4/utils';
+import type { MemberType } from '@ez4/common/library';
+import type { AllType, SourceMap, TypeModel, TypeObject } from '@ez4/reflection';
 import type { HttpRoute } from '../types/route.js';
 
 import { isModelProperty, isTypeObject, isTypeReference } from '@ez4/reflection';
@@ -50,7 +51,7 @@ const getTypeRoute = (type: AllType, reflection: SourceMap, errorList: Error[]) 
 
 const getTypeFromMembers = (
   type: TypeObject | TypeModel,
-  members: EveryMemberType[],
+  members: MemberType[],
   reflection: SourceMap,
   errorList: Error[]
 ) => {
@@ -58,7 +59,7 @@ const getTypeFromMembers = (
   const properties = new Set(['path', 'handler']);
 
   for (const member of members) {
-    if (!isModelProperty(member)) {
+    if (!isModelProperty(member) || member.inherited) {
       continue;
     }
 

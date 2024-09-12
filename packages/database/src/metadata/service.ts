@@ -14,8 +14,8 @@ import { isModelProperty } from '@ez4/reflection';
 
 import { ServiceType } from '../types/service.js';
 import { IncompleteServiceError } from '../errors/service.js';
-import { getDatabaseTable } from './table.js';
 import { isDatabaseService } from './utils.js';
+import { getDatabaseTable } from './table.js';
 
 export const getDatabaseServices = (reflection: SourceMap) => {
   const dbServices: Record<string, DatabaseService> = {};
@@ -34,7 +34,7 @@ export const getDatabaseServices = (reflection: SourceMap) => {
     service.name = statement.name;
 
     for (const member of getModelMembers(statement)) {
-      if (!isModelProperty(member)) {
+      if (!isModelProperty(member) || member.inherited) {
         continue;
       }
 

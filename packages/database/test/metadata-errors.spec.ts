@@ -11,7 +11,9 @@ import {
   InvalidSchemaTypeError,
   InvalidIndexesTypeError,
   InvalidIndexTypeError,
-  InvalidIndexReferenceError
+  InvalidIndexReferenceError,
+  IncorrectStreamTypeError,
+  InvalidStreamTypeError
 } from '@ez4/database/library';
 
 import { getReflection } from '@ez4/project/library';
@@ -143,6 +145,29 @@ describe.only('database metadata errors', () => {
 
     ok(error1 instanceof IncompleteStreamError);
     deepEqual(error1.properties, ['handler']);
+  });
+
+  it('assert :: incorrect stream', () => {
+    const errors = parseFile('incorrect-stream');
+
+    equal(errors.length, 1);
+
+    const [error1] = errors;
+
+    ok(error1 instanceof IncorrectStreamTypeError);
+    equal(error1.baseType, 'Database.Stream');
+    equal(error1.streamType, 'TestStream');
+  });
+
+  it('assert :: invalid stream', () => {
+    const errors = parseFile('invalid-stream');
+
+    equal(errors.length, 1);
+
+    const [error1] = errors;
+
+    ok(error1 instanceof InvalidStreamTypeError);
+    equal(error1.baseType, 'Database.Stream');
   });
 
   it('assert :: incomplete handler', () => {

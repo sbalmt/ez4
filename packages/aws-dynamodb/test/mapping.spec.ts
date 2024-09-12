@@ -32,10 +32,9 @@ const assertDeploy = async <E extends EntryState>(
   ok(resource?.result);
   ok(isMapping(resource));
 
-  const { eventId, functionName, sourceArn } = resource.result;
+  const { eventId, sourceArn } = resource.result;
 
   ok(eventId);
-  ok(functionName);
   ok(sourceArn);
 
   return {

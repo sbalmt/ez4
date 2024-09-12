@@ -19,79 +19,107 @@ type CommandOptions = {
   projectFile?: string;
 };
 
-const getAction = () => {
-  const options: Partial<CommandOptions> = {};
-  const input = process.argv.slice(2);
+const checkMinVersion = () => {
+  const [major, minor] = process.versions.node.split('.', 3).map((version) => {
+    return parseInt(version, 10);
+  });
 
-  for (let index = 0; index < input.length; index++) {
-    const argument = input[index];
+  if (major < 20 && minor < 15) {
+    console.log('Node v20.15+ is required');
+    process.exit(1);
+  }
+};
 
-    switch (argument) {
-      case CommandType.Deploy:
-      case CommandType.Destroy:
-      case CommandType.Help:
-        options.command = argument;
-        break;
+const suppressWarning = () => {
+  const processEmit = process.emit;
 
-      case '--environment':
-      case '-e':
-        options.environmentFile = input[++index];
-        break;
+  process.emit = (...args: any[]): any => {
+    const [event, data] = args;
 
-      case '--project':
-      case '-p':
-        options.projectFile = input[++index];
-        break;
+    if (event !== 'warning' || typeof data !== `object` || data.name !== 'ExperimentalWarning') {
+      return processEmit.apply(process, [event, data]);
     }
-  }
 
-  if (!options.command) {
-    return null;
-  }
-
-  return options as CommandOptions;
-};
-
-const runAction = async (options: CommandOptions) => {
-  if (options.environmentFile) {
-    loadEnvFile(options.environmentFile);
-  }
-
-  const project = await loadProject(options.projectFile);
-
-  if (options.command === CommandType.Deploy) {
-    return deploy(project);
-  }
-
-  if (options.command === CommandType.Destroy) {
-    return destroy(project);
-  }
-};
-
-const displayHelp = async () => {
-  const helpText = [
-    'Usage:',
-    '  ez4 [command] [options] [ ez4.project.js ]',
-    '',
-    'Commands:',
-    '  deploy   Create and publish all resources for the given project',
-    '  destroy  Remove all deployed resources for the given project',
-    '  help     Display the command line options',
-    '',
-    'Options:',
-    '  --environment, -e  Specify the environment file',
-    '  --project, -p      Specify the project file',
-    ''
-  ];
-
-  console.log(helpText.join('\n'));
+    return false;
+  };
 };
 
 const main = async () => {
+  checkMinVersion();
+  suppressWarning();
+
+  const getAction = () => {
+    const options: Partial<CommandOptions> = {};
+    const input = process.argv.slice(2);
+
+    for (let index = 0; index < input.length; index++) {
+      const argument = input[index];
+
+      switch (argument) {
+        case CommandType.Deploy:
+        case CommandType.Destroy:
+        case CommandType.Help:
+          options.command = argument;
+          break;
+
+        case '--environment':
+        case '-e':
+          options.environmentFile = input[++index];
+          break;
+
+        case '--project':
+        case '-p':
+          options.projectFile = input[++index];
+          break;
+      }
+    }
+
+    if (!options.command) {
+      return null;
+    }
+
+    return options as CommandOptions;
+  };
+
+  const runAction = async (options: CommandOptions) => {
+    if (options.environmentFile) {
+      loadEnvFile(options.environmentFile);
+    }
+
+    const project = await loadProject(options.projectFile);
+
+    if (options.command === CommandType.Deploy) {
+      return deploy(project);
+    }
+
+    if (options.command === CommandType.Destroy) {
+      return destroy(project);
+    }
+  };
+
+  const runUsageHelp = async () => {
+    const helpText = [
+      'Usage:',
+      '  ez4 [command] [options] [ ez4.project.js ]',
+      '',
+      'Commands:',
+      '  deploy   Create and publish all resources for the given project',
+      '  destroy  Remove all deployed resources for the given project',
+      '  help     Display the command line options',
+      '',
+      'Options:',
+      '  --environment, -e  Specify the environment file',
+      '  --project, -p      Specify the project file',
+      ''
+    ];
+
+    console.log(helpText.join('\n'));
+  };
+
   const options = getAction();
 
   if (!options) {
-    displayHelp();
+    runUsageHelp();
     process.exit(1);
   }
 
@@ -103,7 +131,7 @@ const main = async () => {
         break;
 
       case CommandType.Help:
-        displayHelp();
+        runUsageHelp();
         break;
     }
   } catch (error) {
@@ -113,19 +141,6 @@ const main = async () => {
 
     process.exit(1);
   }
-};
-
-const processEmit = process.emit;
-
-// Suppress experimental warnings.
-process.emit = (...args: any[]): any => {
-  const [event, data] = args;
-
-  if (event !== 'warning' || typeof data !== `object` || data.name !== 'ExperimentalWarning') {
-    return processEmit.apply(process, [event, data]);
-  }
-
-  return false;
 };
 
 await main();

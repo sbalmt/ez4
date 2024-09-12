@@ -1,0 +1,28 @@
+{
+  "TestScheduler": {
+    "type": "@ez4/cron",
+    "name": "TestScheduler",
+    "description": "Scheduler cron description.",
+    "expression": "rate(1 minute)",
+    "timezone": "America/Sao_Paulo",
+    "startDate": "2024-01-01T:00:00:00Z",
+    "endDate": "2024-01-01T:23:59:59Z",
+    "maxRetryAttempts": 0,
+    "maxEventAge": 20,
+    "disabled": true,
+    "target": {
+      "handler": {
+        "name": "targetHandler",
+        "file": "test/input/output-service.ts"
+      },
+      "timeout": 30,
+      "memory": 128,
+      "variables": {
+        "TEST_VAR1": "test-literal-value"
+      }
+    },
+    "variables": {
+      "TEST_VAR2": "test-env-var-value"
+    }
+  }
+}

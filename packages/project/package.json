@@ -1,12 +1,15 @@
 {
   "name": "@ez4/project",
   "description": "EZ4: Components to build a project and combine all framework pieces",
-  "version": "0.3.0",
+  "version": "0.4.0",
   "author": "Silas B.",
   "license": "MIT",
   "type": "module",
   "bin": {
     "ez4": "./bin/cli.mjs"
+  },
+  "engines": {
+    "node": ">=20.15.0"
   },
   "exports": {
     ".": {
@@ -34,8 +37,8 @@
     "live:publish": "npm run test && npm publish --access public"
   },
   "dependencies": {
-    "@ez4/reflection": "^0.3.0",
-    "@ez4/stateful": "^0.3.0",
-    "@ez4/utils": "^0.3.0"
+    "@ez4/reflection": "^0.4.0",
+    "@ez4/stateful": "^0.4.0",
+    "@ez4/utils": "^0.4.0"
   }
 }
