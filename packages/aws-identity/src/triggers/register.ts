@@ -3,10 +3,10 @@ import type { RoleResourceEvent } from '@ez4/project/library';
 import { registerTriggers as registerAwsTriggers } from '@ez4/aws-common';
 import { createTrigger } from '@ez4/project/library';
 
-import { isPolicy, createPolicy } from '../policy/service.js';
+import { createRole } from '../role/service.js';
+import { createPolicy, isPolicy } from '../policy/service.js';
 import { createPolicyDocument } from '../utils/policy.js';
 import { createRoleDocument } from '../utils/role.js';
-import { createRole } from '../role/service.js';
 
 let isRegistered = false;
 
@@ -36,6 +36,7 @@ const prepareExecutionRole = async (event: RoleResourceEvent) => {
   }
 
   const policyList = policies.filter((policy) => isPolicy(policy));
+
   const namePrefix = `${resourcePrefix}-${projectName}`;
 
   if (grants.length > 0) {
@@ -49,6 +50,6 @@ const prepareExecutionRole = async (event: RoleResourceEvent) => {
 
   return createRole(state, policyList, {
     roleName: `${namePrefix}-role`,
-    roleDocument: createRoleDocument(accounts)
+    roleDocument: await createRoleDocument(accounts)
   });
 };
