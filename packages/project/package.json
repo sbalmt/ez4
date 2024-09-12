@@ -8,6 +8,9 @@
   "bin": {
     "ez4": "./bin/cli.mjs"
   },
+  "engines": {
+    "node": ">=20.15.0"
+  },
   "exports": {
     ".": {
       "types": "./dist/main.d.ts",
