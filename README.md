@@ -16,6 +16,7 @@ Check out some examples to get started with.
 - [Get started with Queue](./examples/hello-aws-queue)
 - [API Gateway authorizer](./examples/aws-gateway-authorizer)
 - [DynamoDB streams](./examples/aws-dynamodb-streams)
+- [Storage manager](./examples/aws-storage-manager)
 
 ## Components
 
@@ -30,6 +31,7 @@ Check out some examples to get started with.
 - [AWS API Gateway](./packages/aws-gateway/)
 - [AWS DynamoDB](./packages/aws-dynamodb/)
 - [AWS Scheduler](./packages/aws-scheduler/)
+- [AWS Bucket](./packages/aws-bucket/)
 - [AWS Queue](./packages/aws-queue/)
 
 ## Requirements

@@ -12,5 +12,7 @@ export * from './bucket/types.js';
 export * from './object/service.js';
 export * from './object/types.js';
 
+export * from './triggers/register.js';
+
 registerProvider(BucketServiceType, getBucketHandler());
 registerProvider(ObjectServiceType, getObjectHandler());
