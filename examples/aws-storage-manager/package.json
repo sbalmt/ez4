@@ -1,0 +1,28 @@
+{
+  "name": "@ez4/aws-storage-manager",
+  "description": "Example of a service using AWS S3.",
+  "version": "0.0.0",
+  "author": "Silas B.",
+  "license": "MIT",
+  "type": "module",
+  "private": true,
+  "engines": {
+    "node": ">=20.15.0"
+  },
+  "workspaces": [
+    "packages/*"
+  ],
+  "scripts": {
+    "deploy": "tsc -p tsconfig.json && ez4 deploy -e local.env -p ez4.project.js",
+    "destroy": "ez4 destroy -e local.env -p ez4.project.js"
+  },
+  "dependencies": {
+    "@ez4/aws-bucket": "^0.4.0",
+    "@ez4/aws-gateway": "^0.4.0",
+    "@ez4/common": "^0.4.0",
+    "@ez4/gateway": "^0.4.0",
+    "@ez4/project": "^0.4.0",
+    "@ez4/schema": "^0.4.0",
+    "@ez4/storage": "^0.4.0"
+  }
+}
