@@ -1,8 +1,8 @@
 import type {
   Client as BucketClient,
+  Content,
   SignedReadOptions,
-  SignedWriteOptions,
-  WriteOptions
+  SignedWriteOptions
 } from '@ez4/storage';
 
 import { getSignedUrl } from '@aws-sdk/s3-request-presigner';
@@ -13,7 +13,8 @@ import {
   GetObjectCommand,
   DeleteObjectCommand,
   NotFound,
-  S3Client
+  S3Client,
+  NoSuchKey
 } from '@aws-sdk/client-s3';
 
 const client = new S3Client({});
@@ -32,26 +33,25 @@ export namespace Client {
 
           return true;
         } catch (error) {
-          if (!(error instanceof NotFound)) {
-            throw error;
+          if (error instanceof NotFound || error instanceof NoSuchKey) {
+            return false;
           }
 
-          return false;
+          throw error;
         }
       }
 
-      async write(key: string, data: ReadableStream, options?: WriteOptions) {
+      async write(key: string, contents: Content) {
         await client.send(
           new PutObjectCommand({
             Bucket: bucketName,
             Key: key,
-            Body: data,
-            Expires: options?.autoExpireDate
+            Body: contents
           })
         );
       }
 
-      async read(key: string): Promise<ReadableStream> {
+      async read(key: string): Promise<Buffer> {
         const response = await client.send(
           new GetObjectCommand({
             Bucket: bucketName,
@@ -59,7 +59,9 @@ export namespace Client {
           })
         );
 
-        return response.Body!.transformToWebStream();
+        const content = await response.Body!.transformToByteArray();
+
+        return Buffer.from(content);
       }
 
       async delete(key: string) {
@@ -72,13 +74,12 @@ export namespace Client {
       }
 
       async getWriteUrl(key: string, options: SignedWriteOptions): Promise<string> {
-        const { expiresIn, contentType, autoExpireDate } = options;
+        const { expiresIn, contentType } = options;
 
         const command = new PutObjectCommand({
           Bucket: bucketName,
           Key: key,
-          ContentType: contentType,
-          Expires: autoExpireDate
+          ContentType: contentType
         });
 
         return getSignedUrl(client, command, {

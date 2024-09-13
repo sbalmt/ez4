@@ -1,3 +1,10 @@
+import type { Readable } from 'stream';
+
+/**
+ * Client content.
+ */
+export type Content = string | Uint8Array | Buffer | Readable;
+
 /**
  * Bucket client.
  */
@@ -14,17 +21,16 @@ export interface Client {
    *
    * @param key Object key.
    * @param content Object contents.
-   * @param options Write options.
    */
-  write(key: string, content: ReadableStream, options?: WriteOptions): Promise<void>;
+  write(key: string, content: Content): Promise<void>;
 
   /**
    * Read an object from the bucket.
    *
    * @param key Object key.
-   * @returns Returns the readable stream corresponding to the object contents.
+   * @returns Returns a buffer corresponding to the object contents.
    */
-  read(key: string): Promise<ReadableStream>;
+  read(key: string): Promise<Buffer>;
 
   /**
    * Delete the given object from the bucket.
@@ -49,16 +55,6 @@ export interface Client {
 }
 
 /**
- * Options for writing an object with the client.
- */
-export type WriteOptions = {
-  /**
-   * Define an expiration date for the object.
-   */
-  autoExpireDate?: Date;
-};
-
-/**
  * Options for signing an URL.
  */
 export type SignOptions = {
@@ -71,13 +67,12 @@ export type SignOptions = {
 /**
  * Options for writing an object through a signed URL.
  */
-export type SignedWriteOptions = WriteOptions &
-  SignOptions & {
-    /**
-     * Define the expected content type.
-     */
-    contentType: string;
-  };
+export type SignedWriteOptions = SignOptions & {
+  /**
+   * Define the expected content type.
+   */
+  contentType: string;
+};
 
 /**
  * Options for reading an object through a signed URL.
