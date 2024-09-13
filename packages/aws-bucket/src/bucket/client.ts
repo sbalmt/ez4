@@ -5,8 +5,11 @@ import { getTagList, Logger } from '@ez4/aws-common';
 import {
   CreateBucketCommand,
   DeleteBucketCommand,
+  PutBucketLifecycleConfigurationCommand,
   PutBucketTaggingCommand,
-  S3Client
+  ExpirationStatus,
+  S3Client,
+  DeleteBucketLifecycleCommand
 } from '@aws-sdk/client-s3';
 
 import { BucketServiceName } from './types.js';
@@ -49,6 +52,40 @@ export const tagBucket = async (bucketName: string, tags: ResourceTags) => {
           ManagedBy: 'EZ4'
         })
       }
+    })
+  );
+};
+
+export const createLifecycle = async (bucketName: string, autoExpireDays: number) => {
+  Logger.logCreate(BucketServiceName, `${bucketName} lifecycle`);
+
+  await client.send(
+    new PutBucketLifecycleConfigurationCommand({
+      Bucket: bucketName,
+      LifecycleConfiguration: {
+        Rules: [
+          {
+            ID: 'ID0',
+            Status: ExpirationStatus.Enabled,
+            Filter: {
+              Prefix: '*'
+            },
+            Expiration: {
+              Days: autoExpireDays
+            }
+          }
+        ]
+      }
+    })
+  );
+};
+
+export const deleteLifecycle = async (bucketName: string) => {
+  Logger.logDelete(BucketServiceName, `${bucketName} lifecycle`);
+
+  await client.send(
+    new DeleteBucketLifecycleCommand({
+      Bucket: bucketName
     })
   );
 };

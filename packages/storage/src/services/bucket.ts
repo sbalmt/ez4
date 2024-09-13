@@ -10,6 +10,11 @@ export namespace Bucket {
    */
   export declare abstract class Service implements Service.Provider {
     /**
+     * Maximum amount of days an object is stored before its auto-deletion.
+     */
+    autoExpireDays?: number;
+
+    /**
      * Service client.
      */
     client: Client;

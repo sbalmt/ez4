@@ -5,7 +5,7 @@ export const ServiceType = '@ez4/bucket';
 export type BucketService = ServiceMetadata & {
   type: typeof ServiceType;
   name: string;
-  description?: string;
+  autoExpireDays?: number;
 };
 
 export const isBucketService = (service: ServiceMetadata): service is BucketService => {

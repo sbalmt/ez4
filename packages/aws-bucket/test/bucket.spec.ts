@@ -39,6 +39,7 @@ describe.only('bucket resources', () => {
 
     const resource = createBucket(localState, {
       bucketName: 'EZ4 Test Bucket',
+      autoExpireDays: 5,
       tags: {
         test1: 'ez4-tag1',
         test2: 'ez4-tag2'
@@ -48,6 +49,21 @@ describe.only('bucket resources', () => {
     bucketId = resource.entryId;
 
     const { state } = await assertDeploy(bucketId, localState, undefined);
+
+    lastState = state;
+  });
+
+  it('assert :: update', async () => {
+    ok(bucketId && lastState);
+
+    const localState = deepClone(lastState) as EntryStates;
+    const resource = localState[bucketId];
+
+    ok(resource && isBucket(resource));
+
+    resource.parameters.autoExpireDays = undefined;
+
+    const { state } = await assertDeploy(bucketId, localState, lastState);
 
     lastState = state;
   });

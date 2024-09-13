@@ -2,6 +2,6 @@
   "TestStorage": {
     "type": "@ez4/bucket",
     "name": "TestStorage",
-    "description": "Test storage description."
+    "autoExpireDays": 30
   }
 }

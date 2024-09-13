@@ -1,6 +1,5 @@
 import type { Bucket } from '@ez4/storage';
 
-/**
- * Test storage description.
- */
-export declare class TestStorage extends Bucket.Service {}
+export declare class TestStorage extends Bucket.Service {
+  autoExpireDays: 30;
+}

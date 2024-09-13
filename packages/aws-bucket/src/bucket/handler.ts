@@ -4,7 +4,13 @@ import type { BucketState, BucketResult, BucketParameters } from './types.js';
 import { ReplaceResourceError } from '@ez4/aws-common';
 import { deepCompare } from '@ez4/utils';
 
-import { createBucket, deleteBucket, tagBucket } from './client.js';
+import {
+  createBucket,
+  createLifecycle,
+  deleteBucket,
+  deleteLifecycle,
+  tagBucket
+} from './client.js';
 import { BucketServiceName } from './types.js';
 
 export const getBucketHandler = (): StepHandler<BucketState> => ({
@@ -47,24 +53,32 @@ const replaceResource = async (candidate: BucketState, current: BucketState) => 
 const createResource = async (candidate: BucketState): Promise<BucketResult> => {
   const parameters = candidate.parameters;
 
-  const response = await createBucket(parameters);
+  const { bucketName, location } = await createBucket(parameters);
 
-  await checkTagUpdates(response.bucketName, parameters);
+  await Promise.all([
+    checkLifecycleUpdates(bucketName, parameters, undefined),
+    checkTagUpdates(bucketName, parameters)
+  ]);
 
   return {
-    bucketName: response.bucketName,
-    location: response.location
+    bucketName,
+    location
   };
 };
 
-const updateResource = async (candidate: BucketState, _current: BucketState) => {
-  const result = candidate.result;
+const updateResource = async (candidate: BucketState, current: BucketState) => {
+  const { result, parameters } = candidate;
 
   if (!result) {
     return;
   }
 
-  await checkTagUpdates(result.bucketName, candidate.parameters);
+  const bucketName = result.bucketName;
+
+  await Promise.all([
+    checkLifecycleUpdates(bucketName, parameters, current.parameters),
+    checkTagUpdates(bucketName, parameters)
+  ]);
 };
 
 const deleteResource = async (candidate: BucketState) => {
@@ -72,6 +86,24 @@ const deleteResource = async (candidate: BucketState) => {
 
   if (result) {
     await deleteBucket(result.bucketName);
+  }
+};
+
+const checkLifecycleUpdates = async (
+  bucketName: string,
+  candidate: BucketParameters,
+  current: BucketParameters | undefined
+) => {
+  if (candidate.autoExpireDays === current?.autoExpireDays) {
+    return;
+  }
+
+  if (candidate.autoExpireDays) {
+    return createLifecycle(bucketName, candidate.autoExpireDays);
+  }
+
+  if (current?.autoExpireDays) {
+    return deleteLifecycle(bucketName);
   }
 };
 

@@ -12,7 +12,10 @@ export const prepareBucketServices = async (event: ServiceResourceEvent) => {
     return;
   }
 
+  const { autoExpireDays } = service;
+
   createBucket(state, {
-    bucketName: getBucketName(service, options)
+    bucketName: getBucketName(service, options),
+    autoExpireDays
   });
 };
