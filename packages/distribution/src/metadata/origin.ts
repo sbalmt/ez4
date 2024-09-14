@@ -7,6 +7,7 @@ import {
   getLinkedServiceName,
   getModelMembers,
   getObjectMembers,
+  getPropertyString,
   isModelDeclaration
 } from '@ez4/common/library';
 
@@ -85,6 +86,14 @@ const getTypeFromMembers = (
     switch (member.name) {
       case 'bucket': {
         const value = getLinkedServiceName(member, type, reflection, errorList);
+        if (value !== undefined && value !== null) {
+          origin[member.name] = value;
+        }
+        break;
+      }
+
+      case 'path': {
+        const value = getPropertyString(member);
         if (value !== undefined && value !== null) {
           origin[member.name] = value;
         }

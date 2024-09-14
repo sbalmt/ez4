@@ -1,5 +1,5 @@
 import type { Arn, ResourceTags } from '@ez4/aws-common';
-import type { DistributionConfig, Origin } from '@aws-sdk/client-cloudfront';
+import type { DistributionConfig, Origins } from '@aws-sdk/client-cloudfront';
 
 import { getTagList, Logger } from '@ez4/aws-common';
 
@@ -32,7 +32,7 @@ const waiter = {
   client
 };
 
-export type OriginRequest = {
+export type DistributionOrigin = {
   id: string;
   domainName: string;
   originPath?: string;
@@ -42,8 +42,8 @@ export type CreateRequest = {
   distributionName: string;
   description?: string;
   defaultIndex?: string;
-  defaultOrigin: OriginRequest;
-  origins?: OriginRequest[];
+  defaultOrigin: DistributionOrigin;
+  origins?: DistributionOrigin[];
   compress?: boolean;
   enabled: boolean;
   tags?: ResourceTags;
@@ -167,9 +167,9 @@ export const deleteDistribution = async (distributionId: string, version: string
 };
 
 const upsertDistributionRequest = (request: CreateRequest | UpdateRequest): DistributionConfig => {
-  const { defaultOrigin, origins } = request;
+  const allOrigins = getAllOrigins(request);
 
-  const originList = getOriginList(origins ? [defaultOrigin, ...origins] : [defaultOrigin]);
+  const defaultOrigin = allOrigins.Items![0];
 
   const defaultCacheMethods = {
     Quantity: 2,
@@ -191,14 +191,13 @@ const upsertDistributionRequest = (request: CreateRequest | UpdateRequest): Dist
       Quantity: 0
     },
     Origins: {
-      Quantity: originList.length,
-      Items: originList
+      ...allOrigins
     },
     OriginGroups: {
       Quantity: 0
     },
     DefaultCacheBehavior: {
-      TargetOriginId: originList[0].Id,
+      TargetOriginId: defaultOrigin.Id,
       CachePolicyId: '658327ea-f89d-4fab-a63d-7e88639e58f6',
       ViewerProtocolPolicy: ViewerProtocolPolicy.redirect_to_https,
       Compress: !!request.compress,
@@ -252,8 +251,12 @@ const upsertDistributionRequest = (request: CreateRequest | UpdateRequest): Dist
   };
 };
 
-const getOriginList = (origins: OriginRequest[]): Origin[] => {
-  return origins.map(({ id, domainName, originPath }) => {
+const getAllOrigins = (request: CreateRequest | UpdateRequest): Origins => {
+  const { defaultOrigin, origins } = request;
+
+  const originList = origins ? [defaultOrigin, ...origins] : [defaultOrigin];
+
+  const allOrigins = originList.map(({ id, domainName, originPath }) => {
     return {
       Id: id,
       DomainName: domainName,
@@ -272,4 +275,9 @@ const getOriginList = (origins: OriginRequest[]): Origin[] => {
       }
     };
   });
+
+  return {
+    Quantity: allOrigins.length,
+    Items: allOrigins
+  };
 };

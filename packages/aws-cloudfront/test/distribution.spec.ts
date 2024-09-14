@@ -49,12 +49,13 @@ describe.only('distribution resources', () => {
     });
 
     const resource = createDistribution(localState, {
-      distributionName: 'ez4-test-distribution-1',
+      distributionName: 'ez4-test-distribution',
       description: 'EZ4: Test distribution',
       enabled: true,
       defaultOrigin: {
         id: 's3-bucket',
-        domainName: await getBucketDomain(originBucketName)
+        domainName: await getBucketDomain(originBucketName),
+        originPath: '/assets'
       },
       tags: {
         test1: 'ez4-tag1',

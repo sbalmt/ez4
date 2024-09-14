@@ -17,21 +17,20 @@ export const prepareCdnServices = async (event: ServiceResourceEvent) => {
 
   const bucketName = getServiceName(defaultOrigin.bucket, options);
 
-  const bucketEntryId = getBucketId(bucketName);
-
-  const bucketDomain = await getBucketDomain(bucketName);
+  const bucketId = getBucketId(bucketName);
 
   const distribution = createDistribution(state, {
     distributionName: getServiceName(service, options),
     enabled: !disabled,
     defaultOrigin: {
       id: 'default',
-      domainName: bucketDomain
+      domainName: await getBucketDomain(bucketName),
+      originPath: defaultOrigin.path
     },
     defaultIndex,
     description,
     compress
   });
 
-  distribution.dependencies.push(bucketEntryId);
+  distribution.dependencies.push(bucketId);
 };

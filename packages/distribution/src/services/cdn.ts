@@ -13,6 +13,11 @@ export namespace Cdn {
      * Bucket service for the origin.
      */
     bucket: Bucket.Service;
+
+    /**
+     * Specify the origin path.
+     */
+    path?: string;
   }
 
   /**
@@ -30,7 +35,7 @@ export namespace Cdn {
     defaultIndex?: string;
 
     /**
-     * Determines whether or not compression is enabled for the distribution.
+     * Determines whether or not the distribution response is compressed.
      */
     compress?: boolean;
 

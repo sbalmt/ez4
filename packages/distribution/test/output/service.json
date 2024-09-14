@@ -5,7 +5,8 @@
     "description": "Test distribution.",
     "defaultIndex": "index.html",
     "defaultOrigin": {
-      "bucket": "TestBucket"
+      "bucket": "TestBucket",
+      "path": "/site"
     },
     "disabled": true,
     "compress": true
