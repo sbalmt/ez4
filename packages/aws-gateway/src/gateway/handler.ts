@@ -46,25 +46,27 @@ const replaceResource = async (candidate: GatewayState, current: GatewayState) =
 };
 
 const createResource = async (candidate: GatewayState): Promise<GatewayResult> => {
-  const response = await createGateway(candidate.parameters);
+  const { apiId, apiArn, endpoint } = await createGateway(candidate.parameters);
 
   return {
-    apiId: response.apiId,
-    apiArn: response.apiArn,
-    endpoint: response.endpoint
+    apiId,
+    apiArn,
+    endpoint
   };
 };
 
 const updateResource = async (candidate: GatewayState, current: GatewayState) => {
-  const result = candidate.result;
+  const { result, parameters } = candidate;
 
   if (!result) {
     return;
   }
 
+  const { apiId, apiArn } = result;
+
   await Promise.all([
-    checkGeneralUpdates(result.apiId, candidate.parameters, current.parameters),
-    checkTagUpdates(result.apiArn, candidate.parameters, current.parameters)
+    checkGeneralUpdates(apiId, parameters, current.parameters),
+    checkTagUpdates(apiArn, parameters, current.parameters)
   ]);
 
   return result;
