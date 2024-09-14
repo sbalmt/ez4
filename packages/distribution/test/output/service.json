@@ -1,0 +1,9 @@
+{
+  "TestCdn": {
+    "type": "@ez4/cdn",
+    "name": "TestCdn",
+    "description": "Test distribution.",
+    "disabled": true,
+    "compress": true
+  }
+}
