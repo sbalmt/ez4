@@ -117,6 +117,7 @@ const deleteResource = async (candidate: RoleState) => {
     return;
   }
 
+  // Can only remove role after detaching all its policies.
   if (result.policyArns.length) {
     await detachPolicies(result.roleName, result.policyArns);
   }
