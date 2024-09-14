@@ -1,9 +1,9 @@
 import type { ServiceResourceEvent } from '@ez4/project/library';
 
+import { getServiceName } from '@ez4/project/library';
 import { isBucketService } from '@ez4/storage/library';
 
 import { createBucket } from '../bucket/service.js';
-import { getBucketName } from './utils.js';
 
 export const prepareBucketServices = async (event: ServiceResourceEvent) => {
   const { state, service, options } = event;
@@ -15,7 +15,7 @@ export const prepareBucketServices = async (event: ServiceResourceEvent) => {
   const { autoExpireDays } = service;
 
   createBucket(state, {
-    bucketName: getBucketName(service, options),
+    bucketName: getServiceName(service, options),
     autoExpireDays
   });
 };

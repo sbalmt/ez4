@@ -1,8 +1,7 @@
 import type { ExtraSource, ServiceEvent } from '@ez4/project/library';
 
 import { isBucketService } from '@ez4/storage/library';
-
-import { getBucketName } from './utils.js';
+import { getServiceName } from '@ez4/project/library';
 
 export const prepareLinkedService = async (event: ServiceEvent): Promise<ExtraSource | null> => {
   const { service, options } = event;
@@ -11,7 +10,7 @@ export const prepareLinkedService = async (event: ServiceEvent): Promise<ExtraSo
     return null;
   }
 
-  const bucketName = getBucketName(service, options);
+  const bucketName = getServiceName(service, options);
 
   return {
     constructor: `make('${bucketName}')`,

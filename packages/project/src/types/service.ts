@@ -1,3 +1,5 @@
+import { isAnyObject } from '@ez4/utils';
+
 export type LinkedVariables = Record<string, string>;
 
 export type LinkedServices = Record<string, string>;
@@ -14,4 +16,8 @@ export type ExtraSource = {
   constructor: string;
   module: string;
   from: string;
+};
+
+export const isServiceMetadata = (value: unknown): value is ServiceMetadata => {
+  return isAnyObject(value) && 'type' in value && 'name' in value;
 };

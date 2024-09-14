@@ -7,3 +7,5 @@ export * from './types/service.js';
 export * from './types/metadata.js';
 export * from './types/identity.js';
 export * from './types/deploy.js';
+
+export * from './utils/service.js';

@@ -12,6 +12,6 @@ export const prepareExecutionPolicy = async (event: PolicyResourceEvent) => {
 
   return createPolicy(state, {
     policyName: `${prefix}-bucket-policy`,
-    policyDocument: await getPolicyDocument(prefix)
+    policyDocument: getPolicyDocument(prefix)
   });
 };
