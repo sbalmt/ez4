@@ -92,7 +92,9 @@ export const createFunction = async (request: CreateRequest): Promise<CreateResp
 
   const functionArn = response.FunctionArn as Arn;
 
-  await waitUntilFunctionActive(waiter, { FunctionName: functionName });
+  await waitUntilFunctionActive(waiter, {
+    FunctionName: functionName
+  });
 
   return {
     functionArn
@@ -137,7 +139,9 @@ export const updateSourceCode = async (functionName: string, request: UpdateSour
     })
   );
 
-  await waitUntilFunctionUpdated(waiter, { FunctionName: functionName });
+  await waitUntilFunctionUpdated(waiter, {
+    FunctionName: functionName
+  });
 };
 
 export const updateConfiguration = async (functionName: string, request: UpdateConfigRequest) => {
@@ -167,7 +171,9 @@ export const updateConfiguration = async (functionName: string, request: UpdateC
     })
   );
 
-  await waitUntilFunctionUpdated(waiter, { FunctionName: functionName });
+  await waitUntilFunctionUpdated(waiter, {
+    FunctionName: functionName
+  });
 };
 
 export const deleteFunction = async (functionName: string) => {
