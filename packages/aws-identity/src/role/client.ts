@@ -45,9 +45,11 @@ export const createRole = async (request: CreateRequest): Promise<CreateResponse
     })
   );
 
+  const role = response.Role!;
+
   return {
-    roleName: response.Role!.RoleName!,
-    roleArn: response.Role!.Arn as Arn
+    roleName: role.RoleName!,
+    roleArn: role.Arn as Arn
   };
 };
 
