@@ -8,6 +8,7 @@ import { isModelProperty } from '@ez4/reflection';
 
 import { ServiceType } from '../types/service.js';
 import { IncompleteServiceError } from '../errors/service.js';
+import { getCdnOrigin } from './origin.js';
 import { isCdnService } from './utils.js';
 
 export const getCdnServices = (reflection: SourceMap) => {
@@ -22,7 +23,7 @@ export const getCdnServices = (reflection: SourceMap) => {
     }
 
     const service: Incomplete<CdnService> = { type: ServiceType };
-    const properties = new Set(['']);
+    const properties = new Set(['defaultOrigin']);
 
     service.name = statement.name;
 
@@ -36,6 +37,15 @@ export const getCdnServices = (reflection: SourceMap) => {
       }
 
       switch (member.name) {
+        case 'defaultOrigin': {
+          const defaultOrigin = getCdnOrigin(member.value, statement, reflection, errorList);
+          if (defaultOrigin) {
+            service.defaultOrigin = defaultOrigin;
+            properties.delete(member.name);
+          }
+          break;
+        }
+
         case 'defaultIndex': {
           const value = getPropertyString(member);
           if (value !== undefined && value !== null) {
@@ -70,5 +80,5 @@ export const getCdnServices = (reflection: SourceMap) => {
 };
 
 const isValidService = (type: Incomplete<CdnService>): type is CdnService => {
-  return !!type.name;
+  return !!type.name && !!type.defaultOrigin;
 };

@@ -3,6 +3,10 @@
     "type": "@ez4/cdn",
     "name": "TestCdn",
     "description": "Test distribution.",
+    "defaultIndex": "index.html",
+    "defaultOrigin": {
+      "bucket": "TestBucket"
+    },
     "disabled": true,
     "compress": true
   }

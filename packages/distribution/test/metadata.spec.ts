@@ -28,5 +28,5 @@ const testFile = (fileName: string, overwrite = false) => {
 describe.only('distribution metadata', () => {
   registerTriggers();
 
-  it.only('assert :: empty distribution', () => testFile('service'));
+  it('assert :: basic distribution', () => testFile('service'));
 });

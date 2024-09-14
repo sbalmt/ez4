@@ -42,7 +42,8 @@ export type CreateRequest = {
   distributionName: string;
   description?: string;
   defaultIndex?: string;
-  origins: OriginRequest[];
+  defaultOrigin: OriginRequest;
+  origins?: OriginRequest[];
   compress?: boolean;
   enabled: boolean;
   tags?: ResourceTags;
@@ -55,7 +56,7 @@ export type CreateResponse = {
   version: string;
 };
 
-export type UpdateRequest = Partial<CreateRequest>;
+export type UpdateRequest = CreateRequest;
 
 export type UpdateResponse = CreateResponse;
 
@@ -166,7 +167,9 @@ export const deleteDistribution = async (distributionId: string, version: string
 };
 
 const upsertDistributionRequest = (request: CreateRequest | UpdateRequest): DistributionConfig => {
-  const originList = getOriginList(request.origins ?? []);
+  const { defaultOrigin, origins } = request;
+
+  const originList = getOriginList(origins ? [defaultOrigin, ...origins] : [defaultOrigin]);
 
   const defaultCacheMethods = {
     Quantity: 2,

@@ -1,9 +1,10 @@
 import type { ServiceResourceEvent } from '@ez4/project/library';
 
+import { getServiceName } from '@ez4/project/library';
+import { getBucketDomain, getBucketId } from '@ez4/aws-bucket';
 import { isCdnService } from '@ez4/distribution/library';
 
 import { createDistribution } from '../distribution/service.js';
-import { getDistributionName } from './utils.js';
 
 export const prepareCdnServices = async (event: ServiceResourceEvent) => {
   const { state, service, options } = event;
@@ -12,14 +13,25 @@ export const prepareCdnServices = async (event: ServiceResourceEvent) => {
     return;
   }
 
-  const { description, defaultIndex, compress, disabled } = service;
+  const { description, defaultIndex, defaultOrigin, compress, disabled } = service;
 
-  createDistribution(state, {
-    distributionName: getDistributionName(service, options),
+  const bucketName = getServiceName(defaultOrigin.bucket, options);
+
+  const bucketEntryId = getBucketId(bucketName);
+
+  const bucketDomain = await getBucketDomain(bucketName);
+
+  const distribution = createDistribution(state, {
+    distributionName: getServiceName(service, options),
     enabled: !disabled,
-    origins: [],
+    defaultOrigin: {
+      id: 'default',
+      domainName: bucketDomain
+    },
     defaultIndex,
     description,
     compress
   });
+
+  distribution.dependencies.push(bucketEntryId);
 };

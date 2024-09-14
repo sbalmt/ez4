@@ -5,7 +5,7 @@ import { ok, equal } from 'node:assert/strict';
 
 import { deepClone } from '@ez4/utils';
 import { createDistribution, isDistribution, registerTriggers } from '@ez4/aws-cloudfront';
-import { createBucket } from '@ez4/aws-bucket';
+import { createBucket, getBucketDomain } from '@ez4/aws-bucket';
 import { deploy } from '@ez4/aws-common';
 
 const assertDeploy = async <E extends EntryState>(
@@ -42,25 +42,27 @@ describe.only('distribution resources', () => {
   it('assert :: deploy', async () => {
     const localState: EntryStates = {};
 
+    const originBucketName = 'ez4-test-distribution-bucket';
+
     const bucketResource = createBucket(localState, {
-      bucketName: 'ez4-test-distribution-bucket'
+      bucketName: originBucketName
     });
 
     const resource = createDistribution(localState, {
       distributionName: 'ez4-test-distribution-1',
       description: 'EZ4: Test distribution',
       enabled: true,
-      origins: [
-        {
-          id: 's3-bucket',
-          domainName: `${bucketResource.parameters.bucketName}.s3.us-east-1.amazonaws.com`
-        }
-      ],
+      defaultOrigin: {
+        id: 's3-bucket',
+        domainName: await getBucketDomain(originBucketName)
+      },
       tags: {
         test1: 'ez4-tag1',
         test2: 'ez4-tag2'
       }
     });
+
+    resource.dependencies.push(bucketResource.entryId);
 
     distributionId = resource.entryId;
 
