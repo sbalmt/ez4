@@ -1,9 +1,5 @@
 import type { Arn } from '@ez4/aws-common';
-
-import type {
-  CreateScheduleCommandInput,
-  UpdateScheduleCommandInput
-} from '@aws-sdk/client-scheduler';
+import type { CreateScheduleInput, UpdateScheduleInput } from '@aws-sdk/client-scheduler';
 
 import {
   CreateScheduleCommand,
@@ -79,7 +75,7 @@ export const deleteSchedule = async (scheduleName: string) => {
 
 const upsertScheduleRequest = (
   request: CreateRequest | UpdateRequest
-): Omit<CreateScheduleCommandInput | UpdateScheduleCommandInput, 'Name'> => {
+): Omit<CreateScheduleInput | UpdateScheduleInput, 'Name'> => {
   const { expression, timezone, startDate, endDate, maxRetryAttempts, maxEventAge } = request;
   const { description, enabled, functionArn, roleArn } = request;
 
