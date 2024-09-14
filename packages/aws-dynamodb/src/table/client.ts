@@ -56,6 +56,8 @@ export type UpdateRequest = Partial<
   Omit<CreateRequest, 'tableName' | 'allowDeletion' | 'enableStreams' | 'tags'>
 >;
 
+export type UpdateResponse = CreateResponse;
+
 export type UpdateTimeToLiveRequest = {
   enabled: boolean;
   attributeName: string;
@@ -91,11 +93,9 @@ export const createTable = async (request: CreateRequest): Promise<CreateRespons
     })
   );
 
-  const { TableDescription } = response;
+  const tableDescription = response.TableDescription!;
 
-  const tableName = TableDescription!.TableName!;
-  const streamArn = TableDescription!.LatestStreamArn as Arn;
-  const tableArn = TableDescription!.TableArn as Arn;
+  const tableName = tableDescription.TableName!;
 
   await waitUntilTableExists(waiter, {
     TableName: tableName
@@ -103,12 +103,15 @@ export const createTable = async (request: CreateRequest): Promise<CreateRespons
 
   return {
     tableName,
-    streamArn,
-    tableArn
+    streamArn: tableDescription.LatestStreamArn as Arn,
+    tableArn: tableDescription.TableArn as Arn
   };
 };
 
-export const updateTable = async (tableName: string, request: UpdateRequest) => {
+export const updateTable = async (
+  tableName: string,
+  request: UpdateRequest
+): Promise<UpdateResponse> => {
   Logger.logUpdate(TableServiceName, tableName);
 
   const { attributeSchema, capacityUnits } = request;
@@ -131,15 +134,12 @@ export const updateTable = async (tableName: string, request: UpdateRequest) => 
     })
   );
 
-  const { TableDescription } = response;
-
-  const streamArn = TableDescription!.LatestStreamArn as Arn;
-  const tableArn = TableDescription!.TableArn as Arn;
+  const tableDescription = response.TableDescription!;
 
   return {
     tableName,
-    streamArn,
-    tableArn
+    streamArn: tableDescription.LatestStreamArn as Arn,
+    tableArn: tableDescription.TableArn as Arn
   };
 };
 
