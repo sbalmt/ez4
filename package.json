@@ -23,11 +23,13 @@
     "packages/gateway",
     "packages/storage",
     "packages/queue",
+    "packages/distribution",
     "packages/aws-common",
     "packages/aws-bucket",
     "packages/aws-identity",
     "packages/aws-function",
     "packages/aws-scheduler",
+    "packages/aws-cloudfront",
     "packages/aws-dynamodb",
     "packages/aws-gateway",
     "packages/aws-queue"
