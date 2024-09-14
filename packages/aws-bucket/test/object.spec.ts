@@ -50,7 +50,7 @@ describe.only('bucket object resources', () => {
     const localState: EntryStates = {};
 
     const bucketResource = createBucket(localState, {
-      bucketName: 'EZ4 Test Bucket For Objects'
+      bucketName: 'ez4-test-object-bucket'
     });
 
     const resource = createBucketObject(localState, bucketResource, {

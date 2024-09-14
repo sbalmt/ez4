@@ -40,7 +40,7 @@ describe.only('bucket resources', () => {
     const localState: EntryStates = {};
 
     const resource = createBucket(localState, {
-      bucketName: 'EZ4 Test Bucket',
+      bucketName: 'ez4-test-bucket',
       autoExpireDays: 5,
       tags: {
         test1: 'ez4-tag1',
