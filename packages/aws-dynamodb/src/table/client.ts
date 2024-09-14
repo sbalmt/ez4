@@ -26,7 +26,9 @@ const client = new DynamoDBClient({});
 const defaultRWU = 25;
 
 const waiter = {
-  maxWaitTime: 90,
+  minDelay: 30,
+  maxWaitTime: 1800,
+  maxDelay: 60,
   client
 };
 
