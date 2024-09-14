@@ -70,7 +70,7 @@ const getTypeFromMembers = (
   members: MemberType[],
   errorList: Error[]
 ) => {
-  const stream: Incomplete<CronTarget> = {};
+  const target: Incomplete<CronTarget> = {};
   const properties = new Set(['handler']);
 
   for (const member of members) {
@@ -80,26 +80,26 @@ const getTypeFromMembers = (
 
     switch (member.name) {
       case 'handler':
-        stream.handler = getTargetHandler(member.value, errorList);
+        target.handler = getTargetHandler(member.value, errorList);
         break;
 
       case 'timeout':
       case 'memory': {
         const value = getPropertyNumber(member);
         if (value !== undefined && value !== null) {
-          stream[member.name] = value;
+          target[member.name] = value;
         }
         break;
       }
 
       case 'variables':
-        stream.variables = getLinkedVariables(member, errorList);
+        target.variables = getLinkedVariables(member, errorList);
         break;
     }
   }
 
-  if (isValidTarget(stream)) {
-    return stream;
+  if (isValidTarget(target)) {
+    return target;
   }
 
   errorList.push(new IncompleteTargetError([...properties], type.file));
