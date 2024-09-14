@@ -4,7 +4,7 @@ import type { AllType, SourceMap, TypeModel, TypeObject } from '@ez4/reflection'
 import type { CronTarget } from '../types/target.js';
 
 import {
-  getLinkedVariables,
+  getLinkedVariableList,
   getModelMembers,
   getObjectMembers,
   getPropertyNumber,
@@ -93,7 +93,7 @@ const getTypeFromMembers = (
       }
 
       case 'variables':
-        target.variables = getLinkedVariables(member, errorList);
+        target.variables = getLinkedVariableList(member, errorList);
         break;
     }
   }

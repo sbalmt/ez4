@@ -14,14 +14,14 @@ export const prepareAllLinkedServices = async (
     const target = metadata[identity];
 
     if (target.services) {
-      operations.push(prepareTargetLinkedServices(target, metadata, options));
+      operations.push(prepareTargetLinkedServiceList(target, metadata, options));
     }
   }
 
   await Promise.all(operations);
 };
 
-const prepareTargetLinkedServices = async (
+const prepareTargetLinkedServiceList = async (
   target: ServiceMetadata,
   metadata: MetadataReflection,
   options: DeployOptions

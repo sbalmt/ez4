@@ -8,7 +8,7 @@ import {
   MissingVariableError
 } from '@ez4/common/library';
 
-import { registerTriggers, getLinkedVariables, getLinkedServices } from '@ez4/common/library';
+import { registerTriggers, getLinkedVariableList, getLinkedServiceList } from '@ez4/common/library';
 
 import { loadTestMember } from './common.js';
 
@@ -19,7 +19,7 @@ describe.only('common metadata errors', () => {
     const { member } = loadTestMember('missing-variable');
     const testErrors: Error[] = [];
 
-    getLinkedVariables(member, testErrors);
+    getLinkedVariableList(member, testErrors);
 
     equal(testErrors.length, 1);
 
@@ -33,7 +33,7 @@ describe.only('common metadata errors', () => {
     const { member, reflection } = loadTestMember('missing-service');
     const testErrors: Error[] = [];
 
-    getLinkedServices(member, reflection, testErrors);
+    getLinkedServiceList(member, reflection, testErrors);
 
     equal(testErrors.length, 1);
 
@@ -47,7 +47,7 @@ describe.only('common metadata errors', () => {
     const { member, reflection } = loadTestMember('missing-service-provider');
     const testErrors: Error[] = [];
 
-    getLinkedServices(member, reflection, testErrors);
+    getLinkedServiceList(member, reflection, testErrors);
 
     equal(testErrors.length, 1);
 
@@ -61,7 +61,7 @@ describe.only('common metadata errors', () => {
     const { member, reflection } = loadTestMember('invalid-service');
     const testErrors: Error[] = [];
 
-    getLinkedServices(member, reflection, testErrors);
+    getLinkedServiceList(member, reflection, testErrors);
 
     equal(testErrors.length, 1);
 

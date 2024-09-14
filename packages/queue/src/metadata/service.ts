@@ -4,8 +4,8 @@ import type { QueueSubscription } from '../types/subscription.js';
 import type { QueueService } from '../types/service.js';
 
 import {
-  getLinkedServices,
-  getLinkedVariables,
+  getLinkedServiceList,
+  getLinkedVariableList,
   getModelMembers,
   getPropertyNumber,
   getPropertyTuple
@@ -74,13 +74,13 @@ export const getQueueServices = (reflection: SourceMap) => {
 
         case 'variables':
           if (!member.inherited) {
-            service.variables = getLinkedVariables(member, errorList);
+            service.variables = getLinkedVariableList(member, errorList);
           }
           break;
 
         case 'services':
           if (!member.inherited) {
-            service.services = getLinkedServices(member, reflection, errorList);
+            service.services = getLinkedServiceList(member, reflection, errorList);
           }
           break;
       }

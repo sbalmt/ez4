@@ -1,7 +1,7 @@
 import { equal, deepEqual } from 'assert/strict';
 import { describe, it } from 'node:test';
 
-import { registerTriggers, getLinkedVariables, getLinkedServices } from '@ez4/common/library';
+import { registerTriggers, getLinkedVariableList, getLinkedServiceList } from '@ez4/common/library';
 import { createTrigger } from '@ez4/project/library';
 
 import { loadTestMember } from './common.js';
@@ -15,7 +15,7 @@ describe.only('common metadata', () => {
     const { member } = loadTestMember('variable');
     const testErrors: Error[] = [];
 
-    const variables = getLinkedVariables(member, testErrors);
+    const variables = getLinkedVariableList(member, testErrors);
 
     equal(testErrors.length, 0);
 
@@ -37,7 +37,7 @@ describe.only('common metadata', () => {
       }
     });
 
-    const services = getLinkedServices(member, reflection, testErrors);
+    const services = getLinkedServiceList(member, reflection, testErrors);
 
     equal(testErrors.length, 0);
 
