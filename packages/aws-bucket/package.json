@@ -38,6 +38,7 @@
     "@aws-sdk/s3-request-presigner": "^3.651.0",
     "@ez4/aws-common": "^0.4.0",
     "@ez4/aws-identity": "^0.4.0",
+    "@ez4/project": "^0.4.0",
     "@ez4/stateful": "^0.4.0",
     "@ez4/storage": "^0.4.0",
     "@ez4/utils": "^0.4.0"

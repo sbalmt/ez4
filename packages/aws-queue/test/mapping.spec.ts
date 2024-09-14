@@ -6,7 +6,7 @@ import { join } from 'node:path';
 
 import { deepClone } from '@ez4/utils';
 import { isMapping } from '@ez4/aws-function';
-import { createQueueFunction, createMapping, createQueue } from '@ez4/aws-queue';
+import { createQueueFunction, createMapping, createQueue, registerTriggers } from '@ez4/aws-queue';
 import { createPolicy, createRole } from '@ez4/aws-identity';
 import { deploy } from '@ez4/aws-common';
 
@@ -41,6 +41,8 @@ describe.only('queue mapping', () => {
 
   let lastState: EntryStates | undefined;
   let mappingId: string | undefined;
+
+  registerTriggers();
 
   it('assert :: deploy', async () => {
     const localState: EntryStates = {};

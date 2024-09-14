@@ -5,8 +5,14 @@ import { ok, equal } from 'node:assert/strict';
 import { join } from 'node:path';
 
 import { deepClone } from '@ez4/utils';
-import { createBucket, createBucketObject, isBucketObject } from '@ez4/aws-bucket';
 import { deploy } from '@ez4/aws-common';
+
+import {
+  createBucket,
+  createBucketObject,
+  isBucketObject,
+  registerTriggers
+} from '@ez4/aws-bucket';
 
 const assertDeploy = async <E extends EntryState>(
   resourceId: string,
@@ -37,6 +43,8 @@ describe.only('bucket object resources', () => {
 
   let lastState: EntryStates | undefined;
   let objectId: string | undefined;
+
+  registerTriggers();
 
   it('assert :: deploy', async () => {
     const localState: EntryStates = {};

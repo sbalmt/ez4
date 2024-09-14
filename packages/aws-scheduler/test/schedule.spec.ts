@@ -4,7 +4,12 @@ import { describe, it } from 'node:test';
 import { ok, equal } from 'node:assert/strict';
 import { join } from 'node:path';
 
-import { createSchedule, createTargetFunction, isSchedule } from '@ez4/aws-scheduler';
+import {
+  createSchedule,
+  createTargetFunction,
+  isSchedule,
+  registerTriggers
+} from '@ez4/aws-scheduler';
 import { createRole } from '@ez4/aws-identity';
 import { deploy } from '@ez4/aws-common';
 import { deepClone } from '@ez4/utils';
@@ -40,6 +45,8 @@ describe.only('scheduler', () => {
 
   let lastState: EntryStates | undefined;
   let scheduleId: string | undefined;
+
+  registerTriggers();
 
   it('assert :: deploy', async () => {
     const localState: EntryStates = {};

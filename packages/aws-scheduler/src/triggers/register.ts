@@ -5,30 +5,31 @@ import { registerTriggers as registerSchedulerTriggers } from '@ez4/scheduler/li
 
 import { createTrigger } from '@ez4/project/library';
 
+import { registerScheduleProvider } from '../schedule/provider.js';
+
 import { prepareIdentityAccount } from './identity.js';
 import { prepareExecutionPolicy } from './policy.js';
 import { prepareCronServices } from './cron.js';
 
 let isRegistered = false;
 
-/**
- * Register all triggers.
- */
 export const registerTriggers = () => {
-  if (!isRegistered) {
-    registerAwsTriggers();
-    registerAwsIdentityTriggers();
-    registerAwsFunctionTriggers();
-    registerSchedulerTriggers();
-
-    createTrigger('@ez4/aws-scheduler', {
-      'deploy:prepareIdentityAccount': prepareIdentityAccount,
-      'deploy:prepareExecutionPolicy': prepareExecutionPolicy,
-      'deploy:prepareResources': prepareCronServices
-    });
-
-    isRegistered = true;
+  if (isRegistered) {
+    return;
   }
 
-  return isRegistered;
+  registerAwsTriggers();
+  registerAwsIdentityTriggers();
+  registerAwsFunctionTriggers();
+  registerSchedulerTriggers();
+
+  createTrigger('@ez4/aws-scheduler', {
+    'deploy:prepareIdentityAccount': prepareIdentityAccount,
+    'deploy:prepareExecutionPolicy': prepareExecutionPolicy,
+    'deploy:prepareResources': prepareCronServices
+  });
+
+  registerScheduleProvider();
+
+  isRegistered = true;
 };

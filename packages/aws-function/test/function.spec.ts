@@ -5,7 +5,7 @@ import { ok, equal, notEqual } from 'node:assert/strict';
 import { join } from 'node:path';
 
 import { deepClone } from '@ez4/utils';
-import { createFunction, isFunction } from '@ez4/aws-function';
+import { createFunction, isFunction, registerTriggers } from '@ez4/aws-function';
 import { createRole } from '@ez4/aws-identity';
 import { deploy } from '@ez4/aws-common';
 
@@ -41,17 +41,19 @@ describe.only('function', () => {
   let lastState: EntryStates | undefined;
   let functionId: string | undefined;
 
+  registerTriggers();
+
   it('assert :: deploy', async () => {
     const localState: EntryStates = {};
 
     const roleResource = createRole(localState, [], {
-      roleName: 'EZ4: Test lambda role',
+      roleName: 'ez4-test-lambda-role',
       roleDocument: getRoleDocument()
     });
 
     const resource = createFunction(localState, roleResource, {
       sourceFile: join(baseDir, 'lambda-1.js'),
-      functionName: 'EZ4: Test lambda function',
+      functionName: 'ez4-test-lambda-function',
       description: 'EZ4 Test lambda',
       handlerName: 'main',
       variables: {

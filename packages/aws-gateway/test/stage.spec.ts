@@ -4,7 +4,7 @@ import { describe, it } from 'node:test';
 import { ok, equal } from 'node:assert/strict';
 
 import { deepClone } from '@ez4/utils';
-import { createGateway, createStage, isStage } from '@ez4/aws-gateway';
+import { createGateway, createStage, isStage, registerTriggers } from '@ez4/aws-gateway';
 import { deploy } from '@ez4/aws-common';
 
 const assertDeploy = async <E extends EntryState>(
@@ -33,6 +33,8 @@ const assertDeploy = async <E extends EntryState>(
 describe.only('gateway stage', () => {
   let lastState: EntryStates | undefined;
   let stageId: string | undefined;
+
+  registerTriggers();
 
   it('assert :: deploy', async () => {
     const localState: EntryStates = {};

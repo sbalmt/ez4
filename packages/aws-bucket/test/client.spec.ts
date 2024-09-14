@@ -5,7 +5,7 @@ import { ok, equal } from 'node:assert/strict';
 import { createReadStream } from 'node:fs';
 import { join } from 'node:path';
 
-import { createBucket, isBucket } from '@ez4/aws-bucket';
+import { createBucket, isBucket, registerTriggers } from '@ez4/aws-bucket';
 import { Client } from '@ez4/aws-bucket/client';
 import { deploy } from '@ez4/aws-common';
 
@@ -15,6 +15,8 @@ describe.only('bucket client', () => {
   let lastState: EntryStates | undefined;
   let bucketId: string | undefined;
   let bucketClient: ReturnType<typeof Client.make>;
+
+  registerTriggers();
 
   it('assert :: deploy', async () => {
     const localState: EntryStates = {};

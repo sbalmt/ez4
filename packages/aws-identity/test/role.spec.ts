@@ -4,7 +4,7 @@ import { describe, it } from 'node:test';
 import { ok, equal } from 'node:assert/strict';
 
 import { deepClone } from '@ez4/utils';
-import { createPolicy, createRole, isRole } from '@ez4/aws-identity';
+import { createPolicy, createRole, isRole, registerTriggers } from '@ez4/aws-identity';
 import { deploy } from '@ez4/aws-common';
 
 import { getRoleDocument } from './common/role.js';
@@ -38,16 +38,18 @@ describe.only('role', () => {
   let lastState: EntryStates | undefined;
   let roleId: string | undefined;
 
+  registerTriggers();
+
   it('assert :: deploy', async () => {
     const localState: EntryStates = {};
 
     const policyResource = createPolicy(localState, {
-      policyName: 'EZ4: Test role policy',
+      policyName: 'ez4-test-role-policy',
       policyDocument: getPolicyDocument()
     });
 
     const resource = createRole(localState, [policyResource], {
-      roleName: 'EZ4: Test role',
+      roleName: 'ez4-test-role',
       roleDocument: getRoleDocument(),
       description: 'EZ4 Test role',
       tags: {
@@ -102,7 +104,7 @@ describe.only('role', () => {
     ok(resource && isRole(resource));
 
     const policyResource = createPolicy(localState, {
-      policyName: 'EZ4: Test role new policy',
+      policyName: 'ez4-test-role-new-policy',
       policyDocument: getPolicyDocument()
     });
 

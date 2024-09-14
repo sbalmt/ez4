@@ -5,9 +5,16 @@ import { describe, it } from 'node:test';
 import { ok, equal, deepEqual } from 'node:assert/strict';
 
 import { SchemaTypeName } from '@ez4/schema';
-import { createTable, isTable, AttributeType, AttributeKeyType } from '@ez4/aws-dynamodb';
 import { Client } from '@ez4/aws-dynamodb/client';
 import { deploy } from '@ez4/aws-common';
+
+import {
+  createTable,
+  isTable,
+  AttributeType,
+  AttributeKeyType,
+  registerTriggers
+} from '@ez4/aws-dynamodb';
 
 type TestSchema = {
   id: string;
@@ -21,6 +28,8 @@ describe.only('dynamodb client', () => {
   let dbTable: Table<TestSchema, 'id' | 'order'>;
 
   const tableName = 'ez4-test-table-client';
+
+  registerTriggers();
 
   it('assert :: deploy', async () => {
     const localState: EntryStates = {};

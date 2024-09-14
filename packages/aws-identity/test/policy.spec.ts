@@ -4,7 +4,7 @@ import { describe, it } from 'node:test';
 import { ok, equal, notEqual } from 'node:assert/strict';
 
 import { deepClone } from '@ez4/utils';
-import { createPolicy, isPolicy } from '@ez4/aws-identity';
+import { createPolicy, isPolicy, registerTriggers } from '@ez4/aws-identity';
 import { deploy } from '@ez4/aws-common';
 
 import { getPolicyDocument } from './common/policy.js';
@@ -37,11 +37,13 @@ describe.only('policy', () => {
   let lastState: EntryStates | undefined;
   let policyId: string | undefined;
 
+  registerTriggers();
+
   it('assert :: deploy', async () => {
     const localState: EntryStates = {};
 
     const resource = createPolicy(localState, {
-      policyName: 'EZ4: Test policy',
+      policyName: 'ez4-test-policy',
       policyDocument: getPolicyDocument(),
       tags: {
         test1: 'ez4-tag1',

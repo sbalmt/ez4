@@ -9,7 +9,8 @@ import {
   AttributeType,
   createStreamFunction,
   createMapping,
-  createTable
+  createTable,
+  registerTriggers
 } from '@ez4/aws-dynamodb';
 
 import { createPolicy, createRole } from '@ez4/aws-identity';
@@ -49,6 +50,8 @@ describe.only('dynamodb mapping', () => {
   let lastState: EntryStates | undefined;
   let mappingId: string | undefined;
 
+  registerTriggers();
+
   it('assert :: deploy', async () => {
     const localState: EntryStates = {};
 
@@ -66,18 +69,18 @@ describe.only('dynamodb mapping', () => {
     });
 
     const policyResource = createPolicy(localState, {
-      policyName: 'EZ4: Test table mapping policy',
+      policyName: 'ez4-test-table-mapping-policy',
       policyDocument: getPolicyDocument()
     });
 
     const roleResource = createRole(localState, [policyResource], {
-      roleName: 'EZ4: Test table mapping role',
+      roleName: 'ez4-test-table-mapping-role',
       roleDocument: getRoleDocument()
     });
 
     const functionResource = await createStreamFunction(localState, roleResource, {
       sourceFile: join(baseDir, 'lambda.js'),
-      functionName: 'EZ4: Test table mapping lambda',
+      functionName: 'ez4-test-table-mapping-lambda',
       handlerName: 'main'
     });
 

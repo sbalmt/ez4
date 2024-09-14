@@ -11,7 +11,8 @@ import {
   createIntegrationFunction,
   createAuthorizerFunction,
   createRoute,
-  isRoute
+  isRoute,
+  registerTriggers
 } from '@ez4/aws-gateway';
 
 import { deepClone } from '@ez4/utils';
@@ -51,6 +52,8 @@ describe.only('gateway route', () => {
 
   let lastState: EntryStates | undefined;
   let routeId: string | undefined;
+
+  registerTriggers();
 
   it('assert :: deploy', async () => {
     const localState: EntryStates = {};

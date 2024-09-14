@@ -5,30 +5,31 @@ import { registerTriggers as registerQueueTriggers } from '@ez4/queue/library';
 
 import { createTrigger } from '@ez4/project/library';
 
+import { registerQueueProvider } from '../queue/provider.js';
+
 import { prepareExecutionPolicy } from './policy.js';
 import { prepareLinkedService } from './client.js';
 import { prepareQueueServices } from './queue.js';
 
 let isRegistered = false;
 
-/**
- * Register all triggers.
- */
 export const registerTriggers = () => {
-  if (!isRegistered) {
-    registerAwsTriggers();
-    registerAwsIdentityTriggers();
-    registerAwsFunctionTriggers();
-    registerQueueTriggers();
-
-    createTrigger('@ez4/aws-queue', {
-      'deploy:prepareExecutionPolicy': prepareExecutionPolicy,
-      'deploy:prepareLinkedService': prepareLinkedService,
-      'deploy:prepareResources': prepareQueueServices
-    });
-
-    isRegistered = true;
+  if (isRegistered) {
+    return;
   }
 
-  return isRegistered;
+  registerAwsTriggers();
+  registerAwsIdentityTriggers();
+  registerAwsFunctionTriggers();
+  registerQueueTriggers();
+
+  createTrigger('@ez4/aws-queue', {
+    'deploy:prepareExecutionPolicy': prepareExecutionPolicy,
+    'deploy:prepareLinkedService': prepareLinkedService,
+    'deploy:prepareResources': prepareQueueServices
+  });
+
+  registerQueueProvider();
+
+  isRegistered = true;
 };

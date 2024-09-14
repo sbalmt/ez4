@@ -4,7 +4,7 @@ import { describe, it } from 'node:test';
 import { ok, equal } from 'node:assert/strict';
 
 import { deepClone } from '@ez4/utils';
-import { createQueue, isQueue } from '@ez4/aws-queue';
+import { createQueue, isQueue, registerTriggers } from '@ez4/aws-queue';
 import { deploy } from '@ez4/aws-common';
 
 const assertDeploy = async <E extends EntryState>(
@@ -32,6 +32,8 @@ const assertDeploy = async <E extends EntryState>(
 describe.only('queue', () => {
   let lastState: EntryStates | undefined;
   let queueId: string | undefined;
+
+  registerTriggers();
 
   it('assert :: deploy', async () => {
     const localState: EntryStates = {};

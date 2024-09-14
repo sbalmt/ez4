@@ -8,7 +8,8 @@ import {
   createGateway,
   createIntegration,
   createIntegrationFunction,
-  isIntegration
+  isIntegration,
+  registerTriggers
 } from '@ez4/aws-gateway';
 
 import { createRole } from '@ez4/aws-identity';
@@ -46,6 +47,8 @@ describe.only('gateway integration', () => {
 
   let lastState: EntryStates | undefined;
   let integrationId: string | undefined;
+
+  registerTriggers();
 
   it('assert :: deploy', async () => {
     const localState: EntryStates = {};

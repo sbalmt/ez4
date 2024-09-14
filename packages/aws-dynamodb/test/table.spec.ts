@@ -4,8 +4,15 @@ import { describe, it } from 'node:test';
 import { ok, equal } from 'node:assert/strict';
 
 import { deepClone } from '@ez4/utils';
-import { createTable, isTable, AttributeType, AttributeKeyType } from '@ez4/aws-dynamodb';
 import { deploy } from '@ez4/aws-common';
+
+import {
+  createTable,
+  isTable,
+  AttributeType,
+  AttributeKeyType,
+  registerTriggers
+} from '@ez4/aws-dynamodb';
 
 const assertDeploy = async <E extends EntryState>(
   resourceId: string,
@@ -33,6 +40,8 @@ const assertDeploy = async <E extends EntryState>(
 describe.only('dynamodb table', () => {
   let lastState: EntryStates | undefined;
   let tableId: string | undefined;
+
+  registerTriggers();
 
   it('assert :: deploy', async () => {
     const localState: EntryStates = {};
