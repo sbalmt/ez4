@@ -150,7 +150,9 @@ const checkDocumentUpdates = async (
   candidate: RoleParameters,
   current: RoleParameters
 ) => {
-  if (!deepEqual(candidate.roleDocument, current.roleDocument)) {
+  const hasChanges = !deepEqual(candidate.roleDocument, current.roleDocument);
+
+  if (hasChanges) {
     await updateAssumeRole(roleName, candidate.roleDocument);
   }
 };

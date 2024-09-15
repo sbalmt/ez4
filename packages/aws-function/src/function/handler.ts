@@ -143,10 +143,12 @@ const updateResource = async (
   }
 
   const functionName = parameters.functionName;
-  const roleArn = getRoleArn(FunctionServiceName, functionName, context);
 
-  const newConfig = { ...parameters, roleArn };
-  const oldConfig = { ...current.parameters, roleArn: current.result?.roleArn ?? roleArn };
+  const newRoleArn = getRoleArn(FunctionServiceName, functionName, context);
+  const oldRoleArn = current.result?.roleArn ?? newRoleArn;
+
+  const newConfig = { ...parameters, roleArn: newRoleArn };
+  const oldConfig = { ...current.parameters, roleArn: oldRoleArn };
 
   await Promise.all([
     checkConfigurationUpdates(functionName, newConfig, oldConfig),
@@ -160,8 +162,8 @@ const updateResource = async (
 
   return {
     ...result,
-    sourceHash,
-    roleArn
+    roleArn: newRoleArn,
+    sourceHash
   };
 };
 
