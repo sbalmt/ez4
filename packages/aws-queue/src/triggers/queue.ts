@@ -1,4 +1,4 @@
-import type { DeployOptions, ServiceResourceEvent } from '@ez4/project/library';
+import type { DeployOptions, PrepareResourceEvent } from '@ez4/project/library';
 import type { EntryState, EntryStates } from '@ez4/stateful';
 import type { QueueService } from '@ez4/queue/library';
 import type { QueueState } from '../queue/types.js';
@@ -13,7 +13,7 @@ import { createQueueFunction } from '../mapping/function/service.js';
 import { createMapping } from '../mapping/service.js';
 import { getMappingName } from './utils.js';
 
-export const prepareQueueServices = async (event: ServiceResourceEvent) => {
+export const prepareQueueServices = async (event: PrepareResourceEvent) => {
   const { state, service, options, role } = event;
 
   if (!isQueueService(service)) {

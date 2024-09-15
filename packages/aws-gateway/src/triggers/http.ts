@@ -1,6 +1,6 @@
 import type { ObjectSchema } from '@ez4/schema';
 import type { EntryState, EntryStates } from '@ez4/stateful';
-import type { DeployOptions, ServiceResourceEvent } from '@ez4/project/library';
+import type { DeployOptions, PrepareResourceEvent } from '@ez4/project/library';
 import type { HttpRoute, HttpService } from '@ez4/gateway/library';
 import type { GatewayState } from '../gateway/types.js';
 
@@ -18,7 +18,7 @@ import { createStage } from '../stage/service.js';
 import { createRoute } from '../route/service.js';
 import { getFunctionName } from './utils.js';
 
-export const prepareHttpServices = async (event: ServiceResourceEvent) => {
+export const prepareHttpServices = async (event: PrepareResourceEvent) => {
   const { state, service, options, role } = event;
 
   if (!isHttpService(service)) {

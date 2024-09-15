@@ -34,7 +34,8 @@ export type AsyncEvent = {
   'deploy:prepareIdentityGrant': (event: IdentityEvent) => AsyncEventResult<IdentityGrant>;
   'deploy:prepareExecutionPolicy': (event: PolicyResourceEvent) => AsyncEventResult<EntryState>;
   'deploy:prepareExecutionRole': (event: RoleResourceEvent) => AsyncEventResult<EntryState>;
-  'deploy:prepareResources': (event: ServiceResourceEvent) => AsyncEventResult<void>;
+  'deploy:prepareResources': (event: PrepareResourceEvent) => AsyncEventResult<void>;
+  'deploy:connectResources': (event: ConnectResourceEvent) => AsyncEventResult<void>;
   'deploy:plan': (event: DeployEvent) => AsyncEventResult<StepState[]>;
   'deploy:apply': (event: DeployEvent) => AsyncEventResult<ApplyState>;
 };
@@ -61,11 +62,17 @@ export type RoleResourceEvent = {
   options: DeployOptions;
 };
 
-export type ServiceResourceEvent = {
+export type PrepareResourceEvent = {
   state: EntryStates;
   service: ServiceMetadata;
   options: DeployOptions;
   role: EntryState | null;
+};
+
+export type ConnectResourceEvent = {
+  state: EntryStates;
+  service: ServiceMetadata;
+  options: DeployOptions;
 };
 
 export type DeployEvent = {

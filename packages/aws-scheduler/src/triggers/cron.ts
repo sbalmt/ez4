@@ -1,4 +1,4 @@
-import type { ServiceResourceEvent } from '@ez4/project/library';
+import type { PrepareResourceEvent } from '@ez4/project/library';
 
 import { getServiceName } from '@ez4/project/library';
 import { isCronService } from '@ez4/scheduler/library';
@@ -8,7 +8,7 @@ import { createTargetFunction } from '../schedule/function/service.js';
 import { createSchedule } from '../schedule/service.js';
 import { getTargetName } from './utils.js';
 
-export const prepareCronServices = async (event: ServiceResourceEvent) => {
+export const prepareCronServices = async (event: PrepareResourceEvent) => {
   const { state, service, options, role } = event;
 
   if (!isCronService(service)) {

@@ -1,11 +1,11 @@
-import type { ServiceResourceEvent } from '@ez4/project/library';
+import type { PrepareResourceEvent } from '@ez4/project/library';
 
 import { getServiceName } from '@ez4/project/library';
 import { isBucketService } from '@ez4/storage/library';
 
 import { createBucket } from '../bucket/service.js';
 
-export const prepareBucketServices = async (event: ServiceResourceEvent) => {
+export const prepareBucketServices = async (event: PrepareResourceEvent) => {
   const { state, service, options } = event;
 
   if (!isBucketService(service)) {

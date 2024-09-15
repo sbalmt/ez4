@@ -21,3 +21,11 @@ export const saveState = (filePath: string, state: EntryStates) => {
 
   writeFileSync(filePath, JSON.stringify(stateFile, undefined, 2));
 };
+
+export const combineStates = (newState: EntryStates, oldState: EntryStates) => {
+  for (const entityId in newState) {
+    if (newState[entityId]) {
+      newState[entityId].result = oldState[entityId]?.result;
+    }
+  }
+};
