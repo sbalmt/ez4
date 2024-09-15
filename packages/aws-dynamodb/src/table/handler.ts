@@ -75,13 +75,11 @@ const createResource = async (candidate: TableState): Promise<TableResult> => {
 };
 
 const updateResource = async (candidate: TableState, current: TableState) => {
-  const result = candidate.result;
+  const { result, parameters } = candidate;
 
   if (!result) {
     return;
   }
-
-  const parameters = candidate.parameters;
 
   await checkTimeToLiveUpdates(result.tableName, parameters, current.parameters);
   await checkDeletionUpdates(result.tableName, parameters, current.parameters);
