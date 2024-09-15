@@ -9,9 +9,11 @@ export const getServiceName = (service: ServiceMetadata | string, options: Deplo
   const resourcePrefix = toKebabCase(options.resourcePrefix);
   const projectName = toKebabCase(options.projectName);
 
+  const servicePrefix = `${resourcePrefix}-${projectName}`;
+
   if (isServiceMetadata(service)) {
-    return `${resourcePrefix}-${projectName}-${toKebabCase(service.name)}`;
+    return `${servicePrefix}-${toKebabCase(service.name)}`;
   }
 
-  return `${resourcePrefix}-${projectName}-${service}`;
+  return `${servicePrefix}-${toKebabCase(service)}`;
 };
