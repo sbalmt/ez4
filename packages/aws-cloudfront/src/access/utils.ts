@@ -5,7 +5,7 @@ import { IncompleteResourceError } from '@ez4/aws-common';
 
 import { AccessServiceType } from './types.js';
 
-export const getAccessId = <E extends EntryState>(
+export const getOriginAccessId = <E extends EntryState>(
   serviceName: string,
   resourceId: string,
   context: StepContext<E | AccessState>

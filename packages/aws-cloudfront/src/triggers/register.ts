@@ -5,8 +5,10 @@ import { registerTriggers as registerDistributionTriggers } from '@ez4/distribut
 
 import { createTrigger } from '@ez4/project/library';
 
-import { registerAccessProvider } from '../access/provider.js';
+import { registerCachePolicyProvider } from '../policy/provider.js';
+import { registerOriginAccessProvider } from '../access/provider.js';
 import { registerDistributionProvider } from '../distribution/provider.js';
+
 import { prepareCdnServices, connectCdnServices } from './distribution.js';
 
 let isRegistered = false;
@@ -26,7 +28,8 @@ export const registerTriggers = () => {
     'deploy:connectResources': connectCdnServices
   });
 
-  registerAccessProvider();
+  registerCachePolicyProvider();
+  registerOriginAccessProvider();
   registerDistributionProvider();
 
   isRegistered = true;

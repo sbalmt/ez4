@@ -4,7 +4,7 @@ import type { AccessState, AccessResult, AccessParameters } from './types.js';
 import { ReplaceResourceError } from '@ez4/aws-common';
 import { deepCompare, deepEqual } from '@ez4/utils';
 
-import { createAccess, updateAccess, deleteAccess } from './client.js';
+import { createOriginAccess, updateAccess, deleteAccess } from './client.js';
 import { AccessServiceName } from './types.js';
 
 export const getAccessHandler = (): StepHandler<AccessState> => ({
@@ -45,7 +45,7 @@ const replaceResource = async (candidate: AccessState, current: AccessState) => 
 };
 
 const createResource = async (candidate: AccessState): Promise<AccessResult> => {
-  const { accessId, version } = await createAccess(candidate.parameters);
+  const { accessId, version } = await createOriginAccess(candidate.parameters);
 
   return {
     accessId,
@@ -53,7 +53,10 @@ const createResource = async (candidate: AccessState): Promise<AccessResult> => 
   };
 };
 
-const updateResource = async (candidate: AccessState, current: AccessState) => {
+const updateResource = async (
+  candidate: AccessState,
+  current: AccessState
+): Promise<AccessResult | void> => {
   const { result, parameters } = candidate;
 
   if (!result) {

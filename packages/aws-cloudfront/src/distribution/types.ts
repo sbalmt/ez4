@@ -8,7 +8,8 @@ export const DistributionServiceType = 'aws:cloudfront.distribution';
 export type DistributionParameters = Omit<CreateRequest, 'defaultAccessId'>;
 
 export type DistributionResult = CreateResponse & {
-  accessId: string;
+  cachePolicyId: string;
+  originAccessId: string;
 };
 
 export type DistributionState = EntryState & {

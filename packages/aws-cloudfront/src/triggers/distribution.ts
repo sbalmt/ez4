@@ -22,7 +22,8 @@ import { EntryStates, getEntry, linkDependency } from '@ez4/stateful';
 import { CdnService, isCdnService } from '@ez4/distribution/library';
 import { getServiceName } from '@ez4/project/library';
 
-import { createAccess } from '../access/service.js';
+import { createOriginAccess } from '../access/service.js';
+import { createCachePolicy } from '../policy/service.js';
 import { createDistribution } from '../distribution/service.js';
 import { getDistributionArn, getDistributionId } from '../distribution/utils.js';
 import { getRoleDocument } from '../utils/role.js';
@@ -40,12 +41,21 @@ export const prepareCdnServices = async (event: PrepareResourceEvent) => {
 
   const distributionName = getServiceName(service, options);
 
-  const accessState = createAccess(state, {
+  const accessState = createOriginAccess(state, {
     accessName: distributionName,
     description
   });
 
-  createDistribution(state, accessState, {
+  const policyState = createCachePolicy(state, {
+    policyName: distributionName,
+    defaultTTL: 300,
+    minTTL: 1,
+    maxTTL: 3600,
+    description,
+    compress
+  });
+
+  createDistribution(state, accessState, policyState, {
     enabled: !disabled,
     distributionName,
     defaultOrigin: {

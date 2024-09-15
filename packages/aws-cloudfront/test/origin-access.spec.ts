@@ -4,7 +4,7 @@ import { describe, it } from 'node:test';
 import { ok, equal } from 'node:assert/strict';
 
 import { deepClone } from '@ez4/utils';
-import { createAccess, isAccess, registerTriggers } from '@ez4/aws-cloudfront';
+import { createOriginAccess, isOriginAccess, registerTriggers } from '@ez4/aws-cloudfront';
 import { deploy } from '@ez4/aws-common';
 
 const assertDeploy = async <E extends EntryState>(
@@ -17,20 +17,20 @@ const assertDeploy = async <E extends EntryState>(
   const resource = state[resourceId];
 
   ok(resource?.result);
-  ok(isAccess(resource));
+  ok(isOriginAccess(resource));
 
-  const { accessId, version } = resource.result;
+  const result = resource.result;
 
-  ok(accessId);
-  ok(version);
+  ok(result.accessId);
+  ok(result.version);
 
   return {
-    result: resource.result,
+    result,
     state
   };
 };
 
-describe.only('access resources', () => {
+describe.only('cloudfront :: origin access', () => {
   let lastState: EntryStates | undefined;
   let accessId: string | undefined;
 
@@ -39,7 +39,7 @@ describe.only('access resources', () => {
   it('assert :: deploy', async () => {
     const localState: EntryStates = {};
 
-    const resource = createAccess(localState, {
+    const resource = createOriginAccess(localState, {
       accessName: 'ez4-test-access',
       description: 'EZ4: Test access description'
     });
@@ -51,13 +51,13 @@ describe.only('access resources', () => {
     lastState = state;
   });
 
-  it('assert :: update gateway', async () => {
+  it('assert :: update', async () => {
     ok(accessId && lastState);
 
     const localState = deepClone(lastState) as EntryStates;
     const resource = localState[accessId];
 
-    ok(resource && isAccess(resource));
+    ok(resource && isOriginAccess(resource));
 
     resource.parameters.description = 'EZ4: New access description';
 

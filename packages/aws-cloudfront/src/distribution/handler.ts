@@ -13,7 +13,8 @@ import {
   untagDistribution
 } from './client.js';
 
-import { getAccessId } from '../access/utils.js';
+import { getCachePolicyId } from '../policy/utils.js';
+import { getOriginAccessId } from '../access/utils.js';
 import { DistributionServiceName } from './types.js';
 
 export const getDistributionHandler = (): StepHandler<DistributionState> => ({
@@ -62,18 +63,22 @@ const createResource = async (
   context: StepContext
 ): Promise<DistributionResult> => {
   const parameters = candidate.parameters;
+  const resourceId = parameters.distributionName;
 
-  const accessId = getAccessId(DistributionServiceName, parameters.distributionName, context);
+  const originAccessId = getOriginAccessId(DistributionServiceName, resourceId, context);
+  const cachePolicyId = getCachePolicyId(DistributionServiceName, resourceId, context);
 
   const { distributionId, distributionArn, endpoint, version } = await createDistribution({
     ...parameters,
-    defaultAccessId: accessId
+    defaultAccessId: originAccessId,
+    defaultPolicyId: cachePolicyId
   });
 
   return {
-    accessId,
     distributionId,
     distributionArn,
+    originAccessId,
+    cachePolicyId,
     endpoint,
     version
   };
@@ -83,24 +88,47 @@ const updateResource = async (
   candidate: DistributionState,
   current: DistributionState,
   context: StepContext
-) => {
+): Promise<DistributionResult | void> => {
   const { result, parameters } = candidate;
 
   if (!result) {
     return;
   }
 
-  const newAccessId = getAccessId(DistributionServiceName, parameters.distributionName, context);
-  const oldAccessId = current.result?.accessId ?? newAccessId;
+  const resourceId = parameters.distributionName;
 
-  const newRequest = { ...parameters, defaultAccessId: newAccessId };
-  const oldRequest = { ...current.parameters, defaultAccessId: oldAccessId };
+  const newOriginAccessId = getOriginAccessId(DistributionServiceName, resourceId, context);
+  const oldOriginAccessId = current.result?.originAccessId ?? newOriginAccessId;
 
-  const newResult = await checkGeneralUpdates(result, newRequest, oldRequest);
+  const newCachePolicyId = getCachePolicyId(DistributionServiceName, resourceId, context);
+  const oldCachePolicyId = current.result?.cachePolicyId ?? newCachePolicyId;
+
+  const newRequest = {
+    ...parameters,
+    defaultAccessId: newOriginAccessId,
+    defaultPolicyId: newCachePolicyId
+  };
+
+  const oldRequest = {
+    ...current.parameters,
+    defaultAccessId: oldOriginAccessId,
+    defaultPolicyId: oldCachePolicyId
+  };
 
   await checkTagUpdates(result.distributionArn, parameters, current.parameters);
 
-  return newResult;
+  const response = await checkGeneralUpdates(result, newRequest, oldRequest);
+
+  const { distributionId, distributionArn, endpoint, version } = response;
+
+  return {
+    originAccessId: newOriginAccessId,
+    cachePolicyId: newCachePolicyId,
+    distributionId,
+    distributionArn,
+    endpoint,
+    version
+  };
 };
 
 const deleteResource = async (candidate: DistributionState) => {
@@ -110,7 +138,7 @@ const deleteResource = async (candidate: DistributionState) => {
     return;
   }
 
-  const { distributionId, version } = result;
+  const { distributionId, originAccessId, cachePolicyId, version } = result;
 
   if (!parameters.enabled) {
     return deleteDistribution(distributionId, version);
@@ -119,7 +147,8 @@ const deleteResource = async (candidate: DistributionState) => {
   // Only disabled distributions can be deleted.
   const newResult = await updateDistribution(distributionId, version, {
     ...parameters,
-    defaultAccessId: '',
+    defaultAccessId: originAccessId,
+    defaultPolicyId: cachePolicyId,
     enabled: false
   });
 

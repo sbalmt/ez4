@@ -30,7 +30,7 @@ export type UpdateRequest = CreateRequest;
 
 export type UpdateResponse = CreateResponse;
 
-export const createAccess = async (request: CreateRequest): Promise<CreateResponse> => {
+export const createOriginAccess = async (request: CreateRequest): Promise<CreateResponse> => {
   Logger.logCreate(AccessServiceName, request.accessName);
 
   const response = await client.send(
@@ -47,7 +47,11 @@ export const createAccess = async (request: CreateRequest): Promise<CreateRespon
   };
 };
 
-export const updateAccess = async (accessId: string, version: string, request: UpdateRequest) => {
+export const updateAccess = async (
+  accessId: string,
+  version: string,
+  request: UpdateRequest
+): Promise<UpdateResponse> => {
   Logger.logUpdate(AccessServiceName, request.accessName);
 
   const response = await client.send(

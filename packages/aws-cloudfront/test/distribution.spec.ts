@@ -4,7 +4,8 @@ import { describe, it } from 'node:test';
 import { ok, equal } from 'node:assert/strict';
 
 import {
-  createAccess,
+  createOriginAccess,
+  createCachePolicy,
   createDistribution,
   isDistribution,
   registerTriggers
@@ -26,20 +27,22 @@ const assertDeploy = async <E extends EntryState>(
   ok(resource?.result);
   ok(isDistribution(resource));
 
-  const { distributionId, distributionArn, endpoint, version } = resource.result;
+  const result = resource.result;
 
-  ok(distributionId);
-  ok(distributionArn);
-  ok(endpoint);
-  ok(version);
+  ok(result.distributionId);
+  ok(result.distributionArn);
+  ok(result.originAccessId);
+  ok(result.cachePolicyId);
+  ok(result.endpoint);
+  ok(result.version);
 
   return {
-    result: resource.result,
+    result,
     state
   };
 };
 
-describe.only('distribution resources', () => {
+describe.only('cloudfront :: distribution', () => {
   let lastState: EntryStates | undefined;
   let distributionId: string | undefined;
 
@@ -54,12 +57,20 @@ describe.only('distribution resources', () => {
       bucketName: originBucketName
     });
 
-    const accessResource = createAccess(localState, {
+    const accessResource = createOriginAccess(localState, {
       accessName: 'ez4-test-distribution-access',
       description: 'EZ4: Test access description'
     });
 
-    const resource = createDistribution(localState, accessResource, {
+    const policyResource = createCachePolicy(localState, {
+      policyName: 'ez4-test-distribution-policy',
+      description: 'EZ4: Test policy description',
+      defaultTTL: 300,
+      minTTL: 1,
+      maxTTL: 3600
+    });
+
+    const resource = createDistribution(localState, accessResource, policyResource, {
       distributionName: 'ez4-test-distribution',
       description: 'EZ4: Test distribution description',
       enabled: true,

@@ -6,11 +6,11 @@ import { attachEntry } from '@ez4/stateful';
 
 import { AccessServiceType } from './types.js';
 
-export const isAccess = (resource: EntryState): resource is AccessState => {
+export const isOriginAccess = (resource: EntryState): resource is AccessState => {
   return resource.type === AccessServiceType;
 };
 
-export const createAccess = <E extends EntryState>(
+export const createOriginAccess = <E extends EntryState>(
   state: EntryStates<E>,
   parameters: AccessParameters
 ) => {

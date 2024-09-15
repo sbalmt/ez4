@@ -43,6 +43,7 @@ export type CreateRequest = {
   description?: string;
   defaultOrigin: DistributionOrigin;
   defaultAccessId?: string;
+  defaultPolicyId?: string;
   defaultIndex?: string;
   origins?: DistributionOrigin[];
   compress?: boolean;
@@ -199,7 +200,7 @@ const upsertDistributionRequest = (request: CreateRequest | UpdateRequest): Dist
     },
     DefaultCacheBehavior: {
       TargetOriginId: defaultOrigin.Id,
-      CachePolicyId: '658327ea-f89d-4fab-a63d-7e88639e58f6',
+      CachePolicyId: request.defaultPolicyId,
       ViewerProtocolPolicy: ViewerProtocolPolicy.redirect_to_https,
       Compress: !!request.compress,
       FieldLevelEncryptionId: '',
