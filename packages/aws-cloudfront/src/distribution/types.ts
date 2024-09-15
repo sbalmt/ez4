@@ -5,9 +5,11 @@ export const DistributionServiceName = 'AWS:CloudFront/Distribution';
 
 export const DistributionServiceType = 'aws:cloudfront.distribution';
 
-export type DistributionParameters = CreateRequest;
+export type DistributionParameters = Omit<CreateRequest, 'defaultAccessId'>;
 
-export type DistributionResult = CreateResponse;
+export type DistributionResult = CreateResponse & {
+  accessId: string;
+};
 
 export type DistributionState = EntryState & {
   type: typeof DistributionServiceType;

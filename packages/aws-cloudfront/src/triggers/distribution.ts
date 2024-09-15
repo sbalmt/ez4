@@ -22,6 +22,7 @@ import { EntryStates, getEntry, linkDependency } from '@ez4/stateful';
 import { CdnService, isCdnService } from '@ez4/distribution/library';
 import { getServiceName } from '@ez4/project/library';
 
+import { createAccess } from '../access/service.js';
 import { createDistribution } from '../distribution/service.js';
 import { getDistributionArn, getDistributionId } from '../distribution/utils.js';
 import { getRoleDocument } from '../utils/role.js';
@@ -37,13 +38,20 @@ export const prepareCdnServices = async (event: PrepareResourceEvent) => {
 
   const bucketName = getServiceName(defaultOrigin.bucket, options);
 
-  createDistribution(state, {
-    distributionName: getServiceName(service, options),
+  const distributionName = getServiceName(service, options);
+
+  const accessState = createAccess(state, {
+    accessName: distributionName,
+    description
+  });
+
+  createDistribution(state, accessState, {
     enabled: !disabled,
+    distributionName,
     defaultOrigin: {
       id: 'default',
-      domainName: await getBucketDomain(bucketName),
-      originPath: defaultOrigin.originPath
+      domain: await getBucketDomain(bucketName),
+      path: defaultOrigin.originPath
     },
     defaultIndex,
     description,

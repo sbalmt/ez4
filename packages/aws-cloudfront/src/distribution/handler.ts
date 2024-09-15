@@ -1,5 +1,5 @@
 import type { Arn } from '@ez4/aws-common';
-import type { StepHandler } from '@ez4/stateful';
+import type { StepContext, StepHandler } from '@ez4/stateful';
 import type { DistributionState, DistributionResult, DistributionParameters } from './types.js';
 
 import { applyTagUpdates, ReplaceResourceError } from '@ez4/aws-common';
@@ -13,6 +13,7 @@ import {
   untagDistribution
 } from './client.js';
 
+import { getAccessId } from '../access/utils.js';
 import { DistributionServiceName } from './types.js';
 
 export const getDistributionHandler = (): StepHandler<DistributionState> => ({
@@ -44,20 +45,33 @@ const previewResource = async (candidate: DistributionState, current: Distributi
   };
 };
 
-const replaceResource = async (candidate: DistributionState, current: DistributionState) => {
+const replaceResource = async (
+  candidate: DistributionState,
+  current: DistributionState,
+  context: StepContext
+) => {
   if (current.result) {
     throw new ReplaceResourceError(DistributionServiceName, candidate.entryId, current.entryId);
   }
 
-  return createResource(candidate);
+  return createResource(candidate, context);
 };
 
-const createResource = async (candidate: DistributionState): Promise<DistributionResult> => {
-  const response = await createDistribution(candidate.parameters);
+const createResource = async (
+  candidate: DistributionState,
+  context: StepContext
+): Promise<DistributionResult> => {
+  const parameters = candidate.parameters;
 
-  const { distributionId, distributionArn, endpoint, version } = response;
+  const accessId = getAccessId(DistributionServiceName, parameters.distributionName, context);
+
+  const { distributionId, distributionArn, endpoint, version } = await createDistribution({
+    ...parameters,
+    defaultAccessId: accessId
+  });
 
   return {
+    accessId,
     distributionId,
     distributionArn,
     endpoint,
@@ -65,15 +79,28 @@ const createResource = async (candidate: DistributionState): Promise<Distributio
   };
 };
 
-const updateResource = async (candidate: DistributionState, current: DistributionState) => {
+const updateResource = async (
+  candidate: DistributionState,
+  current: DistributionState,
+  context: StepContext
+) => {
   const { result, parameters } = candidate;
 
   if (!result) {
     return;
   }
 
-  await checkGeneralUpdates(result, parameters, current.parameters);
+  const newAccessId = getAccessId(DistributionServiceName, parameters.distributionName, context);
+  const oldAccessId = current.result?.accessId ?? newAccessId;
+
+  const newRequest = { ...parameters, defaultAccessId: newAccessId };
+  const oldRequest = { ...current.parameters, defaultAccessId: oldAccessId };
+
+  const newResult = await checkGeneralUpdates(result, newRequest, oldRequest);
+
   await checkTagUpdates(result.distributionArn, parameters, current.parameters);
+
+  return newResult;
 };
 
 const deleteResource = async (candidate: DistributionState) => {
@@ -92,24 +119,27 @@ const deleteResource = async (candidate: DistributionState) => {
   // Only disabled distributions can be deleted.
   const newResult = await updateDistribution(distributionId, version, {
     ...parameters,
+    defaultAccessId: '',
     enabled: false
   });
 
   await deleteDistribution(distributionId, newResult.version);
 };
 
-const checkGeneralUpdates = async (
+const checkGeneralUpdates = async <T extends DistributionParameters>(
   result: DistributionResult,
-  candidate: DistributionParameters,
-  current: DistributionParameters
+  candidate: T,
+  current: T
 ) => {
   const hasChanges = !deepEqual(candidate, current, {
     tags: true
   });
 
   if (hasChanges) {
-    await updateDistribution(result.distributionId, result.version, candidate);
+    return updateDistribution(result.distributionId, result.version, candidate);
   }
+
+  return result;
 };
 
 const checkTagUpdates = async (

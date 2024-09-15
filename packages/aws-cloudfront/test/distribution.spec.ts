@@ -3,10 +3,16 @@ import type { EntryState, EntryStates } from '@ez4/stateful';
 import { describe, it } from 'node:test';
 import { ok, equal } from 'node:assert/strict';
 
-import { deepClone } from '@ez4/utils';
-import { createDistribution, isDistribution, registerTriggers } from '@ez4/aws-cloudfront';
+import {
+  createAccess,
+  createDistribution,
+  isDistribution,
+  registerTriggers
+} from '@ez4/aws-cloudfront';
+
 import { createBucket, getBucketDomain } from '@ez4/aws-bucket';
 import { deploy } from '@ez4/aws-common';
+import { deepClone } from '@ez4/utils';
 
 const assertDeploy = async <E extends EntryState>(
   resourceId: string,
@@ -48,14 +54,19 @@ describe.only('distribution resources', () => {
       bucketName: originBucketName
     });
 
-    const resource = createDistribution(localState, {
+    const accessResource = createAccess(localState, {
+      accessName: 'ez4-test-distribution-access',
+      description: 'EZ4: Test access description'
+    });
+
+    const resource = createDistribution(localState, accessResource, {
       distributionName: 'ez4-test-distribution',
-      description: 'EZ4: Test distribution',
+      description: 'EZ4: Test distribution description',
       enabled: true,
       defaultOrigin: {
         id: 's3-bucket',
-        domainName: await getBucketDomain(originBucketName),
-        originPath: '/assets'
+        domain: await getBucketDomain(originBucketName),
+        path: '/home'
       },
       tags: {
         test1: 'ez4-tag1',

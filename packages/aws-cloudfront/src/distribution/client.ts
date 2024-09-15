@@ -34,15 +34,16 @@ const waiter = {
 
 export type DistributionOrigin = {
   id: string;
-  domainName: string;
-  originPath?: string;
+  domain: string;
+  path?: string;
 };
 
 export type CreateRequest = {
   distributionName: string;
   description?: string;
-  defaultIndex?: string;
   defaultOrigin: DistributionOrigin;
+  defaultAccessId?: string;
+  defaultIndex?: string;
   origins?: DistributionOrigin[];
   compress?: boolean;
   enabled: boolean;
@@ -252,16 +253,16 @@ const upsertDistributionRequest = (request: CreateRequest | UpdateRequest): Dist
 };
 
 const getAllOrigins = (request: CreateRequest | UpdateRequest): Origins => {
-  const { defaultOrigin, origins } = request;
+  const { defaultOrigin, defaultAccessId, origins } = request;
 
   const originList = origins ? [defaultOrigin, ...origins] : [defaultOrigin];
 
-  const allOrigins = originList.map(({ id, domainName, originPath }) => {
+  const allOrigins = originList.map(({ id, domain, path }) => {
     return {
       Id: id,
-      DomainName: domainName,
-      OriginPath: originPath ?? '',
-      OriginAccessControlId: '',
+      DomainName: domain,
+      OriginPath: path ?? '',
+      OriginAccessControlId: defaultAccessId ?? '',
       ConnectionAttempts: 3,
       ConnectionTimeout: 10,
       CustomHeaders: {

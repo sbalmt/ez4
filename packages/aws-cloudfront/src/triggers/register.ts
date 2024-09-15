@@ -5,6 +5,7 @@ import { registerTriggers as registerDistributionTriggers } from '@ez4/distribut
 
 import { createTrigger } from '@ez4/project/library';
 
+import { registerAccessProvider } from '../access/provider.js';
 import { registerDistributionProvider } from '../distribution/provider.js';
 import { prepareCdnServices, connectCdnServices } from './distribution.js';
 
@@ -25,6 +26,7 @@ export const registerTriggers = () => {
     'deploy:connectResources': connectCdnServices
   });
 
+  registerAccessProvider();
   registerDistributionProvider();
 
   isRegistered = true;
