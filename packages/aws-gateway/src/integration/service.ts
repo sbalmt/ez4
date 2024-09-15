@@ -31,11 +31,9 @@ export const createIntegration = <E extends EntryState>(
     getPermission(state, gatewayState, functionState) ??
     createPermission(state, gatewayState, functionState, {
       getPermission: async (context: StepContext): Promise<Permission> => {
-        const [region, account, apiId] = await Promise.all([
-          getRegion(),
-          getAccountId(),
-          getGatewayId(IntegrationServiceName, 'apiId', context)
-        ]);
+        const [region, account] = await Promise.all([getRegion(), getAccountId()]);
+
+        const apiId = getGatewayId(IntegrationServiceName, 'apiId', context);
 
         return {
           principal: 'apigateway.amazonaws.com',
