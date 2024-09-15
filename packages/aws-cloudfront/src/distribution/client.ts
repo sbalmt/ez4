@@ -5,10 +5,11 @@ import { getTagList, Logger } from '@ez4/aws-common';
 
 import {
   CloudFrontClient,
-  waitUntilDistributionDeployed,
+  GetDistributionCommand,
   CreateDistributionWithTagsCommand,
   UpdateDistributionCommand,
   DeleteDistributionCommand,
+  waitUntilDistributionDeployed,
   TagResourceCommand,
   UntagResourceCommand,
   ViewerProtocolPolicy,
@@ -55,7 +56,6 @@ export type CreateResponse = {
   distributionId: string;
   distributionArn: Arn;
   endpoint: string;
-  version: string;
 };
 
 export type UpdateRequest = CreateRequest;
@@ -92,19 +92,16 @@ export const createDistribution = async (request: CreateRequest): Promise<Create
   return {
     distributionId,
     distributionArn: distribution.ARN as Arn,
-    endpoint: distribution.DomainName!,
-    version: response.ETag!
+    endpoint: distribution.DomainName!
   };
 };
 
-export const updateDistribution = async (
-  distributionId: string,
-  version: string,
-  request: UpdateRequest
-): Promise<UpdateResponse> => {
+export const updateDistribution = async (distributionId: string, request: UpdateRequest) => {
   Logger.logUpdate(DistributionServiceName, distributionId);
 
-  const response = await client.send(
+  const version = await getCurrentDistributionVersion(distributionId);
+
+  await client.send(
     new UpdateDistributionCommand({
       Id: distributionId,
       IfMatch: version,
@@ -117,15 +114,6 @@ export const updateDistribution = async (
   await waitUntilDistributionDeployed(waiter, {
     Id: distributionId
   });
-
-  const distribution = response.Distribution!;
-
-  return {
-    distributionId,
-    distributionArn: distribution.ARN as Arn,
-    endpoint: distribution.DomainName!,
-    version: response.ETag!
-  };
 };
 
 export const tagDistribution = async (distributionArn: string, tags: ResourceTags) => {
@@ -157,8 +145,10 @@ export const untagDistribution = async (distributionArn: Arn, tagKeys: string[])
   );
 };
 
-export const deleteDistribution = async (distributionId: string, version: string) => {
+export const deleteDistribution = async (distributionId: string) => {
   Logger.logDelete(DistributionServiceName, distributionId);
+
+  const version = await getCurrentDistributionVersion(distributionId);
 
   await client.send(
     new DeleteDistributionCommand({
@@ -166,6 +156,16 @@ export const deleteDistribution = async (distributionId: string, version: string
       IfMatch: version
     })
   );
+};
+
+const getCurrentDistributionVersion = async (distributionId: string) => {
+  const response = await client.send(
+    new GetDistributionCommand({
+      Id: distributionId
+    })
+  );
+
+  return response.ETag!;
 };
 
 const upsertDistributionRequest = (request: CreateRequest | UpdateRequest): DistributionConfig => {

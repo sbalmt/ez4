@@ -4,12 +4,13 @@ import { Logger } from '@ez4/aws-common';
 
 import {
   CloudFrontClient,
+  GetOriginAccessControlCommand,
   CreateOriginAccessControlCommand,
+  UpdateOriginAccessControlCommand,
+  DeleteOriginAccessControlCommand,
   OriginAccessControlOriginTypes,
   OriginAccessControlSigningBehaviors,
-  OriginAccessControlSigningProtocols,
-  DeleteOriginAccessControlCommand,
-  UpdateOriginAccessControlCommand
+  OriginAccessControlSigningProtocols
 } from '@aws-sdk/client-cloudfront';
 
 import { AccessServiceName } from './types.js';
@@ -23,7 +24,6 @@ export type CreateRequest = {
 
 export type CreateResponse = {
   accessId: string;
-  version: string;
 };
 
 export type UpdateRequest = CreateRequest;
@@ -41,20 +41,19 @@ export const createOriginAccess = async (request: CreateRequest): Promise<Create
     })
   );
 
+  const accessId = response.OriginAccessControl?.Id!;
+
   return {
-    accessId: response.OriginAccessControl?.Id!,
-    version: response.ETag!
+    accessId
   };
 };
 
-export const updateAccess = async (
-  accessId: string,
-  version: string,
-  request: UpdateRequest
-): Promise<UpdateResponse> => {
+export const updateAccess = async (accessId: string, request: UpdateRequest) => {
   Logger.logUpdate(AccessServiceName, request.accessName);
 
-  const response = await client.send(
+  const version = await getCurrentAccessVersion(accessId);
+
+  await client.send(
     new UpdateOriginAccessControlCommand({
       Id: accessId,
       IfMatch: version,
@@ -63,15 +62,12 @@ export const updateAccess = async (
       }
     })
   );
-
-  return {
-    accessId: response.OriginAccessControl?.Id!,
-    version: response.ETag!
-  };
 };
 
-export const deleteAccess = async (accessId: string, version: string) => {
+export const deleteAccess = async (accessId: string) => {
   Logger.logDelete(AccessServiceName, accessId);
+
+  const version = await getCurrentAccessVersion(accessId);
 
   await client.send(
     new DeleteOriginAccessControlCommand({
@@ -79,6 +75,16 @@ export const deleteAccess = async (accessId: string, version: string) => {
       IfMatch: version
     })
   );
+};
+
+const getCurrentAccessVersion = async (accessId: string) => {
+  const response = await client.send(
+    new GetOriginAccessControlCommand({
+      Id: accessId
+    })
+  );
+
+  return response.ETag!;
 };
 
 const upsertAccessRequest = (request: CreateRequest | UpdateRequest): OriginAccessControlConfig => {

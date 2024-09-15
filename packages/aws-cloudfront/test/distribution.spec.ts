@@ -34,7 +34,6 @@ const assertDeploy = async <E extends EntryState>(
   ok(result.originAccessId);
   ok(result.cachePolicyId);
   ok(result.endpoint);
-  ok(result.version);
 
   return {
     result,

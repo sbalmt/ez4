@@ -68,7 +68,7 @@ const createResource = async (
   const originAccessId = getOriginAccessId(DistributionServiceName, resourceId, context);
   const cachePolicyId = getCachePolicyId(DistributionServiceName, resourceId, context);
 
-  const { distributionId, distributionArn, endpoint, version } = await createDistribution({
+  const { distributionId, distributionArn, endpoint } = await createDistribution({
     ...parameters,
     defaultAccessId: originAccessId,
     defaultPolicyId: cachePolicyId
@@ -79,8 +79,7 @@ const createResource = async (
     distributionArn,
     originAccessId,
     cachePolicyId,
-    endpoint,
-    version
+    endpoint
   };
 };
 
@@ -115,19 +114,13 @@ const updateResource = async (
     defaultPolicyId: oldCachePolicyId
   };
 
+  await checkGeneralUpdates(result.distributionId, newRequest, oldRequest);
   await checkTagUpdates(result.distributionArn, parameters, current.parameters);
 
-  const response = await checkGeneralUpdates(result, newRequest, oldRequest);
-
-  const { distributionId, distributionArn, endpoint, version } = response;
-
   return {
+    ...result,
     originAccessId: newOriginAccessId,
-    cachePolicyId: newCachePolicyId,
-    distributionId,
-    distributionArn,
-    endpoint,
-    version
+    cachePolicyId: newCachePolicyId
   };
 };
 
@@ -138,25 +131,23 @@ const deleteResource = async (candidate: DistributionState) => {
     return;
   }
 
-  const { distributionId, originAccessId, cachePolicyId, version } = result;
-
-  if (!parameters.enabled) {
-    return deleteDistribution(distributionId, version);
-  }
+  const { distributionId, originAccessId, cachePolicyId } = result;
 
   // Only disabled distributions can be deleted.
-  const newResult = await updateDistribution(distributionId, version, {
-    ...parameters,
-    defaultAccessId: originAccessId,
-    defaultPolicyId: cachePolicyId,
-    enabled: false
-  });
+  if (parameters.enabled) {
+    await updateDistribution(distributionId, {
+      ...parameters,
+      defaultAccessId: originAccessId,
+      defaultPolicyId: cachePolicyId,
+      enabled: false
+    });
+  }
 
-  await deleteDistribution(distributionId, newResult.version);
+  await deleteDistribution(distributionId);
 };
 
 const checkGeneralUpdates = async <T extends DistributionParameters>(
-  result: DistributionResult,
+  distributionId: string,
   candidate: T,
   current: T
 ) => {
@@ -165,10 +156,8 @@ const checkGeneralUpdates = async <T extends DistributionParameters>(
   });
 
   if (hasChanges) {
-    return updateDistribution(result.distributionId, result.version, candidate);
+    await updateDistribution(distributionId, candidate);
   }
-
-  return result;
 };
 
 const checkTagUpdates = async (

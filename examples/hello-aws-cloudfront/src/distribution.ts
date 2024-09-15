@@ -13,4 +13,8 @@ export declare class Site extends Cdn.Service {
     bucket: Environment.Service<SiteBucket>;
     localPath: './public';
   };
+
+  defaultTTL: 30;
+
+  maxTTL: 60;
 }

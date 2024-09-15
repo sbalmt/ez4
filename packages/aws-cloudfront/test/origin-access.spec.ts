@@ -22,7 +22,6 @@ const assertDeploy = async <E extends EntryState>(
   const result = resource.result;
 
   ok(result.accessId);
-  ok(result.version);
 
   return {
     result,

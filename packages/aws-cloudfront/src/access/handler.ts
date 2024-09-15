@@ -45,11 +45,10 @@ const replaceResource = async (candidate: AccessState, current: AccessState) => 
 };
 
 const createResource = async (candidate: AccessState): Promise<AccessResult> => {
-  const { accessId, version } = await createOriginAccess(candidate.parameters);
+  const { accessId } = await createOriginAccess(candidate.parameters);
 
   return {
-    accessId,
-    version
+    accessId
   };
 };
 
@@ -63,32 +62,25 @@ const updateResource = async (
     return;
   }
 
-  const { accessId, version } = await checkGeneralUpdates(result, parameters, current.parameters);
-
-  return {
-    accessId,
-    version
-  };
+  await checkGeneralUpdates(result.accessId, parameters, current.parameters);
 };
 
 const deleteResource = async (candidate: AccessState) => {
   const result = candidate.result;
 
   if (result) {
-    await deleteAccess(result.accessId, result.version);
+    await deleteAccess(result.accessId);
   }
 };
 
 const checkGeneralUpdates = async (
-  result: AccessResult,
+  accessId: string,
   candidate: AccessParameters,
   current: AccessParameters
 ) => {
   const hasChanges = !deepEqual(candidate, current);
 
   if (hasChanges) {
-    return updateAccess(result.accessId, result.version, candidate);
+    await updateAccess(accessId, candidate);
   }
-
-  return result;
 };

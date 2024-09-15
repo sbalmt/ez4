@@ -45,11 +45,10 @@ const replaceResource = async (candidate: PolicyState, current: PolicyState) => 
 };
 
 const createResource = async (candidate: PolicyState): Promise<PolicyResult> => {
-  const { policyId, version } = await createPolicy(candidate.parameters);
+  const { policyId } = await createPolicy(candidate.parameters);
 
   return {
-    policyId,
-    version
+    policyId
   };
 };
 
@@ -63,32 +62,25 @@ const updateResource = async (
     return;
   }
 
-  const { policyId, version } = await checkGeneralUpdates(result, parameters, current.parameters);
-
-  return {
-    policyId,
-    version
-  };
+  await checkGeneralUpdates(result.policyId, parameters, current.parameters);
 };
 
 const deleteResource = async (candidate: PolicyState) => {
   const result = candidate.result;
 
   if (result) {
-    await deletePolicy(result.policyId, result.version);
+    await deletePolicy(result.policyId);
   }
 };
 
 const checkGeneralUpdates = async (
-  result: PolicyResult,
+  policyId: string,
   candidate: PolicyParameters,
   current: PolicyParameters
 ) => {
   const hasChanges = !deepEqual(candidate, current);
 
   if (hasChanges) {
-    return updatePolicy(result.policyId, result.version, candidate);
+    await updatePolicy(policyId, candidate);
   }
-
-  return result;
 };

@@ -3,10 +3,11 @@ import type { CachePolicyConfig } from '@aws-sdk/client-cloudfront';
 import { Logger } from '@ez4/aws-common';
 
 import {
+  CloudFrontClient,
+  GetCachePolicyCommand,
   CreateCachePolicyCommand,
   UpdateCachePolicyCommand,
   DeleteCachePolicyCommand,
-  CloudFrontClient,
   CachePolicyHeaderBehavior,
   CachePolicyCookieBehavior,
   CachePolicyQueryStringBehavior
@@ -27,7 +28,6 @@ export type CreateRequest = {
 
 export type CreateResponse = {
   policyId: string;
-  version: string;
 };
 
 export type UpdateRequest = CreateRequest;
@@ -45,20 +45,19 @@ export const createPolicy = async (request: CreateRequest): Promise<CreateRespon
     })
   );
 
+  const policyId = response.CachePolicy?.Id!;
+
   return {
-    policyId: response.CachePolicy?.Id!,
-    version: response.ETag!
+    policyId
   };
 };
 
-export const updatePolicy = async (
-  policyId: string,
-  version: string,
-  request: UpdateRequest
-): Promise<UpdateResponse> => {
+export const updatePolicy = async (policyId: string, request: UpdateRequest) => {
   Logger.logUpdate(PolicyServiceName, request.policyName);
 
-  const response = await client.send(
+  const version = await getCurrentPolicyVersion(policyId);
+
+  await client.send(
     new UpdateCachePolicyCommand({
       Id: policyId,
       IfMatch: version,
@@ -67,15 +66,12 @@ export const updatePolicy = async (
       }
     })
   );
-
-  return {
-    policyId: response.CachePolicy?.Id!,
-    version: response.ETag!
-  };
 };
 
-export const deletePolicy = async (policyId: string, version: string) => {
+export const deletePolicy = async (policyId: string) => {
   Logger.logDelete(PolicyServiceName, policyId);
+
+  const version = await getCurrentPolicyVersion(policyId);
 
   await client.send(
     new DeleteCachePolicyCommand({
@@ -83,6 +79,16 @@ export const deletePolicy = async (policyId: string, version: string) => {
       IfMatch: version
     })
   );
+};
+
+const getCurrentPolicyVersion = async (policyId: string) => {
+  const response = await client.send(
+    new GetCachePolicyCommand({
+      Id: policyId
+    })
+  );
+
+  return response.ETag!;
 };
 
 const upsertPolicyRequest = (request: CreateRequest | UpdateRequest): CachePolicyConfig => {
