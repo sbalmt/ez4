@@ -72,11 +72,8 @@ const updateResource = async (candidate: DistributionState, current: Distributio
     return;
   }
 
-  const newResult = await checkGeneralUpdates(result, parameters, current.parameters);
-
+  await checkGeneralUpdates(result, parameters, current.parameters);
   await checkTagUpdates(result.distributionArn, parameters, current.parameters);
-
-  return newResult;
 };
 
 const deleteResource = async (candidate: DistributionState) => {
@@ -111,10 +108,8 @@ const checkGeneralUpdates = async (
   });
 
   if (hasChanges) {
-    return updateDistribution(result.distributionId, result.version, candidate);
+    await updateDistribution(result.distributionId, result.version, candidate);
   }
-
-  return result;
 };
 
 const checkTagUpdates = async (

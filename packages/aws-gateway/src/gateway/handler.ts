@@ -68,8 +68,6 @@ const updateResource = async (candidate: GatewayState, current: GatewayState) =>
     checkGeneralUpdates(apiId, parameters, current.parameters),
     checkTagUpdates(apiArn, parameters, current.parameters)
   ]);
-
-  return result;
 };
 
 const deleteResource = async (candidate: GatewayState) => {

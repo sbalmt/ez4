@@ -100,7 +100,7 @@ const checkDocumentUpdates = async (
   current: PolicyParameters
 ) => {
   if (!deepEqual(candidate, current, { policyName: true, tags: true })) {
-    return await createVersion(result, candidate.policyDocument);
+    return createVersion(result, candidate.policyDocument);
   }
 
   return result;
