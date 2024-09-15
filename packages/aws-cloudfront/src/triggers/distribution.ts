@@ -8,7 +8,7 @@ import type {
 } from '@ez4/project/library';
 
 import { readdir } from 'node:fs/promises';
-import { join } from 'node:path';
+import { join, relative } from 'node:path';
 
 import { createBucketObject, getBucketDomain, getBucketId } from '@ez4/aws-bucket';
 import { CdnService, isCdnService } from '@ez4/distribution/library';
@@ -59,7 +59,7 @@ export const connectCdnServices = async (event: ConnectResourceEvent) => {
   const bucketState = state[bucketId] as BucketState;
 
   if (localPath) {
-    attachLocalPathObjects(state, bucketState, localPath);
+    await attachLocalPathObjects(state, bucketState, localPath);
   }
 
   attachDistributionBucket(state, service, bucketState, options);
@@ -96,8 +96,12 @@ const attachLocalPathObjects = async (
       continue;
     }
 
+    const filePath = join(file.parentPath, file.name);
+    const objectKey = relative(basePath, filePath);
+
     createBucketObject(state, bucket, {
-      filePath: join(basePath, file.name)
+      objectKey,
+      filePath
     });
   }
 };
