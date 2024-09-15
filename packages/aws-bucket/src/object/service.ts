@@ -6,7 +6,6 @@ import { attachEntry } from '@ez4/stateful';
 import { hashData } from '@ez4/utils';
 
 import { ObjectServiceType } from './types.js';
-import { getObjectKey } from './utils.js';
 
 export const isBucketObject = (resource: EntryState): resource is ObjectState => {
   return resource.type === ObjectServiceType;
@@ -17,7 +16,7 @@ export const createBucketObject = <E extends EntryState>(
   bucketState: BucketState,
   parameters: ObjectParameters
 ) => {
-  const objectKey = getObjectKey(parameters);
+  const objectKey = parameters.objectKey;
   const objectId = hashData(ObjectServiceType, bucketState.entryId, objectKey);
 
   return attachEntry<E | ObjectState, ObjectState>(state, {

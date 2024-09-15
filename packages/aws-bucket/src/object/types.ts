@@ -11,6 +11,7 @@ export type ObjectParameters = CreateRequest & {
 };
 
 export type ObjectResult = CreateResponse & {
+  lastModified: number;
   bucketName: string;
 };
 
