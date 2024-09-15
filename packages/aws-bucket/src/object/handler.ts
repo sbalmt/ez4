@@ -58,7 +58,7 @@ const createResource = async (
   const bucketName = getBucketName('bucket', context);
   const objectKey = getObjectKey(parameters);
 
-  const response = await putObject(bucketName, {
+  await putObject(bucketName, {
     ...parameters,
     objectKey
   });
@@ -66,9 +66,8 @@ const createResource = async (
   await checkTagUpdates(bucketName, objectKey, parameters);
 
   return {
-    bucketName: bucketName,
-    objectKey: response.objectKey,
-    etag: response.etag
+    bucketName,
+    objectKey
   };
 };
 
@@ -86,7 +85,7 @@ const updateResource = async (
   const bucketName = result.bucketName;
 
   if (current.result) {
-    return await checkObjectUpdates(bucketName, objectKey, candidate.parameters, current.result);
+    return checkObjectUpdates(bucketName, objectKey, candidate.parameters, current.result);
   }
 
   await checkTagUpdates(bucketName, objectKey, candidate.parameters);
@@ -114,15 +113,14 @@ const checkObjectUpdates = async (
 
   await deleteObject(bucketName, current.objectKey);
 
-  const response = await putObject(bucketName, {
+  await putObject(bucketName, {
     ...candidate,
     objectKey
   });
 
   return {
     bucketName,
-    objectKey: response.objectKey,
-    etag: response.etag
+    objectKey
   };
 };
 

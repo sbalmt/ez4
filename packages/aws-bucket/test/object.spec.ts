@@ -26,11 +26,10 @@ const assertDeploy = async <E extends EntryState>(
   ok(resource?.result);
   ok(isBucketObject(resource));
 
-  const { bucketName, objectKey, etag } = resource.result;
+  const { bucketName, objectKey } = resource.result;
 
   ok(bucketName);
   ok(objectKey);
-  ok(etag);
 
   return {
     result: resource.result,
