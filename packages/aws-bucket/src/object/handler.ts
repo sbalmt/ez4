@@ -75,20 +75,20 @@ const updateResource = async (
   candidate: ObjectState,
   current: ObjectState
 ): Promise<ObjectResult | undefined> => {
-  const result = candidate.result;
+  const { result, parameters } = candidate;
 
   if (!result) {
     return;
   }
 
-  const objectKey = getObjectKey(candidate.parameters);
+  const objectKey = getObjectKey(parameters);
   const bucketName = result.bucketName;
 
   if (current.result) {
-    return checkObjectUpdates(bucketName, objectKey, candidate.parameters, current.result);
+    return checkObjectUpdates(bucketName, objectKey, parameters, current.result);
   }
 
-  await checkTagUpdates(bucketName, objectKey, candidate.parameters);
+  await checkTagUpdates(bucketName, objectKey, parameters);
 
   return result;
 };

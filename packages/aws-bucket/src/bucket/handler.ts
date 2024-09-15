@@ -54,7 +54,7 @@ const replaceResource = async (candidate: BucketState, current: BucketState) => 
 const createResource = async (candidate: BucketState): Promise<BucketResult> => {
   const parameters = candidate.parameters;
 
-  const { bucketName, location } = await createBucket(parameters);
+  const { bucketName } = await createBucket(parameters);
 
   await Promise.all([
     checkLifecycleUpdates(bucketName, parameters, undefined),
@@ -62,8 +62,7 @@ const createResource = async (candidate: BucketState): Promise<BucketResult> => 
   ]);
 
   return {
-    bucketName,
-    location
+    bucketName
   };
 };
 

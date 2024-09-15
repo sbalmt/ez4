@@ -22,21 +22,21 @@ export type CreateRequest = {
 
 export type CreateResponse = {
   bucketName: string;
-  location: string;
 };
 
 export const createBucket = async (request: CreateRequest): Promise<CreateResponse> => {
-  Logger.logCreate(BucketServiceName, request.bucketName);
+  const { bucketName } = request;
 
-  const response = await client.send(
+  Logger.logCreate(BucketServiceName, bucketName);
+
+  await client.send(
     new CreateBucketCommand({
-      Bucket: request.bucketName
+      Bucket: bucketName
     })
   );
 
   return {
-    bucketName: request.bucketName,
-    location: response.Location!
+    bucketName
   };
 };
 

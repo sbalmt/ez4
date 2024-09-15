@@ -19,10 +19,9 @@ const assertDeploy = async <E extends EntryState>(
   ok(resource?.result);
   ok(isBucket(resource));
 
-  const { bucketName, location } = resource.result;
+  const { bucketName } = resource.result;
 
   ok(bucketName);
-  ok(location);
 
   return {
     result: resource.result,
