@@ -1,4 +1,5 @@
 export type CdnOrigin = {
   bucket: string;
-  path?: string;
+  originPath?: string;
+  localPath?: string;
 };

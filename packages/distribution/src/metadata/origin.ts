@@ -92,7 +92,8 @@ const getTypeFromMembers = (
         break;
       }
 
-      case 'path': {
+      case 'localPath':
+      case 'originPath': {
         const value = getPropertyString(member);
         if (value !== undefined && value !== null) {
           origin[member.name] = value;

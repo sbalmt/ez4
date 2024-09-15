@@ -6,8 +6,7 @@ import { registerTriggers as registerDistributionTriggers } from '@ez4/distribut
 import { createTrigger } from '@ez4/project/library';
 
 import { registerDistributionProvider } from '../distribution/provider.js';
-import { prepareCdnServices } from './distribution.js';
-import { prepareExecutionPolicy } from './policy.js';
+import { prepareCdnServices, connectCdnServices } from './distribution.js';
 
 let isRegistered = false;
 
@@ -22,8 +21,8 @@ export const registerTriggers = () => {
   registerDistributionTriggers();
 
   createTrigger('@ez4/aws-cloudfront', {
-    'deploy:prepareExecutionPolicy': prepareExecutionPolicy,
-    'deploy:prepareResources': prepareCdnServices
+    'deploy:prepareResources': prepareCdnServices,
+    'deploy:connectResources': connectCdnServices
   });
 
   registerDistributionProvider();

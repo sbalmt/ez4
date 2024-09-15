@@ -6,7 +6,8 @@
     "defaultIndex": "index.html",
     "defaultOrigin": {
       "bucket": "TestBucket",
-      "path": "/site"
+      "originPath": "/site",
+      "localPath": "./dist"
     },
     "disabled": true,
     "compress": true

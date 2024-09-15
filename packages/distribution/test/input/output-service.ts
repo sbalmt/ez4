@@ -15,7 +15,8 @@ export declare class TestCdn extends Cdn.Service {
 
   defaultOrigin: {
     bucket: Environment.Service<TestBucket>;
-    path: '/site';
+    originPath: '/site';
+    localPath: './dist';
   };
 
   disabled: true;
