@@ -1,5 +1,5 @@
 import type { BucketState } from '@ez4/aws-bucket';
-import type { DistributionState } from '../distribution/types.js';
+import { DistributionServiceType, type DistributionState } from '../distribution/types.js';
 
 import type {
   PrepareResourceEvent,
@@ -22,11 +22,12 @@ import { EntryStates, getEntry, linkDependency } from '@ez4/stateful';
 import { CdnService, isCdnService } from '@ez4/distribution/library';
 import { getServiceName } from '@ez4/project/library';
 
-import { createOriginAccess } from '../access/service.js';
+import { getRoleDocument } from '../utils/role.js';
 import { createCachePolicy } from '../policy/service.js';
+import { createOriginAccess } from '../access/service.js';
 import { createDistribution } from '../distribution/service.js';
 import { getDistributionArn, getDistributionId } from '../distribution/utils.js';
-import { getRoleDocument } from '../utils/role.js';
+import { getCachePolicyName, getOriginAccessName } from './utils.js';
 
 export const prepareCdnServices = async (event: PrepareResourceEvent) => {
   const { state, service, options } = event;
@@ -35,37 +36,35 @@ export const prepareCdnServices = async (event: PrepareResourceEvent) => {
     return;
   }
 
-  const { description, defaultIndex, defaultOrigin, compress, disabled } = service;
+  const { description, compress, defaultOrigin } = service;
 
   const bucketName = getServiceName(defaultOrigin.bucket, options);
 
-  const distributionName = getServiceName(service, options);
-
   const accessState = createOriginAccess(state, {
-    accessName: distributionName,
+    accessName: getOriginAccessName(service, options),
     description
   });
 
   const policyState = createCachePolicy(state, {
-    policyName: distributionName,
-    defaultTTL: 300,
-    minTTL: 1,
-    maxTTL: 3600,
+    policyName: getCachePolicyName(service, options),
+    defaultTTL: service.defaultTTL ?? 300,
+    maxTTL: service.maxTTL ?? 86400,
+    minTTL: service.minTTL ?? 1,
     description,
     compress
   });
 
   createDistribution(state, accessState, policyState, {
-    enabled: !disabled,
-    distributionName,
+    distributionName: getServiceName(service, options),
+    defaultIndex: service.defaultIndex,
+    enabled: !service.disabled,
+    description,
+    compress,
     defaultOrigin: {
       id: 'default',
       domain: await getBucketDomain(bucketName),
       path: defaultOrigin.originPath
-    },
-    defaultIndex,
-    description,
-    compress
+    }
   });
 };
 
@@ -106,8 +105,13 @@ const attachDistributionBucket = (
 
   createBucketPolicy(state, distributionState, bucketState, {
     getRole: async (context) => {
-      const distributionArn = getDistributionArn('ok', 'policy', context);
-      const bucketName = getBucketName('ok', 'policy', context);
+      const distributionArn = getDistributionArn(
+        DistributionServiceType,
+        distributionName,
+        context
+      );
+
+      const bucketName = getBucketName(DistributionServiceType, distributionName, context);
 
       return getRoleDocument(distributionArn, bucketName);
     }

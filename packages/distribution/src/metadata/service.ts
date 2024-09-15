@@ -2,7 +2,12 @@ import type { Incomplete } from '@ez4/utils';
 import type { SourceMap } from '@ez4/reflection';
 import type { CdnService } from '../types/service.js';
 
-import { getPropertyBoolean, getModelMembers, getPropertyString } from '@ez4/common/library';
+import {
+  getPropertyNumber,
+  getPropertyBoolean,
+  getPropertyString,
+  getModelMembers
+} from '@ez4/common/library';
 
 import { isModelProperty } from '@ez4/reflection';
 
@@ -46,17 +51,27 @@ export const getCdnServices = (reflection: SourceMap) => {
           break;
         }
 
-        case 'defaultIndex': {
-          const value = getPropertyString(member);
+        case 'compress':
+        case 'disabled': {
+          const value = getPropertyBoolean(member);
           if (value !== undefined && value !== null) {
             service[member.name] = value;
           }
           break;
         }
 
-        case 'compress':
-        case 'disabled': {
-          const value = getPropertyBoolean(member);
+        case 'defaultTTL':
+        case 'maxTTL':
+        case 'minTTL': {
+          const value = getPropertyNumber(member);
+          if (value !== undefined && value !== null) {
+            service[member.name] = value;
+          }
+          break;
+        }
+
+        case 'defaultIndex': {
+          const value = getPropertyString(member);
           if (value !== undefined && value !== null) {
             service[member.name] = value;
           }

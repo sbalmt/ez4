@@ -25,17 +25,32 @@ export namespace Cdn {
    */
   export declare abstract class Service implements Service.Provider {
     /**
-     * Default origin for the distribution.
+     * Default origin for the distribution results.
      */
     defaultOrigin: BucketOrigin;
 
     /**
-     * Specify the default distribution index (e.g. `index.html`).
+     * Default index file name (e.g. `index.html`).
      */
     defaultIndex?: string;
 
     /**
-     * Determines whether or not the distribution response is compressed.
+     * Default TTL for cached results.
+     */
+    defaultTTL?: number;
+
+    /**
+     * Minimum TTL for cached results.
+     */
+    minTTL?: number;
+
+    /**
+     * Maximum TTL for cached results.
+     */
+    maxTTL?: number;
+
+    /**
+     * Determines whether or not the results are compressed.
      */
     compress?: boolean;
 
