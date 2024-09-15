@@ -1,10 +1,20 @@
-import type { IdentityAccount } from '@ez4/project/library';
+import type { IdentityAccount, IdentityGrant } from '@ez4/project/library';
 import type { RoleDocument } from '../types/role.js';
 
-import { getAccountId } from '../utils/account.js';
+import { isArn } from '@ez4/aws-common';
 
-export const createRoleDocument = async (accounts: IdentityAccount[]): Promise<RoleDocument> => {
-  const accountId = await getAccountId();
+const getSourceType = (source: string) => {
+  return isArn(source) ? 'AWS:SourceArn' : 'AWS:SourceAccount';
+};
+
+export const createRoleDocument = (
+  grant: IdentityGrant,
+  services: IdentityAccount[],
+  source: string
+): RoleDocument => {
+  const sourceType = getSourceType(source);
+
+  const { permissions, resourceIds } = grant;
 
   return {
     Version: '2012-10-17',
@@ -12,13 +22,16 @@ export const createRoleDocument = async (accounts: IdentityAccount[]): Promise<R
       {
         Sid: 'ID',
         Effect: 'Allow',
-        Action: 'sts:AssumeRole',
+        Action: permissions,
+        ...(resourceIds.length && {
+          Resource: resourceIds
+        }),
         Principal: {
-          Service: accounts.map(({ account }) => account)
+          Service: services.map(({ account }) => account)
         },
         Condition: {
           StringEquals: {
-            'aws:SourceAccount': accountId
+            [sourceType]: source
           }
         }
       }

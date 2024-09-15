@@ -4,6 +4,7 @@ import { createRole } from '../role/service.js';
 import { createPolicy, isPolicy } from '../policy/service.js';
 import { createPolicyDocument } from '../utils/policy.js';
 import { createRoleDocument } from '../utils/role.js';
+import { getAccountId } from '../utils/account.js';
 
 export const prepareExecutionRole = async (event: RoleResourceEvent) => {
   const { state, grants, accounts, policies, options } = event;
@@ -14,6 +15,7 @@ export const prepareExecutionRole = async (event: RoleResourceEvent) => {
   }
 
   const policyList = policies.filter((policy) => isPolicy(policy));
+  const accountId = await getAccountId();
 
   const namePrefix = `${resourcePrefix}-${projectName}`;
 
@@ -28,6 +30,13 @@ export const prepareExecutionRole = async (event: RoleResourceEvent) => {
 
   return createRole(state, policyList, {
     roleName: `${namePrefix}-role`,
-    roleDocument: await createRoleDocument(accounts)
+    roleDocument: createRoleDocument(
+      {
+        permissions: ['sts:AssumeRole'],
+        resourceIds: []
+      },
+      accounts,
+      accountId
+    )
   });
 };
