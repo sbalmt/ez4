@@ -11,8 +11,8 @@ import { readdir } from 'node:fs/promises';
 import { join, relative } from 'node:path';
 
 import { createBucketObject, getBucketDomain, getBucketId } from '@ez4/aws-bucket';
+import { EntryStates, getEntry, linkDependency } from '@ez4/stateful';
 import { CdnService, isCdnService } from '@ez4/distribution/library';
-import { EntryStates, linkDependency } from '@ez4/stateful';
 import { getServiceName } from '@ez4/project/library';
 
 import { createDistribution } from '../distribution/service.js';
@@ -56,7 +56,7 @@ export const connectCdnServices = async (event: ConnectResourceEvent) => {
   const bucketName = getServiceName(bucket, options);
   const bucketId = getBucketId(bucketName);
 
-  const bucketState = state[bucketId] as BucketState;
+  const bucketState = getEntry(state, bucketId) as BucketState;
 
   if (localPath) {
     await attachLocalPathObjects(state, bucketState, localPath);
@@ -74,7 +74,7 @@ const attachDistributionBucket = (
   const distributionName = getServiceName(service, options);
   const distributionId = getDistributionId(distributionName);
 
-  const distributionState = state[distributionId] as DistributionState;
+  const distributionState = getEntry(state, distributionId) as DistributionState;
 
   linkDependency(state, distributionState.entryId, bucket.entryId);
 };
