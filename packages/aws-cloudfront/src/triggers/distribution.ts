@@ -36,7 +36,7 @@ export const prepareCdnServices = async (event: PrepareResourceEvent) => {
     return;
   }
 
-  const { description, compress, defaultOrigin } = service;
+  const { defaultOrigin, description, compress = true } = service;
 
   const bucketName = getServiceName(defaultOrigin.bucket, options);
 
@@ -47,7 +47,7 @@ export const prepareCdnServices = async (event: PrepareResourceEvent) => {
 
   const policyState = createCachePolicy(state, {
     policyName: getCachePolicyName(service, options),
-    defaultTTL: service.defaultTTL ?? 300,
+    defaultTTL: service.defaultTTL ?? 3600,
     maxTTL: service.maxTTL ?? 86400,
     minTTL: service.minTTL ?? 1,
     description,
