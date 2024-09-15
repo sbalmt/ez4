@@ -54,6 +54,7 @@ describe.only('bucket object resources', () => {
 
     const resource = createBucketObject(localState, bucketResource, {
       filePath: join(baseDir, 'object-file.txt'),
+      objectKey: 'object-file.txt',
       tags: {
         test1: 'ez4-tag1',
         test2: 'ez4-tag2'
@@ -63,6 +64,21 @@ describe.only('bucket object resources', () => {
     objectId = resource.entryId;
 
     const { state } = await assertDeploy(objectId, localState, undefined);
+
+    lastState = state;
+  });
+
+  it('assert :: update', async () => {
+    ok(objectId && lastState);
+
+    const localState = deepClone(lastState) as EntryStates;
+    const resource = localState[objectId];
+
+    ok(resource && isBucketObject(resource));
+
+    resource.parameters.objectKey = 'update-file.txt';
+
+    const { state } = await assertDeploy(objectId, localState, lastState);
 
     lastState = state;
   });

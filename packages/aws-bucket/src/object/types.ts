@@ -6,8 +6,7 @@ export const ObjectServiceName = 'AWS:S3/Object';
 
 export const ObjectServiceType = 'aws:s3.object';
 
-export type ObjectParameters = Omit<CreateRequest, 'objectKey'> & {
-  objectKey?: string;
+export type ObjectParameters = CreateRequest & {
   tags?: ResourceTags;
 };
 
