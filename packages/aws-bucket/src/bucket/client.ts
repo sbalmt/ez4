@@ -5,11 +5,11 @@ import { getTagList, Logger } from '@ez4/aws-common';
 import {
   CreateBucketCommand,
   DeleteBucketCommand,
-  PutBucketLifecycleConfigurationCommand,
   PutBucketTaggingCommand,
+  PutBucketLifecycleConfigurationCommand,
+  DeleteBucketLifecycleCommand,
   ExpirationStatus,
-  S3Client,
-  DeleteBucketLifecycleCommand
+  S3Client
 } from '@aws-sdk/client-s3';
 
 import { BucketServiceName } from './types.js';

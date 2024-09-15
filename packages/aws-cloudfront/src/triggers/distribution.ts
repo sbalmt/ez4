@@ -10,13 +10,21 @@ import type {
 import { readdir } from 'node:fs/promises';
 import { join, relative } from 'node:path';
 
-import { createBucketObject, getBucketDomain, getBucketId } from '@ez4/aws-bucket';
+import {
+  createBucketObject,
+  createBucketPolicy,
+  getBucketDomain,
+  getBucketId,
+  getBucketName
+} from '@ez4/aws-bucket';
+
 import { EntryStates, getEntry, linkDependency } from '@ez4/stateful';
 import { CdnService, isCdnService } from '@ez4/distribution/library';
 import { getServiceName } from '@ez4/project/library';
 
 import { createDistribution } from '../distribution/service.js';
-import { getDistributionId } from '../distribution/utils.js';
+import { getDistributionArn, getDistributionId } from '../distribution/utils.js';
+import { getRoleDocument } from '../utils/role.js';
 
 export const prepareCdnServices = async (event: PrepareResourceEvent) => {
   const { state, service, options } = event;
@@ -68,7 +76,7 @@ export const connectCdnServices = async (event: ConnectResourceEvent) => {
 const attachDistributionBucket = (
   state: EntryStates,
   service: CdnService,
-  bucket: BucketState,
+  bucketState: BucketState,
   options: DeployOptions
 ) => {
   const distributionName = getServiceName(service, options);
@@ -76,12 +84,21 @@ const attachDistributionBucket = (
 
   const distributionState = getEntry(state, distributionId) as DistributionState;
 
-  linkDependency(state, distributionState.entryId, bucket.entryId);
+  linkDependency(state, distributionState.entryId, bucketState.entryId);
+
+  createBucketPolicy(state, distributionState, bucketState, {
+    getRole: async (context) => {
+      const distributionArn = getDistributionArn('ok', 'policy', context);
+      const bucketName = getBucketName('ok', 'policy', context);
+
+      return getRoleDocument(distributionArn, bucketName);
+    }
+  });
 };
 
 const attachLocalPathObjects = async (
   state: EntryStates,
-  bucket: BucketState,
+  bucketState: BucketState,
   localPath: string
 ) => {
   const basePath = join(process.cwd(), localPath);
@@ -99,7 +116,7 @@ const attachLocalPathObjects = async (
     const filePath = join(file.parentPath, file.name);
     const objectKey = relative(basePath, filePath);
 
-    createBucketObject(state, bucket, {
+    createBucketObject(state, bucketState, {
       objectKey,
       filePath
     });

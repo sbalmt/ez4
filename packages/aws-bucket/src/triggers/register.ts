@@ -5,6 +5,7 @@ import { registerTriggers as registerStorageTriggers } from '@ez4/storage/librar
 import { createTrigger } from '@ez4/project/library';
 
 import { registerBucketProvider } from '../bucket/provider.js';
+import { registerPolicyProvider } from '../policy/provider.js';
 import { registerObjectProvider } from '../object/provider.js';
 
 import { prepareExecutionPolicy } from './policy.js';
@@ -29,6 +30,7 @@ export const registerTriggers = () => {
   });
 
   registerBucketProvider();
+  registerPolicyProvider();
   registerObjectProvider();
 
   isRegistered = true;
