@@ -1,8 +1,9 @@
 import type { ResourceTags } from '@ez4/aws-common';
 
+import { getTagList, Logger } from '@ez4/aws-common';
 import { createReadStream } from 'node:fs';
 
-import { getTagList, Logger } from '@ez4/aws-common';
+import mime from 'mime/lite';
 
 import {
   PutObjectCommand,
@@ -33,11 +34,16 @@ export const putObject = async (
 
   Logger.logCreate(ObjectServiceName, getObjectPath(bucketName, objectKey));
 
+  const contentType = mime.getType(filePath);
+
   await client.send(
     new PutObjectCommand({
       Bucket: bucketName,
       Key: objectKey,
-      Body: createReadStream(filePath)
+      Body: createReadStream(filePath),
+      ...(contentType && {
+        ContentType: contentType
+      })
     })
   );
 

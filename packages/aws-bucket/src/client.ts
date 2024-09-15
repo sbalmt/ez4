@@ -17,6 +17,8 @@ import {
   NoSuchKey
 } from '@aws-sdk/client-s3';
 
+import mime from 'mime/lite';
+
 const client = new S3Client({});
 
 export namespace Client {
@@ -42,11 +44,16 @@ export namespace Client {
       }
 
       async write(key: string, contents: Content) {
+        const contentType = mime.getType(key);
+
         await client.send(
           new PutObjectCommand({
             Bucket: bucketName,
             Key: key,
-            Body: contents
+            Body: contents,
+            ...(contentType && {
+              ContentType: contentType
+            })
           })
         );
       }
