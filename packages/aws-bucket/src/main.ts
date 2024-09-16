@@ -9,3 +9,4 @@ export * from './policy/types.js';
 
 export * from './object/service.js';
 export * from './object/types.js';
+export * from './object/utils.js';

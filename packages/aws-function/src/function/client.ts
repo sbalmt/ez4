@@ -22,7 +22,7 @@ import { FunctionServiceName } from './types.js';
 const client = new LambdaClient({});
 
 const waiter = {
-  minDelay: 30,
+  minDelay: 15,
   maxWaitTime: 1800,
   maxDelay: 60,
   client

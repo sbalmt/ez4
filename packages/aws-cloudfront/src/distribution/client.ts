@@ -29,7 +29,7 @@ const client = new CloudFrontClient({});
 const waiter = {
   minDelay: 30,
   maxWaitTime: 3600,
-  maxDelay: 60,
+  maxDelay: 120,
   client
 };
 

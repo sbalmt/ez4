@@ -6,9 +6,9 @@ import { statSync } from 'node:fs';
 import { ReplaceResourceError } from '@ez4/aws-common';
 import { deepCompare } from '@ez4/utils';
 
+import { getBucketName } from '../bucket/utils.js';
 import { putObject, deleteObject, tagObject } from './client.js';
 import { ObjectServiceName } from './types.js';
-import { getBucketName } from './utils.js';
 
 export const getObjectHandler = (): StepHandler<ObjectState> => ({
   equals: equalsResource,
@@ -68,7 +68,7 @@ const createResource = async (
 ): Promise<ObjectResult> => {
   const parameters = candidate.parameters;
 
-  const bucketName = getBucketName('bucket', context);
+  const bucketName = getBucketName(ObjectServiceName, 'bucket', context);
 
   const { objectKey } = await putObject(bucketName, parameters);
 

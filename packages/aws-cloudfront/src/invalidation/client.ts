@@ -11,7 +11,7 @@ import { InvalidationServiceName } from './types.js';
 const client = new CloudFrontClient({});
 
 const waiter = {
-  minDelay: 30,
+  minDelay: 15,
   maxWaitTime: 1800,
   maxDelay: 60,
   client
@@ -24,7 +24,7 @@ export const createInvalidation = async (distributionId: string, paths: string[]
     new CreateInvalidationCommand({
       DistributionId: distributionId,
       InvalidationBatch: {
-        CallerReference: '',
+        CallerReference: `EZ4:${Date.now()}`,
         Paths: {
           Quantity: paths.length,
           Items: paths

@@ -2,7 +2,8 @@ import type { StepContext, StepHandler } from '@ez4/stateful';
 import type { InvalidationState, InvalidationResult } from './types.js';
 
 import { ReplaceResourceError } from '@ez4/aws-common';
-import { deepCompare } from '@ez4/utils';
+import { deepCompare, deepEqualArray } from '@ez4/utils';
+import { getObjectFiles } from '@ez4/aws-bucket';
 
 import { getDistributionId } from '../distribution/utils.js';
 import { InvalidationServiceName } from './types.js';
@@ -22,18 +23,27 @@ const equalsResource = (candidate: InvalidationState, current: InvalidationState
 };
 
 const previewResource = async (candidate: InvalidationState, current: InvalidationState) => {
-  const target = { ...candidate.parameters, dependencies: candidate.dependencies };
-  const source = { ...current.parameters, dependencies: current.dependencies };
+  const target = candidate.parameters;
+  const source = current.parameters;
 
-  const changes = deepCompare(target, source);
+  const changes = deepCompare(
+    {
+      ...target,
+      dependencies: candidate.dependencies,
+      lastModified: Date.now()
+    },
+    {
+      ...source,
+      dependencies: current.dependencies,
+      lastModified: current.result?.lastModified
+    }
+  );
 
   if (!changes.counts) {
     return undefined;
   }
 
-  return {
-    ...changes
-  };
+  return changes;
 };
 
 const replaceResource = async (
@@ -55,16 +65,18 @@ const createResource = async (
   const distributionId = getDistributionId(InvalidationServiceName, 'invalidation', context);
 
   return {
-    distributionId
+    distributionId,
+    lastModified: Date.now(),
+    lastChanges: getObjectFiles(context)
   };
 };
 
 const updateResource = async (
   candidate: InvalidationState,
-  _current: InvalidationState,
+  current: InvalidationState,
   context: StepContext
-) => {
-  const { result, parameters } = candidate;
+): Promise<InvalidationResult | void> => {
+  const result = candidate.result;
 
   if (!result) {
     return;
@@ -72,7 +84,22 @@ const updateResource = async (
 
   const distributionId = getDistributionId(InvalidationServiceName, 'invalidation', context);
 
-  await createInvalidation(distributionId, parameters.files);
+  const newObjectFiles = getObjectFiles(context);
+  const oldObjectFiles = current.result?.lastChanges ?? newObjectFiles;
+
+  const hasChanges = !deepEqualArray(newObjectFiles, oldObjectFiles);
+
+  if (!hasChanges) {
+    return;
+  }
+
+  await createInvalidation(distributionId, candidate.parameters.files);
+
+  return {
+    distributionId,
+    lastModified: Date.now(),
+    lastChanges: newObjectFiles
+  };
 };
 
 const deleteResource = async () => {

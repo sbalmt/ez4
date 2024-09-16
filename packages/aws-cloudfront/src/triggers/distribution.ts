@@ -22,13 +22,13 @@ import { EntryStates, getEntry, linkDependency } from '@ez4/stateful';
 import { CdnService, isCdnService } from '@ez4/distribution/library';
 import { getServiceName } from '@ez4/project/library';
 
+import { getRoleDocument } from '../utils/role.js';
 import { createCachePolicy } from '../policy/service.js';
 import { createOriginAccess } from '../access/service.js';
+import { getDistributionArn, getDistributionHashId } from '../distribution/utils.js';
 import { createDistribution } from '../distribution/service.js';
 import { createInvalidation } from '../invalidation/service.js';
-import { getRoleDocument } from '../utils/role.js';
-
-import { getDistributionArn, getDistributionHashId } from '../distribution/utils.js';
+import { InvalidationState } from '../invalidation/types.js';
 import { getCachePolicyName, getOriginAccessName } from './utils.js';
 
 export const prepareCdnServices = async (event: PrepareResourceEvent) => {
@@ -81,15 +81,18 @@ export const connectCdnServices = async (event: ConnectResourceEvent) => {
   const { bucket, localPath } = defaultOrigin;
 
   const bucketName = getServiceName(bucket, options);
-  const bucketId = getBucketHashId(bucketName);
 
-  const bucketState = getEntry(state, bucketId) as BucketState;
+  const bucketState = getEntry(state, getBucketHashId(bucketName)) as BucketState;
+
+  const distributionState = attachDistributionBucket(state, service, bucketState, options);
+
+  const invalidationState = createInvalidation(state, distributionState, {
+    files: ['/*']
+  });
 
   if (localPath) {
-    await attachLocalPathObjects(state, bucketState, localPath);
+    await attachLocalPathObjects(state, bucketState, invalidationState, localPath);
   }
-
-  attachDistributionBucket(state, service, bucketState, options);
 };
 
 const attachDistributionBucket = (
@@ -119,17 +122,18 @@ const attachDistributionBucket = (
     }
   });
 
-  createInvalidation(state, distributionState, {
-    files: ['*']
-  });
+  return distributionState;
 };
 
 const attachLocalPathObjects = async (
   state: EntryStates,
   bucketState: BucketState,
+  invalidationState: InvalidationState,
   localPath: string
 ) => {
   const basePath = join(process.cwd(), localPath);
+
+  const invalidationEntryId = invalidationState.entryId;
 
   const files = await readdir(basePath, {
     withFileTypes: true,
@@ -144,9 +148,11 @@ const attachLocalPathObjects = async (
     const filePath = join(file.parentPath, file.name);
     const objectKey = relative(basePath, filePath);
 
-    createBucketObject(state, bucketState, {
+    const objectState = createBucketObject(state, bucketState, {
       objectKey,
       filePath
     });
+
+    linkDependency(state, invalidationEntryId, objectState.entryId);
   }
 };
