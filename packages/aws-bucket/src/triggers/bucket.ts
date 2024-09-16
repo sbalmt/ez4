@@ -4,6 +4,7 @@ import { getServiceName } from '@ez4/project/library';
 import { isBucketService } from '@ez4/storage/library';
 
 import { createBucket } from '../bucket/service.js';
+import { prepareLocalContent } from './content.js';
 
 export const prepareBucketServices = async (event: PrepareResourceEvent) => {
   const { state, service, options } = event;
@@ -12,10 +13,15 @@ export const prepareBucketServices = async (event: PrepareResourceEvent) => {
     return;
   }
 
-  const { autoExpireDays } = service;
+  const { autoExpireDays, localPath } = service;
 
-  createBucket(state, {
+  const bucketState = createBucket(state, {
     bucketName: getServiceName(service, options),
-    autoExpireDays
+    autoExpireDays,
+    localPath
   });
+
+  if (localPath) {
+    await prepareLocalContent(state, bucketState, localPath);
+  }
 };

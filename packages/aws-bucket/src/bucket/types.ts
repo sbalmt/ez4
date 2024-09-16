@@ -8,6 +8,7 @@ export const BucketServiceType = 'aws:s3.bucket';
 
 export type BucketParameters = CreateRequest & {
   autoExpireDays?: number;
+  localPath?: string;
   tags?: ResourceTags;
 };
 

@@ -2,7 +2,7 @@ import type { Incomplete } from '@ez4/utils';
 import type { SourceMap } from '@ez4/reflection';
 import type { BucketService } from '../types/service.js';
 
-import { getModelMembers, getPropertyNumber } from '@ez4/common/library';
+import { getModelMembers, getPropertyNumber, getPropertyString } from '@ez4/common/library';
 import { isModelProperty } from '@ez4/reflection';
 
 import { ServiceType } from '../types/service.js';
@@ -30,6 +30,14 @@ export const getBucketServices = (reflection: SourceMap) => {
       }
 
       switch (member.name) {
+        case 'localPath': {
+          const value = getPropertyString(member);
+          if (value !== undefined && value !== null) {
+            service[member.name] = value;
+          }
+          break;
+        }
+
         case 'autoExpireDays': {
           const value = getPropertyNumber(member);
           if (value !== undefined && value !== null) {

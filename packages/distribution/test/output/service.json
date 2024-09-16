@@ -6,8 +6,7 @@
     "defaultIndex": "index.html",
     "defaultOrigin": {
       "bucket": "TestBucket",
-      "originPath": "/site",
-      "localPath": "./public"
+      "path": "/site"
     },
     "cacheTTL": 300,
     "minCacheTTL": 1,

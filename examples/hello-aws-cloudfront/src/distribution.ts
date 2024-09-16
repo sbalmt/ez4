@@ -11,7 +11,6 @@ export declare class Site extends Cdn.Service {
 
   defaultOrigin: {
     bucket: Environment.Service<SiteBucket>;
-    localPath: './public';
   };
 
   cacheTTL: 15;

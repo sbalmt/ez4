@@ -9,8 +9,7 @@ import { createCachePolicy } from '../policy/service.js';
 import { createOriginAccess } from '../access/service.js';
 import { createDistribution } from '../distribution/service.js';
 import { createInvalidation } from '../invalidation/service.js';
-import { getCachePolicyName, getOriginAccessName } from './utils.js';
-import { connectLocalContent } from './content.js';
+import { getCachePolicyName, getOriginAccessName, getContentVersion } from './utils.js';
 import { connectOriginBucket } from './bucket.js';
 
 export const prepareCdnServices = async (event: PrepareResourceEvent) => {
@@ -47,7 +46,7 @@ export const prepareCdnServices = async (event: PrepareResourceEvent) => {
     defaultOrigin: {
       id: 'default',
       domain: await getBucketDomain(bucketName),
-      path: defaultOrigin.originPath
+      path: defaultOrigin.path
     }
   });
 };
@@ -59,20 +58,18 @@ export const connectCdnServices = async (event: ConnectResourceEvent) => {
     return;
   }
 
-  const { defaultOrigin } = service;
-  const { bucket, localPath } = defaultOrigin;
+  const defaultOrigin = service.defaultOrigin;
 
-  const bucketName = getServiceName(bucket, options);
-
+  const bucketName = getServiceName(defaultOrigin.bucket, options);
   const bucketState = getBucketState(state, bucketName);
 
   const distributionState = connectOriginBucket(state, service, bucketState, options);
 
-  if (localPath) {
-    const contentVersion = await connectLocalContent(state, bucketState, localPath);
+  const localPath = bucketState.parameters.localPath;
 
+  if (localPath) {
     createInvalidation(state, distributionState, {
-      contentVersion
+      contentVersion: await getContentVersion(localPath)
     });
   }
 };
