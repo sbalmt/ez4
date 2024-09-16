@@ -1,7 +1,7 @@
 {
   "name": "@ez4/aws-bucket",
   "description": "EZ4: Self-managed AWS S3 buckets",
-  "version": "0.4.0",
+  "version": "0.5.0",
   "author": "Silas B.",
   "license": "MIT",
   "type": "module",
@@ -39,12 +39,12 @@
   "dependencies": {
     "@aws-sdk/client-s3": "^3.614.0",
     "@aws-sdk/s3-request-presigner": "^3.651.0",
-    "@ez4/aws-common": "^0.4.0",
-    "@ez4/aws-identity": "^0.4.0",
-    "@ez4/project": "^0.4.0",
-    "@ez4/stateful": "^0.4.0",
-    "@ez4/storage": "^0.4.0",
-    "@ez4/utils": "^0.4.0",
+    "@ez4/aws-common": "^0.5.0",
+    "@ez4/aws-identity": "^0.5.0",
+    "@ez4/project": "^0.5.0",
+    "@ez4/stateful": "^0.5.0",
+    "@ez4/storage": "^0.5.0",
+    "@ez4/utils": "^0.5.0",
     "mime": "^3.0.0"
   }
 }

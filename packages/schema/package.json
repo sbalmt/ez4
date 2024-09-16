@@ -1,7 +1,7 @@
 {
   "name": "@ez4/schema",
   "description": "EZ4: Components to build entity schema based on reflection inputs",
-  "version": "0.4.0",
+  "version": "0.5.0",
   "author": "Silas B.",
   "license": "MIT",
   "type": "module",
@@ -34,7 +34,7 @@
     "live:publish": "npm run test && npm publish --access public"
   },
   "dependencies": {
-    "@ez4/project": "^0.4.0",
-    "@ez4/reflection": "^0.4.0"
+    "@ez4/project": "^0.5.0",
+    "@ez4/reflection": "^0.5.0"
   }
 }
