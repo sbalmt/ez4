@@ -52,10 +52,7 @@ const createResource = async (candidate: AccessState): Promise<AccessResult> => 
   };
 };
 
-const updateResource = async (
-  candidate: AccessState,
-  current: AccessState
-): Promise<AccessResult | void> => {
+const updateResource = async (candidate: AccessState, current: AccessState) => {
   const { result, parameters } = candidate;
 
   if (!result) {

@@ -7,7 +7,7 @@ import { getRegion } from '@ez4/aws-identity';
 
 import { BucketServiceType } from './types.js';
 
-export const getBucketId = (bucketName: string) => {
+export const getBucketHashId = (bucketName: string) => {
   return hashData(BucketServiceType, toKebabCase(bucketName));
 };
 

@@ -7,7 +7,7 @@ import { attachEntry } from '@ez4/stateful';
 import { AccessState } from '../access/types.js';
 import { PolicyState } from '../policy/types.js';
 import { DistributionServiceType } from './types.js';
-import { getDistributionId } from './utils.js';
+import { getDistributionHashId } from './utils.js';
 
 export const isDistribution = (resource: EntryState): resource is DistributionState => {
   return resource.type === DistributionServiceType;
@@ -20,7 +20,7 @@ export const createDistribution = <E extends EntryState>(
   parameters: DistributionParameters
 ) => {
   const distributionName = toKebabCase(parameters.distributionName);
-  const distributionId = getDistributionId(distributionName);
+  const distributionId = getDistributionHashId(distributionName);
 
   return attachEntry<E | DistributionState, DistributionState>(state, {
     type: DistributionServiceType,

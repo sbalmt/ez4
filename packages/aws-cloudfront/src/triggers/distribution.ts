@@ -14,7 +14,7 @@ import {
   createBucketObject,
   createBucketPolicy,
   getBucketDomain,
-  getBucketId,
+  getBucketHashId,
   getBucketName
 } from '@ez4/aws-bucket';
 
@@ -22,11 +22,13 @@ import { EntryStates, getEntry, linkDependency } from '@ez4/stateful';
 import { CdnService, isCdnService } from '@ez4/distribution/library';
 import { getServiceName } from '@ez4/project/library';
 
-import { getRoleDocument } from '../utils/role.js';
 import { createCachePolicy } from '../policy/service.js';
 import { createOriginAccess } from '../access/service.js';
 import { createDistribution } from '../distribution/service.js';
-import { getDistributionArn, getDistributionId } from '../distribution/utils.js';
+import { createInvalidation } from '../invalidation/service.js';
+import { getRoleDocument } from '../utils/role.js';
+
+import { getDistributionArn, getDistributionHashId } from '../distribution/utils.js';
 import { getCachePolicyName, getOriginAccessName } from './utils.js';
 
 export const prepareCdnServices = async (event: PrepareResourceEvent) => {
@@ -79,7 +81,7 @@ export const connectCdnServices = async (event: ConnectResourceEvent) => {
   const { bucket, localPath } = defaultOrigin;
 
   const bucketName = getServiceName(bucket, options);
-  const bucketId = getBucketId(bucketName);
+  const bucketId = getBucketHashId(bucketName);
 
   const bucketState = getEntry(state, bucketId) as BucketState;
 
@@ -97,7 +99,7 @@ const attachDistributionBucket = (
   options: DeployOptions
 ) => {
   const distributionName = getServiceName(service, options);
-  const distributionId = getDistributionId(distributionName);
+  const distributionId = getDistributionHashId(distributionName);
 
   const distributionState = getEntry(state, distributionId) as DistributionState;
 
@@ -115,6 +117,10 @@ const attachDistributionBucket = (
 
       return getRoleDocument(distributionArn, bucketName);
     }
+  });
+
+  createInvalidation(state, distributionState, {
+    files: ['*']
   });
 };
 

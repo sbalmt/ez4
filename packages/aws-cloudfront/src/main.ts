@@ -11,3 +11,6 @@ export * from './policy/utils.js';
 export * from './distribution/service.js';
 export * from './distribution/types.js';
 export * from './distribution/utils.js';
+
+export * from './invalidation/service.js';
+export * from './invalidation/types.js';

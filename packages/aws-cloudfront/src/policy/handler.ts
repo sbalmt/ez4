@@ -52,10 +52,7 @@ const createResource = async (candidate: PolicyState): Promise<PolicyResult> => 
   };
 };
 
-const updateResource = async (
-  candidate: PolicyState,
-  current: PolicyState
-): Promise<PolicyResult | void> => {
+const updateResource = async (candidate: PolicyState, current: PolicyState) => {
   const { result, parameters } = candidate;
 
   if (!result) {

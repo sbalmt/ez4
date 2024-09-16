@@ -8,6 +8,7 @@ import { createTrigger } from '@ez4/project/library';
 import { registerCachePolicyProvider } from '../policy/provider.js';
 import { registerOriginAccessProvider } from '../access/provider.js';
 import { registerDistributionProvider } from '../distribution/provider.js';
+import { registerInvalidationProvider } from '../invalidation/provider.js';
 
 import { prepareCdnServices, connectCdnServices } from './distribution.js';
 
@@ -31,6 +32,7 @@ export const registerTriggers = () => {
   registerCachePolicyProvider();
   registerOriginAccessProvider();
   registerDistributionProvider();
+  registerInvalidationProvider();
 
   isRegistered = true;
 };
