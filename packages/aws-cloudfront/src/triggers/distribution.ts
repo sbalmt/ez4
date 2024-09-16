@@ -41,6 +41,7 @@ export const prepareCdnServices = async (event: PrepareResourceEvent) => {
     distributionName: getServiceName(service, options),
     defaultIndex: service.defaultIndex,
     enabled: !service.disabled,
+    aliases: service.aliases,
     description,
     compress,
     defaultOrigin: {

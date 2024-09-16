@@ -6,6 +6,7 @@ export const ServiceType = '@ez4/cdn';
 export type CdnService = ServiceMetadata & {
   type: typeof ServiceType;
   name: string;
+  aliases: string[];
   description?: string;
   defaultOrigin: CdnOrigin;
   defaultIndex?: string;

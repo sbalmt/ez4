@@ -1,15 +1,16 @@
 import type { Incomplete } from '@ez4/utils';
-import type { SourceMap } from '@ez4/reflection';
+import type { ModelProperty, SourceMap } from '@ez4/reflection';
 import type { CdnService } from '../types/service.js';
 
 import {
+  getModelMembers,
   getPropertyNumber,
   getPropertyBoolean,
   getPropertyString,
-  getModelMembers
+  getPropertyTuple
 } from '@ez4/common/library';
 
-import { isModelProperty } from '@ez4/reflection';
+import { isModelProperty, isTypeString } from '@ez4/reflection';
 
 import { ServiceType } from '../types/service.js';
 import { IncompleteServiceError } from '../errors/service.js';
@@ -42,6 +43,10 @@ export const getCdnServices = (reflection: SourceMap) => {
       }
 
       switch (member.name) {
+        case 'aliases':
+          service.aliases = getAllAliases(member);
+          break;
+
         case 'defaultOrigin': {
           const defaultOrigin = getCdnOrigin(member.value, statement, reflection, errorList);
           if (defaultOrigin) {
@@ -96,4 +101,19 @@ export const getCdnServices = (reflection: SourceMap) => {
 
 const isValidService = (type: Incomplete<CdnService>): type is CdnService => {
   return !!type.name && !!type.defaultOrigin;
+};
+
+const getAllAliases = (member: ModelProperty) => {
+  const aliasItems = getPropertyTuple(member) ?? [];
+  const aliasList: string[] = [];
+
+  for (const alias of aliasItems) {
+    if (!isTypeString(alias) || !alias.literal) {
+      continue;
+    }
+
+    aliasList.push(alias.literal);
+  }
+
+  return aliasList;
 };

@@ -18,7 +18,6 @@ export const connectOriginBucket = (
   options: DeployOptions
 ) => {
   const distributionName = getServiceName(service, options);
-
   const distributionState = getDistributionState(state, distributionName);
 
   linkDependency(state, distributionState.entryId, bucketState.entryId);

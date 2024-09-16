@@ -18,6 +18,11 @@ export declare class TestCdn extends Cdn.Service {
     path: '/site';
   };
 
+  aliases: [
+    'test-1.ez4.dev',
+    'test-2.ez4.dev'
+  ];
+
   cacheTTL: 300;
 
   minCacheTTL: 1;

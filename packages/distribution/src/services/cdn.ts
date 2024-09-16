@@ -25,6 +25,11 @@ export namespace Cdn {
    */
   export declare abstract class Service implements Service.Provider {
     /**
+     * List of CNAME aliases for the distribution.
+     */
+    aliases: string[];
+
+    /**
      * Default origin for the distribution results.
      */
     defaultOrigin: BucketOrigin;

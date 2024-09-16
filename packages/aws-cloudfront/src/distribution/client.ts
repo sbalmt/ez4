@@ -46,6 +46,7 @@ export type CreateRequest = {
   defaultAccessId?: string;
   defaultPolicyId?: string;
   defaultIndex?: string;
+  aliases?: string[];
   origins?: DistributionOrigin[];
   compress?: boolean;
   enabled: boolean;
@@ -190,7 +191,8 @@ const upsertDistributionRequest = (request: CreateRequest | UpdateRequest): Dist
     Staging: false,
     WebACLId: '',
     Aliases: {
-      Quantity: 0
+      Quantity: request.aliases?.length ?? 0,
+      Items: request.aliases
     },
     Origins: {
       ...allOrigins
