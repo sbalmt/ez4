@@ -10,10 +10,7 @@ import { hashData } from '@ez4/utils';
 
 import { getGatewayId } from '../gateway/utils.js';
 import { IntegrationServiceName, IntegrationServiceType } from './types.js';
-
-export const isIntegration = (resource: EntryState): resource is IntegrationState => {
-  return resource.type === IntegrationServiceType;
-};
+import { isIntegrationState } from './utils.js';
 
 export const createIntegration = <E extends EntryState>(
   state: EntryStates<E>,
@@ -63,7 +60,7 @@ export const getIntegration = <E extends EntryState>(
 
   const integrationState = state[integrationId];
 
-  if (integrationState && isIntegration(integrationState)) {
+  if (integrationState && isIntegrationState(integrationState)) {
     return integrationState;
   }
 

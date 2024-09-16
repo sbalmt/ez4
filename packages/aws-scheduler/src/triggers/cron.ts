@@ -2,7 +2,7 @@ import type { PrepareResourceEvent } from '@ez4/project/library';
 
 import { getServiceName } from '@ez4/project/library';
 import { isCronService } from '@ez4/scheduler/library';
-import { isRole } from '@ez4/aws-identity';
+import { isRoleState } from '@ez4/aws-identity';
 
 import { createTargetFunction } from '../schedule/function/service.js';
 import { createSchedule } from '../schedule/service.js';
@@ -15,7 +15,7 @@ export const prepareCronServices = async (event: PrepareResourceEvent) => {
     return;
   }
 
-  if (!role || !isRole(role)) {
+  if (!role || !isRoleState(role)) {
     throw new Error(`Execution role for EventBridge Scheduler is missing.`);
   }
 

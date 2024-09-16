@@ -3,12 +3,12 @@ import type { EntryState, EntryStates } from '@ez4/stateful';
 import { describe, it } from 'node:test';
 import { ok, equal } from 'node:assert/strict';
 
-import { deepClone } from '@ez4/utils';
 import { deploy } from '@ez4/aws-common';
+import { deepClone } from '@ez4/utils';
 
 import {
   createTable,
-  isTable,
+  isTableState,
   AttributeType,
   AttributeKeyType,
   registerTriggers
@@ -24,7 +24,7 @@ const assertDeploy = async <E extends EntryState>(
   const resource = state[resourceId];
 
   ok(resource?.result);
-  ok(isTable(resource));
+  ok(isTableState(resource));
 
   const { tableName, tableArn } = resource.result;
 
@@ -81,7 +81,7 @@ describe.only('dynamodb table', () => {
     const localState = deepClone(lastState) as EntryStates;
     const resource = localState[tableId];
 
-    ok(resource && isTable(resource));
+    ok(resource && isTableState(resource));
 
     resource.parameters.allowDeletion = true;
     resource.parameters.enableStreams = false;
@@ -97,7 +97,7 @@ describe.only('dynamodb table', () => {
     const localState = deepClone(lastState);
     const resource = localState[tableId];
 
-    ok(resource && isTable(resource));
+    ok(resource && isTableState(resource));
 
     resource.parameters.ttlAttribute = undefined;
 
@@ -112,7 +112,7 @@ describe.only('dynamodb table', () => {
     const localState = deepClone(lastState) as EntryStates;
     const resource = localState[tableId];
 
-    ok(resource && isTable(resource));
+    ok(resource && isTableState(resource));
 
     resource.parameters.tags = {
       test2: 'ez4-tag2',

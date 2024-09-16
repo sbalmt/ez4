@@ -5,10 +5,7 @@ import { toKebabCase, hashData } from '@ez4/utils';
 import { attachEntry } from '@ez4/stateful';
 
 import { GatewayServiceType } from './types.js';
-
-export const isGateway = (resource: EntryState): resource is GatewayState => {
-  return resource.type === GatewayServiceType;
-};
+import { isGatewayState } from './utils.js';
 
 export const createGateway = <E extends EntryState>(
   state: EntryStates<E>,
@@ -32,7 +29,7 @@ export const getGateway = <E extends EntryState>(state: EntryStates<E>, queueNam
   const queueId = hashData(toKebabCase(queueName));
   const queueState = state[queueId];
 
-  if (queueState && isGateway(queueState)) {
+  if (queueState && isGatewayState(queueState)) {
     return queueState;
   }
 

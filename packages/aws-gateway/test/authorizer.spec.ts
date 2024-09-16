@@ -8,7 +8,7 @@ import {
   createGateway,
   createAuthorizer,
   createAuthorizerFunction,
-  isAuthorizer,
+  isAuthorizerState,
   registerTriggers
 } from '@ez4/aws-gateway';
 
@@ -28,7 +28,7 @@ const assertDeploy = async <E extends EntryState>(
   const resource = state[resourceId];
 
   ok(resource?.result);
-  ok(isAuthorizer(resource));
+  ok(isAuthorizerState(resource));
 
   const { apiId, authorizerId, functionArn } = resource.result;
 
@@ -87,7 +87,7 @@ describe.only('gateway authorizer', () => {
     const localState = deepClone(lastState) as EntryStates;
     const resource = localState[authorizerId];
 
-    ok(resource && isAuthorizer(resource));
+    ok(resource && isAuthorizerState(resource));
 
     resource.parameters.cacheTTL = undefined;
 

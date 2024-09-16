@@ -8,7 +8,7 @@ import {
   createGateway,
   createIntegration,
   createIntegrationFunction,
-  isIntegration,
+  isIntegrationState,
   registerTriggers
 } from '@ez4/aws-gateway';
 
@@ -28,7 +28,7 @@ const assertDeploy = async <E extends EntryState>(
   const resource = state[resourceId];
 
   ok(resource?.result);
-  ok(isIntegration(resource));
+  ok(isIntegrationState(resource));
 
   const { apiId, integrationId, functionArn } = resource.result;
 
@@ -86,7 +86,7 @@ describe.only('gateway integration', () => {
     const localState = deepClone(lastState) as EntryStates;
     const resource = localState[integrationId];
 
-    ok(resource && isIntegration(resource));
+    ok(resource && isIntegrationState(resource));
 
     resource.parameters.description = 'EZ4: New integration description';
 

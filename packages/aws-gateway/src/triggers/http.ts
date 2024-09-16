@@ -7,7 +7,7 @@ import type { GatewayState } from '../gateway/types.js';
 import { FunctionParameters, Variables } from '@ez4/aws-function';
 import { isHttpService } from '@ez4/gateway/library';
 import { getFunction } from '@ez4/aws-function';
-import { isRole } from '@ez4/aws-identity';
+import { isRoleState } from '@ez4/aws-identity';
 
 import { createAuthorizerFunction } from '../authorizer/function/service.js';
 import { createIntegrationFunction } from '../integration/function/service.js';
@@ -78,7 +78,7 @@ const getIntegrationFunction = async (
   route: HttpRoute,
   options: DeployOptions
 ) => {
-  if (!role || !isRole(role)) {
+  if (!role || !isRoleState(role)) {
     throw new Error(`Execution role for API Gateway integration is missing.`);
   }
 
@@ -133,7 +133,7 @@ const getAuthorizerFunction = async (
     return undefined;
   }
 
-  if (!role || !isRole(role)) {
+  if (!role || !isRoleState(role)) {
     throw new Error(`Execution role for API Gateway authorizer is missing.`);
   }
 

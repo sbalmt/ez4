@@ -9,6 +9,7 @@ export * from './role/utils.js';
 
 export * from './policy/service.js';
 export * from './policy/types.js';
+export * from './policy/utils.js';
 
 export * from './utils/account.js';
 export * from './utils/policy.js';

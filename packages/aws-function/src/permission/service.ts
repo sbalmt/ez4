@@ -2,14 +2,11 @@ import type { EntryState, EntryStates } from '@ez4/stateful';
 import type { FunctionState } from '../function/types.js';
 import type { PermissionParameters, PermissionState } from './types.js';
 
-import { hashData } from '@ez4/utils';
 import { attachEntry } from '@ez4/stateful';
+import { hashData } from '@ez4/utils';
 
 import { PermissionServiceType } from './types.js';
-
-export const isPermission = (resource: EntryState): resource is PermissionState => {
-  return resource.type === PermissionServiceType;
-};
+import { isPermissionState } from './utils.js';
 
 export const createPermission = <E extends EntryState>(
   state: EntryStates<E>,
@@ -36,7 +33,7 @@ export const getPermission = <E extends EntryState>(
 
   const permissionState = state[permissionId];
 
-  if (permissionState && isPermission(permissionState)) {
+  if (permissionState && isPermissionState(permissionState)) {
     return permissionState;
   }
 

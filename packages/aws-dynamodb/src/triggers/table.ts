@@ -7,7 +7,7 @@ import { Index } from '@ez4/database';
 import { SchemaTypeName } from '@ez4/schema';
 import { isDatabaseService } from '@ez4/database/library';
 import { getFunction } from '@ez4/aws-function';
-import { isRole } from '@ez4/aws-identity';
+import { isRoleState } from '@ez4/aws-identity';
 
 import { createMapping } from '../mapping/service.js';
 import { createStreamFunction } from '../mapping/function/service.js';
@@ -36,7 +36,7 @@ export const prepareDatabaseServices = async (event: PrepareResourceEvent) => {
     });
 
     if (tableStream) {
-      if (!role || !isRole(role)) {
+      if (!role || !isRoleState(role)) {
         throw new Error(`Execution role for DynamoDB stream is missing.`);
       }
 

@@ -3,9 +3,9 @@ import type { EntryStates } from '@ez4/stateful';
 import { describe, it } from 'node:test';
 import { ok, deepEqual, equal } from 'node:assert/strict';
 
-import { createQueue, isQueue, registerTriggers } from '@ez4/aws-queue';
-import { SchemaTypeName } from '@ez4/schema';
+import { createQueue, isQueueState, registerTriggers } from '@ez4/aws-queue';
 import { Client } from '@ez4/aws-queue/client';
+import { SchemaTypeName } from '@ez4/schema';
 import { deploy } from '@ez4/aws-common';
 
 describe.only('queue client', () => {
@@ -28,7 +28,7 @@ describe.only('queue client', () => {
 
     const resultResource = result[queueId];
 
-    ok(resultResource && isQueue(resultResource));
+    ok(resultResource && isQueueState(resultResource));
     ok(resultResource.result);
 
     const { queueUrl } = resultResource.result;

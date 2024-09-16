@@ -1,8 +1,8 @@
 import type { EntryStates } from '@ez4/stateful';
 
-import { describe, it } from 'node:test';
 import { ok, equal } from 'node:assert/strict';
 import { createReadStream } from 'node:fs';
+import { describe, it } from 'node:test';
 import { join } from 'node:path';
 
 import { createBucket, isBucketState, registerTriggers } from '@ez4/aws-bucket';

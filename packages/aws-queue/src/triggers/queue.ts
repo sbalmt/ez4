@@ -6,7 +6,7 @@ import type { QueueState } from '../queue/types.js';
 import { getServiceName } from '@ez4/project/library';
 import { isQueueService } from '@ez4/queue/library';
 import { getFunction } from '@ez4/aws-function';
-import { isRole } from '@ez4/aws-identity';
+import { isRoleState } from '@ez4/aws-identity';
 
 import { createQueue } from '../queue/service.js';
 import { createQueueFunction } from '../mapping/function/service.js';
@@ -39,7 +39,7 @@ const prepareSubscriptions = async (
   queueState: QueueState,
   options: DeployOptions
 ) => {
-  if (!role || !isRole(role)) {
+  if (!role || !isRoleState(role)) {
     throw new Error(`Execution role for SQS mapping is missing.`);
   }
 

@@ -11,3 +11,4 @@ export * from './permission/types.js';
 
 export * from './mapping/service.js';
 export * from './mapping/types.js';
+export * from './mapping/utils.js';

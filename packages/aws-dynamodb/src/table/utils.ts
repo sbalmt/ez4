@@ -5,6 +5,10 @@ import { IncompleteResourceError } from '@ez4/aws-common';
 
 import { TableServiceType } from './types.js';
 
+export const isTableState = (resource: EntryState): resource is TableState => {
+  return resource.type === TableServiceType;
+};
+
 export const getStreamArn = <E extends EntryState>(
   serviceName: string,
   resourceId: string,

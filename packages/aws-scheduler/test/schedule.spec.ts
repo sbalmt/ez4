@@ -7,9 +7,10 @@ import { join } from 'node:path';
 import {
   createSchedule,
   createTargetFunction,
-  isSchedule,
+  isScheduleState,
   registerTriggers
 } from '@ez4/aws-scheduler';
+
 import { createRole } from '@ez4/aws-identity';
 import { deploy } from '@ez4/aws-common';
 import { deepClone } from '@ez4/utils';
@@ -26,7 +27,7 @@ const assertDeploy = async <E extends EntryState>(
   const resource = state[resourceId];
 
   ok(resource?.result);
-  ok(isSchedule(resource));
+  ok(isScheduleState(resource));
 
   const { scheduleArn, functionArn, roleArn } = resource.result;
 
@@ -82,7 +83,7 @@ describe.only('scheduler', () => {
     const localState = deepClone(lastState) as EntryStates;
     const resource = localState[scheduleId];
 
-    ok(resource && isSchedule(resource));
+    ok(resource && isScheduleState(resource));
 
     resource.parameters.expression = 'rate(2 minutes)';
     resource.parameters.timezone = 'America/Sao_Paulo';

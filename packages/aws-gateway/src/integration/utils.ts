@@ -5,6 +5,10 @@ import { IncompleteResourceError } from '@ez4/aws-common';
 
 import { IntegrationServiceType } from './types.js';
 
+export const isIntegrationState = (resource: EntryState): resource is IntegrationState => {
+  return resource.type === IntegrationServiceType;
+};
+
 export const getIntegrationId = <E extends EntryState>(
   serviceName: string,
   resourceId: string,

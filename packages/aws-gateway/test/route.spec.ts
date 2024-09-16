@@ -11,13 +11,13 @@ import {
   createIntegrationFunction,
   createAuthorizerFunction,
   createRoute,
-  isRoute,
+  isRouteState,
   registerTriggers
 } from '@ez4/aws-gateway';
 
-import { deepClone } from '@ez4/utils';
 import { createRole } from '@ez4/aws-identity';
 import { deploy } from '@ez4/aws-common';
+import { deepClone } from '@ez4/utils';
 
 import { getRoleDocument } from './common/role.js';
 
@@ -31,7 +31,7 @@ const assertDeploy = async <E extends EntryState>(
   const resource = state[resourceId];
 
   ok(resource?.result);
-  ok(isRoute(resource));
+  ok(isRouteState(resource));
 
   const { apiId, integrationId, authorizerId, routeId, routeArn } = resource.result;
 
@@ -122,7 +122,7 @@ describe.only('gateway route', () => {
     const localState = deepClone(lastState) as EntryStates;
     const resource = localState[routeId];
 
-    ok(resource && isRoute(resource));
+    ok(resource && isRouteState(resource));
 
     resource.parameters.routePath = 'GET /ez4/new-route';
     resource.parameters.operationName = 'EZ4: New route operation Name';

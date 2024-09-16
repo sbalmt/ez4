@@ -10,10 +10,7 @@ import { attachEntry } from '@ez4/stateful';
 
 import { getGatewayId } from '../gateway/utils.js';
 import { AuthorizerServiceName, AuthorizerServiceType } from './types.js';
-
-export const isAuthorizer = (resource: EntryState): resource is AuthorizerState => {
-  return resource.type === AuthorizerServiceType;
-};
+import { isAuthorizerState } from './utils.js';
 
 export const createAuthorizer = <E extends EntryState>(
   state: EntryStates<E>,
@@ -59,7 +56,7 @@ export const getAuthorizer = <E extends EntryState>(
   const authorizerId = hashData(AuthorizerServiceType, gatewayState.entryId, functionState.entryId);
   const authorizerState = state[authorizerId];
 
-  if (authorizerState && isAuthorizer(authorizerState)) {
+  if (authorizerState && isAuthorizerState(authorizerState)) {
     return authorizerState;
   }
 

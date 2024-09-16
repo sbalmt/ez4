@@ -5,6 +5,10 @@ import { IncompleteResourceError } from '@ez4/aws-common';
 
 import { GatewayServiceType } from './types.js';
 
+export const isGatewayState = (resource: EntryState): resource is GatewayState => {
+  return resource.type === GatewayServiceType;
+};
+
 export const getGatewayId = <E extends EntryState>(
   serviceName: string,
   resourceId: string,

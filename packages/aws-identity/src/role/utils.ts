@@ -4,6 +4,10 @@ import { IncompleteResourceError } from '@ez4/aws-common';
 
 import { RoleServiceType, RoleState } from './types.js';
 
+export const isRoleState = (resource: EntryState): resource is RoleState => {
+  return resource.type === RoleServiceType;
+};
+
 export const getRoleArn = <E extends EntryState>(
   serviceName: string,
   resourceId: string,

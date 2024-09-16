@@ -4,14 +4,14 @@ import { describe, it } from 'node:test';
 import { ok, equal } from 'node:assert/strict';
 import { join } from 'node:path';
 
-import { deepClone } from '@ez4/utils';
-import { isMapping } from '@ez4/aws-function';
 import { createQueueFunction, createMapping, createQueue, registerTriggers } from '@ez4/aws-queue';
 import { createPolicy, createRole } from '@ez4/aws-identity';
+import { isMappingState } from '@ez4/aws-function';
 import { deploy } from '@ez4/aws-common';
+import { deepClone } from '@ez4/utils';
 
-import { getRoleDocument } from './common/role.js';
 import { getPolicyDocument } from './common/policy.js';
+import { getRoleDocument } from './common/role.js';
 
 const assertDeploy = async <E extends EntryState>(
   resourceId: string,
@@ -23,7 +23,7 @@ const assertDeploy = async <E extends EntryState>(
   const resource = state[resourceId];
 
   ok(resource?.result);
-  ok(isMapping(resource));
+  ok(isMappingState(resource));
 
   const { eventId, sourceArn } = resource.result;
 
@@ -88,7 +88,7 @@ describe.only('queue mapping', () => {
     const localState = deepClone(lastState) as EntryStates;
     const resource = localState[mappingId];
 
-    ok(resource && isMapping(resource));
+    ok(resource && isMappingState(resource));
     ok(resource.parameters.batch);
 
     resource.parameters.batch.batchSize = 10;

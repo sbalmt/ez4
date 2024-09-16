@@ -14,7 +14,7 @@ import {
 } from '@ez4/aws-dynamodb';
 
 import { createPolicy, createRole } from '@ez4/aws-identity';
-import { isMapping } from '@ez4/aws-function';
+import { isMappingState } from '@ez4/aws-function';
 import { deploy } from '@ez4/aws-common';
 import { deepClone } from '@ez4/utils';
 
@@ -31,7 +31,7 @@ const assertDeploy = async <E extends EntryState>(
   const resource = state[resourceId];
 
   ok(resource?.result);
-  ok(isMapping(resource));
+  ok(isMappingState(resource));
 
   const { eventId, sourceArn } = resource.result;
 
@@ -101,7 +101,7 @@ describe.only('dynamodb mapping', () => {
     const localState = deepClone(lastState) as EntryStates;
     const resource = localState[mappingId];
 
-    ok(resource && isMapping(resource));
+    ok(resource && isMappingState(resource));
 
     resource.parameters.enabled = false;
 

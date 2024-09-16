@@ -1,9 +1,10 @@
 import type { RoleResourceEvent } from '@ez4/project/library';
 
 import { createRole } from '../role/service.js';
-import { createPolicy, isPolicy } from '../policy/service.js';
+import { createPolicy } from '../policy/service.js';
 import { createPolicyDocument } from '../utils/policy.js';
 import { createRoleDocument } from '../utils/role.js';
+import { isPolicyState } from '../policy/utils.js';
 import { getAccountId } from '../utils/account.js';
 
 export const prepareExecutionRole = async (event: RoleResourceEvent) => {
@@ -14,7 +15,7 @@ export const prepareExecutionRole = async (event: RoleResourceEvent) => {
     return null;
   }
 
-  const policyList = policies.filter((policy) => isPolicy(policy));
+  const policyList = policies.filter((policy) => isPolicyState(policy));
   const accountId = await getAccountId();
 
   const namePrefix = `${resourcePrefix}-${projectName}`;

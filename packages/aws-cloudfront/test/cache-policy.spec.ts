@@ -1,11 +1,11 @@
 import type { EntryState, EntryStates } from '@ez4/stateful';
 
-import { describe, it } from 'node:test';
 import { ok, equal } from 'node:assert/strict';
+import { describe, it } from 'node:test';
 
-import { deepClone } from '@ez4/utils';
 import { createCachePolicy, isCachePolicyState, registerTriggers } from '@ez4/aws-cloudfront';
 import { deploy } from '@ez4/aws-common';
+import { deepClone } from '@ez4/utils';
 
 const assertDeploy = async <E extends EntryState>(
   resourceId: string,

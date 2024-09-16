@@ -7,10 +7,6 @@ import { attachEntry } from '@ez4/stateful';
 
 import { MappingServiceType } from './types.js';
 
-export const isMapping = (resource: EntryState): resource is MappingState => {
-  return resource.type === MappingServiceType;
-};
-
 export const createMapping = <E extends EntryState>(
   state: EntryStates<E>,
   sourceState: EntryState,

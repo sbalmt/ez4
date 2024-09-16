@@ -1,11 +1,11 @@
 import type { EntryState, EntryStates } from '@ez4/stateful';
 
-import { describe, it } from 'node:test';
 import { ok, equal } from 'node:assert/strict';
+import { describe, it } from 'node:test';
 import { join } from 'node:path';
 
-import { deepClone } from '@ez4/utils';
 import { deploy } from '@ez4/aws-common';
+import { deepClone } from '@ez4/utils';
 
 import {
   createBucket,
