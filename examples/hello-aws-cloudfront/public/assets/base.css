@@ -1,4 +1,14 @@
+* {
+  box-sizing: content-box;
+}
+
 body {
   font-size: 16px;
-  box-sizing: content-box;
+  background-color: rgb(13, 17, 23);
+  color: rgb(240, 246, 252);
+}
+
+.page-title,
+.page-subtitle {
+  text-align: center;
 }
