@@ -7,21 +7,18 @@ import { getLinkedService } from '../metadata/linked.js';
 
 let isRegistered = false;
 
-/**
- * Register all triggers.
- */
 export const registerTriggers = () => {
-  if (!isRegistered) {
-    registerCommonTriggers();
-    registerSchemaTriggers();
-
-    createTrigger('@ez4/queue', {
-      'metadata:getServices': getQueueServices,
-      'metadata:getLinkedService': getLinkedService
-    });
-
-    isRegistered = true;
+  if (isRegistered) {
+    return;
   }
 
-  return isRegistered;
+  registerCommonTriggers();
+  registerSchemaTriggers();
+
+  createTrigger('@ez4/queue', {
+    'metadata:getServices': getQueueServices,
+    'metadata:getLinkedService': getLinkedService
+  });
+
+  isRegistered = true;
 };

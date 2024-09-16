@@ -6,9 +6,6 @@ import { getCdnServices } from '../metadata/service.js';
 
 let isRegistered = false;
 
-/**
- * Register all triggers.
- */
 export const registerTriggers = () => {
   if (isRegistered) {
     return;
