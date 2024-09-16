@@ -104,7 +104,11 @@ const checkGeneralUpdates = async <T extends MappingParameters>(
   candidate: T,
   current: T
 ) => {
-  if (!deepEqual(candidate, current, { getSourceArn: true })) {
+  const hasChanges = !deepEqual(candidate, current, {
+    getSourceArn: true
+  });
+
+  if (hasChanges) {
     await updateMapping(eventId, candidate);
   }
 };

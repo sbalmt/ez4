@@ -4,20 +4,17 @@ import { deploy, report } from '../common/provider.js';
 
 let isRegistered = false;
 
-/**
- * Register all triggers.
- */
 export const registerTriggers = () => {
-  if (!isRegistered) {
-    createTrigger('@ez4/aws-common', {
-      'deploy:plan': planDeploy,
-      'deploy:apply': applyDeploy
-    });
-
-    isRegistered = true;
+  if (isRegistered) {
+    return;
   }
 
-  return isRegistered;
+  createTrigger('@ez4/aws-common', {
+    'deploy:plan': planDeploy,
+    'deploy:apply': applyDeploy
+  });
+
+  isRegistered = true;
 };
 
 const planDeploy = async (event: DeployEvent) => {

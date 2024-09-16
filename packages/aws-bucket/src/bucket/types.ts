@@ -7,12 +7,12 @@ export const BucketServiceName = 'AWS:S3/Bucket';
 export const BucketServiceType = 'aws:s3.bucket';
 
 export type BucketParameters = CreateRequest & {
+  autoExpireDays?: number;
+  localPath?: string;
   tags?: ResourceTags;
 };
 
-export type BucketResult = CreateResponse & {
-  bucketName: string;
-};
+export type BucketResult = CreateResponse;
 
 export type BucketState = EntryState & {
   type: typeof BucketServiceType;

@@ -8,7 +8,8 @@ import {
   createGateway,
   createAuthorizer,
   createAuthorizerFunction,
-  isAuthorizer
+  isAuthorizerState,
+  registerTriggers
 } from '@ez4/aws-gateway';
 
 import { createRole } from '@ez4/aws-identity';
@@ -27,7 +28,7 @@ const assertDeploy = async <E extends EntryState>(
   const resource = state[resourceId];
 
   ok(resource?.result);
-  ok(isAuthorizer(resource));
+  ok(isAuthorizerState(resource));
 
   const { apiId, authorizerId, functionArn } = resource.result;
 
@@ -47,6 +48,8 @@ describe.only('gateway authorizer', () => {
   let lastState: EntryStates | undefined;
   let authorizerId: string | undefined;
 
+  registerTriggers();
+
   it('assert :: deploy', async () => {
     const localState: EntryStates = {};
 
@@ -56,18 +59,18 @@ describe.only('gateway authorizer', () => {
     });
 
     const roleResource = createRole(localState, [], {
-      roleName: 'EZ4: Test lambda authorizer role',
+      roleName: 'ez4-test-lambda-authorizer-role',
       roleDocument: getRoleDocument()
     });
 
     const lambdaResource = await createAuthorizerFunction(localState, roleResource, {
       sourceFile: join(baseDir, 'lambda.js'),
-      functionName: 'EZ4: Test authorizer lambda',
+      functionName: 'ez4-test-authorizer-lambda',
       handlerName: 'main'
     });
 
     const resource = createAuthorizer(localState, gatewayResource, lambdaResource, {
-      name: 'EZ4: Test authorizer',
+      name: 'ez4-test-authorizer',
       cacheTTL: 300
     });
 
@@ -84,7 +87,7 @@ describe.only('gateway authorizer', () => {
     const localState = deepClone(lastState) as EntryStates;
     const resource = localState[authorizerId];
 
-    ok(resource && isAuthorizer(resource));
+    ok(resource && isAuthorizerState(resource));
 
     resource.parameters.cacheTTL = undefined;
 

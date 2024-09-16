@@ -6,10 +6,6 @@ import { attachEntry } from '@ez4/stateful';
 
 import { TableServiceType } from './types.js';
 
-export const isTable = (resource: EntryState): resource is TableState => {
-  return resource.type === TableServiceType;
-};
-
 export const createTable = <E extends EntryState>(
   state: EntryStates<E>,
   parameters: TableParameters

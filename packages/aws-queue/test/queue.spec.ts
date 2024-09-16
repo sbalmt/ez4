@@ -3,9 +3,9 @@ import type { EntryState, EntryStates } from '@ez4/stateful';
 import { describe, it } from 'node:test';
 import { ok, equal } from 'node:assert/strict';
 
-import { deepClone } from '@ez4/utils';
-import { createQueue, isQueue } from '@ez4/aws-queue';
+import { createQueue, isQueueState, registerTriggers } from '@ez4/aws-queue';
 import { deploy } from '@ez4/aws-common';
+import { deepClone } from '@ez4/utils';
 
 const assertDeploy = async <E extends EntryState>(
   resourceId: string,
@@ -17,7 +17,7 @@ const assertDeploy = async <E extends EntryState>(
   const resource = state[resourceId];
 
   ok(resource?.result);
-  ok(isQueue(resource));
+  ok(isQueueState(resource));
 
   const { queueUrl } = resource.result;
 
@@ -32,6 +32,8 @@ const assertDeploy = async <E extends EntryState>(
 describe.only('queue', () => {
   let lastState: EntryStates | undefined;
   let queueId: string | undefined;
+
+  registerTriggers();
 
   it('assert :: deploy', async () => {
     const localState: EntryStates = {};
@@ -57,7 +59,7 @@ describe.only('queue', () => {
     const localState = deepClone(lastState) as EntryStates;
     const resource = localState[queueId];
 
-    ok(resource && isQueue(resource));
+    ok(resource && isQueueState(resource));
 
     resource.parameters.tags = {
       test2: 'ez4-tag2',

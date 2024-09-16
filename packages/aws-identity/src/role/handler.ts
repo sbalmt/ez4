@@ -117,6 +117,7 @@ const deleteResource = async (candidate: RoleState) => {
     return;
   }
 
+  // Can only remove role after detaching all its policies.
   if (result.policyArns.length) {
     await detachPolicies(result.roleName, result.policyArns);
   }
@@ -149,7 +150,9 @@ const checkDocumentUpdates = async (
   candidate: RoleParameters,
   current: RoleParameters
 ) => {
-  if (!deepEqual(candidate.roleDocument, current.roleDocument)) {
+  const hasChanges = !deepEqual(candidate.roleDocument, current.roleDocument);
+
+  if (hasChanges) {
     await updateAssumeRole(roleName, candidate.roleDocument);
   }
 };

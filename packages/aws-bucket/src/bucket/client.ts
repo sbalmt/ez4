@@ -6,6 +6,9 @@ import {
   CreateBucketCommand,
   DeleteBucketCommand,
   PutBucketTaggingCommand,
+  PutBucketLifecycleConfigurationCommand,
+  DeleteBucketLifecycleCommand,
+  ExpirationStatus,
   S3Client
 } from '@aws-sdk/client-s3';
 
@@ -19,21 +22,21 @@ export type CreateRequest = {
 
 export type CreateResponse = {
   bucketName: string;
-  location: string;
 };
 
 export const createBucket = async (request: CreateRequest): Promise<CreateResponse> => {
-  Logger.logCreate(BucketServiceName, request.bucketName);
+  const { bucketName } = request;
 
-  const response = await client.send(
+  Logger.logCreate(BucketServiceName, bucketName);
+
+  await client.send(
     new CreateBucketCommand({
-      Bucket: request.bucketName
+      Bucket: bucketName
     })
   );
 
   return {
-    bucketName: request.bucketName,
-    location: response.Location!
+    bucketName
   };
 };
 
@@ -49,6 +52,40 @@ export const tagBucket = async (bucketName: string, tags: ResourceTags) => {
           ManagedBy: 'EZ4'
         })
       }
+    })
+  );
+};
+
+export const createLifecycle = async (bucketName: string, autoExpireDays: number) => {
+  Logger.logCreate(BucketServiceName, `${bucketName} lifecycle`);
+
+  await client.send(
+    new PutBucketLifecycleConfigurationCommand({
+      Bucket: bucketName,
+      LifecycleConfiguration: {
+        Rules: [
+          {
+            ID: 'ID0',
+            Status: ExpirationStatus.Enabled,
+            Filter: {
+              Prefix: '*'
+            },
+            Expiration: {
+              Days: autoExpireDays
+            }
+          }
+        ]
+      }
+    })
+  );
+};
+
+export const deleteLifecycle = async (bucketName: string) => {
+  Logger.logDelete(BucketServiceName, `${bucketName} lifecycle`);
+
+  await client.send(
+    new DeleteBucketLifecycleCommand({
+      Bucket: bucketName
     })
   );
 };

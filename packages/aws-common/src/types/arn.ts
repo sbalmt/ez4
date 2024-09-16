@@ -10,7 +10,7 @@ export type ArnResult = {
 };
 
 export const isArn = (arn: string): arn is Arn => {
-  return /^arn:aws:\w+:[\w\-]+:\d{12}:[\w\/]+$/.test(arn);
+  return /^arn:aws:\w+:([\w\-]+)?:(\d{12})?:[\w\/]+$/.test(arn);
 };
 
 export const parseArn = (arn: Arn): ArnResult => {

@@ -10,20 +10,17 @@ const libraryPath = new RegExp(join('dist', 'richtypes', '(environment).d.ts'));
 
 let isRegistered = false;
 
-/**
- * Register all triggers.
- */
 export const registerTriggers = () => {
-  if (!isRegistered) {
-    createTrigger('@ez4/project', {
-      'reflection:loadFile': applyRichTypePath,
-      'reflection:typeObject': applyRichTypeObject
-    });
-
-    isRegistered = true;
+  if (isRegistered) {
+    return;
   }
 
-  return isRegistered;
+  createTrigger('@ez4/project', {
+    'reflection:loadFile': applyRichTypePath,
+    'reflection:typeObject': applyRichTypeObject
+  });
+
+  isRegistered = true;
 };
 
 const applyRichTypePath = (file: string) => {

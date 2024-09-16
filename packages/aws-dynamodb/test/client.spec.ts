@@ -1,13 +1,20 @@
-import type { Table } from '@ez4/database';
 import type { EntryStates } from '@ez4/stateful';
+import type { Table } from '@ez4/database';
 
-import { describe, it } from 'node:test';
 import { ok, equal, deepEqual } from 'node:assert/strict';
+import { describe, it } from 'node:test';
 
-import { SchemaTypeName } from '@ez4/schema';
-import { createTable, isTable, AttributeType, AttributeKeyType } from '@ez4/aws-dynamodb';
 import { Client } from '@ez4/aws-dynamodb/client';
+import { SchemaTypeName } from '@ez4/schema';
 import { deploy } from '@ez4/aws-common';
+
+import {
+  createTable,
+  isTableState,
+  AttributeType,
+  AttributeKeyType,
+  registerTriggers
+} from '@ez4/aws-dynamodb';
 
 type TestSchema = {
   id: string;
@@ -21,6 +28,8 @@ describe.only('dynamodb client', () => {
   let dbTable: Table<TestSchema, 'id' | 'order'>;
 
   const tableName = 'ez4-test-table-client';
+
+  registerTriggers();
 
   it('assert :: deploy', async () => {
     const localState: EntryStates = {};
@@ -48,7 +57,7 @@ describe.only('dynamodb client', () => {
 
     const resultResource = result[tableId];
 
-    ok(resultResource && isTable(resultResource));
+    ok(resultResource && isTableState(resultResource));
     ok(resultResource.result);
 
     lastState = result;

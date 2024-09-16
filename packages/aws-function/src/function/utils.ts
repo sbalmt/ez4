@@ -5,6 +5,10 @@ import { IncompleteResourceError } from '@ez4/aws-common';
 
 import { FunctionServiceType } from './types.js';
 
+export const isFunctionState = (resource: EntryState): resource is FunctionState => {
+  return resource.type === FunctionServiceType;
+};
+
 export const getFunctionName = <E extends EntryState>(
   serviceName: string,
   resourceId: string,

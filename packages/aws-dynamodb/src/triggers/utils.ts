@@ -1,6 +1,7 @@
 import type { DatabaseService, DatabaseTable } from '@ez4/database/library';
 import type { DeployOptions } from '@ez4/project/library';
 
+import { getServiceName } from '@ez4/project/library';
 import { toKebabCase } from '@ez4/utils';
 
 export const getTableName = (
@@ -8,12 +9,7 @@ export const getTableName = (
   table: DatabaseTable,
   options: DeployOptions
 ) => {
-  const resourcePrefix = toKebabCase(options.resourcePrefix);
-  const projectName = toKebabCase(options.projectName);
-  const databaseName = toKebabCase(service.name);
-  const tableName = toKebabCase(table.name);
-
-  return `${resourcePrefix}-${projectName}-${databaseName}-${tableName}`;
+  return `${getServiceName(service, options)}-${toKebabCase(table.name)}`;
 };
 
 export const getStreamName = (

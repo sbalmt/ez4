@@ -1,55 +1,59 @@
 import type { ResourceTags } from '@ez4/aws-common';
 
+import { getTagList, Logger } from '@ez4/aws-common';
 import { createReadStream } from 'node:fs';
 
-import { getTagList, Logger } from '@ez4/aws-common';
+import mime from 'mime/lite';
 
 import {
-  DeleteObjectCommand,
   PutObjectCommand,
   PutObjectTaggingCommand,
+  DeleteObjectCommand,
   S3Client
 } from '@aws-sdk/client-s3';
 
+import { getBucketObjectPath } from './utils.js';
 import { ObjectServiceName } from './types.js';
-import { getObjectPath } from './utils.js';
 
 const client = new S3Client({});
 
 export type CreateRequest = {
   filePath: string;
   objectKey: string;
-  expires?: Date;
 };
 
 export type CreateResponse = {
   objectKey: string;
-  etag: string;
 };
 
 export const putObject = async (
   bucketName: string,
   request: CreateRequest
 ): Promise<CreateResponse> => {
-  Logger.logCreate(ObjectServiceName, getObjectPath(bucketName, request.objectKey));
+  const { objectKey, filePath } = request;
 
-  const response = await client.send(
+  Logger.logCreate(ObjectServiceName, getBucketObjectPath(bucketName, objectKey));
+
+  const contentType = mime.getType(filePath);
+
+  await client.send(
     new PutObjectCommand({
       Bucket: bucketName,
-      Key: request.objectKey,
-      Body: createReadStream(request.filePath),
-      Expires: request.expires
+      Key: objectKey,
+      Body: createReadStream(filePath),
+      ...(contentType && {
+        ContentType: contentType
+      })
     })
   );
 
   return {
-    objectKey: request.objectKey,
-    etag: response.ETag!
+    objectKey
   };
 };
 
 export const tagObject = async (bucketName: string, objectKey: string, tags: ResourceTags) => {
-  Logger.logTag(ObjectServiceName, getObjectPath(bucketName, objectKey));
+  Logger.logTag(ObjectServiceName, getBucketObjectPath(bucketName, objectKey));
 
   await client.send(
     new PutObjectTaggingCommand({
@@ -66,7 +70,7 @@ export const tagObject = async (bucketName: string, objectKey: string, tags: Res
 };
 
 export const deleteObject = async (bucketName: string, objectKey: string) => {
-  Logger.logDelete(ObjectServiceName, getObjectPath(bucketName, objectKey));
+  Logger.logDelete(ObjectServiceName, getBucketObjectPath(bucketName, objectKey));
 
   await client.send(
     new DeleteObjectCommand({

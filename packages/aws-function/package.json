@@ -1,7 +1,7 @@
 {
   "name": "@ez4/aws-function",
   "description": "EZ4: Self-managed AWS lambda functions",
-  "version": "0.4.0",
+  "version": "0.5.0",
   "author": "Silas B.",
   "license": "MIT",
   "type": "module",
@@ -30,11 +30,11 @@
   },
   "dependencies": {
     "@aws-sdk/client-lambda": "^3.614.0",
-    "@ez4/aws-common": "^0.4.0",
-    "@ez4/aws-identity": "^0.4.0",
-    "@ez4/project": "^0.4.0",
-    "@ez4/stateful": "^0.4.0",
-    "@ez4/utils": "^0.4.0",
+    "@ez4/aws-common": "^0.5.0",
+    "@ez4/aws-identity": "^0.5.0",
+    "@ez4/project": "^0.5.0",
+    "@ez4/stateful": "^0.5.0",
+    "@ez4/utils": "^0.5.0",
     "@types/adm-zip": "^0.5.5",
     "adm-zip": "^0.5.14"
   }

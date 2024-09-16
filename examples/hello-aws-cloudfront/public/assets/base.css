@@ -1,0 +1,15 @@
+* {
+  box-sizing: content-box;
+}
+
+body {
+  color: rgb(240, 246, 252);
+  background-color: rgb(13, 17, 23);
+  font-family: Verdana, Geneva, Tahoma, sans-serif;
+  font-size: 16px;
+}
+
+.page-title,
+.page-subtitle {
+  text-align: center;
+}

@@ -3,8 +3,8 @@ import type { SourceMap } from '@ez4/reflection';
 import type { CronService } from '../types/service.js';
 
 import {
-  getLinkedServices,
-  getLinkedVariables,
+  getLinkedServiceList,
+  getLinkedVariableList,
   getPropertyBoolean,
   getPropertyNumber,
   getPropertyString,
@@ -81,11 +81,11 @@ export const getCronServices = (reflection: SourceMap) => {
         }
 
         case 'variables':
-          service.variables = getLinkedVariables(member, errorList);
+          service.variables = getLinkedVariableList(member, errorList);
           break;
 
         case 'services':
-          service.services = getLinkedServices(member, reflection, errorList);
+          service.services = getLinkedServiceList(member, reflection, errorList);
           break;
       }
     }

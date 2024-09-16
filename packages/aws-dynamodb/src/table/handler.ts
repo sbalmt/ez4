@@ -75,13 +75,11 @@ const createResource = async (candidate: TableState): Promise<TableResult> => {
 };
 
 const updateResource = async (candidate: TableState, current: TableState) => {
-  const result = candidate.result;
+  const { result, parameters } = candidate;
 
   if (!result) {
     return;
   }
-
-  const parameters = candidate.parameters;
 
   await checkTimeToLiveUpdates(result.tableName, parameters, current.parameters);
   await checkDeletionUpdates(result.tableName, parameters, current.parameters);
@@ -95,14 +93,14 @@ const updateResource = async (candidate: TableState, current: TableState) => {
 };
 
 const deleteResource = async (candidate: TableState) => {
-  const result = candidate.result;
+  const { result, parameters } = candidate;
 
-  if (!result || !candidate.parameters.allowDeletion) {
+  if (!result || !parameters.allowDeletion) {
     return;
   }
 
-  // If the table is still in use due to a prior change that's not reflected
-  // on the table status, `waitFor` will keep retrying until max attempts.
+  // If the function is still in use due to a prior change that's not
+  // done yet, keep retrying until max attempts.
   await waitDeletion(() => deleteTable(result.tableName));
 };
 

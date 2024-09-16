@@ -1,12 +1,18 @@
 import type { EntryState, EntryStates } from '@ez4/stateful';
 
-import { describe, it } from 'node:test';
 import { ok, equal } from 'node:assert/strict';
+import { describe, it } from 'node:test';
 import { join } from 'node:path';
 
-import { deepClone } from '@ez4/utils';
-import { createBucket, createBucketObject, isBucketObject } from '@ez4/aws-bucket';
 import { deploy } from '@ez4/aws-common';
+import { deepClone } from '@ez4/utils';
+
+import {
+  createBucket,
+  createBucketObject,
+  isBucketObjectState,
+  registerTriggers
+} from '@ez4/aws-bucket';
 
 const assertDeploy = async <E extends EntryState>(
   resourceId: string,
@@ -18,33 +24,37 @@ const assertDeploy = async <E extends EntryState>(
   const resource = state[resourceId];
 
   ok(resource?.result);
-  ok(isBucketObject(resource));
+  ok(isBucketObjectState(resource));
 
-  const { bucketName, objectKey, etag } = resource.result;
+  const result = resource.result;
 
-  ok(bucketName);
-  ok(objectKey);
-  ok(etag);
+  ok(result.bucketName);
+  ok(result.objectKey);
 
   return {
-    result: resource.result,
+    result,
     state
   };
 };
 
 describe.only('bucket object resources', () => {
+  const baseDir = join(import.meta.dirname, '../test/files');
+
   let lastState: EntryStates | undefined;
   let objectId: string | undefined;
+
+  registerTriggers();
 
   it('assert :: deploy', async () => {
     const localState: EntryStates = {};
 
     const bucketResource = createBucket(localState, {
-      bucketName: 'EZ4 Test Bucket For Objects'
+      bucketName: 'ez4-test-object-bucket'
     });
 
     const resource = createBucketObject(localState, bucketResource, {
-      filePath: join(import.meta.dirname, '../test/files/object-file.txt'),
+      filePath: join(baseDir, 'object-file.txt'),
+      objectKey: 'object-file.txt',
       tags: {
         test1: 'ez4-tag1',
         test2: 'ez4-tag2'
@@ -58,13 +68,28 @@ describe.only('bucket object resources', () => {
     lastState = state;
   });
 
+  it('assert :: update', async () => {
+    ok(objectId && lastState);
+
+    const localState = deepClone(lastState) as EntryStates;
+    const resource = localState[objectId];
+
+    ok(resource && isBucketObjectState(resource));
+
+    resource.parameters.objectKey = 'update-file.txt';
+
+    const { state } = await assertDeploy(objectId, localState, lastState);
+
+    lastState = state;
+  });
+
   it('assert :: update tags', async () => {
     ok(objectId && lastState);
 
     const localState = deepClone(lastState) as EntryStates;
     const resource = localState[objectId];
 
-    ok(resource && isBucketObject(resource));
+    ok(resource && isBucketObjectState(resource));
 
     resource.parameters.tags = {
       test2: 'ez4-tag2',

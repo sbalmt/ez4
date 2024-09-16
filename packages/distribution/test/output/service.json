@@ -1,0 +1,21 @@
+{
+  "TestCdn": {
+    "type": "@ez4/cdn",
+    "name": "TestCdn",
+    "description": "Test distribution.",
+    "defaultIndex": "index.html",
+    "defaultOrigin": {
+      "bucket": "TestBucket",
+      "path": "/site"
+    },
+    "aliases": [
+      "test-1.ez4.dev",
+      "test-2.ez4.dev"
+    ],
+    "cacheTTL": 300,
+    "minCacheTTL": 1,
+    "maxCacheTTL": 3600,
+    "disabled": true,
+    "compress": true
+  }
+}

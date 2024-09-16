@@ -9,10 +9,6 @@ import { hashData } from '@ez4/utils';
 
 import { RouteServiceType } from './types.js';
 
-export const isRoute = (resource: EntryState): resource is RouteState => {
-  return resource.type === RouteServiceType;
-};
-
 export const createRoute = <E extends EntryState>(
   state: EntryStates<E>,
   gatewayState: GatewayState,

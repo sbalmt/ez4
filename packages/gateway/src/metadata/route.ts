@@ -6,7 +6,7 @@ import type { HttpRoute } from '../types/route.js';
 import { isModelProperty, isTypeObject, isTypeReference } from '@ez4/reflection';
 
 import {
-  getLinkedVariables,
+  getLinkedVariableList,
   getModelMembers,
   getPropertyString,
   getObjectMembers,
@@ -97,7 +97,7 @@ const getTypeFromMembers = (
       }
 
       case 'variables':
-        route.variables = getLinkedVariables(member, errorList);
+        route.variables = getLinkedVariableList(member, errorList);
         break;
     }
   }

@@ -9,11 +9,12 @@ import {
   AttributeType,
   createStreamFunction,
   createMapping,
-  createTable
+  createTable,
+  registerTriggers
 } from '@ez4/aws-dynamodb';
 
 import { createPolicy, createRole } from '@ez4/aws-identity';
-import { isMapping } from '@ez4/aws-function';
+import { isMappingState } from '@ez4/aws-function';
 import { deploy } from '@ez4/aws-common';
 import { deepClone } from '@ez4/utils';
 
@@ -30,7 +31,7 @@ const assertDeploy = async <E extends EntryState>(
   const resource = state[resourceId];
 
   ok(resource?.result);
-  ok(isMapping(resource));
+  ok(isMappingState(resource));
 
   const { eventId, sourceArn } = resource.result;
 
@@ -49,6 +50,8 @@ describe.only('dynamodb mapping', () => {
   let lastState: EntryStates | undefined;
   let mappingId: string | undefined;
 
+  registerTriggers();
+
   it('assert :: deploy', async () => {
     const localState: EntryStates = {};
 
@@ -66,18 +69,18 @@ describe.only('dynamodb mapping', () => {
     });
 
     const policyResource = createPolicy(localState, {
-      policyName: 'EZ4: Test table mapping policy',
+      policyName: 'ez4-test-table-mapping-policy',
       policyDocument: getPolicyDocument()
     });
 
     const roleResource = createRole(localState, [policyResource], {
-      roleName: 'EZ4: Test table mapping role',
+      roleName: 'ez4-test-table-mapping-role',
       roleDocument: getRoleDocument()
     });
 
     const functionResource = await createStreamFunction(localState, roleResource, {
       sourceFile: join(baseDir, 'lambda.js'),
-      functionName: 'EZ4: Test table mapping lambda',
+      functionName: 'ez4-test-table-mapping-lambda',
       handlerName: 'main'
     });
 
@@ -98,7 +101,7 @@ describe.only('dynamodb mapping', () => {
     const localState = deepClone(lastState) as EntryStates;
     const resource = localState[mappingId];
 
-    ok(resource && isMapping(resource));
+    ok(resource && isMappingState(resource));
 
     resource.parameters.enabled = false;
 

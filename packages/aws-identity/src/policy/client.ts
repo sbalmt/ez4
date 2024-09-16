@@ -46,9 +46,11 @@ export const createPolicy = async (request: CreateRequest): Promise<CreateRespon
     })
   );
 
+  const policy = response.Policy!;
+
   return {
-    policyArn: response.Policy!.Arn as Arn,
-    currentVersion: response.Policy!.DefaultVersionId!
+    policyArn: policy.Arn as Arn,
+    currentVersion: policy.DefaultVersionId!
   };
 };
 
@@ -91,8 +93,12 @@ export const createPolicyVersion = async (
     })
   );
 
+  const policyVersion = response.PolicyVersion!;
+
+  const versionId = policyVersion.VersionId!;
+
   return {
-    versionId: response.PolicyVersion!.VersionId!
+    versionId
   };
 };
 

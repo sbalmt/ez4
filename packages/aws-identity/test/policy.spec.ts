@@ -3,9 +3,9 @@ import type { EntryState, EntryStates } from '@ez4/stateful';
 import { describe, it } from 'node:test';
 import { ok, equal, notEqual } from 'node:assert/strict';
 
-import { deepClone } from '@ez4/utils';
-import { createPolicy, isPolicy } from '@ez4/aws-identity';
+import { createPolicy, isPolicyState, registerTriggers } from '@ez4/aws-identity';
 import { deploy } from '@ez4/aws-common';
+import { deepClone } from '@ez4/utils';
 
 import { getPolicyDocument } from './common/policy.js';
 
@@ -19,7 +19,7 @@ const assertDeploy = async <E extends EntryState>(
   const resource = state[resourceId];
 
   ok(resource?.result);
-  ok(isPolicy(resource));
+  ok(isPolicyState(resource));
 
   const { policyArn, currentVersion, versionHistory } = resource.result;
 
@@ -37,11 +37,13 @@ describe.only('policy', () => {
   let lastState: EntryStates | undefined;
   let policyId: string | undefined;
 
+  registerTriggers();
+
   it('assert :: deploy', async () => {
     const localState: EntryStates = {};
 
     const resource = createPolicy(localState, {
-      policyName: 'EZ4: Test policy',
+      policyName: 'ez4-test-policy',
       policyDocument: getPolicyDocument(),
       tags: {
         test1: 'ez4-tag1',
@@ -65,7 +67,7 @@ describe.only('policy', () => {
       const localState = deepClone(lastState) as EntryStates;
       const resource = localState[policyId];
 
-      ok(resource && isPolicy(resource));
+      ok(resource && isPolicyState(resource));
 
       resource.parameters.policyDocument = getPolicyDocument(`Update${versionId}`);
 
@@ -84,7 +86,7 @@ describe.only('policy', () => {
     const localState = deepClone(lastState) as EntryStates;
     const resource = localState[policyId];
 
-    ok(resource && isPolicy(resource));
+    ok(resource && isPolicyState(resource));
 
     resource.parameters.tags = {
       test2: 'ez4-tag2',

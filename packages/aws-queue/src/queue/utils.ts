@@ -5,6 +5,10 @@ import { IncompleteResourceError } from '@ez4/aws-common';
 
 import { QueueServiceType } from './types.js';
 
+export const isQueueState = (resource: EntryState): resource is QueueState => {
+  return resource.type === QueueServiceType;
+};
+
 export const getQueueArn = <E extends EntryState>(
   serviceName: string,
   resourceId: string,

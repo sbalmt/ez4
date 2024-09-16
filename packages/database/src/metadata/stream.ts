@@ -4,7 +4,7 @@ import type { AllType, SourceMap, TypeModel, TypeObject } from '@ez4/reflection'
 import type { TableStream } from '../types/stream.js';
 
 import {
-  getLinkedVariables,
+  getLinkedVariableList,
   getModelMembers,
   getObjectMembers,
   getPropertyNumber,
@@ -99,7 +99,7 @@ const getTypeFromMembers = (
       }
 
       case 'variables':
-        stream.variables = getLinkedVariables(member, errorList);
+        stream.variables = getLinkedVariableList(member, errorList);
         break;
     }
   }

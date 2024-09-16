@@ -1,11 +1,11 @@
 import type { EntryState, EntryStates } from '@ez4/stateful';
 
-import { describe, it } from 'node:test';
 import { ok, equal } from 'node:assert/strict';
+import { describe, it } from 'node:test';
 
-import { deepClone } from '@ez4/utils';
-import { createBucket, isBucket } from '@ez4/aws-bucket';
+import { createBucket, isBucketState, registerTriggers } from '@ez4/aws-bucket';
 import { deploy } from '@ez4/aws-common';
+import { deepClone } from '@ez4/utils';
 
 const assertDeploy = async <E extends EntryState>(
   resourceId: string,
@@ -17,15 +17,14 @@ const assertDeploy = async <E extends EntryState>(
   const resource = state[resourceId];
 
   ok(resource?.result);
-  ok(isBucket(resource));
+  ok(isBucketState(resource));
 
-  const { bucketName, location } = resource.result;
+  const result = resource.result;
 
-  ok(bucketName);
-  ok(location);
+  ok(result.bucketName);
 
   return {
-    result: resource.result,
+    result,
     state
   };
 };
@@ -34,11 +33,14 @@ describe.only('bucket resources', () => {
   let lastState: EntryStates | undefined;
   let bucketId: string | undefined;
 
+  registerTriggers();
+
   it('assert :: deploy', async () => {
     const localState: EntryStates = {};
 
     const resource = createBucket(localState, {
-      bucketName: 'EZ4 Test Bucket',
+      bucketName: 'ez4-test-bucket',
+      autoExpireDays: 5,
       tags: {
         test1: 'ez4-tag1',
         test2: 'ez4-tag2'
@@ -52,13 +54,28 @@ describe.only('bucket resources', () => {
     lastState = state;
   });
 
+  it('assert :: update', async () => {
+    ok(bucketId && lastState);
+
+    const localState = deepClone(lastState) as EntryStates;
+    const resource = localState[bucketId];
+
+    ok(resource && isBucketState(resource));
+
+    resource.parameters.autoExpireDays = undefined;
+
+    const { state } = await assertDeploy(bucketId, localState, lastState);
+
+    lastState = state;
+  });
+
   it('assert :: update tags', async () => {
     ok(bucketId && lastState);
 
     const localState = deepClone(lastState) as EntryStates;
     const resource = localState[bucketId];
 
-    ok(resource && isBucket(resource));
+    ok(resource && isBucketState(resource));
 
     resource.parameters.tags = {
       test2: 'ez4-tag2',

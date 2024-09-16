@@ -7,7 +7,7 @@ import { MissingVariableError } from '../errors/variables.js';
 import { getPropertyObject, getPropertyString } from '../reflection/property.js';
 import { getObjectMembers } from '../reflection/object.js';
 
-export const getLinkedVariables = (member: ModelProperty, errorList: Error[]) => {
+export const getLinkedVariableList = (member: ModelProperty, errorList: Error[]) => {
   const object = getPropertyObject(member);
 
   if (object) {

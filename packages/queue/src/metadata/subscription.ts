@@ -4,7 +4,7 @@ import type { AllType, SourceMap, TypeModel, TypeObject } from '@ez4/reflection'
 import type { QueueSubscription } from '../types/subscription.js';
 
 import {
-  getLinkedVariables,
+  getLinkedVariableList,
   getModelMembers,
   getObjectMembers,
   getPropertyNumber
@@ -77,7 +77,7 @@ const getTypeFromMembers = (
       }
 
       case 'variables':
-        subscription.variables = getLinkedVariables(member, errorList);
+        subscription.variables = getLinkedVariableList(member, errorList);
         break;
     }
   }

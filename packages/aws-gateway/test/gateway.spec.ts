@@ -3,9 +3,9 @@ import type { EntryState, EntryStates } from '@ez4/stateful';
 import { describe, it } from 'node:test';
 import { ok, equal } from 'node:assert/strict';
 
-import { deepClone } from '@ez4/utils';
-import { createGateway, isGateway } from '@ez4/aws-gateway';
+import { createGateway, isGatewayState, registerTriggers } from '@ez4/aws-gateway';
 import { deploy } from '@ez4/aws-common';
+import { deepClone } from '@ez4/utils';
 
 const assertDeploy = async <E extends EntryState>(
   resourceId: string,
@@ -17,7 +17,7 @@ const assertDeploy = async <E extends EntryState>(
   const resource = state[resourceId];
 
   ok(resource?.result);
-  ok(isGateway(resource));
+  ok(isGatewayState(resource));
 
   const { apiId, apiArn, endpoint } = resource.result;
 
@@ -34,6 +34,8 @@ const assertDeploy = async <E extends EntryState>(
 describe.only('gateway', () => {
   let lastState: EntryStates | undefined;
   let gatewayId: string | undefined;
+
+  registerTriggers();
 
   it('assert :: deploy', async () => {
     const localState: EntryStates = {};
@@ -60,7 +62,7 @@ describe.only('gateway', () => {
     const localState = deepClone(lastState) as EntryStates;
     const resource = localState[gatewayId];
 
-    ok(resource && isGateway(resource));
+    ok(resource && isGatewayState(resource));
 
     resource.parameters.tags = {
       test1: 'ez4-tag-update',
@@ -78,7 +80,7 @@ describe.only('gateway', () => {
     const localState = deepClone(lastState) as EntryStates;
     const resource = localState[gatewayId];
 
-    ok(resource && isGateway(resource));
+    ok(resource && isGatewayState(resource));
 
     resource.parameters.gatewayName = 'EZ4: New gateway name';
     resource.parameters.description = 'EZ4: New gateway description';

@@ -7,10 +7,6 @@ import { attachEntry } from '@ez4/stateful';
 
 import { RoleServiceType } from './types.js';
 
-export const isRole = (resource: EntryState): resource is RoleState => {
-  return resource.type === RoleServiceType;
-};
-
 export const createRole = <E extends EntryState>(
   state: EntryStates<E>,
   policyList: PolicyState[],

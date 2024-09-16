@@ -7,10 +7,7 @@ import { toKebabCase, hashData } from '@ez4/utils';
 import { attachEntry } from '@ez4/stateful';
 
 import { ScheduleServiceType } from './types.js';
-
-export const isSchedule = (resource: EntryState): resource is ScheduleState => {
-  return resource.type === ScheduleServiceType;
-};
+import { isScheduleState } from './utils.js';
 
 export const createSchedule = <E extends EntryState>(
   state: EntryStates<E>,
@@ -36,7 +33,7 @@ export const getSchedule = <E extends EntryState>(state: EntryStates<E>, schedul
   const scheduleId = hashData(toKebabCase(scheduleName));
   const scheduleState = state[scheduleId];
 
-  if (scheduleState && isSchedule(scheduleState)) {
+  if (scheduleState && isScheduleState(scheduleState)) {
     return scheduleState;
   }
 

@@ -4,8 +4,8 @@ import type { DatabaseTable } from '../types/table.js';
 import type { DatabaseService } from '../types/service.js';
 
 import {
-  getLinkedServices,
-  getLinkedVariables,
+  getLinkedServiceList,
+  getLinkedVariableList,
   getModelMembers,
   getPropertyTuple
 } from '@ez4/common/library';
@@ -46,11 +46,11 @@ export const getDatabaseServices = (reflection: SourceMap) => {
           break;
 
         case 'variables':
-          service.variables = getLinkedVariables(member, errorList);
+          service.variables = getLinkedVariableList(member, errorList);
           break;
 
         case 'services':
-          service.services = getLinkedServices(member, reflection, errorList);
+          service.services = getLinkedServiceList(member, reflection, errorList);
           break;
       }
     }

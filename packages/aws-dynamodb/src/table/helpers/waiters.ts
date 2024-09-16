@@ -8,16 +8,6 @@ import { waitFor } from '@ez4/utils';
 
 const client = new DynamoDBClient({});
 
-const getTimeToLiveStatus = async (tableName: string) => {
-  const response = await client.send(
-    new DescribeTimeToLiveCommand({
-      TableName: tableName
-    })
-  );
-
-  return response.TimeToLiveDescription?.TimeToLiveStatus;
-};
-
 export const waitForTimeToLive = async (eventId: string) => {
   const readyState = new Set<string>([TimeToLiveStatus.ENABLED, TimeToLiveStatus.DISABLED]);
 
@@ -26,4 +16,14 @@ export const waitForTimeToLive = async (eventId: string) => {
 
     return !state || readyState.has(state);
   });
+};
+
+const getTimeToLiveStatus = async (tableName: string) => {
+  const response = await client.send(
+    new DescribeTimeToLiveCommand({
+      TableName: tableName
+    })
+  );
+
+  return response.TimeToLiveDescription?.TimeToLiveStatus;
 };

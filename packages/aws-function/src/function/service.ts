@@ -6,10 +6,7 @@ import { toKebabCase, hashData } from '@ez4/utils';
 import { attachEntry } from '@ez4/stateful';
 
 import { FunctionServiceType } from './types.js';
-
-export const isFunction = (resource: EntryState): resource is FunctionState => {
-  return resource.type === FunctionServiceType;
-};
+import { isFunctionState } from './utils.js';
 
 export const createFunction = <E extends EntryState>(
   state: EntryStates<E>,
@@ -40,7 +37,7 @@ export const getFunction = <E extends EntryState>(
 
   const functionState = state[functionId];
 
-  if (functionState && isFunction(functionState)) {
+  if (functionState && isFunctionState(functionState)) {
     return functionState;
   }
 

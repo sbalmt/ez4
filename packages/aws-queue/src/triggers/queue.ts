@@ -1,18 +1,19 @@
-import type { DeployOptions, ServiceResourceEvent } from '@ez4/project/library';
+import type { DeployOptions, PrepareResourceEvent } from '@ez4/project/library';
 import type { EntryState, EntryStates } from '@ez4/stateful';
 import type { QueueService } from '@ez4/queue/library';
 import type { QueueState } from '../queue/types.js';
 
+import { getServiceName } from '@ez4/project/library';
 import { isQueueService } from '@ez4/queue/library';
 import { getFunction } from '@ez4/aws-function';
-import { isRole } from '@ez4/aws-identity';
+import { isRoleState } from '@ez4/aws-identity';
 
 import { createQueue } from '../queue/service.js';
 import { createQueueFunction } from '../mapping/function/service.js';
 import { createMapping } from '../mapping/service.js';
-import { getMappingName, getQueueName } from './utils.js';
+import { getMappingName } from './utils.js';
 
-export const prepareQueueServices = async (event: ServiceResourceEvent) => {
+export const prepareQueueServices = async (event: PrepareResourceEvent) => {
   const { state, service, options, role } = event;
 
   if (!isQueueService(service)) {
@@ -22,7 +23,7 @@ export const prepareQueueServices = async (event: ServiceResourceEvent) => {
   const { timeout, retention, delay } = service;
 
   const queueState = createQueue(state, {
-    queueName: getQueueName(service, options),
+    queueName: getServiceName(service, options),
     ...(timeout !== undefined && { timeout }),
     ...(retention !== undefined && { retention }),
     ...(delay !== undefined && { timeout })
@@ -38,7 +39,7 @@ const prepareSubscriptions = async (
   queueState: QueueState,
   options: DeployOptions
 ) => {
-  if (!role || !isRole(role)) {
+  if (!role || !isRoleState(role)) {
     throw new Error(`Execution role for SQS mapping is missing.`);
   }
 

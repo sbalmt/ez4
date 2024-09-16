@@ -3,12 +3,12 @@ import type { EntryState, EntryStates } from '@ez4/stateful';
 import { describe, it } from 'node:test';
 import { ok, equal } from 'node:assert/strict';
 
-import { deepClone } from '@ez4/utils';
-import { createPolicy, createRole, isRole } from '@ez4/aws-identity';
+import { createPolicy, createRole, isRoleState, registerTriggers } from '@ez4/aws-identity';
 import { deploy } from '@ez4/aws-common';
+import { deepClone } from '@ez4/utils';
 
-import { getRoleDocument } from './common/role.js';
 import { getPolicyDocument } from './common/policy.js';
+import { getRoleDocument } from './common/role.js';
 
 const assertDeploy = async <E extends EntryState>(
   resourceId: string,
@@ -20,7 +20,7 @@ const assertDeploy = async <E extends EntryState>(
   const resource = state[resourceId];
 
   ok(resource?.result);
-  ok(isRole(resource));
+  ok(isRoleState(resource));
 
   const { roleName, roleArn, policyArns } = resource.result;
 
@@ -38,16 +38,18 @@ describe.only('role', () => {
   let lastState: EntryStates | undefined;
   let roleId: string | undefined;
 
+  registerTriggers();
+
   it('assert :: deploy', async () => {
     const localState: EntryStates = {};
 
     const policyResource = createPolicy(localState, {
-      policyName: 'EZ4: Test role policy',
+      policyName: 'ez4-test-role-policy',
       policyDocument: getPolicyDocument()
     });
 
     const resource = createRole(localState, [policyResource], {
-      roleName: 'EZ4: Test role',
+      roleName: 'ez4-test-role',
       roleDocument: getRoleDocument(),
       description: 'EZ4 Test role',
       tags: {
@@ -69,7 +71,7 @@ describe.only('role', () => {
     const localState = deepClone(lastState) as EntryStates;
     const resource = localState[roleId];
 
-    ok(resource && isRole(resource));
+    ok(resource && isRoleState(resource));
 
     resource.parameters.description = 'EZ4: Updated test role';
 
@@ -84,7 +86,7 @@ describe.only('role', () => {
     const localState = deepClone(lastState) as EntryStates;
     const resource = localState[roleId];
 
-    ok(resource && isRole(resource));
+    ok(resource && isRoleState(resource));
 
     resource.parameters.roleDocument = getRoleDocument('UpdatedRoleDocument');
 
@@ -99,10 +101,10 @@ describe.only('role', () => {
     const localState = deepClone(lastState) as EntryStates;
     const resource = localState[roleId];
 
-    ok(resource && isRole(resource));
+    ok(resource && isRoleState(resource));
 
     const policyResource = createPolicy(localState, {
-      policyName: 'EZ4: Test role new policy',
+      policyName: 'ez4-test-role-new-policy',
       policyDocument: getPolicyDocument()
     });
 
@@ -121,7 +123,7 @@ describe.only('role', () => {
     const localState = deepClone(lastState) as EntryStates;
     const resource = localState[roleId];
 
-    ok(resource && isRole(resource));
+    ok(resource && isRoleState(resource));
 
     resource.dependencies.pop();
 
@@ -138,7 +140,7 @@ describe.only('role', () => {
     const localState = deepClone(lastState) as EntryStates;
     const resource = localState[roleId];
 
-    ok(resource && isRole(resource));
+    ok(resource && isRoleState(resource));
 
     resource.parameters.tags = {
       test2: 'ez4-tag2',

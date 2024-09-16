@@ -6,6 +6,10 @@ import { getRegion } from '@ez4/aws-identity';
 
 import { AuthorizerServiceType } from './types.js';
 
+export const isAuthorizerState = (resource: EntryState): resource is AuthorizerState => {
+  return resource.type === AuthorizerServiceType;
+};
+
 export const getAuthorizerUri = async (functionArn: Arn) => {
   const region = await getRegion();
 

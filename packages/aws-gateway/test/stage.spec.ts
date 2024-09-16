@@ -3,9 +3,9 @@ import type { EntryState, EntryStates } from '@ez4/stateful';
 import { describe, it } from 'node:test';
 import { ok, equal } from 'node:assert/strict';
 
-import { deepClone } from '@ez4/utils';
-import { createGateway, createStage, isStage } from '@ez4/aws-gateway';
+import { createGateway, createStage, isStageState, registerTriggers } from '@ez4/aws-gateway';
 import { deploy } from '@ez4/aws-common';
+import { deepClone } from '@ez4/utils';
 
 const assertDeploy = async <E extends EntryState>(
   resourceId: string,
@@ -17,7 +17,7 @@ const assertDeploy = async <E extends EntryState>(
   const resource = state[resourceId];
 
   ok(resource?.result);
-  ok(isStage(resource));
+  ok(isStageState(resource));
 
   const { apiId, stageName } = resource.result;
 
@@ -33,6 +33,8 @@ const assertDeploy = async <E extends EntryState>(
 describe.only('gateway stage', () => {
   let lastState: EntryStates | undefined;
   let stageId: string | undefined;
+
+  registerTriggers();
 
   it('assert :: deploy', async () => {
     const localState: EntryStates = {};
@@ -62,7 +64,7 @@ describe.only('gateway stage', () => {
     const localState = deepClone(lastState) as EntryStates;
     const resource = localState[stageId];
 
-    ok(resource && isStage(resource));
+    ok(resource && isStageState(resource));
 
     resource.parameters.stageVariables = {
       test1: 'ez4-variable-update',

@@ -4,11 +4,11 @@ import type { DeployOptions } from '../types/deploy.js';
 
 import { toKebabCase } from '@ez4/utils';
 
-import { assertNoErrors } from '../utils/errors.js';
 import { applyDeploy } from '../actions/deploy.js';
-import { loadState, saveState } from '../actions/state.js';
+import { assertNoErrors } from '../utils/errors.js';
 import { prepareAllLinkedServices } from '../actions/services.js';
-import { prepareDeployResources } from '../actions/resources.js';
+import { combineStates, loadState, saveState } from '../actions/state.js';
+import { connectDeployResources, prepareDeployResources } from '../actions/resources.js';
 import { prepareExecutionRole } from '../actions/identity.js';
 import { reportResourceChanges } from '../report/report.js';
 import { waitConfirmation } from '../console/prompt.js';
@@ -34,7 +34,10 @@ export const deploy = async (project: ProjectOptions) => {
 
   const role = await prepareExecutionRole(newState, deploy);
 
-  await prepareDeployResources(newState, oldState, metadata, role, deploy);
+  await prepareDeployResources(newState, metadata, role, deploy);
+  await connectDeployResources(newState, metadata, deploy);
+
+  combineStates(newState, oldState);
 
   const hasChanges = await reportResourceChanges(newState, oldState);
 

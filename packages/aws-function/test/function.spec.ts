@@ -4,10 +4,10 @@ import { describe, it } from 'node:test';
 import { ok, equal, notEqual } from 'node:assert/strict';
 import { join } from 'node:path';
 
-import { deepClone } from '@ez4/utils';
-import { createFunction, isFunction } from '@ez4/aws-function';
+import { createFunction, isFunctionState, registerTriggers } from '@ez4/aws-function';
 import { createRole } from '@ez4/aws-identity';
 import { deploy } from '@ez4/aws-common';
+import { deepClone } from '@ez4/utils';
 
 import { getRoleDocument } from './common/role.js';
 
@@ -21,7 +21,7 @@ const assertDeploy = async <E extends EntryState>(
   const resource = state[resourceId];
 
   ok(resource?.result);
-  ok(isFunction(resource));
+  ok(isFunctionState(resource));
 
   const { functionArn, roleArn, sourceHash } = resource.result;
 
@@ -41,17 +41,19 @@ describe.only('function', () => {
   let lastState: EntryStates | undefined;
   let functionId: string | undefined;
 
+  registerTriggers();
+
   it('assert :: deploy', async () => {
     const localState: EntryStates = {};
 
     const roleResource = createRole(localState, [], {
-      roleName: 'EZ4: Test lambda role',
+      roleName: 'ez4-test-lambda-role',
       roleDocument: getRoleDocument()
     });
 
     const resource = createFunction(localState, roleResource, {
       sourceFile: join(baseDir, 'lambda-1.js'),
-      functionName: 'EZ4: Test lambda function',
+      functionName: 'ez4-test-lambda-function',
       description: 'EZ4 Test lambda',
       handlerName: 'main',
       variables: {
@@ -76,7 +78,7 @@ describe.only('function', () => {
     const localState = deepClone(lastState) as EntryStates;
     const resource = localState[functionId];
 
-    ok(resource && isFunction(resource));
+    ok(resource && isFunctionState(resource));
 
     resource.parameters.timeout = 10;
     resource.parameters.memory = 256;
@@ -99,7 +101,7 @@ describe.only('function', () => {
     const lastResult = lastState[functionId]?.result;
     const resource = localState[functionId];
 
-    ok(resource && isFunction(resource));
+    ok(resource && isFunctionState(resource));
     ok(lastResult);
 
     resource.parameters.sourceFile = join(baseDir, 'lambda-2.js');
@@ -120,7 +122,7 @@ describe.only('function', () => {
     const localState = deepClone(lastState) as EntryStates;
     const resource = localState[functionId];
 
-    ok(resource && isFunction(resource));
+    ok(resource && isFunctionState(resource));
 
     resource.parameters.tags = {
       test2: 'ez4-tag2',

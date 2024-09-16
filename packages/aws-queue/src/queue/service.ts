@@ -5,10 +5,7 @@ import { toKebabCase, hashData } from '@ez4/utils';
 import { attachEntry } from '@ez4/stateful';
 
 import { QueueServiceType } from './types.js';
-
-export const isQueue = (resource: EntryState): resource is QueueState => {
-  return resource.type === QueueServiceType;
-};
+import { isQueueState } from './utils.js';
 
 export const createQueue = <E extends EntryState>(
   state: EntryStates<E>,
@@ -32,7 +29,7 @@ export const getQueue = <E extends EntryState>(state: EntryStates<E>, queueName:
   const queueId = hashData(toKebabCase(queueName));
   const queueState = state[queueId];
 
-  if (queueState && isQueue(queueState)) {
+  if (queueState && isQueueState(queueState)) {
     return queueState;
   }
 

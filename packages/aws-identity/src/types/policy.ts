@@ -1,8 +1,8 @@
 export type PolicyStatement = {
   Sid: string;
   Effect: 'Allow' | 'Deny';
-  Action: string[];
-  Resource: string[];
+  Action: string | string[];
+  Resource: string | string[];
 };
 
 export type PolicyDocument = {

@@ -1,9 +1,9 @@
 export type PrincipalService = {
-  Service: string[];
+  Service: string | string[];
 };
 
 export type PrincipalAccount = {
-  AWS: string[];
+  AWS: string | string[];
 };
 
 export type RoleStatementCondition = {
@@ -13,7 +13,8 @@ export type RoleStatementCondition = {
 export type RoleStatement = {
   Sid: string;
   Effect: 'Allow' | 'Deny';
-  Action: string;
+  Action: string | string[];
+  Resource?: string | string[];
   Principal: PrincipalService | PrincipalAccount;
   Condition?: RoleStatementCondition;
 };
