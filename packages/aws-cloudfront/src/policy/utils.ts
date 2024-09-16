@@ -5,6 +5,10 @@ import { IncompleteResourceError } from '@ez4/aws-common';
 
 import { PolicyServiceType } from './types.js';
 
+export const isCachePolicyState = (resource: EntryState): resource is PolicyState => {
+  return resource.type === PolicyServiceType;
+};
+
 export const getCachePolicyId = <E extends EntryState>(
   serviceName: string,
   resourceId: string,

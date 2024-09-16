@@ -1,35 +1,17 @@
-import type { BucketState } from '@ez4/aws-bucket';
-import { DistributionServiceType, type DistributionState } from '../distribution/types.js';
+import type { PrepareResourceEvent, ConnectResourceEvent } from '@ez4/project/library';
 
-import type {
-  PrepareResourceEvent,
-  ConnectResourceEvent,
-  DeployOptions
-} from '@ez4/project/library';
+import { getBucketDomain, getBucketState } from '@ez4/aws-bucket';
 
-import { readdir, stat } from 'node:fs/promises';
-import { join, relative } from 'node:path';
-import { createHash } from 'node:crypto';
-
-import {
-  createBucketObject,
-  createBucketPolicy,
-  getBucketDomain,
-  getBucketHashId,
-  getBucketName
-} from '@ez4/aws-bucket';
-
-import { EntryStates, getEntry, linkDependency } from '@ez4/stateful';
-import { CdnService, isCdnService } from '@ez4/distribution/library';
+import { isCdnService } from '@ez4/distribution/library';
 import { getServiceName } from '@ez4/project/library';
 
-import { getRoleDocument } from '../utils/role.js';
 import { createCachePolicy } from '../policy/service.js';
 import { createOriginAccess } from '../access/service.js';
-import { getDistributionArn, getDistributionHashId } from '../distribution/utils.js';
 import { createDistribution } from '../distribution/service.js';
 import { createInvalidation } from '../invalidation/service.js';
 import { getCachePolicyName, getOriginAccessName } from './utils.js';
+import { connectLocalContent } from './content.js';
+import { connectOriginBucket } from './bucket.js';
 
 export const prepareCdnServices = async (event: PrepareResourceEvent) => {
   const { state, service, options } = event;
@@ -82,9 +64,9 @@ export const connectCdnServices = async (event: ConnectResourceEvent) => {
 
   const bucketName = getServiceName(bucket, options);
 
-  const bucketState = getEntry(state, getBucketHashId(bucketName)) as BucketState;
+  const bucketState = getBucketState(state, bucketName);
 
-  const distributionState = attachDistributionBucket(state, service, bucketState, options);
+  const distributionState = connectOriginBucket(state, service, bucketState, options);
 
   if (localPath) {
     const contentVersion = await connectLocalContent(state, bucketState, localPath);
@@ -93,71 +75,4 @@ export const connectCdnServices = async (event: ConnectResourceEvent) => {
       contentVersion
     });
   }
-};
-
-const attachDistributionBucket = (
-  state: EntryStates,
-  service: CdnService,
-  bucketState: BucketState,
-  options: DeployOptions
-) => {
-  const distributionName = getServiceName(service, options);
-  const distributionId = getDistributionHashId(distributionName);
-
-  const distributionState = getEntry(state, distributionId) as DistributionState;
-
-  linkDependency(state, distributionState.entryId, bucketState.entryId);
-
-  createBucketPolicy(state, distributionState, bucketState, {
-    getRole: async (context) => {
-      const distributionArn = getDistributionArn(
-        DistributionServiceType,
-        distributionName,
-        context
-      );
-
-      const bucketName = getBucketName(DistributionServiceType, distributionName, context);
-
-      return getRoleDocument(distributionArn, bucketName);
-    }
-  });
-
-  return distributionState;
-};
-
-const connectLocalContent = async (
-  state: EntryStates,
-  bucketState: BucketState,
-  localPath: string
-) => {
-  const contentVersion = createHash('sha256');
-
-  const basePath = join(process.cwd(), localPath);
-
-  const allFiles = await readdir(basePath, {
-    withFileTypes: true,
-    recursive: true
-  });
-
-  for (const file of allFiles) {
-    if (!file.isFile()) {
-      continue;
-    }
-
-    const filePath = join(file.parentPath, file.name);
-    const objectKey = relative(basePath, filePath);
-
-    const fileStat = await stat(filePath);
-
-    createBucketObject(state, bucketState, {
-      objectKey,
-      filePath
-    });
-
-    const lastModified = fileStat.mtime.getTime();
-
-    contentVersion.update(`${objectKey}:${lastModified}`);
-  }
-
-  return contentVersion.digest('hex');
 };

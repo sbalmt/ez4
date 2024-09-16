@@ -14,3 +14,4 @@ export * from './distribution/utils.js';
 
 export * from './invalidation/service.js';
 export * from './invalidation/types.js';
+export * from './invalidation/utils.js';

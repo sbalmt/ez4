@@ -5,18 +5,14 @@ import { toKebabCase } from '@ez4/utils';
 import { attachEntry } from '@ez4/stateful';
 
 import { BucketServiceType } from './types.js';
-import { getBucketHashId } from './utils.js';
-
-export const isBucket = (resource: EntryState): resource is BucketState => {
-  return resource.type === BucketServiceType;
-};
+import { getBucketStateId } from './utils.js';
 
 export const createBucket = <E extends EntryState>(
   state: EntryStates<E>,
   parameters: BucketParameters
 ) => {
   const bucketName = toKebabCase(parameters.bucketName);
-  const bucketId = getBucketHashId(parameters.bucketName);
+  const bucketId = getBucketStateId(parameters.bucketName);
 
   return attachEntry<E | BucketState, BucketState>(state, {
     type: BucketServiceType,

@@ -7,10 +7,6 @@ import { hashData } from '@ez4/utils';
 import { PolicyServiceType } from './types.js';
 import { BucketState } from '../main.js';
 
-export const isBucketPolicy = (resource: EntryState): resource is PolicyState => {
-  return resource.type === PolicyServiceType;
-};
-
 export const createBucketPolicy = <E extends EntryState>(
   state: EntryStates<E>,
   sourceState: EntryState,

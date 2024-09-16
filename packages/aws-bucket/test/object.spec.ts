@@ -10,7 +10,7 @@ import { deploy } from '@ez4/aws-common';
 import {
   createBucket,
   createBucketObject,
-  isBucketObject,
+  isBucketObjectState,
   registerTriggers
 } from '@ez4/aws-bucket';
 
@@ -24,15 +24,15 @@ const assertDeploy = async <E extends EntryState>(
   const resource = state[resourceId];
 
   ok(resource?.result);
-  ok(isBucketObject(resource));
+  ok(isBucketObjectState(resource));
 
-  const { bucketName, objectKey } = resource.result;
+  const result = resource.result;
 
-  ok(bucketName);
-  ok(objectKey);
+  ok(result.bucketName);
+  ok(result.objectKey);
 
   return {
-    result: resource.result,
+    result,
     state
   };
 };
@@ -74,7 +74,7 @@ describe.only('bucket object resources', () => {
     const localState = deepClone(lastState) as EntryStates;
     const resource = localState[objectId];
 
-    ok(resource && isBucketObject(resource));
+    ok(resource && isBucketObjectState(resource));
 
     resource.parameters.objectKey = 'update-file.txt';
 
@@ -89,7 +89,7 @@ describe.only('bucket object resources', () => {
     const localState = deepClone(lastState) as EntryStates;
     const resource = localState[objectId];
 
-    ok(resource && isBucketObject(resource));
+    ok(resource && isBucketObjectState(resource));
 
     resource.parameters.tags = {
       test2: 'ez4-tag2',

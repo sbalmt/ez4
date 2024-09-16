@@ -4,7 +4,7 @@ import { describe, it } from 'node:test';
 import { ok, equal } from 'node:assert/strict';
 
 import { deepClone } from '@ez4/utils';
-import { createOriginAccess, isOriginAccess, registerTriggers } from '@ez4/aws-cloudfront';
+import { createOriginAccess, isOriginAccessState, registerTriggers } from '@ez4/aws-cloudfront';
 import { deploy } from '@ez4/aws-common';
 
 const assertDeploy = async <E extends EntryState>(
@@ -17,7 +17,7 @@ const assertDeploy = async <E extends EntryState>(
   const resource = state[resourceId];
 
   ok(resource?.result);
-  ok(isOriginAccess(resource));
+  ok(isOriginAccessState(resource));
 
   const result = resource.result;
 
@@ -56,7 +56,7 @@ describe.only('cloudfront :: origin access', () => {
     const localState = deepClone(lastState) as EntryStates;
     const resource = localState[accessId];
 
-    ok(resource && isOriginAccess(resource));
+    ok(resource && isOriginAccessState(resource));
 
     resource.parameters.description = 'EZ4: New access description';
 

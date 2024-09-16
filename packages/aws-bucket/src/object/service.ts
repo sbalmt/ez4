@@ -7,10 +7,6 @@ import { hashData } from '@ez4/utils';
 
 import { ObjectServiceType } from './types.js';
 
-export const isBucketObject = (resource: EntryState): resource is ObjectState => {
-  return resource.type === ObjectServiceType;
-};
-
 export const createBucketObject = <E extends EntryState>(
   state: EntryStates<E>,
   bucketState: BucketState,

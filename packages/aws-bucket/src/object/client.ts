@@ -12,8 +12,8 @@ import {
   S3Client
 } from '@aws-sdk/client-s3';
 
+import { getBucketObjectPath } from './utils.js';
 import { ObjectServiceName } from './types.js';
-import { getObjectPath } from './utils.js';
 
 const client = new S3Client({});
 
@@ -32,7 +32,7 @@ export const putObject = async (
 ): Promise<CreateResponse> => {
   const { objectKey, filePath } = request;
 
-  Logger.logCreate(ObjectServiceName, getObjectPath(bucketName, objectKey));
+  Logger.logCreate(ObjectServiceName, getBucketObjectPath(bucketName, objectKey));
 
   const contentType = mime.getType(filePath);
 
@@ -53,7 +53,7 @@ export const putObject = async (
 };
 
 export const tagObject = async (bucketName: string, objectKey: string, tags: ResourceTags) => {
-  Logger.logTag(ObjectServiceName, getObjectPath(bucketName, objectKey));
+  Logger.logTag(ObjectServiceName, getBucketObjectPath(bucketName, objectKey));
 
   await client.send(
     new PutObjectTaggingCommand({
@@ -70,7 +70,7 @@ export const tagObject = async (bucketName: string, objectKey: string, tags: Res
 };
 
 export const deleteObject = async (bucketName: string, objectKey: string) => {
-  Logger.logDelete(ObjectServiceName, getObjectPath(bucketName, objectKey));
+  Logger.logDelete(ObjectServiceName, getBucketObjectPath(bucketName, objectKey));
 
   await client.send(
     new DeleteObjectCommand({

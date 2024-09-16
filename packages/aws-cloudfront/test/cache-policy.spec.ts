@@ -4,7 +4,7 @@ import { describe, it } from 'node:test';
 import { ok, equal } from 'node:assert/strict';
 
 import { deepClone } from '@ez4/utils';
-import { createCachePolicy, isCachePolicy, registerTriggers } from '@ez4/aws-cloudfront';
+import { createCachePolicy, isCachePolicyState, registerTriggers } from '@ez4/aws-cloudfront';
 import { deploy } from '@ez4/aws-common';
 
 const assertDeploy = async <E extends EntryState>(
@@ -17,7 +17,7 @@ const assertDeploy = async <E extends EntryState>(
   const resource = state[resourceId];
 
   ok(resource?.result);
-  ok(isCachePolicy(resource));
+  ok(isCachePolicyState(resource));
 
   const result = resource.result;
 
@@ -60,7 +60,7 @@ describe.only('cloudfront :: cache policy', () => {
     const localState = deepClone(lastState) as EntryStates;
     const resource = localState[policyId];
 
-    ok(resource && isCachePolicy(resource));
+    ok(resource && isCachePolicyState(resource));
 
     resource.parameters.description = 'EZ4: New policy description';
     resource.parameters.defaultTTL = 180;

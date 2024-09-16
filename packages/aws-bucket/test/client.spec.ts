@@ -5,7 +5,7 @@ import { ok, equal } from 'node:assert/strict';
 import { createReadStream } from 'node:fs';
 import { join } from 'node:path';
 
-import { createBucket, isBucket, registerTriggers } from '@ez4/aws-bucket';
+import { createBucket, isBucketState, registerTriggers } from '@ez4/aws-bucket';
 import { Client } from '@ez4/aws-bucket/client';
 import { deploy } from '@ez4/aws-common';
 
@@ -31,7 +31,7 @@ describe.only('bucket client', () => {
 
     const resultResource = result[bucketId];
 
-    ok(resultResource && isBucket(resultResource));
+    ok(resultResource && isBucketState(resultResource));
     ok(resultResource.result);
 
     const { bucketName } = resultResource.result;

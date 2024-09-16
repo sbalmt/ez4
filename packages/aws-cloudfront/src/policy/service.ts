@@ -6,10 +6,6 @@ import { attachEntry } from '@ez4/stateful';
 
 import { PolicyServiceType } from './types.js';
 
-export const isCachePolicy = (resource: EntryState): resource is PolicyState => {
-  return resource.type === PolicyServiceType;
-};
-
 export const createCachePolicy = <E extends EntryState>(
   state: EntryStates<E>,
   parameters: PolicyParameters

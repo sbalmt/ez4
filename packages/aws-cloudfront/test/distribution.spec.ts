@@ -7,7 +7,7 @@ import {
   createOriginAccess,
   createCachePolicy,
   createDistribution,
-  isDistribution,
+  isDistributionState,
   registerTriggers
 } from '@ez4/aws-cloudfront';
 
@@ -25,7 +25,7 @@ const assertDeploy = async <E extends EntryState>(
   const resource = state[resourceId];
 
   ok(resource?.result);
-  ok(isDistribution(resource));
+  ok(isDistributionState(resource));
 
   const result = resource.result;
 
@@ -99,7 +99,7 @@ describe.only('cloudfront :: distribution', () => {
     const localState = deepClone(lastState) as EntryStates;
     const resource = localState[distributionId];
 
-    ok(resource && isDistribution(resource));
+    ok(resource && isDistributionState(resource));
 
     resource.parameters.tags = {
       test2: 'ez4-tag2',

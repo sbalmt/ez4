@@ -6,6 +6,7 @@ export * from './bucket/utils.js';
 
 export * from './policy/service.js';
 export * from './policy/types.js';
+export * from './policy/utils.js';
 
 export * from './object/service.js';
 export * from './object/types.js';

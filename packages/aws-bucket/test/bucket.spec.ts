@@ -4,7 +4,7 @@ import { describe, it } from 'node:test';
 import { ok, equal } from 'node:assert/strict';
 
 import { deepClone } from '@ez4/utils';
-import { createBucket, isBucket, registerTriggers } from '@ez4/aws-bucket';
+import { createBucket, isBucketState, registerTriggers } from '@ez4/aws-bucket';
 import { deploy } from '@ez4/aws-common';
 
 const assertDeploy = async <E extends EntryState>(
@@ -17,14 +17,14 @@ const assertDeploy = async <E extends EntryState>(
   const resource = state[resourceId];
 
   ok(resource?.result);
-  ok(isBucket(resource));
+  ok(isBucketState(resource));
 
-  const { bucketName } = resource.result;
+  const result = resource.result;
 
-  ok(bucketName);
+  ok(result.bucketName);
 
   return {
-    result: resource.result,
+    result,
     state
   };
 };
@@ -60,7 +60,7 @@ describe.only('bucket resources', () => {
     const localState = deepClone(lastState) as EntryStates;
     const resource = localState[bucketId];
 
-    ok(resource && isBucket(resource));
+    ok(resource && isBucketState(resource));
 
     resource.parameters.autoExpireDays = undefined;
 
@@ -75,7 +75,7 @@ describe.only('bucket resources', () => {
     const localState = deepClone(lastState) as EntryStates;
     const resource = localState[bucketId];
 
-    ok(resource && isBucket(resource));
+    ok(resource && isBucketState(resource));
 
     resource.parameters.tags = {
       test2: 'ez4-tag2',
