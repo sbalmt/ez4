@@ -1,8 +1,9 @@
 import type { StepHandler } from '@ez4/stateful';
+import type { ResourceTags } from '@ez4/aws-common';
 import type { BucketState, BucketResult, BucketParameters } from './types.js';
 
 import { ReplaceResourceError } from '@ez4/aws-common';
-import { deepCompare } from '@ez4/utils';
+import { deepCompare, deepEqual } from '@ez4/utils';
 
 import {
   createBucket,
@@ -58,7 +59,7 @@ const createResource = async (candidate: BucketState): Promise<BucketResult> => 
 
   await Promise.all([
     checkLifecycleUpdates(bucketName, parameters, undefined),
-    checkTagUpdates(bucketName, parameters)
+    checkTagUpdates(bucketName, parameters.tags, undefined)
   ]);
 
   return {
@@ -77,7 +78,7 @@ const updateResource = async (candidate: BucketState, current: BucketState) => {
 
   await Promise.all([
     checkLifecycleUpdates(bucketName, parameters, current.parameters),
-    checkTagUpdates(bucketName, parameters)
+    checkTagUpdates(bucketName, parameters.tags, current.parameters.tags)
   ]);
 };
 
@@ -107,6 +108,15 @@ const checkLifecycleUpdates = async (
   }
 };
 
-const checkTagUpdates = async (bucketName: string, candidate: BucketParameters) => {
-  await tagBucket(bucketName, candidate.tags ?? {});
+const checkTagUpdates = async (
+  bucketName: string,
+  candidate: ResourceTags | undefined,
+  current: ResourceTags | undefined
+) => {
+  const newTags = candidate ?? {};
+  const hasChanges = !deepEqual(newTags, current ?? {});
+
+  if (hasChanges) {
+    await tagBucket(bucketName, newTags);
+  }
 };

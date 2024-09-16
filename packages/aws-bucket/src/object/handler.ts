@@ -1,10 +1,11 @@
+import type { ResourceTags } from '@ez4/aws-common';
 import type { StepContext, StepHandler } from '@ez4/stateful';
 import type { ObjectState, ObjectResult, ObjectParameters } from './types.js';
 
 import { stat } from 'node:fs/promises';
 
 import { ReplaceResourceError } from '@ez4/aws-common';
-import { deepCompare } from '@ez4/utils';
+import { deepCompare, deepEqual } from '@ez4/utils';
 
 import { getBucketName } from '../bucket/utils.js';
 import { putObject, deleteObject, tagObject } from './client.js';
@@ -74,7 +75,7 @@ const createResource = async (
 
   const { objectKey } = await putObject(bucketName, parameters);
 
-  await checkTagUpdates(bucketName, objectKey, parameters);
+  await checkTagUpdates(bucketName, objectKey, parameters.tags, candidate.parameters.tags);
 
   return {
     lastModified,
@@ -97,7 +98,7 @@ const updateResource = async (
 
   const newResult = checkObjectUpdates(result, parameters, current.parameters);
 
-  await checkTagUpdates(bucketName, objectKey, parameters);
+  await checkTagUpdates(bucketName, objectKey, parameters.tags, current.parameters.tags);
 
   return newResult;
 };
@@ -144,7 +145,13 @@ const checkObjectUpdates = async (
 const checkTagUpdates = async (
   bucketName: string,
   objectKey: string,
-  candidate: ObjectParameters
+  candidate: ResourceTags | undefined,
+  current: ResourceTags | undefined
 ) => {
-  await tagObject(bucketName, objectKey, candidate.tags ?? {});
+  const newTags = candidate ?? {};
+  const hasChanges = !deepEqual(newTags, current ?? {});
+
+  if (hasChanges) {
+    await tagObject(bucketName, objectKey, newTags);
+  }
 };
