@@ -1,7 +1,7 @@
 import type { StepContext, StepHandler } from '@ez4/stateful';
 import type { ObjectState, ObjectResult, ObjectParameters } from './types.js';
 
-import { statSync } from 'node:fs';
+import { stat } from 'node:fs/promises';
 
 import { ReplaceResourceError } from '@ez4/aws-common';
 import { deepCompare } from '@ez4/utils';
@@ -31,7 +31,7 @@ const previewResource = async (candidate: ObjectState, current: ObjectState) => 
     {
       ...target,
       dependencies: candidate.dependencies,
-      lastModified: getLastModifiedTime(target.filePath)
+      lastModified: await getLastModifiedTime(target.filePath)
     },
     {
       ...source,
@@ -70,12 +70,14 @@ const createResource = async (
 
   const bucketName = getBucketName(ObjectServiceName, 'bucket', context);
 
+  const lastModified = await getLastModifiedTime(parameters.filePath);
+
   const { objectKey } = await putObject(bucketName, parameters);
 
   await checkTagUpdates(bucketName, objectKey, parameters);
 
   return {
-    lastModified: getLastModifiedTime(parameters.filePath),
+    lastModified,
     bucketName,
     objectKey
   };
@@ -108,11 +110,10 @@ const deleteResource = async (candidate: ObjectState) => {
   }
 };
 
-const getLastModifiedTime = (filePath: string) => {
-  const fileStat = statSync(filePath);
-  const lastModified = fileStat.mtime.getTime();
+const getLastModifiedTime = async (filePath: string) => {
+  const { mtime } = await stat(filePath);
 
-  return lastModified;
+  return mtime.getTime();
 };
 
 const checkObjectUpdates = async (
@@ -120,7 +121,7 @@ const checkObjectUpdates = async (
   candidate: ObjectParameters,
   current: ObjectParameters
 ) => {
-  const lastModified = getLastModifiedTime(candidate.filePath);
+  const lastModified = await getLastModifiedTime(candidate.filePath);
 
   if (lastModified <= result.lastModified && candidate.filePath === current.filePath) {
     return result;
