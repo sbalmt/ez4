@@ -12,6 +12,7 @@ Check out some examples to get started with.
 
 - [Get started with API Gateway](./examples/hello-aws-gateway)
 - [Get started with DynamoDB](./examples/hello-aws-dynamodb)
+- [Get started with CloudFront](./examples/hello-aws-cloudfront)
 - [Get started with Scheduler](./examples/hello-aws-scheduler)
 - [Get started with Queue](./examples/hello-aws-queue)
 - [API Gateway authorizer](./examples/aws-gateway-authorizer)
@@ -20,19 +21,16 @@ Check out some examples to get started with.
 
 ## Components
 
-- [Gateway](./packages/gateway/)
-- [Database](./packages/database/)
-- [Scheduler](./packages/scheduler/)
-- [Storage](./packages/storage/)
-- [Queue](./packages/queue/)
+All components provides a common interface to handle the real resource properties and store their state between deployments.
 
-## Providers
-
-- [AWS API Gateway](./packages/aws-gateway/)
-- [AWS DynamoDB](./packages/aws-dynamodb/)
-- [AWS Scheduler](./packages/aws-scheduler/)
-- [AWS Bucket](./packages/aws-bucket/)
-- [AWS Queue](./packages/aws-queue/)
+| Components                               | AWS Providers                                |
+| ---------------------------------------- | -------------------------------------------- |
+| [Gateway](./packages/gateway/)           | [AWS API Gateway](./packages/aws-gateway/)   |
+| [Database](./packages/database/)         | [AWS DynamoDB](./packages/aws-dynamodb/)     |
+| [Distribution](./packages/distribution/) | [AWS CloudFront](./packages/aws-cloudfront/) |
+| [Scheduler](./packages/scheduler/)       | [AWS Scheduler](./packages/aws-scheduler/)   |
+| [Storage](./packages/storage/)           | [AWS Bucket](./packages/aws-bucket/)         |
+| [Queue](./packages/queue/)               | [AWS Queue](./packages/aws-queue/)           |
 
 ## Requirements
 
