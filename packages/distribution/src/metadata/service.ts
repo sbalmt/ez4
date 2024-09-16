@@ -60,9 +60,9 @@ export const getCdnServices = (reflection: SourceMap) => {
           break;
         }
 
-        case 'defaultTTL':
-        case 'maxTTL':
-        case 'minTTL': {
+        case 'cacheTTL':
+        case 'maxCacheTTL':
+        case 'minCacheTTL': {
           const value = getPropertyNumber(member);
           if (value !== undefined && value !== null) {
             service[member.name] = value;

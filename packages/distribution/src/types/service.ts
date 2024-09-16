@@ -9,9 +9,9 @@ export type CdnService = ServiceMetadata & {
   description?: string;
   defaultOrigin: CdnOrigin;
   defaultIndex?: string;
-  defaultTTL?: number;
-  maxTTL?: number;
-  minTTL?: number;
+  cacheTTL?: number;
+  maxCacheTTL?: number;
+  minCacheTTL?: number;
   compress?: boolean;
   disabled?: boolean;
 };

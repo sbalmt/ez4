@@ -35,19 +35,19 @@ export namespace Cdn {
     defaultIndex?: string;
 
     /**
-     * Default TTL for cached results.
+     * Default TTL (in seconds) for cached results.
      */
-    defaultTTL?: number;
+    cacheTTL?: number;
 
     /**
-     * Minimum TTL for cached results.
+     * Minimum TTL (in seconds) for cached results.
      */
-    minTTL?: number;
+    minCacheTTL?: number;
 
     /**
-     * Maximum TTL for cached results.
+     * Maximum TTL (in seconds) for cached results.
      */
-    maxTTL?: number;
+    maxCacheTTL?: number;
 
     /**
      * Determines whether or not the results are compressed.

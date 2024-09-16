@@ -19,11 +19,11 @@ export declare class TestCdn extends Cdn.Service {
     localPath: './public';
   };
 
-  defaultTTL: 300;
+  cacheTTL: 300;
 
-  minTTL: 1;
+  minCacheTTL: 1;
 
-  maxTTL: 3600;
+  maxCacheTTL: 3600;
 
   disabled: true;
 

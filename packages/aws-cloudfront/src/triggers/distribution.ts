@@ -31,9 +31,9 @@ export const prepareCdnServices = async (event: PrepareResourceEvent) => {
 
   const policyState = createCachePolicy(state, {
     policyName: getCachePolicyName(service, options),
-    defaultTTL: service.defaultTTL ?? 3600,
-    maxTTL: service.maxTTL ?? 86400,
-    minTTL: service.minTTL ?? 1,
+    defaultTTL: service.cacheTTL ?? 86400,
+    maxTTL: service.maxCacheTTL ?? 31536000,
+    minTTL: service.minCacheTTL ?? 1,
     description,
     compress
   });

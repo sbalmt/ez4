@@ -14,9 +14,5 @@ export declare class Site extends Cdn.Service {
     localPath: './public';
   };
 
-  defaultTTL: 15;
-
-  maxTTL: 30;
-
-  minTTL: 0;
+  cacheTTL: 15;
 }

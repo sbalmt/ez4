@@ -9,9 +9,9 @@
       "originPath": "/site",
       "localPath": "./public"
     },
-    "defaultTTL": 300,
-    "minTTL": 1,
-    "maxTTL": 3600,
+    "cacheTTL": 300,
+    "minCacheTTL": 1,
+    "maxCacheTTL": 3600,
     "disabled": true,
     "compress": true
   }
