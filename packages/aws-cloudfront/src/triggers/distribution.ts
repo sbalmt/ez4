@@ -7,8 +7,9 @@ import type {
   DeployOptions
 } from '@ez4/project/library';
 
-import { readdir } from 'node:fs/promises';
+import { readdir, stat } from 'node:fs/promises';
 import { join, relative } from 'node:path';
+import { createHash } from 'node:crypto';
 
 import {
   createBucketObject,
@@ -28,7 +29,6 @@ import { createOriginAccess } from '../access/service.js';
 import { getDistributionArn, getDistributionHashId } from '../distribution/utils.js';
 import { createDistribution } from '../distribution/service.js';
 import { createInvalidation } from '../invalidation/service.js';
-import { InvalidationState } from '../invalidation/types.js';
 import { getCachePolicyName, getOriginAccessName } from './utils.js';
 
 export const prepareCdnServices = async (event: PrepareResourceEvent) => {
@@ -86,12 +86,12 @@ export const connectCdnServices = async (event: ConnectResourceEvent) => {
 
   const distributionState = attachDistributionBucket(state, service, bucketState, options);
 
-  const invalidationState = createInvalidation(state, distributionState, {
-    files: ['/*']
-  });
-
   if (localPath) {
-    await attachLocalPathObjects(state, bucketState, invalidationState, localPath);
+    const contentVersion = await connectLocalContent(state, bucketState, localPath);
+
+    createInvalidation(state, distributionState, {
+      contentVersion
+    });
   }
 };
 
@@ -125,22 +125,21 @@ const attachDistributionBucket = (
   return distributionState;
 };
 
-const attachLocalPathObjects = async (
+const connectLocalContent = async (
   state: EntryStates,
   bucketState: BucketState,
-  invalidationState: InvalidationState,
   localPath: string
 ) => {
+  const contentVersion = createHash('sha256');
+
   const basePath = join(process.cwd(), localPath);
 
-  const invalidationEntryId = invalidationState.entryId;
-
-  const files = await readdir(basePath, {
+  const allFiles = await readdir(basePath, {
     withFileTypes: true,
     recursive: true
   });
 
-  for (const file of files) {
+  for (const file of allFiles) {
     if (!file.isFile()) {
       continue;
     }
@@ -148,11 +147,17 @@ const attachLocalPathObjects = async (
     const filePath = join(file.parentPath, file.name);
     const objectKey = relative(basePath, filePath);
 
-    const objectState = createBucketObject(state, bucketState, {
+    const fileStat = await stat(filePath);
+
+    createBucketObject(state, bucketState, {
       objectKey,
       filePath
     });
 
-    linkDependency(state, invalidationEntryId, objectState.entryId);
+    const lastModified = fileStat.mtime.getTime();
+
+    contentVersion.update(`${objectKey}:${lastModified}`);
   }
+
+  return contentVersion.digest('hex');
 };

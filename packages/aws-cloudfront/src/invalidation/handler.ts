@@ -2,8 +2,7 @@ import type { StepContext, StepHandler } from '@ez4/stateful';
 import type { InvalidationState, InvalidationResult } from './types.js';
 
 import { ReplaceResourceError } from '@ez4/aws-common';
-import { deepCompare, deepEqualArray } from '@ez4/utils';
-import { getObjectFiles } from '@ez4/aws-bucket';
+import { deepCompare } from '@ez4/utils';
 
 import { getDistributionId } from '../distribution/utils.js';
 import { InvalidationServiceName } from './types.js';
@@ -23,21 +22,7 @@ const equalsResource = (candidate: InvalidationState, current: InvalidationState
 };
 
 const previewResource = async (candidate: InvalidationState, current: InvalidationState) => {
-  const target = candidate.parameters;
-  const source = current.parameters;
-
-  const changes = deepCompare(
-    {
-      ...target,
-      dependencies: candidate.dependencies,
-      lastModified: Date.now()
-    },
-    {
-      ...source,
-      dependencies: current.dependencies,
-      lastModified: current.result?.lastModified
-    }
-  );
+  const changes = deepCompare(candidate.parameters, current.parameters);
 
   if (!changes.counts) {
     return undefined;
@@ -65,9 +50,7 @@ const createResource = async (
   const distributionId = getDistributionId(InvalidationServiceName, 'invalidation', context);
 
   return {
-    distributionId,
-    lastModified: Date.now(),
-    lastChanges: getObjectFiles(context)
+    distributionId
   };
 };
 
@@ -76,7 +59,7 @@ const updateResource = async (
   current: InvalidationState,
   context: StepContext
 ): Promise<InvalidationResult | void> => {
-  const result = candidate.result;
+  const { result, parameters } = candidate;
 
   if (!result) {
     return;
@@ -84,21 +67,12 @@ const updateResource = async (
 
   const distributionId = getDistributionId(InvalidationServiceName, 'invalidation', context);
 
-  const newObjectFiles = getObjectFiles(context);
-  const oldObjectFiles = current.result?.lastChanges ?? newObjectFiles;
-
-  const hasChanges = !deepEqualArray(newObjectFiles, oldObjectFiles);
-
-  if (!hasChanges) {
-    return;
+  if (parameters.contentVersion !== current.parameters.contentVersion) {
+    await createInvalidation(distributionId, ['/*']);
   }
 
-  await createInvalidation(distributionId, candidate.parameters.files);
-
   return {
-    distributionId,
-    lastModified: Date.now(),
-    lastChanges: newObjectFiles
+    distributionId
   };
 };
 
