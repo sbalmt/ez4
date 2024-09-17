@@ -9,7 +9,8 @@ export type ProjectOptions = {
   confirmDeploy?: boolean;
 
   /**
-   * Set the new package.json location relative to the current working directory.
+   * Set a new `package.json` location relative to the current working directory.
+   * All providers are automatically loaded from this new location.
    */
   packageLocation?: string;
 
