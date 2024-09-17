@@ -26,13 +26,13 @@ const assertDeploy = async <E extends EntryState>(
   ok(resource?.result);
   ok(isTableState(resource));
 
-  const { tableName, tableArn } = resource.result;
+  const result = resource.result;
 
-  ok(tableName);
-  ok(tableArn);
+  ok(result.tableName);
+  ok(result.tableArn);
 
   return {
-    result: resource.result,
+    result,
     state
   };
 };
