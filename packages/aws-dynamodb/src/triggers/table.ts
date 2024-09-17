@@ -118,6 +118,12 @@ const getTimeToLiveIndex = (indexName: string, allColumns: ObjectSchemaPropertie
 const getAttributeIndex = (indexName: string, allColumns: ObjectSchemaProperties) => {
   const attributeSchema: AttributeSchema[] = [];
 
+  const schemaAttributeTypesMap: Record<string, AttributeType | undefined> = {
+    [SchemaTypeName.Boolean]: AttributeType.Boolean,
+    [SchemaTypeName.Number]: AttributeType.Number,
+    [SchemaTypeName.String]: AttributeType.String
+  };
+
   for (const columnName of indexName.split(':')) {
     const columnSchema = allColumns[columnName];
 
@@ -125,30 +131,11 @@ const getAttributeIndex = (indexName: string, allColumns: ObjectSchemaProperties
       throw new Error(`Column ${columnName} doesn't exists, ensure the given schema is correct.`);
     }
 
-    switch (columnSchema.type) {
-      case SchemaTypeName.Boolean:
-        attributeSchema.push({
-          keyType: AttributeKeyType.Hash,
-          attributeType: AttributeType.Boolean,
-          attributeName: columnName
-        });
-        break;
-
-      case SchemaTypeName.Number:
-        attributeSchema.push({
-          keyType: attributeSchema.length === 0 ? AttributeKeyType.Hash : AttributeKeyType.Range,
-          attributeType: AttributeType.Number,
-          attributeName: columnName
-        });
-        break;
-
-      default:
-        attributeSchema.push({
-          keyType: AttributeKeyType.Hash,
-          attributeType: AttributeType.String,
-          attributeName: columnName
-        });
-    }
+    attributeSchema.push({
+      attributeName: columnName,
+      attributeType: schemaAttributeTypesMap[columnSchema.type] ?? AttributeType.String,
+      keyType: attributeSchema.length === 0 ? AttributeKeyType.Hash : AttributeKeyType.Range
+    });
   }
 
   return attributeSchema;
