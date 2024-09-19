@@ -160,7 +160,7 @@ export class Table<T extends Database.Schema = Database.Schema, I extends string
     for (const record of records) {
       const { [partitionKey]: partitionId, [sortKey]: sortId } = record;
 
-      const [statement, variables] = prepareUpdate(this.name, {
+      const [statement, variables] = prepareUpdate(this.name, this.schema, {
         data: query.data,
         where: {
           ...(sortKey && { [sortKey]: sortId }),

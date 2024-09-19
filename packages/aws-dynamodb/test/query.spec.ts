@@ -8,6 +8,7 @@ import {
   prepareUpdate
 } from '@ez4/aws-dynamodb/client';
 
+import { ObjectSchema, SchemaTypeName } from '@ez4/schema';
 import { Query } from '@ez4/database';
 
 type TestSchema = {
@@ -33,6 +34,29 @@ const getWhereOperation = (where: Query.WhereInput<TestSchema>) => {
 };
 
 describe.only('dynamodb query', () => {
+  const testSchema: ObjectSchema = {
+    type: SchemaTypeName.Object,
+    properties: {
+      id: {
+        type: SchemaTypeName.String
+      },
+      foo: {
+        type: SchemaTypeName.Number
+      },
+      bar: {
+        type: SchemaTypeName.Object,
+        properties: {
+          barFoo: {
+            type: SchemaTypeName.String
+          },
+          barBar: {
+            type: SchemaTypeName.Number
+          }
+        }
+      }
+    }
+  };
+
   it('assert :: prepare insert', () => {
     const [statement, variables] = prepareInsert<TestSchema>('ez4-test-insert', {
       data: {
@@ -51,7 +75,7 @@ describe.only('dynamodb query', () => {
   });
 
   it('assert :: prepare update', () => {
-    const [statement, variables] = prepareUpdate<TestSchema>('ez4-test-update', {
+    const [statement, variables] = prepareUpdate<TestSchema>('ez4-test-update', testSchema, {
       data: {
         foo: 456
       },
@@ -66,7 +90,7 @@ describe.only('dynamodb query', () => {
   });
 
   it('assert :: prepare update (with select)', () => {
-    const [statement, variables] = prepareUpdate<TestSchema>('ez4-test-update', {
+    const [statement, variables] = prepareUpdate<TestSchema>('ez4-test-update', testSchema, {
       select: {
         foo: true,
         bar: {
