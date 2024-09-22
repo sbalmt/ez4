@@ -1,70 +1,29 @@
-import type { LinkedVariables } from '@ez4/project/library';
 import type { Service } from '@ez4/common';
+import type { QueueIncomingRequest, QueueMessage } from './message.js';
+import type { QueueSubscription } from './subscription.js';
+import type { QueueHandler } from './handler.js';
 import type { Client } from './client.js';
 
 /**
  * Provide all contracts for a self-managed Queue service.
  */
 export namespace Queue {
-  /**
-   * Definition of a message.
-   */
-  export interface Message {}
+  export type Message = QueueMessage;
 
-  /**
-   * Incoming request.
-   */
-  export type Incoming<T extends Message> = {
-    /**
-     * Request Id.
-     */
-    requestId: string;
+  export type Handler<T extends Message> = QueueHandler<T>;
 
-    /**
-     * Message payload.
-     */
-    message: T;
-  };
+  export type Incoming<T extends Message> = QueueIncomingRequest<T>;
 
-  /**
-   * Incoming request handler.
-   */
-  export type Handler<T extends Message> = (
-    request: T,
-    context: Service.Context<Service<any>>
-  ) => Promise<void> | void;
-
-  /**
-   * Queue subscription.
-   */
-  export interface Subscription<T extends Message = Message> {
-    /**
-     * Subscription handler.
-     *
-     * @param request Incoming request.
-     * @param context Handler context.
-     */
-    handler: Handler<Incoming<T>>;
-
-    /**
-     * Variables associated to the subscription.
-     */
-    variables?: LinkedVariables;
-
-    /**
-     * Amount of memory available for the handler.
-     */
-    memory?: number;
-  }
+  export type Subscription<T extends Message> = QueueSubscription<T>;
 
   /**
    * Queue service.
    */
-  export declare abstract class Service<T extends Message = Message> implements Service.Provider {
+  export declare abstract class Service<T extends Message> implements Service.Provider {
     /**
      * All expected subscriptions.
      */
-    abstract subscriptions: Subscription<T>[];
+    abstract subscriptions: QueueSubscription<T>[];
 
     /**
      * Message schema.

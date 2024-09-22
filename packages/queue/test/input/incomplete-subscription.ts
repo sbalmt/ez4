@@ -1,6 +1,8 @@
 import type { Queue } from '@ez4/queue';
 
-export declare class TestQueue extends Queue.Service {
+interface TestMessage extends Queue.Message {}
+
+export declare class TestQueue extends Queue.Service<TestMessage> {
   schema: {};
 
   // @ts-ignore Missing required subscription handler.

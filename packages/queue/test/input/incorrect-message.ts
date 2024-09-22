@@ -1,10 +1,10 @@
 import type { Queue } from '@ez4/queue';
 
-export declare class TestQueue extends Queue.Service {
+// Missing Queue.Message inheritance.
+declare class TestMessage {}
+
+export declare class TestQueue extends Queue.Service<TestMessage> {
   schema: TestMessage;
 
   subscriptions: [];
 }
-
-// Missing Queue.Message inheritance.
-declare class TestMessage {}

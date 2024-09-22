@@ -1,7 +1,7 @@
 import type { Service, Environment } from '@ez4/common';
 import type { Queue } from '@ez4/queue';
 
-declare class TestMessage implements Queue.Message {
+interface TestMessage extends Queue.Message {
   foo: string;
 }
 
@@ -25,7 +25,7 @@ export declare class TestQueue extends Queue.Service<TestMessage> {
   };
 }
 
-export declare class TestSubscription implements Queue.Subscription<TestMessage> {
+declare class TestSubscription implements Queue.Subscription<TestMessage> {
   handler: typeof testHandler;
 
   memory: 128;
@@ -36,10 +36,7 @@ export declare class TestSubscription implements Queue.Subscription<TestMessage>
   };
 }
 
-export function testHandler(
-  request: Queue.Incoming<TestMessage>,
-  context: Service.Context<TestQueue>
-) {
+function testHandler(request: Queue.Incoming<TestMessage>, context: Service.Context<TestQueue>) {
   // Ensure request types.
   request.requestId;
   request.message;

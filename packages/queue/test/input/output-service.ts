@@ -1,12 +1,12 @@
 import type { Environment } from '@ez4/common';
 import type { Queue } from '@ez4/queue';
 
+interface TestMessage extends Queue.Message {}
+
 /**
  * First test queue description.
  */
-export declare class TestQueue1 extends Queue.Service {
-  schema: {};
-
+export declare class TestQueue1 extends Queue.Service<TestMessage> {
   subscriptions: [];
 
   // Services to all subscriptions.
@@ -18,9 +18,7 @@ export declare class TestQueue1 extends Queue.Service {
 /**
  * Description of the second test queue.
  */
-export declare class TestQueue2 extends Queue.Service {
-  schema: {};
-
+export declare class TestQueue2 extends Queue.Service<TestMessage> {
   subscriptions: [];
 
   timeout: 5;
