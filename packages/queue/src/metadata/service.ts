@@ -1,5 +1,5 @@
 import type { Incomplete } from '@ez4/utils';
-import type { ModelProperty, SourceMap } from '@ez4/reflection';
+import type { ModelProperty, SourceMap, TypeModel } from '@ez4/reflection';
 import type { QueueSubscription } from '../types/subscription.js';
 import type { QueueService } from '../types/service.js';
 
@@ -45,11 +45,13 @@ export const getQueueServices = (reflection: SourceMap) => {
       }
 
       switch (member.name) {
-        case 'schema':
-          if ((service.schema = getQueueMessage(member.value, statement, reflection, errorList))) {
+        case 'schema': {
+          service.schema = getQueueMessage(member.value, statement, reflection, errorList);
+          if (service.schema) {
             properties.delete(member.name);
           }
           break;
+        }
 
         case 'timeout':
         case 'retention':
@@ -65,7 +67,8 @@ export const getQueueServices = (reflection: SourceMap) => {
 
         case 'subscriptions': {
           if (!member.inherited) {
-            if ((service.subscriptions = getAllSubscription(member, reflection, errorList))) {
+            service.subscriptions = getAllSubscription(member, statement, reflection, errorList);
+            if (service.subscriptions) {
               properties.delete(member.name);
             }
           }
@@ -104,12 +107,17 @@ const isValidService = (type: Incomplete<QueueService>): type is QueueService =>
   return !!type.name && !!type.schema && !!type.subscriptions;
 };
 
-const getAllSubscription = (member: ModelProperty, reflection: SourceMap, errorList: Error[]) => {
+const getAllSubscription = (
+  member: ModelProperty,
+  parent: TypeModel,
+  reflection: SourceMap,
+  errorList: Error[]
+) => {
   const subscriptionItems = getPropertyTuple(member) ?? [];
   const subscriptionList: QueueSubscription[] = [];
 
   for (const subscription of subscriptionItems) {
-    const result = getQueueSubscription(subscription, reflection, errorList);
+    const result = getQueueSubscription(subscription, parent, reflection, errorList);
 
     if (result) {
       subscriptionList.push(result);

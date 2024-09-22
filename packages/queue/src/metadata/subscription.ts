@@ -7,24 +7,37 @@ import {
   getLinkedVariableList,
   getModelMembers,
   getObjectMembers,
-  getPropertyNumber
+  getPropertyNumber,
+  isModelDeclaration
 } from '@ez4/common/library';
 
 import { isModelProperty, isTypeObject, isTypeReference } from '@ez4/reflection';
 
-import { IncompleteSubscriptionError } from '../errors/subscription.js';
+import {
+  IncompleteSubscriptionError,
+  IncorrectSubscriptionTypeError,
+  InvalidSubscriptionTypeError
+} from '../errors/subscription.js';
+
 import { getSubscriptionHandler } from './handler.js';
 import { isQueueSubscription } from './utils.js';
 
-export const getQueueSubscription = (type: AllType, reflection: SourceMap, errorList: Error[]) => {
+type TypeParent = TypeModel | TypeObject;
+
+export const getQueueSubscription = (
+  type: AllType,
+  parent: TypeParent,
+  reflection: SourceMap,
+  errorList: Error[]
+) => {
   if (!isTypeReference(type)) {
-    return getTypeSubscription(type, reflection, errorList);
+    return getTypeSubscription(type, parent, reflection, errorList);
   }
 
   const statement = reflection[type.path];
 
   if (statement) {
-    return getTypeSubscription(statement, reflection, errorList);
+    return getTypeSubscription(statement, parent, reflection, errorList);
   }
 
   return null;
@@ -34,16 +47,27 @@ const isValidSubscription = (type: Incomplete<QueueSubscription>): type is Queue
   return !!type.handler;
 };
 
-const getTypeSubscription = (type: AllType, reflection: SourceMap, errorList: Error[]) => {
-  if (isQueueSubscription(type)) {
-    return getTypeFromMembers(type, getModelMembers(type), reflection, errorList);
-  }
-
+const getTypeSubscription = (
+  type: AllType,
+  parent: TypeParent,
+  reflection: SourceMap,
+  errorList: Error[]
+) => {
   if (isTypeObject(type)) {
     return getTypeFromMembers(type, getObjectMembers(type), reflection, errorList);
   }
 
-  return null;
+  if (!isModelDeclaration(type)) {
+    errorList.push(new InvalidSubscriptionTypeError(parent.file));
+    return null;
+  }
+
+  if (!isQueueSubscription(type)) {
+    errorList.push(new IncorrectSubscriptionTypeError(type.name, type.file));
+    return null;
+  }
+
+  return getTypeFromMembers(type, getModelMembers(type), reflection, errorList);
 };
 
 const getTypeFromMembers = (
