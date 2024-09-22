@@ -21,13 +21,13 @@ export const deploy = async (project: ProjectOptions) => {
   const metadata = getMetadata(project.sourceFiles);
 
   const deploy: DeployOptions = {
-    resourcePrefix: project.resourcePrefix ?? 'ez4',
+    resourcePrefix: project.prefix ?? 'ez4',
     projectName: toKebabCase(project.projectName)
   };
 
   await prepareAllLinkedServices(metadata, deploy);
 
-  const stateFile = `${project.stateFile}.ezstate`;
+  const stateFile = `${project.stateFile.path}.ezstate`;
 
   const oldState = loadState(stateFile);
   const newState: EntryStates = {};
@@ -46,7 +46,7 @@ export const deploy = async (project: ProjectOptions) => {
     return;
   }
 
-  if (project.confirmDeploy !== false) {
+  if (project.confirm !== false) {
     const proceed = await waitConfirmation('Are you sure to proceed?');
 
     if (!proceed) {

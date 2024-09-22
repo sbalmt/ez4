@@ -3,7 +3,7 @@ import type { ProjectOptions } from '../types/project.js';
 import { join } from 'node:path';
 
 export const loadProviders = async (options: ProjectOptions) => {
-  const packagePath = join(process.cwd(), options.packageLocation ?? 'package.json');
+  const packagePath = join(process.cwd(), options.packageFile ?? 'package.json');
 
   const projectProviders = await fetchProviderPackages(packagePath);
 

@@ -11,7 +11,7 @@ import { loadProviders } from './providers.js';
 export const destroy = async (project: ProjectOptions) => {
   await loadProviders(project);
 
-  const stateFile = `${project.stateFile}.ezstate`;
+  const stateFile = `${project.stateFile.path}.ezstate`;
 
   const oldState = loadState(stateFile);
   const newState: EntryStates = {};
@@ -23,7 +23,7 @@ export const destroy = async (project: ProjectOptions) => {
     return;
   }
 
-  if (project.confirmDeploy !== false) {
+  if (project.confirm !== false) {
     const proceed = await waitConfirmation('Are you sure to proceed?');
 
     if (!proceed) {
