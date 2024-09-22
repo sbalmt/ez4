@@ -2,12 +2,12 @@ import type { ExtraSource, ServiceEvent } from '@ez4/project/library';
 
 import { getAccountId, getRegion } from '@ez4/aws-identity';
 import { getServiceName } from '@ez4/project/library';
-import { isQueueService } from '@ez4/queue/library';
+import { isQueueImport, isQueueService } from '@ez4/queue/library';
 
 export const prepareLinkedService = async (event: ServiceEvent): Promise<ExtraSource | null> => {
   const { service, options } = event;
 
-  if (!isQueueService(service)) {
+  if (!isQueueService(service) && !isQueueImport(service)) {
     return null;
   }
 

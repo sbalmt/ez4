@@ -5,7 +5,9 @@ export const QueueServiceName = 'AWS:SQS/Queue';
 
 export const QueueServiceType = 'aws:sqs.queue';
 
-export type QueueParameters = CreateRequest;
+export type QueueParameters = CreateRequest & {
+  import?: boolean;
+};
 
 export type QueueResult = CreateResponse;
 

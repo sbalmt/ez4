@@ -4,7 +4,15 @@ import type { QueueState, QueueResult, QueueParameters } from './types.js';
 import { applyTagUpdates, ReplaceResourceError } from '@ez4/aws-common';
 import { deepCompare, deepEqual } from '@ez4/utils';
 
-import { createQueue, deleteQueue, tagQueue, untagQueue, updateQueue } from './client.js';
+import {
+  fetchQueue,
+  createQueue,
+  deleteQueue,
+  tagQueue,
+  untagQueue,
+  updateQueue
+} from './client.js';
+
 import { QueueServiceName } from './types.js';
 
 export const getQueueHandler = (): StepHandler<QueueState> => ({
@@ -45,22 +53,24 @@ const replaceResource = async (candidate: QueueState, current: QueueState) => {
 };
 
 const createResource = async (candidate: QueueState): Promise<QueueResult> => {
-  const response = await createQueue(candidate.parameters);
+  const parameters = candidate.parameters;
+
+  const { queueUrl, queueArn } = await (parameters.import
+    ? fetchQueue(parameters.queueName)
+    : createQueue(parameters));
 
   return {
-    queueUrl: response.queueUrl,
-    queueArn: response.queueArn
+    queueUrl,
+    queueArn
   };
 };
 
 const updateResource = async (candidate: QueueState, current: QueueState) => {
-  const result = candidate.result;
+  const { result, parameters } = candidate;
 
-  if (!result) {
+  if (!result || parameters.import) {
     return;
   }
-
-  const parameters = candidate.parameters;
 
   await Promise.all([
     checkGeneralUpdates(result.queueUrl, parameters, current.parameters),
@@ -69,9 +79,9 @@ const updateResource = async (candidate: QueueState, current: QueueState) => {
 };
 
 const deleteResource = async (candidate: QueueState) => {
-  const result = candidate.result;
+  const { result, parameters } = candidate;
 
-  if (result) {
+  if (result && !parameters.import) {
     await deleteQueue(result.queueUrl);
   }
 };

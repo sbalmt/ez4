@@ -3,6 +3,7 @@ import type { QueueAttributeName } from '@aws-sdk/client-sqs';
 
 import {
   SQSClient,
+  GetQueueUrlCommand,
   CreateQueueCommand,
   SetQueueAttributesCommand,
   DeleteQueueCommand,
@@ -32,6 +33,25 @@ export type CreateResponse = {
 };
 
 export type UpdateRequest = Pick<CreateRequest, 'timeout' | 'retention' | 'polling' | 'delay'>;
+
+export const fetchQueue = async (queueName: string) => {
+  Logger.logFetch(QueueServiceName, queueName);
+
+  const [region, accountId, response] = await Promise.all([
+    getRegion(),
+    getAccountId(),
+    client.send(
+      new GetQueueUrlCommand({
+        QueueName: queueName
+      })
+    )
+  ]);
+
+  return {
+    queueUrl: response.QueueUrl!,
+    queueArn: `arn:aws:sqs:${region}:${accountId}:${queueName}` as Arn
+  };
+};
 
 export const createQueue = async (request: CreateRequest): Promise<CreateResponse> => {
   Logger.logCreate(QueueServiceName, request.queueName);

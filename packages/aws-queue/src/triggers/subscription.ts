@@ -1,41 +1,18 @@
-import type { DeployOptions, PrepareResourceEvent } from '@ez4/project/library';
+import type { DeployOptions } from '@ez4/project/library';
 import type { EntryState, EntryStates } from '@ez4/stateful';
-import type { QueueService } from '@ez4/queue/library';
+import type { QueueService, QueueImport } from '@ez4/queue/library';
 import type { QueueState } from '../queue/types.js';
 
-import { getServiceName } from '@ez4/project/library';
-import { isQueueService } from '@ez4/queue/library';
 import { getFunction } from '@ez4/aws-function';
 import { isRoleState } from '@ez4/aws-identity';
 
-import { createQueue } from '../queue/service.js';
 import { createQueueFunction } from '../mapping/function/service.js';
 import { createMapping } from '../mapping/service.js';
 import { getMappingName } from './utils.js';
 
-export const prepareQueueServices = async (event: PrepareResourceEvent) => {
-  const { state, service, options, role } = event;
-
-  if (!isQueueService(service)) {
-    return;
-  }
-
-  const { timeout, retention, polling, delay } = service;
-
-  const queueState = createQueue(state, {
-    queueName: getServiceName(service, options),
-    ...(timeout !== undefined && { timeout }),
-    ...(retention !== undefined && { retention }),
-    ...(polling !== undefined && { polling }),
-    ...(delay !== undefined && { delay })
-  });
-
-  await prepareSubscriptions(state, service, role, queueState, options);
-};
-
-const prepareSubscriptions = async (
+export const prepareSubscriptions = async (
   state: EntryStates,
-  service: QueueService,
+  service: QueueService | QueueImport,
   role: EntryState | null,
   queueState: QueueState,
   options: DeployOptions

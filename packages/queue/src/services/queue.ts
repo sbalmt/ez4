@@ -72,7 +72,17 @@ export namespace Queue {
     abstract subscriptions: Subscription<T['schema']>[];
 
     /**
-     * Imported service client.
+     * Imported message schema (do not replace).
+     */
+    schema: T['schema'];
+
+    /**
+     * Imported maximum acknowledge time (do not replace).
+     */
+    timeout: T['timeout'];
+
+    /**
+     * Imported service client (do not replace).
      */
     client: T['client'];
   }
