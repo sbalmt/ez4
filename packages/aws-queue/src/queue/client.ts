@@ -1,10 +1,11 @@
 import type { Arn, ResourceTags } from '@ez4/aws-common';
+import type { QueueAttributeName } from '@aws-sdk/client-sqs';
 
 import {
+  SQSClient,
   CreateQueueCommand,
   SetQueueAttributesCommand,
   DeleteQueueCommand,
-  SQSClient,
   TagQueueCommand,
   UntagQueueCommand
 } from '@aws-sdk/client-sqs';
@@ -20,6 +21,7 @@ export type CreateRequest = {
   queueName: string;
   timeout?: number;
   retention?: number;
+  polling?: number;
   delay?: number;
   tags?: ResourceTags;
 };
@@ -29,16 +31,10 @@ export type CreateResponse = {
   queueArn: Arn;
 };
 
-export type UpdateRequest = {
-  timeout?: number;
-  retention?: number;
-  delay?: number;
-};
+export type UpdateRequest = Pick<CreateRequest, 'timeout' | 'retention' | 'polling' | 'delay'>;
 
 export const createQueue = async (request: CreateRequest): Promise<CreateResponse> => {
   Logger.logCreate(QueueServiceName, request.queueName);
-
-  const { timeout, retention, delay } = request;
 
   const [region, accountId, response] = await Promise.all([
     getRegion(),
@@ -47,9 +43,7 @@ export const createQueue = async (request: CreateRequest): Promise<CreateRespons
       new CreateQueueCommand({
         QueueName: request.queueName,
         Attributes: {
-          ...(timeout !== undefined && { VisibilityTimeout: timeout.toString() }),
-          ...(retention !== undefined && { MessageRetentionPeriod: (retention * 60).toString() }),
-          ...(delay !== undefined && { DelaySeconds: delay.toString() })
+          ...upsertQueueAttributes(request)
         },
         tags: {
           ...request.tags,
@@ -68,15 +62,11 @@ export const createQueue = async (request: CreateRequest): Promise<CreateRespons
 export const updateQueue = async (queueUrl: string, request: UpdateRequest) => {
   Logger.logUpdate(QueueServiceName, queueUrl);
 
-  const { timeout, retention, delay } = request;
-
   await client.send(
     new SetQueueAttributesCommand({
       QueueUrl: queueUrl,
       Attributes: {
-        ...(timeout !== undefined && { VisibilityTimeout: timeout.toString() }),
-        ...(retention !== undefined && { MessageRetentionPeriod: (retention * 60).toString() }),
-        ...(delay !== undefined && { DelaySeconds: delay.toString() })
+        ...upsertQueueAttributes(request)
       }
     })
   );
@@ -115,4 +105,17 @@ export const deleteQueue = async (queueUrl: string) => {
       QueueUrl: queueUrl
     })
   );
+};
+
+const upsertQueueAttributes = (
+  request: CreateRequest | UpdateRequest
+): Partial<Record<QueueAttributeName, string>> => {
+  const { timeout, retention, polling, delay } = request;
+
+  return {
+    ...(timeout !== undefined && { VisibilityTimeout: timeout.toString() }),
+    ...(retention !== undefined && { MessageRetentionPeriod: (retention * 60).toString() }),
+    ...(polling !== undefined && { ReceiveMessageWaitTimeSeconds: polling.toString() }),
+    ...(delay !== undefined && { DelaySeconds: delay.toString() })
+  };
 };

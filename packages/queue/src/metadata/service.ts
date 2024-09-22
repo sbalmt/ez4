@@ -55,6 +55,7 @@ export const getQueueServices = (reflection: SourceMap) => {
 
         case 'timeout':
         case 'retention':
+        case 'polling':
         case 'delay': {
           if (!member.inherited) {
             const value = getPropertyNumber(member);

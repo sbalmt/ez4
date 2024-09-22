@@ -62,7 +62,7 @@ describe.only('queue client', () => {
     ok(queueClient);
 
     const messages = await queueClient.receiveMessage({
-      maxWait: 10
+      polling: 10
     });
 
     equal(messages.length, 1);

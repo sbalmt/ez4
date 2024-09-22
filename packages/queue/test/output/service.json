@@ -17,6 +17,8 @@
     "description": "Description of the second test queue.",
     "name": "TestQueue2",
     "timeout": 5,
+    "retention": 60,
+    "polling": 10,
     "delay": 15,
     "subscriptions": [],
     "schema": {

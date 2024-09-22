@@ -40,6 +40,10 @@ describe.only('queue', () => {
 
     const resource = createQueue(localState, {
       queueName: 'ez4-test-queue',
+      timeout: 30,
+      retention: 60,
+      polling: 20,
+      delay: 5,
       tags: {
         test1: 'ez4-tag1',
         test2: 'ez4-tag2'

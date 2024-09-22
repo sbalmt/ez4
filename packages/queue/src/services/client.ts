@@ -28,12 +28,12 @@ export type ReceiveOptions = {
   /**
    * Maximum amount of messages.
    */
-  maxMessages?: number;
+  messages?: number;
 
   /**
-   * Maximum wait time (in seconds) for messages.
+   * Maximum wait time (in seconds) for receiving messages.
    */
-  maxWait?: number;
+  polling?: number;
 };
 
 /**
@@ -41,7 +41,7 @@ export type ReceiveOptions = {
  */
 export type SendOptions = {
   /**
-   * Delay (in seconds) for the message being sent.
+   * Maximum delay time (in seconds) for making the message available.
    */
   delay?: number;
 };

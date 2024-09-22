@@ -31,17 +31,22 @@ export namespace Queue {
     schema: T;
 
     /**
-     * Max acknowledge time (in seconds) for the handler.
+     * Maximum acknowledge time (in seconds) for the handler.
      */
     timeout?: number;
 
     /**
-     * Max retention time (in minutes) for all messages in the queue.
+     * Maximum retention time (in minutes) for all messages in the queue.
      */
     retention?: number;
 
     /**
-     * Max delay time (in seconds) for the handler to see messages.
+     * Maximum wait time (in seconds) for receiving messages.
+     */
+    polling?: number;
+
+    /**
+     * Maximum delay time (in seconds) for making messages available.
      */
     delay?: number;
 

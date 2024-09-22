@@ -20,13 +20,14 @@ export const prepareQueueServices = async (event: PrepareResourceEvent) => {
     return;
   }
 
-  const { timeout, retention, delay } = service;
+  const { timeout, retention, polling, delay } = service;
 
   const queueState = createQueue(state, {
     queueName: getServiceName(service, options),
     ...(timeout !== undefined && { timeout }),
     ...(retention !== undefined && { retention }),
-    ...(delay !== undefined && { timeout })
+    ...(polling !== undefined && { polling }),
+    ...(delay !== undefined && { delay })
   });
 
   await prepareSubscriptions(state, service, role, queueState, options);

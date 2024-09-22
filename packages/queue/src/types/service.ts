@@ -12,6 +12,7 @@ export type QueueService = ServiceMetadata & {
   subscriptions: QueueSubscription[];
   timeout?: number;
   retention?: number;
+  polling?: number;
   delay?: number;
 };
 

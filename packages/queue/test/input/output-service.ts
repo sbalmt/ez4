@@ -23,6 +23,10 @@ export declare class TestQueue2 extends Queue.Service<TestMessage> {
 
   timeout: 5;
 
+  retention: 60;
+
+  polling: 10;
+
   delay: 15;
 
   // Variables to all subscriptions.
