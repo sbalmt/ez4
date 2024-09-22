@@ -1,0 +1,35 @@
+{
+  "TestQueue": {
+    "type": "@ez4/queue",
+    "name": "TestQueue",
+    "schema": {
+      "type": "object",
+      "properties": {
+        "foo": {
+          "type": "string"
+        }
+      }
+    },
+    "subscriptions": []
+  },
+  "TestImportQueue": {
+    "type": "@ez4/import:queue",
+    "name": "TestImportQueue",
+    "project": "name from project in ez4.project.js",
+    "subscriptions": [
+      {
+        "handler": {
+          "name": "testHandler",
+          "file": "test/input/output-import.ts"
+        }
+      }
+    ],
+    "variables": {
+      "TEST_VAR1": "test-literal-value",
+      "TEST_VAR2": "test-env-var-value"
+    },
+    "services": {
+      "selfClient": "TestImportQueue"
+    }
+  }
+}

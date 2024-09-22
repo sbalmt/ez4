@@ -2,8 +2,13 @@ import { registerTriggers as registerCommonTriggers } from '@ez4/common/library'
 import { registerTriggers as registerSchemaTriggers } from '@ez4/schema/library';
 import { createTrigger } from '@ez4/project/library';
 
+import { ImportType } from '../types/import.js';
+import { getQueueImports } from '../metadata/import.js';
+
+import { ServiceType } from '../types/service.js';
 import { getQueueServices } from '../metadata/service.js';
-import { getLinkedService } from '../metadata/linked.js';
+
+import { getLinkedService, getLinkedImport } from './linked.js';
 
 let isRegistered = false;
 
@@ -15,9 +20,14 @@ export const registerTriggers = () => {
   registerCommonTriggers();
   registerSchemaTriggers();
 
-  createTrigger('@ez4/queue', {
+  createTrigger(ServiceType, {
     'metadata:getServices': getQueueServices,
     'metadata:getLinkedService': getLinkedService
+  });
+
+  createTrigger(ImportType, {
+    'metadata:getServices': getQueueImports,
+    'metadata:getLinkedService': getLinkedImport
   });
 
   isRegistered = true;

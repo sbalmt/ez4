@@ -1,30 +1,30 @@
 {
   "TestQueue1": {
     "type": "@ez4/queue",
-    "description": "First test queue description.",
     "name": "TestQueue1",
+    "description": "First test queue description.",
+    "schema": {
+      "type": "object",
+      "properties": {}
+    },
     "subscriptions": [],
     "services": {
       "testQueue": "TestQueue2"
-    },
-    "schema": {
-      "properties": {},
-      "type": "object"
     }
   },
   "TestQueue2": {
     "type": "@ez4/queue",
-    "description": "Description of the second test queue.",
     "name": "TestQueue2",
+    "description": "Description of the second test queue.",
+    "schema": {
+      "type": "object",
+      "properties": {}
+    },
     "timeout": 5,
     "retention": 60,
     "polling": 10,
     "delay": 15,
     "subscriptions": [],
-    "schema": {
-      "properties": {},
-      "type": "object"
-    },
     "variables": {
       "TEST_VAR1": "test-literal-value",
       "TEST_VAR2": "test-env-var-value"

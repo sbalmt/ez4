@@ -1,18 +1,19 @@
 import type { LinkedVariables } from '@ez4/project/library';
-import type { QueueIncomingRequest, QueueMessage } from './message.js';
-import type { QueueHandler } from './handler.js';
+import type { IncomingRequest } from './incoming.js';
+import type { HandlerSignature } from './handler.js';
+import type { MessageSchema } from './message.js';
 
 /**
  * Queue subscription.
  */
-export interface QueueSubscription<T extends QueueMessage = QueueMessage> {
+export interface SubscriptionEntry<T extends MessageSchema> {
   /**
    * Subscription handler.
    *
    * @param request Incoming request.
    * @param context Handler context.
    */
-  handler: QueueHandler<QueueIncomingRequest<T>>;
+  handler: HandlerSignature<IncomingRequest<T>>;
 
   /**
    * Variables associated to the subscription.

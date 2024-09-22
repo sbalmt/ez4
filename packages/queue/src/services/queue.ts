@@ -1,29 +1,30 @@
 import type { Service } from '@ez4/common';
-import type { QueueIncomingRequest, QueueMessage } from './message.js';
-import type { QueueSubscription } from './subscription.js';
-import type { QueueHandler } from './handler.js';
+import type { MessageSchema } from './message.js';
+import type { IncomingRequest } from './incoming.js';
+import type { SubscriptionEntry } from './subscription.js';
+import type { HandlerSignature } from './handler.js';
 import type { Client } from './client.js';
 
 /**
  * Provide all contracts for a self-managed Queue service.
  */
 export namespace Queue {
-  export type Message = QueueMessage;
+  export type Message = MessageSchema;
 
-  export type Handler<T extends Message> = QueueHandler<T>;
+  export type Handler<T extends Message> = HandlerSignature<T>;
 
-  export type Incoming<T extends Message> = QueueIncomingRequest<T>;
+  export type Subscription<T extends Message> = SubscriptionEntry<T>;
 
-  export type Subscription<T extends Message> = QueueSubscription<T>;
+  export type Incoming<T extends Message> = IncomingRequest<T>;
 
   /**
    * Queue service.
    */
   export declare abstract class Service<T extends Message> implements Service.Provider {
     /**
-     * All expected subscriptions.
+     * All subscriptions associated to the queue.
      */
-    abstract subscriptions: QueueSubscription<T>[];
+    abstract subscriptions: Subscription<T>[];
 
     /**
      * Message schema.
@@ -54,5 +55,25 @@ export namespace Queue {
      * Service client.
      */
     client: Client<T>;
+  }
+
+  /**
+   * Imported queue service.
+   */
+  export declare abstract class Import<T extends Service<any>> implements Service.Provider {
+    /**
+     * Name of the imported project defined in the project options file.
+     */
+    abstract project: string;
+
+    /**
+     * All subscriptions attached to the imported queue.
+     */
+    abstract subscriptions: Subscription<T['schema']>[];
+
+    /**
+     * Imported service client.
+     */
+    client: T['client'];
   }
 }

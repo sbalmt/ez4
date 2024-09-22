@@ -37,11 +37,21 @@ declare class TestSubscription implements Queue.Subscription<TestMessage> {
 }
 
 function testHandler(request: Queue.Incoming<TestMessage>, context: Service.Context<TestQueue>) {
+  const { selfClient } = context;
+
   // Ensure request types.
-  request.requestId;
-  request.message;
+  const requestId: string = request.requestId;
+  const message: TestMessage = request.message;
+
+  console.log(requestId, message);
 
   // Ensure context types.
-  context.selfClient.receiveMessage;
-  context.selfClient.sendMessage;
+  selfClient.receiveMessage({
+    messages: 1,
+    polling: 5
+  });
+
+  selfClient.sendMessage({
+    foo: 'test'
+  });
 }

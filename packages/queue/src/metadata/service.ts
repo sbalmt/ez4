@@ -1,21 +1,19 @@
 import type { Incomplete } from '@ez4/utils';
-import type { ModelProperty, SourceMap, TypeModel } from '@ez4/reflection';
-import type { QueueSubscription } from '../types/subscription.js';
+import type { SourceMap } from '@ez4/reflection';
 import type { QueueService } from '../types/service.js';
 
 import {
   getLinkedServiceList,
   getLinkedVariableList,
   getModelMembers,
-  getPropertyNumber,
-  getPropertyTuple
+  getPropertyNumber
 } from '@ez4/common/library';
 
 import { isModelProperty } from '@ez4/reflection';
 
 import { ServiceType } from '../types/service.js';
 import { IncompleteServiceError } from '../errors/service.js';
-import { getQueueSubscription } from './subscription.js';
+import { getAllSubscription } from './subscription.js';
 import { getQueueMessage } from './message.js';
 import { isQueueService } from './utils.js';
 
@@ -106,24 +104,4 @@ export const getQueueServices = (reflection: SourceMap) => {
 
 const isValidService = (type: Incomplete<QueueService>): type is QueueService => {
   return !!type.name && !!type.schema && !!type.subscriptions;
-};
-
-const getAllSubscription = (
-  member: ModelProperty,
-  parent: TypeModel,
-  reflection: SourceMap,
-  errorList: Error[]
-) => {
-  const subscriptionItems = getPropertyTuple(member) ?? [];
-  const subscriptionList: QueueSubscription[] = [];
-
-  for (const subscription of subscriptionItems) {
-    const result = getQueueSubscription(subscription, parent, reflection, errorList);
-
-    if (result) {
-      subscriptionList.push(result);
-    }
-  }
-
-  return subscriptionList;
 };

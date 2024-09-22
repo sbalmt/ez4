@@ -31,17 +31,32 @@ export type ProjectOptions = {
   sourceFiles: string[];
 
   /**
-   * Configuration options for the project state file.
+   * Configuration for imported projects.
    */
-  stateFile: ProjectStateOptions;
+  importProjects?: Record<string, ProjectImportOptions>;
+
+  /**
+   * Configuration for the project state file.
+   */
+  stateFile: ProjectStateFileOptions;
 };
 
 /**
  * State file options.
  */
-export type ProjectStateOptions = {
+export type ProjectStateFileOptions = {
   /**
    * Path to the local state file (don't use file extension).
    */
   path: string;
+};
+
+/**
+ * Import options.
+ */
+export type ProjectImportOptions = {
+  /**
+   * Project options file path.
+   */
+  projectFile: string;
 };

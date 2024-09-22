@@ -1,6 +1,6 @@
 import type { Incomplete } from '@ez4/utils';
 import type { MemberType } from '@ez4/common/library';
-import type { AllType, SourceMap, TypeModel, TypeObject } from '@ez4/reflection';
+import type { AllType, ModelProperty, SourceMap, TypeModel, TypeObject } from '@ez4/reflection';
 import type { QueueSubscription } from '../types/subscription.js';
 
 import {
@@ -8,6 +8,7 @@ import {
   getModelMembers,
   getObjectMembers,
   getPropertyNumber,
+  getPropertyTuple,
   isModelDeclaration
 } from '@ez4/common/library';
 
@@ -24,7 +25,27 @@ import { isQueueSubscription } from './utils.js';
 
 type TypeParent = TypeModel | TypeObject;
 
-export const getQueueSubscription = (
+export const getAllSubscription = (
+  member: ModelProperty,
+  parent: TypeModel,
+  reflection: SourceMap,
+  errorList: Error[]
+) => {
+  const subscriptionItems = getPropertyTuple(member) ?? [];
+  const resultList: QueueSubscription[] = [];
+
+  for (const subscription of subscriptionItems) {
+    const result = getQueueSubscription(subscription, parent, reflection, errorList);
+
+    if (result) {
+      resultList.push(result);
+    }
+  }
+
+  return resultList;
+};
+
+const getQueueSubscription = (
   type: AllType,
   parent: TypeParent,
   reflection: SourceMap,

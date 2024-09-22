@@ -1,9 +1,9 @@
-import type { QueueMessage } from './message.js';
+import type { MessageSchema } from './message.js';
 
 /**
  * Incoming queue message.
  */
-export type QueueIncoming<T extends QueueMessage> = {
+export type IncomingRequest<T extends MessageSchema> = {
   /**
    * Request Id.
    */
