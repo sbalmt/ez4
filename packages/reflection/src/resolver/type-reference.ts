@@ -5,6 +5,7 @@ import type { Context, State } from './common.js';
 import { isTypeReferenceNode } from 'typescript';
 
 import { getNodeTypeDeclaration } from '../helpers/declaration.js';
+import { isIndexReference, tryIndexReference } from './index-reference.js';
 import { tryTypeAlias } from './type-alias.js';
 import { tryTypeParameter } from './type-parameter.js';
 import { tryInternalReference } from './internal-reference.js';
@@ -17,6 +18,10 @@ export const isTypeReference = (node: Node): node is TypeReferenceNode => {
 };
 
 export const tryTypeReference = (node: Node, context: Context, state: State): EveryType | null => {
+  if (isIndexReference(node)) {
+    return tryIndexReference(node, context, state);
+  }
+
   if (!isTypeReference(node)) {
     return null;
   }

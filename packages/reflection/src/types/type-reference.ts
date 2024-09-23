@@ -7,6 +7,7 @@ export type TypeReference = {
   type: TypeName.Reference;
   namespace?: string;
   internal?: boolean;
+  index?: string;
   path: string;
 };
 

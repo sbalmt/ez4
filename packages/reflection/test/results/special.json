@@ -138,6 +138,42 @@
           "type": "reference",
           "path": "3f680985f5c327d1c59fbc8c3b10b276:Special"
         }
+      },
+      {
+        "type": "property",
+        "name": "index1",
+        "value": {
+          "type": "reference",
+          "path": "3f680985f5c327d1c59fbc8c3b10b276:Special",
+          "index": "regular1"
+        }
+      },
+      {
+        "type": "property",
+        "name": "index2",
+        "value": {
+          "type": "reference",
+          "path": "3f680985f5c327d1c59fbc8c3b10b276:Special",
+          "index": "template1"
+        }
+      },
+      {
+        "type": "property",
+        "name": "index3",
+        "value": {
+          "type": "reference",
+          "path": "3f680985f5c327d1c59fbc8c3b10b276:Special",
+          "index": "import1"
+        }
+      },
+      {
+        "type": "property",
+        "name": "index4",
+        "value": {
+          "type": "reference",
+          "path": "3f680985f5c327d1c59fbc8c3b10b276:Special",
+          "index": "self1"
+        }
       }
     ]
   }
