@@ -7,19 +7,24 @@ import type { messageHandlerA, messageHandlerB } from './handlers.js';
  */
 export declare class Sqs extends Queue.Service<MessageRequest> {
   /**
-   * Predefined delay for any message to be delivered.
+   * Maximum amount of time for the handler to acknowledge the message.
    */
-  delay: 0;
+  timeout: 30;
 
   /**
    * Retention period (in minutes) for all messages in the queue.
    */
-  retention: 60;
+  retention: 600;
 
   /**
-   * Maximum amount of time for the handler to acknowledge the message.
+   * Enable long polling with max 20 seconds of wait time.
    */
-  timeout: 30;
+  polling: 20;
+
+  /**
+   * Predefined delay for any message to be delivered.
+   */
+  delay: 10;
 
   /**
    * All handlers for this queue.
@@ -27,9 +32,11 @@ export declare class Sqs extends Queue.Service<MessageRequest> {
   subscriptions: [
     {
       handler: typeof messageHandlerA;
+      concurrency: 2;
     },
     {
       handler: typeof messageHandlerB;
+      concurrency: 4;
     }
   ];
 }
