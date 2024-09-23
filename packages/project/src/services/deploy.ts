@@ -14,6 +14,7 @@ import { reportResourceChanges } from '../report/report.js';
 import { waitConfirmation } from '../console/prompt.js';
 import { getMetadata } from '../library/metadata.js';
 import { loadProviders } from './providers.js';
+import { loadProject } from './project.js';
 
 export const deploy = async (project: ProjectOptions) => {
   await loadProviders(project);
@@ -22,7 +23,8 @@ export const deploy = async (project: ProjectOptions) => {
 
   const deploy: DeployOptions = {
     resourcePrefix: project.prefix ?? 'ez4',
-    projectName: toKebabCase(project.projectName)
+    projectName: toKebabCase(project.projectName),
+    imports: await loadImports(project)
   };
 
   await prepareAllLinkedServices(metadata, deploy);
@@ -60,4 +62,27 @@ export const deploy = async (project: ProjectOptions) => {
   saveState(stateFile, applyState.result);
 
   assertNoErrors(applyState.errors);
+};
+
+const loadImports = async (projectOptions: ProjectOptions) => {
+  const importProjects = projectOptions.importProjects;
+
+  if (!importProjects) {
+    return undefined;
+  }
+
+  const allImports: Record<string, DeployOptions> = {};
+
+  for (const alias in importProjects) {
+    const { projectFile } = importProjects[alias];
+
+    const project = await loadProject(projectFile);
+
+    allImports[alias] = {
+      resourcePrefix: project.prefix ?? 'ez4',
+      projectName: toKebabCase(project.projectName)
+    };
+  }
+
+  return allImports;
 };

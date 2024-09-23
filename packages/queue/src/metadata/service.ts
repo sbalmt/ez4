@@ -3,6 +3,7 @@ import type { SourceMap } from '@ez4/reflection';
 import type { QueueService } from '../types/service.js';
 
 import {
+  isExternalStatement,
   getLinkedServiceList,
   getLinkedVariableList,
   getModelMembers,
@@ -24,7 +25,7 @@ export const getQueueServices = (reflection: SourceMap) => {
   for (const identity in reflection) {
     const statement = reflection[identity];
 
-    if (!isQueueService(statement)) {
+    if (!isQueueService(statement) || isExternalStatement(statement)) {
       continue;
     }
 

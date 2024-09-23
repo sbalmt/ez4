@@ -7,10 +7,11 @@ import {
   getLinkedVariableList,
   getModelMembers,
   getPropertyString,
+  getReferenceName,
   getReferenceNumber
 } from '@ez4/common/library';
 
-import { isModelProperty } from '@ez4/reflection';
+import { isModelProperty, isTypeReference } from '@ez4/reflection';
 
 import { ImportType } from '../types/import.js';
 import { IncompleteServiceError } from '../errors/service.js';
@@ -30,7 +31,7 @@ export const getQueueImports = (reflection: SourceMap) => {
     }
 
     const service: Incomplete<QueueImport> = { type: ImportType };
-    const properties = new Set(['subscriptions', 'project', 'schema']);
+    const properties = new Set(['subscriptions', 'project', 'reference', 'schema']);
 
     service.name = statement.name;
 
@@ -44,6 +45,14 @@ export const getQueueImports = (reflection: SourceMap) => {
       }
 
       switch (member.name) {
+        case 'reference': {
+          if (member.inherited && isTypeReference(member.value)) {
+            service[member.name] = getReferenceName(member.value);
+            properties.delete(member.name);
+          }
+          break;
+        }
+
         case 'project': {
           if (!member.inherited) {
             const value = getPropertyString(member);
@@ -118,5 +127,5 @@ export const getQueueImports = (reflection: SourceMap) => {
 };
 
 const isValidImport = (type: Incomplete<QueueImport>): type is QueueImport => {
-  return !!type.name && !!type.project && !!type.schema && !!type.subscriptions;
+  return !!type.name && !!type.reference && !!type.project && !!type.schema && !!type.subscriptions;
 };

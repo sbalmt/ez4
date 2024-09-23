@@ -8,6 +8,7 @@ export type QueueImport = ServiceMetadata & {
   type: typeof ImportType;
   name: string;
   project: string;
+  reference: string;
   schema: QueueMessage;
   description?: string;
   subscriptions: QueueSubscription[];

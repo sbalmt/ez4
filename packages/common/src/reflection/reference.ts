@@ -1,9 +1,15 @@
-import type { AllType, SourceMap, TypeReference } from '@ez4/reflection';
+import type { AllType, ModelHeritage, SourceMap, TypeReference } from '@ez4/reflection';
 
 import { isTypeObject, isTypeModel, isModelProperty, isTypeReference } from '@ez4/reflection';
 import { getModelMembers } from './model.js';
 import { getObjectMembers } from './object.js';
 import { getLiteralBoolean, getLiteralNumber, getLiteralString, getLiteralTuple } from './value.js';
+
+export const getReferenceName = (type: TypeReference | ModelHeritage) => {
+  const [, typeName] = type.path.split(':');
+
+  return typeName;
+};
 
 export const getReferenceType = (type: TypeReference, reflection: SourceMap): AllType => {
   const reference = reflection[type.path];

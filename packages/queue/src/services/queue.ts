@@ -72,6 +72,11 @@ export namespace Queue {
     abstract subscriptions: Subscription<T['schema']>[];
 
     /**
+     * Imported queue reference.
+     */
+    reference: T;
+
+    /**
      * Imported message schema (do not replace).
      */
     schema: T['schema'];

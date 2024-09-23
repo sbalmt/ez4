@@ -2,6 +2,7 @@ import type { AllType, TypeClass, TypeInterface, TypeModel } from '@ez4/reflecti
 import type { MemberType } from './types.js';
 
 import { isTypeClass, isTypeInterface } from '@ez4/reflection';
+import { getReferenceName } from './reference.js';
 
 export const isClassDeclaration = (type: AllType): type is TypeClass => {
   return isTypeClass(type) && !!type.modifiers?.declare;
@@ -20,8 +21,10 @@ export const hasHeritageType = (type: TypeModel, name: string) => {
 };
 
 export const getHeritageType = (type: TypeModel, name: string) => {
-  return type.heritage?.find(({ namespace, path }) => {
-    const [, typeName] = path.split(':');
+  return type.heritage?.find((reference) => {
+    const { namespace } = reference;
+
+    const typeName = getReferenceName(reference);
 
     if (namespace) {
       return `${namespace}.${typeName}` === name;
