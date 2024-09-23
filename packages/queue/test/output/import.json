@@ -17,6 +17,7 @@
     "type": "@ez4/import:queue",
     "name": "TestImportQueue",
     "project": "name from project in ez4.project.js",
+    "reference": "TestQueue",
     "timeout": 20,
     "schema": {
       "type": "object",

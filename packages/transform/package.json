@@ -1,7 +1,7 @@
 {
   "name": "@ez4/transform",
   "description": "EZ4: Components to transform data according to a schema",
-  "version": "0.5.0",
+  "version": "0.6.0",
   "author": "Silas B.",
   "license": "MIT",
   "type": "module",
@@ -27,6 +27,6 @@
     "live:publish": "npm run test && npm publish --access public"
   },
   "dependencies": {
-    "@ez4/schema": "^0.5.0"
+    "@ez4/schema": "^0.6.0"
   }
 }
