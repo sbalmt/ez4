@@ -2,8 +2,8 @@ import type { AllType, SourceMap, TypeCallback, TypeFunction, TypeModel } from '
 import type { QueueMessage } from '../types/message.js';
 
 import { isTypeObject, isTypeReference, isTypeUnion } from '@ez4/reflection';
+import { getReferenceType, isModelDeclaration } from '@ez4/common/library';
 import { createUnionSchema, getObjectSchema } from '@ez4/schema/library';
-import { isModelDeclaration } from '@ez4/common/library';
 
 import { IncorrectMessageTypeError, InvalidMessageTypeError } from '../errors/message.js';
 import { isQueueMessage } from './utils.js';
@@ -20,7 +20,7 @@ export const getQueueMessage = (
     return getTypeMessage(type, parent, reflection, errorList);
   }
 
-  const statement = reflection[type.path];
+  const statement = getReferenceType(type, reflection);
 
   if (statement) {
     return getTypeMessage(statement, parent, reflection, errorList);

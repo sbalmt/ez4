@@ -20,9 +20,14 @@ export const tryIndexReference = (node: Node, context: Context, state: State) =>
 
   const reflectedType = tryTypeReference(node.objectType, context, state);
 
-  if (reflectedType && isTypeReference(reflectedType)) {
-    reflectedType.index = getPropertyName(node.indexType, context.checker);
+  if (!reflectedType || !isTypeReference(reflectedType)) {
+    return reflectedType;
   }
 
-  return reflectedType;
+  const index = getPropertyName(node.indexType, context.checker);
+
+  return {
+    ...reflectedType,
+    index
+  };
 };

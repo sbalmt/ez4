@@ -6,8 +6,8 @@ import {
   getLinkedServiceList,
   getLinkedVariableList,
   getModelMembers,
-  getPropertyNumber,
-  getPropertyString
+  getPropertyString,
+  getReferenceNumber
 } from '@ez4/common/library';
 
 import { isModelProperty } from '@ez4/reflection';
@@ -47,6 +47,7 @@ export const getQueueImports = (reflection: SourceMap) => {
         case 'project': {
           if (!member.inherited) {
             const value = getPropertyString(member);
+
             if (value !== undefined && value !== null) {
               properties.delete(member.name);
               service[member.name] = value;
@@ -57,7 +58,8 @@ export const getQueueImports = (reflection: SourceMap) => {
 
         case 'timeout': {
           if (member.inherited) {
-            const value = getPropertyNumber(member);
+            const value = getReferenceNumber(member.value, reflection);
+
             if (value !== undefined && value !== null) {
               service[member.name] = value;
             }
@@ -68,6 +70,7 @@ export const getQueueImports = (reflection: SourceMap) => {
         case 'schema': {
           if (member.inherited) {
             service.schema = getQueueMessage(member.value, statement, reflection, errorList);
+
             if (service.schema) {
               properties.delete(member.name);
             }
@@ -78,6 +81,7 @@ export const getQueueImports = (reflection: SourceMap) => {
         case 'subscriptions': {
           if (!member.inherited) {
             service.subscriptions = getAllSubscription(member, statement, reflection, errorList);
+
             if (service.subscriptions) {
               properties.delete(member.name);
             }

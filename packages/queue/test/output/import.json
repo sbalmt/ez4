@@ -17,6 +17,15 @@
     "type": "@ez4/import:queue",
     "name": "TestImportQueue",
     "project": "name from project in ez4.project.js",
+    "timeout": 20,
+    "schema": {
+      "type": "object",
+      "properties": {
+        "foo": {
+          "type": "string"
+        }
+      }
+    },
     "subscriptions": [
       {
         "handler": {

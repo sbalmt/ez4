@@ -1,27 +1,23 @@
 import type { ModelProperty } from '@ez4/reflection';
 
-import {
-  isTypeBoolean,
-  isTypeNumber,
-  isTypeString,
-  isTypeTuple,
-  isTypeObject
-} from '@ez4/reflection';
+import { isTypeObject } from '@ez4/reflection';
 
-export const getPropertyBoolean = (type: ModelProperty) => {
-  return isTypeBoolean(type.value) ? type.value.literal : null;
+import { getLiteralBoolean, getLiteralNumber, getLiteralString, getLiteralTuple } from './value.js';
+
+export const getPropertyBoolean = (member: ModelProperty) => {
+  return getLiteralBoolean(member.value);
 };
 
 export const getPropertyNumber = (type: ModelProperty) => {
-  return isTypeNumber(type.value) ? type.value.literal : null;
+  return getLiteralNumber(type.value);
 };
 
 export const getPropertyString = (type: ModelProperty) => {
-  return isTypeString(type.value) ? type.value.literal : null;
+  return getLiteralString(type.value);
 };
 
 export const getPropertyTuple = (type: ModelProperty) => {
-  return isTypeTuple(type.value) ? type.value.elements : null;
+  return getLiteralTuple(type.value);
 };
 
 export const getPropertyObject = (type: ModelProperty) => {

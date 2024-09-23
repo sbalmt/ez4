@@ -3,12 +3,12 @@ import type { MemberType } from './types.js';
 
 import { isTypeClass, isTypeInterface } from '@ez4/reflection';
 
-export const isInterfaceDeclaration = (type: AllType): type is TypeInterface => {
-  return isTypeInterface(type);
-};
-
 export const isClassDeclaration = (type: AllType): type is TypeClass => {
   return isTypeClass(type) && !!type.modifiers?.declare;
+};
+
+export const isInterfaceDeclaration = (type: AllType): type is TypeInterface => {
+  return isTypeInterface(type);
 };
 
 export const isModelDeclaration = (type: AllType): type is TypeModel => {
