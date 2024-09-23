@@ -6,8 +6,8 @@ import type { QueueState } from '../queue/types.js';
 import { getFunction } from '@ez4/aws-function';
 import { isRoleState } from '@ez4/aws-identity';
 
-import { createQueueFunction } from '../mapping/function/service.js';
 import { createMapping } from '../mapping/service.js';
+import { createQueueFunction } from '../mapping/function/service.js';
 import { getMappingName } from './utils.js';
 
 export const prepareSubscriptions = async (
@@ -44,6 +44,8 @@ export const prepareSubscriptions = async (
         }
       }));
 
-    createMapping(state, queueState, functionState, {});
+    createMapping(state, queueState, functionState, {
+      concurrency: subscription.concurrency
+    });
   }
 };

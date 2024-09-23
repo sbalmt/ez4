@@ -1,5 +1,10 @@
 import type { Arn } from '@ez4/aws-common';
 
+import type {
+  CreateEventSourceMappingRequest,
+  UpdateEventSourceMappingRequest
+} from '@aws-sdk/client-lambda';
+
 import {
   CreateEventSourceMappingCommand,
   UpdateEventSourceMappingCommand,
@@ -23,35 +28,28 @@ export type BatchOptions = {
 
 export type CreateRequest = {
   functionName: string;
-  batch?: BatchOptions;
   sourceArn: Arn;
+  concurrency?: number;
   enabled?: boolean;
+  batch?: BatchOptions;
 };
 
 export type CreateResponse = {
   eventId: string;
 };
 
-export type UpdateRequest = Partial<Omit<CreateRequest, 'sourceArn'>>;
+export type UpdateRequest = CreateRequest;
 
 export const createMapping = async (request: CreateRequest): Promise<CreateResponse> => {
-  Logger.logCreate(MappingServiceName, request.functionName);
+  const { sourceArn, functionName } = request;
 
-  const { service } = parseArn(request.sourceArn);
-  const { batch } = request;
+  Logger.logCreate(MappingServiceName, functionName);
 
   const response = await client.send(
     new CreateEventSourceMappingCommand({
-      FunctionName: request.functionName,
-      EventSourceArn: request.sourceArn,
-      Enabled: request.enabled,
-      ...(service === 'dynamodb' && {
-        StartingPosition: EventSourcePosition.LATEST
-      }),
-      ...(batch && {
-        BatchSize: batch.batchSize,
-        MaximumBatchingWindowInSeconds: batch.maxWindow
-      })
+      FunctionName: functionName,
+      EventSourceArn: sourceArn,
+      ...upsertMappingRequest(request)
     })
   );
 
@@ -65,19 +63,15 @@ export const createMapping = async (request: CreateRequest): Promise<CreateRespo
 };
 
 export const updateMapping = async (eventId: string, request: UpdateRequest) => {
-  Logger.logUpdate(MappingServiceName, eventId);
+  const { functionName } = request;
 
-  const { batch } = request;
+  Logger.logUpdate(MappingServiceName, `${functionName} (${eventId})`);
 
   await client.send(
     new UpdateEventSourceMappingCommand({
       UUID: eventId,
-      FunctionName: request.functionName,
-      Enabled: request.enabled,
-      ...(batch && {
-        BatchSize: batch.batchSize,
-        MaximumBatchingWindowInSeconds: batch.maxWindow
-      })
+      FunctionName: functionName,
+      ...upsertMappingRequest(request)
     })
   );
 
@@ -112,4 +106,32 @@ const waitForReadyState = async (eventId: string) => {
 
     return readyState.has(state);
   });
+};
+
+const upsertMappingRequest = (
+  request: CreateRequest | UpdateRequest
+): Omit<
+  Partial<CreateEventSourceMappingRequest | UpdateEventSourceMappingRequest>,
+  'functionName'
+> => {
+  const { sourceArn, enabled, concurrency, batch } = request;
+
+  const { service } = parseArn(sourceArn);
+
+  return {
+    Enabled: enabled,
+    ...(service === 'dynamodb' && {
+      StartingPosition: EventSourcePosition.LATEST
+    }),
+    ...(service === 'sqs' &&
+      concurrency && {
+        ScalingConfig: {
+          MaximumConcurrency: concurrency
+        }
+      }),
+    ...(batch && {
+      MaximumBatchingWindowInSeconds: batch.maxWindow,
+      BatchSize: batch.batchSize
+    })
+  };
 };

@@ -16,6 +16,11 @@ export interface SubscriptionEntry<T extends MessageSchema> {
   handler: HandlerSignature<IncomingRequest<T>>;
 
   /**
+   * Maximum number of concurrent lambdas.
+   */
+  concurrency?: number;
+
+  /**
    * Variables associated to the subscription.
    */
   variables?: LinkedVariables;

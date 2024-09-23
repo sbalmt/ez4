@@ -87,6 +87,11 @@ export namespace Queue {
     timeout: T['timeout'];
 
     /**
+     * Imported maximum wait time for receiving messages (do not replace).
+     */
+    polling: T['polling'];
+
+    /**
      * Imported service client (do not replace).
      */
     client: T['client'];

@@ -113,10 +113,11 @@ const getTypeFromMembers = (
         break;
       }
 
-      case 'memory': {
+      case 'memory':
+      case 'concurrency': {
         const value = getPropertyNumber(member);
         if (value !== undefined && value !== null) {
-          subscription.memory = value;
+          subscription[member.name] = value;
         }
         break;
       }

@@ -9,16 +9,18 @@ import { bundleFunction } from '@ez4/aws-common';
 declare const __MODULE_PATH: string;
 
 export const bundleQueueFunction = async (parameters: QueueFunctionParameters) => {
-  const { messageSchema } = parameters;
+  const { messageSchema, sourceFile, handlerName, extras } = parameters;
+
+  const define = {
+    __EZ4_SCHEMA: messageSchema ? JSON.stringify(messageSchema) : 'undefined'
+  };
 
   return bundleFunction(MappingServiceName, {
-    sourceFile: parameters.sourceFile,
     wrapperFile: join(__MODULE_PATH, '../lib/function.ts'),
-    handlerName: parameters.handlerName,
-    extras: parameters.extras,
     filePrefix: 'sqs',
-    define: {
-      __EZ4_SCHEMA: messageSchema ? JSON.stringify(messageSchema) : 'undefined'
-    }
+    handlerName,
+    sourceFile,
+    extras,
+    define
   });
 };

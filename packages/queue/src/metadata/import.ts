@@ -65,7 +65,8 @@ export const getQueueImports = (reflection: SourceMap) => {
           break;
         }
 
-        case 'timeout': {
+        case 'timeout':
+        case 'polling': {
           if (member.inherited) {
             const value = getReferenceNumber(member.value, reflection);
 
