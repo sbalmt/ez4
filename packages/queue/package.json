@@ -5,6 +5,14 @@
   "author": "Silas B.",
   "license": "MIT",
   "type": "module",
+  "keywords": [
+    "ez4"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/sbalmt/ez4.git",
+    "directory": "packages/queue"
+  },
   "engines": {
     "node": ">=20.15.0"
   },

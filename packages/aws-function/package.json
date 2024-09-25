@@ -1,10 +1,18 @@
 {
   "name": "@ez4/aws-function",
-  "description": "EZ4: Self-managed AWS lambda functions",
+  "description": "EZ4: Self-managed AWS lambda function provider",
   "version": "0.6.0",
   "author": "Silas B.",
   "license": "MIT",
   "type": "module",
+  "keywords": [
+    "ez4"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/sbalmt/ez4.git",
+    "directory": "packages/aws-function"
+  },
   "engines": {
     "node": ">=20.15.0"
   },
