@@ -23,25 +23,34 @@ export const prepareCdnServices = async (event: PrepareResourceEvent) => {
 
   const bucketName = getServiceName(defaultOrigin.bucket, options);
 
-  const accessState = createOriginAccess(state, {
+  const originAccessState = createOriginAccess(state, {
     accessName: getOriginAccessName(service, options),
     description
   });
 
-  const policyState = createCachePolicy(state, {
+  const defaultTTL = service.cacheTTL ?? 86400;
+
+  const cachePolicyState = createCachePolicy(state, {
     policyName: getCachePolicyName(service, options),
-    defaultTTL: service.cacheTTL ?? 86400,
     maxTTL: service.maxCacheTTL ?? 31536000,
     minTTL: service.minCacheTTL ?? 1,
+    defaultTTL,
     description,
     compress
   });
 
-  createDistribution(state, accessState, policyState, {
+  const customErrors = service.fallbacks?.map(({ code, path, ttl }) => ({
+    ttl: ttl ?? defaultTTL,
+    code,
+    path
+  }));
+
+  createDistribution(state, originAccessState, cachePolicyState, {
     distributionName: getServiceName(service, options),
     defaultIndex: service.defaultIndex,
     enabled: !service.disabled,
     aliases: service.aliases,
+    customErrors,
     description,
     compress,
     defaultOrigin: {

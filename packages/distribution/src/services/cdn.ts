@@ -21,6 +21,26 @@ export namespace Cdn {
   }
 
   /**
+   * Distribution fallback.
+   */
+  export interface Fallback {
+    /**
+     * HTTP error code (4xx or 3xx) that activates the fallback.
+     */
+    code: number;
+
+    /**
+     * Path to the new location.
+     */
+    path: string;
+
+    /**
+     * Optional cache TTL (in seconds) for the fallback.
+     */
+    ttl?: number;
+  }
+
+  /**
    * CDN service.
    */
   export declare abstract class Service implements Service.Provider {
@@ -38,6 +58,11 @@ export namespace Cdn {
      * Default index file name (e.g. `index.html`).
      */
     defaultIndex?: string;
+
+    /**
+     * Distribution fallbacks.
+     */
+    fallbacks?: Fallback[];
 
     /**
      * Default TTL (in seconds) for cached results.
