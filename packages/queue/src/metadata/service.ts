@@ -1,21 +1,20 @@
 import type { Incomplete } from '@ez4/utils';
-import type { ModelProperty, SourceMap } from '@ez4/reflection';
-import type { QueueSubscription } from '../types/subscription.js';
+import type { SourceMap } from '@ez4/reflection';
 import type { QueueService } from '../types/service.js';
 
 import {
+  isExternalStatement,
   getLinkedServiceList,
   getLinkedVariableList,
   getModelMembers,
-  getPropertyNumber,
-  getPropertyTuple
+  getPropertyNumber
 } from '@ez4/common/library';
 
 import { isModelProperty } from '@ez4/reflection';
 
 import { ServiceType } from '../types/service.js';
 import { IncompleteServiceError } from '../errors/service.js';
-import { getQueueSubscription } from './subscription.js';
+import { getAllSubscription } from './subscription.js';
 import { getQueueMessage } from './message.js';
 import { isQueueService } from './utils.js';
 
@@ -26,7 +25,7 @@ export const getQueueServices = (reflection: SourceMap) => {
   for (const identity in reflection) {
     const statement = reflection[identity];
 
-    if (!isQueueService(statement)) {
+    if (!isQueueService(statement) || isExternalStatement(statement)) {
       continue;
     }
 
@@ -45,14 +44,17 @@ export const getQueueServices = (reflection: SourceMap) => {
       }
 
       switch (member.name) {
-        case 'schema':
-          if ((service.schema = getQueueMessage(member.value, statement, reflection, errorList))) {
+        case 'schema': {
+          service.schema = getQueueMessage(member.value, statement, reflection, errorList);
+          if (service.schema) {
             properties.delete(member.name);
           }
           break;
+        }
 
         case 'timeout':
         case 'retention':
+        case 'polling':
         case 'delay': {
           if (!member.inherited) {
             const value = getPropertyNumber(member);
@@ -65,7 +67,8 @@ export const getQueueServices = (reflection: SourceMap) => {
 
         case 'subscriptions': {
           if (!member.inherited) {
-            if ((service.subscriptions = getAllSubscription(member, reflection, errorList))) {
+            service.subscriptions = getAllSubscription(member, statement, reflection, errorList);
+            if (service.subscriptions) {
               properties.delete(member.name);
             }
           }
@@ -102,19 +105,4 @@ export const getQueueServices = (reflection: SourceMap) => {
 
 const isValidService = (type: Incomplete<QueueService>): type is QueueService => {
   return !!type.name && !!type.schema && !!type.subscriptions;
-};
-
-const getAllSubscription = (member: ModelProperty, reflection: SourceMap, errorList: Error[]) => {
-  const subscriptionItems = getPropertyTuple(member) ?? [];
-  const subscriptionList: QueueSubscription[] = [];
-
-  for (const subscription of subscriptionItems) {
-    const result = getQueueSubscription(subscription, reflection, errorList);
-
-    if (result) {
-      subscriptionList.push(result);
-    }
-  }
-
-  return subscriptionList;
 };

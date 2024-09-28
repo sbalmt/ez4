@@ -9,6 +9,6 @@ export declare class TestCdn extends Cdn.Service {
 }
 
 // Concrete class is not allowed.
-class TestOrigin implements Cdn.BucketOrigin {
+class TestOrigin implements Cdn.DefaultOrigin {
   bucket!: Environment.Service<TestBucket>;
 }

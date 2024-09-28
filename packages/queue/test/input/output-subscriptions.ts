@@ -1,7 +1,7 @@
 import type { Service, Environment } from '@ez4/common';
 import type { Queue } from '@ez4/queue';
 
-declare class TestMessage implements Queue.Message {
+interface TestMessage extends Queue.Message {
   foo: string;
 }
 
@@ -13,6 +13,8 @@ export declare class TestQueue extends Queue.Service<TestMessage> {
     // Inline subscription.
     {
       handler: typeof testHandler;
+
+      concurrency: 2;
     },
 
     // Subscription reference.
@@ -25,7 +27,7 @@ export declare class TestQueue extends Queue.Service<TestMessage> {
   };
 }
 
-export declare class TestSubscription implements Queue.Subscription<TestMessage> {
+declare class TestSubscription implements Queue.Subscription<TestMessage> {
   handler: typeof testHandler;
 
   memory: 128;
@@ -36,15 +38,22 @@ export declare class TestSubscription implements Queue.Subscription<TestMessage>
   };
 }
 
-export function testHandler(
-  request: Queue.Incoming<TestMessage>,
-  context: Service.Context<TestQueue>
-) {
+function testHandler(request: Queue.Incoming<TestMessage>, context: Service.Context<TestQueue>) {
+  const { selfClient } = context;
+
   // Ensure request types.
-  request.requestId;
-  request.message;
+  const requestId: string = request.requestId;
+  const message: TestMessage = request.message;
+
+  console.log(requestId, message);
 
   // Ensure context types.
-  context.selfClient.receiveMessage;
-  context.selfClient.sendMessage;
+  selfClient.receiveMessage({
+    messages: 1,
+    polling: 5
+  });
+
+  selfClient.sendMessage({
+    foo: 'test'
+  });
 }

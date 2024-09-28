@@ -1,10 +1,18 @@
 {
   "name": "@ez4/aws-dynamodb",
-  "description": "EZ4: Self-managed AWS DynamoDB",
-  "version": "0.5.0",
+  "description": "EZ4: Self-managed AWS DynamoDB provider",
+  "version": "0.6.0",
   "author": "Silas B.",
   "license": "MIT",
   "type": "module",
+  "keywords": [
+    "ez4"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/sbalmt/ez4.git",
+    "directory": "packages/aws-dynamodb"
+  },
   "engines": {
     "node": ">=20.15.0"
   },
@@ -41,18 +49,20 @@
   "devDependencies": {
     "@types/aws-lambda": "^8.10.141"
   },
+  "peerDependencies": {
+    "@ez4/project": "^0.6.0"
+  },
   "dependencies": {
     "@aws-sdk/client-dynamodb": "^3.624.0",
     "@aws-sdk/lib-dynamodb": "^3.624.0",
     "@aws-sdk/util-dynamodb": "^3.624.0",
-    "@ez4/aws-common": "^0.5.0",
-    "@ez4/aws-function": "^0.5.0",
-    "@ez4/aws-identity": "^0.5.0",
-    "@ez4/database": "^0.5.0",
-    "@ez4/project": "^0.5.0",
-    "@ez4/schema": "^0.5.0",
-    "@ez4/stateful": "^0.5.0",
-    "@ez4/utils": "^0.5.0",
-    "@ez4/validator": "^0.5.0"
+    "@ez4/aws-common": "^0.6.0",
+    "@ez4/aws-function": "^0.6.0",
+    "@ez4/aws-identity": "^0.6.0",
+    "@ez4/database": "^0.6.0",
+    "@ez4/schema": "^0.6.0",
+    "@ez4/stateful": "^0.6.0",
+    "@ez4/utils": "^0.6.0",
+    "@ez4/validator": "^0.6.0"
   }
 }

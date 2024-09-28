@@ -1,36 +1,62 @@
 /**
- * Project configuration options.
+ * Project options.
  */
 export type ProjectOptions = {
-  /**
-   * Determine whether the deployment must be confirmed before proceeding.
-   * Default is: `true`
-   */
-  confirmDeploy?: boolean;
-
-  /**
-   * Set the new package.json location relative to the current working directory.
-   */
-  packageLocation?: string;
-
   /**
    * Prefix to be used as part of the resource names.
    * Default is: `ez4`
    */
-  resourcePrefix: string;
+  prefix?: string;
 
   /**
-   * Project name that's combined with the `resourcePrefix`.
+   * Determine whether the deployment must be confirmed before proceeding.
+   * Default is: `true`
+   */
+  confirm?: boolean;
+
+  /**
+   * Project name that's combined with the `prefix`.
    */
   projectName: string;
 
   /**
-   * Path to the local state file (don't use file extension).
+   * Set a new `package.json` location relative to the current working directory.
+   * All providers are automatically loaded from this new package location.
    */
-  stateFile: string;
+  packageFile?: string;
 
   /**
-   * List of source files containing resources to be applied.
+   * List of source files containing declarative resources.
    */
   sourceFiles: string[];
+
+  /**
+   * Configuration for imported projects.
+   */
+  importProjects?: Record<string, ProjectImportOptions>;
+
+  /**
+   * Configuration for the project state.
+   */
+  stateFile: ProjectStateOptions;
+};
+
+/**
+ * Project state options.
+ */
+export type ProjectStateOptions = {
+  /**
+   * Path to the local state file (don't use file extension).
+   */
+  path: string;
+};
+
+/**
+ * Project import options.
+ */
+export type ProjectImportOptions = {
+  /**
+   * Project options file path.
+   */
+  projectFile: string;
 };

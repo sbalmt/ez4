@@ -5,8 +5,8 @@ import { createRoleDocument } from '@ez4/aws-identity';
 export const getRoleDocument = (distributionArn: string, bucketName: string): RoleDocument => {
   return createRoleDocument(
     {
-      permissions: ['s3:GetObject'],
-      resourceIds: [`arn:aws:s3:::${bucketName}/*`]
+      permissions: ['s3:ListBucket', 's3:GetObject'],
+      resourceIds: [`arn:aws:s3:::${bucketName}`, `arn:aws:s3:::${bucketName}/*`]
     },
     [
       {

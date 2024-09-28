@@ -1,4 +1,5 @@
 import type { ServiceMetadata } from '@ez4/project/library';
+import type { CdnFallback } from './fallback.js';
 import type { CdnOrigin } from './origin.js';
 
 export const ServiceType = '@ez4/cdn';
@@ -10,6 +11,7 @@ export type CdnService = ServiceMetadata & {
   description?: string;
   defaultOrigin: CdnOrigin;
   defaultIndex?: string;
+  fallbacks?: CdnFallback[];
   cacheTTL?: number;
   maxCacheTTL?: number;
   minCacheTTL?: number;

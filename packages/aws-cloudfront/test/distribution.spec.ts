@@ -56,12 +56,12 @@ describe.only('cloudfront :: distribution', () => {
       bucketName: originBucketName
     });
 
-    const accessResource = createOriginAccess(localState, {
+    const originAccessResource = createOriginAccess(localState, {
       accessName: 'ez4-test-distribution-access',
       description: 'EZ4: Test access description'
     });
 
-    const policyResource = createCachePolicy(localState, {
+    const cachePolicyResource = createCachePolicy(localState, {
       policyName: 'ez4-test-distribution-policy',
       description: 'EZ4: Test policy description',
       defaultTTL: 300,
@@ -69,7 +69,7 @@ describe.only('cloudfront :: distribution', () => {
       maxTTL: 3600
     });
 
-    const resource = createDistribution(localState, accessResource, policyResource, {
+    const resource = createDistribution(localState, originAccessResource, cachePolicyResource, {
       distributionName: 'ez4-test-distribution',
       description: 'EZ4: Test distribution description',
       enabled: true,
@@ -78,6 +78,13 @@ describe.only('cloudfront :: distribution', () => {
         domain: await getBucketDomain(originBucketName),
         path: '/home'
       },
+      customErrors: [
+        {
+          code: 404,
+          path: '/home',
+          ttl: 300
+        }
+      ],
       tags: {
         test1: 'ez4-tag1',
         test2: 'ez4-tag2'

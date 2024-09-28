@@ -2,7 +2,7 @@ import { IncorrectTypeError, InvalidTypeError } from '@ez4/common/library';
 
 export class InvalidMessageTypeError extends InvalidTypeError {
   constructor(fileName?: string) {
-    super('Invalid queue message type', undefined, 'Queue.Message', fileName);
+    super('Invalid message type', undefined, 'Queue.Message', fileName);
   }
 }
 
@@ -11,6 +11,6 @@ export class IncorrectMessageTypeError extends IncorrectTypeError {
     public messageType: string,
     fileName?: string
   ) {
-    super('Incorrect queue message type', messageType, 'Queue.Message', fileName);
+    super('Incorrect message type', messageType, 'Queue.Message', fileName);
   }
 }

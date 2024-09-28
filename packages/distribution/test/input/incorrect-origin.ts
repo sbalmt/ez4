@@ -8,7 +8,7 @@ export declare class TestCdn extends Cdn.Service {
   defaultOrigin: TestOrigin;
 }
 
-// Missing Cdn.BucketOrigin inheritance.
+// Missing Cdn.DefaultOrigin inheritance.
 declare class TestOrigin {
   bucket: Environment.Service<TestBucket>;
 }

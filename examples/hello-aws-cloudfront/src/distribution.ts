@@ -13,5 +13,13 @@ export declare class Site extends Cdn.Service {
     bucket: Environment.Service<SiteBucket>;
   };
 
+  // Fallback 404 to default index (Useful for SPAs)
+  fallbacks: [
+    {
+      code: 404;
+      path: '/index.html';
+    }
+  ];
+
   cacheTTL: 15;
 }

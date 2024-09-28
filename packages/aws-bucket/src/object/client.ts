@@ -3,7 +3,7 @@ import type { ResourceTags } from '@ez4/aws-common';
 import { getTagList, Logger } from '@ez4/aws-common';
 import { createReadStream } from 'node:fs';
 
-import mime from 'mime/lite';
+import mime from 'mime';
 
 import {
   PutObjectCommand,

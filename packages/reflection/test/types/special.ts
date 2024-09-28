@@ -28,4 +28,10 @@ export declare class Special {
   self2: Special;
   self3: Type<typeof this>;
   self4: Type<Special>;
+
+  // Index access
+  index1: Special['regular1'];
+  index2: Special['template1'];
+  index3: Special['import1'];
+  index4: Special['self1'];
 }

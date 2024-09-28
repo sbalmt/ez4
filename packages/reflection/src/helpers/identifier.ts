@@ -2,14 +2,15 @@ import type { Node, TypeChecker } from 'typescript';
 
 import {
   isComputedPropertyName,
-  isIdentifier,
   isPropertyAccessExpression,
-  isStringLiteral
+  isLiteralTypeNode,
+  isStringLiteral,
+  isIdentifier
 } from 'typescript';
 
 export const getPropertyName = (node: Node, checker: TypeChecker): string => {
-  if (isStringLiteral(node)) {
-    return node.text;
+  if (isLiteralTypeNode(node)) {
+    return getPropertyName(node.literal, checker);
   }
 
   if (isComputedPropertyName(node)) {
@@ -24,6 +25,10 @@ export const getPropertyName = (node: Node, checker: TypeChecker): string => {
     }
 
     return node.expression.getText();
+  }
+
+  if (isStringLiteral(node)) {
+    return node.text;
   }
 
   return node.getText();

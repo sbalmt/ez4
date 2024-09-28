@@ -1,68 +1,28 @@
-import type { LinkedVariables } from '@ez4/project/library';
 import type { Service } from '@ez4/common';
+import type { MessageSchema } from './message.js';
+import type { IncomingRequest } from './incoming.js';
+import type { SubscriptionEntry } from './subscription.js';
+import type { HandlerSignature } from './handler.js';
 import type { Client } from './client.js';
 
 /**
  * Provide all contracts for a self-managed Queue service.
  */
 export namespace Queue {
-  /**
-   * Definition of a message.
-   */
-  export interface Message {}
+  export type Message = MessageSchema;
 
-  /**
-   * Incoming request.
-   */
-  export type Incoming<T extends Message> = {
-    /**
-     * Request Id.
-     */
-    requestId: string;
+  export type Handler<T extends Message> = HandlerSignature<T>;
 
-    /**
-     * Message payload.
-     */
-    message: T;
-  };
+  export type Subscription<T extends Message> = SubscriptionEntry<T>;
 
-  /**
-   * Incoming request handler.
-   */
-  export type Handler<T extends Message> = (
-    request: T,
-    context: Service.Context<Service<any>>
-  ) => Promise<void> | void;
-
-  /**
-   * Queue subscription.
-   */
-  export interface Subscription<T extends Message = Message> {
-    /**
-     * Subscription handler.
-     *
-     * @param request Incoming request.
-     * @param context Handler context.
-     */
-    handler: Handler<Incoming<T>>;
-
-    /**
-     * Variables associated to the subscription.
-     */
-    variables?: LinkedVariables;
-
-    /**
-     * Amount of memory available for the handler.
-     */
-    memory?: number;
-  }
+  export type Incoming<T extends Message> = IncomingRequest<T>;
 
   /**
    * Queue service.
    */
-  export declare abstract class Service<T extends Message = Message> implements Service.Provider {
+  export declare abstract class Service<T extends Message> implements Service.Provider {
     /**
-     * All expected subscriptions.
+     * All subscriptions associated to the queue.
      */
     abstract subscriptions: Subscription<T>[];
 
@@ -72,17 +32,22 @@ export namespace Queue {
     schema: T;
 
     /**
-     * Max acknowledge time (in seconds) for the handler.
+     * Maximum acknowledge time (in seconds) for the handler.
      */
     timeout?: number;
 
     /**
-     * Max retention time (in minutes) for all messages in the queue.
+     * Maximum retention time (in minutes) for all messages in the queue.
      */
     retention?: number;
 
     /**
-     * Max delay time (in seconds) for the handler to see messages.
+     * Maximum wait time (in seconds) for receiving messages.
+     */
+    polling?: number;
+
+    /**
+     * Maximum delay time (in seconds) for making messages available.
      */
     delay?: number;
 
@@ -90,5 +55,45 @@ export namespace Queue {
      * Service client.
      */
     client: Client<T>;
+  }
+
+  /**
+   * Imported queue service.
+   */
+  export declare abstract class Import<T extends Service<any>> implements Service.Provider {
+    /**
+     * Name of the imported project defined in the project options file.
+     */
+    abstract project: string;
+
+    /**
+     * All subscriptions attached to the imported queue.
+     */
+    abstract subscriptions: Subscription<T['schema']>[];
+
+    /**
+     * Imported queue reference.
+     */
+    reference: T;
+
+    /**
+     * Imported message schema (do not replace).
+     */
+    schema: T['schema'];
+
+    /**
+     * Imported maximum acknowledge time (do not replace).
+     */
+    timeout: T['timeout'];
+
+    /**
+     * Imported maximum wait time for receiving messages (do not replace).
+     */
+    polling: T['polling'];
+
+    /**
+     * Imported service client (do not replace).
+     */
+    client: T['client'];
   }
 }

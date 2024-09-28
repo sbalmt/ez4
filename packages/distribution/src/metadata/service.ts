@@ -14,6 +14,7 @@ import { isModelProperty, isTypeString } from '@ez4/reflection';
 
 import { ServiceType } from '../types/service.js';
 import { IncompleteServiceError } from '../errors/service.js';
+import { getAllFallbacks } from './fallback.js';
 import { getCdnOrigin } from './origin.js';
 import { isCdnService } from './utils.js';
 
@@ -79,6 +80,14 @@ export const getCdnServices = (reflection: SourceMap) => {
           const value = getPropertyString(member);
           if (value !== undefined && value !== null) {
             service[member.name] = value;
+          }
+          break;
+        }
+
+        case 'fallbacks': {
+          const fallbackList = getAllFallbacks(member, statement, reflection, errorList);
+          if (fallbackList) {
+            service.fallbacks = fallbackList;
           }
           break;
         }

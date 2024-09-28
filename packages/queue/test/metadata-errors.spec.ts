@@ -3,20 +3,24 @@ import { describe, it } from 'node:test';
 
 import {
   IncompleteServiceError,
-  IncompleteSubscriptionError,
-  IncompleteHandlerError,
   IncorrectMessageTypeError,
-  InvalidMessageTypeError
+  InvalidMessageTypeError,
+  IncompleteSubscriptionError,
+  IncorrectSubscriptionTypeError,
+  InvalidSubscriptionTypeError,
+  IncompleteHandlerError
 } from '@ez4/queue/library';
 
 import { getReflection } from '@ez4/project/library';
 import { registerTriggers, getQueueServices } from '@ez4/queue/library';
 
-const parseFile = (fileName: string) => {
+const parseFile = (fileName: string, errorCount: number) => {
   const sourceFile = `./test/input/${fileName}.ts`;
 
   const reflection = getReflection([sourceFile]);
   const result = getQueueServices(reflection);
+
+  equal(result.errors.length, errorCount);
 
   return result.errors;
 };
@@ -25,11 +29,7 @@ describe.only('queue metadata errors', () => {
   registerTriggers();
 
   it('assert :: incomplete queue', () => {
-    const errors = parseFile('incomplete-service');
-
-    equal(errors.length, 2);
-
-    const [error1, error2] = errors;
+    const [error1, error2] = parseFile('incomplete-service', 2);
 
     ok(error1 instanceof IncompleteServiceError);
     deepEqual(error1.properties, ['subscriptions']);
@@ -39,11 +39,7 @@ describe.only('queue metadata errors', () => {
   });
 
   it('assert :: incorrect message', () => {
-    const errors = parseFile('incorrect-message');
-
-    equal(errors.length, 2);
-
-    const [error1, error2] = errors;
+    const [error1, error2] = parseFile('incorrect-message', 2);
 
     ok(error1 instanceof IncorrectMessageTypeError);
     equal(error1.baseType, 'Queue.Message');
@@ -54,11 +50,7 @@ describe.only('queue metadata errors', () => {
   });
 
   it('assert :: invalid message', () => {
-    const errors = parseFile('invalid-message');
-
-    equal(errors.length, 2);
-
-    const [error1, error2] = errors;
+    const [error1, error2] = parseFile('invalid-message', 2);
 
     ok(error1 instanceof InvalidMessageTypeError);
     equal(error1.baseType, 'Queue.Message');
@@ -68,22 +60,29 @@ describe.only('queue metadata errors', () => {
   });
 
   it('assert :: incomplete subscription', () => {
-    const errors = parseFile('incomplete-subscription');
-
-    equal(errors.length, 1);
-
-    const [error1] = errors;
+    const [error1] = parseFile('incomplete-subscription', 1);
 
     ok(error1 instanceof IncompleteSubscriptionError);
     deepEqual(error1.properties, ['handler']);
   });
 
+  it('assert :: incorrect subscription', () => {
+    const [error1] = parseFile('incorrect-subscription', 1);
+
+    ok(error1 instanceof IncorrectSubscriptionTypeError);
+    equal(error1.baseType, 'Queue.Subscription');
+    equal(error1.subscriptionType, 'TestSubscription');
+  });
+
+  it('assert :: invalid subscription', () => {
+    const [error1] = parseFile('invalid-subscription', 1);
+
+    ok(error1 instanceof InvalidSubscriptionTypeError);
+    equal(error1.baseType, 'Queue.Subscription');
+  });
+
   it('assert :: incomplete handler', () => {
-    const errors = parseFile('incomplete-handler');
-
-    equal(errors.length, 2);
-
-    const [error1, error2] = errors;
+    const [error1, error2] = parseFile('incomplete-handler', 2);
 
     ok(error1 instanceof IncompleteHandlerError);
     deepEqual(error1.properties, ['request']);

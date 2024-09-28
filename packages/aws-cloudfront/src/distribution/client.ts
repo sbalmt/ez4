@@ -1,5 +1,5 @@
+import type { CustomErrorResponses, DistributionConfig, Origins } from '@aws-sdk/client-cloudfront';
 import type { Arn, ResourceTags } from '@ez4/aws-common';
-import type { DistributionConfig, Origins } from '@aws-sdk/client-cloudfront';
 
 import { getTagList, Logger } from '@ez4/aws-common';
 
@@ -39,6 +39,12 @@ export type DistributionOrigin = {
   path?: string;
 };
 
+export type DistributionCustomError = {
+  code: number;
+  path: string;
+  ttl: number;
+};
+
 export type CreateRequest = {
   distributionName: string;
   description?: string;
@@ -46,6 +52,7 @@ export type CreateRequest = {
   defaultAccessId?: string;
   defaultPolicyId?: string;
   defaultIndex?: string;
+  customErrors?: DistributionCustomError[];
   aliases?: string[];
   origins?: DistributionOrigin[];
   compress?: boolean;
@@ -170,6 +177,7 @@ const getCurrentDistributionVersion = async (distributionId: string) => {
 };
 
 const upsertDistributionRequest = (request: CreateRequest | UpdateRequest): DistributionConfig => {
+  const allCustomErrors = getAllCustomErrors(request);
   const allOrigins = getAllOrigins(request);
 
   const defaultOrigin = allOrigins.Items![0];
@@ -232,7 +240,7 @@ const upsertDistributionRequest = (request: CreateRequest | UpdateRequest): Dist
       Quantity: 0
     },
     CustomErrorResponses: {
-      Quantity: 0
+      ...allCustomErrors
     },
     Logging: {
       Enabled: false,
@@ -283,5 +291,27 @@ const getAllOrigins = (request: CreateRequest | UpdateRequest): Origins => {
   return {
     Quantity: allOrigins.length,
     Items: allOrigins
+  };
+};
+
+const getAllCustomErrors = (request: CreateRequest | UpdateRequest): CustomErrorResponses => {
+  const { customErrors,  } = request;
+
+  if (!customErrors?.length) {
+    return { Quantity: 0 };
+  }
+
+  const allCustomErrors = customErrors.map(({ code, path, ttl }) => {
+    return {
+      ErrorCode: code,
+      ErrorCachingMinTTL: ttl,
+      ResponsePagePath: path,
+      ResponseCode: '200'
+    };
+  });
+
+  return {
+    Quantity: allCustomErrors.length,
+    Items: allCustomErrors
   };
 };

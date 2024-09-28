@@ -118,7 +118,7 @@ const prepareOperation = (operation: AnyObject, path: string) => {
       return [`${path} <= ?`, value];
 
     case 'isIn':
-      return [`${path} IN [${'?'.repeat(value.length).split('').join(', ')}]`, ...value];
+      return [`${path} IN [${value.map(() => '?').join(', ')}]`, ...value];
 
     case 'isBetween':
       return [`${path} BETWEEN ? AND ?`, ...value];

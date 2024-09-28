@@ -29,8 +29,8 @@ export namespace Client {
         const response = await client.send(
           new ReceiveMessageCommand({
             QueueUrl: queueUrl,
-            MaxNumberOfMessages: options?.maxMessages,
-            WaitTimeSeconds: options?.maxWait
+            MaxNumberOfMessages: options?.messages,
+            WaitTimeSeconds: options?.polling
           })
         );
 

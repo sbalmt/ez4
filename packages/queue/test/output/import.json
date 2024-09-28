@@ -1,0 +1,48 @@
+{
+  "TestQueue": {
+    "type": "@ez4/queue",
+    "name": "TestQueue",
+    "timeout": 20,
+    "polling": 10,
+    "schema": {
+      "type": "object",
+      "properties": {
+        "foo": {
+          "type": "string"
+        }
+      }
+    },
+    "subscriptions": []
+  },
+  "TestImportQueue": {
+    "type": "@ez4/import:queue",
+    "name": "TestImportQueue",
+    "project": "name from project in ez4.project.js",
+    "reference": "TestQueue",
+    "timeout": 20,
+    "polling": 10,
+    "schema": {
+      "type": "object",
+      "properties": {
+        "foo": {
+          "type": "string"
+        }
+      }
+    },
+    "subscriptions": [
+      {
+        "handler": {
+          "name": "testHandler",
+          "file": "test/input/output-import.ts"
+        }
+      }
+    ],
+    "variables": {
+      "TEST_VAR1": "test-literal-value",
+      "TEST_VAR2": "test-env-var-value"
+    },
+    "services": {
+      "selfClient": "TestImportQueue"
+    }
+  }
+}

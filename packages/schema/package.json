@@ -1,10 +1,18 @@
 {
   "name": "@ez4/schema",
-  "description": "EZ4: Components to build entity schema based on reflection inputs",
-  "version": "0.5.0",
+  "description": "EZ4: Build entity schema based on source code reflection",
+  "version": "0.6.0",
   "author": "Silas B.",
   "license": "MIT",
   "type": "module",
+  "keywords": [
+    "ez4"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/sbalmt/ez4.git",
+    "directory": "packages/schema"
+  },
   "engines": {
     "node": ">=20.15.0"
   },
@@ -33,8 +41,10 @@
     "clean:registry": "rm -rf ../../.registry/@ez4/schema",
     "live:publish": "npm run test && npm publish --access public"
   },
+  "peerDependencies": {
+    "@ez4/project": "^0.6.0"
+  },
   "dependencies": {
-    "@ez4/project": "^0.5.0",
-    "@ez4/reflection": "^0.5.0"
+    "@ez4/reflection": "^0.6.0"
   }
 }

@@ -12,6 +12,13 @@
       "test-1.ez4.dev",
       "test-2.ez4.dev"
     ],
+    "fallbacks": [
+      {
+        "code": 404,
+        "path": "/site",
+        "ttl": 3600
+      }
+    ],
     "cacheTTL": 300,
     "minCacheTTL": 1,
     "maxCacheTTL": 3600,

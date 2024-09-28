@@ -7,12 +7,16 @@ export const isQueueService = (type: AllType): type is TypeClass => {
   return isClassDeclaration(type) && hasHeritageType(type, 'Queue.Service');
 };
 
-export const isQueueSubscription = (type: AllType): type is TypeModel => {
-  return isModelDeclaration(type) && hasHeritageType(type, 'Queue.Subscription');
+export const isQueueImport = (type: AllType): type is TypeClass => {
+  return isClassDeclaration(type) && hasHeritageType(type, 'Queue.Import');
 };
 
 export const isQueueMessage = (type: TypeModel) => {
   return hasHeritageType(type, 'Queue.Message');
+};
+
+export const isQueueSubscription = (type: AllType) => {
+  return isModelDeclaration(type) && hasHeritageType(type, 'Queue.Subscription');
 };
 
 export const isSubscriptionHandler = (type: AllType): type is TypeCallback | TypeFunction => {
