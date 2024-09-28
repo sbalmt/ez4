@@ -34,9 +34,11 @@
     "clean:registry": "rm -rf ../../.registry/@ez4/aws-common",
     "live:publish": "npm run test && npm publish --access public"
   },
+  "peerDependencies": {
+    "@ez4/project": "^0.6.0"
+  },
   "dependencies": {
     "@aws-sdk/client-sts": "^3.614.0",
-    "@ez4/project": "^0.6.0",
     "@ez4/stateful": "^0.6.0",
     "@ez4/utils": "^0.6.0",
     "esbuild": "^0.23.0"

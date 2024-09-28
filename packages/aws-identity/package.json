@@ -36,11 +36,13 @@
     "clean:registry": "rm -rf ../../.registry/@ez4/aws-identity",
     "live:publish": "npm run test && npm publish --access public"
   },
+  "peerDependencies": {
+    "@ez4/project": "^0.6.0"
+  },
   "dependencies": {
     "@aws-sdk/client-iam": "^3.614.0",
     "@aws-sdk/client-sts": "^3.614.0",
     "@ez4/aws-common": "^0.6.0",
-    "@ez4/project": "^0.6.0",
     "@ez4/stateful": "^0.6.0",
     "@ez4/utils": "^0.6.0"
   }

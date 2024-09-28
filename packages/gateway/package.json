@@ -41,9 +41,11 @@
     "clean:registry": "rm -rf ../../.registry/@ez4/gateway",
     "live:publish": "npm run test && npm publish --access public"
   },
+  "peerDependencies": {
+    "@ez4/project": "^0.6.0"
+  },
   "dependencies": {
     "@ez4/common": "^0.6.0",
-    "@ez4/project": "^0.6.0",
     "@ez4/reflection": "^0.6.0",
     "@ez4/schema": "^0.6.0",
     "@ez4/utils": "^0.6.0"

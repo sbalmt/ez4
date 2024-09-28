@@ -41,13 +41,15 @@
     "clean:registry": "rm -rf ../../.registry/@ez4/aws-cloudfront",
     "live:publish": "npm run test && npm publish --access public"
   },
+  "peerDependencies": {
+    "@ez4/project": "^0.6.0"
+  },
   "dependencies": {
     "@aws-sdk/client-cloudfront": "^3.651.1",
     "@ez4/aws-bucket": "^0.6.0",
     "@ez4/aws-common": "^0.6.0",
     "@ez4/aws-identity": "^0.6.0",
     "@ez4/distribution": "^0.6.0",
-    "@ez4/project": "^0.6.0",
     "@ez4/stateful": "^0.6.0",
     "@ez4/utils": "^0.6.0"
   }
