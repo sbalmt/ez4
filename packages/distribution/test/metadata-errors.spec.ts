@@ -49,7 +49,7 @@ describe.only('distribution metadata errors', () => {
     const [error1, error2] = parseFile('incorrect-origin', 2);
 
     ok(error1 instanceof IncorrectOriginTypeError);
-    deepEqual(error1.baseType, 'Cdn.BucketOrigin');
+    deepEqual(error1.baseType, 'Cdn.DefaultOrigin');
     deepEqual(error1.originType, 'TestOrigin');
 
     ok(error2 instanceof IncompleteServiceError);
@@ -60,7 +60,7 @@ describe.only('distribution metadata errors', () => {
     const [error1, error2] = parseFile('invalid-origin', 2);
 
     ok(error1 instanceof InvalidOriginTypeError);
-    deepEqual(error1.baseType, 'Cdn.BucketOrigin');
+    deepEqual(error1.baseType, 'Cdn.DefaultOrigin');
 
     ok(error2 instanceof IncompleteServiceError);
     deepEqual(error2.properties, ['defaultOrigin']);
