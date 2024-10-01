@@ -4,6 +4,7 @@ import type { HttpPath } from '../types/path.js';
 import type { HttpAuthResponse, HttpResponse } from './response.js';
 import type { HttpRequest, HttpAuthRequest } from './request.js';
 import type { RouteTypes } from './helpers.js';
+import type { HttpCors } from './cors.js';
 
 import type {
   HttpHeaders,
@@ -29,6 +30,8 @@ export namespace Http {
 
   export type AuthResponse = HttpAuthResponse;
   export type Response = HttpResponse;
+
+  export type Cors = HttpCors;
 
   /**
    * Incoming request.
@@ -99,6 +102,11 @@ export namespace Http {
      * Amount of memory available for the handler.
      */
     memory?: number;
+
+    /**
+     * Determines whether or not CORS is enabled for the route.
+     */
+    cors?: boolean;
   }
 
   /**
@@ -116,6 +124,11 @@ export namespace Http {
      * Display name for the service.
      */
     name?: string;
+
+    /**
+     * CORS configuration.
+     */
+    cors?: Cors;
 
     /**
      * Variables associated to all the routes.

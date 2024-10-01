@@ -2,9 +2,11 @@ import { ok, equal, deepEqual } from 'assert/strict';
 import { describe, it } from 'node:test';
 
 import {
-  IncompleteHandlerError,
-  IncompleteRouteError,
   IncompleteServiceError,
+  IncompleteCorsError,
+  IncompleteRouteError,
+  IncompleteHandlerError,
+  IncorrectCorsTypeError,
   IncorrectHeadersTypeError,
   IncorrectIdentityTypeError,
   IncorrectParameterTypeError,
@@ -12,6 +14,7 @@ import {
   IncorrectBodyTypeError,
   IncorrectRequestTypeError,
   IncorrectResponseTypeError,
+  InvalidCorsTypeError,
   InvalidHeadersTypeError,
   InvalidIdentityTypeError,
   InvalidParameterTypeError,
@@ -195,5 +198,27 @@ describe.only('http metadata errors', () => {
 
     ok(error1 instanceof InvalidBodyTypeError);
     equal(error1.baseType, 'Http.JsonBody');
+  });
+
+  it('assert :: incomplete cors', () => {
+    const [error1] = parseFile('incomplete-cors', 1);
+
+    ok(error1 instanceof IncompleteCorsError);
+    deepEqual(error1.properties, ['allowOrigins', 'allowMethods']);
+  });
+
+  it('assert :: incorrect cors', () => {
+    const [error1] = parseFile('incorrect-cors', 1);
+
+    ok(error1 instanceof IncorrectCorsTypeError);
+    equal(error1.baseType, 'Http.Cors');
+    equal(error1.modelType, 'TestCors');
+  });
+
+  it('assert :: invalid cors', () => {
+    const [error1] = parseFile('invalid-cors', 1);
+
+    ok(error1 instanceof InvalidCorsTypeError);
+    equal(error1.baseType, 'Http.Cors');
   });
 });

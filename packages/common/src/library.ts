@@ -9,6 +9,7 @@ export * from './reflection/object.js';
 export * from './reflection/property.js';
 export * from './reflection/model.js';
 export * from './reflection/types.js';
+export * from './reflection/value.js';
 
 export * from './errors/common.js';
 export * from './errors/services.js';

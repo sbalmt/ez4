@@ -7,10 +7,11 @@ import { isModelProperty, isTypeObject, isTypeReference } from '@ez4/reflection'
 
 import {
   getLinkedVariableList,
-  getModelMembers,
+  getPropertyBoolean,
+  getPropertyNumber,
   getPropertyString,
   getObjectMembers,
-  getPropertyNumber
+  getModelMembers
 } from '@ez4/common/library';
 
 import { isHttpPath } from '../types/path.js';
@@ -76,6 +77,14 @@ const getTypeFromMembers = (
       case 'timeout':
       case 'memory': {
         const value = getPropertyNumber(member);
+        if (value !== undefined && value !== null) {
+          route[member.name] = value;
+        }
+        break;
+      }
+
+      case 'cors': {
+        const value = getPropertyBoolean(member);
         if (value !== undefined && value !== null) {
           route[member.name] = value;
         }

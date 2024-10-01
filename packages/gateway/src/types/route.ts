@@ -10,4 +10,5 @@ export type HttpRoute = {
   variables?: LinkedVariables | null;
   timeout?: number;
   memory?: number;
+  cors?: boolean;
 };

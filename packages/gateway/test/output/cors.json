@@ -1,0 +1,57 @@
+{
+  "TestService": {
+    "type": "@ez4/http",
+    "name": "TestService",
+    "routes": [
+      {
+        "path": "POST /test-route-1",
+        "handler": {
+          "name": "testRoute",
+          "file": "test/input/output-cors.ts",
+          "response": {
+            "type": "object",
+            "properties": {
+              "status": {
+                "type": "number",
+                "description": "Response status code."
+              }
+            }
+          }
+        }
+      },
+      {
+        "path": "PATCH /test-route-2",
+        "handler": {
+          "name": "testRoute",
+          "file": "test/input/output-cors.ts",
+          "response": {
+            "type": "object",
+            "properties": {
+              "status": {
+                "type": "number",
+                "description": "Response status code."
+              }
+            }
+          }
+        },
+        "cors": true
+      }
+    ],
+    "cors": {
+      "allowOrigins": [
+        "*"
+      ],
+      "allowMethods": [
+        "*"
+      ],
+      "allowCredentials": true,
+      "allowHeaders": [
+        "x-income-header"
+      ],
+      "exposeHeaders": [
+        "x-exposed-header"
+      ],
+      "maxAge": 300
+    }
+  }
+}

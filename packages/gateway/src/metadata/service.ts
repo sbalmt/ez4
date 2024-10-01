@@ -17,6 +17,7 @@ import { ServiceType } from '../types/service.js';
 import { IncompleteServiceError } from '../errors/service.js';
 import { isHttpService } from './utils.js';
 import { getHttpRoute } from './route.js';
+import { getHttpCors } from './cors.js';
 
 export const getHttpServices = (reflection: SourceMap) => {
   const httpServices: Record<string, HttpService> = {};
@@ -56,6 +57,10 @@ export const getHttpServices = (reflection: SourceMap) => {
           if ((service.routes = getAllRoutes(member, reflection, errorList))) {
             properties.delete(member.name);
           }
+          break;
+
+        case 'cors':
+          service.cors = getHttpCors(member.value, statement, reflection, errorList);
           break;
 
         case 'variables':

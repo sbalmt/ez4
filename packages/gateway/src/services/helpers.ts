@@ -2,7 +2,7 @@ import type { ArrayRest, IsArrayEmpty, IsAny } from '@ez4/utils';
 import type { Http } from './http.js';
 
 /**
- * Given an array of requests `T` and an union of responses `U`, it returns an union of
+ * Given an array of requests `T` and a union of responses `U`, it returns a union of
  * `Http.Route` for each request.
  */
 export type RouteTypes<T extends Http.Request[]> =
