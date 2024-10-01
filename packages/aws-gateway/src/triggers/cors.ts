@@ -9,20 +9,13 @@ export const getCorsConfiguration = (routes: HttpRoute[], cors: HttpCors) => {
       continue;
     }
 
-    const { path, authorizer, handler } = route;
-
-    const [method] = path.split(' ', 2);
-
-    const headers = Object.keys({
-      ...authorizer?.request?.headers,
-      ...handler.request?.headers
-    });
+    const [method] = route.path.split(' ', 2);
 
     if (['POST', 'PATCH', 'PUT'].includes(method)) {
       allowHeaders.add('content-type');
     }
 
-    headers.forEach((header) => {
+    getCorsHeaderNames(route).forEach((header) => {
       allowHeaders.add(header.toLowerCase());
     });
 
@@ -34,4 +27,15 @@ export const getCorsConfiguration = (routes: HttpRoute[], cors: HttpCors) => {
     allowHeaders: [...allowHeaders.values()],
     allowMethods: [...allowMethods.values()]
   };
+};
+
+const getCorsHeaderNames = (route: HttpRoute) => {
+  const { authorizer, handler } = route;
+
+  const headerNames = Object.keys({
+    ...authorizer?.request?.headers?.properties,
+    ...handler.request?.headers?.properties
+  });
+
+  return headerNames;
 };
