@@ -18,10 +18,19 @@ export declare class Api extends Http.Service<[PostRequest, GetRequest]> {
     {
       path: 'POST /post-route';
       handler: typeof postHandler;
+      cors: true;
     },
     {
       path: 'GET /get-route/{id}';
       handler: typeof getHandler;
+      cors: true;
     }
   ];
+
+  /**
+   * Cors configuration.
+   */
+  cors: {
+    allowOrigins: ['http://localhost:3000'];
+  };
 }

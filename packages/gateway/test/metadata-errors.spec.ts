@@ -204,7 +204,7 @@ describe.only('http metadata errors', () => {
     const [error1] = parseFile('incomplete-cors', 1);
 
     ok(error1 instanceof IncompleteCorsError);
-    deepEqual(error1.properties, ['allowOrigins', 'allowMethods']);
+    deepEqual(error1.properties, ['allowOrigins']);
   });
 
   it('assert :: incorrect cors', () => {

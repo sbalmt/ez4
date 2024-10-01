@@ -16,6 +16,7 @@ import { getAuthorizer, createAuthorizer } from '../authorizer/service.js';
 import { createGateway } from '../gateway/service.js';
 import { createStage } from '../stage/service.js';
 import { createRoute } from '../route/service.js';
+import { getCorsConfiguration } from './cors.js';
 import { getFunctionName } from './utils.js';
 
 export const prepareHttpServices = async (event: PrepareResourceEvent) => {
@@ -25,10 +26,15 @@ export const prepareHttpServices = async (event: PrepareResourceEvent) => {
     return;
   }
 
+  const { name, displayName, description, routes, cors } = service;
+
   const gatewayState = createGateway(state, {
-    gatewayId: service.name,
-    gatewayName: service.displayName ?? service.name,
-    description: service.description
+    gatewayId: name,
+    gatewayName: displayName ?? name,
+    description,
+    ...(cors && {
+      cors: getCorsConfiguration(routes, cors)
+    })
   });
 
   createStage(state, gatewayState, {

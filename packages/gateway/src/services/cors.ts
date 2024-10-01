@@ -10,7 +10,7 @@ export interface HttpCors {
   /**
    * List of allowed methods.
    */
-  allowMethods: string[];
+  allowMethods?: string[];
 
   /**
    * Determines whether or not requests can be made with credentials.

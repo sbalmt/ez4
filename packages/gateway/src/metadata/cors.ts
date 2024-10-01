@@ -45,7 +45,7 @@ export const getHttpCors = (
 };
 
 const isValidCors = (type: Incomplete<HttpCors>): type is HttpCors => {
-  return !!type.allowOrigins && !!type.allowMethods;
+  return !!type.allowOrigins?.length;
 };
 
 const getTypeCors = (type: AllType, parent: TypeParent, errorList: Error[]) => {
@@ -72,7 +72,7 @@ const getTypeFromMembers = (
   errorList: Error[]
 ) => {
   const cors: Incomplete<HttpCors> = {};
-  const properties = new Set(['allowOrigins', 'allowMethods']);
+  const properties = new Set(['allowOrigins']);
 
   for (const member of members) {
     if (!isModelProperty(member) || member.inherited) {
