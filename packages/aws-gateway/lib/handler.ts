@@ -50,9 +50,9 @@ export async function apiEntryPoint(event: RequestEvent, context: Context): Prom
 
     const response = await next(request, __EZ4_CONTEXT);
 
-    const { status, body } = response;
+    const { status, headers, body } = response;
 
-    return formatJsonResponse(status, JSON.stringify(body));
+    return formatJsonResponse(status, headers, JSON.stringify(body));
   } catch (error) {
     if (!(error instanceof HttpError)) {
       console.error(error.message ?? error);
@@ -109,12 +109,15 @@ const getRequestBody = (event: RequestEvent) => {
   return undefined;
 };
 
-const formatJsonResponse = (status: number, body?: string) => {
+const formatJsonResponse = (status: number, headers?: Http.Headers, body?: string) => {
   return {
     statusCode: status,
     ...(body && { body }),
     headers: {
-      ['content-type']: 'application/json'
+      ...headers,
+      ...(body && {
+        ['content-type']: 'application/json'
+      })
     }
   };
 };
