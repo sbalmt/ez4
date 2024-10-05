@@ -3,10 +3,11 @@ import type { Arn, ResourceTags } from '@ez4/aws-common';
 import {
   ApiGatewayV2Client,
   CreateApiCommand,
+  UpdateApiCommand,
   DeleteApiCommand,
   TagResourceCommand,
   UntagResourceCommand,
-  UpdateApiCommand
+  DeleteCorsConfigurationCommand
 } from '@aws-sdk/client-apigatewayv2';
 
 import { Logger } from '@ez4/aws-common';
@@ -100,6 +101,16 @@ export const updateGateway = async (apiId: string, request: UpdateRequest) => {
           MaxAge: cors.maxAge
         }
       })
+    })
+  );
+};
+
+export const deleteCorsConfiguration = async (apiId: string) => {
+  Logger.logUpdate(GatewayServiceName, `${apiId} CORS`);
+
+  await client.send(
+    new DeleteCorsConfigurationCommand({
+      ApiId: apiId
     })
   );
 };

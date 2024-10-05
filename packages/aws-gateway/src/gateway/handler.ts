@@ -5,7 +5,14 @@ import type { GatewayState, GatewayResult, GatewayParameters } from './types.js'
 import { applyTagUpdates, ReplaceResourceError } from '@ez4/aws-common';
 import { deepCompare, deepEqual } from '@ez4/utils';
 
-import { createGateway, deleteGateway, tagGateway, untagGateway, updateGateway } from './client.js';
+import {
+  createGateway,
+  deleteCorsConfiguration,
+  deleteGateway,
+  tagGateway,
+  untagGateway,
+  updateGateway
+} from './client.js';
 import { GatewayServiceName } from './types.js';
 
 export const getGatewayHandler = (): StepHandler<GatewayState> => ({
@@ -83,10 +90,16 @@ const checkGeneralUpdates = async (
   candidate: GatewayParameters,
   current: GatewayParameters
 ) => {
-  const hasChanges = !deepEqual(candidate, current, { tags: true });
+  const hasChanges = !deepEqual(candidate, current, {
+    tags: true
+  });
 
   if (hasChanges) {
     await updateGateway(apiId, candidate);
+  }
+
+  if (!candidate.cors && current.cors) {
+    await deleteCorsConfiguration(apiId);
   }
 };
 
