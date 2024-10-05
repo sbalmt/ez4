@@ -14,8 +14,8 @@ import { isModelProperty, isTypeString } from '@ez4/reflection';
 
 import { ServiceType } from '../types/service.js';
 import { IncompleteServiceError } from '../errors/service.js';
+import { getAllCdnOrigins, getCdnOrigin } from './origin.js';
 import { getAllFallbacks } from './fallback.js';
-import { getCdnOrigin } from './origin.js';
 import { isCdnService } from './utils.js';
 
 export const getCdnServices = (reflection: SourceMap) => {
@@ -53,6 +53,14 @@ export const getCdnServices = (reflection: SourceMap) => {
           if (defaultOrigin) {
             service.defaultOrigin = defaultOrigin;
             properties.delete(member.name);
+          }
+          break;
+        }
+
+        case 'additionalOrigins': {
+          const originList = getAllCdnOrigins(member.value, statement, reflection, errorList);
+          if (originList?.length) {
+            service.additionalOrigins = originList;
           }
           break;
         }

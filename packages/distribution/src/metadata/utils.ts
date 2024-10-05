@@ -7,7 +7,12 @@ export const isCdnService = (type: AllType): type is TypeClass => {
 };
 
 export const isCdnOrigin = (type: TypeModel) => {
-  return hasHeritageType(type, 'Cdn.Origin');
+  return (
+    hasHeritageType(type, 'Cdn.DefaultRegularOrigin') ||
+    hasHeritageType(type, 'Cdn.DefaultBucketOrigin') ||
+    hasHeritageType(type, 'Cdn.AdditionalRegularOrigin') ||
+    hasHeritageType(type, 'Cdn.AdditionalBucketOrigin')
+  );
 };
 
 export const isCdnFallback = (type: AllType) => {

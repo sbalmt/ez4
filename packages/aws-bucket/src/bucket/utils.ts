@@ -4,7 +4,6 @@ import type { BucketState } from './types.js';
 import { EntryNotFoundError, getEntry } from '@ez4/stateful';
 import { IncompleteResourceError } from '@ez4/aws-common';
 import { hashData, toKebabCase } from '@ez4/utils';
-import { getRegion } from '@ez4/aws-identity';
 
 import { BucketServiceType } from './types.js';
 
@@ -24,12 +23,6 @@ export const getBucketState = (state: EntryStates, bucketName: string) => {
   }
 
   return resource;
-};
-
-export const getBucketDomain = async (bucketName: string) => {
-  const region = await getRegion();
-
-  return `${bucketName}.s3.${region}.amazonaws.com`;
 };
 
 export const getBucketName = <E extends EntryState>(

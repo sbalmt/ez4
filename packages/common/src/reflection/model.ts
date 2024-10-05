@@ -27,10 +27,10 @@ export const getHeritageType = (type: TypeModel, name: string) => {
     const typeName = getReferenceName(reference);
 
     if (namespace) {
-      return `${namespace}.${typeName}` === name;
+      return name === `${namespace}.${typeName}`;
     }
 
-    return typeName === name;
+    return name === typeName;
   });
 };
 

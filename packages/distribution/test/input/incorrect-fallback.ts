@@ -7,7 +7,7 @@ declare class TestBucket extends Bucket.Service {}
 export declare class TestCdn extends Cdn.Service {
   defaultOrigin: {
     bucket: Environment.Service<TestBucket>;
-    path: '/site';
+    location: '/site';
   };
 
   fallbacks: [TestFallback];
@@ -16,5 +16,5 @@ export declare class TestCdn extends Cdn.Service {
 // Missing Cdn.Fallback inheritance.
 declare class TestFallback {
   code: 400;
-  path: '/site';
+  location: '/site';
 }

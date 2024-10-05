@@ -10,12 +10,15 @@ import {
   updateDistribution,
   deleteDistribution,
   tagDistribution,
-  untagDistribution
+  untagDistribution,
+  CreateRequest
 } from './client.js';
 
 import { getCachePolicyId } from '../policy/utils.js';
 import { getOriginAccessId } from '../access/utils.js';
 import { DistributionServiceName } from './types.js';
+
+type GeneralUpdateParameters = DistributionParameters & CreateRequest;
 
 export const getDistributionHandler = (): StepHandler<DistributionState> => ({
   equals: equalsResource,
@@ -70,8 +73,8 @@ const createResource = async (
 
   const { distributionId, distributionArn, endpoint } = await createDistribution({
     ...parameters,
-    defaultAccessId: originAccessId,
-    defaultPolicyId: cachePolicyId
+    originAccessId,
+    cachePolicyId
   });
 
   return {
@@ -104,14 +107,14 @@ const updateResource = async (
 
   const newRequest = {
     ...parameters,
-    defaultAccessId: newOriginAccessId,
-    defaultPolicyId: newCachePolicyId
+    originAccessId: newOriginAccessId,
+    cachePolicyId: newCachePolicyId
   };
 
   const oldRequest = {
     ...current.parameters,
-    defaultAccessId: oldOriginAccessId,
-    defaultPolicyId: oldCachePolicyId
+    originAccessId: oldOriginAccessId,
+    cachePolicyId: oldCachePolicyId
   };
 
   await checkGeneralUpdates(result.distributionId, newRequest, oldRequest);
@@ -137,8 +140,8 @@ const deleteResource = async (candidate: DistributionState) => {
   if (parameters.enabled) {
     await updateDistribution(distributionId, {
       ...parameters,
-      defaultAccessId: originAccessId,
-      defaultPolicyId: cachePolicyId,
+      originAccessId,
+      cachePolicyId,
       enabled: false
     });
   }
@@ -146,10 +149,10 @@ const deleteResource = async (candidate: DistributionState) => {
   await deleteDistribution(distributionId);
 };
 
-const checkGeneralUpdates = async <T extends DistributionParameters>(
+const checkGeneralUpdates = async (
   distributionId: string,
-  candidate: T,
-  current: T
+  candidate: GeneralUpdateParameters,
+  current: GeneralUpdateParameters
 ) => {
   const hasChanges = !deepEqual(candidate, current, {
     tags: true

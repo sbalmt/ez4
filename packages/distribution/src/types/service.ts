@@ -11,6 +11,7 @@ export type CdnService = ServiceMetadata & {
   description?: string;
   defaultOrigin: CdnOrigin;
   defaultIndex?: string;
+  additionalOrigins?: CdnOrigin[];
   fallbacks?: CdnFallback[];
   cacheTTL?: number;
   maxCacheTTL?: number;

@@ -9,4 +9,5 @@ export * from './errors/fallback.js';
 export * from './errors/origin.js';
 
 export * from './types/service.js';
+export * from './types/fallback.js';
 export * from './types/origin.js';

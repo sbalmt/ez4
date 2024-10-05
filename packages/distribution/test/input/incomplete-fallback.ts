@@ -7,7 +7,7 @@ declare class TestBucket extends Bucket.Service {}
 export declare class TestCdn extends Cdn.Service {
   defaultOrigin: {
     bucket: Environment.Service<TestBucket>;
-    path: '/site';
+    location: '/site';
   };
 
   // @ts-ignore Missing required path.

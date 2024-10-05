@@ -35,6 +35,4 @@ export const connectOriginBucket = (
       return getRoleDocument(distributionArn, bucketName);
     }
   });
-
-  return distributionState;
 };

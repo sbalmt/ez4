@@ -1,12 +1,14 @@
 import type { Incomplete } from '@ez4/utils';
 import type { MemberType } from '@ez4/common/library';
 import type { AllType, SourceMap, TypeModel, TypeObject } from '@ez4/reflection';
-import type { CdnOrigin } from '../types/origin.js';
+import type { CdnRegularOrigin, CdnBucketOrigin, CdnOrigin } from '../types/origin.js';
 
 import {
   getLinkedServiceName,
-  getModelMembers,
+  getLiteralTuple,
   getObjectMembers,
+  getModelMembers,
+  getPropertyNumber,
   getPropertyString,
   isModelDeclaration
 } from '@ez4/common/library';
@@ -19,9 +21,30 @@ import {
   InvalidOriginTypeError
 } from '../errors/origin.js';
 
+import { CdnOriginType } from '../types/origin.js';
 import { isCdnOrigin } from './utils.js';
 
 type TypeParent = TypeModel | TypeObject;
+
+export const getAllCdnOrigins = (
+  type: AllType,
+  parent: TypeModel,
+  reflection: SourceMap,
+  errorList: Error[]
+) => {
+  const originItems = getLiteralTuple(type) ?? [];
+  const resultList: CdnOrigin[] = [];
+
+  for (const origin of originItems) {
+    const result = getCdnOrigin(origin, parent, reflection, errorList);
+
+    if (result) {
+      resultList.push(result);
+    }
+  }
+
+  return resultList;
+};
 
 export const getCdnOrigin = (
   type: AllType,
@@ -42,8 +65,8 @@ export const getCdnOrigin = (
   return null;
 };
 
-const isValidOrigin = (type: Incomplete<CdnOrigin>): type is CdnOrigin => {
-  return !!type.bucket;
+const isValidOrigin = (type: Incomplete<CdnRegularOrigin & CdnBucketOrigin>): type is CdnOrigin => {
+  return !!type.type && (!!type.domain || !!type.bucket);
 };
 
 const getTypeOrigin = (
@@ -70,13 +93,13 @@ const getTypeOrigin = (
 };
 
 const getTypeFromMembers = (
-  type: TypeObject | TypeModel,
+  parent: TypeParent,
   members: MemberType[],
   reflection: SourceMap,
   errorList: Error[]
 ) => {
-  const origin: Incomplete<CdnOrigin> = {};
-  const properties = new Set(['bucket']);
+  const origin: Incomplete<CdnRegularOrigin & CdnBucketOrigin> = {};
+  const properties = new Set(['domain', 'bucket']);
 
   for (const member of members) {
     if (!isModelProperty(member) || member.inherited) {
@@ -85,16 +108,46 @@ const getTypeFromMembers = (
 
     switch (member.name) {
       case 'bucket': {
-        const value = getLinkedServiceName(member, type, reflection, errorList);
-        if (value !== undefined && value !== null) {
+        const bucketService = getLinkedServiceName(member, parent, reflection, errorList);
+        if (bucketService) {
+          origin.bucket = bucketService;
+          origin.type = CdnOriginType.Bucket;
+          properties.delete(member.name);
+        }
+        break;
+      }
+
+      case 'domain': {
+        const domainUrl = getPropertyString(member);
+        if (domainUrl) {
+          origin.domain = domainUrl;
+          origin.type = CdnOriginType.Regular;
+          properties.delete(member.name);
+        }
+        break;
+      }
+
+      case 'location':
+      case 'path': {
+        const value = getPropertyString(member);
+        if (value) {
+          properties.delete(member.name);
           origin[member.name] = value;
         }
         break;
       }
 
-      case 'path': {
+      case 'protocol': {
         const value = getPropertyString(member);
-        if (value !== undefined && value !== null) {
+        if (value) {
+          origin[member.name] = value;
+        }
+        break;
+      }
+
+      case 'port': {
+        const value = getPropertyNumber(member);
+        if (value) {
           origin[member.name] = value;
         }
         break;
@@ -106,7 +159,7 @@ const getTypeFromMembers = (
     return origin;
   }
 
-  errorList.push(new IncompleteOriginError([...properties], type.file));
+  errorList.push(new IncompleteOriginError([...properties], parent.file));
 
   return null;
 };

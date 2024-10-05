@@ -17,7 +17,7 @@ export declare class Site extends Cdn.Service {
   fallbacks: [
     {
       code: 404;
-      path: '/index.html';
+      location: '/index.html';
     }
   ];
 

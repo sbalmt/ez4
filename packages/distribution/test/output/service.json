@@ -5,9 +5,41 @@
     "description": "Test distribution.",
     "defaultIndex": "index.html",
     "defaultOrigin": {
+      "type": "bucket",
       "bucket": "TestBucket",
-      "path": "/site"
+      "location": "/site"
     },
+    "additionalOrigins": [
+      {
+        "type": "regular",
+        "path": "default/regular/*",
+        "domain": "ez4.default"
+      },
+      {
+        "type": "bucket",
+        "bucket": "TestBucket",
+        "path": "default/bucket/*"
+      },
+      {
+        "type": "regular",
+        "path": "regular/*",
+        "domain": "ez4.additional",
+        "location": "internal",
+        "protocol": "http",
+        "port": 8080
+      },
+      {
+        "type": "bucket",
+        "bucket": "TestBucket",
+        "location": "internal",
+        "path": "bucket/*"
+      },
+      {
+        "type": "regular",
+        "domain": "test-env-var-value",
+        "path": "inline/*"
+      }
+    ],
     "aliases": [
       "test-1.ez4.dev",
       "test-2.ez4.dev"
@@ -15,7 +47,7 @@
     "fallbacks": [
       {
         "code": 404,
-        "path": "/site",
+        "location": "/site",
         "ttl": 3600
       }
     ],

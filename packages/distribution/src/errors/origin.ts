@@ -8,7 +8,7 @@ export class IncompleteOriginError extends IncompleteTypeError {
 
 export class InvalidOriginTypeError extends InvalidTypeError {
   constructor(fileName?: string) {
-    super('Invalid CDN origin type', undefined, 'Cdn.DefaultOrigin', fileName);
+    super('Invalid CDN origin type', undefined, 'Cdn.Origin', fileName);
   }
 }
 
@@ -17,6 +17,6 @@ export class IncorrectOriginTypeError extends IncorrectTypeError {
     public originType: string,
     fileName?: string
   ) {
-    super('Incorrect CDN origin type', originType, 'Cdn.DefaultOrigin', fileName);
+    super('Incorrect CDN origin type', originType, 'Cdn.Origin', fileName);
   }
 }

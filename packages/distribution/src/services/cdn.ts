@@ -1,44 +1,18 @@
 import type { Service } from '@ez4/common';
-import type { Bucket } from '@ez4/storage';
+import type { CdnFallback } from './fallback.js';
+import type { BucketOrigin, RegularOrigin } from './origin.js';
 
 /**
  * Provide all contracts for a self-managed CDN service.
  */
 export namespace Cdn {
-  /**
-   * Default origin.
-   */
-  export interface DefaultOrigin {
-    /**
-     * Bucket service for the origin.
-     */
-    bucket: Bucket.Service;
+  export type DefaultRegularOrigin = Omit<RegularOrigin, 'path'>;
+  export type DefaultBucketOrigin = Omit<BucketOrigin, 'path'>;
 
-    /**
-     * Specify the origin path.
-     */
-    path?: string;
-  }
+  export type AdditionalRegularOrigin = RegularOrigin;
+  export type AdditionalBucketOrigin = BucketOrigin;
 
-  /**
-   * Distribution fallback.
-   */
-  export interface Fallback {
-    /**
-     * HTTP error code (4xx or 3xx) that activates the fallback.
-     */
-    code: number;
-
-    /**
-     * Path to the new location.
-     */
-    path: string;
-
-    /**
-     * Optional cache TTL (in seconds) for the fallback.
-     */
-    ttl?: number;
-  }
+  export type Fallback = CdnFallback;
 
   /**
    * CDN service.
@@ -52,12 +26,17 @@ export namespace Cdn {
     /**
      * Default origin for the distribution results.
      */
-    defaultOrigin: DefaultOrigin;
+    defaultOrigin: DefaultRegularOrigin | DefaultBucketOrigin;
 
     /**
      * Default index file name (e.g. `index.html`).
      */
     defaultIndex?: string;
+
+    /**
+     * Additional origins.
+     */
+    additionalOrigins?: (AdditionalRegularOrigin | AdditionalBucketOrigin)[];
 
     /**
      * Distribution fallbacks.

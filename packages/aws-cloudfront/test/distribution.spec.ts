@@ -76,12 +76,19 @@ describe.only('cloudfront :: distribution', () => {
       defaultOrigin: {
         id: 's3-bucket',
         domain: await getBucketDomain(originBucketName),
-        path: '/home'
+        location: '/home'
       },
+      origins: [
+        {
+          id: 'ez4-test',
+          domain: 'ez4.test',
+          path: 'test*'
+        }
+      ],
       customErrors: [
         {
           code: 404,
-          path: '/home',
+          location: '/home',
           ttl: 300
         }
       ],
