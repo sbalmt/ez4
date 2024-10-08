@@ -15,7 +15,7 @@ import {
 } from './client.js';
 
 import { getOriginAccessId } from '../access/utils.js';
-import { getCachePolicyIds } from '../policy/utils.js';
+import { getCachePolicyIds } from '../cache/utils.js';
 import { DistributionServiceName } from './types.js';
 
 type GeneralUpdateParameters = DistributionParameters & CreateRequest;

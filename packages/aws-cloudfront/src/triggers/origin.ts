@@ -7,7 +7,7 @@ import { CdnService, CdnOrigin, isCdnBucketOrigin } from '@ez4/distribution/libr
 import { getServiceName } from '@ez4/project/library';
 import { OriginProtocol } from '@ez4/distribution';
 
-import { createCachePolicy } from '../policy/service.js';
+import { createCachePolicy } from '../cache/service.js';
 import { getCachePolicyName } from './utils.js';
 
 export const getDefaultOrigin = async (

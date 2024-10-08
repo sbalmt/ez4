@@ -5,7 +5,7 @@ import { registerTriggers as registerDistributionTriggers } from '@ez4/distribut
 
 import { createTrigger } from '@ez4/project/library';
 
-import { registerCachePolicyProvider } from '../policy/provider.js';
+import { registerCachePolicyProvider } from '../cache/provider.js';
 import { registerOriginAccessProvider } from '../access/provider.js';
 import { registerDistributionProvider } from '../distribution/provider.js';
 import { registerInvalidationProvider } from '../invalidation/provider.js';

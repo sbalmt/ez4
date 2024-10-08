@@ -13,7 +13,7 @@ import {
   CachePolicyQueryStringBehavior
 } from '@aws-sdk/client-cloudfront';
 
-import { PolicyServiceName } from './types.js';
+import { CacheServiceName } from './types.js';
 
 const client = new CloudFrontClient({});
 
@@ -34,8 +34,8 @@ export type UpdateRequest = CreateRequest;
 
 export type UpdateResponse = CreateResponse;
 
-export const createPolicy = async (request: CreateRequest): Promise<CreateResponse> => {
-  Logger.logCreate(PolicyServiceName, request.policyName);
+export const createCachePolicy = async (request: CreateRequest): Promise<CreateResponse> => {
+  Logger.logCreate(CacheServiceName, request.policyName);
 
   const response = await client.send(
     new CreateCachePolicyCommand({
@@ -52,8 +52,8 @@ export const createPolicy = async (request: CreateRequest): Promise<CreateRespon
   };
 };
 
-export const updatePolicy = async (policyId: string, request: UpdateRequest) => {
-  Logger.logUpdate(PolicyServiceName, request.policyName);
+export const updateCachePolicy = async (policyId: string, request: UpdateRequest) => {
+  Logger.logUpdate(CacheServiceName, request.policyName);
 
   const version = await getCurrentPolicyVersion(policyId);
 
@@ -68,8 +68,8 @@ export const updatePolicy = async (policyId: string, request: UpdateRequest) => 
   );
 };
 
-export const deletePolicy = async (policyId: string) => {
-  Logger.logDelete(PolicyServiceName, policyId);
+export const deleteCachePolicy = async (policyId: string) => {
+  Logger.logDelete(CacheServiceName, policyId);
 
   const version = await getCurrentPolicyVersion(policyId);
 
