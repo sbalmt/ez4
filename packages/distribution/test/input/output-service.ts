@@ -20,7 +20,7 @@ export declare class TestCdn extends Cdn.Service {
     location: '/site';
   };
 
-  additionalOrigins: [
+  origins: [
     TestRegularOrigin1,
     TestBucketOrigin1,
     TestRegularOrigin2,
@@ -39,20 +39,13 @@ export declare class TestCdn extends Cdn.Service {
     }
   ];
 
-  cacheTTL: 300;
-
-  minCacheTTL: 1;
-
-  maxCacheTTL: 3600;
-
   disabled: true;
-
-  compress: true;
 }
 
 declare class TestRegularOrigin1 implements Cdn.DefaultRegularOrigin {
   domain: 'ez4.default';
   path: 'default/regular/*';
+  cache: TestCache;
 }
 
 declare class TestBucketOrigin1 implements Cdn.DefaultBucketOrigin {
@@ -60,7 +53,7 @@ declare class TestBucketOrigin1 implements Cdn.DefaultBucketOrigin {
   path: 'default/bucket/*';
 }
 
-declare class TestRegularOrigin2 implements Cdn.AdditionalRegularOrigin {
+declare class TestRegularOrigin2 implements Cdn.RegularOrigin {
   domain: 'ez4.additional';
   path: 'regular/*';
   location: 'internal';
@@ -68,8 +61,19 @@ declare class TestRegularOrigin2 implements Cdn.AdditionalRegularOrigin {
   port: 8080;
 }
 
-declare class TestBucketOrigin2 implements Cdn.AdditionalBucketOrigin {
+declare class TestBucketOrigin2 implements Cdn.BucketOrigin {
   bucket: Environment.Service<TestBucket>;
   location: 'internal';
   path: 'bucket/*';
+  cache: TestCache;
+}
+
+declare class TestCache implements Cdn.Cache {
+  ttl: 300;
+
+  minTTL: 1;
+
+  maxTTL: 3600;
+
+  compress: true;
 }

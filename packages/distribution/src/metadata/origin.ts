@@ -22,6 +22,7 @@ import {
 } from '../errors/origin.js';
 
 import { CdnOriginType } from '../types/origin.js';
+import { getCdnCache } from './cache.js';
 import { isCdnOrigin } from './utils.js';
 
 type TypeParent = TypeModel | TypeObject;
@@ -147,6 +148,14 @@ const getTypeFromMembers = (
 
       case 'port': {
         const value = getPropertyNumber(member);
+        if (value) {
+          origin[member.name] = value;
+        }
+        break;
+      }
+
+      case 'cache': {
+        const value = getCdnCache(member.value, parent, reflection, errorList);
         if (value) {
           origin[member.name] = value;
         }

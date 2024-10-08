@@ -46,6 +46,7 @@ const waiter = {
 export type DefaultOrigin = {
   id: string;
   domain: string;
+  cachePolicyId: string;
   location?: string;
   http?: boolean;
   port?: number;
@@ -68,7 +69,6 @@ export type CreateRequest = {
   defaultOrigin: DefaultOrigin;
   defaultIndex?: string;
   originAccessId?: string;
-  cachePolicyId: string;
   description?: string;
   compress?: boolean;
   aliases?: string[];
@@ -197,16 +197,8 @@ const upsertDistributionRequest = (request: CreateRequest | UpdateRequest): Dist
   const allCacheBehaviors = getAllCacheBehaviors(request);
   const allOrigins = getAllOrigins(request);
 
-  const {
-    distributionName,
-    description,
-    defaultIndex,
-    defaultOrigin,
-    cachePolicyId,
-    aliases,
-    enabled,
-    compress
-  } = request;
+  const { distributionName, description, defaultIndex, defaultOrigin, aliases, enabled, compress } =
+    request;
 
   return {
     Comment: description,
@@ -231,7 +223,7 @@ const upsertDistributionRequest = (request: CreateRequest | UpdateRequest): Dist
       Quantity: 0
     },
     DefaultCacheBehavior: {
-      ...getCacheBehavior(defaultOrigin, cachePolicyId, compress)
+      ...getCacheBehavior(defaultOrigin, compress)
     },
     CacheBehaviors: {
       Quantity: allCacheBehaviors?.length ?? 0,
@@ -311,12 +303,11 @@ const getAllOrigins = (request: CreateRequest | UpdateRequest): Origin[] => {
 
 const getCacheBehavior = (
   origin: DefaultOrigin,
-  cachePolicyId: string,
   compress: boolean | undefined
 ): DefaultCacheBehavior => {
   return {
     TargetOriginId: origin.id,
-    CachePolicyId: cachePolicyId,
+    CachePolicyId: origin.cachePolicyId,
     ViewerProtocolPolicy: ViewerProtocolPolicy.redirect_to_https,
     FieldLevelEncryptionId: '',
     SmoothStreaming: false,
@@ -357,10 +348,10 @@ const getCacheBehavior = (
 const getAllCacheBehaviors = (
   request: CreateRequest | UpdateRequest
 ): CacheBehavior[] | undefined => {
-  const { cachePolicyId, compress } = request;
+  const { origins, compress } = request;
 
-  return request.origins?.map((origin) => ({
-    ...getCacheBehavior(origin, cachePolicyId, compress),
+  return origins?.map((origin) => ({
+    ...getCacheBehavior(origin, compress),
     PathPattern: origin.path
   }));
 };

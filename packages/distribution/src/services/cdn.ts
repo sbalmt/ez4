@@ -1,18 +1,20 @@
 import type { Service } from '@ez4/common';
+import type { CdnBucketOrigin, CdnRegularOrigin } from './origin.js';
 import type { CdnFallback } from './fallback.js';
-import type { BucketOrigin, RegularOrigin } from './origin.js';
+import type { CdnCache } from './cache.js';
 
 /**
  * Provide all contracts for a self-managed CDN service.
  */
 export namespace Cdn {
-  export type DefaultRegularOrigin = Omit<RegularOrigin, 'path'>;
-  export type DefaultBucketOrigin = Omit<BucketOrigin, 'path'>;
+  export type DefaultRegularOrigin = Omit<CdnRegularOrigin, 'path'>;
+  export type DefaultBucketOrigin = Omit<CdnBucketOrigin, 'path'>;
 
-  export type AdditionalRegularOrigin = RegularOrigin;
-  export type AdditionalBucketOrigin = BucketOrigin;
+  export type RegularOrigin = CdnRegularOrigin;
+  export type BucketOrigin = CdnBucketOrigin;
 
   export type Fallback = CdnFallback;
+  export type Cache = CdnCache;
 
   /**
    * CDN service.
@@ -34,34 +36,14 @@ export namespace Cdn {
     defaultIndex?: string;
 
     /**
-     * Additional origins.
+     * Distribution origins.
      */
-    additionalOrigins?: (AdditionalRegularOrigin | AdditionalBucketOrigin)[];
+    origins?: (RegularOrigin | BucketOrigin)[];
 
     /**
      * Distribution fallbacks.
      */
     fallbacks?: Fallback[];
-
-    /**
-     * Default TTL (in seconds) for cached results.
-     */
-    cacheTTL?: number;
-
-    /**
-     * Minimum TTL (in seconds) for cached results.
-     */
-    minCacheTTL?: number;
-
-    /**
-     * Maximum TTL (in seconds) for cached results.
-     */
-    maxCacheTTL?: number;
-
-    /**
-     * Determines whether or not the results are compressed.
-     */
-    compress?: boolean;
 
     /**
      * Determines whether or not the distribution is disabled.

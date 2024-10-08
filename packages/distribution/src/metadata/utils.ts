@@ -6,12 +6,16 @@ export const isCdnService = (type: AllType): type is TypeClass => {
   return isClassDeclaration(type) && hasHeritageType(type, 'Cdn.Service');
 };
 
+export const isCdnCache = (type: TypeModel) => {
+  return hasHeritageType(type, 'Cdn.Cache');
+};
+
 export const isCdnOrigin = (type: TypeModel) => {
   return (
     hasHeritageType(type, 'Cdn.DefaultRegularOrigin') ||
     hasHeritageType(type, 'Cdn.DefaultBucketOrigin') ||
-    hasHeritageType(type, 'Cdn.AdditionalRegularOrigin') ||
-    hasHeritageType(type, 'Cdn.AdditionalBucketOrigin')
+    hasHeritageType(type, 'Cdn.RegularOrigin') ||
+    hasHeritageType(type, 'Cdn.BucketOrigin')
   );
 };
 

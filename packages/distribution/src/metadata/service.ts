@@ -4,7 +4,6 @@ import type { CdnService } from '../types/service.js';
 
 import {
   getModelMembers,
-  getPropertyNumber,
   getPropertyBoolean,
   getPropertyString,
   getPropertyTuple
@@ -48,6 +47,14 @@ export const getCdnServices = (reflection: SourceMap) => {
           service.aliases = getAllAliases(member);
           break;
 
+        case 'defaultIndex': {
+          const value = getPropertyString(member);
+          if (value) {
+            service[member.name] = value;
+          }
+          break;
+        }
+
         case 'defaultOrigin': {
           const defaultOrigin = getCdnOrigin(member.value, statement, reflection, errorList);
           if (defaultOrigin) {
@@ -57,37 +64,10 @@ export const getCdnServices = (reflection: SourceMap) => {
           break;
         }
 
-        case 'additionalOrigins': {
+        case 'origins': {
           const originList = getAllCdnOrigins(member.value, statement, reflection, errorList);
           if (originList?.length) {
-            service.additionalOrigins = originList;
-          }
-          break;
-        }
-
-        case 'compress':
-        case 'disabled': {
-          const value = getPropertyBoolean(member);
-          if (value !== undefined && value !== null) {
-            service[member.name] = value;
-          }
-          break;
-        }
-
-        case 'cacheTTL':
-        case 'maxCacheTTL':
-        case 'minCacheTTL': {
-          const value = getPropertyNumber(member);
-          if (value !== undefined && value !== null) {
-            service[member.name] = value;
-          }
-          break;
-        }
-
-        case 'defaultIndex': {
-          const value = getPropertyString(member);
-          if (value !== undefined && value !== null) {
-            service[member.name] = value;
+            service.origins = originList;
           }
           break;
         }
@@ -96,6 +76,14 @@ export const getCdnServices = (reflection: SourceMap) => {
           const fallbackList = getAllFallbacks(member, statement, reflection, errorList);
           if (fallbackList) {
             service.fallbacks = fallbackList;
+          }
+          break;
+        }
+
+        case 'disabled': {
+          const value = getPropertyBoolean(member);
+          if (value !== undefined && value !== null) {
+            service[member.name] = value;
           }
           break;
         }

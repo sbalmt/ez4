@@ -5,10 +5,10 @@ export const DistributionServiceName = 'AWS:CloudFront/Distribution';
 
 export const DistributionServiceType = 'aws:cloudfront.distribution';
 
-export type DistributionParameters = Omit<CreateRequest, 'originAccessId' | 'cachePolicyId'>;
+export type DistributionParameters = Omit<CreateRequest, 'originAccessId'>;
 
 export type DistributionResult = CreateResponse & {
-  cachePolicyId: string;
+  cachePolicyIds: string[];
   originAccessId: string;
 };
 

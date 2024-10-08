@@ -1,3 +1,5 @@
+import type { CdnCache } from './cache.js';
+
 export type CdnOrigin = CdnBucketOrigin | CdnRegularOrigin;
 
 export const enum CdnOriginType {
@@ -10,6 +12,7 @@ export type CdnRegularOrigin = {
   domain: string;
   location?: string;
   protocol?: string;
+  cache?: CdnCache;
   path?: string;
   port?: number;
 };
@@ -18,6 +21,7 @@ export type CdnBucketOrigin = {
   type: CdnOriginType;
   bucket: string;
   location?: string;
+  cache?: CdnCache;
   path?: string;
 };
 

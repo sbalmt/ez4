@@ -32,7 +32,7 @@ const assertDeploy = async <E extends EntryState>(
   ok(result.distributionId);
   ok(result.distributionArn);
   ok(result.originAccessId);
-  ok(result.cachePolicyId);
+  ok(result.cachePolicyIds);
   ok(result.endpoint);
 
   return {
@@ -69,19 +69,21 @@ describe.only('cloudfront :: distribution', () => {
       maxTTL: 3600
     });
 
-    const resource = createDistribution(localState, originAccessResource, cachePolicyResource, {
+    const resource = createDistribution(localState, originAccessResource, {
       distributionName: 'ez4-test-distribution',
       description: 'EZ4: Test distribution description',
       enabled: true,
       defaultOrigin: {
         id: 's3-bucket',
         domain: await getBucketDomain(originBucketName),
+        cachePolicyId: cachePolicyResource.entryId,
         location: '/home'
       },
       origins: [
         {
           id: 'ez4-test',
           domain: 'ez4.test',
+          cachePolicyId: cachePolicyResource.entryId,
           path: 'test*'
         }
       ],

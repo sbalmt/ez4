@@ -1,4 +1,5 @@
 import type { Bucket } from '@ez4/storage';
+import type { CdnCache } from './cache.js';
 
 /**
  * Origin protocols.
@@ -11,7 +12,7 @@ export const enum OriginProtocol {
 /**
  * Bucket origin.
  */
-export interface BucketOrigin {
+export interface CdnBucketOrigin {
   /**
    * Bucket service used as the origin.
    */
@@ -21,12 +22,17 @@ export interface BucketOrigin {
    * Location path to append in the incoming request.
    */
   location?: string;
+
+  /**
+   * Origin cache.
+   */
+  cache?: CdnCache;
 }
 
 /**
  * Regular origin.
  */
-export interface RegularOrigin {
+export interface CdnRegularOrigin {
   /**
    * Path for the origin.
    */
@@ -51,4 +57,9 @@ export interface RegularOrigin {
    * Origin port.
    */
   port?: number;
+
+  /**
+   * Origin cache.
+   */
+  cache?: CdnCache;
 }
