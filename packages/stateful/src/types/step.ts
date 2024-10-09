@@ -1,7 +1,7 @@
 import type { ObjectComparison } from '@ez4/utils';
 import type { StepAction } from '../state/step.js';
 
-import type { EntryState, TypedEntryState } from './entry.js';
+import type { EntryState } from './entry.js';
 
 /**
  * A step state that contains an action to perform.
@@ -16,7 +16,7 @@ export type StepState = {
 /**
  * Context containing helper methods for the step.
  */
-export type StepContext<E extends EntryState = EntryState> = {
+export type StepContext = {
   /**
    * Get all dependencies from the current step entry, if a `type` is given
    * the resulting list is filtered by type.
@@ -24,7 +24,7 @@ export type StepContext<E extends EntryState = EntryState> = {
    * @param type Optional filter type.
    * @returns Returns a list containing all the current step entry dependencies.
    */
-  getDependencies: <T extends string>(type?: T) => TypedEntryState<E, T>[];
+  getDependencies: <E extends EntryState>(type?: E['type']) => E[];
 };
 
 /**
@@ -47,8 +47,8 @@ export type StepHandler<E extends EntryState = EntryState> = {
    */
   create: (
     candidate: Readonly<E>,
-    context: StepContext<E>
-  ) => Record<string, any> | undefined | Promise<Record<string, any> | unknown>;
+    context: StepContext
+  ) => Record<string, any> | undefined | Promise<Record<string, any> | undefined>;
 
   /**
    * Handle entry replacement.
@@ -60,7 +60,7 @@ export type StepHandler<E extends EntryState = EntryState> = {
   replace: (
     candidate: Readonly<E>,
     current: Readonly<E>,
-    context: StepContext<E>
+    context: StepContext
   ) => Record<string, any> | undefined | Promise<Record<string, any> | undefined>;
 
   /**
@@ -84,7 +84,7 @@ export type StepHandler<E extends EntryState = EntryState> = {
   update: (
     candidate: Readonly<E>,
     current: Readonly<E>,
-    context: StepContext<E>
+    context: StepContext
   ) => Record<string, any> | undefined | Promise<Record<string, any> | undefined>;
 
   /**
@@ -93,7 +93,7 @@ export type StepHandler<E extends EntryState = EntryState> = {
    * @param context Action context.
    * @returns Must returns the resulting state of the delete action.
    */
-  delete: (candidate: Readonly<E>, context: StepContext<E>) => void | Promise<void>;
+  delete: (candidate: Readonly<E>, context: StepContext) => void | Promise<void>;
 };
 
 /**

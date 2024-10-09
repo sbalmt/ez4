@@ -9,12 +9,8 @@ export const isIntegrationState = (resource: EntryState): resource is Integratio
   return resource.type === IntegrationServiceType;
 };
 
-export const getIntegrationId = <E extends EntryState>(
-  serviceName: string,
-  resourceId: string,
-  context: StepContext<E | IntegrationState>
-) => {
-  const resource = context.getDependencies(IntegrationServiceType).at(0)?.result;
+export const getIntegrationId = (serviceName: string, resourceId: string, context: StepContext) => {
+  const resource = context.getDependencies<IntegrationState>(IntegrationServiceType).at(0)?.result;
 
   if (!resource?.integrationId) {
     throw new IncompleteResourceError(serviceName, resourceId, 'integrationId');

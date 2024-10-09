@@ -60,7 +60,7 @@ describe.only('queue', () => {
   it('assert :: update tags', async () => {
     ok(queueId && lastState);
 
-    const localState = deepClone(lastState) as EntryStates;
+    const localState = deepClone(lastState);
     const resource = localState[queueId];
 
     ok(resource && isQueueState(resource));

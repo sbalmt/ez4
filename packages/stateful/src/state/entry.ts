@@ -1,4 +1,4 @@
-import type { EntryState, EntryStates, TypedEntryState } from '../types/entry.js';
+import type { EntryState, EntryStates } from '../types/entry.js';
 
 import {
   DuplicateEntryError,
@@ -7,7 +7,7 @@ import {
   CorruptedEntryMapError
 } from './errors.js';
 
-export const getEntry = <E extends EntryState>(entryMap: EntryStates<E>, entryId: string) => {
+export const getEntry = <E extends EntryState>(entryMap: EntryStates<E>, entryId: string): E => {
   const entry = entryMap[entryId];
 
   if (!entry) {
@@ -17,9 +17,9 @@ export const getEntry = <E extends EntryState>(entryMap: EntryStates<E>, entryId
   return entry;
 };
 
-export const attachEntry = <E1 extends EntryState, E2 extends E1>(
-  entryMap: EntryStates<E1>,
-  entry: E2
+export const attachEntry = <E extends EntryState, T extends E>(
+  entryMap: EntryStates<E>,
+  entry: T
 ) => {
   if (entryMap[entry.entryId]) {
     throw new DuplicateEntryError(entry.entryId);
@@ -70,14 +70,14 @@ export const linkDependency = <E extends EntryState>(
   entryMap[entryId].dependencies.push(dependencyId);
 };
 
-export const getDependencies = <E extends EntryState, T extends string>(
-  entryMap: EntryStates<E>,
-  entry: E,
-  type?: T
-): TypedEntryState<E, T>[] => {
-  const dependencyList: TypedEntryState<E, T>[] = [];
+export const getDependencies = <E extends EntryState>(
+  entryMap: EntryStates,
+  entry: EntryState,
+  type?: E['type']
+): E[] => {
+  const dependencyList: E[] = [];
 
-  const isType = (entry: EntryState): entry is TypedEntryState<E, T> => {
+  const isType = (entry: EntryState): entry is E => {
     return !type || entry.type === type;
   };
 

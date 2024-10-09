@@ -115,7 +115,7 @@ describe.only('cloudfront :: distribution', () => {
   it('assert :: update tags', async () => {
     ok(distributionId && lastState);
 
-    const localState = deepClone(lastState) as EntryStates;
+    const localState = deepClone(lastState);
     const resource = localState[distributionId];
 
     ok(resource && isDistributionState(resource));

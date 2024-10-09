@@ -9,12 +9,8 @@ export const isQueueState = (resource: EntryState): resource is QueueState => {
   return resource.type === QueueServiceType;
 };
 
-export const getQueueArn = <E extends EntryState>(
-  serviceName: string,
-  resourceId: string,
-  context: StepContext<E | QueueState>
-) => {
-  const resource = context.getDependencies(QueueServiceType).at(0)?.result;
+export const getQueueArn = (serviceName: string, resourceId: string, context: StepContext) => {
+  const resource = context.getDependencies<QueueState>(QueueServiceType).at(0)?.result;
 
   if (!resource?.queueArn) {
     throw new IncompleteResourceError(serviceName, resourceId, 'queueArn');

@@ -8,12 +8,8 @@ export const isRoleState = (resource: EntryState): resource is RoleState => {
   return resource.type === RoleServiceType;
 };
 
-export const getRoleArn = <E extends EntryState>(
-  serviceName: string,
-  resourceId: string,
-  context: StepContext<E | RoleState>
-) => {
-  const resource = context.getDependencies(RoleServiceType).at(0)?.result;
+export const getRoleArn = (serviceName: string, resourceId: string, context: StepContext) => {
+  const resource = context.getDependencies<RoleState>(RoleServiceType).at(0)?.result;
 
   if (!resource?.roleArn) {
     throw new IncompleteResourceError(serviceName, resourceId, 'roleArn');

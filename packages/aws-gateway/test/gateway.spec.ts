@@ -63,7 +63,7 @@ describe.only('gateway', () => {
   it('assert :: tag gateway', async () => {
     ok(gatewayId && lastState);
 
-    const localState = deepClone(lastState) as EntryStates;
+    const localState = deepClone(lastState);
     const resource = localState[gatewayId];
 
     ok(resource && isGatewayState(resource));
@@ -81,7 +81,7 @@ describe.only('gateway', () => {
   it('assert :: update gateway', async () => {
     ok(gatewayId && lastState);
 
-    const localState = deepClone(lastState) as EntryStates;
+    const localState = deepClone(lastState);
     const resource = localState[gatewayId];
 
     ok(resource && isGatewayState(resource));

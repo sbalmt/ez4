@@ -83,7 +83,7 @@ describe.only('gateway integration', () => {
   it('assert :: update integration', async () => {
     ok(integrationId && lastState);
 
-    const localState = deepClone(lastState) as EntryStates;
+    const localState = deepClone(lastState);
     const resource = localState[integrationId];
 
     ok(resource && isIntegrationState(resource));

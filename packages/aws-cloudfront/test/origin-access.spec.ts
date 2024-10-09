@@ -53,7 +53,7 @@ describe.only('cloudfront :: origin access', () => {
   it('assert :: update', async () => {
     ok(accessId && lastState);
 
-    const localState = deepClone(lastState) as EntryStates;
+    const localState = deepClone(lastState);
     const resource = localState[accessId];
 
     ok(resource && isOriginAccessState(resource));

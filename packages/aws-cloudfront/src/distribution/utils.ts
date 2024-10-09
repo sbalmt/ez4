@@ -25,12 +25,14 @@ export const getDistributionState = (state: EntryStates, distributionName: strin
   return resource;
 };
 
-export const getDistributionId = <E extends EntryState>(
+export const getDistributionId = (
   serviceName: string,
   resourceId: string,
-  context: StepContext<E | DistributionState>
+  context: StepContext
 ) => {
-  const resource = context.getDependencies(DistributionServiceType).at(0)?.result;
+  const resource = context
+    .getDependencies<DistributionState>(DistributionServiceType)
+    .at(0)?.result;
 
   if (!resource?.distributionId) {
     throw new IncompleteResourceError(serviceName, resourceId, 'distributionId');
@@ -39,12 +41,14 @@ export const getDistributionId = <E extends EntryState>(
   return resource.distributionId;
 };
 
-export const getDistributionArn = <E extends EntryState>(
+export const getDistributionArn = (
   serviceName: string,
   resourceId: string,
-  context: StepContext<E | DistributionState>
+  context: StepContext
 ) => {
-  const resource = context.getDependencies(DistributionServiceType).at(0)?.result;
+  const resource = context
+    .getDependencies<DistributionState>(DistributionServiceType)
+    .at(0)?.result;
 
   if (!resource?.distributionArn) {
     throw new IncompleteResourceError(serviceName, resourceId, 'distributionArn');

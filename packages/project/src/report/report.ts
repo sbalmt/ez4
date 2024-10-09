@@ -49,7 +49,7 @@ const reportResourceCreate = (entryId: string, newState: EntryStates) => {
     throw new MissingEntryResourceError('candidate', entryId);
   }
 
-  const target = candidate.parameters;
+  const target = candidate.parameters as AnyObject;
   const changes = deepCompare(target, {});
 
   return printResourceChanges(candidate.type, changes, candidate, 'will be created');
@@ -73,8 +73,8 @@ const reportResourceUpdate = (
   }
 
   const values = {
-    ...current.parameters,
-    ...current.result,
+    ...(current.parameters as AnyObject),
+    ...(current.result as AnyObject),
     dependencies: current.dependencies
   };
 
@@ -88,7 +88,7 @@ const reportResourceDelete = (entryId: string, oldState: EntryStates) => {
     throw new MissingEntryResourceError('current', entryId);
   }
 
-  const changes = deepCompare({}, current.parameters);
+  const changes = deepCompare({}, current.parameters as AnyObject);
 
   return printResourceChanges(current.type, changes, current, 'will be deleted');
 };

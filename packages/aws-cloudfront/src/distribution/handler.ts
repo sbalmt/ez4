@@ -102,7 +102,7 @@ const updateResource = async (
   const oldOriginAccessId = current.result?.originAccessId ?? newOriginAccessId;
 
   const newCachePolicyIds = getCachePolicyIds(DistributionServiceName, resourceId, context);
-  const oldCachePolicyIds = current.result?.cachePolicyId ?? newCachePolicyIds;
+  const oldCachePolicyIds = current.result?.cachePolicyIds ?? newCachePolicyIds;
 
   const newRequest = {
     ...bindCachePolicyIds(parameters, newCachePolicyIds),

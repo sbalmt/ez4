@@ -78,7 +78,7 @@ describe.only('dynamodb table', () => {
   it('assert :: update', async () => {
     ok(tableId && lastState);
 
-    const localState = deepClone(lastState) as EntryStates;
+    const localState = deepClone(lastState);
     const resource = localState[tableId];
 
     ok(resource && isTableState(resource));
@@ -109,7 +109,7 @@ describe.only('dynamodb table', () => {
   it('assert :: update tags', async () => {
     ok(tableId && lastState);
 
-    const localState = deepClone(lastState) as EntryStates;
+    const localState = deepClone(lastState);
     const resource = localState[tableId];
 
     ok(resource && isTableState(resource));

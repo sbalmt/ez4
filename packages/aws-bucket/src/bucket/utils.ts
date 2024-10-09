@@ -25,12 +25,8 @@ export const getBucketState = (state: EntryStates, bucketName: string) => {
   return resource;
 };
 
-export const getBucketName = <E extends EntryState>(
-  serviceName: string,
-  resourceId: string,
-  context: StepContext<E | BucketState>
-) => {
-  const resource = context.getDependencies(BucketServiceType).at(0)?.result;
+export const getBucketName = (serviceName: string, resourceId: string, context: StepContext) => {
+  const resource = context.getDependencies<BucketState>(BucketServiceType).at(0)?.result;
 
   if (!resource?.bucketName) {
     throw new IncompleteResourceError(serviceName, resourceId, 'bucketName');

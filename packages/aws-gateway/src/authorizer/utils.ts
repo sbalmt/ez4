@@ -16,10 +16,8 @@ export const getAuthorizerUri = async (functionArn: Arn) => {
   return `arn:aws:apigateway:${region}:lambda:path/2015-03-31/functions/${functionArn}/invocations`;
 };
 
-export const getAuthorizerId = <E extends EntryState>(
-  context: StepContext<E | AuthorizerState>
-) => {
-  const resource = context.getDependencies(AuthorizerServiceType).at(0)?.result;
+export const getAuthorizerId = (context: StepContext) => {
+  const resources = context.getDependencies<AuthorizerState>(AuthorizerServiceType);
 
-  return resource?.authorizerId;
+  return resources.at(0)?.result?.authorizerId;
 };

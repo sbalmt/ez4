@@ -20,8 +20,6 @@ import {
 import { PolicyServiceType } from '../policy/types.js';
 import { RoleServiceName } from './types.js';
 
-type ContextResources = RoleState | PolicyState;
-
 export const getRoleHandler = (): StepHandler<RoleState> => ({
   equals: equalsResource,
   create: createResource,
@@ -51,11 +49,7 @@ const previewResource = async (candidate: RoleState, current: RoleState) => {
   };
 };
 
-const replaceResource = async (
-  candidate: RoleState,
-  current: RoleState,
-  context: StepContext<ContextResources>
-) => {
+const replaceResource = async (candidate: RoleState, current: RoleState, context: StepContext) => {
   if (current.result) {
     throw new ReplaceResourceError(RoleServiceName, candidate.entryId, current.entryId);
   }
@@ -63,13 +57,10 @@ const replaceResource = async (
   return createResource(candidate, context);
 };
 
-const createResource = async (
-  candidate: RoleState,
-  context: StepContext<ContextResources>
-): Promise<RoleResult> => {
+const createResource = async (candidate: RoleState, context: StepContext): Promise<RoleResult> => {
   const response = await createRole(candidate.parameters);
 
-  const policies = context.getDependencies(PolicyServiceType);
+  const policies = context.getDependencies<PolicyState>(PolicyServiceType);
   const policyArns = getPolicyArns(response.roleName, policies);
 
   if (policyArns.length) {
@@ -83,18 +74,14 @@ const createResource = async (
   };
 };
 
-const updateResource = async (
-  candidate: RoleState,
-  current: RoleState,
-  context: StepContext<ContextResources>
-) => {
+const updateResource = async (candidate: RoleState, current: RoleState, context: StepContext) => {
   const result = candidate.result;
 
   if (!result) {
     return;
   }
 
-  const policies = context.getDependencies(PolicyServiceType);
+  const policies = context.getDependencies<PolicyState>(PolicyServiceType);
   const policyArns = getPolicyArns(result.roleName, policies);
 
   await Promise.all([

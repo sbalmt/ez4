@@ -5,7 +5,7 @@ import { HandlerNotFoundError, EntriesNotFoundError } from './errors.js';
 import { getDependencies, getEntry } from './entry.js';
 import { StepAction } from './step.js';
 
-export type ApplyState<E extends EntryState = EntryState> = {
+export type ApplyResult<E extends EntryState = EntryState> = {
   result: EntryStates<E>;
   errors: Error[];
 };
@@ -15,7 +15,7 @@ export const applySteps = async <E extends EntryState>(
   newEntries: EntryStates<E> | undefined,
   oldEntries: EntryStates<E> | undefined,
   handlers: StepHandlers<E>
-): Promise<ApplyState<E>> => {
+): Promise<ApplyResult<E>> => {
   if (!newEntries && !oldEntries) {
     throw new EntriesNotFoundError();
   }
@@ -34,7 +34,7 @@ export const applySteps = async <E extends EntryState>(
     }
 
     const stepPromises = nextSteps.map(async (entry) => {
-      return applyPendingStep(entry, errorList, tmpNewEntries, tmpOldEntries, tmpEntries, handlers);
+      return applyPendingStep(entry, tmpNewEntries, tmpOldEntries, tmpEntries, handlers, errorList);
     });
 
     const resultEntries = await Promise.all(stepPromises);
@@ -59,11 +59,11 @@ const findPendingByOrder = (stepList: StepState[], order: number) => {
 
 const applyPendingStep = async <E extends EntryState<T>, T extends string>(
   step: StepState,
-  errorList: Error[],
   newEntries: EntryStates<E>,
   oldEntries: EntryStates<E>,
   tmpEntries: EntryStates<E>,
-  handlers: StepHandlers<E>
+  handlers: StepHandlers<E>,
+  errorList: Error[]
 ): Promise<E | undefined> => {
   const { action, entryId } = step;
 
@@ -73,8 +73,8 @@ const applyPendingStep = async <E extends EntryState<T>, T extends string>(
 
   const buildContext = (entryMap: EntryStates<E>, entry: E) => {
     return {
-      getDependencies: <T extends string>(type?: T) => {
-        return getDependencies<E, T>(entryMap, entry, type);
+      getDependencies: <T extends EntryState>(type?: T['type']) => {
+        return getDependencies<T>(entryMap, entry, type);
       }
     };
   };

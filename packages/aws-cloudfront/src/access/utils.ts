@@ -9,12 +9,12 @@ export const isOriginAccessState = (resource: EntryState): resource is AccessSta
   return resource.type === AccessServiceType;
 };
 
-export const getOriginAccessId = <E extends EntryState>(
+export const getOriginAccessId = (
   serviceName: string,
   resourceId: string,
-  context: StepContext<E | AccessState>
+  context: StepContext
 ) => {
-  const resource = context.getDependencies(AccessServiceType).at(0)?.result;
+  const resource = context.getDependencies<AccessState>(AccessServiceType).at(0)?.result;
 
   if (!resource?.accessId) {
     throw new IncompleteResourceError(serviceName, resourceId, 'accessId');

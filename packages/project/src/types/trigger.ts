@@ -1,4 +1,4 @@
-import type { ApplyState, EntryState, EntryStates, StepState } from '@ez4/stateful';
+import type { ApplyResult, EntryState, EntryStates, StepState } from '@ez4/stateful';
 import type { EveryType, SourceMap, TypeClass, TypeObject } from '@ez4/reflection';
 import type { IdentityAccount, IdentityGrant } from './identity.js';
 import type { ServiceMetadata, ExtraSource } from './service.js';
@@ -37,7 +37,7 @@ export type AsyncEvent = {
   'deploy:prepareResources': (event: PrepareResourceEvent) => AsyncEventResult<void>;
   'deploy:connectResources': (event: ConnectResourceEvent) => AsyncEventResult<void>;
   'deploy:plan': (event: DeployEvent) => AsyncEventResult<StepState[]>;
-  'deploy:apply': (event: DeployEvent) => AsyncEventResult<ApplyState>;
+  'deploy:apply': (event: DeployEvent) => AsyncEventResult<ApplyResult>;
 };
 
 export type ServiceEvent = {
