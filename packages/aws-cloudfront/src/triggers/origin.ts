@@ -77,6 +77,7 @@ const getOrigin = async <T extends DefaultOrigin | AdditionalOrigin>(
       : {
           http: origin.protocol === OriginProtocol.Http,
           domain: origin.domain,
+          headers: origin.headers,
           port: origin.port
         })
   } as T;
