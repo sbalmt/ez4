@@ -1,20 +1,20 @@
 import type { EntryState, EntryStates } from '@ez4/stateful';
-import type { PolicyParameters, PolicyState } from './types.js';
+import type { CacheParameters, CacheState } from './types.js';
 
 import { hashData, toKebabCase } from '@ez4/utils';
 import { attachEntry } from '@ez4/stateful';
 
-import { PolicyServiceType } from './types.js';
+import { CacheServiceType } from './types.js';
 
 export const createCachePolicy = <E extends EntryState>(
   state: EntryStates<E>,
-  parameters: PolicyParameters
+  parameters: CacheParameters
 ) => {
   const policyName = toKebabCase(parameters.policyName);
-  const policyId = hashData(PolicyServiceType, policyName);
+  const policyId = hashData(CacheServiceType, policyName);
 
-  return attachEntry<E | PolicyState, PolicyState>(state, {
-    type: PolicyServiceType,
+  return attachEntry<E | CacheState, CacheState>(state, {
+    type: CacheServiceType,
     entryId: policyId,
     dependencies: [],
     parameters: {

@@ -1,7 +1,16 @@
-import type { CustomErrorResponses, DistributionConfig, Origins } from '@aws-sdk/client-cloudfront';
 import type { Arn, ResourceTags } from '@ez4/aws-common';
 
+import type {
+  CacheBehavior,
+  CustomErrorResponses,
+  DefaultCacheBehavior,
+  DistributionConfig,
+  OriginCustomHeader,
+  Origin
+} from '@aws-sdk/client-cloudfront';
+
 import { getTagList, Logger } from '@ez4/aws-common';
+import { isBucketDomain } from '@ez4/aws-bucket';
 
 import {
   CloudFrontClient,
@@ -13,10 +22,12 @@ import {
   TagResourceCommand,
   UntagResourceCommand,
   ViewerProtocolPolicy,
-  MinimumProtocolVersion,
-  CertificateSource,
-  SSLSupportMethod,
   GeoRestrictionType,
+  CertificateSource,
+  MinimumProtocolVersion,
+  OriginProtocolPolicy,
+  SSLSupportMethod,
+  SslProtocol,
   HttpVersion,
   PriceClass,
   Method
@@ -33,29 +44,36 @@ const waiter = {
   client
 };
 
-export type DistributionOrigin = {
+export type DefaultOrigin = {
   id: string;
   domain: string;
-  path?: string;
+  cachePolicyId: string;
+  headers?: Record<string, string>;
+  location?: string;
+  http?: boolean;
+  port?: number;
+};
+
+export type AdditionalOrigin = DefaultOrigin & {
+  path: string;
 };
 
 export type DistributionCustomError = {
   code: number;
-  path: string;
+  location: string;
   ttl: number;
 };
 
 export type CreateRequest = {
   distributionName: string;
-  description?: string;
-  defaultOrigin: DistributionOrigin;
-  defaultAccessId?: string;
-  defaultPolicyId?: string;
-  defaultIndex?: string;
   customErrors?: DistributionCustomError[];
-  aliases?: string[];
-  origins?: DistributionOrigin[];
+  origins?: AdditionalOrigin[];
+  defaultOrigin: DefaultOrigin;
+  defaultIndex?: string;
+  originAccessId?: string;
+  description?: string;
   compress?: boolean;
+  aliases?: string[];
   enabled: boolean;
   tags?: ResourceTags;
 };
@@ -66,7 +84,7 @@ export type CreateResponse = {
   endpoint: string;
 };
 
-export type UpdateRequest = CreateRequest;
+export type UpdateRequest = Omit<CreateRequest, 'tags'>;
 
 export type UpdateResponse = CreateResponse;
 
@@ -178,66 +196,42 @@ const getCurrentDistributionVersion = async (distributionId: string) => {
 
 const upsertDistributionRequest = (request: CreateRequest | UpdateRequest): DistributionConfig => {
   const allCustomErrors = getAllCustomErrors(request);
+  const allCacheBehaviors = getAllCacheBehaviors(request);
   const allOrigins = getAllOrigins(request);
 
-  const defaultOrigin = allOrigins.Items![0];
-
-  const defaultCacheMethods = {
-    Quantity: 2,
-    Items: [Method.GET, Method.HEAD]
-  };
+  const { distributionName, description, defaultIndex, defaultOrigin, aliases, enabled, compress } =
+    request;
 
   return {
-    Comment: request.description,
-    CallerReference: request.distributionName,
-    DefaultRootObject: request.defaultIndex ?? '',
+    Comment: description,
+    CallerReference: distributionName,
+    DefaultRootObject: defaultIndex ?? '',
     PriceClass: PriceClass.PriceClass_All,
     HttpVersion: HttpVersion.http2and3,
     ContinuousDeploymentPolicyId: '',
-    Enabled: request.enabled,
+    Enabled: enabled,
     IsIPV6Enabled: true,
     Staging: false,
     WebACLId: '',
     Aliases: {
-      Quantity: request.aliases?.length ?? 0,
-      Items: request.aliases
+      Quantity: aliases?.length ?? 0,
+      Items: aliases
     },
     Origins: {
-      ...allOrigins
+      Quantity: allOrigins.length,
+      Items: allOrigins
     },
     OriginGroups: {
       Quantity: 0
     },
     DefaultCacheBehavior: {
-      TargetOriginId: defaultOrigin.Id,
-      CachePolicyId: request.defaultPolicyId,
-      ViewerProtocolPolicy: ViewerProtocolPolicy.redirect_to_https,
-      Compress: !!request.compress,
-      FieldLevelEncryptionId: '',
-      SmoothStreaming: false,
-      TrustedSigners: {
-        Enabled: false,
-        Quantity: 0
-      },
-      TrustedKeyGroups: {
-        Enabled: false,
-        Quantity: 0
-      },
-      AllowedMethods: {
-        ...defaultCacheMethods,
-        CachedMethods: {
-          ...defaultCacheMethods
-        }
-      },
-      LambdaFunctionAssociations: {
-        Quantity: 0
-      },
-      FunctionAssociations: {
-        Quantity: 0
-      }
+      ...getCacheBehavior(defaultOrigin, compress)
     },
     CacheBehaviors: {
-      Quantity: 0
+      Quantity: allCacheBehaviors?.length ?? 0,
+      ...(allCacheBehaviors?.length && {
+        Items: allCacheBehaviors
+      })
     },
     CustomErrorResponses: {
       ...allCustomErrors
@@ -263,49 +257,138 @@ const upsertDistributionRequest = (request: CreateRequest | UpdateRequest): Dist
   };
 };
 
-const getAllOrigins = (request: CreateRequest | UpdateRequest): Origins => {
-  const { defaultOrigin, defaultAccessId, origins } = request;
+const getOriginHeaders = (headers: Record<string, string> | undefined): OriginCustomHeader[] => {
+  const headerList = [];
+
+  for (const name in headers) {
+    headerList.push({
+      HeaderName: name,
+      HeaderValue: headers[name]
+    });
+  }
+
+  return headerList;
+};
+
+const getCacheBehavior = (
+  origin: DefaultOrigin,
+  compress: boolean | undefined
+): DefaultCacheBehavior => {
+  return {
+    TargetOriginId: origin.id,
+    CachePolicyId: origin.cachePolicyId,
+    ViewerProtocolPolicy: ViewerProtocolPolicy.redirect_to_https,
+    FieldLevelEncryptionId: '',
+    SmoothStreaming: false,
+    Compress: !!compress,
+    TrustedSigners: {
+      Enabled: false,
+      Quantity: 0
+    },
+    TrustedKeyGroups: {
+      Enabled: false,
+      Quantity: 0
+    },
+    AllowedMethods: {
+      CachedMethods: {
+        Quantity: 3,
+        Items: [Method.GET, Method.HEAD, Method.OPTIONS]
+      },
+      Quantity: 7,
+      Items: [
+        Method.GET,
+        Method.HEAD,
+        Method.OPTIONS,
+        Method.POST,
+        Method.PUT,
+        Method.PATCH,
+        Method.DELETE
+      ]
+    },
+    LambdaFunctionAssociations: {
+      Quantity: 0
+    },
+    FunctionAssociations: {
+      Quantity: 0
+    }
+  };
+};
+
+const getAllOrigins = (request: CreateRequest | UpdateRequest): Origin[] => {
+  const { defaultOrigin, originAccessId, origins } = request;
 
   const originList = origins ? [defaultOrigin, ...origins] : [defaultOrigin];
 
-  const allOrigins = originList.map(({ id, domain, path }) => {
+  return originList.map(({ id, domain, location, headers, port, http }) => {
+    const isBucket = isBucketDomain(domain);
+
+    const originProtocol = http ? OriginProtocolPolicy.http_only : OriginProtocolPolicy.https_only;
+    const originHeaders = getOriginHeaders(headers);
+
     return {
       Id: id,
       DomainName: domain,
-      OriginPath: path ?? '',
-      OriginAccessControlId: defaultAccessId ?? '',
+      OriginPath: location ?? '',
       ConnectionAttempts: 3,
       ConnectionTimeout: 10,
       CustomHeaders: {
-        Quantity: 0
+        Quantity: originHeaders?.length ?? 0,
+        ...(originHeaders.length && {
+          Items: originHeaders
+        })
       },
-      S3OriginConfig: {
-        OriginAccessIdentity: ''
-      },
+      ...(isBucket
+        ? {
+            OriginAccessControlId: originAccessId ?? '',
+            S3OriginConfig: {
+              OriginAccessIdentity: ''
+            }
+          }
+        : {
+            CustomOriginConfig: {
+              HTTPPort: port ?? 80,
+              HTTPSPort: port ?? 443,
+              OriginProtocolPolicy: originProtocol,
+              OriginKeepaliveTimeout: 5,
+              OriginReadTimeout: 30,
+              OriginSslProtocols: {
+                Quantity: 1,
+                Items: [SslProtocol.SSLv3]
+              }
+            }
+          }),
       OriginShield: {
         Enabled: false
       }
     };
   });
+};
 
-  return {
-    Quantity: allOrigins.length,
-    Items: allOrigins
-  };
+const getAllCacheBehaviors = (
+  request: CreateRequest | UpdateRequest
+): CacheBehavior[] | undefined => {
+  const { origins, compress } = request;
+
+  return origins?.map((origin) => ({
+    ...getCacheBehavior(origin, compress),
+    PathPattern: origin.path
+  }));
 };
 
 const getAllCustomErrors = (request: CreateRequest | UpdateRequest): CustomErrorResponses => {
-  const { customErrors,  } = request;
+  const { customErrors } = request;
 
   if (!customErrors?.length) {
-    return { Quantity: 0 };
+    return {
+      Quantity: 0
+    };
   }
 
-  const allCustomErrors = customErrors.map(({ code, path, ttl }) => {
+  const allCustomErrors = customErrors.map(({ code, location, ttl }) => {
     return {
       ErrorCode: code,
       ErrorCachingMinTTL: ttl,
-      ResponsePagePath: path,
+      ResponsePagePath: location,
       ResponseCode: '200'
     };
   });

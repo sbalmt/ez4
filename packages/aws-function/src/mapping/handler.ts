@@ -36,7 +36,7 @@ const previewResource = async (candidate: MappingState, current: MappingState) =
 const replaceResource = async (
   candidate: MappingState,
   current: MappingState,
-  context: StepContext<MappingState>
+  context: StepContext
 ) => {
   if (current.result) {
     throw new ReplaceResourceError(MappingServiceName, candidate.entryId, current.entryId);

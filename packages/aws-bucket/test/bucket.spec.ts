@@ -57,7 +57,7 @@ describe.only('bucket resources', () => {
   it('assert :: update', async () => {
     ok(bucketId && lastState);
 
-    const localState = deepClone(lastState) as EntryStates;
+    const localState = deepClone(lastState);
     const resource = localState[bucketId];
 
     ok(resource && isBucketState(resource));
@@ -72,7 +72,7 @@ describe.only('bucket resources', () => {
   it('assert :: update tags', async () => {
     ok(bucketId && lastState);
 
-    const localState = deepClone(lastState) as EntryStates;
+    const localState = deepClone(lastState);
     const resource = localState[bucketId];
 
     ok(resource && isBucketState(resource));

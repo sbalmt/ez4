@@ -4,7 +4,6 @@ import type { CdnService } from '../types/service.js';
 
 import {
   getModelMembers,
-  getPropertyNumber,
   getPropertyBoolean,
   getPropertyString,
   getPropertyTuple
@@ -14,8 +13,8 @@ import { isModelProperty, isTypeString } from '@ez4/reflection';
 
 import { ServiceType } from '../types/service.js';
 import { IncompleteServiceError } from '../errors/service.js';
+import { getAllCdnOrigins, getCdnOrigin } from './origin.js';
 import { getAllFallbacks } from './fallback.js';
-import { getCdnOrigin } from './origin.js';
 import { isCdnService } from './utils.js';
 
 export const getCdnServices = (reflection: SourceMap) => {
@@ -48,6 +47,14 @@ export const getCdnServices = (reflection: SourceMap) => {
           service.aliases = getAllAliases(member);
           break;
 
+        case 'defaultIndex': {
+          const value = getPropertyString(member);
+          if (value) {
+            service[member.name] = value;
+          }
+          break;
+        }
+
         case 'defaultOrigin': {
           const defaultOrigin = getCdnOrigin(member.value, statement, reflection, errorList);
           if (defaultOrigin) {
@@ -57,29 +64,10 @@ export const getCdnServices = (reflection: SourceMap) => {
           break;
         }
 
-        case 'compress':
-        case 'disabled': {
-          const value = getPropertyBoolean(member);
-          if (value !== undefined && value !== null) {
-            service[member.name] = value;
-          }
-          break;
-        }
-
-        case 'cacheTTL':
-        case 'maxCacheTTL':
-        case 'minCacheTTL': {
-          const value = getPropertyNumber(member);
-          if (value !== undefined && value !== null) {
-            service[member.name] = value;
-          }
-          break;
-        }
-
-        case 'defaultIndex': {
-          const value = getPropertyString(member);
-          if (value !== undefined && value !== null) {
-            service[member.name] = value;
+        case 'origins': {
+          const originList = getAllCdnOrigins(member.value, statement, reflection, errorList);
+          if (originList?.length) {
+            service.origins = originList;
           }
           break;
         }
@@ -88,6 +76,14 @@ export const getCdnServices = (reflection: SourceMap) => {
           const fallbackList = getAllFallbacks(member, statement, reflection, errorList);
           if (fallbackList) {
             service.fallbacks = fallbackList;
+          }
+          break;
+        }
+
+        case 'disabled': {
+          const value = getPropertyBoolean(member);
+          if (value !== undefined && value !== null) {
+            service[member.name] = value;
           }
           break;
         }

@@ -119,7 +119,7 @@ describe.only('gateway route', () => {
   it('assert :: update route', async () => {
     ok(routeId && lastState);
 
-    const localState = deepClone(lastState) as EntryStates;
+    const localState = deepClone(lastState);
     const resource = localState[routeId];
 
     ok(resource && isRouteState(resource));

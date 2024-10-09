@@ -9,12 +9,8 @@ export const isGatewayState = (resource: EntryState): resource is GatewayState =
   return resource.type === GatewayServiceType;
 };
 
-export const getGatewayId = <E extends EntryState>(
-  serviceName: string,
-  resourceId: string,
-  context: StepContext<E | GatewayState>
-) => {
-  const resource = context.getDependencies(GatewayServiceType).at(0)?.result;
+export const getGatewayId = (serviceName: string, resourceId: string, context: StepContext) => {
+  const resource = context.getDependencies<GatewayState>(GatewayServiceType).at(0)?.result;
 
   if (!resource?.apiId) {
     throw new IncompleteResourceError(serviceName, resourceId, 'apiId');
@@ -23,12 +19,8 @@ export const getGatewayId = <E extends EntryState>(
   return resource.apiId;
 };
 
-export const getGatewayArn = <E extends EntryState>(
-  serviceName: string,
-  resourceId: string,
-  context: StepContext<E | GatewayState>
-) => {
-  const resource = context.getDependencies(GatewayServiceType).at(0)?.result;
+export const getGatewayArn = (serviceName: string, resourceId: string, context: StepContext) => {
+  const resource = context.getDependencies<GatewayState>(GatewayServiceType).at(0)?.result;
 
   if (!resource?.apiArn) {
     throw new IncompleteResourceError(serviceName, resourceId, 'apiArn');

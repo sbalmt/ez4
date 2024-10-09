@@ -57,7 +57,7 @@ describe.only('cloudfront :: cache policy', () => {
   it('assert :: update', async () => {
     ok(policyId && lastState);
 
-    const localState = deepClone(lastState) as EntryStates;
+    const localState = deepClone(lastState);
     const resource = localState[policyId];
 
     ok(resource && isCachePolicyState(resource));

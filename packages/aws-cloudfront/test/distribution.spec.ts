@@ -32,7 +32,7 @@ const assertDeploy = async <E extends EntryState>(
   ok(result.distributionId);
   ok(result.distributionArn);
   ok(result.originAccessId);
-  ok(result.cachePolicyId);
+  ok(result.cachePolicyIds);
   ok(result.endpoint);
 
   return {
@@ -65,23 +65,35 @@ describe.only('cloudfront :: distribution', () => {
       policyName: 'ez4-test-distribution-policy',
       description: 'EZ4: Test policy description',
       defaultTTL: 300,
-      minTTL: 1,
-      maxTTL: 3600
+      maxTTL: 3600,
+      minTTL: 1
     });
 
-    const resource = createDistribution(localState, originAccessResource, cachePolicyResource, {
+    const resource = createDistribution(localState, originAccessResource, {
       distributionName: 'ez4-test-distribution',
       description: 'EZ4: Test distribution description',
       enabled: true,
       defaultOrigin: {
         id: 's3-bucket',
         domain: await getBucketDomain(originBucketName),
-        path: '/home'
+        cachePolicyId: cachePolicyResource.entryId,
+        location: '/home'
       },
+      origins: [
+        {
+          id: 'ez4-test',
+          domain: 'ez4.test',
+          cachePolicyId: cachePolicyResource.entryId,
+          path: 'test*',
+          headers: {
+            ['x-custom-header']: 'ez4-custom-value'
+          }
+        }
+      ],
       customErrors: [
         {
           code: 404,
-          path: '/home',
+          location: '/home',
           ttl: 300
         }
       ],
@@ -103,7 +115,7 @@ describe.only('cloudfront :: distribution', () => {
   it('assert :: update tags', async () => {
     ok(distributionId && lastState);
 
-    const localState = deepClone(lastState) as EntryStates;
+    const localState = deepClone(lastState);
     const resource = localState[distributionId];
 
     ok(resource && isDistributionState(resource));

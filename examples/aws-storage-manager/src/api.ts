@@ -34,7 +34,7 @@ export declare class Api extends Http.Service<ApiRequests> {
       handler: typeof startDownloadHandler;
     },
     {
-      path: 'POST /delete-file';
+      path: 'DELETE /delete-file';
       handler: typeof deleteFileHandler;
     }
   ];

@@ -61,7 +61,7 @@ describe.only('gateway stage', () => {
   it('assert :: update variables', async () => {
     ok(stageId && lastState);
 
-    const localState = deepClone(lastState) as EntryStates;
+    const localState = deepClone(lastState);
     const resource = localState[stageId];
 
     ok(resource && isStageState(resource));

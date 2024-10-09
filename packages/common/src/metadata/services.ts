@@ -14,6 +14,12 @@ import { getPropertyObject, getPropertyString } from '../reflection/property.js'
 import { isClassDeclaration } from '../reflection/model.js';
 import { getObjectMembers } from '../reflection/object.js';
 
+export const isLinkedService = (member: ModelProperty, reflection: SourceMap) => {
+  const referencePath = getPropertyString(member);
+
+  return !!(referencePath && reflection[referencePath]);
+};
+
 export const getLinkedServiceList = (
   member: ModelProperty,
   reflection: SourceMap,

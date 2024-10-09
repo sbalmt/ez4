@@ -11,15 +11,18 @@ export declare class Site extends Cdn.Service {
 
   defaultOrigin: {
     bucket: Environment.Service<SiteBucket>;
+    cache: {
+      ttl: 600;
+      minTTL: 0;
+      maxTTL: 3600;
+    };
   };
 
   // Fallback 404 to default index (Useful for SPAs)
   fallbacks: [
     {
       code: 404;
-      path: '/index.html';
+      location: '/index.html';
     }
   ];
-
-  cacheTTL: 15;
 }

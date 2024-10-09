@@ -29,7 +29,7 @@ const baseState: EntryStates<TestEntryState> = {
   }
 };
 
-const checkDependencies = (context: StepContext<TestEntryState>) => {
+const checkDependencies = (context: StepContext) => {
   // Filter
   equal(context.getDependencies(TestEntryType.B).length, 1);
   equal(context.getDependencies(TestEntryType.C).length, 1);
@@ -40,7 +40,7 @@ const checkDependencies = (context: StepContext<TestEntryState>) => {
 
 describe.only('context tests', () => {
   it('assert :: creation context', async () => {
-    const createHandler = mock.fn((_ca: TestEntryState, context: StepContext<TestEntryState>) => {
+    const createHandler = mock.fn((_ca: TestEntryState, context: StepContext) => {
       checkDependencies(context);
     });
 
@@ -60,7 +60,7 @@ describe.only('context tests', () => {
   });
 
   it('assert :: deleting context', async () => {
-    const deleteHandler = mock.fn((_ca: TestEntryState, context: StepContext<TestEntryState>) => {
+    const deleteHandler = mock.fn((_ca: TestEntryState, context: StepContext) => {
       checkDependencies(context);
     });
 
@@ -81,7 +81,7 @@ describe.only('context tests', () => {
 
   it('assert :: updating context', async () => {
     const updateHandler = mock.fn(
-      (_ca: TestEntryState, _cu: TestEntryState, context: StepContext<TestEntryState>) => {
+      (_ca: TestEntryState, _cu: TestEntryState, context: StepContext) => {
         checkDependencies(context);
       }
     );

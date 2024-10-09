@@ -75,7 +75,7 @@ describe.only('function', () => {
   it('assert :: update configuration', async () => {
     ok(functionId && lastState);
 
-    const localState = deepClone(lastState) as EntryStates;
+    const localState = deepClone(lastState);
     const resource = localState[functionId];
 
     ok(resource && isFunctionState(resource));
@@ -96,22 +96,22 @@ describe.only('function', () => {
   it('assert :: update source code', async () => {
     ok(functionId && lastState);
 
-    const localState = deepClone(lastState) as EntryStates;
+    const localState = deepClone(lastState);
 
-    const lastResult = lastState[functionId]?.result;
+    const lastResource = lastState[functionId];
     const resource = localState[functionId];
 
+    ok(lastResource && isFunctionState(lastResource));
     ok(resource && isFunctionState(resource));
-    ok(lastResult);
 
     resource.parameters.sourceFile = join(baseDir, 'lambda-2.js');
 
     const { state, result } = await assertDeploy(functionId, localState, lastState);
 
-    ok(lastResult.sourceHash);
+    ok(lastResource.result?.sourceHash);
     ok(result.sourceHash);
 
-    notEqual(lastResult.sourceHash, result.sourceHash);
+    notEqual(lastResource.result.sourceHash, result.sourceHash);
 
     lastState = state;
   });
@@ -119,7 +119,7 @@ describe.only('function', () => {
   it('assert :: update tags', async () => {
     ok(functionId && lastState);
 
-    const localState = deepClone(lastState) as EntryStates;
+    const localState = deepClone(lastState);
     const resource = localState[functionId];
 
     ok(resource && isFunctionState(resource));

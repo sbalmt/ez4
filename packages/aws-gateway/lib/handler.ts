@@ -8,12 +8,12 @@ import type {
 } from 'aws-lambda';
 
 import {
-  formatJsonError,
   getHeaders,
   getIdentity,
   getPathParameters,
   getQueryStrings,
-  getJsonBody
+  getJsonBody,
+  getJsonError
 } from '@ez4/aws-gateway/runtime';
 
 import { HttpError, HttpInternalServerError } from '@ez4/gateway';
@@ -48,73 +48,91 @@ export async function apiEntryPoint(event: RequestEvent, context: Context): Prom
       body: __EZ4_BODY_SCHEMA && (await getRequestBody(event))
     };
 
-    const response = await next(request, __EZ4_CONTEXT);
+    const { status, body, headers } = await next(request, __EZ4_CONTEXT);
 
-    const { status, body } = response;
-
-    return formatJsonResponse(status, JSON.stringify(body));
+    return getJsonResponse(status, body, headers);
   } catch (error) {
     if (!(error instanceof HttpError)) {
-      console.error(error.message ?? error);
+      console.error(error);
 
       error = new HttpInternalServerError();
     }
 
-    return formatJsonResponse(error.status, formatJsonError(error));
+    const { status, body } = getJsonError(error);
+
+    return getJsonResponse(status, body);
   }
 }
 
 const getRequestHeaders = (event: RequestEvent) => {
-  if (__EZ4_HEADERS_SCHEMA) {
-    const rawHeaders = event.headers ?? {};
-    return getHeaders(rawHeaders, __EZ4_HEADERS_SCHEMA);
+  if (!__EZ4_HEADERS_SCHEMA) {
+    return undefined;
   }
 
-  return undefined;
+  const rawHeaders = event.headers ?? {};
+
+  return getHeaders(rawHeaders, __EZ4_HEADERS_SCHEMA);
 };
 
 const getRequestIdentity = (event: RequestEvent) => {
-  if (__EZ4_IDENTITY_SCHEMA) {
-    const rawIdentity = event.requestContext?.authorizer?.lambda?.identity ?? '{}';
-    return getIdentity(JSON.parse(rawIdentity), __EZ4_IDENTITY_SCHEMA);
+  if (!__EZ4_IDENTITY_SCHEMA) {
+    return undefined;
   }
 
-  return undefined;
+  const rawIdentity = event.requestContext?.authorizer?.lambda?.identity ?? '{}';
+
+  return getIdentity(JSON.parse(rawIdentity), __EZ4_IDENTITY_SCHEMA);
 };
 
 const getRequestParameters = (event: RequestEvent) => {
-  if (__EZ4_PARAMETERS_SCHEMA) {
-    const rawParameters = event.pathParameters ?? {};
-    return getPathParameters(rawParameters, __EZ4_PARAMETERS_SCHEMA);
+  if (!__EZ4_PARAMETERS_SCHEMA) {
+    return undefined;
   }
 
-  return undefined;
+  const rawParameters = event.pathParameters ?? {};
+
+  return getPathParameters(rawParameters, __EZ4_PARAMETERS_SCHEMA);
 };
 
 const getRequestQuery = (event: RequestEvent) => {
-  if (__EZ4_QUERY_SCHEMA) {
-    const rawQuery = event.queryStringParameters ?? {};
-    return getQueryStrings(rawQuery, __EZ4_QUERY_SCHEMA);
+  if (!__EZ4_QUERY_SCHEMA) {
+    return undefined;
   }
 
-  return undefined;
+  const rawQuery = event.queryStringParameters ?? {};
+
+  return getQueryStrings(rawQuery, __EZ4_QUERY_SCHEMA);
 };
 
 const getRequestBody = (event: RequestEvent) => {
-  if (__EZ4_BODY_SCHEMA) {
-    const rawBody = event.body || '{}';
-    return getJsonBody(JSON.parse(rawBody), __EZ4_BODY_SCHEMA);
+  if (!__EZ4_BODY_SCHEMA) {
+    return undefined;
   }
 
-  return undefined;
+  const rawBody = event.body || '{}';
+
+  try {
+    return getJsonBody(JSON.parse(rawBody), __EZ4_BODY_SCHEMA);
+  } catch (error) {
+    if (error instanceof SyntaxError) {
+      console.debug(rawBody);
+    }
+
+    throw error;
+  }
 };
 
-const formatJsonResponse = (status: number, body?: string) => {
+const getJsonResponse = (status: number, body?: Http.JsonBody, headers?: Http.Headers) => {
   return {
     statusCode: status,
-    ...(body && { body }),
+    ...(body && {
+      body: JSON.stringify(body)
+    }),
     headers: {
-      ['content-type']: 'application/json'
+      ...headers,
+      ...(body && {
+        ['content-type']: 'application/json'
+      })
     }
   };
 };

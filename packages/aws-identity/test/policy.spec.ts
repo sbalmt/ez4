@@ -64,7 +64,7 @@ describe.only('policy', () => {
     for await (const versionId of [1, 2, 3, 4, 5, 6]) {
       ok(policyId && lastState);
 
-      const localState = deepClone(lastState) as EntryStates;
+      const localState = deepClone(lastState);
       const resource = localState[policyId];
 
       ok(resource && isPolicyState(resource));
@@ -83,7 +83,7 @@ describe.only('policy', () => {
   it('assert :: update tags', async () => {
     ok(policyId && lastState);
 
-    const localState = deepClone(lastState) as EntryStates;
+    const localState = deepClone(lastState);
     const resource = localState[policyId];
 
     ok(resource && isPolicyState(resource));

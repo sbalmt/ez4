@@ -68,7 +68,7 @@ describe.only('role', () => {
   it('assert :: update', async () => {
     ok(roleId && lastState);
 
-    const localState = deepClone(lastState) as EntryStates;
+    const localState = deepClone(lastState);
     const resource = localState[roleId];
 
     ok(resource && isRoleState(resource));
@@ -83,7 +83,7 @@ describe.only('role', () => {
   it('assert :: update document', async () => {
     ok(roleId && lastState);
 
-    const localState = deepClone(lastState) as EntryStates;
+    const localState = deepClone(lastState);
     const resource = localState[roleId];
 
     ok(resource && isRoleState(resource));
@@ -98,7 +98,7 @@ describe.only('role', () => {
   it('assert :: attach policy', async () => {
     ok(roleId && lastState);
 
-    const localState = deepClone(lastState) as EntryStates;
+    const localState = deepClone(lastState);
     const resource = localState[roleId];
 
     ok(resource && isRoleState(resource));
@@ -120,7 +120,7 @@ describe.only('role', () => {
   it('assert :: detach policy', async () => {
     ok(roleId && lastState);
 
-    const localState = deepClone(lastState) as EntryStates;
+    const localState = deepClone(lastState);
     const resource = localState[roleId];
 
     ok(resource && isRoleState(resource));
@@ -137,7 +137,7 @@ describe.only('role', () => {
   it('assert :: update tags', async () => {
     ok(roleId && lastState);
 
-    const localState = deepClone(lastState) as EntryStates;
+    const localState = deepClone(lastState);
     const resource = localState[roleId];
 
     ok(resource && isRoleState(resource));

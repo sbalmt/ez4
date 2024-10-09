@@ -9,12 +9,8 @@ export const isFunctionState = (resource: EntryState): resource is FunctionState
   return resource.type === FunctionServiceType;
 };
 
-export const getFunctionName = <E extends EntryState>(
-  serviceName: string,
-  resourceId: string,
-  context: StepContext<E | FunctionState>
-) => {
-  const resource = context.getDependencies(FunctionServiceType).at(0);
+export const getFunctionName = (serviceName: string, resourceId: string, context: StepContext) => {
+  const resource = context.getDependencies<FunctionState>(FunctionServiceType).at(0);
 
   if (!resource?.parameters.functionName) {
     throw new IncompleteResourceError(serviceName, resourceId, 'functionName');
@@ -23,12 +19,8 @@ export const getFunctionName = <E extends EntryState>(
   return resource.parameters.functionName;
 };
 
-export const getFunctionArn = <E extends EntryState>(
-  serviceName: string,
-  resourceId: string,
-  context: StepContext<E | FunctionState>
-) => {
-  const resource = context.getDependencies(FunctionServiceType).at(0)?.result;
+export const getFunctionArn = (serviceName: string, resourceId: string, context: StepContext) => {
+  const resource = context.getDependencies<FunctionState>(FunctionServiceType).at(0)?.result;
 
   if (!resource?.functionArn) {
     throw new IncompleteResourceError(serviceName, resourceId, 'functionArn');

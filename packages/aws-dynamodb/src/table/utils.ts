@@ -9,12 +9,8 @@ export const isTableState = (resource: EntryState): resource is TableState => {
   return resource.type === TableServiceType;
 };
 
-export const getStreamArn = <E extends EntryState>(
-  serviceName: string,
-  resourceId: string,
-  context: StepContext<E | TableState>
-) => {
-  const resource = context.getDependencies(TableServiceType).at(0)?.result;
+export const getStreamArn = (serviceName: string, resourceId: string, context: StepContext) => {
+  const resource = context.getDependencies<TableState>(TableServiceType).at(0)?.result;
 
   if (!resource?.streamArn) {
     throw new IncompleteResourceError(serviceName, resourceId, 'streamArn');

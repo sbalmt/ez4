@@ -28,7 +28,7 @@ const previewResource = async (_candidate: PermissionState, _current: Permission
 const replaceResource = async (
   candidate: PermissionState,
   current: PermissionState,
-  context: StepContext<PermissionState>
+  context: StepContext
 ) => {
   if (current.result) {
     throw new ReplaceResourceError(PermissionServiceName, candidate.entryId, current.entryId);
@@ -39,7 +39,7 @@ const replaceResource = async (
 
 const createResource = async (
   candidate: PermissionState,
-  context: StepContext<PermissionState>
+  context: StepContext
 ): Promise<PermissionResult> => {
   const parameters = candidate.parameters;
 

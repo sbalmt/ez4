@@ -80,7 +80,7 @@ describe.only('scheduler', () => {
   it('assert :: update', async () => {
     ok(scheduleId && lastState);
 
-    const localState = deepClone(lastState) as EntryStates;
+    const localState = deepClone(lastState);
     const resource = localState[scheduleId];
 
     ok(resource && isScheduleState(resource));

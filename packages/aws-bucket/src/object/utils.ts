@@ -10,10 +10,8 @@ export const getBucketObjectPath = (bucketName: string, objectKey: string) => {
   return `${bucketName}/${objectKey}`;
 };
 
-export const getBucketObjectFiles = <E extends EntryState>(
-  context: StepContext<E | ObjectState>
-) => {
-  const resources = context.getDependencies(ObjectServiceType);
+export const getBucketObjectFiles = (context: StepContext) => {
+  const resources = context.getDependencies<ObjectState>(ObjectServiceType);
 
   return resources.map(({ result }) => {
     return {

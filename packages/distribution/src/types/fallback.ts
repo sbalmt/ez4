@@ -1,5 +1,5 @@
 export type CdnFallback = {
   code: number;
-  path: string;
+  location: string;
   ttl?: number;
 };

@@ -4,9 +4,9 @@ export * from './access/service.js';
 export * from './access/types.js';
 export * from './access/utils.js';
 
-export * from './policy/service.js';
-export * from './policy/types.js';
-export * from './policy/utils.js';
+export * from './cache/service.js';
+export * from './cache/types.js';
+export * from './cache/utils.js';
 
 export * from './distribution/service.js';
 export * from './distribution/types.js';

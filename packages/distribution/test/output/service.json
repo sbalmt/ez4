@@ -3,26 +3,70 @@
     "type": "@ez4/cdn",
     "name": "TestCdn",
     "description": "Test distribution.",
+    "disabled": true,
     "defaultIndex": "index.html",
     "defaultOrigin": {
+      "type": "bucket",
       "bucket": "TestBucket",
-      "path": "/site"
+      "location": "/site"
     },
     "aliases": [
       "test-1.ez4.dev",
       "test-2.ez4.dev"
     ],
+    "origins": [
+      {
+        "type": "regular",
+        "path": "default/regular/*",
+        "domain": "ez4.default",
+        "cache": {
+          "ttl": 300,
+          "minTTL": 1,
+          "maxTTL": 3600,
+          "compress": true
+        }
+      },
+      {
+        "type": "bucket",
+        "bucket": "TestBucket",
+        "path": "default/bucket/*"
+      },
+      {
+        "type": "regular",
+        "path": "regular/*",
+        "domain": "ez4.additional",
+        "location": "internal",
+        "protocol": "http",
+        "port": 8080,
+        "headers": {
+          "authorization": "Bearer test-token",
+          "x-api-key": "test-env-var-value"
+        }
+      },
+      {
+        "type": "bucket",
+        "bucket": "TestBucket",
+        "location": "internal",
+        "path": "bucket/*",
+        "cache": {
+          "ttl": 300,
+          "minTTL": 1,
+          "maxTTL": 3600,
+          "compress": true
+        }
+      },
+      {
+        "type": "regular",
+        "domain": "test-env-var-value",
+        "path": "inline/*"
+      }
+    ],
     "fallbacks": [
       {
         "code": 404,
-        "path": "/site",
+        "location": "/site",
         "ttl": 3600
       }
-    ],
-    "cacheTTL": 300,
-    "minCacheTTL": 1,
-    "maxCacheTTL": 3600,
-    "disabled": true,
-    "compress": true
+    ]
   }
 }

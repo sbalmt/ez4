@@ -1,5 +1,8 @@
 export * from './triggers/register.js';
 
+export * from './utils/domain.js';
+export * from './utils/policy.js';
+
 export * from './bucket/service.js';
 export * from './bucket/types.js';
 export * from './bucket/utils.js';

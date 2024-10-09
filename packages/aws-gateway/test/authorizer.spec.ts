@@ -84,7 +84,7 @@ describe.only('gateway authorizer', () => {
   it('assert :: update authorizer', async () => {
     ok(authorizerId && lastState);
 
-    const localState = deepClone(lastState) as EntryStates;
+    const localState = deepClone(lastState);
     const resource = localState[authorizerId];
 
     ok(resource && isAuthorizerState(resource));

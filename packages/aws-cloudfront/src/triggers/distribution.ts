@@ -1,15 +1,15 @@
 import type { PrepareResourceEvent, ConnectResourceEvent } from '@ez4/project/library';
 
-import { getBucketDomain, getBucketState } from '@ez4/aws-bucket';
-
-import { isCdnService } from '@ez4/distribution/library';
+import { isCdnBucketOrigin, isCdnService } from '@ez4/distribution/library';
 import { getServiceName } from '@ez4/project/library';
+import { getBucketState } from '@ez4/aws-bucket';
 
-import { createCachePolicy } from '../policy/service.js';
 import { createOriginAccess } from '../access/service.js';
 import { createDistribution } from '../distribution/service.js';
+import { getDistributionState } from '../distribution/utils.js';
 import { createInvalidation } from '../invalidation/service.js';
-import { getCachePolicyName, getOriginAccessName, getContentVersion } from './utils.js';
+import { getAdditionalOrigins, getDefaultOrigin } from './origin.js';
+import { getOriginAccessName, getContentVersion } from './utils.js';
 import { connectOriginBucket } from './bucket.js';
 
 export const prepareCdnServices = async (event: PrepareResourceEvent) => {
@@ -19,45 +19,31 @@ export const prepareCdnServices = async (event: PrepareResourceEvent) => {
     return;
   }
 
-  const { defaultOrigin, description, compress = true } = service;
-
-  const bucketName = getServiceName(defaultOrigin.bucket, options);
+  const { description, defaultIndex, defaultOrigin } = service;
 
   const originAccessState = createOriginAccess(state, {
     accessName: getOriginAccessName(service, options),
     description
   });
 
-  const defaultTTL = service.cacheTTL ?? 86400;
+  const { cache: defaultCache } = defaultOrigin;
 
-  const cachePolicyState = createCachePolicy(state, {
-    policyName: getCachePolicyName(service, options),
-    maxTTL: service.maxCacheTTL ?? 31536000,
-    minTTL: service.minCacheTTL ?? 1,
-    defaultTTL,
-    description,
-    compress
-  });
-
-  const customErrors = service.fallbacks?.map(({ code, path, ttl }) => ({
-    ttl: ttl ?? defaultTTL,
-    code,
-    path
+  const customErrors = service.fallbacks?.map(({ code, location, ttl }) => ({
+    ttl: ttl ?? defaultCache?.ttl ?? 86400,
+    location,
+    code
   }));
 
-  createDistribution(state, originAccessState, cachePolicyState, {
+  createDistribution(state, originAccessState, {
     distributionName: getServiceName(service, options),
-    defaultIndex: service.defaultIndex,
+    defaultOrigin: await getDefaultOrigin(state, service, options),
+    origins: await getAdditionalOrigins(state, service, options),
+    compress: defaultCache?.compress ?? true,
     enabled: !service.disabled,
     aliases: service.aliases,
+    defaultIndex,
     customErrors,
-    description,
-    compress,
-    defaultOrigin: {
-      id: 'default',
-      domain: await getBucketDomain(bucketName),
-      path: defaultOrigin.path
-    }
+    description
   });
 };
 
@@ -68,18 +54,37 @@ export const connectCdnServices = async (event: ConnectResourceEvent) => {
     return;
   }
 
-  const defaultOrigin = service.defaultOrigin;
+  const distributionName = getServiceName(service, options);
+  const distributionState = getDistributionState(state, distributionName);
 
-  const bucketName = getServiceName(defaultOrigin.bucket, options);
-  const bucketState = getBucketState(state, bucketName);
+  const contentVersions: string[] = [];
 
-  const distributionState = connectOriginBucket(state, service, bucketState, options);
+  const allOrigins = service.origins
+    ? [service.defaultOrigin, ...service.origins]
+    : [service.defaultOrigin];
 
-  const localPath = bucketState.parameters.localPath;
+  for (const origin of allOrigins) {
+    if (!isCdnBucketOrigin(origin)) {
+      continue;
+    }
 
-  if (localPath) {
+    const bucketName = getServiceName(origin.bucket, options);
+    const bucketState = getBucketState(state, bucketName);
+
+    connectOriginBucket(state, service, bucketState, options);
+
+    const { localPath } = bucketState.parameters;
+
+    if (localPath) {
+      const version = await getContentVersion(localPath);
+
+      contentVersions.push(version);
+    }
+  }
+
+  if (contentVersions.length > 0) {
     createInvalidation(state, distributionState, {
-      contentVersion: await getContentVersion(localPath)
+      contentVersion: contentVersions.join(',')
     });
   }
 };

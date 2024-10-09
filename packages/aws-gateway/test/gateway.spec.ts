@@ -44,6 +44,10 @@ describe.only('gateway', () => {
       gatewayId: 'ez4-test-gateway',
       gatewayName: 'EZ4: Test gateway',
       description: 'EZ4: Test gateway description',
+      cors: {
+        allowOrigins: ['*'],
+        allowHeaders: ['x-custom-header']
+      },
       tags: {
         test1: 'ez4-tag'
       }
@@ -59,7 +63,7 @@ describe.only('gateway', () => {
   it('assert :: tag gateway', async () => {
     ok(gatewayId && lastState);
 
-    const localState = deepClone(lastState) as EntryStates;
+    const localState = deepClone(lastState);
     const resource = localState[gatewayId];
 
     ok(resource && isGatewayState(resource));
@@ -77,13 +81,14 @@ describe.only('gateway', () => {
   it('assert :: update gateway', async () => {
     ok(gatewayId && lastState);
 
-    const localState = deepClone(lastState) as EntryStates;
+    const localState = deepClone(lastState);
     const resource = localState[gatewayId];
 
     ok(resource && isGatewayState(resource));
 
     resource.parameters.gatewayName = 'EZ4: New gateway name';
     resource.parameters.description = 'EZ4: New gateway description';
+    resource.parameters.cors = undefined;
 
     const { state } = await assertDeploy(gatewayId, localState, lastState);
 

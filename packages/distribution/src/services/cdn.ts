@@ -1,44 +1,20 @@
 import type { Service } from '@ez4/common';
-import type { Bucket } from '@ez4/storage';
+import type { CdnBucketOrigin, CdnRegularOrigin } from './origin.js';
+import type { CdnFallback } from './fallback.js';
+import type { CdnCache } from './cache.js';
 
 /**
  * Provide all contracts for a self-managed CDN service.
  */
 export namespace Cdn {
-  /**
-   * Default origin.
-   */
-  export interface DefaultOrigin {
-    /**
-     * Bucket service for the origin.
-     */
-    bucket: Bucket.Service;
+  export type DefaultRegularOrigin = Omit<CdnRegularOrigin, 'path'>;
+  export type DefaultBucketOrigin = Omit<CdnBucketOrigin, 'path'>;
 
-    /**
-     * Specify the origin path.
-     */
-    path?: string;
-  }
+  export type RegularOrigin = CdnRegularOrigin;
+  export type BucketOrigin = CdnBucketOrigin;
 
-  /**
-   * Distribution fallback.
-   */
-  export interface Fallback {
-    /**
-     * HTTP error code (4xx or 3xx) that activates the fallback.
-     */
-    code: number;
-
-    /**
-     * Path to the new location.
-     */
-    path: string;
-
-    /**
-     * Optional cache TTL (in seconds) for the fallback.
-     */
-    ttl?: number;
-  }
+  export type Fallback = CdnFallback;
+  export type Cache = CdnCache;
 
   /**
    * CDN service.
@@ -52,7 +28,7 @@ export namespace Cdn {
     /**
      * Default origin for the distribution results.
      */
-    defaultOrigin: DefaultOrigin;
+    defaultOrigin: DefaultRegularOrigin | DefaultBucketOrigin;
 
     /**
      * Default index file name (e.g. `index.html`).
@@ -60,29 +36,14 @@ export namespace Cdn {
     defaultIndex?: string;
 
     /**
+     * Distribution origins.
+     */
+    origins?: (RegularOrigin | BucketOrigin)[];
+
+    /**
      * Distribution fallbacks.
      */
     fallbacks?: Fallback[];
-
-    /**
-     * Default TTL (in seconds) for cached results.
-     */
-    cacheTTL?: number;
-
-    /**
-     * Minimum TTL (in seconds) for cached results.
-     */
-    minCacheTTL?: number;
-
-    /**
-     * Maximum TTL (in seconds) for cached results.
-     */
-    maxCacheTTL?: number;
-
-    /**
-     * Determines whether or not the results are compressed.
-     */
-    compress?: boolean;
 
     /**
      * Determines whether or not the distribution is disabled.

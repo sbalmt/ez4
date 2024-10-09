@@ -64,7 +64,7 @@ const getCdnFallback = (
 };
 
 const isValidFallback = (type: Incomplete<CdnFallback>): type is CdnFallback => {
-  return !!type.code && !!type.path;
+  return !!type.code && !!type.location;
 };
 
 const getTypeFallback = (type: AllType, parent: TypeParent, errorList: Error[]) => {
@@ -91,7 +91,7 @@ const getTypeFromMembers = (
   errorList: Error[]
 ) => {
   const fallback: Incomplete<CdnFallback> = {};
-  const properties = new Set(['code', 'path']);
+  const properties = new Set(['code', 'location']);
 
   for (const member of members) {
     if (!isModelProperty(member) || member.inherited) {
@@ -108,10 +108,10 @@ const getTypeFromMembers = (
         break;
       }
 
-      case 'path': {
-        const value = getPropertyString(member);
-        if (value !== undefined && value !== null) {
-          fallback[member.name] = value;
+      case 'location': {
+        const location = getPropertyString(member);
+        if (location) {
+          fallback[member.name] = location;
         }
         break;
       }

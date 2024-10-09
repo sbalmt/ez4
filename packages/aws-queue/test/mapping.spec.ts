@@ -85,7 +85,7 @@ describe.only('queue mapping', () => {
   it('assert :: update', async () => {
     ok(mappingId && lastState);
 
-    const localState = deepClone(lastState) as EntryStates;
+    const localState = deepClone(lastState);
     const resource = localState[mappingId];
 
     ok(resource && isMappingState(resource));

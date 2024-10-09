@@ -1,4 +1,4 @@
-import type { ApplyState, EntryState, EntryStates, StepHandler, StepHandlers } from '@ez4/stateful';
+import type { ApplyResult, EntryState, EntryStates, StepHandler, StepHandlers } from '@ez4/stateful';
 
 import { applySteps, planSteps } from '@ez4/stateful';
 
@@ -28,7 +28,7 @@ export const report = <E extends EntryState>(
 export const deploy = async <E extends EntryState>(
   newState: EntryStates<E> | undefined,
   oldState: EntryStates<E> | undefined
-): Promise<ApplyState<E>> => {
+): Promise<ApplyResult<E>> => {
   const serviceName = 'EZ4:Deploy';
 
   Logger.logInfo(serviceName, 'Started');

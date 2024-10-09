@@ -46,9 +46,7 @@ export async function apiEntryPoint(event: RequestEvent, context: Context): Prom
       }
     };
   } catch (error) {
-    const message = error.message ?? error;
-
-    console.error(message);
+    console.error(error);
 
     return {
       isAuthorized: false,
