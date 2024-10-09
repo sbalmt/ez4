@@ -39,8 +39,8 @@
         "protocol": "http",
         "port": 8080,
         "headers": {
-          "x-api-key": "test-key",
-          "authorization": "Bearer test-token"
+          "authorization": "Bearer test-token",
+          "x-api-key": "test-env-var-value"
         }
       },
       {

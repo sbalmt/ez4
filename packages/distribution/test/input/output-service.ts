@@ -61,7 +61,7 @@ declare class TestRegularOrigin2 implements Cdn.RegularOrigin {
   port: 8080;
   headers: {
     authorization: 'Bearer test-token';
-    ['x-api-key']: 'test-key';
+    ['x-api-key']: Environment.Variable<'TEST_ENV_VAR'>;
   };
 }
 
