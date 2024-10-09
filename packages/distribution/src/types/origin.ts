@@ -7,22 +7,22 @@ export const enum CdnOriginType {
   Bucket = 'bucket'
 }
 
-export type CdnRegularOrigin = {
+type CdnOriginBase = {
   type: CdnOriginType;
-  domain: string;
   location?: string;
-  protocol?: string;
   cache?: CdnCache;
   path?: string;
+};
+
+export type CdnRegularOrigin = CdnOriginBase & {
+  domain: string;
+  headers?: Record<string, string>;
+  protocol?: string;
   port?: number;
 };
 
-export type CdnBucketOrigin = {
-  type: CdnOriginType;
+export type CdnBucketOrigin = CdnOriginBase & {
   bucket: string;
-  location?: string;
-  cache?: CdnCache;
-  path?: string;
 };
 
 export const isCdnRegularOrigin = (service: CdnOrigin): service is CdnRegularOrigin => {

@@ -65,8 +65,8 @@ describe.only('cloudfront :: distribution', () => {
       policyName: 'ez4-test-distribution-policy',
       description: 'EZ4: Test policy description',
       defaultTTL: 300,
-      minTTL: 1,
-      maxTTL: 3600
+      maxTTL: 3600,
+      minTTL: 1
     });
 
     const resource = createDistribution(localState, originAccessResource, {
@@ -84,7 +84,10 @@ describe.only('cloudfront :: distribution', () => {
           id: 'ez4-test',
           domain: 'ez4.test',
           cachePolicyId: cachePolicyResource.entryId,
-          path: 'test*'
+          path: 'test*',
+          headers: {
+            ['x-custom-header']: 'ez4-custom-value'
+          }
         }
       ],
       customErrors: [

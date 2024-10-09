@@ -138,6 +138,14 @@ const getTypeFromMembers = (
         break;
       }
 
+      case 'headers': {
+        const headers = getOriginHeaders(member.value);
+        if (headers) {
+          origin[member.name] = headers;
+        }
+        break;
+      }
+
       case 'protocol': {
         const value = getPropertyString(member);
         if (value) {
@@ -171,4 +179,26 @@ const getTypeFromMembers = (
   errorList.push(new IncompleteOriginError([...properties], parent.file));
 
   return null;
+};
+
+const getOriginHeaders = (type: AllType) => {
+  if (!isTypeObject(type)) {
+    return null;
+  }
+
+  const headers: Record<string, string> = {};
+
+  for (const member of getObjectMembers(type)) {
+    if (!isModelProperty(member)) {
+      continue;
+    }
+
+    const value = getPropertyString(member);
+
+    if (value) {
+      headers[member.name] = value;
+    }
+  }
+
+  return headers;
 };

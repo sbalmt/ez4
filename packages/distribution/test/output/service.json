@@ -37,7 +37,11 @@
         "domain": "ez4.additional",
         "location": "internal",
         "protocol": "http",
-        "port": 8080
+        "port": 8080,
+        "headers": {
+          "x-api-key": "test-key",
+          "authorization": "Bearer test-token"
+        }
       },
       {
         "type": "bucket",

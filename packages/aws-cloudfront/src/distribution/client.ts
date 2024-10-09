@@ -5,6 +5,7 @@ import type {
   CustomErrorResponses,
   DefaultCacheBehavior,
   DistributionConfig,
+  OriginCustomHeader,
   Origin
 } from '@aws-sdk/client-cloudfront';
 
@@ -47,6 +48,7 @@ export type DefaultOrigin = {
   id: string;
   domain: string;
   cachePolicyId: string;
+  headers?: Record<string, string>;
   location?: string;
   http?: boolean;
   port?: number;
@@ -255,50 +257,17 @@ const upsertDistributionRequest = (request: CreateRequest | UpdateRequest): Dist
   };
 };
 
-const getAllOrigins = (request: CreateRequest | UpdateRequest): Origin[] => {
-  const { defaultOrigin, originAccessId, origins } = request;
+const getOriginHeaders = (headers: Record<string, string> | undefined): OriginCustomHeader[] => {
+  const headerList = [];
 
-  const originList = origins ? [defaultOrigin, ...origins] : [defaultOrigin];
+  for (const name in headers) {
+    headerList.push({
+      HeaderName: name,
+      HeaderValue: headers[name]
+    });
+  }
 
-  return originList.map(({ id, domain, location, port, http }) => {
-    const isBucket = isBucketDomain(domain);
-
-    const originProtocol = http ? OriginProtocolPolicy.http_only : OriginProtocolPolicy.https_only;
-
-    return {
-      Id: id,
-      DomainName: domain,
-      OriginPath: location ?? '',
-      ConnectionAttempts: 3,
-      ConnectionTimeout: 10,
-      CustomHeaders: {
-        Quantity: 0
-      },
-      ...(isBucket
-        ? {
-            OriginAccessControlId: originAccessId ?? '',
-            S3OriginConfig: {
-              OriginAccessIdentity: ''
-            }
-          }
-        : {
-            CustomOriginConfig: {
-              HTTPPort: port ?? 80,
-              HTTPSPort: port ?? 443,
-              OriginProtocolPolicy: originProtocol,
-              OriginKeepaliveTimeout: 5,
-              OriginReadTimeout: 30,
-              OriginSslProtocols: {
-                Quantity: 1,
-                Items: [SslProtocol.SSLv3]
-              }
-            }
-          }),
-      OriginShield: {
-        Enabled: false
-      }
-    };
-  });
+  return headerList;
 };
 
 const getCacheBehavior = (
@@ -343,6 +312,56 @@ const getCacheBehavior = (
       Quantity: 0
     }
   };
+};
+
+const getAllOrigins = (request: CreateRequest | UpdateRequest): Origin[] => {
+  const { defaultOrigin, originAccessId, origins } = request;
+
+  const originList = origins ? [defaultOrigin, ...origins] : [defaultOrigin];
+
+  return originList.map(({ id, domain, location, headers, port, http }) => {
+    const isBucket = isBucketDomain(domain);
+
+    const originProtocol = http ? OriginProtocolPolicy.http_only : OriginProtocolPolicy.https_only;
+    const originHeaders = getOriginHeaders(headers);
+
+    return {
+      Id: id,
+      DomainName: domain,
+      OriginPath: location ?? '',
+      ConnectionAttempts: 3,
+      ConnectionTimeout: 10,
+      CustomHeaders: {
+        Quantity: originHeaders?.length ?? 0,
+        ...(originHeaders.length && {
+          Items: originHeaders
+        })
+      },
+      ...(isBucket
+        ? {
+            OriginAccessControlId: originAccessId ?? '',
+            S3OriginConfig: {
+              OriginAccessIdentity: ''
+            }
+          }
+        : {
+            CustomOriginConfig: {
+              HTTPPort: port ?? 80,
+              HTTPSPort: port ?? 443,
+              OriginProtocolPolicy: originProtocol,
+              OriginKeepaliveTimeout: 5,
+              OriginReadTimeout: 30,
+              OriginSslProtocols: {
+                Quantity: 1,
+                Items: [SslProtocol.SSLv3]
+              }
+            }
+          }),
+      OriginShield: {
+        Enabled: false
+      }
+    };
+  });
 };
 
 const getAllCacheBehaviors = (

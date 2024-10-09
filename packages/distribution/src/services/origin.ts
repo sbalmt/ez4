@@ -10,13 +10,13 @@ export const enum OriginProtocol {
 }
 
 /**
- * Bucket origin.
+ * Origin base.
  */
-export interface CdnBucketOrigin {
+export interface CdnOrigin {
   /**
-   * Bucket service used as the origin.
+   * Path for the origin.
    */
-  bucket: Bucket.Service;
+  path: string;
 
   /**
    * Location path to append in the incoming request.
@@ -30,23 +30,28 @@ export interface CdnBucketOrigin {
 }
 
 /**
+ * Bucket origin.
+ */
+export interface CdnBucketOrigin extends CdnOrigin {
+  /**
+   * Bucket service used as the origin.
+   */
+  bucket: Bucket.Service;
+}
+
+/**
  * Regular origin.
  */
-export interface CdnRegularOrigin {
-  /**
-   * Path for the origin.
-   */
-  path: string;
-
+export interface CdnRegularOrigin extends CdnOrigin {
   /**
    * Domain used as the origin.
    */
   domain: string;
 
   /**
-   * Location path to append in the incoming request.
+   * Origin headers.
    */
-  location?: string;
+  headers?: Record<string, string>;
 
   /**
    * Origin protocol.
@@ -57,9 +62,4 @@ export interface CdnRegularOrigin {
    * Origin port.
    */
   port?: number;
-
-  /**
-   * Origin cache.
-   */
-  cache?: CdnCache;
 }

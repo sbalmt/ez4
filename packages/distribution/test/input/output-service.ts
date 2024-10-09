@@ -59,6 +59,10 @@ declare class TestRegularOrigin2 implements Cdn.RegularOrigin {
   location: 'internal';
   protocol: OriginProtocol.Http;
   port: 8080;
+  headers: {
+    authorization: 'Bearer test-token';
+    ['x-api-key']: 'test-key';
+  };
 }
 
 declare class TestBucketOrigin2 implements Cdn.BucketOrigin {
