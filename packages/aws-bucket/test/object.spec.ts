@@ -78,6 +78,10 @@ describe.only('bucket object resources', () => {
 
     resource.parameters.objectKey = 'update-file.txt';
 
+    resource.parameters.tags = {
+      test2: 'ez4-tag2'
+    };
+
     const { state } = await assertDeploy(objectId, localState, lastState);
 
     lastState = state;

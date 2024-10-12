@@ -86,6 +86,10 @@ describe.only('dynamodb table', () => {
     resource.parameters.allowDeletion = true;
     resource.parameters.enableStreams = false;
 
+    resource.parameters.tags = {
+      test2: 'ez4-tag2'
+    };
+
     const { state } = await assertDeploy(tableId, localState, lastState);
 
     lastState = state;
