@@ -8,7 +8,7 @@ export const getPolicyDocument = async (prefix: string): Promise<PolicyDocument>
 
   const grants: IdentityGrant[] = [
     {
-      resourceIds: [`arn:aws:secretsmanager:${region}:${accountId}:secret:${prefix}-rds-*/*`],
+      resourceIds: [`arn:aws:secretsmanager:${region}:${accountId}:secret:rds!*/*`],
       permissions: ['secretsmanager:GetSecretValue']
     },
     {

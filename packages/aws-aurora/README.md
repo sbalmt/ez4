@@ -19,7 +19,7 @@ Ensure the user performing deployments has the permissions below:
   "Version": "2012-10-17",
   "Statement": [
     {
-      "Sid": "AuroraDBManagement",
+      "Sid": "AuroraClusterManagement",
       "Effect": "Allow",
       "Action": [
         "rds:CreateDBCluster",
@@ -28,10 +28,17 @@ Ensure the user performing deployments has the permissions below:
         "rds:DeleteDBCluster",
         "rds:DisableHttpEndpoint",
         "rds:EnableHttpEndpoint",
+        "rds:CreateDBInstance",
+        "rds:DescribeDBInstances",
+        "rds:ModifyDBInstance",
+        "rds:DeleteDBInstance",
         "rds:AddTagsToResource",
         "rds:RemoveTagsFromResource"
       ],
-      "Resource": ["arn:aws:rds:*:{account-id}:cluster:{prefix}-*"]
+      "Resource": [
+        "arn:aws:rds:*:{account-id}:cluster:{prefix}-*",
+        "arn:aws:rds:*:{account-id}:db:{prefix}-*"
+      ]
     },
     {
       "Sid": "AuroraSecretManagement",

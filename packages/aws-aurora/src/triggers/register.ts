@@ -5,6 +5,7 @@ import { registerTriggers as registerDatabaseTriggers } from '@ez4/database/libr
 import { createTrigger } from '@ez4/project/library';
 
 import { registerClusterProvider } from '../cluster/provider.js';
+import { registerInstanceProvider } from '../instance/provider.js';
 
 import { prepareDatabaseServices } from './cluster.js';
 import { prepareExecutionPolicy } from './policy.js';
@@ -26,6 +27,7 @@ export const registerTriggers = () => {
   });
 
   registerClusterProvider();
+  registerInstanceProvider();
 
   isRegistered = true;
 };
