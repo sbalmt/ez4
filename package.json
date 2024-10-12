@@ -25,13 +25,14 @@
     "packages/queue",
     "packages/distribution",
     "packages/aws-common",
-    "packages/aws-bucket",
     "packages/aws-identity",
     "packages/aws-function",
-    "packages/aws-scheduler",
+    "packages/aws-bucket",
     "packages/aws-cloudfront",
-    "packages/aws-dynamodb",
+    "packages/aws-scheduler",
     "packages/aws-gateway",
+    "packages/aws-dynamodb",
+    "packages/aws-aurora",
     "packages/aws-queue"
   ],
   "scripts": {
