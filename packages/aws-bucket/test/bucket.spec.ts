@@ -64,6 +64,10 @@ describe.only('bucket resources', () => {
 
     resource.parameters.autoExpireDays = undefined;
 
+    resource.parameters.tags = {
+      test2: 'ez4-tag2'
+    };
+
     const { state } = await assertDeploy(bucketId, localState, lastState);
 
     lastState = state;
