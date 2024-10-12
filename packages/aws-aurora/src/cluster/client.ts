@@ -37,6 +37,9 @@ export type CreateRequest = {
 export type CreateResponse = {
   clusterName: string;
   clusterArn: Arn;
+  writerEndpoint: string;
+  readerEndpoint: string;
+  secretArn: Arn;
 };
 
 export type UpdateRequest = Partial<Omit<CreateRequest, 'clusterName' | 'tags'>>;
@@ -61,7 +64,6 @@ export const createCluster = async (request: CreateRequest): Promise<CreateRespo
       AutoMinorVersionUpgrade: true,
       BackupRetentionPeriod: 7,
       StorageEncrypted: true,
-      DatabaseName: 'ez4db',
       EngineMode: 'provisioned',
       Engine: 'aurora-postgresql',
       ServerlessV2ScalingConfiguration: {
@@ -80,10 +82,14 @@ export const createCluster = async (request: CreateRequest): Promise<CreateRespo
   });
 
   const dbCluster = response.DBCluster!;
+  const secretArn = dbCluster.MasterUserSecret!.SecretArn as Arn;
 
   return {
     clusterName,
-    clusterArn: dbCluster.DBClusterArn as Arn
+    clusterArn: dbCluster.DBClusterArn as Arn,
+    writerEndpoint: dbCluster.Endpoint!,
+    readerEndpoint: dbCluster.ReaderEndpoint!,
+    secretArn
   };
 };
 
@@ -101,6 +107,7 @@ export const updateCluster = async (
       DeletionProtection: !allowDeletion,
       EnablePerformanceInsights: enableInsights,
       EnableHttpEndpoint: enableHttp,
+      RotateMasterUserPassword: true,
       ApplyImmediately: true
     })
   );
@@ -110,10 +117,14 @@ export const updateCluster = async (
   });
 
   const dbCluster = response.DBCluster!;
+  const secretArn = dbCluster.MasterUserSecret!.SecretArn as Arn;
 
   return {
     clusterName,
-    clusterArn: dbCluster.DBClusterArn as Arn
+    clusterArn: dbCluster.DBClusterArn as Arn,
+    writerEndpoint: dbCluster.Endpoint!,
+    readerEndpoint: dbCluster.ReaderEndpoint!,
+    secretArn
   };
 };
 

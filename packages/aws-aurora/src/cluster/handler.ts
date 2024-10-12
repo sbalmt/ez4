@@ -19,7 +19,7 @@ export const getClusterHandler = (): StepHandler<ClusterState> => ({
 });
 
 const equalsResource = (candidate: ClusterState, current: ClusterState) => {
-  return !!candidate.result && candidate.result.clusterName === current.result?.clusterName;
+  return !!candidate.result && candidate.result.clusterArn === current.result?.clusterArn;
 };
 
 const previewResource = async (candidate: ClusterState, current: ClusterState) => {
@@ -47,13 +47,16 @@ const replaceResource = async (candidate: ClusterState, current: ClusterState) =
 };
 
 const createResource = async (candidate: ClusterState): Promise<ClusterResult> => {
-  const parameters = candidate.parameters;
+  const response = await createCluster(candidate.parameters);
 
-  const response = await createCluster(parameters);
+  const { clusterName, clusterArn, writerEndpoint, readerEndpoint, secretArn } = response;
 
   return {
-    clusterName: response.clusterName,
-    clusterArn: response.clusterArn
+    clusterName,
+    clusterArn,
+    writerEndpoint,
+    readerEndpoint,
+    secretArn
   };
 };
 
@@ -64,9 +67,10 @@ const updateResource = async (candidate: ClusterState, current: ClusterState) =>
     return;
   }
 
-  const newResult = await checkGeneralUpdates(result, parameters, current.parameters);
-
-  await checkTagUpdates(result.clusterArn, parameters, current.parameters);
+  const [newResult] = await Promise.all([
+    checkGeneralUpdates(result, parameters, current.parameters),
+    checkTagUpdates(result.clusterArn, parameters, current.parameters)
+  ]);
 
   return newResult;
 };
@@ -87,6 +91,7 @@ const checkGeneralUpdates = async (
   current: ClusterParameters
 ) => {
   const hasChanges = !deepEqual(candidate, current, {
+    clusterName: true,
     tags: true
   });
 
