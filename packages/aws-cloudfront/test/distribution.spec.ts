@@ -112,6 +112,33 @@ describe.only('cloudfront :: distribution', () => {
     lastState = state;
   });
 
+  it('assert :: update', async () => {
+    ok(distributionId && lastState);
+
+    const localState = deepClone(lastState);
+    const resource = localState[distributionId];
+
+    ok(resource && isDistributionState(resource));
+    ok(resource.parameters.origins);
+
+    const { cachePolicyId } = resource.parameters.defaultOrigin;
+
+    resource.parameters.origins.push({
+      id: 'ez4-test-new',
+      domain: 'ez4.test.new',
+      path: 'test-new*',
+      cachePolicyId
+    });
+
+    resource.parameters.tags = {
+      test2: 'ez4-tag2'
+    };
+
+    const { state } = await assertDeploy(distributionId, localState, lastState);
+
+    lastState = state;
+  });
+
   it('assert :: update tags', async () => {
     ok(distributionId && lastState);
 
