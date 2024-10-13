@@ -9,7 +9,7 @@ import { getClusterName, getInstanceName } from './utils.js';
 export const prepareDatabaseServices = async (event: PrepareResourceEvent) => {
   const { state, service, options } = event;
 
-  if (!isDatabaseService(service)) {
+  if (!isDatabaseService(service) || service.engine !== 'aurora') {
     return;
   }
 

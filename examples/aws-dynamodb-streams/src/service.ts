@@ -6,6 +6,8 @@ import type { ExampleSchema } from './schema.js';
  * Example of AWS DynamoDB with Stream deployed with EZ4.
  */
 export declare class Db extends Database.Service<[ExampleSchema]> {
+  engine: 'dynamodb';
+
   tables: [
     {
       name: 'example';

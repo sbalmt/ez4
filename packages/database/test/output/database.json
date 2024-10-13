@@ -2,6 +2,7 @@
   "TestDatabase1": {
     "type": "@ez4/database",
     "name": "TestDatabase1",
+    "engine": "test",
     "tables": [],
     "services": {
       "testQueue": "TestDatabase2"
@@ -10,6 +11,7 @@
   "TestDatabase2": {
     "type": "@ez4/database",
     "name": "TestDatabase2",
+    "engine": "test",
     "tables": [],
     "variables": {
       "TEST_VAR1": "test-literal-value",

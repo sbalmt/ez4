@@ -39,7 +39,7 @@ describe.only('database metadata errors', () => {
     const [error1] = errors;
 
     ok(error1 instanceof IncompleteServiceError);
-    deepEqual(error1.properties, ['tables']);
+    deepEqual(error1.properties, ['engine', 'tables']);
   });
 
   it('assert :: incomplete table', () => {
