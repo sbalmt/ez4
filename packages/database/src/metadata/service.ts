@@ -6,8 +6,9 @@ import type { DatabaseService } from '../types/service.js';
 import {
   getLinkedServiceList,
   getLinkedVariableList,
-  getModelMembers,
-  getPropertyTuple
+  getPropertyString,
+  getPropertyTuple,
+  getModelMembers
 } from '@ez4/common/library';
 
 import { isModelProperty } from '@ez4/reflection';
@@ -29,7 +30,7 @@ export const getDatabaseServices = (reflection: SourceMap) => {
     }
 
     const service: Incomplete<DatabaseService> = { type: ServiceType };
-    const properties = new Set(['tables']);
+    const properties = new Set(['engine', 'tables']);
 
     service.name = statement.name;
 
@@ -39,6 +40,15 @@ export const getDatabaseServices = (reflection: SourceMap) => {
       }
 
       switch (member.name) {
+        case 'engine': {
+          const value = getPropertyString(member);
+          if (value) {
+            service[member.name] = value;
+            properties.delete(member.name);
+          }
+          break;
+        }
+
         case 'tables':
           if ((service.tables = getAllTables(member, reflection, errorList))) {
             properties.delete(member.name);
