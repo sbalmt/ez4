@@ -50,7 +50,7 @@ describe.only('dynamodb query', () => {
             type: SchemaTypeName.String
           },
           barBar: {
-            type: SchemaTypeName.Number
+            type: SchemaTypeName.Boolean
           }
         }
       }
