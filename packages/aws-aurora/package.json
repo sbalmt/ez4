@@ -21,6 +21,11 @@
       "types": "./dist/main.d.ts",
       "require": "./dist/main.cjs",
       "import": "./dist/main.mjs"
+    },
+    "./client": {
+      "types": "./dist/client.d.ts",
+      "require": "./dist/client.cjs",
+      "import": "./dist/client.mjs"
     }
   },
   "workspaces": [
@@ -41,10 +46,13 @@
   },
   "dependencies": {
     "@aws-sdk/client-rds": "^3.624.0",
+    "@aws-sdk/client-rds-data": "^3.624.0",
     "@ez4/aws-common": "^0.7.0",
     "@ez4/aws-identity": "^0.7.0",
     "@ez4/database": "^0.7.0",
     "@ez4/stateful": "^0.7.0",
-    "@ez4/utils": "^0.7.0"
+    "@ez4/schema": "^0.7.0",
+    "@ez4/utils": "^0.7.0",
+    "@ez4/validator": "^0.7.0"
   }
 }
