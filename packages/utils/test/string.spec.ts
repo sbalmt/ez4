@@ -1,7 +1,7 @@
 import { deepEqual } from 'node:assert/strict';
 import { describe, it } from 'node:test';
 
-import { toKebabCase } from '@ez4/utils';
+import { toKebabCase, toCamelCase } from '@ez4/utils';
 
 describe.only('string utils', () => {
   it('assert :: kebab case', () => {
@@ -30,6 +30,35 @@ describe.only('string utils', () => {
       'testing-kebab-case4',
       'testing-kebab-case5',
       'testing-kebab-case6'
+    ]);
+  });
+
+  it('assert :: camel case', () => {
+    const tests = [
+      // Already in kebab-case
+      toCamelCase('testing-camel-case1'),
+
+      // From CamelCase
+      toCamelCase('TestingCamelCase2'),
+      toCamelCase('TestingCAMELCase3'),
+
+      // From snake_case
+      toCamelCase('testing_camel_case4'),
+
+      // Convert whitespace
+      toCamelCase('Testing CAMEL Case5'),
+
+      // Remove invalid characters
+      toCamelCase('-_Testing: _-_ CAMEL -_- @Case6_-')
+    ];
+
+    deepEqual(tests, [
+      'testing_camel_case1',
+      'testing_camel_case2',
+      'testing_camel_case3',
+      'testing_camel_case4',
+      'testing_camel_case5',
+      'testing_camel_case6'
     ]);
   });
 });

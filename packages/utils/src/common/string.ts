@@ -1,10 +1,11 @@
 /**
- * Convert the given `text` into kebab-case.
+ * Normalize the given `text` keeping only `a-z`, `0-9`, `-` and `_` characters.
  *
  * @param text Text to convert.
+ * @param separator Word separator.
  * @returns Returns the converted text.
  */
-export const toKebabCase = (text: string) => {
+export const normalize = (text: string, separator: string) => {
   const output: string[] = [];
   const length = text.length;
 
@@ -14,7 +15,7 @@ export const toKebabCase = (text: string) => {
 
     if (/[a-z0-9]/.test(character)) {
       if (pending) {
-        output.push('-');
+        output.push(separator);
       }
 
       output.push(character);
@@ -34,7 +35,7 @@ export const toKebabCase = (text: string) => {
 
     if (/[A-Z]/.test(character)) {
       if (hasOutput && (!uppercase || (uppercase > 1 && /[a-z]/.test(text[offset + 1])))) {
-        output.push('-');
+        output.push(separator);
       }
 
       output.push(character.toLowerCase());
@@ -45,4 +46,24 @@ export const toKebabCase = (text: string) => {
   }
 
   return output.join('');
+};
+
+/**
+ * Convert the given `text` into kebab-case.
+ *
+ * @param text Text to convert.
+ * @returns Returns the converted text.
+ */
+export const toKebabCase = (text: string) => {
+  return normalize(text, '-');
+};
+
+/**
+ * Convert the given `text` into camcel_case.
+ *
+ * @param text Text to convert.
+ * @returns Returns the converted text.
+ */
+export const toCamelCase = (text: string) => {
+  return normalize(text, '_');
 };
