@@ -11,6 +11,7 @@ import { Table } from './table.js';
 const client = DynamoDBDocumentClient.from(new DynamoDBClient());
 
 const tableCache: Record<string, Table> = {};
+
 export namespace Client {
   export type Repository = {
     tableName: string;
