@@ -22,9 +22,9 @@ const assertDeploy = async <E extends EntryState>(
 
   const result = resource.result;
 
+  ok(result.clusterName);
   ok(result.instanceName);
   ok(result.instanceArn);
-  ok(result.clusterName);
 
   return {
     result,
@@ -43,6 +43,7 @@ describe.only('aurora instance', () => {
 
     const clusterState = createCluster(localState, {
       clusterName: 'ez4-test-cluster-instance',
+      database: 'ez4_test_database',
       allowDeletion: true
     });
 

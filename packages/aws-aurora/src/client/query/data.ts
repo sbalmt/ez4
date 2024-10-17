@@ -1,45 +1,48 @@
 import type { SqlParameter } from '@aws-sdk/client-rds-data';
 import type { AnySchema } from '@ez4/schema';
 
+import { TypeHint } from '@aws-sdk/client-rds-data';
 import { SchemaTypeName } from '@ez4/schema';
 
-export const prepareFieldData = (value: any, schema: AnySchema): SqlParameter => {
+export const prepareFieldData = (name: string, value: any, schema: AnySchema): SqlParameter => {
   if (value === null) {
-    return prepareNullField();
+    return prepareNullField(name);
   }
 
   switch (schema.type) {
     case SchemaTypeName.Boolean:
-      return prepareBooleanField(value);
+      return prepareBooleanField(name, value);
 
     case SchemaTypeName.Number:
-      return prepareNumberField(value, schema.format);
+      return prepareNumberField(name, value, schema.format);
 
     case SchemaTypeName.String:
-      return prepareStringField(value, schema.format);
+      return prepareStringField(name, value, schema.format);
 
     case SchemaTypeName.Object:
     case SchemaTypeName.Union:
     case SchemaTypeName.Array:
     case SchemaTypeName.Tuple:
-      return prepareJsonField(value);
+      return prepareJsonField(name, value);
 
     default:
-      return prepareTextField(value);
+      return prepareTextField(name, value);
   }
 };
 
-const prepareBooleanField = (value: boolean): SqlParameter => {
+const prepareBooleanField = (name: string, value: boolean): SqlParameter => {
   return {
+    name,
     value: {
       booleanValue: value
     }
   };
 };
 
-const prepareNumberField = (value: number, format?: string): SqlParameter => {
+const prepareNumberField = (name: string, value: number, format?: string): SqlParameter => {
   if (format === 'decimal') {
     return {
+      name,
       value: {
         doubleValue: value
       }
@@ -47,60 +50,64 @@ const prepareNumberField = (value: number, format?: string): SqlParameter => {
   }
 
   return {
+    name,
     value: {
       longValue: value
     }
   };
 };
 
-const prepareStringField = (value: string, format?: string): SqlParameter => {
+const prepareStringField = (name: string, value: string, format?: string): SqlParameter => {
   switch (format) {
     case 'uuid':
       return {
-        typeHint: 'UUID',
-        ...prepareTextField(value)
+        typeHint: TypeHint.UUID,
+        ...prepareTextField(name, value)
       };
 
     case 'time':
       return {
-        typeHint: 'TIME',
-        ...prepareTextField(value)
+        typeHint: TypeHint.TIME,
+        ...prepareTextField(name, value)
       };
 
     case 'date':
       return {
-        typeHint: 'DATE',
-        ...prepareTextField(value)
+        typeHint: TypeHint.DATE,
+        ...prepareTextField(name, value)
       };
 
     case 'date-time':
       return {
-        typeHint: 'TIMESTAMP',
-        ...prepareTextField(value)
+        typeHint: TypeHint.TIMESTAMP,
+        ...prepareTextField(name, value)
       };
 
     default:
-      return prepareTextField(value);
+      return prepareTextField(name, value);
   }
 };
 
-const prepareJsonField = (value: any): SqlParameter => {
+const prepareJsonField = (name: string, value: any): SqlParameter => {
   return {
-    typeHint: 'JSON',
-    ...prepareTextField(JSON.stringify(value))
+    name,
+    typeHint: TypeHint.JSON,
+    ...prepareTextField(name, JSON.stringify(value))
   };
 };
 
-const prepareTextField = (value: string): SqlParameter => {
+const prepareTextField = (name: string, value: string): SqlParameter => {
   return {
+    name,
     value: {
       stringValue: value
     }
   };
 };
 
-const prepareNullField = (): SqlParameter => {
+const prepareNullField = (name: string): SqlParameter => {
   return {
+    name,
     value: {
       isNull: true
     }

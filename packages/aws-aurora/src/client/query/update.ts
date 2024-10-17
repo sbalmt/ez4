@@ -37,48 +37,46 @@ export const prepareUpdate = <T extends Database.Schema, S extends Query.SelectI
 
 const prepareUpdateFields = <T extends Database.Schema>(
   schema: ObjectSchema,
-  data: DeepPartial<T>,
-  path?: string
+  data: DeepPartial<T>
 ): PrepareResult => {
   const operations: string[] = [];
   const variables: SqlParameter[] = [];
 
-  for (const fieldKey in data) {
-    const fieldValue = data[fieldKey];
-    const fieldSchema = schema.properties[fieldKey];
+  const prepareAll = (schema: ObjectSchema, data: DeepPartial<T>, path?: string) => {
+    for (const fieldKey in data) {
+      const fieldValue = data[fieldKey];
+      const fieldSchema = schema.properties[fieldKey];
 
-    if (fieldValue === undefined) {
-      continue;
+      if (fieldValue === undefined) {
+        continue;
+      }
+
+      if (!fieldSchema) {
+        throw new Error(`Field schema for ${fieldKey} doesn't exists.`);
+      }
+
+      const fieldPath = path ? `${path}['${fieldKey}']` : `"${fieldKey}"`;
+
+      const fieldNotNested =
+        !isAnyObject(fieldValue) ||
+        fieldSchema.type !== SchemaTypeName.Object ||
+        fieldSchema.nullable ||
+        fieldSchema.optional;
+
+      if (fieldNotNested) {
+        const fieldName = `u${variables.length}`;
+
+        operations.push(`SET ${fieldPath} = :${fieldName}`);
+        variables.push(prepareFieldData(fieldName, fieldValue, fieldSchema));
+
+        continue;
+      }
+
+      prepareAll(fieldSchema, fieldValue, fieldPath);
     }
+  };
 
-    if (!fieldSchema) {
-      throw new Error(`Field schema for ${fieldKey} doesn't exists.`);
-    }
-
-    const fieldPath = path ? `${path}['${fieldKey}']` : `"${fieldKey}"`;
-
-    const fieldNotNested =
-      !isAnyObject(fieldValue) ||
-      fieldSchema.type !== SchemaTypeName.Object ||
-      fieldSchema.nullable ||
-      fieldSchema.optional;
-
-    if (fieldNotNested) {
-      operations.push(`SET ${fieldPath} = ?`);
-      variables.push(prepareFieldData(fieldValue, fieldSchema));
-
-      continue;
-    }
-
-    const [nestedOperations, nestedVariables] = prepareUpdateFields(
-      fieldSchema,
-      fieldValue,
-      fieldPath
-    );
-
-    operations.push(nestedOperations);
-    variables.push(...nestedVariables);
-  }
+  prepareAll(schema, data);
 
   return [operations.join(' '), variables];
 };

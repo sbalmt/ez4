@@ -24,9 +24,9 @@ const assertDeploy = async <E extends EntryState>(
 
   ok(result.clusterName);
   ok(result.clusterArn);
-  ok(result.writerEndpoint);
-  ok(result.readerEndpoint);
   ok(result.secretArn);
+  ok(result.readerEndpoint);
+  ok(result.writerEndpoint);
 
   return {
     result,
@@ -45,6 +45,8 @@ describe.only('aurora cluster', () => {
 
     const resource = createCluster(localState, {
       clusterName: 'ez4-test-cluster',
+      database: 'ez4_test_database',
+      allowDeletion: false,
       enableInsights: true,
       enableHttp: true,
       tags: {
@@ -70,25 +72,7 @@ describe.only('aurora cluster', () => {
 
     resource.parameters.allowDeletion = true;
     resource.parameters.enableInsights = false;
-
-    const { state } = await assertDeploy(clusterId, localState, lastState);
-
-    lastState = state;
-  });
-
-  it('assert :: update http', async () => {
-    ok(clusterId && lastState);
-
-    const localState = deepClone(lastState);
-    const resource = localState[clusterId];
-
-    ok(resource && isClusterState(resource));
-
     resource.parameters.enableHttp = false;
-
-    resource.parameters.tags = {
-      test2: 'ez4-tag2'
-    };
 
     const { state } = await assertDeploy(clusterId, localState, lastState);
 

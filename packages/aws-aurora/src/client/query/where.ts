@@ -14,9 +14,10 @@ export const prepareWhereFields = <T extends Database.Schema>(
   schema: ObjectSchema,
   query: Query.WhereInput<T, never>
 ): PrepareResult => {
-  const prepare = (
+  const prepareAll = (
     data: AnyObject,
     schema: ObjectSchema,
+    index: number = 0,
     path?: string
   ): [string[], SqlParameter[]] => {
     const operations: string[] = [];
@@ -31,7 +32,7 @@ export const prepareWhereFields = <T extends Database.Schema>(
 
       switch (key) {
         case 'NOT': {
-          const [nestedOperations, nestedVariables] = prepare(fieldValue, schema, path);
+          const [nestedOperations, nestedVariables] = prepareAll(fieldValue, schema, index, path);
 
           if (nestedOperations.length > 1) {
             operations.push(`NOT (${nestedOperations.join(' AND ')})`);
@@ -51,7 +52,12 @@ export const prepareWhereFields = <T extends Database.Schema>(
 
           const [nestedOperations, nestedVariables] = fieldValue.reduce(
             ([allOperations, allVariables], data) => {
-              const [operations, variables] = prepare(data, schema, path);
+              const [operations, variables] = prepareAll(
+                data,
+                schema,
+                index + allVariables.length,
+                path
+              );
 
               if (key === 'OR' && operations.length > 1) {
                 allOperations.push(`(${operations.join(' AND ')})`);
@@ -77,17 +83,20 @@ export const prepareWhereFields = <T extends Database.Schema>(
         }
 
         default: {
-          const nestedPath = path ? `${path}['${key}']` : `"${key}"`;
           const fieldSchema = schema.properties[key];
 
           if (!fieldSchema) {
             throw new Error(`Field schema for ${key} doesn't exists.`);
           }
 
+          const nestedPath = path ? `${path}['${key}']` : `"${key}"`;
+          const fieldIndex = index + variables.length;
+
           if (fieldSchema.type === SchemaTypeName.Object) {
-            const [nestedOperations, nestedVariables] = prepare(
+            const [nestedOperations, nestedVariables] = prepareAll(
               fieldValue,
               fieldSchema,
+              fieldIndex,
               nestedPath
             );
 
@@ -96,6 +105,7 @@ export const prepareWhereFields = <T extends Database.Schema>(
           } else {
             const [nestedOperation, ...nestedVariables] = prepareOperation(
               isAnyObject(fieldValue) ? fieldValue : { equal: fieldValue },
+              fieldIndex,
               fieldSchema,
               nestedPath
             );
@@ -110,44 +120,46 @@ export const prepareWhereFields = <T extends Database.Schema>(
     return [operations, variables];
   };
 
-  const [operations, variables] = prepare(query, schema);
+  const [operations, variables] = prepareAll(query, schema);
 
   return [operations.join(' AND '), variables];
 };
 
-const prepareOperation = (operation: AnyObject, schema: AnySchema, path: string) => {
+const prepareOperation = (operation: AnyObject, index: number, schema: AnySchema, path: string) => {
   const [operator, value] = Object.entries(operation)[0];
 
   switch (operator) {
     case 'equal':
-      return [`${path} = ?`, prepareFieldData(value, schema)];
+      return [`${path} = :${index}`, prepareFieldData(`${index}`, value, schema)];
 
     case 'not':
-      return [`${path} != ?`, prepareFieldData(value, schema)];
+      return [`${path} != :${index}`, prepareFieldData(`${index}`, value, schema)];
 
     case 'gt':
-      return [`${path} > ?`, prepareFieldData(value, schema)];
+      return [`${path} > :${index}`, prepareFieldData(`${index}`, value, schema)];
 
     case 'gte':
-      return [`${path} >= ?`, prepareFieldData(value, schema)];
+      return [`${path} >= :${index}`, prepareFieldData(`${index}`, value, schema)];
 
     case 'lt':
-      return [`${path} < ?`, prepareFieldData(value, schema)];
+      return [`${path} < :${index}`, prepareFieldData(`${index}`, value, schema)];
 
     case 'lte':
-      return [`${path} <= ?`, prepareFieldData(value, schema)];
+      return [`${path} <= :${index}`, prepareFieldData(`${index}`, value, schema)];
 
     case 'isIn':
       return [
-        `${path} IN (${value.map(() => '?').join(', ')})`,
-        ...value.map((element: unknown) => prepareFieldData(element, schema))
+        `${path} IN (${value.map((_: unknown, n: number) => `:${index + n}`).join(', ')})`,
+        ...value.map((item: unknown, n: number) => {
+          return prepareFieldData(`${index + n}`, item, schema);
+        })
       ];
 
     case 'isBetween':
       return [
-        `${path} BETWEEN ? AND ?`,
-        prepareFieldData(value[0], schema),
-        prepareFieldData(value[1], schema)
+        `${path} BETWEEN :${index} AND :${index + 1}`,
+        prepareFieldData(`${index}`, value[0], schema),
+        prepareFieldData(`${index + 1}`, value[1], schema)
       ];
 
     case 'isMissing':
@@ -155,10 +167,10 @@ const prepareOperation = (operation: AnyObject, schema: AnySchema, path: string)
       return [`${path} IS ${value ? 'NULL' : 'NOT NULL'}`];
 
     case 'startsWith':
-      return [`${path} LIKE ? || '%'`, prepareFieldData(value, schema)];
+      return [`${path} LIKE :${index} || '%'`, prepareFieldData(`${index}`, value, schema)];
 
     case 'contains':
-      return [`${path} LIKE '%' || ? || '%'`, prepareFieldData(value, schema)];
+      return [`${path} LIKE '%' || :${index} || '%'`, prepareFieldData(`${index}`, value, schema)];
 
     default:
       throw new Error(`Operation ${operation} isn't supported.`);

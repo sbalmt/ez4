@@ -22,6 +22,14 @@ export const prepareSelect = <T extends Database.Schema, S extends Query.SelectI
     statement.push(`WHERE ${whereFields}`);
   }
 
+  if ('cursor' in query && query.cursor !== undefined) {
+    statement.push(`OFFSET ${query.cursor}`);
+  }
+
+  if ('limit' in query && query.limit !== undefined) {
+    statement.push(`LIMIT ${query.limit}`);
+  }
+
   return [statement.join(' '), whereVariables];
 };
 
@@ -41,7 +49,14 @@ export const prepareSelectFields = <T extends Database.Schema>(
     const fieldPath = path ? `${path}['${fieldKey}']` : `"${fieldKey}"`;
 
     if (isAnyObject(fieldValue)) {
-      selectFields.push(prepareSelectFields(fieldValue, fieldPath));
+      const fieldObject = prepareSelectFields(fieldValue, fieldPath);
+
+      selectFields.push(`JSONB_BUILD_OBJECT(${fieldObject}) AS "${fieldKey}"`);
+      continue;
+    }
+
+    if (path) {
+      selectFields.push(`'${fieldKey}', ${fieldPath}`);
       continue;
     }
 

@@ -37,11 +37,16 @@ const prepareInsertFields = <T extends Database.Schema>(
       throw new Error(`Field schema for ${fieldKey} doesn't exists.`);
     }
 
-    const fieldData = prepareFieldData(fieldValue, fieldSchema);
+    const fieldName = `i${properties.length}`;
+    const fieldData = prepareFieldData(fieldName, fieldValue, fieldSchema);
 
     properties.push(`"${fieldKey}"`);
     variables.push(fieldData);
   }
 
-  return [`(${properties.join(', ')})`, `(${properties.map(() => '?').join(', ')})`, variables];
+  return [
+    `(${properties.join(', ')})`,
+    `(${properties.map((_, index) => `:i${index}`).join(', ')})`,
+    variables
+  ];
 };

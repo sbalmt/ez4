@@ -25,7 +25,7 @@ const waiter = {
 
 export type CreateRequest = {
   instanceName: string;
-  clusterName?: string;
+  clusterName: string;
   tags?: ResourceTags;
 };
 
@@ -34,23 +34,19 @@ export type CreateResponse = {
   instanceArn: Arn;
 };
 
-export type UpdateRequest = Partial<Omit<CreateRequest, 'instanceName' | 'tags'>>;
-
-export type UpdateResponse = CreateResponse;
-
 export const createInstance = async (request: CreateRequest): Promise<CreateResponse> => {
-  Logger.logCreate(InstanceServiceName, request.instanceName);
+  const { instanceName } = request;
 
-  const { instanceName, clusterName, tags } = request;
+  Logger.logCreate(InstanceServiceName, instanceName);
 
   const response = await client.send(
     new CreateDBInstanceCommand({
-      DBClusterIdentifier: clusterName,
       DBInstanceIdentifier: instanceName,
+      DBClusterIdentifier: request.clusterName,
       DBInstanceClass: 'db.serverless',
       Engine: 'aurora-postgresql',
       Tags: getTagList({
-        ...tags,
+        ...request.tags,
         ManagedBy: 'EZ4'
       })
     })
@@ -60,11 +56,11 @@ export const createInstance = async (request: CreateRequest): Promise<CreateResp
     DBInstanceIdentifier: instanceName
   });
 
-  const dbInstance = response.DBInstance!;
+  const { DBInstanceArn } = response.DBInstance!;
 
   return {
     instanceName,
-    instanceArn: dbInstance.DBInstanceArn as Arn
+    instanceArn: DBInstanceArn as Arn
   };
 };
 
