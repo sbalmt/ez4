@@ -21,7 +21,7 @@ export const prepareDelete = <T extends Database.Schema, S extends Query.SelectI
   }
 
   if (query.select) {
-    const selectFields = prepareSelectFields(query.select ?? {});
+    const selectFields = prepareSelectFields(query.select);
 
     statement.push(`RETURNING ${selectFields}`);
   }
