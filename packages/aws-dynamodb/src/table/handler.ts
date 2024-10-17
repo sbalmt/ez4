@@ -85,9 +85,10 @@ const updateResource = async (candidate: TableState, current: TableState) => {
   await checkDeletionUpdates(result.tableName, parameters, current.parameters);
   await checkStreamsUpdates(result.tableName, parameters, current.parameters);
 
-  const newResult = await checkGeneralUpdates(result, parameters, current.parameters);
-
-  await checkTagUpdates(result.tableArn, parameters, current.parameters);
+  const [newResult] = await Promise.all([
+    checkGeneralUpdates(result, parameters, current.parameters),
+    checkTagUpdates(result.tableArn, parameters, current.parameters)
+  ]);
 
   return newResult;
 };
@@ -99,7 +100,7 @@ const deleteResource = async (candidate: TableState) => {
     return;
   }
 
-  // If the function is still in use due to a prior change that's not
+  // If the table is still in use due to a prior change that's not
   // done yet, keep retrying until max attempts.
   await waitDeletion(() => deleteTable(result.tableName));
 };

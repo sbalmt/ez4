@@ -8,11 +8,11 @@ import { getTableName } from './utils.js';
 export const prepareLinkedService = async (event: ServiceEvent): Promise<ExtraSource | null> => {
   const { service, options } = event;
 
-  if (!isDatabaseService(service)) {
+  if (!isDatabaseService(service) || service.engine !== 'dynamodb') {
     return null;
   }
 
-  const tables = service.tables.reduce((current, table) => {
+  const repository = service.tables.reduce((current, table) => {
     return {
       ...current,
       [table.name]: {
@@ -24,7 +24,7 @@ export const prepareLinkedService = async (event: ServiceEvent): Promise<ExtraSo
   }, {});
 
   return {
-    constructor: `make(${JSON.stringify(tables)})`,
+    constructor: `make(${JSON.stringify(repository)})`,
     module: 'Client',
     from: '@ez4/aws-dynamodb/client'
   };

@@ -1,6 +1,9 @@
 import type { AnyObject, PartialProperties, PartialObject, DeepPartial } from '@ez4/utils';
 import type { Database } from './database.js';
 
+/**
+ * Query builder types.
+ */
 export namespace Query {
   export type InsertOneInput<T extends Database.Schema> = {
     data: T;

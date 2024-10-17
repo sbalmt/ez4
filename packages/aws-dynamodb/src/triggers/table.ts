@@ -18,7 +18,7 @@ import { getStreamName, getTableName } from './utils.js';
 export const prepareDatabaseServices = async (event: PrepareResourceEvent) => {
   const { state, service, role, options } = event;
 
-  if (!isDatabaseService(service)) {
+  if (!isDatabaseService(service) || service.engine !== 'dynamodb') {
     return;
   }
 

@@ -16,7 +16,7 @@ export type Incomplete<T> = {
  * and nested properties as optional.
  */
 export type DeepPartial<T extends AnyObject> = {
-  [P in keyof T]?: T[P] extends AnyObject ? DeepPartial<T[P]> : T[P];
+  [P in keyof T]?: NonNullable<T[P]> extends AnyObject ? DeepPartial<T[P]> : T[P];
 };
 
 /**
@@ -27,7 +27,7 @@ export type DeepPartial<T extends AnyObject> = {
  * type Foo = PartialProperties<{ bar: string, baz: number }>; // { bar: true, baz: true }
  */
 export type PartialProperties<T extends AnyObject> = {
-  [P in keyof T]?: T[P] extends AnyObject ? PartialProperties<T[P]> | boolean : boolean;
+  [P in keyof T]?: NonNullable<T[P]> extends AnyObject ? PartialProperties<T[P]> | boolean : boolean;
 };
 
 /**
@@ -39,7 +39,7 @@ export type PartialProperties<T extends AnyObject> = {
  type Foo = PartialObject<{ bar: string, baz: number }, { bar: true }>; // { bar: string }
  */
 export type PartialObject<T extends AnyObject, O extends AnyObject, V extends boolean = true> = {
-  [P in keyof T as PartialObjectProperty<O[P], P, V>]: O[P] extends AnyObject
+  [P in keyof T as PartialObjectProperty<O[P], P, V>]: NonNullable<O[P]> extends AnyObject
     ? PartialObject<T[P], O[P], V>
     : T[P];
 };

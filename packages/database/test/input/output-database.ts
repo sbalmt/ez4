@@ -5,6 +5,8 @@ import type { Database } from '@ez4/database';
  * Test database 1.
  */
 export declare class TestDatabase1 extends Database.Service {
+  engine: 'test';
+
   tables: [];
 
   // Services to all streams.
@@ -17,6 +19,8 @@ export declare class TestDatabase1 extends Database.Service {
  * Test database 2.
  */
 export declare class TestDatabase2 extends Database.Service {
+  engine: 'test';
+
   tables: [];
 
   // Variables to all streams.

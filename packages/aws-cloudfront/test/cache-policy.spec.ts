@@ -31,7 +31,7 @@ const assertDeploy = async <E extends EntryState>(
 
 describe.only('cloudfront :: cache policy', () => {
   let lastState: EntryStates | undefined;
-  let policyId: string | undefined;
+  let cacheId: string | undefined;
 
   registerTriggers();
 
@@ -47,18 +47,18 @@ describe.only('cloudfront :: cache policy', () => {
       minTTL: 1
     });
 
-    policyId = resource.entryId;
+    cacheId = resource.entryId;
 
-    const { state } = await assertDeploy(policyId, localState, undefined);
+    const { state } = await assertDeploy(cacheId, localState, undefined);
 
     lastState = state;
   });
 
   it('assert :: update', async () => {
-    ok(policyId && lastState);
+    ok(cacheId && lastState);
 
     const localState = deepClone(lastState);
-    const resource = localState[policyId];
+    const resource = localState[cacheId];
 
     ok(resource && isCachePolicyState(resource));
 
@@ -66,18 +66,18 @@ describe.only('cloudfront :: cache policy', () => {
     resource.parameters.defaultTTL = 180;
     resource.parameters.compress = false;
 
-    const { state } = await assertDeploy(policyId, localState, lastState);
+    const { state } = await assertDeploy(cacheId, localState, lastState);
 
     lastState = state;
   });
 
   it('assert :: destroy', async () => {
-    ok(policyId && lastState);
+    ok(cacheId && lastState);
 
-    ok(lastState[policyId]);
+    ok(lastState[cacheId]);
 
     const { result } = await deploy(undefined, lastState);
 
-    equal(result[policyId], undefined);
+    equal(result[cacheId], undefined);
   });
 });

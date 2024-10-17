@@ -15,5 +15,7 @@ export const batchTransactions = async (client: DynamoDBDocumentClient, transact
     operations.push(client.send(command));
   }
 
-  await Promise.all(operations);
+  const result = await Promise.all(operations);
+
+  return result.flat();
 };

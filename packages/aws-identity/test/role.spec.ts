@@ -75,6 +75,10 @@ describe.only('role', () => {
 
     resource.parameters.description = 'EZ4: Updated test role';
 
+    resource.parameters.tags = {
+      test2: 'ez4-tag2'
+    };
+
     const { state } = await assertDeploy(roleId, localState, lastState);
 
     lastState = state;

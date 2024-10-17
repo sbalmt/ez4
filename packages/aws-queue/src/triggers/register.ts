@@ -10,8 +10,8 @@ import { createTrigger } from '@ez4/project/library';
 import { registerQueueProvider } from '../queue/provider.js';
 import { prepareExecutionPolicy } from './policy.js';
 import { prepareQueueServices } from './service.js';
+import { prepareLinkedService } from './client.js';
 import { prepareQueueImports } from './import.js';
-import { prepareLinkedService } from './linked.js';
 
 let isRegistered = false;
 

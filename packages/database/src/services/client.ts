@@ -1,6 +1,7 @@
 import type { TableIndexes } from './indexes.js';
 import type { TableSchemas } from './schemas.js';
 import type { Database } from './database.js';
+import type { Transaction } from './transaction.js';
 import type { Query } from './query.js';
 
 /**
@@ -15,6 +16,13 @@ export type Client<T extends Database.Service<any>> = ClientTables<T> & {
    * @returns Returns the results for the given query.
    */
   rawQuery(query: string, values?: unknown[]): Promise<Record<string, unknown>[]>;
+
+  /**
+   * Prepare and execute the given transaction.
+   *
+   * @param operations Transaction operations.
+   */
+  transaction<O extends Transaction.WriteOperations<T>>(operations: O): Promise<void>;
 };
 
 /**
@@ -39,13 +47,13 @@ export type ClientTables<T extends Database.Service<any>> = {
 export interface Table<T extends Database.Schema, I extends string | never> {
   insertOne(query: Query.InsertOneInput<T>): Promise<Query.InsertOneResult>;
 
-  updateOne<S extends Query.SelectInput<T>>(
-    query: Query.UpdateOneInput<T, S, I>
-  ): Promise<Query.UpdateOneResult<T, S>>;
-
   findOne<S extends Query.SelectInput<T>>(
     query: Query.FindOneInput<T, S, I>
   ): Promise<Query.FindOneResult<T, S>>;
+
+  updateOne<S extends Query.SelectInput<T>>(
+    query: Query.UpdateOneInput<T, S, I>
+  ): Promise<Query.UpdateOneResult<T, S>>;
 
   upsertOne<S extends Query.SelectInput<T>>(
     query: Query.UpsertOneInput<T, S, I>
@@ -57,13 +65,13 @@ export interface Table<T extends Database.Schema, I extends string | never> {
 
   insertMany(query: Query.InsertManyInput<T>): Promise<Query.InsertManyResult>;
 
-  updateMany<S extends Query.SelectInput<T>>(
-    query: Query.UpdateManyInput<T, S>
-  ): Promise<Query.UpdateManyResult<T, S>>;
-
   findMany<S extends Query.SelectInput<T>>(
     query: Query.FindManyInput<T, S>
   ): Promise<Query.FindManyResult<T, S>>;
+
+  updateMany<S extends Query.SelectInput<T>>(
+    query: Query.UpdateManyInput<T, S>
+  ): Promise<Query.UpdateManyResult<T, S>>;
 
   deleteMany<S extends Query.SelectInput<T>>(
     query: Query.DeleteManyInput<T, S>
