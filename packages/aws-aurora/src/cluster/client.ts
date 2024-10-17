@@ -2,8 +2,6 @@ import type { Arn, ResourceTags } from '@ez4/aws-common';
 
 import { getTagList, Logger } from '@ez4/aws-common';
 
-import { randomBytes } from 'crypto';
-
 import {
   RDSClient,
   CreateDBClusterCommand,
@@ -15,6 +13,7 @@ import {
   waitUntilDBClusterDeleted
 } from '@aws-sdk/client-rds';
 
+import { getRandomPassword } from '../utils/credentials.js';
 import { ClusterServiceName } from './types.js';
 
 const client = new RDSClient({});
@@ -31,6 +30,7 @@ export type CreateRequest = {
   allowDeletion?: boolean;
   enableInsights?: boolean;
   enableHttp?: boolean;
+  database?: string;
   tags?: ResourceTags;
 };
 
@@ -42,24 +42,23 @@ export type CreateResponse = {
   secretArn: Arn;
 };
 
-export type UpdateRequest = Partial<Omit<CreateRequest, 'clusterName' | 'tags'>>;
+export type UpdateRequest = Partial<Omit<CreateRequest, 'clusterName' | 'database' | 'tags'>>;
 
 export type UpdateResponse = CreateResponse;
 
 export const createCluster = async (request: CreateRequest): Promise<CreateResponse> => {
-  Logger.logCreate(ClusterServiceName, request.clusterName);
+  const { clusterName } = request;
 
-  const { clusterName, enableInsights, enableHttp, allowDeletion, tags } = request;
-
-  const masterUsername = `e${randomBytes(7).toString('hex')}`;
+  Logger.logCreate(ClusterServiceName, clusterName);
 
   const response = await client.send(
     new CreateDBClusterCommand({
       DBClusterIdentifier: clusterName,
-      DeletionProtection: !allowDeletion,
-      EnablePerformanceInsights: enableInsights,
-      EnableHttpEndpoint: enableHttp,
-      MasterUsername: masterUsername,
+      DatabaseName: request.database,
+      DeletionProtection: !request.allowDeletion,
+      EnablePerformanceInsights: request.enableInsights,
+      EnableHttpEndpoint: request.enableHttp,
+      MasterUsername: getRandomPassword(),
       ManageMasterUserPassword: true,
       AutoMinorVersionUpgrade: true,
       BackupRetentionPeriod: 7,
@@ -71,7 +70,7 @@ export const createCluster = async (request: CreateRequest): Promise<CreateRespo
         MaxCapacity: 8
       },
       Tags: getTagList({
-        ...tags,
+        ...request.tags,
         ManagedBy: 'EZ4'
       })
     })
@@ -81,15 +80,14 @@ export const createCluster = async (request: CreateRequest): Promise<CreateRespo
     DBClusterIdentifier: clusterName
   });
 
-  const dbCluster = response.DBCluster!;
-  const secretArn = dbCluster.MasterUserSecret!.SecretArn as Arn;
+  const { DBClusterArn, MasterUserSecret, Endpoint, ReaderEndpoint } = response.DBCluster!;
 
   return {
     clusterName,
-    clusterArn: dbCluster.DBClusterArn as Arn,
-    writerEndpoint: dbCluster.Endpoint!,
-    readerEndpoint: dbCluster.ReaderEndpoint!,
-    secretArn
+    clusterArn: DBClusterArn as Arn,
+    secretArn: MasterUserSecret!.SecretArn as Arn,
+    readerEndpoint: ReaderEndpoint!,
+    writerEndpoint: Endpoint!
   };
 };
 
@@ -99,14 +97,12 @@ export const updateCluster = async (
 ): Promise<UpdateResponse> => {
   Logger.logUpdate(ClusterServiceName, clusterName);
 
-  const { enableInsights, enableHttp, allowDeletion } = request;
-
   const response = await client.send(
     new ModifyDBClusterCommand({
       DBClusterIdentifier: clusterName,
-      DeletionProtection: !allowDeletion,
-      EnablePerformanceInsights: enableInsights,
-      EnableHttpEndpoint: enableHttp,
+      DeletionProtection: !request.allowDeletion,
+      EnablePerformanceInsights: request.enableInsights,
+      EnableHttpEndpoint: request.enableHttp,
       RotateMasterUserPassword: true,
       ApplyImmediately: true
     })
@@ -116,15 +112,14 @@ export const updateCluster = async (
     DBClusterIdentifier: clusterName
   });
 
-  const dbCluster = response.DBCluster!;
-  const secretArn = dbCluster.MasterUserSecret!.SecretArn as Arn;
+  const { DBClusterArn, MasterUserSecret, Endpoint, ReaderEndpoint } = response.DBCluster!;
 
   return {
     clusterName,
-    clusterArn: dbCluster.DBClusterArn as Arn,
-    writerEndpoint: dbCluster.Endpoint!,
-    readerEndpoint: dbCluster.ReaderEndpoint!,
-    secretArn
+    clusterArn: DBClusterArn as Arn,
+    secretArn: MasterUserSecret!.SecretArn as Arn,
+    readerEndpoint: ReaderEndpoint!,
+    writerEndpoint: Endpoint!
   };
 };
 

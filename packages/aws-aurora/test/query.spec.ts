@@ -53,7 +53,7 @@ describe.only('aurora query', () => {
     }
   };
 
-  it.only('assert :: prepare insert', () => {
+  it('assert :: prepare insert', () => {
     const [statement, variables] = prepareInsert<TestSchema>('ez4-test-insert', testSchema, {
       data: {
         id: 'abc',
@@ -65,21 +65,24 @@ describe.only('aurora query', () => {
       }
     });
 
-    equal(statement, `INSERT INTO "ez4-test-insert" ("id", "foo", "bar") VALUES (?, ?, ?)`);
+    equal(statement, `INSERT INTO "ez4-test-insert" ("id", "foo", "bar") VALUES (:i0, :i1, :i2)`);
 
     deepEqual(variables, [
       {
+        name: 'i0',
         typeHint: 'UUID',
         value: {
           stringValue: 'abc'
         }
       },
       {
+        name: 'i1',
         value: {
           longValue: 123
         }
       },
       {
+        name: 'i2',
         typeHint: 'JSON',
         value: {
           stringValue: JSON.stringify({
@@ -91,7 +94,7 @@ describe.only('aurora query', () => {
     ]);
   });
 
-  it.only('assert :: prepare update', () => {
+  it('assert :: prepare update', () => {
     const [statement, variables] = prepareUpdate<TestSchema>('ez4-test-update', testSchema, {
       data: {
         foo: 456
@@ -101,15 +104,17 @@ describe.only('aurora query', () => {
       }
     });
 
-    equal(statement, `UPDATE "ez4-test-update" SET "foo" = ? WHERE "foo" = ?`);
+    equal(statement, `UPDATE "ez4-test-update" SET "foo" = :u0 WHERE "foo" = :0`);
 
     deepEqual(variables, [
       {
+        name: 'u0',
         value: {
           longValue: 456
         }
       },
       {
+        name: '0',
         value: {
           longValue: 123
         }
@@ -117,7 +122,7 @@ describe.only('aurora query', () => {
     ]);
   });
 
-  it.only('assert :: prepare update (with select)', () => {
+  it('assert :: prepare update (with select)', () => {
     const [statement, variables] = prepareUpdate<TestSchema>('ez4-test-update', testSchema, {
       select: {
         foo: true,
@@ -138,21 +143,28 @@ describe.only('aurora query', () => {
 
     equal(
       statement,
-      `UPDATE "ez4-test-update" SET "foo" = ? SET "bar"['barBar'] = ? WHERE "id" = ? RETURNING "foo", "bar"['barBar']`
+      `UPDATE "ez4-test-update" ` +
+        `SET "foo" = :u0 ` +
+        `SET "bar"['barBar'] = :u1 ` +
+        `WHERE "id" = :0 ` +
+        `RETURNING "foo", JSONB_BUILD_OBJECT('barBar', "bar"['barBar']) AS "bar"`
     );
 
     deepEqual(variables, [
       {
+        name: 'u0',
         value: {
           longValue: 456
         }
       },
       {
+        name: 'u1',
         value: {
           booleanValue: false
         }
       },
       {
+        name: '0',
         typeHint: 'UUID',
         value: {
           stringValue: 'abc'
@@ -161,7 +173,7 @@ describe.only('aurora query', () => {
     ]);
   });
 
-  it.only('assert :: prepare select', () => {
+  it('assert :: prepare select', () => {
     const [statement, variables] = prepareSelect<TestSchema>('ez4-test-select', testSchema, {
       select: {
         id: true,
@@ -173,10 +185,11 @@ describe.only('aurora query', () => {
       }
     });
 
-    equal(statement, `SELECT "id", "foo", "bar" FROM "ez4-test-select" WHERE "foo" = ?`);
+    equal(statement, `SELECT "id", "foo", "bar" FROM "ez4-test-select" WHERE "foo" = :0`);
 
     deepEqual(variables, [
       {
+        name: '0',
         value: {
           longValue: 123
         }
@@ -184,17 +197,18 @@ describe.only('aurora query', () => {
     ]);
   });
 
-  it.only('assert :: prepare delete', () => {
+  it('assert :: prepare delete', () => {
     const [statement, variables] = prepareDelete<TestSchema>('ez4-test-delete', testSchema, {
       where: {
         id: 'abc'
       }
     });
 
-    equal(statement, `DELETE FROM "ez4-test-delete" WHERE "id" = ?`);
+    equal(statement, `DELETE FROM "ez4-test-delete" WHERE "id" = :0`);
 
     deepEqual(variables, [
       {
+        name: '0',
         typeHint: 'UUID',
         value: {
           stringValue: 'abc'
@@ -203,7 +217,7 @@ describe.only('aurora query', () => {
     ]);
   });
 
-  it.only('assert :: prepare delete (with select)', () => {
+  it('assert :: prepare delete (with select)', () => {
     const [statement, variables] = prepareDelete<TestSchema>('ez4-test-delete', testSchema, {
       select: {
         id: true,
@@ -215,10 +229,11 @@ describe.only('aurora query', () => {
       }
     });
 
-    equal(statement, `DELETE FROM "ez4-test-delete" WHERE "id" = ? RETURNING "id", "foo", "bar"`);
+    equal(statement, `DELETE FROM "ez4-test-delete" WHERE "id" = :0 RETURNING "id", "foo", "bar"`);
 
     deepEqual(variables, [
       {
+        name: '0',
         typeHint: 'UUID',
         value: {
           stringValue: 'abc'
@@ -227,22 +242,24 @@ describe.only('aurora query', () => {
     ]);
   });
 
-  it.only('assert :: prepare where (default)', () => {
+  it('assert :: prepare where (default)', () => {
     const [whereStatement, variables] = getWhereOperation(testSchema, {
       id: 'abc',
       foo: 123
     });
 
-    equal(whereStatement, `WHERE "id" = ? AND "foo" = ?`);
+    equal(whereStatement, `WHERE "id" = :0 AND "foo" = :1`);
 
     deepEqual(variables, [
       {
+        name: '0',
         typeHint: 'UUID',
         value: {
           stringValue: 'abc'
         }
       },
       {
+        name: '1',
         value: {
           longValue: 123
         }
@@ -250,15 +267,16 @@ describe.only('aurora query', () => {
     ]);
   });
 
-  it.only('assert :: prepare where (equal)', () => {
+  it('assert :: prepare where (equal)', () => {
     const [whereStatement, variables] = getWhereOperation(testSchema, {
       id: { equal: 'abc' }
     });
 
-    equal(whereStatement, `WHERE "id" = ?`);
+    equal(whereStatement, `WHERE "id" = :0`);
 
     deepEqual(variables, [
       {
+        name: '0',
         typeHint: 'UUID',
         value: {
           stringValue: 'abc'
@@ -267,15 +285,16 @@ describe.only('aurora query', () => {
     ]);
   });
 
-  it.only('assert :: prepare where (not equal)', () => {
+  it('assert :: prepare where (not equal)', () => {
     const [whereStatement, variables] = getWhereOperation(testSchema, {
       id: { not: 'abc' }
     });
 
-    equal(whereStatement, `WHERE "id" != ?`);
+    equal(whereStatement, `WHERE "id" != :0`);
 
     deepEqual(variables, [
       {
+        name: '0',
         typeHint: 'UUID',
         value: {
           stringValue: 'abc'
@@ -284,15 +303,16 @@ describe.only('aurora query', () => {
     ]);
   });
 
-  it.only('assert :: prepare where (greater than)', () => {
+  it('assert :: prepare where (greater than)', () => {
     const [whereStatement, variables] = getWhereOperation(testSchema, {
       foo: { gt: 0 }
     });
 
-    equal(whereStatement, `WHERE "foo" > ?`);
+    equal(whereStatement, `WHERE "foo" > :0`);
 
     deepEqual(variables, [
       {
+        name: '0',
         value: {
           longValue: 0
         }
@@ -300,15 +320,16 @@ describe.only('aurora query', () => {
     ]);
   });
 
-  it.only('assert :: prepare where (greater than or equal)', () => {
+  it('assert :: prepare where (greater than or equal)', () => {
     const [whereStatement, variables] = getWhereOperation(testSchema, {
       foo: { gte: 0 }
     });
 
-    equal(whereStatement, `WHERE "foo" >= ?`);
+    equal(whereStatement, `WHERE "foo" >= :0`);
 
     deepEqual(variables, [
       {
+        name: '0',
         value: {
           longValue: 0
         }
@@ -316,15 +337,16 @@ describe.only('aurora query', () => {
     ]);
   });
 
-  it.only('assert :: prepare where (less than)', () => {
+  it('assert :: prepare where (less than)', () => {
     const [whereStatement, variables] = getWhereOperation(testSchema, {
       foo: { lt: 0 }
     });
 
-    equal(whereStatement, `WHERE "foo" < ?`);
+    equal(whereStatement, `WHERE "foo" < :0`);
 
     deepEqual(variables, [
       {
+        name: '0',
         value: {
           longValue: 0
         }
@@ -332,15 +354,16 @@ describe.only('aurora query', () => {
     ]);
   });
 
-  it.only('assert :: prepare where (less than or equal)', () => {
+  it('assert :: prepare where (less than or equal)', () => {
     const [whereStatement, variables] = getWhereOperation(testSchema, {
       foo: { lte: 0 }
     });
 
-    equal(whereStatement, `WHERE "foo" <= ?`);
+    equal(whereStatement, `WHERE "foo" <= :0`);
 
     deepEqual(variables, [
       {
+        name: '0',
         value: {
           longValue: 0
         }
@@ -348,21 +371,23 @@ describe.only('aurora query', () => {
     ]);
   });
 
-  it.only('assert :: prepare where (is in)', () => {
+  it('assert :: prepare where (is in)', () => {
     const [whereStatement, variables] = getWhereOperation(testSchema, {
       id: { isIn: ['abc', 'def'] }
     });
 
-    equal(whereStatement, `WHERE "id" IN (?, ?)`);
+    equal(whereStatement, `WHERE "id" IN (:0, :1)`);
 
     deepEqual(variables, [
       {
+        name: '0',
         typeHint: 'UUID',
         value: {
           stringValue: 'abc'
         }
       },
       {
+        name: '1',
         typeHint: 'UUID',
         value: {
           stringValue: 'def'
@@ -371,20 +396,22 @@ describe.only('aurora query', () => {
     ]);
   });
 
-  it.only('assert :: prepare where (is between)', () => {
+  it('assert :: prepare where (is between)', () => {
     const [whereStatement, variables] = getWhereOperation(testSchema, {
       foo: { isBetween: [0, 100] }
     });
 
-    equal(whereStatement, `WHERE "foo" BETWEEN ? AND ?`);
+    equal(whereStatement, `WHERE "foo" BETWEEN :0 AND :1`);
 
     deepEqual(variables, [
       {
+        name: '0',
         value: {
           longValue: 0
         }
       },
       {
+        name: '1',
         value: {
           longValue: 100
         }
@@ -392,7 +419,7 @@ describe.only('aurora query', () => {
     ]);
   });
 
-  it.only('assert :: prepare where (is missing)', () => {
+  it('assert :: prepare where (is missing)', () => {
     const [whereStatement, variables] = getWhereOperation(testSchema, {
       bar: { barBar: { isMissing: true } }
     });
@@ -402,7 +429,7 @@ describe.only('aurora query', () => {
     deepEqual(variables, []);
   });
 
-  it.only('assert :: prepare where (is not missing)', () => {
+  it('assert :: prepare where (is not missing)', () => {
     const [whereStatement, variables] = getWhereOperation(testSchema, {
       bar: { barBar: { isMissing: false } }
     });
@@ -412,7 +439,7 @@ describe.only('aurora query', () => {
     deepEqual(variables, []);
   });
 
-  it.only('assert :: prepare where (is null)', () => {
+  it('assert :: prepare where (is null)', () => {
     const [whereStatement, variables] = getWhereOperation(testSchema, {
       bar: { barBar: { isNull: true } }
     });
@@ -422,7 +449,7 @@ describe.only('aurora query', () => {
     deepEqual(variables, []);
   });
 
-  it.only('assert :: prepare where (is not null)', () => {
+  it('assert :: prepare where (is not null)', () => {
     const [whereStatement, variables] = getWhereOperation(testSchema, {
       bar: { barBar: { isNull: false } }
     });
@@ -432,15 +459,16 @@ describe.only('aurora query', () => {
     deepEqual(variables, []);
   });
 
-  it.only('assert :: prepare where (contains)', () => {
+  it('assert :: prepare where (contains)', () => {
     const [whereStatement, variables] = getWhereOperation(testSchema, {
       bar: { barFoo: { contains: 'abc' } }
     });
 
-    equal(whereStatement, `WHERE "bar"['barFoo'] LIKE '%' || ? || '%'`);
+    equal(whereStatement, `WHERE "bar"['barFoo'] LIKE '%' || :0 || '%'`);
 
     deepEqual(variables, [
       {
+        name: '0',
         value: {
           stringValue: 'abc'
         }
@@ -448,15 +476,16 @@ describe.only('aurora query', () => {
     ]);
   });
 
-  it.only('assert :: prepare where (starts with)', () => {
+  it('assert :: prepare where (starts with)', () => {
     const [whereStatement, variables] = getWhereOperation(testSchema, {
       bar: { barFoo: { startsWith: 'abc' } }
     });
 
-    equal(whereStatement, `WHERE "bar"['barFoo'] LIKE ? || '%'`);
+    equal(whereStatement, `WHERE "bar"['barFoo'] LIKE :0 || '%'`);
 
     deepEqual(variables, [
       {
+        name: '0',
         value: {
           stringValue: 'abc'
         }
@@ -464,21 +493,23 @@ describe.only('aurora query', () => {
     ]);
   });
 
-  it.only('assert :: prepare where (not)', () => {
+  it('assert :: prepare where (not)', () => {
     const [whereStatement, variables] = getWhereOperation(testSchema, {
       NOT: { id: 'abc', foo: 123 }
     });
 
-    equal(whereStatement, `WHERE NOT ("id" = ? AND "foo" = ?)`);
+    equal(whereStatement, `WHERE NOT ("id" = :0 AND "foo" = :1)`);
 
     deepEqual(variables, [
       {
+        name: '0',
         typeHint: 'UUID',
         value: {
           stringValue: 'abc'
         }
       },
       {
+        name: '1',
         value: {
           longValue: 123
         }
@@ -486,31 +517,35 @@ describe.only('aurora query', () => {
     ]);
   });
 
-  it.only('assert :: prepare where (and)', () => {
+  it('assert :: prepare where (and)', () => {
     const [whereStatement, variables] = getWhereOperation(testSchema, {
       AND: [{ foo: 123, id: 'abc' }, { OR: [{ foo: 456 }, { foo: 789 }] }]
     });
 
-    equal(whereStatement, `WHERE "foo" = ? AND "id" = ? AND ("foo" = ? OR "foo" = ?)`);
+    equal(whereStatement, `WHERE "foo" = :0 AND "id" = :1 AND ("foo" = :2 OR "foo" = :3)`);
 
     deepEqual(variables, [
       {
+        name: '0',
         value: {
           longValue: 123
         }
       },
       {
+        name: '1',
         typeHint: 'UUID',
         value: {
           stringValue: 'abc'
         }
       },
       {
+        name: '2',
         value: {
           longValue: 456
         }
       },
       {
+        name: '3',
         value: {
           longValue: 789
         }
@@ -518,32 +553,36 @@ describe.only('aurora query', () => {
     ]);
   });
 
-  it.only('assert :: prepare where (or)', () => {
+  it('assert :: prepare where (or)', () => {
     const [whereStatement, variables] = getWhereOperation(testSchema, {
       OR: [{ id: 'abc', foo: 123 }, { AND: [{ id: 'def' }, { id: 'ghi' }] }]
     });
 
-    equal(whereStatement, `WHERE (("id" = ? AND "foo" = ?) OR ("id" = ? AND "id" = ?))`);
+    equal(whereStatement, `WHERE (("id" = :0 AND "foo" = :1) OR ("id" = :2 AND "id" = :3))`);
 
     deepEqual(variables, [
       {
+        name: '0',
         typeHint: 'UUID',
         value: {
           stringValue: 'abc'
         }
       },
       {
+        name: '1',
         value: {
           longValue: 123
         }
       },
       {
+        name: '2',
         typeHint: 'UUID',
         value: {
           stringValue: 'def'
         }
       },
       {
+        name: '3',
         typeHint: 'UUID',
         value: {
           stringValue: 'ghi'
