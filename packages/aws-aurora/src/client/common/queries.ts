@@ -2,12 +2,12 @@ import type { ExecuteStatementCommandInput } from '@aws-sdk/client-rds-data';
 import type { Database, Query } from '@ez4/database';
 import type { ObjectSchema } from '@ez4/schema';
 
-import { validateSchema } from '../utils/schema.js';
+import { validateSchema } from './schema.js';
 
-import { prepareInsert } from '../query/insert.js';
-import { prepareUpdate } from '../query/update.js';
-import { prepareSelect } from '../query/select.js';
-import { prepareDelete } from '../query/delete.js';
+import { prepareInsert } from './insert.js';
+import { prepareUpdate } from './update.js';
+import { prepareSelect } from './select.js';
+import { prepareDelete } from './delete.js';
 
 export type PreparedQueryCommand = Pick<ExecuteStatementCommandInput, 'sql' | 'parameters'>;
 

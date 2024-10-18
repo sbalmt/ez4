@@ -4,8 +4,8 @@ import type { Configuration, Repository } from './types.js';
 
 import { RDSDataClient } from '@aws-sdk/client-rds-data';
 
-import { prepareDeleteOne, prepareInsertOne, prepareUpdateOne } from './utils/query.js';
-import { batchTransaction, executeStatement } from './utils/client.js';
+import { prepareDeleteOne, prepareInsertOne, prepareUpdateOne } from './common/queries.js';
+import { executeStatement, executeTransaction } from './common/client.js';
 import { Table } from './table.js';
 
 const client = new RDSDataClient();
@@ -50,7 +50,7 @@ export namespace Client {
           }
         }
 
-        await batchTransaction(configuration, client, transactions);
+        await executeTransaction(configuration, client, transactions);
       }
     })();
 
