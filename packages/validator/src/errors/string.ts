@@ -20,6 +20,6 @@ export class UnexpectedMaxLengthError extends UnexpectedValueError {
 
 export class UnexpectedStringError extends UnexpectedValueError {
   constructor(value: string, propertyName?: string) {
-    super([`with value ${value}`], propertyName);
+    super([`'${value}'`], propertyName);
   }
 }
