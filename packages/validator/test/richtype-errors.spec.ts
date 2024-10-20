@@ -13,7 +13,9 @@ import {
   UnexpectedMaxLengthError,
   UnexpectedMaxRangeError,
   UnexpectedMinLengthError,
-  UnexpectedMinRangeError
+  UnexpectedMinRangeError,
+  UnexpectedNumberError,
+  UnexpectedStringError
 } from '@ez4/validator';
 
 import { SchemaTypeName } from '@ez4/schema';
@@ -61,6 +63,39 @@ describe.only('rich type validation errors', () => {
 
     await assertError('', schema, [UnexpectedMinLengthError]);
     await assertError('abcd', schema, [UnexpectedMaxLengthError]);
+  });
+
+  it('assert :: decimal (literal) errors', async () => {
+    const schema: AnySchema = {
+      type: SchemaTypeName.Number,
+      extra: {
+        value: 123.456
+      }
+    };
+
+    await assertError(456.789, schema, [UnexpectedNumberError]);
+  });
+
+  it('assert :: integer (literal) errors', async () => {
+    const schema: AnySchema = {
+      type: SchemaTypeName.Number,
+      extra: {
+        value: 123
+      }
+    };
+
+    await assertError(456, schema, [UnexpectedNumberError]);
+  });
+
+  it('assert :: string (literal) errors', async () => {
+    const schema: AnySchema = {
+      type: SchemaTypeName.String,
+      extra: {
+        value: 'abc'
+      }
+    };
+
+    await assertError('def', schema, [UnexpectedStringError]);
   });
 
   it('assert :: uuid errors', async () => {

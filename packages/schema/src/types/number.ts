@@ -3,6 +3,7 @@ import type { ExtraSchema, SchemaTypeName } from './common.js';
 export type NumberExtraSchema = ExtraSchema & {
   minValue?: number;
   maxValue?: number;
+  value?: number;
 };
 
 export type NumberSchema = {

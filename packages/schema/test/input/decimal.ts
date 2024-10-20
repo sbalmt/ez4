@@ -23,4 +23,9 @@ export interface DecimalTestSchema {
    * Number following a decimal format with range value.
    */
   range: Decimal.Range<2.5, 5.5>;
+
+  /**
+   * Literal decimal value.
+   */
+  literal: 123.456;
 }

@@ -17,6 +17,13 @@
           }
         ]
       }
+    },
+    "bar": {
+      "type": "string",
+      "description": "Bar property.",
+      "extra": {
+        "pattern": "bar"
+      }
     }
   }
 }

@@ -45,6 +45,39 @@ describe.only('rich types validation', () => {
     equal((await validate('test', schema)).length, 0);
   });
 
+  it('assert :: decimal (literal)', async () => {
+    const schema: AnySchema = {
+      type: SchemaTypeName.Number,
+      extra: {
+        value: 123.456
+      }
+    };
+
+    equal((await validate(123.456, schema)).length, 0);
+  });
+
+  it('assert :: integer (literal)', async () => {
+    const schema: AnySchema = {
+      type: SchemaTypeName.Number,
+      extra: {
+        value: 123
+      }
+    };
+
+    equal((await validate(123, schema)).length, 0);
+  });
+
+  it('assert :: string (literal)', async () => {
+    const schema: AnySchema = {
+      type: SchemaTypeName.String,
+      extra: {
+        value: 'abc'
+      }
+    };
+
+    equal((await validate('abc', schema)).length, 0);
+  });
+
   it('assert :: regex', async () => {
     const schema: AnySchema = {
       type: SchemaTypeName.String,

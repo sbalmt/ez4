@@ -35,8 +35,8 @@ export const getStringSchema = (type: AllType, description?: string): StringSche
   const { format, extra } = type;
 
   return createStringSchema({
+    extra: type.literal ? { value: type.literal } : extra,
     description,
-    format,
-    extra
+    format
   });
 };

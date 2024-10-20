@@ -14,4 +14,9 @@ export interface EnumTestSchema {
    * Foo property.
    */
   foo: TestEnum[];
+
+  /**
+   * Bar property.
+   */
+  bar: TestEnum.BAR;
 }
