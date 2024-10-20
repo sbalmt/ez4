@@ -21,26 +21,32 @@ export const isTypeObject = (node: Node) => {
 };
 
 export const tryTypeObject = (node: Node, context: Context, state: State) => {
-  const file = context.options.includePath ? getNodeFilePath(node) : null;
-
-  const resolver = (current: Node) => {
-    if (isTypeObject(current)) {
-      return createObject(file);
-    }
-
-    if (isTypeLiteralNode(current)) {
-      return createObject(file, tryModelMembers(current, context, state));
-    }
-
+  if (!isTypeObject(node) && !isTypeLiteralNode(node)) {
     return null;
-  };
-
-  const result = resolver(node);
-  const event = context.events.onTypeObject;
-
-  if (result && event) {
-    return event(result);
   }
 
-  return result;
+  const isGenericObject = !!Object.keys(state.types).length;
+
+  if (!isGenericObject && context.cache.has(node)) {
+    return context.cache.get(node) as TypeObject;
+  }
+
+  const file = context.options.includePath ? getNodeFilePath(node) : null;
+  const reflectedType = createObject(file);
+
+  if (!isGenericObject) {
+    context.cache.set(node, reflectedType);
+  }
+
+  if (isTypeLiteralNode(node)) {
+    reflectedType.members = tryModelMembers(node, context, state);
+  }
+
+  const event = context.events.onTypeObject;
+
+  if (event) {
+    return event(reflectedType);
+  }
+
+  return reflectedType;
 };
