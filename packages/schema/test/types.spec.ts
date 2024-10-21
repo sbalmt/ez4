@@ -9,6 +9,7 @@ describe.only('type schemas', () => {
 
   it('assert :: scalar types', () => testFile('scalar'));
   it('assert :: object types', () => testFile('object'));
+  it('assert :: reference types', () => testFile('reference'));
   it('assert :: union types', () => testFile('union'));
   it('assert :: array types', () => testFile('array'));
   it('assert :: tuple types', () => testFile('tuple'));

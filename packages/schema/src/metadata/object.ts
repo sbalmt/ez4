@@ -8,6 +8,8 @@ import { getModelProperties } from '../reflection/model.js';
 import { ExtraSchema, SchemaTypeName } from '../types/common.js';
 import { getAnySchema } from './any.js';
 
+const circularRefs = new WeakSet<AllType>();
+
 type RichTypeBase = {
   extra?: ExtraSchema;
 };
@@ -38,6 +40,29 @@ export const isRichTypeModel = (type: AllType): type is RichTypeModel => {
 };
 
 export const getObjectSchema = (
+  type: AllType,
+  reflection: SourceMap,
+  description?: string
+): ObjectSchema | null => {
+  if (circularRefs.has(type)) {
+    return createObjectSchema({
+      properties: {},
+      extra: {
+        extensible: true
+      }
+    });
+  }
+
+  circularRefs.add(type);
+
+  const schema = getRawObjectSchema(type, reflection, description);
+
+  circularRefs.delete(type);
+
+  return schema;
+};
+
+const getRawObjectSchema = (
   type: AllType,
   reflection: SourceMap,
   description?: string
