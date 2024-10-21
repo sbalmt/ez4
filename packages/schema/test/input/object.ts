@@ -36,9 +36,7 @@ export interface ObjectTestSchema {
    */
   foo: ObjectType;
 
-  /**
-   * Bar property.
-   */
+  // Inherit description from interface.
   bar: InterfaceTest;
 
   // Inherit description from class.

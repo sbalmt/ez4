@@ -23,4 +23,9 @@ export interface StringTestSchema {
    * String with minimum and maximum length.
    */
   size: String.Size<1, 80>;
+
+  /**
+   * Literal string value.
+   */
+  literal: 'foo';
 }

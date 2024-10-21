@@ -30,5 +30,5 @@ describe.only('distribution metadata', () => {
 
   process.env.TEST_ENV_VAR = 'test-env-var-value';
 
-  it.only('assert :: basic distribution', () => testFile('service'));
+  it('assert :: basic distribution', () => testFile('service'));
 });

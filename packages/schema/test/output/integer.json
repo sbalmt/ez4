@@ -32,6 +32,13 @@
         "minValue": 25,
         "maxValue": 50
       }
+    },
+    "literal": {
+      "type": "number",
+      "description": "Literal integer value.",
+      "extra": {
+        "value": 123
+      }
     }
   }
 }

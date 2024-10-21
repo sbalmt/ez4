@@ -17,3 +17,9 @@ export class UnexpectedMaxLengthError extends UnexpectedValueError {
     super([`with max length ${maxValue}`], propertyName);
   }
 }
+
+export class UnexpectedStringError extends UnexpectedValueError {
+  constructor(value: string, propertyName?: string) {
+    super([`'${value}'`], propertyName);
+  }
+}

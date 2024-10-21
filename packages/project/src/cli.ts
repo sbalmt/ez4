@@ -17,6 +17,7 @@ type CommandOptions = {
   command: CommandType;
   environmentFile?: string;
   projectFile?: string;
+  debug?: boolean;
 };
 
 const checkMinVersion = () => {
@@ -25,7 +26,7 @@ const checkMinVersion = () => {
   });
 
   if (major < 20 && minor < 15) {
-    console.log('Node v20.15+ is required');
+    console.log('Node v20.15+ is required.');
     process.exit(1);
   }
 };
@@ -71,6 +72,10 @@ const main = async () => {
         case '-p':
           options.projectFile = input[++index];
           break;
+
+        case '--debug':
+          options.debug = true;
+          break;
       }
     }
 
@@ -110,6 +115,7 @@ const main = async () => {
       'Options:',
       '  --environment, -e  Specify the environment file',
       '  --project, -p      Specify the project file',
+      '  --debug            Enable the debug mode',
       ''
     ];
 
@@ -138,6 +144,10 @@ const main = async () => {
     const message = error instanceof Error ? error.message : 'Unexpected error';
 
     console.log(toRed(`[EZ4]: ${message}`));
+
+    if (options.debug) {
+      console.error(error);
+    }
 
     process.exit(1);
   }

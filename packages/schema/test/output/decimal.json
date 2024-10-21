@@ -32,6 +32,13 @@
         "minValue": 2.5,
         "maxValue": 5.5
       }
+    },
+    "literal": {
+      "type": "number",
+      "description": "Literal decimal value.",
+      "extra": {
+        "value": 123.456
+      }
     }
   }
 }

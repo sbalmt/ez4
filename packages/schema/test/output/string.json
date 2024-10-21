@@ -28,6 +28,13 @@
         "minLength": 1,
         "maxLength": 80
       }
+    },
+    "literal": {
+      "type": "string",
+      "description": "Literal string value.",
+      "extra": {
+        "value": "foo"
+      }
     }
   }
 }

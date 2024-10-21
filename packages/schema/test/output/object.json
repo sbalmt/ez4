@@ -19,7 +19,7 @@
     },
     "bar": {
       "type": "object",
-      "description": "Bar property.",
+      "description": "Referenced interface.",
       "properties": {
         "foo2": {
           "type": "boolean"

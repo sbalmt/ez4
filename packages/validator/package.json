@@ -1,7 +1,7 @@
 {
   "name": "@ez4/validator",
   "description": "EZ4: Validate data according to a given schema",
-  "version": "0.7.0",
+  "version": "0.7.1",
   "author": "Silas B.",
   "license": "MIT",
   "type": "module",

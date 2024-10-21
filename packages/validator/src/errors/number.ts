@@ -23,3 +23,9 @@ export class UnexpectedMaxRangeError extends UnexpectedValueError {
     super([`with max ${maxValue}`], propertyName);
   }
 }
+
+export class UnexpectedNumberError extends UnexpectedValueError {
+  constructor(value: number, propertyName?: string) {
+    super([`${value}`], propertyName);
+  }
+}

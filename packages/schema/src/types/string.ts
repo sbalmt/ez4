@@ -4,6 +4,7 @@ export type StringExtraSchema = ExtraSchema & {
   minLength?: number;
   maxLength?: number;
   pattern?: string;
+  value?: string;
   name?: string;
 };
 

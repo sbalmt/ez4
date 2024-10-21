@@ -4,23 +4,39 @@ import { equal, ok } from 'node:assert/strict';
 
 import {
   validate,
-  UnexpectedTypeError,
-  UnexpectedPropertiesError,
   UnexpectedEnumValueError,
-  UnexpectedMinRangeError,
+  UnexpectedPropertiesError,
+  ExpectedDateTimeTypeError,
+  ExpectedDateTypeError,
+  ExpectedEmailTypeError,
+  ExpectedIntegerTypeError,
+  ExpectedRegexTypeError,
+  ExpectedTimeTypeError,
+  ExpectedUUIDTypeError,
+  UnexpectedMaxLengthError,
   UnexpectedMaxRangeError,
   UnexpectedMinLengthError,
-  UnexpectedMaxLengthError
+  UnexpectedMinRangeError,
+  UnexpectedNumberError,
+  UnexpectedStringError
 } from '@ez4/validator';
 
 type ErrorTypes =
-  | typeof UnexpectedPropertiesError
   | typeof UnexpectedEnumValueError
-  | typeof UnexpectedMinRangeError
+  | typeof UnexpectedPropertiesError
+  | typeof ExpectedDateTimeTypeError
+  | typeof ExpectedDateTypeError
+  | typeof ExpectedEmailTypeError
+  | typeof ExpectedIntegerTypeError
+  | typeof ExpectedRegexTypeError
+  | typeof ExpectedTimeTypeError
+  | typeof ExpectedUUIDTypeError
+  | typeof UnexpectedMaxLengthError
   | typeof UnexpectedMaxRangeError
   | typeof UnexpectedMinLengthError
-  | typeof UnexpectedMaxLengthError
-  | typeof UnexpectedTypeError;
+  | typeof UnexpectedMinRangeError
+  | typeof UnexpectedNumberError
+  | typeof UnexpectedStringError;
 
 export const assertError = async (value: unknown, schema: AnySchema, errors: ErrorTypes[]) => {
   const resultErrors = await validate(value, schema);

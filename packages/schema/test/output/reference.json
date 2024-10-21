@@ -1,0 +1,45 @@
+{
+  "type": "object",
+  "description": "Reference test object.",
+  "properties": {
+    "foo": {
+      "type": "object",
+      "description": "Foo property.",
+      "properties": {
+        "foo1": {
+          "type": "object",
+          "properties": {},
+          "extra": {
+            "extensible": true
+          }
+        }
+      }
+    },
+    "bar": {
+      "type": "object",
+      "description": "Bar property.",
+      "properties": {
+        "foo2": {
+          "type": "object",
+          "properties": {},
+          "extra": {
+            "extensible": true
+          }
+        }
+      }
+    },
+    "baz": {
+      "type": "object",
+      "description": "Baz property.",
+      "properties": {
+        "foo3": {
+          "type": "object",
+          "properties": {},
+          "extra": {
+            "extensible": true
+          }
+        }
+      }
+    }
+  }
+}

@@ -1,9 +1,12 @@
 import type { StringSchema } from '@ez4/schema';
 
+import { isAnyNumber } from '@ez4/utils';
+
 import {
   ExpectedStringTypeError,
   UnexpectedMaxLengthError,
-  UnexpectedMinLengthError
+  UnexpectedMinLengthError,
+  UnexpectedStringError
 } from '../errors/string.js';
 
 import { DuplicateStringFormatError } from '../errors/format.js';
@@ -20,11 +23,15 @@ export const validateString = (value: unknown, schema: StringSchema, property?: 
 
     const { extra } = schema;
 
-    if (extra?.minLength && value.length < extra.minLength) {
+    if (extra?.value && value !== extra.value) {
+      return [new UnexpectedStringError(extra.value, property)];
+    }
+
+    if (isAnyNumber(extra?.minLength) && value.length < extra.minLength) {
       return [new UnexpectedMinLengthError(extra.minLength, property)];
     }
 
-    if (extra?.maxLength && value.length > extra.maxLength) {
+    if (isAnyNumber(extra?.maxLength) && value.length > extra.maxLength) {
       return [new UnexpectedMaxLengthError(extra.maxLength, property)];
     }
 

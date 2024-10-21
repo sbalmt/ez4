@@ -23,4 +23,9 @@ export interface IntegerTestSchema {
    * Number following an integer format with range value.
    */
   range: Integer.Range<25, 50>;
+
+  /**
+   * Literal integer value.
+   */
+  literal: 123;
 }
