@@ -28,5 +28,6 @@ describe.only('reflection events', () => {
   it('assert :: boolean', () => testFile('boolean', 'onTypeBoolean', 3));
   it('assert :: number', () => testFile('number', 'onTypeNumber', 3));
   it('assert :: string', () => testFile('string', 'onTypeString', 3));
+  it('assert :: object', () => testFile('object', 'onTypeObject', 3));
   it('assert :: reference', () => testFile('reference', 'onTypeReference', 3));
 });
