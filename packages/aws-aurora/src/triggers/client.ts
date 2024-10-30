@@ -17,11 +17,11 @@ export const prepareLinkedService = async (event: ServiceEvent): Promise<ExtraSo
   const clusterName = getClusterName(service, options);
   const clusterId = getClusterStateId(clusterName);
 
-  const configuration = {
-    database: getDatabaseName(service, options),
-    resourceArn: bundleReference(clusterId, 'clusterArn'),
-    secretArn: bundleReference(clusterId, 'secretArn')
-  };
+  const database = getDatabaseName(service, options);
+  const resourceArn = bundleReference(clusterId, 'clusterArn');
+  const secretArn = bundleReference(clusterId, 'secretArn');
+
+  const configuration = `{ database: "${database}", resourceArn: ${resourceArn}, secretArn: ${secretArn} }`;
 
   const repository = service.tables.reduce((current, { name, schema }) => {
     return {
@@ -35,7 +35,7 @@ export const prepareLinkedService = async (event: ServiceEvent): Promise<ExtraSo
 
   return {
     entryStateId: clusterId,
-    constructor: `make(${JSON.stringify(configuration)}, ${JSON.stringify(repository)})`,
+    constructor: `make(${configuration}, ${JSON.stringify(repository)})`,
     module: 'Client',
     from: '@ez4/aws-aurora/client'
   };
