@@ -27,12 +27,12 @@ export const deploy = async (project: ProjectOptions) => {
     imports: await loadImports(project)
   };
 
-  await prepareAllLinkedServices(metadata, deploy);
-
   const stateFile = `${project.stateFile.path}.ezstate`;
 
   const oldState = loadState(stateFile);
   const newState: EntryStates = {};
+
+  await prepareAllLinkedServices(metadata, deploy);
 
   const role = await prepareExecutionRole(newState, deploy);
 

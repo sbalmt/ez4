@@ -1,3 +1,4 @@
+import type { EntryStates } from '@ez4/stateful';
 import type { AuthorizerFunctionParameters } from './types.js';
 
 import { join } from 'node:path';
@@ -9,10 +10,13 @@ import { AuthorizerServiceName } from '../types.js';
 // __MODULE_PATH is defined by the package bundler.
 declare const __MODULE_PATH: string;
 
-export const bundleApiFunction = async (parameters: AuthorizerFunctionParameters) => {
+export const bundleApiFunction = async (
+  state: EntryStates,
+  parameters: AuthorizerFunctionParameters
+) => {
   const { headersSchema, parametersSchema, querySchema } = parameters;
 
-  return bundleFunction(AuthorizerServiceName, {
+  return bundleFunction(AuthorizerServiceName, state, {
     sourceFile: parameters.sourceFile,
     wrapperFile: join(__MODULE_PATH, '../lib/authorizer.ts'),
     handlerName: parameters.handlerName,

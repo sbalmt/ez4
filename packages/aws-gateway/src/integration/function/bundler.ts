@@ -1,3 +1,4 @@
+import type { EntryStates } from '@ez4/stateful';
 import type { IntegrationFunctionParameters } from './types.js';
 
 import { join } from 'node:path';
@@ -9,10 +10,13 @@ import { IntegrationServiceName } from '../types.js';
 // __MODULE_PATH is defined by the package bundler.
 declare const __MODULE_PATH: string;
 
-export const bundleApiFunction = async (parameters: IntegrationFunctionParameters) => {
+export const bundleApiFunction = async (
+  state: EntryStates,
+  parameters: IntegrationFunctionParameters
+) => {
   const { headersSchema, identitySchema, parametersSchema, querySchema, bodySchema } = parameters;
 
-  return bundleFunction(IntegrationServiceName, {
+  return bundleFunction(IntegrationServiceName, state, {
     sourceFile: parameters.sourceFile,
     wrapperFile: join(__MODULE_PATH, '../lib/handler.ts'),
     handlerName: parameters.handlerName,

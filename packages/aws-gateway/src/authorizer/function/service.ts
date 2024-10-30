@@ -14,8 +14,8 @@ export const createAuthorizerFunction = async <E extends EntryState>(
   return createFunction(state, roleState, {
     ...parameters,
     handlerName: 'apiEntryPoint',
-    getFunctionBundle: async () => {
-      return bundleApiFunction(parameters);
+    getFunctionBundle: () => {
+      return bundleApiFunction(state, parameters);
     }
   });
 };

@@ -1,5 +1,5 @@
-import type { EntryState, StepContext } from '@ez4/stateful';
 import type { Arn } from '@ez4/aws-common';
+import type { EntryState, StepContext } from '@ez4/stateful';
 import type { CreateRequest, CreateResponse } from './client.js';
 
 export const FunctionServiceName = 'AWS:Lambda/Function';

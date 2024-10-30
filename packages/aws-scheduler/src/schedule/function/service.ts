@@ -2,7 +2,7 @@ import type { RoleState } from '@ez4/aws-identity';
 import type { EntryState, EntryStates } from '@ez4/stateful';
 import type { TargetFunctionParameters } from './types.js';
 
-import { createFunction as baseCreateFunction } from '@ez4/aws-function';
+import { createFunction } from '@ez4/aws-function';
 
 import { bundleTargetFunction } from './bundler.js';
 
@@ -11,11 +11,11 @@ export const createTargetFunction = async <E extends EntryState>(
   roleState: RoleState,
   parameters: TargetFunctionParameters
 ) => {
-  return baseCreateFunction(state, roleState, {
+  return createFunction(state, roleState, {
     ...parameters,
     handlerName: 'eventEntryPoint',
-    getFunctionBundle: async () => {
-      return bundleTargetFunction(parameters);
+    getFunctionBundle: () => {
+      return bundleTargetFunction(state, parameters);
     }
   });
 };
