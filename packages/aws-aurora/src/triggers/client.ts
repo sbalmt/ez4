@@ -4,7 +4,7 @@ import { isDatabaseService } from '@ez4/database/library';
 import { toCamelCase } from '@ez4/utils';
 
 import { getClusterStateId } from '../cluster/utils.js';
-import { getClusterName } from './utils.js';
+import { getClusterName, getDatabaseName } from './utils.js';
 
 export const prepareLinkedService = async (event: ServiceEvent): Promise<ExtraSource | null> => {
   const { service, options } = event;
@@ -17,7 +17,7 @@ export const prepareLinkedService = async (event: ServiceEvent): Promise<ExtraSo
   const clusterId = getClusterStateId(clusterName);
 
   const configuration = {
-    database: toCamelCase(service.name),
+    database: getDatabaseName(service, options),
     resourceArn: `__EZ4_OUTPUT('${clusterId}:clusterArn')`,
     secretArn: `__EZ4_OUTPUT('${clusterId}:secretArn')`
   };

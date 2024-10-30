@@ -1,11 +1,11 @@
 import type { PrepareResourceEvent } from '@ez4/project/library';
 
 import { isDatabaseService } from '@ez4/database/library';
-import { toCamelCase } from '@ez4/utils';
 
-import { createCluster } from '../cluster/service.js';
 import { createInstance } from '../instance/service.js';
-import { getClusterName, getInstanceName } from './utils.js';
+import { createCluster } from '../cluster/service.js';
+
+import { getClusterName, getDatabaseName, getInstanceName } from './utils.js';
 
 export const prepareDatabaseServices = async (event: PrepareResourceEvent) => {
   const { state, service, options } = event;
@@ -16,7 +16,7 @@ export const prepareDatabaseServices = async (event: PrepareResourceEvent) => {
 
   const clusterState = createCluster(state, {
     clusterName: getClusterName(service, options),
-    database: toCamelCase(service.name),
+    database: getDatabaseName(service, options),
     enableInsights: true,
     enableHttp: true
   });
