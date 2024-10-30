@@ -2,6 +2,7 @@ import type { ExtraSource } from '@ez4/project/library';
 import { getEntry, type EntryStates } from '@ez4/stateful';
 
 import { reflectionFiles } from '@ez4/reflection';
+import { toCamelCase } from '@ez4/utils';
 
 import { build, formatMessages } from 'esbuild';
 
@@ -22,6 +23,10 @@ export type BundleOptions = {
   filePrefix: string;
   extras?: Record<string, ExtraSource>;
   define?: Record<string, string>;
+};
+
+export const bundleReference = (entryId: string, name: string) => {
+  return `__EZ4_${entryId.toUpperCase()}_${toCamelCase(name).toUpperCase()}`;
 };
 
 export const bundleHash = async (sourceFile: string) => {
@@ -169,10 +174,11 @@ const getExtraContext = (state: EntryStates, extras: Record<string, ExtraSource>
     const { result } = getEntry(state, entryStateId);
 
     if (result) {
-      for (const key in result) {
-        const value = (result as Record<string, any>)[key];
+      for (const propertyName in result) {
+        const value = (result as Record<string, any>)[propertyName];
+        const name = bundleReference(entryStateId, propertyName);
 
-        definitions[`__EZ4_OUTPUT('${entryStateId}:${key}')`] = `${value}`;
+        definitions[name] = `"${value}"`;
       }
     }
   }

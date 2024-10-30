@@ -1,6 +1,7 @@
 import type { ExtraSource, ServiceEvent } from '@ez4/project/library';
 
 import { isDatabaseService } from '@ez4/database/library';
+import { bundleReference } from '@ez4/aws-common';
 import { toCamelCase } from '@ez4/utils';
 
 import { getClusterStateId } from '../cluster/utils.js';
@@ -18,8 +19,8 @@ export const prepareLinkedService = async (event: ServiceEvent): Promise<ExtraSo
 
   const configuration = {
     database: getDatabaseName(service, options),
-    resourceArn: `__EZ4_OUTPUT('${clusterId}:clusterArn')`,
-    secretArn: `__EZ4_OUTPUT('${clusterId}:secretArn')`
+    resourceArn: bundleReference(clusterId, 'clusterArn'),
+    secretArn: bundleReference(clusterId, 'secretArn')
   };
 
   const repository = service.tables.reduce((current, { name, schema }) => {

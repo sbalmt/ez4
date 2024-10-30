@@ -3,19 +3,30 @@ import type { EntryState, EntryStates } from '@ez4/stateful';
 import type { TargetFunctionParameters } from './types.js';
 
 import { createFunction } from '@ez4/aws-function';
+import { linkDependency } from '@ez4/stateful';
 
 import { bundleTargetFunction } from './bundler.js';
 
-export const createTargetFunction = async <E extends EntryState>(
+export const createTargetFunction = <E extends EntryState>(
   state: EntryStates<E>,
   roleState: RoleState,
   parameters: TargetFunctionParameters
 ) => {
-  return createFunction(state, roleState, {
+  const resource = createFunction(state, roleState, {
     ...parameters,
     handlerName: 'eventEntryPoint',
     getFunctionBundle: () => {
       return bundleTargetFunction(state, parameters);
     }
   });
+
+  for (const serviceName in parameters.extras) {
+    const { entryStateId } = parameters.extras[serviceName];
+
+    if (entryStateId) {
+      linkDependency(state, resource.entryId, entryStateId);
+    }
+  }
+
+  return resource;
 };
