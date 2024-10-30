@@ -43,7 +43,11 @@ Ensure the user performing deployments has the permissions below:
     {
       "Sid": "AuroraSecretManagement",
       "Effect": "Allow",
-      "Action": ["secretsmanager:CreateSecret", "secretsmanager:TagResource"],
+      "Action": [
+        "secretsmanager:CreateSecret",
+        "secretsmanager:RotateSecret",
+        "secretsmanager:TagResource"
+      ],
       "Resource": ["arn:aws:secretsmanager:*:{account-id}:secret:rds!*"]
     },
     {
@@ -51,6 +55,17 @@ Ensure the user performing deployments has the permissions below:
       "Effect": "Allow",
       "Action": ["kms:DescribeKey"],
       "Resource": ["arn:aws:kms:*:{account-id}:key/*"]
+    },
+    {
+      "Sid": "AuroraLinkRole",
+      "Action": "iam:CreateServiceLinkedRole",
+      "Effect": "Allow",
+      "Resource": "arn:aws:iam::*:role/aws-service-role/rds.amazonaws.com/AWSServiceRoleForRDS",
+      "Condition": {
+        "StringLike": {
+          "iam:AWSServiceName": "rds.amazonaws.com"
+        }
+      }
     }
   ]
 }
