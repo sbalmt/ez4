@@ -11,11 +11,11 @@ export const createQueueFunction = async <E extends EntryState>(
   roleState: RoleState,
   parameters: QueueFunctionParameters
 ) => {
-  const sourceFile = await bundleQueueFunction(parameters);
-
   return baseCreateFunction(state, roleState, {
     ...parameters,
     handlerName: 'sqsEntryPoint',
-    sourceFile
+    getFunctionBundle: async () => {
+      return bundleQueueFunction(parameters);
+    }
   });
 };

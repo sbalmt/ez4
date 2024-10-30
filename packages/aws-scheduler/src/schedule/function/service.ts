@@ -11,11 +11,11 @@ export const createTargetFunction = async <E extends EntryState>(
   roleState: RoleState,
   parameters: TargetFunctionParameters
 ) => {
-  const sourceFile = await bundleTargetFunction(parameters);
-
   return baseCreateFunction(state, roleState, {
     ...parameters,
     handlerName: 'eventEntryPoint',
-    sourceFile
+    getFunctionBundle: async () => {
+      return bundleTargetFunction(parameters);
+    }
   });
 };

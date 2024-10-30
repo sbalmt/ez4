@@ -27,7 +27,7 @@ export const deepEqualObject = <T extends AnyObject, S extends AnyObject>(
     const targetValue = target[key];
     const sourceValue = source[key];
 
-    if (keyState === true) {
+    if (keyState === true || targetValue instanceof Function) {
       continue;
     }
 

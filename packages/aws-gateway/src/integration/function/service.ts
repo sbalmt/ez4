@@ -11,11 +11,11 @@ export const createIntegrationFunction = async <E extends EntryState>(
   roleState: RoleState,
   parameters: IntegrationFunctionParameters
 ) => {
-  const sourceFile = await bundleApiFunction(parameters);
-
   return baseCreateFunction(state, roleState, {
     ...parameters,
     handlerName: 'apiEntryPoint',
-    sourceFile
+    getFunctionBundle: async () => {
+      return bundleApiFunction(parameters);
+    }
   });
 };

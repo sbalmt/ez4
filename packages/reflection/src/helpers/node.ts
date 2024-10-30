@@ -1,6 +1,8 @@
 import type { Node } from 'typescript';
 
 import { isIdentifier, isPropertyAccessExpression } from 'typescript';
+
+import { relative } from 'node:path';
 import { hash } from 'node:crypto';
 
 import { getAccessName } from './identifier.js';
@@ -11,7 +13,16 @@ export const isInternalType = (node: Node) => {
 };
 
 export const getNodeFilePath = (node: Node): string | null => {
-  return node.getSourceFile()?.fileName ?? null;
+  const sourceFile = node.getSourceFile();
+
+  if (!sourceFile) {
+    return null;
+  }
+
+  const basePath = process.cwd();
+  const filePath = sourceFile.fileName;
+
+  return relative(basePath, filePath);
 };
 
 export const getNodeIdentity = (node: Node, internal?: boolean) => {

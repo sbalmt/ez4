@@ -11,11 +11,11 @@ export const createAuthorizerFunction = async <E extends EntryState>(
   roleState: RoleState,
   parameters: AuthorizerFunctionParameters
 ) => {
-  const sourceFile = await bundleApiFunction(parameters);
-
   return createFunction(state, roleState, {
     ...parameters,
     handlerName: 'apiEntryPoint',
-    sourceFile
+    getFunctionBundle: async () => {
+      return bundleApiFunction(parameters);
+    }
   });
 };

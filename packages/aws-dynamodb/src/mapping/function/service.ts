@@ -11,11 +11,11 @@ export const createStreamFunction = async <E extends EntryState>(
   roleState: RoleState,
   parameters: StreamFunctionParameters
 ) => {
-  const sourceFile = await bundleStreamFunction(parameters);
-
   return baseCreateFunction(state, roleState, {
     ...parameters,
     handlerName: 'dbStreamEntryPoint',
-    sourceFile
+    getFunctionBundle: async () => {
+      return bundleStreamFunction(parameters);
+    }
   });
 };

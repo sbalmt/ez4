@@ -1,9 +1,12 @@
 import type { ExtraSource } from '@ez4/project/library';
 
+import { reflectionFiles } from '@ez4/reflection';
+
 import { build, formatMessages } from 'esbuild';
 
 import { dirname, join, parse, relative } from 'node:path';
-import { readFile } from 'node:fs/promises';
+import { readFile, stat } from 'node:fs/promises';
+import { createHash } from 'node:crypto';
 import { existsSync } from 'node:fs';
 
 import { SourceFileError } from '../errors/bundler.js';
@@ -20,6 +23,23 @@ export type BundleOptions = {
   define?: Record<string, string>;
 };
 
+export const bundleHash = async (sourceFile: string) => {
+  const basePath = join(process.cwd(), sourceFile);
+  const sourceFiles = reflectionFiles([sourceFile]);
+  const version = createHash('sha256');
+
+  for (const filePath of sourceFiles) {
+    const fileStat = await stat(filePath);
+
+    const relativePath = relative(basePath, filePath);
+    const lastModified = fileStat.mtime.getTime();
+
+    version.update(`${relativePath}:${lastModified}`);
+  }
+
+  return version.digest('hex');
+};
+
 export const bundleFunction = async (serviceName: string, options: BundleOptions) => {
   const { sourceFile, handlerName } = options;
 
@@ -32,7 +52,7 @@ export const bundleFunction = async (serviceName: string, options: BundleOptions
 
   const sourceName = parse(options.sourceFile).name;
 
-  const targetPath = dirname(relative(process.cwd(), options.sourceFile));
+  const targetPath = dirname(options.sourceFile);
   const targetFile = `${options.filePrefix}.${sourceName}.${options.handlerName}.mjs`;
 
   const outputFile = join('.ez4/tmp', targetPath, targetFile);
@@ -51,7 +71,7 @@ export const bundleFunction = async (serviceName: string, options: BundleOptions
     stdin: {
       loader: 'ts',
       sourcefile: 'wrapper.ts',
-      resolveDir: dirname(sourceFile),
+      resolveDir: process.cwd(),
       contents: await getEntrypointCode(options)
     },
     banner: {
@@ -103,7 +123,7 @@ const getEntrypointCode = async (options: BundleOptions) => {
   const context = getExtraContext(options.extras ?? {});
 
   return `
-import { ${options.handlerName} as next } from '${options.sourceFile}';
+import { ${options.handlerName} as next } from './${options.sourceFile}';
 ${context.packages}
 
 const __EZ4_CONTEXT = ${context.services};
