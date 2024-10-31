@@ -2,8 +2,8 @@ import type { RoleState } from '@ez4/aws-identity';
 import type { EntryState, EntryStates } from '@ez4/stateful';
 import type { TargetFunctionParameters } from './types.js';
 
+import { linkServiceExtras } from '@ez4/project/library';
 import { createFunction } from '@ez4/aws-function';
-import { linkDependency } from '@ez4/stateful';
 
 import { bundleTargetFunction } from './bundler.js';
 
@@ -28,12 +28,8 @@ export const createTargetFunction = <E extends EntryState>(
     }
   });
 
-  for (const serviceName in parameters.extras) {
-    const { entryStateId } = parameters.extras[serviceName];
-
-    if (entryStateId) {
-      linkDependency(state, resource.entryId, entryStateId);
-    }
+  if (parameters.extras) {
+    linkServiceExtras(state, resource.entryId, parameters.extras);
   }
 
   return resource;
