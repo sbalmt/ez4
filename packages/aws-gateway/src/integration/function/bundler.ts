@@ -1,8 +1,9 @@
-import type { EntryStates } from '@ez4/stateful';
+import type { EntryState } from '@ez4/stateful';
 import type { IntegrationFunctionParameters } from './types.js';
 
 import { join } from 'node:path';
 
+import { getDefinitionsObject } from '@ez4/project/library';
 import { bundleFunction } from '@ez4/aws-common';
 
 import { IntegrationServiceName } from '../types.js';
@@ -11,18 +12,21 @@ import { IntegrationServiceName } from '../types.js';
 declare const __MODULE_PATH: string;
 
 export const bundleApiFunction = async (
-  state: EntryStates,
+  dependencies: EntryState[],
   parameters: IntegrationFunctionParameters
 ) => {
   const { headersSchema, identitySchema, parametersSchema, querySchema, bodySchema } = parameters;
 
-  return bundleFunction(IntegrationServiceName, state, {
+  const definitions = getDefinitionsObject(dependencies);
+
+  return bundleFunction(IntegrationServiceName, {
     sourceFile: parameters.sourceFile,
     wrapperFile: join(__MODULE_PATH, '../lib/handler.ts'),
     handlerName: parameters.handlerName,
     extras: parameters.extras,
     filePrefix: 'api',
     define: {
+      ...definitions,
       __EZ4_HEADERS_SCHEMA: headersSchema ? JSON.stringify(headersSchema) : 'undefined',
       __EZ4_IDENTITY_SCHEMA: identitySchema ? JSON.stringify(identitySchema) : 'undefined',
       __EZ4_PARAMETERS_SCHEMA: parametersSchema ? JSON.stringify(parametersSchema) : 'undefined',

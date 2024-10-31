@@ -15,8 +15,10 @@ export const createIntegrationFunction = <E extends EntryState>(
   const resource = createFunction(state, roleState, {
     ...parameters,
     handlerName: 'apiEntryPoint',
-    getFunctionBundle: () => {
-      return bundleApiFunction(state, parameters);
+    getFunctionBundle: (context) => {
+      const dependencies = context.getDependencies();
+
+      return bundleApiFunction(dependencies, parameters);
     }
   });
 

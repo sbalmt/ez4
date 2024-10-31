@@ -15,8 +15,10 @@ export const createQueueFunction = <E extends EntryState>(
   const resource = createFunction(state, roleState, {
     ...parameters,
     handlerName: 'sqsEntryPoint',
-    getFunctionBundle: () => {
-      return bundleQueueFunction(state, parameters);
+    getFunctionBundle: (context) => {
+      const dependencies = context.getDependencies();
+
+      return bundleQueueFunction(dependencies, parameters);
     }
   });
 

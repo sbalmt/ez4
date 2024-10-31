@@ -1,8 +1,9 @@
-import type { EntryStates } from '@ez4/stateful';
+import type { EntryState } from '@ez4/stateful';
 import type { QueueFunctionParameters } from './types.js';
 
 import { join } from 'node:path';
 
+import { getDefinitionsObject } from '@ez4/project/library';
 import { MappingServiceName } from '@ez4/aws-function';
 import { bundleFunction } from '@ez4/aws-common';
 
@@ -10,21 +11,22 @@ import { bundleFunction } from '@ez4/aws-common';
 declare const __MODULE_PATH: string;
 
 export const bundleQueueFunction = async (
-  state: EntryStates,
+  dependencies: EntryState[],
   parameters: QueueFunctionParameters
 ) => {
-  const { messageSchema, sourceFile, handlerName, extras } = parameters;
+  const { messageSchema } = parameters;
 
-  const define = {
-    __EZ4_SCHEMA: messageSchema ? JSON.stringify(messageSchema) : 'undefined'
-  };
+  const definitions = getDefinitionsObject(dependencies);
 
-  return bundleFunction(MappingServiceName, state, {
+  return bundleFunction(MappingServiceName, {
+    sourceFile: parameters.sourceFile,
     wrapperFile: join(__MODULE_PATH, '../lib/function.ts'),
+    handlerName: parameters.handlerName,
+    extras: parameters.extras,
     filePrefix: 'sqs',
-    handlerName,
-    sourceFile,
-    extras,
-    define
+    define: {
+      ...definitions,
+      __EZ4_SCHEMA: messageSchema ? JSON.stringify(messageSchema) : 'undefined'
+    }
   });
 };

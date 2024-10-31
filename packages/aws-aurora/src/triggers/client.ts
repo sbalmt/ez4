@@ -1,7 +1,7 @@
 import type { ExtraSource, ServiceEvent } from '@ez4/project/library';
 
+import { getDefinitionName } from '@ez4/project/library';
 import { isDatabaseService } from '@ez4/database/library';
-import { bundleReference } from '@ez4/aws-common';
 import { toCamelCase } from '@ez4/utils';
 
 import { getClusterStateId } from '../cluster/utils.js';
@@ -18,8 +18,8 @@ export const prepareLinkedService = async (event: ServiceEvent): Promise<ExtraSo
   const clusterId = getClusterStateId(clusterName);
 
   const database = getDatabaseName(service, options);
-  const resourceArn = bundleReference(clusterId, 'clusterArn');
-  const secretArn = bundleReference(clusterId, 'secretArn');
+  const resourceArn = getDefinitionName(clusterId, 'clusterArn');
+  const secretArn = getDefinitionName(clusterId, 'secretArn');
 
   const configuration = `{ database: "${database}", resourceArn: ${resourceArn}, secretArn: ${secretArn} }`;
 

@@ -15,8 +15,10 @@ export const createTargetFunction = <E extends EntryState>(
   const resource = createFunction(state, roleState, {
     ...parameters,
     handlerName: 'eventEntryPoint',
-    getFunctionBundle: () => {
-      return bundleTargetFunction(state, parameters);
+    getFunctionBundle: (context) => {
+      const dependencies = context.getDependencies();
+
+      return bundleTargetFunction(dependencies, parameters);
     }
   });
 

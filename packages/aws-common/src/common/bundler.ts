@@ -1,8 +1,6 @@
 import type { ExtraSource } from '@ez4/project/library';
-import { getEntry, type EntryStates } from '@ez4/stateful';
 
 import { reflectionFiles } from '@ez4/reflection';
-import { toCamelCase } from '@ez4/utils';
 
 import { build, formatMessages } from 'esbuild';
 
@@ -25,10 +23,6 @@ export type BundleOptions = {
   define?: Record<string, string>;
 };
 
-export const bundleReference = (entryId: string, name: string) => {
-  return `__EZ4_${entryId.toUpperCase()}_${toCamelCase(name).toUpperCase()}`;
-};
-
 export const bundleHash = async (sourceFile: string) => {
   const basePath = join(process.cwd(), sourceFile);
   const sourceFiles = reflectionFiles([sourceFile]);
@@ -46,11 +40,7 @@ export const bundleHash = async (sourceFile: string) => {
   return version.digest('hex');
 };
 
-export const bundleFunction = async (
-  serviceName: string,
-  state: EntryStates,
-  options: BundleOptions
-) => {
+export const bundleFunction = async (serviceName: string, options: BundleOptions) => {
   const { sourceFile, handlerName } = options;
 
   const cacheKey = `${sourceFile}:${handlerName}`;
@@ -67,8 +57,6 @@ export const bundleFunction = async (
 
   const outputFile = join('.ez4/tmp', targetPath, targetFile);
 
-  const [contents, definitions] = await getEntrypointCode(state, options);
-
   const result = await build({
     bundle: true,
     minify: true,
@@ -80,14 +68,13 @@ export const bundleFunction = async (
     target: 'node20',
     format: 'esm',
     define: {
-      ...definitions,
       ...options.define
     },
     stdin: {
       loader: 'ts',
       sourcefile: 'wrapper.ts',
       resolveDir: process.cwd(),
-      contents
+      contents: await getEntrypointCode(options)
     },
     banner: {
       js: getCompatibilityCode()
@@ -133,59 +120,35 @@ const require = topLevelCreateRequire(import.meta.url);
 `;
 };
 
-const getEntrypointCode = async (
-  state: EntryStates,
-  options: BundleOptions
-): Promise<[string, Record<string, string>]> => {
+const getEntrypointCode = async (options: BundleOptions) => {
   const wrapper = await readFile(options.wrapperFile);
-  const context = getExtraContext(state, options.extras ?? {});
+  const context = getExtraContext(options.extras ?? {});
 
-  return [
-    `
+  return `
 import { ${options.handlerName} as next } from './${options.sourceFile}';
 ${context.packages}
 
 const __EZ4_CONTEXT = ${context.services};
 
 ${wrapper}
-`,
-    context.definitions
-  ];
+`;
 };
 
-const getExtraContext = (state: EntryStates, extras: Record<string, ExtraSource>) => {
+const getExtraContext = (extras: Record<string, ExtraSource>) => {
   const packages: string[] = [];
   const services: string[] = [];
 
-  const definitions: Record<string, string> = {};
-
   for (const contextName in extras) {
-    const { constructor, module, from, entryStateId } = extras[contextName];
+    const { constructor, module, from } = extras[contextName];
 
     const service = `${contextName}${module}`;
 
     packages.push(`import { ${module} as ${service} } from '${from}';`);
     services.push(`${contextName}: ${service}.${constructor}`);
-
-    if (!entryStateId) {
-      continue;
-    }
-
-    const { result } = getEntry(state, entryStateId);
-
-    if (result) {
-      for (const propertyName in result) {
-        const value = (result as Record<string, any>)[propertyName];
-        const name = bundleReference(entryStateId, propertyName);
-
-        definitions[name] = `"${value}"`;
-      }
-    }
   }
 
   return {
     packages: packages.join('\n'),
-    services: `{${services.join(',\n')}}`,
-    definitions
+    services: `{${services.join(',\n')}}`
   };
 };
