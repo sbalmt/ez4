@@ -11,12 +11,12 @@
           "request": {
             "identity": {
               "type": "object",
+              "description": "Expected identity.",
               "properties": {
                 "foo": {
                   "type": "string"
                 }
-              },
-              "description": "Expected identity."
+              }
             }
           },
           "response": {
@@ -24,7 +24,10 @@
             "properties": {
               "status": {
                 "type": "number",
-                "description": "Response status code."
+                "description": "Response status code.",
+                "extra": {
+                  "value": 204
+                }
               }
             }
           }

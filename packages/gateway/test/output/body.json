@@ -11,6 +11,7 @@
           "request": {
             "body": {
               "type": "object",
+              "description": "Expected JSON body payload.",
               "properties": {
                 "foo": {
                   "type": "string"
@@ -18,8 +19,7 @@
                 "bar": {
                   "type": "number"
                 }
-              },
-              "description": "Expected JSON body payload."
+              }
             }
           },
           "response": {
@@ -27,7 +27,10 @@
             "properties": {
               "status": {
                 "type": "number",
-                "description": "Response status code."
+                "description": "Response status code.",
+                "extra": {
+                  "value": 204
+                }
               }
             }
           }
