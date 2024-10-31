@@ -43,7 +43,7 @@ const assertDeploy = async <E extends EntryState>(
 };
 
 describe.only('gateway authorizer', () => {
-  const baseDir = join(import.meta.dirname, '../test/files');
+  const baseDir = 'test/files';
 
   let lastState: EntryStates | undefined;
   let authorizerId: string | undefined;

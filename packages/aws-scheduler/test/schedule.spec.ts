@@ -42,7 +42,7 @@ const assertDeploy = async <E extends EntryState>(
 };
 
 describe.only('scheduler', () => {
-  const baseDir = join(import.meta.dirname, '../test/files');
+  const baseDir = 'test/files';
 
   let lastState: EntryStates | undefined;
   let scheduleId: string | undefined;

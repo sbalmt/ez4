@@ -36,7 +36,7 @@ const assertDeploy = async <E extends EntryState>(
 };
 
 describe.only('function', () => {
-  const baseDir = join(import.meta.dirname, '../test/files');
+  const baseDir = 'test/files';
 
   let lastState: EntryStates | undefined;
   let functionId: string | undefined;
