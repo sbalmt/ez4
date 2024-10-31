@@ -2,9 +2,7 @@ import type { Database, Query, Table as DbTable } from '@ez4/database';
 import type { DynamoDBDocumentClient } from '@aws-sdk/lib-dynamodb';
 import type { ObjectSchema } from '@ez4/schema';
 
-import { ExecuteStatementCommand } from '@aws-sdk/lib-dynamodb';
-
-import { batchTransactions } from './utils/transaction.js';
+import { executeStatement, executeTransactions } from './common/client.js';
 
 import {
   prepareDeleteMany,
@@ -15,7 +13,7 @@ import {
   prepareInsertOne,
   prepareUpdateMany,
   prepareUpdateOne
-} from './query.js';
+} from './common/queries.js';
 
 export class Table<T extends Database.Schema = Database.Schema, I extends string | never = never>
   implements DbTable<T, I>
@@ -30,14 +28,14 @@ export class Table<T extends Database.Schema = Database.Schema, I extends string
   async insertOne(query: Query.InsertOneInput<T>): Promise<Query.InsertOneResult> {
     const command = await prepareInsertOne(this.name, this.schema, query);
 
-    await this.client.send(new ExecuteStatementCommand(command));
+    await executeStatement(this.client, command);
   }
 
   async updateOne<S extends Query.SelectInput<T>>(
     query: Query.UpdateOneInput<T, S, I>
   ): Promise<Query.UpdateOneResult<T, S>> {
     const command = prepareUpdateOne(this.name, this.schema, query);
-    const result = await this.client.send(new ExecuteStatementCommand(command));
+    const result = await executeStatement(this.client, command);
 
     return result.Items?.at(0) as Query.UpdateOneResult<T, S>;
   }
@@ -46,7 +44,7 @@ export class Table<T extends Database.Schema = Database.Schema, I extends string
     query: Query.FindOneInput<T, S, I>
   ): Promise<Query.FindOneResult<T, S>> {
     const command = prepareFindOne(this.name, query);
-    const result = await this.client.send(new ExecuteStatementCommand(command));
+    const result = await executeStatement(this.client, command);
 
     return result.Items?.at(0) as Query.FindOneResult<T, S>;
   }
@@ -55,7 +53,7 @@ export class Table<T extends Database.Schema = Database.Schema, I extends string
     query: Query.DeleteOneInput<T, S, I>
   ): Promise<Query.DeleteOneResult<T, S>> {
     const command = prepareDeleteOne(this.name, query);
-    const result = await this.client.send(new ExecuteStatementCommand(command));
+    const result = await executeStatement(this.client, command);
 
     return result.Items?.at(0) as Query.DeleteOneResult<T, S>;
   }
@@ -72,14 +70,16 @@ export class Table<T extends Database.Schema = Database.Schema, I extends string
       await this.insertOne({
         data: query.insert
       });
-    } else {
-      await this.updateMany({
-        select: query.select,
-        where: query.where,
-        data: query.update,
-        limit: 1
-      });
+
+      return previous;
     }
+
+    await this.updateMany({
+      select: query.select,
+      where: query.where,
+      data: query.update,
+      limit: 1
+    });
 
     return previous;
   }
@@ -87,7 +87,7 @@ export class Table<T extends Database.Schema = Database.Schema, I extends string
   async insertMany(query: Query.InsertManyInput<T>): Promise<Query.InsertManyResult> {
     const transactions = await prepareInsertMany(this.name, this.schema, this.indexes, query);
 
-    await batchTransactions(this.client, transactions);
+    await executeTransactions(this.client, transactions);
   }
 
   async updateMany<S extends Query.SelectInput<T>>(
@@ -101,7 +101,7 @@ export class Table<T extends Database.Schema = Database.Schema, I extends string
       query
     );
 
-    await batchTransactions(this.client, transactions);
+    await executeTransactions(this.client, transactions);
 
     return records;
   }
@@ -110,7 +110,7 @@ export class Table<T extends Database.Schema = Database.Schema, I extends string
     query: Query.FindManyInput<T, S>
   ): Promise<Query.FindManyResult<T, S>> {
     const command = prepareFindMany(this.name, query);
-    const result = await this.client.send(new ExecuteStatementCommand(command));
+    const result = await executeStatement(this.client, command);
 
     return {
       records: (result.Items ?? []) as Query.Record<T, S>[],
@@ -128,7 +128,7 @@ export class Table<T extends Database.Schema = Database.Schema, I extends string
       query
     );
 
-    await batchTransactions(this.client, transactions);
+    await executeTransactions(this.client, transactions);
 
     return records;
   }

@@ -1,11 +1,11 @@
 import type { Database, Client as DbClient, Transaction } from '@ez4/database';
-import type { ObjectSchema } from '@ez4/schema';
+import type { Repository } from './types.js';
 
-import { DynamoDBDocumentClient, ExecuteStatementCommand } from '@aws-sdk/lib-dynamodb';
+import { DynamoDBDocumentClient } from '@aws-sdk/lib-dynamodb';
 import { DynamoDBClient } from '@aws-sdk/client-dynamodb';
 
-import { batchTransactions } from './utils/transaction.js';
-import { prepareDeleteOne, prepareInsertOne, prepareUpdateOne } from './query.js';
+import { executeTransactions, executeStatement } from './common/client.js';
+import { prepareDeleteOne, prepareInsertOne, prepareUpdateOne } from './common/queries.js';
 import { Table } from './table.js';
 
 const client = DynamoDBDocumentClient.from(new DynamoDBClient());
@@ -13,24 +13,16 @@ const client = DynamoDBDocumentClient.from(new DynamoDBClient());
 const tableCache: Record<string, Table> = {};
 
 export namespace Client {
-  export type Repository = {
-    tableName: string;
-    tableSchema: ObjectSchema;
-    tableIndexes: string[];
-  };
-
   export const make = <T extends Database.Service<any>>(
     repository: Record<string, Repository>
   ): DbClient<T> => {
     const instance = new (class {
       async rawQuery(query: string, values: unknown[]) {
-        const result = await client.send(
-          new ExecuteStatementCommand({
-            ConsistentRead: true,
-            Statement: query,
-            Parameters: values
-          })
-        );
+        const result = await executeStatement(client, {
+          ConsistentRead: true,
+          Statement: query,
+          Parameters: values
+        });
 
         return result.Items ?? [];
       }
@@ -60,7 +52,7 @@ export namespace Client {
           }
         }
 
-        await batchTransactions(client, transactions);
+        await executeTransactions(client, transactions);
       }
     })();
 

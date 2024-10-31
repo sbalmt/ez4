@@ -2,13 +2,14 @@ import type { DynamoDBDocumentClient, ExecuteStatementCommandInput } from '@aws-
 import type { Database, Query } from '@ez4/database';
 import type { ObjectSchema } from '@ez4/schema';
 
-import { ExecuteStatementCommand } from '@aws-sdk/lib-dynamodb';
 import { getJsonChanges } from '@ez4/aws-dynamodb/runtime';
 
-import { prepareInsert } from './query/insert.js';
-import { prepareUpdate } from './query/update.js';
-import { prepareSelect } from './query/select.js';
-import { prepareDelete } from './query/delete.js';
+import { executeStatement } from './client.js';
+
+import { prepareInsert } from './insert.js';
+import { prepareUpdate } from './update.js';
+import { prepareSelect } from './select.js';
+import { prepareDelete } from './delete.js';
 
 export const prepareInsertOne = async <T extends Database.Schema>(
   table: string,
@@ -31,11 +32,16 @@ export const prepareFindOne = <T extends Database.Schema, S extends Query.Select
   table: string,
   query: Query.FindOneInput<T, S, never>
 ): ExecuteStatementCommandInput => {
-  return prepareFindMany(table, {
-    select: query.select,
-    where: query.where,
-    limit: 1
-  });
+  const [statement, variables] = prepareSelect(table, query);
+
+  return {
+    ConsistentRead: true,
+    Statement: statement,
+    Limit: 1,
+    ...(variables.length && {
+      Parameters: variables
+    })
+  };
 };
 
 export const prepareUpdateOne = <T extends Database.Schema, S extends Query.SelectInput<T>>(
@@ -135,17 +141,16 @@ export const prepareUpdateMany = async <T extends Database.Schema, S extends Que
 ): Promise<[ExecuteStatementCommandInput[], Query.UpdateManyResult<T, S>]> => {
   const [partitionKey, sortKey] = indexes;
 
-  const result = await client.send(
-    new ExecuteStatementCommand(
-      prepareFindMany(table, {
-        ...query,
-        select: {
-          ...query.select,
-          ...(sortKey && { [sortKey]: true }),
-          [partitionKey]: true
-        }
-      })
-    )
+  const result = await executeStatement(
+    client,
+    prepareFindMany(table, {
+      ...query,
+      select: {
+        ...query.select,
+        ...(sortKey && { [sortKey]: true }),
+        [partitionKey]: true
+      }
+    })
   );
 
   const records = result.Items;
@@ -186,17 +191,16 @@ export const prepareDeleteMany = async <T extends Database.Schema, S extends Que
 ): Promise<[ExecuteStatementCommandInput[], Query.DeleteManyResult<T, S>]> => {
   const [partitionKey, sortKey] = indexes;
 
-  const result = await client.send(
-    new ExecuteStatementCommand(
-      prepareFindMany(table, {
-        ...query,
-        select: {
-          ...query.select,
-          ...(sortKey && { [sortKey]: true }),
-          [partitionKey]: true
-        }
-      })
-    )
+  const result = await executeStatement(
+    client,
+    prepareFindMany(table, {
+      ...query,
+      select: {
+        ...query.select,
+        ...(sortKey && { [sortKey]: true }),
+        [partitionKey]: true
+      }
+    })
   );
 
   const records = result.Items;
