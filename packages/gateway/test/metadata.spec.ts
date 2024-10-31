@@ -30,13 +30,13 @@ describe.only('http metadata', () => {
 
   process.env.TEST_ENV_VAR = 'test-env-var-value';
 
-  it.only('assert :: empty services', () => testFile('service'));
-  it.only('assert :: service routes', () => testFile('route'));
-  it.only('assert :: route authorizers', () => testFile('authorizer'));
-  it.only('assert :: route headers', () => testFile('headers'));
-  it.only('assert :: route identity', () => testFile('identity'));
-  it.only('assert :: route parameters', () => testFile('parameters'));
-  it.only('assert :: route query', () => testFile('query'));
-  it.only('assert :: route body', () => testFile('body'));
-  it.only('assert :: route cors', () => testFile('cors'));
+  it('assert :: empty services', () => testFile('service'));
+  it('assert :: service routes', () => testFile('route'));
+  it('assert :: route authorizers', () => testFile('authorizer'));
+  it('assert :: route headers', () => testFile('headers'));
+  it('assert :: route identity', () => testFile('identity'));
+  it('assert :: route parameters', () => testFile('parameters'));
+  it('assert :: route query', () => testFile('query'));
+  it('assert :: route body', () => testFile('body'));
+  it('assert :: route cors', () => testFile('cors'));
 });
