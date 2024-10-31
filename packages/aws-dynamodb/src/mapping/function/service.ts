@@ -12,8 +12,14 @@ export const createStreamFunction = async <E extends EntryState>(
   parameters: StreamFunctionParameters
 ) => {
   return createFunction(state, roleState, {
-    ...parameters,
     handlerName: 'dbStreamEntryPoint',
+    functionName: parameters.functionName,
+    sourceFile: parameters.sourceFile,
+    variables: parameters.variables,
+    description: parameters.description,
+    timeout: parameters.timeout,
+    memory: parameters.memory,
+    tags: parameters.tags,
     getFunctionBundle: (context) => {
       const dependencies = context.getDependencies();
 
