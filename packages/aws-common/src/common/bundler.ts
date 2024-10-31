@@ -24,8 +24,9 @@ export type BundleOptions = {
 };
 
 export const bundleHash = async (sourceFile: string) => {
+  const sourceFiles = [sourceFile, ...reflectionFiles([sourceFile])];
+
   const basePath = join(process.cwd(), sourceFile);
-  const sourceFiles = reflectionFiles([sourceFile]);
   const version = createHash('sha256');
 
   for (const filePath of sourceFiles) {
