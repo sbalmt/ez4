@@ -77,11 +77,15 @@ const prepareStringField = (name: string, value: string, format?: string): SqlPa
         ...prepareTextField(name, value)
       };
 
-    case 'date-time':
+    case 'date-time': {
+      const date = value.substring(0, 10);
+      const time = value.substring(11, 23);
+
       return {
         typeHint: TypeHint.TIMESTAMP,
-        ...prepareTextField(name, value)
+        ...prepareTextField(name, `${date} ${time}`)
       };
+    }
 
     default:
       return prepareTextField(name, value);
