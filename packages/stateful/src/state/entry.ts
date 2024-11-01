@@ -60,7 +60,7 @@ export const linkDependency = <E extends EntryState>(
   }
 
   if (!entryMap[dependencyId]) {
-    throw new DependencyNotFoundError(entryId, dependencyId);
+    throw new EntryNotFoundError(dependencyId);
   }
 
   if (entryMap[entryId].dependencies.includes(dependencyId)) {
@@ -80,7 +80,7 @@ export const tryLinkDependency = <E extends EntryState>(
   }
 
   if (!entryMap[dependencyId]) {
-    throw new DependencyNotFoundError(entryId, dependencyId);
+    throw new EntryNotFoundError(dependencyId);
   }
 
   if (!entryMap[entryId].dependencies.includes(dependencyId)) {
