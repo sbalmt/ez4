@@ -58,7 +58,7 @@ export async function readItemHandler(
   const item = await readItem(dynamoDb, id);
 
   if (!item) {
-    throw new HttpBadRequestError(`Item doesn't found.`);
+    throw new HttpBadRequestError(`Item isn't found.`);
   }
 
   return {
@@ -89,7 +89,7 @@ export async function updateItemHandler(
   });
 
   if (!oldItem) {
-    throw new HttpBadRequestError(`Item doesn't found.`);
+    throw new HttpBadRequestError(`Item isn't found.`);
   }
 
   return {
@@ -115,7 +115,7 @@ export async function deleteItemHandler(
   const item = await deleteItem(dynamoDb, id);
 
   if (!item) {
-    throw new HttpBadRequestError(`Item doesn't found.`);
+    throw new HttpBadRequestError(`Item isn't found.`);
   }
 
   return {
