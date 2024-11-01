@@ -1,17 +1,19 @@
 import type { Database } from '@ez4/database';
 import type { ObjectSchema, ObjectSchemaProperties } from '@ez4/schema';
-import type { PrepareResourceEvent } from '@ez4/project/library';
+import type { ConnectResourceEvent, PrepareResourceEvent } from '@ez4/project/library';
 import type { AttributeSchema } from '../types/schema.js';
 
 import { Index } from '@ez4/database';
 import { SchemaTypeName } from '@ez4/schema';
 import { isDatabaseService } from '@ez4/database/library';
+import { linkServiceExtras } from '@ez4/project/library';
 import { getFunction } from '@ez4/aws-function';
 import { isRoleState } from '@ez4/aws-identity';
 
 import { createMapping } from '../mapping/service.js';
 import { createStreamFunction } from '../mapping/function/service.js';
 import { AttributeType, AttributeKeyType } from '../types/schema.js';
+import { getTableStateId } from '../table/utils.js';
 import { createTable } from '../table/service.js';
 import { getStreamName, getTableName } from './utils.js';
 
@@ -63,6 +65,18 @@ export const prepareDatabaseServices = async (event: PrepareResourceEvent) => {
       createMapping(state, tableState, functionState, {});
     }
   }
+};
+
+export const connectDatabaseServices = (event: ConnectResourceEvent) => {
+  const { state, service } = event;
+
+  if (!isDatabaseService(service) || service.engine !== 'dynamodb' || !service.extras) {
+    return;
+  }
+
+  const tableId = getTableStateId(service.name);
+
+  linkServiceExtras(state, tableId, service.extras);
 };
 
 const getAttributeSchema = (indexes: Database.Indexes, schema: ObjectSchema) => {

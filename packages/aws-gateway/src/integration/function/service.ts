@@ -2,7 +2,6 @@ import type { RoleState } from '@ez4/aws-identity';
 import type { EntryState, EntryStates } from '@ez4/stateful';
 import type { IntegrationFunctionParameters } from './types.js';
 
-import { linkServiceExtras } from '@ez4/project/library';
 import { createFunction } from '@ez4/aws-function';
 
 import { bundleApiFunction } from './bundler.js';
@@ -12,7 +11,7 @@ export const createIntegrationFunction = <E extends EntryState>(
   roleState: RoleState,
   parameters: IntegrationFunctionParameters
 ) => {
-  const resource = createFunction(state, roleState, {
+  return createFunction(state, roleState, {
     handlerName: 'apiEntryPoint',
     functionName: parameters.functionName,
     sourceFile: parameters.sourceFile,
@@ -27,10 +26,4 @@ export const createIntegrationFunction = <E extends EntryState>(
       return bundleApiFunction(dependencies, parameters);
     }
   });
-
-  if (parameters.extras) {
-    linkServiceExtras(state, resource.entryId, parameters.extras);
-  }
-
-  return resource;
 };

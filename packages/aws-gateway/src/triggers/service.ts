@@ -1,9 +1,15 @@
 import type { ObjectSchema } from '@ez4/schema';
 import type { EntryState, EntryStates } from '@ez4/stateful';
-import type { DeployOptions, PrepareResourceEvent } from '@ez4/project/library';
 import type { HttpRoute, HttpService } from '@ez4/gateway/library';
 import type { GatewayState } from '../gateway/types.js';
 
+import type {
+  ConnectResourceEvent,
+  DeployOptions,
+  PrepareResourceEvent
+} from '@ez4/project/library';
+
+import { linkServiceExtras } from '@ez4/project/library';
 import { FunctionParameters, Variables } from '@ez4/aws-function';
 import { isHttpService } from '@ez4/gateway/library';
 import { getFunction } from '@ez4/aws-function';
@@ -13,6 +19,7 @@ import { createAuthorizerFunction } from '../authorizer/function/service.js';
 import { createIntegrationFunction } from '../integration/function/service.js';
 import { getIntegration, createIntegration } from '../integration/service.js';
 import { getAuthorizer, createAuthorizer } from '../authorizer/service.js';
+import { getGatewayStateId } from '../gateway/utils.js';
 import { createGateway } from '../gateway/service.js';
 import { createStage } from '../stage/service.js';
 import { createRoute } from '../route/service.js';
@@ -42,6 +49,18 @@ export const prepareHttpServices = async (event: PrepareResourceEvent) => {
   });
 
   await createHttpRoutes(state, service, role, gatewayState, options);
+};
+
+export const connectHttpServices = (event: ConnectResourceEvent) => {
+  const { state, service } = event;
+
+  if (!isHttpService(service) || !service.extras) {
+    return;
+  }
+
+  const gatewayId = getGatewayStateId(service.name);
+
+  linkServiceExtras(state, gatewayId, service.extras);
 };
 
 const createHttpRoutes = async (

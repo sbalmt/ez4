@@ -10,7 +10,8 @@ import { registerAuthorizerProvider } from '../authorizer/provider.js';
 import { registerIntegrationProvider } from '../integration/provider.js';
 import { registerRouteProvider } from '../route/provider.js';
 import { registerStageProvider } from '../stage/provider.js';
-import { prepareHttpServices } from './http.js';
+
+import { connectHttpServices, prepareHttpServices } from './service.js';
 
 let isRegistered = false;
 
@@ -25,7 +26,8 @@ export const registerTriggers = () => {
   registerGatewayTriggers();
 
   createTrigger('@ez4/aws-gateway', {
-    'deploy:prepareResources': prepareHttpServices
+    'deploy:prepareResources': prepareHttpServices,
+    'deploy:connectResources': connectHttpServices
   });
 
   registerGatewayProvider();
