@@ -50,22 +50,25 @@ export const updateItem = async (client: DbClient, input: UpdateItemInput) => {
 
   const now = new Date().toISOString();
 
-  const oldItem = await client.items.updateOne({
-    select: {
-      name: true,
-      description: true
-    },
-    data: {
-      name,
-      description,
-      updated_at: now
-    },
-    where: {
-      id
-    }
-  });
-
-  return oldItem;
+  try {
+    return await client.items.updateOne({
+      select: {
+        name: true,
+        description: true
+      },
+      data: {
+        name,
+        description,
+        updated_at: now
+      },
+      where: {
+        id
+      }
+    });
+  } catch (e) {
+    // Conditional check failure if the item don't exists.
+    return undefined;
+  }
 };
 
 export const deleteItem = async (client: DbClient, id: string) => {
