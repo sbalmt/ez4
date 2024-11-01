@@ -36,7 +36,7 @@ export class Table<T extends Database.Schema = Database.Schema, I extends string
   async updateOne<S extends Query.SelectInput<T>>(
     query: Query.UpdateOneInput<T, S, I>
   ): Promise<Query.UpdateOneResult<T, S>> {
-    const command = prepareUpdateOne(this.name, this.schema, query);
+    const command = await prepareUpdateOne(this.name, this.schema, query);
 
     try {
       const result = await executeStatement(this.client, command);

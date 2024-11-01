@@ -45,7 +45,7 @@ export namespace Client {
             if ('insert' in query) {
               transactions.push(await prepareInsertOne(tableName, tableSchema, query.insert));
             } else if ('update' in query) {
-              transactions.push(prepareUpdateOne(tableName, tableSchema, query.update));
+              transactions.push(await prepareUpdateOne(tableName, tableSchema, query.update));
             } else if ('delete' in query) {
               transactions.push(prepareDeleteOne(tableName, query.delete));
             }

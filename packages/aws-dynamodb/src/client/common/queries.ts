@@ -2,8 +2,9 @@ import type { DynamoDBDocumentClient, ExecuteStatementCommandInput } from '@aws-
 import type { Database, Query } from '@ez4/database';
 import type { ObjectSchema } from '@ez4/schema';
 
-import { getJsonChanges } from '@ez4/aws-dynamodb/runtime';
+import { validateSchema } from '@ez4/aws-dynamodb/runtime';
 
+import { preparePartialSchema } from './schema.js';
 import { executeStatement } from './client.js';
 
 import { prepareInsert } from './insert.js';
@@ -16,7 +17,7 @@ export const prepareInsertOne = async <T extends Database.Schema>(
   schema: ObjectSchema,
   query: Query.InsertOneInput<T>
 ): Promise<ExecuteStatementCommandInput> => {
-  await getJsonChanges(query.data, schema);
+  await validateSchema(query.data, schema);
 
   const [statement, variables] = prepareInsert(table, query);
 
@@ -44,11 +45,13 @@ export const prepareFindOne = <T extends Database.Schema, S extends Query.Select
   };
 };
 
-export const prepareUpdateOne = <T extends Database.Schema, S extends Query.SelectInput<T>>(
+export const prepareUpdateOne = async <T extends Database.Schema, S extends Query.SelectInput<T>>(
   table: string,
   schema: ObjectSchema,
   query: Query.UpdateOneInput<T, S, never>
-): ExecuteStatementCommandInput => {
+): Promise<ExecuteStatementCommandInput> => {
+  await validateSchema(query.data, preparePartialSchema(schema, query.data));
+
   const [statement, variables] = prepareUpdate(table, schema, query);
 
   return {
@@ -96,7 +99,7 @@ export const prepareInsertMany = async <T extends Database.Schema>(
 
     identifiers.add(uniqueId);
 
-    await getJsonChanges(data, schema);
+    await validateSchema(data, schema);
 
     const [statement, variables] = prepareInsert(table, {
       data
@@ -159,26 +162,30 @@ export const prepareUpdateMany = async <T extends Database.Schema, S extends Que
     return [[], []];
   }
 
-  const transactions = [];
+  const partialSchema = preparePartialSchema(schema, query.data);
 
-  for (const record of records) {
-    const { [partitionKey]: partitionId, [sortKey]: sortId } = record;
+  const transactions = await Promise.all(
+    records.map(async (record) => {
+      const { [partitionKey]: partitionId, [sortKey]: sortId } = record;
 
-    const [statement, variables] = prepareUpdate(table, schema, {
-      data: query.data,
-      where: {
-        ...(sortKey && { [sortKey]: sortId }),
-        [partitionKey]: partitionId
-      } as T
-    });
+      await validateSchema(query.data, partialSchema);
 
-    transactions.push({
-      Statement: statement,
-      ...(variables.length && {
-        Parameters: variables
-      })
-    });
-  }
+      const [statement, variables] = prepareUpdate(table, schema, {
+        data: query.data,
+        where: {
+          ...(sortKey && { [sortKey]: sortId }),
+          [partitionKey]: partitionId
+        } as T
+      });
+
+      return {
+        Statement: statement,
+        ...(variables.length && {
+          Parameters: variables
+        })
+      };
+    })
+  );
 
   return [transactions, records as Query.UpdateManyResult<T, S>];
 };
