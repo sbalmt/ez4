@@ -97,6 +97,7 @@ describe.only('aurora query', () => {
   it('assert :: prepare update', () => {
     const [statement, variables] = prepareUpdate<TestSchema>('ez4-test-update', testSchema, {
       data: {
+        id: 'new',
         foo: 456
       },
       where: {
@@ -104,11 +105,18 @@ describe.only('aurora query', () => {
       }
     });
 
-    equal(statement, `UPDATE "ez4-test-update" SET "foo" = :u0 WHERE "foo" = :0`);
+    equal(statement, `UPDATE "ez4-test-update" SET "id" = :u0, "foo" = :u1 WHERE "foo" = :0`);
 
     deepEqual(variables, [
       {
         name: 'u0',
+        typeHint: 'UUID',
+        value: {
+          stringValue: 'new'
+        }
+      },
+      {
+        name: 'u1',
         value: {
           longValue: 456
         }
@@ -144,8 +152,7 @@ describe.only('aurora query', () => {
     equal(
       statement,
       `UPDATE "ez4-test-update" ` +
-        `SET "foo" = :u0 ` +
-        `SET "bar"['barBar'] = :u1 ` +
+        `SET "foo" = :u0, "bar"['barBar'] = :u1 ` +
         `WHERE "id" = :0 ` +
         `RETURNING "foo", JSONB_BUILD_OBJECT('barBar', "bar"['barBar']) AS "bar"`
     );

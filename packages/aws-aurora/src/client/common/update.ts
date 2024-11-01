@@ -20,7 +20,7 @@ export const prepareUpdate = <T extends Database.Schema, S extends Query.SelectI
   const [updateFields, updateVariables] = prepareUpdateFields(schema, query.data);
   const [whereFields, whereVariables] = prepareWhereFields(schema, query.where ?? {});
 
-  const statement = [`UPDATE "${table}" ${updateFields}`];
+  const statement = [`UPDATE "${table}" SET ${updateFields}`];
 
   if (whereFields) {
     statement.push(`WHERE ${whereFields}`);
@@ -65,9 +65,11 @@ const prepareUpdateFields = <T extends Database.Schema>(
 
       if (fieldNotNested) {
         const fieldName = `u${variables.length}`;
+        const fieldData = prepareFieldData(fieldName, fieldValue, fieldSchema);
 
-        operations.push(`SET ${fieldPath} = :${fieldName}`);
-        variables.push(prepareFieldData(fieldName, fieldValue, fieldSchema));
+        operations.push(`${fieldPath} = :${fieldName}`);
+
+        variables.push(fieldData);
 
         continue;
       }
@@ -78,5 +80,5 @@ const prepareUpdateFields = <T extends Database.Schema>(
 
   prepareAll(schema, data);
 
-  return [operations.join(' '), variables];
+  return [operations.join(', '), variables];
 };

@@ -12,8 +12,9 @@ import { createCluster, createInstance, isClusterState, registerTriggers } from 
 
 declare class TestSchema implements Database.Schema {
   id: string;
-  value?: string;
-  extra?: {
+  foo?: string;
+  bar?: string;
+  baz?: {
     foo: number;
     bar: boolean;
   };
@@ -80,11 +81,15 @@ describe.only('aurora client', () => {
               id: {
                 type: SchemaTypeName.String
               },
-              value: {
+              foo: {
                 type: SchemaTypeName.String,
                 optional: true
               },
-              extra: {
+              bar: {
+                type: SchemaTypeName.String,
+                optional: true
+              },
+              baz: {
                 type: SchemaTypeName.Object,
                 optional: true,
                 properties: {
@@ -109,7 +114,7 @@ describe.only('aurora client', () => {
     ok(dbClient);
 
     await dbClient.rawQuery(
-      `CREATE TABLE "test_table" (id TEXT PRIMARY KEY, value TEXT, extra JSONB)`
+      `CREATE TABLE "test_table" (id TEXT PRIMARY KEY, foo TEXT, bar TEXT, baz JSONB)`
     );
   });
 
@@ -121,7 +126,8 @@ describe.only('aurora client', () => {
     for (let index = 0; index < 50; index++) {
       data.push({
         id: `bulk-${index}`,
-        value: 'test'
+        foo: 'initial',
+        bar: 'initial'
       });
     }
 
@@ -135,10 +141,11 @@ describe.only('aurora client', () => {
 
     const result = await dbClient.testTable.updateMany({
       data: {
-        value: 'updated'
+        foo: 'updated',
+        bar: 'updated'
       },
       select: {
-        value: true
+        bar: true
       }
     });
 
@@ -151,7 +158,7 @@ describe.only('aurora client', () => {
     const result = await dbClient.testTable.findMany({
       select: {
         id: true,
-        value: true
+        foo: true
       },
       where: {
         id: 'bulk-25'
@@ -162,7 +169,7 @@ describe.only('aurora client', () => {
       records: [
         {
           id: 'bulk-25',
-          value: 'updated'
+          foo: 'updated'
         }
       ]
     });
@@ -173,7 +180,7 @@ describe.only('aurora client', () => {
 
     const result = await dbClient.testTable.deleteMany({
       select: {
-        value: true
+        foo: true
       }
     });
 
@@ -186,7 +193,8 @@ describe.only('aurora client', () => {
     await dbClient.testTable.insertOne({
       data: {
         id: 'single',
-        value: 'initial'
+        foo: 'initial',
+        bar: 'initial'
       }
     });
   });
@@ -196,10 +204,11 @@ describe.only('aurora client', () => {
 
     const result = await dbClient.testTable.updateOne({
       data: {
-        value: 'updated'
+        foo: 'updated'
       },
       select: {
-        value: true
+        foo: true,
+        bar: true
       },
       where: {
         id: 'single'
@@ -207,7 +216,8 @@ describe.only('aurora client', () => {
     });
 
     deepEqual(result, {
-      value: 'initial'
+      foo: 'initial',
+      bar: 'initial'
     });
   });
 
@@ -216,7 +226,8 @@ describe.only('aurora client', () => {
 
     const result = await dbClient.testTable.findOne({
       select: {
-        value: true
+        foo: true,
+        bar: true
       },
       where: {
         id: 'single'
@@ -224,7 +235,8 @@ describe.only('aurora client', () => {
     });
 
     deepEqual(result, {
-      value: 'updated'
+      foo: 'updated',
+      bar: 'initial'
     });
   });
 
@@ -233,17 +245,17 @@ describe.only('aurora client', () => {
 
     const query = {
       select: {
-        value: true
+        foo: true
       },
       where: {
         id: 'upsert'
       },
       insert: {
         id: 'upsert',
-        value: 'initial'
+        foo: 'initial'
       },
       update: {
-        value: 'updated'
+        foo: 'updated'
       }
     };
 
@@ -254,7 +266,7 @@ describe.only('aurora client', () => {
     const updateResult = await dbClient.testTable.upsertOne(query);
 
     deepEqual(updateResult, {
-      value: 'initial'
+      foo: 'initial'
     });
   });
 
@@ -263,7 +275,7 @@ describe.only('aurora client', () => {
 
     const result = await dbClient.testTable.deleteOne({
       select: {
-        value: true
+        foo: true
       },
       where: {
         id: 'upsert'
@@ -271,7 +283,7 @@ describe.only('aurora client', () => {
     });
 
     deepEqual(result, {
-      value: 'updated'
+      foo: 'updated'
     });
   });
 
@@ -281,7 +293,7 @@ describe.only('aurora client', () => {
     await dbClient.testTable.insertOne({
       data: {
         id: 'json',
-        extra: {
+        baz: {
           foo: 123,
           bar: true
         }
@@ -294,13 +306,15 @@ describe.only('aurora client', () => {
 
     const result = await dbClient.testTable.updateOne({
       data: {
-        extra: {
+        foo: 'updated',
+        baz: {
           foo: 456,
           bar: false
         }
       },
       select: {
-        extra: true
+        foo: true,
+        baz: true
       },
       where: {
         id: 'json'
@@ -308,7 +322,8 @@ describe.only('aurora client', () => {
     });
 
     deepEqual(result, {
-      extra: {
+      foo: null,
+      baz: {
         foo: 123,
         bar: true
       }
@@ -320,7 +335,7 @@ describe.only('aurora client', () => {
 
     const result = await dbClient.testTable.findOne({
       select: {
-        extra: {
+        baz: {
           foo: true
         }
       },
@@ -330,7 +345,7 @@ describe.only('aurora client', () => {
     });
 
     deepEqual(result, {
-      extra: {
+      baz: {
         foo: 456
       }
     });
@@ -345,7 +360,7 @@ describe.only('aurora client', () => {
           insert: {
             data: {
               id: 'transaction-1',
-              value: 'initial'
+              foo: 'initial'
             }
           }
         },
@@ -353,7 +368,7 @@ describe.only('aurora client', () => {
           insert: {
             data: {
               id: 'transaction-2',
-              value: 'initial'
+              foo: 'initial'
             }
           }
         }
@@ -362,7 +377,7 @@ describe.only('aurora client', () => {
 
     const result = await dbClient.testTable.findMany({
       select: {
-        value: true
+        foo: true
       },
       where: {
         id: {
@@ -373,10 +388,10 @@ describe.only('aurora client', () => {
 
     deepEqual(result.records, [
       {
-        value: 'initial'
+        foo: 'initial'
       },
       {
-        value: 'initial'
+        foo: 'initial'
       }
     ]);
   });
@@ -389,7 +404,7 @@ describe.only('aurora client', () => {
         ['test-1']: {
           update: {
             data: {
-              value: 'updated'
+              foo: 'updated'
             },
             where: {
               id: 'transaction-1'
@@ -399,7 +414,7 @@ describe.only('aurora client', () => {
         ['test-2']: {
           update: {
             data: {
-              value: 'updated'
+              foo: 'updated'
             },
             where: {
               id: 'transaction-2'
@@ -411,7 +426,7 @@ describe.only('aurora client', () => {
 
     const result = await dbClient.testTable.findMany({
       select: {
-        value: true
+        foo: true
       },
       where: {
         id: {
@@ -422,10 +437,10 @@ describe.only('aurora client', () => {
 
     deepEqual(result.records, [
       {
-        value: 'updated'
+        foo: 'updated'
       },
       {
-        value: 'updated'
+        foo: 'updated'
       }
     ]);
   });
@@ -454,7 +469,7 @@ describe.only('aurora client', () => {
 
     const result = await dbClient.testTable.findMany({
       select: {
-        value: true
+        foo: true
       },
       where: {
         id: {

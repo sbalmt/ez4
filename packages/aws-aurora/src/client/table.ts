@@ -1,7 +1,7 @@
 import type { Database, Query, Table as DbTable } from '@ez4/database';
 import type { RDSDataClient } from '@aws-sdk/client-rds-data';
 import type { ObjectSchema } from '@ez4/schema';
-import type { AnyObject } from '@ez4/utils';
+import { isAnyNumber, type AnyObject } from '@ez4/utils';
 import type { PreparedQueryCommand } from './common/queries.js';
 import type { Configuration } from './types.js';
 
@@ -64,9 +64,12 @@ export class Table<T extends Database.Schema = Database.Schema, I extends string
   async updateOne<S extends Query.SelectInput<T>>(
     query: Query.UpdateOneInput<T, S, I>
   ): Promise<Query.UpdateOneResult<T, S>> {
-    const { select, where } = query;
+    const { select, data, where } = query;
 
-    const updateCommand = prepareUpdateOne(this.name, this.schema, query);
+    const updateCommand = prepareUpdateOne(this.name, this.schema, {
+      data,
+      where
+    });
 
     if (!select) {
       await this.sendCommand(updateCommand);
@@ -88,6 +91,7 @@ export class Table<T extends Database.Schema = Database.Schema, I extends string
     query: Query.FindOneInput<T, S, I>
   ): Promise<Query.FindOneResult<T, S>> {
     const command = prepareFindOne(this.name, this.schema, query);
+
     const [record] = await this.sendCommand(command);
 
     if (record) {
@@ -101,6 +105,7 @@ export class Table<T extends Database.Schema = Database.Schema, I extends string
     query: Query.DeleteOneInput<T, S, I>
   ): Promise<Query.DeleteOneResult<T, S>> {
     const command = prepareDeleteOne(this.name, this.schema, query);
+
     const [record] = await this.sendCommand(command);
 
     if (record) {
@@ -168,11 +173,12 @@ export class Table<T extends Database.Schema = Database.Schema, I extends string
     query: Query.FindManyInput<T, S>
   ): Promise<Query.FindManyResult<T, S>> {
     const command = prepareFindMany(this.name, this.schema, query);
+
     const records = await this.sendCommand(command);
 
     return {
       records: records.map((record: AnyObject) => this.parseRecord(record)),
-      ...(query.cursor && {
+      ...(isAnyNumber(query.cursor) && {
         cursor: Number(query.cursor) + records.length
       })
     };
@@ -182,6 +188,7 @@ export class Table<T extends Database.Schema = Database.Schema, I extends string
     query: Query.DeleteManyInput<T, S>
   ): Promise<Query.DeleteManyResult<T, S>> {
     const command = prepareDeleteMany(this.name, this.schema, query);
+
     const records = await this.sendCommand(command);
 
     return records.map((record: AnyObject) => this.parseRecord(record));
