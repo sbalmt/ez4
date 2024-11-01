@@ -9,7 +9,9 @@ export function headerAuthorizer(request: HeaderAuthorizer): AuthorizerResponse 
   const { headers } = request;
 
   if (headers.authorization !== `Bearer ${SUPER_SECRET_API_KEY}`) {
-    return { identity: undefined };
+    return {
+      identity: undefined
+    };
   }
 
   return {
@@ -26,7 +28,9 @@ export function queryAuthorizer(request: QueryAuthorizer): AuthorizerResponse {
   const { query } = request;
 
   if (query.apiKey !== SUPER_SECRET_API_KEY) {
-    return { identity: undefined };
+    return {
+      identity: undefined
+    };
   }
 
   return {
