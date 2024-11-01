@@ -42,8 +42,12 @@ const prepareUpdateFields = <T extends Database.Schema>(
     const fieldValue = data[fieldKey];
     const fieldSchema = schema.properties[fieldKey];
 
-    if (!fieldSchema || fieldValue === undefined) {
+    if (fieldValue === undefined) {
       continue;
+    }
+
+    if (!fieldSchema) {
+      throw new Error(`Field schema for ${fieldKey} doesn't exists.`);
     }
 
     const fieldPath = path ? `${path}."${fieldKey}"` : `"${fieldKey}"`;

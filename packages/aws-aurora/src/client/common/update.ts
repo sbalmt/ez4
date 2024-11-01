@@ -68,7 +68,6 @@ const prepareUpdateFields = <T extends Database.Schema>(
         const fieldData = prepareFieldData(fieldName, fieldValue, fieldSchema);
 
         operations.push(`${fieldPath} = :${fieldName}`);
-
         variables.push(fieldData);
 
         continue;

@@ -58,7 +58,7 @@ describe.only('dynamodb query', () => {
   };
 
   it('assert :: prepare insert', () => {
-    const [statement, variables] = prepareInsert<TestSchema>('ez4-test-insert', {
+    const [statement, variables] = prepareInsert<TestSchema>('ez4-test-insert', testSchema, {
       data: {
         id: 'abc',
         foo: 123,

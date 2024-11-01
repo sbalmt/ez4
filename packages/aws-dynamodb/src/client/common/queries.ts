@@ -19,7 +19,7 @@ export const prepareInsertOne = async <T extends Database.Schema>(
 ): Promise<ExecuteStatementCommandInput> => {
   await validateSchema(query.data, schema);
 
-  const [statement, variables] = prepareInsert(table, query);
+  const [statement, variables] = prepareInsert(table, schema, query);
 
   return {
     Statement: statement,
@@ -101,7 +101,7 @@ export const prepareInsertMany = async <T extends Database.Schema>(
 
     await validateSchema(data, schema);
 
-    const [statement, variables] = prepareInsert(table, {
+    const [statement, variables] = prepareInsert(table, schema, {
       data
     });
 
