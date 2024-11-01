@@ -10,11 +10,10 @@ import { linkServiceExtras } from '@ez4/project/library';
 import { getFunction } from '@ez4/aws-function';
 import { isRoleState } from '@ez4/aws-identity';
 
+import { createTable } from '../table/service.js';
 import { createMapping } from '../mapping/service.js';
 import { createStreamFunction } from '../mapping/function/service.js';
 import { AttributeType, AttributeKeyType } from '../types/schema.js';
-import { getTableStateId } from '../table/utils.js';
-import { createTable } from '../table/service.js';
 import { getStreamName, getTableName } from './utils.js';
 
 export const prepareDatabaseServices = async (event: PrepareResourceEvent) => {
@@ -68,15 +67,29 @@ export const prepareDatabaseServices = async (event: PrepareResourceEvent) => {
 };
 
 export const connectDatabaseServices = (event: ConnectResourceEvent) => {
-  const { state, service } = event;
+  const { state, service, role, options } = event;
 
   if (!isDatabaseService(service) || service.engine !== 'dynamodb' || !service.extras) {
     return;
   }
 
-  const tableId = getTableStateId(service.name);
+  if (!role || !isRoleState(role)) {
+    throw new Error(`Execution role for DynamoDB stream is missing.`);
+  }
 
-  linkServiceExtras(state, tableId, service.extras);
+  for (const table of service.tables) {
+    if (!table.stream) {
+      continue;
+    }
+
+    const streamHandler = table.stream.handler;
+    const functionName = getStreamName(service, table, streamHandler.name, options);
+    const functionState = getFunction(state, role, functionName);
+
+    if (functionState) {
+      linkServiceExtras(state, functionState.entryId, service.extras);
+    }
+  }
 };
 
 const getAttributeSchema = (indexes: Database.Indexes, schema: ObjectSchema) => {

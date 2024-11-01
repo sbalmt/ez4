@@ -3,6 +3,7 @@ import type { EntryState, EntryStates } from '@ez4/stateful';
 import type { QueueService, QueueImport } from '@ez4/queue/library';
 import type { QueueState } from '../queue/types.js';
 
+import { linkServiceExtras } from '@ez4/project/library';
 import { getFunction } from '@ez4/aws-function';
 import { isRoleState } from '@ez4/aws-identity';
 
@@ -47,5 +48,29 @@ export const prepareSubscriptions = async (
     createMapping(state, queueState, functionState, {
       concurrency: subscription.concurrency
     });
+  }
+};
+
+export const connectSubscriptions = (
+  state: EntryStates,
+  service: QueueService | QueueImport,
+  role: EntryState | null,
+  options: DeployOptions
+) => {
+  if (!role || !isRoleState(role)) {
+    throw new Error(`Execution role for SQS mapping is missing.`);
+  }
+
+  if (!service.extras) {
+    return;
+  }
+
+  for (const { handler } of service.subscriptions) {
+    const functionName = getMappingName(service, handler.name, options);
+    const functionState = getFunction(state, role, functionName);
+
+    if (functionState) {
+      linkServiceExtras(state, functionState.entryId, service.extras);
+    }
   }
 };

@@ -19,7 +19,6 @@ import { createAuthorizerFunction } from '../authorizer/function/service.js';
 import { createIntegrationFunction } from '../integration/function/service.js';
 import { getIntegration, createIntegration } from '../integration/service.js';
 import { getAuthorizer, createAuthorizer } from '../authorizer/service.js';
-import { getGatewayStateId } from '../gateway/utils.js';
 import { createGateway } from '../gateway/service.js';
 import { createStage } from '../stage/service.js';
 import { createRoute } from '../route/service.js';
@@ -52,15 +51,33 @@ export const prepareHttpServices = async (event: PrepareResourceEvent) => {
 };
 
 export const connectHttpServices = (event: ConnectResourceEvent) => {
-  const { state, service } = event;
+  const { state, service, role, options } = event;
 
   if (!isHttpService(service) || !service.extras) {
     return;
   }
 
-  const gatewayId = getGatewayStateId(service.name);
+  if (!role || !isRoleState(role)) {
+    throw new Error(`Execution role for API Gateway is missing.`);
+  }
 
-  linkServiceExtras(state, gatewayId, service.extras);
+  for (const { authorizer, handler } of service.routes) {
+    const handlerFunctionName = getFunctionName(service, handler, options);
+    const handlerFunctionState = getFunction(state, role, handlerFunctionName);
+
+    if (handlerFunctionState) {
+      linkServiceExtras(state, handlerFunctionState.entryId, service.extras);
+    }
+
+    if (authorizer) {
+      const authorizerFunctionName = getFunctionName(service, authorizer, options);
+      const authorizerFunctionState = getFunction(state, role, authorizerFunctionName);
+
+      if (authorizerFunctionState) {
+        linkServiceExtras(state, authorizerFunctionState.entryId, service.extras);
+      }
+    }
+  }
 };
 
 const createHttpRoutes = async (

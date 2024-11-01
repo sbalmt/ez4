@@ -73,6 +73,7 @@ export type ConnectResourceEvent = {
   state: EntryStates;
   service: ServiceMetadata;
   options: DeployOptions;
+  role: EntryState | null;
 };
 
 export type DeployEvent = {

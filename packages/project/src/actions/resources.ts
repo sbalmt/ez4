@@ -18,9 +18,9 @@ export const prepareDeployResources = async (
     const promise = triggerAllAsync('deploy:prepareResources', (handler) =>
       handler({
         state,
-        role,
         service,
-        options
+        options,
+        role
       })
     );
 
@@ -33,6 +33,7 @@ export const prepareDeployResources = async (
 export const connectDeployResources = async (
   state: EntryStates,
   metadata: MetadataReflection,
+  role: EntryState | null,
   options: DeployOptions
 ) => {
   const operations = [];
@@ -44,7 +45,8 @@ export const connectDeployResources = async (
       handler({
         state,
         service,
-        options
+        options,
+        role
       })
     );
 

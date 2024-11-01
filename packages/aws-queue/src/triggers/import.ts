@@ -1,11 +1,10 @@
 import type { ConnectResourceEvent, PrepareResourceEvent } from '@ez4/project/library';
 
-import { getServiceName, linkServiceExtras } from '@ez4/project/library';
-import { isQueueImport } from '@ez4/queue/library';
+import { isQueueImport, isQueueService } from '@ez4/queue/library';
+import { getServiceName } from '@ez4/project/library';
 
 import { createQueue } from '../queue/service.js';
-import { getQueueStateId } from '../queue/utils.js';
-import { prepareSubscriptions } from './subscription.js';
+import { connectSubscriptions, prepareSubscriptions } from './subscription.js';
 
 export const prepareQueueImports = async (event: PrepareResourceEvent) => {
   const { state, service, options, role } = event;
@@ -30,13 +29,9 @@ export const prepareQueueImports = async (event: PrepareResourceEvent) => {
 };
 
 export const connectQueueImports = (event: ConnectResourceEvent) => {
-  const { state, service } = event;
+  const { state, service, role, options } = event;
 
-  if (!isQueueImport(service) || !service.extras) {
-    return;
+  if (isQueueService(service)) {
+    connectSubscriptions(state, service, role, options);
   }
-
-  const queueId = getQueueStateId(service.name);
-
-  linkServiceExtras(state, queueId, service.extras);
 };
