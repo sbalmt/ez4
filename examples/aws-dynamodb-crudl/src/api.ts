@@ -1,14 +1,7 @@
 import type { Http } from '@ez4/gateway';
 import type { Environment } from '@ez4/common';
+import type { ApiRequests } from './api/requests.js';
 import type { Db } from './dynamo.js';
-
-import type {
-  CreateItemRequest,
-  DeleteItemRequest,
-  ListItemsRequest,
-  ReadItemRequest,
-  UpdateItemRequest
-} from './api/requests.js';
 
 import type {
   createItemHandler,
@@ -17,14 +10,6 @@ import type {
   readItemHandler,
   updateItemHandler
 } from './api/handlers.js';
-
-type ApiRequests = [
-  CreateItemRequest,
-  ReadItemRequest,
-  UpdateItemRequest,
-  DeleteItemRequest,
-  ListItemsRequest
-];
 
 /**
  * Example of AWS API deployed with EZ4.

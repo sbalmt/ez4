@@ -1,4 +1,4 @@
-import type { Db } from '../dynamo.js';
+import type { Db } from '../../dynamo.js';
 
 import { randomUUID } from 'crypto';
 
