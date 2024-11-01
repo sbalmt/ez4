@@ -17,6 +17,7 @@ Check out some examples to get started with.
 - [Get started with Scheduler](./examples/hello-aws-scheduler)
 - [Get started with Queue](./examples/hello-aws-queue)
 - [API Gateway authorizer](./examples/aws-gateway-authorizer)
+- [DynamoDB CRUDL](./examples/aws-dynamodb-crudl)
 - [DynamoDB streams](./examples/aws-dynamodb-streams)
 - [Storage manager](./examples/aws-storage-manager)
 
