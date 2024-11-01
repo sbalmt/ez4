@@ -89,7 +89,7 @@ export type ListItemsInput = {
 };
 
 export const listItems = async (client: DbClient, input: ListItemsInput) => {
-  const { cursor, limit } = input;
+  const { cursor, limit = 5 } = input;
 
   return client.items.findMany({
     select: {
@@ -97,7 +97,7 @@ export const listItems = async (client: DbClient, input: ListItemsInput) => {
       name: true,
       description: true
     },
-    limit: limit ?? 1,
+    limit,
     cursor
   });
 };
