@@ -2,6 +2,8 @@ import type { Database, Query, Table as DbTable } from '@ez4/database';
 import type { DynamoDBDocumentClient } from '@aws-sdk/lib-dynamodb';
 import type { ObjectSchema } from '@ez4/schema';
 
+import { ConditionalCheckFailedException } from '@aws-sdk/client-dynamodb';
+
 import { executeStatement, executeTransactions } from './common/client.js';
 
 import {
@@ -35,15 +37,25 @@ export class Table<T extends Database.Schema = Database.Schema, I extends string
     query: Query.UpdateOneInput<T, S, I>
   ): Promise<Query.UpdateOneResult<T, S>> {
     const command = prepareUpdateOne(this.name, this.schema, query);
-    const result = await executeStatement(this.client, command);
 
-    return result.Items?.at(0) as Query.UpdateOneResult<T, S>;
+    try {
+      const result = await executeStatement(this.client, command);
+
+      return result.Items?.at(0) as Query.UpdateOneResult<T, S>;
+    } catch (e) {
+      if (!(e instanceof ConditionalCheckFailedException)) {
+        throw e;
+      }
+
+      return undefined;
+    }
   }
 
   async findOne<S extends Query.SelectInput<T>>(
     query: Query.FindOneInput<T, S, I>
   ): Promise<Query.FindOneResult<T, S>> {
     const command = prepareFindOne(this.name, query);
+
     const result = await executeStatement(this.client, command);
 
     return result.Items?.at(0) as Query.FindOneResult<T, S>;
@@ -53,6 +65,7 @@ export class Table<T extends Database.Schema = Database.Schema, I extends string
     query: Query.DeleteOneInput<T, S, I>
   ): Promise<Query.DeleteOneResult<T, S>> {
     const command = prepareDeleteOne(this.name, query);
+
     const result = await executeStatement(this.client, command);
 
     return result.Items?.at(0) as Query.DeleteOneResult<T, S>;
@@ -110,6 +123,7 @@ export class Table<T extends Database.Schema = Database.Schema, I extends string
     query: Query.FindManyInput<T, S>
   ): Promise<Query.FindManyResult<T, S>> {
     const command = prepareFindMany(this.name, query);
+
     const result = await executeStatement(this.client, command);
 
     return {
