@@ -96,7 +96,7 @@ const getIntegrationFunction = async (
 
   const functionState =
     getFunction(state, role, functionName) ??
-    (await createIntegrationFunction(state, role, {
+    createIntegrationFunction(state, role, {
       functionName,
       description: handler.description,
       sourceFile: handler.file,
@@ -112,7 +112,7 @@ const getIntegrationFunction = async (
       variables: {
         ...service.variables
       }
-    }));
+    });
 
   if (route.variables) {
     assignVariables(functionState.parameters, route.variables);
@@ -151,7 +151,7 @@ const getAuthorizerFunction = async (
 
   const functionState =
     getFunction(state, role, functionName) ??
-    (await createAuthorizerFunction(state, role, {
+    createAuthorizerFunction(state, role, {
       functionName,
       description: authorizer.description,
       sourceFile: authorizer.file,
@@ -164,7 +164,7 @@ const getAuthorizerFunction = async (
       variables: {
         ...service.variables
       }
-    }));
+    });
 
   return (
     getAuthorizer(state, gatewayState, functionState) ??

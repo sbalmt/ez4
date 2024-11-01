@@ -29,7 +29,7 @@ export const prepareSubscriptions = async (
 
     const functionState =
       getFunction(state, role, functionName) ??
-      (await createQueueFunction(state, role, {
+      createQueueFunction(state, role, {
         functionName,
         description: handler.description,
         sourceFile: handler.file,
@@ -42,7 +42,7 @@ export const prepareSubscriptions = async (
           ...service.variables,
           ...subscription.variables
         }
-      }));
+      });
 
     createMapping(state, queueState, functionState, {
       concurrency: subscription.concurrency

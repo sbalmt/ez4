@@ -45,7 +45,7 @@ export const prepareDatabaseServices = async (event: PrepareResourceEvent) => {
 
       const functionState =
         getFunction(state, role, functionName) ??
-        (await createStreamFunction(state, role, {
+        createStreamFunction(state, role, {
           functionName,
           description: streamHandler.description,
           sourceFile: streamHandler.file,
@@ -58,7 +58,7 @@ export const prepareDatabaseServices = async (event: PrepareResourceEvent) => {
             ...service.variables,
             ...tableStream.variables
           }
-        }));
+        });
 
       createMapping(state, tableState, functionState, {});
     }

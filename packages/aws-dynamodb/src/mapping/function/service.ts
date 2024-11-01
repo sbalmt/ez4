@@ -6,7 +6,7 @@ import { createFunction } from '@ez4/aws-function';
 
 import { bundleStreamFunction } from './bundler.js';
 
-export const createStreamFunction = async <E extends EntryState>(
+export const createStreamFunction = <E extends EntryState>(
   state: EntryStates<E>,
   roleState: RoleState,
   parameters: StreamFunctionParameters
