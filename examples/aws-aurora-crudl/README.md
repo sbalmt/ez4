@@ -1,6 +1,6 @@
-# Hello: AWS Aurora
+# AWS Aurora: CRUDL
 
-This example showcases how to set and use Aurora RDS.
+This example showcases how to set and use Aurora RDS for CRUDL (**C**reate, **R**ead, **U**pdate, **D**elete and **L**ist).
 
 ## Getting started
 
