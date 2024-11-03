@@ -4,7 +4,7 @@ import { describe, it } from 'node:test';
 import { prepareDelete, prepareInsert, prepareSelect, prepareUpdate } from '@ez4/aws-aurora/client';
 
 import { ObjectSchema, SchemaTypeName } from '@ez4/schema';
-import { Query } from '@ez4/database';
+import { Order, Query } from '@ez4/database';
 
 type TestSchema = {
   id: string;
@@ -189,10 +189,19 @@ describe.only('aurora query', () => {
       },
       where: {
         foo: 123
+      },
+      order: {
+        foo: Order.Desc
       }
     });
 
-    equal(statement, `SELECT "id", "foo", "bar" FROM "ez4-test-select" WHERE "foo" = :0`);
+    equal(
+      statement,
+      `SELECT "id", "foo", "bar" ` +
+        `FROM "ez4-test-select" ` +
+        `WHERE "foo" = :0 ` +
+        `ORDER BY "foo" DESC`
+    );
 
     deepEqual(variables, [
       {

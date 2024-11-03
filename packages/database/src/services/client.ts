@@ -66,7 +66,7 @@ export interface Table<T extends Database.Schema, I extends string | never> {
   insertMany(query: Query.InsertManyInput<T>): Promise<Query.InsertManyResult>;
 
   findMany<S extends Query.SelectInput<T>>(
-    query: Query.FindManyInput<T, S>
+    query: Query.FindManyInput<T, S, I>
   ): Promise<Query.FindManyResult<T, S>>;
 
   updateMany<S extends Query.SelectInput<T>>(

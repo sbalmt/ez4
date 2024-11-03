@@ -1,5 +1,6 @@
 import type { AnyObject, PartialProperties, PartialObject, DeepPartial } from '@ez4/utils';
 import type { Database } from './database.js';
+import type { Order } from './order.js';
 
 /**
  * Query builder types.
@@ -59,9 +60,14 @@ export namespace Query {
     limit?: number;
   };
 
-  export type FindManyInput<T extends Database.Schema, S extends Database.Schema> = {
+  export type FindManyInput<
+    T extends Database.Schema,
+    S extends Database.Schema,
+    I extends string | never
+  > = {
     select: S;
     where?: WhereInput<T>;
+    order?: OrderInput<I>;
     cursor?: number | string;
     limit?: number;
   };
@@ -104,6 +110,10 @@ export namespace Query {
   export type Record<T extends Database.Schema, S extends AnyObject> = PartialObject<T, S, false>;
 
   export type SelectInput<T extends Database.Schema> = PartialProperties<T>;
+
+  export type OrderInput<I extends string | never> = {
+    [P in I]?: Order;
+  };
 
   export type WhereInput<T extends Database.Schema, I extends string | never = never> = WhereFields<
     T,

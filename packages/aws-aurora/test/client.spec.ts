@@ -7,6 +7,7 @@ import { describe, it } from 'node:test';
 import { Client } from '@ez4/aws-aurora/client';
 import { SchemaTypeName } from '@ez4/schema';
 import { deploy } from '@ez4/aws-common';
+import { Order } from '@ez4/database';
 
 import { createCluster, createInstance, isClusterState, registerTriggers } from '@ez4/aws-aurora';
 
@@ -161,12 +162,21 @@ describe.only('aurora client', () => {
         foo: true
       },
       where: {
-        id: 'bulk-25'
+        id: {
+          isIn: ['bulk-25', 'bulk-49']
+        }
+      },
+      order: {
+        id: Order.Desc
       }
     });
 
     deepEqual(result, {
       records: [
+        {
+          id: 'bulk-49',
+          foo: 'updated'
+        },
         {
           id: 'bulk-25',
           foo: 'updated'

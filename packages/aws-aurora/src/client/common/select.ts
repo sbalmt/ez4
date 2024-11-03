@@ -2,15 +2,17 @@ import type { SqlParameter } from '@aws-sdk/client-rds-data';
 import type { Database, Query } from '@ez4/database';
 import type { ObjectSchema } from '@ez4/schema';
 
-import { isAnyObject } from '@ez4/utils';
+import { isAnyNumber, isAnyObject } from '@ez4/utils';
+
 import { prepareWhereFields } from './where.js';
+import { prepareOrderFields } from './order.js';
 
 type PrepareResult = [string, SqlParameter[]];
 
 export const prepareSelect = <T extends Database.Schema, S extends Query.SelectInput<T> = {}>(
   table: string,
   schema: ObjectSchema,
-  query: Query.FindOneInput<T, S, never> | Query.FindManyInput<T, S>
+  query: Query.FindOneInput<T, S, never> | Query.FindManyInput<T, S, never>
 ): PrepareResult => {
   const [whereFields, whereVariables] = prepareWhereFields(schema, query.where ?? {});
 
@@ -22,11 +24,17 @@ export const prepareSelect = <T extends Database.Schema, S extends Query.SelectI
     statement.push(`WHERE ${whereFields}`);
   }
 
-  if ('cursor' in query && query.cursor !== undefined) {
+  if ('order' in query && isAnyObject(query.order)) {
+    const orderFields = prepareOrderFields(query.order);
+
+    statement.push(`ORDER BY ${orderFields}`);
+  }
+
+  if ('cursor' in query && isAnyNumber(query.cursor)) {
     statement.push(`OFFSET ${query.cursor}`);
   }
 
-  if ('limit' in query && query.limit !== undefined) {
+  if ('limit' in query && isAnyNumber(query.limit)) {
     statement.push(`LIMIT ${query.limit}`);
   }
 

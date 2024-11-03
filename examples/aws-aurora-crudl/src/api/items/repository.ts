@@ -1,5 +1,6 @@
 import type { Db } from '../../aurora.js';
 
+import { Order } from '@ez4/database';
 import { randomUUID } from 'crypto';
 
 type DbClient = Db['client'];
@@ -91,6 +92,9 @@ export const listItems = async (client: DbClient, input: ListItemsInput) => {
       id: true,
       name: true,
       description: true
+    },
+    order: {
+      id: Order.Desc
     },
     limit,
     cursor

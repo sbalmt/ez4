@@ -120,7 +120,7 @@ export class Table<T extends Database.Schema = Database.Schema, I extends string
   }
 
   async findMany<S extends Query.SelectInput<T>>(
-    query: Query.FindManyInput<T, S>
+    query: Query.FindManyInput<T, S, I>
   ): Promise<Query.FindManyResult<T, S>> {
     const command = prepareFindMany(this.name, query);
 

@@ -7,6 +7,7 @@ import { describe, it } from 'node:test';
 import { Client } from '@ez4/aws-dynamodb/client';
 import { SchemaTypeName } from '@ez4/schema';
 import { deploy } from '@ez4/aws-common';
+import { Order } from '@ez4/database';
 
 import {
   createTable,
@@ -136,6 +137,25 @@ describe.only('dynamodb client', () => {
   it('assert :: find many', async () => {
     ok(dbClient);
 
+    const { records } = await dbClient.testTable.findMany({
+      select: {
+        id: true,
+        order: true,
+        value: true
+      },
+      where: {
+        order: {
+          isIn: [1149, 1139]
+        }
+      }
+    });
+
+    equal(records.length, 2);
+  });
+
+  it('assert :: find many (ordered)', async () => {
+    ok(dbClient);
+
     const result = await dbClient.testTable.findMany({
       select: {
         id: true,
@@ -143,7 +163,13 @@ describe.only('dynamodb client', () => {
         value: true
       },
       where: {
-        order: 1149
+        id: {
+          isIn: ['bulk-149', 'bulk-139']
+        }
+      },
+      order: {
+        id: Order.Desc,
+        order: Order.Asc
       }
     });
 
@@ -153,6 +179,11 @@ describe.only('dynamodb client', () => {
         {
           id: 'bulk-149',
           order: 1149,
+          value: 'updated'
+        },
+        {
+          id: 'bulk-139',
+          order: 1139,
           value: 'updated'
         }
       ]

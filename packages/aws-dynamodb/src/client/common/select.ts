@@ -1,13 +1,15 @@
 import type { Database, Query } from '@ez4/database';
 
 import { isAnyObject } from '@ez4/utils';
+
 import { prepareWhereFields } from './where.js';
+import { prepareOrderFields } from './order.js';
 
 type PrepareResult = [string, unknown[]];
 
 export const prepareSelect = <T extends Database.Schema, S extends Query.SelectInput<T> = {}>(
   table: string,
-  query: Query.FindOneInput<T, S, never> | Query.FindManyInput<T, S>
+  query: Query.FindOneInput<T, S, never> | Query.FindManyInput<T, S, never>
 ): PrepareResult => {
   const [whereFields, whereVariables] = prepareWhereFields(query.where ?? {});
 
@@ -17,6 +19,12 @@ export const prepareSelect = <T extends Database.Schema, S extends Query.SelectI
 
   if (whereFields) {
     statement.push(`WHERE ${whereFields}`);
+  }
+
+  if ('order' in query && isAnyObject(query.order)) {
+    const orderFields = prepareOrderFields(query.order);
+
+    statement.push(`ORDER BY ${orderFields}`);
   }
 
   return [statement.join(' '), whereVariables];

@@ -9,7 +9,7 @@ import {
 } from '@ez4/aws-dynamodb/client';
 
 import { ObjectSchema, SchemaTypeName } from '@ez4/schema';
-import { Query } from '@ez4/database';
+import { Order, Query } from '@ez4/database';
 
 type TestSchema = {
   id: string;
@@ -125,10 +125,19 @@ describe.only('dynamodb query', () => {
       },
       where: {
         foo: 123
+      },
+      order: {
+        foo: Order.Desc
       }
     });
 
-    equal(statement, `SELECT "id", "foo", "bar" FROM "ez4-test-select" WHERE "foo" = ?`);
+    equal(
+      statement,
+      `SELECT "id", "foo", "bar" ` +
+        `FROM "ez4-test-select" ` +
+        `WHERE "foo" = ? ` +
+        `ORDER BY "foo" DESC`
+    );
 
     deepEqual(variables, [123]);
   });

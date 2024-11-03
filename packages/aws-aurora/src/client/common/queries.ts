@@ -85,7 +85,7 @@ export const prepareInsertMany = async <T extends Database.Schema>(
 export const prepareFindMany = <T extends Database.Schema, S extends Query.SelectInput<T>>(
   table: string,
   schema: ObjectSchema,
-  query: Query.FindManyInput<T, S>
+  query: Query.FindManyInput<T, S, never>
 ): PreparedQueryCommand => {
   const [statement, variables] = prepareSelect(table, schema, query);
 
