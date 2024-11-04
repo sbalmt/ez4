@@ -17,7 +17,7 @@ const getPartialProperties = (data: AnyObject) => {
     if (value instanceof Object) {
       properties[propertyName] = getPartialProperties(value);
     } else {
-      properties[propertyName] = value;
+      properties[propertyName] = true;
     }
   }
 
