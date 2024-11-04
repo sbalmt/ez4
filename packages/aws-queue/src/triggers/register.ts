@@ -1,4 +1,4 @@
-import type { PrepareResourceEvent } from '@ez4/project/library';
+import type { PrepareResourceEvent, ConnectResourceEvent } from '@ez4/project/library';
 
 import { registerTriggers as registerAwsTriggers } from '@ez4/aws-common';
 import { registerTriggers as registerAwsIdentityTriggers } from '@ez4/aws-identity';
@@ -8,10 +8,10 @@ import { registerTriggers as registerQueueTriggers } from '@ez4/queue/library';
 import { createTrigger } from '@ez4/project/library';
 
 import { registerQueueProvider } from '../queue/provider.js';
+import { connectQueueServices, prepareQueueServices } from './service.js';
+import { connectQueueImports, prepareQueueImports } from './import.js';
 import { prepareExecutionPolicy } from './policy.js';
-import { prepareQueueServices } from './service.js';
-import { prepareQueueImports } from './import.js';
-import { prepareLinkedService } from './linked.js';
+import { prepareLinkedService } from './client.js';
 
 let isRegistered = false;
 
@@ -28,12 +28,19 @@ export const registerTriggers = () => {
   createTrigger('@ez4/aws-queue', {
     'deploy:prepareExecutionPolicy': prepareExecutionPolicy,
     'deploy:prepareLinkedService': prepareLinkedService,
-    'deploy:prepareResources': async (event: PrepareResourceEvent) => {
-      await Promise.all([prepareQueueServices(event), prepareQueueImports(event)]);
-    }
+    'deploy:prepareResources': prepareQueueResources,
+    'deploy:connectResources': connectQueueResources
   });
 
   registerQueueProvider();
 
   isRegistered = true;
+};
+
+const prepareQueueResources = async (event: PrepareResourceEvent) => {
+  await Promise.all([prepareQueueServices(event), prepareQueueImports(event)]);
+};
+
+const connectQueueResources = async (event: ConnectResourceEvent) => {
+  await Promise.all([connectQueueServices(event), connectQueueImports(event)]);
 };

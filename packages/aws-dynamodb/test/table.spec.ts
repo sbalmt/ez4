@@ -50,7 +50,7 @@ describe.only('dynamodb table', () => {
       tableName: 'ez4TestTable2',
       enableStreams: true,
       ttlAttribute: 'ttl',
-      attributeSchema: [
+      primarySchema: [
         {
           attributeName: 'id',
           attributeType: AttributeType.String,
@@ -61,6 +61,20 @@ describe.only('dynamodb table', () => {
           attributeType: AttributeType.Number,
           keyType: AttributeKeyType.Range
         }
+      ],
+      secondarySchema: [
+        [
+          {
+            attributeName: 'id',
+            attributeType: AttributeType.String,
+            keyType: AttributeKeyType.Hash
+          },
+          {
+            attributeName: 'created_at',
+            attributeType: AttributeType.String,
+            keyType: AttributeKeyType.Range
+          }
+        ]
       ],
       tags: {
         test1: 'ez4-tag1',
@@ -75,7 +89,7 @@ describe.only('dynamodb table', () => {
     lastState = state;
   });
 
-  it('assert :: update', async () => {
+  it('assert :: update deletion', async () => {
     ok(tableId && lastState);
 
     const localState = deepClone(lastState);
@@ -84,6 +98,20 @@ describe.only('dynamodb table', () => {
     ok(resource && isTableState(resource));
 
     resource.parameters.allowDeletion = true;
+
+    const { state } = await assertDeploy(tableId, localState, lastState);
+
+    lastState = state;
+  });
+
+  it('assert :: update streams', async () => {
+    ok(tableId && lastState);
+
+    const localState = deepClone(lastState);
+    const resource = localState[tableId];
+
+    ok(resource && isTableState(resource));
+
     resource.parameters.enableStreams = false;
 
     const { state } = await assertDeploy(tableId, localState, lastState);
@@ -100,6 +128,36 @@ describe.only('dynamodb table', () => {
     ok(resource && isTableState(resource));
 
     resource.parameters.ttlAttribute = undefined;
+
+    const { state } = await assertDeploy(tableId, localState, lastState);
+
+    lastState = state;
+  });
+
+  it('assert :: update indexes', async () => {
+    ok(tableId && lastState);
+
+    const localState = deepClone(lastState);
+    const resource = localState[tableId];
+
+    ok(resource && isTableState(resource));
+
+    resource.parameters.secondarySchema = [
+      [
+        {
+          attributeName: 'external_id',
+          attributeType: AttributeType.String,
+          keyType: AttributeKeyType.Hash
+        }
+      ],
+      [
+        {
+          attributeName: 'enabled',
+          attributeType: AttributeType.Number,
+          keyType: AttributeKeyType.Hash
+        }
+      ]
+    ];
 
     const { state } = await assertDeploy(tableId, localState, lastState);
 

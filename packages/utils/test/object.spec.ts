@@ -1,7 +1,13 @@
 import { ok, deepEqual, notEqual } from 'node:assert/strict';
 import { describe, it } from 'node:test';
 
-import { deepClone, deepCompare, deepEqual as deepEquals } from '@ez4/utils';
+import {
+  isAnyObject,
+  isEmptyObject,
+  deepClone,
+  deepCompare,
+  deepEqual as deepEquals
+} from '@ez4/utils';
 
 describe.only('object utils', () => {
   const object = {
@@ -15,6 +21,28 @@ describe.only('object utils', () => {
       }
     }
   };
+
+  it('assert :: is any object', () => {
+    ok(isAnyObject({}));
+  });
+
+  it('assert :: is not an object', () => {
+    ok(!isAnyObject(undefined));
+    ok(!isAnyObject(null));
+    ok(!isAnyObject(NaN));
+  });
+
+  it('assert :: is empty object', () => {
+    ok(isEmptyObject({}));
+  });
+
+  it('assert :: is not empty object', () => {
+    const result = isEmptyObject({
+      foo: undefined
+    });
+
+    ok(!result);
+  });
 
   it('assert :: deep clone', () => {
     const result = deepClone(object);

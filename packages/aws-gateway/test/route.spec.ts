@@ -48,7 +48,7 @@ const assertDeploy = async <E extends EntryState>(
 };
 
 describe.only('gateway route', () => {
-  const baseDir = join(import.meta.dirname, '../test/files');
+  const baseDir = 'test/files';
 
   let lastState: EntryStates | undefined;
   let routeId: string | undefined;

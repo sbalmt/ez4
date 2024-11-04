@@ -38,7 +38,7 @@ const assertDeploy = async <E extends EntryState>(
 };
 
 describe.only('bucket object resources', () => {
-  const baseDir = join(import.meta.dirname, '../test/files');
+  const baseDir = 'test/files';
 
   let lastState: EntryStates | undefined;
   let objectId: string | undefined;
@@ -77,6 +77,10 @@ describe.only('bucket object resources', () => {
     ok(resource && isBucketObjectState(resource));
 
     resource.parameters.objectKey = 'update-file.txt';
+
+    resource.parameters.tags = {
+      test2: 'ez4-tag2'
+    };
 
     const { state } = await assertDeploy(objectId, localState, lastState);
 

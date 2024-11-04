@@ -114,8 +114,10 @@ const updateResource = async (
     originAccessId: oldOriginAccessId
   };
 
-  await checkGeneralUpdates(result.distributionId, newRequest, oldRequest);
-  await checkTagUpdates(result.distributionArn, parameters, current.parameters);
+  await Promise.all([
+    checkGeneralUpdates(result.distributionId, newRequest, oldRequest),
+    checkTagUpdates(result.distributionArn, parameters, current.parameters)
+  ]);
 
   return {
     ...result,

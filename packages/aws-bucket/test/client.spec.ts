@@ -10,7 +10,7 @@ import { Client } from '@ez4/aws-bucket/client';
 import { deploy } from '@ez4/aws-common';
 
 describe.only('bucket client', () => {
-  const baseDir = join(import.meta.dirname, '../test/files');
+  const baseDir = 'test/files';
 
   let lastState: EntryStates | undefined;
   let bucketId: string | undefined;

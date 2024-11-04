@@ -4,10 +4,12 @@ export const enum AttributeKeyType {
 }
 
 export const enum AttributeType {
-  Boolean = 'B',
+  Binary = 'B',
   Number = 'N',
   String = 'S'
 }
+
+export type AttributeSchemaGroup = AttributeSchema[];
 
 export type AttributeSchema = {
   attributeName: string;

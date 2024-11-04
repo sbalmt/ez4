@@ -2,11 +2,16 @@ import type { EntryState, StepContext } from '@ez4/stateful';
 import type { GatewayState } from './types.js';
 
 import { IncompleteResourceError } from '@ez4/aws-common';
+import { hashData, toKebabCase } from '@ez4/utils';
 
 import { GatewayServiceType } from './types.js';
 
 export const isGatewayState = (resource: EntryState): resource is GatewayState => {
   return resource.type === GatewayServiceType;
+};
+
+export const getGatewayStateId = (gatewayId: string) => {
+  return hashData(GatewayServiceType, toKebabCase(gatewayId));
 };
 
 export const getGatewayId = (serviceName: string, resourceId: string, context: StepContext) => {

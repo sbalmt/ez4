@@ -8,6 +8,7 @@ export * from './array/equal.js';
 export * from './object/any.js';
 export * from './object/generics.js';
 export * from './object/compare.js';
+export * from './object/empty.js';
 export * from './object/equal.js';
 export * from './object/clone.js';
 

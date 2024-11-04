@@ -82,7 +82,13 @@ export namespace Database {
    */
   export declare abstract class Service<T extends Schema[] = [Schema]> implements Service.Provider {
     /**
-     * All service tables.
+     * Determines which database engine to use.
+     * Check the provider package to know all the possible values.
+     */
+    abstract engine: string;
+
+    /**
+     * Describe all available tables for the service.
      */
     abstract tables: TableTypes<T>[];
 

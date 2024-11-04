@@ -1,6 +1,11 @@
 import type { AnyObject, PartialProperties, PartialObject, DeepPartial } from '@ez4/utils';
+import type { Indexes, PrimaryIndexes } from './indexes.js';
 import type { Database } from './database.js';
+import type { Order } from './order.js';
 
+/**
+ * Query builder types.
+ */
 export namespace Query {
   export type InsertOneInput<T extends Database.Schema> = {
     data: T;
@@ -9,7 +14,7 @@ export namespace Query {
   export type UpdateOneInput<
     T extends Database.Schema,
     S extends Database.Schema,
-    I extends string | never
+    I extends Indexes
   > = {
     select?: S;
     data: DeepPartial<T>;
@@ -19,7 +24,7 @@ export namespace Query {
   export type FindOneInput<
     T extends Database.Schema,
     S extends Database.Schema,
-    I extends string | never
+    I extends Indexes
   > = {
     select: S;
     where: WhereInput<T, I>;
@@ -28,7 +33,7 @@ export namespace Query {
   export type UpsertOneInput<
     T extends Database.Schema,
     S extends Database.Schema,
-    I extends string | never
+    I extends Indexes
   > = {
     select?: S;
     insert: T;
@@ -39,7 +44,7 @@ export namespace Query {
   export type DeleteOneInput<
     T extends Database.Schema,
     S extends Database.Schema,
-    I extends string | never
+    I extends Indexes
   > = {
     select?: S;
     where: WhereInput<T, I>;
@@ -56,9 +61,14 @@ export namespace Query {
     limit?: number;
   };
 
-  export type FindManyInput<T extends Database.Schema, S extends Database.Schema> = {
+  export type FindManyInput<
+    T extends Database.Schema,
+    S extends Database.Schema,
+    I extends Indexes
+  > = {
     select: S;
     where?: WhereInput<T>;
+    order?: OrderInput<I>;
     cursor?: number | string;
     limit?: number;
   };
@@ -102,42 +112,44 @@ export namespace Query {
 
   export type SelectInput<T extends Database.Schema> = PartialProperties<T>;
 
-  export type WhereInput<T extends Database.Schema, I extends string | never = never> = WhereFields<
-    T,
-    I
-  > &
+  export type OrderInput<I extends Indexes> = {
+    [P in keyof I]?: Order;
+  };
+
+  export type WhereInput<T extends Database.Schema, I extends Indexes = never> = WhereFields<T, I> &
     WhereNot<T, I> &
     WhereAnd<T, I> &
     WhereOr<T, I>;
 
-  export type WhereRequiredFields<T extends Database.Schema, I extends string | never> = {
-    [P in I]: P extends keyof T
+  export type WhereRequiredFields<T extends Database.Schema, I extends Indexes> = {
+    [P in keyof PrimaryIndexes<I>]: P extends keyof T
       ? T[P] extends AnyObject
         ? WhereFields<T[P], I>
         : T[P] | WhereOperations<T[P]>
       : never;
   };
 
-  export type WhereOptionalFields<T extends Database.Schema, I extends string | never> = {
+  export type WhereOptionalFields<T extends Database.Schema, I extends Indexes> = {
     [P in Exclude<keyof T, I>]?: T[P] extends AnyObject
       ? WhereFields<T[P], I>
       : T[P] | WhereOperations<T[P]>;
   };
 
-  export type WhereFields<
-    T extends Database.Schema,
-    I extends string | never
-  > = WhereRequiredFields<T, I> & WhereOptionalFields<T, I>;
+  export type WhereFields<T extends Database.Schema, I extends Indexes> = WhereRequiredFields<
+    T,
+    I
+  > &
+    WhereOptionalFields<T, I>;
 
-  export type WhereNot<T extends Database.Schema, I extends string | never> = {
+  export type WhereNot<T extends Database.Schema, I extends Indexes> = {
     NOT?: WhereInput<T, I> | WhereAnd<T, I> | WhereOr<T, I>;
   };
 
-  export type WhereAnd<T extends Database.Schema, I extends string | never> = {
+  export type WhereAnd<T extends Database.Schema, I extends Indexes> = {
     AND?: (WhereInput<T, I> | WhereOr<T, I> | WhereNot<T, I>)[];
   };
 
-  export type WhereOr<T extends Database.Schema, I extends string | never> = {
+  export type WhereOr<T extends Database.Schema, I extends Indexes> = {
     OR?: (WhereInput<T, I> | WhereAnd<T, I> | WhereNot<T, I>)[];
   };
 

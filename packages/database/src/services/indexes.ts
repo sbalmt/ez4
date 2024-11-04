@@ -7,10 +7,16 @@ import type { Database } from './database.js';
  */
 export const enum Index {
   Primary = 'primary',
-  Regular = 'regular',
-  Unique = 'unique',
+  Secondary = 'secondary',
   TTL = 'ttl'
 }
+
+/**
+ * An object containing only indexes.
+ */
+export type Indexes = {
+  [name: string]: Index;
+};
 
 /**
  * Given an index name `T`, it produces the decomposed index names.
@@ -20,10 +26,17 @@ export type DecomposeIndexName<T> = T extends `${infer L}:${infer R}`
   : T;
 
 /**
- * Given an index object `T`, it produces an index object containing only unique indexes.
+ * Given an index object `T`, it produces another object containing only primary indexes.
  */
-export type UniqueIndexes<T> = {
-  [P in keyof T as T[P] extends Index.Primary | Index.Unique ? P : never]: T[P];
+export type PrimaryIndexes<T> = {
+  [P in keyof T as T[P] extends Index.Primary ? P : never]: T[P];
+};
+
+/**
+ * Given an index object `T`, it produces another object containing only secondary indexes.
+ */
+export type SecondaryIndexes<T> = {
+  [P in keyof T as T[P] extends Index.Secondary ? P : never]: T[P];
 };
 
 /**
@@ -32,14 +45,14 @@ export type UniqueIndexes<T> = {
 export type TableIndexes<T extends Database.Service<any>> = MergeIndexes<DatabaseTables<T>>;
 
 /**
- * Given a list of tables with indexes `T`, it produces an object containing all primary
- * indexes mapped by table name.
+ * Given a list of tables with indexes `T`, it produces another object containing all the
+ * table indexes mapped by table name.
  */
 type MergeIndexes<T extends Database.Table[]> =
   IsArrayEmpty<T> extends true ? {} : TableIndex<T[0]> & MergeIndexes<ArrayRest<T>>;
 
 /**
- * Given a database table `T`, it produces an object containing all the primary index names.
+ * Given a database table `T`, it produces another object containing all its index names.
  */
 type TableIndex<T> = T extends {
   name: infer N;
@@ -47,7 +60,15 @@ type TableIndex<T> = T extends {
 }
   ? N extends string
     ? {
-        [P in N]: DecomposeIndexName<keyof UniqueIndexes<I>>;
+        [P in N]:
+          | IndexProperties<Index.Secondary, DecomposeIndexName<keyof SecondaryIndexes<I>>>
+          | IndexProperties<Index.Primary, DecomposeIndexName<keyof PrimaryIndexes<I>>>;
       }
     : {}
   : {};
+
+/**
+ * Given a union of indexes `U`, it produces another object containing the index type `T`
+ * for each index within the union.
+ */
+type IndexProperties<T extends Index, U extends string> = U extends never ? {} : { [P in U]: T };

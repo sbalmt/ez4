@@ -2,20 +2,28 @@ import type { RoleState } from '@ez4/aws-identity';
 import type { EntryState, EntryStates } from '@ez4/stateful';
 import type { QueueFunctionParameters } from './types.js';
 
-import { createFunction as baseCreateFunction } from '@ez4/aws-function';
+import { createFunction } from '@ez4/aws-function';
 
 import { bundleQueueFunction } from './bundler.js';
 
-export const createQueueFunction = async <E extends EntryState>(
+export const createQueueFunction = <E extends EntryState>(
   state: EntryStates<E>,
   roleState: RoleState,
   parameters: QueueFunctionParameters
 ) => {
-  const sourceFile = await bundleQueueFunction(parameters);
-
-  return baseCreateFunction(state, roleState, {
-    ...parameters,
+  return createFunction(state, roleState, {
     handlerName: 'sqsEntryPoint',
-    sourceFile
+    functionName: parameters.functionName,
+    sourceFile: parameters.sourceFile,
+    variables: parameters.variables,
+    description: parameters.description,
+    timeout: parameters.timeout,
+    memory: parameters.memory,
+    tags: parameters.tags,
+    getFunctionBundle: (context) => {
+      const dependencies = context.getDependencies();
+
+      return bundleQueueFunction(dependencies, parameters);
+    }
   });
 };

@@ -45,7 +45,7 @@ const assertDeploy = async <E extends EntryState>(
 };
 
 describe.only('dynamodb mapping', () => {
-  const baseDir = join(import.meta.dirname, '../test/files');
+  const baseDir = 'test/files';
 
   let lastState: EntryStates | undefined;
   let mappingId: string | undefined;
@@ -59,7 +59,7 @@ describe.only('dynamodb mapping', () => {
       tableName: 'ez4TestTableMapping',
       allowDeletion: true,
       enableStreams: true,
-      attributeSchema: [
+      primarySchema: [
         {
           attributeName: 'id',
           attributeType: AttributeType.String,

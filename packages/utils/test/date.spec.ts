@@ -13,6 +13,8 @@ describe.only('date and time formats', () => {
     ok(isTime('00:00:00'));
     ok(isTime('12:30:30'));
     ok(isTime('23:59:59'));
+
+    ok(isTime('12:34:56.789'));
   });
 
   it('assert :: date-time', () => {

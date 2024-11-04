@@ -1,13 +1,13 @@
-import type { PrepareResourceEvent } from '@ez4/project/library';
+import type { ConnectResourceEvent, PrepareResourceEvent } from '@ez4/project/library';
 
 import { getServiceName } from '@ez4/project/library';
 import { isQueueService } from '@ez4/queue/library';
 
 import { createQueue } from '../queue/service.js';
-import { prepareSubscriptions } from './subscription.js';
+import { connectSubscriptions, prepareSubscriptions } from './subscription.js';
 
 export const prepareQueueServices = async (event: PrepareResourceEvent) => {
-  const { state, service, options, role } = event;
+  const { state, service, role, options } = event;
 
   if (!isQueueService(service)) {
     return;
@@ -24,4 +24,12 @@ export const prepareQueueServices = async (event: PrepareResourceEvent) => {
   });
 
   await prepareSubscriptions(state, service, role, queueState, options);
+};
+
+export const connectQueueServices = (event: ConnectResourceEvent) => {
+  const { state, service, role, options } = event;
+
+  if (isQueueService(service)) {
+    connectSubscriptions(state, service, role, options);
+  }
 };

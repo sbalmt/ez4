@@ -6,16 +6,24 @@ import { createFunction } from '@ez4/aws-function';
 
 import { bundleApiFunction } from './bundler.js';
 
-export const createAuthorizerFunction = async <E extends EntryState>(
+export const createAuthorizerFunction = <E extends EntryState>(
   state: EntryStates<E>,
   roleState: RoleState,
   parameters: AuthorizerFunctionParameters
 ) => {
-  const sourceFile = await bundleApiFunction(parameters);
-
   return createFunction(state, roleState, {
-    ...parameters,
     handlerName: 'apiEntryPoint',
-    sourceFile
+    functionName: parameters.functionName,
+    sourceFile: parameters.sourceFile,
+    variables: parameters.variables,
+    description: parameters.description,
+    timeout: parameters.timeout,
+    memory: parameters.memory,
+    tags: parameters.tags,
+    getFunctionBundle: (context) => {
+      const dependencies = context.getDependencies();
+
+      return bundleApiFunction(dependencies, parameters);
+    }
   });
 };

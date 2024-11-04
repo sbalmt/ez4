@@ -8,36 +8,46 @@ import { getTableName } from './utils.js';
 export const prepareLinkedService = async (event: ServiceEvent): Promise<ExtraSource | null> => {
   const { service, options } = event;
 
-  if (!isDatabaseService(service)) {
+  if (!isDatabaseService(service) || service.engine !== 'dynamodb') {
     return null;
   }
 
-  const tables = service.tables.reduce((current, table) => {
+  const repository = service.tables.reduce((current, table) => {
     return {
       ...current,
       [table.name]: {
         tableName: getTableName(service, table, options),
-        tableIndexes: getPrimaryIndex(table.indexes),
+        tableIndexes: getTableIndexes(table.indexes),
         tableSchema: table.schema
       }
     };
   }, {});
 
   return {
-    constructor: `make(${JSON.stringify(tables)})`,
+    constructor: `make(${JSON.stringify(repository)})`,
     module: 'Client',
     from: '@ez4/aws-dynamodb/client'
   };
 };
 
-const getPrimaryIndex = (tableIndexes: Database.Indexes<any>) => {
+const getTableIndexes = (tableIndexes: Database.Indexes<any>) => {
+  const primaryIndexes = [];
+  const secondaryIndexes = [];
+
   for (const indexName in tableIndexes) {
     const indexType = tableIndexes[indexName];
+    const indexParts = indexName.split(':');
 
-    if (indexType === Index.Primary) {
-      return indexName.split(':');
+    switch (indexType) {
+      case Index.Primary:
+        primaryIndexes.push(indexParts);
+        break;
+
+      case Index.Secondary:
+        secondaryIndexes.push(indexParts);
+        break;
     }
   }
 
-  return [];
+  return [...primaryIndexes, ...secondaryIndexes];
 };

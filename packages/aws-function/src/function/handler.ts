@@ -3,8 +3,8 @@ import type { StepContext, StepHandler } from '@ez4/stateful';
 import type { FunctionState, FunctionResult, FunctionParameters } from './types.js';
 
 import { InvalidParameterValueException } from '@aws-sdk/client-lambda';
-import { applyTagUpdates, ReplaceResourceError, waitDeletion } from '@ez4/aws-common';
-import { deepCompare, deepEqual, hashFile, waitFor } from '@ez4/utils';
+import { applyTagUpdates, bundleHash, ReplaceResourceError, waitDeletion } from '@ez4/aws-common';
+import { deepCompare, deepEqual, waitFor } from '@ez4/utils';
 import { getRoleArn } from '@ez4/aws-identity';
 
 import {
@@ -50,7 +50,7 @@ const previewResource = async (candidate: FunctionState, current: FunctionState)
     {
       ...target,
       dependencies: candidate.dependencies,
-      sourceHash: await hashFile(target.sourceFile),
+      sourceHash: await bundleHash(target.sourceFile),
       ...(target.variables && {
         variables: protectVariables(target.variables)
       })
@@ -93,8 +93,10 @@ const createResource = async (
   const functionName = parameters.functionName;
   const roleArn = getRoleArn(FunctionServiceName, functionName, context);
 
-  const sourceFile = parameters.sourceFile;
-  const sourceHash = await hashFile(sourceFile);
+  const [sourceFile, sourceHash] = await Promise.all([
+    parameters.getFunctionBundle(context),
+    bundleHash(parameters.sourceFile)
+  ]);
 
   let lastError;
 
@@ -156,7 +158,12 @@ const updateResource = async (
   ]);
 
   // Should always perform for last.
-  const sourceHash = await checkSourceCodeUpdates(functionName, parameters, current.result);
+  const sourceHash = await checkSourceCodeUpdates(
+    functionName,
+    parameters,
+    current.result,
+    context
+  );
 
   lockSensitiveData(candidate);
 
@@ -216,15 +223,19 @@ const checkTagUpdates = async (
 const checkSourceCodeUpdates = async (
   functionName: string,
   candidate: FunctionParameters,
-  current: FunctionResult | undefined
+  current: FunctionResult | undefined,
+  context: StepContext
 ) => {
-  const sourceFile = candidate.sourceFile;
-
-  const newSourceHash = await hashFile(sourceFile);
+  const newSourceHash = await bundleHash(candidate.sourceFile);
   const oldSourceHash = current?.sourceHash;
 
   if (newSourceHash !== oldSourceHash) {
-    await updateSourceCode(functionName, candidate);
+    const sourceFile = await candidate.getFunctionBundle(context);
+
+    await updateSourceCode(functionName, {
+      ...candidate,
+      sourceFile
+    });
 
     return newSourceHash;
   }

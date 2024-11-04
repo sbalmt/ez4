@@ -21,23 +21,23 @@ export const deploy = async (project: ProjectOptions) => {
 
   const metadata = getMetadata(project.sourceFiles);
 
-  const deploy: DeployOptions = {
+  const options: DeployOptions = {
     resourcePrefix: project.prefix ?? 'ez4',
     projectName: toKebabCase(project.projectName),
     imports: await loadImports(project)
   };
-
-  await prepareAllLinkedServices(metadata, deploy);
 
   const stateFile = `${project.stateFile.path}.ezstate`;
 
   const oldState = loadState(stateFile);
   const newState: EntryStates = {};
 
-  const role = await prepareExecutionRole(newState, deploy);
+  await prepareAllLinkedServices(metadata, options);
 
-  await prepareDeployResources(newState, metadata, role, deploy);
-  await connectDeployResources(newState, metadata, deploy);
+  const role = await prepareExecutionRole(newState, options);
+
+  await prepareDeployResources(newState, metadata, role, options);
+  await connectDeployResources(newState, metadata, role, options);
 
   combineStates(newState, oldState);
 

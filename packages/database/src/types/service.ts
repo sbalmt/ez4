@@ -6,6 +6,7 @@ export const ServiceType = '@ez4/database';
 export type DatabaseService = ServiceMetadata & {
   type: typeof ServiceType;
   name: string;
+  engine: string;
   tables: DatabaseTable[];
 };
 

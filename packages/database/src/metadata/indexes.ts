@@ -76,8 +76,7 @@ const getTypeFromMembers = (
 
     switch (indexType) {
       case Index.Primary:
-      case Index.Regular:
-      case Index.Unique:
+      case Index.Secondary:
       case Index.TTL:
         indexes[indexName] = indexType;
         break;

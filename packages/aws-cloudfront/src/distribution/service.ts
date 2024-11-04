@@ -1,8 +1,8 @@
 import type { EntryState, EntryStates } from '@ez4/stateful';
 import type { DistributionParameters, DistributionState } from './types.js';
 
+import { attachEntry, linkDependency, tryLinkDependency } from '@ez4/stateful';
 import { toKebabCase } from '@ez4/utils';
-import { attachEntry, linkDependency } from '@ez4/stateful';
 
 import { AccessState } from '../access/types.js';
 import { DistributionServiceType } from './types.js';
@@ -29,9 +29,7 @@ export const createDistribution = <E extends EntryState>(
   linkDependency(state, resource.entryId, parameters.defaultOrigin.cachePolicyId);
 
   parameters.origins?.forEach(({ cachePolicyId }) => {
-    if (!resource.dependencies.includes(cachePolicyId)) {
-      linkDependency(state, resource.entryId, cachePolicyId);
-    }
+    tryLinkDependency(state, resource.entryId, cachePolicyId);
   });
 
   return resource;

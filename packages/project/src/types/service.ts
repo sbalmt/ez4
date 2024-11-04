@@ -13,6 +13,7 @@ export type ServiceMetadata = {
 };
 
 export type ExtraSource = {
+  entryStateId?: string;
   constructor: string;
   module: string;
   from: string;

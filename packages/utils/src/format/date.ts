@@ -5,7 +5,7 @@ const tzPattern = '(Z|[+-](?:2[0-3]|[01][0-9]):[0-5][0-9])';
 const msPattern = '(\\.[0-9]+)';
 
 const onlyDateRegEx = new RegExp(`^${datePattern}$`);
-const onlyTimeRegEx = new RegExp(`^${timePattern}$`);
+const onlyTimeRegEx = new RegExp(`^${timePattern}${msPattern}?$`);
 const dateTimeRegEx = new RegExp(`^${datePattern}T${timePattern}${msPattern}?${tzPattern}?$`);
 
 /**

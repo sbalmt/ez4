@@ -53,7 +53,7 @@ describe.only('entry errors tests', () => {
 
     // entryB doesn't exists in the given state.
     throws(() => linkDependency(state, 'entryB', 'entryA'), EntryNotFoundError);
-    throws(() => linkDependency(state, 'entryA', 'entryB'), DependencyNotFoundError);
+    throws(() => linkDependency(state, 'entryA', 'entryB'), EntryNotFoundError);
 
     // entryC is already a dependency of entryA.
     throws(() => linkDependency(state, 'entryA', 'entryC'), DuplicateEntryError);

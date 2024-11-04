@@ -43,7 +43,7 @@ export const deepCompareObject = <T extends AnyObject, S extends AnyObject>(
     const targetValue = target[key];
     const sourceValue = source[key];
 
-    if (keyState === true || targetValue === sourceValue) {
+    if (keyState === true || targetValue === sourceValue || targetValue instanceof Function) {
       continue;
     }
 

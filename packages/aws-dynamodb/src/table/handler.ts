@@ -3,17 +3,18 @@ import type { StepHandler } from '@ez4/stateful';
 import type { TableState, TableResult, TableParameters } from './types.js';
 
 import { applyTagUpdates, ReplaceResourceError, waitDeletion } from '@ez4/aws-common';
-import { deepCompare, deepEqual } from '@ez4/utils';
+import { deepCompare, deepCompareArray } from '@ez4/utils';
 
 import {
   createTable,
   deleteTable,
-  tagTable,
-  untagTable,
-  updateTable,
   updateTimeToLive,
   updateDeletion,
-  updateStreams
+  updateStreams,
+  createIndex,
+  deleteIndex,
+  tagTable,
+  untagTable
 } from './client.js';
 
 import { TableServiceName } from './types.js';
@@ -84,12 +85,8 @@ const updateResource = async (candidate: TableState, current: TableState) => {
   await checkTimeToLiveUpdates(result.tableName, parameters, current.parameters);
   await checkDeletionUpdates(result.tableName, parameters, current.parameters);
   await checkStreamsUpdates(result.tableName, parameters, current.parameters);
-
-  const newResult = await checkGeneralUpdates(result, parameters, current.parameters);
-
+  await checkIndexUpdates(result.tableName, parameters, current.parameters);
   await checkTagUpdates(result.tableArn, parameters, current.parameters);
-
-  return newResult;
 };
 
 const deleteResource = async (candidate: TableState) => {
@@ -99,7 +96,7 @@ const deleteResource = async (candidate: TableState) => {
     return;
   }
 
-  // If the function is still in use due to a prior change that's not
+  // If the table is still in use due to a prior change that's not
   // done yet, keep retrying until max attempts.
   await waitDeletion(() => deleteTable(result.tableName));
 };
@@ -144,22 +141,38 @@ const checkTimeToLiveUpdates = async (
   }
 };
 
-const checkGeneralUpdates = async (
-  result: TableResult,
+const checkIndexUpdates = async (
+  tableName: string,
   candidate: TableParameters,
   current: TableParameters
 ) => {
-  const hasChanges = !deepEqual(candidate, current, {
-    enableStreams: true,
-    allowDeletion: true,
-    tags: true
-  });
+  const target = candidate.secondarySchema ?? [];
+  const source = current.secondarySchema ?? [];
 
-  if (hasChanges) {
-    return updateTable(result.tableName, candidate);
+  const changes = deepCompareArray(target, source);
+
+  if (!changes.counts) {
+    return;
   }
 
-  return result;
+  if (changes.create) {
+    for (const index in changes.create) {
+      await createIndex(tableName, target[index]);
+    }
+  }
+
+  if (changes.update) {
+    for (const index in changes.update) {
+      await deleteIndex(tableName, source[index]);
+      await createIndex(tableName, target[index]);
+    }
+  }
+
+  if (changes.remove) {
+    for (const index in changes.remove) {
+      await deleteIndex(tableName, source[index]);
+    }
+  }
 };
 
 const checkTagUpdates = async (

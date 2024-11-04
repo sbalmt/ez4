@@ -6,17 +6,12 @@ import { validate } from '@ez4/validator';
 
 import { MalformedRequestError } from './errors.js';
 
-export const getJsonChanges = async <T extends Database.Schema>(
-  rawInput: T,
-  schema: ObjectSchema
-) => {
-  const errors = await validate(rawInput, schema);
+export const validateSchema = async <T extends Database.Schema>(data: T, schema: ObjectSchema) => {
+  const errors = await validate(data, schema);
 
   if (errors.length) {
     const messages = getUniqueErrorMessages(errors);
 
     throw new MalformedRequestError(messages);
   }
-
-  return rawInput;
 };

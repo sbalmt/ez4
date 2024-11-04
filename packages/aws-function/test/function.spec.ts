@@ -1,7 +1,7 @@
 import type { EntryState, EntryStates } from '@ez4/stateful';
 
-import { describe, it } from 'node:test';
 import { ok, equal, notEqual } from 'node:assert/strict';
+import { describe, it } from 'node:test';
 import { join } from 'node:path';
 
 import { createFunction, isFunctionState, registerTriggers } from '@ez4/aws-function';
@@ -36,7 +36,7 @@ const assertDeploy = async <E extends EntryState>(
 };
 
 describe.only('function', () => {
-  const baseDir = join(import.meta.dirname, '../test/files');
+  const baseDir = 'test/files';
 
   let lastState: EntryStates | undefined;
   let functionId: string | undefined;
@@ -51,17 +51,22 @@ describe.only('function', () => {
       roleDocument: getRoleDocument()
     });
 
+    const sourceFile = join(baseDir, 'lambda-1.js');
+
     const resource = createFunction(localState, roleResource, {
-      sourceFile: join(baseDir, 'lambda-1.js'),
       functionName: 'ez4-test-lambda-function',
       description: 'EZ4 Test lambda',
       handlerName: 'main',
+      sourceFile,
       variables: {
         test1: 'ez4-variable'
       },
       tags: {
         test1: 'ez4-tag1',
         test2: 'ez4-tag2'
+      },
+      getFunctionBundle: () => {
+        return sourceFile;
       }
     });
 
@@ -104,7 +109,13 @@ describe.only('function', () => {
     ok(lastResource && isFunctionState(lastResource));
     ok(resource && isFunctionState(resource));
 
-    resource.parameters.sourceFile = join(baseDir, 'lambda-2.js');
+    const sourceFile = join(baseDir, 'lambda-2.js');
+
+    resource.parameters.sourceFile = sourceFile;
+
+    resource.parameters.getFunctionBundle = () => {
+      return sourceFile;
+    };
 
     const { state, result } = await assertDeploy(functionId, localState, lastState);
 

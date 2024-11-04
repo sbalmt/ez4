@@ -1,13 +1,13 @@
-import type { AnyObject } from '../object/generics.js';
-
 import { deepCompareObject } from '../object/compare.js';
 import { isAnyObject } from '../object/any.js';
 
+export type ArrayComparisonResult = Record<number, any>;
+
 export type ArrayComparison = {
   counts: number;
-  create?: AnyObject;
-  update?: AnyObject;
-  remove?: AnyObject;
+  create?: ArrayComparisonResult;
+  update?: ArrayComparisonResult;
+  remove?: ArrayComparisonResult;
 };
 
 /**
@@ -20,9 +20,9 @@ export type ArrayComparison = {
 export const deepCompareArray = (target: unknown[], source: unknown[]): ArrayComparison => {
   const length = Math.max(target.length, source.length);
 
-  const create: AnyObject = {};
-  const update: AnyObject = {};
-  const remove: AnyObject = {};
+  const create: ArrayComparisonResult = {};
+  const update: ArrayComparisonResult = {};
+  const remove: ArrayComparisonResult = {};
 
   const counts = { create: 0, update: 0, remove: 0 };
 
