@@ -15,7 +15,7 @@ type PrepareResult = [string, SqlParameter[]];
 export const prepareUpdate = <T extends Database.Schema, S extends Query.SelectInput<T> = {}>(
   table: string,
   schema: ObjectSchema,
-  query: Query.UpdateOneInput<T, S, never> | Query.UpdateManyInput<T, S>
+  query: Query.UpdateOneInput<T, S, any> | Query.UpdateManyInput<T, S>
 ): PrepareResult => {
   const [updateFields, updateVariables] = prepareUpdateFields(schema, query.data);
   const [whereFields, whereVariables] = prepareWhereFields(schema, query.where ?? {});

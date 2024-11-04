@@ -10,7 +10,7 @@ type PrepareResult = [string, SqlParameter[]];
 export const prepareDelete = <T extends Database.Schema, S extends Query.SelectInput<T> = {}>(
   table: string,
   schema: ObjectSchema,
-  query: Query.DeleteOneInput<T, S, never> | Query.DeleteManyInput<T, S>
+  query: Query.DeleteOneInput<T, S, any> | Query.DeleteManyInput<T, S>
 ): PrepareResult => {
   const [whereFields, whereVariables] = prepareWhereFields(schema, query.where ?? {});
 

@@ -1,4 +1,4 @@
-import type { TableIndexes } from './indexes.js';
+import type { Indexes, TableIndexes } from './indexes.js';
 import type { TableSchemas } from './schemas.js';
 import type { Database } from './database.js';
 import type { Query } from './query.js';
@@ -18,7 +18,7 @@ export namespace Transaction {
             | UpdateOperation<
                 TableSchemas<T>[P],
                 P extends keyof TableIndexes<T>
-                  ? TableIndexes<T>[P] extends string
+                  ? TableIndexes<T>[P] extends Indexes
                     ? TableIndexes<T>[P]
                     : never
                   : never
@@ -26,7 +26,7 @@ export namespace Transaction {
             | DeleteOperation<
                 TableSchemas<T>[P],
                 P extends keyof TableIndexes<T>
-                  ? TableIndexes<T>[P] extends string
+                  ? TableIndexes<T>[P] extends Indexes
                     ? TableIndexes<T>[P]
                     : never
                   : never
@@ -39,11 +39,11 @@ export namespace Transaction {
     insert: Query.InsertOneInput<T>;
   };
 
-  type UpdateOperation<T extends Database.Schema, I extends string | never> = {
+  type UpdateOperation<T extends Database.Schema, I extends Indexes> = {
     update: Omit<Query.UpdateOneInput<T, Query.SelectInput<T>, I>, 'select'>;
   };
 
-  type DeleteOperation<T extends Database.Schema, I extends string | never> = {
+  type DeleteOperation<T extends Database.Schema, I extends Indexes> = {
     delete: Omit<Query.DeleteOneInput<T, Query.SelectInput<T>, I>, 'select'>;
   };
 }

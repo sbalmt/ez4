@@ -59,7 +59,7 @@ describe.only('dynamodb mapping', () => {
       tableName: 'ez4TestTableMapping',
       allowDeletion: true,
       enableStreams: true,
-      attributeSchema: [
+      primarySchema: [
         {
           attributeName: 'id',
           attributeType: AttributeType.String,

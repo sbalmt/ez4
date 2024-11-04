@@ -1,24 +1,22 @@
 import {
-  DescribeTimeToLiveCommand,
   DynamoDBClient,
+  DescribeTimeToLiveCommand,
   TimeToLiveStatus
 } from '@aws-sdk/client-dynamodb';
 
 import { waitFor } from '@ez4/utils';
 
-const client = new DynamoDBClient({});
-
-export const waitForTimeToLive = async (eventId: string) => {
+export const waitForTimeToLive = async (client: DynamoDBClient, tableName: string) => {
   const readyState = new Set<string>([TimeToLiveStatus.ENABLED, TimeToLiveStatus.DISABLED]);
 
   await waitFor(async () => {
-    const state = await getTimeToLiveStatus(eventId);
+    const status = await getTimeToLiveStatus(client, tableName);
 
-    return !state || readyState.has(state);
+    return !status || readyState.has(status);
   });
 };
 
-const getTimeToLiveStatus = async (tableName: string) => {
+const getTimeToLiveStatus = async (client: DynamoDBClient, tableName: string) => {
   const response = await client.send(
     new DescribeTimeToLiveCommand({
       TableName: tableName

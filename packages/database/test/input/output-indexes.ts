@@ -18,7 +18,7 @@ export declare class TestDatabase extends Database.Service<[TestSchema]> {
 
         // Compound index.
         'foo:ttl': Index.Regular;
-        'bar:foo': Index.Unique;
+        'bar:foo': Index.Secondary;
       };
     },
     {
@@ -44,5 +44,5 @@ declare class TestIndexes implements Database.Indexes<TestSchema> {
 
   // Compound index.
   'baz:ttl': Index.Regular;
-  'qux:baz': Index.Unique;
+  'qux:baz': Index.Secondary;
 }

@@ -1,4 +1,4 @@
-import type { TableIndexes } from './indexes.js';
+import type { Indexes, TableIndexes } from './indexes.js';
 import type { TableSchemas } from './schemas.js';
 import type { Database } from './database.js';
 import type { Transaction } from './transaction.js';
@@ -33,10 +33,10 @@ export type ClientTables<T extends Database.Service<any>> = {
     ? Table<
         TableSchemas<T>[P],
         P extends keyof TableIndexes<T>
-          ? TableIndexes<T>[P] extends string
+          ? TableIndexes<T>[P] extends Indexes
             ? TableIndexes<T>[P]
-            : never
-          : never
+            : {}
+          : {}
       >
     : never;
 };
@@ -44,7 +44,7 @@ export type ClientTables<T extends Database.Service<any>> = {
 /**
  * Client table.
  */
-export interface Table<T extends Database.Schema, I extends string | never> {
+export interface Table<T extends Database.Schema, I extends Indexes> {
   insertOne(query: Query.InsertOneInput<T>): Promise<Query.InsertOneResult>;
 
   findOne<S extends Query.SelectInput<T>>(

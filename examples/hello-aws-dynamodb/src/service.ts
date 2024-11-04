@@ -13,6 +13,7 @@ export declare class Db extends Database.Service<[TableSchema]> {
       schema: TableSchema;
       indexes: {
         id: Index.Primary;
+        'record_type:created_at': Index.Secondary;
       };
     }
   ];

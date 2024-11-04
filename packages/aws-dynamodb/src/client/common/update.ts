@@ -12,7 +12,7 @@ type PrepareResult = [string, unknown[]];
 export const prepareUpdate = <T extends Database.Schema, S extends Query.SelectInput<T> = {}>(
   table: string,
   schema: ObjectSchema,
-  query: Query.UpdateOneInput<T, S, never> | Query.UpdateManyInput<T, S>
+  query: Query.UpdateOneInput<T, S, any> | Query.UpdateManyInput<T, S>
 ): PrepareResult => {
   const [updateFields, updateVariables] = prepareUpdateFields(query.data, schema);
   const [whereFields, whereVariables] = prepareWhereFields(query.where ?? {});

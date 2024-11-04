@@ -12,7 +12,7 @@ type PrepareResult = [string, SqlParameter[]];
 export const prepareSelect = <T extends Database.Schema, S extends Query.SelectInput<T> = {}>(
   table: string,
   schema: ObjectSchema,
-  query: Query.FindOneInput<T, S, never> | Query.FindManyInput<T, S, never>
+  query: Query.FindOneInput<T, S, any> | Query.FindManyInput<T, S, any>
 ): PrepareResult => {
   const [whereFields, whereVariables] = prepareWhereFields(schema, query.where ?? {});
 

@@ -4,7 +4,7 @@ import { Order } from '@ez4/database';
 
 type PrepareResult = string;
 
-export const prepareOrderFields = (order: Query.OrderInput<string>): PrepareResult => {
+export const prepareOrderFields = (order: Query.OrderInput<any>): PrepareResult => {
   const operations = [];
 
   for (const fieldKey in order) {

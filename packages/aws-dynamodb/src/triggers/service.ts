@@ -1,10 +1,5 @@
-import type { Database } from '@ez4/database';
-import type { ObjectSchema, ObjectSchemaProperties } from '@ez4/schema';
 import type { ConnectResourceEvent, PrepareResourceEvent } from '@ez4/project/library';
-import type { AttributeSchema } from '../types/schema.js';
 
-import { Index } from '@ez4/database';
-import { SchemaTypeName } from '@ez4/schema';
 import { isDatabaseService } from '@ez4/database/library';
 import { linkServiceExtras } from '@ez4/project/library';
 import { getFunction } from '@ez4/aws-function';
@@ -13,8 +8,8 @@ import { isRoleState } from '@ez4/aws-identity';
 import { createTable } from '../table/service.js';
 import { createMapping } from '../mapping/service.js';
 import { createStreamFunction } from '../mapping/function/service.js';
-import { AttributeType, AttributeKeyType } from '../types/schema.js';
 import { getStreamName, getTableName } from './utils.js';
+import { getAttributeSchema } from './schema.js';
 
 export const prepareDatabaseServices = async (event: PrepareResourceEvent) => {
   const { state, service, role, options } = event;
@@ -27,11 +22,15 @@ export const prepareDatabaseServices = async (event: PrepareResourceEvent) => {
     const tableName = getTableName(service, table, options);
     const tableStream = table.stream;
 
-    const { attributeSchema, ttlAttribute } = getAttributeSchema(table.indexes, table.schema);
+    const { primarySchema, secondarySchema, ttlAttribute } = getAttributeSchema(
+      table.indexes,
+      table.schema
+    );
 
     const tableState = createTable(state, {
       enableStreams: !!tableStream,
-      attributeSchema,
+      primarySchema,
+      secondarySchema,
       ttlAttribute,
       tableName
     });
@@ -90,80 +89,4 @@ export const connectDatabaseServices = (event: ConnectResourceEvent) => {
       linkServiceExtras(state, functionState.entryId, service.extras);
     }
   }
-};
-
-const getAttributeSchema = (indexes: Database.Indexes, schema: ObjectSchema) => {
-  const attributeSchema: AttributeSchema[] = [];
-
-  let ttlAttribute: string | undefined;
-
-  for (const indexName in indexes) {
-    const indexType = indexes[indexName as keyof Database.Indexes];
-
-    switch (indexType) {
-      case Index.TTL:
-        ttlAttribute = getTimeToLiveIndex(indexName, schema.properties);
-        break;
-
-      case Index.Primary:
-        attributeSchema.push(...getAttributeIndex(indexName, schema.properties));
-        break;
-
-      default:
-        throw new Error(`DynamoDB index type ${indexType} isn't supported.`);
-    }
-  }
-
-  if (attributeSchema.length === 0) {
-    throw new Error(`DynamoDB needs at least one partition key.`);
-  }
-
-  if (attributeSchema.length > 2) {
-    throw new Error(`DynamoDB only supports one partition key.`);
-  }
-
-  return {
-    attributeSchema,
-    ttlAttribute
-  };
-};
-
-const getTimeToLiveIndex = (indexName: string, allColumns: ObjectSchemaProperties) => {
-  const columnSchema = allColumns[indexName];
-
-  if (!columnSchema) {
-    throw new Error(`DynamoDB TTL index ${indexName} doesn't exists or it's a compound index.`);
-  }
-
-  if (columnSchema.type !== SchemaTypeName.Number) {
-    throw new Error(`DynamoDB TTL index ${indexName} must be a number.`);
-  }
-
-  return indexName;
-};
-
-const getAttributeIndex = (indexName: string, allColumns: ObjectSchemaProperties) => {
-  const attributeSchema: AttributeSchema[] = [];
-
-  const schemaAttributeTypesMap: Record<string, AttributeType | undefined> = {
-    [SchemaTypeName.Boolean]: AttributeType.Boolean,
-    [SchemaTypeName.Number]: AttributeType.Number,
-    [SchemaTypeName.String]: AttributeType.String
-  };
-
-  for (const columnName of indexName.split(':')) {
-    const columnSchema = allColumns[columnName];
-
-    if (!columnSchema) {
-      throw new Error(`Column ${columnName} doesn't exists, ensure the given schema is correct.`);
-    }
-
-    attributeSchema.push({
-      attributeName: columnName,
-      attributeType: schemaAttributeTypesMap[columnSchema.type] ?? AttributeType.String,
-      keyType: attributeSchema.length === 0 ? AttributeKeyType.Hash : AttributeKeyType.Range
-    });
-  }
-
-  return attributeSchema;
 };

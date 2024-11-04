@@ -1,11 +1,12 @@
 import type { Database, Query, Table as DbTable } from '@ez4/database';
 import type { RDSDataClient } from '@aws-sdk/client-rds-data';
 import type { ObjectSchema } from '@ez4/schema';
-import { isAnyNumber, type AnyObject } from '@ez4/utils';
+import type { AnyObject } from '@ez4/utils';
 import type { PreparedQueryCommand } from './common/queries.js';
 import type { Configuration } from './types.js';
 
 import { SchemaTypeName } from '@ez4/schema';
+import { isAnyNumber } from '@ez4/utils';
 
 import { executeStatement, executeTransaction } from './common/client.js';
 
@@ -20,9 +21,7 @@ import {
   prepareUpdateOne
 } from './common/queries.js';
 
-export class Table<T extends Database.Schema = Database.Schema, I extends string | never = never>
-  implements DbTable<T, I>
-{
+export class Table<T extends Database.Schema = Database.Schema> implements DbTable<T, never> {
   constructor(
     private configuration: Configuration,
     private name: string,
@@ -62,7 +61,7 @@ export class Table<T extends Database.Schema = Database.Schema, I extends string
   }
 
   async updateOne<S extends Query.SelectInput<T>>(
-    query: Query.UpdateOneInput<T, S, I>
+    query: Query.UpdateOneInput<T, S, never>
   ): Promise<Query.UpdateOneResult<T, S>> {
     const { select, data, where } = query;
 
@@ -88,7 +87,7 @@ export class Table<T extends Database.Schema = Database.Schema, I extends string
   }
 
   async findOne<S extends Query.SelectInput<T>>(
-    query: Query.FindOneInput<T, S, I>
+    query: Query.FindOneInput<T, S, never>
   ): Promise<Query.FindOneResult<T, S>> {
     const command = prepareFindOne(this.name, this.schema, query);
 
@@ -102,7 +101,7 @@ export class Table<T extends Database.Schema = Database.Schema, I extends string
   }
 
   async deleteOne<S extends Query.SelectInput<T>>(
-    query: Query.DeleteOneInput<T, S, I>
+    query: Query.DeleteOneInput<T, S, never>
   ): Promise<Query.DeleteOneResult<T, S>> {
     const command = prepareDeleteOne(this.name, this.schema, query);
 
@@ -116,7 +115,7 @@ export class Table<T extends Database.Schema = Database.Schema, I extends string
   }
 
   async upsertOne<S extends Query.SelectInput<T>>(
-    query: Query.UpsertOneInput<T, S, I>
+    query: Query.UpsertOneInput<T, S, never>
   ): Promise<Query.UpsertOneResult<T, S>> {
     const previous = await this.findOne({
       select: query.select ?? ({} as S),
@@ -170,7 +169,7 @@ export class Table<T extends Database.Schema = Database.Schema, I extends string
   }
 
   async findMany<S extends Query.SelectInput<T>>(
-    query: Query.FindManyInput<T, S, I>
+    query: Query.FindManyInput<T, S, never>
   ): Promise<Query.FindManyResult<T, S>> {
     const command = prepareFindMany(this.name, this.schema, query);
 

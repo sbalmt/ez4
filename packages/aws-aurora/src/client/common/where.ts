@@ -12,7 +12,7 @@ type PrepareResult = [string, SqlParameter[]];
 
 export const prepareWhereFields = <T extends Database.Schema>(
   schema: ObjectSchema,
-  query: Query.WhereInput<T, never>
+  query: Query.WhereInput<T, any>
 ): PrepareResult => {
   const prepareAll = (
     data: AnyObject,

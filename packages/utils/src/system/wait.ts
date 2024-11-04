@@ -10,10 +10,10 @@ export type Attempter<T> = (
  * of `attempts` is reached.
  *
  * @param attempter Attempter callback.
- * @param attempts Maximum number of attempts. Default is: 15
+ * @param attempts Maximum number of attempts. Default is: 30
  * @returns Returns the `attempter` result or `null` when all `attempts` are reached.
  */
-export const waitFor = async <T>(attempter: Attempter<T>, attempts: number = 15) => {
+export const waitFor = async <T>(attempter: Attempter<T>, attempts: number = 30) => {
   let result: T | undefined;
 
   for (let count = 0; count <= attempts; count++) {
@@ -21,7 +21,7 @@ export const waitFor = async <T>(attempter: Attempter<T>, attempts: number = 15)
       return result;
     }
 
-    const seconds = (2 * (count + 1)) / 1.5;
+    const seconds = Math.min(30, (2 * (count + 1)) / 1.5);
 
     await scheduler.wait(seconds * 1000);
   }
