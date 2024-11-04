@@ -50,7 +50,8 @@
     "@types/aws-lambda": "^8.10.141"
   },
   "peerDependencies": {
-    "@ez4/project": "^0.8.0"
+    "@ez4/project": "^0.8.0",
+    "@ez4/database": "^0.8.0"
   },
   "dependencies": {
     "@aws-sdk/client-dynamodb": "^3.624.0",
@@ -59,7 +60,6 @@
     "@ez4/aws-common": "^0.8.0",
     "@ez4/aws-function": "^0.8.0",
     "@ez4/aws-identity": "^0.8.0",
-    "@ez4/database": "^0.8.0",
     "@ez4/schema": "^0.8.0",
     "@ez4/stateful": "^0.8.0",
     "@ez4/utils": "^0.8.0",

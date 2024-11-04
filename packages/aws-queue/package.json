@@ -50,14 +50,14 @@
     "@types/aws-lambda": "^8.10.141"
   },
   "peerDependencies": {
-    "@ez4/project": "^0.8.0"
+    "@ez4/project": "^0.8.0",
+    "@ez4/queue": "^0.8.0"
   },
   "dependencies": {
     "@aws-sdk/client-sqs": "^3.614.0",
     "@ez4/aws-common": "^0.8.0",
     "@ez4/aws-identity": "^0.8.0",
     "@ez4/aws-function": "^0.8.0",
-    "@ez4/queue": "^0.8.0",
     "@ez4/schema": "^0.8.0",
     "@ez4/stateful": "^0.8.0",
     "@ez4/validator": "^0.8.0",

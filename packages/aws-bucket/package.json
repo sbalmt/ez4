@@ -45,7 +45,8 @@
     "@types/mime": "^3.0.0"
   },
   "peerDependencies": {
-    "@ez4/project": "^0.8.0"
+    "@ez4/project": "^0.8.0",
+    "@ez4/storage": "^0.8.0"
   },
   "dependencies": {
     "@aws-sdk/client-s3": "^3.614.0",
@@ -53,7 +54,6 @@
     "@ez4/aws-common": "^0.8.0",
     "@ez4/aws-identity": "^0.8.0",
     "@ez4/stateful": "^0.8.0",
-    "@ez4/storage": "^0.8.0",
     "@ez4/utils": "^0.8.0",
     "mime": "^3.0.0"
   }
