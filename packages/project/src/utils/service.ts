@@ -26,10 +26,10 @@ export const linkServiceExtras = (
   extras: Record<string, ExtraSource>
 ) => {
   for (const serviceName in extras) {
-    const { entryStateId } = extras[serviceName];
+    const { entryId: dependencyId } = extras[serviceName];
 
-    if (entryStateId) {
-      tryLinkDependency(state, entryId, entryStateId);
+    if (dependencyId) {
+      tryLinkDependency(state, entryId, dependencyId);
     }
   }
 };

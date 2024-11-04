@@ -19,7 +19,7 @@ export const prepareLinkedService = async (event: ServiceEvent): Promise<ExtraSo
   const queueSchema = JSON.stringify(service.schema);
 
   return {
-    entryStateId: queueId,
+    entryId: queueId,
     constructor: `make(${queueUrl}, ${queueSchema})`,
     module: 'Client',
     from: '@ez4/aws-queue/client'

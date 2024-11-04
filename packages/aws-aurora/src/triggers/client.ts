@@ -34,7 +34,7 @@ export const prepareLinkedService = async (event: ServiceEvent): Promise<ExtraSo
   }, {});
 
   return {
-    entryStateId: clusterId,
+    entryId: clusterId,
     constructor: `make(${configuration}, ${JSON.stringify(repository)})`,
     module: 'Client',
     from: '@ez4/aws-aurora/client'
