@@ -5,8 +5,8 @@ import type { ObjectSchema } from '@ez4/schema';
 import { validateSchema } from '@ez4/aws-dynamodb/runtime';
 
 import { preparePartialSchema } from './schema.js';
+import { findBestSecondaryIndex } from './indexes.js';
 import { executeStatement } from './client.js';
-
 import { prepareInsert } from './insert.js';
 import { prepareUpdate } from './update.js';
 import { prepareSelect } from './select.js';
@@ -31,12 +31,15 @@ export const prepareInsertOne = async <T extends Database.Schema>(
 
 export const prepareFindOne = <T extends Database.Schema, S extends Query.SelectInput<T>>(
   table: string,
+  indexes: string[][],
   query: Query.FindOneInput<T, S, never>
 ): ExecuteStatementCommandInput => {
-  const [statement, variables] = prepareSelect(table, query);
+  const secondaryIndex = findBestSecondaryIndex(indexes, query.where);
+
+  const [statement, variables] = prepareSelect(table, secondaryIndex, query);
 
   return {
-    ConsistentRead: true,
+    ConsistentRead: !secondaryIndex,
     Statement: statement,
     Limit: 1,
     ...(variables.length && {
@@ -91,13 +94,13 @@ export const prepareInsertMany = async <T extends Database.Schema>(
   for (const data of query.data as any) {
     const { [partitionKey]: partitionId, [sortKey]: sortId } = data;
 
-    const uniqueId = `${partitionId}${sortId ?? ''}`;
+    const uniqueRecordId = `${partitionId}${sortId ?? ''}`;
 
-    if (identifiers.has(uniqueId)) {
+    if (identifiers.has(uniqueRecordId)) {
       continue;
     }
 
-    identifiers.add(uniqueId);
+    identifiers.add(uniqueRecordId);
 
     await validateSchema(data, schema);
 
@@ -118,14 +121,17 @@ export const prepareInsertMany = async <T extends Database.Schema>(
 
 export const prepareFindMany = <T extends Database.Schema, S extends Query.SelectInput<T>>(
   table: string,
+  indexes: string[][],
   query: Query.FindManyInput<T, S, never>
 ): ExecuteStatementCommandInput => {
-  const [statement, variables] = prepareSelect(table, query);
+  const secondaryIndex = findBestSecondaryIndex(indexes, query.order ?? query.where ?? {});
+
+  const [statement, variables] = prepareSelect(table, secondaryIndex, query);
 
   const { cursor, limit } = query;
 
   return {
-    ConsistentRead: true,
+    ConsistentRead: !secondaryIndex,
     NextToken: cursor?.toString(),
     Statement: statement,
     Limit: limit,
@@ -138,15 +144,15 @@ export const prepareFindMany = <T extends Database.Schema, S extends Query.Selec
 export const prepareUpdateMany = async <T extends Database.Schema, S extends Query.SelectInput<T>>(
   table: string,
   schema: ObjectSchema,
-  indexes: string[],
   client: DynamoDBDocumentClient,
+  indexes: string[],
   query: Query.UpdateManyInput<T, S>
 ): Promise<[ExecuteStatementCommandInput[], Query.UpdateManyResult<T, S>]> => {
   const [partitionKey, sortKey] = indexes;
 
   const result = await executeStatement(
     client,
-    prepareFindMany(table, {
+    prepareFindMany(table, [], {
       ...query,
       select: {
         ...query.select,
@@ -192,15 +198,15 @@ export const prepareUpdateMany = async <T extends Database.Schema, S extends Que
 
 export const prepareDeleteMany = async <T extends Database.Schema, S extends Query.SelectInput<T>>(
   table: string,
-  indexes: string[],
   client: DynamoDBDocumentClient,
+  indexes: string[],
   query: Query.DeleteManyInput<T, S>
 ): Promise<[ExecuteStatementCommandInput[], Query.DeleteManyResult<T, S>]> => {
   const [partitionKey, sortKey] = indexes;
 
   const result = await executeStatement(
     client,
-    prepareFindMany(table, {
+    prepareFindMany(table, [], {
       ...query,
       select: {
         ...query.select,

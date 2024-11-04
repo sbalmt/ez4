@@ -9,13 +9,14 @@ type PrepareResult = [string, unknown[]];
 
 export const prepareSelect = <T extends Database.Schema, S extends Query.SelectInput<T> = {}>(
   table: string,
+  index: string | undefined,
   query: Query.FindOneInput<T, S, any> | Query.FindManyInput<T, S, any>
 ): PrepareResult => {
   const [whereFields, whereVariables] = prepareWhereFields(query.where ?? {});
 
   const selectFields = prepareSelectFields(query.select);
 
-  const statement = [`SELECT ${selectFields} FROM "${table}"`];
+  const statement = [`SELECT ${selectFields} FROM "${table}"${index ? `."${index}"` : ''}`];
 
   if (whereFields) {
     statement.push(`WHERE ${whereFields}`);

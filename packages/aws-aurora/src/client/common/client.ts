@@ -52,17 +52,23 @@ export const executeStatement = async (
   command: PreparedQueryCommand,
   transactionId?: string
 ) => {
-  const { formattedRecords } = await client.send(
-    new ExecuteStatementCommand({
-      formatRecordsAs: RecordsFormatType.JSON,
-      transactionId,
-      ...configuration,
-      ...command
-    })
-  );
+  try {
+    const { formattedRecords } = await client.send(
+      new ExecuteStatementCommand({
+        formatRecordsAs: RecordsFormatType.JSON,
+        transactionId,
+        ...configuration,
+        ...command
+      })
+    );
 
-  if (formattedRecords) {
-    return JSON.parse(formattedRecords);
+    if (formattedRecords) {
+      return JSON.parse(formattedRecords);
+    }
+  } catch (e) {
+    console.debug(command.sql);
+
+    throw e;
   }
 };
 

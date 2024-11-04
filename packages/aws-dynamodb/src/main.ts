@@ -1,5 +1,6 @@
 export * from './triggers/register.js';
 
+export * from './types/indexes.js';
 export * from './types/schema.js';
 
 export * from './table/service.js';

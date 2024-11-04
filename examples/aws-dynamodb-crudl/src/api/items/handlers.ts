@@ -28,12 +28,13 @@ export async function createItemHandler(
   request: CreateItemRequest,
   context: Service.Context<Api>
 ): Promise<CreateItemResponse> {
+  const { name, description, type } = request.body;
   const { dynamoDb } = context;
-  const { name, description } = request.body;
 
   const itemId = await createItem(dynamoDb, {
     name,
-    description
+    description,
+    type
   });
 
   return {
@@ -66,7 +67,8 @@ export async function readItemHandler(
 
     body: {
       name: item.name,
-      description: item.description
+      description: item.description,
+      type: item.type
     }
   };
 }
@@ -79,13 +81,14 @@ export async function updateItemHandler(
   context: Service.Context<Api>
 ): Promise<UpdateItemResponse> {
   const { dynamoDb } = context;
-  const { name, description } = request.body;
+  const { name, description, type } = request.body;
   const { id } = request.parameters;
 
   const oldItem = await updateItem(dynamoDb, {
     id,
     name,
-    description
+    description,
+    type
   });
 
   if (!oldItem) {
@@ -97,7 +100,8 @@ export async function updateItemHandler(
 
     body: {
       name: oldItem.name,
-      description: oldItem.description
+      description: oldItem.description,
+      type: oldItem.type
     }
   };
 }
@@ -123,7 +127,8 @@ export async function deleteItemHandler(
 
     body: {
       name: item.name,
-      description: item.description
+      description: item.description,
+      type: item.type
     }
   };
 }
@@ -135,19 +140,21 @@ export async function listItemsHandler(
   request: ListItemsRequest,
   context: Service.Context<Api>
 ): Promise<ListItemsResponse> {
-  const { cursor, limit } = request.query;
+  const { cursor, limit, type } = request.query;
   const { dynamoDb } = context;
 
   const result = await listItems(dynamoDb, {
     cursor,
-    limit
+    limit,
+    type
   });
 
-  const items = result.records.map(({ id, name, description }) => {
+  const items = result.records.map(({ id, name, description, type }) => {
     return {
       id,
       name,
-      description
+      description,
+      type
     };
   });
 

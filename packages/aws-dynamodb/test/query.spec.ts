@@ -21,7 +21,7 @@ type TestSchema = {
 };
 
 const getWhereOperation = (where: Query.WhereInput<TestSchema>) => {
-  const [statement, variables] = prepareSelect<TestSchema>('ez4-test-where-operation', {
+  const [statement, variables] = prepareSelect<TestSchema>('ez4-test-where-operation', undefined, {
     select: {
       id: true
     },
@@ -117,7 +117,7 @@ describe.only('dynamodb query', () => {
   });
 
   it('assert :: prepare select', () => {
-    const [statement, variables] = prepareSelect<TestSchema>('ez4-test-select', {
+    const [statement, variables] = prepareSelect<TestSchema>('ez4-test-select', undefined, {
       select: {
         id: true,
         foo: true,
@@ -138,6 +138,21 @@ describe.only('dynamodb query', () => {
         `WHERE "foo" = ? ` +
         `ORDER BY "foo" DESC`
     );
+
+    deepEqual(variables, [123]);
+  });
+
+  it('assert :: prepare select (with index)', () => {
+    const [statement, variables] = prepareSelect<TestSchema>('ez4-test-select', 'foo-index', {
+      select: {
+        id: true
+      },
+      where: {
+        foo: 123
+      }
+    });
+
+    equal(statement, `SELECT "id" FROM "ez4-test-select"."foo-index" WHERE "foo" = ?`);
 
     deepEqual(variables, [123]);
   });

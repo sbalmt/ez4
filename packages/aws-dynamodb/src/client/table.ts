@@ -21,7 +21,7 @@ export class Table<T extends Database.Schema = Database.Schema> implements DbTab
   constructor(
     private name: string,
     private schema: ObjectSchema,
-    private indexes: string[],
+    private indexes: string[][],
     private client: DynamoDBDocumentClient
   ) {}
 
@@ -52,7 +52,9 @@ export class Table<T extends Database.Schema = Database.Schema> implements DbTab
   async findOne<S extends Query.SelectInput<T>>(
     query: Query.FindOneInput<T, S, never>
   ): Promise<Query.FindOneResult<T, S>> {
-    const command = prepareFindOne(this.name, query);
+    const [, ...secondaryIndexes] = this.indexes;
+
+    const command = prepareFindOne(this.name, secondaryIndexes, query);
 
     const result = await executeStatement(this.client, command);
 
@@ -96,7 +98,9 @@ export class Table<T extends Database.Schema = Database.Schema> implements DbTab
   }
 
   async insertMany(query: Query.InsertManyInput<T>): Promise<Query.InsertManyResult> {
-    const transactions = await prepareInsertMany(this.name, this.schema, this.indexes, query);
+    const [primaryIndexes] = this.indexes;
+
+    const transactions = await prepareInsertMany(this.name, this.schema, primaryIndexes, query);
 
     await executeTransactions(this.client, transactions);
   }
@@ -104,11 +108,13 @@ export class Table<T extends Database.Schema = Database.Schema> implements DbTab
   async updateMany<S extends Query.SelectInput<T>>(
     query: Query.UpdateManyInput<T, S>
   ): Promise<Query.UpdateManyResult<T, S>> {
+    const [primaryIndexes] = this.indexes;
+
     const [transactions, records] = await prepareUpdateMany(
       this.name,
       this.schema,
-      this.indexes,
       this.client,
+      primaryIndexes,
       query
     );
 
@@ -120,7 +126,9 @@ export class Table<T extends Database.Schema = Database.Schema> implements DbTab
   async findMany<S extends Query.SelectInput<T>>(
     query: Query.FindManyInput<T, S, never>
   ): Promise<Query.FindManyResult<T, S>> {
-    const command = prepareFindMany(this.name, query);
+    const [, ...secondaryIndexes] = this.indexes;
+
+    const command = prepareFindMany(this.name, secondaryIndexes, query);
 
     const result = await executeStatement(this.client, command);
 
@@ -133,10 +141,12 @@ export class Table<T extends Database.Schema = Database.Schema> implements DbTab
   async deleteMany<S extends Query.SelectInput<T>>(
     query: Query.DeleteManyInput<T, S>
   ): Promise<Query.DeleteManyResult<T, S>> {
+    const [primaryIndexes] = this.indexes;
+
     const [transactions, records] = await prepareDeleteMany(
       this.name,
-      this.indexes,
       this.client,
+      primaryIndexes,
       query
     );
 

@@ -2,8 +2,9 @@ import type { DynamoDBClient, GlobalSecondaryIndex } from '@aws-sdk/client-dynam
 import type { AttributeSchema, AttributeSchemaGroup } from '../../types/schema.js';
 
 import { DescribeTableCommand, IndexStatus, ProjectionType } from '@aws-sdk/client-dynamodb';
-import { toKebabCase, waitFor } from '@ez4/utils';
+import { waitFor } from '@ez4/utils';
 
+import { getIndexName } from '../../types/indexes.js';
 import { getAttributeKeyTypes } from './schema.js';
 
 export const getSecondaryIndexes = (...groups: AttributeSchemaGroup[]) => {
@@ -11,7 +12,7 @@ export const getSecondaryIndexes = (...groups: AttributeSchemaGroup[]) => {
 
   for (const schema of groups) {
     indexList.push({
-      IndexName: `${getSecondaryIndexName(schema)}-index`,
+      IndexName: getSecondaryIndexName(schema),
       KeySchema: getAttributeKeyTypes(schema),
       Projection: {
         ProjectionType: ProjectionType.ALL
@@ -35,9 +36,9 @@ export const waitForSecondaryIndex = async (
 };
 
 const getSecondaryIndexName = (schema: AttributeSchema[]) => {
-  const indexNames = schema.map(({ attributeName }) => attributeName);
+  const indexParts = schema.map(({ attributeName }) => attributeName);
 
-  return toKebabCase(indexNames.join('-'));
+  return getIndexName(indexParts);
 };
 
 const getSecondaryIndexStatus = async (

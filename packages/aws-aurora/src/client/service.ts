@@ -62,17 +62,21 @@ export namespace Client {
 
         const name = property.toString();
 
-        if (!tableCache[name]) {
-          if (!(name in repository)) {
-            throw new Error(`Table ${name} isn't part of the table repository.`);
-          }
-
-          const { tableName, tableSchema } = repository[name];
-
-          tableCache[name] = new Table(configuration, tableName, tableSchema, client);
+        if (tableCache[name]) {
+          return tableCache[name];
         }
 
-        return tableCache[name];
+        if (!(name in repository)) {
+          throw new Error(`Table ${name} isn't part of the table repository.`);
+        }
+
+        const { tableName, tableSchema } = repository[name];
+
+        const table = new Table(configuration, tableName, tableSchema, client);
+
+        tableCache[name] = table;
+
+        return table;
       }
     });
   };

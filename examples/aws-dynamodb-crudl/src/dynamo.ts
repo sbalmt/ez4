@@ -15,6 +15,7 @@ export declare class Db extends Database.Service<[ItemSchema]> {
       schema: ItemSchema;
       indexes: {
         id: Index.Primary;
+        'type:created_at': Index.Secondary;
       };
     }
   ];

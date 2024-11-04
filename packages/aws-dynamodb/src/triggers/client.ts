@@ -17,7 +17,7 @@ export const prepareLinkedService = async (event: ServiceEvent): Promise<ExtraSo
       ...current,
       [table.name]: {
         tableName: getTableName(service, table, options),
-        tableIndexes: getPrimaryIndex(table.indexes),
+        tableIndexes: getTableIndexes(table.indexes),
         tableSchema: table.schema
       }
     };
@@ -30,14 +30,24 @@ export const prepareLinkedService = async (event: ServiceEvent): Promise<ExtraSo
   };
 };
 
-const getPrimaryIndex = (tableIndexes: Database.Indexes<any>) => {
+const getTableIndexes = (tableIndexes: Database.Indexes<any>) => {
+  const primaryIndexes = [];
+  const secondaryIndexes = [];
+
   for (const indexName in tableIndexes) {
     const indexType = tableIndexes[indexName];
+    const indexParts = indexName.split(':');
 
-    if (indexType === Index.Primary) {
-      return indexName.split(':');
+    switch (indexType) {
+      case Index.Primary:
+        primaryIndexes.push(indexParts);
+        break;
+
+      case Index.Secondary:
+        secondaryIndexes.push(indexParts);
+        break;
     }
   }
 
-  return [];
+  return [...primaryIndexes, ...secondaryIndexes];
 };

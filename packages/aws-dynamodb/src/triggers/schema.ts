@@ -9,7 +9,8 @@ import { AttributeType, AttributeKeyType } from '../types/schema.js';
 
 const SchemaTypesMap: Record<string, AttributeType | undefined> = {
   [SchemaTypeName.Number]: AttributeType.Number,
-  [SchemaTypeName.String]: AttributeType.String
+  [SchemaTypeName.String]: AttributeType.String,
+  [SchemaTypeName.Enum]: AttributeType.String
 };
 
 export const getAttributeSchema = (indexes: Database.Indexes, schema: ObjectSchema) => {

@@ -1,5 +1,6 @@
-import type { Integer, String } from '@ez4/schema';
 import type { Http } from '@ez4/gateway';
+import type { Integer, String } from '@ez4/schema';
+import type { ItemType } from '../../dynamo/items.js';
 
 export declare class CreateItemRequest implements Http.Request {
   body: {
@@ -12,6 +13,11 @@ export declare class CreateItemRequest implements Http.Request {
      * Item description.
      */
     description?: String.Size<1, 128>;
+
+    /**
+     * Item type.
+     */
+    type: ItemType;
   };
 }
 
@@ -42,6 +48,11 @@ export declare class UpdateItemRequest implements Http.Request {
      * New item description.
      */
     description?: String.Size<1, 128>;
+
+    /**
+     * New item type.
+     */
+    type?: ItemType;
   };
 }
 
@@ -65,5 +76,10 @@ export declare class ListItemsRequest implements Http.Request {
      * Page limit.
      */
     limit?: Integer.Range<1, 10>;
+
+    /**
+     * Item type filter.
+     */
+    type: ItemType;
   };
 }

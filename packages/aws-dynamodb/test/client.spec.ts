@@ -80,7 +80,7 @@ describe.only('dynamodb client', () => {
     dbClient = Client.make({
       testTable: {
         tableName,
-        tableIndexes: ['id', 'order'],
+        tableIndexes: [['id', 'order']],
         tableSchema: {
           type: SchemaTypeName.Object,
           properties: {

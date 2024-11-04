@@ -7,13 +7,19 @@ export const executeStatement = async (
   client: DynamoDBDocumentClient,
   command: ExecuteStatementCommandInput
 ) => {
-  const result = await client.send(
-    new ExecuteStatementCommand({
-      ...command
-    })
-  );
+  try {
+    const result = await client.send(
+      new ExecuteStatementCommand({
+        ...command
+      })
+    );
 
-  return result;
+    return result;
+  } catch (e) {
+    console.debug(command.Statement);
+
+    throw e;
+  }
 };
 
 export const executeTransactions = async (client: DynamoDBDocumentClient, transactions: any[]) => {
