@@ -1,7 +1,7 @@
 import type { ConnectResourceEvent, PrepareResourceEvent } from '@ez4/project/library';
 
-import { isQueueImport, isQueueService } from '@ez4/queue/library';
 import { getServiceName } from '@ez4/project/library';
+import { isQueueImport } from '@ez4/queue/library';
 
 import { createQueue } from '../queue/service.js';
 import { connectSubscriptions, prepareSubscriptions } from './subscription.js';
@@ -13,15 +13,15 @@ export const prepareQueueImports = async (event: PrepareResourceEvent) => {
     return;
   }
 
+  const { reference, project } = service;
   const { imports } = options;
-  const { project } = service;
 
   if (!imports || !imports[project]) {
     throw new Error(`Imported project ${project} wasn't found.`);
   }
 
   const queueState = createQueue(state, {
-    queueName: getServiceName(service.reference, imports[project]),
+    queueName: getServiceName(reference, imports[project]),
     import: true
   });
 
@@ -31,7 +31,7 @@ export const prepareQueueImports = async (event: PrepareResourceEvent) => {
 export const connectQueueImports = (event: ConnectResourceEvent) => {
   const { state, service, role, options } = event;
 
-  if (isQueueService(service)) {
+  if (isQueueImport(service)) {
     connectSubscriptions(state, service, role, options);
   }
 };
