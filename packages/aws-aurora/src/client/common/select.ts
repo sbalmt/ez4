@@ -27,7 +27,9 @@ export const prepareSelect = <T extends Database.Schema, S extends Query.SelectI
   if ('order' in query && isAnyObject(query.order)) {
     const orderFields = prepareOrderFields(query.order);
 
-    statement.push(`ORDER BY ${orderFields}`);
+    if (orderFields) {
+      statement.push(`ORDER BY ${orderFields}`);
+    }
   }
 
   if ('cursor' in query && isAnyNumber(query.cursor)) {
