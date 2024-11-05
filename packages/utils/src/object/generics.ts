@@ -1,3 +1,5 @@
+import type { ArrayType } from '../main.js';
+
 /**
  * Represents any object.
  */
@@ -27,7 +29,11 @@ export type DeepPartial<T extends AnyObject> = {
  * type Foo = PartialProperties<{ bar: string, baz: number }>; // { bar: true, baz: true }
  */
 export type PartialProperties<T extends AnyObject> = {
-  [P in keyof T]?: NonNullable<T[P]> extends AnyObject ? PartialProperties<T[P]> | boolean : boolean;
+  [P in keyof T]?: ArrayType<NonNullable<T[P]>> extends AnyObject
+    ? PartialProperties<ArrayType<NonNullable<T[P]>>> | boolean
+    : NonNullable<T[P]> extends AnyObject
+      ? PartialProperties<T[P]> | boolean
+      : boolean;
 };
 
 /**
