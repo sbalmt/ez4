@@ -31,8 +31,7 @@ export const prepareLinkedService = async (event: ServiceEvent): Promise<ExtraSo
 };
 
 const getTableIndexes = (tableIndexes: Database.Indexes<any>) => {
-  const primaryIndexes = [];
-  const secondaryIndexes = [];
+  const indexes = [];
 
   for (const indexName in tableIndexes) {
     const indexType = tableIndexes[indexName];
@@ -40,14 +39,11 @@ const getTableIndexes = (tableIndexes: Database.Indexes<any>) => {
 
     switch (indexType) {
       case Index.Primary:
-        primaryIndexes.push(indexParts);
-        break;
-
       case Index.Secondary:
-        secondaryIndexes.push(indexParts);
+        indexes.push(indexParts);
         break;
     }
   }
 
-  return [...primaryIndexes, ...secondaryIndexes];
+  return indexes;
 };
