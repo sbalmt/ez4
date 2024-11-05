@@ -116,6 +116,7 @@ const validateIndexSchema = (
 
       if (!columnSchema) {
         errorList.push(new InvalidIndexReferenceError(indexName, type.file));
+        break;
       }
     }
   }
