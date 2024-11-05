@@ -1,37 +1,51 @@
 import type { Database } from '@ez4/database';
 import type { String } from '@ez4/schema';
 
-export const enum RecordType {
+export const enum EnumType {
   A = 'a',
   B = 'b'
 }
+
+export type ObjectType = {
+  foo: string;
+};
 
 /**
  * Table schema example.
  */
 export declare class TableSchema implements Database.Schema {
   /**
-   * Example of a numeric property.
+   * Example of a numeric property (as primary key).
    */
   id: number;
 
   /**
-   * Example of a text property.
+   * Example of an optional text property.
    */
-  content: string;
+  text?: string;
 
   /**
-   * Example of a flag property
+   * Example of an optional flag property.
    */
-  enabled: boolean;
+  bool?: boolean;
 
   /**
    * Example of an enum property.
    */
-  record_type: RecordType;
+  enum: EnumType;
 
   /**
-   * Example of a rich-type property.
+   * Example of an object property.
    */
-  created_at: String.DateTime;
+  object: ObjectType;
+
+  /**
+   * Example of a  property.
+   */
+  list: ObjectType[];
+
+  /**
+   * Example of a rich-type property (ISO date and time).
+   */
+  date: String.DateTime;
 }
