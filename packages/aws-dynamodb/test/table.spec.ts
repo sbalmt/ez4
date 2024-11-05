@@ -106,36 +106,6 @@ describe.only('dynamodb table', () => {
     lastState = state;
   });
 
-  it('assert :: update streams', async () => {
-    ok(tableId && lastState);
-
-    const localState = deepClone(lastState);
-    const resource = localState[tableId];
-
-    ok(resource && isTableState(resource));
-
-    resource.parameters.enableStreams = false;
-
-    const { state } = await assertDeploy(tableId, localState, lastState);
-
-    lastState = state;
-  });
-
-  it('assert :: update ttl', async () => {
-    ok(tableId && lastState);
-
-    const localState = deepClone(lastState);
-    const resource = localState[tableId];
-
-    ok(resource && isTableState(resource));
-
-    resource.parameters.ttlAttribute = undefined;
-
-    const { state } = await assertDeploy(tableId, localState, lastState);
-
-    lastState = state;
-  });
-
   it('assert :: update indexes', async () => {
     ok(tableId && lastState);
 
@@ -163,6 +133,36 @@ describe.only('dynamodb table', () => {
         }
       ]
     ];
+
+    const { state } = await assertDeploy(tableId, localState, lastState);
+
+    lastState = state;
+  });
+
+  it('assert :: update streams', async () => {
+    ok(tableId && lastState);
+
+    const localState = deepClone(lastState);
+    const resource = localState[tableId];
+
+    ok(resource && isTableState(resource));
+
+    resource.parameters.enableStreams = false;
+
+    const { state } = await assertDeploy(tableId, localState, lastState);
+
+    lastState = state;
+  });
+
+  it('assert :: update ttl', async () => {
+    ok(tableId && lastState);
+
+    const localState = deepClone(lastState);
+    const resource = localState[tableId];
+
+    ok(resource && isTableState(resource));
+
+    resource.parameters.ttlAttribute = undefined;
 
     const { state } = await assertDeploy(tableId, localState, lastState);
 
