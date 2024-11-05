@@ -6,6 +6,7 @@ import { isRoleState } from '@ez4/aws-identity';
 
 import { createQueue } from '../queue/service.js';
 import { connectSubscriptions, prepareSubscriptions } from './subscription.js';
+import { ProjectMissing, RoleMissing } from './errors.js';
 
 export const prepareQueueImports = async (event: PrepareResourceEvent) => {
   const { state, service, options, role } = event;
@@ -15,14 +16,14 @@ export const prepareQueueImports = async (event: PrepareResourceEvent) => {
   }
 
   if (!role || !isRoleState(role)) {
-    throw new Error(`Execution role for SQS is missing.`);
+    throw new RoleMissing();
   }
 
   const { reference, project } = service;
   const { imports } = options;
 
   if (!imports || !imports[project]) {
-    throw new Error(`Imported project ${project} wasn't found.`);
+    throw new ProjectMissing(project);
   }
 
   const queueState = createQueue(state, {
@@ -41,7 +42,7 @@ export const connectQueueImports = (event: ConnectResourceEvent) => {
   }
 
   if (!role || !isRoleState(role)) {
-    throw new Error(`Execution role for SQS is missing.`);
+    throw new RoleMissing();
   }
 
   connectSubscriptions(state, service, role, options);

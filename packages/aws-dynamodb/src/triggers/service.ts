@@ -9,6 +9,7 @@ import { createTable } from '../table/service.js';
 import { getStreamName, getTableName } from './utils.js';
 import { getAttributeSchema } from './schema.js';
 import { prepareTableStream } from './stream.js';
+import { RoleMissing } from './errors.js';
 
 export const prepareDatabaseServices = async (event: PrepareResourceEvent) => {
   const { state, service, role, options } = event;
@@ -18,7 +19,7 @@ export const prepareDatabaseServices = async (event: PrepareResourceEvent) => {
   }
 
   if (!role || !isRoleState(role)) {
-    throw new Error(`Execution role for DynamoDB is missing.`);
+    throw new RoleMissing();
   }
 
   for (const table of service.tables) {
@@ -45,7 +46,7 @@ export const connectDatabaseServices = (event: ConnectResourceEvent) => {
   }
 
   if (!role || !isRoleState(role)) {
-    throw new Error(`Execution role for DynamoDB is missing.`);
+    throw new RoleMissing();
   }
 
   for (const table of service.tables) {

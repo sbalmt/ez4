@@ -6,6 +6,7 @@ import { isRoleState } from '@ez4/aws-identity';
 
 import { createQueue } from '../queue/service.js';
 import { connectSubscriptions, prepareSubscriptions } from './subscription.js';
+import { RoleMissing } from './errors.js';
 
 export const prepareQueueServices = async (event: PrepareResourceEvent) => {
   const { state, service, role, options } = event;
@@ -15,7 +16,7 @@ export const prepareQueueServices = async (event: PrepareResourceEvent) => {
   }
 
   if (!role || !isRoleState(role)) {
-    throw new Error(`Execution role for SQS is missing.`);
+    throw new RoleMissing();
   }
 
   const { timeout, retention, polling, delay } = service;
@@ -39,7 +40,7 @@ export const connectQueueServices = (event: ConnectResourceEvent) => {
   }
 
   if (!role || !isRoleState(role)) {
-    throw new Error(`Execution role for SQS is missing.`);
+    throw new RoleMissing();
   }
 
   connectSubscriptions(state, service, role, options);
