@@ -50,19 +50,21 @@ describe.only('dynamodb table', () => {
       tableName: 'ez4TestTable2',
       enableStreams: true,
       ttlAttribute: 'ttl',
-      primarySchema: [
-        {
-          attributeName: 'id',
-          attributeType: AttributeType.String,
-          keyType: AttributeKeyType.Hash
-        },
-        {
-          attributeName: 'order',
-          attributeType: AttributeType.Number,
-          keyType: AttributeKeyType.Range
-        }
-      ],
-      secondarySchema: [
+      attributeSchema: [
+        // Primary index
+        [
+          {
+            attributeName: 'id',
+            attributeType: AttributeType.String,
+            keyType: AttributeKeyType.Hash
+          },
+          {
+            attributeName: 'order',
+            attributeType: AttributeType.Number,
+            keyType: AttributeKeyType.Range
+          }
+        ],
+        // Secondary index
         [
           {
             attributeName: 'id',
@@ -142,7 +144,10 @@ describe.only('dynamodb table', () => {
 
     ok(resource && isTableState(resource));
 
-    resource.parameters.secondarySchema = [
+    const [primaryIndex] = resource.parameters.attributeSchema;
+
+    resource.parameters.attributeSchema = [
+      primaryIndex,
       [
         {
           attributeName: 'external_id',

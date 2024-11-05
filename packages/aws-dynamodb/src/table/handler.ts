@@ -146,8 +146,8 @@ const checkIndexUpdates = async (
   candidate: TableParameters,
   current: TableParameters
 ) => {
-  const target = candidate.secondarySchema ?? [];
-  const source = current.secondarySchema ?? [];
+  const [, ...target] = candidate.attributeSchema;
+  const [, ...source] = current.attributeSchema;
 
   const changes = deepCompareArray(target, source);
 

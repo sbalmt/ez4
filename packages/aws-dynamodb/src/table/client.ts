@@ -1,5 +1,5 @@
 import type { Arn, ResourceTags } from '@ez4/aws-common';
-import type { AttributeSchema, AttributeSchemaGroup } from '../types/schema.js';
+import type { AttributeSchemaGroup } from '../types/schema.js';
 
 import { getTagList, Logger } from '@ez4/aws-common';
 
@@ -40,8 +40,7 @@ export type CapacityUnits = {
 
 export type CreateRequest = {
   tableName: string;
-  primarySchema: AttributeSchema[];
-  secondarySchema?: AttributeSchemaGroup[];
+  attributeSchema: AttributeSchemaGroup[];
   capacityUnits?: CapacityUnits;
   allowDeletion?: boolean;
   enableStreams?: boolean;
@@ -67,7 +66,9 @@ export type UpdateTimeToLiveRequest = {
 export const createTable = async (request: CreateRequest): Promise<CreateResponse> => {
   Logger.logCreate(TableServiceName, request.tableName);
 
-  const { primarySchema, secondarySchema, capacityUnits, enableStreams } = request;
+  const { attributeSchema, capacityUnits, enableStreams } = request;
+
+  const [primarySchema, ...secondarySchema] = attributeSchema;
 
   const maxWU = capacityUnits?.maxWriteUnits ?? defaultRWU;
   const maxRU = capacityUnits?.maxReadUnits ?? defaultRWU;

@@ -52,17 +52,19 @@ describe.only('dynamodb client', () => {
     const resource = createTable(localState, {
       tableName,
       allowDeletion: true,
-      primarySchema: [
-        {
-          attributeName: 'id',
-          attributeType: AttributeType.String,
-          keyType: AttributeKeyType.Hash
-        },
-        {
-          attributeName: 'order',
-          attributeType: AttributeType.Number,
-          keyType: AttributeKeyType.Range
-        }
+      attributeSchema: [
+        [
+          {
+            attributeName: 'id',
+            attributeType: AttributeType.String,
+            keyType: AttributeKeyType.Hash
+          },
+          {
+            attributeName: 'order',
+            attributeType: AttributeType.Number,
+            keyType: AttributeKeyType.Range
+          }
+        ]
       ]
     });
 

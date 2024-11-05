@@ -45,8 +45,7 @@ export const getAttributeSchema = (indexes: Database.Indexes, schema: ObjectSche
   }
 
   return {
-    primarySchema,
-    secondarySchema,
+    attributeSchema: [primarySchema, ...secondarySchema],
     ttlAttribute
   };
 };
