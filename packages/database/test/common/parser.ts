@@ -4,7 +4,7 @@ import { getDatabaseServices } from '@ez4/database/library';
 import { equal } from 'assert/strict';
 
 export const parseFile = (fileName: string, errorCount: number) => {
-  const sourceFile = `./test/input/${fileName}.ts`;
+  const sourceFile = `./test/models/${fileName}.ts`;
 
   const reflection = getReflection([sourceFile]);
 
