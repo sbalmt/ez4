@@ -1,5 +1,6 @@
-import type { Indexes, TableIndexes } from './indexes.js';
+import type { Indexes, IndexedTables } from './indexes.js';
 import type { TableSchemas } from './schemas.js';
+import type { TableIndex } from './table.js';
 import type { Database } from './database.js';
 import type { Query } from './query.js';
 
@@ -15,22 +16,8 @@ export namespace Transaction {
       ? {
           [alias: string]:
             | InsertOperation<TableSchemas<T>[P]>
-            | UpdateOperation<
-                TableSchemas<T>[P],
-                P extends keyof TableIndexes<T>
-                  ? TableIndexes<T>[P] extends Indexes
-                    ? TableIndexes<T>[P]
-                    : never
-                  : never
-              >
-            | DeleteOperation<
-                TableSchemas<T>[P],
-                P extends keyof TableIndexes<T>
-                  ? TableIndexes<T>[P] extends Indexes
-                    ? TableIndexes<T>[P]
-                    : never
-                  : never
-              >;
+            | UpdateOperation<TableSchemas<T>[P], TableIndex<P, IndexedTables<T>>>
+            | DeleteOperation<TableSchemas<T>[P], TableIndex<P, IndexedTables<T>>>;
         }
       : never;
   };

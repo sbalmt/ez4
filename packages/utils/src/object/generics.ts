@@ -1,4 +1,4 @@
-import type { ArrayType } from '../main.js';
+import type { ArrayType, IsArray } from '../main.js';
 
 /**
  * Represents any object.
@@ -14,11 +14,20 @@ export type Incomplete<T> = {
 };
 
 /**
- * Based on the given object type `T`, it produces a new object type having all first-level
- * and nested properties as optional.
+ * Given an object type `T`, it returns corresponding type for the given `P` property.
+ */
+export type PropertyType<P, T extends AnyObject> = P extends keyof T ? T[P] : never;
+
+/**
+ * Based on the given object type `T`, it produces a new object type having its nested
+ * properties set to optional.
  */
 export type DeepPartial<T extends AnyObject> = {
-  [P in keyof T]?: NonNullable<T[P]> extends AnyObject ? DeepPartial<T[P]> : T[P];
+  [P in keyof T]?: IsArray<T[P]> extends false
+    ? NonNullable<T[P]> extends AnyObject
+      ? DeepPartial<T[P]>
+      : T[P]
+    : T[P];
 };
 
 /**

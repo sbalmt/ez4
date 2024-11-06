@@ -1,6 +1,5 @@
 import type { ArrayRest, IsArrayEmpty } from '@ez4/utils';
-import type { DatabaseTables } from './helpers.js';
-import type { Database } from './database.js';
+import type { Database, DatabaseTables } from './database.js';
 
 /**
  * All supported index types.
@@ -26,38 +25,41 @@ export type DecomposeIndexName<T> = T extends `${infer L}:${infer R}`
   : T;
 
 /**
- * Given an index object `T`, it produces another object containing only primary indexes.
+ * Given an index object `T`, it produces an object containing only primary indexes.
  */
 export type PrimaryIndexes<T> = {
   [P in keyof T as T[P] extends Index.Primary ? P : never]: T[P];
 };
 
 /**
- * Given an index object `T`, it produces another object containing only secondary indexes.
+ * Given an index object `T`, it produces an object containing only secondary indexes.
  */
 export type SecondaryIndexes<T> = {
   [P in keyof T as T[P] extends Index.Secondary ? P : never]: T[P];
 };
 
 /**
- * Given a database service `T`, it produces an object containing all tables with indexes.
+ * Given a database service `T`, it produces an object with all tables containing indexes.
  */
-export type TableIndexes<T extends Database.Service<any>> = MergeIndexes<DatabaseTables<T>>;
+export type IndexedTables<T extends Database.Service<any>> = MergeIndexes<DatabaseTables<T>>;
 
 /**
  * Given a list of tables with indexes `T`, it produces another object containing all the
- * table indexes mapped by table name.
+ * table indexes.
  */
 type MergeIndexes<T extends Database.Table[]> =
-  IsArrayEmpty<T> extends true ? {} : TableIndex<T[0]> & MergeIndexes<ArrayRest<T>>;
+  IsArrayEmpty<T> extends true ? {} : TableIndexes<T[0]> & MergeIndexes<ArrayRest<T>>;
 
 /**
- * Given a database table `T`, it produces another object containing all its index names.
+ * Given a union of indexes `U`, it produces an object with the index type `T` for each index
+ * within the union.
  */
-type TableIndex<T> = T extends {
-  name: infer N;
-  indexes: infer I;
-}
+type IndexProperties<T extends Index, U extends string> = U extends never ? {} : { [P in U]: T };
+
+/**
+ * Given a database table `T`, it produces an object containing all the table indexes.
+ */
+type TableIndexes<T> = T extends { name: infer N; indexes: infer I }
   ? N extends string
     ? {
         [P in N]:
@@ -66,9 +68,3 @@ type TableIndex<T> = T extends {
       }
     : {}
   : {};
-
-/**
- * Given a union of indexes `U`, it produces another object containing the index type `T`
- * for each index within the union.
- */
-type IndexProperties<T extends Index, U extends string> = U extends never ? {} : { [P in U]: T };

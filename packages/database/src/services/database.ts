@@ -1,9 +1,14 @@
 import type { Service } from '@ez4/common';
 import type { LinkedVariables } from '@ez4/project/library';
 import type { StreamChange } from './streams.js';
-import type { TableTypes } from './helpers.js';
+import type { TableTypes } from './table.js';
 import type { Client } from './client.js';
 import type { Index } from './indexes.js';
+
+/**
+ * Given a database service `T`, it returns all its table.
+ */
+export type DatabaseTables<T> = T extends { tables: infer U } ? U : [];
 
 /**
  * Provide all contracts for a self-managed database service.
