@@ -20,10 +20,15 @@ export namespace Database {
   export interface Schema {}
 
   /**
+   * Table relations.
+   */
+  export interface Relations {}
+
+  /**
    * Table indexes.
    */
   export type Indexes<T extends Schema = Schema> = {
-    [P in `${string & keyof T}:${string & keyof T}` | keyof T]?: Index;
+    [P in keyof T]?: Index;
   };
 
   /**
@@ -70,6 +75,11 @@ export namespace Database {
      * Table schema.
      */
     schema: T;
+
+    /**
+     * Table relations.
+     */
+    relations?: Relations;
 
     /**
      * Table indexes.

@@ -15,6 +15,10 @@ export const isStreamHandler = (type: AllType): type is TypeCallback | TypeFunct
   return isTypeCallback(type) || isTypeFunction(type);
 };
 
+export const isTableRelations = (type: TypeModel) => {
+  return hasHeritageType(type, 'Database.Relations');
+};
+
 export const isTableIndexes = (type: TypeModel) => {
   return hasHeritageType(type, 'Database.Indexes');
 };

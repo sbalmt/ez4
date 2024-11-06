@@ -34,5 +34,6 @@ describe.only('database metadata', () => {
   it('assert :: database tables', () => testFile('tables'));
   it('assert :: table schema', () => testFile('schema'));
   it('assert :: table indexes', () => testFile('indexes'));
+  it('assert :: table relations', () => testFile('relations'));
   it('assert :: table stream', () => testFile('stream'));
 });

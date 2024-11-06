@@ -11,21 +11,14 @@
           "properties": {
             "foo": {
               "type": "string"
-            },
-            "bar": {
-              "type": "number"
-            },
-            "ttl": {
-              "type": "number"
             }
           }
         },
+        "relations": {
+          "testTable": "test@bar"
+        },
         "indexes": {
-          "foo": "primary",
-          "bar": "secondary",
-          "ttl": "ttl",
-          "foo:ttl": "primary",
-          "bar:foo": "secondary"
+          "foo": "primary"
         }
       },
       {
@@ -33,23 +26,13 @@
         "schema": {
           "type": "object",
           "properties": {
-            "baz": {
+            "bar": {
               "type": "string"
-            },
-            "qux": {
-              "type": "number"
-            },
-            "ttl": {
-              "type": "number"
             }
           }
         },
         "indexes": {
-          "baz": "primary",
-          "qux": "secondary",
-          "ttl": "ttl",
-          "baz:ttl": "primary",
-          "qux:baz": "secondary"
+          "bar": "primary"
         }
       }
     ]

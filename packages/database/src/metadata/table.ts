@@ -11,8 +11,9 @@ import { isModelProperty, isTypeObject, isTypeReference } from '@ez4/reflection'
 import { IncompleteTableError } from '../errors/table.js';
 import { InvalidIndexReferenceError } from '../errors/indexes.js';
 import { isDatabaseTable } from './utils.js';
-import { getTableSchema } from './schema.js';
+import { getTableRelations } from './relations.js';
 import { getTableIndexes } from './indexes.js';
+import { getTableSchema } from './schema.js';
 import { getTableStream } from './stream.js';
 
 export const getDatabaseTable = (type: AllType, reflection: SourceMap, errorList: Error[]) => {
@@ -66,6 +67,14 @@ const getTypeFromMembers = (
         }
         break;
 
+      case 'relations': {
+        const relations = getTableRelations(member.value, type, reflection, errorList);
+        if (relations) {
+          table.relations = relations;
+        }
+        break;
+      }
+
       case 'indexes': {
         if ((table.indexes = getTableIndexes(member.value, type, reflection, errorList))) {
           properties.delete(member.name);
@@ -111,13 +120,12 @@ const validateIndexSchema = (
   const errorList = [];
 
   for (const indexName in indexes) {
-    for (const columnName of indexName.split(':')) {
-      const columnSchema = allColumns[columnName];
+    const indexColumns = indexName.split(':');
 
-      if (!columnSchema) {
-        errorList.push(new InvalidIndexReferenceError(indexName, type.file));
-        break;
-      }
+    const hasMissing = indexColumns.some((columnName) => !allColumns[columnName]);
+
+    if (hasMissing) {
+      errorList.push(new InvalidIndexReferenceError(indexName, type.file));
     }
   }
 

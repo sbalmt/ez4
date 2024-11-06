@@ -8,9 +8,9 @@ import type { TableSchemas } from './schemas.js';
 export type RelationAlias<T> = T extends `${infer U}@${string}` ? U : T extends string ? T : never;
 
 /**
- * Given a relation name `T`, it produces the relation field name.
+ * Given a relation name `T`, it produces the relation column name.
  */
-export type RelationField<T> = T extends `${string}@${infer U}` ? U : never;
+export type RelationColumn<T> = T extends `${string}@${infer U}` ? U : never;
 
 /**
  * Given a database service `T`, it produces an object containing all relation table schemas.
@@ -52,7 +52,7 @@ type TableRelation<T, U extends Database.Schema> = T extends { name: infer N; re
             [A in keyof R as RelationAlias<R[A]>]: PropertyType<A, U>;
           };
           field: {
-            [A in keyof R as RelationField<R[A]>]: unknown;
+            [A in keyof R as RelationColumn<R[A]>]: unknown;
           };
         };
       }

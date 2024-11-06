@@ -1,7 +1,7 @@
 import type { Incomplete } from '@ez4/utils';
-import type { ModelProperty, SourceMap } from '@ez4/reflection';
-import type { DatabaseTable } from '../types/table.js';
+import type { ModelProperty, SourceMap, TypeModel, TypeObject } from '@ez4/reflection';
 import type { DatabaseService } from '../types/service.js';
+import type { DatabaseTable } from '../types/table.js';
 
 import {
   getLinkedServiceList,
@@ -14,6 +14,7 @@ import {
 import { isModelProperty } from '@ez4/reflection';
 
 import { ServiceType } from '../types/service.js';
+import { InvalidRelationColumnError, InvalidRelationTableError } from '../errors/relations.js';
 import { IncompleteServiceError } from '../errors/service.js';
 import { isDatabaseService } from './utils.js';
 import { getDatabaseTable } from './table.js';
@@ -41,9 +42,7 @@ export const getDatabaseServices = (reflection: SourceMap) => {
 
       switch (member.name) {
         case 'engine': {
-          const value = getPropertyString(member);
-          if (value) {
-            service[member.name] = value;
+          if ((service.engine = getPropertyString(member))) {
             properties.delete(member.name);
           }
           break;
@@ -67,6 +66,13 @@ export const getDatabaseServices = (reflection: SourceMap) => {
 
     if (!isValidService(service)) {
       errorList.push(new IncompleteServiceError([...properties], statement.file));
+      continue;
+    }
+
+    const relationErrors = validateRelationSchema(statement, service.tables);
+
+    if (relationErrors.length) {
+      errorList.push(...relationErrors);
       continue;
     }
 
@@ -96,4 +102,31 @@ const getAllTables = (member: ModelProperty, reflection: SourceMap, errorList: E
   }
 
   return tableList;
+};
+
+const validateRelationSchema = (type: TypeObject | TypeModel, tables: DatabaseTable[]) => {
+  const errorList = [];
+
+  for (const { relations } of tables) {
+    if (!relations) {
+      continue;
+    }
+
+    for (const relationTable in relations) {
+      const [, relationColumn] = relations[relationTable].split('@');
+
+      const tableColumns = tables.find(({ name }) => name === relationTable)?.schema.properties;
+
+      if (!tableColumns) {
+        errorList.push(new InvalidRelationTableError(relationTable, type.file));
+        continue;
+      }
+
+      if (!tableColumns[relationColumn]) {
+        errorList.push(new InvalidRelationColumnError(relationTable, relationColumn, type.file));
+      }
+    }
+  }
+
+  return errorList;
 };
