@@ -8,7 +8,7 @@ export declare class TestDatabase extends Database.Service {
       name: 'testTable';
       relations: {
         // Only `string` is allowed for relations entries.
-        foo: 123;
+        'foo:id': 123;
       };
       indexes: {};
       schema: {};

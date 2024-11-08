@@ -6,12 +6,14 @@ export declare class TestDatabase extends Database.Service {
   tables: [
     {
       name: 'testTable';
+      schema: {
+        id: string;
+      };
       relations: {
         // Table `foo` doesn't exists on the database.
-        foo: 'alias@id';
+        'foo:id': 'id@alias';
       };
       indexes: {};
-      schema: {};
     }
   ];
 }

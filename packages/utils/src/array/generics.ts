@@ -3,7 +3,8 @@ import type { IsAny } from '../main.js';
 /**
  * Given a type `T`, it return `true` when `T` is an array, otherwise returns `false`.
  */
-export type IsArray<T> = IsAny<T> extends true ? false : T extends [...unknown[]] ? true : false;
+export type IsArray<T> =
+  IsAny<T> extends true ? false : NonNullable<T> extends [...unknown[]] ? true : false;
 
 /**
  * Given the array type `T`, it return `true` when `T` is empty or `any`, otherwise
@@ -22,4 +23,4 @@ export type ArrayRest<T extends unknown[]> =
  * Given the array type `T`, it returns the array element type.
  */
 export type ArrayType<T extends unknown[]> =
-  IsAny<T> extends true ? never : T extends (infer U)[] ? U : never;
+  IsAny<T> extends true ? never : T extends (infer U)[] ? NonNullable<U> : never;

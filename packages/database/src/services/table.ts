@@ -1,6 +1,6 @@
 import type { AnyObject, ArrayRest, IsArrayEmpty, IsAny, PropertyType } from '@ez4/utils';
-import type { RelationTableSchemas, RelationTableFields } from './relations.js';
-import type { Indexes, IndexedTables } from './indexes.js';
+import type { Relations, RelationTables } from './relations.js';
+import type { IndexedTables } from './indexes.js';
 import type { TableSchemas } from './schemas.js';
 import type { Database } from './database.js';
 import type { Query } from './query.js';
@@ -20,73 +20,78 @@ export type TableTypes<T extends Database.Schema[]> =
  * to the given property.
  */
 export type TableIndex<P, T extends AnyObject> =
-  PropertyType<P, T> extends Indexes ? PropertyType<P, T> : never;
+  PropertyType<P, T> extends Database.Indexes ? PropertyType<P, T> : never;
 
 /**
- * Given a database service `T`, it produces an object with all table schemas and relations.
+ * Given a table `T` and a property `P`, it returns all the relations corresponding
+ * to the given property.
  */
-type AllSchemas<T extends Database.Service<any>> = {
-  [P in keyof TableSchemas<T> | keyof RelationTableSchemas<T>]:
-    | PropertyType<P, TableSchemas<T>>
-    | (PropertyType<P, RelationTableSchemas<T>> &
-        Omit<PropertyType<P, TableSchemas<T>>, keyof PropertyType<P, RelationTableFields<T>>>);
-};
+export type TableRelation<P, T extends AnyObject> =
+  PropertyType<P, T> extends Relations ? PropertyType<P, T> : never;
 
 /**
  * Given a database service `T`, it returns all table clients.
  */
 export type TableClients<T extends Database.Service<any>> = {
-  [P in keyof AllSchemas<T>]: AllSchemas<T>[P] extends Database.Schema
-    ? Table<AllSchemas<T>[P], TableIndex<P, IndexedTables<T>>>
+  [P in keyof TableSchemas<T>]: TableSchemas<T>[P] extends Database.Schema
+    ? Table<
+        TableSchemas<T>[P],
+        TableIndex<P, IndexedTables<T>>,
+        TableRelation<P, RelationTables<T>>
+      >
     : never;
 };
 
 /**
  * Table client.
  */
-export interface Table<T extends Database.Schema, I extends Indexes> {
+export interface Table<
+  T extends Database.Schema,
+  I extends Database.Indexes<T>,
+  R extends Relations
+> {
   /**
    * Insert one record into the database.
    *
    * @param query Input query.
    */
-  insertOne(query: Query.InsertOneInput<T>): Promise<Query.InsertOneResult>;
+  insertOne(query: Query.InsertOneInput<T, I, R>): Promise<Query.InsertOneResult>;
 
   /**
    * Find one database record.
    *
    * @param query Input query.
    */
-  findOne<S extends Query.SelectInput<T>>(
+  findOne<S extends Query.SelectInput<T, R>>(
     query: Query.FindOneInput<T, S, I>
-  ): Promise<Query.FindOneResult<T, S>>;
+  ): Promise<Query.FindOneResult<T, S, R>>;
 
   /**
    * Update one database record.
    *
    * @param query Input query.
    */
-  updateOne<S extends Query.SelectInput<T>>(
-    query: Query.UpdateOneInput<T, S, I>
-  ): Promise<Query.UpdateOneResult<T, S>>;
+  updateOne<S extends Query.SelectInput<T, R>>(
+    query: Query.UpdateOneInput<T, S, I, R>
+  ): Promise<Query.UpdateOneResult<T, S, R>>;
 
   /**
    * Try to insert a database record, and if it already exists, perform an update instead.
    *
    * @param query Input query.
    */
-  upsertOne<S extends Query.SelectInput<T>>(
+  upsertOne<S extends Query.SelectInput<T, R>>(
     query: Query.UpsertOneInput<T, S, I>
-  ): Promise<Query.UpsertOneResult<T, S>>;
+  ): Promise<Query.UpsertOneResult<T, S, R>>;
 
   /**
    * Delete one database record.
    *
    * @param query Input query.
    */
-  deleteOne<S extends Query.SelectInput<T>>(
+  deleteOne<S extends Query.SelectInput<T, R>>(
     query: Query.DeleteOneInput<T, S, I>
-  ): Promise<Query.DeleteOneResult<T, S>>;
+  ): Promise<Query.DeleteOneResult<T, S, R>>;
 
   /**
    * Insert multiple records into the database.
@@ -100,25 +105,25 @@ export interface Table<T extends Database.Schema, I extends Indexes> {
    *
    * @param query Input query.
    */
-  findMany<S extends Query.SelectInput<T>>(
+  findMany<S extends Query.SelectInput<T, R>>(
     query: Query.FindManyInput<T, S, I>
-  ): Promise<Query.FindManyResult<T, S>>;
+  ): Promise<Query.FindManyResult<T, S, R>>;
 
   /**
    * Update multiple database records.
    *
    * @param query Input query.
    */
-  updateMany<S extends Query.SelectInput<T>>(
+  updateMany<S extends Query.SelectInput<T, R>>(
     query: Query.UpdateManyInput<T, S>
-  ): Promise<Query.UpdateManyResult<T, S>>;
+  ): Promise<Query.UpdateManyResult<T, S, R>>;
 
   /**
    * Delete multiple database records.
    *
    * @param query Input query.
    */
-  deleteMany<S extends Query.SelectInput<T>>(
+  deleteMany<S extends Query.SelectInput<T, R>>(
     query: Query.DeleteManyInput<T, S>
-  ): Promise<Query.DeleteManyResult<T, S>>;
+  ): Promise<Query.DeleteManyResult<T, S, R>>;
 }

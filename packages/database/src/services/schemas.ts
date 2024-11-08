@@ -17,6 +17,8 @@ type MergeTables<T extends Database.Table[]> =
  */
 type TableSchema<T> = T extends { name: infer N; schema: infer S }
   ? N extends string
-    ? { [P in N]: S }
+    ? S extends Database.Schema
+      ? { [P in N]: S }
+      : {}
     : {}
   : {};

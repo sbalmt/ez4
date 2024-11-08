@@ -1,5 +1,5 @@
+import type { Database, Relations, Query } from '@ez4/database';
 import type { SqlParameter } from '@aws-sdk/client-rds-data';
-import type { Database, Query } from '@ez4/database';
 import type { ObjectSchema } from '@ez4/schema';
 import type { DeepPartial } from '@ez4/utils';
 
@@ -12,18 +12,27 @@ import { prepareFieldData } from './data.js';
 
 type PrepareResult = [string, SqlParameter[]];
 
-export const prepareUpdate = <T extends Database.Schema, S extends Query.SelectInput<T> = {}>(
+export const prepareUpdate = <
+  T extends Database.Schema,
+  I extends Database.Indexes<T>,
+  R extends Relations,
+  S extends Query.SelectInput<T, R>
+>(
   table: string,
   schema: ObjectSchema,
-  query: Query.UpdateOneInput<T, S, any> | Query.UpdateManyInput<T, S>
+  query: Query.UpdateOneInput<T, S, I, R> | Query.UpdateManyInput<T, S>
 ): PrepareResult => {
-  const [updateFields, updateVariables] = prepareUpdateFields(schema, query.data);
-  const [whereFields, whereVariables] = prepareWhereFields(schema, query.where ?? {});
+  const [updateFields, variables] = prepareUpdateFields(schema, query.data);
 
   const statement = [`UPDATE "${table}" SET ${updateFields}`];
 
-  if (whereFields) {
-    statement.push(`WHERE ${whereFields}`);
+  if (query.where) {
+    const [whereFields, whereVariables] = prepareWhereFields(schema, query.where);
+
+    if (whereFields) {
+      statement.push(`WHERE ${whereFields}`);
+      variables.push(...whereVariables);
+    }
   }
 
   if (query.select) {
@@ -32,7 +41,7 @@ export const prepareUpdate = <T extends Database.Schema, S extends Query.SelectI
     statement.push(`RETURNING ${selectFields}`);
   }
 
-  return [statement.join(' '), [...updateVariables, ...whereVariables]];
+  return [statement.join(' '), variables];
 };
 
 const prepareUpdateFields = <T extends Database.Schema>(

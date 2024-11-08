@@ -1,6 +1,7 @@
-import type { Indexes, IndexedTables } from './indexes.js';
+import type { Relations, RelationTables } from './relations.js';
+import type { TableIndex, TableRelation } from './table.js';
+import type { IndexedTables } from './indexes.js';
 import type { TableSchemas } from './schemas.js';
-import type { TableIndex } from './table.js';
 import type { Database } from './database.js';
 import type { Query } from './query.js';
 
@@ -15,22 +16,46 @@ export namespace Transaction {
     [P in keyof TableSchemas<T>]?: TableSchemas<T>[P] extends Database.Schema
       ? {
           [alias: string]:
-            | InsertOperation<TableSchemas<T>[P]>
-            | UpdateOperation<TableSchemas<T>[P], TableIndex<P, IndexedTables<T>>>
-            | DeleteOperation<TableSchemas<T>[P], TableIndex<P, IndexedTables<T>>>;
+            | InsertOperation<
+                TableSchemas<T>[P],
+                TableIndex<P, IndexedTables<T>>,
+                TableRelation<P, RelationTables<T>>
+              >
+            | UpdateOperation<
+                TableSchemas<T>[P],
+                TableIndex<P, IndexedTables<T>>,
+                TableRelation<P, RelationTables<T>>
+              >
+            | DeleteOperation<
+                TableSchemas<T>[P],
+                TableIndex<P, IndexedTables<T>>,
+                TableRelation<P, RelationTables<T>>
+              >;
         }
       : never;
   };
 
-  type InsertOperation<T extends Database.Schema> = {
-    insert: Query.InsertOneInput<T>;
+  type InsertOperation<
+    T extends Database.Schema,
+    I extends Database.Indexes<T>,
+    R extends Relations
+  > = {
+    insert: Query.InsertOneInput<T, I, R>;
   };
 
-  type UpdateOperation<T extends Database.Schema, I extends Indexes> = {
-    update: Omit<Query.UpdateOneInput<T, Query.SelectInput<T>, I>, 'select'>;
+  type UpdateOperation<
+    T extends Database.Schema,
+    I extends Database.Indexes<T>,
+    R extends Relations
+  > = {
+    update: Omit<Query.UpdateOneInput<T, Query.SelectInput<T, R>, I, R>, 'select'>;
   };
 
-  type DeleteOperation<T extends Database.Schema, I extends Indexes> = {
-    delete: Omit<Query.DeleteOneInput<T, Query.SelectInput<T>, I>, 'select'>;
+  type DeleteOperation<
+    T extends Database.Schema,
+    I extends Database.Indexes<T>,
+    R extends Relations
+  > = {
+    delete: Omit<Query.DeleteOneInput<T, Query.SelectInput<T, R>, I>, 'select'>;
   };
 }

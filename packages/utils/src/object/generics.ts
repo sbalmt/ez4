@@ -1,9 +1,15 @@
-import type { ArrayType, IsArray } from '../main.js';
+import type { ArrayType, IsAny, IsArray } from '../main.js';
 
 /**
  * Represents any object.
  */
 export type AnyObject = Record<any, any>;
+
+/**
+ * Given a type `T`, it return `true` when `T` is an object, otherwise returns `false`.
+ */
+export type IsObject<T> =
+  IsAny<T> extends true ? false : NonNullable<T> extends AnyObject ? true : false;
 
 /**
  * Based on the given object type `T`, it produces a new object type allowing its original
@@ -24,7 +30,7 @@ export type PropertyType<P, T extends AnyObject> = P extends keyof T ? T[P] : ne
  */
 export type DeepPartial<T extends AnyObject> = {
   [P in keyof T]?: IsArray<T[P]> extends false
-    ? NonNullable<T[P]> extends AnyObject
+    ? IsObject<T[P]> extends true
       ? DeepPartial<T[P]>
       : T[P]
     : T[P];
@@ -38,10 +44,12 @@ export type DeepPartial<T extends AnyObject> = {
  * type Foo = PartialProperties<{ bar: string, baz: number }>; // { bar: true, baz: true }
  */
 export type PartialProperties<T extends AnyObject> = {
-  [P in keyof T]?: ArrayType<NonNullable<T[P]>> extends AnyObject
-    ? PartialProperties<ArrayType<NonNullable<T[P]>>> | boolean
-    : NonNullable<T[P]> extends AnyObject
-      ? PartialProperties<T[P]> | boolean
+  [P in keyof T]?: IsArray<T[P]> extends false
+    ? IsObject<T[P]> extends true
+      ? PartialProperties<NonNullable<T[P]>> | boolean
+      : boolean
+    : ArrayType<T[P]> extends AnyObject
+      ? PartialProperties<ArrayType<T[P]>> | boolean
       : boolean;
 };
 
@@ -54,9 +62,29 @@ export type PartialProperties<T extends AnyObject> = {
  type Foo = PartialObject<{ bar: string, baz: number }, { bar: true }>; // { bar: string }
  */
 export type PartialObject<T extends AnyObject, O extends AnyObject, V extends boolean = true> = {
-  [P in keyof T as PartialObjectProperty<O[P], P, V>]: NonNullable<O[P]> extends AnyObject
-    ? PartialObject<T[P], O[P], V>
-    : T[P];
+  [P in keyof T as PartialObjectProperty<O[P], P, V>]: IsArray<T[P]> extends false
+    ? IsObject<O[P]> extends true
+      ? PartialObject<T[P], O[P], V>
+      : T[P]
+    : IsObject<O[P]> extends true
+      ? ArrayType<T[P]> extends AnyObject
+        ? PartialObject<ArrayType<T[P]>, O[P], V>[]
+        : T[P]
+      : T[P];
+};
+
+/**
+ * Based on the given `T` object, it produces a new object that doesn't contain nested
+ * array types.
+ */
+export type FlatObject<T extends AnyObject> = {
+  [P in keyof T]: IsArray<T[P]> extends false
+    ? IsObject<T[P]> extends true
+      ? FlatObject<T[P]>
+      : T[P]
+    : ArrayType<T[P]> extends AnyObject
+      ? FlatObject<ArrayType<T[P]>>
+      : ArrayType<T[P]>;
 };
 
 /**

@@ -1,31 +1,34 @@
 import type { Database, Index } from '@ez4/database';
 
-export declare class TestDatabase extends Database.Service<[TestSchema]> {
+export declare class TestDatabase extends Database.Service {
   engine: 'test';
 
   tables: [
     {
-      name: 'inlineTestTable';
+      name: 'parentTestTable';
       schema: {
-        foo: string;
+        id: string;
       };
       relations: {
-        testTable: 'test@bar';
+        'childTestTable:parent_id': 'id@children';
       };
       indexes: {
-        foo: Index.Primary;
+        id: Index.Primary;
       };
     },
     {
-      name: 'testTable';
-      schema: TestSchema;
+      name: 'childTestTable';
+      schema: {
+        id: string;
+        parent_id: string;
+      };
+      relations: {
+        'parentTestTable:id': 'parent_id@parent';
+      };
       indexes: {
-        bar: Index.Primary;
+        id: Index.Primary;
+        parent_id: Index.Secondary;
       };
     }
   ];
-}
-
-declare class TestSchema implements Database.Schema {
-  bar: string;
 }

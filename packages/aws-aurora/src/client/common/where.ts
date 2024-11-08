@@ -10,9 +10,9 @@ import { prepareFieldData } from './data.js';
 
 type PrepareResult = [string, SqlParameter[]];
 
-export const prepareWhereFields = <T extends Database.Schema>(
+export const prepareWhereFields = <T extends Database.Schema, I extends Database.Indexes<T>>(
   schema: ObjectSchema,
-  query: Query.WhereInput<T, any>
+  query: Query.WhereInput<T, I>
 ): PrepareResult => {
   const prepareAll = (
     data: AnyObject,

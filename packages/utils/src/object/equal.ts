@@ -40,7 +40,7 @@ export const deepEqualObject = <T extends AnyObject, S extends AnyObject>(
     }
 
     if (isAnyObject(targetValue) && isAnyObject(sourceValue)) {
-      if (!deepEqualObject(targetValue, sourceValue, keyState || undefined)) {
+      if (!deepEqualObject(targetValue, sourceValue, keyState as Exclude<T, S>)) {
         return false;
       }
 

@@ -1,4 +1,4 @@
-import type { Database, Client as DbClient, Transaction } from '@ez4/database';
+import type { Database, Relations, Client as DbClient, Transaction } from '@ez4/database';
 import type { Repository } from './types.js';
 
 import { DynamoDBDocumentClient } from '@aws-sdk/lib-dynamodb';
@@ -8,9 +8,11 @@ import { executeTransactions, executeStatement } from './common/client.js';
 import { prepareDeleteOne, prepareInsertOne, prepareUpdateOne } from './common/queries.js';
 import { Table } from './table.js';
 
+type TableType = Table<Database.Schema, Database.Indexes<Database.Schema>, Relations>;
+
 const client = DynamoDBDocumentClient.from(new DynamoDBClient());
 
-const tableCache: Record<string, Table> = {};
+const tableCache: Record<string, TableType> = {};
 
 export namespace Client {
   export const make = <T extends Database.Service<any>>(

@@ -13,8 +13,13 @@ import {
 
 import { isModelProperty } from '@ez4/reflection';
 
+import {
+  InvalidRelationAliasError,
+  InvalidRelationColumnError,
+  InvalidRelationTableError
+} from '../errors/relations.js';
+
 import { ServiceType } from '../types/service.js';
-import { InvalidRelationColumnError, InvalidRelationTableError } from '../errors/relations.js';
 import { IncompleteServiceError } from '../errors/service.js';
 import { isDatabaseService } from './utils.js';
 import { getDatabaseTable } from './table.js';
@@ -107,23 +112,32 @@ const getAllTables = (member: ModelProperty, reflection: SourceMap, errorList: E
 const validateRelationSchema = (type: TypeObject | TypeModel, tables: DatabaseTable[]) => {
   const errorList = [];
 
-  for (const { relations } of tables) {
+  for (const { relations, schema } of tables) {
     if (!relations) {
       continue;
     }
 
-    for (const relationTable in relations) {
-      const [, relationColumn] = relations[relationTable].split('@');
+    const targetColumns = schema.properties;
 
-      const tableColumns = tables.find(({ name }) => name === relationTable)?.schema.properties;
+    for (const relation of relations) {
+      const { sourceTable, sourceColumn, targetColumn, targetAlias } = relation;
 
-      if (!tableColumns) {
-        errorList.push(new InvalidRelationTableError(relationTable, type.file));
-        continue;
+      const sourceColumns = tables.find(({ name }) => name === sourceTable)?.schema.properties;
+
+      if (!targetColumns[targetColumn]) {
+        errorList.push(new InvalidRelationColumnError(targetColumn, type.file));
       }
 
-      if (!tableColumns[relationColumn]) {
-        errorList.push(new InvalidRelationColumnError(relationTable, relationColumn, type.file));
+      if (targetColumns[targetAlias]) {
+        errorList.push(new InvalidRelationAliasError(targetAlias, type.file));
+      }
+
+      if (!sourceColumns) {
+        errorList.push(new InvalidRelationTableError(sourceTable, type.file));
+      }
+
+      if (sourceColumns && !sourceColumns[sourceColumn]) {
+        errorList.push(new InvalidRelationColumnError(sourceColumn, type.file));
       }
     }
   }

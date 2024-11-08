@@ -15,15 +15,12 @@ export class IncorrectRelationsTypeError extends IncorrectTypeError {
   }
 }
 
-export class InvalidRelationPatternError extends TypeError {
+export class InvalidRelationTargetError extends TypeError {
   constructor(
-    public relationTable: string,
+    public relationSource: string,
     fileName?: string
   ) {
-    super(
-      `Invalid relation, ${relationTable} must follow the pattern 'alias:field' or 'alias'.`,
-      fileName
-    );
+    super(`Target ${relationSource} must follow the pattern 'column@alias'.`, fileName);
   }
 }
 
@@ -32,19 +29,24 @@ export class InvalidRelationTableError extends TypeError {
     public relationTable: string,
     fileName?: string
   ) {
-    super(`Invalid relation, ${relationTable} must be valid table.`, fileName);
+    super(`Relation table ${relationTable} don't exists.`, fileName);
   }
 }
 
 export class InvalidRelationColumnError extends TypeError {
   constructor(
-    public relationTable: string,
     public relationColumn: string,
     fileName?: string
   ) {
-    super(
-      `Invalid relation, column ${relationColumn} must exists on ${relationTable} table.`,
-      fileName
-    );
+    super(`Relation column ${relationColumn} don't exists.`, fileName);
+  }
+}
+
+export class InvalidRelationAliasError extends TypeError {
+  constructor(
+    public relationAlias: string,
+    fileName?: string
+  ) {
+    super(`Relation alias ${relationAlias} can't override table columns.`, fileName);
   }
 }

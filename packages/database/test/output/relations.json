@@ -5,34 +5,51 @@
     "engine": "test",
     "tables": [
       {
-        "name": "inlineTestTable",
+        "name": "parentTestTable",
         "schema": {
           "type": "object",
           "properties": {
-            "foo": {
+            "id": {
               "type": "string"
             }
           }
         },
-        "relations": {
-          "testTable": "test@bar"
-        },
+        "relations": [
+          {
+            "sourceTable": "childTestTable",
+            "sourceColumn": "parent_id",
+            "targetColumn": "id",
+            "targetAlias": "children"
+          }
+        ],
         "indexes": {
-          "foo": "primary"
+          "id": "primary"
         }
       },
       {
-        "name": "testTable",
+        "name": "childTestTable",
         "schema": {
           "type": "object",
           "properties": {
-            "bar": {
+            "id": {
+              "type": "string"
+            },
+            "parent_id": {
               "type": "string"
             }
           }
         },
+        "relations": [
+          {
+            "sourceTable": "parentTestTable",
+            "sourceColumn": "id",
+            "targetColumn": "parent_id",
+            "targetAlias": "parent"
+          }
+        ],
         "indexes": {
-          "bar": "primary"
+          "id": "primary",
+          "parent_id": "secondary"
         }
       }
     ]

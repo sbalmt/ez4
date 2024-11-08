@@ -1,4 +1,4 @@
-import type { Database, Client as DbClient, Transaction } from '@ez4/database';
+import type { Database, Client as DbClient, Relations, Transaction } from '@ez4/database';
 import type { SqlParameter } from '@aws-sdk/client-rds-data';
 import type { Configuration, Repository } from './types.js';
 
@@ -8,9 +8,11 @@ import { prepareDeleteOne, prepareInsertOne, prepareUpdateOne } from './common/q
 import { executeStatement, executeTransaction } from './common/client.js';
 import { Table } from './table.js';
 
+type TableType = Table<Database.Schema, Database.Indexes<Database.Schema>, Relations>;
+
 const client = new RDSDataClient();
 
-const tableCache: Record<string, Table> = {};
+const tableCache: Record<string, TableType> = {};
 
 export namespace Client {
   export const make = <T extends Database.Service<any>>(

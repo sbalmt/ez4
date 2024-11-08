@@ -1,4 +1,5 @@
 import type { AnyObject, PartialProperties } from '../object/generics.js';
+import type { IsArray } from '../array/generics.js';
 
 import { ArrayComparison, deepCompareArray } from '../array/compare.js';
 import { deepCompareObject, ObjectComparison } from '../object/compare.js';
@@ -6,9 +7,11 @@ import { deepEqualObject } from '../object/equal.js';
 import { deepEqualArray } from '../array/equal.js';
 import { isAnyObject } from '../object/any.js';
 
-type Exclude<T extends AnyObject | unknown[]> = PartialProperties<T extends any[] ? never : T>;
+type Exclude<T extends AnyObject | unknown[]> =
+  IsArray<T> extends true ? never : PartialProperties<T>;
 
-type Return<T extends AnyObject | unknown[]> = T extends any[] ? ArrayComparison : ObjectComparison;
+type Return<T extends AnyObject | unknown[]> =
+  IsArray<T> extends true ? ArrayComparison : ObjectComparison;
 
 /**
  * Deep compare `target` and `source` and returns the differences between them.

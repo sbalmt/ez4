@@ -29,7 +29,7 @@ export const deepCompareObject = <T extends AnyObject, S extends AnyObject>(
 ): ObjectComparison => {
   const allKeys = new Set([...Object.keys(target), ...Object.keys(source)]);
 
-  const nested: Record<any, ObjectComparison> = {};
+  const nested: Record<string, ObjectComparison> = {};
 
   const create: AnyObject = {};
   const update: AnyObject = {};
@@ -71,11 +71,7 @@ export const deepCompareObject = <T extends AnyObject, S extends AnyObject>(
     }
 
     if (isAnyObject(targetValue) && isAnyObject(sourceValue)) {
-      const changes = deepCompareObject<AnyObject, AnyObject>(
-        targetValue,
-        sourceValue,
-        keyState || undefined
-      );
+      const changes = deepCompareObject(targetValue, sourceValue, keyState as Exclude<T, S>);
 
       if (changes.counts > 0) {
         nested[key] = changes;

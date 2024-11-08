@@ -1,18 +1,22 @@
-import type { Database, Query } from '@ez4/database';
+import type { Database, Relations, Query } from '@ez4/database';
 import type { ObjectSchema } from '@ez4/schema';
 
 type PrepareResult = [string, unknown[]];
 
-export const prepareInsert = <T extends Database.Schema>(
+export const prepareInsert = <
+  T extends Database.Schema,
+  I extends Database.Indexes<T>,
+  R extends Relations
+>(
   table: string,
   schema: ObjectSchema,
-  query: Query.InsertOneInput<T>
+  query: Query.InsertOneInput<T, I, R>
 ): PrepareResult => {
-  const [insertFields, insertVariables] = prepareInsertFields(query.data, schema);
+  const [insertFields, variables] = prepareInsertFields(query.data, schema);
 
   const statement = `INSERT INTO "${table}" value ${insertFields}`;
 
-  return [statement, insertVariables];
+  return [statement, variables];
 };
 
 const prepareInsertFields = <T extends Database.Schema>(

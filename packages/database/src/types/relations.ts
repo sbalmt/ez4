@@ -1,1 +1,6 @@
-export type TableRelations = Record<string, string>;
+export type TableRelation = {
+  sourceTable: string;
+  sourceColumn: string;
+  targetColumn: string;
+  targetAlias: string;
+};

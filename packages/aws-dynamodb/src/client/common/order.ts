@@ -1,10 +1,12 @@
-import type { Query } from '@ez4/database';
+import type { Database, Query } from '@ez4/database';
 
 import { Order } from '@ez4/database';
 
 type PrepareResult = string;
 
-export const prepareOrderFields = (order: Query.OrderInput<any>): PrepareResult => {
+export const prepareOrderFields = <T extends Database.Schema, I extends Database.Indexes<T>>(
+  order: Query.OrderInput<I>
+): PrepareResult => {
   const operations = [];
 
   for (const fieldKey in order) {

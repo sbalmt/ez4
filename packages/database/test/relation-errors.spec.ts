@@ -4,7 +4,7 @@ import { describe, it } from 'node:test';
 import {
   IncorrectRelationsTypeError,
   InvalidRelationsTypeError,
-  InvalidRelationPatternError,
+  InvalidRelationTargetError,
   InvalidRelationTableError,
   InvalidRelationColumnError
 } from '@ez4/database/library';
@@ -34,8 +34,8 @@ describe.only('database relation errors', () => {
   it('assert :: invalid relation pattern', () => {
     const [error1] = parseFile('invalid-relation-pattern', 1);
 
-    ok(error1 instanceof InvalidRelationPatternError);
-    equal(error1.relationTable, 'foo');
+    ok(error1 instanceof InvalidRelationTargetError);
+    equal(error1.relationSource, 'foo:id');
   });
 
   it('assert :: invalid relation table', () => {
@@ -49,7 +49,6 @@ describe.only('database relation errors', () => {
     const [error1] = parseFile('invalid-relation-column', 1);
 
     ok(error1 instanceof InvalidRelationColumnError);
-    equal(error1.relationTable, 'testTable');
     equal(error1.relationColumn, 'random_id');
   });
 });

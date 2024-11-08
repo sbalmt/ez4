@@ -1,6 +1,6 @@
 import type { MemberType } from '@ez4/common/library';
 import type { AllType, SourceMap, TypeModel, TypeObject } from '@ez4/reflection';
-import type { TableRelations } from '../types/relations.js';
+import type { TableRelation } from '../types/relations.js';
 
 import {
   isModelDeclaration,
@@ -14,7 +14,7 @@ import { isModelProperty, isTypeObject, isTypeReference } from '@ez4/reflection'
 import {
   IncorrectRelationsTypeError,
   InvalidRelationsTypeError,
-  InvalidRelationPatternError
+  InvalidRelationTargetError
 } from '../errors/relations.js';
 
 import { isTableRelations } from './utils.js';
@@ -63,22 +63,29 @@ const getTypeFromMembers = (
   members: MemberType[],
   errorList: Error[]
 ) => {
-  const relations: TableRelations = {};
+  const relations: TableRelation[] = [];
 
   for (const member of members) {
     if (!isModelProperty(member) || member.inherited) {
       continue;
     }
 
-    const relationTable = member.name;
-    const relationFields = getPropertyString(member);
+    const relationTarget = getPropertyString(member);
 
-    if (!relationFields) {
-      errorList.push(new InvalidRelationPatternError(relationTable, type.file));
+    if (!relationTarget) {
+      errorList.push(new InvalidRelationTargetError(member.name, type.file));
       return null;
     }
 
-    relations[relationTable] = relationFields;
+    const [sourceTable, sourceColumn] = member.name.split(':', 2);
+    const [targetColumn, targetAlias] = relationTarget.split('@', 2);
+
+    relations.push({
+      sourceTable,
+      sourceColumn,
+      targetColumn,
+      targetAlias
+    });
   }
 
   return relations;

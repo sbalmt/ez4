@@ -1,21 +1,25 @@
+import type { Database, Relations, Query } from '@ez4/database';
 import type { SqlParameter } from '@aws-sdk/client-rds-data';
-import type { Database, Query } from '@ez4/database';
 import type { ObjectSchema } from '@ez4/schema';
 
 import { prepareFieldData } from './data.js';
 
 type PrepareResult = [string, SqlParameter[]];
 
-export const prepareInsert = <T extends Database.Schema>(
+export const prepareInsert = <
+  T extends Database.Schema,
+  I extends Database.Indexes<T>,
+  R extends Relations
+>(
   table: string,
   schema: ObjectSchema,
-  query: Query.InsertOneInput<T>
+  query: Query.InsertOneInput<T, I, R>
 ): PrepareResult => {
-  const [insertFields, insertParameters, insertVariables] = prepareInsertFields(query.data, schema);
+  const [insertFields, insertParameters, variables] = prepareInsertFields(query.data, schema);
 
   const statement = `INSERT INTO "${table}" ${insertFields} VALUES ${insertParameters}`;
 
-  return [statement, insertVariables];
+  return [statement, variables];
 };
 
 const prepareInsertFields = <T extends Database.Schema>(

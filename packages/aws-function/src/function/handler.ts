@@ -184,10 +184,10 @@ const deleteResource = async (candidate: FunctionState) => {
   }
 };
 
-const checkConfigurationUpdates = async <T extends FunctionParameters>(
+const checkConfigurationUpdates = async (
   functionName: string,
-  candidate: T,
-  current: T
+  candidate: FunctionParameters,
+  current: FunctionParameters
 ) => {
   const protectedCandidate = {
     ...candidate,
