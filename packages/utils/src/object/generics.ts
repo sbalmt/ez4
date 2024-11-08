@@ -20,7 +20,13 @@ export type Incomplete<T> = {
 };
 
 /**
- * Given an object type `T`, it returns corresponding type for the given `P` property.
+ * Given an object type `T` and a property `P`, it returns `true` when the property exists,
+ * otherwise returns `false`.
+ */
+export type PropertyExists<P, T extends AnyObject> = P extends keyof T ? true : false;
+
+/**
+ * Given an object type `T` and a property `P`, it returns the corresponding property type.
  */
 export type PropertyType<P, T extends AnyObject> = P extends keyof T ? T[P] : never;
 

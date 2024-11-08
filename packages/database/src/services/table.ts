@@ -1,4 +1,4 @@
-import type { AnyObject, ArrayRest, IsArrayEmpty, IsAny, PropertyType } from '@ez4/utils';
+import type { AnyObject, ArrayRest, IsArrayEmpty, IsAny, PropertyExists } from '@ez4/utils';
 import type { Relations, RelationTables } from './relations.js';
 import type { IndexedTables } from './indexes.js';
 import type { TableSchemas } from './schemas.js';
@@ -20,14 +20,14 @@ export type TableTypes<T extends Database.Schema[]> =
  * to the given property.
  */
 export type TableIndex<P, T extends AnyObject> =
-  PropertyType<P, T> extends Database.Indexes ? PropertyType<P, T> : never;
+  PropertyExists<P, T> extends true ? (T[P] extends Database.Indexes ? T[P] : {}) : {};
 
 /**
  * Given a table `T` and a property `P`, it returns all the relations corresponding
  * to the given property.
  */
 export type TableRelation<P, T extends AnyObject> =
-  PropertyType<P, T> extends Relations ? PropertyType<P, T> : never;
+  PropertyExists<P, T> extends true ? (T[P] extends Relations ? T[P] : {}) : {};
 
 /**
  * Given a database service `T`, it returns all table clients.

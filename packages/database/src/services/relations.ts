@@ -46,9 +46,9 @@ type MergeRelations<
   S extends Record<string, Database.Schema>,
   I extends Record<string, Database.Indexes>
 > =
-  IsArrayEmpty<T> extends true
-    ? {}
-    : TableRelation<T[0], S, I> & MergeRelations<ArrayRest<T>, S, I>;
+  IsArrayEmpty<T> extends false
+    ? TableRelation<T[0], S, I> & MergeRelations<ArrayRest<T>, S, I>
+    : {};
 
 /**
  * Given a database table `T`, it produces an object containing all its relations.

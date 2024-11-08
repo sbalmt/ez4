@@ -150,12 +150,12 @@ export namespace Query {
   >;
 
   export type OrderInput<I extends Database.Indexes> = {
-    [P in keyof I]?: Order;
+    [P in DecomposeIndexName<keyof I>]?: Order;
   };
 
   export type WhereInput<
     T extends Database.Schema,
-    I extends Database.Indexes<T> = never
+    I extends Database.Indexes<T> = {}
   > = WhereFields<T, I> & WhereNot<T, I> & WhereAnd<T, I> & WhereOr<T, I>;
 
   export type WhereRequiredFields<T extends Database.Schema, I extends Database.Indexes<T>> = {

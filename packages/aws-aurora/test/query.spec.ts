@@ -4,7 +4,7 @@ import { describe, it } from 'node:test';
 import { prepareDelete, prepareInsert, prepareSelect, prepareUpdate } from '@ez4/aws-aurora/client';
 
 import { ObjectSchema, SchemaTypeName } from '@ez4/schema';
-import { Order, Query } from '@ez4/database';
+import { Index, Order, Query } from '@ez4/database';
 
 type TestSchema = {
   id: string;
@@ -15,17 +15,8 @@ type TestSchema = {
   };
 };
 
-const getWhereOperation = (schema: ObjectSchema, where: Query.WhereInput<TestSchema>) => {
-  const [statement, variables] = prepareSelect<TestSchema>('ez4-test-where-operation', schema, {
-    select: {
-      id: true
-    },
-    where
-  });
-
-  const whereStatement = statement.substring(statement.indexOf('WHERE'));
-
-  return [whereStatement, variables];
+type TestIndexes = {
+  id: Index.Primary;
 };
 
 describe.only('aurora query', () => {
@@ -53,17 +44,38 @@ describe.only('aurora query', () => {
     }
   };
 
+  const getWhereOperation = (schema: ObjectSchema, where: Query.WhereInput<TestSchema>) => {
+    const [statement, variables] = prepareSelect<TestSchema, TestIndexes, {}, {}>(
+      'ez4-test-where-operation',
+      schema,
+      {
+        select: {
+          id: true
+        },
+        where
+      }
+    );
+
+    const whereStatement = statement.substring(statement.indexOf('WHERE'));
+
+    return [whereStatement, variables];
+  };
+
   it('assert :: prepare insert', () => {
-    const [statement, variables] = prepareInsert<TestSchema>('ez4-test-insert', testSchema, {
-      data: {
-        id: 'abc',
-        foo: 123,
-        bar: {
-          barFoo: 'def',
-          barBar: true
+    const [statement, variables] = prepareInsert<TestSchema, TestIndexes, {}>(
+      'ez4-test-insert',
+      testSchema,
+      {
+        data: {
+          id: 'abc',
+          foo: 123,
+          bar: {
+            barFoo: 'def',
+            barBar: true
+          }
         }
       }
-    });
+    );
 
     equal(statement, `INSERT INTO "ez4-test-insert" ("id", "foo", "bar") VALUES (:i0, :i1, :i2)`);
 
@@ -95,15 +107,19 @@ describe.only('aurora query', () => {
   });
 
   it('assert :: prepare update', () => {
-    const [statement, variables] = prepareUpdate<TestSchema>('ez4-test-update', testSchema, {
-      data: {
-        id: 'new',
-        foo: 456
-      },
-      where: {
-        foo: 123
+    const [statement, variables] = prepareUpdate<TestSchema, TestIndexes, {}, {}>(
+      'ez4-test-update',
+      testSchema,
+      {
+        data: {
+          id: 'new',
+          foo: 456
+        },
+        where: {
+          foo: 123
+        }
       }
-    });
+    );
 
     equal(statement, `UPDATE "ez4-test-update" SET "id" = :u0, "foo" = :u1 WHERE "foo" = :0`);
 
@@ -131,23 +147,27 @@ describe.only('aurora query', () => {
   });
 
   it('assert :: prepare update (with select)', () => {
-    const [statement, variables] = prepareUpdate<TestSchema>('ez4-test-update', testSchema, {
-      select: {
-        foo: true,
-        bar: {
-          barBar: true
+    const [statement, variables] = prepareUpdate<TestSchema, TestIndexes, {}, {}>(
+      'ez4-test-update',
+      testSchema,
+      {
+        select: {
+          foo: true,
+          bar: {
+            barBar: true
+          }
+        },
+        data: {
+          foo: 456,
+          bar: {
+            barBar: false
+          }
+        },
+        where: {
+          id: 'abc'
         }
-      },
-      data: {
-        foo: 456,
-        bar: {
-          barBar: false
-        }
-      },
-      where: {
-        id: 'abc'
       }
-    });
+    );
 
     equal(
       statement,
@@ -181,26 +201,30 @@ describe.only('aurora query', () => {
   });
 
   it('assert :: prepare select', () => {
-    const [statement, variables] = prepareSelect<TestSchema>('ez4-test-select', testSchema, {
-      select: {
-        id: true,
-        foo: true,
-        bar: true
-      },
-      where: {
-        foo: 123
-      },
-      order: {
-        foo: Order.Desc
+    const [statement, variables] = prepareSelect<TestSchema, TestIndexes, {}, {}>(
+      'ez4-test-select',
+      testSchema,
+      {
+        select: {
+          id: true,
+          foo: true,
+          bar: true
+        },
+        where: {
+          foo: 123
+        },
+        order: {
+          id: Order.Desc
+        }
       }
-    });
+    );
 
     equal(
       statement,
       `SELECT "id", "foo", "bar" ` +
         `FROM "ez4-test-select" ` +
         `WHERE "foo" = :0 ` +
-        `ORDER BY "foo" DESC`
+        `ORDER BY "id" DESC`
     );
 
     deepEqual(variables, [
@@ -214,11 +238,15 @@ describe.only('aurora query', () => {
   });
 
   it('assert :: prepare delete', () => {
-    const [statement, variables] = prepareDelete<TestSchema>('ez4-test-delete', testSchema, {
-      where: {
-        id: 'abc'
+    const [statement, variables] = prepareDelete<TestSchema, TestIndexes, {}, {}>(
+      'ez4-test-delete',
+      testSchema,
+      {
+        where: {
+          id: 'abc'
+        }
       }
-    });
+    );
 
     equal(statement, `DELETE FROM "ez4-test-delete" WHERE "id" = :0`);
 
@@ -234,16 +262,20 @@ describe.only('aurora query', () => {
   });
 
   it('assert :: prepare delete (with select)', () => {
-    const [statement, variables] = prepareDelete<TestSchema>('ez4-test-delete', testSchema, {
-      select: {
-        id: true,
-        foo: true,
-        bar: true
-      },
-      where: {
-        id: 'abc'
+    const [statement, variables] = prepareDelete<TestSchema, TestIndexes, {}, {}>(
+      'ez4-test-delete',
+      testSchema,
+      {
+        select: {
+          id: true,
+          foo: true,
+          bar: true
+        },
+        where: {
+          id: 'abc'
+        }
       }
-    });
+    );
 
     equal(statement, `DELETE FROM "ez4-test-delete" WHERE "id" = :0 RETURNING "id", "foo", "bar"`);
 

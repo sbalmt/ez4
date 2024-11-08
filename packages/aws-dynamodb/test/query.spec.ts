@@ -1,15 +1,15 @@
 import { equal, deepEqual } from 'node:assert/strict';
 import { describe, it } from 'node:test';
 
+import { ObjectSchema, SchemaTypeName } from '@ez4/schema';
+import { Index, Order, Query } from '@ez4/database';
+
 import {
   prepareDelete,
   prepareInsert,
   prepareSelect,
   prepareUpdate
 } from '@ez4/aws-dynamodb/client';
-
-import { ObjectSchema, SchemaTypeName } from '@ez4/schema';
-import { Order, Query } from '@ez4/database';
 
 type TestSchema = {
   id: string;
@@ -20,17 +20,8 @@ type TestSchema = {
   };
 };
 
-const getWhereOperation = (where: Query.WhereInput<TestSchema>) => {
-  const [statement, variables] = prepareSelect<TestSchema>('ez4-test-where-operation', undefined, {
-    select: {
-      id: true
-    },
-    where
-  });
-
-  const whereStatement = statement.substring(statement.indexOf('WHERE'));
-
-  return [whereStatement, variables];
+type TestIndexes = {
+  id: Index.Primary;
 };
 
 describe.only('dynamodb query', () => {
@@ -57,17 +48,38 @@ describe.only('dynamodb query', () => {
     }
   };
 
+  const getWhereOperation = (where: Query.WhereInput<TestSchema>) => {
+    const [statement, variables] = prepareSelect<TestSchema, {}, {}, {}>(
+      'ez4-test-where-operation',
+      undefined,
+      {
+        select: {
+          id: true
+        },
+        where
+      }
+    );
+
+    const whereStatement = statement.substring(statement.indexOf('WHERE'));
+
+    return [whereStatement, variables];
+  };
+
   it('assert :: prepare insert', () => {
-    const [statement, variables] = prepareInsert<TestSchema>('ez4-test-insert', testSchema, {
-      data: {
-        id: 'abc',
-        foo: 123,
-        bar: {
-          barFoo: 'def',
-          barBar: true
+    const [statement, variables] = prepareInsert<TestSchema, TestIndexes, {}>(
+      'ez4-test-insert',
+      testSchema,
+      {
+        data: {
+          id: 'abc',
+          foo: 123,
+          bar: {
+            barFoo: 'def',
+            barBar: true
+          }
         }
       }
-    });
+    );
 
     equal(statement, `INSERT INTO "ez4-test-insert" value { 'id': ?, 'foo': ?, 'bar': ? }`);
 
@@ -75,14 +87,18 @@ describe.only('dynamodb query', () => {
   });
 
   it('assert :: prepare update', () => {
-    const [statement, variables] = prepareUpdate<TestSchema>('ez4-test-update', testSchema, {
-      data: {
-        foo: 456
-      },
-      where: {
-        foo: 123
+    const [statement, variables] = prepareUpdate<TestSchema, TestIndexes, {}, {}>(
+      'ez4-test-update',
+      testSchema,
+      {
+        data: {
+          foo: 456
+        },
+        where: {
+          foo: 123
+        }
       }
-    });
+    );
 
     equal(statement, `UPDATE "ez4-test-update" SET "foo" = ? WHERE "foo" = ?`);
 
@@ -90,23 +106,27 @@ describe.only('dynamodb query', () => {
   });
 
   it('assert :: prepare update (with select)', () => {
-    const [statement, variables] = prepareUpdate<TestSchema>('ez4-test-update', testSchema, {
-      select: {
-        foo: true,
-        bar: {
-          barBar: true
+    const [statement, variables] = prepareUpdate<TestSchema, TestIndexes, {}, {}>(
+      'ez4-test-update',
+      testSchema,
+      {
+        select: {
+          foo: true,
+          bar: {
+            barBar: true
+          }
+        },
+        data: {
+          foo: 456,
+          bar: {
+            barBar: false
+          }
+        },
+        where: {
+          id: 'abc'
         }
-      },
-      data: {
-        foo: 456,
-        bar: {
-          barBar: false
-        }
-      },
-      where: {
-        id: 'abc'
       }
-    });
+    );
 
     equal(
       statement,
@@ -117,40 +137,48 @@ describe.only('dynamodb query', () => {
   });
 
   it('assert :: prepare select', () => {
-    const [statement, variables] = prepareSelect<TestSchema>('ez4-test-select', undefined, {
-      select: {
-        id: true,
-        foo: true,
-        bar: true
-      },
-      where: {
-        foo: 123
-      },
-      order: {
-        foo: Order.Desc
+    const [statement, variables] = prepareSelect<TestSchema, TestIndexes, {}, {}>(
+      'ez4-test-select',
+      undefined,
+      {
+        select: {
+          id: true,
+          foo: true,
+          bar: true
+        },
+        where: {
+          foo: 123
+        },
+        order: {
+          id: Order.Desc
+        }
       }
-    });
+    );
 
     equal(
       statement,
       `SELECT "id", "foo", "bar" ` +
         `FROM "ez4-test-select" ` +
         `WHERE "foo" = ? ` +
-        `ORDER BY "foo" DESC`
+        `ORDER BY "id" DESC`
     );
 
     deepEqual(variables, [123]);
   });
 
   it('assert :: prepare select (with index)', () => {
-    const [statement, variables] = prepareSelect<TestSchema>('ez4-test-select', 'foo-index', {
-      select: {
-        id: true
-      },
-      where: {
-        foo: 123
+    const [statement, variables] = prepareSelect<TestSchema, TestIndexes, {}, {}>(
+      'ez4-test-select',
+      'foo-index',
+      {
+        select: {
+          id: true
+        },
+        where: {
+          foo: 123
+        }
       }
-    });
+    );
 
     equal(statement, `SELECT "id" FROM "ez4-test-select"."foo-index" WHERE "foo" = ?`);
 
@@ -158,11 +186,14 @@ describe.only('dynamodb query', () => {
   });
 
   it('assert :: prepare delete', () => {
-    const [statement, variables] = prepareDelete<TestSchema>('ez4-test-delete', {
-      where: {
-        id: 'abc'
+    const [statement, variables] = prepareDelete<TestSchema, TestIndexes, {}, {}>(
+      'ez4-test-delete',
+      {
+        where: {
+          id: 'abc'
+        }
       }
-    });
+    );
 
     equal(statement, `DELETE FROM "ez4-test-delete" WHERE "id" = ?`);
 
@@ -170,16 +201,19 @@ describe.only('dynamodb query', () => {
   });
 
   it('assert :: prepare delete (with select)', () => {
-    const [statement, variables] = prepareDelete<TestSchema>('ez4-test-delete', {
-      select: {
-        id: true,
-        foo: true,
-        bar: true
-      },
-      where: {
-        id: 'abc'
+    const [statement, variables] = prepareDelete<TestSchema, TestIndexes, {}, {}>(
+      'ez4-test-delete',
+      {
+        select: {
+          id: true,
+          foo: true,
+          bar: true
+        },
+        where: {
+          id: 'abc'
+        }
       }
-    });
+    );
 
     equal(statement, `DELETE FROM "ez4-test-delete" WHERE "id" = ? RETURNING ALL OLD *`);
 

@@ -41,7 +41,7 @@ export type IndexedTables<T extends Database.Service<any>> = MergeIndexes<Databa
  * table indexes.
  */
 type MergeIndexes<T extends Database.Table[]> =
-  IsArrayEmpty<T> extends true ? {} : TableIndexes<T[0]> & MergeIndexes<ArrayRest<T>>;
+  IsArrayEmpty<T> extends false ? TableIndexes<T[0]> & MergeIndexes<ArrayRest<T>> : {};
 
 /**
  * Given a database table `T`, it produces an object containing all the table indexes.

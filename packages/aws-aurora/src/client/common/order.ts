@@ -10,10 +10,12 @@ export const prepareOrderFields = <T extends Database.Schema, I extends Database
   const operations = [];
 
   for (const fieldKey in order) {
-    const fieldOrder = order[fieldKey];
+    const fieldOrder = order[fieldKey as keyof Query.OrderInput<I>];
 
     if (fieldOrder) {
-      operations.push(`"${fieldKey}" ${getFieldOrder(fieldOrder)}`);
+      const queryOrder = getFieldOrder(fieldOrder);
+
+      operations.push(`"${fieldKey}" ${queryOrder}`);
     }
   }
 
