@@ -4,7 +4,7 @@ import type { ObjectSchema } from '@ez4/schema';
 
 import { ConditionalCheckFailedException } from '@aws-sdk/client-dynamodb';
 
-import { executeStatement, executeTransactions } from './common/client.js';
+import { executeStatement, executeTransaction } from './common/client.js';
 
 import {
   prepareDeleteMany,
@@ -109,7 +109,7 @@ export class Table<T extends Database.Schema, I extends Database.Indexes<T>, R e
       query
     );
 
-    await executeTransactions(this.client, transactions);
+    await executeTransaction(this.client, transactions);
   }
 
   async updateMany<S extends Query.SelectInput<T, R>>(
@@ -125,7 +125,7 @@ export class Table<T extends Database.Schema, I extends Database.Indexes<T>, R e
       query
     );
 
-    await executeTransactions(this.client, transactions);
+    await executeTransaction(this.client, transactions);
 
     return records;
   }
@@ -157,7 +157,7 @@ export class Table<T extends Database.Schema, I extends Database.Indexes<T>, R e
       query
     );
 
-    await executeTransactions(this.client, transactions);
+    await executeTransaction(this.client, transactions);
 
     return records;
   }

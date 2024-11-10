@@ -14,7 +14,7 @@
             }
           }
         },
-        "indexes": {},
+        "indexes": [],
         "stream": {
           "handler": {
             "description": "Test table stream.",
@@ -35,7 +35,7 @@
             }
           }
         },
-        "indexes": {},
+        "indexes": [],
         "stream": {
           "handler": {
             "description": "Test table stream.",

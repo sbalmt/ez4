@@ -4,8 +4,8 @@ import type { Repository } from './types.js';
 import { DynamoDBDocumentClient } from '@aws-sdk/lib-dynamodb';
 import { DynamoDBClient } from '@aws-sdk/client-dynamodb';
 
-import { executeTransactions, executeStatement } from './common/client.js';
 import { prepareDeleteOne, prepareInsertOne, prepareUpdateOne } from './common/queries.js';
+import { executeStatement, executeTransaction } from './common/client.js';
 import { Table } from './table.js';
 
 type TableType = Table<Database.Schema, Database.Indexes<Database.Schema>, Relations>;
@@ -30,7 +30,7 @@ export namespace Client {
       }
 
       async transaction<O extends Transaction.WriteOperations<T>>(operations: O): Promise<void> {
-        const transactions = [];
+        const statements = [];
 
         for (const name in operations) {
           const operationTable = operations[name];
@@ -45,16 +45,16 @@ export namespace Client {
             const query = operationTable[operationName];
 
             if ('insert' in query) {
-              transactions.push(await prepareInsertOne(tableName, tableSchema, query.insert));
+              statements.push(await prepareInsertOne(tableName, tableSchema, query.insert));
             } else if ('update' in query) {
-              transactions.push(await prepareUpdateOne(tableName, tableSchema, query.update));
+              statements.push(await prepareUpdateOne(tableName, tableSchema, query.update));
             } else if ('delete' in query) {
-              transactions.push(prepareDeleteOne(tableName, query.delete));
+              statements.push(prepareDeleteOne(tableName, query.delete));
             }
           }
         }
 
-        await executeTransactions(client, transactions);
+        await executeTransaction(client, statements);
       }
     })();
 
@@ -71,7 +71,7 @@ export namespace Client {
         }
 
         if (!(name in repository)) {
-          throw new Error(`Table ${name} isn't part of the table repository.`);
+          throw new Error(`Table ${name} isn't part of the repository.`);
         }
 
         const { tableName, tableSchema, tableIndexes } = repository[name];

@@ -2,8 +2,8 @@ import type { Incomplete } from '@ez4/utils';
 import type { ObjectSchema } from '@ez4/schema';
 import type { MemberType } from '@ez4/common/library';
 import type { AllType, SourceMap, TypeModel, TypeObject } from '@ez4/reflection';
-import type { TableIndexes } from '../types/indexes.js';
 import type { DatabaseTable } from '../types/table.js';
+import type { TableIndex } from '../types/indexes.js';
 
 import { getModelMembers, getObjectMembers, getPropertyString } from '@ez4/common/library';
 import { isModelProperty, isTypeObject, isTypeReference } from '@ez4/reflection';
@@ -113,19 +113,17 @@ const getTypeFromMembers = (
 
 const validateIndexSchema = (
   type: TypeObject | TypeModel,
-  indexes: TableIndexes,
+  indexes: TableIndex[],
   schema: ObjectSchema
 ) => {
   const allColumns = schema.properties;
   const errorList = [];
 
-  for (const indexName in indexes) {
-    const indexColumns = indexName.split(':');
-
-    const hasMissing = indexColumns.some((columnName) => !allColumns[columnName]);
+  for (const { name, columns } of indexes) {
+    const hasMissing = columns.some((columnName) => !allColumns[columnName]);
 
     if (hasMissing) {
-      errorList.push(new InvalidIndexReferenceError(indexName, type.file));
+      errorList.push(new InvalidIndexReferenceError(name, type.file));
     }
   }
 

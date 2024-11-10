@@ -13,5 +13,7 @@ export * from './errors/stream.js';
 export * from './errors/handler.js';
 
 export * from './types/service.js';
-export * from './types/table.js';
+export * from './types/relations.js';
+export * from './types/indexes.js';
 export * from './types/schema.js';
+export * from './types/table.js';

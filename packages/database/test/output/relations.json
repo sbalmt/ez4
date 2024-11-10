@@ -22,9 +22,15 @@
             "targetAlias": "children"
           }
         ],
-        "indexes": {
-          "id": "primary"
-        }
+        "indexes": [
+          {
+            "type": "primary",
+            "name": "id",
+            "columns": [
+              "id"
+            ]
+          }
+        ]
       },
       {
         "name": "childTestTable",
@@ -47,10 +53,22 @@
             "targetAlias": "parent"
           }
         ],
-        "indexes": {
-          "id": "primary",
-          "parent_id": "secondary"
-        }
+        "indexes": [
+          {
+            "type": "primary",
+            "name": "id",
+            "columns": [
+              "id"
+            ]
+          },
+          {
+            "type": "secondary",
+            "name": "parent_id",
+            "columns": [
+              "parent_id"
+            ]
+          }
+        ]
       }
     ]
   }

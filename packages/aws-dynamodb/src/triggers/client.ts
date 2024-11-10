@@ -1,5 +1,5 @@
 import type { ExtraSource, ServiceEvent } from '@ez4/project/library';
-import type { Database } from '@ez4/database';
+import type { TableIndex } from '@ez4/database/library';
 
 import { Index } from '@ez4/database';
 import { isDatabaseService } from '@ez4/database/library';
@@ -30,18 +30,12 @@ export const prepareLinkedService = async (event: ServiceEvent): Promise<ExtraSo
   };
 };
 
-const getTableIndexes = (tableIndexes: Database.Indexes<any>) => {
+const getTableIndexes = (tableIndexes: TableIndex[]): string[][] => {
   const indexes = [];
 
-  for (const indexName in tableIndexes) {
-    const indexType = tableIndexes[indexName];
-    const indexParts = indexName.split(':');
-
-    switch (indexType) {
-      case Index.Primary:
-      case Index.Secondary:
-        indexes.push(indexParts);
-        break;
+  for (const { columns, type } of tableIndexes) {
+    if (type === Index.Primary || type === Index.Secondary) {
+      indexes.push(columns);
     }
   }
 
