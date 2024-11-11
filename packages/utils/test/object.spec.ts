@@ -89,8 +89,10 @@ describe.only('object utils', () => {
         }
       },
       {
-        first: {
-          second: true
+        exclude: {
+          first: {
+            second: true
+          }
         }
       }
     );
@@ -157,10 +159,12 @@ describe.only('object utils', () => {
     };
 
     const changes = deepCompare(target, source, {
-      level: true,
-      first: {
+      exclude: {
         level: true,
-        second: true
+        first: {
+          level: true,
+          second: true
+        }
       }
     });
 

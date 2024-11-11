@@ -178,7 +178,9 @@ const checkGeneralUpdates = async (
   current: GeneralUpdateParameters
 ) => {
   const hasChanges = !deepEqual(candidate, current, {
-    tags: true
+    exclude: {
+      tags: true
+    }
   });
 
   if (hasChanges) {

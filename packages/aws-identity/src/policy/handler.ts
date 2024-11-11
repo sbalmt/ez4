@@ -100,8 +100,10 @@ const checkDocumentUpdates = async (
   current: PolicyParameters
 ) => {
   const hasChanges = !deepEqual(candidate, current, {
-    policyName: true,
-    tags: true
+    exclude: {
+      policyName: true,
+      tags: true
+    }
   });
 
   if (hasChanges) {

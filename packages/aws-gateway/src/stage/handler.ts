@@ -91,7 +91,9 @@ const checkGeneralUpdates = async (
   current: StageParameters
 ) => {
   const hasChanges = !deepEqual(candidate, current, {
-    stageName: true
+    exclude: {
+      stageName: true
+    }
   });
 
   if (hasChanges) {

@@ -92,8 +92,10 @@ const checkGeneralUpdates = async (
   current: QueueParameters
 ) => {
   const hasChanges = !deepEqual(candidate, current, {
-    queueName: true,
-    tags: true
+    exclude: {
+      queueName: true,
+      tags: true
+    }
   });
 
   if (hasChanges) {

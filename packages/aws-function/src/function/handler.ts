@@ -197,9 +197,11 @@ const checkConfigurationUpdates = async (
   };
 
   const hasChanges = !deepEqual(protectedCandidate, current, {
-    sourceFile: true,
-    functionName: true,
-    tags: true
+    exclude: {
+      sourceFile: true,
+      functionName: true,
+      tags: true
+    }
   });
 
   if (hasChanges) {

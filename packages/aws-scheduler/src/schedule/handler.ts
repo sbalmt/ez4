@@ -109,7 +109,9 @@ const checkGeneralUpdates = async (
   current: ScheduleParameters
 ) => {
   const hasChanges = !deepEqual(candidate, current, {
-    scheduleName: true
+    exclude: {
+      scheduleName: true
+    }
   });
 
   if (hasChanges) {

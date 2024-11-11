@@ -1,9 +1,8 @@
 import type { AnyObject, PartialProperties } from './generics.js';
+import type { ObjectOptions } from './options.js';
 
 import { deepEqualArray } from '../array/equal.js';
 import { isAnyObject } from './any.js';
-
-type Exclude<T extends AnyObject, S extends AnyObject> = PartialProperties<T & S>;
 
 /**
  * Check whether `target` and `source` objects are equal ignoring any property
@@ -11,18 +10,22 @@ type Exclude<T extends AnyObject, S extends AnyObject> = PartialProperties<T & S
  *
  * @param target Target object.
  * @param source Source object.
- * @param exclude Set of `target` and `source` properties to not compare.
+ * @param options Comparison options.
  * @returns Returns `true` when `target` and `source` are equal, `false` otherwise.
  */
 export const deepEqualObject = <T extends AnyObject, S extends AnyObject>(
   target: T,
   source: S,
-  exclude?: Exclude<T, S>
+  options?: ObjectOptions<T & S>
 ) => {
   const allKeys = [...new Set([...Object.keys(target), ...Object.keys(source)])];
 
+  const exclude = options?.exclude ?? ({} as PartialProperties<T & S>);
+
+  const depth = options?.depth ?? +Infinity;
+
   for (const key of allKeys) {
-    const keyState = exclude && exclude[key];
+    const keyState = exclude[key];
 
     const targetValue = target[key];
     const sourceValue = source[key];
@@ -39,8 +42,13 @@ export const deepEqualObject = <T extends AnyObject, S extends AnyObject>(
       continue;
     }
 
-    if (isAnyObject(targetValue) && isAnyObject(sourceValue)) {
-      if (!deepEqualObject(targetValue, sourceValue, keyState as Exclude<T, S>)) {
+    if (depth > 0 && isAnyObject(targetValue) && isAnyObject(sourceValue)) {
+      const isEqual = deepEqualObject(targetValue, sourceValue, {
+        exclude: keyState as PartialProperties<T & S>,
+        depth: depth - 1
+      });
+
+      if (!isEqual) {
         return false;
       }
 
