@@ -1,4 +1,7 @@
-import type { AnySchema, ExtraSchema, SchemaTypeName } from './common.js';
+import type { AnyObject } from '@ez4/utils';
+import type { AnySchema, ExtraSchema } from './common.js';
+
+import { SchemaTypeName } from './common.js';
 
 export type ObjectSchemaProperties = {
   [property: string]: AnySchema;
@@ -15,4 +18,8 @@ export type ObjectSchema = {
   optional?: boolean;
   nullable?: boolean;
   extra?: ObjectExtraSchema;
+};
+
+export const isObjectSchema = (value: AnyObject): value is ObjectSchema => {
+  return value.type === SchemaTypeName.Object;
 };

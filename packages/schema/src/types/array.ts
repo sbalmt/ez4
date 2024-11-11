@@ -1,4 +1,7 @@
-import type { AnySchema, ExtraSchema, SchemaTypeName } from './common.js';
+import type { AnyObject } from '@ez4/utils';
+import type { AnySchema, ExtraSchema } from './common.js';
+
+import { SchemaTypeName } from './common.js';
 
 export type ArraySchema = {
   type: SchemaTypeName.Array;
@@ -7,4 +10,8 @@ export type ArraySchema = {
   optional?: boolean;
   nullable?: boolean;
   extra?: ExtraSchema;
+};
+
+export const isArraySchema = (value: AnyObject): value is ArraySchema => {
+  return value.type === SchemaTypeName.Array;
 };

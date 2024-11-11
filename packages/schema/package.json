@@ -42,7 +42,8 @@
     "live:publish": "npm run test && npm publish --access public"
   },
   "peerDependencies": {
-    "@ez4/project": "^0.8.0"
+    "@ez4/project": "^0.8.0",
+    "@ez4/utils": "^0.8.0"
   },
   "dependencies": {
     "@ez4/reflection": "^0.8.0"

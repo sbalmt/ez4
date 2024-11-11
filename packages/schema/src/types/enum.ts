@@ -1,4 +1,7 @@
-import type { ExtraSchema, SchemaTypeName } from './common.js';
+import type { AnyObject } from '@ez4/utils';
+import type { ExtraSchema } from './common.js';
+
+import { SchemaTypeName } from './common.js';
 
 export type EnumSchemaOption = {
   value: string | number;
@@ -12,4 +15,8 @@ export type EnumSchema = {
   optional?: boolean;
   nullable?: boolean;
   extra?: ExtraSchema;
+};
+
+export const isEnumSchema = (value: AnyObject): value is EnumSchema => {
+  return value.type === SchemaTypeName.Enum;
 };
