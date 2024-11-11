@@ -6,8 +6,9 @@ import { createTrigger } from '@ez4/project/library';
 
 import { registerClusterProvider } from '../cluster/provider.js';
 import { registerInstanceProvider } from '../instance/provider.js';
+import { registerMigrationProvider } from '../migration/provider.js';
 
-import { prepareDatabaseServices } from './cluster.js';
+import { prepareDatabaseServices } from './service.js';
 import { prepareExecutionPolicy } from './policy.js';
 import { prepareLinkedService } from './client.js';
 
@@ -30,6 +31,7 @@ export const registerTriggers = () => {
 
   registerClusterProvider();
   registerInstanceProvider();
+  registerMigrationProvider();
 
   isRegistered = true;
 };

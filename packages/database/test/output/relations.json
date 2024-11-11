@@ -19,7 +19,8 @@
             "sourceTable": "childTestTable",
             "sourceColumn": "parent_id",
             "targetColumn": "id",
-            "targetAlias": "children"
+            "targetAlias": "children",
+            "foreign": false
           }
         ],
         "indexes": [
@@ -50,7 +51,8 @@
             "sourceTable": "parentTestTable",
             "sourceColumn": "id",
             "targetColumn": "parent_id",
-            "targetAlias": "parent"
+            "targetAlias": "parent",
+            "foreign": true
           }
         ],
         "indexes": [

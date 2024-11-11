@@ -74,7 +74,7 @@ export const getDatabaseServices = (reflection: SourceMap) => {
       continue;
     }
 
-    const relationErrors = validateRelationSchema(statement, service.tables);
+    const relationErrors = validateRelations(statement, service.tables);
 
     if (relationErrors.length) {
       errorList.push(...relationErrors);
@@ -109,7 +109,7 @@ const getAllTables = (member: ModelProperty, reflection: SourceMap, errorList: E
   return tableList;
 };
 
-const validateRelationSchema = (type: TypeObject | TypeModel, tables: DatabaseTable[]) => {
+const validateRelations = (type: TypeObject | TypeModel, tables: DatabaseTable[]) => {
   const errorList = [];
 
   for (const { relations, schema } of tables) {

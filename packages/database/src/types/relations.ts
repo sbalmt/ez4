@@ -3,4 +3,5 @@ export type TableRelation = {
   sourceColumn: string;
   targetColumn: string;
   targetAlias: string;
+  foreign: boolean;
 };

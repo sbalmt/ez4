@@ -1,5 +1,5 @@
 import type { Database } from '@ez4/database';
-import { String } from '@ez4/schema';
+import type { String } from '@ez4/schema';
 
 /**
  * Items table schema.
@@ -19,6 +19,11 @@ export declare class ItemSchema implements Database.Schema {
    * Item description.
    */
   description?: string;
+
+  /**
+   * Item category.
+   */
+  category_id?: String.UUID;
 
   /**
    * Item creation date.

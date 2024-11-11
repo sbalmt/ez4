@@ -1,5 +1,5 @@
 import type { Database } from '@ez4/database';
-import { String } from '@ez4/schema';
+import type { String } from '@ez4/schema';
 
 export const enum ItemType {
   TypeA = 'type-a',

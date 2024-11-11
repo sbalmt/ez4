@@ -1,6 +1,7 @@
 import type { Database, Client as DbClient, Relations, Transaction } from '@ez4/database';
 import type { SqlParameter } from '@aws-sdk/client-rds-data';
-import type { Configuration, Repository } from './types.js';
+import type { Repository } from '../types/repository.js';
+import type { Configuration } from './types.js';
 
 import { RDSDataClient } from '@aws-sdk/client-rds-data';
 
@@ -17,7 +18,7 @@ const tableCache: Record<string, TableType> = {};
 export namespace Client {
   export const make = <T extends Database.Service<any>>(
     configuration: Configuration,
-    repository: Record<string, Repository>
+    repository: Repository
   ): DbClient<T> => {
     const instance = new (class {
       rawQuery(query: string, values: SqlParameter[]) {
@@ -28,31 +29,31 @@ export namespace Client {
       }
 
       async transaction<O extends Transaction.WriteOperations<T>>(operations: O): Promise<void> {
-        const transactions = [];
+        const statements = [];
 
-        for (const name in operations) {
-          const operationTable = operations[name];
+        for (const alias in operations) {
+          const operationTable = operations[alias];
 
-          if (!(name in repository)) {
-            throw new Error(`Table ${name} isn't part of the table repository.`);
+          if (!(alias in repository)) {
+            throw new Error(`Table ${alias} isn't part of the table repository.`);
           }
 
-          const { tableName, tableSchema } = repository[name];
+          const { name, schema } = repository[alias];
 
           for (const operationName in operationTable) {
             const query = operationTable[operationName];
 
             if ('insert' in query) {
-              transactions.push(await prepareInsertOne(tableName, tableSchema, query.insert));
+              statements.push(await prepareInsertOne(name, schema, query.insert));
             } else if ('update' in query) {
-              transactions.push(prepareUpdateOne(tableName, tableSchema, query.update));
+              statements.push(prepareUpdateOne(name, schema, query.update));
             } else if ('delete' in query) {
-              transactions.push(prepareDeleteOne(tableName, tableSchema, query.delete));
+              statements.push(prepareDeleteOne(name, schema, query.delete));
             }
           }
         }
 
-        await executeTransaction(configuration, client, transactions);
+        await executeTransaction(configuration, client, statements);
       }
     })();
 
@@ -62,21 +63,21 @@ export namespace Client {
           return target[property];
         }
 
-        const name = property.toString();
+        const alias = property.toString();
 
-        if (tableCache[name]) {
-          return tableCache[name];
+        if (tableCache[alias]) {
+          return tableCache[alias];
         }
 
-        if (!(name in repository)) {
-          throw new Error(`Table ${name} isn't part of the table repository.`);
+        if (!(alias in repository)) {
+          throw new Error(`Table ${alias} isn't part of the repository.`);
         }
 
-        const { tableName, tableSchema } = repository[name];
+        const { name, schema } = repository[alias];
 
-        const table = new Table(configuration, tableName, tableSchema, client);
+        const table = new Table(configuration, name, schema, client);
 
-        tableCache[name] = table;
+        tableCache[alias] = table;
 
         return table;
       }

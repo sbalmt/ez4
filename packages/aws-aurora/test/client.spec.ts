@@ -1,15 +1,22 @@
-import type { Database, Client as DbClient, Index } from '@ez4/database';
+import type { Database, Client as DbClient } from '@ez4/database';
 import type { EntryStates } from '@ez4/stateful';
+import type { Repository } from '@ez4/aws-aurora';
 
 import { ok, equal, deepEqual } from 'node:assert/strict';
 import { describe, it } from 'node:test';
 
 import { Client } from '@ez4/aws-aurora/client';
 import { SchemaTypeName } from '@ez4/schema';
+import { Index, Order } from '@ez4/database';
 import { deploy } from '@ez4/aws-common';
-import { Order } from '@ez4/database';
 
-import { createCluster, createInstance, isClusterState, registerTriggers } from '@ez4/aws-aurora';
+import {
+  createCluster,
+  createInstance,
+  createMigration,
+  isClusterState,
+  registerTriggers
+} from '@ez4/aws-aurora';
 
 declare class TestSchema implements Database.Schema {
   id: string;
@@ -40,23 +47,69 @@ describe.only('aurora client', () => {
   let clusterId: string | undefined;
   let dbClient: DbClient<Test>;
 
+  const repository: Repository = {
+    testTable: {
+      name: 'test_table',
+      relations: {},
+      indexes: {
+        id: {
+          name: 'id',
+          columns: ['id'],
+          type: Index.Primary
+        }
+      },
+      schema: {
+        type: SchemaTypeName.Object,
+        properties: {
+          id: {
+            type: SchemaTypeName.String
+          },
+          foo: {
+            type: SchemaTypeName.String,
+            optional: true
+          },
+          bar: {
+            type: SchemaTypeName.String,
+            optional: true
+          },
+          baz: {
+            type: SchemaTypeName.Object,
+            optional: true,
+            properties: {
+              foo: {
+                type: SchemaTypeName.Number
+              },
+              bar: {
+                type: SchemaTypeName.Boolean
+              }
+            }
+          }
+        }
+      }
+    }
+  };
+
   registerTriggers();
 
-  it('assert :: deploy', async () => {
+  it.only('assert :: deploy', async () => {
     const localState: EntryStates = {};
 
-    const resource = createCluster(localState, {
+    const clusterState = createCluster(localState, {
       clusterName: 'ez4-test-cluster-client',
-      database: 'ez4_test_database',
       allowDeletion: true,
       enableHttp: true
     });
 
-    createInstance(localState, resource, {
+    const instanceState = createInstance(localState, clusterState, {
       instanceName: 'ez4-test-instance-client'
     });
 
-    clusterId = resource.entryId;
+    createMigration(localState, clusterState, instanceState, {
+      database: 'ez4_test_database',
+      repository
+    });
+
+    clusterId = clusterState.entryId;
 
     const { result } = await deploy(localState, undefined);
 
@@ -65,61 +118,20 @@ describe.only('aurora client', () => {
     ok(resultResource && isClusterState(resultResource));
     ok(resultResource.result);
 
+    const configuration = {
+      database: 'ez4_test_database',
+      resourceArn: resultResource.result.clusterArn,
+      secretArn: resultResource.result.secretArn!
+    };
+
+    dbClient = Client.make(configuration, repository);
+
     lastState = result;
 
-    dbClient = Client.make(
-      {
-        database: resultResource.parameters.database!,
-        resourceArn: resultResource.result.clusterArn,
-        secretArn: resultResource.result.secretArn!
-      },
-      {
-        testTable: {
-          tableName: 'test_table',
-          tableSchema: {
-            type: SchemaTypeName.Object,
-            properties: {
-              id: {
-                type: SchemaTypeName.String
-              },
-              foo: {
-                type: SchemaTypeName.String,
-                optional: true
-              },
-              bar: {
-                type: SchemaTypeName.String,
-                optional: true
-              },
-              baz: {
-                type: SchemaTypeName.Object,
-                optional: true,
-                properties: {
-                  foo: {
-                    type: SchemaTypeName.Number
-                  },
-                  bar: {
-                    type: SchemaTypeName.Boolean
-                  }
-                }
-              }
-            }
-          }
-        }
-      }
-    );
-
     ok(dbClient);
   });
 
-  it('assert :: create table', async () => {
-    ok(dbClient);
-
-    await dbClient.rawQuery(
-      `CREATE TABLE "test_table" (id TEXT PRIMARY KEY, foo TEXT, bar TEXT, baz JSONB)`
-    );
-  });
-
-  it('assert :: insert many', async () => {
+  it.only('assert :: insert many', async () => {
     ok(dbClient);
 
     const data: any[] = [];
@@ -137,7 +149,7 @@ describe.only('aurora client', () => {
     });
   });
 
-  it('assert :: update many', async () => {
+  it.only('assert :: update many', async () => {
     ok(dbClient);
 
     const result = await dbClient.testTable.updateMany({
@@ -153,7 +165,7 @@ describe.only('aurora client', () => {
     equal(result.length, 50);
   });
 
-  it('assert :: find many', async () => {
+  it.only('assert :: find many', async () => {
     ok(dbClient);
 
     const result = await dbClient.testTable.findMany({
@@ -185,7 +197,7 @@ describe.only('aurora client', () => {
     });
   });
 
-  it('assert :: delete many', async () => {
+  it.only('assert :: delete many', async () => {
     ok(dbClient);
 
     const result = await dbClient.testTable.deleteMany({
@@ -197,7 +209,7 @@ describe.only('aurora client', () => {
     equal(result.length, 50);
   });
 
-  it('assert :: insert one', async () => {
+  it.only('assert :: insert one', async () => {
     ok(dbClient);
 
     await dbClient.testTable.insertOne({
@@ -209,7 +221,7 @@ describe.only('aurora client', () => {
     });
   });
 
-  it('assert :: update one', async () => {
+  it.only('assert :: update one', async () => {
     ok(dbClient);
 
     const result = await dbClient.testTable.updateOne({
@@ -231,7 +243,7 @@ describe.only('aurora client', () => {
     });
   });
 
-  it('assert :: find one', async () => {
+  it.only('assert :: find one', async () => {
     ok(dbClient);
 
     const result = await dbClient.testTable.findOne({
@@ -250,7 +262,7 @@ describe.only('aurora client', () => {
     });
   });
 
-  it('assert :: upsert one', async () => {
+  it.only('assert :: upsert one', async () => {
     ok(dbClient);
 
     const query = {
@@ -280,7 +292,7 @@ describe.only('aurora client', () => {
     });
   });
 
-  it('assert :: delete one', async () => {
+  it.only('assert :: delete one', async () => {
     ok(dbClient);
 
     const result = await dbClient.testTable.deleteOne({
@@ -297,7 +309,7 @@ describe.only('aurora client', () => {
     });
   });
 
-  it('assert :: insert json', async () => {
+  it.only('assert :: insert json', async () => {
     ok(dbClient);
 
     await dbClient.testTable.insertOne({
@@ -311,7 +323,7 @@ describe.only('aurora client', () => {
     });
   });
 
-  it('assert :: update json', async () => {
+  it.only('assert :: update json', async () => {
     ok(dbClient);
 
     const result = await dbClient.testTable.updateOne({
@@ -340,7 +352,7 @@ describe.only('aurora client', () => {
     });
   });
 
-  it('assert :: find json', async () => {
+  it.only('assert :: find json', async () => {
     ok(dbClient);
 
     const result = await dbClient.testTable.findOne({
@@ -361,7 +373,7 @@ describe.only('aurora client', () => {
     });
   });
 
-  it('assert :: transaction :: insert one', async () => {
+  it.only('assert :: transaction :: insert one', async () => {
     ok(dbClient);
 
     await dbClient.transaction({
@@ -406,7 +418,7 @@ describe.only('aurora client', () => {
     ]);
   });
 
-  it('assert :: transaction :: update one', async () => {
+  it.only('assert :: transaction :: update one', async () => {
     ok(dbClient);
 
     await dbClient.transaction({
@@ -455,7 +467,7 @@ describe.only('aurora client', () => {
     ]);
   });
 
-  it('assert :: transaction :: delete one', async () => {
+  it.only('assert :: transaction :: delete one', async () => {
     ok(dbClient);
 
     await dbClient.transaction({
@@ -491,13 +503,7 @@ describe.only('aurora client', () => {
     deepEqual(result.records, []);
   });
 
-  it('assert :: drop table', async () => {
-    ok(dbClient);
-
-    await dbClient.rawQuery(`DROP TABLE "test_table"`);
-  });
-
-  it('assert :: destroy', async () => {
+  it.only('assert :: destroy', async () => {
     ok(clusterId && lastState);
     ok(lastState[clusterId]);
 
