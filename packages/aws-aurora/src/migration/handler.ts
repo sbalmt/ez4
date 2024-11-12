@@ -2,7 +2,7 @@ import type { ObjectComparison } from '@ez4/utils';
 import type { StepContext, StepHandler } from '@ez4/stateful';
 import type { Repository } from '../types/repository.js';
 import type { MigrationState, MigrationResult } from './types.js';
-import type { DatabaseRequest, RepositoryUpdates } from './client.js';
+import type { ConnectionRequest, RepositoryUpdates } from './client.js';
 
 import { ReplaceResourceError } from '@ez4/aws-common';
 import { deepCompare } from '@ez4/utils';
@@ -89,22 +89,22 @@ const updateResource = async (candidate: MigrationState, current: MigrationState
     return;
   }
 
-  const configuration = {
+  const connection = {
     database: parameters.database,
     clusterArn: result.clusterArn,
     secretArn: result.secretArn
   };
 
   if (changes.create) {
-    await applyCreateTables(configuration, changes.create);
+    await applyCreateTables(connection, changes.create);
   }
 
   if (changes.nested) {
-    await applyUpdateTables(configuration, changes.nested, target);
+    await applyUpdateTables(connection, changes.nested, target);
   }
 
   if (changes.remove) {
-    await applyDeleteTables(configuration, changes.remove);
+    await applyDeleteTables(connection, changes.remove);
   }
 };
 
@@ -124,15 +124,15 @@ const deleteResource = async (candidate: MigrationState) => {
   });
 };
 
-const applyCreateTables = async (configuration: DatabaseRequest, repository: Repository) => {
+const applyCreateTables = async (connection: ConnectionRequest, repository: Repository) => {
   await createTables({
-    ...configuration,
+    ...connection,
     repository
   });
 };
 
 const applyUpdateTables = async (
-  configuration: DatabaseRequest,
+  connection: ConnectionRequest,
   comparison: Record<string, ObjectComparison>,
   repository: Repository
 ) => {
@@ -168,6 +168,10 @@ const applyUpdateTables = async (
       }
     };
 
+    updates[table] = changes;
+
+    // Columns
+
     if (targetColumns?.create) {
       changes.schema.toCreate = targetColumns.create;
     }
@@ -180,6 +184,8 @@ const applyUpdateTables = async (
       changes.schema.toRemove = targetColumns.remove;
     }
 
+    // Relations
+
     if (relations?.create) {
       changes.relations.toCreate = relations.create;
     }
@@ -188,6 +194,8 @@ const applyUpdateTables = async (
       changes.relations.toRemove = relations.remove;
     }
 
+    // Indexes
+
     if (indexes?.create) {
       changes.indexes.toCreate = indexes.create;
     }
@@ -195,17 +203,15 @@ const applyUpdateTables = async (
     if (indexes?.remove) {
       changes.indexes.toRemove = indexes.remove;
     }
-
-    updates[table] = changes;
   }
 
   await updateTables({
     repository: updates,
-    ...configuration
+    ...connection
   });
 };
 
-const applyDeleteTables = async (configuration: DatabaseRequest, repository: Repository) => {
+const applyDeleteTables = async (connection: ConnectionRequest, repository: Repository) => {
   const tables = [];
 
   for (const alias in repository) {
@@ -213,7 +219,7 @@ const applyDeleteTables = async (configuration: DatabaseRequest, repository: Rep
   }
 
   await deleteTables({
-    ...configuration,
+    ...connection,
     tables
   });
 };

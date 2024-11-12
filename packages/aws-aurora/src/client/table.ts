@@ -3,7 +3,7 @@ import type { RDSDataClient } from '@aws-sdk/client-rds-data';
 import type { ObjectSchema } from '@ez4/schema';
 import type { AnyObject } from '@ez4/utils';
 import type { PreparedQueryCommand } from './common/queries.js';
-import type { Configuration } from './types.js';
+import type { Connection } from './types.js';
 
 import { SchemaTypeName } from '@ez4/schema';
 import { isAnyNumber } from '@ez4/utils';
@@ -25,10 +25,10 @@ export class Table<T extends Database.Schema, I extends Database.Indexes<T>, R e
   implements DbTable<T, I, R>
 {
   constructor(
-    private configuration: Configuration,
+    private client: RDSDataClient,
+    private connection: Connection,
     private name: string,
-    private schema: ObjectSchema,
-    private client: RDSDataClient
+    private schema: ObjectSchema
   ) {}
 
   private parseRecord<T extends Record<string, unknown>>(record: T): T {
@@ -50,10 +50,10 @@ export class Table<T extends Database.Schema, I extends Database.Indexes<T>, R e
 
   private async sendCommand(input: PreparedQueryCommand | PreparedQueryCommand[]) {
     if (input instanceof Array) {
-      return executeTransaction(this.configuration, this.client, input);
+      return executeTransaction(this.client, this.connection, input);
     }
 
-    return executeStatement(this.configuration, this.client, input);
+    return executeStatement(this.client, this.connection, input);
   }
 
   async insertOne(query: Query.InsertOneInput<T, I, R>): Promise<Query.InsertOneResult> {

@@ -1,7 +1,7 @@
 import type { Database, Client as DbClient, Relations, Transaction } from '@ez4/database';
 import type { SqlParameter } from '@aws-sdk/client-rds-data';
 import type { Repository } from '../types/repository.js';
-import type { Configuration } from './types.js';
+import type { Connection } from './types.js';
 
 import { RDSDataClient } from '@aws-sdk/client-rds-data';
 
@@ -17,12 +17,12 @@ const tableCache: Record<string, TableType> = {};
 
 export namespace Client {
   export const make = <T extends Database.Service<any>>(
-    configuration: Configuration,
+    connection: Connection,
     repository: Repository
   ): DbClient<T> => {
     const instance = new (class {
       rawQuery(query: string, values: SqlParameter[]) {
-        return executeStatement(configuration, client, {
+        return executeStatement(client, connection, {
           sql: query,
           parameters: values
         });
@@ -53,7 +53,7 @@ export namespace Client {
           }
         }
 
-        await executeTransaction(configuration, client, statements);
+        await executeTransaction(client, connection, statements);
       }
     })();
 
@@ -75,7 +75,7 @@ export namespace Client {
 
         const { name, schema } = repository[alias];
 
-        const table = new Table(configuration, name, schema, client);
+        const table = new Table(client, connection, name, schema);
 
         tableCache[alias] = table;
 

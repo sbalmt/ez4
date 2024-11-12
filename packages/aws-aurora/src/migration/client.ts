@@ -15,21 +15,21 @@ import { MigrationServiceName } from './types.js';
 
 const client = new RDSDataClient({});
 
-export type DatabaseRequest = {
+export type ConnectionRequest = {
   database: string;
   clusterArn: Arn;
   secretArn: Arn;
 };
 
-export type CreateTableRequest = DatabaseRequest & {
+export type CreateTableRequest = ConnectionRequest & {
   repository: Repository;
 };
 
-export type UpdateTableRequest = DatabaseRequest & {
+export type UpdateTableRequest = ConnectionRequest & {
   repository: Record<string, RepositoryUpdates>;
 };
 
-export type DeleteTableRequest = DatabaseRequest & {
+export type DeleteTableRequest = ConnectionRequest & {
   tables: string[];
 };
 
@@ -50,18 +50,18 @@ export type RepositoryUpdates = {
   };
 };
 
-export const createDatabase = async (request: DatabaseRequest): Promise<void> => {
+export const createDatabase = async (request: ConnectionRequest): Promise<void> => {
   const { clusterArn, secretArn, database } = request;
 
   Logger.logCreate(MigrationServiceName, `${database} database`);
 
-  const configuration = {
+  const connection = {
     database: 'postgres',
     resourceArn: clusterArn,
     secretArn
   };
 
-  await executeStatement(configuration, client, {
+  await executeStatement(client, connection, {
     sql: prepareCreateDatabase(database)
   });
 };
@@ -71,7 +71,7 @@ export const createTables = async (request: CreateTableRequest): Promise<void> =
 
   Logger.logCreate(MigrationServiceName, `${database} tables`);
 
-  const configuration = {
+  const connection = {
     resourceArn: clusterArn,
     secretArn,
     database
@@ -101,7 +101,7 @@ export const createTables = async (request: CreateTableRequest): Promise<void> =
     );
   }
 
-  await executeTransaction(configuration, client, [
+  await executeTransaction(client, connection, [
     ...tablesCommands,
     ...indexesCommands,
     ...relationsCommands
@@ -113,7 +113,7 @@ export const updateTables = async (request: UpdateTableRequest): Promise<void> =
 
   Logger.logUpdate(MigrationServiceName, `${database} tables`);
 
-  const configuration = {
+  const connection = {
     resourceArn: clusterArn,
     secretArn,
     database
@@ -145,7 +145,7 @@ export const updateTables = async (request: UpdateTableRequest): Promise<void> =
     );
   }
 
-  await executeTransaction(configuration, client, [
+  await executeTransaction(client, connection, [
     ...tablesCommands,
     ...indexesCommands,
     ...relationsCommands
@@ -157,7 +157,7 @@ export const deleteTables = async (request: DeleteTableRequest): Promise<void> =
 
   Logger.logDelete(MigrationServiceName, `${database} tables`);
 
-  const configuration = {
+  const connection = {
     resourceArn: clusterArn,
     secretArn,
     database
@@ -167,21 +167,21 @@ export const deleteTables = async (request: DeleteTableRequest): Promise<void> =
     return { sql: prepareDeleteTable(table) };
   });
 
-  await executeTransaction(configuration, client, commands);
+  await executeTransaction(client, connection, commands);
 };
 
-export const deleteDatabase = async (request: DatabaseRequest): Promise<void> => {
+export const deleteDatabase = async (request: ConnectionRequest): Promise<void> => {
   const { clusterArn, secretArn, database } = request;
 
   Logger.logDelete(MigrationServiceName, `${database} database`);
 
-  const configuration = {
+  const connection = {
     database: 'postgres',
     resourceArn: clusterArn,
     secretArn
   };
 
-  await executeStatement(configuration, client, {
+  await executeStatement(client, connection, {
     sql: prepareDeleteDatabase(database)
   });
 };

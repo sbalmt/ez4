@@ -1,6 +1,6 @@
 import type { RDSDataClient } from '@aws-sdk/client-rds-data';
 import type { PreparedQueryCommand } from './queries.js';
-import type { Configuration } from '../types.js';
+import type { Connection } from '../types.js';
 
 import {
   BeginTransactionCommand,
@@ -10,10 +10,10 @@ import {
   RecordsFormatType
 } from '@aws-sdk/client-rds-data';
 
-export const beginTransaction = async (configuration: Configuration, client: RDSDataClient) => {
+export const beginTransaction = async (client: RDSDataClient, connection: Connection) => {
   const result = await client.send(
     new BeginTransactionCommand({
-      ...configuration
+      ...connection
     })
   );
 
@@ -21,34 +21,34 @@ export const beginTransaction = async (configuration: Configuration, client: RDS
 };
 
 export const rollbackTransaction = async (
-  configuration: Configuration,
   client: RDSDataClient,
+  connection: Connection,
   transactionId: string
 ) => {
   await client.send(
     new RollbackTransactionCommand({
-      ...configuration,
+      ...connection,
       transactionId
     })
   );
 };
 
 export const commitTransaction = async (
-  configuration: Configuration,
   client: RDSDataClient,
+  connection: Connection,
   transactionId: string
 ) => {
   await client.send(
     new CommitTransactionCommand({
-      ...configuration,
+      ...connection,
       transactionId
     })
   );
 };
 
 export const executeStatement = async (
-  configuration: Configuration,
   client: RDSDataClient,
+  connection: Connection,
   command: PreparedQueryCommand,
   transactionId?: string
 ) => {
@@ -57,7 +57,7 @@ export const executeStatement = async (
       new ExecuteStatementCommand({
         formatRecordsAs: RecordsFormatType.JSON,
         transactionId,
-        ...configuration,
+        ...connection,
         ...command
       })
     );
@@ -73,23 +73,23 @@ export const executeStatement = async (
 };
 
 export const executeTransaction = async (
-  configuration: Configuration,
   client: RDSDataClient,
+  connection: Connection,
   commands: PreparedQueryCommand[]
 ) => {
-  const transactionId = await beginTransaction(configuration, client);
+  const transactionId = await beginTransaction(client, connection);
   const results = [];
 
   try {
     for (const command of commands) {
-      const records = await executeStatement(configuration, client, command, transactionId);
+      const records = await executeStatement(client, connection, command, transactionId);
 
       results.push(records);
     }
 
-    await commitTransaction(configuration, client, transactionId);
+    await commitTransaction(client, connection, transactionId);
   } catch (error) {
-    await rollbackTransaction(configuration, client, transactionId);
+    await rollbackTransaction(client, connection, transactionId);
 
     throw error;
   }
