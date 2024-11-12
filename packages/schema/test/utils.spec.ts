@@ -27,7 +27,7 @@ describe.only('schema utils', () => {
     }
   };
 
-  it('assert :: partial schema', () => {
+  it('assert :: partial schema (include)', () => {
     const partialSchema = partialObjectSchema(fullSchema, {
       extensible: true,
       include: {
@@ -55,6 +55,34 @@ describe.only('schema utils', () => {
           properties: {
             bazBar: {
               type: SchemaTypeName.String
+            }
+          }
+        }
+      }
+    });
+  });
+
+  it('assert :: partial schema (exclude)', () => {
+    const partialSchema = partialObjectSchema(fullSchema, {
+      exclude: {
+        bar: true,
+        baz: {
+          bazBar: true
+        }
+      }
+    });
+
+    deepEqual(partialSchema, {
+      type: SchemaTypeName.Object,
+      properties: {
+        foo: {
+          type: SchemaTypeName.String
+        },
+        baz: {
+          type: SchemaTypeName.Object,
+          properties: {
+            bazFoo: {
+              type: SchemaTypeName.Boolean
             }
           }
         }

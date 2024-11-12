@@ -6,10 +6,19 @@ export type PartialObjectSchemaProperties = {
   [property: string]: PartialObjectSchemaProperties | boolean;
 };
 
-export type PartialObjectSchemaOptions = {
+export type PartialObjectSchemaExcludeOptions = {
+  extensible?: boolean;
+  exclude: PartialObjectSchemaProperties;
+};
+
+export type PartialObjectSchemaIncludeOptions = {
   extensible?: boolean;
   include: PartialObjectSchemaProperties;
 };
+
+export type PartialObjectSchemaOptions =
+  | PartialObjectSchemaIncludeOptions
+  | PartialObjectSchemaExcludeOptions;
 
 export const partialObjectSchema = (
   schema: ObjectSchema,
@@ -17,12 +26,13 @@ export const partialObjectSchema = (
 ): ObjectSchema => {
   const properties: ObjectSchemaProperties = {};
 
-  const { extensible, include } = options;
+  const schemaInclude = 'include' in options;
+  const schemaOptions = schemaInclude ? options.include : options.exclude;
 
   for (const propertyName in schema.properties) {
-    const propertyState = include[propertyName];
+    const propertyState = schemaOptions[propertyName];
 
-    if (!propertyState) {
+    if ((schemaInclude && !propertyState) || (!schemaInclude && propertyState === true)) {
       continue;
     }
 
@@ -34,15 +44,15 @@ export const partialObjectSchema = (
     }
 
     properties[propertyName] = partialObjectSchema(value, {
-      include: propertyState,
-      extensible
+      ...(schemaInclude ? { include: propertyState } : { exclude: propertyState }),
+      extensible: options.extensible
     });
   }
 
   return {
     type: SchemaTypeName.Object,
     properties,
-    ...(extensible && {
+    ...(options.extensible && {
       extra: {
         extensible: true
       }
