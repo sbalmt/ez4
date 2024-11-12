@@ -29,20 +29,29 @@ describe.only('schema utils', () => {
 
   it('assert :: partial schema', () => {
     const partialSchema = partialObjectSchema(fullSchema, {
-      bar: true,
-      baz: {
-        bazBar: true
+      extensible: true,
+      include: {
+        bar: true,
+        baz: {
+          bazBar: true
+        }
       }
     });
 
     deepEqual(partialSchema, {
       type: SchemaTypeName.Object,
+      extra: {
+        extensible: true
+      },
       properties: {
         bar: {
           type: SchemaTypeName.Number
         },
         baz: {
           type: SchemaTypeName.Object,
+          extra: {
+            extensible: true
+          },
           properties: {
             bazBar: {
               type: SchemaTypeName.String

@@ -3,7 +3,7 @@ import type { Database, Relations, Query } from '@ez4/database';
 import type { ObjectSchema } from '@ez4/schema';
 import type { RepositoryRelations } from '../../types/repository.js';
 
-import { validateSchema } from './schema.js';
+import { preparePartialSchema, validateSchema } from './schema.js';
 
 import { prepareInsertQuery } from './insert.js';
 import { prepareUpdateQuery } from './update.js';
@@ -56,7 +56,7 @@ export const prepareFindOne = <
   };
 };
 
-export const prepareUpdateOne = <
+export const prepareUpdateOne = async <
   T extends Database.Schema,
   I extends Database.Indexes<T>,
   R extends Relations,
@@ -66,7 +66,9 @@ export const prepareUpdateOne = <
   schema: ObjectSchema,
   relations: RepositoryRelations,
   query: Query.UpdateOneInput<T, S, I, R>
-): PreparedQueryCommand => {
+): Promise<PreparedQueryCommand> => {
+  await validateSchema(query.data, preparePartialSchema(schema, query.data));
+
   const [statement, variables] = prepareUpdateQuery<T, I, R, S>(table, schema, relations, {
     ...query
     // limit: 1
@@ -153,7 +155,7 @@ export const prepareFindMany = <
   };
 };
 
-export const prepareUpdateMany = <
+export const prepareUpdateMany = async <
   T extends Database.Schema,
   I extends Database.Indexes<T>,
   R extends Relations,
@@ -163,7 +165,9 @@ export const prepareUpdateMany = <
   schema: ObjectSchema,
   relations: RepositoryRelations,
   query: Query.UpdateManyInput<T, S>
-): PreparedQueryCommand => {
+): Promise<PreparedQueryCommand> => {
+  await validateSchema(query.data, preparePartialSchema(schema, query.data));
+
   const [statement, variables] = prepareUpdateQuery<T, I, R, S>(table, schema, relations, query);
 
   return {

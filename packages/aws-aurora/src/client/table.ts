@@ -78,10 +78,17 @@ export class Table<T extends Database.Schema, I extends Database.Indexes<T>, R e
   ): Promise<Query.UpdateOneResult<T, S, R>> {
     const { select, data, where } = query;
 
-    const updateCommand = prepareUpdateOne<T, I, R, S>(this.name, this.schema, this.relations, {
+    const updateQuery = {
       data,
       where
-    });
+    };
+
+    const updateCommand = await prepareUpdateOne<T, I, R, S>(
+      this.name,
+      this.schema,
+      this.relations,
+      updateQuery
+    );
 
     if (!select) {
       await this.sendCommand(updateCommand);
@@ -167,7 +174,7 @@ export class Table<T extends Database.Schema, I extends Database.Indexes<T>, R e
   ): Promise<Query.UpdateManyResult<T, S, R>> {
     const { select, where, limit } = query;
 
-    const updateCommand = prepareUpdateMany<T, I, R, S>(
+    const updateCommand = await prepareUpdateMany<T, I, R, S>(
       this.name,
       this.schema,
       this.relations,

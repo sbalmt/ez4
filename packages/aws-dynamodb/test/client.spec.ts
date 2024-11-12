@@ -221,7 +221,8 @@ describe.only('dynamodb client', () => {
 
     const result = await dbClient.testTable.updateOne({
       data: {
-        value: 'updated'
+        value: 'updated',
+        order: undefined
       },
       select: {
         value: true
@@ -244,7 +245,8 @@ describe.only('dynamodb client', () => {
 
     const result = await dbClient.testTable.findOne({
       select: {
-        value: true
+        value: true,
+        order: false
       },
       where: {
         id: 'single',

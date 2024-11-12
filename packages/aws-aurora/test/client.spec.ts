@@ -226,7 +226,8 @@ describe.only('aurora client', () => {
 
     const result = await dbClient.testTable.updateOne({
       data: {
-        foo: 'updated'
+        foo: 'updated',
+        bar: undefined
       },
       select: {
         foo: true,
@@ -249,7 +250,8 @@ describe.only('aurora client', () => {
     const result = await dbClient.testTable.findOne({
       select: {
         foo: true,
-        bar: true
+        bar: true,
+        baz: false
       },
       where: {
         id: 'single'

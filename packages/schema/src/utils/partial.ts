@@ -3,14 +3,21 @@ import type { ObjectSchema, ObjectSchemaProperties } from '../types/object.js';
 import { SchemaTypeName } from '../types/common.js';
 
 export type PartialObjectSchemaProperties = {
-  [x: string]: PartialObjectSchemaProperties | boolean;
+  [property: string]: PartialObjectSchemaProperties | boolean;
+};
+
+export type PartialObjectSchemaOptions = {
+  extensible?: boolean;
+  include: PartialObjectSchemaProperties;
 };
 
 export const partialObjectSchema = (
   schema: ObjectSchema,
-  include: PartialObjectSchemaProperties
-) => {
+  options: PartialObjectSchemaOptions
+): ObjectSchema => {
   const properties: ObjectSchemaProperties = {};
+
+  const { extensible, include } = options;
 
   for (const propertyName in schema.properties) {
     const propertyState = include[propertyName];
@@ -21,15 +28,24 @@ export const partialObjectSchema = (
 
     const value = schema.properties[propertyName];
 
-    if (value.type === SchemaTypeName.Object && propertyState instanceof Object) {
-      properties[propertyName] = partialObjectSchema(value, propertyState);
-    } else {
+    if (value.type !== SchemaTypeName.Object || !(propertyState instanceof Object)) {
       properties[propertyName] = value;
+      continue;
     }
+
+    properties[propertyName] = partialObjectSchema(value, {
+      include: propertyState,
+      extensible
+    });
   }
 
   return {
-    ...schema,
-    properties
+    type: SchemaTypeName.Object,
+    properties,
+    ...(extensible && {
+      extra: {
+        extensible: true
+      }
+    })
   };
 };

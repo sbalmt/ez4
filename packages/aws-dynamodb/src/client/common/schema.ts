@@ -5,7 +5,10 @@ import type { AnyObject } from '@ez4/utils';
 import { partialObjectSchema } from '@ez4/schema/library';
 
 export const preparePartialSchema = (schema: ObjectSchema, data: AnyObject) => {
-  return partialObjectSchema(schema, getPartialProperties(data));
+  return partialObjectSchema(schema, {
+    include: getPartialProperties(data),
+    extensible: true
+  });
 };
 
 const getPartialProperties = (data: AnyObject) => {
@@ -13,6 +16,10 @@ const getPartialProperties = (data: AnyObject) => {
 
   for (const propertyName in data) {
     const value = data[propertyName];
+
+    if (value === undefined) {
+      continue;
+    }
 
     if (value instanceof Object) {
       properties[propertyName] = getPartialProperties(value);
