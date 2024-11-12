@@ -38,7 +38,7 @@ export namespace Client {
             throw new Error(`Table ${alias} isn't part of the table repository.`);
           }
 
-          const { name, schema } = repository[alias];
+          const { name, schema, relations } = repository[alias];
 
           for (const operationName in operationTable) {
             const query = operationTable[operationName];
@@ -46,9 +46,9 @@ export namespace Client {
             if ('insert' in query) {
               statements.push(await prepareInsertOne(name, schema, query.insert));
             } else if ('update' in query) {
-              statements.push(prepareUpdateOne(name, schema, query.update));
+              statements.push(prepareUpdateOne(name, schema, relations, query.update));
             } else if ('delete' in query) {
-              statements.push(prepareDeleteOne(name, schema, query.delete));
+              statements.push(prepareDeleteOne(name, schema, relations, query.delete));
             }
           }
         }
@@ -73,9 +73,9 @@ export namespace Client {
           throw new Error(`Table ${alias} isn't part of the repository.`);
         }
 
-        const { name, schema } = repository[alias];
+        const { name, schema, relations } = repository[alias];
 
-        const table = new Table(client, connection, name, schema);
+        const table = new Table(client, connection, name, schema, relations);
 
         tableCache[alias] = table;
 

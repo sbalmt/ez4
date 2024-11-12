@@ -1,7 +1,12 @@
 import { equal, deepEqual } from 'node:assert/strict';
 import { describe, it } from 'node:test';
 
-import { prepareDelete, prepareInsert, prepareSelect, prepareUpdate } from '@ez4/aws-aurora/client';
+import {
+  prepareDelete,
+  prepareInsert,
+  prepareSelectQuery,
+  prepareUpdate
+} from '@ez4/aws-aurora/client';
 
 import { ObjectSchema, SchemaTypeName } from '@ez4/schema';
 import { Index, Order, Query } from '@ez4/database';
@@ -44,10 +49,21 @@ describe.only('aurora query', () => {
     }
   };
 
-  const getWhereOperation = (schema: ObjectSchema, where: Query.WhereInput<TestSchema>) => {
-    const [statement, variables] = prepareSelect<TestSchema, TestIndexes, {}, {}>(
+  const testRelations = {
+    parent: {
+      sourceTable: 'ez4-test-source-table',
+      sourceColumn: 'id',
+      targetColumn: 'parent_id',
+      targetAlias: 'parent',
+      foreign: false
+    }
+  };
+
+  const getWhereOperation = (where: Query.WhereInput<TestSchema>) => {
+    const [statement, variables] = prepareSelectQuery<TestSchema, TestIndexes, {}, {}>(
       'ez4-test-where-operation',
-      schema,
+      testSchema,
+      testRelations,
       {
         select: {
           id: true
@@ -110,6 +126,7 @@ describe.only('aurora query', () => {
     const [statement, variables] = prepareUpdate<TestSchema, TestIndexes, {}, {}>(
       'ez4-test-update',
       testSchema,
+      testRelations,
       {
         data: {
           id: 'new',
@@ -150,6 +167,7 @@ describe.only('aurora query', () => {
     const [statement, variables] = prepareUpdate<TestSchema, TestIndexes, {}, {}>(
       'ez4-test-update',
       testSchema,
+      testRelations,
       {
         select: {
           foo: true,
@@ -174,7 +192,7 @@ describe.only('aurora query', () => {
       `UPDATE "ez4-test-update" ` +
         `SET "foo" = :u0, "bar"['barBar'] = :u1 ` +
         `WHERE "id" = :0 ` +
-        `RETURNING "foo", JSONB_BUILD_OBJECT('barBar', "bar"['barBar']) AS "bar"`
+        `RETURNING "foo", json_build_object('barBar', "bar"['barBar']) AS "bar"`
     );
 
     deepEqual(variables, [
@@ -201,9 +219,10 @@ describe.only('aurora query', () => {
   });
 
   it('assert :: prepare select', () => {
-    const [statement, variables] = prepareSelect<TestSchema, TestIndexes, {}, {}>(
+    const [statement, variables] = prepareSelectQuery<TestSchema, TestIndexes, {}, {}>(
       'ez4-test-select',
       testSchema,
+      testRelations,
       {
         select: {
           id: true,
@@ -237,10 +256,50 @@ describe.only('aurora query', () => {
     ]);
   });
 
+  it.only('assert :: prepare select (with relationship)', () => {
+    const [statement, variables] = prepareSelectQuery<TestSchema, TestIndexes, {}, {}>(
+      'ez4-test-select',
+      testSchema,
+      testRelations,
+      {
+        select: {
+          id: true,
+          foo: true,
+          bar: true,
+          parent: {
+            id: true
+          }
+        },
+        where: {
+          id: 'abc'
+        }
+      }
+    );
+
+    equal(
+      statement,
+      `SELECT "id", "foo", "bar", ` +
+        `(SELECT json_build_object('id', "id") FROM "ez4-test-source-table" WHERE "id" = "parent_id") AS "parent" ` +
+        `FROM "ez4-test-select" ` +
+        `WHERE "id" = :0`
+    );
+
+    deepEqual(variables, [
+      {
+        name: '0',
+        typeHint: 'UUID',
+        value: {
+          stringValue: 'abc'
+        }
+      }
+    ]);
+  });
+
   it('assert :: prepare delete', () => {
     const [statement, variables] = prepareDelete<TestSchema, TestIndexes, {}, {}>(
       'ez4-test-delete',
       testSchema,
+      testRelations,
       {
         where: {
           id: 'abc'
@@ -265,6 +324,7 @@ describe.only('aurora query', () => {
     const [statement, variables] = prepareDelete<TestSchema, TestIndexes, {}, {}>(
       'ez4-test-delete',
       testSchema,
+      testRelations,
       {
         select: {
           id: true,
@@ -291,7 +351,7 @@ describe.only('aurora query', () => {
   });
 
   it('assert :: prepare where (default)', () => {
-    const [whereStatement, variables] = getWhereOperation(testSchema, {
+    const [whereStatement, variables] = getWhereOperation({
       id: 'abc',
       foo: 123
     });
@@ -316,7 +376,7 @@ describe.only('aurora query', () => {
   });
 
   it('assert :: prepare where (equal)', () => {
-    const [whereStatement, variables] = getWhereOperation(testSchema, {
+    const [whereStatement, variables] = getWhereOperation({
       id: { equal: 'abc' }
     });
 
@@ -334,7 +394,7 @@ describe.only('aurora query', () => {
   });
 
   it('assert :: prepare where (not equal)', () => {
-    const [whereStatement, variables] = getWhereOperation(testSchema, {
+    const [whereStatement, variables] = getWhereOperation({
       id: { not: 'abc' }
     });
 
@@ -352,7 +412,7 @@ describe.only('aurora query', () => {
   });
 
   it('assert :: prepare where (greater than)', () => {
-    const [whereStatement, variables] = getWhereOperation(testSchema, {
+    const [whereStatement, variables] = getWhereOperation({
       foo: { gt: 0 }
     });
 
@@ -369,7 +429,7 @@ describe.only('aurora query', () => {
   });
 
   it('assert :: prepare where (greater than or equal)', () => {
-    const [whereStatement, variables] = getWhereOperation(testSchema, {
+    const [whereStatement, variables] = getWhereOperation({
       foo: { gte: 0 }
     });
 
@@ -386,7 +446,7 @@ describe.only('aurora query', () => {
   });
 
   it('assert :: prepare where (less than)', () => {
-    const [whereStatement, variables] = getWhereOperation(testSchema, {
+    const [whereStatement, variables] = getWhereOperation({
       foo: { lt: 0 }
     });
 
@@ -403,7 +463,7 @@ describe.only('aurora query', () => {
   });
 
   it('assert :: prepare where (less than or equal)', () => {
-    const [whereStatement, variables] = getWhereOperation(testSchema, {
+    const [whereStatement, variables] = getWhereOperation({
       foo: { lte: 0 }
     });
 
@@ -420,7 +480,7 @@ describe.only('aurora query', () => {
   });
 
   it('assert :: prepare where (is in)', () => {
-    const [whereStatement, variables] = getWhereOperation(testSchema, {
+    const [whereStatement, variables] = getWhereOperation({
       id: { isIn: ['abc', 'def'] }
     });
 
@@ -445,7 +505,7 @@ describe.only('aurora query', () => {
   });
 
   it('assert :: prepare where (is between)', () => {
-    const [whereStatement, variables] = getWhereOperation(testSchema, {
+    const [whereStatement, variables] = getWhereOperation({
       foo: { isBetween: [0, 100] }
     });
 
@@ -468,7 +528,7 @@ describe.only('aurora query', () => {
   });
 
   it('assert :: prepare where (is missing)', () => {
-    const [whereStatement, variables] = getWhereOperation(testSchema, {
+    const [whereStatement, variables] = getWhereOperation({
       bar: { barBar: { isMissing: true } }
     });
 
@@ -478,7 +538,7 @@ describe.only('aurora query', () => {
   });
 
   it('assert :: prepare where (is not missing)', () => {
-    const [whereStatement, variables] = getWhereOperation(testSchema, {
+    const [whereStatement, variables] = getWhereOperation({
       bar: { barBar: { isMissing: false } }
     });
 
@@ -488,7 +548,7 @@ describe.only('aurora query', () => {
   });
 
   it('assert :: prepare where (is null)', () => {
-    const [whereStatement, variables] = getWhereOperation(testSchema, {
+    const [whereStatement, variables] = getWhereOperation({
       bar: { barBar: { isNull: true } }
     });
 
@@ -498,7 +558,7 @@ describe.only('aurora query', () => {
   });
 
   it('assert :: prepare where (is not null)', () => {
-    const [whereStatement, variables] = getWhereOperation(testSchema, {
+    const [whereStatement, variables] = getWhereOperation({
       bar: { barBar: { isNull: false } }
     });
 
@@ -508,7 +568,7 @@ describe.only('aurora query', () => {
   });
 
   it('assert :: prepare where (contains)', () => {
-    const [whereStatement, variables] = getWhereOperation(testSchema, {
+    const [whereStatement, variables] = getWhereOperation({
       bar: { barFoo: { contains: 'abc' } }
     });
 
@@ -525,7 +585,7 @@ describe.only('aurora query', () => {
   });
 
   it('assert :: prepare where (starts with)', () => {
-    const [whereStatement, variables] = getWhereOperation(testSchema, {
+    const [whereStatement, variables] = getWhereOperation({
       bar: { barFoo: { startsWith: 'abc' } }
     });
 
@@ -542,7 +602,7 @@ describe.only('aurora query', () => {
   });
 
   it('assert :: prepare where (not)', () => {
-    const [whereStatement, variables] = getWhereOperation(testSchema, {
+    const [whereStatement, variables] = getWhereOperation({
       NOT: { id: 'abc', foo: 123 }
     });
 
@@ -566,7 +626,7 @@ describe.only('aurora query', () => {
   });
 
   it('assert :: prepare where (and)', () => {
-    const [whereStatement, variables] = getWhereOperation(testSchema, {
+    const [whereStatement, variables] = getWhereOperation({
       AND: [{ foo: 123, id: 'abc' }, { OR: [{ foo: 456 }, { foo: 789 }] }]
     });
 
@@ -602,7 +662,7 @@ describe.only('aurora query', () => {
   });
 
   it('assert :: prepare where (or)', () => {
-    const [whereStatement, variables] = getWhereOperation(testSchema, {
+    const [whereStatement, variables] = getWhereOperation({
       OR: [{ id: 'abc', foo: 123 }, { AND: [{ id: 'def' }, { id: 'ghi' }] }]
     });
 

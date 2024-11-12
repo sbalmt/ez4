@@ -7,20 +7,17 @@ export const prepareCreateTable = (table: string, schema: ObjectSchema): string 
 
   for (const columnName in schema.properties) {
     const columnSchema = schema.properties[columnName];
+    const columnNullable = isNullableColumn(columnSchema);
+    const columnDefault = getColumnDefault(columnSchema);
+
     const columnType = [`"${columnName}"`, getColumnType(columnSchema)];
 
-    const isNullable = isNullableColumn(columnSchema);
-
-    if (isNullable) {
-      const columnDefault = getColumnDefault(columnSchema);
-
-      if (columnDefault) {
-        columnType.push(`DEFAULT ${columnDefault}`);
-      }
+    if (!columnNullable) {
+      columnType.push('NOT NULL');
     }
 
-    if (!isNullable) {
-      columnType.push('NOT NULL');
+    if (columnDefault) {
+      columnType.push(`DEFAULT ${columnDefault}`);
     }
 
     columnTypes.push(columnType.join(' '));
@@ -47,12 +44,13 @@ export const prepareUpdateTable = (
     const alterColumn = `${alterTable} ALTER COLUMN "${columnName}"`;
 
     const columnSchema = toUpdate[columnName];
+    const columnNullable = isNullableColumn(columnSchema);
     const columnDefault = getColumnDefault(columnSchema);
     const columnType = getColumnType(columnSchema);
 
     statements.push(`${alterColumn} TYPE ${columnType}`);
 
-    if (isNullableColumn(columnSchema)) {
+    if (columnNullable) {
       statements.push(`${alterColumn} DROP NOT NULL`);
     } else {
       statements.push(`${alterColumn} SET NOT NULL`);

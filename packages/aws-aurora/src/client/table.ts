@@ -1,7 +1,8 @@
+import type { AnyObject } from '@ez4/utils';
+import type { ObjectSchema } from '@ez4/schema';
 import type { Database, Relations, Query, Table as DbTable } from '@ez4/database';
 import type { RDSDataClient } from '@aws-sdk/client-rds-data';
-import type { ObjectSchema } from '@ez4/schema';
-import type { AnyObject } from '@ez4/utils';
+import type { RepositoryRelations } from '../types/repository.js';
 import type { PreparedQueryCommand } from './common/queries.js';
 import type { Connection } from './types.js';
 
@@ -28,24 +29,34 @@ export class Table<T extends Database.Schema, I extends Database.Indexes<T>, R e
     private client: RDSDataClient,
     private connection: Connection,
     private name: string,
-    private schema: ObjectSchema
+    private schema: ObjectSchema,
+    private relations: RepositoryRelations
   ) {}
 
   private parseRecord<T extends Record<string, unknown>>(record: T): T {
-    const result: any = {};
+    const result: Record<string, unknown> = {};
 
     for (const name in record) {
-      const schema = this.schema.properties[name];
       const value = record[name];
 
-      if (schema.type === SchemaTypeName.Object && typeof value === 'string') {
-        result[name] = JSON.parse(value);
-      } else {
-        result[name] = value;
+      if (typeof value === 'string') {
+        const schema = this.schema.properties[name];
+
+        if (schema?.type === SchemaTypeName.Object) {
+          result[name] = JSON.parse(value);
+          continue;
+        }
+
+        if (this.relations[name]) {
+          result[name] = JSON.parse(value);
+          continue;
+        }
       }
+
+      result[name] = value;
     }
 
-    return result;
+    return result as T;
   }
 
   private async sendCommand(input: PreparedQueryCommand | PreparedQueryCommand[]) {
@@ -67,7 +78,7 @@ export class Table<T extends Database.Schema, I extends Database.Indexes<T>, R e
   ): Promise<Query.UpdateOneResult<T, S, R>> {
     const { select, data, where } = query;
 
-    const updateCommand = prepareUpdateOne<T, I, R, S>(this.name, this.schema, {
+    const updateCommand = prepareUpdateOne<T, I, R, S>(this.name, this.schema, this.relations, {
       data,
       where
     });
@@ -78,7 +89,7 @@ export class Table<T extends Database.Schema, I extends Database.Indexes<T>, R e
       return undefined;
     }
 
-    const selectCommand = prepareFindOne<T, I, R, S>(this.name, this.schema, {
+    const selectCommand = prepareFindOne<T, I, R, S>(this.name, this.schema, this.relations, {
       select,
       where
     });
@@ -91,7 +102,7 @@ export class Table<T extends Database.Schema, I extends Database.Indexes<T>, R e
   async findOne<S extends Query.SelectInput<T, R>>(
     query: Query.FindOneInput<T, S, I>
   ): Promise<Query.FindOneResult<T, S, R>> {
-    const command = prepareFindOne<T, I, R, S>(this.name, this.schema, query);
+    const command = prepareFindOne<T, I, R, S>(this.name, this.schema, this.relations, query);
 
     const [record] = await this.sendCommand(command);
 
@@ -105,7 +116,7 @@ export class Table<T extends Database.Schema, I extends Database.Indexes<T>, R e
   async deleteOne<S extends Query.SelectInput<T, R>>(
     query: Query.DeleteOneInput<T, S, I>
   ): Promise<Query.DeleteOneResult<T, S, R>> {
-    const command = prepareDeleteOne<T, I, R, S>(this.name, this.schema, query);
+    const command = prepareDeleteOne<T, I, R, S>(this.name, this.schema, this.relations, query);
 
     const [record] = await this.sendCommand(command);
 
@@ -151,7 +162,12 @@ export class Table<T extends Database.Schema, I extends Database.Indexes<T>, R e
   ): Promise<Query.UpdateManyResult<T, S, R>> {
     const { select, where, limit } = query;
 
-    const updateCommand = prepareUpdateMany<T, I, R, S>(this.name, this.schema, query);
+    const updateCommand = prepareUpdateMany<T, I, R, S>(
+      this.name,
+      this.schema,
+      this.relations,
+      query
+    );
 
     if (!select) {
       await this.sendCommand(updateCommand);
@@ -159,7 +175,7 @@ export class Table<T extends Database.Schema, I extends Database.Indexes<T>, R e
       return [];
     }
 
-    const selectCommand = prepareFindMany<T, I, R, S>(this.name, this.schema, {
+    const selectCommand = prepareFindMany<T, I, R, S>(this.name, this.schema, this.relations, {
       select,
       where,
       limit
@@ -173,7 +189,7 @@ export class Table<T extends Database.Schema, I extends Database.Indexes<T>, R e
   async findMany<S extends Query.SelectInput<T, R>>(
     query: Query.FindManyInput<T, S, I>
   ): Promise<Query.FindManyResult<T, S, R>> {
-    const command = prepareFindMany<T, I, R, S>(this.name, this.schema, query);
+    const command = prepareFindMany<T, I, R, S>(this.name, this.schema, this.relations, query);
 
     const records = await this.sendCommand(command);
 
@@ -188,7 +204,7 @@ export class Table<T extends Database.Schema, I extends Database.Indexes<T>, R e
   async deleteMany<S extends Query.SelectInput<T, R>>(
     query: Query.DeleteManyInput<T, S>
   ): Promise<Query.DeleteManyResult<T, S, R>> {
-    const command = prepareDeleteMany<T, I, R, S>(this.name, this.schema, query);
+    const command = prepareDeleteMany<T, I, R, S>(this.name, this.schema, this.relations, query);
 
     const records = await this.sendCommand(command);
 

@@ -1,13 +1,14 @@
 import type { ExecuteStatementCommandInput } from '@aws-sdk/client-rds-data';
 import type { Database, Relations, Query } from '@ez4/database';
 import type { ObjectSchema } from '@ez4/schema';
+import type { RepositoryRelations } from '../../types/repository.js';
 
 import { validateSchema } from './schema.js';
 
-import { prepareInsert } from './insert.js';
-import { prepareUpdate } from './update.js';
-import { prepareSelect } from './select.js';
-import { prepareDelete } from './delete.js';
+import { prepareInsertQuery } from './insert.js';
+import { prepareUpdateQuery } from './update.js';
+import { prepareSelectQuery } from './select.js';
+import { prepareDeleteQuery } from './delete.js';
 
 export type PreparedQueryCommand = Pick<ExecuteStatementCommandInput, 'sql' | 'parameters'>;
 
@@ -22,7 +23,7 @@ export const prepareInsertOne = async <
 ): Promise<PreparedQueryCommand> => {
   await validateSchema(query.data, schema);
 
-  const [statement, variables] = prepareInsert<T, I, R>(table, schema, query);
+  const [statement, variables] = prepareInsertQuery<T, I, R>(table, schema, query);
 
   return {
     sql: statement,
@@ -38,9 +39,10 @@ export const prepareFindOne = <
 >(
   table: string,
   schema: ObjectSchema,
+  relations: RepositoryRelations,
   query: Query.FindOneInput<T, S, I>
 ): PreparedQueryCommand => {
-  const [statement, variables] = prepareSelect<T, I, R, S>(table, schema, {
+  const [statement, variables] = prepareSelectQuery<T, I, R, S>(table, schema, relations, {
     ...query,
     limit: 1
   });
@@ -61,9 +63,10 @@ export const prepareUpdateOne = <
 >(
   table: string,
   schema: ObjectSchema,
+  relations: RepositoryRelations,
   query: Query.UpdateOneInput<T, S, I, R>
 ): PreparedQueryCommand => {
-  const [statement, variables] = prepareUpdate<T, I, R, S>(table, schema, {
+  const [statement, variables] = prepareUpdateQuery<T, I, R, S>(table, schema, relations, {
     ...query
     // limit: 1
   });
@@ -84,9 +87,10 @@ export const prepareDeleteOne = <
 >(
   table: string,
   schema: ObjectSchema,
+  relations: RepositoryRelations,
   query: Query.DeleteOneInput<T, S, I>
 ): PreparedQueryCommand => {
-  const [statement, variables] = prepareDelete<T, I, R, S>(table, schema, {
+  const [statement, variables] = prepareDeleteQuery<T, I, R, S>(table, schema, relations, {
     ...query,
     limit: 1
   });
@@ -112,7 +116,7 @@ export const prepareInsertMany = async <
     query.data.map(async (data) => {
       await validateSchema(data, schema);
 
-      const [statement, variables] = prepareInsert<T, I, R>(table, schema, {
+      const [statement, variables] = prepareInsertQuery<T, I, R>(table, schema, {
         data
       });
 
@@ -134,9 +138,10 @@ export const prepareFindMany = <
 >(
   table: string,
   schema: ObjectSchema,
+  relations: RepositoryRelations,
   query: Query.FindManyInput<T, S, I>
 ): PreparedQueryCommand => {
-  const [statement, variables] = prepareSelect<T, I, R, S>(table, schema, query);
+  const [statement, variables] = prepareSelectQuery<T, I, R, S>(table, schema, relations, query);
 
   return {
     sql: statement,
@@ -154,9 +159,10 @@ export const prepareUpdateMany = <
 >(
   table: string,
   schema: ObjectSchema,
+  relations: RepositoryRelations,
   query: Query.UpdateManyInput<T, S>
 ): PreparedQueryCommand => {
-  const [statement, variables] = prepareUpdate<T, I, R, S>(table, schema, query);
+  const [statement, variables] = prepareUpdateQuery<T, I, R, S>(table, schema, relations, query);
 
   return {
     sql: statement,
@@ -174,9 +180,10 @@ export const prepareDeleteMany = <
 >(
   table: string,
   schema: ObjectSchema,
+  relations: RepositoryRelations,
   query: Query.DeleteManyInput<T, S>
 ): PreparedQueryCommand => {
-  const [statement, variables] = prepareDelete<T, I, R, S>(table, schema, query);
+  const [statement, variables] = prepareDeleteQuery<T, I, R, S>(table, schema, relations, query);
 
   return {
     sql: statement,

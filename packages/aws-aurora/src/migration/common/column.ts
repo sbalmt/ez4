@@ -8,18 +8,20 @@ export const isNullableColumn = (schema: AnySchema) => {
 };
 
 export const getColumnDefault = (schema: AnySchema) => {
-  if (!isStringSchema(schema)) {
-    return undefined;
+  if (isStringSchema(schema)) {
+    switch (schema.format) {
+      case 'uuid':
+        return 'gen_random_uuid()';
+
+      case 'time':
+      case 'date':
+      case 'date-time':
+        return 'now()';
+    }
   }
 
-  switch (schema.format) {
-    case 'uuid':
-      return 'gen_random_uuid()';
-
-    case 'time':
-    case 'date':
-    case 'date-time':
-      return 'now()';
+  if (isNullableColumn(schema)) {
+    return 'NULL';
   }
 
   return undefined;

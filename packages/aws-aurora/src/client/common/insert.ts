@@ -6,7 +6,7 @@ import { prepareFieldData } from './data.js';
 
 type PrepareResult = [string, SqlParameter[]];
 
-export const prepareInsert = <
+export const prepareInsertQuery = <
   T extends Database.Schema,
   I extends Database.Indexes<T>,
   R extends Relations

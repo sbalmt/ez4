@@ -2,6 +2,7 @@ import type { Database, Relations, Query } from '@ez4/database';
 import type { SqlParameter } from '@aws-sdk/client-rds-data';
 import type { ObjectSchema } from '@ez4/schema';
 import type { DeepPartial } from '@ez4/utils';
+import type { RepositoryRelations } from '../../types/repository.js';
 
 import { SchemaTypeName } from '@ez4/schema';
 import { isAnyObject } from '@ez4/utils';
@@ -12,7 +13,7 @@ import { prepareFieldData } from './data.js';
 
 type PrepareResult = [string, SqlParameter[]];
 
-export const prepareUpdate = <
+export const prepareUpdateQuery = <
   T extends Database.Schema,
   I extends Database.Indexes<T>,
   R extends Relations,
@@ -20,6 +21,7 @@ export const prepareUpdate = <
 >(
   table: string,
   schema: ObjectSchema,
+  relations: RepositoryRelations,
   query: Query.UpdateOneInput<T, S, I, R> | Query.UpdateManyInput<T, S>
 ): PrepareResult => {
   const [updateFields, variables] = prepareUpdateFields(schema, query.data);
@@ -36,7 +38,7 @@ export const prepareUpdate = <
   }
 
   if (query.select) {
-    const selectFields = prepareSelectFields(query.select);
+    const selectFields = prepareSelectFields(query.select, relations);
 
     statement.push(`RETURNING ${selectFields}`);
   }

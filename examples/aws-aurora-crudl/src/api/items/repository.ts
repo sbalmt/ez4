@@ -34,7 +34,10 @@ export const readItem = async (client: DbClient, id: string) => {
   return client.items.findOne({
     select: {
       name: true,
-      description: true
+      description: true,
+      category: {
+        name: true
+      }
     },
     where: {
       id

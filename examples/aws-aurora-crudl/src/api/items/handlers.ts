@@ -66,7 +66,8 @@ export async function readItemHandler(
 
     body: {
       name: item.name,
-      description: item.description
+      description: item.description,
+      category_name: item.category?.name
     }
   };
 }

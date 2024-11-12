@@ -24,6 +24,11 @@ export declare class ReadItemResponse implements Http.Response {
      * Item description.
      */
     description?: string;
+
+    /**
+     * Item category name.
+     */
+    category_name?: string;
   };
 }
 

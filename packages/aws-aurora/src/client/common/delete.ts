@@ -1,13 +1,14 @@
 import type { Database, Relations, Query } from '@ez4/database';
 import type { SqlParameter } from '@aws-sdk/client-rds-data';
 import type { ObjectSchema } from '@ez4/schema';
+import type { RepositoryRelations } from '../../types/repository.js';
 
 import { prepareSelectFields } from './select.js';
 import { prepareWhereFields } from './where.js';
 
 type PrepareResult = [string, SqlParameter[]];
 
-export const prepareDelete = <
+export const prepareDeleteQuery = <
   T extends Database.Schema,
   I extends Database.Indexes<T>,
   R extends Relations,
@@ -15,6 +16,7 @@ export const prepareDelete = <
 >(
   table: string,
   schema: ObjectSchema,
+  relations: RepositoryRelations,
   query: Query.DeleteOneInput<T, S, I> | Query.DeleteManyInput<T, S>
 ): PrepareResult => {
   const statement = [`DELETE FROM "${table}"`];
@@ -30,7 +32,7 @@ export const prepareDelete = <
   }
 
   if (query.select) {
-    const selectFields = prepareSelectFields(query.select);
+    const selectFields = prepareSelectFields(query.select, relations);
 
     statement.push(`RETURNING ${selectFields}`);
   }
