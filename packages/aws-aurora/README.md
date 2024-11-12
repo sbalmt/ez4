@@ -41,10 +41,22 @@ Ensure the user performing deployments has the permissions below:
       ]
     },
     {
+      "Sid": "AuroraDatabaseManagement",
+      "Effect": "Allow",
+      "Action": [
+        "rds-data:BeginTransaction",
+        "rds-data:CommitTransaction",
+        "rds-data:ExecuteStatement",
+        "rds-data:RollbackTransaction"
+      ],
+      "Resource": ["arn:aws:rds:*:{account-id}:cluster:{prefix}-*"]
+    },
+    {
       "Sid": "AuroraSecretManagement",
       "Effect": "Allow",
       "Action": [
         "secretsmanager:CreateSecret",
+        "secretsmanager:GetSecretValue",
         "secretsmanager:RotateSecret",
         "secretsmanager:TagResource"
       ],

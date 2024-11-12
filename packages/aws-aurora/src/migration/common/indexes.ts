@@ -14,15 +14,14 @@ export const prepareCreateIndexes = (table: string, indexes: RepositoryIndexes) 
     const { columns, type } = indexes[name];
 
     const indexColumns = columns.map((column) => `"${column}"`).join(', ');
-    const indexName = toCamelCase(name);
 
     if (type !== Index.Primary) {
-      statements.push(`CREATE INDEX "${indexName}_idx" ON "${table}" (${indexColumns})`);
+      statements.push(`CREATE INDEX "${getIndexName(name)}" ON "${table}" (${indexColumns})`);
       continue;
     }
 
     statements.push(
-      `ALTER TABLE "${table}" ADD CONSTRAINT "${indexName}_pk" PRIMARY KEY (${indexColumns})`
+      `ALTER TABLE "${table}" ADD CONSTRAINT "${getPrimaryKey(table, name)}" PRIMARY KEY (${indexColumns})`
     );
   }
 
@@ -47,15 +46,25 @@ export const prepareDeleteIndexes = (table: string, indexes: RepositoryIndexes) 
 
     const { type } = indexes[name];
 
-    const indexName = toCamelCase(name);
-
     if (type === Index.Primary) {
-      statements.push(`ALTER TABLE "${table}" DROP CONSTRAINT "${indexName}_pk"`);
+      statements.push(`ALTER TABLE "${table}" DROP CONSTRAINT "${getPrimaryKey(table, name)}"`);
       continue;
     }
 
-    statements.push(`DROP INDEX "${indexName}_idx"`);
+    statements.push(`DROP INDEX "${getIndexName(name)}"`);
   }
 
   return statements;
+};
+
+const getName = (name: string) => {
+  return toCamelCase(name.replaceAll(':', '_'));
+};
+
+const getPrimaryKey = (table: string, name: string) => {
+  return `${table}_${getName(name)}_pk`;
+};
+
+const getIndexName = (name: string) => {
+  return `${getName(name)}_idx`;
 };

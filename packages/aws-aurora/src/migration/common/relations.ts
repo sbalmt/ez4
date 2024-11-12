@@ -15,7 +15,7 @@ export const prepareCreateRelations = (table: string, relations: RepositoryRelat
 
     const { sourceTable, sourceColumn, targetColumn } = relation;
 
-    const relationName = getRelationName(relation);
+    const relationName = getRelationName(table, relation);
 
     statements.push(
       `ALTER TABLE "${table}" ` +
@@ -46,7 +46,7 @@ export const prepareDeleteRelations = (table: string, relations: RepositoryRelat
       continue;
     }
 
-    const relationName = getRelationName(relation);
+    const relationName = getRelationName(table, relation);
 
     statements.push(`ALTER TABLE "${table}" DROP CONSTRAINT "${relationName}"`);
   }
@@ -54,9 +54,8 @@ export const prepareDeleteRelations = (table: string, relations: RepositoryRelat
   return statements;
 };
 
-const getRelationName = (relation: TableRelation) => {
-  const targetColumn = toCamelCase(relation.targetColumn);
+const getRelationName = (table: string, relation: TableRelation) => {
   const targetAlias = toCamelCase(relation.targetAlias);
 
-  return `${targetAlias}_${targetColumn}_fk`;
+  return `${table}_${targetAlias}_fk`;
 };

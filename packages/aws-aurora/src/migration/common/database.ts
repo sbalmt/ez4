@@ -3,5 +3,5 @@ export const prepareCreateDatabase = (database: string): string => {
 };
 
 export const prepareDeleteDatabase = (database: string): string => {
-  return `DROP DATABASE "${database}"`;
+  return `DROP DATABASE IF EXISTS "${database}" WITH (FORCE)`;
 };

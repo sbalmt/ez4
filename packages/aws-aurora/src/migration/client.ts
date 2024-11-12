@@ -103,8 +103,8 @@ export const createTables = async (request: CreateTableRequest): Promise<void> =
 
   await executeTransaction(configuration, client, [
     ...tablesCommands,
-    ...relationsCommands,
-    ...indexesCommands
+    ...indexesCommands,
+    ...relationsCommands
   ]);
 };
 
@@ -147,8 +147,8 @@ export const updateTables = async (request: UpdateTableRequest): Promise<void> =
 
   await executeTransaction(configuration, client, [
     ...tablesCommands,
-    ...relationsCommands,
-    ...indexesCommands
+    ...indexesCommands,
+    ...relationsCommands
   ]);
 };
 
