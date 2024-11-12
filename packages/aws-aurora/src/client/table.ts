@@ -36,24 +36,24 @@ export class Table<T extends Database.Schema, I extends Database.Indexes<T>, R e
   private parseRecord<T extends Record<string, unknown>>(record: T): T {
     const result: Record<string, unknown> = {};
 
-    for (const name in record) {
-      const value = record[name];
+    for (const fieldKey in record) {
+      const value = record[fieldKey];
 
       if (typeof value === 'string') {
-        const schema = this.schema.properties[name];
+        const schema = this.schema.properties[fieldKey];
 
         if (schema?.type === SchemaTypeName.Object) {
-          result[name] = JSON.parse(value);
+          result[fieldKey] = JSON.parse(value);
           continue;
         }
 
-        if (this.relations[name]) {
-          result[name] = JSON.parse(value);
+        if (this.relations[fieldKey]) {
+          result[fieldKey] = JSON.parse(value);
           continue;
         }
       }
 
-      result[name] = value;
+      result[fieldKey] = value;
     }
 
     return result as T;
@@ -68,7 +68,7 @@ export class Table<T extends Database.Schema, I extends Database.Indexes<T>, R e
   }
 
   async insertOne(query: Query.InsertOneInput<T, I, R>): Promise<Query.InsertOneResult> {
-    const command = await prepareInsertOne<T, I, R>(this.name, this.schema, query);
+    const command = await prepareInsertOne<T, I, R>(this.name, this.schema, this.relations, query);
 
     await this.sendCommand(command);
   }
@@ -152,7 +152,12 @@ export class Table<T extends Database.Schema, I extends Database.Indexes<T>, R e
   }
 
   async insertMany(query: Query.InsertManyInput<T>): Promise<Query.InsertManyResult> {
-    const commands = await prepareInsertMany<T, I, R>(this.name, this.schema, query);
+    const commands = await prepareInsertMany<T, I, R>(
+      this.name,
+      this.schema,
+      this.relations,
+      query
+    );
 
     await this.sendCommand(commands);
   }

@@ -44,7 +44,7 @@ export namespace Client {
             const query = operationTable[operationName];
 
             if ('insert' in query) {
-              statements.push(await prepareInsertOne(name, schema, query.insert));
+              statements.push(await prepareInsertOne(name, schema, relations, query.insert));
             } else if ('update' in query) {
               statements.push(prepareUpdateOne(name, schema, relations, query.update));
             } else if ('delete' in query) {

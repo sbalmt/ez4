@@ -1,6 +1,7 @@
 import type { Database, Relations, Query } from '@ez4/database';
 import type { SqlParameter } from '@aws-sdk/client-rds-data';
 import type { ObjectSchema } from '@ez4/schema';
+import type { RepositoryRelations } from '../../types/repository.js';
 
 import { prepareFieldData } from './data.js';
 
@@ -13,9 +14,14 @@ export const prepareInsertQuery = <
 >(
   table: string,
   schema: ObjectSchema,
+  relations: RepositoryRelations,
   query: Query.InsertOneInput<T, I, R>
 ): PrepareResult => {
-  const [insertFields, insertParameters, variables] = prepareInsertFields(query.data, schema);
+  const [insertFields, insertParameters, variables] = prepareInsertFields(
+    query.data,
+    schema,
+    relations
+  );
 
   const statement = `INSERT INTO "${table}" ${insertFields} VALUES ${insertParameters}`;
 
@@ -24,18 +30,21 @@ export const prepareInsertQuery = <
 
 const prepareInsertFields = <T extends Database.Schema>(
   data: T,
-  schema: ObjectSchema
+  schema: ObjectSchema,
+  relations: RepositoryRelations
 ): [string, ...PrepareResult] => {
   const properties: string[] = [];
   const variables: SqlParameter[] = [];
 
   for (const fieldKey in data) {
-    const fieldSchema = schema.properties[fieldKey];
     const fieldValue = data[fieldKey];
+    const fieldRelation = relations[fieldKey];
 
-    if (fieldValue === undefined) {
+    if (fieldValue === undefined || fieldRelation) {
       continue;
     }
+
+    const fieldSchema = schema.properties[fieldKey];
 
     if (!fieldSchema) {
       throw new Error(`Field schema for ${fieldKey} doesn't exists.`);

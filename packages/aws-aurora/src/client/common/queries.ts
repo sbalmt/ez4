@@ -19,11 +19,12 @@ export const prepareInsertOne = async <
 >(
   table: string,
   schema: ObjectSchema,
+  relations: RepositoryRelations,
   query: Query.InsertOneInput<T, I, R>
 ): Promise<PreparedQueryCommand> => {
   await validateSchema(query.data, schema);
 
-  const [statement, variables] = prepareInsertQuery<T, I, R>(table, schema, query);
+  const [statement, variables] = prepareInsertQuery<T, I, R>(table, schema, relations, query);
 
   return {
     sql: statement,
@@ -110,13 +111,14 @@ export const prepareInsertMany = async <
 >(
   table: string,
   schema: ObjectSchema,
+  relations: RepositoryRelations,
   query: Query.InsertManyInput<T>
 ): Promise<PreparedQueryCommand[]> => {
   return Promise.all(
     query.data.map(async (data) => {
       await validateSchema(data, schema);
 
-      const [statement, variables] = prepareInsertQuery<T, I, R>(table, schema, {
+      const [statement, variables] = prepareInsertQuery<T, I, R>(table, schema, relations, {
         data
       });
 

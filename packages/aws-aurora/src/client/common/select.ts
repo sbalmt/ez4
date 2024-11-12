@@ -71,11 +71,12 @@ const getSelectFields = <T extends Database.Schema, R extends Relations>(
 
   for (const fieldKey in fields) {
     const fieldValue = fields[fieldKey];
-    const fieldRelation = relations[fieldKey];
 
     if (!fieldValue) {
       continue;
     }
+
+    const fieldRelation = relations[fieldKey];
 
     if (fieldRelation) {
       const { sourceTable, sourceColumn, targetColumn } = fieldRelation;

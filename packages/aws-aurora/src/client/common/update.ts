@@ -24,7 +24,7 @@ export const prepareUpdateQuery = <
   relations: RepositoryRelations,
   query: Query.UpdateOneInput<T, S, I, R> | Query.UpdateManyInput<T, S>
 ): PrepareResult => {
-  const [updateFields, variables] = prepareUpdateFields(schema, query.data);
+  const [updateFields, variables] = prepareUpdateFields(query.data, schema, relations);
 
   const statement = [`UPDATE "${table}" SET ${updateFields}`];
 
@@ -47,8 +47,9 @@ export const prepareUpdateQuery = <
 };
 
 const prepareUpdateFields = <T extends Database.Schema>(
+  data: DeepPartial<T>,
   schema: ObjectSchema,
-  data: DeepPartial<T>
+  relations: RepositoryRelations
 ): PrepareResult => {
   const operations: string[] = [];
   const variables: SqlParameter[] = [];
@@ -56,11 +57,13 @@ const prepareUpdateFields = <T extends Database.Schema>(
   const prepareAll = (schema: ObjectSchema, data: DeepPartial<T>, path?: string) => {
     for (const fieldKey in data) {
       const fieldValue = data[fieldKey];
-      const fieldSchema = schema.properties[fieldKey];
+      const fieldRelation = relations[fieldKey];
 
-      if (fieldValue === undefined) {
+      if (fieldValue === undefined || fieldRelation) {
         continue;
       }
+
+      const fieldSchema = schema.properties[fieldKey];
 
       if (!fieldSchema) {
         throw new Error(`Field schema for ${fieldKey} doesn't exists.`);
