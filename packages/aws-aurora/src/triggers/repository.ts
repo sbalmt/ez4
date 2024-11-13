@@ -11,7 +11,7 @@ export const getRepository = (service: DatabaseService): Repository => {
       [name]: {
         name: toCamelCase(name),
         indexes: getTableIndexes(indexes),
-        relations: relations ? getTableRelations(relations) : {},
+        relations: getTableRelations(relations ?? []),
         schema
       }
     };
@@ -43,6 +43,7 @@ const getTableRelations = (tableRelations: TableRelation[]) => {
     const { targetAlias, sourceColumn, sourceTable, targetColumn, foreign } = relation;
 
     relations[targetAlias] = {
+      sourceAlias: sourceTable,
       sourceTable: toCamelCase(sourceTable),
       sourceColumn,
       targetColumn,

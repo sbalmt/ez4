@@ -2,7 +2,7 @@ import type { AnyObject } from '@ez4/utils';
 import type { ObjectSchema } from '@ez4/schema';
 import type { Database, Relations, Query, Table as DbTable } from '@ez4/database';
 import type { RDSDataClient } from '@aws-sdk/client-rds-data';
-import type { RepositoryRelations } from '../types/repository.js';
+import type { RepositoryRelationsWithSchema } from '../types/repository.js';
 import type { PreparedQueryCommand } from './common/queries.js';
 import type { Connection } from './types.js';
 
@@ -30,7 +30,7 @@ export class Table<T extends Database.Schema, I extends Database.Indexes<T>, R e
     private connection: Connection,
     private name: string,
     private schema: ObjectSchema,
-    private relations: RepositoryRelations
+    private relations: RepositoryRelationsWithSchema
   ) {}
 
   private parseRecord<T extends Record<string, unknown>>(record: T): T {

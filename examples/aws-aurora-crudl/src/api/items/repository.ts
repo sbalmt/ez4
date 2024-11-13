@@ -8,6 +8,10 @@ type DbClient = Db['client'];
 export type CreateItemInput = {
   name: string;
   description?: string;
+  category?: {
+    name: string;
+    description?: string;
+  };
 };
 
 export const createItem = async (client: DbClient, input: CreateItemInput) => {
@@ -15,13 +19,14 @@ export const createItem = async (client: DbClient, input: CreateItemInput) => {
 
   const now = new Date().toISOString();
 
-  const { name, description } = input;
+  const { name, description, category } = input;
 
   await client.items.insertOne({
     data: {
       id,
       name,
       description,
+      category,
       created_at: now,
       updated_at: now
     }

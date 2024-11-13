@@ -18,5 +18,5 @@ export declare class CategorySchema implements Database.Schema {
   /**
    * Category description.
    */
-  description: String.Size<1, 128>;
+  description?: String.Size<1, 128>;
 }

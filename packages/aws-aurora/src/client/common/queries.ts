@@ -1,9 +1,9 @@
 import type { ExecuteStatementCommandInput } from '@aws-sdk/client-rds-data';
 import type { Database, Relations, Query } from '@ez4/database';
 import type { ObjectSchema } from '@ez4/schema';
-import type { RepositoryRelations } from '../../types/repository.js';
+import type { RepositoryRelations, RepositoryRelationsWithSchema } from '../../types/repository.js';
 
-import { preparePartialSchema, validateSchema } from './schema.js';
+import { prepareInsertSchema, prepareUpdateSchema, validateSchema } from './schema.js';
 
 import { prepareInsertQuery } from './insert.js';
 import { prepareUpdateQuery } from './update.js';
@@ -19,10 +19,10 @@ export const prepareInsertOne = async <
 >(
   table: string,
   schema: ObjectSchema,
-  relations: RepositoryRelations,
+  relations: RepositoryRelationsWithSchema,
   query: Query.InsertOneInput<T, I, R>
 ): Promise<PreparedQueryCommand> => {
-  await validateSchema(query.data, schema);
+  await validateSchema(query.data, prepareInsertSchema(schema, relations));
 
   const [statement, variables] = prepareInsertQuery<T, I, R>(table, schema, relations, query);
 
@@ -64,10 +64,10 @@ export const prepareUpdateOne = async <
 >(
   table: string,
   schema: ObjectSchema,
-  relations: RepositoryRelations,
+  relations: RepositoryRelationsWithSchema,
   query: Query.UpdateOneInput<T, S, I, R>
 ): Promise<PreparedQueryCommand> => {
-  await validateSchema(query.data, preparePartialSchema(schema, query.data));
+  await validateSchema(query.data, prepareUpdateSchema(schema, relations, query.data));
 
   const [statement, variables] = prepareUpdateQuery<T, I, R, S>(table, schema, relations, {
     ...query
@@ -113,12 +113,14 @@ export const prepareInsertMany = async <
 >(
   table: string,
   schema: ObjectSchema,
-  relations: RepositoryRelations,
+  relations: RepositoryRelationsWithSchema,
   query: Query.InsertManyInput<T>
 ): Promise<PreparedQueryCommand[]> => {
+  const insertSchema = prepareInsertSchema(schema, relations);
+
   return Promise.all(
     query.data.map(async (data) => {
-      await validateSchema(data, schema);
+      await validateSchema(query.data, insertSchema);
 
       const [statement, variables] = prepareInsertQuery<T, I, R>(table, schema, relations, {
         data
@@ -163,10 +165,10 @@ export const prepareUpdateMany = async <
 >(
   table: string,
   schema: ObjectSchema,
-  relations: RepositoryRelations,
+  relations: RepositoryRelationsWithSchema,
   query: Query.UpdateManyInput<T, S>
 ): Promise<PreparedQueryCommand> => {
-  await validateSchema(query.data, preparePartialSchema(schema, query.data));
+  await validateSchema(query.data, prepareUpdateSchema(schema, relations, query.data));
 
   const [statement, variables] = prepareUpdateQuery<T, I, R, S>(table, schema, relations, query);
 

@@ -1,7 +1,8 @@
-import type { PartialObjectSchemaProperties } from '@ez4/schema/library';
-import type { ObjectSchema } from '@ez4/schema';
-import type { Database } from '@ez4/database';
 import type { AnyObject } from '@ez4/utils';
+import type { PartialObjectSchemaProperties } from '@ez4/schema/library';
+import type { ObjectSchema, ObjectSchemaProperties } from '@ez4/schema';
+import type { Database } from '@ez4/database';
+import type { RepositoryRelationsWithSchema } from '../../types/repository.js';
 
 import { partialObjectSchema } from '@ez4/schema/library';
 
@@ -23,14 +24,44 @@ export const validateSchema = async <T extends Database.Schema>(
   }
 };
 
-export const preparePartialSchema = (schema: ObjectSchema, data: AnyObject) => {
-  return partialObjectSchema(schema, {
-    include: getPartialProperties(data),
+export const prepareInsertSchema = (
+  schema: ObjectSchema,
+  relations: RepositoryRelationsWithSchema
+): ObjectSchema => {
+  const properties: ObjectSchemaProperties = {};
+
+  for (const alias in relations) {
+    const { targetAlias, targetColumn, sourceSchema } = relations[alias]!;
+    const { nullable, optional } = schema.properties[targetColumn];
+
+    properties[targetAlias] = {
+      ...sourceSchema,
+      nullable,
+      optional
+    };
+  }
+
+  return {
+    ...schema,
+    properties: {
+      ...schema.properties,
+      ...properties
+    }
+  };
+};
+
+export const prepareUpdateSchema = (
+  schema: ObjectSchema,
+  relations: RepositoryRelationsWithSchema,
+  data: AnyObject
+) => {
+  return partialObjectSchema(prepareInsertSchema(schema, relations), {
+    include: getDataProperties(data),
     extensible: true
   });
 };
 
-const getPartialProperties = (data: AnyObject) => {
+const getDataProperties = (data: AnyObject) => {
   const properties: PartialObjectSchemaProperties = {};
 
   for (const propertyName in data) {
@@ -41,7 +72,7 @@ const getPartialProperties = (data: AnyObject) => {
     }
 
     if (value instanceof Object) {
-      properties[propertyName] = getPartialProperties(value);
+      properties[propertyName] = getDataProperties(value);
     } else {
       properties[propertyName] = true;
     }

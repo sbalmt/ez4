@@ -35,7 +35,7 @@ export namespace Client {
         for (const name in operations) {
           const operationTable = operations[name];
 
-          if (!(name in repository)) {
+          if (!repository[name]) {
             throw new Error(`Table ${name} isn't part of the table repository.`);
           }
 
@@ -64,21 +64,21 @@ export namespace Client {
           return target[property];
         }
 
-        const name = property.toString();
+        const alias = property.toString();
 
-        if (tableCache[name]) {
-          return tableCache[name];
+        if (tableCache[alias]) {
+          return tableCache[alias];
         }
 
-        if (!(name in repository)) {
-          throw new Error(`Table ${name} isn't part of the repository.`);
+        if (!repository[alias]) {
+          throw new Error(`Table ${alias} isn't part of the repository.`);
         }
 
-        const { tableName, tableSchema, tableIndexes } = repository[name];
+        const { tableName, tableSchema, tableIndexes } = repository[alias];
 
         const table = new Table(tableName, tableSchema, tableIndexes, client);
 
-        tableCache[name] = table;
+        tableCache[alias] = table;
 
         return table;
       }

@@ -3,7 +3,9 @@ import type { ObjectSchema } from '@ez4/schema';
 
 export type Repository = Record<string, RepositoryTable>;
 
-export type RepositoryRelations = Record<string, TableRelation | undefined>;
+export type RepositoryRelations = Record<string, InternalRelation | undefined>;
+
+export type RepositoryRelationsWithSchema = Record<string, InternalRelationWithSchema | undefined>;
 
 export type RepositoryIndexes = Record<string, TableIndex | undefined>;
 
@@ -12,4 +14,12 @@ export type RepositoryTable = {
   relations: RepositoryRelations;
   indexes: RepositoryIndexes;
   schema: ObjectSchema;
+};
+
+type InternalRelation = TableRelation & {
+  sourceAlias: string;
+};
+
+type InternalRelationWithSchema = InternalRelation & {
+  sourceSchema: ObjectSchema;
 };

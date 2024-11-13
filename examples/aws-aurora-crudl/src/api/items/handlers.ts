@@ -29,11 +29,12 @@ export async function createItemHandler(
   context: Service.Context<Api>
 ): Promise<CreateItemResponse> {
   const { auroraDb } = context;
-  const { name, description } = request.body;
+  const { name, description, category } = request.body;
 
   const itemId = await createItem(auroraDb, {
     name,
-    description
+    description,
+    category
   });
 
   return {
