@@ -70,7 +70,7 @@ describe.only('aurora query update', () => {
       targetAlias: 'relation1',
       targetColumn: 'relation1_id',
       sourceColumn: 'id',
-      foreign: false
+      foreign: true
     },
     relation2: {
       sourceSchema: testSchema,
@@ -79,7 +79,7 @@ describe.only('aurora query update', () => {
       targetAlias: 'relation2',
       targetColumn: 'relation2_id',
       sourceColumn: 'id',
-      foreign: false
+      foreign: true
     }
   };
 
@@ -119,69 +119,6 @@ describe.only('aurora query update', () => {
         name: '0',
         value: {
           longValue: 123
-        }
-      }
-    ]);
-  });
-
-  it.only('assert :: prepare update (with relationship)', () => {
-    const [statement, variables] = prepareUpdateQuery<TestSchema, TestIndexes, TestRelations, {}>(
-      'ez4-test-update',
-      testSchema,
-      testRelations,
-      {
-        data: {
-          id: 'new',
-          relation1: {
-            foo: 123
-          },
-          relation2: {
-            bar: {
-              barFoo: 'test'
-            }
-          }
-        },
-        where: {
-          foo: 456
-        }
-      }
-    );
-
-    equal(
-      statement,
-      `WITH ` +
-        `R1 AS (UPDATE "ez4-test-update" SET "id" = :2i WHERE "foo" = :0 RETURNING "relation1_id", "relation2_id"), ` +
-        `R2 AS (UPDATE "ez4-test-relation" SET "foo" = :0i FROM R1 WHERE "id" = R1."relation1_id" RETURNING R1.*) ` +
-        `UPDATE "ez4-test-relation" SET "bar"['barFoo'] = :1i ` +
-        `FROM R2 ` +
-        `WHERE "id" = R2."relation2_id" ` +
-        `RETURNING R2.*`
-    );
-
-    deepEqual(variables, [
-      {
-        name: '0i',
-        value: {
-          longValue: 123
-        }
-      },
-      {
-        name: '1i',
-        value: {
-          stringValue: 'test'
-        }
-      },
-      {
-        name: '2i',
-        typeHint: 'UUID',
-        value: {
-          stringValue: 'new'
-        }
-      },
-      {
-        name: '0',
-        value: {
-          longValue: 456
         }
       }
     ]);
@@ -237,6 +174,71 @@ describe.only('aurora query update', () => {
         typeHint: 'UUID',
         value: {
           stringValue: 'abc'
+        }
+      }
+    ]);
+  });
+
+  it.only('assert :: prepare update (with relationship)', () => {
+    const [statement, variables] = prepareUpdateQuery<TestSchema, TestIndexes, TestRelations, {}>(
+      'ez4-test-update',
+      testSchema,
+      testRelations,
+      {
+        data: {
+          id: 'new',
+          relation1: {
+            foo: 123
+          },
+          relation2: {
+            bar: {
+              barFoo: 'test'
+            }
+          }
+        },
+        where: {
+          foo: 456
+        }
+      }
+    );
+
+    equal(
+      statement,
+      `WITH ` +
+        // First relation
+        `R1 AS (UPDATE "ez4-test-update" SET "id" = :2i WHERE "foo" = :0 RETURNING "relation1_id", "relation2_id"), ` +
+        // Second relation
+        `R2 AS (UPDATE "ez4-test-relation" SET "foo" = :0i FROM R1 WHERE "id" = R1."relation1_id" RETURNING R1.*) ` +
+        //
+        `UPDATE "ez4-test-relation" SET "bar"['barFoo'] = :1i ` +
+        `FROM R2 WHERE "id" = R2."relation2_id" ` +
+        `RETURNING R2.*`
+    );
+
+    deepEqual(variables, [
+      {
+        name: '0i',
+        value: {
+          longValue: 123
+        }
+      },
+      {
+        name: '1i',
+        value: {
+          stringValue: 'test'
+        }
+      },
+      {
+        name: '2i',
+        typeHint: 'UUID',
+        value: {
+          stringValue: 'new'
+        }
+      },
+      {
+        name: '0',
+        value: {
+          longValue: 456
         }
       }
     ]);

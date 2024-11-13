@@ -20,6 +20,7 @@ type TestSchema = {
 type TestRelations = {
   relation1?: TestSchema;
   relation2?: TestSchema;
+  relations?: TestSchema;
 };
 
 type TestIndexes = {
@@ -70,7 +71,7 @@ describe.only('aurora query select', () => {
       targetAlias: 'relation1',
       targetColumn: 'relation1_id',
       sourceColumn: 'id',
-      foreign: false
+      foreign: true
     },
     relation2: {
       sourceSchema: testSchema,
@@ -79,6 +80,15 @@ describe.only('aurora query select', () => {
       targetAlias: 'relation2',
       targetColumn: 'relation2_id',
       sourceColumn: 'id',
+      foreign: true
+    },
+    relations: {
+      sourceSchema: testSchema,
+      sourceTable: 'ez4-test-relation',
+      sourceAlias: 'ez4-test-relation',
+      targetAlias: 'relations',
+      targetColumn: 'id',
+      sourceColumn: 'relation2_id',
       foreign: false
     }
   };
@@ -134,7 +144,10 @@ describe.only('aurora query select', () => {
           relation1: {
             id: true
           },
-          relation2: true
+          relation2: true,
+          relations: {
+            foo: true
+          }
         },
         where: {
           id: 'abc'
@@ -145,11 +158,17 @@ describe.only('aurora query select', () => {
     equal(
       statement,
       `SELECT "id", "foo", "bar", ` +
+        // First relation
         `(SELECT json_build_object('id', "id") ` +
-        `FROM "ez4-test-relation" WHERE "id" = "relation1_id") AS "relation1", ` +
+        `FROM "ez4-test-relation" WHERE "id" = R."relation1_id") AS "relation1", ` +
+        // Second relation
         `(SELECT json_build_object('id', "id", 'relation1_id', "relation1_id", 'relation2_id', "relation2_id", 'foo', "foo", 'bar', "bar") ` +
-        `FROM "ez4-test-relation" WHERE "id" = "relation2_id") AS "relation2" ` +
-        `FROM "ez4-test-select" ` +
+        `FROM "ez4-test-relation" WHERE "id" = R."relation2_id") AS "relation2", ` +
+        // Third relation
+        `(SELECT COALESCE(json_agg(json_build_object('foo', "foo")), '[]'::json) ` +
+        `FROM "ez4-test-relation" WHERE "relation2_id" = R."id") AS "relations" ` +
+        //
+        `FROM "ez4-test-select" R ` +
         `WHERE "id" = :0`
     );
 

@@ -21,7 +21,7 @@ export const getColumnDefault = (schema: AnySchema) => {
   }
 
   if (isNullableColumn(schema)) {
-    return 'NULL';
+    return 'null';
   }
 
   return undefined;
@@ -33,13 +33,13 @@ export const getColumnType = (schema: AnySchema) => {
     case SchemaTypeName.Object:
     case SchemaTypeName.Union:
     case SchemaTypeName.Tuple:
-      return `JSONB`;
+      return `jsonb`;
 
     case SchemaTypeName.Boolean:
-      return `BOOLEAN`;
+      return `boolean`;
 
     case SchemaTypeName.Enum:
-      return `TEXT`;
+      return `text`;
 
     case SchemaTypeName.Number:
       return getColumNumberType(schema);
@@ -51,37 +51,33 @@ export const getColumnType = (schema: AnySchema) => {
 
 const getColumNumberType = (schema: NumberSchema) => {
   if (schema.format === 'decimal') {
-    return `DECIMAL`;
+    return `decimal`;
   }
 
   if (isNullableColumn(schema)) {
-    return 'BIGSERIAL';
+    return 'bigserial';
   }
 
-  return 'BIGINT';
+  return 'bigint';
 };
 
 const getColumnTextType = (schema: StringSchema) => {
   switch (schema.format) {
     case 'uuid':
-      return 'UUID';
-
     case 'time':
-      return 'TIME';
-
     case 'date':
-      return 'DATE';
+      return schema.format;
 
     case 'date-time':
-      return 'TIMESTAMP';
+      return 'timestamp';
 
     default:
       const maxLength = schema.extra?.maxLength;
 
       if (isAnyNumber(maxLength)) {
-        return `VARCHAR(${maxLength})`;
+        return `varchar(${maxLength})`;
       }
 
-      return 'TEXT';
+      return 'text';
   }
 };

@@ -3,7 +3,7 @@ import type { Database, Relations, Query } from '@ez4/database';
 import type { SqlParameter } from '@aws-sdk/client-rds-data';
 import type { RepositoryRelationsWithSchema } from '../../types/repository.js';
 
-import { isAnyNumber, isAnyObject } from '@ez4/utils';
+import { AnyObject, isAnyNumber, isAnyObject } from '@ez4/utils';
 import { isObjectSchema } from '@ez4/schema';
 
 import { prepareWhereFields } from './where.js';
@@ -22,9 +22,10 @@ export const prepareSelectQuery = <
   relations: RepositoryRelationsWithSchema,
   query: Query.FindOneInput<T, S, I> | Query.FindManyInput<T, S, I>
 ): PrepareResult => {
+  const hasRelations = hasRelationFields(query.select, relations);
   const selectFields = prepareSelectFields(query.select, schema, relations);
 
-  const statement = [`SELECT ${selectFields} FROM "${table}"`];
+  const statement = [`SELECT ${selectFields} FROM "${table}"${hasRelations ? ' R' : ''}`];
   const variables = [];
 
   if (query.where) {
@@ -59,69 +60,73 @@ export const prepareSelectFields = <T extends Database.Schema, R extends Relatio
   fields: Partial<Query.SelectInput<T, R>>,
   schema: ObjectSchema,
   relations: RepositoryRelationsWithSchema
-): string => {
-  return getSelectFields(fields, schema, relations, null, false);
-};
+) => {
+  const prepareAll = <T extends Database.Schema, R extends Relations>(
+    fields: Partial<Query.SelectInput<T, R>>,
+    schema: ObjectSchema,
+    relations: RepositoryRelationsWithSchema,
+    object: boolean,
+    path?: string
+  ): string => {
+    const selectFields: string[] = [];
 
-const getSelectFields = <T extends Database.Schema, R extends Relations>(
-  fields: Partial<Query.SelectInput<T, R>>,
-  schema: ObjectSchema,
-  relations: RepositoryRelationsWithSchema,
-  path: string | null,
-  object: boolean
-): string => {
-  const selectFields: string[] = [];
+    for (const fieldKey in fields) {
+      const fieldValue = fields[fieldKey];
 
-  for (const fieldKey in fields) {
-    const fieldValue = fields[fieldKey];
+      if (!fieldValue) {
+        continue;
+      }
 
-    if (!fieldValue) {
-      continue;
+      const fieldRelation = relations[fieldKey];
+
+      if (fieldRelation) {
+        const { sourceTable, sourceColumn, sourceSchema, targetColumn, foreign } = fieldRelation;
+
+        const relationFields = prepareAll(fieldValue, sourceSchema, {}, true);
+
+        const relationResult = !foreign
+          ? `COALESCE(json_agg(json_build_object(${relationFields})), '[]'::json)`
+          : `json_build_object(${relationFields})`;
+
+        const relationSelect =
+          `SELECT ${relationResult} FROM "${sourceTable}" ` +
+          `WHERE "${sourceColumn}" = R."${targetColumn}"`;
+
+        selectFields.push(`(${relationSelect}) AS "${fieldKey}"`);
+        continue;
+      }
+
+      const fieldPath = path ? `${path}['${fieldKey}']` : `"${fieldKey}"`;
+
+      const fieldSchema = schema.properties[fieldKey];
+
+      if (!fieldSchema) {
+        throw new Error(`Field schema for ${fieldValue} doesn't exists.`);
+      }
+
+      if (isObjectSchema(fieldSchema) && isAnyObject(fieldValue)) {
+        const fieldObject = prepareAll(fieldValue, fieldSchema, relations, true, fieldPath);
+
+        selectFields.push(`json_build_object(${fieldObject}) AS "${fieldKey}"`);
+        continue;
+      }
+
+      if (path || object) {
+        selectFields.push(`'${fieldKey}', ${fieldPath}`);
+        continue;
+      }
+
+      selectFields.push(fieldPath);
     }
 
-    const fieldRelation = relations[fieldKey];
-
-    if (fieldRelation) {
-      const { sourceTable, sourceColumn, sourceSchema, targetColumn } = fieldRelation;
-
-      const relationFields = getSelectFields(fieldValue, sourceSchema, {}, null, true);
-
-      const relationSelect =
-        `SELECT json_build_object(${relationFields}) ` +
-        `FROM "${sourceTable}" WHERE "${sourceColumn}" = "${targetColumn}"`;
-
-      selectFields.push(`(${relationSelect}) AS "${fieldKey}"`);
-      continue;
+    if (selectFields.length) {
+      return selectFields.join(', ');
     }
 
-    const fieldPath = path ? `${path}['${fieldKey}']` : `"${fieldKey}"`;
+    return getSchemaFields(schema, object).join(', ');
+  };
 
-    const fieldSchema = schema.properties[fieldKey];
-
-    if (!fieldSchema) {
-      throw new Error(`Field schema for ${fieldValue} doesn't exists.`);
-    }
-
-    if (isObjectSchema(fieldSchema) && isAnyObject(fieldValue)) {
-      const fieldObject = getSelectFields(fieldValue, fieldSchema, relations, fieldPath, true);
-
-      selectFields.push(`json_build_object(${fieldObject}) AS "${fieldKey}"`);
-      continue;
-    }
-
-    if (path || object) {
-      selectFields.push(`'${fieldKey}', ${fieldPath}`);
-      continue;
-    }
-
-    selectFields.push(fieldPath);
-  }
-
-  if (selectFields.length) {
-    return selectFields.join(', ');
-  }
-
-  return getSchemaFields(schema, object).join(', ');
+  return prepareAll(fields, schema, relations, false);
 };
 
 const getSchemaFields = (schema: ObjectSchema, object: boolean) => {
@@ -132,4 +137,16 @@ const getSchemaFields = (schema: ObjectSchema, object: boolean) => {
   }
 
   return fields;
+};
+
+const hasRelationFields = (select: AnyObject, relations: RepositoryRelationsWithSchema) => {
+  for (const alias in relations) {
+    const selectState = select[alias];
+
+    if (selectState === true || isAnyObject(selectState)) {
+      return true;
+    }
+  }
+
+  return false;
 };

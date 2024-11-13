@@ -70,7 +70,7 @@ describe.only('aurora query insert', () => {
       targetAlias: 'relation1',
       targetColumn: 'relation1_id',
       sourceColumn: 'id',
-      foreign: false
+      foreign: true
     },
     relation2: {
       sourceSchema: testSchema,
@@ -79,7 +79,7 @@ describe.only('aurora query insert', () => {
       targetAlias: 'relation2',
       targetColumn: 'relation2_id',
       sourceColumn: 'id',
-      foreign: false
+      foreign: true
     }
   };
 
@@ -157,10 +157,13 @@ describe.only('aurora query insert', () => {
     equal(
       statement,
       `WITH ` +
+        // First relation
         `R1 AS (INSERT INTO "ez4-test-relation" ("id", "bar") ` +
         `VALUES (:0i, :1i) RETURNING "id" AS "relation1"), ` +
+        // Second relation
         `R2 AS (INSERT INTO "ez4-test-relation" ("id", "bar") ` +
         `VALUES (:2i, :3i) RETURNING "id" AS "relation2", R1."relation1") ` +
+        //
         `INSERT INTO "ez4-test-insert" ("id", "bar", "relation1_id", "relation2_id") ` +
         `SELECT :4i, :5i, "relation1", "relation2" FROM R2`
     );
