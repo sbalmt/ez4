@@ -68,7 +68,8 @@ export async function readItemHandler(
     body: {
       name: item.name,
       description: item.description,
-      category_name: item.category?.name
+      category_name: item.category?.name,
+      category_description: item.category?.description
     }
   };
 }
@@ -81,13 +82,14 @@ export async function updateItemHandler(
   context: Service.Context<Api>
 ): Promise<UpdateItemResponse> {
   const { auroraDb } = context;
-  const { name, description } = request.body;
+  const { name, description, category } = request.body;
   const { id } = request.parameters;
 
   const oldItem = await updateItem(auroraDb, {
     id,
     name,
-    description
+    description,
+    category
   });
 
   if (!oldItem) {
@@ -99,7 +101,9 @@ export async function updateItemHandler(
 
     body: {
       name: oldItem.name,
-      description: oldItem.description
+      description: oldItem.description,
+      category_name: oldItem.category?.name,
+      category_description: oldItem.category?.description
     }
   };
 }

@@ -244,18 +244,18 @@ describe.only('aurora query', () => {
       }
     );
 
-    equal(statement, `UPDATE "ez4-test-update" SET "id" = :u0, "foo" = :u1 WHERE "foo" = :0`);
+    equal(statement, `UPDATE "ez4-test-update" SET "id" = :0i, "foo" = :1i WHERE "foo" = :0`);
 
     deepEqual(variables, [
       {
-        name: 'u0',
+        name: '0i',
         typeHint: 'UUID',
         value: {
           stringValue: 'new'
         }
       },
       {
-        name: 'u1',
+        name: '1i',
         value: {
           longValue: 456
         }
@@ -264,6 +264,69 @@ describe.only('aurora query', () => {
         name: '0',
         value: {
           longValue: 123
+        }
+      }
+    ]);
+  });
+
+  it.only('assert :: prepare update (with relationship)', () => {
+    const [statement, variables] = prepareUpdateQuery<TestSchema, TestIndexes, TestRelations, {}>(
+      'ez4-test-update',
+      testSchema,
+      testRelations,
+      {
+        data: {
+          id: 'new',
+          relation1: {
+            foo: 123
+          },
+          relation2: {
+            bar: {
+              barFoo: 'test'
+            }
+          }
+        },
+        where: {
+          foo: 456
+        }
+      }
+    );
+
+    equal(
+      statement,
+      `WITH ` +
+        `R1 AS (UPDATE "ez4-test-update" SET "id" = :2i WHERE "foo" = :0 RETURNING "relation1_id", "relation2_id"), ` +
+        `R2 AS (UPDATE "ez4-test-relation" SET "foo" = :0i FROM R1 WHERE "id" = R1."relation1_id" RETURNING R1.*) ` +
+        `UPDATE "ez4-test-relation" SET "bar"['barFoo'] = :1i ` +
+        `FROM R2 ` +
+        `WHERE "id" = R2."relation2_id" ` +
+        `RETURNING R2.*`
+    );
+
+    deepEqual(variables, [
+      {
+        name: '0i',
+        value: {
+          longValue: 123
+        }
+      },
+      {
+        name: '1i',
+        value: {
+          stringValue: 'test'
+        }
+      },
+      {
+        name: '2i',
+        typeHint: 'UUID',
+        value: {
+          stringValue: 'new'
+        }
+      },
+      {
+        name: '0',
+        value: {
+          longValue: 456
         }
       }
     ]);
@@ -296,20 +359,20 @@ describe.only('aurora query', () => {
     equal(
       statement,
       `UPDATE "ez4-test-update" ` +
-        `SET "foo" = :u0, "bar"['barBar'] = :u1 ` +
+        `SET "foo" = :0i, "bar"['barBar'] = :1i ` +
         `WHERE "id" = :0 ` +
         `RETURNING "foo", json_build_object('barBar', "bar"['barBar']) AS "bar"`
     );
 
     deepEqual(variables, [
       {
-        name: 'u0',
+        name: '0i',
         value: {
           longValue: 456
         }
       },
       {
-        name: 'u1',
+        name: '1i',
         value: {
           booleanValue: false
         }

@@ -31,7 +31,7 @@ export const prepareInsertQuery = <
     const relationVariables = [];
     const relationFields = [];
 
-    let relationCounter = 0;
+    let relationId = 0;
 
     for (const alias in relations) {
       const relationData = data[alias];
@@ -52,7 +52,7 @@ export const prepareInsertQuery = <
 
       const fields = [`"${sourceColumn}" AS "${targetAlias}"`, ...relationFields];
 
-      const name = `R${++relationCounter}`;
+      const name = `R${++relationId}`;
 
       relationStatements.push(`${name} AS (${statement} RETURNING ${fields.join(', ')})`);
 
@@ -74,7 +74,7 @@ export const prepareInsertQuery = <
       const statement =
         `WITH ${relationStatements.join(', ')} ` +
         `INSERT INTO "${table}" (${insertFields}) ` +
-        `SELECT ${insertParameters} FROM R${relationCounter}`;
+        `SELECT ${insertParameters} FROM R${relationId}`;
 
       return [statement, variables];
     }
@@ -91,7 +91,7 @@ const prepareInsertFields = <T extends Database.Schema>(
   data: T,
   schema: ObjectSchema,
   relations: RepositoryRelationsWithSchema,
-  index = 0
+  index: number
 ): [string, ...PrepareResult] => {
   const variables: SqlParameter[] = [];
 

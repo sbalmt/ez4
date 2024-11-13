@@ -41,7 +41,8 @@ export const readItem = async (client: DbClient, id: string) => {
       name: true,
       description: true,
       category: {
-        name: true
+        name: true,
+        description: true
       }
     },
     where: {
@@ -55,18 +56,23 @@ export type UpdateItemInput = Partial<CreateItemInput> & {
 };
 
 export const updateItem = async (client: DbClient, input: UpdateItemInput) => {
-  const { id, name, description } = input;
+  const { id, name, description, category } = input;
 
   const now = new Date().toISOString();
 
   return client.items.updateOne({
     select: {
       name: true,
-      description: true
+      description: true,
+      category: {
+        name: true,
+        description: true
+      }
     },
     data: {
       name,
       description,
+      category,
       updated_at: now
     },
     where: {

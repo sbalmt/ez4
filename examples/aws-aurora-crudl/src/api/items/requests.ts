@@ -57,6 +57,21 @@ export declare class UpdateItemRequest implements Http.Request {
      * New item description.
      */
     description?: String.Size<1, 128>;
+
+    /**
+     * Item category.
+     */
+    category?: {
+      /**
+       * New category name.
+       */
+      name: String.Size<1, 32>;
+
+      /**
+       * New category description.
+       */
+      description?: String.Size<1, 128>;
+    };
   };
 }
 
