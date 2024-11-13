@@ -13,7 +13,7 @@ import {
 
 type TestSchema = {
   id: string;
-  foo: number;
+  foo?: number;
   bar: {
     barFoo: string;
     barBar: boolean;
@@ -32,7 +32,8 @@ describe.only('dynamodb query', () => {
         type: SchemaTypeName.String
       },
       foo: {
-        type: SchemaTypeName.Number
+        type: SchemaTypeName.Number,
+        optional: true
       },
       bar: {
         type: SchemaTypeName.Object,

@@ -1,7 +1,6 @@
 import type { AnyObject } from '@ez4/utils';
 import type { PartialObjectSchemaProperties } from '@ez4/schema/library';
 import type { ObjectSchema, ObjectSchemaProperties } from '@ez4/schema';
-import type { Database } from '@ez4/database';
 import type { RepositoryRelationsWithSchema } from '../../types/repository.js';
 
 import { partialObjectSchema } from '@ez4/schema/library';
@@ -11,11 +10,8 @@ import { validate } from '@ez4/validator';
 
 import { MalformedRequestError } from './errors.js';
 
-export const validateSchema = async <T extends Database.Schema>(
-  rawInput: T,
-  schema: ObjectSchema
-) => {
-  const errors = await validate(rawInput, schema);
+export const validateSchema = async (data: AnyObject, schema: ObjectSchema) => {
+  const errors = await validate(data, schema);
 
   if (errors.length) {
     const messages = getUniqueErrorMessages(errors);

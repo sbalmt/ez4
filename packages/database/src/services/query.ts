@@ -8,7 +8,8 @@ import type {
   PartialProperties,
   PartialObject,
   DeepPartial,
-  FlatObject
+  FlatObject,
+  IsObject
 } from '@ez4/utils';
 
 /**
@@ -160,15 +161,17 @@ export namespace Query {
 
   export type WhereRequiredFields<T extends Database.Schema, I extends Database.Indexes<T>> = {
     [P in DecomposeIndexName<keyof PrimaryIndexes<I>>]: P extends keyof T
-      ? T[P] extends AnyObject
-        ? WhereFields<T[P], I>
+      ? IsObject<T[P]> extends true
+        ? WhereFields<NonNullable<T[P]>, I>
         : T[P] | WhereOperations<T[P]>
       : never;
   };
 
   export type WhereOptionalFields<T extends Database.Schema, I extends Database.Indexes<T>> = {
-    [P in Exclude<keyof T, DecomposeIndexName<keyof PrimaryIndexes<I>>>]?: T[P] extends AnyObject
-      ? WhereFields<T[P], I>
+    [P in Exclude<keyof T, DecomposeIndexName<keyof PrimaryIndexes<I>>>]?: IsObject<
+      T[P]
+    > extends true
+      ? WhereFields<NonNullable<T[P]>, I>
       : T[P] | WhereOperations<T[P]>;
   };
 
