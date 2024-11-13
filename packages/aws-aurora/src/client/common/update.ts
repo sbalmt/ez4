@@ -92,7 +92,7 @@ export const prepareUpdateQuery = <
     }
 
     if (query.select) {
-      const selectFields = prepareSelectFields(query.select, relations);
+      const selectFields = prepareSelectFields(query.select, schema, relations);
 
       statement.push(`RETURNING ${[selectFields, ...relationFields].join(', ')}`);
     } else if (relationFields.length) {

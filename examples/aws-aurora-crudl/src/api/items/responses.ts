@@ -82,7 +82,7 @@ export declare class DeleteItemResponse implements Http.Response {
 type ListItem = {
   id: string;
   name: string;
-  description?: string;
+  category?: string;
 };
 
 export declare class ListItemsResponse implements Http.Response {

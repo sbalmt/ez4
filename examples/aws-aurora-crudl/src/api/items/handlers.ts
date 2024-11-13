@@ -149,11 +149,11 @@ export async function listItemsHandler(
     limit
   });
 
-  const items = result.records.map(({ id, name, description }) => {
+  const items = result.records.map(({ id, name, category }) => {
     return {
       id,
       name,
-      description
+      category: category?.name
     };
   });
 

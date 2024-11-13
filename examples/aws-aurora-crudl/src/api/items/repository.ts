@@ -40,10 +40,7 @@ export const readItem = async (client: DbClient, id: string) => {
     select: {
       name: true,
       description: true,
-      category: {
-        name: true,
-        description: true
-      }
+      category: true
     },
     where: {
       id
@@ -64,10 +61,7 @@ export const updateItem = async (client: DbClient, input: UpdateItemInput) => {
     select: {
       name: true,
       description: true,
-      category: {
-        name: true,
-        description: true
-      }
+      category: true
     },
     data: {
       name,
@@ -105,7 +99,9 @@ export const listItems = async (client: DbClient, input: ListItemsInput) => {
     select: {
       id: true,
       name: true,
-      description: true
+      category: {
+        name: true
+      }
     },
     order: {
       id: Order.Desc

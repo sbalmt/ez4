@@ -437,7 +437,8 @@ describe.only('aurora query', () => {
           bar: true,
           relation1: {
             id: true
-          }
+          },
+          relation2: true
         },
         where: {
           id: 'abc'
@@ -448,7 +449,10 @@ describe.only('aurora query', () => {
     equal(
       statement,
       `SELECT "id", "foo", "bar", ` +
-        `(SELECT json_build_object('id', "id") FROM "ez4-test-relation" WHERE "id" = "relation1_id") AS "relation1" ` +
+        `(SELECT json_build_object('id', "id") ` +
+        `FROM "ez4-test-relation" WHERE "id" = "relation1_id") AS "relation1", ` +
+        `(SELECT json_build_object('id', "id", 'foo', "foo", 'bar', "bar") ` +
+        `FROM "ez4-test-relation" WHERE "id" = "relation2_id") AS "relation2" ` +
         `FROM "ez4-test-select" ` +
         `WHERE "id" = :0`
     );
