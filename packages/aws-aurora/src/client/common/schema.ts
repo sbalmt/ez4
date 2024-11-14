@@ -3,7 +3,7 @@ import type { PartialObjectSchemaProperties } from '@ez4/schema/library';
 import type { ObjectSchema, ObjectSchemaProperties } from '@ez4/schema';
 import type { RepositoryRelationsWithSchema } from '../../types/repository.js';
 
-import { partialObjectSchema } from '@ez4/schema/library';
+import { partialObjectSchema, SchemaTypeName } from '@ez4/schema/library';
 
 import { getUniqueErrorMessages } from '@ez4/validator';
 import { validate } from '@ez4/validator';
@@ -27,14 +27,23 @@ export const prepareInsertSchema = (
   const properties: ObjectSchemaProperties = {};
 
   for (const alias in relations) {
-    const { targetAlias, targetColumn, sourceSchema } = relations[alias]!;
+    const { targetAlias, targetColumn, sourceSchema, foreign } = relations[alias]!;
     const { nullable, optional } = schema.properties[targetColumn];
 
-    properties[targetAlias] = {
-      ...sourceSchema,
-      nullable,
-      optional
-    };
+    if (foreign) {
+      properties[targetAlias] = {
+        ...sourceSchema,
+        nullable,
+        optional
+      };
+    } else {
+      properties[targetAlias] = {
+        type: SchemaTypeName.Array,
+        element: sourceSchema,
+        nullable,
+        optional
+      };
+    }
   }
 
   return {
