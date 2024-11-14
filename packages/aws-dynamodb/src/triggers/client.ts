@@ -16,9 +16,9 @@ export const prepareLinkedService = async (event: ServiceEvent): Promise<ExtraSo
     return {
       ...current,
       [table.name]: {
-        tableName: getTableName(service, table, options),
-        tableIndexes: getTableIndexes(table.indexes),
-        tableSchema: table.schema
+        name: getTableName(service, table, options),
+        indexes: getTableIndexes(table.indexes),
+        schema: table.schema
       }
     };
   }, {});

@@ -104,7 +104,7 @@ const prepareTransactions = async <
     const operationTable = operations[alias];
 
     if (!repository[alias]) {
-      throw new Error(`Table ${alias} isn't part of the table repository.`);
+      throw new Error(`Table ${alias} isn't part of the repository.`);
     }
 
     const { name, schema, relations } = repository[alias];

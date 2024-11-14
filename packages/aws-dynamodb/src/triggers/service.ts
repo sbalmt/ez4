@@ -25,6 +25,10 @@ export const prepareDatabaseServices = async (event: PrepareResourceEvent) => {
   for (const table of service.tables) {
     const tableName = getTableName(service, table, options);
 
+    if (table.relations) {
+      throw new Error(`DynamoDB doesn't support relations.`);
+    }
+
     const { attributeSchema, ttlAttribute } = getAttributeSchema(table.indexes, table.schema);
 
     const tableState = createTable(state, {
