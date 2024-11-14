@@ -70,7 +70,8 @@ export const prepareUpdateSchema = (
   }
 
   return partialObjectSchema(finalSchema, {
-    include: getDataProperties(data)
+    include: getDataProperties(data),
+    extensible: true
   });
 };
 

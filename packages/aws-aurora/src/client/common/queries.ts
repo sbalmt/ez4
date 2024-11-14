@@ -120,7 +120,7 @@ export const prepareInsertMany = async <
 
   return Promise.all(
     query.data.map(async (data) => {
-      await validateSchema(query.data, insertSchema);
+      await validateSchema(data, insertSchema);
 
       const [statement, variables] = prepareInsertQuery<T, I, R>(table, schema, relations, {
         data

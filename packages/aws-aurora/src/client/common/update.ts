@@ -48,10 +48,16 @@ const prepareAllQueries = (
     variablesIndex + updateVariables.length
   );
 
-  const updateStatement = [`UPDATE "${table}" SET ${updateFields}`];
+  const updateStatement = [];
 
-  if (fromTable) {
-    updateStatement.push(`FROM ${fromTable}`);
+  if (!updateFields.length) {
+    updateStatement.push(`SELECT ${relationFields.join(', ')} FROM "${table}"`);
+  } else {
+    updateStatement.push(`UPDATE "${table}" SET ${updateFields}`);
+
+    if (fromTable) {
+      updateStatement.push(`FROM ${fromTable}`);
+    }
   }
 
   if (query.where) {
@@ -67,7 +73,7 @@ const prepareAllQueries = (
     relationFields.push(...prepareSelectFields(query.select, schema, relations));
   }
 
-  if (relationFields.length) {
+  if (updateFields.length && relationFields.length) {
     updateStatement.push(`RETURNING ${relationFields.join(', ')}`);
   }
 

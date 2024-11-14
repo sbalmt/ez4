@@ -6,6 +6,8 @@ import { prepareDeleteQuery } from '@ez4/aws-aurora/client';
 import { ObjectSchema, SchemaTypeName } from '@ez4/schema';
 import { Index } from '@ez4/database';
 
+import { makeParameter } from './common/parameters.js';
+
 type TestSchema = {
   id: string;
   foo?: number;
@@ -42,22 +44,14 @@ describe.only('aurora query delete', () => {
       {},
       {
         where: {
-          id: 'abc'
+          id: '00000000-0000-0000-0000-000000000000'
         }
       }
     );
 
     equal(statement, `DELETE FROM "ez4-test-delete" WHERE "id" = :0`);
 
-    deepEqual(variables, [
-      {
-        name: '0',
-        typeHint: 'UUID',
-        value: {
-          stringValue: 'abc'
-        }
-      }
-    ]);
+    deepEqual(variables, [makeParameter('0', '00000000-0000-0000-0000-000000000000', 'UUID')]);
   });
 
   it('assert :: prepare delete (with select)', () => {
@@ -72,21 +66,13 @@ describe.only('aurora query delete', () => {
           bar: true
         },
         where: {
-          id: 'abc'
+          id: '00000000-0000-0000-0000-000000000000'
         }
       }
     );
 
     equal(statement, `DELETE FROM "ez4-test-delete" WHERE "id" = :0 RETURNING "id", "foo", "bar"`);
 
-    deepEqual(variables, [
-      {
-        name: '0',
-        typeHint: 'UUID',
-        value: {
-          stringValue: 'abc'
-        }
-      }
-    ]);
+    deepEqual(variables, [makeParameter('0', '00000000-0000-0000-0000-000000000000', 'UUID')]);
   });
 });

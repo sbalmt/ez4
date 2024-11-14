@@ -6,6 +6,8 @@ import { prepareSelectQuery } from '@ez4/aws-aurora/client';
 import { ObjectSchema, SchemaTypeName } from '@ez4/schema';
 import { Index, Order } from '@ez4/database';
 
+import { makeParameter } from './common/parameters.js';
+
 type TestSchema = {
   id: string;
   relation1_id?: string;
@@ -121,14 +123,7 @@ describe.only('aurora query select', () => {
         `ORDER BY "id" DESC`
     );
 
-    deepEqual(variables, [
-      {
-        name: '0',
-        value: {
-          longValue: 123
-        }
-      }
-    ]);
+    deepEqual(variables, [makeParameter('0', 123)]);
   });
 
   it('assert :: prepare select (with relationship)', () => {
@@ -150,7 +145,7 @@ describe.only('aurora query select', () => {
           }
         },
         where: {
-          id: 'abc'
+          id: '00000000-0000-0000-0000-000000000000'
         }
       }
     );
@@ -172,14 +167,6 @@ describe.only('aurora query select', () => {
         `WHERE "id" = :0`
     );
 
-    deepEqual(variables, [
-      {
-        name: '0',
-        typeHint: 'UUID',
-        value: {
-          stringValue: 'abc'
-        }
-      }
-    ]);
+    deepEqual(variables, [makeParameter('0', '00000000-0000-0000-0000-000000000000', 'UUID')]);
   });
 });

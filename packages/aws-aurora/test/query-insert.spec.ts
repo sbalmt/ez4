@@ -6,6 +6,8 @@ import { prepareInsertQuery } from '@ez4/aws-aurora/client';
 import { ObjectSchema, SchemaTypeName } from '@ez4/schema';
 import { Index } from '@ez4/database';
 
+import { makeParameter } from './common/parameters.js';
+
 type TestSchema = {
   id: string;
   relation1_id?: string;
@@ -93,17 +95,17 @@ describe.only('aurora query insert', () => {
     }
   };
 
-  it.only('assert :: prepare insert', () => {
+  it('assert :: prepare insert', () => {
     const [statement, variables] = prepareInsertQuery<TestSchema, TestIndexes, TestRelations>(
       'ez4-test-insert',
       testSchema,
       testRelations,
       {
         data: {
-          id: 'abc',
+          id: '00000000-0000-0000-0000-000000000000',
           foo: 123,
           bar: {
-            barFoo: 'def',
+            barFoo: 'abc',
             barBar: true
           }
         }
@@ -113,51 +115,31 @@ describe.only('aurora query insert', () => {
     equal(statement, `INSERT INTO "ez4-test-insert" ("id", "foo", "bar") VALUES (:0i, :1i, :2i)`);
 
     deepEqual(variables, [
-      {
-        name: '0i',
-        typeHint: 'UUID',
-        value: {
-          stringValue: 'abc'
-        }
-      },
-      {
-        name: '1i',
-        value: {
-          longValue: 123
-        }
-      },
-      {
-        name: '2i',
-        typeHint: 'JSON',
-        value: {
-          stringValue: JSON.stringify({
-            barFoo: 'def',
-            barBar: true
-          })
-        }
-      }
+      makeParameter('0i', '00000000-0000-0000-0000-000000000000', 'UUID'),
+      makeParameter('1i', 123),
+      makeParameter('2i', { barFoo: 'abc', barBar: true })
     ]);
   });
 
-  it.only('assert :: prepare insert (with foreign relationship)', () => {
+  it('assert :: prepare insert (with foreign relationship)', () => {
     const [statement, variables] = prepareInsertQuery<TestSchema, TestIndexes, TestRelations>(
       'ez4-test-insert',
       testSchema,
       testRelations,
       {
         data: {
-          id: 'abc',
+          id: '00000000-0000-0000-0000-000000000000',
           bar: {},
           relation1: {
-            id: 'def',
+            id: '00000000-0000-0000-0000-000000000001',
             bar: {
               barBar: true
             }
           },
           relation2: {
-            id: 'ghi',
+            id: '00000000-0000-0000-0000-000000000002',
             bar: {
-              barFoo: 'test'
+              barFoo: 'abc'
             }
           }
         }
@@ -179,75 +161,35 @@ describe.only('aurora query insert', () => {
     );
 
     deepEqual(variables, [
-      {
-        name: '0i',
-        typeHint: 'UUID',
-        value: {
-          stringValue: 'def'
-        }
-      },
-      {
-        name: '1i',
-        typeHint: 'JSON',
-        value: {
-          stringValue: JSON.stringify({
-            barBar: true
-          })
-        }
-      },
-      {
-        name: '2i',
-        typeHint: 'UUID',
-        value: {
-          stringValue: 'ghi'
-        }
-      },
-      {
-        name: '3i',
-        typeHint: 'JSON',
-        value: {
-          stringValue: JSON.stringify({
-            barFoo: 'test'
-          })
-        }
-      },
-      {
-        name: '4i',
-        typeHint: 'UUID',
-        value: {
-          stringValue: 'abc'
-        }
-      },
-      {
-        name: '5i',
-        typeHint: 'JSON',
-        value: {
-          stringValue: '{}'
-        }
-      }
+      makeParameter('0i', '00000000-0000-0000-0000-000000000001', 'UUID'),
+      makeParameter('1i', { barBar: true }),
+      makeParameter('2i', '00000000-0000-0000-0000-000000000002', 'UUID'),
+      makeParameter('3i', { barFoo: 'abc' }),
+      makeParameter('4i', '00000000-0000-0000-0000-000000000000', 'UUID'),
+      makeParameter('5i', {})
     ]);
   });
 
-  it.only('assert :: prepare insert (with inverse relationship)', () => {
+  it('assert :: prepare insert (with inverse relationship)', () => {
     const [statement, variables] = prepareInsertQuery<TestSchema, TestIndexes, TestRelations>(
       'ez4-test-insert',
       testSchema,
       testRelations,
       {
         data: {
-          id: 'abc',
+          id: '00000000-0000-0000-0000-000000000000',
           bar: {},
           relations: [
             {
-              id: 'def',
+              id: '00000000-0000-0000-0000-000000000001',
               bar: {
                 barBar: true
               }
             },
             {
-              id: 'ghi',
+              id: '00000000-0000-0000-0000-000000000002',
               bar: {
-                barFoo: 'test'
+                barFoo: 'abc'
               }
             }
           ]
@@ -270,75 +212,35 @@ describe.only('aurora query insert', () => {
     );
 
     deepEqual(variables, [
-      {
-        name: '0i',
-        typeHint: 'UUID',
-        value: {
-          stringValue: 'abc'
-        }
-      },
-      {
-        name: '1i',
-        typeHint: 'JSON',
-        value: {
-          stringValue: '{}'
-        }
-      },
-      {
-        name: '2i',
-        typeHint: 'UUID',
-        value: {
-          stringValue: 'def'
-        }
-      },
-      {
-        name: '3i',
-        typeHint: 'JSON',
-        value: {
-          stringValue: JSON.stringify({
-            barBar: true
-          })
-        }
-      },
-      {
-        name: '4i',
-        typeHint: 'UUID',
-        value: {
-          stringValue: 'ghi'
-        }
-      },
-      {
-        name: '5i',
-        typeHint: 'JSON',
-        value: {
-          stringValue: JSON.stringify({
-            barFoo: 'test'
-          })
-        }
-      }
+      makeParameter('0i', '00000000-0000-0000-0000-000000000000', 'UUID'),
+      makeParameter('1i', {}),
+      makeParameter('2i', '00000000-0000-0000-0000-000000000001', 'UUID'),
+      makeParameter('3i', { barBar: true }),
+      makeParameter('4i', '00000000-0000-0000-0000-000000000002', 'UUID'),
+      makeParameter('5i', { barFoo: 'abc' })
     ]);
   });
 
-  it.only('assert :: prepare insert (with both relationship)', () => {
+  it('assert :: prepare insert (with both relationships)', () => {
     const [statement, variables] = prepareInsertQuery<TestSchema, TestIndexes, TestRelations>(
       'ez4-test-insert',
       testSchema,
       testRelations,
       {
         data: {
-          id: 'abc',
+          id: '00000000-0000-0000-0000-000000000000',
           bar: {},
           relation1: {
-            id: 'def',
+            id: '00000000-0000-0000-0000-000000000001',
             bar: {
               barBar: true
             }
           },
           relations: [
             {
-              id: 'ghi',
+              id: '00000000-0000-0000-0000-000000000002',
               bar: {
-                barFoo: 'test'
+                barFoo: 'abc'
               }
             }
           ]
@@ -361,52 +263,12 @@ describe.only('aurora query insert', () => {
     );
 
     deepEqual(variables, [
-      {
-        name: '0i',
-        typeHint: 'UUID',
-        value: {
-          stringValue: 'def'
-        }
-      },
-      {
-        name: '1i',
-        typeHint: 'JSON',
-        value: {
-          stringValue: JSON.stringify({
-            barBar: true
-          })
-        }
-      },
-      {
-        name: '2i',
-        typeHint: 'UUID',
-        value: {
-          stringValue: 'abc'
-        }
-      },
-      {
-        name: '3i',
-        typeHint: 'JSON',
-        value: {
-          stringValue: '{}'
-        }
-      },
-      {
-        name: '4i',
-        typeHint: 'UUID',
-        value: {
-          stringValue: 'ghi'
-        }
-      },
-      {
-        name: '5i',
-        typeHint: 'JSON',
-        value: {
-          stringValue: JSON.stringify({
-            barFoo: 'test'
-          })
-        }
-      }
+      makeParameter('0i', '00000000-0000-0000-0000-000000000001', 'UUID'),
+      makeParameter('1i', { barBar: true }),
+      makeParameter('2i', '00000000-0000-0000-0000-000000000000', 'UUID'),
+      makeParameter('3i', {}),
+      makeParameter('4i', '00000000-0000-0000-0000-000000000002', 'UUID'),
+      makeParameter('5i', { barFoo: 'abc' })
     ]);
   });
 });

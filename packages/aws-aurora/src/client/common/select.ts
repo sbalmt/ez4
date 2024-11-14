@@ -82,7 +82,7 @@ export const prepareSelectFields = <T extends Database.Schema, R extends Relatio
       if (fieldRelation) {
         const { sourceTable, sourceColumn, sourceSchema, targetColumn, foreign } = fieldRelation;
 
-        const relationFields = prepareAll(fieldValue, sourceSchema, {}, true);
+        const relationFields = prepareAll(fieldValue, sourceSchema, {}, true).join(', ');
 
         const relationResult = !foreign
           ? `COALESCE(json_agg(json_build_object(${relationFields})), '[]'::json)`
