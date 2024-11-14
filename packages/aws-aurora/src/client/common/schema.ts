@@ -1,6 +1,6 @@
 import type { AnyObject } from '@ez4/utils';
 import type { PartialObjectSchemaProperties } from '@ez4/schema/library';
-import type { ObjectSchema, ObjectSchemaProperties } from '@ez4/schema';
+import type { ObjectSchema } from '@ez4/schema';
 import type { RepositoryRelationsWithSchema } from '../../types/repository.js';
 
 import { partialObjectSchema, SchemaTypeName } from '@ez4/schema/library';
@@ -24,35 +24,31 @@ export const prepareInsertSchema = (
   schema: ObjectSchema,
   relations: RepositoryRelationsWithSchema
 ): ObjectSchema => {
-  const properties: ObjectSchemaProperties = {};
+  const finalSchema = { ...schema };
 
   for (const alias in relations) {
     const { targetAlias, targetColumn, sourceSchema, foreign } = relations[alias]!;
     const { nullable, optional } = schema.properties[targetColumn];
 
     if (foreign) {
-      properties[targetAlias] = {
+      finalSchema.properties[targetAlias] = {
         ...sourceSchema,
         nullable,
         optional
       };
-    } else {
-      properties[targetAlias] = {
-        type: SchemaTypeName.Array,
-        element: sourceSchema,
-        nullable,
-        optional
-      };
+
+      continue;
     }
+
+    finalSchema.properties[targetAlias] = {
+      type: SchemaTypeName.Array,
+      element: sourceSchema,
+      nullable,
+      optional
+    };
   }
 
-  return {
-    ...schema,
-    properties: {
-      ...schema.properties,
-      ...properties
-    }
-  };
+  return finalSchema;
 };
 
 export const prepareUpdateSchema = (
@@ -60,9 +56,21 @@ export const prepareUpdateSchema = (
   relations: RepositoryRelationsWithSchema,
   data: AnyObject
 ) => {
-  return partialObjectSchema(prepareInsertSchema(schema, relations), {
-    include: getDataProperties(data),
-    extensible: true
+  const finalSchema = { ...schema };
+
+  for (const alias in relations) {
+    const { targetAlias, targetColumn, sourceSchema } = relations[alias]!;
+    const { nullable, optional } = schema.properties[targetColumn];
+
+    finalSchema.properties[targetAlias] = {
+      ...sourceSchema,
+      nullable,
+      optional
+    };
+  }
+
+  return partialObjectSchema(finalSchema, {
+    include: getDataProperties(data)
   });
 };
 

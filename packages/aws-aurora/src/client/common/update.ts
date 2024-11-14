@@ -24,106 +24,114 @@ export const prepareUpdateQuery = <
   relations: RepositoryRelationsWithSchema,
   query: Query.UpdateOneInput<T, S, I, R> | Query.UpdateManyInput<T, S>
 ) => {
-  const prepareAll = (
-    table: string,
-    schema: ObjectSchema,
-    relations: RepositoryRelationsWithSchema,
-    query: Query.UpdateOneInput<T, S, I, R> | Query.UpdateManyInput<T, S>,
-    from: string | null,
-    index: number
-  ): PrepareResult => {
-    const relationStatements = [];
-    const relationVariables = [];
-    const relationFields = [];
+  return prepareAllQueries(table, schema, relations, query, null, 0);
+};
 
-    let relationId = 1;
+const prepareAllQueries = (
+  table: string,
+  schema: ObjectSchema,
+  relations: RepositoryRelationsWithSchema,
+  query: Query.UpdateOneInput<{}, {}, {}, {}> | Query.UpdateManyInput<{}, {}>,
+  fromTable: string | null,
+  variablesIndex: number
+): PrepareResult => {
+  const [updateFields, updateVariables] = prepareUpdateFields(
+    query.data,
+    schema,
+    relations,
+    variablesIndex
+  );
 
-    for (const alias in relations) {
-      const relationData = (query.data as AnyObject)[alias];
+  const [relationFields, postStatements, postVariables] = preparePostRelationQueries(
+    query.data,
+    relations,
+    variablesIndex + updateVariables.length
+  );
 
-      if (!relations[alias] || !isAnyObject(relationData) || Array.isArray(relationData)) {
-        continue;
-      }
+  const updateStatement = [`UPDATE "${table}" SET ${updateFields}`];
 
-      const previous = `R${relationId++}`;
+  if (fromTable) {
+    updateStatement.push(`FROM ${fromTable}`);
+  }
 
-      const { sourceTable, sourceColumn, sourceSchema, targetColumn } = relations[alias];
+  if (query.where) {
+    const [whereFields, whereVariables] = prepareWhereFields(schema, query.where);
 
-      const [statement, variables] = prepareAll(
-        sourceTable,
-        sourceSchema,
-        {},
-        {
-          data: relationData as any
-        },
-        previous,
-        index + relationVariables.length
-      );
+    if (whereFields) {
+      updateStatement.push(`WHERE ${whereFields}`);
+      updateVariables.push(...whereVariables);
+    }
+  }
 
-      relationStatements.push(
-        `${statement} WHERE "${sourceColumn}" = ${previous}."${targetColumn}" RETURNING ${previous}.*`
-      );
+  if (query.select) {
+    relationFields.push(...prepareSelectFields(query.select, schema, relations));
+  }
 
-      relationFields.push(`"${targetColumn}"`);
+  if (relationFields.length) {
+    updateStatement.push(`RETURNING ${relationFields.join(', ')}`);
+  }
 
-      relationVariables.push(...variables);
+  if (postStatements.length) {
+    const allVariables = [...updateVariables, ...postVariables];
+
+    const lastStatement = postStatements.pop();
+
+    const withStatements = [updateStatement.join(' '), ...postStatements]
+      .map((statement, index) => `R${index + 1} AS (${statement})`)
+      .join(', ');
+
+    const finalStatement = `WITH ${withStatements} ${lastStatement}`;
+
+    return [finalStatement, allVariables];
+  }
+
+  return [updateStatement.join(' '), updateVariables];
+};
+
+const preparePostRelationQueries = (
+  data: AnyObject,
+  relations: RepositoryRelationsWithSchema,
+  variablesIndex: number
+): [string[], string[], SqlParameter[]] => {
+  const relationFields = new Set<string>();
+
+  const postStatements = [];
+  const postVariables = [];
+
+  const fromTable = `R1`;
+
+  for (const alias in relations) {
+    const relationData = data[alias];
+
+    if (!relations[alias] || !isAnyObject(relationData) || Array.isArray(relationData)) {
+      continue;
     }
 
-    const [updateFields, updateVariables] = prepareUpdateFields(
-      query.data,
-      schema,
-      relations,
-      index + relationVariables.length
+    const { sourceTable, sourceColumn, sourceSchema, targetColumn } = relations[alias];
+
+    const [statement, variables] = prepareAllQueries(
+      sourceTable,
+      sourceSchema,
+      {},
+      { data: relationData },
+      fromTable,
+      variablesIndex + postVariables.length
     );
 
-    const statement = [`UPDATE "${table}" SET ${updateFields}`];
+    postStatements.push(`${statement} WHERE "${sourceColumn}" = ${fromTable}."${targetColumn}"`);
 
-    if (from) {
-      statement.push(`FROM ${from}`);
-    }
+    relationFields.add(`"${targetColumn}"`);
+    postVariables.push(...variables);
+  }
 
-    if (query.where) {
-      const [whereFields, whereVariables] = prepareWhereFields(schema, query.where);
-
-      if (whereFields) {
-        statement.push(`WHERE ${whereFields}`);
-        updateVariables.push(...whereVariables);
-      }
-    }
-
-    if (query.select) {
-      const selectFields = prepareSelectFields(query.select, schema, relations);
-
-      statement.push(`RETURNING ${[selectFields, ...relationFields].join(', ')}`);
-    } else if (relationFields.length) {
-      statement.push(`RETURNING ${relationFields.join(', ')}`);
-    }
-
-    if (relationStatements.length) {
-      const variables = [...relationVariables, ...updateVariables];
-
-      const updateStatement = relationStatements.pop();
-
-      const withStatements = [statement.join(' '), ...relationStatements]
-        .map((statement, index) => `R${index + 1} AS (${statement})`)
-        .join(', ');
-
-      const statements = `WITH ${withStatements} ${updateStatement}`;
-
-      return [statements, variables];
-    }
-
-    return [statement.join(' '), updateVariables];
-  };
-
-  return prepareAll(table, schema, relations, query, null, 0);
+  return [[...relationFields], postStatements, postVariables];
 };
 
 const prepareUpdateFields = <T extends Database.Schema>(
   data: DeepPartial<T>,
   schema: ObjectSchema,
   relations: RepositoryRelationsWithSchema,
-  index: number
+  variablesIndex: number
 ): PrepareResult => {
   const variables: SqlParameter[] = [];
   const operations: string[] = [];
@@ -152,12 +160,13 @@ const prepareUpdateFields = <T extends Database.Schema>(
         fieldSchema.optional;
 
       if (fieldNotNested) {
-        const fieldName = `${index++}i`;
+        const fieldName = `${variablesIndex}i`;
         const fieldData = prepareFieldData(fieldName, fieldValue, fieldSchema);
 
         operations.push(`${fieldPath} = :${fieldName}`);
         variables.push(fieldData);
 
+        variablesIndex++;
         continue;
       }
 

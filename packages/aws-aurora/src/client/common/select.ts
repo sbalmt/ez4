@@ -23,7 +23,7 @@ export const prepareSelectQuery = <
   query: Query.FindOneInput<T, S, I> | Query.FindManyInput<T, S, I>
 ): PrepareResult => {
   const hasRelations = hasRelationFields(query.select, relations);
-  const selectFields = prepareSelectFields(query.select, schema, relations);
+  const selectFields = prepareSelectFields(query.select, schema, relations).join(', ');
 
   const statement = [`SELECT ${selectFields} FROM "${table}"${hasRelations ? ' R' : ''}`];
   const variables = [];
@@ -67,7 +67,7 @@ export const prepareSelectFields = <T extends Database.Schema, R extends Relatio
     relations: RepositoryRelationsWithSchema,
     object: boolean,
     path?: string
-  ): string => {
+  ): string[] => {
     const selectFields: string[] = [];
 
     for (const fieldKey in fields) {
@@ -119,11 +119,11 @@ export const prepareSelectFields = <T extends Database.Schema, R extends Relatio
       selectFields.push(fieldPath);
     }
 
-    if (selectFields.length) {
-      return selectFields.join(', ');
+    if (!selectFields.length) {
+      return getSchemaFields(schema, object);
     }
 
-    return getSchemaFields(schema, object).join(', ');
+    return selectFields;
   };
 
   return prepareAll(fields, schema, relations, false);

@@ -10,8 +10,6 @@ import { prepareFieldData } from './data.js';
 
 type PrepareQueryResult = [string, SqlParameter[]];
 
-type PrepareRelationResult = [string[], SqlParameter[]];
-
 export const prepareInsertQuery = <
   T extends Database.Schema,
   I extends Database.Indexes<T>,
@@ -30,7 +28,7 @@ const prepareAllQueries = (
   data: AnyObject,
   schema: ObjectSchema,
   relations: RepositoryRelationsWithSchema,
-  from: string | null,
+  fromTable: string | null,
   variablesIndex: number,
   extraFields: string[] = [],
   extraParameters: string[] = []
@@ -44,7 +42,7 @@ const prepareAllQueries = (
     variablesIndex + preVariables.length
   );
 
-  const [postStatements, postVariables, postFields] = preparePostRelationQueries(
+  const [relationFields, postStatements, postVariables] = preparePostRelationQueries(
     data,
     relations,
     variablesIndex + preVariables.length + insertVariables.length,
@@ -69,8 +67,8 @@ const prepareAllQueries = (
       insertStatement.push(`SELECT ${insertParameters.join(', ')} FROM R${preStatements.length}`);
     }
 
-    if (postFields.length) {
-      insertStatement.push(`RETURNING ${postFields.join(', ')}`);
+    if (relationFields.length) {
+      insertStatement.push(`RETURNING ${relationFields.join(', ')}`);
     }
 
     allStatements.push(insertStatement.join(' '), ...postStatements);
@@ -86,8 +84,8 @@ const prepareAllQueries = (
     return [finalStatement, allVariables];
   }
 
-  if (from) {
-    insertStatement.push(`SELECT ${insertParameters.join(', ')} FROM ${from}`);
+  if (fromTable) {
+    insertStatement.push(`SELECT ${insertParameters.join(', ')} FROM ${fromTable}`);
   } else {
     insertStatement.push(`VALUES (${insertParameters.join(', ')})`);
   }
@@ -99,7 +97,7 @@ const preparePreRelationQueries = (
   data: AnyObject,
   relations: RepositoryRelationsWithSchema,
   variablesIndex: number
-): PrepareRelationResult => {
+): [string[], SqlParameter[]] => {
   const preStatements = [];
   const preVariables = [];
 
@@ -145,11 +143,13 @@ const preparePostRelationQueries = (
   relations: RepositoryRelationsWithSchema,
   variablesIndex: number,
   aliasesIndex: number
-): [...PrepareRelationResult, string[]] => {
+): [string[], string[], SqlParameter[]] => {
   const relationFields = new Set<string>();
 
   const postStatements = [];
   const postVariables = [];
+
+  const fromTable = `R${aliasesIndex}`;
 
   for (const alias in relations) {
     const relationDataList = data[alias];
@@ -165,27 +165,23 @@ const preparePostRelationQueries = (
     for (const relationData of relationDataList) {
       const nextIndex = variablesIndex + postVariables.length;
 
-      const previousName = `R${aliasesIndex}`;
-
       const [statement, variables] = prepareAllQueries(
         sourceTable,
         relationData,
         sourceSchema,
         {},
-        previousName,
+        fromTable,
         nextIndex,
         [`"${sourceColumn}"`],
         [`"${targetColumn}"`]
       );
 
-      postStatements.push(`${statement} RETURNING ${previousName}.*`);
+      postStatements.push(statement);
       postVariables.push(...variables);
-
-      aliasesIndex++;
     }
   }
 
-  return [postStatements, postVariables, [...relationFields]];
+  return [[...relationFields], postStatements, postVariables];
 };
 
 const prepareQueryFields = <T extends Database.Schema>(

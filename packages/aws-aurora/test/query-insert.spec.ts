@@ -263,10 +263,10 @@ describe.only('aurora query insert', () => {
         `VALUES (:0i, :1i) RETURNING "id"), ` +
         // First relation
         `R2 AS (INSERT INTO "ez4-test-relation" ("id", "bar", "relation2_id") ` +
-        `SELECT :2i, :3i, "id" FROM R1 RETURNING R1.*) ` +
+        `SELECT :2i, :3i, "id" FROM R1) ` +
         // Second relation
         `INSERT INTO "ez4-test-relation" ("id", "bar", "relation2_id") ` +
-        `SELECT :4i, :5i, "id" FROM R2 RETURNING R2.*`
+        `SELECT :4i, :5i, "id" FROM R1`
     );
 
     deepEqual(variables, [
@@ -357,7 +357,7 @@ describe.only('aurora query insert', () => {
         `SELECT :2i, :3i, "relation1" FROM R1 RETURNING "id") ` +
         // Second relation
         `INSERT INTO "ez4-test-relation" ("id", "bar", "relation2_id") ` +
-        `SELECT :4i, :5i, "id" FROM R2 RETURNING R2.*`
+        `SELECT :4i, :5i, "id" FROM R2`
     );
 
     deepEqual(variables, [

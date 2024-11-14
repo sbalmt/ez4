@@ -34,7 +34,7 @@ export const prepareDeleteQuery = <
   if (query.select) {
     const selectFields = prepareSelectFields(query.select, schema, relations);
 
-    statement.push(`RETURNING ${selectFields}`);
+    statement.push(`RETURNING ${selectFields.join(', ')}`);
   }
 
   return [statement.join(' '), variables];
