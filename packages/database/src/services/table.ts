@@ -81,7 +81,7 @@ export interface Table<
    * @param query Input query.
    */
   upsertOne<S extends Query.SelectInput<T, R>>(
-    query: Query.UpsertOneInput<T, S, I>
+    query: Query.UpsertOneInput<T, S, I, R>
   ): Promise<Query.UpsertOneResult<T, S, R>>;
 
   /**
@@ -115,7 +115,7 @@ export interface Table<
    * @param query Input query.
    */
   updateMany<S extends Query.SelectInput<T, R>>(
-    query: Query.UpdateManyInput<T, S>
+    query: Query.UpdateManyInput<T, S, I, R>
   ): Promise<Query.UpdateManyResult<T, S, R>>;
 
   /**

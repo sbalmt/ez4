@@ -135,7 +135,7 @@ export class Table<T extends Database.Schema, I extends Database.Indexes<T>, R e
   }
 
   async upsertOne<S extends Query.SelectInput<T, R>>(
-    query: Query.UpsertOneInput<T, S, I>
+    query: Query.UpsertOneInput<T, S, I, R>
   ): Promise<Query.UpsertOneResult<T, S, R>> {
     const previous = await this.findOne({
       select: query.select ?? ({} as S),
@@ -170,7 +170,7 @@ export class Table<T extends Database.Schema, I extends Database.Indexes<T>, R e
   }
 
   async updateMany<S extends Query.SelectInput<T, R>>(
-    query: Query.UpdateManyInput<T, S>
+    query: Query.UpdateManyInput<T, S, I, R>
   ): Promise<Query.UpdateManyResult<T, S, R>> {
     const { select, where, limit } = query;
 

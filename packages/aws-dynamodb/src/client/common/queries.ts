@@ -179,7 +179,7 @@ export const prepareUpdateMany = async <
   schema: ObjectSchema,
   client: DynamoDBDocumentClient,
   indexes: string[],
-  query: Query.UpdateManyInput<T, S>
+  query: Query.UpdateManyInput<T, S, I, R>
 ): Promise<[ExecuteStatementCommandInput[], Query.UpdateManyResult<T, S, R>]> => {
   const [partitionKey, sortKey] = indexes;
 

@@ -22,7 +22,7 @@ export const prepareUpdateQuery = <
   table: string,
   schema: ObjectSchema,
   relations: RepositoryRelationsWithSchema,
-  query: Query.UpdateOneInput<T, S, I, R> | Query.UpdateManyInput<T, S>
+  query: Query.UpdateOneInput<T, S, I, R> | Query.UpdateManyInput<T, S, I, R>
 ) => {
   return prepareAllQueries(table, schema, relations, query, null, 0);
 };
@@ -31,7 +31,7 @@ const prepareAllQueries = (
   table: string,
   schema: ObjectSchema,
   relations: RepositoryRelationsWithSchema,
-  query: Query.UpdateOneInput<{}, {}, {}, {}> | Query.UpdateManyInput<{}, {}>,
+  query: Query.UpdateOneInput<{}, {}, {}, {}> | Query.UpdateManyInput<{}, {}, {}, {}>,
   fromTable: string | null,
   variablesIndex: number
 ): PrepareResult => {

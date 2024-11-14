@@ -47,11 +47,12 @@ export namespace Query {
   export type UpsertOneInput<
     T extends Database.Schema,
     S extends Database.Schema,
-    I extends Database.Indexes<T>
+    I extends Database.Indexes<T>,
+    R extends Relations
   > = {
     select?: S;
-    insert: T;
-    update: DeepPartial<T>;
+    insert: T | (Omit<T, DecomposeIndexName<keyof I>> & R);
+    update: DeepPartial<T | FlatObject<Omit<T, DecomposeIndexName<keyof I>> & R>>;
     where: WhereInput<T, I>;
   };
 
@@ -68,9 +69,14 @@ export namespace Query {
     data: T[];
   };
 
-  export type UpdateManyInput<T extends Database.Schema, S extends Database.Schema> = {
+  export type UpdateManyInput<
+    T extends Database.Schema,
+    S extends Database.Schema,
+    I extends Database.Indexes<T>,
+    R extends Relations
+  > = {
     select?: S;
-    data: DeepPartial<T>;
+    data: DeepPartial<T | FlatObject<Omit<T, DecomposeIndexName<keyof I>> & R>>;
     where?: WhereInput<T>;
     limit?: number;
   };

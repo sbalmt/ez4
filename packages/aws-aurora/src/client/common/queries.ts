@@ -166,7 +166,7 @@ export const prepareUpdateMany = async <
   table: string,
   schema: ObjectSchema,
   relations: RepositoryRelationsWithSchema,
-  query: Query.UpdateManyInput<T, S>
+  query: Query.UpdateManyInput<T, S, I, R>
 ): Promise<PreparedQueryCommand> => {
   await validateSchema(query.data, prepareUpdateSchema(schema, relations, query.data));
 
