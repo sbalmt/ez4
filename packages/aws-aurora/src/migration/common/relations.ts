@@ -21,7 +21,9 @@ export const prepareCreateRelations = (table: string, relations: RepositoryRelat
       `ALTER TABLE "${table}" ` +
         `ADD CONSTRAINT "${relationName}" ` +
         `FOREIGN KEY ("${targetColumn}") ` +
-        `REFERENCES "${sourceTable}" ("${sourceColumn}")`
+        `REFERENCES "${sourceTable}" ("${sourceColumn}") ` +
+        `ON DELETE CASCADE ` +
+        `ON UPDATE CASCADE`
     );
   }
 

@@ -75,5 +75,5 @@ export const prepareUpdateTable = (
 };
 
 export const prepareDeleteTable = (table: string): string => {
-  return `DROP TABLE "${table}"`;
+  return `DROP TABLE IF EXISTS "${table}" CASCADE`;
 };
