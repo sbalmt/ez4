@@ -83,7 +83,7 @@ describe.only('aurora query update', () => {
     }
   };
 
-  it.only('assert :: prepare update', () => {
+  it('assert :: prepare update', () => {
     const [statement, variables] = prepareUpdateQuery<TestSchema, TestIndexes, TestRelations, {}>(
       'ez4-test-update',
       testSchema,
@@ -124,7 +124,7 @@ describe.only('aurora query update', () => {
     ]);
   });
 
-  it.only('assert :: prepare update (with select)', () => {
+  it('assert :: prepare update (with select)', () => {
     const [statement, variables] = prepareUpdateQuery<TestSchema, TestIndexes, TestRelations, {}>(
       'ez4-test-update',
       testSchema,
@@ -179,7 +179,7 @@ describe.only('aurora query update', () => {
     ]);
   });
 
-  it.only('assert :: prepare update (with relationship)', () => {
+  it('assert :: prepare update (with relationship)', () => {
     const [statement, variables] = prepareUpdateQuery<TestSchema, TestIndexes, TestRelations, {}>(
       'ez4-test-update',
       testSchema,
@@ -209,7 +209,7 @@ describe.only('aurora query update', () => {
         `R1 AS (UPDATE "ez4-test-update" SET "id" = :2i WHERE "foo" = :0 RETURNING "relation1_id", "relation2_id"), ` +
         // Second relation
         `R2 AS (UPDATE "ez4-test-relation" SET "foo" = :0i FROM R1 WHERE "id" = R1."relation1_id" RETURNING R1.*) ` +
-        //
+        // Main record
         `UPDATE "ez4-test-relation" SET "bar"['barFoo'] = :1i ` +
         `FROM R2 WHERE "id" = R2."relation2_id" ` +
         `RETURNING R2.*`

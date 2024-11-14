@@ -20,7 +20,7 @@ type TestSchema = {
 type TestRelations = {
   relation1?: TestSchema;
   relation2?: TestSchema;
-  relations?: TestSchema;
+  relations?: TestSchema[];
 };
 
 type TestIndexes = {
@@ -93,7 +93,7 @@ describe.only('aurora query select', () => {
     }
   };
 
-  it.only('assert :: prepare select', () => {
+  it('assert :: prepare select', () => {
     const [statement, variables] = prepareSelectQuery<TestSchema, TestIndexes, TestRelations, {}>(
       'ez4-test-select',
       testSchema,
@@ -131,7 +131,7 @@ describe.only('aurora query select', () => {
     ]);
   });
 
-  it.only('assert :: prepare select (with relationship)', () => {
+  it('assert :: prepare select (with relationship)', () => {
     const [statement, variables] = prepareSelectQuery<TestSchema, TestIndexes, TestRelations, {}>(
       'ez4-test-select',
       testSchema,

@@ -35,7 +35,7 @@ describe.only('aurora query delete', () => {
     }
   };
 
-  it.only('assert :: prepare delete', () => {
+  it('assert :: prepare delete', () => {
     const [statement, variables] = prepareDeleteQuery<TestSchema, TestIndexes, {}, {}>(
       'ez4-test-delete',
       testSchema,
@@ -60,7 +60,7 @@ describe.only('aurora query delete', () => {
     ]);
   });
 
-  it.only('assert :: prepare delete (with select)', () => {
+  it('assert :: prepare delete (with select)', () => {
     const [statement, variables] = prepareDeleteQuery<TestSchema, TestIndexes, {}, {}>(
       'ez4-test-delete',
       testSchema,

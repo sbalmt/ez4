@@ -8,7 +8,9 @@ import { isAnyObject } from '@ez4/utils';
 
 import { prepareFieldData } from './data.js';
 
-type PrepareResult = [string, SqlParameter[]];
+type PrepareQueryResult = [string, SqlParameter[]];
+
+type PrepareRelationResult = [string[], SqlParameter[]];
 
 export const prepareInsertQuery = <
   T extends Database.Schema,
@@ -20,79 +22,178 @@ export const prepareInsertQuery = <
   relations: RepositoryRelationsWithSchema,
   query: Query.InsertOneInput<T, I, R>
 ) => {
-  const prepareAll = (
-    table: string,
-    data: AnyObject,
-    schema: ObjectSchema,
-    relations: RepositoryRelationsWithSchema,
-    index: number
-  ): PrepareResult => {
-    const relationStatements = [];
-    const relationVariables = [];
-    const relationFields = [];
+  return prepareAllQueries(table, query.data, schema, relations, null, 0);
+};
 
-    let relationId = 0;
+const prepareAllQueries = (
+  table: string,
+  data: AnyObject,
+  schema: ObjectSchema,
+  relations: RepositoryRelationsWithSchema,
+  from: string | null,
+  variablesIndex: number,
+  extraFields: string[] = [],
+  extraParameters: string[] = []
+): PrepareQueryResult => {
+  const [preStatements, preVariables] = preparePreRelationQueries(data, relations, variablesIndex);
 
-    for (const alias in relations) {
-      const relationData = data[alias];
+  const [insertFields, insertParameters, insertVariables] = prepareQueryFields(
+    data,
+    schema,
+    relations,
+    variablesIndex + preVariables.length
+  );
 
-      if (!relations[alias] || !isAnyObject(relationData) || Array.isArray(relationData)) {
-        continue;
-      }
+  const [postStatements, postVariables, postFields] = preparePostRelationQueries(
+    data,
+    relations,
+    variablesIndex + preVariables.length + insertVariables.length,
+    preStatements.length + 1
+  );
 
-      const { sourceTable, sourceColumn, sourceSchema, targetAlias } = relations[alias];
+  const insertStatement = [
+    `INSERT INTO "${table}" (${[...insertFields, ...extraFields].join(', ')})`
+  ];
 
-      const [statement, variables] = prepareAll(
+  if (extraParameters) {
+    insertParameters.push(...extraParameters);
+  }
+
+  if (preStatements.length || postStatements.length) {
+    const allVariables = [...preVariables, ...insertVariables, ...postVariables];
+    const allStatements = [...preStatements];
+
+    if (!preStatements.length) {
+      insertStatement.push(`VALUES (${insertParameters.join(', ')})`);
+    } else {
+      insertStatement.push(`SELECT ${insertParameters.join(', ')} FROM R${preStatements.length}`);
+    }
+
+    if (postFields.length) {
+      insertStatement.push(`RETURNING ${postFields.join(', ')}`);
+    }
+
+    allStatements.push(insertStatement.join(' '), ...postStatements);
+
+    const lastStatement = allStatements.pop();
+
+    const withStatements = allStatements
+      .map((statement, index) => `R${index + 1} AS (${statement})`)
+      .join(', ');
+
+    const finalStatement = `WITH ${withStatements} ${lastStatement}`;
+
+    return [finalStatement, allVariables];
+  }
+
+  if (from) {
+    insertStatement.push(`SELECT ${insertParameters.join(', ')} FROM ${from}`);
+  } else {
+    insertStatement.push(`VALUES (${insertParameters.join(', ')})`);
+  }
+
+  return [insertStatement.join(' '), insertVariables];
+};
+
+const preparePreRelationQueries = (
+  data: AnyObject,
+  relations: RepositoryRelationsWithSchema,
+  variablesIndex: number
+): PrepareRelationResult => {
+  const preStatements = [];
+  const preVariables = [];
+
+  let aliasesIndex = 0;
+
+  for (const alias in relations) {
+    const relationData = data[alias];
+
+    if (!relations[alias] || !isAnyObject(relationData) || Array.isArray(relationData)) {
+      continue;
+    }
+
+    const { sourceTable, sourceColumn, sourceSchema, targetAlias } = relations[alias];
+
+    const nextIndex = variablesIndex + preVariables.length;
+
+    const [statement, variables] = prepareAllQueries(
+      sourceTable,
+      relationData,
+      sourceSchema,
+      {},
+      null,
+      nextIndex
+    );
+
+    const relationFields = [`"${sourceColumn}" AS "${targetAlias}"`];
+
+    if (aliasesIndex > 0) {
+      relationFields.push(`R${aliasesIndex}.*`);
+    }
+
+    preStatements.push(`${statement} RETURNING ${relationFields.join(', ')}`);
+    preVariables.push(...variables);
+
+    aliasesIndex++;
+  }
+
+  return [preStatements, preVariables];
+};
+
+const preparePostRelationQueries = (
+  data: AnyObject,
+  relations: RepositoryRelationsWithSchema,
+  variablesIndex: number,
+  aliasesIndex: number
+): [...PrepareRelationResult, string[]] => {
+  const relationFields = new Set<string>();
+
+  const postStatements = [];
+  const postVariables = [];
+
+  for (const alias in relations) {
+    const relationDataList = data[alias];
+
+    if (!relations[alias] || !Array.isArray(relationDataList)) {
+      continue;
+    }
+
+    const { sourceColumn, sourceTable, sourceSchema, targetColumn } = relations[alias];
+
+    relationFields.add(`"${targetColumn}"`);
+
+    for (const relationData of relationDataList) {
+      const nextIndex = variablesIndex + postVariables.length;
+
+      const previousName = `R${aliasesIndex}`;
+
+      const [statement, variables] = prepareAllQueries(
         sourceTable,
         relationData,
         sourceSchema,
         {},
-        index + relationVariables.length
+        previousName,
+        nextIndex,
+        [`"${sourceColumn}"`],
+        [`"${targetColumn}"`]
       );
 
-      const fields = [`"${sourceColumn}" AS "${targetAlias}"`, ...relationFields];
+      postStatements.push(`${statement} RETURNING ${previousName}.*`);
+      postVariables.push(...variables);
 
-      const name = `R${++relationId}`;
-
-      relationStatements.push(`${name} AS (${statement} RETURNING ${fields.join(', ')})`);
-
-      relationFields.push(`${name}."${targetAlias}"`);
-
-      relationVariables.push(...variables);
+      aliasesIndex++;
     }
+  }
 
-    const [insertFields, insertParameters, insertVariables] = prepareInsertFields(
-      data,
-      schema,
-      relations,
-      index + relationVariables.length
-    );
-
-    if (relationStatements.length) {
-      const variables = [...relationVariables, ...insertVariables];
-
-      const statement =
-        `WITH ${relationStatements.join(', ')} ` +
-        `INSERT INTO "${table}" (${insertFields}) ` +
-        `SELECT ${insertParameters} FROM R${relationId}`;
-
-      return [statement, variables];
-    }
-
-    const statement = `INSERT INTO "${table}" (${insertFields}) VALUES (${insertParameters})`;
-
-    return [statement, insertVariables];
-  };
-
-  return prepareAll(table, query.data, schema, relations, 0);
+  return [postStatements, postVariables, [...relationFields]];
 };
 
-const prepareInsertFields = <T extends Database.Schema>(
+const prepareQueryFields = <T extends Database.Schema>(
   data: T,
   schema: ObjectSchema,
   relations: RepositoryRelationsWithSchema,
-  index: number
-): [string, ...PrepareResult] => {
+  variablesIndex: number
+): [string[], string[], SqlParameter[]] => {
   const variables: SqlParameter[] = [];
 
   const properties: string[] = [];
@@ -107,10 +208,12 @@ const prepareInsertFields = <T extends Database.Schema>(
     }
 
     if (fieldRelation) {
-      const { targetAlias, targetColumn } = fieldRelation;
+      const { targetAlias, targetColumn, foreign } = fieldRelation;
 
-      properties.push(`"${targetColumn}"`);
-      references.push(`"${targetAlias}"`);
+      if (foreign) {
+        properties.push(`"${targetColumn}"`);
+        references.push(`"${targetAlias}"`);
+      }
 
       continue;
     }
@@ -121,14 +224,16 @@ const prepareInsertFields = <T extends Database.Schema>(
       throw new Error(`Field schema for ${fieldKey} doesn't exists.`);
     }
 
-    const fieldName = `${index++}i`;
+    const fieldName = `${variablesIndex}i`;
     const fieldData = prepareFieldData(fieldName, fieldValue, fieldSchema);
 
     properties.push(`"${fieldKey}"`);
     references.push(`:${fieldName}`);
 
     variables.push(fieldData);
+
+    variablesIndex++;
   }
 
-  return [properties.join(', '), references.join(', '), variables];
+  return [properties, references, variables];
 };
