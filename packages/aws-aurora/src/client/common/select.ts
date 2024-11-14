@@ -120,7 +120,7 @@ export const prepareSelectFields = <T extends Database.Schema, R extends Relatio
     }
 
     if (!selectFields.length) {
-      return getSchemaFields(schema, object);
+      return getSchemaFields(schema, relations, object);
     }
 
     return selectFields;
@@ -129,11 +129,17 @@ export const prepareSelectFields = <T extends Database.Schema, R extends Relatio
   return prepareAll(fields, schema, relations, false);
 };
 
-const getSchemaFields = (schema: ObjectSchema, object: boolean) => {
+const getSchemaFields = (
+  schema: ObjectSchema,
+  relations: RepositoryRelationsWithSchema,
+  object: boolean
+) => {
   const fields = [];
 
   for (const fieldKey in schema.properties) {
-    fields.push(object ? `'${fieldKey}', "${fieldKey}"` : `"${fieldKey}"`);
+    if (!relations[fieldKey]) {
+      fields.push(object ? `'${fieldKey}', "${fieldKey}"` : `"${fieldKey}"`);
+    }
   }
 
   return fields;

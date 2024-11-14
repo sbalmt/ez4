@@ -169,4 +169,22 @@ describe.only('aurora query select', () => {
 
     deepEqual(variables, [makeParameter('0', '00000000-0000-0000-0000-000000000000', 'UUID')]);
   });
+
+  it('assert :: prepare select (all)', () => {
+    const [statement, variables] = prepareSelectQuery<TestSchema, TestIndexes, TestRelations, {}>(
+      'ez4-test-select',
+      testSchema,
+      testRelations,
+      {
+        select: {}
+      }
+    );
+
+    equal(
+      statement,
+      `SELECT "id", "relation1_id", "relation2_id", "foo", "bar" FROM "ez4-test-select"`
+    );
+
+    deepEqual(variables, []);
+  });
 });
