@@ -3,6 +3,7 @@ import type { DynamoDBDocumentClient } from '@aws-sdk/lib-dynamodb';
 import type { ObjectSchema } from '@ez4/schema';
 
 import { ConditionalCheckFailedException } from '@aws-sdk/client-dynamodb';
+import { deepClone } from '@ez4/utils';
 
 import { executeStatement, executeTransaction } from './common/client.js';
 
@@ -39,9 +40,15 @@ export class Table<T extends Database.Schema, I extends Database.Indexes<T>, R e
     const command = await prepareUpdateOne<T, I, R, S>(this.name, this.schema, query);
 
     try {
-      const result = await executeStatement(this.client, command);
+      const { Items } = await executeStatement(this.client, command);
 
-      return result.Items?.at(0) as Query.UpdateOneResult<T, S, R>;
+      const result = Items?.at(0) as Query.UpdateOneResult<T, S, R> | undefined;
+
+      if (query.select && result) {
+        return deepClone<any, any, any>(result, { include: query.select });
+      }
+
+      return result;
     } catch (e) {
       if (!(e instanceof ConditionalCheckFailedException)) {
         throw e;
@@ -58,9 +65,15 @@ export class Table<T extends Database.Schema, I extends Database.Indexes<T>, R e
 
     const command = prepareFindOne<T, I, R, S>(this.name, secondaryIndexes, query);
 
-    const result = await executeStatement(this.client, command);
+    const { Items } = await executeStatement(this.client, command);
 
-    return result.Items?.at(0) as Query.FindOneResult<T, S, R>;
+    const result = Items?.at(0) as Query.UpdateOneResult<T, S, R> | undefined;
+
+    if (result) {
+      return deepClone<any, any, any>(result, { include: query.select });
+    }
+
+    return undefined;
   }
 
   async deleteOne<S extends Query.SelectInput<T, R>>(
@@ -68,9 +81,15 @@ export class Table<T extends Database.Schema, I extends Database.Indexes<T>, R e
   ): Promise<Query.DeleteOneResult<T, S, R>> {
     const command = prepareDeleteOne<T, I, R, S>(this.name, query);
 
-    const result = await executeStatement(this.client, command);
+    const { Items } = await executeStatement(this.client, command);
 
-    return result.Items?.at(0) as Query.DeleteOneResult<T, S, R>;
+    const result = Items?.at(0) as Query.UpdateOneResult<T, S, R> | undefined;
+
+    if (query.select && result) {
+      return deepClone<any, any, any>(result, { include: query.select });
+    }
+
+    return result;
   }
 
   async upsertOne<S extends Query.SelectInput<T, R>>(
@@ -137,11 +156,11 @@ export class Table<T extends Database.Schema, I extends Database.Indexes<T>, R e
 
     const command = prepareFindMany<T, I, R, S>(this.name, secondaryIndexes, query);
 
-    const result = await executeStatement(this.client, command);
+    const { Items = [], NextToken } = await executeStatement(this.client, command);
 
     return {
-      records: (result.Items ?? []) as Query.Record<T, S, R>[],
-      cursor: result.NextToken
+      records: Items as Query.Record<T, S, R>[],
+      cursor: NextToken
     };
   }
 
