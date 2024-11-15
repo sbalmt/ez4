@@ -1,5 +1,4 @@
 import type { Database, Client as DbClient, Relations, Transaction } from '@ez4/database';
-import type { SqlParameter } from '@aws-sdk/client-rds-data';
 import type { Connection } from './types.js';
 
 import type {
@@ -12,6 +11,7 @@ import { RDSDataClient } from '@aws-sdk/client-rds-data';
 
 import { prepareDeleteOne, prepareInsertOne, prepareUpdateOne } from './common/queries.js';
 import { executeStatement, executeTransaction } from './common/client.js';
+import { detectFieldData } from './common/data.js';
 import { Table } from './table.js';
 
 type TableType = Table<Database.Schema, Database.Indexes<Database.Schema>, Relations>;
@@ -26,10 +26,13 @@ export namespace Client {
     repository: Repository
   ): DbClient<T> => {
     const instance = new (class {
-      rawQuery(query: string, values: SqlParameter[]) {
-        const command = { sql: query, parameters: values };
-
-        return executeStatement(client, connection, command);
+      rawQuery(query: string, values: unknown[]) {
+        return executeStatement(client, connection, {
+          sql: query,
+          parameters: values.map((value, index) => {
+            return detectFieldData(`${index}`, value);
+          })
+        });
       }
 
       async transaction<O extends Transaction.WriteOperations<T>>(operations: O): Promise<void> {
