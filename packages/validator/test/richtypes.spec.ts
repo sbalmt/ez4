@@ -3,13 +3,13 @@ import type { AnySchema } from '@ez4/schema';
 import { equal } from 'node:assert/strict';
 import { describe, it } from 'node:test';
 
-import { SchemaTypeName } from '@ez4/schema';
+import { SchemaType } from '@ez4/schema';
 import { validate } from '@ez4/validator';
 
 describe.only('rich types validation', () => {
   it('assert :: decimal', async () => {
     const schema: AnySchema = {
-      type: SchemaTypeName.Number,
+      type: SchemaType.Number,
       format: 'decimal',
       extra: {
         minValue: 0.99,
@@ -22,7 +22,7 @@ describe.only('rich types validation', () => {
 
   it('assert :: integer', async () => {
     const schema: AnySchema = {
-      type: SchemaTypeName.Number,
+      type: SchemaType.Number,
       format: 'integer',
       extra: {
         minValue: 99,
@@ -35,7 +35,7 @@ describe.only('rich types validation', () => {
 
   it('assert :: string', async () => {
     const schema: AnySchema = {
-      type: SchemaTypeName.String,
+      type: SchemaType.String,
       extra: {
         minLength: 1,
         maxLength: 9
@@ -47,7 +47,7 @@ describe.only('rich types validation', () => {
 
   it('assert :: decimal (literal)', async () => {
     const schema: AnySchema = {
-      type: SchemaTypeName.Number,
+      type: SchemaType.Number,
       extra: {
         value: 123.456
       }
@@ -58,7 +58,7 @@ describe.only('rich types validation', () => {
 
   it('assert :: integer (literal)', async () => {
     const schema: AnySchema = {
-      type: SchemaTypeName.Number,
+      type: SchemaType.Number,
       extra: {
         value: 123
       }
@@ -69,7 +69,7 @@ describe.only('rich types validation', () => {
 
   it('assert :: string (literal)', async () => {
     const schema: AnySchema = {
-      type: SchemaTypeName.String,
+      type: SchemaType.String,
       extra: {
         value: 'abc'
       }
@@ -80,7 +80,7 @@ describe.only('rich types validation', () => {
 
   it('assert :: regex', async () => {
     const schema: AnySchema = {
-      type: SchemaTypeName.String,
+      type: SchemaType.String,
       format: 'regex',
       extra: {
         pattern: '^[a-z]+$'
@@ -92,7 +92,7 @@ describe.only('rich types validation', () => {
 
   it('assert :: uuid', async () => {
     const schema: AnySchema = {
-      type: SchemaTypeName.String,
+      type: SchemaType.String,
       format: 'uuid'
     };
 
@@ -101,7 +101,7 @@ describe.only('rich types validation', () => {
 
   it('assert :: email', async () => {
     const schema: AnySchema = {
-      type: SchemaTypeName.String,
+      type: SchemaType.String,
       format: 'email'
     };
 
@@ -110,7 +110,7 @@ describe.only('rich types validation', () => {
 
   it('assert :: time', async () => {
     const schema: AnySchema = {
-      type: SchemaTypeName.String,
+      type: SchemaType.String,
       format: 'time'
     };
 
@@ -119,7 +119,7 @@ describe.only('rich types validation', () => {
 
   it('assert :: date', async () => {
     const schema: AnySchema = {
-      type: SchemaTypeName.String,
+      type: SchemaType.String,
       format: 'date'
     };
 
@@ -128,7 +128,7 @@ describe.only('rich types validation', () => {
 
   it('assert :: date-time', async () => {
     const schema: AnySchema = {
-      type: SchemaTypeName.String,
+      type: SchemaType.String,
       format: 'date-time'
     };
 
@@ -137,13 +137,13 @@ describe.only('rich types validation', () => {
 
   it('assert :: extensible object', async () => {
     const schema: AnySchema = {
-      type: SchemaTypeName.Object,
+      type: SchemaType.Object,
       extra: {
         extensible: true
       },
       properties: {
         foo: {
-          type: SchemaTypeName.String
+          type: SchemaType.String
         }
       }
     };

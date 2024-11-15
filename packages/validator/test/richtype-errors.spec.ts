@@ -18,14 +18,14 @@ import {
   UnexpectedStringError
 } from '@ez4/validator';
 
-import { SchemaTypeName } from '@ez4/schema';
+import { SchemaType } from '@ez4/schema';
 
 import { assertError } from './common.js';
 
 describe.only('rich type validation errors', () => {
   it('assert :: decimal errors', async () => {
     const schema: AnySchema = {
-      type: SchemaTypeName.Number,
+      type: SchemaType.Number,
       format: 'decimal',
       extra: {
         minValue: 0.99,
@@ -39,7 +39,7 @@ describe.only('rich type validation errors', () => {
 
   it('assert :: integer errors', async () => {
     const schema: AnySchema = {
-      type: SchemaTypeName.Number,
+      type: SchemaType.Number,
       format: 'integer',
       extra: {
         minValue: 99,
@@ -54,7 +54,7 @@ describe.only('rich type validation errors', () => {
 
   it('assert :: string errors', async () => {
     const schema: AnySchema = {
-      type: SchemaTypeName.String,
+      type: SchemaType.String,
       extra: {
         minLength: 1,
         maxLength: 3
@@ -67,7 +67,7 @@ describe.only('rich type validation errors', () => {
 
   it('assert :: decimal (literal) errors', async () => {
     const schema: AnySchema = {
-      type: SchemaTypeName.Number,
+      type: SchemaType.Number,
       extra: {
         value: 123.456
       }
@@ -78,7 +78,7 @@ describe.only('rich type validation errors', () => {
 
   it('assert :: integer (literal) errors', async () => {
     const schema: AnySchema = {
-      type: SchemaTypeName.Number,
+      type: SchemaType.Number,
       extra: {
         value: 123
       }
@@ -89,7 +89,7 @@ describe.only('rich type validation errors', () => {
 
   it('assert :: string (literal) errors', async () => {
     const schema: AnySchema = {
-      type: SchemaTypeName.String,
+      type: SchemaType.String,
       extra: {
         value: 'abc'
       }
@@ -100,7 +100,7 @@ describe.only('rich type validation errors', () => {
 
   it('assert :: uuid errors', async () => {
     const schema: AnySchema = {
-      type: SchemaTypeName.String,
+      type: SchemaType.String,
       format: 'regex',
       extra: {
         pattern: '^[a-b]+$'
@@ -112,7 +112,7 @@ describe.only('rich type validation errors', () => {
 
   it('assert :: uuid errors', async () => {
     const schema: AnySchema = {
-      type: SchemaTypeName.String,
+      type: SchemaType.String,
       format: 'uuid'
     };
 
@@ -121,7 +121,7 @@ describe.only('rich type validation errors', () => {
 
   it('assert :: email errors', async () => {
     const schema: AnySchema = {
-      type: SchemaTypeName.String,
+      type: SchemaType.String,
       format: 'email'
     };
 
@@ -130,7 +130,7 @@ describe.only('rich type validation errors', () => {
 
   it('assert :: time errors', async () => {
     const schema: AnySchema = {
-      type: SchemaTypeName.String,
+      type: SchemaType.String,
       format: 'time'
     };
 
@@ -139,7 +139,7 @@ describe.only('rich type validation errors', () => {
 
   it('assert :: date errors', async () => {
     const schema: AnySchema = {
-      type: SchemaTypeName.String,
+      type: SchemaType.String,
       format: 'date'
     };
 
@@ -148,7 +148,7 @@ describe.only('rich type validation errors', () => {
 
   it('assert :: date-date errors', async () => {
     const schema: AnySchema = {
-      type: SchemaTypeName.String,
+      type: SchemaType.String,
       format: 'date-time'
     };
 

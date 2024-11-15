@@ -3,7 +3,7 @@ import type { PartialObjectSchemaProperties } from '@ez4/schema/library';
 import type { ObjectSchema } from '@ez4/schema';
 import type { RepositoryRelationsWithSchema } from '../../types/repository.js';
 
-import { partialObjectSchema, SchemaTypeName } from '@ez4/schema/library';
+import { partialObjectSchema, SchemaType } from '@ez4/schema/library';
 
 import { getUniqueErrorMessages } from '@ez4/validator';
 import { validate } from '@ez4/validator';
@@ -41,7 +41,7 @@ export const prepareInsertSchema = (
     }
 
     finalSchema.properties[targetAlias] = {
-      type: SchemaTypeName.Array,
+      type: SchemaType.Array,
       element: sourceSchema,
       nullable,
       optional

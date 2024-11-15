@@ -3,7 +3,7 @@ import type { BooleanSchema } from '../types/boolean.js';
 
 import { isTypeBoolean } from '@ez4/reflection';
 
-import { ExtraSchema, SchemaTypeName } from '../types/common.js';
+import { ExtraSchema, SchemaType } from '../types/common.js';
 
 export type RichTypeBoolean = TypeBoolean & {
   extra?: ExtraSchema;
@@ -13,7 +13,7 @@ export const createBooleanSchema = (data: Omit<BooleanSchema, 'type'>): BooleanS
   const { description, optional, nullable, extra } = data;
 
   return {
-    type: SchemaTypeName.Boolean,
+    type: SchemaType.Boolean,
     ...(description && { description }),
     ...(optional && { optional }),
     ...(nullable && { nullable }),

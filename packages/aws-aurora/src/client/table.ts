@@ -6,7 +6,7 @@ import type { RepositoryRelationsWithSchema } from '../types/repository.js';
 import type { PreparedQueryCommand } from './common/queries.js';
 import type { Connection } from './types.js';
 
-import { SchemaTypeName } from '@ez4/schema';
+import { SchemaType } from '@ez4/schema';
 import { isAnyNumber } from '@ez4/utils';
 
 import { executeStatement, executeTransaction } from './common/client.js';
@@ -42,7 +42,7 @@ export class Table<T extends Database.Schema, I extends Database.Indexes<T>, R e
       if (typeof value === 'string') {
         const schema = this.schema.properties[fieldKey];
 
-        if (schema?.type === SchemaTypeName.Object) {
+        if (schema?.type === SchemaType.Object) {
           result[fieldKey] = JSON.parse(value);
           continue;
         }

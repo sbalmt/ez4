@@ -1,9 +1,9 @@
 import type { AnyObject } from '@ez4/utils';
 import type { AnySchema, ExtraSchema } from './common.js';
 
-import { SchemaTypeName } from './common.js';
+import { SchemaType } from './common.js';
 export type TupleSchema = {
-  type: SchemaTypeName.Tuple;
+  type: SchemaType.Tuple;
   elements: AnySchema[];
   description?: string;
   optional?: boolean;
@@ -12,5 +12,5 @@ export type TupleSchema = {
 };
 
 export const isTupleSchema = (value: AnyObject): value is TupleSchema => {
-  return value.type === SchemaTypeName.Tuple;
+  return value.type === SchemaType.Tuple;
 };

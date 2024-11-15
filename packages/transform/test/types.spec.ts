@@ -3,13 +3,13 @@ import type { AnySchema } from '@ez4/schema';
 import { deepEqual } from 'node:assert/strict';
 import { describe, it } from 'node:test';
 
-import { SchemaTypeName } from '@ez4/schema';
+import { SchemaType } from '@ez4/schema';
 import { transform } from '@ez4/transform';
 
 describe.only('types transform', () => {
   it('assert :: boolean', () => {
     const schema: AnySchema = {
-      type: SchemaTypeName.Boolean
+      type: SchemaType.Boolean
     };
 
     deepEqual(transform(true, schema), true);
@@ -23,7 +23,7 @@ describe.only('types transform', () => {
 
   it('assert :: number', () => {
     const schema: AnySchema = {
-      type: SchemaTypeName.Number
+      type: SchemaType.Number
     };
 
     deepEqual(transform('123', schema), 123);
@@ -37,7 +37,7 @@ describe.only('types transform', () => {
 
   it('assert :: string', () => {
     const schema: AnySchema = {
-      type: SchemaTypeName.String
+      type: SchemaType.String
     };
 
     deepEqual(transform('abc', schema), 'abc');
@@ -50,16 +50,16 @@ describe.only('types transform', () => {
 
   it('assert :: object', () => {
     const schema: AnySchema = {
-      type: SchemaTypeName.Object,
+      type: SchemaType.Object,
       properties: {
         foo: {
-          type: SchemaTypeName.Boolean
+          type: SchemaType.Boolean
         },
         bar: {
-          type: SchemaTypeName.Number
+          type: SchemaType.Number
         },
         baz: {
-          type: SchemaTypeName.String
+          type: SchemaType.String
         }
       }
     };
@@ -74,16 +74,16 @@ describe.only('types transform', () => {
 
   it('assert :: union', () => {
     const schema: AnySchema = {
-      type: SchemaTypeName.Union,
+      type: SchemaType.Union,
       elements: [
         {
-          type: SchemaTypeName.Boolean
+          type: SchemaType.Boolean
         },
         {
-          type: SchemaTypeName.Number
+          type: SchemaType.Number
         },
         {
-          type: SchemaTypeName.String
+          type: SchemaType.String
         }
       ]
     };
@@ -97,9 +97,9 @@ describe.only('types transform', () => {
 
   it('assert :: array', () => {
     const schema: AnySchema = {
-      type: SchemaTypeName.Array,
+      type: SchemaType.Array,
       element: {
-        type: SchemaTypeName.Number
+        type: SchemaType.Number
       }
     };
 
@@ -112,13 +112,13 @@ describe.only('types transform', () => {
 
   it('assert :: tuple', () => {
     const schema: AnySchema = {
-      type: SchemaTypeName.Tuple,
+      type: SchemaType.Tuple,
       elements: [
         {
-          type: SchemaTypeName.Number
+          type: SchemaType.Number
         },
         {
-          type: SchemaTypeName.String
+          type: SchemaType.String
         }
       ]
     };
@@ -132,7 +132,7 @@ describe.only('types transform', () => {
 
   it('assert :: enum', () => {
     const schema: AnySchema = {
-      type: SchemaTypeName.Enum,
+      type: SchemaType.Enum,
       options: [
         {
           value: 123

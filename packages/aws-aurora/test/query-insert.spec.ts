@@ -3,7 +3,7 @@ import { describe, it } from 'node:test';
 
 import { prepareInsertQuery } from '@ez4/aws-aurora/client';
 
-import { ObjectSchema, SchemaTypeName } from '@ez4/schema';
+import { ObjectSchema, SchemaType } from '@ez4/schema';
 import { Index } from '@ez4/database';
 
 import { makeParameter } from './common/parameters.js';
@@ -31,33 +31,33 @@ type TestIndexes = {
 
 describe.only('aurora query insert', () => {
   const testSchema: ObjectSchema = {
-    type: SchemaTypeName.Object,
+    type: SchemaType.Object,
     properties: {
       id: {
-        type: SchemaTypeName.String,
+        type: SchemaType.String,
         format: 'uuid'
       },
       relation1_id: {
-        type: SchemaTypeName.String,
+        type: SchemaType.String,
         format: 'uuid'
       },
       relation2_id: {
-        type: SchemaTypeName.String,
+        type: SchemaType.String,
         format: 'uuid'
       },
       foo: {
-        type: SchemaTypeName.Number,
+        type: SchemaType.Number,
         optional: true
       },
       bar: {
-        type: SchemaTypeName.Object,
+        type: SchemaType.Object,
         properties: {
           barFoo: {
-            type: SchemaTypeName.String,
+            type: SchemaType.String,
             optional: true
           },
           barBar: {
-            type: SchemaTypeName.Boolean,
+            type: SchemaType.Boolean,
             optional: true
           }
         }

@@ -4,7 +4,7 @@ import type { UnionSchema } from '../types/union.js';
 
 import { isTypeNull, isTypeUndefined, isTypeUnion } from '@ez4/reflection';
 
-import { SchemaTypeName } from '../types/common.js';
+import { SchemaType } from '../types/common.js';
 import { getAnySchema } from './any.js';
 
 export type RichTypeUnion = TypeUnion & {
@@ -15,7 +15,7 @@ export const createUnionSchema = (data: Omit<UnionSchema, 'type'>): UnionSchema 
   const { description, optional, nullable, elements, extra } = data;
 
   return {
-    type: SchemaTypeName.Union,
+    type: SchemaType.Union,
     ...(description && { description }),
     ...(optional && { optional }),
     ...(nullable && { nullable }),

@@ -3,12 +3,12 @@ import { describe, it } from 'node:test';
 
 import { prepareFieldData } from '@ez4/aws-aurora/client';
 
-import { SchemaTypeName } from '@ez4/schema';
+import { SchemaType } from '@ez4/schema';
 
 describe.only('aurora data prepare', () => {
   it('assert :: prepare null data', () => {
     const data = prepareFieldData('field', null, {
-      type: SchemaTypeName.String,
+      type: SchemaType.String,
       nullable: true
     });
 
@@ -22,7 +22,7 @@ describe.only('aurora data prepare', () => {
 
   it('assert :: prepare text data', () => {
     const data = prepareFieldData('field', 'foo', {
-      type: SchemaTypeName.String
+      type: SchemaType.String
     });
 
     deepEqual(data, {
@@ -35,7 +35,7 @@ describe.only('aurora data prepare', () => {
 
   it('assert :: prepare uuid data', () => {
     const data = prepareFieldData('field', '00000000-0000-0000-0000-000000000000', {
-      type: SchemaTypeName.String,
+      type: SchemaType.String,
       format: 'uuid'
     });
 
@@ -50,7 +50,7 @@ describe.only('aurora data prepare', () => {
 
   it('assert :: prepare date data', () => {
     const data = prepareFieldData('field', '2024-11-15', {
-      type: SchemaTypeName.String,
+      type: SchemaType.String,
       format: 'date'
     });
 
@@ -65,7 +65,7 @@ describe.only('aurora data prepare', () => {
 
   it('assert :: prepare time data', () => {
     const data = prepareFieldData('field', '23:59:59', {
-      type: SchemaTypeName.String,
+      type: SchemaType.String,
       format: 'time'
     });
 
@@ -80,7 +80,7 @@ describe.only('aurora data prepare', () => {
 
   it('assert :: prepare timestamp data', () => {
     const data = prepareFieldData('field', '2024-11-15T00:00:00Z', {
-      type: SchemaTypeName.String,
+      type: SchemaType.String,
       format: 'date-time'
     });
 
@@ -95,7 +95,7 @@ describe.only('aurora data prepare', () => {
 
   it('assert :: prepare boolean data', () => {
     const data = prepareFieldData('field', true, {
-      type: SchemaTypeName.Boolean
+      type: SchemaType.Boolean
     });
 
     deepEqual(data, {
@@ -108,7 +108,7 @@ describe.only('aurora data prepare', () => {
 
   it('assert :: prepare integer data', () => {
     const data = prepareFieldData('field', 123, {
-      type: SchemaTypeName.Number,
+      type: SchemaType.Number,
       format: 'integer'
     });
 
@@ -122,7 +122,7 @@ describe.only('aurora data prepare', () => {
 
   it('assert :: prepare decimal data', () => {
     const data = prepareFieldData('field', 4.56, {
-      type: SchemaTypeName.Number,
+      type: SchemaType.Number,
       format: 'decimal'
     });
 
@@ -139,7 +139,7 @@ describe.only('aurora data prepare', () => {
       'field',
       {},
       {
-        type: SchemaTypeName.Object,
+        type: SchemaType.Object,
         properties: {}
       }
     );
@@ -155,9 +155,9 @@ describe.only('aurora data prepare', () => {
 
   it('assert :: prepare json list data', () => {
     const data = prepareFieldData('field', [], {
-      type: SchemaTypeName.Array,
+      type: SchemaType.Array,
       element: {
-        type: SchemaTypeName.String
+        type: SchemaType.String
       }
     });
 

@@ -5,7 +5,7 @@ import { isTypeModel, isTypeObject, isTypeReference } from '@ez4/reflection';
 
 import { getObjectProperties } from '../reflection/object.js';
 import { getModelProperties } from '../reflection/model.js';
-import { ExtraSchema, SchemaTypeName } from '../types/common.js';
+import { ExtraSchema, SchemaType } from '../types/common.js';
 import { getAnySchema } from './any.js';
 
 const circularRefs = new WeakSet<AllType>();
@@ -22,7 +22,7 @@ export const createObjectSchema = (data: Omit<ObjectSchema, 'type'>): ObjectSche
   const { properties, description, optional, nullable, extra } = data;
 
   return {
-    type: SchemaTypeName.Object,
+    type: SchemaType.Object,
     ...(description && { description }),
     ...(optional && { optional }),
     ...(nullable && { nullable }),

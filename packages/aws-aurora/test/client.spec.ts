@@ -6,7 +6,7 @@ import { ok, equal, deepEqual } from 'node:assert/strict';
 import { describe, it } from 'node:test';
 
 import { Client } from '@ez4/aws-aurora/client';
-import { SchemaTypeName } from '@ez4/schema';
+import { SchemaType } from '@ez4/schema';
 import { Index, Order } from '@ez4/database';
 import { deploy } from '@ez4/aws-common';
 
@@ -59,28 +59,28 @@ describe.only('aurora client', () => {
         }
       },
       schema: {
-        type: SchemaTypeName.Object,
+        type: SchemaType.Object,
         properties: {
           id: {
-            type: SchemaTypeName.String
+            type: SchemaType.String
           },
           foo: {
-            type: SchemaTypeName.String,
+            type: SchemaType.String,
             optional: true
           },
           bar: {
-            type: SchemaTypeName.String,
+            type: SchemaType.String,
             optional: true
           },
           baz: {
-            type: SchemaTypeName.Object,
+            type: SchemaType.Object,
             optional: true,
             properties: {
               foo: {
-                type: SchemaTypeName.Number
+                type: SchemaType.Number
               },
               bar: {
-                type: SchemaTypeName.Boolean
+                type: SchemaType.Boolean
               }
             }
           }

@@ -1,6 +1,6 @@
 import type { AnySchema, NumberSchema, StringSchema } from '@ez4/schema';
 
-import { isStringSchema, SchemaTypeName } from '@ez4/schema';
+import { isStringSchema, SchemaType } from '@ez4/schema';
 import { isAnyNumber } from '@ez4/utils';
 
 export const isNullableColumn = (schema: AnySchema) => {
@@ -29,22 +29,22 @@ export const getColumnDefault = (schema: AnySchema) => {
 
 export const getColumnType = (schema: AnySchema) => {
   switch (schema.type) {
-    case SchemaTypeName.Array:
-    case SchemaTypeName.Object:
-    case SchemaTypeName.Union:
-    case SchemaTypeName.Tuple:
+    case SchemaType.Array:
+    case SchemaType.Object:
+    case SchemaType.Union:
+    case SchemaType.Tuple:
       return `jsonb`;
 
-    case SchemaTypeName.Boolean:
+    case SchemaType.Boolean:
       return `boolean`;
 
-    case SchemaTypeName.Enum:
+    case SchemaType.Enum:
       return `text`;
 
-    case SchemaTypeName.Number:
+    case SchemaType.Number:
       return getColumNumberType(schema);
 
-    case SchemaTypeName.String:
+    case SchemaType.String:
       return getColumnTextType(schema);
   }
 };

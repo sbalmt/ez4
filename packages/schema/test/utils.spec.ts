@@ -1,26 +1,26 @@
 import { describe, it } from 'node:test';
 import { deepEqual } from 'assert/strict';
 
-import { ObjectSchema, partialObjectSchema, SchemaTypeName } from '@ez4/schema/library';
+import { ObjectSchema, partialObjectSchema, SchemaType } from '@ez4/schema/library';
 
 describe.only('schema utils', () => {
   const fullSchema: ObjectSchema = {
-    type: SchemaTypeName.Object,
+    type: SchemaType.Object,
     properties: {
       foo: {
-        type: SchemaTypeName.String
+        type: SchemaType.String
       },
       bar: {
-        type: SchemaTypeName.Number
+        type: SchemaType.Number
       },
       baz: {
-        type: SchemaTypeName.Object,
+        type: SchemaType.Object,
         properties: {
           bazFoo: {
-            type: SchemaTypeName.Boolean
+            type: SchemaType.Boolean
           },
           bazBar: {
-            type: SchemaTypeName.String
+            type: SchemaType.String
           }
         }
       }
@@ -39,22 +39,22 @@ describe.only('schema utils', () => {
     });
 
     deepEqual(partialSchema, {
-      type: SchemaTypeName.Object,
+      type: SchemaType.Object,
       extra: {
         extensible: true
       },
       properties: {
         bar: {
-          type: SchemaTypeName.Number
+          type: SchemaType.Number
         },
         baz: {
-          type: SchemaTypeName.Object,
+          type: SchemaType.Object,
           extra: {
             extensible: true
           },
           properties: {
             bazBar: {
-              type: SchemaTypeName.String
+              type: SchemaType.String
             }
           }
         }
@@ -73,16 +73,16 @@ describe.only('schema utils', () => {
     });
 
     deepEqual(partialSchema, {
-      type: SchemaTypeName.Object,
+      type: SchemaType.Object,
       properties: {
         foo: {
-          type: SchemaTypeName.String
+          type: SchemaType.String
         },
         baz: {
-          type: SchemaTypeName.Object,
+          type: SchemaType.Object,
           properties: {
             bazFoo: {
-              type: SchemaTypeName.Boolean
+              type: SchemaType.Boolean
             }
           }
         }

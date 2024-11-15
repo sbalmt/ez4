@@ -1,7 +1,7 @@
 import { equal, deepEqual } from 'node:assert/strict';
 import { describe, it } from 'node:test';
 
-import { ObjectSchema, SchemaTypeName } from '@ez4/schema';
+import { ObjectSchema, SchemaType } from '@ez4/schema';
 import { Index, Order, Query } from '@ez4/database';
 
 import {
@@ -26,23 +26,23 @@ type TestIndexes = {
 
 describe.only('dynamodb query', () => {
   const testSchema: ObjectSchema = {
-    type: SchemaTypeName.Object,
+    type: SchemaType.Object,
     properties: {
       id: {
-        type: SchemaTypeName.String
+        type: SchemaType.String
       },
       foo: {
-        type: SchemaTypeName.Number,
+        type: SchemaType.Number,
         optional: true
       },
       bar: {
-        type: SchemaTypeName.Object,
+        type: SchemaType.Object,
         properties: {
           barFoo: {
-            type: SchemaTypeName.String
+            type: SchemaType.String
           },
           barBar: {
-            type: SchemaTypeName.Boolean
+            type: SchemaType.Boolean
           }
         }
       }

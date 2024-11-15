@@ -4,7 +4,7 @@ import type { ArraySchema } from '../types/array.js';
 
 import { isTypeArray } from '@ez4/reflection';
 
-import { SchemaTypeName } from '../types/common.js';
+import { SchemaType } from '../types/common.js';
 import { getAnySchema } from './any.js';
 
 export type RichTypeArray = TypeArray & {
@@ -17,7 +17,7 @@ export const createArraySchema = (
   extra: ExtraSchema | undefined
 ): ArraySchema => {
   return {
-    type: SchemaTypeName.Array,
+    type: SchemaType.Array,
     ...(description && { description }),
     ...(extra && { extra }),
     element

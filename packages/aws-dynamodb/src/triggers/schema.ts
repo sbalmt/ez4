@@ -2,15 +2,15 @@ import type { Database } from '@ez4/database';
 import type { ObjectSchema, ObjectSchemaProperties } from '@ez4/schema';
 import type { AttributeSchema, AttributeSchemaGroup } from '../types/schema.js';
 
-import { SchemaTypeName } from '@ez4/schema';
+import { SchemaType } from '@ez4/schema';
 import { Index } from '@ez4/database';
 
 import { AttributeType, AttributeKeyType } from '../types/schema.js';
 
 const SchemaTypesMap: Record<string, AttributeType | undefined> = {
-  [SchemaTypeName.Number]: AttributeType.Number,
-  [SchemaTypeName.String]: AttributeType.String,
-  [SchemaTypeName.Enum]: AttributeType.String
+  [SchemaType.Number]: AttributeType.Number,
+  [SchemaType.String]: AttributeType.String,
+  [SchemaType.Enum]: AttributeType.String
 };
 
 export const getAttributeSchema = (indexes: Database.Indexes, schema: ObjectSchema) => {
@@ -57,7 +57,7 @@ const getTimeToLiveIndex = (indexName: string, allColumns: ObjectSchemaPropertie
     throw new Error(`DynamoDB TTL index ${indexName} doesn't exists or it's a compound index.`);
   }
 
-  if (columnSchema.type !== SchemaTypeName.Number) {
+  if (columnSchema.type !== SchemaType.Number) {
     throw new Error(`DynamoDB TTL index ${indexName} must be a number.`);
   }
 

@@ -4,7 +4,7 @@ import type { ObjectSchema } from '@ez4/schema';
 import type { AnyObject, DeepPartial } from '@ez4/utils';
 import type { RepositoryRelationsWithSchema } from '../../types/repository.js';
 
-import { SchemaTypeName } from '@ez4/schema';
+import { SchemaType } from '@ez4/schema';
 import { isAnyObject } from '@ez4/utils';
 
 import { prepareSelectFields } from './select.js';
@@ -161,7 +161,7 @@ const prepareUpdateFields = <T extends Database.Schema>(
 
       const fieldNotNested =
         !isAnyObject(fieldValue) ||
-        fieldSchema.type !== SchemaTypeName.Object ||
+        fieldSchema.type !== SchemaType.Object ||
         fieldSchema.nullable ||
         fieldSchema.optional;
 

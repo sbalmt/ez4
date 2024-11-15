@@ -3,7 +3,7 @@ import type { AnySchema } from '@ez4/schema';
 
 import { TypeHint } from '@aws-sdk/client-rds-data';
 import { isDate, isDateTime, isTime, isUUID } from '@ez4/utils';
-import { SchemaTypeName } from '@ez4/schema';
+import { SchemaType } from '@ez4/schema';
 
 export const prepareFieldData = (name: string, value: unknown, schema: AnySchema): SqlParameter => {
   if (value === null) {
@@ -11,19 +11,19 @@ export const prepareFieldData = (name: string, value: unknown, schema: AnySchema
   }
 
   switch (schema.type) {
-    case SchemaTypeName.Boolean:
+    case SchemaType.Boolean:
       return prepareBooleanField(name, value as boolean);
 
-    case SchemaTypeName.Number:
+    case SchemaType.Number:
       return prepareNumberField(name, value as number, schema.format);
 
-    case SchemaTypeName.String:
+    case SchemaType.String:
       return prepareStringField(name, value as string, schema.format);
 
-    case SchemaTypeName.Object:
-    case SchemaTypeName.Union:
-    case SchemaTypeName.Array:
-    case SchemaTypeName.Tuple:
+    case SchemaType.Object:
+    case SchemaType.Union:
+    case SchemaType.Array:
+    case SchemaType.Tuple:
       return prepareJsonField(name, value as object);
 
     default:

@@ -1,6 +1,6 @@
 import type { AnySchema } from '@ez4/schema';
 
-import { SchemaTypeName } from '@ez4/schema';
+import { SchemaType } from '@ez4/schema';
 
 import { transformScalar } from './scalar.js';
 import { transformObject } from './object.js';
@@ -15,24 +15,24 @@ export const transformAny = (value: unknown, schema: AnySchema): unknown => {
   }
 
   switch (schema.type) {
-    case SchemaTypeName.Boolean:
-    case SchemaTypeName.Number:
-    case SchemaTypeName.String:
+    case SchemaType.Boolean:
+    case SchemaType.Number:
+    case SchemaType.String:
       return transformScalar(value, schema);
 
-    case SchemaTypeName.Object:
+    case SchemaType.Object:
       return transformObject(value, schema);
 
-    case SchemaTypeName.Union:
+    case SchemaType.Union:
       return transformUnion(value, schema);
 
-    case SchemaTypeName.Array:
+    case SchemaType.Array:
       return transformArray(value, schema);
 
-    case SchemaTypeName.Tuple:
+    case SchemaType.Tuple:
       return transformTuple(value, schema);
 
-    case SchemaTypeName.Enum:
+    case SchemaType.Enum:
       return transformEnum(value, schema);
   }
 };

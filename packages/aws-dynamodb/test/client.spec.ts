@@ -5,7 +5,7 @@ import { ok, equal, deepEqual } from 'node:assert/strict';
 import { describe, it } from 'node:test';
 
 import { Client } from '@ez4/aws-dynamodb/client';
-import { SchemaTypeName } from '@ez4/schema';
+import { SchemaType } from '@ez4/schema';
 import { deploy } from '@ez4/aws-common';
 import { Order } from '@ez4/database';
 
@@ -84,16 +84,16 @@ describe.only('dynamodb client', () => {
         name: tableName,
         indexes: [['id', 'order']],
         schema: {
-          type: SchemaTypeName.Object,
+          type: SchemaType.Object,
           properties: {
             id: {
-              type: SchemaTypeName.String
+              type: SchemaType.String
             },
             order: {
-              type: SchemaTypeName.Number
+              type: SchemaType.Number
             },
             value: {
-              type: SchemaTypeName.String
+              type: SchemaType.String
             }
           }
         }

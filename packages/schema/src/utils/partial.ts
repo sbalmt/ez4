@@ -1,6 +1,6 @@
 import type { ObjectSchema, ObjectSchemaProperties } from '../types/object.js';
 
-import { SchemaTypeName } from '../types/common.js';
+import { SchemaType } from '../types/common.js';
 
 export type PartialObjectSchemaProperties = {
   [property: string]: PartialObjectSchemaProperties | boolean;
@@ -38,7 +38,7 @@ export const partialObjectSchema = (
 
     const value = schema.properties[propertyName];
 
-    if (value.type !== SchemaTypeName.Object || !(propertyState instanceof Object)) {
+    if (value.type !== SchemaType.Object || !(propertyState instanceof Object)) {
       properties[propertyName] = value;
       continue;
     }
@@ -50,7 +50,7 @@ export const partialObjectSchema = (
   }
 
   return {
-    type: SchemaTypeName.Object,
+    type: SchemaType.Object,
     properties,
     ...(options.extensible && {
       extra: {

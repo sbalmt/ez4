@@ -2,7 +2,7 @@ import type { Database, Relations, Query } from '@ez4/database';
 import type { ObjectSchema } from '@ez4/schema';
 import type { DeepPartial } from '@ez4/utils';
 
-import { SchemaTypeName } from '@ez4/schema';
+import { SchemaType } from '@ez4/schema';
 import { isAnyObject } from '@ez4/utils';
 
 import { prepareWhereFields } from './where.js';
@@ -63,7 +63,7 @@ const prepareUpdateFields = <T extends Database.Schema>(
 
     const fieldNotNested =
       !isAnyObject(fieldValue) ||
-      fieldSchema.type !== SchemaTypeName.Object ||
+      fieldSchema.type !== SchemaType.Object ||
       fieldSchema.extra?.extensible ||
       fieldSchema.nullable ||
       fieldSchema.optional;

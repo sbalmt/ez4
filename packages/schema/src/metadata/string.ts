@@ -3,7 +3,7 @@ import type { StringSchema } from '../types/string.js';
 
 import { isTypeString } from '@ez4/reflection';
 
-import { ExtraSchema, SchemaTypeName } from '../types/common.js';
+import { ExtraSchema, SchemaType } from '../types/common.js';
 
 export type RichTypeString = TypeString & {
   format?: string;
@@ -14,7 +14,7 @@ export const createStringSchema = (data: Omit<StringSchema, 'type'>): StringSche
   const { description, optional, nullable, format, extra } = data;
 
   return {
-    type: SchemaTypeName.String,
+    type: SchemaType.String,
     ...(description && { description }),
     ...(optional && { optional }),
     ...(nullable && { nullable }),
