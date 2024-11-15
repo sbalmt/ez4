@@ -1,5 +1,5 @@
-import type { Database } from '@ez4/database';
 import type { ObjectSchema, ObjectSchemaProperties } from '@ez4/schema';
+import type { TableIndex } from '@ez4/database/library';
 import type { AttributeSchema, AttributeSchemaGroup } from '../types/schema.js';
 
 import { SchemaType } from '@ez4/schema';
@@ -13,30 +13,28 @@ const SchemaTypesMap: Record<string, AttributeType | undefined> = {
   [SchemaType.Enum]: AttributeType.String
 };
 
-export const getAttributeSchema = (indexes: Database.Indexes, schema: ObjectSchema) => {
+export const getAttributeSchema = (indexes: TableIndex[], schema: ObjectSchema) => {
   const primarySchema: AttributeSchema[] = [];
   const secondarySchema: AttributeSchemaGroup[] = [];
 
   let ttlAttribute: string | undefined;
 
-  for (const indexName in indexes) {
-    const indexType = indexes[indexName as keyof Database.Indexes];
-
-    switch (indexType) {
+  for (const { name, type } of indexes) {
+    switch (type) {
       case Index.TTL:
-        ttlAttribute = getTimeToLiveIndex(indexName, schema.properties);
+        ttlAttribute = getTimeToLiveIndex(name, schema.properties);
         break;
 
       case Index.Primary:
-        primarySchema.push(...getAttributeIndex(indexName, schema.properties));
+        primarySchema.push(...getAttributeIndex(name, schema.properties));
         break;
 
       case Index.Secondary:
-        secondarySchema.push(getAttributeIndex(indexName, schema.properties));
+        secondarySchema.push(getAttributeIndex(name, schema.properties));
         break;
 
       default:
-        throw new Error(`DynamoDB index type '${indexType}' isn't supported.`);
+        throw new Error(`DynamoDB index type '${type}' isn't supported.`);
     }
   }
 

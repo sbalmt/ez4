@@ -52,7 +52,7 @@ export const prepareDeleteRelations = (table: string, relations: RepositoryRelat
 
     const relationName = getRelationName(table, alias);
 
-    statements.push(`ALTER TABLE "${table}" DROP CONSTRAINT "${relationName}"`);
+    statements.push(`ALTER TABLE "${table}" DROP CONSTRAINT IF EXISTS "${relationName}"`);
   }
 
   return statements;

@@ -25,7 +25,12 @@ export const prepareInsertSchema = (
   relations: RepositoryRelationsWithSchema,
   data: AnyObject
 ): ObjectSchema => {
-  const finalSchema = { ...schema };
+  const finalSchema = {
+    ...schema,
+    properties: {
+      ...schema.properties
+    }
+  };
 
   for (const alias in relations) {
     const hasRelationData = alias in data;
@@ -34,27 +39,29 @@ export const prepareInsertSchema = (
       continue;
     }
 
-    const { targetColumn, sourceSchema, foreign } = relations[alias]!;
+    const { sourceColumn, sourceSchema, targetColumn, foreign } = relations[alias]!;
 
     if (foreign) {
-      const { nullable, optional } = schema.properties[targetColumn];
-
-      delete finalSchema.properties[targetColumn];
+      const fieldSchema = finalSchema.properties[targetColumn];
 
       finalSchema.properties[alias] = {
         ...sourceSchema,
-        nullable,
-        optional
+        optional: fieldSchema?.optional
       };
+
+      delete finalSchema.properties[targetColumn];
 
       continue;
     }
 
     finalSchema.properties[alias] = {
       type: SchemaType.Array,
-      element: sourceSchema,
-      nullable: true,
-      optional: true
+      optional: true,
+      element: partialObjectSchema(sourceSchema, {
+        exclude: {
+          [sourceColumn]: true
+        }
+      })
     };
   }
 

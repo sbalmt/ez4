@@ -6,22 +6,24 @@ import { Index } from '@ez4/database';
 export const prepareCreateIndexes = (table: string, indexes: RepositoryIndexes) => {
   const statements = [];
 
-  for (const name in indexes) {
-    if (!indexes[name]) {
+  for (const indexName in indexes) {
+    if (!indexes[indexName]) {
       continue;
     }
 
-    const { columns, type } = indexes[name];
+    const { columns, type } = indexes[indexName];
 
     const indexColumns = columns.map((column) => `"${column}"`).join(', ');
 
     if (type !== Index.Primary) {
-      statements.push(`CREATE INDEX "${getIndexName(name)}" ON "${table}" (${indexColumns})`);
+      statements.push(`CREATE INDEX "${getIndexName(indexName)}" ON "${table}" (${indexColumns})`);
       continue;
     }
 
     statements.push(
-      `ALTER TABLE "${table}" ADD CONSTRAINT "${getPrimaryKey(table, name)}" PRIMARY KEY (${indexColumns})`
+      `ALTER TABLE "${table}" ` +
+        `ADD CONSTRAINT "${getPrimaryKey(table, indexName)}" ` +
+        `PRIMARY KEY (${indexColumns})`
     );
   }
 
@@ -39,19 +41,21 @@ export const prepareUpdateIndexes = (
 export const prepareDeleteIndexes = (table: string, indexes: RepositoryIndexes) => {
   const statements = [];
 
-  for (const name in indexes) {
-    if (!indexes[name]) {
+  for (const indexName in indexes) {
+    if (!indexes[indexName]) {
       continue;
     }
 
-    const { type } = indexes[name];
+    const { type } = indexes[indexName];
 
-    if (type === Index.Primary) {
-      statements.push(`ALTER TABLE "${table}" DROP CONSTRAINT "${getPrimaryKey(table, name)}"`);
+    if (type !== Index.Primary) {
+      statements.push(`DROP INDEX "${getIndexName(indexName)}"`);
       continue;
     }
 
-    statements.push(`DROP INDEX "${getIndexName(name)}"`);
+    const relationName = getPrimaryKey(table, indexName);
+
+    statements.push(`ALTER TABLE "${table}" DROP CONSTRAINT IF EXISTS "${relationName}"`);
   }
 
   return statements;
