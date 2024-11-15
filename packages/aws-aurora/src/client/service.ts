@@ -9,6 +9,7 @@ import type {
 
 import { RDSDataClient } from '@aws-sdk/client-rds-data';
 
+import { getTableName } from '../utils/tables.js';
 import { prepareDeleteOne, prepareInsertOne, prepareUpdateOne } from './common/queries.js';
 import { executeStatement, executeTransaction } from './common/client.js';
 import { detectFieldData } from './common/data.js';
@@ -87,6 +88,7 @@ const getRelationsWithSchema = (repository: Repository, relations: RepositoryRel
 
     relationsWithSchema[alias] = {
       sourceSchema: sourceRepository.schema,
+      sourceTable: getTableName(sourceAlias),
       ...relation
     };
   }

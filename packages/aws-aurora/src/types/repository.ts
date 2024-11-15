@@ -16,10 +16,11 @@ export type RepositoryTable = {
   schema: ObjectSchema;
 };
 
-type InternalRelation = TableRelation & {
+type InternalRelation = Omit<TableRelation, 'targetAlias' | 'sourceTable'> & {
   sourceAlias: string;
 };
 
 type InternalRelationWithSchema = InternalRelation & {
   sourceSchema: ObjectSchema;
+  sourceTable: string;
 };

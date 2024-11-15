@@ -1,15 +1,16 @@
 import type { DatabaseService, TableIndex, TableRelation } from '@ez4/database/library';
 import type { Repository, RepositoryIndexes, RepositoryRelations } from '../types/repository.js';
 
-import { toCamelCase } from '@ez4/utils';
 import { Index } from '@ez4/database';
+
+import { getTableName } from '../utils/tables.js';
 
 export const getRepository = (service: DatabaseService): Repository => {
   return service.tables.reduce<Repository>((current, { name, schema, relations, indexes }) => {
     return {
       ...current,
       [name]: {
-        name: toCamelCase(name),
+        name: getTableName(name),
         indexes: getTableIndexes(indexes),
         relations: getTableRelations(relations ?? []),
         schema
@@ -44,10 +45,8 @@ const getTableRelations = (tableRelations: TableRelation[]) => {
 
     relations[targetAlias] = {
       sourceAlias: sourceTable,
-      sourceTable: toCamelCase(sourceTable),
       sourceColumn,
       targetColumn,
-      targetAlias,
       foreign
     };
   }

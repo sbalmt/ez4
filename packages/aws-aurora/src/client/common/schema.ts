@@ -27,11 +27,11 @@ export const prepareInsertSchema = (
   const finalSchema = { ...schema };
 
   for (const alias in relations) {
-    const { targetAlias, targetColumn, sourceSchema, foreign } = relations[alias]!;
+    const { targetColumn, sourceSchema, foreign } = relations[alias]!;
     const { nullable, optional } = schema.properties[targetColumn];
 
     if (foreign) {
-      finalSchema.properties[targetAlias] = {
+      finalSchema.properties[alias] = {
         ...sourceSchema,
         nullable,
         optional
@@ -40,7 +40,7 @@ export const prepareInsertSchema = (
       continue;
     }
 
-    finalSchema.properties[targetAlias] = {
+    finalSchema.properties[alias] = {
       type: SchemaType.Array,
       element: sourceSchema,
       nullable,
@@ -59,10 +59,10 @@ export const prepareUpdateSchema = (
   const finalSchema = { ...schema };
 
   for (const alias in relations) {
-    const { targetAlias, targetColumn, sourceSchema } = relations[alias]!;
+    const { targetColumn, sourceSchema } = relations[alias]!;
     const { nullable, optional } = schema.properties[targetColumn];
 
-    finalSchema.properties[targetAlias] = {
+    finalSchema.properties[alias] = {
       ...sourceSchema,
       nullable,
       optional

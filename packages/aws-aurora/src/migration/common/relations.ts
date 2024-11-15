@@ -1,7 +1,8 @@
-import type { TableRelation } from '@ez4/database/library';
 import type { RepositoryRelations } from '../../types/repository.js';
 
 import { toCamelCase } from '@ez4/utils';
+
+import { getTableName } from '../../utils/tables.js';
 
 export const prepareCreateRelations = (table: string, relations: RepositoryRelations) => {
   const statements = [];
@@ -13,9 +14,10 @@ export const prepareCreateRelations = (table: string, relations: RepositoryRelat
       continue;
     }
 
-    const { sourceTable, sourceColumn, targetColumn } = relation;
+    const { sourceAlias, sourceColumn, targetColumn } = relation;
 
-    const relationName = getRelationName(table, relation);
+    const relationName = getRelationName(table, alias);
+    const sourceTable = getTableName(sourceAlias);
 
     statements.push(
       `ALTER TABLE "${table}" ` +
@@ -48,7 +50,7 @@ export const prepareDeleteRelations = (table: string, relations: RepositoryRelat
       continue;
     }
 
-    const relationName = getRelationName(table, relation);
+    const relationName = getRelationName(table, alias);
 
     statements.push(`ALTER TABLE "${table}" DROP CONSTRAINT "${relationName}"`);
   }
@@ -56,8 +58,6 @@ export const prepareDeleteRelations = (table: string, relations: RepositoryRelat
   return statements;
 };
 
-const getRelationName = (table: string, relation: TableRelation) => {
-  const targetAlias = toCamelCase(relation.targetAlias);
-
-  return `${table}_${targetAlias}_fk`;
+const getRelationName = (table: string, alias: string) => {
+  return `${table}_${toCamelCase(alias)}_fk`;
 };

@@ -110,7 +110,7 @@ const preparePreRelationQueries = (
       continue;
     }
 
-    const { sourceTable, sourceColumn, sourceSchema, targetAlias } = relations[alias];
+    const { sourceTable, sourceColumn, sourceSchema } = relations[alias];
 
     const nextIndex = variablesIndex + preVariables.length;
 
@@ -123,7 +123,7 @@ const preparePreRelationQueries = (
       nextIndex
     );
 
-    const relationFields = [`"${sourceColumn}" AS "${targetAlias}"`];
+    const relationFields = [`"${sourceColumn}" AS "${alias}"`];
 
     if (aliasesIndex > 0) {
       relationFields.push(`R${aliasesIndex}.*`);
@@ -204,11 +204,11 @@ const prepareQueryFields = <T extends Database.Schema>(
     }
 
     if (fieldRelation) {
-      const { targetAlias, targetColumn, foreign } = fieldRelation;
+      const { targetColumn, foreign } = fieldRelation;
 
       if (foreign) {
         properties.push(`"${targetColumn}"`);
-        references.push(`"${targetAlias}"`);
+        references.push(`"${fieldKey}"`);
       }
 
       continue;
