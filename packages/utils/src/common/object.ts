@@ -1,23 +1,26 @@
-import type { ObjectComparison } from '../object/compare.js';
-import type { ObjectOptions } from '../object/options.js';
+import type { ObjectCompareOptions, ObjectComparison } from '../object/compare.js';
+import type { ObjectEqualityOptions } from '../object/equal.js';
+import type { ArrayComparison } from '../array/compare.js';
 import type { AnyObject } from '../object/generics.js';
 import type { IsArray } from '../array/generics.js';
 
-import { ArrayComparison, deepCompareArray } from '../array/compare.js';
+import { deepEqualArray } from '../array/equal.js';
+import { deepCompareArray } from '../array/compare.js';
 import { deepCompareObject } from '../object/compare.js';
 import { deepEqualObject } from '../object/equal.js';
-import { deepEqualArray } from '../array/equal.js';
 import { isAnyObject } from '../object/any.js';
 
-type Options<T extends AnyObject | unknown[]> = IsArray<T> extends true ? never : ObjectOptions<T>;
+export type CompareOptions<T extends AnyObject | unknown[]> =
+  IsArray<T> extends true ? never : ObjectCompareOptions<T>;
 
-type Return<T extends AnyObject | unknown[]> =
+export type CompareResult<T extends AnyObject | unknown[]> =
   IsArray<T> extends true ? ArrayComparison : ObjectComparison;
+
+export type EqualityOptions<T extends AnyObject | unknown[]> =
+  IsArray<T> extends true ? never : ObjectEqualityOptions<T>;
 
 /**
  * Deep compare `target` and `source` and returns the differences between them.
- * When `target` and `source` are objects, use the `exclude` object to optionally
- * specify properties to not compare.
  *
  * @param target Target object or array.
  * @param source Source object or array.
@@ -27,8 +30,8 @@ type Return<T extends AnyObject | unknown[]> =
 export const deepCompare = <T extends AnyObject | unknown[], S extends AnyObject | unknown[]>(
   target: T,
   source: S,
-  options?: Options<T & S>
-): Return<T & S> => {
+  options?: CompareOptions<T & S>
+): CompareResult<T & S> => {
   if (Array.isArray(target) && Array.isArray(source)) {
     return deepCompareArray(target, source);
   }
@@ -37,22 +40,21 @@ export const deepCompare = <T extends AnyObject | unknown[], S extends AnyObject
     return deepCompareObject<T, S>(target, source, options);
   }
 
-  throw new TypeError(`Unsupported target and/or source parameter.`);
+  throw new TypeError(`Both source and target must be either objects or arrays.`);
 };
 
 /**
- * Check whether `target` and `source` are equal. When `target` and `source` are objects,
- * use the `exclude` object to optionally specify properties to not compare.
+ * Check whether `target` and `source` are equal.
  *
  * @param target Target object or array.
  * @param source Source object or array.
- * @param options Comparison options.
+ * @param options Equality options.
  * @returns Returns `true` when `target` and `source` are equal, `false` otherwise.
  */
 export const deepEqual = <T extends AnyObject | unknown[], S extends AnyObject | unknown[]>(
   target: T,
   source: S,
-  options?: ObjectOptions<T & S>
+  options?: EqualityOptions<T & S>
 ) => {
   if (Array.isArray(target) && Array.isArray(source)) {
     return deepEqualArray(target, source);

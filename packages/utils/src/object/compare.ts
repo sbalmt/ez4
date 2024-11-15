@@ -1,8 +1,24 @@
 import type { AnyObject, PartialProperties } from './generics.js';
-import type { ObjectOptions } from './options.js';
 
 import { deepCompareArray } from '../array/compare.js';
 import { isAnyObject } from './any.js';
+
+export type ObjectCompareOptions<T extends AnyObject> = {
+  /**
+   * After the given depth level, all objects and arrays are not deeply checked.
+   */
+  depth?: number;
+
+  /**
+   * Determines which property must be excluded, all other properties are included.
+   */
+  exclude?: PartialProperties<T>;
+
+  /**
+   * Determines which property must be included, all other properties are excluded.
+   */
+  include?: PartialProperties<T>;
+};
 
 export type ObjectComparison = {
   counts: number;
@@ -13,8 +29,7 @@ export type ObjectComparison = {
 };
 
 /**
- * Deep compare `target` and `source` objects ignoring any property given in the
- * `exclude` object and returns the differences between them.
+ * Deep compare `target` and `source` objects according to the given options.
  *
  * @param target Target object.
  * @param source Source object.
@@ -24,9 +39,19 @@ export type ObjectComparison = {
 export const deepCompareObject = <T extends AnyObject, S extends AnyObject>(
   target: T,
   source: S,
-  options?: ObjectOptions<T & S>
+  options?: ObjectCompareOptions<T & S>
 ): ObjectComparison => {
-  const allKeys = new Set([...Object.keys(target), ...Object.keys(source)]);
+  const includeStates = (options as AnyObject)?.include;
+  const excludeStates = (options as AnyObject)?.exclude;
+
+  if (includeStates && excludeStates) {
+    throw new TypeError(`Can't specify include and exclude options together.`);
+  }
+
+  const isInclude = !!includeStates;
+  const allStates = includeStates ?? excludeStates ?? {};
+
+  const depth = options?.depth ?? +Infinity;
 
   const nested: Record<string, ObjectComparison> = {};
 
@@ -34,19 +59,26 @@ export const deepCompareObject = <T extends AnyObject, S extends AnyObject>(
   const update: AnyObject = {};
   const remove: AnyObject = {};
 
-  const counts = { create: 0, update: 0, remove: 0, nested: 0 };
+  const counts = {
+    create: 0,
+    update: 0,
+    remove: 0,
+    nested: 0
+  };
 
-  const exclude = options?.exclude ?? ({} as PartialProperties<T & S>);
-
-  const depth = options?.depth ?? +Infinity;
+  const allKeys = new Set([...Object.keys(target), ...Object.keys(source)]);
 
   for (const key of allKeys) {
-    const keyState = exclude[key];
+    const keyState = allStates[key];
+
+    if ((isInclude && !keyState) || (!isInclude && keyState === true)) {
+      continue;
+    }
 
     const targetValue = target[key];
     const sourceValue = source[key];
 
-    if (keyState === true || targetValue === sourceValue || targetValue instanceof Function) {
+    if (targetValue === sourceValue || targetValue instanceof Function) {
       continue;
     }
 
@@ -76,7 +108,7 @@ export const deepCompareObject = <T extends AnyObject, S extends AnyObject>(
 
       if (isAnyObject(targetValue) && isAnyObject(sourceValue)) {
         const changes = deepCompareObject(targetValue, sourceValue, {
-          exclude: keyState as PartialProperties<T & S>,
+          ...(isAnyObject(keyState) && (isInclude ? { include: keyState } : { exclude: keyState })),
           depth: depth - 1
         });
 

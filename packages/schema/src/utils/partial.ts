@@ -1,4 +1,7 @@
 import type { ObjectSchema, ObjectSchemaProperties } from '../types/object.js';
+import type { AnyObject } from '@ez4/utils';
+
+import { isAnyObject } from '@ez4/utils';
 
 import { SchemaType } from '../types/common.js';
 
@@ -6,19 +9,22 @@ export type PartialObjectSchemaProperties = {
   [property: string]: PartialObjectSchemaProperties | boolean;
 };
 
-export type PartialObjectSchemaExcludeOptions = {
+export type PartialObjectSchemaOptions = {
+  /**
+   * Determines whether or not the new schema is extensible.
+   */
   extensible?: boolean;
-  exclude: PartialObjectSchemaProperties;
-};
 
-export type PartialObjectSchemaIncludeOptions = {
-  extensible?: boolean;
-  include: PartialObjectSchemaProperties;
-};
+  /**
+   * Determines which property must be excluded, all other properties are included.
+   */
+  exclude?: PartialObjectSchemaProperties;
 
-export type PartialObjectSchemaOptions =
-  | PartialObjectSchemaIncludeOptions
-  | PartialObjectSchemaExcludeOptions;
+  /**
+   * Determines which property must be included, all other properties are excluded.
+   */
+  include?: PartialObjectSchemaProperties;
+};
 
 export const partialObjectSchema = (
   schema: ObjectSchema,
@@ -26,25 +32,32 @@ export const partialObjectSchema = (
 ): ObjectSchema => {
   const properties: ObjectSchemaProperties = {};
 
-  const schemaInclude = 'include' in options;
-  const schemaOptions = schemaInclude ? options.include : options.exclude;
+  const includeStates = (options as AnyObject)?.include;
+  const excludeStates = (options as AnyObject)?.exclude;
+
+  if (includeStates && excludeStates) {
+    throw new TypeError(`Can't specify include and exclude options together.`);
+  }
+
+  const isInclude = !!includeStates;
+  const allStates = includeStates ?? excludeStates ?? {};
 
   for (const propertyName in schema.properties) {
-    const propertyState = schemaOptions[propertyName];
+    const propertyState = allStates[propertyName];
 
-    if ((schemaInclude && !propertyState) || (!schemaInclude && propertyState === true)) {
+    if ((isInclude && !propertyState) || (!isInclude && propertyState === true)) {
       continue;
     }
 
     const value = schema.properties[propertyName];
 
-    if (value.type !== SchemaType.Object || !(propertyState instanceof Object)) {
+    if (value.type !== SchemaType.Object || !isAnyObject(propertyState)) {
       properties[propertyName] = value;
       continue;
     }
 
     properties[propertyName] = partialObjectSchema(value, {
-      ...(schemaInclude ? { include: propertyState } : { exclude: propertyState }),
+      ...(isInclude ? { include: propertyState } : { exclude: propertyState }),
       extensible: options.extensible
     });
   }
