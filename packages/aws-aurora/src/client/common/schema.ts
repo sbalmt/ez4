@@ -22,15 +22,25 @@ export const validateSchema = async (data: AnyObject, schema: ObjectSchema) => {
 
 export const prepareInsertSchema = (
   schema: ObjectSchema,
-  relations: RepositoryRelationsWithSchema
+  relations: RepositoryRelationsWithSchema,
+  data: AnyObject
 ): ObjectSchema => {
   const finalSchema = { ...schema };
 
   for (const alias in relations) {
+    const hasRelationData = alias in data;
+
+    if (!hasRelationData) {
+      continue;
+    }
+
     const { targetColumn, sourceSchema, foreign } = relations[alias]!;
-    const { nullable, optional } = schema.properties[targetColumn];
 
     if (foreign) {
+      const { nullable, optional } = schema.properties[targetColumn];
+
+      delete finalSchema.properties[targetColumn];
+
       finalSchema.properties[alias] = {
         ...sourceSchema,
         nullable,
@@ -43,8 +53,8 @@ export const prepareInsertSchema = (
     finalSchema.properties[alias] = {
       type: SchemaType.Array,
       element: sourceSchema,
-      nullable,
-      optional
+      nullable: true,
+      optional: true
     };
   }
 
@@ -59,6 +69,12 @@ export const prepareUpdateSchema = (
   const finalSchema = { ...schema };
 
   for (const alias in relations) {
+    const hasRelationData = alias in data;
+
+    if (!hasRelationData) {
+      continue;
+    }
+
     const { targetColumn, sourceSchema } = relations[alias]!;
     const { nullable, optional } = schema.properties[targetColumn];
 

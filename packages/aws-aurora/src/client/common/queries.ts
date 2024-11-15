@@ -22,7 +22,7 @@ export const prepareInsertOne = async <
   relations: RepositoryRelationsWithSchema,
   query: Query.InsertOneInput<T, I, R>
 ): Promise<PreparedQueryCommand> => {
-  await validateSchema(query.data, prepareInsertSchema(schema, relations));
+  await validateSchema(query.data, prepareInsertSchema(schema, relations, query.data));
 
   const [statement, variables] = prepareInsertQuery<T, I, R>(table, schema, relations, query);
 
@@ -116,11 +116,9 @@ export const prepareInsertMany = async <
   relations: RepositoryRelationsWithSchema,
   query: Query.InsertManyInput<T>
 ): Promise<PreparedQueryCommand[]> => {
-  const insertSchema = prepareInsertSchema(schema, relations);
-
   return Promise.all(
     query.data.map(async (data) => {
-      await validateSchema(data, insertSchema);
+      await validateSchema(data, prepareInsertSchema(schema, relations, data));
 
       const [statement, variables] = prepareInsertQuery<T, I, R>(table, schema, relations, {
         data
