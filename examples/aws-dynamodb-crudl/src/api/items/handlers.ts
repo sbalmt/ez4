@@ -17,7 +17,7 @@ import type {
   UpdateItemResponse
 } from './responses.js';
 
-import { HttpBadRequestError } from '@ez4/gateway';
+import { HttpNotFoundError } from '@ez4/gateway';
 
 import { createItem, readItem, updateItem, deleteItem, listItems } from './repository.js';
 
@@ -59,7 +59,7 @@ export async function readItemHandler(
   const item = await readItem(dynamoDb, id);
 
   if (!item) {
-    throw new HttpBadRequestError(`Item isn't found.`);
+    throw new HttpNotFoundError(`Item not found.`);
   }
 
   return {
@@ -92,7 +92,7 @@ export async function updateItemHandler(
   });
 
   if (!oldItem) {
-    throw new HttpBadRequestError(`Item isn't found.`);
+    throw new HttpNotFoundError(`Item not found.`);
   }
 
   return {
@@ -119,7 +119,7 @@ export async function deleteItemHandler(
   const item = await deleteItem(dynamoDb, id);
 
   if (!item) {
-    throw new HttpBadRequestError(`Item isn't found.`);
+    throw new HttpNotFoundError(`Item not found.`);
   }
 
   return {

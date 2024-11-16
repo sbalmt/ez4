@@ -39,6 +39,15 @@ export class HttpForbiddenError extends HttpError {
 }
 
 /**
+ * HTTP Not Found error.
+ */
+export class HttpNotFoundError extends HttpError {
+  constructor(message?: string, details?: string[]) {
+    super(404, message || 'Not found', details);
+  }
+}
+
+/**
  * HTTP Internal Server error.
  */
 export class HttpInternalServerError extends HttpError {
