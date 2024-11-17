@@ -8,7 +8,8 @@ import {
   createCachePolicy,
   createDistribution,
   isDistributionState,
-  registerTriggers
+  registerTriggers,
+  createOriginPolicy
 } from '@ez4/aws-cloudfront';
 
 import { createBucket, getBucketDomain } from '@ez4/aws-bucket';
@@ -56,20 +57,25 @@ describe.only('cloudfront :: distribution', () => {
       bucketName: originBucketName
     });
 
+    const originPolicyResource = createOriginPolicy(localState, {
+      policyName: 'ez4-test-distribution-origin',
+      description: 'EZ4: Test origin description'
+    });
+
     const originAccessResource = createOriginAccess(localState, {
       accessName: 'ez4-test-distribution-access',
       description: 'EZ4: Test access description'
     });
 
     const cachePolicyResource = createCachePolicy(localState, {
-      policyName: 'ez4-test-distribution-policy',
-      description: 'EZ4: Test policy description',
+      policyName: 'ez4-test-distribution-cache',
+      description: 'EZ4: Test cache description',
       defaultTTL: 300,
       maxTTL: 3600,
       minTTL: 1
     });
 
-    const resource = createDistribution(localState, originAccessResource, {
+    const resource = createDistribution(localState, originAccessResource, originPolicyResource, {
       distributionName: 'ez4-test-distribution',
       description: 'EZ4: Test distribution description',
       enabled: true,

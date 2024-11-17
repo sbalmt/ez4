@@ -19,6 +19,17 @@ Ensure the user performing deployments has the permissions below:
   "Version": "2012-10-17",
   "Statement": [
     {
+      "Sid": "OriginPolicyManagement",
+      "Effect": "Allow",
+      "Action": [
+        "cloudfront:GetOriginRequestPolicy",
+        "cloudfront:CreateOriginRequestPolicy",
+        "cloudfront:UpdateOriginRequestPolicy",
+        "cloudfront:DeleteOriginRequestPolicy"
+      ],
+      "Resource": ["arn:aws:cloudfront::{account-id}:origin-request-policy/*"]
+    },
+    {
       "Sid": "OriginAccessManagement",
       "Effect": "Allow",
       "Action": [

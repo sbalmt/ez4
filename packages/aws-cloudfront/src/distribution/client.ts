@@ -48,6 +48,7 @@ export type DefaultOrigin = {
   id: string;
   domain: string;
   cachePolicyId: string;
+  originPolicyId?: string;
   headers?: Record<string, string>;
   location?: string;
   http?: boolean;
@@ -277,6 +278,7 @@ const getCacheBehavior = (
   return {
     TargetOriginId: origin.id,
     CachePolicyId: origin.cachePolicyId,
+    OriginRequestPolicyId: origin.originPolicyId,
     ViewerProtocolPolicy: ViewerProtocolPolicy.redirect_to_https,
     FieldLevelEncryptionId: '',
     SmoothStreaming: false,

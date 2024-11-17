@@ -9,6 +9,7 @@ export type DistributionParameters = Omit<CreateRequest, 'originAccessId'>;
 
 export type DistributionResult = CreateResponse & {
   cachePolicyIds: string[];
+  originPolicyId: string;
   originAccessId: string;
 };
 
