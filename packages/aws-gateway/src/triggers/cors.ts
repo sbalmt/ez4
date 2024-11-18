@@ -1,6 +1,6 @@
 import { HttpCors, HttpRoute } from '@ez4/gateway/library';
 
-export const getCorsConfiguration = (routes: HttpRoute[], cors: HttpCors) => {
+export const getCorsConfiguration = (routes: HttpRoute[], cors: HttpCors): HttpCors => {
   const allowHeaders = new Set<string>(cors.allowHeaders?.map((header) => header.toLowerCase()));
   const allowMethods = new Set<string>(cors.allowMethods);
 
@@ -11,19 +11,22 @@ export const getCorsConfiguration = (routes: HttpRoute[], cors: HttpCors) => {
 
     const [method] = route.path.split(' ', 2);
 
-    if (['POST', 'PATCH', 'PUT'].includes(method)) {
-      allowHeaders.add('content-type');
-    }
+    allowMethods.add(method);
 
     getCorsHeaderNames(route).forEach((header) => {
       allowHeaders.add(header.toLowerCase());
     });
+  }
 
-    allowMethods.add(method);
+  const allowCredentials = cors.allowCredentials ?? allowHeaders.has('authorization');
+
+  if (['POST', 'PATCH', 'PUT'].some((method) => allowMethods.has(method))) {
+    allowHeaders.add('content-type');
   }
 
   return {
     ...cors,
+    allowCredentials,
     allowHeaders: [...allowHeaders.values()],
     allowMethods: [...allowMethods.values()]
   };
