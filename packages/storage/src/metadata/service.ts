@@ -4,6 +4,7 @@ import type { BucketService } from '../types/service.js';
 
 import { getModelMembers, getPropertyNumber, getPropertyString } from '@ez4/common/library';
 import { isModelProperty } from '@ez4/reflection';
+import { isAnyNumber } from '@ez4/utils';
 
 import { ServiceType } from '../types/service.js';
 import { IncompleteServiceError } from '../errors/service.js';
@@ -40,7 +41,7 @@ export const getBucketServices = (reflection: SourceMap) => {
 
         case 'autoExpireDays': {
           const value = getPropertyNumber(member);
-          if (value !== undefined && value !== null) {
+          if (isAnyNumber(value)) {
             service[member.name] = value;
           }
           break;

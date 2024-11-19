@@ -13,6 +13,7 @@ import {
 } from '@ez4/common/library';
 
 import { isModelProperty, isTypeObject, isTypeReference } from '@ez4/reflection';
+import { isAnyNumber } from '@ez4/utils';
 
 import {
   IncompleteFallbackError,
@@ -102,7 +103,7 @@ const getTypeFromMembers = (
       case 'ttl':
       case 'code': {
         const value = getPropertyNumber(member);
-        if (value !== undefined && value !== null) {
+        if (isAnyNumber(value)) {
           fallback[member.name] = value;
         }
         break;

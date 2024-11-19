@@ -12,6 +12,7 @@ import {
 } from '@ez4/common/library';
 
 import { isModelProperty, isTypeObject, isTypeReference } from '@ez4/reflection';
+import { isAnyNumber } from '@ez4/utils';
 
 import {
   IncompleteCacheError,
@@ -43,7 +44,7 @@ export const getCdnCache = (
 };
 
 const isValidCache = (type: Incomplete<CdnCache>): type is CdnCache => {
-  return !!type.ttl;
+  return isAnyNumber(type.ttl);
 };
 
 const getTypeCache = (type: AllType, parent: TypeParent, errorList: Error[]) => {
@@ -82,7 +83,7 @@ const getTypeFromMembers = (
       case 'minTTL':
       case 'maxTTL': {
         const value = getPropertyNumber(member);
-        if (value !== undefined && value !== null) {
+        if (isAnyNumber(value)) {
           cache[member.name] = value;
           properties.delete(member.name);
         }
@@ -91,7 +92,7 @@ const getTypeFromMembers = (
 
       case 'compress': {
         const value = getPropertyBoolean(member);
-        if (value !== undefined && value !== null) {
+        if (isAnyNumber(value)) {
           cache[member.name] = value;
         }
         break;

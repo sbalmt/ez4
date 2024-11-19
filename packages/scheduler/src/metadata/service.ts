@@ -12,6 +12,7 @@ import {
 } from '@ez4/common/library';
 
 import { isModelProperty } from '@ez4/reflection';
+import { isAnyNumber } from '@ez4/utils';
 
 import { ServiceType } from '../types/service.js';
 import { IncompleteServiceError } from '../errors/service.js';
@@ -74,7 +75,7 @@ export const getCronServices = (reflection: SourceMap) => {
         case 'maxRetryAttempts':
         case 'maxEventAge': {
           const value = getPropertyNumber(member);
-          if (value !== undefined && value !== null) {
+          if (isAnyNumber(value)) {
             service[member.name] = value;
           }
           break;

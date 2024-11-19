@@ -4,6 +4,7 @@ import type { AllType, SourceMap, TypeModel, TypeObject } from '@ez4/reflection'
 import type { HttpRoute } from '../types/route.js';
 
 import { isModelProperty, isTypeObject, isTypeReference } from '@ez4/reflection';
+import { isAnyNumber } from '@ez4/utils';
 
 import {
   getLinkedVariableList,
@@ -77,7 +78,7 @@ const getTypeFromMembers = (
       case 'timeout':
       case 'memory': {
         const value = getPropertyNumber(member);
-        if (value !== undefined && value !== null) {
+        if (isAnyNumber(value)) {
           route[member.name] = value;
         }
         break;
