@@ -6,10 +6,10 @@ import type { RepositoryRelationsWithSchema } from '../types/repository.js';
 import type { PreparedQueryCommand } from './common/queries.js';
 import type { Connection } from './types.js';
 
-import { SchemaType } from '@ez4/schema';
 import { isAnyNumber } from '@ez4/utils';
 
 import { executeStatement, executeTransaction } from './common/client.js';
+import { parseRecord } from './common/record.js';
 
 import {
   prepareDeleteMany,
@@ -34,29 +34,7 @@ export class Table<T extends Database.Schema, I extends Database.Indexes<T>, R e
   ) {}
 
   private parseRecord<T extends Record<string, unknown>>(record: T): T {
-    const result: Record<string, unknown> = {};
-
-    for (const fieldKey in record) {
-      const value = record[fieldKey];
-
-      if (typeof value === 'string') {
-        const schema = this.schema.properties[fieldKey];
-
-        if (schema?.type === SchemaType.Object) {
-          result[fieldKey] = JSON.parse(value);
-          continue;
-        }
-
-        if (this.relations[fieldKey]) {
-          result[fieldKey] = JSON.parse(value);
-          continue;
-        }
-      }
-
-      result[fieldKey] = value;
-    }
-
-    return result as T;
+    return parseRecord(record, this.schema, this.relations);
   }
 
   private async sendCommand(input: PreparedQueryCommand | PreparedQueryCommand[]) {
