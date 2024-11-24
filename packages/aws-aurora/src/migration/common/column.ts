@@ -1,7 +1,73 @@
 import type { AnySchema, NumberSchema, StringSchema } from '@ez4/schema';
+import type { RepositoryIndexes } from '../../main.js';
 
 import { isStringSchema, SchemaType } from '@ez4/schema';
 import { isAnyNumber } from '@ez4/utils';
+import { Index } from '@ez4/database';
+
+export const prepareCreateColumns = (table: string, columns: Record<string, AnySchema>) => {
+  const alterTable = ``;
+
+  const statements = [];
+
+  for (const columnName in columns) {
+    const columnSchema = columns[columnName];
+
+    const columnType = getColumnType(columnSchema);
+
+    statements.push(
+      `ALTER TABLE "${table}" ${alterTable} ADD COLUMN "${columnName}" ${columnType}`
+    );
+  }
+
+  return statements;
+};
+
+export const prepareUpdateColumns = (
+  table: string,
+  indexes: RepositoryIndexes,
+  columns: Record<string, AnySchema>
+) => {
+  const statements = [];
+
+  for (const columnName in columns) {
+    const alterColumn = `ALTER TABLE "${table}" ALTER COLUMN "${columnName}"`;
+
+    const columnSchema = columns[columnName];
+    const columnType = getColumnType(columnSchema);
+
+    statements.push(`${alterColumn} TYPE ${columnType}`);
+
+    const columnNullable = isNullableColumn(columnSchema);
+
+    if (columnNullable) {
+      statements.push(`${alterColumn} DROP NOT NULL`);
+    } else {
+      statements.push(`${alterColumn} SET NOT NULL`);
+    }
+
+    const columnIndexType = indexes[columnName]?.type;
+    const columnDefault = columnIndexType === Index.Primary && getColumnDefault(columnSchema);
+
+    if (columnDefault) {
+      statements.push(`${alterColumn} SET DEFAULT ${columnDefault}`);
+    } else {
+      statements.push(`${alterColumn} DROP DEFAULT`);
+    }
+  }
+
+  return statements;
+};
+
+export const prepareDeleteColumns = (table: string, columns: Record<string, AnySchema>) => {
+  const statements = [];
+
+  for (const columnName in columns) {
+    statements.push(`ALTER TABLE "${table}" DROP COLUMN "${columnName}"`);
+  }
+
+  return statements;
+};
 
 export const isNullableColumn = (schema: AnySchema) => {
   return !!(schema.nullable || schema.optional);

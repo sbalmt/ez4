@@ -8,10 +8,16 @@ import { Logger } from '@ez4/aws-common';
 import { PreparedQueryCommand } from '../client/common/queries.js';
 import { executeStatement, executeTransaction } from '../client/common/client.js';
 import { prepareCreateDatabase, prepareDeleteDatabase } from './common/database.js';
-import { prepareCreateTable, prepareDeleteTable, prepareUpdateTable } from './common/table.js';
-import { prepareCreateRelations, prepareUpdateRelations } from './common/relations.js';
-import { prepareCreateIndexes, prepareUpdateIndexes } from './common/indexes.js';
+import { prepareCreateRelations, prepareDeleteRelations } from './common/relations.js';
+import { prepareCreateIndexes, prepareDeleteIndexes } from './common/indexes.js';
+import { prepareCreateTable, prepareDeleteTable } from './common/table.js';
 import { MigrationServiceName } from './types.js';
+
+import {
+  prepareCreateColumns,
+  prepareUpdateColumns,
+  prepareDeleteColumns
+} from './common/column.js';
 
 const client = new RDSDataClient({});
 
@@ -85,7 +91,7 @@ export const createTables = async (request: CreateTableRequest): Promise<void> =
     const { name, schema, indexes, relations } = repository[table];
 
     tablesCommands.push({
-      sql: prepareCreateTable(name, schema)
+      sql: prepareCreateTable(name, schema, indexes)
     });
 
     relationsCommands.push(
@@ -103,8 +109,8 @@ export const createTables = async (request: CreateTableRequest): Promise<void> =
 
   await executeTransaction(client, connection, [
     ...tablesCommands,
-    ...indexesCommands,
-    ...relationsCommands
+    ...relationsCommands,
+    ...indexesCommands
   ]);
 };
 
@@ -119,37 +125,25 @@ export const updateTables = async (request: UpdateTableRequest): Promise<void> =
     database
   };
 
-  const tablesCommands: PreparedQueryCommand[] = [];
-  const relationsCommands: PreparedQueryCommand[] = [];
-  const indexesCommands: PreparedQueryCommand[] = [];
+  const commands: PreparedQueryCommand[] = [];
 
   for (const table in repository) {
     const { name, schema, indexes, relations } = repository[table];
 
-    tablesCommands.push(
-      ...prepareUpdateTable(name, schema.toCreate, schema.toUpdate, schema.toRemove).map((sql) => {
-        return { sql };
-      })
+    commands.push(...prepareDeleteIndexes(name, indexes.toRemove).map((sql) => ({ sql })));
+    commands.push(...prepareDeleteRelations(name, relations.toRemove).map((sql) => ({ sql })));
+    commands.push(...prepareDeleteColumns(name, schema.toRemove).map((sql) => ({ sql })));
+
+    commands.push(
+      ...prepareUpdateColumns(name, indexes.toCreate, schema.toUpdate).map((sql) => ({ sql }))
     );
 
-    relationsCommands.push(
-      ...prepareUpdateRelations(name, relations.toCreate, relations.toRemove).map((sql) => {
-        return { sql };
-      })
-    );
-
-    indexesCommands.push(
-      ...prepareUpdateIndexes(name, indexes.toCreate, indexes.toRemove).map((sql) => {
-        return { sql };
-      })
-    );
+    commands.push(...prepareCreateColumns(name, schema.toCreate).map((sql) => ({ sql })));
+    commands.push(...prepareCreateRelations(name, relations.toCreate).map((sql) => ({ sql })));
+    commands.push(...prepareCreateIndexes(name, indexes.toCreate).map((sql) => ({ sql })));
   }
 
-  await executeTransaction(client, connection, [
-    ...tablesCommands,
-    ...indexesCommands,
-    ...relationsCommands
-  ]);
+  await executeTransaction(client, connection, commands);
 };
 
 export const deleteTables = async (request: DeleteTableRequest): Promise<void> => {

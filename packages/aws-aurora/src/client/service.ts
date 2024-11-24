@@ -80,6 +80,7 @@ const getRelationsWithSchema = (repository: Repository, relations: RepositoryRel
     const relation = relations[alias]!;
 
     const { sourceAlias } = relation;
+
     const sourceRepository = repository[sourceAlias];
 
     if (!sourceRepository) {

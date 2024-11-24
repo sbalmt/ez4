@@ -1,5 +1,5 @@
 import type { Http } from '@ez4/gateway';
-import type { ItemType } from '../../dynamo/items.js';
+import type { ItemType } from '../../dynamo/item.js';
 
 export declare class CreateItemResponse implements Http.Response {
   status: 201;

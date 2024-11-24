@@ -1,6 +1,6 @@
 import type { Http } from '@ez4/gateway';
 import type { Integer, String } from '@ez4/schema';
-import type { ItemType } from '../../dynamo/items.js';
+import type { ItemType } from '../../dynamo/item.js';
 
 export declare class CreateItemRequest implements Http.Request {
   body: {
