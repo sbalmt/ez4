@@ -12,7 +12,7 @@ import {
 } from '@ez4/common/library';
 
 import { isModelProperty, isTypeObject, isTypeReference } from '@ez4/reflection';
-import { isAnyNumber } from '@ez4/utils';
+import { isAnyBoolean, isAnyNumber } from '@ez4/utils';
 
 import {
   IncompleteCacheError,
@@ -92,7 +92,7 @@ const getTypeFromMembers = (
 
       case 'compress': {
         const value = getPropertyBoolean(member);
-        if (isAnyNumber(value)) {
+        if (isAnyBoolean(value)) {
           cache[member.name] = value;
         }
         break;

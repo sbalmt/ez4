@@ -14,6 +14,7 @@ import {
 } from '@ez4/common/library';
 
 import { isModelProperty, isTypeObject, isTypeReference } from '@ez4/reflection';
+import { isAnyNumber } from '@ez4/utils';
 
 import {
   IncompleteOriginError,
@@ -156,7 +157,7 @@ const getTypeFromMembers = (
 
       case 'port': {
         const value = getPropertyNumber(member);
-        if (value) {
+        if (isAnyNumber(value)) {
           origin[member.name] = value;
         }
         break;

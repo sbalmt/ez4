@@ -4,7 +4,7 @@ import type { AllType, SourceMap, TypeModel, TypeObject } from '@ez4/reflection'
 import type { HttpRoute } from '../types/route.js';
 
 import { isModelProperty, isTypeObject, isTypeReference } from '@ez4/reflection';
-import { isAnyNumber } from '@ez4/utils';
+import { isAnyBoolean, isAnyNumber } from '@ez4/utils';
 
 import {
   getLinkedVariableList,
@@ -86,7 +86,7 @@ const getTypeFromMembers = (
 
       case 'cors': {
         const value = getPropertyBoolean(member);
-        if (value !== undefined && value !== null) {
+        if (isAnyBoolean(value)) {
           route[member.name] = value;
         }
         break;

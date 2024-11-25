@@ -10,7 +10,7 @@ import {
 } from '@ez4/common/library';
 
 import { isModelProperty, isTypeString } from '@ez4/reflection';
-import { isAnyNumber } from '@ez4/utils';
+import { isAnyBoolean } from '@ez4/utils';
 
 import { ServiceType } from '../types/service.js';
 import { IncompleteServiceError } from '../errors/service.js';
@@ -83,7 +83,7 @@ export const getCdnServices = (reflection: SourceMap) => {
 
         case 'disabled': {
           const value = getPropertyBoolean(member);
-          if (isAnyNumber(value)) {
+          if (isAnyBoolean(value)) {
             service[member.name] = value;
           }
           break;
