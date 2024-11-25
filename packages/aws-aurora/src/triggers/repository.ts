@@ -23,7 +23,7 @@ const getTableIndexes = (tableIndexes: TableIndex[]) => {
   const indexes: RepositoryIndexes = {};
 
   for (const { name, columns, type } of tableIndexes) {
-    if (type !== Index.Primary && type !== Index.Secondary) {
+    if (type !== Index.Primary && type !== Index.Secondary && type !== Index.Unique) {
       continue;
     }
 

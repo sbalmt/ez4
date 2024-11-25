@@ -15,16 +15,28 @@ export const prepareCreateIndexes = (table: string, indexes: RepositoryIndexes) 
 
     const indexColumns = columns.map((column) => `"${column}"`).join(', ');
 
-    if (type !== Index.Primary) {
-      statements.push(`CREATE INDEX "${getIndexName(indexName)}" ON "${table}" (${indexColumns})`);
-      continue;
-    }
+    switch (type) {
+      case Index.Primary:
+        statements.push(
+          `ALTER TABLE "${table}" ` +
+            `ADD CONSTRAINT "${getPrimaryKey(table, indexName)}" ` +
+            `PRIMARY KEY (${indexColumns})`
+        );
+        break;
 
-    statements.push(
-      `ALTER TABLE "${table}" ` +
-        `ADD CONSTRAINT "${getPrimaryKey(table, indexName)}" ` +
-        `PRIMARY KEY (${indexColumns})`
-    );
+      case Index.Secondary:
+        statements.push(
+          `CREATE INDEX "${getSecondaryKey(table, indexName)}" ON "${table}" (${indexColumns})`
+        );
+        break;
+
+      case Index.Unique:
+        statements.push(
+          `ALTER TABLE "${table}" ` +
+            `ADD CONSTRAINT "${getUniqueKey(table, indexName)}" ` +
+            `UNIQUE (${indexColumns})`
+        );
+    }
   }
 
   return statements;
@@ -48,14 +60,25 @@ export const prepareDeleteIndexes = (table: string, indexes: RepositoryIndexes) 
 
     const { type } = indexes[indexName];
 
-    if (type !== Index.Primary) {
-      statements.push(`DROP INDEX "${getIndexName(indexName)}"`);
-      continue;
+    switch (type) {
+      case Index.Primary:
+        statements.push(
+          `ALTER TABLE "${table}" DROP CONSTRAINT ` +
+            `IF EXISTS "${getPrimaryKey(table, indexName)}"`
+        );
+        break;
+
+      case Index.Secondary:
+        statements.push(`DROP INDEX "${getSecondaryKey(table, indexName)}"`);
+        break;
+
+      case Index.Unique:
+        statements.push(
+          `ALTER TABLE "${table}" DROP CONSTRAINT ` +
+            `IF EXISTS "${getUniqueKey(table, indexName)}"`
+        );
+        break;
     }
-
-    const relationName = getPrimaryKey(table, indexName);
-
-    statements.push(`ALTER TABLE "${table}" DROP CONSTRAINT IF EXISTS "${relationName}"`);
   }
 
   return statements;
@@ -69,6 +92,10 @@ const getPrimaryKey = (table: string, name: string) => {
   return `${table}_${getName(name)}_pk`;
 };
 
-const getIndexName = (name: string) => {
-  return `${getName(name)}_idx`;
+const getUniqueKey = (table: string, name: string) => {
+  return `${table}_${getName(name)}_unq`;
+};
+
+const getSecondaryKey = (table: string, name: string) => {
+  return `${table}_${getName(name)}_idx`;
 };

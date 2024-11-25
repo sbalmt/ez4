@@ -77,6 +77,7 @@ const getTypeFromMembers = (
     switch (indexType) {
       case Index.Primary:
       case Index.Secondary:
+      case Index.Unique:
       case Index.TTL:
         indexes.push({
           name: indexName,

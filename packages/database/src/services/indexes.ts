@@ -7,6 +7,7 @@ import type { Database, DatabaseTables } from './database.js';
 export const enum Index {
   Primary = 'primary',
   Secondary = 'secondary',
+  Unique = 'unique',
   TTL = 'ttl'
 }
 
@@ -21,14 +22,14 @@ export type DecomposeIndexName<T> = T extends `${infer L}:${infer R}`
  * Given an index object `T`, it produces an object containing only primary indexes.
  */
 export type PrimaryIndexes<T extends Database.Indexes> = {
-  [P in keyof T as T[P] extends Index.Primary ? P : never]: T[P];
+  [P in keyof T as Index.Primary extends T[P] ? P : never]: T[P];
 };
 
 /**
  * Given an index object `T`, it produces an object containing only secondary indexes.
  */
 export type SecondaryIndexes<T extends Database.Indexes> = {
-  [P in keyof T as T[P] extends Index.Secondary ? P : never]: T[P];
+  [P in keyof T as Index.Secondary | Index.Unique | Index.TTL extends T[P] ? P : never]: T[P];
 };
 
 /**
