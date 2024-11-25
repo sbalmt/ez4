@@ -1,44 +1,88 @@
 import type { AllType, SourceMap, TypeModel, TypeObject } from '@ez4/reflection';
-import type { ObjectSchema, UnionSchema } from '@ez4/schema';
+import type { ObjectSchema, ScalarSchema, UnionSchema } from '@ez4/schema/library';
 
-import { isTypeObject, isTypeReference, isTypeUndefined, isTypeUnion } from '@ez4/reflection';
-import { createUnionSchema, getObjectSchema } from '@ez4/schema/library';
 import { isModelDeclaration } from '@ez4/common/library';
+
+import { createUnionSchema, getObjectSchema, getScalarSchema } from '@ez4/schema/library';
+
+import {
+  isTypeBoolean,
+  isTypeNumber,
+  isTypeObject,
+  isTypeReference,
+  isTypeString,
+  isTypeUndefined,
+  isTypeUnion
+} from '@ez4/reflection';
 
 import { IncorrectBodyTypeError, InvalidBodyTypeError } from '../errors/body.js';
 import { isJsonBody } from './utils.js';
 
-export const getHttpBody = (
+type TypeParent = TypeObject | TypeModel;
+
+export const getHttpRequestBody = (
   type: AllType,
-  parent: TypeObject | TypeModel,
+  parent: TypeParent,
   reflection: SourceMap,
   errorList: Error[]
+) => {
+  return getHttpBody(type, parent, reflection, (type, parent) => {
+    return getCompoundTypeBody(type, parent, reflection, errorList);
+  });
+};
+
+export const getHttpResponseBody = (
+  type: AllType,
+  parent: TypeParent,
+  reflection: SourceMap,
+  errorList: Error[]
+) => {
+  return getHttpBody(type, parent, reflection, (type, parent) => {
+    return getScalarTypeBody(type) ?? getCompoundTypeBody(type, parent, reflection, errorList);
+  });
+};
+
+const getHttpBody = <T>(
+  type: AllType,
+  parent: TypeParent,
+  reflection: SourceMap,
+  resolver: (type: AllType, parent: TypeParent) => T | null
 ) => {
   if (isTypeUndefined(type)) {
     return null;
   }
 
   if (!isTypeReference(type)) {
-    return getTypeBody(type, parent, reflection, errorList);
+    return resolver(type, parent);
   }
 
   const statement = reflection[type.path];
 
   if (statement) {
-    return getTypeBody(statement, parent, reflection, errorList);
+    return resolver(statement, parent);
   }
 
   return null;
 };
 
-const getTypeBody = (
+const getScalarTypeBody = (type: AllType) => {
+  if (isTypeBoolean(type) || isTypeNumber(type) || isTypeString(type)) {
+    return getScalarSchema(type);
+  }
+
+  return null;
+};
+
+const getCompoundTypeBody = (
   type: AllType,
-  parent: TypeObject | TypeModel,
+  parent: TypeParent,
   reflection: SourceMap,
   errorList: Error[]
 ): ObjectSchema | UnionSchema | null => {
   if (isTypeUnion(type)) {
-    return getBodyFromUnion(type.elements, parent, reflection, errorList);
+    return getUnionTypeBody(type.elements, parent, reflection, (type, parent) => {
+      return getScalarTypeBody(type) ?? getCompoundTypeBody(type, parent, reflection, errorList);
+    });
   }
 
   if (isTypeObject(type)) {
@@ -58,27 +102,23 @@ const getTypeBody = (
   return getObjectSchema(type, reflection);
 };
 
-const getBodyFromUnion = (
+const getUnionTypeBody = <T extends ObjectSchema | UnionSchema | ScalarSchema>(
   types: AllType[],
-  parent: TypeObject | TypeModel,
+  parent: TypeParent,
   reflection: SourceMap,
-  errorList: Error[]
+  resolver: (type: AllType, parent: TypeParent) => T | null
 ) => {
   const schemaList = [];
 
   for (const type of types) {
-    const schema = getHttpBody(type, parent, reflection, errorList);
+    const schema = getHttpBody(type, parent, reflection, resolver);
 
     if (schema) {
       schemaList.push(schema);
     }
   }
 
-  if (schemaList.length > 1) {
-    return createUnionSchema({
-      elements: schemaList
-    });
-  }
-
-  return schemaList[0];
+  return createUnionSchema({
+    elements: schemaList
+  });
 };

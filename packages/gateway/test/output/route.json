@@ -6,7 +6,7 @@
       {
         "path": "ANY /test-route-1",
         "handler": {
-          "name": "testRoute",
+          "name": "testRoute1",
           "file": "test/input/output-route.ts",
           "response": {
             "status": 204
@@ -16,7 +16,7 @@
       {
         "path": "GET /test-route-2",
         "handler": {
-          "name": "testRoute",
+          "name": "testRoute2",
           "file": "test/input/output-route.ts",
           "response": {
             "status": 204

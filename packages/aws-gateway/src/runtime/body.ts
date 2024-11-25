@@ -3,7 +3,7 @@ import type { Http } from '@ez4/gateway';
 
 import { HttpBadRequestError } from '@ez4/gateway';
 import { validate, getUniqueErrorMessages } from '@ez4/validator';
-import { getPartialSchemaProperties } from '@ez4/schema';
+import { getPartialSchemaProperties, isObjectSchema } from '@ez4/schema';
 import { deepClone } from '@ez4/utils';
 
 export const getRequestJsonBody = async (
@@ -22,6 +22,10 @@ export const getRequestJsonBody = async (
 };
 
 export const getResponseJsonBody = (body: Http.JsonBody, schema: ObjectSchema): Http.JsonBody => {
+  if (!isObjectSchema(schema)) {
+    return body;
+  }
+
   return deepClone(body, {
     include: getPartialSchemaProperties(schema)
   });
