@@ -22,7 +22,7 @@ export const getRequestJsonBody = async (
 };
 
 export const getResponseJsonBody = (body: Http.JsonBody, schema: ObjectSchema): Http.JsonBody => {
-  if (!isObjectSchema(schema)) {
+  if (!isObjectSchema(schema) || schema.extra?.extensible) {
     return body;
   }
 
