@@ -4,12 +4,12 @@ import { equal } from 'node:assert/strict';
 import { describe, it, mock } from 'node:test';
 
 import { validate, registerStringFormat, UnexpectedFormatError } from '@ez4/validator';
-import { SchemaTypeName } from '@ez4/schema';
+import { SchemaType } from '@ez4/schema';
 
 describe.only('custom types validation', () => {
   it('assert :: custom format', async () => {
     const schema: AnySchema = {
-      type: SchemaTypeName.String,
+      type: SchemaType.String,
       format: 'custom'
     };
 
@@ -25,7 +25,7 @@ describe.only('custom types validation', () => {
 
   it('assert :: custom format error', async () => {
     const schema: AnySchema = {
-      type: SchemaTypeName.String,
+      type: SchemaType.String,
       format: 'custom-with-error'
     };
 

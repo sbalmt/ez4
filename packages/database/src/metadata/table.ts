@@ -2,17 +2,20 @@ import type { Incomplete } from '@ez4/utils';
 import type { ObjectSchema } from '@ez4/schema';
 import type { MemberType } from '@ez4/common/library';
 import type { AllType, SourceMap, TypeModel, TypeObject } from '@ez4/reflection';
-import type { TableIndexes } from '../types/indexes.js';
+import type { TableRelation } from '../types/relations.js';
 import type { DatabaseTable } from '../types/table.js';
+import type { TableIndex } from '../types/indexes.js';
 
 import { getModelMembers, getObjectMembers, getPropertyString } from '@ez4/common/library';
 import { isModelProperty, isTypeObject, isTypeReference } from '@ez4/reflection';
 
+import { Index } from '../services/indexes.js';
 import { IncompleteTableError } from '../errors/table.js';
 import { InvalidIndexReferenceError } from '../errors/indexes.js';
+import { getTableRelations } from './relations.js';
+import { getTableIndexes } from './indexes.js';
 import { isDatabaseTable } from './utils.js';
 import { getTableSchema } from './schema.js';
-import { getTableIndexes } from './indexes.js';
 import { getTableStream } from './stream.js';
 
 export const getDatabaseTable = (type: AllType, reflection: SourceMap, errorList: Error[]) => {
@@ -66,6 +69,14 @@ const getTypeFromMembers = (
         }
         break;
 
+      case 'relations': {
+        const relations = getTableRelations(member.value, type, reflection, errorList);
+        if (relations) {
+          table.relations = relations;
+        }
+        break;
+      }
+
       case 'indexes': {
         if ((table.indexes = getTableIndexes(member.value, type, reflection, errorList))) {
           properties.delete(member.name);
@@ -92,33 +103,43 @@ const getTypeFromMembers = (
     return null;
   }
 
-  const indexErrors = validateIndexSchema(type, table.indexes, table.schema);
+  const indexErrors = validateIndexes(type, table.indexes, table.schema);
 
   if (indexErrors.length) {
     errorList.push(...indexErrors);
     return null;
   }
 
+  if (table.relations) {
+    hydrateRelations(table.relations, table.indexes);
+  }
+
   return table;
 };
 
-const validateIndexSchema = (
+const validateIndexes = (
   type: TypeObject | TypeModel,
-  indexes: TableIndexes,
+  indexes: TableIndex[],
   schema: ObjectSchema
 ) => {
   const allColumns = schema.properties;
   const errorList = [];
 
-  for (const indexName in indexes) {
-    for (const columnName of indexName.split(':')) {
-      const columnSchema = allColumns[columnName];
+  for (const { name, columns } of indexes) {
+    const hasMissing = columns.some((columnName) => !allColumns[columnName]);
 
-      if (!columnSchema) {
-        errorList.push(new InvalidIndexReferenceError(indexName, type.file));
-      }
+    if (hasMissing) {
+      errorList.push(new InvalidIndexReferenceError(name, type.file));
     }
   }
 
   return errorList;
+};
+
+const hydrateRelations = (relations: TableRelation[], indexes: TableIndex[]) => {
+  for (const relation of relations) {
+    relation.foreign = !indexes.some(({ name, type }) => {
+      return type === Index.Primary && name === relation.targetColumn;
+    });
+  }
 };

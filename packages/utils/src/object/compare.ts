@@ -3,7 +3,22 @@ import type { AnyObject, PartialProperties } from './generics.js';
 import { deepCompareArray } from '../array/compare.js';
 import { isAnyObject } from './any.js';
 
-type Exclude<T extends AnyObject, S extends AnyObject> = PartialProperties<T & S>;
+export type ObjectCompareOptions<T extends AnyObject> = {
+  /**
+   * After the given depth level, all objects and arrays are not deeply checked.
+   */
+  depth?: number;
+
+  /**
+   * Determines which property must be excluded, all other properties are included.
+   */
+  exclude?: PartialProperties<T>;
+
+  /**
+   * Determines which property must be included, all other properties are excluded.
+   */
+  include?: PartialProperties<T>;
+};
 
 export type ObjectComparison = {
   counts: number;
@@ -14,36 +29,56 @@ export type ObjectComparison = {
 };
 
 /**
- * Deep compare `target` and `source` objects ignoring any property given in the
- * `exclude` object and returns the differences between them.
+ * Deep compare `target` and `source` objects according to the given options.
  *
  * @param target Target object.
  * @param source Source object.
- * @param exclude Set of `target` and `source` properties to not compare.
+ * @param options Comparison options.
  * @returns Returns the difference object between `target` and `source`.
  */
 export const deepCompareObject = <T extends AnyObject, S extends AnyObject>(
   target: T,
   source: S,
-  exclude?: Exclude<T, S>
+  options?: ObjectCompareOptions<T & S>
 ): ObjectComparison => {
-  const allKeys = new Set([...Object.keys(target), ...Object.keys(source)]);
+  const includeStates = (options as AnyObject)?.include;
+  const excludeStates = (options as AnyObject)?.exclude;
 
-  const nested: Record<any, ObjectComparison> = {};
+  if (includeStates && excludeStates) {
+    throw new TypeError(`Can't specify include and exclude options together.`);
+  }
+
+  const isInclude = !!includeStates;
+  const allStates = includeStates ?? excludeStates ?? {};
+
+  const depth = options?.depth ?? +Infinity;
+
+  const nested: Record<string, ObjectComparison> = {};
 
   const create: AnyObject = {};
   const update: AnyObject = {};
   const remove: AnyObject = {};
 
-  const counts = { create: 0, update: 0, remove: 0, nested: 0 };
+  const counts = {
+    create: 0,
+    update: 0,
+    remove: 0,
+    nested: 0
+  };
+
+  const allKeys = new Set([...Object.keys(target), ...Object.keys(source)]);
 
   for (const key of allKeys) {
-    const keyState = exclude && exclude[key];
+    const keyState = allStates[key];
+
+    if ((isInclude && !keyState) || (!isInclude && keyState === true)) {
+      continue;
+    }
 
     const targetValue = target[key];
     const sourceValue = source[key];
 
-    if (keyState === true || targetValue === sourceValue || targetValue instanceof Function) {
+    if (targetValue === sourceValue || targetValue instanceof Function) {
       continue;
     }
 
@@ -59,30 +94,31 @@ export const deepCompareObject = <T extends AnyObject, S extends AnyObject>(
       continue;
     }
 
-    if (Array.isArray(targetValue) && Array.isArray(sourceValue)) {
-      const changes = deepCompareArray(targetValue, sourceValue);
+    if (depth > 0) {
+      if (Array.isArray(targetValue) && Array.isArray(sourceValue)) {
+        const changes = deepCompareArray(targetValue, sourceValue);
 
-      if (changes.counts > 0) {
-        update[key] = changes;
-        counts.update++;
+        if (changes.counts > 0) {
+          update[key] = changes;
+          counts.update++;
+        }
+
+        continue;
       }
 
-      continue;
-    }
+      if (isAnyObject(targetValue) && isAnyObject(sourceValue)) {
+        const changes = deepCompareObject(targetValue, sourceValue, {
+          ...(isAnyObject(keyState) && (isInclude ? { include: keyState } : { exclude: keyState })),
+          depth: depth - 1
+        });
 
-    if (isAnyObject(targetValue) && isAnyObject(sourceValue)) {
-      const changes = deepCompareObject<AnyObject, AnyObject>(
-        targetValue,
-        sourceValue,
-        keyState || undefined
-      );
+        if (changes.counts > 0) {
+          nested[key] = changes;
+          counts.nested++;
+        }
 
-      if (changes.counts > 0) {
-        nested[key] = changes;
-        counts.nested++;
+        continue;
       }
-
-      continue;
     }
 
     update[key] = targetValue;

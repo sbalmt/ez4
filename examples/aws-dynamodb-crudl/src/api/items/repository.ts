@@ -1,4 +1,4 @@
-import { ItemType } from '../../dynamo/items.js';
+import { ItemType } from '../../dynamo/item.js';
 import type { Db } from '../../dynamo.js';
 
 import { Order } from '@ez4/database';

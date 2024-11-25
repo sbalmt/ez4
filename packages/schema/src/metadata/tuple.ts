@@ -4,7 +4,7 @@ import type { TupleSchema } from '../types/tuple.js';
 
 import { isTypeTuple } from '@ez4/reflection';
 
-import { SchemaTypeName } from '../types/common.js';
+import { SchemaType } from '../types/common.js';
 import { getAnySchema } from './any.js';
 
 export type RichTypeTuple = TypeTuple & {
@@ -17,7 +17,7 @@ export const createTupleSchema = (
   extra: ExtraSchema | undefined
 ): TupleSchema => {
   return {
-    type: SchemaTypeName.Tuple,
+    type: SchemaType.Tuple,
     ...(description && { description }),
     ...(extra && { extra }),
     elements

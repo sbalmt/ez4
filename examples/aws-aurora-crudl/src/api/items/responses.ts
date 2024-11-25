@@ -24,6 +24,16 @@ export declare class ReadItemResponse implements Http.Response {
      * Item description.
      */
     description?: string;
+
+    /**
+     * Item category name.
+     */
+    category_name?: string;
+
+    /**
+     * Item category description.
+     */
+    category_description?: string;
   };
 }
 
@@ -37,9 +47,19 @@ export declare class UpdateItemResponse implements Http.Response {
     name: string;
 
     /**
-     * Old item description.
+     * Old or current item description.
      */
     description?: string;
+
+    /**
+     * Old or current item category name.
+     */
+    category_name?: string;
+
+    /**
+     * Old or current item category description.
+     */
+    category_description?: string;
   };
 }
 
@@ -62,7 +82,7 @@ export declare class DeleteItemResponse implements Http.Response {
 type ListItem = {
   id: string;
   name: string;
-  description?: string;
+  category?: string;
 };
 
 export declare class ListItemsResponse implements Http.Response {

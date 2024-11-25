@@ -1,10 +1,5 @@
 import type { Database } from '@ez4/database';
-import { String } from '@ez4/schema';
-
-export const enum ItemType {
-  TypeA = 'type-a',
-  TypeB = 'type-b'
-}
+import type { String } from '@ez4/schema';
 
 /**
  * Items table schema.
@@ -21,14 +16,14 @@ export declare class ItemSchema implements Database.Schema {
   name: string;
 
   /**
-   * Item type.
-   */
-  type: ItemType;
-
-  /**
    * Item description.
    */
   description?: string;
+
+  /**
+   * Item category.
+   */
+  category_id?: String.UUID;
 
   /**
    * Item creation date.

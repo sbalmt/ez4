@@ -1,13 +1,11 @@
-import type { Indexes, TableIndexes } from './indexes.js';
-import type { TableSchemas } from './schemas.js';
-import type { Database } from './database.js';
+import type { TableClients } from './table.js';
 import type { Transaction } from './transaction.js';
-import type { Query } from './query.js';
+import type { Database } from './database.js';
 
 /**
  * Database client.
  */
-export type Client<T extends Database.Service<any>> = ClientTables<T> & {
+export type Client<T extends Database.Service<any>> = TableClients<T> & {
   /**
    * Prepare and execute the given query.
    *
@@ -24,56 +22,3 @@ export type Client<T extends Database.Service<any>> = ClientTables<T> & {
    */
   transaction<O extends Transaction.WriteOperations<T>>(operations: O): Promise<void>;
 };
-
-/**
- * Client tables.
- */
-export type ClientTables<T extends Database.Service<any>> = {
-  [P in keyof TableSchemas<T>]: TableSchemas<T>[P] extends Database.Schema
-    ? Table<
-        TableSchemas<T>[P],
-        P extends keyof TableIndexes<T>
-          ? TableIndexes<T>[P] extends Indexes
-            ? TableIndexes<T>[P]
-            : {}
-          : {}
-      >
-    : never;
-};
-
-/**
- * Client table.
- */
-export interface Table<T extends Database.Schema, I extends Indexes> {
-  insertOne(query: Query.InsertOneInput<T>): Promise<Query.InsertOneResult>;
-
-  findOne<S extends Query.SelectInput<T>>(
-    query: Query.FindOneInput<T, S, I>
-  ): Promise<Query.FindOneResult<T, S>>;
-
-  updateOne<S extends Query.SelectInput<T>>(
-    query: Query.UpdateOneInput<T, S, I>
-  ): Promise<Query.UpdateOneResult<T, S>>;
-
-  upsertOne<S extends Query.SelectInput<T>>(
-    query: Query.UpsertOneInput<T, S, I>
-  ): Promise<Query.UpsertOneResult<T, S>>;
-
-  deleteOne<S extends Query.SelectInput<T>>(
-    query: Query.DeleteOneInput<T, S, I>
-  ): Promise<Query.DeleteOneResult<T, S>>;
-
-  insertMany(query: Query.InsertManyInput<T>): Promise<Query.InsertManyResult>;
-
-  findMany<S extends Query.SelectInput<T>>(
-    query: Query.FindManyInput<T, S, I>
-  ): Promise<Query.FindManyResult<T, S>>;
-
-  updateMany<S extends Query.SelectInput<T>>(
-    query: Query.UpdateManyInput<T, S>
-  ): Promise<Query.UpdateManyResult<T, S>>;
-
-  deleteMany<S extends Query.SelectInput<T>>(
-    query: Query.DeleteManyInput<T, S>
-  ): Promise<Query.DeleteManyResult<T, S>>;
-}

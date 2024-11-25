@@ -5,7 +5,7 @@ import { ok, equal, deepEqual } from 'node:assert/strict';
 import { describe, it } from 'node:test';
 
 import { Client } from '@ez4/aws-dynamodb/client';
-import { SchemaTypeName } from '@ez4/schema';
+import { SchemaType } from '@ez4/schema';
 import { deploy } from '@ez4/aws-common';
 import { Order } from '@ez4/database';
 
@@ -52,17 +52,19 @@ describe.only('dynamodb client', () => {
     const resource = createTable(localState, {
       tableName,
       allowDeletion: true,
-      primarySchema: [
-        {
-          attributeName: 'id',
-          attributeType: AttributeType.String,
-          keyType: AttributeKeyType.Hash
-        },
-        {
-          attributeName: 'order',
-          attributeType: AttributeType.Number,
-          keyType: AttributeKeyType.Range
-        }
+      attributeSchema: [
+        [
+          {
+            attributeName: 'id',
+            attributeType: AttributeType.String,
+            keyType: AttributeKeyType.Hash
+          },
+          {
+            attributeName: 'order',
+            attributeType: AttributeType.Number,
+            keyType: AttributeKeyType.Range
+          }
+        ]
       ]
     });
 
@@ -79,19 +81,19 @@ describe.only('dynamodb client', () => {
 
     dbClient = Client.make({
       testTable: {
-        tableName,
-        tableIndexes: [['id', 'order']],
-        tableSchema: {
-          type: SchemaTypeName.Object,
+        name: tableName,
+        indexes: [['id', 'order']],
+        schema: {
+          type: SchemaType.Object,
           properties: {
             id: {
-              type: SchemaTypeName.String
+              type: SchemaType.String
             },
             order: {
-              type: SchemaTypeName.Number
+              type: SchemaType.Number
             },
             value: {
-              type: SchemaTypeName.String
+              type: SchemaType.String
             }
           }
         }
@@ -158,9 +160,7 @@ describe.only('dynamodb client', () => {
 
     const result = await dbClient.testTable.findMany({
       select: {
-        id: true,
-        order: true,
-        value: true
+        id: true
       },
       where: {
         id: {
@@ -177,14 +177,10 @@ describe.only('dynamodb client', () => {
       cursor: undefined,
       records: [
         {
-          id: 'bulk-149',
-          order: 1149,
-          value: 'updated'
+          id: 'bulk-149'
         },
         {
-          id: 'bulk-139',
-          order: 1139,
-          value: 'updated'
+          id: 'bulk-139'
         }
       ]
     });
@@ -219,7 +215,8 @@ describe.only('dynamodb client', () => {
 
     const result = await dbClient.testTable.updateOne({
       data: {
-        value: 'updated'
+        value: 'updated',
+        order: undefined
       },
       select: {
         value: true
@@ -231,8 +228,6 @@ describe.only('dynamodb client', () => {
     });
 
     deepEqual(result, {
-      id: 'single',
-      order: 0,
       value: 'initial'
     });
   });
@@ -242,7 +237,8 @@ describe.only('dynamodb client', () => {
 
     const result = await dbClient.testTable.findOne({
       select: {
-        value: true
+        value: true,
+        order: false
       },
       where: {
         id: 'single',
@@ -301,8 +297,6 @@ describe.only('dynamodb client', () => {
     });
 
     deepEqual(result, {
-      id: 'upsert',
-      order: 0,
       value: 'updated'
     });
   });

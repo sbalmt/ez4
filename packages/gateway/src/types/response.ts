@@ -1,5 +1,11 @@
-import type { ObjectSchema } from '@ez4/schema';
+import type { ObjectSchema, UnionSchema } from '@ez4/schema';
 
-export type HttpAuthResponse = ObjectSchema;
+export type HttpAuthResponse = {
+  identity?: ObjectSchema | UnionSchema | null;
+};
 
-export type HttpResponse = ObjectSchema;
+export type HttpResponse = {
+  status: number;
+  headers?: ObjectSchema | null;
+  body?: ObjectSchema | UnionSchema | null;
+};

@@ -1,7 +1,7 @@
 import type { Incomplete } from '@ez4/utils';
-import type { ModelProperty, SourceMap } from '@ez4/reflection';
-import type { DatabaseTable } from '../types/table.js';
+import type { ModelProperty, SourceMap, TypeModel, TypeObject } from '@ez4/reflection';
 import type { DatabaseService } from '../types/service.js';
+import type { DatabaseTable } from '../types/table.js';
 
 import {
   getLinkedServiceList,
@@ -12,6 +12,12 @@ import {
 } from '@ez4/common/library';
 
 import { isModelProperty } from '@ez4/reflection';
+
+import {
+  InvalidRelationAliasError,
+  InvalidRelationColumnError,
+  InvalidRelationTableError
+} from '../errors/relations.js';
 
 import { ServiceType } from '../types/service.js';
 import { IncompleteServiceError } from '../errors/service.js';
@@ -41,9 +47,7 @@ export const getDatabaseServices = (reflection: SourceMap) => {
 
       switch (member.name) {
         case 'engine': {
-          const value = getPropertyString(member);
-          if (value) {
-            service[member.name] = value;
+          if ((service.engine = getPropertyString(member))) {
             properties.delete(member.name);
           }
           break;
@@ -67,6 +71,13 @@ export const getDatabaseServices = (reflection: SourceMap) => {
 
     if (!isValidService(service)) {
       errorList.push(new IncompleteServiceError([...properties], statement.file));
+      continue;
+    }
+
+    const relationErrors = validateRelations(statement, service.tables);
+
+    if (relationErrors.length) {
+      errorList.push(...relationErrors);
       continue;
     }
 
@@ -96,4 +107,40 @@ const getAllTables = (member: ModelProperty, reflection: SourceMap, errorList: E
   }
 
   return tableList;
+};
+
+const validateRelations = (type: TypeObject | TypeModel, tables: DatabaseTable[]) => {
+  const errorList = [];
+
+  for (const { relations, schema } of tables) {
+    if (!relations) {
+      continue;
+    }
+
+    const targetColumns = schema.properties;
+
+    for (const relation of relations) {
+      const { sourceTable, sourceColumn, targetColumn, targetAlias } = relation;
+
+      const sourceColumns = tables.find(({ name }) => name === sourceTable)?.schema.properties;
+
+      if (!targetColumns[targetColumn]) {
+        errorList.push(new InvalidRelationColumnError(targetColumn, type.file));
+      }
+
+      if (targetColumns[targetAlias]) {
+        errorList.push(new InvalidRelationAliasError(targetAlias, type.file));
+      }
+
+      if (!sourceColumns) {
+        errorList.push(new InvalidRelationTableError(sourceTable, type.file));
+      }
+
+      if (sourceColumns && !sourceColumns[sourceColumn]) {
+        errorList.push(new InvalidRelationColumnError(sourceColumn, type.file));
+      }
+    }
+  }
+
+  return errorList;
 };

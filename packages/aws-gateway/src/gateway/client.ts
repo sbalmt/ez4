@@ -106,7 +106,7 @@ export const updateGateway = async (apiId: string, request: UpdateRequest) => {
 };
 
 export const deleteCorsConfiguration = async (apiId: string) => {
-  Logger.logUpdate(GatewayServiceName, `${apiId} CORS`);
+  Logger.logDelete(GatewayServiceName, `${apiId} CORS`);
 
   await client.send(
     new DeleteCorsConfigurationCommand({

@@ -1,5 +1,5 @@
 import type { Database, Index, Client } from '@ez4/database';
-import type { ItemSchema } from './dynamo/items.js';
+import type { ItemSchema } from './dynamo/item.js';
 
 /**
  * Example of AWS DynamoDB deployed with EZ4.

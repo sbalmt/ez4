@@ -20,13 +20,45 @@
             }
           }
         },
-        "indexes": {
-          "foo": "primary",
-          "bar": "regular",
-          "ttl": "ttl",
-          "foo:ttl": "regular",
-          "bar:foo": "unique"
-        }
+        "indexes": [
+          {
+            "type": "primary",
+            "name": "foo",
+            "columns": [
+              "foo"
+            ]
+          },
+          {
+            "type": "secondary",
+            "name": "bar",
+            "columns": [
+              "bar"
+            ]
+          },
+          {
+            "type": "ttl",
+            "name": "ttl",
+            "columns": [
+              "ttl"
+            ]
+          },
+          {
+            "type": "primary",
+            "name": "foo:ttl",
+            "columns": [
+              "foo",
+              "ttl"
+            ]
+          },
+          {
+            "type": "secondary",
+            "name": "bar:foo",
+            "columns": [
+              "bar",
+              "foo"
+            ]
+          }
+        ]
       },
       {
         "name": "testTable",
@@ -44,13 +76,45 @@
             }
           }
         },
-        "indexes": {
-          "baz": "primary",
-          "qux": "regular",
-          "ttl": "ttl",
-          "baz:ttl": "regular",
-          "qux:baz": "unique"
-        }
+        "indexes": [
+          {
+            "type": "primary",
+            "name": "baz",
+            "columns": [
+              "baz"
+            ]
+          },
+          {
+            "type": "secondary",
+            "name": "qux",
+            "columns": [
+              "qux"
+            ]
+          },
+          {
+            "type": "ttl",
+            "name": "ttl",
+            "columns": [
+              "ttl"
+            ]
+          },
+          {
+            "type": "primary",
+            "name": "baz:ttl",
+            "columns": [
+              "baz",
+              "ttl"
+            ]
+          },
+          {
+            "type": "secondary",
+            "name": "qux:baz",
+            "columns": [
+              "qux",
+              "baz"
+            ]
+          }
+        ]
       }
     ]
   }

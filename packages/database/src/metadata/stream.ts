@@ -12,6 +12,7 @@ import {
 } from '@ez4/common/library';
 
 import { isModelProperty, isTypeObject, isTypeReference } from '@ez4/reflection';
+import { isAnyNumber } from '@ez4/utils';
 
 import {
   IncompleteStreamError,
@@ -92,7 +93,7 @@ const getTypeFromMembers = (
       case 'timeout':
       case 'memory': {
         const value = getPropertyNumber(member);
-        if (value !== undefined && value !== null) {
+        if (isAnyNumber(value)) {
           stream[member.name] = value;
         }
         break;

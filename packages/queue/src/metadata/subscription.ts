@@ -13,6 +13,7 @@ import {
 } from '@ez4/common/library';
 
 import { isModelProperty, isTypeObject, isTypeReference } from '@ez4/reflection';
+import { isAnyNumber } from '@ez4/utils';
 
 import {
   IncompleteSubscriptionError,
@@ -116,7 +117,7 @@ const getTypeFromMembers = (
       case 'memory':
       case 'concurrency': {
         const value = getPropertyNumber(member);
-        if (value !== undefined && value !== null) {
+        if (isAnyNumber(value)) {
           subscription[member.name] = value;
         }
         break;

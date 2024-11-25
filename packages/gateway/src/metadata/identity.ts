@@ -1,8 +1,9 @@
 import type { AllType, SourceMap, TypeModel, TypeObject } from '@ez4/reflection';
+import type { ObjectSchema, UnionSchema } from '@ez4/schema/library';
 
-import { isTypeObject, isTypeReference } from '@ez4/reflection';
+import { isTypeObject, isTypeReference, isTypeUndefined, isTypeUnion } from '@ez4/reflection';
+import { createUnionSchema, getObjectSchema } from '@ez4/schema/library';
 import { isModelDeclaration } from '@ez4/common/library';
-import { getObjectSchema } from '@ez4/schema/library';
 
 import { IncorrectIdentityTypeError, InvalidIdentityTypeError } from '../errors/identity.js';
 import { isHttpIdentity } from './utils.js';
@@ -13,6 +14,10 @@ export const getHttpIdentity = (
   reflection: SourceMap,
   errorList: Error[]
 ) => {
+  if (isTypeUndefined(type)) {
+    return null;
+  }
+
   if (!isTypeReference(type)) {
     return getTypeIdentity(type, parent, reflection, errorList);
   }
@@ -31,7 +36,11 @@ const getTypeIdentity = (
   parent: TypeObject | TypeModel,
   reflection: SourceMap,
   errorList: Error[]
-) => {
+): ObjectSchema | UnionSchema | null => {
+  if (isTypeUnion(type)) {
+    return getIdentityFromUnion(type.elements, parent, reflection, errorList);
+  }
+
   if (isTypeObject(type)) {
     return getObjectSchema(type, reflection);
   }
@@ -56,4 +65,29 @@ const getTypeIdentity = (
   }
 
   return schema;
+};
+
+const getIdentityFromUnion = (
+  types: AllType[],
+  parent: TypeObject | TypeModel,
+  reflection: SourceMap,
+  errorList: Error[]
+) => {
+  const schemaList = [];
+
+  for (const type of types) {
+    const schema = getHttpIdentity(type, parent, reflection, errorList);
+
+    if (schema) {
+      schemaList.push(schema);
+    }
+  }
+
+  if (schemaList.length > 1) {
+    return createUnionSchema({
+      elements: schemaList
+    });
+  }
+
+  return schemaList[0];
 };

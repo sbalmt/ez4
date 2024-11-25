@@ -1,7 +1,7 @@
 {
   "name": "@ez4/aws-aurora",
   "description": "EZ4: Self-managed AWS Aurora serverless v2 provider",
-  "version": "0.8.0",
+  "version": "0.9.0",
   "author": "Silas B.",
   "license": "MIT",
   "type": "module",
@@ -42,17 +42,17 @@
     "live:publish": "npm run test && npm publish --access public"
   },
   "peerDependencies": {
-    "@ez4/project": "^0.8.0"
+    "@ez4/project": "^0.9.0",
+    "@ez4/database": "^0.9.0"
   },
   "dependencies": {
     "@aws-sdk/client-rds": "^3.624.0",
     "@aws-sdk/client-rds-data": "^3.624.0",
-    "@ez4/aws-common": "^0.8.0",
-    "@ez4/aws-identity": "^0.8.0",
-    "@ez4/database": "^0.8.0",
-    "@ez4/stateful": "^0.8.0",
-    "@ez4/schema": "^0.8.0",
-    "@ez4/utils": "^0.8.0",
-    "@ez4/validator": "^0.8.0"
+    "@ez4/aws-common": "^0.9.0",
+    "@ez4/aws-identity": "^0.9.0",
+    "@ez4/stateful": "^0.9.0",
+    "@ez4/schema": "^0.9.0",
+    "@ez4/utils": "^0.9.0",
+    "@ez4/validator": "^0.9.0"
   }
 }

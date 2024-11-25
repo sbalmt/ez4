@@ -6,6 +6,8 @@ import { createInstance } from '../instance/service.js';
 import { createCluster } from '../cluster/service.js';
 
 import { getClusterName, getDatabaseName, getInstanceName } from './utils.js';
+import { createMigration } from '../migration/service.js';
+import { getRepository } from './repository.js';
 
 export const prepareDatabaseServices = async (event: PrepareResourceEvent) => {
   const { state, service, options } = event;
@@ -16,12 +18,16 @@ export const prepareDatabaseServices = async (event: PrepareResourceEvent) => {
 
   const clusterState = createCluster(state, {
     clusterName: getClusterName(service, options),
-    database: getDatabaseName(service, options),
     enableInsights: true,
     enableHttp: true
   });
 
-  createInstance(state, clusterState, {
+  const instanceState = createInstance(state, clusterState, {
     instanceName: getInstanceName(service, options)
+  });
+
+  createMigration(state, clusterState, instanceState, {
+    database: getDatabaseName(service, options),
+    repository: getRepository(service)
   });
 };

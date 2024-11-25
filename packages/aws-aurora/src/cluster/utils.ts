@@ -23,3 +23,19 @@ export const getClusterName = (serviceName: string, resourceId: string, context:
 
   return resource.clusterName;
 };
+
+export const getClusterResult = (serviceName: string, resourceId: string, context: StepContext) => {
+  const resource = context.getDependencies<ClusterState>(ClusterServiceType).at(0);
+
+  if (!resource?.result) {
+    throw new IncompleteResourceError(serviceName, resourceId, 'result');
+  }
+
+  const { clusterName, clusterArn, secretArn } = resource.result;
+
+  return {
+    clusterName,
+    clusterArn,
+    secretArn
+  };
+};

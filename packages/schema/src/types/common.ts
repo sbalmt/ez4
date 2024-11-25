@@ -7,7 +7,7 @@ import type { EnumSchema } from './enum.js';
 
 export type ExtraSchema = {};
 
-export const enum SchemaTypeName {
+export const enum SchemaType {
   Boolean = 'boolean',
   Number = 'number',
   String = 'string',

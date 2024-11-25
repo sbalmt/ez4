@@ -10,7 +10,7 @@
           "type": "object",
           "properties": {}
         },
-        "indexes": {}
+        "indexes": []
       },
       {
         "name": "testTable",
@@ -25,7 +25,7 @@
             }
           }
         },
-        "indexes": {}
+        "indexes": []
       }
     ]
   }

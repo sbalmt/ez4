@@ -1,33 +1,42 @@
-import type { Database, Query } from '@ez4/database';
+import type { Database, Relations, Query } from '@ez4/database';
 import type { ObjectSchema } from '@ez4/schema';
 import type { DeepPartial } from '@ez4/utils';
 
-import { SchemaTypeName } from '@ez4/schema';
+import { SchemaType } from '@ez4/schema';
 import { isAnyObject } from '@ez4/utils';
 
 import { prepareWhereFields } from './where.js';
 
 type PrepareResult = [string, unknown[]];
 
-export const prepareUpdate = <T extends Database.Schema, S extends Query.SelectInput<T> = {}>(
+export const prepareUpdate = <
+  T extends Database.Schema,
+  I extends Database.Indexes<T>,
+  R extends Relations,
+  S extends Query.SelectInput<T, R>
+>(
   table: string,
   schema: ObjectSchema,
-  query: Query.UpdateOneInput<T, S, any> | Query.UpdateManyInput<T, S>
+  query: Query.UpdateOneInput<T, S, I, R> | Query.UpdateManyInput<T, S, I, R>
 ): PrepareResult => {
-  const [updateFields, updateVariables] = prepareUpdateFields(query.data, schema);
-  const [whereFields, whereVariables] = prepareWhereFields(query.where ?? {});
+  const [updateFields, variables] = prepareUpdateFields(query.data, schema);
 
   const statement = [`UPDATE "${table}" ${updateFields}`];
 
-  if (whereFields) {
-    statement.push(`WHERE ${whereFields}`);
+  if (query.where) {
+    const [whereFields, whereVariables] = prepareWhereFields(query.where);
+
+    if (whereFields) {
+      statement.push(`WHERE ${whereFields}`);
+      variables.push(...whereVariables);
+    }
   }
 
   if (query.select) {
     statement.push('RETURNING ALL OLD *');
   }
 
-  return [statement.join(' '), [...updateVariables, ...whereVariables]];
+  return [statement.join(' '), variables];
 };
 
 const prepareUpdateFields = <T extends Database.Schema>(
@@ -54,7 +63,7 @@ const prepareUpdateFields = <T extends Database.Schema>(
 
     const fieldNotNested =
       !isAnyObject(fieldValue) ||
-      fieldSchema.type !== SchemaTypeName.Object ||
+      fieldSchema.type !== SchemaType.Object ||
       fieldSchema.extra?.extensible ||
       fieldSchema.nullable ||
       fieldSchema.optional;

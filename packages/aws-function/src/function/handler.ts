@@ -184,10 +184,10 @@ const deleteResource = async (candidate: FunctionState) => {
   }
 };
 
-const checkConfigurationUpdates = async <T extends FunctionParameters>(
+const checkConfigurationUpdates = async (
   functionName: string,
-  candidate: T,
-  current: T
+  candidate: FunctionParameters,
+  current: FunctionParameters
 ) => {
   const protectedCandidate = {
     ...candidate,
@@ -197,9 +197,11 @@ const checkConfigurationUpdates = async <T extends FunctionParameters>(
   };
 
   const hasChanges = !deepEqual(protectedCandidate, current, {
-    sourceFile: true,
-    functionName: true,
-    tags: true
+    exclude: {
+      sourceFile: true,
+      functionName: true,
+      tags: true
+    }
   });
 
   if (hasChanges) {

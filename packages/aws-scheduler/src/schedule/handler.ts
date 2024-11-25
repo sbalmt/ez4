@@ -103,13 +103,15 @@ const deleteResource = async (candidate: ScheduleState) => {
   }
 };
 
-const checkGeneralUpdates = async <T extends ScheduleParameters>(
+const checkGeneralUpdates = async (
   scheduleName: string,
-  candidate: T,
-  current: T
+  candidate: ScheduleParameters,
+  current: ScheduleParameters
 ) => {
   const hasChanges = !deepEqual(candidate, current, {
-    scheduleName: true
+    exclude: {
+      scheduleName: true
+    }
   });
 
   if (hasChanges) {

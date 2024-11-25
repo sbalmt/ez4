@@ -84,14 +84,16 @@ const deleteResource = async (candidate: StageState) => {
   }
 };
 
-const checkGeneralUpdates = async <T extends StageParameters>(
+const checkGeneralUpdates = async (
   apiId: string,
   stageName: string,
-  candidate: T,
-  current: T
+  candidate: StageParameters,
+  current: StageParameters
 ) => {
   const hasChanges = !deepEqual(candidate, current, {
-    stageName: true
+    exclude: {
+      stageName: true
+    }
   });
 
   if (hasChanges) {

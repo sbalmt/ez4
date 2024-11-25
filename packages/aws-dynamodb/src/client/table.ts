@@ -1,10 +1,11 @@
-import type { Database, Query, Table as DbTable } from '@ez4/database';
+import type { Database, Relations, Query, Table as DbTable } from '@ez4/database';
 import type { DynamoDBDocumentClient } from '@aws-sdk/lib-dynamodb';
 import type { ObjectSchema } from '@ez4/schema';
 
 import { ConditionalCheckFailedException } from '@aws-sdk/client-dynamodb';
+import { deepClone } from '@ez4/utils';
 
-import { executeStatement, executeTransactions } from './common/client.js';
+import { executeStatement, executeTransaction } from './common/client.js';
 
 import {
   prepareDeleteMany,
@@ -17,7 +18,9 @@ import {
   prepareUpdateOne
 } from './common/queries.js';
 
-export class Table<T extends Database.Schema = Database.Schema> implements DbTable<T, never> {
+export class Table<T extends Database.Schema, I extends Database.Indexes<T>, R extends Relations>
+  implements DbTable<T, I, R>
+{
   constructor(
     private name: string,
     private schema: ObjectSchema,
@@ -25,21 +28,27 @@ export class Table<T extends Database.Schema = Database.Schema> implements DbTab
     private client: DynamoDBDocumentClient
   ) {}
 
-  async insertOne(query: Query.InsertOneInput<T>): Promise<Query.InsertOneResult> {
-    const command = await prepareInsertOne(this.name, this.schema, query);
+  async insertOne(query: Query.InsertOneInput<T, I, R>): Promise<Query.InsertOneResult> {
+    const command = await prepareInsertOne<T, I, R>(this.name, this.schema, query);
 
     await executeStatement(this.client, command);
   }
 
-  async updateOne<S extends Query.SelectInput<T>>(
-    query: Query.UpdateOneInput<T, S, never>
-  ): Promise<Query.UpdateOneResult<T, S>> {
-    const command = await prepareUpdateOne(this.name, this.schema, query);
+  async updateOne<S extends Query.SelectInput<T, R>>(
+    query: Query.UpdateOneInput<T, S, I, R>
+  ): Promise<Query.UpdateOneResult<T, S, R>> {
+    const command = await prepareUpdateOne<T, I, R, S>(this.name, this.schema, query);
 
     try {
-      const result = await executeStatement(this.client, command);
+      const { Items } = await executeStatement(this.client, command);
 
-      return result.Items?.at(0) as Query.UpdateOneResult<T, S>;
+      const result = Items?.at(0) as Query.UpdateOneResult<T, S, R> | undefined;
+
+      if (query.select && result) {
+        return deepClone<any, any, any>(result, { include: query.select });
+      }
+
+      return result;
     } catch (e) {
       if (!(e instanceof ConditionalCheckFailedException)) {
         throw e;
@@ -49,31 +58,43 @@ export class Table<T extends Database.Schema = Database.Schema> implements DbTab
     }
   }
 
-  async findOne<S extends Query.SelectInput<T>>(
-    query: Query.FindOneInput<T, S, never>
-  ): Promise<Query.FindOneResult<T, S>> {
+  async findOne<S extends Query.SelectInput<T, R>>(
+    query: Query.FindOneInput<T, S, I>
+  ): Promise<Query.FindOneResult<T, S, R>> {
     const [, ...secondaryIndexes] = this.indexes;
 
-    const command = prepareFindOne(this.name, secondaryIndexes, query);
+    const command = prepareFindOne<T, I, R, S>(this.name, secondaryIndexes, query);
 
-    const result = await executeStatement(this.client, command);
+    const { Items } = await executeStatement(this.client, command);
 
-    return result.Items?.at(0) as Query.FindOneResult<T, S>;
+    const result = Items?.at(0) as Query.UpdateOneResult<T, S, R> | undefined;
+
+    if (result) {
+      return deepClone<any, any, any>(result, { include: query.select });
+    }
+
+    return undefined;
   }
 
-  async deleteOne<S extends Query.SelectInput<T>>(
-    query: Query.DeleteOneInput<T, S, never>
-  ): Promise<Query.DeleteOneResult<T, S>> {
-    const command = prepareDeleteOne(this.name, query);
+  async deleteOne<S extends Query.SelectInput<T, R>>(
+    query: Query.DeleteOneInput<T, S, I>
+  ): Promise<Query.DeleteOneResult<T, S, R>> {
+    const command = prepareDeleteOne<T, I, R, S>(this.name, query);
 
-    const result = await executeStatement(this.client, command);
+    const { Items } = await executeStatement(this.client, command);
 
-    return result.Items?.at(0) as Query.DeleteOneResult<T, S>;
+    const result = Items?.at(0) as Query.UpdateOneResult<T, S, R> | undefined;
+
+    if (query.select && result) {
+      return deepClone<any, any, any>(result, { include: query.select });
+    }
+
+    return result;
   }
 
-  async upsertOne<S extends Query.SelectInput<T>>(
-    query: Query.UpsertOneInput<T, S, never>
-  ): Promise<Query.UpsertOneResult<T, S>> {
+  async upsertOne<S extends Query.SelectInput<T, R>>(
+    query: Query.UpsertOneInput<T, S, I, R>
+  ): Promise<Query.UpsertOneResult<T, S, R>> {
     const previous = await this.findOne({
       select: query.select ?? ({} as S),
       where: query.where
@@ -100,17 +121,22 @@ export class Table<T extends Database.Schema = Database.Schema> implements DbTab
   async insertMany(query: Query.InsertManyInput<T>): Promise<Query.InsertManyResult> {
     const [primaryIndexes] = this.indexes;
 
-    const transactions = await prepareInsertMany(this.name, this.schema, primaryIndexes, query);
+    const transactions = await prepareInsertMany<T, I, R>(
+      this.name,
+      this.schema,
+      primaryIndexes,
+      query
+    );
 
-    await executeTransactions(this.client, transactions);
+    await executeTransaction(this.client, transactions);
   }
 
-  async updateMany<S extends Query.SelectInput<T>>(
-    query: Query.UpdateManyInput<T, S>
-  ): Promise<Query.UpdateManyResult<T, S>> {
+  async updateMany<S extends Query.SelectInput<T, R>>(
+    query: Query.UpdateManyInput<T, S, I, R>
+  ): Promise<Query.UpdateManyResult<T, S, R>> {
     const [primaryIndexes] = this.indexes;
 
-    const [transactions, records] = await prepareUpdateMany(
+    const [transactions, records] = await prepareUpdateMany<T, I, R, S>(
       this.name,
       this.schema,
       this.client,
@@ -118,39 +144,39 @@ export class Table<T extends Database.Schema = Database.Schema> implements DbTab
       query
     );
 
-    await executeTransactions(this.client, transactions);
+    await executeTransaction(this.client, transactions);
 
     return records;
   }
 
-  async findMany<S extends Query.SelectInput<T>>(
-    query: Query.FindManyInput<T, S, never>
-  ): Promise<Query.FindManyResult<T, S>> {
+  async findMany<S extends Query.SelectInput<T, R>>(
+    query: Query.FindManyInput<T, S, I>
+  ): Promise<Query.FindManyResult<T, S, R>> {
     const [, ...secondaryIndexes] = this.indexes;
 
-    const command = prepareFindMany(this.name, secondaryIndexes, query);
+    const command = prepareFindMany<T, I, R, S>(this.name, secondaryIndexes, query);
 
-    const result = await executeStatement(this.client, command);
+    const { Items = [], NextToken } = await executeStatement(this.client, command);
 
     return {
-      records: (result.Items ?? []) as Query.Record<T, S>[],
-      cursor: result.NextToken
+      records: Items as Query.Record<T, S, R>[],
+      cursor: NextToken
     };
   }
 
-  async deleteMany<S extends Query.SelectInput<T>>(
+  async deleteMany<S extends Query.SelectInput<T, R>>(
     query: Query.DeleteManyInput<T, S>
-  ): Promise<Query.DeleteManyResult<T, S>> {
+  ): Promise<Query.DeleteManyResult<T, S, R>> {
     const [primaryIndexes] = this.indexes;
 
-    const [transactions, records] = await prepareDeleteMany(
+    const [transactions, records] = await prepareDeleteMany<T, I, R, S>(
       this.name,
       this.client,
       primaryIndexes,
       query
     );
 
-    await executeTransactions(this.client, transactions);
+    await executeTransaction(this.client, transactions);
 
     return records;
   }

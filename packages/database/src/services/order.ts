@@ -1,5 +1,5 @@
 /**
- * Query order.
+ * Query order types.
  */
 export const enum Order {
   Asc = 'asc',

@@ -5,7 +5,7 @@ import { ok, deepEqual, equal } from 'node:assert/strict';
 
 import { createQueue, isQueueState, registerTriggers } from '@ez4/aws-queue';
 import { Client } from '@ez4/aws-queue/client';
-import { SchemaTypeName } from '@ez4/schema';
+import { SchemaType } from '@ez4/schema';
 import { deploy } from '@ez4/aws-common';
 
 describe.only('queue client', () => {
@@ -34,10 +34,10 @@ describe.only('queue client', () => {
     const { queueUrl } = resultResource.result;
 
     queueClient = Client.make(queueUrl, {
-      type: SchemaTypeName.Object,
+      type: SchemaType.Object,
       properties: {
         test: {
-          type: SchemaTypeName.String
+          type: SchemaType.String
         }
       }
     });

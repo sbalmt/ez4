@@ -13,14 +13,14 @@ import {
   ExpectedTupleTypeError
 } from '@ez4/validator';
 
-import { SchemaTypeName } from '@ez4/schema';
+import { SchemaType } from '@ez4/schema';
 
 import { assertError } from './common.js';
 
 describe.only('type validation errors', () => {
   it('assert :: boolean errors', async () => {
     const schema: AnySchema = {
-      type: SchemaTypeName.Boolean
+      type: SchemaType.Boolean
     };
 
     await assertError(null, schema, [ExpectedBooleanTypeError]);
@@ -31,7 +31,7 @@ describe.only('type validation errors', () => {
 
   it('assert :: number errors', async () => {
     const schema: AnySchema = {
-      type: SchemaTypeName.Number
+      type: SchemaType.Number
     };
 
     await assertError(null, schema, [ExpectedNumberTypeError]);
@@ -42,7 +42,7 @@ describe.only('type validation errors', () => {
 
   it('assert :: string errors', async () => {
     const schema: AnySchema = {
-      type: SchemaTypeName.String
+      type: SchemaType.String
     };
 
     await assertError(null, schema, [ExpectedStringTypeError]);
@@ -52,10 +52,10 @@ describe.only('type validation errors', () => {
 
   it('assert :: object errors', async () => {
     const schema: AnySchema = {
-      type: SchemaTypeName.Object,
+      type: SchemaType.Object,
       properties: {
         foo: {
-          type: SchemaTypeName.Number
+          type: SchemaType.Number
         }
       }
     };
@@ -68,27 +68,27 @@ describe.only('type validation errors', () => {
 
   it('assert :: union errors', async () => {
     const schema: AnySchema = {
-      type: SchemaTypeName.Union,
+      type: SchemaType.Union,
       elements: [
         {
-          type: SchemaTypeName.Object,
+          type: SchemaType.Object,
           properties: {
             foo: {
-              type: SchemaTypeName.String
+              type: SchemaType.String
             },
             bar: {
-              type: SchemaTypeName.String
+              type: SchemaType.String
             }
           }
         },
         {
-          type: SchemaTypeName.Object,
+          type: SchemaType.Object,
           properties: {
             baz: {
-              type: SchemaTypeName.Number
+              type: SchemaType.Number
             },
             qux: {
-              type: SchemaTypeName.Number
+              type: SchemaType.Number
             }
           }
         }
@@ -105,9 +105,9 @@ describe.only('type validation errors', () => {
 
   it('assert :: array errors', async () => {
     const schema: AnySchema = {
-      type: SchemaTypeName.Array,
+      type: SchemaType.Array,
       element: {
-        type: SchemaTypeName.String
+        type: SchemaType.String
       }
     };
 
@@ -122,16 +122,16 @@ describe.only('type validation errors', () => {
 
   it('assert :: tuple errors', async () => {
     const schema: AnySchema = {
-      type: SchemaTypeName.Tuple,
+      type: SchemaType.Tuple,
       elements: [
         {
-          type: SchemaTypeName.Number
+          type: SchemaType.Number
         },
         {
-          type: SchemaTypeName.Number
+          type: SchemaType.Number
         },
         {
-          type: SchemaTypeName.String
+          type: SchemaType.String
         }
       ]
     };
@@ -143,7 +143,7 @@ describe.only('type validation errors', () => {
 
   it('assert :: enum errors', async () => {
     const schema: AnySchema = {
-      type: SchemaTypeName.Enum,
+      type: SchemaType.Enum,
       options: [
         {
           value: 'abc'

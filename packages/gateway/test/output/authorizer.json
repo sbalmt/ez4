@@ -21,17 +21,13 @@
             }
           },
           "response": {
-            "type": "object",
-            "properties": {
-              "identity": {
-                "type": "object",
-                "properties": {
-                  "id": {
-                    "type": "string"
-                  }
-                },
-                "description": "Authorization identity.",
-                "optional": true
+            "identity": {
+              "type": "object",
+              "description": "Authorization identity.",
+              "properties": {
+                "id": {
+                  "type": "string"
+                }
               }
             }
           }
@@ -40,16 +36,7 @@
           "name": "testHandler",
           "file": "test/input/output-authorizer.ts",
           "response": {
-            "type": "object",
-            "properties": {
-              "status": {
-                "type": "number",
-                "description": "Response status code.",
-                "extra": {
-                  "value": 204
-                }
-              }
-            }
+            "status": 204
           }
         }
       }

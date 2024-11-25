@@ -27,7 +27,9 @@ const previewResource = async (candidate: MappingState, current: MappingState) =
   const source = { ...current.parameters, dependencies: current.dependencies };
 
   const changes = deepCompare(target, source, {
-    getSourceArn: true
+    exclude: {
+      getSourceArn: true
+    }
   });
 
   return changes.counts ? changes : undefined;

@@ -1,5 +1,6 @@
 import type { Database, Index, Client } from '@ez4/database';
-import type { ItemSchema } from './aurora/items.js';
+import type { CategorySchema } from './aurora/category.js';
+import type { ItemSchema } from './aurora/item.js';
 
 /**
  * Example of AWS Aurora RDS deployed with EZ4.
@@ -13,6 +14,19 @@ export declare class Db extends Database.Service<[ItemSchema]> {
     {
       name: 'items';
       schema: ItemSchema;
+      relations: {
+        'categories:id': 'category_id@category';
+      };
+      indexes: {
+        id: Index.Primary;
+      };
+    },
+    {
+      name: 'categories';
+      schema: CategorySchema;
+      relations: {
+        'items:category_id': 'id@items';
+      };
       indexes: {
         id: Index.Primary;
       };

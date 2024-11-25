@@ -12,6 +12,7 @@ import {
 } from '@ez4/common/library';
 
 import { isModelProperty, isTypeReference } from '@ez4/reflection';
+import { isAnyNumber } from '@ez4/utils';
 
 import { ImportType } from '../types/import.js';
 import { IncompleteServiceError } from '../errors/service.js';
@@ -56,7 +57,6 @@ export const getQueueImports = (reflection: SourceMap) => {
         case 'project': {
           if (!member.inherited) {
             const value = getPropertyString(member);
-
             if (value !== undefined && value !== null) {
               properties.delete(member.name);
               service[member.name] = value;
@@ -69,8 +69,7 @@ export const getQueueImports = (reflection: SourceMap) => {
         case 'polling': {
           if (member.inherited) {
             const value = getReferenceNumber(member.value, reflection);
-
-            if (value !== undefined && value !== null) {
+            if (isAnyNumber(value)) {
               service[member.name] = value;
             }
           }
@@ -80,7 +79,6 @@ export const getQueueImports = (reflection: SourceMap) => {
         case 'schema': {
           if (member.inherited) {
             service.schema = getQueueMessage(member.value, statement, reflection, errorList);
-
             if (service.schema) {
               properties.delete(member.name);
             }
@@ -91,7 +89,6 @@ export const getQueueImports = (reflection: SourceMap) => {
         case 'subscriptions': {
           if (!member.inherited) {
             service.subscriptions = getAllSubscription(member, statement, reflection, errorList);
-
             if (service.subscriptions) {
               properties.delete(member.name);
             }

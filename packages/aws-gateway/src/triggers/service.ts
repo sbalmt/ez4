@@ -125,7 +125,8 @@ const getIntegrationFunction = async (
   }
 
   const handler = route.handler;
-  const request = handler.request;
+
+  const { request, response } = handler;
 
   const functionName = getFunctionName(service, handler, options);
   const routeTimeout = route.timeout ?? 30;
@@ -139,6 +140,7 @@ const getIntegrationFunction = async (
       handlerName: handler.name,
       timeout: routeTimeout,
       memory: route.memory,
+      responseSchema: response.body,
       headersSchema: request?.headers,
       identitySchema: request?.identity,
       parametersSchema: request?.parameters,

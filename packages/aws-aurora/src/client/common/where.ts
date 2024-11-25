@@ -3,16 +3,16 @@ import type { AnySchema, ObjectSchema } from '@ez4/schema';
 import type { Database, Query } from '@ez4/database';
 import type { AnyObject } from '@ez4/utils';
 
-import { SchemaTypeName } from '@ez4/schema';
+import { SchemaType } from '@ez4/schema';
 import { isAnyObject } from '@ez4/utils';
 
 import { prepareFieldData } from './data.js';
 
 type PrepareResult = [string, SqlParameter[]];
 
-export const prepareWhereFields = <T extends Database.Schema>(
+export const prepareWhereFields = <T extends Database.Schema, I extends Database.Indexes<T>>(
   schema: ObjectSchema,
-  query: Query.WhereInput<T, any>
+  query: Query.WhereInput<T, I>
 ): PrepareResult => {
   const prepareAll = (
     data: AnyObject,
@@ -92,7 +92,7 @@ export const prepareWhereFields = <T extends Database.Schema>(
           const nestedPath = path ? `${path}['${key}']` : `"${key}"`;
           const fieldIndex = index + variables.length;
 
-          if (fieldSchema.type === SchemaTypeName.Object) {
+          if (fieldSchema.type === SchemaType.Object) {
             const [nestedOperations, nestedVariables] = prepareAll(
               fieldValue,
               fieldSchema,

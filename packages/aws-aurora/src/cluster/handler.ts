@@ -91,8 +91,10 @@ const checkGeneralUpdates = async (
   current: ClusterParameters
 ) => {
   const hasChanges = !deepEqual(candidate, current, {
-    clusterName: true,
-    tags: true
+    exclude: {
+      clusterName: true,
+      tags: true
+    }
   });
 
   if (hasChanges) {

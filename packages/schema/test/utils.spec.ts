@@ -1,54 +1,109 @@
 import { describe, it } from 'node:test';
 import { deepEqual } from 'assert/strict';
 
-import { ObjectSchema, partialObjectSchema, SchemaTypeName } from '@ez4/schema/library';
+import {
+  ObjectSchema,
+  getPartialSchema,
+  getPartialSchemaProperties,
+  SchemaType
+} from '@ez4/schema';
 
 describe.only('schema utils', () => {
   const fullSchema: ObjectSchema = {
-    type: SchemaTypeName.Object,
+    type: SchemaType.Object,
     properties: {
       foo: {
-        type: SchemaTypeName.String
+        type: SchemaType.String
       },
       bar: {
-        type: SchemaTypeName.Number
+        type: SchemaType.Number
       },
       baz: {
-        type: SchemaTypeName.Object,
+        type: SchemaType.Object,
         properties: {
           bazFoo: {
-            type: SchemaTypeName.Boolean
+            type: SchemaType.Boolean
           },
           bazBar: {
-            type: SchemaTypeName.String
+            type: SchemaType.String
           }
         }
       }
     }
   };
 
-  it('assert :: partial schema', () => {
-    const partialSchema = partialObjectSchema(fullSchema, {
-      bar: true,
-      baz: {
-        bazBar: true
+  it('assert :: partial schema (include)', () => {
+    const partialSchema = getPartialSchema(fullSchema, {
+      extensible: true,
+      include: {
+        bar: true,
+        baz: {
+          bazBar: true
+        }
       }
     });
 
     deepEqual(partialSchema, {
-      type: SchemaTypeName.Object,
+      type: SchemaType.Object,
+      extra: {
+        extensible: true
+      },
       properties: {
         bar: {
-          type: SchemaTypeName.Number
+          type: SchemaType.Number
         },
         baz: {
-          type: SchemaTypeName.Object,
+          type: SchemaType.Object,
+          extra: {
+            extensible: true
+          },
           properties: {
             bazBar: {
-              type: SchemaTypeName.String
+              type: SchemaType.String
             }
           }
         }
+      }
+    });
+  });
+
+  it('assert :: partial schema (exclude)', () => {
+    const partialSchema = getPartialSchema(fullSchema, {
+      exclude: {
+        bar: true,
+        baz: {
+          bazBar: true
+        }
+      }
+    });
+
+    deepEqual(partialSchema, {
+      type: SchemaType.Object,
+      properties: {
+        foo: {
+          type: SchemaType.String
+        },
+        baz: {
+          type: SchemaType.Object,
+          properties: {
+            bazFoo: {
+              type: SchemaType.Boolean
+            }
+          }
+        }
+      }
+    });
+  });
+
+  it('assert :: partial schema (properties)', () => {
+    const partialProperties = getPartialSchemaProperties(fullSchema);
+
+    deepEqual(partialProperties, {
+      foo: true,
+      bar: true,
+      baz: {
+        bazFoo: true,
+        bazBar: true
       }
     });
   });

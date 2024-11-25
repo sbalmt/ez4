@@ -4,12 +4,13 @@ import { isCdnBucketOrigin, isCdnService } from '@ez4/distribution/library';
 import { getServiceName } from '@ez4/project/library';
 import { getBucketState } from '@ez4/aws-bucket';
 
+import { createOriginPolicy } from '../origin/service.js';
 import { createOriginAccess } from '../access/service.js';
 import { createDistribution } from '../distribution/service.js';
 import { getDistributionState } from '../distribution/utils.js';
 import { createInvalidation } from '../invalidation/service.js';
-import { getAdditionalOrigins, getDefaultOrigin } from './origin.js';
-import { getOriginAccessName, getContentVersion } from './utils.js';
+import { getAdditionalOriginCache, getDefaultOriginCache } from './cache.js';
+import { getOriginAccessName, getContentVersion, getOriginPolicyName } from './utils.js';
 import { connectOriginBucket } from './bucket.js';
 
 export const prepareCdnServices = async (event: PrepareResourceEvent) => {
@@ -20,6 +21,11 @@ export const prepareCdnServices = async (event: PrepareResourceEvent) => {
   }
 
   const { description, defaultIndex, defaultOrigin } = service;
+
+  const originPolicyState = createOriginPolicy(state, {
+    policyName: getOriginPolicyName(service, options),
+    description
+  });
 
   const originAccessState = createOriginAccess(state, {
     accessName: getOriginAccessName(service, options),
@@ -34,10 +40,10 @@ export const prepareCdnServices = async (event: PrepareResourceEvent) => {
     code
   }));
 
-  createDistribution(state, originAccessState, {
+  createDistribution(state, originAccessState, originPolicyState, {
     distributionName: getServiceName(service, options),
-    defaultOrigin: await getDefaultOrigin(state, service, options),
-    origins: await getAdditionalOrigins(state, service, options),
+    defaultOrigin: await getDefaultOriginCache(state, service, options),
+    origins: await getAdditionalOriginCache(state, service, options),
     compress: defaultCache?.compress ?? true,
     enabled: !service.disabled,
     aliases: service.aliases,

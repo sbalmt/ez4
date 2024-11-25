@@ -91,7 +91,9 @@ const checkGeneralUpdates = async (
   current: GatewayParameters
 ) => {
   const hasChanges = !deepEqual(candidate, current, {
-    tags: true
+    exclude: {
+      tags: true
+    }
   });
 
   if (hasChanges) {

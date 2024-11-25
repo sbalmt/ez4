@@ -9,38 +9,20 @@
           "name": "testRoute",
           "file": "test/input/output-cors.ts",
           "response": {
-            "type": "object",
-            "properties": {
-              "status": {
-                "type": "number",
-                "description": "Response status code.",
-                "extra": {
-                  "value": 204
-                }
-              }
-            }
+            "status": 204
           }
         }
       },
       {
         "path": "PATCH /test-route-2",
+        "cors": true,
         "handler": {
           "name": "testRoute",
           "file": "test/input/output-cors.ts",
           "response": {
-            "type": "object",
-            "properties": {
-              "status": {
-                "type": "number",
-                "description": "Response status code.",
-                "extra": {
-                  "value": 204
-                }
-              }
-            }
+            "status": 204
           }
-        },
-        "cors": true
+        }
       }
     ],
     "cors": {

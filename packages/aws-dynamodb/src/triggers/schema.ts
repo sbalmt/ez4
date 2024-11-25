@@ -1,42 +1,40 @@
-import type { Database } from '@ez4/database';
 import type { ObjectSchema, ObjectSchemaProperties } from '@ez4/schema';
+import type { TableIndex } from '@ez4/database/library';
 import type { AttributeSchema, AttributeSchemaGroup } from '../types/schema.js';
 
-import { SchemaTypeName } from '@ez4/schema';
+import { SchemaType } from '@ez4/schema';
 import { Index } from '@ez4/database';
 
 import { AttributeType, AttributeKeyType } from '../types/schema.js';
 
 const SchemaTypesMap: Record<string, AttributeType | undefined> = {
-  [SchemaTypeName.Number]: AttributeType.Number,
-  [SchemaTypeName.String]: AttributeType.String,
-  [SchemaTypeName.Enum]: AttributeType.String
+  [SchemaType.Number]: AttributeType.Number,
+  [SchemaType.String]: AttributeType.String,
+  [SchemaType.Enum]: AttributeType.String
 };
 
-export const getAttributeSchema = (indexes: Database.Indexes, schema: ObjectSchema) => {
+export const getAttributeSchema = (indexes: TableIndex[], schema: ObjectSchema) => {
   const primarySchema: AttributeSchema[] = [];
   const secondarySchema: AttributeSchemaGroup[] = [];
 
   let ttlAttribute: string | undefined;
 
-  for (const indexName in indexes) {
-    const indexType = indexes[indexName as keyof Database.Indexes];
-
-    switch (indexType) {
+  for (const { name, type } of indexes) {
+    switch (type) {
       case Index.TTL:
-        ttlAttribute = getTimeToLiveIndex(indexName, schema.properties);
+        ttlAttribute = getTimeToLiveIndex(name, schema.properties);
         break;
 
       case Index.Primary:
-        primarySchema.push(...getAttributeIndex(indexName, schema.properties));
+        primarySchema.push(...getAttributeIndex(name, schema.properties));
         break;
 
       case Index.Secondary:
-        secondarySchema.push(getAttributeIndex(indexName, schema.properties));
+        secondarySchema.push(getAttributeIndex(name, schema.properties));
         break;
 
       default:
-        throw new Error(`DynamoDB index type '${indexType}' isn't supported.`);
+        throw new Error(`DynamoDB index type '${type}' isn't supported.`);
     }
   }
 
@@ -45,8 +43,7 @@ export const getAttributeSchema = (indexes: Database.Indexes, schema: ObjectSche
   }
 
   return {
-    primarySchema,
-    secondarySchema,
+    attributeSchema: [primarySchema, ...secondarySchema],
     ttlAttribute
   };
 };
@@ -58,7 +55,7 @@ const getTimeToLiveIndex = (indexName: string, allColumns: ObjectSchemaPropertie
     throw new Error(`DynamoDB TTL index ${indexName} doesn't exists or it's a compound index.`);
   }
 
-  if (columnSchema.type !== SchemaTypeName.Number) {
+  if (columnSchema.type !== SchemaType.Number) {
     throw new Error(`DynamoDB TTL index ${indexName} must be a number.`);
   }
 

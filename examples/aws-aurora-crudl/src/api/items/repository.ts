@@ -8,6 +8,10 @@ type DbClient = Db['client'];
 export type CreateItemInput = {
   name: string;
   description?: string;
+  category?: {
+    name: string;
+    description?: string;
+  };
 };
 
 export const createItem = async (client: DbClient, input: CreateItemInput) => {
@@ -15,13 +19,14 @@ export const createItem = async (client: DbClient, input: CreateItemInput) => {
 
   const now = new Date().toISOString();
 
-  const { name, description } = input;
+  const { name, description, category } = input;
 
   await client.items.insertOne({
     data: {
       id,
       name,
       description,
+      category,
       created_at: now,
       updated_at: now
     }
@@ -34,7 +39,8 @@ export const readItem = async (client: DbClient, id: string) => {
   return client.items.findOne({
     select: {
       name: true,
-      description: true
+      description: true,
+      category: true
     },
     where: {
       id
@@ -47,18 +53,20 @@ export type UpdateItemInput = Partial<CreateItemInput> & {
 };
 
 export const updateItem = async (client: DbClient, input: UpdateItemInput) => {
-  const { id, name, description } = input;
+  const { id, name, description, category } = input;
 
   const now = new Date().toISOString();
 
   return client.items.updateOne({
     select: {
       name: true,
-      description: true
+      description: true,
+      category: true
     },
     data: {
       name,
       description,
+      category,
       updated_at: now
     },
     where: {
@@ -91,7 +99,9 @@ export const listItems = async (client: DbClient, input: ListItemsInput) => {
     select: {
       id: true,
       name: true,
-      description: true
+      category: {
+        name: true
+      }
     },
     order: {
       id: Order.Desc

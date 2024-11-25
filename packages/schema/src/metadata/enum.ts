@@ -3,7 +3,7 @@ import type { EnumSchema, EnumSchemaOption } from '../types/enum.js';
 
 import { isTypeEnum, isTypeReference } from '@ez4/reflection';
 
-import { ExtraSchema, SchemaTypeName } from '../types/common.js';
+import { ExtraSchema, SchemaType } from '../types/common.js';
 
 export type RichTypeEnum = TypeEnum & {
   extra?: ExtraSchema;
@@ -15,7 +15,7 @@ export const createEnumSchema = (
   extra: ExtraSchema | undefined
 ): EnumSchema => {
   return {
-    type: SchemaTypeName.Enum,
+    type: SchemaType.Enum,
     ...(description && { description }),
     ...(extra && { extra }),
     options

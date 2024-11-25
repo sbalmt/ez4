@@ -28,7 +28,7 @@ import { getHttpBody } from './body.js';
 
 type TypeParent = TypeModel | TypeCallback | TypeFunction;
 
-export const getHttpAuthorizerRequest = (
+export const getHttpAuthRequest = (
   type: AllType,
   parent: TypeParent,
   reflection: SourceMap,

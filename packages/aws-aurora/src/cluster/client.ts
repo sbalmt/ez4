@@ -30,7 +30,6 @@ export type CreateRequest = {
   allowDeletion?: boolean;
   enableInsights?: boolean;
   enableHttp?: boolean;
-  database?: string;
   tags?: ResourceTags;
 };
 
@@ -54,7 +53,6 @@ export const createCluster = async (request: CreateRequest): Promise<CreateRespo
   const response = await client.send(
     new CreateDBClusterCommand({
       DBClusterIdentifier: clusterName,
-      DatabaseName: request.database,
       DeletionProtection: !request.allowDeletion,
       EnablePerformanceInsights: request.enableInsights,
       EnableHttpEndpoint: request.enableHttp,

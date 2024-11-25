@@ -17,7 +17,7 @@ import type {
   UpdateItemResponse
 } from './responses.js';
 
-import { HttpBadRequestError } from '@ez4/gateway';
+import { HttpNotFoundError } from '@ez4/gateway';
 
 import { createItem, readItem, updateItem, deleteItem, listItems } from './repository.js';
 
@@ -29,11 +29,12 @@ export async function createItemHandler(
   context: Service.Context<Api>
 ): Promise<CreateItemResponse> {
   const { auroraDb } = context;
-  const { name, description } = request.body;
+  const { name, description, category } = request.body;
 
   const itemId = await createItem(auroraDb, {
     name,
-    description
+    description,
+    category
   });
 
   return {
@@ -58,7 +59,7 @@ export async function readItemHandler(
   const item = await readItem(auroraDb, id);
 
   if (!item) {
-    throw new HttpBadRequestError(`Item isn't found.`);
+    throw new HttpNotFoundError(`Item not found.`);
   }
 
   return {
@@ -66,7 +67,9 @@ export async function readItemHandler(
 
     body: {
       name: item.name,
-      description: item.description
+      description: item.description,
+      category_name: item.category?.name,
+      category_description: item.category?.description
     }
   };
 }
@@ -79,17 +82,18 @@ export async function updateItemHandler(
   context: Service.Context<Api>
 ): Promise<UpdateItemResponse> {
   const { auroraDb } = context;
-  const { name, description } = request.body;
+  const { name, description, category } = request.body;
   const { id } = request.parameters;
 
   const oldItem = await updateItem(auroraDb, {
     id,
     name,
-    description
+    description,
+    category
   });
 
   if (!oldItem) {
-    throw new HttpBadRequestError(`Item isn't found.`);
+    throw new HttpNotFoundError(`Item not found.`);
   }
 
   return {
@@ -97,7 +101,9 @@ export async function updateItemHandler(
 
     body: {
       name: oldItem.name,
-      description: oldItem.description
+      description: oldItem.description,
+      category_name: oldItem.category?.name,
+      category_description: oldItem.category?.description
     }
   };
 }
@@ -115,7 +121,7 @@ export async function deleteItemHandler(
   const item = await deleteItem(auroraDb, id);
 
   if (!item) {
-    throw new HttpBadRequestError(`Item isn't found.`);
+    throw new HttpNotFoundError(`Item not found.`);
   }
 
   return {
@@ -143,11 +149,11 @@ export async function listItemsHandler(
     limit
   });
 
-  const items = result.records.map(({ id, name, description }) => {
+  const items = result.records.map(({ id, name, category }) => {
     return {
       id,
       name,
-      description
+      category: category?.name
     };
   });
 

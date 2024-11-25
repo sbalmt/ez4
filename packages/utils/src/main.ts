@@ -12,6 +12,7 @@ export * from './object/empty.js';
 export * from './object/equal.js';
 export * from './object/clone.js';
 
+export * from './boolean/any.js';
 export * from './number/any.js';
 
 export * from './format/uuid.js';

@@ -19,7 +19,11 @@ export const isHttpHandlerRequest = (type: TypeModel) => {
   return hasHeritageType(type, 'Http.Request');
 };
 
-export const isHttpResponse = (type: TypeModel) => {
+export const isHttpAuthorizerResponse = (type: TypeModel) => {
+  return hasHeritageType(type, 'Http.AuthResponse');
+};
+
+export const isHttpHandlerResponse = (type: TypeModel) => {
   return hasHeritageType(type, 'Http.Response');
 };
 

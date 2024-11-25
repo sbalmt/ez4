@@ -5,7 +5,7 @@ import type { SuccessResponse } from './common.js';
 interface TestAuthRequest {}
 
 declare class TestAuthResponse implements Http.AuthResponse {
-  identity?: boolean;
+  identity?: {};
 }
 
 export declare class TestService extends Http.Service {
@@ -20,7 +20,7 @@ export declare class TestService extends Http.Service {
 
 export function testAuthorizer(_request: TestAuthRequest): TestAuthResponse {
   return {
-    identity: false
+    identity: {}
   };
 }
 

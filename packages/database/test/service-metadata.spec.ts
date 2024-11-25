@@ -6,7 +6,7 @@ import { getReflection } from '@ez4/project/library';
 import { registerTriggers, getDatabaseServices } from '@ez4/database/library';
 
 const testFile = (fileName: string, overwrite = false) => {
-  const sourceFile = `./test/input/output-${fileName}.ts`;
+  const sourceFile = `./test/models/output-${fileName}.ts`;
   const outputFile = `./test/output/${fileName}.json`;
 
   const reflection = getReflection([sourceFile]);
@@ -25,7 +25,7 @@ const testFile = (fileName: string, overwrite = false) => {
   }
 };
 
-describe.only('database metadata', () => {
+describe.only('database service metadata', () => {
   registerTriggers();
 
   process.env.TEST_ENV_VAR = 'test-env-var-value';
@@ -34,5 +34,6 @@ describe.only('database metadata', () => {
   it('assert :: database tables', () => testFile('tables'));
   it('assert :: table schema', () => testFile('schema'));
   it('assert :: table indexes', () => testFile('indexes'));
+  it('assert :: table relations', () => testFile('relations'));
   it('assert :: table stream', () => testFile('stream'));
 });

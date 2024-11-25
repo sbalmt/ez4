@@ -45,7 +45,6 @@ describe.only('aurora cluster', () => {
 
     const resource = createCluster(localState, {
       clusterName: 'ez4-test-cluster',
-      database: 'ez4_test_database',
       allowDeletion: false,
       enableInsights: true,
       enableHttp: true,

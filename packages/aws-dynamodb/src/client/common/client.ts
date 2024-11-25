@@ -22,14 +22,14 @@ export const executeStatement = async (
   }
 };
 
-export const executeTransactions = async (client: DynamoDBDocumentClient, transactions: any[]) => {
-  const maxLength = transactions.length;
+export const executeTransaction = async (client: DynamoDBDocumentClient, statements: any[]) => {
+  const maxLength = statements.length;
   const operations = [];
   const batchSize = 100;
 
   for (let offset = 0; offset < maxLength; offset += batchSize) {
     const command = new ExecuteTransactionCommand({
-      TransactStatements: transactions.slice(offset, offset + batchSize)
+      TransactStatements: statements.slice(offset, offset + batchSize)
     });
 
     operations.push(client.send(command));

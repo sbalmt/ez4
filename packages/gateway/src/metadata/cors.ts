@@ -14,6 +14,7 @@ import {
 } from '@ez4/common/library';
 
 import { isModelProperty, isTypeObject, isTypeReference } from '@ez4/reflection';
+import { isAnyBoolean, isAnyNumber } from '@ez4/utils';
 
 import {
   IncompleteCorsError,
@@ -93,7 +94,7 @@ const getTypeFromMembers = (
 
       case 'allowCredentials': {
         const value = getPropertyBoolean(member);
-        if (value !== undefined && value !== null) {
+        if (isAnyBoolean(value)) {
           cors[member.name] = value;
         }
         break;
@@ -101,7 +102,7 @@ const getTypeFromMembers = (
 
       case 'maxAge': {
         const value = getPropertyNumber(member);
-        if (value !== undefined && value !== null) {
+        if (isAnyNumber(value)) {
           cors[member.name] = value;
         }
         break;

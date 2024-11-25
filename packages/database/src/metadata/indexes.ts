@@ -1,6 +1,6 @@
 import type { MemberType } from '@ez4/common/library';
 import type { AllType, SourceMap, TypeModel, TypeObject } from '@ez4/reflection';
-import type { TableIndexes } from '../types/indexes.js';
+import type { TableIndex } from '../types/indexes.js';
 
 import {
   isModelDeclaration,
@@ -64,7 +64,7 @@ const getTypeFromMembers = (
   members: MemberType[],
   errorList: Error[]
 ) => {
-  const indexes: TableIndexes = {};
+  const indexes: TableIndex[] = [];
 
   for (const member of members) {
     if (!isModelProperty(member) || member.inherited) {
@@ -77,8 +77,13 @@ const getTypeFromMembers = (
     switch (indexType) {
       case Index.Primary:
       case Index.Secondary:
+      case Index.Unique:
       case Index.TTL:
-        indexes[indexName] = indexType;
+        indexes.push({
+          name: indexName,
+          columns: indexName.split(':'),
+          type: indexType
+        });
         break;
 
       default:

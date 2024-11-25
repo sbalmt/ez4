@@ -1,0 +1,77 @@
+{
+  "TestDatabase": {
+    "type": "@ez4/database",
+    "name": "TestDatabase",
+    "engine": "test",
+    "tables": [
+      {
+        "name": "parentTestTable",
+        "schema": {
+          "type": "object",
+          "properties": {
+            "id": {
+              "type": "string"
+            }
+          }
+        },
+        "relations": [
+          {
+            "sourceTable": "childTestTable",
+            "sourceColumn": "parent_id",
+            "targetColumn": "id",
+            "targetAlias": "children",
+            "foreign": false
+          }
+        ],
+        "indexes": [
+          {
+            "type": "primary",
+            "name": "id",
+            "columns": [
+              "id"
+            ]
+          }
+        ]
+      },
+      {
+        "name": "childTestTable",
+        "schema": {
+          "type": "object",
+          "properties": {
+            "id": {
+              "type": "string"
+            },
+            "parent_id": {
+              "type": "string"
+            }
+          }
+        },
+        "relations": [
+          {
+            "sourceTable": "parentTestTable",
+            "sourceColumn": "id",
+            "targetColumn": "parent_id",
+            "targetAlias": "parent",
+            "foreign": true
+          }
+        ],
+        "indexes": [
+          {
+            "type": "primary",
+            "name": "id",
+            "columns": [
+              "id"
+            ]
+          },
+          {
+            "type": "secondary",
+            "name": "parent_id",
+            "columns": [
+              "parent_id"
+            ]
+          }
+        ]
+      }
+    ]
+  }
+}

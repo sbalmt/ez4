@@ -1,56 +1,45 @@
-import type { Database, Client as DbClient, Transaction } from '@ez4/database';
-import type { SqlParameter } from '@aws-sdk/client-rds-data';
-import type { Configuration, Repository } from './types.js';
+import type { Database, Client as DbClient, Relations, Transaction } from '@ez4/database';
+import type { Connection } from './types.js';
+
+import type {
+  Repository,
+  RepositoryRelations,
+  RepositoryRelationsWithSchema
+} from '../types/repository.js';
 
 import { RDSDataClient } from '@aws-sdk/client-rds-data';
 
+import { getTableName } from '../utils/tables.js';
 import { prepareDeleteOne, prepareInsertOne, prepareUpdateOne } from './common/queries.js';
 import { executeStatement, executeTransaction } from './common/client.js';
+import { detectFieldData } from './common/data.js';
 import { Table } from './table.js';
+
+type TableType = Table<Database.Schema, Database.Indexes<Database.Schema>, Relations>;
 
 const client = new RDSDataClient();
 
-const tableCache: Record<string, Table> = {};
+const tableCache: Record<string, TableType> = {};
 
 export namespace Client {
   export const make = <T extends Database.Service<any>>(
-    configuration: Configuration,
-    repository: Record<string, Repository>
+    connection: Connection,
+    repository: Repository
   ): DbClient<T> => {
     const instance = new (class {
-      rawQuery(query: string, values: SqlParameter[]) {
-        return executeStatement(configuration, client, {
+      rawQuery(query: string, values: unknown[]) {
+        return executeStatement(client, connection, {
           sql: query,
-          parameters: values
+          parameters: values.map((value, index) => {
+            return detectFieldData(`${index}`, value);
+          })
         });
       }
 
       async transaction<O extends Transaction.WriteOperations<T>>(operations: O): Promise<void> {
-        const transactions = [];
+        const commands = await prepareTransactions(repository, operations);
 
-        for (const name in operations) {
-          const operationTable = operations[name];
-
-          if (!(name in repository)) {
-            throw new Error(`Table ${name} isn't part of the table repository.`);
-          }
-
-          const { tableName, tableSchema } = repository[name];
-
-          for (const operationName in operationTable) {
-            const query = operationTable[operationName];
-
-            if ('insert' in query) {
-              transactions.push(await prepareInsertOne(tableName, tableSchema, query.insert));
-            } else if ('update' in query) {
-              transactions.push(prepareUpdateOne(tableName, tableSchema, query.update));
-            } else if ('delete' in query) {
-              transactions.push(prepareDeleteOne(tableName, tableSchema, query.delete));
-            }
-          }
-        }
-
-        await executeTransaction(configuration, client, transactions);
+        await executeTransaction(client, connection, commands);
       }
     })();
 
@@ -60,24 +49,86 @@ export namespace Client {
           return target[property];
         }
 
-        const name = property.toString();
+        const alias = property.toString();
 
-        if (tableCache[name]) {
-          return tableCache[name];
+        if (tableCache[alias]) {
+          return tableCache[alias];
         }
 
-        if (!(name in repository)) {
-          throw new Error(`Table ${name} isn't part of the table repository.`);
+        if (!repository[alias]) {
+          throw new Error(`Table ${alias} isn't part of the repository.`);
         }
 
-        const { tableName, tableSchema } = repository[name];
+        const { name, schema, relations } = repository[alias];
 
-        const table = new Table(configuration, tableName, tableSchema, client);
+        const relationsWithSchema = getRelationsWithSchema(repository, relations);
 
-        tableCache[name] = table;
+        const table = new Table(client, connection, name, schema, relationsWithSchema);
+
+        tableCache[alias] = table;
 
         return table;
       }
     });
   };
 }
+
+const getRelationsWithSchema = (repository: Repository, relations: RepositoryRelations) => {
+  const relationsWithSchema: RepositoryRelationsWithSchema = {};
+
+  for (const alias in relations) {
+    const relation = relations[alias]!;
+
+    const { sourceAlias } = relation;
+
+    const sourceRepository = repository[sourceAlias];
+
+    if (!sourceRepository) {
+      throw new Error(`Table ${sourceAlias} isn't part of the repository.`);
+    }
+
+    relationsWithSchema[alias] = {
+      sourceSchema: sourceRepository.schema,
+      sourceTable: getTableName(sourceAlias),
+      ...relation
+    };
+  }
+
+  return relationsWithSchema;
+};
+
+const prepareTransactions = async <
+  T extends Database.Service<any>,
+  U extends Transaction.WriteOperations<T>
+>(
+  repository: Repository,
+  operations: U
+) => {
+  const commands = [];
+
+  for (const alias in operations) {
+    const operationTable = operations[alias];
+
+    if (!repository[alias]) {
+      throw new Error(`Table ${alias} isn't part of the repository.`);
+    }
+
+    const { name, schema, relations } = repository[alias];
+
+    const relationsWithSchema = getRelationsWithSchema(repository, relations);
+
+    for (const operationName in operationTable) {
+      const query = operationTable[operationName];
+
+      if ('insert' in query) {
+        commands.push(await prepareInsertOne(name, schema, relationsWithSchema, query.insert));
+      } else if ('update' in query) {
+        commands.push(await prepareUpdateOne(name, schema, relationsWithSchema, query.update));
+      } else if ('delete' in query) {
+        commands.push(prepareDeleteOne(name, schema, relationsWithSchema, query.delete));
+      }
+    }
+  }
+
+  return commands;
+};

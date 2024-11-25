@@ -12,8 +12,8 @@ export declare class Db extends Database.Service<[TableSchema]> {
       name: 'table';
       schema: TableSchema;
       indexes: {
-        id: Index.Primary;
-        'record_type:created_at': Index.Secondary;
+        id: Index.Primary; // Partition key only
+        'enum:date': Index.Secondary; // Partition and Sort key
       };
     }
   ];

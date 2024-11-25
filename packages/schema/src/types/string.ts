@@ -1,4 +1,7 @@
-import type { ExtraSchema, SchemaTypeName } from './common.js';
+import type { AnyObject } from '@ez4/utils';
+import type { ExtraSchema } from './common.js';
+
+import { SchemaType } from './common.js';
 
 export type StringExtraSchema = ExtraSchema & {
   minLength?: number;
@@ -9,10 +12,14 @@ export type StringExtraSchema = ExtraSchema & {
 };
 
 export type StringSchema = {
-  type: SchemaTypeName.String;
+  type: SchemaType.String;
   description?: string;
   optional?: boolean;
   nullable?: boolean;
   format?: string;
   extra?: StringExtraSchema;
+};
+
+export const isStringSchema = (value: AnyObject): value is StringSchema => {
+  return value.type === SchemaType.String;
 };

@@ -1,4 +1,4 @@
-import type { Database, Query } from '@ez4/database';
+import type { Database, Relations, Query } from '@ez4/database';
 
 import { isAnyObject } from '@ez4/utils';
 
@@ -7,19 +7,28 @@ import { prepareOrderFields } from './order.js';
 
 type PrepareResult = [string, unknown[]];
 
-export const prepareSelect = <T extends Database.Schema, S extends Query.SelectInput<T> = {}>(
+export const prepareSelect = <
+  T extends Database.Schema,
+  I extends Database.Indexes<T>,
+  R extends Relations,
+  S extends Query.SelectInput<T, R>
+>(
   table: string,
   index: string | undefined,
-  query: Query.FindOneInput<T, S, any> | Query.FindManyInput<T, S, any>
+  query: Query.FindOneInput<T, S, I> | Query.FindManyInput<T, S, I>
 ): PrepareResult => {
-  const [whereFields, whereVariables] = prepareWhereFields(query.where ?? {});
-
   const selectFields = prepareSelectFields(query.select);
 
   const statement = [`SELECT ${selectFields} FROM "${table}"${index ? `."${index}"` : ''}`];
+  const variables = [];
 
-  if (whereFields) {
-    statement.push(`WHERE ${whereFields}`);
+  if (query.where) {
+    const [whereFields, whereVariables] = prepareWhereFields(query.where);
+
+    if (whereFields) {
+      statement.push(`WHERE ${whereFields}`);
+      variables.push(...whereVariables);
+    }
   }
 
   if ('order' in query && isAnyObject(query.order)) {
@@ -30,11 +39,11 @@ export const prepareSelect = <T extends Database.Schema, S extends Query.SelectI
     }
   }
 
-  return [statement.join(' '), whereVariables];
+  return [statement.join(' '), variables];
 };
 
-const prepareSelectFields = <T extends Database.Schema>(
-  fields: Partial<Query.SelectInput<T>>,
+const prepareSelectFields = <T extends Database.Schema, R extends Relations>(
+  fields: Partial<Query.SelectInput<T, R>>,
   path?: string
 ): string => {
   const selectFields: string[] = [];

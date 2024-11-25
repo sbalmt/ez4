@@ -3,7 +3,7 @@ import type { NumberSchema } from '../types/number.js';
 
 import { isTypeNumber } from '@ez4/reflection';
 
-import { ExtraSchema, SchemaTypeName } from '../types/common.js';
+import { ExtraSchema, SchemaType } from '../types/common.js';
 
 export type RichTypeNumber = TypeNumber & {
   format?: string;
@@ -14,7 +14,7 @@ export const createNumberSchema = (data: Omit<NumberSchema, 'type'>): NumberSche
   const { description, optional, nullable, format, extra } = data;
 
   return {
-    type: SchemaTypeName.Number,
+    type: SchemaType.Number,
     ...(description && { description }),
     ...(optional && { optional }),
     ...(nullable && { nullable }),

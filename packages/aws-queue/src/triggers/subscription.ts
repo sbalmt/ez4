@@ -1,11 +1,11 @@
-import type { DeployOptions } from '@ez4/project/library';
-import type { EntryState, EntryStates } from '@ez4/stateful';
 import type { QueueService, QueueImport } from '@ez4/queue/library';
+import type { DeployOptions } from '@ez4/project/library';
+import type { RoleState } from '@ez4/aws-identity';
+import type { EntryStates } from '@ez4/stateful';
 import type { QueueState } from '../queue/types.js';
 
 import { linkServiceExtras } from '@ez4/project/library';
 import { getFunction } from '@ez4/aws-function';
-import { isRoleState } from '@ez4/aws-identity';
 
 import { createMapping } from '../mapping/service.js';
 import { createQueueFunction } from '../mapping/function/service.js';
@@ -14,14 +14,10 @@ import { getMappingName } from './utils.js';
 export const prepareSubscriptions = async (
   state: EntryStates,
   service: QueueService | QueueImport,
-  role: EntryState | null,
+  role: RoleState,
   queueState: QueueState,
   options: DeployOptions
 ) => {
-  if (!role || !isRoleState(role)) {
-    throw new Error(`Execution role for SQS mapping is missing.`);
-  }
-
   for (const subscription of service.subscriptions) {
     const handler = subscription.handler;
 
@@ -54,13 +50,9 @@ export const prepareSubscriptions = async (
 export const connectSubscriptions = (
   state: EntryStates,
   service: QueueService | QueueImport,
-  role: EntryState | null,
+  role: RoleState,
   options: DeployOptions
 ) => {
-  if (!role || !isRoleState(role)) {
-    throw new Error(`Execution role for SQS mapping is missing.`);
-  }
-
   if (!service.extras) {
     return;
   }

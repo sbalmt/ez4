@@ -14,12 +14,12 @@
             }
           }
         },
-        "indexes": {},
+        "indexes": [],
         "stream": {
           "handler": {
             "description": "Test table stream.",
             "name": "streamHandler",
-            "file": "test/input/output-stream.ts"
+            "file": "test/models/output-stream.ts"
           },
           "timeout": 10,
           "memory": 256
@@ -35,12 +35,12 @@
             }
           }
         },
-        "indexes": {},
+        "indexes": [],
         "stream": {
           "handler": {
             "description": "Test table stream.",
             "name": "streamHandler",
-            "file": "test/input/output-stream.ts"
+            "file": "test/models/output-stream.ts"
           },
           "variables": {
             "TEST_VAR": "test-literal-value"

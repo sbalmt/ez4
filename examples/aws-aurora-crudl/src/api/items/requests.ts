@@ -12,6 +12,21 @@ export declare class CreateItemRequest implements Http.Request {
      * Item description.
      */
     description?: String.Size<1, 128>;
+
+    /**
+     * Item category.
+     */
+    category?: {
+      /**
+       * Category name.
+       */
+      name: String.Size<1, 32>;
+
+      /**
+       * Category description.
+       */
+      description?: String.Size<1, 128>;
+    };
   };
 }
 
@@ -42,6 +57,21 @@ export declare class UpdateItemRequest implements Http.Request {
      * New item description.
      */
     description?: String.Size<1, 128>;
+
+    /**
+     * Item category.
+     */
+    category?: {
+      /**
+       * New category name.
+       */
+      name: String.Size<1, 32>;
+
+      /**
+       * New category description.
+       */
+      description?: String.Size<1, 128>;
+    };
   };
 }
 
