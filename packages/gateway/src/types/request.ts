@@ -8,7 +8,7 @@ export type HttpAuthRequest = {
 
 export type HttpRequest = {
   headers?: ObjectSchema | null;
-  identity?: ObjectSchema | null;
+  identity?: ObjectSchema | UnionSchema | null;
   parameters?: ObjectSchema | null;
   query?: ObjectSchema | null;
   body?: ObjectSchema | UnionSchema | null;

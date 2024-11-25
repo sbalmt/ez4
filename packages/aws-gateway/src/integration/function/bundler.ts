@@ -15,7 +15,9 @@ export const bundleApiFunction = async (
   dependencies: EntryState[],
   parameters: IntegrationFunctionParameters
 ) => {
-  const { headersSchema, identitySchema, parametersSchema, querySchema, bodySchema } = parameters;
+  const { bodySchema, responseSchema } = parameters;
+  const { parametersSchema, querySchema } = parameters;
+  const { headersSchema, identitySchema } = parameters;
 
   const definitions = getDefinitionsObject(dependencies);
 
@@ -27,6 +29,7 @@ export const bundleApiFunction = async (
     filePrefix: 'api',
     define: {
       ...definitions,
+      __EZ4_RESPONSE_SCHEMA: responseSchema ? JSON.stringify(responseSchema) : 'undefined',
       __EZ4_HEADERS_SCHEMA: headersSchema ? JSON.stringify(headersSchema) : 'undefined',
       __EZ4_IDENTITY_SCHEMA: identitySchema ? JSON.stringify(identitySchema) : 'undefined',
       __EZ4_PARAMETERS_SCHEMA: parametersSchema ? JSON.stringify(parametersSchema) : 'undefined',

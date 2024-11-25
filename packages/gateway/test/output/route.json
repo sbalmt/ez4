@@ -9,16 +9,7 @@
           "name": "testRoute",
           "file": "test/input/output-route.ts",
           "response": {
-            "type": "object",
-            "properties": {
-              "status": {
-                "type": "number",
-                "description": "Response status code.",
-                "extra": {
-                  "value": 204
-                }
-              }
-            }
+            "status": 204
           }
         }
       },
@@ -28,16 +19,7 @@
           "name": "testRoute",
           "file": "test/input/output-route.ts",
           "response": {
-            "type": "object",
-            "properties": {
-              "status": {
-                "type": "number",
-                "description": "Response status code.",
-                "extra": {
-                  "value": 204
-                }
-              }
-            }
+            "status": 204
           }
         },
         "timeout": 30,

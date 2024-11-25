@@ -1,18 +1,18 @@
-import type { PartialObjectSchemaProperties } from '@ez4/schema/library';
+import type { PartialSchemaProperties } from '@ez4/schema/library';
 import type { ObjectSchema } from '@ez4/schema';
 import type { AnyObject } from '@ez4/utils';
 
-import { partialObjectSchema } from '@ez4/schema/library';
+import { getPartialSchema } from '@ez4/schema/library';
 
 export const preparePartialSchema = (schema: ObjectSchema, data: AnyObject) => {
-  return partialObjectSchema(schema, {
+  return getPartialSchema(schema, {
     include: getDataProperties(data),
     extensible: true
   });
 };
 
 const getDataProperties = (data: AnyObject) => {
-  const properties: PartialObjectSchemaProperties = {};
+  const properties: PartialSchemaProperties = {};
 
   for (const propertyName in data) {
     const value = data[propertyName];

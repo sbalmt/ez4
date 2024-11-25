@@ -28,13 +28,16 @@ export const getHttpHandler = (type: AllType, reflection: SourceMap, errorList: 
   }
 
   if (type.parameters) {
-    const requestType = type.parameters[0].value;
+    const [{ value: requestType }] = type.parameters;
 
     handler.request = getHttpHandlerRequest(requestType, type, reflection, errorList);
   }
 
   if (type.return) {
-    if ((handler.response = getHttpHandlerResponse(type.return, type, reflection, errorList))) {
+    const response = getHttpHandlerResponse(type.return, type, reflection, errorList);
+
+    if (response) {
+      handler.response = response;
       properties.delete('response');
     }
   }

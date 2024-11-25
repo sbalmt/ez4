@@ -1,7 +1,12 @@
 import { describe, it } from 'node:test';
 import { deepEqual } from 'assert/strict';
 
-import { ObjectSchema, partialObjectSchema, SchemaType } from '@ez4/schema/library';
+import {
+  ObjectSchema,
+  getPartialSchema,
+  getPartialSchemaProperties,
+  SchemaType
+} from '@ez4/schema';
 
 describe.only('schema utils', () => {
   const fullSchema: ObjectSchema = {
@@ -28,7 +33,7 @@ describe.only('schema utils', () => {
   };
 
   it('assert :: partial schema (include)', () => {
-    const partialSchema = partialObjectSchema(fullSchema, {
+    const partialSchema = getPartialSchema(fullSchema, {
       extensible: true,
       include: {
         bar: true,
@@ -63,7 +68,7 @@ describe.only('schema utils', () => {
   });
 
   it('assert :: partial schema (exclude)', () => {
-    const partialSchema = partialObjectSchema(fullSchema, {
+    const partialSchema = getPartialSchema(fullSchema, {
       exclude: {
         bar: true,
         baz: {
@@ -86,6 +91,19 @@ describe.only('schema utils', () => {
             }
           }
         }
+      }
+    });
+  });
+
+  it('assert :: partial schema (properties)', () => {
+    const partialProperties = getPartialSchemaProperties(fullSchema);
+
+    deepEqual(partialProperties, {
+      foo: true,
+      bar: true,
+      baz: {
+        bazFoo: true,
+        bazBar: true
       }
     });
   });

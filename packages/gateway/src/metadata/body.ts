@@ -1,7 +1,7 @@
 import type { AllType, SourceMap, TypeModel, TypeObject } from '@ez4/reflection';
 import type { ObjectSchema, UnionSchema } from '@ez4/schema';
 
-import { isTypeObject, isTypeReference, isTypeUnion } from '@ez4/reflection';
+import { isTypeObject, isTypeReference, isTypeUndefined, isTypeUnion } from '@ez4/reflection';
 import { createUnionSchema, getObjectSchema } from '@ez4/schema/library';
 import { isModelDeclaration } from '@ez4/common/library';
 
@@ -14,6 +14,10 @@ export const getHttpBody = (
   reflection: SourceMap,
   errorList: Error[]
 ) => {
+  if (isTypeUndefined(type)) {
+    return null;
+  }
+
   if (!isTypeReference(type)) {
     return getTypeBody(type, parent, reflection, errorList);
   }
@@ -70,7 +74,11 @@ const getBodyFromUnion = (
     }
   }
 
-  return createUnionSchema({
-    elements: schemaList
-  });
+  if (schemaList.length > 1) {
+    return createUnionSchema({
+      elements: schemaList
+    });
+  }
+
+  return schemaList[0];
 };

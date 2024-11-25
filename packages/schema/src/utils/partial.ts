@@ -1,15 +1,15 @@
-import type { ObjectSchema, ObjectSchemaProperties } from '../types/object.js';
+import { isObjectSchema, type ObjectSchema, type ObjectSchemaProperties } from '../types/object.js';
 import type { AnyObject } from '@ez4/utils';
 
 import { isAnyObject } from '@ez4/utils';
 
 import { SchemaType } from '../types/common.js';
 
-export type PartialObjectSchemaProperties = {
-  [property: string]: PartialObjectSchemaProperties | boolean;
+export type PartialSchemaProperties = {
+  [property: string]: PartialSchemaProperties | boolean;
 };
 
-export type PartialObjectSchemaOptions = {
+export type PartialSchemaOptions = {
   /**
    * Determines whether or not the new schema is extensible.
    */
@@ -18,17 +18,17 @@ export type PartialObjectSchemaOptions = {
   /**
    * Determines which property must be excluded, all other properties are included.
    */
-  exclude?: PartialObjectSchemaProperties;
+  exclude?: PartialSchemaProperties;
 
   /**
    * Determines which property must be included, all other properties are excluded.
    */
-  include?: PartialObjectSchemaProperties;
+  include?: PartialSchemaProperties;
 };
 
-export const partialObjectSchema = (
+export const getPartialSchema = (
   schema: ObjectSchema,
-  options: PartialObjectSchemaOptions
+  options: PartialSchemaOptions
 ): ObjectSchema => {
   const properties: ObjectSchemaProperties = {};
 
@@ -56,7 +56,7 @@ export const partialObjectSchema = (
       continue;
     }
 
-    properties[propertyName] = partialObjectSchema(value, {
+    properties[propertyName] = getPartialSchema(value, {
       ...(isInclude ? { include: propertyState } : { exclude: propertyState }),
       extensible: options.extensible
     });
@@ -71,4 +71,20 @@ export const partialObjectSchema = (
       }
     })
   };
+};
+
+export const getPartialSchemaProperties = (schema: ObjectSchema) => {
+  const properties: Record<string, unknown> = {};
+
+  for (const propertyName in schema.properties) {
+    const value = schema.properties[propertyName];
+
+    if (isObjectSchema(value)) {
+      properties[propertyName] = getPartialSchemaProperties(value);
+    } else {
+      properties[propertyName] = true;
+    }
+  }
+
+  return properties;
 };

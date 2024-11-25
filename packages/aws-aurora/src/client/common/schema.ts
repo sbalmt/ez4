@@ -1,9 +1,9 @@
 import type { AnyObject } from '@ez4/utils';
-import type { PartialObjectSchemaProperties } from '@ez4/schema/library';
+import type { PartialSchemaProperties } from '@ez4/schema/library';
 import type { ObjectSchema } from '@ez4/schema';
 import type { RepositoryRelationsWithSchema } from '../../types/repository.js';
 
-import { partialObjectSchema, SchemaType } from '@ez4/schema/library';
+import { getPartialSchema, SchemaType } from '@ez4/schema/library';
 
 import { getUniqueErrorMessages } from '@ez4/validator';
 import { validate } from '@ez4/validator';
@@ -57,7 +57,7 @@ export const prepareInsertSchema = (
     finalSchema.properties[alias] = {
       type: SchemaType.Array,
       optional: true,
-      element: partialObjectSchema(sourceSchema, {
+      element: getPartialSchema(sourceSchema, {
         exclude: {
           [sourceColumn]: true
         }
@@ -92,14 +92,14 @@ export const prepareUpdateSchema = (
     };
   }
 
-  return partialObjectSchema(finalSchema, {
+  return getPartialSchema(finalSchema, {
     include: getDataProperties(data),
     extensible: true
   });
 };
 
 const getDataProperties = (data: AnyObject) => {
-  const properties: PartialObjectSchemaProperties = {};
+  const properties: PartialSchemaProperties = {};
 
   for (const propertyName in data) {
     const value = data[propertyName];

@@ -42,7 +42,7 @@ export async function apiEntryPoint(event: RequestEvent, context: Context): Prom
     return {
       isAuthorized: !!identity,
       context: {
-        identity: JSON.stringify(identity)
+        identity: JSON.stringify(identity ?? {})
       }
     };
   } catch (error) {

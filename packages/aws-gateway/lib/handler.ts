@@ -12,7 +12,8 @@ import {
   getIdentity,
   getPathParameters,
   getQueryStrings,
-  getJsonBody,
+  getRequestJsonBody,
+  getResponseJsonBody,
   getJsonError
 } from '@ez4/aws-gateway/runtime';
 
@@ -23,11 +24,12 @@ type ResponseEvent = APIGatewayProxyResultV2;
 
 declare function next(request: unknown, context: object): Promise<Http.Response>;
 
-declare const __EZ4_HEADERS_SCHEMA: ObjectSchema | null;
-declare const __EZ4_IDENTITY_SCHEMA: ObjectSchema | null;
+declare const __EZ4_RESPONSE_SCHEMA: ObjectSchema | null;
+declare const __EZ4_BODY_SCHEMA: ObjectSchema | null;
 declare const __EZ4_PARAMETERS_SCHEMA: ObjectSchema | null;
 declare const __EZ4_QUERY_SCHEMA: ObjectSchema | null;
-declare const __EZ4_BODY_SCHEMA: ObjectSchema | null;
+declare const __EZ4_IDENTITY_SCHEMA: ObjectSchema | null;
+declare const __EZ4_HEADERS_SCHEMA: ObjectSchema | null;
 declare const __EZ4_CONTEXT: object;
 
 /**
@@ -44,7 +46,7 @@ export async function apiEntryPoint(event: RequestEvent, context: Context): Prom
       headers: __EZ4_HEADERS_SCHEMA && (await getRequestHeaders(event)),
       identity: __EZ4_IDENTITY_SCHEMA && (await getRequestIdentity(event)),
       parameters: __EZ4_PARAMETERS_SCHEMA && (await getRequestParameters(event)),
-      query: __EZ4_QUERY_SCHEMA && (await getRequestQuery(event)),
+      query: __EZ4_QUERY_SCHEMA && (await getRequestQueryStrings(event)),
       body: __EZ4_BODY_SCHEMA && (await getRequestBody(event))
     };
 
@@ -94,7 +96,7 @@ const getRequestParameters = (event: RequestEvent) => {
   return getPathParameters(rawParameters, __EZ4_PARAMETERS_SCHEMA);
 };
 
-const getRequestQuery = (event: RequestEvent) => {
+const getRequestQueryStrings = (event: RequestEvent) => {
   if (!__EZ4_QUERY_SCHEMA) {
     return undefined;
   }
@@ -112,7 +114,7 @@ const getRequestBody = (event: RequestEvent) => {
   const rawBody = event.body || '{}';
 
   try {
-    return getJsonBody(JSON.parse(rawBody), __EZ4_BODY_SCHEMA);
+    return getRequestJsonBody(JSON.parse(rawBody), __EZ4_BODY_SCHEMA);
   } catch (error) {
     if (error instanceof SyntaxError) {
       console.debug(rawBody);
@@ -122,11 +124,21 @@ const getRequestBody = (event: RequestEvent) => {
   }
 };
 
+const getResponseBody = (body: Http.JsonBody) => {
+  if (!__EZ4_RESPONSE_SCHEMA) {
+    return undefined;
+  }
+
+  const response = getResponseJsonBody(body, __EZ4_RESPONSE_SCHEMA);
+
+  return JSON.stringify(response);
+};
+
 const getJsonResponse = (status: number, body?: Http.JsonBody, headers?: Http.Headers) => {
   return {
     statusCode: status,
     ...(body && {
-      body: JSON.stringify(body)
+      body: getResponseBody(body)
     }),
     headers: {
       ...headers,
