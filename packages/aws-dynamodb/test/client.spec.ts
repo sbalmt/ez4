@@ -46,7 +46,7 @@ describe.only('dynamodb client', () => {
 
   registerTriggers();
 
-  it.only('assert :: deploy', async () => {
+  it('assert :: deploy', async () => {
     const localState: EntryStates = {};
 
     const resource = createTable(localState, {
@@ -103,7 +103,7 @@ describe.only('dynamodb client', () => {
     ok(dbClient);
   });
 
-  it.only('assert :: insert many', async () => {
+  it('assert :: insert many', async () => {
     ok(dbClient);
 
     const data: any[] = [];
@@ -121,7 +121,7 @@ describe.only('dynamodb client', () => {
     });
   });
 
-  it.only('assert :: update many', async () => {
+  it('assert :: update many', async () => {
     ok(dbClient);
 
     const result = await dbClient.testTable.updateMany({
@@ -136,7 +136,7 @@ describe.only('dynamodb client', () => {
     equal(result.length, 150);
   });
 
-  it.only('assert :: find many', async () => {
+  it('assert :: find many', async () => {
     ok(dbClient);
 
     const { records } = await dbClient.testTable.findMany({
@@ -155,7 +155,7 @@ describe.only('dynamodb client', () => {
     equal(records.length, 2);
   });
 
-  it.only('assert :: find many (ordered)', async () => {
+  it('assert :: find many (ordered)', async () => {
     ok(dbClient);
 
     const result = await dbClient.testTable.findMany({
@@ -186,7 +186,7 @@ describe.only('dynamodb client', () => {
     });
   });
 
-  it.only('assert :: delete many', async () => {
+  it('assert :: delete many', async () => {
     ok(dbClient);
 
     const result = await dbClient.testTable.deleteMany({
@@ -198,7 +198,7 @@ describe.only('dynamodb client', () => {
     equal(result.length, 150);
   });
 
-  it.only('assert :: insert one', async () => {
+  it('assert :: insert one', async () => {
     ok(dbClient);
 
     await dbClient.testTable.insertOne({
@@ -210,7 +210,7 @@ describe.only('dynamodb client', () => {
     });
   });
 
-  it.only('assert :: update one', async () => {
+  it('assert :: update one', async () => {
     ok(dbClient);
 
     const result = await dbClient.testTable.updateOne({
@@ -232,7 +232,7 @@ describe.only('dynamodb client', () => {
     });
   });
 
-  it.only('assert :: find one', async () => {
+  it('assert :: find one', async () => {
     ok(dbClient);
 
     const result = await dbClient.testTable.findOne({
@@ -251,7 +251,7 @@ describe.only('dynamodb client', () => {
     });
   });
 
-  it.only('assert :: upsert one', async () => {
+  it('assert :: upsert one', async () => {
     ok(dbClient);
 
     const query = {
@@ -283,7 +283,7 @@ describe.only('dynamodb client', () => {
     });
   });
 
-  it.only('assert :: delete one', async () => {
+  it('assert :: delete one', async () => {
     ok(dbClient);
 
     const result = await dbClient.testTable.deleteOne({
@@ -301,7 +301,7 @@ describe.only('dynamodb client', () => {
     });
   });
 
-  it.only('assert :: transaction :: insert one', async () => {
+  it('assert :: transaction :: insert one', async () => {
     ok(dbClient);
 
     await dbClient.transaction({
@@ -348,7 +348,7 @@ describe.only('dynamodb client', () => {
     ]);
   });
 
-  it.only('assert :: transaction :: update one', async () => {
+  it('assert :: transaction :: update one', async () => {
     ok(dbClient);
 
     await dbClient.transaction({
@@ -399,7 +399,7 @@ describe.only('dynamodb client', () => {
     ]);
   });
 
-  it.only('assert :: transaction :: delete one', async () => {
+  it('assert :: transaction :: delete one', async () => {
     ok(dbClient);
 
     await dbClient.transaction({
@@ -437,7 +437,7 @@ describe.only('dynamodb client', () => {
     deepEqual(result.records, []);
   });
 
-  it.only('assert :: destroy', async () => {
+  it('assert :: destroy', async () => {
     ok(tableId && lastState);
     ok(lastState[tableId]);
 
