@@ -2,16 +2,10 @@ import type { ObjectSchema, ObjectSchemaProperties } from '@ez4/schema';
 import type { TableIndex } from '@ez4/database/library';
 import type { AttributeSchema, AttributeSchemaGroup } from '../types/schema.js';
 
-import { SchemaType } from '@ez4/schema';
+import { isNumberSchema, SchemaType } from '@ez4/schema';
 import { Index } from '@ez4/database';
 
 import { AttributeType, AttributeKeyType } from '../types/schema.js';
-
-const SchemaTypesMap: Record<string, AttributeType | undefined> = {
-  [SchemaType.Number]: AttributeType.Number,
-  [SchemaType.String]: AttributeType.String,
-  [SchemaType.Enum]: AttributeType.String
-};
 
 export const getAttributeSchema = (indexes: TableIndex[], schema: ObjectSchema) => {
   const primarySchema: AttributeSchema[] = [];
@@ -69,21 +63,13 @@ const getAttributeIndex = (indexName: string, allColumns: ObjectSchemaProperties
     const columnSchema = allColumns[columnName];
 
     if (!columnSchema) {
-      throw new Error(`Column ${columnName} doesn't exists, ensure the given schema is correct.`);
+      throw new Error(`Column ${columnName} doesn't exists.`);
     }
-
-    const attributeType = SchemaTypesMap[columnSchema.type];
-
-    if (!attributeType) {
-      throw new Error(`Index column ${columnName} must be a string or a number.`);
-    }
-
-    const keyType = attributeSchema.length === 0 ? AttributeKeyType.Hash : AttributeKeyType.Range;
 
     attributeSchema.push({
       attributeName: columnName,
-      attributeType,
-      keyType
+      attributeType: isNumberSchema(columnSchema) ? AttributeType.Number : AttributeType.String,
+      keyType: !attributeSchema.length ? AttributeKeyType.Hash : AttributeKeyType.Range
     });
   }
 
