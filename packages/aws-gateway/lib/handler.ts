@@ -54,15 +54,13 @@ export async function apiEntryPoint(event: RequestEvent, context: Context): Prom
 
     return getJsonResponse(status, body, headers);
   } catch (error) {
-    if (!(error instanceof HttpError)) {
-      console.error(error);
-
-      error = new HttpInternalServerError();
+    if (error instanceof HttpError) {
+      return getErrorResponse(error);
     }
 
-    const { status, body } = getJsonError(error);
+    console.error(error);
 
-    return getJsonResponse(status, body);
+    return getErrorResponse();
   }
 }
 
@@ -129,9 +127,9 @@ const getResponseBody = (body: Http.JsonBody) => {
     return undefined;
   }
 
-  const response = getResponseJsonBody(body, __EZ4_RESPONSE_SCHEMA);
+  const rawBody = getResponseJsonBody(body, __EZ4_RESPONSE_SCHEMA);
 
-  return JSON.stringify(response);
+  return JSON.stringify(rawBody);
 };
 
 const getJsonResponse = (status: number, body?: Http.JsonBody, headers?: Http.Headers) => {
@@ -145,6 +143,18 @@ const getJsonResponse = (status: number, body?: Http.JsonBody, headers?: Http.He
       ...(body && {
         ['content-type']: 'application/json'
       })
+    }
+  };
+};
+
+const getErrorResponse = (error?: HttpError) => {
+  const { status, body } = getJsonError(error ?? new HttpInternalServerError());
+
+  return {
+    statusCode: status,
+    body: JSON.stringify(body),
+    headers: {
+      ['content-type']: 'application/json'
     }
   };
 };
