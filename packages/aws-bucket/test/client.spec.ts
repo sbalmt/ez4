@@ -1,6 +1,6 @@
 import type { EntryStates } from '@ez4/stateful';
 
-import { ok, equal } from 'node:assert/strict';
+import { ok, equal, deepEqual } from 'node:assert/strict';
 import { createReadStream } from 'node:fs';
 import { describe, it } from 'node:test';
 import { join } from 'node:path';
@@ -18,7 +18,7 @@ describe.only('bucket client', () => {
 
   registerTriggers();
 
-  it('assert :: deploy', async () => {
+  it.only('assert :: deploy', async () => {
     const localState: EntryStates = {};
 
     const resource = createBucket(localState, {
@@ -41,28 +41,32 @@ describe.only('bucket client', () => {
     lastState = result;
   });
 
-  it('assert :: put object (stream)', async () => {
+  it.only('assert :: put object (stream)', async () => {
     ok(bucketClient);
 
     const content = createReadStream(join(baseDir, 'object-file.txt'));
 
-    await bucketClient.write('test-client', content);
+    await bucketClient.write('test-client', content, {
+      contentType: 'text/plain'
+    });
   });
 
-  it('assert :: put object (plain text)', async () => {
+  it.only('assert :: put object (plain text)', async () => {
     ok(bucketClient);
 
     const content = 'Plain text test';
 
-    await bucketClient.write('test-client-plain', content);
+    await bucketClient.write('test-client-plain', content, {
+      contentType: 'text/plain'
+    });
   });
 
-  it('assert :: object exists', async () => {
+  it.only('assert :: object exists', async () => {
     ok(bucketClient);
 
     const [objectExists, objectDoNotExists] = await Promise.all([
       bucketClient.exists('test-client'),
-      bucketClient.exists('test-client-do-no-exists')
+      bucketClient.exists('test-client-do-not-exists')
     ]);
 
     ok(objectExists);
@@ -70,7 +74,23 @@ describe.only('bucket client', () => {
     ok(!objectDoNotExists);
   });
 
-  it('assert :: get object', async () => {
+  it.only('assert :: object stats', async () => {
+    ok(bucketClient);
+
+    const [objectExists, objectDoNotExists] = await Promise.all([
+      bucketClient.getStats('test-client'),
+      bucketClient.getStats('test-client-do-not-exists')
+    ]);
+
+    ok(!objectDoNotExists);
+
+    deepEqual(objectExists, {
+      type: 'text/plain',
+      size: 43
+    });
+  });
+
+  it.only('assert :: get object', async () => {
     ok(bucketClient);
 
     const buffer = await bucketClient.read('test-client-plain');
@@ -79,7 +99,7 @@ describe.only('bucket client', () => {
     equal(content, 'Plain text test');
   });
 
-  it('assert :: delete object', async () => {
+  it.only('assert :: delete object', async () => {
     ok(bucketClient);
 
     await Promise.all([
@@ -88,7 +108,7 @@ describe.only('bucket client', () => {
     ]);
   });
 
-  it('assert :: destroy', async () => {
+  it.only('assert :: destroy', async () => {
     ok(bucketId && lastState);
 
     ok(lastState[bucketId]);
