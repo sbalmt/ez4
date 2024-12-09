@@ -58,8 +58,8 @@ const getTypeIdentity = (
   const schema = getObjectSchema(type, reflection);
 
   if (schema) {
-    schema.extra = {
-      ...schema.extra,
+    schema.definitions = {
+      ...schema.definitions,
       extensible: true
     };
   }

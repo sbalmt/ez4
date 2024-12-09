@@ -100,7 +100,7 @@
       "type": "object",
       "description": "Any object type.",
       "properties": {},
-      "extra": {
+      "definitions": {
         "extensible": true
       }
     }

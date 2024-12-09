@@ -9,7 +9,7 @@
         "foo1": {
           "type": "object",
           "properties": {},
-          "extra": {
+          "definitions": {
             "extensible": true
           }
         }
@@ -22,7 +22,7 @@
         "foo2": {
           "type": "object",
           "properties": {},
-          "extra": {
+          "definitions": {
             "extensible": true
           }
         }
@@ -35,7 +35,7 @@
         "foo3": {
           "type": "object",
           "properties": {},
-          "extra": {
+          "definitions": {
             "extensible": true
           }
         }

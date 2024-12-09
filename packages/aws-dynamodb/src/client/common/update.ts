@@ -65,7 +65,7 @@ const prepareUpdateFields = <T extends Database.Schema>(
     const fieldNotNested =
       !isAnyObject(fieldValue) ||
       fieldSchema.type !== SchemaType.Object ||
-      fieldSchema.extra?.extensible ||
+      fieldSchema.definitions?.extensible ||
       fieldSchema.nullable ||
       fieldSchema.optional;
 

@@ -5,13 +5,13 @@ import { isTypeModel, isTypeObject, isTypeReference } from '@ez4/reflection';
 
 import { getObjectProperties } from '../reflection/object.js';
 import { getModelProperties } from '../reflection/model.js';
-import { ExtraSchema, SchemaType } from '../types/common.js';
+import { SchemaDefinitions, SchemaType } from '../types/common.js';
 import { getAnySchema } from './any.js';
 
 const circularRefs = new WeakSet<AllType>();
 
 type RichTypeBase = {
-  extra?: ExtraSchema;
+  definitions?: SchemaDefinitions;
 };
 
 export type RichTypeObject = TypeObject & RichTypeBase;
@@ -19,14 +19,14 @@ export type RichTypeObject = TypeObject & RichTypeBase;
 export type RichTypeModel = TypeModel & RichTypeBase;
 
 export const createObjectSchema = (data: Omit<ObjectSchema, 'type'>): ObjectSchema => {
-  const { properties, description, optional, nullable, extra } = data;
+  const { properties, description, optional, nullable, definitions } = data;
 
   return {
     type: SchemaType.Object,
     ...(description && { description }),
     ...(optional && { optional }),
     ...(nullable && { nullable }),
-    ...(extra && { extra }),
+    ...(definitions && { definitions }),
     properties
   };
 };
@@ -47,7 +47,7 @@ export const getObjectSchema = (
   if (circularRefs.has(type)) {
     return createObjectSchema({
       properties: {},
-      extra: {
+      definitions: {
         extensible: true
       }
     });
@@ -70,8 +70,8 @@ const getRawObjectSchema = (
   if (isRichTypeObject(type)) {
     return createObjectSchema({
       properties: getAnySchemaFromMembers(reflection, getObjectProperties(type)),
+      definitions: type.definitions,
       description,
-      extra: type.extra
     });
   }
 
@@ -79,7 +79,7 @@ const getRawObjectSchema = (
     return createObjectSchema({
       properties: getAnySchemaFromMembers(reflection, getModelProperties(type)),
       description: description ?? type.description,
-      extra: type.extra
+      definitions: type.definitions
     });
   }
 

@@ -134,13 +134,13 @@ describe.only('aurora data schema', () => {
 
     deepEqual(schema, {
       type: SchemaType.Object,
-      extra: {
+      definitions: {
         extensible: true
       },
       properties: {
         parent: {
           type: SchemaType.Object,
-          extra: {
+          definitions: {
             extensible: true
           },
           properties: {
@@ -165,13 +165,13 @@ describe.only('aurora data schema', () => {
 
     deepEqual(schema, {
       type: SchemaType.Object,
-      extra: {
+      definitions: {
         extensible: true
       },
       properties: {
         parent: {
           type: SchemaType.Object,
-          extra: {
+          definitions: {
             extensible: true
           },
           properties: {
@@ -196,13 +196,13 @@ describe.only('aurora data schema', () => {
 
     deepEqual(schema, {
       type: SchemaType.Object,
-      extra: {
+      definitions: {
         extensible: true
       },
       properties: {
         children: {
           type: SchemaType.Object,
-          extra: {
+          definitions: {
             extensible: true
           },
           properties: {

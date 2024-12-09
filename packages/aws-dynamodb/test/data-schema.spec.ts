@@ -44,14 +44,14 @@ describe.only('dynamodb data schema', () => {
 
     deepEqual(schema, {
       type: SchemaType.Object,
-      extra: {
+      definitions: {
         extensible: true
       },
       properties: {
         id: testSchema.properties.id,
         bar: {
           ...testSchema.properties.bar,
-          extra: {
+          definitions: {
             extensible: true
           }
         }

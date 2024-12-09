@@ -6,19 +6,19 @@
       "type": "string",
       "description": "String following a time format.",
       "format": "time",
-      "extra": {}
+      "definitions": {}
     },
     "date": {
       "type": "string",
       "description": "String following a date format.",
       "format": "date",
-      "extra": {}
+      "definitions": {}
     },
     "dateTime": {
       "type": "string",
       "description": "String following a date & time format.",
       "format": "date-time",
-      "extra": {}
+      "definitions": {}
     }
   }
 }

@@ -1,5 +1,5 @@
 import type { AllType, EveryType, SourceMap, TypeUnion } from '@ez4/reflection';
-import type { AnySchema, ExtraSchema } from '../types/common.js';
+import type { AnySchema, SchemaDefinitions } from '../types/common.js';
 import type { UnionSchema } from '../types/union.js';
 
 import { isTypeNull, isTypeUndefined, isTypeUnion } from '@ez4/reflection';
@@ -8,18 +8,18 @@ import { SchemaType } from '../types/common.js';
 import { getAnySchema } from './any.js';
 
 export type RichTypeUnion = TypeUnion & {
-  extra?: ExtraSchema;
+  definitions?: SchemaDefinitions;
 };
 
 export const createUnionSchema = (data: Omit<UnionSchema, 'type'>): UnionSchema => {
-  const { description, optional, nullable, elements, extra } = data;
+  const { description, optional, nullable, elements, definitions } = data;
 
   return {
     type: SchemaType.Union,
     ...(description && { description }),
     ...(optional && { optional }),
     ...(nullable && { nullable }),
-    ...(extra && { extra }),
+    ...(definitions && { definitions }),
     elements
   };
 };
@@ -41,7 +41,7 @@ export const getUnionSchema = (
   const optional = hasOptionalType(type.elements);
   const nullable = hasNullableType(type.elements);
 
-  const extra = type.extra;
+  const definitions = type.definitions;
 
   if (elements.length > 1) {
     return createUnionSchema({
@@ -49,7 +49,7 @@ export const getUnionSchema = (
       description,
       optional,
       nullable,
-      extra
+      definitions
     });
   }
 

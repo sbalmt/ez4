@@ -45,7 +45,7 @@ describe.only('schema utils', () => {
 
     deepEqual(partialSchema, {
       type: SchemaType.Object,
-      extra: {
+      definitions: {
         extensible: true
       },
       properties: {
@@ -54,7 +54,7 @@ describe.only('schema utils', () => {
         },
         baz: {
           type: SchemaType.Object,
-          extra: {
+          definitions: {
             extensible: true
           },
           properties: {

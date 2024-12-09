@@ -22,18 +22,18 @@ export const validateNumber = (value: unknown, schema: NumberSchema, property?: 
       return [new ExpectedIntegerTypeError(property)];
     }
 
-    const { extra } = schema;
+    const { definitions } = schema;
 
-    if (isAnyNumber(extra?.value) && value !== extra?.value) {
-      return [new UnexpectedNumberError(extra.value, property)];
+    if (isAnyNumber(definitions?.value) && value !== definitions?.value) {
+      return [new UnexpectedNumberError(definitions.value, property)];
     }
 
-    if (isAnyNumber(extra?.minValue) && value < extra.minValue) {
-      return [new UnexpectedMinRangeError(extra.minValue, property)];
+    if (isAnyNumber(definitions?.minValue) && value < definitions.minValue) {
+      return [new UnexpectedMinRangeError(definitions.minValue, property)];
     }
 
-    if (isAnyNumber(extra?.maxValue) && value > extra.maxValue) {
-      return [new UnexpectedMaxRangeError(extra.maxValue, property)];
+    if (isAnyNumber(definitions?.maxValue) && value > definitions.maxValue) {
+      return [new UnexpectedMaxRangeError(definitions.maxValue, property)];
     }
   }
 

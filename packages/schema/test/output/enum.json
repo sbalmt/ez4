@@ -21,9 +21,18 @@
     "bar": {
       "type": "string",
       "description": "Bar property.",
-      "extra": {
+      "definitions": {
         "value": "bar"
       }
+    },
+    "baz": {
+      "type": "enum",
+      "description": "Baz property.",
+      "options": [
+        {
+          "value": "baz"
+        }
+      ]
     }
   }
 }

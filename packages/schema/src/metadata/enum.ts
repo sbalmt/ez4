@@ -3,21 +3,21 @@ import type { EnumSchema, EnumSchemaOption } from '../types/enum.js';
 
 import { isTypeEnum, isTypeReference } from '@ez4/reflection';
 
-import { ExtraSchema, SchemaType } from '../types/common.js';
+import { SchemaDefinitions, SchemaType } from '../types/common.js';
 
 export type RichTypeEnum = TypeEnum & {
-  extra?: ExtraSchema;
+  definitions?: SchemaDefinitions;
 };
 
 export const createEnumSchema = (
   options: EnumSchemaOption[],
   description: string | undefined,
-  extra: ExtraSchema | undefined
+  definitions: SchemaDefinitions | undefined
 ): EnumSchema => {
   return {
     type: SchemaType.Enum,
     ...(description && { description }),
-    ...(extra && { extra }),
+    ...(definitions && { definitions }),
     options
   };
 };
@@ -42,7 +42,7 @@ export const getEnumSchema = (
   }
 
   if (isRichTypeEnum(type) && type.members?.length) {
-    return createEnumSchema(getAnySchemaFromMembers(type.members), description, type.extra);
+    return createEnumSchema(getAnySchemaFromMembers(type.members), description, type.definitions);
   }
 
   return null;

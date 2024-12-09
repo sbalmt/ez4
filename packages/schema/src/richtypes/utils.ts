@@ -85,7 +85,7 @@ export const createRichType = (richTypes: RichTypes) => {
       return {
         ...createNumber(),
         format,
-        extra: {
+        definitions: {
           ...(minValue && { minValue }),
           ...(maxValue && { maxValue })
         }
@@ -96,7 +96,7 @@ export const createRichType = (richTypes: RichTypes) => {
 
       return {
         ...createString(),
-        extra: {
+        definitions: {
           ...(minLength && { minLength }),
           ...(maxLength && { maxLength })
         }
@@ -107,7 +107,7 @@ export const createRichType = (richTypes: RichTypes) => {
 
       return {
         ...createObject('@ez4/schema'),
-        extra: {
+        definitions: {
           ...(extensible && { extensible })
         }
       };
@@ -118,7 +118,7 @@ export const createRichType = (richTypes: RichTypes) => {
       return {
         ...createString(),
         ...(format && { format }),
-        extra: {
+        definitions: {
           ...(pattern && { pattern }),
           ...(name && { name })
         }

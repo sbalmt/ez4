@@ -6,13 +6,13 @@
       "type": "number",
       "description": "Number following an integer format.",
       "format": "integer",
-      "extra": {}
+      "definitions": {}
     },
     "min": {
       "type": "number",
       "description": "Number following an integer format with minimum value.",
       "format": "integer",
-      "extra": {
+      "definitions": {
         "minValue": 10
       }
     },
@@ -20,7 +20,7 @@
       "type": "number",
       "description": "Number following an integer format with maximum value.",
       "format": "integer",
-      "extra": {
+      "definitions": {
         "maxValue": 99
       }
     },
@@ -28,7 +28,7 @@
       "type": "number",
       "description": "Number following an integer format with range value.",
       "format": "integer",
-      "extra": {
+      "definitions": {
         "minValue": 25,
         "maxValue": 50
       }
@@ -36,7 +36,7 @@
     "literal": {
       "type": "number",
       "description": "Literal integer value.",
-      "extra": {
+      "definitions": {
         "value": 123
       }
     }

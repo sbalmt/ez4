@@ -21,18 +21,18 @@ export const validateString = (value: unknown, schema: StringSchema, property?: 
       return [new ExpectedStringTypeError(property)];
     }
 
-    const { extra } = schema;
+    const { definitions } = schema;
 
-    if (extra?.value && value !== extra.value) {
-      return [new UnexpectedStringError(extra.value, property)];
+    if (definitions?.value && value !== definitions.value) {
+      return [new UnexpectedStringError(definitions.value, property)];
     }
 
-    if (isAnyNumber(extra?.minLength) && value.length < extra.minLength) {
-      return [new UnexpectedMinLengthError(extra.minLength, property)];
+    if (isAnyNumber(definitions?.minLength) && value.length < definitions.minLength) {
+      return [new UnexpectedMinLengthError(definitions.minLength, property)];
     }
 
-    if (isAnyNumber(extra?.maxLength) && value.length > extra.maxLength) {
-      return [new UnexpectedMaxLengthError(extra.maxLength, property)];
+    if (isAnyNumber(definitions?.maxLength) && value.length > definitions.maxLength) {
+      return [new UnexpectedMaxLengthError(definitions.maxLength, property)];
     }
 
     return validateStringFormat(value, schema, property);
