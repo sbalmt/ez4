@@ -2,7 +2,6 @@ import { equal, deepEqual } from 'node:assert/strict';
 import { describe, it } from 'node:test';
 
 import { prepareUpdateQuery } from '@ez4/aws-aurora/client';
-
 import { ObjectSchema, SchemaType } from '@ez4/schema';
 import { Index } from '@ez4/database';
 
@@ -20,16 +19,26 @@ type TestSchema = {
 };
 
 type TestRelations = {
-  relation1?: TestSchema;
-  relation2?: TestSchema;
-  relations?: TestSchema[];
+  indexes: 'relation1_id' | 'relation2_id';
+  selects: {
+    relation1?: TestSchema;
+    relation2?: TestSchema;
+    relations?: TestSchema[];
+  };
+  changes: {
+    relation1?: TestSchema | { relation1_id: string };
+    relation2?: TestSchema | { relation2_id: string };
+    relations?: TestSchema[];
+  };
 };
 
 type TestIndexes = {
   id: Index.Primary;
+  relation1_id: Index.Secondary;
+  relation2_id: Index.Secondary;
 };
 
-describe.only('aurora query update', () => {
+describe.only('aurora query (update)', () => {
   const testSchema: ObjectSchema = {
     type: SchemaType.Object,
     properties: {
@@ -39,10 +48,12 @@ describe.only('aurora query update', () => {
       },
       relation1_id: {
         type: SchemaType.String,
+        optional: true,
         format: 'uuid'
       },
       relation2_id: {
         type: SchemaType.String,
+        optional: true,
         format: 'uuid'
       },
       foo: {
@@ -159,7 +170,43 @@ describe.only('aurora query update', () => {
     ]);
   });
 
-  it('assert :: prepare update (with foreign relationship)', () => {
+  it('assert :: prepare update (foreign relationship ids)', () => {
+    const [statement, variables] = prepareUpdateQuery<TestSchema, TestIndexes, TestRelations, {}>(
+      'ez4-test-update',
+      testSchema,
+      testRelations,
+      {
+        data: {
+          id: '00000000-0000-0000-0000-000000000000',
+          relation1: {
+            relation1_id: '00000000-0000-0000-0000-000000000001'
+          },
+          relation2: {
+            relation2_id: '00000000-0000-0000-0000-000000000002'
+          }
+        },
+        where: {
+          foo: 456
+        }
+      }
+    );
+
+    equal(
+      statement,
+      // Main record
+      `UPDATE "ez4-test-update" SET "id" = :0i, relation1_id = :1i, relation2_id = :2i ` +
+        `WHERE "foo" = :0`
+    );
+
+    deepEqual(variables, [
+      makeParameter('0i', '00000000-0000-0000-0000-000000000000', 'UUID'),
+      makeParameter('1i', '00000000-0000-0000-0000-000000000001', 'UUID'),
+      makeParameter('2i', '00000000-0000-0000-0000-000000000002', 'UUID'),
+      makeParameter('0', 456)
+    ]);
+  });
+
+  it('assert :: prepare update (foreign relationship object)', () => {
     const [statement, variables] = prepareUpdateQuery<TestSchema, TestIndexes, TestRelations, {}>(
       'ez4-test-update',
       testSchema,
@@ -204,7 +251,7 @@ describe.only('aurora query update', () => {
     ]);
   });
 
-  it('assert :: prepare update (with inverse relationship)', () => {
+  it('assert :: prepare update (inverse relationship object)', () => {
     const [statement, variables] = prepareUpdateQuery<TestSchema, TestIndexes, TestRelations, {}>(
       'ez4-test-update',
       testSchema,
@@ -240,7 +287,7 @@ describe.only('aurora query update', () => {
     ]);
   });
 
-  it('assert :: prepare update (with both relationships)', () => {
+  it('assert :: prepare update (foreign and inverse relationships)', () => {
     const [statement, variables] = prepareUpdateQuery<TestSchema, TestIndexes, TestRelations, {}>(
       'ez4-test-update',
       testSchema,

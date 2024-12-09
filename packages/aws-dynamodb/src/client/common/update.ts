@@ -17,7 +17,7 @@ export const prepareUpdate = <
 >(
   table: string,
   schema: ObjectSchema,
-  query: Query.UpdateOneInput<T, S, I, R> | Query.UpdateManyInput<T, S, I, R>
+  query: Query.UpdateOneInput<T, S, I, R> | Query.UpdateManyInput<T, S, R>
 ): PrepareResult => {
   const [updateFields, variables] = prepareUpdateFields(query.data, schema);
 

@@ -3,14 +3,10 @@ import type { ObjectSchema } from '@ez4/schema';
 
 type PrepareResult = [string, unknown[]];
 
-export const prepareInsert = <
-  T extends Database.Schema,
-  I extends Database.Indexes<T>,
-  R extends Relations
->(
+export const prepareInsert = <T extends Database.Schema, R extends Relations>(
   table: string,
   schema: ObjectSchema,
-  query: Query.InsertOneInput<T, I, R>
+  query: Query.InsertOneInput<T, R>
 ): PrepareResult => {
   const [insertFields, variables] = prepareInsertFields(query.data, schema);
 

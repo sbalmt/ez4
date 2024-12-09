@@ -2,7 +2,6 @@ import { equal, deepEqual } from 'node:assert/strict';
 import { describe, it } from 'node:test';
 
 import { prepareSelectQuery } from '@ez4/aws-aurora/client';
-
 import { ObjectSchema, SchemaType } from '@ez4/schema';
 import { Index, Order } from '@ez4/database';
 
@@ -20,16 +19,26 @@ type TestSchema = {
 };
 
 type TestRelations = {
-  relation1?: TestSchema;
-  relation2?: TestSchema;
-  relations?: TestSchema[];
+  indexes: 'relation1_id' | 'relation2_id';
+  selects: {
+    relation1?: TestSchema;
+    relation2?: TestSchema;
+    relations?: TestSchema[];
+  };
+  changes: {
+    relation1?: TestSchema | { relation1_id: string };
+    relation2?: TestSchema | { relation2_id: string };
+    relations?: TestSchema[];
+  };
 };
 
 type TestIndexes = {
   id: Index.Primary;
+  relation1_id: Index.Secondary;
+  relation2_id: Index.Secondary;
 };
 
-describe.only('aurora query select', () => {
+describe.only('aurora query (select)', () => {
   const testSchema: ObjectSchema = {
     type: SchemaType.Object,
     properties: {
@@ -39,10 +48,12 @@ describe.only('aurora query select', () => {
       },
       relation1_id: {
         type: SchemaType.String,
+        optional: true,
         format: 'uuid'
       },
       relation2_id: {
         type: SchemaType.String,
+        optional: true,
         format: 'uuid'
       },
       foo: {

@@ -1,7 +1,7 @@
-import type { Database, Relations, Query } from '@ez4/database';
 import type { SqlParameter } from '@aws-sdk/client-rds-data';
-import type { ObjectSchema } from '@ez4/schema';
+import type { Database, Relations, Query } from '@ez4/database';
 import type { AnyObject, DeepPartial } from '@ez4/utils';
+import type { AnySchema, ObjectSchema } from '@ez4/schema';
 import type { RepositoryRelationsWithSchema } from '../../types/repository.js';
 
 import { SchemaType } from '@ez4/schema';
@@ -9,7 +9,7 @@ import { isAnyObject } from '@ez4/utils';
 
 import { prepareSelectFields } from './select.js';
 import { prepareWhereFields } from './where.js';
-import { prepareFieldData } from './data.js';
+import { isSkippableData, prepareFieldData } from './data.js';
 
 type PrepareResult = [string, SqlParameter[]];
 
@@ -22,7 +22,7 @@ export const prepareUpdateQuery = <
   table: string,
   schema: ObjectSchema,
   relations: RepositoryRelationsWithSchema,
-  query: Query.UpdateOneInput<T, S, I, R> | Query.UpdateManyInput<T, S, I, R>
+  query: Query.UpdateOneInput<T, S, I, R> | Query.UpdateManyInput<T, S, R>
 ) => {
   return prepareAllQueries(table, schema, relations, query, null, 0);
 };
@@ -31,7 +31,7 @@ const prepareAllQueries = (
   table: string,
   schema: ObjectSchema,
   relations: RepositoryRelationsWithSchema,
-  query: Query.UpdateOneInput<{}, {}, {}, {}> | Query.UpdateManyInput<{}, {}, {}, {}>,
+  query: Query.UpdateOneInput<{}, {}, {}, Relations> | Query.UpdateManyInput<{}, {}, Relations>,
   fromTable: string | null,
   variablesIndex: number
 ): PrepareResult => {
@@ -115,6 +115,10 @@ const preparePostRelationQueries = (
 
     const { sourceTable, sourceColumn, sourceSchema, targetColumn } = relations[alias];
 
+    if (relationData[targetColumn]) {
+      continue;
+    }
+
     const [statement, variables] = prepareAllQueries(
       sourceTable,
       sourceSchema,
@@ -147,17 +151,35 @@ const prepareUpdateFields = <T extends Database.Schema>(
       const fieldValue = data[fieldKey];
       const fieldRelation = relations[fieldKey];
 
-      if (fieldValue === undefined || fieldRelation) {
+      if (isSkippableData(fieldValue)) {
         continue;
       }
 
-      const fieldSchema = schema.properties[fieldKey];
+      if (fieldRelation) {
+        const { targetColumn, foreign } = fieldRelation;
 
-      if (!fieldSchema) {
-        throw new Error(`Field schema for ${fieldKey} doesn't exists.`);
+        const targetRelationId = (fieldValue as AnyObject)[targetColumn];
+
+        if (!foreign || !targetRelationId) {
+          continue;
+        }
+
+        const [fieldOperation, fieldData] = prepareQueryFieldData(
+          schema.properties[targetColumn],
+          targetColumn,
+          targetRelationId,
+          variablesIndex++
+        );
+
+        operations.push(fieldOperation);
+        variables.push(fieldData);
+
+        continue;
       }
 
       const fieldPath = path ? `${path}['${fieldKey}']` : `"${fieldKey}"`;
+
+      const fieldSchema = schema.properties[fieldKey];
 
       const fieldNotNested =
         !isAnyObject(fieldValue) ||
@@ -167,13 +189,16 @@ const prepareUpdateFields = <T extends Database.Schema>(
         fieldSchema.optional;
 
       if (fieldNotNested) {
-        const fieldName = `${variablesIndex}i`;
-        const fieldData = prepareFieldData(fieldName, fieldValue, fieldSchema);
+        const [fieldOperation, fieldData] = prepareQueryFieldData(
+          fieldSchema,
+          fieldPath,
+          fieldValue,
+          variablesIndex++
+        );
 
-        operations.push(`${fieldPath} = :${fieldName}`);
+        operations.push(fieldOperation);
         variables.push(fieldData);
 
-        variablesIndex++;
         continue;
       }
 
@@ -184,4 +209,16 @@ const prepareUpdateFields = <T extends Database.Schema>(
   prepareAll(schema, data);
 
   return [operations.join(', '), variables];
+};
+
+const prepareQueryFieldData = (
+  fieldSchema: AnySchema,
+  fieldPath: string,
+  fieldValue: unknown,
+  variablesIndex: number
+): [string, SqlParameter] => {
+  const fieldName = `${variablesIndex}i`;
+  const fieldData = prepareFieldData(fieldName, fieldValue, fieldSchema);
+
+  return [`${fieldPath} = :${fieldName}`, fieldData];
 };

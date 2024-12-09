@@ -27,7 +27,11 @@ export type TableIndex<P, T extends AnyObject> =
  * to the given property.
  */
 export type TableRelation<P, T extends AnyObject> =
-  PropertyExists<P, T> extends true ? (T[P] extends Relations ? T[P] : {}) : {};
+  PropertyExists<P, T> extends true
+    ? T[P] extends Relations
+      ? T[P]
+      : { indexes: never; selects: {}; changes: {} }
+    : { indexes: never; selects: {}; changes: {} };
 
 /**
  * Given a database service `T`, it returns all table clients.
@@ -55,7 +59,7 @@ export interface Table<
    *
    * @param query Input query.
    */
-  insertOne(query: Query.InsertOneInput<T, I, R>): Promise<Query.InsertOneResult>;
+  insertOne(query: Query.InsertOneInput<T, R>): Promise<Query.InsertOneResult>;
 
   /**
    * Find one database record.
@@ -115,7 +119,7 @@ export interface Table<
    * @param query Input query.
    */
   updateMany<S extends Query.SelectInput<T, R>>(
-    query: Query.UpdateManyInput<T, S, I, R>
+    query: Query.UpdateManyInput<T, S, R>
   ): Promise<Query.UpdateManyResult<T, S, R>>;
 
   /**

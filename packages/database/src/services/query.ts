@@ -16,12 +16,8 @@ import type {
  * Query builder types.
  */
 export namespace Query {
-  export type InsertOneInput<
-    T extends Database.Schema,
-    I extends Database.Indexes<T>,
-    R extends Relations
-  > = {
-    data: T | (Omit<T, DecomposeIndexName<keyof I>> & R);
+  export type InsertOneInput<T extends Database.Schema, R extends Relations> = {
+    data: Omit<T, R['indexes']> & R['changes'];
   };
 
   export type UpdateOneInput<
@@ -31,7 +27,7 @@ export namespace Query {
     R extends Relations
   > = {
     select?: S;
-    data: DeepPartial<T | FlatObject<Omit<T, DecomposeIndexName<keyof I>> & R>>;
+    data: DeepPartial<Omit<T, R['indexes']> & FlatObject<R['changes']>>;
     where: WhereInput<T, I>;
   };
 
@@ -51,8 +47,8 @@ export namespace Query {
     R extends Relations
   > = {
     select?: S;
-    insert: T | (Omit<T, DecomposeIndexName<keyof I>> & R);
-    update: DeepPartial<T | FlatObject<Omit<T, DecomposeIndexName<keyof I>> & R>>;
+    insert: Omit<T, R['indexes']> & R['changes'];
+    update: DeepPartial<Omit<T, R['indexes']> & FlatObject<R['changes']>>;
     where: WhereInput<T, I>;
   };
 
@@ -72,11 +68,10 @@ export namespace Query {
   export type UpdateManyInput<
     T extends Database.Schema,
     S extends Database.Schema,
-    I extends Database.Indexes<T>,
     R extends Relations
   > = {
     select?: S;
-    data: DeepPartial<T | FlatObject<Omit<T, DecomposeIndexName<keyof I>> & R>>;
+    data: DeepPartial<Omit<T, R['indexes']> & FlatObject<R['changes']>>;
     where?: WhereInput<T>;
     limit?: number;
   };
@@ -150,10 +145,10 @@ export namespace Query {
     T extends Database.Schema,
     S extends AnyObject,
     R extends Relations
-  > = PartialObject<T & R, S, false>;
+  > = PartialObject<T & R['selects'], S, false>;
 
   export type SelectInput<T extends Database.Schema, R extends Relations> = PartialProperties<
-    T & R
+    T & R['selects']
   >;
 
   export type OrderInput<I extends Database.Indexes> = {

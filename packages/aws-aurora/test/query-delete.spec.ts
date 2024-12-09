@@ -2,7 +2,6 @@ import { equal, deepEqual } from 'node:assert/strict';
 import { describe, it } from 'node:test';
 
 import { prepareDeleteQuery } from '@ez4/aws-aurora/client';
-
 import { ObjectSchema, SchemaType } from '@ez4/schema';
 import { Index } from '@ez4/database';
 
@@ -14,11 +13,17 @@ type TestSchema = {
   bar?: boolean;
 };
 
+type TestRelations = {
+  indexes: never;
+  selects: {};
+  changes: {};
+};
+
 type TestIndexes = {
   id: Index.Primary;
 };
 
-describe.only('aurora query delete', () => {
+describe.only('aurora query (delete)', () => {
   const testSchema: ObjectSchema = {
     type: SchemaType.Object,
     properties: {
@@ -38,7 +43,7 @@ describe.only('aurora query delete', () => {
   };
 
   it('assert :: prepare delete', () => {
-    const [statement, variables] = prepareDeleteQuery<TestSchema, TestIndexes, {}, {}>(
+    const [statement, variables] = prepareDeleteQuery<TestSchema, TestIndexes, TestRelations, {}>(
       'ez4-test-delete',
       testSchema,
       {},
@@ -55,7 +60,7 @@ describe.only('aurora query delete', () => {
   });
 
   it('assert :: prepare delete (with select)', () => {
-    const [statement, variables] = prepareDeleteQuery<TestSchema, TestIndexes, {}, {}>(
+    const [statement, variables] = prepareDeleteQuery<TestSchema, TestIndexes, TestRelations, {}>(
       'ez4-test-delete',
       testSchema,
       {},
