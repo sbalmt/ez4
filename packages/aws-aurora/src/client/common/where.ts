@@ -6,7 +6,7 @@ import type { AnyObject } from '@ez4/utils';
 import { SchemaType } from '@ez4/schema';
 import { isAnyObject } from '@ez4/utils';
 
-import { prepareFieldData } from './data.js';
+import { isSkippableData, prepareFieldData } from './data.js';
 
 type PrepareResult = [string, SqlParameter[]];
 
@@ -26,7 +26,7 @@ export const prepareWhereFields = <T extends Database.Schema, I extends Database
     for (const key in data) {
       const fieldValue = data[key];
 
-      if (fieldValue === undefined || fieldValue === null) {
+      if (isSkippableData(fieldValue) || fieldValue === null) {
         continue;
       }
 

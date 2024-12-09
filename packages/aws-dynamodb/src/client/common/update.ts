@@ -6,6 +6,7 @@ import { SchemaType } from '@ez4/schema';
 import { isAnyObject } from '@ez4/utils';
 
 import { prepareWhereFields } from './where.js';
+import { isSkippableData } from './data.js';
 
 type PrepareResult = [string, unknown[]];
 
@@ -51,7 +52,7 @@ const prepareUpdateFields = <T extends Database.Schema>(
     const fieldValue = data[fieldKey];
     const fieldSchema = schema.properties[fieldKey];
 
-    if (fieldValue === undefined) {
+    if (isSkippableData(fieldValue)) {
       continue;
     }
 

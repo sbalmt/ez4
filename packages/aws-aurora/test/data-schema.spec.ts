@@ -124,6 +124,7 @@ describe.only('aurora data schema', () => {
 
   it('assert :: update schema (foreign relationship id)', async () => {
     const data = {
+      id: undefined,
       parent: {
         parent_id: '00000000-0000-1000-8000-000000000001'
       }
@@ -133,9 +134,15 @@ describe.only('aurora data schema', () => {
 
     deepEqual(schema, {
       type: SchemaType.Object,
+      extra: {
+        extensible: true
+      },
       properties: {
         parent: {
           type: SchemaType.Object,
+          extra: {
+            extensible: true
+          },
           properties: {
             parent_id: testSchema.properties.parent_id
           }
@@ -148,6 +155,7 @@ describe.only('aurora data schema', () => {
 
   it('assert :: update schema (foreign relationship object)', async () => {
     const data = {
+      id: undefined,
       parent: {
         id: '00000000-0000-1000-8000-000000000001'
       }
@@ -157,9 +165,15 @@ describe.only('aurora data schema', () => {
 
     deepEqual(schema, {
       type: SchemaType.Object,
+      extra: {
+        extensible: true
+      },
       properties: {
         parent: {
           type: SchemaType.Object,
+          extra: {
+            extensible: true
+          },
           properties: {
             id: testSchema.properties.id
           }
@@ -172,6 +186,7 @@ describe.only('aurora data schema', () => {
 
   it('assert :: update schema (inverse relationship object)', async () => {
     const data = {
+      id: undefined,
       children: {
         id: '00000000-0000-1000-9000-000000000001'
       }
@@ -181,9 +196,15 @@ describe.only('aurora data schema', () => {
 
     deepEqual(schema, {
       type: SchemaType.Object,
+      extra: {
+        extensible: true
+      },
       properties: {
         children: {
           type: SchemaType.Object,
+          extra: {
+            extensible: true
+          },
           properties: {
             id: testSchema.properties.id
           }

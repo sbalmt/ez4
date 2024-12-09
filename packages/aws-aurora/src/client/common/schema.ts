@@ -9,6 +9,7 @@ import { getUniqueErrorMessages } from '@ez4/validator';
 import { validate } from '@ez4/validator';
 
 import { MalformedRequestError } from './errors.js';
+import { isSkippableData } from './data.js';
 
 export const validateSchema = async (data: AnyObject, schema: ObjectSchema) => {
   const errors = await validate(data, schema);
@@ -118,7 +119,8 @@ export const prepareUpdateSchema = (
   }
 
   return getPartialSchema(finalSchema, {
-    include: getDataProperties(data)
+    include: getDataProperties(data),
+    extensible: true
   });
 };
 
@@ -128,7 +130,7 @@ const getDataProperties = (data: AnyObject) => {
   for (const propertyName in data) {
     const value = data[propertyName];
 
-    if (value === undefined) {
+    if (isSkippableData(value)) {
       continue;
     }
 
