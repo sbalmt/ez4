@@ -18,7 +18,7 @@ describe.only('bucket client', () => {
 
   registerTriggers();
 
-  it.only('assert :: deploy', async () => {
+  it('assert :: deploy', async () => {
     const localState: EntryStates = {};
 
     const resource = createBucket(localState, {
@@ -41,7 +41,7 @@ describe.only('bucket client', () => {
     lastState = result;
   });
 
-  it.only('assert :: put object (stream)', async () => {
+  it('assert :: put object (stream)', async () => {
     ok(bucketClient);
 
     const content = createReadStream(join(baseDir, 'object-file.txt'));
@@ -51,7 +51,7 @@ describe.only('bucket client', () => {
     });
   });
 
-  it.only('assert :: put object (plain text)', async () => {
+  it('assert :: put object (plain text)', async () => {
     ok(bucketClient);
 
     const content = 'Plain text test';
@@ -61,7 +61,7 @@ describe.only('bucket client', () => {
     });
   });
 
-  it.only('assert :: object exists', async () => {
+  it('assert :: object exists', async () => {
     ok(bucketClient);
 
     const [objectExists, objectDoNotExists] = await Promise.all([
@@ -74,7 +74,7 @@ describe.only('bucket client', () => {
     ok(!objectDoNotExists);
   });
 
-  it.only('assert :: object stats', async () => {
+  it('assert :: object stats', async () => {
     ok(bucketClient);
 
     const [objectExists, objectDoNotExists] = await Promise.all([
@@ -90,7 +90,7 @@ describe.only('bucket client', () => {
     });
   });
 
-  it.only('assert :: get object', async () => {
+  it('assert :: get object', async () => {
     ok(bucketClient);
 
     const buffer = await bucketClient.read('test-client-plain');
@@ -99,7 +99,7 @@ describe.only('bucket client', () => {
     equal(content, 'Plain text test');
   });
 
-  it.only('assert :: delete object', async () => {
+  it('assert :: delete object', async () => {
     ok(bucketClient);
 
     await Promise.all([
@@ -108,7 +108,7 @@ describe.only('bucket client', () => {
     ]);
   });
 
-  it.only('assert :: destroy', async () => {
+  it('assert :: destroy', async () => {
     ok(bucketId && lastState);
 
     ok(lastState[bucketId]);
