@@ -69,7 +69,7 @@ export namespace Queue {
     /**
      * All subscriptions attached to the imported queue.
      */
-    abstract subscriptions: Subscription<T['schema']>[];
+    subscriptions: Subscription<T['schema']>[];
 
     /**
      * Imported queue reference.

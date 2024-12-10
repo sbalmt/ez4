@@ -32,7 +32,7 @@ export const getQueueImports = (reflection: SourceMap) => {
     }
 
     const service: Incomplete<QueueImport> = { type: ImportType };
-    const properties = new Set(['subscriptions', 'project', 'reference', 'schema']);
+    const properties = new Set(['project', 'reference', 'schema']);
 
     service.name = statement.name;
 
@@ -89,9 +89,8 @@ export const getQueueImports = (reflection: SourceMap) => {
         case 'subscriptions': {
           if (!member.inherited) {
             service.subscriptions = getAllSubscription(member, statement, reflection, errorList);
-            if (service.subscriptions) {
-              properties.delete(member.name);
-            }
+          } else {
+            service.subscriptions = [];
           }
           break;
         }
