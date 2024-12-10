@@ -11,7 +11,7 @@ import { isRoleState } from '@ez4/aws-identity';
 import { createQueue } from '../queue/service.js';
 import { connectSubscriptions, prepareSubscriptions } from './subscription.js';
 import { prepareLinkedService } from './client.js';
-import { RoleMissing } from './errors.js';
+import { RoleMissingError } from './errors.js';
 
 export const prepareLinkedServices = (event: ServiceEvent) => {
   const { service, options } = event;
@@ -33,7 +33,7 @@ export const prepareServices = async (event: PrepareResourceEvent) => {
   }
 
   if (!role || !isRoleState(role)) {
-    throw new RoleMissing();
+    throw new RoleMissingError();
   }
 
   const { timeout, retention, polling, delay } = service;
@@ -57,7 +57,7 @@ export const connectServices = (event: ConnectResourceEvent) => {
   }
 
   if (!role || !isRoleState(role)) {
-    throw new RoleMissing();
+    throw new RoleMissingError();
   }
 
   connectSubscriptions(state, service, role, options);
