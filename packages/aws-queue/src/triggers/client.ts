@@ -14,7 +14,7 @@ export const prepareLinkedService = (
 
   return {
     entryId: queueEntryId,
-    constructor: `make(${queueUrl}, ${queueSchema})`,
+    constructor: `make(${queueUrl}, ${JSON.stringify(queueSchema)})`,
     module: 'Client',
     from: '@ez4/aws-queue/client'
   };
