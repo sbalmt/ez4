@@ -3,6 +3,7 @@ import type { ModelProperty, SourceMap } from '@ez4/reflection';
 import type { CdnService } from '../types/service.js';
 
 import {
+  DuplicateServiceError,
   getModelMembers,
   getPropertyBoolean,
   getPropertyString,
@@ -93,6 +94,11 @@ export const getCdnServices = (reflection: SourceMap) => {
 
     if (!isValidService(service)) {
       errorList.push(new IncompleteServiceError([...properties], statement.file));
+      continue;
+    }
+
+    if (cdnServices[statement.name]) {
+      errorList.push(new DuplicateServiceError(statement.name, statement.file));
       continue;
     }
 

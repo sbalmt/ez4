@@ -3,6 +3,7 @@ import type { SourceMap } from '@ez4/reflection';
 import type { CronService } from '../types/service.js';
 
 import {
+  DuplicateServiceError,
   getLinkedServiceList,
   getLinkedVariableList,
   getPropertyBoolean,
@@ -93,6 +94,11 @@ export const getCronServices = (reflection: SourceMap) => {
 
     if (!isValidService(service)) {
       errorList.push(new IncompleteServiceError([...properties], statement.file));
+      continue;
+    }
+
+    if (cronServices[statement.name]) {
+      errorList.push(new DuplicateServiceError(statement.name, statement.file));
       continue;
     }
 

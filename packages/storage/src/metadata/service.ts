@@ -2,7 +2,13 @@ import type { Incomplete } from '@ez4/utils';
 import type { SourceMap } from '@ez4/reflection';
 import type { BucketService } from '../types/service.js';
 
-import { getModelMembers, getPropertyNumber, getPropertyString } from '@ez4/common/library';
+import {
+  DuplicateServiceError,
+  getModelMembers,
+  getPropertyNumber,
+  getPropertyString
+} from '@ez4/common/library';
+
 import { isModelProperty } from '@ez4/reflection';
 import { isAnyNumber } from '@ez4/utils';
 
@@ -51,6 +57,11 @@ export const getBucketServices = (reflection: SourceMap) => {
 
     if (!isValidService(service)) {
       errorList.push(new IncompleteServiceError([], statement.file));
+      continue;
+    }
+
+    if (bucketServices[statement.name]) {
+      errorList.push(new DuplicateServiceError(statement.name, statement.file));
       continue;
     }
 

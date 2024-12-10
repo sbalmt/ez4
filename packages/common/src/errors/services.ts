@@ -26,3 +26,12 @@ export class InvalidServiceError extends InvalidTypeError {
     super(`Invalid service`, serviceName, undefined, fileName);
   }
 }
+
+export class DuplicateServiceError extends TypeError {
+  constructor(
+    public serviceName: string,
+    fileName?: string
+  ) {
+    super(`Service ${serviceName} is duplicate.`, fileName);
+  }
+}

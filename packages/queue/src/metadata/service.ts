@@ -3,6 +3,7 @@ import type { SourceMap } from '@ez4/reflection';
 import type { QueueService } from '../types/service.js';
 
 import {
+  DuplicateServiceError,
   isExternalStatement,
   getLinkedServiceList,
   getLinkedVariableList,
@@ -92,6 +93,11 @@ export const getQueueServices = (reflection: SourceMap) => {
 
     if (!isValidService(service)) {
       errorList.push(new IncompleteServiceError([...properties], statement.file));
+      continue;
+    }
+
+    if (queueServices[statement.name]) {
+      errorList.push(new DuplicateServiceError(statement.name, statement.file));
       continue;
     }
 

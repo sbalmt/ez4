@@ -3,6 +3,7 @@ import type { SourceMap } from '@ez4/reflection';
 import type { QueueImport } from '../types/import.js';
 
 import {
+  DuplicateServiceError,
   getLinkedServiceList,
   getLinkedVariableList,
   getModelMembers,
@@ -111,6 +112,11 @@ export const getQueueImports = (reflection: SourceMap) => {
 
     if (!isValidImport(service)) {
       errorList.push(new IncompleteServiceError([...properties], statement.file));
+      continue;
+    }
+
+    if (queueImports[statement.name]) {
+      errorList.push(new DuplicateServiceError(statement.name, statement.file));
       continue;
     }
 

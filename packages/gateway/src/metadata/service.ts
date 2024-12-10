@@ -4,6 +4,7 @@ import type { HttpService } from '../types/service.js';
 import type { HttpRoute } from '../types/route.js';
 
 import {
+  DuplicateServiceError,
   getLinkedServiceList,
   getLinkedVariableList,
   getModelMembers,
@@ -75,6 +76,11 @@ export const getHttpServices = (reflection: SourceMap) => {
 
     if (!isValidService(service)) {
       errorList.push(new IncompleteServiceError([...properties], statement.file));
+      continue;
+    }
+
+    if (httpServices[statement.name]) {
+      errorList.push(new DuplicateServiceError(statement.name, statement.file));
       continue;
     }
 

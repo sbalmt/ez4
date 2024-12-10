@@ -4,6 +4,7 @@ import type { DatabaseService } from '../types/service.js';
 import type { DatabaseTable } from '../types/table.js';
 
 import {
+  DuplicateServiceError,
   getLinkedServiceList,
   getLinkedVariableList,
   getPropertyString,
@@ -78,6 +79,11 @@ export const getDatabaseServices = (reflection: SourceMap) => {
 
     if (relationErrors.length) {
       errorList.push(...relationErrors);
+      continue;
+    }
+
+    if (dbServices[statement.name]) {
+      errorList.push(new DuplicateServiceError(statement.name, statement.file));
       continue;
     }
 
