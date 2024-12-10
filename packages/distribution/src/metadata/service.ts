@@ -4,6 +4,7 @@ import type { CdnService } from '../types/service.js';
 
 import {
   DuplicateServiceError,
+  isExternalStatement,
   getModelMembers,
   getPropertyBoolean,
   getPropertyString,
@@ -26,7 +27,7 @@ export const getCdnServices = (reflection: SourceMap) => {
   for (const identity in reflection) {
     const statement = reflection[identity];
 
-    if (!isCdnService(statement)) {
+    if (!isCdnService(statement) || isExternalStatement(statement)) {
       continue;
     }
 

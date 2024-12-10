@@ -4,6 +4,7 @@ import type { BucketService } from '../types/service.js';
 
 import {
   DuplicateServiceError,
+  isExternalStatement,
   getModelMembers,
   getPropertyNumber,
   getPropertyString
@@ -23,7 +24,7 @@ export const getBucketServices = (reflection: SourceMap) => {
   for (const identity in reflection) {
     const statement = reflection[identity];
 
-    if (!isBucketService(statement)) {
+    if (!isBucketService(statement) || isExternalStatement(statement)) {
       continue;
     }
 

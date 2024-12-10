@@ -4,6 +4,7 @@ import type { CronService } from '../types/service.js';
 
 import {
   DuplicateServiceError,
+  isExternalStatement,
   getLinkedServiceList,
   getLinkedVariableList,
   getPropertyBoolean,
@@ -27,7 +28,7 @@ export const getCronServices = (reflection: SourceMap) => {
   for (const identity in reflection) {
     const statement = reflection[identity];
 
-    if (!isCronService(statement)) {
+    if (!isCronService(statement) || isExternalStatement(statement)) {
       continue;
     }
 

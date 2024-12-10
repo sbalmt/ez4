@@ -5,6 +5,7 @@ import type { DatabaseTable } from '../types/table.js';
 
 import {
   DuplicateServiceError,
+  isExternalStatement,
   getLinkedServiceList,
   getLinkedVariableList,
   getPropertyString,
@@ -32,7 +33,7 @@ export const getDatabaseServices = (reflection: SourceMap) => {
   for (const identity in reflection) {
     const statement = reflection[identity];
 
-    if (!isDatabaseService(statement)) {
+    if (!isDatabaseService(statement) || isExternalStatement(statement)) {
       continue;
     }
 

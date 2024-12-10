@@ -5,6 +5,7 @@ import type { HttpRoute } from '../types/route.js';
 
 import {
   DuplicateServiceError,
+  isExternalStatement,
   getLinkedServiceList,
   getLinkedVariableList,
   getModelMembers,
@@ -27,7 +28,7 @@ export const getHttpServices = (reflection: SourceMap) => {
   for (const identity in reflection) {
     const statement = reflection[identity];
 
-    if (!isHttpService(statement)) {
+    if (!isHttpService(statement) || isExternalStatement(statement)) {
       continue;
     }
 

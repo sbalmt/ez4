@@ -4,6 +4,7 @@ import type { QueueImport } from '../types/import.js';
 
 import {
   DuplicateServiceError,
+  isExternalStatement,
   getLinkedServiceList,
   getLinkedVariableList,
   getModelMembers,
@@ -28,7 +29,7 @@ export const getQueueImports = (reflection: SourceMap) => {
   for (const identity in reflection) {
     const statement = reflection[identity];
 
-    if (!isQueueImport(statement)) {
+    if (!isQueueImport(statement) || isExternalStatement(statement)) {
       continue;
     }
 
