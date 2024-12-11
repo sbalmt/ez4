@@ -1,10 +1,10 @@
-import type { ObjectSchema } from '@ez4/schema';
+import type { AnySchema, ObjectSchema } from '@ez4/schema';
 import type { Database, Relations, Query } from '@ez4/database';
 import type { SqlParameter } from '@aws-sdk/client-rds-data';
 import type { RepositoryRelationsWithSchema } from '../../types/repository.js';
 
 import { AnyObject, isAnyNumber, isAnyObject } from '@ez4/utils';
-import { isObjectSchema } from '@ez4/schema';
+import { isObjectSchema, isStringSchema } from '@ez4/schema';
 
 import { prepareWhereFields } from './where.js';
 import { prepareOrderFields } from './order.js';
@@ -112,11 +112,11 @@ export const prepareSelectFields = <T extends Database.Schema, R extends Relatio
       }
 
       if (path || object) {
-        selectFields.push(`'${fieldKey}', ${fieldPath}`);
+        selectFields.push(`'${fieldKey}', ${prepareSelectData(fieldPath, fieldSchema)}`);
         continue;
       }
 
-      selectFields.push(fieldPath);
+      selectFields.push(prepareSelectData(fieldPath, fieldSchema));
     }
 
     if (!selectFields.length) {
@@ -155,4 +155,23 @@ const hasRelationFields = (select: AnyObject, relations: RepositoryRelationsWith
   }
 
   return false;
+};
+
+const prepareSelectData = (fieldPath: string, fieldSchema: AnySchema) => {
+  if (!isStringSchema(fieldSchema)) {
+    return fieldPath;
+  }
+
+  switch (fieldSchema.format) {
+    case 'date-time':
+      return `to_char(${fieldPath}, 'YYYY-MM-DD"T"HH24:MI:SS.MS"Z"') AS ${fieldPath}`;
+
+    case 'time':
+      return `to_char(${fieldPath}, 'HH24:MI:SS.MS"Z"') AS ${fieldPath}`;
+
+    case 'date':
+      return `to_char(${fieldPath}, 'YYYY-MM-DD') AS ${fieldPath}`;
+  }
+
+  return fieldPath;
 };
