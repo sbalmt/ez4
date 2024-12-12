@@ -44,6 +44,11 @@ describe.only('bucket resources', () => {
       tags: {
         test1: 'ez4-tag1',
         test2: 'ez4-tag2'
+      },
+      cors: {
+        allowHeaders: ['content-type'],
+        allowOrigins: ['http://localhost'],
+        allowMethods: ['PUT']
       }
     });
 
@@ -54,7 +59,22 @@ describe.only('bucket resources', () => {
     lastState = state;
   });
 
-  it('assert :: update', async () => {
+  it('assert :: update cors', async () => {
+    ok(bucketId && lastState);
+
+    const localState = deepClone(lastState);
+    const resource = localState[bucketId];
+
+    ok(resource && isBucketState(resource));
+
+    resource.parameters.cors = undefined;
+
+    const { state } = await assertDeploy(bucketId, localState, lastState);
+
+    lastState = state;
+  });
+
+  it('assert :: update lifecycle', async () => {
     ok(bucketId && lastState);
 
     const localState = deepClone(lastState);
@@ -63,10 +83,6 @@ describe.only('bucket resources', () => {
     ok(resource && isBucketState(resource));
 
     resource.parameters.autoExpireDays = undefined;
-
-    resource.parameters.tags = {
-      test2: 'ez4-tag2'
-    };
 
     const { state } = await assertDeploy(bucketId, localState, lastState);
 

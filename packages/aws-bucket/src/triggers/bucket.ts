@@ -13,12 +13,13 @@ export const prepareBucketServices = async (event: PrepareResourceEvent) => {
     return;
   }
 
-  const { autoExpireDays, localPath } = service;
+  const { autoExpireDays, localPath, cors } = service;
 
   const bucketState = createBucket(state, {
     bucketName: getServiceName(service, options),
     autoExpireDays,
-    localPath
+    localPath,
+    cors
   });
 
   if (localPath) {
