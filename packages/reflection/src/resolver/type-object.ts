@@ -1,12 +1,13 @@
-import type { Node } from 'typescript';
+import type { Node, TypeLiteralNode } from 'typescript';
 import type { EveryMemberType, TypeObject } from '../types.js';
-import type { Context, State } from './common.js';
+import { getNewState, type Context, type State } from './common.js';
 
-import { isTypeLiteralNode, SyntaxKind } from 'typescript';
+import { isIndexSignatureDeclaration, isTypeLiteralNode, SyntaxKind } from 'typescript';
 
 import { TypeName } from '../types.js';
 import { getNodeFilePath } from '../helpers/node.js';
 import { tryModelMembers } from './model-members.js';
+import { tryTypes } from './types.js';
 
 export const createObject = (file: string | null, members?: EveryMemberType[]): TypeObject => {
   return {
@@ -39,19 +40,52 @@ export const tryTypeObject = (node: Node, context: Context, state: State) => {
   }
 
   const file = context.options.includePath ? getNodeFilePath(node) : null;
-  const reflectedType = createObject(file);
+  const type = createObject(file);
 
   if (!generic) {
-    context.cache.set(node, reflectedType);
+    context.cache.set(node, type);
   }
 
   if (isTypeLiteralNode(node)) {
-    reflectedType.members = tryModelMembers(node, context, state);
+    type.members = tryDynamicMembers(node, context, state) || tryModelMembers(node, context, state);
   }
 
   if (event) {
-    return event(reflectedType);
+    return event(type);
   }
 
-  return reflectedType;
+  return type;
+};
+
+const tryDynamicMembers = (node: TypeLiteralNode, context: Context, state: State) => {
+  const member = node.members[0];
+
+  if (!member || !isIndexSignatureDeclaration(member)) {
+    return;
+  }
+
+  const [memberName] = member.parameters;
+
+  if (!memberName?.type) {
+    return;
+  }
+
+  const valueState = getNewState({ types: state.types });
+  const valueType = tryTypes(member.type, context, valueState);
+
+  if (!valueType) {
+    return;
+  }
+
+  const indexState = getNewState({ types: state.types });
+  const indexType = tryTypes(memberName.type, context, indexState);
+
+  if (!indexType) {
+    return;
+  }
+
+  return {
+    index: indexType,
+    value: valueType
+  };
 };
