@@ -57,6 +57,14 @@ describe.only('type validation errors', () => {
         foo: {
           type: SchemaType.Number
         }
+      },
+      additional: {
+        property: {
+          type: SchemaType.Number
+        },
+        value: {
+          type: SchemaType.String
+        }
       }
     };
 
@@ -64,6 +72,11 @@ describe.only('type validation errors', () => {
     await assertError(undefined, schema, [ExpectedObjectTypeError]);
     await assertError({ foo: 123, bar: 'abc' }, schema, [UnexpectedPropertiesError]);
     await assertError({ bar: 'abc' }, schema, [ExpectedNumberTypeError, UnexpectedPropertiesError]);
+
+    await assertError({ foo: 123, qux: 456 }, schema, [
+      ExpectedStringTypeError,
+      UnexpectedPropertiesError
+    ]);
   });
 
   it('assert :: union errors', async () => {

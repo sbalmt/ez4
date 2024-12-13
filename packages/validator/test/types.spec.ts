@@ -60,12 +60,21 @@ describe.only('types validation', () => {
           type: SchemaType.String,
           nullable: true
         }
+      },
+      additional: {
+        property: {
+          type: SchemaType.String
+        },
+        value: {
+          type: SchemaType.Number
+        }
       }
     };
 
     equal((await validate({ foo: true, bar: 123, baz: 'abc' }, schema)).length, 0);
     equal((await validate({ foo: false, bar: undefined, baz: 'abc' }, schema)).length, 0);
     equal((await validate({ foo: true, bar: 123, baz: null }, schema)).length, 0);
+    equal((await validate({ foo: false, baz: null, qux: 123 }, schema)).length, 0);
     equal((await validate(undefined, schema)).length, 0);
     equal((await validate(null, schema)).length, 0);
   });
