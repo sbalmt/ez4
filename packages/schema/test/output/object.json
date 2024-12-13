@@ -103,6 +103,28 @@
       "definitions": {
         "extensible": true
       }
+    },
+    "dynamic": {
+      "type": "object",
+      "description": "Dynamic properties.",
+      "properties": {},
+      "additional": {
+        "property": {
+          "type": "union",
+          "elements": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "number"
+            }
+          ]
+        },
+        "value": {
+          "type": "boolean",
+          "optional": true
+        }
+      }
     }
   }
 }

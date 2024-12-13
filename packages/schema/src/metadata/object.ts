@@ -19,7 +19,7 @@ export type RichTypeObject = TypeObject & RichTypeBase;
 export type RichTypeModel = TypeModel & RichTypeBase;
 
 export const createObjectSchema = (data: Omit<ObjectSchema, 'type'>): ObjectSchema => {
-  const { properties, description, optional, nullable, definitions } = data;
+  const { properties, additional, description, optional, nullable, definitions } = data;
 
   return {
     type: SchemaType.Object,
@@ -27,6 +27,7 @@ export const createObjectSchema = (data: Omit<ObjectSchema, 'type'>): ObjectSche
     ...(optional && { optional }),
     ...(nullable && { nullable }),
     ...(definitions && { definitions }),
+    ...(additional && { additional }),
     properties
   };
 };
@@ -45,6 +46,7 @@ export const getObjectSchema = (
   description?: string
 ): ObjectSchema | null => {
   if (circularRefs.has(type)) {
+    // TODO: Implement references to handle circular deps.
     return createObjectSchema({
       properties: {},
       definitions: {
@@ -55,14 +57,14 @@ export const getObjectSchema = (
 
   circularRefs.add(type);
 
-  const schema = getRawObjectSchema(type, reflection, description);
+  const schema = getNewObjectSchema(type, reflection, description);
 
   circularRefs.delete(type);
 
   return schema;
 };
 
-const getRawObjectSchema = (
+const getNewObjectSchema = (
   type: AllType,
   reflection: SourceMap,
   description?: string
@@ -70,8 +72,9 @@ const getRawObjectSchema = (
   if (isRichTypeObject(type)) {
     return createObjectSchema({
       properties: getAnySchemaFromMembers(reflection, getObjectProperties(type)),
+      additional: getAnySchemaFromDynamicMembers(reflection, type),
       definitions: type.definitions,
-      description,
+      description
     });
   }
 
@@ -108,4 +111,27 @@ const getAnySchemaFromMembers = (reflection: SourceMap, members: ModelProperty[]
   }
 
   return properties;
+};
+
+const getAnySchemaFromDynamicMembers = (reflection: SourceMap, type: TypeObject) => {
+  if (!type.members || Array.isArray(type.members)) {
+    return;
+  }
+
+  const propertySchema = getAnySchema(type.members.index, reflection);
+
+  if (!propertySchema) {
+    return;
+  }
+
+  const valueSchema = getAnySchema(type.members.value, reflection);
+
+  if (!valueSchema) {
+    return;
+  }
+
+  return {
+    property: propertySchema,
+    value: valueSchema
+  };
 };

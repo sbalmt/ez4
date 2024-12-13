@@ -7,17 +7,23 @@ export type ObjectSchemaProperties = {
   [property: string]: AnySchema;
 };
 
+export type ObjectSchemaAdditional = {
+  property: AnySchema;
+  value: AnySchema;
+};
+
 export type ObjectSchemaDefinitions = SchemaDefinitions & {
   extensible?: boolean;
 };
 
 export type ObjectSchema = {
   type: SchemaType.Object;
-  definitions?: ObjectSchemaDefinitions;
-  properties: ObjectSchemaProperties;
   description?: string;
   optional?: boolean;
   nullable?: boolean;
+  definitions?: ObjectSchemaDefinitions;
+  additional?: ObjectSchemaAdditional;
+  properties: ObjectSchemaProperties;
 };
 
 export const isObjectSchema = (value: AnyObject): value is ObjectSchema => {
