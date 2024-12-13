@@ -51,6 +51,7 @@ describe.only('types transform', () => {
   it('assert :: object', () => {
     const schema: AnySchema = {
       type: SchemaType.Object,
+      identity: 1,
       properties: {
         foo: {
           type: SchemaType.Boolean
@@ -70,6 +71,45 @@ describe.only('types transform', () => {
     deepEqual(transform(input, schema), output);
     deepEqual(transform(null, schema), null);
     deepEqual(transform(undefined, schema), undefined);
+  });
+
+  it('assert :: reference', () => {
+    const schema: AnySchema = {
+      type: SchemaType.Object,
+      identity: 1,
+      properties: {
+        value: {
+          type: SchemaType.Number
+        },
+        next: {
+          type: SchemaType.Reference,
+          identity: 1,
+          optional: true
+        }
+      }
+    };
+
+    const input = {
+      value: '123',
+      next: {
+        value: '456',
+        next: {
+          value: '789'
+        }
+      }
+    };
+
+    const output = {
+      value: 123,
+      next: {
+        value: 456,
+        next: {
+          value: 789
+        }
+      }
+    };
+
+    deepEqual(transform(input, schema), output);
   });
 
   it('assert :: union', () => {
