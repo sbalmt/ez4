@@ -28,8 +28,8 @@ export class Table<T extends Database.Schema, I extends Database.Indexes<T>, R e
     private client: DynamoDBDocumentClient
   ) {}
 
-  async insertOne(query: Query.InsertOneInput<T, I, R>): Promise<Query.InsertOneResult> {
-    const command = await prepareInsertOne<T, I, R>(this.name, this.schema, query);
+  async insertOne(query: Query.InsertOneInput<T, R>): Promise<Query.InsertOneResult> {
+    const command = await prepareInsertOne<T, R>(this.name, this.schema, query);
 
     await executeStatement(this.client, command);
   }
@@ -121,18 +121,13 @@ export class Table<T extends Database.Schema, I extends Database.Indexes<T>, R e
   async insertMany(query: Query.InsertManyInput<T>): Promise<Query.InsertManyResult> {
     const [primaryIndexes] = this.indexes;
 
-    const transactions = await prepareInsertMany<T, I, R>(
-      this.name,
-      this.schema,
-      primaryIndexes,
-      query
-    );
+    const transactions = await prepareInsertMany<T>(this.name, this.schema, primaryIndexes, query);
 
     await executeTransaction(this.client, transactions);
   }
 
   async updateMany<S extends Query.SelectInput<T, R>>(
-    query: Query.UpdateManyInput<T, S, I, R>
+    query: Query.UpdateManyInput<T, S, R>
   ): Promise<Query.UpdateManyResult<T, S, R>> {
     const [primaryIndexes] = this.indexes;
 

@@ -1,24 +1,20 @@
-import type { AnyObject } from '@ez4/utils';
 import type { SqlParameter } from '@aws-sdk/client-rds-data';
 import type { Database, Relations, Query } from '@ez4/database';
 import type { ObjectSchema } from '@ez4/schema';
+import type { AnyObject } from '@ez4/utils';
 import type { RepositoryRelationsWithSchema } from '../../types/repository.js';
 
 import { isAnyObject } from '@ez4/utils';
 
-import { prepareFieldData } from './data.js';
+import { isSkippableData, prepareFieldData } from './data.js';
 
 type PrepareQueryResult = [string, SqlParameter[]];
 
-export const prepareInsertQuery = <
-  T extends Database.Schema,
-  I extends Database.Indexes<T>,
-  R extends Relations
->(
+export const prepareInsertQuery = <T extends Database.Schema, R extends Relations>(
   table: string,
   schema: ObjectSchema,
   relations: RepositoryRelationsWithSchema,
-  query: Query.InsertOneInput<T, I, R>
+  query: Query.InsertOneInput<T, R>
 ) => {
   return prepareAllQueries(table, query.data, schema, relations, null, 0);
 };
@@ -110,7 +106,11 @@ const preparePreRelationQueries = (
       continue;
     }
 
-    const { sourceTable, sourceColumn, sourceSchema } = relations[alias];
+    const { sourceTable, sourceColumn, sourceSchema, targetColumn } = relations[alias];
+
+    if (relationData[targetColumn]) {
+      continue;
+    }
 
     const nextIndex = variablesIndex + preVariables.length;
 
@@ -199,37 +199,65 @@ const prepareQueryFields = <T extends Database.Schema>(
     const fieldValue = data[fieldKey];
     const fieldRelation = relations[fieldKey];
 
-    if (fieldValue === undefined) {
+    if (isSkippableData(fieldValue)) {
       continue;
     }
 
     if (fieldRelation) {
       const { targetColumn, foreign } = fieldRelation;
 
-      if (foreign) {
-        properties.push(`"${targetColumn}"`);
-        references.push(`"${fieldKey}"`);
+      if (!foreign) {
+        continue;
       }
+
+      const targetRelationId = (fieldValue as AnyObject)[targetColumn];
+
+      properties.push(`"${targetColumn}"`);
+
+      if (!targetRelationId) {
+        references.push(`"${fieldKey}"`);
+
+        continue;
+      }
+
+      const [fieldName, fieldData] = prepareQueryFieldData(
+        schema,
+        targetColumn,
+        targetRelationId,
+        variablesIndex++
+      );
+
+      references.push(fieldName);
+      variables.push(fieldData);
 
       continue;
     }
 
-    const fieldSchema = schema.properties[fieldKey];
-
-    if (!fieldSchema) {
-      throw new Error(`Field schema for ${fieldKey} doesn't exists.`);
-    }
-
-    const fieldName = `${variablesIndex}i`;
-    const fieldData = prepareFieldData(fieldName, fieldValue, fieldSchema);
+    const [fieldName, fieldData] = prepareQueryFieldData(
+      schema,
+      fieldKey,
+      fieldValue,
+      variablesIndex++
+    );
 
     properties.push(`"${fieldKey}"`);
-    references.push(`:${fieldName}`);
+    references.push(fieldName);
 
     variables.push(fieldData);
-
-    variablesIndex++;
   }
 
   return [properties, references, variables];
+};
+
+const prepareQueryFieldData = (
+  schema: ObjectSchema,
+  fieldKey: string,
+  fieldValue: unknown,
+  variablesIndex: number
+): [string, SqlParameter] => {
+  const fieldName = `${variablesIndex}i`;
+  const fieldSchema = schema.properties[fieldKey];
+  const fieldData = prepareFieldData(fieldName, fieldValue, fieldSchema);
+
+  return [`:${fieldName}`, fieldData];
 };

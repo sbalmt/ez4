@@ -1,25 +1,28 @@
 import type { AllType, EveryType, SourceMap, TypeUnion } from '@ez4/reflection';
-import type { AnySchema, ExtraSchema } from '../types/common.js';
-import type { UnionSchema } from '../types/union.js';
+import type { SchemaDefinitions } from '../types/common.js';
+import type { SchemaContext } from '../types/context.js';
+import type { UnionSchema } from '../types/type-union.js';
+import type { AnySchema } from '../types/type-any.js';
 
 import { isTypeNull, isTypeUndefined, isTypeUnion } from '@ez4/reflection';
 
+import { isReferenceSchema } from '../types/type-reference.js';
 import { SchemaType } from '../types/common.js';
 import { getAnySchema } from './any.js';
 
 export type RichTypeUnion = TypeUnion & {
-  extra?: ExtraSchema;
+  definitions?: SchemaDefinitions;
 };
 
 export const createUnionSchema = (data: Omit<UnionSchema, 'type'>): UnionSchema => {
-  const { description, optional, nullable, elements, extra } = data;
+  const { description, optional, nullable, elements, definitions } = data;
 
   return {
     type: SchemaType.Union,
     ...(description && { description }),
     ...(optional && { optional }),
     ...(nullable && { nullable }),
-    ...(extra && { extra }),
+    ...(definitions && { definitions }),
     elements
   };
 };
@@ -31,17 +34,18 @@ export const isRichTypeUnion = (type: AllType): type is RichTypeUnion => {
 export const getUnionSchema = (
   type: AllType,
   reflection: SourceMap,
+  context: SchemaContext,
   description?: string
 ): AnySchema | null => {
   if (!isRichTypeUnion(type)) {
     return null;
   }
 
-  const elements = getAnySchemaFromTypeList(reflection, type.elements);
+  const elements = getAnySchemaFromTypeList(reflection, context, type.elements);
   const optional = hasOptionalType(type.elements);
   const nullable = hasNullableType(type.elements);
 
-  const extra = type.extra;
+  const definitions = type.definitions;
 
   if (elements.length > 1) {
     return createUnionSchema({
@@ -49,14 +53,14 @@ export const getUnionSchema = (
       description,
       optional,
       nullable,
-      extra
+      definitions
     });
   }
 
   if (elements.length === 1) {
     const single = elements[0];
 
-    if (description) {
+    if (!isReferenceSchema(single) && description) {
       single.description = description;
     }
 
@@ -82,11 +86,15 @@ const hasOptionalType = (types: EveryType[]) => {
   return types.some((type) => isTypeUndefined(type));
 };
 
-const getAnySchemaFromTypeList = (reflection: SourceMap, types: AllType[]) => {
+const getAnySchemaFromTypeList = (
+  reflection: SourceMap,
+  context: SchemaContext,
+  types: AllType[]
+) => {
   const typeList: AnySchema[] = [];
 
   for (const type of types) {
-    const schema = getAnySchema(type, reflection);
+    const schema = getAnySchema(type, reflection, context);
 
     if (schema) {
       typeList.push(schema);

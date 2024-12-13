@@ -6,6 +6,10 @@ enum TestEnum {
   BAR = 'bar'
 }
 
+const enum TestSingleEnum {
+  BAZ = 'baz'
+}
+
 /**
  * Enum test object.
  */
@@ -19,4 +23,9 @@ export interface EnumTestSchema {
    * Bar property.
    */
   bar: TestEnum.BAR;
+
+  /**
+   * Baz property.
+   */
+  baz: TestSingleEnum;
 }

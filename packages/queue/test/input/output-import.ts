@@ -13,28 +13,9 @@ export declare class TestQueue extends Queue.Service<TestMessage> {
   polling: 10;
 }
 
-export declare class TestImportQueue extends Queue.Import<TestQueue> {
-  project: 'name from project in ez4.project.js';
-
-  subscriptions: [
-    {
-      handler: typeof testHandler;
-    }
-  ];
-
-  variables: {
-    TEST_VAR1: 'test-literal-value';
-    TEST_VAR2: Environment.Variable<'TEST_ENV_VAR'>;
-  };
-
-  services: {
-    selfClient: Environment.Service<TestImportQueue>;
-  };
-}
-
 function testHandler(
   request: Queue.Incoming<TestMessage>,
-  context: Service.Context<TestImportQueue>
+  context: Service.Context<TestImport1Queue>
 ) {
   const { selfClient } = context;
 
@@ -53,4 +34,42 @@ function testHandler(
   selfClient.sendMessage({
     foo: 'test'
   });
+}
+
+/**
+ * Import queue assigning handler.
+ */
+export declare class TestImport1Queue extends Queue.Import<TestQueue> {
+  project: 'name from project in ez4.project.js';
+
+  subscriptions: [
+    {
+      handler: typeof testHandler;
+    }
+  ];
+
+  variables: {
+    TEST_VAR1: 'test-literal-value';
+    TEST_VAR2: Environment.Variable<'TEST_ENV_VAR'>;
+  };
+
+  services: {
+    selfClient: Environment.Service<TestImport1Queue>;
+  };
+}
+
+/**
+ * Import queue with no assigned handler.
+ */
+export declare class TestImport2Queue extends Queue.Import<TestQueue> {
+  project: 'name from project in ez4.project.js';
+
+  variables: {
+    TEST_VAR1: 'test-literal-value';
+    TEST_VAR2: Environment.Variable<'TEST_ENV_VAR'>;
+  };
+
+  services: {
+    selfClient: Environment.Service<TestImport2Queue>;
+  };
 }

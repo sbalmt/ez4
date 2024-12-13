@@ -23,8 +23,8 @@ import { IncorrectRequestTypeError, InvalidRequestTypeError } from '../errors/re
 import { getHttpHeaders } from './headers.js';
 import { getHttpIdentity } from './identity.js';
 import { getHttpParameters } from './parameters.js';
+import { getHttpRequestBody } from './body.js';
 import { getHttpQuery } from './query.js';
-import { getHttpBody } from './body.js';
 
 type TypeParent = TypeModel | TypeCallback | TypeFunction;
 
@@ -106,41 +106,51 @@ const getTypeFromMembers = (
     switch (member.name) {
       case 'headers': {
         request.headers = getHttpHeaders(member.value, type, reflection, errorList);
+
         if (request.headers && member.description) {
           request.headers.description = member.description;
         }
+
         break;
       }
 
       case 'identity': {
         request.identity = getHttpIdentity(member.value, type, reflection, errorList);
+
         if (request.identity && member.description) {
           request.identity.description = member.description;
         }
+
         break;
       }
 
       case 'query': {
         request.query = getHttpQuery(member.value, type, reflection, errorList);
+
         if (request.query && member.description) {
           request.query.description = member.description;
         }
+
         break;
       }
 
       case 'parameters': {
         request.parameters = getHttpParameters(member.value, type, reflection, errorList);
+
         if (request.parameters && member.description) {
           request.parameters.description = member.description;
         }
+
         break;
       }
 
       case 'body': {
-        request.body = getHttpBody(member.value, type, reflection, errorList);
+        request.body = getHttpRequestBody(member.value, type, reflection, errorList);
+
         if (request.body && member.description) {
           request.body.description = member.description;
         }
+
         break;
       }
     }

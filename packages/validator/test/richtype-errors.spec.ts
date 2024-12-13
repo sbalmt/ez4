@@ -27,7 +27,7 @@ describe.only('rich type validation errors', () => {
     const schema: AnySchema = {
       type: SchemaType.Number,
       format: 'decimal',
-      extra: {
+      definitions: {
         minValue: 0.99,
         maxValue: 1.99
       }
@@ -41,7 +41,7 @@ describe.only('rich type validation errors', () => {
     const schema: AnySchema = {
       type: SchemaType.Number,
       format: 'integer',
-      extra: {
+      definitions: {
         minValue: 99,
         maxValue: 199
       }
@@ -55,7 +55,7 @@ describe.only('rich type validation errors', () => {
   it('assert :: string errors', async () => {
     const schema: AnySchema = {
       type: SchemaType.String,
-      extra: {
+      definitions: {
         minLength: 1,
         maxLength: 3
       }
@@ -68,7 +68,7 @@ describe.only('rich type validation errors', () => {
   it('assert :: decimal (literal) errors', async () => {
     const schema: AnySchema = {
       type: SchemaType.Number,
-      extra: {
+      definitions: {
         value: 123.456
       }
     };
@@ -79,7 +79,7 @@ describe.only('rich type validation errors', () => {
   it('assert :: integer (literal) errors', async () => {
     const schema: AnySchema = {
       type: SchemaType.Number,
-      extra: {
+      definitions: {
         value: 123
       }
     };
@@ -90,7 +90,7 @@ describe.only('rich type validation errors', () => {
   it('assert :: string (literal) errors', async () => {
     const schema: AnySchema = {
       type: SchemaType.String,
-      extra: {
+      definitions: {
         value: 'abc'
       }
     };
@@ -102,7 +102,7 @@ describe.only('rich type validation errors', () => {
     const schema: AnySchema = {
       type: SchemaType.String,
       format: 'regex',
-      extra: {
+      definitions: {
         pattern: '^[a-b]+$'
       }
     };

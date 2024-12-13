@@ -1,17 +1,17 @@
 import type { AllType, TypeNumber } from '@ez4/reflection';
-import type { NumberSchema } from '../types/number.js';
+import type { NumberSchema } from '../types/type-number.js';
 
 import { isTypeNumber } from '@ez4/reflection';
 
-import { ExtraSchema, SchemaType } from '../types/common.js';
+import { SchemaDefinitions, SchemaType } from '../types/common.js';
 
 export type RichTypeNumber = TypeNumber & {
   format?: string;
-  extra?: ExtraSchema;
+  definitions?: SchemaDefinitions;
 };
 
 export const createNumberSchema = (data: Omit<NumberSchema, 'type'>): NumberSchema => {
-  const { description, optional, nullable, format, extra } = data;
+  const { description, optional, nullable, format, definitions } = data;
 
   return {
     type: SchemaType.Number,
@@ -19,7 +19,7 @@ export const createNumberSchema = (data: Omit<NumberSchema, 'type'>): NumberSche
     ...(optional && { optional }),
     ...(nullable && { nullable }),
     ...(format && { format }),
-    ...(extra && { extra })
+    ...(definitions && { definitions })
   };
 };
 
@@ -32,10 +32,10 @@ export const getNumberSchema = (type: AllType, description?: string): NumberSche
     return null;
   }
 
-  const { format, extra } = type;
+  const { format, definitions } = type;
 
   return createNumberSchema({
-    extra: type.literal ? { value: type.literal } : extra,
+    definitions: type.literal ? { value: type.literal } : definitions,
     description,
     format
   });

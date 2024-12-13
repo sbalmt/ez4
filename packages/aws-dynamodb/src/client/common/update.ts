@@ -6,6 +6,7 @@ import { SchemaType } from '@ez4/schema';
 import { isAnyObject } from '@ez4/utils';
 
 import { prepareWhereFields } from './where.js';
+import { isSkippableData } from './data.js';
 
 type PrepareResult = [string, unknown[]];
 
@@ -17,7 +18,7 @@ export const prepareUpdate = <
 >(
   table: string,
   schema: ObjectSchema,
-  query: Query.UpdateOneInput<T, S, I, R> | Query.UpdateManyInput<T, S, I, R>
+  query: Query.UpdateOneInput<T, S, I, R> | Query.UpdateManyInput<T, S, R>
 ): PrepareResult => {
   const [updateFields, variables] = prepareUpdateFields(query.data, schema);
 
@@ -51,7 +52,7 @@ const prepareUpdateFields = <T extends Database.Schema>(
     const fieldValue = data[fieldKey];
     const fieldSchema = schema.properties[fieldKey];
 
-    if (fieldValue === undefined) {
+    if (isSkippableData(fieldValue)) {
       continue;
     }
 
@@ -64,7 +65,7 @@ const prepareUpdateFields = <T extends Database.Schema>(
     const fieldNotNested =
       !isAnyObject(fieldValue) ||
       fieldSchema.type !== SchemaType.Object ||
-      fieldSchema.extra?.extensible ||
+      fieldSchema.definitions?.extensible ||
       fieldSchema.nullable ||
       fieldSchema.optional;
 

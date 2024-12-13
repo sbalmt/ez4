@@ -12,18 +12,14 @@ import { prepareUpdate } from './update.js';
 import { prepareSelect } from './select.js';
 import { prepareDelete } from './delete.js';
 
-export const prepareInsertOne = async <
-  T extends Database.Schema,
-  I extends Database.Indexes<T>,
-  R extends Relations
->(
+export const prepareInsertOne = async <T extends Database.Schema, R extends Relations>(
   table: string,
   schema: ObjectSchema,
-  query: Query.InsertOneInput<T, I, R>
+  query: Query.InsertOneInput<T, R>
 ): Promise<ExecuteStatementCommandInput> => {
   await validateSchema(query.data, schema);
 
-  const [statement, variables] = prepareInsert<T, I, R>(table, schema, query);
+  const [statement, variables] = prepareInsert<T, R>(table, schema, query);
 
   return {
     Statement: statement,
@@ -98,11 +94,7 @@ export const prepareDeleteOne = <
   };
 };
 
-export const prepareInsertMany = async <
-  T extends Database.Schema,
-  I extends Database.Indexes<T>,
-  R extends Relations
->(
+export const prepareInsertMany = async <T extends Database.Schema>(
   table: string,
   schema: ObjectSchema,
   indexes: string[],
@@ -127,7 +119,7 @@ export const prepareInsertMany = async <
 
     await validateSchema(data, schema);
 
-    const [statement, variables] = prepareInsert<T, I, R>(table, schema, {
+    const [statement, variables] = prepareInsert(table, schema, {
       data
     });
 
@@ -179,7 +171,7 @@ export const prepareUpdateMany = async <
   schema: ObjectSchema,
   client: DynamoDBDocumentClient,
   indexes: string[],
-  query: Query.UpdateManyInput<T, S, I, R>
+  query: Query.UpdateManyInput<T, S, R>
 ): Promise<[ExecuteStatementCommandInput[], Query.UpdateManyResult<T, S, R>]> => {
   const [partitionKey, sortKey] = indexes;
 

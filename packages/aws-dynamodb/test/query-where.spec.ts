@@ -1,15 +1,8 @@
 import { equal, deepEqual } from 'node:assert/strict';
 import { describe, it } from 'node:test';
 
-import { ObjectSchema, SchemaType } from '@ez4/schema';
-import { Index, Order, Query } from '@ez4/database';
-
-import {
-  prepareDelete,
-  prepareInsert,
-  prepareSelect,
-  prepareUpdate
-} from '@ez4/aws-dynamodb/client';
+import { prepareSelect } from '@ez4/aws-dynamodb/client';
+import { Query } from '@ez4/database';
 
 type TestSchema = {
   id: string;
@@ -20,37 +13,15 @@ type TestSchema = {
   };
 };
 
-type TestIndexes = {
-  id: Index.Primary;
+type TestRelations = {
+  indexes: never;
+  selects: {};
+  changes: {};
 };
 
-describe.only('dynamodb query', () => {
-  const testSchema: ObjectSchema = {
-    type: SchemaType.Object,
-    properties: {
-      id: {
-        type: SchemaType.String
-      },
-      foo: {
-        type: SchemaType.Number,
-        optional: true
-      },
-      bar: {
-        type: SchemaType.Object,
-        properties: {
-          barFoo: {
-            type: SchemaType.String
-          },
-          barBar: {
-            type: SchemaType.Boolean
-          }
-        }
-      }
-    }
-  };
-
+describe.only('dynamodb query (where)', () => {
   const getWhereOperation = (where: Query.WhereInput<TestSchema>) => {
-    const [statement, variables] = prepareSelect<TestSchema, {}, {}, {}>(
+    const [statement, variables] = prepareSelect<TestSchema, {}, TestRelations, {}>(
       'ez4-test-where-operation',
       undefined,
       {
@@ -65,161 +36,6 @@ describe.only('dynamodb query', () => {
 
     return [whereStatement, variables];
   };
-
-  it('assert :: prepare insert', () => {
-    const [statement, variables] = prepareInsert<TestSchema, TestIndexes, {}>(
-      'ez4-test-insert',
-      testSchema,
-      {
-        data: {
-          id: 'abc',
-          foo: 123,
-          bar: {
-            barFoo: 'def',
-            barBar: true
-          }
-        }
-      }
-    );
-
-    equal(statement, `INSERT INTO "ez4-test-insert" value { 'id': ?, 'foo': ?, 'bar': ? }`);
-
-    deepEqual(variables, ['abc', 123, { barFoo: 'def', barBar: true }]);
-  });
-
-  it('assert :: prepare update', () => {
-    const [statement, variables] = prepareUpdate<TestSchema, TestIndexes, {}, {}>(
-      'ez4-test-update',
-      testSchema,
-      {
-        data: {
-          foo: 456
-        },
-        where: {
-          foo: 123
-        }
-      }
-    );
-
-    equal(statement, `UPDATE "ez4-test-update" SET "foo" = ? WHERE "foo" = ?`);
-
-    deepEqual(variables, [456, 123]);
-  });
-
-  it('assert :: prepare update (with select)', () => {
-    const [statement, variables] = prepareUpdate<TestSchema, TestIndexes, {}, {}>(
-      'ez4-test-update',
-      testSchema,
-      {
-        select: {
-          foo: true,
-          bar: {
-            barBar: true
-          }
-        },
-        data: {
-          foo: 456,
-          bar: {
-            barBar: false
-          }
-        },
-        where: {
-          id: 'abc'
-        }
-      }
-    );
-
-    equal(
-      statement,
-      `UPDATE "ez4-test-update" SET "foo" = ? SET "bar"."barBar" = ? WHERE "id" = ? RETURNING ALL OLD *`
-    );
-
-    deepEqual(variables, [456, false, 'abc']);
-  });
-
-  it('assert :: prepare select', () => {
-    const [statement, variables] = prepareSelect<TestSchema, TestIndexes, {}, {}>(
-      'ez4-test-select',
-      undefined,
-      {
-        select: {
-          id: true,
-          foo: true,
-          bar: true
-        },
-        where: {
-          foo: 123
-        },
-        order: {
-          id: Order.Desc
-        }
-      }
-    );
-
-    equal(
-      statement,
-      `SELECT "id", "foo", "bar" ` +
-        `FROM "ez4-test-select" ` +
-        `WHERE "foo" = ? ` +
-        `ORDER BY "id" DESC`
-    );
-
-    deepEqual(variables, [123]);
-  });
-
-  it('assert :: prepare select (with index)', () => {
-    const [statement, variables] = prepareSelect<TestSchema, TestIndexes, {}, {}>(
-      'ez4-test-select',
-      'foo-index',
-      {
-        select: {
-          id: true
-        },
-        where: {
-          foo: 123
-        }
-      }
-    );
-
-    equal(statement, `SELECT "id" FROM "ez4-test-select"."foo-index" WHERE "foo" = ?`);
-
-    deepEqual(variables, [123]);
-  });
-
-  it('assert :: prepare delete', () => {
-    const [statement, variables] = prepareDelete<TestSchema, TestIndexes, {}, {}>(
-      'ez4-test-delete',
-      {
-        where: {
-          id: 'abc'
-        }
-      }
-    );
-
-    equal(statement, `DELETE FROM "ez4-test-delete" WHERE "id" = ?`);
-
-    deepEqual(variables, ['abc']);
-  });
-
-  it('assert :: prepare delete (with select)', () => {
-    const [statement, variables] = prepareDelete<TestSchema, TestIndexes, {}, {}>(
-      'ez4-test-delete',
-      {
-        select: {
-          id: true,
-          foo: true,
-          bar: true
-        },
-        where: {
-          id: 'abc'
-        }
-      }
-    );
-
-    equal(statement, `DELETE FROM "ez4-test-delete" WHERE "id" = ? RETURNING ALL OLD *`);
-
-    deepEqual(variables, ['abc']);
-  });
 
   it('assert :: prepare where (default)', () => {
     const [whereStatement, variables] = getWhereOperation({

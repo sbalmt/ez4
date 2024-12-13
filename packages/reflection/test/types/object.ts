@@ -22,4 +22,9 @@ export interface Object {
   // Computed
   ['computed1']: any;
   [`computed2`]: void;
+
+  // Dynamic
+  dynamic: {
+    [key: string | number]: any;
+  };
 }

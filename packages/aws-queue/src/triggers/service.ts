@@ -1,4 +1,8 @@
-import type { ConnectResourceEvent, PrepareResourceEvent } from '@ez4/project/library';
+import type {
+  ConnectResourceEvent,
+  PrepareResourceEvent,
+  ServiceEvent
+} from '@ez4/project/library';
 
 import { getServiceName } from '@ez4/project/library';
 import { isQueueService } from '@ez4/queue/library';
@@ -6,9 +10,22 @@ import { isRoleState } from '@ez4/aws-identity';
 
 import { createQueue } from '../queue/service.js';
 import { connectSubscriptions, prepareSubscriptions } from './subscription.js';
-import { RoleMissing } from './errors.js';
+import { prepareLinkedService } from './client.js';
+import { RoleMissingError } from './errors.js';
 
-export const prepareQueueServices = async (event: PrepareResourceEvent) => {
+export const prepareLinkedServices = (event: ServiceEvent) => {
+  const { service, options } = event;
+
+  if (!isQueueService(service)) {
+    return;
+  }
+
+  const queueName = getServiceName(service, options);
+
+  return prepareLinkedService(queueName, service.schema);
+};
+
+export const prepareServices = async (event: PrepareResourceEvent) => {
   const { state, service, role, options } = event;
 
   if (!isQueueService(service)) {
@@ -16,7 +33,7 @@ export const prepareQueueServices = async (event: PrepareResourceEvent) => {
   }
 
   if (!role || !isRoleState(role)) {
-    throw new RoleMissing();
+    throw new RoleMissingError();
   }
 
   const { timeout, retention, polling, delay } = service;
@@ -32,7 +49,7 @@ export const prepareQueueServices = async (event: PrepareResourceEvent) => {
   await prepareSubscriptions(state, service, role, queueState, options);
 };
 
-export const connectQueueServices = (event: ConnectResourceEvent) => {
+export const connectServices = (event: ConnectResourceEvent) => {
   const { state, service, role, options } = event;
 
   if (!isQueueService(service)) {
@@ -40,7 +57,7 @@ export const connectQueueServices = (event: ConnectResourceEvent) => {
   }
 
   if (!role || !isRoleState(role)) {
-    throw new RoleMissing();
+    throw new RoleMissingError();
   }
 
   connectSubscriptions(state, service, role, options);

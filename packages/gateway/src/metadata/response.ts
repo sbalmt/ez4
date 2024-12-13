@@ -24,8 +24,8 @@ import { isAnyNumber } from '@ez4/utils';
 
 import { IncorrectResponseTypeError, InvalidResponseTypeError } from '../errors/response.js';
 import { getHttpHeaders } from './headers.js';
+import { getHttpResponseBody } from './body.js';
 import { getHttpIdentity } from './identity.js';
-import { getHttpBody } from './body.js';
 
 type TypeParent = TypeModel | TypeCallback | TypeFunction;
 
@@ -127,33 +127,41 @@ const getTypeFromMembers = (
     switch (member.name) {
       case 'status': {
         const value = getPropertyNumber(member);
+
         if (isAnyNumber(value)) {
           response[member.name] = value;
         }
+
         break;
       }
 
       case 'headers': {
         response.headers = getHttpHeaders(member.value, type, reflection, errorList);
+
         if (response.headers && member.description) {
           response.headers.description = member.description;
         }
+
         break;
       }
 
       case 'identity': {
         response.identity = getHttpIdentity(member.value, type, reflection, errorList);
+
         if (response.identity && member.description) {
           response.identity.description = member.description;
         }
+
         break;
       }
 
       case 'body': {
-        response.body = getHttpBody(member.value, type, reflection, errorList);
+        response.body = getHttpResponseBody(member.value, type, reflection, errorList);
+
         if (response.body && member.description) {
           response.body.description = member.description;
         }
+
         break;
       }
     }

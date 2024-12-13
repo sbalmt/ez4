@@ -13,7 +13,11 @@ export type RichTypes = {
 export const getRichTypes = (type: TypeObject) => {
   const richTypes: RichTypes = {};
 
-  type.members?.forEach((member) => {
+  if (!Array.isArray(type.members)) {
+    return null;
+  }
+
+  type.members.forEach((member) => {
     if (!isModelProperty(member)) {
       return;
     }

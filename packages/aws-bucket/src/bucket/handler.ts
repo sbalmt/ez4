@@ -7,8 +7,10 @@ import { deepCompare, deepEqual } from '@ez4/utils';
 
 import {
   createBucket,
+  updateCorsConfiguration,
   createLifecycle,
   deleteBucket,
+  deleteCorsConfiguration,
   deleteLifecycle,
   tagBucket
 } from './client.js';
@@ -58,6 +60,7 @@ const createResource = async (candidate: BucketState): Promise<BucketResult> => 
   const { bucketName } = await createBucket(parameters);
 
   await Promise.all([
+    checkCorsUpdates(bucketName, parameters, undefined),
     checkLifecycleUpdates(bucketName, parameters, undefined),
     checkTagUpdates(bucketName, parameters.tags, undefined)
   ]);
@@ -77,6 +80,7 @@ const updateResource = async (candidate: BucketState, current: BucketState) => {
   const bucketName = result.bucketName;
 
   await Promise.all([
+    checkCorsUpdates(bucketName, parameters, current.parameters),
     checkLifecycleUpdates(bucketName, parameters, current.parameters),
     checkTagUpdates(bucketName, parameters.tags, current.parameters.tags)
   ]);
@@ -87,6 +91,24 @@ const deleteResource = async (candidate: BucketState) => {
 
   if (result) {
     await deleteBucket(result.bucketName);
+  }
+};
+
+const checkCorsUpdates = async (
+  bucketName: string,
+  candidate: BucketParameters,
+  current: BucketParameters | undefined
+) => {
+  if (candidate.cors && current?.cors && deepEqual(candidate.cors, current.cors)) {
+    return;
+  }
+
+  if (candidate.cors) {
+    return updateCorsConfiguration(bucketName, candidate.cors);
+  }
+
+  if (current?.cors) {
+    return deleteCorsConfiguration(bucketName);
   }
 };
 

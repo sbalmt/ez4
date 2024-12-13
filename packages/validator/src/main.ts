@@ -10,6 +10,7 @@ export * from './schema/number.js';
 export * from './schema/string.js';
 export * from './schema/scalar.js';
 export * from './schema/object.js';
+export * from './schema/reference.js';
 export * from './schema/union.js';
 export * from './schema/array.js';
 export * from './schema/tuple.js';

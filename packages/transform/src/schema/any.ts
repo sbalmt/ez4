@@ -2,14 +2,20 @@ import type { AnySchema } from '@ez4/schema';
 
 import { SchemaType } from '@ez4/schema';
 
+import { getNewContext } from '../types/context.js';
 import { transformScalar } from './scalar.js';
 import { transformObject } from './object.js';
+import { transformReference } from './reference.js';
 import { transformUnion } from './union.js';
 import { transformArray } from './array.js';
 import { transformTuple } from './tuple.js';
 import { transformEnum } from './enum.js';
 
-export const transformAny = (value: unknown, schema: AnySchema): unknown => {
+export const transformAny = (
+  value: unknown,
+  schema: AnySchema,
+  context = getNewContext()
+): unknown => {
   if (value === null || value === undefined) {
     return value;
   }
@@ -21,16 +27,19 @@ export const transformAny = (value: unknown, schema: AnySchema): unknown => {
       return transformScalar(value, schema);
 
     case SchemaType.Object:
-      return transformObject(value, schema);
+      return transformObject(value, schema, context);
+
+    case SchemaType.Reference:
+      return transformReference(value, schema, context);
 
     case SchemaType.Union:
-      return transformUnion(value, schema);
+      return transformUnion(value, schema, context);
 
     case SchemaType.Array:
-      return transformArray(value, schema);
+      return transformArray(value, schema, context);
 
     case SchemaType.Tuple:
-      return transformTuple(value, schema);
+      return transformTuple(value, schema, context);
 
     case SchemaType.Enum:
       return transformEnum(value, schema);

@@ -1,9 +1,10 @@
 import type { EnumSchema } from '@ez4/schema';
+import type { ValidationContext } from '../types/context.js';
 
 import { UnexpectedEnumValueError } from '../errors/enum.js';
 import { isOptionalNullable } from './utils.js';
 
-export const validateEnum = (value: unknown, schema: EnumSchema, property?: string) => {
+export const validateEnum = (value: unknown, schema: EnumSchema, context?: ValidationContext) => {
   if (isOptionalNullable(value, schema)) {
     return [];
   }
@@ -14,5 +15,5 @@ export const validateEnum = (value: unknown, schema: EnumSchema, property?: stri
     }
   }
 
-  return [new UnexpectedEnumValueError(schema.options, property)];
+  return [new UnexpectedEnumValueError(schema.options, context?.property)];
 };

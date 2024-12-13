@@ -1,18 +1,19 @@
 {
   "type": "object",
   "description": "String type enriched with identity formats.",
+  "identity": 1,
   "properties": {
     "email": {
       "type": "string",
       "description": "String following an email format.",
       "format": "email",
-      "extra": {}
+      "definitions": {}
     },
     "uuid": {
       "type": "string",
       "description": "String following a UUID format.",
       "format": "uuid",
-      "extra": {}
+      "definitions": {}
     }
   }
 }

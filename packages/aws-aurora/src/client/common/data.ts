@@ -5,6 +5,10 @@ import { TypeHint } from '@aws-sdk/client-rds-data';
 import { isDate, isDateTime, isTime, isUUID } from '@ez4/utils';
 import { SchemaType } from '@ez4/schema';
 
+export const isSkippableData = (value: unknown) => {
+  return value === undefined;
+};
+
 export const prepareFieldData = (name: string, value: unknown, schema: AnySchema): SqlParameter => {
   if (value === null) {
     return prepareNullField(name);

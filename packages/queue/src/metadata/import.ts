@@ -3,6 +3,8 @@ import type { SourceMap } from '@ez4/reflection';
 import type { QueueImport } from '../types/import.js';
 
 import {
+  DuplicateServiceError,
+  isExternalStatement,
   getLinkedServiceList,
   getLinkedVariableList,
   getModelMembers,
@@ -27,12 +29,12 @@ export const getQueueImports = (reflection: SourceMap) => {
   for (const identity in reflection) {
     const statement = reflection[identity];
 
-    if (!isQueueImport(statement)) {
+    if (!isQueueImport(statement) || isExternalStatement(statement)) {
       continue;
     }
 
     const service: Incomplete<QueueImport> = { type: ImportType };
-    const properties = new Set(['subscriptions', 'project', 'reference', 'schema']);
+    const properties = new Set(['project', 'reference', 'schema']);
 
     service.name = statement.name;
 
@@ -89,9 +91,8 @@ export const getQueueImports = (reflection: SourceMap) => {
         case 'subscriptions': {
           if (!member.inherited) {
             service.subscriptions = getAllSubscription(member, statement, reflection, errorList);
-            if (service.subscriptions) {
-              properties.delete(member.name);
-            }
+          } else {
+            service.subscriptions = [];
           }
           break;
         }
@@ -112,6 +113,11 @@ export const getQueueImports = (reflection: SourceMap) => {
 
     if (!isValidImport(service)) {
       errorList.push(new IncompleteServiceError([...properties], statement.file));
+      continue;
+    }
+
+    if (queueImports[statement.name]) {
+      errorList.push(new DuplicateServiceError(statement.name, statement.file));
       continue;
     }
 

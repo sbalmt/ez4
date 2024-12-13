@@ -2,13 +2,21 @@ import type { Incomplete } from '@ez4/utils';
 import type { SourceMap } from '@ez4/reflection';
 import type { BucketService } from '../types/service.js';
 
-import { getModelMembers, getPropertyNumber, getPropertyString } from '@ez4/common/library';
+import {
+  DuplicateServiceError,
+  isExternalStatement,
+  getModelMembers,
+  getPropertyNumber,
+  getPropertyString
+} from '@ez4/common/library';
+
 import { isModelProperty } from '@ez4/reflection';
 import { isAnyNumber } from '@ez4/utils';
 
 import { ServiceType } from '../types/service.js';
 import { IncompleteServiceError } from '../errors/service.js';
 import { isBucketService } from './utils.js';
+import { getBucketCors } from './cors.js';
 
 export const getBucketServices = (reflection: SourceMap) => {
   const bucketServices: Record<string, BucketService> = {};
@@ -17,7 +25,7 @@ export const getBucketServices = (reflection: SourceMap) => {
   for (const identity in reflection) {
     const statement = reflection[identity];
 
-    if (!isBucketService(statement)) {
+    if (!isBucketService(statement) || isExternalStatement(statement)) {
       continue;
     }
 
@@ -31,6 +39,10 @@ export const getBucketServices = (reflection: SourceMap) => {
       }
 
       switch (member.name) {
+        case 'cors':
+          service.cors = getBucketCors(member.value, statement, reflection, errorList);
+          break;
+
         case 'localPath': {
           const value = getPropertyString(member);
           if (value !== undefined && value !== null) {
@@ -51,6 +63,11 @@ export const getBucketServices = (reflection: SourceMap) => {
 
     if (!isValidService(service)) {
       errorList.push(new IncompleteServiceError([], statement.file));
+      continue;
+    }
+
+    if (bucketServices[statement.name]) {
+      errorList.push(new DuplicateServiceError(statement.name, statement.file));
       continue;
     }
 

@@ -28,11 +28,11 @@ export namespace Client {
   ): DbClient<T> => {
     const instance = new (class {
       rawQuery(query: string, values: unknown[]) {
+        const parameters = values.map((value, index) => detectFieldData(`${index}`, value));
+
         return executeStatement(client, connection, {
-          sql: query,
-          parameters: values.map((value, index) => {
-            return detectFieldData(`${index}`, value);
-          })
+          parameters,
+          sql: query
         });
       }
 

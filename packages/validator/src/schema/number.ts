@@ -1,4 +1,5 @@
 import type { NumberSchema } from '@ez4/schema';
+import type { ValidationContext } from '../types/context.js';
 
 import { isAnyNumber } from '@ez4/utils';
 
@@ -12,29 +13,37 @@ import {
 
 import { isOptionalNullable } from './utils.js';
 
-export const validateNumber = (value: unknown, schema: NumberSchema, property?: string) => {
-  if (!isOptionalNullable(value, schema)) {
-    if (typeof value !== 'number' || Number.isNaN(value)) {
-      return [new ExpectedNumberTypeError(property)];
-    }
+export const validateNumber = (
+  value: unknown,
+  schema: NumberSchema,
+  context?: ValidationContext
+) => {
+  if (isOptionalNullable(value, schema)) {
+    return [];
+  }
 
-    if (schema.format === 'integer' && !Number.isSafeInteger(value)) {
-      return [new ExpectedIntegerTypeError(property)];
-    }
+  const property = context?.property;
 
-    const { extra } = schema;
+  if (typeof value !== 'number' || Number.isNaN(value)) {
+    return [new ExpectedNumberTypeError(property)];
+  }
 
-    if (isAnyNumber(extra?.value) && value !== extra?.value) {
-      return [new UnexpectedNumberError(extra.value, property)];
-    }
+  if (schema.format === 'integer' && !Number.isSafeInteger(value)) {
+    return [new ExpectedIntegerTypeError(property)];
+  }
 
-    if (isAnyNumber(extra?.minValue) && value < extra.minValue) {
-      return [new UnexpectedMinRangeError(extra.minValue, property)];
-    }
+  const { definitions } = schema;
 
-    if (isAnyNumber(extra?.maxValue) && value > extra.maxValue) {
-      return [new UnexpectedMaxRangeError(extra.maxValue, property)];
-    }
+  if (isAnyNumber(definitions?.value) && value !== definitions?.value) {
+    return [new UnexpectedNumberError(definitions.value, property)];
+  }
+
+  if (isAnyNumber(definitions?.minValue) && value < definitions.minValue) {
+    return [new UnexpectedMinRangeError(definitions.minValue, property)];
+  }
+
+  if (isAnyNumber(definitions?.maxValue) && value > definitions.maxValue) {
+    return [new UnexpectedMaxRangeError(definitions.maxValue, property)];
   }
 
   return [];

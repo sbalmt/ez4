@@ -2,9 +2,7 @@ import { equal, deepEqual } from 'node:assert/strict';
 import { describe, it } from 'node:test';
 
 import { prepareInsertQuery } from '@ez4/aws-aurora/client';
-
 import { ObjectSchema, SchemaType } from '@ez4/schema';
-import { Index } from '@ez4/database';
 
 import { makeParameter } from './common/parameters.js';
 
@@ -20,16 +18,20 @@ type TestSchema = {
 };
 
 type TestRelations = {
-  relation1?: TestSchema;
-  relation2?: TestSchema;
-  relations?: TestSchema[];
+  indexes: 'relation1_id' | 'relation2_id';
+  selects: {
+    relation1?: TestSchema;
+    relation2?: TestSchema;
+    relations?: TestSchema[];
+  };
+  changes: {
+    relation1?: TestSchema | { relation1_id: string };
+    relation2?: TestSchema | { relation2_id: string };
+    relations?: TestSchema[];
+  };
 };
 
-type TestIndexes = {
-  id: Index.Primary;
-};
-
-describe.only('aurora query insert', () => {
+describe.only('aurora query (insert)', () => {
   const testSchema: ObjectSchema = {
     type: SchemaType.Object,
     properties: {
@@ -39,10 +41,12 @@ describe.only('aurora query insert', () => {
       },
       relation1_id: {
         type: SchemaType.String,
+        optional: true,
         format: 'uuid'
       },
       relation2_id: {
         type: SchemaType.String,
+        optional: true,
         format: 'uuid'
       },
       foo: {
@@ -96,7 +100,7 @@ describe.only('aurora query insert', () => {
   };
 
   it('assert :: prepare insert', () => {
-    const [statement, variables] = prepareInsertQuery<TestSchema, TestIndexes, TestRelations>(
+    const [statement, variables] = prepareInsertQuery<TestSchema, TestRelations>(
       'ez4-test-insert',
       testSchema,
       testRelations,
@@ -121,8 +125,42 @@ describe.only('aurora query insert', () => {
     ]);
   });
 
-  it('assert :: prepare insert (with foreign relationship)', () => {
-    const [statement, variables] = prepareInsertQuery<TestSchema, TestIndexes, TestRelations>(
+  it('assert :: prepare insert (foreign relationship ids)', () => {
+    const [statement, variables] = prepareInsertQuery<TestSchema, TestRelations>(
+      'ez4-test-insert',
+      testSchema,
+      testRelations,
+      {
+        data: {
+          id: '00000000-0000-0000-0000-000000000000',
+          bar: {},
+          relation1: {
+            relation1_id: '00000000-0000-0000-0000-000000000001'
+          },
+          relation2: {
+            relation2_id: '00000000-0000-0000-0000-000000000002'
+          }
+        }
+      }
+    );
+
+    equal(
+      statement,
+      // Main record
+      `INSERT INTO "ez4-test-insert" ("id", "bar", "relation1_id", "relation2_id") ` +
+        `VALUES (:0i, :1i, :2i, :3i)`
+    );
+
+    deepEqual(variables, [
+      makeParameter('0i', '00000000-0000-0000-0000-000000000000', 'UUID'),
+      makeParameter('1i', {}),
+      makeParameter('2i', '00000000-0000-0000-0000-000000000001', 'UUID'),
+      makeParameter('3i', '00000000-0000-0000-0000-000000000002', 'UUID')
+    ]);
+  });
+
+  it('assert :: prepare insert (foreign relationship object)', () => {
+    const [statement, variables] = prepareInsertQuery<TestSchema, TestRelations>(
       'ez4-test-insert',
       testSchema,
       testRelations,
@@ -170,8 +208,8 @@ describe.only('aurora query insert', () => {
     ]);
   });
 
-  it('assert :: prepare insert (with inverse relationship)', () => {
-    const [statement, variables] = prepareInsertQuery<TestSchema, TestIndexes, TestRelations>(
+  it('assert :: prepare insert (inverse relationship array)', () => {
+    const [statement, variables] = prepareInsertQuery<TestSchema, TestRelations>(
       'ez4-test-insert',
       testSchema,
       testRelations,
@@ -221,8 +259,8 @@ describe.only('aurora query insert', () => {
     ]);
   });
 
-  it('assert :: prepare insert (with both relationships)', () => {
-    const [statement, variables] = prepareInsertQuery<TestSchema, TestIndexes, TestRelations>(
+  it('assert :: prepare insert (foreign and inverse relationships)', () => {
+    const [statement, variables] = prepareInsertQuery<TestSchema, TestRelations>(
       'ez4-test-insert',
       testSchema,
       testRelations,

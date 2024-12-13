@@ -1,12 +1,13 @@
 {
   "type": "object",
   "description": "String type enriched with regex format.",
+  "identity": 1,
   "properties": {
     "test": {
       "type": "string",
       "description": "String following a regex format.",
       "format": "regex",
-      "extra": {
+      "definitions": {
         "name": "test",
         "pattern": "^[a-b]+$"
       }

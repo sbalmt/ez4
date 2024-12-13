@@ -39,4 +39,5 @@ describe.only('http metadata', () => {
   it('assert :: route query', () => testFile('query'));
   it('assert :: route body', () => testFile('body'));
   it('assert :: route cors', () => testFile('cors'));
+  it('assert :: route response', () => testFile('response'));
 });

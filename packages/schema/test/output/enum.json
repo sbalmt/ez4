@@ -1,6 +1,7 @@
 {
   "type": "object",
   "description": "Enum test object.",
+  "identity": 1,
   "properties": {
     "foo": {
       "type": "array",
@@ -21,9 +22,18 @@
     "bar": {
       "type": "string",
       "description": "Bar property.",
-      "extra": {
+      "definitions": {
         "value": "bar"
       }
+    },
+    "baz": {
+      "type": "enum",
+      "description": "Baz property.",
+      "options": [
+        {
+          "value": "baz"
+        }
+      ]
     }
   }
 }

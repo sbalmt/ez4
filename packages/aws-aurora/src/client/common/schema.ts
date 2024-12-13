@@ -1,4 +1,4 @@
-import type { AnyObject } from '@ez4/utils';
+import { isAnyObject, type AnyObject } from '@ez4/utils';
 import type { PartialSchemaProperties } from '@ez4/schema/library';
 import type { ObjectSchema } from '@ez4/schema';
 import type { RepositoryRelationsWithSchema } from '../../types/repository.js';
@@ -9,6 +9,7 @@ import { getUniqueErrorMessages } from '@ez4/validator';
 import { validate } from '@ez4/validator';
 
 import { MalformedRequestError } from './errors.js';
+import { isSkippableData } from './data.js';
 
 export const validateSchema = async (data: AnyObject, schema: ObjectSchema) => {
   const errors = await validate(data, schema);
@@ -33,35 +34,44 @@ export const prepareInsertSchema = (
   };
 
   for (const alias in relations) {
-    const hasRelationData = alias in data;
+    const relationData = data[alias];
 
-    if (!hasRelationData) {
+    if (!isAnyObject(relationData)) {
       continue;
     }
 
     const { sourceColumn, sourceSchema, targetColumn, foreign } = relations[alias]!;
 
-    if (foreign) {
-      const fieldSchema = finalSchema.properties[targetColumn];
-
+    if (!foreign) {
       finalSchema.properties[alias] = {
-        ...sourceSchema,
-        optional: fieldSchema?.optional
+        type: SchemaType.Array,
+        element: getPartialSchema(sourceSchema, {
+          exclude: {
+            [sourceColumn]: true
+          }
+        })
       };
 
-      delete finalSchema.properties[targetColumn];
+      continue;
+    }
+
+    const fieldSchema = finalSchema.properties[targetColumn];
+
+    delete finalSchema.properties[targetColumn];
+
+    if (relationData[targetColumn]) {
+      finalSchema.properties[alias] = {
+        type: SchemaType.Object,
+        properties: {
+          [targetColumn]: fieldSchema
+        }
+      };
 
       continue;
     }
 
     finalSchema.properties[alias] = {
-      type: SchemaType.Array,
-      optional: true,
-      element: getPartialSchema(sourceSchema, {
-        exclude: {
-          [sourceColumn]: true
-        }
-      })
+      ...sourceSchema
     };
   }
 
@@ -73,20 +83,36 @@ export const prepareUpdateSchema = (
   relations: RepositoryRelationsWithSchema,
   data: AnyObject
 ) => {
-  const finalSchema = { ...schema };
+  const finalSchema = {
+    ...schema,
+    properties: {
+      ...schema.properties
+    }
+  };
 
   for (const alias in relations) {
-    const hasRelationData = alias in data;
+    const relationData = data[alias];
 
-    if (!hasRelationData) {
+    if (!isAnyObject(relationData)) {
       continue;
     }
 
-    const { targetColumn, sourceSchema } = relations[alias]!;
-    const { nullable, optional } = schema.properties[targetColumn];
+    const { targetColumn, sourceSchema, foreign } = relations[alias]!;
+
+    const fieldSchema = finalSchema.properties[targetColumn];
+
+    delete finalSchema.properties[targetColumn];
+
+    const { nullable, optional } = finalSchema;
 
     finalSchema.properties[alias] = {
       ...sourceSchema,
+      properties: {
+        ...sourceSchema.properties,
+        ...(foreign && {
+          [targetColumn]: fieldSchema
+        })
+      },
       nullable,
       optional
     };
@@ -104,7 +130,7 @@ const getDataProperties = (data: AnyObject) => {
   for (const propertyName in data) {
     const value = data[propertyName];
 
-    if (value === undefined) {
+    if (isSkippableData(value)) {
       continue;
     }
 

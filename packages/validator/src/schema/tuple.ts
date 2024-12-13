@@ -1,14 +1,20 @@
 import type { TupleSchema } from '@ez4/schema';
 
+import { getNewContext } from '../types/context.js';
 import { ExpectedTupleTypeError } from '../errors/tuple.js';
-
 import { isOptionalNullable } from './utils.js';
 import { validateAny } from './any.js';
 
-export const validateTuple = async (value: unknown, schema: TupleSchema, property?: string) => {
+export const validateTuple = async (
+  value: unknown,
+  schema: TupleSchema,
+  context = getNewContext()
+) => {
   if (isOptionalNullable(value, schema)) {
     return [];
   }
+
+  const { property, references } = context;
 
   if (!(value instanceof Array)) {
     return [new ExpectedTupleTypeError(property)];
@@ -22,7 +28,10 @@ export const validateTuple = async (value: unknown, schema: TupleSchema, propert
     const elementProperty = `${property}.${index}`;
     const elementValue = value[index++];
 
-    const errorList = await validateAny(elementValue, elementSchema, elementProperty);
+    const errorList = await validateAny(elementValue, elementSchema, {
+      property: elementProperty,
+      references
+    });
 
     allErrors.push(...errorList);
   }

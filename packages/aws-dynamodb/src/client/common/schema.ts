@@ -4,6 +4,8 @@ import type { AnyObject } from '@ez4/utils';
 
 import { getPartialSchema } from '@ez4/schema/library';
 
+import { isSkippableData } from './data.js';
+
 export const preparePartialSchema = (schema: ObjectSchema, data: AnyObject) => {
   return getPartialSchema(schema, {
     include: getDataProperties(data),
@@ -17,7 +19,7 @@ const getDataProperties = (data: AnyObject) => {
   for (const propertyName in data) {
     const value = data[propertyName];
 
-    if (value === undefined) {
+    if (isSkippableData(value)) {
       continue;
     }
 

@@ -1,6 +1,6 @@
 import type { Http } from '@ez4/gateway';
 
-// Missing Http.JsonBody inheritance.
+// Missing Http.Cors inheritance.
 declare class TestCors {
   allowOrigins: ['*'];
 }

@@ -1,18 +1,18 @@
 import type { StringSchema } from '@ez4/schema';
 
 import { ExpectedRegexTypeError } from '../errors/regex.js';
-import { registerStringFormat } from '../main.js';
+import { registerStringFormat } from '../schema/string.js';
 
 registerStringFormat('regex', (value: string, schema: StringSchema, property?: string) => {
-  const { extra } = schema;
+  const { definitions } = schema;
 
-  if (extra?.pattern) {
-    const regex = new RegExp(extra.pattern, 'g');
+  if (definitions?.pattern) {
+    const regex = new RegExp(definitions.pattern, 'g');
 
     if (regex.test(value)) {
       return [];
     }
   }
 
-  return [new ExpectedRegexTypeError(extra?.name, property)];
+  return [new ExpectedRegexTypeError(definitions?.name, property)];
 });

@@ -53,9 +53,18 @@ describe.only('type validation errors', () => {
   it('assert :: object errors', async () => {
     const schema: AnySchema = {
       type: SchemaType.Object,
+      identity: 1,
       properties: {
         foo: {
           type: SchemaType.Number
+        }
+      },
+      additional: {
+        property: {
+          type: SchemaType.Number
+        },
+        value: {
+          type: SchemaType.String
         }
       }
     };
@@ -64,6 +73,11 @@ describe.only('type validation errors', () => {
     await assertError(undefined, schema, [ExpectedObjectTypeError]);
     await assertError({ foo: 123, bar: 'abc' }, schema, [UnexpectedPropertiesError]);
     await assertError({ bar: 'abc' }, schema, [ExpectedNumberTypeError, UnexpectedPropertiesError]);
+
+    await assertError({ foo: 123, qux: 456 }, schema, [
+      ExpectedStringTypeError,
+      UnexpectedPropertiesError
+    ]);
   });
 
   it('assert :: union errors', async () => {
@@ -72,6 +86,7 @@ describe.only('type validation errors', () => {
       elements: [
         {
           type: SchemaType.Object,
+          identity: 1,
           properties: {
             foo: {
               type: SchemaType.String
@@ -83,6 +98,7 @@ describe.only('type validation errors', () => {
         },
         {
           type: SchemaType.Object,
+          identity: 2,
           properties: {
             baz: {
               type: SchemaType.Number

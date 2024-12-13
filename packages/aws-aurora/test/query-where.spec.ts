@@ -2,7 +2,6 @@ import { equal, deepEqual } from 'node:assert/strict';
 import { describe, it } from 'node:test';
 
 import { prepareSelectQuery } from '@ez4/aws-aurora/client';
-
 import { ObjectSchema, SchemaType } from '@ez4/schema';
 import { Index, Query } from '@ez4/database';
 
@@ -17,11 +16,17 @@ type TestSchema = {
   };
 };
 
+type TestRelations = {
+  indexes: never;
+  selects: {};
+  changes: {};
+};
+
 type TestIndexes = {
   id: Index.Primary;
 };
 
-describe.only('aurora query where', () => {
+describe.only('aurora query (where)', () => {
   const testSchema: ObjectSchema = {
     type: SchemaType.Object,
     properties: {
@@ -50,7 +55,7 @@ describe.only('aurora query where', () => {
   };
 
   const getWhereOperation = (where: Query.WhereInput<TestSchema>) => {
-    const [statement, variables] = prepareSelectQuery<TestSchema, TestIndexes, {}, {}>(
+    const [statement, variables] = prepareSelectQuery<TestSchema, TestIndexes, TestRelations, {}>(
       'ez4-test-where-operation',
       testSchema,
       {},

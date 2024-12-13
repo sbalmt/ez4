@@ -1,15 +1,16 @@
 import type { AnyObject } from '@ez4/utils';
-import type { AnySchema, ExtraSchema } from './common.js';
+import type { SchemaDefinitions } from './common.js';
+import type { AnySchema } from './type-any.js';
 
 import { SchemaType } from './common.js';
 
 export type ArraySchema = {
   type: SchemaType.Array;
+  definitions?: SchemaDefinitions;
   element: AnySchema;
   description?: string;
   optional?: boolean;
   nullable?: boolean;
-  extra?: ExtraSchema;
 };
 
 export const isArraySchema = (value: AnyObject): value is ArraySchema => {

@@ -99,6 +99,29 @@
         "value": {
           "type": "void"
         }
+      },
+      {
+        "type": "property",
+        "name": "dynamic",
+        "value": {
+          "type": "object",
+          "members": {
+            "index": {
+              "type": "union",
+              "elements": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "number"
+                }
+              ]
+            },
+            "value": {
+              "type": "any"
+            }
+          }
+        }
       }
     ]
   }

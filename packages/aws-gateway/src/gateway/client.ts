@@ -1,4 +1,5 @@
 import type { Arn, ResourceTags } from '@ez4/aws-common';
+import type { Http } from '@ez4/gateway';
 
 import {
   ApiGatewayV2Client,
@@ -16,19 +17,10 @@ import { GatewayServiceName } from './types.js';
 
 const client = new ApiGatewayV2Client({});
 
-export type CorsConfiguration = {
-  allowOrigins: string[];
-  allowMethods?: string[];
-  allowCredentials?: boolean;
-  exposeHeaders?: string[];
-  allowHeaders?: string[];
-  maxAge?: number;
-};
-
 export type CreateRequest = {
   gatewayName: string;
   description?: string;
-  cors?: CorsConfiguration;
+  cors?: Http.Cors;
   tags?: ResourceTags;
 };
 
@@ -41,7 +33,7 @@ export type CreateResponse = {
 export type UpdateRequest = {
   gatewayName?: string;
   description?: string;
-  cors?: CorsConfiguration;
+  cors?: Http.Cors;
 };
 
 export const createGateway = async (request: CreateRequest): Promise<CreateResponse> => {

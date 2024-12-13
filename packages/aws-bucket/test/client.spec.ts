@@ -1,6 +1,6 @@
 import type { EntryStates } from '@ez4/stateful';
 
-import { ok, equal } from 'node:assert/strict';
+import { ok, equal, deepEqual } from 'node:assert/strict';
 import { createReadStream } from 'node:fs';
 import { describe, it } from 'node:test';
 import { join } from 'node:path';
@@ -46,7 +46,9 @@ describe.only('bucket client', () => {
 
     const content = createReadStream(join(baseDir, 'object-file.txt'));
 
-    await bucketClient.write('test-client', content);
+    await bucketClient.write('test-client', content, {
+      contentType: 'text/plain'
+    });
   });
 
   it('assert :: put object (plain text)', async () => {
@@ -54,7 +56,9 @@ describe.only('bucket client', () => {
 
     const content = 'Plain text test';
 
-    await bucketClient.write('test-client-plain', content);
+    await bucketClient.write('test-client-plain', content, {
+      contentType: 'text/plain'
+    });
   });
 
   it('assert :: object exists', async () => {
@@ -62,12 +66,28 @@ describe.only('bucket client', () => {
 
     const [objectExists, objectDoNotExists] = await Promise.all([
       bucketClient.exists('test-client'),
-      bucketClient.exists('test-client-do-no-exists')
+      bucketClient.exists('test-client-do-not-exists')
     ]);
 
     ok(objectExists);
 
     ok(!objectDoNotExists);
+  });
+
+  it('assert :: object stats', async () => {
+    ok(bucketClient);
+
+    const [objectExists, objectDoNotExists] = await Promise.all([
+      bucketClient.getStats('test-client'),
+      bucketClient.getStats('test-client-do-not-exists')
+    ]);
+
+    ok(!objectDoNotExists);
+
+    deepEqual(objectExists, {
+      type: 'text/plain',
+      size: 43
+    });
   });
 
   it('assert :: get object', async () => {

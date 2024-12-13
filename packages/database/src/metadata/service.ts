@@ -4,6 +4,8 @@ import type { DatabaseService } from '../types/service.js';
 import type { DatabaseTable } from '../types/table.js';
 
 import {
+  DuplicateServiceError,
+  isExternalStatement,
   getLinkedServiceList,
   getLinkedVariableList,
   getPropertyString,
@@ -31,7 +33,7 @@ export const getDatabaseServices = (reflection: SourceMap) => {
   for (const identity in reflection) {
     const statement = reflection[identity];
 
-    if (!isDatabaseService(statement)) {
+    if (!isDatabaseService(statement) || isExternalStatement(statement)) {
       continue;
     }
 
@@ -78,6 +80,11 @@ export const getDatabaseServices = (reflection: SourceMap) => {
 
     if (relationErrors.length) {
       errorList.push(...relationErrors);
+      continue;
+    }
+
+    if (dbServices[statement.name]) {
+      errorList.push(new DuplicateServiceError(statement.name, statement.file));
       continue;
     }
 

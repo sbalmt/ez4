@@ -16,11 +16,7 @@ export namespace Transaction {
     [P in keyof TableSchemas<T>]?: TableSchemas<T>[P] extends Database.Schema
       ? {
           [alias: string]:
-            | InsertOperation<
-                TableSchemas<T>[P],
-                TableIndex<P, IndexedTables<T>>,
-                TableRelation<P, RelationTables<T>>
-              >
+            | InsertOperation<TableSchemas<T>[P], TableRelation<P, RelationTables<T>>>
             | UpdateOperation<
                 TableSchemas<T>[P],
                 TableIndex<P, IndexedTables<T>>,
@@ -35,12 +31,8 @@ export namespace Transaction {
       : never;
   };
 
-  type InsertOperation<
-    T extends Database.Schema,
-    I extends Database.Indexes<T>,
-    R extends Relations
-  > = {
-    insert: Query.InsertOneInput<T, I, R>;
+  type InsertOperation<T extends Database.Schema, R extends Relations> = {
+    insert: Query.InsertOneInput<T, R>;
   };
 
   type UpdateOperation<

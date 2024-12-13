@@ -1,10 +1,12 @@
 {
   "type": "object",
   "description": "Object test object.",
+  "identity": 1,
   "properties": {
     "foo": {
       "type": "object",
       "description": "Foo property.",
+      "identity": 2,
       "properties": {
         "foo1": {
           "type": "boolean"
@@ -20,6 +22,7 @@
     "bar": {
       "type": "object",
       "description": "Referenced interface.",
+      "identity": 3,
       "properties": {
         "foo2": {
           "type": "boolean"
@@ -35,6 +38,7 @@
     "baz": {
       "type": "object",
       "description": "Referenced class.",
+      "identity": 4,
       "properties": {
         "foo3": {
           "type": "boolean"
@@ -49,6 +53,9 @@
     },
     "nullable": {
       "type": "object",
+      "description": "Nullable property.",
+      "identity": 5,
+      "nullable": true,
       "properties": {
         "foo1": {
           "type": "boolean"
@@ -59,12 +66,13 @@
         "baz1": {
           "type": "string"
         }
-      },
-      "description": "Nullable property.",
-      "nullable": true
+      }
     },
     "optional": {
       "type": "object",
+      "description": "Optional property.",
+      "identity": 6,
+      "optional": true,
       "properties": {
         "foo1": {
           "type": "boolean"
@@ -75,12 +83,14 @@
         "baz1": {
           "type": "string"
         }
-      },
-      "description": "Optional property.",
-      "optional": true
+      }
     },
     "both": {
       "type": "object",
+      "description": "Nullable and optional property.",
+      "identity": 7,
+      "optional": true,
+      "nullable": true,
       "properties": {
         "foo1": {
           "type": "boolean"
@@ -91,17 +101,38 @@
         "baz1": {
           "type": "string"
         }
-      },
-      "description": "Nullable and optional property.",
-      "optional": true,
-      "nullable": true
+      }
     },
     "any": {
       "type": "object",
       "description": "Any object type.",
+      "identity": 8,
       "properties": {},
-      "extra": {
+      "definitions": {
         "extensible": true
+      }
+    },
+    "dynamic": {
+      "type": "object",
+      "description": "Dynamic properties.",
+      "identity": 9,
+      "properties": {},
+      "additional": {
+        "property": {
+          "type": "union",
+          "elements": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "number"
+            }
+          ]
+        },
+        "value": {
+          "type": "boolean",
+          "optional": true
+        }
       }
     }
   }

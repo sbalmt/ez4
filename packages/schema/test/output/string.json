@@ -1,30 +1,31 @@
 {
   "type": "object",
   "description": "String type enriched with constraints.",
+  "identity": 1,
   "properties": {
     "any": {
       "type": "string",
       "description": "String following any format.",
-      "extra": {}
+      "definitions": {}
     },
     "min": {
       "type": "string",
       "description": "String with minimum length.",
-      "extra": {
+      "definitions": {
         "minLength": 1
       }
     },
     "max": {
       "type": "string",
       "description": "String with maximum length.",
-      "extra": {
+      "definitions": {
         "maxLength": 80
       }
     },
     "size": {
       "type": "string",
       "description": "String with minimum and maximum length.",
-      "extra": {
+      "definitions": {
         "minLength": 1,
         "maxLength": 80
       }
@@ -32,7 +33,7 @@
     "literal": {
       "type": "string",
       "description": "Literal string value.",
-      "extra": {
+      "definitions": {
         "value": "foo"
       }
     }

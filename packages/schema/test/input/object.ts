@@ -61,4 +61,11 @@ export interface ObjectTestSchema {
    * Any object type.
    */
   any: Object.Any;
+
+  /**
+   * Dynamic properties.
+   */
+  dynamic: {
+    [name: string | number]: boolean | undefined;
+  };
 }

@@ -138,7 +138,7 @@ const getColumnTextType = (schema: StringSchema) => {
       return 'timestamp';
 
     default:
-      const maxLength = schema.extra?.maxLength;
+      const maxLength = schema.definitions?.maxLength;
 
       if (isAnyNumber(maxLength)) {
         return `varchar(${maxLength})`;

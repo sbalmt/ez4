@@ -3,6 +3,8 @@ import type { AnyObject } from '@ez4/utils';
 
 import { isAnyObject } from '@ez4/utils';
 
+import { isSkippableData } from './data.js';
+
 type PrepareResult = [string, unknown[]];
 
 export const prepareWhereFields = <T extends Database.Schema, I extends Database.Indexes<T>>(
@@ -15,7 +17,7 @@ export const prepareWhereFields = <T extends Database.Schema, I extends Database
     for (const key in data) {
       const value = data[key];
 
-      if (value === undefined || value === null) {
+      if (isSkippableData(value) || value === null) {
         continue;
       }
 

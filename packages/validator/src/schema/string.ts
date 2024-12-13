@@ -1,4 +1,5 @@
 import type { StringSchema } from '@ez4/schema';
+import type { ValidationContext } from '../types/context.js';
 
 import { isAnyNumber } from '@ez4/utils';
 
@@ -15,30 +16,36 @@ import { isOptionalNullable } from './utils.js';
 
 const allCustomFormats: Record<string, StringFormatHandler | undefined> = {};
 
-export const validateString = (value: unknown, schema: StringSchema, property?: string) => {
-  if (!isOptionalNullable(value, schema)) {
-    if (typeof value !== 'string') {
-      return [new ExpectedStringTypeError(property)];
-    }
-
-    const { extra } = schema;
-
-    if (extra?.value && value !== extra.value) {
-      return [new UnexpectedStringError(extra.value, property)];
-    }
-
-    if (isAnyNumber(extra?.minLength) && value.length < extra.minLength) {
-      return [new UnexpectedMinLengthError(extra.minLength, property)];
-    }
-
-    if (isAnyNumber(extra?.maxLength) && value.length > extra.maxLength) {
-      return [new UnexpectedMaxLengthError(extra.maxLength, property)];
-    }
-
-    return validateStringFormat(value, schema, property);
+export const validateString = (
+  value: unknown,
+  schema: StringSchema,
+  context?: ValidationContext
+) => {
+  if (isOptionalNullable(value, schema)) {
+    return [];
   }
 
-  return [];
+  const property = context?.property;
+
+  if (typeof value !== 'string') {
+    return [new ExpectedStringTypeError(property)];
+  }
+
+  const { definitions } = schema;
+
+  if (definitions?.value && value !== definitions.value) {
+    return [new UnexpectedStringError(definitions.value, property)];
+  }
+
+  if (isAnyNumber(definitions?.minLength) && value.length < definitions.minLength) {
+    return [new UnexpectedMinLengthError(definitions.minLength, property)];
+  }
+
+  if (isAnyNumber(definitions?.maxLength) && value.length > definitions.maxLength) {
+    return [new UnexpectedMaxLengthError(definitions.maxLength, property)];
+  }
+
+  return validateStringFormat(value, schema, property);
 };
 
 export const registerStringFormat = (format: string, handler: StringFormatHandler) => {

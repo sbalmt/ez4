@@ -12,19 +12,15 @@ import { prepareDeleteQuery } from './delete.js';
 
 export type PreparedQueryCommand = Pick<ExecuteStatementCommandInput, 'sql' | 'parameters'>;
 
-export const prepareInsertOne = async <
-  T extends Database.Schema,
-  I extends Database.Indexes<T>,
-  R extends Relations
->(
+export const prepareInsertOne = async <T extends Database.Schema, R extends Relations>(
   table: string,
   schema: ObjectSchema,
   relations: RepositoryRelationsWithSchema,
-  query: Query.InsertOneInput<T, I, R>
+  query: Query.InsertOneInput<T, R>
 ): Promise<PreparedQueryCommand> => {
   await validateSchema(query.data, prepareInsertSchema(schema, relations, query.data));
 
-  const [statement, variables] = prepareInsertQuery<T, I, R>(table, schema, relations, query);
+  const [statement, variables] = prepareInsertQuery<T, R>(table, schema, relations, query);
 
   return {
     sql: statement,
@@ -106,11 +102,7 @@ export const prepareDeleteOne = <
   };
 };
 
-export const prepareInsertMany = async <
-  T extends Database.Schema,
-  I extends Database.Indexes<T>,
-  R extends Relations
->(
+export const prepareInsertMany = async <T extends Database.Schema>(
   table: string,
   schema: ObjectSchema,
   relations: RepositoryRelationsWithSchema,
@@ -120,7 +112,7 @@ export const prepareInsertMany = async <
     query.data.map(async (data) => {
       await validateSchema(data, prepareInsertSchema(schema, relations, data));
 
-      const [statement, variables] = prepareInsertQuery<T, I, R>(table, schema, relations, {
+      const [statement, variables] = prepareInsertQuery(table, schema, relations, {
         data
       });
 
@@ -164,7 +156,7 @@ export const prepareUpdateMany = async <
   table: string,
   schema: ObjectSchema,
   relations: RepositoryRelationsWithSchema,
-  query: Query.UpdateManyInput<T, S, I, R>
+  query: Query.UpdateManyInput<T, S, R>
 ): Promise<PreparedQueryCommand> => {
   await validateSchema(query.data, prepareUpdateSchema(schema, relations, query.data));
 
