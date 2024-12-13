@@ -138,6 +138,7 @@ describe.only('rich types validation', () => {
   it('assert :: extensible object', async () => {
     const schema: AnySchema = {
       type: SchemaType.Object,
+      identity: 1,
       definitions: {
         extensible: true
       },

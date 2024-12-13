@@ -1,5 +1,6 @@
 import type { ObjectSchema } from '@ez4/schema';
 
+import { getNewContext } from '../types/context.js';
 import { UnexpectedPropertiesError } from '../errors/common.js';
 import { ExpectedObjectTypeError } from '../errors/object.js';
 import { isAnyObject } from '@ez4/utils';
@@ -7,10 +8,18 @@ import { isAnyObject } from '@ez4/utils';
 import { isOptionalNullable } from './utils.js';
 import { validateAny } from './any.js';
 
-export const validateObject = async (value: unknown, schema: ObjectSchema, property?: string) => {
+export const validateObject = async (
+  value: unknown,
+  schema: ObjectSchema,
+  context = getNewContext()
+) => {
   if (isOptionalNullable(value, schema)) {
     return [];
   }
+
+  const { property, references } = context;
+
+  references[schema.identity] = schema;
 
   if (!isAnyObject(value)) {
     return [new ExpectedObjectTypeError(property)];
@@ -27,7 +36,10 @@ export const validateObject = async (value: unknown, schema: ObjectSchema, prope
     const valueSchema = schema.properties[propertyName];
     const childValue = value[propertyName];
 
-    const errorList = await validateAny(childValue, valueSchema, propertyPath);
+    const errorList = await validateAny(childValue, valueSchema, {
+      property: propertyPath,
+      references
+    });
 
     allErrors.push(...errorList);
   }
@@ -40,8 +52,11 @@ export const validateObject = async (value: unknown, schema: ObjectSchema, prope
       const childValue = value[propertyName];
 
       const [propertyErrors, valueErrors] = await Promise.all([
-        validateAny(propertyName, propertySchema, propertyPath),
-        validateAny(childValue, valueSchema, propertyPath)
+        validateAny(propertyName, propertySchema),
+        validateAny(childValue, valueSchema, {
+          property: propertyPath,
+          references
+        })
       ]);
 
       if (!propertyErrors.length) {

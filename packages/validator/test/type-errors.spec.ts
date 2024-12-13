@@ -53,6 +53,7 @@ describe.only('type validation errors', () => {
   it('assert :: object errors', async () => {
     const schema: AnySchema = {
       type: SchemaType.Object,
+      identity: 1,
       properties: {
         foo: {
           type: SchemaType.Number
@@ -85,6 +86,7 @@ describe.only('type validation errors', () => {
       elements: [
         {
           type: SchemaType.Object,
+          identity: 1,
           properties: {
             foo: {
               type: SchemaType.String
@@ -96,6 +98,7 @@ describe.only('type validation errors', () => {
         },
         {
           type: SchemaType.Object,
+          identity: 2,
           properties: {
             baz: {
               type: SchemaType.Number

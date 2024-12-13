@@ -46,6 +46,7 @@ describe.only('types validation', () => {
   it('assert :: object', async () => {
     const schema: AnySchema = {
       type: SchemaType.Object,
+      identity: 1,
       optional: true,
       nullable: true,
       properties: {
@@ -77,6 +78,35 @@ describe.only('types validation', () => {
     equal((await validate({ foo: false, baz: null, qux: 123 }, schema)).length, 0);
     equal((await validate(undefined, schema)).length, 0);
     equal((await validate(null, schema)).length, 0);
+  });
+
+  it('assert :: reference', async () => {
+    const schema: AnySchema = {
+      type: SchemaType.Object,
+      identity: 1,
+      properties: {
+        value: {
+          type: SchemaType.Number
+        },
+        next: {
+          type: SchemaType.Reference,
+          identity: 1,
+          optional: true
+        }
+      }
+    };
+
+    const value = {
+      value: 123,
+      next: {
+        value: 456,
+        next: {
+          value: 789
+        }
+      }
+    };
+
+    equal((await validate(value, schema)).length, 0);
   });
 
   it('assert :: union', async () => {
