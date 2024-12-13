@@ -1,6 +1,7 @@
 {
   "type": "object",
   "description": "String type enriched with regex format.",
+  "identity": 1,
   "properties": {
     "test": {
       "type": "string",

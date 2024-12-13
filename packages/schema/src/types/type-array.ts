@@ -1,5 +1,6 @@
 import type { AnyObject } from '@ez4/utils';
-import type { AnySchema, SchemaDefinitions } from './common.js';
+import type { SchemaDefinitions } from './common.js';
+import type { AnySchema } from './type-any.js';
 
 import { SchemaType } from './common.js';
 

@@ -1,6 +1,7 @@
 {
   "type": "object",
   "description": "String type enriched with identity formats.",
+  "identity": 1,
   "properties": {
     "email": {
       "type": "string",

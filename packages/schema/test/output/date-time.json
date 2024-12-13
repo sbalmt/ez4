@@ -1,6 +1,7 @@
 {
   "type": "object",
   "description": "String type enriched with date and time formats.",
+  "identity": 1,
   "properties": {
     "time": {
       "type": "string",

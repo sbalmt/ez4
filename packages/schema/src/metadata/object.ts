@@ -1,14 +1,17 @@
 import type { AllType, ModelProperty, SourceMap, TypeModel, TypeObject } from '@ez4/reflection';
-import type { ObjectSchema, ObjectSchemaProperties } from '../types/object.js';
+import type { ObjectSchema, ObjectSchemaProperties } from '../types/type-object.js';
+import type { ReferenceSchema } from '../types/type-reference.js';
+import type { SchemaContext } from '../types/context.js';
 
 import { isTypeModel, isTypeObject, isTypeReference } from '@ez4/reflection';
 
+import { SchemaReferenceNotFound } from '../errors/reference.js';
 import { getObjectProperties } from '../reflection/object.js';
 import { getModelProperties } from '../reflection/model.js';
 import { SchemaDefinitions, SchemaType } from '../types/common.js';
+import { getNewContext } from '../types/context.js';
+import { createReferenceSchema } from './reference.js';
 import { getAnySchema } from './any.js';
-
-const circularRefs = new WeakSet<AllType>();
 
 type RichTypeBase = {
   definitions?: SchemaDefinitions;
@@ -19,7 +22,7 @@ export type RichTypeObject = TypeObject & RichTypeBase;
 export type RichTypeModel = TypeModel & RichTypeBase;
 
 export const createObjectSchema = (data: Omit<ObjectSchema, 'type'>): ObjectSchema => {
-  const { properties, additional, description, optional, nullable, definitions } = data;
+  const { description, identity, optional, nullable, definitions, additional, properties } = data;
 
   return {
     type: SchemaType.Object,
@@ -28,7 +31,8 @@ export const createObjectSchema = (data: Omit<ObjectSchema, 'type'>): ObjectSche
     ...(nullable && { nullable }),
     ...(definitions && { definitions }),
     ...(additional && { additional }),
-    properties
+    properties,
+    identity
   };
 };
 
@@ -43,67 +47,76 @@ export const isRichTypeModel = (type: AllType): type is RichTypeModel => {
 export const getObjectSchema = (
   type: AllType,
   reflection: SourceMap,
+  context = getNewContext(),
   description?: string
-): ObjectSchema | null => {
-  if (circularRefs.has(type)) {
-    // TODO: Implement references to handle circular deps.
-    return createObjectSchema({
-      properties: {},
-      definitions: {
-        extensible: true
-      }
+): ObjectSchema | ReferenceSchema | null => {
+  const { references } = context;
+
+  if (references.has(type)) {
+    return createReferenceSchema({
+      identity: references.get(type)!
     });
   }
 
-  circularRefs.add(type);
-
-  const schema = getNewObjectSchema(type, reflection, description);
-
-  circularRefs.delete(type);
-
-  return schema;
-};
-
-const getNewObjectSchema = (
-  type: AllType,
-  reflection: SourceMap,
-  description?: string
-): ObjectSchema | null => {
   if (isRichTypeObject(type)) {
-    return createObjectSchema({
-      properties: getAnySchemaFromMembers(reflection, getObjectProperties(type)),
-      additional: getAnySchemaFromDynamicMembers(reflection, type),
+    const identity = ++context.counter;
+
+    references.set(type, identity);
+
+    const objectSchema = createObjectSchema({
+      properties: getAnySchemaFromMembers(reflection, context, getObjectProperties(type)),
+      additional: getAnySchemaFromDynamicMembers(reflection, context, type),
       definitions: type.definitions,
-      description
+      description,
+      identity
     });
+
+    references.delete(type);
+
+    return objectSchema;
   }
 
   if (isRichTypeModel(type)) {
-    return createObjectSchema({
-      properties: getAnySchemaFromMembers(reflection, getModelProperties(type)),
+    const identity = ++context.counter;
+
+    references.set(type, identity);
+
+    const modelSchema = createObjectSchema({
+      properties: getAnySchemaFromMembers(reflection, context, getModelProperties(type)),
       description: description ?? type.description,
-      definitions: type.definitions
+      definitions: type.definitions,
+      identity
     });
+
+    references.delete(type);
+
+    return modelSchema;
   }
 
   if (isTypeReference(type)) {
     const statement = reflection[type.path];
 
-    if (statement) {
-      return getObjectSchema(statement, reflection, description);
+    if (!statement) {
+      throw new SchemaReferenceNotFound(type.path);
     }
+
+    return getObjectSchema(statement, reflection, context, description);
   }
 
   return null;
 };
 
-const getAnySchemaFromMembers = (reflection: SourceMap, members: ModelProperty[]) => {
+const getAnySchemaFromMembers = (
+  reflection: SourceMap,
+  context: SchemaContext,
+  members: ModelProperty[]
+) => {
   const properties: ObjectSchemaProperties = {};
 
   for (const member of members) {
     const { name, value, description } = member;
 
-    const schema = getAnySchema(value, reflection, description);
+    const schema = getAnySchema(value, reflection, context, description);
 
     if (schema) {
       properties[name] = schema;
@@ -113,18 +126,22 @@ const getAnySchemaFromMembers = (reflection: SourceMap, members: ModelProperty[]
   return properties;
 };
 
-const getAnySchemaFromDynamicMembers = (reflection: SourceMap, type: TypeObject) => {
+const getAnySchemaFromDynamicMembers = (
+  reflection: SourceMap,
+  context: SchemaContext,
+  type: TypeObject
+) => {
   if (!type.members || Array.isArray(type.members)) {
     return;
   }
 
-  const propertySchema = getAnySchema(type.members.index, reflection);
+  const propertySchema = getAnySchema(type.members.index, reflection, context);
 
   if (!propertySchema) {
     return;
   }
 
-  const valueSchema = getAnySchema(type.members.value, reflection);
+  const valueSchema = getAnySchema(type.members.value, reflection, context);
 
   if (!valueSchema) {
     return;

@@ -1,5 +1,5 @@
 import type { AllType, TypeNumber } from '@ez4/reflection';
-import type { NumberSchema } from '../types/number.js';
+import type { NumberSchema } from '../types/type-number.js';
 
 import { isTypeNumber } from '@ez4/reflection';
 

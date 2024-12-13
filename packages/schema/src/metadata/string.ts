@@ -1,5 +1,5 @@
 import type { AllType, TypeString } from '@ez4/reflection';
-import type { StringSchema } from '../types/string.js';
+import type { StringSchema } from '../types/type-string.js';
 
 import { isTypeString } from '@ez4/reflection';
 

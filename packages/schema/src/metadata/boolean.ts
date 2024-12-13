@@ -1,5 +1,5 @@
 import type { AllType, TypeBoolean } from '@ez4/reflection';
-import type { BooleanSchema } from '../types/boolean.js';
+import type { BooleanSchema } from '../types/type-boolean.js';
 
 import { isTypeBoolean } from '@ez4/reflection';
 

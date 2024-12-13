@@ -1,6 +1,7 @@
 {
   "type": "object",
   "description": "Number type enriched with integer format.",
+  "identity": 1,
   "properties": {
     "any": {
       "type": "number",

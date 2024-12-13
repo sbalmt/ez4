@@ -11,6 +11,7 @@ import {
 describe.only('schema utils', () => {
   const fullSchema: ObjectSchema = {
     type: SchemaType.Object,
+    identity: 1,
     properties: {
       foo: {
         type: SchemaType.String
@@ -20,6 +21,7 @@ describe.only('schema utils', () => {
       },
       baz: {
         type: SchemaType.Object,
+        identity: 2,
         properties: {
           bazFoo: {
             type: SchemaType.Boolean
@@ -45,6 +47,7 @@ describe.only('schema utils', () => {
 
     deepEqual(partialSchema, {
       type: SchemaType.Object,
+      identity: 1,
       definitions: {
         extensible: true
       },
@@ -54,6 +57,7 @@ describe.only('schema utils', () => {
         },
         baz: {
           type: SchemaType.Object,
+          identity: 2,
           definitions: {
             extensible: true
           },
@@ -79,12 +83,14 @@ describe.only('schema utils', () => {
 
     deepEqual(partialSchema, {
       type: SchemaType.Object,
+      identity: 1,
       properties: {
         foo: {
           type: SchemaType.String
         },
         baz: {
           type: SchemaType.Object,
+          identity: 2,
           properties: {
             bazFoo: {
               type: SchemaType.Boolean

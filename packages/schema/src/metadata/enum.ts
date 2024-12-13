@@ -1,5 +1,5 @@
 import type { AllType, EnumMember, SourceMap, TypeEnum } from '@ez4/reflection';
-import type { EnumSchema, EnumSchemaOption } from '../types/enum.js';
+import type { EnumSchema, EnumSchemaOption } from '../types/type-enum.js';
 
 import { isTypeEnum, isTypeReference } from '@ez4/reflection';
 

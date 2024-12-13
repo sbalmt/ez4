@@ -1,6 +1,7 @@
 {
   "type": "object",
   "description": "String type enriched with constraints.",
+  "identity": 1,
   "properties": {
     "any": {
       "type": "string",

@@ -1,5 +1,6 @@
 import type { AnyObject } from '@ez4/utils';
-import type { AnySchema, SchemaDefinitions } from './common.js';
+import type { SchemaDefinitions } from './common.js';
+import type { AnySchema } from './type-any.js';
 
 import { SchemaType } from './common.js';
 
@@ -19,6 +20,7 @@ export type ObjectSchemaDefinitions = SchemaDefinitions & {
 export type ObjectSchema = {
   type: SchemaType.Object;
   description?: string;
+  identity: number;
   optional?: boolean;
   nullable?: boolean;
   definitions?: ObjectSchemaDefinitions;
