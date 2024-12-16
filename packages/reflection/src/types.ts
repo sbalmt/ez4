@@ -28,3 +28,4 @@ export * from './types/callable.js';
 export * from './types/source.js';
 export * from './types/model.js';
 export * from './types/types.js';
+export * from './types/scalar.js';
