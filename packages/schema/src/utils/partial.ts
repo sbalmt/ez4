@@ -43,6 +43,8 @@ export const getPartialSchema = (
   const isInclude = !!includeStates;
   const allStates = includeStates ?? excludeStates ?? {};
 
+  const { identity } = schema;
+
   for (const propertyName in schema.properties) {
     const propertyState = allStates[propertyName];
 
@@ -65,7 +67,7 @@ export const getPartialSchema = (
 
   return {
     type: SchemaType.Object,
-    identity: schema.identity,
+    ...(identity && { identity }),
     properties,
     ...(options.extensible && {
       definitions: {

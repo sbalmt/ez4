@@ -41,7 +41,6 @@ type TestIndexes = {
 describe.only('aurora query (select)', () => {
   const testSchema: ObjectSchema = {
     type: SchemaType.Object,
-    identity: 0,
     properties: {
       id: {
         type: SchemaType.String,
@@ -63,7 +62,6 @@ describe.only('aurora query (select)', () => {
       },
       bar: {
         type: SchemaType.Object,
-        identity: 1,
         properties: {
           barFoo: {
             type: SchemaType.String,

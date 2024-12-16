@@ -19,7 +19,9 @@ export const validateObject = async (
 
   const { property, references } = context;
 
-  references[schema.identity] = schema;
+  if (schema.identity) {
+    references[schema.identity] = schema;
+  }
 
   if (!isAnyObject(value)) {
     return [new ExpectedObjectTypeError(property)];

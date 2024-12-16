@@ -7,7 +7,6 @@ import { ObjectSchema, SchemaType } from '@ez4/schema';
 describe.only('aurora data schema', () => {
   const testSchema: ObjectSchema = {
     type: SchemaType.Object,
-    identity: 0,
     properties: {
       id: {
         type: SchemaType.String,
@@ -52,12 +51,10 @@ describe.only('aurora data schema', () => {
 
     deepEqual(schema, {
       type: SchemaType.Object,
-      identity: 0,
       properties: {
         id: testSchema.properties.id,
         parent: {
           type: SchemaType.Object,
-          identity: 0,
           properties: {
             parent_id: testSchema.properties.parent_id
           }
@@ -80,7 +77,6 @@ describe.only('aurora data schema', () => {
 
     deepEqual(schema, {
       type: SchemaType.Object,
-      identity: 0,
       properties: {
         id: testSchema.properties.id,
         parent: {
@@ -109,14 +105,12 @@ describe.only('aurora data schema', () => {
 
     deepEqual(schema, {
       type: SchemaType.Object,
-      identity: 0,
       properties: {
         ...testSchema.properties,
         children: {
           type: SchemaType.Array,
           element: {
             type: SchemaType.Object,
-            identity: 0,
             properties: {
               id: testSchema.properties.id
             }
@@ -140,14 +134,12 @@ describe.only('aurora data schema', () => {
 
     deepEqual(schema, {
       type: SchemaType.Object,
-      identity: 0,
       definitions: {
         extensible: true
       },
       properties: {
         parent: {
           type: SchemaType.Object,
-          identity: 0,
           definitions: {
             extensible: true
           },
@@ -173,14 +165,12 @@ describe.only('aurora data schema', () => {
 
     deepEqual(schema, {
       type: SchemaType.Object,
-      identity: 0,
       definitions: {
         extensible: true
       },
       properties: {
         parent: {
           type: SchemaType.Object,
-          identity: 0,
           definitions: {
             extensible: true
           },
@@ -206,14 +196,12 @@ describe.only('aurora data schema', () => {
 
     deepEqual(schema, {
       type: SchemaType.Object,
-      identity: 0,
       definitions: {
         extensible: true
       },
       properties: {
         children: {
           type: SchemaType.Object,
-          identity: 0,
           definitions: {
             extensible: true
           },

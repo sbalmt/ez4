@@ -19,9 +19,9 @@ export type ObjectSchemaDefinitions = SchemaDefinitions & {
 export type ObjectSchema = {
   type: SchemaType.Object;
   description?: string;
-  identity: number;
   optional?: boolean;
   nullable?: boolean;
+  identity?: number;
   definitions?: ObjectSchemaDefinitions;
   additional?: ObjectSchemaAdditional;
   properties: ObjectSchemaProperties;

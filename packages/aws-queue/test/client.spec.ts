@@ -35,7 +35,6 @@ describe.only('queue client', () => {
 
     queueClient = Client.make(queueUrl, {
       type: SchemaType.Object,
-      identity: 0,
       properties: {
         test: {
           type: SchemaType.String

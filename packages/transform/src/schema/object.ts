@@ -10,7 +10,9 @@ export const transformObject = (
 ) => {
   const output: Record<string, unknown> = {};
 
-  context.references[schema.identity] = schema;
+  if (schema.identity) {
+    context.references[schema.identity] = schema;
+  }
 
   for (const property in schema.properties) {
     const valueSchema = schema.properties[property];

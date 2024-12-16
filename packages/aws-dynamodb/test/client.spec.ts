@@ -85,7 +85,6 @@ describe.only('dynamodb client', () => {
         indexes: [['id', 'order']],
         schema: {
           type: SchemaType.Object,
-          identity: 0,
           properties: {
             id: {
               type: SchemaType.String
