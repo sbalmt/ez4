@@ -12,12 +12,13 @@
             "status": 204,
             "body": {
               "type": "object",
+              "description": "Response body.",
+              "identity": 1,
               "properties": {
                 "foo": {
                   "type": "string"
                 }
-              },
-              "description": "Response body."
+              }
             }
           }
         }
@@ -31,6 +32,7 @@
             "status": 204,
             "body": {
               "type": "union",
+              "description": "Response body.",
               "elements": [
                 {
                   "type": "boolean"
@@ -38,8 +40,7 @@
                 {
                   "type": "string"
                 }
-              ],
-              "description": "Response body."
+              ]
             }
           }
         }

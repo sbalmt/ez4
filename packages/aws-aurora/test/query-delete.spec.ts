@@ -26,6 +26,7 @@ type TestIndexes = {
 describe.only('aurora query (delete)', () => {
   const testSchema: ObjectSchema = {
     type: SchemaType.Object,
+    identity: 0,
     properties: {
       id: {
         type: SchemaType.String,

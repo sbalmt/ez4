@@ -60,6 +60,7 @@ describe.only('aurora client', () => {
       },
       schema: {
         type: SchemaType.Object,
+        identity: 0,
         properties: {
           id: {
             type: SchemaType.String
@@ -74,6 +75,7 @@ describe.only('aurora client', () => {
           },
           baz: {
             type: SchemaType.Object,
+            identity: 1,
             optional: true,
             properties: {
               foo: {

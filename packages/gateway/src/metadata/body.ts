@@ -1,16 +1,19 @@
 import type { AllType, SourceMap, TypeModel, TypeObject } from '@ez4/reflection';
-import type { ObjectSchema, ScalarSchema, UnionSchema } from '@ez4/schema/library';
+import type { AnySchema, ObjectSchema, UnionSchema } from '@ez4/schema/library';
 
 import { isModelDeclaration } from '@ez4/common/library';
 
-import { createUnionSchema, getObjectSchema, getScalarSchema } from '@ez4/schema/library';
+import {
+  createUnionSchema,
+  getObjectSchema,
+  getScalarSchema,
+  isObjectSchema
+} from '@ez4/schema/library';
 
 import {
-  isTypeBoolean,
-  isTypeNumber,
   isTypeObject,
   isTypeReference,
-  isTypeString,
+  isTypeScalar,
   isTypeUndefined,
   isTypeUnion
 } from '@ez4/reflection';
@@ -66,7 +69,7 @@ const getHttpBody = <T>(
 };
 
 const getScalarTypeBody = (type: AllType) => {
-  if (isTypeBoolean(type) || isTypeNumber(type) || isTypeString(type)) {
+  if (isTypeScalar(type)) {
     return getScalarSchema(type);
   }
 
@@ -86,7 +89,7 @@ const getCompoundTypeBody = (
   }
 
   if (isTypeObject(type)) {
-    return getObjectSchema(type, reflection);
+    return getBodySchema(type, reflection);
   }
 
   if (!isModelDeclaration(type)) {
@@ -99,14 +102,14 @@ const getCompoundTypeBody = (
     return null;
   }
 
-  return getObjectSchema(type, reflection);
+  return getBodySchema(type, reflection);
 };
 
-const getUnionTypeBody = <T extends ObjectSchema | UnionSchema | ScalarSchema>(
+const getUnionTypeBody = (
   types: AllType[],
   parent: TypeParent,
   reflection: SourceMap,
-  resolver: (type: AllType, parent: TypeParent) => T | null
+  resolver: (type: AllType, parent: TypeParent) => AnySchema | null
 ) => {
   const schemaList = [];
 
@@ -118,7 +121,21 @@ const getUnionTypeBody = <T extends ObjectSchema | UnionSchema | ScalarSchema>(
     }
   }
 
+  if (!schemaList.length) {
+    return null;
+  }
+
   return createUnionSchema({
     elements: schemaList
   });
+};
+
+const getBodySchema = (type: TypeObject | TypeModel, reflection: SourceMap) => {
+  const schema = getObjectSchema(type, reflection);
+
+  if (schema && isObjectSchema(schema)) {
+    return schema;
+  }
+
+  return null;
 };

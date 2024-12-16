@@ -8,6 +8,7 @@
         "name": "parentTestTable",
         "schema": {
           "type": "object",
+          "identity": 1,
           "properties": {
             "id": {
               "type": "string"
@@ -37,6 +38,7 @@
         "name": "childTestTable",
         "schema": {
           "type": "object",
+          "identity": 1,
           "properties": {
             "id": {
               "type": "string"

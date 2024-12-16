@@ -1,8 +1,8 @@
 import type { AllType, SourceMap, TypeModel, TypeObject } from '@ez4/reflection';
 
 import { isTypeObject, isTypeReference } from '@ez4/reflection';
+import { getObjectSchema, isObjectSchema } from '@ez4/schema/library';
 import { isModelDeclaration } from '@ez4/common/library';
-import { getObjectSchema } from '@ez4/schema/library';
 
 import { IncorrectQueryTypeError, InvalidQueryTypeError } from '../errors/query.js';
 import { isHttpQuery } from './utils.js';
@@ -33,7 +33,7 @@ const getTypeQuery = (
   errorList: Error[]
 ) => {
   if (isTypeObject(type)) {
-    return getObjectSchema(type, reflection);
+    return getQuerySchema(type, reflection);
   }
 
   if (!isModelDeclaration(type)) {
@@ -46,5 +46,15 @@ const getTypeQuery = (
     return null;
   }
 
-  return getObjectSchema(type, reflection);
+  return getQuerySchema(type, reflection);
+};
+
+const getQuerySchema = (type: TypeObject | TypeModel, reflection: SourceMap) => {
+  const schema = getObjectSchema(type, reflection);
+
+  if (schema && isObjectSchema(schema)) {
+    return schema;
+  }
+
+  return null;
 };

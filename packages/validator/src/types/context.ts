@@ -5,8 +5,9 @@ export type ValidationContext = {
   property?: string;
 };
 
-export const getNewContext = (): ValidationContext => {
+export const getNewContext = (property?: string): ValidationContext => {
   return {
-    references: {}
+    references: {},
+    property
   };
 };

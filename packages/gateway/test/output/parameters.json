@@ -12,6 +12,7 @@
             "parameters": {
               "type": "object",
               "description": "Expected path parameters.",
+              "identity": 1,
               "properties": {
                 "foo": {
                   "type": "string"

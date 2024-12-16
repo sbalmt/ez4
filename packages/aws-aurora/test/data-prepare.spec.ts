@@ -140,6 +140,7 @@ describe.only('aurora data prepare', () => {
       {},
       {
         type: SchemaType.Object,
+        identity: 0,
         properties: {}
       }
     );

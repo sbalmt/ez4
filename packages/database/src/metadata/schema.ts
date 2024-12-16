@@ -1,9 +1,9 @@
 import type { AllType, SourceMap, TypeModel, TypeObject } from '@ez4/reflection';
 import type { TableSchema } from '../types/schema.js';
 
+import { getObjectSchema, isObjectSchema } from '@ez4/schema/library';
 import { isTypeObject, isTypeReference } from '@ez4/reflection';
 import { isModelDeclaration } from '@ez4/common/library';
-import { getObjectSchema } from '@ez4/schema/library';
 
 import { IncorrectSchemaTypeError, InvalidSchemaTypeError } from '../errors/schema.js';
 import { isTableSchema } from './utils.js';
@@ -36,7 +36,7 @@ const getTypeSchema = (
   errorList: Error[]
 ): TableSchema | null => {
   if (isTypeObject(type)) {
-    return getObjectSchema(type, reflection);
+    return getSchema(type, reflection);
   }
 
   if (!isModelDeclaration(type)) {
@@ -49,5 +49,15 @@ const getTypeSchema = (
     return null;
   }
 
-  return getObjectSchema(type, reflection);
+  return getSchema(type, reflection);
+};
+
+const getSchema = (type: TypeObject | TypeModel, reflection: SourceMap) => {
+  const schema = getObjectSchema(type, reflection);
+
+  if (schema && isObjectSchema(schema)) {
+    return schema;
+  }
+
+  return null;
 };

@@ -6,6 +6,7 @@
     "polling": 10,
     "schema": {
       "type": "object",
+      "identity": 1,
       "properties": {
         "foo": {
           "type": "string"
@@ -24,6 +25,7 @@
     "polling": 10,
     "schema": {
       "type": "object",
+      "identity": 1,
       "properties": {
         "foo": {
           "type": "string"
@@ -56,6 +58,7 @@
     "polling": 10,
     "schema": {
       "type": "object",
+      "identity": 1,
       "properties": {
         "foo": {
           "type": "string"

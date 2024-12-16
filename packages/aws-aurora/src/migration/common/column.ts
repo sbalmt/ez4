@@ -97,6 +97,7 @@ export const getColumnType = (schema: AnySchema) => {
   switch (schema.type) {
     case SchemaType.Array:
     case SchemaType.Object:
+    case SchemaType.Reference:
     case SchemaType.Union:
     case SchemaType.Tuple:
       return `jsonb`;

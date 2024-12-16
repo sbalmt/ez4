@@ -12,6 +12,7 @@
             "query": {
               "type": "object",
               "description": "Expected query strings.",
+              "identity": 1,
               "properties": {
                 "foo": {
                   "type": "string"

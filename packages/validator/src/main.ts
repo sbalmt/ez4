@@ -1,7 +1,9 @@
 export { validateAny as validate } from './schema/any.js';
 
-export * from './types/string.js';
 export * from './utils/errors.js';
+
+export * from './types/string.js';
+export * from './types/context.js';
 
 export * from './schema/utils.js';
 export * from './schema/any.js';

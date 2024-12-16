@@ -1,8 +1,8 @@
 import type { AllType, SourceMap, TypeModel, TypeObject } from '@ez4/reflection';
 
 import { isTypeObject, isTypeReference } from '@ez4/reflection';
+import { getObjectSchema, isObjectSchema } from '@ez4/schema/library';
 import { isModelDeclaration } from '@ez4/common/library';
-import { getObjectSchema } from '@ez4/schema/library';
 
 import { IncorrectParameterTypeError, InvalidParameterTypeError } from '../errors/parameters.js';
 import { isHttpParameters } from './utils.js';
@@ -33,7 +33,7 @@ const getTypeParameter = (
   errorList: Error[]
 ) => {
   if (isTypeObject(type)) {
-    return getObjectSchema(type, reflection);
+    return getParameterSchema(type, reflection);
   }
 
   if (!isModelDeclaration(type)) {
@@ -46,5 +46,15 @@ const getTypeParameter = (
     return null;
   }
 
-  return getObjectSchema(type, reflection);
+  return getParameterSchema(type, reflection);
+};
+
+const getParameterSchema = (type: TypeObject | TypeModel, reflection: SourceMap) => {
+  const schema = getObjectSchema(type, reflection);
+
+  if (schema && isObjectSchema(schema)) {
+    return schema;
+  }
+
+  return null;
 };

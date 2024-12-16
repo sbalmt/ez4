@@ -62,6 +62,7 @@ export const prepareInsertSchema = (
     if (relationData[targetColumn]) {
       finalSchema.properties[alias] = {
         type: SchemaType.Object,
+        identity: 0,
         properties: {
           [targetColumn]: fieldSchema
         }

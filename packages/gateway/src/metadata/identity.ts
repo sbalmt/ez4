@@ -2,7 +2,7 @@ import type { AllType, SourceMap, TypeModel, TypeObject } from '@ez4/reflection'
 import type { ObjectSchema, UnionSchema } from '@ez4/schema/library';
 
 import { isTypeObject, isTypeReference, isTypeUndefined, isTypeUnion } from '@ez4/reflection';
-import { createUnionSchema, getObjectSchema } from '@ez4/schema/library';
+import { createUnionSchema, getObjectSchema, isObjectSchema } from '@ez4/schema/library';
 import { isModelDeclaration } from '@ez4/common/library';
 
 import { IncorrectIdentityTypeError, InvalidIdentityTypeError } from '../errors/identity.js';
@@ -42,7 +42,7 @@ const getTypeIdentity = (
   }
 
   if (isTypeObject(type)) {
-    return getObjectSchema(type, reflection);
+    return getIdentitySchema(type, reflection);
   }
 
   if (!isModelDeclaration(type)) {
@@ -55,7 +55,7 @@ const getTypeIdentity = (
     return null;
   }
 
-  const schema = getObjectSchema(type, reflection);
+  const schema = getIdentitySchema(type, reflection);
 
   if (schema) {
     schema.definitions = {
@@ -90,4 +90,14 @@ const getIdentityFromUnion = (
   }
 
   return schemaList[0];
+};
+
+const getIdentitySchema = (type: TypeObject | TypeModel, reflection: SourceMap) => {
+  const schema = getObjectSchema(type, reflection);
+
+  if (schema && isObjectSchema(schema)) {
+    return schema;
+  }
+
+  return null;
 };
