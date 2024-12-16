@@ -1,4 +1,3 @@
-import type { AnyObject } from '@ez4/utils';
 import type { SchemaDefinitions } from './common.js';
 import type { AnySchema } from './type-any.js';
 
@@ -12,6 +11,6 @@ export type TupleSchema = {
   nullable?: boolean;
 };
 
-export const isTupleSchema = (value: AnyObject): value is TupleSchema => {
+export const isTupleSchema = (value: AnySchema): value is TupleSchema => {
   return value.type === SchemaType.Tuple;
 };

@@ -1,4 +1,3 @@
-import type { AnyObject } from '@ez4/utils';
 import type { SchemaDefinitions } from './common.js';
 import type { AnySchema } from './type-any.js';
 
@@ -13,6 +12,6 @@ export type UnionSchema = {
   nullable?: boolean;
 };
 
-export const isUnionSchema = (value: AnyObject): value is UnionSchema => {
+export const isUnionSchema = (value: AnySchema): value is UnionSchema => {
   return value.type === SchemaType.Union;
 };

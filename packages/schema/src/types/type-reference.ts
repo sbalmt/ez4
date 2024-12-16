@@ -1,4 +1,4 @@
-import type { AnyObject } from '@ez4/utils';
+import type { AnySchema } from './type-any.js';
 
 import { SchemaType } from './common.js';
 
@@ -9,6 +9,6 @@ export type ReferenceSchema = {
   nullable?: boolean;
 };
 
-export const isReferenceSchema = (value: AnyObject): value is ReferenceSchema => {
+export const isReferenceSchema = (value: AnySchema): value is ReferenceSchema => {
   return value.type === SchemaType.Reference;
 };

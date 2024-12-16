@@ -1,5 +1,5 @@
-import type { AnyObject } from '@ez4/utils';
 import type { SchemaDefinitions } from './common.js';
+import type { AnySchema } from './type-any.js';
 
 import { SchemaType } from './common.js';
 
@@ -20,6 +20,6 @@ export type StringSchema = {
   format?: string;
 };
 
-export const isStringSchema = (value: AnyObject): value is StringSchema => {
+export const isStringSchema = (value: AnySchema): value is StringSchema => {
   return value.type === SchemaType.String;
 };

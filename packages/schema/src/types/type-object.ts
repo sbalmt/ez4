@@ -1,4 +1,3 @@
-import type { AnyObject } from '@ez4/utils';
 import type { SchemaDefinitions } from './common.js';
 import type { AnySchema } from './type-any.js';
 
@@ -28,6 +27,6 @@ export type ObjectSchema = {
   properties: ObjectSchemaProperties;
 };
 
-export const isObjectSchema = (value: AnyObject): value is ObjectSchema => {
+export const isObjectSchema = (value: AnySchema): value is ObjectSchema => {
   return value.type === SchemaType.Object;
 };

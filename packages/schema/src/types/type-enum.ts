@@ -1,5 +1,5 @@
-import type { AnyObject } from '@ez4/utils';
 import type { SchemaDefinitions } from './common.js';
+import type { AnySchema } from './type-any.js';
 
 import { SchemaType } from './common.js';
 
@@ -17,6 +17,6 @@ export type EnumSchema = {
   nullable?: boolean;
 };
 
-export const isEnumSchema = (value: AnyObject): value is EnumSchema => {
+export const isEnumSchema = (value: AnySchema): value is EnumSchema => {
   return value.type === SchemaType.Enum;
 };
