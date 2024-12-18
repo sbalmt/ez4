@@ -185,6 +185,7 @@ const prepareUpdateFields = <T extends Database.Schema>(
         !isAnyObject(fieldValue) ||
         fieldSchema.type !== SchemaType.Object ||
         fieldSchema.definitions?.extensible ||
+        fieldSchema.additional ||
         fieldSchema.nullable ||
         fieldSchema.optional;
 

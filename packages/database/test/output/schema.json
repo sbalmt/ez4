@@ -23,11 +23,33 @@
           "type": "object",
           "identity": 1,
           "properties": {
-            "bar": {
+            "foo": {
               "type": "string"
             },
-            "baz": {
+            "bar": {
               "type": "number"
+            },
+            "baz": {
+              "type": "object",
+              "identity": 2,
+              "properties": {
+                "nested": {
+                  "type": "boolean"
+                }
+              }
+            },
+            "qux": {
+              "type": "object",
+              "identity": 3,
+              "properties": {},
+              "additional": {
+                "property": {
+                  "type": "string"
+                },
+                "value": {
+                  "type": "number"
+                }
+              }
             }
           }
         },

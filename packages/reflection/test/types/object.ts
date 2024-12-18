@@ -1,3 +1,5 @@
+import type { DynamicObject } from '../shared/types.js';
+
 type Type<T> = T;
 
 export interface Object {
@@ -24,7 +26,9 @@ export interface Object {
   [`computed2`]: void;
 
   // Dynamic
-  dynamic: {
+  dynamic1: DynamicObject;
+
+  dynamic2: {
     [key: string | number]: any;
   };
 }

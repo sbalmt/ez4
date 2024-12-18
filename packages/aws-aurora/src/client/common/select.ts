@@ -101,7 +101,7 @@ export const prepareSelectFields = <T extends Database.Schema, R extends Relatio
       const fieldSchema = schema.properties[fieldKey];
 
       if (!fieldSchema) {
-        throw new Error(`Field schema for ${fieldValue} doesn't exists.`);
+        throw new Error(`Field schema for ${fieldKey} doesn't exists.`);
       }
 
       if (isObjectSchema(fieldSchema) && isAnyObject(fieldValue)) {

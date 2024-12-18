@@ -83,7 +83,7 @@ export const getPartialSchemaProperties = (schema: ObjectSchema) => {
   for (const propertyName in schema.properties) {
     const value = schema.properties[propertyName];
 
-    if (isObjectSchema(value) && !value.definitions?.extensible) {
+    if (isObjectSchema(value) && !value.definitions?.extensible && !value.additional) {
       properties[propertyName] = getPartialSchemaProperties(value);
     } else {
       properties[propertyName] = true;

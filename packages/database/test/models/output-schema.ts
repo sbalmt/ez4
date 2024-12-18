@@ -20,7 +20,15 @@ export declare class TestDatabase extends Database.Service<[TestSchema]> {
 }
 
 declare class TestSchema implements Database.Schema {
-  bar: string;
+  foo: string;
 
-  baz: number;
+  bar: number;
+
+  baz: {
+    nested: boolean;
+  };
+
+  qux: {
+    [key: string]: number;
+  };
 }

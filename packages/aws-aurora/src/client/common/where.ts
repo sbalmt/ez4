@@ -23,14 +23,14 @@ export const prepareWhereFields = <T extends Database.Schema, I extends Database
     const operations: string[] = [];
     const variables: SqlParameter[] = [];
 
-    for (const key in data) {
-      const fieldValue = data[key];
+    for (const fieldKey in data) {
+      const fieldValue = data[fieldKey];
 
       if (isSkippableData(fieldValue) || fieldValue === null) {
         continue;
       }
 
-      switch (key) {
+      switch (fieldKey) {
         case 'NOT': {
           const [nestedOperations, nestedVariables] = prepareAll(fieldValue, schema, index, path);
 
@@ -59,7 +59,7 @@ export const prepareWhereFields = <T extends Database.Schema, I extends Database
                 path
               );
 
-              if (key === 'OR' && operations.length > 1) {
+              if (fieldKey === 'OR' && operations.length > 1) {
                 allOperations.push(`(${operations.join(' AND ')})`);
               } else {
                 allOperations.push(...operations);
@@ -72,8 +72,8 @@ export const prepareWhereFields = <T extends Database.Schema, I extends Database
             [[], []]
           );
 
-          if (key === 'OR' && nestedOperations.length > 1) {
-            operations.push(`(${nestedOperations.join(` ${key} `)})`);
+          if (fieldKey === 'OR' && nestedOperations.length > 1) {
+            operations.push(`(${nestedOperations.join(` ${fieldKey} `)})`);
           } else {
             operations.push(...nestedOperations);
           }
@@ -83,13 +83,13 @@ export const prepareWhereFields = <T extends Database.Schema, I extends Database
         }
 
         default: {
-          const fieldSchema = schema.properties[key];
+          const fieldSchema = schema.properties[fieldKey];
 
           if (!fieldSchema) {
-            throw new Error(`Field schema for ${key} doesn't exists.`);
+            throw new Error(`Field schema for ${fieldKey} doesn't exists.`);
           }
 
-          const nestedPath = path ? `${path}['${key}']` : `"${key}"`;
+          const nestedPath = path ? `${path}['${fieldKey}']` : `"${fieldKey}"`;
           const fieldIndex = index + variables.length;
 
           if (fieldSchema.type === SchemaType.Object) {

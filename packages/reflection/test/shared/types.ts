@@ -8,3 +8,7 @@ export type LiteralArrayType = unknown[];
 export type LiteralTupleType = [void, never];
 
 export type LiteralUnionType = 'abc' | 123;
+
+export type DynamicObject = {
+  [key: string]: LiteralAnyType;
+};

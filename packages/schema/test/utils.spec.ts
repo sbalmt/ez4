@@ -30,6 +30,27 @@ describe.only('schema utils', () => {
             type: SchemaType.String
           }
         }
+      },
+      qux: {
+        type: SchemaType.Object,
+        identity: 3,
+        properties: {},
+        definitions: {
+          extensible: true
+        }
+      },
+      xyz: {
+        type: SchemaType.Object,
+        identity: 4,
+        properties: {},
+        additional: {
+          property: {
+            type: SchemaType.Number
+          },
+          value: {
+            type: SchemaType.String
+          }
+        }
       }
     }
   };
@@ -77,7 +98,9 @@ describe.only('schema utils', () => {
         bar: true,
         baz: {
           bazBar: true
-        }
+        },
+        qux: true,
+        xyz: true
       }
     });
 
@@ -101,7 +124,7 @@ describe.only('schema utils', () => {
     });
   });
 
-  it('assert :: partial schema (properties)', () => {
+  it('assert :: partial schema properties', () => {
     const partialProperties = getPartialSchemaProperties(fullSchema);
 
     deepEqual(partialProperties, {
@@ -110,7 +133,9 @@ describe.only('schema utils', () => {
       baz: {
         bazFoo: true,
         bazBar: true
-      }
+      },
+      qux: true,
+      xyz: true
     });
   });
 });

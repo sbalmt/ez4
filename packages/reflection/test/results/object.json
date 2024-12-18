@@ -102,7 +102,22 @@
       },
       {
         "type": "property",
-        "name": "dynamic",
+        "name": "dynamic1",
+        "value": {
+          "type": "object",
+          "members": {
+            "index": {
+              "type": "string"
+            },
+            "value": {
+              "type": "any"
+            }
+          }
+        }
+      },
+      {
+        "type": "property",
+        "name": "dynamic2",
         "value": {
           "type": "object",
           "members": {
