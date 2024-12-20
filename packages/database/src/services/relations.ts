@@ -1,5 +1,5 @@
 import type { AnyObject, ArrayRest, IsArrayEmpty, PropertyType, XOR } from '@ez4/utils';
-import type { IndexedTables, PrimaryIndexes } from './indexes.js';
+import type { IndexedTables, PrimaryIndexes, UniqueIndexes } from './indexes.js';
 import type { Database, DatabaseTables } from './database.js';
 import type { TableSchemas } from './schemas.js';
 
@@ -136,6 +136,16 @@ type IsOptionalRelation<
     : true;
 
 /**
+ * Check whether a column is unique or primary.
+ */
+type IsPrimaryOrUniqueIndex<C, I extends Record<string, Database.Indexes>> =
+  RelationSourceColumn<C> extends
+    | keyof PrimaryIndexes<PropertyType<RelationSourceTable<C>, I>>
+    | keyof UniqueIndexes<PropertyType<RelationSourceTable<C>, I>>
+    ? true
+    : false;
+
+/**
  * Produce a relation schema according to its indexation.
  */
 type RelationSchema<
@@ -146,7 +156,7 @@ type RelationSchema<
   I extends Record<string, Database.Indexes>,
   E extends boolean
 > =
-  RelationSourceColumn<C> extends keyof PrimaryIndexes<PropertyType<RelationSourceTable<C>, I>>
+  IsPrimaryOrUniqueIndex<C, I> extends true
     ? E extends false
       ? PropertyType<RelationSourceTable<C>, S>
       : XOR<

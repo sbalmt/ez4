@@ -29,7 +29,14 @@ export type PrimaryIndexes<T extends Database.Indexes> = {
  * Given an index object `T`, it produces an object containing only secondary indexes.
  */
 export type SecondaryIndexes<T extends Database.Indexes> = {
-  [P in keyof T as Index.Secondary | Index.Unique | Index.TTL extends T[P] ? P : never]: T[P];
+  [P in keyof T as Index.Secondary | Index.TTL extends T[P] ? P : never]: T[P];
+};
+
+/**
+ * Given an index object `T`, it produces an object containing only unique indexes.
+ */
+export type UniqueIndexes<T extends Database.Indexes> = {
+  [P in keyof T as Index.Unique extends T[P] ? P : never]: T[P];
 };
 
 /**
