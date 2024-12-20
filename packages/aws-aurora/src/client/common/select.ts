@@ -89,8 +89,8 @@ export const prepareSelectFields = <T extends Database.Schema, R extends Relatio
           : `json_build_object(${relationFields})`;
 
         const relationSelect =
-          `SELECT ${relationResult} FROM "${sourceTable}" ` +
-          `WHERE "${sourceColumn}" = R."${targetColumn}"`;
+          `SELECT ${relationResult} FROM "${sourceTable}" AS T ` +
+          `WHERE T."${sourceColumn}" = R."${targetColumn}"`;
 
         selectFields.push(`(${relationSelect}) AS "${fieldKey}"`);
         continue;

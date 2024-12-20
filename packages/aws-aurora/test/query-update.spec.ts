@@ -236,11 +236,11 @@ describe.only('aurora query (update)', () => {
         `R1 AS (UPDATE "ez4-test-update" SET "id" = :0i ` +
         `WHERE "foo" = :0 RETURNING "relation1_id", "relation2_id"), ` +
         // First relation
-        `R2 AS (UPDATE "ez4-test-relation" SET "foo" = :1i ` +
-        `FROM R1 WHERE "id" = R1."relation1_id") ` +
+        `R2 AS (UPDATE "ez4-test-relation" AS T SET "foo" = :1i ` +
+        `FROM R1 WHERE T."id" = R1."relation1_id") ` +
         // Second relation
-        `UPDATE "ez4-test-relation" SET "bar"['barFoo'] = :2i ` +
-        `FROM R1 WHERE "id" = R1."relation2_id"`
+        `UPDATE "ez4-test-relation" AS T SET "bar"['barFoo'] = :2i ` +
+        `FROM R1 WHERE T."id" = R1."relation2_id"`
     );
 
     deepEqual(variables, [
@@ -276,8 +276,8 @@ describe.only('aurora query (update)', () => {
         `R1 AS (UPDATE "ez4-test-update" SET "id" = :0i ` +
         `WHERE "foo" = :0 RETURNING "id") ` +
         // First relation
-        `UPDATE "ez4-test-relation" SET "foo" = :1i ` +
-        `FROM R1 WHERE "relation2_id" = R1."id"`
+        `UPDATE "ez4-test-relation" AS T SET "foo" = :1i ` +
+        `FROM R1 WHERE T."relation2_id" = R1."id"`
     );
 
     deepEqual(variables, [
@@ -317,11 +317,11 @@ describe.only('aurora query (update)', () => {
         `R1 AS (UPDATE "ez4-test-update" SET "id" = :0i ` +
         `WHERE "foo" = :0 RETURNING "relation1_id", "id"), ` +
         // First relation
-        `R2 AS (UPDATE "ez4-test-relation" SET "bar"['barFoo'] = :1i ` +
-        `FROM R1 WHERE "id" = R1."relation1_id") ` +
+        `R2 AS (UPDATE "ez4-test-relation" AS T SET "bar"['barFoo'] = :1i ` +
+        `FROM R1 WHERE T."id" = R1."relation1_id") ` +
         // Second relation
-        `UPDATE "ez4-test-relation" SET "foo" = :2i ` +
-        `FROM R1 WHERE "relation2_id" = R1."id"`
+        `UPDATE "ez4-test-relation" AS T SET "foo" = :2i ` +
+        `FROM R1 WHERE T."relation2_id" = R1."id"`
     );
 
     deepEqual(variables, [
@@ -361,11 +361,11 @@ describe.only('aurora query (update)', () => {
         `R1 AS (SELECT "relation1_id", "id" ` +
         `FROM "ez4-test-update" WHERE "foo" = :0), ` +
         // First relation
-        `R2 AS (UPDATE "ez4-test-relation" SET "bar"['barFoo'] = :0i ` +
-        `FROM R1 WHERE "id" = R1."relation1_id") ` +
+        `R2 AS (UPDATE "ez4-test-relation" AS T SET "bar"['barFoo'] = :0i ` +
+        `FROM R1 WHERE T."id" = R1."relation1_id") ` +
         // Second relation
-        `UPDATE "ez4-test-relation" SET "foo" = :1i ` +
-        `FROM R1 WHERE "relation2_id" = R1."id"`
+        `UPDATE "ez4-test-relation" AS T SET "foo" = :1i ` +
+        `FROM R1 WHERE T."relation2_id" = R1."id"`
     );
 
     deepEqual(variables, [

@@ -166,13 +166,13 @@ describe.only('aurora query (select)', () => {
       `SELECT "id", "foo", "bar", ` +
         // First relation
         `(SELECT json_build_object('id', "id") ` +
-        `FROM "ez4-test-relation" WHERE "id" = R."relation1_id") AS "relation1", ` +
+        `FROM "ez4-test-relation" AS T WHERE T."id" = R."relation1_id") AS "relation1", ` +
         // Second relation
         `(SELECT json_build_object('id', "id", 'relation1_id', "relation1_id", 'relation2_id', "relation2_id", 'foo', "foo", 'bar', "bar") ` +
-        `FROM "ez4-test-relation" WHERE "id" = R."relation2_id") AS "relation2", ` +
+        `FROM "ez4-test-relation" AS T WHERE T."id" = R."relation2_id") AS "relation2", ` +
         // Third relation
         `(SELECT COALESCE(json_agg(json_build_object('foo', "foo")), '[]'::json) ` +
-        `FROM "ez4-test-relation" WHERE "relation2_id" = R."id") AS "relations" ` +
+        `FROM "ez4-test-relation" AS T WHERE T."relation2_id" = R."id") AS "relations" ` +
         //
         `FROM "ez4-test-select" R ` +
         `WHERE "id" = :0`

@@ -33,7 +33,8 @@ const prepareAllQueries = (
   relations: RepositoryRelationsWithSchema,
   query: Query.UpdateOneInput<{}, {}, {}, Relations> | Query.UpdateManyInput<{}, {}, Relations>,
   fromTable: string | null,
-  variablesIndex: number
+  variablesIndex: number,
+  alias?: string
 ): PrepareResult => {
   const [updateFields, updateVariables] = prepareUpdateFields(
     query.data,
@@ -53,7 +54,7 @@ const prepareAllQueries = (
   if (!updateFields.length) {
     updateStatement.push(`SELECT ${relationFields.join(', ')} FROM "${table}"`);
   } else {
-    updateStatement.push(`UPDATE "${table}" SET ${updateFields}`);
+    updateStatement.push(`UPDATE "${table}"${alias ? ` AS ${alias}` : ''} SET ${updateFields}`);
 
     if (fromTable) {
       updateStatement.push(`FROM ${fromTable}`);
@@ -125,10 +126,11 @@ const preparePostRelationQueries = (
       {},
       { data: relationData },
       fromTable,
-      variablesIndex + postVariables.length
+      variablesIndex + postVariables.length,
+      'T'
     );
 
-    postStatements.push(`${statement} WHERE "${sourceColumn}" = ${fromTable}."${targetColumn}"`);
+    postStatements.push(`${statement} WHERE T."${sourceColumn}" = ${fromTable}."${targetColumn}"`);
 
     relationFields.add(`"${targetColumn}"`);
     postVariables.push(...variables);
