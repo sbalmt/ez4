@@ -24,6 +24,7 @@
     "packages/storage",
     "packages/queue",
     "packages/distribution",
+    "packages/pgsql",
     "packages/aws-common",
     "packages/aws-identity",
     "packages/aws-function",
