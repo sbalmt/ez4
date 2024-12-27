@@ -65,18 +65,6 @@ describe.only('sql update tests', () => {
     );
   });
 
-  it('assert :: update with returning', async () => {
-    const query = sql.update().only('table').returning('foo', 'bar').record({
-      foo: true
-    });
-
-    const [statement, variables] = query.build();
-
-    deepEqual(variables, [true]);
-
-    equal(statement, 'UPDATE ONLY "table" SET "foo" = :0 RETURNING "foo", "bar"');
-  });
-
   it('assert :: update with alias', async () => {
     const query = sql.update().only('table').as('alias').record({
       foo: true
@@ -87,6 +75,21 @@ describe.only('sql update tests', () => {
     deepEqual(variables, [true]);
 
     equal(statement, 'UPDATE ONLY "table" AS "alias" SET "foo" = :0');
+  });
+
+  it('assert :: update with returning', async () => {
+    const query = sql.update().only('table').as('alias').returning('foo', 'bar').record({
+      foo: true
+    });
+
+    const [statement, variables] = query.build();
+
+    deepEqual(variables, [true]);
+
+    equal(
+      statement,
+      'UPDATE ONLY "table" AS "alias" SET "foo" = :0 RETURNING "alias"."foo", "alias"."bar"'
+    );
   });
 
   it('assert :: update with where', async () => {

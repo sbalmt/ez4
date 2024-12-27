@@ -6,6 +6,6 @@ export class MissingColumnAliasError extends Error {
 
 export class InvalidColumnOrderError extends Error {
   constructor(public columnName: string) {
-    super(`Column ${columnName} must use Order.Asc or Order.Desc in the order parameter.`);
+    super(`Column ${columnName} must have Order.Asc or Order.Desc as its parameter.`);
   }
 }

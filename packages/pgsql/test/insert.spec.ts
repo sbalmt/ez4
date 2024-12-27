@@ -75,16 +75,6 @@ describe.only('sql insert tests', () => {
     equal(statement, 'INSERT INTO "table" DEFAULT VALUES');
   });
 
-  it('assert :: insert with returning', async () => {
-    const query = sql.insert().into('table').returning('foo', 'bar');
-
-    const [statement, variables] = query.build();
-
-    deepEqual(variables, []);
-
-    equal(statement, 'INSERT INTO "table" DEFAULT VALUES RETURNING "foo", "bar"');
-  });
-
   it('assert :: insert with alias', async () => {
     const query = sql.insert().into('table').as('alias');
 
@@ -93,5 +83,18 @@ describe.only('sql insert tests', () => {
     deepEqual(variables, []);
 
     equal(statement, 'INSERT INTO "table" AS "alias" DEFAULT VALUES');
+  });
+
+  it('assert :: insert with returning', async () => {
+    const query = sql.insert().into('table').as('alias').returning('foo', 'bar');
+
+    const [statement, variables] = query.build();
+
+    deepEqual(variables, []);
+
+    equal(
+      statement,
+      'INSERT INTO "table" AS "alias" DEFAULT VALUES RETURNING "alias"."foo", "alias"."bar"'
+    );
   });
 });

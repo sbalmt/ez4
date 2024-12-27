@@ -11,7 +11,7 @@ describe.only('sql select tests', () => {
     sql = new SqlBuilder();
   });
 
-  it('assert :: select with no columns', async () => {
+  it('assert :: select all', async () => {
     const query = sql.select().from('table');
 
     deepEqual(query.fields, []);
@@ -37,6 +37,21 @@ describe.only('sql select tests', () => {
     equal(statement, 'SELECT "id", "foo", "bar" FROM "table"');
   });
 
+  it('assert :: select with alias', async () => {
+    const query = sql.select('id', ['name', 'alias_name']).from('table').as('alias_table');
+
+    deepEqual(query.fields, ['id', ['name', 'alias_name']]);
+
+    const [statement, variables] = query.build();
+
+    deepEqual(variables, []);
+
+    equal(
+      statement,
+      'SELECT "alias_table"."id", "alias_table"."name" AS "alias_name" FROM "table" AS "alias_table"'
+    );
+  });
+
   it('assert :: select with json object columns', async () => {
     const query = sql.select('id', 'foo').as('alias').from('table');
 
@@ -47,7 +62,7 @@ describe.only('sql select tests', () => {
           qux: true
         }
       },
-      'bar'
+      'json'
     );
 
     const [statement, variables] = query.build();
@@ -56,11 +71,11 @@ describe.only('sql select tests', () => {
 
     equal(
       statement,
-      `SELECT "id", "foo", ` +
+      `SELECT "alias"."id", "alias"."foo", ` +
         `json_build_object(` +
         `'bar', "alias"."bar", ` +
         `'baz', json_build_object('qux', "alias"."baz"['qux'])` +
-        `) AS "bar" ` +
+        `) AS "json" ` +
         `FROM "table" AS "alias"`
     );
   });
@@ -68,7 +83,13 @@ describe.only('sql select tests', () => {
   it('assert :: select with json array columns', async () => {
     const query = sql.select('id', 'foo').as('alias').from('table');
 
-    query.arrayColumn({ baz: true }, 'bar');
+    query.arrayColumn(
+      {
+        bar: true,
+        baz: query.reference('qux')
+      },
+      'json'
+    );
 
     const [statement, variables] = query.build();
 
@@ -76,8 +97,11 @@ describe.only('sql select tests', () => {
 
     equal(
       statement,
-      `SELECT "id", "foo", ` +
-        `COALESCE(json_agg(json_build_object('baz', "alias"."baz")), '[]'::json) AS "bar" ` +
+      `SELECT "alias"."id", "alias"."foo", ` +
+        `COALESCE(json_agg(json_build_object(` +
+        `'bar', "alias"."bar", ` +
+        `'baz', "alias"."qux"` +
+        `)), '[]'::json) AS "json" ` +
         `FROM "table" AS "alias"`
     );
   });
@@ -97,20 +121,8 @@ describe.only('sql select tests', () => {
 
     equal(
       statement,
-      'SELECT "id", (SELECT "name" FROM "inner" AS "T" WHERE "T"."foo" = :0) AS "column_alias" FROM "table"'
+      'SELECT "id", (SELECT "T"."name" FROM "inner" AS "T" WHERE "T"."foo" = :0) AS "column_alias" FROM "table"'
     );
-  });
-
-  it('assert :: select with alias', async () => {
-    const query = sql.select('id', ['name', 'alias_name']).from('table').as('alias_table');
-
-    deepEqual(query.fields, ['id', ['name', 'alias_name']]);
-
-    const [statement, variables] = query.build();
-
-    deepEqual(variables, []);
-
-    equal(statement, 'SELECT "id", "name" AS "alias_name" FROM "table" AS "alias_table"');
   });
 
   it('assert :: select with offset', async () => {
@@ -156,21 +168,5 @@ describe.only('sql select tests', () => {
     deepEqual(variables, ['abc']);
 
     equal(statement, 'SELECT * FROM "table" WHERE "id" = :0');
-  });
-
-  it('assert :: select with where (column reference)', async () => {
-    const query = sql.select().from('table');
-
-    const reference = query.reference('column');
-
-    equal(reference.toString(), '"column"');
-  });
-
-  it('assert :: select with where (aliased column reference)', async () => {
-    const query = sql.select().from('table').as('alias');
-
-    const reference = query.reference('column');
-
-    equal(reference.toString(), '"alias"."column"');
   });
 });

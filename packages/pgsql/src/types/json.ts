@@ -1,16 +1,22 @@
-import type { SqlStatement } from '../types.js';
+import type { SqlStatement } from './statement.js';
 
 import { escapeName, escapeText, mergeAlias, mergePath } from '../utils.js';
-
-export type SqlJsonColumnSchema = {
-  [field: string]: undefined | boolean | SqlJsonColumnSchema;
-};
+import { SqlColumnReference } from './reference.js';
 
 type SqlJsonColumnState = {
   statement: SqlStatement;
   schema: SqlJsonColumnSchema;
   aggregate: boolean;
   column?: string;
+};
+
+export type SqlJsonColumnSchema = {
+  [field: string]: undefined | boolean | SqlColumnReference | SqlJsonColumnSchema;
+};
+
+export type SqlJsonColumnOptions = {
+  aggregate: boolean;
+  alias?: string;
 };
 
 export class SqlJsonColumn {
@@ -45,6 +51,11 @@ const getJsonObject = (schema: SqlJsonColumnSchema, alias?: string, parent?: str
     }
 
     const columnName = mergePath(field, parent);
+
+    if (value instanceof SqlColumnReference) {
+      fields.push(`${escapeText(field)}, ${value.toString()}`);
+      continue;
+    }
 
     if (value instanceof Object) {
       fields.push(`${escapeText(field)}, ${getJsonObject(value, alias, columnName)}`);

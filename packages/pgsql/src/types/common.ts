@@ -1,10 +1,12 @@
-export type SqlColumnName = string | [string, string];
+import type { Query } from '@ez4/database';
 
-export type SqlStatementRecord = Record<string, unknown>;
+export type SqlColumn = string | [string, string];
 
-export type SqlStatement = {
-  readonly alias?: string;
-};
+export type SqlRecord = Record<string, unknown>;
+
+export type SqlFilters = Query.WhereFields<SqlRecord, {}>;
+
+export type SqlOrder = Query.OrderInput<any>;
 
 export const enum SqlOperator {
   Equal = 'equal',

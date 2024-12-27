@@ -1,7 +1,8 @@
-import { SqlSelectColumn, SqlSelectStatement } from './statements/select.js';
-import { SqlInsertStatement } from './statements/insert.js';
-import { SqlUpdateStatement } from './statements/update.js';
-import { SqlDeleteStatement } from './statements/delete.js';
+import { SqlSelectStatement } from './queries/select.js';
+import { SqlInsertStatement } from './queries/insert.js';
+import { SqlUpdateStatement } from './queries/update.js';
+import { SqlDeleteStatement } from './queries/delete.js';
+import { SqlResultColumn } from './types/results.js';
 
 export type SqlBuilderReferences = {
   counter: number;
@@ -18,33 +19,19 @@ export class SqlBuilder {
     return this;
   }
 
-  select(...columns: SqlSelectColumn[]) {
-    return new SqlSelectStatement({
-      references: this.#references,
-      columns
-    });
+  select(...columns: SqlResultColumn[]) {
+    return new SqlSelectStatement(columns, this.#references);
   }
 
   insert(table?: string, record?: Record<string, unknown>) {
-    return new SqlInsertStatement({
-      references: this.#references,
-      record,
-      table
-    });
+    return new SqlInsertStatement(table, record, this.#references);
   }
 
   update(table?: string, record?: Record<string, unknown>) {
-    return new SqlUpdateStatement({
-      references: this.#references,
-      record,
-      table
-    });
+    return new SqlUpdateStatement(table, record, this.#references);
   }
 
   delete(table?: string) {
-    return new SqlDeleteStatement({
-      references: this.#references,
-      table
-    });
+    return new SqlDeleteStatement(table, this.#references);
   }
 }

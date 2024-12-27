@@ -20,16 +20,6 @@ describe.only('sql delete tests', () => {
     equal(statement, 'DELETE FROM "table"');
   });
 
-  it('assert :: delete with returning', async () => {
-    const query = sql.delete().from('table').returning('foo', 'bar');
-
-    const [statement, variables] = query.build();
-
-    deepEqual(variables, []);
-
-    equal(statement, 'DELETE FROM "table" RETURNING "foo", "bar"');
-  });
-
   it('assert :: delete with alias', async () => {
     const query = sql.delete().from('table').as('alias');
 
@@ -40,13 +30,23 @@ describe.only('sql delete tests', () => {
     equal(statement, 'DELETE FROM "table" AS "alias"');
   });
 
+  it('assert :: delete with returning', async () => {
+    const query = sql.delete().from('table').as('alias').returning('foo', 'bar');
+
+    const [statement, variables] = query.build();
+
+    deepEqual(variables, []);
+
+    equal(statement, 'DELETE FROM "table" AS "alias" RETURNING "alias"."foo", "alias"."bar"');
+  });
+
   it('assert :: delete with where', async () => {
-    const query = sql.delete().from('table').where({ id: 'abc' });
+    const query = sql.delete().from('table').as('alias').where({ id: 'abc' });
 
     const [statement, variables] = query.build();
 
     deepEqual(variables, ['abc']);
 
-    equal(statement, 'DELETE FROM "table" WHERE "id" = :0');
+    equal(statement, 'DELETE FROM "table" AS "alias" WHERE "alias"."id" = :0');
   });
 });

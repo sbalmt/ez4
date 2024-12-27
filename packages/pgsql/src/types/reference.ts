@@ -1,6 +1,6 @@
-import type { SqlStatement } from '../types.js';
+import type { SqlStatement } from './statement.js';
 
-import { escapeColumn } from '../utils.js';
+import { escapeName, mergeAlias } from '../utils.js';
 
 type SqlColumnReferenceState = {
   statement: SqlStatement;
@@ -18,9 +18,9 @@ export class SqlColumnReference {
     const { statement, name } = this.#state;
 
     if (statement.alias) {
-      return `${escapeColumn(statement.alias)}.${escapeColumn(name)}`;
+      return mergeAlias(escapeName(name), statement.alias);
     }
 
-    return escapeColumn(name);
+    return escapeName(name);
   }
 }

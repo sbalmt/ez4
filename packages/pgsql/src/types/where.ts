@@ -1,45 +1,48 @@
-import type { Query } from '@ez4/database';
+import type { SqlFilters } from './common.js';
+import type { SqlStatement } from './statement.js';
 import type { SqlBuilderReferences } from '../builder.js';
-import type { SqlStatement, SqlStatementRecord } from '../types.js';
 
 import { isAnyObject, isEmptyObject } from '@ez4/utils';
 
-import { SqlOperator } from '../types.js';
-import { mergeAlias, mergePath } from '../utils.js';
 import { SqlColumnReference } from './reference.js';
+import { mergeAlias, mergePath } from '../utils.js';
+import { SqlOperator } from './common.js';
 
 import {
   InvalidOperandError,
-  MissingOperatorsError,
+  MissingOperatorError,
   TooManyOperatorsError
 } from '../errors/operation.js';
-
-export type SqlWhereFilters = Query.WhereFields<SqlStatementRecord, {}>;
 
 type SqlWhereContext = {
   statement: SqlStatement;
   references: SqlBuilderReferences;
+  variables: unknown[];
   parent?: string;
 };
 
 type SqlWhereState = {
   statement: SqlStatement;
   references: SqlBuilderReferences;
-  filters: SqlWhereFilters;
+  filters: SqlFilters;
 };
 
 export class SqlWhereClause {
   #state: SqlWhereState;
 
-  constructor(state: SqlWhereState) {
-    this.#state = state;
+  constructor(statement: SqlStatement, references: SqlBuilderReferences, filters: SqlFilters = {}) {
+    this.#state = {
+      statement,
+      references,
+      filters
+    };
   }
 
   get empty() {
     return isEmptyObject(this.#state.filters);
   }
 
-  apply(filters: SqlWhereFilters) {
+  apply(filters: SqlFilters) {
     this.#state.filters = filters;
 
     return this;
@@ -48,20 +51,21 @@ export class SqlWhereClause {
   build(): [string, unknown[]] {
     const { statement, references, filters } = this.#state;
 
-    const values: unknown[] = [];
-
-    const operations = getOperations(filters, values, {
+    const context = {
+      variables: [],
       references,
       statement
-    });
+    };
+
+    const operations = getOperations(filters, context);
 
     const clause = `WHERE ${operations.join(' AND ')}`;
 
-    return [clause, values];
+    return [clause, context.variables];
   }
 }
 
-const getOperations = (filters: SqlWhereFilters, values: unknown[], context: SqlWhereContext) => {
+const getOperations = (filters: SqlFilters, context: SqlWhereContext) => {
   const operations = [];
 
   for (const field in filters) {
@@ -71,7 +75,7 @@ const getOperations = (filters: SqlWhereFilters, values: unknown[], context: Sql
       continue;
     }
 
-    const operation = getFieldOperation(field, value, values, context);
+    const operation = getFieldOperation(field, value, context);
 
     if (operation) {
       operations.push(operation);
@@ -84,10 +88,9 @@ const getOperations = (filters: SqlWhereFilters, values: unknown[], context: Sql
 const getFieldOperation = (
   field: string,
   value: unknown,
-  values: unknown[],
   context: SqlWhereContext
 ): string | undefined => {
-  const { statement, references, parent } = context;
+  const { statement, references, variables, parent } = context;
 
   switch (field) {
     case 'NOT': {
@@ -95,7 +98,7 @@ const getFieldOperation = (
         throw new InvalidOperandError();
       }
 
-      const operations = getOperations(value, values, context);
+      const operations = getOperations(value, context);
 
       if (operations.length) {
         return `NOT ${combineOperations(operations)}`;
@@ -114,9 +117,9 @@ const getFieldOperation = (
 
       for (const current of value) {
         if (field === 'OR') {
-          operations.push(combineOperations(getOperations(current, values, context)));
+          operations.push(combineOperations(getOperations(current, context)));
         } else {
-          operations.push(...getOperations(current, values, context));
+          operations.push(...getOperations(current, context));
         }
       }
 
@@ -136,13 +139,13 @@ const getFieldOperation = (
       }
 
       if (value instanceof SqlColumnReference || !isAnyObject(value)) {
-        return getEqualOperation(columnPath, value, values, references);
+        return getEqualOperation(columnPath, value, variables, references);
       }
 
       const [entry, ...rest] = Object.entries(value);
 
       if (!entry) {
-        throw new MissingOperatorsError(columnName);
+        throw new MissingOperatorError(columnName);
       }
 
       if (rest.length) {
@@ -151,12 +154,12 @@ const getFieldOperation = (
 
       const [operator, operand] = entry;
 
-      const operation = getValueOperation(columnPath, operator, operand, values, references);
+      const operation = getValueOperation(columnPath, operator, operand, context);
 
       return (
         operation ??
         combineOperations(
-          getOperations(value, values, {
+          getOperations(value, {
             ...context,
             parent: columnName
           })
@@ -172,43 +175,44 @@ const getValueOperation = (
   column: string,
   operator: string,
   operand: unknown,
-  values: unknown[],
-  references: SqlBuilderReferences
+  context: SqlWhereContext
 ) => {
+  const { references, variables } = context;
+
   switch (operator) {
     case SqlOperator.IsNull:
     case SqlOperator.IsMissing:
       return getNullableOperation(column, operand);
 
     case SqlOperator.Equal:
-      return getEqualOperation(column, operand, values, references);
+      return getEqualOperation(column, operand, variables, references);
 
     case SqlOperator.Not:
-      return getNotEqualOperation(column, operand, values, references);
+      return getNotEqualOperation(column, operand, variables, references);
 
     case SqlOperator.GreaterThan:
-      return getGreaterThanOperation(column, operand, values, references);
+      return getGreaterThanOperation(column, operand, variables, references);
 
     case SqlOperator.GreaterThanOrEqual:
-      return getGreaterThanOrEqualOperation(column, operand, values, references);
+      return getGreaterThanOrEqualOperation(column, operand, variables, references);
 
     case SqlOperator.LessThan:
-      return getLessThanOperation(column, operand, values, references);
+      return getLessThanOperation(column, operand, variables, references);
 
     case SqlOperator.LessThanOrEqual:
-      return getLessThanOrEqualOperation(column, operand, values, references);
+      return getLessThanOrEqualOperation(column, operand, variables, references);
 
     case SqlOperator.IsIn:
-      return getIsInOperation(column, operand, values, references);
+      return getIsInOperation(column, operand, variables, references);
 
     case SqlOperator.IsBetween:
-      return getIsBetweenOperation(column, operand, values, references);
+      return getIsBetweenOperation(column, operand, variables, references);
 
     case SqlOperator.StartsWith:
-      return getStartsWithOperation(column, operand, values, references);
+      return getStartsWithOperation(column, operand, variables, references);
 
     case SqlOperator.Contains:
-      return getContainsOperation(column, operand, values, references);
+      return getContainsOperation(column, operand, variables, references);
   }
 
   return undefined;
@@ -282,7 +286,9 @@ const getIsInOperation = (
     throw new InvalidOperandError(column);
   }
 
-  const list = operand.map((current) => getOperandValue(current, values, references));
+  const list = operand.map((current) => {
+    return getOperandValue(current, values, references);
+  });
 
   return `${column} IN (${list.join(', ')})`;
 };
@@ -297,7 +303,9 @@ const getIsBetweenOperation = (
     throw new InvalidOperandError(column);
   }
 
-  const [begin, end] = operand.map((current) => getOperandValue(current, values, references));
+  const [begin, end] = operand.map((current) => {
+    return getOperandValue(current, values, references);
+  });
 
   return `${column} BETWEEN ${begin} AND ${end}`;
 };

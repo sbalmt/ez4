@@ -1,4 +1,4 @@
-export class MissingOperatorsError extends Error {
+export class MissingOperatorError extends Error {
   constructor(public columnName: string) {
     super(`Operator for column ${columnName} is missing.`);
   }
