@@ -81,7 +81,6 @@ const getTypeFromMembers = (
     const [targetColumn, targetAlias] = relationTarget.split('@', 2);
 
     relations.push({
-      foreign: false,
       sourceTable,
       sourceColumn,
       targetColumn,
