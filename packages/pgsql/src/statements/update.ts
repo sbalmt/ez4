@@ -1,5 +1,6 @@
-import type { SqlColumnName, SqlStatementRecord, SqlBuilderReferences } from '../types.js';
 import type { SqlWhereFilters } from '../helpers/where.js';
+import type { SqlColumnName, SqlStatement, SqlStatementRecord } from '../types.js';
+import type { SqlBuilderReferences } from '../builder.js';
 
 import { escapeName } from '../utils.js';
 import { MissingRecordError } from '../errors/record.js';
@@ -8,15 +9,16 @@ import { getReturningColumns } from '../helpers/returning.js';
 import { SqlWhereClause } from '../helpers/where.js';
 import { SqlSelectStatement } from './select.js';
 
-export type SqlUpdateState = {
+type SqlUpdateState = {
   references: SqlBuilderReferences;
   returning?: SqlColumnName[];
   record?: SqlStatementRecord;
   where?: SqlWhereClause;
   table?: string;
+  alias?: string;
 };
 
-export class SqlUpdateStatement {
+export class SqlUpdateStatement implements SqlStatement {
   #state: SqlUpdateState;
 
   constructor(state: SqlUpdateState) {
@@ -24,7 +26,7 @@ export class SqlUpdateStatement {
   }
 
   get alias() {
-    return this.#state.references.alias;
+    return this.#state.alias;
   }
 
   get fields() {
@@ -35,6 +37,10 @@ export class SqlUpdateStatement {
     return this.#state.record ? Object.values(this.#state.record) : [];
   }
 
+  get filters() {
+    return this.#state.where;
+  }
+
   only(table: string): SqlUpdateStatement {
     this.#state.table = table;
 
@@ -42,7 +48,8 @@ export class SqlUpdateStatement {
   }
 
   as(alias: string | undefined): SqlUpdateStatement {
-    this.#state.references.alias = alias;
+    this.#state.alias = alias;
+
     return this;
   }
 
@@ -56,11 +63,12 @@ export class SqlUpdateStatement {
     if (!this.#state.where || filters) {
       this.#state.where = new SqlWhereClause({
         references: this.#state.references,
-        filters: filters ?? {}
+        filters: filters ?? {},
+        statement: this
       });
     }
 
-    return this.#state.where;
+    return this;
   }
 
   returning(...columns: SqlColumnName[]): SqlUpdateStatement {
@@ -69,48 +77,46 @@ export class SqlUpdateStatement {
     return this;
   }
 
-  toString() {
-    const { table, references, record, where, returning } = this.#state;
+  build(): [string, unknown[]] {
+    const { table, alias, references, record, where, returning } = this.#state;
 
     if (!table) {
       throw new MissingTableNameError();
     }
 
-    references.counter = 0;
-
     const statement = [`UPDATE ONLY ${escapeName(table)}`];
+    const variables: unknown[] = [];
 
-    if (references.alias) {
-      statement.push(`AS ${escapeName(references.alias)}`);
+    if (alias) {
+      statement.push(`AS ${escapeName(alias)}`);
     }
 
     if (!record) {
       throw new MissingRecordError();
     }
 
-    statement.push(`SET ${getUpdateValues(record, references)}`);
+    statement.push(`SET ${getUpdateValues(record, variables, references)}`);
 
-    if (where) {
-      statement.push(where.toString());
+    if (where && !where.empty) {
+      const [whereClause, whereVariables] = where.build();
+
+      statement.push(whereClause);
+      variables.push(...whereVariables);
     }
 
     if (returning?.length) {
       statement.push(`RETURNING ${getReturningColumns(returning)}`);
     }
 
-    return statement.join(' ');
+    return [statement.join(' '), variables];
   }
 }
 
-export const updateQuery = (table?: string, record?: Record<string, unknown>) => {
-  return new SqlUpdateStatement({
-    references: { counter: 0 },
-    record,
-    table
-  });
-};
-
-const getUpdateValues = (record: SqlStatementRecord, references: SqlBuilderReferences) => {
+const getUpdateValues = (
+  record: SqlStatementRecord,
+  variables: unknown[],
+  references: SqlBuilderReferences
+) => {
   const updates = [];
 
   for (const field in record) {
@@ -122,12 +128,17 @@ const getUpdateValues = (record: SqlStatementRecord, references: SqlBuilderRefer
 
     const fieldName = escapeName(field);
 
-    if (!(value instanceof SqlSelectStatement)) {
-      updates.push(`${fieldName} = :${references.counter++}`);
+    if (value instanceof SqlSelectStatement) {
+      const [selectStatement, selectVariables] = value.build();
+
+      updates.push(`${fieldName} = (${selectStatement})`);
+      variables.push(...selectVariables);
+
       continue;
     }
 
-    updates.push(`${fieldName} = (${value})`);
+    updates.push(`${fieldName} = :${references.counter++}`);
+    variables.push(value);
   }
 
   return updates.join(', ');

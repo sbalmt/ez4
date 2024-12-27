@@ -1,4 +1,5 @@
-import type { SqlBuilderReferences, SqlColumnName, SqlStatementRecord } from '../types.js';
+import type { SqlColumnName, SqlStatement, SqlStatementRecord } from '../types.js';
+import type { SqlBuilderReferences } from '../builder.js';
 
 import { isEmptyObject } from '@ez4/utils';
 
@@ -7,14 +8,15 @@ import { MissingTableNameError } from '../errors/table.js';
 import { getReturningColumns } from '../helpers/returning.js';
 import { SqlSelectStatement } from './select.js';
 
-export type SqlInsertState = {
+type SqlInsertState = {
   references: SqlBuilderReferences;
   returning?: SqlColumnName[];
   record?: SqlStatementRecord;
   table?: string;
+  alias?: string;
 };
 
-export class SqlInsertStatement {
+export class SqlInsertStatement implements SqlStatement {
   #state: SqlInsertState;
 
   constructor(state: SqlInsertState) {
@@ -22,7 +24,7 @@ export class SqlInsertStatement {
   }
 
   get alias() {
-    return this.#state.references.alias;
+    return this.#state.alias;
   }
 
   get fields() {
@@ -40,7 +42,7 @@ export class SqlInsertStatement {
   }
 
   as(alias: string | undefined): SqlInsertStatement {
-    this.#state.references.alias = alias;
+    this.#state.alias = alias;
 
     return this;
   }
@@ -57,17 +59,18 @@ export class SqlInsertStatement {
     return this;
   }
 
-  toString() {
-    const { table, references, record, returning } = this.#state;
+  build(): [string, unknown[]] {
+    const { table, alias, record, returning } = this.#state;
 
     if (!table) {
       throw new MissingTableNameError();
     }
 
     const statement = [`INSERT INTO ${escapeName(table)}`];
+    const variables: unknown[] = [];
 
-    if (references.alias) {
-      statement.push(`AS ${escapeName(references.alias)}`);
+    if (alias) {
+      statement.push(`AS ${escapeName(alias)}`);
     }
 
     const hasRecord = record && !isEmptyObject(record);
@@ -77,32 +80,30 @@ export class SqlInsertStatement {
     statement.push('VALUES');
 
     if (hasRecord) {
-      statement.push(`(${getValueReferences(this.values)})`);
+      statement.push(`(${getValueReferences(this.values, variables)})`);
     }
 
     if (returning?.length) {
       statement.push(`RETURNING ${getReturningColumns(returning)}`);
     }
 
-    return statement.join(' ');
+    return [statement.join(' '), variables];
   }
 }
 
-export const insertQuery = (table?: string, record?: Record<string, unknown>) => {
-  return new SqlInsertStatement({
-    references: { counter: 0 },
-    record,
-    table
-  });
-};
-
-const getValueReferences = (values: unknown[]) => {
+const getValueReferences = (values: unknown[], variables: unknown[]) => {
   let index = 0;
 
   const referenceList = values.map((value) => {
     if (value instanceof SqlSelectStatement) {
-      return `(${value})`;
+      const [selectStatement, selectVariables] = value.build();
+
+      variables.push(...selectVariables);
+
+      return `(${selectStatement})`;
     }
+
+    variables.push(value);
 
     return `:${index++}`;
   });

@@ -2,9 +2,8 @@ export type SqlColumnName = string | [string, string];
 
 export type SqlStatementRecord = Record<string, unknown>;
 
-export type SqlBuilderReferences = {
-  counter: number;
-  alias?: string;
+export type SqlStatement = {
+  readonly alias?: string;
 };
 
 export const enum SqlOperator {

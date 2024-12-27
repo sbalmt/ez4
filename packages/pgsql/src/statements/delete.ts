@@ -1,19 +1,21 @@
-import type { SqlBuilderReferences, SqlColumnName } from '../types.js';
 import type { SqlWhereFilters } from '../helpers/where.js';
+import type { SqlBuilderReferences } from '../builder.js';
+import type { SqlColumnName, SqlStatement } from '../types.js';
 
 import { escapeName } from '../utils.js';
 import { MissingTableNameError } from '../errors/table.js';
 import { getReturningColumns } from '../helpers/returning.js';
 import { SqlWhereClause } from '../helpers/where.js';
 
-export type SqlDeleteState = {
+type SqlDeleteState = {
   references: SqlBuilderReferences;
   returning?: SqlColumnName[];
   where?: SqlWhereClause;
   table?: string;
+  alias?: string;
 };
 
-export class SqlDeleteStatement {
+export class SqlDeleteStatement implements SqlStatement {
   #state: SqlDeleteState;
 
   constructor(state: SqlDeleteState) {
@@ -21,7 +23,11 @@ export class SqlDeleteStatement {
   }
 
   get alias() {
-    return this.#state.references.alias;
+    return this.#state.alias;
+  }
+
+  get filters() {
+    return this.#state.where;
   }
 
   from(table: string): SqlDeleteStatement {
@@ -31,7 +37,7 @@ export class SqlDeleteStatement {
   }
 
   as(alias: string | undefined): SqlDeleteStatement {
-    this.#state.references.alias = alias;
+    this.#state.alias = alias;
 
     return this;
   }
@@ -40,11 +46,12 @@ export class SqlDeleteStatement {
     if (!this.#state.where || filters) {
       this.#state.where = new SqlWhereClause({
         references: this.#state.references,
-        filters: filters ?? {}
+        filters: filters ?? {},
+        statement: this
       });
     }
 
-    return this.#state.where;
+    return this;
   }
 
   returning(...columns: SqlColumnName[]): SqlDeleteStatement {
@@ -52,34 +59,31 @@ export class SqlDeleteStatement {
     return this;
   }
 
-  toString() {
-    const { table, references, where, returning } = this.#state;
+  build(): [string, unknown[]] {
+    const { table, alias, where, returning } = this.#state;
 
     if (!table) {
       throw new MissingTableNameError();
     }
 
     const statement = [`DELETE FROM ${escapeName(table)}`];
+    const variables = [];
 
-    if (references.alias) {
-      statement.push(`AS ${escapeName(references.alias)}`);
+    if (alias) {
+      statement.push(`AS ${escapeName(alias)}`);
     }
 
-    if (where) {
-      statement.push(where.toString());
+    if (where && !where.empty) {
+      const [whereClause, whereVariables] = where.build();
+
+      variables.push(...whereVariables);
+      statement.push(whereClause);
     }
 
     if (returning?.length) {
       statement.push(`RETURNING ${getReturningColumns(returning)}`);
     }
 
-    return statement.join(' ');
+    return [statement.join(' '), variables];
   }
 }
-
-export const deleteQuery = (table?: string) => {
-  return new SqlDeleteStatement({
-    references: { counter: 0 },
-    table
-  });
-};

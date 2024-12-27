@@ -1,11 +1,17 @@
-import { describe, it } from 'node:test';
+import { beforeEach, describe, it } from 'node:test';
 import { equal, deepEqual } from 'node:assert';
 
-import { Sql } from '@ez4/pgsql';
+import { SqlBuilder } from '@ez4/pgsql';
 
 describe.only('sql insert tests', () => {
-  it('assert :: insert with record', async () => {
-    const query = Sql.insert('table1', {
+  let sql: SqlBuilder;
+
+  beforeEach(() => {
+    sql = new SqlBuilder();
+  });
+
+  it('assert :: insert with initial record', async () => {
+    const query = sql.insert('table', {
       id: 123,
       foo: true,
       bar: 'abc'
@@ -14,53 +20,78 @@ describe.only('sql insert tests', () => {
     deepEqual(query.fields, ['id', 'foo', 'bar']);
     deepEqual(query.values, [123, true, 'abc']);
 
-    equal(query.toString(), 'INSERT INTO "table1" ("id", "foo", "bar") VALUES (:0, :1, :2)');
+    const [statement, variables] = query.build();
 
-    // Reset query
+    deepEqual(variables, [123, true, 'abc']);
 
-    query.into('table2').record({
-      id: 'abc',
-      foo: 123
-    });
-
-    deepEqual(query.fields, ['id', 'foo']);
-    deepEqual(query.values, ['abc', 123]);
-
-    equal(query.toString(), 'INSERT INTO "table2" ("id", "foo") VALUES (:0, :1)');
+    equal(statement, 'INSERT INTO "table" ("id", "foo", "bar") VALUES (:0, :1, :2)');
   });
 
-  it('assert :: insert with sub-select record', async () => {
-    const sub = Sql.select('foo').from('sub_table');
+  it('assert :: insert with defined record', async () => {
+    const query = sql.insert().into('table').record({
+      id: 'abc',
+      foo: 123,
+      bar: false
+    });
 
-    const query = Sql.insert().into('table').record({
+    deepEqual(query.fields, ['id', 'foo', 'bar']);
+    deepEqual(query.values, ['abc', 123, false]);
+
+    const [statement, variables] = query.build();
+
+    deepEqual(variables, ['abc', 123, false]);
+
+    equal(statement, 'INSERT INTO "table" ("id", "foo", "bar") VALUES (:0, :1, :2)');
+  });
+
+  it('assert :: insert with inner select record', async () => {
+    const inner = sql.select('foo').from('sub_table');
+
+    const query = sql.insert().into('table').record({
       id: 123,
-      foo: sub
+      foo: inner
     });
 
     deepEqual(query.fields, ['id', 'foo']);
-    deepEqual(query.values, [123, sub]);
+    deepEqual(query.values, [123, inner]);
+
+    const [statement, variables] = query.build();
+
+    deepEqual(variables, [123]);
 
     equal(
-      query.toString(),
+      statement,
       'INSERT INTO "table" ("id", "foo") VALUES (:0, (SELECT "foo" FROM "sub_table"))'
     );
   });
 
   it('assert :: insert with no record', async () => {
-    const query = Sql.insert().into('table');
+    const query = sql.insert().into('table');
 
-    equal(query.toString(), 'INSERT INTO "table" DEFAULT VALUES');
+    const [statement, variables] = query.build();
+
+    deepEqual(variables, []);
+
+    equal(statement, 'INSERT INTO "table" DEFAULT VALUES');
   });
 
   it('assert :: insert with returning', async () => {
-    const query = Sql.insert().into('table').returning('foo', 'bar');
+    const query = sql.insert().into('table').returning('foo', 'bar');
 
-    equal(query.toString(), 'INSERT INTO "table" DEFAULT VALUES RETURNING "foo", "bar"');
+    const [statement, variables] = query.build();
+
+    deepEqual(variables, []);
+
+    equal(statement, 'INSERT INTO "table" DEFAULT VALUES RETURNING "foo", "bar"');
   });
 
   it('assert :: insert with alias', async () => {
-    const query = Sql.insert().into('table').as('alias');
+    const query = sql.insert().into('table').as('alias');
 
-    equal(query.toString(), 'INSERT INTO "table" AS "alias" DEFAULT VALUES');
+    const [statement, variables] = query.build();
+
+    deepEqual(variables, []);
+
+    equal(statement, 'INSERT INTO "table" AS "alias" DEFAULT VALUES');
   });
 });

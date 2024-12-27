@@ -1,75 +1,176 @@
-import { describe, it } from 'node:test';
+import { beforeEach, describe, it } from 'node:test';
 import { equal, deepEqual } from 'node:assert/strict';
 
 import { Order } from '@ez4/database';
-import { Sql } from '@ez4/pgsql';
+import { SqlBuilder } from '@ez4/pgsql';
 
 describe.only('sql select tests', () => {
-  it('assert :: select with columns', async () => {
-    const query = Sql.select().from('table');
+  let sql: SqlBuilder;
+
+  beforeEach(() => {
+    sql = new SqlBuilder();
+  });
+
+  it('assert :: select with no columns', async () => {
+    const query = sql.select().from('table');
 
     deepEqual(query.fields, []);
 
-    equal(query.toString(), 'SELECT * FROM "table"');
+    const [statement, variables] = query.build();
 
-    // Reset query
+    deepEqual(variables, []);
 
-    query.columns('id', 'foo', 'bar');
+    equal(statement, 'SELECT * FROM "table"');
+  });
+
+  it('assert :: select with extra columns', async () => {
+    const query = sql.select('id', 'foo').from('table');
+
+    query.column('bar');
 
     deepEqual(query.fields, ['id', 'foo', 'bar']);
 
-    equal(query.toString(), 'SELECT "id", "foo", "bar" FROM "table"');
+    const [statement, variables] = query.build();
+
+    deepEqual(variables, []);
+
+    equal(statement, 'SELECT "id", "foo", "bar" FROM "table"');
   });
 
-  it('assert :: select with sub-selects', async () => {
-    const sub = Sql.select('name').from('sub_table').as('column_alias');
+  it('assert :: select with json object columns', async () => {
+    const query = sql.select('id', 'foo').as('alias').from('table');
 
-    const query = Sql.select().from('table').columns('id', sub);
+    query.objectColumn(
+      {
+        bar: true,
+        baz: {
+          qux: true
+        }
+      },
+      'bar'
+    );
 
-    deepEqual(query.fields, ['id', sub]);
+    const [statement, variables] = query.build();
+
+    deepEqual(variables, []);
 
     equal(
-      query.toString(),
-      'SELECT "id", (SELECT "name" FROM "sub_table") AS "column_alias" FROM "table"'
+      statement,
+      `SELECT "id", "foo", ` +
+        `json_build_object(` +
+        `'bar', "alias"."bar", ` +
+        `'baz', json_build_object('qux', "alias"."baz"['qux'])` +
+        `) AS "bar" ` +
+        `FROM "table" AS "alias"`
+    );
+  });
+
+  it('assert :: select with json array columns', async () => {
+    const query = sql.select('id', 'foo').as('alias').from('table');
+
+    query.arrayColumn({ baz: true }, 'bar');
+
+    const [statement, variables] = query.build();
+
+    deepEqual(variables, []);
+
+    equal(
+      statement,
+      `SELECT "id", "foo", ` +
+        `COALESCE(json_agg(json_build_object('baz', "alias"."baz")), '[]'::json) AS "bar" ` +
+        `FROM "table" AS "alias"`
+    );
+  });
+
+  it('assert :: select with inner select columns', async () => {
+    const inner = sql.select('name').from('inner').as('column_alias').where({
+      foo: 'abc'
+    });
+
+    const query = sql.select().from('table').columns('id', inner);
+
+    deepEqual(query.fields, ['id', inner]);
+
+    const [statement, variables] = query.build();
+
+    deepEqual(variables, ['abc']);
+
+    equal(
+      statement,
+      'SELECT "id", (SELECT "name" FROM "inner" AS "T" WHERE "T"."foo" = :0) AS "column_alias" FROM "table"'
     );
   });
 
   it('assert :: select with alias', async () => {
-    const query = Sql.select('id', ['name', 'alias_name']).from('table').as('alias_table');
+    const query = sql.select('id', ['name', 'alias_name']).from('table').as('alias_table');
 
     deepEqual(query.fields, ['id', ['name', 'alias_name']]);
 
-    equal(query.toString(), 'SELECT "id", "name" AS "alias_name" FROM "table" AS "alias_table"');
+    const [statement, variables] = query.build();
+
+    deepEqual(variables, []);
+
+    equal(statement, 'SELECT "id", "name" AS "alias_name" FROM "table" AS "alias_table"');
   });
 
   it('assert :: select with offset', async () => {
-    const query = Sql.select().from('table').skip(100);
+    const query = sql.select().from('table').skip(100);
 
-    equal(query.toString(), 'SELECT * FROM "table" OFFSET 100');
+    const [statement, variables] = query.build();
+
+    deepEqual(variables, []);
+
+    equal(statement, 'SELECT * FROM "table" OFFSET 100');
   });
 
-  it('assert :: select with take', async () => {
-    const query = Sql.select().from('table').take(100);
+  it('assert :: select with limit', async () => {
+    const query = sql.select().from('table').take(100);
 
-    equal(query.toString(), 'SELECT * FROM "table" LIMIT 100');
+    const [statement, variables] = query.build();
+
+    deepEqual(variables, []);
+
+    equal(statement, 'SELECT * FROM "table" LIMIT 100');
   });
 
   it('assert :: select with order', async () => {
-    const query = Sql.select().from('table').order({
+    const query = sql.select().from('table').order({
       foo: Order.Asc,
       bar: Order.Desc
     });
 
-    equal(query.toString(), 'SELECT * FROM "table" ORDER BY "foo" ASC, "bar" DESC');
+    const [statement, variables] = query.build();
+
+    deepEqual(variables, []);
+
+    equal(statement, 'SELECT * FROM "table" ORDER BY "foo" ASC, "bar" DESC');
   });
 
   it('assert :: select with where', async () => {
-    const query = Sql.select().from('table');
-
-    query.where({
+    const query = sql.select().from('table').where({
       id: 'abc'
     });
 
-    equal(query.toString(), 'SELECT * FROM "table" WHERE "id" = :0');
+    const [statement, variables] = query.build();
+
+    deepEqual(variables, ['abc']);
+
+    equal(statement, 'SELECT * FROM "table" WHERE "id" = :0');
+  });
+
+  it('assert :: select with where (column reference)', async () => {
+    const query = sql.select().from('table');
+
+    const reference = query.reference('column');
+
+    equal(reference.toString(), '"column"');
+  });
+
+  it('assert :: select with where (aliased column reference)', async () => {
+    const query = sql.select().from('table').as('alias');
+
+    const reference = query.reference('column');
+
+    equal(reference.toString(), '"alias"."column"');
   });
 });
