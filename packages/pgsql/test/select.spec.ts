@@ -1,8 +1,8 @@
 import { beforeEach, describe, it } from 'node:test';
 import { equal, deepEqual } from 'node:assert/strict';
 
+import { mergeSqlAlias, SqlBuilder } from '@ez4/pgsql';
 import { Order } from '@ez4/database';
-import { SqlBuilder } from '@ez4/pgsql';
 
 describe.only('sql select tests', () => {
   let sql: SqlBuilder;
@@ -24,7 +24,7 @@ describe.only('sql select tests', () => {
   });
 
   it('assert :: select with extra columns', async () => {
-    const query = sql.select('id', 'foo').from('table');
+    const query = sql.select(['id', 'foo']).from('table');
 
     query.column('bar');
 
@@ -38,7 +38,10 @@ describe.only('sql select tests', () => {
   });
 
   it('assert :: select with alias', async () => {
-    const query = sql.select('id', ['name', 'alias_name']).from('table').as('alias_table');
+    const query = sql
+      .select(['id', ['name', 'alias_name']])
+      .from('table')
+      .as('alias_table');
 
     deepEqual(query.fields, ['id', ['name', 'alias_name']]);
 
@@ -52,8 +55,20 @@ describe.only('sql select tests', () => {
     );
   });
 
+  it('assert :: select with raw columns', async () => {
+    const query = sql.select(['id', 'foo']).as('alias').from('table');
+
+    query.rawColumn((statement) => mergeSqlAlias('*', statement.alias));
+
+    const [statement, variables] = query.build();
+
+    deepEqual(variables, []);
+
+    equal(statement, `SELECT "alias"."id", "alias"."foo", "alias".* FROM "table" AS "alias"`);
+  });
+
   it('assert :: select with json object columns', async () => {
-    const query = sql.select('id', 'foo').as('alias').from('table');
+    const query = sql.select(['id', 'foo']).as('alias').from('table');
 
     query.objectColumn(
       {
@@ -83,12 +98,13 @@ describe.only('sql select tests', () => {
   });
 
   it('assert :: select with json array columns', async () => {
-    const query = sql.select('id', 'foo').as('alias').from('table');
+    const query = sql.select(['id', 'foo']).as('alias').from('table');
 
     query.arrayColumn(
       {
         bar: true,
-        baz: query.reference('qux')
+        baz: query.reference((statement) => mergeSqlAlias('column1', statement.alias)),
+        qux: query.reference('column2')
       },
       {
         alias: 'json'
@@ -104,14 +120,15 @@ describe.only('sql select tests', () => {
       `SELECT "alias"."id", "alias"."foo", ` +
         `COALESCE(json_agg(json_build_object(` +
         `'bar', "alias"."bar", ` +
-        `'baz', "alias"."qux"` +
+        `'baz', "alias".column1, ` +
+        `'qux', "alias"."column2"` +
         `)), '[]'::json) AS "json" ` +
         `FROM "table" AS "alias"`
     );
   });
 
   it('assert :: select with inner select columns', async () => {
-    const inner = sql.select('name').from('inner').as('column_alias').where({
+    const inner = sql.select(['name']).from('inner').as('column_alias').where({
       foo: 'abc'
     });
 
@@ -126,6 +143,35 @@ describe.only('sql select tests', () => {
     equal(
       statement,
       'SELECT "id", (SELECT "T"."name" FROM "inner" AS "T" WHERE "T"."foo" = :0) AS "column_alias" FROM "table"'
+    );
+  });
+
+  it('assert :: select with record columns', async () => {
+    const query = sql.select().as('alias').from('table');
+
+    query.record({
+      id: true,
+      foo: query.reference('foo'),
+      bar: 'alias_bar',
+      baz: sql.select(['name']).from('inner'),
+      qux: {
+        inner: true
+      }
+    });
+
+    const [statement, variables] = query.build();
+
+    deepEqual(variables, []);
+
+    equal(
+      statement,
+      `SELECT ` +
+        `"alias"."id", ` +
+        `"alias"."foo", ` +
+        `"alias"."bar" AS "alias_bar", ` +
+        `(SELECT "name" FROM "inner") AS "baz", ` +
+        `json_build_object('inner', "alias"."qux"['inner']) AS "qux" ` +
+        `FROM "table" AS "alias"`
     );
   });
 

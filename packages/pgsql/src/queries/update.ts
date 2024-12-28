@@ -1,15 +1,17 @@
 import type { SqlFilters, SqlRecord } from '../types/common.js';
-import type { SqlResultColumn, SqlResults } from '../types/results.js';
+import type { SqlResultColumn, SqlResultRecord } from '../types/results.js';
 import type { SqlBuilderReferences } from '../builder.js';
 
 import { isAnyObject } from '@ez4/utils';
 
-import { escapeName, mergePath } from '../utils.js';
+import { mergeSqlPath } from '../utils/merge.js';
+import { escapeSqlName } from '../utils/escape.js';
 import { MissingTableError } from '../errors/table.js';
 import { MissingRecordError } from '../errors/record.js';
 import { SqlReturningClause } from '../types/returning.js';
-import { SqlWhereClause } from '../types/where.js';
 import { SqlStatement } from '../types/statement.js';
+import { SqlReference } from '../types/reference.js';
+import { SqlWhereClause } from '../types/where.js';
 import { SqlSelectStatement } from './select.js';
 
 type SqlUpdateContext = {
@@ -22,13 +24,10 @@ type SqlUpdateState = {
   references: SqlBuilderReferences;
   returning?: SqlReturningClause;
   record?: SqlRecord;
+  source?: SqlStatement;
   where?: SqlWhereClause;
   table?: string;
   alias?: string;
-};
-
-export type SqlUpdateStatementWithResults = SqlUpdateStatement & {
-  readonly results: SqlResults;
 };
 
 export class SqlUpdateStatement extends SqlStatement {
@@ -68,19 +67,25 @@ export class SqlUpdateStatement extends SqlStatement {
     return this.#state.returning?.results;
   }
 
-  only(table: string): SqlUpdateStatement {
+  only(table: string) {
     this.#state.table = table;
 
     return this;
   }
 
-  as(alias: string | undefined): SqlUpdateStatement {
+  from(table: SqlStatement | undefined) {
+    this.#state.source = table;
+
+    return this;
+  }
+
+  as(alias: string | undefined) {
     this.#state.alias = alias;
 
     return this;
   }
 
-  record(record: SqlRecord): SqlUpdateStatement {
+  record(record: SqlRecord) {
     this.#state.record = record;
 
     return this;
@@ -96,28 +101,28 @@ export class SqlUpdateStatement extends SqlStatement {
     return this;
   }
 
-  returning(...columns: SqlResultColumn[]): SqlUpdateStatementWithResults {
+  returning(result?: SqlResultRecord | SqlResultColumn[]) {
     if (!this.#state.returning) {
-      this.#state.returning = new SqlReturningClause(this, columns);
-    } else if (columns.length > 0) {
-      this.#state.returning.columns(...columns);
+      this.#state.returning = new SqlReturningClause(this, result);
+    } else {
+      this.#state.returning.reset(result);
     }
 
-    return this as unknown as SqlUpdateStatementWithResults;
+    return this;
   }
 
   build(): [string, unknown[]] {
-    const { table, alias, references, record, where, returning } = this.#state;
+    const { table, alias, references, record, source, where, returning } = this.#state;
 
     if (!table) {
       throw new MissingTableError();
     }
 
-    const statement = [`UPDATE ONLY ${escapeName(table)}`];
+    const statement = [`UPDATE ONLY ${escapeSqlName(table)}`];
     const variables: unknown[] = [];
 
     if (alias) {
-      statement.push(`AS ${escapeName(alias)}`);
+      statement.push(`AS ${escapeSqlName(alias)}`);
     }
 
     if (!record) {
@@ -125,6 +130,10 @@ export class SqlUpdateStatement extends SqlStatement {
     }
 
     statement.push(`SET ${getUpdateColumns(record, { variables, references })}`);
+
+    if (source?.alias) {
+      statement.push(`FROM ${escapeSqlName(source.alias)}`);
+    }
 
     if (where && !where.empty) {
       const [whereClause, whereVariables] = where.build();
@@ -156,7 +165,12 @@ const getUpdateColumns = (record: SqlRecord, context: SqlUpdateContext): string 
       continue;
     }
 
-    const columnName = mergePath(field, parent);
+    const columnName = mergeSqlPath(field, parent);
+
+    if (value instanceof SqlReference) {
+      updates.push(`${columnName} = ${value.build()}`);
+      continue;
+    }
 
     if (value instanceof SqlSelectStatement) {
       const [selectStatement, selectVariables] = value.build();

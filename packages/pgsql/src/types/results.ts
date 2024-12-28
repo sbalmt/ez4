@@ -1,13 +1,23 @@
 import type { SqlJsonColumnOptions, SqlJsonColumnSchema } from '../types/json.js';
 import type { SqlColumn } from '../types/common.js';
+import type { SqlRawColumnGenerator } from './raw.js';
 import type { SqlStatement } from './statement.js';
 
-import { escapeName, mergeAlias } from '../utils.js';
+import { isAnyObject } from '@ez4/utils';
+
+import { mergeSqlAlias } from '../utils/merge.js';
+import { escapeSqlName } from '../utils/escape.js';
+import { SqlJsonColumn } from '../types/json.js';
 import { MissingColumnAliasError } from '../errors/column.js';
 import { SqlSelectStatement } from '../queries/select.js';
-import { SqlJsonColumn } from '../types/json.js';
+import { SqlReference } from './reference.js';
+import { SqlRawColumn } from './raw.js';
 
-export type SqlResultColumn = SqlColumn | SqlSelectStatement;
+export type SqlResultRecord = {
+  [column: string]: boolean | string | SqlReference | SqlSelectStatement | SqlJsonColumnSchema;
+};
+
+export type SqlResultColumn = SqlColumn | SqlReference | SqlSelectStatement;
 
 export type SqlObjectColumn = Omit<SqlJsonColumnOptions, 'aggregate'>;
 
@@ -20,16 +30,20 @@ type SqlResultsContext = {
 
 type SqlResultsState = {
   statement: SqlStatement;
-  columns: (SqlResultColumn | SqlJsonColumn)[];
+  columns: (SqlResultColumn | SqlJsonColumn | SqlRawColumn)[];
 };
 
 export class SqlResults {
   #state: SqlResultsState;
 
-  constructor(statement: SqlStatement, columns: (SqlResultColumn | SqlJsonColumn)[]) {
+  constructor(statement: SqlStatement, columns?: SqlResultRecord | SqlResultColumn[]) {
     this.#state = {
       statement,
-      columns
+      columns: Array.isArray(columns)
+        ? columns
+        : columns
+          ? getRecordColumns(columns, statement)
+          : []
     };
   }
 
@@ -41,14 +55,32 @@ export class SqlResults {
     return !this.#state.columns.length;
   }
 
-  reset(...columns: SqlResultColumn[]) {
-    this.#state.columns = columns;
+  reset(result?: SqlResultRecord | SqlResultColumn[]) {
+    if (Array.isArray(result)) {
+      this.#state.columns = result;
+    } else if (result) {
+      this.#state.columns = getRecordColumns(result, this.#state.statement);
+    } else {
+      this.#state.columns = [];
+    }
 
     return this;
   }
 
   column(column: SqlResultColumn) {
     this.#state.columns.push(column);
+
+    return this;
+  }
+
+  record(record: SqlResultRecord) {
+    this.#state.columns = getRecordColumns(record, this.#state.statement);
+
+    return this;
+  }
+
+  rawColumn(column: string | SqlRawColumnGenerator) {
+    this.#state.columns.push(new SqlRawColumn(this.#state.statement, column));
 
     return this;
   }
@@ -93,14 +125,44 @@ export class SqlResults {
   }
 }
 
+const getRecordColumns = (record: SqlResultRecord, statement: SqlStatement) => {
+  const columns: (SqlColumn | SqlReference | SqlSelectStatement | SqlJsonColumn)[] = [];
+
+  for (const column in record) {
+    const value = record[column];
+
+    if (value === true) {
+      columns.push(column);
+    } else if (typeof value === 'string') {
+      columns.push([column, value]);
+    } else if (value instanceof SqlReference) {
+      columns.push(value);
+    } else if (value instanceof SqlSelectStatement) {
+      columns.push(value.as(column));
+    } else if (isAnyObject(value)) {
+      columns.push(new SqlJsonColumn(value, statement, false, column));
+    }
+  }
+
+  return columns;
+};
+
 const getResultColumns = (
-  columns: (SqlResultColumn | SqlJsonColumn)[],
+  columns: (SqlResultColumn | SqlJsonColumn | SqlRawColumn)[],
   context: SqlResultsContext
 ) => {
   const { statement, variables } = context;
 
-  const columnsList = columns.map((column): string => {
+  const columnsList = columns.map((column) => {
     if (column instanceof SqlJsonColumn) {
+      return column.build();
+    }
+
+    if (column instanceof SqlRawColumn) {
+      return column.build();
+    }
+
+    if (column instanceof SqlReference) {
       return column.build();
     }
 
@@ -111,32 +173,28 @@ const getResultColumns = (
         throw new MissingColumnAliasError();
       }
 
-      if (!column.filters) {
-        column.as(undefined);
-      } else {
-        column.as(`T`);
-      }
-
-      const [selectStatement, selectVariables] = column.build();
+      const [selectStatement, selectVariables] = column
+        .as(column.filters ? `T` : undefined)
+        .build();
 
       variables.push(...selectVariables);
 
-      return `(${selectStatement}) AS ${escapeName(columnAlias)}`;
+      return `(${selectStatement}) AS ${escapeSqlName(columnAlias)}`;
     }
 
     if (!(column instanceof Array)) {
-      return mergeAlias(escapeName(column), statement?.alias);
+      return mergeSqlAlias(escapeSqlName(column), statement?.alias);
     }
 
     const [columnName, columnAlias] = column.map((name) => {
-      return escapeName(name);
+      return escapeSqlName(name);
     });
 
     if (columnName !== columnAlias) {
-      return `${mergeAlias(columnName, statement?.alias)} AS ${columnAlias}`;
+      return `${mergeSqlAlias(columnName, statement?.alias)} AS ${columnAlias}`;
     }
 
-    return mergeAlias(columnName, statement?.alias);
+    return mergeSqlAlias(columnName, statement?.alias);
   });
 
   return columnsList.join(', ') || '*';

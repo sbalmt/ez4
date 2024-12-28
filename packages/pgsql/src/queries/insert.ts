@@ -1,25 +1,28 @@
-import type { SqlRecord } from '../types/common.js';
-import type { SqlResultColumn, SqlResults } from '../types/results.js';
 import type { SqlBuilderReferences } from '../builder.js';
+import type { SqlResultColumn, SqlResultRecord } from '../types/results.js';
+import type { SqlRecord } from '../types/common.js';
 
 import { isEmptyObject } from '@ez4/utils';
 
-import { escapeName } from '../utils.js';
+import { escapeSqlName } from '../utils/escape.js';
 import { MissingTableError } from '../errors/table.js';
 import { SqlReturningClause } from '../types/returning.js';
+import { SqlReference } from '../types/reference.js';
 import { SqlStatement } from '../types/statement.js';
 import { SqlSelectStatement } from './select.js';
+
+type SqlInsertContext = {
+  references: SqlBuilderReferences;
+  variables: unknown[];
+};
 
 type SqlInsertState = {
   references: SqlBuilderReferences;
   returning?: SqlReturningClause;
   record?: SqlRecord;
+  source?: SqlStatement;
   table?: string;
   alias?: string;
-};
-
-export type SqlInsertStatementWithResults = SqlInsertStatement & {
-  readonly results: SqlResults;
 };
 
 export class SqlInsertStatement extends SqlStatement {
@@ -55,56 +58,71 @@ export class SqlInsertStatement extends SqlStatement {
     return this.#state.returning?.results;
   }
 
-  into(table: string): SqlInsertStatement {
+  into(table: string) {
     this.#state.table = table;
 
     return this;
   }
 
-  as(alias: string | undefined): SqlInsertStatement {
+  select(table: SqlStatement | undefined) {
+    this.#state.source = table;
+
+    return this;
+  }
+
+  as(alias: string | undefined) {
     this.#state.alias = alias;
 
     return this;
   }
 
-  record(record: SqlRecord): SqlInsertStatement {
+  record(record: SqlRecord) {
     this.#state.record = record;
 
     return this;
   }
 
-  returning(...columns: SqlResultColumn[]): SqlInsertStatementWithResults {
+  returning(result?: SqlResultRecord | SqlResultColumn[]) {
     if (!this.#state.returning) {
-      this.#state.returning = new SqlReturningClause(this, columns);
-    } else if (columns.length > 0) {
-      this.#state.returning.columns(...columns);
+      this.#state.returning = new SqlReturningClause(this, result);
+    } else {
+      this.#state.returning.reset(result);
     }
 
-    return this as unknown as SqlInsertStatementWithResults;
+    return this;
   }
 
   build(): [string, unknown[]] {
-    const { table, alias, record, returning } = this.#state;
+    const { table, alias, references, record, source, returning } = this.#state;
 
     if (!table) {
       throw new MissingTableError();
     }
 
-    const statement = [`INSERT INTO ${escapeName(table)}`];
+    const statement = [`INSERT INTO ${escapeSqlName(table)}`];
     const variables: unknown[] = [];
 
     if (alias) {
-      statement.push(`AS ${escapeName(alias)}`);
+      statement.push(`AS ${escapeSqlName(alias)}`);
     }
 
     const hasRecord = record && !isEmptyObject(record);
 
+    const allValues = getValueReferences(this.values, {
+      variables,
+      references
+    });
+
     statement.push(hasRecord ? `(${getColumnsName(this.fields)})` : 'DEFAULT');
 
-    statement.push('VALUES');
+    if (source?.alias) {
+      statement.push(`SELECT ${allValues} FROM ${escapeSqlName(source.alias)}`);
+    } else {
+      statement.push('VALUES');
 
-    if (hasRecord) {
-      statement.push(`(${getValueReferences(this.values, variables)})`);
+      if (hasRecord) {
+        statement.push(`(${allValues})`);
+      }
     }
 
     if (returning && !returning.empty) {
@@ -119,13 +137,17 @@ export class SqlInsertStatement extends SqlStatement {
 }
 
 const getColumnsName = (columns: string[]) => {
-  return columns.map((column) => escapeName(column)).join(', ');
+  return columns.map((column) => escapeSqlName(column)).join(', ');
 };
 
-const getValueReferences = (values: unknown[], variables: unknown[]) => {
-  let index = 0;
+const getValueReferences = (values: unknown[], context: SqlInsertContext): string => {
+  const { variables, references } = context;
 
   const referenceList = values.map((value) => {
+    if (value instanceof SqlReference) {
+      return value.build();
+    }
+
     if (value instanceof SqlSelectStatement) {
       const [selectStatement, selectVariables] = value.build();
 
@@ -136,7 +158,7 @@ const getValueReferences = (values: unknown[], variables: unknown[]) => {
 
     variables.push(value);
 
-    return `:${index++}`;
+    return `:${references.counter++}`;
   });
 
   return referenceList.join(', ');

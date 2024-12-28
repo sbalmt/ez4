@@ -1,8 +1,8 @@
-import type { SqlFilters } from '../types/common.js';
-import type { SqlResultColumn, SqlResults } from '../types/results.js';
 import type { SqlBuilderReferences } from '../builder.js';
+import type { SqlResultColumn, SqlResultRecord } from '../types/results.js';
+import type { SqlFilters } from '../types/common.js';
 
-import { escapeName } from '../utils.js';
+import { escapeSqlName } from '../utils/escape.js';
 import { MissingTableError } from '../errors/table.js';
 import { SqlReturningClause } from '../types/returning.js';
 import { SqlWhereClause } from '../types/where.js';
@@ -14,10 +14,6 @@ type SqlDeleteState = {
   where?: SqlWhereClause;
   table?: string;
   alias?: string;
-};
-
-export type SqlDeleteStatementWithResults = SqlDeleteStatement & {
-  readonly results: SqlResults;
 };
 
 export class SqlDeleteStatement extends SqlStatement {
@@ -44,13 +40,13 @@ export class SqlDeleteStatement extends SqlStatement {
     return this.#state.returning?.results;
   }
 
-  from(table: string): SqlDeleteStatement {
+  from(table: string) {
     this.#state.table = table;
 
     return this;
   }
 
-  as(alias: string | undefined): SqlDeleteStatement {
+  as(alias: string | undefined) {
     this.#state.alias = alias;
 
     return this;
@@ -66,14 +62,14 @@ export class SqlDeleteStatement extends SqlStatement {
     return this;
   }
 
-  returning(...columns: SqlResultColumn[]): SqlDeleteStatementWithResults {
+  returning(result?: SqlResultRecord | SqlResultColumn[]) {
     if (!this.#state.returning) {
-      this.#state.returning = new SqlReturningClause(this, columns);
-    } else if (columns.length > 0) {
-      this.#state.returning.columns(...columns);
+      this.#state.returning = new SqlReturningClause(this, result);
+    } else {
+      this.#state.returning.reset(result);
     }
 
-    return this as unknown as SqlDeleteStatementWithResults;
+    return this;
   }
 
   build(): [string, unknown[]] {
@@ -83,11 +79,11 @@ export class SqlDeleteStatement extends SqlStatement {
       throw new MissingTableError();
     }
 
-    const statement = [`DELETE FROM ${escapeName(table)}`];
+    const statement = [`DELETE FROM ${escapeSqlName(table)}`];
     const variables = [];
 
     if (alias) {
-      statement.push(`AS ${escapeName(alias)}`);
+      statement.push(`AS ${escapeSqlName(alias)}`);
     }
 
     if (where && !where.empty) {

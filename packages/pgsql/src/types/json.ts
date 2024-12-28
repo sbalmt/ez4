@@ -2,8 +2,9 @@ import type { SqlStatement } from './statement.js';
 
 import { isAnyObject } from '@ez4/utils';
 
-import { escapeName, escapeText, mergeAlias, mergePath } from '../utils.js';
-import { SqlColumnReference } from './reference.js';
+import { escapeSqlName, escapeSqlText } from '../utils/escape.js';
+import { mergeSqlAlias, mergeSqlPath } from '../utils/merge.js';
+import { SqlReference } from './reference.js';
 
 type SqlJsonColumnContext = {
   parent?: string;
@@ -19,7 +20,7 @@ type SqlJsonColumnState = {
 };
 
 export type SqlJsonColumnSchema = {
-  [field: string]: undefined | boolean | SqlColumnReference | SqlJsonColumnSchema;
+  [field: string]: undefined | boolean | SqlReference | SqlJsonColumnSchema;
 };
 
 export type SqlJsonColumnOptions = {
@@ -52,14 +53,14 @@ export class SqlJsonColumn {
 
     const jsonObject = getJsonObject(schema, {
       alias: statement.alias,
-      ...(column && { parent: escapeName(column) })
+      ...(column && { parent: escapeSqlName(column) })
     });
 
     const jsonColumn = aggregate ? `COALESCE(json_agg(${jsonObject}), '[]'::json)` : jsonObject;
     const columnName = alias ?? column;
 
     if (columnName) {
-      return `${jsonColumn} AS ${escapeName(columnName)}`;
+      return `${jsonColumn} AS ${escapeSqlName(columnName)}`;
     }
 
     return jsonColumn;
@@ -78,15 +79,15 @@ const getJsonObject = (schema: SqlJsonColumnSchema, context: SqlJsonColumnContex
       continue;
     }
 
-    const columnName = mergePath(field, parent);
+    const columnName = mergeSqlPath(field, parent);
 
-    if (value instanceof SqlColumnReference) {
-      fields.push(`${escapeText(field)}, ${value.build()}`);
+    if (value instanceof SqlReference) {
+      fields.push(`${escapeSqlText(field)}, ${value.build()}`);
       continue;
     }
 
     if (!isAnyObject(value)) {
-      fields.push(`${escapeText(field)}, ${mergeAlias(columnName, alias)}`);
+      fields.push(`${escapeSqlText(field)}, ${mergeSqlAlias(columnName, alias)}`);
       continue;
     }
 
@@ -95,7 +96,7 @@ const getJsonObject = (schema: SqlJsonColumnSchema, context: SqlJsonColumnContex
       parent: columnName
     });
 
-    fields.push(`${escapeText(field)}, ${nestedObject}`);
+    fields.push(`${escapeSqlText(field)}, ${nestedObject}`);
   }
 
   return `json_build_object(${fields.join(', ')})`;

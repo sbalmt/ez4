@@ -1,13 +1,20 @@
 import type { Query } from '@ez4/database';
-import type { SqlJsonColumn, SqlJsonColumnOptions, SqlJsonColumnSchema } from '../types/json.js';
-import type { SqlArrayColumn, SqlObjectColumn, SqlResultColumn } from '../types/results.js';
+import type { SqlJsonColumnOptions, SqlJsonColumnSchema } from '../types/json.js';
 import type { SqlFilters, SqlOrder } from '../types/common.js';
+import type { SqlRawColumnGenerator } from '../types/raw.js';
 import type { SqlBuilderReferences } from '../builder.js';
+
+import type {
+  SqlArrayColumn,
+  SqlObjectColumn,
+  SqlResultColumn,
+  SqlResultRecord
+} from '../types/results.js';
 
 import { isAnyNumber, isEmptyObject } from '@ez4/utils';
 import { Order } from '@ez4/database';
 
-import { escapeName } from '../utils.js';
+import { escapeSqlName } from '../utils/escape.js';
 import { MissingTableError } from '../errors/table.js';
 import { InvalidColumnOrderError } from '../errors/column.js';
 import { SqlStatement } from '../types/statement.js';
@@ -28,11 +35,14 @@ type SqlSelectState = {
 export class SqlSelectStatement extends SqlStatement {
   #state: SqlSelectState;
 
-  constructor(columns: (SqlResultColumn | SqlJsonColumn)[], references: SqlBuilderReferences) {
+  constructor(
+    result: undefined | SqlResultRecord | SqlResultColumn[],
+    references: SqlBuilderReferences
+  ) {
     super();
 
     this.#state = {
-      results: new SqlResults(this, columns),
+      results: new SqlResults(this, result),
       references
     };
   }
@@ -54,13 +64,25 @@ export class SqlSelectStatement extends SqlStatement {
   }
 
   columns(...columns: SqlResultColumn[]) {
-    this.#state.results.reset(...columns);
+    this.#state.results.reset(columns);
+
+    return this;
+  }
+
+  record(record: SqlResultRecord) {
+    this.#state.results.reset(record);
 
     return this;
   }
 
   column(column: SqlResultColumn) {
     this.#state.results.column(column);
+
+    return this;
+  }
+
+  rawColumn(column: string | SqlRawColumnGenerator) {
+    this.#state.results.rawColumn(column);
 
     return this;
   }
@@ -132,10 +154,10 @@ export class SqlSelectStatement extends SqlStatement {
 
     const [resultColumns, variables] = results.build();
 
-    const statement = [`SELECT ${resultColumns} FROM ${escapeName(table)}`];
+    const statement = [`SELECT ${resultColumns} FROM ${escapeSqlName(table)}`];
 
     if (alias) {
-      statement.push(`AS ${escapeName(alias)}`);
+      statement.push(`AS ${escapeSqlName(alias)}`);
     }
 
     if (where && !where.empty) {
@@ -167,11 +189,11 @@ const getOrderColumns = (ordering: Query.OrderInput<any>) => {
   for (const column in ordering) {
     switch (ordering[column]) {
       case Order.Asc:
-        orderColumns.push(`${escapeName(column)} ASC`);
+        orderColumns.push(`${escapeSqlName(column)} ASC`);
         break;
 
       case Order.Desc:
-        orderColumns.push(`${escapeName(column)} DESC`);
+        orderColumns.push(`${escapeSqlName(column)} DESC`);
         break;
 
       default:

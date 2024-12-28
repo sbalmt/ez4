@@ -1,9 +1,13 @@
 import type { SqlJsonColumnOptions, SqlJsonColumnSchema } from '../types/json.js';
-import type { SqlArrayColumn, SqlObjectColumn, SqlResultColumn } from '../types/results.js';
+import type {
+  SqlArrayColumn,
+  SqlObjectColumn,
+  SqlResultColumn,
+  SqlResultRecord
+} from '../types/results.js';
 import type { SqlStatement } from '../types/statement.js';
 
 import { SqlResults } from '../types/results.js';
-import { SqlJsonColumn } from '../types/json.js';
 
 type SqlReturningState = {
   results: SqlResults;
@@ -12,7 +16,7 @@ type SqlReturningState = {
 export class SqlReturningClause {
   #state: SqlReturningState;
 
-  constructor(statement: SqlStatement, columns: (SqlResultColumn | SqlJsonColumn)[]) {
+  constructor(statement: SqlStatement, columns?: SqlResultRecord | SqlResultColumn[]) {
     this.#state = {
       results: new SqlResults(statement, columns)
     };
@@ -26,8 +30,20 @@ export class SqlReturningClause {
     return this.#state.results.empty;
   }
 
+  reset(result?: SqlResultRecord | SqlResultColumn[]) {
+    this.#state.results.reset(result);
+
+    return this;
+  }
+
   columns(...columns: SqlResultColumn[]) {
-    this.#state.results.reset(...columns);
+    this.#state.results.reset(columns);
+
+    return this;
+  }
+
+  record(record: SqlResultRecord) {
+    this.#state.results.reset(record);
 
     return this;
   }

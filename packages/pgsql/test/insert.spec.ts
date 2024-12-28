@@ -45,7 +45,7 @@ describe.only('sql insert tests', () => {
   });
 
   it('assert :: insert with inner select record', async () => {
-    const inner = sql.select('foo').from('sub_table');
+    const inner = sql.select(['foo']).from('sub_table');
 
     const query = sql.insert().into('table').record({
       id: 123,
@@ -86,7 +86,7 @@ describe.only('sql insert tests', () => {
   });
 
   it('assert :: insert with returning', async () => {
-    const query = sql.insert().into('table').as('alias').returning('foo', 'bar');
+    const query = sql.insert().into('table').as('alias').returning(['foo', 'bar']);
 
     const [statement, variables] = query.build();
 

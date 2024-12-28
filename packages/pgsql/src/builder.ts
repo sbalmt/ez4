@@ -2,7 +2,9 @@ import { SqlSelectStatement } from './queries/select.js';
 import { SqlInsertStatement } from './queries/insert.js';
 import { SqlUpdateStatement } from './queries/update.js';
 import { SqlDeleteStatement } from './queries/delete.js';
-import { SqlResultColumn } from './types/results.js';
+import { SqlResultColumn, SqlResultRecord } from './types/results.js';
+import { SqlStatement } from './main.js';
+import { SqlWithClause } from './types/with.js';
 
 export type SqlBuilderReferences = {
   counter: number;
@@ -19,8 +21,12 @@ export class SqlBuilder {
     return this;
   }
 
-  select(...columns: SqlResultColumn[]) {
-    return new SqlSelectStatement(columns, this.#references);
+  with(statements: SqlStatement[], alias?: string) {
+    return new SqlWithClause(statements, alias);
+  }
+
+  select(result?: SqlResultRecord | SqlResultColumn[]) {
+    return new SqlSelectStatement(result, this.#references);
   }
 
   insert(table?: string, record?: Record<string, unknown>) {

@@ -31,7 +31,7 @@ describe.only('sql delete tests', () => {
   });
 
   it('assert :: delete with returning', async () => {
-    const query = sql.delete().from('table').as('alias').returning('foo', 'bar');
+    const query = sql.delete().from('table').as('alias').returning(['foo', 'bar']);
 
     const [statement, variables] = query.build();
 

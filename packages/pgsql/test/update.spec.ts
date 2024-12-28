@@ -68,7 +68,7 @@ describe.only('sql update tests', () => {
   });
 
   it('assert :: update with inner select record', async () => {
-    const inner = sql.select('foo').from('inner').where({
+    const inner = sql.select(['foo']).from('inner').where({
       bar: true
     });
 
@@ -103,7 +103,7 @@ describe.only('sql update tests', () => {
   });
 
   it('assert :: update with returning', async () => {
-    const query = sql.update().only('table').as('alias').returning('foo', 'bar').record({
+    const query = sql.update().only('table').as('alias').returning(['foo', 'bar']).record({
       foo: true
     });
 

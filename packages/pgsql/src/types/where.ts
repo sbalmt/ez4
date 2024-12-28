@@ -1,11 +1,11 @@
-import type { SqlFilters } from './common.js';
-import type { SqlStatement } from './statement.js';
 import type { SqlBuilderReferences } from '../builder.js';
+import type { SqlStatement } from './statement.js';
+import type { SqlFilters } from './common.js';
 
 import { isAnyObject, isEmptyObject } from '@ez4/utils';
 
-import { SqlColumnReference } from './reference.js';
-import { mergeAlias, mergePath } from '../utils.js';
+import { mergeSqlAlias, mergeSqlPath } from '../utils/merge.js';
+import { SqlReference } from './reference.js';
 import { SqlOperator } from './common.js';
 
 import {
@@ -131,14 +131,14 @@ const getFieldOperation = (
     }
 
     default: {
-      const columnName = mergePath(field, parent);
-      const columnPath = mergeAlias(columnName, statement.alias);
+      const columnName = mergeSqlPath(field, parent);
+      const columnPath = mergeSqlAlias(columnName, statement.alias);
 
       if (value === null) {
         return getNullableOperation(columnPath, true);
       }
 
-      if (value instanceof SqlColumnReference || !isAnyObject(value)) {
+      if (value instanceof SqlReference || !isAnyObject(value)) {
         return getEqualOperation(columnPath, value, variables, references);
       }
 
@@ -329,7 +329,7 @@ const getContainsOperation = (
 };
 
 const getOperandValue = (operand: unknown, values: unknown[], references: SqlBuilderReferences) => {
-  if (operand instanceof SqlColumnReference) {
+  if (operand instanceof SqlReference) {
     return operand.build();
   }
 

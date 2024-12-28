@@ -1,6 +1,7 @@
+import type { SqlReferenceGenerator } from './reference.js';
 import type { SqlResults } from './results.js';
 
-import { SqlColumnReference } from './reference.js';
+import { SqlReference } from './reference.js';
 
 export type SqlStatementWithResults = SqlStatement & {
   readonly results: SqlResults;
@@ -11,10 +12,11 @@ export abstract class SqlStatement {
 
   abstract readonly results: SqlResults | undefined;
 
-  reference(column: string) {
-    return new SqlColumnReference({
-      statement: this,
-      name: column
-    });
+  abstract as(alias: string | undefined): SqlStatement;
+
+  abstract build(): [string, unknown[]];
+
+  reference(column: string | SqlReferenceGenerator) {
+    return new SqlReference(this, column);
   }
 }

@@ -3,6 +3,9 @@ export * from './errors/column.js';
 export * from './errors/record.js';
 export * from './errors/operation.js';
 
+export * from './utils/escape.js';
+export * from './utils/merge.js';
+
 export * from './types/common.js';
 export * from './types/statement.js';
 export * from './types/reference.js';
