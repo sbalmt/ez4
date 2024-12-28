@@ -42,6 +42,31 @@ describe.only('sql update tests', () => {
     equal(statement, 'UPDATE ONLY "table" SET "foo" = :0, "bar" = :1');
   });
 
+  it('assert :: update with json record', async () => {
+    const query = sql.update('table', {
+      foo: {
+        bar: {
+          baz: true
+        }
+      }
+    });
+
+    deepEqual(query.fields, ['foo']);
+    deepEqual(query.values, [
+      {
+        bar: {
+          baz: true
+        }
+      }
+    ]);
+
+    const [statement, variables] = query.build();
+
+    deepEqual(variables, [true]);
+
+    equal(statement, `UPDATE ONLY "table" SET "foo"['bar']['baz'] = :0`);
+  });
+
   it('assert :: update with inner select record', async () => {
     const inner = sql.select('foo').from('inner').where({
       bar: true

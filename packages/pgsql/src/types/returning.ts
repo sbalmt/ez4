@@ -1,5 +1,5 @@
 import type { SqlJsonColumnOptions, SqlJsonColumnSchema } from '../types/json.js';
-import type { SqlResultColumn } from '../types/results.js';
+import type { SqlArrayColumn, SqlObjectColumn, SqlResultColumn } from '../types/results.js';
 import type { SqlStatement } from '../types/statement.js';
 
 import { SqlResults } from '../types/results.js';
@@ -44,14 +44,14 @@ export class SqlReturningClause {
     return this;
   }
 
-  objectColumn(schema: SqlJsonColumnSchema, alias?: string) {
-    this.#state.results.objectColumn(schema, alias);
+  objectColumn(schema: SqlJsonColumnSchema, options?: SqlObjectColumn) {
+    this.#state.results.objectColumn(schema, options);
 
     return this;
   }
 
-  arrayColumn(schema: SqlJsonColumnSchema, alias?: string) {
-    this.#state.results.arrayColumn(schema, alias);
+  arrayColumn(schema: SqlJsonColumnSchema, options?: SqlArrayColumn) {
+    this.#state.results.arrayColumn(schema, options);
 
     return this;
   }

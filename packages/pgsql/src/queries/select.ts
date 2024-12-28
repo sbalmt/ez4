@@ -1,7 +1,7 @@
 import type { Query } from '@ez4/database';
-import type { SqlFilters, SqlOrder } from '../types/common.js';
 import type { SqlJsonColumn, SqlJsonColumnOptions, SqlJsonColumnSchema } from '../types/json.js';
-import type { SqlResultColumn } from '../types/results.js';
+import type { SqlArrayColumn, SqlObjectColumn, SqlResultColumn } from '../types/results.js';
+import type { SqlFilters, SqlOrder } from '../types/common.js';
 import type { SqlBuilderReferences } from '../builder.js';
 
 import { isAnyNumber, isEmptyObject } from '@ez4/utils';
@@ -71,14 +71,14 @@ export class SqlSelectStatement extends SqlStatement {
     return this;
   }
 
-  objectColumn(schema: SqlJsonColumnSchema, alias?: string) {
-    this.#state.results.objectColumn(schema, alias);
+  objectColumn(schema: SqlJsonColumnSchema, options?: SqlObjectColumn) {
+    this.#state.results.objectColumn(schema, options);
 
     return this;
   }
 
-  arrayColumn(schema: SqlJsonColumnSchema, alias?: string) {
-    this.#state.results.arrayColumn(schema, alias);
+  arrayColumn(schema: SqlJsonColumnSchema, options?: SqlArrayColumn) {
+    this.#state.results.arrayColumn(schema, options);
 
     return this;
   }

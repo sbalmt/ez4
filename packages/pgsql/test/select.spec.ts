@@ -62,7 +62,9 @@ describe.only('sql select tests', () => {
           qux: true
         }
       },
-      'json'
+      {
+        column: 'json'
+      }
     );
 
     const [statement, variables] = query.build();
@@ -73,8 +75,8 @@ describe.only('sql select tests', () => {
       statement,
       `SELECT "alias"."id", "alias"."foo", ` +
         `json_build_object(` +
-        `'bar', "alias"."bar", ` +
-        `'baz', json_build_object('qux', "alias"."baz"['qux'])` +
+        `'bar', "alias"."json"['bar'], ` +
+        `'baz', json_build_object('qux', "alias"."json"['baz']['qux'])` +
         `) AS "json" ` +
         `FROM "table" AS "alias"`
     );
@@ -88,7 +90,9 @@ describe.only('sql select tests', () => {
         bar: true,
         baz: query.reference('qux')
       },
-      'json'
+      {
+        alias: 'json'
+      }
     );
 
     const [statement, variables] = query.build();

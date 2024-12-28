@@ -330,7 +330,7 @@ const getContainsOperation = (
 
 const getOperandValue = (operand: unknown, values: unknown[], references: SqlBuilderReferences) => {
   if (operand instanceof SqlColumnReference) {
-    return operand.toString();
+    return operand.build();
   }
 
   values.push(operand);

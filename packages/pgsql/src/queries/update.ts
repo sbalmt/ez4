@@ -2,13 +2,21 @@ import type { SqlFilters, SqlRecord } from '../types/common.js';
 import type { SqlResultColumn, SqlResults } from '../types/results.js';
 import type { SqlBuilderReferences } from '../builder.js';
 
-import { escapeName } from '../utils.js';
+import { isAnyObject } from '@ez4/utils';
+
+import { escapeName, mergePath } from '../utils.js';
 import { MissingTableError } from '../errors/table.js';
 import { MissingRecordError } from '../errors/record.js';
 import { SqlReturningClause } from '../types/returning.js';
 import { SqlWhereClause } from '../types/where.js';
 import { SqlStatement } from '../types/statement.js';
 import { SqlSelectStatement } from './select.js';
+
+type SqlUpdateContext = {
+  references: SqlBuilderReferences;
+  variables: unknown[];
+  parent?: string;
+};
 
 type SqlUpdateState = {
   references: SqlBuilderReferences;
@@ -116,7 +124,7 @@ export class SqlUpdateStatement extends SqlStatement {
       throw new MissingRecordError();
     }
 
-    statement.push(`SET ${getUpdateValues(record, variables, references)}`);
+    statement.push(`SET ${getUpdateColumns(record, { variables, references })}`);
 
     if (where && !where.empty) {
       const [whereClause, whereVariables] = where.build();
@@ -136,11 +144,9 @@ export class SqlUpdateStatement extends SqlStatement {
   }
 }
 
-const getUpdateValues = (
-  record: SqlRecord,
-  variables: unknown[],
-  references: SqlBuilderReferences
-) => {
+const getUpdateColumns = (record: SqlRecord, context: SqlUpdateContext): string => {
+  const { variables, references, parent } = context;
+
   const updates = [];
 
   for (const field in record) {
@@ -150,20 +156,24 @@ const getUpdateValues = (
       continue;
     }
 
-    const fieldName = escapeName(field);
+    const columnName = mergePath(field, parent);
 
     if (value instanceof SqlSelectStatement) {
       const [selectStatement, selectVariables] = value.build();
 
-      updates.push(`${fieldName} = (${selectStatement})`);
-
+      updates.push(`${columnName} = (${selectStatement})`);
       variables.push(...selectVariables);
 
       continue;
     }
 
-    updates.push(`${fieldName} = :${references.counter++}`);
+    if (isAnyObject(value)) {
+      updates.push(getUpdateColumns(value, { ...context, parent: columnName }));
 
+      continue;
+    }
+
+    updates.push(`${columnName} = :${references.counter++}`);
     variables.push(value);
   }
 

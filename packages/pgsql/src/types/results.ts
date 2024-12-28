@@ -9,6 +9,10 @@ import { SqlJsonColumn } from '../types/json.js';
 
 export type SqlResultColumn = SqlColumn | SqlSelectStatement;
 
+export type SqlObjectColumn = Omit<SqlJsonColumnOptions, 'aggregate'>;
+
+export type SqlArrayColumn = Omit<SqlJsonColumnOptions, 'aggregate'>;
+
 type SqlResultsContext = {
   statement?: SqlStatement;
   variables: unknown[];
@@ -51,28 +55,29 @@ export class SqlResults {
 
   jsonColumn(schema: SqlJsonColumnSchema, options: SqlJsonColumnOptions) {
     this.#state.columns.push(
-      new SqlJsonColumn({
-        statement: this.#state.statement,
-        aggregate: options.aggregate,
-        column: options.alias,
-        schema
-      })
+      new SqlJsonColumn(
+        schema,
+        this.#state.statement,
+        options.aggregate,
+        options.column,
+        options.alias
+      )
     );
 
     return this;
   }
 
-  objectColumn(schema: SqlJsonColumnSchema, alias?: string) {
+  objectColumn(schema: SqlJsonColumnSchema, options?: SqlObjectColumn) {
     return this.jsonColumn(schema, {
-      aggregate: false,
-      alias
+      ...options,
+      aggregate: false
     });
   }
 
-  arrayColumn(schema: SqlJsonColumnSchema, alias?: string) {
+  arrayColumn(schema: SqlJsonColumnSchema, options?: SqlArrayColumn) {
     return this.jsonColumn(schema, {
-      aggregate: true,
-      alias
+      ...options,
+      aggregate: true
     });
   }
 
@@ -96,7 +101,7 @@ const getResultColumns = (
 
   const columnsList = columns.map((column): string => {
     if (column instanceof SqlJsonColumn) {
-      return column.toString();
+      return column.build();
     }
 
     if (column instanceof SqlSelectStatement) {

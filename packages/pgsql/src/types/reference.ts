@@ -14,7 +14,7 @@ export class SqlColumnReference {
     this.#state = state;
   }
 
-  toString() {
+  build() {
     const { statement, name } = this.#state;
 
     if (statement.alias) {
