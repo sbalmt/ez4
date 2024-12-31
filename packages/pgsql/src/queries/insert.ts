@@ -146,14 +146,14 @@ const getValueReferences = (values: unknown[], context: SqlInsertContext): strin
   const { variables, references } = context;
 
   const referenceList = values.map((value) => {
-    if (value instanceof SqlReference) {
-      return value.build();
-    }
-
     if (value instanceof SqlRaw) {
       variables.push(value.build());
 
       return `:${references.counter++}`;
+    }
+
+    if (value instanceof SqlReference) {
+      return value.build();
     }
 
     if (value instanceof SqlSelectStatement) {

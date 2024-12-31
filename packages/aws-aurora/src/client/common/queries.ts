@@ -3,7 +3,7 @@ import type { Database, Relations, Query } from '@ez4/database';
 import type { ObjectSchema } from '@ez4/schema';
 import type { RepositoryRelationsWithSchema } from '../../types/repository.js';
 
-import { prepareInsertSchema, prepareUpdateSchema, validateSchema } from './schema.js';
+import { getInsertSchema, getUpdateSchema, validateSchema } from './schema.js';
 
 import { prepareInsertQuery } from './insert.js';
 import { prepareUpdateQuery } from './update.js';
@@ -18,7 +18,7 @@ export const prepareInsertOne = async <T extends Database.Schema, R extends Rela
   relations: RepositoryRelationsWithSchema,
   query: Query.InsertOneInput<T, R>
 ): Promise<PreparedQueryCommand> => {
-  await validateSchema(query.data, prepareInsertSchema(schema, relations, query.data));
+  await validateSchema(query.data, getInsertSchema(schema, relations, query.data));
 
   const [statement, variables] = prepareInsertQuery<T, R>(table, schema, relations, query);
 
@@ -63,7 +63,7 @@ export const prepareUpdateOne = async <
   relations: RepositoryRelationsWithSchema,
   query: Query.UpdateOneInput<T, S, I, R>
 ): Promise<PreparedQueryCommand> => {
-  await validateSchema(query.data, prepareUpdateSchema(schema, relations, query.data));
+  await validateSchema(query.data, getUpdateSchema(schema, relations, query.data));
 
   const [statement, variables] = prepareUpdateQuery<T, I, R, S>(table, schema, relations, {
     ...query
@@ -110,7 +110,7 @@ export const prepareInsertMany = async <T extends Database.Schema>(
 ): Promise<PreparedQueryCommand[]> => {
   return Promise.all(
     query.data.map(async (data) => {
-      await validateSchema(data, prepareInsertSchema(schema, relations, data));
+      await validateSchema(data, getInsertSchema(schema, relations, data));
 
       const [statement, variables] = prepareInsertQuery(table, schema, relations, {
         data
@@ -158,7 +158,7 @@ export const prepareUpdateMany = async <
   relations: RepositoryRelationsWithSchema,
   query: Query.UpdateManyInput<T, S, R>
 ): Promise<PreparedQueryCommand> => {
-  await validateSchema(query.data, prepareUpdateSchema(schema, relations, query.data));
+  await validateSchema(query.data, getUpdateSchema(schema, relations, query.data));
 
   const [statement, variables] = prepareUpdateQuery<T, I, R, S>(table, schema, relations, query);
 

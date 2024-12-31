@@ -72,9 +72,10 @@ describe.only('sql select tests', () => {
 
     query.objectColumn(
       {
-        bar: true,
-        baz: {
-          qux: true
+        foo: true,
+        bar: {
+          baz: sql.raw(() => 'plain_baz'),
+          qux: sql.raw('plain_qux')
         }
       },
       {
@@ -90,9 +91,11 @@ describe.only('sql select tests', () => {
       statement,
       `SELECT "alias"."foo", "alias"."bar", ` +
         `json_build_object(` +
-        `'bar', "alias"."json"['bar'], ` +
-        `'baz', json_build_object('qux', "alias"."json"['baz']['qux'])` +
-        `) AS "json" ` +
+        `'foo', "alias"."json"['foo'], ` +
+        `'bar', json_build_object(` +
+        `'baz', plain_baz, ` +
+        `'qux', plain_qux` +
+        `)) AS "json" ` +
         `FROM "table" AS "alias"`
     );
   });
@@ -102,9 +105,9 @@ describe.only('sql select tests', () => {
 
     query.arrayColumn(
       {
-        bar: true,
-        baz: query.reference((statement) => mergeSqlAlias('column1', statement.alias)),
-        qux: query.reference('column2')
+        foo: true,
+        bar: query.reference(({ alias }) => mergeSqlAlias('column1', alias)),
+        baz: query.reference('column2')
       },
       {
         alias: 'json'
@@ -119,9 +122,9 @@ describe.only('sql select tests', () => {
       statement,
       `SELECT "alias"."foo", "alias"."bar", ` +
         `COALESCE(json_agg(json_build_object(` +
-        `'bar', "alias"."bar", ` +
-        `'baz', "alias".column1, ` +
-        `'qux', "alias"."column2"` +
+        `'foo', "alias"."foo", ` +
+        `'bar', "alias".column1, ` +
+        `'baz', "alias"."column2"` +
         `)), '[]'::json) AS "json" ` +
         `FROM "table" AS "alias"`
     );
@@ -150,12 +153,13 @@ describe.only('sql select tests', () => {
     const query = sql.select().as('alias').from('table');
 
     query.record({
-      id: true,
+      id: false, // Omitted
       foo: query.reference('foo'),
       bar: 'alias_bar',
-      baz: sql.select(['name']).from('inner'),
+      baz: sql.select(['foo']).from('table2'),
       qux: {
-        inner: true
+        innerFoo: true,
+        innerBar: sql.select(['foo']).from('table3')
       }
     });
 
@@ -166,11 +170,13 @@ describe.only('sql select tests', () => {
     equal(
       statement,
       `SELECT ` +
-        `"alias"."id", ` +
         `"alias"."foo", ` +
         `"alias"."bar" AS "alias_bar", ` +
-        `(SELECT "name" FROM "inner") AS "baz", ` +
-        `json_build_object('inner', "alias"."qux"['inner']) AS "qux" ` +
+        `(SELECT "foo" FROM "table2") AS "baz", ` +
+        `json_build_object(` +
+        `'innerFoo', "alias"."qux"['innerFoo'], ` +
+        `'innerBar', (SELECT "foo" FROM "table3")` +
+        `) AS "qux" ` +
         `FROM "table" AS "alias"`
     );
   });

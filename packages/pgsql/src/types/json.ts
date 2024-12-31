@@ -2,11 +2,14 @@ import type { SqlStatement } from './statement.js';
 
 import { isAnyObject } from '@ez4/utils';
 
-import { escapeSqlName, escapeSqlText } from '../utils/escape.js';
 import { mergeSqlAlias, mergeSqlPath } from '../utils/merge.js';
+import { escapeSqlName, escapeSqlText } from '../utils/escape.js';
+import { SqlSelectStatement } from '../queries/select.js';
 import { SqlReference } from './reference.js';
+import { SqlRaw } from './raw.js';
 
 type SqlJsonColumnContext = {
+  variables: unknown[];
   parent?: string;
   alias?: string;
 };
@@ -20,7 +23,13 @@ type SqlJsonColumnState = {
 };
 
 export type SqlJsonColumnSchema = {
-  [field: string]: undefined | boolean | SqlReference | SqlJsonColumnSchema;
+  [field: string]:
+    | undefined
+    | boolean
+    | SqlRaw
+    | SqlReference
+    | SqlSelectStatement
+    | SqlJsonColumnSchema;
 };
 
 export type SqlJsonColumnOptions = {
@@ -51,24 +60,27 @@ export class SqlJsonColumn {
   build() {
     const { statement, aggregate, schema, alias, column } = this.#state;
 
-    const jsonObject = getJsonObject(schema, {
+    const variables: unknown[] = [];
+
+    const result = getJsonObject(schema, {
+      ...(column && { parent: escapeSqlName(column) }),
       alias: statement.alias,
-      ...(column && { parent: escapeSqlName(column) })
+      variables
     });
 
-    const jsonColumn = aggregate ? `COALESCE(json_agg(${jsonObject}), '[]'::json)` : jsonObject;
-    const columnName = alias ?? column;
+    const jsonResult = aggregate ? `COALESCE(json_agg(${result}), '[]'::json)` : result;
+    const jsonColumn = alias ?? column;
 
-    if (columnName) {
-      return `${jsonColumn} AS ${escapeSqlName(columnName)}`;
+    if (jsonColumn) {
+      return [`${jsonResult} AS ${escapeSqlName(jsonColumn)}`, variables];
     }
 
-    return jsonColumn;
+    return [jsonResult, variables];
   }
 }
 
 const getJsonObject = (schema: SqlJsonColumnSchema, context: SqlJsonColumnContext): string => {
-  const { parent, alias } = context;
+  const { variables, parent, alias } = context;
 
   const fields = [];
 
@@ -81,8 +93,17 @@ const getJsonObject = (schema: SqlJsonColumnSchema, context: SqlJsonColumnContex
 
     const columnName = mergeSqlPath(field, parent);
 
-    if (value instanceof SqlReference) {
+    if (value instanceof SqlRaw || value instanceof SqlReference) {
       fields.push(`${escapeSqlText(field)}, ${value.build()}`);
+      continue;
+    }
+
+    if (value instanceof SqlSelectStatement) {
+      const [selectStatement, selectVariables] = value.as(value.filters ? `T` : undefined).build();
+
+      fields.push(`${escapeSqlText(field)}, (${selectStatement})`);
+      variables.push(...selectVariables);
+
       continue;
     }
 

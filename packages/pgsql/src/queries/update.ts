@@ -176,15 +176,16 @@ const getUpdateColumns = (record: SqlRecord, context: SqlUpdateContext): string[
 
     const columnName = mergeSqlPath(field, parent);
 
-    if (value instanceof SqlReference) {
-      columns.push(`${columnName} = ${value.build()}`);
+    if (value instanceof SqlRaw) {
+      columns.push(`${columnName} = :${references.counter++}`);
+      variables.push(value.build());
+
       continue;
     }
 
-    if (value instanceof SqlRaw) {
-      columns.push(`${columnName} = :${references.counter++}`);
+    if (value instanceof SqlReference) {
+      columns.push(`${columnName} = ${value.build()}`);
 
-      variables.push(value.build());
       continue;
     }
 
@@ -192,8 +193,8 @@ const getUpdateColumns = (record: SqlRecord, context: SqlUpdateContext): string[
       const [selectStatement, selectVariables] = value.build();
 
       columns.push(`${columnName} = (${selectStatement})`);
-
       variables.push(...selectVariables);
+
       continue;
     }
 
@@ -204,6 +205,7 @@ const getUpdateColumns = (record: SqlRecord, context: SqlUpdateContext): string[
       });
 
       columns.push(...inner);
+
       continue;
     }
 

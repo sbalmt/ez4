@@ -10,7 +10,7 @@ describe.only('sql where tests', () => {
     sql = new SqlBuilder();
   });
 
-  it('assert :: where with no filters', async () => {
+  it('assert :: where no filters', async () => {
     const query = sql.select().from('test').where();
 
     const [statement, variables] = query.build();
@@ -18,58 +18,6 @@ describe.only('sql where tests', () => {
     deepEqual(variables, []);
 
     equal(statement, `SELECT * FROM "test"`);
-  });
-
-  it('assert :: where with nested fields', async () => {
-    const query = sql
-      .select()
-      .from('test')
-      .where({
-        foo: {
-          bar: {
-            baz: true
-          }
-        }
-      });
-
-    const [statement, variables] = query.build();
-
-    deepEqual(variables, [true]);
-
-    equal(statement, `SELECT * FROM "test" WHERE "foo"['bar']['baz'] = :0`);
-  });
-
-  it('assert :: where with alias query', async () => {
-    const query = sql.select().from('test').as('alias').where({
-      foo: true
-    });
-
-    const [statement, variables] = query.build();
-
-    deepEqual(variables, [true]);
-
-    equal(statement, `SELECT * FROM "test" AS "alias" WHERE "alias"."foo" = :0`);
-  });
-
-  it('assert :: where with column reference', async () => {
-    const query = sql.select().from('test').as('alias');
-
-    query.where({
-      foo: {
-        bar: {
-          baz: query.reference('column')
-        }
-      }
-    });
-
-    const [statement, variables] = query.build();
-
-    deepEqual(variables, []);
-
-    equal(
-      statement,
-      `SELECT * FROM "test" AS "alias" WHERE "alias"."foo"['bar']['baz'] = "alias"."column"`
-    );
   });
 
   it('assert :: where equal (implicit)', async () => {
@@ -374,5 +322,69 @@ describe.only('sql where tests', () => {
       statement,
       'SELECT * FROM "test" WHERE (("foo" = :0 AND "bar" = :1) OR ("baz" = :2 AND "qux" = :3))'
     );
+  });
+
+  it('assert :: where with alias', async () => {
+    const query = sql.select().from('test').as('alias').where({
+      foo: true
+    });
+
+    const [statement, variables] = query.build();
+
+    deepEqual(variables, [true]);
+
+    equal(statement, `SELECT * FROM "test" AS "alias" WHERE "alias"."foo" = :0`);
+  });
+
+  it('assert :: where with nested fields', async () => {
+    const query = sql
+      .select()
+      .from('test')
+      .where({
+        foo: {
+          bar: {
+            baz: true
+          }
+        }
+      });
+
+    const [statement, variables] = query.build();
+
+    deepEqual(variables, [true]);
+
+    equal(statement, `SELECT * FROM "test" WHERE "foo"['bar']['baz'] = :0`);
+  });
+
+  it('assert :: where with raw value', async () => {
+    const query = sql.select().from('test');
+
+    query.where({
+      foo: sql.raw(() => 'plain_foo'),
+      bar: sql.raw('plain_bar')
+    });
+
+    const [statement, variables] = query.build();
+
+    deepEqual(variables, []);
+
+    equal(statement, `SELECT * FROM "test" WHERE "foo" = plain_foo AND "bar" = plain_bar`);
+  });
+
+  it('assert :: where with reference', async () => {
+    const query = sql.select().from('test');
+
+    query.where({
+      foo: {
+        bar: {
+          baz: query.reference('column')
+        }
+      }
+    });
+
+    const [statement, variables] = query.build();
+
+    deepEqual(variables, []);
+
+    equal(statement, `SELECT * FROM "test" WHERE "foo"['bar']['baz'] = "column"`);
   });
 });

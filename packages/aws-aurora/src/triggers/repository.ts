@@ -41,13 +41,14 @@ const getTableRelations = (tableRelations: TableRelation[]) => {
   const relations: RepositoryRelations = {};
 
   for (const relation of tableRelations) {
-    const { targetAlias, sourceColumn, sourceTable, targetColumn, foreign } = relation;
+    const { sourceColumn, sourceIndex, targetColumn, targetIndex } = relation;
 
-    relations[targetAlias] = {
-      sourceAlias: sourceTable,
+    relations[relation.targetAlias] = {
+      sourceAlias: relation.sourceTable,
       sourceColumn,
+      sourceIndex,
       targetColumn,
-      foreign
+      targetIndex
     };
   }
 

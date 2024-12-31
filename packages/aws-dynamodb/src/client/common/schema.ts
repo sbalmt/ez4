@@ -3,6 +3,7 @@ import type { ObjectSchema } from '@ez4/schema';
 import type { AnyObject } from '@ez4/utils';
 
 import { getPartialSchema } from '@ez4/schema/library';
+import { isAnyObject } from '@ez4/utils';
 
 import { isSkippableData } from './data.js';
 
@@ -23,7 +24,7 @@ const getDataProperties = (data: AnyObject) => {
       continue;
     }
 
-    if (value instanceof Object) {
+    if (isAnyObject(value)) {
       properties[propertyName] = getDataProperties(value);
     } else {
       properties[propertyName] = true;

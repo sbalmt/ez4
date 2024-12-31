@@ -11,74 +11,74 @@ export const isSkippableData = (value: unknown) => {
 
 export const prepareFieldData = (name: string, value: unknown, schema: AnySchema): SqlParameter => {
   if (value === null) {
-    return prepareNullField(name);
+    return getNullField(name);
   }
 
   switch (schema.type) {
     case SchemaType.Boolean:
-      return prepareBooleanField(name, value as boolean);
+      return getBooleanField(name, value as boolean);
 
     case SchemaType.Number:
-      return prepareNumberField(name, value as number, schema.format);
+      return getNumberField(name, value as number, schema.format);
 
     case SchemaType.String:
-      return prepareStringField(name, value as string, schema.format);
+      return getStringField(name, value as string, schema.format);
 
     case SchemaType.Object:
     case SchemaType.Union:
     case SchemaType.Array:
     case SchemaType.Tuple:
-      return prepareJsonField(name, value as object);
+      return getJsonField(name, value as object);
 
     default:
-      return prepareTextField(name, value as string);
+      return getTextField(name, value as string);
   }
 };
 
 export const detectFieldData = (name: string, value: unknown): SqlParameter => {
   switch (typeof value) {
     case 'boolean': {
-      return prepareBooleanField(name, value);
+      return getBooleanField(name, value);
     }
 
     case 'number': {
       if (Number.isSafeInteger(value)) {
-        return prepareIntegerField(name, value);
+        return getIntegerField(name, value);
       }
 
-      return prepareDecimalField(name, value);
+      return getDecimalField(name, value);
     }
 
     case 'string': {
       if (isDateTime(value)) {
-        return prepareDateTimeField(name, value);
+        return getDateTimeField(name, value);
       }
 
       if (isDate(value)) {
-        return prepareDateField(name, value);
+        return getDateField(name, value);
       }
 
       if (isTime(value)) {
-        return prepareTimeField(name, value);
+        return getTimeField(name, value);
       }
 
       if (isUUID(value)) {
-        return prepareUUIDField(name, value);
+        return getUUIDField(name, value);
       }
 
-      return prepareTextField(name, value);
+      return getTextField(name, value);
     }
 
     case 'object': {
       if (value instanceof Date) {
-        return prepareDateTimeField(name, value.toISOString());
+        return getDateTimeField(name, value.toISOString());
       }
 
       if (value !== null) {
-        return prepareJsonField(name, value);
+        return getJsonField(name, value);
       }
 
-      return prepareNullField(name);
+      return getNullField(name);
     }
 
     default:
@@ -86,7 +86,7 @@ export const detectFieldData = (name: string, value: unknown): SqlParameter => {
   }
 };
 
-const prepareBooleanField = (name: string, value: boolean): SqlParameter => {
+const getBooleanField = (name: string, value: boolean): SqlParameter => {
   return {
     name,
     value: {
@@ -95,15 +95,15 @@ const prepareBooleanField = (name: string, value: boolean): SqlParameter => {
   };
 };
 
-const prepareNumberField = (name: string, value: number, format?: string): SqlParameter => {
+const getNumberField = (name: string, value: number, format?: string): SqlParameter => {
   if (format === 'decimal') {
-    return prepareDecimalField(name, value);
+    return getDecimalField(name, value);
   }
 
-  return prepareIntegerField(name, value);
+  return getIntegerField(name, value);
 };
 
-const prepareIntegerField = (name: string, value: number): SqlParameter => {
+const getIntegerField = (name: string, value: number): SqlParameter => {
   return {
     name,
     value: {
@@ -112,7 +112,7 @@ const prepareIntegerField = (name: string, value: number): SqlParameter => {
   };
 };
 
-const prepareDecimalField = (name: string, value: number): SqlParameter => {
+const getDecimalField = (name: string, value: number): SqlParameter => {
   return {
     name,
     value: {
@@ -121,26 +121,26 @@ const prepareDecimalField = (name: string, value: number): SqlParameter => {
   };
 };
 
-const prepareStringField = (name: string, value: string, format?: string): SqlParameter => {
+const getStringField = (name: string, value: string, format?: string): SqlParameter => {
   switch (format) {
     case 'uuid':
-      return prepareUUIDField(name, value);
+      return getUUIDField(name, value);
 
     case 'time':
-      return prepareTimeField(name, value);
+      return getTimeField(name, value);
 
     case 'date':
-      return prepareDateField(name, value);
+      return getDateField(name, value);
 
     case 'date-time':
-      return prepareDateTimeField(name, value);
+      return getDateTimeField(name, value);
 
     default:
-      return prepareTextField(name, value);
+      return getTextField(name, value);
   }
 };
 
-const prepareTextField = (name: string, value: string): SqlParameter => {
+const getTextField = (name: string, value: string): SqlParameter => {
   return {
     name,
     value: {
@@ -149,46 +149,46 @@ const prepareTextField = (name: string, value: string): SqlParameter => {
   };
 };
 
-const prepareUUIDField = (name: string, value: string): SqlParameter => {
+const getUUIDField = (name: string, value: string): SqlParameter => {
   return {
     typeHint: TypeHint.UUID,
-    ...prepareTextField(name, value)
+    ...getTextField(name, value)
   };
 };
 
-const prepareDateField = (name: string, value: string): SqlParameter => {
+const getDateField = (name: string, value: string): SqlParameter => {
   return {
     typeHint: TypeHint.DATE,
-    ...prepareTextField(name, value)
+    ...getTextField(name, value)
   };
 };
 
-const prepareTimeField = (name: string, value: string): SqlParameter => {
+const getTimeField = (name: string, value: string): SqlParameter => {
   return {
     typeHint: TypeHint.TIME,
-    ...prepareTextField(name, value)
+    ...getTextField(name, value)
   };
 };
 
-const prepareDateTimeField = (name: string, value: string): SqlParameter => {
+const getDateTimeField = (name: string, value: string): SqlParameter => {
   const date = value.substring(0, 10);
   const time = value.substring(11, 23);
 
   return {
     typeHint: TypeHint.TIMESTAMP,
-    ...prepareTextField(name, `${date} ${time}`)
+    ...getTextField(name, `${date} ${time}`)
   };
 };
 
-const prepareJsonField = (name: string, value: object): SqlParameter => {
+const getJsonField = (name: string, value: object): SqlParameter => {
   return {
     name,
     typeHint: TypeHint.JSON,
-    ...prepareTextField(name, JSON.stringify(value))
+    ...getTextField(name, JSON.stringify(value))
   };
 };
 
-const prepareNullField = (name: string): SqlParameter => {
+const getNullField = (name: string): SqlParameter => {
   return {
     name,
     value: {

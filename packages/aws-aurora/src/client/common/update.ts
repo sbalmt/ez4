@@ -1,17 +1,19 @@
 import type { SqlParameter } from '@aws-sdk/client-rds-data';
 import type { Database, Relations, Query } from '@ez4/database';
-import type { AnyObject, DeepPartial } from '@ez4/utils';
-import type { AnySchema, ObjectSchema } from '@ez4/schema';
+import type { SqlStatementWithResults, SqlRecord } from '@ez4/pgsql';
+import type { ObjectSchema } from '@ez4/schema';
 import type { RepositoryRelationsWithSchema } from '../../types/repository.js';
 
-import { SchemaType } from '@ez4/schema';
-import { isAnyObject } from '@ez4/utils';
+import { isAnyObject, isEmptyObject } from '@ez4/utils';
+import { isObjectSchema } from '@ez4/schema';
+import { SqlBuilder } from '@ez4/pgsql';
+import { Index } from '@ez4/database';
 
-import { prepareSelectFields } from './select.js';
-import { prepareWhereFields } from './where.js';
-import { isSkippableData, prepareFieldData } from './data.js';
+import { InvalidRelationFieldError } from './errors.js';
+import { detectFieldData, isSkippableData } from './data.js';
+import { getSelectFields } from './select.js';
 
-type PrepareResult = [string, SqlParameter[]];
+const Sql = new SqlBuilder();
 
 export const prepareUpdateQuery = <
   T extends Database.Schema,
@@ -23,205 +25,116 @@ export const prepareUpdateQuery = <
   schema: ObjectSchema,
   relations: RepositoryRelationsWithSchema,
   query: Query.UpdateOneInput<T, S, I, R> | Query.UpdateManyInput<T, S, R>
-) => {
-  return prepareAllQueries(table, schema, relations, query, null, 0);
-};
+): [string, SqlParameter[]] => {
+  const record = getUpdateRecord(query.data, schema, relations);
 
-const prepareAllQueries = (
-  table: string,
-  schema: ObjectSchema,
-  relations: RepositoryRelationsWithSchema,
-  query: Query.UpdateOneInput<{}, {}, {}, Relations> | Query.UpdateManyInput<{}, {}, Relations>,
-  fromTable: string | null,
-  variablesIndex: number,
-  alias?: string
-): PrepareResult => {
-  const [updateFields, updateVariables] = prepareUpdateFields(
-    query.data,
-    schema,
-    relations,
-    variablesIndex
-  );
-
-  const [relationFields, postStatements, postVariables] = preparePostRelationQueries(
-    query.data,
-    relations,
-    variablesIndex + updateVariables.length
-  );
-
-  const updateStatement = [];
-
-  if (!updateFields.length) {
-    updateStatement.push(`SELECT ${relationFields.join(', ')} FROM "${table}"`);
-  } else {
-    updateStatement.push(`UPDATE "${table}"${alias ? ` AS ${alias}` : ''} SET ${updateFields}`);
-
-    if (fromTable) {
-      updateStatement.push(`FROM ${fromTable}`);
-    }
-  }
-
-  if (query.where) {
-    const [whereFields, whereVariables] = prepareWhereFields(schema, query.where);
-
-    if (whereFields) {
-      updateStatement.push(`WHERE ${whereFields}`);
-      updateVariables.push(...whereVariables);
-    }
-  }
+  const updateQuery = isEmptyObject(record)
+    ? Sql.reset().select().from(table).where(query.where)
+    : Sql.reset().update(table, record).where(query.where).returning();
 
   if (query.select) {
-    relationFields.push(...prepareSelectFields(query.select, schema, relations));
+    updateQuery.results.record(getSelectFields(query.select, schema, relations, updateQuery));
   }
 
-  if (updateFields.length && relationFields.length) {
-    updateStatement.push(`RETURNING ${relationFields.join(', ')}`);
-  }
+  const queries = [updateQuery, ...preparePostRelations(query.data, relations, updateQuery)];
 
-  if (postStatements.length) {
-    const allVariables = [...updateVariables, ...postVariables];
+  const [statement, variables] = Sql.with(queries, 'R').build();
 
-    const lastStatement = postStatements.pop();
+  const parameters = variables.map((current, index) => {
+    return detectFieldData(index.toString(), current);
+  });
 
-    const withStatements = [updateStatement.join(' '), ...postStatements]
-      .map((statement, index) => `R${index + 1} AS (${statement})`)
-      .join(', ');
-
-    const finalStatement = `WITH ${withStatements} ${lastStatement}`;
-
-    return [finalStatement, allVariables];
-  }
-
-  return [updateStatement.join(' '), updateVariables];
+  return [statement, parameters];
 };
 
-const preparePostRelationQueries = (
-  data: AnyObject,
-  relations: RepositoryRelationsWithSchema,
-  variablesIndex: number
-): [string[], string[], SqlParameter[]] => {
-  const relationFields = new Set<string>();
-
-  const postStatements = [];
-  const postVariables = [];
-
-  const fromTable = `R1`;
-
-  for (const alias in relations) {
-    const relationData = data[alias];
-
-    if (!relations[alias] || !isAnyObject(relationData) || Array.isArray(relationData)) {
-      continue;
-    }
-
-    const { sourceTable, sourceColumn, sourceSchema, targetColumn } = relations[alias];
-
-    if (relationData[targetColumn]) {
-      continue;
-    }
-
-    const [statement, variables] = prepareAllQueries(
-      sourceTable,
-      sourceSchema,
-      {},
-      { data: relationData },
-      fromTable,
-      variablesIndex + postVariables.length,
-      'T'
-    );
-
-    postStatements.push(`${statement} WHERE T."${sourceColumn}" = ${fromTable}."${targetColumn}"`);
-
-    relationFields.add(`"${targetColumn}"`);
-    postVariables.push(...variables);
-  }
-
-  return [[...relationFields], postStatements, postVariables];
-};
-
-const prepareUpdateFields = <T extends Database.Schema>(
-  data: DeepPartial<T>,
+const getUpdateRecord = (
+  data: SqlRecord,
   schema: ObjectSchema,
-  relations: RepositoryRelationsWithSchema,
-  variablesIndex: number
-): PrepareResult => {
-  const variables: SqlParameter[] = [];
-  const operations: string[] = [];
+  relations: RepositoryRelationsWithSchema
+) => {
+  const record: SqlRecord = {};
 
-  const prepareAll = (schema: ObjectSchema, data: DeepPartial<T>, path?: string) => {
-    for (const fieldKey in data) {
-      const fieldValue = data[fieldKey];
-      const fieldRelation = relations[fieldKey];
+  for (const fieldKey in data) {
+    const relationData = relations[fieldKey];
+    const fieldValue = data[fieldKey];
 
-      if (isSkippableData(fieldValue)) {
-        continue;
+    if (isSkippableData(fieldValue)) {
+      continue;
+    }
+
+    if (relationData) {
+      if (!isAnyObject(fieldValue)) {
+        throw new InvalidRelationFieldError(fieldKey);
       }
 
-      if (fieldRelation) {
-        const { targetColumn, foreign } = fieldRelation;
+      const { targetColumn, targetIndex } = relationData;
 
-        const targetRelationId = (fieldValue as AnyObject)[targetColumn];
+      const targetValue = fieldValue[targetColumn];
 
-        if (!foreign || !targetRelationId) {
-          continue;
-        }
-
-        const [fieldOperation, fieldData] = prepareQueryFieldData(
-          schema.properties[targetColumn],
-          targetColumn,
-          targetRelationId,
-          variablesIndex++
-        );
-
-        operations.push(fieldOperation);
-        variables.push(fieldData);
-
-        continue;
+      if (!isSkippableData(targetValue) && targetIndex !== Index.Primary) {
+        record[targetColumn] = targetValue;
       }
 
-      const fieldPath = path ? `${path}['${fieldKey}']` : `"${fieldKey}"`;
+      continue;
+    }
 
-      const fieldSchema = schema.properties[fieldKey];
+    const fieldSchema = schema.properties[fieldKey];
 
-      const fieldNotNested =
-        !isAnyObject(fieldValue) ||
-        fieldSchema.type !== SchemaType.Object ||
-        fieldSchema.definitions?.extensible ||
+    const fieldOverwrite =
+      isObjectSchema(fieldSchema) &&
+      (fieldSchema.definitions?.extensible ||
         fieldSchema.additional ||
         fieldSchema.nullable ||
-        fieldSchema.optional;
+        fieldSchema.optional);
 
-      if (fieldNotNested) {
-        const [fieldOperation, fieldData] = prepareQueryFieldData(
-          fieldSchema,
-          fieldPath,
-          fieldValue,
-          variablesIndex++
-        );
-
-        operations.push(fieldOperation);
-        variables.push(fieldData);
-
-        continue;
-      }
-
-      prepareAll(fieldSchema, fieldValue, fieldPath);
+    if (fieldOverwrite) {
+      record[fieldKey] = Sql.raw(fieldValue);
+    } else {
+      record[fieldKey] = fieldValue;
     }
-  };
+  }
 
-  prepareAll(schema, data);
-
-  return [operations.join(', '), variables];
+  return record;
 };
 
-const prepareQueryFieldData = (
-  fieldSchema: AnySchema,
-  fieldPath: string,
-  fieldValue: unknown,
-  variablesIndex: number
-): [string, SqlParameter] => {
-  const fieldName = `${variablesIndex}i`;
-  const fieldData = prepareFieldData(fieldName, fieldValue, fieldSchema);
+const preparePostRelations = (
+  data: SqlRecord,
+  relations: RepositoryRelationsWithSchema,
+  statement: SqlStatementWithResults
+) => {
+  const { results } = statement;
 
-  return [`${fieldPath} = :${fieldName}`, fieldData];
+  const allQueries = [];
+
+  for (const alias in relations) {
+    const relationData = relations[alias];
+    const fieldValue = data[alias];
+
+    if (!relationData || isSkippableData(fieldValue)) {
+      continue;
+    }
+
+    if (!isAnyObject(fieldValue) || Array.isArray(fieldValue)) {
+      throw new InvalidRelationFieldError(alias);
+    }
+
+    const { sourceTable, sourceColumn, targetColumn } = relationData;
+
+    if (fieldValue[targetColumn]) {
+      continue;
+    }
+
+    const relationQuery = Sql.update(sourceTable, fieldValue)
+      .where({ [sourceColumn]: statement.reference(targetColumn) })
+      .from(statement)
+      .as('T');
+
+    allQueries.push(relationQuery);
+
+    if (!results.has(targetColumn)) {
+      results.column(targetColumn);
+    }
+  }
+
+  return allQueries;
 };

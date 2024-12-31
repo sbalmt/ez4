@@ -49,14 +49,14 @@ describe.only('aurora query (delete)', () => {
       {},
       {
         where: {
-          id: '00000000-0000-0000-0000-000000000000'
+          id: '00000000-0000-1000-9000-000000000000'
         }
       }
     );
 
     equal(statement, `DELETE FROM "ez4-test-delete" WHERE "id" = :0`);
 
-    deepEqual(variables, [makeParameter('0', '00000000-0000-0000-0000-000000000000', 'UUID')]);
+    deepEqual(variables, [makeParameter('0', '00000000-0000-1000-9000-000000000000', 'UUID')]);
   });
 
   it('assert :: prepare delete (with select)', () => {
@@ -71,13 +71,13 @@ describe.only('aurora query (delete)', () => {
           bar: true
         },
         where: {
-          id: '00000000-0000-0000-0000-000000000000'
+          id: '00000000-0000-1000-9000-000000000000'
         }
       }
     );
 
     equal(statement, `DELETE FROM "ez4-test-delete" WHERE "id" = :0 RETURNING "id", "foo", "bar"`);
 
-    deepEqual(variables, [makeParameter('0', '00000000-0000-0000-0000-000000000000', 'UUID')]);
+    deepEqual(variables, [makeParameter('0', '00000000-0000-1000-9000-000000000000', 'UUID')]);
   });
 });

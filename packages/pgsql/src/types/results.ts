@@ -17,10 +17,17 @@ export type SqlObjectColumn = Omit<SqlJsonColumnOptions, 'aggregate'>;
 
 export type SqlArrayColumn = Omit<SqlJsonColumnOptions, 'aggregate'>;
 
-export type SqlResultColumn = SqlColumn | SqlReference | SqlSelectStatement;
+export type SqlResultColumn = SqlColumn | SqlRaw | SqlReference | SqlSelectStatement;
 
 export type SqlResultRecord = {
-  [column: string]: boolean | string | SqlReference | SqlSelectStatement | SqlJsonColumnSchema;
+  [column: string]:
+    | undefined
+    | string
+    | boolean
+    | SqlRaw
+    | SqlReference
+    | SqlSelectStatement
+    | SqlJsonColumnSchema;
 };
 
 type SqlResultsContext = {
@@ -30,7 +37,7 @@ type SqlResultsContext = {
 
 type SqlResultsState = {
   statement: SqlStatement;
-  columns: (SqlResultColumn | SqlJsonColumn | SqlRaw)[];
+  columns: (SqlResultColumn | SqlJsonColumn)[];
 };
 
 export class SqlResults {
@@ -53,6 +60,10 @@ export class SqlResults {
 
   get empty() {
     return !this.#state.columns.length;
+  }
+
+  has(column: SqlResultColumn) {
+    return this.#state.columns.includes(column);
   }
 
   reset(result?: SqlResultRecord | SqlResultColumn[]) {
@@ -126,7 +137,7 @@ export class SqlResults {
 }
 
 const getRecordColumns = (record: SqlResultRecord, statement: SqlStatement) => {
-  const columns: (SqlColumn | SqlReference | SqlSelectStatement | SqlJsonColumn)[] = [];
+  const columns: (SqlResultColumn | SqlJsonColumn)[] = [];
 
   for (const column in record) {
     const value = record[column];
@@ -135,7 +146,7 @@ const getRecordColumns = (record: SqlResultRecord, statement: SqlStatement) => {
       columns.push(column);
     } else if (typeof value === 'string') {
       columns.push([column, value]);
-    } else if (value instanceof SqlReference) {
+    } else if (value instanceof SqlRaw || value instanceof SqlReference) {
       columns.push(value);
     } else if (value instanceof SqlSelectStatement) {
       columns.push(value.as(column));
@@ -148,7 +159,7 @@ const getRecordColumns = (record: SqlResultRecord, statement: SqlStatement) => {
 };
 
 const getResultColumns = (
-  columns: (SqlResultColumn | SqlJsonColumn | SqlRaw)[],
+  columns: (SqlResultColumn | SqlJsonColumn)[],
   context: SqlResultsContext
 ) => {
   const { statement, variables } = context;
@@ -158,12 +169,16 @@ const getResultColumns = (
       return column.build();
     }
 
-    if (column instanceof SqlJsonColumn) {
+    if (column instanceof SqlReference) {
       return column.build();
     }
 
-    if (column instanceof SqlReference) {
-      return column.build();
+    if (column instanceof SqlJsonColumn) {
+      const [jsonResult, jsonVariables] = column.build();
+
+      variables.push(...jsonVariables);
+
+      return jsonResult;
     }
 
     if (column instanceof SqlSelectStatement) {

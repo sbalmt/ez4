@@ -7,6 +7,7 @@ import { isAnyObject, isEmptyObject } from '@ez4/utils';
 import { mergeSqlAlias, mergeSqlPath } from '../utils/merge.js';
 import { SqlReference } from './reference.js';
 import { SqlOperator } from './common.js';
+import { SqlRaw } from './raw.js';
 
 import {
   InvalidOperandError,
@@ -138,7 +139,7 @@ const getFieldOperation = (
         return getNullableOperation(columnPath, true);
       }
 
-      if (value instanceof SqlReference || !isAnyObject(value)) {
+      if (value instanceof SqlRaw || value instanceof SqlReference || !isAnyObject(value)) {
         return getEqualOperation(columnPath, value, variables, references);
       }
 
@@ -148,7 +149,7 @@ const getFieldOperation = (
         throw new MissingOperatorError(columnName);
       }
 
-      if (rest.length) {
+      if (rest.length > 0) {
         throw new TooManyOperatorsError(columnName);
       }
 
@@ -329,7 +330,7 @@ const getContainsOperation = (
 };
 
 const getOperandValue = (operand: unknown, values: unknown[], references: SqlBuilderReferences) => {
-  if (operand instanceof SqlReference) {
+  if (operand instanceof SqlRaw || operand instanceof SqlReference) {
     return operand.build();
   }
 

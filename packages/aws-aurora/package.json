@@ -50,6 +50,7 @@
     "@aws-sdk/client-rds-data": "^3.624.0",
     "@ez4/aws-common": "^0.9.0",
     "@ez4/aws-identity": "^0.9.0",
+    "@ez4/pgsql": "^0.9.0",
     "@ez4/stateful": "^0.9.0",
     "@ez4/schema": "^0.9.0",
     "@ez4/utils": "^0.9.0",

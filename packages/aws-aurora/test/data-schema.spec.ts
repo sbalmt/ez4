@@ -1,8 +1,9 @@
-import { deepEqual } from 'node:assert/strict';
 import { describe, it } from 'node:test';
+import { deepEqual } from 'node:assert/strict';
 
-import { prepareInsertSchema, prepareUpdateSchema, validateSchema } from '@ez4/aws-aurora/client';
+import { getInsertSchema, getUpdateSchema, validateSchema } from '@ez4/aws-aurora/client';
 import { ObjectSchema, SchemaType } from '@ez4/schema';
+import { Index } from '@ez4/database';
 
 describe.only('aurora data schema', () => {
   const testSchema: ObjectSchema = {
@@ -16,30 +17,46 @@ describe.only('aurora data schema', () => {
         type: SchemaType.String,
         optional: true,
         format: 'uuid'
+      },
+      sibling_id: {
+        type: SchemaType.String,
+        optional: true,
+        format: 'uuid'
       }
     }
   };
 
   const testRelations = {
     parent: {
-      foreign: true,
       sourceAlias: 'parent',
       sourceColumn: 'id',
       sourceSchema: testSchema,
       sourceTable: 'test',
-      targetColumn: 'parent_id'
+      targetColumn: 'parent_id',
+      sourceIndex: Index.Primary,
+      targetIndex: Index.Secondary
+    },
+    sibling: {
+      sourceAlias: 'sibling',
+      sourceColumn: 'sibling_id',
+      sourceSchema: testSchema,
+      sourceTable: 'test',
+      targetColumn: 'id',
+      sourceIndex: Index.Unique,
+      targetIndex: Index.Primary
     },
     children: {
-      foreign: false,
       sourceAlias: 'children',
       sourceColumn: 'parent_id',
       sourceSchema: testSchema,
       sourceTable: 'test',
-      targetColumn: 'id'
+      targetColumn: 'id',
+      sourceIndex: Index.Secondary,
+      targetIndex: Index.Primary
     }
   };
 
-  it('assert :: insert schema (foreign relationship id)', async () => {
+  it('assert :: insert related schema (primary foreign id)', async () => {
     const data = {
       id: '00000000-0000-1000-8000-000000000000',
       parent: {
@@ -47,12 +64,13 @@ describe.only('aurora data schema', () => {
       }
     };
 
-    const schema = prepareInsertSchema(testSchema, testRelations, data);
+    const schema = getInsertSchema(testSchema, testRelations, data);
 
     deepEqual(schema, {
       type: SchemaType.Object,
       properties: {
         id: testSchema.properties.id,
+        sibling_id: testSchema.properties.sibling_id,
         parent: {
           type: SchemaType.Object,
           properties: {
@@ -65,7 +83,7 @@ describe.only('aurora data schema', () => {
     await validateSchema(data, schema);
   });
 
-  it('assert :: insert schema (foreign relationship object)', async () => {
+  it('assert :: insert related schema (primary foreign object)', async () => {
     const data = {
       id: '00000000-0000-1000-9000-000000000000',
       parent: {
@@ -73,12 +91,13 @@ describe.only('aurora data schema', () => {
       }
     };
 
-    const schema = prepareInsertSchema(testSchema, testRelations, data);
+    const schema = getInsertSchema(testSchema, testRelations, data);
 
     deepEqual(schema, {
       type: SchemaType.Object,
       properties: {
         id: testSchema.properties.id,
+        sibling_id: testSchema.properties.sibling_id,
         parent: {
           ...testSchema
         }
@@ -88,7 +107,62 @@ describe.only('aurora data schema', () => {
     await validateSchema(data, schema);
   });
 
-  it('assert :: insert schema (inverse relationship array)', async () => {
+  it('assert :: insert related schema (unique foreign id)', async () => {
+    const data = {
+      id: '00000000-0000-1000-8000-000000000000',
+      sibling: {
+        sibling_id: '00000000-0000-1000-8000-000000000001'
+      }
+    };
+
+    const schema = getInsertSchema(testSchema, testRelations, data);
+
+    deepEqual(schema, {
+      type: SchemaType.Object,
+      properties: {
+        id: testSchema.properties.id,
+        parent_id: testSchema.properties.parent_id,
+        sibling: {
+          type: SchemaType.Object,
+          properties: {
+            sibling_id: testSchema.properties.sibling_id
+          }
+        }
+      }
+    });
+
+    await validateSchema(data, schema);
+  });
+
+  it('assert :: insert related schema (unique foreign object)', async () => {
+    const data = {
+      id: '00000000-0000-1000-8000-000000000000',
+      sibling: {
+        id: '00000000-0000-1000-8000-000000000001'
+      }
+    };
+
+    const schema = getInsertSchema(testSchema, testRelations, data);
+
+    deepEqual(schema, {
+      type: SchemaType.Object,
+      properties: {
+        id: testSchema.properties.id,
+        parent_id: testSchema.properties.parent_id,
+        sibling: {
+          type: SchemaType.Object,
+          properties: {
+            id: testSchema.properties.id,
+            parent_id: testSchema.properties.parent_id
+          }
+        }
+      }
+    });
+
+    await validateSchema(data, schema);
+  });
+
+  it('assert :: insert related schema (inverse array object)', async () => {
     const data = {
       id: '00000000-0000-1000-9000-000000000000',
       children: [
@@ -101,7 +175,7 @@ describe.only('aurora data schema', () => {
       ]
     };
 
-    const schema = prepareInsertSchema(testSchema, testRelations, data);
+    const schema = getInsertSchema(testSchema, testRelations, data);
 
     deepEqual(schema, {
       type: SchemaType.Object,
@@ -112,7 +186,8 @@ describe.only('aurora data schema', () => {
           element: {
             type: SchemaType.Object,
             properties: {
-              id: testSchema.properties.id
+              id: testSchema.properties.id,
+              sibling_id: testSchema.properties.sibling_id
             }
           }
         }
@@ -122,7 +197,7 @@ describe.only('aurora data schema', () => {
     await validateSchema(data, schema);
   });
 
-  it('assert :: update schema (foreign relationship id)', async () => {
+  it('assert :: update related schema (primary foreign id)', async () => {
     const data = {
       id: undefined,
       parent: {
@@ -130,7 +205,7 @@ describe.only('aurora data schema', () => {
       }
     };
 
-    const schema = prepareUpdateSchema(testSchema, testRelations, data);
+    const schema = getUpdateSchema(testSchema, testRelations, data);
 
     deepEqual(schema, {
       type: SchemaType.Object,
@@ -153,7 +228,7 @@ describe.only('aurora data schema', () => {
     await validateSchema(data, schema);
   });
 
-  it('assert :: update schema (foreign relationship object)', async () => {
+  it('assert :: update related schema (primary foreign object)', async () => {
     const data = {
       id: undefined,
       parent: {
@@ -161,7 +236,7 @@ describe.only('aurora data schema', () => {
       }
     };
 
-    const schema = prepareUpdateSchema(testSchema, testRelations, data);
+    const schema = getUpdateSchema(testSchema, testRelations, data);
 
     deepEqual(schema, {
       type: SchemaType.Object,
@@ -184,7 +259,69 @@ describe.only('aurora data schema', () => {
     await validateSchema(data, schema);
   });
 
-  it('assert :: update schema (inverse relationship object)', async () => {
+  it('assert :: update related schema (unique foreign id)', async () => {
+    const data = {
+      id: undefined,
+      sibling: {
+        sibling_id: '00000000-0000-1000-8000-000000000001'
+      }
+    };
+
+    const schema = getUpdateSchema(testSchema, testRelations, data);
+
+    deepEqual(schema, {
+      type: SchemaType.Object,
+      definitions: {
+        extensible: true
+      },
+      properties: {
+        sibling: {
+          type: SchemaType.Object,
+          definitions: {
+            extensible: true
+          },
+          properties: {
+            sibling_id: testSchema.properties.sibling_id
+          }
+        }
+      }
+    });
+
+    await validateSchema(data, schema);
+  });
+
+  it('assert :: update related schema (unique foreign object)', async () => {
+    const data = {
+      id: undefined,
+      sibling: {
+        id: '00000000-0000-1000-8000-000000000001'
+      }
+    };
+
+    const schema = getUpdateSchema(testSchema, testRelations, data);
+
+    deepEqual(schema, {
+      type: SchemaType.Object,
+      definitions: {
+        extensible: true
+      },
+      properties: {
+        sibling: {
+          type: SchemaType.Object,
+          definitions: {
+            extensible: true
+          },
+          properties: {
+            id: testSchema.properties.id
+          }
+        }
+      }
+    });
+
+    await validateSchema(data, schema);
+  });
+
+  it('assert :: update related schema (inverse array object)', async () => {
     const data = {
       id: undefined,
       children: {
@@ -192,7 +329,7 @@ describe.only('aurora data schema', () => {
       }
     };
 
-    const schema = prepareUpdateSchema(testSchema, testRelations, data);
+    const schema = getUpdateSchema(testSchema, testRelations, data);
 
     deepEqual(schema, {
       type: SchemaType.Object,
