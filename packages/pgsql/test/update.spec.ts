@@ -52,6 +52,7 @@ describe.only('sql update tests', () => {
     });
 
     deepEqual(query.fields, ['foo']);
+
     deepEqual(query.values, [
       {
         bar: {
@@ -68,11 +69,11 @@ describe.only('sql update tests', () => {
   });
 
   it('assert :: update with inner select record', async () => {
-    const inner = sql.select(['foo']).from('inner').where({
-      bar: true
+    const inner = sql.select(['baz']).from('table2').where({
+      qux: true
     });
 
-    const query = sql.update().only('table').record({
+    const query = sql.update().only('table1').record({
       foo: 'abc',
       bar: inner
     });
@@ -86,8 +87,30 @@ describe.only('sql update tests', () => {
 
     equal(
       statement,
-      'UPDATE ONLY "table" SET "foo" = :0, "bar" = (SELECT "foo" FROM "inner" WHERE "bar" = :1)'
+      'UPDATE ONLY "table1" SET "foo" = :0, "bar" = (SELECT "baz" FROM "table2" WHERE "qux" = :1)'
     );
+  });
+
+  it('assert :: update with raw record value', async () => {
+    const value = {
+      baz: {
+        qux: 'abc'
+      }
+    };
+
+    const query = sql
+      .update()
+      .only('table')
+      .record({
+        foo: 123,
+        bar: sql.raw(value)
+      });
+
+    const [statement, variables] = query.build();
+
+    deepEqual(variables, [123, value]);
+
+    equal(statement, 'UPDATE ONLY "table" SET "foo" = :0, "bar" = :1');
   });
 
   it('assert :: update with alias', async () => {
@@ -125,13 +148,13 @@ describe.only('sql update tests', () => {
         foo: true
       })
       .where({
-        id: 'abc'
+        bar: 'abc'
       });
 
     const [statement, variables] = query.build();
 
     deepEqual(variables, [true, 'abc']);
 
-    equal(statement, 'UPDATE ONLY "table" SET "foo" = :0 WHERE "id" = :1');
+    equal(statement, 'UPDATE ONLY "table" SET "foo" = :0 WHERE "bar" = :1');
   });
 });

@@ -1,18 +1,19 @@
 import type { SqlFilters, SqlRecord } from '../types/common.js';
 import type { SqlResultColumn, SqlResultRecord } from '../types/results.js';
+import type { SqlStatementWithResults } from '../types/statement.js';
 import type { SqlBuilderReferences } from '../builder.js';
 
 import { isAnyObject } from '@ez4/utils';
 
-import { mergeSqlPath } from '../utils/merge.js';
-import { escapeSqlName } from '../utils/escape.js';
-import { MissingTableError } from '../errors/table.js';
-import { MissingRecordError } from '../errors/record.js';
+import { MissingTableNameError, MissingRecordError, EmptyRecordError } from '../errors/queries.js';
 import { SqlReturningClause } from '../types/returning.js';
 import { SqlStatement } from '../types/statement.js';
 import { SqlReference } from '../types/reference.js';
 import { SqlWhereClause } from '../types/where.js';
+import { escapeSqlName } from '../utils/escape.js';
+import { mergeSqlPath } from '../utils/merge.js';
 import { SqlSelectStatement } from './select.js';
+import { SqlRaw } from '../types/raw.js';
 
 type SqlUpdateContext = {
   references: SqlBuilderReferences;
@@ -101,21 +102,23 @@ export class SqlUpdateStatement extends SqlStatement {
     return this;
   }
 
-  returning(result?: SqlResultRecord | SqlResultColumn[]) {
+  returning(
+    result?: SqlResultRecord | SqlResultColumn[]
+  ): SqlUpdateStatement & SqlStatementWithResults {
     if (!this.#state.returning) {
       this.#state.returning = new SqlReturningClause(this, result);
     } else {
-      this.#state.returning.reset(result);
+      this.#state.returning.apply(result);
     }
 
-    return this;
+    return this as any;
   }
 
   build(): [string, unknown[]] {
     const { table, alias, references, record, source, where, returning } = this.#state;
 
     if (!table) {
-      throw new MissingTableError();
+      throw new MissingTableNameError();
     }
 
     const statement = [`UPDATE ONLY ${escapeSqlName(table)}`];
@@ -129,7 +132,13 @@ export class SqlUpdateStatement extends SqlStatement {
       throw new MissingRecordError();
     }
 
-    statement.push(`SET ${getUpdateColumns(record, { variables, references })}`);
+    const columns = getUpdateColumns(record, { variables, references });
+
+    if (!columns.length) {
+      throw new EmptyRecordError();
+    }
+
+    statement.push(`SET ${columns.join(', ')}`);
 
     if (source?.alias) {
       statement.push(`FROM ${escapeSqlName(source.alias)}`);
@@ -153,10 +162,10 @@ export class SqlUpdateStatement extends SqlStatement {
   }
 }
 
-const getUpdateColumns = (record: SqlRecord, context: SqlUpdateContext): string => {
+const getUpdateColumns = (record: SqlRecord, context: SqlUpdateContext): string[] => {
   const { variables, references, parent } = context;
 
-  const updates = [];
+  const columns = [];
 
   for (const field in record) {
     const value = record[field];
@@ -168,28 +177,39 @@ const getUpdateColumns = (record: SqlRecord, context: SqlUpdateContext): string 
     const columnName = mergeSqlPath(field, parent);
 
     if (value instanceof SqlReference) {
-      updates.push(`${columnName} = ${value.build()}`);
+      columns.push(`${columnName} = ${value.build()}`);
+      continue;
+    }
+
+    if (value instanceof SqlRaw) {
+      columns.push(`${columnName} = :${references.counter++}`);
+
+      variables.push(value.build());
       continue;
     }
 
     if (value instanceof SqlSelectStatement) {
       const [selectStatement, selectVariables] = value.build();
 
-      updates.push(`${columnName} = (${selectStatement})`);
-      variables.push(...selectVariables);
+      columns.push(`${columnName} = (${selectStatement})`);
 
+      variables.push(...selectVariables);
       continue;
     }
 
     if (isAnyObject(value)) {
-      updates.push(getUpdateColumns(value, { ...context, parent: columnName }));
+      const inner = getUpdateColumns(value, {
+        ...context,
+        parent: columnName
+      });
 
+      columns.push(...inner);
       continue;
     }
 
-    updates.push(`${columnName} = :${references.counter++}`);
+    columns.push(`${columnName} = :${references.counter++}`);
     variables.push(value);
   }
 
-  return updates.join(', ');
+  return columns;
 };

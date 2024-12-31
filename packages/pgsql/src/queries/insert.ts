@@ -1,14 +1,14 @@
 import type { SqlBuilderReferences } from '../builder.js';
 import type { SqlResultColumn, SqlResultRecord } from '../types/results.js';
+import type { SqlStatementWithResults } from '../types/statement.js';
 import type { SqlRecord } from '../types/common.js';
 
-import { isEmptyObject } from '@ez4/utils';
-
-import { escapeSqlName } from '../utils/escape.js';
-import { MissingTableError } from '../errors/table.js';
-import { SqlReturningClause } from '../types/returning.js';
+import { SqlRaw } from '../types/raw.js';
 import { SqlReference } from '../types/reference.js';
 import { SqlStatement } from '../types/statement.js';
+import { SqlReturningClause } from '../types/returning.js';
+import { MissingTableNameError } from '../errors/queries.js';
+import { escapeSqlName } from '../utils/escape.js';
 import { SqlSelectStatement } from './select.js';
 
 type SqlInsertContext = {
@@ -82,21 +82,23 @@ export class SqlInsertStatement extends SqlStatement {
     return this;
   }
 
-  returning(result?: SqlResultRecord | SqlResultColumn[]) {
+  returning(
+    result?: SqlResultRecord | SqlResultColumn[]
+  ): SqlInsertStatement & SqlStatementWithResults {
     if (!this.#state.returning) {
       this.#state.returning = new SqlReturningClause(this, result);
     } else {
-      this.#state.returning.reset(result);
+      this.#state.returning.apply(result);
     }
 
-    return this;
+    return this as any;
   }
 
   build(): [string, unknown[]] {
-    const { table, alias, references, record, source, returning } = this.#state;
+    const { table, alias, references, source, returning } = this.#state;
 
     if (!table) {
-      throw new MissingTableError();
+      throw new MissingTableNameError();
     }
 
     const statement = [`INSERT INTO ${escapeSqlName(table)}`];
@@ -106,22 +108,22 @@ export class SqlInsertStatement extends SqlStatement {
       statement.push(`AS ${escapeSqlName(alias)}`);
     }
 
-    const hasRecord = record && !isEmptyObject(record);
+    const columns = getColumnsName(this.fields);
 
-    const allValues = getValueReferences(this.values, {
+    statement.push(columns.length ? `(${columns})` : 'DEFAULT');
+
+    const values = getValueReferences(this.values, {
       variables,
       references
     });
 
-    statement.push(hasRecord ? `(${getColumnsName(this.fields)})` : 'DEFAULT');
-
     if (source?.alias) {
-      statement.push(`SELECT ${allValues} FROM ${escapeSqlName(source.alias)}`);
+      statement.push(`SELECT ${values} FROM ${escapeSqlName(source.alias)}`);
     } else {
       statement.push('VALUES');
 
-      if (hasRecord) {
-        statement.push(`(${allValues})`);
+      if (values.length) {
+        statement.push(`(${values})`);
       }
     }
 
@@ -146,6 +148,12 @@ const getValueReferences = (values: unknown[], context: SqlInsertContext): strin
   const referenceList = values.map((value) => {
     if (value instanceof SqlReference) {
       return value.build();
+    }
+
+    if (value instanceof SqlRaw) {
+      variables.push(value.build());
+
+      return `:${references.counter++}`;
     }
 
     if (value instanceof SqlSelectStatement) {

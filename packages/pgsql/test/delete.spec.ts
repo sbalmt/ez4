@@ -41,12 +41,12 @@ describe.only('sql delete tests', () => {
   });
 
   it('assert :: delete with where', async () => {
-    const query = sql.delete().from('table').as('alias').where({ id: 'abc' });
+    const query = sql.delete().from('table').as('alias').where({ foo: 'abc' });
 
     const [statement, variables] = query.build();
 
     deepEqual(variables, ['abc']);
 
-    equal(statement, 'DELETE FROM "table" AS "alias" WHERE "alias"."id" = :0');
+    equal(statement, 'DELETE FROM "table" AS "alias" WHERE "alias"."foo" = :0');
   });
 });

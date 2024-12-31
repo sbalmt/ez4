@@ -1,10 +1,12 @@
+import { SqlResultColumn, SqlResultRecord } from './types/results.js';
+import { SqlRaw, SqlRawGenerator } from './types/raw.js';
+import { SqlStatement } from './types/statement.js';
+import { SqlWithClause } from './types/with.js';
+
 import { SqlSelectStatement } from './queries/select.js';
 import { SqlInsertStatement } from './queries/insert.js';
 import { SqlUpdateStatement } from './queries/update.js';
 import { SqlDeleteStatement } from './queries/delete.js';
-import { SqlResultColumn, SqlResultRecord } from './types/results.js';
-import { SqlStatement } from './main.js';
-import { SqlWithClause } from './types/with.js';
 
 export type SqlBuilderReferences = {
   counter: number;
@@ -14,6 +16,10 @@ export class SqlBuilder {
   #references: SqlBuilderReferences = {
     counter: 0
   };
+
+  raw(value: unknown | SqlRawGenerator) {
+    return new SqlRaw(undefined, value);
+  }
 
   reset() {
     this.#references.counter = 0;

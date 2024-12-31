@@ -1,27 +1,27 @@
 import type { SqlJsonColumnOptions, SqlJsonColumnSchema } from '../types/json.js';
 import type { SqlColumn } from '../types/common.js';
-import type { SqlRawColumnGenerator } from './raw.js';
+import type { SqlRawGenerator } from './raw.js';
 import type { SqlStatement } from './statement.js';
 
 import { isAnyObject } from '@ez4/utils';
 
-import { mergeSqlAlias } from '../utils/merge.js';
-import { escapeSqlName } from '../utils/escape.js';
-import { SqlJsonColumn } from '../types/json.js';
-import { MissingColumnAliasError } from '../errors/column.js';
+import { MissingColumnAliasError } from '../errors/queries.js';
 import { SqlSelectStatement } from '../queries/select.js';
+import { escapeSqlName } from '../utils/escape.js';
+import { mergeSqlAlias } from '../utils/merge.js';
+import { SqlJsonColumn } from '../types/json.js';
 import { SqlReference } from './reference.js';
-import { SqlRawColumn } from './raw.js';
-
-export type SqlResultRecord = {
-  [column: string]: boolean | string | SqlReference | SqlSelectStatement | SqlJsonColumnSchema;
-};
-
-export type SqlResultColumn = SqlColumn | SqlReference | SqlSelectStatement;
+import { SqlRaw } from './raw.js';
 
 export type SqlObjectColumn = Omit<SqlJsonColumnOptions, 'aggregate'>;
 
 export type SqlArrayColumn = Omit<SqlJsonColumnOptions, 'aggregate'>;
+
+export type SqlResultColumn = SqlColumn | SqlReference | SqlSelectStatement;
+
+export type SqlResultRecord = {
+  [column: string]: boolean | string | SqlReference | SqlSelectStatement | SqlJsonColumnSchema;
+};
 
 type SqlResultsContext = {
   statement?: SqlStatement;
@@ -30,7 +30,7 @@ type SqlResultsContext = {
 
 type SqlResultsState = {
   statement: SqlStatement;
-  columns: (SqlResultColumn | SqlJsonColumn | SqlRawColumn)[];
+  columns: (SqlResultColumn | SqlJsonColumn | SqlRaw)[];
 };
 
 export class SqlResults {
@@ -79,8 +79,8 @@ export class SqlResults {
     return this;
   }
 
-  rawColumn(column: string | SqlRawColumnGenerator) {
-    this.#state.columns.push(new SqlRawColumn(this.#state.statement, column));
+  rawColumn(column: string | SqlRawGenerator) {
+    this.#state.columns.push(new SqlRaw(this.#state.statement, column));
 
     return this;
   }
@@ -148,17 +148,17 @@ const getRecordColumns = (record: SqlResultRecord, statement: SqlStatement) => {
 };
 
 const getResultColumns = (
-  columns: (SqlResultColumn | SqlJsonColumn | SqlRawColumn)[],
+  columns: (SqlResultColumn | SqlJsonColumn | SqlRaw)[],
   context: SqlResultsContext
 ) => {
   const { statement, variables } = context;
 
   const columnsList = columns.map((column) => {
-    if (column instanceof SqlJsonColumn) {
+    if (column instanceof SqlRaw) {
       return column.build();
     }
 
-    if (column instanceof SqlRawColumn) {
+    if (column instanceof SqlJsonColumn) {
       return column.build();
     }
 

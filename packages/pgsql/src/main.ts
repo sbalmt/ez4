@@ -1,7 +1,5 @@
-export * from './errors/table.js';
-export * from './errors/column.js';
-export * from './errors/record.js';
 export * from './errors/operation.js';
+export * from './errors/queries.js';
 
 export * from './utils/escape.js';
 export * from './utils/merge.js';

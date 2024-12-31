@@ -1,9 +1,10 @@
 import type { SqlBuilderReferences } from '../builder.js';
 import type { SqlResultColumn, SqlResultRecord } from '../types/results.js';
+import type { SqlStatementWithResults } from '../types/statement.js';
 import type { SqlFilters } from '../types/common.js';
 
 import { escapeSqlName } from '../utils/escape.js';
-import { MissingTableError } from '../errors/table.js';
+import { MissingTableNameError } from '../errors/queries.js';
 import { SqlReturningClause } from '../types/returning.js';
 import { SqlWhereClause } from '../types/where.js';
 import { SqlStatement } from '../types/statement.js';
@@ -62,21 +63,23 @@ export class SqlDeleteStatement extends SqlStatement {
     return this;
   }
 
-  returning(result?: SqlResultRecord | SqlResultColumn[]) {
+  returning(
+    result?: SqlResultRecord | SqlResultColumn[]
+  ): SqlDeleteStatement & SqlStatementWithResults {
     if (!this.#state.returning) {
       this.#state.returning = new SqlReturningClause(this, result);
     } else {
-      this.#state.returning.reset(result);
+      this.#state.returning.apply(result);
     }
 
-    return this;
+    return this as any;
   }
 
   build(): [string, unknown[]] {
     const { table, alias, where, returning } = this.#state;
 
     if (!table) {
-      throw new MissingTableError();
+      throw new MissingTableNameError();
     }
 
     const statement = [`DELETE FROM ${escapeSqlName(table)}`];

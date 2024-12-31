@@ -1,6 +1,6 @@
 import type { SqlStatement } from './statement.js';
 
-import { NoStatementsError } from '../errors/statement.js';
+import { NoStatementsError } from '../errors/queries.js';
 import { escapeSqlName } from '../utils/escape.js';
 
 type SqlWithContext = {

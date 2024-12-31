@@ -12,47 +12,47 @@ describe.only('sql insert tests', () => {
 
   it('assert :: insert with initial record', async () => {
     const query = sql.insert('table', {
-      id: 123,
-      foo: true,
-      bar: 'abc'
+      foo: 123,
+      bar: true,
+      baz: 'abc'
     });
 
-    deepEqual(query.fields, ['id', 'foo', 'bar']);
+    deepEqual(query.fields, ['foo', 'bar', 'baz']);
     deepEqual(query.values, [123, true, 'abc']);
 
     const [statement, variables] = query.build();
 
     deepEqual(variables, [123, true, 'abc']);
 
-    equal(statement, 'INSERT INTO "table" ("id", "foo", "bar") VALUES (:0, :1, :2)');
+    equal(statement, 'INSERT INTO "table" ("foo", "bar", "baz") VALUES (:0, :1, :2)');
   });
 
   it('assert :: insert with defined record', async () => {
     const query = sql.insert().into('table').record({
-      id: 'abc',
-      foo: 123,
-      bar: false
+      foo: 'abc',
+      bar: 123,
+      baz: false
     });
 
-    deepEqual(query.fields, ['id', 'foo', 'bar']);
+    deepEqual(query.fields, ['foo', 'bar', 'baz']);
     deepEqual(query.values, ['abc', 123, false]);
 
     const [statement, variables] = query.build();
 
     deepEqual(variables, ['abc', 123, false]);
 
-    equal(statement, 'INSERT INTO "table" ("id", "foo", "bar") VALUES (:0, :1, :2)');
+    equal(statement, 'INSERT INTO "table" ("foo", "bar", "baz") VALUES (:0, :1, :2)');
   });
 
   it('assert :: insert with inner select record', async () => {
-    const inner = sql.select(['foo']).from('sub_table');
+    const inner = sql.select(['baz']).from('table2');
 
-    const query = sql.insert().into('table').record({
-      id: 123,
-      foo: inner
+    const query = sql.insert().into('table1').record({
+      foo: 123,
+      bar: inner
     });
 
-    deepEqual(query.fields, ['id', 'foo']);
+    deepEqual(query.fields, ['foo', 'bar']);
     deepEqual(query.values, [123, inner]);
 
     const [statement, variables] = query.build();
@@ -61,8 +61,30 @@ describe.only('sql insert tests', () => {
 
     equal(
       statement,
-      'INSERT INTO "table" ("id", "foo") VALUES (:0, (SELECT "foo" FROM "sub_table"))'
+      'INSERT INTO "table1" ("foo", "bar") VALUES (:0, (SELECT "baz" FROM "table2"))'
     );
+  });
+
+  it('assert :: insert with raw record value', async () => {
+    const value = {
+      baz: {
+        qux: 'abc'
+      }
+    };
+
+    const query = sql
+      .insert()
+      .into('table')
+      .record({
+        foo: 123,
+        bar: sql.raw(value)
+      });
+
+    const [statement, variables] = query.build();
+
+    deepEqual(variables, [123, value]);
+
+    equal(statement, 'INSERT INTO "table" ("foo", "bar") VALUES (:0, :1)');
   });
 
   it('assert :: insert with no record', async () => {

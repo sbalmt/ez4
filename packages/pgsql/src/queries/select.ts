@@ -1,7 +1,8 @@
 import type { Query } from '@ez4/database';
 import type { SqlJsonColumnOptions, SqlJsonColumnSchema } from '../types/json.js';
+import type { SqlStatementWithResults } from '../types/statement.js';
 import type { SqlFilters, SqlOrder } from '../types/common.js';
-import type { SqlRawColumnGenerator } from '../types/raw.js';
+import type { SqlRawGenerator } from '../types/raw.js';
 import type { SqlBuilderReferences } from '../builder.js';
 
 import type {
@@ -14,10 +15,14 @@ import type {
 import { isAnyNumber, isEmptyObject } from '@ez4/utils';
 import { Order } from '@ez4/database';
 
-import { escapeSqlName } from '../utils/escape.js';
-import { MissingTableError } from '../errors/table.js';
-import { InvalidColumnOrderError } from '../errors/column.js';
+import {
+  MissingTableNameError,
+  InvalidColumnOrderError,
+  NoColumnsError
+} from '../errors/queries.js';
+
 import { SqlStatement } from '../types/statement.js';
+import { escapeSqlName } from '../utils/escape.js';
 import { SqlWhereClause } from '../types/where.js';
 import { SqlResults } from '../types/results.js';
 
@@ -32,7 +37,7 @@ type SqlSelectState = {
   take?: number;
 };
 
-export class SqlSelectStatement extends SqlStatement {
+export class SqlSelectStatement extends SqlStatement implements SqlStatementWithResults {
   #state: SqlSelectState;
 
   constructor(
@@ -81,7 +86,7 @@ export class SqlSelectStatement extends SqlStatement {
     return this;
   }
 
-  rawColumn(column: string | SqlRawColumnGenerator) {
+  rawColumn(column: string | SqlRawGenerator) {
     this.#state.results.rawColumn(column);
 
     return this;
@@ -149,12 +154,16 @@ export class SqlSelectStatement extends SqlStatement {
     const { table, alias, results, where, ordering, skip, take } = this.#state;
 
     if (!table) {
-      throw new MissingTableError();
+      throw new MissingTableNameError();
     }
 
-    const [resultColumns, variables] = results.build();
+    const [columns, variables] = results.build();
 
-    const statement = [`SELECT ${resultColumns} FROM ${escapeSqlName(table)}`];
+    if (!columns.length) {
+      throw new NoColumnsError();
+    }
+
+    const statement = [`SELECT ${columns} FROM ${escapeSqlName(table)}`];
 
     if (alias) {
       statement.push(`AS ${escapeSqlName(alias)}`);

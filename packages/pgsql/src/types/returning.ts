@@ -1,11 +1,12 @@
 import type { SqlJsonColumnOptions, SqlJsonColumnSchema } from '../types/json.js';
+import type { SqlStatement } from '../types/statement.js';
+
 import type {
   SqlArrayColumn,
   SqlObjectColumn,
   SqlResultColumn,
   SqlResultRecord
 } from '../types/results.js';
-import type { SqlStatement } from '../types/statement.js';
 
 import { SqlResults } from '../types/results.js';
 
@@ -30,7 +31,7 @@ export class SqlReturningClause {
     return this.#state.results.empty;
   }
 
-  reset(result?: SqlResultRecord | SqlResultColumn[]) {
+  apply(result?: SqlResultRecord | SqlResultColumn[]) {
     this.#state.results.reset(result);
 
     return this;

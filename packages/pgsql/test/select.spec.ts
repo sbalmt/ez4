@@ -24,26 +24,26 @@ describe.only('sql select tests', () => {
   });
 
   it('assert :: select with extra columns', async () => {
-    const query = sql.select(['id', 'foo']).from('table');
+    const query = sql.select(['foo', 'bar']).from('table');
 
-    query.column('bar');
+    query.column('baz');
 
-    deepEqual(query.fields, ['id', 'foo', 'bar']);
+    deepEqual(query.fields, ['foo', 'bar', 'baz']);
 
     const [statement, variables] = query.build();
 
     deepEqual(variables, []);
 
-    equal(statement, 'SELECT "id", "foo", "bar" FROM "table"');
+    equal(statement, 'SELECT "foo", "bar", "baz" FROM "table"');
   });
 
   it('assert :: select with alias', async () => {
     const query = sql
-      .select(['id', ['name', 'alias_name']])
+      .select(['foo', ['bar', 'alias_bar']])
       .from('table')
       .as('alias_table');
 
-    deepEqual(query.fields, ['id', ['name', 'alias_name']]);
+    deepEqual(query.fields, ['foo', ['bar', 'alias_bar']]);
 
     const [statement, variables] = query.build();
 
@@ -51,24 +51,24 @@ describe.only('sql select tests', () => {
 
     equal(
       statement,
-      'SELECT "alias_table"."id", "alias_table"."name" AS "alias_name" FROM "table" AS "alias_table"'
+      'SELECT "alias_table"."foo", "alias_table"."bar" AS "alias_bar" FROM "table" AS "alias_table"'
     );
   });
 
   it('assert :: select with raw columns', async () => {
-    const query = sql.select(['id', 'foo']).as('alias').from('table');
+    const query = sql.select(['foo', 'bar']).as('alias').from('table');
 
-    query.rawColumn((statement) => mergeSqlAlias('*', statement.alias));
+    query.rawColumn((statement) => mergeSqlAlias('*', statement?.alias));
 
     const [statement, variables] = query.build();
 
     deepEqual(variables, []);
 
-    equal(statement, `SELECT "alias"."id", "alias"."foo", "alias".* FROM "table" AS "alias"`);
+    equal(statement, `SELECT "alias"."foo", "alias"."bar", "alias".* FROM "table" AS "alias"`);
   });
 
   it('assert :: select with json object columns', async () => {
-    const query = sql.select(['id', 'foo']).as('alias').from('table');
+    const query = sql.select(['foo', 'bar']).as('alias').from('table');
 
     query.objectColumn(
       {
@@ -88,7 +88,7 @@ describe.only('sql select tests', () => {
 
     equal(
       statement,
-      `SELECT "alias"."id", "alias"."foo", ` +
+      `SELECT "alias"."foo", "alias"."bar", ` +
         `json_build_object(` +
         `'bar', "alias"."json"['bar'], ` +
         `'baz', json_build_object('qux', "alias"."json"['baz']['qux'])` +
@@ -98,7 +98,7 @@ describe.only('sql select tests', () => {
   });
 
   it('assert :: select with json array columns', async () => {
-    const query = sql.select(['id', 'foo']).as('alias').from('table');
+    const query = sql.select(['foo', 'bar']).as('alias').from('table');
 
     query.arrayColumn(
       {
@@ -117,7 +117,7 @@ describe.only('sql select tests', () => {
 
     equal(
       statement,
-      `SELECT "alias"."id", "alias"."foo", ` +
+      `SELECT "alias"."foo", "alias"."bar", ` +
         `COALESCE(json_agg(json_build_object(` +
         `'bar', "alias"."bar", ` +
         `'baz', "alias".column1, ` +
@@ -128,13 +128,13 @@ describe.only('sql select tests', () => {
   });
 
   it('assert :: select with inner select columns', async () => {
-    const inner = sql.select(['name']).from('inner').as('column_alias').where({
-      foo: 'abc'
+    const inner = sql.select(['bar']).from('inner').as('alias_bar').where({
+      baz: 'abc'
     });
 
-    const query = sql.select().from('table').columns('id', inner);
+    const query = sql.select().from('table').columns('foo', inner);
 
-    deepEqual(query.fields, ['id', inner]);
+    deepEqual(query.fields, ['foo', inner]);
 
     const [statement, variables] = query.build();
 
@@ -142,7 +142,7 @@ describe.only('sql select tests', () => {
 
     equal(
       statement,
-      'SELECT "id", (SELECT "T"."name" FROM "inner" AS "T" WHERE "T"."foo" = :0) AS "column_alias" FROM "table"'
+      'SELECT "foo", (SELECT "T"."bar" FROM "inner" AS "T" WHERE "T"."baz" = :0) AS "alias_bar" FROM "table"'
     );
   });
 
@@ -210,13 +210,13 @@ describe.only('sql select tests', () => {
 
   it('assert :: select with where', async () => {
     const query = sql.select().from('table').where({
-      id: 'abc'
+      foo: 'abc'
     });
 
     const [statement, variables] = query.build();
 
     deepEqual(variables, ['abc']);
 
-    equal(statement, 'SELECT * FROM "table" WHERE "id" = :0');
+    equal(statement, 'SELECT * FROM "table" WHERE "foo" = :0');
   });
 });

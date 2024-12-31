@@ -5,13 +5,13 @@ import { mergeSqlAlias } from '../utils/merge.js';
 
 export type SqlReferenceGenerator = (statement: SqlStatement) => string;
 
-type SqlColumnReferenceState = {
+type SqlReferenceState = {
   statement: SqlStatement;
   column: string | SqlReferenceGenerator;
 };
 
 export class SqlReference {
-  #state: SqlColumnReferenceState;
+  #state: SqlReferenceState;
 
   constructor(statement: SqlStatement, column: string | SqlReferenceGenerator) {
     this.#state = {

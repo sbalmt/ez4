@@ -1,29 +1,29 @@
 import type { SqlStatement } from './statement.js';
 
-export type SqlRawColumnGenerator = (statement: SqlStatement) => string;
+export type SqlRawGenerator = (statement?: SqlStatement) => string;
 
-type SqlRawColumnState = {
-  statement: SqlStatement;
-  column: string | SqlRawColumnGenerator;
+type SqlRawState = {
+  statement?: SqlStatement;
+  value: unknown | SqlRawGenerator;
 };
 
-export class SqlRawColumn {
-  #state: SqlRawColumnState;
+export class SqlRaw {
+  #state: SqlRawState;
 
-  constructor(statement: SqlStatement, column: string | SqlRawColumnGenerator) {
+  constructor(statement: undefined | SqlStatement, value: unknown | SqlRawGenerator) {
     this.#state = {
       statement,
-      column
+      value
     };
   }
 
   build() {
-    const { statement, column } = this.#state;
+    const { statement, value } = this.#state;
 
-    if (column instanceof Function) {
-      return column(statement);
+    if (value instanceof Function) {
+      return value(statement);
     }
 
-    return column;
+    return value;
   }
 }
