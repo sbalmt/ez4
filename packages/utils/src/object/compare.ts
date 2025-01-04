@@ -1,7 +1,7 @@
 import type { AnyObject, PartialProperties } from './generics.js';
 
 import { deepCompareArray } from '../array/compare.js';
-import { isAnyObject } from './any.js';
+import { isAnyObject } from './check.js';
 
 export type ObjectCompareOptions<T extends AnyObject> = {
   /**

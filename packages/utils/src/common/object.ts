@@ -6,9 +6,9 @@ import type { IsArray } from '../array/generics.js';
 
 import { deepEqualArray } from '../array/equal.js';
 import { deepCompareArray } from '../array/compare.js';
+import { isAnyObject, isPlainObject } from '../object/check.js';
 import { deepCompareObject } from '../object/compare.js';
 import { deepEqualObject } from '../object/equal.js';
-import { isAnyObject } from '../object/any.js';
 
 export type CompareOptions<T extends AnyObject | unknown[]> =
   IsArray<T> extends true ? never : ObjectCompareOptions<T>;
@@ -36,7 +36,7 @@ export const deepCompare = <T extends AnyObject | unknown[], S extends AnyObject
     return deepCompareArray(target, source);
   }
 
-  if (isAnyObject(target) && isAnyObject(source)) {
+  if (isPlainObject(target) && isPlainObject(source)) {
     return deepCompareObject<T, S>(target, source, options);
   }
 
