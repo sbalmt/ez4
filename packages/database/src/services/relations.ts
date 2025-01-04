@@ -136,12 +136,18 @@ type IsOptionalRelation<
     : true;
 
 /**
- * Check whether a column is unique or primary.
+ * Check whether a column is primary.
  */
-type IsPrimaryOrUniqueIndex<C, I extends Record<string, Database.Indexes>> =
-  RelationSourceColumn<C> extends
-    | keyof PrimaryIndexes<PropertyType<RelationSourceTable<C>, I>>
-    | keyof UniqueIndexes<PropertyType<RelationSourceTable<C>, I>>
+type IsPrimaryIndex<C, I extends Record<string, Database.Indexes>> =
+  RelationSourceColumn<C> extends keyof PrimaryIndexes<PropertyType<RelationSourceTable<C>, I>>
+    ? true
+    : false;
+
+/**
+ * Check whether a column is unique.
+ */
+type IsUniqueIndex<C, I extends Record<string, Database.Indexes>> =
+  RelationSourceColumn<C> extends keyof UniqueIndexes<PropertyType<RelationSourceTable<C>, I>>
     ? true
     : false;
 
@@ -156,11 +162,15 @@ type RelationSchema<
   I extends Record<string, Database.Indexes>,
   E extends boolean
 > =
-  IsPrimaryOrUniqueIndex<C, I> extends true
+  IsPrimaryIndex<C, I> extends true
     ? E extends false
       ? PropertyType<RelationSourceTable<C>, S>
       : XOR<
           PropertyType<RelationSourceTable<C>, S>,
           { [P in RelationTargetColumn<V>]: PropertyType<RelationTargetColumn<V>, T> }
         >
-    : Omit<PropertyType<RelationSourceTable<C>, S>, RelationSourceColumn<C>>[];
+    : IsUniqueIndex<C, I> extends true
+      ? E extends false
+        ? PropertyType<RelationSourceTable<C>, S>
+        : Omit<PropertyType<RelationSourceTable<C>, S>, RelationSourceColumn<C>>
+      : Omit<PropertyType<RelationSourceTable<C>, S>, RelationSourceColumn<C>>[];
