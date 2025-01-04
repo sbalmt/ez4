@@ -15,7 +15,7 @@ export const prepareSelect = <
 >(
   table: string,
   index: string | undefined,
-  query: Query.FindOneInput<T, S, I> | Query.FindManyInput<T, S, I>
+  query: Query.FindOneInput<T, S, I, R> | Query.FindManyInput<T, S, I, R>
 ): PrepareResult => {
   const selectFields = prepareSelectFields(query.select);
 

@@ -11,7 +11,7 @@ export const prepareDelete = <
   S extends Query.SelectInput<T, R>
 >(
   table: string,
-  query: Query.DeleteOneInput<T, S, I> | Query.DeleteManyInput<T, S>
+  query: Query.DeleteOneInput<T, S, I, R> | Query.DeleteManyInput<T, S, R>
 ): PrepareResult => {
   const statement = [`DELETE FROM "${table}"`];
   const variables = [];

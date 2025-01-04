@@ -48,6 +48,6 @@ export namespace Transaction {
     I extends Database.Indexes<T>,
     R extends Relations
   > = {
-    delete: Omit<Query.DeleteOneInput<T, Query.SelectInput<T, R>, I>, 'select'>;
+    delete: Omit<Query.DeleteOneInput<T, Query.SelectInput<T, R>, I, R>, 'select'>;
   };
 }

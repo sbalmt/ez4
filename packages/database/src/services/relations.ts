@@ -1,4 +1,4 @@
-import type { AnyObject, ArrayRest, IsArrayEmpty, PropertyType, XOR } from '@ez4/utils';
+import type { AnyObject, ArrayRest, IsArrayEmpty, PropertyType, ExclusiveType } from '@ez4/utils';
 import type { IndexedTables, PrimaryIndexes, UniqueIndexes } from './indexes.js';
 import type { Database, DatabaseTables } from './database.js';
 import type { TableSchemas } from './schemas.js';
@@ -165,7 +165,7 @@ type RelationSchema<
   IsPrimaryIndex<C, I> extends true
     ? E extends false
       ? PropertyType<RelationSourceTable<C>, S>
-      : XOR<
+      : ExclusiveType<
           PropertyType<RelationSourceTable<C>, S>,
           { [P in RelationTargetColumn<V>]: PropertyType<RelationTargetColumn<V>, T> }
         >

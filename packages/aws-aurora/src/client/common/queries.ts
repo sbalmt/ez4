@@ -1,5 +1,5 @@
-import type { ExecuteStatementCommandInput } from '@aws-sdk/client-rds-data';
 import type { Database, Relations, Query } from '@ez4/database';
+import type { ExecuteStatementCommandInput } from '@aws-sdk/client-rds-data';
 import type { ObjectSchema } from '@ez4/schema';
 import type { RepositoryRelationsWithSchema } from '../../types/repository.js';
 
@@ -37,7 +37,7 @@ export const prepareFindOne = <
   table: string,
   schema: ObjectSchema,
   relations: RepositoryRelationsWithSchema,
-  query: Query.FindOneInput<T, S, I>
+  query: Query.FindOneInput<T, S, I, R>
 ): PreparedQueryCommand => {
   const [statement, variables] = prepareSelectQuery<T, I, R, S>(table, schema, relations, {
     ...query,
@@ -87,7 +87,7 @@ export const prepareDeleteOne = <
   table: string,
   schema: ObjectSchema,
   relations: RepositoryRelationsWithSchema,
-  query: Query.DeleteOneInput<T, S, I>
+  query: Query.DeleteOneInput<T, S, I, R>
 ): PreparedQueryCommand => {
   const [statement, variables] = prepareDeleteQuery<T, I, R, S>(table, schema, relations, {
     ...query,
@@ -135,7 +135,7 @@ export const prepareFindMany = <
   table: string,
   schema: ObjectSchema,
   relations: RepositoryRelationsWithSchema,
-  query: Query.FindManyInput<T, S, I>
+  query: Query.FindManyInput<T, S, I, R>
 ): PreparedQueryCommand => {
   const [statement, variables] = prepareSelectQuery<T, I, R, S>(table, schema, relations, query);
 
@@ -179,7 +179,7 @@ export const prepareDeleteMany = <
   table: string,
   schema: ObjectSchema,
   relations: RepositoryRelationsWithSchema,
-  query: Query.DeleteManyInput<T, S>
+  query: Query.DeleteManyInput<T, S, R>
 ): PreparedQueryCommand => {
   const [statement, variables] = prepareDeleteQuery<T, I, R, S>(table, schema, relations, query);
 

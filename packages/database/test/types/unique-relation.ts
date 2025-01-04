@@ -63,7 +63,7 @@ const testSelect = (client: TestDatabase['client']) => {
   client.tableA.findMany({
     select: {
       value: true,
-      all_relations_b: {
+      relation_b: {
         value: true
       }
     }

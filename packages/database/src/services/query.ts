@@ -9,7 +9,8 @@ import type {
   PartialObject,
   DeepPartial,
   FlatObject,
-  IsObject
+  IsObject,
+  StrictType
 } from '@ez4/utils';
 
 /**
@@ -26,7 +27,7 @@ export namespace Query {
     I extends Database.Indexes<T>,
     R extends Relations
   > = {
-    select?: S;
+    select?: StrictType<SelectInput<T, R>, S>;
     data: DeepPartial<Omit<T, R['indexes']> & FlatObject<R['changes']>>;
     where: WhereInput<T, I>;
   };
@@ -34,9 +35,10 @@ export namespace Query {
   export type FindOneInput<
     T extends Database.Schema,
     S extends Database.Schema,
-    I extends Database.Indexes<T>
+    I extends Database.Indexes<T>,
+    R extends Relations
   > = {
-    select: S;
+    select: StrictType<SelectInput<T, R>, S>;
     where: WhereInput<T, I>;
   };
 
@@ -46,7 +48,7 @@ export namespace Query {
     I extends Database.Indexes<T>,
     R extends Relations
   > = {
-    select?: S;
+    select?: StrictType<SelectInput<T, R>, S>;
     insert: Omit<T, R['indexes']> & R['changes'];
     update: DeepPartial<Omit<T, R['indexes']> & FlatObject<R['changes']>>;
     where: WhereInput<T, I>;
@@ -55,9 +57,10 @@ export namespace Query {
   export type DeleteOneInput<
     T extends Database.Schema,
     S extends Database.Schema,
-    I extends Database.Indexes<T>
+    I extends Database.Indexes<T>,
+    R extends Relations
   > = {
-    select?: S;
+    select?: StrictType<SelectInput<T, R>, S>;
     where: WhereInput<T, I>;
   };
 
@@ -70,7 +73,7 @@ export namespace Query {
     S extends Database.Schema,
     R extends Relations
   > = {
-    select?: S;
+    select?: StrictType<SelectInput<T, R>, S>;
     data: DeepPartial<Omit<T, R['indexes']> & FlatObject<R['changes']>>;
     where?: WhereInput<T>;
     limit?: number;
@@ -79,17 +82,22 @@ export namespace Query {
   export type FindManyInput<
     T extends Database.Schema,
     S extends Database.Schema,
-    I extends Database.Indexes<T>
+    I extends Database.Indexes<T>,
+    R extends Relations
   > = {
-    select: S;
+    select: StrictType<SelectInput<T, R>, S>;
     where?: WhereInput<T>;
     order?: OrderInput<I>;
     cursor?: number | string;
     limit?: number;
   };
 
-  export type DeleteManyInput<T extends Database.Schema, S extends Database.Schema> = {
-    select?: S;
+  export type DeleteManyInput<
+    T extends Database.Schema,
+    S extends Database.Schema,
+    R extends Relations
+  > = {
+    select?: StrictType<SelectInput<T, R>, S>;
     where?: WhereInput<T>;
     limit?: number;
   };

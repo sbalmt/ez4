@@ -19,7 +19,7 @@ export const prepareDeleteQuery = <
   table: string,
   schema: ObjectSchema,
   relations: RepositoryRelationsWithSchema,
-  query: Query.DeleteOneInput<T, S, I> | Query.DeleteManyInput<T, S>
+  query: Query.DeleteOneInput<T, S, I, R> | Query.DeleteManyInput<T, S, R>
 ): [string, SqlParameter[]] => {
   const deleteQuery = Sql.reset().delete(table).where(query.where);
 

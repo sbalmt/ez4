@@ -1,6 +1,7 @@
 import type { DynamoDBDocumentClient, ExecuteStatementCommandInput } from '@aws-sdk/lib-dynamodb';
 import type { Database, Relations, Query } from '@ez4/database';
 import type { ObjectSchema } from '@ez4/schema';
+import type { StrictType } from '@ez4/utils';
 
 import { validateSchema } from '@ez4/aws-dynamodb/runtime';
 
@@ -37,7 +38,7 @@ export const prepareFindOne = <
 >(
   table: string,
   indexes: string[][],
-  query: Query.FindOneInput<T, S, I>
+  query: Query.FindOneInput<T, S, I, R>
 ): ExecuteStatementCommandInput => {
   const secondaryIndex = findBestSecondaryIndex(indexes, query.where);
 
@@ -82,7 +83,7 @@ export const prepareDeleteOne = <
   S extends Query.SelectInput<T, R>
 >(
   table: string,
-  query: Query.DeleteOneInput<T, S, I>
+  query: Query.DeleteOneInput<T, S, I, R>
 ): ExecuteStatementCommandInput => {
   const [statement, variables] = prepareDelete<T, I, R, S>(table, query);
 
@@ -142,7 +143,7 @@ export const prepareFindMany = <
 >(
   table: string,
   indexes: string[][],
-  query: Query.FindManyInput<T, S, I>
+  query: Query.FindManyInput<T, S, I, R>
 ): ExecuteStatementCommandInput => {
   const secondaryIndex = findBestSecondaryIndex(indexes, query.order ?? query.where ?? {});
 
@@ -183,7 +184,7 @@ export const prepareUpdateMany = async <
         ...query.select,
         ...(sortKey && { [sortKey]: true }),
         [partitionKey]: true
-      } as S
+      } as StrictType<Query.SelectInput<T, R>, S>
     })
   );
 
@@ -230,7 +231,7 @@ export const prepareDeleteMany = async <
   table: string,
   client: DynamoDBDocumentClient,
   indexes: string[],
-  query: Query.DeleteManyInput<T, S>
+  query: Query.DeleteManyInput<T, S, R>
 ): Promise<[ExecuteStatementCommandInput[], Query.DeleteManyResult<T, S, R>]> => {
   const [partitionKey, sortKey] = indexes;
 
@@ -242,7 +243,7 @@ export const prepareDeleteMany = async <
         ...query.select,
         ...(sortKey && { [sortKey]: true }),
         [partitionKey]: true
-      } as S
+      } as StrictType<Query.SelectInput<T, R>, S>
     })
   );
 

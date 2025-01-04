@@ -67,7 +67,7 @@ export interface Table<
    * @param query Input query.
    */
   findOne<S extends Query.SelectInput<T, R>>(
-    query: Query.FindOneInput<T, S, I>
+    query: Query.FindOneInput<T, S, I, R>
   ): Promise<Query.FindOneResult<T, S, R>>;
 
   /**
@@ -94,7 +94,7 @@ export interface Table<
    * @param query Input query.
    */
   deleteOne<S extends Query.SelectInput<T, R>>(
-    query: Query.DeleteOneInput<T, S, I>
+    query: Query.DeleteOneInput<T, S, I, R>
   ): Promise<Query.DeleteOneResult<T, S, R>>;
 
   /**
@@ -110,7 +110,7 @@ export interface Table<
    * @param query Input query.
    */
   findMany<S extends Query.SelectInput<T, R>>(
-    query: Query.FindManyInput<T, S, I>
+    query: Query.FindManyInput<T, S, I, R>
   ): Promise<Query.FindManyResult<T, S, R>>;
 
   /**
@@ -128,6 +128,6 @@ export interface Table<
    * @param query Input query.
    */
   deleteMany<S extends Query.SelectInput<T, R>>(
-    query: Query.DeleteManyInput<T, S>
+    query: Query.DeleteManyInput<T, S, R>
   ): Promise<Query.DeleteManyResult<T, S, R>>;
 }

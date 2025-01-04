@@ -29,7 +29,7 @@ export const prepareSelectQuery = <
   table: string,
   schema: ObjectSchema,
   relations: RepositoryRelationsWithSchema,
-  query: Query.FindOneInput<T, S, I> | Query.FindManyInput<T, S, I>
+  query: Query.FindOneInput<T, S, I, R> | Query.FindManyInput<T, S, I, R>
 ): [string, SqlParameter[]] => {
   const selectQuery = Sql.reset().select().from(table).where(query.where);
 
