@@ -96,7 +96,7 @@ export class Table<T extends Database.Schema, I extends Database.Indexes<T>, R e
   async upsertOne<S extends Query.SelectInput<T, R>>(
     query: Query.UpsertOneInput<T, S, I, R>
   ): Promise<Query.UpsertOneResult<T, S, R>> {
-    const previous = await this.findOne<S>({
+    const previous = await this.findOne({
       select: query.select ?? ({} as StrictType<Query.SelectInput<T, R>, S>),
       where: query.where
     });
@@ -111,7 +111,7 @@ export class Table<T extends Database.Schema, I extends Database.Indexes<T>, R e
 
     await this.updateMany({
       select: query.select,
-      where: query.where,
+      where: query.where as Query.WhereInput<T, {}>,
       data: query.update,
       limit: 1
     });

@@ -4,7 +4,7 @@ export type SqlColumn = string | [string, string];
 
 export type SqlRecord = Record<string, unknown>;
 
-export type SqlFilters = Query.WhereFields<SqlRecord, {}>;
+export type SqlFilters = Query.WhereInput<SqlRecord>;
 
 export type SqlOrder = Query.OrderInput<any>;
 

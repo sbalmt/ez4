@@ -56,6 +56,7 @@ export async function testHandler(
   testSelect(selfClient);
   testInsert(selfClient);
   testUpdate(selfClient);
+  testUpsert(selfClient);
 }
 
 const testSelect = (client: TestDatabase['client']) => {
@@ -151,6 +152,35 @@ const testUpdate = (client: TestDatabase['client']) => {
       relation_a: {
         table_a_id: 'bar'
       }
+    }
+  });
+};
+
+const testUpsert = (client: TestDatabase['client']) => {
+  // Ensure insert and update follow relation rules.
+  client.tableA.upsertOne({
+    insert: {
+      id: 'foo',
+      value: 1,
+      all_relations_b: [
+        {
+          id: 'bar',
+          value: 2
+        },
+        {
+          id: 'baz',
+          value: 3
+        }
+      ]
+    },
+    update: {
+      value: 1,
+      all_relations_b: {
+        value: 2
+      }
+    },
+    where: {
+      id: 'baz'
     }
   });
 };

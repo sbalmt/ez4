@@ -124,14 +124,15 @@ export class Table<T extends Database.Schema, I extends Database.Indexes<T>, R e
       await this.insertOne({
         data: query.insert
       });
-    } else {
-      await this.updateMany({
-        select: query.select,
-        where: query.where,
-        data: query.update,
-        limit: 1
-      });
+
+      return previous;
     }
+
+    await this.updateOne({
+      select: query.select,
+      where: query.where,
+      data: query.update
+    });
 
     return previous;
   }
