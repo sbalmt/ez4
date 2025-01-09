@@ -9,10 +9,18 @@ import { escapeSqlName, mergeSqlAlias, SqlBuilder } from '@ez4/pgsql';
 import { isObjectSchema, isStringSchema } from '@ez4/schema';
 import { Index } from '@ez4/database';
 
+import { detectFieldData, prepareFieldData } from './data.js';
 import { InvalidRelationFieldError } from './errors.js';
-import { detectFieldData } from './data.js';
 
-const Sql = new SqlBuilder();
+const Sql = new SqlBuilder({
+  onPrepareVariable: (value, index, schema) => {
+    if (schema) {
+      return prepareFieldData(`${index}`, value, schema);
+    }
+
+    return detectFieldData(`${index}`, value);
+  }
+});
 
 const Formats: Record<string, string> = {
   ['date-time']: `'YYYY-MM-DD"T"HH24:MI:SS.MS"Z"'`,
@@ -31,7 +39,9 @@ export const prepareSelectQuery = <
   relations: RepositoryRelationsWithSchema,
   query: Query.FindOneInput<T, S, I, R> | Query.FindManyInput<T, S, I, R>
 ): [string, SqlParameter[]] => {
-  const selectQuery = Sql.reset().select().from(table).where(query.where);
+  const selectQuery = Sql.reset().select(schema).from(table).where(query.where);
+
+  selectQuery.record(getSelectFields(query.select, schema, relations, selectQuery));
 
   if ('order' in query) {
     selectQuery.order(query.order);
@@ -45,15 +55,9 @@ export const prepareSelectQuery = <
     selectQuery.take(query.limit);
   }
 
-  selectQuery.record(getSelectFields(query.select, schema, relations, selectQuery));
-
   const [statement, variables] = selectQuery.build();
 
-  const parameters = variables.map((current, index) => {
-    return detectFieldData(index.toString(), current);
-  });
-
-  return [statement, parameters];
+  return [statement, variables as SqlParameter[]];
 };
 
 export const getSelectFields = <T extends Database.Schema, R extends Relations>(
@@ -86,7 +90,7 @@ export const getSelectFields = <T extends Database.Schema, R extends Relations>(
 
       statement.as('R');
 
-      const relationQuery = Sql.select()
+      const relationQuery = Sql.select(sourceSchema)
         .where({ [sourceColumn]: statement.reference(targetColumn) })
         .from(sourceTable);
 

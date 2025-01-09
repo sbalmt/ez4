@@ -9,11 +9,19 @@ import { isObjectSchema } from '@ez4/schema';
 import { SqlBuilder } from '@ez4/pgsql';
 import { Index } from '@ez4/database';
 
+import { detectFieldData, isSkippableData, prepareFieldData } from './data.js';
 import { InvalidRelationFieldError } from './errors.js';
-import { detectFieldData, isSkippableData } from './data.js';
 import { getSelectFields } from './select.js';
 
-const Sql = new SqlBuilder();
+const Sql = new SqlBuilder({
+  onPrepareVariable: (value, index, schema) => {
+    if (schema) {
+      return prepareFieldData(`${index}`, value, schema);
+    }
+
+    return detectFieldData(`${index}`, value);
+  }
+});
 
 export const prepareUpdateQuery = <
   T extends Database.Schema,
@@ -29,22 +37,20 @@ export const prepareUpdateQuery = <
   const record = getUpdateRecord(query.data, schema, relations);
 
   const updateQuery = isEmptyObject(record)
-    ? Sql.reset().select().from(table).where(query.where)
-    : Sql.reset().update(table, record).where(query.where).returning();
+    ? Sql.reset().select(schema).from(table).where(query.where)
+    : Sql.reset().update(schema).only(table).record(record).where(query.where).returning();
 
   if (query.select) {
-    updateQuery.results.record(getSelectFields(query.select, schema, relations, updateQuery));
+    const selectRecord = getSelectFields(query.select, schema, relations, updateQuery);
+
+    updateQuery.results.record(selectRecord);
   }
 
   const queries = [updateQuery, ...preparePostRelations(query.data, relations, updateQuery)];
 
   const [statement, variables] = Sql.with(queries, 'R').build();
 
-  const parameters = variables.map((current, index) => {
-    return detectFieldData(index.toString(), current);
-  });
-
-  return [statement, parameters];
+  return [statement, variables as SqlParameter[]];
 };
 
 const getUpdateRecord = (
@@ -118,16 +124,20 @@ const preparePostRelations = (
       throw new InvalidRelationFieldError(alias);
     }
 
-    const { sourceTable, sourceColumn, targetColumn } = relationData;
+    const { sourceTable, sourceColumn, sourceSchema, targetColumn } = relationData;
 
     if (fieldValue[targetColumn]) {
       continue;
     }
 
-    const relationQuery = Sql.update(sourceTable, fieldValue)
-      .where({ [sourceColumn]: statement.reference(targetColumn) })
+    const relationQuery = Sql.update(sourceSchema)
+      .only(sourceTable)
+      .record(fieldValue)
       .from(statement)
-      .as('T');
+      .as('T')
+      .where({
+        [sourceColumn]: statement.reference(targetColumn)
+      });
 
     allQueries.push(relationQuery);
 

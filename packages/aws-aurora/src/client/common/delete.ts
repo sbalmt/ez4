@@ -5,10 +5,18 @@ import type { RepositoryRelationsWithSchema } from '../../types/repository.js';
 
 import { SqlBuilder } from '@ez4/pgsql';
 
+import { detectFieldData, prepareFieldData } from './data.js';
 import { getSelectFields } from './select.js';
-import { detectFieldData } from './data.js';
 
-const Sql = new SqlBuilder();
+const Sql = new SqlBuilder({
+  onPrepareVariable: (value, index, schema) => {
+    if (schema) {
+      return prepareFieldData(`${index}`, value, schema);
+    }
+
+    return detectFieldData(`${index}`, value);
+  }
+});
 
 export const prepareDeleteQuery = <
   T extends Database.Schema,
@@ -21,17 +29,15 @@ export const prepareDeleteQuery = <
   relations: RepositoryRelationsWithSchema,
   query: Query.DeleteOneInput<T, S, I, R> | Query.DeleteManyInput<T, S, R>
 ): [string, SqlParameter[]] => {
-  const deleteQuery = Sql.reset().delete(table).where(query.where);
+  const deleteQuery = Sql.reset().delete(schema).from(table).where(query.where);
 
   if (query.select) {
-    deleteQuery.returning(getSelectFields(query.select, schema, relations, deleteQuery));
+    const selectRecord = getSelectFields(query.select, schema, relations, deleteQuery);
+
+    deleteQuery.returning(selectRecord);
   }
 
   const [statement, variables] = deleteQuery.build();
 
-  const parameters = variables.map((current, index) => {
-    return detectFieldData(index.toString(), current);
-  });
-
-  return [statement, parameters];
+  return [statement, variables as SqlParameter[]];
 };
