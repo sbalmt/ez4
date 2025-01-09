@@ -1,9 +1,10 @@
-import type { SqlFilters, SqlRecord } from '../types/common.js';
+import type { SqlBuilderOptions, SqlBuilderReferences } from '../builder.js';
 import type { SqlResultColumn, SqlResultRecord } from '../types/results.js';
 import type { SqlStatementWithResults } from '../types/statement.js';
-import type { SqlBuilderReferences } from '../builder.js';
+import type { SqlFilters, SqlRecord } from '../types/common.js';
+import { isObjectSchema, type ObjectSchema } from '@ez4/schema';
 
-import { isAnyObject } from '@ez4/utils';
+import { isPlainObject } from '@ez4/utils';
 
 import { MissingTableNameError, MissingRecordError, EmptyRecordError } from '../errors/queries.js';
 import { SqlReturningClause } from '../types/returning.js';
@@ -16,35 +17,36 @@ import { SqlSelectStatement } from './select.js';
 import { SqlRaw } from '../types/raw.js';
 
 type SqlUpdateContext = {
+  options: SqlBuilderOptions;
   references: SqlBuilderReferences;
   variables: unknown[];
   parent?: string;
 };
 
-type SqlUpdateState = {
-  references: SqlBuilderReferences;
-  returning?: SqlReturningClause;
-  record?: SqlRecord;
-  source?: SqlStatement;
-  where?: SqlWhereClause;
-  table?: string;
-  alias?: string;
-};
-
 export class SqlUpdateStatement extends SqlStatement {
-  #state: SqlUpdateState;
+  #state: {
+    options: SqlBuilderOptions;
+    references: SqlBuilderReferences;
+    returning?: SqlReturningClause;
+    schema?: ObjectSchema;
+    record?: SqlRecord;
+    source?: SqlStatement;
+    where?: SqlWhereClause;
+    table?: string;
+    alias?: string;
+  };
 
   constructor(
-    table: string | undefined,
-    record: SqlRecord | undefined,
-    references: SqlBuilderReferences
+    schema: ObjectSchema | undefined,
+    references: SqlBuilderReferences,
+    options: SqlBuilderOptions
   ) {
     super();
 
     this.#state = {
+      options,
       references,
-      record,
-      table
+      schema
     };
   }
 
@@ -66,6 +68,10 @@ export class SqlUpdateStatement extends SqlStatement {
 
   get results() {
     return this.#state.returning?.results;
+  }
+
+  get schema() {
+    return this.#state.schema;
   }
 
   only(table: string) {
@@ -93,10 +99,12 @@ export class SqlUpdateStatement extends SqlStatement {
   }
 
   where(filters?: SqlFilters) {
-    if (!this.#state.where) {
-      this.#state.where = new SqlWhereClause(this, this.#state.references, filters);
+    const { where, references, options } = this.#state;
+
+    if (!where) {
+      this.#state.where = new SqlWhereClause(this, references, options, filters);
     } else if (filters) {
-      this.#state.where.apply(filters);
+      where.apply(filters);
     }
 
     return this;
@@ -105,17 +113,20 @@ export class SqlUpdateStatement extends SqlStatement {
   returning(
     result?: SqlResultRecord | SqlResultColumn[]
   ): SqlUpdateStatement & SqlStatementWithResults {
-    if (!this.#state.returning) {
+    const { returning } = this.#state;
+
+    if (!returning) {
       this.#state.returning = new SqlReturningClause(this, result);
     } else {
-      this.#state.returning.apply(result);
+      returning.apply(result);
     }
 
     return this as any;
   }
 
   build(): [string, unknown[]] {
-    const { table, alias, references, record, source, where, returning } = this.#state;
+    const { table, alias, references, options, record, schema, source, where, returning } =
+      this.#state;
 
     if (!table) {
       throw new MissingTableNameError();
@@ -132,7 +143,11 @@ export class SqlUpdateStatement extends SqlStatement {
       throw new MissingRecordError();
     }
 
-    const columns = getUpdateColumns(record, { variables, references });
+    const columns = getUpdateColumns(record, schema, {
+      variables,
+      references,
+      options
+    });
 
     if (!columns.length) {
       throw new EmptyRecordError();
@@ -162,8 +177,12 @@ export class SqlUpdateStatement extends SqlStatement {
   }
 }
 
-const getUpdateColumns = (record: SqlRecord, context: SqlUpdateContext): string[] => {
-  const { variables, references, parent } = context;
+const getUpdateColumns = (
+  record: SqlRecord,
+  schema: ObjectSchema | undefined,
+  context: SqlUpdateContext
+): string[] => {
+  const { variables, references, options, parent } = context;
 
   const columns = [];
 
@@ -176,16 +195,8 @@ const getUpdateColumns = (record: SqlRecord, context: SqlUpdateContext): string[
 
     const columnName = mergeSqlPath(field, parent);
 
-    if (value instanceof SqlRaw) {
-      columns.push(`${columnName} = :${references.counter++}`);
-      variables.push(value.build());
-
-      continue;
-    }
-
     if (value instanceof SqlReference) {
       columns.push(`${columnName} = ${value.build()}`);
-
       continue;
     }
 
@@ -198,19 +209,30 @@ const getUpdateColumns = (record: SqlRecord, context: SqlUpdateContext): string[
       continue;
     }
 
-    if (isAnyObject(value)) {
-      const inner = getUpdateColumns(value, {
+    const valueSchema = schema?.properties[field];
+
+    if (isPlainObject(value)) {
+      const nextSchema = valueSchema && isObjectSchema(valueSchema) ? valueSchema : undefined;
+
+      const innerValue = getUpdateColumns(value, nextSchema, {
         ...context,
         parent: columnName
       });
 
-      columns.push(...inner);
-
+      columns.push(...innerValue);
       continue;
     }
 
-    columns.push(`${columnName} = :${references.counter++}`);
-    variables.push(value);
+    const fieldValue = value instanceof SqlRaw ? value.build() : value;
+    const fieldIndex = references.counter++;
+
+    columns.push(`${columnName} = :${fieldIndex}`);
+
+    if (options.onPrepareVariable) {
+      variables.push(options.onPrepareVariable(fieldValue, fieldIndex, valueSchema));
+    } else {
+      variables.push(fieldValue);
+    }
   }
 
   return columns;

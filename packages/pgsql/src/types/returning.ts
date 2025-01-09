@@ -10,12 +10,10 @@ import type {
 
 import { SqlResults } from '../types/results.js';
 
-type SqlReturningState = {
-  results: SqlResults;
-};
-
 export class SqlReturningClause {
-  #state: SqlReturningState;
+  #state: {
+    results: SqlResults;
+  };
 
   constructor(statement: SqlStatement, columns?: SqlResultRecord | SqlResultColumn[]) {
     this.#state = {

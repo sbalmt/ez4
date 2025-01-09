@@ -1,7 +1,8 @@
-import type { SqlBuilderReferences } from '../builder.js';
+import type { SqlBuilderOptions, SqlBuilderReferences } from '../builder.js';
 import type { SqlResultColumn, SqlResultRecord } from '../types/results.js';
 import type { SqlStatementWithResults } from '../types/statement.js';
 import type { SqlFilters } from '../types/common.js';
+import type { ObjectSchema } from '@ez4/schema';
 
 import { escapeSqlName } from '../utils/escape.js';
 import { MissingTableNameError } from '../errors/queries.js';
@@ -9,23 +10,28 @@ import { SqlReturningClause } from '../types/returning.js';
 import { SqlWhereClause } from '../types/where.js';
 import { SqlStatement } from '../types/statement.js';
 
-type SqlDeleteState = {
-  references: SqlBuilderReferences;
-  returning?: SqlReturningClause;
-  where?: SqlWhereClause;
-  table?: string;
-  alias?: string;
-};
-
 export class SqlDeleteStatement extends SqlStatement {
-  #state: SqlDeleteState;
+  #state: {
+    options: SqlBuilderOptions;
+    references: SqlBuilderReferences;
+    returning?: SqlReturningClause;
+    schema?: ObjectSchema;
+    where?: SqlWhereClause;
+    table?: string;
+    alias?: string;
+  };
 
-  constructor(table: string | undefined, references: SqlBuilderReferences) {
+  constructor(
+    schema: ObjectSchema | undefined,
+    references: SqlBuilderReferences,
+    options: SqlBuilderOptions
+  ) {
     super();
 
     this.#state = {
+      options,
       references,
-      table
+      schema
     };
   }
 
@@ -41,6 +47,10 @@ export class SqlDeleteStatement extends SqlStatement {
     return this.#state.returning?.results;
   }
 
+  get schema() {
+    return this.#state.schema;
+  }
+
   from(table: string) {
     this.#state.table = table;
 
@@ -54,10 +64,12 @@ export class SqlDeleteStatement extends SqlStatement {
   }
 
   where(filters?: SqlFilters) {
-    if (!this.#state.where) {
-      this.#state.where = new SqlWhereClause(this, this.#state.references, filters);
+    const { where, references, options } = this.#state;
+
+    if (!where) {
+      this.#state.where = new SqlWhereClause(this, references, options, filters);
     } else if (filters) {
-      this.#state.where.apply(filters);
+      where.apply(filters);
     }
 
     return this;
@@ -66,10 +78,12 @@ export class SqlDeleteStatement extends SqlStatement {
   returning(
     result?: SqlResultRecord | SqlResultColumn[]
   ): SqlDeleteStatement & SqlStatementWithResults {
-    if (!this.#state.returning) {
+    const { returning } = this.#state;
+
+    if (!returning) {
       this.#state.returning = new SqlReturningClause(this, result);
     } else {
-      this.#state.returning.apply(result);
+      returning.apply(result);
     }
 
     return this as any;

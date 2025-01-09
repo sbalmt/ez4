@@ -24,7 +24,7 @@ describe.only('sql select tests', () => {
   });
 
   it('assert :: select with extra columns', async () => {
-    const query = sql.select(['foo', 'bar']).from('table');
+    const query = sql.select().columns('foo', 'bar').from('table');
 
     query.column('baz');
 
@@ -38,10 +38,7 @@ describe.only('sql select tests', () => {
   });
 
   it('assert :: select with alias', async () => {
-    const query = sql
-      .select(['foo', ['bar', 'alias_bar']])
-      .from('table')
-      .as('alias_table');
+    const query = sql.select().columns('foo', ['bar', 'alias_bar']).from('table').as('alias_table');
 
     deepEqual(query.fields, ['foo', ['bar', 'alias_bar']]);
 
@@ -56,7 +53,7 @@ describe.only('sql select tests', () => {
   });
 
   it('assert :: select with raw columns', async () => {
-    const query = sql.select(['foo', 'bar']).as('alias').from('table');
+    const query = sql.select().columns('foo', 'bar').as('alias').from('table');
 
     query.rawColumn((statement) => mergeSqlAlias('*', statement?.alias));
 
@@ -68,7 +65,7 @@ describe.only('sql select tests', () => {
   });
 
   it('assert :: select with json object columns', async () => {
-    const query = sql.select(['foo', 'bar']).as('alias').from('table');
+    const query = sql.select().columns('foo', 'bar').as('alias').from('table');
 
     query.objectColumn(
       {
@@ -101,7 +98,7 @@ describe.only('sql select tests', () => {
   });
 
   it('assert :: select with json array columns', async () => {
-    const query = sql.select(['foo', 'bar']).as('alias').from('table');
+    const query = sql.select().columns('foo', 'bar').as('alias').from('table');
 
     query.arrayColumn(
       {
@@ -131,7 +128,7 @@ describe.only('sql select tests', () => {
   });
 
   it('assert :: select with inner select columns', async () => {
-    const inner = sql.select(['bar']).from('inner').as('alias_bar').where({
+    const inner = sql.select().columns('bar').from('inner').as('alias_bar').where({
       baz: 'abc'
     });
 
@@ -156,10 +153,10 @@ describe.only('sql select tests', () => {
       id: false, // Omitted
       foo: query.reference('foo'),
       bar: 'alias_bar',
-      baz: sql.select(['foo']).from('table2'),
+      baz: sql.select().columns('foo').from('table2'),
       qux: {
         innerFoo: true,
-        innerBar: sql.select(['foo']).from('table3')
+        innerBar: sql.select().columns('foo').from('table3')
       }
     });
 

@@ -8,13 +8,11 @@ type SqlWithContext = {
   alias: string;
 };
 
-type SqlWithState = {
-  statements: SqlStatement[];
-  alias: string;
-};
-
 export class SqlWithClause {
-  #state: SqlWithState;
+  #state: {
+    statements: SqlStatement[];
+    alias: string;
+  };
 
   constructor(statements: SqlStatement[], alias?: string) {
     this.#state = {

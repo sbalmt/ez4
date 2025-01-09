@@ -36,6 +36,7 @@
   },
   "dependencies": {
     "@ez4/database": "^0.9.0",
+    "@ez4/schema": "^0.9.0",
     "@ez4/utils": "^0.9.0"
   }
 }

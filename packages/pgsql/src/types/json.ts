@@ -14,14 +14,6 @@ type SqlJsonColumnContext = {
   alias?: string;
 };
 
-type SqlJsonColumnState = {
-  schema: SqlJsonColumnSchema;
-  statement: SqlStatement;
-  aggregate: boolean;
-  column?: string;
-  alias?: string;
-};
-
 export type SqlJsonColumnSchema = {
   [field: string]:
     | undefined
@@ -39,7 +31,13 @@ export type SqlJsonColumnOptions = {
 };
 
 export class SqlJsonColumn {
-  #state: SqlJsonColumnState;
+  #state: {
+    schema: SqlJsonColumnSchema;
+    statement: SqlStatement;
+    aggregate: boolean;
+    column?: string;
+    alias?: string;
+  };
 
   constructor(
     schema: SqlJsonColumnSchema,

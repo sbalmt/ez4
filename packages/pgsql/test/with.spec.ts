@@ -33,14 +33,16 @@ describe.only('sql with tests', () => {
   });
 
   it('assert :: with single insert', async () => {
-    const query1 = sql.select(['foo']).from('table1');
+    const query1 = sql.select().columns('foo').from('table1');
 
     const query2 = sql
-      .insert('table2', {
+      .insert()
+      .into('table2')
+      .select(query1)
+      .record({
         foo: query1.reference('foo'),
         bar: 123
-      })
-      .select(query1);
+      });
 
     const [statement, variables] = sql.with([query1, query2]).build();
 
@@ -54,18 +56,16 @@ describe.only('sql with tests', () => {
   });
 
   it('assert :: with multiple inserts', async () => {
-    const query1 = sql
-      .insert('table1', {
-        foo: 'abc'
-      })
-      .returning(['foo']);
+    const query1 = sql.insert().into('table1').record({ foo: 'abc' }).returning(['foo']);
 
     const query2 = sql
-      .insert('table2', {
+      .insert()
+      .into('table2')
+      .select(query1)
+      .record({
         bar: query1.reference('foo'),
         baz: 'def'
-      })
-      .select(query1);
+      });
 
     const [statement, variables] = sql.with([query1, query2]).build();
 
@@ -79,10 +79,11 @@ describe.only('sql with tests', () => {
   });
 
   it('assert :: with single update', async () => {
-    const query1 = sql.select(['foo']).from('table1');
+    const query1 = sql.select().columns('foo').from('table1');
 
     const query2 = sql
-      .update('table2')
+      .update()
+      .only('table2')
       .from(query1)
       .record({
         foo: query1.reference('foo'),
@@ -101,12 +102,13 @@ describe.only('sql with tests', () => {
   });
 
   it('assert :: with multiple updates', async () => {
-    const query1 = sql.update('table1').returning(['foo']).record({
+    const query1 = sql.update().only('table1').returning(['foo']).record({
       foo: 'abc'
     });
 
     const query2 = sql
-      .update('table2')
+      .update()
+      .only('table2')
       .from(query1)
       .record({
         bar: query1.reference('foo'),

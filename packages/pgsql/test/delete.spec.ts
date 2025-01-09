@@ -11,7 +11,7 @@ describe.only('sql delete tests', () => {
   });
 
   it('assert :: delete all', async () => {
-    const query = sql.delete('table');
+    const query = sql.delete().from('table');
 
     const [statement, variables] = query.build();
 

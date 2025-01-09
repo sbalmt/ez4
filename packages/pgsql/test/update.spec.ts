@@ -11,7 +11,7 @@ describe.only('sql update tests', () => {
   });
 
   it('assert :: update with initial record', async () => {
-    const query = sql.update('table', {
+    const query = sql.update().only('table').record({
       foo: 123,
       bar: 'abc'
     });
@@ -43,13 +43,16 @@ describe.only('sql update tests', () => {
   });
 
   it('assert :: update with json record', async () => {
-    const query = sql.update('table', {
-      foo: {
-        bar: {
-          baz: true
+    const query = sql
+      .update()
+      .only('table')
+      .record({
+        foo: {
+          bar: {
+            baz: true
+          }
         }
-      }
-    });
+      });
 
     deepEqual(query.fields, ['foo']);
 
@@ -69,7 +72,7 @@ describe.only('sql update tests', () => {
   });
 
   it('assert :: update with inner select record', async () => {
-    const inner = sql.select(['baz']).from('table2').where({
+    const inner = sql.select().columns('baz').from('table2').where({
       qux: true
     });
 

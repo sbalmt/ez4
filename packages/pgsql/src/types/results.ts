@@ -35,13 +35,11 @@ type SqlResultsContext = {
   variables: unknown[];
 };
 
-type SqlResultsState = {
-  statement: SqlStatement;
-  columns: (SqlResultColumn | SqlJsonColumn)[];
-};
-
 export class SqlResults {
-  #state: SqlResultsState;
+  #state: {
+    statement: SqlStatement;
+    columns: (SqlResultColumn | SqlJsonColumn)[];
+  };
 
   constructor(statement: SqlStatement, columns?: SqlResultRecord | SqlResultColumn[]) {
     this.#state = {

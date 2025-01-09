@@ -1,7 +1,8 @@
-import type { SqlBuilderReferences } from '../builder.js';
+import type { SqlBuilderOptions, SqlBuilderReferences } from '../builder.js';
 import type { SqlResultColumn, SqlResultRecord } from '../types/results.js';
 import type { SqlStatementWithResults } from '../types/statement.js';
 import type { SqlRecord } from '../types/common.js';
+import type { ObjectSchema } from '@ez4/schema';
 
 import { SqlRaw } from '../types/raw.js';
 import { SqlReference } from '../types/reference.js';
@@ -12,33 +13,34 @@ import { escapeSqlName } from '../utils/escape.js';
 import { SqlSelectStatement } from './select.js';
 
 type SqlInsertContext = {
+  options: SqlBuilderOptions;
   references: SqlBuilderReferences;
   variables: unknown[];
 };
 
-type SqlInsertState = {
-  references: SqlBuilderReferences;
-  returning?: SqlReturningClause;
-  record?: SqlRecord;
-  source?: SqlStatement;
-  table?: string;
-  alias?: string;
-};
-
 export class SqlInsertStatement extends SqlStatement {
-  #state: SqlInsertState;
+  #state: {
+    options: SqlBuilderOptions;
+    references: SqlBuilderReferences;
+    returning?: SqlReturningClause;
+    schema?: ObjectSchema;
+    record?: SqlRecord;
+    source?: SqlStatement;
+    table?: string;
+    alias?: string;
+  };
 
   constructor(
-    table: string | undefined,
-    record: SqlRecord | undefined,
-    references: SqlBuilderReferences
+    schema: ObjectSchema | undefined,
+    references: SqlBuilderReferences,
+    options: SqlBuilderOptions
   ) {
     super();
 
     this.#state = {
+      options,
       references,
-      record,
-      table
+      schema
     };
   }
 
@@ -56,6 +58,10 @@ export class SqlInsertStatement extends SqlStatement {
 
   get results() {
     return this.#state.returning?.results;
+  }
+
+  get schema() {
+    return this.#state.schema;
   }
 
   into(table: string) {
@@ -85,17 +91,19 @@ export class SqlInsertStatement extends SqlStatement {
   returning(
     result?: SqlResultRecord | SqlResultColumn[]
   ): SqlInsertStatement & SqlStatementWithResults {
-    if (!this.#state.returning) {
+    const { returning } = this.#state;
+
+    if (!returning) {
       this.#state.returning = new SqlReturningClause(this, result);
     } else {
-      this.#state.returning.apply(result);
+      returning.apply(result);
     }
 
     return this as any;
   }
 
   build(): [string, unknown[]] {
-    const { table, alias, references, source, returning } = this.#state;
+    const { table, alias, references, options, record, schema, source, returning } = this.#state;
 
     if (!table) {
       throw new MissingTableNameError();
@@ -112,9 +120,10 @@ export class SqlInsertStatement extends SqlStatement {
 
     statement.push(columns.length ? `(${columns})` : 'DEFAULT');
 
-    const values = getValueReferences(this.values, {
+    const values = getValueReferences(record ?? {}, schema, {
       variables,
-      references
+      references,
+      options
     });
 
     if (source?.alias) {
@@ -142,32 +151,43 @@ const getColumnsName = (columns: string[]) => {
   return columns.map((column) => escapeSqlName(column)).join(', ');
 };
 
-const getValueReferences = (values: unknown[], context: SqlInsertContext): string => {
-  const { variables, references } = context;
+const getValueReferences = (
+  record: SqlRecord,
+  schema: ObjectSchema | undefined,
+  context: SqlInsertContext
+): string => {
+  const { variables, references, options } = context;
 
-  const referenceList = values.map((value) => {
-    if (value instanceof SqlRaw) {
-      variables.push(value.build());
+  const results = [];
 
-      return `:${references.counter++}`;
-    }
+  for (const field in record) {
+    const value = record[field];
 
     if (value instanceof SqlReference) {
-      return value.build();
+      results.push(value.build());
+      continue;
     }
 
     if (value instanceof SqlSelectStatement) {
       const [selectStatement, selectVariables] = value.build();
 
       variables.push(...selectVariables);
+      results.push(`(${selectStatement})`);
 
-      return `(${selectStatement})`;
+      continue;
     }
 
-    variables.push(value);
+    const fieldValue = value instanceof SqlRaw ? value.build() : value;
+    const fieldIndex = references.counter++;
 
-    return `:${references.counter++}`;
-  });
+    if (options.onPrepareVariable) {
+      variables.push(options.onPrepareVariable(fieldValue, fieldIndex, schema?.properties[field]));
+    } else {
+      variables.push(fieldValue);
+    }
 
-  return referenceList.join(', ');
+    results.push(`:${fieldIndex}`);
+  }
+
+  return results.join(', ');
 };

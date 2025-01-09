@@ -1,9 +1,10 @@
-import type { Query } from '@ez4/database';
+import type { SqlBuilderOptions, SqlBuilderReferences } from '../builder.js';
 import type { SqlJsonColumnOptions, SqlJsonColumnSchema } from '../types/json.js';
 import type { SqlStatementWithResults } from '../types/statement.js';
 import type { SqlFilters, SqlOrder } from '../types/common.js';
 import type { SqlRawGenerator } from '../types/raw.js';
-import type { SqlBuilderReferences } from '../builder.js';
+import type { ObjectSchema } from '@ez4/schema';
+import type { Query } from '@ez4/database';
 
 import type {
   SqlArrayColumn,
@@ -26,29 +27,32 @@ import { escapeSqlName } from '../utils/escape.js';
 import { SqlWhereClause } from '../types/where.js';
 import { SqlResults } from '../types/results.js';
 
-type SqlSelectState = {
-  results: SqlResults;
-  references: SqlBuilderReferences;
-  ordering?: SqlOrder;
-  where?: SqlWhereClause;
-  table?: string;
-  alias?: string;
-  skip?: number;
-  take?: number;
-};
-
 export class SqlSelectStatement extends SqlStatement implements SqlStatementWithResults {
-  #state: SqlSelectState;
+  #state: {
+    options: SqlBuilderOptions;
+    references: SqlBuilderReferences;
+    schema?: ObjectSchema;
+    results: SqlResults;
+    ordering?: SqlOrder;
+    where?: SqlWhereClause;
+    table?: string;
+    alias?: string;
+    skip?: number;
+    take?: number;
+  };
 
   constructor(
-    result: undefined | SqlResultRecord | SqlResultColumn[],
-    references: SqlBuilderReferences
+    schema: ObjectSchema | undefined,
+    references: SqlBuilderReferences,
+    options: SqlBuilderOptions
   ) {
     super();
 
     this.#state = {
-      results: new SqlResults(this, result),
-      references
+      results: new SqlResults(this),
+      schema,
+      references,
+      options
     };
   }
 
@@ -66,6 +70,10 @@ export class SqlSelectStatement extends SqlStatement implements SqlStatementWith
 
   get results() {
     return this.#state.results;
+  }
+
+  get schema() {
+    return this.#state.schema;
   }
 
   columns(...columns: SqlResultColumn[]) {
@@ -123,10 +131,12 @@ export class SqlSelectStatement extends SqlStatement implements SqlStatementWith
   }
 
   where(filters?: SqlFilters) {
-    if (!this.#state.where) {
-      this.#state.where = new SqlWhereClause(this, this.#state.references, filters);
+    const { where, references, options } = this.#state;
+
+    if (!where) {
+      this.#state.where = new SqlWhereClause(this, references, options, filters);
     } else if (filters) {
-      this.#state.where.apply(filters);
+      where.apply(filters);
     }
 
     return this;

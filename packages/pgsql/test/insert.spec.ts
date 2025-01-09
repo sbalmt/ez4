@@ -11,7 +11,7 @@ describe.only('sql insert tests', () => {
   });
 
   it('assert :: insert with initial record', async () => {
-    const query = sql.insert('table', {
+    const query = sql.insert().into('table').record({
       foo: 123,
       bar: true,
       baz: 'abc'
@@ -45,7 +45,7 @@ describe.only('sql insert tests', () => {
   });
 
   it('assert :: insert with inner select record', async () => {
-    const inner = sql.select(['baz']).from('table2');
+    const inner = sql.select().columns('baz').from('table2');
 
     const query = sql.insert().into('table1').record({
       foo: 123,
