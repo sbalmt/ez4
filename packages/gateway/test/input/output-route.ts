@@ -6,7 +6,7 @@ export declare class TestService extends Http.Service {
     // Inline route.
     {
       path: 'ANY /test-route-1';
-      handler: typeof testRoute;
+      handler: typeof testRoute1;
     },
 
     // Route reference.
@@ -17,7 +17,7 @@ export declare class TestService extends Http.Service {
 export declare class TestRoute implements Http.Route {
   path: 'GET /test-route-2';
 
-  handler: typeof testRoute;
+  handler: typeof testRoute2;
 
   timeout: 30;
 
@@ -28,7 +28,13 @@ export declare class TestRoute implements Http.Route {
   };
 }
 
-export function testRoute(): SuccessResponse {
+export async function testRoute1(): Promise<SuccessResponse> {
+  return {
+    status: 204
+  };
+}
+
+export function testRoute2(): SuccessResponse {
   return {
     status: 204
   };

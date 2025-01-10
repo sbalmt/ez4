@@ -1,7 +1,7 @@
 import type { AnyObject, PartialProperties } from './generics.js';
 
 import { deepEqualArray } from '../array/equal.js';
-import { isAnyObject } from './any.js';
+import { isAnyObject } from './check.js';
 
 export type ObjectEqualityOptions<T extends AnyObject> = {
   /**

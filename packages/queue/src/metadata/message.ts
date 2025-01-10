@@ -1,9 +1,17 @@
-import type { AllType, SourceMap, TypeCallback, TypeFunction, TypeModel } from '@ez4/reflection';
 import type { QueueMessage } from '../types/message.js';
 
+import type {
+  AllType,
+  SourceMap,
+  TypeCallback,
+  TypeFunction,
+  TypeModel,
+  TypeObject
+} from '@ez4/reflection';
+
+import { createUnionSchema, getObjectSchema, isObjectSchema } from '@ez4/schema/library';
 import { isTypeObject, isTypeReference, isTypeUnion } from '@ez4/reflection';
 import { getReferenceType, isModelDeclaration } from '@ez4/common/library';
-import { createUnionSchema, getObjectSchema } from '@ez4/schema/library';
 
 import { IncorrectMessageTypeError, InvalidMessageTypeError } from '../errors/message.js';
 import { isQueueMessage } from './utils.js';
@@ -40,7 +48,7 @@ const getTypeMessage = (
   }
 
   if (isTypeObject(type)) {
-    return getObjectSchema(type, reflection);
+    return getMessageSchema(type, reflection);
   }
 
   if (!isModelDeclaration(type)) {
@@ -53,7 +61,7 @@ const getTypeMessage = (
     return null;
   }
 
-  return getObjectSchema(type, reflection);
+  return getMessageSchema(type, reflection);
 };
 
 const getMessageFromUnion = (
@@ -75,4 +83,14 @@ const getMessageFromUnion = (
   return createUnionSchema({
     elements: schemaList
   });
+};
+
+const getMessageSchema = (type: TypeObject | TypeModel, reflection: SourceMap) => {
+  const schema = getObjectSchema(type, reflection);
+
+  if (schema && isObjectSchema(schema)) {
+    return schema;
+  }
+
+  return null;
 };

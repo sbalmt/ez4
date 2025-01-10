@@ -1,0 +1,63 @@
+{
+  "TestService": {
+    "type": "@ez4/http",
+    "name": "TestService",
+    "routes": [
+      {
+        "path": "ANY /test-route-1",
+        "handler": {
+          "name": "testRoute1",
+          "file": "test/input/output-response.ts",
+          "response": {
+            "status": 204,
+            "body": {
+              "type": "object",
+              "description": "Response body.",
+              "identity": 1,
+              "properties": {
+                "foo": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        }
+      },
+      {
+        "path": "ANY /test-route-2",
+        "handler": {
+          "name": "testRoute2",
+          "file": "test/input/output-response.ts",
+          "response": {
+            "status": 204,
+            "body": {
+              "type": "union",
+              "description": "Response body.",
+              "elements": [
+                {
+                  "type": "boolean"
+                },
+                {
+                  "type": "string"
+                }
+              ]
+            }
+          }
+        }
+      },
+      {
+        "path": "ANY /test-route-3",
+        "handler": {
+          "name": "testRoute3",
+          "file": "test/input/output-response.ts",
+          "response": {
+            "status": 204,
+            "body": {
+              "type": "number"
+            }
+          }
+        }
+      }
+    ]
+  }
+}

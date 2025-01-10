@@ -7,7 +7,12 @@ import { TypeName } from './common.js';
 export type TypeObject = {
   type: TypeName.Object;
   file?: string;
-  members?: EveryMemberType[];
+  members?: DynamicObjectMember | EveryMemberType[];
+};
+
+export type DynamicObjectMember = {
+  index: EveryType;
+  value: EveryType;
 };
 
 export type TypeObjectEvents = {

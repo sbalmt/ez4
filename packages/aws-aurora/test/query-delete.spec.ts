@@ -2,7 +2,6 @@ import { equal, deepEqual } from 'node:assert/strict';
 import { describe, it } from 'node:test';
 
 import { prepareDeleteQuery } from '@ez4/aws-aurora/client';
-
 import { ObjectSchema, SchemaType } from '@ez4/schema';
 import { Index } from '@ez4/database';
 
@@ -14,11 +13,17 @@ type TestSchema = {
   bar?: boolean;
 };
 
+type TestRelations = {
+  indexes: never;
+  selects: {};
+  changes: {};
+};
+
 type TestIndexes = {
   id: Index.Primary;
 };
 
-describe.only('aurora query delete', () => {
+describe.only('aurora query (delete)', () => {
   const testSchema: ObjectSchema = {
     type: SchemaType.Object,
     properties: {
@@ -38,24 +43,24 @@ describe.only('aurora query delete', () => {
   };
 
   it('assert :: prepare delete', () => {
-    const [statement, variables] = prepareDeleteQuery<TestSchema, TestIndexes, {}, {}>(
+    const [statement, variables] = prepareDeleteQuery<TestSchema, TestIndexes, TestRelations, {}>(
       'ez4-test-delete',
       testSchema,
       {},
       {
         where: {
-          id: '00000000-0000-0000-0000-000000000000'
+          id: '00000000-0000-1000-9000-000000000000'
         }
       }
     );
 
     equal(statement, `DELETE FROM "ez4-test-delete" WHERE "id" = :0`);
 
-    deepEqual(variables, [makeParameter('0', '00000000-0000-0000-0000-000000000000', 'UUID')]);
+    deepEqual(variables, [makeParameter('0', '00000000-0000-1000-9000-000000000000', 'UUID')]);
   });
 
   it('assert :: prepare delete (with select)', () => {
-    const [statement, variables] = prepareDeleteQuery<TestSchema, TestIndexes, {}, {}>(
+    const [statement, variables] = prepareDeleteQuery<TestSchema, TestIndexes, TestRelations, {}>(
       'ez4-test-delete',
       testSchema,
       {},
@@ -66,13 +71,13 @@ describe.only('aurora query delete', () => {
           bar: true
         },
         where: {
-          id: '00000000-0000-0000-0000-000000000000'
+          id: '00000000-0000-1000-9000-000000000000'
         }
       }
     );
 
     equal(statement, `DELETE FROM "ez4-test-delete" WHERE "id" = :0 RETURNING "id", "foo", "bar"`);
 
-    deepEqual(variables, [makeParameter('0', '00000000-0000-0000-0000-000000000000', 'UUID')]);
+    deepEqual(variables, [makeParameter('0', '00000000-0000-1000-9000-000000000000', 'UUID')]);
   });
 });

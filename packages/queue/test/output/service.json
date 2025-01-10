@@ -5,6 +5,7 @@
     "description": "First test queue description.",
     "schema": {
       "type": "object",
+      "identity": 1,
       "properties": {}
     },
     "subscriptions": [],
@@ -18,6 +19,7 @@
     "description": "Description of the second test queue.",
     "schema": {
       "type": "object",
+      "identity": 1,
       "properties": {}
     },
     "timeout": 5,

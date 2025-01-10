@@ -1,6 +1,7 @@
 {
   "type": "object",
   "description": "Union test object.",
+  "identity": 1,
   "properties": {
     "foo": {
       "type": "union",

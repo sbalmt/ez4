@@ -12,6 +12,7 @@
             "headers": {
               "type": "object",
               "description": "Expected headers.",
+              "identity": 1,
               "properties": {
                 "foo": {
                   "type": "string"

@@ -1,7 +1,7 @@
 import type { ObjectSchema } from '@ez4/schema';
 
 import { HttpBadRequestError } from '@ez4/gateway';
-import { getUniqueErrorMessages } from '@ez4/validator';
+import { getNewContext, getUniqueErrorMessages } from '@ez4/validator';
 import { transform } from '@ez4/transform';
 import { validate } from '@ez4/validator';
 
@@ -10,7 +10,7 @@ export const getPathParameters = async (
   schema: ObjectSchema
 ) => {
   const parameters = transform(rawInput, schema);
-  const errors = await validate(parameters, schema, '$path');
+  const errors = await validate(parameters, schema, getNewContext('$path'));
 
   if (errors.length) {
     const messages = getUniqueErrorMessages(errors);

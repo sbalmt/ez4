@@ -29,4 +29,5 @@ describe.only('storage metadata', () => {
   registerTriggers();
 
   it('assert :: basic storage', () => testFile('service'));
+  it('assert :: storage cors', () => testFile('cors'));
 });

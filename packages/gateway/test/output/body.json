@@ -12,6 +12,7 @@
             "body": {
               "type": "object",
               "description": "Expected JSON body payload.",
+              "identity": 1,
               "properties": {
                 "foo": {
                   "type": "string"

@@ -11,9 +11,7 @@ export declare class TestDatabase extends Database.Service<[TestSchema]> {
       indexes: {};
       stream: {
         handler: typeof streamHandler;
-
         timeout: 10;
-
         memory: 256;
       };
     },

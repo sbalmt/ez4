@@ -1,4 +1,5 @@
 import type { ResourceTags } from '@ez4/aws-common';
+import type { Bucket } from '@ez4/storage';
 
 import { getTagList, Logger } from '@ez4/aws-common';
 
@@ -6,6 +7,8 @@ import {
   CreateBucketCommand,
   DeleteBucketCommand,
   PutBucketTaggingCommand,
+  PutBucketCorsCommand,
+  DeleteBucketCorsCommand,
   PutBucketLifecycleConfigurationCommand,
   DeleteBucketLifecycleCommand,
   ExpirationStatus,
@@ -52,6 +55,38 @@ export const tagBucket = async (bucketName: string, tags: ResourceTags) => {
           ManagedBy: 'EZ4'
         })
       }
+    })
+  );
+};
+
+export const updateCorsConfiguration = async (bucketName: string, cors: Bucket.Cors) => {
+  Logger.logUpdate(BucketServiceName, `${bucketName} CORS`);
+
+  await client.send(
+    new PutBucketCorsCommand({
+      Bucket: bucketName,
+      CORSConfiguration: {
+        CORSRules: [
+          {
+            ID: 'ID0',
+            AllowedOrigins: cors.allowOrigins,
+            AllowedMethods: cors.allowMethods,
+            AllowedHeaders: cors.allowHeaders,
+            ExposeHeaders: cors.exposeHeaders,
+            MaxAgeSeconds: cors.maxAge
+          }
+        ]
+      }
+    })
+  );
+};
+
+export const deleteCorsConfiguration = async (bucketName: string) => {
+  Logger.logDelete(BucketServiceName, `${bucketName} CORS`);
+
+  await client.send(
+    new DeleteBucketCorsCommand({
+      Bucket: bucketName
     })
   );
 };

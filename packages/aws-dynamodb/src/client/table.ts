@@ -1,6 +1,7 @@
 import type { Database, Relations, Query, Table as DbTable } from '@ez4/database';
 import type { DynamoDBDocumentClient } from '@aws-sdk/lib-dynamodb';
 import type { ObjectSchema } from '@ez4/schema';
+import type { StrictType } from '@ez4/utils';
 
 import { ConditionalCheckFailedException } from '@aws-sdk/client-dynamodb';
 import { deepClone } from '@ez4/utils';
@@ -28,8 +29,8 @@ export class Table<T extends Database.Schema, I extends Database.Indexes<T>, R e
     private client: DynamoDBDocumentClient
   ) {}
 
-  async insertOne(query: Query.InsertOneInput<T, I, R>): Promise<Query.InsertOneResult> {
-    const command = await prepareInsertOne<T, I, R>(this.name, this.schema, query);
+  async insertOne(query: Query.InsertOneInput<T, R>): Promise<Query.InsertOneResult> {
+    const command = await prepareInsertOne<T, R>(this.name, this.schema, query);
 
     await executeStatement(this.client, command);
   }
@@ -59,7 +60,7 @@ export class Table<T extends Database.Schema, I extends Database.Indexes<T>, R e
   }
 
   async findOne<S extends Query.SelectInput<T, R>>(
-    query: Query.FindOneInput<T, S, I>
+    query: Query.FindOneInput<T, S, I, R>
   ): Promise<Query.FindOneResult<T, S, R>> {
     const [, ...secondaryIndexes] = this.indexes;
 
@@ -77,7 +78,7 @@ export class Table<T extends Database.Schema, I extends Database.Indexes<T>, R e
   }
 
   async deleteOne<S extends Query.SelectInput<T, R>>(
-    query: Query.DeleteOneInput<T, S, I>
+    query: Query.DeleteOneInput<T, S, I, R>
   ): Promise<Query.DeleteOneResult<T, S, R>> {
     const command = prepareDeleteOne<T, I, R, S>(this.name, query);
 
@@ -96,7 +97,7 @@ export class Table<T extends Database.Schema, I extends Database.Indexes<T>, R e
     query: Query.UpsertOneInput<T, S, I, R>
   ): Promise<Query.UpsertOneResult<T, S, R>> {
     const previous = await this.findOne({
-      select: query.select ?? ({} as S),
+      select: query.select ?? ({} as StrictType<Query.SelectInput<T, R>, S>),
       where: query.where
     });
 
@@ -110,7 +111,7 @@ export class Table<T extends Database.Schema, I extends Database.Indexes<T>, R e
 
     await this.updateMany({
       select: query.select,
-      where: query.where,
+      where: query.where as Query.WhereInput<T, {}>,
       data: query.update,
       limit: 1
     });
@@ -121,18 +122,13 @@ export class Table<T extends Database.Schema, I extends Database.Indexes<T>, R e
   async insertMany(query: Query.InsertManyInput<T>): Promise<Query.InsertManyResult> {
     const [primaryIndexes] = this.indexes;
 
-    const transactions = await prepareInsertMany<T, I, R>(
-      this.name,
-      this.schema,
-      primaryIndexes,
-      query
-    );
+    const transactions = await prepareInsertMany<T>(this.name, this.schema, primaryIndexes, query);
 
     await executeTransaction(this.client, transactions);
   }
 
   async updateMany<S extends Query.SelectInput<T, R>>(
-    query: Query.UpdateManyInput<T, S, I, R>
+    query: Query.UpdateManyInput<T, S, R>
   ): Promise<Query.UpdateManyResult<T, S, R>> {
     const [primaryIndexes] = this.indexes;
 
@@ -150,7 +146,7 @@ export class Table<T extends Database.Schema, I extends Database.Indexes<T>, R e
   }
 
   async findMany<S extends Query.SelectInput<T, R>>(
-    query: Query.FindManyInput<T, S, I>
+    query: Query.FindManyInput<T, S, I, R>
   ): Promise<Query.FindManyResult<T, S, R>> {
     const [, ...secondaryIndexes] = this.indexes;
 
@@ -165,7 +161,7 @@ export class Table<T extends Database.Schema, I extends Database.Indexes<T>, R e
   }
 
   async deleteMany<S extends Query.SelectInput<T, R>>(
-    query: Query.DeleteManyInput<T, S>
+    query: Query.DeleteManyInput<T, S, R>
   ): Promise<Query.DeleteManyResult<T, S, R>> {
     const [primaryIndexes] = this.indexes;
 

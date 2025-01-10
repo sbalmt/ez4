@@ -1,7 +1,9 @@
 export { validateAny as validate } from './schema/any.js';
 
-export * from './types/string.js';
 export * from './utils/errors.js';
+
+export * from './types/string.js';
+export * from './types/context.js';
 
 export * from './schema/utils.js';
 export * from './schema/any.js';
@@ -10,6 +12,7 @@ export * from './schema/number.js';
 export * from './schema/string.js';
 export * from './schema/scalar.js';
 export * from './schema/object.js';
+export * from './schema/reference.js';
 export * from './schema/union.js';
 export * from './schema/array.js';
 export * from './schema/tuple.js';

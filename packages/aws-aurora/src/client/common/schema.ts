@@ -3,12 +3,14 @@ import type { PartialSchemaProperties } from '@ez4/schema/library';
 import type { ObjectSchema } from '@ez4/schema';
 import type { RepositoryRelationsWithSchema } from '../../types/repository.js';
 
-import { getPartialSchema, SchemaType } from '@ez4/schema/library';
-
+import { isAnyObject } from '@ez4/utils';
 import { getUniqueErrorMessages } from '@ez4/validator';
+import { getPartialSchema, SchemaType } from '@ez4/schema/library';
 import { validate } from '@ez4/validator';
+import { Index } from '@ez4/database';
 
-import { MalformedRequestError } from './errors.js';
+import { MalformedRequestError, MissingRelationDataError } from './errors.js';
+import { isSkippableData } from './data.js';
 
 export const validateSchema = async (data: AnyObject, schema: ObjectSchema) => {
   const errors = await validate(data, schema);
@@ -20,76 +22,120 @@ export const validateSchema = async (data: AnyObject, schema: ObjectSchema) => {
   }
 };
 
-export const prepareInsertSchema = (
+export const getInsertSchema = (
   schema: ObjectSchema,
   relations: RepositoryRelationsWithSchema,
   data: AnyObject
 ): ObjectSchema => {
-  const finalSchema = {
-    ...schema,
-    properties: {
-      ...schema.properties
-    }
-  };
+  const finalSchema = getNewSchema(schema);
 
   for (const alias in relations) {
-    const hasRelationData = alias in data;
+    const relationData = relations[alias];
+    const fieldValue = data[alias];
 
-    if (!hasRelationData) {
+    if (!relationData) {
+      throw new MissingRelationDataError(alias);
+    }
+
+    if (!isAnyObject(fieldValue)) {
       continue;
     }
 
-    const { sourceColumn, sourceSchema, targetColumn, foreign } = relations[alias]!;
+    const { sourceColumn, sourceSchema, sourceIndex, targetColumn } = relationData;
 
-    if (foreign) {
-      const fieldSchema = finalSchema.properties[targetColumn];
-
+    if (!sourceIndex || sourceIndex === Index.Secondary) {
       finalSchema.properties[alias] = {
-        ...sourceSchema,
-        optional: fieldSchema?.optional
+        type: SchemaType.Array,
+        element: getPartialSchema(sourceSchema, {
+          exclude: {
+            [sourceColumn]: true
+          }
+        })
       };
 
-      delete finalSchema.properties[targetColumn];
-
       continue;
     }
 
-    finalSchema.properties[alias] = {
-      type: SchemaType.Array,
-      optional: true,
-      element: getPartialSchema(sourceSchema, {
+    if (sourceIndex === Index.Unique) {
+      const fieldSchema = finalSchema.properties[sourceColumn];
+
+      delete finalSchema.properties[sourceColumn];
+
+      if (fieldValue[sourceColumn]) {
+        finalSchema.properties[alias] = {
+          type: SchemaType.Object,
+          properties: {
+            [sourceColumn]: fieldSchema
+          }
+        };
+
+        continue;
+      }
+
+      finalSchema.properties[alias] = getPartialSchema(sourceSchema, {
         exclude: {
           [sourceColumn]: true
         }
-      })
-    };
+      });
+
+      continue;
+    }
+
+    if (sourceIndex === Index.Primary) {
+      const fieldSchema = finalSchema.properties[targetColumn];
+
+      delete finalSchema.properties[targetColumn];
+
+      if (fieldValue[targetColumn]) {
+        finalSchema.properties[alias] = {
+          type: SchemaType.Object,
+          properties: {
+            [targetColumn]: fieldSchema
+          }
+        };
+
+        continue;
+      }
+
+      finalSchema.properties[alias] = {
+        ...sourceSchema
+      };
+    }
   }
 
   return finalSchema;
 };
 
-export const prepareUpdateSchema = (
+export const getUpdateSchema = (
   schema: ObjectSchema,
   relations: RepositoryRelationsWithSchema,
   data: AnyObject
 ) => {
-  const finalSchema = { ...schema };
+  const finalSchema = getNewSchema(schema);
 
   for (const alias in relations) {
-    const hasRelationData = alias in data;
+    const fieldValue = data[alias];
 
-    if (!hasRelationData) {
+    if (!isAnyObject(fieldValue)) {
       continue;
     }
 
-    const { targetColumn, sourceSchema } = relations[alias]!;
-    const { nullable, optional } = schema.properties[targetColumn];
+    const { targetColumn, sourceSchema, targetIndex } = relations[alias]!;
 
-    finalSchema.properties[alias] = {
-      ...sourceSchema,
-      nullable,
-      optional
-    };
+    const fieldSchema = finalSchema.properties[targetColumn];
+    const isForeign = targetIndex !== Index.Primary;
+
+    delete finalSchema.properties[targetColumn];
+
+    finalSchema.properties[alias] = getNewSchema(sourceSchema, {
+      nullable: finalSchema.nullable,
+      optional: finalSchema.optional,
+      properties: {
+        ...(isForeign && {
+          [targetColumn]: fieldSchema
+        })
+      }
+    });
   }
 
   return getPartialSchema(finalSchema, {
@@ -102,18 +148,29 @@ const getDataProperties = (data: AnyObject) => {
   const properties: PartialSchemaProperties = {};
 
   for (const propertyName in data) {
-    const value = data[propertyName];
+    const fieldValue = data[propertyName];
 
-    if (value === undefined) {
+    if (isSkippableData(fieldValue)) {
       continue;
     }
 
-    if (value instanceof Object) {
-      properties[propertyName] = getDataProperties(value);
+    if (isAnyObject(fieldValue)) {
+      properties[propertyName] = getDataProperties(fieldValue);
     } else {
       properties[propertyName] = true;
     }
   }
 
   return properties;
+};
+
+const getNewSchema = (baseSchema: ObjectSchema, extraSchema?: Partial<ObjectSchema>) => {
+  return {
+    ...baseSchema,
+    ...extraSchema,
+    properties: {
+      ...baseSchema.properties,
+      ...extraSchema?.properties
+    }
+  };
 };

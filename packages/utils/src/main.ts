@@ -5,15 +5,14 @@ export * from './array/compare.js';
 export * from './array/generics.js';
 export * from './array/equal.js';
 
-export * from './object/any.js';
+export * from './object/check.js';
 export * from './object/generics.js';
 export * from './object/compare.js';
-export * from './object/empty.js';
 export * from './object/equal.js';
 export * from './object/clone.js';
 
 export * from './boolean/any.js';
-export * from './number/any.js';
+export * from './number/check.js';
 
 export * from './format/uuid.js';
 export * from './format/email.js';

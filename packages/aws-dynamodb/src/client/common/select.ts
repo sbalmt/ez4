@@ -15,7 +15,7 @@ export const prepareSelect = <
 >(
   table: string,
   index: string | undefined,
-  query: Query.FindOneInput<T, S, I> | Query.FindManyInput<T, S, I>
+  query: Query.FindOneInput<T, S, I, R> | Query.FindManyInput<T, S, I, R>
 ): PrepareResult => {
   const selectFields = prepareSelectFields(query.select);
 
@@ -23,7 +23,7 @@ export const prepareSelect = <
   const variables = [];
 
   if (query.where) {
-    const [whereFields, whereVariables] = prepareWhereFields(query.where);
+    const [whereFields, whereVariables] = prepareWhereFields<T, I>(query.where);
 
     if (whereFields) {
       statement.push(`WHERE ${whereFields}`);

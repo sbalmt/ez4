@@ -1,17 +1,17 @@
 import type { AllType, TypeString } from '@ez4/reflection';
-import type { StringSchema } from '../types/string.js';
+import type { StringSchema } from '../types/type-string.js';
 
 import { isTypeString } from '@ez4/reflection';
 
-import { ExtraSchema, SchemaType } from '../types/common.js';
+import { SchemaDefinitions, SchemaType } from '../types/common.js';
 
 export type RichTypeString = TypeString & {
   format?: string;
-  extra?: ExtraSchema;
+  definitions?: SchemaDefinitions;
 };
 
 export const createStringSchema = (data: Omit<StringSchema, 'type'>): StringSchema => {
-  const { description, optional, nullable, format, extra } = data;
+  const { description, optional, nullable, format, definitions } = data;
 
   return {
     type: SchemaType.String,
@@ -19,7 +19,7 @@ export const createStringSchema = (data: Omit<StringSchema, 'type'>): StringSche
     ...(optional && { optional }),
     ...(nullable && { nullable }),
     ...(format && { format }),
-    ...(extra && { extra })
+    ...(definitions && { definitions })
   };
 };
 
@@ -32,10 +32,10 @@ export const getStringSchema = (type: AllType, description?: string): StringSche
     return null;
   }
 
-  const { format, extra } = type;
+  const { format, definitions } = type;
 
   return createStringSchema({
-    extra: type.literal ? { value: type.literal } : extra,
+    definitions: type.literal ? { value: type.literal } : definitions,
     description,
     format
   });

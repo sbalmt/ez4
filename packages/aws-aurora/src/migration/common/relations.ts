@@ -1,6 +1,7 @@
 import type { RepositoryRelations } from '../../types/repository.js';
 
 import { toCamelCase } from '@ez4/utils';
+import { Index } from '@ez4/database';
 
 import { getTableName } from '../../utils/tables.js';
 
@@ -10,7 +11,7 @@ export const prepareCreateRelations = (table: string, relations: RepositoryRelat
   for (const alias in relations) {
     const relation = relations[alias];
 
-    if (!relation?.foreign) {
+    if (!relation || relation.targetIndex === Index.Primary) {
       continue;
     }
 
@@ -46,7 +47,7 @@ export const prepareDeleteRelations = (table: string, relations: RepositoryRelat
   for (const alias in relations) {
     const relation = relations[alias];
 
-    if (!relation?.foreign) {
+    if (!relation || relation.targetIndex === Index.Primary) {
       continue;
     }
 

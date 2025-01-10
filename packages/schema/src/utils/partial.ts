@@ -1,8 +1,9 @@
-import { isObjectSchema, type ObjectSchema, type ObjectSchemaProperties } from '../types/object.js';
+import type { ObjectSchema, ObjectSchemaProperties } from '../types/type-object.js';
 import type { AnyObject } from '@ez4/utils';
 
 import { isAnyObject } from '@ez4/utils';
 
+import { isObjectSchema } from '../types/type-object.js';
 import { SchemaType } from '../types/common.js';
 
 export type PartialSchemaProperties = {
@@ -42,6 +43,8 @@ export const getPartialSchema = (
   const isInclude = !!includeStates;
   const allStates = includeStates ?? excludeStates ?? {};
 
+  const { identity } = schema;
+
   for (const propertyName in schema.properties) {
     const propertyState = allStates[propertyName];
 
@@ -64,9 +67,10 @@ export const getPartialSchema = (
 
   return {
     type: SchemaType.Object,
+    ...(identity && { identity }),
     properties,
     ...(options.extensible && {
-      extra: {
+      definitions: {
         extensible: true
       }
     })
@@ -79,7 +83,7 @@ export const getPartialSchemaProperties = (schema: ObjectSchema) => {
   for (const propertyName in schema.properties) {
     const value = schema.properties[propertyName];
 
-    if (isObjectSchema(value)) {
+    if (isObjectSchema(value) && !value.definitions?.extensible && !value.additional) {
       properties[propertyName] = getPartialSchemaProperties(value);
     } else {
       properties[propertyName] = true;

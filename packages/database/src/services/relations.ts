@@ -1,12 +1,16 @@
-import type { ArrayRest, IsArrayEmpty, PropertyType } from '@ez4/utils';
-import type { IndexedTables, PrimaryIndexes } from './indexes.js';
+import type { AnyObject, ArrayRest, IsArrayEmpty, PropertyType, ExclusiveType } from '@ez4/utils';
+import type { IndexedTables, PrimaryIndexes, UniqueIndexes } from './indexes.js';
 import type { Database, DatabaseTables } from './database.js';
 import type { TableSchemas } from './schemas.js';
 
 /**
  * Internal relation type.
  */
-export type Relations = Record<string, unknown>;
+export type Relations = {
+  indexes: string;
+  selects: Record<string, any>;
+  changes: Record<string, any>;
+};
 
 /**
  * Given a relation source name `T`, it produces the source table name.
@@ -59,10 +63,15 @@ type TableRelation<
   I extends Record<string, Database.Indexes>
 > = T extends { name: infer N; relations: infer R }
   ? N extends string
-    ? R extends Relations
+    ? R extends AnyObject
       ? {
-          [P in N]: RequiredRelationSchemas<PropertyType<N, S>, S, I, R> &
-            OptionalRelationSchemas<PropertyType<N, S>, S, I, R>;
+          [P in N]: {
+            indexes: keyof RelationIndexes<PropertyType<N, S>, I, R>;
+            changes: RequiredRelationSchemas<PropertyType<N, S>, S, I, R, true> &
+              OptionalRelationSchemas<PropertyType<N, S>, S, I, R, true>;
+            selects: RequiredRelationSchemas<PropertyType<N, S>, S, I, R, false> &
+              OptionalRelationSchemas<PropertyType<N, S>, S, I, R, false>;
+          };
         }
       : {}
     : {}
@@ -75,11 +84,12 @@ type RequiredRelationSchemas<
   T extends Database.Schema,
   S extends Record<string, Database.Schema>,
   I extends Record<string, Database.Indexes>,
-  R extends Relations
+  R extends AnyObject,
+  E extends boolean
 > = {
   [C in keyof R as IsOptionalRelation<C, R[C], T, I> extends true
     ? never
-    : RelationTargetAlias<R[C]>]: RelationSchema<C, S, I>;
+    : RelationTargetAlias<R[C]>]: RelationSchema<C, R[C], T, S, I, E>;
 };
 
 /**
@@ -89,11 +99,25 @@ type OptionalRelationSchemas<
   T extends Database.Schema,
   S extends Record<string, Database.Schema>,
   I extends Record<string, Database.Indexes>,
-  R extends Relations
+  R extends AnyObject,
+  E extends boolean
 > = {
   [C in keyof R as IsOptionalRelation<C, R[C], T, I> extends true
     ? RelationTargetAlias<R[C]>
-    : never]?: RelationSchema<C, S, I>;
+    : never]?: RelationSchema<C, R[C], T, S, I, E>;
+};
+
+/**
+ * Produce an object containing all relation indexes.
+ */
+type RelationIndexes<
+  T extends Database.Schema,
+  I extends Record<string, Database.Indexes>,
+  R extends AnyObject
+> = {
+  [C in keyof R as IsOptionalRelation<C, R[C], T, I> extends true
+    ? never
+    : RelationTargetColumn<R[C]>]: never;
 };
 
 /**
@@ -102,23 +126,51 @@ type OptionalRelationSchemas<
 type IsOptionalRelation<
   C,
   V,
-  S extends Database.Schema,
+  T extends Database.Schema,
   I extends Record<string, Database.Indexes>
 > =
   RelationSourceColumn<C> extends keyof PrimaryIndexes<PropertyType<RelationSourceTable<C>, I>>
-    ? undefined extends PropertyType<RelationTargetColumn<V>, S>
+    ? undefined extends PropertyType<RelationTargetColumn<V>, T>
       ? true
       : false
     : true;
+
+/**
+ * Check whether a column is primary.
+ */
+type IsPrimaryIndex<C, I extends Record<string, Database.Indexes>> =
+  RelationSourceColumn<C> extends keyof PrimaryIndexes<PropertyType<RelationSourceTable<C>, I>>
+    ? true
+    : false;
+
+/**
+ * Check whether a column is unique.
+ */
+type IsUniqueIndex<C, I extends Record<string, Database.Indexes>> =
+  RelationSourceColumn<C> extends keyof UniqueIndexes<PropertyType<RelationSourceTable<C>, I>>
+    ? true
+    : false;
 
 /**
  * Produce a relation schema according to its indexation.
  */
 type RelationSchema<
   C,
+  V,
+  T extends Database.Schema,
   S extends Record<string, Database.Schema>,
-  I extends Record<string, Database.Indexes>
+  I extends Record<string, Database.Indexes>,
+  E extends boolean
 > =
-  RelationSourceColumn<C> extends keyof PrimaryIndexes<PropertyType<RelationSourceTable<C>, I>>
-    ? PropertyType<RelationSourceTable<C>, S>
-    : Omit<PropertyType<RelationSourceTable<C>, S>, RelationSourceColumn<C>>[];
+  IsPrimaryIndex<C, I> extends true
+    ? E extends false
+      ? PropertyType<RelationSourceTable<C>, S>
+      : ExclusiveType<
+          PropertyType<RelationSourceTable<C>, S>,
+          { [P in RelationTargetColumn<V>]: PropertyType<RelationTargetColumn<V>, T> }
+        >
+    : IsUniqueIndex<C, I> extends true
+      ? E extends false
+        ? PropertyType<RelationSourceTable<C>, S>
+        : Omit<PropertyType<RelationSourceTable<C>, S>, RelationSourceColumn<C>>
+      : Omit<PropertyType<RelationSourceTable<C>, S>, RelationSourceColumn<C>>[];

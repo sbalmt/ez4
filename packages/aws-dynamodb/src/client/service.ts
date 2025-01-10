@@ -10,7 +10,11 @@ import { Table } from './table.js';
 
 type TableType = Table<Database.Schema, Database.Indexes<Database.Schema>, Relations>;
 
-const client = DynamoDBDocumentClient.from(new DynamoDBClient());
+const client = DynamoDBDocumentClient.from(new DynamoDBClient(), {
+  marshallOptions: {
+    removeUndefinedValues: true
+  }
+});
 
 const tableCache: Record<string, TableType> = {};
 

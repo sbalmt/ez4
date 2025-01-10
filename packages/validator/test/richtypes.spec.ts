@@ -11,7 +11,7 @@ describe.only('rich types validation', () => {
     const schema: AnySchema = {
       type: SchemaType.Number,
       format: 'decimal',
-      extra: {
+      definitions: {
         minValue: 0.99,
         maxValue: 1.99
       }
@@ -24,7 +24,7 @@ describe.only('rich types validation', () => {
     const schema: AnySchema = {
       type: SchemaType.Number,
       format: 'integer',
-      extra: {
+      definitions: {
         minValue: 99,
         maxValue: 199
       }
@@ -36,7 +36,7 @@ describe.only('rich types validation', () => {
   it('assert :: string', async () => {
     const schema: AnySchema = {
       type: SchemaType.String,
-      extra: {
+      definitions: {
         minLength: 1,
         maxLength: 9
       }
@@ -48,7 +48,7 @@ describe.only('rich types validation', () => {
   it('assert :: decimal (literal)', async () => {
     const schema: AnySchema = {
       type: SchemaType.Number,
-      extra: {
+      definitions: {
         value: 123.456
       }
     };
@@ -59,7 +59,7 @@ describe.only('rich types validation', () => {
   it('assert :: integer (literal)', async () => {
     const schema: AnySchema = {
       type: SchemaType.Number,
-      extra: {
+      definitions: {
         value: 123
       }
     };
@@ -70,7 +70,7 @@ describe.only('rich types validation', () => {
   it('assert :: string (literal)', async () => {
     const schema: AnySchema = {
       type: SchemaType.String,
-      extra: {
+      definitions: {
         value: 'abc'
       }
     };
@@ -82,7 +82,7 @@ describe.only('rich types validation', () => {
     const schema: AnySchema = {
       type: SchemaType.String,
       format: 'regex',
-      extra: {
+      definitions: {
         pattern: '^[a-z]+$'
       }
     };
@@ -138,7 +138,8 @@ describe.only('rich types validation', () => {
   it('assert :: extensible object', async () => {
     const schema: AnySchema = {
       type: SchemaType.Object,
-      extra: {
+      identity: 1,
+      definitions: {
         extensible: true
       },
       properties: {

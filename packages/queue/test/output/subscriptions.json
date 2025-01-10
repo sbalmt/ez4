@@ -5,6 +5,7 @@
     "description": "Queue to test subscriptions.",
     "schema": {
       "type": "object",
+      "identity": 1,
       "properties": {
         "foo": {
           "type": "string"

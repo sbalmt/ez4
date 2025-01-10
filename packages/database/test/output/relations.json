@@ -8,6 +8,7 @@
         "name": "parentTestTable",
         "schema": {
           "type": "object",
+          "identity": 1,
           "properties": {
             "id": {
               "type": "string"
@@ -18,9 +19,10 @@
           {
             "sourceTable": "childTestTable",
             "sourceColumn": "parent_id",
+            "sourceIndex": "secondary",
             "targetColumn": "id",
             "targetAlias": "children",
-            "foreign": false
+            "targetIndex": "primary"
           }
         ],
         "indexes": [
@@ -37,6 +39,7 @@
         "name": "childTestTable",
         "schema": {
           "type": "object",
+          "identity": 1,
           "properties": {
             "id": {
               "type": "string"
@@ -50,9 +53,10 @@
           {
             "sourceTable": "parentTestTable",
             "sourceColumn": "id",
+            "sourceIndex": "primary",
             "targetColumn": "parent_id",
             "targetAlias": "parent",
-            "foreign": true
+            "targetIndex": "secondary"
           }
         ],
         "indexes": [

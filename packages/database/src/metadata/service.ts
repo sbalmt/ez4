@@ -2,8 +2,11 @@ import type { Incomplete } from '@ez4/utils';
 import type { ModelProperty, SourceMap, TypeModel, TypeObject } from '@ez4/reflection';
 import type { DatabaseService } from '../types/service.js';
 import type { DatabaseTable } from '../types/table.js';
+import type { TableIndex } from '../types/indexes.js';
 
 import {
+  DuplicateServiceError,
+  isExternalStatement,
   getLinkedServiceList,
   getLinkedVariableList,
   getPropertyString,
@@ -31,7 +34,7 @@ export const getDatabaseServices = (reflection: SourceMap) => {
   for (const identity in reflection) {
     const statement = reflection[identity];
 
-    if (!isDatabaseService(statement)) {
+    if (!isDatabaseService(statement) || isExternalStatement(statement)) {
       continue;
     }
 
@@ -81,6 +84,11 @@ export const getDatabaseServices = (reflection: SourceMap) => {
       continue;
     }
 
+    if (dbServices[statement.name]) {
+      errorList.push(new DuplicateServiceError(statement.name, statement.file));
+      continue;
+    }
+
     dbServices[statement.name] = service;
   }
 
@@ -110,9 +118,10 @@ const getAllTables = (member: ModelProperty, reflection: SourceMap, errorList: E
 };
 
 const validateRelations = (type: TypeObject | TypeModel, tables: DatabaseTable[]) => {
+  const tablesMap = getTableMap(tables);
   const errorList = [];
 
-  for (const { relations, schema } of tables) {
+  for (const { relations, schema, indexes: targetIndexes } of tables) {
     if (!relations) {
       continue;
     }
@@ -122,8 +131,6 @@ const validateRelations = (type: TypeObject | TypeModel, tables: DatabaseTable[]
     for (const relation of relations) {
       const { sourceTable, sourceColumn, targetColumn, targetAlias } = relation;
 
-      const sourceColumns = tables.find(({ name }) => name === sourceTable)?.schema.properties;
-
       if (!targetColumns[targetColumn]) {
         errorList.push(new InvalidRelationColumnError(targetColumn, type.file));
       }
@@ -132,6 +139,8 @@ const validateRelations = (type: TypeObject | TypeModel, tables: DatabaseTable[]
         errorList.push(new InvalidRelationAliasError(targetAlias, type.file));
       }
 
+      const sourceColumns = tablesMap[sourceTable]?.schema.properties;
+
       if (!sourceColumns) {
         errorList.push(new InvalidRelationTableError(sourceTable, type.file));
       }
@@ -139,8 +148,26 @@ const validateRelations = (type: TypeObject | TypeModel, tables: DatabaseTable[]
       if (sourceColumns && !sourceColumns[sourceColumn]) {
         errorList.push(new InvalidRelationColumnError(sourceColumn, type.file));
       }
+
+      const sourceIndexes = tablesMap[sourceTable]?.indexes ?? [];
+
+      relation.sourceIndex = getIndexType(sourceIndexes, sourceColumn);
+      relation.targetIndex = getIndexType(targetIndexes, targetColumn);
     }
   }
 
   return errorList;
+};
+
+const getIndexType = (indexes: TableIndex[], columnName: string) => {
+  return indexes.find(({ name }) => name === columnName)?.type;
+};
+
+const getTableMap = (tables: DatabaseTable[]) => {
+  return tables.reduce<Record<string, DatabaseTable | undefined>>((map, table) => {
+    return {
+      ...map,
+      [table.name]: table
+    };
+  }, {});
 };

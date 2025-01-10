@@ -1,6 +1,7 @@
 {
   "type": "object",
   "description": "Tuple test object.",
+  "identity": 1,
   "properties": {
     "foo": {
       "type": "tuple",

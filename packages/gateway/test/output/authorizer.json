@@ -12,18 +12,20 @@
           "request": {
             "query": {
               "type": "object",
+              "description": "Expected query strings.",
+              "identity": 1,
               "properties": {
                 "apiKey": {
                   "type": "string"
                 }
-              },
-              "description": "Expected query strings."
+              }
             }
           },
           "response": {
             "identity": {
               "type": "object",
               "description": "Authorization identity.",
+              "identity": 1,
               "properties": {
                 "id": {
                   "type": "string"

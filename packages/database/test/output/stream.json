@@ -8,6 +8,7 @@
         "name": "inlineTestTable",
         "schema": {
           "type": "object",
+          "identity": 1,
           "properties": {
             "foo": {
               "type": "string"
@@ -29,6 +30,7 @@
         "name": "testTable",
         "schema": {
           "type": "object",
+          "identity": 1,
           "properties": {
             "foo": {
               "type": "string"

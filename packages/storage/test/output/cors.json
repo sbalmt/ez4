@@ -1,0 +1,23 @@
+{
+  "TestStorage": {
+    "type": "@ez4/bucket",
+    "name": "TestStorage",
+    "localPath": "./public",
+    "autoExpireDays": 30,
+    "cors": {
+      "allowOrigins": [
+        "*"
+      ],
+      "allowMethods": [
+        "*"
+      ],
+      "exposeHeaders": [
+        "x-exposed-header"
+      ],
+      "allowHeaders": [
+        "x-income-header"
+      ],
+      "maxAge": 300
+    }
+  }
+}

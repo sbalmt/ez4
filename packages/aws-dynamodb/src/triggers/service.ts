@@ -6,10 +6,10 @@ import { getFunction } from '@ez4/aws-function';
 import { isRoleState } from '@ez4/aws-identity';
 
 import { createTable } from '../table/service.js';
+import { RoleMissingError, UnsupportedRelationError } from './errors.js';
 import { getStreamName, getTableName } from './utils.js';
 import { getAttributeSchema } from './schema.js';
 import { prepareTableStream } from './stream.js';
-import { RoleMissing } from './errors.js';
 
 export const prepareDatabaseServices = async (event: PrepareResourceEvent) => {
   const { state, service, role, options } = event;
@@ -19,14 +19,14 @@ export const prepareDatabaseServices = async (event: PrepareResourceEvent) => {
   }
 
   if (!role || !isRoleState(role)) {
-    throw new RoleMissing();
+    throw new RoleMissingError();
   }
 
   for (const table of service.tables) {
     const tableName = getTableName(service, table, options);
 
     if (table.relations) {
-      throw new Error(`DynamoDB doesn't support relations.`);
+      throw new UnsupportedRelationError();
     }
 
     const { attributeSchema, ttlAttribute } = getAttributeSchema(table.indexes, table.schema);
@@ -50,7 +50,7 @@ export const connectDatabaseServices = (event: ConnectResourceEvent) => {
   }
 
   if (!role || !isRoleState(role)) {
-    throw new RoleMissing();
+    throw new RoleMissingError();
   }
 
   for (const table of service.tables) {

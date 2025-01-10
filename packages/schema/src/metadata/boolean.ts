@@ -1,23 +1,23 @@
 import type { AllType, TypeBoolean } from '@ez4/reflection';
-import type { BooleanSchema } from '../types/boolean.js';
+import type { BooleanSchema } from '../types/type-boolean.js';
 
 import { isTypeBoolean } from '@ez4/reflection';
 
-import { ExtraSchema, SchemaType } from '../types/common.js';
+import { SchemaDefinitions, SchemaType } from '../types/common.js';
 
 export type RichTypeBoolean = TypeBoolean & {
-  extra?: ExtraSchema;
+  definitions?: SchemaDefinitions;
 };
 
 export const createBooleanSchema = (data: Omit<BooleanSchema, 'type'>): BooleanSchema => {
-  const { description, optional, nullable, extra } = data;
+  const { description, optional, nullable, definitions } = data;
 
   return {
     type: SchemaType.Boolean,
     ...(description && { description }),
     ...(optional && { optional }),
     ...(nullable && { nullable }),
-    ...(extra && { extra })
+    ...(definitions && { definitions })
   };
 };
 
@@ -31,7 +31,7 @@ export const getBooleanSchema = (type: AllType, description?: string): BooleanSc
   }
 
   return createBooleanSchema({
-    extra: type.extra,
+    definitions: type.definitions,
     description
   });
 };

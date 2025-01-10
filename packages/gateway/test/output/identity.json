@@ -12,6 +12,7 @@
             "identity": {
               "type": "object",
               "description": "Expected identity.",
+              "identity": 1,
               "properties": {
                 "foo": {
                   "type": "string"

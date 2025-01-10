@@ -97,6 +97,7 @@ export const getColumnType = (schema: AnySchema) => {
   switch (schema.type) {
     case SchemaType.Array:
     case SchemaType.Object:
+    case SchemaType.Reference:
     case SchemaType.Union:
     case SchemaType.Tuple:
       return `jsonb`;
@@ -138,7 +139,7 @@ const getColumnTextType = (schema: StringSchema) => {
       return 'timestamp';
 
     default:
-      const maxLength = schema.extra?.maxLength;
+      const maxLength = schema.definitions?.maxLength;
 
       if (isAnyNumber(maxLength)) {
         return `varchar(${maxLength})`;

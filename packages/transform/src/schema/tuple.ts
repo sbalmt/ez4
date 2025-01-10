@@ -1,9 +1,10 @@
 import type { TupleSchema } from '@ez4/schema';
 
+import { getNewContext } from '../types/context.js';
 import { transformAny } from './any.js';
 
-export const transformTuple = (value: unknown, schema: TupleSchema) => {
-  if (!(value instanceof Array)) {
+export const transformTuple = (value: unknown, schema: TupleSchema, context = getNewContext()) => {
+  if (!Array.isArray(value)) {
     return undefined;
   }
 
@@ -12,7 +13,7 @@ export const transformTuple = (value: unknown, schema: TupleSchema) => {
   for (let index = 0; index < schema.elements.length; index++) {
     const elementSchema = schema.elements[index];
 
-    output.push(transformAny(value[index], elementSchema));
+    output.push(transformAny(value[index], elementSchema, context));
   }
 
   return output;

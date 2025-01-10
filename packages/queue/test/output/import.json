@@ -6,6 +6,7 @@
     "polling": 10,
     "schema": {
       "type": "object",
+      "identity": 1,
       "properties": {
         "foo": {
           "type": "string"
@@ -14,15 +15,17 @@
     },
     "subscriptions": []
   },
-  "TestImportQueue": {
+  "TestImport1Queue": {
     "type": "@ez4/import:queue",
-    "name": "TestImportQueue",
+    "name": "TestImport1Queue",
+    "description": "Import queue assigning handler.",
     "project": "name from project in ez4.project.js",
     "reference": "TestQueue",
     "timeout": 20,
     "polling": 10,
     "schema": {
       "type": "object",
+      "identity": 1,
       "properties": {
         "foo": {
           "type": "string"
@@ -42,7 +45,33 @@
       "TEST_VAR2": "test-env-var-value"
     },
     "services": {
-      "selfClient": "TestImportQueue"
+      "selfClient": "TestImport1Queue"
+    }
+  },
+  "TestImport2Queue": {
+    "type": "@ez4/import:queue",
+    "name": "TestImport2Queue",
+    "description": "Import queue with no assigned handler.",
+    "project": "name from project in ez4.project.js",
+    "reference": "TestQueue",
+    "timeout": 20,
+    "polling": 10,
+    "schema": {
+      "type": "object",
+      "identity": 1,
+      "properties": {
+        "foo": {
+          "type": "string"
+        }
+      }
+    },
+    "subscriptions": [],
+    "variables": {
+      "TEST_VAR1": "test-literal-value",
+      "TEST_VAR2": "test-env-var-value"
+    },
+    "services": {
+      "selfClient": "TestImport2Queue"
     }
   }
 }

@@ -8,6 +8,7 @@
         "name": "inlineTestTable",
         "schema": {
           "type": "object",
+          "identity": 1,
           "properties": {}
         },
         "indexes": []
@@ -16,6 +17,7 @@
         "name": "testTable",
         "schema": {
           "type": "object",
+          "identity": 1,
           "properties": {
             "id": {
               "type": "string"

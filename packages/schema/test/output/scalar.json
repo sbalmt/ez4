@@ -1,6 +1,7 @@
 {
   "type": "object",
   "description": "Scalar test object.",
+  "identity": 1,
   "properties": {
     "foo": {
       "type": "string",
