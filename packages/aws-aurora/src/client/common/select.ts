@@ -9,8 +9,8 @@ import { escapeSqlName, mergeSqlAlias, SqlBuilder } from '@ez4/pgsql';
 import { isObjectSchema, isStringSchema } from '@ez4/schema';
 import { Index } from '@ez4/database';
 
+import { InvalidRelationFieldError, MissingFieldSchemaError } from './errors.js';
 import { detectFieldData, prepareFieldData } from './data.js';
-import { InvalidRelationFieldError } from './errors.js';
 
 const Sql = new SqlBuilder({
   onPrepareVariable: (value, index, schema) => {
@@ -113,6 +113,10 @@ export const getSelectFields = <T extends Database.Schema, R extends Relations>(
     }
 
     const fieldSchema = schema.properties[fieldKey];
+
+    if (!fieldSchema) {
+      throw new MissingFieldSchemaError(fieldKey);
+    }
 
     if (isObjectSchema(fieldSchema)) {
       output[fieldKey] = fieldValue;
