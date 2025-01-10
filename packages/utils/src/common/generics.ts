@@ -1,13 +1,17 @@
+import { IsObject } from '../object/generics.js';
+
 /**
  * Given a type `T`, it returns `true` when `T` is `any`, otherwise it returns `false`;
  */
 export type IsAny<T> = boolean extends (T extends never ? true : false) ? true : false;
 
 /**
- * Given the types `T` and `U`, it ensures type `T` will have only properties in common
+ * Given the types `T` and `U`, it ensures type `U` will have only properties in common
  * with `T` type.
  */
-export type StrictType<T, U extends T> = U & {
+export type StrictType<T, U extends T> = {
+  [K in keyof T]: IsObject<U[K]> extends true ? StrictType<T[K], U[K]> : U[K];
+} & {
   [K in Exclude<keyof U, keyof T>]: never;
 };
 
