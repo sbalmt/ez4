@@ -19,14 +19,15 @@ const client = DynamoDBDocumentClient.from(new DynamoDBClient(), {
 const tableCache: Record<string, TableType> = {};
 
 export namespace Client {
-  export const make = <T extends Database.Service<any>>(repository: Repository): DbClient<T> => {
+  export const make = <T extends Database.Service<any>>(
+    repository: Repository,
+    debug?: boolean
+  ): DbClient<T> => {
     const instance = new (class {
       async rawQuery(query: string, values: unknown[]) {
-        const result = await executeStatement(client, {
-          ConsistentRead: true,
-          Statement: query,
-          Parameters: values
-        });
+        const command = { ConsistentRead: true, Parameters: values, Statement: query };
+
+        const result = await executeStatement(client, command, debug);
 
         return result.Items ?? [];
       }
@@ -34,7 +35,7 @@ export namespace Client {
       async transaction<O extends Transaction.WriteOperations<T>>(operations: O): Promise<void> {
         const commands = await prepareTransactions(repository, operations);
 
-        await executeTransaction(client, commands);
+        await executeTransaction(client, commands, debug);
       }
     })();
 
@@ -56,7 +57,10 @@ export namespace Client {
 
         const { name, schema, indexes } = repository[alias];
 
-        const table = new Table(name, schema, indexes, client);
+        const table = new Table(name, schema, indexes, {
+          client,
+          debug
+        });
 
         tableCache[alias] = table;
 
