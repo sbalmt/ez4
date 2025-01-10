@@ -26,6 +26,7 @@ export const bundleApiFunction = async (
     wrapperFile: join(__MODULE_PATH, '../lib/handler.ts'),
     handlerName: parameters.handlerName,
     extras: parameters.extras,
+    debug: parameters.debug,
     filePrefix: 'api',
     define: {
       ...definitions,

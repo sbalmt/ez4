@@ -5,4 +5,5 @@ import type { ObjectSchema } from '@ez4/schema';
 export type StreamFunctionParameters = Omit<FunctionParameters, 'getFunctionBundle'> & {
   tableSchema?: ObjectSchema | null;
   extras?: Record<string, ExtraSource>;
+  debug?: boolean;
 };

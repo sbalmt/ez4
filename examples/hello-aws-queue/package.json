@@ -17,8 +17,8 @@
     "destroy": "ez4 destroy -e local.env -p ez4.project.js"
   },
   "dependencies": {
-    "@ez4/aws-queue": "^0.9.0",
-    "@ez4/queue": "^0.9.0",
-    "@ez4/project": "^0.9.0"
+    "@ez4/aws-queue": "^0.10.0",
+    "@ez4/queue": "^0.10.0",
+    "@ez4/project": "^0.10.0"
   }
 }

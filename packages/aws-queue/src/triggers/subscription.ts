@@ -35,6 +35,7 @@ export const prepareSubscriptions = async (
         memory: subscription.memory,
         messageSchema: service.schema,
         extras: service.extras,
+        debug: options.debug,
         variables: {
           ...service.variables,
           ...subscription.variables

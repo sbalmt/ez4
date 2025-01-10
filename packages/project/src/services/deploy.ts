@@ -24,7 +24,8 @@ export const deploy = async (project: ProjectOptions) => {
   const options: DeployOptions = {
     resourcePrefix: project.prefix ?? 'ez4',
     projectName: toKebabCase(project.projectName),
-    imports: await loadImports(project)
+    imports: await loadImports(project),
+    debug: project.debugMode
   };
 
   const stateFile = `${project.stateFile.path}.ezstate`;

@@ -5,4 +5,5 @@ import type { ObjectSchema, UnionSchema } from '@ez4/schema';
 export type QueueFunctionParameters = Omit<FunctionParameters, 'getFunctionBundle'> & {
   messageSchema?: ObjectSchema | UnionSchema | null;
   extras?: Record<string, ExtraSource>;
+  debug?: boolean;
 };

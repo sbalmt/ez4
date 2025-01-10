@@ -29,6 +29,7 @@ export const prepareCronServices = async (event: PrepareResourceEvent) => {
     sourceFile: handler.file,
     handlerName: handler.name,
     extras: service.extras,
+    debug: options.debug,
     variables: {
       ...service.variables,
       ...variables

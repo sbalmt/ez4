@@ -21,6 +21,7 @@ export type BundleOptions = {
   filePrefix: string;
   extras?: Record<string, ExtraSource>;
   define?: Record<string, string>;
+  debug?: boolean;
 };
 
 export const bundleHash = async (sourceFile: string) => {
@@ -42,7 +43,7 @@ export const bundleHash = async (sourceFile: string) => {
 };
 
 export const bundleFunction = async (serviceName: string, options: BundleOptions) => {
-  const { sourceFile, handlerName } = options;
+  const { sourceFile, handlerName, debug } = options;
 
   const cacheKey = `${sourceFile}:${handlerName}`;
   const cacheFile = filesCache.get(cacheKey);
@@ -60,9 +61,8 @@ export const bundleFunction = async (serviceName: string, options: BundleOptions
 
   const result = await build({
     bundle: true,
-    minify: true,
-    lineLimit: 80,
-    treeShaking: true,
+    minify: !debug,
+    treeShaking: !debug,
     outfile: outputFile,
     packages: 'bundle',
     platform: 'node',

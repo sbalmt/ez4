@@ -38,6 +38,7 @@ export const prepareTableStream = (
       memory: tableStream.memory,
       tableSchema: table.schema,
       extras: service.extras,
+      debug: options.debug,
       variables: {
         ...service.variables,
         ...tableStream.variables

@@ -23,6 +23,7 @@ export const bundleQueueFunction = async (
     wrapperFile: join(__MODULE_PATH, '../lib/function.ts'),
     handlerName: parameters.handlerName,
     extras: parameters.extras,
+    debug: parameters.debug,
     filePrefix: 'sqs',
     define: {
       ...definitions,

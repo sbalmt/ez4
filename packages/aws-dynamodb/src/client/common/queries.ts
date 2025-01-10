@@ -172,21 +172,21 @@ export const prepareUpdateMany = async <
   schema: ObjectSchema,
   client: DynamoDBDocumentClient,
   indexes: string[],
-  query: Query.UpdateManyInput<T, S, R>
+  query: Query.UpdateManyInput<T, S, R>,
+  debug?: boolean
 ): Promise<[ExecuteStatementCommandInput[], Query.UpdateManyResult<T, S, R>]> => {
   const [partitionKey, sortKey] = indexes;
 
-  const result = await executeStatement(
-    client,
-    prepareFindMany<T, I, R, S>(table, [], {
-      ...query,
-      select: {
-        ...query.select,
-        ...(sortKey && { [sortKey]: true }),
-        [partitionKey]: true
-      } as StrictType<Query.SelectInput<T, R>, S>
-    })
-  );
+  const command = prepareFindMany<T, I, R, S>(table, [], {
+    ...query,
+    select: {
+      ...query.select,
+      ...(sortKey && { [sortKey]: true }),
+      [partitionKey]: true
+    } as StrictType<Query.SelectInput<T, R>, S>
+  });
+
+  const result = await executeStatement(client, command, debug);
 
   const records = result.Items;
 
@@ -231,21 +231,21 @@ export const prepareDeleteMany = async <
   table: string,
   client: DynamoDBDocumentClient,
   indexes: string[],
-  query: Query.DeleteManyInput<T, S, R>
+  query: Query.DeleteManyInput<T, S, R>,
+  debug?: boolean
 ): Promise<[ExecuteStatementCommandInput[], Query.DeleteManyResult<T, S, R>]> => {
   const [partitionKey, sortKey] = indexes;
 
-  const result = await executeStatement(
-    client,
-    prepareFindMany<T, I, R, S>(table, [], {
-      ...query,
-      select: {
-        ...query.select,
-        ...(sortKey && { [sortKey]: true }),
-        [partitionKey]: true
-      } as StrictType<Query.SelectInput<T, R>, S>
-    })
-  );
+  const command = prepareFindMany<T, I, R, S>(table, [], {
+    ...query,
+    select: {
+      ...query.select,
+      ...(sortKey && { [sortKey]: true }),
+      [partitionKey]: true
+    } as StrictType<Query.SelectInput<T, R>, S>
+  });
+
+  const result = await executeStatement(client, command, debug);
 
   const records = result.Items;
 

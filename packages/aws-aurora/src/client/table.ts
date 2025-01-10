@@ -26,11 +26,14 @@ export class Table<T extends Database.Schema, I extends Database.Indexes<T>, R e
   implements DbTable<T, I, R>
 {
   constructor(
-    private client: RDSDataClient,
-    private connection: Connection,
     private name: string,
     private schema: ObjectSchema,
-    private relations: RepositoryRelationsWithSchema
+    private relations: RepositoryRelationsWithSchema,
+    private settings: {
+      client: RDSDataClient;
+      connection: Connection;
+      debug?: boolean;
+    }
   ) {}
 
   private parseRecord<T extends Record<string, unknown>>(record: T): T {
@@ -38,11 +41,13 @@ export class Table<T extends Database.Schema, I extends Database.Indexes<T>, R e
   }
 
   private async sendCommand(input: PreparedQueryCommand | PreparedQueryCommand[]) {
+    const { client, connection, debug } = this.settings;
+
     if (input instanceof Array) {
-      return executeTransaction(this.client, this.connection, input);
+      return executeTransaction(client, connection, input, debug);
     }
 
-    return executeStatement(this.client, this.connection, input);
+    return executeStatement(client, connection, input, undefined, debug);
   }
 
   async insertOne(query: Query.InsertOneInput<T, R>): Promise<Query.InsertOneResult> {

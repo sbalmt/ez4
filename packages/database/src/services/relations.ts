@@ -87,7 +87,7 @@ type RequiredRelationSchemas<
   R extends AnyObject,
   E extends boolean
 > = {
-  [C in keyof R as IsOptionalRelation<C, R[C], T, I> extends true
+  [C in keyof R as IsOptionalRelation<C, R[C], T, I, E> extends true
     ? never
     : RelationTargetAlias<R[C]>]: RelationSchema<C, R[C], T, S, I, E>;
 };
@@ -102,7 +102,7 @@ type OptionalRelationSchemas<
   R extends AnyObject,
   E extends boolean
 > = {
-  [C in keyof R as IsOptionalRelation<C, R[C], T, I> extends true
+  [C in keyof R as IsOptionalRelation<C, R[C], T, I, E> extends true
     ? RelationTargetAlias<R[C]>
     : never]?: RelationSchema<C, R[C], T, S, I, E>;
 };
@@ -115,7 +115,7 @@ type RelationIndexes<
   I extends Record<string, Database.Indexes>,
   R extends AnyObject
 > = {
-  [C in keyof R as IsOptionalRelation<C, R[C], T, I> extends true
+  [C in keyof R as IsOptionalRelation<C, R[C], T, I, true> extends true
     ? never
     : RelationTargetColumn<R[C]>]: never;
 };
@@ -127,13 +127,16 @@ type IsOptionalRelation<
   C,
   V,
   T extends Database.Schema,
-  I extends Record<string, Database.Indexes>
+  I extends Record<string, Database.Indexes>,
+  E extends boolean
 > =
   RelationSourceColumn<C> extends keyof PrimaryIndexes<PropertyType<RelationSourceTable<C>, I>>
     ? undefined extends PropertyType<RelationTargetColumn<V>, T>
       ? true
       : false
-    : true;
+    : RelationSourceColumn<C> extends keyof UniqueIndexes<PropertyType<RelationSourceTable<C>, I>>
+      ? true
+      : E;
 
 /**
  * Check whether a column is primary.

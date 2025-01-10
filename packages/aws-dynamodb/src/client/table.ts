@@ -26,13 +26,18 @@ export class Table<T extends Database.Schema, I extends Database.Indexes<T>, R e
     private name: string,
     private schema: ObjectSchema,
     private indexes: string[][],
-    private client: DynamoDBDocumentClient
+    private settings: {
+      client: DynamoDBDocumentClient;
+      debug?: boolean;
+    }
   ) {}
 
   async insertOne(query: Query.InsertOneInput<T, R>): Promise<Query.InsertOneResult> {
     const command = await prepareInsertOne<T, R>(this.name, this.schema, query);
 
-    await executeStatement(this.client, command);
+    const { client, debug } = this.settings;
+
+    await executeStatement(client, command, debug);
   }
 
   async updateOne<S extends Query.SelectInput<T, R>>(
@@ -41,7 +46,9 @@ export class Table<T extends Database.Schema, I extends Database.Indexes<T>, R e
     const command = await prepareUpdateOne<T, I, R, S>(this.name, this.schema, query);
 
     try {
-      const { Items } = await executeStatement(this.client, command);
+      const { client, debug } = this.settings;
+
+      const { Items } = await executeStatement(client, command, debug);
 
       const result = Items?.at(0) as Query.UpdateOneResult<T, S, R> | undefined;
 
@@ -66,7 +73,9 @@ export class Table<T extends Database.Schema, I extends Database.Indexes<T>, R e
 
     const command = prepareFindOne<T, I, R, S>(this.name, secondaryIndexes, query);
 
-    const { Items } = await executeStatement(this.client, command);
+    const { client, debug } = this.settings;
+
+    const { Items } = await executeStatement(client, command, debug);
 
     const result = Items?.at(0) as Query.UpdateOneResult<T, S, R> | undefined;
 
@@ -82,7 +91,9 @@ export class Table<T extends Database.Schema, I extends Database.Indexes<T>, R e
   ): Promise<Query.DeleteOneResult<T, S, R>> {
     const command = prepareDeleteOne<T, I, R, S>(this.name, query);
 
-    const { Items } = await executeStatement(this.client, command);
+    const { client, debug } = this.settings;
+
+    const { Items } = await executeStatement(client, command, debug);
 
     const result = Items?.at(0) as Query.UpdateOneResult<T, S, R> | undefined;
 
@@ -124,7 +135,9 @@ export class Table<T extends Database.Schema, I extends Database.Indexes<T>, R e
 
     const transactions = await prepareInsertMany<T>(this.name, this.schema, primaryIndexes, query);
 
-    await executeTransaction(this.client, transactions);
+    const { client, debug } = this.settings;
+
+    await executeTransaction(client, transactions, debug);
   }
 
   async updateMany<S extends Query.SelectInput<T, R>>(
@@ -132,15 +145,18 @@ export class Table<T extends Database.Schema, I extends Database.Indexes<T>, R e
   ): Promise<Query.UpdateManyResult<T, S, R>> {
     const [primaryIndexes] = this.indexes;
 
+    const { client, debug } = this.settings;
+
     const [transactions, records] = await prepareUpdateMany<T, I, R, S>(
       this.name,
       this.schema,
-      this.client,
+      client,
       primaryIndexes,
-      query
+      query,
+      debug
     );
 
-    await executeTransaction(this.client, transactions);
+    await executeTransaction(client, transactions, debug);
 
     return records;
   }
@@ -152,7 +168,9 @@ export class Table<T extends Database.Schema, I extends Database.Indexes<T>, R e
 
     const command = prepareFindMany<T, I, R, S>(this.name, secondaryIndexes, query);
 
-    const { Items = [], NextToken } = await executeStatement(this.client, command);
+    const { client, debug } = this.settings;
+
+    const { Items = [], NextToken } = await executeStatement(client, command, debug);
 
     return {
       records: Items as Query.Record<T, S, R>[],
@@ -165,14 +183,17 @@ export class Table<T extends Database.Schema, I extends Database.Indexes<T>, R e
   ): Promise<Query.DeleteManyResult<T, S, R>> {
     const [primaryIndexes] = this.indexes;
 
+    const { client, debug } = this.settings;
+
     const [transactions, records] = await prepareDeleteMany<T, I, R, S>(
       this.name,
-      this.client,
+      client,
       primaryIndexes,
-      query
+      query,
+      debug
     );
 
-    await executeTransaction(this.client, transactions);
+    await executeTransaction(client, transactions, debug);
 
     return records;
   }

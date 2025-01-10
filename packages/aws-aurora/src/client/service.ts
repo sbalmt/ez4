@@ -24,22 +24,20 @@ const tableCache: Record<string, TableType> = {};
 export namespace Client {
   export const make = <T extends Database.Service<any>>(
     connection: Connection,
-    repository: Repository
+    repository: Repository,
+    debug?: boolean
   ): DbClient<T> => {
     const instance = new (class {
       rawQuery(query: string, values: unknown[]) {
         const parameters = values.map((value, index) => detectFieldData(`${index}`, value));
 
-        return executeStatement(client, connection, {
-          parameters,
-          sql: query
-        });
+        return executeStatement(client, connection, { parameters, sql: query }, undefined, debug);
       }
 
       async transaction<O extends Transaction.WriteOperations<T>>(operations: O): Promise<void> {
         const commands = await prepareTransactions(repository, operations);
 
-        await executeTransaction(client, connection, commands);
+        await executeTransaction(client, connection, commands, debug);
       }
     })();
 
@@ -63,7 +61,11 @@ export namespace Client {
 
         const relationsWithSchema = getRelationsWithSchema(repository, relations);
 
-        const table = new Table(client, connection, name, schema, relationsWithSchema);
+        const table = new Table(name, schema, relationsWithSchema, {
+          client,
+          connection,
+          debug
+        });
 
         tableCache[alias] = table;
 

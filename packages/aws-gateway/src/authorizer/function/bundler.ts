@@ -24,6 +24,7 @@ export const bundleApiFunction = async (
     wrapperFile: join(__MODULE_PATH, '../lib/authorizer.ts'),
     handlerName: parameters.handlerName,
     extras: parameters.extras,
+    debug: parameters.debug,
     filePrefix: 'auth',
     define: {
       ...definitions,

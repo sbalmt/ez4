@@ -9,6 +9,12 @@ export type ProjectOptions = {
   prefix?: string;
 
   /**
+   * Determine whether the debug mode is active for the project.
+   * Default is: `false`
+   */
+  debugMode?: boolean;
+
+  /**
    * Determine whether the deployment must be confirmed before proceeding.
    * Default is: `true`
    */
