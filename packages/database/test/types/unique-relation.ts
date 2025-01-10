@@ -59,9 +59,9 @@ export async function testHandler(
   testUpsert(selfClient);
 }
 
-const testSelect = (client: TestDatabase['client']) => {
+const testSelect = async (client: TestDatabase['client']) => {
   // Fetch tableA and all tableB connections
-  client.tableA.findMany({
+  const resultA = await client.tableA.findMany({
     select: {
       value: true,
       relation_b: {
@@ -70,8 +70,10 @@ const testSelect = (client: TestDatabase['client']) => {
     }
   });
 
+  resultA.records[0].relation_b?.value;
+
   // Fetch tableB and its tableA connection
-  client.tableB.findMany({
+  const resultB = await client.tableB.findMany({
     select: {
       value: true,
       relation_a: {
@@ -79,6 +81,8 @@ const testSelect = (client: TestDatabase['client']) => {
       }
     }
   });
+
+  resultB.records[0].relation_a.value;
 };
 
 const testInsert = (client: TestDatabase['client']) => {
