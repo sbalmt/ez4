@@ -17,7 +17,7 @@ type CommandOptions = {
   command: CommandType;
   environmentFile?: string;
   projectFile?: string;
-  debug?: boolean;
+  debugMode?: boolean;
 };
 
 const checkMinVersion = () => {
@@ -74,7 +74,7 @@ const main = async () => {
           break;
 
         case '--debug':
-          options.debug = true;
+          options.debugMode = true;
           break;
       }
     }
@@ -92,6 +92,8 @@ const main = async () => {
     }
 
     const project = await loadProject(options.projectFile);
+
+    project.debugMode = options.debugMode ?? project.debugMode;
 
     if (options.command === CommandType.Deploy) {
       return deploy(project);
@@ -145,7 +147,7 @@ const main = async () => {
 
     console.log(toRed(`[EZ4]: ${message}`));
 
-    if (options.debug) {
+    if (options.debugMode) {
       console.error(error);
     }
 

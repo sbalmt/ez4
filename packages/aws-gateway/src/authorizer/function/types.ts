@@ -7,4 +7,5 @@ export type AuthorizerFunctionParameters = Omit<FunctionParameters, 'getFunction
   parametersSchema?: ObjectSchema | null;
   querySchema?: ObjectSchema | null;
   extras?: Record<string, ExtraSource>;
+  debug?: boolean;
 };

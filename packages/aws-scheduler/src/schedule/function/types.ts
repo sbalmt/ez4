@@ -3,4 +3,5 @@ import type { ExtraSource } from '@ez4/project/library';
 
 export type TargetFunctionParameters = Omit<FunctionParameters, 'getFunctionBundle'> & {
   extras?: Record<string, ExtraSource>;
+  debug?: boolean;
 };

@@ -147,6 +147,7 @@ const getIntegrationFunction = async (
       querySchema: request?.query,
       bodySchema: request?.body,
       extras: service.extras,
+      debug: options.debug,
       variables: {
         ...service.variables
       }
@@ -199,6 +200,7 @@ const getAuthorizerFunction = async (
       parametersSchema: request?.parameters,
       querySchema: request?.query,
       extras: service.extras,
+      debug: options.debug,
       variables: {
         ...service.variables
       }
