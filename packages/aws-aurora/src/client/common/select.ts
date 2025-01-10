@@ -102,7 +102,7 @@ export const getSelectFields = <T extends Database.Schema, R extends Relations>(
         true
       );
 
-      if (sourceIndex !== Index.Secondary) {
+      if (sourceIndex === Index.Primary || sourceIndex === Index.Unique) {
         relationQuery.objectColumn(relationRecord);
       } else {
         relationQuery.arrayColumn(relationRecord);
