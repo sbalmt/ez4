@@ -1,10 +1,10 @@
-import type { Query } from '@ez4/database';
+import type { Query, Relations } from '@ez4/database';
 
 export type SqlColumn = string | [string, string];
 
 export type SqlRecord = Record<string, unknown>;
 
-export type SqlFilters = Query.WhereInput<SqlRecord>;
+export type SqlFilters = Query.WhereInput<SqlRecord, {}, Relations>;
 
 export type SqlOrder = Query.OrderInput<any>;
 

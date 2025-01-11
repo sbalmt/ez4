@@ -17,7 +17,7 @@ export const prepareDelete = <
   const variables = [];
 
   if (query.where) {
-    const [whereFields, whereVariables] = prepareWhereFields<T, I>(query.where);
+    const [whereFields, whereVariables] = prepareWhereFields<T, I, R>(query.where);
 
     if (whereFields) {
       statement.push(`WHERE ${whereFields}`);

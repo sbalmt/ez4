@@ -3,12 +3,12 @@ import type { Environment, Service } from '@ez4/common';
 
 declare class TestTableA implements Database.Schema {
   id: string;
-  value: number;
+  value_a: number;
 }
 
 declare class TestTableB implements Database.Schema {
   id: string;
-  value: number;
+  value_b: number;
   table_a_id: string;
 }
 
@@ -63,26 +63,36 @@ const testSelect = async (client: TestDatabase['client']) => {
   // Fetch tableA and all tableB connections
   const resultA = await client.tableA.findMany({
     select: {
-      value: true,
+      value_a: true,
       all_relations_b: {
-        value: true
+        value_b: true
+      }
+    },
+    where: {
+      all_relations_b: {
+        value_b: 2
       }
     }
   });
 
-  resultA.records[0].all_relations_b[0].value;
+  resultA.records[0].all_relations_b[0].value_b;
 
   // Fetch tableB and its tableA connection
   const resultB = await client.tableB.findMany({
     select: {
-      value: true,
+      value_b: true,
       relation_a: {
-        value: true
+        value_a: true
+      }
+    },
+    where: {
+      relation_a: {
+        value_a: 1
       }
     }
   });
 
-  resultB.records[0].relation_a.value;
+  resultB.records[0].relation_a.value_a;
 };
 
 const testInsert = (client: TestDatabase['client']) => {
@@ -90,15 +100,15 @@ const testInsert = (client: TestDatabase['client']) => {
   client.tableA.insertOne({
     data: {
       id: 'foo',
-      value: 1,
+      value_a: 1,
       all_relations_b: [
         {
           id: 'bar',
-          value: 2
+          value_b: 2
         },
         {
           id: 'baz',
-          value: 3
+          value_b: 3
         }
       ]
     }
@@ -107,11 +117,11 @@ const testInsert = (client: TestDatabase['client']) => {
   // Create tableA, tableB and connect
   client.tableB.insertOne({
     data: {
-      id: 'foo',
-      value: 1,
+      id: 'bar',
+      value_b: 2,
       relation_a: {
-        id: 'bar',
-        value: 2
+        id: 'foo',
+        value_a: 1
       }
     }
   });
@@ -119,10 +129,10 @@ const testInsert = (client: TestDatabase['client']) => {
   // Create tableB and connect existing tableA
   client.tableB.insertOne({
     data: {
-      id: 'foo',
-      value: 1,
+      id: 'bar',
+      value_b: 2,
       relation_a: {
-        table_a_id: 'bar'
+        table_a_id: 'foo'
       }
     }
   });
@@ -132,9 +142,14 @@ const testUpdate = (client: TestDatabase['client']) => {
   // Update tableA and all tableB connections
   client.tableA.updateMany({
     data: {
-      value: 1,
+      value_a: 1,
       all_relations_b: {
-        value: 2
+        value_b: 2
+      }
+    },
+    where: {
+      all_relations_b: {
+        value_b: 2
       }
     }
   });
@@ -142,9 +157,14 @@ const testUpdate = (client: TestDatabase['client']) => {
   // Update tableB and the connected tableA
   client.tableB.updateMany({
     data: {
-      value: 1,
+      value_b: 2,
       relation_a: {
-        value: 2
+        value_a: 1
+      }
+    },
+    where: {
+      relation_a: {
+        value_a: 1
       }
     }
   });
@@ -152,9 +172,9 @@ const testUpdate = (client: TestDatabase['client']) => {
   // Update tableB and connect existing tableA
   client.tableB.updateMany({
     data: {
-      value: 1,
+      value_b: 2,
       relation_a: {
-        table_a_id: 'bar'
+        table_a_id: 'foo'
       }
     }
   });
@@ -165,26 +185,29 @@ const testUpsert = (client: TestDatabase['client']) => {
   client.tableA.upsertOne({
     insert: {
       id: 'foo',
-      value: 1,
+      value_a: 1,
       all_relations_b: [
         {
           id: 'bar',
-          value: 2
+          value_b: 2
         },
         {
           id: 'baz',
-          value: 3
+          value_b: 3
         }
       ]
     },
     update: {
-      value: 1,
+      value_a: 1,
       all_relations_b: {
-        value: 2
+        value_b: 2
       }
     },
     where: {
-      id: 'baz'
+      id: 'baz',
+      all_relations_b: {
+        value_b: 3
+      }
     }
   });
 };

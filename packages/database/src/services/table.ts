@@ -23,15 +23,15 @@ export type TableIndex<P, T extends AnyObject> =
   PropertyExists<P, T> extends true ? (T[P] extends Database.Indexes ? T[P] : {}) : {};
 
 /**
- * Given a table `T` and a property `P`, it returns all the relations corresponding
- * to the given property.
+ * Given a table `T` and a property `P`, it returns all the relations corresponding to the
+ * given property.
  */
 export type TableRelation<P, T extends AnyObject> =
   PropertyExists<P, T> extends true
     ? T[P] extends Relations
       ? T[P]
-      : { indexes: never; selects: {}; changes: {} }
-    : { indexes: never; selects: {}; changes: {} };
+      : { indexes: never; filters: {}; selects: {}; changes: {} }
+    : { indexes: never; filters: {}; selects: {}; changes: {} };
 
 /**
  * Given a database service `T`, it returns all table clients.

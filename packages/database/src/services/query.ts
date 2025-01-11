@@ -35,7 +35,7 @@ export namespace Query {
   > = {
     select?: StrictType<SelectInput<T, R>, S>;
     data: DeepPartial<Omit<T, R['indexes']> & FlatObject<R['changes']>>;
-    where: WhereInput<T, I>;
+    where: WhereInput<T, I, R>;
   };
 
   export type FindOneInput<
@@ -45,7 +45,7 @@ export namespace Query {
     R extends Relations
   > = {
     select: StrictType<SelectInput<T, R>, S>;
-    where: WhereInput<T, I>;
+    where: WhereInput<T, I, R>;
   };
 
   export type UpsertOneInput<
@@ -57,7 +57,7 @@ export namespace Query {
     select?: StrictType<SelectInput<T, R>, S>;
     insert: Omit<T, R['indexes']> & R['changes'];
     update: DeepPartial<Omit<T, R['indexes']> & FlatObject<R['changes']>>;
-    where: WhereInput<T, I>;
+    where: WhereInput<T, I, R>;
   };
 
   export type DeleteOneInput<
@@ -67,7 +67,7 @@ export namespace Query {
     R extends Relations
   > = {
     select?: StrictType<SelectInput<T, R>, S>;
-    where: WhereInput<T, I>;
+    where: WhereInput<T, I, R>;
   };
 
   export type InsertManyInput<T extends Database.Schema> = {
@@ -81,7 +81,7 @@ export namespace Query {
   > = {
     select?: StrictType<SelectInput<T, R>, S>;
     data: DeepPartial<Omit<T, R['indexes']> & FlatObject<R['changes']>>;
-    where?: WhereInput<T>;
+    where?: WhereInput<T, {}, R>;
     limit?: number;
   };
 
@@ -92,7 +92,7 @@ export namespace Query {
     R extends Relations
   > = {
     select: StrictType<SelectInput<T, R>, S>;
-    where?: WhereInput<T>;
+    where?: WhereInput<T, {}, R>;
     order?: OrderInput<I>;
     cursor?: number | string;
     limit?: number;
@@ -104,7 +104,7 @@ export namespace Query {
     R extends Relations
   > = {
     select?: StrictType<SelectInput<T, R>, S>;
-    where?: WhereInput<T>;
+    where?: WhereInput<T, {}, R>;
     limit?: number;
   };
 
@@ -171,8 +171,9 @@ export namespace Query {
 
   export type WhereInput<
     T extends Database.Schema,
-    I extends Database.Indexes<T> = {}
-  > = WhereFields<T, I> & WhereNot<T, I> & WhereAnd<T, I> & WhereOr<T, I>;
+    I extends Database.Indexes<T>,
+    R extends Relations
+  > = WhereFields<T & R['filters'], I> & WhereNot<T, I, R> & WhereAnd<T, I, R> & WhereOr<T, I, R>;
 
   export type WhereOperators = keyof (WhereNegate<any> &
     WhereEqual<any> &
@@ -233,16 +234,16 @@ export namespace Query {
     | (WhereRequiredFields<T, I, DecomposeUniqueIndexNames<I>> &
         WhereOptionalFields<T, I, DecomposeUniqueIndexNames<I>>);
 
-  type WhereNot<T extends Database.Schema, I extends Database.Indexes<T>> = {
-    NOT?: WhereInput<T, I> | WhereAnd<T, I> | WhereOr<T, I>;
+  type WhereNot<T extends Database.Schema, I extends Database.Indexes<T>, R extends Relations> = {
+    NOT?: WhereInput<T, I, R> | WhereAnd<T, I, R> | WhereOr<T, I, R>;
   };
 
-  type WhereAnd<T extends Database.Schema, I extends Database.Indexes<T>> = {
-    AND?: (WhereInput<T, I> | WhereOr<T, I> | WhereNot<T, I>)[];
+  type WhereAnd<T extends Database.Schema, I extends Database.Indexes<T>, R extends Relations> = {
+    AND?: (WhereInput<T, I, R> | WhereOr<T, I, R> | WhereNot<T, I, R>)[];
   };
 
-  type WhereOr<T extends Database.Schema, I extends Database.Indexes<T>> = {
-    OR?: (WhereInput<T, I> | WhereAnd<T, I> | WhereNot<T, I>)[];
+  type WhereOr<T extends Database.Schema, I extends Database.Indexes<T>, R extends Relations> = {
+    OR?: (WhereInput<T, I, R> | WhereAnd<T, I, R> | WhereNot<T, I, R>)[];
   };
 
   type WhereNegate<T> = {

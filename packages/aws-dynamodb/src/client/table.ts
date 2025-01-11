@@ -122,7 +122,7 @@ export class Table<T extends Database.Schema, I extends Database.Indexes<T>, R e
 
     await this.updateMany({
       select: query.select,
-      where: query.where as Query.WhereInput<T, {}>,
+      where: query.where as Query.WhereInput<T, {}, R>,
       data: query.update,
       limit: 1
     });

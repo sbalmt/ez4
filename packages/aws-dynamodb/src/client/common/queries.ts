@@ -207,7 +207,7 @@ export const prepareUpdateMany = async <
         where: {
           ...(sortKey && { [sortKey]: sortId }),
           [partitionKey]: partitionId
-        } as Query.WhereInput<T, I>
+        } as Query.WhereInput<T, I, R>
       });
 
       return {
@@ -262,7 +262,7 @@ export const prepareDeleteMany = async <
       where: {
         ...(sortKey && { [sortKey]: sortId }),
         [partitionKey]: partitionId
-      } as Query.WhereInput<T, I>
+      } as Query.WhereInput<T, I, R>
     });
 
     transactions.push({
