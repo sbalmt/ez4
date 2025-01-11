@@ -14,6 +14,7 @@ import type {
   PartialObject,
   DeepPartial,
   FlatObject,
+  IsNullable,
   IsObject,
   StrictType
 } from '@ez4/utils';
@@ -200,31 +201,37 @@ export namespace Query {
     | WhereStartsWith
     | WhereContains;
 
-  type WherePrimaryFields<T extends Database.Schema, I extends Database.Indexes<T>> = {
-    [P in DecomposePrimaryIndexNames<I>]: P extends keyof T
+  type WhereRequiredFields<
+    T extends Database.Schema,
+    I extends Database.Indexes<T>,
+    N extends string
+  > = {
+    [P in N]: P extends keyof T
       ? IsObject<T[P]> extends true
-        ? WhereFields<NonNullable<T[P]>, I>
+        ? IsNullable<T[P]> extends true
+          ? null | WhereFields<NonNullable<T[P]>, I>
+          : WhereFields<NonNullable<T[P]>, I>
         : T[P] | WhereOperations<T[P]>
       : never;
   };
 
-  type WhereUniqueFields<T extends Database.Schema, I extends Database.Indexes<T>> = {
-    [P in DecomposeUniqueIndexNames<I>]: P extends keyof T
-      ? IsObject<T[P]> extends true
-        ? WhereFields<NonNullable<T[P]>, I>
-        : T[P] | WhereOperations<T[P]>
-      : never;
-  };
-
-  type WhereOptionalFields<T extends Database.Schema, I extends Database.Indexes<T>, N> = {
+  type WhereOptionalFields<
+    T extends Database.Schema,
+    I extends Database.Indexes<T>,
+    N extends string
+  > = {
     [P in Exclude<keyof T, N>]?: IsObject<T[P]> extends true
-      ? WhereFields<NonNullable<T[P]>, I>
+      ? IsNullable<T[P]> extends true
+        ? null | WhereFields<NonNullable<T[P]>, I>
+        : WhereFields<NonNullable<T[P]>, I>
       : T[P] | WhereOperations<T[P]>;
   };
 
   type WhereFields<T extends Database.Schema, I extends Database.Indexes<T>> =
-    | (WherePrimaryFields<T, I> & WhereOptionalFields<T, I, DecomposePrimaryIndexNames<I>>)
-    | (WhereUniqueFields<T, I> & WhereOptionalFields<T, I, DecomposeUniqueIndexNames<I>>);
+    | (WhereRequiredFields<T, I, DecomposePrimaryIndexNames<I>> &
+        WhereOptionalFields<T, I, DecomposePrimaryIndexNames<I>>)
+    | (WhereRequiredFields<T, I, DecomposeUniqueIndexNames<I>> &
+        WhereOptionalFields<T, I, DecomposeUniqueIndexNames<I>>);
 
   type WhereNot<T extends Database.Schema, I extends Database.Indexes<T>> = {
     NOT?: WhereInput<T, I> | WhereAnd<T, I> | WhereOr<T, I>;

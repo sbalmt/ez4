@@ -8,7 +8,7 @@ import { isSkippableData } from './data.js';
 type PrepareResult = [string, unknown[]];
 
 export const prepareWhereFields = <T extends Database.Schema, I extends Database.Indexes<T>>(
-  input: Query.WhereInput<T, I>
+  input: Query.WhereInput<T> | Query.WhereInput<T, I>
 ): PrepareResult => {
   const prepareFields = (data: AnyObject, path?: string): [string[], unknown[]] => {
     const operations: string[] = [];

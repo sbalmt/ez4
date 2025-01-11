@@ -202,7 +202,20 @@ describe.only('sql where tests', () => {
     equal(statement, 'SELECT * FROM "test" WHERE "foo" IS NOT NULL');
   });
 
-  it('assert :: where is null', async () => {
+  it('assert :: where is null (implicit)', async () => {
+    const query = sql
+      .select()
+      .from('test')
+      .where({ foo: null });
+
+    const [statement, variables] = query.build();
+
+    deepEqual(variables, []);
+
+    equal(statement, 'SELECT * FROM "test" WHERE "foo" IS NULL');
+  });
+
+  it('assert :: where is null (explicit)', async () => {
     const query = sql
       .select()
       .from('test')
