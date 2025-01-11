@@ -1,6 +1,6 @@
-import type { AnySchema, ObjectSchema } from '@ez4/schema';
+import type { SqlFilters, SqlJsonColumnSchema, SqlStatement } from '@ez4/pgsql';
 import type { Database, Relations, Query } from '@ez4/database';
-import type { SqlJsonColumnSchema, SqlStatement } from '@ez4/pgsql';
+import type { AnySchema, ObjectSchema } from '@ez4/schema';
 import type { SqlParameter } from '@aws-sdk/client-rds-data';
 import type { RepositoryRelationsWithSchema } from '../../types/repository.js';
 
@@ -39,9 +39,12 @@ export const prepareSelectQuery = <
   relations: RepositoryRelationsWithSchema,
   query: Query.FindOneInput<T, S, I, R> | Query.FindManyInput<T, S, I, R>
 ): [string, SqlParameter[]] => {
-  const selectQuery = Sql.reset().select(schema).from(table).where(query.where);
+  const { select, where } = query;
 
-  selectQuery.record(getSelectFields(query.select, schema, relations, selectQuery));
+  const selectFilters = where && getSelectFilters(where, relations);
+  const selectQuery = Sql.reset().select(schema).from(table).where(selectFilters);
+
+  selectQuery.record(getSelectFields(select, where, schema, relations, selectQuery));
 
   if ('order' in query) {
     selectQuery.order(query.order);
@@ -62,6 +65,7 @@ export const prepareSelectQuery = <
 
 export const getSelectFields = <T extends Database.Schema, R extends Relations>(
   fields: Partial<Query.SelectInput<T, R>>,
+  filters: SqlFilters | undefined,
   schema: ObjectSchema,
   relations: RepositoryRelationsWithSchema,
   statement: SqlStatement,
@@ -91,11 +95,15 @@ export const getSelectFields = <T extends Database.Schema, R extends Relations>(
       statement.as('R');
 
       const relationQuery = Sql.select(sourceSchema)
-        .where({ [sourceColumn]: statement.reference(targetColumn) })
-        .from(sourceTable);
+        .from(sourceTable)
+        .where({
+          ...(filters && filters[fieldKey]),
+          [sourceColumn]: statement.reference(targetColumn)
+        });
 
       const relationRecord = getSelectFields(
         relationFields,
+        undefined,
         sourceSchema,
         relations,
         relationQuery,
@@ -133,6 +141,36 @@ export const getSelectFields = <T extends Database.Schema, R extends Relations>(
   }
 
   return output;
+};
+
+export const getSelectFilters = (filters: SqlFilters, relations: RepositoryRelationsWithSchema) => {
+  const result: SqlFilters = {};
+
+  for (const filterKey in filters) {
+    const filterValue = filters[filterKey];
+
+    if (!filterValue || filterKey in relations) {
+      continue;
+    }
+
+    switch (filterKey) {
+      case 'NOT':
+        result[filterKey] = getSelectFilters(filterValue, relations);
+        break;
+
+      case 'AND':
+      case 'OR':
+        result[filterKey] = filterValue.map((operation: SqlFilters) => {
+          return getSelectFilters(operation, relations);
+        });
+        break;
+
+      default:
+        result[filterKey] = filterValue;
+    }
+  }
+
+  return result;
 };
 
 const getDefaultFields = (schema: ObjectSchema) => {

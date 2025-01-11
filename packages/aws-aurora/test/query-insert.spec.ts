@@ -20,6 +20,12 @@ type TestSchema = {
 
 type TestRelations = {
   indexes: 'relation1_id' | 'relation2_id';
+  filters: {
+    relation1?: TestSchema;
+    relation2?: TestSchema;
+    relation3?: TestSchema;
+    relations?: TestSchema;
+  };
   selects: {
     relation1?: TestSchema;
     relation2?: TestSchema;
@@ -120,7 +126,7 @@ describe.only('aurora query (insert)', () => {
     }
   };
 
-  it('assert :: prepare insert', () => {
+  it.only('assert :: prepare insert', () => {
     const [statement, variables] = prepareInsertQuery<TestSchema, TestRelations>(
       'ez4-test-insert',
       testSchema,
@@ -146,7 +152,7 @@ describe.only('aurora query (insert)', () => {
     ]);
   });
 
-  it('assert :: prepare insert (primary foreign id)', () => {
+  it.only('assert :: prepare insert (primary foreign id)', () => {
     const [statement, variables] = prepareInsertQuery<TestSchema, TestRelations>(
       'ez4-test-insert',
       testSchema,
@@ -175,7 +181,7 @@ describe.only('aurora query (insert)', () => {
     ]);
   });
 
-  it('assert :: prepare insert (primary foreign object)', () => {
+  it.only('assert :: prepare insert (primary foreign object)', () => {
     const [statement, variables] = prepareInsertQuery<TestSchema, TestRelations>(
       'ez4-test-insert',
       testSchema,
@@ -224,7 +230,7 @@ describe.only('aurora query (insert)', () => {
     ]);
   });
 
-  it('assert :: prepare insert (unique foreign id)', () => {
+  it.only('assert :: prepare insert (unique foreign id)', () => {
     const [statement, variables] = prepareInsertQuery<TestSchema, TestRelations>(
       'ez4-test-insert',
       testSchema,
@@ -253,7 +259,7 @@ describe.only('aurora query (insert)', () => {
     ]);
   });
 
-  it('assert :: prepare insert (unique foreign object)', () => {
+  it.only('assert :: prepare insert (unique foreign object)', () => {
     const [statement, variables] = prepareInsertQuery<TestSchema, TestRelations>(
       'ez4-test-insert',
       testSchema,
@@ -291,7 +297,7 @@ describe.only('aurora query (insert)', () => {
     ]);
   });
 
-  it('assert :: prepare insert (inverse array object)', () => {
+  it.only('assert :: prepare insert (inverse array object)', () => {
     const [statement, variables] = prepareInsertQuery<TestSchema, TestRelations>(
       'ez4-test-insert',
       testSchema,
@@ -342,7 +348,7 @@ describe.only('aurora query (insert)', () => {
     ]);
   });
 
-  it('assert :: prepare insert (foreign and inverse)', () => {
+  it.only('assert :: prepare insert (foreign and inverse)', () => {
     const [statement, variables] = prepareInsertQuery<TestSchema, TestRelations>(
       'ez4-test-insert',
       testSchema,

@@ -5,8 +5,8 @@ import type { RepositoryRelationsWithSchema } from '../../types/repository.js';
 
 import { SqlBuilder } from '@ez4/pgsql';
 
+import { getSelectFilters, getSelectFields } from './select.js';
 import { detectFieldData, prepareFieldData } from './data.js';
-import { getSelectFields } from './select.js';
 
 const Sql = new SqlBuilder({
   onPrepareVariable: (value, index, schema) => {
@@ -29,10 +29,13 @@ export const prepareDeleteQuery = <
   relations: RepositoryRelationsWithSchema,
   query: Query.DeleteOneInput<T, S, I, R> | Query.DeleteManyInput<T, S, R>
 ): [string, SqlParameter[]] => {
-  const deleteQuery = Sql.reset().delete(schema).from(table).where(query.where);
+  const { select, where } = query;
 
-  if (query.select) {
-    const selectRecord = getSelectFields(query.select, schema, relations, deleteQuery);
+  const deleteFilters = where && getSelectFilters(where, relations);
+  const deleteQuery = Sql.reset().delete(schema).from(table).where(deleteFilters);
+
+  if (select) {
+    const selectRecord = getSelectFields(select, where, schema, relations, deleteQuery);
 
     deleteQuery.returning(selectRecord);
   }

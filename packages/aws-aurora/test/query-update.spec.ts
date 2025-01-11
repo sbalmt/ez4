@@ -23,6 +23,11 @@ type TestSchema = {
 
 type TestRelations = {
   indexes: 'relation1_id' | 'relation2_id';
+  filters: {
+    relation1?: TestSchema;
+    relation2?: TestSchema;
+    relations?: TestSchema;
+  };
   selects: {
     relation1?: TestSchema;
     relation2?: TestSchema;
@@ -121,7 +126,7 @@ describe.only('aurora query (update)', () => {
     }
   };
 
-  it('assert :: prepare update', () => {
+  it.only('assert :: prepare update', () => {
     const [statement, variables] = prepareUpdateQuery<TestSchema, TestIndexes, TestRelations, {}>(
       'ez4-test-update',
       testSchema,
@@ -146,7 +151,7 @@ describe.only('aurora query (update)', () => {
     ]);
   });
 
-  it('assert :: prepare update (with select)', () => {
+  it.only('assert :: prepare update (with select)', () => {
     const [statement, variables] = prepareUpdateQuery<TestSchema, TestIndexes, TestRelations, {}>(
       'ez4-test-update',
       testSchema,
@@ -185,7 +190,7 @@ describe.only('aurora query (update)', () => {
     ]);
   });
 
-  it('assert :: prepare update (optional json column)', () => {
+  it.only('assert :: prepare update (optional json column)', () => {
     const [statement, variables] = prepareUpdateQuery<TestSchema, TestIndexes, TestRelations, {}>(
       'ez4-test-update',
       testSchema,
@@ -210,7 +215,7 @@ describe.only('aurora query (update)', () => {
     ]);
   });
 
-  it('assert :: prepare update (primary foreign id)', () => {
+  it.only('assert :: prepare update (primary foreign id)', () => {
     const [statement, variables] = prepareUpdateQuery<TestSchema, TestIndexes, TestRelations, {}>(
       'ez4-test-update',
       testSchema,
@@ -241,7 +246,7 @@ describe.only('aurora query (update)', () => {
     ]);
   });
 
-  it('assert :: prepare update (primary foreign object)', () => {
+  it.only('assert :: prepare update (primary foreign object)', () => {
     const [statement, variables] = prepareUpdateQuery<TestSchema, TestIndexes, TestRelations, {}>(
       'ez4-test-update',
       testSchema,
@@ -281,7 +286,7 @@ describe.only('aurora query (update)', () => {
     ]);
   });
 
-  it('assert :: prepare update (unique foreign id)', () => {
+  it.only('assert :: prepare update (unique foreign id)', () => {
     const [statement, variables] = prepareUpdateQuery<TestSchema, TestIndexes, TestRelations, {}>(
       'ez4-test-update',
       testSchema,
@@ -317,7 +322,7 @@ describe.only('aurora query (update)', () => {
     ]);
   });
 
-  it('assert :: prepare update (unique foreign object)', () => {
+  it.only('assert :: prepare update (unique foreign object)', () => {
     const [statement, variables] = prepareUpdateQuery<TestSchema, TestIndexes, TestRelations, {}>(
       'ez4-test-update',
       testSchema,
@@ -357,7 +362,7 @@ describe.only('aurora query (update)', () => {
     ]);
   });
 
-  it('assert :: prepare update (inverse array object)', () => {
+  it.only('assert :: prepare update (inverse array object)', () => {
     const [statement, variables] = prepareUpdateQuery<TestSchema, TestIndexes, TestRelations, {}>(
       'ez4-test-update',
       testSchema,
@@ -393,7 +398,7 @@ describe.only('aurora query (update)', () => {
     ]);
   });
 
-  it('assert :: prepare update (foreign and inverse)', () => {
+  it.only('assert :: prepare update (foreign and inverse)', () => {
     const [statement, variables] = prepareUpdateQuery<TestSchema, TestIndexes, TestRelations, {}>(
       'ez4-test-update',
       testSchema,
@@ -447,7 +452,7 @@ describe.only('aurora query (update)', () => {
     ]);
   });
 
-  it('assert :: prepare update (only relationships)', () => {
+  it.only('assert :: prepare update (only relationships)', () => {
     const [statement, variables] = prepareUpdateQuery<TestSchema, TestIndexes, TestRelations, {}>(
       'ez4-test-update',
       testSchema,

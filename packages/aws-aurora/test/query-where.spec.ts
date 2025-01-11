@@ -18,6 +18,7 @@ type TestSchema = {
 
 type TestRelations = {
   indexes: never;
+  filters: {};
   selects: {};
   changes: {};
 };
@@ -54,7 +55,7 @@ describe.only('aurora query (where)', () => {
     }
   };
 
-  const getWhereOperation = (where: Query.WhereInput<TestSchema>) => {
+  const getWhereOperation = (where: Query.WhereInput<TestSchema, {}, TestRelations>) => {
     const [statement, variables] = prepareSelectQuery<TestSchema, TestIndexes, TestRelations, {}>(
       'ez4-test-where-operation',
       testSchema,

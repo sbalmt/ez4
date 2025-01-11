@@ -10,8 +10,8 @@ import { SqlBuilder } from '@ez4/pgsql';
 import { Index } from '@ez4/database';
 
 import { detectFieldData, isSkippableData, prepareFieldData } from './data.js';
+import { getSelectFilters, getSelectFields } from './select.js';
 import { InvalidRelationFieldError } from './errors.js';
-import { getSelectFields } from './select.js';
 
 const Sql = new SqlBuilder({
   onPrepareVariable: (value, index, schema) => {
@@ -34,19 +34,22 @@ export const prepareUpdateQuery = <
   relations: RepositoryRelationsWithSchema,
   query: Query.UpdateOneInput<T, S, I, R> | Query.UpdateManyInput<T, S, R>
 ): [string, SqlParameter[]] => {
-  const record = getUpdateRecord(query.data, schema, relations);
+  const { select, where, data } = query;
 
-  const updateQuery = isEmptyObject(record)
-    ? Sql.reset().select(schema).from(table).where(query.where)
-    : Sql.reset().update(schema).only(table).record(record).where(query.where).returning();
+  const updateFilters = where && getSelectFilters(where, relations);
+  const updateRecord = getUpdateRecord(query.data, schema, relations);
 
-  if (query.select) {
-    const selectRecord = getSelectFields(query.select, schema, relations, updateQuery);
+  const updateQuery = !isEmptyObject(updateRecord)
+    ? Sql.reset().update(schema).only(table).record(updateRecord).where(updateFilters).returning()
+    : Sql.reset().select(schema).from(table).where(updateFilters);
 
-    updateQuery.results.record(selectRecord);
+  if (select) {
+    const selectFields = getSelectFields(select, where, schema, relations, updateQuery);
+
+    updateQuery.results.record(selectFields);
   }
 
-  const queries = [updateQuery, ...preparePostRelations(query.data, relations, updateQuery)];
+  const queries = [updateQuery, ...preparePostRelations(data, relations, updateQuery)];
 
   const [statement, variables] = Sql.with(queries, 'R').build();
 
