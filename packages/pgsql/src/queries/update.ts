@@ -1,6 +1,6 @@
 import type { SqlBuilderOptions, SqlBuilderReferences } from '../builder.js';
 import type { SqlResultColumn, SqlResultRecord } from '../types/results.js';
-import type { SqlStatementWithResults } from '../types/statement.js';
+import type { SqlSourceWithResults } from '../types/source.js';
 import type { SqlFilters, SqlRecord } from '../types/common.js';
 import { isObjectSchema, type ObjectSchema } from '@ez4/schema';
 
@@ -8,7 +8,7 @@ import { isPlainObject } from '@ez4/utils';
 
 import { MissingTableNameError, MissingRecordError, EmptyRecordError } from '../errors/queries.js';
 import { SqlReturningClause } from '../types/returning.js';
-import { SqlStatement } from '../types/statement.js';
+import { SqlSource } from '../types/source.js';
 import { SqlReference } from '../types/reference.js';
 import { SqlWhereClause } from '../types/where.js';
 import { escapeSqlName } from '../utils/escape.js';
@@ -23,14 +23,14 @@ type SqlUpdateContext = {
   parent?: string;
 };
 
-export class SqlUpdateStatement extends SqlStatement {
+export class SqlUpdateStatement extends SqlSource {
   #state: {
     options: SqlBuilderOptions;
     references: SqlBuilderReferences;
     returning?: SqlReturningClause;
     schema?: ObjectSchema;
     record?: SqlRecord;
-    source?: SqlStatement;
+    source?: SqlSource;
     where?: SqlWhereClause;
     table?: string;
     alias?: string;
@@ -50,10 +50,6 @@ export class SqlUpdateStatement extends SqlStatement {
     };
   }
 
-  get alias() {
-    return this.#state.alias;
-  }
-
   get fields() {
     return this.#state.record ? Object.keys(this.#state.record) : [];
   }
@@ -64,6 +60,10 @@ export class SqlUpdateStatement extends SqlStatement {
 
   get filters() {
     return this.#state.where;
+  }
+
+  get alias() {
+    return this.#state.alias;
   }
 
   get results() {
@@ -80,7 +80,7 @@ export class SqlUpdateStatement extends SqlStatement {
     return this;
   }
 
-  from(table: SqlStatement | undefined) {
+  from(table: SqlSource | undefined) {
     this.#state.source = table;
 
     return this;
@@ -112,7 +112,7 @@ export class SqlUpdateStatement extends SqlStatement {
 
   returning(
     result?: SqlResultRecord | SqlResultColumn[]
-  ): SqlUpdateStatement & SqlStatementWithResults {
+  ): SqlUpdateStatement & SqlSourceWithResults {
     const { returning } = this.#state;
 
     if (!returning) {

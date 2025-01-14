@@ -1,12 +1,12 @@
 import type { SqlBuilderOptions, SqlBuilderReferences } from '../builder.js';
 import type { SqlResultColumn, SqlResultRecord } from '../types/results.js';
-import type { SqlStatementWithResults } from '../types/statement.js';
+import type { SqlSourceWithResults } from '../types/source.js';
 import type { SqlRecord } from '../types/common.js';
 import type { ObjectSchema } from '@ez4/schema';
 
 import { SqlRaw } from '../types/raw.js';
 import { SqlReference } from '../types/reference.js';
-import { SqlStatement } from '../types/statement.js';
+import { SqlSource } from '../types/source.js';
 import { SqlReturningClause } from '../types/returning.js';
 import { MissingTableNameError } from '../errors/queries.js';
 import { escapeSqlName } from '../utils/escape.js';
@@ -18,14 +18,14 @@ type SqlInsertContext = {
   variables: unknown[];
 };
 
-export class SqlInsertStatement extends SqlStatement {
+export class SqlInsertStatement extends SqlSource {
   #state: {
     options: SqlBuilderOptions;
     references: SqlBuilderReferences;
     returning?: SqlReturningClause;
     schema?: ObjectSchema;
     record?: SqlRecord;
-    source?: SqlStatement;
+    source?: SqlSource;
     table?: string;
     alias?: string;
   };
@@ -44,16 +44,16 @@ export class SqlInsertStatement extends SqlStatement {
     };
   }
 
-  get alias() {
-    return this.#state.alias;
-  }
-
   get fields() {
     return this.#state.record ? Object.keys(this.#state.record) : [];
   }
 
   get values() {
     return this.#state.record ? Object.values(this.#state.record) : [];
+  }
+
+  get alias() {
+    return this.#state.alias;
   }
 
   get results() {
@@ -70,7 +70,7 @@ export class SqlInsertStatement extends SqlStatement {
     return this;
   }
 
-  select(table: SqlStatement | undefined) {
+  select(table: SqlSource | undefined) {
     this.#state.source = table;
 
     return this;
@@ -90,7 +90,7 @@ export class SqlInsertStatement extends SqlStatement {
 
   returning(
     result?: SqlResultRecord | SqlResultColumn[]
-  ): SqlInsertStatement & SqlStatementWithResults {
+  ): SqlInsertStatement & SqlSourceWithResults {
     const { returning } = this.#state;
 
     if (!returning) {

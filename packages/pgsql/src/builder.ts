@@ -1,5 +1,4 @@
 import type { AnySchema, ObjectSchema } from '@ez4/schema';
-import type { SqlStatement } from './types/statement.js';
 import type { SqlRawGenerator } from './types/raw.js';
 
 import { SqlSelectStatement } from './queries/select.js';
@@ -45,7 +44,15 @@ export class SqlBuilder {
     return this;
   }
 
-  with(statements: SqlStatement[], alias?: string) {
+  with(
+    statements: (
+      | SqlSelectStatement
+      | SqlInsertStatement
+      | SqlUpdateStatement
+      | SqlDeleteStatement
+    )[],
+    alias?: string
+  ) {
     return new SqlWithClause(statements, alias);
   }
 

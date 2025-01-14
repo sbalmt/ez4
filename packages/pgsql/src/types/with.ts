@@ -1,4 +1,4 @@
-import type { SqlStatement } from './statement.js';
+import type { SqlSource } from './source.js';
 
 import { NoStatementsError } from '../errors/queries.js';
 import { escapeSqlName } from '../utils/escape.js';
@@ -10,31 +10,31 @@ type SqlWithContext = {
 
 export class SqlWithClause {
   #state: {
-    statements: SqlStatement[];
+    sources: SqlSource[];
     alias: string;
   };
 
-  constructor(statements: SqlStatement[], alias?: string) {
+  constructor(sources: SqlSource[], alias?: string) {
     this.#state = {
       alias: alias || 'R',
-      statements
+      sources
     };
   }
 
   build(): [string, unknown[]] {
-    const { statements, alias } = this.#state;
+    const { sources, alias } = this.#state;
 
-    if (statements.length === 0) {
+    if (sources.length === 0) {
       throw new NoStatementsError();
     }
 
-    if (statements.length === 1) {
-      return statements[0].build();
+    if (sources.length === 1) {
+      return sources[0].build();
     }
 
     const variables: unknown[] = [];
 
-    const queries = getQueries(statements, { variables, alias });
+    const queries = getQueries(sources, { variables, alias });
     const clause = ['WITH'];
 
     const lastQuery = queries.splice(-1);
@@ -49,7 +49,7 @@ export class SqlWithClause {
   }
 }
 
-const getQueries = (statements: SqlStatement[], context: SqlWithContext) => {
+const getQueries = (statements: SqlSource[], context: SqlWithContext) => {
   const { variables, alias } = context;
 
   const queries = [];

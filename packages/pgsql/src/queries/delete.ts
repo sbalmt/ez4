@@ -1,6 +1,6 @@
 import type { SqlBuilderOptions, SqlBuilderReferences } from '../builder.js';
 import type { SqlResultColumn, SqlResultRecord } from '../types/results.js';
-import type { SqlStatementWithResults } from '../types/statement.js';
+import type { SqlSourceWithResults } from '../types/source.js';
 import type { SqlFilters } from '../types/common.js';
 import type { ObjectSchema } from '@ez4/schema';
 
@@ -8,9 +8,9 @@ import { escapeSqlName } from '../utils/escape.js';
 import { MissingTableNameError } from '../errors/queries.js';
 import { SqlReturningClause } from '../types/returning.js';
 import { SqlWhereClause } from '../types/where.js';
-import { SqlStatement } from '../types/statement.js';
+import { SqlSource } from '../types/source.js';
 
-export class SqlDeleteStatement extends SqlStatement {
+export class SqlDeleteStatement extends SqlSource {
   #state: {
     options: SqlBuilderOptions;
     references: SqlBuilderReferences;
@@ -35,12 +35,12 @@ export class SqlDeleteStatement extends SqlStatement {
     };
   }
 
-  get alias() {
-    return this.#state.alias;
-  }
-
   get filters() {
     return this.#state.where;
+  }
+
+  get alias() {
+    return this.#state.alias;
   }
 
   get results() {
@@ -77,7 +77,7 @@ export class SqlDeleteStatement extends SqlStatement {
 
   returning(
     result?: SqlResultRecord | SqlResultColumn[]
-  ): SqlDeleteStatement & SqlStatementWithResults {
+  ): SqlDeleteStatement & SqlSourceWithResults {
     const { returning } = this.#state;
 
     if (!returning) {

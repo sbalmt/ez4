@@ -1,6 +1,6 @@
 import type { SqlBuilderOptions, SqlBuilderReferences } from '../builder.js';
 import type { SqlJsonColumnOptions, SqlJsonColumnSchema } from '../types/json.js';
-import type { SqlStatementWithResults } from '../types/statement.js';
+import type { SqlSourceWithResults } from '../types/source.js';
 import type { SqlFilters, SqlOrder } from '../types/common.js';
 import type { SqlRawGenerator } from '../types/raw.js';
 import type { ObjectSchema } from '@ez4/schema';
@@ -22,19 +22,21 @@ import {
   NoColumnsError
 } from '../errors/queries.js';
 
-import { SqlStatement } from '../types/statement.js';
+import { SqlSource } from '../types/source.js';
 import { escapeSqlName } from '../utils/escape.js';
 import { SqlWhereClause } from '../types/where.js';
 import { SqlResults } from '../types/results.js';
+import { SqlJoin } from '../types/join.js';
 
-export class SqlSelectStatement extends SqlStatement implements SqlStatementWithResults {
+export class SqlSelectStatement extends SqlSource implements SqlSourceWithResults {
   #state: {
     options: SqlBuilderOptions;
     references: SqlBuilderReferences;
     schema?: ObjectSchema;
     results: SqlResults;
-    ordering?: SqlOrder;
+    joins: SqlJoin[];
     where?: SqlWhereClause;
+    ordering?: SqlOrder;
     table?: string;
     alias?: string;
     skip?: number;
@@ -50,14 +52,11 @@ export class SqlSelectStatement extends SqlStatement implements SqlStatementWith
 
     this.#state = {
       results: new SqlResults(this),
+      joins: [],
       schema,
       references,
       options
     };
-  }
-
-  get alias() {
-    return this.#state.alias;
   }
 
   get fields() {
@@ -66,6 +65,10 @@ export class SqlSelectStatement extends SqlStatement implements SqlStatementWith
 
   get filters() {
     return this.#state.where;
+  }
+
+  get alias() {
+    return this.#state.alias;
   }
 
   get results() {
@@ -130,6 +133,16 @@ export class SqlSelectStatement extends SqlStatement implements SqlStatementWith
     return this;
   }
 
+  join(table: string, schema?: ObjectSchema) {
+    const { references, options, joins } = this.#state;
+
+    const join = new SqlJoin(table, schema, references, options);
+
+    joins.push(join);
+
+    return join;
+  }
+
   where(filters?: SqlFilters) {
     const { where, references, options } = this.#state;
 
@@ -161,7 +174,7 @@ export class SqlSelectStatement extends SqlStatement implements SqlStatementWith
   }
 
   build(): [string, unknown[]] {
-    const { table, alias, results, where, ordering, skip, take } = this.#state;
+    const { table, alias, results, joins, where, ordering, skip, take } = this.#state;
 
     if (!table) {
       throw new MissingTableNameError();
@@ -177,6 +190,13 @@ export class SqlSelectStatement extends SqlStatement implements SqlStatementWith
 
     if (alias) {
       statement.push(`AS ${escapeSqlName(alias)}`);
+    }
+
+    for (const join of joins) {
+      const [joinClause, joinVariables] = join.build();
+
+      variables.push(...joinVariables);
+      statement.push(joinClause);
     }
 
     if (where && !where.empty) {
