@@ -97,7 +97,7 @@ export class SqlSelectStatement extends SqlSource implements SqlSourceWithResult
     return this;
   }
 
-  rawColumn(column: string | SqlRawGenerator) {
+  rawColumn(column: number | string | SqlRawGenerator) {
     this.#state.results.rawColumn(column);
 
     return this;

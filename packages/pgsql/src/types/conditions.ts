@@ -7,6 +7,7 @@ import { isAnyObject, isEmptyObject } from '@ez4/utils';
 import { isObjectSchema } from '@ez4/schema';
 
 import { mergeSqlAlias, mergeSqlPath } from '../utils/merge.js';
+import { SqlSelectStatement } from '../queries/select.js';
 import { SqlReference } from './reference.js';
 import { SqlOperator } from './common.js';
 import { SqlRaw } from './raw.js';
@@ -151,6 +152,10 @@ const getFieldOperation = (
         return getNullableOperation(columnPath, true);
       }
 
+      if (value instanceof SqlSelectStatement) {
+        return getExistsOperation(columnPath, value, context);
+      }
+
       const columnSchema = schema?.properties[field];
 
       if (value instanceof SqlRaw || value instanceof SqlReference || !isAnyObject(value)) {
@@ -233,6 +238,18 @@ const getValueOperation = (
   }
 
   return undefined;
+};
+
+const getExistsOperation = (column: string, operand: unknown, context: SqlConditionsContext) => {
+  if (!(operand instanceof SqlSelectStatement)) {
+    throw new InvalidOperandError(column);
+  }
+
+  const [statement, variables] = operand.build();
+
+  context.variables.push(...variables);
+
+  return `EXISTS (${statement})`;
 };
 
 const getNullableOperation = (column: string, value: unknown) => {

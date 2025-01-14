@@ -84,7 +84,7 @@ export class SqlResults {
     return this;
   }
 
-  rawColumn(column: string | SqlRawGenerator) {
+  rawColumn(column: number | string | SqlRawGenerator) {
     this.#state.columns.push(new SqlRaw(this.#state.source, column));
 
     return this;

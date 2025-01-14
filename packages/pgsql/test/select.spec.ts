@@ -55,7 +55,7 @@ describe.only('sql select tests', () => {
   it('assert :: select with raw columns', async () => {
     const query = sql.select().columns('foo', 'bar').as('alias').from('table');
 
-    query.rawColumn((statement) => mergeSqlAlias('*', statement?.alias));
+    query.rawColumn((source) => mergeSqlAlias('*', source?.alias));
 
     const [statement, variables] = query.build();
 
