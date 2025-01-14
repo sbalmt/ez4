@@ -90,27 +90,15 @@ export const createTables = async (request: CreateTableRequest): Promise<void> =
   for (const table in repository) {
     const { name, schema, indexes, relations } = repository[table];
 
-    tablesCommands.push({
-      sql: prepareCreateTable(name, schema, indexes)
-    });
-
-    relationsCommands.push(
-      ...prepareCreateRelations(name, relations).map((sql) => {
-        return { sql };
-      })
-    );
-
-    indexesCommands.push(
-      ...prepareCreateIndexes(name, indexes).map((sql) => {
-        return { sql };
-      })
-    );
+    relationsCommands.push(...prepareCreateRelations(name, relations).map((sql) => ({ sql })));
+    indexesCommands.push(...prepareCreateIndexes(name, indexes).map((sql) => ({ sql })));
+    tablesCommands.push({ sql: prepareCreateTable(name, schema, indexes) });
   }
 
   await executeTransaction(client, connection, [
     ...tablesCommands,
-    ...relationsCommands,
-    ...indexesCommands
+    ...indexesCommands,
+    ...relationsCommands
   ]);
 };
 
@@ -130,8 +118,8 @@ export const updateTables = async (request: UpdateTableRequest): Promise<void> =
   for (const table in repository) {
     const { name, schema, indexes, relations } = repository[table];
 
-    commands.push(...prepareDeleteIndexes(name, indexes.toRemove).map((sql) => ({ sql })));
     commands.push(...prepareDeleteRelations(name, relations.toRemove).map((sql) => ({ sql })));
+    commands.push(...prepareDeleteIndexes(name, indexes.toRemove).map((sql) => ({ sql })));
     commands.push(...prepareDeleteColumns(name, schema.toRemove).map((sql) => ({ sql })));
 
     commands.push(
@@ -139,8 +127,8 @@ export const updateTables = async (request: UpdateTableRequest): Promise<void> =
     );
 
     commands.push(...prepareCreateColumns(name, schema.toCreate).map((sql) => ({ sql })));
-    commands.push(...prepareCreateRelations(name, relations.toCreate).map((sql) => ({ sql })));
     commands.push(...prepareCreateIndexes(name, indexes.toCreate).map((sql) => ({ sql })));
+    commands.push(...prepareCreateRelations(name, relations.toCreate).map((sql) => ({ sql })));
   }
 
   await executeTransaction(client, connection, commands);
