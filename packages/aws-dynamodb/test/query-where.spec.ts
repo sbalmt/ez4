@@ -15,12 +15,13 @@ type TestSchema = {
 
 type TestRelations = {
   indexes: never;
+  filters: {};
   selects: {};
   changes: {};
 };
 
 describe.only('dynamodb query (where)', () => {
-  const getWhereOperation = (where: Query.WhereInput<TestSchema>) => {
+  const getWhereOperation = (where: Query.WhereInput<TestSchema, {}, TestRelations>) => {
     const [statement, variables] = prepareSelect<TestSchema, {}, TestRelations, {}>(
       'ez4-test-where-operation',
       undefined,

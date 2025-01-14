@@ -209,7 +209,7 @@ const getValueOperation = (
     case SqlOperator.Equal:
       return getEqualOperation(column, schema, operand, context);
 
-    case SqlOperator.Not:
+    case SqlOperator.NotEqual:
       return getNotEqualOperation(column, schema, operand, context);
 
     case SqlOperator.GreaterThan:

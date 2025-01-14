@@ -31,11 +31,12 @@ export const prepareDeleteQuery = <
 ): [string, SqlParameter[]] => {
   const { select, where } = query;
 
-  const deleteFilters = where && getSelectFilters(where, relations);
-  const deleteQuery = Sql.reset().delete(schema).from(table).where(deleteFilters);
+  const deleteQuery = Sql.reset().delete(schema).from(table);
+
+  deleteQuery.where(where && getSelectFilters(where, relations, deleteQuery));
 
   if (select) {
-    const selectRecord = getSelectFields(select, where, schema, relations, deleteQuery);
+    const selectRecord = getSelectFields(select, schema, relations, deleteQuery);
 
     deleteQuery.returning(selectRecord);
   }

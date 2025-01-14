@@ -173,7 +173,11 @@ export namespace Query {
     T extends Database.Schema,
     I extends Database.Indexes<T>,
     R extends Relations
-  > = WhereFields<T & R['filters'], I> & WhereNot<T, I, R> & WhereAnd<T, I, R> & WhereOr<T, I, R>;
+  > = WhereRelationFields<R['filters']> &
+    WhereCommonFields<T, I> &
+    WhereNot<T, I, R> &
+    WhereAnd<T, I, R> &
+    WhereOr<T, I, R>;
 
   export type WhereOperators = keyof (WhereNegate<any> &
     WhereEqual<any> &
@@ -202,37 +206,34 @@ export namespace Query {
     | WhereStartsWith
     | WhereContains;
 
-  type WhereRequiredFields<
-    T extends Database.Schema,
-    I extends Database.Indexes<T>,
-    N extends string
-  > = {
-    [P in N]: P extends keyof T
-      ? IsObject<T[P]> extends true
-        ? IsNullable<T[P]> extends true
-          ? null | WhereFields<NonNullable<T[P]>, I>
-          : WhereFields<NonNullable<T[P]>, I>
-        : T[P] | WhereOperations<T[P]>
-      : never;
+  type WherePropertyField<T> =
+    IsObject<T> extends true
+      ? IsNullable<T> extends true
+        ? null | WhereObjectFields<NonNullable<T>>
+        : WhereObjectFields<NonNullable<T>>
+      : T | WhereOperations<T>;
+
+  type WhereObjectFields<T extends AnyObject> = {
+    [P in keyof T]?: WherePropertyField<T[P]>;
   };
 
-  type WhereOptionalFields<
-    T extends Database.Schema,
-    I extends Database.Indexes<T>,
-    N extends string
-  > = {
-    [P in Exclude<keyof T, N>]?: IsObject<T[P]> extends true
-      ? IsNullable<T[P]> extends true
-        ? null | WhereFields<NonNullable<T[P]>, I>
-        : WhereFields<NonNullable<T[P]>, I>
-      : T[P] | WhereOperations<T[P]>;
+  type WhereRelationFields<T extends Database.Schema> = {
+    [P in keyof T as T[P] extends Database.Schema ? P : never]?: boolean | WherePropertyField<T[P]>;
   };
 
-  type WhereFields<T extends Database.Schema, I extends Database.Indexes<T>> =
-    | (WhereRequiredFields<T, I, DecomposePrimaryIndexNames<I>> &
-        WhereOptionalFields<T, I, DecomposePrimaryIndexNames<I>>)
-    | (WhereRequiredFields<T, I, DecomposeUniqueIndexNames<I>> &
-        WhereOptionalFields<T, I, DecomposeUniqueIndexNames<I>>);
+  type WhereCommonFields<T extends Database.Schema, I extends Database.Indexes<T>> =
+    | (WhereRequiredFields<T, DecomposePrimaryIndexNames<I>> &
+        WhereOptionalFields<T, DecomposePrimaryIndexNames<I>>)
+    | (WhereRequiredFields<T, DecomposeUniqueIndexNames<I>> &
+        WhereOptionalFields<T, DecomposeUniqueIndexNames<I>>);
+
+  type WhereRequiredFields<T extends Database.Schema, N extends string> = {
+    [P in N as P extends keyof T ? P : never]: P extends keyof T ? WherePropertyField<T[P]> : never;
+  };
+
+  type WhereOptionalFields<T extends Database.Schema, N extends string> = {
+    [P in Exclude<keyof T, N>]?: WherePropertyField<T[P]>;
+  };
 
   type WhereNot<T extends Database.Schema, I extends Database.Indexes<T>, R extends Relations> = {
     NOT?: WhereInput<T, I, R> | WhereAnd<T, I, R> | WhereOr<T, I, R>;

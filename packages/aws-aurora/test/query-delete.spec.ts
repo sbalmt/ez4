@@ -43,7 +43,7 @@ describe.only('aurora query (delete)', () => {
     }
   };
 
-  it.only('assert :: prepare delete', () => {
+  it('assert :: prepare delete', () => {
     const [statement, variables] = prepareDeleteQuery<TestSchema, TestIndexes, TestRelations, {}>(
       'ez4-test-delete',
       testSchema,
@@ -60,7 +60,7 @@ describe.only('aurora query (delete)', () => {
     deepEqual(variables, [makeParameter('0', '00000000-0000-1000-9000-000000000000', 'UUID')]);
   });
 
-  it.only('assert :: prepare delete (with select)', () => {
+  it('assert :: prepare delete (with select)', () => {
     const [statement, variables] = prepareDeleteQuery<TestSchema, TestIndexes, TestRelations, {}>(
       'ez4-test-delete',
       testSchema,

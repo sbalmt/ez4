@@ -17,6 +17,7 @@ type TestSchema = {
 
 type TestRelations = {
   indexes: never;
+  filters: {};
   selects: {};
   changes: {};
 };

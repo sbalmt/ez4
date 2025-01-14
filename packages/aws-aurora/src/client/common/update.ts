@@ -1,6 +1,6 @@
 import type { SqlParameter } from '@aws-sdk/client-rds-data';
 import type { Database, Relations, Query } from '@ez4/database';
-import type { SqlStatementWithResults, SqlRecord } from '@ez4/pgsql';
+import type { SqlSourceWithResults, SqlRecord } from '@ez4/pgsql';
 import type { ObjectSchema } from '@ez4/schema';
 import type { RepositoryRelationsWithSchema } from '../../types/repository.js';
 
@@ -36,15 +36,16 @@ export const prepareUpdateQuery = <
 ): [string, SqlParameter[]] => {
   const { select, where, data } = query;
 
-  const updateFilters = where && getSelectFilters(where, relations);
   const updateRecord = getUpdateRecord(query.data, schema, relations);
 
   const updateQuery = !isEmptyObject(updateRecord)
-    ? Sql.reset().update(schema).only(table).record(updateRecord).where(updateFilters).returning()
-    : Sql.reset().select(schema).from(table).where(updateFilters);
+    ? Sql.reset().update(schema).only(table).record(updateRecord).returning()
+    : Sql.reset().select(schema).from(table);
+
+  updateQuery.where(where && getSelectFilters(where, relations, updateQuery));
 
   if (select) {
-    const selectFields = getSelectFields(select, where, schema, relations, updateQuery);
+    const selectFields = getSelectFields(select, schema, relations, updateQuery);
 
     updateQuery.results.record(selectFields);
   }
@@ -109,9 +110,9 @@ const getUpdateRecord = (
 const preparePostRelations = (
   data: SqlRecord,
   relations: RepositoryRelationsWithSchema,
-  statement: SqlStatementWithResults
+  source: SqlSourceWithResults
 ) => {
-  const { results } = statement;
+  const { results } = source;
 
   const allQueries = [];
 
@@ -136,10 +137,10 @@ const preparePostRelations = (
     const relationQuery = Sql.update(sourceSchema)
       .only(sourceTable)
       .record(fieldValue)
-      .from(statement)
+      .from(source)
       .as('T')
       .where({
-        [sourceColumn]: statement.reference(targetColumn)
+        [sourceColumn]: source.reference(targetColumn)
       });
 
     allQueries.push(relationQuery);

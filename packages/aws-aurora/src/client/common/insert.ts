@@ -1,5 +1,5 @@
 import type { SqlParameter } from '@aws-sdk/client-rds-data';
-import type { SqlInsertStatement, SqlStatementWithResults, SqlRecord } from '@ez4/pgsql';
+import type { SqlInsertStatement, SqlSourceWithResults, SqlRecord } from '@ez4/pgsql';
 import type { Database, Relations, Query } from '@ez4/database';
 import type { ObjectSchema } from '@ez4/schema';
 import type { RepositoryRelationsWithSchema } from '../../types/repository.js';
@@ -30,10 +30,12 @@ export const prepareInsertQuery = <T extends Database.Schema, R extends Relation
   const preQueries = preparePreRelations(query.data, relations);
   const lastQuery = preQueries[preQueries.length - 1];
 
+  const insertRecord = getInsertRecord(query.data, relations, lastQuery);
+
   const insertQuery = Sql.reset()
     .insert(schema)
     .select(lastQuery)
-    .record(getInsertRecord(query.data, relations, lastQuery))
+    .record(insertRecord)
     .into(table)
     .returning();
 
@@ -147,9 +149,9 @@ const preparePreRelations = (data: SqlRecord, relations: RepositoryRelationsWith
 const preparePostRelations = (
   data: SqlRecord,
   relations: RepositoryRelationsWithSchema,
-  statement: SqlStatementWithResults
+  source: SqlSourceWithResults
 ) => {
-  const { results } = statement;
+  const { results } = source;
 
   const allQueries = [];
 
@@ -182,10 +184,10 @@ const preparePostRelations = (
 
       const relationQuery = Sql.insert(sourceSchema)
         .into(sourceTable)
-        .select(statement)
+        .select(source)
         .record({
           ...currentValue,
-          [sourceColumn]: statement.reference(targetColumn)
+          [sourceColumn]: source.reference(targetColumn)
         });
 
       if (!results.has(targetColumn)) {

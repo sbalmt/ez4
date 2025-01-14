@@ -10,7 +10,7 @@ export type SqlOrder = Query.OrderInput<any>;
 
 export const enum SqlOperator {
   Equal = 'equal',
-  Not = 'not',
+  NotEqual = 'not',
   GreaterThan = 'gt',
   GreaterThanOrEqual = 'gte',
   LessThan = 'lt',
