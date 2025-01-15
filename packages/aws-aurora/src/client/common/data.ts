@@ -11,74 +11,74 @@ export const isSkippableData = (value: unknown) => {
 
 export const prepareFieldData = (name: string, value: unknown, schema: AnySchema): SqlParameter => {
   if (value === null) {
-    return getNullField(name);
+    return getNullFieldData(name);
   }
 
   switch (schema.type) {
     case SchemaType.Boolean:
-      return getBooleanField(name, value as boolean);
+      return getBooleanFieldData(name, value as boolean);
 
     case SchemaType.Number:
-      return getNumberField(name, value as number, schema.format);
+      return getNumberFieldData(name, value as number, schema.format);
 
     case SchemaType.String:
-      return getStringField(name, value as string, schema.format);
+      return getStringFieldData(name, value as string, schema.format);
 
     case SchemaType.Object:
     case SchemaType.Union:
     case SchemaType.Array:
     case SchemaType.Tuple:
-      return getJsonField(name, value as object);
+      return getJsonFieldData(name, value as object);
 
     default:
-      return getTextField(name, value as string);
+      return getTextFieldData(name, value as string);
   }
 };
 
 export const detectFieldData = (name: string, value: unknown): SqlParameter => {
   switch (typeof value) {
     case 'boolean': {
-      return getBooleanField(name, value);
+      return getBooleanFieldData(name, value);
     }
 
     case 'number': {
       if (Number.isSafeInteger(value)) {
-        return getIntegerField(name, value);
+        return getIntegerFieldData(name, value);
       }
 
-      return getDecimalField(name, value);
+      return getDecimalFieldData(name, value);
     }
 
     case 'string': {
       if (isDateTime(value)) {
-        return getDateTimeField(name, value);
+        return getDateTimeFieldData(name, value);
       }
 
       if (isDate(value)) {
-        return getDateField(name, value);
+        return getDateFieldData(name, value);
       }
 
       if (isTime(value)) {
-        return getTimeField(name, value);
+        return getTimeFieldData(name, value);
       }
 
       if (isUUID(value)) {
-        return getUUIDField(name, value);
+        return getUuidFieldData(name, value);
       }
 
-      return getTextField(name, value);
+      return getTextFieldData(name, value);
     }
 
     case 'object': {
       if (value instanceof Date) {
-        return getDateTimeField(name, value.toISOString());
+        return getDateTimeFieldData(name, value.toISOString());
       }
 
       if (value !== null) {
-        return getJsonField(name, value);
+        return getJsonFieldData(name, value);
       }
 
-      return getNullField(name);
+      return getNullFieldData(name);
     }
 
     default:
@@ -86,7 +86,7 @@ export const detectFieldData = (name: string, value: unknown): SqlParameter => {
   }
 };
 
-const getBooleanField = (name: string, value: boolean): SqlParameter => {
+export const getBooleanFieldData = (name: string, value: boolean): SqlParameter => {
   return {
     name,
     value: {
@@ -95,15 +95,7 @@ const getBooleanField = (name: string, value: boolean): SqlParameter => {
   };
 };
 
-const getNumberField = (name: string, value: number, format?: string): SqlParameter => {
-  if (format === 'decimal') {
-    return getDecimalField(name, value);
-  }
-
-  return getIntegerField(name, value);
-};
-
-const getIntegerField = (name: string, value: number): SqlParameter => {
+export const getIntegerFieldData = (name: string, value: number): SqlParameter => {
   return {
     name,
     value: {
@@ -112,7 +104,7 @@ const getIntegerField = (name: string, value: number): SqlParameter => {
   };
 };
 
-const getDecimalField = (name: string, value: number): SqlParameter => {
+export const getDecimalFieldData = (name: string, value: number): SqlParameter => {
   return {
     name,
     value: {
@@ -121,26 +113,7 @@ const getDecimalField = (name: string, value: number): SqlParameter => {
   };
 };
 
-const getStringField = (name: string, value: string, format?: string): SqlParameter => {
-  switch (format) {
-    case 'uuid':
-      return getUUIDField(name, value);
-
-    case 'time':
-      return getTimeField(name, value);
-
-    case 'date':
-      return getDateField(name, value);
-
-    case 'date-time':
-      return getDateTimeField(name, value);
-
-    default:
-      return getTextField(name, value);
-  }
-};
-
-const getTextField = (name: string, value: string): SqlParameter => {
+export const getTextFieldData = (name: string, value: string): SqlParameter => {
   return {
     name,
     value: {
@@ -149,50 +122,77 @@ const getTextField = (name: string, value: string): SqlParameter => {
   };
 };
 
-const getUUIDField = (name: string, value: string): SqlParameter => {
+export const getUuidFieldData = (name: string, value: string): SqlParameter => {
   return {
     typeHint: TypeHint.UUID,
-    ...getTextField(name, value)
+    ...getTextFieldData(name, value)
   };
 };
 
-const getDateField = (name: string, value: string): SqlParameter => {
+export const getDateFieldData = (name: string, value: string): SqlParameter => {
   return {
     typeHint: TypeHint.DATE,
-    ...getTextField(name, value)
+    ...getTextFieldData(name, value)
   };
 };
 
-const getTimeField = (name: string, value: string): SqlParameter => {
+export const getTimeFieldData = (name: string, value: string): SqlParameter => {
   return {
     typeHint: TypeHint.TIME,
-    ...getTextField(name, value)
+    ...getTextFieldData(name, value)
   };
 };
 
-const getDateTimeField = (name: string, value: string): SqlParameter => {
+export const getDateTimeFieldData = (name: string, value: string): SqlParameter => {
   const date = value.substring(0, 10);
   const time = value.substring(11, 23);
 
   return {
     typeHint: TypeHint.TIMESTAMP,
-    ...getTextField(name, `${date} ${time}`)
+    ...getTextFieldData(name, `${date} ${time}`)
   };
 };
 
-const getJsonField = (name: string, value: object): SqlParameter => {
+export const getJsonFieldData = (name: string, value: unknown): SqlParameter => {
   return {
     name,
     typeHint: TypeHint.JSON,
-    ...getTextField(name, JSON.stringify(value))
+    ...getTextFieldData(name, JSON.stringify(value))
   };
 };
 
-const getNullField = (name: string): SqlParameter => {
+export const getNullFieldData = (name: string): SqlParameter => {
   return {
     name,
     value: {
       isNull: true
     }
   };
+};
+
+const getNumberFieldData = (name: string, value: number, format?: string): SqlParameter => {
+  if (format === 'decimal') {
+    return getDecimalFieldData(name, value);
+  }
+
+  return getIntegerFieldData(name, value);
+};
+
+const getStringFieldData = (name: string, value: string, format?: string): SqlParameter => {
+  switch (format) {
+    case 'uuid':
+      return getUuidFieldData(name, value);
+
+    case 'time':
+      return getTimeFieldData(name, value);
+
+    case 'date':
+      return getDateFieldData(name, value);
+
+    case 'date-time':
+      return getDateTimeFieldData(name, value);
+
+    default:
+      return getTextFieldData(name, value);
+  }
 };

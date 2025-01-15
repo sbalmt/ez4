@@ -12,15 +12,20 @@ export type SqlBuilderReferences = {
   counter: number;
 };
 
+export type SqlVariableContext = {
+  index: number;
+  schema?: AnySchema;
+  inner?: boolean;
+};
+
 export type SqlBuilderOptions = {
   /**
    * When defined it's invoked for each variable found in the query.
    * @param value Variable value.
-   * @param index Variable index.
-   * @param schema Variable schema (if a schema was defined).
+   * @param context Variable context.
    * @returns It must returns the prepared variable value.
    */
-  onPrepareVariable?: (value: unknown, index: number, schema?: AnySchema) => unknown;
+  onPrepareVariable?: (value: unknown, context: SqlVariableContext) => unknown;
 };
 
 export class SqlBuilder {

@@ -229,10 +229,17 @@ const getUpdateColumns = (
     columns.push(`${columnName} = :${fieldIndex}`);
 
     if (options.onPrepareVariable) {
-      variables.push(options.onPrepareVariable(fieldValue, fieldIndex, valueSchema));
-    } else {
-      variables.push(fieldValue);
+      const preparedValue = options.onPrepareVariable(fieldValue, {
+        index: fieldIndex,
+        schema: valueSchema,
+        inner: !!parent
+      });
+
+      variables.push(preparedValue);
+      continue;
     }
+
+    variables.push(fieldValue);
   }
 
   return columns;

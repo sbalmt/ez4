@@ -13,12 +13,14 @@ import { InvalidRelationFieldError, MissingFieldSchemaError } from './errors.js'
 import { detectFieldData, isSkippableData, prepareFieldData } from './data.js';
 
 const Sql = new SqlBuilder({
-  onPrepareVariable: (value, index, schema) => {
+  onPrepareVariable: (value, { index, schema }) => {
+    const field = index.toString();
+
     if (schema) {
-      return prepareFieldData(`${index}`, value, schema);
+      return prepareFieldData(field, value, schema);
     }
 
-    return detectFieldData(`${index}`, value);
+    return detectFieldData(field, value);
   }
 });
 

@@ -9,17 +9,23 @@ import { isObjectSchema } from '@ez4/schema';
 import { SqlBuilder } from '@ez4/pgsql';
 import { Index } from '@ez4/database';
 
-import { detectFieldData, isSkippableData, prepareFieldData } from './data.js';
+import { detectFieldData, getJsonFieldData, isSkippableData, prepareFieldData } from './data.js';
 import { getSelectFilters, getSelectFields } from './select.js';
 import { InvalidRelationFieldError } from './errors.js';
 
 const Sql = new SqlBuilder({
-  onPrepareVariable: (value, index, schema) => {
-    if (schema) {
-      return prepareFieldData(`${index}`, value, schema);
+  onPrepareVariable: (value, { index, schema, inner }) => {
+    const field = index.toString();
+
+    if (inner) {
+      return getJsonFieldData(field, value);
     }
 
-    return detectFieldData(`${index}`, value);
+    if (schema) {
+      return prepareFieldData(field, value, schema);
+    }
+
+    return detectFieldData(field, value);
   }
 });
 
@@ -65,12 +71,13 @@ const getUpdateRecord = (
   const record: SqlRecord = {};
 
   for (const fieldKey in data) {
-    const relationData = relations[fieldKey];
     const fieldValue = data[fieldKey];
 
     if (isSkippableData(fieldValue)) {
       continue;
     }
+
+    const relationData = relations[fieldKey];
 
     if (relationData) {
       if (!isAnyObject(fieldValue)) {
@@ -88,19 +95,25 @@ const getUpdateRecord = (
       continue;
     }
 
+    if (!isAnyObject(fieldValue)) {
+      record[fieldKey] = fieldValue;
+
+      continue;
+    }
+
     const fieldSchema = schema.properties[fieldKey];
 
     const fieldOverwrite =
-      isObjectSchema(fieldSchema) &&
-      (fieldSchema.definitions?.extensible ||
-        fieldSchema.additional ||
-        fieldSchema.nullable ||
-        fieldSchema.optional);
+      !isObjectSchema(fieldSchema) ||
+      fieldSchema.definitions?.extensible ||
+      fieldSchema.additional ||
+      fieldSchema.nullable ||
+      fieldSchema.optional;
 
-    if (fieldOverwrite) {
-      record[fieldKey] = Sql.raw(fieldValue);
+    if (!fieldOverwrite) {
+      record[fieldKey] = getUpdateRecord(fieldValue, fieldSchema, relations);
     } else {
-      record[fieldKey] = fieldValue;
+      record[fieldKey] = Sql.raw(fieldValue);
     }
   }
 
@@ -135,8 +148,8 @@ const preparePostRelations = (
     }
 
     const relationQuery = Sql.update(sourceSchema)
+      .record(getUpdateRecord(fieldValue, sourceSchema, relations))
       .only(sourceTable)
-      .record(fieldValue)
       .from(source)
       .as('T')
       .where({

@@ -180,13 +180,20 @@ const getValueReferences = (
     const fieldValue = value instanceof SqlRaw ? value.build() : value;
     const fieldIndex = references.counter++;
 
+    results.push(`:${fieldIndex}`);
+
     if (options.onPrepareVariable) {
-      variables.push(options.onPrepareVariable(fieldValue, fieldIndex, schema?.properties[field]));
-    } else {
-      variables.push(fieldValue);
+      const preparedValue = options.onPrepareVariable(fieldValue, {
+        index: fieldIndex,
+        schema: schema?.properties[field],
+        inner: false
+      });
+
+      variables.push(preparedValue);
+      continue;
     }
 
-    results.push(`:${fieldIndex}`);
+    variables.push(fieldValue);
   }
 
   return results.join(', ');

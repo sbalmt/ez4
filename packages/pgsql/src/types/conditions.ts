@@ -367,21 +367,28 @@ const getOperandValue = (
   operand: unknown,
   context: SqlConditionsContext
 ) => {
-  const { variables, references, options } = context;
+  const { variables, references, options, parent } = context;
 
   if (operand instanceof SqlRaw || operand instanceof SqlReference) {
     return operand.build();
   }
 
   const index = references.counter++;
+  const field = `:${index}`;
 
   if (options.onPrepareVariable) {
-    variables.push(options.onPrepareVariable(operand, index, schema));
+    const preparedValue = options.onPrepareVariable(operand, {
+      inner: !!parent,
+      schema,
+      index
+    });
+
+    variables.push(preparedValue);
   } else {
     variables.push(operand);
   }
 
-  return `:${index}`;
+  return field;
 };
 
 const combineOperations = (operations: string[]) => {

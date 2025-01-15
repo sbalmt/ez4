@@ -15,6 +15,9 @@ type TestSchema = {
   bar: {
     barFoo?: string;
     barBar?: boolean;
+    barBaz?: {
+      barBazFoo: number;
+    };
   };
   baz?: {
     bazFoo: number;
@@ -78,6 +81,15 @@ describe.only('aurora query (update)', () => {
           barBar: {
             type: SchemaType.Boolean,
             optional: true
+          },
+          barBaz: {
+            type: SchemaType.Object,
+            optional: true,
+            properties: {
+              barBazFoo: {
+                type: SchemaType.Number
+              }
+            }
           }
         }
       },
@@ -185,7 +197,7 @@ describe.only('aurora query (update)', () => {
 
     deepEqual(variables, [
       makeParameter('0', 123),
-      makeParameter('1', false),
+      makeParameter('1', 'false', 'JSON'),
       makeParameter('2', '00000000-0000-1000-9000-000000000000', 'UUID')
     ]);
   });
@@ -197,8 +209,13 @@ describe.only('aurora query (update)', () => {
       testRelations,
       {
         data: {
+          bar: {
+            barBaz: {
+              barBazFoo: 123
+            }
+          },
           baz: {
-            bazFoo: 123
+            bazFoo: 456
           }
         },
         where: {
@@ -207,11 +224,15 @@ describe.only('aurora query (update)', () => {
       }
     );
 
-    equal(statement, `UPDATE ONLY "ez4-test-update" SET "baz" = :0 WHERE "id" = :1`);
+    equal(
+      statement,
+      `UPDATE ONLY "ez4-test-update" SET "bar"['barBaz'] = :0, "baz" = :1 WHERE "id" = :2`
+    );
 
     deepEqual(variables, [
-      makeParameter('0', { bazFoo: 123 }),
-      makeParameter('1', '00000000-0000-1000-9000-000000000000', 'UUID')
+      makeParameter('0', { barBazFoo: 123 }),
+      makeParameter('1', { bazFoo: 456 }),
+      makeParameter('2', '00000000-0000-1000-9000-000000000000', 'UUID')
     ]);
   });
 
@@ -282,7 +303,7 @@ describe.only('aurora query (update)', () => {
       makeParameter('0', '00000000-0000-1000-9000-000000000000', 'UUID'),
       makeParameter('1', 456),
       makeParameter('2', 123),
-      makeParameter('3', 'abc')
+      makeParameter('3', '"abc"', 'JSON')
     ]);
   });
 
@@ -358,7 +379,7 @@ describe.only('aurora query (update)', () => {
       makeParameter('0', '00000000-0000-1000-9000-000000000000', 'UUID'),
       makeParameter('1', 123),
       makeParameter('2', 456),
-      makeParameter('3', false)
+      makeParameter('3', 'false', 'JSON')
     ]);
   });
 
@@ -446,8 +467,8 @@ describe.only('aurora query (update)', () => {
     deepEqual(variables, [
       makeParameter('0', '00000000-0000-1000-9000-000000000000', 'UUID'),
       makeParameter('1', 456),
-      makeParameter('2', 'abc'),
-      makeParameter('3', true),
+      makeParameter('2', '"abc"', 'JSON'),
+      makeParameter('3', 'true', 'JSON'),
       makeParameter('4', 123)
     ]);
   });
@@ -498,8 +519,8 @@ describe.only('aurora query (update)', () => {
 
     deepEqual(variables, [
       makeParameter('0', 456),
-      makeParameter('1', 'abc'),
-      makeParameter('2', false),
+      makeParameter('1', '"abc"', 'JSON'),
+      makeParameter('2', 'false', 'JSON'),
       makeParameter('3', 123)
     ]);
   });

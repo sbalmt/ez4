@@ -23,8 +23,9 @@ declare class TestSchema implements Database.Schema {
   foo?: string;
   bar?: string;
   baz?: {
-    foo: number;
-    bar: boolean;
+    bazFoo: number;
+    bazBar: boolean;
+    bazBaz: string;
   };
 }
 
@@ -76,11 +77,14 @@ describe.only('aurora client', () => {
             type: SchemaType.Object,
             optional: true,
             properties: {
-              foo: {
+              bazFoo: {
                 type: SchemaType.Number
               },
-              bar: {
+              bazBar: {
                 type: SchemaType.Boolean
+              },
+              bazBaz: {
+                type: SchemaType.String
               }
             }
           }
@@ -318,8 +322,9 @@ describe.only('aurora client', () => {
       data: {
         id: 'json',
         baz: {
-          foo: 123,
-          bar: true
+          bazFoo: 123,
+          bazBar: true,
+          bazBaz: 'abc'
         }
       }
     });
@@ -332,8 +337,9 @@ describe.only('aurora client', () => {
       data: {
         foo: 'updated',
         baz: {
-          foo: 456,
-          bar: false
+          bazFoo: 456,
+          bazBar: false,
+          bazBaz: 'abc'
         }
       },
       select: {
@@ -348,8 +354,8 @@ describe.only('aurora client', () => {
     deepEqual(result, {
       foo: null,
       baz: {
-        foo: 123,
-        bar: true
+        bazFoo: 123,
+        bazBar: true
       }
     });
   });
@@ -360,7 +366,7 @@ describe.only('aurora client', () => {
     const result = await dbClient.testTable.findOne({
       select: {
         baz: {
-          foo: true
+          bazFoo: true
         }
       },
       where: {
@@ -370,7 +376,7 @@ describe.only('aurora client', () => {
 
     deepEqual(result, {
       baz: {
-        foo: 456
+        bazFoo: 456
       }
     });
   });

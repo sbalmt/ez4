@@ -12,12 +12,14 @@ import { detectFieldData, isSkippableData, prepareFieldData } from './data.js';
 import { InvalidRelationFieldError } from './errors.js';
 
 const Sql = new SqlBuilder({
-  onPrepareVariable: (value, index, schema) => {
+  onPrepareVariable: (value, { index, schema }) => {
+    const field = index.toString();
+
     if (schema) {
-      return prepareFieldData(`${index}`, value, schema);
+      return prepareFieldData(field, value, schema);
     }
 
-    return detectFieldData(`${index}`, value);
+    return detectFieldData(field, value);
   }
 });
 
@@ -34,8 +36,8 @@ export const prepareInsertQuery = <T extends Database.Schema, R extends Relation
 
   const insertQuery = Sql.reset()
     .insert(schema)
-    .select(lastQuery)
     .record(insertRecord)
+    .select(lastQuery)
     .into(table)
     .returning();
 

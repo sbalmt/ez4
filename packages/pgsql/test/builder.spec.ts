@@ -8,7 +8,7 @@ import { SqlBuilder } from '@ez4/pgsql';
 
 describe.only('sql builder tests', () => {
   it('assert :: on prepare variable (insert)', async () => {
-    const onPrepareVariable = mock.fn((value, index) => `insert_${index}_${value}`);
+    const onPrepareVariable = mock.fn((value, { index }) => `insert_${index}_${value}`);
 
     const sql = new SqlBuilder({
       onPrepareVariable
@@ -22,7 +22,7 @@ describe.only('sql builder tests', () => {
   });
 
   it('assert :: on prepare variable (insert with schema)', async () => {
-    const onPrepareVariable = mock.fn((value, index, schema) => {
+    const onPrepareVariable = mock.fn((value, { index, schema }) => {
       if (!schema) {
         throw new Error(`Missing INSERT schema.`);
       }
@@ -51,7 +51,7 @@ describe.only('sql builder tests', () => {
   });
 
   it('assert :: on prepare variable (update)', async () => {
-    const onPrepareVariable = mock.fn((value, index) => `update_${index}_${value}`);
+    const onPrepareVariable = mock.fn((value, { index }) => `update_${index}_${value}`);
 
     const sql = new SqlBuilder({
       onPrepareVariable
@@ -65,7 +65,7 @@ describe.only('sql builder tests', () => {
   });
 
   it('assert :: on prepare variable (update with schema)', async () => {
-    const onPrepareVariable = mock.fn((value, index, schema) => {
+    const onPrepareVariable = mock.fn((value, { index, schema }) => {
       if (!schema) {
         throw new Error(`Missing UPDATE schema.`);
       }
@@ -103,7 +103,7 @@ describe.only('sql builder tests', () => {
   });
 
   it('assert :: on prepare variable (where)', async () => {
-    const onPrepareVariable = mock.fn((value, index) => `where_${index}_${value}`);
+    const onPrepareVariable = mock.fn((value, { index }) => `where_${index}_${value}`);
 
     const sql = new SqlBuilder({
       onPrepareVariable
