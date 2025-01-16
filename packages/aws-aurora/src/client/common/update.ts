@@ -1,33 +1,17 @@
 import type { SqlParameter } from '@aws-sdk/client-rds-data';
 import type { Database, Relations, Query } from '@ez4/database';
-import type { SqlSourceWithResults, SqlRecord } from '@ez4/pgsql';
+import type { SqlSourceWithResults, SqlRecord, SqlBuilder } from '@ez4/pgsql';
 import type { ObjectSchema } from '@ez4/schema';
 import type { RepositoryRelationsWithSchema } from '../../types/repository.js';
 
 import { isAnyObject, isEmptyObject } from '@ez4/utils';
 import { isObjectSchema } from '@ez4/schema';
-import { SqlBuilder } from '@ez4/pgsql';
 import { Index } from '@ez4/database';
 
-import { detectFieldData, getJsonFieldData, isSkippableData, prepareFieldData } from './data.js';
 import { getSelectFilters, getSelectFields } from './select.js';
 import { InvalidRelationFieldError } from './errors.js';
-
-const Sql = new SqlBuilder({
-  onPrepareVariable: (value, { index, schema, inner }) => {
-    const field = index.toString();
-
-    if (inner) {
-      return getJsonFieldData(field, value);
-    }
-
-    if (schema) {
-      return prepareFieldData(field, value, schema);
-    }
-
-    return detectFieldData(field, value);
-  }
-});
+import { createQueryBuilder } from './builder.js';
+import { isSkippableData } from './data.js';
 
 export const prepareUpdateQuery = <
   T extends Database.Schema,
@@ -40,25 +24,27 @@ export const prepareUpdateQuery = <
   relations: RepositoryRelationsWithSchema,
   query: Query.UpdateOneInput<T, S, I, R> | Query.UpdateManyInput<T, S, R>
 ): [string, SqlParameter[]] => {
-  const { select, where, data } = query;
+  const sql = createQueryBuilder();
 
-  const updateRecord = getUpdateRecord(query.data, schema, relations);
+  const updateRecord = getUpdateRecord(query.data, schema, relations, sql);
 
   const updateQuery = !isEmptyObject(updateRecord)
-    ? Sql.reset().update(schema).only(table).record(updateRecord).returning()
-    : Sql.reset().select(schema).from(table);
+    ? sql.update(schema).only(table).record(updateRecord).returning()
+    : sql.select(schema).from(table);
 
-  updateQuery.where(where && getSelectFilters(where, relations, updateQuery));
+  if (query.where) {
+    updateQuery.where(getSelectFilters(query.where, relations, updateQuery, sql));
+  }
 
-  if (select) {
-    const selectFields = getSelectFields(select, schema, relations, updateQuery);
+  if (query.select) {
+    const selectFields = getSelectFields(query.select, schema, relations, updateQuery, sql);
 
     updateQuery.results.record(selectFields);
   }
 
-  const queries = [updateQuery, ...preparePostRelations(data, relations, updateQuery)];
+  const queries = [updateQuery, ...preparePostRelations(query.data, relations, updateQuery, sql)];
 
-  const [statement, variables] = Sql.with(queries, 'R').build();
+  const [statement, variables] = sql.with(queries, 'R').build();
 
   return [statement, variables as SqlParameter[]];
 };
@@ -66,7 +52,8 @@ export const prepareUpdateQuery = <
 const getUpdateRecord = (
   data: SqlRecord,
   schema: ObjectSchema,
-  relations: RepositoryRelationsWithSchema
+  relations: RepositoryRelationsWithSchema,
+  sql: SqlBuilder
 ) => {
   const record: SqlRecord = {};
 
@@ -111,9 +98,9 @@ const getUpdateRecord = (
       fieldSchema.optional;
 
     if (!fieldOverwrite) {
-      record[fieldKey] = getUpdateRecord(fieldValue, fieldSchema, relations);
+      record[fieldKey] = getUpdateRecord(fieldValue, fieldSchema, relations, sql);
     } else {
-      record[fieldKey] = Sql.raw(fieldValue);
+      record[fieldKey] = sql.raw(fieldValue);
     }
   }
 
@@ -123,7 +110,8 @@ const getUpdateRecord = (
 const preparePostRelations = (
   data: SqlRecord,
   relations: RepositoryRelationsWithSchema,
-  source: SqlSourceWithResults
+  source: SqlSourceWithResults,
+  sql: SqlBuilder
 ) => {
   const { results } = source;
 
@@ -147,8 +135,9 @@ const preparePostRelations = (
       continue;
     }
 
-    const relationQuery = Sql.update(sourceSchema)
-      .record(getUpdateRecord(fieldValue, sourceSchema, relations))
+    const relationQuery = sql
+      .update(sourceSchema)
+      .record(getUpdateRecord(fieldValue, sourceSchema, relations, sql))
       .only(sourceTable)
       .from(source)
       .as('T')

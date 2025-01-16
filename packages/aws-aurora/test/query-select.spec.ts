@@ -368,7 +368,7 @@ describe.only('aurora query (select)', () => {
     deepEqual(variables, [
       makeParameter('0', '00000000-0000-1000-9000-000000000000', 'UUID'),
       makeParameter('1', 123),
-      makeParameter('2', true),
+      makeParameter('2', 'true', 'JSON'),
       makeParameter('3', '00000000-0000-1000-9000-000000000001', 'UUID')
     ]);
   });

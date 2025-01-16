@@ -1,27 +1,16 @@
 import type { SqlParameter } from '@aws-sdk/client-rds-data';
-import type { SqlInsertStatement, SqlSourceWithResults, SqlRecord } from '@ez4/pgsql';
+import type { SqlInsertStatement, SqlSourceWithResults, SqlRecord, SqlBuilder } from '@ez4/pgsql';
 import type { Database, Relations, Query } from '@ez4/database';
 import type { ObjectSchema } from '@ez4/schema';
 import type { RepositoryRelationsWithSchema } from '../../types/repository.js';
 
-import { mergeSqlAlias, SqlBuilder } from '@ez4/pgsql';
+import { mergeSqlAlias } from '@ez4/pgsql';
 import { isAnyObject } from '@ez4/utils';
 import { Index } from '@ez4/database';
 
-import { detectFieldData, isSkippableData, prepareFieldData } from './data.js';
 import { InvalidRelationFieldError } from './errors.js';
-
-const Sql = new SqlBuilder({
-  onPrepareVariable: (value, { index, schema }) => {
-    const field = index.toString();
-
-    if (schema) {
-      return prepareFieldData(field, value, schema);
-    }
-
-    return detectFieldData(field, value);
-  }
-});
+import { createQueryBuilder } from './builder.js';
+import { isSkippableData } from './data.js';
 
 export const prepareInsertQuery = <T extends Database.Schema, R extends Relations>(
   table: string,
@@ -29,22 +18,24 @@ export const prepareInsertQuery = <T extends Database.Schema, R extends Relation
   relations: RepositoryRelationsWithSchema,
   query: Query.InsertOneInput<T, R>
 ): [string, SqlParameter[]] => {
-  const preQueries = preparePreRelations(query.data, relations);
+  const sql = createQueryBuilder();
+
+  const preQueries = preparePreRelations(query.data, relations, sql);
   const lastQuery = preQueries[preQueries.length - 1];
 
   const insertRecord = getInsertRecord(query.data, relations, lastQuery);
 
-  const insertQuery = Sql.reset()
+  const insertQuery = sql
     .insert(schema)
     .record(insertRecord)
     .select(lastQuery)
     .into(table)
     .returning();
 
-  const postQueries = preparePostRelations(query.data, relations, insertQuery);
+  const postQueries = preparePostRelations(query.data, relations, insertQuery, sql);
   const allQueries = [...preQueries, insertQuery, ...postQueries];
 
-  const [statement, variables] = Sql.with(allQueries, 'R').build();
+  const [statement, variables] = sql.with(allQueries, 'R').build();
 
   return [statement, variables as SqlParameter[]];
 };
@@ -98,7 +89,11 @@ const getInsertRecord = (
   return record;
 };
 
-const preparePreRelations = (data: SqlRecord, relations: RepositoryRelationsWithSchema) => {
+const preparePreRelations = (
+  data: SqlRecord,
+  relations: RepositoryRelationsWithSchema,
+  sql: SqlBuilder
+) => {
   const allQueries = [];
 
   let previousQuery;
@@ -124,7 +119,8 @@ const preparePreRelations = (data: SqlRecord, relations: RepositoryRelationsWith
         continue;
       }
 
-      const relationQuery = Sql.insert(sourceSchema)
+      const relationQuery = sql
+        .insert(sourceSchema)
         .into(sourceTable)
         .record(fieldValue)
         .returning({
@@ -151,7 +147,8 @@ const preparePreRelations = (data: SqlRecord, relations: RepositoryRelationsWith
 const preparePostRelations = (
   data: SqlRecord,
   relations: RepositoryRelationsWithSchema,
-  source: SqlSourceWithResults
+  source: SqlSourceWithResults,
+  sql: SqlBuilder
 ) => {
   const { results } = source;
 
@@ -184,7 +181,8 @@ const preparePostRelations = (
         continue;
       }
 
-      const relationQuery = Sql.insert(sourceSchema)
+      const relationQuery = sql
+        .insert(sourceSchema)
         .into(sourceTable)
         .select(source)
         .record({

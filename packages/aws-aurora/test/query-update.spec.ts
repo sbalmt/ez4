@@ -202,7 +202,7 @@ describe.only('aurora query (update)', () => {
     ]);
   });
 
-  it('assert :: prepare update (optional json column)', () => {
+  it('assert :: prepare update (optional json)', () => {
     const [statement, variables] = prepareUpdateQuery<TestSchema, TestIndexes, TestRelations, {}>(
       'ez4-test-update',
       testSchema,
@@ -522,6 +522,45 @@ describe.only('aurora query (update)', () => {
       makeParameter('1', '"abc"', 'JSON'),
       makeParameter('2', 'false', 'JSON'),
       makeParameter('3', 123)
+    ]);
+  });
+
+  it('assert :: prepare update (optional json relationships)', () => {
+    const [statement, variables] = prepareUpdateQuery<TestSchema, TestIndexes, TestRelations, {}>(
+      'ez4-test-update',
+      testSchema,
+      testRelations,
+      {
+        data: {
+          relation1: {
+            bar: {
+              barBaz: {
+                barBazFoo: 123
+              }
+            },
+            baz: {
+              bazFoo: 456
+            }
+          }
+        },
+        where: {
+          id: '00000000-0000-1000-9000-000000000000'
+        }
+      }
+    );
+
+    equal(
+      statement,
+      `WITH ` +
+        `"R0" AS (SELECT "relation1_id" FROM "ez4-test-update" WHERE "id" = :0) ` +
+        `UPDATE ONLY "ez4-test-relation" AS "T" SET "bar"['barBaz'] = :1, "baz" = :2 ` +
+        `FROM "R0" WHERE "T"."id" = "R0"."relation1_id"`
+    );
+
+    deepEqual(variables, [
+      makeParameter('0', '00000000-0000-1000-9000-000000000000', 'UUID'),
+      makeParameter('1', { barBazFoo: 123 }),
+      makeParameter('2', { bazFoo: 456 })
     ]);
   });
 });
