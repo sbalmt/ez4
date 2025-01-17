@@ -1,15 +1,27 @@
 import type { ArrayType, IsAny, IsArray } from '../main.js';
 
 /**
- * Represents any object.
+ * Represent any object.
  */
 export type AnyObject = Record<any, any>;
 
 /**
- * Given a type `T`, it return `true` when `T` is an object, otherwise returns `false`.
+ * Given a type `T`, it returns `true` when `T` is an object, otherwise returns `false`.
  */
 export type IsObject<T> =
-  IsAny<T> extends true ? false : NonNullable<T> extends AnyObject ? true : false;
+  IsAny<T> extends true
+    ? false
+    : IsArray<T> extends true
+      ? false
+      : NonNullable<T> extends AnyObject
+        ? true
+        : false;
+
+/**
+ * Given a type `T`, it returns `true` when `T` is not an empty object, otherwise returns `false`.
+ */
+export type IsObjectEmpty<T extends AnyObject> =
+  IsAny<T> extends true ? true : keyof T extends never ? true : false;
 
 /**
  * Based on the given object type `T`, it produces a new object type allowing its original
