@@ -35,7 +35,7 @@ export namespace Query {
     R extends RelationMetadata
   > = {
     select?: StrictSelectInput<T, S, R>;
-    include?: IncludeInput<R>;
+    include?: StrictIncludeInput<S, R>;
     data: DeepPartial<Omit<T, R['indexes']> & FlatObject<R['changes']>>;
     where: WhereInput<T, I, R>;
   };
@@ -47,7 +47,7 @@ export namespace Query {
     R extends RelationMetadata
   > = {
     select: StrictSelectInput<T, S, R>;
-    include?: IncludeInput<R>;
+    include?: StrictIncludeInput<S, R>;
     where: WhereInput<T, I, R>;
   };
 
@@ -58,7 +58,7 @@ export namespace Query {
     R extends RelationMetadata
   > = {
     select?: StrictSelectInput<T, S, R>;
-    include?: IncludeInput<R>;
+    include?: StrictIncludeInput<S, R>;
     insert: Omit<T, R['indexes']> & R['changes'];
     update: DeepPartial<Omit<T, R['indexes']> & FlatObject<R['changes']>>;
     where: WhereInput<T, I, R>;
@@ -71,7 +71,7 @@ export namespace Query {
     R extends RelationMetadata
   > = {
     select?: StrictSelectInput<T, S, R>;
-    include?: IncludeInput<R>;
+    include?: StrictIncludeInput<S, R>;
     where: WhereInput<T, I, R>;
   };
 
@@ -85,7 +85,7 @@ export namespace Query {
     R extends RelationMetadata
   > = {
     select?: StrictSelectInput<T, S, R>;
-    include?: IncludeInput<R>;
+    include?: StrictIncludeInput<S, R>;
     data: DeepPartial<Omit<T, R['indexes']> & FlatObject<R['changes']>>;
     where?: WhereInput<T, {}, R>;
     limit?: number;
@@ -98,7 +98,7 @@ export namespace Query {
     R extends RelationMetadata
   > = {
     select: StrictSelectInput<T, S, R>;
-    include?: IncludeInput<R>;
+    include?: StrictIncludeInput<S, R>;
     where?: WhereInput<T, {}, R>;
     order?: OrderInput<I>;
     cursor?: number | string;
@@ -111,7 +111,7 @@ export namespace Query {
     R extends RelationMetadata
   > = {
     select?: StrictSelectInput<T, S, R>;
-    include?: IncludeInput<R>;
+    include?: StrictIncludeInput<S, R>;
     where?: WhereInput<T, {}, R>;
     limit?: number;
   };
@@ -186,16 +186,19 @@ export namespace Query {
     [P in DecomposeIndexName<keyof I>]?: Order;
   };
 
-  export type IncludeInput<R extends RelationMetadata> = WhereRelationInput<R['filters']>;
+  export type StrictIncludeInput<
+    S extends AnyObject,
+    R extends RelationMetadata
+  > = WhereIncludeFilters<R['filters'], S>;
 
   export type WhereInput<
     T extends Database.Schema,
     I extends Database.Indexes<T>,
     R extends RelationMetadata
-  > = WhereInputConditions<T, I, R> &
-    WhereNot<WhereInputConditions<T, I, R>> &
-    WhereAnd<WhereInputConditions<T, I, R>> &
-    WhereOr<WhereInputConditions<T, I, R>>;
+  > = WhereInputFilters<T, I, R> &
+    WhereNot<WhereInputFilters<T, I, R>> &
+    WhereAnd<WhereInputFilters<T, I, R>> &
+    WhereOr<WhereInputFilters<T, I, R>>;
 
   export type WhereOperators = keyof (WhereNegate<any> &
     WhereEqual<any> &
@@ -240,7 +243,7 @@ export namespace Query {
     WhereAnd<WhereObjectField<T>> &
     WhereOr<WhereObjectField<T>>;
 
-  type WhereRelationInput<T extends AnyObject> = {
+  type WhereRelationFilters<T extends AnyObject> = {
     [P in keyof T]?: IsObject<T[P]> extends true
       ? IsObjectEmpty<T[P]> extends false
         ? null | WhereRelationField<NonNullable<T[P]>>
@@ -248,25 +251,33 @@ export namespace Query {
       : never;
   };
 
-  type WhereRequiredInput<T extends AnyObject, N extends string> = {
+  type WhereRequiredFilters<T extends AnyObject, N extends string> = {
     [P in N as P extends keyof T ? P : never]: P extends keyof T ? WhereField<T[P]> : never;
   };
 
-  type WhereOptionalInput<T extends AnyObject, N extends string> = {
+  type WhereOptionalFilters<T extends AnyObject, N extends string> = {
     [P in Exclude<keyof T, N>]?: WhereField<T[P]>;
   };
 
-  type WhereCommonInput<T extends AnyObject, I extends Database.Indexes<T>> =
-    | (WhereRequiredInput<T, DecomposePrimaryIndexNames<I>> &
-        WhereOptionalInput<T, DecomposePrimaryIndexNames<I>>)
-    | (WhereRequiredInput<T, DecomposeUniqueIndexNames<I>> &
-        WhereOptionalInput<T, DecomposeUniqueIndexNames<I>>);
+  type WhereCommonFilters<T extends AnyObject, I extends Database.Indexes<T>> =
+    | (WhereRequiredFilters<T, DecomposePrimaryIndexNames<I>> &
+        WhereOptionalFilters<T, DecomposePrimaryIndexNames<I>>)
+    | (WhereRequiredFilters<T, DecomposeUniqueIndexNames<I>> &
+        WhereOptionalFilters<T, DecomposeUniqueIndexNames<I>>);
 
-  type WhereInputConditions<
+  type WhereInputFilters<
     T extends Database.Schema,
     I extends Database.Indexes<T>,
     R extends RelationMetadata
-  > = WhereCommonInput<T, I> & WhereRelationInput<R['filters']>;
+  > = WhereCommonFilters<T, I> & WhereRelationFilters<R['filters']>;
+
+  type WhereIncludeFilters<T extends AnyObject, S extends AnyObject> = {
+    [P in keyof T]?: P extends keyof S
+      ? IsObject<T[P]> extends true
+        ? WhereRelationField<NonNullable<T[P]>>
+        : never
+      : never;
+  };
 
   type WhereNot<T extends AnyObject> = {
     NOT?: T | WhereAnd<T> | WhereOr<T>;
