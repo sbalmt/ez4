@@ -134,7 +134,7 @@ describe.only('aurora query (select)', () => {
   };
 
   it('assert :: prepare select (undefined columns)', () => {
-    const [statement, variables] = prepareSelectQuery<TestSchema, TestIndexes, TestRelations, {}>(
+    const [statement, variables] = prepareSelectQuery<TestSchema, {}, TestIndexes, TestRelations>(
       'ez4-test-select',
       testSchema,
       testRelations,
@@ -161,7 +161,7 @@ describe.only('aurora query (select)', () => {
   });
 
   it('assert :: prepare select (defined columns)', () => {
-    const [statement, variables] = prepareSelectQuery<TestSchema, TestIndexes, TestRelations, {}>(
+    const [statement, variables] = prepareSelectQuery<TestSchema, {}, TestIndexes, TestRelations>(
       'ez4-test-select',
       testSchema,
       testRelations,
@@ -180,7 +180,7 @@ describe.only('aurora query (select)', () => {
   });
 
   it('assert :: prepare select (with json columns)', () => {
-    const [statement, variables] = prepareSelectQuery<TestSchema, TestIndexes, TestRelations, {}>(
+    const [statement, variables] = prepareSelectQuery<TestSchema, {}, TestIndexes, TestRelations>(
       'ez4-test-select',
       testSchema,
       testRelations,
@@ -203,7 +203,7 @@ describe.only('aurora query (select)', () => {
   });
 
   it('assert :: prepare select (with filters)', () => {
-    const [statement, variables] = prepareSelectQuery<TestSchema, TestIndexes, TestRelations, {}>(
+    const [statement, variables] = prepareSelectQuery<TestSchema, {}, TestIndexes, TestRelations>(
       'ez4-test-select',
       testSchema,
       testRelations,
@@ -225,7 +225,7 @@ describe.only('aurora query (select)', () => {
   });
 
   it('assert :: prepare select (with order)', () => {
-    const [statement, variables] = prepareSelectQuery<TestSchema, TestIndexes, TestRelations, {}>(
+    const [statement, variables] = prepareSelectQuery<TestSchema, {}, TestIndexes, TestRelations>(
       'ez4-test-select',
       testSchema,
       testRelations,
@@ -247,7 +247,7 @@ describe.only('aurora query (select)', () => {
   });
 
   it('assert :: prepare select (with relationship)', () => {
-    const [statement, variables] = prepareSelectQuery<TestSchema, TestIndexes, TestRelations, {}>(
+    const [statement, variables] = prepareSelectQuery<TestSchema, {}, TestIndexes, TestRelations>(
       'ez4-test-select',
       testSchema,
       testRelations,
@@ -299,7 +299,7 @@ describe.only('aurora query (select)', () => {
   });
 
   it('assert :: prepare select (with relationship filters)', () => {
-    const [statement, variables] = prepareSelectQuery<TestSchema, TestIndexes, TestRelations, {}>(
+    const [statement, variables] = prepareSelectQuery<TestSchema, {}, TestIndexes, TestRelations>(
       'ez4-test-select',
       testSchema,
       testRelations,
@@ -374,64 +374,44 @@ describe.only('aurora query (select)', () => {
   });
 
   it('assert :: prepare select (with relationship connections)', () => {
-    const [statement, variables] = prepareSelectQuery<TestSchema, TestIndexes, TestRelations, {}>(
+    const [statement, variables] = prepareSelectQuery<TestSchema, {}, TestIndexes, TestRelations>(
       'ez4-test-select',
       testSchema,
       testRelations,
       {
         select: {
-          id: true,
-          foo: true,
-          bar: true,
-          relation1: {
-            foo: true
-          },
-          relation2: {
-            bar: true
-          },
-          relations: {
-            foo: true,
-            bar: true
-          }
+          id: true
         },
         where: {
           id: '00000000-0000-1000-9000-000000000000',
-          relation1: true,
-          relation2: false,
-          relations: true
+          relation1: {},
+          relation2: null,
+          relations: {
+            foo: 123
+          }
         }
       }
     );
 
     equal(
       statement,
-      `SELECT "R"."id", "R"."foo", "R"."bar", ` +
-        // First relation
-        `(SELECT json_build_object('foo', "T"."foo") ` +
-        `FROM "ez4-test-relation" AS "T" ` +
-        `WHERE "T"."id" = "R"."relation1_id") AS "relation1", ` +
-        // Second relation
-        `(SELECT json_build_object('bar', "T"."bar") ` +
-        `FROM "ez4-test-relation" AS "T" ` +
-        `WHERE "T"."relation2_id" = "R"."id") AS "relation2", ` +
-        // Third relation
-        `(SELECT COALESCE(json_agg(json_build_object('foo', "T"."foo", 'bar', "T"."bar")), '[]'::json) ` +
-        `FROM "ez4-test-relation" AS "T" ` +
-        `WHERE "T"."relation1_id" = "R"."id") AS "relations" ` +
-        // Main condition
+      `SELECT "R"."id" ` +
         `FROM "ez4-test-select" AS "R" ` +
         `WHERE "R"."id" = :0 AND ` +
-        // First relation condition
+        // First relation
         `EXISTS (SELECT 1 FROM "ez4-test-relation" AS "T" ` +
         `WHERE "T"."id" = "R"."relation1_id") AND ` +
-        // Second relation condition
+        // Second relation
         `EXISTS (SELECT 1 FROM "ez4-test-relation" AS "T" ` +
         `WHERE "T"."relation2_id" != "R"."id") AND ` +
-        // Third relation condition
+        // Third relation
         `EXISTS (SELECT 1 FROM "ez4-test-relation" AS "T" ` +
-        `WHERE "T"."relation1_id" = "R"."id")`
+        `WHERE "T"."foo" = :1 AND "T"."relation1_id" = "R"."id")`
     );
 
-    deepEqual(variables, [makeParameter('0', '00000000-0000-1000-9000-000000000000', 'UUID')]);
+    deepEqual(variables, [
+      makeParameter('0', '00000000-0000-1000-9000-000000000000', 'UUID'),
+      makeParameter('1', 123)
+    ]);
   });
 });

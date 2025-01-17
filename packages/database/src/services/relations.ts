@@ -14,11 +14,11 @@ import type {
 /**
  * Internal relation type.
  */
-export type Relations = {
+export type RelationMetadata = {
   indexes: string;
-  filters: Record<string, any>;
-  selects: Record<string, any>;
-  changes: Record<string, any>;
+  filters: Record<string, unknown>;
+  selects: Record<string, unknown>;
+  changes: Record<string, unknown>;
 };
 
 /**

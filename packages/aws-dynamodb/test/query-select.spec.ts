@@ -26,7 +26,7 @@ type TestIndexes = {
 
 describe.only('dynamodb query (select)', () => {
   it('assert :: prepare select', () => {
-    const [statement, variables] = prepareSelect<TestSchema, TestIndexes, TestRelations, {}>(
+    const [statement, variables] = prepareSelect<TestSchema, {}, TestIndexes, TestRelations>(
       'ez4-test-select',
       undefined,
       {
@@ -56,7 +56,7 @@ describe.only('dynamodb query (select)', () => {
   });
 
   it('assert :: prepare select (with index)', () => {
-    const [statement, variables] = prepareSelect<TestSchema, TestIndexes, TestRelations, {}>(
+    const [statement, variables] = prepareSelect<TestSchema, {}, TestIndexes, TestRelations>(
       'ez4-test-select',
       'foo-index',
       {

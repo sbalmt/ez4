@@ -1,6 +1,6 @@
 import type { SqlParameter } from '@aws-sdk/client-rds-data';
-import type { Database, Relations, Query } from '@ez4/database';
 import type { SqlSourceWithResults, SqlRecord, SqlBuilder } from '@ez4/pgsql';
+import type { Database, RelationMetadata, Query } from '@ez4/database';
 import type { ObjectSchema } from '@ez4/schema';
 import type { RepositoryRelationsWithSchema } from '../../types/repository.js';
 
@@ -15,9 +15,9 @@ import { isSkippableData } from './data.js';
 
 export const prepareUpdateQuery = <
   T extends Database.Schema,
+  S extends Query.SelectInput<T, R>,
   I extends Database.Indexes<T>,
-  R extends Relations,
-  S extends Query.SelectInput<T, R>
+  R extends RelationMetadata
 >(
   table: string,
   schema: ObjectSchema,

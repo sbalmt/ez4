@@ -1,5 +1,5 @@
 import type { SqlBuilder, SqlFilters, SqlJsonColumnSchema, SqlSource } from '@ez4/pgsql';
-import type { Database, Relations, Query } from '@ez4/database';
+import type { Database, RelationMetadata, Query } from '@ez4/database';
 import type { AnySchema, ObjectSchema } from '@ez4/schema';
 import type { SqlParameter } from '@aws-sdk/client-rds-data';
 import type { RepositoryRelationsWithSchema } from '../../types/repository.js';
@@ -21,9 +21,9 @@ const Formats: Record<string, string> = {
 
 export const prepareSelectQuery = <
   T extends Database.Schema,
+  S extends Query.SelectInput<T, R>,
   I extends Database.Indexes<T>,
-  R extends Relations,
-  S extends Query.SelectInput<T, R>
+  R extends RelationMetadata
 >(
   table: string,
   schema: ObjectSchema,
@@ -61,7 +61,7 @@ export const prepareSelectQuery = <
   return [statement, variables as SqlParameter[]];
 };
 
-export const getSelectFields = <T extends Database.Schema, R extends Relations>(
+export const getSelectFields = <T extends Database.Schema, R extends RelationMetadata>(
   fields: Partial<Query.SelectInput<T, R>>,
   schema: ObjectSchema,
   relations: RepositoryRelationsWithSchema,
@@ -106,14 +106,15 @@ export const getSelectFields = <T extends Database.Schema, R extends Relations>(
         true
       );
 
+      output[fieldKey] = relationQuery;
+
+      source.as('R');
+
       if (sourceIndex === Index.Primary || sourceIndex === Index.Unique) {
         relationQuery.objectColumn(relationRecord);
       } else {
         relationQuery.arrayColumn(relationRecord);
       }
-
-      output[fieldKey] = relationQuery;
-      source.as('R');
 
       continue;
     }
@@ -150,26 +151,25 @@ export const getSelectFilters = (
   const result: SqlFilters = {};
 
   for (const filterKey in filters) {
-    const filterValue = filters[filterKey];
-
-    if (isSkippableData(filterValue)) {
+    if (isSkippableData(filters[filterKey])) {
       continue;
     }
 
     switch (filterKey) {
-      case 'NOT':
-        result[filterKey] = getSelectFilters(filterValue, relations, source, sql);
-        break;
-
-      case 'AND':
       case 'OR':
-        result[filterKey] = filterValue.map((operation: SqlFilters) => {
+      case 'AND':
+        result[filterKey] = filters[filterKey].map((operation: SqlFilters) => {
           return getSelectFilters(operation, relations, source, sql);
         });
         break;
 
+      case 'NOT':
+        result[filterKey] = getSelectFilters(filters[filterKey], relations, source, sql);
+        break;
+
       default:
         const relationData = relations[filterKey];
+        const filterValue = filters[filterKey];
 
         if (!relationData) {
           result[filterKey] = filterValue;
@@ -178,57 +178,60 @@ export const getSelectFilters = (
 
         const { sourceTable, sourceColumn, sourceSchema, targetColumn } = relationData;
 
-        const relationFilters = getRelationFilters(filters, filterKey);
         const relationQuery = sql.select(sourceSchema).from(sourceTable).rawColumn(1).as('T');
 
-        if (isAnyObject(relationFilters)) {
+        result[filterKey] = relationQuery;
+
+        source.as('R');
+
+        if (isAnyObject(filterValue)) {
           relationQuery.where({
-            ...relationFilters,
+            ...getRelationFilters(filters, filterKey),
             [sourceColumn]: source.reference(targetColumn)
           });
-        } else if (!relationFilters) {
-          relationQuery.where({
-            [sourceColumn]: { not: source.reference(targetColumn) }
-          });
-        } else {
-          relationQuery.where({
-            [sourceColumn]: source.reference(targetColumn)
-          });
+
+          continue;
         }
 
-        result[filterKey] = relationQuery;
+        relationQuery.where({
+          [sourceColumn]: {
+            not: source.reference(targetColumn)
+          }
+        });
     }
   }
 
   return result;
 };
 
-const getRelationFilters = (filters: SqlFilters, relationName: string): unknown => {
+const getRelationFilters = (filters: SqlFilters, relationName: string) => {
+  const result: SqlFilters = {};
+
   for (const filterKey in filters) {
-    const filterValue = filters[filterKey];
+    if (isSkippableData(filters[filterKey])) {
+      continue;
+    }
 
     switch (filterKey) {
-      case 'NOT':
-        return {
-          NOT: getRelationFilters(filterValue, relationName)
-        };
-
-      case 'AND':
       case 'OR':
-        return {
-          [filterKey]: filterValue.map((operation: SqlFilters) => {
-            return getRelationFilters(operation, relationName);
-          })
-        };
+      case 'AND':
+        result[filterKey] = filters[filterKey].map((operation: SqlFilters) => {
+          return getRelationFilters(operation, relationName);
+        });
+        break;
+
+      case 'NOT':
+        result.NOT = getRelationFilters(filters[filterKey], relationName);
+        break;
 
       default:
         if (filterKey === relationName) {
-          return filterValue;
+          Object.assign(result, filters[filterKey]);
         }
     }
   }
 
-  return undefined;
+  return result;
 };
 
 const getDefaultFields = (schema: ObjectSchema) => {

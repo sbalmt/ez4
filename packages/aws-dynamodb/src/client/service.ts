@@ -1,4 +1,4 @@
-import type { Database, Relations, Client as DbClient, Transaction } from '@ez4/database';
+import type { Database, Client as DbClient, Transaction, RelationMetadata } from '@ez4/database';
 import type { Repository } from './types.js';
 
 import { DynamoDBDocumentClient } from '@aws-sdk/lib-dynamodb';
@@ -8,7 +8,7 @@ import { prepareDeleteOne, prepareInsertOne, prepareUpdateOne } from './common/q
 import { executeStatement, executeTransaction } from './common/client.js';
 import { Table } from './table.js';
 
-type TableType = Table<Database.Schema, Database.Indexes<Database.Schema>, Relations>;
+type TableType = Table<Database.Schema, Database.Indexes<Database.Schema>, RelationMetadata>;
 
 const client = DynamoDBDocumentClient.from(new DynamoDBClient(), {
   marshallOptions: {

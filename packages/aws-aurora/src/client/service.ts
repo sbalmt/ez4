@@ -1,4 +1,4 @@
-import type { Database, Client as DbClient, Relations, Transaction } from '@ez4/database';
+import type { Database, Client as DbClient, RelationMetadata, Transaction } from '@ez4/database';
 import type { Connection } from './types.js';
 
 import type {
@@ -15,7 +15,7 @@ import { executeStatement, executeTransaction } from './common/client.js';
 import { detectFieldData } from './common/data.js';
 import { Table } from './table.js';
 
-type TableType = Table<Database.Schema, Database.Indexes<Database.Schema>, Relations>;
+type TableType = Table<Database.Schema, Database.Indexes<Database.Schema>, RelationMetadata>;
 
 const client = new RDSDataClient();
 

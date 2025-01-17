@@ -1,6 +1,6 @@
 import type { SqlParameter } from '@aws-sdk/client-rds-data';
 import type { SqlInsertStatement, SqlSourceWithResults, SqlRecord, SqlBuilder } from '@ez4/pgsql';
-import type { Database, Relations, Query } from '@ez4/database';
+import type { Database, RelationMetadata, Query } from '@ez4/database';
 import type { ObjectSchema } from '@ez4/schema';
 import type { RepositoryRelationsWithSchema } from '../../types/repository.js';
 
@@ -12,7 +12,7 @@ import { InvalidRelationFieldError } from './errors.js';
 import { createQueryBuilder } from './builder.js';
 import { isSkippableData } from './data.js';
 
-export const prepareInsertQuery = <T extends Database.Schema, R extends Relations>(
+export const prepareInsertQuery = <T extends Database.Schema, R extends RelationMetadata>(
   table: string,
   schema: ObjectSchema,
   relations: RepositoryRelationsWithSchema,

@@ -61,7 +61,7 @@ describe.only('aurora query (where)', () => {
   };
 
   const getWhereOperation = (where: Query.WhereInput<TestSchema, {}, TestRelations>) => {
-    const [statement, variables] = prepareSelectQuery<TestSchema, TestIndexes, TestRelations, {}>(
+    const [statement, variables] = prepareSelectQuery<TestSchema, {}, TestIndexes, TestRelations>(
       'ez4-test-where-operation',
       testSchema,
       {},

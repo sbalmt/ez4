@@ -52,7 +52,7 @@ describe.only('dynamodb query (update)', () => {
   };
 
   it('assert :: prepare update', () => {
-    const [statement, variables] = prepareUpdate<TestSchema, TestIndexes, TestRelations, {}>(
+    const [statement, variables] = prepareUpdate<TestSchema, {}, TestIndexes, TestRelations>(
       'ez4-test-update',
       testSchema,
       {
@@ -71,7 +71,7 @@ describe.only('dynamodb query (update)', () => {
   });
 
   it('assert :: prepare update (with select)', () => {
-    const [statement, variables] = prepareUpdate<TestSchema, TestIndexes, TestRelations, {}>(
+    const [statement, variables] = prepareUpdate<TestSchema, {}, TestIndexes, TestRelations>(
       'ez4-test-update',
       testSchema,
       {

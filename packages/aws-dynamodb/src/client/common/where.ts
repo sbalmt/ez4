@@ -1,5 +1,5 @@
-import type { Database, Query, Relations } from '@ez4/database';
 import type { AnyObject } from '@ez4/utils';
+import type { Query } from '@ez4/database';
 
 import { isAnyObject } from '@ez4/utils';
 
@@ -7,13 +7,7 @@ import { isSkippableData } from './data.js';
 
 type PrepareResult = [string, unknown[]];
 
-export const prepareWhereFields = <
-  T extends Database.Schema,
-  I extends Database.Indexes<T>,
-  R extends Relations
->(
-  input: Query.WhereInput<T, {}, R> | Query.WhereInput<T, I, R>
-): PrepareResult => {
+export const prepareWhereFields = (input: Query.WhereInput): PrepareResult => {
   const prepareFields = (data: AnyObject, path?: string): [string[], unknown[]] => {
     const operations: string[] = [];
     const variables: unknown[] = [];

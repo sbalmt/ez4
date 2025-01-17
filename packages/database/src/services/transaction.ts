@@ -1,4 +1,4 @@
-import type { Relations, RelationTables } from './relations.js';
+import type { RelationMetadata, RelationTables } from './relations.js';
 import type { TableIndex, TableRelation } from './table.js';
 import type { IndexedTables } from './indexes.js';
 import type { TableSchemas } from './schemas.js';
@@ -31,14 +31,14 @@ export namespace Transaction {
       : never;
   };
 
-  type InsertOperation<T extends Database.Schema, R extends Relations> = {
+  type InsertOperation<T extends Database.Schema, R extends RelationMetadata> = {
     insert: Query.InsertOneInput<T, R>;
   };
 
   type UpdateOperation<
     T extends Database.Schema,
     I extends Database.Indexes<T>,
-    R extends Relations
+    R extends RelationMetadata
   > = {
     update: Omit<Query.UpdateOneInput<T, Query.SelectInput<T, R>, I, R>, 'select'>;
   };
@@ -46,7 +46,7 @@ export namespace Transaction {
   type DeleteOperation<
     T extends Database.Schema,
     I extends Database.Indexes<T>,
-    R extends Relations
+    R extends RelationMetadata
   > = {
     delete: Omit<Query.DeleteOneInput<T, Query.SelectInput<T, R>, I, R>, 'select'>;
   };

@@ -1,7 +1,7 @@
-import type { ObjectSchema } from '@ez4/schema';
-import type { AnyObject, StrictType } from '@ez4/utils';
-import type { Database, Relations, Query, Table as DbTable } from '@ez4/database';
+import type { Database, RelationMetadata, Query, Table as DbTable } from '@ez4/database';
 import type { RDSDataClient } from '@aws-sdk/client-rds-data';
+import type { AnyObject, StrictType } from '@ez4/utils';
+import type { ObjectSchema } from '@ez4/schema';
 import type { RepositoryRelationsWithSchema } from '../types/repository.js';
 import type { PreparedQueryCommand } from './common/queries.js';
 import type { Connection } from './types.js';
@@ -22,8 +22,11 @@ import {
   prepareUpdateOne
 } from './common/queries.js';
 
-export class Table<T extends Database.Schema, I extends Database.Indexes<T>, R extends Relations>
-  implements DbTable<T, I, R>
+export class Table<
+  T extends Database.Schema,
+  I extends Database.Indexes<T>,
+  R extends RelationMetadata
+> implements DbTable<T, I, R>
 {
   constructor(
     private name: string,
@@ -51,7 +54,7 @@ export class Table<T extends Database.Schema, I extends Database.Indexes<T>, R e
   }
 
   async insertOne(query: Query.InsertOneInput<T, R>): Promise<Query.InsertOneResult> {
-    const command = await prepareInsertOne<T, R>(this.name, this.schema, this.relations, query);
+    const command = await prepareInsertOne(this.name, this.schema, this.relations, query);
 
     await this.sendCommand(command);
   }
@@ -66,7 +69,7 @@ export class Table<T extends Database.Schema, I extends Database.Indexes<T>, R e
       where
     };
 
-    const updateCommand = await prepareUpdateOne<T, I, R, S>(
+    const updateCommand = await prepareUpdateOne(
       this.name,
       this.schema,
       this.relations,
@@ -79,7 +82,7 @@ export class Table<T extends Database.Schema, I extends Database.Indexes<T>, R e
       return undefined;
     }
 
-    const selectCommand = prepareFindOne<T, I, R, S>(this.name, this.schema, this.relations, {
+    const selectCommand = prepareFindOne(this.name, this.schema, this.relations, {
       select,
       where
     });
@@ -92,7 +95,7 @@ export class Table<T extends Database.Schema, I extends Database.Indexes<T>, R e
   async findOne<S extends Query.SelectInput<T, R>>(
     query: Query.FindOneInput<T, S, I, R>
   ): Promise<Query.FindOneResult<T, S, R>> {
-    const command = prepareFindOne<T, I, R, S>(this.name, this.schema, this.relations, query);
+    const command = prepareFindOne(this.name, this.schema, this.relations, query);
 
     const [record] = await this.sendCommand(command);
 
@@ -106,7 +109,7 @@ export class Table<T extends Database.Schema, I extends Database.Indexes<T>, R e
   async deleteOne<S extends Query.SelectInput<T, R>>(
     query: Query.DeleteOneInput<T, S, I, R>
   ): Promise<Query.DeleteOneResult<T, S, R>> {
-    const command = prepareDeleteOne<T, I, R, S>(this.name, this.schema, this.relations, query);
+    const command = prepareDeleteOne(this.name, this.schema, this.relations, query);
 
     const [record] = await this.sendCommand(command);
 
@@ -153,12 +156,7 @@ export class Table<T extends Database.Schema, I extends Database.Indexes<T>, R e
   ): Promise<Query.UpdateManyResult<T, S, R>> {
     const { select, where, limit } = query;
 
-    const updateCommand = await prepareUpdateMany<T, I, R, S>(
-      this.name,
-      this.schema,
-      this.relations,
-      query
-    );
+    const updateCommand = await prepareUpdateMany(this.name, this.schema, this.relations, query);
 
     if (!select) {
       await this.sendCommand(updateCommand);
@@ -166,7 +164,7 @@ export class Table<T extends Database.Schema, I extends Database.Indexes<T>, R e
       return [];
     }
 
-    const selectCommand = prepareFindMany<T, I, R, S>(this.name, this.schema, this.relations, {
+    const selectCommand = prepareFindMany(this.name, this.schema, this.relations, {
       select,
       where,
       limit
@@ -180,7 +178,7 @@ export class Table<T extends Database.Schema, I extends Database.Indexes<T>, R e
   async findMany<S extends Query.SelectInput<T, R>>(
     query: Query.FindManyInput<T, S, I, R>
   ): Promise<Query.FindManyResult<T, S, R>> {
-    const command = prepareFindMany<T, I, R, S>(this.name, this.schema, this.relations, query);
+    const command = prepareFindMany(this.name, this.schema, this.relations, query);
 
     const records = await this.sendCommand(command);
 
@@ -195,7 +193,7 @@ export class Table<T extends Database.Schema, I extends Database.Indexes<T>, R e
   async deleteMany<S extends Query.SelectInput<T, R>>(
     query: Query.DeleteManyInput<T, S, R>
   ): Promise<Query.DeleteManyResult<T, S, R>> {
-    const command = prepareDeleteMany<T, I, R, S>(this.name, this.schema, this.relations, query);
+    const command = prepareDeleteMany(this.name, this.schema, this.relations, query);
 
     const records = await this.sendCommand(command);
 

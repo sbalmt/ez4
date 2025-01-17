@@ -355,7 +355,8 @@ describe.only('aurora client', () => {
       foo: null,
       baz: {
         bazFoo: 123,
-        bazBar: true
+        bazBar: true,
+        bazBaz: 'abc'
       }
     });
   });
