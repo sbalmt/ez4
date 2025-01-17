@@ -1,5 +1,3 @@
-import { IsObject } from '../object/generics.js';
-
 /**
  * Given a type `T`, it returns `true` when `T` is `any`, otherwise it returns `false`;
  */
@@ -22,18 +20,7 @@ export type IsUndefined<T> = undefined extends T ? true : false;
 export type IsOptional<T> = true extends IsNullable<T> | IsUndefined<T> ? true : false;
 
 /**
- * Given the types `T` and `U`, it ensures type `U` will have only properties in common
- * with `T` type.
- */
-export type StrictType<T, U extends T> = {
-  [K in keyof T]: IsObject<U[K]> extends true ? StrictType<T[K], U[K]> : U[K];
-} & {
-  [K in Exclude<keyof U, keyof T>]: never;
-};
-
-/**
- * Given the types `T` and `U`, it ensures an object satisfies only `T` or `U` without
- * sharing any property between them.
+ * Given the types `T` and `U`, it ensures the object satisfies only `T` or `U`.
  */
 export type ExclusiveType<T, U> = T | U extends object
   ? (VoidType<T, U> & U) | (VoidType<U, T> & T)

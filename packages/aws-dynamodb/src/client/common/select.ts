@@ -1,4 +1,5 @@
 import type { Database, Query, RelationMetadata } from '@ez4/database';
+import type { AnyObject } from '@ez4/utils';
 
 import { isAnyObject } from '@ez4/utils';
 
@@ -17,7 +18,7 @@ export const prepareSelect = <
   index: string | undefined,
   query: Query.FindOneInput<T, S, I, R> | Query.FindManyInput<T, S, I, R>
 ): PrepareResult => {
-  const selectFields = prepareSelectFields(query.select);
+  const selectFields = getSelectFields(query.select);
 
   const statement = [`SELECT ${selectFields} FROM "${table}"${index ? `."${index}"` : ''}`];
   const variables = [];
@@ -42,11 +43,18 @@ export const prepareSelect = <
   return [statement.join(' '), variables];
 };
 
-const prepareSelectFields = (fields: Query.SelectInput, path?: string): string => {
+const getSelectFields = <
+  T extends Database.Schema,
+  S extends AnyObject,
+  R extends RelationMetadata
+>(
+  fields: Query.StrictSelectInput<T, S, R>,
+  path?: string
+): string => {
   const selectFields: string[] = [];
 
   for (const fieldKey in fields) {
-    const fieldValue = fields[fieldKey as keyof Query.SelectInput];
+    const fieldValue = fields[fieldKey];
 
     if (!fieldValue) {
       continue;
@@ -55,7 +63,7 @@ const prepareSelectFields = (fields: Query.SelectInput, path?: string): string =
     const fieldPath = path ? `${path}."${fieldKey}"` : `"${fieldKey}"`;
 
     if (isAnyObject(fieldValue)) {
-      selectFields.push(prepareSelectFields(fieldValue, fieldPath));
+      selectFields.push(getSelectFields(fieldValue, fieldPath));
       continue;
     }
 

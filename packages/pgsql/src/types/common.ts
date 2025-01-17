@@ -6,7 +6,7 @@ export type SqlRecord = Record<string, unknown>;
 
 export type SqlFilters = Query.WhereInput<SqlRecord, Database.Indexes, RelationMetadata>;
 
-export type SqlOrder = Query.OrderInput;
+export type SqlOrder = Query.OrderInput<{}>;
 
 export const enum SqlOperator {
   Equal = 'equal',

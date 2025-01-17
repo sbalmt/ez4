@@ -37,7 +37,14 @@ export const prepareUpdateQuery = <
   }
 
   if (query.select) {
-    const selectFields = getSelectFields(query.select, schema, relations, updateQuery, sql);
+    const selectFields = getSelectFields(
+      query.select,
+      query.include,
+      schema,
+      relations,
+      updateQuery,
+      sql
+    );
 
     updateQuery.results.record(selectFields);
   }

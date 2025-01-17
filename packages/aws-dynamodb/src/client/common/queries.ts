@@ -1,7 +1,6 @@
 import type { DynamoDBDocumentClient, ExecuteStatementCommandInput } from '@aws-sdk/lib-dynamodb';
 import type { Database, Query, RelationMetadata } from '@ez4/database';
 import type { ObjectSchema } from '@ez4/schema';
-import type { StrictType } from '@ez4/utils';
 
 import { validateSchema } from '@ez4/aws-dynamodb/runtime';
 
@@ -183,7 +182,7 @@ export const prepareUpdateMany = async <
       ...query.select,
       ...(sortKey && { [sortKey]: true }),
       [partitionKey]: true
-    } as StrictType<Query.SelectInput<T, R>, S>
+    } as Query.StrictSelectInput<T, S, R>
   });
 
   const result = await executeStatement(client, command, debug);
@@ -242,7 +241,7 @@ export const prepareDeleteMany = async <
       ...query.select,
       ...(sortKey && { [sortKey]: true }),
       [partitionKey]: true
-    } as StrictType<Query.SelectInput<T, R>, S>
+    } as Query.StrictSelectInput<T, S, R>
   });
 
   const result = await executeStatement(client, command, debug);

@@ -30,32 +30,35 @@ export namespace Query {
 
   export type UpdateOneInput<
     T extends Database.Schema,
-    S extends Database.Schema,
+    S extends AnyObject,
     I extends Database.Indexes<T>,
     R extends RelationMetadata
   > = {
-    select?: StrictType<SelectInput<T, R>, S>;
+    select?: StrictSelectInput<T, S, R>;
+    include?: IncludeInput<R>;
     data: DeepPartial<Omit<T, R['indexes']> & FlatObject<R['changes']>>;
     where: WhereInput<T, I, R>;
   };
 
   export type FindOneInput<
     T extends Database.Schema,
-    S extends Database.Schema,
+    S extends AnyObject,
     I extends Database.Indexes<T>,
     R extends RelationMetadata
   > = {
-    select: StrictType<SelectInput<T, R>, S>;
+    select: StrictSelectInput<T, S, R>;
+    include?: IncludeInput<R>;
     where: WhereInput<T, I, R>;
   };
 
   export type UpsertOneInput<
     T extends Database.Schema,
-    S extends Database.Schema,
+    S extends AnyObject,
     I extends Database.Indexes<T>,
     R extends RelationMetadata
   > = {
-    select?: StrictType<SelectInput<T, R>, S>;
+    select?: StrictSelectInput<T, S, R>;
+    include?: IncludeInput<R>;
     insert: Omit<T, R['indexes']> & R['changes'];
     update: DeepPartial<Omit<T, R['indexes']> & FlatObject<R['changes']>>;
     where: WhereInput<T, I, R>;
@@ -63,11 +66,12 @@ export namespace Query {
 
   export type DeleteOneInput<
     T extends Database.Schema,
-    S extends Database.Schema,
+    S extends AnyObject,
     I extends Database.Indexes<T>,
     R extends RelationMetadata
   > = {
-    select?: StrictType<SelectInput<T, R>, S>;
+    select?: StrictSelectInput<T, S, R>;
+    include?: IncludeInput<R>;
     where: WhereInput<T, I, R>;
   };
 
@@ -77,10 +81,11 @@ export namespace Query {
 
   export type UpdateManyInput<
     T extends Database.Schema,
-    S extends Database.Schema,
+    S extends AnyObject,
     R extends RelationMetadata
   > = {
-    select?: StrictType<SelectInput<T, R>, S>;
+    select?: StrictSelectInput<T, S, R>;
+    include?: IncludeInput<R>;
     data: DeepPartial<Omit<T, R['indexes']> & FlatObject<R['changes']>>;
     where?: WhereInput<T, {}, R>;
     limit?: number;
@@ -88,11 +93,12 @@ export namespace Query {
 
   export type FindManyInput<
     T extends Database.Schema,
-    S extends Database.Schema,
+    S extends AnyObject,
     I extends Database.Indexes<T>,
     R extends RelationMetadata
   > = {
-    select: StrictType<SelectInput<T, R>, S>;
+    select: StrictSelectInput<T, S, R>;
+    include?: IncludeInput<R>;
     where?: WhereInput<T, {}, R>;
     order?: OrderInput<I>;
     cursor?: number | string;
@@ -101,10 +107,11 @@ export namespace Query {
 
   export type DeleteManyInput<
     T extends Database.Schema,
-    S extends Database.Schema,
+    S extends AnyObject,
     R extends RelationMetadata
   > = {
-    select?: StrictType<SelectInput<T, R>, S>;
+    select?: StrictSelectInput<T, S, R>;
+    include?: IncludeInput<R>;
     where?: WhereInput<T, {}, R>;
     limit?: number;
   };
@@ -145,7 +152,7 @@ export namespace Query {
 
   export type FindManyResult<
     T extends Database.Schema,
-    S extends AnyObject,
+    S extends Database.Schema,
     R extends RelationMetadata
   > = {
     records: Record<T, S, R>[];
@@ -165,18 +172,26 @@ export namespace Query {
   > = PartialObject<T & R['selects'], S, false>;
 
   export type SelectInput<
-    T extends Database.Schema = Database.Schema,
-    R extends RelationMetadata = RelationMetadata
+    T extends Database.Schema,
+    R extends RelationMetadata
   > = PartialProperties<T & R['selects']>;
 
-  export type OrderInput<I extends Database.Indexes = {}> = {
+  export type StrictSelectInput<
+    T extends Database.Schema,
+    S extends AnyObject,
+    R extends RelationMetadata
+  > = StrictType<S, FlatObject<T & R['selects']>>;
+
+  export type OrderInput<I extends Database.Indexes> = {
     [P in DecomposeIndexName<keyof I>]?: Order;
   };
 
+  export type IncludeInput<R extends RelationMetadata> = WhereRelationInput<R['filters']>;
+
   export type WhereInput<
-    T extends Database.Schema = Database.Schema,
-    I extends Database.Indexes<T> = Database.Indexes<T>,
-    R extends RelationMetadata = RelationMetadata
+    T extends Database.Schema,
+    I extends Database.Indexes<T>,
+    R extends RelationMetadata
   > = WhereInputConditions<T, I, R> &
     WhereNot<WhereInputConditions<T, I, R>> &
     WhereAnd<WhereInputConditions<T, I, R>> &

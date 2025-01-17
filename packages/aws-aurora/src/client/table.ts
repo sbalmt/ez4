@@ -1,7 +1,7 @@
 import type { Database, RelationMetadata, Query, Table as DbTable } from '@ez4/database';
 import type { RDSDataClient } from '@aws-sdk/client-rds-data';
-import type { AnyObject, StrictType } from '@ez4/utils';
 import type { ObjectSchema } from '@ez4/schema';
+import type { AnyObject } from '@ez4/utils';
 import type { RepositoryRelationsWithSchema } from '../types/repository.js';
 import type { PreparedQueryCommand } from './common/queries.js';
 import type { Connection } from './types.js';
@@ -124,7 +124,7 @@ export class Table<
     query: Query.UpsertOneInput<T, S, I, R>
   ): Promise<Query.UpsertOneResult<T, S, R>> {
     const previous = await this.findOne({
-      select: query.select ?? ({} as StrictType<Query.SelectInput<T, R>, S>),
+      select: query.select ?? ({} as Query.StrictSelectInput<T, S, R>),
       where: query.where
     });
 

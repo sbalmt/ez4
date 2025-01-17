@@ -68,6 +68,11 @@ const testSelect = async (client: TestDatabase['client']) => {
         value_b: true
       }
     },
+    include: {
+      all_relations_b: {
+        value_b: 2
+      }
+    },
     where: {
       all_relations_b: {
         value_b: 2

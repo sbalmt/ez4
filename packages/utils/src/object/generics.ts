@@ -55,6 +55,29 @@ export type DeepPartial<T extends AnyObject> = {
 };
 
 /**
+ * Given the types `T` and `U`, it produces a new `T` type ensuring only properties in
+ * common with `U` type.
+ */
+export type StrictType<T, U extends AnyObject> =
+  IsObject<T> extends true
+    ? { [P in keyof T]: P extends keyof U ? StrictType<T[P], NonNullable<U[P]>> : never }
+    : T;
+
+/**
+ * Based on the given `T` object, it produces a new object that doesn't contain nested
+ * array types.
+ */
+export type FlatObject<T extends AnyObject> = {
+  [P in keyof T]: IsArray<T[P]> extends false
+    ? IsObject<T[P]> extends true
+      ? FlatObject<T[P]>
+      : T[P]
+    : ArrayType<T[P]> extends AnyObject
+      ? FlatObject<ArrayType<T[P]>>
+      : ArrayType<T[P]>;
+};
+
+/**
  * Based on the given `T` object, it produces a new object type allowing only `boolean`
  * as its property values. This is used in conjunction with `PartialObject`.
  *
@@ -89,20 +112,6 @@ export type PartialObject<T extends AnyObject, O extends AnyObject, V extends bo
         ? PartialObject<ArrayType<T[P]>, O[P], V>[]
         : T[P]
       : T[P];
-};
-
-/**
- * Based on the given `T` object, it produces a new object that doesn't contain nested
- * array types.
- */
-export type FlatObject<T extends AnyObject> = {
-  [P in keyof T]: IsArray<T[P]> extends false
-    ? IsObject<T[P]> extends true
-      ? FlatObject<T[P]>
-      : T[P]
-    : ArrayType<T[P]> extends AnyObject
-      ? FlatObject<ArrayType<T[P]>>
-      : ArrayType<T[P]>;
 };
 
 /**

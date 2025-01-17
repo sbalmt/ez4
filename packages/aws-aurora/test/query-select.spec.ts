@@ -386,8 +386,8 @@ describe.only('aurora query (select)', () => {
           id: '00000000-0000-1000-9000-000000000000',
           relation1: {},
           relation2: null,
-          relations: {
-            foo: 123
+          NOT: {
+            relations: null
           }
         }
       }
@@ -405,13 +405,71 @@ describe.only('aurora query (select)', () => {
         `EXISTS (SELECT 1 FROM "ez4-test-relation" AS "T" ` +
         `WHERE "T"."relation2_id" != "R"."id") AND ` +
         // Third relation
-        `EXISTS (SELECT 1 FROM "ez4-test-relation" AS "T" ` +
-        `WHERE "T"."foo" = :1 AND "T"."relation1_id" = "R"."id")`
+        `NOT EXISTS (SELECT 1 FROM "ez4-test-relation" AS "T" ` +
+        `WHERE "T"."relation1_id" != "R"."id")`
+    );
+
+    deepEqual(variables, [makeParameter('0', '00000000-0000-1000-9000-000000000000', 'UUID')]);
+  });
+
+  it('assert :: prepare select (with relationship includes)', () => {
+    const [statement, variables] = prepareSelectQuery<TestSchema, {}, TestIndexes, TestRelations>(
+      'ez4-test-select',
+      testSchema,
+      testRelations,
+      {
+        select: {
+          id: true,
+          relation1: {
+            foo: true
+          },
+          relation2: {
+            bar: {
+              barBar: true
+            }
+          },
+          relations: {
+            bar: {
+              barFoo: true
+            }
+          }
+        },
+        include: {
+          relation1: {},
+          relation2: null,
+          relations: {
+            foo: 123
+          }
+        },
+        where: {
+          id: '00000000-0000-1000-9000-000000000000'
+        }
+      }
+    );
+
+    equal(
+      statement,
+      `SELECT "R"."id", ` +
+        // First relation
+        `(SELECT json_build_object('foo', "T"."foo") ` +
+        `FROM "ez4-test-relation" AS "T" ` +
+        `WHERE "T"."id" = "R"."relation1_id") AS "relation1", ` +
+        // Second relation
+        `(SELECT json_build_object('bar', json_build_object('barBar', "T"."bar"['barBar'])) ` +
+        `FROM "ez4-test-relation" AS "T" ` +
+        `WHERE "T"."relation2_id" = "R"."id") AS "relation2", ` +
+        // Third relation
+        `(SELECT COALESCE(json_agg(json_build_object('bar', json_build_object('barFoo', "T"."bar"['barFoo']))), '[]'::json) ` +
+        `FROM "ez4-test-relation" AS "T" ` +
+        `WHERE "T"."foo" = :0 AND "T"."relation1_id" = "R"."id") AS "relations" ` +
+        //
+        `FROM "ez4-test-select" AS "R" ` +
+        `WHERE "R"."id" = :1`
     );
 
     deepEqual(variables, [
-      makeParameter('0', '00000000-0000-1000-9000-000000000000', 'UUID'),
-      makeParameter('1', 123)
+      makeParameter('0', 123),
+      makeParameter('1', '00000000-0000-1000-9000-000000000000', 'UUID')
     ]);
   });
 });

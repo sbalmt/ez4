@@ -1,7 +1,6 @@
 import type { Database, Query, RelationMetadata, Table as DbTable } from '@ez4/database';
 import type { DynamoDBDocumentClient } from '@aws-sdk/lib-dynamodb';
 import type { ObjectSchema } from '@ez4/schema';
-import type { StrictType } from '@ez4/utils';
 
 import { ConditionalCheckFailedException } from '@aws-sdk/client-dynamodb';
 import { deepClone } from '@ez4/utils';
@@ -111,7 +110,7 @@ export class Table<
     query: Query.UpsertOneInput<T, S, I, R>
   ): Promise<Query.UpsertOneResult<T, S, R>> {
     const previous = await this.findOne({
-      select: query.select ?? ({} as StrictType<Query.SelectInput<T, R>, S>),
+      select: query.select ?? ({} as Query.StrictSelectInput<T, S, R>),
       where: query.where
     });
 
