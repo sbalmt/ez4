@@ -8,9 +8,9 @@ import { isAnyObject, isEmptyObject } from '@ez4/utils';
 import { isObjectSchema } from '@ez4/schema';
 import { Index } from '@ez4/database';
 
-import { getSelectFilters, getSelectFields } from './select.js';
 import { InvalidRelationFieldError } from './errors.js';
 import { createQueryBuilder } from './builder.js';
+import { getSelectFilters } from './select.js';
 import { isSkippableData } from './data.js';
 
 export const prepareUpdateQuery = <
@@ -34,19 +34,6 @@ export const prepareUpdateQuery = <
 
   if (query.where) {
     updateQuery.where(getSelectFilters(query.where, relations, updateQuery, sql));
-  }
-
-  if (query.select) {
-    const selectFields = getSelectFields(
-      query.select,
-      query.include,
-      schema,
-      relations,
-      updateQuery,
-      sql
-    );
-
-    updateQuery.results.record(selectFields);
   }
 
   const queries = [updateQuery, ...preparePostRelations(query.data, relations, updateQuery, sql)];

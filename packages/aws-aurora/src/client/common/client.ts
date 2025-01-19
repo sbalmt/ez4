@@ -86,13 +86,13 @@ export const executeTransaction = async (
   debug?: boolean
 ) => {
   const transactionId = await beginTransaction(client, connection);
-  const results = [];
+  const resultRecords = [];
 
   try {
     for (const command of commands) {
       const records = await executeStatement(client, connection, command, transactionId, debug);
 
-      results.push(records);
+      resultRecords.push(records);
     }
 
     await commitTransaction(client, connection, transactionId);
@@ -102,5 +102,5 @@ export const executeTransaction = async (
     throw error;
   }
 
-  return results;
+  return resultRecords;
 };

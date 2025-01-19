@@ -89,7 +89,11 @@ export class Table<
 
     const [[record]] = await this.sendCommand([selectCommand, updateCommand]);
 
-    return this.parseRecord(record);
+    if (record) {
+      return this.parseRecord(record);
+    }
+
+    return undefined;
   }
 
   async findOne<S extends Query.SelectInput<T, R>>(
