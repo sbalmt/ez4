@@ -17,7 +17,7 @@ export const prepareWhereFields = (
     for (const key in data) {
       const value = data[key];
 
-      if (isSkippableData(value) || value === null) {
+      if (isSkippableData(value)) {
         continue;
       }
 
@@ -71,7 +71,12 @@ export const prepareWhereFields = (
         default: {
           const nestedPath = path ? `${path}."${key}"` : `"${key}"`;
 
-          const nestedValue = isAnyObject(value) ? value : { equal: value };
+          const nestedValue = isAnyObject(value)
+            ? value
+            : value === null
+              ? { isNull: true }
+              : { equal: value };
+
           const nestedResult = prepareOperation(nestedValue, nestedPath);
 
           if (!nestedResult) {
