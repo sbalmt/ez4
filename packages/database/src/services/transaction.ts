@@ -40,7 +40,7 @@ export namespace Transaction {
     I extends Database.Indexes<T>,
     R extends RelationMetadata
   > = {
-    update: Omit<Query.UpdateOneInput<T, Query.SelectInput<T, R>, I, R>, 'select'>;
+    update: Omit<Query.UpdateOneInput<T, Query.SelectInput<T, R>, I, R>, 'select' | 'include'>;
   };
 
   type DeleteOperation<
@@ -48,6 +48,6 @@ export namespace Transaction {
     I extends Database.Indexes<T>,
     R extends RelationMetadata
   > = {
-    delete: Omit<Query.DeleteOneInput<T, Query.SelectInput<T, R>, I, R>, 'select'>;
+    delete: Omit<Query.DeleteOneInput<T, Query.SelectInput<T, R>, I, R>, 'select' | 'include'>;
   };
 }

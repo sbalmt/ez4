@@ -18,54 +18,38 @@ export type IsObject<T> =
         : false;
 
 /**
- * Given a type `T`, it returns `true` when `T` is not an empty object, otherwise returns `false`.
+ * Given a type `T`, it returns `true` when `T` is an empty object, otherwise returns `false`.
  */
 export type IsObjectEmpty<T extends AnyObject> =
-  IsAny<T> extends true ? true : keyof T extends never ? true : false;
+  IsAny<T> extends true
+    ? true
+    : keyof T extends never
+      ? true
+      : string extends keyof T
+        ? true
+        : false;
 
 /**
- * Based on the given object type `T`, it produces a new object type allowing its original
- * type, `undefined` and `null` for all first-level properties.
+ * Given a type `T`, it produces a new object type allowing its original type, `undefined`
+ * and `null` for all first-level properties.
  */
 export type Incomplete<T> = {
   [P in keyof T]?: T[P] | null;
 };
 
 /**
- * Given an object type `T` and a property `P`, it returns `true` when the property exists,
+ * Given a type `T` and a property `P`, it returns `true` when the property exists,
  * otherwise returns `false`.
  */
 export type PropertyExists<P, T extends AnyObject> = P extends keyof T ? true : false;
 
 /**
- * Given an object type `T` and a property `P`, it returns the corresponding property type.
+ * Given a type `T` and a property `P`, it returns the corresponding property type.
  */
 export type PropertyType<P, T extends AnyObject> = P extends keyof T ? T[P] : never;
 
 /**
- * Based on the given object type `T`, it produces a new object type having its nested
- * properties set to optional.
- */
-export type DeepPartial<T extends AnyObject> = {
-  [P in keyof T]?: IsArray<T[P]> extends false
-    ? IsObject<T[P]> extends true
-      ? DeepPartial<T[P]>
-      : T[P]
-    : T[P];
-};
-
-/**
- * Given the types `T` and `U`, it produces a new `T` type ensuring only properties in
- * common with `U` type.
- */
-export type StrictType<T, U extends AnyObject> =
-  IsObject<T> extends true
-    ? { [P in keyof T]: P extends keyof U ? StrictType<T[P], NonNullable<U[P]>> : never }
-    : T;
-
-/**
- * Based on the given `T` object, it produces a new object that doesn't contain nested
- * array types.
+ * Given a type `T`, it produces a new `T` type that doesn't contain array types.
  */
 export type FlatObject<T extends AnyObject> = {
   [P in keyof T]: IsArray<T[P]> extends false
@@ -78,8 +62,30 @@ export type FlatObject<T extends AnyObject> = {
 };
 
 /**
- * Based on the given `T` object, it produces a new object type allowing only `boolean`
- * as its property values. This is used in conjunction with `PartialObject`.
+ * Given a type `T`, it produces a new `T` type having all properties set to optional.
+ */
+export type OptionalObject<T extends AnyObject> = {
+  [P in keyof T]?: IsArray<T[P]> extends false
+    ? IsObject<T[P]> extends true
+      ? OptionalObject<T[P]>
+      : T[P]
+    : T[P];
+};
+
+/**
+ * Given the types `T` and `U`, it produces a new `T` type ensuring only properties in
+ * common with `U` type.
+ */
+export type StrictObject<T, U extends AnyObject> =
+  IsObjectEmpty<U> extends true
+    ? T
+    : IsObject<T> extends true
+      ? { [P in keyof T]: P extends keyof U ? StrictObject<T[P], NonNullable<U[P]>> : never }
+      : T;
+
+/**
+ * Given a type `T`, it produces a new type allowing only `boolean` as its property values.
+ * This is used in conjunction with `PartialObject`.
  *
  * @example
  * type Foo = PartialProperties<{ bar: string, baz: number }>; // { bar: true, baz: true }
@@ -95,9 +101,9 @@ export type PartialProperties<T extends AnyObject> = {
 };
 
 /**
- * Based on the given `T` and `O` objects, it produces a new object type containing only
- * properties that are in `O` if `V` is `true` or omit them if `V` is `false`, the property
- * type follows the same as in `T`. This is used in conjunction with `PartialProperties`.
+ * Given the types `T` and `O`, it produces a new type containing only properties that
+ * are in `O` if `V` is `true` or omit them if `V` is `false`, the original property type
+ * is kept the same. This is used in conjunction with `PartialProperties`.
  * 
  @example
  type Foo = PartialObject<{ bar: string, baz: number }, { bar: true }>; // { bar: string }
