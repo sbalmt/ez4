@@ -71,6 +71,11 @@ const prepareUpdateFields = (
       fieldSchema.optional;
 
     if (fieldNotNested) {
+      if (fieldValue === null && fieldSchema.nullable) {
+        operations.push(`REMOVE ${fieldPath}`);
+        continue;
+      }
+
       operations.push(`SET ${fieldPath} = ?`);
       variables.push(fieldValue);
 

@@ -24,18 +24,22 @@ const prepareInsertFields = (data: AnyObject, schema: ObjectSchema): PrepareResu
 
   for (const fieldKey in data) {
     const fieldValue = data[fieldKey];
-    const fieldSchema = schema.properties[fieldKey];
 
     if (isSkippableData(fieldValue)) {
       continue;
     }
 
+    const fieldSchema = schema.properties[fieldKey];
+
     if (!fieldSchema) {
       throw new Error(`Field schema for ${fieldKey} doesn't exists.`);
     }
 
-    properties.push(`'${fieldKey}': ?`);
+    if (fieldValue === null || fieldSchema.nullable) {
+      continue;
+    }
 
+    properties.push(`'${fieldKey}': ?`);
     variables.push(fieldValue);
   }
 
