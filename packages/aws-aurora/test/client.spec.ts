@@ -386,8 +386,8 @@ describe.only('aurora client', () => {
     ok(dbClient);
 
     await dbClient.transaction({
-      testTable: {
-        ['test-1']: {
+      testTable: [
+        {
           insert: {
             data: {
               id: 'transaction-1',
@@ -395,7 +395,7 @@ describe.only('aurora client', () => {
             }
           }
         },
-        ['test-2']: {
+        {
           insert: {
             data: {
               id: 'transaction-2',
@@ -403,7 +403,7 @@ describe.only('aurora client', () => {
             }
           }
         }
-      }
+      ]
     });
 
     const result = await dbClient.testTable.findMany({
@@ -431,8 +431,8 @@ describe.only('aurora client', () => {
     ok(dbClient);
 
     await dbClient.transaction({
-      testTable: {
-        ['test-1']: {
+      testTable: [
+        {
           update: {
             data: {
               foo: 'updated'
@@ -442,7 +442,7 @@ describe.only('aurora client', () => {
             }
           }
         },
-        ['test-2']: {
+        {
           update: {
             data: {
               foo: 'updated'
@@ -452,7 +452,7 @@ describe.only('aurora client', () => {
             }
           }
         }
-      }
+      ]
     });
 
     const result = await dbClient.testTable.findMany({
@@ -480,22 +480,22 @@ describe.only('aurora client', () => {
     ok(dbClient);
 
     await dbClient.transaction({
-      testTable: {
-        ['test-1']: {
+      testTable: [
+        {
           delete: {
             where: {
               id: 'transaction-1'
             }
           }
         },
-        ['test-2']: {
+        {
           delete: {
             where: {
               id: 'transaction-2'
             }
           }
         }
-      }
+      ]
     });
 
     const result = await dbClient.testTable.findMany({

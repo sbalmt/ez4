@@ -305,8 +305,8 @@ describe.only('dynamodb client', () => {
     ok(dbClient);
 
     await dbClient.transaction({
-      testTable: {
-        ['test-1']: {
+      testTable: [
+        {
           insert: {
             data: {
               id: 'transaction-1',
@@ -315,7 +315,7 @@ describe.only('dynamodb client', () => {
             }
           }
         },
-        ['test-2']: {
+        {
           insert: {
             data: {
               id: 'transaction-2',
@@ -324,7 +324,7 @@ describe.only('dynamodb client', () => {
             }
           }
         }
-      }
+      ]
     });
 
     const result = await dbClient.testTable.findMany({
@@ -352,8 +352,8 @@ describe.only('dynamodb client', () => {
     ok(dbClient);
 
     await dbClient.transaction({
-      testTable: {
-        ['test-1']: {
+      testTable: [
+        {
           update: {
             data: {
               value: 'updated'
@@ -364,7 +364,7 @@ describe.only('dynamodb client', () => {
             }
           }
         },
-        ['test-2']: {
+        {
           update: {
             data: {
               value: 'updated'
@@ -375,7 +375,7 @@ describe.only('dynamodb client', () => {
             }
           }
         }
-      }
+      ]
     });
 
     const result = await dbClient.testTable.findMany({
@@ -403,8 +403,8 @@ describe.only('dynamodb client', () => {
     ok(dbClient);
 
     await dbClient.transaction({
-      testTable: {
-        ['test-1']: {
+      testTable: [
+        {
           delete: {
             where: {
               id: 'transaction-1',
@@ -412,7 +412,7 @@ describe.only('dynamodb client', () => {
             }
           }
         },
-        ['test-2']: {
+        {
           delete: {
             where: {
               id: 'transaction-2',
@@ -420,7 +420,7 @@ describe.only('dynamodb client', () => {
             }
           }
         }
-      }
+      ]
     });
 
     const result = await dbClient.testTable.findMany({

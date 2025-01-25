@@ -229,7 +229,7 @@ export namespace Query {
   type IncludeFilters<T extends AnyObject, S extends AnyObject> = {
     [P in keyof T]?: P extends keyof S
       ? IsObject<T[P]> extends true
-        ? WhereRelationField<NonNullable<T[P]>>
+        ? null | WhereRelationField<NonNullable<T[P]>>
         : never
       : never;
   };

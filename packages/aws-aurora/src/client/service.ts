@@ -115,13 +115,15 @@ const prepareTransactions = async <
       throw new Error(`Table ${alias} isn't part of the repository.`);
     }
 
+    if (!operationTable) {
+      continue;
+    }
+
     const { name, schema, relations } = repository[alias];
 
     const relationsWithSchema = getRelationsWithSchema(repository, relations);
 
-    for (const operationName in operationTable) {
-      const query = operationTable[operationName];
-
+    for (const query of operationTable) {
       if ('insert' in query) {
         commands.push(await prepareInsertOne(name, schema, relationsWithSchema, query.insert));
       } else if ('update' in query) {

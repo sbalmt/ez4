@@ -413,39 +413,41 @@ describe.only('aurora query (select)', () => {
   });
 
   it('assert :: prepare select (with relationship includes)', () => {
-    const [statement, variables] = prepareSelectQuery<TestSchema, {}, TestIndexes, TestRelations>(
-      'ez4-test-select',
-      testSchema,
-      testRelations,
-      {
-        select: {
-          id: true,
-          relation1: {
-            foo: true
-          },
-          relation2: {
-            bar: {
-              barBar: true
-            }
-          },
-          relations: {
-            bar: {
-              barFoo: true
-            }
-          }
-        },
-        include: {
-          relation1: {},
-          relation2: null,
-          relations: {
-            foo: 123
-          }
-        },
-        where: {
-          id: '00000000-0000-1000-9000-000000000000'
+    const select = {
+      id: true,
+      relation1: {
+        foo: true
+      },
+      relation2: {
+        bar: {
+          barBar: true
+        }
+      },
+      relations: {
+        bar: {
+          barFoo: true
         }
       }
-    );
+    };
+
+    const [statement, variables] = prepareSelectQuery<
+      TestSchema,
+      typeof select,
+      TestIndexes,
+      TestRelations
+    >('ez4-test-select', testSchema, testRelations, {
+      select,
+      include: {
+        relation1: {},
+        relation2: null,
+        relations: {
+          foo: 123
+        }
+      },
+      where: {
+        id: '00000000-0000-1000-9000-000000000000'
+      }
+    });
 
     equal(
       statement,

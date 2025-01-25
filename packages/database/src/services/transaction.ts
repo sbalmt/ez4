@@ -1,3 +1,4 @@
+import type { AnyObject } from '@ez4/utils';
 import type { RelationMetadata, RelationTables } from './relations.js';
 import type { TableIndex, TableRelation } from './table.js';
 import type { IndexedTables } from './indexes.js';
@@ -13,23 +14,20 @@ export namespace Transaction {
    * Write operations.
    */
   export type WriteOperations<T extends Database.Service<any>> = {
-    [P in keyof TableSchemas<T>]?: TableSchemas<T>[P] extends Database.Schema
-      ? {
-          [alias: string]:
-            | InsertOperation<TableSchemas<T>[P], TableRelation<P, RelationTables<T>>>
-            | UpdateOperation<
-                TableSchemas<T>[P],
-                TableIndex<P, IndexedTables<T>>,
-                TableRelation<P, RelationTables<T>>
-              >
-            | DeleteOperation<
-                TableSchemas<T>[P],
-                TableIndex<P, IndexedTables<T>>,
-                TableRelation<P, RelationTables<T>>
-              >;
-        }
-      : never;
+    [P in keyof TableSchemas<T>]?: (TableSchemas<T>[P] extends Database.Schema
+      ? AnyOperation<
+          TableSchemas<T>[P],
+          TableIndex<P, IndexedTables<T>>,
+          TableRelation<P, RelationTables<T>>
+        >
+      : AnyObject)[];
   };
+
+  type AnyOperation<
+    T extends Database.Schema,
+    I extends Database.Indexes<T>,
+    R extends RelationMetadata
+  > = InsertOperation<T, R> | UpdateOperation<T, I, R> | DeleteOperation<T, I, R>;
 
   type InsertOperation<T extends Database.Schema, R extends RelationMetadata> = {
     insert: Query.InsertOneInput<T, R>;
