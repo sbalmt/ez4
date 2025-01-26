@@ -35,7 +35,7 @@ const prepareInsertFields = (data: AnyObject, schema: ObjectSchema): PrepareResu
       throw new Error(`Field schema for ${fieldKey} doesn't exists.`);
     }
 
-    if (fieldValue === null || fieldSchema.nullable) {
+    if (fieldValue === null && fieldSchema.nullable) {
       continue;
     }
 
