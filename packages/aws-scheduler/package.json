@@ -1,7 +1,7 @@
 {
   "name": "@ez4/aws-scheduler",
   "description": "EZ4: Self-managed AWS EventBridge Scheduler provider",
-  "version": "0.10.0",
+  "version": "0.11.0",
   "author": "Silas B.",
   "license": "MIT",
   "type": "module",
@@ -50,15 +50,15 @@
     "@types/aws-lambda": "^8.10.141"
   },
   "peerDependencies": {
-    "@ez4/project": "^0.10.0",
-    "@ez4/scheduler": "^0.10.0"
+    "@ez4/project": "^0.11.0",
+    "@ez4/scheduler": "^0.11.0"
   },
   "dependencies": {
     "@aws-sdk/client-scheduler": "^3.614.0",
-    "@ez4/aws-common": "^0.10.0",
-    "@ez4/aws-identity": "^0.10.0",
-    "@ez4/aws-function": "^0.10.0",
-    "@ez4/stateful": "^0.10.0",
-    "@ez4/utils": "^0.10.0"
+    "@ez4/aws-common": "^0.11.0",
+    "@ez4/aws-identity": "^0.11.0",
+    "@ez4/aws-function": "^0.11.0",
+    "@ez4/stateful": "^0.11.0",
+    "@ez4/utils": "^0.11.0"
   }
 }
