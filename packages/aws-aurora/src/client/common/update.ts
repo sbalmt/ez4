@@ -10,7 +10,7 @@ import { Index } from '@ez4/database';
 
 import { InvalidRelationFieldError } from './errors.js';
 import { createQueryBuilder } from './builder.js';
-import { getSelectFilters } from './select.js';
+import { getSelectFields, getSelectFilters } from './select.js';
 import { isSkippableData } from './data.js';
 
 export const prepareUpdateQuery = <
@@ -34,6 +34,19 @@ export const prepareUpdateQuery = <
 
   if (query.where) {
     updateQuery.where(getSelectFilters(query.where, relations, updateQuery, sql));
+  }
+
+  if (query.select) {
+    const selectRecord = getSelectFields(
+      query.select,
+      query.include,
+      schema,
+      relations,
+      updateQuery,
+      sql
+    );
+
+    updateQuery.results.record(selectRecord);
   }
 
   const queries = [updateQuery, ...preparePostRelations(query.data, relations, updateQuery, sql)];
