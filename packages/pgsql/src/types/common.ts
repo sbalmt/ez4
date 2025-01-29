@@ -1,16 +1,16 @@
-import type { Query } from '@ez4/database';
+import type { Database, Query, RelationMetadata } from '@ez4/database';
 
 export type SqlColumn = string | [string, string];
 
 export type SqlRecord = Record<string, unknown>;
 
-export type SqlFilters = Query.WhereInput<SqlRecord>;
+export type SqlFilters = Query.WhereInput<SqlRecord, Database.Indexes, RelationMetadata>;
 
-export type SqlOrder = Query.OrderInput<any>;
+export type SqlOrder = Query.OrderInput<{}>;
 
 export const enum SqlOperator {
   Equal = 'equal',
-  Not = 'not',
+  NotEqual = 'not',
   GreaterThan = 'gt',
   GreaterThanOrEqual = 'gte',
   LessThan = 'lt',

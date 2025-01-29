@@ -55,7 +55,7 @@ describe.only('sql select tests', () => {
   it('assert :: select with raw columns', async () => {
     const query = sql.select().columns('foo', 'bar').as('alias').from('table');
 
-    query.rawColumn((statement) => mergeSqlAlias('*', statement?.alias));
+    query.rawColumn((source) => mergeSqlAlias('*', source?.alias));
 
     const [statement, variables] = query.build();
 
@@ -221,5 +221,31 @@ describe.only('sql select tests', () => {
     deepEqual(variables, ['abc']);
 
     equal(statement, 'SELECT * FROM "table" WHERE "foo" = :0');
+  });
+
+  it('assert :: select with inner join', async () => {
+    const query = sql.select().from('table1').as('alias1').column('bar');
+
+    const join = query
+      .join('table2')
+      .as('alias2')
+      .on({
+        foo: 'bar',
+        baz: query.reference('qux')
+      });
+
+    query.column(join.reference('foo'));
+
+    const [statement, variables] = query.build();
+
+    deepEqual(variables, ['bar']);
+
+    equal(
+      statement,
+      `SELECT "alias1"."bar", "alias2"."foo" ` +
+        `FROM "table1" AS "alias1" ` +
+        `INNER JOIN "table2" AS "alias2" ` +
+        `ON "alias2"."foo" = :0 AND "alias2"."baz" = "alias1"."qux"`
+    );
   });
 });

@@ -15,6 +15,7 @@ type TestSchema = {
 
 type TestRelations = {
   indexes: never;
+  filters: {};
   selects: {};
   changes: {};
 };
@@ -25,7 +26,7 @@ type TestIndexes = {
 
 describe.only('dynamodb query (delete)', () => {
   it('assert :: prepare delete', () => {
-    const [statement, variables] = prepareDelete<TestSchema, TestIndexes, TestRelations, {}>(
+    const [statement, variables] = prepareDelete<TestSchema, {}, TestIndexes, TestRelations>(
       'ez4-test-delete',
       {
         where: {
@@ -40,7 +41,7 @@ describe.only('dynamodb query (delete)', () => {
   });
 
   it('assert :: prepare delete (with select)', () => {
-    const [statement, variables] = prepareDelete<TestSchema, TestIndexes, TestRelations, {}>(
+    const [statement, variables] = prepareDelete<TestSchema, {}, TestIndexes, TestRelations>(
       'ez4-test-delete',
       {
         select: {

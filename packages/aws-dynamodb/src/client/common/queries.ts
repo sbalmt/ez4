@@ -1,7 +1,6 @@
 import type { DynamoDBDocumentClient, ExecuteStatementCommandInput } from '@aws-sdk/lib-dynamodb';
-import type { Database, Relations, Query } from '@ez4/database';
+import type { Database, Query, RelationMetadata } from '@ez4/database';
 import type { ObjectSchema } from '@ez4/schema';
-import type { StrictType } from '@ez4/utils';
 
 import { validateSchema } from '@ez4/aws-dynamodb/runtime';
 
@@ -13,14 +12,14 @@ import { prepareUpdate } from './update.js';
 import { prepareSelect } from './select.js';
 import { prepareDelete } from './delete.js';
 
-export const prepareInsertOne = async <T extends Database.Schema, R extends Relations>(
+export const prepareInsertOne = async <T extends Database.Schema, R extends RelationMetadata>(
   table: string,
   schema: ObjectSchema,
   query: Query.InsertOneInput<T, R>
 ): Promise<ExecuteStatementCommandInput> => {
   await validateSchema(query.data, schema);
 
-  const [statement, variables] = prepareInsert<T, R>(table, schema, query);
+  const [statement, variables] = prepareInsert(table, schema, query);
 
   return {
     Statement: statement,
@@ -32,9 +31,9 @@ export const prepareInsertOne = async <T extends Database.Schema, R extends Rela
 
 export const prepareFindOne = <
   T extends Database.Schema,
+  S extends Query.SelectInput<T, R>,
   I extends Database.Indexes<T>,
-  R extends Relations,
-  S extends Query.SelectInput<T, R>
+  R extends RelationMetadata
 >(
   table: string,
   indexes: string[][],
@@ -42,7 +41,7 @@ export const prepareFindOne = <
 ): ExecuteStatementCommandInput => {
   const secondaryIndex = findBestSecondaryIndex(indexes, query.where);
 
-  const [statement, variables] = prepareSelect<T, I, R, S>(table, secondaryIndex, query);
+  const [statement, variables] = prepareSelect(table, secondaryIndex, query);
 
   return {
     ConsistentRead: !secondaryIndex,
@@ -56,9 +55,9 @@ export const prepareFindOne = <
 
 export const prepareUpdateOne = async <
   T extends Database.Schema,
+  S extends Query.SelectInput<T, R>,
   I extends Database.Indexes<T>,
-  R extends Relations,
-  S extends Query.SelectInput<T, R>
+  R extends RelationMetadata
 >(
   table: string,
   schema: ObjectSchema,
@@ -66,7 +65,7 @@ export const prepareUpdateOne = async <
 ): Promise<ExecuteStatementCommandInput> => {
   await validateSchema(query.data, preparePartialSchema(schema, query.data));
 
-  const [statement, variables] = prepareUpdate<T, I, R, S>(table, schema, query);
+  const [statement, variables] = prepareUpdate(table, schema, query);
 
   return {
     Statement: statement,
@@ -78,14 +77,14 @@ export const prepareUpdateOne = async <
 
 export const prepareDeleteOne = <
   T extends Database.Schema,
+  S extends Query.SelectInput<T, R>,
   I extends Database.Indexes<T>,
-  R extends Relations,
-  S extends Query.SelectInput<T, R>
+  R extends RelationMetadata
 >(
   table: string,
   query: Query.DeleteOneInput<T, S, I, R>
 ): ExecuteStatementCommandInput => {
-  const [statement, variables] = prepareDelete<T, I, R, S>(table, query);
+  const [statement, variables] = prepareDelete(table, query);
 
   return {
     Statement: statement,
@@ -137,9 +136,9 @@ export const prepareInsertMany = async <T extends Database.Schema>(
 
 export const prepareFindMany = <
   T extends Database.Schema,
+  S extends Query.SelectInput<T, R>,
   I extends Database.Indexes<T>,
-  R extends Relations,
-  S extends Query.SelectInput<T, R>
+  R extends RelationMetadata
 >(
   table: string,
   indexes: string[][],
@@ -147,7 +146,7 @@ export const prepareFindMany = <
 ): ExecuteStatementCommandInput => {
   const secondaryIndex = findBestSecondaryIndex(indexes, query.order ?? query.where ?? {});
 
-  const [statement, variables] = prepareSelect<T, I, R, S>(table, secondaryIndex, query);
+  const [statement, variables] = prepareSelect(table, secondaryIndex, query);
 
   const { cursor, limit } = query;
 
@@ -164,29 +163,29 @@ export const prepareFindMany = <
 
 export const prepareUpdateMany = async <
   T extends Database.Schema,
+  S extends Query.SelectInput<T, R>,
   I extends Database.Indexes<T>,
-  R extends Relations,
-  S extends Query.SelectInput<T, R>
+  R extends RelationMetadata
 >(
   table: string,
   schema: ObjectSchema,
   client: DynamoDBDocumentClient,
   indexes: string[],
-  query: Query.UpdateManyInput<T, S, R>
+  query: Query.UpdateManyInput<T, S, R>,
+  debug?: boolean
 ): Promise<[ExecuteStatementCommandInput[], Query.UpdateManyResult<T, S, R>]> => {
   const [partitionKey, sortKey] = indexes;
 
-  const result = await executeStatement(
-    client,
-    prepareFindMany<T, I, R, S>(table, [], {
-      ...query,
-      select: {
-        ...query.select,
-        ...(sortKey && { [sortKey]: true }),
-        [partitionKey]: true
-      } as StrictType<Query.SelectInput<T, R>, S>
-    })
-  );
+  const command = prepareFindMany(table, [], {
+    ...query,
+    select: {
+      ...query.select,
+      ...(sortKey && { [sortKey]: true }),
+      [partitionKey]: true
+    } as Query.StrictSelectInput<T, S, R>
+  });
+
+  const result = await executeStatement(client, command, debug);
 
   const records = result.Items;
 
@@ -202,12 +201,12 @@ export const prepareUpdateMany = async <
 
       await validateSchema(query.data, partialSchema);
 
-      const [statement, variables] = prepareUpdate<T, I, R, S>(table, schema, {
+      const [statement, variables] = prepareUpdate(table, schema, {
         data: query.data,
         where: {
           ...(sortKey && { [sortKey]: sortId }),
           [partitionKey]: partitionId
-        } as Query.WhereInput<T, I>
+        } as Query.WhereInput<T, I, R>
       });
 
       return {
@@ -224,28 +223,28 @@ export const prepareUpdateMany = async <
 
 export const prepareDeleteMany = async <
   T extends Database.Schema,
+  S extends Query.SelectInput<T, R>,
   I extends Database.Indexes<T>,
-  R extends Relations,
-  S extends Query.SelectInput<T, R>
+  R extends RelationMetadata
 >(
   table: string,
   client: DynamoDBDocumentClient,
   indexes: string[],
-  query: Query.DeleteManyInput<T, S, R>
+  query: Query.DeleteManyInput<T, S, R>,
+  debug?: boolean
 ): Promise<[ExecuteStatementCommandInput[], Query.DeleteManyResult<T, S, R>]> => {
   const [partitionKey, sortKey] = indexes;
 
-  const result = await executeStatement(
-    client,
-    prepareFindMany<T, I, R, S>(table, [], {
-      ...query,
-      select: {
-        ...query.select,
-        ...(sortKey && { [sortKey]: true }),
-        [partitionKey]: true
-      } as StrictType<Query.SelectInput<T, R>, S>
-    })
-  );
+  const command = prepareFindMany(table, [], {
+    ...query,
+    select: {
+      ...query.select,
+      ...(sortKey && { [sortKey]: true }),
+      [partitionKey]: true
+    } as Query.StrictSelectInput<T, S, R>
+  });
+
+  const result = await executeStatement(client, command, debug);
 
   const records = result.Items;
 
@@ -258,11 +257,11 @@ export const prepareDeleteMany = async <
   for (const record of records) {
     const { [partitionKey]: partitionId, [sortKey]: sortId } = record;
 
-    const [statement, variables] = prepareDelete<T, I, R, S>(table, {
+    const [statement, variables] = prepareDelete(table, {
       where: {
         ...(sortKey && { [sortKey]: sortId }),
         [partitionKey]: partitionId
-      } as Query.WhereInput<T, I>
+      } as Query.WhereInput<T, I, R>
     });
 
     transactions.push({

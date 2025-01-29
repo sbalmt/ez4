@@ -48,6 +48,24 @@ export class HttpNotFoundError extends HttpError {
 }
 
 /**
+ * HTTP Unsupported Media Type error.
+ */
+export class HttpUnsupportedMediaTypeError extends HttpError {
+  constructor(message?: string, details?: string[]) {
+    super(415, message || 'Unsupported media type', details);
+  }
+}
+
+/**
+ * HTTP Unprocessable Entity error.
+ */
+export class HttpUnprocessableEntityError extends HttpError {
+  constructor(message?: string, details?: string[]) {
+    super(422, message || 'Unprocessable entity', details);
+  }
+}
+
+/**
  * HTTP Internal Server error.
  */
 export class HttpInternalServerError extends HttpError {

@@ -1,4 +1,4 @@
-import type { Database, Client as DbClient, Relations, Transaction } from '@ez4/database';
+import type { Database, Client as DbClient, RelationMetadata, Transaction } from '@ez4/database';
 import type { Connection } from './types.js';
 
 import type {
@@ -15,7 +15,7 @@ import { executeStatement, executeTransaction } from './common/client.js';
 import { detectFieldData } from './common/data.js';
 import { Table } from './table.js';
 
-type TableType = Table<Database.Schema, Database.Indexes<Database.Schema>, Relations>;
+type TableType = Table<Database.Schema, Database.Indexes<Database.Schema>, RelationMetadata>;
 
 const client = new RDSDataClient();
 
@@ -24,22 +24,20 @@ const tableCache: Record<string, TableType> = {};
 export namespace Client {
   export const make = <T extends Database.Service<any>>(
     connection: Connection,
-    repository: Repository
+    repository: Repository,
+    debug?: boolean
   ): DbClient<T> => {
     const instance = new (class {
       rawQuery(query: string, values: unknown[]) {
         const parameters = values.map((value, index) => detectFieldData(`${index}`, value));
 
-        return executeStatement(client, connection, {
-          parameters,
-          sql: query
-        });
+        return executeStatement(client, connection, { parameters, sql: query }, undefined, debug);
       }
 
       async transaction<O extends Transaction.WriteOperations<T>>(operations: O): Promise<void> {
         const commands = await prepareTransactions(repository, operations);
 
-        await executeTransaction(client, connection, commands);
+        await executeTransaction(client, connection, commands, debug);
       }
     })();
 
@@ -63,7 +61,11 @@ export namespace Client {
 
         const relationsWithSchema = getRelationsWithSchema(repository, relations);
 
-        const table = new Table(client, connection, name, schema, relationsWithSchema);
+        const table = new Table(name, schema, relationsWithSchema, {
+          client,
+          connection,
+          debug
+        });
 
         tableCache[alias] = table;
 
@@ -113,13 +115,15 @@ const prepareTransactions = async <
       throw new Error(`Table ${alias} isn't part of the repository.`);
     }
 
+    if (!operationTable) {
+      continue;
+    }
+
     const { name, schema, relations } = repository[alias];
 
     const relationsWithSchema = getRelationsWithSchema(repository, relations);
 
-    for (const operationName in operationTable) {
-      const query = operationTable[operationName];
-
+    for (const query of operationTable) {
       if ('insert' in query) {
         commands.push(await prepareInsertOne(name, schema, relationsWithSchema, query.insert));
       } else if ('update' in query) {

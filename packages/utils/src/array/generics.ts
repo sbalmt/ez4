@@ -1,13 +1,13 @@
 import type { IsAny } from '../main.js';
 
 /**
- * Given a type `T`, it return `true` when `T` is an array, otherwise returns `false`.
+ * Given a type `T`, it returns `true` when `T` is an array, otherwise returns `false`.
  */
 export type IsArray<T> =
   IsAny<T> extends true ? false : NonNullable<T> extends [...unknown[]] ? true : false;
 
 /**
- * Given the array type `T`, it return `true` when `T` is empty or `any`, otherwise
+ * Given the array type `T`, it returns `true` when `T` is empty or `any`, otherwise
  * returns `false`.
  */
 export type IsArrayEmpty<T extends unknown[]> =

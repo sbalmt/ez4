@@ -1,5 +1,5 @@
 import type { AnyObject, ArrayRest, IsArrayEmpty, IsAny, PropertyExists } from '@ez4/utils';
-import type { Relations, RelationTables } from './relations.js';
+import type { RelationMetadata, RelationTables } from './relations.js';
 import type { IndexedTables } from './indexes.js';
 import type { TableSchemas } from './schemas.js';
 import type { Database } from './database.js';
@@ -23,15 +23,15 @@ export type TableIndex<P, T extends AnyObject> =
   PropertyExists<P, T> extends true ? (T[P] extends Database.Indexes ? T[P] : {}) : {};
 
 /**
- * Given a table `T` and a property `P`, it returns all the relations corresponding
- * to the given property.
+ * Given a table `T` and a property `P`, it returns all the relations corresponding to the
+ * given property.
  */
 export type TableRelation<P, T extends AnyObject> =
   PropertyExists<P, T> extends true
-    ? T[P] extends Relations
+    ? T[P] extends RelationMetadata
       ? T[P]
-      : { indexes: never; selects: {}; changes: {} }
-    : { indexes: never; selects: {}; changes: {} };
+      : RelationMetadata
+    : RelationMetadata;
 
 /**
  * Given a database service `T`, it returns all table clients.
@@ -52,7 +52,7 @@ export type TableClients<T extends Database.Service<any>> = {
 export interface Table<
   T extends Database.Schema,
   I extends Database.Indexes<T>,
-  R extends Relations
+  R extends RelationMetadata
 > {
   /**
    * Insert one record into the database.

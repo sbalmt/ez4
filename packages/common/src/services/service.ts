@@ -18,7 +18,7 @@ export namespace Service {
    * Produces a context for the given service provider `T`.
    */
   export type Context<T> = {
-    [K in keyof ServiceList<T>]: ServiceList<T>[K] extends { client: infer U } ? U : never;
+    [P in keyof ServiceList<T>]: ServiceList<T>[P] extends { client: infer U } ? U : never;
   };
 
   /**

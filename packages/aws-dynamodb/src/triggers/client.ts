@@ -24,9 +24,9 @@ export const prepareLinkedService = async (event: ServiceEvent): Promise<ExtraSo
   }, {});
 
   return {
-    constructor: `make(${JSON.stringify(repository)})`,
-    module: 'Client',
-    from: '@ez4/aws-dynamodb/client'
+    constructor: `make(${JSON.stringify(repository)}, ${options.debug ? 'true' : 'false'})`,
+    from: '@ez4/aws-dynamodb/client',
+    module: 'Client'
   };
 };
 

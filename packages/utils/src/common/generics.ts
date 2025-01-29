@@ -4,16 +4,23 @@
 export type IsAny<T> = boolean extends (T extends never ? true : false) ? true : false;
 
 /**
- * Given the types `T` and `U`, it ensures type `T` will have only properties in common
- * with `T` type.
+ * Given a type `T`, it returns `true` when `T` can be `null`, otherwise it returns `false`.
  */
-export type StrictType<T, U extends T> = U & {
-  [K in Exclude<keyof U, keyof T>]: never;
-};
+export type IsNullable<T> = null extends T ? true : false;
 
 /**
- * Given the types `T` and `U`, it ensures an object satisfies only `T` or `U` without
- * sharing any property between them.
+ * Given a type `T`, it returns `true` when `T` can be `undefined`, and `false` otherwise.
+ */
+export type IsUndefined<T> = undefined extends T ? true : false;
+
+/**
+ * Given a type `T`, it returns `true` when `T` can be `null` or `undefined`, and `false`
+ * otherwise.
+ */
+export type IsOptional<T> = true extends IsNullable<T> | IsUndefined<T> ? true : false;
+
+/**
+ * Given the types `T` and `U`, it ensures the object satisfies only `T` or `U`.
  */
 export type ExclusiveType<T, U> = T | U extends object
   ? (VoidType<T, U> & U) | (VoidType<U, T> & T)

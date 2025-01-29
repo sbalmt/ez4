@@ -50,9 +50,16 @@ export const executeStatement = async (
   client: RDSDataClient,
   connection: Connection,
   command: PreparedQueryCommand,
-  transactionId?: string
+  transactionId?: string,
+  debug?: boolean
 ) => {
   try {
+    if (debug) {
+      const debugId = transactionId?.substring(0, 4) ?? '-';
+
+      console.debug(`[PgSQL/${debugId}]:`, command.sql);
+    }
+
     const { formattedRecords } = await client.send(
       new ExecuteStatementCommand({
         formatRecordsAs: RecordsFormatType.JSON,
@@ -75,16 +82,17 @@ export const executeStatement = async (
 export const executeTransaction = async (
   client: RDSDataClient,
   connection: Connection,
-  commands: PreparedQueryCommand[]
+  commands: PreparedQueryCommand[],
+  debug?: boolean
 ) => {
   const transactionId = await beginTransaction(client, connection);
-  const results = [];
+  const resultRecords = [];
 
   try {
     for (const command of commands) {
-      const records = await executeStatement(client, connection, command, transactionId);
+      const records = await executeStatement(client, connection, command, transactionId, debug);
 
-      results.push(records);
+      resultRecords.push(records);
     }
 
     await commitTransaction(client, connection, transactionId);
@@ -94,5 +102,5 @@ export const executeTransaction = async (
     throw error;
   }
 
-  return results;
+  return resultRecords;
 };

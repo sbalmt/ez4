@@ -1,4 +1,5 @@
-import type { Database, Relations, Query } from '@ez4/database';
+import type { Database, Query, RelationMetadata } from '@ez4/database';
+import type { AnyObject } from '@ez4/utils';
 
 import { isAnyObject } from '@ez4/utils';
 
@@ -9,21 +10,21 @@ type PrepareResult = [string, unknown[]];
 
 export const prepareSelect = <
   T extends Database.Schema,
+  S extends Query.SelectInput<T, R>,
   I extends Database.Indexes<T>,
-  R extends Relations,
-  S extends Query.SelectInput<T, R>
+  R extends RelationMetadata
 >(
   table: string,
   index: string | undefined,
   query: Query.FindOneInput<T, S, I, R> | Query.FindManyInput<T, S, I, R>
 ): PrepareResult => {
-  const selectFields = prepareSelectFields(query.select);
+  const selectFields = getSelectFields(query.select);
 
   const statement = [`SELECT ${selectFields} FROM "${table}"${index ? `."${index}"` : ''}`];
   const variables = [];
 
   if (query.where) {
-    const [whereFields, whereVariables] = prepareWhereFields<T, I>(query.where);
+    const [whereFields, whereVariables] = prepareWhereFields(query.where);
 
     if (whereFields) {
       statement.push(`WHERE ${whereFields}`);
@@ -42,8 +43,12 @@ export const prepareSelect = <
   return [statement.join(' '), variables];
 };
 
-const prepareSelectFields = <T extends Database.Schema, R extends Relations>(
-  fields: Partial<Query.SelectInput<T, R>>,
+const getSelectFields = <
+  T extends Database.Schema,
+  S extends AnyObject,
+  R extends RelationMetadata
+>(
+  fields: Query.StrictSelectInput<T, S, R>,
   path?: string
 ): string => {
   const selectFields: string[] = [];
@@ -58,7 +63,7 @@ const prepareSelectFields = <T extends Database.Schema, R extends Relations>(
     const fieldPath = path ? `${path}."${fieldKey}"` : `"${fieldKey}"`;
 
     if (isAnyObject(fieldValue)) {
-      selectFields.push(prepareSelectFields(fieldValue, fieldPath));
+      selectFields.push(getSelectFields(fieldValue, fieldPath));
       continue;
     }
 

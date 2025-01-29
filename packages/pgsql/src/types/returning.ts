@@ -1,5 +1,5 @@
 import type { SqlJsonColumnOptions, SqlJsonColumnSchema } from '../types/json.js';
-import type { SqlStatement } from '../types/statement.js';
+import type { SqlSource } from './source.js';
 
 import type {
   SqlArrayColumn,
@@ -15,9 +15,9 @@ export class SqlReturningClause {
     results: SqlResults;
   };
 
-  constructor(statement: SqlStatement, columns?: SqlResultRecord | SqlResultColumn[]) {
+  constructor(source: SqlSource, columns?: SqlResultRecord | SqlResultColumn[]) {
     this.#state = {
-      results: new SqlResults(statement, columns)
+      results: new SqlResults(source, columns)
     };
   }
 

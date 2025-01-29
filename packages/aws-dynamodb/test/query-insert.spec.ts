@@ -6,7 +6,7 @@ import { ObjectSchema, SchemaType } from '@ez4/schema';
 
 type TestSchema = {
   id: string;
-  foo?: number;
+  foo?: number | null;
   bar: {
     barFoo: string;
     barBar: boolean;
@@ -15,6 +15,7 @@ type TestSchema = {
 
 type TestRelations = {
   indexes: never;
+  filters: {};
   selects: {};
   changes: {};
 };
@@ -28,6 +29,7 @@ describe.only('dynamodb query (insert)', () => {
       },
       foo: {
         type: SchemaType.Number,
+        nullable: true,
         optional: true
       },
       bar: {
@@ -63,5 +65,26 @@ describe.only('dynamodb query (insert)', () => {
     equal(statement, `INSERT INTO "ez4-test-insert" value { 'id': ?, 'foo': ?, 'bar': ? }`);
 
     deepEqual(variables, ['abc', 123, { barFoo: 'def', barBar: true }]);
+  });
+
+  it('assert :: prepare insert (ignore nulls)', () => {
+    const [statement, variables] = prepareInsert<TestSchema, TestRelations>(
+      'ez4-test-insert',
+      testSchema,
+      {
+        data: {
+          id: 'abc',
+          foo: null,
+          bar: {
+            barFoo: 'def',
+            barBar: false
+          }
+        }
+      }
+    );
+
+    equal(statement, `INSERT INTO "ez4-test-insert" value { 'id': ?, 'bar': ? }`);
+
+    deepEqual(variables, ['abc', { barFoo: 'def', barBar: false }]);
   });
 });

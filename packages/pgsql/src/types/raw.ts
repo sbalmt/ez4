@@ -1,25 +1,25 @@
-import type { SqlStatement } from './statement.js';
+import type { SqlSource } from './source.js';
 
-export type SqlRawGenerator = (statement?: SqlStatement) => string;
+export type SqlRawGenerator = (statement?: SqlSource) => string;
 
 export class SqlRaw {
   #state: {
-    statement?: SqlStatement;
+    source?: SqlSource;
     value: unknown | SqlRawGenerator;
   };
 
-  constructor(statement: undefined | SqlStatement, value: unknown | SqlRawGenerator) {
+  constructor(source: undefined | SqlSource, value: unknown | SqlRawGenerator) {
     this.#state = {
-      statement,
+      source,
       value
     };
   }
 
   build() {
-    const { statement, value } = this.#state;
+    const { source, value } = this.#state;
 
     if (value instanceof Function) {
-      return value(statement);
+      return value(source);
     }
 
     return value;

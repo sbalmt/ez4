@@ -1,32 +1,32 @@
-import type { SqlStatement } from './statement.js';
+import type { SqlSource } from './source.js';
 
 import { escapeSqlName } from '../utils/escape.js';
 import { mergeSqlAlias } from '../utils/merge.js';
 
-export type SqlReferenceGenerator = (statement: SqlStatement) => string;
+export type SqlReferenceGenerator = (source: SqlSource) => string;
 
 export class SqlReference {
   #state: {
-    statement: SqlStatement;
+    source: SqlSource;
     column: string | SqlReferenceGenerator;
   };
 
-  constructor(statement: SqlStatement, column: string | SqlReferenceGenerator) {
+  constructor(source: SqlSource, column: string | SqlReferenceGenerator) {
     this.#state = {
-      statement,
+      source,
       column
     };
   }
 
   build() {
-    const { statement, column } = this.#state;
+    const { source, column } = this.#state;
 
     if (column instanceof Function) {
-      return column(statement);
+      return column(source);
     }
 
-    if (statement.alias) {
-      return mergeSqlAlias(escapeSqlName(column), statement.alias);
+    if (source.alias) {
+      return mergeSqlAlias(escapeSqlName(column), source.alias);
     }
 
     return escapeSqlName(column);

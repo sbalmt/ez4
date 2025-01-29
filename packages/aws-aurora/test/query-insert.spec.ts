@@ -20,6 +20,12 @@ type TestSchema = {
 
 type TestRelations = {
   indexes: 'relation1_id' | 'relation2_id';
+  filters: {
+    relation1: TestSchema;
+    relation2: TestSchema;
+    relation3: TestSchema;
+    relations: TestSchema;
+  };
   selects: {
     relation1?: TestSchema;
     relation2?: TestSchema;

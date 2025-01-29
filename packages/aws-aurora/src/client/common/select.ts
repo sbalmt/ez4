@@ -1,26 +1,17 @@
+import type { SqlBuilder, SqlFilters, SqlJsonColumnSchema, SqlSource } from '@ez4/pgsql';
+import type { Database, RelationMetadata, Query } from '@ez4/database';
 import type { AnySchema, ObjectSchema } from '@ez4/schema';
-import type { Database, Relations, Query } from '@ez4/database';
-import type { SqlJsonColumnSchema, SqlStatement } from '@ez4/pgsql';
 import type { SqlParameter } from '@aws-sdk/client-rds-data';
 import type { RepositoryRelationsWithSchema } from '../../types/repository.js';
 
-import { isAnyNumber, isAnyObject, isEmptyObject } from '@ez4/utils';
-import { escapeSqlName, mergeSqlAlias, SqlBuilder } from '@ez4/pgsql';
+import { AnyObject, isAnyNumber, isAnyObject, isEmptyObject } from '@ez4/utils';
 import { isObjectSchema, isStringSchema } from '@ez4/schema';
+import { escapeSqlName, mergeSqlAlias } from '@ez4/pgsql';
 import { Index } from '@ez4/database';
 
-import { detectFieldData, prepareFieldData } from './data.js';
-import { InvalidRelationFieldError } from './errors.js';
-
-const Sql = new SqlBuilder({
-  onPrepareVariable: (value, index, schema) => {
-    if (schema) {
-      return prepareFieldData(`${index}`, value, schema);
-    }
-
-    return detectFieldData(`${index}`, value);
-  }
-});
+import { InvalidRelationFieldError, MissingFieldSchemaError } from './errors.js';
+import { createQueryBuilder } from './builder.js';
+import { isSkippableData } from './data.js';
 
 const Formats: Record<string, string> = {
   ['date-time']: `'YYYY-MM-DD"T"HH24:MI:SS.MS"Z"'`,
@@ -30,18 +21,35 @@ const Formats: Record<string, string> = {
 
 export const prepareSelectQuery = <
   T extends Database.Schema,
+  S extends Query.SelectInput<T, R>,
   I extends Database.Indexes<T>,
-  R extends Relations,
-  S extends Query.SelectInput<T, R>
+  R extends RelationMetadata
 >(
   table: string,
   schema: ObjectSchema,
   relations: RepositoryRelationsWithSchema,
   query: Query.FindOneInput<T, S, I, R> | Query.FindManyInput<T, S, I, R>
 ): [string, SqlParameter[]] => {
-  const selectQuery = Sql.reset().select(schema).from(table).where(query.where);
+  const sql = createQueryBuilder();
 
-  selectQuery.record(getSelectFields(query.select, schema, relations, selectQuery));
+  const selectQuery = sql.select(schema).from(table);
+
+  const selectRecord = getSelectFields(
+    query.select,
+    query.include,
+    schema,
+    relations,
+    selectQuery,
+    sql
+  );
+
+  selectQuery.record(selectRecord);
+
+  if (query.where) {
+    const selectFilters = getSelectFilters(query.where, relations, selectQuery, sql);
+
+    selectQuery.where(selectFilters);
+  }
 
   if ('order' in query) {
     selectQuery.order(query.order);
@@ -60,14 +68,20 @@ export const prepareSelectQuery = <
   return [statement, variables as SqlParameter[]];
 };
 
-export const getSelectFields = <T extends Database.Schema, R extends Relations>(
-  fields: Partial<Query.SelectInput<T, R>>,
+export const getSelectFields = <
+  T extends Database.Schema,
+  S extends AnyObject,
+  R extends RelationMetadata
+>(
+  fields: Query.StrictSelectInput<T, S, R>,
+  include: SqlFilters | undefined | null,
   schema: ObjectSchema,
   relations: RepositoryRelationsWithSchema,
-  statement: SqlStatement,
+  source: SqlSource,
+  sql: SqlBuilder,
   inner?: boolean
 ) => {
-  const allFields = isEmptyObject(fields) ? getDefaultFields(schema) : fields;
+  const allFields = isEmptyObject(fields) ? getDefaultSelectFields(schema) : fields;
   const output: SqlJsonColumnSchema = {};
 
   for (const fieldKey in allFields) {
@@ -82,37 +96,51 @@ export const getSelectFields = <T extends Database.Schema, R extends Relations>(
     if (relationData) {
       const { sourceTable, sourceColumn, sourceSchema, sourceIndex, targetColumn } = relationData;
 
-      const relationFields = fieldValue === true ? getDefaultFields(sourceSchema) : fieldValue;
+      const relationFields =
+        fieldValue === true ? getDefaultSelectFields(sourceSchema) : fieldValue;
 
       if (!isAnyObject(relationFields)) {
         throw new InvalidRelationFieldError(fieldKey);
       }
 
-      statement.as('R');
+      const relationFilters = include && include[fieldKey];
 
-      const relationQuery = Sql.select(sourceSchema)
-        .where({ [sourceColumn]: statement.reference(targetColumn) })
-        .from(sourceTable);
+      const relationQuery = sql
+        .select(sourceSchema)
+        .from(sourceTable)
+        .where({
+          ...relationFilters,
+          [sourceColumn]: source.reference(targetColumn)
+        });
 
       const relationRecord = getSelectFields(
         relationFields,
+        relationFilters,
         sourceSchema,
         relations,
         relationQuery,
+        sql,
         true
       );
 
-      if (sourceIndex !== Index.Secondary) {
+      output[fieldKey] = relationQuery;
+
+      source.as('R');
+
+      if (sourceIndex === Index.Primary || sourceIndex === Index.Unique) {
         relationQuery.objectColumn(relationRecord);
       } else {
         relationQuery.arrayColumn(relationRecord);
       }
 
-      output[fieldKey] = relationQuery;
       continue;
     }
 
     const fieldSchema = schema.properties[fieldKey];
+
+    if (!fieldSchema) {
+      throw new MissingFieldSchemaError(fieldKey);
+    }
 
     if (isObjectSchema(fieldSchema)) {
       output[fieldKey] = fieldValue;
@@ -122,7 +150,7 @@ export const getSelectFields = <T extends Database.Schema, R extends Relations>(
     const fieldColumn = getFieldColumn(fieldKey, fieldSchema, !inner);
 
     if (fieldColumn instanceof Function) {
-      output[fieldKey] = statement.reference(fieldColumn);
+      output[fieldKey] = source.reference(fieldColumn);
     } else {
       output[fieldKey] = true;
     }
@@ -131,7 +159,69 @@ export const getSelectFields = <T extends Database.Schema, R extends Relations>(
   return output;
 };
 
-const getDefaultFields = (schema: ObjectSchema) => {
+export const getSelectFilters = (
+  filters: SqlFilters,
+  relations: RepositoryRelationsWithSchema,
+  source: SqlSource,
+  sql: SqlBuilder
+) => {
+  const result: SqlFilters = {};
+
+  for (const filterKey in filters) {
+    if (isSkippableData(filters[filterKey])) {
+      continue;
+    }
+
+    switch (filterKey) {
+      case 'OR':
+      case 'AND':
+        result[filterKey] = filters[filterKey].map((operation: SqlFilters) => {
+          return getSelectFilters(operation, relations, source, sql);
+        });
+        break;
+
+      case 'NOT':
+        result[filterKey] = getSelectFilters(filters[filterKey], relations, source, sql);
+        break;
+
+      default:
+        const relationFilters = filters[filterKey];
+        const relationData = relations[filterKey];
+
+        if (!relationData) {
+          result[filterKey] = relationFilters;
+          continue;
+        }
+
+        const { sourceTable, sourceColumn, sourceSchema, targetColumn } = relationData;
+
+        const relationQuery = sql.select(sourceSchema).from(sourceTable).rawColumn(1).as('T');
+
+        result[filterKey] = relationQuery;
+
+        source.as('R');
+
+        if (relationFilters) {
+          relationQuery.where({
+            ...relationFilters,
+            [sourceColumn]: source.reference(targetColumn)
+          });
+
+          continue;
+        }
+
+        relationQuery.where({
+          [sourceColumn]: {
+            not: source.reference(targetColumn)
+          }
+        });
+    }
+  }
+
+  return result;
+};
+
+const getDefaultSelectFields = (schema: ObjectSchema) => {
   const fields: Record<string, boolean> = {};
 
   for (const fieldKey in schema.properties) {
@@ -154,8 +244,8 @@ const getFieldColumn = (column: string, schema: AnySchema, alias?: boolean) => {
 
   const columnName = escapeSqlName(column);
 
-  return (statement: SqlStatement) => {
-    const columnPath = mergeSqlAlias(columnName, statement.alias);
+  return (source: SqlSource) => {
+    const columnPath = mergeSqlAlias(columnName, source.alias);
     const columnResult = `to_char(${columnPath}, ${columnMask})`;
 
     if (alias) {

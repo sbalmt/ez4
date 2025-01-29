@@ -21,6 +21,7 @@ export const bundleTargetFunction = async (
     wrapperFile: join(__MODULE_PATH, '../lib/function.ts'),
     handlerName: parameters.handlerName,
     extras: parameters.extras,
+    debug: parameters.debug,
     filePrefix: 'event',
     define: definitions
   });

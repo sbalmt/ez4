@@ -202,7 +202,17 @@ describe.only('sql where tests', () => {
     equal(statement, 'SELECT * FROM "test" WHERE "foo" IS NOT NULL');
   });
 
-  it('assert :: where is null', async () => {
+  it('assert :: where is null (implicit)', async () => {
+    const query = sql.select().from('test').where({ foo: null });
+
+    const [statement, variables] = query.build();
+
+    deepEqual(variables, []);
+
+    equal(statement, 'SELECT * FROM "test" WHERE "foo" IS NULL');
+  });
+
+  it('assert :: where is null (explicit)', async () => {
     const query = sql
       .select()
       .from('test')
@@ -386,5 +396,29 @@ describe.only('sql where tests', () => {
     deepEqual(variables, []);
 
     equal(statement, `SELECT * FROM "test" WHERE "foo"['bar']['baz'] = "column"`);
+  });
+
+  it('assert :: where with exists', async () => {
+    const query = sql.select().from('test').as('alias_test');
+
+    query.where({
+      foo_condition: sql
+        .select()
+        .rawColumn(1)
+        .from('inner')
+        .where({
+          foo: query.reference('bar')
+        })
+    });
+
+    const [statement, variables] = query.build();
+
+    deepEqual(variables, []);
+
+    equal(
+      statement,
+      `SELECT * FROM "test" AS "alias_test" ` +
+        `WHERE EXISTS (SELECT 1 FROM "inner" WHERE "foo" = "alias_test"."bar")`
+    );
   });
 });

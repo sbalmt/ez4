@@ -10,4 +10,5 @@ export type IntegrationFunctionParameters = Omit<FunctionParameters, 'getFunctio
   querySchema?: ObjectSchema | null;
   bodySchema?: ObjectSchema | UnionSchema | null;
   extras?: Record<string, ExtraSource>;
+  debug?: boolean;
 };

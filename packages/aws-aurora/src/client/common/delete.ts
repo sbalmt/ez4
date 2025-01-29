@@ -1,38 +1,41 @@
-import type { Database, Relations, Query } from '@ez4/database';
+import type { Database, RelationMetadata, Query } from '@ez4/database';
 import type { SqlParameter } from '@aws-sdk/client-rds-data';
 import type { ObjectSchema } from '@ez4/schema';
 import type { RepositoryRelationsWithSchema } from '../../types/repository.js';
 
-import { SqlBuilder } from '@ez4/pgsql';
-
-import { detectFieldData, prepareFieldData } from './data.js';
-import { getSelectFields } from './select.js';
-
-const Sql = new SqlBuilder({
-  onPrepareVariable: (value, index, schema) => {
-    if (schema) {
-      return prepareFieldData(`${index}`, value, schema);
-    }
-
-    return detectFieldData(`${index}`, value);
-  }
-});
+import { getSelectFilters, getSelectFields } from './select.js';
+import { createQueryBuilder } from './builder.js';
 
 export const prepareDeleteQuery = <
   T extends Database.Schema,
+  S extends Query.SelectInput<T, R>,
   I extends Database.Indexes<T>,
-  R extends Relations,
-  S extends Query.SelectInput<T, R>
+  R extends RelationMetadata
 >(
   table: string,
   schema: ObjectSchema,
   relations: RepositoryRelationsWithSchema,
   query: Query.DeleteOneInput<T, S, I, R> | Query.DeleteManyInput<T, S, R>
 ): [string, SqlParameter[]] => {
-  const deleteQuery = Sql.reset().delete(schema).from(table).where(query.where);
+  const sql = createQueryBuilder();
+
+  const deleteQuery = sql.reset().delete(schema).from(table);
+
+  if (query.where) {
+    const selectFilters = getSelectFilters(query.where, relations, deleteQuery, sql);
+
+    deleteQuery.where(selectFilters);
+  }
 
   if (query.select) {
-    const selectRecord = getSelectFields(query.select, schema, relations, deleteQuery);
+    const selectRecord = getSelectFields(
+      query.select,
+      query.include,
+      schema,
+      relations,
+      deleteQuery,
+      sql
+    );
 
     deleteQuery.returning(selectRecord);
   }

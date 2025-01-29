@@ -1,7 +1,7 @@
 import type { SqlJsonColumnOptions, SqlJsonColumnSchema } from '../types/json.js';
 import type { SqlColumn } from '../types/common.js';
 import type { SqlRawGenerator } from './raw.js';
-import type { SqlStatement } from './statement.js';
+import type { SqlSource } from './source.js';
 
 import { isAnyObject } from '@ez4/utils';
 
@@ -31,24 +31,20 @@ export type SqlResultRecord = {
 };
 
 type SqlResultsContext = {
-  statement?: SqlStatement;
+  source?: SqlSource;
   variables: unknown[];
 };
 
 export class SqlResults {
   #state: {
-    statement: SqlStatement;
+    source: SqlSource;
     columns: (SqlResultColumn | SqlJsonColumn)[];
   };
 
-  constructor(statement: SqlStatement, columns?: SqlResultRecord | SqlResultColumn[]) {
+  constructor(source: SqlSource, columns?: SqlResultRecord | SqlResultColumn[]) {
     this.#state = {
-      statement,
-      columns: Array.isArray(columns)
-        ? columns
-        : columns
-          ? getRecordColumns(columns, statement)
-          : []
+      source,
+      columns: Array.isArray(columns) ? columns : columns ? getRecordColumns(columns, source) : []
     };
   }
 
@@ -68,7 +64,7 @@ export class SqlResults {
     if (Array.isArray(result)) {
       this.#state.columns = result;
     } else if (result) {
-      this.#state.columns = getRecordColumns(result, this.#state.statement);
+      this.#state.columns = getRecordColumns(result, this.#state.source);
     } else {
       this.#state.columns = [];
     }
@@ -83,13 +79,13 @@ export class SqlResults {
   }
 
   record(record: SqlResultRecord) {
-    this.#state.columns = getRecordColumns(record, this.#state.statement);
+    this.#state.columns = getRecordColumns(record, this.#state.source);
 
     return this;
   }
 
-  rawColumn(column: string | SqlRawGenerator) {
-    this.#state.columns.push(new SqlRaw(this.#state.statement, column));
+  rawColumn(column: number | string | SqlRawGenerator) {
+    this.#state.columns.push(new SqlRaw(this.#state.source, column));
 
     return this;
   }
@@ -98,7 +94,7 @@ export class SqlResults {
     this.#state.columns.push(
       new SqlJsonColumn(
         schema,
-        this.#state.statement,
+        this.#state.source,
         options.aggregate,
         options.column,
         options.alias
@@ -123,18 +119,18 @@ export class SqlResults {
   }
 
   build(): [string, unknown[]] {
-    const { statement, columns } = this.#state;
+    const { source, columns } = this.#state;
 
     const context = {
       variables: [],
-      statement
+      source
     };
 
     return [getResultColumns(columns, context), context.variables];
   }
 }
 
-const getRecordColumns = (record: SqlResultRecord, statement: SqlStatement) => {
+const getRecordColumns = (record: SqlResultRecord, source: SqlSource) => {
   const columns: (SqlResultColumn | SqlJsonColumn)[] = [];
 
   for (const column in record) {
@@ -149,7 +145,7 @@ const getRecordColumns = (record: SqlResultRecord, statement: SqlStatement) => {
     } else if (value instanceof SqlSelectStatement) {
       columns.push(value.as(column));
     } else if (isAnyObject(value)) {
-      columns.push(new SqlJsonColumn(value, statement, false, column));
+      columns.push(new SqlJsonColumn(value, source, false, column));
     }
   }
 
@@ -160,7 +156,7 @@ const getResultColumns = (
   columns: (SqlResultColumn | SqlJsonColumn)[],
   context: SqlResultsContext
 ) => {
-  const { statement, variables } = context;
+  const { source, variables } = context;
 
   const columnsList = columns.map((column) => {
     if (column instanceof SqlRaw) {
@@ -196,7 +192,7 @@ const getResultColumns = (
     }
 
     if (!(column instanceof Array)) {
-      return mergeSqlAlias(escapeSqlName(column), statement?.alias);
+      return mergeSqlAlias(escapeSqlName(column), source?.alias);
     }
 
     const [columnName, columnAlias] = column.map((name) => {
@@ -204,10 +200,10 @@ const getResultColumns = (
     });
 
     if (columnName !== columnAlias) {
-      return `${mergeSqlAlias(columnName, statement?.alias)} AS ${columnAlias}`;
+      return `${mergeSqlAlias(columnName, source?.alias)} AS ${columnAlias}`;
     }
 
-    return mergeSqlAlias(columnName, statement?.alias);
+    return mergeSqlAlias(columnName, source?.alias);
   });
 
   return columnsList.join(', ') || '*';

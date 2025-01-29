@@ -1,4 +1,4 @@
-import type { Database, Relations, Client as DbClient, Transaction } from '@ez4/database';
+import type { Database, Client as DbClient, Transaction, RelationMetadata } from '@ez4/database';
 import type { Repository } from './types.js';
 
 import { DynamoDBDocumentClient } from '@aws-sdk/lib-dynamodb';
@@ -8,7 +8,7 @@ import { prepareDeleteOne, prepareInsertOne, prepareUpdateOne } from './common/q
 import { executeStatement, executeTransaction } from './common/client.js';
 import { Table } from './table.js';
 
-type TableType = Table<Database.Schema, Database.Indexes<Database.Schema>, Relations>;
+type TableType = Table<Database.Schema, Database.Indexes<Database.Schema>, RelationMetadata>;
 
 const client = DynamoDBDocumentClient.from(new DynamoDBClient(), {
   marshallOptions: {
@@ -19,14 +19,15 @@ const client = DynamoDBDocumentClient.from(new DynamoDBClient(), {
 const tableCache: Record<string, TableType> = {};
 
 export namespace Client {
-  export const make = <T extends Database.Service<any>>(repository: Repository): DbClient<T> => {
+  export const make = <T extends Database.Service<any>>(
+    repository: Repository,
+    debug?: boolean
+  ): DbClient<T> => {
     const instance = new (class {
       async rawQuery(query: string, values: unknown[]) {
-        const result = await executeStatement(client, {
-          ConsistentRead: true,
-          Statement: query,
-          Parameters: values
-        });
+        const command = { ConsistentRead: true, Parameters: values, Statement: query };
+
+        const result = await executeStatement(client, command, debug);
 
         return result.Items ?? [];
       }
@@ -34,7 +35,7 @@ export namespace Client {
       async transaction<O extends Transaction.WriteOperations<T>>(operations: O): Promise<void> {
         const commands = await prepareTransactions(repository, operations);
 
-        await executeTransaction(client, commands);
+        await executeTransaction(client, commands, debug);
       }
     })();
 
@@ -56,7 +57,10 @@ export namespace Client {
 
         const { name, schema, indexes } = repository[alias];
 
-        const table = new Table(name, schema, indexes, client);
+        const table = new Table(name, schema, indexes, {
+          client,
+          debug
+        });
 
         tableCache[alias] = table;
 
@@ -82,11 +86,13 @@ const prepareTransactions = async <
       throw new Error(`Table ${alias} isn't part of the repository.`);
     }
 
+    if (!operationTable) {
+      continue;
+    }
+
     const { name, schema } = repository[alias];
 
-    for (const operationName in operationTable) {
-      const query = operationTable[operationName];
-
+    for (const query of operationTable) {
       if ('insert' in query) {
         commands.push(await prepareInsertOne(name, schema, query.insert));
       } else if ('update' in query) {

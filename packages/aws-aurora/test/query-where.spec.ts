@@ -14,10 +14,12 @@ type TestSchema = {
     barFoo?: string;
     barBar?: boolean;
   };
+  baz?: string;
 };
 
 type TestRelations = {
   indexes: never;
+  filters: {};
   selects: {};
   changes: {};
 };
@@ -50,12 +52,16 @@ describe.only('aurora query (where)', () => {
             optional: true
           }
         }
+      },
+      baz: {
+        type: SchemaType.String,
+        optional: true
       }
     }
   };
 
-  const getWhereOperation = (where: Query.WhereInput<TestSchema>) => {
-    const [statement, variables] = prepareSelectQuery<TestSchema, TestIndexes, TestRelations, {}>(
+  const getWhereOperation = (where: Query.WhereInput<TestSchema, {}, TestRelations>) => {
+    const [statement, variables] = prepareSelectQuery<TestSchema, {}, TestIndexes, TestRelations>(
       'ez4-test-where-operation',
       testSchema,
       {},
@@ -211,22 +217,27 @@ describe.only('aurora query (where)', () => {
 
   it('assert :: prepare where (contains)', () => {
     const [whereClause, variables] = getWhereOperation({
-      bar: { barFoo: { contains: 'abc' } }
+      bar: { barFoo: { contains: 'abc' } },
+      baz: { contains: 'def' }
     });
 
-    equal(whereClause, `WHERE "bar"['barFoo'] LIKE '%' || :0 || '%'`);
+    equal(
+      whereClause,
+      `WHERE "bar"['barFoo'] LIKE '%' || :0 || '%' AND "baz" LIKE '%' || :1 || '%'`
+    );
 
-    deepEqual(variables, [makeParameter('0', 'abc')]);
+    deepEqual(variables, [makeParameter('0', '"abc"', 'JSON'), makeParameter('1', 'def')]);
   });
 
   it('assert :: prepare where (starts with)', () => {
     const [whereClause, variables] = getWhereOperation({
-      bar: { barFoo: { startsWith: 'abc' } }
+      bar: { barFoo: { startsWith: 'abc' } },
+      baz: { startsWith: 'def' }
     });
 
-    equal(whereClause, `WHERE "bar"['barFoo'] LIKE :0 || '%'`);
+    equal(whereClause, `WHERE "bar"['barFoo'] LIKE :0 || '%' AND "baz" LIKE :1 || '%'`);
 
-    deepEqual(variables, [makeParameter('0', 'abc')]);
+    deepEqual(variables, [makeParameter('0', '"abc"', 'JSON'), makeParameter('1', 'def')]);
   });
 
   it('assert :: prepare where (not)', () => {

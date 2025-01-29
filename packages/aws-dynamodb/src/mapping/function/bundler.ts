@@ -23,6 +23,7 @@ export const bundleStreamFunction = async (
     wrapperFile: join(__MODULE_PATH, '../lib/function.ts'),
     handlerName: parameters.handlerName,
     extras: parameters.extras,
+    debug: parameters.debug,
     filePrefix: 'db',
     define: {
       ...definitions,

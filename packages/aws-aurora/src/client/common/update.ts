@@ -1,54 +1,57 @@
 import type { SqlParameter } from '@aws-sdk/client-rds-data';
-import type { Database, Relations, Query } from '@ez4/database';
-import type { SqlStatementWithResults, SqlRecord } from '@ez4/pgsql';
+import type { SqlSourceWithResults, SqlRecord, SqlBuilder } from '@ez4/pgsql';
+import type { Database, RelationMetadata, Query } from '@ez4/database';
 import type { ObjectSchema } from '@ez4/schema';
 import type { RepositoryRelationsWithSchema } from '../../types/repository.js';
 
 import { isAnyObject, isEmptyObject } from '@ez4/utils';
 import { isObjectSchema } from '@ez4/schema';
-import { SqlBuilder } from '@ez4/pgsql';
 import { Index } from '@ez4/database';
 
-import { detectFieldData, isSkippableData, prepareFieldData } from './data.js';
 import { InvalidRelationFieldError } from './errors.js';
-import { getSelectFields } from './select.js';
-
-const Sql = new SqlBuilder({
-  onPrepareVariable: (value, index, schema) => {
-    if (schema) {
-      return prepareFieldData(`${index}`, value, schema);
-    }
-
-    return detectFieldData(`${index}`, value);
-  }
-});
+import { createQueryBuilder } from './builder.js';
+import { getSelectFields, getSelectFilters } from './select.js';
+import { isSkippableData } from './data.js';
 
 export const prepareUpdateQuery = <
   T extends Database.Schema,
+  S extends Query.SelectInput<T, R>,
   I extends Database.Indexes<T>,
-  R extends Relations,
-  S extends Query.SelectInput<T, R>
+  R extends RelationMetadata
 >(
   table: string,
   schema: ObjectSchema,
   relations: RepositoryRelationsWithSchema,
   query: Query.UpdateOneInput<T, S, I, R> | Query.UpdateManyInput<T, S, R>
 ): [string, SqlParameter[]] => {
-  const record = getUpdateRecord(query.data, schema, relations);
+  const sql = createQueryBuilder();
 
-  const updateQuery = isEmptyObject(record)
-    ? Sql.reset().select(schema).from(table).where(query.where)
-    : Sql.reset().update(schema).only(table).record(record).where(query.where).returning();
+  const updateRecord = getUpdateRecord(query.data, schema, relations, sql);
+
+  const updateQuery = !isEmptyObject(updateRecord)
+    ? sql.update(schema).only(table).record(updateRecord).returning()
+    : sql.select(schema).from(table);
+
+  if (query.where) {
+    updateQuery.where(getSelectFilters(query.where, relations, updateQuery, sql));
+  }
 
   if (query.select) {
-    const selectRecord = getSelectFields(query.select, schema, relations, updateQuery);
+    const selectRecord = getSelectFields(
+      query.select,
+      query.include,
+      schema,
+      relations,
+      updateQuery,
+      sql
+    );
 
     updateQuery.results.record(selectRecord);
   }
 
-  const queries = [updateQuery, ...preparePostRelations(query.data, relations, updateQuery)];
+  const queries = [updateQuery, ...preparePostRelations(query.data, relations, updateQuery, sql)];
 
-  const [statement, variables] = Sql.with(queries, 'R').build();
+  const [statement, variables] = sql.with(queries, 'R').build();
 
   return [statement, variables as SqlParameter[]];
 };
@@ -56,17 +59,19 @@ export const prepareUpdateQuery = <
 const getUpdateRecord = (
   data: SqlRecord,
   schema: ObjectSchema,
-  relations: RepositoryRelationsWithSchema
+  relations: RepositoryRelationsWithSchema,
+  sql: SqlBuilder
 ) => {
   const record: SqlRecord = {};
 
   for (const fieldKey in data) {
-    const relationData = relations[fieldKey];
     const fieldValue = data[fieldKey];
 
     if (isSkippableData(fieldValue)) {
       continue;
     }
+
+    const relationData = relations[fieldKey];
 
     if (relationData) {
       if (!isAnyObject(fieldValue)) {
@@ -84,19 +89,25 @@ const getUpdateRecord = (
       continue;
     }
 
+    if (!isAnyObject(fieldValue)) {
+      record[fieldKey] = fieldValue;
+
+      continue;
+    }
+
     const fieldSchema = schema.properties[fieldKey];
 
     const fieldOverwrite =
-      isObjectSchema(fieldSchema) &&
-      (fieldSchema.definitions?.extensible ||
-        fieldSchema.additional ||
-        fieldSchema.nullable ||
-        fieldSchema.optional);
+      !isObjectSchema(fieldSchema) ||
+      fieldSchema.definitions?.extensible ||
+      fieldSchema.additional ||
+      fieldSchema.nullable ||
+      fieldSchema.optional;
 
-    if (fieldOverwrite) {
-      record[fieldKey] = Sql.raw(fieldValue);
+    if (!fieldOverwrite) {
+      record[fieldKey] = getUpdateRecord(fieldValue, fieldSchema, relations, sql);
     } else {
-      record[fieldKey] = fieldValue;
+      record[fieldKey] = sql.raw(fieldValue);
     }
   }
 
@@ -106,9 +117,10 @@ const getUpdateRecord = (
 const preparePostRelations = (
   data: SqlRecord,
   relations: RepositoryRelationsWithSchema,
-  statement: SqlStatementWithResults
+  source: SqlSourceWithResults,
+  sql: SqlBuilder
 ) => {
-  const { results } = statement;
+  const { results } = source;
 
   const allQueries = [];
 
@@ -130,13 +142,14 @@ const preparePostRelations = (
       continue;
     }
 
-    const relationQuery = Sql.update(sourceSchema)
+    const relationQuery = sql
+      .update(sourceSchema)
+      .record(getUpdateRecord(fieldValue, sourceSchema, relations, sql))
       .only(sourceTable)
-      .record(fieldValue)
-      .from(statement)
+      .from(source)
       .as('T')
       .where({
-        [sourceColumn]: statement.reference(targetColumn)
+        [sourceColumn]: source.reference(targetColumn)
       });
 
     allQueries.push(relationQuery);

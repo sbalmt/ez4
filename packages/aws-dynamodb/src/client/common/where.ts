@@ -1,4 +1,4 @@
-import type { Database, Query } from '@ez4/database';
+import type { Query, RelationMetadata } from '@ez4/database';
 import type { AnyObject } from '@ez4/utils';
 
 import { isAnyObject } from '@ez4/utils';
@@ -7,8 +7,8 @@ import { isSkippableData } from './data.js';
 
 type PrepareResult = [string, unknown[]];
 
-export const prepareWhereFields = <T extends Database.Schema, I extends Database.Indexes<T>>(
-  input: Query.WhereInput<T, I>
+export const prepareWhereFields = (
+  input: Query.WhereInput<{}, {}, RelationMetadata>
 ): PrepareResult => {
   const prepareFields = (data: AnyObject, path?: string): [string[], unknown[]] => {
     const operations: string[] = [];
@@ -17,7 +17,7 @@ export const prepareWhereFields = <T extends Database.Schema, I extends Database
     for (const key in data) {
       const value = data[key];
 
-      if (isSkippableData(value) || value === null) {
+      if (isSkippableData(value)) {
         continue;
       }
 
@@ -71,7 +71,12 @@ export const prepareWhereFields = <T extends Database.Schema, I extends Database
         default: {
           const nestedPath = path ? `${path}."${key}"` : `"${key}"`;
 
-          const nestedValue = isAnyObject(value) ? value : { equal: value };
+          const nestedValue = isAnyObject(value)
+            ? value
+            : value === null
+              ? { isNull: true }
+              : { equal: value };
+
           const nestedResult = prepareOperation(nestedValue, nestedPath);
 
           if (!nestedResult) {

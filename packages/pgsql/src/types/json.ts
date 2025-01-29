@@ -1,4 +1,4 @@
-import type { SqlStatement } from './statement.js';
+import type { SqlSource } from './source.js';
 
 import { isAnyObject } from '@ez4/utils';
 
@@ -33,7 +33,7 @@ export type SqlJsonColumnOptions = {
 export class SqlJsonColumn {
   #state: {
     schema: SqlJsonColumnSchema;
-    statement: SqlStatement;
+    source: SqlSource;
     aggregate: boolean;
     column?: string;
     alias?: string;
@@ -41,13 +41,13 @@ export class SqlJsonColumn {
 
   constructor(
     schema: SqlJsonColumnSchema,
-    statement: SqlStatement,
+    source: SqlSource,
     aggregate: boolean,
     column?: string,
     alias?: string
   ) {
     this.#state = {
-      statement,
+      source,
       schema,
       aggregate,
       column,
@@ -56,13 +56,13 @@ export class SqlJsonColumn {
   }
 
   build() {
-    const { statement, aggregate, schema, alias, column } = this.#state;
+    const { source, aggregate, schema, alias, column } = this.#state;
 
     const variables: unknown[] = [];
 
     const result = getJsonObject(schema, {
       ...(column && { parent: escapeSqlName(column) }),
-      alias: statement.alias,
+      alias: source.alias,
       variables
     });
 

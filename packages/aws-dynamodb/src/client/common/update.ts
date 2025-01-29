@@ -1,6 +1,6 @@
-import type { Database, Relations, Query } from '@ez4/database';
+import type { Database, Query, RelationMetadata } from '@ez4/database';
 import type { ObjectSchema } from '@ez4/schema';
-import type { DeepPartial } from '@ez4/utils';
+import type { AnyObject } from '@ez4/utils';
 
 import { SchemaType } from '@ez4/schema';
 import { isAnyObject } from '@ez4/utils';
@@ -12,9 +12,9 @@ type PrepareResult = [string, unknown[]];
 
 export const prepareUpdate = <
   T extends Database.Schema,
+  S extends Query.SelectInput<T, R>,
   I extends Database.Indexes<T>,
-  R extends Relations,
-  S extends Query.SelectInput<T, R>
+  R extends RelationMetadata
 >(
   table: string,
   schema: ObjectSchema,
@@ -25,7 +25,7 @@ export const prepareUpdate = <
   const statement = [`UPDATE "${table}" ${updateFields}`];
 
   if (query.where) {
-    const [whereFields, whereVariables] = prepareWhereFields<T, I>(query.where);
+    const [whereFields, whereVariables] = prepareWhereFields(query.where);
 
     if (whereFields) {
       statement.push(`WHERE ${whereFields}`);
@@ -40,8 +40,8 @@ export const prepareUpdate = <
   return [statement.join(' '), variables];
 };
 
-const prepareUpdateFields = <T extends Database.Schema>(
-  data: DeepPartial<T>,
+const prepareUpdateFields = (
+  data: AnyObject,
   schema: ObjectSchema,
   path?: string
 ): PrepareResult => {
@@ -71,6 +71,11 @@ const prepareUpdateFields = <T extends Database.Schema>(
       fieldSchema.optional;
 
     if (fieldNotNested) {
+      if (fieldValue === null && fieldSchema.nullable) {
+        operations.push(`REMOVE ${fieldPath}`);
+        continue;
+      }
+
       operations.push(`SET ${fieldPath} = ?`);
       variables.push(fieldValue);
 

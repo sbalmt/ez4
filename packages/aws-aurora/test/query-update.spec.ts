@@ -15,6 +15,9 @@ type TestSchema = {
   bar: {
     barFoo?: string;
     barBar?: boolean;
+    barBaz?: {
+      barBazFoo: number;
+    };
   };
   baz?: {
     bazFoo: number;
@@ -23,6 +26,11 @@ type TestSchema = {
 
 type TestRelations = {
   indexes: 'relation1_id' | 'relation2_id';
+  filters: {
+    relation1: TestSchema;
+    relation2: TestSchema;
+    relations: TestSchema;
+  };
   selects: {
     relation1?: TestSchema;
     relation2?: TestSchema;
@@ -73,6 +81,15 @@ describe.only('aurora query (update)', () => {
           barBar: {
             type: SchemaType.Boolean,
             optional: true
+          },
+          barBaz: {
+            type: SchemaType.Object,
+            optional: true,
+            properties: {
+              barBazFoo: {
+                type: SchemaType.Number
+              }
+            }
           }
         }
       },
@@ -122,7 +139,7 @@ describe.only('aurora query (update)', () => {
   };
 
   it('assert :: prepare update', () => {
-    const [statement, variables] = prepareUpdateQuery<TestSchema, TestIndexes, TestRelations, {}>(
+    const [statement, variables] = prepareUpdateQuery<TestSchema, {}, TestIndexes, TestRelations>(
       'ez4-test-update',
       testSchema,
       testRelations,
@@ -147,7 +164,7 @@ describe.only('aurora query (update)', () => {
   });
 
   it('assert :: prepare update (with select)', () => {
-    const [statement, variables] = prepareUpdateQuery<TestSchema, TestIndexes, TestRelations, {}>(
+    const [statement, variables] = prepareUpdateQuery<TestSchema, {}, TestIndexes, TestRelations>(
       'ez4-test-update',
       testSchema,
       testRelations,
@@ -180,20 +197,25 @@ describe.only('aurora query (update)', () => {
 
     deepEqual(variables, [
       makeParameter('0', 123),
-      makeParameter('1', false),
+      makeParameter('1', 'false', 'JSON'),
       makeParameter('2', '00000000-0000-1000-9000-000000000000', 'UUID')
     ]);
   });
 
-  it('assert :: prepare update (optional json column)', () => {
-    const [statement, variables] = prepareUpdateQuery<TestSchema, TestIndexes, TestRelations, {}>(
+  it('assert :: prepare update (optional json)', () => {
+    const [statement, variables] = prepareUpdateQuery<TestSchema, {}, TestIndexes, TestRelations>(
       'ez4-test-update',
       testSchema,
       testRelations,
       {
         data: {
+          bar: {
+            barBaz: {
+              barBazFoo: 123
+            }
+          },
           baz: {
-            bazFoo: 123
+            bazFoo: 456
           }
         },
         where: {
@@ -202,16 +224,20 @@ describe.only('aurora query (update)', () => {
       }
     );
 
-    equal(statement, `UPDATE ONLY "ez4-test-update" SET "baz" = :0 WHERE "id" = :1`);
+    equal(
+      statement,
+      `UPDATE ONLY "ez4-test-update" SET "bar"['barBaz'] = :0, "baz" = :1 WHERE "id" = :2`
+    );
 
     deepEqual(variables, [
-      makeParameter('0', { bazFoo: 123 }),
-      makeParameter('1', '00000000-0000-1000-9000-000000000000', 'UUID')
+      makeParameter('0', { barBazFoo: 123 }),
+      makeParameter('1', { bazFoo: 456 }),
+      makeParameter('2', '00000000-0000-1000-9000-000000000000', 'UUID')
     ]);
   });
 
   it('assert :: prepare update (primary foreign id)', () => {
-    const [statement, variables] = prepareUpdateQuery<TestSchema, TestIndexes, TestRelations, {}>(
+    const [statement, variables] = prepareUpdateQuery<TestSchema, {}, TestIndexes, TestRelations>(
       'ez4-test-update',
       testSchema,
       testRelations,
@@ -242,7 +268,7 @@ describe.only('aurora query (update)', () => {
   });
 
   it('assert :: prepare update (primary foreign object)', () => {
-    const [statement, variables] = prepareUpdateQuery<TestSchema, TestIndexes, TestRelations, {}>(
+    const [statement, variables] = prepareUpdateQuery<TestSchema, {}, TestIndexes, TestRelations>(
       'ez4-test-update',
       testSchema,
       testRelations,
@@ -277,12 +303,12 @@ describe.only('aurora query (update)', () => {
       makeParameter('0', '00000000-0000-1000-9000-000000000000', 'UUID'),
       makeParameter('1', 456),
       makeParameter('2', 123),
-      makeParameter('3', 'abc')
+      makeParameter('3', '"abc"', 'JSON')
     ]);
   });
 
   it('assert :: prepare update (unique foreign id)', () => {
-    const [statement, variables] = prepareUpdateQuery<TestSchema, TestIndexes, TestRelations, {}>(
+    const [statement, variables] = prepareUpdateQuery<TestSchema, {}, TestIndexes, TestRelations>(
       'ez4-test-update',
       testSchema,
       testRelations,
@@ -318,7 +344,7 @@ describe.only('aurora query (update)', () => {
   });
 
   it('assert :: prepare update (unique foreign object)', () => {
-    const [statement, variables] = prepareUpdateQuery<TestSchema, TestIndexes, TestRelations, {}>(
+    const [statement, variables] = prepareUpdateQuery<TestSchema, {}, TestIndexes, TestRelations>(
       'ez4-test-update',
       testSchema,
       testRelations,
@@ -353,12 +379,12 @@ describe.only('aurora query (update)', () => {
       makeParameter('0', '00000000-0000-1000-9000-000000000000', 'UUID'),
       makeParameter('1', 123),
       makeParameter('2', 456),
-      makeParameter('3', false)
+      makeParameter('3', 'false', 'JSON')
     ]);
   });
 
   it('assert :: prepare update (inverse array object)', () => {
-    const [statement, variables] = prepareUpdateQuery<TestSchema, TestIndexes, TestRelations, {}>(
+    const [statement, variables] = prepareUpdateQuery<TestSchema, {}, TestIndexes, TestRelations>(
       'ez4-test-update',
       testSchema,
       testRelations,
@@ -394,7 +420,7 @@ describe.only('aurora query (update)', () => {
   });
 
   it('assert :: prepare update (foreign and inverse)', () => {
-    const [statement, variables] = prepareUpdateQuery<TestSchema, TestIndexes, TestRelations, {}>(
+    const [statement, variables] = prepareUpdateQuery<TestSchema, {}, TestIndexes, TestRelations>(
       'ez4-test-update',
       testSchema,
       testRelations,
@@ -441,14 +467,14 @@ describe.only('aurora query (update)', () => {
     deepEqual(variables, [
       makeParameter('0', '00000000-0000-1000-9000-000000000000', 'UUID'),
       makeParameter('1', 456),
-      makeParameter('2', 'abc'),
-      makeParameter('3', true),
+      makeParameter('2', '"abc"', 'JSON'),
+      makeParameter('3', 'true', 'JSON'),
       makeParameter('4', 123)
     ]);
   });
 
   it('assert :: prepare update (only relationships)', () => {
-    const [statement, variables] = prepareUpdateQuery<TestSchema, TestIndexes, TestRelations, {}>(
+    const [statement, variables] = prepareUpdateQuery<TestSchema, {}, TestIndexes, TestRelations>(
       'ez4-test-update',
       testSchema,
       testRelations,
@@ -493,9 +519,48 @@ describe.only('aurora query (update)', () => {
 
     deepEqual(variables, [
       makeParameter('0', 456),
-      makeParameter('1', 'abc'),
-      makeParameter('2', false),
+      makeParameter('1', '"abc"', 'JSON'),
+      makeParameter('2', 'false', 'JSON'),
       makeParameter('3', 123)
+    ]);
+  });
+
+  it('assert :: prepare update (optional json relationships)', () => {
+    const [statement, variables] = prepareUpdateQuery<TestSchema, {}, TestIndexes, TestRelations>(
+      'ez4-test-update',
+      testSchema,
+      testRelations,
+      {
+        data: {
+          relation1: {
+            bar: {
+              barBaz: {
+                barBazFoo: 123
+              }
+            },
+            baz: {
+              bazFoo: 456
+            }
+          }
+        },
+        where: {
+          id: '00000000-0000-1000-9000-000000000000'
+        }
+      }
+    );
+
+    equal(
+      statement,
+      `WITH ` +
+        `"R0" AS (SELECT "relation1_id" FROM "ez4-test-update" WHERE "id" = :0) ` +
+        `UPDATE ONLY "ez4-test-relation" AS "T" SET "bar"['barBaz'] = :1, "baz" = :2 ` +
+        `FROM "R0" WHERE "T"."id" = "R0"."relation1_id"`
+    );
+
+    deepEqual(variables, [
+      makeParameter('0', '00000000-0000-1000-9000-000000000000', 'UUID'),
+      makeParameter('1', { barBazFoo: 123 }),
+      makeParameter('2', { bazFoo: 456 })
     ]);
   });
 });
