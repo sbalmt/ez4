@@ -118,17 +118,27 @@ export const updateTables = async (request: UpdateTableRequest): Promise<void> =
   for (const table in repository) {
     const { name, schema, indexes, relations } = repository[table];
 
-    commands.push(...prepareDeleteRelations(name, relations.toRemove).map((sql) => ({ sql })));
-    commands.push(...prepareDeleteIndexes(name, indexes.toRemove).map((sql) => ({ sql })));
-    commands.push(...prepareDeleteColumns(name, schema.toRemove).map((sql) => ({ sql })));
+    const removeRelations = prepareDeleteRelations(name, relations.toRemove);
+    const removeIndexes = prepareDeleteIndexes(name, indexes.toRemove);
+    const removeColumns = prepareDeleteColumns(name, schema.toRemove);
+
+    const updateColumns = prepareUpdateColumns(name, indexes.toCreate, schema.toUpdate);
+
+    const createColumns = prepareCreateColumns(name, indexes.toCreate, schema.toCreate);
+    const createIndexes = prepareCreateIndexes(name, indexes.toCreate);
+    const createRelations = prepareCreateRelations(name, relations.toCreate);
 
     commands.push(
-      ...prepareUpdateColumns(name, indexes.toCreate, schema.toUpdate).map((sql) => ({ sql }))
+      ...[
+        ...removeRelations,
+        ...removeIndexes,
+        ...removeColumns,
+        ...updateColumns,
+        ...createColumns,
+        ...createIndexes,
+        ...createRelations
+      ].map((sql) => ({ sql }))
     );
-
-    commands.push(...prepareCreateColumns(name, schema.toCreate).map((sql) => ({ sql })));
-    commands.push(...prepareCreateIndexes(name, indexes.toCreate).map((sql) => ({ sql })));
-    commands.push(...prepareCreateRelations(name, relations.toCreate).map((sql) => ({ sql })));
   }
 
   await executeTransaction(client, connection, commands);

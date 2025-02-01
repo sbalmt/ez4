@@ -5,19 +5,25 @@ import { isStringSchema, SchemaType } from '@ez4/schema';
 import { isAnyNumber } from '@ez4/utils';
 import { Index } from '@ez4/database';
 
-export const prepareCreateColumns = (table: string, columns: Record<string, AnySchema>) => {
-  const alterTable = ``;
+export type ColumnSchema = Record<string, AnySchema>;
 
+export const prepareCreateColumns = (
+  table: string,
+  indexes: RepositoryIndexes,
+  columns: ColumnSchema
+) => {
+  const alterTable = `"${table}"`;
   const statements = [];
 
   for (const columnName in columns) {
     const columnSchema = columns[columnName];
 
-    const columnType = getColumnType(columnSchema);
+    const indexType = indexes[columnName]?.type;
+    const isPrimary = indexType === Index.Primary;
 
-    statements.push(
-      `ALTER TABLE "${table}" ${alterTable} ADD COLUMN "${columnName}" ${columnType}`
-    );
+    const columnType = getColumnType(columnSchema, isPrimary);
+
+    statements.push(`ALTER TABLE ${alterTable} ADD COLUMN "${columnName}" ${columnType}`);
   }
 
   return statements;
@@ -26,7 +32,7 @@ export const prepareCreateColumns = (table: string, columns: Record<string, AnyS
 export const prepareUpdateColumns = (
   table: string,
   indexes: RepositoryIndexes,
-  columns: Record<string, AnySchema>
+  columns: ColumnSchema
 ) => {
   const statements = [];
 
@@ -34,11 +40,15 @@ export const prepareUpdateColumns = (
     const alterColumn = `ALTER TABLE "${table}" ALTER COLUMN "${columnName}"`;
 
     const columnSchema = columns[columnName];
-    const columnType = getColumnType(columnSchema);
+
+    const indexType = indexes[columnName]?.type;
+    const isPrimary = indexType === Index.Primary;
+
+    const columnType = getColumnType(columnSchema, isPrimary);
 
     statements.push(`${alterColumn} TYPE ${columnType}`);
 
-    const columnNullable = isNullableColumn(columnSchema);
+    const columnNullable = isOptionalColumn(columnSchema);
 
     if (columnNullable) {
       statements.push(`${alterColumn} DROP NOT NULL`);
@@ -46,8 +56,7 @@ export const prepareUpdateColumns = (
       statements.push(`${alterColumn} SET NOT NULL`);
     }
 
-    const columnIndexType = indexes[columnName]?.type;
-    const columnDefault = columnIndexType === Index.Primary && getColumnDefault(columnSchema);
+    const columnDefault = isPrimary && getColumnDefault(columnSchema);
 
     if (columnDefault) {
       statements.push(`${alterColumn} SET DEFAULT ${columnDefault}`);
@@ -59,7 +68,7 @@ export const prepareUpdateColumns = (
   return statements;
 };
 
-export const prepareDeleteColumns = (table: string, columns: Record<string, AnySchema>) => {
+export const prepareDeleteColumns = (table: string, columns: ColumnSchema) => {
   const statements = [];
 
   for (const columnName in columns) {
@@ -69,7 +78,7 @@ export const prepareDeleteColumns = (table: string, columns: Record<string, AnyS
   return statements;
 };
 
-export const isNullableColumn = (schema: AnySchema) => {
+export const isOptionalColumn = (schema: AnySchema) => {
   return !!(schema.nullable || schema.optional);
 };
 
@@ -86,14 +95,14 @@ export const getColumnDefault = (schema: AnySchema) => {
     }
   }
 
-  if (isNullableColumn(schema)) {
+  if (isOptionalColumn(schema)) {
     return 'null';
   }
 
   return undefined;
 };
 
-export const getColumnType = (schema: AnySchema) => {
+export const getColumnType = (schema: AnySchema, primaryIndex: boolean) => {
   switch (schema.type) {
     case SchemaType.Array:
     case SchemaType.Object:
@@ -109,19 +118,19 @@ export const getColumnType = (schema: AnySchema) => {
       return `text`;
 
     case SchemaType.Number:
-      return getColumNumberType(schema);
+      return getColumNumberType(schema, primaryIndex);
 
     case SchemaType.String:
       return getColumnTextType(schema);
   }
 };
 
-const getColumNumberType = (schema: NumberSchema) => {
+const getColumNumberType = (schema: NumberSchema, primaryIndex: boolean) => {
   if (schema.format === 'decimal') {
     return `decimal`;
   }
 
-  if (isNullableColumn(schema)) {
+  if (primaryIndex && isOptionalColumn(schema)) {
     return 'bigserial';
   }
 
@@ -136,7 +145,7 @@ const getColumnTextType = (schema: StringSchema) => {
       return schema.format;
 
     case 'date-time':
-      return 'timestamp';
+      return 'timestamptz';
 
     default:
       const maxLength = schema.definitions?.maxLength;
