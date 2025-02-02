@@ -1,5 +1,5 @@
 import type { EntryState, EntryStates, StepContext } from '@ez4/stateful';
-import type { FunctionState, Permission } from '@ez4/aws-function';
+import type { FunctionState } from '@ez4/aws-function';
 import type { GatewayState } from '../gateway/types.js';
 import type { IntegrationParameters, IntegrationState } from './types.js';
 
@@ -27,7 +27,7 @@ export const createIntegration = <E extends EntryState>(
   const permissionState =
     getPermission(state, gatewayState, functionState) ??
     createPermission(state, gatewayState, functionState, {
-      getPermission: async (context: StepContext): Promise<Permission> => {
+      getPermission: async (context: StepContext) => {
         const [region, account] = await Promise.all([getRegion(), getAccountId()]);
 
         const apiId = getGatewayId(IntegrationServiceName, 'apiId', context);
