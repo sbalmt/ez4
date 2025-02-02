@@ -27,6 +27,16 @@ export class InvalidServiceError extends InvalidTypeError {
   }
 }
 
+export class InvalidServicePropertyError extends TypeError {
+  constructor(
+    public serviceName: string,
+    public propertyName: string,
+    fileName?: string
+  ) {
+    super(`Service ${serviceName} doesn't support ${propertyName} property.`, fileName);
+  }
+}
+
 export class DuplicateServiceError extends TypeError {
   constructor(
     public serviceName: string,
