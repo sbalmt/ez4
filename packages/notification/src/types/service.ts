@@ -11,8 +11,6 @@ export type NotificationService = ServiceMetadata & {
   subscriptions: NotificationSubscription[];
 };
 
-export const isNotificationMessageService = (
-  service: ServiceMetadata
-): service is NotificationService => {
+export const isNotificationService = (service: ServiceMetadata): service is NotificationService => {
   return service.type === ServiceType;
 };

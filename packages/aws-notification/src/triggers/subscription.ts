@@ -1,32 +1,32 @@
-import type { QueueService, QueueImport } from '@ez4/queue/library';
+import type { NotificationService, NotificationImport } from '@ez4/notification/library';
 import type { DeployOptions } from '@ez4/project/library';
 import type { RoleState } from '@ez4/aws-identity';
 import type { EntryStates } from '@ez4/stateful';
-import type { QueueState } from '../queue/types.js';
+import type { TopicState } from '../topic/types.js';
 
 import { getServiceName, linkServiceExtras } from '@ez4/project/library';
 import { getFunction } from '@ez4/aws-function';
 import { toKebabCase } from '@ez4/utils';
 
-import { createQueueFunction } from '../mapping/function/service.js';
-import { createMapping } from '../mapping/service.js';
+import { createSubscriptionFunction } from '../subscription/function/service.js';
+import { createSubscription } from '../subscription/service.js';
 
 export const prepareSubscriptions = async (
   state: EntryStates,
-  service: QueueService | QueueImport,
+  service: NotificationService | NotificationImport,
   role: RoleState,
-  queueState: QueueState,
+  topicState: TopicState,
   options: DeployOptions
 ) => {
   for (const subscription of service.subscriptions) {
     const handler = subscription.handler;
 
     const functionName = getFunctionName(service, handler.name, options);
-    const functionTimeout = service.timeout ?? 30;
+    const functionTimeout = 30;
 
     const functionState =
       getFunction(state, role, functionName) ??
-      createQueueFunction(state, role, {
+      createSubscriptionFunction(state, role, {
         functionName,
         description: handler.description,
         sourceFile: handler.file,
@@ -42,15 +42,13 @@ export const prepareSubscriptions = async (
         }
       });
 
-    createMapping(state, queueState, functionState, {
-      concurrency: subscription.concurrency
-    });
+    createSubscription(state, topicState, functionState);
   }
 };
 
 export const connectSubscriptions = (
   state: EntryStates,
-  service: QueueService | QueueImport,
+  service: NotificationService | NotificationImport,
   role: RoleState,
   options: DeployOptions
 ) => {
@@ -69,7 +67,7 @@ export const connectSubscriptions = (
 };
 
 export const getFunctionName = (
-  service: QueueService | QueueImport,
+  service: NotificationService | NotificationImport,
   handlerName: string,
   options: DeployOptions
 ) => {

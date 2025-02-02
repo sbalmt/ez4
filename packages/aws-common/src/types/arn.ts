@@ -6,16 +6,16 @@ export type ArnResult = {
   region?: string;
   accountId?: string;
   resourceType?: string;
-  resourceId?: string;
+  resourceName?: string;
 };
 
 export const isArn = (arn: string): arn is Arn => {
-  return /^arn:aws:\w+:([\w\-]+)?:(\d{12})?:[\w\/]+$/.test(arn);
+  return /^arn:aws:\w+:([\w\-]+)?:(\d{12})?(:[\w\-]+)?:[\w\-\/]+$/.test(arn);
 };
 
 export const parseArn = (arn: Arn): ArnResult => {
-  const [, partition, service, region, accountId, resource] = arn.split(':', 6);
-  const [resourceType, resourceId] = resource.split('/', 2);
+  const [, partition, service, region, accountId, ...resource] = arn.split(':', 7);
+  const [resourceType, resourceName] = resource.length > 1 ? resource : resource[0].split('/', 2);
 
   return {
     partition,
@@ -23,6 +23,6 @@ export const parseArn = (arn: Arn): ArnResult => {
     ...(region && { region }),
     ...(accountId && { accountId }),
     ...(resourceType && { resourceType }),
-    ...(resourceId && { resourceId })
+    ...(resourceName && { resourceName })
   };
 };

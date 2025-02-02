@@ -1,4 +1,4 @@
-import type { SQSEvent, Context } from 'aws-lambda';
+import type { SNSEvent, Context } from 'aws-lambda';
 import type { ObjectSchema, UnionSchema } from '@ez4/schema';
 
 import { getJsonMessage } from '@ez4/aws-queue/runtime';
@@ -9,15 +9,15 @@ declare const __EZ4_SCHEMA: ObjectSchema | UnionSchema | null;
 declare const __EZ4_CONTEXT: object;
 
 /**
- * Entrypoint to handle SQS events.
+ * Entrypoint to handle SNS events.
  */
-export async function sqsEntryPoint(event: SQSEvent, context: Context): Promise<void> {
+export async function snsEntryPoint(event: SNSEvent, context: Context): Promise<void> {
   if (!__EZ4_SCHEMA) {
-    throw new Error(`Validation schema for SQS message not found.`);
+    throw new Error(`Validation schema for SNS message not found.`);
   }
 
   for (const record of event.Records) {
-    const body = JSON.parse(record.body);
+    const body = JSON.parse(record.Sns.Message);
     const message = await getJsonMessage(body, __EZ4_SCHEMA);
 
     const request = {

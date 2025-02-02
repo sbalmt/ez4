@@ -1,7 +1,7 @@
 import type { ExtraSource } from '@ez4/project/library';
+import type { QueueMessage } from '@ez4/queue/library';
 
 import { getDefinitionName } from '@ez4/project/library';
-import { QueueMessage } from '@ez4/queue/library';
 
 import { getQueueStateId } from '../queue/utils.js';
 
