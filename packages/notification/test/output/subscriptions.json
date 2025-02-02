@@ -1,0 +1,38 @@
+{
+  "TestNotification": {
+    "type": "@ez4/notification",
+    "name": "TestNotification",
+    "description": "Notification to test subscriptions.",
+    "schema": {
+      "type": "object",
+      "properties": {
+        "foo": {
+          "type": "string"
+        }
+      },
+      "identity": 1
+    },
+    "subscriptions": [
+      {
+        "handler": {
+          "name": "testHandler",
+          "file": "test/input/output-subscriptions.ts"
+        },
+        "concurrency": 2
+      },
+      {
+        "handler": {
+          "name": "testHandler",
+          "file": "test/input/output-subscriptions.ts"
+        },
+        "memory": 128,
+        "variables": {
+          "TEST_VAR": "test-literal-value"
+        }
+      }
+    ],
+    "services": {
+      "selfClient": "TestNotification"
+    }
+  }
+}

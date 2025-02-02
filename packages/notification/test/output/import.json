@@ -1,0 +1,71 @@
+{
+  "TestNotification": {
+    "type": "@ez4/notification",
+    "name": "TestNotification",
+    "schema": {
+      "type": "object",
+      "properties": {
+        "foo": {
+          "type": "string"
+        }
+      },
+      "identity": 1
+    },
+    "subscriptions": []
+  },
+  "TestImport1Notification": {
+    "type": "@ez4/import:notification",
+    "name": "TestImport1Notification",
+    "description": "Import notification assigning handler.",
+    "subscriptions": [
+      {
+        "handler": {
+          "name": "testHandler",
+          "file": "test/input/output-import.ts"
+        }
+      }
+    ],
+    "reference": "TestNotification",
+    "schema": {
+      "type": "object",
+      "properties": {
+        "foo": {
+          "type": "string"
+        }
+      },
+      "identity": 1
+    },
+    "project": "name from project in ez4.project.js",
+    "variables": {
+      "TEST_VAR1": "test-literal-value",
+      "TEST_VAR2": "test-env-var-value"
+    },
+    "services": {
+      "selfClient": "TestImport1Notification"
+    }
+  },
+  "TestImport2Notification": {
+    "type": "@ez4/import:notification",
+    "name": "TestImport2Notification",
+    "description": "Import notification with no assigned handler.",
+    "subscriptions": [],
+    "reference": "TestNotification",
+    "schema": {
+      "type": "object",
+      "properties": {
+        "foo": {
+          "type": "string"
+        }
+      },
+      "identity": 1
+    },
+    "project": "name from project in ez4.project.js",
+    "variables": {
+      "TEST_VAR1": "test-literal-value",
+      "TEST_VAR2": "test-env-var-value"
+    },
+    "services": {
+      "selfClient": "TestImport2Notification"
+    }
+  }
+}
