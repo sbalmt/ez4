@@ -1,17 +1,20 @@
 import type { Service } from '@ez4/common';
-import type { MessageSchema } from './message.js';
-import type { IncomingRequest } from './incoming.js';
-import type { SubscriptionEntry } from './subscription.js';
-import type { HandlerSignature } from './handler.js';
 import type { Client } from './client.js';
 
+import type {
+  MessageSchema,
+  IncomingRequest,
+  RequestHandler,
+  SubscriptionEntry
+} from './common.js';
+
 /**
- * Provide all contracts for a self-managed Queue service.
+ * Provide all contracts for a self-managed queue service.
  */
 export namespace Queue {
   export type Message = MessageSchema;
 
-  export type Handler<T extends Message> = HandlerSignature<T>;
+  export type Handler<T extends Message> = RequestHandler<T>;
 
   export type Subscription<T extends Message> = SubscriptionEntry<T>;
 

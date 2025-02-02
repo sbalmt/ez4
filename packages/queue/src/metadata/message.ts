@@ -1,4 +1,4 @@
-import type { QueueMessage } from '../types/message.js';
+import type { QueueMessage } from '../types/common.js';
 
 import type {
   AllType,
