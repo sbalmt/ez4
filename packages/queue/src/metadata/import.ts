@@ -1,5 +1,5 @@
-import type { Incomplete } from '@ez4/utils';
 import type { SourceMap } from '@ez4/reflection';
+import type { Incomplete } from '@ez4/utils';
 import type { QueueImport } from '../types/import.js';
 
 import {
@@ -10,7 +10,8 @@ import {
   getModelMembers,
   getPropertyString,
   getReferenceName,
-  getReferenceNumber
+  getReferenceNumber,
+  InvalidServicePropertyError
 } from '@ez4/common/library';
 
 import { isModelProperty, isTypeReference } from '@ez4/reflection';
@@ -106,6 +107,14 @@ export const getQueueImports = (reflection: SourceMap) => {
         case 'services':
           if (!member.inherited) {
             service.services = getLinkedServiceList(member, reflection, errorList);
+          }
+          break;
+
+        default:
+          if (!member.inherited) {
+            errorList.push(
+              new InvalidServicePropertyError(statement.name, member.name, statement.file)
+            );
           }
           break;
       }

@@ -7,7 +7,7 @@ export declare class TestNotification extends Notification.Service<TestMessage> 
 }
 
 // Concrete class is not allowed.
-class TestSubscription implements Notification.Subscription<TestMessage> {
+class TestSubscription implements Notification.LambdaSubscription<TestMessage> {
   handler!: typeof testHandler;
 }
 

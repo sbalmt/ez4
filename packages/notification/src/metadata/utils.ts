@@ -16,7 +16,11 @@ export const isNotificationMessage = (type: TypeModel) => {
 };
 
 export const isNotificationSubscription = (type: AllType) => {
-  return isModelDeclaration(type) && hasHeritageType(type, 'Notification.Subscription');
+  return (
+    isModelDeclaration(type) &&
+    (hasHeritageType(type, 'Notification.QueueSubscription') ||
+      hasHeritageType(type, 'Notification.LambdaSubscription'))
+  );
 };
 
 export const isSubscriptionHandler = (type: AllType): type is TypeCallback | TypeFunction => {

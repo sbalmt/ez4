@@ -13,6 +13,7 @@ import {
 
 import { getReflection } from '@ez4/project/library';
 import { registerTriggers, getNotificationServices } from '@ez4/notification/library';
+import { InvalidServicePropertyError } from '@ez4/common/library';
 
 const parseFile = (fileName: string, errorCount: number) => {
   const sourceFile = `./test/input/${fileName}.ts`;
@@ -60,10 +61,13 @@ describe.only('notification metadata errors', () => {
   });
 
   it('assert :: incomplete subscription', () => {
-    const [error1] = parseFile('incomplete-subscription', 1);
+    const [error1, error2] = parseFile('incomplete-subscription', 2);
 
     ok(error1 instanceof IncompleteSubscriptionError);
     deepEqual(error1.properties, ['handler']);
+
+    ok(error2 instanceof IncompleteSubscriptionError);
+    deepEqual(error2.properties, ['service']);
   });
 
   it('assert :: incorrect subscription', () => {
@@ -82,12 +86,20 @@ describe.only('notification metadata errors', () => {
   });
 
   it('assert :: incomplete handler', () => {
-    const [error1, error2] = parseFile('incomplete-handler', 2);
+    const [error1, error2, error3, error4] = parseFile('incomplete-handler', 4);
 
+    // Lambda subscription errors
     ok(error1 instanceof IncompleteHandlerError);
     deepEqual(error1.properties, ['request']);
 
     ok(error2 instanceof IncompleteSubscriptionError);
     deepEqual(error2.properties, ['handler']);
+
+    // Queue subscription errors
+    ok(error3 instanceof InvalidServicePropertyError);
+    deepEqual(error3.propertyName, 'handler');
+
+    ok(error4 instanceof IncompleteSubscriptionError);
+    deepEqual(error4.properties, ['service']);
   });
 });

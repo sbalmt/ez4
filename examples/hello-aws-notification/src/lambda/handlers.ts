@@ -1,5 +1,5 @@
 import type { Notification } from '@ez4/notification';
-import type { MessageRequest } from './types.js';
+import type { MessageRequest } from '../types.js';
 
 export function messageHandlerA(request: Notification.Incoming<MessageRequest>): void {
   const { message } = request;

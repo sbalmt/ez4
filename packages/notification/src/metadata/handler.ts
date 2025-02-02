@@ -30,10 +30,9 @@ export const getSubscriptionHandler = (
     properties.delete('file');
   }
 
-  if (
-    type.parameters &&
-    getNotificationMessage(type.parameters[0].value, type, reflection, errorList)
-  ) {
+  const message = type.parameters?.[0].value;
+
+  if (message && getNotificationMessage(message, type, reflection, errorList)) {
     properties.delete('request');
   }
 

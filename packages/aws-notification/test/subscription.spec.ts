@@ -48,7 +48,7 @@ describe.only('notification subscription', () => {
 
   registerTriggers();
 
-  it.only('assert :: deploy', async () => {
+  it('assert :: deploy', async () => {
     const localState: EntryStates = {};
 
     const topicResource = createTopic(localState, {
@@ -80,7 +80,7 @@ describe.only('notification subscription', () => {
     lastState = state;
   });
 
-  it.only('assert :: destroy', async () => {
+  it('assert :: destroy', async () => {
     ok(subscriptionId && lastState);
 
     ok(lastState[subscriptionId]);

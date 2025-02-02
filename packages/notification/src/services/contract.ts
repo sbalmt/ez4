@@ -5,7 +5,8 @@ import type {
   MessageSchema,
   IncomingRequest,
   RequestHandler,
-  SubscriptionEntry
+  LambdaSubscriptionEntry,
+  QueueSubscriptionEntry
 } from './common.js';
 
 /**
@@ -16,7 +17,11 @@ export namespace Notification {
 
   export type Handler<T extends Message> = RequestHandler<T>;
 
-  export type Subscription<T extends Message> = SubscriptionEntry<T>;
+  export type LambdaSubscription<T extends Message> = LambdaSubscriptionEntry<T>;
+
+  export type QueueSubscription<T extends Message> = QueueSubscriptionEntry<T>;
+
+  export type Subscription<T extends Message> = LambdaSubscription<T> | QueueSubscription<T>;
 
   export type Incoming<T extends Message> = IncomingRequest<T>;
 

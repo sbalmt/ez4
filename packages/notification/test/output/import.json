@@ -19,6 +19,7 @@
     "description": "Import notification assigning handler.",
     "subscriptions": [
       {
+        "type": "lambda",
         "handler": {
           "name": "testHandler",
           "file": "test/input/output-import.ts"

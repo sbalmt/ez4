@@ -1,5 +1,6 @@
 import { registerTriggers as registerCommonTriggers } from '@ez4/common/library';
 import { registerTriggers as registerSchemaTriggers } from '@ez4/schema/library';
+import { registerTriggers as registerQueueTriggers } from '@ez4/queue/library';
 import { createTrigger } from '@ez4/project/library';
 
 import { ImportType } from '../types/import.js';
@@ -19,6 +20,7 @@ export const registerTriggers = () => {
 
   registerCommonTriggers();
   registerSchemaTriggers();
+  registerQueueTriggers();
 
   createTrigger(ServiceType, {
     'metadata:getServices': getNotificationServices,

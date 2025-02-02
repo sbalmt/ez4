@@ -2,8 +2,8 @@ import { readFileSync, writeFileSync } from 'node:fs';
 import { deepEqual } from 'node:assert/strict';
 import { describe, it } from 'node:test';
 
-import { getMetadata } from '@ez4/project/library';
 import { registerTriggers } from '@ez4/notification/library';
+import { getMetadata } from '@ez4/project/library';
 
 const testFile = (fileName: string, overwrite = false) => {
   const sourceFile = `./test/input/output-${fileName}.ts`;

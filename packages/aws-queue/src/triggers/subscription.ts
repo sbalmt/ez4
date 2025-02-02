@@ -8,8 +8,9 @@ import { getServiceName, linkServiceExtras } from '@ez4/project/library';
 import { getFunction } from '@ez4/aws-function';
 import { toKebabCase } from '@ez4/utils';
 
-import { createQueueFunction } from '../mapping/function/service.js';
 import { createMapping } from '../mapping/service.js';
+import { createQueueFunction } from '../mapping/function/service.js';
+import { SubscriptionMissingError } from './errors.js';
 
 export const prepareSubscriptions = async (
   state: EntryStates,
@@ -62,9 +63,11 @@ export const connectSubscriptions = (
     const functionName = getFunctionName(service, handler.name, options);
     const functionState = getFunction(state, role, functionName);
 
-    if (functionState) {
-      linkServiceExtras(state, functionState.entryId, service.extras);
+    if (!functionState) {
+      throw new SubscriptionMissingError(functionName);
     }
+
+    linkServiceExtras(state, functionState.entryId, service.extras);
   }
 };
 

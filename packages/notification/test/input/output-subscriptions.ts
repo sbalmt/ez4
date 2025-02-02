@@ -1,7 +1,8 @@
 import type { Service, Environment } from '@ez4/common';
 import type { Notification } from '@ez4/notification';
+import type { Queue } from '@ez4/queue';
 
-interface TestMessage extends Notification.Message {
+interface TestMessage extends Notification.Message, Queue.Message {
   foo: string;
 }
 
@@ -10,14 +11,23 @@ interface TestMessage extends Notification.Message {
  */
 export declare class TestNotification extends Notification.Service<TestMessage> {
   subscriptions: [
-    // Inline subscription.
+    // Inline lambda subscription.
     {
       handler: typeof testHandler;
       concurrency: 2;
+      timeout: 15;
     },
 
-    // Subscription reference.
-    TestSubscription
+    // Inline queue subscription.
+    {
+      service: Environment.Service<TestQueue>;
+    },
+
+    // Lambda subscription reference.
+    TestLambdaSubscription,
+
+    // Queue subscription reference.
+    TestQueueSubscription
   ];
 
   // Services to all subscriptions.
@@ -26,7 +36,7 @@ export declare class TestNotification extends Notification.Service<TestMessage> 
   };
 }
 
-declare class TestSubscription implements Notification.Subscription<TestMessage> {
+declare class TestLambdaSubscription implements Notification.LambdaSubscription<TestMessage> {
   handler: typeof testHandler;
 
   memory: 128;
@@ -35,6 +45,14 @@ declare class TestSubscription implements Notification.Subscription<TestMessage>
   variables: {
     TEST_VAR: 'test-literal-value';
   };
+}
+
+declare class TestQueue extends Queue.Service<TestMessage> {
+  subscriptions: [];
+}
+
+declare class TestQueueSubscription implements Notification.QueueSubscription<TestMessage> {
+  service: Environment.Service<TestQueue>;
 }
 
 function testHandler(

@@ -1,14 +1,16 @@
-import type { Incomplete } from '@ez4/utils';
-import type { MemberType } from '@ez4/common/library';
 import type { AllType, ModelProperty, SourceMap, TypeModel, TypeObject } from '@ez4/reflection';
+import type { MemberType } from '@ez4/common/library';
+import type { Incomplete } from '@ez4/utils';
 import type { NotificationSubscription } from '../types/common.js';
 
 import {
+  getLinkedServiceName,
   getLinkedVariableList,
   getModelMembers,
   getObjectMembers,
   getPropertyNumber,
   getPropertyTuple,
+  InvalidServicePropertyError,
   isModelDeclaration
 } from '@ez4/common/library';
 
@@ -21,10 +23,9 @@ import {
   InvalidSubscriptionTypeError
 } from '../errors/subscription.js';
 
-import { getSubscriptionHandler } from './handler.js';
+import { NotificationSubscriptionType } from '../types/common.js';
 import { isNotificationSubscription } from './utils.js';
-
-type TypeParent = TypeModel | TypeObject;
+import { getSubscriptionHandler } from './handler.js';
 
 export const getAllSubscription = (
   member: ModelProperty,
@@ -48,7 +49,7 @@ export const getAllSubscription = (
 
 const getNotificationSubscription = (
   type: AllType,
-  parent: TypeParent,
+  parent: TypeModel,
   reflection: SourceMap,
   errorList: Error[]
 ) => {
@@ -68,17 +69,25 @@ const getNotificationSubscription = (
 const isValidSubscription = (
   type: Incomplete<NotificationSubscription>
 ): type is NotificationSubscription => {
-  return !!type.handler;
+  switch (type.type) {
+    case NotificationSubscriptionType.Lambda:
+      return !!type.handler;
+
+    case NotificationSubscriptionType.Queue:
+      return !!type.service;
+  }
+
+  return false;
 };
 
 const getTypeSubscription = (
   type: AllType,
-  parent: TypeParent,
+  parent: TypeModel,
   reflection: SourceMap,
   errorList: Error[]
 ) => {
   if (isTypeObject(type)) {
-    return getTypeFromMembers(type, getObjectMembers(type), reflection, errorList);
+    return getTypeFromMembers(type, parent, getObjectMembers(type), reflection, errorList);
   }
 
   if (!isModelDeclaration(type)) {
@@ -91,16 +100,44 @@ const getTypeSubscription = (
     return null;
   }
 
-  return getTypeFromMembers(type, getModelMembers(type), reflection, errorList);
+  return getTypeFromMembers(type, parent, getModelMembers(type), reflection, errorList);
 };
 
 const getTypeFromMembers = (
   type: TypeObject | TypeModel,
+  parent: TypeModel,
   members: MemberType[],
   reflection: SourceMap,
   errorList: Error[]
 ) => {
-  const subscription: Incomplete<NotificationSubscription> = {};
+  const allErrors: Error[] = [];
+
+  let subscription;
+
+  if ((subscription = getLambdaSubscription(type, parent, members, reflection, allErrors))) {
+    return subscription;
+  }
+
+  if ((subscription = getQueueSubscription(type, parent, members, reflection, allErrors))) {
+    return subscription;
+  }
+
+  errorList.push(...allErrors);
+
+  return null;
+};
+
+const getLambdaSubscription = (
+  type: TypeObject | TypeModel,
+  parent: TypeModel,
+  members: MemberType[],
+  reflection: SourceMap,
+  errorList: Error[]
+) => {
+  const subscription: Incomplete<NotificationSubscription> = {
+    type: NotificationSubscriptionType.Lambda
+  };
+
   const properties = new Set(['handler']);
 
   for (const member of members) {
@@ -109,6 +146,10 @@ const getTypeFromMembers = (
     }
 
     switch (member.name) {
+      default:
+        errorList.push(new InvalidServicePropertyError(parent.name, member.name, type.file));
+        break;
+
       case 'handler': {
         if ((subscription.handler = getSubscriptionHandler(member.value, reflection, errorList))) {
           properties.delete(member.name);
@@ -117,6 +158,7 @@ const getTypeFromMembers = (
       }
 
       case 'memory':
+      case 'timeout':
       case 'concurrency': {
         const value = getPropertyNumber(member);
         if (isAnyNumber(value)) {
@@ -131,7 +173,46 @@ const getTypeFromMembers = (
     }
   }
 
-  if (isValidSubscription(subscription)) {
+  if (properties.size === 0 && isValidSubscription(subscription)) {
+    return subscription;
+  }
+
+  errorList.push(new IncompleteSubscriptionError([...properties], type.file));
+
+  return null;
+};
+
+const getQueueSubscription = (
+  type: TypeObject | TypeModel,
+  parent: TypeModel,
+  members: MemberType[],
+  reflection: SourceMap,
+  errorList: Error[]
+) => {
+  const subscription: Incomplete<NotificationSubscription> = {
+    type: NotificationSubscriptionType.Queue
+  };
+
+  const properties = new Set(['service']);
+
+  for (const member of members) {
+    if (!isModelProperty(member) || member.inherited) {
+      continue;
+    }
+
+    switch (member.name) {
+      default:
+        errorList.push(new InvalidServicePropertyError(parent.name, member.name, type.file));
+        break;
+
+      case 'service': {
+        subscription.service = getLinkedServiceName(member, parent, reflection, errorList);
+        properties.delete(member.name);
+      }
+    }
+  }
+
+  if (properties.size === 0 && isValidSubscription(subscription)) {
     return subscription;
   }
 

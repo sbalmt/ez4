@@ -24,8 +24,6 @@ import {
 import { getSubscriptionHandler } from './handler.js';
 import { isQueueSubscription } from './utils.js';
 
-type TypeParent = TypeModel | TypeObject;
-
 export const getAllSubscription = (
   member: ModelProperty,
   parent: TypeModel,
@@ -48,7 +46,7 @@ export const getAllSubscription = (
 
 const getQueueSubscription = (
   type: AllType,
-  parent: TypeParent,
+  parent: TypeModel,
   reflection: SourceMap,
   errorList: Error[]
 ) => {
@@ -71,7 +69,7 @@ const isValidSubscription = (type: Incomplete<QueueSubscription>): type is Queue
 
 const getTypeSubscription = (
   type: AllType,
-  parent: TypeParent,
+  parent: TypeModel,
   reflection: SourceMap,
   errorList: Error[]
 ) => {

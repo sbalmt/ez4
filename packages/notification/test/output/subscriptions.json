@@ -14,25 +14,50 @@
     },
     "subscriptions": [
       {
+        "type": "lambda",
+        "concurrency": 2,
+        "timeout": 15,
         "handler": {
           "name": "testHandler",
           "file": "test/input/output-subscriptions.ts"
-        },
-        "concurrency": 2
+        }
       },
       {
+        "type": "queue",
+        "service": "TestQueue"
+      },
+      {
+        "type": "lambda",
+        "memory": 128,
         "handler": {
           "name": "testHandler",
           "file": "test/input/output-subscriptions.ts"
         },
-        "memory": 128,
         "variables": {
           "TEST_VAR": "test-literal-value"
         }
+      },
+      {
+        "type": "queue",
+        "service": "TestQueue"
       }
     ],
     "services": {
       "selfClient": "TestNotification"
+    }
+  },
+  "TestQueue": {
+    "type": "@ez4/queue",
+    "name": "TestQueue",
+    "subscriptions": [],
+    "schema": {
+      "identity": 1,
+      "properties": {
+        "foo": {
+          "type": "string"
+        }
+      },
+      "type": "object"
     }
   }
 }

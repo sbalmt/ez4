@@ -1,3 +1,4 @@
+import type { Queue } from '@ez4/queue';
 import type { LinkedVariables } from '@ez4/project/library';
 import type { Service } from '@ez4/common';
 import type { Notification } from './contract.js';
@@ -31,9 +32,19 @@ export type RequestHandler<T extends MessageSchema> = (
 ) => Promise<void> | void;
 
 /**
- * Notification subscription.
+ * Queue subscription.
  */
-export interface SubscriptionEntry<T extends MessageSchema> {
+export interface QueueSubscriptionEntry<T extends MessageSchema> {
+  /**
+   * Reference to the queue service.
+   */
+  service: Queue.Service<T>;
+}
+
+/**
+ * Lambda subscription.
+ */
+export interface LambdaSubscriptionEntry<T extends MessageSchema> {
   /**
    * Subscription handler.
    *
@@ -51,6 +62,11 @@ export interface SubscriptionEntry<T extends MessageSchema> {
    * Variables associated to the subscription.
    */
   variables?: LinkedVariables;
+
+  /**
+   * Maximum execution time (in seconds) for the handler.
+   */
+  timeout?: number;
 
   /**
    * Amount of memory available for the handler.

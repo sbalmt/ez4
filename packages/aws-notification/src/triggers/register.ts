@@ -7,6 +7,7 @@ import type {
 import { registerTriggers as registerAwsTriggers } from '@ez4/aws-common';
 import { registerTriggers as registerAwsIdentityTriggers } from '@ez4/aws-identity';
 import { registerTriggers as registerAwsFunctionTriggers } from '@ez4/aws-function';
+import { registerTriggers as registerAwsQueueTriggers } from '@ez4/aws-queue';
 import { registerTriggers as registerNotificationTriggers } from '@ez4/notification/library';
 
 import { createTrigger } from '@ez4/project/library';
@@ -27,9 +28,10 @@ export const registerTriggers = () => {
   registerAwsTriggers();
   registerAwsIdentityTriggers();
   registerAwsFunctionTriggers();
+  registerAwsQueueTriggers();
   registerNotificationTriggers();
 
-  createTrigger('@ez4/aws-queue', {
+  createTrigger('@ez4/aws-notification', {
     'deploy:prepareExecutionPolicy': prepareExecutionPolicy,
     'deploy:prepareLinkedService': prepareLinkedService,
     'deploy:prepareResources': prepareQueueResources,

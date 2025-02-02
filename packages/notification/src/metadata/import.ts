@@ -1,5 +1,5 @@
-import type { Incomplete } from '@ez4/utils';
 import type { SourceMap } from '@ez4/reflection';
+import type { Incomplete } from '@ez4/utils';
 import type { NotificationImport } from '../types/import.js';
 
 import {
@@ -9,7 +9,8 @@ import {
   getLinkedVariableList,
   getModelMembers,
   getPropertyString,
-  getReferenceName
+  getReferenceName,
+  InvalidServicePropertyError
 } from '@ez4/common/library';
 
 import { isModelProperty, isTypeReference } from '@ez4/reflection';
@@ -92,6 +93,14 @@ export const getNotificationImports = (reflection: SourceMap) => {
         case 'services':
           if (!member.inherited) {
             service.services = getLinkedServiceList(member, reflection, errorList);
+          }
+          break;
+
+        default:
+          if (!member.inherited) {
+            errorList.push(
+              new InvalidServicePropertyError(statement.name, member.name, statement.file)
+            );
           }
           break;
       }
