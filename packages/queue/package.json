@@ -1,7 +1,7 @@
 {
   "name": "@ez4/queue",
   "description": "EZ4: Components to build queue services",
-  "version": "0.11.0",
+  "version": "0.12.0",
   "author": "Silas B.",
   "license": "MIT",
   "type": "module",
@@ -41,12 +41,10 @@
     "clean:registry": "rm -rf ../../.registry/@ez4/queue",
     "live:publish": "npm run test && npm publish --access public"
   },
-  "peerDependencies": {
-    "@ez4/project": "^0.11.0"
-  },
   "dependencies": {
-    "@ez4/common": "^0.11.0",
-    "@ez4/reflection": "^0.11.0",
-    "@ez4/schema": "^0.11.0"
+    "@ez4/common": "^0.12.0",
+    "@ez4/project": "^0.12.0",
+    "@ez4/reflection": "^0.12.0",
+    "@ez4/schema": "^0.12.0"
   }
 }
