@@ -22,7 +22,6 @@ export const createQueueFunction = <E extends EntryState>(
     tags: parameters.tags,
     getFunctionBundle: (context) => {
       const dependencies = context.getDependencies();
-
       return bundleQueueFunction(dependencies, parameters);
     }
   });
