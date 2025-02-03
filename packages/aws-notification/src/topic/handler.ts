@@ -5,8 +5,8 @@ import { applyTagUpdates, ReplaceResourceError } from '@ez4/aws-common';
 import { getAccountId, getRegion } from '@ez4/aws-identity';
 import { deepCompare } from '@ez4/utils';
 
+import { buildNotificationArn } from '../utils/policy.js';
 import { createTopic, deleteTopic, tagTopic, untagTopic } from './client.js';
-
 import { TopicServiceName } from './types.js';
 
 export const getTopicHandler = (): StepHandler<TopicState> => ({
@@ -53,7 +53,7 @@ const createResource = async (candidate: TopicState): Promise<TopicResult> => {
     const [region, accountId] = await Promise.all([getRegion(), getAccountId()]);
 
     return {
-      topicArn: `arn:aws:sns:${region}:${accountId}:${parameters.topicName}`
+      topicArn: buildNotificationArn(parameters.topicName, region, accountId)
     };
   }
 

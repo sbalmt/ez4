@@ -12,6 +12,7 @@ import { registerTriggers as registerQueueTriggers } from '@ez4/queue/library';
 import { createTrigger } from '@ez4/project/library';
 
 import { registerQueueProvider } from '../queue/provider.js';
+import { registerPolicyProvider } from '../policy/provider.js';
 import { prepareLinkedServices, prepareServices, connectServices } from './service.js';
 import { prepareLinkedImports, prepareImports, connectImports } from './import.js';
 import { prepareExecutionPolicy } from './policy.js';
@@ -36,6 +37,7 @@ export const registerTriggers = () => {
   });
 
   registerQueueProvider();
+  registerPolicyProvider();
 
   isRegistered = true;
 };

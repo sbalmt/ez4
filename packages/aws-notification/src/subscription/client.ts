@@ -31,7 +31,12 @@ export const createSubscription = async (request: CreateRequest): Promise<Create
     new SubscribeCommand({
       TopicArn: topicArn,
       Protocol: protocol,
-      Endpoint: endpoint
+      Endpoint: endpoint,
+      Attributes: {
+        ...(protocol === SubscriptionProtocol.SQS && {
+          RawMessageDelivery: 'true'
+        })
+      }
     })
   );
 

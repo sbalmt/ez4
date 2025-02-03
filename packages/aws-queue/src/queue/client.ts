@@ -1,5 +1,5 @@
-import type { Arn, ResourceTags } from '@ez4/aws-common';
 import type { QueueAttributeName } from '@aws-sdk/client-sqs';
+import type { ResourceTags } from '@ez4/aws-common';
 
 import {
   SQSClient,
@@ -11,7 +11,6 @@ import {
   UntagQueueCommand
 } from '@aws-sdk/client-sqs';
 
-import { getAccountId, getRegion } from '@ez4/aws-identity';
 import { Logger } from '@ez4/aws-common';
 
 import { QueueServiceName } from './types.js';
@@ -29,7 +28,6 @@ export type CreateRequest = {
 
 export type CreateResponse = {
   queueUrl: string;
-  queueArn: Arn;
 };
 
 export type UpdateRequest = Pick<CreateRequest, 'timeout' | 'retention' | 'polling' | 'delay'>;
@@ -37,45 +35,35 @@ export type UpdateRequest = Pick<CreateRequest, 'timeout' | 'retention' | 'polli
 export const fetchQueue = async (queueName: string) => {
   Logger.logFetch(QueueServiceName, queueName);
 
-  const [region, accountId, response] = await Promise.all([
-    getRegion(),
-    getAccountId(),
-    client.send(
-      new GetQueueUrlCommand({
-        QueueName: queueName
-      })
-    )
-  ]);
+  const response = await client.send(
+    new GetQueueUrlCommand({
+      QueueName: queueName
+    })
+  );
 
   return {
-    queueUrl: response.QueueUrl!,
-    queueArn: `arn:aws:sqs:${region}:${accountId}:${queueName}` as Arn
+    queueUrl: response.QueueUrl!
   };
 };
 
 export const createQueue = async (request: CreateRequest): Promise<CreateResponse> => {
   Logger.logCreate(QueueServiceName, request.queueName);
 
-  const [region, accountId, response] = await Promise.all([
-    getRegion(),
-    getAccountId(),
-    client.send(
-      new CreateQueueCommand({
-        QueueName: request.queueName,
-        Attributes: {
-          ...upsertQueueAttributes(request)
-        },
-        tags: {
-          ...request.tags,
-          ManagedBy: 'EZ4'
-        }
-      })
-    )
-  ]);
+  const response = await client.send(
+    new CreateQueueCommand({
+      QueueName: request.queueName,
+      Attributes: {
+        ...upsertQueueAttributes(request)
+      },
+      tags: {
+        ...request.tags,
+        ManagedBy: 'EZ4'
+      }
+    })
+  );
 
   return {
-    queueUrl: response.QueueUrl!,
-    queueArn: `arn:aws:sqs:${region}:${accountId}:${request.queueName}` as Arn
+    queueUrl: response.QueueUrl!
   };
 };
 
