@@ -7,16 +7,14 @@ import { validate } from '@ez4/validator';
 import { MalformedMessageError } from './errors.js';
 
 export const getJsonMessage = async <T extends Queue.Message>(
-  rawInput: T,
+  message: T,
   schema: ObjectSchema | UnionSchema
 ) => {
-  const errors = await validate(rawInput, schema);
+  const errors = await validate(message, schema);
 
   if (errors.length) {
-    const messages = getUniqueErrorMessages(errors);
-
-    throw new MalformedMessageError(messages);
+    throw new MalformedMessageError(getUniqueErrorMessages(errors));
   }
 
-  return rawInput;
+  return message;
 };

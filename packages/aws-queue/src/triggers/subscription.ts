@@ -4,12 +4,13 @@ import type { RoleState } from '@ez4/aws-identity';
 import type { EntryStates } from '@ez4/stateful';
 import type { QueueState } from '../queue/types.js';
 
-import { linkServiceExtras } from '@ez4/project/library';
+import { getServiceName, linkServiceExtras } from '@ez4/project/library';
 import { getFunction } from '@ez4/aws-function';
+import { toKebabCase } from '@ez4/utils';
 
 import { createMapping } from '../mapping/service.js';
 import { createQueueFunction } from '../mapping/function/service.js';
-import { getMappingName } from './utils.js';
+import { SubscriptionMissingError } from './errors.js';
 
 export const prepareSubscriptions = async (
   state: EntryStates,
@@ -21,8 +22,8 @@ export const prepareSubscriptions = async (
   for (const subscription of service.subscriptions) {
     const handler = subscription.handler;
 
-    const functionName = getMappingName(service, handler.name, options);
-    const queueTimeout = service.timeout ?? 30;
+    const functionName = getFunctionName(service, handler.name, options);
+    const functionTimeout = service.timeout ?? 30;
 
     const functionState =
       getFunction(state, role, functionName) ??
@@ -31,7 +32,7 @@ export const prepareSubscriptions = async (
         description: handler.description,
         sourceFile: handler.file,
         handlerName: handler.name,
-        timeout: queueTimeout,
+        timeout: functionTimeout,
         memory: subscription.memory,
         messageSchema: service.schema,
         extras: service.extras,
@@ -59,11 +60,21 @@ export const connectSubscriptions = (
   }
 
   for (const { handler } of service.subscriptions) {
-    const functionName = getMappingName(service, handler.name, options);
+    const functionName = getFunctionName(service, handler.name, options);
     const functionState = getFunction(state, role, functionName);
 
-    if (functionState) {
-      linkServiceExtras(state, functionState.entryId, service.extras);
+    if (!functionState) {
+      throw new SubscriptionMissingError(functionName);
     }
+
+    linkServiceExtras(state, functionState.entryId, service.extras);
   }
+};
+
+export const getFunctionName = (
+  service: QueueService | QueueImport,
+  handlerName: string,
+  options: DeployOptions
+) => {
+  return `${getServiceName(service, options)}-${toKebabCase(handlerName)}`;
 };

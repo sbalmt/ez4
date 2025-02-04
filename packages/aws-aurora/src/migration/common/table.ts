@@ -1,7 +1,7 @@
 import type { ObjectSchema } from '@ez4/schema';
 import type { RepositoryIndexes } from '../../types/repository.js';
 
-import { getColumnDefault, getColumnType, isNullableColumn } from './column.js';
+import { getColumnDefault, getColumnType, isOptionalColumn } from './column.js';
 import { Index } from '@ez4/database';
 
 export const prepareCreateTable = (
@@ -13,11 +13,13 @@ export const prepareCreateTable = (
 
   for (const columnName in schema.properties) {
     const columnSchema = schema.properties[columnName];
-    const columnType = [`"${columnName}"`, getColumnType(columnSchema)];
 
-    const columnNullable = isNullableColumn(columnSchema);
+    const indexType = indexes[columnName]?.type;
+    const isPrimary = indexType === Index.Primary;
 
-    if (!columnNullable) {
+    const columnType = [`"${columnName}"`, getColumnType(columnSchema, isPrimary)];
+
+    if (!isOptionalColumn(columnSchema)) {
       columnType.push('NOT NULL');
     }
 

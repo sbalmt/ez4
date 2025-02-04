@@ -22,7 +22,6 @@ export const createAuthorizerFunction = <E extends EntryState>(
     tags: parameters.tags,
     getFunctionBundle: (context) => {
       const dependencies = context.getDependencies();
-
       return bundleApiFunction(dependencies, parameters);
     }
   });

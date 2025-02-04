@@ -22,7 +22,6 @@ export const createTargetFunction = <E extends EntryState>(
     tags: parameters.tags,
     getFunctionBundle: (context) => {
       const dependencies = context.getDependencies();
-
       return bundleTargetFunction(dependencies, parameters);
     }
   });

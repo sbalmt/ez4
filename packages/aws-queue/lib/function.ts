@@ -13,7 +13,7 @@ declare const __EZ4_CONTEXT: object;
  */
 export async function sqsEntryPoint(event: SQSEvent, context: Context): Promise<void> {
   if (!__EZ4_SCHEMA) {
-    throw new Error(`Validation schema for message is not defined.`);
+    throw new Error(`Validation schema for SQS message not found.`);
   }
 
   for (const record of event.Records) {

@@ -15,6 +15,7 @@ Check out some examples to get started with.
 - [Get started with DynamoDB](./examples/hello-aws-dynamodb)
 - [Get started with Aurora RDS](./examples/hello-aws-aurora)
 - [Get started with Scheduler](./examples/hello-aws-scheduler)
+- [Get started with Notification](./examples/hello-aws-notification)
 - [Get started with Queue](./examples/hello-aws-queue)
 - [API Gateway authorizer](./examples/aws-gateway-authorizer)
 - [Aurora RDS CRUDL](./examples/aws-aurora-crudl)
@@ -33,6 +34,7 @@ All components provides a common interface to handle the real resource propertie
 | [Database](./packages/database/)         | [AWS DynamoDB](./packages/aws-dynamodb/), [AWS Aurora](./packages/aws-aurora/) |
 | [Scheduler](./packages/scheduler/)       | [AWS Scheduler](./packages/aws-scheduler/)                                     |
 | [Storage](./packages/storage/)           | [AWS Bucket](./packages/aws-bucket/)                                           |
+| [Notification](./packages/notification/) | [AWS Notification](./packages/aws-notification/)                               |
 | [Queue](./packages/queue/)               | [AWS Queue](./packages/aws-queue/)                                             |
 
 ## Requirements

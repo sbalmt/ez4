@@ -55,27 +55,22 @@ const replaceResource = async (candidate: QueueState, current: QueueState) => {
 const createResource = async (candidate: QueueState): Promise<QueueResult> => {
   const parameters = candidate.parameters;
 
-  const { queueUrl, queueArn } = await (parameters.import
+  const { queueUrl } = await (parameters.import
     ? fetchQueue(parameters.queueName)
     : createQueue(parameters));
 
   return {
-    queueUrl,
-    queueArn
+    queueUrl
   };
 };
 
 const updateResource = async (candidate: QueueState, current: QueueState) => {
   const { result, parameters } = candidate;
 
-  if (!result || parameters.import) {
-    return;
+  if (result && !parameters.import) {
+    await checkGeneralUpdates(result.queueUrl, parameters, current.parameters);
+    await checkTagUpdates(result.queueUrl, parameters, current.parameters);
   }
-
-  await Promise.all([
-    checkGeneralUpdates(result.queueUrl, parameters, current.parameters),
-    checkTagUpdates(result.queueUrl, parameters, current.parameters)
-  ]);
 };
 
 const deleteResource = async (candidate: QueueState) => {

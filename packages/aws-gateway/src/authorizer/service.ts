@@ -1,5 +1,5 @@
 import type { EntryState, EntryStates, StepContext } from '@ez4/stateful';
-import type { FunctionState, Permission } from '@ez4/aws-function';
+import type { FunctionState } from '@ez4/aws-function';
 import type { GatewayState } from '../gateway/types.js';
 import type { AuthorizerParameters, AuthorizerState } from './types.js';
 
@@ -23,7 +23,7 @@ export const createAuthorizer = <E extends EntryState>(
   const permissionState =
     getPermission(state, gatewayState, functionState) ??
     createPermission(state, gatewayState, functionState, {
-      getPermission: async (context: StepContext): Promise<Permission> => {
+      getPermission: async (context: StepContext) => {
         const [region, account, apiId] = await Promise.all([
           getRegion(),
           getAccountId(),

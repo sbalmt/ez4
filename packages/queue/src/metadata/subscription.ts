@@ -1,7 +1,7 @@
 import type { Incomplete } from '@ez4/utils';
 import type { MemberType } from '@ez4/common/library';
 import type { AllType, ModelProperty, SourceMap, TypeModel, TypeObject } from '@ez4/reflection';
-import type { QueueSubscription } from '../types/subscription.js';
+import type { QueueSubscription } from '../types/common.js';
 
 import {
   getLinkedVariableList,
@@ -23,8 +23,6 @@ import {
 
 import { getSubscriptionHandler } from './handler.js';
 import { isQueueSubscription } from './utils.js';
-
-type TypeParent = TypeModel | TypeObject;
 
 export const getAllSubscription = (
   member: ModelProperty,
@@ -48,7 +46,7 @@ export const getAllSubscription = (
 
 const getQueueSubscription = (
   type: AllType,
-  parent: TypeParent,
+  parent: TypeModel,
   reflection: SourceMap,
   errorList: Error[]
 ) => {
@@ -71,7 +69,7 @@ const isValidSubscription = (type: Incomplete<QueueSubscription>): type is Queue
 
 const getTypeSubscription = (
   type: AllType,
-  parent: TypeParent,
+  parent: TypeModel,
   reflection: SourceMap,
   errorList: Error[]
 ) => {
