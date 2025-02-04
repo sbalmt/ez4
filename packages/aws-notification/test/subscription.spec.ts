@@ -52,7 +52,7 @@ describe.only('notification subscription', () => {
     const localState: EntryStates = {};
 
     const topicResource = createTopic(localState, {
-      topicName: 'ez4-test-notification-topic'
+      topicName: 'ez4-test-notification-topic-subscriptions'
     });
 
     const policyResource = createPolicy(localState, {
