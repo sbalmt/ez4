@@ -25,6 +25,11 @@ export interface StringTestSchema {
   size: String.Size<1, 80>;
 
   /**
+   * Default string value.
+   */
+  value: String.Default<'foo'>;
+
+  /**
    * Literal string value.
    */
   literal: 'foo';

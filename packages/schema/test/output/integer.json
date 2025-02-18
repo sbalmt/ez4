@@ -34,6 +34,14 @@
         "maxValue": 50
       }
     },
+    "value": {
+      "type": "number",
+      "description": "Default integer value.",
+      "format": "integer",
+      "definitions": {
+        "default": 456
+      }
+    },
     "literal": {
       "type": "number",
       "description": "Literal integer value.",

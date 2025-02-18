@@ -25,7 +25,12 @@ export interface DecimalTestSchema {
   range: Decimal.Range<2.5, 5.5>;
 
   /**
+   * Default decimal value.
+   */
+  value: Decimal.Default<4.56>;
+
+  /**
    * Literal decimal value.
    */
-  literal: 123.456;
+  literal: 1.23;
 }

@@ -18,4 +18,9 @@ export namespace Integer {
     minValue: MinValue;
     maxValue: MaxValue;
   };
+
+  export type Default<Value extends number> = {
+    '@ez4/schema': 'integer';
+    default: Value;
+  };
 }

@@ -34,11 +34,19 @@
         "maxValue": 5.5
       }
     },
+    "value": {
+      "type": "number",
+      "description": "Default decimal value.",
+      "format": "decimal",
+      "definitions": {
+        "default": 4.56
+      }
+    },
     "literal": {
       "type": "number",
       "description": "Literal decimal value.",
       "definitions": {
-        "value": 123.456
+        "value": 1.23
       }
     }
   }

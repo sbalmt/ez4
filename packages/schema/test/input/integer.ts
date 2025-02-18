@@ -25,6 +25,11 @@ export interface IntegerTestSchema {
   range: Integer.Range<25, 50>;
 
   /**
+   * Default integer value.
+   */
+  value: Integer.Default<456>;
+
+  /**
    * Literal integer value.
    */
   literal: 123;
