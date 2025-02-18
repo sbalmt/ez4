@@ -8,6 +8,10 @@ export const transformObject = (
   schema: ObjectSchema,
   context = getNewContext()
 ) => {
+  if (value === null || value === undefined) {
+    return undefined;
+  }
+
   const output: Record<string, unknown> = {};
 
   if (schema.identity) {

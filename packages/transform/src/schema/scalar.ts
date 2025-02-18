@@ -11,9 +11,9 @@ export const transformScalar = (value: unknown, schema: ScalarSchema) => {
       return transformBoolean(value);
 
     case SchemaType.Number:
-      return transformNumber(value);
+      return transformNumber(value, schema);
 
     case SchemaType.String:
-      return transformString(value);
+      return transformString(value, schema);
   }
 };
