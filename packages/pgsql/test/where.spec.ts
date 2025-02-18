@@ -182,7 +182,7 @@ describe.only('sql where tests', () => {
 
     deepEqual(variables, []);
 
-    equal(statement, 'SELECT * FROM "test" WHERE "foo" IS NULL');
+    equal(statement, 'SELECT * FROM "test" WHERE "foo" IS null');
   });
 
   it('assert :: where is not missing', async () => {
@@ -199,7 +199,7 @@ describe.only('sql where tests', () => {
 
     deepEqual(variables, []);
 
-    equal(statement, 'SELECT * FROM "test" WHERE "foo" IS NOT NULL');
+    equal(statement, 'SELECT * FROM "test" WHERE "foo" IS NOT null');
   });
 
   it('assert :: where is null (implicit)', async () => {
@@ -209,7 +209,7 @@ describe.only('sql where tests', () => {
 
     deepEqual(variables, []);
 
-    equal(statement, 'SELECT * FROM "test" WHERE "foo" IS NULL');
+    equal(statement, 'SELECT * FROM "test" WHERE "foo" IS null');
   });
 
   it('assert :: where is null (explicit)', async () => {
@@ -226,7 +226,7 @@ describe.only('sql where tests', () => {
 
     deepEqual(variables, []);
 
-    equal(statement, 'SELECT * FROM "test" WHERE "foo" IS NULL');
+    equal(statement, 'SELECT * FROM "test" WHERE "foo" IS null');
   });
 
   it('assert :: where is not null', async () => {
@@ -243,7 +243,7 @@ describe.only('sql where tests', () => {
 
     deepEqual(variables, []);
 
-    equal(statement, 'SELECT * FROM "test" WHERE "foo" IS NOT NULL');
+    equal(statement, 'SELECT * FROM "test" WHERE "foo" IS NOT null');
   });
 
   it('assert :: where starts with', async () => {

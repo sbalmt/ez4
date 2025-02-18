@@ -1,7 +1,14 @@
 import type { AnySchema, NumberSchema, StringSchema } from '@ez4/schema';
 import type { RepositoryIndexes } from '../../main.js';
 
-import { isStringSchema, SchemaType } from '@ez4/schema';
+import {
+  SchemaType,
+  isBooleanSchema,
+  isEnumSchema,
+  isNumberSchema,
+  isStringSchema
+} from '@ez4/schema';
+
 import { isAnyNumber } from '@ez4/utils';
 import { Index } from '@ez4/database';
 
@@ -12,21 +19,32 @@ export const prepareCreateColumns = (
   indexes: RepositoryIndexes,
   columns: ColumnSchema
 ) => {
-  const alterTable = `"${table}"`;
-  const statements = [];
+  const allStatements = [];
 
   for (const columnName in columns) {
     const columnSchema = columns[columnName];
 
-    const indexType = indexes[columnName]?.type;
-    const isPrimary = indexType === Index.Primary;
+    const columnIndexType = indexes[columnName]?.type;
+    const columnIsPrimary = columnIndexType === Index.Primary;
 
-    const columnType = getColumnType(columnSchema, isPrimary);
+    const columnType = getColumnType(columnSchema, columnIsPrimary);
 
-    statements.push(`ALTER TABLE ${alterTable} ADD COLUMN "${columnName}" ${columnType}`);
+    const statement = [`ALTER TABLE "${table}" ADD COLUMN "${columnName}" ${columnType}`];
+
+    if (!isOptionalColumn(columnSchema)) {
+      statement.push(`NOT null`);
+    }
+
+    const columnDefault = getColumnDefault(columnSchema, columnIsPrimary);
+
+    if (columnDefault) {
+      statement.push(`DEFAULT ${columnDefault}`);
+    }
+
+    allStatements.push(statement.join(' '));
   }
 
-  return statements;
+  return allStatements;
 };
 
 export const prepareUpdateColumns = (
@@ -34,38 +52,38 @@ export const prepareUpdateColumns = (
   indexes: RepositoryIndexes,
   columns: ColumnSchema
 ) => {
-  const statements = [];
+  const allStatements = [];
 
   for (const columnName in columns) {
-    const alterColumn = `ALTER TABLE "${table}" ALTER COLUMN "${columnName}"`;
+    const statement = `ALTER TABLE "${table}" ALTER COLUMN "${columnName}"`;
 
     const columnSchema = columns[columnName];
 
-    const indexType = indexes[columnName]?.type;
-    const isPrimary = indexType === Index.Primary;
+    const columnIndexType = indexes[columnName]?.type;
+    const columnIsPrimary = columnIndexType === Index.Primary;
 
-    const columnType = getColumnType(columnSchema, isPrimary);
+    const columnType = getColumnType(columnSchema, columnIsPrimary);
 
-    statements.push(`${alterColumn} TYPE ${columnType}`);
+    allStatements.push(`${statement} TYPE ${columnType}`);
 
     const columnNullable = isOptionalColumn(columnSchema);
 
     if (columnNullable) {
-      statements.push(`${alterColumn} DROP NOT NULL`);
+      allStatements.push(`${statement} DROP NOT null`);
     } else {
-      statements.push(`${alterColumn} SET NOT NULL`);
+      allStatements.push(`${statement} SET NOT null`);
     }
 
-    const columnDefault = isPrimary && getColumnDefault(columnSchema);
+    const columnDefault = getColumnDefault(columnSchema, columnIsPrimary);
 
     if (columnDefault) {
-      statements.push(`${alterColumn} SET DEFAULT ${columnDefault}`);
+      allStatements.push(`${statement} SET DEFAULT ${columnDefault}`);
     } else {
-      statements.push(`${alterColumn} DROP DEFAULT`);
+      allStatements.push(`${statement} DROP DEFAULT`);
     }
   }
 
-  return statements;
+  return allStatements;
 };
 
 export const prepareDeleteColumns = (table: string, columns: ColumnSchema) => {
@@ -82,16 +100,34 @@ export const isOptionalColumn = (schema: AnySchema) => {
   return !!(schema.nullable || schema.optional);
 };
 
-export const getColumnDefault = (schema: AnySchema) => {
-  if (isStringSchema(schema)) {
+export const getColumnDefault = (schema: AnySchema, primaryIndex: boolean) => {
+  if (
+    isBooleanSchema(schema) ||
+    isNumberSchema(schema) ||
+    isStringSchema(schema) ||
+    isEnumSchema(schema)
+  ) {
+    const { definitions } = schema;
+
+    switch (typeof definitions?.default) {
+      case 'boolean':
+      case 'number':
+        return definitions.default;
+
+      case 'string':
+        return `'${definitions.default}'`;
+    }
+  }
+
+  if (isStringSchema(schema) && primaryIndex) {
     switch (schema.format) {
+      case 'date-time':
+      case 'date':
+      case 'time':
+        return 'now()';
+
       case 'uuid':
         return 'gen_random_uuid()';
-
-      case 'time':
-      case 'date':
-      case 'date-time':
-        return 'now()';
     }
   }
 
@@ -126,15 +162,11 @@ export const getColumnType = (schema: AnySchema, primaryIndex: boolean) => {
 };
 
 const getColumNumberType = (schema: NumberSchema, primaryIndex: boolean) => {
-  if (schema.format === 'decimal') {
-    return `decimal`;
+  if (schema.format === 'integer') {
+    return primaryIndex ? 'bigserial' : 'bigint';
   }
 
-  if (primaryIndex && isOptionalColumn(schema)) {
-    return 'bigserial';
-  }
-
-  return 'bigint';
+  return 'decimal';
 };
 
 const getColumnTextType = (schema: StringSchema) => {
