@@ -14,5 +14,5 @@ export const transformEnum = (value: unknown, schema: EnumSchema) => {
     }
   }
 
-  return undefined;
+  return schema.definitions?.default;
 };

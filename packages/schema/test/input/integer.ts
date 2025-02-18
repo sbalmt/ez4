@@ -1,4 +1,4 @@
-import { Integer } from '@ez4/schema';
+import type { Integer } from '@ez4/schema';
 
 /**
  * Number type enriched with integer format.

@@ -3,9 +3,9 @@
   "description": "Enum test object.",
   "identity": 1,
   "properties": {
-    "foo": {
+    "any": {
       "type": "array",
-      "description": "Foo property.",
+      "description": "Any enum value.",
       "element": {
         "type": "enum",
         "options": [
@@ -19,19 +19,35 @@
         ]
       }
     },
-    "bar": {
+    "strict": {
       "type": "string",
-      "description": "Bar property.",
+      "description": "Strict enum value.",
       "definitions": {
         "value": "bar"
       }
     },
-    "baz": {
+    "single": {
       "type": "enum",
-      "description": "Baz property.",
+      "description": "Single enum value.",
       "options": [
         {
           "value": "baz"
+        }
+      ]
+    },
+    "value": {
+      "type": "enum",
+      "description": "Default enum value.",
+      "definitions": {
+        "default": "foo"
+      },
+      "options": [
+        {
+          "value": "foo",
+          "description": "Foo option."
+        },
+        {
+          "value": "bar"
         }
       ]
     }

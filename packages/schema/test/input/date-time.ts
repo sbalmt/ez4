@@ -1,4 +1,4 @@
-import { String } from '@ez4/schema';
+import type { String } from '@ez4/schema';
 
 /**
  * String type enriched with date and time formats.

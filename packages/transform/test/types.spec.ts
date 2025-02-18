@@ -39,24 +39,6 @@ describe.only('types transform', () => {
     deepEqual(transform(null, schema), null);
   });
 
-  it('assert :: number with default', () => {
-    const schema: AnySchema = {
-      type: SchemaType.Number,
-      definitions: {
-        default: 789
-      }
-    };
-
-    deepEqual(transform('123', schema), 123);
-    deepEqual(transform('4.56', schema), 4.56);
-
-    deepEqual(transform('abc', schema), 789);
-    deepEqual(transform(false, schema), 789);
-    deepEqual(transform(true, schema), 789);
-    deepEqual(transform(undefined, schema), 789);
-    deepEqual(transform(null, schema), 789);
-  });
-
   it('assert :: string', () => {
     const schema: AnySchema = {
       type: SchemaType.String,
@@ -71,23 +53,6 @@ describe.only('types transform', () => {
     deepEqual(transform(undefined, schema), undefined);
 
     deepEqual(transform(null, schema), null);
-  });
-
-  it('assert :: string with default', () => {
-    const schema: AnySchema = {
-      type: SchemaType.String,
-      definitions: {
-        default: 'foo'
-      }
-    };
-
-    deepEqual(transform('abc', schema), 'abc');
-
-    deepEqual(transform(true, schema), 'foo');
-    deepEqual(transform(false, schema), 'foo');
-    deepEqual(transform(123, schema), 'foo');
-    deepEqual(transform(undefined, schema), 'foo');
-    deepEqual(transform(null, schema), 'foo');
   });
 
   it('assert :: object', () => {
@@ -244,5 +209,63 @@ describe.only('types transform', () => {
     deepEqual(transform(undefined, schema), undefined);
 
     deepEqual(transform(null, schema), null);
+  });
+
+  it('assert :: number with default', () => {
+    const schema: AnySchema = {
+      type: SchemaType.Number,
+      definitions: {
+        default: 789
+      }
+    };
+
+    deepEqual(transform('123', schema), 123);
+    deepEqual(transform('4.56', schema), 4.56);
+
+    deepEqual(transform('abc', schema), 789);
+    deepEqual(transform(false, schema), 789);
+    deepEqual(transform(true, schema), 789);
+    deepEqual(transform(undefined, schema), 789);
+    deepEqual(transform(null, schema), 789);
+  });
+
+  it('assert :: string with default', () => {
+    const schema: AnySchema = {
+      type: SchemaType.String,
+      definitions: {
+        default: 'foo'
+      }
+    };
+
+    deepEqual(transform('abc', schema), 'abc');
+
+    deepEqual(transform(true, schema), 'foo');
+    deepEqual(transform(false, schema), 'foo');
+    deepEqual(transform(123, schema), 'foo');
+    deepEqual(transform(undefined, schema), 'foo');
+    deepEqual(transform(null, schema), 'foo');
+  });
+
+  it('assert :: enum with default', () => {
+    const schema: AnySchema = {
+      type: SchemaType.Enum,
+      definitions: {
+        default: 123
+      },
+      options: [
+        {
+          value: 123
+        },
+        {
+          value: 'abc'
+        }
+      ]
+    };
+
+    deepEqual(transform('123', schema), 123);
+    deepEqual(transform('abc', schema), 'abc');
+
+    deepEqual(transform(undefined, schema), 123);
+    deepEqual(transform(null, schema), 123);
   });
 });

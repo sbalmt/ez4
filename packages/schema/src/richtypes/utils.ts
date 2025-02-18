@@ -1,9 +1,10 @@
-import type { TypeObject } from '@ez4/reflection';
+import type { TypeObject, TypeReference } from '@ez4/reflection';
 
 import {
   isModelProperty,
   isTypeBoolean,
   isTypeNumber,
+  isTypeReference,
   isTypeString,
   createNumber,
   createString,
@@ -14,16 +15,13 @@ import { InvalidRichTypeProperty } from '../errors/richtype.js';
 
 export type RichTypes = {
   format?: string;
-
   name?: string;
   pattern?: string;
   value?: string | number;
-
+  reference?: TypeReference;
   extensible?: boolean;
-
   minLength?: number;
   maxLength?: number;
-
   minValue?: number;
   maxValue?: number;
 };
@@ -74,6 +72,13 @@ export const getRichTypes = (type: TypeObject) => {
           throw new InvalidRichTypeProperty(name, 'number');
         }
         richTypes[name] = type.literal;
+        break;
+
+      case 'reference':
+        if (!isTypeReference(type)) {
+          throw new InvalidRichTypeProperty(name, 'reference');
+        }
+        richTypes[name] = type;
         break;
 
       case 'default':
@@ -131,6 +136,17 @@ export const createRichType = (richTypes: RichTypes) => {
         ...createObject('@ez4/schema'),
         definitions: {
           ...(extensible && { extensible })
+        }
+      };
+    }
+
+    case 'enum': {
+      const { reference, value } = richTypes;
+
+      return {
+        ...reference!,
+        definitions: {
+          ...(value && { default: value })
         }
       };
     }

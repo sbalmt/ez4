@@ -1,4 +1,4 @@
-import { Decimal } from '@ez4/schema';
+import type { Decimal } from '@ez4/schema';
 
 /**
  * Number type enriched with decimal format.
