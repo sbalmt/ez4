@@ -1,0 +1,21 @@
+{
+  "type": "object",
+  "description": "Boolean test object.",
+  "identity": 1,
+  "properties": {
+    "literal": {
+      "type": "boolean",
+      "description": "Literal boolean value.",
+      "definitions": {
+        "value": false
+      }
+    },
+    "value": {
+      "type": "boolean",
+      "description": "Default boolean value.",
+      "definitions": {
+        "default": true
+      }
+    }
+  }
+}

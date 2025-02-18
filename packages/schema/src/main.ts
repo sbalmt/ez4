@@ -1,5 +1,6 @@
 export * from './utils/partial.js';
 
+export * from './richtypes/boolean.js';
 export * from './richtypes/integer.js';
 export * from './richtypes/decimal.js';
 export * from './richtypes/string.js';

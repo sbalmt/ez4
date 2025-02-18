@@ -6,6 +6,7 @@ import {
   isTypeNumber,
   isTypeReference,
   isTypeString,
+  createBoolean,
   createNumber,
   createString,
   createObject
@@ -17,7 +18,7 @@ export type RichTypes = {
   format?: string;
   name?: string;
   pattern?: string;
-  value?: string | number;
+  value?: boolean | number | string;
   reference?: TypeReference;
   extensible?: boolean;
   minLength?: number;
@@ -82,8 +83,8 @@ export const getRichTypes = (type: TypeObject) => {
         break;
 
       case 'default':
-        if (!isTypeNumber(type) && !isTypeString(type)) {
-          throw new InvalidRichTypeProperty(name, 'string or number');
+        if (!isTypeBoolean(type) && !isTypeNumber(type) && !isTypeString(type)) {
+          throw new InvalidRichTypeProperty(name, 'boolean, number or string');
         }
         richTypes.value = type.literal;
         break;
@@ -101,6 +102,17 @@ export const createRichType = (richTypes: RichTypes) => {
   const format = richTypes.format;
 
   switch (format) {
+    case 'boolean': {
+      const { value } = richTypes;
+
+      return {
+        ...createBoolean(),
+        definitions: {
+          ...(value && { default: value })
+        }
+      };
+    }
+
     case 'integer':
     case 'decimal': {
       const { minValue, maxValue, value } = richTypes;
