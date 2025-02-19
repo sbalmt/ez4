@@ -186,7 +186,14 @@ describe.only('aurora migration (table)', () => {
         properties: {
           object: {
             type: SchemaType.Object,
-            properties: {}
+            properties: {},
+            definitions: {
+              default: {
+                foo: true,
+                bar: 'bar',
+                baz: 123
+              }
+            }
           },
           tuple: {
             type: SchemaType.Tuple,
@@ -210,7 +217,7 @@ describe.only('aurora migration (table)', () => {
     equal(
       statement,
       `CREATE TABLE "ez4-test-table" (` +
-        `"object" jsonb NOT null, ` +
+        `"object" jsonb NOT null DEFAULT '{"foo":true,"bar":"bar","baz":123}', ` +
         `"tuple" jsonb NOT null, ` +
         `"array" jsonb NOT null` +
         `)`

@@ -9,7 +9,7 @@ export const transformObject = (
   context = getNewContext()
 ) => {
   if (value === null || value === undefined) {
-    return undefined;
+    return schema.definitions?.default;
   }
 
   const output: Record<string, unknown> = {};

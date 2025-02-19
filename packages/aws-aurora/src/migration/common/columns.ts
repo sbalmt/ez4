@@ -3,10 +3,10 @@ import type { RepositoryIndexes } from '../../main.js';
 
 import {
   SchemaType,
-  isBooleanSchema,
+  isScalarSchema,
+  isStringSchema,
   isEnumSchema,
-  isNumberSchema,
-  isStringSchema
+  isObjectSchema
 } from '@ez4/schema';
 
 import { isAnyNumber } from '@ez4/utils';
@@ -101,12 +101,7 @@ export const isOptionalColumn = (schema: AnySchema) => {
 };
 
 export const getColumnDefault = (schema: AnySchema, primaryIndex: boolean) => {
-  if (
-    isBooleanSchema(schema) ||
-    isNumberSchema(schema) ||
-    isStringSchema(schema) ||
-    isEnumSchema(schema)
-  ) {
+  if (isScalarSchema(schema) || isObjectSchema(schema) || isEnumSchema(schema)) {
     const { definitions } = schema;
 
     switch (typeof definitions?.default) {
@@ -116,6 +111,9 @@ export const getColumnDefault = (schema: AnySchema, primaryIndex: boolean) => {
 
       case 'string':
         return `'${definitions.default}'`;
+
+      case 'object':
+        return `'${JSON.stringify(definitions.default)}'`;
     }
   }
 

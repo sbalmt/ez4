@@ -134,6 +134,19 @@
           "optional": true
         }
       }
+    },
+    "value": {
+      "type": "object",
+      "description": "Default object value.",
+      "identity": 10,
+      "properties": {},
+      "definitions": {
+        "default": {
+          "foo1": true,
+          "bar1": 123,
+          "baz1": "baz"
+        }
+      }
     }
   }
 }

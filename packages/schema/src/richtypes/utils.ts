@@ -1,11 +1,14 @@
 import type { TypeObject, TypeReference } from '@ez4/reflection';
+import type { AnyObject } from '@ez4/utils';
 
 import {
   isModelProperty,
   isTypeBoolean,
   isTypeNumber,
-  isTypeReference,
   isTypeString,
+  isTypeScalar,
+  isTypeReference,
+  isTypeObject,
   createBoolean,
   createNumber,
   createString,
@@ -18,7 +21,7 @@ export type RichTypes = {
   format?: string;
   name?: string;
   pattern?: string;
-  value?: boolean | number | string;
+  value?: boolean | number | string | AnyObject;
   reference?: TypeReference;
   extensible?: boolean;
   minLength?: number;
@@ -52,41 +55,38 @@ export const getRichTypes = (type: TypeObject) => {
 
       case 'name':
       case 'pattern':
-        if (!isTypeString(type)) {
-          throw new InvalidRichTypeProperty(name, 'string');
+        if (isTypeString(type)) {
+          richTypes[name] = type.literal;
         }
-        richTypes[name] = type.literal;
         break;
 
       case 'extensible':
-        if (!isTypeBoolean(type)) {
-          throw new InvalidRichTypeProperty(name, 'boolean');
+        if (isTypeBoolean(type)) {
+          richTypes[name] = type.literal;
         }
-        richTypes[name] = type.literal;
         break;
 
       case 'minValue':
       case 'maxValue':
       case 'maxLength':
       case 'minLength':
-        if (!isTypeNumber(type)) {
-          throw new InvalidRichTypeProperty(name, 'number');
+        if (isTypeNumber(type)) {
+          richTypes[name] = type.literal;
         }
-        richTypes[name] = type.literal;
         break;
 
       case 'reference':
-        if (!isTypeReference(type)) {
-          throw new InvalidRichTypeProperty(name, 'reference');
+        if (isTypeReference(type)) {
+          richTypes[name] = type;
         }
-        richTypes[name] = type;
         break;
 
       case 'default':
-        if (!isTypeBoolean(type) && !isTypeNumber(type) && !isTypeString(type)) {
-          throw new InvalidRichTypeProperty(name, 'boolean, number or string');
+        if (isTypeScalar(type)) {
+          richTypes.value = type.literal;
+        } else if (isTypeObject(type)) {
+          richTypes.value = getPlainObject(type);
         }
-        richTypes.value = type.literal;
         break;
     }
   });
@@ -142,11 +142,12 @@ export const createRichType = (richTypes: RichTypes) => {
     }
 
     case 'object': {
-      const { extensible } = richTypes;
+      const { extensible, value } = richTypes;
 
       return {
         ...createObject('@ez4/schema'),
         definitions: {
+          ...(value && { default: value }),
           ...(extensible && { extensible })
         }
       };
@@ -177,4 +178,26 @@ export const createRichType = (richTypes: RichTypes) => {
       };
     }
   }
+};
+
+const getPlainObject = (object: TypeObject) => {
+  const result: AnyObject = {};
+
+  if (!Array.isArray(object.members)) {
+    return result;
+  }
+
+  for (const member of object.members) {
+    if (!isModelProperty(member)) {
+      continue;
+    }
+
+    if (isTypeScalar(member.value)) {
+      result[member.name] = member.value.literal;
+    } else if (isTypeObject(member.value)) {
+      result[member.name] = getPlainObject(member.value);
+    }
+  }
+
+  return result;
 };

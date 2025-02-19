@@ -73,10 +73,13 @@ describe.only('types transform', () => {
       }
     };
 
-    const input = { foo: 'true', bar: '123', baz: 'abc' };
-    const output = { foo: true, bar: 123, baz: 'abc' };
+    const output = {
+      foo: true,
+      bar: 123,
+      baz: 'abc'
+    };
 
-    deepEqual(transform(input, schema), output);
+    deepEqual(transform({ foo: 'true', bar: '123', baz: 'abc' }, schema), output);
 
     deepEqual(transform(undefined, schema), undefined);
 
@@ -244,6 +247,34 @@ describe.only('types transform', () => {
     deepEqual(transform(123, schema), 'foo');
     deepEqual(transform(undefined, schema), 'foo');
     deepEqual(transform(null, schema), 'foo');
+  });
+
+  it('assert :: object with default', () => {
+    const output = { foo: true, bar: 123, baz: 'abc' };
+
+    const schema: AnySchema = {
+      type: SchemaType.Object,
+      identity: 1,
+      definitions: {
+        default: output
+      },
+      properties: {
+        foo: {
+          type: SchemaType.Boolean
+        },
+        bar: {
+          type: SchemaType.Number
+        },
+        baz: {
+          type: SchemaType.String
+        }
+      }
+    };
+
+    deepEqual(transform({ foo: 'true', bar: '123', baz: 'abc' }, schema), output);
+
+    deepEqual(transform(undefined, schema), output);
+    deepEqual(transform(null, schema), output);
   });
 
   it('assert :: enum with default', () => {
