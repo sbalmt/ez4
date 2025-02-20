@@ -52,9 +52,9 @@ describe.only('context tests', () => {
       }
     };
 
-    const steps = await planSteps(baseState, undefined, handlers);
+    const steps = await planSteps(baseState, undefined, { handlers });
 
-    await applySteps(steps, baseState, undefined, handlers);
+    await applySteps(steps, baseState, undefined, { handlers });
 
     equal(createHandler.mock.callCount(), 1);
   });
@@ -72,9 +72,9 @@ describe.only('context tests', () => {
       }
     };
 
-    const steps = await planSteps(undefined, baseState, handlers);
+    const steps = await planSteps(undefined, baseState, { handlers });
 
-    await applySteps(steps, undefined, baseState, handlers);
+    await applySteps(steps, undefined, baseState, { handlers });
 
     equal(deleteHandler.mock.callCount(), 1);
   });
@@ -96,9 +96,9 @@ describe.only('context tests', () => {
 
     const newState = { ...baseState };
 
-    const steps = await planSteps(newState, baseState, handlers);
+    const steps = await planSteps(newState, baseState, { handlers });
 
-    await applySteps(steps, newState, baseState, handlers);
+    await applySteps(steps, newState, baseState, { handlers });
 
     equal(updateHandler.mock.callCount(), 1);
   });

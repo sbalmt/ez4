@@ -12,7 +12,7 @@ import { TestEntryType } from './common/entry.js';
 describe.only('apply errors tests', () => {
   it('throws :: entries not found', async () => {
     await rejects(
-      () => applySteps([], undefined, undefined, commonStepHandlers),
+      () => applySteps([], undefined, undefined, { handlers: commonStepHandlers }),
       EntriesNotFoundError
     );
   });
@@ -27,9 +27,14 @@ describe.only('apply errors tests', () => {
       }
     };
 
-    const steps = await planSteps(state, undefined, commonStepHandlers);
+    const steps = await planSteps(state, undefined, {
+      handlers: commonStepHandlers
+    });
 
     // Can't find handler for TestEntryType.A.
-    await rejects(() => applySteps(steps, state, undefined, {}), HandlerNotFoundError);
+    await rejects(
+      () => applySteps(steps, state, undefined, { handlers: {} }),
+      HandlerNotFoundError
+    );
   });
 });

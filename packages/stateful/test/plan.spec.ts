@@ -42,7 +42,7 @@ const baseState: EntryStates<TestEntryState> = {
 
 describe.only('plan tests', () => {
   it('assert :: create actions order', async () => {
-    const steps = await planSteps(baseState, undefined, commonStepHandlers);
+    const steps = await planSteps(baseState, undefined, { handlers: commonStepHandlers });
 
     equal(steps.length, 4);
 
@@ -75,7 +75,7 @@ describe.only('plan tests', () => {
       }
     };
 
-    const steps = await planSteps(newState, baseState, commonStepHandlers);
+    const steps = await planSteps(newState, baseState, { handlers: commonStepHandlers });
 
     equal(steps.length, 4);
 
@@ -112,7 +112,7 @@ describe.only('plan tests', () => {
       }
     };
 
-    const steps = await planSteps(newState, baseState, commonStepHandlers);
+    const steps = await planSteps(newState, baseState, { handlers: commonStepHandlers });
 
     equal(steps.length, 5);
 
@@ -138,7 +138,7 @@ describe.only('plan tests', () => {
   });
 
   it('assert :: delete actions order', async () => {
-    const steps = await planSteps(undefined, baseState, commonStepHandlers);
+    const steps = await planSteps(undefined, baseState, { handlers: commonStepHandlers });
 
     equal(steps.length, 4);
 
