@@ -5,6 +5,11 @@ import type { String } from '@ez4/schema';
  */
 export interface DateTimeTestSchema {
   /**
+   * String following a date & time format.
+   */
+  dateTime: String.DateTime;
+
+  /**
    * String following a time format.
    */
   time: String.Time;
@@ -13,9 +18,4 @@ export interface DateTimeTestSchema {
    * String following a date format.
    */
   date: String.Date;
-
-  /**
-   * String following a date & time format.
-   */
-  dateTime: String.DateTime;
 }

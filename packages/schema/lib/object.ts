@@ -6,7 +6,7 @@ export namespace Object {
 
   export type Default<Type, Value extends Type> = {
     '@ez4/schema': 'object';
-    reference: Type;
     default: Value;
+    type: Type;
   };
 }

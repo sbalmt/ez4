@@ -5,22 +5,22 @@ export namespace Integer {
   export type Any = number;
 
   /**
-   * An integer with minimum value constraint.
+   * Integer with minimum value constraint.
    */
   export type Min<_Value extends number> = number;
 
   /**
-   * An integer with maximum value constraint.
+   * Integer with maximum value constraint.
    */
   export type Max<_Value extends number> = number;
 
   /**
-   * An integer with minimum and maximum value constraint.
+   * Integer with minimum and maximum value constraint.
    */
   export type Range<_MinValue extends number, _MaxValue extends number> = number;
 
   /**
-   * An integer with default value.
+   * Integer with default value.
    */
   export type Default<_Value extends number> = number | undefined;
 }

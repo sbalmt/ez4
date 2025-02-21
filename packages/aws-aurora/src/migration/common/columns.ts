@@ -5,8 +5,10 @@ import {
   SchemaType,
   isScalarSchema,
   isStringSchema,
-  isEnumSchema,
-  isObjectSchema
+  isObjectSchema,
+  isArraySchema,
+  isTupleSchema,
+  isEnumSchema
 } from '@ez4/schema';
 
 import { isAnyNumber } from '@ez4/utils';
@@ -101,7 +103,13 @@ export const isOptionalColumn = (schema: AnySchema) => {
 };
 
 export const getColumnDefault = (schema: AnySchema, primaryIndex: boolean) => {
-  if (isScalarSchema(schema) || isObjectSchema(schema) || isEnumSchema(schema)) {
+  if (
+    isScalarSchema(schema) ||
+    isObjectSchema(schema) ||
+    isArraySchema(schema) ||
+    isTupleSchema(schema) ||
+    isEnumSchema(schema)
+  ) {
     const { definitions } = schema;
 
     switch (typeof definitions?.default) {

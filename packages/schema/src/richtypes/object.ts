@@ -7,5 +7,5 @@ export namespace Object {
   /**
    * Object with default value.
    */
-  export type Default<Type, _Value extends Type> = Type;
+  export type Default<Type extends Record<string, unknown>, _Value extends Type> = Type;
 }

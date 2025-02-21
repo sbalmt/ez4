@@ -277,6 +277,51 @@ describe.only('types transform', () => {
     deepEqual(transform(null, schema), output);
   });
 
+  it('assert :: array with default', () => {
+    const schema: AnySchema = {
+      type: SchemaType.Array,
+      definitions: {
+        default: [789, 10.1]
+      },
+      element: {
+        type: SchemaType.Number
+      }
+    };
+
+    deepEqual(transform(['123', '4.56'], schema), [123, 4.56]);
+
+    deepEqual(transform(['7.89', 'abc'], schema), [7.89, undefined]);
+
+    deepEqual(transform(123, schema), [789, 10.1]);
+    deepEqual(transform(undefined, schema), [789, 10.1]);
+    deepEqual(transform(null, schema), [789, 10.1]);
+  });
+
+  it('assert :: tuple with default', () => {
+    const schema: AnySchema = {
+      type: SchemaType.Tuple,
+      definitions: {
+        default: [456, 'def']
+      },
+      elements: [
+        {
+          type: SchemaType.Number
+        },
+        {
+          type: SchemaType.String
+        }
+      ]
+    };
+
+    deepEqual(transform(['123', 'abc'], schema), [123, 'abc']);
+
+    deepEqual(transform(['true', '4.56'], schema), [undefined, '4.56']);
+
+    deepEqual(transform(123, schema), [456, 'def']);
+    deepEqual(transform(undefined, schema), [456, 'def']);
+    deepEqual(transform(null, schema), [456, 'def']);
+  });
+
   it('assert :: enum with default', () => {
     const schema: AnySchema = {
       type: SchemaType.Enum,

@@ -45,12 +45,12 @@ export interface DecimalTestSchema {
   max_zero: Decimal.Max<0>;
 
   /**
-   * Literal zero value.
-   */
-  literal_zero: 0.0;
-
-  /**
    * Default zero value.
    */
   value_zero: Decimal.Default<0>;
+
+  /**
+   * Literal zero value.
+   */
+  literal_zero: 0.0;
 }

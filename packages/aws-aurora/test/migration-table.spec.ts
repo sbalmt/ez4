@@ -197,6 +197,9 @@ describe.only('aurora migration (table)', () => {
           },
           tuple: {
             type: SchemaType.Tuple,
+            definitions: {
+              default: ['foo']
+            },
             elements: [
               {
                 type: SchemaType.String
@@ -205,6 +208,9 @@ describe.only('aurora migration (table)', () => {
           },
           array: {
             type: SchemaType.Array,
+            definitions: {
+              default: []
+            },
             element: {
               type: SchemaType.String
             }
@@ -218,8 +224,8 @@ describe.only('aurora migration (table)', () => {
       statement,
       `CREATE TABLE "ez4-test-table" (` +
         `"object" jsonb NOT null DEFAULT '{"foo":true,"bar":"bar","baz":123}', ` +
-        `"tuple" jsonb NOT null, ` +
-        `"array" jsonb NOT null` +
+        `"tuple" jsonb NOT null DEFAULT '["foo"]', ` +
+        `"array" jsonb NOT null DEFAULT '[]'` +
         `)`
     );
   });

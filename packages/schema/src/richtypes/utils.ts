@@ -1,4 +1,4 @@
-import type { TypeObject, TypeReference } from '@ez4/reflection';
+import type { EveryType, TypeObject, TypeTuple } from '@ez4/reflection';
 import type { AnyObject } from '@ez4/utils';
 
 import {
@@ -7,25 +7,30 @@ import {
   isTypeNumber,
   isTypeString,
   isTypeScalar,
-  isTypeReference,
   isTypeObject,
+  isTypeTuple,
   createBoolean,
   createNumber,
   createString,
-  createObject
+  createObject,
+  createArray
 } from '@ez4/reflection';
 
 import { InvalidRichTypeProperty } from '../errors/richtype.js';
 
 export type RichTypes = {
   format?: string;
+
   name?: string;
-  pattern?: string;
   value?: boolean | number | string | AnyObject;
-  reference?: TypeReference;
+  type?: EveryType;
+
   extensible?: boolean;
+  pattern?: string;
+
   minLength?: number;
   maxLength?: number;
+
   minValue?: number;
   maxValue?: number;
 };
@@ -66,19 +71,17 @@ export const getRichTypes = (type: TypeObject) => {
         }
         break;
 
-      case 'minValue':
-      case 'maxValue':
       case 'maxLength':
       case 'minLength':
+      case 'minValue':
+      case 'maxValue':
         if (isTypeNumber(type)) {
           richTypes[name] = type.literal;
         }
         break;
 
-      case 'reference':
-        if (isTypeReference(type)) {
-          richTypes[name] = type;
-        }
+      case 'type':
+        richTypes[name] = type;
         break;
 
       case 'default':
@@ -86,6 +89,8 @@ export const getRichTypes = (type: TypeObject) => {
           richTypes.value = type.literal;
         } else if (isTypeObject(type)) {
           richTypes.value = getPlainObject(type);
+        } else if (isTypeTuple(type)) {
+          richTypes.value = getPlainArray(type);
         }
         break;
     }
@@ -153,11 +158,24 @@ export const createRichType = (richTypes: RichTypes) => {
       };
     }
 
-    case 'enum': {
-      const { reference, value } = richTypes;
+    case 'array': {
+      const { minLength, maxLength, type, value } = richTypes;
 
       return {
-        ...reference!,
+        ...createArray(type!, { spread: false }),
+        definitions: {
+          ...(value && { default: value }),
+          ...(minLength && { minLength }),
+          ...(maxLength && { maxLength })
+        }
+      };
+    }
+
+    case 'enum': {
+      const { type, value } = richTypes;
+
+      return {
+        ...type!,
         definitions: {
           ...(value !== undefined && { default: value })
         }
@@ -192,12 +210,32 @@ const getPlainObject = (object: TypeObject) => {
       continue;
     }
 
-    if (isTypeScalar(member.value)) {
-      result[member.name] = member.value.literal;
-    } else if (isTypeObject(member.value)) {
-      result[member.name] = getPlainObject(member.value);
+    const { name, value } = member;
+
+    if (isTypeScalar(value)) {
+      result[name] = value.literal;
+    } else if (isTypeObject(value)) {
+      result[name] = getPlainObject(value);
+    } else if (isTypeTuple(value)) {
+      result[name] = getPlainArray(value);
     }
   }
 
   return result;
+};
+
+const getPlainArray = (tuple: TypeTuple) => {
+  const results: unknown[] = [];
+
+  for (const element of tuple.elements) {
+    if (isTypeScalar(element)) {
+      results.push(element.literal);
+    } else if (isTypeObject(element)) {
+      results.push(getPlainObject(element));
+    } else if (isTypeTuple(element)) {
+      results.push(getPlainArray(element));
+    }
+  }
+
+  return results;
 };

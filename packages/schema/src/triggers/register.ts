@@ -6,8 +6,8 @@ import { createTrigger } from '@ez4/project/library';
 
 import { getRichTypes, createRichType } from '../richtypes/utils.js';
 
-const libraryFiles = ['boolean', 'integer', 'decimal', 'string', 'object', 'enum'].join('|');
-const libraryPath = new RegExp(join('dist', 'richtypes', `(${libraryFiles}).d.ts`));
+const libraryFiles = ['boolean', 'integer', 'decimal', 'string', 'object', 'array', 'enum'];
+const libraryPath = new RegExp(join('dist', 'richtypes', `(${libraryFiles.join('|')}).d.ts`));
 
 let isRegistered = false;
 
