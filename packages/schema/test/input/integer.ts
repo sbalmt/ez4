@@ -33,4 +33,24 @@ export interface IntegerTestSchema {
    * Literal integer value.
    */
   literal: 123;
+
+  /**
+   * Number following a integer format with minimum zero.
+   */
+  min_zero: Integer.Min<0>;
+
+  /**
+   * Number following a integer format with maximum zero.
+   */
+  max_zero: Integer.Max<0>;
+
+  /**
+   * Literal zero value.
+   */
+  literal_zero: 0;
+
+  /**
+   * Default zero value.
+   */
+  value_zero: Integer.Default<0>;
 }

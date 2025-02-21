@@ -5,12 +5,22 @@ import type { Boolean } from '@ez4/schema';
  */
 export interface BooleanTestSchema {
   /**
-   * Literal boolean value.
+   * Literal true value.
    */
-  literal: false;
+  literal_true: true;
 
   /**
-   * Default boolean value.
+   * Literal false value.
    */
-  value: Boolean.Default<true>;
+  literal_false: false;
+
+  /**
+   * Default true value.
+   */
+  value_true: Boolean.Default<true>;
+
+  /**
+   * Default false value.
+   */
+  value_false: Boolean.Default<false>;
 }

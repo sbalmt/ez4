@@ -108,7 +108,7 @@ export const createRichType = (richTypes: RichTypes) => {
       return {
         ...createBoolean(),
         definitions: {
-          ...(value && { default: value })
+          ...(value !== undefined && { default: value })
         }
       };
     }
@@ -121,9 +121,9 @@ export const createRichType = (richTypes: RichTypes) => {
         ...createNumber(),
         format,
         definitions: {
-          ...(value && { default: value }),
-          ...(minValue && { minValue }),
-          ...(maxValue && { maxValue })
+          ...(value !== undefined && { default: value }),
+          ...(minValue !== undefined && { minValue }),
+          ...(maxValue !== undefined && { maxValue })
         }
       };
     }
@@ -159,7 +159,7 @@ export const createRichType = (richTypes: RichTypes) => {
       return {
         ...reference!,
         definitions: {
-          ...(value && { default: value })
+          ...(value !== undefined && { default: value })
         }
       };
     }
