@@ -90,7 +90,7 @@ export const prepareDeleteColumns = (table: string, columns: ColumnSchema) => {
   const statements = [];
 
   for (const columnName in columns) {
-    statements.push(`ALTER TABLE "${table}" DROP COLUMN "${columnName}"`);
+    statements.push(`ALTER TABLE "${table}" DROP COLUMN IF EXISTS "${columnName}"`);
   }
 
   return statements;

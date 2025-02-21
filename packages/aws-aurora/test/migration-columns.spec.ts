@@ -317,6 +317,6 @@ describe.only('aurora migration (columns)', () => {
       }
     });
 
-    deepEqual(statements, [`ALTER TABLE "ez4-test-table" DROP COLUMN "column"`]);
+    deepEqual(statements, [`ALTER TABLE "ez4-test-table" DROP COLUMN IF EXISTS "column"`]);
   });
 });
