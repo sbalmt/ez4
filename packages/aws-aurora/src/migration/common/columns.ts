@@ -107,7 +107,7 @@ export const getColumnDefault = (schema: AnySchema, primaryIndex: boolean) => {
     switch (typeof definitions?.default) {
       case 'boolean':
       case 'number':
-        return definitions.default;
+        return `${definitions.default}`;
 
       case 'string':
         return `'${definitions.default}'`;

@@ -15,14 +15,14 @@ describe.only('aurora migration (columns)', () => {
           type: SchemaType.Boolean,
           optional: true,
           definitions: {
-            default: true
+            default: false
           }
         }
       }
     );
 
     deepEqual(statements, [
-      `ALTER TABLE "ez4-test-table" ADD COLUMN "column" boolean DEFAULT true`
+      `ALTER TABLE "ez4-test-table" ADD COLUMN "column" boolean DEFAULT false`
     ]);
   });
 
