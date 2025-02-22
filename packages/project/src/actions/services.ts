@@ -1,6 +1,6 @@
 import type { MetadataReflection } from '../types/metadata.js';
 import type { ServiceMetadata } from '../types/service.js';
-import type { DeployOptions } from '../types/deploy.js';
+import type { DeployOptions } from '../types/options.js';
 
 import { triggerAllAsync } from '@ez4/project/library';
 

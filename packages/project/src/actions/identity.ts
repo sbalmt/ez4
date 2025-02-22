@@ -1,6 +1,6 @@
 import type { EntryState, EntryStates } from '@ez4/stateful';
 import type { IdentityAccount, IdentityGrant } from '../types/identity.js';
-import type { DeployOptions } from '../types/deploy.js';
+import type { DeployOptions } from '../types/options.js';
 
 import { triggerAllAsync } from '@ez4/project/library';
 

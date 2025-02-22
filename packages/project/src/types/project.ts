@@ -52,7 +52,13 @@ export type ProjectOptions = {
  */
 export type ProjectStateOptions = {
   /**
-   * Path to the local state file (don't use file extension).
+   * Determines whether the state file is stored remotely.
+   * Default is: `false`
+   */
+  remote?: boolean;
+
+  /**
+   * Path to the state file (don't specify the file extension).
    */
   path: string;
 };
