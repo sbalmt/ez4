@@ -1,4 +1,6 @@
-export const transformNumber = (value: unknown) => {
+import type { NumberSchema } from '@ez4/schema';
+
+export const transformNumber = (value: unknown, schema: NumberSchema) => {
   if (typeof value === 'number') {
     return value;
   }
@@ -11,5 +13,5 @@ export const transformNumber = (value: unknown) => {
     }
   }
 
-  return undefined;
+  return schema.definitions?.default;
 };

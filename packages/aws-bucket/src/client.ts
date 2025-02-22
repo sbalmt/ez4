@@ -103,11 +103,11 @@ export namespace Client {
             size: response?.ContentLength ?? 0
           };
         } catch (error) {
-          if (error instanceof NotFound || error instanceof NoSuchKey) {
-            return undefined;
+          if (!(error instanceof NotFound) && !(error instanceof NoSuchKey)) {
+            throw error;
           }
 
-          throw error;
+          return undefined;
         }
       }
     })();

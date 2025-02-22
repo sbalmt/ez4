@@ -35,7 +35,7 @@ export const getNumberSchema = (type: AllType, description?: string): NumberSche
   const { format, definitions } = type;
 
   return createNumberSchema({
-    definitions: type.literal ? { value: type.literal } : definitions,
+    definitions: type.literal !== undefined ? { value: type.literal } : definitions,
     description,
     format
   });

@@ -10,11 +10,16 @@ export type ApplyResult<E extends EntryState = EntryState> = {
   errors: Error[];
 };
 
+export type ApplyOptions<E extends EntryState> = {
+  handlers: StepHandlers<E>;
+  batchSize?: number;
+};
+
 export const applySteps = async <E extends EntryState>(
   stepList: StepState[],
   newEntries: EntryStates<E> | undefined,
   oldEntries: EntryStates<E> | undefined,
-  handlers: StepHandlers<E>
+  options: ApplyOptions<E>
 ): Promise<ApplyResult<E>> => {
   if (!newEntries && !oldEntries) {
     throw new EntriesNotFoundError();
@@ -26,6 +31,9 @@ export const applySteps = async <E extends EntryState>(
   const tmpNewEntries = newEntries ?? {};
   const tmpOldEntries = oldEntries ?? {};
 
+  const batchSize = options.batchSize ?? 10;
+  const handlers = options.handlers;
+
   for (let order = 0; ; order++) {
     const nextSteps = findPendingByOrder(stepList, order);
 
@@ -33,11 +41,17 @@ export const applySteps = async <E extends EntryState>(
       break;
     }
 
-    const stepPromises = nextSteps.map(async (entry) => {
-      return applyPendingStep(entry, tmpNewEntries, tmpOldEntries, tmpEntries, handlers, errorList);
-    });
+    const resultEntries = [];
 
-    const resultEntries = await Promise.all(stepPromises);
+    for (let offset = 0; offset < nextSteps.length; offset += batchSize) {
+      const stepsBatch = nextSteps.slice(offset, offset + batchSize);
+
+      const stepPromises = stepsBatch.map((entry) =>
+        applyPendingStep(entry, tmpNewEntries, tmpOldEntries, tmpEntries, handlers, errorList)
+      );
+
+      resultEntries.push(...(await Promise.all(stepPromises)));
+    }
 
     for (const entry of resultEntries) {
       // Don't include deleted entries.

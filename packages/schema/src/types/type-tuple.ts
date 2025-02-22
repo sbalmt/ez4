@@ -2,9 +2,14 @@ import type { SchemaDefinitions } from './common.js';
 import type { AnySchema } from './type-any.js';
 
 import { SchemaType } from './common.js';
+
+export type TupleSchemaDefinitions = SchemaDefinitions & {
+  default?: unknown[];
+};
+
 export type TupleSchema = {
   type: SchemaType.Tuple;
-  definitions?: SchemaDefinitions;
+  definitions?: TupleSchemaDefinitions;
   elements: AnySchema[];
   description?: string;
   optional?: boolean;

@@ -1,7 +1,14 @@
 import type { ArraySchema } from '@ez4/schema';
 
+import { isAnyNumber } from '@ez4/utils';
+
+import {
+  ExpectedArrayTypeError,
+  UnexpectedMaxItemsError,
+  UnexpectedMinItemsError
+} from '../errors/array.js';
+
 import { getNewContext } from '../types/context.js';
-import { ExpectedArrayTypeError } from '../errors/array.js';
 import { isOptionalNullable } from './utils.js';
 import { validateAny } from './any.js';
 
@@ -21,6 +28,14 @@ export const validateArray = async (
   }
 
   const allErrors: Error[] = [];
+
+  const { definitions } = schema;
+
+  if (isAnyNumber(definitions?.minLength) && value.length < definitions.minLength) {
+    allErrors.push(new UnexpectedMinItemsError(definitions.minLength, property));
+  } else if (isAnyNumber(definitions?.maxLength) && value.length > definitions.maxLength) {
+    allErrors.push(new UnexpectedMaxItemsError(definitions.maxLength, property));
+  }
 
   let index = 0;
 

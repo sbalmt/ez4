@@ -1,4 +1,4 @@
-import { Integer } from '@ez4/schema';
+import type { Integer } from '@ez4/schema';
 
 /**
  * Number type enriched with integer format.
@@ -25,7 +25,32 @@ export interface IntegerTestSchema {
   range: Integer.Range<25, 50>;
 
   /**
+   * Default integer value.
+   */
+  value: Integer.Default<456>;
+
+  /**
    * Literal integer value.
    */
   literal: 123;
+
+  /**
+   * Number following a integer format with minimum zero.
+   */
+  min_zero: Integer.Min<0>;
+
+  /**
+   * Number following a integer format with maximum zero.
+   */
+  max_zero: Integer.Max<0>;
+
+  /**
+   * Literal zero value.
+   */
+  literal_zero: 0;
+
+  /**
+   * Default zero value.
+   */
+  value_zero: Integer.Default<0>;
 }

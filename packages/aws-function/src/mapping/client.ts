@@ -6,12 +6,13 @@ import type {
 } from '@aws-sdk/client-lambda';
 
 import {
+  LambdaClient,
+  EventSourcePosition,
+  GetEventSourceMappingCommand,
   CreateEventSourceMappingCommand,
   UpdateEventSourceMappingCommand,
   DeleteEventSourceMappingCommand,
-  GetEventSourceMappingCommand,
-  EventSourcePosition,
-  LambdaClient
+  ListEventSourceMappingsCommand
 } from '@aws-sdk/client-lambda';
 
 import { Logger, parseArn } from '@ez4/aws-common';
@@ -34,13 +35,39 @@ export type CreateRequest = {
   batch?: BatchOptions;
 };
 
-export type CreateResponse = {
+export type ImportOrCreateResponse = {
   eventId: string;
 };
 
 export type UpdateRequest = CreateRequest;
 
-export const createMapping = async (request: CreateRequest): Promise<CreateResponse> => {
+export const importMapping = async (
+  functionName: string,
+  sourceArn: string
+): Promise<ImportOrCreateResponse | undefined> => {
+  Logger.logImport(MappingServiceName, functionName);
+
+  const response = await client.send(
+    new ListEventSourceMappingsCommand({
+      FunctionName: functionName,
+      EventSourceArn: sourceArn
+    })
+  );
+
+  const [eventSource] = response.EventSourceMappings!;
+
+  if (!eventSource) {
+    return undefined;
+  }
+
+  const eventId = eventSource.UUID!;
+
+  return {
+    eventId
+  };
+};
+
+export const createMapping = async (request: CreateRequest): Promise<ImportOrCreateResponse> => {
   const { sourceArn, functionName } = request;
 
   Logger.logCreate(MappingServiceName, functionName);

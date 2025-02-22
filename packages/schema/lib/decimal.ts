@@ -18,4 +18,9 @@ export namespace Decimal {
     minValue: MinValue;
     maxValue: MaxValue;
   };
+
+  export type Default<Value extends number> = {
+    '@ez4/schema': 'decimal';
+    default: Value;
+  };
 }

@@ -30,8 +30,10 @@ export const getBooleanSchema = (type: AllType, description?: string): BooleanSc
     return null;
   }
 
+  const { definitions } = type;
+
   return createBooleanSchema({
-    definitions: type.definitions,
+    definitions: type.literal !== undefined ? { value: type.literal } : definitions,
     description
   });
 };

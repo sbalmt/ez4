@@ -68,4 +68,9 @@ export interface ObjectTestSchema {
   dynamic: {
     [name: string | number]: boolean | undefined;
   };
+
+  /**
+   * Default object value.
+   */
+  value: Object.Default<ObjectType, { foo1: true; bar1: 123; baz1: 'baz' }>;
 }

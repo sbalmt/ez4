@@ -1,4 +1,6 @@
-export const transformBoolean = (value: unknown) => {
+import type { BooleanSchema } from '@ez4/schema';
+
+export const transformBoolean = (value: unknown, schema: BooleanSchema) => {
   if (typeof value === 'boolean') {
     return value;
   }
@@ -11,5 +13,5 @@ export const transformBoolean = (value: unknown) => {
     return false;
   }
 
-  return undefined;
+  return schema.definitions?.default;
 };

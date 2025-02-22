@@ -6,10 +6,14 @@ import { CorruptedStateReferences, HandlerNotFoundError, EntriesNotFoundError } 
 import { hydrateState } from './hydrate.js';
 import { StepAction } from './step.js';
 
+export type PlanOptions<E extends EntryState> = {
+  handlers: StepHandlers<E>;
+};
+
 export const planSteps = async <E extends EntryState>(
   newEntries: EntryStates<E> | undefined,
   oldEntries: EntryStates<E> | undefined,
-  handlers: StepHandlers<E>
+  options: PlanOptions<E>
 ) => {
   const stepList: StepState[] = [];
   const newEntrySet = new Set<string>();
@@ -20,6 +24,7 @@ export const planSteps = async <E extends EntryState>(
 
   if (newEntries) {
     const newEntryList = Object.values(newEntries).filter((entry) => !!entry);
+    const handlers = options.handlers;
 
     for (let order = 0; ; order++) {
       const entries = findPendingToCreate(newEntryList, newEntrySet);

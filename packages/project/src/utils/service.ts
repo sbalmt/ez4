@@ -1,6 +1,6 @@
 import type { EntryStates } from '@ez4/stateful';
 import type { ExtraSource, ServiceMetadata } from '../types/service.js';
-import type { DeployOptions } from '../types/deploy.js';
+import type { DeployOptions } from '../types/options.js';
 
 import { tryLinkDependency } from '@ez4/stateful';
 import { toKebabCase } from '@ez4/utils';

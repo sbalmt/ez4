@@ -3,7 +3,9 @@ import type { EnumSchema, EnumSchemaOption } from '../types/type-enum.js';
 
 import { isTypeEnum, isTypeReference } from '@ez4/reflection';
 
+import { SchemaReferenceNotFound } from '../errors/reference.js';
 import { SchemaDefinitions, SchemaType } from '../types/common.js';
+import { isRichTypeReference } from './reference.js';
 
 export type RichTypeEnum = TypeEnum & {
   definitions?: SchemaDefinitions;
@@ -34,15 +36,26 @@ export const getEnumSchema = (
   if (isTypeReference(type)) {
     const statement = reflection[type.path];
 
-    if (statement) {
-      return getEnumSchema(statement, reflection, description);
+    if (!statement) {
+      throw new SchemaReferenceNotFound(type.path);
     }
 
-    return null;
+    const schema = getEnumSchema(statement, reflection, description);
+
+    if (isRichTypeReference(type) && type.definitions && schema) {
+      schema.definitions = {
+        ...schema.definitions,
+        ...type.definitions
+      };
+    }
+
+    return schema;
   }
 
   if (isRichTypeEnum(type) && type.members?.length) {
-    return createEnumSchema(getAnySchemaFromMembers(type.members), description, type.definitions);
+    const options = getAnySchemaFromMembers(type.members);
+
+    return createEnumSchema(options, description, type.definitions);
   }
 
   return null;

@@ -253,7 +253,7 @@ const getExistsOperation = (column: string, operand: unknown, context: SqlCondit
 };
 
 const getNullableOperation = (column: string, value: unknown) => {
-  return `${column} IS ${value ? 'NULL' : 'NOT NULL'}`;
+  return `${column} IS ${value ? 'null' : 'NOT null'}`;
 };
 
 const getEqualOperation = (
