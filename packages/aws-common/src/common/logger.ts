@@ -15,35 +15,39 @@ export class Logger {
     console.error(`[${serviceName}]: ${message}`);
   }
 
-  static logCreate(serviceName: string, resourceId: string) {
-    Logger.logInfo(serviceName, `Creating ${resourceId}`);
+  static logCreate(serviceName: string, resource: string) {
+    Logger.logInfo(serviceName, `Creating ${resource}`);
   }
 
-  static logAttach(serviceName: string, resourceId: string, attachmentId: string) {
-    Logger.logInfo(serviceName, `Attaching ${attachmentId} to ${resourceId}`);
+  static logImport(serviceName: string, resource: string) {
+    Logger.logInfo(serviceName, `Importing ${resource}`);
   }
 
-  static logUpdate(serviceName: string, resourceId: string) {
-    Logger.logInfo(serviceName, `Updating ${resourceId}`);
+  static logAttach(serviceName: string, resource: string, attachment: string) {
+    Logger.logInfo(serviceName, `Attaching ${attachment} to ${resource}`);
   }
 
-  static logFetch(serviceName: string, resourceId: string) {
-    Logger.logInfo(serviceName, `Fetching ${resourceId}`);
+  static logUpdate(serviceName: string, resource: string) {
+    Logger.logInfo(serviceName, `Updating ${resource}`);
   }
 
-  static logTag(serviceName: string, resourceId: string) {
-    Logger.logInfo(serviceName, `Tagging ${resourceId}`);
+  static logFetch(serviceName: string, resource: string) {
+    Logger.logInfo(serviceName, `Fetching ${resource}`);
   }
 
-  static logUntag(serviceName: string, resourceId: string) {
-    Logger.logInfo(serviceName, `Untagging ${resourceId}`);
+  static logTag(serviceName: string, resource: string) {
+    Logger.logInfo(serviceName, `Tagging ${resource}`);
   }
 
-  static logDetach(serviceName: string, resourceId: string, attachmentId: string) {
-    Logger.logInfo(serviceName, `Detaching ${attachmentId} from ${resourceId}`);
+  static logUntag(serviceName: string, resource: string) {
+    Logger.logInfo(serviceName, `Untagging ${resource}`);
   }
 
-  static logDelete(serviceName: string, resourceId: string) {
-    Logger.logInfo(serviceName, `Deleting ${resourceId}`);
+  static logDetach(serviceName: string, resource: string, attachment: string) {
+    Logger.logInfo(serviceName, `Detaching ${attachment} from ${resource}`);
+  }
+
+  static logDelete(serviceName: string, resource: string) {
+    Logger.logInfo(serviceName, `Deleting ${resource}`);
   }
 }
