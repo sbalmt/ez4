@@ -6,7 +6,7 @@ import { deepCompare, deepEqual } from '@ez4/utils';
 
 import { getGatewayId } from '../gateway/utils.js';
 import { getIntegrationId } from '../integration/utils.js';
-import { createRoute, deleteRoute, updateRoute } from './client.js';
+import { createRoute, deleteRoute, importRoute, updateRoute } from './client.js';
 import { RouteServiceName } from './types.js';
 import { getAuthorizerId } from '../authorizer/utils.js';
 
@@ -48,15 +48,19 @@ const createResource = async (
   candidate: RouteState,
   context: StepContext
 ): Promise<RouteResult> => {
+  const parameters = candidate.parameters;
+
   const authorizerId = getAuthorizerId(context);
   const integrationId = getIntegrationId(RouteServiceName, 'route', context);
   const apiId = getGatewayId(RouteServiceName, 'route', context);
 
-  const response = await createRoute(apiId, {
-    ...candidate.parameters,
-    integrationId,
-    authorizerId
-  });
+  const response =
+    (await importRoute(apiId, parameters.routePath)) ??
+    (await createRoute(apiId, {
+      ...parameters,
+      integrationId,
+      authorizerId
+    }));
 
   return {
     routeId: response.routeId,

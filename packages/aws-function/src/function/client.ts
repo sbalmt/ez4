@@ -30,10 +30,6 @@ const waiter = {
   client
 };
 
-export type ImportResponse = {
-  functionArn: Arn;
-};
-
 export type CreateRequest = {
   roleArn: Arn;
   sourceFile: string;
@@ -46,7 +42,7 @@ export type CreateRequest = {
   tags?: ResourceTags;
 };
 
-export type CreateResponse = {
+export type ImportOrCreateResponse = {
   functionArn: Arn;
 };
 
@@ -66,7 +62,7 @@ export type UpdateSourceCodeRequest = {
 export const importFunction = async (
   functionName: string,
   version?: string
-): Promise<ImportResponse | undefined> => {
+): Promise<ImportOrCreateResponse | undefined> => {
   Logger.logImport(FunctionServiceName, functionName);
 
   try {
@@ -91,7 +87,7 @@ export const importFunction = async (
   }
 };
 
-export const createFunction = async (request: CreateRequest): Promise<CreateResponse> => {
+export const createFunction = async (request: CreateRequest): Promise<ImportOrCreateResponse> => {
   const { functionName, variables } = request;
 
   Logger.logCreate(FunctionServiceName, functionName);
