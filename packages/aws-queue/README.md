@@ -35,8 +35,9 @@ Ensure the user performing deployments has the permissions below:
       "Sid": "QueueMappingManagement",
       "Effect": "Allow",
       "Action": [
-        "lambda:CreateEventSourceMapping",
         "lambda:GetEventSourceMapping",
+        "lambda:ListEventSourceMappings",
+        "lambda:CreateEventSourceMapping",
         "lambda:UpdateEventSourceMapping",
         "lambda:DeleteEventSourceMapping"
       ],

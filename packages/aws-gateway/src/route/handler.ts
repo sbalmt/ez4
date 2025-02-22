@@ -6,9 +6,9 @@ import { deepCompare, deepEqual } from '@ez4/utils';
 
 import { getGatewayId } from '../gateway/utils.js';
 import { getIntegrationId } from '../integration/utils.js';
-import { createRoute, deleteRoute, importRoute, updateRoute } from './client.js';
-import { RouteServiceName } from './types.js';
 import { getAuthorizerId } from '../authorizer/utils.js';
+import { importRoute, createRoute, deleteRoute, updateRoute } from './client.js';
+import { RouteServiceName } from './types.js';
 
 export const getRouteHandler = (): StepHandler<RouteState> => ({
   equals: equalsResource,
