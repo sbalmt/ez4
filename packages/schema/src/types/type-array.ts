@@ -4,6 +4,8 @@ import type { AnySchema } from './type-any.js';
 import { SchemaType } from './common.js';
 
 export type ArraySchemaDefinitions = SchemaDefinitions & {
+  minLength?: number;
+  maxLength?: number;
   default?: unknown[];
 };
 

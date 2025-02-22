@@ -12,8 +12,10 @@ import {
   ExpectedUUIDTypeError,
   UnexpectedMaxLengthError,
   UnexpectedMaxRangeError,
+  UnexpectedMaxItemsError,
   UnexpectedMinLengthError,
   UnexpectedMinRangeError,
+  UnexpectedMinItemsError,
   UnexpectedNumberError,
   UnexpectedStringError
 } from '@ez4/validator';
@@ -153,5 +155,21 @@ describe.only('rich type validation errors', () => {
     };
 
     await assertError('abc', schema, [ExpectedDateTimeTypeError]);
+  });
+
+  it('assert :: array errors', async () => {
+    const schema: AnySchema = {
+      type: SchemaType.Array,
+      definitions: {
+        minLength: 1,
+        maxLength: 2
+      },
+      element: {
+        type: SchemaType.Number
+      }
+    };
+
+    await assertError([], schema, [UnexpectedMinItemsError]);
+    await assertError([1, 2, 3], schema, [UnexpectedMaxItemsError]);
   });
 });
