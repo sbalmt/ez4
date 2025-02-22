@@ -199,4 +199,8 @@ export class Table<
 
     return records;
   }
+
+  async count(_query: Query.CountInput<T, R>): Promise<number> {
+    throw new Error("Count isn't supported.");
+  }
 }

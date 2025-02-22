@@ -12,14 +12,15 @@ import { executeStatement, executeTransaction } from './common/client.js';
 import { parseRecord } from './common/record.js';
 
 import {
+  prepareInsertOne,
+  prepareInsertMany,
+  prepareFindOne,
+  prepareFindMany,
+  prepareUpdateOne,
+  prepareUpdateMany,
   prepareDeleteMany,
   prepareDeleteOne,
-  prepareFindMany,
-  prepareFindOne,
-  prepareInsertMany,
-  prepareInsertOne,
-  prepareUpdateMany,
-  prepareUpdateOne
+  prepareCount
 } from './common/queries.js';
 
 export class Table<
@@ -202,5 +203,13 @@ export class Table<
     const records = await this.sendCommand(command);
 
     return records.map((record: AnyObject) => this.parseRecord(record));
+  }
+
+  async count(query: Query.CountInput<T, R>): Promise<number> {
+    const command = prepareCount(this.name, this.relations, query);
+
+    const [record] = await this.sendCommand(command);
+
+    return this.parseRecord(record).count;
   }
 }

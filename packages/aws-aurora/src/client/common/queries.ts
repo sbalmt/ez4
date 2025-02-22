@@ -9,6 +9,7 @@ import { prepareInsertQuery } from './insert.js';
 import { prepareUpdateQuery } from './update.js';
 import { prepareSelectQuery } from './select.js';
 import { prepareDeleteQuery } from './delete.js';
+import { prepareCountQuery } from './count.js';
 
 export type PreparedQueryCommand = Pick<ExecuteStatementCommandInput, 'sql' | 'parameters'>;
 
@@ -183,6 +184,21 @@ export const prepareDeleteMany = <
   query: Query.DeleteManyInput<T, S, R>
 ): PreparedQueryCommand => {
   const [statement, variables] = prepareDeleteQuery(table, schema, relations, query);
+
+  return {
+    sql: statement,
+    ...(variables.length && {
+      parameters: variables
+    })
+  };
+};
+
+export const prepareCount = <T extends Database.Schema, R extends RelationMetadata>(
+  table: string,
+  relations: RepositoryRelationsWithSchema,
+  query: Query.CountInput<T, R>
+): PreparedQueryCommand => {
+  const [statement, variables] = prepareCountQuery(table, relations, query);
 
   return {
     sql: statement,
