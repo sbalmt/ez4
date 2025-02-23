@@ -18,6 +18,16 @@ export declare class Site extends Cdn.Service {
     };
   };
 
+  origins: [
+    {
+      path: 'forward/*';
+      domain: 'another.domain';
+      cache: {
+        ttl: 600;
+      };
+    }
+  ];
+
   // Fallback 404 to default index (Useful for SPAs)
   fallbacks: [
     {
