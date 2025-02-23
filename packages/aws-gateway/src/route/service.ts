@@ -22,7 +22,7 @@ export const createRoute = <E extends EntryState>(
     dependencies.push(authorizerState.entryId);
   }
 
-  const routeId = hashData(RouteServiceType, parameters.routePath, ...dependencies);
+  const routeId = hashData(RouteServiceType, gatewayState.entryId, parameters.routePath);
 
   return attachEntry<E | RouteState, RouteState>(state, {
     type: RouteServiceType,

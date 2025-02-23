@@ -88,9 +88,9 @@ export const createRoute = async (
 };
 
 export const updateRoute = async (apiId: string, routeId: string, request: UpdateRequest) => {
-  Logger.logUpdate(RouteServiceName, routeId);
-
   const { integrationId, authorizerId, operationName, routePath } = request;
+
+  Logger.logUpdate(RouteServiceName, `${routeId} ${routePath}`);
 
   const authorizationType = authorizerId ? AuthorizationType.CUSTOM : AuthorizationType.NONE;
 
