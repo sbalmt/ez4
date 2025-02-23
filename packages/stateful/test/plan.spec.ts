@@ -134,7 +134,7 @@ describe.only('plan tests', () => {
 
     equal(steps[4].action, StepAction.Delete);
     equal(steps[4].entryId, 'entryC');
-    equal(steps[4].order, 0);
+    equal(steps[4].order, 2);
   });
 
   it('assert :: delete actions order', async () => {

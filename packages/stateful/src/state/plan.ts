@@ -15,8 +15,12 @@ export const planSteps = async <E extends EntryState>(
   oldEntries: EntryStates<E> | undefined,
   options: PlanOptions<E>
 ) => {
-  const stepList: StepState[] = [];
+  const creationSteps: StepState[] = [];
+  const deletionSteps: StepState[] = [];
+
   const newEntrySet = new Set<string>();
+
+  let actionOrder = 0;
 
   if (!newEntries && !oldEntries) {
     throw new EntriesNotFoundError();
@@ -26,7 +30,7 @@ export const planSteps = async <E extends EntryState>(
     const newEntryList = Object.values(newEntries).filter((entry) => !!entry);
     const handlers = options.handlers;
 
-    for (let order = 0; ; order++) {
+    while (true) {
       const entries = findPendingToCreate(newEntryList, newEntrySet);
 
       if (!entries.length) {
@@ -38,10 +42,10 @@ export const planSteps = async <E extends EntryState>(
         newEntrySet,
         oldEntries,
         handlers,
-        order
+        actionOrder++
       );
 
-      stepList.push(...nextSteps);
+      creationSteps.push(...nextSteps);
     }
 
     if (newEntryList.length !== newEntrySet.size) {
@@ -59,16 +63,16 @@ export const planSteps = async <E extends EntryState>(
 
     const oldEntrySet = new Set<string>();
 
-    for (let order = 0; ; order++) {
+    while (true) {
       const entries = findPendingToDelete(oldEntryList, oldEntrySet);
 
       if (!entries.length) {
         break;
       }
 
-      const nextSteps = planPendingToDelete(entries, oldEntrySet, order);
+      const nextSteps = planPendingToDelete(entries, oldEntrySet, actionOrder++);
 
-      stepList.push(...nextSteps);
+      deletionSteps.push(...nextSteps);
     }
 
     if (oldEntryList.length !== oldEntrySet.size) {
@@ -76,7 +80,7 @@ export const planSteps = async <E extends EntryState>(
     }
   }
 
-  return stepList;
+  return [...creationSteps, ...deletionSteps];
 };
 
 const findPendingToCreate = <E extends EntryState>(entryList: E[], visitSet: Set<string>) => {
