@@ -2,8 +2,8 @@ import type { ApplyResult, EntryState, EntryStates, StepState } from '@ez4/state
 import type { EveryType, SourceMap, TypeClass, TypeObject } from '@ez4/reflection';
 import type { IdentityAccount, IdentityGrant } from './identity.js';
 import type { ServiceMetadata, ExtraSource } from './service.js';
+import type { DeployOptions, StateOptions } from './options.js';
 import type { MetadataResult } from './metadata.js';
-import type { DeployOptions } from './deploy.js';
 
 export type Trigger = SyncEvent | AsyncEvent;
 
@@ -38,6 +38,8 @@ export type AsyncEvent = {
   'deploy:connectResources': (event: ConnectResourceEvent) => AsyncEventResult<void>;
   'deploy:plan': (event: DeployEvent) => AsyncEventResult<StepState[]>;
   'deploy:apply': (event: DeployEvent) => AsyncEventResult<ApplyResult>;
+  'state:load': (event: StateEvent) => AsyncEventResult<Buffer>;
+  'state:save': (event: StateEvent) => AsyncEventResult<void>;
 };
 
 export type ServiceEvent = {
@@ -79,4 +81,10 @@ export type ConnectResourceEvent = {
 export type DeployEvent = {
   newState: EntryStates;
   oldState: EntryStates;
+};
+
+export type StateEvent = {
+  options: StateOptions;
+  contents?: string;
+  path: string;
 };

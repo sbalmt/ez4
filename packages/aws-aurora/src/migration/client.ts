@@ -17,7 +17,7 @@ import {
   prepareCreateColumns,
   prepareUpdateColumns,
   prepareDeleteColumns
-} from './common/column.js';
+} from './common/columns.js';
 
 const client = new RDSDataClient({});
 
@@ -90,9 +90,9 @@ export const createTables = async (request: CreateTableRequest): Promise<void> =
   for (const table in repository) {
     const { name, schema, indexes, relations } = repository[table];
 
-    relationsCommands.push(...prepareCreateRelations(name, relations).map((sql) => ({ sql })));
-    indexesCommands.push(...prepareCreateIndexes(name, indexes).map((sql) => ({ sql })));
     tablesCommands.push({ sql: prepareCreateTable(name, schema, indexes) });
+    indexesCommands.push(...prepareCreateIndexes(name, indexes).map((sql) => ({ sql })));
+    relationsCommands.push(...prepareCreateRelations(name, relations).map((sql) => ({ sql })));
   }
 
   await executeTransaction(client, connection, [

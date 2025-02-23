@@ -1,6 +1,12 @@
+import type { AllType, TypeReference } from '@ez4/reflection';
 import type { ReferenceSchema } from '../types/type-reference.js';
 
-import { SchemaType } from '../types/common.js';
+import { SchemaDefinitions, SchemaType } from '../types/common.js';
+import { isTypeReference } from '@ez4/reflection';
+
+export type RichTypeReference = TypeReference & {
+  definitions?: SchemaDefinitions;
+};
 
 export const createReferenceSchema = (data: Omit<ReferenceSchema, 'type'>): ReferenceSchema => {
   const { identity, nullable, optional } = data;
@@ -11,4 +17,8 @@ export const createReferenceSchema = (data: Omit<ReferenceSchema, 'type'>): Refe
     ...(optional && { optional }),
     identity
   };
+};
+
+export const isRichTypeReference = (type: AllType): type is RichTypeReference => {
+  return isTypeReference(type);
 };

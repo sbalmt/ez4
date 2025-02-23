@@ -1,4 +1,4 @@
-import { String } from '@ez4/schema';
+import type { String } from '@ez4/schema';
 
 /**
  * String type enriched with constraints.
@@ -23,6 +23,11 @@ export interface StringTestSchema {
    * String with minimum and maximum length.
    */
   size: String.Size<1, 80>;
+
+  /**
+   * Default string value.
+   */
+  value: String.Default<'foo'>;
 
   /**
    * Literal string value.

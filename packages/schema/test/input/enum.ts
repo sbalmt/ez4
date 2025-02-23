@@ -1,3 +1,5 @@
+import type { Enum } from '@ez4/schema';
+
 enum TestEnum {
   /**
    * Foo option.
@@ -15,17 +17,22 @@ const enum TestSingleEnum {
  */
 export interface EnumTestSchema {
   /**
-   * Foo property.
+   * Any enum value.
    */
-  foo: TestEnum[];
+  any: TestEnum[];
 
   /**
-   * Bar property.
+   * Strict enum value.
    */
-  bar: TestEnum.BAR;
+  strict: TestEnum.BAR;
 
   /**
-   * Baz property.
+   * Single enum value.
    */
-  baz: TestSingleEnum;
+  single: TestSingleEnum;
+
+  /**
+   * Default enum value.
+   */
+  value: Enum.Default<TestEnum, TestEnum.FOO>;
 }

@@ -16,7 +16,10 @@ import { TestEntryType } from './common/entry.js';
 
 describe.only('plan errors tests', () => {
   it('throws :: entries not found', async () => {
-    await rejects(() => planSteps(undefined, undefined, commonStepHandlers), EntriesNotFoundError);
+    await rejects(
+      () => planSteps(undefined, undefined, { handlers: commonStepHandlers }),
+      EntriesNotFoundError
+    );
   });
 
   it('throws :: handler not found', async () => {
@@ -30,7 +33,7 @@ describe.only('plan errors tests', () => {
     };
 
     // Can't find handler for TestEntryType.A.
-    await rejects(() => planSteps(state, undefined, {}), HandlerNotFoundError);
+    await rejects(() => planSteps(state, undefined, { handlers: {} }), HandlerNotFoundError);
   });
 
   it('throws :: corrupted state references', async () => {
@@ -44,6 +47,9 @@ describe.only('plan errors tests', () => {
     };
 
     // Can't find entryC reference.
-    await rejects(() => planSteps(state, undefined, commonStepHandlers), CorruptedStateReferences);
+    await rejects(
+      () => planSteps(state, undefined, { handlers: commonStepHandlers }),
+      CorruptedStateReferences
+    );
   });
 });

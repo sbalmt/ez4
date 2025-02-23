@@ -41,6 +41,6 @@ const registerProviderPackage = async (packageName: string) => {
   const { registerTriggers } = await import(packageName);
 
   if (registerTriggers) {
-    return registerTriggers();
+    registerTriggers();
   }
 };

@@ -1,6 +1,6 @@
 import type { Arn } from '@ez4/aws-common';
 import type { EntryState, StepContext } from '@ez4/stateful';
-import type { CreateRequest, CreateResponse } from './client.js';
+import type { CreateRequest, ImportOrCreateResponse } from './client.js';
 
 export const MappingServiceName = 'AWS:Lambda/Mapping';
 
@@ -12,7 +12,7 @@ export type MappingParameters = Omit<CreateRequest, 'functionName' | 'sourceArn'
   getSourceArn: GetMappingSourceArn;
 };
 
-export type MappingResult = CreateResponse & {
+export type MappingResult = ImportOrCreateResponse & {
   functionName: string;
   sourceArn: Arn;
 };

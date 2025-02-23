@@ -1,3 +1,4 @@
+import type { AnyObject } from '@ez4/utils';
 import type { SchemaDefinitions } from './common.js';
 import type { AnySchema } from './type-any.js';
 
@@ -14,6 +15,8 @@ export type ObjectSchemaAdditional = {
 
 export type ObjectSchemaDefinitions = SchemaDefinitions & {
   extensible?: boolean;
+  default?: AnyObject;
+  value?: AnyObject;
 };
 
 export type ObjectSchema = {

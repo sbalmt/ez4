@@ -1,4 +1,10 @@
-import type { ApplyResult, EntryState, EntryStates, StepHandler, StepHandlers } from '@ez4/stateful';
+import type {
+  ApplyResult,
+  EntryState,
+  EntryStates,
+  StepHandler,
+  StepHandlers
+} from '@ez4/stateful';
 
 import { applySteps, planSteps } from '@ez4/stateful';
 
@@ -22,7 +28,9 @@ export const report = <E extends EntryState>(
   newState: EntryStates<E> | undefined,
   oldState: EntryStates<E> | undefined
 ) => {
-  return planSteps(newState, oldState, allProviderHandlers);
+  return planSteps(newState, oldState, {
+    handlers: allProviderHandlers
+  });
 };
 
 export const deploy = async <E extends EntryState>(
@@ -33,8 +41,13 @@ export const deploy = async <E extends EntryState>(
 
   Logger.logInfo(serviceName, 'Started');
 
-  const plannedSteps = await planSteps(newState, oldState, allProviderHandlers);
-  const resultState = await applySteps(plannedSteps, newState, oldState, allProviderHandlers);
+  const plannedSteps = await planSteps(newState, oldState, {
+    handlers: allProviderHandlers
+  });
+
+  const resultState = await applySteps(plannedSteps, newState, oldState, {
+    handlers: allProviderHandlers
+  });
 
   resultState.errors.forEach((error) => {
     Logger.logError('EZ4:Deploy', error.message);

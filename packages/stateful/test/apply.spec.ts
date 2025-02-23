@@ -34,9 +34,9 @@ describe.only('apply tests', () => {
       }
     };
 
-    const steps = await planSteps(baseState, undefined, handlers);
+    const steps = await planSteps(baseState, undefined, { handlers });
 
-    const { result } = await applySteps(steps, baseState, undefined, handlers);
+    const { result } = await applySteps(steps, baseState, undefined, { handlers });
 
     equal(createHandler.mock.callCount(), 1);
     deepEqual(result.entryA?.result, {
@@ -63,9 +63,9 @@ describe.only('apply tests', () => {
       }
     };
 
-    const steps = await planSteps(newState, baseState, handlers);
+    const steps = await planSteps(newState, baseState, { handlers });
 
-    const { result } = await applySteps(steps, newState, baseState, handlers);
+    const { result } = await applySteps(steps, newState, baseState, { handlers });
 
     equal(replaceHandler.mock.callCount(), 1);
     deepEqual(result.entryA?.result, {
@@ -87,9 +87,9 @@ describe.only('apply tests', () => {
       ...baseState
     };
 
-    const steps = await planSteps(newState, baseState, handlers);
+    const steps = await planSteps(newState, baseState, { handlers });
 
-    const { result } = await applySteps(steps, newState, baseState, handlers);
+    const { result } = await applySteps(steps, newState, baseState, { handlers });
 
     equal(updateHandler.mock.callCount(), 1);
     deepEqual(result.entryA?.result, {
@@ -107,9 +107,9 @@ describe.only('apply tests', () => {
       }
     };
 
-    const steps = await planSteps(undefined, baseState, handlers);
+    const steps = await planSteps(undefined, baseState, { handlers });
 
-    const { result } = await applySteps(steps, undefined, baseState, handlers);
+    const { result } = await applySteps(steps, undefined, baseState, { handlers });
 
     equal(deleteHandler.mock.callCount(), 1);
     equal(result.entryA, undefined);
@@ -129,9 +129,9 @@ describe.only('apply tests', () => {
       ...baseState
     };
 
-    const steps = await planSteps(newState, baseState, handlers);
+    const steps = await planSteps(newState, baseState, { handlers });
 
-    const { result } = await applySteps(steps, newState, baseState, handlers);
+    const { result } = await applySteps(steps, newState, baseState, { handlers });
 
     equal(previewHandler.mock.callCount(), 1);
     equal(result.entryA?.result, undefined);
@@ -153,9 +153,9 @@ describe.only('apply tests', () => {
       ...baseState
     };
 
-    const steps = await planSteps(newState, baseState, handlers);
+    const steps = await planSteps(newState, baseState, { handlers });
 
-    const { result, errors } = await applySteps(steps, newState, baseState, handlers);
+    const { result, errors } = await applySteps(steps, newState, baseState, { handlers });
 
     equal(updateHandler.mock.callCount(), 1);
     notEqual(result.entryA?.result, {
@@ -178,9 +178,9 @@ describe.only('apply tests', () => {
       }
     };
 
-    const steps = await planSteps(undefined, baseState, handlers);
+    const steps = await planSteps(undefined, baseState, { handlers });
 
-    const { result, errors } = await applySteps(steps, undefined, baseState, handlers);
+    const { result, errors } = await applySteps(steps, undefined, baseState, { handlers });
 
     equal(deleteHandler.mock.callCount(), 1);
     ok(result.entryA);

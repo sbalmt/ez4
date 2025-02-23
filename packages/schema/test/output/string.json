@@ -30,6 +30,13 @@
         "maxLength": 80
       }
     },
+    "value": {
+      "type": "string",
+      "description": "Default string value.",
+      "definitions": {
+        "default": "foo"
+      }
+    },
     "literal": {
       "type": "string",
       "description": "Literal string value.",

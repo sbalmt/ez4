@@ -151,4 +151,19 @@ describe.only('rich types validation', () => {
 
     equal((await validate({ foo: 'abc', bar: 123 }, schema)).length, 0);
   });
+
+  it('assert :: array', async () => {
+    const schema: AnySchema = {
+      type: SchemaType.Array,
+      definitions: {
+        minLength: 1,
+        maxLength: 9
+      },
+      element: {
+        type: SchemaType.Number
+      }
+    };
+
+    equal((await validate([1, 2, 3], schema)).length, 0);
+  });
 });

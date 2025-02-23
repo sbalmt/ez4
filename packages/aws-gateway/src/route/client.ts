@@ -3,6 +3,7 @@ import type { Arn } from '@ez4/aws-common';
 import {
   ApiGatewayV2Client,
   AuthorizationType,
+  GetRoutesCommand,
   CreateRouteCommand,
   DeleteRouteCommand,
   UpdateRouteCommand
@@ -21,47 +22,75 @@ export type CreateRequest = {
   authorizerId?: string;
 };
 
-export type CreateResponse = {
+export type ImportOrCreateResponse = {
   routeId: string;
   routeArn: Arn;
 };
 
 export type UpdateRequest = Partial<CreateRequest>;
 
+export const importRoute = async (
+  apiId: string,
+  routePath: string
+): Promise<ImportOrCreateResponse | undefined> => {
+  Logger.logImport(RouteServiceName, routePath);
+
+  const response = await client.send(
+    new GetRoutesCommand({
+      ApiId: apiId,
+      MaxResults: '300'
+    })
+  );
+
+  const route = response.Items?.find((route) => route.RouteKey === routePath);
+
+  if (!route) {
+    return undefined;
+  }
+
+  const routeId = route.RouteId!;
+  const routeArn = await getRouteArn(apiId, routeId);
+
+  return {
+    routeArn,
+    routeId
+  };
+};
+
 export const createRoute = async (
   apiId: string,
   request: CreateRequest
-): Promise<CreateResponse> => {
+): Promise<ImportOrCreateResponse> => {
   Logger.logCreate(RouteServiceName, request.routePath);
 
   const { integrationId, authorizerId, operationName, routePath } = request;
 
-  const [region, response] = await Promise.all([
-    client.config.region(),
-    client.send(
-      new CreateRouteCommand({
-        ApiId: apiId,
-        RouteKey: routePath,
-        OperationName: operationName,
-        Target: `integrations/${integrationId}`,
-        ...(authorizerId && {
-          AuthorizationType: AuthorizationType.CUSTOM,
-          AuthorizerId: authorizerId
-        })
+  const response = await client.send(
+    new CreateRouteCommand({
+      ApiId: apiId,
+      RouteKey: routePath,
+      OperationName: operationName,
+      Target: `integrations/${integrationId}`,
+      ...(authorizerId && {
+        AuthorizationType: AuthorizationType.CUSTOM,
+        AuthorizerId: authorizerId
       })
-    )
-  ]);
+    })
+  );
+
+  const routeId = response.RouteId!;
+  const routeArn = await getRouteArn(apiId, routeId);
 
   return {
-    routeId: response.RouteId!,
-    routeArn: `arn:aws:apigateway:${region}::/apis/${apiId}/routes/${response.RouteId}` as Arn
+    routeArn,
+    routeId
   };
 };
 
 export const updateRoute = async (apiId: string, routeId: string, request: UpdateRequest) => {
-  Logger.logUpdate(RouteServiceName, routeId);
-
   const { integrationId, authorizerId, operationName, routePath } = request;
+
+  Logger.logUpdate(RouteServiceName, `${routeId} ${routePath}`);
 
   const authorizationType = authorizerId ? AuthorizationType.CUSTOM : AuthorizationType.NONE;
 
@@ -89,4 +118,10 @@ export const deleteRoute = async (apiId: string, routeId: string) => {
       RouteId: routeId
     })
   );
+};
+
+const getRouteArn = async (apiId: string, routeId: string) => {
+  const region = await client.config.region();
+
+  return `arn:aws:apigateway:${region}::/apis/${apiId}/routes/${routeId}` as Arn;
 };

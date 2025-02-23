@@ -2,15 +2,17 @@ import type { Arn, ResourceTags } from '@ez4/aws-common';
 import type { Variables } from '../types/variables.js';
 
 import {
+  LambdaClient,
+  GetFunctionCommand,
   CreateFunctionCommand,
   DeleteFunctionCommand,
-  LambdaClient,
-  TagResourceCommand,
-  UntagResourceCommand,
   UpdateFunctionCodeCommand,
   UpdateFunctionConfigurationCommand,
+  TagResourceCommand,
+  UntagResourceCommand,
   waitUntilFunctionActive,
-  waitUntilFunctionUpdated
+  waitUntilFunctionUpdated,
+  ResourceNotFoundException
 } from '@aws-sdk/client-lambda';
 
 import { Logger } from '@ez4/aws-common';
@@ -40,7 +42,7 @@ export type CreateRequest = {
   tags?: ResourceTags;
 };
 
-export type CreateResponse = {
+export type ImportOrCreateResponse = {
   functionArn: Arn;
 };
 
@@ -57,7 +59,35 @@ export type UpdateSourceCodeRequest = {
   sourceFile: string;
 };
 
-export const createFunction = async (request: CreateRequest): Promise<CreateResponse> => {
+export const importFunction = async (
+  functionName: string,
+  version?: string
+): Promise<ImportOrCreateResponse | undefined> => {
+  Logger.logImport(FunctionServiceName, functionName);
+
+  try {
+    const response = await client.send(
+      new GetFunctionCommand({
+        FunctionName: functionName,
+        Qualifier: version
+      })
+    );
+
+    const functionArn = response.Configuration!.FunctionArn as Arn;
+
+    return {
+      functionArn
+    };
+  } catch (error) {
+    if (!(error instanceof ResourceNotFoundException)) {
+      throw error;
+    }
+
+    return undefined;
+  }
+};
+
+export const createFunction = async (request: CreateRequest): Promise<ImportOrCreateResponse> => {
   const { functionName, variables } = request;
 
   Logger.logCreate(FunctionServiceName, functionName);
@@ -101,31 +131,6 @@ export const createFunction = async (request: CreateRequest): Promise<CreateResp
   return {
     functionArn
   };
-};
-
-export const tagFunction = async (functionArn: Arn, tags: ResourceTags) => {
-  Logger.logTag(FunctionServiceName, functionArn);
-
-  await client.send(
-    new TagResourceCommand({
-      Resource: functionArn,
-      Tags: {
-        ...tags,
-        ManagedBy: 'EZ4'
-      }
-    })
-  );
-};
-
-export const untagFunction = async (functionArn: Arn, tagKeys: string[]) => {
-  Logger.logUntag(FunctionServiceName, functionArn);
-
-  await client.send(
-    new UntagResourceCommand({
-      Resource: functionArn,
-      TagKeys: tagKeys
-    })
-  );
 };
 
 export const updateSourceCode = async (functionName: string, request: UpdateSourceCodeRequest) => {
@@ -184,6 +189,31 @@ export const deleteFunction = async (functionName: string) => {
   await client.send(
     new DeleteFunctionCommand({
       FunctionName: functionName
+    })
+  );
+};
+
+export const tagFunction = async (functionArn: Arn, tags: ResourceTags) => {
+  Logger.logTag(FunctionServiceName, functionArn);
+
+  await client.send(
+    new TagResourceCommand({
+      Resource: functionArn,
+      Tags: {
+        ...tags,
+        ManagedBy: 'EZ4'
+      }
+    })
+  );
+};
+
+export const untagFunction = async (functionArn: Arn, tagKeys: string[]) => {
+  Logger.logUntag(FunctionServiceName, functionArn);
+
+  await client.send(
+    new UntagResourceCommand({
+      Resource: functionArn,
+      TagKeys: tagKeys
     })
   );
 };

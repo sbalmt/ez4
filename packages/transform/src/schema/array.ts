@@ -5,7 +5,7 @@ import { transformAny } from './any.js';
 
 export const transformArray = (value: unknown, schema: ArraySchema, context = getNewContext()) => {
   if (!Array.isArray(value)) {
-    return undefined;
+    return schema.definitions?.default;
   }
 
   const output = [];

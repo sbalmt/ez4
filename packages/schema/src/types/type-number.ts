@@ -6,6 +6,7 @@ import { SchemaType } from './common.js';
 export type NumberSchemaDefinitions = SchemaDefinitions & {
   minValue?: number;
   maxValue?: number;
+  default?: number;
   value?: number;
 };
 

@@ -1,6 +1,6 @@
 import type { Arn } from '@ez4/aws-common';
 import type { EntryState, StepContext } from '@ez4/stateful';
-import type { CreateRequest, CreateResponse } from './client.js';
+import type { CreateRequest, ImportOrCreateResponse } from './client.js';
 
 export const FunctionServiceName = 'AWS:Lambda/Function';
 
@@ -12,7 +12,7 @@ export type FunctionParameters = Omit<CreateRequest, 'roleArn'> & {
   getFunctionBundle: GetFunctionBundle;
 };
 
-export type FunctionResult = CreateResponse & {
+export type FunctionResult = ImportOrCreateResponse & {
   sourceHash: string;
   roleArn: Arn;
 };

@@ -35,7 +35,7 @@ export const getStringSchema = (type: AllType, description?: string): StringSche
   const { format, definitions } = type;
 
   return createStringSchema({
-    definitions: type.literal ? { value: type.literal } : definitions,
+    definitions: type.literal !== undefined ? { value: type.literal } : definitions,
     description,
     format
   });
