@@ -121,6 +121,20 @@ describe.only('dynamodb client', () => {
     });
   });
 
+  it('assert :: count (filtered)', async () => {
+    ok(dbClient);
+
+    const result = await dbClient.testTable.count({
+      where: {
+        order: {
+          gt: 1099
+        }
+      }
+    });
+
+    equal(result, 50);
+  });
+
   it('assert :: update many', async () => {
     ok(dbClient);
 
@@ -184,20 +198,6 @@ describe.only('dynamodb client', () => {
         }
       ]
     });
-  });
-
-  it('assert :: count (filtered)', async () => {
-    ok(dbClient);
-
-    const result = await dbClient.testTable.count({
-      where: {
-        order: {
-          gt: 1099
-        }
-      }
-    });
-
-    equal(result, 50);
   });
 
   it('assert :: delete many', async () => {

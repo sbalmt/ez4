@@ -21,7 +21,7 @@ import {
 declare class TestSchema implements Database.Schema {
   id: string;
   foo?: string;
-  bar?: string;
+  bar?: number;
   baz?: {
     bazFoo: number;
     bazBar: boolean;
@@ -70,7 +70,7 @@ describe.only('aurora client', () => {
             optional: true
           },
           bar: {
-            type: SchemaType.String,
+            type: SchemaType.Number,
             optional: true
           },
           baz: {
@@ -144,7 +144,7 @@ describe.only('aurora client', () => {
       data.push({
         id: `bulk-${index}`,
         foo: 'initial',
-        bar: 'initial'
+        bar: 1000 + index
       });
     }
 
@@ -153,13 +153,27 @@ describe.only('aurora client', () => {
     });
   });
 
+  it('assert :: count (filtered)', async () => {
+    ok(dbClient);
+
+    const result = await dbClient.testTable.count({
+      where: {
+        bar: {
+          gt: 1024
+        }
+      }
+    });
+
+    equal(result, 25);
+  });
+
   it('assert :: update many', async () => {
     ok(dbClient);
 
     const result = await dbClient.testTable.updateMany({
       data: {
         foo: 'updated',
-        bar: 'updated'
+        bar: 0
       },
       select: {
         bar: true
@@ -220,7 +234,7 @@ describe.only('aurora client', () => {
       data: {
         id: 'single',
         foo: 'initial',
-        bar: 'initial'
+        bar: 0
       }
     });
   });
@@ -244,7 +258,7 @@ describe.only('aurora client', () => {
 
     deepEqual(result, {
       foo: 'initial',
-      bar: 'initial'
+      bar: 0
     });
   });
 
@@ -264,7 +278,7 @@ describe.only('aurora client', () => {
 
     deepEqual(result, {
       foo: 'updated',
-      bar: 'initial'
+      bar: 0
     });
   });
 
