@@ -16,18 +16,13 @@ export const createRoute = <E extends EntryState>(
   authorizerState: AuthorizerState | undefined,
   parameters: RouteParameters
 ) => {
-  const routeId = hashData(
-    RouteServiceType,
-    gatewayState.entryId,
-    integrationState.entryId,
-    parameters.routePath
-  );
-
   const dependencies = [gatewayState.entryId, integrationState.entryId];
 
   if (authorizerState) {
     dependencies.push(authorizerState.entryId);
   }
+
+  const routeId = hashData(RouteServiceType, parameters.routePath, ...dependencies);
 
   return attachEntry<E | RouteState, RouteState>(state, {
     type: RouteServiceType,
