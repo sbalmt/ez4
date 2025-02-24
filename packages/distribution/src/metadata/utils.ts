@@ -22,3 +22,7 @@ export const isCdnOrigin = (type: TypeModel) => {
 export const isCdnFallback = (type: AllType) => {
   return isModelDeclaration(type) && hasHeritageType(type, 'Cdn.Fallback');
 };
+
+export const isCdnCertificate = (type: TypeModel) => {
+  return hasHeritageType(type, 'Cdn.Certificate');
+};

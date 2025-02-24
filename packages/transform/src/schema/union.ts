@@ -4,11 +4,13 @@ import { getNewContext } from '../types/context.js';
 import { transformAny } from './any.js';
 
 export const transformUnion = (value: unknown, schema: UnionSchema, context = getNewContext()) => {
-  for (const elementSchema of schema.elements) {
-    const result = transformAny(value, elementSchema, context);
+  if (value !== null && value !== undefined) {
+    for (const elementSchema of schema.elements) {
+      const result = transformAny(value, elementSchema, context);
 
-    if (result !== undefined) {
-      return result;
+      if (result !== undefined) {
+        return result;
+      }
     }
   }
 

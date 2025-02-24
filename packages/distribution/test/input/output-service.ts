@@ -1,6 +1,6 @@
 import type { Bucket } from '@ez4/storage';
-import type { Environment } from '@ez4/common';
 import type { Cdn, OriginProtocol } from '@ez4/distribution';
+import type { Environment } from '@ez4/common';
 
 /**
  * Test distribution storage.
@@ -12,6 +12,10 @@ export declare class TestBucket extends Bucket.Service {}
  */
 export declare class TestCdn extends Cdn.Service {
   aliases: ['test-1.ez4.dev', 'test-2.ez4.dev'];
+
+  certificate: {
+    domain: 'ez4.dev';
+  };
 
   defaultIndex: 'index.html';
 

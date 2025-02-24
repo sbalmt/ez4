@@ -1,4 +1,4 @@
-import { Decimal } from '@ez4/schema';
+import type { Decimal } from '@ez4/schema';
 
 /**
  * Number type enriched with decimal format.
@@ -25,7 +25,32 @@ export interface DecimalTestSchema {
   range: Decimal.Range<2.5, 5.5>;
 
   /**
+   * Default decimal value.
+   */
+  value: Decimal.Default<4.56>;
+
+  /**
    * Literal decimal value.
    */
-  literal: 123.456;
+  literal: 1.23;
+
+  /**
+   * Number following a decimal format with minimum zero.
+   */
+  min_zero: Decimal.Min<0>;
+
+  /**
+   * Number following a decimal format with maximum zero.
+   */
+  max_zero: Decimal.Max<0>;
+
+  /**
+   * Default zero value.
+   */
+  value_zero: Decimal.Default<0>;
+
+  /**
+   * Literal zero value.
+   */
+  literal_zero: 0.0;
 }

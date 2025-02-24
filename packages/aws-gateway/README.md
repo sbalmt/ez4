@@ -21,7 +21,12 @@ Ensure the user performing deployments has the permissions below:
     {
       "Sid": "GatewayManagement",
       "Effect": "Allow",
-      "Action": ["apigateway:Post", "apigateway:Patch", "apigateway:Delete"],
+      "Action": [
+        "apigateway:Get",
+        "apigateway:Post",
+        "apigateway:Patch",
+        "apigateway:Delete"
+      ],
       "Resource": [
         "arn:aws:apigateway:*::/apis",
         "arn:aws:apigateway:*::/apis/*",

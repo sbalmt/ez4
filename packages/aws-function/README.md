@@ -22,6 +22,7 @@ Ensure the user performing deployments has the permissions below:
       "Sid": "LambdaManagement",
       "Effect": "Allow",
       "Action": [
+        "lambda:GetFunction",
         "lambda:CreateFunction",
         "lambda:DeleteFunction",
         "lambda:UpdateFunctionCode",

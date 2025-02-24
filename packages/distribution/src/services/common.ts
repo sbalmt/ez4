@@ -1,5 +1,4 @@
 import type { Bucket } from '@ez4/storage';
-import type { CdnCache } from './cache.js';
 
 /**
  * Origin protocols.
@@ -62,4 +61,59 @@ export interface CdnRegularOrigin extends CdnOrigin {
    * Origin port.
    */
   port?: number;
+}
+
+/**
+ * CDN Certificate.
+ */
+export interface CdnCertificate {
+  /**
+   * Reference to the custom certificate.
+   */
+  domain: string;
+}
+
+/**
+ * Origin cache.
+ */
+export interface CdnCache {
+  /**
+   * Default TTL (in seconds) for cached results.
+   */
+  ttl: number;
+
+  /**
+   * Minimum TTL (in seconds) for cached results.
+   */
+  minTTL?: number;
+
+  /**
+   * Maximum TTL (in seconds) for cached results.
+   */
+  maxTTL?: number;
+
+  /**
+   * Determines whether or not the results are compressed.
+   */
+  compress?: boolean;
+}
+
+/**
+ * Distribution fallback.
+ */
+export interface CdnFallback {
+  /**
+   * HTTP error code (4xx or 3xx) that activates the fallback.
+   */
+  code: number;
+
+  /**
+   * Fallback location path.
+   */
+  location: string;
+
+  /**
+   * Optional cache TTL (in seconds) for the fallback.
+   */
+  ttl?: number;
 }

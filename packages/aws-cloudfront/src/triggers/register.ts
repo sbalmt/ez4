@@ -1,5 +1,6 @@
 import { registerTriggers as registerAwsTriggers } from '@ez4/aws-common';
 import { registerTriggers as registerAwsIdentityTriggers } from '@ez4/aws-identity';
+import { registerTriggers as registerAWSCertificateTriggers } from '@ez4/aws-certificate';
 import { registerTriggers as registerAWSBucketTriggers } from '@ez4/aws-bucket';
 import { registerTriggers as registerDistributionTriggers } from '@ez4/distribution/library';
 
@@ -21,6 +22,7 @@ export const registerTriggers = () => {
 
   registerAwsTriggers();
   registerAwsIdentityTriggers();
+  registerAWSCertificateTriggers();
   registerAWSBucketTriggers();
   registerDistributionTriggers();
 

@@ -9,6 +9,10 @@ export const transformReference = (
   schema: ReferenceSchema,
   context: TransformContext
 ) => {
+  if (value === null || value === undefined) {
+    return undefined;
+  }
+
   const referenceSchema = context.references[schema.identity];
 
   if (!referenceSchema) {

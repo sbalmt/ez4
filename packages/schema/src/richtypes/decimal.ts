@@ -5,17 +5,22 @@ export namespace Decimal {
   export type Any = number;
 
   /**
-   * A decimal within a minimum value constraint.
+   * Decimal with minimum value constraint.
    */
   export type Min<_Value extends number> = number;
 
   /**
-   * A decimal within a maximum value constraint.
+   * Decimal with maximum value constraint.
    */
   export type Max<_Value extends number> = number;
 
   /**
-   * A decimal within a minimum and maximum value constraint.
+   * Decimal with minimum and maximum value constraint.
    */
   export type Range<_MinValue extends number, _MaxValue extends number> = number;
+
+  /**
+   * Decimal with default value.
+   */
+  export type Default<_Value extends number> = number | undefined;
 }

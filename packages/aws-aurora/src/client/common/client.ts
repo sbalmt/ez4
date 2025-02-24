@@ -3,11 +3,13 @@ import type { PreparedQueryCommand } from './queries.js';
 import type { Connection } from '../types.js';
 
 import {
+  RecordsFormatType,
+  DecimalReturnType,
+  LongReturnType,
   BeginTransactionCommand,
   CommitTransactionCommand,
   ExecuteStatementCommand,
-  RollbackTransactionCommand,
-  RecordsFormatType
+  RollbackTransactionCommand
 } from '@aws-sdk/client-rds-data';
 
 export const beginTransaction = async (client: RDSDataClient, connection: Connection) => {
@@ -63,6 +65,10 @@ export const executeStatement = async (
     const { formattedRecords } = await client.send(
       new ExecuteStatementCommand({
         formatRecordsAs: RecordsFormatType.JSON,
+        resultSetOptions: {
+          decimalReturnType: DecimalReturnType.DOUBLE_OR_LONG,
+          longReturnType: LongReturnType.LONG
+        },
         transactionId,
         ...connection,
         ...command

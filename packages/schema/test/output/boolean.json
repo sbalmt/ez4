@@ -1,0 +1,35 @@
+{
+  "type": "object",
+  "description": "Boolean test object.",
+  "identity": 1,
+  "properties": {
+    "literal_true": {
+      "type": "boolean",
+      "description": "Literal true value.",
+      "definitions": {
+        "value": true
+      }
+    },
+    "literal_false": {
+      "type": "boolean",
+      "description": "Literal false value.",
+      "definitions": {
+        "value": false
+      }
+    },
+    "value_true": {
+      "type": "boolean",
+      "description": "Default true value.",
+      "definitions": {
+        "default": true
+      }
+    },
+    "value_false": {
+      "type": "boolean",
+      "description": "Default false value.",
+      "definitions": {
+        "default": false
+      }
+    }
+  }
+}

@@ -59,11 +59,9 @@ const createResource = async (candidate: BucketState): Promise<BucketResult> => 
 
   const { bucketName } = await createBucket(parameters);
 
-  await Promise.all([
-    checkCorsUpdates(bucketName, parameters, undefined),
-    checkLifecycleUpdates(bucketName, parameters, undefined),
-    checkTagUpdates(bucketName, parameters.tags, undefined)
-  ]);
+  await checkCorsUpdates(bucketName, parameters, undefined);
+  await checkLifecycleUpdates(bucketName, parameters, undefined);
+  await checkTagUpdates(bucketName, parameters.tags, undefined);
 
   return {
     bucketName
@@ -79,11 +77,9 @@ const updateResource = async (candidate: BucketState, current: BucketState) => {
 
   const bucketName = result.bucketName;
 
-  await Promise.all([
-    checkCorsUpdates(bucketName, parameters, current.parameters),
-    checkLifecycleUpdates(bucketName, parameters, current.parameters),
-    checkTagUpdates(bucketName, parameters.tags, current.parameters.tags)
-  ]);
+  await checkCorsUpdates(bucketName, parameters, current.parameters);
+  await checkLifecycleUpdates(bucketName, parameters, current.parameters);
+  await checkTagUpdates(bucketName, parameters.tags, current.parameters.tags);
 };
 
 const deleteResource = async (candidate: BucketState) => {

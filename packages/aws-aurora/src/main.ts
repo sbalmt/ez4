@@ -12,3 +12,8 @@ export * from './instance/utils.js';
 export * from './migration/service.js';
 export * from './migration/types.js';
 export * from './migration/utils.js';
+
+export * from './migration/common/table.js';
+export * from './migration/common/columns.js';
+export * from './migration/common/indexes.js';
+export * from './migration/common/relations.js';

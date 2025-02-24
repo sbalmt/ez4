@@ -180,7 +180,7 @@ describe.only('aurora query (where)', () => {
       bar: { barBar: { isMissing: true } }
     });
 
-    equal(whereClause, `WHERE "bar"['barBar'] IS NULL`);
+    equal(whereClause, `WHERE "bar"['barBar'] IS null`);
 
     deepEqual(variables, []);
   });
@@ -190,7 +190,7 @@ describe.only('aurora query (where)', () => {
       bar: { barBar: { isMissing: false } }
     });
 
-    equal(whereClause, `WHERE "bar"['barBar'] IS NOT NULL`);
+    equal(whereClause, `WHERE "bar"['barBar'] IS NOT null`);
 
     deepEqual(variables, []);
   });
@@ -200,7 +200,7 @@ describe.only('aurora query (where)', () => {
       bar: { barBar: { isNull: true } }
     });
 
-    equal(whereClause, `WHERE "bar"['barBar'] IS NULL`);
+    equal(whereClause, `WHERE "bar"['barBar'] IS null`);
 
     deepEqual(variables, []);
   });
@@ -210,7 +210,7 @@ describe.only('aurora query (where)', () => {
       bar: { barBar: { isNull: false } }
     });
 
-    equal(whereClause, `WHERE "bar"['barBar'] IS NOT NULL`);
+    equal(whereClause, `WHERE "bar"['barBar'] IS NOT null`);
 
     deepEqual(variables, []);
   });

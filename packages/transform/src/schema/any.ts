@@ -16,8 +16,8 @@ export const transformAny = (
   schema: AnySchema,
   context = getNewContext()
 ): unknown => {
-  if (value === null || value === undefined) {
-    return value;
+  if (value === null && schema.nullable) {
+    return null;
   }
 
   switch (schema.type) {

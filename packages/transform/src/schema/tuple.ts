@@ -5,7 +5,7 @@ import { transformAny } from './any.js';
 
 export const transformTuple = (value: unknown, schema: TupleSchema, context = getNewContext()) => {
   if (!Array.isArray(value)) {
-    return undefined;
+    return schema.definitions?.default;
   }
 
   const output = [];

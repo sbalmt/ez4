@@ -8,6 +8,7 @@ describe.only('schema types', () => {
   registerTriggers();
 
   it('assert :: scalar types', () => testFile('scalar'));
+  it('assert :: boolean types', () => testFile('boolean'));
   it('assert :: object types', () => testFile('object'));
   it('assert :: reference types', () => testFile('reference'));
   it('assert :: union types', () => testFile('union'));

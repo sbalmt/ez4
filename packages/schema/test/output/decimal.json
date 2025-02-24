@@ -34,11 +34,50 @@
         "maxValue": 5.5
       }
     },
+    "value": {
+      "type": "number",
+      "description": "Default decimal value.",
+      "format": "decimal",
+      "definitions": {
+        "default": 4.56
+      }
+    },
     "literal": {
       "type": "number",
       "description": "Literal decimal value.",
       "definitions": {
-        "value": 123.456
+        "value": 1.23
+      }
+    },
+    "min_zero": {
+      "type": "number",
+      "description": "Number following a decimal format with minimum zero.",
+      "format": "decimal",
+      "definitions": {
+        "minValue": 0
+      }
+    },
+    "max_zero": {
+      "type": "number",
+      "description": "Number following a decimal format with maximum zero.",
+      "format": "decimal",
+      "definitions": {
+        "maxValue": 0
+      }
+    },
+    "value_zero": {
+      "type": "number",
+      "description": "Default zero value.",
+      "format": "decimal",
+      "definitions": {
+        "default": 0
+      }
+    },
+    "literal_zero": {
+      "type": "number",
+      "description": "Literal zero value.",
+      "definitions": {
+        "value": 0
       }
     }
   }

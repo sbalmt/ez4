@@ -116,6 +116,10 @@ export namespace Query {
     limit?: number;
   };
 
+  export type CountInput<T extends Database.Schema, R extends RelationMetadata> = {
+    where?: WhereInput<T, {}, R>;
+  };
+
   export type InsertOneResult = void;
 
   export type UpdateOneResult<

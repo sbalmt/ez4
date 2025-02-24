@@ -19,6 +19,7 @@ import { IncompleteServiceError } from '../errors/service.js';
 import { getAllCdnOrigins, getCdnOrigin } from './origin.js';
 import { getAllFallbacks } from './fallback.js';
 import { isCdnService } from './utils.js';
+import { getCdnCertificate } from './certificate.js';
 
 export const getCdnServices = (reflection: SourceMap) => {
   const cdnServices: Record<string, CdnService> = {};
@@ -50,10 +51,18 @@ export const getCdnServices = (reflection: SourceMap) => {
           service.aliases = getAllAliases(member);
           break;
 
+        case 'certificate': {
+          const certificate = getCdnCertificate(member.value, statement, reflection, errorList);
+          if (certificate) {
+            service.certificate = certificate;
+          }
+          break;
+        }
+
         case 'defaultIndex': {
           const value = getPropertyString(member);
           if (value) {
-            service[member.name] = value;
+            service.defaultIndex = value;
           }
           break;
         }
@@ -86,7 +95,7 @@ export const getCdnServices = (reflection: SourceMap) => {
         case 'disabled': {
           const value = getPropertyBoolean(member);
           if (isAnyBoolean(value)) {
-            service[member.name] = value;
+            service.disabled = value;
           }
           break;
         }

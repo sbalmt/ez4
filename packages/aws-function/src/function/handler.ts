@@ -8,11 +8,12 @@ import { deepCompare, deepEqual, waitFor } from '@ez4/utils';
 import { getRoleArn } from '@ez4/aws-identity';
 
 import {
+  importFunction,
   createFunction,
   deleteFunction,
-  tagFunction,
-  updateSourceCode,
   updateConfiguration,
+  updateSourceCode,
+  tagFunction,
   untagFunction
 } from './client.js';
 
@@ -27,16 +28,6 @@ export const getFunctionHandler = (): StepHandler<FunctionState> => ({
   update: updateResource,
   delete: deleteResource
 });
-
-const lockSensitiveData = (candidate: FunctionState) => {
-  const { parameters } = candidate;
-
-  if (parameters.variables) {
-    parameters.variables = protectVariables(parameters.variables);
-  }
-
-  return candidate;
-};
 
 const equalsResource = (candidate: FunctionState, current: FunctionState) => {
   return !!candidate.result && candidate.result.functionArn === current.result?.functionArn;
@@ -97,6 +88,28 @@ const createResource = async (
     parameters.getFunctionBundle(context),
     bundleHash(parameters.sourceFile)
   ]);
+
+  const importedFunction = await importFunction(functionName);
+
+  if (importedFunction) {
+    await updateConfiguration(functionName, parameters);
+
+    await updateSourceCode(functionName, {
+      sourceFile
+    });
+
+    await tagFunction(importedFunction.functionArn, {
+      ...parameters.tags
+    });
+
+    lockSensitiveData(candidate);
+
+    return {
+      functionArn: importedFunction.functionArn,
+      sourceHash,
+      roleArn
+    };
+  }
 
   let lastError;
 
@@ -184,6 +197,16 @@ const deleteResource = async (candidate: FunctionState) => {
   }
 };
 
+const lockSensitiveData = (candidate: FunctionState) => {
+  const { parameters } = candidate;
+
+  if (parameters.variables) {
+    parameters.variables = protectVariables(parameters.variables);
+  }
+
+  return candidate;
+};
+
 const checkConfigurationUpdates = async (
   functionName: string,
   candidate: FunctionParameters,
@@ -235,7 +258,6 @@ const checkSourceCodeUpdates = async (
     const sourceFile = await candidate.getFunctionBundle(context);
 
     await updateSourceCode(functionName, {
-      ...candidate,
       sourceFile
     });
 

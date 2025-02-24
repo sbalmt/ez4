@@ -130,4 +130,11 @@ export interface Table<
   deleteMany<S extends Query.SelectInput<T, R>>(
     query: Query.DeleteManyInput<T, S, R>
   ): Promise<Query.DeleteManyResult<T, S, R>>;
+
+  /**
+   * Count database records.
+   *
+   * @param query Input query.
+   */
+  count(query: Query.CountInput<T, R>): Promise<number>;
 }

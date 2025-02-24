@@ -69,7 +69,7 @@ export const prepareDeleteIndexes = (table: string, indexes: RepositoryIndexes) 
         break;
 
       case Index.Secondary:
-        statements.push(`DROP INDEX "${getSecondaryKey(table, indexName)}"`);
+        statements.push(`DROP INDEX IF EXISTS "${getSecondaryKey(table, indexName)}"`);
         break;
 
       case Index.Unique:

@@ -1,4 +1,5 @@
 import type { ServiceMetadata } from '@ez4/project/library';
+import type { CdnCertificate } from './certificate.js';
 import type { CdnFallback } from './fallback.js';
 import type { CdnOrigin } from './origin.js';
 
@@ -8,6 +9,7 @@ export type CdnService = ServiceMetadata & {
   type: typeof ServiceType;
   name: string;
   aliases: string[];
+  certificate?: CdnCertificate;
   description?: string;
   defaultOrigin: CdnOrigin;
   defaultIndex?: string;

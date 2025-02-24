@@ -4,13 +4,17 @@ import type { AnySchema } from './type-any.js';
 import { SchemaType } from './common.js';
 
 export type EnumSchemaOption = {
-  value: string | number;
+  value: number | string;
   description?: string;
+};
+
+export type EnumSchemaDefinitions = SchemaDefinitions & {
+  default?: number | string;
 };
 
 export type EnumSchema = {
   type: SchemaType.Enum;
-  definitions?: SchemaDefinitions;
+  definitions?: EnumSchemaDefinitions;
   options: EnumSchemaOption[];
   description?: string;
   optional?: boolean;

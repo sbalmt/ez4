@@ -6,7 +6,7 @@ import { ReplaceResourceError } from '@ez4/aws-common';
 import { deepCompare, deepEqual } from '@ez4/utils';
 
 import { getFunctionName } from '../function/utils.js';
-import { createMapping, deleteMapping, updateMapping } from './client.js';
+import { importMapping, createMapping, deleteMapping, updateMapping } from './client.js';
 import { MappingServiceName } from './types.js';
 
 export const getMappingHandler = (): StepHandler<MappingState> => ({
@@ -56,11 +56,13 @@ const createResource = async (
   const functionName = getFunctionName(MappingServiceName, 'mapping', context);
   const sourceArn = await parameters.getSourceArn(context);
 
-  const response = await createMapping({
-    ...candidate.parameters,
-    functionName,
-    sourceArn
-  });
+  const response =
+    (await importMapping(functionName, sourceArn)) ??
+    (await createMapping({
+      ...candidate.parameters,
+      functionName,
+      sourceArn
+    }));
 
   return {
     eventId: response.eventId,

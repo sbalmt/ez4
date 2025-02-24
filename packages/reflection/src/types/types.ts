@@ -13,6 +13,7 @@ import type { TypeUnion } from './type-union.js';
 import type { TypeArray } from './type-array.js';
 import type { TypeTuple } from './type-tuple.js';
 import type { TypeCallback } from './type-callback.js';
+import type { TypeEnum } from './type-enum.js';
 
 export type EveryType =
   | TypeAny
@@ -29,4 +30,5 @@ export type EveryType =
   | TypeUnion
   | TypeArray
   | TypeTuple
-  | TypeCallback;
+  | TypeCallback
+  | TypeEnum;

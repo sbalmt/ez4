@@ -5,52 +5,57 @@ export namespace String {
   export type Any = string;
 
   /**
-   * A string matching regex.
-   */
-  export type Regex<_Pattern extends string, _Name extends string> = string;
-
-  /**
-   * A string within a minimum length constraint.
+   * String with minimum length constraint.
    */
   export type Min<_Length extends number> = string;
 
   /**
-   * A string within a maximum length constraint.
+   * String with maximum length constraint.
    */
   export type Max<_Length extends number> = string;
 
   /**
-   * A string within a minimum and maximum length constraint.
+   * String with minimum and maximum length constraint.
    */
   export type Size<_MinLength extends number, _MaxLength extends number> = string;
 
   /**
-   * A string following the time format.
+   * String with default value.
+   */
+  export type Default<_Value extends string> = string | undefined;
+
+  /**
+   * String matching regex.
+   */
+  export type Regex<_Pattern extends string, _Name extends string> = string;
+
+  /**
+   * String following the time format.
    */
   export type Time = string;
 
   /**
-   * A string following the date format.
+   * String following the date format.
    */
   export type Date = string;
 
   /**
-   * A string following the date and time format.
+   * String following the date and time format.
    */
   export type DateTime = string;
 
   /**
-   * A string following the duration format.
+   * String following the duration format.
    */
   export type Duration = string;
 
   /**
-   * A string following the email format.
+   * String following the email format.
    */
   export type Email = string;
 
   /**
-   * A string following the UUID format.
+   * String following the UUID format.
    */
   export type UUID = string;
 }

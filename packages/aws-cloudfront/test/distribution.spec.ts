@@ -75,39 +75,45 @@ describe.only('cloudfront :: distribution', () => {
       minTTL: 1
     });
 
-    const resource = createDistribution(localState, originAccessResource, originPolicyResource, {
-      distributionName: 'ez4-test-distribution',
-      description: 'EZ4: Test distribution description',
-      enabled: true,
-      defaultOrigin: {
-        id: 's3-bucket',
-        domain: await getBucketDomain(originBucketName),
-        cachePolicyId: cachePolicyResource.entryId,
-        location: '/home'
-      },
-      origins: [
-        {
-          id: 'ez4-test',
-          domain: 'ez4.test',
+    const resource = createDistribution(
+      localState,
+      originAccessResource,
+      originPolicyResource,
+      undefined, // Don't issue certificate.
+      {
+        distributionName: 'ez4-test-distribution',
+        description: 'EZ4: Test distribution description',
+        enabled: true,
+        defaultOrigin: {
+          id: 's3-bucket',
+          domain: await getBucketDomain(originBucketName),
           cachePolicyId: cachePolicyResource.entryId,
-          path: 'test*',
-          headers: {
-            ['x-custom-header']: 'ez4-custom-value'
+          location: '/home'
+        },
+        origins: [
+          {
+            id: 'ez4-test',
+            domain: 'ez4.test',
+            cachePolicyId: cachePolicyResource.entryId,
+            path: 'test*',
+            headers: {
+              ['x-custom-header']: 'ez4-custom-value'
+            }
           }
+        ],
+        customErrors: [
+          {
+            code: 404,
+            location: '/home',
+            ttl: 300
+          }
+        ],
+        tags: {
+          test1: 'ez4-tag1',
+          test2: 'ez4-tag2'
         }
-      ],
-      customErrors: [
-        {
-          code: 404,
-          location: '/home',
-          ttl: 300
-        }
-      ],
-      tags: {
-        test1: 'ez4-tag1',
-        test2: 'ez4-tag2'
       }
-    });
+    );
 
     resource.dependencies.push(bucketResource.entryId);
 

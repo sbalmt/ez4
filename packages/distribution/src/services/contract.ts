@@ -1,7 +1,12 @@
 import type { Service } from '@ez4/common';
-import type { CdnBucketOrigin, CdnRegularOrigin } from './origin.js';
-import type { CdnFallback } from './fallback.js';
-import type { CdnCache } from './cache.js';
+
+import type {
+  CdnBucketOrigin,
+  CdnRegularOrigin,
+  CdnCertificate,
+  CdnFallback,
+  CdnCache
+} from './common.js';
 
 /**
  * Provide all contracts for a self-managed CDN service.
@@ -16,6 +21,8 @@ export namespace Cdn {
   export type Fallback = CdnFallback;
   export type Cache = CdnCache;
 
+  export type Certificate = CdnCertificate;
+
   /**
    * CDN service.
    */
@@ -24,6 +31,11 @@ export namespace Cdn {
      * List of CNAME aliases for the distribution.
      */
     aliases: string[];
+
+    /**
+     * Custom certificate associated to the distribution.
+     */
+    certificate?: Certificate;
 
     /**
      * Default origin for the distribution results.
