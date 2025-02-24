@@ -1,7 +1,7 @@
 {
   "name": "@ez4/aws-common",
   "description": "EZ4: Common components for self-managed AWS providers",
-  "version": "0.12.0",
+  "version": "0.13.0",
   "author": "Silas B.",
   "license": "MIT",
   "type": "module",
@@ -37,9 +37,9 @@
   "dependencies": {
     "@aws-sdk/client-s3": "^3.614.0",
     "@aws-sdk/client-sts": "^3.614.0",
-    "@ez4/project": "^0.12.0",
-    "@ez4/stateful": "^0.12.0",
-    "@ez4/utils": "^0.12.0",
+    "@ez4/project": "^0.13.0",
+    "@ez4/stateful": "^0.13.0",
+    "@ez4/utils": "^0.13.0",
     "esbuild": "^0.23.0"
   }
 }
