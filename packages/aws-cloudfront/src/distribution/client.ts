@@ -71,6 +71,7 @@ export type CreateRequest = {
   origins?: AdditionalOrigin[];
   defaultOrigin: DefaultOrigin;
   defaultIndex?: string;
+  certificateArn?: Arn;
   originAccessId?: string;
   description?: string;
   compress?: boolean;
@@ -200,8 +201,16 @@ const upsertDistributionRequest = (request: CreateRequest | UpdateRequest): Dist
   const allCacheBehaviors = getAllCacheBehaviors(request);
   const allOrigins = getAllOrigins(request);
 
-  const { distributionName, description, defaultIndex, defaultOrigin, aliases, enabled, compress } =
-    request;
+  const {
+    distributionName,
+    description,
+    certificateArn,
+    defaultIndex,
+    defaultOrigin,
+    aliases,
+    enabled,
+    compress
+  } = request;
 
   return {
     Comment: description,
@@ -244,10 +253,18 @@ const upsertDistributionRequest = (request: CreateRequest | UpdateRequest): Dist
       Prefix: ''
     },
     ViewerCertificate: {
-      CloudFrontDefaultCertificate: true,
-      SSLSupportMethod: SSLSupportMethod.vip,
-      MinimumProtocolVersion: MinimumProtocolVersion.SSLv3,
-      CertificateSource: CertificateSource.cloudfront
+      SSLSupportMethod: SSLSupportMethod.sni_only,
+      MinimumProtocolVersion: MinimumProtocolVersion.TLSv1,
+      ...(certificateArn
+        ? {
+            CloudFrontDefaultCertificate: false,
+            CertificateSource: CertificateSource.acm,
+            ACMCertificateArn: certificateArn
+          }
+        : {
+            CloudFrontDefaultCertificate: true,
+            CertificateSource: CertificateSource.cloudfront
+          })
     },
     Restrictions: {
       GeoRestriction: {

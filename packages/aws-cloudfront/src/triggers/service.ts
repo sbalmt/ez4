@@ -6,6 +6,7 @@ import { getBucketState } from '@ez4/aws-bucket';
 
 import { createOriginPolicy } from '../origin/service.js';
 import { createOriginAccess } from '../access/service.js';
+import { createCertificate } from '../certificate/service.js';
 import { createDistribution } from '../distribution/service.js';
 import { getDistributionState } from '../distribution/utils.js';
 import { createInvalidation } from '../invalidation/service.js';
@@ -20,7 +21,7 @@ export const prepareCdnServices = async (event: PrepareResourceEvent) => {
     return;
   }
 
-  const { description, defaultIndex, defaultOrigin } = service;
+  const { description, certificate, defaultIndex, defaultOrigin } = service;
 
   const originPolicyState = createOriginPolicy(state, {
     policyName: getOriginPolicyName(service, options),
@@ -32,6 +33,14 @@ export const prepareCdnServices = async (event: PrepareResourceEvent) => {
     description
   });
 
+  let certificateState;
+
+  if (certificate) {
+    certificateState = createCertificate(state, {
+      domainName: certificate.domain
+    });
+  }
+
   const { cache: defaultCache } = defaultOrigin;
 
   const customErrors = service.fallbacks?.map(({ code, location, ttl }) => ({
@@ -40,7 +49,7 @@ export const prepareCdnServices = async (event: PrepareResourceEvent) => {
     code
   }));
 
-  createDistribution(state, originAccessState, originPolicyState, {
+  createDistribution(state, originAccessState, originPolicyState, certificateState, {
     distributionName: getServiceName(service, options),
     defaultOrigin: await getDefaultOriginCache(state, service, options),
     origins: await getAdditionalOriginCache(state, service, options),

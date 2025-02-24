@@ -14,16 +14,26 @@ export const getCertificateStateId = (bucketName: string) => {
   return hashData(CertificateServiceType, toKebabCase(bucketName));
 };
 
+export const tryGetCertificateArn = (context: StepContext) => {
+  const resources = context.getDependencies<CertificateState>(CertificateServiceType);
+
+  if (resources.length) {
+    return resources[0]?.result?.certificateArn;
+  }
+
+  return undefined;
+};
+
 export const getCertificateArn = (
   serviceName: string,
   resourceId: string,
   context: StepContext
 ) => {
-  const resource = context.getDependencies<CertificateState>(CertificateServiceType).at(0)?.result;
+  const certificateArn = tryGetCertificateArn(context);
 
-  if (!resource?.certificateArn) {
+  if (!certificateArn) {
     throw new IncompleteResourceError(serviceName, resourceId, 'certificateArn');
   }
 
-  return resource.certificateArn;
+  return certificateArn;
 };

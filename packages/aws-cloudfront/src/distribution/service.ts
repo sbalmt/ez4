@@ -1,4 +1,5 @@
 import type { EntryState, EntryStates } from '@ez4/stateful';
+import type { CertificateState } from '@ez4/aws-certificate';
 import type { DistributionParameters, DistributionState } from './types.js';
 
 import { attachEntry, linkDependency, tryLinkDependency } from '@ez4/stateful';
@@ -13,15 +14,21 @@ export const createDistribution = <E extends EntryState>(
   state: EntryStates<E>,
   accessState: AccessState,
   originState: OriginState,
+  certificateState: CertificateState | undefined,
   parameters: DistributionParameters
 ) => {
   const distributionName = toKebabCase(parameters.distributionName);
   const distributionId = getDistributionStateId(distributionName);
+  const dependencies = [accessState.entryId, originState.entryId];
+
+  if (certificateState) {
+    dependencies.push(certificateState.entryId);
+  }
 
   const resource = attachEntry<E | DistributionState, DistributionState>(state, {
     type: DistributionServiceType,
     entryId: distributionId,
-    dependencies: [accessState.entryId, originState.entryId],
+    dependencies,
     parameters: {
       ...parameters,
       distributionName

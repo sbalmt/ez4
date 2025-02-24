@@ -17,6 +17,7 @@ import {
 import { getOriginPolicyId } from '../origin/utils.js';
 import { getOriginAccessId } from '../access/utils.js';
 import { getCachePolicyIds } from '../cache/utils.js';
+import { tryGetCertificateArn } from '../certificate/utils.js';
 import { DistributionServiceName } from './types.js';
 
 type GeneralUpdateParameters = DistributionParameters & CreateRequest;
@@ -69,18 +70,22 @@ const createResource = async (
   const parameters = candidate.parameters;
   const resourceId = parameters.distributionName;
 
+  const certificateArn = tryGetCertificateArn(context);
+
   const originPolicyId = getOriginPolicyId(DistributionServiceName, resourceId, context);
   const originAccessId = getOriginAccessId(DistributionServiceName, resourceId, context);
   const cachePolicyIds = getCachePolicyIds(DistributionServiceName, resourceId, context);
 
   const { distributionId, distributionArn, endpoint } = await createDistribution({
     ...bindCachePolicyIds(parameters, cachePolicyIds, originPolicyId),
-    originAccessId
+    originAccessId,
+    certificateArn
   });
 
   return {
     distributionId,
     distributionArn,
+    certificateArn,
     originPolicyId,
     originAccessId,
     cachePolicyIds,
@@ -101,6 +106,9 @@ const updateResource = async (
 
   const resourceId = parameters.distributionName;
 
+  const newCertificateArn = tryGetCertificateArn(context);
+  const oldCertificateArn = current.result?.certificateArn;
+
   const newOriginPolicyId = getOriginPolicyId(DistributionServiceName, resourceId, context);
   const oldOriginPolicyId = current.result?.originAccessId ?? newOriginPolicyId;
 
@@ -112,12 +120,14 @@ const updateResource = async (
 
   const newRequest = {
     ...bindCachePolicyIds(parameters, newCachePolicyIds, newOriginPolicyId),
-    originAccessId: newOriginAccessId
+    originAccessId: newOriginAccessId,
+    certificateArn: newCertificateArn
   };
 
   const oldRequest = {
     ...bindCachePolicyIds(current.parameters, oldCachePolicyIds, oldOriginPolicyId),
-    originAccessId: oldOriginAccessId
+    originAccessId: oldOriginAccessId,
+    certificateArn: oldCertificateArn
   };
 
   await Promise.all([
@@ -127,6 +137,7 @@ const updateResource = async (
 
   return {
     ...result,
+    certificateArn: newCertificateArn,
     originPolicyId: newOriginPolicyId,
     originAccessId: newOriginAccessId,
     cachePolicyIds: newCachePolicyIds

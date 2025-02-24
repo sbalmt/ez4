@@ -1,3 +1,3 @@
-export { OriginProtocol } from './services/origin.js';
+export { OriginProtocol } from './services/common.js';
 
-export * from './services/cdn.js';
+export * from './services/contract.js';
