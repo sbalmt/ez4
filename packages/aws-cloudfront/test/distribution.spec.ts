@@ -9,8 +9,7 @@ import {
   createDistribution,
   isDistributionState,
   registerTriggers,
-  createOriginPolicy,
-  createCertificate
+  createOriginPolicy
 } from '@ez4/aws-cloudfront';
 
 import { createBucket, getBucketDomain } from '@ez4/aws-bucket';
@@ -76,15 +75,11 @@ describe.only('cloudfront :: distribution', () => {
       minTTL: 1
     });
 
-    const certificateResource = createCertificate(localState, {
-      domainName: 'easyfor.dev'
-    });
-
     const resource = createDistribution(
       localState,
       originAccessResource,
       originPolicyResource,
-      certificateResource,
+      undefined, // Don't issue certificate.
       {
         distributionName: 'ez4-test-distribution',
         description: 'EZ4: Test distribution description',
