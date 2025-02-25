@@ -154,6 +154,52 @@ describe.only('sql where tests', () => {
     equal(statement, 'SELECT * FROM "test" WHERE "foo" IN (:0, :1, :2)');
   });
 
+  it('assert :: where is in with json', async () => {
+    const schema: ObjectSchema = {
+      type: SchemaType.Object,
+      properties: {
+        foo: {
+          type: SchemaType.Array,
+          element: {
+            type: SchemaType.Number
+          }
+        },
+        bar: {
+          type: SchemaType.Object,
+          properties: {},
+          additional: {
+            property: {
+              type: SchemaType.String
+            },
+            value: {
+              type: SchemaType.Number
+            }
+          }
+        }
+      }
+    };
+
+    const query = sql
+      .select(schema)
+      .from('test')
+      .where({
+        foo: {
+          isIn: ['abc']
+        },
+        bar: {
+          isIn: {
+            abc: 123
+          }
+        }
+      });
+
+    const [statement, variables] = query.build();
+
+    deepEqual(variables, [['abc'], { abc: 123 }]);
+
+    equal(statement, `SELECT * FROM "test" WHERE "foo" <@ :0 AND "bar" <@ :1`);
+  });
+
   it('assert :: where is between', async () => {
     const query = sql
       .select()
@@ -266,7 +312,7 @@ describe.only('sql where tests', () => {
     equal(statement, `SELECT * FROM "test" WHERE "foo" LIKE :0 || '%'`);
   });
 
-  it('assert :: where contains with text', async () => {
+  it('assert :: where contains', async () => {
     const query = sql
       .select()
       .from('test')
@@ -283,7 +329,7 @@ describe.only('sql where tests', () => {
     equal(statement, `SELECT * FROM "test" WHERE "foo" LIKE '%' || :0 || '%'`);
   });
 
-  it.only('assert :: where contains with json', async () => {
+  it('assert :: where contains with json', async () => {
     const schema: ObjectSchema = {
       type: SchemaType.Object,
       properties: {

@@ -17,7 +17,8 @@ import type {
   StrictObject,
   IsNullable,
   IsObjectEmpty,
-  IsObject
+  IsObject,
+  IsArray
 } from '@ez4/utils';
 
 /**
@@ -333,7 +334,7 @@ export namespace Query {
   };
 
   type WhereIn<T> = {
-    isIn: T[];
+    isIn: IsArray<T> extends true ? T : IsObject<T> extends true ? T : T[];
   };
 
   type WhereBetween<T> = {

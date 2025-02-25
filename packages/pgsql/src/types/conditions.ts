@@ -316,15 +316,23 @@ const getIsInOperation = (
   operand: unknown,
   context: SqlConditionsContext
 ) => {
-  if (!Array.isArray(operand)) {
-    throw new InvalidOperandError(column);
+  switch (schema?.type) {
+    case SchemaType.Object:
+    case SchemaType.Array:
+    case SchemaType.Tuple:
+      return `${column} <@ ${getOperandValue(schema, operand, context)}`;
+
+    default:
+      if (!Array.isArray(operand)) {
+        throw new InvalidOperandError(column);
+      }
+
+      const list = operand.map((current) => {
+        return getOperandValue(schema, current, context);
+      });
+
+      return `${column} IN (${list.join(', ')})`;
   }
-
-  const list = operand.map((current) => {
-    return getOperandValue(schema, current, context);
-  });
-
-  return `${column} IN (${list.join(', ')})`;
 };
 
 const getIsBetweenOperation = (
