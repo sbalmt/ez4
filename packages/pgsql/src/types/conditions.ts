@@ -4,7 +4,7 @@ import type { SqlSource } from './source.js';
 import type { SqlFilters } from './common.js';
 
 import { isAnyObject, isEmptyObject } from '@ez4/utils';
-import { isObjectSchema } from '@ez4/schema';
+import { isObjectSchema, SchemaType } from '@ez4/schema';
 
 import { mergeSqlAlias, mergeSqlPath } from '../utils/merge.js';
 import { SqlSelectStatement } from '../queries/select.js';
@@ -359,7 +359,15 @@ const getContainsOperation = (
   operand: unknown,
   context: SqlConditionsContext
 ) => {
-  return `${column} LIKE '%' || ${getOperandValue(schema, operand, context)} || '%'`;
+  switch (schema?.type) {
+    case SchemaType.Object:
+    case SchemaType.Array:
+    case SchemaType.Tuple:
+      return `${column} @> ${getOperandValue(schema, operand, context)}`;
+
+    default:
+      return `${column} LIKE '%' || ${getOperandValue(schema, operand, context)} || '%'`;
+  }
 };
 
 const getOperandValue = (

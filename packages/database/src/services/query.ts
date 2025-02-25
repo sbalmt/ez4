@@ -223,7 +223,7 @@ export namespace Query {
     WhereIsMissing &
     WhereIsNull &
     WhereStartsWith &
-    WhereContains);
+    WhereContains<any>);
 
   type IndexFields<R extends RelationMetadata> = string extends R['indexes'] ? never : R['indexes'];
 
@@ -250,7 +250,7 @@ export namespace Query {
     | WhereIsMissing
     | WhereIsNull
     | WhereStartsWith
-    | WhereContains;
+    | WhereContains<T>;
 
   type WhereField<T> =
     IsObject<T> extends false
@@ -352,7 +352,7 @@ export namespace Query {
     startsWith: string;
   };
 
-  type WhereContains = {
-    contains: string;
+  type WhereContains<T> = {
+    contains: IsObject<T> extends true ? Partial<T> : T;
   };
 }
