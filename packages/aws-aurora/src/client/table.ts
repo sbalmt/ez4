@@ -206,7 +206,7 @@ export class Table<
   }
 
   async count(query: Query.CountInput<T, R>): Promise<number> {
-    const command = prepareCount(this.name, this.relations, query);
+    const command = prepareCount(this.name, this.schema, this.relations, query);
 
     const [record] = await this.sendCommand(command);
 

@@ -195,10 +195,11 @@ export const prepareDeleteMany = <
 
 export const prepareCount = <T extends Database.Schema, R extends RelationMetadata>(
   table: string,
+  schema: ObjectSchema,
   relations: RepositoryRelationsWithSchema,
   query: Query.CountInput<T, R>
 ): PreparedQueryCommand => {
-  const [statement, variables] = prepareCountQuery(table, relations, query);
+  const [statement, variables] = prepareCountQuery(table, schema, relations, query);
 
   return {
     sql: statement,

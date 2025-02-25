@@ -1,3 +1,4 @@
+import type { ObjectSchema } from '@ez4/schema';
 import type { Database, RelationMetadata, Query } from '@ez4/database';
 import type { SqlParameter } from '@aws-sdk/client-rds-data';
 import type { RepositoryRelationsWithSchema } from '../../types/repository.js';
@@ -7,12 +8,13 @@ import { getSelectFilters } from './select.js';
 
 export const prepareCountQuery = <T extends Database.Schema, R extends RelationMetadata>(
   table: string,
+  schema: ObjectSchema,
   relations: RepositoryRelationsWithSchema,
   query: Query.CountInput<T, R>
 ): [string, SqlParameter[]] => {
   const sql = createQueryBuilder();
 
-  const selectQuery = sql.select().from(table);
+  const selectQuery = sql.select(schema).from(table);
 
   selectQuery.rawColumn('COUNT(1) AS "count"');
 
