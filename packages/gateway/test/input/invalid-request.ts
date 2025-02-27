@@ -6,7 +6,7 @@ class TestRequest implements Http.Request {
   query = {};
 }
 
-export declare class TestService extends Http.Service<[TestRequest]> {
+export declare class TestService extends Http.Service {
   routes: [
     {
       path: 'ANY /test-route';

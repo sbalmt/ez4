@@ -1,17 +1,18 @@
 import type { Service } from '@ez4/common';
 import type { LinkedVariables } from '@ez4/project/library';
 import type { HttpPath } from '../types/path.js';
-import type { HttpAuthResponse, HttpResponse } from './response.js';
-import type { HttpRequest, HttpAuthRequest } from './request.js';
-import type { RouteTypes } from './helpers.js';
-import type { HttpCors } from './cors.js';
 
 import type {
   HttpHeaders,
-  HttpIdentity,
   HttpPathParameters,
   HttpQueryStrings,
-  HttpJsonBody
+  HttpJsonBody,
+  HttpIdentity,
+  HttpAuthRequest,
+  HttpAuthResponse,
+  HttpRequest,
+  HttpResponse,
+  HttpCors
 } from './common.js';
 
 /**
@@ -58,7 +59,7 @@ export namespace Http {
    */
   export type Authorizer<T extends AuthRequest> = (
     request: T,
-    context: Service.Context<Service<any>>
+    context: Service.Context<Service>
   ) => Promise<AuthResponse> | AuthResponse;
 
   /**
@@ -66,13 +67,13 @@ export namespace Http {
    */
   export type Handler<T extends Request> = (
     request: T,
-    context: Service.Context<Service<any>>
+    context: Service.Context<Service>
   ) => Promise<Response> | Response;
 
   /**
    * HTTP route.
    */
-  export interface Route<T extends Request = Request> {
+  export interface Route {
     /**
      * Route path.
      */
@@ -86,7 +87,7 @@ export namespace Http {
     /**
      * Route handler.
      */
-    handler: Handler<T> | Handler<Incoming<T>>;
+    handler: Handler<any> | Handler<Incoming<any>>;
 
     /**
      * Variables associated to the route.
@@ -112,13 +113,11 @@ export namespace Http {
   /**
    * HTTP service.
    */
-  export declare abstract class Service<T extends Request[] = Request[]>
-    implements Service.Provider
-  {
+  export declare abstract class Service implements Service.Provider {
     /**
      * All expected routes.
      */
-    abstract routes: RouteTypes<T>[];
+    abstract routes: Route[];
 
     /**
      * Display name for the service.
