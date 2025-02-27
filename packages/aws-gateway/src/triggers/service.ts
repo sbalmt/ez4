@@ -129,7 +129,9 @@ const getIntegrationFunction = async (
   const { request, response } = handler;
 
   const functionName = getFunctionName(service, handler, options);
-  const routeTimeout = route.timeout ?? 30;
+
+  const routeTimeout = route.timeout ?? service.defaults?.timeout ?? 30;
+  const routeMemory = route.memory ?? service.defaults?.memory ?? 192;
 
   const functionState =
     getFunction(state, role, functionName) ??
@@ -139,7 +141,7 @@ const getIntegrationFunction = async (
       sourceFile: handler.file,
       handlerName: handler.name,
       timeout: routeTimeout,
-      memory: route.memory,
+      memory: routeMemory,
       responseSchema: response.body,
       headersSchema: request?.headers,
       identitySchema: request?.identity,
@@ -186,7 +188,9 @@ const getAuthorizerFunction = async (
   const request = authorizer.request;
 
   const functionName = getFunctionName(service, authorizer, options);
-  const routeTimeout = route.timeout ?? 30;
+
+  const routeTimeout = service.defaults?.timeout ?? 30;
+  const routeMemory = service.defaults?.memory ?? 192;
 
   const functionState =
     getFunction(state, role, functionName) ??
@@ -196,6 +200,7 @@ const getAuthorizerFunction = async (
       sourceFile: authorizer.file,
       handlerName: authorizer.name,
       timeout: routeTimeout,
+      memory: routeMemory,
       headersSchema: request?.headers,
       parametersSchema: request?.parameters,
       querySchema: request?.query,
