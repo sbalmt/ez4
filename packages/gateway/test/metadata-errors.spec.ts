@@ -3,10 +3,11 @@ import { describe, it } from 'node:test';
 
 import {
   IncompleteServiceError,
-  IncompleteCorsError,
   IncompleteRouteError,
   IncompleteHandlerError,
+  IncompleteCorsError,
   IncorrectCorsTypeError,
+  IncorrectDefaultsTypeError,
   IncorrectHeadersTypeError,
   IncorrectIdentityTypeError,
   IncorrectParameterTypeError,
@@ -21,7 +22,8 @@ import {
   InvalidQueryTypeError,
   InvalidBodyTypeError,
   InvalidRequestTypeError,
-  InvalidResponseTypeError
+  InvalidResponseTypeError,
+  InvalidDefaultsTypeError
 } from '@ez4/gateway/library';
 
 import { getReflection } from '@ez4/project/library';
@@ -46,6 +48,21 @@ describe.only('http metadata errors', () => {
 
     ok(error1 instanceof IncompleteServiceError);
     deepEqual(error1.properties, ['routes']);
+  });
+
+  it('assert :: incorrect defaults', () => {
+    const [error1] = parseFile('incorrect-defaults', 1);
+
+    ok(error1 instanceof IncorrectDefaultsTypeError);
+    equal(error1.baseType, 'Http.Defaults');
+    equal(error1.defaultsType, 'TestDefaults');
+  });
+
+  it('assert :: invalid defaults', () => {
+    const [error1] = parseFile('invalid-defaults', 1);
+
+    ok(error1 instanceof InvalidDefaultsTypeError);
+    equal(error1.baseType, 'Http.Defaults');
   });
 
   it('assert :: incomplete service routes', () => {

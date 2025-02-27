@@ -1,6 +1,6 @@
 import type { Incomplete } from '@ez4/utils';
 import type { MemberType } from '@ez4/common/library';
-import type { HttpAuthResponse, HttpResponse } from '../types/response.js';
+import type { HttpAuthResponse, HttpResponse } from '../types/common.js';
 
 import type {
   AllType,

@@ -1,6 +1,6 @@
 import type { Service } from '@ez4/common';
 import type { LinkedVariables } from '@ez4/project/library';
-import type { HttpPath } from '../types/path.js';
+import type { HttpPath } from '../types/common.js';
 
 import type {
   HttpHeaders,
@@ -95,7 +95,7 @@ export namespace Http {
     variables?: LinkedVariables;
 
     /**
-     * Max route execution time (in seconds) for the route.
+     * Max execution time (in seconds) for the route.
      */
     timeout?: number;
 
@@ -109,6 +109,21 @@ export namespace Http {
      */
     cors?: boolean;
   }
+
+  /**
+   * Default HTTP service parameters.
+   */
+  export type Defaults = {
+    /**
+     * Default amount of memory available for the handlers.
+     */
+    memory?: number;
+
+    /**
+     * Default execution time (in seconds) for the routes.
+     */
+    timeout?: number;
+  };
 
   /**
    * HTTP service.
@@ -133,6 +148,11 @@ export namespace Http {
      * Variables associated to all the routes.
      */
     variables?: LinkedVariables;
+
+    /**
+     * Default parameters.
+     */
+    defaults?: Defaults;
 
     /**
      * Service client.

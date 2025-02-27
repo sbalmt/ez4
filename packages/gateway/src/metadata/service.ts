@@ -1,7 +1,7 @@
 import type { Incomplete } from '@ez4/utils';
 import type { ModelProperty, SourceMap } from '@ez4/reflection';
 import type { HttpService } from '../types/service.js';
-import type { HttpRoute } from '../types/route.js';
+import type { HttpRoute } from '../types/common.js';
 
 import {
   DuplicateServiceError,
@@ -17,6 +17,7 @@ import { isModelProperty } from '@ez4/reflection';
 
 import { ServiceType } from '../types/service.js';
 import { IncompleteServiceError } from '../errors/service.js';
+import { getHttpDefaults } from './defaults.js';
 import { isHttpService } from './utils.js';
 import { getHttpRoute } from './route.js';
 import { getHttpCors } from './cors.js';
@@ -49,11 +50,16 @@ export const getHttpServices = (reflection: SourceMap) => {
       switch (member.name) {
         case 'name': {
           const value = getPropertyString(member);
+
           if (value) {
             service.displayName = value;
             break;
           }
         }
+
+        case 'defaults':
+          service.defaults = getHttpDefaults(member.value, statement, reflection, errorList);
+          break;
 
         case 'routes':
           if ((service.routes = getAllRoutes(member, reflection, errorList))) {

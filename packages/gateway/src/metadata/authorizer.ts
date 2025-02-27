@@ -1,6 +1,6 @@
 import type { Incomplete } from '@ez4/utils';
 import type { AllType, SourceMap } from '@ez4/reflection';
-import type { HttpAuthorizer } from '../types/authorizer.js';
+import type { HttpAuthorizer } from '../types/common.js';
 
 import { IncompleteAuthorizerError } from '../errors/authorizer.js';
 import { getHttpAuthResponse } from './response.js';

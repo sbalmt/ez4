@@ -1,7 +1,7 @@
 import type { AllType, ModelProperty, SourceMap, TypeModel, TypeObject } from '@ez4/reflection';
 import type { MemberType } from '@ez4/common/library';
 import type { Incomplete } from '@ez4/utils';
-import type { HttpCors } from '../types/cors.js';
+import type { HttpCors } from '../types/common.js';
 
 import {
   getLiteralString,

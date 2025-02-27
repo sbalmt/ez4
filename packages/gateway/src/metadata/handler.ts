@@ -1,6 +1,6 @@
 import type { Incomplete } from '@ez4/utils';
 import type { AllType, SourceMap } from '@ez4/reflection';
-import type { HttpHandler } from '../types/handler.js';
+import type { HttpHandler } from '../types/common.js';
 
 import { IncompleteHandlerError } from '../errors/handler.js';
 import { getHttpHandlerResponse } from './response.js';
