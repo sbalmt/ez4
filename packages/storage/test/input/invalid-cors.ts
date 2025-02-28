@@ -6,9 +6,5 @@ class TestCors implements Bucket.Cors {
 }
 
 export declare class TestStorage extends Bucket.Service {
-  localPath: './public';
-
-  autoExpireDays: 30;
-
   cors: TestCors;
 }

@@ -3,8 +3,11 @@ import { describe, it } from 'node:test';
 
 import {
   IncompleteCorsError,
+  IncompleteEventError,
   IncorrectCorsTypeError,
-  InvalidCorsTypeError
+  IncorrectEventTypeError,
+  InvalidCorsTypeError,
+  InvalidEventTypeError
 } from '@ez4/storage/library';
 
 import { getReflection } from '@ez4/project/library';
@@ -23,6 +26,28 @@ const parseFile = (fileName: string, errorCount: number) => {
 
 describe.only('storage metadata errors', () => {
   registerTriggers();
+
+  it('assert :: incomplete events', () => {
+    const [error1] = parseFile('incomplete-events', 1);
+
+    ok(error1 instanceof IncompleteEventError);
+    deepEqual(error1.properties, ['handler']);
+  });
+
+  it('assert :: incorrect events', () => {
+    const [error1] = parseFile('incorrect-events', 1);
+
+    ok(error1 instanceof IncorrectEventTypeError);
+    equal(error1.baseType, 'Bucket.Event');
+    equal(error1.modelType, 'TestEvent');
+  });
+
+  it('assert :: invalid events', () => {
+    const [error1] = parseFile('invalid-events', 1);
+
+    ok(error1 instanceof InvalidEventTypeError);
+    equal(error1.baseType, 'Bucket.Event');
+  });
 
   it('assert :: incomplete cors', () => {
     const [error1] = parseFile('incomplete-cors', 1);

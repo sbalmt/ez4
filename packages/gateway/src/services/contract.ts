@@ -145,7 +145,7 @@ export namespace Http {
     cors?: Cors;
 
     /**
-     * Variables associated to all the routes.
+     * Variables associated to all routes.
      */
     variables?: LinkedVariables;
 

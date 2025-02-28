@@ -1,5 +1,6 @@
+import type { LinkedVariables } from '@ez4/project/library';
 import type { Service } from '@ez4/common';
-import type { BucketCors } from './common.js';
+import type { BucketCors, BucketEvent } from './common.js';
 import type { Client } from './client.js';
 
 /**
@@ -7,6 +8,39 @@ import type { Client } from './client.js';
  */
 export namespace Bucket {
   export type Cors = BucketCors;
+
+  /**
+   * Bucket event.
+   */
+  export interface Event {
+    /**
+     * Event handler.
+     *
+     * @param event Event object.
+     * @param context Handler context.
+     */
+    handler: (event: BucketEvent, context: Service.Context<Service>) => void | Promise<void>;
+
+    /**
+     * Path associated to the event.
+     */
+    path?: string;
+
+    /**
+     * Variables associated to the handler.
+     */
+    variables?: LinkedVariables;
+
+    /**
+     * Max execution time (in seconds) for the handler.
+     */
+    timeout?: number;
+
+    /**
+     * Amount of memory available for the handler.
+     */
+    memory?: number;
+  }
 
   /**
    * Bucket service.
@@ -28,18 +62,23 @@ export namespace Bucket {
     autoExpireDays?: number;
 
     /**
+     * Bucket events.
+     */
+    events?: Event;
+
+    /**
      * CORS configuration.
      */
     cors?: Cors;
 
     /**
+     * Variables associated to all events.
+     */
+    variables?: LinkedVariables;
+
+    /**
      * Service client.
      */
     client: Client;
-
-    /**
-     * Services are not allowed in this provider.
-     */
-    services: never;
   }
 }

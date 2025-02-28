@@ -1,0 +1,19 @@
+{
+  "TestStorage": {
+    "type": "@ez4/bucket",
+    "name": "TestStorage",
+    "events": {
+      "path": "uploads/*",
+      "memory": 128,
+      "timeout": 5,
+      "handler": {
+        "description": "Test storage event.",
+        "name": "eventHandler",
+        "file": "test/input/output-events.ts"
+      }
+    },
+    "services": {
+      "selfClient": "TestStorage"
+    }
+  }
+}

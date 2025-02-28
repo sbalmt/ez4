@@ -1,4 +1,4 @@
-import type { ResourceTags } from '@ez4/aws-common';
+import type { Arn, ResourceTags } from '@ez4/aws-common';
 import type { Bucket } from '@ez4/storage';
 
 import { getTagList, Logger } from '@ez4/aws-common';
@@ -13,7 +13,8 @@ import {
   PutBucketCorsCommand,
   DeleteBucketCorsCommand,
   PutBucketLifecycleConfigurationCommand,
-  DeleteBucketLifecycleCommand
+  DeleteBucketLifecycleCommand,
+  PutBucketNotificationConfigurationCommand
 } from '@aws-sdk/client-s3';
 
 import { BucketServiceName } from './types.js';
@@ -22,6 +23,7 @@ const client = new S3Client({});
 
 export type CreateRequest = {
   bucketName: string;
+  notification?: Notification;
 };
 
 export type CreateResponse = {
@@ -55,6 +57,16 @@ export const createBucket = async (request: CreateRequest): Promise<CreateRespon
   return {
     bucketName
   };
+};
+
+export const deleteBucket = async (bucketName: string) => {
+  Logger.logDelete(BucketServiceName, bucketName);
+
+  await client.send(
+    new DeleteBucketCommand({
+      Bucket: bucketName
+    })
+  );
 };
 
 export const tagBucket = async (bucketName: string, tags: ResourceTags) => {
@@ -139,12 +151,26 @@ export const deleteLifecycle = async (bucketName: string) => {
   );
 };
 
-export const deleteBucket = async (bucketName: string) => {
-  Logger.logDelete(BucketServiceName, bucketName);
+export const updateNotification = async (
+  bucketName: string,
+  functionArn: Arn,
+  events: string[]
+) => {
+  Logger.logUpdate(BucketServiceName, `${bucketName} notification`);
 
   await client.send(
-    new DeleteBucketCommand({
-      Bucket: bucketName
+    new PutBucketNotificationConfigurationCommand({
+      Bucket: bucketName,
+      SkipDestinationValidation: true,
+      NotificationConfiguration: {
+        LambdaFunctionConfigurations: [
+          {
+            Id: 'ID0',
+            LambdaFunctionArn: functionArn,
+            Events: events
+          }
+        ]
+      }
     })
   );
 };
