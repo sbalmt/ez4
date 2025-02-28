@@ -1,6 +1,6 @@
 import type { Service } from '@ez4/common';
+import type { BucketCors } from './common.js';
 import type { Client } from './client.js';
-import type { BucketCors } from './cors.js';
 
 /**
  * Provide all contracts for a self-managed Bucket service.
@@ -13,9 +13,9 @@ export namespace Bucket {
    */
   export declare abstract class Service implements Service.Provider {
     /**
-     * CORS configuration.
+     * Overwrite the global bucket name.
      */
-    cors?: Cors;
+    globalName?: string;
 
     /**
      * Specify a local path to synchronize with the storage.
@@ -26,6 +26,11 @@ export namespace Bucket {
      * Maximum amount of days an object is stored before its auto-deletion.
      */
     autoExpireDays?: number;
+
+    /**
+     * CORS configuration.
+     */
+    cors?: Cors;
 
     /**
      * Service client.

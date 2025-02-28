@@ -7,4 +7,4 @@ export * from './errors/service.js';
 export * from './errors/cors.js';
 
 export * from './types/service.js';
-export * from './types/cors.js';
+export * from './types/common.js';

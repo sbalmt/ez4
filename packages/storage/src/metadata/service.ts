@@ -43,19 +43,24 @@ export const getBucketServices = (reflection: SourceMap) => {
           service.cors = getBucketCors(member.value, statement, reflection, errorList);
           break;
 
-        case 'localPath': {
+        case 'localPath':
+        case 'globalName': {
           const value = getPropertyString(member);
-          if (value !== undefined && value !== null) {
+
+          if (value) {
             service[member.name] = value;
           }
+
           break;
         }
 
         case 'autoExpireDays': {
           const value = getPropertyNumber(member);
+
           if (isAnyNumber(value)) {
-            service[member.name] = value;
+            service.autoExpireDays = value;
           }
+
           break;
         }
       }
