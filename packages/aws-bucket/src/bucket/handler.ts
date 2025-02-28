@@ -6,11 +6,12 @@ import { ReplaceResourceError } from '@ez4/aws-common';
 import { deepCompare, deepEqual } from '@ez4/utils';
 
 import {
+  isBucketEmpty,
   createBucket,
-  updateCorsConfiguration,
-  createLifecycle,
   deleteBucket,
+  updateCorsConfiguration,
   deleteCorsConfiguration,
+  createLifecycle,
   deleteLifecycle,
   tagBucket
 } from './client.js';
@@ -86,7 +87,11 @@ const deleteResource = async (candidate: BucketState) => {
   const result = candidate.result;
 
   if (result) {
-    await deleteBucket(result.bucketName);
+    const isEmpty = await isBucketEmpty(result.bucketName);
+
+    if (isEmpty) {
+      await deleteBucket(result.bucketName);
+    }
   }
 };
 

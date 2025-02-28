@@ -4,15 +4,16 @@ import type { Bucket } from '@ez4/storage';
 import { getTagList, Logger } from '@ez4/aws-common';
 
 import {
+  S3Client,
+  ExpirationStatus,
+  ListObjectsV2Command,
   CreateBucketCommand,
   DeleteBucketCommand,
   PutBucketTaggingCommand,
   PutBucketCorsCommand,
   DeleteBucketCorsCommand,
   PutBucketLifecycleConfigurationCommand,
-  DeleteBucketLifecycleCommand,
-  ExpirationStatus,
-  S3Client
+  DeleteBucketLifecycleCommand
 } from '@aws-sdk/client-s3';
 
 import { BucketServiceName } from './types.js';
@@ -25,6 +26,19 @@ export type CreateRequest = {
 
 export type CreateResponse = {
   bucketName: string;
+};
+
+export const isBucketEmpty = async (bucketName: string) => {
+  Logger.logFetch(BucketServiceName, bucketName);
+
+  const response = await client.send(
+    new ListObjectsV2Command({
+      Bucket: bucketName,
+      MaxKeys: 1
+    })
+  );
+
+  return !response.Contents?.length;
 };
 
 export const createBucket = async (request: CreateRequest): Promise<CreateResponse> => {
