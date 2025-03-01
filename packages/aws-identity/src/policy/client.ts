@@ -2,11 +2,11 @@ import type { Arn, ResourceTags } from '@ez4/aws-common';
 import type { PolicyDocument } from '../types/policy.js';
 
 import {
+  IAMClient,
   CreatePolicyCommand,
   CreatePolicyVersionCommand,
   DeletePolicyCommand,
   DeletePolicyVersionCommand,
-  IAMClient,
   TagPolicyCommand,
   UntagPolicyCommand
 } from '@aws-sdk/client-iam';
