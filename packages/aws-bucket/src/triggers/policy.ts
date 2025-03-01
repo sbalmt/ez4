@@ -4,7 +4,7 @@ import { createPolicy } from '@ez4/aws-identity';
 
 import { getPolicyDocument } from '../utils/policy.js';
 
-export const prepareExecutionPolicy = async (event: PolicyResourceEvent) => {
+export const prepareExecutionPolicy = (event: PolicyResourceEvent) => {
   const { state, options } = event;
   const { resourcePrefix, projectName } = options;
 

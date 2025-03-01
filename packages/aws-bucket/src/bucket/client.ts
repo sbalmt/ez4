@@ -6,6 +6,7 @@ import { getTagList, Logger } from '@ez4/aws-common';
 import {
   S3Client,
   ExpirationStatus,
+  Event,
   ListObjectsV2Command,
   CreateBucketCommand,
   DeleteBucketCommand,
@@ -151,25 +152,27 @@ export const deleteLifecycle = async (bucketName: string) => {
   );
 };
 
-export const updateNotification = async (
+export const updateEventNotifications = async (
   bucketName: string,
-  functionArn: Arn,
-  events: string[]
+  functionArn: Arn | undefined,
+  events: Event[]
 ) => {
-  Logger.logUpdate(BucketServiceName, `${bucketName} notification`);
+  Logger.logUpdate(BucketServiceName, `${bucketName} event notifications`);
 
   await client.send(
     new PutBucketNotificationConfigurationCommand({
       Bucket: bucketName,
       SkipDestinationValidation: true,
       NotificationConfiguration: {
-        LambdaFunctionConfigurations: [
-          {
-            Id: 'ID0',
-            LambdaFunctionArn: functionArn,
-            Events: events
-          }
-        ]
+        ...(functionArn && {
+          LambdaFunctionConfigurations: [
+            {
+              Id: 'ID0',
+              LambdaFunctionArn: functionArn,
+              Events: events
+            }
+          ]
+        })
       }
     })
   );

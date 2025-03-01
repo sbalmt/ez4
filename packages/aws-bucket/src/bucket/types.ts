@@ -1,5 +1,5 @@
+import type { Arn, ResourceTags } from '@ez4/aws-common';
 import type { EntryState } from '@ez4/stateful';
-import type { ResourceTags } from '@ez4/aws-common';
 import type { Bucket } from '@ez4/storage';
 import type { CreateRequest, CreateResponse } from './client.js';
 
@@ -14,7 +14,9 @@ export type BucketParameters = CreateRequest & {
   cors?: Bucket.Cors;
 };
 
-export type BucketResult = CreateResponse;
+export type BucketResult = CreateResponse & {
+  functionArn: Arn | undefined;
+};
 
 export type BucketState = EntryState & {
   type: typeof BucketServiceType;

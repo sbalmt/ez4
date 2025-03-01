@@ -28,14 +28,40 @@ export interface BucketCors {
   maxAge?: number;
 }
 
+/**
+ * Bucket event type.
+ */
 export const enum BucketEventType {
   Create = 'create',
   Delete = 'delete'
 }
 
-export type BucketEvent = {
+/**
+ * Bucket event.
+ */
+export type BucketCreateEvent = {
+  /**
+   * Request Id.
+   */
+  requestId: string;
+
+  /**
+   * Type of event.
+   */
   eventType: BucketEventType;
+
+  /**
+   * Bucket from the event.
+   */
   bucketName: string;
-  objectSize: number;
+
+  /**
+   * Size of the created object.
+   */
+  objectSize?: number;
+
+  /**
+   * Object key in the bucket.
+   */
   objectKey: string;
 };

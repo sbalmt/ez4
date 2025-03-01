@@ -1,8 +1,9 @@
-import type { StepHandler } from '@ez4/stateful';
-import type { ResourceTags } from '@ez4/aws-common';
+import type { StepContext, StepHandler } from '@ez4/stateful';
+import type { Arn, ResourceTags } from '@ez4/aws-common';
 import type { BucketState, BucketResult, BucketParameters } from './types.js';
 
 import { ReplaceResourceError } from '@ez4/aws-common';
+import { tryGetFunctionArn } from '@ez4/aws-function';
 import { deepCompare, deepEqual } from '@ez4/utils';
 
 import {
@@ -11,6 +12,7 @@ import {
   deleteBucket,
   updateCorsConfiguration,
   deleteCorsConfiguration,
+  updateEventNotifications,
   createLifecycle,
   deleteLifecycle,
   tagBucket
@@ -47,29 +49,44 @@ const previewResource = async (candidate: BucketState, current: BucketState) => 
   };
 };
 
-const replaceResource = async (candidate: BucketState, current: BucketState) => {
+const replaceResource = async (
+  candidate: BucketState,
+  current: BucketState,
+  context: StepContext
+) => {
   if (current.result) {
     throw new ReplaceResourceError(BucketServiceName, candidate.entryId, current.entryId);
   }
 
-  return createResource(candidate);
+  return createResource(candidate, context);
 };
 
-const createResource = async (candidate: BucketState): Promise<BucketResult> => {
+const createResource = async (
+  candidate: BucketState,
+  context: StepContext
+): Promise<BucketResult> => {
   const parameters = candidate.parameters;
+
+  const functionArn = tryGetFunctionArn(context);
 
   const { bucketName } = await createBucket(parameters);
 
   await checkCorsUpdates(bucketName, parameters, undefined);
   await checkLifecycleUpdates(bucketName, parameters, undefined);
   await checkTagUpdates(bucketName, parameters.tags, undefined);
+  await checkEventUpdates(bucketName, functionArn, undefined);
 
   return {
-    bucketName
+    bucketName,
+    functionArn
   };
 };
 
-const updateResource = async (candidate: BucketState, current: BucketState) => {
+const updateResource = async (
+  candidate: BucketState,
+  current: BucketState,
+  context: StepContext
+) => {
   const { result, parameters } = candidate;
 
   if (!result) {
@@ -78,9 +95,13 @@ const updateResource = async (candidate: BucketState, current: BucketState) => {
 
   const bucketName = result.bucketName;
 
+  const newFunctionArn = tryGetFunctionArn(context);
+  const oldFunctionArn = current.result?.functionArn;
+
   await checkCorsUpdates(bucketName, parameters, current.parameters);
   await checkLifecycleUpdates(bucketName, parameters, current.parameters);
   await checkTagUpdates(bucketName, parameters.tags, current.parameters.tags);
+  await checkEventUpdates(bucketName, newFunctionArn, oldFunctionArn);
 };
 
 const deleteResource = async (candidate: BucketState) => {
@@ -141,5 +162,18 @@ const checkTagUpdates = async (
 
   if (hasChanges) {
     await tagBucket(bucketName, newTags);
+  }
+};
+
+const checkEventUpdates = async (
+  bucketName: string,
+  newFunctionArn: Arn | undefined,
+  oldFunctionArn: Arn | undefined
+) => {
+  if (newFunctionArn !== oldFunctionArn) {
+    await updateEventNotifications(bucketName, newFunctionArn, [
+      's3:ObjectCreated:*',
+      's3:ObjectRemoved:*'
+    ]);
   }
 };

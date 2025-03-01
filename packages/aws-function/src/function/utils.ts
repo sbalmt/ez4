@@ -19,12 +19,18 @@ export const getFunctionName = (serviceName: string, resourceId: string, context
   return resource.functionName;
 };
 
-export const getFunctionArn = (serviceName: string, resourceId: string, context: StepContext) => {
-  const resource = context.getDependencies<FunctionState>(FunctionServiceType).at(0)?.result;
+export const tryGetFunctionArn = (context: StepContext) => {
+  const resource = context.getDependencies<FunctionState>(FunctionServiceType);
 
-  if (!resource?.functionArn) {
+  return resource[0]?.result?.functionArn;
+};
+
+export const getFunctionArn = (serviceName: string, resourceId: string, context: StepContext) => {
+  const functionArn = tryGetFunctionArn(context);
+
+  if (!functionArn) {
     throw new IncompleteResourceError(serviceName, resourceId, 'functionArn');
   }
 
-  return resource.functionArn;
+  return functionArn;
 };

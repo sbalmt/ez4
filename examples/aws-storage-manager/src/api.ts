@@ -2,20 +2,14 @@ import type { Http } from '@ez4/gateway';
 import type { Environment } from '@ez4/common';
 import type { Files } from './storage.js';
 
-import type { DeleteFileRequest, StartDownloadRequest, StartUploadRequest } from './api/types.js';
-
-import type {
-  deleteFileHandler,
-  startDownloadHandler,
-  startUploadHandler
-} from './api/handlers.js';
-
-type ApiRequests = [StartUploadRequest, StartDownloadRequest, DeleteFileRequest];
+import type { startUploadHandler } from './api/endpoints/start-upload.js';
+import type { startDownloadHandler } from './api/endpoints/start-download.js';
+import type { deleteFileHandler } from './api/endpoints/delete-file.js';
 
 /**
  * Example of AWS API deployed with EZ4.
  */
-export declare class Api extends Http.Service<ApiRequests> {
+export declare class Api extends Http.Service {
   /**
    * Display name for this API.
    */
