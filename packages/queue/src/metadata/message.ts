@@ -1,4 +1,4 @@
-import type { QueueMessage } from '../types/common.js';
+import type { QueueMessageSchema } from '../types/common.js';
 
 import type {
   AllType,
@@ -42,7 +42,7 @@ const getTypeMessage = (
   parent: TypeParent,
   reflection: SourceMap,
   errorList: Error[]
-): QueueMessage | null => {
+): QueueMessageSchema | null => {
   if (isTypeUnion(type)) {
     return getMessageFromUnion(type.elements, parent, reflection, errorList);
   }

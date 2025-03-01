@@ -1,5 +1,5 @@
 import type { Queue, ReceiveOptions, SendOptions, Client as SqsClient } from '@ez4/queue';
-import type { ObjectSchema } from '@ez4/schema';
+import type { ObjectSchema, UnionSchema } from '@ez4/schema';
 
 import { ReceiveMessageCommand, SendMessageCommand, SQSClient } from '@aws-sdk/client-sqs';
 import { getJsonMessage } from '@ez4/aws-queue/runtime';
@@ -9,7 +9,7 @@ const client = new SQSClient({});
 export namespace Client {
   export const make = <T extends Queue.Message>(
     queueUrl: string,
-    messageSchema: ObjectSchema
+    messageSchema: ObjectSchema | UnionSchema
   ): SqsClient<T> => {
     return new (class {
       async sendMessage(message: T, options?: SendOptions) {
