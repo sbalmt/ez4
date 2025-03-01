@@ -101,7 +101,7 @@ export const listItems = async (client: DbClient, page: number, limit: number) =
         }
       },
       order: {
-        id: Order.Desc
+        created_at: Order.Desc
       },
       cursor,
       limit
