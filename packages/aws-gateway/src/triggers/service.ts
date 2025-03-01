@@ -25,7 +25,7 @@ import { createRoute } from '../route/service.js';
 import { getCorsConfiguration } from './cors.js';
 import { getFunctionName } from './utils.js';
 
-export const prepareHttpServices = async (event: PrepareResourceEvent) => {
+export const prepareHttpServices = (event: PrepareResourceEvent) => {
   const { state, service, options, role } = event;
 
   if (!isHttpService(service)) {
@@ -47,7 +47,7 @@ export const prepareHttpServices = async (event: PrepareResourceEvent) => {
     autoDeploy: true
   });
 
-  await createHttpRoutes(state, service, role, gatewayState, options);
+  createHttpRoutes(state, service, role, gatewayState, options);
 };
 
 export const connectHttpServices = (event: ConnectResourceEvent) => {
@@ -80,7 +80,7 @@ export const connectHttpServices = (event: ConnectResourceEvent) => {
   }
 };
 
-const createHttpRoutes = async (
+const createHttpRoutes = (
   state: EntryStates,
   service: HttpService,
   execRole: EntryState | null,
@@ -88,7 +88,7 @@ const createHttpRoutes = async (
   options: DeployOptions
 ) => {
   for (const route of service.routes) {
-    const integrationState = await getIntegrationFunction(
+    const integrationState = getIntegrationFunction(
       state,
       service,
       execRole,
@@ -97,7 +97,7 @@ const createHttpRoutes = async (
       options
     );
 
-    const authorizerState = await getAuthorizerFunction(
+    const authorizerState = getAuthorizerFunction(
       state,
       service,
       execRole,
@@ -112,7 +112,7 @@ const createHttpRoutes = async (
   }
 };
 
-const getIntegrationFunction = async (
+const getIntegrationFunction = (
   state: EntryStates,
   service: HttpService,
   role: EntryState | null,
@@ -168,7 +168,7 @@ const getIntegrationFunction = async (
   );
 };
 
-const getAuthorizerFunction = async (
+const getAuthorizerFunction = (
   state: EntryStates,
   service: HttpService,
   role: EntryState | null,

@@ -23,7 +23,7 @@ export const prepareCronServices = async (event: PrepareResourceEvent) => {
 
   const functionName = getTargetName(service, handler.name, options);
 
-  const functionState = await createTargetFunction(state, role, {
+  const functionState = createTargetFunction(state, role, {
     functionName,
     description: handler.description,
     sourceFile: handler.file,
