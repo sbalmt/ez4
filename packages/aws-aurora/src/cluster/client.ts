@@ -9,8 +9,10 @@ import {
   DeleteDBClusterCommand,
   AddTagsToResourceCommand,
   RemoveTagsFromResourceCommand,
+  DescribeDBClustersCommand,
   waitUntilDBClusterAvailable,
-  waitUntilDBClusterDeleted
+  waitUntilDBClusterDeleted,
+  DBClusterNotFoundFault
 } from '@aws-sdk/client-rds';
 
 import { getRandomPassword } from '../utils/credentials.js';
@@ -33,8 +35,7 @@ export type CreateRequest = {
   tags?: ResourceTags;
 };
 
-export type CreateResponse = {
-  clusterName: string;
+export type ImportOrCreateResponse = {
   clusterArn: Arn;
   writerEndpoint: string;
   readerEndpoint: string;
@@ -43,9 +44,39 @@ export type CreateResponse = {
 
 export type UpdateRequest = Partial<Omit<CreateRequest, 'clusterName' | 'database' | 'tags'>>;
 
-export type UpdateResponse = CreateResponse;
+export type UpdateResponse = ImportOrCreateResponse;
 
-export const createCluster = async (request: CreateRequest): Promise<CreateResponse> => {
+export const importCluster = async (
+  clusterName: string
+): Promise<ImportOrCreateResponse | undefined> => {
+  Logger.logImport(ClusterServiceName, clusterName);
+
+  try {
+    const response = await client.send(
+      new DescribeDBClustersCommand({
+        DBClusterIdentifier: clusterName,
+        MaxRecords: 20
+      })
+    );
+
+    const [{ DBClusterArn, MasterUserSecret, Endpoint, ReaderEndpoint }] = response.DBClusters!;
+
+    return {
+      clusterArn: DBClusterArn as Arn,
+      secretArn: MasterUserSecret!.SecretArn as Arn,
+      readerEndpoint: ReaderEndpoint!,
+      writerEndpoint: Endpoint!
+    };
+  } catch (error) {
+    if (!(error instanceof DBClusterNotFoundFault)) {
+      throw error;
+    }
+
+    return undefined;
+  }
+};
+
+export const createCluster = async (request: CreateRequest): Promise<ImportOrCreateResponse> => {
   const { clusterName } = request;
 
   Logger.logCreate(ClusterServiceName, clusterName);
@@ -81,7 +112,6 @@ export const createCluster = async (request: CreateRequest): Promise<CreateRespo
   const { DBClusterArn, MasterUserSecret, Endpoint, ReaderEndpoint } = response.DBCluster!;
 
   return {
-    clusterName,
     clusterArn: DBClusterArn as Arn,
     secretArn: MasterUserSecret!.SecretArn as Arn,
     readerEndpoint: ReaderEndpoint!,
@@ -113,7 +143,6 @@ export const updateCluster = async (
   const { DBClusterArn, MasterUserSecret, Endpoint, ReaderEndpoint } = response.DBCluster!;
 
   return {
-    clusterName,
     clusterArn: DBClusterArn as Arn,
     secretArn: MasterUserSecret!.SecretArn as Arn,
     readerEndpoint: ReaderEndpoint!,
