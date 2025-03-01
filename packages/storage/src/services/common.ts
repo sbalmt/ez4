@@ -39,7 +39,7 @@ export const enum BucketEventType {
 /**
  * Bucket event.
  */
-export type BucketCreateEvent = {
+export type BucketEvent = {
   /**
    * Request Id.
    */
