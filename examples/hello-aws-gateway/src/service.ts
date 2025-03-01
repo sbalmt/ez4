@@ -1,11 +1,11 @@
 import type { Http } from '@ez4/gateway';
-import type { GetRequest, PostRequest } from './types.js';
-import type { getHandler, postHandler } from './handlers.js';
+import type { postHandler } from './endpoints/post.js';
+import type { getHandler } from './endpoints/get.js';
 
 /**
  * Example of AWS API deployed with EZ4.
  */
-export declare class Api extends Http.Service<[PostRequest, GetRequest]> {
+export declare class Api extends Http.Service {
   /**
    * Display name for this API.
    */

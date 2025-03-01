@@ -1,13 +1,14 @@
 import type { String } from '@ez4/schema';
 import type { Service } from '@ez4/common';
 import type { Http } from '@ez4/gateway';
+import type { ItemType } from '../../schemas/item.js';
 import type { Api } from '../../api.js';
 
 import { HttpNotFoundError } from '@ez4/gateway';
 
-import { deleteItem } from '../repository.js';
+import { readItem } from '../repository.js';
 
-export declare class DeleteItemRequest implements Http.Request {
+export declare class ReadItemRequest implements Http.Request {
   parameters: {
     /**
      * Item Id.
@@ -16,33 +17,38 @@ export declare class DeleteItemRequest implements Http.Request {
   };
 }
 
-export declare class DeleteItemResponse implements Http.Response {
+export declare class ReadItemResponse implements Http.Response {
   status: 200;
 
   body: {
     /**
-     * Old item name.
+     * Item name.
      */
     name: string;
 
     /**
-     * Old item description.
+     * Item description.
      */
     description?: string;
+
+    /**
+     * Item type.
+     */
+    type: ItemType;
   };
 }
 
 /**
- * Handle item delete requests.
+ * Handle read item requests.
  */
-export async function deleteItemHandler(
-  request: DeleteItemRequest,
+export async function readItemHandler(
+  request: ReadItemRequest,
   context: Service.Context<Api>
-): Promise<DeleteItemResponse> {
-  const { auroraDb } = context;
+): Promise<ReadItemResponse> {
+  const { dynamoDb } = context;
   const { id } = request.parameters;
 
-  const item = await deleteItem(auroraDb, id);
+  const item = await readItem(dynamoDb, id);
 
   if (!item) {
     throw new HttpNotFoundError(`Item not found.`);
@@ -52,7 +58,8 @@ export async function deleteItemHandler(
     status: 200,
     body: {
       name: item.name,
-      description: item.description
+      description: item.description,
+      type: item.type
     }
   };
 }

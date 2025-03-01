@@ -1,17 +1,11 @@
-import type { PublicRequest, PrivateRequest, GeneralResponse } from './types.js';
+import type { Http } from '@ez4/gateway';
+import type { GeneralResponse, Identity } from '../types.js';
 
 /**
- * Handler for `public` requests.
- * @param _request Incoming request.
- * @returns Outgoing response.
+ * Private request example.
  */
-export function publicHandler(_request: PublicRequest): GeneralResponse {
-  return {
-    status: 200,
-    body: {
-      message: 'Public request'
-    }
-  };
+export declare class PrivateRequest implements Http.Request {
+  identity: Identity;
 }
 
 /**

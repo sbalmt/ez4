@@ -60,7 +60,6 @@ export async function readItemHandler(
 
   return {
     status: 200,
-
     body: {
       name: item.name,
       description: item.description,

@@ -1,10 +1,10 @@
 import type { Database, Index, Client } from '@ez4/database';
-import type { ItemSchema } from './dynamo/item.js';
+import type { ItemSchema } from './schemas/item.js';
 
 /**
  * Example of AWS DynamoDB deployed with EZ4.
  */
-export declare class Db extends Database.Service<[ItemSchema]> {
+export declare class Db extends Database.Service {
   client: Client<typeof this>;
 
   engine: 'dynamodb';

@@ -3,7 +3,8 @@
  */
 export default {
   prefix: 'ez4',
-  projectName: 'aws-aurora',
+  debugMode: true,
+  projectName: 'hello-aurora',
   sourceFiles: ['./src/service.ts'],
   stateFile: {
     path: 'ez4-deploy'

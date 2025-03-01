@@ -3,7 +3,8 @@
  */
 export default {
   prefix: 'ez4',
-  projectName: 'aws-cloudfront',
+  debugMode: true,
+  projectName: 'hello-cloudfront',
   sourceFiles: ['./src/distribution.ts'],
   stateFile: {
     path: 'ez4-deploy'

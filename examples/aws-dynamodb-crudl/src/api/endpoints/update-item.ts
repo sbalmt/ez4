@@ -1,6 +1,7 @@
 import type { String } from '@ez4/schema';
 import type { Service } from '@ez4/common';
 import type { Http } from '@ez4/gateway';
+import type { ItemType } from '../../schemas/item.js';
 import type { Api } from '../../api.js';
 
 import { HttpNotFoundError } from '@ez4/gateway';
@@ -27,19 +28,9 @@ export declare class UpdateItemRequest implements Http.Request {
     description?: String.Size<1, 128>;
 
     /**
-     * Item category.
+     * New item type.
      */
-    category?: {
-      /**
-       * New category name.
-       */
-      name: String.Size<1, 32>;
-
-      /**
-       * New category description.
-       */
-      description?: String.Size<1, 128>;
-    };
+    type?: ItemType;
   };
 }
 
@@ -53,19 +44,14 @@ export declare class UpdateItemResponse implements Http.Response {
     name: string;
 
     /**
-     * Old or current item description.
+     * Old item description.
      */
     description?: string;
 
     /**
-     * Old or current item category name.
+     * Old item type.
      */
-    category_name?: string;
-
-    /**
-     * Old or current item category description.
-     */
-    category_description?: string;
+    type: ItemType;
   };
 }
 
@@ -76,15 +62,15 @@ export async function updateItemHandler(
   request: UpdateItemRequest,
   context: Service.Context<Api>
 ): Promise<UpdateItemResponse> {
-  const { auroraDb } = context;
-  const { name, description, category } = request.body;
+  const { dynamoDb } = context;
+  const { name, description, type } = request.body;
   const { id } = request.parameters;
 
-  const oldItem = await updateItem(auroraDb, {
+  const oldItem = await updateItem(dynamoDb, {
     id,
     name,
     description,
-    category
+    type
   });
 
   if (!oldItem) {
@@ -96,8 +82,7 @@ export async function updateItemHandler(
     body: {
       name: oldItem.name,
       description: oldItem.description,
-      category_name: oldItem.category?.name,
-      category_description: oldItem.category?.description
+      type: oldItem.type
     }
   };
 }

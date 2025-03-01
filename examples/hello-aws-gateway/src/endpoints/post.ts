@@ -1,5 +1,7 @@
 import type { Http } from '@ez4/gateway';
 
+import { randomUUID } from 'node:crypto';
+
 /**
  * Post request example.
  */
@@ -27,24 +29,21 @@ export declare class PostResponse implements Http.Response {
 }
 
 /**
- * Get request example.
+ * Handler for `post` requests.
+ * @param request Incoming post request.
+ * @returns Outgoing post response.
  */
-export declare class GetRequest implements Http.Request {
-  parameters: {
-    /**
-     * Example of `id` in the path parameters.
-     */
-    id: string;
-  };
-}
+export function postHandler(request: PostRequest): PostResponse {
+  const { body } = request;
 
-/**
- * Get response example.
- */
-export declare class GetResponse implements Http.Response {
-  status: 200;
+  // Do some stuff...
+  body.foo;
 
-  body: {
-    foo: string;
+  return {
+    status: 201,
+
+    body: {
+      id: randomUUID()
+    }
   };
 }

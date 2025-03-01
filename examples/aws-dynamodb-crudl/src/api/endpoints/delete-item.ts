@@ -1,6 +1,7 @@
 import type { String } from '@ez4/schema';
 import type { Service } from '@ez4/common';
 import type { Http } from '@ez4/gateway';
+import type { ItemType } from '../../schemas/item.js';
 import type { Api } from '../../api.js';
 
 import { HttpNotFoundError } from '@ez4/gateway';
@@ -29,6 +30,11 @@ export declare class DeleteItemResponse implements Http.Response {
      * Old item description.
      */
     description?: string;
+
+    /**
+     * Old item type.
+     */
+    type: ItemType;
   };
 }
 
@@ -39,10 +45,10 @@ export async function deleteItemHandler(
   request: DeleteItemRequest,
   context: Service.Context<Api>
 ): Promise<DeleteItemResponse> {
-  const { auroraDb } = context;
+  const { dynamoDb } = context;
   const { id } = request.parameters;
 
-  const item = await deleteItem(auroraDb, id);
+  const item = await deleteItem(dynamoDb, id);
 
   if (!item) {
     throw new HttpNotFoundError(`Item not found.`);
@@ -52,7 +58,8 @@ export async function deleteItemHandler(
     status: 200,
     body: {
       name: item.name,
-      description: item.description
+      description: item.description,
+      type: item.type
     }
   };
 }

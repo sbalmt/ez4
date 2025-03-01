@@ -1,6 +1,7 @@
 import type { String } from '@ez4/schema';
 import type { Service } from '@ez4/common';
 import type { Http } from '@ez4/gateway';
+import type { ItemType } from '../../schemas/item.js';
 import type { Api } from '../../api.js';
 
 import { createItem } from '../repository.js';
@@ -18,19 +19,9 @@ export declare class CreateItemRequest implements Http.Request {
     description?: String.Size<1, 128>;
 
     /**
-     * Item category.
+     * Item type.
      */
-    category?: {
-      /**
-       * Category name.
-       */
-      name: String.Size<1, 32>;
-
-      /**
-       * Category description.
-       */
-      description?: String.Size<1, 128>;
-    };
+    type: ItemType;
   };
 }
 
@@ -52,13 +43,13 @@ export async function createItemHandler(
   request: CreateItemRequest,
   context: Service.Context<Api>
 ): Promise<CreateItemResponse> {
-  const { auroraDb } = context;
-  const { name, description, category } = request.body;
+  const { name, description, type } = request.body;
+  const { dynamoDb } = context;
 
-  const itemId = await createItem(auroraDb, {
+  const itemId = await createItem(dynamoDb, {
     name,
     description,
-    category
+    type
   });
 
   return {
