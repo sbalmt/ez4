@@ -37,8 +37,8 @@
     "live:publish": "npm run test && npm publish --access public"
   },
   "dependencies": {
-    "@aws-sdk/client-iam": "^3.614.0",
-    "@aws-sdk/client-sts": "^3.614.0",
+    "@aws-sdk/client-iam": "^3.758.0",
+    "@aws-sdk/client-sts": "^3.758.0",
     "@ez4/aws-common": "^0.13.0",
     "@ez4/project": "^0.13.0",
     "@ez4/stateful": "^0.13.0",

@@ -47,10 +47,10 @@
     "live:publish": "npm run test && npm publish --access public"
   },
   "devDependencies": {
-    "@types/aws-lambda": "^8.10.141"
+    "@types/aws-lambda": "^8.10.147"
   },
   "dependencies": {
-    "@aws-sdk/client-sns": "^3.614.0",
+    "@aws-sdk/client-sns": "^3.758.0",
     "@ez4/aws-common": "^0.13.0",
     "@ez4/aws-identity": "^0.13.0",
     "@ez4/aws-function": "^0.13.0",
