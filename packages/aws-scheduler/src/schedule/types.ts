@@ -6,9 +6,10 @@ export const ScheduleServiceName = 'AWS:EventBridge/Schedule';
 
 export const ScheduleServiceType = 'aws:eventbridge.schedule';
 
-export type ScheduleParameters = Omit<CreateRequest, 'functionArn' | 'roleArn'>;
+export type ScheduleParameters = Omit<CreateRequest, 'roleArn' | 'functionArn' | 'groupName'>;
 
 export type ScheduleResult = CreateResponse & {
+  groupName?: string;
   functionArn: Arn;
   roleArn: Arn;
 };

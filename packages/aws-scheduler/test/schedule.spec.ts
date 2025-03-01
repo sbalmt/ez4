@@ -5,6 +5,7 @@ import { ok, equal } from 'node:assert/strict';
 import { join } from 'node:path';
 
 import {
+  createGroup,
   createSchedule,
   createTargetFunction,
   isScheduleState,
@@ -57,13 +58,17 @@ describe.only('scheduler', () => {
       roleDocument: getRoleDocument()
     });
 
-    const lambdaResource = await createTargetFunction(localState, roleResource, {
+    const lambdaResource = createTargetFunction(localState, roleResource, {
       sourceFile: join(baseDir, 'lambda.js'),
       functionName: 'ez4-test-scheduler-lambda',
       handlerName: 'main'
     });
 
-    const resource = createSchedule(localState, roleResource, lambdaResource, {
+    const groupResource = createGroup(localState, {
+      groupName: 'ez4-test-scheduler-group'
+    });
+
+    const resource = createSchedule(localState, roleResource, lambdaResource, groupResource, {
       scheduleName: 'ez4-test-scheduler',
       expression: 'rate(1 minute)',
       description: 'EZ4: Test scheduler',

@@ -48,38 +48,49 @@ export const getCronServices = (reflection: SourceMap) => {
 
       switch (member.name) {
         case 'target': {
-          if ((service.target = getCronTarget(member.value, statement, reflection, errorList))) {
+          const value = getCronTarget(member.value, statement, reflection, errorList);
+
+          if (value) {
             properties.delete(member.name);
+            service.target = value;
           }
+
           break;
         }
 
+        case 'group':
         case 'expression':
         case 'timezone':
         case 'startDate':
         case 'endDate': {
           const value = getPropertyString(member);
+
           if (value !== undefined && value !== null) {
             properties.delete(member.name);
             service[member.name] = value;
           }
+
           break;
         }
 
         case 'disabled': {
           const value = getPropertyBoolean(member);
+
           if (isAnyBoolean(value)) {
             service[member.name] = value;
           }
+
           break;
         }
 
         case 'maxRetryAttempts':
         case 'maxEventAge': {
           const value = getPropertyNumber(member);
+
           if (isAnyNumber(value)) {
             service[member.name] = value;
           }
+
           break;
         }
 

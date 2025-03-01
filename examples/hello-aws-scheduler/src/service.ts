@@ -6,6 +6,11 @@ import type { targetHandler } from './handlers.js';
  */
 export declare class Event extends Cron.Service {
   /**
+   * Group for the scheduler.
+   */
+  group: 'ez4-group';
+
+  /**
    * Execute every 5 minutes.
    */
   expression: 'rate(5 minutes)';

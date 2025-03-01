@@ -5,6 +5,8 @@ import type { Cron } from '@ez4/scheduler';
  * Scheduler cron description.
  */
 export declare class TestScheduler extends Cron.Service {
+  group: 'test-group';
+
   expression: 'rate(1 minute)';
 
   timezone: 'America/Sao_Paulo';

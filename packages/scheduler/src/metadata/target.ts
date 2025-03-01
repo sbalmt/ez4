@@ -1,7 +1,7 @@
 import type { Incomplete } from '@ez4/utils';
 import type { MemberType } from '@ez4/common/library';
 import type { AllType, SourceMap, TypeModel, TypeObject } from '@ez4/reflection';
-import type { CronTarget } from '../types/target.js';
+import type { CronTarget } from '../types/common.js';
 
 import {
   getLinkedVariableList,

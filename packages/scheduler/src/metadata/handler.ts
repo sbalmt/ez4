@@ -1,6 +1,6 @@
 import type { Incomplete } from '@ez4/utils';
 import type { AllType } from '@ez4/reflection';
-import type { TargetHandler } from '../types/handler.js';
+import type { TargetHandler } from '../types/common.js';
 
 import { IncompleteHandlerError } from '../errors/handler.js';
 import { isTargetHandler } from './utils.js';

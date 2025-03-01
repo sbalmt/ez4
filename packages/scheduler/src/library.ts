@@ -9,6 +9,5 @@ export * from './errors/service.js';
 export * from './errors/target.js';
 export * from './errors/handler.js';
 
+export * from './types/common.js';
 export * from './types/service.js';
-export * from './types/target.js';
-export * from './types/handler.js';

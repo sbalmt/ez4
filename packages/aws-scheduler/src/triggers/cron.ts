@@ -1,4 +1,6 @@
 import type { PrepareResourceEvent } from '@ez4/project/library';
+import type { CronService } from '@ez4/scheduler/library';
+import type { EntryStates } from '@ez4/stateful';
 
 import { getServiceName } from '@ez4/project/library';
 import { isCronService } from '@ez4/scheduler/library';
@@ -7,6 +9,7 @@ import { isRoleState } from '@ez4/aws-identity';
 import { createTargetFunction } from '../schedule/function/service.js';
 import { createSchedule } from '../schedule/service.js';
 import { getTargetName } from './utils.js';
+import { createGroup } from '../group/service.js';
 
 export const prepareCronServices = async (event: PrepareResourceEvent) => {
   const { state, service, options, role } = event;
@@ -39,17 +42,30 @@ export const prepareCronServices = async (event: PrepareResourceEvent) => {
   });
 
   const { description, expression, timezone, startDate, endDate } = service;
+
   const { maxRetryAttempts = 0, maxEventAge } = service;
 
-  createSchedule(state, role, functionState, {
+  const groupState = getScheduleGroup(state, service);
+
+  createSchedule(state, role, functionState, groupState, {
     scheduleName: getServiceName(service, options),
     enabled: !service.disabled,
+    maxRetryAttempts,
+    maxEventAge,
     description,
     expression,
     timezone,
     startDate,
-    endDate,
-    maxRetryAttempts,
-    maxEventAge
+    endDate
+  });
+};
+
+const getScheduleGroup = (state: EntryStates, service: CronService) => {
+  if (!service.group) {
+    return undefined;
+  }
+
+  return createGroup(state, {
+    groupName: service.group
   });
 };

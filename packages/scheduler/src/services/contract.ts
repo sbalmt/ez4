@@ -52,7 +52,12 @@ export namespace Cron {
     abstract expression: string;
 
     /**
-     * Specify the scheduler expression timezone.
+     * Scheduler group name.
+     */
+    group?: string;
+
+    /**
+     * Scheduler expression timezone.
      */
     timezone?: string;
 

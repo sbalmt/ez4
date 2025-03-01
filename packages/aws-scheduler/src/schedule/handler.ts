@@ -6,6 +6,7 @@ import { deepCompare, deepEqual } from '@ez4/utils';
 import { getFunctionArn } from '@ez4/aws-function';
 import { getRoleArn } from '@ez4/aws-identity';
 
+import { tryGetGroupName } from '../group/utils.js';
 import { createSchedule, deleteSchedule, updateSchedule } from './client.js';
 import { ScheduleServiceName } from './types.js';
 
@@ -56,14 +57,17 @@ const createResource = async (
 ): Promise<ScheduleResult> => {
   const roleArn = getRoleArn(ScheduleServiceName, 'schedule', context);
   const functionArn = getFunctionArn(ScheduleServiceName, 'schedule', context);
+  const groupName = tryGetGroupName(context);
 
   const { scheduleArn } = await createSchedule({
     ...candidate.parameters,
+    groupName,
     functionArn,
     roleArn
   });
 
   return {
+    groupName,
     scheduleArn,
     functionArn,
     roleArn
@@ -89,8 +93,22 @@ const updateResource = async (
   const newFunctionArn = getFunctionArn(ScheduleServiceName, scheduleName, context);
   const oldFunctionArn = current.result?.functionArn ?? newFunctionArn;
 
-  const newRequest = { ...parameters, functionArn: newFunctionArn, roleArn: newRoleArn };
-  const oldRequest = { ...current.parameters, functionArn: oldFunctionArn, roleArn: oldRoleArn };
+  const newGroupName = tryGetGroupName(context);
+  const oldGroupName = current.result?.groupName ?? newGroupName;
+
+  const newRequest = {
+    ...parameters,
+    groupName: newGroupName,
+    functionArn: newFunctionArn,
+    roleArn: newRoleArn
+  };
+
+  const oldRequest = {
+    ...current.parameters,
+    groupName: oldGroupName,
+    functionArn: oldFunctionArn,
+    roleArn: oldRoleArn
+  };
 
   await checkGeneralUpdates(parameters.scheduleName, newRequest, oldRequest);
 };

@@ -3,6 +3,7 @@
     "type": "@ez4/cron",
     "name": "TestScheduler",
     "description": "Scheduler cron description.",
+    "group": "test-group",
     "expression": "rate(1 minute)",
     "timezone": "America/Sao_Paulo",
     "startDate": "2024-01-01T:00:00:00Z",
