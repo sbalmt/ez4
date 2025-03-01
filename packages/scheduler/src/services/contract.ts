@@ -1,25 +1,28 @@
 import type { LinkedVariables } from '@ez4/project/library';
 import type { Service } from '@ez4/common';
+import type { EventSchema, IncomingRequest, RequestHandler } from './common.js';
+import type { Client } from './client.js';
 
 /**
  * Provide all contracts for a self-managed Cron service.
  */
 export namespace Cron {
-  /**
-   * Execution handler.
-   */
-  export type Handler = (context: Service.Context<Service>) => Promise<void> | void;
+  export type Event = EventSchema;
+
+  export type Handler<T extends Event> = RequestHandler<T>;
+
+  export type Incoming<T extends Event> = IncomingRequest<T>;
 
   /**
    * Cron target.
    */
-  export interface Target {
+  export interface Target<T extends Event = never> {
     /**
      * Target handler.
      *
      * @param context Handler context.
      */
-    handler: Handler;
+    handler: Handler<T>;
 
     /**
      * Variables associated to the target.
@@ -40,16 +43,21 @@ export namespace Cron {
   /**
    * Cron service.
    */
-  export declare abstract class Service implements Service.Provider {
+  export declare abstract class Service<T extends Event = never> implements Service.Provider {
     /**
      * Scheduler target.
      */
-    abstract target: Target;
+    abstract target: Target<T>;
 
     /**
-     * Scheduler expression.
+     * Scheduler expression or literal 'dynamic' when the created cron service is dynamic.
      */
-    abstract expression: string;
+    abstract expression: 'dynamic' | string;
+
+    /**
+     * Event schema.
+     */
+    schema: T;
 
     /**
      * Scheduler group name.
@@ -75,12 +83,12 @@ export namespace Cron {
      * Maximum retry attempts for the event before it fails.
      * Default is: 0
      */
-    maxRetryAttempts?: number;
+    maxRetries?: number;
 
     /**
      * Maximum age (in seconds) for the event to be eligible for retry attempts.
      */
-    maxEventAge?: number;
+    maxAge?: number;
 
     /**
      * Determines whether or not the scheduler is disabled.
@@ -95,6 +103,6 @@ export namespace Cron {
     /**
      * Service client.
      */
-    client: never;
+    client: T extends never ? never : Client<T>;
   }
 }

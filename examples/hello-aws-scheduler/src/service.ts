@@ -30,7 +30,7 @@ export declare class Event extends Cron.Service {
   /**
    * Retry up to 10 times in case it fails.
    */
-  maxRetryAttempts: 10;
+  maxRetries: 10;
 
   /**
    * Define the scheduler start date

@@ -1,0 +1,25 @@
+{
+  "TestScheduler": {
+    "type": "@ez4/cron",
+    "name": "TestScheduler",
+    "group": "test-group",
+    "expression": "dynamic",
+    "timezone": "America/Sao_Paulo",
+    "maxRetries": 5,
+    "target": {
+      "handler": {
+        "name": "targetHandler",
+        "file": "test/input/output-dynamic.ts",
+        "request": true
+      }
+    },
+    "schema": {
+      "type": "object",
+      "identity": 1,
+      "properties": {}
+    },
+    "services": {
+      "testCron": "TestScheduler"
+    }
+  }
+}

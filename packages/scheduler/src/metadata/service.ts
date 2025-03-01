@@ -18,8 +18,12 @@ import { isAnyBoolean, isAnyNumber } from '@ez4/utils';
 
 import { ServiceType } from '../types/service.js';
 import { IncompleteServiceError } from '../errors/service.js';
+import { InvalidHandlerError } from '../errors/handler.js';
 import { getCronTarget } from './target.js';
 import { isCronService } from './utils.js';
+import { getCronEvent } from './event.js';
+
+const DynamicExpression = 'dynamic';
 
 export const getCronServices = (reflection: SourceMap) => {
   const cronServices: Record<string, CronService> = {};
@@ -41,71 +45,114 @@ export const getCronServices = (reflection: SourceMap) => {
       service.description = statement.description;
     }
 
-    for (const member of getModelMembers(statement)) {
-      if (!isModelProperty(member) || member.inherited) {
+    for (const member of getModelMembers(statement, true)) {
+      if (!isModelProperty(member)) {
         continue;
       }
 
       switch (member.name) {
-        case 'target': {
-          const value = getCronTarget(member.value, statement, reflection, errorList);
+        case 'schema': {
+          const value = getCronEvent(member.value, statement, reflection, errorList);
 
           if (value) {
             properties.delete(member.name);
-            service.target = value;
+            service.schema = value;
+          }
+
+          break;
+        }
+
+        case 'target': {
+          if (!member.inherited) {
+            const value = getCronTarget(member.value, statement, reflection, errorList);
+
+            if (value) {
+              properties.delete(member.name);
+              service.target = value;
+            }
           }
 
           break;
         }
 
         case 'group':
-        case 'expression':
         case 'timezone':
         case 'startDate':
         case 'endDate': {
-          const value = getPropertyString(member);
+          if (!member.inherited) {
+            const value = getPropertyString(member);
 
-          if (value !== undefined && value !== null) {
-            properties.delete(member.name);
-            service[member.name] = value;
+            if (value) {
+              service[member.name] = value;
+            }
+          }
+
+          break;
+        }
+
+        case 'expression': {
+          if (!member.inherited) {
+            const value = getPropertyString(member);
+
+            if (value) {
+              properties.delete(member.name);
+              service.expression = value;
+
+              if (value === DynamicExpression && !service.schema) {
+                properties.add('schema');
+              }
+            }
           }
 
           break;
         }
 
         case 'disabled': {
-          const value = getPropertyBoolean(member);
+          if (!member.inherited) {
+            const value = getPropertyBoolean(member);
 
-          if (isAnyBoolean(value)) {
-            service[member.name] = value;
+            if (isAnyBoolean(value)) {
+              service.disabled = value;
+            }
           }
 
           break;
         }
 
-        case 'maxRetryAttempts':
-        case 'maxEventAge': {
-          const value = getPropertyNumber(member);
+        case 'maxRetries':
+        case 'maxAge': {
+          if (!member.inherited) {
+            const value = getPropertyNumber(member);
 
-          if (isAnyNumber(value)) {
-            service[member.name] = value;
+            if (isAnyNumber(value)) {
+              service[member.name] = value;
+            }
           }
 
           break;
         }
 
         case 'variables':
-          service.variables = getLinkedVariableList(member, errorList);
+          if (!member.inherited) {
+            service.variables = getLinkedVariableList(member, errorList);
+          }
           break;
 
         case 'services':
-          service.services = getLinkedServiceList(member, reflection, errorList);
+          if (!member.inherited) {
+            service.services = getLinkedServiceList(member, reflection, errorList);
+          }
           break;
       }
     }
 
     if (!isValidService(service)) {
       errorList.push(new IncompleteServiceError([...properties], statement.file));
+      continue;
+    }
+
+    if (!service.schema && service.target.handler.request) {
+      errorList.push(new InvalidHandlerError(statement.file));
       continue;
     }
 
@@ -124,5 +171,13 @@ export const getCronServices = (reflection: SourceMap) => {
 };
 
 const isValidService = (type: Incomplete<CronService>): type is CronService => {
-  return !!type.name && !!type.target && !!type.expression;
+  if (!type.name || !type.target) {
+    return false;
+  }
+
+  if (!type.schema) {
+    return type.expression !== DynamicExpression && !!type.expression;
+  }
+
+  return type.expression === DynamicExpression;
 };

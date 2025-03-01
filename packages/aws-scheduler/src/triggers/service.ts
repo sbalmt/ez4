@@ -1,4 +1,4 @@
-import type { PrepareResourceEvent } from '@ez4/project/library';
+import type { PrepareResourceEvent, ServiceEvent } from '@ez4/project/library';
 import type { CronService } from '@ez4/scheduler/library';
 import type { EntryStates } from '@ez4/stateful';
 
@@ -8,8 +8,21 @@ import { isRoleState } from '@ez4/aws-identity';
 
 import { createTargetFunction } from '../schedule/function/service.js';
 import { createSchedule } from '../schedule/service.js';
-import { getTargetName } from './utils.js';
 import { createGroup } from '../group/service.js';
+import { prepareLinkedService } from './client.js';
+import { getTargetName } from './utils.js';
+
+export const prepareLinkedServices = (event: ServiceEvent) => {
+  const { service, options } = event;
+
+  if (!isCronService(service) || !service.schema) {
+    return null;
+  }
+
+  const scheduleName = getServiceName(service, options);
+
+  return prepareLinkedService(scheduleName, service.schema);
+};
 
 export const prepareCronServices = async (event: PrepareResourceEvent) => {
   const { state, service, options, role } = event;
@@ -43,15 +56,15 @@ export const prepareCronServices = async (event: PrepareResourceEvent) => {
 
   const { description, expression, timezone, startDate, endDate } = service;
 
-  const { maxRetryAttempts = 0, maxEventAge } = service;
+  const { maxRetries = 0, maxAge } = service;
 
   const groupState = getScheduleGroup(state, service);
 
   createSchedule(state, role, functionState, groupState, {
     scheduleName: getServiceName(service, options),
     enabled: !service.disabled,
-    maxRetryAttempts,
-    maxEventAge,
+    maxRetries,
+    maxAge,
     description,
     expression,
     timezone,

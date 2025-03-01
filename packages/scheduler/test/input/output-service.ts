@@ -15,19 +15,16 @@ export declare class TestScheduler extends Cron.Service {
 
   endDate: '2024-01-01T:23:59:59Z';
 
-  maxRetryAttempts: 0;
+  maxRetries: 0;
 
-  maxEventAge: 20;
+  maxAge: 20;
 
   disabled: true;
 
   target: {
     handler: typeof targetHandler;
-
     timeout: 30;
-
     memory: 128;
-
     variables: {
       TEST_VAR1: 'test-literal-value';
     };

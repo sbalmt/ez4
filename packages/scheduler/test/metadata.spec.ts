@@ -31,4 +31,5 @@ describe.only('scheduler metadata', () => {
   process.env.TEST_ENV_VAR = 'test-env-var-value';
 
   it('assert :: basic scheduler', () => testFile('service'));
+  it('assert :: dynamic scheduler', () => testFile('dynamic'));
 });

@@ -32,13 +32,13 @@ export const getCronTarget = (
   errorList: Error[]
 ) => {
   if (!isTypeReference(type)) {
-    return getTypeTarget(type, parent, errorList);
+    return getTypeTarget(type, parent, reflection, errorList);
   }
 
   const statement = reflection[type.path];
 
   if (statement) {
-    return getTypeTarget(statement, parent, errorList);
+    return getTypeTarget(statement, parent, reflection, errorList);
   }
 
   return null;
@@ -48,9 +48,14 @@ const isValidTarget = (type: Incomplete<CronTarget>): type is CronTarget => {
   return !!type.handler;
 };
 
-const getTypeTarget = (type: AllType, parent: TypeParent, errorList: Error[]) => {
+const getTypeTarget = (
+  type: AllType,
+  parent: TypeParent,
+  reflection: SourceMap,
+  errorList: Error[]
+) => {
   if (isTypeObject(type)) {
-    return getTypeFromMembers(type, getObjectMembers(type), errorList);
+    return getTypeFromMembers(type, getObjectMembers(type), reflection, errorList);
   }
 
   if (!isModelDeclaration(type)) {
@@ -63,12 +68,13 @@ const getTypeTarget = (type: AllType, parent: TypeParent, errorList: Error[]) =>
     return null;
   }
 
-  return getTypeFromMembers(type, getModelMembers(type), errorList);
+  return getTypeFromMembers(type, getModelMembers(type), reflection, errorList);
 };
 
 const getTypeFromMembers = (
   type: TypeObject | TypeModel,
   members: MemberType[],
+  reflection: SourceMap,
   errorList: Error[]
 ) => {
   const target: Incomplete<CronTarget> = {};
@@ -81,15 +87,17 @@ const getTypeFromMembers = (
 
     switch (member.name) {
       case 'handler':
-        target.handler = getTargetHandler(member.value, errorList);
+        target.handler = getTargetHandler(member.value, reflection, errorList);
         break;
 
       case 'timeout':
       case 'memory': {
         const value = getPropertyNumber(member);
+
         if (isAnyNumber(value)) {
           target[member.name] = value;
         }
+
         break;
       }
 

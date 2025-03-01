@@ -7,6 +7,10 @@ export const isCronService = (type: AllType): type is TypeClass => {
   return isClassDeclaration(type) && hasHeritageType(type, 'Cron.Service');
 };
 
+export const isCronEvent = (type: TypeModel) => {
+  return hasHeritageType(type, 'Cron.Event');
+};
+
 export const isCronTarget = (type: TypeModel) => {
   return hasHeritageType(type, 'Cron.Target');
 };

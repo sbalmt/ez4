@@ -12,6 +12,7 @@ import {
 
 import { Logger } from '@ez4/aws-common';
 import { ScheduleServiceName } from './types.js';
+import { isAnyNumber } from '@ez4/utils';
 
 const client = new SchedulerClient({});
 
@@ -25,8 +26,8 @@ export type CreateRequest = {
   enabled: boolean;
   startDate?: string;
   endDate?: string;
-  maxRetryAttempts?: number;
-  maxEventAge?: number;
+  maxRetries?: number;
+  maxAge?: number;
   description?: string;
 };
 
@@ -77,11 +78,10 @@ export const deleteSchedule = async (scheduleName: string) => {
 const upsertScheduleRequest = (
   request: CreateRequest | UpdateRequest
 ): Omit<CreateScheduleInput | UpdateScheduleInput, 'Name'> => {
-  const { startDate, endDate, maxRetryAttempts, maxEventAge, enabled } = request;
+  const { startDate, endDate, maxRetries, maxAge, enabled } = request;
 
-  const hasMaxRetryAttempts = maxRetryAttempts !== undefined;
-
-  const hasMaxEventAge = maxEventAge !== undefined;
+  const hasMaxRetryAttempts = isAnyNumber(maxRetries);
+  const hasMaxEventAge = isAnyNumber(maxAge);
 
   const hasRetryPolicy = hasMaxEventAge || hasMaxRetryAttempts;
 
@@ -103,8 +103,8 @@ const upsertScheduleRequest = (
       RoleArn: request.roleArn,
       ...(hasRetryPolicy && {
         RetryPolicy: {
-          ...(hasMaxEventAge && { MaximumEventAgeInSeconds: maxEventAge }),
-          ...(hasMaxRetryAttempts && { MaximumRetryAttempts: maxRetryAttempts })
+          ...(hasMaxRetryAttempts && { MaximumRetryAttempts: maxRetries }),
+          ...(hasMaxEventAge && { MaximumEventAgeInSeconds: maxAge })
         }
       })
     }

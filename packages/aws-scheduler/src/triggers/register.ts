@@ -8,9 +8,9 @@ import { createTrigger } from '@ez4/project/library';
 import { registerScheduleProvider } from '../schedule/provider.js';
 import { registerGroupProvider } from '../group/provider.js';
 
+import { prepareLinkedServices, prepareCronServices } from './service.js';
 import { prepareIdentityAccount } from './identity.js';
 import { prepareExecutionPolicy } from './policy.js';
-import { prepareCronServices } from './cron.js';
 
 let isRegistered = false;
 
@@ -26,6 +26,7 @@ export const registerTriggers = () => {
 
   createTrigger('@ez4/aws-scheduler', {
     'deploy:prepareIdentityAccount': prepareIdentityAccount,
+    'deploy:prepareLinkedService': prepareLinkedServices,
     'deploy:prepareExecutionPolicy': prepareExecutionPolicy,
     'deploy:prepareResources': prepareCronServices
   });

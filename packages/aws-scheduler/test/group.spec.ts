@@ -36,7 +36,7 @@ describe.only('scheduler group', () => {
 
   registerTriggers();
 
-  it.only('assert :: deploy', async () => {
+  it('assert :: deploy', async () => {
     const localState: EntryStates = {};
 
     const resource = createGroup(localState, {
@@ -54,7 +54,7 @@ describe.only('scheduler group', () => {
     lastState = state;
   });
 
-  it.only('assert :: update tags', async () => {
+  it('assert :: update tags', async () => {
     ok(groupId && lastState);
 
     const localState = deepClone(lastState);
@@ -72,7 +72,7 @@ describe.only('scheduler group', () => {
     lastState = state;
   });
 
-  it.only('assert :: destroy', async () => {
+  it('assert :: destroy', async () => {
     ok(groupId && lastState);
 
     ok(lastState[groupId]);

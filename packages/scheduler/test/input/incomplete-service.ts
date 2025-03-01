@@ -12,4 +12,13 @@ export declare class TestScheduler2 extends Cron.Service {
   };
 }
 
+// Missing event schema.
+export declare class TestScheduler3 extends Cron.Service {
+  expression: 'dynamic';
+
+  target: {
+    handler: typeof targetHandler;
+  };
+}
+
 function targetHandler() {}
