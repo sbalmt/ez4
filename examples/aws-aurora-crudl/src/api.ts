@@ -1,20 +1,16 @@
 import type { Http } from '@ez4/gateway';
 import type { Environment } from '@ez4/common';
-import type { ApiRequests } from './api/requests.js';
+import type { createItemHandler } from './api/endpoints/create-item.js';
+import type { updateItemHandler } from './api/endpoints/update-item.js';
+import type { readItemHandler } from './api/endpoints/read-item.js';
+import type { deleteItemHandler } from './api/endpoints/delete-item.js';
+import type { listItemsHandler } from './api/endpoints/list-items.js';
 import type { Db } from './aurora.js';
-
-import type {
-  createItemHandler,
-  deleteItemHandler,
-  listItemsHandler,
-  readItemHandler,
-  updateItemHandler
-} from './api/handlers.js';
 
 /**
  * Example of AWS API deployed with EZ4.
  */
-export declare class Api extends Http.Service<ApiRequests> {
+export declare class Api extends Http.Service {
   /**
    * Display name for this API.
    */

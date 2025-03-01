@@ -1,4 +1,4 @@
-import type { Db } from '../../aurora.js';
+import type { Db } from '../aurora.js';
 
 import { Order } from '@ez4/database';
 import { randomUUID } from 'crypto';
@@ -87,26 +87,29 @@ export const deleteItem = async (client: DbClient, id: string) => {
   });
 };
 
-export type ListItemsInput = {
-  cursor?: number;
-  limit?: number;
-};
+export const listItems = async (client: DbClient, page: number, limit: number) => {
+  const cursor = (page - 1) * limit;
 
-export const listItems = async (client: DbClient, input: ListItemsInput) => {
-  const { cursor = 0, limit = 5 } = input;
+  const [total, { records: items }] = await Promise.all([
+    client.items.count({}),
+    client.items.findMany({
+      select: {
+        id: true,
+        name: true,
+        category: {
+          name: true
+        }
+      },
+      order: {
+        id: Order.Desc
+      },
+      cursor,
+      limit
+    })
+  ]);
 
-  return client.items.findMany({
-    select: {
-      id: true,
-      name: true,
-      category: {
-        name: true
-      }
-    },
-    order: {
-      id: Order.Desc
-    },
-    limit,
-    cursor
-  });
+  return {
+    items,
+    total
+  };
 };
