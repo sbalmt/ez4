@@ -2,5 +2,7 @@
  * Cron target handler.
  */
 export function targetHandler(): void {
-  // Do some stuff...
+  console.log('Scheduler executed.');
+
+  // Do another stuff...
 }

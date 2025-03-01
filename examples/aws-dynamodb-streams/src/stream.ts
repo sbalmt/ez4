@@ -7,21 +7,21 @@ import { StreamType } from '@ez4/database';
  * Handler for table changes.
  */
 export async function streamHandler(request: StreamChange<ExampleSchema>): Promise<void> {
+  console.log('Handler', JSON.stringify(request));
+
   switch (request.type) {
     case StreamType.Insert:
-      // Do some stuff...
-      request.record;
+      console.log('Record inserted.');
       break;
 
     case StreamType.Update:
-      // Do some stuff...
-      request.newRecord;
-      request.oldRecord;
+      console.log('Record updated.');
       break;
 
     case StreamType.Delete:
-      // Do some stuff...
-      request.record;
+      console.log('Record deleted.');
       break;
   }
+
+  // Do another stuff...
 }
