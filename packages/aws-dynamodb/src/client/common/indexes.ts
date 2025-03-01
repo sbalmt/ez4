@@ -1,4 +1,6 @@
-import { isEmptyObject, type AnyObject } from '@ez4/utils';
+import type { AnyObject } from '@ez4/utils';
+
+import { isEmptyObject } from '@ez4/utils';
 
 import { getIndexName } from '../../types/indexes.js';
 
@@ -10,18 +12,14 @@ export const findBestSecondaryIndex = (secondaryIndexes: string[][], fields: Any
   let bestIndexes = secondaryIndexes;
 
   for (const fieldKey in fields) {
-    const nextIndexes = bestIndexes.filter((index) => index.includes(fieldKey));
+    bestIndexes = bestIndexes.filter((index) => index.includes(fieldKey));
 
-    if (nextIndexes.length > 0) {
-      bestIndexes = nextIndexes;
+    if (!bestIndexes.length) {
+      return undefined;
     }
   }
 
-  const firstBestIndex = bestIndexes[0];
+  const [firstBestIndex] = bestIndexes;
 
-  if (firstBestIndex) {
-    return getIndexName(firstBestIndex);
-  }
-
-  return undefined;
+  return getIndexName(firstBestIndex);
 };
