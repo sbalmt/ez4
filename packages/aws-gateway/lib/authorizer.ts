@@ -12,7 +12,7 @@ import { getHeaders, getPathParameters, getQueryStrings } from '@ez4/aws-gateway
 type RequestEvent = APIGatewayRequestAuthorizerEventV2;
 type ResponseEvent = APIGatewaySimpleAuthorizerWithContextResult<any>;
 
-declare function next(request: unknown, context: object): Promise<Http.AuthResponse>;
+declare function next(request: Http.Incoming<any>, context: object): Promise<Http.AuthResponse>;
 
 declare const __EZ4_HEADERS_SCHEMA: ObjectSchema | null;
 declare const __EZ4_PARAMETERS_SCHEMA: ObjectSchema | null;

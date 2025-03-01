@@ -22,7 +22,7 @@ import { HttpError, HttpInternalServerError } from '@ez4/gateway';
 type RequestEvent = APIGatewayProxyEventV2WithLambdaAuthorizer<any>;
 type ResponseEvent = APIGatewayProxyResultV2;
 
-declare function next(request: unknown, context: object): Promise<Http.Response>;
+declare function next(request: Http.Incoming<any>, context: object): Promise<Http.Response>;
 
 declare const __EZ4_RESPONSE_SCHEMA: ObjectSchema | null;
 declare const __EZ4_BODY_SCHEMA: ObjectSchema | null;
