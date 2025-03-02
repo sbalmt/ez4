@@ -132,7 +132,7 @@ const updateResource = async (
 const deleteResource = async (candidate: ScheduleState) => {
   const { result, parameters } = candidate;
 
-  if (result && !parameters.dynamic) {
+  if (result && !parameters.dynamic && !result.groupName) {
     await deleteSchedule(parameters.scheduleName);
   }
 };
