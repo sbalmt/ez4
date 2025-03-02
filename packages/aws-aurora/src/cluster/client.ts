@@ -5,11 +5,11 @@ import { getTagList, Logger } from '@ez4/aws-common';
 import {
   RDSClient,
   CreateDBClusterCommand,
+  DescribeDBClustersCommand,
   ModifyDBClusterCommand,
   DeleteDBClusterCommand,
   AddTagsToResourceCommand,
   RemoveTagsFromResourceCommand,
-  DescribeDBClustersCommand,
   waitUntilDBClusterAvailable,
   waitUntilDBClusterDeleted,
   DBClusterNotFoundFault

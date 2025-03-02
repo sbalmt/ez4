@@ -7,12 +7,12 @@ import type {
 
 import {
   LambdaClient,
-  EventSourcePosition,
   GetEventSourceMappingCommand,
   CreateEventSourceMappingCommand,
   UpdateEventSourceMappingCommand,
   DeleteEventSourceMappingCommand,
-  ListEventSourceMappingsCommand
+  ListEventSourceMappingsCommand,
+  EventSourcePosition
 } from '@aws-sdk/client-lambda';
 
 import { Logger, parseArn } from '@ez4/aws-common';

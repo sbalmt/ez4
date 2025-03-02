@@ -4,8 +4,8 @@ import type { PolicyDocument } from '../types/policy.js';
 import {
   IAMClient,
   CreatePolicyCommand,
-  CreatePolicyVersionCommand,
   DeletePolicyCommand,
+  CreatePolicyVersionCommand,
   DeletePolicyVersionCommand,
   TagPolicyCommand,
   UntagPolicyCommand

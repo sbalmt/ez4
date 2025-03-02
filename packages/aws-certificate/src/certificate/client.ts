@@ -4,11 +4,11 @@ import { getTagList, Logger } from '@ez4/aws-common';
 
 import {
   ACMClient,
-  ValidationMethod,
   RequestCertificateCommand,
   DeleteCertificateCommand,
   AddTagsToCertificateCommand,
   RemoveTagsFromCertificateCommand,
+  ValidationMethod
 } from '@aws-sdk/client-acm';
 
 import { CertificateServiceName } from './types.js';

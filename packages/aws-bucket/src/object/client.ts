@@ -6,10 +6,10 @@ import { createReadStream } from 'node:fs';
 import mime from 'mime';
 
 import {
+  S3Client,
   PutObjectCommand,
   PutObjectTaggingCommand,
   DeleteObjectCommand,
-  S3Client
 } from '@aws-sdk/client-s3';
 
 import { getBucketObjectPath } from './utils.js';

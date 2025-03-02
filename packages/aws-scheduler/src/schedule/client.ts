@@ -2,12 +2,12 @@ import type { Arn } from '@ez4/aws-common';
 import type { CreateScheduleInput, UpdateScheduleInput } from '@aws-sdk/client-scheduler';
 
 import {
-  CreateScheduleCommand,
-  DeleteScheduleCommand,
-  FlexibleTimeWindowMode,
   SchedulerClient,
   ScheduleState,
-  UpdateScheduleCommand
+  CreateScheduleCommand,
+  UpdateScheduleCommand,
+  DeleteScheduleCommand,
+  FlexibleTimeWindowMode
 } from '@aws-sdk/client-scheduler';
 
 import { Logger } from '@ez4/aws-common';

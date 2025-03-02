@@ -1,8 +1,8 @@
 import type { Arn } from '@ez4/aws-common';
 
 import {
-  AddPermissionCommand,
   LambdaClient,
+  AddPermissionCommand,
   RemovePermissionCommand
 } from '@aws-sdk/client-lambda';
 
