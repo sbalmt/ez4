@@ -7,9 +7,10 @@ import {
   IncompleteTargetError,
   IncorrectEventTypeError,
   IncorrectTargetTypeError,
+  IncorrectHandlerError,
   InvalidEventTypeError,
-  InvalidHandlerError,
-  InvalidTargetTypeError
+  InvalidTargetTypeError,
+  IncorrectServiceError
 } from '@ez4/scheduler/library';
 
 import { getReflection } from '@ez4/project/library';
@@ -40,6 +41,13 @@ describe.only('scheduler metadata errors', () => {
 
     ok(error3 instanceof IncompleteServiceError);
     deepEqual(error3.properties, ['schema']);
+  });
+
+  it('assert :: incorrect scheduler', () => {
+    const [error1] = parseFile('incorrect-service', 1);
+
+    ok(error1 instanceof IncorrectServiceError);
+    deepEqual(error1.properties, ['disabled', 'timezone', 'startDate', 'endDate']);
   });
 
   it('assert :: incomplete target', () => {
@@ -101,7 +109,7 @@ describe.only('scheduler metadata errors', () => {
     deepEqual(error1.baseType, 'Cron.Event');
 
     ok(error2 instanceof IncompleteHandlerError);
-    deepEqual(error2.properties, ['request']);
+    deepEqual(error2.properties, ['_request']);
 
     ok(error3 instanceof IncompleteTargetError);
     deepEqual(error3.properties, ['handler']);
@@ -110,9 +118,10 @@ describe.only('scheduler metadata errors', () => {
     deepEqual(error4.properties, ['target']);
   });
 
-  it('assert :: invalid handler', () => {
-    const [error1] = parseFile('invalid-handler', 1);
+  it('assert :: incorrect handler', () => {
+    const [error1] = parseFile('incorrect-handler', 1);
 
-    ok(error1 instanceof InvalidHandlerError);
+    ok(error1 instanceof IncorrectHandlerError);
+    deepEqual(error1.properties, ['_request']);
   });
 });

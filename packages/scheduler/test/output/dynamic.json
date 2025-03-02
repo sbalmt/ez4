@@ -4,13 +4,12 @@
     "name": "TestScheduler",
     "group": "test-group",
     "expression": "dynamic",
-    "timezone": "America/Sao_Paulo",
     "maxRetries": 5,
     "target": {
       "handler": {
         "name": "targetHandler",
         "file": "test/input/output-dynamic.ts",
-        "request": true
+        "input": "_request"
       }
     },
     "schema": {

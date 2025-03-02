@@ -8,8 +8,6 @@ export declare class TestScheduler extends Cron.Service<TestEvent> {
 
   expression: 'dynamic';
 
-  timezone: 'America/Sao_Paulo';
-
   maxRetries: 5;
 
   target: {

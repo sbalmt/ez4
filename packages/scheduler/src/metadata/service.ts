@@ -1,5 +1,5 @@
+import type { SourceMap, TypeModel, TypeObject } from '@ez4/reflection';
 import type { Incomplete } from '@ez4/utils';
-import type { SourceMap } from '@ez4/reflection';
 import type { CronService } from '../types/service.js';
 
 import {
@@ -17,8 +17,8 @@ import { isModelProperty } from '@ez4/reflection';
 import { isAnyBoolean, isAnyNumber } from '@ez4/utils';
 
 import { ServiceType, DynamicExpression } from '../types/service.js';
-import { IncompleteServiceError } from '../errors/service.js';
-import { InvalidHandlerError } from '../errors/handler.js';
+import { IncompleteServiceError, IncorrectServiceError } from '../errors/service.js';
+import { IncorrectHandlerError } from '../errors/handler.js';
 import { getCronTarget } from './target.js';
 import { isCronService } from './utils.js';
 import { getCronEvent } from './event.js';
@@ -149,8 +149,10 @@ export const getCronServices = (reflection: SourceMap) => {
       continue;
     }
 
-    if (!service.schema && service.target.handler.request) {
-      errorList.push(new InvalidHandlerError(statement.file));
+    const validationErrors = validateDynamicProperties(statement, service);
+
+    if (validationErrors.length) {
+      errorList.push(...validationErrors);
       continue;
     }
 
@@ -178,4 +180,29 @@ const isValidService = (type: Incomplete<CronService>): type is CronService => {
   }
 
   return type.expression === DynamicExpression;
+};
+
+const validateDynamicProperties = (type: TypeObject | TypeModel, service: CronService) => {
+  const errorList = [];
+
+  if (!service.schema) {
+    if (service.target.handler.input) {
+      errorList.push(new IncorrectHandlerError([service.target.handler.input], type.file));
+    }
+  } else {
+    const allProperties: (keyof CronService)[] = ['disabled', 'timezone', 'startDate', 'endDate'];
+    const allIncorrect = [];
+
+    for (const property of allProperties) {
+      if (service[property]) {
+        allIncorrect.push(property);
+      }
+    }
+
+    if (allIncorrect.length) {
+      errorList.push(new IncorrectServiceError(allIncorrect, type.file));
+    }
+  }
+
+  return errorList;
 };

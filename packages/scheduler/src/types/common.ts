@@ -7,7 +7,7 @@ export type TargetHandler = {
   name: string;
   file: string;
   description?: string;
-  request?: boolean;
+  input?: string;
 };
 
 export type CronTarget = {

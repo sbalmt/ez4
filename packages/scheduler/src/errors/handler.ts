@@ -1,4 +1,4 @@
-import { IncompleteTypeError, TypeError } from '@ez4/common/library';
+import { IncompleteTypeError, IncorrectPropertyError } from '@ez4/common/library';
 
 export class IncompleteHandlerError extends IncompleteTypeError {
   constructor(properties: string[], fileName?: string) {
@@ -6,8 +6,8 @@ export class IncompleteHandlerError extends IncompleteTypeError {
   }
 }
 
-export class InvalidHandlerError extends TypeError {
-  constructor(fileName?: string) {
-    super('Invalid scheduler handler', fileName);
+export class IncorrectHandlerError extends IncorrectPropertyError {
+  constructor(properties: string[], fileName?: string) {
+    super('Incorrect scheduler handler', properties, fileName);
   }
 }
