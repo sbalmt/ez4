@@ -4,7 +4,7 @@ import type { createScheduleHandler } from './api/endpoints/create-schedule.js';
 import type { readScheduleHandler } from './api/endpoints/read-schedule.js';
 import type { updateScheduleHandler } from './api/endpoints/update-schedule.js';
 import type { deleteScheduleHandler } from './api/endpoints/delete-schedule.js';
-import type { listScheduleHandler } from './api/endpoints/list-schedules.js';
+import type { listSchedulesHandler } from './api/endpoints/list-schedules.js';
 import type { EventScheduler } from './scheduler.js';
 import type { EventDb } from './dynamo.js';
 
@@ -39,7 +39,7 @@ export declare class Api extends Http.Service {
     },
     {
       path: 'GET /list-schedules';
-      handler: typeof listScheduleHandler;
+      handler: typeof listSchedulesHandler;
     }
   ];
 

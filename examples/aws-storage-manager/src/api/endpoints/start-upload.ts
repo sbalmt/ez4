@@ -1,19 +1,16 @@
-import type { String } from '@ez4/schema';
 import type { Service } from '@ez4/common';
 import type { Http } from '@ez4/gateway';
 import type { Api } from '../../api.js';
 import type { ContentTypes } from '../types.js';
+
+import { FileStatus } from '../../schemas/file.js';
+import { createFile } from '../repository.js';
 
 /**
  * Start upload request.
  */
 export declare class StartUploadRequest implements Http.Request {
   body: {
-    /**
-     * File name.
-     */
-    fileName: String.Size<2, 16>;
-
     /**
      * Content type of the given file.
      */
@@ -28,6 +25,14 @@ export declare class StartUploadResponse implements Http.Response {
   status: 200;
 
   body: {
+    /**
+     * File Id.
+     */
+    id: string;
+
+    /**
+     * Signed upload URL.
+     */
     url: string;
   };
 }
@@ -39,18 +44,22 @@ export async function startUploadHandler(
   request: StartUploadRequest,
   context: Service.Context<Api>
 ): Promise<StartUploadResponse> {
-  const { body } = request;
-  const { fileStorage } = context;
+  const { fileDb, fileStorage } = context;
+  const { contentType } = request.body;
 
-  const uploadUrl = await fileStorage.getWriteUrl(body.fileName, {
-    contentType: body.contentType,
+  const fileId = await createFile(fileDb, {
+    status: FileStatus.Pending
+  });
+
+  const uploadUrl = await fileStorage.getWriteUrl(fileId, {
+    contentType,
     expiresIn: 60
   });
 
   return {
     status: 200,
-
     body: {
+      id: fileId,
       url: uploadUrl
     }
   };

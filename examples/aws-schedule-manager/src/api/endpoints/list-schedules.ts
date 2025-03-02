@@ -7,9 +7,9 @@ import type { Api } from '../../api.js';
 import { listEvents } from '../repository.js';
 
 /**
- * List schedule request.
+ * List schedules request.
  */
-export declare class ListScheduleRequest implements Http.Request {
+export declare class ListSchedulesRequest implements Http.Request {
   parameters: {
     /**
      * Page cursor.
@@ -24,9 +24,9 @@ export declare class ListScheduleRequest implements Http.Request {
 }
 
 /**
- * List schedule response.
+ * List schedules response.
  */
-export declare class ListScheduleResponse implements Http.Response {
+export declare class ListSchedulesResponse implements Http.Response {
   status: 200;
 
   body: {
@@ -70,10 +70,10 @@ export declare class ListScheduleResponse implements Http.Response {
 /**
  * Handle list schedules requests.
  */
-export async function listScheduleHandler(
-  request: ListScheduleRequest,
+export async function listSchedulesHandler(
+  request: ListSchedulesRequest,
   context: Service.Context<Api>
-): Promise<ListScheduleResponse> {
+): Promise<ListSchedulesResponse> {
   const { cursor, limit } = request.parameters;
   const { eventDb } = context;
 

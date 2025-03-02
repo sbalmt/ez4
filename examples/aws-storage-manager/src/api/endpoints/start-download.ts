@@ -1,3 +1,4 @@
+import type { String } from '@ez4/schema';
 import type { Service } from '@ez4/common';
 import type { Http } from '@ez4/gateway';
 import type { Api } from '../../api.js';
@@ -8,11 +9,11 @@ import { HttpBadRequestError } from '@ez4/gateway';
  * Start download request.
  */
 export declare class StartDownloadRequest implements Http.Request {
-  body: {
+  parameters: {
     /**
-     * File name.
+     * File Id.
      */
-    fileName: string;
+    fileId: String.UUID;
   };
 }
 
@@ -34,22 +35,21 @@ export async function startDownloadHandler(
   request: StartDownloadRequest,
   context: Service.Context<Api>
 ): Promise<StartDownloadResponse> {
-  const { body } = request;
+  const { fileId } = request.parameters;
   const { fileStorage } = context;
 
-  const exists = await fileStorage.exists(body.fileName);
+  const exists = await fileStorage.exists(fileId);
 
   if (!exists) {
     throw new HttpBadRequestError(`File doesn't exists.`);
   }
 
-  const downloadUrl = await fileStorage.getReadUrl(body.fileName, {
+  const downloadUrl = await fileStorage.getReadUrl(fileId, {
     expiresIn: 60
   });
 
   return {
     status: 200,
-
     body: {
       url: downloadUrl
     }

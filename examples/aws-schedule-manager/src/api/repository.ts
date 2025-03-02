@@ -35,7 +35,7 @@ export type UpdateItemInput = Partial<CreateEventInput> & {
 export const updateEvent = async (client: DbClient, input: UpdateItemInput) => {
   const now = new Date().toISOString();
 
-  return client.events.updateOne({
+  await client.events.updateOne({
     select: {
       id: true
     },
@@ -51,7 +51,7 @@ export const updateEvent = async (client: DbClient, input: UpdateItemInput) => {
 };
 
 export const deleteEvent = async (client: DbClient, id: string) => {
-  return client.events.deleteOne({
+  await client.events.deleteOne({
     select: {
       id: true
     },
