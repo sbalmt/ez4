@@ -21,7 +21,14 @@ export declare class ReadScheduleResponse implements Http.Response {
   status: 200;
 
   body: {
+    /**
+     * Event date.
+     */
     date: String.DateTime;
+
+    /**
+     * Event message.
+     */
     message: string;
   };
 }

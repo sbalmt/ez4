@@ -6,10 +6,19 @@ import type { ItemSchema } from './schemas/item.js';
  * Example of AWS Aurora RDS deployed with EZ4.
  */
 export declare class Db extends Database.Service {
+  /**
+   * Database client.
+   */
   client: Client<typeof this>;
 
+  /**
+   * Database engine.
+   */
   engine: 'aurora';
 
+  /**
+   * Database tables.
+   */
   tables: [
     {
       name: 'items';

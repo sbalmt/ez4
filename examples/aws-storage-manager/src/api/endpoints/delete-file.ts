@@ -36,7 +36,7 @@ export async function deleteFileHandler(
   const exists = await fileStorage.exists(body.fileName);
 
   if (!exists) {
-    throw new HttpBadRequestError(`File doesn't exists.`);
+    throw new HttpBadRequestError(`File doesn't exist`);
   }
 
   await fileStorage.delete(body.fileName);

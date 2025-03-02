@@ -3,6 +3,9 @@ import type { Service } from '@ez4/common';
 import type { Http } from '@ez4/gateway';
 import type { Api } from '../../api.js';
 
+import { HttpBadRequestError } from '@ez4/gateway';
+import { updateEvent } from '../repository.js';
+
 /**
  * Update schedule request.
  */
@@ -11,7 +14,14 @@ export declare class UpdateScheduleRequest implements Http.Request {
     scheduleId: String.UUID;
   };
   body: {
+    /**
+     * New event date.
+     */
     date?: String.DateTime;
+
+    /**
+     * New event message.
+     */
     message?: string;
   };
 }
@@ -34,13 +44,24 @@ export async function updateScheduleHandler(
   request: UpdateScheduleRequest,
   context: Service.Context<Api>
 ): Promise<UpdateScheduleResponse> {
+  const { eventDb, eventScheduler } = context;
   const { scheduleId } = request.parameters;
   const { date, message } = request.body;
-  const { eventScheduler } = context;
+
+  const exists = await eventScheduler.getEvent(scheduleId);
+
+  if (!exists) {
+    throw new HttpBadRequestError(`Schedule doesn't exist`);
+  }
 
   await eventScheduler.updateEvent(scheduleId, {
-    event: message ? { foo: message } : undefined,
+    event: message ? { id: scheduleId, foo: message } : undefined,
     date: date ? new Date(date) : undefined
+  });
+
+  await updateEvent(eventDb, {
+    id: scheduleId,
+    date
   });
 
   return {

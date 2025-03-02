@@ -5,8 +5,14 @@ import type { TableSchema } from './types.js';
  * Example of AWS DynamoDB deployed with EZ4.
  */
 export declare class Db extends Database.Service {
+  /**
+   * Database engine.
+   */
   engine: 'dynamodb';
 
+  /**
+   * Database tables.
+   */
   tables: [
     {
       name: 'table';

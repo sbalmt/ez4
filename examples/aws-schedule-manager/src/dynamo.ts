@@ -1,10 +1,10 @@
 import type { Database, Index, Client } from '@ez4/database';
-import type { ItemSchema } from './schemas/item.js';
+import type { EventSchema } from './schemas/event.js';
 
 /**
  * Example of AWS DynamoDB deployed with EZ4.
  */
-export declare class Db extends Database.Service {
+export declare class EventDb extends Database.Service {
   /**
    * Database client.
    */
@@ -20,11 +20,10 @@ export declare class Db extends Database.Service {
    */
   tables: [
     {
-      name: 'items';
-      schema: ItemSchema;
+      name: 'events';
+      schema: EventSchema;
       indexes: {
         id: Index.Primary;
-        'type:created_at': Index.Secondary;
       };
     }
   ];
