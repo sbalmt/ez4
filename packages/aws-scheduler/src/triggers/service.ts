@@ -30,7 +30,7 @@ export const prepareLinkedServices = (event: ServiceEvent) => {
 
   const { timezone, maxRetries, maxAge } = service;
 
-  return prepareLinkedService(scheduleName, service.schema, {
+  return prepareLinkedService(scheduleName, service.schema, options, {
     timezone,
     maxRetries,
     maxAge

@@ -20,6 +20,7 @@ export type ClientEventSchema = ObjectSchema | UnionSchema;
 export type ClientParameters = {
   defaults: ScheduleOptions;
   schema: ClientEventSchema;
+  prefix: string;
 };
 
 export namespace Client {
@@ -41,11 +42,13 @@ export namespace Client {
 
         const hasRetryPolicy = hasMaxRetryAttempts || hasMaxEventAge;
 
+        const atDate = at.toISOString().substring(0, 19);
+
         await client.send(
           new CreateScheduleCommand({
-            Name: identifier,
+            Name: `${parameters.prefix}-${identifier}`,
             GroupName: groupName,
-            ScheduleExpression: `at(${at.toISOString()})`,
+            ScheduleExpression: `at(${atDate})`,
             ScheduleExpressionTimezone: timezone,
             ActionAfterCompletion: ActionAfterCompletion.DELETE,
             FlexibleTimeWindow: {
