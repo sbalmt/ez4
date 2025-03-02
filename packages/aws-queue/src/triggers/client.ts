@@ -1,5 +1,5 @@
-import type { ExtraSource } from '@ez4/project/library';
 import type { QueueMessageSchema } from '@ez4/queue/library';
+import type { ExtraSource } from '@ez4/project/library';
 
 import { getDefinitionName } from '@ez4/project/library';
 

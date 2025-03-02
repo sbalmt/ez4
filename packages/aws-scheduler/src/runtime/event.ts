@@ -6,10 +6,9 @@ import { validate } from '@ez4/validator';
 
 import { MalformedEventError } from './errors.js';
 
-export const getJsonEvent = async <T extends Cron.Event>(
-  event: T,
-  schema: ObjectSchema | UnionSchema
-) => {
+export type EventSchema = ObjectSchema | UnionSchema;
+
+export const getJsonEvent = async <T extends Cron.Event>(event: T, schema: EventSchema) => {
   const errors = await validate(event, schema);
 
   if (errors.length) {
@@ -19,10 +18,7 @@ export const getJsonEvent = async <T extends Cron.Event>(
   return event;
 };
 
-export const getJsonStringEvent = async <T extends Cron.Event>(
-  event: T,
-  schema: ObjectSchema | UnionSchema
-) => {
+export const getJsonStringEvent = async <T extends Cron.Event>(event: T, schema: EventSchema) => {
   const safeEvent = await getJsonEvent(event, schema);
 
   return JSON.stringify(safeEvent);

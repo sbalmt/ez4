@@ -1,6 +1,6 @@
 import type { DeployOptions, ExtraSource } from '@ez4/project/library';
+import type { CronEventSchema } from '@ez4/scheduler/library';
 import type { ScheduleEvent } from '@ez4/scheduler';
-import type { ClientEventSchema } from '../client.js';
 
 import { getDefinitionName, getServiceName } from '@ez4/project/library';
 
@@ -8,7 +8,7 @@ import { getScheduleStateId } from '../schedule/utils.js';
 
 export const prepareLinkedService = (
   scheduleName: string,
-  eventSchema: ClientEventSchema,
+  eventSchema: CronEventSchema,
   options: DeployOptions,
   defaults: Pick<ScheduleEvent<never>, 'maxRetries' | 'maxAge'>
 ): ExtraSource | null => {

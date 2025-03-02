@@ -1,5 +1,5 @@
-import type { ScheduleEvent, Client as CronClient } from '@ez4/scheduler';
-import type { ObjectSchema, UnionSchema } from '@ez4/schema';
+import type { Cron, ScheduleEvent, Client as CronClient } from '@ez4/scheduler';
+import type { EventSchema } from '@ez4/aws-scheduler/runtime';
 import type { Arn } from '@ez4/aws-common';
 
 import {
@@ -13,22 +13,20 @@ import {
 } from '@aws-sdk/client-scheduler';
 
 import { getJsonStringEvent } from '@ez4/aws-scheduler/runtime';
-import { AnyObject, isAnyNumber } from '@ez4/utils';
+import { isAnyNumber } from '@ez4/utils';
 
 const client = new SchedulerClient({});
-
-export type ClientEventSchema = ObjectSchema | UnionSchema;
 
 export type ClientEventDefaults = Pick<ScheduleEvent<never>, 'maxRetries' | 'maxAge'>;
 
 export type ClientParameters = {
   defaults: ClientEventDefaults;
-  schema: ClientEventSchema;
+  schema: EventSchema;
   prefix: string;
 };
 
 export namespace Client {
-  export const make = <T extends AnyObject>(
+  export const make = <T extends Cron.Event>(
     roleArn: Arn,
     functionArn: Arn,
     groupName: string | undefined,
