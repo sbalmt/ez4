@@ -3,6 +3,8 @@ import type { CronEventSchema, CronTarget } from './common.js';
 
 export const ServiceType = '@ez4/cron';
 
+export const DynamicExpression = 'dynamic';
+
 export type CronService = ServiceMetadata & {
   type: typeof ServiceType;
   name: string;
@@ -21,4 +23,8 @@ export type CronService = ServiceMetadata & {
 
 export const isCronService = (service: ServiceMetadata): service is CronService => {
   return service.type === ServiceType;
+};
+
+export const isDynamicCronService = (service: CronService) => {
+  return service.expression === DynamicExpression;
 };

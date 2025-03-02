@@ -16,14 +16,12 @@ import {
 import { isModelProperty } from '@ez4/reflection';
 import { isAnyBoolean, isAnyNumber } from '@ez4/utils';
 
-import { ServiceType } from '../types/service.js';
+import { ServiceType, DynamicExpression } from '../types/service.js';
 import { IncompleteServiceError } from '../errors/service.js';
 import { InvalidHandlerError } from '../errors/handler.js';
 import { getCronTarget } from './target.js';
 import { isCronService } from './utils.js';
 import { getCronEvent } from './event.js';
-
-const DynamicExpression = 'dynamic';
 
 export const getCronServices = (reflection: SourceMap) => {
   const cronServices: Record<string, CronService> = {};

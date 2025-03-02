@@ -1,14 +1,21 @@
-import type { PrepareResourceEvent, ServiceEvent } from '@ez4/project/library';
 import type { CronService } from '@ez4/scheduler/library';
 import type { EntryStates } from '@ez4/stateful';
 
-import { getServiceName } from '@ez4/project/library';
-import { isCronService } from '@ez4/scheduler/library';
+import type {
+  ConnectResourceEvent,
+  PrepareResourceEvent,
+  ServiceEvent
+} from '@ez4/project/library';
+
+import { getServiceName, linkServiceExtras } from '@ez4/project/library';
+import { isCronService, isDynamicCronService } from '@ez4/scheduler/library';
+import { getFunction } from '@ez4/aws-function';
 import { isRoleState } from '@ez4/aws-identity';
 
-import { createTargetFunction } from '../schedule/function/service.js';
-import { createSchedule } from '../schedule/service.js';
 import { createGroup } from '../group/service.js';
+import { createSchedule } from '../schedule/service.js';
+import { createTargetFunction } from '../schedule/function/service.js';
+import { RoleMissingError, TargetHandlerMissingError } from './errors.js';
 import { prepareLinkedService } from './client.js';
 import { getTargetName } from './utils.js';
 
@@ -21,7 +28,13 @@ export const prepareLinkedServices = (event: ServiceEvent) => {
 
   const scheduleName = getServiceName(service, options);
 
-  return prepareLinkedService(scheduleName, service.schema);
+  const { timezone, maxRetries, maxAge } = service;
+
+  return prepareLinkedService(scheduleName, service.schema, {
+    timezone,
+    maxRetries,
+    maxAge
+  });
 };
 
 export const prepareCronServices = async (event: PrepareResourceEvent) => {
@@ -32,7 +45,7 @@ export const prepareCronServices = async (event: PrepareResourceEvent) => {
   }
 
   if (!role || !isRoleState(role)) {
-    throw new Error(`Execution role for EventBridge Scheduler is missing.`);
+    throw new RoleMissingError();
   }
 
   const { handler, timeout, memory, variables } = service.target;
@@ -62,15 +75,39 @@ export const prepareCronServices = async (event: PrepareResourceEvent) => {
 
   createSchedule(state, role, functionState, groupState, {
     scheduleName: getServiceName(service, options),
+    dynamic: isDynamicCronService(service),
     enabled: !service.disabled,
-    maxRetries,
-    maxAge,
     description,
     expression,
     timezone,
     startDate,
-    endDate
+    endDate,
+    maxRetries,
+    maxAge
   });
+};
+
+export const connectCronResources = (event: ConnectResourceEvent) => {
+  const { state, service, options, role } = event;
+
+  if (!isCronService(service) || !service.extras) {
+    return;
+  }
+
+  if (!role || !isRoleState(role)) {
+    throw new RoleMissingError();
+  }
+
+  const { handler } = service.target;
+
+  const functionName = getTargetName(service, handler.name, options);
+  const functionState = getFunction(state, role, functionName);
+
+  if (!functionState) {
+    throw new TargetHandlerMissingError(functionName);
+  }
+
+  linkServiceExtras(state, functionState.entryId, service.extras);
 };
 
 const getScheduleGroup = (state: EntryStates, service: CronService) => {

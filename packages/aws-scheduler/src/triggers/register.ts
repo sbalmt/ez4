@@ -8,7 +8,7 @@ import { createTrigger } from '@ez4/project/library';
 import { registerScheduleProvider } from '../schedule/provider.js';
 import { registerGroupProvider } from '../group/provider.js';
 
-import { prepareLinkedServices, prepareCronServices } from './service.js';
+import { prepareLinkedServices, prepareCronServices, connectCronResources } from './service.js';
 import { prepareIdentityAccount } from './identity.js';
 import { prepareExecutionPolicy } from './policy.js';
 
@@ -28,7 +28,8 @@ export const registerTriggers = () => {
     'deploy:prepareIdentityAccount': prepareIdentityAccount,
     'deploy:prepareLinkedService': prepareLinkedServices,
     'deploy:prepareExecutionPolicy': prepareExecutionPolicy,
-    'deploy:prepareResources': prepareCronServices
+    'deploy:prepareResources': prepareCronServices,
+    'deploy:connectResources': connectCronResources
   });
 
   registerScheduleProvider();

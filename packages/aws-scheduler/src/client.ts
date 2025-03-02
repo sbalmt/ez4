@@ -1,5 +1,5 @@
 import type { ScheduleOptions, Client as CronClient } from '@ez4/scheduler';
-import type { CronEventSchema } from '@ez4/scheduler/library';
+import type { ObjectSchema, UnionSchema } from '@ez4/schema';
 import type { Arn } from '@ez4/aws-common';
 
 import {
@@ -15,19 +15,26 @@ import { isAnyNumber } from '@ez4/utils';
 
 const client = new SchedulerClient({});
 
+export type ClientEventSchema = ObjectSchema | UnionSchema;
+
+export type ClientParameters = {
+  defaults: ScheduleOptions;
+  schema: ClientEventSchema;
+};
+
 export namespace Client {
-  export const make = <T extends CronEventSchema>(
-    groupName: string,
+  export const make = <T extends ClientEventSchema>(
     roleArn: Arn,
     functionArn: Arn,
-    eventSchema: CronEventSchema
+    groupName: string | undefined,
+    parameters: ClientParameters
   ): CronClient<T> => {
     return new (class {
-      async scheduleEvent(identifier: string, at: Date, event: T, options: ScheduleOptions) {
-        const safeEvent = await getJsonEvent(event, eventSchema);
+      async scheduleEvent(identifier: string, at: Date, event: T, options?: ScheduleOptions) {
+        const safeEvent = await getJsonEvent(event, parameters.schema);
         const rawEvent = JSON.stringify(safeEvent);
 
-        const { maxRetries, maxAge } = options;
+        const { timezone, maxRetries, maxAge } = options ?? parameters.defaults;
 
         const hasMaxRetryAttempts = isAnyNumber(maxRetries);
         const hasMaxEventAge = isAnyNumber(maxAge);
@@ -39,7 +46,7 @@ export namespace Client {
             Name: identifier,
             GroupName: groupName,
             ScheduleExpression: `at(${at.toISOString()})`,
-            ScheduleExpressionTimezone: options.timezone,
+            ScheduleExpressionTimezone: timezone,
             ActionAfterCompletion: ActionAfterCompletion.DELETE,
             FlexibleTimeWindow: {
               Mode: FlexibleTimeWindowMode.OFF

@@ -55,16 +55,24 @@ const createResource = async (
   candidate: ScheduleState,
   context: StepContext
 ): Promise<ScheduleResult> => {
+  const { parameters } = candidate;
+
   const roleArn = getRoleArn(ScheduleServiceName, 'schedule', context);
   const functionArn = getFunctionArn(ScheduleServiceName, 'schedule', context);
   const groupName = tryGetGroupName(context);
 
-  const { scheduleArn } = await createSchedule({
-    ...candidate.parameters,
-    groupName,
-    functionArn,
-    roleArn
-  });
+  let scheduleArn;
+
+  if (!parameters.dynamic) {
+    const result = await createSchedule({
+      ...parameters,
+      groupName,
+      functionArn,
+      roleArn
+    });
+
+    scheduleArn = result.scheduleArn;
+  }
 
   return {
     groupName,
@@ -81,7 +89,7 @@ const updateResource = async (
 ) => {
   const { result, parameters } = candidate;
 
-  if (!result) {
+  if (!result || parameters.dynamic) {
     return;
   }
 
@@ -110,13 +118,13 @@ const updateResource = async (
     roleArn: oldRoleArn
   };
 
-  await checkGeneralUpdates(parameters.scheduleName, newRequest, oldRequest);
+  await checkGeneralUpdates(scheduleName, newRequest, oldRequest);
 };
 
 const deleteResource = async (candidate: ScheduleState) => {
   const { result, parameters } = candidate;
 
-  if (result) {
+  if (result && !parameters.dynamic) {
     await deleteSchedule(parameters.scheduleName);
   }
 };
