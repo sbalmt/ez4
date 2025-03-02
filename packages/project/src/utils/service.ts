@@ -17,7 +17,11 @@ export const getServiceName = (service: ServiceMetadata | string, options: Deplo
     return `${servicePrefix}-${toKebabCase(service.name)}`;
   }
 
-  return `${servicePrefix}-${toKebabCase(service)}`;
+  if (service) {
+    return `${servicePrefix}-${toKebabCase(service)}`;
+  }
+
+  return servicePrefix;
 };
 
 export const linkServiceExtras = (
