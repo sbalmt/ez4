@@ -1,7 +1,8 @@
 import type { Db } from '../aurora.js';
 
+import { randomUUID } from 'node:crypto';
+
 import { Order } from '@ez4/database';
-import { randomUUID } from 'crypto';
 
 type DbClient = Db['client'];
 

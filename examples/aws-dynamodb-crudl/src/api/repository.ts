@@ -1,8 +1,9 @@
-import { ItemType } from '../schemas/item.js';
+import type { ItemType } from '../schemas/item.js';
 import type { Db } from '../dynamo.js';
 
+import { randomUUID } from 'node:crypto';
+
 import { Order } from '@ez4/database';
-import { randomUUID } from 'crypto';
 
 type DbClient = Db['client'];
 
