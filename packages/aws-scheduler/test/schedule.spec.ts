@@ -5,7 +5,6 @@ import { ok, equal } from 'node:assert/strict';
 import { join } from 'node:path';
 
 import {
-  createGroup,
   createSchedule,
   createTargetFunction,
   isScheduleState,
@@ -64,14 +63,11 @@ describe.only('scheduler', () => {
       handlerName: 'main'
     });
 
-    const groupResource = createGroup(localState, {
-      groupName: 'ez4-test-scheduler-group'
-    });
-
-    const resource = createSchedule(localState, roleResource, lambdaResource, groupResource, {
+    const resource = createSchedule(localState, roleResource, lambdaResource, undefined, {
       scheduleName: 'ez4-test-scheduler',
       expression: 'rate(1 minute)',
       description: 'EZ4: Test scheduler',
+      dynamic: false,
       enabled: true
     });
 

@@ -38,7 +38,7 @@ describe.only('bucket resources', () => {
   it('assert :: deploy', async () => {
     const localState: EntryStates = {};
 
-    const resource = createBucket(localState, {
+    const resource = createBucket(localState, undefined, {
       bucketName: 'ez4-test-bucket',
       autoExpireDays: 5,
       tags: {
