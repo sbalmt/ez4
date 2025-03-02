@@ -10,7 +10,7 @@ import { toKebabCase } from '@ez4/utils';
 
 import { createMapping } from '../mapping/service.js';
 import { createQueueFunction } from '../mapping/function/service.js';
-import { SubscriptionMissingError } from './errors.js';
+import { SubscriptionHandlerMissingError } from './errors.js';
 
 export const prepareSubscriptions = async (
   state: EntryStates,
@@ -64,7 +64,7 @@ export const connectSubscriptions = (
     const functionState = getFunction(state, role, functionName);
 
     if (!functionState) {
-      throw new SubscriptionMissingError(functionName);
+      throw new SubscriptionHandlerMissingError(functionName);
     }
 
     linkServiceExtras(state, functionState.entryId, service.extras);

@@ -4,9 +4,9 @@ export class RoleMissingError extends Error {
   }
 }
 
-export class SubscriptionMissingError extends Error {
-  constructor(public subscriptionName: string) {
-    super(`Subscription service ${subscriptionName} wasn't found.`);
+export class SubscriptionHandlerMissingError extends Error {
+  constructor(public handlerName: string) {
+    super(`Subscription handler ${handlerName} wasn't found.`);
   }
 }
 

@@ -6,7 +6,7 @@ export class RoleMissingError extends Error {
 
 export class SubscriptionMissingError extends Error {
   constructor(public subscriptionName: string) {
-    super(`Subscription service ${subscriptionName} wasn't found.`);
+    super(`Subscription ${subscriptionName} wasn't found.`);
   }
 }
 
