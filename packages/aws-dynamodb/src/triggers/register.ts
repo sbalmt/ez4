@@ -6,10 +6,13 @@ import { registerTriggers as registerDatabaseTriggers } from '@ez4/database/libr
 import { createTrigger } from '@ez4/project/library';
 
 import { registerTableProvider } from '../table/provider.js';
-
-import { connectDatabaseServices, prepareDatabaseServices } from './service.js';
 import { prepareExecutionPolicy } from './policy.js';
-import { prepareLinkedService } from './client.js';
+
+import {
+  connectDatabaseServices,
+  prepareDatabaseServices,
+  prepareLinkedServices
+} from './service.js';
 
 let isRegistered = false;
 
@@ -25,7 +28,7 @@ export const registerTriggers = () => {
 
   createTrigger('@ez4/aws-dynamodb', {
     'deploy:prepareExecutionPolicy': prepareExecutionPolicy,
-    'deploy:prepareLinkedService': prepareLinkedService,
+    'deploy:prepareLinkedService': prepareLinkedServices,
     'deploy:prepareResources': prepareDatabaseServices,
     'deploy:connectResources': connectDatabaseServices
   });

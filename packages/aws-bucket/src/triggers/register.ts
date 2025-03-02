@@ -8,10 +8,8 @@ import { createTrigger } from '@ez4/project/library';
 import { registerBucketProvider } from '../bucket/provider.js';
 import { registerPolicyProvider } from '../policy/provider.js';
 import { registerObjectProvider } from '../object/provider.js';
-
+import { connectBucketServices, prepareBucketServices, prepareLinkedServices } from './service.js';
 import { prepareExecutionPolicy } from './policy.js';
-import { prepareBucketServices } from './bucket.js';
-import { prepareLinkedService } from './client.js';
 
 let isRegistered = false;
 
@@ -27,8 +25,9 @@ export const registerTriggers = () => {
 
   createTrigger('@ez4/aws-bucket', {
     'deploy:prepareExecutionPolicy': prepareExecutionPolicy,
-    'deploy:prepareLinkedService': prepareLinkedService,
-    'deploy:prepareResources': prepareBucketServices
+    'deploy:prepareLinkedService': prepareLinkedServices,
+    'deploy:prepareResources': prepareBucketServices,
+    'deploy:connectResources': connectBucketServices
   });
 
   registerBucketProvider();

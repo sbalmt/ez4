@@ -1,19 +1,16 @@
-import type { ExtraSource, ServiceEvent } from '@ez4/project/library';
+import type { DeployOptions, ExtraSource } from '@ez4/project/library';
 
 import { getDefinitionName } from '@ez4/project/library';
-import { isDatabaseService } from '@ez4/database/library';
+import { DatabaseService } from '@ez4/database/library';
 
 import { getClusterStateId } from '../cluster/utils.js';
 import { getClusterName, getDatabaseName } from './utils.js';
 import { getRepository } from './repository.js';
 
-export const prepareLinkedService = async (event: ServiceEvent): Promise<ExtraSource | null> => {
-  const { service, options } = event;
-
-  if (!isDatabaseService(service) || service.engine !== 'aurora') {
-    return null;
-  }
-
+export const prepareLinkedClient = (
+  service: DatabaseService,
+  options: DeployOptions
+): ExtraSource => {
   const clusterName = getClusterName(service, options);
   const clusterId = getClusterStateId(clusterName);
 

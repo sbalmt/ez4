@@ -6,12 +6,12 @@ import { getDefinitionName, getServiceName } from '@ez4/project/library';
 
 import { getScheduleStateId } from '../schedule/utils.js';
 
-export const prepareLinkedService = (
+export const prepareLinkedClient = (
   scheduleName: string,
   eventSchema: CronEventSchema,
   options: DeployOptions,
   defaults: Pick<ScheduleEvent<never>, 'maxRetries' | 'maxAge'>
-): ExtraSource | null => {
+): ExtraSource => {
   const scheduleEntryId = getScheduleStateId(scheduleName);
 
   const groupName = getDefinitionName(scheduleEntryId, 'groupName');
@@ -26,8 +26,8 @@ export const prepareLinkedService = (
 
   return {
     entryId: scheduleEntryId,
-    from: '@ez4/aws-scheduler/client',
     constructor: `make(${roleArn}, ${functionArn}, ${groupName}, ${JSON.stringify(clientParameters)})`,
+    from: '@ez4/aws-scheduler/client',
     module: 'Client'
   };
 };

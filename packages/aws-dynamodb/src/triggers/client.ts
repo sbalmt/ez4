@@ -1,17 +1,14 @@
-import type { ExtraSource, ServiceEvent } from '@ez4/project/library';
-import type { TableIndex } from '@ez4/database/library';
+import type { DatabaseService, TableIndex } from '@ez4/database/library';
+import type { DeployOptions, ExtraSource } from '@ez4/project/library';
 
 import { Index } from '@ez4/database';
-import { isDatabaseService } from '@ez4/database/library';
+
 import { getTableName } from './utils.js';
 
-export const prepareLinkedService = async (event: ServiceEvent): Promise<ExtraSource | null> => {
-  const { service, options } = event;
-
-  if (!isDatabaseService(service) || service.engine !== 'dynamodb') {
-    return null;
-  }
-
+export const prepareLinkedClient = (
+  service: DatabaseService,
+  options: DeployOptions
+): ExtraSource => {
   const repository = service.tables.reduce((current, table) => {
     return {
       ...current,

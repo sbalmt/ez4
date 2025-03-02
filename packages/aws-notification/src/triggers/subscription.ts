@@ -9,12 +9,12 @@ import { getServiceName, linkServiceExtras } from '@ez4/project/library';
 import { InvalidParameterError } from '@ez4/aws-common';
 import { getFunction } from '@ez4/aws-function';
 import { getQueue } from '@ez4/aws-queue';
-import { toKebabCase } from '@ez4/utils';
 
 import { SubscriptionServiceName } from '../subscription/types.js';
 import { createSubscriptionFunction } from '../subscription/function/service.js';
 import { createSubscription } from '../subscription/service.js';
 import { SubscriptionMissingError } from './errors.js';
+import { getFunctionName } from './utils.js';
 
 export const prepareSubscriptions = async (
   state: EntryStates,
@@ -110,12 +110,4 @@ export const connectSubscriptions = (
       }
     }
   }
-};
-
-export const getFunctionName = (
-  service: NotificationService | NotificationImport,
-  handlerName: string,
-  options: DeployOptions
-) => {
-  return `${getServiceName(service, options)}-${toKebabCase(handlerName)}`;
 };

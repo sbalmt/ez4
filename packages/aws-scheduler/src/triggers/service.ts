@@ -16,7 +16,7 @@ import { createGroup } from '../group/service.js';
 import { createSchedule } from '../schedule/service.js';
 import { createTargetFunction } from '../schedule/function/service.js';
 import { RoleMissingError, TargetHandlerMissingError } from './errors.js';
-import { prepareLinkedService } from './client.js';
+import { prepareLinkedClient } from './client.js';
 import { getTargetName } from './utils.js';
 
 export const prepareLinkedServices = (event: ServiceEvent) => {
@@ -30,7 +30,7 @@ export const prepareLinkedServices = (event: ServiceEvent) => {
 
   const { maxRetries, maxAge } = service;
 
-  return prepareLinkedService(scheduleName, service.schema, options, {
+  return prepareLinkedClient(scheduleName, service.schema, options, {
     maxRetries,
     maxAge
   });

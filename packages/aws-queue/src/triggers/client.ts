@@ -5,17 +5,17 @@ import { getDefinitionName } from '@ez4/project/library';
 
 import { getQueueStateId } from '../queue/utils.js';
 
-export const prepareLinkedService = (
+export const prepareLinkedClient = (
   queueName: string,
   messageSchema: QueueMessageSchema
-): ExtraSource | null => {
+): ExtraSource => {
   const queueEntryId = getQueueStateId(queueName);
   const queueUrl = getDefinitionName(queueEntryId, 'queueUrl');
 
   return {
     entryId: queueEntryId,
     constructor: `make(${queueUrl}, ${JSON.stringify(messageSchema)})`,
-    module: 'Client',
-    from: '@ez4/aws-queue/client'
+    from: '@ez4/aws-queue/client',
+    module: 'Client'
   };
 };

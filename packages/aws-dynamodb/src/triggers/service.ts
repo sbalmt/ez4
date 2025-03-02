@@ -1,4 +1,8 @@
-import type { ConnectResourceEvent, PrepareResourceEvent } from '@ez4/project/library';
+import type {
+  ConnectResourceEvent,
+  PrepareResourceEvent,
+  ServiceEvent
+} from '@ez4/project/library';
 
 import { isDatabaseService } from '@ez4/database/library';
 import { linkServiceExtras } from '@ez4/project/library';
@@ -8,8 +12,19 @@ import { isRoleState } from '@ez4/aws-identity';
 import { createTable } from '../table/service.js';
 import { RoleMissingError, UnsupportedRelationError } from './errors.js';
 import { getStreamName, getTableName } from './utils.js';
+import { prepareLinkedClient } from './client.js';
 import { getAttributeSchema } from './schema.js';
 import { prepareTableStream } from './stream.js';
+
+export const prepareLinkedServices = (event: ServiceEvent) => {
+  const { service, options } = event;
+
+  if (!isDatabaseService(service) || service.engine !== 'dynamodb') {
+    return null;
+  }
+
+  return prepareLinkedClient(service, options);
+};
 
 export const prepareDatabaseServices = async (event: PrepareResourceEvent) => {
   const { state, service, role, options } = event;
@@ -45,7 +60,7 @@ export const prepareDatabaseServices = async (event: PrepareResourceEvent) => {
 export const connectDatabaseServices = (event: ConnectResourceEvent) => {
   const { state, service, role, options } = event;
 
-  if (!isDatabaseService(service) || service.engine !== 'dynamodb' || !service.extras) {
+  if (!isDatabaseService(service) || !service.extras || service.engine !== 'dynamodb') {
     return;
   }
 
