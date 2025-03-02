@@ -9,7 +9,8 @@ import {
   GetScheduleCommand,
   CreateScheduleCommand,
   DeleteScheduleCommand,
-  UpdateScheduleCommand
+  UpdateScheduleCommand,
+  ResourceNotFoundException
 } from '@aws-sdk/client-scheduler';
 
 import { getJsonStringEvent } from '@ez4/aws-scheduler/runtime';
@@ -33,6 +34,33 @@ export namespace Client {
     parameters: ClientParameters
   ): CronClient<T> => {
     return new (class {
+      async getEvent(identifier: string) {
+        try {
+          const { ScheduleExpression, Target } = await client.send(
+            new GetScheduleCommand({
+              Name: `${parameters.prefix}-${identifier}`,
+              GroupName: groupName
+            })
+          );
+
+          const date = ScheduleExpression!.substring(3, 22);
+          const policy = Target!.RetryPolicy;
+
+          return {
+            date: new Date(`${date}Z`),
+            event: JSON.parse(Target!.Input!),
+            maxRetries: policy?.MaximumRetryAttempts,
+            maxAge: policy?.MaximumEventAgeInSeconds
+          };
+        } catch (error) {
+          if (!(error instanceof ResourceNotFoundException)) {
+            throw error;
+          }
+
+          return undefined;
+        }
+      }
+
       async createEvent(identifier: string, input: ScheduleEvent<T>) {
         const message = await getJsonStringEvent(input.event, parameters.schema);
 
@@ -78,8 +106,6 @@ export namespace Client {
           })
         );
 
-        const defaults = parameters.defaults;
-
         const target = response.Target;
         const policy = target?.RetryPolicy;
 
@@ -90,6 +116,8 @@ export namespace Client {
         const message = event.event
           ? await getJsonStringEvent(event.event, parameters.schema)
           : target?.Input;
+
+        const defaults = parameters.defaults;
 
         const maxRetries = policy?.MaximumRetryAttempts ?? event.maxRetries ?? defaults.maxRetries;
         const hasMaxRetries = isAnyNumber(maxRetries);

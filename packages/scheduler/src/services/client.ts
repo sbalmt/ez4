@@ -5,6 +5,13 @@ import type { Cron } from './contract.js';
  */
 export interface Client<T extends Cron.Event> {
   /**
+   * Get a previously scheduled event.
+   * @param identifier Event identifier.
+   * @returns Returns the event details or `undefined` when the event doesn't exist.
+   */
+  getEvent(identifier: string): Promise<ScheduleEvent<T> | undefined>;
+
+  /**
    * Create a scheduled event.
    *
    * @param identifier Event identifier.
