@@ -14,6 +14,8 @@ export const bundleTargetFunction = async (
   dependencies: EntryState[],
   parameters: TargetFunctionParameters
 ) => {
+  const { eventSchema } = parameters;
+
   const definitions = getDefinitionsObject(dependencies);
 
   return bundleFunction(MappingServiceName, {
@@ -23,6 +25,9 @@ export const bundleTargetFunction = async (
     extras: parameters.extras,
     debug: parameters.debug,
     filePrefix: 'event',
-    define: definitions
+    define: {
+      ...definitions,
+      __EZ4_SCHEMA: eventSchema ? JSON.stringify(eventSchema) : 'undefined'
+    }
   });
 };

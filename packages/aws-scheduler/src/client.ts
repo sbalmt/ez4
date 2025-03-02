@@ -1,4 +1,4 @@
-import type { ScheduleOptions, Client as CronClient } from '@ez4/scheduler';
+import type { ScheduleEvent, Client as CronClient } from '@ez4/scheduler';
 import type { ObjectSchema, UnionSchema } from '@ez4/schema';
 import type { Arn } from '@ez4/aws-common';
 
@@ -6,50 +6,53 @@ import {
   SchedulerClient,
   ActionAfterCompletion,
   FlexibleTimeWindowMode,
+  GetScheduleCommand,
   CreateScheduleCommand,
-  DeleteScheduleCommand
+  DeleteScheduleCommand,
+  UpdateScheduleCommand
 } from '@aws-sdk/client-scheduler';
 
-import { getJsonEvent } from '@ez4/aws-scheduler/runtime';
-import { isAnyNumber } from '@ez4/utils';
+import { getJsonStringEvent } from '@ez4/aws-scheduler/runtime';
+import { AnyObject, isAnyNumber } from '@ez4/utils';
 
 const client = new SchedulerClient({});
 
 export type ClientEventSchema = ObjectSchema | UnionSchema;
 
+export type ClientEventDefaults = Pick<ScheduleEvent<never>, 'maxRetries' | 'maxAge'>;
+
 export type ClientParameters = {
-  defaults: ScheduleOptions;
+  defaults: ClientEventDefaults;
   schema: ClientEventSchema;
   prefix: string;
 };
 
 export namespace Client {
-  export const make = <T extends ClientEventSchema>(
+  export const make = <T extends AnyObject>(
     roleArn: Arn,
     functionArn: Arn,
     groupName: string | undefined,
     parameters: ClientParameters
   ): CronClient<T> => {
     return new (class {
-      async scheduleEvent(identifier: string, at: Date, event: T, options?: ScheduleOptions) {
-        const safeEvent = await getJsonEvent(event, parameters.schema);
-        const rawEvent = JSON.stringify(safeEvent);
+      async createEvent(identifier: string, input: ScheduleEvent<T>) {
+        const message = await getJsonStringEvent(input.event, parameters.schema);
 
-        const { timezone, maxRetries, maxAge } = options ?? parameters.defaults;
+        const defaults = parameters.defaults;
 
-        const hasMaxRetryAttempts = isAnyNumber(maxRetries);
-        const hasMaxEventAge = isAnyNumber(maxAge);
+        const maxRetries = input.maxRetries ?? defaults.maxRetries;
+        const hasMaxRetries = isAnyNumber(maxRetries);
 
-        const hasRetryPolicy = hasMaxRetryAttempts || hasMaxEventAge;
+        const maxAge = input.maxAge ?? defaults.maxAge;
+        const hasMaxAge = isAnyNumber(maxAge);
 
-        const atDate = at.toISOString().substring(0, 19);
+        const hasPolicy = hasMaxRetries || hasMaxAge;
 
         await client.send(
           new CreateScheduleCommand({
             Name: `${parameters.prefix}-${identifier}`,
             GroupName: groupName,
-            ScheduleExpression: `at(${atDate})`,
-            ScheduleExpressionTimezone: timezone,
+            ScheduleExpression: `at(${input.date.toISOString().substring(0, 19)})`,
             ActionAfterCompletion: ActionAfterCompletion.DELETE,
             FlexibleTimeWindow: {
               Mode: FlexibleTimeWindowMode.OFF
@@ -57,11 +60,11 @@ export namespace Client {
             Target: {
               Arn: functionArn,
               RoleArn: roleArn,
-              Input: rawEvent,
-              ...(hasRetryPolicy && {
+              Input: message,
+              ...(hasPolicy && {
                 RetryPolicy: {
-                  ...(hasMaxRetryAttempts && { MaximumRetryAttempts: maxRetries }),
-                  ...(hasMaxEventAge && { MaximumEventAgeInSeconds: maxAge })
+                  ...(hasMaxRetries && { MaximumRetryAttempts: maxRetries }),
+                  ...(hasMaxAge && { MaximumEventAgeInSeconds: maxAge })
                 }
               })
             }
@@ -69,10 +72,64 @@ export namespace Client {
         );
       }
 
-      async cancelEvent(identifier: string) {
+      async updateEvent(identifier: string, event: Partial<ScheduleEvent<T>>) {
+        const response = await client.send(
+          new GetScheduleCommand({
+            Name: `${parameters.prefix}-${identifier}`,
+            GroupName: groupName
+          })
+        );
+
+        const defaults = parameters.defaults;
+
+        const target = response.Target;
+        const policy = target?.RetryPolicy;
+
+        const date = event.date
+          ? `at(${event.date.toISOString().substring(0, 19)})`
+          : response.ScheduleExpression;
+
+        const message = event.event
+          ? await getJsonStringEvent(event.event, parameters.schema)
+          : target?.Input;
+
+        const maxRetries = policy?.MaximumRetryAttempts ?? event.maxRetries ?? defaults.maxRetries;
+        const hasMaxRetries = isAnyNumber(maxRetries);
+
+        const maxAge = policy?.MaximumEventAgeInSeconds ?? event.maxAge ?? defaults.maxAge;
+        const hasMaxAge = isAnyNumber(maxAge);
+
+        const hasPolicy = hasMaxRetries || hasMaxAge;
+
+        await client.send(
+          new UpdateScheduleCommand({
+            Name: response.Name,
+            GroupName: groupName,
+            ScheduleExpression: date,
+            ActionAfterCompletion: ActionAfterCompletion.DELETE,
+            FlexibleTimeWindow: {
+              Mode: FlexibleTimeWindowMode.OFF
+            },
+            Target: {
+              Arn: functionArn,
+              RoleArn: roleArn,
+              Input: message,
+              ...(hasPolicy && {
+                RetryPolicy: {
+                  ...(hasMaxRetries && { MaximumRetryAttempts: maxRetries }),
+                  ...(hasMaxAge && { MaximumEventAgeInSeconds: maxAge })
+                }
+              })
+            }
+          })
+        );
+      }
+
+      async deleteEvent(identifier: string) {
         await client.send(
           new DeleteScheduleCommand({
-            Name: identifier
+            Name: `${parameters.prefix}-${identifier}`,
+            GroupName: groupName
           })
         );
       }

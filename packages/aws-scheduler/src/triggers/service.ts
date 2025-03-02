@@ -28,10 +28,9 @@ export const prepareLinkedServices = (event: ServiceEvent) => {
 
   const scheduleName = getServiceName(service, options);
 
-  const { timezone, maxRetries, maxAge } = service;
+  const { maxRetries, maxAge } = service;
 
   return prepareLinkedService(scheduleName, service.schema, options, {
-    timezone,
     maxRetries,
     maxAge
   });
@@ -57,6 +56,7 @@ export const prepareCronServices = async (event: PrepareResourceEvent) => {
     description: handler.description,
     sourceFile: handler.file,
     handlerName: handler.name,
+    eventSchema: service.schema,
     extras: service.extras,
     debug: options.debug,
     variables: {

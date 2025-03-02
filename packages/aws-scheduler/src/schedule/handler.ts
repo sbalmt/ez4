@@ -89,36 +89,44 @@ const updateResource = async (
 ) => {
   const { result, parameters } = candidate;
 
-  if (!result || parameters.dynamic) {
+  if (!result) {
     return;
   }
 
   const { scheduleName } = parameters;
 
   const newRoleArn = getRoleArn(ScheduleServiceName, scheduleName, context);
-  const oldRoleArn = current.result?.roleArn ?? newRoleArn;
-
   const newFunctionArn = getFunctionArn(ScheduleServiceName, scheduleName, context);
-  const oldFunctionArn = current.result?.functionArn ?? newFunctionArn;
-
   const newGroupName = tryGetGroupName(context);
-  const oldGroupName = current.result?.groupName ?? newGroupName;
 
-  const newRequest = {
-    ...parameters,
+  if (!parameters.dynamic) {
+    const oldRoleArn = current.result?.roleArn ?? newRoleArn;
+    const oldFunctionArn = current.result?.functionArn ?? newFunctionArn;
+    const oldGroupName = current.result?.groupName ?? newGroupName;
+
+    const newRequest = {
+      ...parameters,
+      groupName: newGroupName,
+      functionArn: newFunctionArn,
+      roleArn: newRoleArn
+    };
+
+    const oldRequest = {
+      ...current.parameters,
+      groupName: oldGroupName,
+      functionArn: oldFunctionArn,
+      roleArn: oldRoleArn
+    };
+
+    await checkGeneralUpdates(scheduleName, newRequest, oldRequest);
+  }
+
+  return {
+    ...result,
     groupName: newGroupName,
     functionArn: newFunctionArn,
     roleArn: newRoleArn
   };
-
-  const oldRequest = {
-    ...current.parameters,
-    groupName: oldGroupName,
-    functionArn: oldFunctionArn,
-    roleArn: oldRoleArn
-  };
-
-  await checkGeneralUpdates(scheduleName, newRequest, oldRequest);
 };
 
 const deleteResource = async (candidate: ScheduleState) => {

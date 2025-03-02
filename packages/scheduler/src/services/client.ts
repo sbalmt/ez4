@@ -5,31 +5,43 @@ import type { Cron } from './contract.js';
  */
 export interface Client<T extends Cron.Event> {
   /**
-   * Schedule an event.
+   * Create a scheduled event.
    *
    * @param identifier Event identifier.
-   * @param at Event date.
-   * @param event Event payload.
-   * @param options Schedule options.
+   * @param input Input event.
    */
-  scheduleEvent(identifier: string, at: Date, event: T, options?: ScheduleOptions): Promise<void>;
+  createEvent(identifier: string, input: ScheduleEvent<T>): Promise<void>;
 
   /**
-   * Cancel a previously scheduled event.
+   * Update a previously scheduled event.
+   *
+   * @param identifier Event identifier.
+   * @param input Input event updates.
+   */
+  updateEvent(identifier: string, input: Partial<ScheduleEvent<T>>): Promise<void>;
+
+  /**
+   * Delete a previously scheduled event.
    *
    * @param identifier Event identifier.
    */
-  cancelEvent(identifier: string): Promise<void>;
+  deleteEvent(identifier: string): Promise<void>;
 }
 
 /**
- * Options for sending messages with queue client.
+ * Schedule event.
  */
-export type ScheduleOptions = {
+
+export type ScheduleEvent<T extends Cron.Event> = {
   /**
-   * Event timezone.
+   * Event date.
    */
-  timezone?: string;
+  date: Date;
+
+  /**
+   * Event payload.
+   */
+  event: T;
 
   /**
    * Max retries to perform before the event fails.
