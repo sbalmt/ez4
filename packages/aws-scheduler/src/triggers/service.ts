@@ -3,6 +3,7 @@ import type { EntryStates } from '@ez4/stateful';
 
 import type {
   ConnectResourceEvent,
+  DeployOptions,
   PrepareResourceEvent,
   ServiceEvent
 } from '@ez4/project/library';
@@ -71,7 +72,7 @@ export const prepareCronServices = async (event: PrepareResourceEvent) => {
 
   const { maxRetries = 0, maxAge } = service;
 
-  const groupState = getScheduleGroup(state, service);
+  const groupState = getScheduleGroup(state, service, options);
 
   createSchedule(state, role, functionState, groupState, {
     scheduleName: getServiceName(service, options),
@@ -110,12 +111,14 @@ export const connectCronResources = (event: ConnectResourceEvent) => {
   linkServiceExtras(state, functionState.entryId, service.extras);
 };
 
-const getScheduleGroup = (state: EntryStates, service: CronService) => {
+const getScheduleGroup = (state: EntryStates, service: CronService, options: DeployOptions) => {
   if (!service.group) {
     return undefined;
   }
 
+  const groupName = getServiceName(service.group, options);
+
   return createGroup(state, {
-    groupName: service.group
+    groupName
   });
 };
