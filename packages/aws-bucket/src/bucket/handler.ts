@@ -20,6 +20,11 @@ import {
 
 import { BucketServiceName } from './types.js';
 
+type NotificationParameters = {
+  functionArn?: Arn;
+  eventsPath?: string;
+};
+
 export const getBucketHandler = (): StepHandler<BucketState> => ({
   equals: equalsResource,
   create: createResource,
@@ -74,7 +79,13 @@ const createResource = async (
   await checkCorsUpdates(bucketName, parameters, undefined);
   await checkLifecycleUpdates(bucketName, parameters, undefined);
   await checkTagUpdates(bucketName, parameters.tags, undefined);
-  await checkEventUpdates(bucketName, functionArn, undefined);
+
+  const request = {
+    eventsPath: parameters.eventsPath,
+    functionArn
+  };
+
+  await checkEventUpdates(bucketName, request, {});
 
   return {
     bucketName,
@@ -96,12 +107,21 @@ const updateResource = async (
   const bucketName = result.bucketName;
 
   const newFunctionArn = tryGetFunctionArn(context);
-  const oldFunctionArn = current.result?.functionArn;
+  const oldFunctionArn = current.result?.functionArn ?? newFunctionArn;
 
   await checkCorsUpdates(bucketName, parameters, current.parameters);
   await checkLifecycleUpdates(bucketName, parameters, current.parameters);
   await checkTagUpdates(bucketName, parameters.tags, current.parameters.tags);
-  await checkEventUpdates(bucketName, newFunctionArn, oldFunctionArn);
+
+  const newRequest = { eventsPath: parameters.eventsPath, functionArn: newFunctionArn };
+  const oldRequest = { eventsPath: current.parameters.eventsPath, functionArn: oldFunctionArn };
+
+  await checkEventUpdates(bucketName, newRequest, oldRequest);
+
+  return {
+    ...result,
+    functionArn: newFunctionArn
+  };
 };
 
 const deleteResource = async (candidate: BucketState) => {
@@ -167,13 +187,15 @@ const checkTagUpdates = async (
 
 const checkEventUpdates = async (
   bucketName: string,
-  newFunctionArn: Arn | undefined,
-  oldFunctionArn: Arn | undefined
+  candidate: NotificationParameters,
+  current: NotificationParameters
 ) => {
-  if (newFunctionArn !== oldFunctionArn) {
-    await updateEventNotifications(bucketName, newFunctionArn, [
-      's3:ObjectCreated:*',
-      's3:ObjectRemoved:*'
-    ]);
+  const hasChanges = !deepEqual(candidate, current);
+
+  if (hasChanges) {
+    await updateEventNotifications(bucketName, {
+      eventsType: ['s3:ObjectCreated:*', 's3:ObjectRemoved:*'],
+      ...candidate
+    });
   }
 };

@@ -2,10 +2,20 @@ import type { EntryState, EntryStates } from '@ez4/stateful';
 
 import { ok, equal } from 'node:assert/strict';
 import { describe, it } from 'node:test';
+import { join } from 'node:path';
 
-import { createBucket, isBucketState, registerTriggers } from '@ez4/aws-bucket';
+import {
+  createBucket,
+  createBucketEventFunction,
+  isBucketState,
+  registerTriggers
+} from '@ez4/aws-bucket';
+
 import { deploy } from '@ez4/aws-common';
 import { deepClone } from '@ez4/utils';
+import { createRole } from '@ez4/aws-identity';
+
+import { getRoleDocument } from './common/role.js';
 
 const assertDeploy = async <E extends EntryState>(
   resourceId: string,
@@ -30,6 +40,8 @@ const assertDeploy = async <E extends EntryState>(
 };
 
 describe.only('bucket resources', () => {
+  const baseDir = 'test/files';
+
   let lastState: EntryStates | undefined;
   let bucketId: string | undefined;
 
@@ -38,8 +50,20 @@ describe.only('bucket resources', () => {
   it('assert :: deploy', async () => {
     const localState: EntryStates = {};
 
-    const resource = createBucket(localState, undefined, {
+    const roleResource = createRole(localState, [], {
+      roleName: 'ez4-test-lambda-bucket-role',
+      roleDocument: getRoleDocument()
+    });
+
+    const lambdaResource = createBucketEventFunction(localState, roleResource, {
+      sourceFile: join(baseDir, 'lambda.js'),
+      functionName: 'ez4-test-bucket-event-lambda',
+      handlerName: 'main'
+    });
+
+    const resource = createBucket(localState, lambdaResource, {
       bucketName: 'ez4-test-bucket',
+      eventsPath: 'uploads/',
       autoExpireDays: 5,
       tags: {
         test1: 'ez4-tag1',

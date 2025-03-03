@@ -43,13 +43,14 @@ export const prepareBucketServices = async (event: PrepareResourceEvent) => {
     throw new RoleMissingError();
   }
 
-  const { globalName, localPath, autoExpireDays, cors } = service;
+  const { globalName, localPath, autoExpireDays, events, cors } = service;
 
   const bucketName = globalName ?? (await getNewBucketName(service, options));
 
   const functionState = getEventsFunction(state, service, role, options);
 
   const bucketState = createBucket(state, functionState, {
+    eventsPath: events?.path,
     bucketName,
     autoExpireDays,
     localPath,

@@ -24,11 +24,16 @@ const client = new S3Client({});
 
 export type CreateRequest = {
   bucketName: string;
-  notification?: Notification;
 };
 
 export type CreateResponse = {
   bucketName: string;
+};
+
+export type UpdateNotificationRequest = {
+  functionArn?: Arn;
+  eventsPath?: string;
+  eventsType: Event[];
 };
 
 export const isBucketEmpty = async (bucketName: string) => {
@@ -154,10 +159,11 @@ export const deleteLifecycle = async (bucketName: string) => {
 
 export const updateEventNotifications = async (
   bucketName: string,
-  functionArn: Arn | undefined,
-  events: Event[]
+  request: UpdateNotificationRequest
 ) => {
   Logger.logUpdate(BucketServiceName, `${bucketName} event notifications`);
+
+  const { functionArn, eventsPath, eventsType } = request;
 
   await client.send(
     new PutBucketNotificationConfigurationCommand({
@@ -169,7 +175,19 @@ export const updateEventNotifications = async (
             {
               Id: 'ID0',
               LambdaFunctionArn: functionArn,
-              Events: events
+              Events: eventsType,
+              ...(eventsPath && {
+                Filter: {
+                  Key: {
+                    FilterRules: [
+                      {
+                        Name: 'prefix',
+                        Value: eventsPath
+                      }
+                    ]
+                  }
+                }
+              })
             }
           ]
         })
