@@ -1,5 +1,5 @@
 import type { ServiceMetadata } from '@ez4/project/library';
-import type { BucketCors } from './cors.js';
+import type { BucketCors, BucketEvent } from './common.js';
 
 export const ServiceType = '@ez4/bucket';
 
@@ -7,7 +7,9 @@ export type BucketService = ServiceMetadata & {
   type: typeof ServiceType;
   name: string;
   localPath?: string;
+  globalName?: string;
   autoExpireDays?: number;
+  events?: BucketEvent;
   cors?: BucketCors;
 };
 

@@ -4,6 +4,8 @@ import type { MessageRequest } from '../types.js';
 export function messageHandlerC(request: Notification.Incoming<MessageRequest>): void {
   const { message } = request;
 
-  // Do some stuff...
+  console.log('Handler C', JSON.stringify(message));
+
+  // Do another stuff...
   message.foo;
 }

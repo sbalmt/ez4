@@ -6,9 +6,11 @@ import { validate } from '@ez4/validator';
 
 import { MalformedMessageError } from './errors.js';
 
+export type MessageSchema = ObjectSchema | UnionSchema;
+
 export const getJsonMessage = async <T extends Queue.Message>(
   message: T,
-  schema: ObjectSchema | UnionSchema
+  schema: MessageSchema
 ) => {
   const errors = await validate(message, schema);
 
@@ -17,4 +19,13 @@ export const getJsonMessage = async <T extends Queue.Message>(
   }
 
   return message;
+};
+
+export const getJsonStringMessage = async <T extends Queue.Message>(
+  message: T,
+  schema: MessageSchema
+) => {
+  const safeMessage = await getJsonMessage(message, schema);
+
+  return JSON.stringify(safeMessage);
 };

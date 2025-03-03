@@ -4,11 +4,12 @@ import { getTagList, Logger } from '@ez4/aws-common';
 
 import {
   ACMClient,
-  ValidationMethod,
+  DescribeCertificateCommand,
   RequestCertificateCommand,
   DeleteCertificateCommand,
   AddTagsToCertificateCommand,
   RemoveTagsFromCertificateCommand,
+  ValidationMethod
 } from '@aws-sdk/client-acm';
 
 import { CertificateServiceName } from './types.js';
@@ -22,6 +23,18 @@ export type CreateRequest = {
 
 export type CreateResponse = {
   certificateArn: Arn;
+};
+
+export const isCertificateInUse = async (certificateArn: string) => {
+  Logger.logFetch(CertificateServiceName, certificateArn);
+
+  const response = await client.send(
+    new DescribeCertificateCommand({
+      CertificateArn: certificateArn
+    })
+  );
+
+  return !!response.Certificate?.InUseBy?.length;
 };
 
 export const createCertificate = async (request: CreateRequest): Promise<CreateResponse> => {

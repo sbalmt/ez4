@@ -3,7 +3,8 @@
  */
 export default {
   prefix: 'ez4',
-  projectName: 'aws-queue',
+  debugMode: true,
+  projectName: 'hello-queue',
   sourceFiles: ['./src/service.ts'],
   stateFile: {
     path: 'ez4-deploy'

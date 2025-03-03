@@ -6,6 +6,7 @@ import { deepCompare, deepEqual } from '@ez4/utils';
 import { getFunctionArn } from '@ez4/aws-function';
 import { getRoleArn } from '@ez4/aws-identity';
 
+import { tryGetGroupName } from '../group/utils.js';
 import { createSchedule, deleteSchedule, updateSchedule } from './client.js';
 import { ScheduleServiceName } from './types.js';
 
@@ -54,16 +55,27 @@ const createResource = async (
   candidate: ScheduleState,
   context: StepContext
 ): Promise<ScheduleResult> => {
+  const { parameters } = candidate;
+
   const roleArn = getRoleArn(ScheduleServiceName, 'schedule', context);
   const functionArn = getFunctionArn(ScheduleServiceName, 'schedule', context);
+  const groupName = tryGetGroupName(context);
 
-  const { scheduleArn } = await createSchedule({
-    ...candidate.parameters,
-    functionArn,
-    roleArn
-  });
+  let scheduleArn;
+
+  if (!parameters.dynamic) {
+    const result = await createSchedule({
+      ...parameters,
+      groupName,
+      functionArn,
+      roleArn
+    });
+
+    scheduleArn = result.scheduleArn;
+  }
 
   return {
+    groupName,
     scheduleArn,
     functionArn,
     roleArn
@@ -84,21 +96,43 @@ const updateResource = async (
   const { scheduleName } = parameters;
 
   const newRoleArn = getRoleArn(ScheduleServiceName, scheduleName, context);
-  const oldRoleArn = current.result?.roleArn ?? newRoleArn;
-
   const newFunctionArn = getFunctionArn(ScheduleServiceName, scheduleName, context);
-  const oldFunctionArn = current.result?.functionArn ?? newFunctionArn;
+  const newGroupName = tryGetGroupName(context);
 
-  const newRequest = { ...parameters, functionArn: newFunctionArn, roleArn: newRoleArn };
-  const oldRequest = { ...current.parameters, functionArn: oldFunctionArn, roleArn: oldRoleArn };
+  if (!parameters.dynamic) {
+    const oldRoleArn = current.result?.roleArn ?? newRoleArn;
+    const oldFunctionArn = current.result?.functionArn ?? newFunctionArn;
+    const oldGroupName = current.result?.groupName ?? newGroupName;
 
-  await checkGeneralUpdates(parameters.scheduleName, newRequest, oldRequest);
+    const newRequest = {
+      ...parameters,
+      groupName: newGroupName,
+      functionArn: newFunctionArn,
+      roleArn: newRoleArn
+    };
+
+    const oldRequest = {
+      ...current.parameters,
+      groupName: oldGroupName,
+      functionArn: oldFunctionArn,
+      roleArn: oldRoleArn
+    };
+
+    await checkGeneralUpdates(scheduleName, newRequest, oldRequest);
+  }
+
+  return {
+    ...result,
+    groupName: newGroupName,
+    functionArn: newFunctionArn,
+    roleArn: newRoleArn
+  };
 };
 
 const deleteResource = async (candidate: ScheduleState) => {
   const { result, parameters } = candidate;
 
-  if (result) {
+  if (result && !parameters.dynamic && !result.groupName) {
     await deleteSchedule(parameters.scheduleName);
   }
 };

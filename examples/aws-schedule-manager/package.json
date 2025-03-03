@@ -1,0 +1,30 @@
+{
+  "name": "@ez4/aws-schedule-manager",
+  "description": "Example of a service using AWS EventBridge scheduler.",
+  "version": "0.0.0",
+  "author": "Silas B.",
+  "license": "MIT",
+  "type": "module",
+  "private": true,
+  "engines": {
+    "node": ">=20.15.0"
+  },
+  "workspaces": [
+    "packages/*"
+  ],
+  "scripts": {
+    "deploy": "tsc -p tsconfig.json && ez4 deploy -e local.env -p ez4.project.js",
+    "destroy": "ez4 destroy -e local.env -p ez4.project.js"
+  },
+  "dependencies": {
+    "@ez4/aws-dynamodb": "^0.14.0",
+    "@ez4/aws-gateway": "^0.14.0",
+    "@ez4/aws-scheduler": "^0.14.0",
+    "@ez4/common": "^0.14.0",
+    "@ez4/database": "^0.14.0",
+    "@ez4/gateway": "^0.14.0",
+    "@ez4/project": "^0.14.0",
+    "@ez4/scheduler": "^0.14.0",
+    "@ez4/schema": "^0.14.0"
+  }
+}

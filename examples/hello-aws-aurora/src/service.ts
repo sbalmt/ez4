@@ -4,9 +4,15 @@ import type { TableSchema } from './types.js';
 /**
  * Example of AWS Aurora deployed with EZ4.
  */
-export declare class Db extends Database.Service<[TableSchema]> {
+export declare class Db extends Database.Service {
+  /**
+   * Database engine.
+   */
   engine: 'aurora';
 
+  /**
+   * Database tables.
+   */
   tables: [
     {
       name: 'table';

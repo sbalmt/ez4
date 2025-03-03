@@ -4,15 +4,15 @@ import type { AttributeSchemaGroup } from '../types/schema.js';
 import { getTagList, Logger } from '@ez4/aws-common';
 
 import {
-  BillingMode,
-  CreateTableCommand,
-  DeleteTableCommand,
   DynamoDBClient,
-  StreamViewType,
+  CreateTableCommand,
+  UpdateTableCommand,
+  DeleteTableCommand,
+  UpdateTimeToLiveCommand,
   TagResourceCommand,
   UntagResourceCommand,
-  UpdateTableCommand,
-  UpdateTimeToLiveCommand,
+  StreamViewType,
+  BillingMode,
   waitUntilTableExists,
   waitUntilTableNotExists
 } from '@aws-sdk/client-dynamodb';

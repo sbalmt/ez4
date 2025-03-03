@@ -19,16 +19,24 @@ Ensure the user performing deployments has the permissions below:
   "Version": "2012-10-17",
   "Statement": [
     {
-      "Sid": "SchedulerManagement",
+      "Sid": "ScheduleManagement",
       "Effect": "Allow",
       "Action": [
         "scheduler:CreateSchedule",
         "scheduler:UpdateSchedule",
         "scheduler:DeleteSchedule",
+        "scheduler:GetScheduleGroup",
+        "scheduler:CreateScheduleGroup",
+        "scheduler:DeleteScheduleGroup",
         "scheduler:TagResource",
         "scheduler:UntagResource"
       ],
-      "Resource": ["arn:aws:scheduler:us-east-1:{account-id}:schedule/*/{prefix}-*"]
+      "Resource": [
+        "arn:aws:scheduler:us-east-1:295077813784:schedule/*/{prefix}-*",
+        "arn:aws:scheduler:us-east-1:295077813784:schedule/{prefix}-*/*",
+        "arn:aws:scheduler:us-east-1:295077813784:schedule-group/{prefix}-*",
+        "arn:aws:scheduler:us-east-1:295077813784:schedule-group/{prefix}-*/*"
+      ]
     }
   ]
 }

@@ -6,7 +6,7 @@ import { deepCompare, deepEqual } from '@ez4/utils';
 
 import { getGatewayId } from '../gateway/utils.js';
 import { getIntegrationId } from '../integration/utils.js';
-import { getAuthorizerId } from '../authorizer/utils.js';
+import { tryGetAuthorizerId } from '../authorizer/utils.js';
 import { importRoute, createRoute, deleteRoute, updateRoute } from './client.js';
 import { RouteServiceName } from './types.js';
 
@@ -50,7 +50,7 @@ const createResource = async (
 ): Promise<RouteResult> => {
   const parameters = candidate.parameters;
 
-  const authorizerId = getAuthorizerId(context);
+  const authorizerId = tryGetAuthorizerId(context);
   const integrationId = getIntegrationId(RouteServiceName, 'route', context);
   const apiId = getGatewayId(RouteServiceName, 'route', context);
 
@@ -78,7 +78,7 @@ const updateResource = async (candidate: RouteState, current: RouteState, contex
     return;
   }
 
-  const newAuthorizerId = getAuthorizerId(context);
+  const newAuthorizerId = tryGetAuthorizerId(context);
   const oldAuthorizerId = current.result?.authorizerId;
 
   const newIntegrationId = getIntegrationId(RouteServiceName, result.routeId, context);

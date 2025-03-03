@@ -5,11 +5,11 @@ import { registerTriggers as registerSchedulerTriggers } from '@ez4/scheduler/li
 
 import { createTrigger } from '@ez4/project/library';
 
+import { registerGroupProvider } from '../group/provider.js';
 import { registerScheduleProvider } from '../schedule/provider.js';
-
+import { prepareLinkedServices, prepareCronServices, connectCronResources } from './service.js';
 import { prepareIdentityAccount } from './identity.js';
 import { prepareExecutionPolicy } from './policy.js';
-import { prepareCronServices } from './cron.js';
 
 let isRegistered = false;
 
@@ -25,11 +25,14 @@ export const registerTriggers = () => {
 
   createTrigger('@ez4/aws-scheduler', {
     'deploy:prepareIdentityAccount': prepareIdentityAccount,
+    'deploy:prepareLinkedService': prepareLinkedServices,
     'deploy:prepareExecutionPolicy': prepareExecutionPolicy,
-    'deploy:prepareResources': prepareCronServices
+    'deploy:prepareResources': prepareCronServices,
+    'deploy:connectResources': connectCronResources
   });
 
   registerScheduleProvider();
+  registerGroupProvider();
 
   isRegistered = true;
 };

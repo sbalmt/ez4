@@ -2,30 +2,32 @@ import type { Arn } from '@ez4/aws-common';
 import type { CreateScheduleInput, UpdateScheduleInput } from '@aws-sdk/client-scheduler';
 
 import {
-  CreateScheduleCommand,
-  DeleteScheduleCommand,
-  FlexibleTimeWindowMode,
   SchedulerClient,
   ScheduleState,
-  UpdateScheduleCommand
+  CreateScheduleCommand,
+  UpdateScheduleCommand,
+  DeleteScheduleCommand,
+  FlexibleTimeWindowMode
 } from '@aws-sdk/client-scheduler';
 
 import { Logger } from '@ez4/aws-common';
 import { ScheduleServiceName } from './types.js';
+import { isAnyNumber } from '@ez4/utils';
 
 const client = new SchedulerClient({});
 
 export type CreateRequest = {
   roleArn: Arn;
   functionArn: Arn;
+  groupName?: string;
   scheduleName: string;
   expression: string;
   timezone?: string;
   enabled: boolean;
   startDate?: string;
   endDate?: string;
-  maxRetryAttempts?: number;
-  maxEventAge?: number;
+  maxRetries?: number;
+  maxAge?: number;
   description?: string;
 };
 
@@ -76,19 +78,18 @@ export const deleteSchedule = async (scheduleName: string) => {
 const upsertScheduleRequest = (
   request: CreateRequest | UpdateRequest
 ): Omit<CreateScheduleInput | UpdateScheduleInput, 'Name'> => {
-  const { expression, timezone, startDate, endDate, maxRetryAttempts, maxEventAge } = request;
-  const { description, enabled, functionArn, roleArn } = request;
+  const { startDate, endDate, maxRetries, maxAge, enabled } = request;
 
-  const hasMaxRetryAttempts = maxRetryAttempts !== undefined;
-
-  const hasMaxEventAge = maxEventAge !== undefined;
+  const hasMaxRetryAttempts = isAnyNumber(maxRetries);
+  const hasMaxEventAge = isAnyNumber(maxAge);
 
   const hasRetryPolicy = hasMaxEventAge || hasMaxRetryAttempts;
 
   return {
-    Description: description,
-    ScheduleExpression: expression,
-    ScheduleExpressionTimezone: timezone,
+    GroupName: request.groupName,
+    Description: request.description,
+    ScheduleExpression: request.expression,
+    ScheduleExpressionTimezone: request.timezone,
     ...(startDate && { StartDate: new Date(startDate) }),
     ...(endDate && { EndDate: new Date(endDate) }),
     ...(enabled !== undefined && {
@@ -98,12 +99,12 @@ const upsertScheduleRequest = (
       Mode: FlexibleTimeWindowMode.OFF
     },
     Target: {
-      Arn: functionArn,
-      RoleArn: roleArn,
+      Arn: request.functionArn,
+      RoleArn: request.roleArn,
       ...(hasRetryPolicy && {
         RetryPolicy: {
-          ...(hasMaxEventAge && { MaximumEventAgeInSeconds: maxEventAge }),
-          ...(hasMaxRetryAttempts && { MaximumRetryAttempts: maxRetryAttempts })
+          ...(hasMaxRetryAttempts && { MaximumRetryAttempts: maxRetries }),
+          ...(hasMaxEventAge && { MaximumEventAgeInSeconds: maxAge })
         }
       })
     }

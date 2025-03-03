@@ -1,12 +1,8 @@
-import type { PolicyDocument } from '@ez4/aws-identity';
 import type { IdentityGrant } from '@ez4/project/library';
 
 import { getAccountId, getRegion, createPolicyDocument } from '@ez4/aws-identity';
 
-export const getPolicyDocument = async (
-  prefix: string,
-  useStreams: boolean
-): Promise<PolicyDocument> => {
+export const getPolicyDocument = async (prefix: string, useStreams: boolean) => {
   const [region, accountId] = await Promise.all([getRegion(), getAccountId()]);
 
   const grants: IdentityGrant[] = [

@@ -28,6 +28,9 @@ const testFile = (fileName: string, overwrite = false) => {
 describe.only('storage metadata', () => {
   registerTriggers();
 
+  process.env.TEST_ENV_VAR = 'test-env-var-value';
+
   it('assert :: basic storage', () => testFile('service'));
+  it('assert :: storage events', () => testFile('events'));
   it('assert :: storage cors', () => testFile('cors'));
 });

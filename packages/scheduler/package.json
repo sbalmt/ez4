@@ -1,7 +1,7 @@
 {
   "name": "@ez4/scheduler",
   "description": "EZ4: Components to build scheduler services",
-  "version": "0.13.0",
+  "version": "0.14.0",
   "author": "Silas B.",
   "license": "MIT",
   "type": "module",
@@ -42,8 +42,8 @@
     "live:publish": "npm run test && npm publish --access public"
   },
   "dependencies": {
-    "@ez4/common": "^0.13.0",
-    "@ez4/project": "^0.13.0",
-    "@ez4/reflection": "^0.13.0"
+    "@ez4/common": "^0.14.0",
+    "@ez4/project": "^0.14.0",
+    "@ez4/reflection": "^0.14.0"
   }
 }

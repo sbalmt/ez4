@@ -106,9 +106,9 @@ export const createFunction = async (request: CreateRequest): Promise<ImportOrCr
       MemorySize: memory,
       Timeout: timeout,
       Role: roleArn,
-      PackageType: 'Zip',
       Handler: getSourceHandlerName(handlerName),
-      Runtime: 'nodejs20.x',
+      Runtime: 'nodejs22.x',
+      PackageType: 'Zip',
       Code: {
         ZipFile: await getSourceZipFile(sourceFile)
       },

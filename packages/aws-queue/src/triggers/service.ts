@@ -10,19 +10,19 @@ import { isRoleState } from '@ez4/aws-identity';
 
 import { createQueue } from '../queue/service.js';
 import { connectSubscriptions, prepareSubscriptions } from './subscription.js';
-import { prepareLinkedService } from './client.js';
+import { prepareLinkedClient } from './client.js';
 import { RoleMissingError } from './errors.js';
 
 export const prepareLinkedServices = (event: ServiceEvent) => {
   const { service, options } = event;
 
   if (!isQueueService(service)) {
-    return;
+    return null;
   }
 
   const queueName = getServiceName(service, options);
 
-  return prepareLinkedService(queueName, service.schema);
+  return prepareLinkedClient(queueName, service.schema);
 };
 
 export const prepareServices = async (event: PrepareResourceEvent) => {

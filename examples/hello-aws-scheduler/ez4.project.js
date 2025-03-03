@@ -3,7 +3,8 @@
  */
 export default {
   prefix: 'ez4',
-  projectName: 'aws-scheduler',
+  debugMode: true,
+  projectName: 'hello-scheduler',
   sourceFiles: ['./src/service.ts'],
   stateFile: {
     path: 'ez4-deploy'

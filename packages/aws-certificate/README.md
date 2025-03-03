@@ -22,6 +22,7 @@ Ensure the user performing deployments has the permissions below:
       "Sid": "CertificateManagement",
       "Effect": "Allow",
       "Action": [
+        "acm:DescribeCertificate",
         "acm:RequestCertificate",
         "acm:DeleteCertificate",
         "acm:AddTagsToCertificate",

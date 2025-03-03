@@ -1,11 +1,11 @@
+import type { MessageSchema } from '@ez4/aws-notification/runtime';
 import type { SNSEvent, Context } from 'aws-lambda';
-import type { ObjectSchema, UnionSchema } from '@ez4/schema';
 
-import { getJsonMessage } from '@ez4/aws-queue/runtime';
+import { getJsonMessage } from '@ez4/aws-notification/runtime';
 
 declare function next(message: unknown, context: object): Promise<any>;
 
-declare const __EZ4_SCHEMA: ObjectSchema | UnionSchema | null;
+declare const __EZ4_SCHEMA: MessageSchema | null;
 declare const __EZ4_CONTEXT: object;
 
 /**

@@ -1,6 +1,9 @@
+import type { ObjectSchema } from '@ez4/schema';
+
 import { beforeEach, describe, it } from 'node:test';
 import { deepEqual, equal } from 'node:assert';
 
+import { SchemaType } from '@ez4/schema';
 import { SqlBuilder } from '@ez4/pgsql';
 
 describe.only('sql where tests', () => {
@@ -151,6 +154,52 @@ describe.only('sql where tests', () => {
     equal(statement, 'SELECT * FROM "test" WHERE "foo" IN (:0, :1, :2)');
   });
 
+  it('assert :: where is in with json', async () => {
+    const schema: ObjectSchema = {
+      type: SchemaType.Object,
+      properties: {
+        foo: {
+          type: SchemaType.Array,
+          element: {
+            type: SchemaType.Number
+          }
+        },
+        bar: {
+          type: SchemaType.Object,
+          properties: {},
+          additional: {
+            property: {
+              type: SchemaType.String
+            },
+            value: {
+              type: SchemaType.Number
+            }
+          }
+        }
+      }
+    };
+
+    const query = sql
+      .select(schema)
+      .from('test')
+      .where({
+        foo: {
+          isIn: ['abc']
+        },
+        bar: {
+          isIn: {
+            abc: 123
+          }
+        }
+      });
+
+    const [statement, variables] = query.build();
+
+    deepEqual(variables, [['abc'], { abc: 123 }]);
+
+    equal(statement, `SELECT * FROM "test" WHERE "foo" <@ :0 AND "bar" <@ :1`);
+  });
+
   it('assert :: where is between', async () => {
     const query = sql
       .select()
@@ -278,6 +327,52 @@ describe.only('sql where tests', () => {
     deepEqual(variables, ['abc']);
 
     equal(statement, `SELECT * FROM "test" WHERE "foo" LIKE '%' || :0 || '%'`);
+  });
+
+  it('assert :: where contains with json', async () => {
+    const schema: ObjectSchema = {
+      type: SchemaType.Object,
+      properties: {
+        foo: {
+          type: SchemaType.Array,
+          element: {
+            type: SchemaType.Number
+          }
+        },
+        bar: {
+          type: SchemaType.Object,
+          properties: {},
+          additional: {
+            property: {
+              type: SchemaType.String
+            },
+            value: {
+              type: SchemaType.Number
+            }
+          }
+        }
+      }
+    };
+
+    const query = sql
+      .select(schema)
+      .from('test')
+      .where({
+        foo: {
+          contains: ['abc']
+        },
+        bar: {
+          contains: {
+            abc: 123
+          }
+        }
+      });
+
+    const [statement, variables] = query.build();
+
+    deepEqual(variables, [['abc'], { abc: 123 }]);
+
+    equal(statement, `SELECT * FROM "test" WHERE "foo" @> :0 AND "bar" @> :1`);
   });
 
   it('assert :: where not', async () => {

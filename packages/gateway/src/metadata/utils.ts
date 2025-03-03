@@ -1,7 +1,16 @@
 import type { AllType, TypeCallback, TypeClass, TypeFunction, TypeModel } from '@ez4/reflection';
+import type { HttpPath } from '../types/common.js';
 
 import { hasHeritageType, isClassDeclaration, isModelDeclaration } from '@ez4/common/library';
 import { isTypeCallback, isTypeFunction } from '@ez4/reflection';
+
+const allVerbs = new Set(['ANY', 'GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS']);
+
+export const isHttpPath = (path: string): path is HttpPath => {
+  const [verb] = path.split(' ', 2);
+
+  return allVerbs.has(verb);
+};
 
 export const isHttpService = (type: AllType): type is TypeClass => {
   return isClassDeclaration(type) && hasHeritageType(type, 'Http.Service');
@@ -25,6 +34,10 @@ export const isHttpAuthorizerResponse = (type: TypeModel) => {
 
 export const isHttpHandlerResponse = (type: TypeModel) => {
   return hasHeritageType(type, 'Http.Response');
+};
+
+export const isHttpDefaults = (type: TypeModel) => {
+  return hasHeritageType(type, 'Http.Defaults');
 };
 
 export const isHttpHeaders = (type: TypeModel) => {

@@ -1,7 +1,7 @@
 {
   "name": "@ez4/aws-dynamodb",
   "description": "EZ4: Self-managed AWS DynamoDB provider",
-  "version": "0.13.0",
+  "version": "0.14.0",
   "author": "Silas B.",
   "license": "MIT",
   "type": "module",
@@ -47,20 +47,20 @@
     "live:publish": "npm run test && npm publish --access public"
   },
   "devDependencies": {
-    "@types/aws-lambda": "^8.10.141"
+    "@types/aws-lambda": "^8.10.147"
   },
   "dependencies": {
-    "@aws-sdk/client-dynamodb": "^3.624.0",
-    "@aws-sdk/lib-dynamodb": "^3.624.0",
-    "@aws-sdk/util-dynamodb": "^3.624.0",
-    "@ez4/aws-common": "^0.13.0",
-    "@ez4/aws-function": "^0.13.0",
-    "@ez4/aws-identity": "^0.13.0",
-    "@ez4/database": "^0.13.0",
-    "@ez4/project": "^0.13.0",
-    "@ez4/schema": "^0.13.0",
-    "@ez4/stateful": "^0.13.0",
-    "@ez4/utils": "^0.13.0",
-    "@ez4/validator": "^0.13.0"
+    "@aws-sdk/client-dynamodb": "^3.758.0",
+    "@aws-sdk/lib-dynamodb": "^3.758.0",
+    "@aws-sdk/util-dynamodb": "^3.758.0",
+    "@ez4/aws-common": "^0.14.0",
+    "@ez4/aws-function": "^0.14.0",
+    "@ez4/aws-identity": "^0.14.0",
+    "@ez4/database": "^0.14.0",
+    "@ez4/project": "^0.14.0",
+    "@ez4/schema": "^0.14.0",
+    "@ez4/stateful": "^0.14.0",
+    "@ez4/utils": "^0.14.0",
+    "@ez4/validator": "^0.14.0"
   }
 }

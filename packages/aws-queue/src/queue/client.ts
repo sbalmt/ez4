@@ -5,8 +5,8 @@ import {
   SQSClient,
   GetQueueUrlCommand,
   CreateQueueCommand,
-  SetQueueAttributesCommand,
   DeleteQueueCommand,
+  SetQueueAttributesCommand,
   TagQueueCommand,
   UntagQueueCommand
 } from '@aws-sdk/client-sqs';

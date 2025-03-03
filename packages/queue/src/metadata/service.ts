@@ -48,10 +48,13 @@ export const getQueueServices = (reflection: SourceMap) => {
 
       switch (member.name) {
         case 'schema': {
-          service.schema = getQueueMessage(member.value, statement, reflection, errorList);
-          if (service.schema) {
+          const value = getQueueMessage(member.value, statement, reflection, errorList);
+
+          if (value) {
             properties.delete(member.name);
+            service.schema = value;
           }
+
           break;
         }
 
@@ -61,20 +64,24 @@ export const getQueueServices = (reflection: SourceMap) => {
         case 'delay': {
           if (!member.inherited) {
             const value = getPropertyNumber(member);
+
             if (isAnyNumber(value)) {
               service[member.name] = value;
             }
           }
+
           break;
         }
 
         case 'subscriptions': {
           if (!member.inherited) {
             service.subscriptions = getAllSubscription(member, statement, reflection, errorList);
+
             if (service.subscriptions) {
               properties.delete(member.name);
             }
           }
+
           break;
         }
 

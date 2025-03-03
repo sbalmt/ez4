@@ -2,8 +2,6 @@
   "TestStorage": {
     "type": "@ez4/bucket",
     "name": "TestStorage",
-    "localPath": "./public",
-    "autoExpireDays": 30,
     "cors": {
       "allowOrigins": [
         "*"

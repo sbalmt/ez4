@@ -7,10 +7,8 @@ import { createTrigger } from '@ez4/project/library';
 import { registerClusterProvider } from '../cluster/provider.js';
 import { registerInstanceProvider } from '../instance/provider.js';
 import { registerMigrationProvider } from '../migration/provider.js';
-
-import { prepareDatabaseServices } from './service.js';
+import { prepareDatabaseServices, prepareLinkedServices } from './service.js';
 import { prepareExecutionPolicy } from './policy.js';
-import { prepareLinkedService } from './client.js';
 
 let isRegistered = false;
 
@@ -25,7 +23,7 @@ export const registerTriggers = () => {
 
   createTrigger('@ez4/aws-aurora', {
     'deploy:prepareExecutionPolicy': prepareExecutionPolicy,
-    'deploy:prepareLinkedService': prepareLinkedService,
+    'deploy:prepareLinkedService': prepareLinkedServices,
     'deploy:prepareResources': prepareDatabaseServices
   });
 

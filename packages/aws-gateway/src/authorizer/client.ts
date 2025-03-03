@@ -2,10 +2,10 @@ import type { Arn } from '@ez4/aws-common';
 
 import {
   ApiGatewayV2Client,
-  AuthorizerType,
   CreateAuthorizerCommand,
+  UpdateAuthorizerCommand,
   DeleteAuthorizerCommand,
-  UpdateAuthorizerCommand
+  AuthorizerType
 } from '@aws-sdk/client-apigatewayv2';
 
 import { Logger } from '@ez4/aws-common';

@@ -1,4 +1,4 @@
-import { STSClient, GetCallerIdentityCommand } from '@aws-sdk/client-sts';
+import { getRandomName } from '../utils/names.js';
 
 import {
   S3Client,
@@ -9,9 +9,6 @@ import {
   NoSuchKey
 } from '@aws-sdk/client-s3';
 
-import { hash } from 'node:crypto';
-
-const stsClient = new STSClient();
 const s3Client = new S3Client();
 
 export const loadStateFile = async (filePath: string) => {
@@ -63,8 +60,7 @@ const ensureBucketExists = async (bucketName: string) => {
 };
 
 const getBucketName = async () => {
-  const response = await stsClient.send(new GetCallerIdentityCommand());
-  const bucketName = hash('sha256', response.Account!).substring(0, 16);
+  const randomName = await getRandomName(16);
 
-  return `ez4-${bucketName}`;
+  return `ez4-${randomName}`;
 };

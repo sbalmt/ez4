@@ -14,9 +14,9 @@ export class IncompleteTypeError extends TypeError {
     public fileName?: string
   ) {
     if (properties.length > 1) {
-      super(`${message}, properties [${properties.join(', ')}] are missing.`, fileName);
+      super(`${message}, properties [${properties.join(', ')}] are invalid or missing.`, fileName);
     } else {
-      super(`${message}, property ${properties[0]} is missing.`, fileName);
+      super(`${message}, property ${properties[0]} is invalid or missing.`, fileName);
     }
   }
 }
@@ -46,5 +46,19 @@ export class IncorrectTypeError extends TypeError {
     public fileName?: string
   ) {
     super(`${message}, ${modelType} must derive from ${baseType}.`, fileName);
+  }
+}
+
+export class IncorrectPropertyError extends TypeError {
+  constructor(
+    message: string,
+    public properties: string[],
+    public fileName?: string
+  ) {
+    if (properties.length > 1) {
+      super(`${message}, properties [${properties.join(', ')}] aren't needed.`, fileName);
+    } else {
+      super(`${message}, property ${properties[0]} isn't needed.`, fileName);
+    }
   }
 }

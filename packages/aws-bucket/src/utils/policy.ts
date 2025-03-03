@@ -1,8 +1,12 @@
-import type { PolicyDocument } from '@ez4/aws-identity';
+import type { Arn } from '@ez4/aws-common';
 
 import { createPolicyDocument } from '@ez4/aws-identity';
 
-export const getPolicyDocument = (prefix: string): PolicyDocument => {
+export const buildBucketArn = (bucketName: string) => {
+  return `arn:aws:s3:::${bucketName}` as Arn;
+};
+
+export const getPolicyDocument = (prefix: string) => {
   return createPolicyDocument([
     {
       resourceIds: [`arn:aws:s3:::${prefix}-*`, `arn:aws:s3:::${prefix}-*/*`],

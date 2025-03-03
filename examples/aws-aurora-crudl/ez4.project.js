@@ -3,7 +3,8 @@
  */
 export default {
   prefix: 'ez4',
-  projectName: 'aws-aurora',
+  debugMode: true,
+  projectName: 'aurora-crudl',
   sourceFiles: ['./src/api.ts', './src/aurora.ts'],
   stateFile: {
     path: 'ez4-deploy'

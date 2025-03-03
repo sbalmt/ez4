@@ -1,7 +1,7 @@
 import type { Incomplete } from '@ez4/utils';
 import type { MemberType } from '@ez4/common/library';
 import type { AllType, SourceMap, TypeModel, TypeObject } from '@ez4/reflection';
-import type { HttpRoute } from '../types/route.js';
+import type { HttpRoute } from '../types/common.js';
 
 import { isModelProperty, isTypeObject, isTypeReference } from '@ez4/reflection';
 import { isAnyBoolean, isAnyNumber } from '@ez4/utils';
@@ -15,11 +15,10 @@ import {
   getModelMembers
 } from '@ez4/common/library';
 
-import { isHttpPath } from '../types/path.js';
 import { IncompleteRouteError } from '../errors/route.js';
+import { isHttpPath, isHttpRoute } from './utils.js';
 import { getHttpAuthorizer } from './authorizer.js';
 import { getHttpHandler } from './handler.js';
-import { isHttpRoute } from './utils.js';
 
 export const getHttpRoute = (type: AllType, reflection: SourceMap, errorList: Error[]) => {
   if (!isTypeReference(type)) {

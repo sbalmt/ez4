@@ -1,5 +1,5 @@
 import type { MemberType } from '@ez4/common/library';
-import type { HttpAuthRequest, HttpRequest } from '../types/request.js';
+import type { HttpAuthRequest, HttpRequest } from '../types/common.js';
 
 import type {
   AllType,

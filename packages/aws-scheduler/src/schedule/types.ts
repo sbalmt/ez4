@@ -6,9 +6,12 @@ export const ScheduleServiceName = 'AWS:EventBridge/Schedule';
 
 export const ScheduleServiceType = 'aws:eventbridge.schedule';
 
-export type ScheduleParameters = Omit<CreateRequest, 'functionArn' | 'roleArn'>;
+export type ScheduleParameters = Omit<CreateRequest, 'roleArn' | 'functionArn' | 'groupName'> & {
+  dynamic: boolean;
+};
 
-export type ScheduleResult = CreateResponse & {
+export type ScheduleResult = Partial<CreateResponse> & {
+  groupName?: string;
   functionArn: Arn;
   roleArn: Arn;
 };

@@ -1,0 +1,11 @@
+{
+  "TestService": {
+    "type": "@ez4/http",
+    "name": "TestService",
+    "routes": [],
+    "defaults": {
+      "timeout": 15,
+      "memory": 192
+    }
+  }
+}

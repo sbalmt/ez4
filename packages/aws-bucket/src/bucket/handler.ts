@@ -1,21 +1,29 @@
-import type { StepHandler } from '@ez4/stateful';
-import type { ResourceTags } from '@ez4/aws-common';
+import type { StepContext, StepHandler } from '@ez4/stateful';
+import type { Arn, ResourceTags } from '@ez4/aws-common';
 import type { BucketState, BucketResult, BucketParameters } from './types.js';
 
 import { ReplaceResourceError } from '@ez4/aws-common';
+import { tryGetFunctionArn } from '@ez4/aws-function';
 import { deepCompare, deepEqual } from '@ez4/utils';
 
 import {
+  isBucketEmpty,
   createBucket,
-  updateCorsConfiguration,
-  createLifecycle,
   deleteBucket,
+  updateCorsConfiguration,
   deleteCorsConfiguration,
+  updateEventNotifications,
+  createLifecycle,
   deleteLifecycle,
   tagBucket
 } from './client.js';
 
 import { BucketServiceName } from './types.js';
+
+type NotificationParameters = {
+  functionArn?: Arn;
+  eventsPath?: string;
+};
 
 export const getBucketHandler = (): StepHandler<BucketState> => ({
   equals: equalsResource,
@@ -46,16 +54,25 @@ const previewResource = async (candidate: BucketState, current: BucketState) => 
   };
 };
 
-const replaceResource = async (candidate: BucketState, current: BucketState) => {
+const replaceResource = async (
+  candidate: BucketState,
+  current: BucketState,
+  context: StepContext
+) => {
   if (current.result) {
     throw new ReplaceResourceError(BucketServiceName, candidate.entryId, current.entryId);
   }
 
-  return createResource(candidate);
+  return createResource(candidate, context);
 };
 
-const createResource = async (candidate: BucketState): Promise<BucketResult> => {
+const createResource = async (
+  candidate: BucketState,
+  context: StepContext
+): Promise<BucketResult> => {
   const parameters = candidate.parameters;
+
+  const functionArn = tryGetFunctionArn(context);
 
   const { bucketName } = await createBucket(parameters);
 
@@ -63,12 +80,24 @@ const createResource = async (candidate: BucketState): Promise<BucketResult> => 
   await checkLifecycleUpdates(bucketName, parameters, undefined);
   await checkTagUpdates(bucketName, parameters.tags, undefined);
 
+  const request = {
+    eventsPath: parameters.eventsPath,
+    functionArn
+  };
+
+  await checkEventUpdates(bucketName, request, {});
+
   return {
-    bucketName
+    bucketName,
+    functionArn
   };
 };
 
-const updateResource = async (candidate: BucketState, current: BucketState) => {
+const updateResource = async (
+  candidate: BucketState,
+  current: BucketState,
+  context: StepContext
+) => {
   const { result, parameters } = candidate;
 
   if (!result) {
@@ -77,16 +106,33 @@ const updateResource = async (candidate: BucketState, current: BucketState) => {
 
   const bucketName = result.bucketName;
 
+  const newFunctionArn = tryGetFunctionArn(context);
+  const oldFunctionArn = current.result?.functionArn;
+
   await checkCorsUpdates(bucketName, parameters, current.parameters);
   await checkLifecycleUpdates(bucketName, parameters, current.parameters);
   await checkTagUpdates(bucketName, parameters.tags, current.parameters.tags);
+
+  const newRequest = { eventsPath: parameters.eventsPath, functionArn: newFunctionArn };
+  const oldRequest = { eventsPath: current.parameters.eventsPath, functionArn: oldFunctionArn };
+
+  await checkEventUpdates(bucketName, newRequest, oldRequest);
+
+  return {
+    ...result,
+    functionArn: newFunctionArn
+  };
 };
 
 const deleteResource = async (candidate: BucketState) => {
   const result = candidate.result;
 
   if (result) {
-    await deleteBucket(result.bucketName);
+    const isEmpty = await isBucketEmpty(result.bucketName);
+
+    if (isEmpty) {
+      await deleteBucket(result.bucketName);
+    }
   }
 };
 
@@ -136,5 +182,20 @@ const checkTagUpdates = async (
 
   if (hasChanges) {
     await tagBucket(bucketName, newTags);
+  }
+};
+
+const checkEventUpdates = async (
+  bucketName: string,
+  candidate: NotificationParameters,
+  current: NotificationParameters
+) => {
+  const hasChanges = !deepEqual(candidate, current);
+
+  if (hasChanges) {
+    await updateEventNotifications(bucketName, {
+      eventsType: ['s3:ObjectCreated:*', 's3:ObjectRemoved:*'],
+      ...candidate
+    });
   }
 };

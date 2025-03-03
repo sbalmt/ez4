@@ -18,8 +18,8 @@ export declare class TestDatabase extends Database.Service<[TestSchema]> {
     {
       name: 'testTable';
       schema: TestSchema;
-      indexes: {};
       stream: TestStream;
+      indexes: {};
     }
   ];
 

@@ -5,7 +5,14 @@ import type { ClusterState, ClusterResult, ClusterParameters } from './types.js'
 import { applyTagUpdates, ReplaceResourceError } from '@ez4/aws-common';
 import { deepCompare, deepEqual } from '@ez4/utils';
 
-import { createCluster, updateCluster, deleteCluster, tagCluster, untagCluster } from './client.js';
+import {
+  importCluster,
+  createCluster,
+  updateCluster,
+  deleteCluster,
+  tagCluster,
+  untagCluster
+} from './client.js';
 
 import { ClusterServiceName } from './types.js';
 
@@ -47,12 +54,14 @@ const replaceResource = async (candidate: ClusterState, current: ClusterState) =
 };
 
 const createResource = async (candidate: ClusterState): Promise<ClusterResult> => {
-  const response = await createCluster(candidate.parameters);
+  const { clusterName } = candidate.parameters;
 
-  const { clusterName, clusterArn, writerEndpoint, readerEndpoint, secretArn } = response;
+  const response =
+    (await importCluster(clusterName)) ?? (await createCluster(candidate.parameters));
+
+  const { clusterArn, writerEndpoint, readerEndpoint, secretArn } = response;
 
   return {
-    clusterName,
     clusterArn,
     writerEndpoint,
     readerEndpoint,
@@ -68,7 +77,7 @@ const updateResource = async (candidate: ClusterState, current: ClusterState) =>
   }
 
   const [newResult] = await Promise.all([
-    checkGeneralUpdates(result, parameters, current.parameters),
+    checkGeneralUpdates(parameters.clusterName, result, parameters, current.parameters),
     checkTagUpdates(result.clusterArn, parameters, current.parameters)
   ]);
 
@@ -82,10 +91,11 @@ const deleteResource = async (candidate: ClusterState) => {
     return;
   }
 
-  await deleteCluster(result.clusterName);
+  await deleteCluster(parameters.clusterName);
 };
 
 const checkGeneralUpdates = async (
+  clusterName: string,
   result: ClusterResult,
   candidate: ClusterParameters,
   current: ClusterParameters
@@ -98,7 +108,7 @@ const checkGeneralUpdates = async (
   });
 
   if (hasChanges) {
-    return updateCluster(result.clusterName, candidate);
+    return updateCluster(clusterName, candidate);
   }
 
   return result;

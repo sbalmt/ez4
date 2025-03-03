@@ -21,6 +21,7 @@ Check out some examples to get started with.
 - [Aurora RDS CRUDL](./examples/aws-aurora-crudl)
 - [DynamoDB CRUDL](./examples/aws-dynamodb-crudl)
 - [DynamoDB streams](./examples/aws-dynamodb-streams)
+- [Schedule manager](./examples/aws-schedule-manager)
 - [Storage manager](./examples/aws-storage-manager)
 
 ## Components

@@ -1,4 +1,4 @@
-# AWS Bucket: Storage
+# AWS Bucket: Storage Manager
 
 This example showcases how to set and use storage buckets.
 

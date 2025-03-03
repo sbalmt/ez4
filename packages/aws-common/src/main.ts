@@ -1,7 +1,8 @@
 export * from './triggers/register.js';
 
-export * from './utils/resource.js';
 export * from './utils/waiter.js';
+export * from './utils/resource.js';
+export * from './utils/names.js';
 
 export * from './errors/bundler.js';
 export * from './errors/parameters.js';

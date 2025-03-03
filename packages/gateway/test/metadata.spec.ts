@@ -31,6 +31,7 @@ describe.only('http metadata', () => {
   process.env.TEST_ENV_VAR = 'test-env-var-value';
 
   it('assert :: empty services', () => testFile('service'));
+  it('assert :: service defaults', () => testFile('defaults'));
   it('assert :: service routes', () => testFile('route'));
   it('assert :: route authorizers', () => testFile('authorizer'));
   it('assert :: route headers', () => testFile('headers'));

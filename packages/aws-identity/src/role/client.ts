@@ -2,15 +2,15 @@ import type { Arn, ResourceTags } from '@ez4/aws-common';
 import type { RoleDocument } from '../types/role.js';
 
 import {
-  AttachRolePolicyCommand,
-  CreateRoleCommand,
-  DeleteRoleCommand,
-  DetachRolePolicyCommand,
   IAMClient,
-  TagRoleCommand,
-  UntagRoleCommand,
+  CreateRoleCommand,
+  UpdateRoleCommand,
+  DeleteRoleCommand,
   UpdateAssumeRolePolicyCommand,
-  UpdateRoleCommand
+  AttachRolePolicyCommand,
+  DetachRolePolicyCommand,
+  TagRoleCommand,
+  UntagRoleCommand
 } from '@aws-sdk/client-iam';
 
 import { Logger, getTagList } from '@ez4/aws-common';

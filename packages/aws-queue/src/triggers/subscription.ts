@@ -4,13 +4,13 @@ import type { RoleState } from '@ez4/aws-identity';
 import type { EntryStates } from '@ez4/stateful';
 import type { QueueState } from '../queue/types.js';
 
-import { getServiceName, linkServiceExtras } from '@ez4/project/library';
+import { linkServiceExtras } from '@ez4/project/library';
 import { getFunction } from '@ez4/aws-function';
-import { toKebabCase } from '@ez4/utils';
 
 import { createMapping } from '../mapping/service.js';
 import { createQueueFunction } from '../mapping/function/service.js';
-import { SubscriptionMissingError } from './errors.js';
+import { SubscriptionHandlerMissingError } from './errors.js';
+import { getFunctionName } from './utils.js';
 
 export const prepareSubscriptions = async (
   state: EntryStates,
@@ -64,17 +64,9 @@ export const connectSubscriptions = (
     const functionState = getFunction(state, role, functionName);
 
     if (!functionState) {
-      throw new SubscriptionMissingError(functionName);
+      throw new SubscriptionHandlerMissingError(functionName);
     }
 
     linkServiceExtras(state, functionState.entryId, service.extras);
   }
-};
-
-export const getFunctionName = (
-  service: QueueService | QueueImport,
-  handlerName: string,
-  options: DeployOptions
-) => {
-  return `${getServiceName(service, options)}-${toKebabCase(handlerName)}`;
 };

@@ -1,5 +1,5 @@
 import type { ServiceMetadata } from '@ez4/project/library';
-import type { NotificationMessage, NotificationSubscription } from './common.js';
+import type { NotificationMessageSchema, NotificationSubscription } from './common.js';
 
 export const ImportType = '@ez4/import:notification';
 
@@ -8,9 +8,9 @@ export type NotificationImport = ServiceMetadata & {
   name: string;
   project: string;
   reference: string;
-  schema: NotificationMessage;
   description?: string;
   subscriptions: NotificationSubscription[];
+  schema: NotificationMessageSchema;
 };
 
 export const isNotificationImport = (service: ServiceMetadata): service is NotificationImport => {

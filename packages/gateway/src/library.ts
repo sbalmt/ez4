@@ -14,6 +14,7 @@ export * from './metadata/body.js';
 export * from './metadata/cors.js';
 
 export * from './errors/service.js';
+export * from './errors/defaults.js';
 export * from './errors/route.js';
 export * from './errors/handler.js';
 export * from './errors/identity.js';
@@ -26,11 +27,5 @@ export * from './errors/query.js';
 export * from './errors/body.js';
 export * from './errors/cors.js';
 
+export * from './types/common.js';
 export * from './types/service.js';
-export * from './types/route.js';
-export * from './types/handler.js';
-export * from './types/authorizer.js';
-export * from './types/request.js';
-export * from './types/response.js';
-export * from './types/path.js';
-export * from './types/cors.js';

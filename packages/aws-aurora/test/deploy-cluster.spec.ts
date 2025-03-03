@@ -22,7 +22,6 @@ const assertDeploy = async <E extends EntryState>(
 
   const result = resource.result;
 
-  ok(result.clusterName);
   ok(result.clusterArn);
   ok(result.secretArn);
   ok(result.readerEndpoint);

@@ -2,7 +2,12 @@
   "TestStorage": {
     "type": "@ez4/bucket",
     "name": "TestStorage",
+    "globalName": "global-bucket-name",
     "localPath": "./public",
-    "autoExpireDays": 30
+    "autoExpireDays": 30,
+    "variables": {
+      "TEST_VAR1": "test-literal-value",
+      "TEST_VAR2": "test-env-var-value"
+    }
   }
 }

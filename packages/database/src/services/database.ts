@@ -47,12 +47,12 @@ export namespace Database {
     ) => void | Promise<void>;
 
     /**
-     * Variables associated to the route.
+     * Variables associated to the handler.
      */
     variables?: LinkedVariables;
 
     /**
-     * Max route execution time (in seconds) for the handler.
+     * Max execution time (in seconds) for the handler.
      */
     timeout?: number;
 

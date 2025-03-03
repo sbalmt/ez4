@@ -11,13 +11,13 @@ import { isRoleState } from '@ez4/aws-identity';
 import { createTopic } from '../topic/service.js';
 import { connectSubscriptions, prepareSubscriptions } from './subscription.js';
 import { ProjectMissingError, RoleMissingError } from './errors.js';
-import { prepareLinkedService } from './client.js';
+import { prepareLinkedClient } from './client.js';
 
 export const prepareLinkedImports = (event: ServiceEvent) => {
   const { service, options } = event;
 
   if (!isNotificationImport(service)) {
-    return;
+    return null;
   }
 
   const { reference, project } = service;
@@ -30,7 +30,7 @@ export const prepareLinkedImports = (event: ServiceEvent) => {
 
   const notificationName = getServiceName(reference, imports[project]);
 
-  return prepareLinkedService(notificationName, service.schema);
+  return prepareLinkedClient(notificationName, service.schema);
 };
 
 export const prepareImports = async (event: PrepareResourceEvent) => {

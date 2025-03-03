@@ -3,8 +3,8 @@ import type { Variables } from '../types/variables.js';
 import {
   ApiGatewayV2Client,
   CreateStageCommand,
-  DeleteStageCommand,
-  UpdateStageCommand
+  UpdateStageCommand,
+  DeleteStageCommand
 } from '@aws-sdk/client-apigatewayv2';
 
 import { Logger } from '@ez4/aws-common';

@@ -30,6 +30,7 @@ Ensure the user performing deployments has the permissions below:
         "s3:DeleteObject",
         "s3:PutBucketCORS",
         "s3:PutLifecycleConfiguration",
+        "s3:PutBucketNotification",
         "s3:PutBucketPolicy",
         "s3:DeleteBucketPolicy",
         "s3:PutBucketTagging",

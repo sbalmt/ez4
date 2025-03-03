@@ -29,7 +29,7 @@ export const deploy = async (project: ProjectOptions) => {
   const metadata = getMetadata(project.sourceFiles);
 
   const options: DeployOptions = {
-    resourcePrefix: project.prefix ?? 'ez4',
+    resourcePrefix: toKebabCase(project.prefix ?? 'ez4'),
     projectName: toKebabCase(project.projectName),
     imports: await loadImports(project),
     debug: project.debugMode

@@ -1,4 +1,4 @@
-import type { NotificationMessage } from '../types/common.js';
+import type { NotificationMessageSchema } from '../types/common.js';
 
 import type {
   AllType,
@@ -42,7 +42,7 @@ const getTypeMessage = (
   parent: TypeParent,
   reflection: SourceMap,
   errorList: Error[]
-): NotificationMessage | null => {
+): NotificationMessageSchema | null => {
   if (isTypeUnion(type)) {
     return getMessageFromUnion(type.elements, parent, reflection, errorList);
   }

@@ -6,6 +6,11 @@ import type { targetHandler } from './handlers.js';
  */
 export declare class Event extends Cron.Service {
   /**
+   * Group for the scheduler.
+   */
+  group: 'ez4-group';
+
+  /**
    * Execute every 5 minutes.
    */
   expression: 'rate(5 minutes)';
@@ -25,7 +30,7 @@ export declare class Event extends Cron.Service {
   /**
    * Retry up to 10 times in case it fails.
    */
-  maxRetryAttempts: 10;
+  maxRetries: 10;
 
   /**
    * Define the scheduler start date

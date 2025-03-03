@@ -5,6 +5,8 @@ import type { BucketService } from '../types/service.js';
 import {
   DuplicateServiceError,
   isExternalStatement,
+  getLinkedVariableList,
+  getLinkedServiceList,
   getModelMembers,
   getPropertyNumber,
   getPropertyString
@@ -16,6 +18,7 @@ import { isAnyNumber } from '@ez4/utils';
 import { ServiceType } from '../types/service.js';
 import { IncompleteServiceError } from '../errors/service.js';
 import { isBucketService } from './utils.js';
+import { getBucketEvent } from './event.js';
 import { getBucketCors } from './cors.js';
 
 export const getBucketServices = (reflection: SourceMap) => {
@@ -39,25 +42,42 @@ export const getBucketServices = (reflection: SourceMap) => {
       }
 
       switch (member.name) {
-        case 'cors':
-          service.cors = getBucketCors(member.value, statement, reflection, errorList);
-          break;
-
-        case 'localPath': {
+        case 'localPath':
+        case 'globalName': {
           const value = getPropertyString(member);
-          if (value !== undefined && value !== null) {
+
+          if (value) {
             service[member.name] = value;
           }
+
           break;
         }
 
         case 'autoExpireDays': {
           const value = getPropertyNumber(member);
+
           if (isAnyNumber(value)) {
-            service[member.name] = value;
+            service.autoExpireDays = value;
           }
+
           break;
         }
+
+        case 'events':
+          service.events = getBucketEvent(member.value, statement, reflection, errorList);
+          break;
+
+        case 'cors':
+          service.cors = getBucketCors(member.value, statement, reflection, errorList);
+          break;
+
+        case 'variables':
+          service.variables = getLinkedVariableList(member, errorList);
+          break;
+
+        case 'services':
+          service.services = getLinkedServiceList(member, reflection, errorList);
+          break;
       }
     }
 

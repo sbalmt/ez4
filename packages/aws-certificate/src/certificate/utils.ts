@@ -17,11 +17,7 @@ export const getCertificateStateId = (bucketName: string) => {
 export const tryGetCertificateArn = (context: StepContext) => {
   const resources = context.getDependencies<CertificateState>(CertificateServiceType);
 
-  if (resources.length) {
-    return resources[0]?.result?.certificateArn;
-  }
-
-  return undefined;
+  return resources[0]?.result?.certificateArn;
 };
 
 export const getCertificateArn = (

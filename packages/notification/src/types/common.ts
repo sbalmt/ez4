@@ -1,7 +1,7 @@
 import type { LinkedVariables } from '@ez4/project/library';
 import type { ObjectSchema, UnionSchema } from '@ez4/schema';
 
-export type NotificationMessage = ObjectSchema | UnionSchema;
+export type NotificationMessageSchema = ObjectSchema | UnionSchema;
 
 export enum NotificationSubscriptionType {
   Lambda = 'lambda',
