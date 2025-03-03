@@ -74,9 +74,9 @@ const updateResource = async (candidate: CertificateState, current: CertificateS
 };
 
 const deleteResource = async (candidate: CertificateState) => {
-  const result = candidate.result;
+  const { result, parameters } = candidate;
 
-  if (result) {
+  if (result && parameters.allowDeletion) {
     await deleteCertificate(result.certificateArn);
   }
 };

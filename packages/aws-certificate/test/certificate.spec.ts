@@ -40,6 +40,7 @@ describe.only('certificate resources', () => {
 
     const resource = createCertificate(localState, {
       domainName: '*.easyfor.dev',
+      allowDeletion: true,
       tags: {
         test1: 'ez4-tag1',
         test2: 'ez4-tag2'

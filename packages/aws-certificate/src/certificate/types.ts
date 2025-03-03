@@ -5,7 +5,9 @@ export const CertificateServiceName = 'AWS:ACM/Certificate';
 
 export const CertificateServiceType = 'aws:acm.certificate';
 
-export type CertificateParameters = CreateRequest;
+export type CertificateParameters = CreateRequest & {
+  allowDeletion?: boolean;
+};
 
 export type CertificateResult = CreateResponse;
 
