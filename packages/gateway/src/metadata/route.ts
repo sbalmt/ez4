@@ -18,6 +18,7 @@ import {
 import { IncompleteRouteError } from '../errors/route.js';
 import { isHttpPath, isHttpRoute } from './utils.js';
 import { getHttpAuthorizer } from './authorizer.js';
+import { getHttpCatcher } from './catcher.js';
 import { getHttpHandler } from './handler.js';
 
 export const getHttpRoute = (type: AllType, reflection: SourceMap, errorList: Error[]) => {
@@ -67,27 +68,53 @@ const getTypeFromMembers = (
     switch (member.name) {
       case 'path': {
         const path = getPropertyString(member);
+
         if (path && isHttpPath(path)) {
           properties.delete(member.name);
           route.path = path;
         }
+
         break;
       }
 
       case 'timeout':
       case 'memory': {
         const value = getPropertyNumber(member);
+
         if (isAnyNumber(value)) {
           route[member.name] = value;
         }
+
         break;
       }
 
       case 'cors': {
         const value = getPropertyBoolean(member);
+
         if (isAnyBoolean(value)) {
           route[member.name] = value;
         }
+
+        break;
+      }
+
+      case 'authorizer': {
+        const value = getHttpAuthorizer(member.value, reflection, errorList);
+
+        if (value) {
+          route.authorizer = value;
+        }
+
+        break;
+      }
+
+      case 'catcher': {
+        const value = getHttpCatcher(member.value, errorList);
+
+        if (value) {
+          route.catcher = value;
+        }
+
         break;
       }
 
@@ -96,14 +123,6 @@ const getTypeFromMembers = (
           properties.delete(member.name);
         }
         break;
-
-      case 'authorizer': {
-        const value = getHttpAuthorizer(member.value, reflection, errorList);
-        if (value) {
-          route.authorizer = value;
-        }
-        break;
-      }
 
       case 'variables':
         route.variables = getLinkedVariableList(member, errorList);

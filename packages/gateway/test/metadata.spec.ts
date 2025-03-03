@@ -34,6 +34,7 @@ describe.only('http metadata', () => {
   it('assert :: service defaults', () => testFile('defaults'));
   it('assert :: service routes', () => testFile('route'));
   it('assert :: route authorizers', () => testFile('authorizer'));
+  it('assert :: route catcher', () => testFile('catcher'));
   it('assert :: route headers', () => testFile('headers'));
   it('assert :: route identity', () => testFile('identity'));
   it('assert :: route parameters', () => testFile('parameters'));

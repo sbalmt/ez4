@@ -64,10 +64,14 @@ export const isHttpCors = (type: AllType) => {
   return isModelDeclaration(type) && hasHeritageType(type, 'Http.Cors');
 };
 
-export const isHttpHandler = (type: AllType): type is TypeCallback | TypeFunction => {
+export const isHttpAuthorizer = (type: AllType): type is TypeCallback | TypeFunction => {
   return isTypeCallback(type) || isTypeFunction(type);
 };
 
-export const isHttpAuthorizer = (type: AllType): type is TypeCallback | TypeFunction => {
+export const isHttpCatcher = (type: AllType): type is TypeCallback | TypeFunction => {
+  return isTypeCallback(type) || isTypeFunction(type);
+};
+
+export const isHttpHandler = (type: AllType): type is TypeCallback | TypeFunction => {
   return isTypeCallback(type) || isTypeFunction(type);
 };

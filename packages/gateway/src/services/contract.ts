@@ -63,6 +63,14 @@ export namespace Http {
   ) => Promise<AuthResponse> | AuthResponse;
 
   /**
+   * Incoming request catcher.
+   */
+  export type Catcher<T extends Request> = (
+    request: Incoming<T>,
+    context: Service.Context<Service>
+  ) => Promise<void> | void;
+
+  /**
    * Incoming request handler.
    */
   export type Handler<T extends Request> = (
@@ -83,6 +91,11 @@ export namespace Http {
      * Route authorizer.
      */
     authorizer?: Authorizer<any>;
+
+    /**
+     * Route error catcher.
+     */
+    catcher?: Catcher<any>;
 
     /**
      * Route handler.
@@ -115,14 +128,19 @@ export namespace Http {
    */
   export type Defaults = {
     /**
-     * Default amount of memory available for the handlers.
+     * Default error catcher.
      */
-    memory?: number;
+    catcher?: Catcher<any>;
 
     /**
      * Default execution time (in seconds) for the routes.
      */
     timeout?: number;
+
+    /**
+     * Default amount of memory available for the handlers.
+     */
+    memory?: number;
   };
 
   /**

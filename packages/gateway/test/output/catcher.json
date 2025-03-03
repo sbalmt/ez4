@@ -1,0 +1,23 @@
+{
+  "TestService": {
+    "type": "@ez4/http",
+    "name": "TestService",
+    "description": "Service for testing route catcher.",
+    "routes": [
+      {
+        "path": "ANY /test-route",
+        "catcher": {
+          "name": "testCatcher",
+          "file": "test/input/output-catcher.ts"
+        },
+        "handler": {
+          "name": "testHandler",
+          "file": "test/input/output-catcher.ts",
+          "response": {
+            "status": 204
+          }
+        }
+      }
+    ]
+  }
+}
