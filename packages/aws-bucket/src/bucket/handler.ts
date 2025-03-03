@@ -107,7 +107,7 @@ const updateResource = async (
   const bucketName = result.bucketName;
 
   const newFunctionArn = tryGetFunctionArn(context);
-  const oldFunctionArn = current.result?.functionArn ?? newFunctionArn;
+  const oldFunctionArn = current.result?.functionArn;
 
   await checkCorsUpdates(bucketName, parameters, current.parameters);
   await checkLifecycleUpdates(bucketName, parameters, current.parameters);
