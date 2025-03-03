@@ -15,7 +15,7 @@ import { getFunction } from '@ez4/aws-function';
 
 import { createBucket } from '../bucket/service.js';
 import { createBucketEventFunction } from '../bucket/function/service.js';
-import { getFunctionName, getNewBucketName } from './utils.js';
+import { getFunctionName, getBucketName } from './utils.js';
 import { prepareLocalContent } from './content.js';
 import { prepareLinkedClient } from './client.js';
 import { RoleMissingError } from './errors.js';
@@ -27,7 +27,7 @@ export const prepareLinkedServices = async (event: ServiceEvent) => {
     return null;
   }
 
-  const bucketName = await getNewBucketName(service, options);
+  const bucketName = await getBucketName(service, options);
 
   return prepareLinkedClient(bucketName);
 };
@@ -43,9 +43,9 @@ export const prepareBucketServices = async (event: PrepareResourceEvent) => {
     throw new RoleMissingError();
   }
 
-  const { globalName, localPath, autoExpireDays, events, cors } = service;
+  const { localPath, autoExpireDays, events, cors } = service;
 
-  const bucketName = globalName ?? (await getNewBucketName(service, options));
+  const bucketName = await getBucketName(service, options);
 
   const functionState = getEventsFunction(state, service, role, options);
 
