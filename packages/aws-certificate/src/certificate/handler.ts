@@ -6,6 +6,7 @@ import { applyTagUpdates, ReplaceResourceError } from '@ez4/aws-common';
 import { deepCompare } from '@ez4/utils';
 
 import {
+  isCertificateInUse,
   createCertificate,
   deleteCertificate,
   tagCertificate,
@@ -76,7 +77,13 @@ const updateResource = async (candidate: CertificateState, current: CertificateS
 const deleteResource = async (candidate: CertificateState) => {
   const { result, parameters } = candidate;
 
-  if (result && parameters.allowDeletion) {
+  if (!result || !parameters.allowDeletion) {
+    return;
+  }
+
+  const isInUse = await isCertificateInUse(result.certificateArn);
+
+  if (!isInUse) {
     await deleteCertificate(result.certificateArn);
   }
 };
