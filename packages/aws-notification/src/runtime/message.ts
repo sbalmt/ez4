@@ -25,7 +25,7 @@ export const getJsonStringMessage = async <T extends Notification.Message>(
   message: T,
   schema: MessageSchema
 ) => {
-  const safeMessage = getJsonMessage(message, schema);
+  const safeMessage = await getJsonMessage(message, schema);
 
   return JSON.stringify(safeMessage);
 };
