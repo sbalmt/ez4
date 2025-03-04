@@ -1,4 +1,4 @@
-export { WatcherEventType } from './services/common.js';
+export { EventType } from './services/common.js';
 
 export * from './richtypes/environment.js';
 

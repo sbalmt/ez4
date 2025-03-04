@@ -19,7 +19,7 @@ import {
 } from '@ez4/aws-gateway/runtime';
 
 import { HttpError, HttpInternalServerError } from '@ez4/gateway';
-import { WatcherEventType } from '@ez4/common';
+import { EventType } from '@ez4/common';
 
 type RequestEvent = APIGatewayProxyEventV2WithLambdaAuthorizer<any>;
 type ResponseEvent = APIGatewayProxyResultV2;
@@ -37,8 +37,8 @@ declare function handle(
   context: object
 ): Promise<Http.Response>;
 
-declare function watch(
-  event: Service.WatcherEvent<Http.Incoming<Http.Request>>,
+declare function dispatch(
+  event: Service.Event<Http.Incoming<Http.Request>>,
   context: object
 ): Promise<void>;
 
@@ -58,7 +58,7 @@ export async function apiEntryPoint(event: RequestEvent, context: Context): Prom
   };
 
   try {
-    await watchBegin(request);
+    await onBegin(request);
 
     const incomingRequest = await getIncomingRequest(event);
 
@@ -67,7 +67,7 @@ export async function apiEntryPoint(event: RequestEvent, context: Context): Prom
       ...incomingRequest
     };
 
-    await watchReady(lastRequest);
+    await onReady(lastRequest);
 
     const { status, body, headers } = await handle(lastRequest, __EZ4_CONTEXT);
 
@@ -77,11 +77,11 @@ export async function apiEntryPoint(event: RequestEvent, context: Context): Prom
       return getErrorResponse(error);
     }
 
-    await watchError(error, lastRequest ?? request);
+    await onError(error, lastRequest ?? request);
 
     return getErrorResponse();
   } finally {
-    await watchEnd(request);
+    await onEnd(request);
   }
 }
 
@@ -183,32 +183,32 @@ const getErrorResponse = (error?: HttpError) => {
   };
 };
 
-const watchBegin = async (request: Partial<Http.Incoming<Http.Request>>) => {
-  return watch(
+const onBegin = async (request: Partial<Http.Incoming<Http.Request>>) => {
+  return dispatch(
     {
-      type: WatcherEventType.Begin,
+      type: EventType.Begin,
       request
     },
     __EZ4_CONTEXT
   );
 };
 
-const watchReady = async (request: Partial<Http.Incoming<Http.Request>>) => {
-  return watch(
+const onReady = async (request: Partial<Http.Incoming<Http.Request>>) => {
+  return dispatch(
     {
-      type: WatcherEventType.Ready,
+      type: EventType.Ready,
       request
     },
     __EZ4_CONTEXT
   );
 };
 
-const watchError = async (error: Error, request: Partial<Http.Incoming<Http.Request>>) => {
+const onError = async (error: Error, request: Partial<Http.Incoming<Http.Request>>) => {
   console.error(error);
 
-  return watch(
+  return dispatch(
     {
-      type: WatcherEventType.Error,
+      type: EventType.Error,
       request,
       error
     },
@@ -216,10 +216,10 @@ const watchError = async (error: Error, request: Partial<Http.Incoming<Http.Requ
   );
 };
 
-const watchEnd = async (request: Partial<Http.Incoming<Http.Request>>) => {
-  return watch(
+const onEnd = async (request: Partial<Http.Incoming<Http.Request>>) => {
+  return dispatch(
     {
-      type: WatcherEventType.End,
+      type: EventType.End,
       request
     },
     __EZ4_CONTEXT

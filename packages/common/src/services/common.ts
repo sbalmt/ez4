@@ -1,21 +1,21 @@
 /**
- * All service watcher events.
+ * All service events.
  */
-export type ServiceWatcherEvent<T extends ServiceWatcherRequest> =
-  | ServiceWatcherBeginEvent<T>
-  | ServiceWatcherReadyEvent<T>
-  | ServiceWatcherErrorEvent<T>
-  | ServiceWatcherEndEvent<T>;
+export type ServiceEvent<T extends ServiceRequest> =
+  | ServiceBeginEvent<T>
+  | ServiceReadyEvent<T>
+  | ServiceErrorEvent<T>
+  | ServiceEndEvent<T>;
 
 /**
- * Service watcher request base.
+ * Service request base.
  */
-export type ServiceWatcherRequest = {};
+export type ServiceRequest = {};
 
 /**
- * Service watcher event type.
+ * Service event type.
  */
-export const enum WatcherEventType {
+export const enum EventType {
   Begin = 'begin',
   Ready = 'ready',
   Error = 'error',
@@ -23,66 +23,66 @@ export const enum WatcherEventType {
 }
 
 /**
- * Watcher event for the beginning of an execution.
+ * Service event for the beginning of an execution.
  */
-export type ServiceWatcherBeginEvent<T extends ServiceWatcherRequest> = {
+export type ServiceBeginEvent<T extends ServiceRequest> = {
   /**
    * Event type.
    */
-  type: WatcherEventType.Begin;
+  type: EventType.Begin;
 
   /**
-   * Request object.
+   * Event request.
    */
   request: Partial<T>;
 };
 
 /**
- * Watcher event for an execution ready to start.
+ * Service event for an execution ready to start.
  */
-export type ServiceWatcherReadyEvent<T extends ServiceWatcherRequest> = {
+export type ServiceReadyEvent<T extends ServiceRequest> = {
   /**
    * Event type.
    */
-  type: WatcherEventType.Ready;
+  type: EventType.Ready;
 
   /**
-   * Request object.
+   * Event request.
    */
   request: Partial<T>;
 };
 
 /**
- * Watcher event for errors within an execution.
+ * Service event for errors within an execution.
  */
-export type ServiceWatcherErrorEvent<T extends ServiceWatcherRequest> = {
+export type ServiceErrorEvent<T extends ServiceRequest> = {
   /**
    * Event type.
    */
-  type: WatcherEventType.Error;
+  type: EventType.Error;
 
   /**
-   * Request object.
+   * Event request.
    */
   request: Partial<T>;
 
   /**
-   * Error object.
+   * Event error.
    */
   error: Error;
 };
 
 /**
- * Watcher event for the end of an execution.
+ * Service event for the end of an execution.
  */
-export type ServiceWatcherEndEvent<T extends ServiceWatcherRequest> = {
+export type ServiceEndEvent<T extends ServiceRequest> = {
   /**
    * Event type.
    */
-  type: WatcherEventType.End;
+  type: EventType.End;
 
   /**
-   * Request object.
+   * Event request.
    */
   request: Partial<T>;
 };

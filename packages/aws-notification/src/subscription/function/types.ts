@@ -12,7 +12,7 @@ export type SubscriptionFunctionParameters = Omit<
   'getFunctionBundle' | 'sourceFile' | 'handlerName'
 > & {
   handler: SubscriptionEntryPoint;
-  watcher?: SubscriptionEntryPoint;
+  listener?: SubscriptionEntryPoint;
   messageSchema?: NotificationMessageSchema | null;
   extras?: Record<string, ExtraSource>;
   debug?: boolean;

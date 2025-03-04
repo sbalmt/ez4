@@ -2,17 +2,17 @@
   "TestService": {
     "type": "@ez4/http",
     "name": "TestService",
-    "description": "Service for testing route watcher.",
+    "description": "Service for testing route listener.",
     "routes": [
       {
         "path": "ANY /test-route",
-        "watcher": {
+        "listener": {
           "name": "testWatcher",
-          "file": "test/input/output-watcher.ts"
+          "file": "test/input/output-listener.ts"
         },
         "handler": {
           "name": "testHandler",
-          "file": "test/input/output-watcher.ts",
+          "file": "test/input/output-listener.ts",
           "response": {
             "status": 204
           }

@@ -1,21 +1,21 @@
 import type { AllType, TypeCallback, TypeFunction } from '@ez4/reflection';
 import type { Incomplete } from '@ez4/utils';
-import type { ServiceWatcher } from '../types/common.js';
+import type { ServiceListener } from '../types/common.js';
 
 import { isTypeCallback, isTypeFunction } from '@ez4/reflection';
 
-import { IncompleteWatcherError } from '../errors/watcher.js';
+import { IncompleteListenerError } from '../errors/listener.js';
 
-export const isServiceWatcher = (type: AllType): type is TypeCallback | TypeFunction => {
+export const isServiceListener = (type: AllType): type is TypeCallback | TypeFunction => {
   return isTypeCallback(type) || isTypeFunction(type);
 };
 
-export const getServiceWatcher = (type: AllType, errorList: Error[]) => {
-  if (!isServiceWatcher(type)) {
+export const getServiceListener = (type: AllType, errorList: Error[]) => {
+  if (!isServiceListener(type)) {
     return null;
   }
 
-  const handler: Incomplete<ServiceWatcher> = {};
+  const handler: Incomplete<ServiceListener> = {};
 
   const properties = new Set(['name', 'file']);
 
@@ -35,11 +35,11 @@ export const getServiceWatcher = (type: AllType, errorList: Error[]) => {
     return handler;
   }
 
-  errorList.push(new IncompleteWatcherError([...properties], type.file));
+  errorList.push(new IncompleteListenerError([...properties], type.file));
 
   return null;
 };
 
-const isValidHandler = (type: Incomplete<ServiceWatcher>): type is ServiceWatcher => {
+const isValidHandler = (type: Incomplete<ServiceListener>): type is ServiceListener => {
   return !!type.name && !!type.file;
 };

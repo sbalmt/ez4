@@ -11,7 +11,7 @@ export type BucketEventFunctionParameters = Omit<
   'getFunctionBundle' | 'sourceFile' | 'handlerName'
 > & {
   handler: BucketEventEntryPoint;
-  watcher?: BucketEventEntryPoint;
+  listener?: BucketEventEntryPoint;
   extras?: Record<string, ExtraSource>;
   debug?: boolean;
 };

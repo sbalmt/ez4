@@ -6,7 +6,7 @@ import type { Service } from '@ez4/common';
 
 import { unmarshall } from '@aws-sdk/util-dynamodb';
 import { validateSchema } from '@ez4/aws-dynamodb/runtime';
-import { WatcherEventType } from '@ez4/common';
+import { EventType } from '@ez4/common';
 import { StreamType } from '@ez4/database';
 
 declare const __EZ4_SCHEMA: ObjectSchema | null;
@@ -14,8 +14,8 @@ declare const __EZ4_CONTEXT: object;
 
 declare function handle(changes: StreamChange<object>, context: object): Promise<any>;
 
-declare function watch(
-  event: Service.WatcherEvent<Database.Incoming<object>>,
+declare function dispatch(
+  event: Service.Event<Database.Incoming<object>>,
   context: object
 ): Promise<void>;
 
@@ -33,7 +33,7 @@ export async function dbStreamEntryPoint(
   };
 
   try {
-    await watchBegin(request);
+    await onBegin(request);
 
     if (!__EZ4_SCHEMA) {
       throw new Error(`Validation schema for table is not defined.`);
@@ -51,14 +51,14 @@ export async function dbStreamEntryPoint(
         ...change
       };
 
-      await watchReady(lastRequest);
+      await onReady(lastRequest);
 
       await handle(lastRequest, __EZ4_CONTEXT);
     }
   } catch (error) {
-    await watchError(error, lastRequest ?? request);
+    await onError(error, lastRequest ?? request);
   } finally {
-    await watchEnd(request);
+    await onEnd(request);
   }
 }
 
@@ -149,32 +149,32 @@ const getDeleteRecordChange = async (
   };
 };
 
-const watchBegin = async (request: Partial<Database.Incoming<object>>) => {
-  return watch(
+const onBegin = async (request: Partial<Database.Incoming<object>>) => {
+  return dispatch(
     {
-      type: WatcherEventType.Begin,
+      type: EventType.Begin,
       request
     },
     __EZ4_CONTEXT
   );
 };
 
-const watchReady = async (request: Partial<Database.Incoming<object>>) => {
-  return watch(
+const onReady = async (request: Partial<Database.Incoming<object>>) => {
+  return dispatch(
     {
-      type: WatcherEventType.Ready,
+      type: EventType.Ready,
       request
     },
     __EZ4_CONTEXT
   );
 };
 
-const watchError = async (error: Error, request: Partial<Database.Incoming<object>>) => {
+const onError = async (error: Error, request: Partial<Database.Incoming<object>>) => {
   console.error(error);
 
-  return watch(
+  return dispatch(
     {
-      type: WatcherEventType.Error,
+      type: EventType.Error,
       request,
       error
     },
@@ -182,10 +182,10 @@ const watchError = async (error: Error, request: Partial<Database.Incoming<objec
   );
 };
 
-const watchEnd = async (request: Partial<Database.Incoming<object>>) => {
-  return watch(
+const onEnd = async (request: Partial<Database.Incoming<object>>) => {
+  return dispatch(
     {
-      type: WatcherEventType.End,
+      type: EventType.End,
       request
     },
     __EZ4_CONTEXT

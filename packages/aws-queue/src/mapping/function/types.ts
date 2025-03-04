@@ -12,7 +12,7 @@ export type QueueFunctionParameters = Omit<
   'getFunctionBundle' | 'sourceFile' | 'handlerName'
 > & {
   handler: QueueEntryPoint;
-  watcher?: QueueEntryPoint;
+  listener?: QueueEntryPoint;
   messageSchema?: QueueMessageSchema | null;
   extras?: Record<string, ExtraSource>;
   debug?: boolean;

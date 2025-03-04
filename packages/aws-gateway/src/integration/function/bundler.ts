@@ -19,7 +19,7 @@ export const bundleApiFunction = async (
     extras,
     debug,
     handler,
-    watcher,
+    listener,
     headersSchema,
     parametersSchema,
     querySchema,
@@ -43,7 +43,7 @@ export const bundleApiFunction = async (
       __EZ4_RESPONSE_SCHEMA: responseSchema ? JSON.stringify(responseSchema) : 'undefined'
     },
     handler,
-    watcher,
+    listener,
     extras,
     debug
   });

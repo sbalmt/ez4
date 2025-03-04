@@ -4,15 +4,15 @@ import type { Service } from '@ez4/common';
 import type { Queue } from '@ez4/queue';
 
 import { getJsonMessage } from '@ez4/aws-queue/runtime';
-import { WatcherEventType } from '@ez4/common';
+import { EventType } from '@ez4/common';
 
 declare const __EZ4_SCHEMA: MessageSchema | null;
 declare const __EZ4_CONTEXT: object;
 
 declare function handle(request: Queue.Incoming<Queue.Message>, context: object): Promise<any>;
 
-declare function watch(
-  event: Service.WatcherEvent<Queue.Incoming<Queue.Message>>,
+declare function dispatch(
+  event: Service.Event<Queue.Incoming<Queue.Message>>,
   context: object
 ): Promise<void>;
 
@@ -27,7 +27,7 @@ export async function sqsEntryPoint(event: SQSEvent, context: Context): Promise<
   };
 
   try {
-    await watchBegin(request);
+    await onBegin(request);
 
     if (!__EZ4_SCHEMA) {
       throw new Error(`Validation schema for SQS message not found.`);
@@ -42,43 +42,43 @@ export async function sqsEntryPoint(event: SQSEvent, context: Context): Promise<
         message
       };
 
-      await watchReady(lastRequest);
+      await onReady(lastRequest);
 
       await handle(lastRequest, __EZ4_CONTEXT);
     }
   } catch (error) {
-    await watchError(error, lastRequest ?? request);
+    await onError(error, lastRequest ?? request);
   } finally {
-    await watchEnd(request);
+    await onEnd(request);
   }
 }
 
-const watchBegin = async (request: Partial<Queue.Incoming<Queue.Message>>) => {
-  return watch(
+const onBegin = async (request: Partial<Queue.Incoming<Queue.Message>>) => {
+  return dispatch(
     {
-      type: WatcherEventType.Begin,
+      type: EventType.Begin,
       request
     },
     __EZ4_CONTEXT
   );
 };
 
-const watchReady = async (request: Partial<Queue.Incoming<Queue.Message>>) => {
-  return watch(
+const onReady = async (request: Partial<Queue.Incoming<Queue.Message>>) => {
+  return dispatch(
     {
-      type: WatcherEventType.Ready,
+      type: EventType.Ready,
       request
     },
     __EZ4_CONTEXT
   );
 };
 
-const watchError = async (error: Error, request: Partial<Queue.Incoming<Queue.Message>>) => {
+const onError = async (error: Error, request: Partial<Queue.Incoming<Queue.Message>>) => {
   console.error(error);
 
-  return watch(
+  return dispatch(
     {
-      type: WatcherEventType.Error,
+      type: EventType.Error,
       request,
       error
     },
@@ -86,10 +86,10 @@ const watchError = async (error: Error, request: Partial<Queue.Incoming<Queue.Me
   );
 };
 
-const watchEnd = async (request: Partial<Queue.Incoming<Queue.Message>>) => {
-  return watch(
+const onEnd = async (request: Partial<Queue.Incoming<Queue.Message>>) => {
+  return dispatch(
     {
-      type: WatcherEventType.End,
+      type: EventType.End,
       request
     },
     __EZ4_CONTEXT

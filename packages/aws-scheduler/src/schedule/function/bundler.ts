@@ -14,7 +14,7 @@ export const bundleTargetFunction = async (
   dependencies: EntryState[],
   parameters: TargetFunctionParameters
 ) => {
-  const { extras, debug, handler, watcher, eventSchema } = parameters;
+  const { extras, debug, handler, listener, eventSchema } = parameters;
 
   const definitions = getDefinitionsObject(dependencies);
 
@@ -26,7 +26,7 @@ export const bundleTargetFunction = async (
       __EZ4_SCHEMA: eventSchema ? JSON.stringify(eventSchema) : 'undefined'
     },
     handler,
-    watcher,
+    listener,
     extras,
     debug
   });

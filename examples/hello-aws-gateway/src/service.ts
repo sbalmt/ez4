@@ -4,7 +4,7 @@ import type { patchHandler } from './endpoints/patch.js';
 import type { putHandler } from './endpoints/put.js';
 import type { getHandler } from './endpoints/get.js';
 import type { deleteHandler } from './endpoints/delete.js';
-import type { apiWatcher } from './common.js';
+import type { apiListener } from './common.js';
 
 /**
  * Example of AWS API deployed with EZ4.
@@ -19,7 +19,7 @@ export declare class Api extends Http.Service {
    * Default API settings.
    */
   defaults: {
-    watcher: typeof apiWatcher;
+    listener: typeof apiListener;
   };
 
   /**

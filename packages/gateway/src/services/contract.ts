@@ -60,10 +60,10 @@ export namespace Http {
   };
 
   /**
-   * Incoming request watcher.
+   * Incoming request listener.
    */
-  export type Watcher<T extends AuthRequest | Request> = (
-    event: Service.WatcherEvent<T>,
+  export type Listener<T extends AuthRequest | Request> = (
+    event: Service.Event<T>,
     context: Service.Context<Service>
   ) => Promise<void> | void;
 
@@ -93,9 +93,9 @@ export namespace Http {
     path: HttpPath;
 
     /**
-     * Route watcher.
+     * Route listener.
      */
-    watcher?: Watcher<any>;
+    listener?: Listener<any>;
 
     /**
      * Route authorizer.
@@ -133,9 +133,9 @@ export namespace Http {
    */
   export type Defaults = {
     /**
-     * Default watcher.
+     * Default route listener.
      */
-    watcher?: Watcher<any>;
+    listener?: Listener<any>;
 
     /**
      * Default execution time (in seconds) for the routes.

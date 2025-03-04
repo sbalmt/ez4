@@ -13,7 +13,7 @@ import {
   getPropertyString,
   getObjectMembers,
   getModelMembers,
-  getServiceWatcher
+  getServiceListener
 } from '@ez4/common/library';
 
 import { IncompleteRouteError } from '../errors/route.js';
@@ -108,11 +108,11 @@ const getTypeFromMembers = (
         break;
       }
 
-      case 'watcher': {
-        const value = getServiceWatcher(member.value, errorList);
+      case 'listener': {
+        const value = getServiceListener(member.value, errorList);
 
         if (value) {
-          route.watcher = value;
+          route.listener = value;
         }
 
         break;

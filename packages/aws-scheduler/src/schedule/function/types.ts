@@ -12,7 +12,7 @@ export type TargetFunctionParameters = Omit<
   'getFunctionBundle' | 'sourceFile' | 'handlerName'
 > & {
   handler: TargetEntryPoint;
-  watcher?: TargetEntryPoint;
+  listener?: TargetEntryPoint;
   eventSchema?: CronEventSchema | null;
   extras?: Record<string, ExtraSource>;
   debug?: boolean;

@@ -7,7 +7,7 @@ import {
   getPropertyNumber,
   getObjectMembers,
   getModelMembers,
-  getServiceWatcher
+  getServiceListener
 } from '@ez4/common/library';
 
 import { isModelProperty, isTypeObject, isTypeReference } from '@ez4/reflection';
@@ -73,11 +73,11 @@ const getTypeFromMembers = (members: MemberType[], errorList: Error[]) => {
         break;
       }
 
-      case 'watcher': {
-        const value = getServiceWatcher(member.value, errorList);
+      case 'listener': {
+        const value = getServiceListener(member.value, errorList);
 
         if (value) {
-          defaults.watcher = value;
+          defaults.listener = value;
         }
 
         break;

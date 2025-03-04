@@ -12,7 +12,7 @@ export type AuthorizerFunctionParameters = Omit<
   'getFunctionBundle' | 'sourceFile' | 'handlerName'
 > & {
   handler: AuthorizerEntryPoint;
-  watcher?: AuthorizerEntryPoint;
+  listener?: AuthorizerEntryPoint;
   headersSchema?: ObjectSchema | null;
   parametersSchema?: ObjectSchema | null;
   querySchema?: ObjectSchema | null;

@@ -4,7 +4,7 @@ import type { Service } from '@ez4/common';
 import type { Cron } from '@ez4/scheduler';
 
 import { getJsonEvent } from '@ez4/aws-scheduler/runtime';
-import { WatcherEventType } from '@ez4/common';
+import { EventType } from '@ez4/common';
 
 declare const __EZ4_SCHEMA: ObjectSchema | UnionSchema | null;
 declare const __EZ4_CONTEXT: object;
@@ -12,8 +12,8 @@ declare const __EZ4_CONTEXT: object;
 declare function handle(request: Cron.Incoming<Cron.Event>, context: object): Promise<void>;
 declare function handle(context: object): Promise<void>;
 
-declare function watch(
-  event: Service.WatcherEvent<Cron.Incoming<Cron.Event>>,
+declare function dispatch(
+  event: Service.Event<Cron.Incoming<Cron.Event>>,
   context: object
 ): Promise<void>;
 
@@ -28,7 +28,7 @@ export async function eventEntryPoint(event: ScheduledEvent, context: Context): 
   };
 
   try {
-    await watchBegin(request);
+    await onBegin(request);
 
     if (!__EZ4_SCHEMA) {
       await handle(__EZ4_CONTEXT);
@@ -42,42 +42,42 @@ export async function eventEntryPoint(event: ScheduledEvent, context: Context): 
       event: safeEvent
     };
 
-    await watchReady(lastRequest);
+    await onReady(lastRequest);
 
     await handle(lastRequest, __EZ4_CONTEXT);
   } catch (error) {
-    await watchError(error, lastRequest ?? request);
+    await onError(error, lastRequest ?? request);
   } finally {
-    await watchEnd(request);
+    await onEnd(request);
   }
 }
 
-const watchBegin = async (request: Partial<Cron.Incoming<Cron.Event>>) => {
-  return watch(
+const onBegin = async (request: Partial<Cron.Incoming<Cron.Event>>) => {
+  return dispatch(
     {
-      type: WatcherEventType.Begin,
+      type: EventType.Begin,
       request
     },
     __EZ4_CONTEXT
   );
 };
 
-const watchReady = async (request: Partial<Cron.Incoming<Cron.Event>>) => {
-  return watch(
+const onReady = async (request: Partial<Cron.Incoming<Cron.Event>>) => {
+  return dispatch(
     {
-      type: WatcherEventType.Ready,
+      type: EventType.Ready,
       request
     },
     __EZ4_CONTEXT
   );
 };
 
-const watchError = async (error: Error, request: Partial<Cron.Incoming<Cron.Event>>) => {
+const onError = async (error: Error, request: Partial<Cron.Incoming<Cron.Event>>) => {
   console.error(error);
 
-  return watch(
+  return dispatch(
     {
-      type: WatcherEventType.Error,
+      type: EventType.Error,
       request,
       error
     },
@@ -85,10 +85,10 @@ const watchError = async (error: Error, request: Partial<Cron.Incoming<Cron.Even
   );
 };
 
-const watchEnd = async (request: Partial<Cron.Incoming<Cron.Event>>) => {
-  return watch(
+const onEnd = async (request: Partial<Cron.Incoming<Cron.Event>>) => {
+  return dispatch(
     {
-      type: WatcherEventType.End,
+      type: EventType.End,
       request
     },
     __EZ4_CONTEXT

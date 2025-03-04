@@ -12,7 +12,7 @@ export type StreamFunctionParameters = Omit<
   'getFunctionBundle' | 'sourceFile' | 'handlerName'
 > & {
   handler: StreamEntryPoint;
-  watcher?: StreamEntryPoint;
+  listener?: StreamEntryPoint;
   tableSchema?: ObjectSchema | null;
   extras?: Record<string, ExtraSource>;
   debug?: boolean;

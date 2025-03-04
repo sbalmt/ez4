@@ -4,7 +4,7 @@ import type { SNSEvent, Context } from 'aws-lambda';
 import type { Service } from '@ez4/common';
 
 import { getJsonMessage } from '@ez4/aws-notification/runtime';
-import { WatcherEventType } from '@ez4/common';
+import { EventType } from '@ez4/common';
 
 declare const __EZ4_SCHEMA: MessageSchema | null;
 declare const __EZ4_CONTEXT: object;
@@ -14,8 +14,8 @@ declare function handle(
   context: object
 ): Promise<any>;
 
-declare function watch(
-  event: Service.WatcherEvent<Notification.Incoming<Notification.Message>>,
+declare function dispatch(
+  event: Service.Event<Notification.Incoming<Notification.Message>>,
   context: object
 ): Promise<void>;
 
@@ -30,7 +30,7 @@ export async function snsEntryPoint(event: SNSEvent, context: Context): Promise<
   };
 
   try {
-    await watchBegin(request);
+    await onBegin(request);
 
     if (!__EZ4_SCHEMA) {
       throw new Error(`Validation schema for SNS message not found.`);
@@ -45,46 +45,46 @@ export async function snsEntryPoint(event: SNSEvent, context: Context): Promise<
         message
       };
 
-      await watchReady(lastRequest);
+      await onReady(lastRequest);
 
       await handle(lastRequest, __EZ4_CONTEXT);
     }
   } catch (error) {
-    await watchError(error, lastRequest ?? request);
+    await onError(error, lastRequest ?? request);
   } finally {
-    await watchEnd(request);
+    await onEnd(request);
   }
 }
 
-const watchBegin = async (request: Partial<Notification.Incoming<Notification.Message>>) => {
-  return watch(
+const onBegin = async (request: Partial<Notification.Incoming<Notification.Message>>) => {
+  return dispatch(
     {
-      type: WatcherEventType.Begin,
+      type: EventType.Begin,
       request
     },
     __EZ4_CONTEXT
   );
 };
 
-const watchReady = async (request: Partial<Notification.Incoming<Notification.Message>>) => {
-  return watch(
+const onReady = async (request: Partial<Notification.Incoming<Notification.Message>>) => {
+  return dispatch(
     {
-      type: WatcherEventType.Ready,
+      type: EventType.Ready,
       request
     },
     __EZ4_CONTEXT
   );
 };
 
-const watchError = async (
+const onError = async (
   error: Error,
   request: Partial<Notification.Incoming<Notification.Message>>
 ) => {
   console.error(error);
 
-  return watch(
+  return dispatch(
     {
-      type: WatcherEventType.Error,
+      type: EventType.Error,
       request,
       error
     },
@@ -92,10 +92,10 @@ const watchError = async (
   );
 };
 
-const watchEnd = async (request: Partial<Notification.Incoming<Notification.Message>>) => {
-  return watch(
+const onEnd = async (request: Partial<Notification.Incoming<Notification.Message>>) => {
+  return dispatch(
     {
-      type: WatcherEventType.End,
+      type: EventType.End,
       request
     },
     __EZ4_CONTEXT

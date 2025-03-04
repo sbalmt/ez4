@@ -12,7 +12,7 @@ export type IntegrationFunctionParameters = Omit<
   'getFunctionBundle' | 'sourceFile' | 'handlerName'
 > & {
   handler: IntegrationEntryPoint;
-  watcher?: IntegrationEntryPoint;
+  listener?: IntegrationEntryPoint;
   responseSchema?: ObjectSchema | UnionSchema | ScalarSchema | null;
   headersSchema?: ObjectSchema | null;
   identitySchema?: ObjectSchema | UnionSchema | null;
