@@ -124,7 +124,7 @@ const getIntegrationFunction = (
     throw new Error(`Execution role for API Gateway integration is missing.`);
   }
 
-  const { handler, catcher = service.defaults?.catcher } = route;
+  const { handler, watcher = service.defaults?.watcher } = route;
 
   const { request, response } = handler;
 
@@ -155,10 +155,10 @@ const getIntegrationFunction = (
         functionName: handler.name,
         sourceFile: handler.file
       },
-      ...(catcher && {
-        catcher: {
-          functionName: catcher.name,
-          sourceFile: catcher.file
+      ...(watcher && {
+        watcher: {
+          functionName: watcher.name,
+          sourceFile: watcher.file
         }
       })
     });
@@ -192,7 +192,7 @@ const getAuthorizerFunction = (
     throw new Error(`Execution role for API Gateway authorizer is missing.`);
   }
 
-  const { handler, catcher = service.defaults?.catcher } = route;
+  const { handler, watcher = service.defaults?.watcher } = route;
 
   const authorizer = route.authorizer;
   const request = authorizer.request;
@@ -221,10 +221,10 @@ const getAuthorizerFunction = (
         functionName: handler.name,
         sourceFile: handler.file
       },
-      ...(catcher && {
+      ...(watcher && {
         catcher: {
-          functionName: catcher.name,
-          sourceFile: catcher.file
+          functionName: watcher.name,
+          sourceFile: watcher.file
         }
       })
     });

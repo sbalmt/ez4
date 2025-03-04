@@ -14,7 +14,7 @@ export const bundleSubscriptionFunction = async (
   dependencies: EntryState[],
   parameters: SubscriptionFunctionParameters
 ) => {
-  const { extras, debug, handler, catcher, messageSchema } = parameters;
+  const { extras, debug, handler, watcher, messageSchema } = parameters;
 
   const definitions = getDefinitionsObject(dependencies);
 
@@ -26,7 +26,7 @@ export const bundleSubscriptionFunction = async (
       __EZ4_SCHEMA: messageSchema ? JSON.stringify(messageSchema) : 'undefined'
     },
     handler,
-    catcher,
+    watcher,
     extras,
     debug
   });

@@ -14,7 +14,7 @@ export const bundleBucketEventFunction = async (
   dependencies: EntryState[],
   parameters: BucketEventFunctionParameters
 ) => {
-  const { extras, debug, handler, catcher } = parameters;
+  const { extras, debug, handler, watcher } = parameters;
 
   const definitions = getDefinitionsObject(dependencies);
 
@@ -25,7 +25,7 @@ export const bundleBucketEventFunction = async (
       ...definitions
     },
     handler,
-    catcher,
+    watcher,
     extras,
     debug
   });

@@ -14,7 +14,7 @@ export const bundleQueueFunction = async (
   dependencies: EntryState[],
   parameters: QueueFunctionParameters
 ) => {
-  const { extras, debug, handler, catcher, messageSchema } = parameters;
+  const { extras, debug, handler, watcher, messageSchema } = parameters;
 
   const definitions = getDefinitionsObject(dependencies);
 
@@ -26,7 +26,7 @@ export const bundleQueueFunction = async (
       __EZ4_SCHEMA: messageSchema ? JSON.stringify(messageSchema) : 'undefined'
     },
     handler,
-    catcher,
+    watcher,
     extras,
     debug
   });

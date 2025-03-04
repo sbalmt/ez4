@@ -3,17 +3,17 @@ import type { AllType, SourceMap, TypeModel, TypeObject } from '@ez4/reflection'
 import type { HttpDefaults } from '../types/common.js';
 
 import {
+  isModelDeclaration,
   getPropertyNumber,
   getObjectMembers,
   getModelMembers,
-  isModelDeclaration
+  getServiceWatcher
 } from '@ez4/common/library';
 
 import { isModelProperty, isTypeObject, isTypeReference } from '@ez4/reflection';
 import { isAnyNumber } from '@ez4/utils';
 
 import { IncorrectDefaultsTypeError, InvalidDefaultsTypeError } from '../library.js';
-import { getHttpCatcher } from './catcher.js';
 import { isHttpDefaults } from './utils.js';
 
 export const getHttpDefaults = (
@@ -73,11 +73,11 @@ const getTypeFromMembers = (members: MemberType[], errorList: Error[]) => {
         break;
       }
 
-      case 'catcher': {
-        const value = getHttpCatcher(member.value, errorList);
+      case 'watcher': {
+        const value = getServiceWatcher(member.value, errorList);
 
         if (value) {
-          defaults.catcher = value;
+          defaults.watcher = value;
         }
 
         break;

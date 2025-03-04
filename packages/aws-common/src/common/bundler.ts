@@ -23,7 +23,7 @@ export type BundlerOptions = {
   filePrefix: string;
   templateFile: string;
   handler: BundlerEntryPoint;
-  catcher?: BundlerEntryPoint;
+  watcher?: BundlerEntryPoint;
   extras?: Record<string, ExtraSource>;
   define?: Record<string, string>;
   debug?: boolean;
@@ -132,11 +132,11 @@ const getEntrypointCode = async (options: BundlerOptions) => {
   const template = await readFile(options.templateFile);
   const context = getExtraContext(options.extras ?? {});
 
-  const { handler, catcher } = options;
+  const { handler, watcher } = options;
 
   return `
-import { ${handler.functionName} as next } from './${handler.sourceFile}';
-${catcher ? `import { ${catcher.functionName} as fail } from './${catcher.sourceFile}'` : `const fail = () => {}`};
+import { ${handler.functionName} as handle } from './${handler.sourceFile}';
+${watcher ? `import { ${watcher.functionName} as watch } from './${watcher.sourceFile}'` : `const watch = () => {}`};
 ${context.packages}
 
 const __EZ4_CONTEXT = ${context.services};

@@ -68,10 +68,6 @@ export const isHttpAuthorizer = (type: AllType): type is TypeCallback | TypeFunc
   return isTypeCallback(type) || isTypeFunction(type);
 };
 
-export const isHttpCatcher = (type: AllType): type is TypeCallback | TypeFunction => {
-  return isTypeCallback(type) || isTypeFunction(type);
-};
-
 export const isHttpHandler = (type: AllType): type is TypeCallback | TypeFunction => {
   return isTypeCallback(type) || isTypeFunction(type);
 };

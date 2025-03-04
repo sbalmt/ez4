@@ -12,13 +12,13 @@ import {
   getPropertyNumber,
   getPropertyString,
   getObjectMembers,
-  getModelMembers
+  getModelMembers,
+  getServiceWatcher
 } from '@ez4/common/library';
 
 import { IncompleteRouteError } from '../errors/route.js';
 import { isHttpPath, isHttpRoute } from './utils.js';
 import { getHttpAuthorizer } from './authorizer.js';
-import { getHttpCatcher } from './catcher.js';
 import { getHttpHandler } from './handler.js';
 
 export const getHttpRoute = (type: AllType, reflection: SourceMap, errorList: Error[]) => {
@@ -108,11 +108,11 @@ const getTypeFromMembers = (
         break;
       }
 
-      case 'catcher': {
-        const value = getHttpCatcher(member.value, errorList);
+      case 'watcher': {
+        const value = getServiceWatcher(member.value, errorList);
 
         if (value) {
-          route.catcher = value;
+          route.watcher = value;
         }
 
         break;

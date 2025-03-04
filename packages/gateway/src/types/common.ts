@@ -1,4 +1,5 @@
 import type { LinkedVariables } from '@ez4/project/library';
+import type { ServiceWatcher } from '@ez4/common/library';
 
 import type {
   BooleanSchema,
@@ -62,7 +63,7 @@ export type HttpRoute = {
   path: HttpPath;
   handler: HttpHandler;
   authorizer?: HttpAuthorizer;
-  catcher?: HttpCatcher;
+  watcher?: ServiceWatcher;
   variables?: LinkedVariables | null;
   timeout?: number;
   memory?: number;
@@ -70,7 +71,7 @@ export type HttpRoute = {
 };
 
 export type HttpDefaults = {
-  catcher?: HttpCatcher;
+  watcher?: HttpCatcher;
   timeout?: number;
   memory?: number;
 };

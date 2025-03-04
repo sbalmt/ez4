@@ -14,7 +14,7 @@ export const bundleStreamFunction = async (
   dependencies: EntryState[],
   parameters: StreamFunctionParameters
 ) => {
-  const { extras, debug, handler, catcher, tableSchema } = parameters;
+  const { extras, debug, handler, watcher, tableSchema } = parameters;
 
   const definitions = getDefinitionsObject(dependencies);
 
@@ -26,7 +26,7 @@ export const bundleStreamFunction = async (
       __EZ4_SCHEMA: tableSchema ? JSON.stringify(tableSchema) : 'undefined'
     },
     handler,
-    catcher,
+    watcher,
     extras,
     debug
   });

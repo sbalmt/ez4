@@ -55,21 +55,20 @@ export namespace Http {
   };
 
   /**
+   * Incoming request watcher.
+   */
+  export type Watcher<T extends AuthRequest | Request> = (
+    event: Service.WatcherEvent<T>,
+    context: Service.Context<Service>
+  ) => Promise<void> | void;
+
+  /**
    * Incoming request authorizer.
    */
   export type Authorizer<T extends AuthRequest> = (
     request: T,
     context: Service.Context<Service>
   ) => Promise<AuthResponse> | AuthResponse;
-
-  /**
-   * Incoming request catcher.
-   */
-  export type Catcher<T extends AuthRequest | Request> = (
-    error: Error,
-    request: T,
-    context: Service.Context<Service>
-  ) => Promise<void> | void;
 
   /**
    * Incoming request handler.
@@ -89,14 +88,14 @@ export namespace Http {
     path: HttpPath;
 
     /**
+     * Route watcher.
+     */
+    watcher?: Watcher<any>;
+
+    /**
      * Route authorizer.
      */
     authorizer?: Authorizer<any>;
-
-    /**
-     * Route error catcher.
-     */
-    catcher?: Catcher<any>;
 
     /**
      * Route handler.
@@ -129,9 +128,9 @@ export namespace Http {
    */
   export type Defaults = {
     /**
-     * Default error catcher.
+     * Default watcher.
      */
-    catcher?: Catcher<any>;
+    watcher?: Watcher<any>;
 
     /**
      * Default execution time (in seconds) for the routes.

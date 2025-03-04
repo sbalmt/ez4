@@ -1,3 +1,4 @@
+import type { Service } from '@ez4/common';
 import type { ObjectSchema } from '@ez4/schema';
 import type { Http } from '@ez4/gateway';
 
@@ -18,12 +19,13 @@ import {
 } from '@ez4/aws-gateway/runtime';
 
 import { HttpError, HttpInternalServerError } from '@ez4/gateway';
+import { WatcherEventType } from '@ez4/common';
 
 type RequestEvent = APIGatewayProxyEventV2WithLambdaAuthorizer<any>;
 type ResponseEvent = APIGatewayProxyResultV2;
 
-declare function next(request: Http.Incoming<any>, context: object): Promise<Http.Response>;
-declare function fail(error: Error, request: Http.Incoming<any>, context: object): Promise<void>;
+declare function handle(request: Http.Incoming<any>, context: object): Promise<Http.Response>;
+declare function watch(event: Service.WatcherEvent<any>, context: object): Promise<void>;
 
 declare const __EZ4_RESPONSE_SCHEMA: ObjectSchema | null;
 declare const __EZ4_BODY_SCHEMA: ObjectSchema | null;
@@ -39,8 +41,6 @@ declare const __EZ4_CONTEXT: object;
 export async function apiEntryPoint(event: RequestEvent, context: Context): Promise<ResponseEvent> {
   const { requestContext } = event;
 
-  requestContext.time;
-
   const request = {
     requestId: context.awsRequestId,
     timestamp: new Date(requestContext.timeEpoch),
@@ -49,9 +49,11 @@ export async function apiEntryPoint(event: RequestEvent, context: Context): Prom
   };
 
   try {
+    watch({ type: WatcherEventType.Begin, request }, context);
+
     Object.assign(request, await getIncomingRequest(event));
 
-    const { status, body, headers } = await next(request, __EZ4_CONTEXT);
+    const { status, body, headers } = await handle(request, __EZ4_CONTEXT);
 
     return getJsonResponse(status, body, headers);
   } catch (error) {
@@ -61,9 +63,11 @@ export async function apiEntryPoint(event: RequestEvent, context: Context): Prom
 
     console.error(error);
 
-    fail(error, request, context);
+    watch({ type: WatcherEventType.Error, request, error }, context);
 
     return getErrorResponse();
+  } finally {
+    watch({ type: WatcherEventType.End, request }, context);
   }
 }
 

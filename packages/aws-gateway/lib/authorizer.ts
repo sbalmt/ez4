@@ -1,3 +1,4 @@
+import type { Service } from '@ez4/common';
 import type { ObjectSchema } from '@ez4/schema';
 import type { Http } from '@ez4/gateway';
 
@@ -8,12 +9,13 @@ import type {
 } from 'aws-lambda';
 
 import { getHeaders, getPathParameters, getQueryStrings } from '@ez4/aws-gateway/runtime';
+import { WatcherEventType } from '@ez4/common';
 
 type RequestEvent = APIGatewayRequestAuthorizerEventV2;
 type ResponseEvent = APIGatewaySimpleAuthorizerWithContextResult<any>;
 
-declare function next(request: Http.Incoming<any>, context: object): Promise<Http.AuthResponse>;
-declare function fail(error: Error, request: Http.Incoming<any>, context: object): Promise<void>;
+declare function handle(request: Http.Incoming<any>, context: object): Promise<Http.AuthResponse>;
+declare function watch(event: Service.WatcherEvent<any>, context: object): Promise<void>;
 
 declare const __EZ4_HEADERS_SCHEMA: ObjectSchema | null;
 declare const __EZ4_PARAMETERS_SCHEMA: ObjectSchema | null;
@@ -34,9 +36,11 @@ export async function apiEntryPoint(event: RequestEvent, context: Context): Prom
   };
 
   try {
+    watch({ type: WatcherEventType.Begin, request }, context);
+
     Object.assign(request, await getIncomingRequest(event));
 
-    const { identity } = await next(request, __EZ4_CONTEXT);
+    const { identity } = await handle(request, __EZ4_CONTEXT);
 
     return {
       isAuthorized: !!identity,
@@ -47,12 +51,14 @@ export async function apiEntryPoint(event: RequestEvent, context: Context): Prom
   } catch (error) {
     console.error(error);
 
-    fail(error, request, context);
+    watch({ type: WatcherEventType.Error, request, error }, context);
 
     return {
       isAuthorized: false,
       context: undefined
     };
+  } finally {
+    watch({ type: WatcherEventType.End, request }, context);
   }
 }
 

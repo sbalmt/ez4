@@ -7,7 +7,7 @@ import { unmarshall } from '@aws-sdk/util-dynamodb';
 import { validateSchema } from '@ez4/aws-dynamodb/runtime';
 import { StreamType } from '@ez4/database';
 
-declare function next(changes: StreamChange<object>, context: object): Promise<any>;
+declare function handle(changes: StreamChange<object>, context: object): Promise<any>;
 
 declare const __EZ4_SCHEMA: ObjectSchema | null;
 declare const __EZ4_CONTEXT: object;
@@ -27,7 +27,7 @@ export async function dbStreamEntryPoint(
     const change = await getRecordChange(record, __EZ4_SCHEMA);
 
     if (change) {
-      await next(change, __EZ4_CONTEXT);
+      await handle(change, __EZ4_CONTEXT);
     }
   }
 }

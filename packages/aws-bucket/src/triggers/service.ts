@@ -103,14 +103,16 @@ const getEventsFunction = (
     createBucketEventFunction(state, role, {
       functionName,
       description: handler.description,
-      handlerName: handler.name,
-      sourceFile: handler.file,
       timeout: events.timeout ?? 15,
       memory: events.memory ?? 192,
       extras: service.extras,
       debug: options.debug,
       variables: {
         ...service.variables
+      },
+      handler: {
+        functionName: handler.name,
+        sourceFile: handler.file
       }
     })
   );

@@ -4,8 +4,8 @@ import type { Cron } from '@ez4/scheduler';
 
 import { getJsonEvent } from '@ez4/aws-scheduler/runtime';
 
-declare function next(request: Cron.Incoming<any>, context: object): Promise<void>;
-declare function next(context: object): Promise<void>;
+declare function handle(request: Cron.Incoming<any>, context: object): Promise<void>;
+declare function handle(context: object): Promise<void>;
 
 declare const __EZ4_CONTEXT: object;
 declare const __EZ4_SCHEMA: ObjectSchema | UnionSchema | null;
@@ -15,7 +15,7 @@ declare const __EZ4_SCHEMA: ObjectSchema | UnionSchema | null;
  */
 export async function eventEntryPoint(event: ScheduledEvent, context: Context): Promise<void> {
   if (!__EZ4_SCHEMA) {
-    await next(__EZ4_CONTEXT);
+    await handle(__EZ4_CONTEXT);
     return;
   }
 
@@ -26,5 +26,5 @@ export async function eventEntryPoint(event: ScheduledEvent, context: Context): 
     event: safeEvent
   };
 
-  await next(request, __EZ4_CONTEXT);
+  await handle(request, __EZ4_CONTEXT);
 }

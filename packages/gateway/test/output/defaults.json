@@ -4,8 +4,8 @@
     "name": "TestService",
     "routes": [],
     "defaults": {
-      "catcher": {
-        "name": "testCatcher",
+      "watcher": {
+        "name": "testWatcher",
         "file": "test/input/output-defaults.ts"
       },
       "timeout": 15,
