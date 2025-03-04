@@ -1,7 +1,7 @@
 import type { S3Event, Context } from 'aws-lambda';
 import { BucketEvent, BucketEventType } from '@ez4/storage';
 
-declare function next(event: BucketEvent, context: object): Promise<any>;
+declare function handle(event: BucketEvent, context: object): Promise<any>;
 
 declare const __EZ4_CONTEXT: object;
 
@@ -26,7 +26,7 @@ export async function s3EntryPoint(event: S3Event, context: Context): Promise<vo
       eventType
     };
 
-    await next(request, __EZ4_CONTEXT);
+    await handle(request, __EZ4_CONTEXT);
   }
 }
 

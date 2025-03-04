@@ -1,3 +1,4 @@
+import type { Service } from '@ez4/common';
 import type { ObjectSchema } from '@ez4/schema';
 import type { Http } from '@ez4/gateway';
 
@@ -8,11 +9,13 @@ import type {
 } from 'aws-lambda';
 
 import { getHeaders, getPathParameters, getQueryStrings } from '@ez4/aws-gateway/runtime';
+import { WatcherEventType } from '@ez4/common';
 
 type RequestEvent = APIGatewayRequestAuthorizerEventV2;
 type ResponseEvent = APIGatewaySimpleAuthorizerWithContextResult<any>;
 
-declare function next(request: Http.Incoming<any>, context: object): Promise<Http.AuthResponse>;
+declare function handle(request: Http.Incoming<any>, context: object): Promise<Http.AuthResponse>;
+declare function watch(event: Service.WatcherEvent<any>, context: object): Promise<void>;
 
 declare const __EZ4_HEADERS_SCHEMA: ObjectSchema | null;
 declare const __EZ4_PARAMETERS_SCHEMA: ObjectSchema | null;
@@ -25,19 +28,19 @@ declare const __EZ4_CONTEXT: object;
 export async function apiEntryPoint(event: RequestEvent, context: Context): Promise<ResponseEvent> {
   const { requestContext } = event;
 
+  const request = {
+    requestId: context.awsRequestId,
+    timestamp: new Date(requestContext.timeEpoch),
+    method: requestContext.http.method,
+    path: requestContext.http.path
+  };
+
   try {
-    const request = {
-      requestId: context.awsRequestId,
-      method: requestContext.http.method,
-      path: requestContext.http.path,
-      headers: __EZ4_HEADERS_SCHEMA && (await getRequestHeaders(event)),
-      parameters: __EZ4_PARAMETERS_SCHEMA && (await getRequestParameters(event)),
-      query: __EZ4_QUERY_SCHEMA && (await getRequestQuery(event))
-    };
+    watch({ type: WatcherEventType.Begin, request }, context);
 
-    const response = await next(request, __EZ4_CONTEXT);
+    Object.assign(request, await getIncomingRequest(event));
 
-    const { identity } = response;
+    const { identity } = await handle(request, __EZ4_CONTEXT);
 
     return {
       isAuthorized: !!identity,
@@ -48,12 +51,24 @@ export async function apiEntryPoint(event: RequestEvent, context: Context): Prom
   } catch (error) {
     console.error(error);
 
+    watch({ type: WatcherEventType.Error, request, error }, context);
+
     return {
       isAuthorized: false,
       context: undefined
     };
+  } finally {
+    watch({ type: WatcherEventType.End, request }, context);
   }
 }
+
+const getIncomingRequest = async (event: RequestEvent) => {
+  return {
+    headers: __EZ4_HEADERS_SCHEMA && (await getRequestHeaders(event)),
+    parameters: __EZ4_PARAMETERS_SCHEMA && (await getRequestParameters(event)),
+    query: __EZ4_QUERY_SCHEMA && (await getRequestQuery(event))
+  };
+};
 
 const getRequestHeaders = (event: RequestEvent) => {
   if (__EZ4_HEADERS_SCHEMA) {

@@ -1,7 +1,8 @@
 export * from './triggers/register.js';
 
-export * from './metadata/variables.js';
 export * from './metadata/services.js';
+export * from './metadata/variables.js';
+export * from './metadata/watcher.js';
 
 export * from './reflection/statement.js';
 export * from './reflection/reference.js';
@@ -14,3 +15,6 @@ export * from './reflection/value.js';
 export * from './errors/common.js';
 export * from './errors/services.js';
 export * from './errors/variables.js';
+export * from './errors/watcher.js';
+
+export * from './types/common.js';

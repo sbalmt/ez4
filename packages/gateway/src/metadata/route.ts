@@ -12,7 +12,8 @@ import {
   getPropertyNumber,
   getPropertyString,
   getObjectMembers,
-  getModelMembers
+  getModelMembers,
+  getServiceWatcher
 } from '@ez4/common/library';
 
 import { IncompleteRouteError } from '../errors/route.js';
@@ -67,27 +68,53 @@ const getTypeFromMembers = (
     switch (member.name) {
       case 'path': {
         const path = getPropertyString(member);
+
         if (path && isHttpPath(path)) {
           properties.delete(member.name);
           route.path = path;
         }
+
         break;
       }
 
       case 'timeout':
       case 'memory': {
         const value = getPropertyNumber(member);
+
         if (isAnyNumber(value)) {
           route[member.name] = value;
         }
+
         break;
       }
 
       case 'cors': {
         const value = getPropertyBoolean(member);
+
         if (isAnyBoolean(value)) {
           route[member.name] = value;
         }
+
+        break;
+      }
+
+      case 'authorizer': {
+        const value = getHttpAuthorizer(member.value, reflection, errorList);
+
+        if (value) {
+          route.authorizer = value;
+        }
+
+        break;
+      }
+
+      case 'watcher': {
+        const value = getServiceWatcher(member.value, errorList);
+
+        if (value) {
+          route.watcher = value;
+        }
+
         break;
       }
 
@@ -96,14 +123,6 @@ const getTypeFromMembers = (
           properties.delete(member.name);
         }
         break;
-
-      case 'authorizer': {
-        const value = getHttpAuthorizer(member.value, reflection, errorList);
-        if (value) {
-          route.authorizer = value;
-        }
-        break;
-      }
 
       case 'variables':
         route.variables = getLinkedVariableList(member, errorList);

@@ -1,3 +1,4 @@
+import type { String } from '@ez4/schema';
 import type { Http } from '@ez4/gateway';
 
 /**
@@ -8,7 +9,7 @@ export declare class GetRequest implements Http.Request {
     /**
      * Example of `id` in the path parameters.
      */
-    id: string;
+    id: String.UUID;
   };
 }
 
@@ -19,23 +20,25 @@ export declare class GetResponse implements Http.Response {
   status: 200;
 
   body: {
+    /**
+     * Example of `string` in the response.
+     */
     foo: string;
   };
 }
 
 /**
  * Handler for `get` requests.
- * @returns Outgoing get response.
+ * @returns Outgoing response.
  */
 export function getHandler(request: GetRequest): GetResponse {
-  const { parameters } = request;
+  const { id } = request.parameters;
 
   // Do some stuff...
-  parameters.id;
+  id;
 
   return {
     status: 200,
-
     body: {
       foo: 'Hello AWS API'
     }

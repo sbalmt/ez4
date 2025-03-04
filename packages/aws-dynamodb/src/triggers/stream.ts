@@ -32,8 +32,6 @@ export const prepareTableStream = (
     createStreamFunction(state, role, {
       functionName,
       description: streamHandler.description,
-      sourceFile: streamHandler.file,
-      handlerName: streamHandler.name,
       timeout: tableStream.timeout,
       memory: tableStream.memory,
       tableSchema: table.schema,
@@ -42,6 +40,10 @@ export const prepareTableStream = (
       variables: {
         ...service.variables,
         ...tableStream.variables
+      },
+      handler: {
+        functionName: streamHandler.name,
+        sourceFile: streamHandler.file
       }
     });
 

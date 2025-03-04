@@ -3,6 +3,7 @@
  */
 export default {
   prefix: 'ez4',
+  debugMode: true,
   projectName: 'hello-gateway',
   sourceFiles: ['./src/service.ts'],
   stateFile: {

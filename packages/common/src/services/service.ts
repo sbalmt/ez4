@@ -1,4 +1,16 @@
+import type { ServiceWatcherEvent, ServiceWatcherRequest } from './common.js';
+
 export namespace Service {
+  export type WatcherEvent<T extends ServiceWatcherRequest> = ServiceWatcherEvent<T>;
+
+  /**
+   * Incoming watcher event.
+   */
+  export type Watcher<T extends ServiceWatcherRequest> = (
+    event: WatcherEvent<T>,
+    context: Context<any>
+  ) => Promise<void> | void;
+
   /**
    * Common interface for service providers.
    */

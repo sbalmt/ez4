@@ -4,7 +4,7 @@ import type { Queue } from '@ez4/queue';
 
 import { getJsonMessage } from '@ez4/aws-queue/runtime';
 
-declare function next(request: Queue.Incoming<any>, context: object): Promise<any>;
+declare function handle(request: Queue.Incoming<any>, context: object): Promise<any>;
 
 declare const __EZ4_SCHEMA: MessageSchema | null;
 declare const __EZ4_CONTEXT: object;
@@ -26,6 +26,6 @@ export async function sqsEntryPoint(event: SQSEvent, context: Context): Promise<
       message
     };
 
-    await next(request, __EZ4_CONTEXT);
+    await handle(request, __EZ4_CONTEXT);
   }
 }

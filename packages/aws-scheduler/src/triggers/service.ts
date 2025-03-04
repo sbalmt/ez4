@@ -55,14 +55,16 @@ export const prepareCronServices = async (event: PrepareResourceEvent) => {
   const functionState = createTargetFunction(state, role, {
     functionName,
     description: handler.description,
-    sourceFile: handler.file,
-    handlerName: handler.name,
     eventSchema: service.schema,
     extras: service.extras,
     debug: options.debug,
     variables: {
       ...service.variables,
       ...variables
+    },
+    handler: {
+      functionName: handler.name,
+      sourceFile: handler.file
     },
     timeout,
     memory

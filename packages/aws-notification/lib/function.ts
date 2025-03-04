@@ -3,7 +3,7 @@ import type { SNSEvent, Context } from 'aws-lambda';
 
 import { getJsonMessage } from '@ez4/aws-notification/runtime';
 
-declare function next(message: unknown, context: object): Promise<any>;
+declare function handle(message: unknown, context: object): Promise<any>;
 
 declare const __EZ4_SCHEMA: MessageSchema | null;
 declare const __EZ4_CONTEXT: object;
@@ -25,6 +25,6 @@ export async function snsEntryPoint(event: SNSEvent, context: Context): Promise<
       message
     };
 
-    await next(request, __EZ4_CONTEXT);
+    await handle(request, __EZ4_CONTEXT);
   }
 }

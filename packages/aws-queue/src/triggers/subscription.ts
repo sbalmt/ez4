@@ -30,8 +30,6 @@ export const prepareSubscriptions = async (
       createQueueFunction(state, role, {
         functionName,
         description: handler.description,
-        sourceFile: handler.file,
-        handlerName: handler.name,
         timeout: functionTimeout,
         memory: subscription.memory,
         messageSchema: service.schema,
@@ -40,6 +38,10 @@ export const prepareSubscriptions = async (
         variables: {
           ...service.variables,
           ...subscription.variables
+        },
+        handler: {
+          functionName: handler.name,
+          sourceFile: handler.file
         }
       });
 
