@@ -19,7 +19,7 @@ export const bundleBucketEventFunction = async (
   const definitions = getDefinitionsObject(dependencies);
 
   return bundleFunction(MappingServiceName, {
-    templateFile: join(__MODULE_PATH, '../lib/function.ts'),
+    templateFile: join(__MODULE_PATH, '../lib/event.ts'),
     filePrefix: 's3',
     define: {
       ...definitions

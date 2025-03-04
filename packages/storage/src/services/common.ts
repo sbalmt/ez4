@@ -41,7 +41,7 @@ export const enum BucketEventType {
  */
 export type BucketEvent = {
   /**
-   * Request Id.
+   * Request tracking Id.
    */
   requestId: string;
 

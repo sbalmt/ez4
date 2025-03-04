@@ -24,9 +24,6 @@ import { WatcherEventType } from '@ez4/common';
 type RequestEvent = APIGatewayProxyEventV2WithLambdaAuthorizer<any>;
 type ResponseEvent = APIGatewayProxyResultV2;
 
-declare function handle(request: Http.Incoming<any>, context: object): Promise<Http.Response>;
-declare function watch(event: Service.WatcherEvent<any>, context: object): Promise<void>;
-
 declare const __EZ4_RESPONSE_SCHEMA: ObjectSchema | null;
 declare const __EZ4_BODY_SCHEMA: ObjectSchema | null;
 declare const __EZ4_PARAMETERS_SCHEMA: ObjectSchema | null;
@@ -35,10 +32,22 @@ declare const __EZ4_IDENTITY_SCHEMA: ObjectSchema | null;
 declare const __EZ4_HEADERS_SCHEMA: ObjectSchema | null;
 declare const __EZ4_CONTEXT: object;
 
+declare function handle(
+  request: Http.Incoming<Http.Request>,
+  context: object
+): Promise<Http.Response>;
+
+declare function watch(
+  event: Service.WatcherEvent<Http.Incoming<Http.Request>>,
+  context: object
+): Promise<void>;
+
 /**
  * Entrypoint to handle API Gateway requests.
  */
 export async function apiEntryPoint(event: RequestEvent, context: Context): Promise<ResponseEvent> {
+  let lastRequest: Http.Incoming<Http.Request> | undefined;
+
   const { requestContext } = event;
 
   const request = {
@@ -49,11 +58,16 @@ export async function apiEntryPoint(event: RequestEvent, context: Context): Prom
   };
 
   try {
-    watch({ type: WatcherEventType.Begin, request }, context);
+    await watchBegin(request);
 
-    Object.assign(request, await getIncomingRequest(event));
+    const incomingRequest = await getIncomingRequest(event);
 
-    const { status, body, headers } = await handle(request, __EZ4_CONTEXT);
+    lastRequest = {
+      ...request,
+      ...incomingRequest
+    };
+
+    const { status, body, headers } = await handle(lastRequest, __EZ4_CONTEXT);
 
     return getJsonResponse(status, body, headers);
   } catch (error) {
@@ -61,23 +75,21 @@ export async function apiEntryPoint(event: RequestEvent, context: Context): Prom
       return getErrorResponse(error);
     }
 
-    console.error(error);
-
-    watch({ type: WatcherEventType.Error, request, error }, context);
+    await watchError(error, lastRequest ?? request);
 
     return getErrorResponse();
   } finally {
-    watch({ type: WatcherEventType.End, request }, context);
+    await watchEnd(request);
   }
 }
 
 const getIncomingRequest = async (event: RequestEvent) => {
   return {
-    headers: __EZ4_HEADERS_SCHEMA && (await getRequestHeaders(event)),
-    parameters: __EZ4_PARAMETERS_SCHEMA && (await getRequestParameters(event)),
-    query: __EZ4_QUERY_SCHEMA && (await getRequestQueryStrings(event)),
-    identity: __EZ4_IDENTITY_SCHEMA && (await getRequestIdentity(event)),
-    body: __EZ4_BODY_SCHEMA && (await getRequestBody(event))
+    headers: __EZ4_HEADERS_SCHEMA ? await getRequestHeaders(event) : undefined,
+    parameters: __EZ4_PARAMETERS_SCHEMA ? await getRequestParameters(event) : undefined,
+    query: __EZ4_QUERY_SCHEMA ? await getRequestQueryStrings(event) : undefined,
+    identity: __EZ4_IDENTITY_SCHEMA ? await getRequestIdentity(event) : undefined,
+    body: __EZ4_BODY_SCHEMA ? await getRequestBody(event) : undefined
   };
 };
 
@@ -167,4 +179,37 @@ const getErrorResponse = (error?: HttpError) => {
       ['content-type']: 'application/json'
     }
   };
+};
+
+const watchBegin = async (request: Partial<Http.Incoming<Http.Request>>) => {
+  return watch(
+    {
+      type: WatcherEventType.Begin,
+      request
+    },
+    __EZ4_CONTEXT
+  );
+};
+
+const watchError = async (error: Error, request: Partial<Http.Incoming<Http.Request>>) => {
+  console.error(error);
+
+  return watch(
+    {
+      type: WatcherEventType.Error,
+      request,
+      error
+    },
+    __EZ4_CONTEXT
+  );
+};
+
+const watchEnd = async (request: Partial<Http.Incoming<Http.Request>>) => {
+  return watch(
+    {
+      type: WatcherEventType.End,
+      request
+    },
+    __EZ4_CONTEXT
+  );
 };

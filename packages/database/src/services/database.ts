@@ -32,6 +32,24 @@ export namespace Database {
   };
 
   /**
+   * Incoming stream event.
+   */
+  export type Incoming<T extends Schema> = StreamChange<T> & {
+    /**
+     * Request tracking Id.
+     */
+    requestId: string;
+  };
+
+  /**
+   * Incoming stream handler.
+   */
+  export type Handler<T extends Schema = Schema> = (
+    request: Incoming<T> | StreamChange<T>,
+    context: Service.Context<Service>
+  ) => Promise<void> | void;
+
+  /**
    * Table stream.
    */
   export interface Stream<T extends Schema = Schema> {
@@ -41,10 +59,7 @@ export namespace Database {
      * @param change Stream change.
      * @param context Handler context.
      */
-    handler: (
-      change: StreamChange<T>,
-      context: Service.Context<Service<any>>
-    ) => void | Promise<void>;
+    handler: Handler<T>;
 
     /**
      * Variables associated to the handler.

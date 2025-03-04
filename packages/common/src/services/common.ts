@@ -1,4 +1,12 @@
 /**
+ * All service watcher events.
+ */
+export type ServiceWatcherEvent<T extends ServiceWatcherRequest> =
+  | ServiceWatcherBeginEvent<T>
+  | ServiceWatcherErrorEvent<T>
+  | ServiceWatcherEndEvent<T>;
+
+/**
  * Service watcher request base.
  */
 export type ServiceWatcherRequest = {};
@@ -61,11 +69,3 @@ export type ServiceWatcherEndEvent<T extends ServiceWatcherRequest> = {
    */
   request: Partial<T>;
 };
-
-/**
- * All service watcher events.
- */
-export type ServiceWatcherEvent<T extends ServiceWatcherRequest> =
-  | ServiceWatcherBeginEvent<T>
-  | ServiceWatcherErrorEvent<T>
-  | ServiceWatcherEndEvent<T>;

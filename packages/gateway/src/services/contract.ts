@@ -39,9 +39,14 @@ export namespace Http {
    */
   export type Incoming<T extends Request> = T & {
     /**
-     * Request Id.
+     * Request tracking Id.
      */
     requestId: string;
+
+    /**
+     * Request timestamp.
+     */
+    timestamp: Date;
 
     /**
      * Request method.
@@ -66,7 +71,7 @@ export namespace Http {
    * Incoming request authorizer.
    */
   export type Authorizer<T extends AuthRequest> = (
-    request: T,
+    request: Incoming<any> | T,
     context: Service.Context<Service>
   ) => Promise<AuthResponse> | AuthResponse;
 
@@ -74,7 +79,7 @@ export namespace Http {
    * Incoming request handler.
    */
   export type Handler<T extends Request> = (
-    request: T,
+    request: Incoming<any> | T,
     context: Service.Context<Service>
   ) => Promise<Response> | Response;
 
@@ -100,7 +105,7 @@ export namespace Http {
     /**
      * Route handler.
      */
-    handler: Handler<any> | Handler<Incoming<any>>;
+    handler: Handler<any>;
 
     /**
      * Variables associated to the route.

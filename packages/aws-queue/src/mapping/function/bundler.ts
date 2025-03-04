@@ -19,7 +19,7 @@ export const bundleQueueFunction = async (
   const definitions = getDefinitionsObject(dependencies);
 
   return bundleFunction(MappingServiceName, {
-    templateFile: join(__MODULE_PATH, '../lib/function.ts'),
+    templateFile: join(__MODULE_PATH, '../lib/message.ts'),
     filePrefix: 'sqs',
     define: {
       ...definitions,

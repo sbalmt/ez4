@@ -56,6 +56,7 @@
     "@ez4/aws-common": "^0.14.0",
     "@ez4/aws-function": "^0.14.0",
     "@ez4/aws-identity": "^0.14.0",
+    "@ez4/common": "^0.14.0",
     "@ez4/database": "^0.14.0",
     "@ez4/project": "^0.14.0",
     "@ez4/schema": "^0.14.0",

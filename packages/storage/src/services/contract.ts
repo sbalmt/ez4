@@ -10,6 +10,24 @@ export namespace Bucket {
   export type Cors = BucketCors;
 
   /**
+   * Incoming bucket event.
+   */
+  export type Incoming<T extends BucketEvent> = T & {
+    /**
+     * Request tracking Id.
+     */
+    requestId: string;
+  };
+
+  /**
+   * Incoming event handler.
+   */
+  export type Handler = (
+    request: Incoming<BucketEvent> | BucketEvent,
+    context: Service.Context<Service>
+  ) => Promise<void> | void;
+
+  /**
    * Bucket event.
    */
   export interface Event {
@@ -19,7 +37,7 @@ export namespace Bucket {
      * @param event Event object.
      * @param context Handler context.
      */
-    handler: (event: BucketEvent, context: Service.Context<Service>) => void | Promise<void>;
+    handler: Handler;
 
     /**
      * Path associated to the event.

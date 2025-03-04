@@ -19,7 +19,7 @@ export const bundleStreamFunction = async (
   const definitions = getDefinitionsObject(dependencies);
 
   return bundleFunction(MappingServiceName, {
-    templateFile: join(__MODULE_PATH, '../lib/function.ts'),
+    templateFile: join(__MODULE_PATH, '../lib/stream.ts'),
     filePrefix: 'db',
     define: {
       ...definitions,
