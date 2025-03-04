@@ -54,6 +54,8 @@ export async function apiEntryPoint(event: RequestEvent, context: Context): Prom
       ...incomingRequest
     };
 
+    await watchReady(lastRequest);
+
     const { identity } = await handle(lastRequest, __EZ4_CONTEXT);
 
     return {
@@ -110,6 +112,16 @@ const watchBegin = async (request: Partial<Http.Incoming<Http.AuthRequest>>) => 
   return watch(
     {
       type: WatcherEventType.Begin,
+      request
+    },
+    __EZ4_CONTEXT
+  );
+};
+
+const watchReady = async (request: Partial<Http.Incoming<Http.AuthRequest>>) => {
+  return watch(
+    {
+      type: WatcherEventType.Ready,
       request
     },
     __EZ4_CONTEXT

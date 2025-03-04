@@ -6,8 +6,8 @@ import type { Cron } from '@ez4/scheduler';
 import { getJsonEvent } from '@ez4/aws-scheduler/runtime';
 import { WatcherEventType } from '@ez4/common';
 
-declare const __EZ4_CONTEXT: object;
 declare const __EZ4_SCHEMA: ObjectSchema | UnionSchema | null;
+declare const __EZ4_CONTEXT: object;
 
 declare function handle(request: Cron.Incoming<Cron.Event>, context: object): Promise<void>;
 declare function handle(context: object): Promise<void>;
@@ -42,6 +42,8 @@ export async function eventEntryPoint(event: ScheduledEvent, context: Context): 
       event: safeEvent
     };
 
+    await watchReady(lastRequest);
+
     await handle(lastRequest, __EZ4_CONTEXT);
   } catch (error) {
     await watchError(error, lastRequest ?? request);
@@ -54,6 +56,16 @@ const watchBegin = async (request: Partial<Cron.Incoming<Cron.Event>>) => {
   return watch(
     {
       type: WatcherEventType.Begin,
+      request
+    },
+    __EZ4_CONTEXT
+  );
+};
+
+const watchReady = async (request: Partial<Cron.Incoming<Cron.Event>>) => {
+  return watch(
+    {
+      type: WatcherEventType.Ready,
       request
     },
     __EZ4_CONTEXT

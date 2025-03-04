@@ -45,6 +45,8 @@ export async function snsEntryPoint(event: SNSEvent, context: Context): Promise<
         message
       };
 
+      await watchReady(lastRequest);
+
       await handle(lastRequest, __EZ4_CONTEXT);
     }
   } catch (error) {
@@ -58,6 +60,16 @@ const watchBegin = async (request: Partial<Notification.Incoming<Notification.Me
   return watch(
     {
       type: WatcherEventType.Begin,
+      request
+    },
+    __EZ4_CONTEXT
+  );
+};
+
+const watchReady = async (request: Partial<Notification.Incoming<Notification.Message>>) => {
+  return watch(
+    {
+      type: WatcherEventType.Ready,
       request
     },
     __EZ4_CONTEXT

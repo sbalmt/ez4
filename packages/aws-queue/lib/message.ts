@@ -42,6 +42,8 @@ export async function sqsEntryPoint(event: SQSEvent, context: Context): Promise<
         message
       };
 
+      await watchReady(lastRequest);
+
       await handle(lastRequest, __EZ4_CONTEXT);
     }
   } catch (error) {
@@ -55,6 +57,16 @@ const watchBegin = async (request: Partial<Queue.Incoming<Queue.Message>>) => {
   return watch(
     {
       type: WatcherEventType.Begin,
+      request
+    },
+    __EZ4_CONTEXT
+  );
+};
+
+const watchReady = async (request: Partial<Queue.Incoming<Queue.Message>>) => {
+  return watch(
+    {
+      type: WatcherEventType.Ready,
       request
     },
     __EZ4_CONTEXT

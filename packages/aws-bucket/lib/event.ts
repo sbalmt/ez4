@@ -14,7 +14,7 @@ declare function watch(event: Service.WatcherEvent<BucketEvent>, context: object
  * Entrypoint to handle S3 notifications.
  */
 export async function s3EntryPoint(event: S3Event, context: Context): Promise<void> {
-  let lastRequest: BucketEvent | undefined;
+  let currentRequest: BucketEvent | undefined;
 
   const request = {
     requestId: context.awsRequestId
@@ -28,7 +28,7 @@ export async function s3EntryPoint(event: S3Event, context: Context): Promise<vo
 
       const { bucket, object } = record.s3;
 
-      lastRequest = {
+      currentRequest = {
         ...request,
         eventType,
         bucketName: bucket.name,
@@ -36,10 +36,12 @@ export async function s3EntryPoint(event: S3Event, context: Context): Promise<vo
         objectKey: object.key
       };
 
-      await handle(lastRequest, __EZ4_CONTEXT);
+      await watchReady(currentRequest);
+
+      await handle(currentRequest, __EZ4_CONTEXT);
     }
   } catch (error) {
-    await watchError(error, lastRequest ?? request);
+    await watchError(error, currentRequest ?? request);
   } finally {
     await watchEnd(request);
   }
@@ -61,6 +63,16 @@ const watchBegin = async (request: Partial<BucketEvent>) => {
   return watch(
     {
       type: WatcherEventType.Begin,
+      request
+    },
+    __EZ4_CONTEXT
+  );
+};
+
+const watchReady = async (request: Partial<BucketEvent>) => {
+  return watch(
+    {
+      type: WatcherEventType.Ready,
       request
     },
     __EZ4_CONTEXT

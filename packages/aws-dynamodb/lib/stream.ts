@@ -42,14 +42,18 @@ export async function dbStreamEntryPoint(
     for (const record of event.Records) {
       const change = await getRecordChange(record, __EZ4_SCHEMA);
 
-      if (change) {
-        lastRequest = {
-          ...request,
-          ...change
-        };
-
-        await handle(lastRequest, __EZ4_CONTEXT);
+      if (!change) {
+        continue;
       }
+
+      lastRequest = {
+        ...request,
+        ...change
+      };
+
+      await watchReady(lastRequest);
+
+      await handle(lastRequest, __EZ4_CONTEXT);
     }
   } catch (error) {
     await watchError(error, lastRequest ?? request);
@@ -149,6 +153,16 @@ const watchBegin = async (request: Partial<Database.Incoming<object>>) => {
   return watch(
     {
       type: WatcherEventType.Begin,
+      request
+    },
+    __EZ4_CONTEXT
+  );
+};
+
+const watchReady = async (request: Partial<Database.Incoming<object>>) => {
+  return watch(
+    {
+      type: WatcherEventType.Ready,
       request
     },
     __EZ4_CONTEXT

@@ -12,6 +12,10 @@ export function apiWatcher(event: Service.WatcherEvent<Http.Request>) {
       console.log('Request begin', JSON.stringify(event.request));
       break;
 
+    case WatcherEventType.Ready:
+      console.log('Request ready', JSON.stringify(event.request));
+      break;
+
     case WatcherEventType.Error:
       console.log('Request error', JSON.stringify(event.request));
       break;

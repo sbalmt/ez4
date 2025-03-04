@@ -3,6 +3,7 @@
  */
 export type ServiceWatcherEvent<T extends ServiceWatcherRequest> =
   | ServiceWatcherBeginEvent<T>
+  | ServiceWatcherReadyEvent<T>
   | ServiceWatcherErrorEvent<T>
   | ServiceWatcherEndEvent<T>;
 
@@ -16,6 +17,7 @@ export type ServiceWatcherRequest = {};
  */
 export const enum WatcherEventType {
   Begin = 'begin',
+  Ready = 'ready',
   Error = 'error',
   End = 'end'
 }
@@ -28,6 +30,21 @@ export type ServiceWatcherBeginEvent<T extends ServiceWatcherRequest> = {
    * Event type.
    */
   type: WatcherEventType.Begin;
+
+  /**
+   * Request object.
+   */
+  request: Partial<T>;
+};
+
+/**
+ * Watcher event for an execution ready to start.
+ */
+export type ServiceWatcherReadyEvent<T extends ServiceWatcherRequest> = {
+  /**
+   * Event type.
+   */
+  type: WatcherEventType.Ready;
 
   /**
    * Request object.
