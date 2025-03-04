@@ -124,7 +124,7 @@ const getIntegrationFunction = (
     throw new Error(`Execution role for API Gateway integration is missing.`);
   }
 
-  const handler = route.handler;
+  const { handler, catcher = service.defaults?.catcher } = route;
 
   const { request, response } = handler;
 
@@ -138,8 +138,6 @@ const getIntegrationFunction = (
     createIntegrationFunction(state, role, {
       functionName,
       description: handler.description,
-      sourceFile: handler.file,
-      handlerName: handler.name,
       timeout: routeTimeout,
       memory: routeMemory,
       responseSchema: response.body,
@@ -152,7 +150,17 @@ const getIntegrationFunction = (
       debug: options.debug,
       variables: {
         ...service.variables
-      }
+      },
+      handler: {
+        functionName: handler.name,
+        sourceFile: handler.file
+      },
+      ...(catcher && {
+        catcher: {
+          functionName: catcher.name,
+          sourceFile: catcher.file
+        }
+      })
     });
 
   if (route.variables) {
@@ -184,6 +192,8 @@ const getAuthorizerFunction = (
     throw new Error(`Execution role for API Gateway authorizer is missing.`);
   }
 
+  const { handler, catcher = service.defaults?.catcher } = route;
+
   const authorizer = route.authorizer;
   const request = authorizer.request;
 
@@ -197,8 +207,6 @@ const getAuthorizerFunction = (
     createAuthorizerFunction(state, role, {
       functionName,
       description: authorizer.description,
-      sourceFile: authorizer.file,
-      handlerName: authorizer.name,
       timeout: routeTimeout,
       memory: routeMemory,
       headersSchema: request?.headers,
@@ -208,7 +216,17 @@ const getAuthorizerFunction = (
       debug: options.debug,
       variables: {
         ...service.variables
-      }
+      },
+      handler: {
+        functionName: handler.name,
+        sourceFile: handler.file
+      },
+      ...(catcher && {
+        catcher: {
+          functionName: catcher.name,
+          sourceFile: catcher.file
+        }
+      })
     });
 
   return (

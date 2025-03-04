@@ -23,6 +23,7 @@ type RequestEvent = APIGatewayProxyEventV2WithLambdaAuthorizer<any>;
 type ResponseEvent = APIGatewayProxyResultV2;
 
 declare function next(request: Http.Incoming<any>, context: object): Promise<Http.Response>;
+declare function fail(error: Error, request: Http.Incoming<any>, context: object): Promise<void>;
 
 declare const __EZ4_RESPONSE_SCHEMA: ObjectSchema | null;
 declare const __EZ4_BODY_SCHEMA: ObjectSchema | null;
@@ -38,17 +39,17 @@ declare const __EZ4_CONTEXT: object;
 export async function apiEntryPoint(event: RequestEvent, context: Context): Promise<ResponseEvent> {
   const { requestContext } = event;
 
+  requestContext.time;
+
+  const request = {
+    requestId: context.awsRequestId,
+    timestamp: new Date(requestContext.timeEpoch),
+    method: requestContext.http.method,
+    path: requestContext.http.path
+  };
+
   try {
-    const request = {
-      path: requestContext.http.path,
-      method: requestContext.http.method,
-      requestId: context.awsRequestId,
-      headers: __EZ4_HEADERS_SCHEMA && (await getRequestHeaders(event)),
-      identity: __EZ4_IDENTITY_SCHEMA && (await getRequestIdentity(event)),
-      parameters: __EZ4_PARAMETERS_SCHEMA && (await getRequestParameters(event)),
-      query: __EZ4_QUERY_SCHEMA && (await getRequestQueryStrings(event)),
-      body: __EZ4_BODY_SCHEMA && (await getRequestBody(event))
-    };
+    Object.assign(request, await getIncomingRequest(event));
 
     const { status, body, headers } = await next(request, __EZ4_CONTEXT);
 
@@ -60,18 +61,44 @@ export async function apiEntryPoint(event: RequestEvent, context: Context): Prom
 
     console.error(error);
 
+    fail(error, request, context);
+
     return getErrorResponse();
   }
 }
 
+const getIncomingRequest = async (event: RequestEvent) => {
+  return {
+    headers: __EZ4_HEADERS_SCHEMA && (await getRequestHeaders(event)),
+    parameters: __EZ4_PARAMETERS_SCHEMA && (await getRequestParameters(event)),
+    query: __EZ4_QUERY_SCHEMA && (await getRequestQueryStrings(event)),
+    identity: __EZ4_IDENTITY_SCHEMA && (await getRequestIdentity(event)),
+    body: __EZ4_BODY_SCHEMA && (await getRequestBody(event))
+  };
+};
+
 const getRequestHeaders = (event: RequestEvent) => {
-  if (!__EZ4_HEADERS_SCHEMA) {
-    return undefined;
+  if (__EZ4_HEADERS_SCHEMA) {
+    return getHeaders(event.headers ?? {}, __EZ4_HEADERS_SCHEMA);
   }
 
-  const rawHeaders = event.headers ?? {};
+  return undefined;
+};
 
-  return getHeaders(rawHeaders, __EZ4_HEADERS_SCHEMA);
+const getRequestParameters = (event: RequestEvent) => {
+  if (__EZ4_PARAMETERS_SCHEMA) {
+    return getPathParameters(event.pathParameters ?? {}, __EZ4_PARAMETERS_SCHEMA);
+  }
+
+  return undefined;
+};
+
+const getRequestQueryStrings = (event: RequestEvent) => {
+  if (__EZ4_QUERY_SCHEMA) {
+    return getQueryStrings(event.queryStringParameters ?? {}, __EZ4_QUERY_SCHEMA);
+  }
+
+  return undefined;
 };
 
 const getRequestIdentity = (event: RequestEvent) => {
@@ -79,29 +106,10 @@ const getRequestIdentity = (event: RequestEvent) => {
     return undefined;
   }
 
-  const rawIdentity = event.requestContext?.authorizer?.lambda?.identity ?? '{}';
-
-  return getIdentity(JSON.parse(rawIdentity), __EZ4_IDENTITY_SCHEMA);
-};
-
-const getRequestParameters = (event: RequestEvent) => {
-  if (!__EZ4_PARAMETERS_SCHEMA) {
-    return undefined;
-  }
-
-  const rawParameters = event.pathParameters ?? {};
-
-  return getPathParameters(rawParameters, __EZ4_PARAMETERS_SCHEMA);
-};
-
-const getRequestQueryStrings = (event: RequestEvent) => {
-  if (!__EZ4_QUERY_SCHEMA) {
-    return undefined;
-  }
-
-  const rawQuery = event.queryStringParameters ?? {};
-
-  return getQueryStrings(rawQuery, __EZ4_QUERY_SCHEMA);
+  return getIdentity(
+    JSON.parse(event.requestContext?.authorizer?.lambda?.identity ?? '{}'),
+    __EZ4_IDENTITY_SCHEMA
+  );
 };
 
 const getRequestBody = (event: RequestEvent) => {
@@ -123,13 +131,11 @@ const getRequestBody = (event: RequestEvent) => {
 };
 
 const getResponseBody = (body: Http.JsonBody) => {
-  if (!__EZ4_RESPONSE_SCHEMA) {
-    return undefined;
+  if (__EZ4_RESPONSE_SCHEMA) {
+    return JSON.stringify(getResponseJsonBody(body, __EZ4_RESPONSE_SCHEMA));
   }
 
-  const rawBody = getResponseJsonBody(body, __EZ4_RESPONSE_SCHEMA);
-
-  return JSON.stringify(rawBody);
+  return undefined;
 };
 
 const getJsonResponse = (status: number, body?: Http.JsonBody, headers?: Http.Headers) => {

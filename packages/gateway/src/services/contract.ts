@@ -65,8 +65,9 @@ export namespace Http {
   /**
    * Incoming request catcher.
    */
-  export type Catcher<T extends Request> = (
-    request: Incoming<T>,
+  export type Catcher<T extends AuthRequest | Request> = (
+    error: Error,
+    request: T,
     context: Service.Context<Service>
   ) => Promise<void> | void;
 

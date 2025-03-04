@@ -19,6 +19,7 @@
   "dependencies": {
     "@ez4/aws-gateway": "^0.14.0",
     "@ez4/gateway": "^0.14.0",
-    "@ez4/project": "^0.14.0"
+    "@ez4/project": "^0.14.0",
+    "@ez4/schema": "^0.14.0"
   }
 }

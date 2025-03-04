@@ -14,11 +14,16 @@ import { Logger } from './logger.js';
 
 const filesCache = new Map<string, string>();
 
-export type BundleOptions = {
+export type BundlerEntryPoint = {
+  functionName: string;
   sourceFile: string;
-  wrapperFile: string;
-  handlerName: string;
+};
+
+export type BundlerOptions = {
   filePrefix: string;
+  templateFile: string;
+  handler: BundlerEntryPoint;
+  catcher?: BundlerEntryPoint;
   extras?: Record<string, ExtraSource>;
   define?: Record<string, string>;
   debug?: boolean;
@@ -42,22 +47,24 @@ export const bundleHash = async (sourceFile: string) => {
   return version.digest('hex');
 };
 
-export const bundleFunction = async (serviceName: string, options: BundleOptions) => {
-  const { sourceFile, handlerName, debug } = options;
+export const bundleFunction = async (serviceName: string, options: BundlerOptions) => {
+  const { sourceFile, functionName } = options.handler;
 
-  const cacheKey = `${sourceFile}:${handlerName}`;
+  const cacheKey = `${sourceFile}:${functionName}`;
   const cacheFile = filesCache.get(cacheKey);
 
   if (cacheFile && existsSync(cacheFile)) {
     return cacheFile;
   }
 
-  const sourceName = parse(options.sourceFile).name;
+  const sourceName = parse(sourceFile).name;
 
-  const targetPath = dirname(options.sourceFile);
-  const targetFile = `${options.filePrefix}.${sourceName}.${options.handlerName}.mjs`;
+  const targetPath = dirname(sourceFile);
+  const targetFile = `${options.filePrefix}.${sourceName}.${functionName}.mjs`;
 
   const outputFile = join('.ez4/tmp', targetPath, targetFile);
+
+  const { debug } = options;
 
   const result = await build({
     bundle: true,
@@ -73,7 +80,7 @@ export const bundleFunction = async (serviceName: string, options: BundleOptions
     },
     stdin: {
       loader: 'ts',
-      sourcefile: 'wrapper.ts',
+      sourcefile: 'main.ts',
       resolveDir: process.cwd(),
       contents: await getEntrypointCode(options)
     },
@@ -121,17 +128,20 @@ const require = topLevelCreateRequire(import.meta.url);
 `;
 };
 
-const getEntrypointCode = async (options: BundleOptions) => {
-  const wrapper = await readFile(options.wrapperFile);
+const getEntrypointCode = async (options: BundlerOptions) => {
+  const template = await readFile(options.templateFile);
   const context = getExtraContext(options.extras ?? {});
 
+  const { handler, catcher } = options;
+
   return `
-import { ${options.handlerName} as next } from './${options.sourceFile}';
+import { ${handler.functionName} as next } from './${handler.sourceFile}';
+${catcher ? `import { ${catcher.functionName} as fail } from './${catcher.sourceFile}'` : `const fail = () => {}`};
 ${context.packages}
 
 const __EZ4_CONTEXT = ${context.services};
 
-${wrapper}
+${template}
 `;
 };
 

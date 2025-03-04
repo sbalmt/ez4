@@ -14,17 +14,19 @@ export const bundleBucketEventFunction = async (
   dependencies: EntryState[],
   parameters: BucketEventFunctionParameters
 ) => {
+  const { extras, debug, handler, catcher } = parameters;
+
   const definitions = getDefinitionsObject(dependencies);
 
   return bundleFunction(MappingServiceName, {
-    sourceFile: parameters.sourceFile,
-    wrapperFile: join(__MODULE_PATH, '../lib/function.ts'),
-    handlerName: parameters.handlerName,
-    extras: parameters.extras,
-    debug: parameters.debug,
+    templateFile: join(__MODULE_PATH, '../lib/function.ts'),
     filePrefix: 's3',
     define: {
       ...definitions
-    }
+    },
+    handler,
+    catcher,
+    extras,
+    debug
   });
 };

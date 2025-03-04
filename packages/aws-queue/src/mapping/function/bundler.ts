@@ -14,20 +14,20 @@ export const bundleQueueFunction = async (
   dependencies: EntryState[],
   parameters: QueueFunctionParameters
 ) => {
-  const { messageSchema } = parameters;
+  const { extras, debug, handler, catcher, messageSchema } = parameters;
 
   const definitions = getDefinitionsObject(dependencies);
 
   return bundleFunction(MappingServiceName, {
-    sourceFile: parameters.sourceFile,
-    wrapperFile: join(__MODULE_PATH, '../lib/function.ts'),
-    handlerName: parameters.handlerName,
-    extras: parameters.extras,
-    debug: parameters.debug,
+    templateFile: join(__MODULE_PATH, '../lib/function.ts'),
     filePrefix: 'sqs',
     define: {
       ...definitions,
       __EZ4_SCHEMA: messageSchema ? JSON.stringify(messageSchema) : 'undefined'
-    }
+    },
+    handler,
+    catcher,
+    extras,
+    debug
   });
 };
