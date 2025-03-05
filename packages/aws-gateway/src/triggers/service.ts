@@ -192,9 +192,8 @@ const getAuthorizerFunction = (
     throw new Error(`Execution role for API Gateway authorizer is missing.`);
   }
 
-  const { handler, listener = service.defaults?.listener } = route;
+  const { authorizer, listener = service.defaults?.listener } = route;
 
-  const authorizer = route.authorizer;
   const request = authorizer.request;
 
   const functionName = getFunctionName(service, authorizer, options);
@@ -217,9 +216,9 @@ const getAuthorizerFunction = (
       variables: {
         ...service.variables
       },
-      handler: {
-        functionName: handler.name,
-        sourceFile: handler.file
+      authorizer: {
+        functionName: authorizer.name,
+        sourceFile: authorizer.file
       },
       ...(listener && {
         listener: {

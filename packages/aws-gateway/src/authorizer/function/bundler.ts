@@ -15,7 +15,7 @@ export const bundleApiFunction = async (
   dependencies: EntryState[],
   parameters: AuthorizerFunctionParameters
 ) => {
-  const { extras, debug, handler, listener, headersSchema, parametersSchema, querySchema } =
+  const { extras, debug, authorizer, listener, headersSchema, parametersSchema, querySchema } =
     parameters;
 
   const definitions = getDefinitionsObject(dependencies);
@@ -29,7 +29,7 @@ export const bundleApiFunction = async (
       __EZ4_PARAMETERS_SCHEMA: parametersSchema ? JSON.stringify(parametersSchema) : 'undefined',
       __EZ4_QUERY_SCHEMA: querySchema ? JSON.stringify(querySchema) : 'undefined'
     },
-    handler,
+    handler: authorizer,
     listener,
     extras,
     debug

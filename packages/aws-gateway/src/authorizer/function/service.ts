@@ -14,7 +14,7 @@ export const createAuthorizerFunction = <E extends EntryState>(
   return createFunction(state, roleState, {
     handlerName: 'apiEntryPoint',
     functionName: parameters.functionName,
-    sourceFile: parameters.handler.sourceFile,
+    sourceFile: parameters.authorizer.sourceFile,
     description: parameters.description,
     variables: parameters.variables,
     timeout: parameters.timeout,
