@@ -1,4 +1,3 @@
-import type { Service } from '@ez4/common';
 import type { Cron } from '@ez4/scheduler';
 
 import { EventType } from '@ez4/common';
@@ -6,7 +5,7 @@ import { EventType } from '@ez4/common';
 /**
  * Watch Scheduler lifecycle events.
  */
-export function schedulerListener(event: Service.Event<Cron.Incoming<Cron.Event>>) {
+export function schedulerListener(event: Cron.ServiceEvent) {
   switch (event.type) {
     case EventType.Begin:
       console.log('Event begin', JSON.stringify(event.request));

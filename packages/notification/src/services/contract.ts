@@ -1,29 +1,74 @@
+import type { LinkedVariables } from '@ez4/project/library';
 import type { Service } from '@ez4/common';
+import type { Queue } from '@ez4/queue';
 import type { Client } from './client.js';
 
 import type {
-  MessageSchema,
-  IncomingRequest,
-  RequestHandler,
-  LambdaSubscriptionEntry,
-  QueueSubscriptionEntry
+  NotificationMessage,
+  NotificationIncoming,
+  SubscriptionHandler,
+  SubscriptionListener
 } from './common.js';
 
 /**
  * Provide all contracts for a self-managed notification service.
  */
 export namespace Notification {
-  export type Message = MessageSchema;
+  export type Message = NotificationMessage;
 
-  export type Handler<T extends Message> = RequestHandler<T>;
+  export type Incoming<T extends Message> = NotificationIncoming<T>;
 
-  export type LambdaSubscription<T extends Message> = LambdaSubscriptionEntry<T>;
-
-  export type QueueSubscription<T extends Message> = QueueSubscriptionEntry<T>;
+  export type Listener<T extends Message> = SubscriptionListener<T>;
+  export type Handler<T extends Message> = SubscriptionHandler<T>;
 
   export type Subscription<T extends Message> = LambdaSubscription<T> | QueueSubscription<T>;
 
-  export type Incoming<T extends Message> = IncomingRequest<T>;
+  export type ServiceEvent<T extends Message = {}> = Service.Event<Incoming<T>>;
+
+  /**
+   * Queue subscription.
+   */
+  export interface QueueSubscription<T extends Message> {
+    /**
+     * Reference to the queue service.
+     */
+    service: Queue.Service<T>;
+  }
+
+  /**
+   * Lambda subscription.
+   */
+  export interface LambdaSubscription<T extends Message> {
+    /**
+     * Subscription listener.
+     */
+    listener?: Listener<T>;
+
+    /**
+     * Subscription handler.
+     */
+    handler: Handler<T>;
+
+    /**
+     * Maximum number of concurrent lambdas.
+     */
+    concurrency?: number;
+
+    /**
+     * Variables associated to the subscription.
+     */
+    variables?: LinkedVariables;
+
+    /**
+     * Maximum execution time (in seconds) for the handler.
+     */
+    timeout?: number;
+
+    /**
+     * Amount of memory available for the handler.
+     */
+    memory?: number;
+  }
 
   /**
    * Notification service.

@@ -10,7 +10,8 @@ import {
   getObjectMembers,
   getPropertyNumber,
   getPropertyTuple,
-  getServiceListener
+  getServiceListener,
+  InvalidServicePropertyError
 } from '@ez4/common/library';
 
 import { isModelProperty, isTypeObject, isTypeReference } from '@ez4/reflection';
@@ -106,6 +107,10 @@ const getTypeFromMembers = (
     }
 
     switch (member.name) {
+      default:
+        errorList.push(new InvalidServicePropertyError(parent.name, member.name, type.file));
+        break;
+
       case 'listener': {
         const value = getServiceListener(member.value, errorList);
 

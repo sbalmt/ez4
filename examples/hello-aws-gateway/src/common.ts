@@ -1,4 +1,3 @@
-import type { Service } from '@ez4/common';
 import type { Http } from '@ez4/gateway';
 
 import { EventType } from '@ez4/common';
@@ -6,7 +5,7 @@ import { EventType } from '@ez4/common';
 /**
  * Watch API lifecycle events.
  */
-export function apiListener(event: Service.Event<Http.Request>) {
+export function apiListener(event: Http.ServiceEvent) {
   switch (event.type) {
     case EventType.Begin:
       console.log('Request begin', JSON.stringify(event.request));

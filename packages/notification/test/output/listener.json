@@ -1,0 +1,29 @@
+{
+  "TestNotification": {
+    "type": "@ez4/notification",
+    "name": "TestNotification",
+    "description": "Notification to test subscription listener.",
+    "schema": {
+      "type": "object",
+      "identity": 1,
+      "properties": {
+        "foo": {
+          "type": "string"
+        }
+      }
+    },
+    "subscriptions": [
+      {
+        "type": "lambda",
+        "listener": {
+          "name": "testListener",
+          "file": "test/input/output-listener.ts"
+        },
+        "handler": {
+          "name": "testHandler",
+          "file": "test/input/output-listener.ts"
+        }
+      }
+    ]
+  }
+}

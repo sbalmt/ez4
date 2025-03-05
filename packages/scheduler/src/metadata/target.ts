@@ -4,6 +4,7 @@ import type { AllType, SourceMap, TypeModel, TypeObject } from '@ez4/reflection'
 import type { CronTarget } from '../types/common.js';
 
 import {
+  InvalidServicePropertyError,
   isModelDeclaration,
   getLinkedVariableList,
   getModelMembers,
@@ -87,6 +88,10 @@ const getTypeFromMembers = (
     }
 
     switch (member.name) {
+      default:
+        errorList.push(new InvalidServicePropertyError(parent.name, member.name, type.file));
+        break;
+
       case 'listener': {
         const value = getServiceListener(member.value, errorList);
 

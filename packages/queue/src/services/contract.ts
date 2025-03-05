@@ -27,7 +27,7 @@ export namespace Queue {
    */
   export interface Subscription<T extends Message> {
     /**
-     * Target listener.
+     * Subscription listener.
      */
     listener?: Listener<T>;
 

@@ -33,6 +33,6 @@ export type CronListener<T extends CronEvent> = (
  * Event handler.
  */
 export type CronHandler<T extends CronEvent> = (
-  request: CronIncoming<T>,
+  request: CronIncoming<T> | T,
   context: Service.Context<Cron.Service<any>>
 ) => Promise<void> | void;

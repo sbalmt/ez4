@@ -4,14 +4,15 @@ import type { Incomplete } from '@ez4/utils';
 import type { NotificationSubscription } from '../types/common.js';
 
 import {
+  InvalidServicePropertyError,
+  isModelDeclaration,
   getLinkedServiceName,
   getLinkedVariableList,
   getModelMembers,
   getObjectMembers,
   getPropertyNumber,
   getPropertyTuple,
-  InvalidServicePropertyError,
-  isModelDeclaration
+  getServiceListener
 } from '@ez4/common/library';
 
 import { isModelProperty, isTypeObject, isTypeReference } from '@ez4/reflection';
@@ -150,6 +151,16 @@ const getLambdaSubscription = (
         errorList.push(new InvalidServicePropertyError(parent.name, member.name, type.file));
         break;
 
+      case 'listener': {
+        const value = getServiceListener(member.value, errorList);
+
+        if (value) {
+          subscription.listener = value;
+        }
+
+        break;
+      }
+
       case 'handler': {
         if ((subscription.handler = getSubscriptionHandler(member.value, reflection, errorList))) {
           properties.delete(member.name);
@@ -161,9 +172,11 @@ const getLambdaSubscription = (
       case 'timeout':
       case 'concurrency': {
         const value = getPropertyNumber(member);
+
         if (isAnyNumber(value)) {
           subscription[member.name] = value;
         }
+
         break;
       }
 

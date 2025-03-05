@@ -1,11 +1,11 @@
-import type { Queue } from '@ez4/queue';
+import type { Notification } from '@ez4/notification';
 
 import { EventType } from '@ez4/common';
 
 /**
  * Watch Queue lifecycle events.
  */
-export function queueListener(event: Queue.ServiceEvent) {
+export function notificationListener(event: Notification.ServiceEvent) {
   switch (event.type) {
     case EventType.Begin:
       console.log('Event begin', JSON.stringify(event.request));

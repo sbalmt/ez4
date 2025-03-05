@@ -45,21 +45,33 @@ export const getNotificationServices = (reflection: SourceMap) => {
       }
 
       switch (member.name) {
+        default:
+          if (!member.inherited) {
+            errorList.push(
+              new InvalidServicePropertyError(statement.name, member.name, statement.file)
+            );
+          }
+          break;
+
         case 'schema': {
           service.schema = getNotificationMessage(member.value, statement, reflection, errorList);
+
           if (service.schema) {
             properties.delete(member.name);
           }
+
           break;
         }
 
         case 'subscriptions': {
           if (!member.inherited) {
             service.subscriptions = getAllSubscription(member, statement, reflection, errorList);
+
             if (service.subscriptions) {
               properties.delete(member.name);
             }
           }
+
           break;
         }
 
@@ -74,13 +86,6 @@ export const getNotificationServices = (reflection: SourceMap) => {
             service.services = getLinkedServiceList(member, reflection, errorList);
           }
           break;
-
-        default:
-          if (!member.inherited) {
-            errorList.push(
-              new InvalidServicePropertyError(statement.name, member.name, statement.file)
-            );
-          }
       }
     }
 
