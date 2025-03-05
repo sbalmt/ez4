@@ -22,7 +22,7 @@ const Formats: Record<string, string> = {
 export const prepareSelectQuery = <
   T extends Database.Schema,
   S extends Query.SelectInput<T, R>,
-  I extends Database.Indexes<T>,
+  I extends Database.Indexes,
   R extends RelationMetadata
 >(
   table: string,

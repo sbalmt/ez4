@@ -38,18 +38,18 @@ export namespace Http {
   export type AuthResponse = HttpAuthResponse;
   export type Response = HttpResponse;
 
-  export type Incoming<T extends AuthRequest | Request> = HttpIncoming<T>;
+  export type Incoming<T extends Request | AuthRequest> = HttpIncoming<T>;
 
-  export type Listener<T extends AuthRequest | Request> = HttpListener<T>;
+  export type Listener<T extends Request | AuthRequest> = HttpListener<T>;
   export type Authorizer<T extends AuthRequest> = HttpAuthorizer<T>;
   export type Handler<T extends Request> = HttpHandler<T>;
 
-  export type ServiceEvent<T extends AuthRequest | Request = {}> = Service.Event<Incoming<T>>;
+  export type ServiceEvent<T extends Request | AuthRequest = {}> = Service.Event<Incoming<T>>;
 
   /**
    * HTTP route.
    */
-  export interface Route {
+  export interface Route<T extends Request = Request, U extends AuthRequest = AuthRequest> {
     /**
      * Route path.
      */
@@ -58,17 +58,17 @@ export namespace Http {
     /**
      * Route listener.
      */
-    listener?: Listener<any>;
+    listener?: Listener<T | U>;
 
     /**
      * Route authorizer.
      */
-    authorizer?: Authorizer<any>;
+    authorizer?: Authorizer<U>;
 
     /**
      * Route handler.
      */
-    handler: Handler<any>;
+    handler: Handler<T>;
 
     /**
      * Variables associated to the route.
@@ -94,11 +94,11 @@ export namespace Http {
   /**
    * Default HTTP service parameters.
    */
-  export type Defaults = {
+  export type Defaults<T extends Request | AuthRequest = {}> = {
     /**
      * Default route listener.
      */
-    listener?: Listener<any>;
+    listener?: Listener<T>;
 
     /**
      * Default execution time (in seconds) for the routes.
@@ -118,7 +118,7 @@ export namespace Http {
     /**
      * All expected routes.
      */
-    abstract routes: Route[];
+    abstract routes: Route<any, any>[];
 
     /**
      * Display name for the service.

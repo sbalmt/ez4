@@ -6,7 +6,7 @@ declare class TestTable implements Database.Schema {
   value: number;
 }
 
-export declare class TestDatabase extends Database.Service<[TestTable]> {
+export declare class TestDatabase extends Database.Service {
   engine: 'test';
 
   client: Client<TestDatabase>;

@@ -8,7 +8,7 @@ import { prepareDeleteOne, prepareInsertOne, prepareUpdateOne } from './common/q
 import { executeStatement, executeTransaction } from './common/client.js';
 import { Table } from './table.js';
 
-type TableType = Table<Database.Schema, Database.Indexes<Database.Schema>, RelationMetadata>;
+type TableType = Table<Database.Schema, Database.Indexes, RelationMetadata>;
 
 const client = DynamoDBDocumentClient.from(new DynamoDBClient(), {
   marshallOptions: {
@@ -19,7 +19,7 @@ const client = DynamoDBDocumentClient.from(new DynamoDBClient(), {
 const tableCache: Record<string, TableType> = {};
 
 export namespace Client {
-  export const make = <T extends Database.Service<any>>(
+  export const make = <T extends Database.Service>(
     repository: Repository,
     debug?: boolean
   ): DbClient<T> => {
@@ -71,7 +71,7 @@ export namespace Client {
 }
 
 const prepareTransactions = async <
-  T extends Database.Service<any>,
+  T extends Database.Service,
   U extends Transaction.WriteOperations<T>
 >(
   repository: Repository,

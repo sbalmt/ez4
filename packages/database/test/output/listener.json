@@ -1,0 +1,32 @@
+{
+  "TestDatabase": {
+    "type": "@ez4/database",
+    "name": "TestDatabase",
+    "engine": "test",
+    "tables": [
+      {
+        "name": "inlineTestTable",
+        "schema": {
+          "type": "object",
+          "identity": 1,
+          "properties": {
+            "foo": {
+              "type": "string"
+            }
+          }
+        },
+        "indexes": [],
+        "stream": {
+          "listener": {
+            "name": "streamListener",
+            "file": "test/models/output-listener.ts"
+          },
+          "handler": {
+            "name": "streamHandler",
+            "file": "test/models/output-listener.ts"
+          }
+        }
+      }
+    ]
+  }
+}

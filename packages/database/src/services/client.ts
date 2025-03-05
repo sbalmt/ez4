@@ -5,7 +5,7 @@ import type { Database } from './database.js';
 /**
  * Database client.
  */
-export type Client<T extends Database.Service<any>> = TableClients<T> & {
+export type Client<T extends Database.Service> = TableClients<T> & {
   /**
    * Prepare and execute the given query.
    *

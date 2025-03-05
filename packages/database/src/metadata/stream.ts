@@ -4,11 +4,13 @@ import type { AllType, SourceMap, TypeModel, TypeObject } from '@ez4/reflection'
 import type { TableStream } from '../types/stream.js';
 
 import {
+  InvalidServicePropertyError,
+  isModelDeclaration,
   getLinkedVariableList,
   getModelMembers,
   getObjectMembers,
   getPropertyNumber,
-  isModelDeclaration
+  getServiceListener
 } from '@ez4/common/library';
 
 import { isModelProperty, isTypeObject, isTypeReference } from '@ez4/reflection';
@@ -86,6 +88,20 @@ const getTypeFromMembers = (
     }
 
     switch (member.name) {
+      default:
+        errorList.push(new InvalidServicePropertyError(parent.name, member.name, type.file));
+        break;
+
+      case 'listener': {
+        const value = getServiceListener(member.value, errorList);
+
+        if (value) {
+          stream.listener = value;
+        }
+
+        break;
+      }
+
       case 'handler':
         stream.handler = getStreamHandler(member.value, reflection, errorList);
         break;
@@ -93,9 +109,11 @@ const getTypeFromMembers = (
       case 'timeout':
       case 'memory': {
         const value = getPropertyNumber(member);
+
         if (isAnyNumber(value)) {
           stream[member.name] = value;
         }
+
         break;
       }
 

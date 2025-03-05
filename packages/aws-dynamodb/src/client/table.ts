@@ -21,7 +21,7 @@ import {
 
 export class Table<
   T extends Database.Schema,
-  I extends Database.Indexes<T>,
+  I extends Database.Indexes,
   R extends RelationMetadata
 > implements DbTable<T, I, R>
 {

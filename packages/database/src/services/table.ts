@@ -1,19 +1,9 @@
-import type { AnyObject, ArrayRest, IsArrayEmpty, IsAny, PropertyExists } from '@ez4/utils';
+import type { AnyObject, PropertyExists } from '@ez4/utils';
 import type { RelationMetadata, RelationTables } from './relations.js';
 import type { IndexedTables } from './indexes.js';
 import type { TableSchemas } from './schemas.js';
 import type { Database } from './database.js';
 import type { Query } from './query.js';
-
-/**
- * Given an array of schemas `T`, it returns an union of `Database.Table` for each schema.
- */
-export type TableTypes<T extends Database.Schema[]> =
-  IsAny<T> extends true
-    ? any
-    : IsArrayEmpty<T> extends true
-      ? Database.Table<Database.Schema>
-      : Database.Table<T[0]> | TableTypes<ArrayRest<T>>;
 
 /**
  * Given an indexed table `T` and a property `P`, it returns all the indexes corresponding
@@ -36,7 +26,7 @@ export type TableRelation<P, T extends AnyObject> =
 /**
  * Given a database service `T`, it returns all table clients.
  */
-export type TableClients<T extends Database.Service<any>> = {
+export type TableClients<T extends Database.Service> = {
   [P in keyof TableSchemas<T>]: TableSchemas<T>[P] extends Database.Schema
     ? Table<
         TableSchemas<T>[P],
@@ -51,7 +41,7 @@ export type TableClients<T extends Database.Service<any>> = {
  */
 export interface Table<
   T extends Database.Schema,
-  I extends Database.Indexes<T>,
+  I extends Database.Indexes,
   R extends RelationMetadata
 > {
   /**

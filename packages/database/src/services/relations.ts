@@ -44,7 +44,7 @@ export type RelationTargetAlias<T> = T extends `${string}@${infer U}` ? U : neve
 /**
  * Given a database service `T`, it produces an object with all relation tables.
  */
-export type RelationTables<T extends Database.Service<any>> = MergeRelations<
+export type RelationTables<T extends Database.Service> = MergeRelations<
   DatabaseTables<T>,
   TableSchemas<T>,
   IndexedTables<T>

@@ -15,14 +15,14 @@ import { executeStatement, executeTransaction } from './common/client.js';
 import { detectFieldData } from './common/data.js';
 import { Table } from './table.js';
 
-type TableType = Table<Database.Schema, Database.Indexes<Database.Schema>, RelationMetadata>;
+type TableType = Table<Database.Schema, Database.Indexes, RelationMetadata>;
 
 const client = new RDSDataClient();
 
 const tableCache: Record<string, TableType> = {};
 
 export namespace Client {
-  export const make = <T extends Database.Service<any>>(
+  export const make = <T extends Database.Service>(
     connection: Connection,
     repository: Repository,
     debug?: boolean
@@ -100,7 +100,7 @@ const getRelationsWithSchema = (repository: Repository, relations: RepositoryRel
 };
 
 const prepareTransactions = async <
-  T extends Database.Service<any>,
+  T extends Database.Service,
   U extends Transaction.WriteOperations<T>
 >(
   repository: Repository,

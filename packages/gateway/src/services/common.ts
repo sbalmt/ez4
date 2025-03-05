@@ -144,7 +144,7 @@ export interface HttpResponse {
 /**
  * Incoming request.
  */
-export type HttpIncoming<T extends HttpAuthRequest | HttpRequest> = T & {
+export type HttpIncoming<T extends HttpRequest | HttpAuthRequest> = T & {
   /**
    * Request tracking Id.
    */
@@ -169,7 +169,7 @@ export type HttpIncoming<T extends HttpAuthRequest | HttpRequest> = T & {
 /**
  * Request listener.
  */
-export type HttpListener<T extends HttpAuthRequest | HttpRequest> = (
+export type HttpListener<T extends HttpRequest | HttpAuthRequest> = (
   event: Service.Event<HttpIncoming<T>>,
   context: Service.Context<Http.Service>
 ) => Promise<void> | void;
