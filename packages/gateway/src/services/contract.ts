@@ -3,22 +3,28 @@ import type { LinkedVariables } from '@ez4/project/library';
 import type { HttpPath } from '../types/common.js';
 
 import type {
+  HttpCors,
   HttpHeaders,
+  HttpIdentity,
   HttpPathParameters,
   HttpQueryStrings,
   HttpJsonBody,
-  HttpIdentity,
   HttpAuthRequest,
   HttpAuthResponse,
   HttpRequest,
   HttpResponse,
-  HttpCors
+  HttpIncoming,
+  HttpListener,
+  HttpAuthorizer,
+  HttpHandler
 } from './common.js';
 
 /**
  * Provide all contracts for a self-managed HTTP service.
  */
 export namespace Http {
+  export type Cors = HttpCors;
+
   export type Headers = HttpHeaders;
   export type Identity = HttpIdentity;
 
@@ -32,56 +38,11 @@ export namespace Http {
   export type AuthResponse = HttpAuthResponse;
   export type Response = HttpResponse;
 
-  export type Cors = HttpCors;
+  export type Incoming<T extends AuthRequest | Request> = HttpIncoming<T>;
 
-  /**
-   * Incoming request.
-   */
-  export type Incoming<T extends Request> = T & {
-    /**
-     * Request tracking Id.
-     */
-    requestId: string;
-
-    /**
-     * Request timestamp.
-     */
-    timestamp: Date;
-
-    /**
-     * Request method.
-     */
-    method: string;
-
-    /**
-     * Request path.
-     */
-    path: string;
-  };
-
-  /**
-   * Incoming request listener.
-   */
-  export type Listener<T extends AuthRequest | Request> = (
-    event: Service.Event<T>,
-    context: Service.Context<Service>
-  ) => Promise<void> | void;
-
-  /**
-   * Incoming request authorizer.
-   */
-  export type Authorizer<T extends AuthRequest> = (
-    request: Incoming<any> | T,
-    context: Service.Context<Service>
-  ) => Promise<AuthResponse> | AuthResponse;
-
-  /**
-   * Incoming request handler.
-   */
-  export type Handler<T extends Request> = (
-    request: Incoming<any> | T,
-    context: Service.Context<Service>
-  ) => Promise<Response> | Response;
+  export type Listener<T extends AuthRequest | Request> = HttpListener<T>;
+  export type Authorizer<T extends AuthRequest> = HttpAuthorizer<T>;
+  export type Handler<T extends Request> = HttpHandler<T>;
 
   /**
    * HTTP route.

@@ -1,22 +1,28 @@
-import type { LinkedVariables } from '@ez4/project/library';
 import type { Service } from '@ez4/common';
-import type { EventSchema, IncomingRequest, RequestHandler } from './common.js';
+import type { LinkedVariables } from '@ez4/project/library';
+import type { CronEvent, CronHandler, CronIncoming, CronListener } from './common.js';
 import type { Client } from './client.js';
 
 /**
  * Provide all contracts for a self-managed Cron service.
  */
 export namespace Cron {
-  export type Event = EventSchema;
+  export type Event = CronEvent;
 
-  export type Handler<T extends Event> = RequestHandler<T>;
+  export type Incoming<T extends Event> = CronIncoming<T>;
 
-  export type Incoming<T extends Event> = IncomingRequest<T>;
+  export type Listener<T extends Event> = CronListener<T>;
+  export type Handler<T extends Event> = CronHandler<T>;
 
   /**
    * Cron target.
    */
-  export interface Target<T extends Event = never> {
+  export interface Target<T extends Event = Event> {
+    /**
+     * Target listener.
+     */
+    listener?: Listener<T>;
+
     /**
      * Target handler.
      *

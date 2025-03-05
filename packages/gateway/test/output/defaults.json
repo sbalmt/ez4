@@ -5,7 +5,7 @@
     "routes": [],
     "defaults": {
       "listener": {
-        "name": "testWatcher",
+        "name": "testListener",
         "file": "test/input/output-defaults.ts"
       },
       "timeout": 15,

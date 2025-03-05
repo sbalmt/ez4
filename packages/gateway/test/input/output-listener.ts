@@ -8,13 +8,13 @@ export declare class TestService extends Http.Service {
   routes: [
     {
       path: 'ANY /test-route';
-      listener: typeof testWatcher;
+      listener: typeof testListener;
       handler: typeof testHandler;
     }
   ];
 }
 
-export function testWatcher(): void {}
+export function testListener(): void {}
 
 export function testHandler(): SuccessResponse {
   return {

@@ -138,14 +138,14 @@ const getIntegrationFunction = (
     createIntegrationFunction(state, role, {
       functionName,
       description: handler.description,
-      timeout: routeTimeout,
-      memory: routeMemory,
       responseSchema: response.body,
       headersSchema: request?.headers,
       identitySchema: request?.identity,
       parametersSchema: request?.parameters,
       querySchema: request?.query,
       bodySchema: request?.body,
+      timeout: routeTimeout,
+      memory: routeMemory,
       extras: service.extras,
       debug: options.debug,
       variables: {
@@ -222,7 +222,7 @@ const getAuthorizerFunction = (
         sourceFile: handler.file
       },
       ...(listener && {
-        catcher: {
+        listener: {
           functionName: listener.name,
           sourceFile: listener.file
         }

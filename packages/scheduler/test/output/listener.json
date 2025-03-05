@@ -1,0 +1,18 @@
+{
+  "TestScheduler": {
+    "type": "@ez4/cron",
+    "name": "TestScheduler",
+    "description": "Scheduler for testing cron listener.",
+    "expression": "rate(1 minute)",
+    "target": {
+      "listener": {
+        "name": "targetListener",
+        "file": "test/input/output-listener.ts"
+      },
+      "handler": {
+        "name": "targetHandler",
+        "file": "test/input/output-listener.ts"
+      }
+    }
+  }
+}

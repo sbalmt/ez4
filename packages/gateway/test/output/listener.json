@@ -7,7 +7,7 @@
       {
         "path": "ANY /test-route",
         "listener": {
-          "name": "testWatcher",
+          "name": "testListener",
           "file": "test/input/output-listener.ts"
         },
         "handler": {

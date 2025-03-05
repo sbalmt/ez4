@@ -55,9 +55,9 @@ export type HttpAuthorizer = {
 
 export type HttpRoute = {
   path: HttpPath;
-  handler: HttpHandler;
-  authorizer?: HttpAuthorizer;
   listener?: ServiceListener;
+  authorizer?: HttpAuthorizer;
+  handler: HttpHandler;
   variables?: LinkedVariables | null;
   timeout?: number;
   memory?: number;

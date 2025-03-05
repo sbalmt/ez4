@@ -1,4 +1,5 @@
 import type { Cron } from '@ez4/scheduler';
+import type { schedulerListener } from './common.js';
 import type { targetHandler } from './handlers.js';
 
 /**
@@ -24,6 +25,7 @@ export declare class Event extends Cron.Service {
    * Event target.
    */
   target: {
+    listener: typeof schedulerListener;
     handler: typeof targetHandler;
   };
 
