@@ -119,12 +119,14 @@ export const bundleFunction = async (serviceName: string, options: BundlerOption
 
 const getCompatibilityCode = () => {
   return `
-import { dirname } from 'path';
-import { fileURLToPath } from 'url';
-import { createRequire as topLevelCreateRequire } from 'module';
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = dirname(__filename);
-const require = topLevelCreateRequire(import.meta.url);
+import { createRequire as __EZ4_CREATE_REQUIRE } from 'module';
+import { fileURLToPath as __EZ4_FILE_URL_TO_PATH } from 'url';
+import { dirname as __EZ4_DIRNAME } from 'path';
+
+const require = __EZ4_CREATE_REQUIRE(import.meta.url);
+
+const __filename = __EZ4_FILE_URL_TO_PATH(import.meta.url);
+const __dirname = __EZ4_DIRNAME(__filename);
 `;
 };
 
