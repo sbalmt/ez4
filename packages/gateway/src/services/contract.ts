@@ -44,6 +44,8 @@ export namespace Http {
   export type Authorizer<T extends AuthRequest> = HttpAuthorizer<T>;
   export type Handler<T extends Request> = HttpHandler<T>;
 
+  export type ServiceEvent<T extends AuthRequest | Request = {}> = Service.Event<Incoming<T>>;
+
   /**
    * HTTP route.
    */

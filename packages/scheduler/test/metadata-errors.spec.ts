@@ -31,16 +31,22 @@ describe.only('scheduler metadata errors', () => {
   registerTriggers();
 
   it('assert :: incomplete scheduler', () => {
-    const [error1, error2, error3] = parseFile('incomplete-service', 3);
+    const [error1, error2, error3, error4, error5] = parseFile('incomplete-service', 5);
 
     ok(error1 instanceof IncompleteServiceError);
     deepEqual(error1.properties, ['target']);
 
-    ok(error2 instanceof IncompleteServiceError);
-    deepEqual(error2.properties, ['expression']);
+    ok(error2 instanceof IncompleteTargetError);
+    deepEqual(error2.properties, ['handler']);
 
     ok(error3 instanceof IncompleteServiceError);
-    deepEqual(error3.properties, ['schema']);
+    deepEqual(error3.properties, ['target']);
+
+    ok(error4 instanceof IncompleteServiceError);
+    deepEqual(error4.properties, ['expression']);
+
+    ok(error5 instanceof IncompleteServiceError);
+    deepEqual(error5.properties, ['schema']);
   });
 
   it('assert :: incorrect scheduler', () => {

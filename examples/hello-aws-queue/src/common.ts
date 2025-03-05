@@ -1,12 +1,12 @@
 import type { Service } from '@ez4/common';
-import type { Cron } from '@ez4/scheduler';
+import type { Queue } from '@ez4/queue';
 
 import { EventType } from '@ez4/common';
 
 /**
- * Watch Scheduler lifecycle events.
+ * Watch Queue lifecycle events.
  */
-export function schedulerListener(event: Service.Event<Cron.Incoming<Cron.Event>>) {
+export function queueListener(event: Service.Event<Queue.Incoming<Queue.Message>>) {
   switch (event.type) {
     case EventType.Begin:
       console.log('Event begin', JSON.stringify(event.request));

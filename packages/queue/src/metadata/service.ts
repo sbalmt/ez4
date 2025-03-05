@@ -4,12 +4,12 @@ import type { QueueService } from '../types/service.js';
 
 import {
   DuplicateServiceError,
+  InvalidServicePropertyError,
   isExternalStatement,
   getLinkedServiceList,
   getLinkedVariableList,
   getModelMembers,
-  getPropertyNumber,
-  InvalidServicePropertyError
+  getPropertyNumber
 } from '@ez4/common/library';
 
 import { isModelProperty } from '@ez4/reflection';

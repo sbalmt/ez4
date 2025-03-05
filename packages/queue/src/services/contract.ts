@@ -1,24 +1,56 @@
+import type { LinkedVariables } from '@ez4/project/library';
 import type { Service } from '@ez4/common';
 import type { Client } from './client.js';
 
 import type {
-  MessageSchema,
-  IncomingRequest,
-  RequestHandler,
-  SubscriptionEntry
+  QueueMessage,
+  QueueIncoming,
+  SubscriptionHandler,
+  SubscriptionListener
 } from './common.js';
 
 /**
  * Provide all contracts for a self-managed queue service.
  */
 export namespace Queue {
-  export type Message = MessageSchema;
+  export type Message = QueueMessage;
 
-  export type Handler<T extends Message> = RequestHandler<T>;
+  export type Incoming<T extends Message> = QueueIncoming<T>;
 
-  export type Subscription<T extends Message> = SubscriptionEntry<T>;
+  export type Listener<T extends Message> = SubscriptionListener<T>;
+  export type Handler<T extends Message> = SubscriptionHandler<T>;
 
-  export type Incoming<T extends Message> = IncomingRequest<T>;
+  export type ServiceEvent<T extends Message = {}> = Service.Event<Incoming<T>>;
+
+  /**
+   * Queue subscription.
+   */
+  export interface Subscription<T extends Message> {
+    /**
+     * Target listener.
+     */
+    listener?: Listener<T>;
+
+    /**
+     * Subscription handler.
+     */
+    handler: Handler<T>;
+
+    /**
+     * Maximum number of concurrent lambdas.
+     */
+    concurrency?: number;
+
+    /**
+     * Variables associated to the subscription.
+     */
+    variables?: LinkedVariables;
+
+    /**
+     * Amount of memory available for the handler.
+     */
+    memory?: number;
+  }
 
   /**
    * Queue service.

@@ -25,7 +25,7 @@ export type CronIncoming<T extends CronEvent> = {
  * Event listener.
  */
 export type CronListener<T extends CronEvent> = (
-  event: Service.Event<T>,
+  event: Service.Event<CronIncoming<T>>,
   context: Service.Context<Cron.Service>
 ) => Promise<void> | void;
 

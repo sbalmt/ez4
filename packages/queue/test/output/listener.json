@@ -1,0 +1,28 @@
+{
+  "TestQueue": {
+    "type": "@ez4/queue",
+    "name": "TestQueue",
+    "description": "Queue to test subscription listener.",
+    "schema": {
+      "type": "object",
+      "identity": 1,
+      "properties": {
+        "foo": {
+          "type": "string"
+        }
+      }
+    },
+    "subscriptions": [
+      {
+        "listener": {
+          "name": "testListener",
+          "file": "test/input/output-listener.ts"
+        },
+        "handler": {
+          "name": "testHandler",
+          "file": "test/input/output-listener.ts"
+        }
+      }
+    ]
+  }
+}

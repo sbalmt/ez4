@@ -1,16 +1,15 @@
-import type { LinkedVariables } from '@ez4/project/library';
 import type { Service } from '@ez4/common';
 import type { Queue } from './contract.js';
 
 /**
- * Definition of a queue message.
+ * Queue message.
  */
-export interface MessageSchema {}
+export interface QueueMessage {}
 
 /**
- * Incoming queue message.
+ * Incoming message.
  */
-export type IncomingRequest<T extends MessageSchema> = {
+export type QueueIncoming<T extends QueueMessage> = {
   /**
    * Request Id.
    */
@@ -23,37 +22,17 @@ export type IncomingRequest<T extends MessageSchema> = {
 };
 
 /**
- * Incoming request handler.
+ * Message listener.
  */
-export type RequestHandler<T extends MessageSchema> = (
-  request: IncomingRequest<T>,
+export type SubscriptionListener<T extends QueueMessage> = (
+  event: Service.Event<QueueIncoming<T>>,
   context: Service.Context<Queue.Service<any> | Queue.Import<any>>
 ) => Promise<void> | void;
 
 /**
- * Queue subscription.
+ * Message handler.
  */
-export interface SubscriptionEntry<T extends MessageSchema> {
-  /**
-   * Subscription handler.
-   *
-   * @param request Incoming request.
-   * @param context Handler context.
-   */
-  handler: RequestHandler<T>;
-
-  /**
-   * Maximum number of concurrent lambdas.
-   */
-  concurrency?: number;
-
-  /**
-   * Variables associated to the subscription.
-   */
-  variables?: LinkedVariables;
-
-  /**
-   * Amount of memory available for the handler.
-   */
-  memory?: number;
-}
+export type SubscriptionHandler<T extends QueueMessage> = (
+  request: QueueIncoming<T>,
+  context: Service.Context<Queue.Service<any> | Queue.Import<any>>
+) => Promise<void> | void;

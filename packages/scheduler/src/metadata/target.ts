@@ -98,7 +98,9 @@ const getTypeFromMembers = (
       }
 
       case 'handler':
-        target.handler = getTargetHandler(member.value, reflection, errorList);
+        if ((target.handler = getTargetHandler(member.value, reflection, errorList))) {
+          properties.delete(member.name);
+        }
         break;
 
       case 'timeout':
