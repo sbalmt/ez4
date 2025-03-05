@@ -20,7 +20,7 @@ export namespace Queue {
   export type Listener<T extends Message> = SubscriptionListener<T>;
   export type Handler<T extends Message> = SubscriptionHandler<T>;
 
-  export type ServiceEvent<T extends Message = {}> = Service.Event<Incoming<T>>;
+  export type ServiceEvent<T extends Message = Message> = Service.Event<Incoming<T>>;
 
   /**
    * Queue subscription.

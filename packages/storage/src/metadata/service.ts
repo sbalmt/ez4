@@ -4,6 +4,7 @@ import type { BucketService } from '../types/service.js';
 
 import {
   DuplicateServiceError,
+  InvalidServicePropertyError,
   isExternalStatement,
   getLinkedVariableList,
   getLinkedServiceList,
@@ -42,6 +43,10 @@ export const getBucketServices = (reflection: SourceMap) => {
       }
 
       switch (member.name) {
+        default:
+          errorList.push(new InvalidServicePropertyError(parent.name, member.name, statement.file));
+          break;
+
         case 'localPath':
         case 'globalName': {
           const value = getPropertyString(member);

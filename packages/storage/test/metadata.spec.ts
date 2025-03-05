@@ -33,4 +33,5 @@ describe.only('storage metadata', () => {
   it('assert :: basic storage', () => testFile('service'));
   it('assert :: storage events', () => testFile('events'));
   it('assert :: storage cors', () => testFile('cors'));
+  it('assert :: events listener', () => testFile('listener'));
 });

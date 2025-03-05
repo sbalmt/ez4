@@ -1,12 +1,12 @@
+import type { RoleState } from '@ez4/aws-identity';
+import type { EntryStates } from '@ez4/stateful';
+
 import type {
   ServiceEvent,
   ConnectResourceEvent,
   PrepareResourceEvent,
   DeployOptions
 } from '@ez4/project/library';
-
-import type { RoleState } from '@ez4/aws-identity';
-import type { EntryStates } from '@ez4/stateful';
 
 import { isRoleState } from '@ez4/aws-identity';
 import { BucketService, isBucketService } from '@ez4/storage/library';
@@ -94,17 +94,20 @@ const getEventsFunction = (
   }
 
   const events = service.events;
-  const handler = events.handler;
+
+  const { handler, listener } = service.events;
 
   const functionName = getFunctionName(service, handler.name, options);
+  const functionTimeout = events.timeout ?? 30;
+  const functionMemory = events.memory ?? 192;
 
   return (
     getFunction(state, role, functionName) ??
     createBucketEventFunction(state, role, {
       functionName,
       description: handler.description,
-      timeout: events.timeout ?? 15,
-      memory: events.memory ?? 192,
+      timeout: functionTimeout,
+      memory: functionMemory,
       extras: service.extras,
       debug: options.debug,
       variables: {
@@ -113,7 +116,13 @@ const getEventsFunction = (
       handler: {
         functionName: handler.name,
         sourceFile: handler.file
-      }
+      },
+      ...(listener && {
+        listener: {
+          functionName: listener.name,
+          sourceFile: listener.file
+        }
+      })
     })
   );
 };

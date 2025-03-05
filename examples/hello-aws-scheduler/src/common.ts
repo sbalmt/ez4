@@ -3,7 +3,7 @@ import type { Cron } from '@ez4/scheduler';
 import { EventType } from '@ez4/common';
 
 /**
- * Watch Scheduler lifecycle events.
+ * Watch scheduler lifecycle events.
  */
 export function schedulerListener(event: Cron.ServiceEvent) {
   switch (event.type) {

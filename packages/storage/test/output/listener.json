@@ -1,0 +1,16 @@
+{
+  "TestStorage": {
+    "type": "@ez4/bucket",
+    "name": "TestStorage",
+    "events": {
+      "listener": {
+        "name": "eventListener",
+        "file": "test/input/output-listener.ts"
+      },
+      "handler": {
+        "name": "eventHandler",
+        "file": "test/input/output-listener.ts"
+      }
+    }
+  }
+}

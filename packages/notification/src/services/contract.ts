@@ -23,7 +23,7 @@ export namespace Notification {
 
   export type Subscription<T extends Message> = LambdaSubscription<T> | QueueSubscription<T>;
 
-  export type ServiceEvent<T extends Message = {}> = Service.Event<Incoming<T>>;
+  export type ServiceEvent<T extends Message = Message> = Service.Event<Incoming<T>>;
 
   /**
    * Queue subscription.

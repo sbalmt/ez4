@@ -1,11 +1,11 @@
-import type { Queue } from '@ez4/queue';
+import type { Bucket } from '@ez4/storage';
 
 import { EventType } from '@ez4/common';
 
 /**
- * Watch queue lifecycle events.
+ * Watch storage lifecycle events.
  */
-export function queueListener(event: Queue.ServiceEvent) {
+export function syncStorageListener(event: Bucket.ServiceEvent) {
   switch (event.type) {
     case EventType.Begin:
       console.log('Event begin', JSON.stringify(event.request));

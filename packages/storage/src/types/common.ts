@@ -1,4 +1,5 @@
 import type { LinkedVariables } from '@ez4/project/library';
+import type { ServiceListener } from '@ez4/common/library';
 
 export type BucketCors = {
   allowOrigins: string[];
@@ -15,6 +16,7 @@ export type EventHandler = {
 };
 
 export type BucketEvent = {
+  listener?: ServiceListener;
   handler: EventHandler;
   path?: string;
   variables?: LinkedVariables | null;

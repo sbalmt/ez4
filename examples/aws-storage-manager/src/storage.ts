@@ -1,6 +1,7 @@
 import type { Environment } from '@ez4/common';
 import type { Bucket } from '@ez4/storage';
 import type { syncStorageHandler } from './api/events/sync-storage.js';
+import type { syncStorageListener } from './common.js';
 import type { FileDb } from './dynamo.js';
 
 /**
@@ -25,6 +26,7 @@ export declare class FileStorage extends Bucket.Service {
    * Define an event handler for syncing the storage events.
    */
   events: {
+    listener: typeof syncStorageListener;
     handler: typeof syncStorageHandler;
   };
 

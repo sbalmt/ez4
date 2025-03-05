@@ -3,7 +3,7 @@ import type { Notification } from '@ez4/notification';
 import { EventType } from '@ez4/common';
 
 /**
- * Watch Queue lifecycle events.
+ * Watch notification lifecycle events.
  */
 export function notificationListener(event: Notification.ServiceEvent) {
   switch (event.type) {
