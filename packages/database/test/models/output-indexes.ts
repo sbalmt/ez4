@@ -1,6 +1,6 @@
 import type { Database, Index } from '@ez4/database';
 
-export declare class TestDatabase extends Database.Service<[TestSchema]> {
+export declare class TestDatabase extends Database.Service {
   engine: 'test';
 
   tables: [
@@ -37,7 +37,7 @@ declare class TestSchema implements Database.Schema {
   ttl: number;
 }
 
-declare class TestIndexes implements Database.Indexes<TestSchema> {
+declare class TestIndexes implements Database.Indexes {
   baz: Index.Primary;
   qux: Index.Secondary;
   ttl: Index.TTL;

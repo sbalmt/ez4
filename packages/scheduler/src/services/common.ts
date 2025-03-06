@@ -2,14 +2,14 @@ import type { Service } from '@ez4/common';
 import type { Cron } from './contract.js';
 
 /**
- * Definition of an event schema.
+ * Cron event.
  */
-export interface EventSchema {}
+export interface CronEvent {}
 
 /**
- * Incoming cron event.
+ * Incoming event.
  */
-export type IncomingRequest<T extends EventSchema> = {
+export type CronIncoming<T extends CronEvent> = {
   /**
    * Request Id.
    */
@@ -22,9 +22,17 @@ export type IncomingRequest<T extends EventSchema> = {
 };
 
 /**
- * Incoming request handler.
+ * Event listener.
  */
-export type RequestHandler<T extends EventSchema> = (
-  request: IncomingRequest<T>,
+export type CronListener<T extends CronEvent> = (
+  event: Service.Event<CronIncoming<T>>,
+  context: Service.Context<Cron.Service>
+) => Promise<void> | void;
+
+/**
+ * Event handler.
+ */
+export type CronHandler<T extends CronEvent> = (
+  request: CronIncoming<T>,
   context: Service.Context<Cron.Service<any>>
 ) => Promise<void> | void;

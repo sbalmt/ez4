@@ -9,7 +9,7 @@ import { createQueryBuilder } from './builder.js';
 export const prepareDeleteQuery = <
   T extends Database.Schema,
   S extends Query.SelectInput<T, R>,
-  I extends Database.Indexes<T>,
+  I extends Database.Indexes,
   R extends RelationMetadata
 >(
   table: string,

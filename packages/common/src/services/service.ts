@@ -1,4 +1,16 @@
+import type { ServiceEvent, ServiceRequest } from './common.js';
+
 export namespace Service {
+  export type Event<T extends ServiceRequest> = ServiceEvent<T>;
+
+  /**
+   * Service events listener.
+   */
+  export type Listener<T extends ServiceRequest> = (
+    event: Event<T>,
+    context: Context<any>
+  ) => Promise<void> | void;
+
   /**
    * Common interface for service providers.
    */

@@ -12,7 +12,7 @@ declare class TestTableB implements Database.Schema {
   table_a_id: string;
 }
 
-export declare class TestDatabase extends Database.Service<[TestTableA, TestTableB]> {
+export declare class TestDatabase extends Database.Service {
   engine: 'test';
 
   client: Client<TestDatabase>;

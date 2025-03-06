@@ -4,12 +4,13 @@ import type { Incomplete } from '@ez4/utils';
 import type { BucketCors } from '../types/common.js';
 
 import {
+  InvalidServicePropertyError,
+  isModelDeclaration,
   getLiteralString,
   getModelMembers,
   getObjectMembers,
   getPropertyNumber,
-  getPropertyTuple,
-  isModelDeclaration
+  getPropertyTuple
 } from '@ez4/common/library';
 
 import { isModelProperty, isTypeObject, isTypeReference } from '@ez4/reflection';
@@ -80,6 +81,10 @@ const getTypeFromMembers = (
     }
 
     switch (member.name) {
+      default:
+        errorList.push(new InvalidServicePropertyError(parent.name, member.name, type.file));
+        break;
+
       case 'allowOrigins':
       case 'allowMethods':
       case 'allowHeaders':

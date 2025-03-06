@@ -26,4 +26,5 @@ describe.only('notification metadata', () => {
   it('assert :: empty notification', () => testFile('service'));
   it('assert :: notification subscriptions', () => testFile('subscriptions'));
   it('assert :: notification import', () => testFile('import'));
+  it('assert :: subscription listener', () => testFile('listener'));
 });

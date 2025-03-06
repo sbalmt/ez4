@@ -1,4 +1,5 @@
 import type { LinkedVariables } from '@ez4/project/library';
+import type { ServiceListener } from '@ez4/common/library';
 
 import type {
   BooleanSchema,
@@ -36,14 +37,6 @@ export type HttpResponse = {
   body?: ObjectSchema | UnionSchema | NumberSchema | StringSchema | BooleanSchema | null;
 };
 
-export type HttpAuthorizer = {
-  name: string;
-  file: string;
-  description?: string;
-  response?: HttpAuthResponse;
-  request?: HttpAuthRequest;
-};
-
 export type HttpHandler = {
   name: string;
   file: string;
@@ -52,10 +45,19 @@ export type HttpHandler = {
   request?: HttpRequest;
 };
 
+export type HttpAuthorizer = {
+  name: string;
+  file: string;
+  description?: string;
+  response?: HttpAuthResponse;
+  request?: HttpAuthRequest;
+};
+
 export type HttpRoute = {
   path: HttpPath;
-  handler: HttpHandler;
+  listener?: ServiceListener;
   authorizer?: HttpAuthorizer;
+  handler: HttpHandler;
   variables?: LinkedVariables | null;
   timeout?: number;
   memory?: number;
@@ -63,6 +65,7 @@ export type HttpRoute = {
 };
 
 export type HttpDefaults = {
+  listener?: ServiceListener;
   timeout?: number;
   memory?: number;
 };

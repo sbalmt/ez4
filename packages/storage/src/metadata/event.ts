@@ -4,12 +4,14 @@ import type { AllType, SourceMap, TypeModel, TypeObject } from '@ez4/reflection'
 import type { BucketEvent } from '../types/common.js';
 
 import {
+  InvalidServicePropertyError,
+  isModelDeclaration,
   getLinkedVariableList,
   getModelMembers,
   getObjectMembers,
   getPropertyNumber,
   getPropertyString,
-  isModelDeclaration
+  getServiceListener
 } from '@ez4/common/library';
 
 import { isModelProperty, isTypeObject, isTypeReference } from '@ez4/reflection';
@@ -78,7 +80,7 @@ const getTypeFromMembers = (
   reflection: SourceMap,
   errorList: Error[]
 ) => {
-  const Event: Incomplete<BucketEvent> = {};
+  const event: Incomplete<BucketEvent> = {};
   const properties = new Set(['handler']);
 
   for (const member of members) {
@@ -87,15 +89,29 @@ const getTypeFromMembers = (
     }
 
     switch (member.name) {
+      default:
+        errorList.push(new InvalidServicePropertyError(parent.name, member.name, type.file));
+        break;
+
+      case 'listener': {
+        const value = getServiceListener(member.value, errorList);
+
+        if (value) {
+          event.listener = value;
+        }
+
+        break;
+      }
+
       case 'handler':
-        Event.handler = getEventHandler(member.value, reflection, errorList);
+        event.handler = getEventHandler(member.value, reflection, errorList);
         break;
 
       case 'path': {
         const value = getPropertyString(member);
 
         if (value) {
-          Event[member.name] = value;
+          event[member.name] = value;
         }
 
         break;
@@ -106,20 +122,20 @@ const getTypeFromMembers = (
         const value = getPropertyNumber(member);
 
         if (isAnyNumber(value)) {
-          Event[member.name] = value;
+          event[member.name] = value;
         }
 
         break;
       }
 
       case 'variables':
-        Event.variables = getLinkedVariableList(member, errorList);
+        event.variables = getLinkedVariableList(member, errorList);
         break;
     }
   }
 
-  if (isValidEvent(Event)) {
-    return Event;
+  if (isValidEvent(event)) {
+    return event;
   }
 
   errorList.push(new IncompleteEventError([...properties], type.file));

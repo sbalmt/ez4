@@ -8,7 +8,7 @@ import { randomUUID } from 'node:crypto';
 export declare class PostRequest implements Http.Request {
   body: {
     /**
-     * Example of validated `string` property coming from the body request.
+     * Example of validated `string` coming from the body request.
      */
     foo: string;
   };
@@ -30,18 +30,19 @@ export declare class PostResponse implements Http.Response {
 
 /**
  * Handler for `post` requests.
- * @param request Incoming post request.
- * @returns Outgoing post response.
+ * @param request Incoming request.
+ * @returns Outgoing response.
  */
 export function postHandler(request: PostRequest): PostResponse {
-  const { body } = request;
+  const { foo } = request.body;
 
-  // Do some stuff...
-  body.foo;
+  // Check error catcher.
+  if (foo === 'error') {
+    throw new Error(`Post error.`);
+  }
 
   return {
     status: 201,
-
     body: {
       id: randomUUID()
     }

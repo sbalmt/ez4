@@ -5,7 +5,13 @@ import type { AllType, SourceMap, TypeModel, TypeObject } from '@ez4/reflection'
 import type { DatabaseTable } from '../types/table.js';
 import type { TableIndex } from '../types/indexes.js';
 
-import { getModelMembers, getObjectMembers, getPropertyString } from '@ez4/common/library';
+import {
+  InvalidServicePropertyError,
+  getModelMembers,
+  getObjectMembers,
+  getPropertyString
+} from '@ez4/common/library';
+
 import { isModelProperty, isTypeObject, isTypeReference } from '@ez4/reflection';
 
 import { IncompleteTableError } from '../errors/table.js';
@@ -61,6 +67,10 @@ const getTypeFromMembers = (
     }
 
     switch (member.name) {
+      default:
+        errorList.push(new InvalidServicePropertyError(parent.name, member.name, type.file));
+        break;
+
       case 'name':
         if ((table.name = getPropertyString(member))) {
           properties.delete(member.name);
@@ -69,30 +79,29 @@ const getTypeFromMembers = (
 
       case 'relations': {
         const relations = getTableRelations(member.value, type, reflection, errorList);
+
         if (relations) {
           table.relations = relations;
         }
+
         break;
       }
 
-      case 'indexes': {
+      case 'indexes':
         if ((table.indexes = getTableIndexes(member.value, type, reflection, errorList))) {
           properties.delete(member.name);
         }
         break;
-      }
 
-      case 'schema': {
+      case 'schema':
         if ((table.schema = getTableSchema(member.value, type, reflection, errorList))) {
           properties.delete(member.name);
         }
         break;
-      }
 
-      case 'stream': {
+      case 'stream':
         table.stream = getTableStream(member.value, type, reflection, errorList);
         break;
-      }
     }
   }
 

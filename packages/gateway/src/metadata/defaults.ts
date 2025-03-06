@@ -3,10 +3,11 @@ import type { AllType, SourceMap, TypeModel, TypeObject } from '@ez4/reflection'
 import type { HttpDefaults } from '../types/common.js';
 
 import {
+  isModelDeclaration,
   getPropertyNumber,
   getObjectMembers,
   getModelMembers,
-  isModelDeclaration
+  getServiceListener
 } from '@ez4/common/library';
 
 import { isModelProperty, isTypeObject, isTypeReference } from '@ez4/reflection';
@@ -36,7 +37,7 @@ export const getHttpDefaults = (
 
 const getTypeDefaults = (type: AllType, parent: TypeObject | TypeModel, errorList: Error[]) => {
   if (isTypeObject(type)) {
-    return getTypeFromMembers(getObjectMembers(type));
+    return getTypeFromMembers(getObjectMembers(type), errorList);
   }
 
   if (!isModelDeclaration(type)) {
@@ -49,10 +50,10 @@ const getTypeDefaults = (type: AllType, parent: TypeObject | TypeModel, errorLis
     return null;
   }
 
-  return getTypeFromMembers(getModelMembers(type));
+  return getTypeFromMembers(getModelMembers(type), errorList);
 };
 
-const getTypeFromMembers = (members: MemberType[]) => {
+const getTypeFromMembers = (members: MemberType[], errorList: Error[]) => {
   const defaults: HttpDefaults = {};
 
   for (const member of members) {
@@ -67,6 +68,16 @@ const getTypeFromMembers = (members: MemberType[]) => {
 
         if (isAnyNumber(value)) {
           defaults[member.name] = value;
+        }
+
+        break;
+      }
+
+      case 'listener': {
+        const value = getServiceListener(member.value, errorList);
+
+        if (value) {
+          defaults.listener = value;
         }
 
         break;

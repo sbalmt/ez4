@@ -1,16 +1,23 @@
 import type { DynamoDBStreamEvent, Context, DynamoDBRecord } from 'aws-lambda';
 import type { AttributeValue } from '@aws-sdk/client-dynamodb';
-import type { StreamChange } from '@ez4/database';
+import type { Database, StreamChange } from '@ez4/database';
 import type { ObjectSchema } from '@ez4/schema';
+import type { Service } from '@ez4/common';
 
 import { unmarshall } from '@aws-sdk/util-dynamodb';
 import { validateSchema } from '@ez4/aws-dynamodb/runtime';
+import { ServiceEventType } from '@ez4/common';
 import { StreamType } from '@ez4/database';
-
-declare function next(changes: StreamChange<object>, context: object): Promise<any>;
 
 declare const __EZ4_SCHEMA: ObjectSchema | null;
 declare const __EZ4_CONTEXT: object;
+
+declare function handle(changes: StreamChange<object>, context: object): Promise<any>;
+
+declare function dispatch(
+  event: Service.Event<Database.Incoming<object>>,
+  context: object
+): Promise<void>;
 
 /**
  * Entrypoint to handle DynamoDB stream events.
@@ -19,16 +26,39 @@ export async function dbStreamEntryPoint(
   event: DynamoDBStreamEvent,
   context: Context
 ): Promise<void> {
-  if (!__EZ4_SCHEMA) {
-    throw new Error(`Validation schema for table is not defined.`);
-  }
+  let lastRequest: StreamChange<object> | undefined | null;
 
-  for (const record of event.Records) {
-    const change = await getRecordChange(record, __EZ4_SCHEMA);
+  const request = {
+    requestId: context.awsRequestId
+  };
 
-    if (change) {
-      await next(change, __EZ4_CONTEXT);
+  try {
+    await onBegin(request);
+
+    if (!__EZ4_SCHEMA) {
+      throw new Error(`Validation schema for table is not defined.`);
     }
+
+    for (const record of event.Records) {
+      const change = await getRecordChange(record, __EZ4_SCHEMA);
+
+      if (!change) {
+        continue;
+      }
+
+      lastRequest = {
+        ...request,
+        ...change
+      };
+
+      await onReady(lastRequest);
+
+      await handle(lastRequest, __EZ4_CONTEXT);
+    }
+  } catch (error) {
+    await onError(error, lastRequest ?? request);
+  } finally {
+    await onEnd(request);
   }
 }
 
@@ -117,4 +147,47 @@ const getDeleteRecordChange = async (
     type: StreamType.Delete,
     record
   };
+};
+
+const onBegin = async (request: Partial<Database.Incoming<object>>) => {
+  return dispatch(
+    {
+      type: ServiceEventType.Begin,
+      request
+    },
+    __EZ4_CONTEXT
+  );
+};
+
+const onReady = async (request: Partial<Database.Incoming<object>>) => {
+  return dispatch(
+    {
+      type: ServiceEventType.Ready,
+      request
+    },
+    __EZ4_CONTEXT
+  );
+};
+
+const onError = async (error: Error, request: Partial<Database.Incoming<object>>) => {
+  console.error(error);
+
+  return dispatch(
+    {
+      type: ServiceEventType.Error,
+      request,
+      error
+    },
+    __EZ4_CONTEXT
+  );
+};
+
+const onEnd = async (request: Partial<Database.Incoming<object>>) => {
+  return dispatch(
+    {
+      type: ServiceEventType.End,
+      request
+    },
+    __EZ4_CONTEXT
+  );
 };

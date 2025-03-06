@@ -13,7 +13,7 @@ export namespace Transaction {
   /**
    * Write operations.
    */
-  export type WriteOperations<T extends Database.Service<any>> = {
+  export type WriteOperations<T extends Database.Service> = {
     [P in keyof TableSchemas<T>]?: (TableSchemas<T>[P] extends Database.Schema
       ? AnyOperation<
           TableSchemas<T>[P],
@@ -25,7 +25,7 @@ export namespace Transaction {
 
   type AnyOperation<
     T extends Database.Schema,
-    I extends Database.Indexes<T>,
+    I extends Database.Indexes,
     R extends RelationMetadata
   > = InsertOperation<T, R> | UpdateOperation<T, I, R> | DeleteOperation<T, I, R>;
 
@@ -35,7 +35,7 @@ export namespace Transaction {
 
   type UpdateOperation<
     T extends Database.Schema,
-    I extends Database.Indexes<T>,
+    I extends Database.Indexes,
     R extends RelationMetadata
   > = {
     update: Omit<Query.UpdateOneInput<T, Query.SelectInput<T, R>, I, R>, 'select' | 'include'>;
@@ -43,7 +43,7 @@ export namespace Transaction {
 
   type DeleteOperation<
     T extends Database.Schema,
-    I extends Database.Indexes<T>,
+    I extends Database.Indexes,
     R extends RelationMetadata
   > = {
     delete: Omit<Query.DeleteOneInput<T, Query.SelectInput<T, R>, I, R>, 'select' | 'include'>;

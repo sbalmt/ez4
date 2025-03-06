@@ -124,7 +124,7 @@ const getIntegrationFunction = (
     throw new Error(`Execution role for API Gateway integration is missing.`);
   }
 
-  const handler = route.handler;
+  const { handler, listener = service.defaults?.listener } = route;
 
   const { request, response } = handler;
 
@@ -138,21 +138,29 @@ const getIntegrationFunction = (
     createIntegrationFunction(state, role, {
       functionName,
       description: handler.description,
-      sourceFile: handler.file,
-      handlerName: handler.name,
-      timeout: routeTimeout,
-      memory: routeMemory,
       responseSchema: response.body,
       headersSchema: request?.headers,
       identitySchema: request?.identity,
       parametersSchema: request?.parameters,
       querySchema: request?.query,
       bodySchema: request?.body,
+      timeout: routeTimeout,
+      memory: routeMemory,
       extras: service.extras,
       debug: options.debug,
       variables: {
         ...service.variables
-      }
+      },
+      handler: {
+        functionName: handler.name,
+        sourceFile: handler.file
+      },
+      ...(listener && {
+        listener: {
+          functionName: listener.name,
+          sourceFile: listener.file
+        }
+      })
     });
 
   if (route.variables) {
@@ -184,7 +192,8 @@ const getAuthorizerFunction = (
     throw new Error(`Execution role for API Gateway authorizer is missing.`);
   }
 
-  const authorizer = route.authorizer;
+  const { authorizer, listener = service.defaults?.listener } = route;
+
   const request = authorizer.request;
 
   const functionName = getFunctionName(service, authorizer, options);
@@ -197,8 +206,6 @@ const getAuthorizerFunction = (
     createAuthorizerFunction(state, role, {
       functionName,
       description: authorizer.description,
-      sourceFile: authorizer.file,
-      handlerName: authorizer.name,
       timeout: routeTimeout,
       memory: routeMemory,
       headersSchema: request?.headers,
@@ -208,7 +215,17 @@ const getAuthorizerFunction = (
       debug: options.debug,
       variables: {
         ...service.variables
-      }
+      },
+      authorizer: {
+        functionName: authorizer.name,
+        sourceFile: authorizer.file
+      },
+      ...(listener && {
+        listener: {
+          functionName: listener.name,
+          sourceFile: listener.file
+        }
+      })
     });
 
   return (

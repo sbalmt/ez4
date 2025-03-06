@@ -32,7 +32,7 @@ export const prepareInsertOne = async <T extends Database.Schema, R extends Rela
 export const prepareFindOne = <
   T extends Database.Schema,
   S extends Query.SelectInput<T, R>,
-  I extends Database.Indexes<T>,
+  I extends Database.Indexes,
   R extends RelationMetadata
 >(
   table: string,
@@ -58,7 +58,7 @@ export const prepareFindOne = <
 export const prepareUpdateOne = async <
   T extends Database.Schema,
   S extends Query.SelectInput<T, R>,
-  I extends Database.Indexes<T>,
+  I extends Database.Indexes,
   R extends RelationMetadata
 >(
   table: string,
@@ -80,7 +80,7 @@ export const prepareUpdateOne = async <
 export const prepareDeleteOne = <
   T extends Database.Schema,
   S extends Query.SelectInput<T, R>,
-  I extends Database.Indexes<T>,
+  I extends Database.Indexes,
   R extends RelationMetadata
 >(
   table: string,
@@ -139,7 +139,7 @@ export const prepareInsertMany = async <T extends Database.Schema>(
 export const prepareFindMany = <
   T extends Database.Schema,
   S extends Query.SelectInput<T, R>,
-  I extends Database.Indexes<T>,
+  I extends Database.Indexes,
   R extends RelationMetadata
 >(
   table: string,
@@ -168,7 +168,7 @@ export const prepareFindMany = <
 export const prepareUpdateMany = async <
   T extends Database.Schema,
   S extends Query.SelectInput<T, R>,
-  I extends Database.Indexes<T>,
+  I extends Database.Indexes,
   R extends RelationMetadata
 >(
   table: string,
@@ -228,7 +228,7 @@ export const prepareUpdateMany = async <
 export const prepareDeleteMany = async <
   T extends Database.Schema,
   S extends Query.SelectInput<T, R>,
-  I extends Database.Indexes<T>,
+  I extends Database.Indexes,
   R extends RelationMetadata
 >(
   table: string,

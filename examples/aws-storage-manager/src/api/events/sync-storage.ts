@@ -1,5 +1,5 @@
 import type { Service } from '@ez4/common';
-import type { BucketEvent } from '@ez4/storage';
+import type { Bucket } from '@ez4/storage';
 import type { FileStorage } from '../../storage.js';
 
 import { BucketEventType } from '@ez4/storage';
@@ -11,12 +11,10 @@ import { deleteFile, updateFile } from '../repository.js';
  * Handle storage changes.
  */
 export async function syncStorageHandler(
-  request: BucketEvent,
+  request: Bucket.Event,
   context: Service.Context<FileStorage>
 ): Promise<void> {
   const { fileDb } = context;
-
-  console.log('Handler', JSON.stringify(request));
 
   switch (request.eventType) {
     case BucketEventType.Create: {

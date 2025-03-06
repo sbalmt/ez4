@@ -1,3 +1,4 @@
+import type { Service } from '@ez4/common';
 import type { ObjectSchema } from '@ez4/schema';
 import type { Http } from '@ez4/gateway';
 
@@ -18,11 +19,10 @@ import {
 } from '@ez4/aws-gateway/runtime';
 
 import { HttpError, HttpInternalServerError } from '@ez4/gateway';
+import { ServiceEventType } from '@ez4/common';
 
 type RequestEvent = APIGatewayProxyEventV2WithLambdaAuthorizer<any>;
 type ResponseEvent = APIGatewayProxyResultV2;
-
-declare function next(request: Http.Incoming<any>, context: object): Promise<Http.Response>;
 
 declare const __EZ4_RESPONSE_SCHEMA: ObjectSchema | null;
 declare const __EZ4_BODY_SCHEMA: ObjectSchema | null;
@@ -32,25 +32,44 @@ declare const __EZ4_IDENTITY_SCHEMA: ObjectSchema | null;
 declare const __EZ4_HEADERS_SCHEMA: ObjectSchema | null;
 declare const __EZ4_CONTEXT: object;
 
+declare function handle(
+  request: Http.Incoming<Http.Request>,
+  context: object
+): Promise<Http.Response>;
+
+declare function dispatch(
+  event: Service.Event<Http.Incoming<Http.Request>>,
+  context: object
+): Promise<void>;
+
 /**
  * Entrypoint to handle API Gateway requests.
  */
 export async function apiEntryPoint(event: RequestEvent, context: Context): Promise<ResponseEvent> {
+  let lastRequest: Http.Incoming<Http.Request> | undefined;
+
   const { requestContext } = event;
 
+  const request = {
+    requestId: context.awsRequestId,
+    timestamp: new Date(requestContext.timeEpoch),
+    method: requestContext.http.method,
+    path: requestContext.http.path
+  };
+
   try {
-    const request = {
-      path: requestContext.http.path,
-      method: requestContext.http.method,
-      requestId: context.awsRequestId,
-      headers: __EZ4_HEADERS_SCHEMA && (await getRequestHeaders(event)),
-      identity: __EZ4_IDENTITY_SCHEMA && (await getRequestIdentity(event)),
-      parameters: __EZ4_PARAMETERS_SCHEMA && (await getRequestParameters(event)),
-      query: __EZ4_QUERY_SCHEMA && (await getRequestQueryStrings(event)),
-      body: __EZ4_BODY_SCHEMA && (await getRequestBody(event))
+    await onBegin(request);
+
+    const incomingRequest = await getIncomingRequest(event);
+
+    lastRequest = {
+      ...request,
+      ...incomingRequest
     };
 
-    const { status, body, headers } = await next(request, __EZ4_CONTEXT);
+    await onReady(lastRequest);
+
+    const { status, body, headers } = await handle(lastRequest, __EZ4_CONTEXT);
 
     return getJsonResponse(status, body, headers);
   } catch (error) {
@@ -58,20 +77,46 @@ export async function apiEntryPoint(event: RequestEvent, context: Context): Prom
       return getErrorResponse(error);
     }
 
-    console.error(error);
+    await onError(error, lastRequest ?? request);
 
     return getErrorResponse();
+  } finally {
+    await onEnd(request);
   }
 }
 
+const getIncomingRequest = async (event: RequestEvent) => {
+  return {
+    headers: __EZ4_HEADERS_SCHEMA ? await getRequestHeaders(event) : undefined,
+    parameters: __EZ4_PARAMETERS_SCHEMA ? await getRequestParameters(event) : undefined,
+    query: __EZ4_QUERY_SCHEMA ? await getRequestQueryStrings(event) : undefined,
+    identity: __EZ4_IDENTITY_SCHEMA ? await getRequestIdentity(event) : undefined,
+    body: __EZ4_BODY_SCHEMA ? await getRequestBody(event) : undefined
+  };
+};
+
 const getRequestHeaders = (event: RequestEvent) => {
-  if (!__EZ4_HEADERS_SCHEMA) {
-    return undefined;
+  if (__EZ4_HEADERS_SCHEMA) {
+    return getHeaders(event.headers ?? {}, __EZ4_HEADERS_SCHEMA);
   }
 
-  const rawHeaders = event.headers ?? {};
+  return undefined;
+};
 
-  return getHeaders(rawHeaders, __EZ4_HEADERS_SCHEMA);
+const getRequestParameters = (event: RequestEvent) => {
+  if (__EZ4_PARAMETERS_SCHEMA) {
+    return getPathParameters(event.pathParameters ?? {}, __EZ4_PARAMETERS_SCHEMA);
+  }
+
+  return undefined;
+};
+
+const getRequestQueryStrings = (event: RequestEvent) => {
+  if (__EZ4_QUERY_SCHEMA) {
+    return getQueryStrings(event.queryStringParameters ?? {}, __EZ4_QUERY_SCHEMA);
+  }
+
+  return undefined;
 };
 
 const getRequestIdentity = (event: RequestEvent) => {
@@ -79,29 +124,10 @@ const getRequestIdentity = (event: RequestEvent) => {
     return undefined;
   }
 
-  const rawIdentity = event.requestContext?.authorizer?.lambda?.identity ?? '{}';
-
-  return getIdentity(JSON.parse(rawIdentity), __EZ4_IDENTITY_SCHEMA);
-};
-
-const getRequestParameters = (event: RequestEvent) => {
-  if (!__EZ4_PARAMETERS_SCHEMA) {
-    return undefined;
-  }
-
-  const rawParameters = event.pathParameters ?? {};
-
-  return getPathParameters(rawParameters, __EZ4_PARAMETERS_SCHEMA);
-};
-
-const getRequestQueryStrings = (event: RequestEvent) => {
-  if (!__EZ4_QUERY_SCHEMA) {
-    return undefined;
-  }
-
-  const rawQuery = event.queryStringParameters ?? {};
-
-  return getQueryStrings(rawQuery, __EZ4_QUERY_SCHEMA);
+  return getIdentity(
+    JSON.parse(event.requestContext?.authorizer?.lambda?.identity ?? '{}'),
+    __EZ4_IDENTITY_SCHEMA
+  );
 };
 
 const getRequestBody = (event: RequestEvent) => {
@@ -123,13 +149,11 @@ const getRequestBody = (event: RequestEvent) => {
 };
 
 const getResponseBody = (body: Http.JsonBody) => {
-  if (!__EZ4_RESPONSE_SCHEMA) {
-    return undefined;
+  if (__EZ4_RESPONSE_SCHEMA) {
+    return JSON.stringify(getResponseJsonBody(body, __EZ4_RESPONSE_SCHEMA));
   }
 
-  const rawBody = getResponseJsonBody(body, __EZ4_RESPONSE_SCHEMA);
-
-  return JSON.stringify(rawBody);
+  return undefined;
 };
 
 const getJsonResponse = (status: number, body?: Http.JsonBody, headers?: Http.Headers) => {
@@ -157,4 +181,47 @@ const getErrorResponse = (error?: HttpError) => {
       ['content-type']: 'application/json'
     }
   };
+};
+
+const onBegin = async (request: Partial<Http.Incoming<Http.Request>>) => {
+  return dispatch(
+    {
+      type: ServiceEventType.Begin,
+      request
+    },
+    __EZ4_CONTEXT
+  );
+};
+
+const onReady = async (request: Partial<Http.Incoming<Http.Request>>) => {
+  return dispatch(
+    {
+      type: ServiceEventType.Ready,
+      request
+    },
+    __EZ4_CONTEXT
+  );
+};
+
+const onError = async (error: Error, request: Partial<Http.Incoming<Http.Request>>) => {
+  console.error(error);
+
+  return dispatch(
+    {
+      type: ServiceEventType.Error,
+      request,
+      error
+    },
+    __EZ4_CONTEXT
+  );
+};
+
+const onEnd = async (request: Partial<Http.Incoming<Http.Request>>) => {
+  return dispatch(
+    {
+      type: ServiceEventType.End,
+      request
+    },
+    __EZ4_CONTEXT
+  );
 };

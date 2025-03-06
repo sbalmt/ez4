@@ -1,9 +1,7 @@
 import type { Service } from '@ez4/common';
 import type { LinkedVariables } from '@ez4/project/library';
 import type { StreamChange } from './streams.js';
-import type { TableTypes } from './table.js';
 import type { Client } from './client.js';
-import type { Index } from './indexes.js';
 
 /**
  * Given a database service `T`, it returns all its table.
@@ -27,24 +25,51 @@ export namespace Database {
   /**
    * Table indexes.
    */
-  export type Indexes<T extends Schema = Schema> = {
-    [P in keyof T]?: Index;
-  };
+  export type Indexes = {};
+
+  /**
+   * Incoming stream event.
+   */
+  export type Incoming<T extends Schema> = StreamChange<
+    T & {
+      /**
+       * Request tracking Id.
+       */
+      requestId: string;
+    }
+  >;
+
+  /**
+   * Stream listener.
+   */
+  export type Listener<T extends Schema> = (
+    event: Service.Event<Incoming<T> | StreamChange<T>>,
+    context: Service.Context<Database.Service>
+  ) => Promise<void> | void;
+
+  /**
+   * Stream handler.
+   */
+  export type Handler<T extends Schema> = (
+    request: Incoming<T> | StreamChange<T>,
+    context: Service.Context<Database.Service>
+  ) => Promise<void> | void;
+
+  export type ServiceEvent<T extends Schema = Schema> = Service.Event<Incoming<T>>;
 
   /**
    * Table stream.
    */
   export interface Stream<T extends Schema = Schema> {
     /**
-     * Stream handler.
-     *
-     * @param change Stream change.
-     * @param context Handler context.
+     * Stream listener.
      */
-    handler: (
-      change: StreamChange<T>,
-      context: Service.Context<Service<any>>
-    ) => void | Promise<void>;
+    listener?: Listener<T>;
+
+    /**
+     * Stream handler.
+     */
+    handler: Handler<T>;
 
     /**
      * Variables associated to the handler.
@@ -84,7 +109,7 @@ export namespace Database {
     /**
      * Table indexes.
      */
-    indexes: Indexes<T>;
+    indexes: Indexes;
 
     /**
      * Table stream configuration.
@@ -95,7 +120,7 @@ export namespace Database {
   /**
    * Database service.
    */
-  export declare abstract class Service<T extends Schema[] = [Schema]> implements Service.Provider {
+  export declare abstract class Service implements Service.Provider {
     /**
      * Determines which database engine to use.
      * Check the provider package to know all the possible values.
@@ -105,11 +130,11 @@ export namespace Database {
     /**
      * Describe all available tables for the service.
      */
-    abstract tables: TableTypes<T>[];
+    abstract tables: Table<any>[];
 
     /**
      * Service client.
      */
-    client: Client<Service<T>>;
+    client: Client<Service>;
   }
 }

@@ -15,22 +15,23 @@ export const bundleApiFunction = async (
   dependencies: EntryState[],
   parameters: AuthorizerFunctionParameters
 ) => {
-  const { headersSchema, parametersSchema, querySchema } = parameters;
+  const { extras, debug, authorizer, listener, headersSchema, parametersSchema, querySchema } =
+    parameters;
 
   const definitions = getDefinitionsObject(dependencies);
 
   return bundleFunction(AuthorizerServiceName, {
-    sourceFile: parameters.sourceFile,
-    wrapperFile: join(__MODULE_PATH, '../lib/authorizer.ts'),
-    handlerName: parameters.handlerName,
-    extras: parameters.extras,
-    debug: parameters.debug,
+    templateFile: join(__MODULE_PATH, '../lib/authorizer.ts'),
     filePrefix: 'auth',
     define: {
       ...definitions,
       __EZ4_HEADERS_SCHEMA: headersSchema ? JSON.stringify(headersSchema) : 'undefined',
       __EZ4_PARAMETERS_SCHEMA: parametersSchema ? JSON.stringify(parametersSchema) : 'undefined',
       __EZ4_QUERY_SCHEMA: querySchema ? JSON.stringify(querySchema) : 'undefined'
-    }
+    },
+    handler: authorizer,
+    listener,
+    extras,
+    debug
   });
 };

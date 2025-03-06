@@ -1,6 +1,7 @@
 import type { Queue } from '@ez4/queue';
 import type { MessageRequest } from './types.js';
 import type { messageHandlerA, messageHandlerB } from './handlers.js';
+import type { queueListener } from './common.js';
 
 /**
  * Example of AWS SQS deployed with EZ4.
@@ -31,10 +32,12 @@ export declare class Sqs extends Queue.Service<MessageRequest> {
    */
   subscriptions: [
     {
+      listener: typeof queueListener;
       handler: typeof messageHandlerA;
       concurrency: 2;
     },
     {
+      listener: typeof queueListener;
       handler: typeof messageHandlerB;
       concurrency: 4;
     }

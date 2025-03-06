@@ -14,20 +14,20 @@ export const bundleStreamFunction = async (
   dependencies: EntryState[],
   parameters: StreamFunctionParameters
 ) => {
-  const { tableSchema } = parameters;
+  const { extras, debug, handler, listener, tableSchema } = parameters;
 
   const definitions = getDefinitionsObject(dependencies);
 
   return bundleFunction(MappingServiceName, {
-    sourceFile: parameters.sourceFile,
-    wrapperFile: join(__MODULE_PATH, '../lib/function.ts'),
-    handlerName: parameters.handlerName,
-    extras: parameters.extras,
-    debug: parameters.debug,
+    templateFile: join(__MODULE_PATH, '../lib/stream.ts'),
     filePrefix: 'db',
     define: {
       ...definitions,
       __EZ4_SCHEMA: tableSchema ? JSON.stringify(tableSchema) : 'undefined'
-    }
+    },
+    handler,
+    listener,
+    extras,
+    debug
   });
 };

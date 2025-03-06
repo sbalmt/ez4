@@ -4,12 +4,12 @@ import type { QueueService } from '../types/service.js';
 
 import {
   DuplicateServiceError,
+  InvalidServicePropertyError,
   isExternalStatement,
   getLinkedServiceList,
   getLinkedVariableList,
   getModelMembers,
-  getPropertyNumber,
-  InvalidServicePropertyError
+  getPropertyNumber
 } from '@ez4/common/library';
 
 import { isModelProperty } from '@ez4/reflection';
@@ -47,6 +47,14 @@ export const getQueueServices = (reflection: SourceMap) => {
       }
 
       switch (member.name) {
+        default:
+          if (!member.inherited) {
+            errorList.push(
+              new InvalidServicePropertyError(statement.name, member.name, statement.file)
+            );
+          }
+          break;
+
         case 'schema': {
           const value = getQueueMessage(member.value, statement, reflection, errorList);
 
@@ -94,14 +102,6 @@ export const getQueueServices = (reflection: SourceMap) => {
         case 'services':
           if (!member.inherited) {
             service.services = getLinkedServiceList(member, reflection, errorList);
-          }
-          break;
-
-        default:
-          if (!member.inherited) {
-            errorList.push(
-              new InvalidServicePropertyError(statement.name, member.name, statement.file)
-            );
           }
           break;
       }

@@ -4,6 +4,10 @@
     "name": "TestService",
     "routes": [],
     "defaults": {
+      "listener": {
+        "name": "testListener",
+        "file": "test/input/output-defaults.ts"
+      },
       "timeout": 15,
       "memory": 192
     }

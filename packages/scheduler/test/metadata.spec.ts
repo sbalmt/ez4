@@ -32,4 +32,5 @@ describe.only('scheduler metadata', () => {
 
   it('assert :: basic scheduler', () => testFile('service'));
   it('assert :: dynamic scheduler', () => testFile('dynamic'));
+  it('assert :: target listener', () => testFile('listener'));
 });

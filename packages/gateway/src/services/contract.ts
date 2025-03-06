@@ -3,22 +3,28 @@ import type { LinkedVariables } from '@ez4/project/library';
 import type { HttpPath } from '../types/common.js';
 
 import type {
+  HttpCors,
   HttpHeaders,
+  HttpIdentity,
   HttpPathParameters,
   HttpQueryStrings,
   HttpJsonBody,
-  HttpIdentity,
   HttpAuthRequest,
   HttpAuthResponse,
   HttpRequest,
   HttpResponse,
-  HttpCors
+  HttpIncoming,
+  HttpListener,
+  HttpAuthorizer,
+  HttpHandler
 } from './common.js';
 
 /**
  * Provide all contracts for a self-managed HTTP service.
  */
 export namespace Http {
+  export type Cors = HttpCors;
+
   export type Headers = HttpHeaders;
   export type Identity = HttpIdentity;
 
@@ -32,62 +38,37 @@ export namespace Http {
   export type AuthResponse = HttpAuthResponse;
   export type Response = HttpResponse;
 
-  export type Cors = HttpCors;
+  export type Incoming<T extends Request | AuthRequest> = HttpIncoming<T>;
 
-  /**
-   * Incoming request.
-   */
-  export type Incoming<T extends Request> = T & {
-    /**
-     * Request Id.
-     */
-    requestId: string;
+  export type Listener<T extends Request | AuthRequest> = HttpListener<T>;
+  export type Authorizer<T extends AuthRequest> = HttpAuthorizer<T>;
+  export type Handler<T extends Request> = HttpHandler<T>;
 
-    /**
-     * Request method.
-     */
-    method: string;
-
-    /**
-     * Request path.
-     */
-    path: string;
-  };
-
-  /**
-   * Incoming request authorizer.
-   */
-  export type Authorizer<T extends AuthRequest> = (
-    request: T,
-    context: Service.Context<Service>
-  ) => Promise<AuthResponse> | AuthResponse;
-
-  /**
-   * Incoming request handler.
-   */
-  export type Handler<T extends Request> = (
-    request: T,
-    context: Service.Context<Service>
-  ) => Promise<Response> | Response;
+  export type ServiceEvent<T extends Request | AuthRequest = Request> = Service.Event<Incoming<T>>;
 
   /**
    * HTTP route.
    */
-  export interface Route {
+  export interface Route<T extends Request = Request, U extends AuthRequest = AuthRequest> {
     /**
      * Route path.
      */
     path: HttpPath;
 
     /**
+     * Route listener.
+     */
+    listener?: Listener<T | U>;
+
+    /**
      * Route authorizer.
      */
-    authorizer?: Authorizer<any>;
+    authorizer?: Authorizer<U>;
 
     /**
      * Route handler.
      */
-    handler: Handler<any> | Handler<Incoming<any>>;
+    handler: Handler<T>;
 
     /**
      * Variables associated to the route.
@@ -113,16 +94,21 @@ export namespace Http {
   /**
    * Default HTTP service parameters.
    */
-  export type Defaults = {
+  export type Defaults<T extends Request | AuthRequest = {}> = {
     /**
-     * Default amount of memory available for the handlers.
+     * Default route listener.
      */
-    memory?: number;
+    listener?: Listener<T>;
 
     /**
      * Default execution time (in seconds) for the routes.
      */
     timeout?: number;
+
+    /**
+     * Default amount of memory available for the handlers.
+     */
+    memory?: number;
   };
 
   /**
@@ -132,7 +118,7 @@ export namespace Http {
     /**
      * All expected routes.
      */
-    abstract routes: Route[];
+    abstract routes: Route<any, any>[];
 
     /**
      * Display name for the service.

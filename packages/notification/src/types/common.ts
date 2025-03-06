@@ -1,4 +1,5 @@
 import type { LinkedVariables } from '@ez4/project/library';
+import type { ServiceListener } from '@ez4/common/library';
 import type { ObjectSchema, UnionSchema } from '@ez4/schema';
 
 export type NotificationMessageSchema = ObjectSchema | UnionSchema;
@@ -16,6 +17,7 @@ export type SubscriptionHandler = {
 
 export type NotificationLambdaSubscription = {
   type: NotificationSubscriptionType.Lambda;
+  listener?: ServiceListener;
   handler: SubscriptionHandler;
   variables?: LinkedVariables | null;
   concurrency?: number;

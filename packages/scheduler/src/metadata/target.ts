@@ -4,11 +4,13 @@ import type { AllType, SourceMap, TypeModel, TypeObject } from '@ez4/reflection'
 import type { CronTarget } from '../types/common.js';
 
 import {
+  InvalidServicePropertyError,
+  isModelDeclaration,
   getLinkedVariableList,
   getModelMembers,
   getObjectMembers,
   getPropertyNumber,
-  isModelDeclaration
+  getServiceListener
 } from '@ez4/common/library';
 
 import { isModelProperty, isTypeObject, isTypeReference } from '@ez4/reflection';
@@ -86,8 +88,24 @@ const getTypeFromMembers = (
     }
 
     switch (member.name) {
+      default:
+        errorList.push(new InvalidServicePropertyError(parent.name, member.name, type.file));
+        break;
+
+      case 'listener': {
+        const value = getServiceListener(member.value, errorList);
+
+        if (value) {
+          target.listener = value;
+        }
+
+        break;
+      }
+
       case 'handler':
-        target.handler = getTargetHandler(member.value, reflection, errorList);
+        if ((target.handler = getTargetHandler(member.value, reflection, errorList))) {
+          properties.delete(member.name);
+        }
         break;
 
       case 'timeout':

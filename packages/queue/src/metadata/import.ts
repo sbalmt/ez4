@@ -49,6 +49,14 @@ export const getQueueImports = (reflection: SourceMap) => {
       }
 
       switch (member.name) {
+        default:
+          if (!member.inherited) {
+            errorList.push(
+              new InvalidServicePropertyError(statement.name, member.name, statement.file)
+            );
+          }
+          break;
+
         case 'reference': {
           if (member.inherited && isTypeReference(member.value)) {
             service[member.name] = getReferenceName(member.value);
@@ -60,11 +68,13 @@ export const getQueueImports = (reflection: SourceMap) => {
         case 'project': {
           if (!member.inherited) {
             const value = getPropertyString(member);
+
             if (value !== undefined && value !== null) {
               properties.delete(member.name);
               service[member.name] = value;
             }
           }
+
           break;
         }
 
@@ -72,20 +82,24 @@ export const getQueueImports = (reflection: SourceMap) => {
         case 'polling': {
           if (member.inherited) {
             const value = getReferenceNumber(member.value, reflection);
+
             if (isAnyNumber(value)) {
               service[member.name] = value;
             }
           }
+
           break;
         }
 
         case 'schema': {
           if (member.inherited) {
             service.schema = getQueueMessage(member.value, statement, reflection, errorList);
+
             if (service.schema) {
               properties.delete(member.name);
             }
           }
+
           break;
         }
 
@@ -107,14 +121,6 @@ export const getQueueImports = (reflection: SourceMap) => {
         case 'services':
           if (!member.inherited) {
             service.services = getLinkedServiceList(member, reflection, errorList);
-          }
-          break;
-
-        default:
-          if (!member.inherited) {
-            errorList.push(
-              new InvalidServicePropertyError(statement.name, member.name, statement.file)
-            );
           }
           break;
       }

@@ -1,12 +1,12 @@
+import type { RoleState } from '@ez4/aws-identity';
+import type { EntryStates } from '@ez4/stateful';
+
 import type {
   ServiceEvent,
   ConnectResourceEvent,
   PrepareResourceEvent,
   DeployOptions
 } from '@ez4/project/library';
-
-import type { RoleState } from '@ez4/aws-identity';
-import type { EntryStates } from '@ez4/stateful';
 
 import { isRoleState } from '@ez4/aws-identity';
 import { BucketService, isBucketService } from '@ez4/storage/library';
@@ -15,7 +15,7 @@ import { getFunction } from '@ez4/aws-function';
 
 import { createBucket } from '../bucket/service.js';
 import { createBucketEventFunction } from '../bucket/function/service.js';
-import { getFunctionName, getNewBucketName } from './utils.js';
+import { getFunctionName, getBucketName } from './utils.js';
 import { prepareLocalContent } from './content.js';
 import { prepareLinkedClient } from './client.js';
 import { RoleMissingError } from './errors.js';
@@ -27,7 +27,7 @@ export const prepareLinkedServices = async (event: ServiceEvent) => {
     return null;
   }
 
-  const bucketName = await getNewBucketName(service, options);
+  const bucketName = await getBucketName(service, options);
 
   return prepareLinkedClient(bucketName);
 };
@@ -43,9 +43,9 @@ export const prepareBucketServices = async (event: PrepareResourceEvent) => {
     throw new RoleMissingError();
   }
 
-  const { globalName, localPath, autoExpireDays, events, cors } = service;
+  const { localPath, autoExpireDays, events, cors } = service;
 
-  const bucketName = globalName ?? (await getNewBucketName(service, options));
+  const bucketName = await getBucketName(service, options);
 
   const functionState = getEventsFunction(state, service, role, options);
 
@@ -94,24 +94,35 @@ const getEventsFunction = (
   }
 
   const events = service.events;
-  const handler = events.handler;
+
+  const { handler, listener } = service.events;
 
   const functionName = getFunctionName(service, handler.name, options);
+  const functionTimeout = events.timeout ?? 30;
+  const functionMemory = events.memory ?? 192;
 
   return (
     getFunction(state, role, functionName) ??
     createBucketEventFunction(state, role, {
       functionName,
       description: handler.description,
-      handlerName: handler.name,
-      sourceFile: handler.file,
-      timeout: events.timeout ?? 15,
-      memory: events.memory ?? 192,
+      timeout: functionTimeout,
+      memory: functionMemory,
       extras: service.extras,
       debug: options.debug,
       variables: {
         ...service.variables
-      }
+      },
+      handler: {
+        functionName: handler.name,
+        sourceFile: handler.file
+      },
+      ...(listener && {
+        listener: {
+          functionName: listener.name,
+          sourceFile: listener.file
+        }
+      })
     })
   );
 };

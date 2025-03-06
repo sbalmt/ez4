@@ -81,9 +81,11 @@ describe.only('dynamodb mapping', () => {
     });
 
     const functionResource = await createStreamFunction(localState, roleResource, {
-      sourceFile: join(baseDir, 'lambda.js'),
       functionName: 'ez4-test-table-mapping-lambda',
-      handlerName: 'main'
+      handler: {
+        sourceFile: join(baseDir, 'lambda.js'),
+        functionName: 'main'
+      }
     });
 
     const resource = createMapping(localState, tableResource, functionResource, {

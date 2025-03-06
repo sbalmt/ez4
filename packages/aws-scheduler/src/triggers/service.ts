@@ -48,24 +48,35 @@ export const prepareCronServices = async (event: PrepareResourceEvent) => {
     throw new RoleMissingError();
   }
 
-  const { handler, timeout, memory, variables } = service.target;
+  const { handler, listener, timeout, memory, variables } = service.target;
 
   const functionName = getTargetName(service, handler.name, options);
+
+  const targetTimeout = timeout ?? 10;
+  const targetMemory = memory ?? 192;
 
   const functionState = createTargetFunction(state, role, {
     functionName,
     description: handler.description,
-    sourceFile: handler.file,
-    handlerName: handler.name,
     eventSchema: service.schema,
+    timeout: targetTimeout,
+    memory: targetMemory,
     extras: service.extras,
     debug: options.debug,
     variables: {
       ...service.variables,
       ...variables
     },
-    timeout,
-    memory
+    handler: {
+      functionName: handler.name,
+      sourceFile: handler.file
+    },
+    ...(listener && {
+      listener: {
+        functionName: listener.name,
+        sourceFile: listener.file
+      }
+    })
   });
 
   const { description, expression, timezone, startDate, endDate } = service;

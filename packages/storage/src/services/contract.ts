@@ -1,7 +1,14 @@
 import type { LinkedVariables } from '@ez4/project/library';
 import type { Service } from '@ez4/common';
-import type { BucketCors, BucketEvent } from './common.js';
 import type { Client } from './client.js';
+
+import type {
+  BucketCors,
+  BucketEvent,
+  BucketHandler,
+  BucketIncoming,
+  BucketListener
+} from './common.js';
 
 /**
  * Provide all contracts for a self-managed Bucket service.
@@ -9,17 +16,28 @@ import type { Client } from './client.js';
 export namespace Bucket {
   export type Cors = BucketCors;
 
+  export type Event = BucketEvent;
+
+  export type Incoming = BucketIncoming<Event>;
+
+  export type Listener = BucketListener<Event>;
+  export type Handler = BucketHandler<Event>;
+
+  export type ServiceEvent = Service.Event<Incoming>;
+
   /**
-   * Bucket event.
+   * Bucket events.
    */
-  export interface Event {
+  export interface Events {
+    /**
+     * Event listener.
+     */
+    listener?: Listener;
+
     /**
      * Event handler.
-     *
-     * @param event Event object.
-     * @param context Handler context.
      */
-    handler: (event: BucketEvent, context: Service.Context<Service>) => void | Promise<void>;
+    handler: Handler;
 
     /**
      * Path associated to the event.
@@ -64,7 +82,7 @@ export namespace Bucket {
     /**
      * Bucket events.
      */
-    events?: Event;
+    events?: Events;
 
     /**
      * CORS configuration.

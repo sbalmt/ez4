@@ -32,7 +32,7 @@ export namespace Query {
   export type UpdateOneInput<
     T extends Database.Schema,
     S extends AnyObject,
-    I extends Database.Indexes<T>,
+    I extends Database.Indexes,
     R extends RelationMetadata
   > = {
     select?: StrictSelectInput<T, S, R>;
@@ -44,7 +44,7 @@ export namespace Query {
   export type FindOneInput<
     T extends Database.Schema,
     S extends AnyObject,
-    I extends Database.Indexes<T>,
+    I extends Database.Indexes,
     R extends RelationMetadata
   > = {
     select: StrictSelectInput<T, S, R>;
@@ -55,7 +55,7 @@ export namespace Query {
   export type UpsertOneInput<
     T extends Database.Schema,
     S extends AnyObject,
-    I extends Database.Indexes<T>,
+    I extends Database.Indexes,
     R extends RelationMetadata
   > = {
     select?: StrictSelectInput<T, S, R>;
@@ -68,7 +68,7 @@ export namespace Query {
   export type DeleteOneInput<
     T extends Database.Schema,
     S extends AnyObject,
-    I extends Database.Indexes<T>,
+    I extends Database.Indexes,
     R extends RelationMetadata
   > = {
     select?: StrictSelectInput<T, S, R>;
@@ -95,7 +95,7 @@ export namespace Query {
   export type FindManyInput<
     T extends Database.Schema,
     S extends AnyObject,
-    I extends Database.Indexes<T>,
+    I extends Database.Indexes,
     R extends RelationMetadata
   > = {
     select: StrictSelectInput<T, S, R>;
@@ -206,7 +206,7 @@ export namespace Query {
 
   export type WhereInput<
     T extends Database.Schema,
-    I extends Database.Indexes<T>,
+    I extends Database.Indexes,
     R extends RelationMetadata
   > = WhereInputFilters<T, I, R> &
     WhereNot<WhereInputFilters<T, I, R>> &
@@ -285,7 +285,7 @@ export namespace Query {
     [P in Exclude<keyof T, N>]?: WhereField<T[P]>;
   };
 
-  type WhereCommonFilters<T extends AnyObject, I extends Database.Indexes<T>> =
+  type WhereCommonFilters<T extends AnyObject, I extends Database.Indexes> =
     | (WhereRequiredFilters<T, DecomposePrimaryIndexNames<I>> &
         WhereOptionalFilters<T, DecomposePrimaryIndexNames<I>>)
     | (WhereRequiredFilters<T, DecomposeUniqueIndexNames<I>> &
@@ -293,7 +293,7 @@ export namespace Query {
 
   type WhereInputFilters<
     T extends Database.Schema,
-    I extends Database.Indexes<T>,
+    I extends Database.Indexes,
     R extends RelationMetadata
   > = WhereCommonFilters<T, I> & WhereRelationFilters<R['filters']>;
 

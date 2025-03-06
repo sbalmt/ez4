@@ -24,25 +24,36 @@ export const prepareTableStream = (
     return;
   }
 
-  const streamHandler = tableStream.handler;
-  const functionName = getStreamName(service, table, streamHandler.name, options);
+  const { handler, listener } = tableStream;
+
+  const functionName = getStreamName(service, table, handler.name, options);
+  const functionTimeout = tableStream.timeout ?? 30;
+  const functionMemory = tableStream.memory ?? 192;
 
   const functionState =
     getFunction(state, role, functionName) ??
     createStreamFunction(state, role, {
       functionName,
-      description: streamHandler.description,
-      sourceFile: streamHandler.file,
-      handlerName: streamHandler.name,
-      timeout: tableStream.timeout,
-      memory: tableStream.memory,
+      description: handler.description,
       tableSchema: table.schema,
+      timeout: functionTimeout,
+      memory: functionMemory,
       extras: service.extras,
       debug: options.debug,
       variables: {
         ...service.variables,
         ...tableStream.variables
-      }
+      },
+      handler: {
+        functionName: handler.name,
+        sourceFile: handler.file
+      },
+      ...(listener && {
+        listener: {
+          functionName: listener.name,
+          sourceFile: listener.file
+        }
+      })
     });
 
   createMapping(state, tableState, functionState, {});

@@ -4,12 +4,14 @@ import type { AllType, ModelProperty, SourceMap, TypeModel, TypeObject } from '@
 import type { QueueSubscription } from '../types/common.js';
 
 import {
+  isModelDeclaration,
   getLinkedVariableList,
   getModelMembers,
   getObjectMembers,
   getPropertyNumber,
   getPropertyTuple,
-  isModelDeclaration
+  getServiceListener,
+  InvalidServicePropertyError
 } from '@ez4/common/library';
 
 import { isModelProperty, isTypeObject, isTypeReference } from '@ez4/reflection';
@@ -105,6 +107,20 @@ const getTypeFromMembers = (
     }
 
     switch (member.name) {
+      default:
+        errorList.push(new InvalidServicePropertyError(parent.name, member.name, type.file));
+        break;
+
+      case 'listener': {
+        const value = getServiceListener(member.value, errorList);
+
+        if (value) {
+          subscription.listener = value;
+        }
+
+        break;
+      }
+
       case 'handler': {
         if ((subscription.handler = getSubscriptionHandler(member.value, reflection, errorList))) {
           properties.delete(member.name);
@@ -115,9 +131,11 @@ const getTypeFromMembers = (
       case 'memory':
       case 'concurrency': {
         const value = getPropertyNumber(member);
+
         if (isAnyNumber(value)) {
           subscription[member.name] = value;
         }
+
         break;
       }
 

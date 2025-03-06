@@ -4,6 +4,7 @@ import type { CronService } from '../types/service.js';
 
 import {
   DuplicateServiceError,
+  InvalidServicePropertyError,
   isExternalStatement,
   getLinkedServiceList,
   getLinkedVariableList,
@@ -49,6 +50,10 @@ export const getCronServices = (reflection: SourceMap) => {
       }
 
       switch (member.name) {
+        default:
+          errorList.push(new InvalidServicePropertyError(parent.name, member.name, statement.file));
+          break;
+
         case 'schema': {
           const value = getCronEvent(member.value, statement, reflection, errorList);
 

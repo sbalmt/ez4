@@ -14,20 +14,20 @@ export const bundleTargetFunction = async (
   dependencies: EntryState[],
   parameters: TargetFunctionParameters
 ) => {
-  const { eventSchema } = parameters;
+  const { extras, debug, handler, listener, eventSchema } = parameters;
 
   const definitions = getDefinitionsObject(dependencies);
 
   return bundleFunction(MappingServiceName, {
-    sourceFile: parameters.sourceFile,
-    wrapperFile: join(__MODULE_PATH, '../lib/function.ts'),
-    handlerName: parameters.handlerName,
-    extras: parameters.extras,
-    debug: parameters.debug,
-    filePrefix: 'event',
+    templateFile: join(__MODULE_PATH, '../lib/event.ts'),
+    filePrefix: 'scheduler',
     define: {
       ...definitions,
       __EZ4_SCHEMA: eventSchema ? JSON.stringify(eventSchema) : 'undefined'
-    }
+    },
+    handler,
+    listener,
+    extras,
+    debug
   });
 };

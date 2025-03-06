@@ -63,7 +63,7 @@ export type DecomposeSecondaryIndexNames<T extends Database.Indexes> = Decompose
 /**
  * Given a database service `T`, it produces an object with all tables containing indexes.
  */
-export type IndexedTables<T extends Database.Service<any>> = MergeIndexes<DatabaseTables<T>>;
+export type IndexedTables<T extends Database.Service> = MergeIndexes<DatabaseTables<T>>;
 
 /**
  * Given a list of tables with indexes `T`, it produces another object containing all the

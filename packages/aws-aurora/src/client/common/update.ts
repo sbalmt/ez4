@@ -16,7 +16,7 @@ import { isSkippableData } from './data.js';
 export const prepareUpdateQuery = <
   T extends Database.Schema,
   S extends Query.SelectInput<T, R>,
-  I extends Database.Indexes<T>,
+  I extends Database.Indexes,
   R extends RelationMetadata
 >(
   table: string,

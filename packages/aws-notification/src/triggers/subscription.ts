@@ -29,26 +29,36 @@ export const prepareSubscriptions = async (
         throw new InvalidParameterError(SubscriptionServiceName, `subscription not supported.`);
 
       case NotificationSubscriptionType.Lambda: {
-        const handler = subscription.handler;
+        const { handler, listener } = subscription;
 
         const functionName = getFunctionName(service, handler.name, options);
+        const functionTimeout = subscription.timeout ?? 30;
+        const functionMemory = subscription.memory ?? 192;
 
         const functionState =
           getFunction(state, role, functionName) ??
           createSubscriptionFunction(state, role, {
             functionName,
             description: handler.description,
-            sourceFile: handler.file,
-            handlerName: handler.name,
-            timeout: subscription.timeout,
-            memory: subscription.memory,
             messageSchema: service.schema,
+            timeout: functionTimeout,
+            memory: functionMemory,
             extras: service.extras,
             debug: options.debug,
             variables: {
               ...service.variables,
               ...subscription.variables
-            }
+            },
+            handler: {
+              functionName: handler.name,
+              sourceFile: handler.file
+            },
+            ...(listener && {
+              listener: {
+                functionName: listener.name,
+                sourceFile: listener.file
+              }
+            })
           });
 
         createSubscription(state, topicState, functionState);

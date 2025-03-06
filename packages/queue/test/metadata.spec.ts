@@ -26,4 +26,5 @@ describe.only('queue metadata', () => {
   it('assert :: empty queues', () => testFile('service'));
   it('assert :: queue subscriptions', () => testFile('subscriptions'));
   it('assert :: queue import', () => testFile('import'));
+  it('assert :: subscription listener', () => testFile('listener'));
 });
