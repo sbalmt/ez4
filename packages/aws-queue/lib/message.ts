@@ -4,7 +4,7 @@ import type { Service } from '@ez4/common';
 import type { Queue } from '@ez4/queue';
 
 import { getJsonMessage } from '@ez4/aws-queue/runtime';
-import { EventType } from '@ez4/common';
+import { ServiceEventType } from '@ez4/common';
 
 declare const __EZ4_SCHEMA: MessageSchema | null;
 declare const __EZ4_CONTEXT: object;
@@ -56,7 +56,7 @@ export async function sqsEntryPoint(event: SQSEvent, context: Context): Promise<
 const onBegin = async (request: Partial<Queue.Incoming<Queue.Message>>) => {
   return dispatch(
     {
-      type: EventType.Begin,
+      type: ServiceEventType.Begin,
       request
     },
     __EZ4_CONTEXT
@@ -66,7 +66,7 @@ const onBegin = async (request: Partial<Queue.Incoming<Queue.Message>>) => {
 const onReady = async (request: Partial<Queue.Incoming<Queue.Message>>) => {
   return dispatch(
     {
-      type: EventType.Ready,
+      type: ServiceEventType.Ready,
       request
     },
     __EZ4_CONTEXT
@@ -78,7 +78,7 @@ const onError = async (error: Error, request: Partial<Queue.Incoming<Queue.Messa
 
   return dispatch(
     {
-      type: EventType.Error,
+      type: ServiceEventType.Error,
       request,
       error
     },
@@ -89,7 +89,7 @@ const onError = async (error: Error, request: Partial<Queue.Incoming<Queue.Messa
 const onEnd = async (request: Partial<Queue.Incoming<Queue.Message>>) => {
   return dispatch(
     {
-      type: EventType.End,
+      type: ServiceEventType.End,
       request
     },
     __EZ4_CONTEXT

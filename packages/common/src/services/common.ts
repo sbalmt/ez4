@@ -15,7 +15,7 @@ export type ServiceRequest = {};
 /**
  * Service event type.
  */
-export const enum EventType {
+export const enum ServiceEventType {
   Begin = 'begin',
   Ready = 'ready',
   Error = 'error',
@@ -29,7 +29,7 @@ export type ServiceBeginEvent<T extends ServiceRequest> = {
   /**
    * Event type.
    */
-  type: EventType.Begin;
+  type: ServiceEventType.Begin;
 
   /**
    * Event request.
@@ -44,7 +44,7 @@ export type ServiceReadyEvent<T extends ServiceRequest> = {
   /**
    * Event type.
    */
-  type: EventType.Ready;
+  type: ServiceEventType.Ready;
 
   /**
    * Event request.
@@ -59,7 +59,7 @@ export type ServiceErrorEvent<T extends ServiceRequest> = {
   /**
    * Event type.
    */
-  type: EventType.Error;
+  type: ServiceEventType.Error;
 
   /**
    * Event request.
@@ -79,7 +79,7 @@ export type ServiceEndEvent<T extends ServiceRequest> = {
   /**
    * Event type.
    */
-  type: EventType.End;
+  type: ServiceEventType.End;
 
   /**
    * Event request.

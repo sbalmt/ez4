@@ -4,7 +4,7 @@ import type { SNSEvent, Context } from 'aws-lambda';
 import type { Service } from '@ez4/common';
 
 import { getJsonMessage } from '@ez4/aws-notification/runtime';
-import { EventType } from '@ez4/common';
+import { ServiceEventType } from '@ez4/common';
 
 declare const __EZ4_SCHEMA: MessageSchema | null;
 declare const __EZ4_CONTEXT: object;
@@ -59,7 +59,7 @@ export async function snsEntryPoint(event: SNSEvent, context: Context): Promise<
 const onBegin = async (request: Partial<Notification.Incoming<Notification.Message>>) => {
   return dispatch(
     {
-      type: EventType.Begin,
+      type: ServiceEventType.Begin,
       request
     },
     __EZ4_CONTEXT
@@ -69,7 +69,7 @@ const onBegin = async (request: Partial<Notification.Incoming<Notification.Messa
 const onReady = async (request: Partial<Notification.Incoming<Notification.Message>>) => {
   return dispatch(
     {
-      type: EventType.Ready,
+      type: ServiceEventType.Ready,
       request
     },
     __EZ4_CONTEXT
@@ -84,7 +84,7 @@ const onError = async (
 
   return dispatch(
     {
-      type: EventType.Error,
+      type: ServiceEventType.Error,
       request,
       error
     },
@@ -95,7 +95,7 @@ const onError = async (
 const onEnd = async (request: Partial<Notification.Incoming<Notification.Message>>) => {
   return dispatch(
     {
-      type: EventType.End,
+      type: ServiceEventType.End,
       request
     },
     __EZ4_CONTEXT

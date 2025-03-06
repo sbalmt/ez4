@@ -1,25 +1,25 @@
 import type { Http } from '@ez4/gateway';
 
-import { EventType } from '@ez4/common';
+import { ServiceEventType } from '@ez4/common';
 
 /**
  * Watch API lifecycle events.
  */
 export function apiListener(event: Http.ServiceEvent) {
   switch (event.type) {
-    case EventType.Begin:
+    case ServiceEventType.Begin:
       console.log('Request begin', JSON.stringify(event.request));
       break;
 
-    case EventType.Ready:
+    case ServiceEventType.Ready:
       console.log('Request ready', JSON.stringify(event.request));
       break;
 
-    case EventType.Error:
+    case ServiceEventType.Error:
       console.log('Request error', JSON.stringify(event.request));
       break;
 
-    case EventType.End:
+    case ServiceEventType.End:
       console.log('Request end', JSON.stringify(event.request));
       break;
   }

@@ -6,7 +6,7 @@ import type { Service } from '@ez4/common';
 
 import { unmarshall } from '@aws-sdk/util-dynamodb';
 import { validateSchema } from '@ez4/aws-dynamodb/runtime';
-import { EventType } from '@ez4/common';
+import { ServiceEventType } from '@ez4/common';
 import { StreamType } from '@ez4/database';
 
 declare const __EZ4_SCHEMA: ObjectSchema | null;
@@ -152,7 +152,7 @@ const getDeleteRecordChange = async (
 const onBegin = async (request: Partial<Database.Incoming<object>>) => {
   return dispatch(
     {
-      type: EventType.Begin,
+      type: ServiceEventType.Begin,
       request
     },
     __EZ4_CONTEXT
@@ -162,7 +162,7 @@ const onBegin = async (request: Partial<Database.Incoming<object>>) => {
 const onReady = async (request: Partial<Database.Incoming<object>>) => {
   return dispatch(
     {
-      type: EventType.Ready,
+      type: ServiceEventType.Ready,
       request
     },
     __EZ4_CONTEXT
@@ -174,7 +174,7 @@ const onError = async (error: Error, request: Partial<Database.Incoming<object>>
 
   return dispatch(
     {
-      type: EventType.Error,
+      type: ServiceEventType.Error,
       request,
       error
     },
@@ -185,7 +185,7 @@ const onError = async (error: Error, request: Partial<Database.Incoming<object>>
 const onEnd = async (request: Partial<Database.Incoming<object>>) => {
   return dispatch(
     {
-      type: EventType.End,
+      type: ServiceEventType.End,
       request
     },
     __EZ4_CONTEXT

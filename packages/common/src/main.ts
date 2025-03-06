@@ -1,4 +1,4 @@
-export { EventType } from './services/common.js';
+export { ServiceEventType } from './services/common.js';
 
 export * from './richtypes/environment.js';
 

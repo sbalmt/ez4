@@ -19,7 +19,7 @@ import {
 } from '@ez4/aws-gateway/runtime';
 
 import { HttpError, HttpInternalServerError } from '@ez4/gateway';
-import { EventType } from '@ez4/common';
+import { ServiceEventType } from '@ez4/common';
 
 type RequestEvent = APIGatewayProxyEventV2WithLambdaAuthorizer<any>;
 type ResponseEvent = APIGatewayProxyResultV2;
@@ -186,7 +186,7 @@ const getErrorResponse = (error?: HttpError) => {
 const onBegin = async (request: Partial<Http.Incoming<Http.Request>>) => {
   return dispatch(
     {
-      type: EventType.Begin,
+      type: ServiceEventType.Begin,
       request
     },
     __EZ4_CONTEXT
@@ -196,7 +196,7 @@ const onBegin = async (request: Partial<Http.Incoming<Http.Request>>) => {
 const onReady = async (request: Partial<Http.Incoming<Http.Request>>) => {
   return dispatch(
     {
-      type: EventType.Ready,
+      type: ServiceEventType.Ready,
       request
     },
     __EZ4_CONTEXT
@@ -208,7 +208,7 @@ const onError = async (error: Error, request: Partial<Http.Incoming<Http.Request
 
   return dispatch(
     {
-      type: EventType.Error,
+      type: ServiceEventType.Error,
       request,
       error
     },
@@ -219,7 +219,7 @@ const onError = async (error: Error, request: Partial<Http.Incoming<Http.Request
 const onEnd = async (request: Partial<Http.Incoming<Http.Request>>) => {
   return dispatch(
     {
-      type: EventType.End,
+      type: ServiceEventType.End,
       request
     },
     __EZ4_CONTEXT

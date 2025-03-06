@@ -4,7 +4,7 @@ import type { Service } from '@ez4/common';
 import type { Cron } from '@ez4/scheduler';
 
 import { getJsonEvent } from '@ez4/aws-scheduler/runtime';
-import { EventType } from '@ez4/common';
+import { ServiceEventType } from '@ez4/common';
 
 declare const __EZ4_SCHEMA: ObjectSchema | UnionSchema | null;
 declare const __EZ4_CONTEXT: object;
@@ -55,7 +55,7 @@ export async function eventEntryPoint(event: ScheduledEvent, context: Context): 
 const onBegin = async (request: Partial<Cron.Incoming<Cron.Event>>) => {
   return dispatch(
     {
-      type: EventType.Begin,
+      type: ServiceEventType.Begin,
       request
     },
     __EZ4_CONTEXT
@@ -65,7 +65,7 @@ const onBegin = async (request: Partial<Cron.Incoming<Cron.Event>>) => {
 const onReady = async (request: Partial<Cron.Incoming<Cron.Event>>) => {
   return dispatch(
     {
-      type: EventType.Ready,
+      type: ServiceEventType.Ready,
       request
     },
     __EZ4_CONTEXT
@@ -77,7 +77,7 @@ const onError = async (error: Error, request: Partial<Cron.Incoming<Cron.Event>>
 
   return dispatch(
     {
-      type: EventType.Error,
+      type: ServiceEventType.Error,
       request,
       error
     },
@@ -88,7 +88,7 @@ const onError = async (error: Error, request: Partial<Cron.Incoming<Cron.Event>>
 const onEnd = async (request: Partial<Cron.Incoming<Cron.Event>>) => {
   return dispatch(
     {
-      type: EventType.End,
+      type: ServiceEventType.End,
       request
     },
     __EZ4_CONTEXT

@@ -3,7 +3,7 @@ import type { Bucket } from '@ez4/storage';
 import type { Service } from '@ez4/common';
 
 import { BucketEventType } from '@ez4/storage';
-import { EventType } from '@ez4/common';
+import { ServiceEventType } from '@ez4/common';
 
 declare const __EZ4_CONTEXT: object;
 
@@ -62,7 +62,7 @@ const getKnownEventType = (eventName: string) => {
 const onBegin = async (request: Partial<Bucket.Incoming>) => {
   return dispatch(
     {
-      type: EventType.Begin,
+      type: ServiceEventType.Begin,
       request
     },
     __EZ4_CONTEXT
@@ -72,7 +72,7 @@ const onBegin = async (request: Partial<Bucket.Incoming>) => {
 const onReady = async (request: Partial<Bucket.Incoming>) => {
   return dispatch(
     {
-      type: EventType.Ready,
+      type: ServiceEventType.Ready,
       request
     },
     __EZ4_CONTEXT
@@ -84,7 +84,7 @@ const onError = async (error: Error, request: Partial<Bucket.Incoming>) => {
 
   return dispatch(
     {
-      type: EventType.Error,
+      type: ServiceEventType.Error,
       request,
       error
     },
@@ -95,7 +95,7 @@ const onError = async (error: Error, request: Partial<Bucket.Incoming>) => {
 const onEnd = async (request: Partial<Bucket.Incoming>) => {
   return dispatch(
     {
-      type: EventType.End,
+      type: ServiceEventType.End,
       request
     },
     __EZ4_CONTEXT
