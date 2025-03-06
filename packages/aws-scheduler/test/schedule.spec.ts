@@ -58,9 +58,11 @@ describe.only('scheduler', () => {
     });
 
     const lambdaResource = createTargetFunction(localState, roleResource, {
-      sourceFile: join(baseDir, 'lambda.js'),
       functionName: 'ez4-test-scheduler-lambda',
-      handlerName: 'main'
+      handler: {
+        sourceFile: join(baseDir, 'lambda.js'),
+        functionName: 'main'
+      }
     });
 
     const resource = createSchedule(localState, roleResource, lambdaResource, undefined, {

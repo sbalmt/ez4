@@ -66,9 +66,11 @@ describe.only('notification subscription', () => {
     });
 
     const functionResource = createSubscriptionFunction(localState, roleResource, {
-      sourceFile: join(baseDir, 'lambda.js'),
       functionName: 'EZ4: Test notification subscription lambda',
-      handlerName: 'main'
+      handler: {
+        functionName: 'main',
+        sourceFile: join(baseDir, 'lambda.js')
+      }
     });
 
     const resource = createSubscription(localState, topicResource, functionResource);

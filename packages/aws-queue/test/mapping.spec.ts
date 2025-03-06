@@ -62,9 +62,11 @@ describe.only('queue mapping', () => {
     });
 
     const functionResource = await createQueueFunction(localState, roleResource, {
-      sourceFile: join(baseDir, 'lambda.js'),
       functionName: 'EZ4: Test queue mapping lambda',
-      handlerName: 'main'
+      handler: {
+        functionName: 'main',
+        sourceFile: join(baseDir, 'lambda.js')
+      }
     });
 
     const resource = createMapping(localState, queueResource, functionResource, {

@@ -69,9 +69,11 @@ describe.only('gateway route', () => {
     });
 
     const integrationLambdaResource = await createIntegrationFunction(localState, roleResource, {
-      sourceFile: join(baseDir, 'lambda.js'),
       functionName: 'EZ4: Test integration handler lambda',
-      handlerName: 'main'
+      handler: {
+        functionName: 'main',
+        sourceFile: join(baseDir, 'lambda.js')
+      }
     });
 
     const integrationResource = createIntegration(
@@ -84,9 +86,11 @@ describe.only('gateway route', () => {
     );
 
     const authorizerLambdaResource = await createAuthorizerFunction(localState, roleResource, {
-      sourceFile: join(baseDir, 'lambda.js'),
       functionName: 'EZ4: Test route authorizer lambda',
-      handlerName: 'main'
+      authorizer: {
+        functionName: 'main',
+        sourceFile: join(baseDir, 'lambda.js')
+      }
     });
 
     const authorizerResource = createAuthorizer(

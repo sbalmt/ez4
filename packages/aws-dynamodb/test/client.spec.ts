@@ -23,7 +23,7 @@ declare class TestSchema implements Database.Schema {
   value: string;
 }
 
-declare class Test extends Database.Service<[TestSchema]> {
+declare class Test extends Database.Service {
   engine: 'test';
 
   tables: [

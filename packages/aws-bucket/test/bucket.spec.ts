@@ -56,9 +56,11 @@ describe.only('bucket resources', () => {
     });
 
     const lambdaResource = createBucketEventFunction(localState, roleResource, {
-      sourceFile: join(baseDir, 'lambda.js'),
       functionName: 'ez4-test-bucket-event-lambda',
-      handlerName: 'main'
+      handler: {
+        functionName: 'main',
+        sourceFile: join(baseDir, 'lambda.js')
+      }
     });
 
     const resource = createBucket(localState, lambdaResource, {
