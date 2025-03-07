@@ -10,7 +10,7 @@ import type {
 
 import { isRoleState } from '@ez4/aws-identity';
 import { BucketService, isBucketService } from '@ez4/storage/library';
-import { linkServiceExtras } from '@ez4/project/library';
+import { getServiceName, linkServiceExtras } from '@ez4/project/library';
 import { getFunction } from '@ez4/aws-function';
 
 import { createBucket } from '../bucket/service.js';
@@ -43,15 +43,16 @@ export const prepareBucketServices = async (event: PrepareResourceEvent) => {
     throw new RoleMissingError();
   }
 
-  const { name, localPath, autoExpireDays, events, cors } = service;
+  const { localPath, autoExpireDays, events, cors } = service;
 
   const bucketName = await getBucketName(service, options);
+  const bucketId = getServiceName(service, options);
 
   const functionState = getEventsFunction(state, service, role, options);
 
   const bucketState = createBucket(state, functionState, {
     eventsPath: events?.path,
-    bucketId: name,
+    bucketId,
     bucketName,
     autoExpireDays,
     localPath,

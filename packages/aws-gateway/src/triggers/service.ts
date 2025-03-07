@@ -9,7 +9,7 @@ import type {
   PrepareResourceEvent
 } from '@ez4/project/library';
 
-import { linkServiceExtras } from '@ez4/project/library';
+import { getServiceName, linkServiceExtras } from '@ez4/project/library';
 import { FunctionParameters, Variables } from '@ez4/aws-function';
 import { isHttpService } from '@ez4/gateway/library';
 import { getFunction } from '@ez4/aws-function';
@@ -34,9 +34,11 @@ export const prepareHttpServices = (event: PrepareResourceEvent) => {
 
   const { name, displayName, description, routes, cors } = service;
 
+  const gatewayId = getServiceName(service, options);
+
   const gatewayState = createGateway(state, {
-    gatewayId: name,
     gatewayName: displayName ?? name,
+    gatewayId,
     description,
     ...(cors && {
       cors: getCorsConfiguration(routes, cors)
