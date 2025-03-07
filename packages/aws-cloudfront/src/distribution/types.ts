@@ -32,10 +32,12 @@ export type DistributionParameters = Omit<
 };
 
 export type DistributionResult = CreateResponse & {
-  certificateArn: Arn | undefined;
   cachePolicyIds: string[];
   originPolicyId: string;
   originAccessId: string;
+  certificateArn: Arn | undefined;
+  defaultOrigin: DistributionOrigin;
+  origins: DistributionOrigin[];
 };
 
 export type DistributionState = EntryState & {
