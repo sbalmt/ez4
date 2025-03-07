@@ -37,7 +37,8 @@
     "packages/aws-queue",
     "packages/aws-notification",
     "packages/aws-cloudfront",
-    "packages/aws-certificate"
+    "packages/aws-certificate",
+    "examples/*"
   ],
   "scripts": {
     "prettify": "npx prettier 'packages/**/*.ts' --write",
