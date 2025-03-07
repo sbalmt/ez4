@@ -1,6 +1,6 @@
 {
-  "name": "hello-aws-queue",
-  "description": "Example of a service using AWS Queue (SQS).",
+  "name": "aws-import-queue",
+  "description": "Example of a service using an imported AWS Queue (SQS).",
   "version": "0.0.0",
   "author": "Silas B.",
   "license": "MIT",
@@ -13,17 +13,12 @@
     "packages/*",
     "examples/*"
   ],
-  "exports": {
-    ".": {
-      "types": "./src/export.ts",
-      "default": "./src/export.js"
-    }
-  },
   "scripts": {
     "deploy": "tsc -p tsconfig.json && ez4 deploy -e local.env -p ez4.project.js",
     "destroy": "ez4 destroy -e local.env -p ez4.project.js"
   },
   "dependencies": {
+    "hello-aws-queue": "^0.0.0",
     "@ez4/aws-queue": "^0.15.0",
     "@ez4/queue": "^0.15.0",
     "@ez4/project": "^0.15.0"

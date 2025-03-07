@@ -28,6 +28,11 @@ export declare class Sqs extends Queue.Service<MessageRequest> {
   delay: 10;
 
   /**
+   * Define a FIFO queue.
+   */
+  order: true;
+
+  /**
    * All handlers for this queue.
    */
   subscriptions: [
