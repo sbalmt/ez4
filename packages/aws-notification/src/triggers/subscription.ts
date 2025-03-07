@@ -8,7 +8,7 @@ import { NotificationSubscriptionType } from '@ez4/notification/library';
 import { getServiceName, linkServiceExtras } from '@ez4/project/library';
 import { InvalidParameterError } from '@ez4/aws-common';
 import { getFunction } from '@ez4/aws-function';
-import { getQueue } from '@ez4/aws-queue';
+import { getQueueState } from '@ez4/aws-queue';
 
 import { SubscriptionServiceName } from '../subscription/types.js';
 import { createSubscriptionFunction } from '../subscription/function/service.js';
@@ -67,7 +67,7 @@ export const prepareSubscriptions = async (
 
       case NotificationSubscriptionType.Queue: {
         const queueName = getServiceName(subscription.service, options);
-        const queueState = getQueue(state, queueName);
+        const queueState = getQueueState(state, queueName);
 
         if (!queueState) {
           throw new SubscriptionMissingError(queueName);
@@ -109,7 +109,7 @@ export const connectSubscriptions = (
 
       case NotificationSubscriptionType.Queue: {
         const queueName = getServiceName(subscription.service, options);
-        const queueState = getQueue(state, queueName);
+        const queueState = getQueueState(state, queueName);
 
         if (!queueState) {
           throw new SubscriptionMissingError(queueName);

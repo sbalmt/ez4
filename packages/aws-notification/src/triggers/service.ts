@@ -20,9 +20,9 @@ export const prepareLinkedServices = (event: ServiceEvent) => {
     return;
   }
 
-  const queueName = getServiceName(service, options);
+  const notificationName = getServiceName(service, options);
 
-  return prepareLinkedClient(queueName, service.schema);
+  return prepareLinkedClient(notificationName, service.schema);
 };
 
 export const prepareServices = async (event: PrepareResourceEvent) => {

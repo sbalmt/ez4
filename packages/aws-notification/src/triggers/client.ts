@@ -9,11 +9,11 @@ export const prepareLinkedClient = (
   topicName: string,
   topicSchema: NotificationMessageSchema
 ): ExtraSource => {
-  const topicEntryId = createTopicStateId(topicName);
-  const topicArn = getDefinitionName(topicEntryId, 'topicArn');
+  const topicStateId = createTopicStateId(topicName);
+  const topicArn = getDefinitionName(topicStateId, 'topicArn');
 
   return {
-    entryId: topicEntryId,
+    entryId: topicStateId,
     constructor: `make(${topicArn}, ${JSON.stringify(topicSchema)})`,
     from: '@ez4/aws-notification/client',
     module: 'Client'

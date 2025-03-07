@@ -12,11 +12,11 @@ export const prepareLinkedClient = (
   options: DeployOptions,
   defaults: Pick<ScheduleEvent<never>, 'maxRetries' | 'maxAge'>
 ): ExtraSource => {
-  const scheduleEntryId = createScheduleStateId(scheduleName);
+  const scheduleStateId = createScheduleStateId(scheduleName);
 
-  const groupName = getDefinitionName(scheduleEntryId, 'groupName');
-  const functionArn = getDefinitionName(scheduleEntryId, 'functionArn');
-  const roleArn = getDefinitionName(scheduleEntryId, 'roleArn');
+  const groupName = getDefinitionName(scheduleStateId, 'groupName');
+  const functionArn = getDefinitionName(scheduleStateId, 'functionArn');
+  const roleArn = getDefinitionName(scheduleStateId, 'roleArn');
 
   const clientParameters = {
     prefix: getServiceName('', options),
@@ -25,7 +25,7 @@ export const prepareLinkedClient = (
   };
 
   return {
-    entryId: scheduleEntryId,
+    entryId: scheduleStateId,
     constructor: `make(${roleArn}, ${functionArn}, ${groupName}, ${JSON.stringify(clientParameters)})`,
     from: '@ez4/aws-scheduler/client',
     module: 'Client'

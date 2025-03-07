@@ -83,18 +83,22 @@ const getTypeFromMembers = (
       case 'minTTL':
       case 'maxTTL': {
         const value = getPropertyNumber(member);
+
         if (isAnyNumber(value)) {
           cache[member.name] = value;
           properties.delete(member.name);
         }
+
         break;
       }
 
       case 'compress': {
         const value = getPropertyBoolean(member);
+
         if (isAnyBoolean(value)) {
           cache[member.name] = value;
         }
+
         break;
       }
     }

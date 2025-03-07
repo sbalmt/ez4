@@ -21,7 +21,7 @@ export const prepareCdnServices = async (event: PrepareResourceEvent) => {
     return;
   }
 
-  const { description, certificate, defaultIndex, defaultOrigin } = service;
+  const { description, certificate, defaultIndex } = service;
 
   const originPolicyState = createOriginPolicy(state, {
     policyName: getOriginPolicyName(service, options),
@@ -41,7 +41,7 @@ export const prepareCdnServices = async (event: PrepareResourceEvent) => {
     });
   }
 
-  const { cache: defaultCache } = defaultOrigin;
+  const { cache: defaultCache } = service.defaultOrigin;
 
   const customErrors = service.fallbacks?.map(({ code, location, ttl }) => ({
     ttl: ttl ?? defaultCache?.ttl ?? 86400,
@@ -49,16 +49,21 @@ export const prepareCdnServices = async (event: PrepareResourceEvent) => {
     code
   }));
 
+  const distributionName = getServiceName(service, options);
+
+  const defaultOrigin = await getDefaultOriginCache(state, service, options);
+  const origins = await getAdditionalOriginCache(state, service, options);
+
   createDistribution(state, originAccessState, originPolicyState, certificateState, {
-    distributionName: getServiceName(service, options),
-    defaultOrigin: await getDefaultOriginCache(state, service, options),
-    origins: await getAdditionalOriginCache(state, service, options),
     compress: defaultCache?.compress ?? true,
     enabled: !service.disabled,
     aliases: service.aliases,
-    defaultIndex,
+    distributionName,
+    description,
     customErrors,
-    description
+    defaultOrigin,
+    defaultIndex,
+    origins
   });
 };
 

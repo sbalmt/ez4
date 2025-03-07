@@ -53,50 +53,62 @@ export const getCdnServices = (reflection: SourceMap) => {
 
         case 'certificate': {
           const certificate = getCdnCertificate(member.value, statement, reflection, errorList);
+
           if (certificate) {
             service.certificate = certificate;
           }
+
           break;
         }
 
         case 'defaultIndex': {
           const value = getPropertyString(member);
+
           if (value) {
             service.defaultIndex = value;
           }
+
           break;
         }
 
         case 'defaultOrigin': {
           const defaultOrigin = getCdnOrigin(member.value, statement, reflection, errorList);
+
           if (defaultOrigin) {
             service.defaultOrigin = defaultOrigin;
             properties.delete(member.name);
           }
+
           break;
         }
 
         case 'origins': {
           const originList = getAllCdnOrigins(member.value, statement, reflection, errorList);
+
           if (originList?.length) {
             service.origins = originList;
           }
+
           break;
         }
 
         case 'fallbacks': {
           const fallbackList = getAllFallbacks(member, statement, reflection, errorList);
+
           if (fallbackList) {
             service.fallbacks = fallbackList;
           }
+
           break;
         }
 
         case 'disabled': {
           const value = getPropertyBoolean(member);
+
           if (isAnyBoolean(value)) {
             service.disabled = value;
           }
+
           break;
         }
       }

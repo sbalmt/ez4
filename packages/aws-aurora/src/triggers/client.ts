@@ -12,18 +12,18 @@ export const prepareLinkedClient = (
   options: DeployOptions
 ): ExtraSource => {
   const clusterName = getClusterName(service, options);
-  const clusterId = createClusterStateId(clusterName);
+  const clusterStateId = createClusterStateId(clusterName);
 
   const database = getDatabaseName(service, options);
-  const resourceArn = getDefinitionName(clusterId, 'clusterArn');
-  const secretArn = getDefinitionName(clusterId, 'secretArn');
+  const resourceArn = getDefinitionName(clusterStateId, 'clusterArn');
+  const secretArn = getDefinitionName(clusterStateId, 'secretArn');
 
   const configuration = `{ database: "${database}", resourceArn: ${resourceArn}, secretArn: ${secretArn} }`;
 
   const repository = JSON.stringify(getRepository(service));
 
   return {
-    entryId: clusterId,
+    entryId: clusterStateId,
     constructor: `make(${configuration}, ${repository}, ${options.debug ? 'true' : 'false'})`,
     from: '@ez4/aws-aurora/client',
     module: 'Client'

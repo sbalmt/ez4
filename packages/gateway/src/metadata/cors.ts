@@ -86,25 +86,31 @@ const getTypeFromMembers = (
       case 'allowHeaders':
       case 'exposeHeaders': {
         const values = getStringValues(member);
+
         if (values.length) {
           cors[member.name] = values;
         }
+
         break;
       }
 
       case 'allowCredentials': {
         const value = getPropertyBoolean(member);
+
         if (isAnyBoolean(value)) {
           cors[member.name] = value;
         }
+
         break;
       }
 
       case 'maxAge': {
         const value = getPropertyNumber(member);
+
         if (isAnyNumber(value)) {
           cors[member.name] = value;
         }
+
         break;
       }
     }
