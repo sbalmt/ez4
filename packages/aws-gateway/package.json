@@ -49,7 +49,6 @@
     "@ez4/aws-common": "^0.15.0",
     "@ez4/aws-function": "^0.15.0",
     "@ez4/aws-identity": "^0.15.0",
-    "@ez4/common": "^0.15.0",
     "@ez4/gateway": "^0.15.0",
     "@ez4/project": "^0.15.0",
     "@ez4/schema": "^0.15.0",

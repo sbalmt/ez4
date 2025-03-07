@@ -35,6 +35,6 @@
     "live:publish": "npm run test && npm publish --access public"
   },
   "dependencies": {
-    "typescript": "^5.5.2"
+    "typescript": "^5.7.3"
   }
 }

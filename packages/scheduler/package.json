@@ -44,6 +44,8 @@
   "dependencies": {
     "@ez4/common": "^0.15.0",
     "@ez4/project": "^0.15.0",
-    "@ez4/reflection": "^0.15.0"
+    "@ez4/reflection": "^0.15.0",
+    "@ez4/schema": "^0.15.0",
+    "@ez4/utils": "^0.15.0"
   }
 }
