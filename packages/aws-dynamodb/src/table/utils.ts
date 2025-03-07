@@ -6,12 +6,12 @@ import { hashData, toKebabCase } from '@ez4/utils';
 
 import { TableServiceType } from './types.js';
 
-export const isTableState = (resource: EntryState): resource is TableState => {
-  return resource.type === TableServiceType;
+export const createTableStateId = (gatewayId: string) => {
+  return hashData(TableServiceType, toKebabCase(gatewayId));
 };
 
-export const getTableStateId = (gatewayId: string) => {
-  return hashData(TableServiceType, toKebabCase(gatewayId));
+export const isTableState = (resource: EntryState): resource is TableState => {
+  return resource.type === TableServiceType;
 };
 
 export const getStreamArn = (serviceName: string, resourceId: string, context: StepContext) => {

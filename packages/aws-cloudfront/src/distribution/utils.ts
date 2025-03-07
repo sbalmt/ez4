@@ -7,16 +7,16 @@ import { hashData, toKebabCase } from '@ez4/utils';
 
 import { DistributionServiceType } from './types.js';
 
+export const createDistributionStateId = (distributionName: string) => {
+  return hashData(DistributionServiceType, toKebabCase(distributionName));
+};
+
 export const isDistributionState = (resource: EntryState): resource is DistributionState => {
   return resource.type === DistributionServiceType;
 };
 
-export const getDistributionStateId = (distributionName: string) => {
-  return hashData(DistributionServiceType, toKebabCase(distributionName));
-};
-
 export const getDistributionState = (state: EntryStates, distributionName: string) => {
-  const resource = getEntry(state, getDistributionStateId(distributionName));
+  const resource = getEntry(state, createDistributionStateId(distributionName));
 
   if (!isDistributionState(resource)) {
     throw new EntryNotFoundError(resource.entryId);

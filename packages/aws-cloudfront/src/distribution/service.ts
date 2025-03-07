@@ -8,7 +8,7 @@ import { toKebabCase } from '@ez4/utils';
 import { OriginState } from '../origin/types.js';
 import { AccessState } from '../access/types.js';
 import { DistributionServiceType } from './types.js';
-import { getDistributionStateId } from './utils.js';
+import { createDistributionStateId } from './utils.js';
 
 export const createDistribution = <E extends EntryState>(
   state: EntryStates<E>,
@@ -18,7 +18,7 @@ export const createDistribution = <E extends EntryState>(
   parameters: DistributionParameters
 ) => {
   const distributionName = toKebabCase(parameters.distributionName);
-  const distributionId = getDistributionStateId(distributionName);
+  const distributionId = createDistributionStateId(distributionName);
   const dependencies = [accessState.entryId, originState.entryId];
 
   if (certificateState) {

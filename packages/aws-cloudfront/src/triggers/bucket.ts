@@ -2,7 +2,7 @@ import type { DeployOptions } from '@ez4/project/library';
 import type { BucketState } from '@ez4/aws-bucket';
 
 import { EntryStates, linkDependency } from '@ez4/stateful';
-import { createBucketPolicy, getBucketStateName } from '@ez4/aws-bucket';
+import { createBucketPolicy, getBucketName } from '@ez4/aws-bucket';
 import { CdnService } from '@ez4/distribution/library';
 import { getServiceName } from '@ez4/project/library';
 
@@ -29,7 +29,7 @@ export const connectOriginBucket = (
         context
       );
 
-      const bucketName = getBucketStateName(DistributionServiceType, distributionName, context);
+      const bucketName = getBucketName(DistributionServiceType, distributionName, context);
 
       return getRoleDocument(distributionArn, bucketName);
     }

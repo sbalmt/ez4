@@ -9,7 +9,7 @@ import {
   S3Client,
   PutObjectCommand,
   PutObjectTaggingCommand,
-  DeleteObjectCommand,
+  DeleteObjectCommand
 } from '@aws-sdk/client-s3';
 
 import { getBucketObjectPath } from './utils.js';

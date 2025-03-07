@@ -36,7 +36,7 @@ describe.only('dynamodb query (update)', () => {
       foo: {
         type: SchemaType.Number,
         nullable: true,
-        optional: true,
+        optional: true
       },
       bar: {
         type: SchemaType.Object,

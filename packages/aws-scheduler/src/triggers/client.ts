@@ -4,7 +4,7 @@ import type { ScheduleEvent } from '@ez4/scheduler';
 
 import { getDefinitionName, getServiceName } from '@ez4/project/library';
 
-import { getScheduleStateId } from '../schedule/utils.js';
+import { createScheduleStateId } from '../schedule/utils.js';
 
 export const prepareLinkedClient = (
   scheduleName: string,
@@ -12,7 +12,7 @@ export const prepareLinkedClient = (
   options: DeployOptions,
   defaults: Pick<ScheduleEvent<never>, 'maxRetries' | 'maxAge'>
 ): ExtraSource => {
-  const scheduleEntryId = getScheduleStateId(scheduleName);
+  const scheduleEntryId = createScheduleStateId(scheduleName);
 
   const groupName = getDefinitionName(scheduleEntryId, 'groupName');
   const functionArn = getDefinitionName(scheduleEntryId, 'functionArn');

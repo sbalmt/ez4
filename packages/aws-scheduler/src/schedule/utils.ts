@@ -5,10 +5,10 @@ import { hashData, toKebabCase } from '@ez4/utils';
 
 import { ScheduleServiceType } from './types.js';
 
-export const isScheduleState = (resource: EntryState): resource is ScheduleState => {
-  return resource.type === ScheduleServiceType;
+export const createScheduleStateId = (scheduleName: string) => {
+  return hashData(ScheduleServiceType, toKebabCase(scheduleName));
 };
 
-export const getScheduleStateId = (scheduleName: string) => {
-  return hashData(ScheduleServiceType, toKebabCase(scheduleName));
+export const isScheduleState = (resource: EntryState): resource is ScheduleState => {
+  return resource.type === ScheduleServiceType;
 };

@@ -4,7 +4,7 @@ import {
   ApiGatewayV2Client,
   CreateIntegrationCommand,
   UpdateIntegrationCommand,
-  DeleteIntegrationCommand,
+  DeleteIntegrationCommand
 } from '@aws-sdk/client-apigatewayv2';
 
 import { Logger } from '@ez4/aws-common';

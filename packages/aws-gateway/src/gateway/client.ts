@@ -8,7 +8,7 @@ import {
   DeleteApiCommand,
   DeleteCorsConfigurationCommand,
   TagResourceCommand,
-  UntagResourceCommand,
+  UntagResourceCommand
 } from '@aws-sdk/client-apigatewayv2';
 
 import { Logger } from '@ez4/aws-common';

@@ -7,12 +7,12 @@ import { hashData, toKebabCase } from '@ez4/utils';
 import { queueUrlToArn } from '../utils/policy.js';
 import { QueueServiceType } from './types.js';
 
-export const isQueueState = (resource: EntryState): resource is QueueState => {
-  return resource.type === QueueServiceType;
-};
-
 export const getQueueStateId = (queueName: string) => {
   return hashData(QueueServiceType, toKebabCase(queueName));
+};
+
+export const isQueueState = (resource: EntryState): resource is QueueState => {
+  return resource.type === QueueServiceType;
 };
 
 export const getQueueUrl = (serviceName: string, resourceId: string, context: StepContext) => {

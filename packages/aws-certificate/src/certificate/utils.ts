@@ -6,12 +6,12 @@ import { hashData, toKebabCase } from '@ez4/utils';
 
 import { CertificateServiceType } from './types.js';
 
-export const isCertificateState = (resource: EntryState): resource is CertificateState => {
-  return resource.type === CertificateServiceType;
+export const createCertificateStateId = (bucketName: string) => {
+  return hashData(CertificateServiceType, toKebabCase(bucketName));
 };
 
-export const getCertificateStateId = (bucketName: string) => {
-  return hashData(CertificateServiceType, toKebabCase(bucketName));
+export const isCertificateState = (resource: EntryState): resource is CertificateState => {
+  return resource.type === CertificateServiceType;
 };
 
 export const tryGetCertificateArn = (context: StepContext) => {

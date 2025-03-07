@@ -3,13 +3,13 @@ import type { ExtraSource } from '@ez4/project/library';
 
 import { getDefinitionName } from '@ez4/project/library';
 
-import { getTopicStateId } from '../topic/utils.js';
+import { createTopicStateId } from '../topic/utils.js';
 
 export const prepareLinkedClient = (
   topicName: string,
   topicSchema: NotificationMessageSchema
 ): ExtraSource => {
-  const topicEntryId = getTopicStateId(topicName);
+  const topicEntryId = createTopicStateId(topicName);
   const topicArn = getDefinitionName(topicEntryId, 'topicArn');
 
   return {

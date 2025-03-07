@@ -3,7 +3,7 @@ import type { DeployOptions, ExtraSource } from '@ez4/project/library';
 import { getDefinitionName } from '@ez4/project/library';
 import { DatabaseService } from '@ez4/database/library';
 
-import { getClusterStateId } from '../cluster/utils.js';
+import { createClusterStateId } from '../cluster/utils.js';
 import { getClusterName, getDatabaseName } from './utils.js';
 import { getRepository } from './repository.js';
 
@@ -12,7 +12,7 @@ export const prepareLinkedClient = (
   options: DeployOptions
 ): ExtraSource => {
   const clusterName = getClusterName(service, options);
-  const clusterId = getClusterStateId(clusterName);
+  const clusterId = createClusterStateId(clusterName);
 
   const database = getDatabaseName(service, options);
   const resourceArn = getDefinitionName(clusterId, 'clusterArn');

@@ -25,11 +25,7 @@ export const getBucketState = (state: EntryStates, bucketId: string) => {
   return resource;
 };
 
-export const getBucketStateName = (
-  serviceName: string,
-  resourceId: string,
-  context: StepContext
-) => {
+export const getBucketName = (serviceName: string, resourceId: string, context: StepContext) => {
   const resource = context.getDependencies<BucketState>(BucketServiceType)[0]?.result;
 
   if (!resource?.bucketName) {
