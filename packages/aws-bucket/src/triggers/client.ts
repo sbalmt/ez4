@@ -1,12 +1,12 @@
 import type { ExtraSource } from '@ez4/project/library';
 
-import { getBucketStateId } from '../bucket/utils.js';
+import { createBucketStateId } from '../bucket/utils.js';
 
-export const prepareLinkedClient = (bucketName: string): ExtraSource => {
-  const bucketEntryId = getBucketStateId(bucketName);
+export const prepareLinkedClient = (bucketId: string, bucketName: string): ExtraSource => {
+  const bucketStateId = createBucketStateId(bucketId);
 
   return {
-    entryId: bucketEntryId,
+    entryId: bucketStateId,
     constructor: `make('${bucketName}')`,
     from: '@ez4/aws-bucket/client',
     module: 'Client'

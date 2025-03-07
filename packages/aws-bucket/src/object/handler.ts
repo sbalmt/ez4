@@ -7,7 +7,7 @@ import { stat } from 'node:fs/promises';
 import { ReplaceResourceError } from '@ez4/aws-common';
 import { deepCompare, deepEqual } from '@ez4/utils';
 
-import { getBucketName } from '../bucket/utils.js';
+import { getBucketStateName } from '../bucket/utils.js';
 import { putObject, deleteObject, tagObject } from './client.js';
 import { ObjectServiceName } from './types.js';
 
@@ -69,7 +69,7 @@ const createResource = async (
 ): Promise<ObjectResult> => {
   const parameters = candidate.parameters;
 
-  const bucketName = getBucketName(ObjectServiceName, 'bucket', context);
+  const bucketName = getBucketStateName(ObjectServiceName, 'bucket', context);
 
   const lastModified = await getLastModifiedTime(parameters.filePath);
 

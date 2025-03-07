@@ -3,7 +3,7 @@ import type { PolicyState, PolicyResult } from './types.js';
 
 import { ReplaceResourceError } from '@ez4/aws-common';
 
-import { getBucketName } from '../bucket/utils.js';
+import { getBucketStateName } from '../bucket/utils.js';
 import { createPolicy, deletePolicy } from './client.js';
 import { PolicyServiceName } from './types.js';
 
@@ -43,7 +43,7 @@ const createResource = async (
 ): Promise<PolicyResult> => {
   const parameters = candidate.parameters;
 
-  const bucketName = getBucketName(PolicyServiceName, 'policy', context);
+  const bucketName = getBucketStateName(PolicyServiceName, 'policy', context);
   const role = await parameters.getRole(context);
 
   await createPolicy({

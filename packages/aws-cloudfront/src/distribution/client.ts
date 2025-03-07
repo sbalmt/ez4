@@ -68,9 +68,9 @@ export type DistributionCustomError = {
 export type CreateRequest = {
   distributionName: string;
   customErrors?: DistributionCustomError[];
-  origins?: AdditionalOrigin[];
-  defaultOrigin: DefaultOrigin;
   defaultIndex?: string;
+  defaultOrigin: DefaultOrigin;
+  origins?: AdditionalOrigin[];
   certificateArn?: Arn;
   originAccessId?: string;
   description?: string;

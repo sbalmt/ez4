@@ -29,7 +29,7 @@ export const prepareLinkedServices = async (event: ServiceEvent) => {
 
   const bucketName = await getBucketName(service, options);
 
-  return prepareLinkedClient(bucketName);
+  return prepareLinkedClient(service.name, bucketName);
 };
 
 export const prepareBucketServices = async (event: PrepareResourceEvent) => {
@@ -43,7 +43,7 @@ export const prepareBucketServices = async (event: PrepareResourceEvent) => {
     throw new RoleMissingError();
   }
 
-  const { localPath, autoExpireDays, events, cors } = service;
+  const { name, localPath, autoExpireDays, events, cors } = service;
 
   const bucketName = await getBucketName(service, options);
 
@@ -51,6 +51,7 @@ export const prepareBucketServices = async (event: PrepareResourceEvent) => {
 
   const bucketState = createBucket(state, functionState, {
     eventsPath: events?.path,
+    bucketId: name,
     bucketName,
     autoExpireDays,
     localPath,

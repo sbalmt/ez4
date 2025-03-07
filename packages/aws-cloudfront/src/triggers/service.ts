@@ -83,8 +83,7 @@ export const connectCdnServices = async (event: ConnectResourceEvent) => {
       continue;
     }
 
-    const bucketName = getServiceName(origin.bucket, options);
-    const bucketState = getBucketState(state, bucketName);
+    const bucketState = getBucketState(state, origin.bucket);
 
     connectOriginBucket(state, service, bucketState, options);
 
