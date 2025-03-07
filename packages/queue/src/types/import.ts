@@ -12,7 +12,7 @@ export type QueueImport = ServiceMetadata & {
   description?: string;
   subscriptions: QueueSubscription[];
   timeout?: number;
-  polling?: number;
+  order?: boolean;
 };
 
 export const isQueueImport = (service: ServiceMetadata): service is QueueImport => {

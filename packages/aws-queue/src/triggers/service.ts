@@ -12,6 +12,7 @@ import { createQueue } from '../queue/service.js';
 import { connectSubscriptions, prepareSubscriptions } from './subscription.js';
 import { prepareLinkedClient } from './client.js';
 import { RoleMissingError } from './errors.js';
+import { getQueueName } from './utils.js';
 
 export const prepareLinkedServices = (event: ServiceEvent) => {
   const { service, options } = event;
@@ -20,7 +21,7 @@ export const prepareLinkedServices = (event: ServiceEvent) => {
     return null;
   }
 
-  const queueName = getServiceName(service, options);
+  const queueName = getQueueName(service, options);
 
   return prepareLinkedClient(queueName, service.schema);
 };
@@ -38,8 +39,11 @@ export const prepareServices = async (event: PrepareResourceEvent) => {
 
   const { timeout, retention, polling, delay } = service;
 
+  const queueName = getServiceName(service, options);
+
   const queueState = createQueue(state, {
-    queueName: getServiceName(service, options),
+    queueName,
+    fifo: service.order,
     ...(timeout !== undefined && { timeout }),
     ...(retention !== undefined && { retention }),
     ...(polling !== undefined && { polling }),

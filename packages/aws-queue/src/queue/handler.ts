@@ -55,8 +55,10 @@ const replaceResource = async (candidate: QueueState, current: QueueState) => {
 const createResource = async (candidate: QueueState): Promise<QueueResult> => {
   const parameters = candidate.parameters;
 
+  const { queueName, fifo } = parameters;
+
   const { queueUrl } = await (parameters.import
-    ? fetchQueue(parameters.queueName)
+    ? fetchQueue(queueName, fifo)
     : createQueue(parameters));
 
   return {

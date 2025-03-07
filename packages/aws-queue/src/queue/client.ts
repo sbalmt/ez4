@@ -20,6 +20,7 @@ const client = new SQSClient({});
 export type CreateRequest = {
   queueName: string;
   timeout?: number;
+  fifo?: boolean;
   retention?: number;
   polling?: number;
   delay?: number;
@@ -32,12 +33,12 @@ export type CreateResponse = {
 
 export type UpdateRequest = Pick<CreateRequest, 'timeout' | 'retention' | 'polling' | 'delay'>;
 
-export const fetchQueue = async (queueName: string) => {
+export const fetchQueue = async (queueName: string, fifo?: boolean) => {
   Logger.logFetch(QueueServiceName, queueName);
 
   const response = await client.send(
     new GetQueueUrlCommand({
-      QueueName: queueName
+      QueueName: getQueueResourceName(queueName, fifo)
     })
   );
 
@@ -49,11 +50,19 @@ export const fetchQueue = async (queueName: string) => {
 export const createQueue = async (request: CreateRequest): Promise<CreateResponse> => {
   Logger.logCreate(QueueServiceName, request.queueName);
 
+  const { queueName, fifo } = request;
+
   const response = await client.send(
     new CreateQueueCommand({
-      QueueName: request.queueName,
+      QueueName: getQueueResourceName(queueName, fifo),
       Attributes: {
-        ...upsertQueueAttributes(request)
+        ...upsertQueueAttributes(request),
+        ...(fifo && {
+          ContentBasedDeduplication: 'true',
+          DeduplicationScope: 'messageGroup',
+          FifoThroughputLimit: 'perMessageGroupId',
+          FifoQueue: 'true'
+        })
       },
       tags: {
         ...request.tags,
@@ -126,4 +135,8 @@ const upsertQueueAttributes = (
     ...(polling !== undefined && { ReceiveMessageWaitTimeSeconds: polling.toString() }),
     ...(delay !== undefined && { DelaySeconds: delay.toString() })
   };
+};
+
+const getQueueResourceName = (queueName: string, fifo?: boolean) => {
+  return fifo ? `${queueName}.fifo` : queueName;
 };

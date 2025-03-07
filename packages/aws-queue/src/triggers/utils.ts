@@ -4,6 +4,16 @@ import type { DeployOptions } from '@ez4/project/library';
 import { getServiceName } from '@ez4/project/library';
 import { toKebabCase } from '@ez4/utils';
 
+export const getQueueName = (service: QueueService, options: DeployOptions) => {
+  const queueName = getServiceName(service, options);
+
+  if (service.order) {
+    return `${queueName}.fifo`;
+  }
+
+  return queueName;
+};
+
 export const getFunctionName = (
   service: QueueService | QueueImport,
   handlerName: string,

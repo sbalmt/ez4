@@ -9,6 +9,8 @@ interface TestMessage extends Queue.Message {}
 export declare class TestQueue1 extends Queue.Service<TestMessage> {
   subscriptions: [];
 
+  order: true;
+
   // Services to all subscriptions.
   services: {
     testQueue: Environment.Service<TestQueue2>;

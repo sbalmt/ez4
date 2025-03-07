@@ -3,12 +3,13 @@
     "type": "@ez4/queue",
     "name": "TestQueue1",
     "description": "First test queue description.",
+    "subscriptions": [],
+    "order": true,
     "schema": {
       "type": "object",
       "identity": 1,
       "properties": {}
     },
-    "subscriptions": [],
     "services": {
       "testQueue": "TestQueue2"
     }
@@ -17,16 +18,16 @@
     "type": "@ez4/queue",
     "name": "TestQueue2",
     "description": "Description of the second test queue.",
+    "subscriptions": [],
+    "timeout": 5,
+    "retention": 60,
+    "polling": 10,
+    "delay": 15,
     "schema": {
       "type": "object",
       "identity": 1,
       "properties": {}
     },
-    "timeout": 5,
-    "retention": 60,
-    "polling": 10,
-    "delay": 15,
-    "subscriptions": [],
     "variables": {
       "TEST_VAR1": "test-literal-value",
       "TEST_VAR2": "test-env-var-value"

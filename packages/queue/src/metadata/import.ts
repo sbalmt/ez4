@@ -4,6 +4,7 @@ import type { QueueImport } from '../types/import.js';
 
 import {
   DuplicateServiceError,
+  InvalidServicePropertyError,
   isExternalStatement,
   getLinkedServiceList,
   getLinkedVariableList,
@@ -11,11 +12,11 @@ import {
   getPropertyString,
   getReferenceName,
   getReferenceNumber,
-  InvalidServicePropertyError
+  getReferenceBoolean
 } from '@ez4/common/library';
 
 import { isModelProperty, isTypeReference } from '@ez4/reflection';
-import { isAnyNumber } from '@ez4/utils';
+import { isAnyBoolean, isAnyNumber } from '@ez4/utils';
 
 import { ImportType } from '../types/import.js';
 import { IncompleteServiceError } from '../errors/service.js';
@@ -57,14 +58,6 @@ export const getQueueImports = (reflection: SourceMap) => {
           }
           break;
 
-        case 'reference': {
-          if (member.inherited && isTypeReference(member.value)) {
-            service[member.name] = getReferenceName(member.value);
-            properties.delete(member.name);
-          }
-          break;
-        }
-
         case 'project': {
           if (!member.inherited) {
             const value = getPropertyString(member);
@@ -78,8 +71,27 @@ export const getQueueImports = (reflection: SourceMap) => {
           break;
         }
 
-        case 'timeout':
-        case 'polling': {
+        case 'reference': {
+          if (member.inherited && isTypeReference(member.value)) {
+            service[member.name] = getReferenceName(member.value);
+            properties.delete(member.name);
+          }
+          break;
+        }
+
+        case 'schema': {
+          if (member.inherited) {
+            service.schema = getQueueMessage(member.value, statement, reflection, errorList);
+
+            if (service.schema) {
+              properties.delete(member.name);
+            }
+          }
+
+          break;
+        }
+
+        case 'timeout': {
           if (member.inherited) {
             const value = getReferenceNumber(member.value, reflection);
 
@@ -91,12 +103,12 @@ export const getQueueImports = (reflection: SourceMap) => {
           break;
         }
 
-        case 'schema': {
+        case 'order': {
           if (member.inherited) {
-            service.schema = getQueueMessage(member.value, statement, reflection, errorList);
+            const value = getReferenceBoolean(member.value, reflection);
 
-            if (service.schema) {
-              properties.delete(member.name);
+            if (isAnyBoolean(value)) {
+              service[member.name] = value;
             }
           }
 

@@ -13,6 +13,7 @@ export type QueueService = ServiceMetadata & {
   retention?: number;
   polling?: number;
   delay?: number;
+  order?: boolean;
 };
 
 export const isQueueService = (service: ServiceMetadata): service is QueueService => {

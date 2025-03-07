@@ -44,16 +44,19 @@ export const prepareImports = async (event: PrepareResourceEvent) => {
     throw new RoleMissingError();
   }
 
-  const { reference, project } = service;
+  const { reference, project, order } = service;
   const { imports } = options;
 
   if (!imports || !imports[project]) {
     throw new ProjectMissingError(project);
   }
 
+  const queueName = getServiceName(reference, imports[project]);
+
   const queueState = createQueue(state, {
-    queueName: getServiceName(reference, imports[project]),
-    import: true
+    queueName,
+    import: true,
+    fifo: order
   });
 
   await prepareSubscriptions(state, service, role, queueState, options);

@@ -9,11 +9,12 @@ import {
   getLinkedServiceList,
   getLinkedVariableList,
   getModelMembers,
-  getPropertyNumber
+  getPropertyNumber,
+  getPropertyBoolean
 } from '@ez4/common/library';
 
 import { isModelProperty } from '@ez4/reflection';
-import { isAnyNumber } from '@ez4/utils';
+import { isAnyBoolean, isAnyNumber } from '@ez4/utils';
 
 import { ServiceType } from '../types/service.js';
 import { IncompleteServiceError } from '../errors/service.js';
@@ -76,6 +77,16 @@ export const getQueueServices = (reflection: SourceMap) => {
             if (isAnyNumber(value)) {
               service[member.name] = value;
             }
+          }
+
+          break;
+        }
+
+        case 'order': {
+          const value = getPropertyBoolean(member);
+
+          if (isAnyBoolean(value)) {
+            service[member.name] = value;
           }
 
           break;

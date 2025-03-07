@@ -87,6 +87,11 @@ export namespace Queue {
     delay?: number;
 
     /**
+     * Determines whether or not the queue is FIFO.
+     */
+    order?: boolean;
+
+    /**
      * Service client.
      */
     client: Client<T>;
@@ -102,14 +107,14 @@ export namespace Queue {
     abstract project: string;
 
     /**
-     * All subscriptions attached to the imported queue.
-     */
-    subscriptions: Subscription<T['schema']>[];
-
-    /**
      * Imported queue reference.
      */
     reference: T;
+
+    /**
+     * All subscriptions attached to the imported queue.
+     */
+    subscriptions: Subscription<T['schema']>[];
 
     /**
      * Imported message schema (do not replace).
@@ -122,9 +127,9 @@ export namespace Queue {
     timeout: T['timeout'];
 
     /**
-     * Imported maximum wait time for receiving messages (do not replace).
+     * Imported order parameter which determines whether the queue is FIFO or not (do not replace).
      */
-    polling: T['polling'];
+    order: T['order'];
 
     /**
      * Imported service client (do not replace).
