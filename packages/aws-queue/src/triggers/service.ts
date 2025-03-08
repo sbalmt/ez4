@@ -12,7 +12,6 @@ import { createQueue } from '../queue/service.js';
 import { connectSubscriptions, prepareSubscriptions } from './subscription.js';
 import { prepareLinkedClient } from './client.js';
 import { RoleMissingError } from './errors.js';
-import { getQueueName } from './utils.js';
 
 export const prepareLinkedServices = (event: ServiceEvent) => {
   const { service, options } = event;
@@ -21,7 +20,7 @@ export const prepareLinkedServices = (event: ServiceEvent) => {
     return null;
   }
 
-  const queueName = getQueueName(service, options);
+  const queueName = getServiceName(service, options);
 
   return prepareLinkedClient(queueName, service.schema);
 };
