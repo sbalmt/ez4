@@ -124,12 +124,17 @@ const planPendingToCreate = async <E extends EntryState<T>, T extends string>(
       continue;
     }
 
-    if (type !== current.type || !handler.equals(candidate, current)) {
+    if (type !== current.type) {
       stateList.push({ action: StepAction.Replace, entryId, order });
       continue;
     }
 
     const preview = await handler.preview(candidate, current);
+
+    if (!handler.equals(candidate, current)) {
+      stateList.push({ action: StepAction.Replace, entryId, order, preview });
+      continue;
+    }
 
     stateList.push({ action: StepAction.Update, entryId, order, preview });
   }
