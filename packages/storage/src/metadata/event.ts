@@ -11,7 +11,8 @@ import {
   getObjectMembers,
   getPropertyNumber,
   getPropertyString,
-  getServiceListener
+  getServiceListener,
+  getReferenceType
 } from '@ez4/common/library';
 
 import { isModelProperty, isTypeObject, isTypeReference } from '@ez4/reflection';
@@ -38,7 +39,7 @@ export const getBucketEvent = (
     return getTypeEvent(type, parent, reflection, errorList);
   }
 
-  const statement = reflection[type.path];
+  const statement = getReferenceType(type, reflection);
 
   if (statement) {
     return getTypeEvent(statement, parent, reflection, errorList);

@@ -12,11 +12,12 @@ import type {
 } from '@ez4/reflection';
 
 import {
+  isModelDeclaration,
+  hasHeritageType,
   getModelMembers,
   getObjectMembers,
   getPropertyNumber,
-  hasHeritageType,
-  isModelDeclaration
+  getReferenceType
 } from '@ez4/common/library';
 
 import { isModelProperty, isTypeObject, isTypeReference } from '@ez4/reflection';
@@ -70,7 +71,7 @@ const getHttpResponse = (
     return getTypeResponse(type, parent, reflection, errorList, baseType);
   }
 
-  const statement = reflection[type.path];
+  const statement = getReferenceType(type, reflection);
 
   if (statement) {
     return getTypeResponse(statement, parent, reflection, errorList, baseType);

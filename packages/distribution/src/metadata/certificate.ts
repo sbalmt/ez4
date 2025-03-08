@@ -4,10 +4,11 @@ import type { Incomplete } from '@ez4/utils';
 import type { CdnCertificate } from '../types/certificate.js';
 
 import {
+  isModelDeclaration,
   getModelMembers,
   getObjectMembers,
   getPropertyString,
-  isModelDeclaration
+  getReferenceType
 } from '@ez4/common/library';
 
 import { isModelProperty, isTypeObject, isTypeReference } from '@ez4/reflection';
@@ -32,7 +33,7 @@ export const getCdnCertificate = (
     return getTypeCertificate(type, parent, errorList);
   }
 
-  const statement = reflection[type.path];
+  const statement = getReferenceType(type, reflection);
 
   if (statement) {
     return getTypeCertificate(statement, parent, errorList);

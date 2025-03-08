@@ -10,7 +10,8 @@ import {
   getModelMembers,
   getObjectMembers,
   getPropertyNumber,
-  getPropertyTuple
+  getPropertyTuple,
+  getReferenceType
 } from '@ez4/common/library';
 
 import { isModelProperty, isTypeObject, isTypeReference } from '@ez4/reflection';
@@ -36,7 +37,7 @@ export const getBucketCors = (
     return getTypeCors(type, parent, errorList);
   }
 
-  const statement = reflection[type.path];
+  const statement = getReferenceType(type, reflection);
 
   if (statement) {
     return getTypeCors(statement, parent, errorList);

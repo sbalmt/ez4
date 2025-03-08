@@ -6,7 +6,8 @@ import {
   isModelDeclaration,
   getModelMembers,
   getObjectMembers,
-  getPropertyString
+  getPropertyString,
+  getReferenceType
 } from '@ez4/common/library';
 
 import { isModelProperty, isTypeObject, isTypeReference } from '@ez4/reflection';
@@ -32,7 +33,7 @@ export const getTableIndexes = (
     return getTypeIndexes(type, parent, errorList);
   }
 
-  const statement = reflection[type.path];
+  const statement = getReferenceType(type, reflection);
 
   if (statement) {
     return getTypeIndexes(statement, parent, errorList);

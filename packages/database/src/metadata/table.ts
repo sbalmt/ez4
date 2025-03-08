@@ -9,7 +9,8 @@ import {
   InvalidServicePropertyError,
   getModelMembers,
   getObjectMembers,
-  getPropertyString
+  getPropertyString,
+  getReferenceType
 } from '@ez4/common/library';
 
 import { isModelProperty, isTypeObject, isTypeReference } from '@ez4/reflection';
@@ -27,7 +28,7 @@ export const getDatabaseTable = (type: AllType, reflection: SourceMap, errorList
     return getTypeTable(type, reflection, errorList);
   }
 
-  const statement = reflection[type.path];
+  const statement = getReferenceType(type, reflection);
 
   if (statement) {
     return getTypeTable(statement, reflection, errorList);

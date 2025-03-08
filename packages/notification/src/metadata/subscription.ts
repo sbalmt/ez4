@@ -12,7 +12,8 @@ import {
   getObjectMembers,
   getPropertyNumber,
   getPropertyTuple,
-  getServiceListener
+  getServiceListener,
+  getReferenceType
 } from '@ez4/common/library';
 
 import { isModelProperty, isTypeObject, isTypeReference } from '@ez4/reflection';
@@ -58,7 +59,7 @@ const getNotificationSubscription = (
     return getTypeSubscription(type, parent, reflection, errorList);
   }
 
-  const statement = reflection[type.path];
+  const statement = getReferenceType(type, reflection);
 
   if (statement) {
     return getTypeSubscription(statement, parent, reflection, errorList);

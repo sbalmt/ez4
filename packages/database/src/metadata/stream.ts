@@ -10,7 +10,8 @@ import {
   getModelMembers,
   getObjectMembers,
   getPropertyNumber,
-  getServiceListener
+  getServiceListener,
+  getReferenceType
 } from '@ez4/common/library';
 
 import { isModelProperty, isTypeObject, isTypeReference } from '@ez4/reflection';
@@ -37,7 +38,7 @@ export const getTableStream = (
     return getTypeStream(type, parent, reflection, errorList);
   }
 
-  const statement = reflection[type.path];
+  const statement = getReferenceType(type, reflection);
 
   if (statement) {
     return getTypeStream(statement, parent, reflection, errorList);

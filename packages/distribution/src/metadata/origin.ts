@@ -4,13 +4,14 @@ import type { AllType, SourceMap, TypeModel, TypeObject } from '@ez4/reflection'
 import type { CdnRegularOrigin, CdnBucketOrigin, CdnOrigin } from '../types/origin.js';
 
 import {
+  isModelDeclaration,
   getLinkedServiceName,
   getLiteralTuple,
   getObjectMembers,
   getModelMembers,
   getPropertyNumber,
   getPropertyString,
-  isModelDeclaration
+  getReferenceType
 } from '@ez4/common/library';
 
 import { isModelProperty, isTypeObject, isTypeReference } from '@ez4/reflection';
@@ -58,7 +59,7 @@ export const getCdnOrigin = (
     return getTypeOrigin(type, parent, reflection, errorList);
   }
 
-  const statement = reflection[type.path];
+  const statement = getReferenceType(type, reflection);
 
   if (statement) {
     return getTypeOrigin(statement, parent, reflection, errorList);

@@ -4,11 +4,12 @@ import type { Incomplete } from '@ez4/utils';
 import type { CdnCache } from '../types/cache.js';
 
 import {
+  isModelDeclaration,
   getModelMembers,
   getObjectMembers,
   getPropertyBoolean,
   getPropertyNumber,
-  isModelDeclaration
+  getReferenceType
 } from '@ez4/common/library';
 
 import { isModelProperty, isTypeObject, isTypeReference } from '@ez4/reflection';
@@ -34,7 +35,7 @@ export const getCdnCache = (
     return getTypeCache(type, parent, errorList);
   }
 
-  const statement = reflection[type.path];
+  const statement = getReferenceType(type, reflection);
 
   if (statement) {
     return getTypeCache(statement, parent, errorList);

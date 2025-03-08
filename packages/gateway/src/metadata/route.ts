@@ -13,7 +13,8 @@ import {
   getPropertyString,
   getObjectMembers,
   getModelMembers,
-  getServiceListener
+  getServiceListener,
+  getReferenceType
 } from '@ez4/common/library';
 
 import { IncompleteRouteError } from '../errors/route.js';
@@ -26,7 +27,7 @@ export const getHttpRoute = (type: AllType, reflection: SourceMap, errorList: Er
     return getTypeRoute(type, reflection, errorList);
   }
 
-  const statement = reflection[type.path];
+  const statement = getReferenceType(type, reflection);
 
   if (statement) {
     return getTypeRoute(statement, reflection, errorList);
