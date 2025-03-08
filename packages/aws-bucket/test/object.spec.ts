@@ -7,18 +7,9 @@ import { join } from 'node:path';
 import { deploy } from '@ez4/aws-common';
 import { deepClone } from '@ez4/utils';
 
-import {
-  createBucket,
-  createBucketObject,
-  isBucketObjectState,
-  registerTriggers
-} from '@ez4/aws-bucket';
+import { createBucket, createBucketObject, isBucketObjectState, registerTriggers } from '@ez4/aws-bucket';
 
-const assertDeploy = async <E extends EntryState>(
-  resourceId: string,
-  newState: EntryStates<E>,
-  oldState: EntryStates<E> | undefined
-) => {
+const assertDeploy = async <E extends EntryState>(resourceId: string, newState: EntryStates<E>, oldState: EntryStates<E> | undefined) => {
   const { result: state } = await deploy(newState, oldState);
 
   const resource = state[resourceId];
@@ -49,7 +40,8 @@ describe.only('bucket objects', () => {
     const localState: EntryStates = {};
 
     const bucketResource = createBucket(localState, undefined, {
-      bucketName: 'ez4-test-object-bucket'
+      bucketName: 'ez4-test-object-bucket',
+      bucketId: 'ez4-test-bucket'
     });
 
     const resource = createBucketObject(localState, bucketResource, {

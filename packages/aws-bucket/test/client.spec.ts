@@ -22,7 +22,8 @@ describe.only('bucket client', () => {
     const localState: EntryStates = {};
 
     const resource = createBucket(localState, undefined, {
-      bucketName: 'ez4-test-bucket-client'
+      bucketName: 'ez4-test-bucket-client',
+      bucketId: 'ez4-test-bucket'
     });
 
     bucketId = resource.entryId;
@@ -102,10 +103,7 @@ describe.only('bucket client', () => {
   it('assert :: delete object', async () => {
     ok(bucketClient);
 
-    await Promise.all([
-      bucketClient.delete('test-client'),
-      bucketClient.delete('test-client-plain')
-    ]);
+    await Promise.all([bucketClient.delete('test-client'), bucketClient.delete('test-client-plain')]);
   });
 
   it('assert :: destroy', async () => {

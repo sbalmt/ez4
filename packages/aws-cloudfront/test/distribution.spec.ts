@@ -16,11 +16,7 @@ import { createBucket, getBucketDomain } from '@ez4/aws-bucket';
 import { deploy } from '@ez4/aws-common';
 import { deepClone } from '@ez4/utils';
 
-const assertDeploy = async <E extends EntryState>(
-  resourceId: string,
-  newState: EntryStates<E>,
-  oldState: EntryStates<E> | undefined
-) => {
+const assertDeploy = async <E extends EntryState>(resourceId: string, newState: EntryStates<E>, oldState: EntryStates<E> | undefined) => {
   const { result: state } = await deploy(newState, oldState);
 
   const resource = state[resourceId];
@@ -54,7 +50,8 @@ describe.only('cloudfront :: distribution', () => {
     const originBucketName = 'ez4-test-distribution-bucket';
 
     const bucketResource = createBucket(localState, undefined, {
-      bucketName: originBucketName
+      bucketName: originBucketName,
+      bucketId: 'ez4-test-bucket'
     });
 
     const originPolicyResource = createOriginPolicy(localState, {
@@ -86,18 +83,28 @@ describe.only('cloudfront :: distribution', () => {
         enabled: true,
         defaultOrigin: {
           id: 's3-bucket',
-          domain: await getBucketDomain(originBucketName),
+          location: '/home',
           cachePolicyId: cachePolicyResource.entryId,
-          location: '/home'
+          getDistributionOrigin: async () => {
+            const domain = await getBucketDomain(originBucketName);
+
+            return {
+              domain
+            };
+          }
         },
         origins: [
           {
             id: 'ez4-test',
-            domain: 'ez4.test',
-            cachePolicyId: cachePolicyResource.entryId,
             path: 'test*',
-            headers: {
-              ['x-custom-header']: 'ez4-custom-value'
+            cachePolicyId: cachePolicyResource.entryId,
+            getDistributionOrigin: () => {
+              return {
+                domain: 'ez4.test',
+                headers: {
+                  ['x-custom-header']: 'ez4-custom-value'
+                }
+              };
             }
           }
         ],
@@ -137,9 +144,13 @@ describe.only('cloudfront :: distribution', () => {
 
     resource.parameters.origins.push({
       id: 'ez4-test-new',
-      domain: 'ez4.test.new',
       path: 'test-new*',
-      cachePolicyId
+      cachePolicyId,
+      getDistributionOrigin: () => {
+        return {
+          domain: 'ez4.test.new'
+        };
+      }
     });
 
     resource.parameters.tags = {

@@ -4,12 +4,7 @@ import { ok, equal } from 'node:assert/strict';
 import { describe, it } from 'node:test';
 import { join } from 'node:path';
 
-import {
-  createBucket,
-  createBucketEventFunction,
-  isBucketState,
-  registerTriggers
-} from '@ez4/aws-bucket';
+import { createBucket, createBucketEventFunction, isBucketState, registerTriggers } from '@ez4/aws-bucket';
 
 import { deploy } from '@ez4/aws-common';
 import { deepClone } from '@ez4/utils';
@@ -17,11 +12,7 @@ import { createRole } from '@ez4/aws-identity';
 
 import { getRoleDocument } from './common/role.js';
 
-const assertDeploy = async <E extends EntryState>(
-  resourceId: string,
-  newState: EntryStates<E>,
-  oldState: EntryStates<E> | undefined
-) => {
+const assertDeploy = async <E extends EntryState>(resourceId: string, newState: EntryStates<E>, oldState: EntryStates<E> | undefined) => {
   const { result: state } = await deploy(newState, oldState);
 
   const resource = state[resourceId];
@@ -65,6 +56,7 @@ describe.only('bucket resources', () => {
 
     const resource = createBucket(localState, lambdaResource, {
       bucketName: 'ez4-test-bucket',
+      bucketId: 'ez4-test-bucket',
       eventsPath: 'uploads/',
       autoExpireDays: 5,
       tags: {
