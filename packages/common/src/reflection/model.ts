@@ -40,12 +40,14 @@ export const getModelMembers = (type: TypeModel, heritage?: boolean) => {
   if (heritage) {
     type.heritage?.forEach((heritage) => {
       heritage.members?.forEach((member) => {
-        if (!member.modifiers?.abstract) {
-          membersMap.set(member.name, {
-            ...member,
-            inherited: true
-          });
+        if (member.modifiers?.abstract) {
+          return;
         }
+
+        membersMap.set(member.name, {
+          ...member,
+          inherited: true
+        });
       });
     });
   }

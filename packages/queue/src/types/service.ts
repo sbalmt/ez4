@@ -1,5 +1,5 @@
 import type { ServiceMetadata } from '@ez4/project/library';
-import type { QueueMessageSchema, QueueSubscription } from './common.js';
+import type { QueueFifoMode, QueueMessageSchema, QueueSubscription } from './common.js';
 
 export const ServiceType = '@ez4/queue';
 
@@ -9,11 +9,11 @@ export type QueueService = ServiceMetadata & {
   schema: QueueMessageSchema;
   description?: string;
   subscriptions: QueueSubscription[];
+  fifoMode?: QueueFifoMode;
   timeout?: number;
   retention?: number;
   polling?: number;
   delay?: number;
-  order?: boolean;
 };
 
 export const isQueueService = (service: ServiceMetadata): service is QueueService => {

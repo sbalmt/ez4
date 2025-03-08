@@ -30,7 +30,7 @@ export const prepareLinkedImports = (event: ServiceEvent) => {
 
   const queueName = getServiceName(reference, imports[project]);
 
-  return prepareLinkedClient(queueName, service.schema);
+  return prepareLinkedClient(queueName, service.schema, service.fifoMode);
 };
 
 export const prepareImports = async (event: PrepareResourceEvent) => {
@@ -44,7 +44,7 @@ export const prepareImports = async (event: PrepareResourceEvent) => {
     throw new RoleMissingError();
   }
 
-  const { reference, project, order } = service;
+  const { reference, project, fifoMode } = service;
   const { imports } = options;
 
   if (!imports || !imports[project]) {
@@ -55,8 +55,8 @@ export const prepareImports = async (event: PrepareResourceEvent) => {
 
   const queueState = createQueue(state, {
     queueName,
-    import: true,
-    fifo: order
+    fifoMode: !!fifoMode,
+    import: true
   });
 
   await prepareSubscriptions(state, service, role, queueState, options);

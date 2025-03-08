@@ -22,7 +22,7 @@ export const prepareLinkedServices = (event: ServiceEvent) => {
 
   const queueName = getServiceName(service, options);
 
-  return prepareLinkedClient(queueName, service.schema);
+  return prepareLinkedClient(queueName, service.schema, service.fifoMode);
 };
 
 export const prepareServices = async (event: PrepareResourceEvent) => {
@@ -36,13 +36,13 @@ export const prepareServices = async (event: PrepareResourceEvent) => {
     throw new RoleMissingError();
   }
 
-  const { timeout, retention, polling, delay } = service;
+  const { fifoMode, timeout, retention, polling, delay } = service;
 
   const queueName = getServiceName(service, options);
 
   const queueState = createQueue(state, {
     queueName,
-    fifo: service.order,
+    fifoMode: !!fifoMode,
     ...(timeout !== undefined && { timeout }),
     ...(retention !== undefined && { retention }),
     ...(polling !== undefined && { polling }),

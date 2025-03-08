@@ -9,21 +9,21 @@ import {
   getLinkedServiceList,
   getLinkedVariableList,
   getModelMembers,
-  getPropertyNumber,
-  getPropertyBoolean
+  getPropertyNumber
 } from '@ez4/common/library';
 
 import { isModelProperty } from '@ez4/reflection';
-import { isAnyBoolean, isAnyNumber } from '@ez4/utils';
+import { isAnyNumber } from '@ez4/utils';
 
 import { ServiceType } from '../types/service.js';
 import { IncompleteServiceError } from '../errors/service.js';
 import { getAllSubscription } from './subscription.js';
 import { getQueueMessage } from './message.js';
+import { getQueueFifoMode } from './fifo.js';
 import { isQueueService } from './utils.js';
 
 export const getQueueServices = (reflection: SourceMap) => {
-  const queueServices: Record<string, QueueService> = {};
+  const allServices: Record<string, QueueService> = {};
   const errorList: Error[] = [];
 
   for (const identity in reflection) {
@@ -42,19 +42,21 @@ export const getQueueServices = (reflection: SourceMap) => {
       service.description = statement.description;
     }
 
+    const fileName = statement.file;
+
     for (const member of getModelMembers(statement, true)) {
       if (!isModelProperty(member)) {
         continue;
       }
 
       switch (member.name) {
-        default:
+        default: {
           if (!member.inherited) {
-            errorList.push(
-              new InvalidServicePropertyError(statement.name, member.name, statement.file)
-            );
+            errorList.push(new InvalidServicePropertyError(service.name, member.name, fileName));
           }
+
           break;
+        }
 
         case 'schema': {
           const value = getQueueMessage(member.value, statement, reflection, errorList);
@@ -82,11 +84,13 @@ export const getQueueServices = (reflection: SourceMap) => {
           break;
         }
 
-        case 'order': {
-          const value = getPropertyBoolean(member);
+        case 'fifoMode': {
+          if (!member.inherited) {
+            const value = getQueueFifoMode(member.value, statement, reflection, errorList);
 
-          if (isAnyBoolean(value)) {
-            service[member.name] = value;
+            if (value) {
+              service[member.name] = value;
+            }
           }
 
           break;
@@ -104,35 +108,39 @@ export const getQueueServices = (reflection: SourceMap) => {
           break;
         }
 
-        case 'variables':
+        case 'variables': {
           if (!member.inherited) {
             service.variables = getLinkedVariableList(member, errorList);
           }
-          break;
 
-        case 'services':
+          break;
+        }
+
+        case 'services': {
           if (!member.inherited) {
             service.services = getLinkedServiceList(member, reflection, errorList);
           }
+
           break;
+        }
       }
     }
 
     if (!isValidService(service)) {
-      errorList.push(new IncompleteServiceError([...properties], statement.file));
+      errorList.push(new IncompleteServiceError([...properties], fileName));
       continue;
     }
 
-    if (queueServices[statement.name]) {
-      errorList.push(new DuplicateServiceError(statement.name, statement.file));
+    if (allServices[statement.name]) {
+      errorList.push(new DuplicateServiceError(statement.name, fileName));
       continue;
     }
 
-    queueServices[statement.name] = service;
+    allServices[statement.name] = service;
   }
 
   return {
-    services: queueServices,
+    services: allServices,
     errors: errorList
   };
 };

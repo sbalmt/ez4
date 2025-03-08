@@ -11,17 +11,17 @@ import {
   getModelMembers,
   getPropertyString,
   getReferenceName,
-  getReferenceNumber,
-  getReferenceBoolean
+  getReferenceNumber
 } from '@ez4/common/library';
 
 import { isModelProperty, isTypeReference } from '@ez4/reflection';
-import { isAnyBoolean, isAnyNumber } from '@ez4/utils';
+import { isAnyNumber } from '@ez4/utils';
 
 import { ImportType } from '../types/import.js';
 import { IncompleteServiceError } from '../errors/service.js';
 import { getAllSubscription } from './subscription.js';
 import { getQueueMessage } from './message.js';
+import { getQueueFifoMode } from './fifo.js';
 import { isQueueImport } from './utils.js';
 
 export const getQueueImports = (reflection: SourceMap) => {
@@ -103,11 +103,11 @@ export const getQueueImports = (reflection: SourceMap) => {
           break;
         }
 
-        case 'order': {
+        case 'fifoMode': {
           if (member.inherited) {
-            const value = getReferenceBoolean(member.value, reflection);
+            const value = getQueueFifoMode(member.value, statement, reflection, errorList);
 
-            if (isAnyBoolean(value)) {
+            if (value) {
               service[member.name] = value;
             }
           }

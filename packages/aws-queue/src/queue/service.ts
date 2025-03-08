@@ -25,7 +25,7 @@ export const createQueue = <E extends EntryState>(
   });
 };
 
-export const getQueueState = <E extends EntryState>(state: EntryStates<E>, queueName: string) => {
+export const tryGetQueue = <E extends EntryState>(state: EntryStates<E>, queueName: string) => {
   const queueId = createQueueStateId(queueName);
   const queueState = state[queueId];
 

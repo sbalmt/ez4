@@ -4,11 +4,21 @@
     "name": "TestQueue1",
     "description": "First test queue description.",
     "subscriptions": [],
-    "order": true,
+    "fifo": {
+      "uniqueId": "id",
+      "groupId": "user"
+    },
     "schema": {
       "type": "object",
       "identity": 1,
-      "properties": {}
+      "properties": {
+        "id": {
+          "type": "string"
+        },
+        "user": {
+          "type": "string"
+        }
+      }
     },
     "services": {
       "testQueue": "TestQueue2"
@@ -26,7 +36,14 @@
     "schema": {
       "type": "object",
       "identity": 1,
-      "properties": {}
+      "properties": {
+        "id": {
+          "type": "string"
+        },
+        "user": {
+          "type": "string"
+        }
+      }
     },
     "variables": {
       "TEST_VAR1": "test-literal-value",

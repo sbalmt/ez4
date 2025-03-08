@@ -22,7 +22,6 @@
     "project": "name from project in ez4.project.js",
     "reference": "TestQueue",
     "timeout": 20,
-    "polling": 10,
     "schema": {
       "type": "object",
       "identity": 1,
@@ -55,7 +54,6 @@
     "project": "name from project in ez4.project.js",
     "reference": "TestQueue",
     "timeout": 20,
-    "polling": 10,
     "schema": {
       "type": "object",
       "identity": 1,
