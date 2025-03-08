@@ -10,6 +10,7 @@ import {
   InvalidSubscriptionTypeError,
   IncompleteHandlerError,
   IncorrectFifoModeTypeError,
+  IncorrectFifoModePropertyError,
   InvalidFifoModeTypeError,
   IncompleteFifoModeError
 } from '@ez4/queue/library';
@@ -111,11 +112,14 @@ describe.only('queue metadata errors', () => {
   });
 
   it('assert :: incorrect fifo mode', () => {
-    const [error1] = parseFile('incorrect-fifo', 1);
+    const [error1, error2] = parseFile('incorrect-fifo', 2);
 
     ok(error1 instanceof IncorrectFifoModeTypeError);
     equal(error1.baseType, 'Queue.FifoMode');
-    equal(error1.type, 'TestFifoMode');
+    equal(error1.modelType, 'TestFifoMode');
+
+    ok(error2 instanceof IncorrectFifoModePropertyError);
+    deepEqual(error2.properties, ['wrong']);
   });
 
   it('assert :: invalid fifo mode', () => {

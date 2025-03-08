@@ -1,4 +1,4 @@
-import type { SourceMap, TypeModel, TypeObject } from '@ez4/reflection';
+import type { SourceMap, TypeModel } from '@ez4/reflection';
 import type { Incomplete } from '@ez4/utils';
 import type { CronService } from '../types/service.js';
 
@@ -153,12 +153,12 @@ const isValidService = (type: Incomplete<CronService>): type is CronService => {
   return type.expression === DynamicExpression;
 };
 
-const validateDynamicProperties = (type: TypeObject | TypeModel, service: CronService) => {
+const validateDynamicProperties = (parent: TypeModel, service: CronService) => {
   const errorList = [];
 
   if (!service.schema) {
     if (service.target.handler.input) {
-      errorList.push(new IncorrectHandlerError([service.target.handler.input], type.file));
+      errorList.push(new IncorrectHandlerError([service.target.handler.input], parent.file));
     }
   } else {
     const allProperties: (keyof CronService)[] = ['disabled', 'timezone', 'startDate', 'endDate'];
@@ -171,7 +171,7 @@ const validateDynamicProperties = (type: TypeObject | TypeModel, service: CronSe
     }
 
     if (allIncorrect.length) {
-      errorList.push(new IncorrectServiceError(allIncorrect, type.file));
+      errorList.push(new IncorrectServiceError(allIncorrect, parent.file));
     }
   }
 

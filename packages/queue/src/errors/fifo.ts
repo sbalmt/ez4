@@ -1,4 +1,4 @@
-import { IncompleteTypeError, IncorrectTypeError, InvalidTypeError } from '@ez4/common/library';
+import { IncompleteTypeError, IncorrectPropertyError, IncorrectTypeError, InvalidTypeError } from '@ez4/common/library';
 
 export class IncompleteFifoModeError extends IncompleteTypeError {
   constructor(properties: string[], fileName?: string) {
@@ -13,10 +13,13 @@ export class InvalidFifoModeTypeError extends InvalidTypeError {
 }
 
 export class IncorrectFifoModeTypeError extends IncorrectTypeError {
-  constructor(
-    public type: string,
-    fileName?: string
-  ) {
-    super('Incorrect fifo mode type', type, 'Queue.FifoMode', fileName);
+  constructor(modelType: string, fileName?: string) {
+    super('Incorrect fifo mode type', modelType, 'Queue.FifoMode', fileName);
+  }
+}
+
+export class IncorrectFifoModePropertyError extends IncorrectPropertyError {
+  constructor(properties: string[], fileName?: string) {
+    super('Incorrect fifo mode', properties, fileName);
   }
 }

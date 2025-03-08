@@ -1,5 +1,6 @@
-import type { SourceMap } from '@ez4/reflection';
+import type { SourceMap, TypeModel } from '@ez4/reflection';
 import type { Incomplete } from '@ez4/utils';
+import type { AnySchema } from '@ez4/schema';
 import type { QueueService } from '../types/service.js';
 
 import {
@@ -12,6 +13,7 @@ import {
   getPropertyNumber
 } from '@ez4/common/library';
 
+import { isObjectSchema, isUnionSchema } from '@ez4/schema';
 import { isModelProperty } from '@ez4/reflection';
 
 import { ServiceType } from '../types/service.js';
@@ -20,6 +22,7 @@ import { getAllSubscription } from './subscription.js';
 import { getQueueMessage } from './message.js';
 import { getQueueFifoMode } from './fifo.js';
 import { isQueueService } from './utils.js';
+import { IncorrectFifoModePropertyError } from '../library.js';
 
 export const getQueueServices = (reflection: SourceMap) => {
   const allServices: Record<string, QueueService> = {};
@@ -103,6 +106,13 @@ export const getQueueServices = (reflection: SourceMap) => {
       continue;
     }
 
+    const validationErrors = validateFifoModeProperties(statement, service);
+
+    if (validationErrors.length) {
+      errorList.push(...validationErrors);
+      continue;
+    }
+
     if (allServices[statement.name]) {
       errorList.push(new DuplicateServiceError(statement.name, fileName));
       continue;
@@ -119,4 +129,26 @@ export const getQueueServices = (reflection: SourceMap) => {
 
 const isValidService = (type: Incomplete<QueueService>): type is QueueService => {
   return !!type.name && !!type.schema && !!type.subscriptions;
+};
+
+const validateFifoModeProperties = (parent: TypeModel, service: QueueService) => {
+  const { fifoMode } = service;
+
+  if (fifoMode && !schemaHasProperty(service.schema, fifoMode.groupId)) {
+    return [new IncorrectFifoModePropertyError([fifoMode.groupId], parent.file)];
+  }
+
+  return [];
+};
+
+const schemaHasProperty = (schema: AnySchema, property: string): boolean => {
+  if (isObjectSchema(schema)) {
+    return !!schema.properties[property];
+  }
+
+  if (isUnionSchema(schema)) {
+    return schema.elements.some((schema) => schemaHasProperty(schema, property));
+  }
+
+  return false;
 };
