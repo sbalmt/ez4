@@ -14,20 +14,10 @@ import {
 
 import { isModelProperty, isTypeObject, isTypeReference } from '@ez4/reflection';
 
-import {
-  IncompleteFifoModeError,
-  IncorrectFifoModeTypeError,
-  InvalidFifoModeTypeError
-} from '../errors/fifo.js';
-
+import { IncompleteFifoModeError, IncorrectFifoModeTypeError, InvalidFifoModeTypeError } from '../errors/fifo.js';
 import { isQueueFifoMode } from './utils.js';
 
-export const getQueueFifoMode = (
-  type: AllType,
-  parent: TypeModel,
-  reflection: SourceMap,
-  errorList: Error[]
-) => {
+export const getQueueFifoMode = (type: AllType, parent: TypeModel, reflection: SourceMap, errorList: Error[]) => {
   if (!isTypeReference(type)) {
     return getTypeFifoMode(type, parent, errorList);
   }
@@ -63,12 +53,7 @@ const getTypeFifoMode = (type: AllType, parent: TypeModel, errorList: Error[]) =
   return getTypeFromMembers(type, parent, getModelMembers(type), errorList);
 };
 
-const getTypeFromMembers = (
-  type: TypeObject | TypeModel,
-  parent: TypeModel,
-  members: MemberType[],
-  errorList: Error[]
-) => {
+const getTypeFromMembers = (type: TypeObject | TypeModel, parent: TypeModel, members: MemberType[], errorList: Error[]) => {
   const fifoOptions: Incomplete<QueueFifoMode> = {};
   const properties = new Set(['groupId']);
 
@@ -83,16 +68,11 @@ const getTypeFromMembers = (
         break;
 
       case 'uniqueId':
-      case 'groupId': {
-        const value = getPropertyString(member);
-
-        if (value) {
-          fifoOptions[member.name] = value;
+      case 'groupId':
+        if ((fifoOptions[member.name] = getPropertyString(member))) {
           properties.delete(member.name);
         }
-
         break;
-      }
     }
   }
 

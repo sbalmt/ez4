@@ -1,9 +1,10 @@
-import type { Incomplete } from '@ez4/utils';
-import type { MemberType } from '@ez4/common/library';
 import type { AllType, SourceMap, TypeModel, TypeObject } from '@ez4/reflection';
+import type { MemberType } from '@ez4/common/library';
+import type { Incomplete } from '@ez4/utils';
 import type { CdnRegularOrigin, CdnBucketOrigin, CdnOrigin } from '../types/origin.js';
 
 import {
+  InvalidServicePropertyError,
   isModelDeclaration,
   getLinkedServiceName,
   getLiteralTuple,
@@ -15,26 +16,13 @@ import {
 } from '@ez4/common/library';
 
 import { isModelProperty, isTypeObject, isTypeReference } from '@ez4/reflection';
-import { isAnyNumber } from '@ez4/utils';
 
-import {
-  IncompleteOriginError,
-  IncorrectOriginTypeError,
-  InvalidOriginTypeError
-} from '../errors/origin.js';
-
+import { IncompleteOriginError, IncorrectOriginTypeError, InvalidOriginTypeError } from '../errors/origin.js';
 import { CdnOriginType } from '../types/origin.js';
 import { getCdnCache } from './cache.js';
 import { isCdnOrigin } from './utils.js';
 
-type TypeParent = TypeModel | TypeObject;
-
-export const getAllCdnOrigins = (
-  type: AllType,
-  parent: TypeModel,
-  reflection: SourceMap,
-  errorList: Error[]
-) => {
+export const getAllCdnOrigins = (type: AllType, parent: TypeModel, reflection: SourceMap, errorList: Error[]) => {
   const originItems = getLiteralTuple(type) ?? [];
   const resultList: CdnOrigin[] = [];
 
@@ -49,12 +37,7 @@ export const getAllCdnOrigins = (
   return resultList;
 };
 
-export const getCdnOrigin = (
-  type: AllType,
-  parent: TypeParent,
-  reflection: SourceMap,
-  errorList: Error[]
-) => {
+export const getCdnOrigin = (type: AllType, parent: TypeModel, reflection: SourceMap, errorList: Error[]) => {
   if (!isTypeReference(type)) {
     return getTypeOrigin(type, parent, reflection, errorList);
   }
@@ -72,14 +55,9 @@ const isValidOrigin = (type: Incomplete<CdnRegularOrigin & CdnBucketOrigin>): ty
   return !!type.type && (!!type.domain || !!type.bucket);
 };
 
-const getTypeOrigin = (
-  type: AllType,
-  parent: TypeParent,
-  reflection: SourceMap,
-  errorList: Error[]
-) => {
+const getTypeOrigin = (type: AllType, parent: TypeModel, reflection: SourceMap, errorList: Error[]) => {
   if (isTypeObject(type)) {
-    return getTypeFromMembers(type, getObjectMembers(type), reflection, errorList);
+    return getTypeFromMembers(type, getObjectMembers(type), parent, reflection, errorList);
   }
 
   if (!isModelDeclaration(type)) {
@@ -92,12 +70,13 @@ const getTypeOrigin = (
     return null;
   }
 
-  return getTypeFromMembers(type, getModelMembers(type), reflection, errorList);
+  return getTypeFromMembers(type, getModelMembers(type), parent, reflection, errorList);
 };
 
 const getTypeFromMembers = (
-  parent: TypeParent,
+  type: TypeObject | TypeModel,
   members: MemberType[],
+  parent: TypeModel,
   reflection: SourceMap,
   errorList: Error[]
 ) => {
@@ -110,67 +89,43 @@ const getTypeFromMembers = (
     }
 
     switch (member.name) {
-      case 'bucket': {
-        const bucketService = getLinkedServiceName(member, parent, reflection, errorList);
-        if (bucketService) {
-          origin.bucket = bucketService;
+      default:
+        errorList.push(new InvalidServicePropertyError(parent.name, member.name, type.file));
+        break;
+
+      case 'bucket':
+        if ((origin.bucket = getLinkedServiceName(member, parent, reflection, errorList))) {
           origin.type = CdnOriginType.Bucket;
           properties.delete(member.name);
         }
         break;
-      }
 
-      case 'domain': {
-        const domainUrl = getPropertyString(member);
-        if (domainUrl) {
-          origin.domain = domainUrl;
+      case 'domain':
+        if ((origin.domain = getPropertyString(member))) {
           origin.type = CdnOriginType.Regular;
           properties.delete(member.name);
         }
         break;
-      }
 
+      case 'path':
+      case 'protocol':
       case 'location':
-      case 'path': {
-        const value = getPropertyString(member);
-        if (value) {
+        if ((origin[member.name] = getPropertyString(member))) {
           properties.delete(member.name);
-          origin[member.name] = value;
         }
         break;
-      }
 
-      case 'headers': {
-        const headers = getOriginHeaders(member.value);
-        if (headers) {
-          origin[member.name] = headers;
-        }
+      case 'port':
+        origin.port = getPropertyNumber(member);
         break;
-      }
 
-      case 'protocol': {
-        const value = getPropertyString(member);
-        if (value) {
-          origin[member.name] = value;
-        }
+      case 'headers':
+        origin.headers = getOriginHeaders(member.value);
         break;
-      }
 
-      case 'port': {
-        const value = getPropertyNumber(member);
-        if (isAnyNumber(value)) {
-          origin[member.name] = value;
-        }
+      case 'cache':
+        origin.cache = getCdnCache(member.value, parent, reflection, errorList);
         break;
-      }
-
-      case 'cache': {
-        const value = getCdnCache(member.value, parent, reflection, errorList);
-        if (value) {
-          origin[member.name] = value;
-        }
-        break;
-      }
     }
   }
 
@@ -178,7 +133,7 @@ const getTypeFromMembers = (
     return origin;
   }
 
-  errorList.push(new IncompleteOriginError([...properties], parent.file));
+  errorList.push(new IncompleteOriginError([...properties], type.file));
 
   return null;
 };

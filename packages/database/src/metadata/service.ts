@@ -17,14 +17,9 @@ import {
 
 import { isModelProperty } from '@ez4/reflection';
 
-import {
-  InvalidRelationAliasError,
-  InvalidRelationColumnError,
-  InvalidRelationTableError
-} from '../errors/relations.js';
-
-import { ServiceType } from '../types/service.js';
+import { InvalidRelationAliasError, InvalidRelationColumnError, InvalidRelationTableError } from '../errors/relations.js';
 import { IncompleteServiceError } from '../errors/service.js';
+import { ServiceType } from '../types/service.js';
 import { isDatabaseService } from './utils.js';
 import { getDatabaseTable } from './table.js';
 
@@ -56,12 +51,11 @@ export const getDatabaseServices = (reflection: SourceMap) => {
           errorList.push(new InvalidServicePropertyError(service.name, member.name, fileName));
           break;
 
-        case 'engine': {
+        case 'engine':
           if ((service.engine = getPropertyString(member))) {
             properties.delete(member.name);
           }
           break;
-        }
 
         case 'tables':
           if ((service.tables = getAllTables(member, statement, reflection, errorList))) {
@@ -109,12 +103,7 @@ const isValidService = (type: Incomplete<DatabaseService>): type is DatabaseServ
   return !!type.name && !!type.tables;
 };
 
-const getAllTables = (
-  member: ModelProperty,
-  parent: TypeModel,
-  reflection: SourceMap,
-  errorList: Error[]
-) => {
+const getAllTables = (member: ModelProperty, parent: TypeModel, reflection: SourceMap, errorList: Error[]) => {
   const tableItems = getPropertyTuple(member) ?? [];
   const tableList: DatabaseTable[] = [];
 

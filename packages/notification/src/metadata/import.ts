@@ -4,13 +4,13 @@ import type { NotificationImport } from '../types/import.js';
 
 import {
   DuplicateServiceError,
+  InvalidServicePropertyError,
   isExternalStatement,
   getLinkedServiceList,
   getLinkedVariableList,
   getModelMembers,
   getPropertyString,
-  getReferenceName,
-  InvalidServicePropertyError
+  getReferenceName
 } from '@ez4/common/library';
 
 import { isModelProperty, isTypeReference } from '@ez4/reflection';
@@ -35,6 +35,8 @@ export const getNotificationImports = (reflection: SourceMap) => {
     const service: Incomplete<NotificationImport> = { type: ImportType };
     const properties = new Set(['project', 'reference', 'schema']);
 
+    const fileName = statement.file;
+
     service.name = statement.name;
 
     if (statement.description) {
@@ -47,33 +49,30 @@ export const getNotificationImports = (reflection: SourceMap) => {
       }
 
       switch (member.name) {
-        case 'reference': {
+        default:
+          if (!member.inherited) {
+            errorList.push(new InvalidServicePropertyError(service.name, member.name, fileName));
+          }
+          break;
+
+        case 'reference':
           if (member.inherited && isTypeReference(member.value)) {
             service[member.name] = getReferenceName(member.value);
             properties.delete(member.name);
           }
           break;
-        }
 
-        case 'project': {
-          if (!member.inherited) {
-            service.project = getPropertyString(member);
-            if (service.project) {
-              properties.delete(member.name);
-            }
+        case 'project':
+          if (!member.inherited && (service.project = getPropertyString(member))) {
+            properties.delete(member.name);
           }
           break;
-        }
 
-        case 'schema': {
-          if (member.inherited) {
-            service.schema = getNotificationMessage(member.value, statement, reflection, errorList);
-            if (service.schema) {
-              properties.delete(member.name);
-            }
+        case 'schema':
+          if (member.inherited && (service.schema = getNotificationMessage(member.value, statement, reflection, errorList))) {
+            properties.delete(member.name);
           }
           break;
-        }
 
         case 'subscriptions': {
           if (!member.inherited) {
@@ -81,6 +80,7 @@ export const getNotificationImports = (reflection: SourceMap) => {
           } else {
             service.subscriptions = [];
           }
+
           break;
         }
 
@@ -95,24 +95,16 @@ export const getNotificationImports = (reflection: SourceMap) => {
             service.services = getLinkedServiceList(member, reflection, errorList);
           }
           break;
-
-        default:
-          if (!member.inherited) {
-            errorList.push(
-              new InvalidServicePropertyError(statement.name, member.name, statement.file)
-            );
-          }
-          break;
       }
     }
 
     if (!isValidImport(service)) {
-      errorList.push(new IncompleteServiceError([...properties], statement.file));
+      errorList.push(new IncompleteServiceError([...properties], fileName));
       continue;
     }
 
     if (allImports[statement.name]) {
-      errorList.push(new DuplicateServiceError(statement.name, statement.file));
+      errorList.push(new DuplicateServiceError(statement.name, fileName));
       continue;
     }
 

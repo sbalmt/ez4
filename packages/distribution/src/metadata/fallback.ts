@@ -4,6 +4,7 @@ import type { Incomplete } from '@ez4/utils';
 import type { CdnFallback } from '../types/fallback.js';
 
 import {
+  InvalidServicePropertyError,
   isModelDeclaration,
   getModelMembers,
   getObjectMembers,
@@ -16,22 +17,10 @@ import {
 import { isModelProperty, isTypeObject, isTypeReference } from '@ez4/reflection';
 import { isAnyNumber } from '@ez4/utils';
 
-import {
-  IncompleteFallbackError,
-  IncorrectFallbackTypeError,
-  InvalidFallbackTypeError
-} from '../errors/fallback.js';
-
+import { IncompleteFallbackError, IncorrectFallbackTypeError, InvalidFallbackTypeError } from '../errors/fallback.js';
 import { isCdnFallback } from './utils.js';
 
-type TypeParent = TypeModel | TypeObject;
-
-export const getAllFallbacks = (
-  member: ModelProperty,
-  parent: TypeModel,
-  reflection: SourceMap,
-  errorList: Error[]
-) => {
+export const getAllFallbacks = (member: ModelProperty, parent: TypeModel, reflection: SourceMap, errorList: Error[]) => {
   const fallbackItems = getPropertyTuple(member) ?? [];
   const resultList: CdnFallback[] = [];
 
@@ -46,12 +35,7 @@ export const getAllFallbacks = (
   return resultList;
 };
 
-const getCdnFallback = (
-  type: AllType,
-  parent: TypeParent,
-  reflection: SourceMap,
-  errorList: Error[]
-) => {
+const getCdnFallback = (type: AllType, parent: TypeModel, reflection: SourceMap, errorList: Error[]) => {
   if (!isTypeReference(type)) {
     return getTypeFallback(type, parent, errorList);
   }
@@ -69,9 +53,9 @@ const isValidFallback = (type: Incomplete<CdnFallback>): type is CdnFallback => 
   return !!type.code && !!type.location;
 };
 
-const getTypeFallback = (type: AllType, parent: TypeParent, errorList: Error[]) => {
+const getTypeFallback = (type: AllType, parent: TypeModel, errorList: Error[]) => {
   if (isTypeObject(type)) {
-    return getTypeFromMembers(type, getObjectMembers(type), errorList);
+    return getTypeFromMembers(type, parent, getObjectMembers(type), errorList);
   }
 
   if (!isModelDeclaration(type)) {
@@ -84,14 +68,10 @@ const getTypeFallback = (type: AllType, parent: TypeParent, errorList: Error[]) 
     return null;
   }
 
-  return getTypeFromMembers(type, getModelMembers(type), errorList);
+  return getTypeFromMembers(type, parent, getModelMembers(type), errorList);
 };
 
-const getTypeFromMembers = (
-  type: TypeObject | TypeModel,
-  members: MemberType[],
-  errorList: Error[]
-) => {
+const getTypeFromMembers = (type: TypeObject | TypeModel, parent: TypeModel, members: MemberType[], errorList: Error[]) => {
   const fallback: Incomplete<CdnFallback> = {};
   const properties = new Set(['code', 'location']);
 
@@ -101,20 +81,25 @@ const getTypeFromMembers = (
     }
 
     switch (member.name) {
+      default:
+        errorList.push(new InvalidServicePropertyError(parent.name, member.name, type.file));
+        break;
+
+      case 'location':
+        if ((fallback.location = getPropertyString(member))) {
+          properties.delete(member.name);
+        }
+        break;
+
       case 'ttl':
       case 'code': {
         const value = getPropertyNumber(member);
+
         if (isAnyNumber(value)) {
+          properties.delete(member.name);
           fallback[member.name] = value;
         }
-        break;
-      }
 
-      case 'location': {
-        const location = getPropertyString(member);
-        if (location) {
-          fallback[member.name] = location;
-        }
         break;
       }
     }

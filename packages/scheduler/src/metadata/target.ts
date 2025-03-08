@@ -1,6 +1,6 @@
-import type { Incomplete } from '@ez4/utils';
-import type { MemberType } from '@ez4/common/library';
 import type { AllType, SourceMap, TypeModel, TypeObject } from '@ez4/reflection';
+import type { MemberType } from '@ez4/common/library';
+import type { Incomplete } from '@ez4/utils';
 import type { CronTarget } from '../types/common.js';
 
 import {
@@ -15,23 +15,12 @@ import {
 } from '@ez4/common/library';
 
 import { isModelProperty, isTypeObject, isTypeReference } from '@ez4/reflection';
-import { isAnyNumber } from '@ez4/utils';
 
-import {
-  IncompleteTargetError,
-  IncorrectTargetTypeError,
-  InvalidTargetTypeError
-} from '../errors/target.js';
-
+import { IncompleteTargetError, IncorrectTargetTypeError, InvalidTargetTypeError } from '../errors/target.js';
 import { getTargetHandler } from './handler.js';
 import { isCronTarget } from './utils.js';
 
-export const getCronTarget = (
-  type: AllType,
-  parent: TypeModel,
-  reflection: SourceMap,
-  errorList: Error[]
-) => {
+export const getCronTarget = (type: AllType, parent: TypeModel, reflection: SourceMap, errorList: Error[]) => {
   if (!isTypeReference(type)) {
     return getTypeTarget(type, parent, reflection, errorList);
   }
@@ -49,12 +38,7 @@ const isValidTarget = (type: Incomplete<CronTarget>): type is CronTarget => {
   return !!type.handler;
 };
 
-const getTypeTarget = (
-  type: AllType,
-  parent: TypeModel,
-  reflection: SourceMap,
-  errorList: Error[]
-) => {
+const getTypeTarget = (type: AllType, parent: TypeModel, reflection: SourceMap, errorList: Error[]) => {
   if (isTypeObject(type)) {
     return getTypeFromMembers(type, parent, getObjectMembers(type), reflection, errorList);
   }
@@ -92,32 +76,20 @@ const getTypeFromMembers = (
         errorList.push(new InvalidServicePropertyError(parent.name, member.name, type.file));
         break;
 
-      case 'listener': {
-        const value = getServiceListener(member.value, errorList);
-
-        if (value) {
-          target.listener = value;
-        }
-
-        break;
-      }
-
       case 'handler':
         if ((target.handler = getTargetHandler(member.value, reflection, errorList))) {
           properties.delete(member.name);
         }
         break;
 
-      case 'timeout':
-      case 'memory': {
-        const value = getPropertyNumber(member);
-
-        if (isAnyNumber(value)) {
-          target[member.name] = value;
-        }
-
+      case 'listener':
+        target.listener = getServiceListener(member.value, errorList);
         break;
-      }
+
+      case 'memory':
+      case 'timeout':
+        target[member.name] = getPropertyNumber(member);
+        break;
 
       case 'variables':
         target.variables = getLinkedVariableList(member, errorList);

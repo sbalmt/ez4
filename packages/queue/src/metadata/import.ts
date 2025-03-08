@@ -16,7 +16,6 @@ import {
 } from '@ez4/common/library';
 
 import { isModelProperty, isTypeReference } from '@ez4/reflection';
-import { isAnyNumber } from '@ez4/utils';
 
 import { ImportType } from '../types/import.js';
 import { IncompleteServiceError } from '../errors/service.js';
@@ -39,6 +38,8 @@ export const getQueueImports = (reflection: SourceMap) => {
     const service: Incomplete<QueueImport> = { type: ImportType };
     const properties = new Set(['project', 'reference', 'schema']);
 
+    const fileName = statement.file;
+
     service.name = statement.name;
 
     if (statement.description) {
@@ -53,81 +54,52 @@ export const getQueueImports = (reflection: SourceMap) => {
       switch (member.name) {
         default:
           if (!member.inherited) {
-            errorList.push(
-              new InvalidServicePropertyError(statement.name, member.name, statement.file)
-            );
+            errorList.push(new InvalidServicePropertyError(service.name, member.name, fileName));
           }
           break;
 
-        case 'project': {
-          if (!member.inherited) {
-            const value = getPropertyString(member);
-
-            if (value !== undefined && value !== null) {
-              properties.delete(member.name);
-              service[member.name] = value;
-            }
-          }
-
-          break;
-        }
-
-        case 'reference': {
+        case 'reference':
           if (member.inherited && isTypeReference(member.value)) {
-            service[member.name] = getReferenceName(member.value);
+            service.reference = getReferenceName(member.value);
             properties.delete(member.name);
           }
           break;
-        }
 
-        case 'schema': {
-          if (member.inherited) {
-            service.schema = getQueueMessage(member.value, statement, reflection, errorList);
-
-            if (service.schema) {
-              properties.delete(member.name);
-            }
+        case 'project':
+          if (!member.inherited && (service.project = getPropertyString(member))) {
+            properties.delete(member.name);
           }
-
           break;
-        }
 
-        case 'timeout': {
-          if (member.inherited) {
-            const value = getReferenceNumber(member.value, reflection);
-
-            if (isAnyNumber(value)) {
-              service[member.name] = value;
-            }
+        case 'schema':
+          if (member.inherited && (service.schema = getQueueMessage(member.value, statement, reflection, errorList))) {
+            properties.delete(member.name);
           }
-
           break;
-        }
 
-        case 'fifoMode': {
+        case 'fifoMode':
           if (member.inherited) {
             const reference = getReferenceModel(member.value, reflection);
 
             if (reference) {
-              const value = getQueueFifoMode(reference, statement, reflection, errorList);
-
-              if (value) {
-                service[member.name] = value;
-              }
+              service.fifoMode = getQueueFifoMode(reference, statement, reflection, errorList);
             }
           }
-
           break;
-        }
 
-        case 'subscriptions': {
+        case 'subscriptions':
           if (!member.inherited) {
             service.subscriptions = getAllSubscription(member, statement, reflection, errorList);
           } else {
             service.subscriptions = [];
           }
           break;
-        }
+
+        case 'timeout':
+          if (member.inherited) {
+            service.timeout = getReferenceNumber(member.value, reflection);
+          }
+          break;
 
         case 'variables':
           if (!member.inherited) {
@@ -144,12 +116,12 @@ export const getQueueImports = (reflection: SourceMap) => {
     }
 
     if (!isValidImport(service)) {
-      errorList.push(new IncompleteServiceError([...properties], statement.file));
+      errorList.push(new IncompleteServiceError([...properties], fileName));
       continue;
     }
 
     if (queueImports[statement.name]) {
-      errorList.push(new DuplicateServiceError(statement.name, statement.file));
+      errorList.push(new DuplicateServiceError(statement.name, fileName));
       continue;
     }
 

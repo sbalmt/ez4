@@ -59,10 +59,7 @@ export type UpdateSourceCodeRequest = {
   sourceFile: string;
 };
 
-export const importFunction = async (
-  functionName: string,
-  version?: string
-): Promise<ImportOrCreateResponse | undefined> => {
+export const importFunction = async (functionName: string, version?: string): Promise<ImportOrCreateResponse | undefined> => {
   Logger.logImport(FunctionServiceName, functionName);
 
   try {

@@ -15,22 +15,11 @@ import {
 } from '@ez4/common/library';
 
 import { isModelProperty, isTypeObject, isTypeReference } from '@ez4/reflection';
-import { isAnyNumber } from '@ez4/utils';
 
-import {
-  IncompleteCorsError,
-  IncorrectCorsTypeError,
-  InvalidCorsTypeError
-} from '../errors/cors.js';
-
+import { IncompleteCorsError, IncorrectCorsTypeError, InvalidCorsTypeError } from '../errors/cors.js';
 import { isBucketCors } from './utils.js';
 
-export const getBucketCors = (
-  type: AllType,
-  parent: TypeModel,
-  reflection: SourceMap,
-  errorList: Error[]
-) => {
+export const getBucketCors = (type: AllType, parent: TypeModel, reflection: SourceMap, errorList: Error[]) => {
   if (!isTypeReference(type)) {
     return getTypeCors(type, parent, errorList);
   }
@@ -66,12 +55,7 @@ const getTypeCors = (type: AllType, parent: TypeModel, errorList: Error[]) => {
   return getTypeFromMembers(type, parent, getModelMembers(type), errorList);
 };
 
-const getTypeFromMembers = (
-  type: TypeObject | TypeModel,
-  parent: TypeModel,
-  members: MemberType[],
-  errorList: Error[]
-) => {
+const getTypeFromMembers = (type: TypeObject | TypeModel, parent: TypeModel, members: MemberType[], errorList: Error[]) => {
   const cors: Incomplete<BucketCors> = {};
   const properties = new Set(['allowOrigins']);
 
@@ -88,21 +72,13 @@ const getTypeFromMembers = (
       case 'allowOrigins':
       case 'allowMethods':
       case 'allowHeaders':
-      case 'exposeHeaders': {
-        const values = getStringValues(member);
-        if (values.length) {
-          cors[member.name] = values;
-        }
+      case 'exposeHeaders':
+        cors[member.name] = getStringValues(member);
         break;
-      }
 
-      case 'maxAge': {
-        const value = getPropertyNumber(member);
-        if (isAnyNumber(value)) {
-          cors[member.name] = value;
-        }
+      case 'maxAge':
+        cors.maxAge = getPropertyNumber(member);
         break;
-      }
     }
   }
 

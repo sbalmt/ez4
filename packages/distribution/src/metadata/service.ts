@@ -1,9 +1,10 @@
-import type { Incomplete } from '@ez4/utils';
 import type { ModelProperty, SourceMap } from '@ez4/reflection';
+import type { Incomplete } from '@ez4/utils';
 import type { CdnService } from '../types/service.js';
 
 import {
   DuplicateServiceError,
+  InvalidServicePropertyError,
   isExternalStatement,
   getModelMembers,
   getPropertyBoolean,
@@ -12,14 +13,13 @@ import {
 } from '@ez4/common/library';
 
 import { isModelProperty, isTypeString } from '@ez4/reflection';
-import { isAnyBoolean } from '@ez4/utils';
 
 import { ServiceType } from '../types/service.js';
 import { IncompleteServiceError } from '../errors/service.js';
 import { getAllCdnOrigins, getCdnOrigin } from './origin.js';
+import { getCdnCertificate } from './certificate.js';
 import { getAllFallbacks } from './fallback.js';
 import { isCdnService } from './utils.js';
-import { getCdnCertificate } from './certificate.js';
 
 export const getCdnServices = (reflection: SourceMap) => {
   const cdnServices: Record<string, CdnService> = {};
@@ -35,6 +35,8 @@ export const getCdnServices = (reflection: SourceMap) => {
     const service: Incomplete<CdnService> = { type: ServiceType };
     const properties = new Set(['defaultOrigin']);
 
+    const fileName = statement.file;
+
     service.name = statement.name;
 
     if (statement.description) {
@@ -47,80 +49,49 @@ export const getCdnServices = (reflection: SourceMap) => {
       }
 
       switch (member.name) {
+        default:
+          errorList.push(new InvalidServicePropertyError(service.name, member.name, fileName));
+          break;
+
+        case 'defaultOrigin':
+          if ((service.defaultOrigin = getCdnOrigin(member.value, statement, reflection, errorList))) {
+            properties.delete(member.name);
+          }
+          break;
+
+        case 'defaultIndex':
+          service.defaultIndex = getPropertyString(member);
+          break;
+
         case 'aliases':
           service.aliases = getAllAliases(member);
           break;
 
-        case 'certificate': {
-          const certificate = getCdnCertificate(member.value, statement, reflection, errorList);
-
-          if (certificate) {
-            service.certificate = certificate;
-          }
-
+        case 'certificate':
+          service.certificate = getCdnCertificate(member.value, statement, reflection, errorList);
           break;
-        }
 
-        case 'defaultIndex': {
-          const value = getPropertyString(member);
-
-          if (value) {
-            service.defaultIndex = value;
-          }
-
+        case 'origins':
+          service.origins = getAllCdnOrigins(member.value, statement, reflection, errorList);
           break;
-        }
 
-        case 'defaultOrigin': {
-          const defaultOrigin = getCdnOrigin(member.value, statement, reflection, errorList);
-
-          if (defaultOrigin) {
-            service.defaultOrigin = defaultOrigin;
-            properties.delete(member.name);
-          }
-
+        case 'fallbacks':
+          service.fallbacks = getAllFallbacks(member, statement, reflection, errorList);
           break;
-        }
 
-        case 'origins': {
-          const originList = getAllCdnOrigins(member.value, statement, reflection, errorList);
-
-          if (originList?.length) {
-            service.origins = originList;
-          }
-
+        case 'disabled':
+          service.disabled = getPropertyBoolean(member);
           break;
-        }
-
-        case 'fallbacks': {
-          const fallbackList = getAllFallbacks(member, statement, reflection, errorList);
-
-          if (fallbackList) {
-            service.fallbacks = fallbackList;
-          }
-
-          break;
-        }
-
-        case 'disabled': {
-          const value = getPropertyBoolean(member);
-
-          if (isAnyBoolean(value)) {
-            service.disabled = value;
-          }
-
-          break;
-        }
       }
     }
 
     if (!isValidService(service)) {
-      errorList.push(new IncompleteServiceError([...properties], statement.file));
+      errorList.push(new IncompleteServiceError([...properties], fileName));
       continue;
     }
 
     if (cdnServices[statement.name]) {
-      errorList.push(new DuplicateServiceError(statement.name, statement.file));
+      errorList.push(new DuplicateServiceError(statement.name, fileName));
       continue;
     }
 

@@ -13,7 +13,6 @@ import {
 } from '@ez4/common/library';
 
 import { isModelProperty } from '@ez4/reflection';
-import { isAnyNumber } from '@ez4/utils';
 
 import { ServiceType } from '../types/service.js';
 import { IncompleteServiceError } from '../errors/service.js';
@@ -50,79 +49,52 @@ export const getQueueServices = (reflection: SourceMap) => {
       }
 
       switch (member.name) {
-        default: {
+        default:
           if (!member.inherited) {
             errorList.push(new InvalidServicePropertyError(service.name, member.name, fileName));
           }
-
           break;
-        }
 
-        case 'schema': {
-          const value = getQueueMessage(member.value, statement, reflection, errorList);
-
-          if (value) {
+        case 'schema':
+          if ((service.schema = getQueueMessage(member.value, statement, reflection, errorList))) {
             properties.delete(member.name);
-            service.schema = value;
           }
-
           break;
-        }
 
         case 'timeout':
         case 'retention':
         case 'polling':
-        case 'delay': {
+        case 'delay':
           if (!member.inherited) {
-            const value = getPropertyNumber(member);
-
-            if (isAnyNumber(value)) {
-              service[member.name] = value;
-            }
+            service[member.name] = getPropertyNumber(member);
           }
-
           break;
-        }
 
-        case 'fifoMode': {
+        case 'fifoMode':
           if (!member.inherited) {
-            const value = getQueueFifoMode(member.value, statement, reflection, errorList);
-
-            if (value) {
-              service[member.name] = value;
-            }
+            service.fifoMode = getQueueFifoMode(member.value, statement, reflection, errorList);
           }
-
           break;
-        }
 
         case 'subscriptions': {
-          if (!member.inherited) {
-            service.subscriptions = getAllSubscription(member, statement, reflection, errorList);
-
-            if (service.subscriptions) {
-              properties.delete(member.name);
-            }
+          if (!member.inherited && (service.subscriptions = getAllSubscription(member, statement, reflection, errorList))) {
+            properties.delete(member.name);
           }
 
           break;
         }
 
-        case 'variables': {
+        case 'variables':
           if (!member.inherited) {
             service.variables = getLinkedVariableList(member, errorList);
           }
-
           break;
-        }
 
-        case 'services': {
+        case 'services':
           if (!member.inherited) {
             service.services = getLinkedServiceList(member, reflection, errorList);
           }
-
           break;
-        }
       }
     }
 

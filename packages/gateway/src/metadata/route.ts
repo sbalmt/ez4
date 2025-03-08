@@ -1,12 +1,12 @@
-import type { Incomplete } from '@ez4/utils';
-import type { MemberType } from '@ez4/common/library';
 import type { AllType, SourceMap, TypeModel, TypeObject } from '@ez4/reflection';
+import type { MemberType } from '@ez4/common/library';
+import type { Incomplete } from '@ez4/utils';
 import type { HttpRoute } from '../types/common.js';
 
 import { isModelProperty, isTypeObject, isTypeReference } from '@ez4/reflection';
-import { isAnyBoolean, isAnyNumber } from '@ez4/utils';
 
 import {
+  InvalidServicePropertyError,
   getLinkedVariableList,
   getPropertyBoolean,
   getPropertyNumber,
@@ -22,15 +22,15 @@ import { isHttpPath, isHttpRoute } from './utils.js';
 import { getHttpAuthorizer } from './authorizer.js';
 import { getHttpHandler } from './handler.js';
 
-export const getHttpRoute = (type: AllType, reflection: SourceMap, errorList: Error[]) => {
+export const getHttpRoute = (type: AllType, parent: TypeModel, reflection: SourceMap, errorList: Error[]) => {
   if (!isTypeReference(type)) {
-    return getTypeRoute(type, reflection, errorList);
+    return getTypeRoute(type, parent, reflection, errorList);
   }
 
   const statement = getReferenceType(type, reflection);
 
   if (statement) {
-    return getTypeRoute(statement, reflection, errorList);
+    return getTypeRoute(statement, parent, reflection, errorList);
   }
 
   return null;
@@ -40,13 +40,13 @@ const isValidRoute = (type: Incomplete<HttpRoute>): type is HttpRoute => {
   return !!type.path && !!type.handler;
 };
 
-const getTypeRoute = (type: AllType, reflection: SourceMap, errorList: Error[]) => {
+const getTypeRoute = (type: AllType, parent: TypeModel, reflection: SourceMap, errorList: Error[]) => {
   if (isHttpRoute(type)) {
-    return getTypeFromMembers(type, getModelMembers(type), reflection, errorList);
+    return getTypeFromMembers(type, parent, getModelMembers(type), reflection, errorList);
   }
 
   if (isTypeObject(type)) {
-    return getTypeFromMembers(type, getObjectMembers(type), reflection, errorList);
+    return getTypeFromMembers(type, parent, getObjectMembers(type), reflection, errorList);
   }
 
   return null;
@@ -54,6 +54,7 @@ const getTypeRoute = (type: AllType, reflection: SourceMap, errorList: Error[]) 
 
 const getTypeFromMembers = (
   type: TypeObject | TypeModel,
+  parent: TypeModel,
   members: MemberType[],
   reflection: SourceMap,
   errorList: Error[]
@@ -67,6 +68,10 @@ const getTypeFromMembers = (
     }
 
     switch (member.name) {
+      default:
+        errorList.push(new InvalidServicePropertyError(parent.name, member.name, type.file));
+        break;
+
       case 'path': {
         const path = getPropertyString(member);
 
@@ -78,51 +83,27 @@ const getTypeFromMembers = (
         break;
       }
 
-      case 'timeout':
-      case 'memory': {
-        const value = getPropertyNumber(member);
-
-        if (isAnyNumber(value)) {
-          route[member.name] = value;
-        }
-
-        break;
-      }
-
-      case 'cors': {
-        const value = getPropertyBoolean(member);
-
-        if (isAnyBoolean(value)) {
-          route[member.name] = value;
-        }
-
-        break;
-      }
-
-      case 'authorizer': {
-        const value = getHttpAuthorizer(member.value, reflection, errorList);
-
-        if (value) {
-          route.authorizer = value;
-        }
-
-        break;
-      }
-
-      case 'listener': {
-        const value = getServiceListener(member.value, errorList);
-
-        if (value) {
-          route.listener = value;
-        }
-
-        break;
-      }
-
       case 'handler':
-        if ((route.handler = getHttpHandler(member.value, reflection, errorList))) {
+        if ((route.handler = getHttpHandler(member.value, parent, reflection, errorList))) {
           properties.delete(member.name);
         }
+        break;
+
+      case 'timeout':
+      case 'memory':
+        route[member.name] = getPropertyNumber(member);
+        break;
+
+      case 'cors':
+        route.cors = getPropertyBoolean(member);
+        break;
+
+      case 'authorizer':
+        route.authorizer = getHttpAuthorizer(member.value, parent, reflection, errorList);
+        break;
+
+      case 'listener':
+        route.listener = getServiceListener(member.value, errorList);
         break;
 
       case 'variables':

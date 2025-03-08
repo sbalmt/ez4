@@ -1,8 +1,9 @@
+import type { AllType, SourceMap, TypeModel } from '@ez4/reflection';
 import type { MemberType } from '@ez4/common/library';
-import type { AllType, SourceMap, TypeModel, TypeObject } from '@ez4/reflection';
 import type { HttpDefaults } from '../types/common.js';
 
 import {
+  InvalidServicePropertyError,
   isModelDeclaration,
   getPropertyNumber,
   getObjectMembers,
@@ -12,17 +13,11 @@ import {
 } from '@ez4/common/library';
 
 import { isModelProperty, isTypeObject, isTypeReference } from '@ez4/reflection';
-import { isAnyNumber } from '@ez4/utils';
 
 import { IncorrectDefaultsTypeError, InvalidDefaultsTypeError } from '../library.js';
 import { isHttpDefaults } from './utils.js';
 
-export const getHttpDefaults = (
-  type: AllType,
-  parent: TypeObject | TypeModel,
-  reflection: SourceMap,
-  errorList: Error[]
-) => {
+export const getHttpDefaults = (type: AllType, parent: TypeModel, reflection: SourceMap, errorList: Error[]) => {
   if (!isTypeReference(type)) {
     return getTypeDefaults(type, parent, errorList);
   }
@@ -36,9 +31,9 @@ export const getHttpDefaults = (
   return null;
 };
 
-const getTypeDefaults = (type: AllType, parent: TypeObject | TypeModel, errorList: Error[]) => {
+const getTypeDefaults = (type: AllType, parent: TypeModel, errorList: Error[]) => {
   if (isTypeObject(type)) {
-    return getTypeFromMembers(getObjectMembers(type), errorList);
+    return getTypeFromMembers(parent, getObjectMembers(type), errorList);
   }
 
   if (!isModelDeclaration(type)) {
@@ -51,10 +46,10 @@ const getTypeDefaults = (type: AllType, parent: TypeObject | TypeModel, errorLis
     return null;
   }
 
-  return getTypeFromMembers(getModelMembers(type), errorList);
+  return getTypeFromMembers(parent, getModelMembers(type), errorList);
 };
 
-const getTypeFromMembers = (members: MemberType[], errorList: Error[]) => {
+const getTypeFromMembers = (parent: TypeModel, members: MemberType[], errorList: Error[]) => {
   const defaults: HttpDefaults = {};
 
   for (const member of members) {
@@ -63,26 +58,18 @@ const getTypeFromMembers = (members: MemberType[], errorList: Error[]) => {
     }
 
     switch (member.name) {
+      default:
+        errorList.push(new InvalidServicePropertyError(parent.name, member.name, parent.file));
+        break;
+
+      case 'memory':
       case 'timeout':
-      case 'memory': {
-        const value = getPropertyNumber(member);
-
-        if (isAnyNumber(value)) {
-          defaults[member.name] = value;
-        }
-
+        defaults[member.name] = getPropertyNumber(member);
         break;
-      }
 
-      case 'listener': {
-        const value = getServiceListener(member.value, errorList);
-
-        if (value) {
-          defaults.listener = value;
-        }
-
+      case 'listener':
+        defaults.listener = getServiceListener(member.value, errorList);
         break;
-      }
     }
   }
 
