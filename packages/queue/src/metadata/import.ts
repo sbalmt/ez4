@@ -11,7 +11,8 @@ import {
   getModelMembers,
   getPropertyString,
   getReferenceName,
-  getReferenceNumber
+  getReferenceNumber,
+  getReferenceModel
 } from '@ez4/common/library';
 
 import { isModelProperty, isTypeReference } from '@ez4/reflection';
@@ -105,10 +106,14 @@ export const getQueueImports = (reflection: SourceMap) => {
 
         case 'fifoMode': {
           if (member.inherited) {
-            const value = getQueueFifoMode(member.value, statement, reflection, errorList);
+            const reference = getReferenceModel(member.value, reflection);
 
-            if (value) {
-              service[member.name] = value;
+            if (reference) {
+              const value = getQueueFifoMode(reference, statement, reflection, errorList);
+
+              if (value) {
+                service[member.name] = value;
+              }
             }
           }
 

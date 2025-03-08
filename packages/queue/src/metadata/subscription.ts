@@ -4,6 +4,7 @@ import type { AllType, ModelProperty, SourceMap, TypeModel, TypeObject } from '@
 import type { QueueSubscription } from '../types/common.js';
 
 import {
+  InvalidServicePropertyError,
   isModelDeclaration,
   getLinkedVariableList,
   getModelMembers,
@@ -11,7 +12,7 @@ import {
   getPropertyNumber,
   getPropertyTuple,
   getServiceListener,
-  InvalidServicePropertyError
+  getReferenceType
 } from '@ez4/common/library';
 
 import { isModelProperty, isTypeObject, isTypeReference } from '@ez4/reflection';
@@ -56,7 +57,7 @@ const getQueueSubscription = (
     return getTypeSubscription(type, parent, reflection, errorList);
   }
 
-  const statement = reflection[type.path];
+  const statement = getReferenceType(type, reflection);
 
   if (statement) {
     return getTypeSubscription(statement, parent, reflection, errorList);
