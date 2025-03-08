@@ -1,10 +1,5 @@
-import type {
-  ConnectResourceEvent,
-  PrepareResourceEvent,
-  ServiceEvent
-} from '@ez4/project/library';
+import type { ConnectResourceEvent, PrepareResourceEvent, ServiceEvent } from '@ez4/project/library';
 
-import { getServiceName } from '@ez4/project/library';
 import { isQueueService } from '@ez4/queue/library';
 import { isRoleState } from '@ez4/aws-identity';
 
@@ -12,6 +7,7 @@ import { createQueue } from '../queue/service.js';
 import { connectSubscriptions, prepareSubscriptions } from './subscription.js';
 import { prepareLinkedClient } from './client.js';
 import { RoleMissingError } from './errors.js';
+import { getQueueName } from './utils.js';
 
 export const prepareLinkedServices = (event: ServiceEvent) => {
   const { service, options } = event;
@@ -20,9 +16,7 @@ export const prepareLinkedServices = (event: ServiceEvent) => {
     return null;
   }
 
-  const queueName = getServiceName(service, options);
-
-  return prepareLinkedClient(queueName, service.schema, service.fifoMode);
+  return prepareLinkedClient(service, options);
 };
 
 export const prepareServices = async (event: PrepareResourceEvent) => {
@@ -38,7 +32,7 @@ export const prepareServices = async (event: PrepareResourceEvent) => {
 
   const { fifoMode, timeout, retention, polling, delay } = service;
 
-  const queueName = getServiceName(service, options);
+  const queueName = getQueueName(service, options);
 
   const queueState = createQueue(state, {
     queueName,

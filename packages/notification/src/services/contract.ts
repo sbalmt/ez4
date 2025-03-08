@@ -3,12 +3,7 @@ import type { Service } from '@ez4/common';
 import type { Queue } from '@ez4/queue';
 import type { Client } from './client.js';
 
-import type {
-  NotificationMessage,
-  NotificationIncoming,
-  SubscriptionHandler,
-  SubscriptionListener
-} from './common.js';
+import type { NotificationMessage, NotificationIncoming, SubscriptionHandler, SubscriptionListener } from './common.js';
 
 /**
  * Provide all contracts for a self-managed notification service.
@@ -48,11 +43,6 @@ export namespace Notification {
      * Subscription handler.
      */
     handler: Handler<T>;
-
-    /**
-     * Maximum number of concurrent lambdas.
-     */
-    concurrency?: number;
 
     /**
      * Variables associated to the subscription.

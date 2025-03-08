@@ -1,10 +1,5 @@
-import type {
-  ConnectResourceEvent,
-  PrepareResourceEvent,
-  ServiceEvent
-} from '@ez4/project/library';
+import type { ConnectResourceEvent, PrepareResourceEvent, ServiceEvent } from '@ez4/project/library';
 
-import { getServiceName } from '@ez4/project/library';
 import { isQueueImport } from '@ez4/queue/library';
 import { isRoleState } from '@ez4/aws-identity';
 
@@ -12,6 +7,7 @@ import { createQueue } from '../queue/service.js';
 import { connectSubscriptions, prepareSubscriptions } from './subscription.js';
 import { ProjectMissingError, RoleMissingError } from './errors.js';
 import { prepareLinkedClient } from './client.js';
+import { getQueueName } from './utils.js';
 
 export const prepareLinkedImports = (event: ServiceEvent) => {
   const { service, options } = event;
@@ -20,17 +16,14 @@ export const prepareLinkedImports = (event: ServiceEvent) => {
     return null;
   }
 
-  const { reference, project } = service;
-
+  const { project } = service;
   const { imports } = options;
 
   if (!imports || !imports[project]) {
     throw new ProjectMissingError(project);
   }
 
-  const queueName = getServiceName(reference, imports[project]);
-
-  return prepareLinkedClient(queueName, service.schema, service.fifoMode);
+  return prepareLinkedClient(service, imports[project]);
 };
 
 export const prepareImports = async (event: PrepareResourceEvent) => {
@@ -44,19 +37,19 @@ export const prepareImports = async (event: PrepareResourceEvent) => {
     throw new RoleMissingError();
   }
 
-  const { reference, project, fifoMode } = service;
+  const { project } = service;
   const { imports } = options;
 
   if (!imports || !imports[project]) {
     throw new ProjectMissingError(project);
   }
 
-  const queueName = getServiceName(reference, imports[project]);
+  const queueName = getQueueName(service, imports[project]);
 
   const queueState = createQueue(state, {
-    queueName,
-    fifoMode: !!fifoMode,
-    import: true
+    fifoMode: !!service.fifoMode,
+    import: true,
+    queueName
   });
 
   await prepareSubscriptions(state, service, role, queueState, options);

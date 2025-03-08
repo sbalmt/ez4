@@ -32,14 +32,17 @@ const previewResource = async (candidate: SubscriptionState, current: Subscripti
     }
   });
 
-  return changes.counts ? changes : undefined;
+  if (!changes.counts) {
+    return undefined;
+  }
+
+  return {
+    ...changes,
+    name: target.fromService
+  };
 };
 
-const replaceResource = async (
-  candidate: SubscriptionState,
-  current: SubscriptionState,
-  context: StepContext
-) => {
+const replaceResource = async (candidate: SubscriptionState, current: SubscriptionState, context: StepContext) => {
   if (current.result) {
     throw new ReplaceResourceError(SubscriptionServiceName, candidate.entryId, current.entryId);
   }
@@ -47,16 +50,10 @@ const replaceResource = async (
   return createResource(candidate, context);
 };
 
-const createResource = async (
-  candidate: SubscriptionState,
-  context: StepContext
-): Promise<SubscriptionResult> => {
+const createResource = async (candidate: SubscriptionState, context: StepContext): Promise<SubscriptionResult> => {
   const parameters = candidate.parameters;
 
-  const [topicArn, endpoint] = await Promise.all([
-    parameters.getTopicArn(context),
-    parameters.getEndpoint(context)
-  ]);
+  const [topicArn, endpoint] = await Promise.all([parameters.getTopicArn(context), parameters.getEndpoint(context)]);
 
   const { subscriptionArn } = await createSubscription({
     protocol: getSubscriptionProtocol(SubscriptionServiceName, endpoint),

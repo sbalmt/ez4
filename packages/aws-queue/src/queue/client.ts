@@ -33,12 +33,12 @@ export type CreateResponse = {
 
 export type UpdateRequest = Pick<CreateRequest, 'timeout' | 'retention' | 'polling' | 'delay'>;
 
-export const fetchQueue = async (queueName: string, fifo: boolean) => {
+export const fetchQueue = async (queueName: string) => {
   Logger.logFetch(QueueServiceName, queueName);
 
   const response = await client.send(
     new GetQueueUrlCommand({
-      QueueName: getQueueResourceName(queueName, fifo)
+      QueueName: queueName
     })
   );
 
@@ -48,13 +48,13 @@ export const fetchQueue = async (queueName: string, fifo: boolean) => {
 };
 
 export const createQueue = async (request: CreateRequest): Promise<CreateResponse> => {
-  Logger.logCreate(QueueServiceName, request.queueName);
-
   const { queueName, fifoMode } = request;
+
+  Logger.logCreate(QueueServiceName, queueName);
 
   const response = await client.send(
     new CreateQueueCommand({
-      QueueName: getQueueResourceName(queueName, fifoMode),
+      QueueName: queueName,
       Attributes: {
         ...upsertQueueAttributes(request),
         ...(fifoMode && {
@@ -124,9 +124,7 @@ export const deleteQueue = async (queueUrl: string) => {
   );
 };
 
-const upsertQueueAttributes = (
-  request: CreateRequest | UpdateRequest
-): Partial<Record<QueueAttributeName, string>> => {
+const upsertQueueAttributes = (request: CreateRequest | UpdateRequest): Partial<Record<QueueAttributeName, string>> => {
   const { timeout, retention, polling, delay } = request;
 
   return {
@@ -135,8 +133,4 @@ const upsertQueueAttributes = (
     ...(polling !== undefined && { ReceiveMessageWaitTimeSeconds: polling.toString() }),
     ...(delay !== undefined && { DelaySeconds: delay.toString() })
   };
-};
-
-const getQueueResourceName = (queueName: string, fifo: boolean) => {
-  return fifo ? `${queueName}.fifo` : queueName;
 };

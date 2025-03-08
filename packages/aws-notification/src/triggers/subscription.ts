@@ -7,8 +7,8 @@ import type { TopicState } from '../topic/types.js';
 import { NotificationSubscriptionType } from '@ez4/notification/library';
 import { getServiceName, linkServiceExtras } from '@ez4/project/library';
 import { InvalidParameterError } from '@ez4/aws-common';
+import { tryGetQueueState } from '@ez4/aws-queue';
 import { getFunction } from '@ez4/aws-function';
-import { getQueueState } from '@ez4/aws-queue';
 
 import { SubscriptionServiceName } from '../subscription/types.js';
 import { createSubscriptionFunction } from '../subscription/function/service.js';
@@ -61,19 +61,25 @@ export const prepareSubscriptions = async (
             })
           });
 
-        createSubscription(state, topicState, functionState);
+        createSubscription(state, topicState, functionState, {
+          fromService: functionName
+        });
+
         break;
       }
 
       case NotificationSubscriptionType.Queue: {
         const queueName = getServiceName(subscription.service, options);
-        const queueState = getQueueState(state, queueName);
+        const queueState = tryGetQueueState(state, queueName);
 
         if (!queueState) {
           throw new SubscriptionMissingError(queueName);
         }
 
-        createSubscription(state, topicState, queueState);
+        createSubscription(state, topicState, queueState, {
+          fromService: queueName
+        });
+
         break;
       }
     }
@@ -104,18 +110,20 @@ export const connectSubscriptions = (
         }
 
         linkServiceExtras(state, functionState.entryId, service.extras);
+
         break;
       }
 
       case NotificationSubscriptionType.Queue: {
         const queueName = getServiceName(subscription.service, options);
-        const queueState = getQueueState(state, queueName);
+        const queueState = tryGetQueueState(state, queueName);
 
         if (!queueState) {
           throw new SubscriptionMissingError(queueName);
         }
 
         linkServiceExtras(state, queueState.entryId, service.extras);
+
         break;
       }
     }

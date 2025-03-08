@@ -137,7 +137,6 @@ const getLambdaSubscription = (
 
       case 'memory':
       case 'timeout':
-      case 'concurrency':
         subscription[member.name] = getPropertyNumber(member);
         break;
 

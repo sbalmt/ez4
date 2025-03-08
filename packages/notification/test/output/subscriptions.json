@@ -15,7 +15,6 @@
     "subscriptions": [
       {
         "type": "lambda",
-        "concurrency": 2,
         "timeout": 15,
         "handler": {
           "name": "testHandler",

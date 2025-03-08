@@ -58,12 +58,7 @@ export const prepareSubscriptions = async (
   }
 };
 
-export const connectSubscriptions = (
-  state: EntryStates,
-  service: QueueService | QueueImport,
-  role: RoleState,
-  options: DeployOptions
-) => {
+export const connectSubscriptions = (state: EntryStates, service: QueueService | QueueImport, role: RoleState, options: DeployOptions) => {
   if (!service.extras) {
     return;
   }
