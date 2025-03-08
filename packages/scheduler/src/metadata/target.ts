@@ -26,11 +26,9 @@ import {
 import { getTargetHandler } from './handler.js';
 import { isCronTarget } from './utils.js';
 
-type TypeParent = TypeModel | TypeObject;
-
 export const getCronTarget = (
   type: AllType,
-  parent: TypeParent,
+  parent: TypeModel,
   reflection: SourceMap,
   errorList: Error[]
 ) => {
@@ -53,12 +51,12 @@ const isValidTarget = (type: Incomplete<CronTarget>): type is CronTarget => {
 
 const getTypeTarget = (
   type: AllType,
-  parent: TypeParent,
+  parent: TypeModel,
   reflection: SourceMap,
   errorList: Error[]
 ) => {
   if (isTypeObject(type)) {
-    return getTypeFromMembers(type, getObjectMembers(type), reflection, errorList);
+    return getTypeFromMembers(type, parent, getObjectMembers(type), reflection, errorList);
   }
 
   if (!isModelDeclaration(type)) {
@@ -71,11 +69,12 @@ const getTypeTarget = (
     return null;
   }
 
-  return getTypeFromMembers(type, getModelMembers(type), reflection, errorList);
+  return getTypeFromMembers(type, parent, getModelMembers(type), reflection, errorList);
 };
 
 const getTypeFromMembers = (
   type: TypeObject | TypeModel,
+  parent: TypeModel,
   members: MemberType[],
   reflection: SourceMap,
   errorList: Error[]

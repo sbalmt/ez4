@@ -22,11 +22,9 @@ import {
 
 import { isQueueFifoMode } from './utils.js';
 
-type TypeParent = TypeModel | TypeObject;
-
 export const getQueueFifoMode = (
   type: AllType,
-  parent: TypeParent,
+  parent: TypeModel,
   reflection: SourceMap,
   errorList: Error[]
 ) => {
@@ -47,9 +45,9 @@ const isValidFifoMode = (type: Incomplete<QueueFifoMode>): type is QueueFifoMode
   return !!type.groupId;
 };
 
-const getTypeFifoMode = (type: AllType, parent: TypeParent, errorList: Error[]) => {
+const getTypeFifoMode = (type: AllType, parent: TypeModel, errorList: Error[]) => {
   if (isTypeObject(type)) {
-    return getTypeFromMembers(type, getObjectMembers(type), errorList);
+    return getTypeFromMembers(type, parent, getObjectMembers(type), errorList);
   }
 
   if (!isModelDeclaration(type)) {
@@ -62,11 +60,12 @@ const getTypeFifoMode = (type: AllType, parent: TypeParent, errorList: Error[]) 
     return null;
   }
 
-  return getTypeFromMembers(type, getModelMembers(type), errorList);
+  return getTypeFromMembers(type, parent, getModelMembers(type), errorList);
 };
 
 const getTypeFromMembers = (
   type: TypeObject | TypeModel,
+  parent: TypeModel,
   members: MemberType[],
   errorList: Error[]
 ) => {

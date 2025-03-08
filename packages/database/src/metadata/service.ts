@@ -6,6 +6,7 @@ import type { TableIndex } from '../types/indexes.js';
 
 import {
   DuplicateServiceError,
+  InvalidServicePropertyError,
   isExternalStatement,
   getLinkedServiceList,
   getLinkedVariableList,
@@ -41,6 +42,8 @@ export const getDatabaseServices = (reflection: SourceMap) => {
     const service: Incomplete<DatabaseService> = { type: ServiceType };
     const properties = new Set(['engine', 'tables']);
 
+    const fileName = statement.file;
+
     service.name = statement.name;
 
     for (const member of getModelMembers(statement)) {
@@ -49,6 +52,10 @@ export const getDatabaseServices = (reflection: SourceMap) => {
       }
 
       switch (member.name) {
+        default:
+          errorList.push(new InvalidServicePropertyError(service.name, member.name, fileName));
+          break;
+
         case 'engine': {
           if ((service.engine = getPropertyString(member))) {
             properties.delete(member.name);
@@ -57,7 +64,7 @@ export const getDatabaseServices = (reflection: SourceMap) => {
         }
 
         case 'tables':
-          if ((service.tables = getAllTables(member, reflection, errorList))) {
+          if ((service.tables = getAllTables(member, statement, reflection, errorList))) {
             properties.delete(member.name);
           }
           break;
@@ -73,7 +80,7 @@ export const getDatabaseServices = (reflection: SourceMap) => {
     }
 
     if (!isValidService(service)) {
-      errorList.push(new IncompleteServiceError([...properties], statement.file));
+      errorList.push(new IncompleteServiceError([...properties], fileName));
       continue;
     }
 
@@ -85,7 +92,7 @@ export const getDatabaseServices = (reflection: SourceMap) => {
     }
 
     if (dbServices[statement.name]) {
-      errorList.push(new DuplicateServiceError(statement.name, statement.file));
+      errorList.push(new DuplicateServiceError(statement.name, fileName));
       continue;
     }
 
@@ -102,12 +109,17 @@ const isValidService = (type: Incomplete<DatabaseService>): type is DatabaseServ
   return !!type.name && !!type.tables;
 };
 
-const getAllTables = (member: ModelProperty, reflection: SourceMap, errorList: Error[]) => {
+const getAllTables = (
+  member: ModelProperty,
+  parent: TypeModel,
+  reflection: SourceMap,
+  errorList: Error[]
+) => {
   const tableItems = getPropertyTuple(member) ?? [];
   const tableList: DatabaseTable[] = [];
 
   for (const subscription of tableItems) {
-    const result = getDatabaseTable(subscription, reflection, errorList);
+    const result = getDatabaseTable(subscription, parent, reflection, errorList);
 
     if (result) {
       tableList.push(result);

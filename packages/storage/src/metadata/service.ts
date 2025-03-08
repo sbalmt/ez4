@@ -35,6 +35,8 @@ export const getBucketServices = (reflection: SourceMap) => {
 
     const service: Incomplete<BucketService> = { type: ServiceType };
 
+    const fileName = statement.file;
+
     service.name = statement.name;
 
     for (const member of getModelMembers(statement)) {
@@ -44,7 +46,7 @@ export const getBucketServices = (reflection: SourceMap) => {
 
       switch (member.name) {
         default:
-          errorList.push(new InvalidServicePropertyError(parent.name, member.name, statement.file));
+          errorList.push(new InvalidServicePropertyError(service.name, member.name, fileName));
           break;
 
         case 'localPath':
@@ -87,12 +89,12 @@ export const getBucketServices = (reflection: SourceMap) => {
     }
 
     if (!isValidService(service)) {
-      errorList.push(new IncompleteServiceError([], statement.file));
+      errorList.push(new IncompleteServiceError([], fileName));
       continue;
     }
 
     if (bucketServices[statement.name]) {
-      errorList.push(new DuplicateServiceError(statement.name, statement.file));
+      errorList.push(new DuplicateServiceError(statement.name, fileName));
       continue;
     }
 

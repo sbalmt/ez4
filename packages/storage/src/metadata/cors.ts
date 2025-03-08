@@ -25,11 +25,9 @@ import {
 
 import { isBucketCors } from './utils.js';
 
-type TypeParent = TypeModel | TypeObject;
-
 export const getBucketCors = (
   type: AllType,
-  parent: TypeParent,
+  parent: TypeModel,
   reflection: SourceMap,
   errorList: Error[]
 ) => {
@@ -50,9 +48,9 @@ const isValidCors = (type: Incomplete<BucketCors>): type is BucketCors => {
   return !!type.allowOrigins?.length;
 };
 
-const getTypeCors = (type: AllType, parent: TypeParent, errorList: Error[]) => {
+const getTypeCors = (type: AllType, parent: TypeModel, errorList: Error[]) => {
   if (isTypeObject(type)) {
-    return getTypeFromMembers(type, getObjectMembers(type), errorList);
+    return getTypeFromMembers(type, parent, getObjectMembers(type), errorList);
   }
 
   if (!isModelDeclaration(type)) {
@@ -65,11 +63,12 @@ const getTypeCors = (type: AllType, parent: TypeParent, errorList: Error[]) => {
     return null;
   }
 
-  return getTypeFromMembers(type, getModelMembers(type), errorList);
+  return getTypeFromMembers(type, parent, getModelMembers(type), errorList);
 };
 
 const getTypeFromMembers = (
   type: TypeObject | TypeModel,
+  parent: TypeModel,
   members: MemberType[],
   errorList: Error[]
 ) => {

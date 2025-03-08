@@ -38,6 +38,8 @@ export const getCronServices = (reflection: SourceMap) => {
     const service: Incomplete<CronService> = { type: ServiceType };
     const properties = new Set(['target', 'expression']);
 
+    const fileName = statement.file;
+
     service.name = statement.name;
 
     if (statement.description) {
@@ -51,7 +53,7 @@ export const getCronServices = (reflection: SourceMap) => {
 
       switch (member.name) {
         default:
-          errorList.push(new InvalidServicePropertyError(parent.name, member.name, statement.file));
+          errorList.push(new InvalidServicePropertyError(service.name, member.name, fileName));
           break;
 
         case 'schema': {
@@ -150,7 +152,7 @@ export const getCronServices = (reflection: SourceMap) => {
     }
 
     if (!isValidService(service)) {
-      errorList.push(new IncompleteServiceError([...properties], statement.file));
+      errorList.push(new IncompleteServiceError([...properties], fileName));
       continue;
     }
 
@@ -162,7 +164,7 @@ export const getCronServices = (reflection: SourceMap) => {
     }
 
     if (cronServices[statement.name]) {
-      errorList.push(new DuplicateServiceError(statement.name, statement.file));
+      errorList.push(new DuplicateServiceError(statement.name, fileName));
       continue;
     }
 

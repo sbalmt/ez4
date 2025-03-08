@@ -23,15 +23,20 @@ import { isDatabaseTable } from './utils.js';
 import { getTableSchema } from './schema.js';
 import { getTableStream } from './stream.js';
 
-export const getDatabaseTable = (type: AllType, reflection: SourceMap, errorList: Error[]) => {
+export const getDatabaseTable = (
+  type: AllType,
+  parent: TypeModel,
+  reflection: SourceMap,
+  errorList: Error[]
+) => {
   if (!isTypeReference(type)) {
-    return getTypeTable(type, reflection, errorList);
+    return getTypeTable(type, parent, reflection, errorList);
   }
 
   const statement = getReferenceType(type, reflection);
 
   if (statement) {
-    return getTypeTable(statement, reflection, errorList);
+    return getTypeTable(statement, parent, reflection, errorList);
   }
 
   return null;
@@ -41,13 +46,18 @@ const isValidTable = (type: Incomplete<DatabaseTable>): type is DatabaseTable =>
   return !!type.name && !!type.schema && !!type.indexes;
 };
 
-const getTypeTable = (type: AllType, reflection: SourceMap, errorList: Error[]) => {
+const getTypeTable = (
+  type: AllType,
+  parent: TypeModel,
+  reflection: SourceMap,
+  errorList: Error[]
+) => {
   if (isDatabaseTable(type)) {
-    return getTypeFromMembers(type, getModelMembers(type), reflection, errorList);
+    return getTypeFromMembers(type, parent, getModelMembers(type), reflection, errorList);
   }
 
   if (isTypeObject(type)) {
-    return getTypeFromMembers(type, getObjectMembers(type), reflection, errorList);
+    return getTypeFromMembers(type, parent, getObjectMembers(type), reflection, errorList);
   }
 
   return null;
@@ -55,6 +65,7 @@ const getTypeTable = (type: AllType, reflection: SourceMap, errorList: Error[]) 
 
 const getTypeFromMembers = (
   type: TypeObject | TypeModel,
+  parent: TypeModel,
   members: MemberType[],
   reflection: SourceMap,
   errorList: Error[]
@@ -101,7 +112,7 @@ const getTypeFromMembers = (
         break;
 
       case 'stream':
-        table.stream = getTableStream(member.value, type, reflection, errorList);
+        table.stream = getTableStream(member.value, parent, reflection, errorList);
         break;
     }
   }
