@@ -1,3 +1,4 @@
+import type { Environment } from '@ez4/common';
 import type { Queue } from '@ez4/queue';
 import type { MessageRequest } from './types.js';
 import type { messageHandlerA, messageHandlerB } from './handlers.js';
@@ -7,6 +8,13 @@ import type { queueListener } from './common.js';
  * Example of AWS SQS deployed with EZ4.
  */
 export declare class Sqs extends Queue.Service<MessageRequest> {
+  /**
+   * Turn FIFO mode on, and define the message group Id field from MessageRequest.
+   */
+  fifoMode: {
+    groupId: 'foo';
+  };
+
   /**
    * Maximum amount of time for the handler to acknowledge the message.
    */
@@ -28,11 +36,6 @@ export declare class Sqs extends Queue.Service<MessageRequest> {
   delay: 10;
 
   /**
-   * Define a FIFO queue.
-   */
-  order: true;
-
-  /**
    * All handlers for this queue.
    */
   subscriptions: [
@@ -47,4 +50,11 @@ export declare class Sqs extends Queue.Service<MessageRequest> {
       concurrency: 4;
     }
   ];
+
+  /**
+   * Expose its client to all handlers.
+   */
+  services: {
+    selfClient: Environment.Service<Sqs>;
+  };
 }
