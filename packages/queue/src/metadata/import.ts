@@ -15,7 +15,7 @@ import {
   getReferenceModel
 } from '@ez4/common/library';
 
-import { isModelProperty, isTypeReference } from '@ez4/reflection';
+import { isModelProperty, isTypeReference, isTypeUnion } from '@ez4/reflection';
 
 import { ImportType } from '../types/import.js';
 import { IncompleteServiceError } from '../errors/service.js';
@@ -81,7 +81,7 @@ export const getQueueImports = (reflection: SourceMap) => {
           if (member.inherited) {
             const reference = getReferenceModel(member.value, reflection);
 
-            if (reference) {
+            if (reference && !isTypeUnion(reference)) {
               service.fifoMode = getQueueFifoMode(reference, statement, reflection, errorList);
             }
           }

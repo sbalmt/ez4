@@ -4,7 +4,7 @@
     "name": "TestQueue1",
     "description": "First test queue description.",
     "subscriptions": [],
-    "fifo": {
+    "fifoMode": {
       "uniqueId": "id",
       "groupId": "user"
     },

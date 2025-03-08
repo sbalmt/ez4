@@ -70,7 +70,7 @@ describe.only('distribution metadata errors', () => {
     const [error1] = parseFile('incomplete-fallback', 1);
 
     ok(error1 instanceof IncompleteFallbackError);
-    deepEqual(error1.properties, ['code', 'location']);
+    deepEqual(error1.properties, ['location']);
   });
 
   it('assert :: incorrect fallback', () => {

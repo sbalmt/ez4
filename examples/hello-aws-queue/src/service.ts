@@ -43,7 +43,6 @@ export declare class Sqs extends Queue.Service<MessageRequest> {
       listener: typeof queueListener;
       handler: typeof messageHandlerA;
       concurrency: 2;
-      reserved: 1;
     },
     {
       listener: typeof queueListener;
