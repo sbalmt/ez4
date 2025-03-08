@@ -1,12 +1,7 @@
 import type { CronService } from '@ez4/scheduler/library';
 import type { EntryStates } from '@ez4/stateful';
 
-import type {
-  ConnectResourceEvent,
-  DeployOptions,
-  PrepareResourceEvent,
-  ServiceEvent
-} from '@ez4/project/library';
+import type { ConnectResourceEvent, DeployOptions, PrepareResourceEvent, ServiceEvent } from '@ez4/project/library';
 
 import { getServiceName, linkServiceExtras } from '@ez4/project/library';
 import { isCronService, isDynamicCronService } from '@ez4/scheduler/library';
@@ -27,14 +22,7 @@ export const prepareLinkedServices = (event: ServiceEvent) => {
     return null;
   }
 
-  const scheduleName = getServiceName(service, options);
-
-  const { maxRetries, maxAge } = service;
-
-  return prepareLinkedClient(scheduleName, service.schema, options, {
-    maxRetries,
-    maxAge
-  });
+  return prepareLinkedClient(service, options);
 };
 
 export const prepareCronServices = async (event: PrepareResourceEvent) => {

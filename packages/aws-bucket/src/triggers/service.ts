@@ -1,12 +1,6 @@
+import type { ServiceEvent, ConnectResourceEvent, PrepareResourceEvent, DeployOptions } from '@ez4/project/library';
 import type { RoleState } from '@ez4/aws-identity';
 import type { EntryStates } from '@ez4/stateful';
-
-import type {
-  ServiceEvent,
-  ConnectResourceEvent,
-  PrepareResourceEvent,
-  DeployOptions
-} from '@ez4/project/library';
 
 import { isRoleState } from '@ez4/aws-identity';
 import { BucketService, isBucketService } from '@ez4/storage/library';
@@ -20,16 +14,14 @@ import { prepareLocalContent } from './content.js';
 import { prepareLinkedClient } from './client.js';
 import { RoleMissingError } from './errors.js';
 
-export const prepareLinkedServices = async (event: ServiceEvent) => {
+export const prepareLinkedServices = (event: ServiceEvent) => {
   const { service, options } = event;
 
   if (!isBucketService(service)) {
     return null;
   }
 
-  const bucketName = await getBucketName(service, options);
-
-  return prepareLinkedClient(service.name, bucketName);
+  return prepareLinkedClient(service, options);
 };
 
 export const prepareBucketServices = async (event: PrepareResourceEvent) => {
@@ -85,12 +77,7 @@ export const connectBucketServices = (event: ConnectResourceEvent) => {
   }
 };
 
-const getEventsFunction = (
-  state: EntryStates,
-  service: BucketService,
-  role: RoleState,
-  options: DeployOptions
-) => {
+const getEventsFunction = (state: EntryStates, service: BucketService, role: RoleState, options: DeployOptions) => {
   if (!service.events) {
     return undefined;
   }

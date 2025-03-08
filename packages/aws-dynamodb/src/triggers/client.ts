@@ -5,23 +5,22 @@ import { Index } from '@ez4/database';
 
 import { getTableName } from './utils.js';
 
-export const prepareLinkedClient = (
-  service: DatabaseService,
-  options: DeployOptions
-): ExtraSource => {
-  const repository = service.tables.reduce((current, table) => {
-    return {
-      ...current,
-      [table.name]: {
-        name: getTableName(service, table, options),
-        indexes: getTableIndexes(table.indexes),
-        schema: table.schema
-      }
-    };
-  }, {});
+export const prepareLinkedClient = (service: DatabaseService, options: DeployOptions): ExtraSource => {
+  const repository = JSON.stringify(
+    service.tables.reduce((current, table) => {
+      return {
+        ...current,
+        [table.name]: {
+          name: getTableName(service, table, options),
+          indexes: getTableIndexes(table.indexes),
+          schema: table.schema
+        }
+      };
+    }, {})
+  );
 
   return {
-    constructor: `make(${JSON.stringify(repository)}, ${options.debug ? 'true' : 'false'})`,
+    constructor: `make(${repository}, ${options.debug ? 'true' : 'false'})`,
     from: '@ez4/aws-dynamodb/client',
     module: 'Client'
   };
