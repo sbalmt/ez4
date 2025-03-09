@@ -47,7 +47,7 @@ export const prepareImports = async (event: PrepareResourceEvent) => {
     queueName
   });
 
-  context.setServiceState(queueState, service, options);
+  context.setServiceState(queueState, service, imports[project]);
 
   await prepareSubscriptions(state, service, queueState, options, context);
 };
