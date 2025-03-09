@@ -15,7 +15,7 @@ import { getOriginAccessName, getContentVersion, getOriginPolicyName } from './u
 import { connectOriginBucket } from './bucket.js';
 
 export const prepareCdnServices = async (event: PrepareResourceEvent) => {
-  const { state, service, options } = event;
+  const { state, service, options, context } = event;
 
   if (!isCdnService(service)) {
     return;
@@ -51,8 +51,8 @@ export const prepareCdnServices = async (event: PrepareResourceEvent) => {
 
   const distributionName = getServiceName(service, options);
 
-  const defaultOrigin = await getDefaultOriginCache(state, service, options);
-  const origins = await getAdditionalOriginCache(state, service, options);
+  const defaultOrigin = await getDefaultOriginCache(state, service, options, context);
+  const origins = await getAdditionalOriginCache(state, service, options, context);
 
   createDistribution(state, originAccessState, originPolicyState, certificateState, {
     compress: defaultCache?.compress ?? true,
@@ -68,7 +68,7 @@ export const prepareCdnServices = async (event: PrepareResourceEvent) => {
 };
 
 export const connectCdnServices = async (event: ConnectResourceEvent) => {
-  const { state, service, options } = event;
+  const { state, service, options, context } = event;
 
   if (!isCdnService(service)) {
     return;
@@ -77,7 +77,7 @@ export const connectCdnServices = async (event: ConnectResourceEvent) => {
   const distributionName = getServiceName(service, options);
   const distributionState = getDistributionState(state, distributionName);
 
-  const contentVersions: string[] = [];
+  const allContentVersions: string[] = [];
 
   const allOrigins = service.origins ? [service.defaultOrigin, ...service.origins] : [service.defaultOrigin];
 
@@ -86,23 +86,22 @@ export const connectCdnServices = async (event: ConnectResourceEvent) => {
       continue;
     }
 
-    const bucketId = getServiceName(origin.bucket, options);
-    const bucketState = getBucketState(state, bucketId);
+    const bucketState = getBucketState(context, origin.bucket, options);
 
     connectOriginBucket(state, service, bucketState, options);
 
     const { localPath } = bucketState.parameters;
 
     if (localPath) {
-      const version = await getContentVersion(localPath);
+      const contentHash = await getContentVersion(localPath);
 
-      contentVersions.push(version);
+      allContentVersions.push(contentHash);
     }
   }
 
-  if (contentVersions.length > 0) {
+  if (allContentVersions.length > 0) {
     createInvalidation(state, distributionState, {
-      contentVersion: contentVersions.join(',')
+      contentVersion: allContentVersions.join(',')
     });
   }
 };

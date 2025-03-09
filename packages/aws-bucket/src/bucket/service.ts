@@ -4,7 +4,6 @@ import type { BucketParameters, BucketState } from './types.js';
 
 import { createPermission } from '@ez4/aws-function';
 import { attachEntry, linkDependency } from '@ez4/stateful';
-import { toKebabCase } from '@ez4/utils';
 
 import { buildBucketArn } from '../utils/policy.js';
 import { createBucketStateId } from './utils.js';
@@ -16,9 +15,7 @@ export const createBucket = <E extends EntryState>(
   parameters: BucketParameters
 ) => {
   const bucketName = parameters.bucketName;
-
-  const bucketId = toKebabCase(parameters.bucketId);
-  const entryId = createBucketStateId(bucketId);
+  const entryId = createBucketStateId(bucketName);
 
   const bucketState = attachEntry<E | BucketState, BucketState>(state, {
     type: BucketServiceType,

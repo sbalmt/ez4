@@ -1,8 +1,11 @@
+import { EntryState } from '@ez4/stateful';
 import { isAnyObject } from '@ez4/utils';
 
 export type LinkedVariables = Record<string, string>;
 
 export type LinkedServices = Record<string, string>;
+
+export type ServiceAliases = Record<string, EntryState>;
 
 export type ServiceMetadata = {
   type: string;

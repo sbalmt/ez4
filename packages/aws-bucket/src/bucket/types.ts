@@ -8,7 +8,6 @@ export const BucketServiceName = 'AWS:S3/Bucket';
 export const BucketServiceType = 'aws:s3.bucket';
 
 export type BucketParameters = CreateRequest & {
-  bucketId: string;
   eventsPath?: string;
   autoExpireDays?: number;
   localPath?: string;

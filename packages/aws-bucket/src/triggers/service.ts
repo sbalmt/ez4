@@ -4,7 +4,7 @@ import type { EntryStates } from '@ez4/stateful';
 
 import { isRoleState } from '@ez4/aws-identity';
 import { BucketService, isBucketService } from '@ez4/storage/library';
-import { getServiceName, linkServiceExtras } from '@ez4/project/library';
+import { linkServiceExtras } from '@ez4/project/library';
 import { getFunction } from '@ez4/aws-function';
 
 import { createBucket } from '../bucket/service.js';
@@ -25,7 +25,7 @@ export const prepareLinkedServices = (event: ServiceEvent) => {
 };
 
 export const prepareBucketServices = async (event: PrepareResourceEvent) => {
-  const { state, service, role, options } = event;
+  const { state, service, role, options, context } = event;
 
   if (!isBucketService(service)) {
     return;
@@ -38,18 +38,18 @@ export const prepareBucketServices = async (event: PrepareResourceEvent) => {
   const { localPath, autoExpireDays, events, cors } = service;
 
   const bucketName = await getBucketName(service, options);
-  const bucketId = getServiceName(service, options);
 
   const functionState = getEventsFunction(state, service, role, options);
 
   const bucketState = createBucket(state, functionState, {
     eventsPath: events?.path,
-    bucketId,
     bucketName,
     autoExpireDays,
     localPath,
     cors
   });
+
+  context.setServiceState(bucketState, service, options);
 
   if (localPath) {
     await prepareLocalContent(state, bucketState, localPath);

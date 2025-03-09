@@ -1,28 +1,29 @@
-import type { EntryState, EntryStates, StepContext } from '@ez4/stateful';
+import type { DeployOptions, ResourceEventContext } from '@ez4/project/library';
+import type { EntryState, StepContext } from '@ez4/stateful';
 import type { BucketState } from './types.js';
 
-import { EntryNotFoundError, getEntry } from '@ez4/stateful';
 import { IncompleteResourceError } from '@ez4/aws-common';
 import { hashData, toKebabCase } from '@ez4/utils';
 
+import { BucketNotFoundError } from './errors.js';
 import { BucketServiceType } from './types.js';
 
-export const createBucketStateId = (bucketId: string) => {
-  return hashData(BucketServiceType, toKebabCase(bucketId));
+export const createBucketStateId = (bucketName: string) => {
+  return hashData(BucketServiceType, toKebabCase(bucketName));
 };
 
 export const isBucketState = (resource: EntryState): resource is BucketState => {
   return resource.type === BucketServiceType;
 };
 
-export const getBucketState = (state: EntryStates, bucketId: string) => {
-  const resource = getEntry(state, createBucketStateId(bucketId));
+export const getBucketState = (context: ResourceEventContext, bucketName: string, options: DeployOptions) => {
+  const bucketState = context.getServiceState(bucketName, options);
 
-  if (!isBucketState(resource)) {
-    throw new EntryNotFoundError(resource.entryId);
+  if (!isBucketState(bucketState)) {
+    throw new BucketNotFoundError(bucketName);
   }
 
-  return resource;
+  return bucketState;
 };
 
 export const getBucketName = (serviceName: string, resourceId: string, context: StepContext) => {
