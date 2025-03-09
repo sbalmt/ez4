@@ -1,5 +1,5 @@
-import type { ResourceTags } from '@ez4/aws-common';
 import type { StepContext, StepHandler } from '@ez4/stateful';
+import type { ResourceTags } from '@ez4/aws-common';
 import type { ObjectState, ObjectResult, ObjectParameters } from './types.js';
 
 import { stat } from 'node:fs/promises';

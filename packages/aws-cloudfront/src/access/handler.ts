@@ -70,11 +70,7 @@ const deleteResource = async (candidate: AccessState) => {
   }
 };
 
-const checkGeneralUpdates = async (
-  accessId: string,
-  candidate: AccessParameters,
-  current: AccessParameters
-) => {
+const checkGeneralUpdates = async (accessId: string, candidate: AccessParameters, current: AccessParameters) => {
   const hasChanges = !deepEqual(candidate, current);
 
   if (hasChanges) {

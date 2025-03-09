@@ -4,9 +4,9 @@ import type { SubscriptionState, SubscriptionResult } from './types.js';
 import { ReplaceResourceError } from '@ez4/aws-common';
 import { deepCompare } from '@ez4/utils';
 
-import { SubscriptionServiceName } from './types.js';
-import { createSubscription, deleteSubscription } from './client.js';
 import { getSubscriptionProtocol } from './helpers/protocol.js';
+import { createSubscription, deleteSubscription } from './client.js';
+import { SubscriptionServiceName } from './types.js';
 
 export const getSubscriptionHandler = (): StepHandler<SubscriptionState> => ({
   equals: equalsResource,

@@ -1,5 +1,5 @@
-import type { Arn } from '@ez4/aws-common';
 import type { StepHandler } from '@ez4/stateful';
+import type { Arn } from '@ez4/aws-common';
 import type { TableState, TableResult, TableParameters } from './types.js';
 
 import { applyTagUpdates, ReplaceResourceError, waitDeletion } from '@ez4/aws-common';
@@ -101,11 +101,7 @@ const deleteResource = async (candidate: TableState) => {
   await waitDeletion(() => deleteTable(result.tableName));
 };
 
-const checkDeletionUpdates = async (
-  tableName: string,
-  candidate: TableParameters,
-  current: TableParameters
-) => {
+const checkDeletionUpdates = async (tableName: string, candidate: TableParameters, current: TableParameters) => {
   const allowDeletion = !!candidate.allowDeletion;
 
   if (allowDeletion !== !!current.allowDeletion) {
@@ -113,11 +109,7 @@ const checkDeletionUpdates = async (
   }
 };
 
-const checkStreamsUpdates = async (
-  tableName: string,
-  candidate: TableParameters,
-  current: TableParameters
-) => {
+const checkStreamsUpdates = async (tableName: string, candidate: TableParameters, current: TableParameters) => {
   const enableStreams = !!candidate.enableStreams;
 
   if (enableStreams !== !!current.enableStreams) {
@@ -125,11 +117,7 @@ const checkStreamsUpdates = async (
   }
 };
 
-const checkTimeToLiveUpdates = async (
-  tableName: string,
-  candidate: TableParameters,
-  current: TableParameters
-) => {
+const checkTimeToLiveUpdates = async (tableName: string, candidate: TableParameters, current: TableParameters) => {
   const newAttributeName = candidate.ttlAttribute;
   const oldAttributeName = current.ttlAttribute;
 
@@ -141,11 +129,7 @@ const checkTimeToLiveUpdates = async (
   }
 };
 
-const checkIndexUpdates = async (
-  tableName: string,
-  candidate: TableParameters,
-  current: TableParameters
-) => {
+const checkIndexUpdates = async (tableName: string, candidate: TableParameters, current: TableParameters) => {
   const [, ...target] = candidate.attributeSchema;
   const [, ...source] = current.attributeSchema;
 
@@ -175,11 +159,7 @@ const checkIndexUpdates = async (
   }
 };
 
-const checkTagUpdates = async (
-  tableArn: Arn,
-  candidate: TableParameters,
-  current: TableParameters
-) => {
+const checkTagUpdates = async (tableArn: Arn, candidate: TableParameters, current: TableParameters) => {
   await applyTagUpdates(
     candidate.tags,
     current.tags,

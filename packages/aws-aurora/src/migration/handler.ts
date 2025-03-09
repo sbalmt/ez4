@@ -1,22 +1,15 @@
-import type { ObjectComparison } from '@ez4/utils';
 import type { StepContext, StepHandler } from '@ez4/stateful';
+import type { ObjectComparison } from '@ez4/utils';
 import type { Repository } from '../types/repository.js';
-import type { MigrationState, MigrationResult } from './types.js';
 import type { ConnectionRequest, RepositoryUpdates } from './client.js';
+import type { MigrationState, MigrationResult } from './types.js';
 
 import { ReplaceResourceError } from '@ez4/aws-common';
 import { deepCompare } from '@ez4/utils';
 
 import { getClusterResult } from '../cluster/utils.js';
+import { createDatabase, deleteDatabase, createTables, updateTables, deleteTables } from './client.js';
 import { MigrationServiceName } from './types.js';
-
-import {
-  createDatabase,
-  deleteDatabase,
-  createTables,
-  updateTables,
-  deleteTables
-} from './client.js';
 
 export const getMigrationHandler = (): StepHandler<MigrationState> => ({
   equals: equalsResource,
@@ -38,11 +31,7 @@ const previewResource = async (candidate: MigrationState, current: MigrationStat
   return deepCompare(target, source);
 };
 
-const replaceResource = async (
-  candidate: MigrationState,
-  current: MigrationState,
-  context: StepContext
-) => {
+const replaceResource = async (candidate: MigrationState, current: MigrationState, context: StepContext) => {
   if (current.result) {
     throw new ReplaceResourceError(MigrationServiceName, candidate.entryId, current.entryId);
   }
@@ -50,10 +39,7 @@ const replaceResource = async (
   return createResource(candidate, context);
 };
 
-const createResource = async (
-  candidate: MigrationState,
-  context: StepContext
-): Promise<MigrationResult> => {
+const createResource = async (candidate: MigrationState, context: StepContext): Promise<MigrationResult> => {
   const parameters = candidate.parameters;
 
   const { clusterArn, secretArn } = getClusterResult(MigrationServiceName, 'migration', context);
@@ -131,11 +117,7 @@ const applyCreateTables = async (connection: ConnectionRequest, repository: Repo
   });
 };
 
-const applyUpdateTables = async (
-  connection: ConnectionRequest,
-  comparison: Record<string, ObjectComparison>,
-  repository: Repository
-) => {
+const applyUpdateTables = async (connection: ConnectionRequest, comparison: Record<string, ObjectComparison>, repository: Repository) => {
   const updates: Record<string, RepositoryUpdates> = {};
 
   for (const table in comparison) {

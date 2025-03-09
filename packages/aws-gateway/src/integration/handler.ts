@@ -31,11 +31,7 @@ const previewResource = async (candidate: IntegrationState, current: Integration
   return changes.counts ? changes : undefined;
 };
 
-const replaceResource = async (
-  candidate: IntegrationState,
-  current: IntegrationState,
-  context: StepContext
-) => {
+const replaceResource = async (candidate: IntegrationState, current: IntegrationState, context: StepContext) => {
   if (current.result) {
     throw new ReplaceResourceError(IntegrationServiceName, candidate.entryId, current.entryId);
   }
@@ -43,10 +39,7 @@ const replaceResource = async (
   return createResource(candidate, context);
 };
 
-const createResource = async (
-  candidate: IntegrationState,
-  context: StepContext
-): Promise<IntegrationResult> => {
+const createResource = async (candidate: IntegrationState, context: StepContext): Promise<IntegrationResult> => {
   const apiId = getGatewayId(IntegrationServiceName, 'integration', context);
   const functionArn = getFunctionArn(IntegrationServiceName, 'integration', context);
 
@@ -62,11 +55,7 @@ const createResource = async (
   };
 };
 
-const updateResource = async (
-  candidate: IntegrationState,
-  current: IntegrationState,
-  context: StepContext
-) => {
+const updateResource = async (candidate: IntegrationState, current: IntegrationState, context: StepContext) => {
   const result = candidate.result;
 
   if (!result) {
@@ -97,12 +86,7 @@ const deleteResource = async (candidate: IntegrationState) => {
   }
 };
 
-const checkGeneralUpdates = async <T extends IntegrationParameters>(
-  apiId: string,
-  integrationId: string,
-  candidate: T,
-  current: T
-) => {
+const checkGeneralUpdates = async <T extends IntegrationParameters>(apiId: string, integrationId: string, candidate: T, current: T) => {
   const hasChanges = !deepEqual(candidate, current);
 
   if (hasChanges) {

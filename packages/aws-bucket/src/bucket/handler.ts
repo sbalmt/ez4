@@ -54,11 +54,7 @@ const previewResource = async (candidate: BucketState, current: BucketState) => 
   };
 };
 
-const replaceResource = async (
-  candidate: BucketState,
-  current: BucketState,
-  context: StepContext
-) => {
+const replaceResource = async (candidate: BucketState, current: BucketState, context: StepContext) => {
   if (current.result) {
     throw new ReplaceResourceError(BucketServiceName, candidate.entryId, current.entryId);
   }
@@ -66,10 +62,7 @@ const replaceResource = async (
   return createResource(candidate, context);
 };
 
-const createResource = async (
-  candidate: BucketState,
-  context: StepContext
-): Promise<BucketResult> => {
+const createResource = async (candidate: BucketState, context: StepContext): Promise<BucketResult> => {
   const parameters = candidate.parameters;
 
   const functionArn = tryGetFunctionArn(context);
@@ -93,11 +86,7 @@ const createResource = async (
   };
 };
 
-const updateResource = async (
-  candidate: BucketState,
-  current: BucketState,
-  context: StepContext
-) => {
+const updateResource = async (candidate: BucketState, current: BucketState, context: StepContext) => {
   const { result, parameters } = candidate;
 
   if (!result) {
@@ -136,11 +125,7 @@ const deleteResource = async (candidate: BucketState) => {
   }
 };
 
-const checkCorsUpdates = async (
-  bucketName: string,
-  candidate: BucketParameters,
-  current: BucketParameters | undefined
-) => {
+const checkCorsUpdates = async (bucketName: string, candidate: BucketParameters, current: BucketParameters | undefined) => {
   if (candidate.cors && current?.cors && deepEqual(candidate.cors, current.cors)) {
     return;
   }
@@ -154,11 +139,7 @@ const checkCorsUpdates = async (
   }
 };
 
-const checkLifecycleUpdates = async (
-  bucketName: string,
-  candidate: BucketParameters,
-  current: BucketParameters | undefined
-) => {
+const checkLifecycleUpdates = async (bucketName: string, candidate: BucketParameters, current: BucketParameters | undefined) => {
   if (candidate.autoExpireDays === current?.autoExpireDays) {
     return;
   }
@@ -172,11 +153,7 @@ const checkLifecycleUpdates = async (
   }
 };
 
-const checkTagUpdates = async (
-  bucketName: string,
-  candidate: ResourceTags | undefined,
-  current: ResourceTags | undefined
-) => {
+const checkTagUpdates = async (bucketName: string, candidate: ResourceTags | undefined, current: ResourceTags | undefined) => {
   const newTags = candidate ?? {};
   const hasChanges = !deepEqual(newTags, current ?? {});
 
@@ -185,11 +162,7 @@ const checkTagUpdates = async (
   }
 };
 
-const checkEventUpdates = async (
-  bucketName: string,
-  candidate: NotificationParameters,
-  current: NotificationParameters
-) => {
+const checkEventUpdates = async (bucketName: string, candidate: NotificationParameters, current: NotificationParameters) => {
   const hasChanges = !deepEqual(candidate, current);
 
   if (hasChanges) {

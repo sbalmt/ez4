@@ -5,7 +5,7 @@ import { StepAction } from '@ez4/stateful';
 import { triggerAllAsync } from '@ez4/project/library';
 import { deepCompare } from '@ez4/utils';
 
-import { toBold } from '../console/format.js';
+import { toBold, toGray } from '../console/format.js';
 import { MissingEntryResourceError } from '../errors/resource.js';
 import { MissingProviderError } from '../errors/provider.js';
 import { formatReportChanges } from './format.js';
@@ -52,15 +52,10 @@ const reportResourceCreate = (entryId: string, newState: EntryStates) => {
   const target = candidate.parameters as AnyObject;
   const changes = deepCompare(target, {});
 
-  return printResourceChanges(candidate.type, changes, candidate, 'will be created');
+  return printResourceChanges(entryId, candidate.type, changes, candidate, 'will be created');
 };
 
-const reportResourceUpdate = (
-  entryId: string,
-  comparison: ObjectComparison,
-  newState: EntryStates,
-  oldState: EntryStates
-) => {
+const reportResourceUpdate = (entryId: string, comparison: ObjectComparison, newState: EntryStates, oldState: EntryStates) => {
   const candidate = newState[entryId];
   const current = oldState[entryId];
 
@@ -78,7 +73,7 @@ const reportResourceUpdate = (
     dependencies: current.dependencies
   };
 
-  return printResourceChanges(candidate.type, comparison, values, 'will be updated');
+  return printResourceChanges(entryId, candidate.type, comparison, values, 'will be updated');
 };
 
 const reportResourceDelete = (entryId: string, oldState: EntryStates) => {
@@ -90,21 +85,16 @@ const reportResourceDelete = (entryId: string, oldState: EntryStates) => {
 
   const changes = deepCompare({}, current.parameters as AnyObject);
 
-  return printResourceChanges(current.type, changes, current, 'will be deleted');
+  return printResourceChanges(entryId, current.type, changes, current, 'will be deleted');
 };
 
-const printResourceChanges = (
-  type: string,
-  changes: ObjectComparison,
-  values: AnyObject,
-  action: string
-) => {
+const printResourceChanges = (entryId: string, type: string, changes: ObjectComparison, values: AnyObject, action: string) => {
   const output = formatReportChanges(changes, values);
 
   if (output.length > 0) {
     const name = 'name' in changes ? changes.name : 'unnamed';
 
-    console.group(`# ${toBold(type)} (${name}) ${action}`);
+    console.group(`# ${toBold(type)} ${toGray(`(${entryId} / ${name})`)} ${action}`);
     console.log(output.join('\n'));
     console.groupEnd();
 

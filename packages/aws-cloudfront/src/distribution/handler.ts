@@ -1,29 +1,16 @@
-import type { Arn } from '@ez4/aws-common';
 import type { StepContext, StepHandler } from '@ez4/stateful';
+import type { Arn } from '@ez4/aws-common';
 import type { CreateRequest, UpdateRequest } from './client.js';
-
-import type {
-  DistributionState,
-  DistributionResult,
-  DistributionParameters,
-  DistributionOrigin
-} from './types.js';
+import type { DistributionState, DistributionResult, DistributionParameters, DistributionOrigin } from './types.js';
 
 import { applyTagUpdates, ReplaceResourceError } from '@ez4/aws-common';
 import { deepCompare, deepEqual } from '@ez4/utils';
 
-import {
-  createDistribution,
-  updateDistribution,
-  deleteDistribution,
-  tagDistribution,
-  untagDistribution
-} from './client.js';
-
+import { getCachePolicyIds } from '../cache/utils.js';
 import { getOriginPolicyId } from '../origin/utils.js';
 import { getOriginAccessId } from '../access/utils.js';
-import { getCachePolicyIds } from '../cache/utils.js';
 import { tryGetCertificateArn } from '../certificate/utils.js';
+import { createDistribution, updateDistribution, deleteDistribution, tagDistribution, untagDistribution } from './client.js';
 import { DistributionServiceName } from './types.js';
 
 type GeneralUpdateParameters = CreateRequest & UpdateRequest;
@@ -57,11 +44,7 @@ const previewResource = async (candidate: DistributionState, current: Distributi
   };
 };
 
-const replaceResource = async (
-  candidate: DistributionState,
-  current: DistributionState,
-  context: StepContext
-) => {
+const replaceResource = async (candidate: DistributionState, current: DistributionState, context: StepContext) => {
   if (current.result) {
     throw new ReplaceResourceError(DistributionServiceName, candidate.entryId, current.entryId);
   }
@@ -69,10 +52,7 @@ const replaceResource = async (
   return createResource(candidate, context);
 };
 
-const createResource = async (
-  candidate: DistributionState,
-  context: StepContext
-): Promise<DistributionResult> => {
+const createResource = async (candidate: DistributionState, context: StepContext): Promise<DistributionResult> => {
   const parameters = candidate.parameters;
   const resourceId = parameters.distributionName;
 
@@ -84,12 +64,7 @@ const createResource = async (
 
   const allOrigins = await getAllOrigins(parameters, context);
 
-  const requestOrigins = bindOriginCachePolices(
-    parameters,
-    allOrigins,
-    cachePolicyIds,
-    originPolicyId
-  );
+  const requestOrigins = bindOriginCachePolices(parameters, allOrigins, cachePolicyIds, originPolicyId);
 
   const { distributionId, distributionArn, endpoint } = await createDistribution({
     ...parameters,
@@ -140,12 +115,7 @@ const updateResource = async (
 
   const newAllOrigins = await getAllOrigins(parameters, context);
 
-  const newRequestOrigins = bindOriginCachePolices(
-    parameters,
-    newAllOrigins,
-    newCachePolicyIds,
-    newOriginPolicyId
-  );
+  const newRequestOrigins = bindOriginCachePolices(parameters, newAllOrigins, newCachePolicyIds, newOriginPolicyId);
 
   const newRequest = {
     ...parameters,
@@ -156,12 +126,7 @@ const updateResource = async (
 
   const oldAllOrigins = [result.defaultOrigin, ...result.origins];
 
-  const oldRequestParameters = bindOriginCachePolices(
-    current.parameters,
-    oldAllOrigins,
-    oldCachePolicyIds,
-    oldOriginPolicyId
-  );
+  const oldRequestParameters = bindOriginCachePolices(current.parameters, oldAllOrigins, oldCachePolicyIds, oldOriginPolicyId);
 
   const oldRequest = {
     ...current.parameters,
@@ -199,12 +164,7 @@ const deleteResource = async (candidate: DistributionState) => {
 
   // Only disabled distributions can be deleted.
   if (parameters.enabled) {
-    const requestOrigins = bindOriginCachePolices(
-      parameters,
-      [result.defaultOrigin, ...result.origins],
-      cachePolicyIds,
-      originPolicyId
-    );
+    const requestOrigins = bindOriginCachePolices(parameters, [result.defaultOrigin, ...result.origins], cachePolicyIds, originPolicyId);
 
     await updateDistribution(distributionId, {
       ...parameters,
@@ -220,11 +180,7 @@ const deleteResource = async (candidate: DistributionState) => {
 const getAllOrigins = async (parameters: DistributionParameters, context: StepContext) => {
   const defaultOrigin = await parameters.defaultOrigin.getDistributionOrigin(context);
 
-  const origins = await Promise.all(
-    (parameters.origins ?? []).map((additionalOrigin) =>
-      additionalOrigin.getDistributionOrigin(context)
-    )
-  );
+  const origins = await Promise.all((parameters.origins ?? []).map((additionalOrigin) => additionalOrigin.getDistributionOrigin(context)));
 
   return [defaultOrigin, ...origins];
 };
@@ -264,11 +220,7 @@ const bindOriginCachePolices = (
   };
 };
 
-const checkGeneralUpdates = async (
-  distributionId: string,
-  candidate: GeneralUpdateParameters,
-  current: GeneralUpdateParameters
-) => {
+const checkGeneralUpdates = async (distributionId: string, candidate: GeneralUpdateParameters, current: GeneralUpdateParameters) => {
   const hasChanges = !deepEqual(candidate, current, {
     exclude: {
       tags: true
@@ -280,11 +232,7 @@ const checkGeneralUpdates = async (
   }
 };
 
-const checkTagUpdates = async (
-  distributionArn: Arn,
-  candidate: DistributionParameters,
-  current: DistributionParameters
-) => {
+const checkTagUpdates = async (distributionArn: Arn, candidate: DistributionParameters, current: DistributionParameters) => {
   await applyTagUpdates(
     candidate.tags,
     current.tags,

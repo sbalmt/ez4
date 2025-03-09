@@ -1,18 +1,11 @@
-import type { Arn } from '@ez4/aws-common';
 import type { StepHandler } from '@ez4/stateful';
+import type { Arn } from '@ez4/aws-common';
 import type { GatewayState, GatewayResult, GatewayParameters } from './types.js';
 
 import { applyTagUpdates, ReplaceResourceError } from '@ez4/aws-common';
 import { deepCompare, deepEqual } from '@ez4/utils';
 
-import {
-  createGateway,
-  deleteCorsConfiguration,
-  deleteGateway,
-  tagGateway,
-  untagGateway,
-  updateGateway
-} from './client.js';
+import { createGateway, deleteCorsConfiguration, deleteGateway, tagGateway, untagGateway, updateGateway } from './client.js';
 import { GatewayServiceName } from './types.js';
 
 export const getGatewayHandler = (): StepHandler<GatewayState> => ({
@@ -40,7 +33,7 @@ const previewResource = async (candidate: GatewayState, current: GatewayState) =
 
   return {
     ...changes,
-    name: target.gatewayId
+    name: target.gatewayName ?? source.gatewayName
   };
 };
 
@@ -71,10 +64,7 @@ const updateResource = async (candidate: GatewayState, current: GatewayState) =>
 
   const { apiId, apiArn } = result;
 
-  await Promise.all([
-    checkGeneralUpdates(apiId, parameters, current.parameters),
-    checkTagUpdates(apiArn, parameters, current.parameters)
-  ]);
+  await Promise.all([checkGeneralUpdates(apiId, parameters, current.parameters), checkTagUpdates(apiArn, parameters, current.parameters)]);
 };
 
 const deleteResource = async (candidate: GatewayState) => {
@@ -85,11 +75,7 @@ const deleteResource = async (candidate: GatewayState) => {
   }
 };
 
-const checkGeneralUpdates = async (
-  apiId: string,
-  candidate: GatewayParameters,
-  current: GatewayParameters
-) => {
+const checkGeneralUpdates = async (apiId: string, candidate: GatewayParameters, current: GatewayParameters) => {
   const hasChanges = !deepEqual(candidate, current, {
     exclude: {
       tags: true
@@ -105,11 +91,7 @@ const checkGeneralUpdates = async (
   }
 };
 
-const checkTagUpdates = async (
-  apiArn: Arn,
-  candidate: GatewayParameters,
-  current: GatewayParameters
-) => {
+const checkTagUpdates = async (apiArn: Arn, candidate: GatewayParameters, current: GatewayParameters) => {
   await applyTagUpdates(
     candidate.tags,
     current.tags,
