@@ -7,7 +7,7 @@
   "type": "module",
   "private": true,
   "engines": {
-    "node": ">=20.15.0"
+    "node": ">=22.3.0"
   },
   "workspaces": [
     "packages/*",
@@ -19,8 +19,8 @@
   },
   "dependencies": {
     "hello-aws-queue": "^0.0.0",
-    "@ez4/aws-queue": "^0.15.0",
-    "@ez4/queue": "^0.15.0",
-    "@ez4/project": "^0.15.0"
+    "@ez4/aws-queue": "^0.16.0",
+    "@ez4/queue": "^0.16.0",
+    "@ez4/project": "^0.16.0"
   }
 }

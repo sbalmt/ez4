@@ -7,7 +7,7 @@
   "type": "module",
   "private": true,
   "engines": {
-    "node": ">=20.15.0"
+    "node": ">=22.3.0"
   },
   "workspaces": [
     "packages/*",
@@ -18,12 +18,12 @@
     "destroy": "ez4 destroy -e local.env -p ez4.project.js"
   },
   "dependencies": {
-    "@ez4/aws-aurora": "^0.15.0",
-    "@ez4/aws-gateway": "^0.15.0",
-    "@ez4/common": "^0.15.0",
-    "@ez4/database": "^0.15.0",
-    "@ez4/gateway": "^0.15.0",
-    "@ez4/project": "^0.15.0",
-    "@ez4/schema": "^0.15.0"
+    "@ez4/aws-aurora": "^0.16.0",
+    "@ez4/aws-gateway": "^0.16.0",
+    "@ez4/common": "^0.16.0",
+    "@ez4/database": "^0.16.0",
+    "@ez4/gateway": "^0.16.0",
+    "@ez4/project": "^0.16.0",
+    "@ez4/schema": "^0.16.0"
   }
 }
