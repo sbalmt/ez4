@@ -5,7 +5,7 @@ import { ReplaceResourceError } from '@ez4/aws-common';
 import { deepCompare, deepEqual } from '@ez4/utils';
 
 import { getGatewayId } from '../gateway/utils.js';
-import { createStage, deleteStage, updateStage } from './client.js';
+import { createStage, deleteStage, importStage, updateStage } from './client.js';
 import { getStageName } from './helpers/stage.js';
 import { StageServiceName } from './types.js';
 
@@ -40,13 +40,17 @@ const replaceResource = async (candidate: StageState, current: StageState, conte
 };
 
 const createResource = async (candidate: StageState, context: StepContext): Promise<StageResult> => {
-  const stageName = getStageName(candidate.parameters);
+  const parameters = candidate.parameters;
+
+  const stageName = getStageName(parameters);
   const apiId = getGatewayId(StageServiceName, stageName, context);
 
-  const response = await createStage(apiId, {
-    ...candidate.parameters,
-    stageName
-  });
+  const response =
+    (await importStage(apiId, stageName)) ??
+    (await createStage(apiId, {
+      ...parameters,
+      stageName
+    }));
 
   return {
     stageName: response.stageName,
