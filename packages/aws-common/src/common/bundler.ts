@@ -75,6 +75,7 @@ export const bundleFunction = async (serviceName: string, options: BundlerOption
     platform: 'node',
     target: 'node20',
     format: 'esm',
+    external: ['@aws-sdk/*'],
     define: {
       ...options.define
     },
