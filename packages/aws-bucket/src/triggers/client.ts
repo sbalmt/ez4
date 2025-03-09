@@ -3,7 +3,7 @@ import type { BucketService } from '@ez4/storage/library';
 
 import { getBucketState } from '../bucket/utils.js';
 
-export const prepareLinkedClient = async (context: EventContext, service: BucketService, options: DeployOptions): Promise<ExtraSource> => {
+export const prepareLinkedClient = (context: EventContext, service: BucketService, options: DeployOptions): ExtraSource => {
   const bucketState = getBucketState(context, service.name, options);
   const bucketId = bucketState.entryId;
 
