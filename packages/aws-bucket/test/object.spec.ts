@@ -20,7 +20,6 @@ const assertDeploy = async <E extends EntryState>(resourceId: string, newState: 
   const result = resource.result;
 
   ok(result.bucketName);
-  ok(result.objectKey);
 
   return {
     result,
@@ -40,8 +39,7 @@ describe.only('bucket objects', () => {
     const localState: EntryStates = {};
 
     const bucketResource = createBucket(localState, undefined, {
-      bucketName: 'ez4-test-object-bucket',
-      bucketId: 'ez4-test-bucket'
+      bucketName: 'ez4-test-object-bucket'
     });
 
     const resource = createBucketObject(localState, bucketResource, {

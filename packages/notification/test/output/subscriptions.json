@@ -2,6 +2,7 @@
   "TestNotification": {
     "type": "@ez4/notification",
     "name": "TestNotification",
+    "extras": {},
     "description": "Notification to test subscriptions.",
     "schema": {
       "type": "object",
@@ -48,6 +49,7 @@
   "TestQueue": {
     "type": "@ez4/queue",
     "name": "TestQueue",
+    "extras": {},
     "subscriptions": [],
     "schema": {
       "identity": 1,

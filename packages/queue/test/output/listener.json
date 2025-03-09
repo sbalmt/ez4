@@ -2,6 +2,7 @@
   "TestQueue": {
     "type": "@ez4/queue",
     "name": "TestQueue",
+    "extras": {},
     "description": "Queue to test subscription listener.",
     "schema": {
       "type": "object",

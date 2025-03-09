@@ -14,6 +14,7 @@ describe.only('bucket client', () => {
 
   let lastState: EntryStates | undefined;
   let bucketId: string | undefined;
+
   let bucketClient: ReturnType<typeof Client.make>;
 
   registerTriggers();
@@ -22,8 +23,7 @@ describe.only('bucket client', () => {
     const localState: EntryStates = {};
 
     const resource = createBucket(localState, undefined, {
-      bucketName: 'ez4-test-bucket-client',
-      bucketId: 'ez4-test-bucket'
+      bucketName: 'ez4-test-bucket-client'
     });
 
     bucketId = resource.entryId;

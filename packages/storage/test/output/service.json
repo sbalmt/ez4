@@ -2,6 +2,7 @@
   "TestStorage": {
     "type": "@ez4/bucket",
     "name": "TestStorage",
+    "extras": {},
     "globalName": "global-bucket-name",
     "localPath": "./public",
     "autoExpireDays": 30,

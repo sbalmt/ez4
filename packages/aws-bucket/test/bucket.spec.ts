@@ -56,7 +56,6 @@ describe.only('bucket resources', () => {
 
     const resource = createBucket(localState, lambdaResource, {
       bucketName: 'ez4-test-bucket',
-      bucketId: 'ez4-test-bucket',
       eventsPath: 'uploads/',
       autoExpireDays: 5,
       tags: {

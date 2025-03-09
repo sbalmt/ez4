@@ -50,8 +50,7 @@ describe.only('cloudfront :: distribution', () => {
     const originBucketName = 'ez4-test-distribution-bucket';
 
     const bucketResource = createBucket(localState, undefined, {
-      bucketName: originBucketName,
-      bucketId: 'ez4-test-bucket'
+      bucketName: originBucketName
     });
 
     const originPolicyResource = createOriginPolicy(localState, {

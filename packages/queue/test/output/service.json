@@ -2,6 +2,7 @@
   "TestQueue1": {
     "type": "@ez4/queue",
     "name": "TestQueue1",
+    "extras": {},
     "description": "First test queue description.",
     "subscriptions": [],
     "fifoMode": {
@@ -27,6 +28,7 @@
   "TestQueue2": {
     "type": "@ez4/queue",
     "name": "TestQueue2",
+    "extras": {},
     "description": "Description of the second test queue.",
     "subscriptions": [],
     "timeout": 5,

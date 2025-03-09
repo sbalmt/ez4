@@ -2,6 +2,7 @@
   "TestDatabase1": {
     "type": "@ez4/database",
     "name": "TestDatabase1",
+    "extras": {},
     "engine": "test",
     "tables": [],
     "services": {
@@ -11,6 +12,7 @@
   "TestDatabase2": {
     "type": "@ez4/database",
     "name": "TestDatabase2",
+    "extras": {},
     "engine": "test",
     "tables": [],
     "variables": {

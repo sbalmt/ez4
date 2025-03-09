@@ -2,6 +2,7 @@
   "TestService": {
     "type": "@ez4/http",
     "name": "TestService",
+    "extras": {},
     "description": "Service for testing route listener.",
     "routes": [
       {
