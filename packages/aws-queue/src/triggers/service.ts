@@ -10,11 +10,11 @@ import { getQueueName } from './utils.js';
 export const prepareLinkedServices = (event: ServiceEvent) => {
   const { service, options, context } = event;
 
-  if (!isQueueService(service)) {
-    return null;
+  if (isQueueService(service)) {
+    return prepareLinkedClient(context, service, options);
   }
 
-  return prepareLinkedClient(context, service, options);
+  return null;
 };
 
 export const prepareServices = async (event: PrepareResourceEvent) => {

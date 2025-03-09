@@ -5,15 +5,15 @@ import type { TopicState } from '../topic/types.js';
 
 import { linkServiceExtras } from '@ez4/project/library';
 import { NotificationSubscriptionType } from '@ez4/notification/library';
+import { getFunctionState, tryGetFunctionState } from '@ez4/aws-function';
 import { InvalidParameterError } from '@ez4/aws-common';
-import { getQueueState } from '@ez4/aws-queue';
-import { getFunction } from '@ez4/aws-function';
 import { isRoleState } from '@ez4/aws-identity';
+import { getQueueState } from '@ez4/aws-queue';
 
 import { SubscriptionServiceName } from '../subscription/types.js';
 import { createSubscriptionFunction } from '../subscription/function/service.js';
-import { RoleMissingError, SubscriptionMissingError } from './errors.js';
 import { createSubscription } from '../subscription/service.js';
+import { RoleMissingError } from './errors.js';
 import { getFunctionName } from './utils.js';
 
 export const prepareSubscriptions = async (
@@ -35,18 +35,18 @@ export const prepareSubscriptions = async (
       case NotificationSubscriptionType.Lambda: {
         const { handler, listener } = subscription;
 
-        const functionName = getFunctionName(service, handler.name, options);
-        const functionTimeout = subscription.timeout ?? 30;
-        const functionMemory = subscription.memory ?? 192;
+        let functionState = tryGetFunctionState(context, handler.name, options);
 
-        const functionState =
-          getFunction(state, context.role, functionName) ??
-          createSubscriptionFunction(state, context.role, {
-            functionName,
+        if (!functionState) {
+          const subscriptionTimeout = subscription.timeout ?? 30;
+          const subscriptionMemory = subscription.memory ?? 192;
+
+          functionState = createSubscriptionFunction(state, context.role, {
+            functionName: getFunctionName(service, handler.name, options),
             description: handler.description,
             messageSchema: service.schema,
-            timeout: functionTimeout,
-            memory: functionMemory,
+            timeout: subscriptionTimeout,
+            memory: subscriptionMemory,
             extras: service.extras,
             debug: options.debug,
             variables: {
@@ -65,8 +65,11 @@ export const prepareSubscriptions = async (
             })
           });
 
+          context.setServiceState(functionState, handler.name, options);
+        }
+
         createSubscription(state, topicState, functionState, {
-          fromService: functionName
+          fromService: functionState.parameters.functionName
         });
 
         break;
@@ -105,12 +108,7 @@ export const connectSubscriptions = (
         throw new InvalidParameterError(SubscriptionServiceName, `subscription not supported.`);
 
       case NotificationSubscriptionType.Lambda: {
-        const functionName = getFunctionName(service, subscription.handler.name, options);
-        const functionState = getFunction(state, context.role, functionName);
-
-        if (!functionState) {
-          throw new SubscriptionMissingError(functionName);
-        }
+        const functionState = getFunctionState(context, subscription.handler.name, options);
 
         linkServiceExtras(state, functionState.entryId, service.extras);
         break;

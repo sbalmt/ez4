@@ -4,12 +4,12 @@ import type { EntryStates } from '@ez4/stateful';
 import type { QueueState } from '../queue/types.js';
 
 import { linkServiceExtras } from '@ez4/project/library';
-import { getFunction } from '@ez4/aws-function';
+import { getFunctionState, tryGetFunctionState } from '@ez4/aws-function';
 import { isRoleState } from '@ez4/aws-identity';
 
 import { createMapping } from '../mapping/service.js';
 import { createQueueFunction } from '../mapping/function/service.js';
-import { RoleMissingError, SubscriptionHandlerMissingError } from './errors.js';
+import { RoleMissingError } from './errors.js';
 import { getFunctionName } from './utils.js';
 
 export const prepareSubscriptions = async (
@@ -26,14 +26,14 @@ export const prepareSubscriptions = async (
   for (const subscription of service.subscriptions) {
     const { handler, listener } = subscription;
 
-    const functionName = getFunctionName(service, handler.name, options);
-    const functionTimeout = service.timeout ?? 30;
-    const functionMemory = subscription.memory ?? 192;
+    let functionState = tryGetFunctionState(context, handler.name, options);
 
-    const functionState =
-      getFunction(state, context.role, functionName) ??
-      createQueueFunction(state, context.role, {
-        functionName,
+    if (!functionState) {
+      const functionTimeout = service.timeout ?? 30;
+      const functionMemory = subscription.memory ?? 192;
+
+      functionState = createQueueFunction(state, context.role, {
+        functionName: getFunctionName(service, handler.name, options),
         description: handler.description,
         messageSchema: service.schema,
         timeout: functionTimeout,
@@ -56,6 +56,9 @@ export const prepareSubscriptions = async (
         })
       });
 
+      context.setServiceState(functionState, handler.name, options);
+    }
+
     createMapping(state, queueState, functionState, {
       concurrency: subscription.concurrency
     });
@@ -77,12 +80,7 @@ export const connectSubscriptions = (
   }
 
   for (const { handler } of service.subscriptions) {
-    const functionName = getFunctionName(service, handler.name, options);
-    const functionState = getFunction(state, context.role, functionName);
-
-    if (!functionState) {
-      throw new SubscriptionHandlerMissingError(functionName);
-    }
+    const functionState = getFunctionState(context, handler.name, options);
 
     linkServiceExtras(state, functionState.entryId, service.extras);
   }
