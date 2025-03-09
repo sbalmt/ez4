@@ -15,11 +15,11 @@ import { getTableName } from './utils.js';
 export const prepareLinkedServices = (event: ServiceEvent) => {
   const { service, options, context } = event;
 
-  if (!isDatabaseService(service) || service.engine !== 'dynamodb') {
-    return null;
+  if (isDatabaseService(service) && service.engine === 'dynamodb') {
+    return prepareLinkedClient(context, service, options);
   }
 
-  return prepareLinkedClient(context, service, options);
+  return null;
 };
 
 export const prepareDatabaseServices = async (event: PrepareResourceEvent) => {

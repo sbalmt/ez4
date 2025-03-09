@@ -8,18 +8,18 @@ import { isRoleState } from '@ez4/aws-identity';
 
 import { createGroup } from '../group/service.js';
 import { createSchedule } from '../schedule/service.js';
-import { RoleMissingError } from './errors.js';
-import { prepareLinkedClient } from './client.js';
 import { connectTarget, prepareTarget } from './target.js';
+import { prepareLinkedClient } from './client.js';
+import { RoleMissingError } from './errors.js';
 
 export const prepareLinkedServices = (event: ServiceEvent) => {
   const { service, options, context } = event;
 
-  if (!isCronService(service) || !service.schema) {
-    return null;
+  if (isCronService(service) && service.schema) {
+    return prepareLinkedClient(context, service, options);
   }
 
-  return prepareLinkedClient(context, service, options);
+  return null;
 };
 
 export const prepareCronServices = async (event: PrepareResourceEvent) => {

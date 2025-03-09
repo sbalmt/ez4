@@ -52,9 +52,7 @@ export const prepareImports = async (event: PrepareResourceEvent) => {
 export const connectImports = (event: ConnectResourceEvent) => {
   const { state, service, options, context } = event;
 
-  if (!isNotificationImport(service)) {
-    return;
+  if (isNotificationImport(service)) {
+    connectSubscriptions(state, service, options, context);
   }
-
-  connectSubscriptions(state, service, options, context);
 };

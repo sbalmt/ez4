@@ -55,9 +55,7 @@ export const prepareImports = async (event: PrepareResourceEvent) => {
 export const connectImports = (event: ConnectResourceEvent) => {
   const { state, service, options, context } = event;
 
-  if (!isQueueImport(service)) {
-    return;
+  if (isQueueImport(service)) {
+    connectSubscriptions(state, service, options, context);
   }
-
-  connectSubscriptions(state, service, options, context);
 };

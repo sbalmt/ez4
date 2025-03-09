@@ -10,11 +10,11 @@ import { prepareLinkedClient } from './client.js';
 export const prepareLinkedServices = (event: ServiceEvent) => {
   const { service, options, context } = event;
 
-  if (!isNotificationService(service)) {
-    return;
+  if (isNotificationService(service)) {
+    return prepareLinkedClient(context, service, options);
   }
 
-  return prepareLinkedClient(context, service, options);
+  return null;
 };
 
 export const prepareServices = async (event: PrepareResourceEvent) => {
