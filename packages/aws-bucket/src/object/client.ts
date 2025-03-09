@@ -5,12 +5,7 @@ import { createReadStream } from 'node:fs';
 
 import mime from 'mime';
 
-import {
-  S3Client,
-  PutObjectCommand,
-  PutObjectTaggingCommand,
-  DeleteObjectCommand
-} from '@aws-sdk/client-s3';
+import { S3Client, PutObjectCommand, PutObjectTaggingCommand, DeleteObjectCommand } from '@aws-sdk/client-s3';
 
 import { getBucketObjectPath } from './utils.js';
 import { ObjectServiceName } from './types.js';
@@ -26,10 +21,7 @@ export type CreateResponse = {
   objectKey: string;
 };
 
-export const putObject = async (
-  bucketName: string,
-  request: CreateRequest
-): Promise<CreateResponse> => {
+export const putObject = async (bucketName: string, request: CreateRequest): Promise<CreateResponse> => {
   const { objectKey, filePath } = request;
 
   Logger.logCreate(ObjectServiceName, getBucketObjectPath(bucketName, objectKey));

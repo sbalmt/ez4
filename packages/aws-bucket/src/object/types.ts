@@ -1,6 +1,6 @@
-import type { EntryState } from '@ez4/stateful';
 import type { ResourceTags } from '@ez4/aws-common';
-import type { CreateRequest, CreateResponse } from './client.js';
+import type { EntryState } from '@ez4/stateful';
+import type { CreateRequest } from './client.js';
 
 export const ObjectServiceName = 'AWS:S3/Object';
 
@@ -10,7 +10,7 @@ export type ObjectParameters = CreateRequest & {
   tags?: ResourceTags;
 };
 
-export type ObjectResult = CreateResponse & {
+export type ObjectResult = {
   lastModified: number;
   bucketName: string;
 };

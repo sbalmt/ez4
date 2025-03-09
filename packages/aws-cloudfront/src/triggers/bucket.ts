@@ -10,12 +10,7 @@ import { getDistributionArn, getDistributionState } from '../distribution/utils.
 import { DistributionServiceType } from '../distribution/types.js';
 import { getRoleDocument } from './role.js';
 
-export const connectOriginBucket = (
-  state: EntryStates,
-  service: CdnService,
-  bucketState: BucketState,
-  options: DeployOptions
-) => {
+export const connectOriginBucket = (state: EntryStates, service: CdnService, bucketState: BucketState, options: DeployOptions) => {
   const distributionName = getServiceName(service, options);
   const distributionState = getDistributionState(state, distributionName);
 
@@ -23,12 +18,7 @@ export const connectOriginBucket = (
 
   createBucketPolicy(state, distributionState, bucketState, {
     getRole: async (context) => {
-      const distributionArn = getDistributionArn(
-        DistributionServiceType,
-        distributionName,
-        context
-      );
-
+      const distributionArn = getDistributionArn(DistributionServiceType, distributionName, context);
       const bucketName = getBucketName(DistributionServiceType, distributionName, context);
 
       return getRoleDocument(distributionArn, bucketName);
