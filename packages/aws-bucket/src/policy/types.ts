@@ -9,6 +9,7 @@ export const PolicyServiceType = 'aws:s3.policy';
 export type GetRole = (context: StepContext) => Promise<RoleDocument> | RoleDocument;
 
 export type PolicyParameters = {
+  fromService: string;
   getRole: GetRole;
 };
 

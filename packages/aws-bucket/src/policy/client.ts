@@ -1,8 +1,7 @@
 import type { RoleDocument } from '@ez4/aws-identity';
 
+import { S3Client, PutBucketPolicyCommand, DeleteBucketPolicyCommand, NoSuchBucket } from '@aws-sdk/client-s3';
 import { Logger } from '@ez4/aws-common';
-
-import { S3Client, PutBucketPolicyCommand, DeleteBucketPolicyCommand } from '@aws-sdk/client-s3';
 
 import { PolicyServiceName } from './types.js';
 
@@ -37,9 +36,19 @@ export const createPolicy = async (request: CreateRequest): Promise<CreateRespon
 export const deletePolicy = async (bucketName: string) => {
   Logger.logDelete(PolicyServiceName, bucketName);
 
-  await client.send(
-    new DeleteBucketPolicyCommand({
-      Bucket: bucketName
-    })
-  );
+  try {
+    await client.send(
+      new DeleteBucketPolicyCommand({
+        Bucket: bucketName
+      })
+    );
+
+    return true;
+  } catch (error) {
+    if (!(error instanceof NoSuchBucket)) {
+      throw error;
+    }
+
+    return false;
+  }
 };
