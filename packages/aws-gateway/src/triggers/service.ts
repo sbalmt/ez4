@@ -1,13 +1,8 @@
-import type { ObjectSchema } from '@ez4/schema';
-import type { EntryState, EntryStates } from '@ez4/stateful';
+import type { ConnectResourceEvent, DeployOptions, EventContext, PrepareResourceEvent } from '@ez4/project/library';
 import type { HttpRoute, HttpService } from '@ez4/gateway/library';
+import type { EntryStates } from '@ez4/stateful';
+import type { ObjectSchema } from '@ez4/schema';
 import type { GatewayState } from '../gateway/types.js';
-
-import type {
-  ConnectResourceEvent,
-  DeployOptions,
-  PrepareResourceEvent
-} from '@ez4/project/library';
 
 import { getServiceName, linkServiceExtras } from '@ez4/project/library';
 import { FunctionParameters, Variables } from '@ez4/aws-function';
@@ -23,10 +18,11 @@ import { createGateway } from '../gateway/service.js';
 import { createStage } from '../stage/service.js';
 import { createRoute } from '../route/service.js';
 import { getCorsConfiguration } from './cors.js';
+import { RoleMissingError } from './errors.js';
 import { getFunctionName } from './utils.js';
 
 export const prepareHttpServices = (event: PrepareResourceEvent) => {
-  const { state, service, options, role } = event;
+  const { state, service, options, context } = event;
 
   if (!isHttpService(service)) {
     return;
@@ -49,23 +45,23 @@ export const prepareHttpServices = (event: PrepareResourceEvent) => {
     autoDeploy: true
   });
 
-  createHttpRoutes(state, service, role, gatewayState, options);
+  createHttpRoutes(state, service, gatewayState, options, context);
 };
 
 export const connectHttpServices = (event: ConnectResourceEvent) => {
-  const { state, service, role, options } = event;
+  const { state, service, options, context } = event;
 
   if (!isHttpService(service) || !service.extras) {
     return;
   }
 
-  if (!role || !isRoleState(role)) {
-    throw new Error(`Execution role for API Gateway is missing.`);
+  if (!context.role || !isRoleState(context.role)) {
+    throw new RoleMissingError();
   }
 
   for (const { authorizer, handler } of service.routes) {
     const handlerFunctionName = getFunctionName(service, handler, options);
-    const handlerFunctionState = getFunction(state, role, handlerFunctionName);
+    const handlerFunctionState = getFunction(state, context.role, handlerFunctionName);
 
     if (handlerFunctionState) {
       linkServiceExtras(state, handlerFunctionState.entryId, service.extras);
@@ -73,7 +69,7 @@ export const connectHttpServices = (event: ConnectResourceEvent) => {
 
     if (authorizer) {
       const authorizerFunctionName = getFunctionName(service, authorizer, options);
-      const authorizerFunctionState = getFunction(state, role, authorizerFunctionName);
+      const authorizerFunctionState = getFunction(state, context.role, authorizerFunctionName);
 
       if (authorizerFunctionState) {
         linkServiceExtras(state, authorizerFunctionState.entryId, service.extras);
@@ -85,28 +81,14 @@ export const connectHttpServices = (event: ConnectResourceEvent) => {
 const createHttpRoutes = (
   state: EntryStates,
   service: HttpService,
-  execRole: EntryState | null,
   gatewayState: GatewayState,
-  options: DeployOptions
+  options: DeployOptions,
+  context: EventContext
 ) => {
   for (const route of service.routes) {
-    const integrationState = getIntegrationFunction(
-      state,
-      service,
-      execRole,
-      gatewayState,
-      route,
-      options
-    );
+    const integrationState = getIntegrationFunction(state, service, gatewayState, route, options, context);
 
-    const authorizerState = getAuthorizerFunction(
-      state,
-      service,
-      execRole,
-      gatewayState,
-      route,
-      options
-    );
+    const authorizerState = getAuthorizerFunction(state, service, gatewayState, route, options, context);
 
     createRoute(state, gatewayState, integrationState, authorizerState, {
       routePath: route.path
@@ -117,13 +99,13 @@ const createHttpRoutes = (
 const getIntegrationFunction = (
   state: EntryStates,
   service: HttpService,
-  role: EntryState | null,
   gatewayState: GatewayState,
   route: HttpRoute,
-  options: DeployOptions
+  options: DeployOptions,
+  context: EventContext
 ) => {
-  if (!role || !isRoleState(role)) {
-    throw new Error(`Execution role for API Gateway integration is missing.`);
+  if (!context.role || !isRoleState(context.role)) {
+    throw new RoleMissingError();
   }
 
   const { handler, listener = service.defaults?.listener } = route;
@@ -136,8 +118,8 @@ const getIntegrationFunction = (
   const routeMemory = route.memory ?? service.defaults?.memory ?? 192;
 
   const functionState =
-    getFunction(state, role, functionName) ??
-    createIntegrationFunction(state, role, {
+    getFunction(state, context.role, functionName) ??
+    createIntegrationFunction(state, context.role, {
       functionName,
       description: handler.description,
       responseSchema: response.body,
@@ -181,17 +163,17 @@ const getIntegrationFunction = (
 const getAuthorizerFunction = (
   state: EntryStates,
   service: HttpService,
-  role: EntryState | null,
   gatewayState: GatewayState,
   route: HttpRoute,
-  options: DeployOptions
+  options: DeployOptions,
+  context: EventContext
 ) => {
   if (!route.authorizer) {
     return undefined;
   }
 
-  if (!role || !isRoleState(role)) {
-    throw new Error(`Execution role for API Gateway authorizer is missing.`);
+  if (!context.role || !isRoleState(context.role)) {
+    throw new RoleMissingError();
   }
 
   const { authorizer, listener = service.defaults?.listener } = route;
@@ -204,8 +186,8 @@ const getAuthorizerFunction = (
   const routeMemory = service.defaults?.memory ?? 192;
 
   const functionState =
-    getFunction(state, role, functionName) ??
-    createAuthorizerFunction(state, role, {
+    getFunction(state, context.role, functionName) ??
+    createAuthorizerFunction(state, context.role, {
       functionName,
       description: authorizer.description,
       timeout: routeTimeout,

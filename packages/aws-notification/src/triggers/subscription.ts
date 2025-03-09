@@ -1,6 +1,5 @@
 import type { NotificationService, NotificationImport } from '@ez4/notification/library';
 import type { DeployOptions, EventContext } from '@ez4/project/library';
-import type { RoleState } from '@ez4/aws-identity';
 import type { EntryStates } from '@ez4/stateful';
 import type { TopicState } from '../topic/types.js';
 
@@ -9,21 +8,25 @@ import { NotificationSubscriptionType } from '@ez4/notification/library';
 import { InvalidParameterError } from '@ez4/aws-common';
 import { getQueueState } from '@ez4/aws-queue';
 import { getFunction } from '@ez4/aws-function';
+import { isRoleState } from '@ez4/aws-identity';
 
 import { SubscriptionServiceName } from '../subscription/types.js';
 import { createSubscriptionFunction } from '../subscription/function/service.js';
+import { RoleMissingError, SubscriptionMissingError } from './errors.js';
 import { createSubscription } from '../subscription/service.js';
-import { SubscriptionMissingError } from './errors.js';
 import { getFunctionName } from './utils.js';
 
 export const prepareSubscriptions = async (
   state: EntryStates,
   service: NotificationService | NotificationImport,
-  role: RoleState,
   topicState: TopicState,
   options: DeployOptions,
   context: EventContext
 ) => {
+  if (!context.role || !isRoleState(context.role)) {
+    throw new RoleMissingError();
+  }
+
   for (const subscription of service.subscriptions) {
     switch (subscription.type) {
       default:
@@ -37,8 +40,8 @@ export const prepareSubscriptions = async (
         const functionMemory = subscription.memory ?? 192;
 
         const functionState =
-          getFunction(state, role, functionName) ??
-          createSubscriptionFunction(state, role, {
+          getFunction(state, context.role, functionName) ??
+          createSubscriptionFunction(state, context.role, {
             functionName,
             description: handler.description,
             messageSchema: service.schema,
@@ -85,12 +88,15 @@ export const prepareSubscriptions = async (
 export const connectSubscriptions = (
   state: EntryStates,
   service: NotificationService | NotificationImport,
-  role: RoleState,
   options: DeployOptions,
   context: EventContext
 ) => {
   if (!service.extras) {
     return;
+  }
+
+  if (!context.role || !isRoleState(context.role)) {
+    throw new RoleMissingError();
   }
 
   for (const subscription of service.subscriptions) {
@@ -100,7 +106,7 @@ export const connectSubscriptions = (
 
       case NotificationSubscriptionType.Lambda: {
         const functionName = getFunctionName(service, subscription.handler.name, options);
-        const functionState = getFunction(state, role, functionName);
+        const functionState = getFunction(state, context.role, functionName);
 
         if (!functionState) {
           throw new SubscriptionMissingError(functionName);

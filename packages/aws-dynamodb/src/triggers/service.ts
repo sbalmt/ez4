@@ -23,13 +23,13 @@ export const prepareLinkedServices = (event: ServiceEvent) => {
 };
 
 export const prepareDatabaseServices = async (event: PrepareResourceEvent) => {
-  const { state, service, role, options, context } = event;
+  const { state, service, options, context } = event;
 
   if (!isDatabaseService(service) || service.engine !== 'dynamodb') {
     return;
   }
 
-  if (!role || !isRoleState(role)) {
+  if (!context.role || !isRoleState(context.role)) {
     throw new RoleMissingError();
   }
 
@@ -51,18 +51,18 @@ export const prepareDatabaseServices = async (event: PrepareResourceEvent) => {
 
     context.setServiceState(tableState, table.name, options);
 
-    prepareTableStream(state, service, role, table, tableState, options);
+    prepareTableStream(state, service, context.role, table, tableState, options);
   }
 };
 
 export const connectDatabaseServices = (event: ConnectResourceEvent) => {
-  const { state, service, role, options } = event;
+  const { state, service, options, context } = event;
 
   if (!isDatabaseService(service) || !service.extras || service.engine !== 'dynamodb') {
     return;
   }
 
-  if (!role || !isRoleState(role)) {
+  if (!context.role || !isRoleState(context.role)) {
     throw new RoleMissingError();
   }
 
@@ -73,7 +73,7 @@ export const connectDatabaseServices = (event: ConnectResourceEvent) => {
 
     const streamHandler = table.stream.handler;
     const functionName = getStreamName(service, table, streamHandler.name, options);
-    const functionState = getFunction(state, role, functionName);
+    const functionState = getFunction(state, context.role, functionName);
 
     if (functionState) {
       linkServiceExtras(state, functionState.entryId, service.extras);

@@ -4,8 +4,9 @@ import type { DeployOptions } from '../types/options.js';
 
 import { getServiceState, setServiceState } from '@ez4/project/library';
 
-export const getEventContext = (aliases: ServiceAliases) => {
+export const getEventContext = (aliases: ServiceAliases, role: EntryState | null) => {
   return {
+    role,
     getServiceState: (service: ServiceMetadata | string, options: DeployOptions) => {
       return getServiceState(aliases, service, options);
     },

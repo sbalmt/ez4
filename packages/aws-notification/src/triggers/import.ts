@@ -1,12 +1,11 @@
 import type { ConnectResourceEvent, PrepareResourceEvent, ServiceEvent } from '@ez4/project/library';
 
-import { getServiceName } from '@ez4/project/library';
 import { isNotificationImport } from '@ez4/notification/library';
-import { isRoleState } from '@ez4/aws-identity';
+import { getServiceName } from '@ez4/project/library';
 
 import { createTopic } from '../topic/service.js';
 import { connectSubscriptions, prepareSubscriptions } from './subscription.js';
-import { ProjectMissingError, RoleMissingError } from './errors.js';
+import { ProjectMissingError } from './errors.js';
 import { prepareLinkedClient } from './client.js';
 
 export const prepareLinkedImports = (event: ServiceEvent) => {
@@ -27,14 +26,10 @@ export const prepareLinkedImports = (event: ServiceEvent) => {
 };
 
 export const prepareImports = async (event: PrepareResourceEvent) => {
-  const { state, service, options, role, context } = event;
+  const { state, service, options, context } = event;
 
   if (!isNotificationImport(service)) {
     return;
-  }
-
-  if (!role || !isRoleState(role)) {
-    throw new RoleMissingError();
   }
 
   const { reference, project } = service;
@@ -51,19 +46,15 @@ export const prepareImports = async (event: PrepareResourceEvent) => {
 
   context.setServiceState(topicState, service, options);
 
-  await prepareSubscriptions(state, service, role, topicState, options, context);
+  await prepareSubscriptions(state, service, topicState, options, context);
 };
 
 export const connectImports = (event: ConnectResourceEvent) => {
-  const { state, service, role, options, context } = event;
+  const { state, service, options, context } = event;
 
   if (!isNotificationImport(service)) {
     return;
   }
 
-  if (!role || !isRoleState(role)) {
-    throw new RoleMissingError();
-  }
-
-  connectSubscriptions(state, service, role, options, context);
+  connectSubscriptions(state, service, options, context);
 };

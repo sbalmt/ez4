@@ -25,13 +25,13 @@ export const prepareLinkedServices = (event: ServiceEvent) => {
 };
 
 export const prepareBucketServices = async (event: PrepareResourceEvent) => {
-  const { state, service, role, options, context } = event;
+  const { state, service, options, context } = event;
 
   if (!isBucketService(service)) {
     return;
   }
 
-  if (!role || !isRoleState(role)) {
+  if (!context.role || !isRoleState(context.role)) {
     throw new RoleMissingError();
   }
 
@@ -39,7 +39,7 @@ export const prepareBucketServices = async (event: PrepareResourceEvent) => {
 
   const bucketName = await getBucketName(service, options);
 
-  const functionState = getEventsFunction(state, service, role, options);
+  const functionState = getEventsFunction(state, service, context.role, options);
 
   const bucketState = createBucket(state, functionState, {
     eventsPath: events?.path,
@@ -57,20 +57,20 @@ export const prepareBucketServices = async (event: PrepareResourceEvent) => {
 };
 
 export const connectBucketServices = (event: ConnectResourceEvent) => {
-  const { state, service, role, options } = event;
+  const { state, service, options, context } = event;
 
   if (!isBucketService(service) || !service.extras || !service.events) {
     return;
   }
 
-  if (!role || !isRoleState(role)) {
+  if (!context.role || !isRoleState(context.role)) {
     throw new RoleMissingError();
   }
 
   const handler = service.events.handler;
 
   const functionName = getFunctionName(service, handler.name, options);
-  const functionState = getFunction(state, role, functionName);
+  const functionState = getFunction(state, context.role, functionName);
 
   if (functionState) {
     linkServiceExtras(state, functionState.entryId, service.extras);

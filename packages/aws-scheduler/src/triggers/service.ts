@@ -26,13 +26,13 @@ export const prepareLinkedServices = (event: ServiceEvent) => {
 };
 
 export const prepareCronServices = async (event: PrepareResourceEvent) => {
-  const { state, service, options, role, context } = event;
+  const { state, service, options, context } = event;
 
   if (!isCronService(service)) {
     return;
   }
 
-  if (!role || !isRoleState(role)) {
+  if (!context.role || !isRoleState(context.role)) {
     throw new RoleMissingError();
   }
 
@@ -43,7 +43,7 @@ export const prepareCronServices = async (event: PrepareResourceEvent) => {
   const targetTimeout = timeout ?? 10;
   const targetMemory = memory ?? 192;
 
-  const functionState = createTargetFunction(state, role, {
+  const functionState = createTargetFunction(state, context.role, {
     functionName,
     description: handler.description,
     eventSchema: service.schema,
@@ -73,7 +73,7 @@ export const prepareCronServices = async (event: PrepareResourceEvent) => {
 
   const groupState = getScheduleGroup(state, service, options);
 
-  const scheduleState = createSchedule(state, role, functionState, groupState, {
+  const scheduleState = createSchedule(state, context.role, functionState, groupState, {
     scheduleName: getServiceName(service, options),
     dynamic: isDynamicCronService(service),
     enabled: !service.disabled,
@@ -90,20 +90,20 @@ export const prepareCronServices = async (event: PrepareResourceEvent) => {
 };
 
 export const connectCronResources = (event: ConnectResourceEvent) => {
-  const { state, service, options, role } = event;
+  const { state, service, options, context } = event;
 
   if (!isCronService(service) || !service.extras) {
     return;
   }
 
-  if (!role || !isRoleState(role)) {
+  if (!context.role || !isRoleState(context.role)) {
     throw new RoleMissingError();
   }
 
   const { handler } = service.target;
 
   const functionName = getTargetName(service, handler.name, options);
-  const functionState = getFunction(state, role, functionName);
+  const functionState = getFunction(state, context.role, functionName);
 
   if (!functionState) {
     throw new TargetHandlerMissingError(functionName);

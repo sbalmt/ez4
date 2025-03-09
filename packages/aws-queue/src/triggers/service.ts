@@ -1,12 +1,10 @@
 import type { ConnectResourceEvent, PrepareResourceEvent, ServiceEvent } from '@ez4/project/library';
 
 import { isQueueService } from '@ez4/queue/library';
-import { isRoleState } from '@ez4/aws-identity';
 
 import { createQueue } from '../queue/service.js';
 import { connectSubscriptions, prepareSubscriptions } from './subscription.js';
 import { prepareLinkedClient } from './client.js';
-import { RoleMissingError } from './errors.js';
 import { getQueueName } from './utils.js';
 
 export const prepareLinkedServices = (event: ServiceEvent) => {
@@ -20,14 +18,10 @@ export const prepareLinkedServices = (event: ServiceEvent) => {
 };
 
 export const prepareServices = async (event: PrepareResourceEvent) => {
-  const { state, service, role, options, context } = event;
+  const { state, service, options, context } = event;
 
   if (!isQueueService(service)) {
     return;
-  }
-
-  if (!role || !isRoleState(role)) {
-    throw new RoleMissingError();
   }
 
   const { fifoMode, timeout, retention, polling, delay } = service;
@@ -45,19 +39,13 @@ export const prepareServices = async (event: PrepareResourceEvent) => {
 
   context.setServiceState(queueState, service, options);
 
-  await prepareSubscriptions(state, service, role, queueState, options);
+  await prepareSubscriptions(state, service, queueState, options, context);
 };
 
 export const connectServices = (event: ConnectResourceEvent) => {
-  const { state, service, role, options } = event;
+  const { state, service, options, context } = event;
 
-  if (!isQueueService(service)) {
-    return;
+  if (isQueueService(service)) {
+    connectSubscriptions(state, service, options, context);
   }
-
-  if (!role || !isRoleState(role)) {
-    throw new RoleMissingError();
-  }
-
-  connectSubscriptions(state, service, role, options);
 };

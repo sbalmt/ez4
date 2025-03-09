@@ -9,7 +9,7 @@ import { getEventContext } from './common.js';
 export const prepareAllLinkedServices = async (aliases: ServiceAliases, metadata: MetadataReflection, options: DeployOptions) => {
   const allEvents = [];
 
-  const context = getEventContext(aliases);
+  const context = getEventContext(aliases, null);
 
   for (const identity in metadata) {
     const target = metadata[identity];
@@ -52,7 +52,11 @@ const prepareLinkedService = async (
   context: EventContext
 ) => {
   const extraSource = await triggerAllAsync('deploy:prepareLinkedService', (handler) =>
-    handler({ service: sourceService, options, context })
+    handler({
+      service: sourceService,
+      options,
+      context
+    })
   );
 
   if (extraSource) {

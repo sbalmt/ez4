@@ -16,7 +16,7 @@ export const prepareDeployResources = async (
 ) => {
   const allEvents = [];
 
-  const context = getEventContext(aliases);
+  const context = getEventContext(aliases, role);
 
   for (const identity in metadata) {
     const service = metadata[identity];
@@ -26,7 +26,6 @@ export const prepareDeployResources = async (
         state,
         service,
         options,
-        role,
         context
       })
     );
@@ -46,7 +45,7 @@ export const connectDeployResources = async (
 ) => {
   const allEvents = [];
 
-  const context = getEventContext(aliases);
+  const context = getEventContext(aliases, role);
 
   for (const identity in metadata) {
     const service = metadata[identity];
@@ -56,7 +55,6 @@ export const connectDeployResources = async (
         state,
         service,
         options,
-        role,
         context
       })
     );

@@ -39,6 +39,7 @@ export type AsyncEvent = {
 };
 
 export type EventContext = {
+  role: EntryState | null;
   getServiceState: (service: ServiceMetadata | string, options: DeployOptions) => EntryState;
   setServiceState: (state: EntryState, service: ServiceMetadata | string, options: DeployOptions) => void;
 };
@@ -70,7 +71,6 @@ export type PrepareResourceEvent = {
   state: EntryStates;
   service: ServiceMetadata;
   options: DeployOptions;
-  role: EntryState | null;
   context: EventContext;
 };
 
@@ -78,7 +78,6 @@ export type ConnectResourceEvent = {
   state: EntryStates;
   service: ServiceMetadata;
   options: DeployOptions;
-  role: EntryState | null;
   context: EventContext;
 };
 
