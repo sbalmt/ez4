@@ -11,17 +11,17 @@ import { prepareLinkedClient } from './client.js';
 import { getRepository } from './repository.js';
 
 export const prepareLinkedServices = (event: ServiceEvent) => {
-  const { service, options } = event;
+  const { service, options, context } = event;
 
   if (!isDatabaseService(service) || service.engine !== 'aurora') {
     return null;
   }
 
-  return prepareLinkedClient(service, options);
+  return prepareLinkedClient(context, service, options);
 };
 
 export const prepareDatabaseServices = async (event: PrepareResourceEvent) => {
-  const { state, service, options } = event;
+  const { state, service, options, context } = event;
 
   if (!isDatabaseService(service) || service.engine !== 'aurora') {
     return;
@@ -41,4 +41,6 @@ export const prepareDatabaseServices = async (event: PrepareResourceEvent) => {
     database: getDatabaseName(service, options),
     repository: getRepository(service)
   });
+
+  context.setServiceState(clusterState, service, options);
 };

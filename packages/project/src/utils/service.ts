@@ -39,15 +39,19 @@ export const getServiceState = (aliases: ServiceAliases, service: ServiceMetadat
 export const setServiceState = (aliases: ServiceAliases, state: EntryState, service: ServiceMetadata | string, options: DeployOptions) => {
   const serviceName = getServiceName(service, options);
 
+  if (aliases[serviceName]) {
+    throw new Error(`Service ${serviceName} can't be set twice.`);
+  }
+
   aliases[serviceName] = state;
 };
 
 export const linkServiceExtras = (state: EntryStates, entryId: string, extras: Record<string, ExtraSource>) => {
   for (const serviceName in extras) {
-    const { entryId: dependencyId } = extras[serviceName];
+    const { entryIds: dependencyIds } = extras[serviceName];
 
-    if (dependencyId) {
+    dependencyIds.forEach((dependencyId) => {
       tryLinkDependency(state, entryId, dependencyId);
-    }
+    });
   }
 };

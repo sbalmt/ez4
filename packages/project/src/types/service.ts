@@ -16,7 +16,7 @@ export type ServiceMetadata = {
 };
 
 export type ExtraSource = {
-  entryId?: string;
+  entryIds: string[];
   constructor: string;
   module: string;
   from: string;

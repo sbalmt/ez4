@@ -15,13 +15,13 @@ import { prepareLinkedClient } from './client.js';
 import { RoleMissingError } from './errors.js';
 
 export const prepareLinkedServices = (event: ServiceEvent) => {
-  const { service, options } = event;
+  const { service, options, context } = event;
 
   if (!isBucketService(service)) {
     return null;
   }
 
-  return prepareLinkedClient(service, options);
+  return prepareLinkedClient(context, service, options);
 };
 
 export const prepareBucketServices = async (event: PrepareResourceEvent) => {

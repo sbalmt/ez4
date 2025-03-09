@@ -1,9 +1,11 @@
+import type { DeployOptions, EventContext } from '@ez4/project/library';
 import type { EntryState, StepContext } from '@ez4/stateful';
 import type { ClusterState } from './types.js';
 
 import { IncompleteResourceError } from '@ez4/aws-common';
 import { hashData, toKebabCase } from '@ez4/utils';
 
+import { ClusterNotFoundError } from './errors.js';
 import { ClusterServiceType } from './types.js';
 
 export const createClusterStateId = (clusterName: string) => {
@@ -12,6 +14,16 @@ export const createClusterStateId = (clusterName: string) => {
 
 export const isClusterState = (resource: EntryState): resource is ClusterState => {
   return resource.type === ClusterServiceType;
+};
+
+export const getClusterState = (context: EventContext, clusterName: string, options: DeployOptions) => {
+  const clusterState = context.getServiceState(clusterName, options);
+
+  if (!isClusterState(clusterState)) {
+    throw new ClusterNotFoundError(clusterName);
+  }
+
+  return clusterState;
 };
 
 export const getClusterName = (serviceName: string, resourceId: string, context: StepContext) => {

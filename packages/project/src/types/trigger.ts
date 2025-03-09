@@ -38,18 +38,19 @@ export type AsyncEvent = {
   'state:save': (event: StateEvent) => AsyncEventResult<void>;
 };
 
+export type EventContext = {
+  getServiceState: (service: ServiceMetadata | string, options: DeployOptions) => EntryState;
+  setServiceState: (state: EntryState, service: ServiceMetadata | string, options: DeployOptions) => void;
+};
+
 export type ServiceEvent = {
   service: ServiceMetadata;
   options: DeployOptions;
+  context: EventContext;
 };
 
 export type IdentityEvent = {
   options: DeployOptions;
-};
-
-export type ResourceEventContext = {
-  getServiceState: (service: ServiceMetadata | string, options: DeployOptions) => EntryState;
-  setServiceState: (state: EntryState, service: ServiceMetadata | string, options: DeployOptions) => void;
 };
 
 export type PolicyResourceEvent = {
@@ -70,7 +71,7 @@ export type PrepareResourceEvent = {
   service: ServiceMetadata;
   options: DeployOptions;
   role: EntryState | null;
-  context: ResourceEventContext;
+  context: EventContext;
 };
 
 export type ConnectResourceEvent = {
@@ -78,7 +79,7 @@ export type ConnectResourceEvent = {
   service: ServiceMetadata;
   options: DeployOptions;
   role: EntryState | null;
-  context: ResourceEventContext;
+  context: EventContext;
 };
 
 export type DeployEvent = {

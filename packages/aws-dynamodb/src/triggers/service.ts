@@ -1,8 +1,4 @@
-import type {
-  ConnectResourceEvent,
-  PrepareResourceEvent,
-  ServiceEvent
-} from '@ez4/project/library';
+import type { ConnectResourceEvent, PrepareResourceEvent, ServiceEvent } from '@ez4/project/library';
 
 import { isDatabaseService } from '@ez4/database/library';
 import { linkServiceExtras } from '@ez4/project/library';
@@ -17,17 +13,17 @@ import { getAttributeSchema } from './schema.js';
 import { prepareTableStream } from './stream.js';
 
 export const prepareLinkedServices = (event: ServiceEvent) => {
-  const { service, options } = event;
+  const { service, options, context } = event;
 
   if (!isDatabaseService(service) || service.engine !== 'dynamodb') {
     return null;
   }
 
-  return prepareLinkedClient(service, options);
+  return prepareLinkedClient(context, service, options);
 };
 
 export const prepareDatabaseServices = async (event: PrepareResourceEvent) => {
-  const { state, service, role, options } = event;
+  const { state, service, role, options, context } = event;
 
   if (!isDatabaseService(service) || service.engine !== 'dynamodb') {
     return;
@@ -52,6 +48,8 @@ export const prepareDatabaseServices = async (event: PrepareResourceEvent) => {
       ttlAttribute,
       tableName
     });
+
+    context.setServiceState(tableState, table.name, options);
 
     prepareTableStream(state, service, role, table, tableState, options);
   }

@@ -1,8 +1,4 @@
-import type {
-  ConnectResourceEvent,
-  PrepareResourceEvent,
-  ServiceEvent
-} from '@ez4/project/library';
+import type { ConnectResourceEvent, PrepareResourceEvent, ServiceEvent } from '@ez4/project/library';
 
 import { getServiceName } from '@ez4/project/library';
 import { isNotificationImport } from '@ez4/notification/library';
@@ -14,27 +10,24 @@ import { ProjectMissingError, RoleMissingError } from './errors.js';
 import { prepareLinkedClient } from './client.js';
 
 export const prepareLinkedImports = (event: ServiceEvent) => {
-  const { service, options } = event;
+  const { service, options, context } = event;
 
   if (!isNotificationImport(service)) {
     return null;
   }
 
-  const { reference, project } = service;
-
+  const { project } = service;
   const { imports } = options;
 
   if (!imports || !imports[project]) {
     throw new ProjectMissingError(project);
   }
 
-  const notificationName = getServiceName(reference, imports[project]);
-
-  return prepareLinkedClient(notificationName, service.schema);
+  return prepareLinkedClient(context, service, imports[project]);
 };
 
 export const prepareImports = async (event: PrepareResourceEvent) => {
-  const { state, service, options, role } = event;
+  const { state, service, options, role, context } = event;
 
   if (!isNotificationImport(service)) {
     return;
@@ -51,16 +44,18 @@ export const prepareImports = async (event: PrepareResourceEvent) => {
     throw new ProjectMissingError(project);
   }
 
-  const notificationState = createTopic(state, {
+  const topicState = createTopic(state, {
     topicName: getServiceName(reference, imports[project]),
     import: true
   });
 
-  await prepareSubscriptions(state, service, role, notificationState, options);
+  context.setServiceState(topicState, service, options);
+
+  await prepareSubscriptions(state, service, role, topicState, options, context);
 };
 
 export const connectImports = (event: ConnectResourceEvent) => {
-  const { state, service, role, options } = event;
+  const { state, service, role, options, context } = event;
 
   if (!isNotificationImport(service)) {
     return;
@@ -70,5 +65,5 @@ export const connectImports = (event: ConnectResourceEvent) => {
     throw new RoleMissingError();
   }
 
-  connectSubscriptions(state, service, role, options);
+  connectSubscriptions(state, service, role, options, context);
 };

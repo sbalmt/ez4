@@ -16,17 +16,17 @@ import { prepareLinkedClient } from './client.js';
 import { getTargetName } from './utils.js';
 
 export const prepareLinkedServices = (event: ServiceEvent) => {
-  const { service, options } = event;
+  const { service, options, context } = event;
 
   if (!isCronService(service) || !service.schema) {
     return null;
   }
 
-  return prepareLinkedClient(service, options);
+  return prepareLinkedClient(context, service, options);
 };
 
 export const prepareCronServices = async (event: PrepareResourceEvent) => {
-  const { state, service, options, role } = event;
+  const { state, service, options, role, context } = event;
 
   if (!isCronService(service)) {
     return;
@@ -73,7 +73,7 @@ export const prepareCronServices = async (event: PrepareResourceEvent) => {
 
   const groupState = getScheduleGroup(state, service, options);
 
-  createSchedule(state, role, functionState, groupState, {
+  const scheduleState = createSchedule(state, role, functionState, groupState, {
     scheduleName: getServiceName(service, options),
     dynamic: isDynamicCronService(service),
     enabled: !service.disabled,
@@ -85,6 +85,8 @@ export const prepareCronServices = async (event: PrepareResourceEvent) => {
     maxRetries,
     maxAge
   });
+
+  context.setServiceState(scheduleState, service, options);
 };
 
 export const connectCronResources = (event: ConnectResourceEvent) => {

@@ -36,14 +36,15 @@ export const deploy = async (project: ProjectOptions) => {
 
   const newState: EntryStates = {};
 
-  await prepareAllLinkedServices(metadata, options);
-
+  
   const role = await prepareExecutionRole(newState, options);
-
+  
   const stateAliases = {};
-
+  
   await prepareDeployResources(stateAliases, newState, metadata, role, options);
+  await prepareAllLinkedServices(stateAliases, metadata, options);
   await connectDeployResources(stateAliases, newState, metadata, role, options);
+  
 
   combineStates(newState, oldState);
 

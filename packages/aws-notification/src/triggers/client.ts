@@ -1,20 +1,25 @@
-import type { NotificationMessageSchema } from '@ez4/notification/library';
-import type { ExtraSource } from '@ez4/project/library';
+import type { NotificationImport, NotificationService } from '@ez4/notification/library';
+import type { DeployOptions, EventContext, ExtraSource } from '@ez4/project/library';
 
 import { getDefinitionName } from '@ez4/project/library';
 
-import { createTopicStateId } from '../topic/utils.js';
+import { getTopicState } from '../topic/utils.js';
 import { TopicState } from '../topic/types.js';
 
-export const prepareLinkedClient = (topicName: string, topicSchema: NotificationMessageSchema): ExtraSource => {
-  const stateId = createTopicStateId(topicName);
+export const prepareLinkedClient = (
+  context: EventContext,
+  service: NotificationService | NotificationImport,
+  options: DeployOptions
+): ExtraSource => {
+  const topicState = getTopicState(context, service.name, options);
+  const topicId = topicState.entryId;
 
-  const topicArn = getDefinitionName<TopicState>(stateId, 'topicArn');
+  const topicArn = getDefinitionName<TopicState>(topicId, 'topicArn');
 
-  const schema = JSON.stringify(topicSchema);
+  const schema = JSON.stringify(service.schema);
 
   return {
-    entryId: stateId,
+    entryIds: [topicId],
     constructor: `make(${topicArn}, ${schema})`,
     from: '@ez4/aws-notification/client',
     module: 'Client'

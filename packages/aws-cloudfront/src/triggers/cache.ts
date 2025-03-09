@@ -1,4 +1,4 @@
-import type { DeployOptions, ResourceEventContext } from '@ez4/project/library';
+import type { DeployOptions, EventContext } from '@ez4/project/library';
 import type { EntryStates } from '@ez4/stateful';
 
 import { CdnService, CdnOrigin, isCdnBucketOrigin } from '@ez4/distribution/library';
@@ -13,7 +13,7 @@ export const getDefaultOriginCache = async (
   state: EntryStates,
   service: CdnService,
   options: DeployOptions,
-  context: ResourceEventContext
+  context: EventContext
 ) => {
   return getOriginCache<DistributionDefaultOrigin>(state, service, 'default', service.defaultOrigin, options, context);
 };
@@ -22,7 +22,7 @@ export const getAdditionalOriginCache = async (
   state: EntryStates,
   service: CdnService,
   options: DeployOptions,
-  context: ResourceEventContext
+  context: EventContext
 ) => {
   const { origins } = service;
 
@@ -43,7 +43,7 @@ const getOriginCache = async <T extends DistributionDefaultOrigin | Distribution
   id: string,
   origin: CdnOrigin,
   options: DeployOptions,
-  context: ResourceEventContext
+  context: EventContext
 ) => {
   const { location, path, cache } = origin;
 

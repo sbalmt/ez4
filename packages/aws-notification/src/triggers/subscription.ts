@@ -1,13 +1,13 @@
 import type { NotificationService, NotificationImport } from '@ez4/notification/library';
-import type { DeployOptions } from '@ez4/project/library';
+import type { DeployOptions, EventContext } from '@ez4/project/library';
 import type { RoleState } from '@ez4/aws-identity';
 import type { EntryStates } from '@ez4/stateful';
 import type { TopicState } from '../topic/types.js';
 
+import { linkServiceExtras } from '@ez4/project/library';
 import { NotificationSubscriptionType } from '@ez4/notification/library';
-import { getServiceName, linkServiceExtras } from '@ez4/project/library';
 import { InvalidParameterError } from '@ez4/aws-common';
-import { tryGetQueueState } from '@ez4/aws-queue';
+import { getQueueState } from '@ez4/aws-queue';
 import { getFunction } from '@ez4/aws-function';
 
 import { SubscriptionServiceName } from '../subscription/types.js';
@@ -21,7 +21,8 @@ export const prepareSubscriptions = async (
   service: NotificationService | NotificationImport,
   role: RoleState,
   topicState: TopicState,
-  options: DeployOptions
+  options: DeployOptions,
+  context: EventContext
 ) => {
   for (const subscription of service.subscriptions) {
     switch (subscription.type) {
@@ -69,15 +70,10 @@ export const prepareSubscriptions = async (
       }
 
       case NotificationSubscriptionType.Queue: {
-        const queueName = getServiceName(subscription.service, options);
-        const queueState = tryGetQueueState(state, queueName);
-
-        if (!queueState) {
-          throw new SubscriptionMissingError(queueName);
-        }
+        const queueState = getQueueState(context, subscription.service, options);
 
         createSubscription(state, topicState, queueState, {
-          fromService: queueName
+          fromService: queueState.parameters.queueName
         });
 
         break;
@@ -90,7 +86,8 @@ export const connectSubscriptions = (
   state: EntryStates,
   service: NotificationService | NotificationImport,
   role: RoleState,
-  options: DeployOptions
+  options: DeployOptions,
+  context: EventContext
 ) => {
   if (!service.extras) {
     return;
@@ -110,20 +107,13 @@ export const connectSubscriptions = (
         }
 
         linkServiceExtras(state, functionState.entryId, service.extras);
-
         break;
       }
 
       case NotificationSubscriptionType.Queue: {
-        const queueName = getServiceName(subscription.service, options);
-        const queueState = tryGetQueueState(state, queueName);
-
-        if (!queueState) {
-          throw new SubscriptionMissingError(queueName);
-        }
+        const queueState = getQueueState(context, subscription.service, options);
 
         linkServiceExtras(state, queueState.entryId, service.extras);
-
         break;
       }
     }

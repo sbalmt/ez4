@@ -1,13 +1,20 @@
+import type { DeployOptions, EventContext, ExtraSource } from '@ez4/project/library';
 import type { DatabaseService, TableIndex } from '@ez4/database/library';
-import type { DeployOptions, ExtraSource } from '@ez4/project/library';
 
 import { Index } from '@ez4/database';
 
+import { getTableState } from '../table/utils.js';
 import { getTableName } from './utils.js';
 
-export const prepareLinkedClient = (service: DatabaseService, options: DeployOptions): ExtraSource => {
+export const prepareLinkedClient = (context: EventContext, service: DatabaseService, options: DeployOptions): ExtraSource => {
+  const tableIds: string[] = [];
+
   const repository = JSON.stringify(
     service.tables.reduce((current, table) => {
+      const tableState = getTableState(context, table.name, options);
+
+      tableIds.push(tableState.entryId);
+
       return {
         ...current,
         [table.name]: {
@@ -20,6 +27,7 @@ export const prepareLinkedClient = (service: DatabaseService, options: DeployOpt
   );
 
   return {
+    entryIds: tableIds,
     constructor: `make(${repository}, ${options.debug ? 'true' : 'false'})`,
     from: '@ez4/aws-dynamodb/client',
     module: 'Client'

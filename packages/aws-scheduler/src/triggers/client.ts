@@ -1,18 +1,18 @@
-import type { DeployOptions, ExtraSource } from '@ez4/project/library';
+import type { DeployOptions, EventContext, ExtraSource } from '@ez4/project/library';
 import type { CronService } from '@ez4/scheduler/library';
 
 import { getDefinitionName, getServiceName } from '@ez4/project/library';
 
-import { createScheduleStateId } from '../schedule/utils.js';
+import { getScheduleState } from '../schedule/utils.js';
 import { ScheduleState } from '../schedule/types.js';
 
-export const prepareLinkedClient = (service: CronService, options: DeployOptions): ExtraSource => {
-  const scheduleName = getServiceName(service, options);
-  const stateId = createScheduleStateId(scheduleName);
+export const prepareLinkedClient = (context: EventContext, service: CronService, options: DeployOptions): ExtraSource => {
+  const scheduleState = getScheduleState(context, service.name, options);
+  const scheduleId = scheduleState.entryId;
 
-  const groupName = getDefinitionName<ScheduleState>(stateId, 'groupName');
-  const functionArn = getDefinitionName<ScheduleState>(stateId, 'functionArn');
-  const roleArn = getDefinitionName<ScheduleState>(stateId, 'roleArn');
+  const groupName = getDefinitionName<ScheduleState>(scheduleId, 'groupName');
+  const functionArn = getDefinitionName<ScheduleState>(scheduleId, 'functionArn');
+  const roleArn = getDefinitionName<ScheduleState>(scheduleId, 'roleArn');
 
   const { schema, maxRetries, maxAge } = service;
 
@@ -26,7 +26,7 @@ export const prepareLinkedClient = (service: CronService, options: DeployOptions
   });
 
   return {
-    entryId: stateId,
+    entryIds: [scheduleId],
     constructor: `make(${roleArn}, ${functionArn}, ${groupName}, ${clientParameters})`,
     from: '@ez4/aws-scheduler/client',
     module: 'Client'

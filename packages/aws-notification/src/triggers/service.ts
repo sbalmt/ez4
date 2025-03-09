@@ -1,8 +1,4 @@
-import type {
-  ConnectResourceEvent,
-  PrepareResourceEvent,
-  ServiceEvent
-} from '@ez4/project/library';
+import type { ConnectResourceEvent, PrepareResourceEvent, ServiceEvent } from '@ez4/project/library';
 
 import { getServiceName } from '@ez4/project/library';
 import { isNotificationService } from '@ez4/notification/library';
@@ -14,19 +10,17 @@ import { prepareLinkedClient } from './client.js';
 import { RoleMissingError } from './errors.js';
 
 export const prepareLinkedServices = (event: ServiceEvent) => {
-  const { service, options } = event;
+  const { service, options, context } = event;
 
   if (!isNotificationService(service)) {
     return;
   }
 
-  const notificationName = getServiceName(service, options);
-
-  return prepareLinkedClient(notificationName, service.schema);
+  return prepareLinkedClient(context, service, options);
 };
 
 export const prepareServices = async (event: PrepareResourceEvent) => {
-  const { state, service, role, options } = event;
+  const { state, service, role, options, context } = event;
 
   if (!isNotificationService(service)) {
     return;
@@ -36,15 +30,17 @@ export const prepareServices = async (event: PrepareResourceEvent) => {
     throw new RoleMissingError();
   }
 
-  const queueState = createTopic(state, {
+  const topicState = createTopic(state, {
     topicName: getServiceName(service, options)
   });
 
-  await prepareSubscriptions(state, service, role, queueState, options);
+  context.setServiceState(topicState, service, options);
+
+  await prepareSubscriptions(state, service, role, topicState, options, context);
 };
 
 export const connectServices = (event: ConnectResourceEvent) => {
-  const { state, service, role, options } = event;
+  const { state, service, role, options, context } = event;
 
   if (!isNotificationService(service)) {
     return;
@@ -54,5 +50,5 @@ export const connectServices = (event: ConnectResourceEvent) => {
     throw new RoleMissingError();
   }
 
-  connectSubscriptions(state, service, role, options);
+  connectSubscriptions(state, service, role, options, context);
 };

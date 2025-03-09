@@ -1,4 +1,4 @@
-import type { DeployOptions, ResourceEventContext } from '@ez4/project/library';
+import type { DeployOptions, EventContext } from '@ez4/project/library';
 import type { EntryState, StepContext } from '@ez4/stateful';
 import type { BucketState } from './types.js';
 
@@ -16,7 +16,7 @@ export const isBucketState = (resource: EntryState): resource is BucketState => 
   return resource.type === BucketServiceType;
 };
 
-export const getBucketState = (context: ResourceEventContext, bucketName: string, options: DeployOptions) => {
+export const getBucketState = (context: EventContext, bucketName: string, options: DeployOptions) => {
   const bucketState = context.getServiceState(bucketName, options);
 
   if (!isBucketState(bucketState)) {

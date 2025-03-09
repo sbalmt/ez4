@@ -1,10 +1,12 @@
-import type { EntryState, EntryStates, StepContext } from '@ez4/stateful';
+import type { DeployOptions, EventContext } from '@ez4/project/library';
+import type { EntryState, StepContext } from '@ez4/stateful';
 import type { QueueState } from './types.js';
 
 import { IncompleteResourceError } from '@ez4/aws-common';
 import { hashData, toKebabCase } from '@ez4/utils';
 
 import { queueUrlToArn } from '../utils/policy.js';
+import { QueueNotFoundError } from './errors.js';
 import { QueueServiceType } from './types.js';
 
 export const createQueueStateId = (queueName: string, normalize = true) => {
@@ -15,18 +17,14 @@ export const isQueueState = (resource: EntryState): resource is QueueState => {
   return resource.type === QueueServiceType;
 };
 
-export const tryGetQueueState = (state: EntryStates, queueName: string, normalize = true) => {
-  let queueState;
+export const getQueueState = (context: EventContext, queueName: string, options: DeployOptions) => {
+  const queueState = context.getServiceState(queueName, options);
 
-  if ((queueState = state[createQueueStateId(queueName, normalize)]) && isQueueState(queueState)) {
-    return queueState;
+  if (!isQueueState(queueState)) {
+    throw new QueueNotFoundError(queueName);
   }
 
-  if ((queueState = state[createQueueStateId(`${toKebabCase(queueName)}.fifo`, false)]) && isQueueState(queueState)) {
-    return queueState;
-  }
-
-  return undefined;
+  return queueState;
 };
 
 export const getQueueUrl = (serviceName: string, resourceId: string, context: StepContext) => {

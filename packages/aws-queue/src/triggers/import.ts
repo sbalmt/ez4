@@ -10,7 +10,7 @@ import { prepareLinkedClient } from './client.js';
 import { getQueueName } from './utils.js';
 
 export const prepareLinkedImports = (event: ServiceEvent) => {
-  const { service, options } = event;
+  const { service, options, context } = event;
 
   if (!isQueueImport(service)) {
     return null;
@@ -23,11 +23,11 @@ export const prepareLinkedImports = (event: ServiceEvent) => {
     throw new ProjectMissingError(project);
   }
 
-  return prepareLinkedClient(service, imports[project]);
+  return prepareLinkedClient(context, service, imports[project]);
 };
 
 export const prepareImports = async (event: PrepareResourceEvent) => {
-  const { state, service, options, role } = event;
+  const { state, service, options, role, context } = event;
 
   if (!isQueueImport(service)) {
     return;
@@ -51,6 +51,8 @@ export const prepareImports = async (event: PrepareResourceEvent) => {
     import: true,
     queueName
   });
+
+  context.setServiceState(queueState, service, options);
 
   await prepareSubscriptions(state, service, role, queueState, options);
 };

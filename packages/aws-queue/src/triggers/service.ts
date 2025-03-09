@@ -10,17 +10,17 @@ import { RoleMissingError } from './errors.js';
 import { getQueueName } from './utils.js';
 
 export const prepareLinkedServices = (event: ServiceEvent) => {
-  const { service, options } = event;
+  const { service, options, context } = event;
 
   if (!isQueueService(service)) {
     return null;
   }
 
-  return prepareLinkedClient(service, options);
+  return prepareLinkedClient(context, service, options);
 };
 
 export const prepareServices = async (event: PrepareResourceEvent) => {
-  const { state, service, role, options } = event;
+  const { state, service, role, options, context } = event;
 
   if (!isQueueService(service)) {
     return;
@@ -42,6 +42,8 @@ export const prepareServices = async (event: PrepareResourceEvent) => {
     ...(polling !== undefined && { polling }),
     ...(delay !== undefined && { delay })
   });
+
+  context.setServiceState(queueState, service, options);
 
   await prepareSubscriptions(state, service, role, queueState, options);
 };
