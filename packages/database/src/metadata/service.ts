@@ -24,7 +24,7 @@ import { isDatabaseService } from './utils.js';
 import { getDatabaseTable } from './table.js';
 
 export const getDatabaseServices = (reflection: SourceMap) => {
-  const dbServices: Record<string, DatabaseService> = {};
+  const allServices: Record<string, DatabaseService> = {};
   const errorList: Error[] = [];
 
   for (const identity in reflection) {
@@ -34,7 +34,7 @@ export const getDatabaseServices = (reflection: SourceMap) => {
       continue;
     }
 
-    const service: Incomplete<DatabaseService> = { type: ServiceType };
+    const service: Incomplete<DatabaseService> = { type: ServiceType, extras: {} };
     const properties = new Set(['engine', 'tables']);
 
     const fileName = statement.file;
@@ -85,22 +85,22 @@ export const getDatabaseServices = (reflection: SourceMap) => {
       continue;
     }
 
-    if (dbServices[statement.name]) {
+    if (allServices[statement.name]) {
       errorList.push(new DuplicateServiceError(statement.name, fileName));
       continue;
     }
 
-    dbServices[statement.name] = service;
+    allServices[statement.name] = service;
   }
 
   return {
-    services: dbServices,
+    services: allServices,
     errors: errorList
   };
 };
 
 const isValidService = (type: Incomplete<DatabaseService>): type is DatabaseService => {
-  return !!type.name && !!type.tables;
+  return !!type.name && !!type.tables && !!type.extras;
 };
 
 const getAllTables = (member: ModelProperty, parent: TypeModel, reflection: SourceMap, errorList: Error[]) => {

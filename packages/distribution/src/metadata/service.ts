@@ -22,7 +22,7 @@ import { getAllFallbacks } from './fallback.js';
 import { isCdnService } from './utils.js';
 
 export const getCdnServices = (reflection: SourceMap) => {
-  const cdnServices: Record<string, CdnService> = {};
+  const allServices: Record<string, CdnService> = {};
   const errorList: Error[] = [];
 
   for (const identity in reflection) {
@@ -32,7 +32,7 @@ export const getCdnServices = (reflection: SourceMap) => {
       continue;
     }
 
-    const service: Incomplete<CdnService> = { type: ServiceType };
+    const service: Incomplete<CdnService> = { type: ServiceType, extras: {} };
     const properties = new Set(['defaultOrigin']);
 
     const fileName = statement.file;
@@ -90,22 +90,22 @@ export const getCdnServices = (reflection: SourceMap) => {
       continue;
     }
 
-    if (cdnServices[statement.name]) {
+    if (allServices[statement.name]) {
       errorList.push(new DuplicateServiceError(statement.name, fileName));
       continue;
     }
 
-    cdnServices[statement.name] = service;
+    allServices[statement.name] = service;
   }
 
   return {
-    services: cdnServices,
+    services: allServices,
     errors: errorList
   };
 };
 
 const isValidService = (type: Incomplete<CdnService>): type is CdnService => {
-  return !!type.name && !!type.defaultOrigin;
+  return !!type.name && !!type.defaultOrigin && !!type.extras;
 };
 
 const getAllAliases = (member: ModelProperty) => {

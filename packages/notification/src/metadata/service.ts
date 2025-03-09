@@ -30,7 +30,7 @@ export const getNotificationServices = (reflection: SourceMap) => {
       continue;
     }
 
-    const service: Incomplete<NotificationService> = { type: ServiceType };
+    const service: Incomplete<NotificationService> = { type: ServiceType, extras: {} };
     const properties = new Set(['subscriptions', 'schema']);
 
     const fileName = statement.file;
@@ -99,5 +99,5 @@ export const getNotificationServices = (reflection: SourceMap) => {
 };
 
 const isValidService = (type: Incomplete<NotificationService>): type is NotificationService => {
-  return !!type.name && !!type.schema && !!type.subscriptions;
+  return !!type.name && !!type.schema && !!type.subscriptions && !!type.extras;
 };

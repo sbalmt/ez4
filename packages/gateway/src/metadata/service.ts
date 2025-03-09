@@ -24,7 +24,7 @@ import { getHttpRoute } from './route.js';
 import { getHttpCors } from './cors.js';
 
 export const getHttpServices = (reflection: SourceMap) => {
-  const httpServices: Record<string, HttpService> = {};
+  const allServices: Record<string, HttpService> = {};
   const errorList: Error[] = [];
 
   for (const identity in reflection) {
@@ -34,7 +34,7 @@ export const getHttpServices = (reflection: SourceMap) => {
       continue;
     }
 
-    const service: Incomplete<HttpService> = { type: ServiceType };
+    const service: Incomplete<HttpService> = { type: ServiceType, extras: {} };
     const properties = new Set(['routes']);
 
     const fileName = statement.file;
@@ -88,22 +88,22 @@ export const getHttpServices = (reflection: SourceMap) => {
       continue;
     }
 
-    if (httpServices[statement.name]) {
+    if (allServices[statement.name]) {
       errorList.push(new DuplicateServiceError(statement.name, fileName));
       continue;
     }
 
-    httpServices[statement.name] = service;
+    allServices[statement.name] = service;
   }
 
   return {
-    services: httpServices,
+    services: allServices,
     errors: errorList
   };
 };
 
 const isValidService = (type: Incomplete<HttpService>): type is HttpService => {
-  return !!type.name && !!type.routes;
+  return !!type.name && !!type.routes && !!type.extras;
 };
 
 const getAllRoutes = (parent: TypeModel, member: ModelProperty, reflection: SourceMap, errorList: Error[]) => {

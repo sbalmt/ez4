@@ -24,7 +24,7 @@ import { isCronService } from './utils.js';
 import { getCronEvent } from './event.js';
 
 export const getCronServices = (reflection: SourceMap) => {
-  const cronServices: Record<string, CronService> = {};
+  const allServices: Record<string, CronService> = {};
   const errorList: Error[] = [];
 
   for (const identity in reflection) {
@@ -34,7 +34,7 @@ export const getCronServices = (reflection: SourceMap) => {
       continue;
     }
 
-    const service: Incomplete<CronService> = { type: ServiceType };
+    const service: Incomplete<CronService> = { type: ServiceType, extras: {} };
     const properties = new Set(['target', 'expression']);
 
     const fileName = statement.file;
@@ -127,22 +127,22 @@ export const getCronServices = (reflection: SourceMap) => {
       continue;
     }
 
-    if (cronServices[statement.name]) {
+    if (allServices[statement.name]) {
       errorList.push(new DuplicateServiceError(statement.name, fileName));
       continue;
     }
 
-    cronServices[statement.name] = service;
+    allServices[statement.name] = service;
   }
 
   return {
-    services: cronServices,
+    services: allServices,
     errors: errorList
   };
 };
 
 const isValidService = (type: Incomplete<CronService>): type is CronService => {
-  if (!type.name || !type.target) {
+  if (!type.name || !type.target || !type.extras) {
     return false;
   }
 

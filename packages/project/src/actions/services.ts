@@ -60,9 +60,6 @@ const prepareLinkedService = async (
   );
 
   if (extraSource) {
-    targetService.extras = {
-      ...targetService.extras,
-      [contextName]: extraSource
-    };
+    targetService.extras[contextName] = extraSource;
   }
 };

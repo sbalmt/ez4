@@ -32,7 +32,7 @@ export const getBucketServices = (reflection: SourceMap) => {
       continue;
     }
 
-    const service: Incomplete<BucketService> = { type: ServiceType };
+    const service: Incomplete<BucketService> = { type: ServiceType, extras: {} };
 
     const fileName = statement.file;
 
@@ -95,5 +95,5 @@ export const getBucketServices = (reflection: SourceMap) => {
 };
 
 const isValidService = (type: Incomplete<BucketService>): type is BucketService => {
-  return !!type.name;
+  return !!type.name && !!type.extras && !!type.extras;
 };
