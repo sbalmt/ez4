@@ -4,7 +4,7 @@ import type { TopicParameters, TopicState } from './types.js';
 import { toKebabCase, hashData } from '@ez4/utils';
 import { attachEntry } from '@ez4/stateful';
 
-import { getTopicStateId, isTopicState } from './utils.js';
+import { createTopicStateId, isTopicState } from './utils.js';
 import { TopicServiceType } from './types.js';
 
 export const createTopic = <E extends EntryState>(
@@ -26,7 +26,7 @@ export const createTopic = <E extends EntryState>(
 };
 
 export const getTopic = <E extends EntryState>(state: EntryStates<E>, topicName: string) => {
-  const topicId = getTopicStateId(topicName);
+  const topicId = createTopicStateId(topicName);
   const topicState = state[topicId];
 
   if (topicState && isTopicState(topicState)) {

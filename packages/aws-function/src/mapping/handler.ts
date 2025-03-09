@@ -35,11 +35,7 @@ const previewResource = async (candidate: MappingState, current: MappingState) =
   return changes.counts ? changes : undefined;
 };
 
-const replaceResource = async (
-  candidate: MappingState,
-  current: MappingState,
-  context: StepContext
-) => {
+const replaceResource = async (candidate: MappingState, current: MappingState, context: StepContext) => {
   if (current.result) {
     throw new ReplaceResourceError(MappingServiceName, candidate.entryId, current.entryId);
   }
@@ -47,10 +43,7 @@ const replaceResource = async (
   return createResource(candidate, context);
 };
 
-const createResource = async (
-  candidate: MappingState,
-  context: StepContext
-): Promise<MappingResult> => {
+const createResource = async (candidate: MappingState, context: StepContext): Promise<MappingResult> => {
   const parameters = candidate.parameters;
 
   const functionName = getFunctionName(MappingServiceName, 'mapping', context);
@@ -71,11 +64,7 @@ const createResource = async (
   };
 };
 
-const updateResource = async (
-  candidate: MappingState,
-  current: MappingState,
-  context: StepContext
-) => {
+const updateResource = async (candidate: MappingState, current: MappingState, context: StepContext) => {
   const result = candidate.result;
 
   if (!result) {
@@ -115,11 +104,7 @@ const deleteResource = async (candidate: MappingState) => {
   }
 };
 
-const checkGeneralUpdates = async <T extends CreateRequest>(
-  eventId: string,
-  candidate: T,
-  current: T
-) => {
+const checkGeneralUpdates = async <T extends CreateRequest>(eventId: string, candidate: T, current: T) => {
   const hasChanges = !deepEqual(candidate, current);
 
   if (hasChanges) {

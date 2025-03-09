@@ -19,7 +19,8 @@ describe.only('queue client', () => {
     const localState: EntryStates = {};
 
     const resource = createQueue(localState, {
-      queueName: 'ez4-test-queue-client'
+      queueName: 'ez4-test-queue-client',
+      fifoMode: false
     });
 
     queueId = resource.entryId;

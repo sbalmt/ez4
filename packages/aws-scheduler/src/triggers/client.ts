@@ -1,32 +1,33 @@
-import type { DeployOptions, ExtraSource } from '@ez4/project/library';
-import type { CronEventSchema } from '@ez4/scheduler/library';
-import type { ScheduleEvent } from '@ez4/scheduler';
+import type { DeployOptions, EventContext, ExtraSource } from '@ez4/project/library';
+import type { CronService } from '@ez4/scheduler/library';
 
 import { getDefinitionName, getServiceName } from '@ez4/project/library';
 
-import { getScheduleStateId } from '../schedule/utils.js';
+import { getScheduleState } from '../schedule/utils.js';
+import { ScheduleState } from '../schedule/types.js';
 
-export const prepareLinkedClient = (
-  scheduleName: string,
-  eventSchema: CronEventSchema,
-  options: DeployOptions,
-  defaults: Pick<ScheduleEvent<never>, 'maxRetries' | 'maxAge'>
-): ExtraSource => {
-  const scheduleEntryId = getScheduleStateId(scheduleName);
+export const prepareLinkedClient = (context: EventContext, service: CronService, options: DeployOptions): ExtraSource => {
+  const scheduleState = getScheduleState(context, service.name, options);
+  const scheduleId = scheduleState.entryId;
 
-  const groupName = getDefinitionName(scheduleEntryId, 'groupName');
-  const functionArn = getDefinitionName(scheduleEntryId, 'functionArn');
-  const roleArn = getDefinitionName(scheduleEntryId, 'roleArn');
+  const groupName = getDefinitionName<ScheduleState>(scheduleId, 'groupName');
+  const functionArn = getDefinitionName<ScheduleState>(scheduleId, 'functionArn');
+  const roleArn = getDefinitionName<ScheduleState>(scheduleId, 'roleArn');
 
-  const clientParameters = {
+  const { schema, maxRetries, maxAge } = service;
+
+  const clientParameters = JSON.stringify({
     prefix: getServiceName('', options),
-    schema: eventSchema,
-    defaults
-  };
+    schema,
+    defaults: {
+      maxRetries,
+      maxAge
+    }
+  });
 
   return {
-    entryId: scheduleEntryId,
-    constructor: `make(${roleArn}, ${functionArn}, ${groupName}, ${JSON.stringify(clientParameters)})`,
+    entryIds: [scheduleId],
+    constructor: `make(${roleArn}, ${functionArn}, ${groupName}, ${clientParameters})`,
     from: '@ez4/aws-scheduler/client',
     module: 'Client'
   };

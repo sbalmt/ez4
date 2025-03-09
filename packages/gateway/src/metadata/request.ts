@@ -1,63 +1,39 @@
+import type { AllType, SourceMap, TypeModel, TypeObject } from '@ez4/reflection';
 import type { MemberType } from '@ez4/common/library';
 import type { HttpAuthRequest, HttpRequest } from '../types/common.js';
 
-import type {
-  AllType,
-  SourceMap,
-  TypeCallback,
-  TypeFunction,
-  TypeModel,
-  TypeObject
-} from '@ez4/reflection';
-
 import {
+  InvalidServicePropertyError,
   isModelDeclaration,
+  hasHeritageType,
   getModelMembers,
   getObjectMembers,
-  hasHeritageType
+  getReferenceType
 } from '@ez4/common/library';
 
 import { isModelProperty, isTypeObject, isTypeReference } from '@ez4/reflection';
 
 import { IncorrectRequestTypeError, InvalidRequestTypeError } from '../errors/request.js';
-import { getHttpHeaders } from './headers.js';
-import { getHttpIdentity } from './identity.js';
 import { getHttpParameters } from './parameters.js';
+import { getHttpIdentity } from './identity.js';
 import { getHttpRequestBody } from './body.js';
+import { getHttpHeaders } from './headers.js';
 import { getHttpQuery } from './query.js';
 
-type TypeParent = TypeModel | TypeCallback | TypeFunction;
-
-export const getHttpAuthRequest = (
-  type: AllType,
-  parent: TypeParent,
-  reflection: SourceMap,
-  errorList: Error[]
-) => {
+export const getHttpAuthRequest = (type: AllType, parent: TypeModel, reflection: SourceMap, errorList: Error[]) => {
   return getHttpRequest(type, parent, reflection, errorList, 'Http.AuthRequest');
 };
 
-export const getHttpHandlerRequest = (
-  type: AllType,
-  parent: TypeParent,
-  reflection: SourceMap,
-  errorList: Error[]
-) => {
+export const getHttpHandlerRequest = (type: AllType, parent: TypeModel, reflection: SourceMap, errorList: Error[]) => {
   return getHttpRequest(type, parent, reflection, errorList, 'Http.Request');
 };
 
-const getHttpRequest = (
-  type: AllType,
-  parent: TypeParent,
-  reflection: SourceMap,
-  errorList: Error[],
-  baseType: string
-) => {
+const getHttpRequest = (type: AllType, parent: TypeModel, reflection: SourceMap, errorList: Error[], baseType: string) => {
   if (!isTypeReference(type)) {
     return getTypeRequest(type, parent, reflection, errorList, baseType);
   }
 
-  const statement = reflection[type.path];
+  const statement = getReferenceType(type, reflection);
 
   if (statement) {
     return getTypeRequest(statement, parent, reflection, errorList, baseType);
@@ -66,15 +42,9 @@ const getHttpRequest = (
   return null;
 };
 
-const getTypeRequest = (
-  type: AllType,
-  parent: TypeParent,
-  reflection: SourceMap,
-  errorList: Error[],
-  baseType: string
-) => {
+const getTypeRequest = (type: AllType, parent: TypeModel, reflection: SourceMap, errorList: Error[], baseType: string) => {
   if (isTypeObject(type)) {
-    return getTypeFromMembers(type, getObjectMembers(type), reflection, errorList);
+    return getTypeFromMembers(type, parent, getObjectMembers(type), reflection, errorList);
   }
 
   if (!isModelDeclaration(type)) {
@@ -87,11 +57,12 @@ const getTypeRequest = (
     return null;
   }
 
-  return getTypeFromMembers(type, getModelMembers(type), reflection, errorList);
+  return getTypeFromMembers(type, parent, getModelMembers(type), reflection, errorList);
 };
 
 const getTypeFromMembers = (
   type: TypeObject | TypeModel,
+  parent: TypeModel,
   members: MemberType[],
   reflection: SourceMap,
   errorList: Error[]
@@ -104,6 +75,10 @@ const getTypeFromMembers = (
     }
 
     switch (member.name) {
+      default:
+        errorList.push(new InvalidServicePropertyError(parent.name, member.name, type.file));
+        break;
+
       case 'headers': {
         request.headers = getHttpHeaders(member.value, type, reflection, errorList);
 

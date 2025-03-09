@@ -48,7 +48,8 @@ describe.only('queue mapping', () => {
     const localState: EntryStates = {};
 
     const queueResource = createQueue(localState, {
-      queueName: 'ez4-test-queue-mapping'
+      queueName: 'ez4-test-queue-mapping',
+      fifoMode: false
     });
 
     const policyResource = createPolicy(localState, {

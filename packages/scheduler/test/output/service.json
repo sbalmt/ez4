@@ -2,6 +2,7 @@
   "TestScheduler": {
     "type": "@ez4/cron",
     "name": "TestScheduler",
+    "extras": {},
     "description": "Scheduler cron description.",
     "group": "test-group",
     "expression": "rate(1 minute)",

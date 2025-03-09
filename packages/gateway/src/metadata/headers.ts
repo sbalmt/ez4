@@ -1,8 +1,8 @@
 import type { AllType, SourceMap, TypeModel, TypeObject } from '@ez4/reflection';
 
-import { isTypeObject, isTypeReference } from '@ez4/reflection';
+import { getReferenceType, isModelDeclaration } from '@ez4/common/library';
 import { getObjectSchema, isObjectSchema } from '@ez4/schema/library';
-import { isModelDeclaration } from '@ez4/common/library';
+import { isTypeObject, isTypeReference } from '@ez4/reflection';
 
 import { IncorrectHeadersTypeError, InvalidHeadersTypeError } from '../errors/headers.js';
 import { isHttpHeaders } from './utils.js';
@@ -17,7 +17,7 @@ export const getHttpHeaders = (
     return getTypeHeaders(type, parent, reflection, errorList);
   }
 
-  const statement = reflection[type.path];
+  const statement = getReferenceType(type, reflection);
 
   if (statement) {
     return getTypeHeaders(statement, parent, reflection, errorList);

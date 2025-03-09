@@ -1,5 +1,5 @@
-import type { Incomplete } from '@ez4/utils';
 import type { SourceMap } from '@ez4/reflection';
+import type { Incomplete } from '@ez4/utils';
 import type { NotificationService } from '../types/service.js';
 
 import {
@@ -30,8 +30,10 @@ export const getNotificationServices = (reflection: SourceMap) => {
       continue;
     }
 
-    const service: Incomplete<NotificationService> = { type: ServiceType };
+    const service: Incomplete<NotificationService> = { type: ServiceType, extras: {} };
     const properties = new Set(['subscriptions', 'schema']);
+
+    const fileName = statement.file;
 
     service.name = statement.name;
 
@@ -47,33 +49,21 @@ export const getNotificationServices = (reflection: SourceMap) => {
       switch (member.name) {
         default:
           if (!member.inherited) {
-            errorList.push(
-              new InvalidServicePropertyError(statement.name, member.name, statement.file)
-            );
+            errorList.push(new InvalidServicePropertyError(service.name, member.name, fileName));
           }
           break;
 
-        case 'schema': {
-          service.schema = getNotificationMessage(member.value, statement, reflection, errorList);
-
-          if (service.schema) {
+        case 'schema':
+          if ((service.schema = getNotificationMessage(member.value, statement, reflection, errorList))) {
             properties.delete(member.name);
           }
-
           break;
-        }
 
-        case 'subscriptions': {
-          if (!member.inherited) {
-            service.subscriptions = getAllSubscription(member, statement, reflection, errorList);
-
-            if (service.subscriptions) {
-              properties.delete(member.name);
-            }
+        case 'subscriptions':
+          if (!member.inherited && (service.subscriptions = getAllSubscription(member, statement, reflection, errorList))) {
+            properties.delete(member.name);
           }
-
           break;
-        }
 
         case 'variables':
           if (!member.inherited) {
@@ -90,12 +80,12 @@ export const getNotificationServices = (reflection: SourceMap) => {
     }
 
     if (!isValidService(service)) {
-      errorList.push(new IncompleteServiceError([...properties], statement.file));
+      errorList.push(new IncompleteServiceError([...properties], fileName));
       continue;
     }
 
     if (allServices[statement.name]) {
-      errorList.push(new DuplicateServiceError(statement.name, statement.file));
+      errorList.push(new DuplicateServiceError(statement.name, fileName));
       continue;
     }
 
@@ -109,5 +99,5 @@ export const getNotificationServices = (reflection: SourceMap) => {
 };
 
 const isValidService = (type: Incomplete<NotificationService>): type is NotificationService => {
-  return !!type.name && !!type.schema && !!type.subscriptions;
+  return !!type.name && !!type.schema && !!type.subscriptions && !!type.extras;
 };

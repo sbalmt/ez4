@@ -2,15 +2,17 @@ import type { Variables } from '../types/variables.js';
 
 import {
   ApiGatewayV2Client,
+  GetStageCommand,
   CreateStageCommand,
   UpdateStageCommand,
-  DeleteStageCommand
+  DeleteStageCommand,
+  NotFoundException
 } from '@aws-sdk/client-apigatewayv2';
 
 import { Logger } from '@ez4/aws-common';
 
-import { StageServiceName } from './types.js';
 import { assertVariables } from './helpers/variables.js';
+import { StageServiceName } from './types.js';
 
 const client = new ApiGatewayV2Client({});
 
@@ -20,14 +22,34 @@ export type CreateRequest = {
   autoDeploy?: boolean;
 };
 
-export type CreateResponse = {
+export type ImportOrCreateResponse = {
   stageName: string;
 };
 
-export const createStage = async (
-  apiId: string,
-  request: CreateRequest
-): Promise<CreateResponse> => {
+export const importStage = async (apiId: string, stageName: string): Promise<ImportOrCreateResponse | undefined> => {
+  Logger.logImport(StageServiceName, apiId);
+
+  try {
+    const response = await client.send(
+      new GetStageCommand({
+        ApiId: apiId,
+        StageName: stageName
+      })
+    );
+
+    return {
+      stageName: response.StageName!
+    };
+  } catch (error) {
+    if (!(error instanceof NotFoundException)) {
+      throw error;
+    }
+
+    return undefined;
+  }
+};
+
+export const createStage = async (apiId: string, request: CreateRequest): Promise<ImportOrCreateResponse> => {
   Logger.logCreate(StageServiceName, request.stageName);
 
   if (request.stageVariables) {
@@ -48,11 +70,7 @@ export const createStage = async (
   };
 };
 
-export const updateStage = async (
-  apiId: string,
-  stageName: string,
-  request: Partial<CreateRequest>
-) => {
+export const updateStage = async (apiId: string, stageName: string, request: Partial<CreateRequest>) => {
   Logger.logUpdate(StageServiceName, stageName);
 
   const { stageVariables, autoDeploy } = request;

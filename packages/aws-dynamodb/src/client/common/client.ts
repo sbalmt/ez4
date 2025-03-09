@@ -1,13 +1,9 @@
 import type { DynamoDBDocumentClient, ExecuteStatementCommandInput } from '@aws-sdk/lib-dynamodb';
 
-import { ExecuteStatementCommand } from '@aws-sdk/lib-dynamodb';
 import { ExecuteTransactionCommand } from '@aws-sdk/lib-dynamodb';
+import { ExecuteStatementCommand } from '@aws-sdk/lib-dynamodb';
 
-export const executeStatement = async (
-  client: DynamoDBDocumentClient,
-  command: ExecuteStatementCommandInput,
-  debug?: boolean
-) => {
+export const executeStatement = async (client: DynamoDBDocumentClient, command: ExecuteStatementCommandInput, debug?: boolean) => {
   try {
     if (debug) {
       console.debug(`[PartiQL/-]:`, command.Statement);
@@ -27,11 +23,7 @@ export const executeStatement = async (
   }
 };
 
-export const executeTransaction = async (
-  client: DynamoDBDocumentClient,
-  statements: any[],
-  debug?: boolean
-) => {
+export const executeTransaction = async (client: DynamoDBDocumentClient, statements: any[], debug?: boolean) => {
   const maxLength = statements.length;
   const operations = [];
   const batchSize = 100;

@@ -1,13 +1,13 @@
 import type { AllType, SourceMap, TypeModel, TypeObject } from '@ez4/reflection';
 import type { AnySchema, ObjectSchema, UnionSchema } from '@ez4/schema/library';
 
-import { isModelDeclaration } from '@ez4/common/library';
+import { getReferenceType, isModelDeclaration } from '@ez4/common/library';
 
 import {
+  isObjectSchema,
   createUnionSchema,
   getObjectSchema,
-  getScalarSchema,
-  isObjectSchema
+  getScalarSchema
 } from '@ez4/schema/library';
 
 import {
@@ -59,7 +59,7 @@ const getHttpBody = <T>(
     return resolver(type, parent);
   }
 
-  const statement = reflection[type.path];
+  const statement = getReferenceType(type, reflection);
 
   if (statement) {
     return resolver(statement, parent);

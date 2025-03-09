@@ -1,8 +1,7 @@
-import type { PartialSchemaProperties } from '@ez4/schema/library';
-import type { ObjectSchema } from '@ez4/schema';
+import type { ObjectSchema, PartialSchemaProperties } from '@ez4/schema';
 import type { AnyObject } from '@ez4/utils';
 
-import { getPartialSchema } from '@ez4/schema/library';
+import { getPartialSchema } from '@ez4/schema';
 import { isAnyObject } from '@ez4/utils';
 
 import { isSkippableData } from './data.js';

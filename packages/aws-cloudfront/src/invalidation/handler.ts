@@ -31,11 +31,7 @@ const previewResource = async (candidate: InvalidationState, current: Invalidati
   return changes;
 };
 
-const replaceResource = async (
-  candidate: InvalidationState,
-  current: InvalidationState,
-  context: StepContext
-) => {
+const replaceResource = async (candidate: InvalidationState, current: InvalidationState, context: StepContext) => {
   if (current.result) {
     throw new ReplaceResourceError(InvalidationServiceName, candidate.entryId, current.entryId);
   }
@@ -43,10 +39,7 @@ const replaceResource = async (
   return createResource(candidate, context);
 };
 
-const createResource = async (
-  _candidate: InvalidationState,
-  context: StepContext
-): Promise<InvalidationResult> => {
+const createResource = async (_candidate: InvalidationState, context: StepContext): Promise<InvalidationResult> => {
   const distributionId = getDistributionId(InvalidationServiceName, 'invalidation', context);
 
   return {

@@ -7,9 +7,7 @@ import { isSkippableData } from './data.js';
 
 type PrepareResult = [string, unknown[]];
 
-export const prepareWhereFields = (
-  input: Query.WhereInput<{}, {}, RelationMetadata>
-): PrepareResult => {
+export const prepareWhereFields = (input: Query.WhereInput<{}, {}, RelationMetadata>): PrepareResult => {
   const prepareFields = (data: AnyObject, path?: string): [string[], unknown[]] => {
     const operations: string[] = [];
     const variables: unknown[] = [];
@@ -71,11 +69,7 @@ export const prepareWhereFields = (
         default: {
           const nestedPath = path ? `${path}."${key}"` : `"${key}"`;
 
-          const nestedValue = isAnyObject(value)
-            ? value
-            : value === null
-              ? { isNull: true }
-              : { equal: value };
+          const nestedValue = isAnyObject(value) ? value : value === null ? { isNull: true } : { equal: value };
 
           const nestedResult = prepareOperation(nestedValue, nestedPath);
 

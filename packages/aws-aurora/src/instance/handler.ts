@@ -1,5 +1,5 @@
-import type { Arn } from '@ez4/aws-common';
 import type { StepContext, StepHandler } from '@ez4/stateful';
+import type { Arn } from '@ez4/aws-common';
 import type { InstanceState, InstanceResult, InstanceParameters } from './types.js';
 
 import { applyTagUpdates, ReplaceResourceError } from '@ez4/aws-common';
@@ -39,11 +39,7 @@ const previewResource = async (candidate: InstanceState, current: InstanceState)
   };
 };
 
-const replaceResource = async (
-  candidate: InstanceState,
-  current: InstanceState,
-  context: StepContext
-) => {
+const replaceResource = async (candidate: InstanceState, current: InstanceState, context: StepContext) => {
   if (current.result) {
     throw new ReplaceResourceError(InstanceServiceName, candidate.entryId, current.entryId);
   }
@@ -51,10 +47,7 @@ const replaceResource = async (
   return createResource(candidate, context);
 };
 
-const createResource = async (
-  candidate: InstanceState,
-  context: StepContext
-): Promise<InstanceResult> => {
+const createResource = async (candidate: InstanceState, context: StepContext): Promise<InstanceResult> => {
   const parameters = candidate.parameters;
 
   const clusterName = getClusterName(InstanceServiceName, parameters.instanceName, context);
@@ -91,11 +84,7 @@ const deleteResource = async (candidate: InstanceState) => {
   await deleteInstance(result.instanceName);
 };
 
-const checkTagUpdates = async (
-  instanceArn: Arn,
-  candidate: InstanceParameters,
-  current: InstanceParameters
-) => {
+const checkTagUpdates = async (instanceArn: Arn, candidate: InstanceParameters, current: InstanceParameters) => {
   await applyTagUpdates(
     candidate.tags,
     current.tags,

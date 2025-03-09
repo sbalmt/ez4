@@ -2,21 +2,12 @@ import type { AnyObject, ObjectComparison } from '@ez4/utils';
 
 import { toGray, toGreen, toRed } from '../console/format.js';
 
-export const formatReportChanges = (
-  changes: ObjectComparison,
-  values: AnyObject,
-  path?: string
-) => {
+export const formatReportChanges = (changes: ObjectComparison, values: AnyObject, path?: string) => {
   const length = getMaxPropertyLength({
     ...changes.remove,
     ...changes.update,
     ...changes.create
   });
-
-  const createSign = toGreen(`+`);
-  const removeSign = toRed(`-`);
-
-  const output: string[] = [];
 
   const getOutputName = (property: string) => {
     return path ? `${path}.${property}` : property;
@@ -28,6 +19,11 @@ export const formatReportChanges = (
 
     return `${name.padEnd(size, ' ')} = ${toGray(formatValue(value))}`;
   };
+
+  const createSign = toGreen(`+`);
+  const removeSign = toRed(`-`);
+
+  const output: string[] = [];
 
   if (changes.remove) {
     for (const property in changes.remove) {

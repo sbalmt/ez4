@@ -70,11 +70,7 @@ const deleteResource = async (candidate: OriginState) => {
   }
 };
 
-const checkGeneralUpdates = async (
-  policyId: string,
-  candidate: OriginParameters,
-  current: OriginParameters
-) => {
+const checkGeneralUpdates = async (policyId: string, candidate: OriginParameters, current: OriginParameters) => {
   const hasChanges = !deepEqual(candidate, current);
 
   if (hasChanges) {

@@ -1,9 +1,9 @@
 import type { S3Event, Context } from 'aws-lambda';
-import type { Bucket } from '@ez4/storage';
 import type { Service } from '@ez4/common';
+import type { Bucket } from '@ez4/storage';
 
-import { BucketEventType } from '@ez4/storage';
 import { ServiceEventType } from '@ez4/common';
+import { BucketEventType } from '@ez4/storage';
 
 declare const __EZ4_CONTEXT: object;
 

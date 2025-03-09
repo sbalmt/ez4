@@ -31,11 +31,7 @@ const previewResource = async (candidate: AuthorizerState, current: AuthorizerSt
   return changes.counts ? changes : undefined;
 };
 
-const replaceResource = async (
-  candidate: AuthorizerState,
-  current: AuthorizerState,
-  context: StepContext
-) => {
+const replaceResource = async (candidate: AuthorizerState, current: AuthorizerState, context: StepContext) => {
   if (current.result) {
     throw new ReplaceResourceError(AuthorizerServiceName, candidate.entryId, current.entryId);
   }
@@ -43,10 +39,7 @@ const replaceResource = async (
   return createResource(candidate, context);
 };
 
-const createResource = async (
-  candidate: AuthorizerState,
-  context: StepContext
-): Promise<AuthorizerResult> => {
+const createResource = async (candidate: AuthorizerState, context: StepContext): Promise<AuthorizerResult> => {
   const apiId = getGatewayId(AuthorizerServiceName, 'authorizer', context);
   const functionArn = getFunctionArn(AuthorizerServiceName, 'authorizer', context);
 
@@ -62,11 +55,7 @@ const createResource = async (
   };
 };
 
-const updateResource = async (
-  candidate: AuthorizerState,
-  current: AuthorizerState,
-  context: StepContext
-) => {
+const updateResource = async (candidate: AuthorizerState, current: AuthorizerState, context: StepContext) => {
   const result = candidate.result;
 
   if (!result) {
@@ -97,12 +86,7 @@ const deleteResource = async (candidate: AuthorizerState) => {
   }
 };
 
-const checkGeneralUpdates = async <T extends AuthorizerParameters>(
-  apiId: string,
-  authorizerId: string,
-  candidate: T,
-  current: T
-) => {
+const checkGeneralUpdates = async <T extends AuthorizerParameters>(apiId: string, authorizerId: string, candidate: T, current: T) => {
   const hasChanges = !deepEqual(candidate, current);
 
   if (hasChanges) {

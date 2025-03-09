@@ -1,8 +1,8 @@
 import type { AllType, SourceMap, TypeModel, TypeObject } from '@ez4/reflection';
 
-import { isTypeObject, isTypeReference } from '@ez4/reflection';
+import { getReferenceType, isModelDeclaration } from '@ez4/common/library';
 import { getObjectSchema, isObjectSchema } from '@ez4/schema/library';
-import { isModelDeclaration } from '@ez4/common/library';
+import { isTypeObject, isTypeReference } from '@ez4/reflection';
 
 import { IncorrectQueryTypeError, InvalidQueryTypeError } from '../errors/query.js';
 import { isHttpQuery } from './utils.js';
@@ -17,7 +17,7 @@ export const getHttpQuery = (
     return getTypeQuery(type, parent, reflection, errorList);
   }
 
-  const statement = reflection[type.path];
+  const statement = getReferenceType(type, reflection);
 
   if (statement) {
     return getTypeQuery(statement, parent, reflection, errorList);

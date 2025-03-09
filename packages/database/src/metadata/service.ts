@@ -6,6 +6,7 @@ import type { TableIndex } from '../types/indexes.js';
 
 import {
   DuplicateServiceError,
+  InvalidServicePropertyError,
   isExternalStatement,
   getLinkedServiceList,
   getLinkedVariableList,
@@ -16,19 +17,14 @@ import {
 
 import { isModelProperty } from '@ez4/reflection';
 
-import {
-  InvalidRelationAliasError,
-  InvalidRelationColumnError,
-  InvalidRelationTableError
-} from '../errors/relations.js';
-
-import { ServiceType } from '../types/service.js';
+import { InvalidRelationAliasError, InvalidRelationColumnError, InvalidRelationTableError } from '../errors/relations.js';
 import { IncompleteServiceError } from '../errors/service.js';
+import { ServiceType } from '../types/service.js';
 import { isDatabaseService } from './utils.js';
 import { getDatabaseTable } from './table.js';
 
 export const getDatabaseServices = (reflection: SourceMap) => {
-  const dbServices: Record<string, DatabaseService> = {};
+  const allServices: Record<string, DatabaseService> = {};
   const errorList: Error[] = [];
 
   for (const identity in reflection) {
@@ -38,8 +34,10 @@ export const getDatabaseServices = (reflection: SourceMap) => {
       continue;
     }
 
-    const service: Incomplete<DatabaseService> = { type: ServiceType };
+    const service: Incomplete<DatabaseService> = { type: ServiceType, extras: {} };
     const properties = new Set(['engine', 'tables']);
+
+    const fileName = statement.file;
 
     service.name = statement.name;
 
@@ -49,15 +47,18 @@ export const getDatabaseServices = (reflection: SourceMap) => {
       }
 
       switch (member.name) {
-        case 'engine': {
+        default:
+          errorList.push(new InvalidServicePropertyError(service.name, member.name, fileName));
+          break;
+
+        case 'engine':
           if ((service.engine = getPropertyString(member))) {
             properties.delete(member.name);
           }
           break;
-        }
 
         case 'tables':
-          if ((service.tables = getAllTables(member, reflection, errorList))) {
+          if ((service.tables = getAllTables(member, statement, reflection, errorList))) {
             properties.delete(member.name);
           }
           break;
@@ -73,7 +74,7 @@ export const getDatabaseServices = (reflection: SourceMap) => {
     }
 
     if (!isValidService(service)) {
-      errorList.push(new IncompleteServiceError([...properties], statement.file));
+      errorList.push(new IncompleteServiceError([...properties], fileName));
       continue;
     }
 
@@ -84,30 +85,30 @@ export const getDatabaseServices = (reflection: SourceMap) => {
       continue;
     }
 
-    if (dbServices[statement.name]) {
-      errorList.push(new DuplicateServiceError(statement.name, statement.file));
+    if (allServices[statement.name]) {
+      errorList.push(new DuplicateServiceError(statement.name, fileName));
       continue;
     }
 
-    dbServices[statement.name] = service;
+    allServices[statement.name] = service;
   }
 
   return {
-    services: dbServices,
+    services: allServices,
     errors: errorList
   };
 };
 
 const isValidService = (type: Incomplete<DatabaseService>): type is DatabaseService => {
-  return !!type.name && !!type.tables;
+  return !!type.name && !!type.tables && !!type.extras;
 };
 
-const getAllTables = (member: ModelProperty, reflection: SourceMap, errorList: Error[]) => {
+const getAllTables = (member: ModelProperty, parent: TypeModel, reflection: SourceMap, errorList: Error[]) => {
   const tableItems = getPropertyTuple(member) ?? [];
   const tableList: DatabaseTable[] = [];
 
   for (const subscription of tableItems) {
-    const result = getDatabaseTable(subscription, reflection, errorList);
+    const result = getDatabaseTable(subscription, parent, reflection, errorList);
 
     if (result) {
       tableList.push(result);

@@ -19,6 +19,7 @@ const client = new SQSClient({});
 
 export type CreateRequest = {
   queueName: string;
+  fifoMode: boolean;
   timeout?: number;
   retention?: number;
   polling?: number;
@@ -47,13 +48,21 @@ export const fetchQueue = async (queueName: string) => {
 };
 
 export const createQueue = async (request: CreateRequest): Promise<CreateResponse> => {
-  Logger.logCreate(QueueServiceName, request.queueName);
+  const { queueName, fifoMode } = request;
+
+  Logger.logCreate(QueueServiceName, queueName);
 
   const response = await client.send(
     new CreateQueueCommand({
-      QueueName: request.queueName,
+      QueueName: queueName,
       Attributes: {
-        ...upsertQueueAttributes(request)
+        ...upsertQueueAttributes(request),
+        ...(fifoMode && {
+          ContentBasedDeduplication: 'true',
+          DeduplicationScope: 'messageGroup',
+          FifoThroughputLimit: 'perMessageGroupId',
+          FifoQueue: 'true'
+        })
       },
       tags: {
         ...request.tags,
@@ -115,9 +124,7 @@ export const deleteQueue = async (queueUrl: string) => {
   );
 };
 
-const upsertQueueAttributes = (
-  request: CreateRequest | UpdateRequest
-): Partial<Record<QueueAttributeName, string>> => {
+const upsertQueueAttributes = (request: CreateRequest | UpdateRequest): Partial<Record<QueueAttributeName, string>> => {
   const { timeout, retention, polling, delay } = request;
 
   return {

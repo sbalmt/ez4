@@ -56,9 +56,9 @@ export class IncorrectPropertyError extends TypeError {
     public fileName?: string
   ) {
     if (properties.length > 1) {
-      super(`${message}, properties [${properties.join(', ')}] aren't needed.`, fileName);
+      super(`${message}, properties [${properties.join(', ')}] aren't expected.`, fileName);
     } else {
-      super(`${message}, property ${properties[0]} isn't needed.`, fileName);
+      super(`${message}, property ${properties[0]} isn't expected.`, fileName);
     }
   }
 }

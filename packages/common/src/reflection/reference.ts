@@ -76,6 +76,14 @@ export const getReferenceTuple = (type: AllType, reflection: SourceMap) => {
   return getLiteralTuple(reference);
 };
 
+export const getReferenceModel = (type: AllType, reflection: SourceMap) => {
+  if (!isTypeReference(type) || !type.index) {
+    return null;
+  }
+
+  return getReferenceType(type, reflection);
+};
+
 const getIndexedReferenceMember = (type: AllType, index: string) => {
   if (isTypeModel(type)) {
     return getModelMembers(type, true).find(({ name }) => name === index);

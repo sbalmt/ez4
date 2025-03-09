@@ -3,3 +3,9 @@ export class MalformedMessageError extends Error {
     super(`Malformed queue message body.`);
   }
 }
+
+export class MissingMessageGroupError extends Error {
+  constructor(public fieldName: string) {
+    super(`Message group field ${fieldName} is missing.`);
+  }
+}

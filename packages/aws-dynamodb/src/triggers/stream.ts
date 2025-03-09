@@ -1,48 +1,50 @@
 import type { DatabaseService, DatabaseTable } from '@ez4/database/library';
-import type { DeployOptions } from '@ez4/project/library';
-import type { RoleState } from '@ez4/aws-identity';
+import type { DeployOptions, EventContext } from '@ez4/project/library';
 import type { EntryStates } from '@ez4/stateful';
 import type { TableState } from '../table/types.js';
 
-import { getFunction } from '@ez4/aws-function';
+import { tryGetFunctionState } from '@ez4/aws-function';
+import { isRoleState } from '@ez4/aws-identity';
 
-import { createStreamFunction } from '../mapping/function/service.js';
 import { createMapping } from '../mapping/service.js';
+import { createStreamFunction } from '../mapping/function/service.js';
+import { RoleMissingError } from './errors.js';
 import { getStreamName } from './utils.js';
 
 export const prepareTableStream = (
   state: EntryStates,
   service: DatabaseService,
-  role: RoleState,
   table: DatabaseTable,
   tableState: TableState,
-  options: DeployOptions
+  options: DeployOptions,
+  context: EventContext
 ) => {
-  const tableStream = table.stream;
-
-  if (!tableStream) {
+  if (!table.stream) {
     return;
   }
 
-  const { handler, listener } = tableStream;
+  if (!context.role || !isRoleState(context.role)) {
+    throw new RoleMissingError();
+  }
 
-  const functionName = getStreamName(service, table, handler.name, options);
-  const functionTimeout = tableStream.timeout ?? 30;
-  const functionMemory = tableStream.memory ?? 192;
+  const { stream } = table;
 
-  const functionState =
-    getFunction(state, role, functionName) ??
-    createStreamFunction(state, role, {
-      functionName,
+  const { handler, listener } = stream;
+
+  let functionState = tryGetFunctionState(context, handler.name, options);
+
+  if (!functionState) {
+    functionState = createStreamFunction(state, context.role, {
+      functionName: getStreamName(service, table, handler.name, options),
       description: handler.description,
       tableSchema: table.schema,
-      timeout: functionTimeout,
-      memory: functionMemory,
+      timeout: stream.timeout ?? 30,
+      memory: stream.memory ?? 192,
       extras: service.extras,
       debug: options.debug,
       variables: {
         ...service.variables,
-        ...tableStream.variables
+        ...stream.variables
       },
       handler: {
         functionName: handler.name,
@@ -56,5 +58,10 @@ export const prepareTableStream = (
       })
     });
 
+    context.setServiceState(functionState, handler.name, options);
+  }
+
   createMapping(state, tableState, functionState, {});
+
+  return functionState;
 };

@@ -2,6 +2,7 @@
   "TestNotification": {
     "type": "@ez4/notification",
     "name": "TestNotification",
+    "extras": {},
     "description": "Notification to test subscription listener.",
     "schema": {
       "type": "object",

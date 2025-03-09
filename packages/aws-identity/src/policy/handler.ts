@@ -1,20 +1,12 @@
-import type { Arn } from '@ez4/aws-common';
 import type { StepHandler } from '@ez4/stateful';
+import type { Arn } from '@ez4/aws-common';
 import type { PolicyDocument } from '../types/policy.js';
 import type { PolicyState, PolicyResult, PolicyParameters } from './types.js';
 
 import { applyTagUpdates, ReplaceResourceError } from '@ez4/aws-common';
 import { deepCompare, deepEqual } from '@ez4/utils';
 
-import {
-  createPolicyVersion,
-  createPolicy,
-  deletePolicy,
-  deletePolicyVersion,
-  tagPolicy,
-  untagPolicy
-} from './client.js';
-
+import { createPolicyVersion, createPolicy, deletePolicy, deletePolicyVersion, tagPolicy, untagPolicy } from './client.js';
 import { PolicyServiceName } from './types.js';
 
 export const getPolicyHandler = (): StepHandler<PolicyState> => ({
@@ -94,11 +86,7 @@ const deleteResource = async (candidate: PolicyState) => {
   await deletePolicy(result.policyArn);
 };
 
-const checkDocumentUpdates = async (
-  result: PolicyResult,
-  candidate: PolicyParameters,
-  current: PolicyParameters
-) => {
+const checkDocumentUpdates = async (result: PolicyResult, candidate: PolicyParameters, current: PolicyParameters) => {
   const hasChanges = !deepEqual(candidate, current, {
     exclude: {
       policyName: true,
@@ -113,11 +101,7 @@ const checkDocumentUpdates = async (
   return result;
 };
 
-const checkTagUpdates = async (
-  policyArn: Arn,
-  candidate: PolicyParameters,
-  current: PolicyParameters
-) => {
+const checkTagUpdates = async (policyArn: Arn, candidate: PolicyParameters, current: PolicyParameters) => {
   await applyTagUpdates(
     candidate.tags,
     current.tags,

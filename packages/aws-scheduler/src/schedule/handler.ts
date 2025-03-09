@@ -1,9 +1,9 @@
 import type { StepContext, StepHandler } from '@ez4/stateful';
 import type { ScheduleState, ScheduleResult, ScheduleParameters } from './types.js';
 
+import { getFunctionArn } from '@ez4/aws-function';
 import { ReplaceResourceError } from '@ez4/aws-common';
 import { deepCompare, deepEqual } from '@ez4/utils';
-import { getFunctionArn } from '@ez4/aws-function';
 import { getRoleArn } from '@ez4/aws-identity';
 
 import { tryGetGroupName } from '../group/utils.js';
@@ -39,11 +39,7 @@ const previewResource = async (candidate: ScheduleState, current: ScheduleState)
   };
 };
 
-const replaceResource = async (
-  candidate: ScheduleState,
-  current: ScheduleState,
-  context: StepContext
-) => {
+const replaceResource = async (candidate: ScheduleState, current: ScheduleState, context: StepContext) => {
   if (current.result) {
     throw new ReplaceResourceError(ScheduleServiceName, candidate.entryId, current.entryId);
   }
@@ -51,10 +47,7 @@ const replaceResource = async (
   return createResource(candidate, context);
 };
 
-const createResource = async (
-  candidate: ScheduleState,
-  context: StepContext
-): Promise<ScheduleResult> => {
+const createResource = async (candidate: ScheduleState, context: StepContext): Promise<ScheduleResult> => {
   const { parameters } = candidate;
 
   const roleArn = getRoleArn(ScheduleServiceName, 'schedule', context);
@@ -82,11 +75,7 @@ const createResource = async (
   };
 };
 
-const updateResource = async (
-  candidate: ScheduleState,
-  current: ScheduleState,
-  context: StepContext
-) => {
+const updateResource = async (candidate: ScheduleState, current: ScheduleState, context: StepContext) => {
   const { result, parameters } = candidate;
 
   if (!result) {
@@ -137,11 +126,7 @@ const deleteResource = async (candidate: ScheduleState) => {
   }
 };
 
-const checkGeneralUpdates = async (
-  scheduleName: string,
-  candidate: ScheduleParameters,
-  current: ScheduleParameters
-) => {
+const checkGeneralUpdates = async (scheduleName: string, candidate: ScheduleParameters, current: ScheduleParameters) => {
   const hasChanges = !deepEqual(candidate, current, {
     exclude: {
       scheduleName: true

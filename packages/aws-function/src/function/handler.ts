@@ -1,5 +1,5 @@
-import type { Arn } from '@ez4/aws-common';
 import type { StepContext, StepHandler } from '@ez4/stateful';
+import type { Arn } from '@ez4/aws-common';
 import type { FunctionState, FunctionResult, FunctionParameters } from './types.js';
 
 import { InvalidParameterValueException } from '@aws-sdk/client-lambda';
@@ -63,11 +63,7 @@ const previewResource = async (candidate: FunctionState, current: FunctionState)
   };
 };
 
-const replaceResource = async (
-  candidate: FunctionState,
-  current: FunctionState,
-  context: StepContext
-) => {
+const replaceResource = async (candidate: FunctionState, current: FunctionState, context: StepContext) => {
   if (current.result) {
     throw new ReplaceResourceError(FunctionServiceName, candidate.entryId, current.entryId);
   }
@@ -75,19 +71,13 @@ const replaceResource = async (
   return createResource(candidate, context);
 };
 
-const createResource = async (
-  candidate: FunctionState,
-  context: StepContext
-): Promise<FunctionResult> => {
+const createResource = async (candidate: FunctionState, context: StepContext): Promise<FunctionResult> => {
   const parameters = candidate.parameters;
 
   const functionName = parameters.functionName;
   const roleArn = getRoleArn(FunctionServiceName, functionName, context);
 
-  const [sourceFile, sourceHash] = await Promise.all([
-    parameters.getFunctionBundle(context),
-    bundleHash(parameters.sourceFile)
-  ]);
+  const [sourceFile, sourceHash] = await Promise.all([parameters.getFunctionBundle(context), bundleHash(parameters.sourceFile)]);
 
   const importedFunction = await importFunction(functionName);
 
@@ -146,11 +136,7 @@ const createResource = async (
   };
 };
 
-const updateResource = async (
-  candidate: FunctionState,
-  current: FunctionState,
-  context: StepContext
-) => {
+const updateResource = async (candidate: FunctionState, current: FunctionState, context: StepContext) => {
   const { parameters, result } = candidate;
 
   if (!result) {
@@ -171,12 +157,7 @@ const updateResource = async (
   ]);
 
   // Should always perform for last.
-  const sourceHash = await checkSourceCodeUpdates(
-    functionName,
-    parameters,
-    current.result,
-    context
-  );
+  const sourceHash = await checkSourceCodeUpdates(functionName, parameters, current.result, context);
 
   lockSensitiveData(candidate);
 
@@ -207,11 +188,7 @@ const lockSensitiveData = (candidate: FunctionState) => {
   return candidate;
 };
 
-const checkConfigurationUpdates = async (
-  functionName: string,
-  candidate: FunctionParameters,
-  current: FunctionParameters
-) => {
+const checkConfigurationUpdates = async (functionName: string, candidate: FunctionParameters, current: FunctionParameters) => {
   const protectedCandidate = {
     ...candidate,
     ...(candidate.variables && {
@@ -232,11 +209,7 @@ const checkConfigurationUpdates = async (
   }
 };
 
-const checkTagUpdates = async (
-  functionArn: Arn,
-  candidate: FunctionParameters,
-  current: FunctionParameters
-) => {
+const checkTagUpdates = async (functionArn: Arn, candidate: FunctionParameters, current: FunctionParameters) => {
   await applyTagUpdates(
     candidate.tags,
     current.tags,

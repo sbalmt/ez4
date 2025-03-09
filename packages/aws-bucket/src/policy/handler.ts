@@ -2,6 +2,7 @@ import type { StepContext, StepHandler } from '@ez4/stateful';
 import type { PolicyState, PolicyResult } from './types.js';
 
 import { ReplaceResourceError } from '@ez4/aws-common';
+import { deepCompare } from '@ez4/utils';
 
 import { getBucketName } from '../bucket/utils.js';
 import { createPolicy, deletePolicy } from './client.js';
@@ -20,16 +21,27 @@ const equalsResource = (candidate: PolicyState, current: PolicyState) => {
   return !!candidate.result && candidate.result.bucketName === current.result?.bucketName;
 };
 
-const previewResource = async () => {
-  // Policy is generated dynamically, no changes to compare.
-  return undefined;
+const previewResource = async (candidate: PolicyState, current: PolicyState) => {
+  const target = { ...candidate.parameters, dependencies: candidate.dependencies };
+  const source = { ...current.parameters, dependencies: current.dependencies };
+
+  const changes = deepCompare(target, source, {
+    exclude: {
+      getRole: true
+    }
+  });
+
+  if (!changes.counts) {
+    return undefined;
+  }
+
+  return {
+    ...changes,
+    name: target.fromService
+  };
 };
 
-const replaceResource = async (
-  candidate: PolicyState,
-  current: PolicyState,
-  context: StepContext
-) => {
+const replaceResource = async (candidate: PolicyState, current: PolicyState, context: StepContext) => {
   if (current.result) {
     throw new ReplaceResourceError(PolicyServiceName, candidate.entryId, current.entryId);
   }
@@ -37,10 +49,7 @@ const replaceResource = async (
   return createResource(candidate, context);
 };
 
-const createResource = async (
-  candidate: PolicyState,
-  context: StepContext
-): Promise<PolicyResult> => {
+const createResource = async (candidate: PolicyState, context: StepContext): Promise<PolicyResult> => {
   const parameters = candidate.parameters;
 
   const bucketName = getBucketName(PolicyServiceName, 'policy', context);

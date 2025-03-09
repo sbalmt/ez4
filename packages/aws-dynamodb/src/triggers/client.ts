@@ -1,27 +1,34 @@
+import type { DeployOptions, EventContext, ExtraSource } from '@ez4/project/library';
 import type { DatabaseService, TableIndex } from '@ez4/database/library';
-import type { DeployOptions, ExtraSource } from '@ez4/project/library';
 
 import { Index } from '@ez4/database';
 
+import { getTableState } from '../table/utils.js';
 import { getTableName } from './utils.js';
 
-export const prepareLinkedClient = (
-  service: DatabaseService,
-  options: DeployOptions
-): ExtraSource => {
-  const repository = service.tables.reduce((current, table) => {
-    return {
-      ...current,
-      [table.name]: {
-        name: getTableName(service, table, options),
-        indexes: getTableIndexes(table.indexes),
-        schema: table.schema
-      }
-    };
-  }, {});
+export const prepareLinkedClient = (context: EventContext, service: DatabaseService, options: DeployOptions): ExtraSource => {
+  const tableIds: string[] = [];
+
+  const repository = JSON.stringify(
+    service.tables.reduce((current, table) => {
+      const tableState = getTableState(context, table.name, options);
+
+      tableIds.push(tableState.entryId);
+
+      return {
+        ...current,
+        [table.name]: {
+          name: getTableName(service, table, options),
+          indexes: getTableIndexes(table.indexes),
+          schema: table.schema
+        }
+      };
+    }, {})
+  );
 
   return {
-    constructor: `make(${JSON.stringify(repository)}, ${options.debug ? 'true' : 'false'})`,
+    entryIds: tableIds,
+    constructor: `make(${repository}, ${options.debug ? 'true' : 'false'})`,
     from: '@ez4/aws-dynamodb/client',
     module: 'Client'
   };

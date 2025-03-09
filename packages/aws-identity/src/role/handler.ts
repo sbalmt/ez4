@@ -1,23 +1,13 @@
-import type { Arn } from '@ez4/aws-common';
 import type { StepContext, StepHandler } from '@ez4/stateful';
+import type { Arn } from '@ez4/aws-common';
 import type { PolicyState } from '../policy/types.js';
 import type { RoleState, RoleResult, RoleParameters } from './types.js';
 
 import { applyTagUpdates, IncompleteResourceError, ReplaceResourceError } from '@ez4/aws-common';
 import { deepCompare, deepEqual } from '@ez4/utils';
 
-import {
-  attachPolicy,
-  createRole,
-  deleteRole,
-  detachPolicy,
-  tagRole,
-  untagRole,
-  updateAssumeRole,
-  updateRole
-} from './client.js';
-
 import { PolicyServiceType } from '../policy/types.js';
+import { attachPolicy, createRole, deleteRole, detachPolicy, tagRole, untagRole, updateAssumeRole, updateRole } from './client.js';
 import { RoleServiceName } from './types.js';
 
 export const getRoleHandler = (): StepHandler<RoleState> => ({
@@ -122,21 +112,13 @@ const getPolicyArns = (roleName: string, policyStates: PolicyState[]) => {
   });
 };
 
-const checkGeneralUpdates = async (
-  roleName: string,
-  candidate: RoleParameters,
-  current: RoleParameters
-) => {
+const checkGeneralUpdates = async (roleName: string, candidate: RoleParameters, current: RoleParameters) => {
   if (candidate.description !== current.description) {
     await updateRole(roleName, candidate.description);
   }
 };
 
-const checkDocumentUpdates = async (
-  roleName: string,
-  candidate: RoleParameters,
-  current: RoleParameters
-) => {
+const checkDocumentUpdates = async (roleName: string, candidate: RoleParameters, current: RoleParameters) => {
   const hasChanges = !deepEqual(candidate.roleDocument, current.roleDocument);
 
   if (hasChanges) {
@@ -151,19 +133,12 @@ const checkPolicyUpdates = async (roleName: string, newPolicyArns: Arn[], oldPol
   const policiesToAttach = newPolicyArns.filter((policyArn) => !oldPolicyArnSet.has(policyArn));
   const policiesToDetach = oldPolicyArns.filter((policyArn) => !newPolicyArnSet.has(policyArn));
 
-  await Promise.all([
-    attachPolicies(roleName, policiesToAttach),
-    detachPolicies(roleName, policiesToDetach)
-  ]);
+  await Promise.all([attachPolicies(roleName, policiesToAttach), detachPolicies(roleName, policiesToDetach)]);
 
   return newPolicyArns;
 };
 
-const checkTagUpdates = async (
-  roleName: string,
-  candidate: RoleParameters,
-  current: RoleParameters
-) => {
+const checkTagUpdates = async (roleName: string, candidate: RoleParameters, current: RoleParameters) => {
   await applyTagUpdates(
     candidate.tags,
     current.tags,

@@ -1,19 +1,11 @@
-import type { Arn } from '@ez4/aws-common';
 import type { StepHandler } from '@ez4/stateful';
+import type { Arn } from '@ez4/aws-common';
 import type { ClusterState, ClusterResult, ClusterParameters } from './types.js';
 
 import { applyTagUpdates, ReplaceResourceError } from '@ez4/aws-common';
 import { deepCompare, deepEqual } from '@ez4/utils';
 
-import {
-  importCluster,
-  createCluster,
-  updateCluster,
-  deleteCluster,
-  tagCluster,
-  untagCluster
-} from './client.js';
-
+import { importCluster, createCluster, updateCluster, deleteCluster, tagCluster, untagCluster } from './client.js';
 import { ClusterServiceName } from './types.js';
 
 export const getClusterHandler = (): StepHandler<ClusterState> => ({
@@ -56,8 +48,7 @@ const replaceResource = async (candidate: ClusterState, current: ClusterState) =
 const createResource = async (candidate: ClusterState): Promise<ClusterResult> => {
   const { clusterName } = candidate.parameters;
 
-  const response =
-    (await importCluster(clusterName)) ?? (await createCluster(candidate.parameters));
+  const response = (await importCluster(clusterName)) ?? (await createCluster(candidate.parameters));
 
   const { clusterArn, writerEndpoint, readerEndpoint, secretArn } = response;
 
@@ -114,11 +105,7 @@ const checkGeneralUpdates = async (
   return result;
 };
 
-const checkTagUpdates = async (
-  clusterArn: Arn,
-  candidate: ClusterParameters,
-  current: ClusterParameters
-) => {
+const checkTagUpdates = async (clusterArn: Arn, candidate: ClusterParameters, current: ClusterParameters) => {
   await applyTagUpdates(
     candidate.tags,
     current.tags,

@@ -10,6 +10,7 @@ export type GetSubscriptionTopicArn = (context: StepContext) => Promise<Arn> | A
 export type GetSubscriptionEndpoint = (context: StepContext) => Promise<string> | string;
 
 export type SubscriptionParameters = {
+  fromService: string;
   getTopicArn: GetSubscriptionTopicArn;
   getEndpoint: GetSubscriptionEndpoint;
 };

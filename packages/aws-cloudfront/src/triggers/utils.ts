@@ -8,11 +8,7 @@ import { createHash } from 'node:crypto';
 import { getServiceName } from '@ez4/project/library';
 import { toKebabCase } from '@ez4/utils';
 
-export const getCachePolicyName = (
-  service: CdnService,
-  origin: CdnOrigin,
-  options: DeployOptions
-) => {
+export const getCachePolicyName = (service: CdnService, origin: CdnOrigin, options: DeployOptions) => {
   const name = toKebabCase(origin.path ?? 'default');
 
   return `${getServiceName(service, options)}-${name}-cache`;
@@ -27,10 +23,12 @@ export const getOriginAccessName = (service: CdnService, options: DeployOptions)
 };
 
 export const getContentVersion = async (localPath: string) => {
-  const basePath = join(process.cwd(), localPath);
-  const version = createHash('sha256');
+  const basePath = process.cwd();
+  const fullPath = join(basePath, localPath);
 
-  const allFiles = await readdir(basePath, {
+  const contentHash = createHash('sha256');
+
+  const allFiles = await readdir(fullPath, {
     withFileTypes: true,
     recursive: true
   });
@@ -43,11 +41,11 @@ export const getContentVersion = async (localPath: string) => {
     const filePath = join(file.parentPath, file.name);
     const fileStat = await stat(filePath);
 
-    const relativePath = relative(basePath, filePath);
+    const relativePath = relative(fullPath, filePath);
     const lastModified = fileStat.mtime.getTime();
 
-    version.update(`${relativePath}:${lastModified}`);
+    contentHash.update(`${relativePath}:${lastModified}`);
   }
 
-  return version.digest('hex');
+  return contentHash.digest('hex');
 };

@@ -13,10 +13,10 @@ export const getBucketObjectPath = (bucketName: string, objectKey: string) => {
 export const getBucketObjectFiles = (context: StepContext) => {
   const resources = context.getDependencies<ObjectState>(ObjectServiceType);
 
-  return resources.map(({ result }) => {
+  return resources.map(({ result, parameters }) => {
     return {
       lastModified: result?.lastModified,
-      objectKey: result?.objectKey
+      objectKey: parameters.objectKey
     };
   });
 };

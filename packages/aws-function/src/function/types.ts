@@ -6,7 +6,7 @@ export const FunctionServiceName = 'AWS:Lambda/Function';
 
 export const FunctionServiceType = 'aws:lambda.function';
 
-type GetFunctionBundle = (context: StepContext) => Promise<string> | string;
+export type GetFunctionBundle = (context: StepContext) => Promise<string> | string;
 
 export type FunctionParameters = Omit<CreateRequest, 'roleArn'> & {
   getFunctionBundle: GetFunctionBundle;
