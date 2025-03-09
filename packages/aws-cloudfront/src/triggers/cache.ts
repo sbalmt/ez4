@@ -3,31 +3,18 @@ import type { EntryStates } from '@ez4/stateful';
 
 import { CdnService, CdnOrigin, isCdnBucketOrigin } from '@ez4/distribution/library';
 import { getBucketDomain, getBucketState } from '@ez4/aws-bucket';
+import { getServiceName } from '@ez4/project/library';
 import { OriginProtocol } from '@ez4/distribution';
 
 import { DistributionAdditionalOrigin, DistributionDefaultOrigin } from '../distribution/types.js';
 import { createCachePolicy } from '../cache/service.js';
 import { getCachePolicyName } from './utils.js';
 
-export const getDefaultOriginCache = async (
-  state: EntryStates,
-  service: CdnService,
-  options: DeployOptions
-) => {
-  return getOriginCache<DistributionDefaultOrigin>(
-    state,
-    service,
-    'default',
-    service.defaultOrigin,
-    options
-  );
+export const getDefaultOriginCache = async (state: EntryStates, service: CdnService, options: DeployOptions) => {
+  return getOriginCache<DistributionDefaultOrigin>(state, service, 'default', service.defaultOrigin, options);
 };
 
-export const getAdditionalOriginCache = async (
-  state: EntryStates,
-  service: CdnService,
-  options: DeployOptions
-) => {
+export const getAdditionalOriginCache = async (state: EntryStates, service: CdnService, options: DeployOptions) => {
   const { origins } = service;
 
   if (!origins?.length) {
@@ -35,13 +22,7 @@ export const getAdditionalOriginCache = async (
   }
 
   const promises = origins.map((origin, index) =>
-    getOriginCache<DistributionAdditionalOrigin>(
-      state,
-      service,
-      `origin_${index + 1}`,
-      origin,
-      options
-    )
+    getOriginCache<DistributionAdditionalOrigin>(state, service, `origin_${index + 1}`, origin, options)
   );
 
   return Promise.all(promises);
@@ -72,7 +53,9 @@ const getOriginCache = async <T extends DistributionDefaultOrigin | Distribution
     cachePolicyId: originCache.entryId,
     getDistributionOrigin: async () => {
       if (isCdnBucketOrigin(origin)) {
-        const bucketState = getBucketState(state, origin.bucket);
+        const bucketId = getServiceName(origin.bucket, options);
+        const bucketState = getBucketState(state, bucketId);
+
         const bucketName = bucketState.parameters.bucketName;
         const bucketDomain = await getBucketDomain(bucketName);
 

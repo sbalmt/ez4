@@ -79,16 +79,15 @@ export const connectCdnServices = async (event: ConnectResourceEvent) => {
 
   const contentVersions: string[] = [];
 
-  const allOrigins = service.origins
-    ? [service.defaultOrigin, ...service.origins]
-    : [service.defaultOrigin];
+  const allOrigins = service.origins ? [service.defaultOrigin, ...service.origins] : [service.defaultOrigin];
 
   for (const origin of allOrigins) {
     if (!isCdnBucketOrigin(origin)) {
       continue;
     }
 
-    const bucketState = getBucketState(state, origin.bucket);
+    const bucketId = getServiceName(origin.bucket, options);
+    const bucketState = getBucketState(state, bucketId);
 
     connectOriginBucket(state, service, bucketState, options);
 
