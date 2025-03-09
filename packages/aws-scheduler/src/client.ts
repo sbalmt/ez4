@@ -109,13 +109,9 @@ export namespace Client {
         const target = response.Target;
         const policy = target?.RetryPolicy;
 
-        const date = event.date
-          ? `at(${event.date.toISOString().substring(0, 19)})`
-          : response.ScheduleExpression;
+        const date = event.date ? `at(${event.date.toISOString().substring(0, 19)})` : response.ScheduleExpression;
 
-        const message = event.event
-          ? await getJsonStringEvent(event.event, parameters.schema)
-          : target?.Input;
+        const message = event.event ? await getJsonStringEvent(event.event, parameters.schema) : target?.Input;
 
         const defaults = parameters.defaults;
 

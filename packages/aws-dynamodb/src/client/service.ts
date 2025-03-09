@@ -19,10 +19,7 @@ const client = DynamoDBDocumentClient.from(new DynamoDBClient(), {
 const tableCache: Record<string, TableType> = {};
 
 export namespace Client {
-  export const make = <T extends Database.Service>(
-    repository: Repository,
-    debug?: boolean
-  ): DbClient<T> => {
+  export const make = <T extends Database.Service>(repository: Repository, debug?: boolean): DbClient<T> => {
     const instance = new (class {
       async rawQuery(query: string, values: unknown[]) {
         const command = { ConsistentRead: true, Parameters: values, Statement: query };
@@ -70,10 +67,7 @@ export namespace Client {
   };
 }
 
-const prepareTransactions = async <
-  T extends Database.Service,
-  U extends Transaction.WriteOperations<T>
->(
+const prepareTransactions = async <T extends Database.Service, U extends Transaction.WriteOperations<T>>(
   repository: Repository,
   operations: U
 ) => {

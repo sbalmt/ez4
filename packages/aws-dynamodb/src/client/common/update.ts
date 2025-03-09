@@ -2,8 +2,8 @@ import type { Database, Query, RelationMetadata } from '@ez4/database';
 import type { ObjectSchema } from '@ez4/schema';
 import type { AnyObject } from '@ez4/utils';
 
-import { SchemaType } from '@ez4/schema';
 import { isAnyObject } from '@ez4/utils';
+import { SchemaType } from '@ez4/schema';
 
 import { prepareWhereFields } from './where.js';
 import { isSkippableData } from './data.js';
@@ -40,11 +40,7 @@ export const prepareUpdate = <
   return [statement.join(' '), variables];
 };
 
-const prepareUpdateFields = (
-  data: AnyObject,
-  schema: ObjectSchema,
-  path?: string
-): PrepareResult => {
+const prepareUpdateFields = (data: AnyObject, schema: ObjectSchema, path?: string): PrepareResult => {
   const operations: string[] = [];
   const variables: unknown[] = [];
 
@@ -82,11 +78,7 @@ const prepareUpdateFields = (
       continue;
     }
 
-    const [nestedOperations, nestedVariables] = prepareUpdateFields(
-      fieldValue,
-      fieldSchema,
-      fieldPath
-    );
+    const [nestedOperations, nestedVariables] = prepareUpdateFields(fieldValue, fieldSchema, fieldPath);
 
     operations.push(nestedOperations);
     variables.push(...nestedVariables);

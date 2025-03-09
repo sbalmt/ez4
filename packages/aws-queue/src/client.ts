@@ -1,16 +1,11 @@
 import type { Queue, ReceiveOptions, SendOptions, Client as SqsClient } from '@ez4/queue';
 import type { SendMessageRequest } from '@aws-sdk/client-sqs';
 import type { MessageSchema } from '@ez4/aws-queue/runtime';
-import type { QueueFifoMode } from '@ez4/queue/library';
 import type { AnyObject } from '@ez4/utils';
 
 import { ReceiveMessageCommand, SendMessageCommand, SQSClient } from '@aws-sdk/client-sqs';
 
-import {
-  MissingMessageGroupError,
-  getJsonMessage,
-  getJsonStringMessage
-} from '@ez4/aws-queue/runtime';
+import { MissingMessageGroupError, getJsonMessage, getJsonStringMessage } from '@ez4/aws-queue/runtime';
 
 const client = new SQSClient({});
 
@@ -20,7 +15,7 @@ export namespace Client {
   export const make = <T extends Queue.Message>(
     queueUrl: string,
     messageSchema: MessageSchema,
-    fifoMode?: QueueFifoMode
+    fifoMode?: Queue.FifoMode<T>
   ): SqsClient<T> => {
     return new (class {
       async sendMessage(message: T, options?: SendOptions) {
@@ -57,7 +52,7 @@ export namespace Client {
   };
 }
 
-const getFifoParameters = (message: AnyObject, fifoMode: QueueFifoMode) => {
+const getFifoParameters = <T extends Queue.Message>(message: AnyObject, fifoMode: Queue.FifoMode<T>) => {
   const parameters: FifoParameters = {};
 
   if (fifoMode) {
@@ -66,7 +61,7 @@ const getFifoParameters = (message: AnyObject, fifoMode: QueueFifoMode) => {
     parameters.MessageGroupId = `${message[groupId]}`;
 
     if (!parameters.MessageGroupId) {
-      throw new MissingMessageGroupError(groupId);
+      throw new MissingMessageGroupError(groupId.toString());
     }
 
     if (uniqueId && message[uniqueId]) {

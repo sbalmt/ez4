@@ -1,12 +1,10 @@
+import type { ObjectSchema, PartialSchemaProperties } from '@ez4/schema';
 import type { AnyObject } from '@ez4/utils';
-import type { PartialSchemaProperties } from '@ez4/schema/library';
-import type { ObjectSchema } from '@ez4/schema';
 import type { RepositoryRelationsWithSchema } from '../../types/repository.js';
 
+import { validate, getUniqueErrorMessages } from '@ez4/validator';
+import { getPartialSchema, SchemaType } from '@ez4/schema';
 import { isAnyObject } from '@ez4/utils';
-import { getUniqueErrorMessages } from '@ez4/validator';
-import { getPartialSchema, SchemaType } from '@ez4/schema/library';
-import { validate } from '@ez4/validator';
 import { Index } from '@ez4/database';
 
 import { MalformedRequestError, MissingRelationDataError } from './errors.js';
@@ -22,11 +20,7 @@ export const validateSchema = async (data: AnyObject, schema: ObjectSchema) => {
   }
 };
 
-export const getInsertSchema = (
-  schema: ObjectSchema,
-  relations: RepositoryRelationsWithSchema,
-  data: AnyObject
-): ObjectSchema => {
+export const getInsertSchema = (schema: ObjectSchema, relations: RepositoryRelationsWithSchema, data: AnyObject): ObjectSchema => {
   const finalSchema = getNewSchema(schema);
 
   for (const alias in relations) {
@@ -106,11 +100,7 @@ export const getInsertSchema = (
   return finalSchema;
 };
 
-export const getUpdateSchema = (
-  schema: ObjectSchema,
-  relations: RepositoryRelationsWithSchema,
-  data: AnyObject
-) => {
+export const getUpdateSchema = (schema: ObjectSchema, relations: RepositoryRelationsWithSchema, data: AnyObject) => {
   const finalSchema = getNewSchema(schema);
 
   for (const alias in relations) {
