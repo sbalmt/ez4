@@ -105,6 +105,8 @@ export const createTable = async (request: CreateRequest): Promise<CreateRespons
 
   const tableName = tableDescription.TableName!;
 
+  Logger.logWait(TableServiceName, tableName);
+
   await waitUntilTableExists(waiter, {
     TableName: tableName
   });
@@ -230,6 +232,8 @@ export const deleteTable = async (tableName: string) => {
         TableName: tableName
       })
     );
+
+    Logger.logWait(TableServiceName, tableName);
 
     await waitUntilTableNotExists(waiter, {
       TableName: tableName

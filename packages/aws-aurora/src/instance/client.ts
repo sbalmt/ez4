@@ -53,6 +53,8 @@ export const createInstance = async (request: CreateRequest): Promise<CreateResp
     })
   );
 
+  Logger.logWait(InstanceServiceName, instanceName);
+
   await waitUntilDBInstanceAvailable(waiter, {
     DBInstanceIdentifier: instanceName
   });
@@ -100,6 +102,8 @@ export const deleteInstance = async (instanceName: string) => {
         SkipFinalSnapshot: true
       })
     );
+
+    Logger.logWait(InstanceServiceName, instanceName);
 
     await waitUntilDBInstanceDeleted(waiter, {
       DBInstanceIdentifier: instanceName

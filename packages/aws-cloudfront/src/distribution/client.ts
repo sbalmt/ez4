@@ -114,6 +114,8 @@ export const createDistribution = async (request: CreateRequest): Promise<Create
 
   const distributionId = distribution.Id!;
 
+  Logger.logWait(DistributionServiceName, distributionId);
+
   await waitUntilDistributionDeployed(waiter, {
     Id: distributionId
   });
@@ -139,6 +141,8 @@ export const updateDistribution = async (distributionId: string, request: Update
       }
     })
   );
+
+  Logger.logWait(DistributionServiceName, distributionId);
 
   await waitUntilDistributionDeployed(waiter, {
     Id: distributionId

@@ -10,12 +10,20 @@ import {
   AddTagsToCertificateCommand,
   RemoveTagsFromCertificateCommand,
   ValidationMethod,
-  ResourceNotFoundException
+  ResourceNotFoundException,
+  waitUntilCertificateValidated
 } from '@aws-sdk/client-acm';
 
 import { CertificateServiceName } from './types.js';
 
 const client = new ACMClient({});
+
+const waiter = {
+  minDelay: 15,
+  maxWaitTime: 1800,
+  maxDelay: 60,
+  client
+};
 
 export type CreateRequest = {
   domainName: string;
@@ -55,6 +63,12 @@ export const createCertificate = async (request: CreateRequest): Promise<CreateR
   );
 
   const certificateArn = response.CertificateArn as Arn;
+
+  Logger.logWait(CertificateServiceName, domainName);
+
+  await waitUntilCertificateValidated(waiter, {
+    CertificateArn: certificateArn
+  });
 
   return {
     certificateArn

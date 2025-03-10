@@ -103,6 +103,8 @@ export const createCluster = async (request: CreateRequest): Promise<ImportOrCre
     })
   );
 
+  Logger.logWait(ClusterServiceName, clusterName);
+
   await waitUntilDBClusterAvailable(waiter, {
     DBClusterIdentifier: clusterName
   });
@@ -130,6 +132,8 @@ export const updateCluster = async (clusterName: string, request: UpdateRequest)
       ApplyImmediately: true
     })
   );
+
+  Logger.logWait(ClusterServiceName, clusterName);
 
   await waitUntilDBClusterAvailable(waiter, {
     DBClusterIdentifier: clusterName
@@ -180,6 +184,8 @@ export const deleteCluster = async (clusterName: string) => {
         SkipFinalSnapshot: true
       })
     );
+
+    Logger.logWait(ClusterServiceName, clusterName);
 
     await waitUntilDBClusterDeleted(waiter, {
       DBClusterIdentifier: clusterName
