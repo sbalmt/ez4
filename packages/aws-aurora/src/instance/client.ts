@@ -9,7 +9,8 @@ import {
   AddTagsToResourceCommand,
   RemoveTagsFromResourceCommand,
   waitUntilDBInstanceAvailable,
-  waitUntilDBInstanceDeleted
+  waitUntilDBInstanceDeleted,
+  DBInstanceNotFoundFault
 } from '@aws-sdk/client-rds';
 
 import { InstanceServiceName } from './types.js';
@@ -52,6 +53,8 @@ export const createInstance = async (request: CreateRequest): Promise<CreateResp
     })
   );
 
+  Logger.logWait(InstanceServiceName, instanceName);
+
   await waitUntilDBInstanceAvailable(waiter, {
     DBInstanceIdentifier: instanceName
   });
@@ -92,14 +95,26 @@ export const untagInstance = async (instanceArn: Arn, tagKeys: string[]) => {
 export const deleteInstance = async (instanceName: string) => {
   Logger.logDelete(InstanceServiceName, instanceName);
 
-  await client.send(
-    new DeleteDBInstanceCommand({
-      DBInstanceIdentifier: instanceName,
-      SkipFinalSnapshot: true
-    })
-  );
+  try {
+    await client.send(
+      new DeleteDBInstanceCommand({
+        DBInstanceIdentifier: instanceName,
+        SkipFinalSnapshot: true
+      })
+    );
 
-  await waitUntilDBInstanceDeleted(waiter, {
-    DBInstanceIdentifier: instanceName
-  });
+    Logger.logWait(InstanceServiceName, instanceName);
+
+    await waitUntilDBInstanceDeleted(waiter, {
+      DBInstanceIdentifier: instanceName
+    });
+
+    return true;
+  } catch (error) {
+    if (!(error instanceof DBInstanceNotFoundFault)) {
+      throw error;
+    }
+
+    return false;
+  }
 };

@@ -32,11 +32,7 @@ const previewResource = async (candidate: RouteState, current: RouteState) => {
   return changes.counts ? changes : undefined;
 };
 
-const replaceResource = async (
-  candidate: RouteState,
-  current: RouteState,
-  context: StepContext
-) => {
+const replaceResource = async (candidate: RouteState, current: RouteState, context: StepContext) => {
   if (current.result) {
     throw new ReplaceResourceError(RouteServiceName, candidate.entryId, current.entryId);
   }
@@ -44,10 +40,7 @@ const replaceResource = async (
   return createResource(candidate, context);
 };
 
-const createResource = async (
-  candidate: RouteState,
-  context: StepContext
-): Promise<RouteResult> => {
+const createResource = async (candidate: RouteState, context: StepContext): Promise<RouteResult> => {
   const parameters = candidate.parameters;
 
   const authorizerId = tryGetAuthorizerId(context);
@@ -113,12 +106,7 @@ const deleteResource = async (candidate: RouteState) => {
   }
 };
 
-const checkGeneralUpdates = async <T extends RouteParameters>(
-  apiId: string,
-  routeId: string,
-  candidate: T,
-  current: T
-) => {
+const checkGeneralUpdates = async <T extends RouteParameters>(apiId: string, routeId: string, candidate: T, current: T) => {
   const hasChanges = !deepEqual(candidate, current);
 
   if (hasChanges) {

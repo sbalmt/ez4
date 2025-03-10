@@ -2,6 +2,7 @@
   "TestNotification1": {
     "type": "@ez4/notification",
     "name": "TestNotification1",
+    "extras": {},
     "description": "First test notification description.",
     "schema": {
       "type": "object",
@@ -16,6 +17,7 @@
   "TestNotification2": {
     "type": "@ez4/notification",
     "name": "TestNotification2",
+    "extras": {},
     "description": "Description of the second test notification.",
     "schema": {
       "type": "object",

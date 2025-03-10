@@ -3,7 +3,7 @@ import type { ObjectSchema, UnionSchema } from '@ez4/schema/library';
 
 import { isTypeObject, isTypeReference, isTypeUndefined, isTypeUnion } from '@ez4/reflection';
 import { createUnionSchema, getObjectSchema, isObjectSchema } from '@ez4/schema/library';
-import { isModelDeclaration } from '@ez4/common/library';
+import { getReferenceType, isModelDeclaration } from '@ez4/common/library';
 
 import { IncorrectIdentityTypeError, InvalidIdentityTypeError } from '../errors/identity.js';
 import { isHttpIdentity } from './utils.js';
@@ -22,7 +22,7 @@ export const getHttpIdentity = (
     return getTypeIdentity(type, parent, reflection, errorList);
   }
 
-  const statement = reflection[type.path];
+  const statement = getReferenceType(type, reflection);
 
   if (statement) {
     return getTypeIdentity(statement, parent, reflection, errorList);

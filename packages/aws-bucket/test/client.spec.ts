@@ -14,6 +14,7 @@ describe.only('bucket client', () => {
 
   let lastState: EntryStates | undefined;
   let bucketId: string | undefined;
+
   let bucketClient: ReturnType<typeof Client.make>;
 
   registerTriggers();
@@ -102,10 +103,7 @@ describe.only('bucket client', () => {
   it('assert :: delete object', async () => {
     ok(bucketClient);
 
-    await Promise.all([
-      bucketClient.delete('test-client'),
-      bucketClient.delete('test-client-plain')
-    ]);
+    await Promise.all([bucketClient.delete('test-client'), bucketClient.delete('test-client-plain')]);
   });
 
   it('assert :: destroy', async () => {

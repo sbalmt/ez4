@@ -1,9 +1,10 @@
-import type { Incomplete } from '@ez4/utils';
-import type { MemberType } from '@ez4/common/library';
 import type { AllType, ModelProperty, SourceMap, TypeModel, TypeObject } from '@ez4/reflection';
+import type { MemberType } from '@ez4/common/library';
+import type { Incomplete } from '@ez4/utils';
 import type { QueueSubscription } from '../types/common.js';
 
 import {
+  InvalidServicePropertyError,
   isModelDeclaration,
   getLinkedVariableList,
   getModelMembers,
@@ -11,27 +12,16 @@ import {
   getPropertyNumber,
   getPropertyTuple,
   getServiceListener,
-  InvalidServicePropertyError
+  getReferenceType
 } from '@ez4/common/library';
 
 import { isModelProperty, isTypeObject, isTypeReference } from '@ez4/reflection';
-import { isAnyNumber } from '@ez4/utils';
 
-import {
-  IncompleteSubscriptionError,
-  IncorrectSubscriptionTypeError,
-  InvalidSubscriptionTypeError
-} from '../errors/subscription.js';
-
+import { IncompleteSubscriptionError, IncorrectSubscriptionTypeError, InvalidSubscriptionTypeError } from '../errors/subscription.js';
 import { getSubscriptionHandler } from './handler.js';
 import { isQueueSubscription } from './utils.js';
 
-export const getAllSubscription = (
-  member: ModelProperty,
-  parent: TypeModel,
-  reflection: SourceMap,
-  errorList: Error[]
-) => {
+export const getAllSubscription = (member: ModelProperty, parent: TypeModel, reflection: SourceMap, errorList: Error[]) => {
   const subscriptionItems = getPropertyTuple(member) ?? [];
   const resultList: QueueSubscription[] = [];
 
@@ -46,17 +36,12 @@ export const getAllSubscription = (
   return resultList;
 };
 
-const getQueueSubscription = (
-  type: AllType,
-  parent: TypeModel,
-  reflection: SourceMap,
-  errorList: Error[]
-) => {
+const getQueueSubscription = (type: AllType, parent: TypeModel, reflection: SourceMap, errorList: Error[]) => {
   if (!isTypeReference(type)) {
     return getTypeSubscription(type, parent, reflection, errorList);
   }
 
-  const statement = reflection[type.path];
+  const statement = getReferenceType(type, reflection);
 
   if (statement) {
     return getTypeSubscription(statement, parent, reflection, errorList);
@@ -69,14 +54,9 @@ const isValidSubscription = (type: Incomplete<QueueSubscription>): type is Queue
   return !!type.handler;
 };
 
-const getTypeSubscription = (
-  type: AllType,
-  parent: TypeModel,
-  reflection: SourceMap,
-  errorList: Error[]
-) => {
+const getTypeSubscription = (type: AllType, parent: TypeModel, reflection: SourceMap, errorList: Error[]) => {
   if (isTypeObject(type)) {
-    return getTypeFromMembers(type, getObjectMembers(type), reflection, errorList);
+    return getTypeFromMembers(type, parent, getObjectMembers(type), reflection, errorList);
   }
 
   if (!isModelDeclaration(type)) {
@@ -89,11 +69,12 @@ const getTypeSubscription = (
     return null;
   }
 
-  return getTypeFromMembers(type, getModelMembers(type), reflection, errorList);
+  return getTypeFromMembers(type, parent, getModelMembers(type), reflection, errorList);
 };
 
 const getTypeFromMembers = (
   type: TypeObject | TypeModel,
+  parent: TypeModel,
   members: MemberType[],
   reflection: SourceMap,
   errorList: Error[]
@@ -111,33 +92,20 @@ const getTypeFromMembers = (
         errorList.push(new InvalidServicePropertyError(parent.name, member.name, type.file));
         break;
 
-      case 'listener': {
-        const value = getServiceListener(member.value, errorList);
-
-        if (value) {
-          subscription.listener = value;
-        }
-
-        break;
-      }
-
-      case 'handler': {
+      case 'handler':
         if ((subscription.handler = getSubscriptionHandler(member.value, reflection, errorList))) {
           properties.delete(member.name);
         }
         break;
-      }
 
       case 'memory':
-      case 'concurrency': {
-        const value = getPropertyNumber(member);
-
-        if (isAnyNumber(value)) {
-          subscription[member.name] = value;
-        }
-
+      case 'concurrency':
+        subscription[member.name] = getPropertyNumber(member);
         break;
-      }
+
+      case 'listener':
+        subscription.listener = getServiceListener(member.value, errorList);
+        break;
 
       case 'variables':
         subscription.variables = getLinkedVariableList(member, errorList);

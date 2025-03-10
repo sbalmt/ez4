@@ -20,7 +20,6 @@ export type NotificationLambdaSubscription = {
   listener?: ServiceListener;
   handler: SubscriptionHandler;
   variables?: LinkedVariables | null;
-  concurrency?: number;
   timeout?: number;
   memory?: number;
 };
@@ -30,6 +29,4 @@ export type NotificationQueueSubscription = {
   service: string;
 };
 
-export type NotificationSubscription =
-  | NotificationLambdaSubscription
-  | NotificationQueueSubscription;
+export type NotificationSubscription = NotificationLambdaSubscription | NotificationQueueSubscription;

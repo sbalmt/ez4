@@ -4,39 +4,28 @@ import type { Incomplete } from '@ez4/utils';
 import type { HttpCors } from '../types/common.js';
 
 import {
+  InvalidServicePropertyError,
+  isModelDeclaration,
   getLiteralString,
   getModelMembers,
   getObjectMembers,
   getPropertyBoolean,
   getPropertyNumber,
   getPropertyTuple,
-  isModelDeclaration
+  getReferenceType
 } from '@ez4/common/library';
 
 import { isModelProperty, isTypeObject, isTypeReference } from '@ez4/reflection';
-import { isAnyBoolean, isAnyNumber } from '@ez4/utils';
 
-import {
-  IncompleteCorsError,
-  IncorrectCorsTypeError,
-  InvalidCorsTypeError
-} from '../errors/cors.js';
-
+import { IncompleteCorsError, IncorrectCorsTypeError, InvalidCorsTypeError } from '../errors/cors.js';
 import { isHttpCors } from './utils.js';
 
-type TypeParent = TypeModel | TypeObject;
-
-export const getHttpCors = (
-  type: AllType,
-  parent: TypeParent,
-  reflection: SourceMap,
-  errorList: Error[]
-) => {
+export const getHttpCors = (type: AllType, parent: TypeModel, reflection: SourceMap, errorList: Error[]) => {
   if (!isTypeReference(type)) {
     return getTypeCors(type, parent, errorList);
   }
 
-  const statement = reflection[type.path];
+  const statement = getReferenceType(type, reflection);
 
   if (statement) {
     return getTypeCors(statement, parent, errorList);
@@ -49,9 +38,9 @@ const isValidCors = (type: Incomplete<HttpCors>): type is HttpCors => {
   return !!type.allowOrigins?.length;
 };
 
-const getTypeCors = (type: AllType, parent: TypeParent, errorList: Error[]) => {
+const getTypeCors = (type: AllType, parent: TypeModel, errorList: Error[]) => {
   if (isTypeObject(type)) {
-    return getTypeFromMembers(type, getObjectMembers(type), errorList);
+    return getTypeFromMembers(type, parent, getObjectMembers(type), errorList);
   }
 
   if (!isModelDeclaration(type)) {
@@ -64,14 +53,10 @@ const getTypeCors = (type: AllType, parent: TypeParent, errorList: Error[]) => {
     return null;
   }
 
-  return getTypeFromMembers(type, getModelMembers(type), errorList);
+  return getTypeFromMembers(type, parent, getModelMembers(type), errorList);
 };
 
-const getTypeFromMembers = (
-  type: TypeObject | TypeModel,
-  members: MemberType[],
-  errorList: Error[]
-) => {
+const getTypeFromMembers = (type: TypeObject | TypeModel, parent: TypeModel, members: MemberType[], errorList: Error[]) => {
   const cors: Incomplete<HttpCors> = {};
   const properties = new Set(['allowOrigins']);
 
@@ -81,32 +66,24 @@ const getTypeFromMembers = (
     }
 
     switch (member.name) {
+      default:
+        errorList.push(new InvalidServicePropertyError(parent.name, member.name, type.file));
+        break;
+
       case 'allowOrigins':
       case 'allowMethods':
       case 'allowHeaders':
-      case 'exposeHeaders': {
-        const values = getStringValues(member);
-        if (values.length) {
-          cors[member.name] = values;
-        }
+      case 'exposeHeaders':
+        cors[member.name] = getStringValues(member);
         break;
-      }
 
-      case 'allowCredentials': {
-        const value = getPropertyBoolean(member);
-        if (isAnyBoolean(value)) {
-          cors[member.name] = value;
-        }
+      case 'allowCredentials':
+        cors.allowCredentials = getPropertyBoolean(member);
         break;
-      }
 
-      case 'maxAge': {
-        const value = getPropertyNumber(member);
-        if (isAnyNumber(value)) {
-          cors[member.name] = value;
-        }
+      case 'maxAge':
+        cors.maxAge = getPropertyNumber(member);
         break;
-      }
     }
   }
 

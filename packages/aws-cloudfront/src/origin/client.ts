@@ -10,7 +10,8 @@ import {
   OriginRequestPolicyQueryStringBehavior,
   UpdateOriginRequestPolicyCommand,
   DeleteOriginRequestPolicyCommand,
-  GetOriginRequestPolicyCommand
+  GetOriginRequestPolicyCommand,
+  NoSuchOriginRequestPolicy
 } from '@aws-sdk/client-cloudfront';
 
 import { OriginServiceName } from './types.js';
@@ -67,14 +68,24 @@ export const updateOriginPolicy = async (policyId: string, request: UpdateReques
 export const deleteOriginPolicy = async (policyId: string) => {
   Logger.logDelete(OriginServiceName, policyId);
 
-  const version = await getCurrentPolicyVersion(policyId);
+  try {
+    const version = await getCurrentPolicyVersion(policyId);
 
-  await client.send(
-    new DeleteOriginRequestPolicyCommand({
-      Id: policyId,
-      IfMatch: version
-    })
-  );
+    await client.send(
+      new DeleteOriginRequestPolicyCommand({
+        Id: policyId,
+        IfMatch: version
+      })
+    );
+
+    return true;
+  } catch (error) {
+    if (!(error instanceof NoSuchOriginRequestPolicy)) {
+      throw error;
+    }
+
+    return false;
+  }
 };
 
 const getCurrentPolicyVersion = async (policyId: string) => {

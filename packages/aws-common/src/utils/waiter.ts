@@ -1,6 +1,6 @@
 import { waitFor } from '@ez4/utils';
 
-export type DeleteAttempter = () => Promise<void>;
+export type DeleteAttempter = () => Promise<unknown>;
 
 export const waitDeletion = async (deleteResource: DeleteAttempter) => {
   await waitFor(async (count, attempts) => {

@@ -4,6 +4,11 @@ import type { ServiceListener } from '@ez4/common/library';
 
 export type QueueMessageSchema = ObjectSchema | UnionSchema;
 
+export type QueueFifoMode = {
+  uniqueId?: string;
+  groupId: string;
+};
+
 export type SubscriptionHandler = {
   name: string;
   file: string;

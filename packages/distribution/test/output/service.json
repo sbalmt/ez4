@@ -2,6 +2,7 @@
   "TestCdn": {
     "type": "@ez4/cdn",
     "name": "TestCdn",
+    "extras": {},
     "description": "Test distribution.",
     "disabled": true,
     "defaultIndex": "index.html",

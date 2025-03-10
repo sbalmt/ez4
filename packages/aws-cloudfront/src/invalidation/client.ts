@@ -1,10 +1,6 @@
 import { Logger } from '@ez4/aws-common';
 
-import {
-  CloudFrontClient,
-  CreateInvalidationCommand,
-  waitUntilInvalidationCompleted
-} from '@aws-sdk/client-cloudfront';
+import { CloudFrontClient, CreateInvalidationCommand, waitUntilInvalidationCompleted } from '@aws-sdk/client-cloudfront';
 
 import { InvalidationServiceName } from './types.js';
 
@@ -32,6 +28,8 @@ export const createInvalidation = async (distributionId: string, paths: string[]
       }
     })
   );
+
+  Logger.logWait(InvalidationServiceName, distributionId);
 
   await waitUntilInvalidationCompleted(waiter, {
     DistributionId: distributionId,

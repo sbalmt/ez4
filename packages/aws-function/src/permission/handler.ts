@@ -25,11 +25,7 @@ const previewResource = async (_candidate: PermissionState, _current: Permission
   return undefined;
 };
 
-const replaceResource = async (
-  candidate: PermissionState,
-  current: PermissionState,
-  context: StepContext
-) => {
+const replaceResource = async (candidate: PermissionState, current: PermissionState, context: StepContext) => {
   if (current.result) {
     throw new ReplaceResourceError(PermissionServiceName, candidate.entryId, current.entryId);
   }
@@ -37,10 +33,7 @@ const replaceResource = async (
   return createResource(candidate, context);
 };
 
-const createResource = async (
-  candidate: PermissionState,
-  context: StepContext
-): Promise<PermissionResult> => {
+const createResource = async (candidate: PermissionState, context: StepContext): Promise<PermissionResult> => {
   const parameters = candidate.parameters;
 
   const functionName = getFunctionName(PermissionServiceName, 'permission', context);

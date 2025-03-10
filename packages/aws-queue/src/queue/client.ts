@@ -8,7 +8,8 @@ import {
   DeleteQueueCommand,
   SetQueueAttributesCommand,
   TagQueueCommand,
-  UntagQueueCommand
+  UntagQueueCommand,
+  QueueDoesNotExist
 } from '@aws-sdk/client-sqs';
 
 import { Logger } from '@ez4/aws-common';
@@ -19,6 +20,7 @@ const client = new SQSClient({});
 
 export type CreateRequest = {
   queueName: string;
+  fifoMode: boolean;
   timeout?: number;
   retention?: number;
   polling?: number;
@@ -47,13 +49,21 @@ export const fetchQueue = async (queueName: string) => {
 };
 
 export const createQueue = async (request: CreateRequest): Promise<CreateResponse> => {
-  Logger.logCreate(QueueServiceName, request.queueName);
+  const { queueName, fifoMode } = request;
+
+  Logger.logCreate(QueueServiceName, queueName);
 
   const response = await client.send(
     new CreateQueueCommand({
-      QueueName: request.queueName,
+      QueueName: queueName,
       Attributes: {
-        ...upsertQueueAttributes(request)
+        ...upsertQueueAttributes(request),
+        ...(fifoMode && {
+          ContentBasedDeduplication: 'true',
+          DeduplicationScope: 'messageGroup',
+          FifoThroughputLimit: 'perMessageGroupId',
+          FifoQueue: 'true'
+        })
       },
       tags: {
         ...request.tags,
@@ -108,16 +118,24 @@ export const untagQueue = async (queueUrl: string, tagKeys: string[]) => {
 export const deleteQueue = async (queueUrl: string) => {
   Logger.logDelete(QueueServiceName, queueUrl);
 
-  await client.send(
-    new DeleteQueueCommand({
-      QueueUrl: queueUrl
-    })
-  );
+  try {
+    await client.send(
+      new DeleteQueueCommand({
+        QueueUrl: queueUrl
+      })
+    );
+
+    return true;
+  } catch (error) {
+    if (!(error instanceof QueueDoesNotExist)) {
+      throw error;
+    }
+
+    return false;
+  }
 };
 
-const upsertQueueAttributes = (
-  request: CreateRequest | UpdateRequest
-): Partial<Record<QueueAttributeName, string>> => {
+const upsertQueueAttributes = (request: CreateRequest | UpdateRequest): Partial<Record<QueueAttributeName, string>> => {
   const { timeout, retention, polling, delay } = request;
 
   return {

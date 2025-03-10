@@ -50,4 +50,8 @@ export class Logger {
   static logDelete(serviceName: string, resource: string) {
     Logger.logInfo(serviceName, `Deleting ${resource}`);
   }
+
+  static logWait(serviceName: string, resource: string) {
+    Logger.logInfo(serviceName, `Waiting ${resource}`);
+  }
 }

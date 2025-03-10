@@ -7,6 +7,21 @@ import type { Queue } from './contract.js';
 export interface QueueMessage {}
 
 /**
+ * Queue FIFO mode options.
+ */
+export interface QueueFifoMode<T extends QueueMessage> {
+  /**
+   * Name of the message deduplication field.
+   */
+  uniqueId?: keyof T;
+
+  /**
+   * Name of the message group id field.
+   */
+  groupId: keyof T;
+}
+
+/**
  * Incoming message.
  */
 export type QueueIncoming<T extends QueueMessage> = {

@@ -43,11 +43,7 @@ export const prepareSelect = <
   return [statement.join(' '), variables];
 };
 
-const getSelectFields = <
-  T extends Database.Schema,
-  S extends AnyObject,
-  R extends RelationMetadata
->(
+const getSelectFields = <T extends Database.Schema, S extends AnyObject, R extends RelationMetadata>(
   fields: Query.StrictSelectInput<T, S, R>,
   path?: string
 ): string => {

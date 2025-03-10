@@ -1,13 +1,7 @@
 import type { LinkedVariables } from '@ez4/project/library';
 import type { ServiceListener } from '@ez4/common/library';
 
-import type {
-  BooleanSchema,
-  NumberSchema,
-  ObjectSchema,
-  StringSchema,
-  UnionSchema
-} from '@ez4/schema';
+import type { BooleanSchema, NumberSchema, ObjectSchema, StringSchema, UnionSchema } from '@ez4/schema';
 
 export type HttpVerb = 'ANY' | 'GET' | 'POST' | 'PUT' | 'PATCH' | 'DELETE' | 'OPTIONS';
 
@@ -65,9 +59,9 @@ export type HttpRoute = {
 };
 
 export type HttpDefaults = {
-  listener?: ServiceListener;
-  timeout?: number;
-  memory?: number;
+  listener?: ServiceListener | null;
+  timeout?: number | null;
+  memory?: number | null;
 };
 
 export type HttpCors = {

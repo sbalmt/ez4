@@ -1,17 +1,11 @@
-import type { Incomplete } from '@ez4/utils';
-import type { ObjectSchema } from '@ez4/schema';
-import type { MemberType } from '@ez4/common/library';
 import type { AllType, SourceMap, TypeModel, TypeObject } from '@ez4/reflection';
+import type { MemberType } from '@ez4/common/library';
+import type { ObjectSchema } from '@ez4/schema';
+import type { Incomplete } from '@ez4/utils';
 import type { DatabaseTable } from '../types/table.js';
 import type { TableIndex } from '../types/indexes.js';
 
-import {
-  InvalidServicePropertyError,
-  getModelMembers,
-  getObjectMembers,
-  getPropertyString
-} from '@ez4/common/library';
-
+import { InvalidServicePropertyError, getModelMembers, getObjectMembers, getPropertyString, getReferenceType } from '@ez4/common/library';
 import { isModelProperty, isTypeObject, isTypeReference } from '@ez4/reflection';
 
 import { IncompleteTableError } from '../errors/table.js';
@@ -22,15 +16,15 @@ import { isDatabaseTable } from './utils.js';
 import { getTableSchema } from './schema.js';
 import { getTableStream } from './stream.js';
 
-export const getDatabaseTable = (type: AllType, reflection: SourceMap, errorList: Error[]) => {
+export const getDatabaseTable = (type: AllType, parent: TypeModel, reflection: SourceMap, errorList: Error[]) => {
   if (!isTypeReference(type)) {
-    return getTypeTable(type, reflection, errorList);
+    return getTypeTable(type, parent, reflection, errorList);
   }
 
-  const statement = reflection[type.path];
+  const statement = getReferenceType(type, reflection);
 
   if (statement) {
-    return getTypeTable(statement, reflection, errorList);
+    return getTypeTable(statement, parent, reflection, errorList);
   }
 
   return null;
@@ -40,13 +34,13 @@ const isValidTable = (type: Incomplete<DatabaseTable>): type is DatabaseTable =>
   return !!type.name && !!type.schema && !!type.indexes;
 };
 
-const getTypeTable = (type: AllType, reflection: SourceMap, errorList: Error[]) => {
+const getTypeTable = (type: AllType, parent: TypeModel, reflection: SourceMap, errorList: Error[]) => {
   if (isDatabaseTable(type)) {
-    return getTypeFromMembers(type, getModelMembers(type), reflection, errorList);
+    return getTypeFromMembers(type, parent, getModelMembers(type), reflection, errorList);
   }
 
   if (isTypeObject(type)) {
-    return getTypeFromMembers(type, getObjectMembers(type), reflection, errorList);
+    return getTypeFromMembers(type, parent, getObjectMembers(type), reflection, errorList);
   }
 
   return null;
@@ -54,6 +48,7 @@ const getTypeTable = (type: AllType, reflection: SourceMap, errorList: Error[]) 
 
 const getTypeFromMembers = (
   type: TypeObject | TypeModel,
+  parent: TypeModel,
   members: MemberType[],
   reflection: SourceMap,
   errorList: Error[]
@@ -77,15 +72,11 @@ const getTypeFromMembers = (
         }
         break;
 
-      case 'relations': {
-        const relations = getTableRelations(member.value, type, reflection, errorList);
-
-        if (relations) {
-          table.relations = relations;
+      case 'schema':
+        if ((table.schema = getTableSchema(member.value, type, reflection, errorList))) {
+          properties.delete(member.name);
         }
-
         break;
-      }
 
       case 'indexes':
         if ((table.indexes = getTableIndexes(member.value, type, reflection, errorList))) {
@@ -93,14 +84,12 @@ const getTypeFromMembers = (
         }
         break;
 
-      case 'schema':
-        if ((table.schema = getTableSchema(member.value, type, reflection, errorList))) {
-          properties.delete(member.name);
-        }
+      case 'relations':
+        table.relations = getTableRelations(member.value, type, reflection, errorList);
         break;
 
       case 'stream':
-        table.stream = getTableStream(member.value, type, reflection, errorList);
+        table.stream = getTableStream(member.value, parent, reflection, errorList);
         break;
     }
   }
@@ -120,11 +109,7 @@ const getTypeFromMembers = (
   return table;
 };
 
-const validateIndexes = (
-  type: TypeObject | TypeModel,
-  indexes: TableIndex[],
-  schema: ObjectSchema
-) => {
+const validateIndexes = (type: TypeObject | TypeModel, indexes: TableIndex[], schema: ObjectSchema) => {
   const allColumns = schema.properties;
   const errorList = [];
 

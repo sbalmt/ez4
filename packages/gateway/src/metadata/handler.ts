@@ -1,5 +1,5 @@
+import type { AllType, SourceMap, TypeModel } from '@ez4/reflection';
 import type { Incomplete } from '@ez4/utils';
-import type { AllType, SourceMap } from '@ez4/reflection';
 import type { HttpHandler } from '../types/common.js';
 
 import { IncompleteHandlerError } from '../errors/handler.js';
@@ -7,7 +7,7 @@ import { getHttpHandlerResponse } from './response.js';
 import { getHttpHandlerRequest } from './request.js';
 import { isHttpHandler } from './utils.js';
 
-export const getHttpHandler = (type: AllType, reflection: SourceMap, errorList: Error[]) => {
+export const getHttpHandler = (type: AllType, parent: TypeModel, reflection: SourceMap, errorList: Error[]) => {
   if (!isHttpHandler(type)) {
     return null;
   }
@@ -30,11 +30,11 @@ export const getHttpHandler = (type: AllType, reflection: SourceMap, errorList: 
   if (type.parameters) {
     const [{ value: requestType }] = type.parameters;
 
-    handler.request = getHttpHandlerRequest(requestType, type, reflection, errorList);
+    handler.request = getHttpHandlerRequest(requestType, parent, reflection, errorList);
   }
 
   if (type.return) {
-    const response = getHttpHandlerResponse(type.return, type, reflection, errorList);
+    const response = getHttpHandlerResponse(type.return, parent, reflection, errorList);
 
     if (response) {
       handler.response = response;

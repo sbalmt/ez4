@@ -1,5 +1,5 @@
 import type { EntryState } from '@ez4/stateful';
-import type { CreateRequest, CreateResponse } from './client.js';
+import type { CreateRequest, ImportOrCreateResponse } from './client.js';
 
 export const StageServiceName = 'AWS:API/Stage';
 
@@ -9,7 +9,7 @@ export type StageParameters = Omit<CreateRequest, 'stageName'> & {
   stageName?: string;
 };
 
-export type StageResult = CreateResponse & {
+export type StageResult = ImportOrCreateResponse & {
   apiId: string;
 };
 

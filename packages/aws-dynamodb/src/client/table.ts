@@ -19,12 +19,7 @@ import {
   prepareCount
 } from './common/queries.js';
 
-export class Table<
-  T extends Database.Schema,
-  I extends Database.Indexes,
-  R extends RelationMetadata
-> implements DbTable<T, I, R>
-{
+export class Table<T extends Database.Schema, I extends Database.Indexes, R extends RelationMetadata> implements DbTable<T, I, R> {
   constructor(
     private name: string,
     private schema: ObjectSchema,
@@ -43,9 +38,7 @@ export class Table<
     await executeStatement(client, command, debug);
   }
 
-  async updateOne<S extends Query.SelectInput<T, R>>(
-    query: Query.UpdateOneInput<T, S, I, R>
-  ): Promise<Query.UpdateOneResult<T, S, R>> {
+  async updateOne<S extends Query.SelectInput<T, R>>(query: Query.UpdateOneInput<T, S, I, R>): Promise<Query.UpdateOneResult<T, S, R>> {
     const command = await prepareUpdateOne(this.name, this.schema, query);
 
     try {
@@ -69,9 +62,7 @@ export class Table<
     }
   }
 
-  async findOne<S extends Query.SelectInput<T, R>>(
-    query: Query.FindOneInput<T, S, I, R>
-  ): Promise<Query.FindOneResult<T, S, R>> {
+  async findOne<S extends Query.SelectInput<T, R>>(query: Query.FindOneInput<T, S, I, R>): Promise<Query.FindOneResult<T, S, R>> {
     const { client, debug } = this.settings;
 
     const command = prepareFindOne(this.name, this.indexes, query);
@@ -87,9 +78,7 @@ export class Table<
     return undefined;
   }
 
-  async deleteOne<S extends Query.SelectInput<T, R>>(
-    query: Query.DeleteOneInput<T, S, I, R>
-  ): Promise<Query.DeleteOneResult<T, S, R>> {
+  async deleteOne<S extends Query.SelectInput<T, R>>(query: Query.DeleteOneInput<T, S, I, R>): Promise<Query.DeleteOneResult<T, S, R>> {
     const { client, debug } = this.settings;
 
     const command = prepareDeleteOne(this.name, query);
@@ -105,9 +94,7 @@ export class Table<
     return result;
   }
 
-  async upsertOne<S extends Query.SelectInput<T, R>>(
-    query: Query.UpsertOneInput<T, S, I, R>
-  ): Promise<Query.UpsertOneResult<T, S, R>> {
+  async upsertOne<S extends Query.SelectInput<T, R>>(query: Query.UpsertOneInput<T, S, I, R>): Promise<Query.UpsertOneResult<T, S, R>> {
     const previous = await this.findOne({
       select: query.select ?? ({} as Query.StrictSelectInput<T, S, R>),
       where: query.where
@@ -139,28 +126,17 @@ export class Table<
     await executeTransaction(client, transactions, debug);
   }
 
-  async updateMany<S extends Query.SelectInput<T, R>>(
-    query: Query.UpdateManyInput<T, S, R>
-  ): Promise<Query.UpdateManyResult<T, S, R>> {
+  async updateMany<S extends Query.SelectInput<T, R>>(query: Query.UpdateManyInput<T, S, R>): Promise<Query.UpdateManyResult<T, S, R>> {
     const { client, debug } = this.settings;
 
-    const [transactions, records] = await prepareUpdateMany(
-      this.name,
-      this.schema,
-      this.indexes,
-      client,
-      query,
-      debug
-    );
+    const [transactions, records] = await prepareUpdateMany(this.name, this.schema, this.indexes, client, query, debug);
 
     await executeTransaction(client, transactions, debug);
 
     return records;
   }
 
-  async findMany<S extends Query.SelectInput<T, R>>(
-    query: Query.FindManyInput<T, S, I, R>
-  ): Promise<Query.FindManyResult<T, S, R>> {
+  async findMany<S extends Query.SelectInput<T, R>>(query: Query.FindManyInput<T, S, I, R>): Promise<Query.FindManyResult<T, S, R>> {
     const { client, debug } = this.settings;
 
     const command = prepareFindMany(this.name, this.indexes, query);
@@ -173,18 +149,10 @@ export class Table<
     };
   }
 
-  async deleteMany<S extends Query.SelectInput<T, R>>(
-    query: Query.DeleteManyInput<T, S, R>
-  ): Promise<Query.DeleteManyResult<T, S, R>> {
+  async deleteMany<S extends Query.SelectInput<T, R>>(query: Query.DeleteManyInput<T, S, R>): Promise<Query.DeleteManyResult<T, S, R>> {
     const { client, debug } = this.settings;
 
-    const [transactions, records] = await prepareDeleteMany(
-      this.name,
-      this.indexes,
-      client,
-      query,
-      debug
-    );
+    const [transactions, records] = await prepareDeleteMany(this.name, this.indexes, client, query, debug);
 
     await executeTransaction(client, transactions, debug);
 

@@ -1,5 +1,5 @@
-import type { ResourceTags } from '@ez4/aws-common';
 import type { StepContext, StepHandler } from '@ez4/stateful';
+import type { ResourceTags } from '@ez4/aws-common';
 import type { ObjectState, ObjectResult, ObjectParameters } from './types.js';
 
 import { stat } from 'node:fs/promises';
@@ -21,7 +21,7 @@ export const getObjectHandler = (): StepHandler<ObjectState> => ({
 });
 
 const equalsResource = (candidate: ObjectState, current: ObjectState) => {
-  return !!candidate.result && candidate.result.objectKey === current.result?.objectKey;
+  return !!candidate.result && candidate.result.lastModified === current.result?.lastModified;
 };
 
 const previewResource = async (candidate: ObjectState, current: ObjectState) => {
@@ -51,11 +51,7 @@ const previewResource = async (candidate: ObjectState, current: ObjectState) => 
   };
 };
 
-const replaceResource = async (
-  candidate: ObjectState,
-  current: ObjectState,
-  context: StepContext
-) => {
+const replaceResource = async (candidate: ObjectState, current: ObjectState, context: StepContext) => {
   if (current.result) {
     throw new ReplaceResourceError(ObjectServiceName, candidate.entryId, current.entryId);
   }
@@ -63,10 +59,7 @@ const replaceResource = async (
   return createResource(candidate, context);
 };
 
-const createResource = async (
-  candidate: ObjectState,
-  context: StepContext
-): Promise<ObjectResult> => {
+const createResource = async (candidate: ObjectState, context: StepContext): Promise<ObjectResult> => {
   const parameters = candidate.parameters;
 
   const bucketName = getBucketName(ObjectServiceName, 'bucket', context);
@@ -79,35 +72,31 @@ const createResource = async (
 
   return {
     lastModified,
-    bucketName,
-    objectKey
+    bucketName
   };
 };
 
-const updateResource = async (
-  candidate: ObjectState,
-  current: ObjectState
-): Promise<ObjectResult | undefined> => {
+const updateResource = async (candidate: ObjectState, current: ObjectState): Promise<ObjectResult | undefined> => {
   const { result, parameters } = candidate;
 
   if (!result) {
     return;
   }
 
-  const { bucketName, objectKey } = result;
+  const { objectKey, tags } = parameters;
 
   const newResult = checkObjectUpdates(result, parameters, current.parameters);
 
-  await checkTagUpdates(bucketName, objectKey, parameters.tags, current.parameters.tags);
+  await checkTagUpdates(result.bucketName, objectKey, tags, current.parameters.tags);
 
   return newResult;
 };
 
 const deleteResource = async (candidate: ObjectState) => {
-  const result = candidate.result;
+  const { result, parameters } = candidate;
 
   if (result) {
-    await deleteObject(result.bucketName, result.objectKey);
+    await deleteObject(result.bucketName, parameters.objectKey);
   }
 };
 
@@ -117,18 +106,16 @@ const getLastModifiedTime = async (filePath: string) => {
   return mtime.getTime();
 };
 
-const checkObjectUpdates = async (
-  result: ObjectResult,
-  candidate: ObjectParameters,
-  current: ObjectParameters
-) => {
+const checkObjectUpdates = async (result: ObjectResult, candidate: ObjectParameters, current: ObjectParameters) => {
   const lastModified = await getLastModifiedTime(candidate.filePath);
 
   if (lastModified <= result.lastModified && candidate.filePath === current.filePath) {
     return result;
   }
 
-  const { bucketName, objectKey } = result;
+  const { bucketName } = result;
+
+  const { objectKey } = current;
 
   await putObject(bucketName, {
     ...candidate,
@@ -137,8 +124,7 @@ const checkObjectUpdates = async (
 
   return {
     lastModified,
-    bucketName,
-    objectKey
+    bucketName
   };
 };
 

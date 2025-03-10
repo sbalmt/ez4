@@ -71,11 +71,7 @@ const deleteResource = async (candidate: GroupState) => {
   }
 };
 
-const checkTagUpdates = async (
-  groupArn: Arn,
-  candidate: GroupParameters,
-  current: GroupParameters
-) => {
+const checkTagUpdates = async (groupArn: Arn, candidate: GroupParameters, current: GroupParameters) => {
   await applyTagUpdates(
     candidate.tags,
     current.tags,

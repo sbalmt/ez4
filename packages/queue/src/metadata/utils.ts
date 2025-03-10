@@ -15,6 +15,10 @@ export const isQueueMessage = (type: TypeModel) => {
   return hasHeritageType(type, 'Queue.Message');
 };
 
+export const isQueueFifoMode = (type: TypeModel) => {
+  return hasHeritageType(type, 'Queue.FifoMode');
+};
+
 export const isQueueSubscription = (type: AllType) => {
   return isModelDeclaration(type) && hasHeritageType(type, 'Queue.Subscription');
 };

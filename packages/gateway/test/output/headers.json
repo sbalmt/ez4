@@ -2,6 +2,7 @@
   "TestService": {
     "type": "@ez4/http",
     "name": "TestService",
+    "extras": {},
     "routes": [
       {
         "path": "GET /test-route",

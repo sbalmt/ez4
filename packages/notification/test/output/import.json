@@ -2,6 +2,7 @@
   "TestNotification": {
     "type": "@ez4/notification",
     "name": "TestNotification",
+    "extras": {},
     "schema": {
       "type": "object",
       "properties": {

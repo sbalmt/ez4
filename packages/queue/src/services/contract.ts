@@ -6,7 +6,8 @@ import type {
   QueueMessage,
   QueueIncoming,
   SubscriptionHandler,
-  SubscriptionListener
+  SubscriptionListener,
+  QueueFifoMode
 } from './common.js';
 
 /**
@@ -15,6 +16,7 @@ import type {
 export namespace Queue {
   export type Message = QueueMessage;
 
+  export type FifoMode<T extends Message> = QueueFifoMode<T>;
   export type Incoming<T extends Message> = QueueIncoming<T>;
 
   export type Listener<T extends Message> = SubscriptionListener<T>;
@@ -67,6 +69,11 @@ export namespace Queue {
     schema: T;
 
     /**
+     * Enable and configure the FIFO mode options.
+     */
+    fifoMode?: FifoMode<T>;
+
+    /**
      * Maximum acknowledge time (in seconds) for the handler.
      */
     timeout?: number;
@@ -102,14 +109,14 @@ export namespace Queue {
     abstract project: string;
 
     /**
-     * All subscriptions attached to the imported queue.
-     */
-    subscriptions: Subscription<T['schema']>[];
-
-    /**
      * Imported queue reference.
      */
     reference: T;
+
+    /**
+     * All subscriptions attached to the imported queue.
+     */
+    subscriptions: Subscription<T['schema']>[];
 
     /**
      * Imported message schema (do not replace).
@@ -117,14 +124,14 @@ export namespace Queue {
     schema: T['schema'];
 
     /**
+     * Imported FIFO mode options (do not replace).
+     */
+    fifoMode: T['fifoMode'];
+
+    /**
      * Imported maximum acknowledge time (do not replace).
      */
     timeout: T['timeout'];
-
-    /**
-     * Imported maximum wait time for receiving messages (do not replace).
-     */
-    polling: T['polling'];
 
     /**
      * Imported service client (do not replace).

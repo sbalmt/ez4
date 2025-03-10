@@ -25,11 +25,7 @@ const previewResource = async (_candidate: PolicyState, _current: PolicyState) =
   return undefined;
 };
 
-const replaceResource = async (
-  candidate: PolicyState,
-  current: PolicyState,
-  context: StepContext
-) => {
+const replaceResource = async (candidate: PolicyState, current: PolicyState, context: StepContext) => {
   if (current.result) {
     throw new ReplaceResourceError(PolicyServiceName, candidate.entryId, current.entryId);
   }
@@ -37,10 +33,7 @@ const replaceResource = async (
   return createResource(candidate, context);
 };
 
-const createResource = async (
-  candidate: PolicyState,
-  context: StepContext
-): Promise<PolicyResult> => {
+const createResource = async (candidate: PolicyState, context: StepContext): Promise<PolicyResult> => {
   const parameters = candidate.parameters;
 
   const queueUrl = getQueueUrl(PolicyServiceName, 'subscription', context);

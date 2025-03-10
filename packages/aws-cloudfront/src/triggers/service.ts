@@ -15,13 +15,13 @@ import { getOriginAccessName, getContentVersion, getOriginPolicyName } from './u
 import { connectOriginBucket } from './bucket.js';
 
 export const prepareCdnServices = async (event: PrepareResourceEvent) => {
-  const { state, service, options } = event;
+  const { state, service, options, context } = event;
 
   if (!isCdnService(service)) {
     return;
   }
 
-  const { description, certificate, defaultIndex, defaultOrigin } = service;
+  const { description, certificate, defaultIndex } = service;
 
   const originPolicyState = createOriginPolicy(state, {
     policyName: getOriginPolicyName(service, options),
@@ -41,7 +41,7 @@ export const prepareCdnServices = async (event: PrepareResourceEvent) => {
     });
   }
 
-  const { cache: defaultCache } = defaultOrigin;
+  const { cache: defaultCache } = service.defaultOrigin;
 
   const customErrors = service.fallbacks?.map(({ code, location, ttl }) => ({
     ttl: ttl ?? defaultCache?.ttl ?? 86400,
@@ -49,21 +49,26 @@ export const prepareCdnServices = async (event: PrepareResourceEvent) => {
     code
   }));
 
+  const distributionName = getServiceName(service, options);
+
+  const defaultOrigin = await getDefaultOriginCache(state, service, options, context);
+  const origins = await getAdditionalOriginCache(state, service, options, context);
+
   createDistribution(state, originAccessState, originPolicyState, certificateState, {
-    distributionName: getServiceName(service, options),
-    defaultOrigin: await getDefaultOriginCache(state, service, options),
-    origins: await getAdditionalOriginCache(state, service, options),
     compress: defaultCache?.compress ?? true,
     enabled: !service.disabled,
     aliases: service.aliases,
-    defaultIndex,
+    distributionName,
+    description,
     customErrors,
-    description
+    defaultOrigin,
+    defaultIndex,
+    origins
   });
 };
 
 export const connectCdnServices = async (event: ConnectResourceEvent) => {
-  const { state, service, options } = event;
+  const { state, service, options, context } = event;
 
   if (!isCdnService(service)) {
     return;
@@ -72,34 +77,31 @@ export const connectCdnServices = async (event: ConnectResourceEvent) => {
   const distributionName = getServiceName(service, options);
   const distributionState = getDistributionState(state, distributionName);
 
-  const contentVersions: string[] = [];
+  const allContentVersions: string[] = [];
 
-  const allOrigins = service.origins
-    ? [service.defaultOrigin, ...service.origins]
-    : [service.defaultOrigin];
+  const allOrigins = service.origins ? [service.defaultOrigin, ...service.origins] : [service.defaultOrigin];
 
   for (const origin of allOrigins) {
     if (!isCdnBucketOrigin(origin)) {
       continue;
     }
 
-    const bucketName = getServiceName(origin.bucket, options);
-    const bucketState = getBucketState(state, bucketName);
+    const bucketState = getBucketState(context, origin.bucket, options);
 
     connectOriginBucket(state, service, bucketState, options);
 
     const { localPath } = bucketState.parameters;
 
     if (localPath) {
-      const version = await getContentVersion(localPath);
+      const contentHash = await getContentVersion(localPath);
 
-      contentVersions.push(version);
+      allContentVersions.push(contentHash);
     }
   }
 
-  if (contentVersions.length > 0) {
+  if (allContentVersions.length > 0) {
     createInvalidation(state, distributionState, {
-      contentVersion: contentVersions.join(',')
+      contentVersion: allContentVersions.join(',')
     });
   }
 };

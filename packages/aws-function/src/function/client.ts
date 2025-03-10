@@ -59,10 +59,7 @@ export type UpdateSourceCodeRequest = {
   sourceFile: string;
 };
 
-export const importFunction = async (
-  functionName: string,
-  version?: string
-): Promise<ImportOrCreateResponse | undefined> => {
+export const importFunction = async (functionName: string, version?: string): Promise<ImportOrCreateResponse | undefined> => {
   Logger.logImport(FunctionServiceName, functionName);
 
   try {
@@ -124,6 +121,8 @@ export const createFunction = async (request: CreateRequest): Promise<ImportOrCr
 
   const functionArn = response.FunctionArn as Arn;
 
+  Logger.logWait(FunctionServiceName, functionName);
+
   await waitUntilFunctionActive(waiter, {
     FunctionName: functionName
   });
@@ -145,6 +144,8 @@ export const updateSourceCode = async (functionName: string, request: UpdateSour
       Publish: true
     })
   );
+
+  Logger.logWait(FunctionServiceName, functionName);
 
   await waitUntilFunctionUpdated(waiter, {
     FunctionName: functionName
@@ -178,6 +179,8 @@ export const updateConfiguration = async (functionName: string, request: UpdateC
     })
   );
 
+  Logger.logWait(FunctionServiceName, functionName);
+
   await waitUntilFunctionUpdated(waiter, {
     FunctionName: functionName
   });
@@ -186,11 +189,21 @@ export const updateConfiguration = async (functionName: string, request: UpdateC
 export const deleteFunction = async (functionName: string) => {
   Logger.logDelete(FunctionServiceName, functionName);
 
-  await client.send(
-    new DeleteFunctionCommand({
-      FunctionName: functionName
-    })
-  );
+  try {
+    await client.send(
+      new DeleteFunctionCommand({
+        FunctionName: functionName
+      })
+    );
+
+    return true;
+  } catch (error) {
+    if (!(error instanceof ResourceNotFoundException)) {
+      throw error;
+    }
+
+    return false;
+  }
 };
 
 export const tagFunction = async (functionArn: Arn, tags: ResourceTags) => {

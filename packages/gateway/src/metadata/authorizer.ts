@@ -1,5 +1,5 @@
+import type { AllType, SourceMap, TypeModel } from '@ez4/reflection';
 import type { Incomplete } from '@ez4/utils';
-import type { AllType, SourceMap } from '@ez4/reflection';
 import type { HttpAuthorizer } from '../types/common.js';
 
 import { IncompleteAuthorizerError } from '../errors/authorizer.js';
@@ -7,7 +7,7 @@ import { getHttpAuthResponse } from './response.js';
 import { getHttpAuthRequest } from './request.js';
 import { isHttpAuthorizer } from './utils.js';
 
-export const getHttpAuthorizer = (type: AllType, reflection: SourceMap, errorList: Error[]) => {
+export const getHttpAuthorizer = (type: AllType, parent: TypeModel, reflection: SourceMap, errorList: Error[]) => {
   if (!isHttpAuthorizer(type)) {
     return null;
   }
@@ -30,11 +30,11 @@ export const getHttpAuthorizer = (type: AllType, reflection: SourceMap, errorLis
   if (type.parameters) {
     const [{ value: requestType }] = type.parameters;
 
-    handler.request = getHttpAuthRequest(requestType, type, reflection, errorList);
+    handler.request = getHttpAuthRequest(requestType, parent, reflection, errorList);
   }
 
   if (type.return) {
-    handler.response = getHttpAuthResponse(type.return, type, reflection, errorList);
+    handler.response = getHttpAuthResponse(type.return, parent, reflection, errorList);
   }
 
   if (isValidAuthorizer(handler)) {

@@ -6,14 +6,11 @@ import { join, relative } from 'node:path';
 import { createBucketObject } from '@ez4/aws-bucket';
 import { EntryStates } from '@ez4/stateful';
 
-export const prepareLocalContent = async (
-  state: EntryStates,
-  bucketState: BucketState,
-  localPath: string
-) => {
-  const basePath = join(process.cwd(), localPath);
+export const prepareLocalContent = async (state: EntryStates, bucketState: BucketState, localPath: string) => {
+  const basePath = process.cwd();
+  const fullPath = join(basePath, localPath);
 
-  const allFiles = await readdir(basePath, {
+  const allFiles = await readdir(fullPath, {
     withFileTypes: true,
     recursive: true
   });
@@ -24,11 +21,10 @@ export const prepareLocalContent = async (
     }
 
     const filePath = join(file.parentPath, file.name);
-    const objectKey = relative(basePath, filePath);
 
     createBucketObject(state, bucketState, {
-      objectKey,
-      filePath
+      objectKey: relative(fullPath, filePath),
+      filePath: relative(basePath, filePath)
     });
   }
 };

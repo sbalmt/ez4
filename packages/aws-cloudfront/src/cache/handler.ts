@@ -70,11 +70,7 @@ const deleteResource = async (candidate: CacheState) => {
   }
 };
 
-const checkGeneralUpdates = async (
-  policyId: string,
-  candidate: CacheParameters,
-  current: CacheParameters
-) => {
+const checkGeneralUpdates = async (policyId: string, candidate: CacheParameters, current: CacheParameters) => {
   const hasChanges = !deepEqual(candidate, current);
 
   if (hasChanges) {
