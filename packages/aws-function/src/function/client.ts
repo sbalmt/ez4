@@ -183,11 +183,21 @@ export const updateConfiguration = async (functionName: string, request: UpdateC
 export const deleteFunction = async (functionName: string) => {
   Logger.logDelete(FunctionServiceName, functionName);
 
-  await client.send(
-    new DeleteFunctionCommand({
-      FunctionName: functionName
-    })
-  );
+  try {
+    await client.send(
+      new DeleteFunctionCommand({
+        FunctionName: functionName
+      })
+    );
+
+    return true;
+  } catch (error) {
+    if (!(error instanceof ResourceNotFoundException)) {
+      throw error;
+    }
+
+    return false;
+  }
 };
 
 export const tagFunction = async (functionArn: Arn, tags: ResourceTags) => {

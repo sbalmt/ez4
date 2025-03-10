@@ -8,7 +8,8 @@ import {
   DeleteQueueCommand,
   SetQueueAttributesCommand,
   TagQueueCommand,
-  UntagQueueCommand
+  UntagQueueCommand,
+  QueueDoesNotExist
 } from '@aws-sdk/client-sqs';
 
 import { Logger } from '@ez4/aws-common';
@@ -117,11 +118,21 @@ export const untagQueue = async (queueUrl: string, tagKeys: string[]) => {
 export const deleteQueue = async (queueUrl: string) => {
   Logger.logDelete(QueueServiceName, queueUrl);
 
-  await client.send(
-    new DeleteQueueCommand({
-      QueueUrl: queueUrl
-    })
-  );
+  try {
+    await client.send(
+      new DeleteQueueCommand({
+        QueueUrl: queueUrl
+      })
+    );
+
+    return true;
+  } catch (error) {
+    if (!(error instanceof QueueDoesNotExist)) {
+      throw error;
+    }
+
+    return false;
+  }
 };
 
 const upsertQueueAttributes = (request: CreateRequest | UpdateRequest): Partial<Record<QueueAttributeName, string>> => {

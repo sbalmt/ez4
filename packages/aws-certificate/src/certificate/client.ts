@@ -9,7 +9,8 @@ import {
   DeleteCertificateCommand,
   AddTagsToCertificateCommand,
   RemoveTagsFromCertificateCommand,
-  ValidationMethod
+  ValidationMethod,
+  ResourceNotFoundException
 } from '@aws-sdk/client-acm';
 
 import { CertificateServiceName } from './types.js';
@@ -63,11 +64,21 @@ export const createCertificate = async (request: CreateRequest): Promise<CreateR
 export const deleteCertificate = async (certificateArn: string) => {
   Logger.logDelete(CertificateServiceName, certificateArn);
 
-  await client.send(
-    new DeleteCertificateCommand({
-      CertificateArn: certificateArn
-    })
-  );
+  try {
+    await client.send(
+      new DeleteCertificateCommand({
+        CertificateArn: certificateArn
+      })
+    );
+
+    return true;
+  } catch (error) {
+    if (!(error instanceof ResourceNotFoundException)) {
+      throw error;
+    }
+
+    return false;
+  }
 };
 
 export const tagCertificate = async (certificateArn: string, tags: ResourceTags) => {

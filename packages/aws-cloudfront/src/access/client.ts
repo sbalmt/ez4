@@ -10,7 +10,8 @@ import {
   DeleteOriginAccessControlCommand,
   OriginAccessControlOriginTypes,
   OriginAccessControlSigningBehaviors,
-  OriginAccessControlSigningProtocols
+  OriginAccessControlSigningProtocols,
+  NoSuchOriginAccessControl
 } from '@aws-sdk/client-cloudfront';
 
 import { AccessServiceName } from './types.js';
@@ -69,12 +70,22 @@ export const deleteAccess = async (accessId: string) => {
 
   const version = await getCurrentAccessVersion(accessId);
 
-  await client.send(
-    new DeleteOriginAccessControlCommand({
-      Id: accessId,
-      IfMatch: version
-    })
-  );
+  try {
+    await client.send(
+      new DeleteOriginAccessControlCommand({
+        Id: accessId,
+        IfMatch: version
+      })
+    );
+
+    return true;
+  } catch (error) {
+    if (!(error instanceof NoSuchOriginAccessControl)) {
+      throw error;
+    }
+
+    return false;
+  }
 };
 
 const getCurrentAccessVersion = async (accessId: string) => {

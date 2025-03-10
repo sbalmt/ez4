@@ -30,7 +30,8 @@ import {
   SslProtocol,
   HttpVersion,
   PriceClass,
-  Method
+  Method,
+  NoSuchDistribution
 } from '@aws-sdk/client-cloudfront';
 
 import { DistributionServiceName } from './types.js';
@@ -176,14 +177,24 @@ export const untagDistribution = async (distributionArn: Arn, tagKeys: string[])
 export const deleteDistribution = async (distributionId: string) => {
   Logger.logDelete(DistributionServiceName, distributionId);
 
-  const version = await getCurrentDistributionVersion(distributionId);
+  try {
+    const version = await getCurrentDistributionVersion(distributionId);
 
-  await client.send(
-    new DeleteDistributionCommand({
-      Id: distributionId,
-      IfMatch: version
-    })
-  );
+    await client.send(
+      new DeleteDistributionCommand({
+        Id: distributionId,
+        IfMatch: version
+      })
+    );
+
+    return true;
+  } catch (error) {
+    if (!(error instanceof NoSuchDistribution)) {
+      throw error;
+    }
+
+    return false;
+  }
 };
 
 const getCurrentDistributionVersion = async (distributionId: string) => {
@@ -201,16 +212,7 @@ const upsertDistributionRequest = (request: CreateRequest | UpdateRequest): Dist
   const allCacheBehaviors = getAllCacheBehaviors(request);
   const allOrigins = getAllOrigins(request);
 
-  const {
-    distributionName,
-    description,
-    certificateArn,
-    defaultIndex,
-    defaultOrigin,
-    aliases,
-    enabled,
-    compress
-  } = request;
+  const { distributionName, description, certificateArn, defaultIndex, defaultOrigin, aliases, enabled, compress } = request;
 
   return {
     Comment: description,
@@ -288,10 +290,7 @@ const getOriginHeaders = (headers: Record<string, string> | undefined): OriginCu
   return headerList;
 };
 
-const getCacheBehavior = (
-  origin: DefaultOrigin,
-  compress: boolean | undefined
-): DefaultCacheBehavior => {
+const getCacheBehavior = (origin: DefaultOrigin, compress: boolean | undefined): DefaultCacheBehavior => {
   return {
     TargetOriginId: origin.id,
     CachePolicyId: origin.cachePolicyId,
@@ -314,15 +313,7 @@ const getCacheBehavior = (
         Items: [Method.GET, Method.HEAD, Method.OPTIONS]
       },
       Quantity: 7,
-      Items: [
-        Method.GET,
-        Method.HEAD,
-        Method.OPTIONS,
-        Method.POST,
-        Method.PUT,
-        Method.PATCH,
-        Method.DELETE
-      ]
+      Items: [Method.GET, Method.HEAD, Method.OPTIONS, Method.POST, Method.PUT, Method.PATCH, Method.DELETE]
     },
     LambdaFunctionAssociations: {
       Quantity: 0
@@ -383,9 +374,7 @@ const getAllOrigins = (request: CreateRequest | UpdateRequest): Origin[] => {
   });
 };
 
-const getAllCacheBehaviors = (
-  request: CreateRequest | UpdateRequest
-): CacheBehavior[] | undefined => {
+const getAllCacheBehaviors = (request: CreateRequest | UpdateRequest): CacheBehavior[] | undefined => {
   const { origins, compress } = request;
 
   return origins?.map((origin) => ({

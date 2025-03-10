@@ -92,10 +92,20 @@ export const updateStage = async (apiId: string, stageName: string, request: Par
 export const deleteStage = async (apiId: string, stageName: string) => {
   Logger.logDelete(StageServiceName, stageName);
 
-  await client.send(
-    new DeleteStageCommand({
-      ApiId: apiId,
-      StageName: stageName
-    })
-  );
+  try {
+    await client.send(
+      new DeleteStageCommand({
+        ApiId: apiId,
+        StageName: stageName
+      })
+    );
+
+    return true;
+  } catch (error) {
+    if (!(error instanceof NotFoundException)) {
+      throw error;
+    }
+
+    return false;
+  }
 };

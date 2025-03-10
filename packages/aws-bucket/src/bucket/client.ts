@@ -135,11 +135,21 @@ export const updateCorsConfiguration = async (bucketName: string, cors: Bucket.C
 export const deleteCorsConfiguration = async (bucketName: string) => {
   Logger.logDelete(BucketServiceName, `${bucketName} CORS`);
 
-  await client.send(
-    new DeleteBucketCorsCommand({
-      Bucket: bucketName
-    })
-  );
+  try {
+    await client.send(
+      new DeleteBucketCorsCommand({
+        Bucket: bucketName
+      })
+    );
+
+    return true;
+  } catch (error) {
+    if (!(error instanceof NoSuchBucket)) {
+      throw error;
+    }
+
+    return false;
+  }
 };
 
 export const createLifecycle = async (bucketName: string, autoExpireDays: number) => {
@@ -169,11 +179,21 @@ export const createLifecycle = async (bucketName: string, autoExpireDays: number
 export const deleteLifecycle = async (bucketName: string) => {
   Logger.logDelete(BucketServiceName, `${bucketName} lifecycle`);
 
-  await client.send(
-    new DeleteBucketLifecycleCommand({
-      Bucket: bucketName
-    })
-  );
+  try {
+    await client.send(
+      new DeleteBucketLifecycleCommand({
+        Bucket: bucketName
+      })
+    );
+
+    return true;
+  } catch (error) {
+    if (!(error instanceof NoSuchBucket)) {
+      throw error;
+    }
+
+    return false;
+  }
 };
 
 export const updateEventNotifications = async (bucketName: string, request: UpdateNotificationRequest) => {
