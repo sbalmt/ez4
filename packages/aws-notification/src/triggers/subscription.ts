@@ -13,8 +13,8 @@ import { getQueueState } from '@ez4/aws-queue';
 import { SubscriptionServiceName } from '../subscription/types.js';
 import { createSubscriptionFunction } from '../subscription/function/service.js';
 import { createSubscription } from '../subscription/service.js';
+import { getFunctionName, getInternalName } from './utils.js';
 import { RoleMissingError } from './errors.js';
-import { getFunctionName } from './utils.js';
 
 export const prepareSubscriptions = async (
   state: EntryStates,
@@ -35,13 +35,15 @@ export const prepareSubscriptions = async (
       case NotificationSubscriptionType.Lambda: {
         const { handler, listener } = subscription;
 
-        let functionState = tryGetFunctionState(context, handler.name, options);
+        const internalName = getInternalName(service, handler.name);
 
-        if (!functionState) {
+        let handlerState = tryGetFunctionState(context, internalName, options);
+
+        if (!handlerState) {
           const subscriptionTimeout = subscription.timeout ?? 30;
           const subscriptionMemory = subscription.memory ?? 192;
 
-          functionState = createSubscriptionFunction(state, context.role, {
+          handlerState = createSubscriptionFunction(state, context.role, {
             functionName: getFunctionName(service, handler.name, options),
             description: handler.description,
             messageSchema: service.schema,
@@ -65,11 +67,11 @@ export const prepareSubscriptions = async (
             })
           });
 
-          context.setServiceState(functionState, handler.name, options);
+          context.setServiceState(handlerState, internalName, options);
         }
 
-        createSubscription(state, topicState, functionState, {
-          fromService: functionState.parameters.functionName
+        createSubscription(state, topicState, handlerState, {
+          fromService: handlerState.parameters.functionName
         });
 
         break;
@@ -108,9 +110,10 @@ export const connectSubscriptions = (
         throw new InvalidParameterError(SubscriptionServiceName, `subscription not supported.`);
 
       case NotificationSubscriptionType.Lambda: {
-        const functionState = getFunctionState(context, subscription.handler.name, options);
+        const internalName = getInternalName(service, subscription.handler.name);
+        const handlerState = getFunctionState(context, internalName, options);
 
-        linkServiceExtras(state, functionState.entryId, service.extras);
+        linkServiceExtras(state, handlerState.entryId, service.extras);
         break;
       }
 

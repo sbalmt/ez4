@@ -9,8 +9,8 @@ import { isRoleState } from '@ez4/aws-identity';
 
 import { createMapping } from '../mapping/service.js';
 import { createQueueFunction } from '../mapping/function/service.js';
+import { getFunctionName, getInternalName } from './utils.js';
 import { RoleMissingError } from './errors.js';
-import { getFunctionName } from './utils.js';
 
 export const prepareSubscriptions = async (
   state: EntryStates,
@@ -26,13 +26,15 @@ export const prepareSubscriptions = async (
   for (const subscription of service.subscriptions) {
     const { handler, listener } = subscription;
 
-    let functionState = tryGetFunctionState(context, handler.name, options);
+    const internalName = getInternalName(service, handler.name);
 
-    if (!functionState) {
+    let handlerState = tryGetFunctionState(context, internalName, options);
+
+    if (!handlerState) {
       const functionTimeout = service.timeout ?? 30;
       const functionMemory = subscription.memory ?? 192;
 
-      functionState = createQueueFunction(state, context.role, {
+      handlerState = createQueueFunction(state, context.role, {
         functionName: getFunctionName(service, handler.name, options),
         description: handler.description,
         messageSchema: service.schema,
@@ -56,10 +58,10 @@ export const prepareSubscriptions = async (
         })
       });
 
-      context.setServiceState(functionState, handler.name, options);
+      context.setServiceState(handlerState, internalName, options);
     }
 
-    createMapping(state, queueState, functionState, {
+    createMapping(state, queueState, handlerState, {
       concurrency: subscription.concurrency
     });
   }
@@ -80,8 +82,9 @@ export const connectSubscriptions = (
   }
 
   for (const { handler } of service.subscriptions) {
-    const functionState = getFunctionState(context, handler.name, options);
+    const internalName = getInternalName(service, handler.name);
+    const handlerState = getFunctionState(context, internalName, options);
 
-    linkServiceExtras(state, functionState.entryId, service.extras);
+    linkServiceExtras(state, handlerState.entryId, service.extras);
   }
 };

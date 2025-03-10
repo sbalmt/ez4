@@ -7,10 +7,10 @@ import { isRoleState } from '@ez4/aws-identity';
 
 import { createTable } from '../table/service.js';
 import { RoleMissingError, UnsupportedRelationError } from './errors.js';
+import { getInternalName, getTableName } from './utils.js';
 import { prepareLinkedClient } from './client.js';
 import { getAttributeSchema } from './schema.js';
 import { prepareTableStream } from './stream.js';
-import { getTableName } from './utils.js';
 
 export const prepareLinkedServices = (event: ServiceEvent) => {
   const { service, options, context } = event;
@@ -30,8 +30,6 @@ export const prepareDatabaseServices = async (event: PrepareResourceEvent) => {
   }
 
   for (const table of service.tables) {
-    const tableName = getTableName(service, table, options);
-
     if (table.relations) {
       throw new UnsupportedRelationError();
     }
@@ -39,13 +37,15 @@ export const prepareDatabaseServices = async (event: PrepareResourceEvent) => {
     const { attributeSchema, ttlAttribute } = getAttributeSchema(table.indexes, table.schema);
 
     const tableState = createTable(state, {
+      tableName: getTableName(service, table, options),
       enableStreams: !!table.stream,
       attributeSchema,
-      ttlAttribute,
-      tableName
+      ttlAttribute
     });
 
-    context.setServiceState(tableState, table.name, options);
+    const internalName = getInternalName(service, table);
+
+    context.setServiceState(tableState, internalName, options);
 
     prepareTableStream(state, service, table, tableState, options, context);
   }
@@ -69,8 +69,9 @@ export const connectDatabaseServices = (event: ConnectResourceEvent) => {
 
     const { handler } = table.stream;
 
-    const functionState = getFunctionState(context, handler.name, options);
+    const internalName = getInternalName(service, table, handler.name);
+    const handlerState = getFunctionState(context, internalName, options);
 
-    linkServiceExtras(state, functionState.entryId, service.extras);
+    linkServiceExtras(state, handlerState.entryId, service.extras);
   }
 };

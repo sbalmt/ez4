@@ -8,8 +8,8 @@ import { isRoleState } from '@ez4/aws-identity';
 
 import { createMapping } from '../mapping/service.js';
 import { createStreamFunction } from '../mapping/function/service.js';
+import { getInternalName, getStreamName } from './utils.js';
 import { RoleMissingError } from './errors.js';
-import { getStreamName } from './utils.js';
 
 export const prepareTableStream = (
   state: EntryStates,
@@ -31,10 +31,12 @@ export const prepareTableStream = (
 
   const { handler, listener } = stream;
 
-  let functionState = tryGetFunctionState(context, handler.name, options);
+  const internalName = getInternalName(service, table, handler.name);
 
-  if (!functionState) {
-    functionState = createStreamFunction(state, context.role, {
+  let handlerState = tryGetFunctionState(context, internalName, options);
+
+  if (!handlerState) {
+    handlerState = createStreamFunction(state, context.role, {
       functionName: getStreamName(service, table, handler.name, options),
       description: handler.description,
       tableSchema: table.schema,
@@ -58,10 +60,10 @@ export const prepareTableStream = (
       })
     });
 
-    context.setServiceState(functionState, handler.name, options);
+    context.setServiceState(handlerState, internalName, options);
   }
 
-  createMapping(state, tableState, functionState, {});
+  createMapping(state, tableState, handlerState, {});
 
-  return functionState;
+  return handlerState;
 };

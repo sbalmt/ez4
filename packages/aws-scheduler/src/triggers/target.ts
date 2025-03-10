@@ -7,8 +7,8 @@ import { getFunctionState, tryGetFunctionState } from '@ez4/aws-function';
 import { isRoleState } from '@ez4/aws-identity';
 
 import { createTargetFunction } from '../schedule/function/service.js';
+import { getInternalName, getTargetName } from './utils.js';
 import { RoleMissingError } from './errors.js';
-import { getTargetName } from './utils.js';
 
 export const prepareTarget = (state: EntryStates, service: CronService, options: DeployOptions, context: EventContext) => {
   if (!context.role || !isRoleState(context.role)) {
@@ -19,13 +19,15 @@ export const prepareTarget = (state: EntryStates, service: CronService, options:
 
   const { handler, listener } = target;
 
-  const currentFunctionState = tryGetFunctionState(context, handler.name, options);
+  const internalName = getInternalName(service, handler.name);
 
-  if (currentFunctionState) {
-    return currentFunctionState;
+  const currentHandlerState = tryGetFunctionState(context, internalName, options);
+
+  if (currentHandlerState) {
+    return currentHandlerState;
   }
 
-  const functionState = createTargetFunction(state, context.role, {
+  const handlerState = createTargetFunction(state, context.role, {
     functionName: getTargetName(service, handler.name, options),
     description: handler.description,
     eventSchema: service.schema,
@@ -49,9 +51,9 @@ export const prepareTarget = (state: EntryStates, service: CronService, options:
     })
   });
 
-  context.setServiceState(functionState, handler.name, options);
+  context.setServiceState(handlerState, internalName, options);
 
-  return functionState;
+  return handlerState;
 };
 
 export const connectTarget = (state: EntryStates, service: CronService, options: DeployOptions, context: EventContext) => {
@@ -65,7 +67,8 @@ export const connectTarget = (state: EntryStates, service: CronService, options:
 
   const { handler } = service.target;
 
-  const functionState = getFunctionState(context, handler.name, options);
+  const internalName = getInternalName(service, handler.name);
+  const handlerState = getFunctionState(context, internalName, options);
 
-  linkServiceExtras(state, functionState.entryId, service.extras);
+  linkServiceExtras(state, handlerState.entryId, service.extras);
 };

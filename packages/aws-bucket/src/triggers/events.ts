@@ -7,8 +7,8 @@ import { getFunctionState, tryGetFunctionState } from '@ez4/aws-function';
 import { isRoleState } from '@ez4/aws-identity';
 
 import { createBucketEventFunction } from '../bucket/function/service.js';
+import { getFunctionName, getInternalName } from './utils.js';
 import { RoleMissingError } from './errors.js';
-import { getFunctionName } from './utils.js';
 
 export const prepareEvents = (state: EntryStates, service: BucketService, options: DeployOptions, context: EventContext) => {
   if (!service.events) {
@@ -23,13 +23,15 @@ export const prepareEvents = (state: EntryStates, service: BucketService, option
 
   const { handler, listener } = events;
 
-  const currentFunctionState = tryGetFunctionState(context, handler.name, options);
+  const internalName = getInternalName(service, handler.name);
 
-  if (currentFunctionState) {
-    return currentFunctionState;
+  const currentHandlerState = tryGetFunctionState(context, internalName, options);
+
+  if (currentHandlerState) {
+    return currentHandlerState;
   }
 
-  const functionState = createBucketEventFunction(state, context.role, {
+  const handlerState = createBucketEventFunction(state, context.role, {
     functionName: getFunctionName(service, handler.name, options),
     description: handler.description,
     timeout: events.timeout ?? 30,
@@ -52,9 +54,9 @@ export const prepareEvents = (state: EntryStates, service: BucketService, option
     })
   });
 
-  context.setServiceState(functionState, handler.name, options);
+  context.setServiceState(handlerState, internalName, options);
 
-  return functionState;
+  return handlerState;
 };
 
 export const connectEvents = (state: EntryStates, service: BucketService, options: DeployOptions, context: EventContext) => {
@@ -68,7 +70,8 @@ export const connectEvents = (state: EntryStates, service: BucketService, option
 
   const { handler } = service.events;
 
-  const functionState = getFunctionState(context, handler.name, options);
+  const internalName = getInternalName(service, handler.name);
+  const handlerState = getFunctionState(context, internalName, options);
 
-  linkServiceExtras(state, functionState.entryId, service.extras);
+  linkServiceExtras(state, handlerState.entryId, service.extras);
 };
