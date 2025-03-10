@@ -1,11 +1,6 @@
 import type { Arn } from '@ez4/aws-common';
 
-import {
-  LambdaClient,
-  AddPermissionCommand,
-  RemovePermissionCommand
-} from '@aws-sdk/client-lambda';
-
+import { LambdaClient, AddPermissionCommand, RemovePermissionCommand, ResourceNotFoundException } from '@aws-sdk/client-lambda';
 import { Logger } from '@ez4/aws-common';
 
 import { PermissionServiceName } from './types.js';
@@ -47,10 +42,20 @@ export const createPermission = async (request: CreateRequest): Promise<CreateRe
 export const deletePermission = async (functionName: string, statementId: string) => {
   Logger.logDelete(PermissionServiceName, functionName);
 
-  await client.send(
-    new RemovePermissionCommand({
-      FunctionName: functionName,
-      StatementId: statementId
-    })
-  );
+  try {
+    await client.send(
+      new RemovePermissionCommand({
+        FunctionName: functionName,
+        StatementId: statementId
+      })
+    );
+
+    return true;
+  } catch (error) {
+    if (!(error instanceof ResourceNotFoundException)) {
+      throw error;
+    }
+
+    return false;
+  }
 };

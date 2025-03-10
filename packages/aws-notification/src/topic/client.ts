@@ -5,7 +5,8 @@ import {
   CreateTopicCommand,
   DeleteTopicCommand,
   TagResourceCommand,
-  UntagResourceCommand
+  UntagResourceCommand,
+  NotFoundException
 } from '@aws-sdk/client-sns';
 
 import { getTagList, Logger } from '@ez4/aws-common';
@@ -45,11 +46,21 @@ export const createTopic = async (request: CreateRequest): Promise<CreateRespons
 export const deleteTopic = async (topicArn: string) => {
   Logger.logDelete(TopicServiceName, topicArn);
 
-  await client.send(
-    new DeleteTopicCommand({
-      TopicArn: topicArn
-    })
-  );
+  try {
+    await client.send(
+      new DeleteTopicCommand({
+        TopicArn: topicArn
+      })
+    );
+
+    return true;
+  } catch (error) {
+    if (!(error instanceof NotFoundException)) {
+      throw error;
+    }
+
+    return false;
+  }
 };
 
 export const tagTopic = async (topicArn: string, tags: ResourceTags) => {

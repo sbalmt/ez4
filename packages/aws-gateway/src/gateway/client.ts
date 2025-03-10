@@ -8,7 +8,8 @@ import {
   DeleteApiCommand,
   DeleteCorsConfigurationCommand,
   TagResourceCommand,
-  UntagResourceCommand
+  UntagResourceCommand,
+  NotFoundException
 } from '@aws-sdk/client-apigatewayv2';
 
 import { Logger } from '@ez4/aws-common';
@@ -100,11 +101,21 @@ export const updateGateway = async (apiId: string, request: UpdateRequest) => {
 export const deleteCorsConfiguration = async (apiId: string) => {
   Logger.logDelete(GatewayServiceName, `${apiId} CORS`);
 
-  await client.send(
-    new DeleteCorsConfigurationCommand({
-      ApiId: apiId
-    })
-  );
+  try {
+    await client.send(
+      new DeleteCorsConfigurationCommand({
+        ApiId: apiId
+      })
+    );
+
+    return true;
+  } catch (error) {
+    if (!(error instanceof NotFoundException)) {
+      throw error;
+    }
+
+    return false;
+  }
 };
 
 export const tagGateway = async (apiArn: Arn, tags: ResourceTags) => {
@@ -135,9 +146,19 @@ export const untagGateway = async (apiArn: Arn, tagKeys: string[]) => {
 export const deleteGateway = async (apiId: string) => {
   Logger.logDelete(GatewayServiceName, apiId);
 
-  await client.send(
-    new DeleteApiCommand({
-      ApiId: apiId
-    })
-  );
+  try {
+    await client.send(
+      new DeleteApiCommand({
+        ApiId: apiId
+      })
+    );
+
+    return true;
+  } catch (error) {
+    if (!(error instanceof NotFoundException)) {
+      throw error;
+    }
+
+    return false;
+  }
 };

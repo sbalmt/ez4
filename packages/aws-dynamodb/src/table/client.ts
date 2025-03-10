@@ -14,7 +14,8 @@ import {
   StreamViewType,
   BillingMode,
   waitUntilTableExists,
-  waitUntilTableNotExists
+  waitUntilTableNotExists,
+  ResourceNotFoundException
 } from '@aws-sdk/client-dynamodb';
 
 import { getAttributeDefinitions, getAttributeKeyTypes } from './helpers/schema.js';
@@ -77,10 +78,7 @@ export const createTable = async (request: CreateRequest): Promise<CreateRespons
     new CreateTableCommand({
       TableName: request.tableName,
       DeletionProtectionEnabled: !request.allowDeletion,
-      AttributeDefinitions: getAttributeDefinitions([
-        ...(secondarySchema ?? []).flat(),
-        ...primarySchema
-      ]),
+      AttributeDefinitions: getAttributeDefinitions([...(secondarySchema ?? []).flat(), ...primarySchema]),
       KeySchema: getAttributeKeyTypes(primarySchema),
       BillingMode: BillingMode.PAY_PER_REQUEST,
       OnDemandThroughput: {
@@ -226,13 +224,23 @@ export const untagTable = async (tableArn: Arn, tagKeys: string[]) => {
 export const deleteTable = async (tableName: string) => {
   Logger.logDelete(TableServiceName, tableName);
 
-  await client.send(
-    new DeleteTableCommand({
-      TableName: tableName
-    })
-  );
+  try {
+    await client.send(
+      new DeleteTableCommand({
+        TableName: tableName
+      })
+    );
 
-  await waitUntilTableNotExists(waiter, {
-    TableName: tableName
-  });
+    await waitUntilTableNotExists(waiter, {
+      TableName: tableName
+    });
+
+    return true;
+  } catch (error) {
+    if (!(error instanceof ResourceNotFoundException)) {
+      throw error;
+    }
+
+    return false;
+  }
 };

@@ -4,7 +4,8 @@ import {
   ApiGatewayV2Client,
   CreateIntegrationCommand,
   UpdateIntegrationCommand,
-  DeleteIntegrationCommand
+  DeleteIntegrationCommand,
+  NotFoundException
 } from '@aws-sdk/client-apigatewayv2';
 
 import { Logger } from '@ez4/aws-common';
@@ -26,10 +27,7 @@ export type CreateResponse = {
 
 export type UpdateRequest = Partial<CreateRequest>;
 
-export const createIntegration = async (
-  apiId: string,
-  request: CreateRequest
-): Promise<CreateResponse> => {
+export const createIntegration = async (apiId: string, request: CreateRequest): Promise<CreateResponse> => {
   Logger.logCreate(IntegrationServiceName, request.functionArn);
 
   const response = await client.send(
@@ -51,11 +49,7 @@ export const createIntegration = async (
   };
 };
 
-export const updateIntegration = async (
-  apiId: string,
-  integrationId: string,
-  request: UpdateRequest
-) => {
+export const updateIntegration = async (apiId: string, integrationId: string, request: UpdateRequest) => {
   Logger.logUpdate(IntegrationServiceName, integrationId);
 
   await client.send(
@@ -73,10 +67,20 @@ export const updateIntegration = async (
 export const deleteIntegration = async (apiId: string, integrationId: string) => {
   Logger.logDelete(IntegrationServiceName, integrationId);
 
-  await client.send(
-    new DeleteIntegrationCommand({
-      ApiId: apiId,
-      IntegrationId: integrationId
-    })
-  );
+  try {
+    await client.send(
+      new DeleteIntegrationCommand({
+        ApiId: apiId,
+        IntegrationId: integrationId
+      })
+    );
+
+    return true;
+  } catch (error) {
+    if (!(error instanceof NotFoundException)) {
+      throw error;
+    }
+
+    return false;
+  }
 };

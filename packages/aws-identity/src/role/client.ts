@@ -10,7 +10,8 @@ import {
   AttachRolePolicyCommand,
   DetachRolePolicyCommand,
   TagRoleCommand,
-  UntagRoleCommand
+  UntagRoleCommand,
+  NoSuchEntityException
 } from '@aws-sdk/client-iam';
 
 import { Logger, getTagList } from '@ez4/aws-common';
@@ -125,9 +126,19 @@ export const detachPolicy = async (roleName: string, policyArn: string) => {
 export const deleteRole = async (roleName: string) => {
   Logger.logDelete(RoleServiceName, roleName);
 
-  await client.send(
-    new DeleteRoleCommand({
-      RoleName: roleName
-    })
-  );
+  try {
+    await client.send(
+      new DeleteRoleCommand({
+        RoleName: roleName
+      })
+    );
+
+    return true;
+  } catch (error) {
+    if (!(error instanceof NoSuchEntityException)) {
+      throw error;
+    }
+
+    return false;
+  }
 };

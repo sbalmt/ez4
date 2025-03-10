@@ -10,7 +10,8 @@ import {
   DeleteCachePolicyCommand,
   CachePolicyHeaderBehavior,
   CachePolicyCookieBehavior,
-  CachePolicyQueryStringBehavior
+  CachePolicyQueryStringBehavior,
+  NoSuchCachePolicy
 } from '@aws-sdk/client-cloudfront';
 
 import { CacheServiceName } from './types.js';
@@ -71,14 +72,24 @@ export const updateCachePolicy = async (policyId: string, request: UpdateRequest
 export const deleteCachePolicy = async (policyId: string) => {
   Logger.logDelete(CacheServiceName, policyId);
 
-  const version = await getCurrentPolicyVersion(policyId);
+  try {
+    const version = await getCurrentPolicyVersion(policyId);
 
-  await client.send(
-    new DeleteCachePolicyCommand({
-      Id: policyId,
-      IfMatch: version
-    })
-  );
+    await client.send(
+      new DeleteCachePolicyCommand({
+        Id: policyId,
+        IfMatch: version
+      })
+    );
+
+    return true;
+  } catch (error) {
+    if (!(error instanceof NoSuchCachePolicy)) {
+      throw error;
+    }
+
+    return false;
+  }
 };
 
 const getCurrentPolicyVersion = async (policyId: string) => {

@@ -6,7 +6,8 @@ import {
   CreateRouteCommand,
   UpdateRouteCommand,
   DeleteRouteCommand,
-  AuthorizationType
+  AuthorizationType,
+  NotFoundException
 } from '@aws-sdk/client-apigatewayv2';
 
 import { Logger } from '@ez4/aws-common';
@@ -29,10 +30,7 @@ export type ImportOrCreateResponse = {
 
 export type UpdateRequest = Partial<CreateRequest>;
 
-export const importRoute = async (
-  apiId: string,
-  routePath: string
-): Promise<ImportOrCreateResponse | undefined> => {
+export const importRoute = async (apiId: string, routePath: string): Promise<ImportOrCreateResponse | undefined> => {
   Logger.logImport(RouteServiceName, routePath);
 
   const response = await client.send(
@@ -57,10 +55,7 @@ export const importRoute = async (
   };
 };
 
-export const createRoute = async (
-  apiId: string,
-  request: CreateRequest
-): Promise<ImportOrCreateResponse> => {
+export const createRoute = async (apiId: string, request: CreateRequest): Promise<ImportOrCreateResponse> => {
   Logger.logCreate(RouteServiceName, request.routePath);
 
   const { integrationId, authorizerId, operationName, routePath } = request;
@@ -112,12 +107,22 @@ export const updateRoute = async (apiId: string, routeId: string, request: Updat
 export const deleteRoute = async (apiId: string, routeId: string) => {
   Logger.logDelete(RouteServiceName, routeId);
 
-  await client.send(
-    new DeleteRouteCommand({
-      ApiId: apiId,
-      RouteId: routeId
-    })
-  );
+  try {
+    await client.send(
+      new DeleteRouteCommand({
+        ApiId: apiId,
+        RouteId: routeId
+      })
+    );
+
+    return true;
+  } catch (error) {
+    if (!(error instanceof NotFoundException)) {
+      throw error;
+    }
+
+    return false;
+  }
 };
 
 const getRouteArn = async (apiId: string, routeId: string) => {

@@ -8,7 +8,8 @@ import {
   CreatePolicyVersionCommand,
   DeletePolicyVersionCommand,
   TagPolicyCommand,
-  UntagPolicyCommand
+  UntagPolicyCommand,
+  NoSuchEntityException
 } from '@aws-sdk/client-iam';
 
 import { Logger, getTagList } from '@ez4/aws-common';
@@ -79,10 +80,7 @@ export const untagPolicy = async (policyArn: Arn, tagKeys: string[]) => {
   );
 };
 
-export const createPolicyVersion = async (
-  policyArn: Arn,
-  document: PolicyDocument
-): Promise<CreateVersionResponse> => {
+export const createPolicyVersion = async (policyArn: Arn, document: PolicyDocument): Promise<CreateVersionResponse> => {
   Logger.logCreate(PolicyServiceName, `${policyArn} version`);
 
   const response = await client.send(
@@ -105,20 +103,40 @@ export const createPolicyVersion = async (
 export const deletePolicyVersion = async (policyArn: Arn, versionId: string) => {
   Logger.logDelete(PolicyServiceName, `${policyArn} version ${versionId}`);
 
-  await client.send(
-    new DeletePolicyVersionCommand({
-      PolicyArn: policyArn,
-      VersionId: versionId
-    })
-  );
+  try {
+    await client.send(
+      new DeletePolicyVersionCommand({
+        PolicyArn: policyArn,
+        VersionId: versionId
+      })
+    );
+
+    return true;
+  } catch (error) {
+    if (!(error instanceof NoSuchEntityException)) {
+      throw error;
+    }
+
+    return false;
+  }
 };
 
 export const deletePolicy = async (policyArn: Arn) => {
   Logger.logDelete(PolicyServiceName, policyArn);
 
-  await client.send(
-    new DeletePolicyCommand({
-      PolicyArn: policyArn
-    })
-  );
+  try {
+    await client.send(
+      new DeletePolicyCommand({
+        PolicyArn: policyArn
+      })
+    );
+
+    return true;
+  } catch (error) {
+    if (!(error instanceof NoSuchEntityException)) {
+      throw error;
+    }
+
+    return false;
+  }
 };

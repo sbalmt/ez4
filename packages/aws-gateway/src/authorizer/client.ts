@@ -5,7 +5,8 @@ import {
   CreateAuthorizerCommand,
   UpdateAuthorizerCommand,
   DeleteAuthorizerCommand,
-  AuthorizerType
+  AuthorizerType,
+  NotFoundException
 } from '@aws-sdk/client-apigatewayv2';
 
 import { Logger } from '@ez4/aws-common';
@@ -29,10 +30,7 @@ export type CreateResponse = {
 
 export type UpdateRequest = Partial<CreateRequest>;
 
-export const createAuthorizer = async (
-  apiId: string,
-  request: CreateRequest
-): Promise<CreateResponse> => {
+export const createAuthorizer = async (apiId: string, request: CreateRequest): Promise<CreateResponse> => {
   Logger.logCreate(AuthorizerServiceName, request.name);
 
   const { functionArn, headerNames, queryNames, cacheTTL } = request;
@@ -55,11 +53,7 @@ export const createAuthorizer = async (
   };
 };
 
-export const updateAuthorizer = async (
-  apiId: string,
-  authorizerId: string,
-  request: UpdateRequest
-) => {
+export const updateAuthorizer = async (apiId: string, authorizerId: string, request: UpdateRequest) => {
   Logger.logUpdate(AuthorizerServiceName, request.name ?? authorizerId);
 
   const { functionArn, headerNames, queryNames, cacheTTL } = request;
@@ -81,12 +75,22 @@ export const updateAuthorizer = async (
 export const deleteAuthorizer = async (apiId: string, authorizerId: string) => {
   Logger.logDelete(AuthorizerServiceName, authorizerId);
 
-  await client.send(
-    new DeleteAuthorizerCommand({
-      ApiId: apiId,
-      AuthorizerId: authorizerId
-    })
-  );
+  try {
+    await client.send(
+      new DeleteAuthorizerCommand({
+        ApiId: apiId,
+        AuthorizerId: authorizerId
+      })
+    );
+
+    return true;
+  } catch (error) {
+    if (!(error instanceof NotFoundException)) {
+      throw error;
+    }
+
+    return false;
+  }
 };
 
 const getIdentitySources = (request: Pick<CreateRequest, 'headerNames' | 'queryNames'>) => {

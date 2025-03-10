@@ -98,7 +98,7 @@ const deleteResource = async (candidate: TableState) => {
 
   // If the table is still in use due to a prior change that's not
   // done yet, keep retrying until max attempts.
-  await waitDeletion(() => deleteTable(result.tableName));
+  await waitDeletion(async () => deleteTable(result.tableName));
 };
 
 const checkDeletionUpdates = async (tableName: string, candidate: TableParameters, current: TableParameters) => {

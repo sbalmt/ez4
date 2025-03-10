@@ -1,6 +1,6 @@
 import type { Arn } from '@ez4/aws-common';
 
-import { SNSClient, SubscribeCommand, UnsubscribeCommand } from '@aws-sdk/client-sns';
+import { NotFoundException, SNSClient, SubscribeCommand, UnsubscribeCommand } from '@aws-sdk/client-sns';
 import { Logger } from '@ez4/aws-common';
 
 import { SubscriptionServiceName } from './types.js';
@@ -48,9 +48,19 @@ export const createSubscription = async (request: CreateRequest): Promise<Create
 export const deleteSubscription = async (subscriptionArn: string) => {
   Logger.logDelete(SubscriptionServiceName, subscriptionArn);
 
-  await client.send(
-    new UnsubscribeCommand({
-      SubscriptionArn: subscriptionArn
-    })
-  );
+  try {
+    await client.send(
+      new UnsubscribeCommand({
+        SubscriptionArn: subscriptionArn
+      })
+    );
+
+    return true;
+  } catch (error) {
+    if (!(error instanceof NotFoundException)) {
+      throw error;
+    }
+
+    return false;
+  }
 };

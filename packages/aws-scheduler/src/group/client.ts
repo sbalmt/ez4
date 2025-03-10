@@ -71,11 +71,21 @@ export const createGroup = async (request: CreateRequest): Promise<CreateRespons
 export const deleteGroup = async (groupName: string) => {
   Logger.logDelete(GroupServiceName, groupName);
 
-  await client.send(
-    new DeleteScheduleGroupCommand({
-      Name: groupName
-    })
-  );
+  try {
+    await client.send(
+      new DeleteScheduleGroupCommand({
+        Name: groupName
+      })
+    );
+
+    return true;
+  } catch (error) {
+    if (!(error instanceof ResourceNotFoundException)) {
+      throw error;
+    }
+
+    return false;
+  }
 };
 
 export const tagGroup = async (groupArn: Arn, tags: ResourceTags) => {

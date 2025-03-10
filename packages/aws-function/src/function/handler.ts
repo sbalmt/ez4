@@ -174,7 +174,7 @@ const deleteResource = async (candidate: FunctionState) => {
   if (result) {
     // If the function is still in use due to a prior change that's not
     // done yet, keep retrying until max attempts.
-    await waitDeletion(() => deleteFunction(parameters.functionName));
+    await waitDeletion(async () => deleteFunction(parameters.functionName));
   }
 };
 

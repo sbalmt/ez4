@@ -1,9 +1,5 @@
+import type { CreateEventSourceMappingRequest, UpdateEventSourceMappingRequest } from '@aws-sdk/client-lambda';
 import type { Arn } from '@ez4/aws-common';
-
-import type {
-  CreateEventSourceMappingRequest,
-  UpdateEventSourceMappingRequest
-} from '@aws-sdk/client-lambda';
 
 import {
   LambdaClient,
@@ -12,7 +8,8 @@ import {
   UpdateEventSourceMappingCommand,
   DeleteEventSourceMappingCommand,
   ListEventSourceMappingsCommand,
-  EventSourcePosition
+  EventSourcePosition,
+  ResourceNotFoundException
 } from '@aws-sdk/client-lambda';
 
 import { Logger, parseArn } from '@ez4/aws-common';
@@ -41,10 +38,7 @@ export type ImportOrCreateResponse = {
 
 export type UpdateRequest = CreateRequest;
 
-export const importMapping = async (
-  functionName: string,
-  sourceArn: string
-): Promise<ImportOrCreateResponse | undefined> => {
+export const importMapping = async (functionName: string, sourceArn: string): Promise<ImportOrCreateResponse | undefined> => {
   Logger.logImport(MappingServiceName, functionName);
 
   const response = await client.send(
@@ -108,11 +102,21 @@ export const updateMapping = async (eventId: string, request: UpdateRequest) => 
 export const deleteMapping = async (eventId: string) => {
   Logger.logDelete(MappingServiceName, eventId);
 
-  await client.send(
-    new DeleteEventSourceMappingCommand({
-      UUID: eventId
-    })
-  );
+  try {
+    await client.send(
+      new DeleteEventSourceMappingCommand({
+        UUID: eventId
+      })
+    );
+
+    return true;
+  } catch (error) {
+    if (!(error instanceof ResourceNotFoundException)) {
+      throw error;
+    }
+
+    return false;
+  }
 };
 
 const getMappingState = async (eventId: string) => {
@@ -137,10 +141,7 @@ const waitForReadyState = async (eventId: string) => {
 
 const upsertMappingRequest = (
   request: CreateRequest | UpdateRequest
-): Omit<
-  Partial<CreateEventSourceMappingRequest | UpdateEventSourceMappingRequest>,
-  'functionName'
-> => {
+): Omit<Partial<CreateEventSourceMappingRequest | UpdateEventSourceMappingRequest>, 'functionName'> => {
   const { sourceArn, enabled, concurrency, batch } = request;
 
   const { service } = parseArn(sourceArn);
