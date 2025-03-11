@@ -6,7 +6,7 @@ import { toKebabCase } from '@ez4/utils';
 
 import { applyDeploy } from '../actions/deploy.js';
 import { prepareExecutionRole } from '../actions/identity.js';
-import { prepareAllLinkedServices } from '../actions/services.js';
+import { prepareLinkedServices } from '../actions/services.js';
 import { combineStates, loadRemoteState, loadLocalState, saveRemoteState, saveLocalState } from '../actions/state.js';
 import { connectDeployResources, prepareDeployResources } from '../actions/resources.js';
 import { reportResourceChanges } from '../report/report.js';
@@ -36,12 +36,13 @@ export const deploy = async (project: ProjectOptions) => {
 
   const newState: EntryStates = {};
 
-  const role = await prepareExecutionRole(newState, options);
-
   const stateAliases = {};
 
+  const role = await prepareExecutionRole(newState, metadata, options);
+
   await prepareDeployResources(stateAliases, newState, metadata, role, options);
-  await prepareAllLinkedServices(stateAliases, metadata, options);
+  await prepareLinkedServices(stateAliases, metadata, options);
+
   await connectDeployResources(stateAliases, newState, metadata, role, options);
 
   combineStates(newState, oldState);

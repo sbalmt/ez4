@@ -6,7 +6,7 @@ import { EventContext, triggerAllAsync } from '@ez4/project/library';
 
 import { getEventContext } from './common.js';
 
-export const prepareAllLinkedServices = async (aliases: ServiceAliases, metadata: MetadataReflection, options: DeployOptions) => {
+export const prepareLinkedServices = async (aliases: ServiceAliases, metadata: MetadataReflection, options: DeployOptions) => {
   const allEvents = [];
 
   const context = getEventContext(aliases, null);

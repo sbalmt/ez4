@@ -51,11 +51,13 @@ export type ServiceEvent = {
 };
 
 export type IdentityEvent = {
+  serviceType: string;
   options: DeployOptions;
 };
 
 export type PolicyResourceEvent = {
   state: EntryStates;
+  serviceType: string;
   options: DeployOptions;
 };
 
