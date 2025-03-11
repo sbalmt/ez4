@@ -8,10 +8,10 @@ export const getTableName = (service: DatabaseService, table: DatabaseTable, opt
   return `${getServiceName(service, options)}-${toKebabCase(table.name)}`;
 };
 
-export const getInternalName = (service: DatabaseService, table: DatabaseTable, handlerName?: string) => {
+export const getInternalName = (service: DatabaseService, table: DatabaseTable, suffixName?: string) => {
   const internalName = `${toKebabCase(service.name)}-${toKebabCase(table.name)}`;
 
-  return handlerName ? `${internalName}-${toKebabCase(handlerName)}` : internalName;
+  return suffixName ? `${internalName}-${toKebabCase(suffixName)}` : internalName;
 };
 
 export const getStreamName = (service: DatabaseService, table: DatabaseTable, handlerName: string, options: DeployOptions) => {

@@ -4,8 +4,8 @@ import type { DeployOptions } from '@ez4/project/library';
 import { getServiceName } from '@ez4/project/library';
 import { toKebabCase } from '@ez4/utils';
 
-export const getInternalName = (service: NotificationService | NotificationImport, handlerName: string) => {
-  return `${toKebabCase(service.name)}-${toKebabCase(handlerName)}`;
+export const getInternalName = (service: NotificationService | NotificationImport, suffixName: string) => {
+  return `${toKebabCase(service.name)}-${toKebabCase(suffixName)}`;
 };
 
 export const getFunctionName = (service: NotificationService | NotificationImport, handlerName: string, options: DeployOptions) => {

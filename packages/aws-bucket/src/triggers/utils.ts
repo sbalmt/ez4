@@ -16,8 +16,8 @@ export const getBucketName = async (service: BucketService, options: DeployOptio
   return `${bucketName.substring(0, 46)}-${randomName}`;
 };
 
-export const getInternalName = (service: BucketService, handlerName: string) => {
-  return `${toKebabCase(service.name)}-${toKebabCase(handlerName)}`;
+export const getInternalName = (service: BucketService, suffixName: string) => {
+  return `${toKebabCase(service.name)}-${toKebabCase(suffixName)}`;
 };
 
 export const getFunctionName = (service: BucketService, handlerName: string, options: DeployOptions) => {

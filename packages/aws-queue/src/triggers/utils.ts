@@ -9,8 +9,8 @@ export const getQueueName = (service: QueueService | QueueImport, options: Deplo
   return getServiceName(isQueueImport(service) ? service.reference : service, options);
 };
 
-export const getInternalName = (service: QueueService | QueueImport, handlerName: string) => {
-  return `${toKebabCase(service.name)}-${toKebabCase(handlerName)}`;
+export const getInternalName = (service: QueueService | QueueImport, suffixName: string) => {
+  return `${toKebabCase(service.name)}-${toKebabCase(suffixName)}`;
 };
 
 export const getFunctionName = (service: QueueService | QueueImport, handlerName: string, options: DeployOptions) => {
