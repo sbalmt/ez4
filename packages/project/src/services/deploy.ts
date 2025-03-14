@@ -25,6 +25,7 @@ export const deploy = async (project: ProjectOptions) => {
     resourcePrefix: toKebabCase(project.prefix ?? 'ez4'),
     projectName: toKebabCase(project.projectName),
     imports: await loadImports(project),
+    variables: project.variables,
     debug: project.debugMode
   };
 

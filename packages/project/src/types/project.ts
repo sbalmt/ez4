@@ -1,3 +1,5 @@
+import type { LinkedVariables } from './service.js';
+
 /**
  * Project options.
  */
@@ -45,6 +47,11 @@ export type ProjectOptions = {
    * Configuration for the project state.
    */
   stateFile: ProjectStateOptions;
+
+  /**
+   * Variables associated to all services.
+   */
+  variables?: LinkedVariables;
 };
 
 /**

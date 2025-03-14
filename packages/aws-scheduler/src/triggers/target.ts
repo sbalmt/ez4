@@ -36,6 +36,7 @@ export const prepareTarget = (state: EntryStates, service: CronService, options:
     extras: service.extras,
     debug: options.debug,
     variables: {
+      ...options.variables,
       ...service.variables,
       ...target.variables
     },

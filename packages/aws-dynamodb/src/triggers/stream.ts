@@ -45,6 +45,7 @@ export const prepareTableStream = (
       extras: service.extras,
       debug: options.debug,
       variables: {
+        ...options.variables,
         ...service.variables,
         ...stream.variables
       },

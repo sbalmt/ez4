@@ -43,6 +43,7 @@ export const prepareSubscriptions = async (
         extras: service.extras,
         debug: options.debug,
         variables: {
+          ...options.variables,
           ...service.variables,
           ...subscription.variables
         },

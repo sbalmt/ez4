@@ -39,6 +39,7 @@ export const prepareEvents = (state: EntryStates, service: BucketService, option
     extras: service.extras,
     debug: options.debug,
     variables: {
+      ...options.variables,
       ...service.variables,
       ...events.variables
     },

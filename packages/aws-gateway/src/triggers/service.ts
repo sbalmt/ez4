@@ -130,6 +130,7 @@ const getIntegrationFunction = (
       extras: service.extras,
       debug: options.debug,
       variables: {
+        ...options.variables,
         ...service.variables
       },
       handler: {
@@ -199,6 +200,7 @@ const getAuthorizerFunction = (
       extras: service.extras,
       debug: options.debug,
       variables: {
+        ...options.variables,
         ...service.variables
       },
       authorizer: {
