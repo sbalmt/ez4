@@ -39,12 +39,10 @@ export const prepareImports = async (event: PrepareResourceEvent) => {
     throw new ProjectMissingError(project);
   }
 
-  const queueName = getQueueName(service, imports[project]);
-
   const queueState = createQueue(state, {
+    queueName: getQueueName(service, imports[project]),
     fifoMode: !!service.fifoMode,
-    import: true,
-    queueName
+    import: true
   });
 
   context.setServiceState(queueState, service, imports[project]);

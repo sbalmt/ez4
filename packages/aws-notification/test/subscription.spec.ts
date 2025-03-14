@@ -4,10 +4,9 @@ import { describe, it } from 'node:test';
 import { ok, equal } from 'node:assert/strict';
 import { join } from 'node:path';
 
+import { createSubscriptionFunction, createSubscription, createTopic, registerTriggers, isSubscriptionState } from '@ez4/aws-notification';
 import { createPolicy, createRole } from '@ez4/aws-identity';
 import { deploy } from '@ez4/aws-common';
-
-import { createSubscriptionFunction, createSubscription, createTopic, registerTriggers, isSubscriptionState } from '@ez4/aws-notification';
 
 import { getPolicyDocument } from './common/policy.js';
 import { getRoleDocument } from './common/role.js';
@@ -30,7 +29,7 @@ const assertDeploy = async <E extends EntryState>(resourceId: string, newState: 
   };
 };
 
-describe.only('notification subscription', () => {
+describe('notification subscription', () => {
   const baseDir = 'test/files';
 
   let lastState: EntryStates | undefined;
@@ -42,7 +41,8 @@ describe.only('notification subscription', () => {
     const localState: EntryStates = {};
 
     const topicResource = createTopic(localState, {
-      topicName: 'ez4-test-notification-topic-subscription'
+      topicName: 'ez4-test-notification-topic-subscription',
+      fifoMode: false
     });
 
     const policyResource = createPolicy(localState, {

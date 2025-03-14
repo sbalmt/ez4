@@ -3,9 +3,8 @@ import type { SendMessageRequest } from '@aws-sdk/client-sqs';
 import type { MessageSchema } from '@ez4/aws-queue/runtime';
 import type { AnyObject } from '@ez4/utils';
 
-import { ReceiveMessageCommand, SendMessageCommand, SQSClient } from '@aws-sdk/client-sqs';
-
 import { MissingMessageGroupError, getJsonMessage, getJsonStringMessage } from '@ez4/aws-queue/runtime';
+import { ReceiveMessageCommand, SendMessageCommand, SQSClient } from '@aws-sdk/client-sqs';
 
 const client = new SQSClient({});
 

@@ -26,10 +26,8 @@ export const prepareServices = async (event: PrepareResourceEvent) => {
 
   const { fifoMode, timeout, retention, polling, delay } = service;
 
-  const queueName = getQueueName(service, options);
-
   const queueState = createQueue(state, {
-    queueName,
+    queueName: getQueueName(service, options),
     fifoMode: !!fifoMode,
     ...(timeout !== undefined && { timeout }),
     ...(retention !== undefined && { retention }),

@@ -17,6 +17,7 @@ const client = new SNSClient({});
 
 export type CreateRequest = {
   topicName: string;
+  fifoMode: boolean;
   tags?: ResourceTags;
 };
 
@@ -25,12 +26,20 @@ export type CreateResponse = {
 };
 
 export const createTopic = async (request: CreateRequest): Promise<CreateResponse> => {
-  Logger.logCreate(TopicServiceName, request.topicName);
+  const { topicName, fifoMode } = request;
+
+  Logger.logCreate(TopicServiceName, topicName);
 
   const response = await client.send(
     new CreateTopicCommand({
-      Name: request.topicName,
-      Attributes: {},
+      Name: topicName,
+      Attributes: {
+        ...(fifoMode && {
+          ContentBasedDeduplication: 'true',
+          FifoThroughputScope: 'MessageGroup',
+          FifoTopic: 'true'
+        })
+      },
       Tags: getTagList({
         ...request.tags,
         ManagedBy: 'EZ4'

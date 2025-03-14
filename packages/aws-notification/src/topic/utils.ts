@@ -8,8 +8,8 @@ import { hashData, toKebabCase } from '@ez4/utils';
 import { TopicNotFoundError } from './errors.js';
 import { TopicServiceType } from './types.js';
 
-export const createTopicStateId = (topicName: string) => {
-  return hashData(TopicServiceType, toKebabCase(topicName));
+export const createTopicStateId = (topicName: string, normalize = true) => {
+  return hashData(TopicServiceType, normalize ? toKebabCase(topicName) : topicName);
 };
 
 export const isTopicState = (resource: EntryState): resource is TopicState => {

@@ -41,6 +41,7 @@ export const prepareImports = async (event: PrepareResourceEvent) => {
 
   const topicState = createTopic(state, {
     topicName: getServiceName(reference, imports[project]),
+    fifoMode: !!service.fifoMode,
     import: true
   });
 

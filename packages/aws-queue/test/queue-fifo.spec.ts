@@ -3,7 +3,7 @@ import type { EntryState, EntryStates } from '@ez4/stateful';
 import { describe, it } from 'node:test';
 import { ok, equal } from 'node:assert/strict';
 
-import { createTopic, isTopicState, registerTriggers } from '@ez4/aws-notification';
+import { createQueue, isQueueState, registerTriggers } from '@ez4/aws-queue';
 import { deploy } from '@ez4/aws-common';
 import { deepClone } from '@ez4/utils';
 
@@ -13,11 +13,11 @@ const assertDeploy = async <E extends EntryState>(resourceId: string, newState: 
   const resource = state[resourceId];
 
   ok(resource?.result);
-  ok(isTopicState(resource));
+  ok(isQueueState(resource));
 
-  const { topicArn } = resource.result;
+  const { queueUrl } = resource.result;
 
-  ok(topicArn);
+  ok(queueUrl);
 
   return {
     result: resource.result,
@@ -25,56 +25,60 @@ const assertDeploy = async <E extends EntryState>(resourceId: string, newState: 
   };
 };
 
-describe('notification topic', () => {
+describe.only('queue fifo mode', () => {
   let lastState: EntryStates | undefined;
-  let topicId: string | undefined;
+  let queueId: string | undefined;
 
   registerTriggers();
 
   it('assert :: deploy', async () => {
     const localState: EntryStates = {};
 
-    const resource = createTopic(localState, {
-      topicName: 'ez4-test-notification-topic',
-      fifoMode: false,
+    const resource = createQueue(localState, {
+      queueName: 'ez4-test-queue',
+      fifoMode: true,
+      timeout: 30,
+      retention: 60,
+      polling: 20,
+      delay: 5,
       tags: {
         test1: 'ez4-tag1',
         test2: 'ez4-tag2'
       }
     });
 
-    topicId = resource.entryId;
+    queueId = resource.entryId;
 
-    const { state } = await assertDeploy(topicId, localState, undefined);
+    const { state } = await assertDeploy(queueId, localState, undefined);
 
     lastState = state;
   });
 
   it('assert :: update tags', async () => {
-    ok(topicId && lastState);
+    ok(queueId && lastState);
 
     const localState = deepClone(lastState);
-    const resource = localState[topicId];
+    const resource = localState[queueId];
 
-    ok(resource && isTopicState(resource));
+    ok(resource && isQueueState(resource));
 
     resource.parameters.tags = {
       test2: 'ez4-tag2',
       test3: 'ez4-tag3'
     };
 
-    const { state } = await assertDeploy(topicId, localState, lastState);
+    const { state } = await assertDeploy(queueId, localState, lastState);
 
     lastState = state;
   });
 
   it('assert :: destroy', async () => {
-    ok(topicId && lastState);
+    ok(queueId && lastState);
 
-    ok(lastState[topicId]);
+    ok(lastState[queueId]);
 
     const { result } = await deploy(undefined, lastState);
 
-    equal(result[topicId], undefined);
+    equal(result[queueId], undefined);
   });
 });

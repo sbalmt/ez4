@@ -1,18 +1,17 @@
 import type { EntryState, EntryStates } from '@ez4/stateful';
 import type { TopicParameters, TopicState } from './types.js';
 
-import { toKebabCase, hashData } from '@ez4/utils';
 import { attachEntry } from '@ez4/stateful';
+import { toKebabCase } from '@ez4/utils';
 
 import { createTopicStateId, isTopicState } from './utils.js';
 import { TopicServiceType } from './types.js';
 
-export const createTopic = <E extends EntryState>(
-  state: EntryStates<E>,
-  parameters: TopicParameters
-) => {
-  const topicName = toKebabCase(parameters.topicName);
-  const topicId = hashData(TopicServiceType, topicName);
+export const createTopic = <E extends EntryState>(state: EntryStates<E>, parameters: TopicParameters) => {
+  const localName = toKebabCase(parameters.topicName);
+  const topicName = parameters.fifoMode ? `${localName}.fifo` : localName;
+
+  const topicId = createTopicStateId(topicName, false);
 
   return attachEntry<E | TopicState, TopicState>(state, {
     type: TopicServiceType,

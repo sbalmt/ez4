@@ -25,7 +25,7 @@ const assertDeploy = async <E extends EntryState>(resourceId: string, newState: 
   };
 };
 
-describe('notification topic', () => {
+describe.only('notification fifo mode topic', () => {
   let lastState: EntryStates | undefined;
   let topicId: string | undefined;
 
@@ -36,7 +36,7 @@ describe('notification topic', () => {
 
     const resource = createTopic(localState, {
       topicName: 'ez4-test-notification-topic',
-      fifoMode: false,
+      fifoMode: true,
       tags: {
         test1: 'ez4-tag1',
         test2: 'ez4-tag2'
