@@ -6,7 +6,7 @@ import { describe, it } from 'node:test';
 import { SchemaType } from '@ez4/schema';
 import { transform } from '@ez4/transform';
 
-describe.only('default types transform', () => {
+describe('default types transform', () => {
   it('assert :: number with default', () => {
     const schema: AnySchema = {
       type: SchemaType.Number,

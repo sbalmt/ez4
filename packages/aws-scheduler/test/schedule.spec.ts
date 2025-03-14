@@ -41,7 +41,7 @@ const assertDeploy = async <E extends EntryState>(
   };
 };
 
-describe.only('scheduler', () => {
+describe('scheduler', () => {
   const baseDir = 'test/files';
 
   let lastState: EntryStates | undefined;

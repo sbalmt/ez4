@@ -34,7 +34,7 @@ const assertDeploy = async <E extends EntryState>(
   };
 };
 
-describe.only('role', () => {
+describe('role', () => {
   let lastState: EntryStates | undefined;
   let roleId: string | undefined;
 

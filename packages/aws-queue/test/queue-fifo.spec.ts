@@ -25,7 +25,7 @@ const assertDeploy = async <E extends EntryState>(resourceId: string, newState: 
   };
 };
 
-describe.only('queue fifo mode', () => {
+describe('queue fifo mode', () => {
   let lastState: EntryStates | undefined;
   let queueId: string | undefined;
 

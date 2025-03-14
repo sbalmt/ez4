@@ -25,7 +25,7 @@ const assertDeploy = async <E extends EntryState>(resourceId: string, newState: 
   };
 };
 
-describe.only('notification fifo mode topic', () => {
+describe('notification fifo mode topic', () => {
   let lastState: EntryStates | undefined;
   let topicId: string | undefined;
 

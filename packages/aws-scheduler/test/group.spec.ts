@@ -30,7 +30,7 @@ const assertDeploy = async <E extends EntryState>(
   };
 };
 
-describe.only('scheduler group', () => {
+describe('scheduler group', () => {
   let lastState: EntryStates | undefined;
   let groupId: string | undefined;
 

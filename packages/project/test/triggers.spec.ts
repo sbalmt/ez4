@@ -17,7 +17,7 @@ const assertSyncEvent = (event: keyof SyncEvent) => {
   equal(handler.mock.callCount(), 1);
 };
 
-describe.only('project triggers', () => {
+describe('project triggers', () => {
   it('reflection :: load file', () => assertSyncEvent('reflection:loadFile'));
   it('reflection :: type object', () => assertSyncEvent('reflection:typeObject'));
   it('metadata :: get services', () => assertSyncEvent('metadata:getServices'));

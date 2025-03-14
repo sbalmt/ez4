@@ -4,7 +4,7 @@ import { describe, it } from 'node:test';
 import { prepareCreateRelations, prepareDeleteRelations } from '@ez4/aws-aurora';
 import { Index } from '@ez4/database';
 
-describe.only('aurora migration (relations)', () => {
+describe('aurora migration (relations)', () => {
   it('assert :: create relation', () => {
     const statements = prepareCreateRelations('ez4-test-table', {
       relation: {

@@ -3,7 +3,7 @@ import { describe, it } from 'node:test';
 
 import { deepClone } from '@ez4/utils';
 
-describe.only('object clone utils', () => {
+describe('object clone utils', () => {
   const object = {
     level: 1,
     first: {

@@ -14,7 +14,7 @@ import { rejects } from 'node:assert/strict';
 import { commonStepHandlers } from './common/handler.js';
 import { TestEntryType } from './common/entry.js';
 
-describe.only('plan errors tests', () => {
+describe('plan errors tests', () => {
   it('throws :: entries not found', async () => {
     await rejects(
       () => planSteps(undefined, undefined, { handlers: commonStepHandlers }),

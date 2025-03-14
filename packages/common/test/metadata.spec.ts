@@ -6,7 +6,7 @@ import { createTrigger } from '@ez4/project/library';
 
 import { loadTestMember } from './common.js';
 
-describe.only('common metadata', () => {
+describe('common metadata', () => {
   registerTriggers();
 
   process.env.TEST_ENV_VAR = 'test-env-var';

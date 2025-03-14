@@ -6,7 +6,7 @@ import { describe, it } from 'node:test';
 import { SchemaType } from '@ez4/schema';
 import { transform } from '@ez4/transform';
 
-describe.only('special types transform', () => {
+describe('special types transform', () => {
   it('assert :: array from string', () => {
     const schema: AnySchema = {
       type: SchemaType.Array,

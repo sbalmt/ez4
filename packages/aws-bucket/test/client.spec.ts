@@ -9,7 +9,7 @@ import { createBucket, isBucketState, registerTriggers } from '@ez4/aws-bucket';
 import { Client } from '@ez4/aws-bucket/client';
 import { deploy } from '@ez4/aws-common';
 
-describe.only('bucket client', () => {
+describe('bucket client', () => {
   const baseDir = 'test/files';
 
   let lastState: EntryStates | undefined;

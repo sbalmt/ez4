@@ -30,7 +30,7 @@ const assertDeploy = async <E extends EntryState>(resourceId: string, newState: 
   };
 };
 
-describe.only('bucket resources', () => {
+describe('bucket resources', () => {
   const baseDir = 'test/files';
 
   let lastState: EntryStates | undefined;

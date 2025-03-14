@@ -4,7 +4,7 @@ import { registerTriggers } from '@ez4/schema/library';
 
 import { testFile } from './common.js';
 
-describe.only('schema types', () => {
+describe('schema types', () => {
   registerTriggers();
 
   it('assert :: scalar types', () => testFile('scalar'));

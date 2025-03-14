@@ -42,7 +42,7 @@ const assertDeploy = async <E extends EntryState>(
   };
 };
 
-describe.only('gateway integration', () => {
+describe('gateway integration', () => {
   const baseDir = 'test/files';
 
   let lastState: EntryStates | undefined;

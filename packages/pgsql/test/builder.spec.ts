@@ -6,7 +6,7 @@ import { deepEqual, equal } from 'node:assert';
 import { SchemaType } from '@ez4/schema';
 import { SqlBuilder } from '@ez4/pgsql';
 
-describe.only('sql builder tests', () => {
+describe('sql builder tests', () => {
   it('assert :: on prepare variable (insert)', async () => {
     const onPrepareVariable = mock.fn((value, { index }) => `insert_${index}_${value}`);
 

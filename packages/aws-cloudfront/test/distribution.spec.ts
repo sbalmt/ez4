@@ -38,7 +38,7 @@ const assertDeploy = async <E extends EntryState>(resourceId: string, newState: 
   };
 };
 
-describe.only('cloudfront :: distribution', () => {
+describe('cloudfront :: distribution', () => {
   let lastState: EntryStates | undefined;
   let distributionId: string | undefined;
 

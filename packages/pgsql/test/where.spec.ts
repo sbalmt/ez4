@@ -6,7 +6,7 @@ import { deepEqual, equal } from 'node:assert';
 import { SchemaType } from '@ez4/schema';
 import { SqlBuilder } from '@ez4/pgsql';
 
-describe.only('sql where tests', () => {
+describe('sql where tests', () => {
   let sql: SqlBuilder;
 
   beforeEach(() => {

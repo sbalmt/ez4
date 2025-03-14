@@ -11,7 +11,7 @@ import {
 import { registerTriggers } from '@ez4/database/library';
 import { parseFile } from './common/parser.js';
 
-describe.only('database service errors', () => {
+describe('database service errors', () => {
   registerTriggers();
 
   it('assert :: incomplete database', () => {

@@ -12,7 +12,7 @@ import { registerTriggers, getLinkedVariableList, getLinkedServiceList } from '@
 
 import { loadTestMember } from './common.js';
 
-describe.only('common metadata errors', () => {
+describe('common metadata errors', () => {
   registerTriggers();
 
   it('assert :: missing variable', () => {

@@ -8,7 +8,7 @@ import {
   SchemaType
 } from '@ez4/schema';
 
-describe.only('schema utils', () => {
+describe('schema utils', () => {
   const fullSchema: ObjectSchema = {
     type: SchemaType.Object,
     identity: 1,

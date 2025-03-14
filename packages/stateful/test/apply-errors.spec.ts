@@ -9,7 +9,7 @@ import { rejects } from 'node:assert/strict';
 import { commonStepHandlers } from './common/handler.js';
 import { TestEntryType } from './common/entry.js';
 
-describe.only('apply errors tests', () => {
+describe('apply errors tests', () => {
   it('throws :: entries not found', async () => {
     await rejects(
       () => applySteps([], undefined, undefined, { handlers: commonStepHandlers }),

@@ -44,7 +44,7 @@ const assertDeploy = async <E extends EntryState>(
   };
 };
 
-describe.only('dynamodb mapping', () => {
+describe('dynamodb mapping', () => {
   const baseDir = 'test/files';
 
   let lastState: EntryStates | undefined;

@@ -40,7 +40,7 @@ const parseFile = (fileName: string, errorCount: number) => {
   return result.errors;
 };
 
-describe.only('http metadata errors', () => {
+describe('http metadata errors', () => {
   registerTriggers();
 
   it('assert :: incomplete service', () => {

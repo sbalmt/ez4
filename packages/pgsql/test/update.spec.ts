@@ -3,7 +3,7 @@ import { equal, deepEqual } from 'node:assert';
 
 import { SqlBuilder } from '@ez4/pgsql';
 
-describe.only('sql update tests', () => {
+describe('sql update tests', () => {
   let sql: SqlBuilder;
 
   beforeEach(() => {

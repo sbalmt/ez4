@@ -40,7 +40,7 @@ const baseState: EntryStates<TestEntryState> = {
   }
 };
 
-describe.only('plan tests', () => {
+describe('plan tests', () => {
   it('assert :: create actions order', async () => {
     const steps = await planSteps(baseState, undefined, { handlers: commonStepHandlers });
 

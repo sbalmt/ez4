@@ -33,7 +33,7 @@ const assertDeploy = async <E extends EntryState>(
   };
 };
 
-describe.only('policy', () => {
+describe('policy', () => {
   let lastState: EntryStates | undefined;
   let policyId: string | undefined;
 

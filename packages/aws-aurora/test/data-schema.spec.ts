@@ -5,7 +5,7 @@ import { getInsertSchema, getUpdateSchema, validateSchema } from '@ez4/aws-auror
 import { ObjectSchema, SchemaType } from '@ez4/schema';
 import { Index } from '@ez4/database';
 
-describe.only('aurora data schema', () => {
+describe('aurora data schema', () => {
   const testSchema: ObjectSchema = {
     type: SchemaType.Object,
     properties: {

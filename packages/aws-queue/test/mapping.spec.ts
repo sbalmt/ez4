@@ -36,7 +36,7 @@ const assertDeploy = async <E extends EntryState>(
   };
 };
 
-describe.only('queue mapping', () => {
+describe('queue mapping', () => {
   const baseDir = 'test/files';
 
   let lastState: EntryStates | undefined;

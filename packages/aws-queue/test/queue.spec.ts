@@ -29,7 +29,7 @@ const assertDeploy = async <E extends EntryState>(
   };
 };
 
-describe.only('queue', () => {
+describe('queue', () => {
   let lastState: EntryStates | undefined;
   let queueId: string | undefined;
 

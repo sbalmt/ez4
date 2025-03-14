@@ -4,7 +4,7 @@ import { registerTriggers } from '@ez4/schema/library';
 
 import { testFile } from './common.js';
 
-describe.only('schema rich types', () => {
+describe('schema rich types', () => {
   registerTriggers();
 
   it('assert :: decimal', () => testFile('decimal'));

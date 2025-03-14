@@ -25,7 +25,7 @@ const parseFile = (fileName: string, errorCount: number) => {
   return result.errors;
 };
 
-describe.only('distribution metadata errors', () => {
+describe('distribution metadata errors', () => {
   registerTriggers();
 
   it('assert :: incomplete distribution', () => {

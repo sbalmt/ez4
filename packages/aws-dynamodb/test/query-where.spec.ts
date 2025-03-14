@@ -20,7 +20,7 @@ type TestRelations = {
   changes: {};
 };
 
-describe.only('dynamodb query (where)', () => {
+describe('dynamodb query (where)', () => {
   const getWhereOperation = (where: Query.WhereInput<TestSchema, {}, TestRelations>) => {
     const [statement, variables] = prepareSelect<TestSchema, {}, {}, TestRelations>(
       'ez4-test-where-operation',

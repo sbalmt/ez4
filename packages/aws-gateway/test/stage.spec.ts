@@ -30,7 +30,7 @@ const assertDeploy = async <E extends EntryState>(
   };
 };
 
-describe.only('gateway stage', () => {
+describe('gateway stage', () => {
   let lastState: EntryStates | undefined;
   let stageId: string | undefined;
 

@@ -24,7 +24,7 @@ type TestIndexes = {
   id: Index.Primary;
 };
 
-describe.only('dynamodb query (select)', () => {
+describe('dynamodb query (select)', () => {
   it('assert :: prepare select', () => {
     const [statement, variables] = prepareSelect<TestSchema, {}, TestIndexes, TestRelations>(
       'ez4-test-select',

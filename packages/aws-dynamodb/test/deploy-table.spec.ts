@@ -37,7 +37,7 @@ const assertDeploy = async <E extends EntryState>(
   };
 };
 
-describe.only('dynamodb table', () => {
+describe('dynamodb table', () => {
   let lastState: EntryStates | undefined;
   let tableId: string | undefined;
 

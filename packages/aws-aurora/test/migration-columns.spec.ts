@@ -5,7 +5,7 @@ import { prepareCreateColumns, prepareDeleteColumns, prepareUpdateColumns } from
 import { SchemaType } from '@ez4/schema';
 import { Index } from '@ez4/database';
 
-describe.only('aurora migration (columns)', () => {
+describe('aurora migration (columns)', () => {
   it('assert :: create column (default, nullable)', () => {
     const statements = prepareCreateColumns(
       'ez4-test-table',

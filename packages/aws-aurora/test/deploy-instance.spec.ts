@@ -32,7 +32,7 @@ const assertDeploy = async <E extends EntryState>(
   };
 };
 
-describe.only('aurora instance', () => {
+describe('aurora instance', () => {
   let lastState: EntryStates | undefined;
   let instanceId: string | undefined;
 

@@ -12,7 +12,7 @@ import {
 import { registerTriggers } from '@ez4/database/library';
 import { parseFile } from './common/parser.js';
 
-describe.only('database relation errors', () => {
+describe('database relation errors', () => {
   registerTriggers();
 
   it('assert :: incorrect table relations', () => {

@@ -37,7 +37,7 @@ declare class Test extends Database.Service {
   ];
 }
 
-describe.only('dynamodb client', () => {
+describe('dynamodb client', () => {
   let lastState: EntryStates | undefined;
   let dbClient: DbClient<Test>;
   let tableId: string | undefined;

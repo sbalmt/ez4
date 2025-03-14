@@ -24,7 +24,7 @@ type TestIndexes = {
   id: Index.Primary;
 };
 
-describe.only('aurora query (delete)', () => {
+describe('aurora query (delete)', () => {
   const testSchema: ObjectSchema = {
     type: SchemaType.Object,
     properties: {

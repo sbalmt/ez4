@@ -4,7 +4,7 @@ import { equal, deepEqual } from 'node:assert/strict';
 import { mergeSqlAlias, SqlBuilder } from '@ez4/pgsql';
 import { Order } from '@ez4/database';
 
-describe.only('sql select tests', () => {
+describe('sql select tests', () => {
   let sql: SqlBuilder;
 
   beforeEach(() => {

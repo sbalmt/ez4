@@ -29,7 +29,7 @@ const parseFile = (fileName: string, errorCount: number) => {
   return result.errors;
 };
 
-describe.only('queue metadata errors', () => {
+describe('queue metadata errors', () => {
   registerTriggers();
 
   it('assert :: incomplete queue', () => {
