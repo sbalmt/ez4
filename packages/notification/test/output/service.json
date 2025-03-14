@@ -2,12 +2,23 @@
   "TestNotification1": {
     "type": "@ez4/notification",
     "name": "TestNotification1",
-    "extras": {},
     "description": "First test notification description.",
+    "extras": {},
+    "fifoMode": {
+      "groupId": "user",
+      "uniqueId": "id"
+    },
     "schema": {
       "type": "object",
-      "properties": {},
-      "identity": 1
+      "identity": 1,
+      "properties": {
+        "id": {
+          "type": "string"
+        },
+        "user": {
+          "type": "string"
+        }
+      }
     },
     "subscriptions": [],
     "services": {
@@ -21,7 +32,14 @@
     "description": "Description of the second test notification.",
     "schema": {
       "type": "object",
-      "properties": {},
+      "properties": {
+        "id": {
+          "type": "string"
+        },
+        "user": {
+          "type": "string"
+        }
+      },
       "identity": 1
     },
     "subscriptions": [],

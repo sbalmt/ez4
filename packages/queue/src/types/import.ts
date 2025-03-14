@@ -6,12 +6,12 @@ export const ImportType = '@ez4/import:queue';
 export type QueueImport = ServiceMetadata & {
   type: typeof ImportType;
   name: string;
-  project: string;
   reference: string;
+  project: string;
   schema: QueueMessageSchema;
+  subscriptions: QueueSubscription[];
   description?: string;
   fifoMode?: QueueFifoMode;
-  subscriptions: QueueSubscription[];
   timeout?: number;
 };
 

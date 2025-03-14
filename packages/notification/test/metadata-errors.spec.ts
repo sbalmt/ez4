@@ -3,12 +3,16 @@ import { describe, it } from 'node:test';
 
 import {
   IncompleteServiceError,
-  IncorrectMessageTypeError,
-  InvalidMessageTypeError,
   IncompleteSubscriptionError,
+  IncompleteHandlerError,
+  IncompleteFifoModeError,
   IncorrectSubscriptionTypeError,
+  IncorrectFifoModePropertyError,
+  IncorrectFifoModeTypeError,
+  IncorrectMessageTypeError,
   InvalidSubscriptionTypeError,
-  IncompleteHandlerError
+  InvalidFifoModeTypeError,
+  InvalidMessageTypeError
 } from '@ez4/notification/library';
 
 import { getReflection } from '@ez4/project/library';
@@ -101,5 +105,30 @@ describe.only('notification metadata errors', () => {
 
     ok(error4 instanceof IncompleteSubscriptionError);
     deepEqual(error4.properties, ['service']);
+  });
+
+  it('assert :: incomplete fifo mode', () => {
+    const [error1] = parseFile('incomplete-fifo', 1);
+
+    ok(error1 instanceof IncompleteFifoModeError);
+    deepEqual(error1.properties, ['groupId']);
+  });
+
+  it('assert :: incorrect fifo mode', () => {
+    const [error1, error2] = parseFile('incorrect-fifo', 2);
+
+    ok(error1 instanceof IncorrectFifoModeTypeError);
+    equal(error1.baseType, 'Notification.FifoMode');
+    equal(error1.modelType, 'TestFifoMode');
+
+    ok(error2 instanceof IncorrectFifoModePropertyError);
+    deepEqual(error2.properties, ['wrong']);
+  });
+
+  it('assert :: invalid fifo mode', () => {
+    const [error1] = parseFile('invalid-fifo', 1);
+
+    ok(error1 instanceof InvalidFifoModeTypeError);
+    equal(error1.baseType, 'Notification.FifoMode');
   });
 });

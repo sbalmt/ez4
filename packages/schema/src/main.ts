@@ -1,3 +1,4 @@
+export * from './utils/property.js';
 export * from './utils/partial.js';
 
 export * from './richtypes/boolean.js';

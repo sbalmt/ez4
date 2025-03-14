@@ -1,4 +1,4 @@
-import type { SourceMap } from '@ez4/reflection';
+import type { SourceMap, TypeModel } from '@ez4/reflection';
 import type { Incomplete } from '@ez4/utils';
 import type { NotificationService } from '../types/service.js';
 
@@ -12,11 +12,14 @@ import {
 } from '@ez4/common/library';
 
 import { isModelProperty } from '@ez4/reflection';
+import { hasSchemaProperty } from '@ez4/schema';
 
 import { ServiceType } from '../types/service.js';
 import { IncompleteServiceError } from '../errors/service.js';
+import { IncorrectFifoModePropertyError } from '../errors/fifo.js';
 import { getAllSubscription } from './subscription.js';
 import { getNotificationMessage } from './message.js';
+import { getNotificationFifoMode } from './fifo.js';
 import { isNotificationService } from './utils.js';
 
 export const getNotificationServices = (reflection: SourceMap) => {
@@ -65,6 +68,12 @@ export const getNotificationServices = (reflection: SourceMap) => {
           }
           break;
 
+        case 'fifoMode':
+          if (!member.inherited) {
+            service.fifoMode = getNotificationFifoMode(member.value, statement, reflection, errorList);
+          }
+          break;
+
         case 'variables':
           if (!member.inherited) {
             service.variables = getLinkedVariableList(member, errorList);
@@ -84,6 +93,13 @@ export const getNotificationServices = (reflection: SourceMap) => {
       continue;
     }
 
+    const validationErrors = validateFifoModeProperties(statement, service);
+
+    if (validationErrors.length) {
+      errorList.push(...validationErrors);
+      continue;
+    }
+
     if (allServices[statement.name]) {
       errorList.push(new DuplicateServiceError(statement.name, fileName));
       continue;
@@ -100,4 +116,14 @@ export const getNotificationServices = (reflection: SourceMap) => {
 
 const isValidService = (type: Incomplete<NotificationService>): type is NotificationService => {
   return !!type.name && !!type.schema && !!type.subscriptions && !!type.extras;
+};
+
+const validateFifoModeProperties = (parent: TypeModel, service: NotificationService) => {
+  const { fifoMode } = service;
+
+  if (fifoMode && !hasSchemaProperty(service.schema, fifoMode.groupId)) {
+    return [new IncorrectFifoModePropertyError([fifoMode.groupId], parent.file)];
+  }
+
+  return [];
 };

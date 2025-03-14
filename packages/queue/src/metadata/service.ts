@@ -1,6 +1,5 @@
 import type { SourceMap, TypeModel } from '@ez4/reflection';
 import type { Incomplete } from '@ez4/utils';
-import type { AnySchema } from '@ez4/schema';
 import type { QueueService } from '../types/service.js';
 
 import {
@@ -13,16 +12,16 @@ import {
   getPropertyNumber
 } from '@ez4/common/library';
 
-import { isObjectSchema, isUnionSchema } from '@ez4/schema';
 import { isModelProperty } from '@ez4/reflection';
+import { hasSchemaProperty } from '@ez4/schema';
 
 import { ServiceType } from '../types/service.js';
 import { IncompleteServiceError } from '../errors/service.js';
+import { IncorrectFifoModePropertyError } from '../errors/fifo.js';
 import { getAllSubscription } from './subscription.js';
 import { getQueueMessage } from './message.js';
 import { getQueueFifoMode } from './fifo.js';
 import { isQueueService } from './utils.js';
-import { IncorrectFifoModePropertyError } from '../library.js';
 
 export const getQueueServices = (reflection: SourceMap) => {
   const allServices: Record<string, QueueService> = {};
@@ -134,21 +133,9 @@ const isValidService = (type: Incomplete<QueueService>): type is QueueService =>
 const validateFifoModeProperties = (parent: TypeModel, service: QueueService) => {
   const { fifoMode } = service;
 
-  if (fifoMode && !schemaHasProperty(service.schema, fifoMode.groupId)) {
+  if (fifoMode && !hasSchemaProperty(service.schema, fifoMode.groupId)) {
     return [new IncorrectFifoModePropertyError([fifoMode.groupId], parent.file)];
   }
 
   return [];
-};
-
-const schemaHasProperty = (schema: AnySchema, property: string): boolean => {
-  if (isObjectSchema(schema)) {
-    return !!schema.properties[property];
-  }
-
-  if (isUnionSchema(schema)) {
-    return schema.elements.some((schema) => schemaHasProperty(schema, property));
-  }
-
-  return false;
 };

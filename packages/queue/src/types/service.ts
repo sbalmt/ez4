@@ -7,8 +7,8 @@ export type QueueService = ServiceMetadata & {
   type: typeof ServiceType;
   name: string;
   schema: QueueMessageSchema;
-  description?: string;
   subscriptions: QueueSubscription[];
+  description?: string;
   fifoMode?: QueueFifoMode;
   timeout?: number;
   retention?: number;

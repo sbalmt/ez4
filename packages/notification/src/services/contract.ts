@@ -3,7 +3,13 @@ import type { Service } from '@ez4/common';
 import type { Queue } from '@ez4/queue';
 import type { Client } from './client.js';
 
-import type { NotificationMessage, NotificationIncoming, SubscriptionHandler, SubscriptionListener } from './common.js';
+import type {
+  NotificationMessage,
+  NotificationIncoming,
+  SubscriptionHandler,
+  SubscriptionListener,
+  NotificationFifoMode
+} from './common.js';
 
 /**
  * Provide all contracts for a self-managed notification service.
@@ -11,6 +17,7 @@ import type { NotificationMessage, NotificationIncoming, SubscriptionHandler, Su
 export namespace Notification {
   export type Message = NotificationMessage;
 
+  export type FifoMode<T extends Message> = NotificationFifoMode<T>;
   export type Incoming<T extends Message> = NotificationIncoming<T>;
 
   export type Listener<T extends Message> = SubscriptionListener<T>;
@@ -75,6 +82,11 @@ export namespace Notification {
     schema: T;
 
     /**
+     * Enable and configure the FIFO mode options.
+     */
+    fifoMode?: FifoMode<T>;
+
+    /**
      * Service client.
      */
     client: Client<T>;
@@ -103,6 +115,11 @@ export namespace Notification {
      * Imported message schema (do not replace).
      */
     schema: T['schema'];
+
+    /**
+     * Imported FIFO mode options (do not replace).
+     */
+    fifoMode: T['fifoMode'];
 
     /**
      * Imported service client (do not replace).

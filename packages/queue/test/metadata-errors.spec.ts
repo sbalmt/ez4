@@ -3,16 +3,16 @@ import { describe, it } from 'node:test';
 
 import {
   IncompleteServiceError,
-  IncorrectMessageTypeError,
-  InvalidMessageTypeError,
   IncompleteSubscriptionError,
-  IncorrectSubscriptionTypeError,
-  InvalidSubscriptionTypeError,
   IncompleteHandlerError,
-  IncorrectFifoModeTypeError,
+  IncompleteFifoModeError,
+  IncorrectSubscriptionTypeError,
   IncorrectFifoModePropertyError,
+  IncorrectFifoModeTypeError,
+  IncorrectMessageTypeError,
+  InvalidSubscriptionTypeError,
   InvalidFifoModeTypeError,
-  IncompleteFifoModeError
+  InvalidMessageTypeError
 } from '@ez4/queue/library';
 
 import { getReflection } from '@ez4/project/library';

@@ -1,13 +1,21 @@
 import type { Environment } from '@ez4/common';
 import type { Notification } from '@ez4/notification';
 
-interface TestMessage extends Notification.Message {}
+interface TestMessage extends Notification.Message {
+  id: string;
+  user: string;
+}
 
 /**
  * First test notification description.
  */
 export declare class TestNotification1 extends Notification.Service<TestMessage> {
   subscriptions: [];
+
+  fifoMode: {
+    uniqueId: 'id';
+    groupId: 'user';
+  };
 
   // Services to all subscriptions.
   services: {

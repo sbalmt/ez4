@@ -7,6 +7,21 @@ import type { Notification } from './contract.js';
 export interface NotificationMessage {}
 
 /**
+ * Notification FIFO mode options.
+ */
+export interface NotificationFifoMode<T extends NotificationMessage> {
+  /**
+   * Name of the message deduplication field.
+   */
+  uniqueId?: keyof T;
+
+  /**
+   * Name of the message group id field.
+   */
+  groupId: keyof T;
+}
+
+/**
  * Incoming message.
  */
 export type NotificationIncoming<T extends NotificationMessage> = {
