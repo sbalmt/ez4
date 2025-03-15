@@ -64,7 +64,9 @@ export const prepareTableStream = (
     context.setServiceState(handlerState, internalName, options);
   }
 
-  createMapping(state, tableState, handlerState, {});
+  createMapping(state, tableState, handlerState, {
+    fromService: internalName
+  });
 
   return handlerState;
 };

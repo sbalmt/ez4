@@ -32,7 +32,14 @@ const previewResource = async (candidate: MappingState, current: MappingState) =
     }
   });
 
-  return changes.counts ? changes : undefined;
+  if (!changes.counts) {
+    return undefined;
+  }
+
+  return {
+    ...changes,
+    name: target.fromService
+  };
 };
 
 const replaceResource = async (candidate: MappingState, current: MappingState, context: StepContext) => {

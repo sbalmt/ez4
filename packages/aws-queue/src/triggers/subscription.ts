@@ -63,7 +63,8 @@ export const prepareSubscriptions = async (
     }
 
     createMapping(state, queueState, handlerState, {
-      concurrency: subscription.concurrency
+      concurrency: subscription.concurrency,
+      fromService: internalName
     });
   }
 };
