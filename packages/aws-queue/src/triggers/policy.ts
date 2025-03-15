@@ -1,7 +1,7 @@
 import type { PolicyResourceEvent } from '@ez4/project/library';
 
-import { ServiceType } from '@ez4/queue/library';
 import { createPolicy, tryGetPolicy } from '@ez4/aws-identity';
+import { ServiceType, ImportType } from '@ez4/queue/library';
 import { getServiceName } from '@ez4/project/library';
 
 import { getPolicyDocument } from '../utils/policy.js';
@@ -9,7 +9,7 @@ import { getPolicyDocument } from '../utils/policy.js';
 export const prepareExecutionPolicy = async (event: PolicyResourceEvent) => {
   const { state, serviceType, options } = event;
 
-  if (serviceType !== ServiceType) {
+  if (serviceType !== ServiceType && serviceType !== ImportType) {
     return null;
   }
 
