@@ -1,6 +1,6 @@
 {
-  "name": "hello-aws-notification",
-  "description": "Example of a service using AWS Notification (SNS).",
+  "name": "aws-import-notification",
+  "description": "Example of a service using an imported AWS Notification (SNS).",
   "version": "0.0.0",
   "author": "Silas B.",
   "license": "MIT",
@@ -13,22 +13,16 @@
     "packages/*",
     "examples/*"
   ],
-  "exports": {
-    ".": {
-      "types": "./src/export.ts",
-      "default": "./src/export.js"
-    }
-  },
   "scripts": {
     "deploy": "tsc -p tsconfig.json && ez4 deploy -e local.env -p ez4.project.js",
     "destroy": "ez4 destroy -e local.env -p ez4.project.js"
   },
   "dependencies": {
-    "@ez4/aws-common": "^0.16.0",
+    "hello-aws-notification": "^0.0.0",
     "@ez4/aws-notification": "^0.16.0",
     "@ez4/aws-queue": "^0.16.0",
-    "@ez4/notification": "^0.16.0",
     "@ez4/common": "^0.16.0",
+    "@ez4/notification": "^0.16.0",
     "@ez4/queue": "^0.16.0",
     "@ez4/project": "^0.16.0"
   }

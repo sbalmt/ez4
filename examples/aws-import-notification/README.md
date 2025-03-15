@@ -1,6 +1,6 @@
-# AWS Queue: Import
+# AWS Notification: Import
 
-This example showcases how to use an imported Simple Queue Service.
+This example showcases how to use an imported Simple Notification Service.
 
 ## Getting started
 

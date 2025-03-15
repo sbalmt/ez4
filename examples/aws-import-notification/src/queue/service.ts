@@ -1,6 +1,6 @@
 import type { Queue } from '@ez4/queue';
-import type { MessageRequest } from '../types.js';
-import type { messageHandlerC } from './handlers.js';
+import type { MessageRequest } from 'hello-aws-notification';
+import type { messageHandlerB } from './handlers.js';
 
 /**
  * Example of AWS SQS deployed with EZ4.
@@ -11,7 +11,7 @@ export declare class Sqs extends Queue.Service<MessageRequest> {
    */
   subscriptions: [
     {
-      handler: typeof messageHandlerC;
+      handler: typeof messageHandlerB;
     }
   ];
 }
@@ -32,7 +32,7 @@ export declare class FifoSqs extends Queue.Service<MessageRequest> {
    */
   subscriptions: [
     {
-      handler: typeof messageHandlerC;
+      handler: typeof messageHandlerB;
     }
   ];
 }

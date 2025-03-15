@@ -57,7 +57,7 @@ export declare class Sqs extends Queue.Service<MessageRequest> {
  */
 export declare class FifoSqs extends Queue.Service<MessageRequest> {
   /**
-   * Define the message group Id field from MessageRequest for FIFO mode queues.
+   * Define the message group Id field from MessageRequest for FIFO mode.
    */
   fifoMode: {
     groupId: 'foo';
