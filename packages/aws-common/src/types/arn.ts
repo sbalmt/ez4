@@ -10,7 +10,7 @@ export type ArnResult = {
 };
 
 export const isArn = (arn: string): arn is Arn => {
-  return /^arn:aws:\w+:([\w\-]+)?:(\d{12})?(:[\w\-]+)?:[\w\-\/]+$/.test(arn);
+  return /^arn:aws:\w+:([\w\-]+)?:(\d{12})?(:[\w\-]+)?:[\w\.\-\/]+$/.test(arn);
 };
 
 export const parseArn = (arn: Arn): ArnResult => {
@@ -22,7 +22,14 @@ export const parseArn = (arn: Arn): ArnResult => {
     service,
     ...(region && { region }),
     ...(accountId && { accountId }),
-    ...(resourceType && { resourceType }),
-    ...(resourceName && { resourceName })
+    ...(resourceName ? { resourceType, resourceName } : { resourceName: resourceType })
   };
+};
+
+export const tryParseArn = (arn: string) => {
+  if (isArn(arn)) {
+    return parseArn(arn);
+  }
+
+  return undefined;
 };

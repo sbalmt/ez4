@@ -10,15 +10,17 @@ import {
   getLinkedVariableList,
   getModelMembers,
   getPropertyString,
-  getReferenceName
+  getReferenceName,
+  getReferenceModel
 } from '@ez4/common/library';
 
-import { isModelProperty, isTypeReference } from '@ez4/reflection';
+import { isModelProperty, isTypeReference, isTypeUnion } from '@ez4/reflection';
 
 import { ImportType } from '../types/import.js';
 import { IncompleteServiceError } from '../errors/service.js';
 import { getAllSubscription } from './subscription.js';
 import { getNotificationMessage } from './message.js';
+import { getNotificationFifoMode } from './fifo.js';
 import { isNotificationImport } from './utils.js';
 
 export const getNotificationImports = (reflection: SourceMap) => {
@@ -71,6 +73,16 @@ export const getNotificationImports = (reflection: SourceMap) => {
         case 'schema':
           if (member.inherited && (service.schema = getNotificationMessage(member.value, statement, reflection, errorList))) {
             properties.delete(member.name);
+          }
+          break;
+
+        case 'fifoMode':
+          if (member.inherited) {
+            const reference = getReferenceModel(member.value, reflection);
+
+            if (reference && !isTypeUnion(reference)) {
+              service.fifoMode = getNotificationFifoMode(reference, statement, reflection, errorList);
+            }
           }
           break;
 

@@ -33,6 +33,10 @@ export const prepareSubscriptions = async (
         throw new InvalidParameterError(SubscriptionServiceName, `subscription not supported.`);
 
       case NotificationSubscriptionType.Lambda: {
+        if (service.fifoMode) {
+          throw new InvalidParameterError(SubscriptionServiceName, `lambda subscription not supported for FIFO topics.`);
+        }
+
         const { handler, listener } = subscription;
 
         const internalName = getInternalName(service, handler.name);
