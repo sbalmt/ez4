@@ -23,10 +23,12 @@ Check out some examples to get started with.
 - [DynamoDB streams](./examples/aws-dynamodb-streams)
 - [Schedule manager](./examples/aws-schedule-manager)
 - [Storage manager](./examples/aws-storage-manager)
+- [Importing notification](./examples/aws-import-notification)
+- [Importing queue](./examples/aws-import-queue)
 
 ## Components
 
-All components provides a common interface to handle the real resource properties and store their state between deployments.
+All components provide a common interface to handle the real resource properties and store their state between deployments.
 
 | Components                               | AWS Providers                                                                  |
 | ---------------------------------------- | ------------------------------------------------------------------------------ |
