@@ -8,7 +8,7 @@ import {
   NotFoundException
 } from '@aws-sdk/client-apigatewayv2';
 
-import { Logger } from '@ez4/aws-common';
+import { Logger, tryParseArn } from '@ez4/aws-common';
 
 import { IntegrationServiceName } from './types.js';
 
@@ -28,7 +28,9 @@ export type CreateResponse = {
 export type UpdateRequest = Partial<CreateRequest>;
 
 export const createIntegration = async (apiId: string, request: CreateRequest): Promise<CreateResponse> => {
-  Logger.logCreate(IntegrationServiceName, request.functionArn);
+  const functionName = tryParseArn(request.functionArn)?.resourceName ?? request.functionArn;
+
+  Logger.logCreate(IntegrationServiceName, functionName);
 
   const response = await client.send(
     new CreateIntegrationCommand({

@@ -23,9 +23,9 @@ export type CreateResponse = {
 };
 
 export const createSubscription = async (request: CreateRequest): Promise<CreateResponse> => {
-  const resource = tryParseArn(request.topicArn)?.resourceName ?? request.topicArn;
+  const topicName = tryParseArn(request.topicArn)?.resourceName ?? request.topicArn;
 
-  Logger.logCreate(SubscriptionServiceName, resource);
+  Logger.logCreate(SubscriptionServiceName, topicName);
 
   const { topicArn, protocol, endpoint } = request;
 
@@ -49,9 +49,9 @@ export const createSubscription = async (request: CreateRequest): Promise<Create
 };
 
 export const deleteSubscription = async (subscriptionArn: string) => {
-  const resource = tryParseArn(subscriptionArn)?.resourceName ?? subscriptionArn;
+  const topicName = tryParseArn(subscriptionArn)?.resourceName ?? subscriptionArn;
 
-  Logger.logDelete(SubscriptionServiceName, resource);
+  Logger.logDelete(SubscriptionServiceName, topicName);
 
   try {
     await client.send(

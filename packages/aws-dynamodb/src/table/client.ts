@@ -1,7 +1,7 @@
 import type { Arn, ResourceTags } from '@ez4/aws-common';
 import type { AttributeSchemaGroup } from '../types/schema.js';
 
-import { getTagList, Logger } from '@ez4/aws-common';
+import { getTagList, Logger, tryParseArn } from '@ez4/aws-common';
 
 import {
   DynamoDBClient,
@@ -199,7 +199,9 @@ export const deleteIndex = async (tableName: string, request: AttributeSchemaGro
 };
 
 export const tagTable = async (tableArn: string, tags: ResourceTags) => {
-  Logger.logTag(TableServiceName, tableArn);
+  const tableName = tryParseArn(tableArn)?.resourceName ?? tableArn;
+
+  Logger.logTag(TableServiceName, tableName);
 
   await client.send(
     new TagResourceCommand({
@@ -213,7 +215,9 @@ export const tagTable = async (tableArn: string, tags: ResourceTags) => {
 };
 
 export const untagTable = async (tableArn: Arn, tagKeys: string[]) => {
-  Logger.logUntag(TableServiceName, tableArn);
+  const tableName = tryParseArn(tableArn)?.resourceName ?? tableArn;
+
+  Logger.logUntag(TableServiceName, tableName);
 
   await client.send(
     new UntagResourceCommand({

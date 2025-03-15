@@ -15,7 +15,7 @@ import {
   ResourceNotFoundException
 } from '@aws-sdk/client-lambda';
 
-import { Logger } from '@ez4/aws-common';
+import { Logger, tryParseArn } from '@ez4/aws-common';
 
 import { assertVariables } from './helpers/variables.js';
 import { getZipBuffer } from './helpers/zip.js';
@@ -207,7 +207,9 @@ export const deleteFunction = async (functionName: string) => {
 };
 
 export const tagFunction = async (functionArn: Arn, tags: ResourceTags) => {
-  Logger.logTag(FunctionServiceName, functionArn);
+  const functionName = tryParseArn(functionArn)?.resourceName ?? functionArn;
+
+  Logger.logTag(FunctionServiceName, functionName);
 
   await client.send(
     new TagResourceCommand({
@@ -221,7 +223,9 @@ export const tagFunction = async (functionArn: Arn, tags: ResourceTags) => {
 };
 
 export const untagFunction = async (functionArn: Arn, tagKeys: string[]) => {
-  Logger.logUntag(FunctionServiceName, functionArn);
+  const functionName = tryParseArn(functionArn)?.resourceName ?? functionArn;
+
+  Logger.logUntag(FunctionServiceName, functionName);
 
   await client.send(
     new UntagResourceCommand({

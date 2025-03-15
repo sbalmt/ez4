@@ -1,6 +1,6 @@
 import type { Arn, ResourceTags } from '@ez4/aws-common';
 
-import { getTagList, Logger } from '@ez4/aws-common';
+import { getTagList, Logger, tryParseArn } from '@ez4/aws-common';
 
 import {
   ACMClient,
@@ -35,7 +35,9 @@ export type CreateResponse = {
 };
 
 export const isCertificateInUse = async (certificateArn: string) => {
-  Logger.logFetch(CertificateServiceName, certificateArn);
+  const certificateName = tryParseArn(certificateArn)?.resourceName ?? certificateArn;
+
+  Logger.logFetch(CertificateServiceName, certificateName);
 
   const response = await client.send(
     new DescribeCertificateCommand({
@@ -76,7 +78,9 @@ export const createCertificate = async (request: CreateRequest): Promise<CreateR
 };
 
 export const deleteCertificate = async (certificateArn: string) => {
-  Logger.logDelete(CertificateServiceName, certificateArn);
+  const certificateName = tryParseArn(certificateArn)?.resourceName ?? certificateArn;
+
+  Logger.logDelete(CertificateServiceName, certificateName);
 
   try {
     await client.send(
@@ -96,7 +100,9 @@ export const deleteCertificate = async (certificateArn: string) => {
 };
 
 export const tagCertificate = async (certificateArn: string, tags: ResourceTags) => {
-  Logger.logTag(CertificateServiceName, certificateArn);
+  const certificateName = tryParseArn(certificateArn)?.resourceName ?? certificateArn;
+
+  Logger.logTag(CertificateServiceName, certificateName);
 
   await client.send(
     new AddTagsToCertificateCommand({
@@ -110,7 +116,9 @@ export const tagCertificate = async (certificateArn: string, tags: ResourceTags)
 };
 
 export const untagCertificate = async (certificateArn: string, tagKeys: string[]) => {
-  Logger.logTag(CertificateServiceName, certificateArn);
+  const certificateName = tryParseArn(certificateArn)?.resourceName ?? certificateArn;
+
+  Logger.logTag(CertificateServiceName, certificateName);
 
   await client.send(
     new RemoveTagsFromCertificateCommand({

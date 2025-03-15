@@ -1,6 +1,6 @@
 import type { Arn, ResourceTags } from '@ez4/aws-common';
 
-import { getTagList, Logger } from '@ez4/aws-common';
+import { getTagList, Logger, tryParseArn } from '@ez4/aws-common';
 
 import {
   RDSClient,
@@ -150,7 +150,9 @@ export const updateCluster = async (clusterName: string, request: UpdateRequest)
 };
 
 export const tagCluster = async (clusterArn: Arn, tags: ResourceTags) => {
-  Logger.logTag(ClusterServiceName, clusterArn);
+  const clusterName = tryParseArn(clusterArn)?.resourceName ?? clusterArn;
+
+  Logger.logTag(ClusterServiceName, clusterName);
 
   await client.send(
     new AddTagsToResourceCommand({
@@ -164,7 +166,9 @@ export const tagCluster = async (clusterArn: Arn, tags: ResourceTags) => {
 };
 
 export const untagCluster = async (clusterArn: Arn, tagKeys: string[]) => {
-  Logger.logUntag(ClusterServiceName, clusterArn);
+  const clusterName = tryParseArn(clusterArn)?.resourceName ?? clusterArn;
+
+  Logger.logUntag(ClusterServiceName, clusterName);
 
   await client.send(
     new RemoveTagsFromResourceCommand({

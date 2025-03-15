@@ -12,7 +12,7 @@ import {
   NotFoundException
 } from '@aws-sdk/client-apigatewayv2';
 
-import { Logger } from '@ez4/aws-common';
+import { Logger, tryParseArn } from '@ez4/aws-common';
 
 import { GatewayServiceName } from './types.js';
 
@@ -119,7 +119,9 @@ export const deleteCorsConfiguration = async (apiId: string) => {
 };
 
 export const tagGateway = async (apiArn: Arn, tags: ResourceTags) => {
-  Logger.logTag(GatewayServiceName, apiArn);
+  const apiName = tryParseArn(apiArn)?.resourceName ?? apiArn;
+
+  Logger.logTag(GatewayServiceName, apiName);
 
   await client.send(
     new TagResourceCommand({
@@ -133,7 +135,9 @@ export const tagGateway = async (apiArn: Arn, tags: ResourceTags) => {
 };
 
 export const untagGateway = async (apiArn: Arn, tagKeys: string[]) => {
-  Logger.logUntag(GatewayServiceName, apiArn);
+  const apiName = tryParseArn(apiArn)?.resourceName ?? apiArn;
+
+  Logger.logUntag(GatewayServiceName, apiName);
 
   await client.send(
     new UntagResourceCommand({

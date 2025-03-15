@@ -10,7 +10,7 @@ import {
   ResourceNotFoundException
 } from '@aws-sdk/client-scheduler';
 
-import { getTagList, Logger } from '@ez4/aws-common';
+import { getTagList, Logger, tryParseArn } from '@ez4/aws-common';
 import { GroupServiceName } from './types.js';
 
 const client = new SchedulerClient({});
@@ -89,7 +89,9 @@ export const deleteGroup = async (groupName: string) => {
 };
 
 export const tagGroup = async (groupArn: Arn, tags: ResourceTags) => {
-  Logger.logTag(GroupServiceName, groupArn);
+  const groupName = tryParseArn(groupArn)?.resourceName ?? groupArn;
+
+  Logger.logTag(GroupServiceName, groupName);
 
   await client.send(
     new TagResourceCommand({
@@ -103,7 +105,9 @@ export const tagGroup = async (groupArn: Arn, tags: ResourceTags) => {
 };
 
 export const untagGroup = async (groupArn: Arn, tagKeys: string[]) => {
-  Logger.logUntag(GroupServiceName, groupArn);
+  const groupName = tryParseArn(groupArn)?.resourceName ?? groupArn;
+
+  Logger.logUntag(GroupServiceName, groupName);
 
   await client.send(
     new UntagResourceCommand({

@@ -1,6 +1,6 @@
 import type { Arn, ResourceTags } from '@ez4/aws-common';
 
-import { getTagList, Logger } from '@ez4/aws-common';
+import { getTagList, Logger, tryParseArn } from '@ez4/aws-common';
 
 import {
   RDSClient,
@@ -68,7 +68,9 @@ export const createInstance = async (request: CreateRequest): Promise<CreateResp
 };
 
 export const tagInstance = async (instanceArn: Arn, tags: ResourceTags) => {
-  Logger.logTag(InstanceServiceName, instanceArn);
+  const instanceName = tryParseArn(instanceArn)?.resourceName ?? instanceArn;
+
+  Logger.logTag(InstanceServiceName, instanceName);
 
   await client.send(
     new AddTagsToResourceCommand({
@@ -82,7 +84,9 @@ export const tagInstance = async (instanceArn: Arn, tags: ResourceTags) => {
 };
 
 export const untagInstance = async (instanceArn: Arn, tagKeys: string[]) => {
-  Logger.logUntag(InstanceServiceName, instanceArn);
+  const instanceName = tryParseArn(instanceArn)?.resourceName ?? instanceArn;
+
+  Logger.logUntag(InstanceServiceName, instanceName);
 
   await client.send(
     new RemoveTagsFromResourceCommand({

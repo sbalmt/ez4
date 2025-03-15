@@ -9,7 +9,7 @@ import {
   NotFoundException
 } from '@aws-sdk/client-sns';
 
-import { getTagList, Logger } from '@ez4/aws-common';
+import { getTagList, Logger, tryParseArn } from '@ez4/aws-common';
 
 import { TopicServiceName } from './types.js';
 
@@ -53,7 +53,9 @@ export const createTopic = async (request: CreateRequest): Promise<CreateRespons
 };
 
 export const deleteTopic = async (topicArn: string) => {
-  Logger.logDelete(TopicServiceName, topicArn);
+  const topicName = tryParseArn(topicArn)?.resourceName ?? topicArn;
+
+  Logger.logDelete(TopicServiceName, topicName);
 
   try {
     await client.send(
@@ -73,7 +75,9 @@ export const deleteTopic = async (topicArn: string) => {
 };
 
 export const tagTopic = async (topicArn: string, tags: ResourceTags) => {
-  Logger.logTag(TopicServiceName, topicArn);
+  const topicName = tryParseArn(topicArn)?.resourceName ?? topicArn;
+
+  Logger.logTag(TopicServiceName, topicName);
 
   await client.send(
     new TagResourceCommand({
@@ -87,7 +91,9 @@ export const tagTopic = async (topicArn: string, tags: ResourceTags) => {
 };
 
 export const untagTopic = async (topicArn: string, tagKeys: string[]) => {
-  Logger.logUntag(TopicServiceName, topicArn);
+  const topicName = tryParseArn(topicArn)?.resourceName ?? topicArn;
+
+  Logger.logUntag(TopicServiceName, topicName);
 
   await client.send(
     new UntagResourceCommand({

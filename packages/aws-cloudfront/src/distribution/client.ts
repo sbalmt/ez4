@@ -9,7 +9,7 @@ import type {
   Origin
 } from '@aws-sdk/client-cloudfront';
 
-import { getTagList, Logger } from '@ez4/aws-common';
+import { getTagList, Logger, tryParseArn } from '@ez4/aws-common';
 import { isBucketDomain } from '@ez4/aws-bucket';
 
 import {
@@ -150,7 +150,9 @@ export const updateDistribution = async (distributionId: string, request: Update
 };
 
 export const tagDistribution = async (distributionArn: string, tags: ResourceTags) => {
-  Logger.logTag(DistributionServiceName, distributionArn);
+  const distributionName = tryParseArn(distributionArn)?.resourceName ?? distributionArn;
+
+  Logger.logTag(DistributionServiceName, distributionName);
 
   await client.send(
     new TagResourceCommand({
@@ -166,7 +168,9 @@ export const tagDistribution = async (distributionArn: string, tags: ResourceTag
 };
 
 export const untagDistribution = async (distributionArn: Arn, tagKeys: string[]) => {
-  Logger.logUntag(DistributionServiceName, distributionArn);
+  const distributionName = tryParseArn(distributionArn)?.resourceName ?? distributionArn;
+
+  Logger.logUntag(DistributionServiceName, distributionName);
 
   await client.send(
     new UntagResourceCommand({

@@ -56,9 +56,9 @@ export const createPolicy = async (request: CreateRequest): Promise<CreateRespon
 };
 
 export const tagPolicy = async (policyArn: Arn, tags: ResourceTags) => {
-  const resource = tryParseArn(policyArn)?.resourceName ?? policyArn;
+  const policyName = tryParseArn(policyArn)?.resourceName ?? policyArn;
 
-  Logger.logTag(PolicyServiceName, resource);
+  Logger.logTag(PolicyServiceName, policyName);
 
   await client.send(
     new TagPolicyCommand({
@@ -72,9 +72,9 @@ export const tagPolicy = async (policyArn: Arn, tags: ResourceTags) => {
 };
 
 export const untagPolicy = async (policyArn: Arn, tagKeys: string[]) => {
-  const resource = tryParseArn(policyArn)?.resourceName ?? policyArn;
+  const policyName = tryParseArn(policyArn)?.resourceName ?? policyArn;
 
-  Logger.logUntag(PolicyServiceName, resource);
+  Logger.logUntag(PolicyServiceName, policyName);
 
   await client.send(
     new UntagPolicyCommand({
@@ -85,9 +85,9 @@ export const untagPolicy = async (policyArn: Arn, tagKeys: string[]) => {
 };
 
 export const createPolicyVersion = async (policyArn: Arn, document: PolicyDocument): Promise<CreateVersionResponse> => {
-  const resource = tryParseArn(policyArn)?.resourceName ?? policyArn;
+  const policyName = tryParseArn(policyArn)?.resourceName ?? policyArn;
 
-  Logger.logCreate(PolicyServiceName, `${resource} version`);
+  Logger.logCreate(PolicyServiceName, `${policyName} version`);
 
   const response = await client.send(
     new CreatePolicyVersionCommand({
@@ -107,9 +107,9 @@ export const createPolicyVersion = async (policyArn: Arn, document: PolicyDocume
 };
 
 export const deletePolicyVersion = async (policyArn: Arn, versionId: string) => {
-  const resource = tryParseArn(policyArn)?.resourceName ?? policyArn;
+  const policyName = tryParseArn(policyArn)?.resourceName ?? policyArn;
 
-  Logger.logDelete(PolicyServiceName, `${resource} version ${versionId}`);
+  Logger.logDelete(PolicyServiceName, `${policyName} version ${versionId}`);
 
   try {
     await client.send(
@@ -130,9 +130,9 @@ export const deletePolicyVersion = async (policyArn: Arn, versionId: string) => 
 };
 
 export const deletePolicy = async (policyArn: Arn) => {
-  const resource = tryParseArn(policyArn)?.resourceName ?? policyArn;
+  const policyName = tryParseArn(policyArn)?.resourceName ?? policyArn;
 
-  Logger.logDelete(PolicyServiceName, resource);
+  Logger.logDelete(PolicyServiceName, policyName);
 
   try {
     await client.send(
