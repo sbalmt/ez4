@@ -12,7 +12,8 @@ import { existsSync } from 'node:fs';
 import { SourceFileError } from '../errors/bundler.js';
 import { Logger } from './logger.js';
 
-const filesCache = new Map<string, string>();
+const fileCache = new Map<string, string>();
+const pathCache = new Map<string, string>();
 
 export type BundlerEntryPoint = {
   functionName: string;
@@ -30,28 +31,45 @@ export type BundlerOptions = {
 };
 
 export const bundleHash = async (sourceFile: string) => {
-  const sourceFiles = [sourceFile, ...reflectionFiles([sourceFile])];
+  const basePath = process.cwd();
 
-  const basePath = join(process.cwd(), sourceFile);
-  const version = createHash('sha256');
+  const allSourceFiles = [relative(basePath, sourceFile), ...reflectionFiles([sourceFile])];
+  const fileSignatures = createHash('sha256');
 
-  for (const filePath of sourceFiles) {
-    const fileStat = await stat(filePath);
+  const pathSignatures = await Promise.all(
+    allSourceFiles.map(async (filePath) => {
+      let pathSignature = pathCache.get(filePath);
 
-    const relativePath = relative(basePath, filePath);
-    const lastModified = fileStat.mtime.getTime();
+      if (!pathSignature) {
+        const fileStat = await stat(filePath);
+        const modified = fileStat.mtime.getTime();
 
-    version.update(`${relativePath}:${lastModified}`);
+        pathSignature = `${filePath}:${modified}`;
+
+        pathCache.set(filePath, pathSignature);
+      }
+
+      return {
+        filePath,
+        pathSignature
+      };
+    })
+  );
+
+  pathSignatures.sort((a, b) => a.filePath.localeCompare(b.filePath));
+
+  for (const { pathSignature } of pathSignatures) {
+    fileSignatures.update(pathSignature);
   }
 
-  return version.digest('hex');
+  return fileSignatures.digest('hex');
 };
 
 export const bundleFunction = async (serviceName: string, options: BundlerOptions) => {
   const { sourceFile, functionName } = options.handler;
 
   const cacheKey = `${sourceFile}:${functionName}`;
-  const cacheFile = filesCache.get(cacheKey);
+  const cacheFile = fileCache.get(cacheKey);
 
   if (cacheFile && existsSync(cacheFile)) {
     return cacheFile;
@@ -113,7 +131,7 @@ export const bundleFunction = async (serviceName: string, options: BundlerOption
     throw new SourceFileError(sourceFile);
   }
 
-  filesCache.set(cacheKey, outputFile);
+  fileCache.set(cacheKey, outputFile);
 
   return outputFile;
 };

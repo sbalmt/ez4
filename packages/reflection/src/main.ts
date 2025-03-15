@@ -52,7 +52,11 @@ export const reflectionFiles = (fileNames: string[], options?: Options) => {
 
   const program = createProgram({
     rootNames: fileNames,
-    options: compilerOptions,
+    options: {
+      ...compilerOptions,
+      skipLibCheck: true,
+      noCheck: true
+    },
     host: createCompilerHost(compilerOptions, options?.compilerEvents)
   });
 
