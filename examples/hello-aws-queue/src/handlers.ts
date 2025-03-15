@@ -18,3 +18,12 @@ export function messageHandlerB(request: Queue.Incoming<MessageRequest>): void {
   // Do another stuff...
   message.foo;
 }
+
+export function messageHandlerC(request: Queue.Incoming<MessageRequest>): void {
+  const { message } = request;
+
+  console.log('Handler C', JSON.stringify(message));
+
+  // Do another stuff...
+  message.foo;
+}

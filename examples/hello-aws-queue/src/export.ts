@@ -1,2 +1,2 @@
 export type { MessageRequest } from './types.js';
-export type { Sqs } from './service.js';
+export type { Sqs, FifoSqs } from './service.js';
