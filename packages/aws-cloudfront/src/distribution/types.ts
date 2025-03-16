@@ -1,5 +1,5 @@
-import type { Arn } from '@ez4/aws-common';
 import type { EntryState, StepContext } from '@ez4/stateful';
+import type { Arn } from '@ez4/aws-common';
 import type { AdditionalOrigin, CreateRequest, CreateResponse, DefaultOrigin } from './client.js';
 
 export const DistributionServiceName = 'AWS:CloudFront/Distribution';
@@ -10,12 +10,11 @@ export type DistributionOriginParameters = Pick<DefaultOrigin, 'id' | 'location'
 
 export type DistributionOrigin = Omit<DefaultOrigin, keyof DistributionOriginParameters>;
 
-export type GetDistributionOrigin = (
-  context?: StepContext
-) => Promise<DistributionOrigin> | DistributionOrigin;
+export type GetDistributionOrigin = (context?: StepContext) => Promise<DistributionOrigin> | DistributionOrigin;
 
 export type DistributionDefaultOrigin = DistributionOriginParameters & {
   getDistributionOrigin: GetDistributionOrigin;
+  fromService: string;
 };
 
 export type DistributionAdditionalOrigin = DistributionOriginParameters &
@@ -23,10 +22,7 @@ export type DistributionAdditionalOrigin = DistributionOriginParameters &
     getDistributionOrigin: GetDistributionOrigin;
   };
 
-export type DistributionParameters = Omit<
-  CreateRequest,
-  'originAccessId' | 'certificateArn' | 'defaultOrigin' | 'origins'
-> & {
+export type DistributionParameters = Omit<CreateRequest, 'originAccessId' | 'certificateArn' | 'defaultOrigin' | 'origins'> & {
   defaultOrigin: DistributionDefaultOrigin;
   origins?: DistributionAdditionalOrigin[];
 };

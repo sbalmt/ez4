@@ -29,6 +29,7 @@ export const createSubscription = <E extends EntryState>(
     const permissionState =
       getPermission(state, topicState, endpointState) ??
       createPermission(state, topicState, endpointState, {
+        fromService: parameters.fromService,
         getPermission: async () => {
           const [region, account] = await Promise.all([getRegion(), getAccountId()]);
 
@@ -42,6 +43,7 @@ export const createSubscription = <E extends EntryState>(
     dependencies.push(permissionState.entryId);
   } else if (isQueueState(endpointState)) {
     const policyState = createPolicy(state, topicState, endpointState, {
+      fromService: parameters.fromService,
       getPolicy: async () => {
         const [region, account] = await Promise.all([getRegion(), getAccountId()]);
 

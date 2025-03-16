@@ -18,15 +18,12 @@ export const createIntegration = <E extends EntryState>(
   functionState: FunctionState,
   parameters: IntegrationParameters
 ) => {
-  const integrationId = hashData(
-    IntegrationServiceType,
-    gatewayState.entryId,
-    functionState.entryId
-  );
+  const integrationId = hashData(IntegrationServiceType, gatewayState.entryId, functionState.entryId);
 
   const permissionState =
     getPermission(state, gatewayState, functionState) ??
     createPermission(state, gatewayState, functionState, {
+      fromService: parameters.fromService,
       getPermission: async (context: StepContext) => {
         const [region, account] = await Promise.all([getRegion(), getAccountId()]);
 
@@ -47,16 +44,8 @@ export const createIntegration = <E extends EntryState>(
   });
 };
 
-export const getIntegration = <E extends EntryState>(
-  state: EntryStates<E>,
-  gatewayState: GatewayState,
-  functionState: FunctionState
-) => {
-  const integrationId = hashData(
-    IntegrationServiceType,
-    gatewayState.entryId,
-    functionState.entryId
-  );
+export const getIntegration = <E extends EntryState>(state: EntryStates<E>, gatewayState: GatewayState, functionState: FunctionState) => {
+  const integrationId = hashData(IntegrationServiceType, gatewayState.entryId, functionState.entryId);
 
   const integrationState = state[integrationId];
 

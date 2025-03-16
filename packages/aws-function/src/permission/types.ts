@@ -11,6 +11,7 @@ export type GetPermission = (context: StepContext) => Promise<Permission> | Perm
 
 export type PermissionParameters = {
   getPermission: GetPermission;
+  fromService: string;
 };
 
 export type PermissionResult = CreateResponse & {

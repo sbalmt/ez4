@@ -26,6 +26,7 @@ export const createBucket = <E extends EntryState>(
 
   if (functionState) {
     createPermission(state, bucketState, functionState, {
+      fromService: parameters.bucketName,
       getPermission: () => {
         return {
           principal: 's3.amazonaws.com',

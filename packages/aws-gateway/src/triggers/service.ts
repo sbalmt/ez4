@@ -155,8 +155,9 @@ const getIntegrationFunction = (
   return (
     getIntegration(state, gatewayState, handlerState) ??
     createIntegration(state, gatewayState, handlerState, {
-      description: handler.description,
-      timeout: handlerState.parameters.timeout
+      fromService: handlerState.parameters.functionName,
+      timeout: handlerState.parameters.timeout,
+      description: handler.description
     })
   );
 };
