@@ -1,4 +1,5 @@
 import type { Arn, ResourceTags } from '@ez4/aws-common';
+import type { Headers } from '../types/headers.js';
 
 import type {
   CacheBehavior,
@@ -50,7 +51,7 @@ export type DefaultOrigin = {
   domain: string;
   cachePolicyId: string;
   originPolicyId?: string;
-  headers?: Record<string, string>;
+  headers?: Headers;
   location?: string;
   http?: boolean;
   port?: number;

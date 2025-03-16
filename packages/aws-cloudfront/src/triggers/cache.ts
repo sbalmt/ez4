@@ -3,27 +3,18 @@ import type { EntryStates } from '@ez4/stateful';
 
 import { CdnService, CdnOrigin, isCdnBucketOrigin } from '@ez4/distribution/library';
 import { getBucketDomain, getBucketState } from '@ez4/aws-bucket';
+import { getServiceName } from '@ez4/project/library';
 import { OriginProtocol } from '@ez4/distribution';
 
 import { DistributionAdditionalOrigin, DistributionDefaultOrigin } from '../distribution/types.js';
 import { createCachePolicy } from '../cache/service.js';
 import { getCachePolicyName } from './utils.js';
 
-export const getDefaultOriginCache = async (
-  state: EntryStates,
-  service: CdnService,
-  options: DeployOptions,
-  context: EventContext
-) => {
+export const getDefaultOriginCache = async (state: EntryStates, service: CdnService, options: DeployOptions, context: EventContext) => {
   return getOriginCache<DistributionDefaultOrigin>(state, service, 'default', service.defaultOrigin, options, context);
 };
 
-export const getAdditionalOriginCache = async (
-  state: EntryStates,
-  service: CdnService,
-  options: DeployOptions,
-  context: EventContext
-) => {
+export const getAdditionalOriginCache = async (state: EntryStates, service: CdnService, options: DeployOptions, context: EventContext) => {
   const { origins } = service;
 
   if (!origins?.length) {
@@ -56,13 +47,25 @@ const getOriginCache = async <T extends DistributionDefaultOrigin | Distribution
     minTTL: cache?.minTTL ?? 0
   });
 
+  const isBucket = isCdnBucketOrigin(origin);
+
   return {
     id,
     path,
     location,
     cachePolicyId: originCache.entryId,
+    ...(isBucket
+      ? {
+          domain: getServiceName(origin.bucket, options)
+        }
+      : {
+          http: origin.protocol === OriginProtocol.Http,
+          domain: origin.domain,
+          headers: origin.headers,
+          port: origin.port
+        }),
     getDistributionOrigin: async () => {
-      if (isCdnBucketOrigin(origin)) {
+      if (isBucket) {
         const bucketState = getBucketState(context, origin.bucket, options);
         const bucketName = bucketState.parameters.bucketName;
         const bucketDomain = await getBucketDomain(bucketName);
@@ -73,10 +76,7 @@ const getOriginCache = async <T extends DistributionDefaultOrigin | Distribution
       }
 
       return {
-        http: origin.protocol === OriginProtocol.Http,
-        domain: origin.domain,
-        headers: origin.headers,
-        port: origin.port
+        domain: origin.domain
       };
     }
   } as T;
