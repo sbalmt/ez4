@@ -15,17 +15,17 @@ export const getDefaultOriginCache = async (state: EntryStates, service: CdnServ
 };
 
 export const getAdditionalOriginCache = async (state: EntryStates, service: CdnService, options: DeployOptions, context: EventContext) => {
-  const { origins } = service;
+  const { origins = [] } = service;
 
-  if (!origins?.length) {
-    return [];
-  }
-
-  const promises = origins.map((origin, index) =>
-    getOriginCache<DistributionAdditionalOrigin>(state, service, `origin_${index + 1}`, origin, options, context)
+  const additionalOrigins = await Promise.all(
+    origins.map((origin, index) => {
+      return getOriginCache<DistributionAdditionalOrigin>(state, service, `origin_${index + 1}`, origin, options, context);
+    })
   );
 
-  return Promise.all(promises);
+  additionalOrigins.sort((a, b) => a.id.localeCompare(b.id));
+
+  return additionalOrigins;
 };
 
 const getOriginCache = async <T extends DistributionDefaultOrigin | DistributionAdditionalOrigin>(
