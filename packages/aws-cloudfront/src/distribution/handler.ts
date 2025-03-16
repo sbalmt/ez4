@@ -7,8 +7,6 @@ import type {
   DistributionResult,
   DistributionParameters,
   DistributionOrigin,
-  DistributionDefaultOriginParameters,
-  DistributionAdditionalOriginParameters,
   DistributionDefaultOrigin,
   DistributionAdditionalOrigin
 } from './types.js';
@@ -248,24 +246,30 @@ const bindOriginCachePolices = (
   allCachePolicyIds: string[],
   originPolicyId: string
 ) => {
-  const originList: [DistributionDefaultOriginParameters, ...DistributionAdditionalOriginParameters[]] = parameters.origins
-    ? [parameters.defaultOrigin, ...parameters.origins]
-    : [parameters.defaultOrigin];
+  const [defaultCachePolicyId, ...additionalCachePolicyIds] = allCachePolicyIds;
+  const [defaultOriginData, ...additionalOriginsData] = allOrigins;
 
-  const [defaultOrigin, ...origins] = originList.map((origin, index) => {
-    const cachePolicyId = allCachePolicyIds[index];
+  const defaultOrigin = {
+    ...parameters.defaultOrigin,
+    ...defaultOriginData,
+    cachePolicyId: defaultCachePolicyId,
+    originPolicyId
+  };
+
+  const origins = parameters.origins?.map((additionalOrigin, index) => {
+    const cachePolicyId = additionalCachePolicyIds[index] ?? defaultCachePolicyId;
 
     return {
-      ...origin,
-      ...allOrigins[index],
+      ...additionalOrigin,
+      ...additionalOriginsData[index],
       originPolicyId,
       cachePolicyId
     };
   });
 
   return {
-    defaultOrigin: defaultOrigin,
-    origins: origins as DistributionAdditionalOriginParameters[]
+    defaultOrigin,
+    origins
   };
 };
 

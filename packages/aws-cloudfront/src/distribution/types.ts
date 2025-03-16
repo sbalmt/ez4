@@ -6,9 +6,9 @@ export const DistributionServiceName = 'AWS:CloudFront/Distribution';
 
 export const DistributionServiceType = 'aws:cloudfront.distribution';
 
-export type DistributionDefaultOriginParameters = Omit<DefaultOrigin, 'originPolicyId'>;
+type DistributionDefaultOriginParameters = Omit<DefaultOrigin, 'originPolicyId'>;
 
-export type DistributionAdditionalOriginParameters = Omit<AdditionalOrigin, 'originPolicyId'>;
+type DistributionAdditionalOriginParameters = Omit<AdditionalOrigin, 'originPolicyId'>;
 
 export type DistributionOrigin = Pick<DefaultOrigin | AdditionalOrigin, 'domain'>;
 
