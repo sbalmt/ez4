@@ -16,11 +16,12 @@ export const prepareLinkedClient = (
 
   const topicArn = getDefinitionName<TopicState>(topicId, 'topicArn');
 
+  const fifoMode = JSON.stringify(service.fifoMode ?? null);
   const schema = JSON.stringify(service.schema);
 
   return {
     entryIds: [topicId],
-    constructor: `make(${topicArn}, ${schema})`,
+    constructor: `make(${topicArn}, ${schema}, ${fifoMode})`,
     from: '@ez4/aws-notification/client',
     module: 'Client'
   };
