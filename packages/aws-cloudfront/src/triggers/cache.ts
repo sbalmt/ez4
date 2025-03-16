@@ -23,6 +23,7 @@ export const getAdditionalOriginCache = async (state: EntryStates, service: CdnS
     })
   );
 
+  // Ensure same position to not trigger updates without real changes.
   additionalOrigins.sort((a, b) => a.id.localeCompare(b.id));
 
   return additionalOrigins;

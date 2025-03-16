@@ -59,6 +59,7 @@ const preparePolicies = (policies: EntryState[]) => {
     policyList.push(policy);
   }
 
+  // Ensure same position to not trigger updates without real changes.
   policyList.sort((a, b) => a.entryId.localeCompare(b.entryId));
 
   return policyList;

@@ -56,6 +56,7 @@ export const bundleHash = async (sourceFile: string) => {
     })
   );
 
+  // Ensure same position to not trigger updates without real changes.
   pathSignatures.sort((a, b) => a.filePath.localeCompare(b.filePath));
 
   for (const { pathSignature } of pathSignatures) {
