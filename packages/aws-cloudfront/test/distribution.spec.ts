@@ -84,11 +84,10 @@ describe('cloudfront :: distribution', () => {
           id: 's3-bucket',
           location: '/home',
           cachePolicyId: cachePolicyResource.entryId,
+          domain: originBucketName,
           getDistributionOrigin: async () => {
-            const domain = await getBucketDomain(originBucketName);
-
             return {
-              domain
+              domain: await getBucketDomain(originBucketName)
             };
           }
         },
@@ -97,12 +96,13 @@ describe('cloudfront :: distribution', () => {
             id: 'ez4-test',
             path: 'test*',
             cachePolicyId: cachePolicyResource.entryId,
+            headers: {
+              ['x-custom-header']: 'ez4-custom-value'
+            },
+            domain: 'unresolved.ez4.test',
             getDistributionOrigin: () => {
               return {
-                domain: 'ez4.test',
-                headers: {
-                  ['x-custom-header']: 'ez4-custom-value'
-                }
+                domain: 'resolved.ez4.test'
               };
             }
           }
@@ -145,6 +145,7 @@ describe('cloudfront :: distribution', () => {
       id: 'ez4-test-new',
       path: 'test-new*',
       cachePolicyId,
+      domain: 'resolved.ez4.test',
       getDistributionOrigin: () => {
         return {
           domain: 'ez4.test.new'
