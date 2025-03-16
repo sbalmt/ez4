@@ -5,7 +5,8 @@ import type { QueueState } from './types.js';
 import { IncompleteResourceError } from '@ez4/aws-common';
 import { hashData, toKebabCase } from '@ez4/utils';
 
-import { queueUrlToArn } from '../utils/policy.js';
+import { buildQueueArn } from '../utils/policy.js';
+import { parseQueueUrl } from './helpers/url.js';
 import { QueueNotFoundError } from './errors.js';
 import { QueueServiceType } from './types.js';
 
@@ -40,5 +41,7 @@ export const getQueueUrl = (serviceName: string, resourceId: string, context: St
 export const getQueueArn = (serviceName: string, resourceId: string, context: StepContext) => {
   const queueUrl = getQueueUrl(serviceName, resourceId, context);
 
-  return queueUrlToArn(queueUrl);
+  const { queueName, accountId, region } = parseQueueUrl(queueUrl);
+
+  return buildQueueArn(region, accountId, queueName);
 };

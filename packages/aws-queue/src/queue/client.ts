@@ -14,6 +14,7 @@ import {
 
 import { Logger } from '@ez4/aws-common';
 
+import { parseQueueUrl } from './helpers/url.js';
 import { QueueServiceName } from './types.js';
 
 const client = new SQSClient({});
@@ -78,7 +79,9 @@ export const createQueue = async (request: CreateRequest): Promise<CreateRespons
 };
 
 export const updateQueue = async (queueUrl: string, request: UpdateRequest) => {
-  Logger.logUpdate(QueueServiceName, queueUrl);
+  const { queueName } = parseQueueUrl(queueUrl);
+
+  Logger.logUpdate(QueueServiceName, queueName);
 
   await client.send(
     new SetQueueAttributesCommand({
@@ -91,7 +94,9 @@ export const updateQueue = async (queueUrl: string, request: UpdateRequest) => {
 };
 
 export const tagQueue = async (queueUrl: string, tags: ResourceTags) => {
-  Logger.logTag(QueueServiceName, queueUrl);
+  const { queueName } = parseQueueUrl(queueUrl);
+
+  Logger.logTag(QueueServiceName, queueName);
 
   await client.send(
     new TagQueueCommand({
@@ -105,7 +110,9 @@ export const tagQueue = async (queueUrl: string, tags: ResourceTags) => {
 };
 
 export const untagQueue = async (queueUrl: string, tagKeys: string[]) => {
-  Logger.logUntag(QueueServiceName, queueUrl);
+  const { queueName } = parseQueueUrl(queueUrl);
+
+  Logger.logUntag(QueueServiceName, queueName);
 
   await client.send(
     new UntagQueueCommand({
@@ -116,7 +123,9 @@ export const untagQueue = async (queueUrl: string, tagKeys: string[]) => {
 };
 
 export const deleteQueue = async (queueUrl: string) => {
-  Logger.logDelete(QueueServiceName, queueUrl);
+  const { queueName } = parseQueueUrl(queueUrl);
+
+  Logger.logDelete(QueueServiceName, queueName);
 
   try {
     await client.send(

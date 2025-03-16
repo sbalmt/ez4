@@ -2,15 +2,8 @@ import type { Arn } from '@ez4/aws-common';
 
 import { getAccountId, getRegion, createPolicyDocument } from '@ez4/aws-identity';
 
-export const buildQueueArn = (queueName: string, region: string, accountId: string) => {
+export const buildQueueArn = (region: string, accountId: string, queueName: string) => {
   return `arn:aws:sqs:${region}:${accountId}:${queueName}` as Arn;
-};
-
-export const queueUrlToArn = (queueUrl: string) => {
-  const [domain, accountId, queueName] = queueUrl.substring(8).split('/', 3);
-  const [, region] = domain.split('.', 3);
-
-  return buildQueueArn(queueName, region, accountId);
 };
 
 export const getPolicyDocument = async (prefixList: string[]) => {
@@ -19,14 +12,9 @@ export const getPolicyDocument = async (prefixList: string[]) => {
   return createPolicyDocument([
     {
       resourceIds: prefixList.map((prefix) => {
-        return buildQueueArn(`${prefix}-*`, region, accountId);
+        return buildQueueArn(region, accountId, `${prefix}-*`);
       }),
-      permissions: [
-        'sqs:SendMessage',
-        'sqs:ReceiveMessage',
-        'sqs:GetQueueAttributes',
-        'sqs:DeleteMessage'
-      ]
+      permissions: ['sqs:SendMessage', 'sqs:ReceiveMessage', 'sqs:GetQueueAttributes', 'sqs:DeleteMessage']
     }
   ]);
 };
