@@ -59,5 +59,7 @@ const preparePolicies = (policies: EntryState[]) => {
     policyList.push(policy);
   }
 
+  policyList.sort((a, b) => a.entryId.localeCompare(b.entryId));
+
   return policyList;
 };
