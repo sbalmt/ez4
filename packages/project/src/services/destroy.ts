@@ -3,14 +3,8 @@ import type { ProjectOptions } from '../types/project.js';
 
 import { toKebabCase } from '@ez4/utils';
 
-import {
-  loadLocalState,
-  loadRemoteState,
-  saveLocalState,
-  saveRemoteState
-} from '../actions/state.js';
-
 import { applyDeploy } from '../actions/deploy.js';
+import { loadLocalState, loadRemoteState, saveLocalState, saveRemoteState } from '../actions/state.js';
 import { reportResourceChanges } from '../report/report.js';
 import { waitConfirmation } from '../console/prompt.js';
 import { assertNoErrors } from '../utils/errors.js';
@@ -29,16 +23,14 @@ export const destroy = async (project: ProjectOptions) => {
 
   const statePath = `${stateFile.path}.ezstate`;
 
-  const oldState = stateFile.remote
-    ? await loadRemoteState(statePath, options)
-    : await loadLocalState(statePath);
+  const oldState = stateFile.remote ? await loadRemoteState(statePath, options) : await loadLocalState(statePath);
 
   const newState: EntryStates = {};
 
   const hasChanges = await reportResourceChanges(newState, oldState);
 
   if (!hasChanges) {
-    console.log('No changes.');
+    console.info('No changes.');
     return;
   }
 
@@ -46,7 +38,7 @@ export const destroy = async (project: ProjectOptions) => {
     const proceed = await waitConfirmation('Are you sure to proceed?');
 
     if (!proceed) {
-      console.log('Aborted.');
+      console.info('Aborted.');
       return;
     }
   }

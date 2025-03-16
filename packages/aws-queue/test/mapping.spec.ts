@@ -13,11 +13,7 @@ import { deepClone } from '@ez4/utils';
 import { getPolicyDocument } from './common/policy.js';
 import { getRoleDocument } from './common/role.js';
 
-const assertDeploy = async <E extends EntryState>(
-  resourceId: string,
-  newState: EntryStates<E>,
-  oldState: EntryStates<E> | undefined
-) => {
+const assertDeploy = async <E extends EntryState>(resourceId: string, newState: EntryStates<E>, oldState: EntryStates<E> | undefined) => {
   const { result: state } = await deploy(newState, oldState);
 
   const resource = state[resourceId];
@@ -36,7 +32,7 @@ const assertDeploy = async <E extends EntryState>(
   };
 };
 
-describe.only('queue mapping', () => {
+describe('queue mapping', () => {
   const baseDir = 'test/files';
 
   let lastState: EntryStates | undefined;
@@ -48,7 +44,8 @@ describe.only('queue mapping', () => {
     const localState: EntryStates = {};
 
     const queueResource = createQueue(localState, {
-      queueName: 'ez4-test-queue-mapping'
+      queueName: 'ez4-test-queue-mapping',
+      fifoMode: false
     });
 
     const policyResource = createPolicy(localState, {
@@ -70,6 +67,7 @@ describe.only('queue mapping', () => {
     });
 
     const resource = createMapping(localState, queueResource, functionResource, {
+      fromService: functionResource.parameters.functionName,
       enabled: true,
       batch: {
         batchSize: 100,

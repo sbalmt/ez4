@@ -1,6 +1,7 @@
+import type { Environment } from '@ez4/common';
 import type { Queue } from '@ez4/queue';
+import type { messageHandlerA, messageHandlerB, messageHandlerC } from './handlers.js';
 import type { MessageRequest } from './types.js';
-import type { messageHandlerA, messageHandlerB } from './handlers.js';
 import type { queueListener } from './common.js';
 
 /**
@@ -42,4 +43,45 @@ export declare class Sqs extends Queue.Service<MessageRequest> {
       concurrency: 4;
     }
   ];
+
+  /**
+   * Expose its client to all handlers.
+   */
+  services: {
+    selfClient: Environment.Service<Sqs>;
+  };
+}
+
+/**
+ * Example of AWS FIFO SQS deployed with EZ4.
+ */
+export declare class FifoSqs extends Queue.Service<MessageRequest> {
+  /**
+   * Define the message group Id field from MessageRequest for FIFO mode.
+   */
+  fifoMode: {
+    groupId: 'foo';
+  };
+
+  /**
+   * Maximum amount of time for the handler to acknowledge the message.
+   */
+  timeout: 30;
+
+  /**
+   * All handlers for this queue.
+   */
+  subscriptions: [
+    {
+      listener: typeof queueListener;
+      handler: typeof messageHandlerC;
+    }
+  ];
+
+  /**
+   * Expose its client to all handlers.
+   */
+  services: {
+    selfClient: Environment.Service<FifoSqs>;
+  };
 }

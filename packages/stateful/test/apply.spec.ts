@@ -17,7 +17,7 @@ const baseState: EntryStates<TestEntryState> = {
   }
 };
 
-describe.only('apply tests', () => {
+describe('apply tests', () => {
   class TestError extends Error {
     constructor() {
       super('Apply error!');

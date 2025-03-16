@@ -1,11 +1,6 @@
 import type { Database, Client as DbClient, RelationMetadata, Transaction } from '@ez4/database';
+import type { Repository, RepositoryRelations, RepositoryRelationsWithSchema } from '../types/repository.js';
 import type { Connection } from './types.js';
-
-import type {
-  Repository,
-  RepositoryRelations,
-  RepositoryRelationsWithSchema
-} from '../types/repository.js';
 
 import { RDSDataClient } from '@aws-sdk/client-rds-data';
 
@@ -22,11 +17,7 @@ const client = new RDSDataClient();
 const tableCache: Record<string, TableType> = {};
 
 export namespace Client {
-  export const make = <T extends Database.Service>(
-    connection: Connection,
-    repository: Repository,
-    debug?: boolean
-  ): DbClient<T> => {
+  export const make = <T extends Database.Service>(connection: Connection, repository: Repository, debug?: boolean): DbClient<T> => {
     const instance = new (class {
       rawQuery(query: string, values: unknown[]) {
         const parameters = values.map((value, index) => detectFieldData(`${index}`, value));
@@ -99,10 +90,7 @@ const getRelationsWithSchema = (repository: Repository, relations: RepositoryRel
   return relationsWithSchema;
 };
 
-const prepareTransactions = async <
-  T extends Database.Service,
-  U extends Transaction.WriteOperations<T>
->(
+const prepareTransactions = async <T extends Database.Service, U extends Transaction.WriteOperations<T>>(
   repository: Repository,
   operations: U
 ) => {

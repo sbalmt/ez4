@@ -1,57 +1,65 @@
+import type { ServiceAliases, ServiceMetadata } from '../types/service.js';
 import type { MetadataReflection } from '../types/metadata.js';
-import type { ServiceMetadata } from '../types/service.js';
 import type { DeployOptions } from '../types/options.js';
 
-import { triggerAllAsync } from '@ez4/project/library';
+import { EventContext, triggerAllAsync } from '@ez4/project/library';
 
-export const prepareAllLinkedServices = async (
-  metadata: MetadataReflection,
-  options: DeployOptions
-) => {
-  const operations = [];
+import { getEventContext } from './common.js';
+
+export const prepareLinkedServices = async (aliases: ServiceAliases, metadata: MetadataReflection, options: DeployOptions) => {
+  const allEvents = [];
+
+  const context = getEventContext(aliases, null);
 
   for (const identity in metadata) {
     const target = metadata[identity];
 
     if (target.services) {
-      operations.push(prepareTargetLinkedServiceList(target, metadata, options));
+      const event = prepareTargetLinkedServiceList(target, metadata, options, context);
+
+      allEvents.push(event);
     }
   }
 
-  await Promise.all(operations);
+  await Promise.all(allEvents);
 };
 
 const prepareTargetLinkedServiceList = async (
   target: ServiceMetadata,
   metadata: MetadataReflection,
-  options: DeployOptions
+  options: DeployOptions,
+  context: EventContext
 ) => {
-  const operations = [];
+  const allEvents = [];
 
   for (const name in target.services) {
     const identity = target.services[name];
     const service = metadata[identity];
 
-    operations.push(prepareLinkedService(name, target, service, options));
+    const event = prepareLinkedService(name, target, service, options, context);
+
+    allEvents.push(event);
   }
 
-  await Promise.all(operations);
+  await Promise.all(allEvents);
 };
 
 const prepareLinkedService = async (
   contextName: string,
   targetService: ServiceMetadata,
   sourceService: ServiceMetadata,
-  options: DeployOptions
+  options: DeployOptions,
+  context: EventContext
 ) => {
   const extraSource = await triggerAllAsync('deploy:prepareLinkedService', (handler) =>
-    handler({ service: sourceService, options })
+    handler({
+      service: sourceService,
+      options,
+      context
+    })
   );
 
   if (extraSource) {
-    targetService.extras = {
-      ...targetService.extras,
-      [contextName]: extraSource
-    };
+    targetService.extras[contextName] = extraSource;
   }
 };

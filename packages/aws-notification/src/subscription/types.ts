@@ -12,6 +12,7 @@ export type GetSubscriptionEndpoint = (context: StepContext) => Promise<string> 
 export type SubscriptionParameters = {
   getTopicArn: GetSubscriptionTopicArn;
   getEndpoint: GetSubscriptionEndpoint;
+  fromService: string;
 };
 
 export type SubscriptionResult = CreateResponse & {

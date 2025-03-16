@@ -3,7 +3,7 @@ import { describe, it } from 'node:test';
 
 import { toKebabCase, toCamelCase } from '@ez4/utils';
 
-describe.only('string utils', () => {
+describe('string utils', () => {
   it('assert :: kebab case', () => {
     const tests = [
       // Already in kebab-case

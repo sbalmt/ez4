@@ -1,7 +1,7 @@
 import type { Arn } from '@ez4/aws-common';
 
-import { SNSClient, SubscribeCommand, UnsubscribeCommand } from '@aws-sdk/client-sns';
-import { Logger } from '@ez4/aws-common';
+import { NotFoundException, SNSClient, SubscribeCommand, UnsubscribeCommand } from '@aws-sdk/client-sns';
+import { Logger, tryParseArn } from '@ez4/aws-common';
 
 import { SubscriptionServiceName } from './types.js';
 
@@ -23,7 +23,9 @@ export type CreateResponse = {
 };
 
 export const createSubscription = async (request: CreateRequest): Promise<CreateResponse> => {
-  Logger.logUpdate(SubscriptionServiceName, request.topicArn);
+  const topicName = tryParseArn(request.topicArn)?.resourceName ?? request.topicArn;
+
+  Logger.logCreate(SubscriptionServiceName, topicName);
 
   const { topicArn, protocol, endpoint } = request;
 
@@ -32,6 +34,7 @@ export const createSubscription = async (request: CreateRequest): Promise<Create
       TopicArn: topicArn,
       Protocol: protocol,
       Endpoint: endpoint,
+      ReturnSubscriptionArn: true,
       Attributes: {
         ...(protocol === SubscriptionProtocol.SQS && {
           RawMessageDelivery: 'true'
@@ -46,11 +49,23 @@ export const createSubscription = async (request: CreateRequest): Promise<Create
 };
 
 export const deleteSubscription = async (subscriptionArn: string) => {
-  Logger.logDelete(SubscriptionServiceName, subscriptionArn);
+  const topicName = tryParseArn(subscriptionArn)?.resourceName ?? subscriptionArn;
 
-  await client.send(
-    new UnsubscribeCommand({
-      SubscriptionArn: subscriptionArn
-    })
-  );
+  Logger.logDelete(SubscriptionServiceName, topicName);
+
+  try {
+    await client.send(
+      new UnsubscribeCommand({
+        SubscriptionArn: subscriptionArn
+      })
+    );
+
+    return true;
+  } catch (error) {
+    if (!(error instanceof NotFoundException)) {
+      throw error;
+    }
+
+    return false;
+  }
 };

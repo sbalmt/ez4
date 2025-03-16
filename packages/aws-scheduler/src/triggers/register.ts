@@ -25,8 +25,8 @@ export const registerTriggers = () => {
 
   createTrigger('@ez4/aws-scheduler', {
     'deploy:prepareIdentityAccount': prepareIdentityAccount,
-    'deploy:prepareLinkedService': prepareLinkedServices,
     'deploy:prepareExecutionPolicy': prepareExecutionPolicy,
+    'deploy:prepareLinkedService': prepareLinkedServices,
     'deploy:prepareResources': prepareCronServices,
     'deploy:connectResources': connectCronResources
   });

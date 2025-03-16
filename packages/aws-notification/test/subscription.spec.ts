@@ -4,25 +4,14 @@ import { describe, it } from 'node:test';
 import { ok, equal } from 'node:assert/strict';
 import { join } from 'node:path';
 
+import { createSubscriptionFunction, createSubscription, createTopic, registerTriggers, isSubscriptionState } from '@ez4/aws-notification';
 import { createPolicy, createRole } from '@ez4/aws-identity';
 import { deploy } from '@ez4/aws-common';
-
-import {
-  createSubscriptionFunction,
-  createSubscription,
-  createTopic,
-  registerTriggers,
-  isSubscriptionState
-} from '@ez4/aws-notification';
 
 import { getPolicyDocument } from './common/policy.js';
 import { getRoleDocument } from './common/role.js';
 
-const assertDeploy = async <E extends EntryState>(
-  resourceId: string,
-  newState: EntryStates<E>,
-  oldState: EntryStates<E> | undefined
-) => {
+const assertDeploy = async <E extends EntryState>(resourceId: string, newState: EntryStates<E>, oldState: EntryStates<E> | undefined) => {
   const { result: state } = await deploy(newState, oldState);
 
   const resource = state[resourceId];
@@ -40,7 +29,7 @@ const assertDeploy = async <E extends EntryState>(
   };
 };
 
-describe.only('notification subscription', () => {
+describe('notification subscription', () => {
   const baseDir = 'test/files';
 
   let lastState: EntryStates | undefined;
@@ -52,28 +41,31 @@ describe.only('notification subscription', () => {
     const localState: EntryStates = {};
 
     const topicResource = createTopic(localState, {
-      topicName: 'ez4-test-notification-topic-subscriptions'
+      topicName: 'ez4-test-notification-topic-subscription',
+      fifoMode: false
     });
 
     const policyResource = createPolicy(localState, {
-      policyName: 'EZ4: Test notification subscription policy',
+      policyName: 'ez4-test-notification-topic-subscription-policy',
       policyDocument: getPolicyDocument()
     });
 
     const roleResource = createRole(localState, [policyResource], {
-      roleName: 'EZ4: Test notification subscription role',
+      roleName: 'ez4-test-notification-topic-subscription-role',
       roleDocument: getRoleDocument()
     });
 
     const functionResource = createSubscriptionFunction(localState, roleResource, {
-      functionName: 'EZ4: Test notification subscription lambda',
+      functionName: 'ez4-test-notification-topic-subscription-lambda',
       handler: {
         functionName: 'main',
         sourceFile: join(baseDir, 'lambda.js')
       }
     });
 
-    const resource = createSubscription(localState, topicResource, functionResource);
+    const resource = createSubscription(localState, topicResource, functionResource, {
+      fromService: topicResource.parameters.topicName
+    });
 
     subscriptionId = resource.entryId;
 

@@ -1,13 +1,15 @@
-import type { ExtraSource } from '@ez4/project/library';
+import type { DeployOptions, EventContext, ExtraSource } from '@ez4/project/library';
+import type { BucketService } from '@ez4/storage/library';
 
-import { getBucketStateId } from '../bucket/utils.js';
+import { getBucketState } from '../bucket/utils.js';
 
-export const prepareLinkedClient = (bucketName: string): ExtraSource => {
-  const bucketEntryId = getBucketStateId(bucketName);
+export const prepareLinkedClient = (context: EventContext, service: BucketService, options: DeployOptions): ExtraSource => {
+  const bucketState = getBucketState(context, service.name, options);
+  const bucketId = bucketState.entryId;
 
   return {
-    entryId: bucketEntryId,
-    constructor: `make('${bucketName}')`,
+    entryIds: [bucketId],
+    constructor: `make('${bucketState.parameters.bucketName}')`,
     from: '@ez4/aws-bucket/client',
     module: 'Client'
   };

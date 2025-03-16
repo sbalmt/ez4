@@ -11,6 +11,7 @@ export type GetPolicy = (context: StepContext) => Promise<Policy> | Policy;
 
 export type PolicyParameters = {
   getPolicy: GetPolicy;
+  fromService: string;
 };
 
 export type PolicyResult = CreateResponse & {

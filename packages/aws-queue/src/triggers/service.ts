@@ -1,64 +1,49 @@
-import type {
-  ConnectResourceEvent,
-  PrepareResourceEvent,
-  ServiceEvent
-} from '@ez4/project/library';
+import type { ConnectResourceEvent, PrepareResourceEvent, ServiceEvent } from '@ez4/project/library';
 
-import { getServiceName } from '@ez4/project/library';
 import { isQueueService } from '@ez4/queue/library';
-import { isRoleState } from '@ez4/aws-identity';
 
 import { createQueue } from '../queue/service.js';
 import { connectSubscriptions, prepareSubscriptions } from './subscription.js';
 import { prepareLinkedClient } from './client.js';
-import { RoleMissingError } from './errors.js';
+import { getQueueName } from './utils.js';
 
 export const prepareLinkedServices = (event: ServiceEvent) => {
-  const { service, options } = event;
+  const { service, options, context } = event;
 
-  if (!isQueueService(service)) {
-    return null;
+  if (isQueueService(service)) {
+    return prepareLinkedClient(context, service, options);
   }
 
-  const queueName = getServiceName(service, options);
-
-  return prepareLinkedClient(queueName, service.schema);
+  return null;
 };
 
 export const prepareServices = async (event: PrepareResourceEvent) => {
-  const { state, service, role, options } = event;
+  const { state, service, options, context } = event;
 
   if (!isQueueService(service)) {
     return;
   }
 
-  if (!role || !isRoleState(role)) {
-    throw new RoleMissingError();
-  }
-
-  const { timeout, retention, polling, delay } = service;
+  const { fifoMode, timeout, retention, polling, delay } = service;
 
   const queueState = createQueue(state, {
-    queueName: getServiceName(service, options),
+    queueName: getQueueName(service, options),
+    fifoMode: !!fifoMode,
     ...(timeout !== undefined && { timeout }),
     ...(retention !== undefined && { retention }),
     ...(polling !== undefined && { polling }),
     ...(delay !== undefined && { delay })
   });
 
-  await prepareSubscriptions(state, service, role, queueState, options);
+  context.setServiceState(queueState, service, options);
+
+  await prepareSubscriptions(state, service, queueState, options, context);
 };
 
 export const connectServices = (event: ConnectResourceEvent) => {
-  const { state, service, role, options } = event;
+  const { state, service, options, context } = event;
 
-  if (!isQueueService(service)) {
-    return;
+  if (isQueueService(service)) {
+    connectSubscriptions(state, service, options, context);
   }
-
-  if (!role || !isRoleState(role)) {
-    throw new RoleMissingError();
-  }
-
-  connectSubscriptions(state, service, role, options);
 };

@@ -9,9 +9,10 @@ import {
   DeleteCorsConfigurationCommand,
   TagResourceCommand,
   UntagResourceCommand,
+  NotFoundException
 } from '@aws-sdk/client-apigatewayv2';
 
-import { Logger } from '@ez4/aws-common';
+import { Logger, tryParseArn } from '@ez4/aws-common';
 
 import { GatewayServiceName } from './types.js';
 
@@ -100,15 +101,27 @@ export const updateGateway = async (apiId: string, request: UpdateRequest) => {
 export const deleteCorsConfiguration = async (apiId: string) => {
   Logger.logDelete(GatewayServiceName, `${apiId} CORS`);
 
-  await client.send(
-    new DeleteCorsConfigurationCommand({
-      ApiId: apiId
-    })
-  );
+  try {
+    await client.send(
+      new DeleteCorsConfigurationCommand({
+        ApiId: apiId
+      })
+    );
+
+    return true;
+  } catch (error) {
+    if (!(error instanceof NotFoundException)) {
+      throw error;
+    }
+
+    return false;
+  }
 };
 
 export const tagGateway = async (apiArn: Arn, tags: ResourceTags) => {
-  Logger.logTag(GatewayServiceName, apiArn);
+  const apiName = tryParseArn(apiArn)?.resourceName ?? apiArn;
+
+  Logger.logTag(GatewayServiceName, apiName);
 
   await client.send(
     new TagResourceCommand({
@@ -122,7 +135,9 @@ export const tagGateway = async (apiArn: Arn, tags: ResourceTags) => {
 };
 
 export const untagGateway = async (apiArn: Arn, tagKeys: string[]) => {
-  Logger.logUntag(GatewayServiceName, apiArn);
+  const apiName = tryParseArn(apiArn)?.resourceName ?? apiArn;
+
+  Logger.logUntag(GatewayServiceName, apiName);
 
   await client.send(
     new UntagResourceCommand({
@@ -135,9 +150,19 @@ export const untagGateway = async (apiArn: Arn, tagKeys: string[]) => {
 export const deleteGateway = async (apiId: string) => {
   Logger.logDelete(GatewayServiceName, apiId);
 
-  await client.send(
-    new DeleteApiCommand({
-      ApiId: apiId
-    })
-  );
+  try {
+    await client.send(
+      new DeleteApiCommand({
+        ApiId: apiId
+      })
+    );
+
+    return true;
+  } catch (error) {
+    if (!(error instanceof NotFoundException)) {
+      throw error;
+    }
+
+    return false;
+  }
 };

@@ -7,18 +7,9 @@ import { join } from 'node:path';
 import { deploy } from '@ez4/aws-common';
 import { deepClone } from '@ez4/utils';
 
-import {
-  createBucket,
-  createBucketObject,
-  isBucketObjectState,
-  registerTriggers
-} from '@ez4/aws-bucket';
+import { createBucket, createBucketObject, isBucketObjectState, registerTriggers } from '@ez4/aws-bucket';
 
-const assertDeploy = async <E extends EntryState>(
-  resourceId: string,
-  newState: EntryStates<E>,
-  oldState: EntryStates<E> | undefined
-) => {
+const assertDeploy = async <E extends EntryState>(resourceId: string, newState: EntryStates<E>, oldState: EntryStates<E> | undefined) => {
   const { result: state } = await deploy(newState, oldState);
 
   const resource = state[resourceId];
@@ -29,7 +20,6 @@ const assertDeploy = async <E extends EntryState>(
   const result = resource.result;
 
   ok(result.bucketName);
-  ok(result.objectKey);
 
   return {
     result,
@@ -37,7 +27,7 @@ const assertDeploy = async <E extends EntryState>(
   };
 };
 
-describe.only('bucket objects', () => {
+describe('bucket objects', () => {
   const baseDir = 'test/files';
 
   let lastState: EntryStates | undefined;

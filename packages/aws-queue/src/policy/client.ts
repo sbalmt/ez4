@@ -3,10 +3,11 @@ import type { Arn } from '@ez4/aws-common';
 import { SQSClient, SetQueueAttributesCommand } from '@aws-sdk/client-sqs';
 
 import { createRoleDocument } from '@ez4/aws-identity';
-import { Logger } from '@ez4/aws-common';
+import { Logger, tryParseArn } from '@ez4/aws-common';
 
+import { parseQueueUrl } from '../queue/helpers/url.js';
+import { buildQueueArn } from '../utils/policy.js';
 import { PolicyServiceName } from './types.js';
-import { queueUrlToArn } from '../utils/policy.js';
 
 const client = new SQSClient({});
 
@@ -19,18 +20,19 @@ export type CreateResponse = {
   sourceArn: string;
 };
 
-export const attachPolicy = async (
-  queueUrl: string,
-  request: CreateRequest
-): Promise<CreateResponse> => {
+export const attachPolicy = async (queueUrl: string, request: CreateRequest): Promise<CreateResponse> => {
   const { principal, sourceArn } = request;
 
-  Logger.logAttach(PolicyServiceName, queueUrl, sourceArn);
+  const { queueName, accountId, region } = parseQueueUrl(queueUrl);
+
+  const sourceName = tryParseArn(sourceArn)?.resourceName ?? sourceArn;
+
+  Logger.logAttach(PolicyServiceName, queueName, sourceName);
 
   const policy = createRoleDocument(
     {
       permissions: ['sqs:SendMessage'],
-      resourceIds: [queueUrlToArn(queueUrl)]
+      resourceIds: [buildQueueArn(region, accountId, queueName)]
     },
     [{ account: principal }],
     sourceArn
@@ -51,7 +53,11 @@ export const attachPolicy = async (
 };
 
 export const detachPolicy = async (queueUrl: string, sourceArn: string) => {
-  Logger.logDetach(PolicyServiceName, queueUrl, sourceArn);
+  const { queueName } = parseQueueUrl(queueUrl);
+
+  const sourceName = tryParseArn(sourceArn)?.resourceName ?? sourceArn;
+
+  Logger.logDetach(PolicyServiceName, queueName, sourceName);
 
   await client.send(
     new SetQueueAttributesCommand({

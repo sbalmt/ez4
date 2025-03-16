@@ -1,47 +1,41 @@
+import type { DeployOptions, EventContext } from '@ez4/project/library';
 import type { EntryStates } from '@ez4/stateful';
-import type { DeployOptions } from '@ez4/project/library';
-import type { AdditionalOrigin, DefaultOrigin } from '../distribution/client.js';
 
-import { getServiceName } from '@ez4/project/library';
 import { CdnService, CdnOrigin, isCdnBucketOrigin } from '@ez4/distribution/library';
-import { getBucketDomain } from '@ez4/aws-bucket';
+import { getBucketDomain, getBucketState } from '@ez4/aws-bucket';
+import { getServiceName } from '@ez4/project/library';
 import { OriginProtocol } from '@ez4/distribution';
 
+import { DistributionAdditionalOrigin, DistributionDefaultOrigin } from '../distribution/types.js';
 import { createCachePolicy } from '../cache/service.js';
 import { getCachePolicyName } from './utils.js';
 
-export const getDefaultOriginCache = async (
-  state: EntryStates,
-  service: CdnService,
-  options: DeployOptions
-) => {
-  return getOriginCache<DefaultOrigin>(state, service, 'default', service.defaultOrigin, options);
+export const getDefaultOriginCache = async (state: EntryStates, service: CdnService, options: DeployOptions, context: EventContext) => {
+  return getOriginCache<DistributionDefaultOrigin>(state, service, 'default', service.defaultOrigin, options, context);
 };
 
-export const getAdditionalOriginCache = async (
-  state: EntryStates,
-  service: CdnService,
-  options: DeployOptions
-) => {
-  const { origins } = service;
+export const getAdditionalOriginCache = async (state: EntryStates, service: CdnService, options: DeployOptions, context: EventContext) => {
+  const { origins = [] } = service;
 
-  if (!origins?.length) {
-    return [];
-  }
-
-  const promises = origins.map((origin, index) =>
-    getOriginCache<AdditionalOrigin>(state, service, `origin_${index + 1}`, origin, options)
+  const additionalOrigins = await Promise.all(
+    origins.map((origin, index) => {
+      return getOriginCache<DistributionAdditionalOrigin>(state, service, `origin_${index + 1}`, origin, options, context);
+    })
   );
 
-  return Promise.all(promises);
+  // Ensure same position to not trigger updates without real changes.
+  additionalOrigins.sort((a, b) => a.id.localeCompare(b.id));
+
+  return additionalOrigins;
 };
 
-const getOriginCache = async <T extends DefaultOrigin | AdditionalOrigin>(
+const getOriginCache = async <T extends DistributionDefaultOrigin | DistributionAdditionalOrigin>(
   state: EntryStates,
   service: CdnService,
   id: string,
   origin: CdnOrigin,
-  options: DeployOptions
+  options: DeployOptions,
+  context: EventContext
 ) => {
   const { location, path, cache } = origin;
 
@@ -54,20 +48,37 @@ const getOriginCache = async <T extends DefaultOrigin | AdditionalOrigin>(
     minTTL: cache?.minTTL ?? 0
   });
 
+  const isBucket = isCdnBucketOrigin(origin);
+
   return {
     id,
     path,
     location,
     cachePolicyId: originCache.entryId,
-    ...(isCdnBucketOrigin(origin)
+    ...(isBucket
       ? {
-          domain: await getBucketDomain(getServiceName(origin.bucket, options))
+          domain: getServiceName(origin.bucket, options)
         }
       : {
           http: origin.protocol === OriginProtocol.Http,
           domain: origin.domain,
           headers: origin.headers,
           port: origin.port
-        })
+        }),
+    getDistributionOrigin: async () => {
+      if (isBucket) {
+        const bucketState = getBucketState(context, origin.bucket, options);
+        const bucketName = bucketState.parameters.bucketName;
+        const bucketDomain = await getBucketDomain(bucketName);
+
+        return {
+          domain: bucketDomain
+        };
+      }
+
+      return {
+        domain: origin.domain
+      };
+    }
   } as T;
 };

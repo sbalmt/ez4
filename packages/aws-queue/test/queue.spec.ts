@@ -29,7 +29,7 @@ const assertDeploy = async <E extends EntryState>(
   };
 };
 
-describe.only('queue', () => {
+describe('queue', () => {
   let lastState: EntryStates | undefined;
   let queueId: string | undefined;
 
@@ -40,6 +40,7 @@ describe.only('queue', () => {
 
     const resource = createQueue(localState, {
       queueName: 'ez4-test-queue',
+      fifoMode: false,
       timeout: 30,
       retention: 60,
       polling: 20,

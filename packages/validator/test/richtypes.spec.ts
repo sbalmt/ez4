@@ -6,7 +6,7 @@ import { describe, it } from 'node:test';
 import { SchemaType } from '@ez4/schema';
 import { validate } from '@ez4/validator';
 
-describe.only('rich types validation', () => {
+describe('rich types validation', () => {
   it('assert :: decimal', async () => {
     const schema: AnySchema = {
       type: SchemaType.Number,

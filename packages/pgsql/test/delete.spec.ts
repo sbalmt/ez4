@@ -3,7 +3,7 @@ import { deepEqual, equal } from 'node:assert';
 
 import { SqlBuilder } from '@ez4/pgsql';
 
-describe.only('sql delete tests', () => {
+describe('sql delete tests', () => {
   let sql: SqlBuilder;
 
   beforeEach(() => {

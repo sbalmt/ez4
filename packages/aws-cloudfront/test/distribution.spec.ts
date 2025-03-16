@@ -16,11 +16,7 @@ import { createBucket, getBucketDomain } from '@ez4/aws-bucket';
 import { deploy } from '@ez4/aws-common';
 import { deepClone } from '@ez4/utils';
 
-const assertDeploy = async <E extends EntryState>(
-  resourceId: string,
-  newState: EntryStates<E>,
-  oldState: EntryStates<E> | undefined
-) => {
+const assertDeploy = async <E extends EntryState>(resourceId: string, newState: EntryStates<E>, oldState: EntryStates<E> | undefined) => {
   const { result: state } = await deploy(newState, oldState);
 
   const resource = state[resourceId];
@@ -42,7 +38,7 @@ const assertDeploy = async <E extends EntryState>(
   };
 };
 
-describe.only('cloudfront :: distribution', () => {
+describe('cloudfront :: distribution', () => {
   let lastState: EntryStates | undefined;
   let distributionId: string | undefined;
 
@@ -86,18 +82,28 @@ describe.only('cloudfront :: distribution', () => {
         enabled: true,
         defaultOrigin: {
           id: 's3-bucket',
-          domain: await getBucketDomain(originBucketName),
+          location: '/home',
           cachePolicyId: cachePolicyResource.entryId,
-          location: '/home'
+          domain: originBucketName,
+          getDistributionOrigin: async () => {
+            return {
+              domain: await getBucketDomain(originBucketName)
+            };
+          }
         },
         origins: [
           {
             id: 'ez4-test',
-            domain: 'ez4.test',
-            cachePolicyId: cachePolicyResource.entryId,
             path: 'test*',
+            cachePolicyId: cachePolicyResource.entryId,
             headers: {
               ['x-custom-header']: 'ez4-custom-value'
+            },
+            domain: 'unresolved.ez4.test',
+            getDistributionOrigin: () => {
+              return {
+                domain: 'resolved.ez4.test'
+              };
             }
           }
         ],
@@ -137,9 +143,14 @@ describe.only('cloudfront :: distribution', () => {
 
     resource.parameters.origins.push({
       id: 'ez4-test-new',
-      domain: 'ez4.test.new',
       path: 'test-new*',
-      cachePolicyId
+      cachePolicyId,
+      domain: 'resolved.ez4.test',
+      getDistributionOrigin: () => {
+        return {
+          domain: 'ez4.test.new'
+        };
+      }
     });
 
     resource.parameters.tags = {

@@ -21,11 +21,7 @@ import { deepClone } from '@ez4/utils';
 
 import { getRoleDocument } from './common/role.js';
 
-const assertDeploy = async <E extends EntryState>(
-  resourceId: string,
-  newState: EntryStates<E>,
-  oldState: EntryStates<E> | undefined
-) => {
+const assertDeploy = async <E extends EntryState>(resourceId: string, newState: EntryStates<E>, oldState: EntryStates<E> | undefined) => {
   const { result: state } = await deploy(newState, oldState);
 
   const resource = state[resourceId];
@@ -47,7 +43,7 @@ const assertDeploy = async <E extends EntryState>(
   };
 };
 
-describe.only('gateway route', () => {
+describe('gateway route', () => {
   const baseDir = 'test/files';
 
   let lastState: EntryStates | undefined;
@@ -76,14 +72,10 @@ describe.only('gateway route', () => {
       }
     });
 
-    const integrationResource = createIntegration(
-      localState,
-      gatewayResource,
-      integrationLambdaResource,
-      {
-        description: 'EZ4: Test route integration'
-      }
-    );
+    const integrationResource = createIntegration(localState, gatewayResource, integrationLambdaResource, {
+      fromService: integrationLambdaResource.parameters.functionName,
+      description: 'EZ4: Test route integration'
+    });
 
     const authorizerLambdaResource = await createAuthorizerFunction(localState, roleResource, {
       functionName: 'EZ4: Test route authorizer lambda',
@@ -93,25 +85,14 @@ describe.only('gateway route', () => {
       }
     });
 
-    const authorizerResource = createAuthorizer(
-      localState,
-      gatewayResource,
-      authorizerLambdaResource,
-      {
-        name: 'EZ4: Test route authorizer'
-      }
-    );
+    const authorizerResource = createAuthorizer(localState, gatewayResource, authorizerLambdaResource, {
+      name: 'EZ4: Test route authorizer'
+    });
 
-    const resource = createRoute(
-      localState,
-      gatewayResource,
-      integrationResource,
-      authorizerResource,
-      {
-        routePath: 'GET /ez4-test',
-        operationName: 'EZ4: Test route operation name'
-      }
-    );
+    const resource = createRoute(localState, gatewayResource, integrationResource, authorizerResource, {
+      routePath: 'GET /ez4-test',
+      operationName: 'EZ4: Test route operation name'
+    });
 
     routeId = resource.entryId;
 

@@ -24,7 +24,7 @@ type TestIndexes = {
   id: Index.Primary;
 };
 
-describe.only('dynamodb query (delete)', () => {
+describe('dynamodb query (delete)', () => {
   it('assert :: prepare delete', () => {
     const [statement, variables] = prepareDelete<TestSchema, {}, TestIndexes, TestRelations>(
       'ez4-test-delete',

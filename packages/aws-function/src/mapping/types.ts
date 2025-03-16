@@ -10,6 +10,7 @@ export type GetMappingSourceArn = (context: StepContext) => Promise<Arn> | Arn;
 
 export type MappingParameters = Omit<CreateRequest, 'functionName' | 'sourceArn'> & {
   getSourceArn: GetMappingSourceArn;
+  fromService: string;
 };
 
 export type MappingResult = ImportOrCreateResponse & {

@@ -27,7 +27,7 @@ const parseFile = (fileName: string, errorCount: number) => {
   return result.errors;
 };
 
-describe.only('scheduler metadata errors', () => {
+describe('scheduler metadata errors', () => {
   registerTriggers();
 
   it('assert :: incomplete scheduler', () => {

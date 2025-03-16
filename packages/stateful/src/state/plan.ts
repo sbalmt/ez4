@@ -31,13 +31,13 @@ export const planSteps = async <E extends EntryState>(
     const handlers = options.handlers;
 
     while (true) {
-      const entries = findPendingToCreate(newEntryList, newEntrySet);
+      const entries = findPendingChanges(newEntryList, newEntrySet);
 
       if (!entries.length) {
         break;
       }
 
-      const nextSteps = await planPendingToCreate(
+      const nextSteps = await planPendingChanges(
         entries,
         newEntrySet,
         oldEntries,
@@ -64,13 +64,13 @@ export const planSteps = async <E extends EntryState>(
     const oldEntrySet = new Set<string>();
 
     while (true) {
-      const entries = findPendingToDelete(oldEntryList, oldEntrySet);
+      const entries = findPendingRemoval(oldEntryList, oldEntrySet);
 
       if (!entries.length) {
         break;
       }
 
-      const nextSteps = planPendingToDelete(entries, oldEntrySet, actionOrder++);
+      const nextSteps = planPendingRemoval(entries, oldEntrySet, actionOrder++);
 
       deletionSteps.push(...nextSteps);
     }
@@ -83,13 +83,13 @@ export const planSteps = async <E extends EntryState>(
   return [...creationSteps, ...deletionSteps];
 };
 
-const findPendingToCreate = <E extends EntryState>(entryList: E[], visitSet: Set<string>) => {
+const findPendingChanges = <E extends EntryState>(entryList: E[], visitSet: Set<string>) => {
   return entryList.filter(({ entryId, dependencies }) => {
     return !visitSet.has(entryId) && dependencies.every((identifier) => visitSet.has(identifier));
   });
 };
 
-const findPendingToDelete = <E extends EntryState>(
+const findPendingRemoval = <E extends EntryState>(
   entryList: HydratedEntryState<E>[],
   visitSet: Set<string>
 ) => {
@@ -98,7 +98,7 @@ const findPendingToDelete = <E extends EntryState>(
   });
 };
 
-const planPendingToCreate = async <E extends EntryState<T>, T extends string>(
+const planPendingChanges = async <E extends EntryState<T>, T extends string>(
   entryList: E[],
   visitSet: Set<string>,
   oldEntries: EntryStates<E> | undefined,
@@ -124,12 +124,17 @@ const planPendingToCreate = async <E extends EntryState<T>, T extends string>(
       continue;
     }
 
-    if (type !== current.type || !handler.equals(candidate, current)) {
+    if (type !== current.type) {
       stateList.push({ action: StepAction.Replace, entryId, order });
       continue;
     }
 
     const preview = await handler.preview(candidate, current);
+
+    if (!handler.equals(candidate, current)) {
+      stateList.push({ action: StepAction.Replace, entryId, order, preview });
+      continue;
+    }
 
     stateList.push({ action: StepAction.Update, entryId, order, preview });
   }
@@ -137,7 +142,7 @@ const planPendingToCreate = async <E extends EntryState<T>, T extends string>(
   return stateList;
 };
 
-const planPendingToDelete = <E extends EntryState>(
+const planPendingRemoval = <E extends EntryState>(
   entryList: HydratedEntryState<E>[],
   visitSet: Set<string>,
   order: number

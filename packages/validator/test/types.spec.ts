@@ -6,7 +6,7 @@ import { describe, it } from 'node:test';
 import { SchemaType } from '@ez4/schema';
 import { validate } from '@ez4/validator';
 
-describe.only('types validation', () => {
+describe('types validation', () => {
   it('assert :: boolean', async () => {
     const schema: AnySchema = {
       type: SchemaType.Boolean,

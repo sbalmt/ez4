@@ -6,10 +6,7 @@ import { attachEntry } from '@ez4/stateful';
 
 import { PolicyServiceType } from './types.js';
 
-export const createPolicy = <E extends EntryState>(
-  state: EntryStates<E>,
-  parameters: PolicyParameters
-) => {
+export const createPolicy = <E extends EntryState>(state: EntryStates<E>, parameters: PolicyParameters) => {
   const policyName = toKebabCase(parameters.policyName);
   const policyId = hashData(PolicyServiceType, policyName);
 
@@ -22,4 +19,10 @@ export const createPolicy = <E extends EntryState>(
       policyName
     }
   });
+};
+
+export const tryGetPolicy = <E extends EntryState>(state: EntryStates<E>, policyName: string) => {
+  const policyId = hashData(PolicyServiceType, toKebabCase(policyName));
+
+  return state[policyId];
 };

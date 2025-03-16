@@ -18,7 +18,7 @@ const testFile = (fileName: string, eventName: keyof ResolverEvents, callCount: 
   strictEqual(eventFunction.mock.callCount(), callCount);
 };
 
-describe.only('reflection events', () => {
+describe('reflection events', () => {
   it('assert :: any', () => testFile('any', 'onTypeAny', 1));
   it('assert :: void', () => testFile('void', 'onTypeVoid', 1));
   it('assert :: never', () => testFile('never', 'onTypeNever', 1));

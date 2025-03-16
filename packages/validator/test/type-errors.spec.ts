@@ -17,7 +17,7 @@ import { SchemaType } from '@ez4/schema';
 
 import { assertError } from './common.js';
 
-describe.only('type validation errors', () => {
+describe('type validation errors', () => {
   it('assert :: boolean errors', async () => {
     const schema: AnySchema = {
       type: SchemaType.Boolean

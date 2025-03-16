@@ -1,3 +1,4 @@
+import type { MetadataReflection } from '@ez4/project/library';
 import type { EntryState, EntryStates } from '@ez4/stateful';
 import type { IdentityAccount, IdentityGrant } from '../types/identity.js';
 import type { DeployOptions } from '../types/options.js';
@@ -6,12 +7,12 @@ import { triggerAllAsync } from '@ez4/project/library';
 
 import { MissingProviderError } from '../errors/provider.js';
 
-export const prepareExecutionRole = async (state: EntryStates, options: DeployOptions) => {
-  const [grantsList, accountList, policyList] = await Promise.all([
-    prepareIdentityGrantList(options),
-    prepareIdentityAccountList(options),
-    prepareExecutionPolicyList(state, options)
-  ]);
+export const prepareExecutionRole = async (state: EntryStates, metadata: MetadataReflection, options: DeployOptions) => {
+  const serviceTypes = getAllServiceTypes(metadata);
+
+  const grantsList = await prepareIdentityGrantList(serviceTypes, options);
+  const accountList = await prepareIdentityAccountList(serviceTypes, options);
+  const policyList = await prepareExecutionPolicyList(state, serviceTypes, options);
 
   const role = await triggerAllAsync('deploy:prepareExecutionRole', (handler) =>
     handler({
@@ -30,50 +31,68 @@ export const prepareExecutionRole = async (state: EntryStates, options: DeployOp
   return role;
 };
 
-const prepareIdentityGrantList = async (options: DeployOptions) => {
+const getAllServiceTypes = (metadata: MetadataReflection) => {
+  const serviceTypes = new Set<string>();
+
+  for (const identity in metadata) {
+    const service = metadata[identity];
+
+    serviceTypes.add(service.type);
+  }
+
+  return [...serviceTypes.values()];
+};
+
+const prepareIdentityGrantList = async (serviceTypes: string[], options: DeployOptions) => {
   const grantsList: IdentityGrant[] = [];
 
-  await triggerAllAsync('deploy:prepareIdentityGrant', async (handler) => {
-    const grants = await handler({ options });
+  for (const serviceType of serviceTypes) {
+    await triggerAllAsync('deploy:prepareIdentityGrant', async (handler) => {
+      const grants = await handler({ serviceType, options });
 
-    if (grants) {
-      grantsList.push(grants);
-    }
+      if (grants) {
+        grantsList.push(grants);
+      }
 
-    return null;
-  });
+      return null;
+    });
+  }
 
   return grantsList;
 };
 
-const prepareIdentityAccountList = async (options: DeployOptions) => {
+const prepareIdentityAccountList = async (serviceTypes: string[], options: DeployOptions) => {
   const accountList: IdentityAccount[] = [];
 
-  await triggerAllAsync('deploy:prepareIdentityAccount', async (handler) => {
-    const accounts = await handler({ options });
+  for (const serviceType of serviceTypes) {
+    await triggerAllAsync('deploy:prepareIdentityAccount', async (handler) => {
+      const accounts = await handler({ serviceType, options });
 
-    if (accounts) {
-      accountList.push(...accounts);
-    }
+      if (accounts) {
+        accountList.push(...accounts);
+      }
 
-    return null;
-  });
+      return null;
+    });
+  }
 
   return accountList;
 };
 
-const prepareExecutionPolicyList = async (state: EntryStates, options: DeployOptions) => {
+const prepareExecutionPolicyList = async (state: EntryStates, serviceTypes: string[], options: DeployOptions) => {
   const policyList: EntryState[] = [];
 
-  await triggerAllAsync('deploy:prepareExecutionPolicy', async (handler) => {
-    const policy = await handler({ state, options });
+  for (const serviceType of serviceTypes) {
+    await triggerAllAsync('deploy:prepareExecutionPolicy', async (handler) => {
+      const policy = await handler({ state, serviceType, options });
 
-    if (policy) {
-      policyList.push(policy);
-    }
+      if (policy) {
+        policyList.push(policy);
+      }
 
-    return null;
-  });
+      return null;
+    });
+  }
 
   return policyList;
 };

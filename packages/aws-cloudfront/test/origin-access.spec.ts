@@ -29,7 +29,7 @@ const assertDeploy = async <E extends EntryState>(
   };
 };
 
-describe.only('cloudfront :: origin access', () => {
+describe('cloudfront :: origin access', () => {
   let lastState: EntryStates | undefined;
   let accessId: string | undefined;
 

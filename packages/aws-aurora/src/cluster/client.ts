@@ -1,6 +1,6 @@
 import type { Arn, ResourceTags } from '@ez4/aws-common';
 
-import { getTagList, Logger } from '@ez4/aws-common';
+import { getTagList, Logger, tryParseArn } from '@ez4/aws-common';
 
 import {
   RDSClient,
@@ -46,9 +46,7 @@ export type UpdateRequest = Partial<Omit<CreateRequest, 'clusterName' | 'databas
 
 export type UpdateResponse = ImportOrCreateResponse;
 
-export const importCluster = async (
-  clusterName: string
-): Promise<ImportOrCreateResponse | undefined> => {
+export const importCluster = async (clusterName: string): Promise<ImportOrCreateResponse | undefined> => {
   Logger.logImport(ClusterServiceName, clusterName);
 
   try {
@@ -105,6 +103,8 @@ export const createCluster = async (request: CreateRequest): Promise<ImportOrCre
     })
   );
 
+  Logger.logWait(ClusterServiceName, clusterName);
+
   await waitUntilDBClusterAvailable(waiter, {
     DBClusterIdentifier: clusterName
   });
@@ -119,10 +119,7 @@ export const createCluster = async (request: CreateRequest): Promise<ImportOrCre
   };
 };
 
-export const updateCluster = async (
-  clusterName: string,
-  request: UpdateRequest
-): Promise<UpdateResponse> => {
+export const updateCluster = async (clusterName: string, request: UpdateRequest): Promise<UpdateResponse> => {
   Logger.logUpdate(ClusterServiceName, clusterName);
 
   const response = await client.send(
@@ -135,6 +132,8 @@ export const updateCluster = async (
       ApplyImmediately: true
     })
   );
+
+  Logger.logWait(ClusterServiceName, clusterName);
 
   await waitUntilDBClusterAvailable(waiter, {
     DBClusterIdentifier: clusterName
@@ -151,7 +150,9 @@ export const updateCluster = async (
 };
 
 export const tagCluster = async (clusterArn: Arn, tags: ResourceTags) => {
-  Logger.logTag(ClusterServiceName, clusterArn);
+  const clusterName = tryParseArn(clusterArn)?.resourceName ?? clusterArn;
+
+  Logger.logTag(ClusterServiceName, clusterName);
 
   await client.send(
     new AddTagsToResourceCommand({
@@ -165,7 +166,9 @@ export const tagCluster = async (clusterArn: Arn, tags: ResourceTags) => {
 };
 
 export const untagCluster = async (clusterArn: Arn, tagKeys: string[]) => {
-  Logger.logUntag(ClusterServiceName, clusterArn);
+  const clusterName = tryParseArn(clusterArn)?.resourceName ?? clusterArn;
+
+  Logger.logUntag(ClusterServiceName, clusterName);
 
   await client.send(
     new RemoveTagsFromResourceCommand({
@@ -178,14 +181,26 @@ export const untagCluster = async (clusterArn: Arn, tagKeys: string[]) => {
 export const deleteCluster = async (clusterName: string) => {
   Logger.logDelete(ClusterServiceName, clusterName);
 
-  await client.send(
-    new DeleteDBClusterCommand({
-      DBClusterIdentifier: clusterName,
-      SkipFinalSnapshot: true
-    })
-  );
+  try {
+    await client.send(
+      new DeleteDBClusterCommand({
+        DBClusterIdentifier: clusterName,
+        SkipFinalSnapshot: true
+      })
+    );
 
-  await waitUntilDBClusterDeleted(waiter, {
-    DBClusterIdentifier: clusterName
-  });
+    Logger.logWait(ClusterServiceName, clusterName);
+
+    await waitUntilDBClusterDeleted(waiter, {
+      DBClusterIdentifier: clusterName
+    });
+
+    return true;
+  } catch (error) {
+    if (!(error instanceof DBClusterNotFoundFault)) {
+      throw error;
+    }
+
+    return false;
+  }
 };

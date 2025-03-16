@@ -1,7 +1,7 @@
-import type { Notification } from '@ez4/notification';
+import type { Queue } from '@ez4/queue';
 import type { MessageRequest } from '../types.js';
 
-export function messageHandlerC(request: Notification.Incoming<MessageRequest>): void {
+export function messageHandlerC(request: Queue.Incoming<MessageRequest>): void {
   const { message } = request;
 
   console.log('Handler C', JSON.stringify(message));

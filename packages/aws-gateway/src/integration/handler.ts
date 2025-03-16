@@ -1,5 +1,6 @@
 import type { StepContext, StepHandler } from '@ez4/stateful';
 import type { IntegrationState, IntegrationResult, IntegrationParameters } from './types.js';
+import type { UpdateRequest } from './client.js';
 
 import { getFunctionArn } from '@ez4/aws-function';
 import { ReplaceResourceError } from '@ez4/aws-common';
@@ -8,6 +9,8 @@ import { deepCompare, deepEqual } from '@ez4/utils';
 import { getGatewayId } from '../gateway/utils.js';
 import { createIntegration, deleteIntegration, updateIntegration } from './client.js';
 import { IntegrationServiceName } from './types.js';
+
+type IntegrationUpdateParameters = IntegrationParameters & UpdateRequest;
 
 export const getIntegrationHandler = (): StepHandler<IntegrationState> => ({
   equals: equalsResource,
@@ -31,11 +34,7 @@ const previewResource = async (candidate: IntegrationState, current: Integration
   return changes.counts ? changes : undefined;
 };
 
-const replaceResource = async (
-  candidate: IntegrationState,
-  current: IntegrationState,
-  context: StepContext
-) => {
+const replaceResource = async (candidate: IntegrationState, current: IntegrationState, context: StepContext) => {
   if (current.result) {
     throw new ReplaceResourceError(IntegrationServiceName, candidate.entryId, current.entryId);
   }
@@ -43,10 +42,7 @@ const replaceResource = async (
   return createResource(candidate, context);
 };
 
-const createResource = async (
-  candidate: IntegrationState,
-  context: StepContext
-): Promise<IntegrationResult> => {
+const createResource = async (candidate: IntegrationState, context: StepContext): Promise<IntegrationResult> => {
   const apiId = getGatewayId(IntegrationServiceName, 'integration', context);
   const functionArn = getFunctionArn(IntegrationServiceName, 'integration', context);
 
@@ -62,11 +58,7 @@ const createResource = async (
   };
 };
 
-const updateResource = async (
-  candidate: IntegrationState,
-  current: IntegrationState,
-  context: StepContext
-) => {
+const updateResource = async (candidate: IntegrationState, current: IntegrationState, context: StepContext) => {
   const result = candidate.result;
 
   if (!result) {
@@ -97,13 +89,17 @@ const deleteResource = async (candidate: IntegrationState) => {
   }
 };
 
-const checkGeneralUpdates = async <T extends IntegrationParameters>(
+const checkGeneralUpdates = async (
   apiId: string,
   integrationId: string,
-  candidate: T,
-  current: T
+  candidate: IntegrationUpdateParameters,
+  current: IntegrationUpdateParameters
 ) => {
-  const hasChanges = !deepEqual(candidate, current);
+  const hasChanges = !deepEqual(candidate, current, {
+    exclude: {
+      fromService: true
+    }
+  });
 
   if (hasChanges) {
     await updateIntegration(apiId, integrationId, candidate);

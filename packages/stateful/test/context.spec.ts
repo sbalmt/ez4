@@ -38,7 +38,7 @@ const checkDependencies = (context: StepContext) => {
   equal(context.getDependencies().length, 2);
 };
 
-describe.only('context tests', () => {
+describe('context tests', () => {
   it('assert :: creation context', async () => {
     const createHandler = mock.fn((_ca: TestEntryState, context: StepContext) => {
       checkDependencies(context);

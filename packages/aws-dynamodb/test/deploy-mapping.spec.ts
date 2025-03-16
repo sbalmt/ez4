@@ -4,15 +4,7 @@ import { describe, it } from 'node:test';
 import { ok, equal } from 'node:assert/strict';
 import { join } from 'node:path';
 
-import {
-  AttributeKeyType,
-  AttributeType,
-  createStreamFunction,
-  createMapping,
-  createTable,
-  registerTriggers
-} from '@ez4/aws-dynamodb';
-
+import { AttributeKeyType, AttributeType, createStreamFunction, createMapping, createTable, registerTriggers } from '@ez4/aws-dynamodb';
 import { createPolicy, createRole } from '@ez4/aws-identity';
 import { isMappingState } from '@ez4/aws-function';
 import { deploy } from '@ez4/aws-common';
@@ -21,11 +13,7 @@ import { deepClone } from '@ez4/utils';
 import { getPolicyDocument } from './common/policy.js';
 import { getRoleDocument } from './common/role.js';
 
-const assertDeploy = async <E extends EntryState>(
-  resourceId: string,
-  newState: EntryStates<E>,
-  oldState: EntryStates<E> | undefined
-) => {
+const assertDeploy = async <E extends EntryState>(resourceId: string, newState: EntryStates<E>, oldState: EntryStates<E> | undefined) => {
   const { result: state } = await deploy(newState, oldState);
 
   const resource = state[resourceId];
@@ -44,7 +32,7 @@ const assertDeploy = async <E extends EntryState>(
   };
 };
 
-describe.only('dynamodb mapping', () => {
+describe('dynamodb mapping', () => {
   const baseDir = 'test/files';
 
   let lastState: EntryStates | undefined;
@@ -89,6 +77,7 @@ describe.only('dynamodb mapping', () => {
     });
 
     const resource = createMapping(localState, tableResource, functionResource, {
+      fromService: functionResource.parameters.functionName,
       enabled: true
     });
 

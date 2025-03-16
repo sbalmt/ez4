@@ -4,13 +4,7 @@ import { describe, it } from 'node:test';
 import { ok, equal } from 'node:assert/strict';
 import { join } from 'node:path';
 
-import {
-  createGateway,
-  createIntegration,
-  createIntegrationFunction,
-  isIntegrationState,
-  registerTriggers
-} from '@ez4/aws-gateway';
+import { createGateway, createIntegration, createIntegrationFunction, isIntegrationState, registerTriggers } from '@ez4/aws-gateway';
 
 import { createRole } from '@ez4/aws-identity';
 import { deploy } from '@ez4/aws-common';
@@ -18,11 +12,7 @@ import { deepClone } from '@ez4/utils';
 
 import { getRoleDocument } from './common/role.js';
 
-const assertDeploy = async <E extends EntryState>(
-  resourceId: string,
-  newState: EntryStates<E>,
-  oldState: EntryStates<E> | undefined
-) => {
+const assertDeploy = async <E extends EntryState>(resourceId: string, newState: EntryStates<E>, oldState: EntryStates<E> | undefined) => {
   const { result: state } = await deploy(newState, oldState);
 
   const resource = state[resourceId];
@@ -42,7 +32,7 @@ const assertDeploy = async <E extends EntryState>(
   };
 };
 
-describe.only('gateway integration', () => {
+describe('gateway integration', () => {
   const baseDir = 'test/files';
 
   let lastState: EntryStates | undefined;
@@ -72,6 +62,7 @@ describe.only('gateway integration', () => {
     });
 
     const resource = createIntegration(localState, gatewayResource, lambdaResource, {
+      fromService: lambdaResource.parameters.functionName,
       description: 'EZ4: Test integration'
     });
 

@@ -15,7 +15,8 @@ import {
   DeleteBucketLifecycleCommand,
   PutBucketNotificationConfigurationCommand,
   ExpirationStatus,
-  Event
+  Event,
+  NoSuchBucket
 } from '@aws-sdk/client-s3';
 
 import { BucketServiceName } from './types.js';
@@ -39,14 +40,22 @@ export type UpdateNotificationRequest = {
 export const isBucketEmpty = async (bucketName: string) => {
   Logger.logFetch(BucketServiceName, bucketName);
 
-  const response = await client.send(
-    new ListObjectsV2Command({
-      Bucket: bucketName,
-      MaxKeys: 1
-    })
-  );
+  try {
+    const response = await client.send(
+      new ListObjectsV2Command({
+        Bucket: bucketName,
+        MaxKeys: 1
+      })
+    );
 
-  return !response.Contents?.length;
+    return !response.Contents?.length;
+  } catch (error) {
+    if (!(error instanceof NoSuchBucket)) {
+      throw error;
+    }
+
+    return 0;
+  }
 };
 
 export const createBucket = async (request: CreateRequest): Promise<CreateResponse> => {
@@ -68,11 +77,21 @@ export const createBucket = async (request: CreateRequest): Promise<CreateRespon
 export const deleteBucket = async (bucketName: string) => {
   Logger.logDelete(BucketServiceName, bucketName);
 
-  await client.send(
-    new DeleteBucketCommand({
-      Bucket: bucketName
-    })
-  );
+  try {
+    await client.send(
+      new DeleteBucketCommand({
+        Bucket: bucketName
+      })
+    );
+
+    return true;
+  } catch (error) {
+    if (!(error instanceof NoSuchBucket)) {
+      throw error;
+    }
+
+    return false;
+  }
 };
 
 export const tagBucket = async (bucketName: string, tags: ResourceTags) => {
@@ -116,11 +135,21 @@ export const updateCorsConfiguration = async (bucketName: string, cors: Bucket.C
 export const deleteCorsConfiguration = async (bucketName: string) => {
   Logger.logDelete(BucketServiceName, `${bucketName} CORS`);
 
-  await client.send(
-    new DeleteBucketCorsCommand({
-      Bucket: bucketName
-    })
-  );
+  try {
+    await client.send(
+      new DeleteBucketCorsCommand({
+        Bucket: bucketName
+      })
+    );
+
+    return true;
+  } catch (error) {
+    if (!(error instanceof NoSuchBucket)) {
+      throw error;
+    }
+
+    return false;
+  }
 };
 
 export const createLifecycle = async (bucketName: string, autoExpireDays: number) => {
@@ -150,17 +179,24 @@ export const createLifecycle = async (bucketName: string, autoExpireDays: number
 export const deleteLifecycle = async (bucketName: string) => {
   Logger.logDelete(BucketServiceName, `${bucketName} lifecycle`);
 
-  await client.send(
-    new DeleteBucketLifecycleCommand({
-      Bucket: bucketName
-    })
-  );
+  try {
+    await client.send(
+      new DeleteBucketLifecycleCommand({
+        Bucket: bucketName
+      })
+    );
+
+    return true;
+  } catch (error) {
+    if (!(error instanceof NoSuchBucket)) {
+      throw error;
+    }
+
+    return false;
+  }
 };
 
-export const updateEventNotifications = async (
-  bucketName: string,
-  request: UpdateNotificationRequest
-) => {
+export const updateEventNotifications = async (bucketName: string, request: UpdateNotificationRequest) => {
   Logger.logUpdate(BucketServiceName, `${bucketName} event notifications`);
 
   const { functionArn, eventsPath, eventsType } = request;

@@ -3,7 +3,7 @@ import { ok } from 'node:assert/strict';
 
 import { isEmail } from '@ez4/utils';
 
-describe.only('email format', () => {
+describe('email format', () => {
   it('assert :: email', () => {
     ok(isEmail('a@b.ce'));
     ok(isEmail('a-b@c.de'));

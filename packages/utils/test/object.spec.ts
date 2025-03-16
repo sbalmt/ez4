@@ -3,7 +3,7 @@ import { ok } from 'node:assert/strict';
 
 import { isAnyObject, isPlainObject, isEmptyObject } from '@ez4/utils';
 
-describe.only('object utils', () => {
+describe('object utils', () => {
   it('assert :: is any object', () => {
     ok(isAnyObject(new (class {})()));
     ok(isAnyObject({}));

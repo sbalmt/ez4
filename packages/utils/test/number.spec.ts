@@ -3,7 +3,7 @@ import { describe, it } from 'node:test';
 
 import { isAnyNumber } from '@ez4/utils';
 
-describe.only('number utils', () => {
+describe('number utils', () => {
   it('assert :: is any number', () => {
     ok(isAnyNumber(123));
   });

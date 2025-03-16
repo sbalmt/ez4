@@ -1,22 +1,31 @@
-import type { DeployOptions, PolicyResourceEvent } from '@ez4/project/library';
+import type { PolicyResourceEvent } from '@ez4/project/library';
 
-import { createPolicy } from '@ez4/aws-identity';
+import { createPolicy, tryGetPolicy } from '@ez4/aws-identity';
+import { ServiceType, ImportType } from '@ez4/queue/library';
+import { getServiceName } from '@ez4/project/library';
 
 import { getPolicyDocument } from '../utils/policy.js';
 
 export const prepareExecutionPolicy = async (event: PolicyResourceEvent) => {
-  const { state, options } = event;
+  const { state, serviceType, options } = event;
 
-  const prefixList = Object.values({ options, ...options.imports }).map(getPolicyPrefix);
+  if (serviceType !== ServiceType && serviceType !== ImportType) {
+    return null;
+  }
+
+  const prefixList = Object.values({ options, ...options.imports }).map((options) => {
+    return getServiceName('', options);
+  });
 
   const [policyPrefix] = prefixList;
 
-  return createPolicy(state, {
-    policyName: `${policyPrefix}-queue-policy`,
-    policyDocument: await getPolicyDocument(prefixList)
-  });
-};
+  const policyName = `${policyPrefix}-queue-policy`;
 
-const getPolicyPrefix = (options: DeployOptions) => {
-  return `${options.resourcePrefix}-${options.projectName}`;
+  return (
+    tryGetPolicy(state, policyName) ??
+    createPolicy(state, {
+      policyDocument: await getPolicyDocument(prefixList),
+      policyName
+    })
+  );
 };

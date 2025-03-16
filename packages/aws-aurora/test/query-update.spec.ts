@@ -49,7 +49,7 @@ type TestIndexes = {
   relation2_id: Index.Secondary;
 };
 
-describe.only('aurora query (update)', () => {
+describe('aurora query (update)', () => {
   const testSchema: ObjectSchema = {
     type: SchemaType.Object,
     properties: {

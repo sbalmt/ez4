@@ -1,7 +1,10 @@
 import type { Environment } from '@ez4/common';
 import type { Queue } from '@ez4/queue';
 
-interface TestMessage extends Queue.Message {}
+interface TestMessage extends Queue.Message {
+  id: string;
+  user: string;
+}
 
 /**
  * First test queue description.
@@ -9,7 +12,11 @@ interface TestMessage extends Queue.Message {}
 export declare class TestQueue1 extends Queue.Service<TestMessage> {
   subscriptions: [];
 
-  // Services to all subscriptions.
+  fifoMode: {
+    uniqueId: 'id';
+    groupId: 'user';
+  };
+
   services: {
     testQueue: Environment.Service<TestQueue2>;
   };
@@ -29,7 +36,6 @@ export declare class TestQueue2 extends Queue.Service<TestMessage> {
 
   delay: 15;
 
-  // Variables to all subscriptions.
   variables: {
     TEST_VAR1: 'test-literal-value';
     TEST_VAR2: Environment.Variable<'TEST_ENV_VAR'>;

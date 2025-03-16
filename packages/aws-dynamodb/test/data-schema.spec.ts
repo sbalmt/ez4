@@ -5,7 +5,7 @@ import { preparePartialSchema } from '@ez4/aws-dynamodb/client';
 import { validateSchema } from '@ez4/aws-dynamodb/runtime';
 import { ObjectSchema, SchemaType } from '@ez4/schema';
 
-describe.only('dynamodb data schema', () => {
+describe('dynamodb data schema', () => {
   const testSchema: ObjectSchema = {
     type: SchemaType.Object,
     properties: {

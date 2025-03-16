@@ -4,7 +4,7 @@ import { describe, it } from 'node:test';
 import { prepareCreateIndexes, prepareDeleteIndexes } from '@ez4/aws-aurora';
 import { Index } from '@ez4/database';
 
-describe.only('aurora migration (indexes)', () => {
+describe('aurora migration (indexes)', () => {
   it('assert :: create index (primary)', () => {
     const statements = prepareCreateIndexes('ez4-test-table', {
       index: {

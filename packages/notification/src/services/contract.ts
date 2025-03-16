@@ -7,7 +7,8 @@ import type {
   NotificationMessage,
   NotificationIncoming,
   SubscriptionHandler,
-  SubscriptionListener
+  SubscriptionListener,
+  NotificationFifoMode
 } from './common.js';
 
 /**
@@ -16,6 +17,7 @@ import type {
 export namespace Notification {
   export type Message = NotificationMessage;
 
+  export type FifoMode<T extends Message> = NotificationFifoMode<T>;
   export type Incoming<T extends Message> = NotificationIncoming<T>;
 
   export type Listener<T extends Message> = SubscriptionListener<T>;
@@ -50,11 +52,6 @@ export namespace Notification {
     handler: Handler<T>;
 
     /**
-     * Maximum number of concurrent lambdas.
-     */
-    concurrency?: number;
-
-    /**
      * Variables associated to the subscription.
      */
     variables?: LinkedVariables;
@@ -85,6 +82,11 @@ export namespace Notification {
     schema: T;
 
     /**
+     * Enable and configure the FIFO mode options.
+     */
+    fifoMode?: FifoMode<T>;
+
+    /**
      * Service client.
      */
     client: Client<T>;
@@ -113,6 +115,11 @@ export namespace Notification {
      * Imported message schema (do not replace).
      */
     schema: T['schema'];
+
+    /**
+     * Imported FIFO mode options (do not replace).
+     */
+    fifoMode: T['fifoMode'];
 
     /**
      * Imported service client (do not replace).

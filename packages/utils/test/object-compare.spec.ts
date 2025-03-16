@@ -3,7 +3,7 @@ import { describe, it } from 'node:test';
 
 import { deepCompare } from '@ez4/utils';
 
-describe.only('object comparison utils', () => {
+describe('object comparison utils', () => {
   const target = {
     level: 1,
     first: {

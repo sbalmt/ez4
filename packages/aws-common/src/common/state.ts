@@ -12,7 +12,7 @@ import {
 const s3Client = new S3Client();
 
 export const loadStateFile = async (filePath: string) => {
-  const bucketName = await getBucketName();
+  const bucketName = await getStateBucketName();
 
   await ensureBucketExists(bucketName);
 
@@ -37,7 +37,7 @@ export const loadStateFile = async (filePath: string) => {
 };
 
 export const saveStateFile = async (filePath: string, contents: string) => {
-  const bucketName = await getBucketName();
+  const bucketName = await getStateBucketName();
 
   await ensureBucketExists(bucketName);
 
@@ -59,7 +59,7 @@ const ensureBucketExists = async (bucketName: string) => {
   );
 };
 
-const getBucketName = async () => {
+const getStateBucketName = async () => {
   const randomName = await getRandomName(16);
 
   return `ez4-${randomName}`;

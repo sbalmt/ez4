@@ -6,7 +6,9 @@ export const IntegrationServiceName = 'AWS:API/Integration';
 
 export const IntegrationServiceType = 'aws:api.integration';
 
-export type IntegrationParameters = Omit<CreateRequest, 'functionArn'>;
+export type IntegrationParameters = Omit<CreateRequest, 'functionArn'> & {
+  fromService: string;
+};
 
 export type IntegrationResult = CreateResponse & {
   apiId: string;

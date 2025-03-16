@@ -25,7 +25,7 @@ const testFile = (fileName: string, overwrite = false) => {
   }
 };
 
-describe.only('storage metadata', () => {
+describe('storage metadata', () => {
   registerTriggers();
 
   process.env.TEST_ENV_VAR = 'test-env-var-value';

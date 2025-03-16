@@ -80,11 +80,7 @@ const deleteResource = async (candidate: TopicState) => {
   }
 };
 
-const checkTagUpdates = async (
-  topicArn: string,
-  candidate: TopicParameters,
-  current: TopicParameters
-) => {
+const checkTagUpdates = async (topicArn: string, candidate: TopicParameters, current: TopicParameters) => {
   await applyTagUpdates(
     candidate.tags,
     current.tags,

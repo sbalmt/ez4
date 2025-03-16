@@ -1,5 +1,5 @@
-import type { Arn } from '@ez4/aws-common';
 import type { CreateScheduleInput, UpdateScheduleInput } from '@aws-sdk/client-scheduler';
+import type { Arn } from '@ez4/aws-common';
 
 import {
   SchedulerClient,
@@ -7,7 +7,8 @@ import {
   CreateScheduleCommand,
   UpdateScheduleCommand,
   DeleteScheduleCommand,
-  FlexibleTimeWindowMode
+  FlexibleTimeWindowMode,
+  ResourceNotFoundException
 } from '@aws-sdk/client-scheduler';
 
 import { Logger } from '@ez4/aws-common';
@@ -68,16 +69,24 @@ export const updateSchedule = async (scheduleName: string, request: UpdateReques
 export const deleteSchedule = async (scheduleName: string) => {
   Logger.logDelete(ScheduleServiceName, scheduleName);
 
-  await client.send(
-    new DeleteScheduleCommand({
-      Name: scheduleName
-    })
-  );
+  try {
+    await client.send(
+      new DeleteScheduleCommand({
+        Name: scheduleName
+      })
+    );
+
+    return true;
+  } catch (error) {
+    if (!(error instanceof ResourceNotFoundException)) {
+      throw error;
+    }
+
+    return false;
+  }
 };
 
-const upsertScheduleRequest = (
-  request: CreateRequest | UpdateRequest
-): Omit<CreateScheduleInput | UpdateScheduleInput, 'Name'> => {
+const upsertScheduleRequest = (request: CreateRequest | UpdateRequest): Omit<CreateScheduleInput | UpdateScheduleInput, 'Name'> => {
   const { startDate, endDate, maxRetries, maxAge, enabled } = request;
 
   const hasMaxRetryAttempts = isAnyNumber(maxRetries);

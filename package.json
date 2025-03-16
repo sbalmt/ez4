@@ -7,7 +7,7 @@
   "type": "module",
   "private": true,
   "engines": {
-    "node": ">=20.15.0"
+    "node": ">=22.3.0"
   },
   "workspaces": [
     "packages/utils",
@@ -36,8 +36,9 @@
     "packages/aws-bucket",
     "packages/aws-queue",
     "packages/aws-notification",
+    "packages/aws-certificate",
     "packages/aws-cloudfront",
-    "packages/aws-certificate"
+    "examples/*"
   ],
   "scripts": {
     "prettify": "npx prettier 'packages/**/*.ts' --write",
@@ -54,7 +55,7 @@
     "esbuild": "^0.25.0",
     "prettier": "^3.3.2",
     "ts-node": "^10.9.2",
-    "typescript": "^5.5.2",
+    "typescript": "^5.7.3",
     "verdaccio": "^6.0.5"
   }
 }

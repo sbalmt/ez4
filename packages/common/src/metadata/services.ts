@@ -4,12 +4,7 @@ import type { LinkedServices } from '@ez4/project/library';
 import { isModelProperty, isTypeObject } from '@ez4/reflection';
 import { triggerAllSync } from '@ez4/project/library';
 
-import {
-  InvalidServiceError,
-  MissingServiceError,
-  MissingServiceProviderError
-} from '../errors/services.js';
-
+import { InvalidServiceError, MissingServiceError, MissingServiceProviderError } from '../errors/services.js';
 import { getPropertyObject, getPropertyString } from '../reflection/property.js';
 import { isClassDeclaration } from '../reflection/model.js';
 import { getObjectMembers } from '../reflection/object.js';
@@ -20,11 +15,7 @@ export const isLinkedService = (member: ModelProperty, reflection: SourceMap) =>
   return !!(referencePath && reflection[referencePath]);
 };
 
-export const getLinkedServiceList = (
-  member: ModelProperty,
-  reflection: SourceMap,
-  errorList: Error[]
-) => {
+export const getLinkedServiceList = (member: ModelProperty, reflection: SourceMap, errorList: Error[]) => {
   const object = getPropertyObject(member);
 
   if (object) {

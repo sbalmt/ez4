@@ -24,7 +24,7 @@ const parseFile = (fileName: string, errorCount: number) => {
   return result.errors;
 };
 
-describe.only('storage metadata errors', () => {
+describe('storage metadata errors', () => {
   registerTriggers();
 
   it('assert :: incomplete events', () => {

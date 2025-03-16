@@ -13,13 +13,9 @@ export type AsyncEventResult<T> = SyncEventResult<T> | Promise<SyncEventResult<T
 export type SyncTriggerResult<T extends keyof SyncEvent> = ReturnType<SyncEvent[T]>;
 export type AsyncTriggerResult<T extends keyof AsyncEvent> = ReturnType<AsyncEvent[T]>;
 
-export type SyncEventTrigger<T extends keyof SyncEvent> = (
-  handler: SyncEvent[T]
-) => SyncTriggerResult<T>;
+export type SyncEventTrigger<T extends keyof SyncEvent> = (handler: SyncEvent[T]) => SyncTriggerResult<T>;
 
-export type AsyncEventTrigger<T extends keyof AsyncEvent> = (
-  handler: AsyncEvent[T]
-) => AsyncTriggerResult<T>;
+export type AsyncEventTrigger<T extends keyof AsyncEvent> = (handler: AsyncEvent[T]) => AsyncTriggerResult<T>;
 
 export type SyncEvent = {
   'reflection:loadFile': (file: string) => SyncEventResult<string>;
@@ -42,17 +38,26 @@ export type AsyncEvent = {
   'state:save': (event: StateEvent) => AsyncEventResult<void>;
 };
 
+export type EventContext = {
+  role: EntryState | null;
+  getServiceState: (service: ServiceMetadata | string, options: DeployOptions) => EntryState;
+  setServiceState: (state: EntryState, service: ServiceMetadata | string, options: DeployOptions) => void;
+};
+
 export type ServiceEvent = {
   service: ServiceMetadata;
   options: DeployOptions;
+  context: EventContext;
 };
 
 export type IdentityEvent = {
+  serviceType: string;
   options: DeployOptions;
 };
 
 export type PolicyResourceEvent = {
   state: EntryStates;
+  serviceType: string;
   options: DeployOptions;
 };
 
@@ -68,14 +73,14 @@ export type PrepareResourceEvent = {
   state: EntryStates;
   service: ServiceMetadata;
   options: DeployOptions;
-  role: EntryState | null;
+  context: EventContext;
 };
 
 export type ConnectResourceEvent = {
   state: EntryStates;
   service: ServiceMetadata;
   options: DeployOptions;
-  role: EntryState | null;
+  context: EventContext;
 };
 
 export type DeployEvent = {

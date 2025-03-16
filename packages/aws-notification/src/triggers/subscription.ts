@@ -1,51 +1,62 @@
 import type { NotificationService, NotificationImport } from '@ez4/notification/library';
-import type { DeployOptions } from '@ez4/project/library';
-import type { RoleState } from '@ez4/aws-identity';
+import type { DeployOptions, EventContext } from '@ez4/project/library';
 import type { EntryStates } from '@ez4/stateful';
 import type { TopicState } from '../topic/types.js';
 
+import { linkServiceExtras } from '@ez4/project/library';
 import { NotificationSubscriptionType } from '@ez4/notification/library';
-import { getServiceName, linkServiceExtras } from '@ez4/project/library';
+import { getFunctionState, tryGetFunctionState } from '@ez4/aws-function';
 import { InvalidParameterError } from '@ez4/aws-common';
-import { getFunction } from '@ez4/aws-function';
-import { getQueue } from '@ez4/aws-queue';
+import { isRoleState } from '@ez4/aws-identity';
+import { getQueueState } from '@ez4/aws-queue';
 
 import { SubscriptionServiceName } from '../subscription/types.js';
 import { createSubscriptionFunction } from '../subscription/function/service.js';
 import { createSubscription } from '../subscription/service.js';
-import { SubscriptionMissingError } from './errors.js';
-import { getFunctionName } from './utils.js';
+import { getFunctionName, getInternalName } from './utils.js';
+import { RoleMissingError } from './errors.js';
 
 export const prepareSubscriptions = async (
   state: EntryStates,
   service: NotificationService | NotificationImport,
-  role: RoleState,
   topicState: TopicState,
-  options: DeployOptions
+  options: DeployOptions,
+  context: EventContext
 ) => {
+  if (!context.role || !isRoleState(context.role)) {
+    throw new RoleMissingError();
+  }
+
   for (const subscription of service.subscriptions) {
     switch (subscription.type) {
       default:
         throw new InvalidParameterError(SubscriptionServiceName, `subscription not supported.`);
 
       case NotificationSubscriptionType.Lambda: {
+        if (service.fifoMode) {
+          throw new InvalidParameterError(SubscriptionServiceName, `lambda subscription not supported for FIFO topics.`);
+        }
+
         const { handler, listener } = subscription;
 
-        const functionName = getFunctionName(service, handler.name, options);
-        const functionTimeout = subscription.timeout ?? 30;
-        const functionMemory = subscription.memory ?? 192;
+        const internalName = getInternalName(service, handler.name);
 
-        const functionState =
-          getFunction(state, role, functionName) ??
-          createSubscriptionFunction(state, role, {
-            functionName,
+        let handlerState = tryGetFunctionState(context, internalName, options);
+
+        if (!handlerState) {
+          const subscriptionTimeout = subscription.timeout ?? 30;
+          const subscriptionMemory = subscription.memory ?? 192;
+
+          handlerState = createSubscriptionFunction(state, context.role, {
+            functionName: getFunctionName(service, handler.name, options),
             description: handler.description,
             messageSchema: service.schema,
-            timeout: functionTimeout,
-            memory: functionMemory,
+            timeout: subscriptionTimeout,
+            memory: subscriptionMemory,
             extras: service.extras,
             debug: options.debug,
             variables: {
+              ...options.variables,
               ...service.variables,
               ...subscription.variables
             },
@@ -61,19 +72,23 @@ export const prepareSubscriptions = async (
             })
           });
 
-        createSubscription(state, topicState, functionState);
+          context.setServiceState(handlerState, internalName, options);
+        }
+
+        createSubscription(state, topicState, handlerState, {
+          fromService: handlerState.parameters.functionName
+        });
+
         break;
       }
 
       case NotificationSubscriptionType.Queue: {
-        const queueName = getServiceName(subscription.service, options);
-        const queueState = getQueue(state, queueName);
+        const queueState = getQueueState(context, subscription.service, options);
 
-        if (!queueState) {
-          throw new SubscriptionMissingError(queueName);
-        }
+        createSubscription(state, topicState, queueState, {
+          fromService: queueState.parameters.queueName
+        });
 
-        createSubscription(state, topicState, queueState);
         break;
       }
     }
@@ -83,11 +98,15 @@ export const prepareSubscriptions = async (
 export const connectSubscriptions = (
   state: EntryStates,
   service: NotificationService | NotificationImport,
-  role: RoleState,
-  options: DeployOptions
+  options: DeployOptions,
+  context: EventContext
 ) => {
   if (!service.extras) {
     return;
+  }
+
+  if (!context.role || !isRoleState(context.role)) {
+    throw new RoleMissingError();
   }
 
   for (const subscription of service.subscriptions) {
@@ -96,24 +115,15 @@ export const connectSubscriptions = (
         throw new InvalidParameterError(SubscriptionServiceName, `subscription not supported.`);
 
       case NotificationSubscriptionType.Lambda: {
-        const functionName = getFunctionName(service, subscription.handler.name, options);
-        const functionState = getFunction(state, role, functionName);
+        const internalName = getInternalName(service, subscription.handler.name);
+        const handlerState = getFunctionState(context, internalName, options);
 
-        if (!functionState) {
-          throw new SubscriptionMissingError(functionName);
-        }
-
-        linkServiceExtras(state, functionState.entryId, service.extras);
+        linkServiceExtras(state, handlerState.entryId, service.extras);
         break;
       }
 
       case NotificationSubscriptionType.Queue: {
-        const queueName = getServiceName(subscription.service, options);
-        const queueState = getQueue(state, queueName);
-
-        if (!queueState) {
-          throw new SubscriptionMissingError(queueName);
-        }
+        const queueState = getQueueState(context, subscription.service, options);
 
         linkServiceExtras(state, queueState.entryId, service.extras);
         break;

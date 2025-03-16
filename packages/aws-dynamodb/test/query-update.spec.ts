@@ -26,7 +26,7 @@ type TestIndexes = {
   id: Index.Primary;
 };
 
-describe.only('dynamodb query (update)', () => {
+describe('dynamodb query (update)', () => {
   const testSchema: ObjectSchema = {
     type: SchemaType.Object,
     properties: {
@@ -36,7 +36,7 @@ describe.only('dynamodb query (update)', () => {
       foo: {
         type: SchemaType.Number,
         nullable: true,
-        optional: true,
+        optional: true
       },
       bar: {
         type: SchemaType.Object,

@@ -2,13 +2,25 @@
   "TestQueue1": {
     "type": "@ez4/queue",
     "name": "TestQueue1",
+    "extras": {},
     "description": "First test queue description.",
+    "subscriptions": [],
+    "fifoMode": {
+      "uniqueId": "id",
+      "groupId": "user"
+    },
     "schema": {
       "type": "object",
       "identity": 1,
-      "properties": {}
+      "properties": {
+        "id": {
+          "type": "string"
+        },
+        "user": {
+          "type": "string"
+        }
+      }
     },
-    "subscriptions": [],
     "services": {
       "testQueue": "TestQueue2"
     }
@@ -16,17 +28,25 @@
   "TestQueue2": {
     "type": "@ez4/queue",
     "name": "TestQueue2",
+    "extras": {},
     "description": "Description of the second test queue.",
-    "schema": {
-      "type": "object",
-      "identity": 1,
-      "properties": {}
-    },
+    "subscriptions": [],
     "timeout": 5,
     "retention": 60,
     "polling": 10,
     "delay": 15,
-    "subscriptions": [],
+    "schema": {
+      "type": "object",
+      "identity": 1,
+      "properties": {
+        "id": {
+          "type": "string"
+        },
+        "user": {
+          "type": "string"
+        }
+      }
+    },
     "variables": {
       "TEST_VAR1": "test-literal-value",
       "TEST_VAR2": "test-env-var-value"

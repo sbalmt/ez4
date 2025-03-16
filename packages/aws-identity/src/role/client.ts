@@ -10,10 +10,11 @@ import {
   AttachRolePolicyCommand,
   DetachRolePolicyCommand,
   TagRoleCommand,
-  UntagRoleCommand
+  UntagRoleCommand,
+  NoSuchEntityException
 } from '@aws-sdk/client-iam';
 
-import { Logger, getTagList } from '@ez4/aws-common';
+import { Logger, getTagList, tryParseArn } from '@ez4/aws-common';
 import { RoleServiceName } from './types.js';
 
 const client = new IAMClient({});
@@ -101,7 +102,9 @@ export const untagRole = async (roleName: string, tagsKeys: string[]) => {
 };
 
 export const attachPolicy = async (roleName: string, policyArn: string) => {
-  Logger.logAttach(RoleServiceName, roleName, policyArn);
+  const resource = tryParseArn(policyArn)?.resourceName ?? policyArn;
+
+  Logger.logAttach(RoleServiceName, roleName, resource);
 
   await client.send(
     new AttachRolePolicyCommand({
@@ -112,22 +115,44 @@ export const attachPolicy = async (roleName: string, policyArn: string) => {
 };
 
 export const detachPolicy = async (roleName: string, policyArn: string) => {
-  Logger.logDetach(RoleServiceName, roleName, policyArn);
+  const resource = tryParseArn(policyArn)?.resourceName ?? policyArn;
 
-  await client.send(
-    new DetachRolePolicyCommand({
-      RoleName: roleName,
-      PolicyArn: policyArn
-    })
-  );
+  try {
+    Logger.logDetach(RoleServiceName, roleName, resource);
+
+    await client.send(
+      new DetachRolePolicyCommand({
+        RoleName: roleName,
+        PolicyArn: policyArn
+      })
+    );
+
+    return true;
+  } catch (error) {
+    if (!(error instanceof NoSuchEntityException)) {
+      throw error;
+    }
+
+    return false;
+  }
 };
 
 export const deleteRole = async (roleName: string) => {
   Logger.logDelete(RoleServiceName, roleName);
 
-  await client.send(
-    new DeleteRoleCommand({
-      RoleName: roleName
-    })
-  );
+  try {
+    await client.send(
+      new DeleteRoleCommand({
+        RoleName: roleName
+      })
+    );
+
+    return true;
+  } catch (error) {
+    if (!(error instanceof NoSuchEntityException)) {
+      throw error;
+    }
+
+    return false;
+  }
 };

@@ -4,17 +4,10 @@ import type { DeployOptions } from '../types/options.js';
 
 import { toKebabCase } from '@ez4/utils';
 
-import {
-  combineStates,
-  loadRemoteState,
-  loadLocalState,
-  saveRemoteState,
-  saveLocalState
-} from '../actions/state.js';
-
 import { applyDeploy } from '../actions/deploy.js';
 import { prepareExecutionRole } from '../actions/identity.js';
-import { prepareAllLinkedServices } from '../actions/services.js';
+import { prepareLinkedServices } from '../actions/services.js';
+import { combineStates, loadRemoteState, loadLocalState, saveRemoteState, saveLocalState } from '../actions/state.js';
 import { connectDeployResources, prepareDeployResources } from '../actions/resources.js';
 import { reportResourceChanges } from '../report/report.js';
 import { waitConfirmation } from '../console/prompt.js';
@@ -32,6 +25,7 @@ export const deploy = async (project: ProjectOptions) => {
     resourcePrefix: toKebabCase(project.prefix ?? 'ez4'),
     projectName: toKebabCase(project.projectName),
     imports: await loadImports(project),
+    variables: project.variables,
     debug: project.debugMode
   };
 
@@ -39,25 +33,25 @@ export const deploy = async (project: ProjectOptions) => {
 
   const statePath = `${stateFile.path}.ezstate`;
 
-  const oldState = stateFile.remote
-    ? await loadRemoteState(statePath, options)
-    : await loadLocalState(statePath);
+  const oldState = stateFile.remote ? await loadRemoteState(statePath, options) : await loadLocalState(statePath);
 
   const newState: EntryStates = {};
 
-  await prepareAllLinkedServices(metadata, options);
+  const stateAliases = {};
 
-  const role = await prepareExecutionRole(newState, options);
+  const role = await prepareExecutionRole(newState, metadata, options);
 
-  await prepareDeployResources(newState, metadata, role, options);
-  await connectDeployResources(newState, metadata, role, options);
+  await prepareDeployResources(stateAliases, newState, metadata, role, options);
+  await prepareLinkedServices(stateAliases, metadata, options);
+
+  await connectDeployResources(stateAliases, newState, metadata, role, options);
 
   combineStates(newState, oldState);
 
   const hasChanges = await reportResourceChanges(newState, oldState);
 
   if (!hasChanges) {
-    console.log('No changes.');
+    console.info('No changes.');
     return;
   }
 
@@ -65,7 +59,7 @@ export const deploy = async (project: ProjectOptions) => {
     const proceed = await waitConfirmation('Are you sure to proceed?');
 
     if (!proceed) {
-      console.log('Aborted.');
+      console.info('Aborted.');
       return;
     }
   }

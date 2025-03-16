@@ -17,7 +17,7 @@ const testFile = (fileName: string, overwrite: boolean = false) => {
   }
 };
 
-describe.only('reflection types', () => {
+describe('reflection types', () => {
   it('assert :: boolean', () => testFile('boolean'));
   it('assert :: number', () => testFile('number'));
   it('assert :: string', () => testFile('string'));

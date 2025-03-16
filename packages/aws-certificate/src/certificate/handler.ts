@@ -1,18 +1,11 @@
-import type { Arn } from '@ez4/aws-common';
 import type { StepHandler } from '@ez4/stateful';
+import type { Arn } from '@ez4/aws-common';
 import type { CertificateState, CertificateResult, CertificateParameters } from './types.js';
 
 import { applyTagUpdates, ReplaceResourceError } from '@ez4/aws-common';
 import { deepCompare } from '@ez4/utils';
 
-import {
-  isCertificateInUse,
-  createCertificate,
-  deleteCertificate,
-  tagCertificate,
-  untagCertificate
-} from './client.js';
-
+import { isCertificateInUse, createCertificate, deleteCertificate, tagCertificate, untagCertificate } from './client.js';
 import { CertificateServiceName } from './types.js';
 
 export const getCertificateHandler = (): StepHandler<CertificateState> => ({
@@ -88,11 +81,7 @@ const deleteResource = async (candidate: CertificateState) => {
   }
 };
 
-const checkTagUpdates = async (
-  certificateArn: Arn,
-  candidate: CertificateParameters,
-  current: CertificateParameters
-) => {
+const checkTagUpdates = async (certificateArn: Arn, candidate: CertificateParameters, current: CertificateParameters) => {
   await applyTagUpdates(
     candidate.tags,
     current.tags,

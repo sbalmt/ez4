@@ -8,17 +8,20 @@ import {
   DeleteQueueCommand,
   SetQueueAttributesCommand,
   TagQueueCommand,
-  UntagQueueCommand
+  UntagQueueCommand,
+  QueueDoesNotExist
 } from '@aws-sdk/client-sqs';
 
 import { Logger } from '@ez4/aws-common';
 
+import { parseQueueUrl } from './helpers/url.js';
 import { QueueServiceName } from './types.js';
 
 const client = new SQSClient({});
 
 export type CreateRequest = {
   queueName: string;
+  fifoMode: boolean;
   timeout?: number;
   retention?: number;
   polling?: number;
@@ -47,13 +50,21 @@ export const fetchQueue = async (queueName: string) => {
 };
 
 export const createQueue = async (request: CreateRequest): Promise<CreateResponse> => {
-  Logger.logCreate(QueueServiceName, request.queueName);
+  const { queueName, fifoMode } = request;
+
+  Logger.logCreate(QueueServiceName, queueName);
 
   const response = await client.send(
     new CreateQueueCommand({
-      QueueName: request.queueName,
+      QueueName: queueName,
       Attributes: {
-        ...upsertQueueAttributes(request)
+        ...upsertQueueAttributes(request),
+        ...(fifoMode && {
+          ContentBasedDeduplication: 'true',
+          DeduplicationScope: 'messageGroup',
+          FifoThroughputLimit: 'perMessageGroupId',
+          FifoQueue: 'true'
+        })
       },
       tags: {
         ...request.tags,
@@ -68,7 +79,9 @@ export const createQueue = async (request: CreateRequest): Promise<CreateRespons
 };
 
 export const updateQueue = async (queueUrl: string, request: UpdateRequest) => {
-  Logger.logUpdate(QueueServiceName, queueUrl);
+  const { queueName } = parseQueueUrl(queueUrl);
+
+  Logger.logUpdate(QueueServiceName, queueName);
 
   await client.send(
     new SetQueueAttributesCommand({
@@ -81,7 +94,9 @@ export const updateQueue = async (queueUrl: string, request: UpdateRequest) => {
 };
 
 export const tagQueue = async (queueUrl: string, tags: ResourceTags) => {
-  Logger.logTag(QueueServiceName, queueUrl);
+  const { queueName } = parseQueueUrl(queueUrl);
+
+  Logger.logTag(QueueServiceName, queueName);
 
   await client.send(
     new TagQueueCommand({
@@ -95,7 +110,9 @@ export const tagQueue = async (queueUrl: string, tags: ResourceTags) => {
 };
 
 export const untagQueue = async (queueUrl: string, tagKeys: string[]) => {
-  Logger.logUntag(QueueServiceName, queueUrl);
+  const { queueName } = parseQueueUrl(queueUrl);
+
+  Logger.logUntag(QueueServiceName, queueName);
 
   await client.send(
     new UntagQueueCommand({
@@ -106,18 +123,28 @@ export const untagQueue = async (queueUrl: string, tagKeys: string[]) => {
 };
 
 export const deleteQueue = async (queueUrl: string) => {
-  Logger.logDelete(QueueServiceName, queueUrl);
+  const { queueName } = parseQueueUrl(queueUrl);
 
-  await client.send(
-    new DeleteQueueCommand({
-      QueueUrl: queueUrl
-    })
-  );
+  Logger.logDelete(QueueServiceName, queueName);
+
+  try {
+    await client.send(
+      new DeleteQueueCommand({
+        QueueUrl: queueUrl
+      })
+    );
+
+    return true;
+  } catch (error) {
+    if (!(error instanceof QueueDoesNotExist)) {
+      throw error;
+    }
+
+    return false;
+  }
 };
 
-const upsertQueueAttributes = (
-  request: CreateRequest | UpdateRequest
-): Partial<Record<QueueAttributeName, string>> => {
+const upsertQueueAttributes = (request: CreateRequest | UpdateRequest): Partial<Record<QueueAttributeName, string>> => {
   const { timeout, retention, polling, delay } = request;
 
   return {

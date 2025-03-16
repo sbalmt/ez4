@@ -3,7 +3,7 @@ import { ok } from 'node:assert/strict';
 
 import { deepClone, deepEqual as deepEquals } from '@ez4/utils';
 
-describe.only('object equality utils', () => {
+describe('object equality utils', () => {
   const target = {
     level: 1,
     first: {

@@ -1,4 +1,5 @@
 import type { Arn, ResourceTags } from '@ez4/aws-common';
+import type { Headers } from '../types/headers.js';
 
 import type {
   CacheBehavior,
@@ -9,7 +10,7 @@ import type {
   Origin
 } from '@aws-sdk/client-cloudfront';
 
-import { getTagList, Logger } from '@ez4/aws-common';
+import { getTagList, Logger, tryParseArn } from '@ez4/aws-common';
 import { isBucketDomain } from '@ez4/aws-bucket';
 
 import {
@@ -30,7 +31,8 @@ import {
   SslProtocol,
   HttpVersion,
   PriceClass,
-  Method
+  Method,
+  NoSuchDistribution
 } from '@aws-sdk/client-cloudfront';
 
 import { DistributionServiceName } from './types.js';
@@ -49,7 +51,7 @@ export type DefaultOrigin = {
   domain: string;
   cachePolicyId: string;
   originPolicyId?: string;
-  headers?: Record<string, string>;
+  headers?: Headers;
   location?: string;
   http?: boolean;
   port?: number;
@@ -68,9 +70,9 @@ export type DistributionCustomError = {
 export type CreateRequest = {
   distributionName: string;
   customErrors?: DistributionCustomError[];
-  origins?: AdditionalOrigin[];
-  defaultOrigin: DefaultOrigin;
   defaultIndex?: string;
+  defaultOrigin: DefaultOrigin;
+  origins?: AdditionalOrigin[];
   certificateArn?: Arn;
   originAccessId?: string;
   description?: string;
@@ -113,6 +115,8 @@ export const createDistribution = async (request: CreateRequest): Promise<Create
 
   const distributionId = distribution.Id!;
 
+  Logger.logWait(DistributionServiceName, distributionId);
+
   await waitUntilDistributionDeployed(waiter, {
     Id: distributionId
   });
@@ -139,13 +143,17 @@ export const updateDistribution = async (distributionId: string, request: Update
     })
   );
 
+  Logger.logWait(DistributionServiceName, distributionId);
+
   await waitUntilDistributionDeployed(waiter, {
     Id: distributionId
   });
 };
 
 export const tagDistribution = async (distributionArn: string, tags: ResourceTags) => {
-  Logger.logTag(DistributionServiceName, distributionArn);
+  const distributionName = tryParseArn(distributionArn)?.resourceName ?? distributionArn;
+
+  Logger.logTag(DistributionServiceName, distributionName);
 
   await client.send(
     new TagResourceCommand({
@@ -161,7 +169,9 @@ export const tagDistribution = async (distributionArn: string, tags: ResourceTag
 };
 
 export const untagDistribution = async (distributionArn: Arn, tagKeys: string[]) => {
-  Logger.logUntag(DistributionServiceName, distributionArn);
+  const distributionName = tryParseArn(distributionArn)?.resourceName ?? distributionArn;
+
+  Logger.logUntag(DistributionServiceName, distributionName);
 
   await client.send(
     new UntagResourceCommand({
@@ -176,14 +186,24 @@ export const untagDistribution = async (distributionArn: Arn, tagKeys: string[])
 export const deleteDistribution = async (distributionId: string) => {
   Logger.logDelete(DistributionServiceName, distributionId);
 
-  const version = await getCurrentDistributionVersion(distributionId);
+  try {
+    const version = await getCurrentDistributionVersion(distributionId);
 
-  await client.send(
-    new DeleteDistributionCommand({
-      Id: distributionId,
-      IfMatch: version
-    })
-  );
+    await client.send(
+      new DeleteDistributionCommand({
+        Id: distributionId,
+        IfMatch: version
+      })
+    );
+
+    return true;
+  } catch (error) {
+    if (!(error instanceof NoSuchDistribution)) {
+      throw error;
+    }
+
+    return false;
+  }
 };
 
 const getCurrentDistributionVersion = async (distributionId: string) => {
@@ -201,16 +221,7 @@ const upsertDistributionRequest = (request: CreateRequest | UpdateRequest): Dist
   const allCacheBehaviors = getAllCacheBehaviors(request);
   const allOrigins = getAllOrigins(request);
 
-  const {
-    distributionName,
-    description,
-    certificateArn,
-    defaultIndex,
-    defaultOrigin,
-    aliases,
-    enabled,
-    compress
-  } = request;
+  const { distributionName, description, certificateArn, defaultIndex, defaultOrigin, aliases, enabled, compress } = request;
 
   return {
     Comment: description,
@@ -288,10 +299,7 @@ const getOriginHeaders = (headers: Record<string, string> | undefined): OriginCu
   return headerList;
 };
 
-const getCacheBehavior = (
-  origin: DefaultOrigin,
-  compress: boolean | undefined
-): DefaultCacheBehavior => {
+const getCacheBehavior = (origin: DefaultOrigin, compress: boolean | undefined): DefaultCacheBehavior => {
   return {
     TargetOriginId: origin.id,
     CachePolicyId: origin.cachePolicyId,
@@ -314,15 +322,7 @@ const getCacheBehavior = (
         Items: [Method.GET, Method.HEAD, Method.OPTIONS]
       },
       Quantity: 7,
-      Items: [
-        Method.GET,
-        Method.HEAD,
-        Method.OPTIONS,
-        Method.POST,
-        Method.PUT,
-        Method.PATCH,
-        Method.DELETE
-      ]
+      Items: [Method.GET, Method.HEAD, Method.OPTIONS, Method.POST, Method.PUT, Method.PATCH, Method.DELETE]
     },
     LambdaFunctionAssociations: {
       Quantity: 0
@@ -383,9 +383,7 @@ const getAllOrigins = (request: CreateRequest | UpdateRequest): Origin[] => {
   });
 };
 
-const getAllCacheBehaviors = (
-  request: CreateRequest | UpdateRequest
-): CacheBehavior[] | undefined => {
+const getAllCacheBehaviors = (request: CreateRequest | UpdateRequest): CacheBehavior[] | undefined => {
   const { origins, compress } = request;
 
   return origins?.map((origin) => ({

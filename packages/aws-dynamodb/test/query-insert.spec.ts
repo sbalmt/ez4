@@ -20,7 +20,7 @@ type TestRelations = {
   changes: {};
 };
 
-describe.only('dynamodb query (insert)', () => {
+describe('dynamodb query (insert)', () => {
   const testSchema: ObjectSchema = {
     type: SchemaType.Object,
     properties: {

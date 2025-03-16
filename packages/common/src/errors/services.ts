@@ -33,7 +33,7 @@ export class InvalidServicePropertyError extends TypeError {
     public propertyName: string,
     fileName?: string
   ) {
-    super(`Service ${serviceName} doesn't support ${propertyName} property.`, fileName);
+    super(`Service ${serviceName} doesn't support the '${propertyName}' property.`, fileName);
   }
 }
 

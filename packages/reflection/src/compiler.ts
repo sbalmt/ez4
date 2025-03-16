@@ -1,6 +1,8 @@
-import type { CompilerOptions as BaseCompilerOptions, CompilerHost } from 'typescript';
+import type { CompilerOptions as BaseCompilerOptions, CompilerHost, SourceFile } from 'typescript';
 
 import { sys, getDefaultLibFilePath, createSourceFile, ScriptTarget, ModuleKind } from 'typescript';
+
+const sourceCache = new Map<string, SourceFile>();
 
 export type CompilerOptions = Omit<BaseCompilerOptions, 'module' | 'target' | 'strict'>;
 
@@ -13,14 +15,12 @@ export const createCompilerOptions = (options?: CompilerOptions): BaseCompilerOp
     ...options,
     module: ModuleKind.Preserve,
     target: ScriptTarget.ESNext,
+    skipDefaultLibCheck: true,
     strict: true
   };
 };
 
-export const createCompilerHost = (
-  options: CompilerOptions,
-  events?: CompilerEvents
-): CompilerHost => {
+export const createCompilerHost = (options: CompilerOptions, events?: CompilerEvents): CompilerHost => {
   return {
     readFile: sys.readFile,
     fileExists: sys.fileExists,
@@ -38,13 +38,23 @@ export const createCompilerHost = (
     },
     getSourceFile: (fileName, languageVersion) => {
       const resolvedFileName = events?.onResolveFileName?.(fileName) ?? fileName;
-      const sourceText = sys.readFile(resolvedFileName);
+      const cacheSourceFile = sourceCache.get(resolvedFileName);
 
-      if (sourceText) {
-        return createSourceFile(resolvedFileName, sourceText, languageVersion);
+      if (cacheSourceFile) {
+        return cacheSourceFile;
       }
 
-      return undefined;
+      const sourceText = sys.readFile(resolvedFileName);
+
+      if (!sourceText) {
+        return undefined;
+      }
+
+      const sourceFile = createSourceFile(resolvedFileName, sourceText, languageVersion);
+
+      sourceCache.set(resolvedFileName, sourceFile);
+
+      return sourceFile;
     }
   };
 };

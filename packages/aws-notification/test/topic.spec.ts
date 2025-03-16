@@ -7,11 +7,7 @@ import { createTopic, isTopicState, registerTriggers } from '@ez4/aws-notificati
 import { deploy } from '@ez4/aws-common';
 import { deepClone } from '@ez4/utils';
 
-const assertDeploy = async <E extends EntryState>(
-  resourceId: string,
-  newState: EntryStates<E>,
-  oldState: EntryStates<E> | undefined
-) => {
+const assertDeploy = async <E extends EntryState>(resourceId: string, newState: EntryStates<E>, oldState: EntryStates<E> | undefined) => {
   const { result: state } = await deploy(newState, oldState);
 
   const resource = state[resourceId];
@@ -29,7 +25,7 @@ const assertDeploy = async <E extends EntryState>(
   };
 };
 
-describe.only('notification topic', () => {
+describe('notification topic', () => {
   let lastState: EntryStates | undefined;
   let topicId: string | undefined;
 
@@ -40,6 +36,7 @@ describe.only('notification topic', () => {
 
     const resource = createTopic(localState, {
       topicName: 'ez4-test-notification-topic',
+      fifoMode: false,
       tags: {
         test1: 'ez4-tag1',
         test2: 'ez4-tag2'

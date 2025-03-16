@@ -23,6 +23,7 @@ export const createAuthorizer = <E extends EntryState>(
   const permissionState =
     getPermission(state, gatewayState, functionState) ??
     createPermission(state, gatewayState, functionState, {
+      fromService: parameters.name,
       getPermission: async (context: StepContext) => {
         const [region, account, apiId] = await Promise.all([
           getRegion(),
@@ -48,11 +49,7 @@ export const createAuthorizer = <E extends EntryState>(
   });
 };
 
-export const getAuthorizer = <E extends EntryState>(
-  state: EntryStates<E>,
-  gatewayState: GatewayState,
-  functionState: FunctionState
-) => {
+export const getAuthorizer = <E extends EntryState>(state: EntryStates<E>, gatewayState: GatewayState, functionState: FunctionState) => {
   const authorizerId = hashData(AuthorizerServiceType, gatewayState.entryId, functionState.entryId);
   const authorizerState = state[authorizerId];
 

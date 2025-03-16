@@ -24,7 +24,7 @@ import { SchemaType } from '@ez4/schema';
 
 import { assertError } from './common.js';
 
-describe.only('rich type validation errors', () => {
+describe('rich type validation errors', () => {
   it('assert :: decimal errors', async () => {
     const schema: AnySchema = {
       type: SchemaType.Number,

@@ -1,4 +1,4 @@
-import type { SourceMap } from '@ez4/reflection';
+import type { SourceMap, TypeModel } from '@ez4/reflection';
 import type { Incomplete } from '@ez4/utils';
 import type { QueueService } from '../types/service.js';
 
@@ -13,16 +13,18 @@ import {
 } from '@ez4/common/library';
 
 import { isModelProperty } from '@ez4/reflection';
-import { isAnyNumber } from '@ez4/utils';
+import { hasSchemaProperty } from '@ez4/schema';
 
 import { ServiceType } from '../types/service.js';
 import { IncompleteServiceError } from '../errors/service.js';
+import { IncorrectFifoModePropertyError } from '../errors/fifo.js';
 import { getAllSubscription } from './subscription.js';
 import { getQueueMessage } from './message.js';
+import { getQueueFifoMode } from './fifo.js';
 import { isQueueService } from './utils.js';
 
 export const getQueueServices = (reflection: SourceMap) => {
-  const queueServices: Record<string, QueueService> = {};
+  const allServices: Record<string, QueueService> = {};
   const errorList: Error[] = [];
 
   for (const identity in reflection) {
@@ -32,7 +34,7 @@ export const getQueueServices = (reflection: SourceMap) => {
       continue;
     }
 
-    const service: Incomplete<QueueService> = { type: ServiceType };
+    const service: Incomplete<QueueService> = { type: ServiceType, extras: {} };
     const properties = new Set(['subscriptions', 'schema']);
 
     service.name = statement.name;
@@ -40,6 +42,8 @@ export const getQueueServices = (reflection: SourceMap) => {
     if (statement.description) {
       service.description = statement.description;
     }
+
+    const fileName = statement.file;
 
     for (const member of getModelMembers(statement, true)) {
       if (!isModelProperty(member)) {
@@ -49,45 +53,34 @@ export const getQueueServices = (reflection: SourceMap) => {
       switch (member.name) {
         default:
           if (!member.inherited) {
-            errorList.push(
-              new InvalidServicePropertyError(statement.name, member.name, statement.file)
-            );
+            errorList.push(new InvalidServicePropertyError(service.name, member.name, fileName));
           }
           break;
 
-        case 'schema': {
-          const value = getQueueMessage(member.value, statement, reflection, errorList);
-
-          if (value) {
+        case 'schema':
+          if ((service.schema = getQueueMessage(member.value, statement, reflection, errorList))) {
             properties.delete(member.name);
-            service.schema = value;
           }
-
           break;
-        }
 
         case 'timeout':
         case 'retention':
         case 'polling':
-        case 'delay': {
+        case 'delay':
           if (!member.inherited) {
-            const value = getPropertyNumber(member);
-
-            if (isAnyNumber(value)) {
-              service[member.name] = value;
-            }
+            service[member.name] = getPropertyNumber(member);
           }
-
           break;
-        }
+
+        case 'fifoMode':
+          if (!member.inherited) {
+            service.fifoMode = getQueueFifoMode(member.value, statement, reflection, errorList);
+          }
+          break;
 
         case 'subscriptions': {
-          if (!member.inherited) {
-            service.subscriptions = getAllSubscription(member, statement, reflection, errorList);
-
-            if (service.subscriptions) {
-              properties.delete(member.name);
-            }
+          if (!member.inherited && (service.subscriptions = getAllSubscription(member, statement, reflection, errorList))) {
+            properties.delete(member.name);
           }
 
           break;
@@ -108,24 +101,41 @@ export const getQueueServices = (reflection: SourceMap) => {
     }
 
     if (!isValidService(service)) {
-      errorList.push(new IncompleteServiceError([...properties], statement.file));
+      errorList.push(new IncompleteServiceError([...properties], fileName));
       continue;
     }
 
-    if (queueServices[statement.name]) {
-      errorList.push(new DuplicateServiceError(statement.name, statement.file));
+    const validationErrors = validateFifoModeProperties(statement, service);
+
+    if (validationErrors.length) {
+      errorList.push(...validationErrors);
       continue;
     }
 
-    queueServices[statement.name] = service;
+    if (allServices[statement.name]) {
+      errorList.push(new DuplicateServiceError(statement.name, fileName));
+      continue;
+    }
+
+    allServices[statement.name] = service;
   }
 
   return {
-    services: queueServices,
+    services: allServices,
     errors: errorList
   };
 };
 
 const isValidService = (type: Incomplete<QueueService>): type is QueueService => {
-  return !!type.name && !!type.schema && !!type.subscriptions;
+  return !!type.name && !!type.schema && !!type.subscriptions && !!type.extras;
+};
+
+const validateFifoModeProperties = (parent: TypeModel, service: QueueService) => {
+  const { fifoMode } = service;
+
+  if (fifoMode && !hasSchemaProperty(service.schema, fifoMode.groupId)) {
+    return [new IncorrectFifoModePropertyError([fifoMode.groupId], parent.file)];
+  }
+
+  return [];
 };

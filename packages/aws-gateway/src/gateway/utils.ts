@@ -6,12 +6,12 @@ import { hashData, toKebabCase } from '@ez4/utils';
 
 import { GatewayServiceType } from './types.js';
 
-export const isGatewayState = (resource: EntryState): resource is GatewayState => {
-  return resource.type === GatewayServiceType;
+export const createGatewayStateId = (gatewayId: string) => {
+  return hashData(GatewayServiceType, toKebabCase(gatewayId));
 };
 
-export const getGatewayStateId = (gatewayId: string) => {
-  return hashData(GatewayServiceType, toKebabCase(gatewayId));
+export const isGatewayState = (resource: EntryState): resource is GatewayState => {
+  return resource.type === GatewayServiceType;
 };
 
 export const getGatewayId = (serviceName: string, resourceId: string, context: StepContext) => {

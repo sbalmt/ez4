@@ -1,83 +1,37 @@
+import type { ConnectResourceEvent, DeployOptions, PrepareResourceEvent, ServiceEvent } from '@ez4/project/library';
 import type { CronService } from '@ez4/scheduler/library';
 import type { EntryStates } from '@ez4/stateful';
 
-import type {
-  ConnectResourceEvent,
-  DeployOptions,
-  PrepareResourceEvent,
-  ServiceEvent
-} from '@ez4/project/library';
-
-import { getServiceName, linkServiceExtras } from '@ez4/project/library';
 import { isCronService, isDynamicCronService } from '@ez4/scheduler/library';
-import { getFunction } from '@ez4/aws-function';
+import { getServiceName } from '@ez4/project/library';
 import { isRoleState } from '@ez4/aws-identity';
 
 import { createGroup } from '../group/service.js';
 import { createSchedule } from '../schedule/service.js';
-import { createTargetFunction } from '../schedule/function/service.js';
-import { RoleMissingError, TargetHandlerMissingError } from './errors.js';
+import { connectTarget, prepareTarget } from './target.js';
 import { prepareLinkedClient } from './client.js';
-import { getTargetName } from './utils.js';
+import { RoleMissingError } from './errors.js';
 
 export const prepareLinkedServices = (event: ServiceEvent) => {
-  const { service, options } = event;
+  const { service, options, context } = event;
 
-  if (!isCronService(service) || !service.schema) {
-    return null;
+  if (isCronService(service) && service.schema) {
+    return prepareLinkedClient(context, service, options);
   }
 
-  const scheduleName = getServiceName(service, options);
-
-  const { maxRetries, maxAge } = service;
-
-  return prepareLinkedClient(scheduleName, service.schema, options, {
-    maxRetries,
-    maxAge
-  });
+  return null;
 };
 
 export const prepareCronServices = async (event: PrepareResourceEvent) => {
-  const { state, service, options, role } = event;
+  const { state, service, options, context } = event;
 
   if (!isCronService(service)) {
     return;
   }
 
-  if (!role || !isRoleState(role)) {
+  if (!context.role || !isRoleState(context.role)) {
     throw new RoleMissingError();
   }
-
-  const { handler, listener, timeout, memory, variables } = service.target;
-
-  const functionName = getTargetName(service, handler.name, options);
-
-  const targetTimeout = timeout ?? 10;
-  const targetMemory = memory ?? 192;
-
-  const functionState = createTargetFunction(state, role, {
-    functionName,
-    description: handler.description,
-    eventSchema: service.schema,
-    timeout: targetTimeout,
-    memory: targetMemory,
-    extras: service.extras,
-    debug: options.debug,
-    variables: {
-      ...service.variables,
-      ...variables
-    },
-    handler: {
-      functionName: handler.name,
-      sourceFile: handler.file
-    },
-    ...(listener && {
-      listener: {
-        functionName: listener.name,
-        sourceFile: listener.file
-      }
-    })
-  });
 
   const { description, expression, timezone, startDate, endDate } = service;
 
@@ -85,7 +39,9 @@ export const prepareCronServices = async (event: PrepareResourceEvent) => {
 
   const groupState = getScheduleGroup(state, service, options);
 
-  createSchedule(state, role, functionState, groupState, {
+  const functionState = prepareTarget(state, service, options, context);
+
+  const scheduleState = createSchedule(state, context.role, functionState, groupState, {
     scheduleName: getServiceName(service, options),
     dynamic: isDynamicCronService(service),
     enabled: !service.disabled,
@@ -97,29 +53,16 @@ export const prepareCronServices = async (event: PrepareResourceEvent) => {
     maxRetries,
     maxAge
   });
+
+  context.setServiceState(scheduleState, service, options);
 };
 
 export const connectCronResources = (event: ConnectResourceEvent) => {
-  const { state, service, options, role } = event;
+  const { state, service, options, context } = event;
 
-  if (!isCronService(service) || !service.extras) {
-    return;
+  if (isCronService(service)) {
+    connectTarget(state, service, options, context);
   }
-
-  if (!role || !isRoleState(role)) {
-    throw new RoleMissingError();
-  }
-
-  const { handler } = service.target;
-
-  const functionName = getTargetName(service, handler.name, options);
-  const functionState = getFunction(state, role, functionName);
-
-  if (!functionState) {
-    throw new TargetHandlerMissingError(functionName);
-  }
-
-  linkServiceExtras(state, functionState.entryId, service.extras);
 };
 
 const getScheduleGroup = (state: EntryStates, service: CronService, options: DeployOptions) => {

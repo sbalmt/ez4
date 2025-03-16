@@ -6,7 +6,7 @@ import { describe, it, mock } from 'node:test';
 import { validate, registerStringFormat, UnexpectedFormatError } from '@ez4/validator';
 import { SchemaType } from '@ez4/schema';
 
-describe.only('custom types validation', () => {
+describe('custom types validation', () => {
   it('assert :: custom format', async () => {
     const schema: AnySchema = {
       type: SchemaType.String,

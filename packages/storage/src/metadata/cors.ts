@@ -10,33 +10,21 @@ import {
   getModelMembers,
   getObjectMembers,
   getPropertyNumber,
-  getPropertyTuple
+  getPropertyTuple,
+  getReferenceType
 } from '@ez4/common/library';
 
 import { isModelProperty, isTypeObject, isTypeReference } from '@ez4/reflection';
-import { isAnyNumber } from '@ez4/utils';
 
-import {
-  IncompleteCorsError,
-  IncorrectCorsTypeError,
-  InvalidCorsTypeError
-} from '../errors/cors.js';
-
+import { IncompleteCorsError, IncorrectCorsTypeError, InvalidCorsTypeError } from '../errors/cors.js';
 import { isBucketCors } from './utils.js';
 
-type TypeParent = TypeModel | TypeObject;
-
-export const getBucketCors = (
-  type: AllType,
-  parent: TypeParent,
-  reflection: SourceMap,
-  errorList: Error[]
-) => {
+export const getBucketCors = (type: AllType, parent: TypeModel, reflection: SourceMap, errorList: Error[]) => {
   if (!isTypeReference(type)) {
     return getTypeCors(type, parent, errorList);
   }
 
-  const statement = reflection[type.path];
+  const statement = getReferenceType(type, reflection);
 
   if (statement) {
     return getTypeCors(statement, parent, errorList);
@@ -49,9 +37,9 @@ const isValidCors = (type: Incomplete<BucketCors>): type is BucketCors => {
   return !!type.allowOrigins?.length;
 };
 
-const getTypeCors = (type: AllType, parent: TypeParent, errorList: Error[]) => {
+const getTypeCors = (type: AllType, parent: TypeModel, errorList: Error[]) => {
   if (isTypeObject(type)) {
-    return getTypeFromMembers(type, getObjectMembers(type), errorList);
+    return getTypeFromMembers(type, parent, getObjectMembers(type), errorList);
   }
 
   if (!isModelDeclaration(type)) {
@@ -64,14 +52,10 @@ const getTypeCors = (type: AllType, parent: TypeParent, errorList: Error[]) => {
     return null;
   }
 
-  return getTypeFromMembers(type, getModelMembers(type), errorList);
+  return getTypeFromMembers(type, parent, getModelMembers(type), errorList);
 };
 
-const getTypeFromMembers = (
-  type: TypeObject | TypeModel,
-  members: MemberType[],
-  errorList: Error[]
-) => {
+const getTypeFromMembers = (type: TypeObject | TypeModel, parent: TypeModel, members: MemberType[], errorList: Error[]) => {
   const cors: Incomplete<BucketCors> = {};
   const properties = new Set(['allowOrigins']);
 
@@ -88,21 +72,13 @@ const getTypeFromMembers = (
       case 'allowOrigins':
       case 'allowMethods':
       case 'allowHeaders':
-      case 'exposeHeaders': {
-        const values = getStringValues(member);
-        if (values.length) {
-          cors[member.name] = values;
-        }
+      case 'exposeHeaders':
+        cors[member.name] = getStringValues(member);
         break;
-      }
 
-      case 'maxAge': {
-        const value = getPropertyNumber(member);
-        if (isAnyNumber(value)) {
-          cors[member.name] = value;
-        }
+      case 'maxAge':
+        cors.maxAge = getPropertyNumber(member);
         break;
-      }
     }
   }
 

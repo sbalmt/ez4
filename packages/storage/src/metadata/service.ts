@@ -1,5 +1,5 @@
-import type { Incomplete } from '@ez4/utils';
 import type { SourceMap } from '@ez4/reflection';
+import type { Incomplete } from '@ez4/utils';
 import type { BucketService } from '../types/service.js';
 
 import {
@@ -14,7 +14,6 @@ import {
 } from '@ez4/common/library';
 
 import { isModelProperty } from '@ez4/reflection';
-import { isAnyNumber } from '@ez4/utils';
 
 import { ServiceType } from '../types/service.js';
 import { IncompleteServiceError } from '../errors/service.js';
@@ -23,7 +22,7 @@ import { getBucketEvent } from './event.js';
 import { getBucketCors } from './cors.js';
 
 export const getBucketServices = (reflection: SourceMap) => {
-  const bucketServices: Record<string, BucketService> = {};
+  const allServices: Record<string, BucketService> = {};
   const errorList: Error[] = [];
 
   for (const identity in reflection) {
@@ -33,7 +32,9 @@ export const getBucketServices = (reflection: SourceMap) => {
       continue;
     }
 
-    const service: Incomplete<BucketService> = { type: ServiceType };
+    const service: Incomplete<BucketService> = { type: ServiceType, extras: {} };
+
+    const fileName = statement.file;
 
     service.name = statement.name;
 
@@ -44,29 +45,17 @@ export const getBucketServices = (reflection: SourceMap) => {
 
       switch (member.name) {
         default:
-          errorList.push(new InvalidServicePropertyError(parent.name, member.name, statement.file));
+          errorList.push(new InvalidServicePropertyError(service.name, member.name, fileName));
           break;
 
         case 'localPath':
-        case 'globalName': {
-          const value = getPropertyString(member);
-
-          if (value) {
-            service[member.name] = value;
-          }
-
+        case 'globalName':
+          service[member.name] = getPropertyString(member);
           break;
-        }
 
-        case 'autoExpireDays': {
-          const value = getPropertyNumber(member);
-
-          if (isAnyNumber(value)) {
-            service.autoExpireDays = value;
-          }
-
+        case 'autoExpireDays':
+          service.autoExpireDays = getPropertyNumber(member);
           break;
-        }
 
         case 'events':
           service.events = getBucketEvent(member.value, statement, reflection, errorList);
@@ -87,24 +76,24 @@ export const getBucketServices = (reflection: SourceMap) => {
     }
 
     if (!isValidService(service)) {
-      errorList.push(new IncompleteServiceError([], statement.file));
+      errorList.push(new IncompleteServiceError([], fileName));
       continue;
     }
 
-    if (bucketServices[statement.name]) {
-      errorList.push(new DuplicateServiceError(statement.name, statement.file));
+    if (allServices[statement.name]) {
+      errorList.push(new DuplicateServiceError(statement.name, fileName));
       continue;
     }
 
-    bucketServices[statement.name] = service;
+    allServices[statement.name] = service;
   }
 
   return {
-    services: bucketServices,
+    services: allServices,
     errors: errorList
   };
 };
 
 const isValidService = (type: Incomplete<BucketService>): type is BucketService => {
-  return !!type.name;
+  return !!type.name && !!type.extras && !!type.extras;
 };

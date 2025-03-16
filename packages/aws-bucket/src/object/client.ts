@@ -1,16 +1,11 @@
 import type { ResourceTags } from '@ez4/aws-common';
 
-import { getTagList, Logger } from '@ez4/aws-common';
 import { createReadStream } from 'node:fs';
 
-import mime from 'mime';
+import { S3Client, PutObjectCommand, PutObjectTaggingCommand, DeleteObjectCommand, NoSuchBucket } from '@aws-sdk/client-s3';
+import { getTagList, Logger } from '@ez4/aws-common';
 
-import {
-  S3Client,
-  PutObjectCommand,
-  PutObjectTaggingCommand,
-  DeleteObjectCommand,
-} from '@aws-sdk/client-s3';
+import mime from 'mime';
 
 import { getBucketObjectPath } from './utils.js';
 import { ObjectServiceName } from './types.js';
@@ -26,10 +21,7 @@ export type CreateResponse = {
   objectKey: string;
 };
 
-export const putObject = async (
-  bucketName: string,
-  request: CreateRequest
-): Promise<CreateResponse> => {
+export const putObject = async (bucketName: string, request: CreateRequest): Promise<CreateResponse> => {
   const { objectKey, filePath } = request;
 
   Logger.logCreate(ObjectServiceName, getBucketObjectPath(bucketName, objectKey));
@@ -72,10 +64,20 @@ export const tagObject = async (bucketName: string, objectKey: string, tags: Res
 export const deleteObject = async (bucketName: string, objectKey: string) => {
   Logger.logDelete(ObjectServiceName, getBucketObjectPath(bucketName, objectKey));
 
-  await client.send(
-    new DeleteObjectCommand({
-      Bucket: bucketName,
-      Key: objectKey
-    })
-  );
+  try {
+    await client.send(
+      new DeleteObjectCommand({
+        Bucket: bucketName,
+        Key: objectKey
+      })
+    );
+
+    return true;
+  } catch (error) {
+    if (!(error instanceof NoSuchBucket)) {
+      throw error;
+    }
+
+    return false;
+  }
 };

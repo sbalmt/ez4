@@ -1,0 +1,17 @@
+/**
+ * @type {import('@ez4/project').ProjectOptions}
+ */
+export default {
+  prefix: 'ez4',
+  debugMode: true,
+  projectName: 'import-notification',
+  sourceFiles: ['./src/service.ts'],
+  stateFile: {
+    path: 'ez4-deploy'
+  },
+  importProjects: {
+    'hello-aws-notification': {
+      projectFile: '../hello-aws-notification/ez4.project.js'
+    }
+  }
+};

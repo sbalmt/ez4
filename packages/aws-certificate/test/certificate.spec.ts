@@ -29,7 +29,7 @@ const assertDeploy = async <E extends EntryState>(
   };
 };
 
-describe.only('certificate resources', () => {
+describe('certificate resources', () => {
   let lastState: EntryStates | undefined;
   let certificateId: string | undefined;
 

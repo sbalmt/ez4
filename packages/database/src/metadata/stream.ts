@@ -1,6 +1,6 @@
-import type { Incomplete } from '@ez4/utils';
-import type { MemberType } from '@ez4/common/library';
 import type { AllType, SourceMap, TypeModel, TypeObject } from '@ez4/reflection';
+import type { MemberType } from '@ez4/common/library';
+import type { Incomplete } from '@ez4/utils';
 import type { TableStream } from '../types/stream.js';
 
 import {
@@ -10,34 +10,22 @@ import {
   getModelMembers,
   getObjectMembers,
   getPropertyNumber,
-  getServiceListener
+  getServiceListener,
+  getReferenceType
 } from '@ez4/common/library';
 
 import { isModelProperty, isTypeObject, isTypeReference } from '@ez4/reflection';
-import { isAnyNumber } from '@ez4/utils';
 
-import {
-  IncompleteStreamError,
-  IncorrectStreamTypeError,
-  InvalidStreamTypeError
-} from '../errors/stream.js';
-
+import { IncompleteStreamError, IncorrectStreamTypeError, InvalidStreamTypeError } from '../errors/stream.js';
 import { getStreamHandler } from './handler.js';
 import { isTableStream } from './utils.js';
 
-type TypeParent = TypeModel | TypeObject;
-
-export const getTableStream = (
-  type: AllType,
-  parent: TypeParent,
-  reflection: SourceMap,
-  errorList: Error[]
-) => {
+export const getTableStream = (type: AllType, parent: TypeModel, reflection: SourceMap, errorList: Error[]) => {
   if (!isTypeReference(type)) {
     return getTypeStream(type, parent, reflection, errorList);
   }
 
-  const statement = reflection[type.path];
+  const statement = getReferenceType(type, reflection);
 
   if (statement) {
     return getTypeStream(statement, parent, reflection, errorList);
@@ -50,14 +38,9 @@ const isValidStream = (type: Incomplete<TableStream>): type is TableStream => {
   return !!type.handler;
 };
 
-const getTypeStream = (
-  type: AllType,
-  parent: TypeParent,
-  reflection: SourceMap,
-  errorList: Error[]
-) => {
+const getTypeStream = (type: AllType, parent: TypeModel, reflection: SourceMap, errorList: Error[]) => {
   if (isTypeObject(type)) {
-    return getTypeFromMembers(type, getObjectMembers(type), reflection, errorList);
+    return getTypeFromMembers(type, parent, getObjectMembers(type), reflection, errorList);
   }
 
   if (!isModelDeclaration(type)) {
@@ -70,11 +53,12 @@ const getTypeStream = (
     return null;
   }
 
-  return getTypeFromMembers(type, getModelMembers(type), reflection, errorList);
+  return getTypeFromMembers(type, parent, getModelMembers(type), reflection, errorList);
 };
 
 const getTypeFromMembers = (
   type: TypeObject | TypeModel,
+  parent: TypeModel,
   members: MemberType[],
   reflection: SourceMap,
   errorList: Error[]
@@ -92,30 +76,18 @@ const getTypeFromMembers = (
         errorList.push(new InvalidServicePropertyError(parent.name, member.name, type.file));
         break;
 
-      case 'listener': {
-        const value = getServiceListener(member.value, errorList);
-
-        if (value) {
-          stream.listener = value;
-        }
-
-        break;
-      }
-
       case 'handler':
         stream.handler = getStreamHandler(member.value, reflection, errorList);
         break;
 
-      case 'timeout':
-      case 'memory': {
-        const value = getPropertyNumber(member);
-
-        if (isAnyNumber(value)) {
-          stream[member.name] = value;
-        }
-
+      case 'listener':
+        stream.listener = getServiceListener(member.value, errorList);
         break;
-      }
+
+      case 'memory':
+      case 'timeout':
+        stream[member.name] = getPropertyNumber(member);
+        break;
 
       case 'variables':
         stream.variables = getLinkedVariableList(member, errorList);

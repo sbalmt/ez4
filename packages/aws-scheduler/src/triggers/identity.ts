@@ -1,6 +1,14 @@
-import type { IdentityAccount } from '@ez4/project/library';
+import type { IdentityEvent } from '@ez4/project/library';
 
-export const prepareIdentityAccount = (): IdentityAccount[] => {
+import { ServiceType } from '@ez4/scheduler/library';
+
+export const prepareIdentityAccount = (event: IdentityEvent) => {
+  const { serviceType } = event;
+
+  if (serviceType !== ServiceType) {
+    return null;
+  }
+
   return [
     {
       account: 'scheduler.amazonaws.com'

@@ -4,6 +4,11 @@ import type { ObjectSchema, UnionSchema } from '@ez4/schema';
 
 export type NotificationMessageSchema = ObjectSchema | UnionSchema;
 
+export type NotificationFifoMode = {
+  uniqueId?: string;
+  groupId: string;
+};
+
 export enum NotificationSubscriptionType {
   Lambda = 'lambda',
   Queue = 'queue'
@@ -20,7 +25,6 @@ export type NotificationLambdaSubscription = {
   listener?: ServiceListener;
   handler: SubscriptionHandler;
   variables?: LinkedVariables | null;
-  concurrency?: number;
   timeout?: number;
   memory?: number;
 };
@@ -30,6 +34,4 @@ export type NotificationQueueSubscription = {
   service: string;
 };
 
-export type NotificationSubscription =
-  | NotificationLambdaSubscription
-  | NotificationQueueSubscription;
+export type NotificationSubscription = NotificationLambdaSubscription | NotificationQueueSubscription;

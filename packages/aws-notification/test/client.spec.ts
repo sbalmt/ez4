@@ -8,7 +8,7 @@ import { Client } from '@ez4/aws-notification/client';
 import { SchemaType } from '@ez4/schema';
 import { deploy } from '@ez4/aws-common';
 
-describe.only('notification client', () => {
+describe('notification client', () => {
   let lastState: EntryStates | undefined;
   let topicId: string | undefined;
   let topicClient: ReturnType<typeof Client.make>;
@@ -19,7 +19,8 @@ describe.only('notification client', () => {
     const localState: EntryStates = {};
 
     const resource = createTopic(localState, {
-      topicName: 'ez4-test-notification-topic-client'
+      topicName: 'ez4-test-notification-topic-client',
+      fifoMode: false
     });
 
     topicId = resource.entryId;

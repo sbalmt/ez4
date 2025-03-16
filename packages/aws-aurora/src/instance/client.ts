@@ -1,6 +1,6 @@
 import type { Arn, ResourceTags } from '@ez4/aws-common';
 
-import { getTagList, Logger } from '@ez4/aws-common';
+import { getTagList, Logger, tryParseArn } from '@ez4/aws-common';
 
 import {
   RDSClient,
@@ -9,7 +9,8 @@ import {
   AddTagsToResourceCommand,
   RemoveTagsFromResourceCommand,
   waitUntilDBInstanceAvailable,
-  waitUntilDBInstanceDeleted
+  waitUntilDBInstanceDeleted,
+  DBInstanceNotFoundFault
 } from '@aws-sdk/client-rds';
 
 import { InstanceServiceName } from './types.js';
@@ -52,6 +53,8 @@ export const createInstance = async (request: CreateRequest): Promise<CreateResp
     })
   );
 
+  Logger.logWait(InstanceServiceName, instanceName);
+
   await waitUntilDBInstanceAvailable(waiter, {
     DBInstanceIdentifier: instanceName
   });
@@ -65,7 +68,9 @@ export const createInstance = async (request: CreateRequest): Promise<CreateResp
 };
 
 export const tagInstance = async (instanceArn: Arn, tags: ResourceTags) => {
-  Logger.logTag(InstanceServiceName, instanceArn);
+  const instanceName = tryParseArn(instanceArn)?.resourceName ?? instanceArn;
+
+  Logger.logTag(InstanceServiceName, instanceName);
 
   await client.send(
     new AddTagsToResourceCommand({
@@ -79,7 +84,9 @@ export const tagInstance = async (instanceArn: Arn, tags: ResourceTags) => {
 };
 
 export const untagInstance = async (instanceArn: Arn, tagKeys: string[]) => {
-  Logger.logUntag(InstanceServiceName, instanceArn);
+  const instanceName = tryParseArn(instanceArn)?.resourceName ?? instanceArn;
+
+  Logger.logUntag(InstanceServiceName, instanceName);
 
   await client.send(
     new RemoveTagsFromResourceCommand({
@@ -92,14 +99,26 @@ export const untagInstance = async (instanceArn: Arn, tagKeys: string[]) => {
 export const deleteInstance = async (instanceName: string) => {
   Logger.logDelete(InstanceServiceName, instanceName);
 
-  await client.send(
-    new DeleteDBInstanceCommand({
-      DBInstanceIdentifier: instanceName,
-      SkipFinalSnapshot: true
-    })
-  );
+  try {
+    await client.send(
+      new DeleteDBInstanceCommand({
+        DBInstanceIdentifier: instanceName,
+        SkipFinalSnapshot: true
+      })
+    );
 
-  await waitUntilDBInstanceDeleted(waiter, {
-    DBInstanceIdentifier: instanceName
-  });
+    Logger.logWait(InstanceServiceName, instanceName);
+
+    await waitUntilDBInstanceDeleted(waiter, {
+      DBInstanceIdentifier: instanceName
+    });
+
+    return true;
+  } catch (error) {
+    if (!(error instanceof DBInstanceNotFoundFault)) {
+      throw error;
+    }
+
+    return false;
+  }
 };

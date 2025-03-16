@@ -1,5 +1,5 @@
-import type { EntryStates } from '@ez4/stateful';
-import type { ExtraSource, ServiceMetadata } from '../types/service.js';
+import type { EntryState, EntryStates } from '@ez4/stateful';
+import type { ExtraSource, ServiceAliases, ServiceMetadata } from '../types/service.js';
 import type { DeployOptions } from '../types/options.js';
 
 import { tryLinkDependency } from '@ez4/stateful';
@@ -24,16 +24,34 @@ export const getServiceName = (service: ServiceMetadata | string, options: Deplo
   return servicePrefix;
 };
 
-export const linkServiceExtras = (
-  state: EntryStates,
-  entryId: string,
-  extras: Record<string, ExtraSource>
-) => {
-  for (const serviceName in extras) {
-    const { entryId: dependencyId } = extras[serviceName];
+export const getServiceState = (aliases: ServiceAliases, service: ServiceMetadata | string, options: DeployOptions) => {
+  const serviceName = getServiceName(service, options);
 
-    if (dependencyId) {
+  const serviceState = aliases[serviceName];
+
+  if (!serviceState) {
+    throw new Error(`Service ${serviceName} wasn't found.`);
+  }
+
+  return serviceState;
+};
+
+export const setServiceState = (aliases: ServiceAliases, state: EntryState, service: ServiceMetadata | string, options: DeployOptions) => {
+  const serviceName = getServiceName(service, options);
+
+  if (aliases[serviceName]) {
+    throw new Error(`Service ${serviceName} can't be set twice.`);
+  }
+
+  aliases[serviceName] = state;
+};
+
+export const linkServiceExtras = (state: EntryStates, entryId: string, extras: Record<string, ExtraSource>) => {
+  for (const serviceName in extras) {
+    const { entryIds: dependencyIds } = extras[serviceName];
+
+    dependencyIds.forEach((dependencyId) => {
       tryLinkDependency(state, entryId, dependencyId);
-    }
+    });
   }
 };

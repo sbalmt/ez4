@@ -3,7 +3,7 @@ import { describe, it } from 'node:test';
 
 import { deepCompare, deepEqual as deepEquals } from '@ez4/utils';
 
-describe.only('array utils', () => {
+describe('array utils', () => {
   it('assert :: deep equals', () => {
     const target = [[123], 'abc', { field: true }];
     const source = [[123], 'abc', { field: true }];

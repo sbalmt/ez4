@@ -12,7 +12,7 @@ import {
 import { registerTriggers } from '@ez4/database/library';
 import { parseFile } from './common/parser.js';
 
-describe.only('database index errors', () => {
+describe('database index errors', () => {
   registerTriggers();
 
   it('assert :: incorrect table indexes', () => {

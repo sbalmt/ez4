@@ -29,7 +29,7 @@ const assertDeploy = async <E extends EntryState>(
   };
 };
 
-describe.only('cloudfront :: cache policy', () => {
+describe('cloudfront :: cache policy', () => {
   let lastState: EntryStates | undefined;
   let cacheId: string | undefined;
 

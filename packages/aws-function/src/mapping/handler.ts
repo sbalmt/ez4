@@ -1,6 +1,6 @@
 import type { StepContext, StepHandler } from '@ez4/stateful';
-import type { MappingResult, MappingState } from './types.js';
-import type { CreateRequest } from './client.js';
+import type { MappingParameters, MappingResult, MappingState } from './types.js';
+import type { UpdateRequest } from './client.js';
 
 import { ReplaceResourceError } from '@ez4/aws-common';
 import { deepCompare, deepEqual } from '@ez4/utils';
@@ -8,6 +8,8 @@ import { deepCompare, deepEqual } from '@ez4/utils';
 import { getFunctionName } from '../function/utils.js';
 import { importMapping, createMapping, deleteMapping, updateMapping } from './client.js';
 import { MappingServiceName } from './types.js';
+
+type MappingUpdateParameters = MappingParameters & UpdateRequest;
 
 export const getMappingHandler = (): StepHandler<MappingState> => ({
   equals: equalsResource,
@@ -32,14 +34,17 @@ const previewResource = async (candidate: MappingState, current: MappingState) =
     }
   });
 
-  return changes.counts ? changes : undefined;
+  if (!changes.counts) {
+    return undefined;
+  }
+
+  return {
+    ...changes,
+    name: target.fromService
+  };
 };
 
-const replaceResource = async (
-  candidate: MappingState,
-  current: MappingState,
-  context: StepContext
-) => {
+const replaceResource = async (candidate: MappingState, current: MappingState, context: StepContext) => {
   if (current.result) {
     throw new ReplaceResourceError(MappingServiceName, candidate.entryId, current.entryId);
   }
@@ -47,10 +52,7 @@ const replaceResource = async (
   return createResource(candidate, context);
 };
 
-const createResource = async (
-  candidate: MappingState,
-  context: StepContext
-): Promise<MappingResult> => {
+const createResource = async (candidate: MappingState, context: StepContext): Promise<MappingResult> => {
   const parameters = candidate.parameters;
 
   const functionName = getFunctionName(MappingServiceName, 'mapping', context);
@@ -71,11 +73,7 @@ const createResource = async (
   };
 };
 
-const updateResource = async (
-  candidate: MappingState,
-  current: MappingState,
-  context: StepContext
-) => {
+const updateResource = async (candidate: MappingState, current: MappingState, context: StepContext) => {
   const result = candidate.result;
 
   if (!result) {
@@ -115,12 +113,13 @@ const deleteResource = async (candidate: MappingState) => {
   }
 };
 
-const checkGeneralUpdates = async <T extends CreateRequest>(
-  eventId: string,
-  candidate: T,
-  current: T
-) => {
-  const hasChanges = !deepEqual(candidate, current);
+const checkGeneralUpdates = async (eventId: string, candidate: MappingUpdateParameters, current: MappingUpdateParameters) => {
+  const hasChanges = !deepEqual(candidate, current, {
+    exclude: {
+      getSourceArn: true,
+      fromService: true
+    }
+  });
 
   if (hasChanges) {
     await updateMapping(eventId, candidate);

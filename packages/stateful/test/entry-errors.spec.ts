@@ -18,7 +18,7 @@ import { throws } from 'node:assert/strict';
 import { TestEntryType } from './common/entry.js';
 import { ok } from 'node:assert';
 
-describe.only('entry errors tests', () => {
+describe('entry errors tests', () => {
   it('assert :: attach entry', () => {
     const state: EntryStates<TestEntryState> = {
       entryA: {

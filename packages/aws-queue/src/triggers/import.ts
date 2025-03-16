@@ -1,50 +1,38 @@
-import type {
-  ConnectResourceEvent,
-  PrepareResourceEvent,
-  ServiceEvent
-} from '@ez4/project/library';
+import type { ConnectResourceEvent, PrepareResourceEvent, ServiceEvent } from '@ez4/project/library';
 
-import { getServiceName } from '@ez4/project/library';
 import { isQueueImport } from '@ez4/queue/library';
-import { isRoleState } from '@ez4/aws-identity';
 
 import { createQueue } from '../queue/service.js';
 import { connectSubscriptions, prepareSubscriptions } from './subscription.js';
-import { ProjectMissingError, RoleMissingError } from './errors.js';
+import { ProjectMissingError } from './errors.js';
 import { prepareLinkedClient } from './client.js';
+import { getQueueName } from './utils.js';
 
 export const prepareLinkedImports = (event: ServiceEvent) => {
-  const { service, options } = event;
+  const { service, options, context } = event;
 
   if (!isQueueImport(service)) {
     return null;
   }
 
-  const { reference, project } = service;
-
+  const { project } = service;
   const { imports } = options;
 
   if (!imports || !imports[project]) {
     throw new ProjectMissingError(project);
   }
 
-  const queueName = getServiceName(reference, imports[project]);
-
-  return prepareLinkedClient(queueName, service.schema);
+  return prepareLinkedClient(context, service, imports[project]);
 };
 
 export const prepareImports = async (event: PrepareResourceEvent) => {
-  const { state, service, options, role } = event;
+  const { state, service, options, context } = event;
 
   if (!isQueueImport(service)) {
     return;
   }
 
-  if (!role || !isRoleState(role)) {
-    throw new RoleMissingError();
-  }
-
-  const { reference, project } = service;
+  const { project } = service;
   const { imports } = options;
 
   if (!imports || !imports[project]) {
@@ -52,23 +40,20 @@ export const prepareImports = async (event: PrepareResourceEvent) => {
   }
 
   const queueState = createQueue(state, {
-    queueName: getServiceName(reference, imports[project]),
+    queueName: getQueueName(service, imports[project]),
+    fifoMode: !!service.fifoMode,
     import: true
   });
 
-  await prepareSubscriptions(state, service, role, queueState, options);
+  context.setServiceState(queueState, service, imports[project]);
+
+  await prepareSubscriptions(state, service, queueState, options, context);
 };
 
 export const connectImports = (event: ConnectResourceEvent) => {
-  const { state, service, role, options } = event;
+  const { state, service, options, context } = event;
 
-  if (!isQueueImport(service)) {
-    return;
+  if (isQueueImport(service)) {
+    connectSubscriptions(state, service, options, context);
   }
-
-  if (!role || !isRoleState(role)) {
-    throw new RoleMissingError();
-  }
-
-  connectSubscriptions(state, service, role, options);
 };

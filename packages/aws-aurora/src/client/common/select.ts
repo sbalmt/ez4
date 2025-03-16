@@ -1,7 +1,7 @@
 import type { SqlBuilder, SqlFilters, SqlJsonColumnSchema, SqlSource } from '@ez4/pgsql';
 import type { Database, RelationMetadata, Query } from '@ez4/database';
-import type { AnySchema, ObjectSchema } from '@ez4/schema';
 import type { SqlParameter } from '@aws-sdk/client-rds-data';
+import type { AnySchema, ObjectSchema } from '@ez4/schema';
 import type { RepositoryRelationsWithSchema } from '../../types/repository.js';
 
 import { AnyObject, isAnyNumber, isAnyObject, isEmptyObject } from '@ez4/utils';

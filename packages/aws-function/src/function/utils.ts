@@ -1,12 +1,36 @@
+import type { DeployOptions, EventContext } from '@ez4/project/library';
 import type { EntryState, StepContext } from '@ez4/stateful';
 import type { FunctionState } from './types.js';
 
 import { IncompleteResourceError } from '@ez4/aws-common';
 
+import { FunctionNotFoundError } from './errors.js';
 import { FunctionServiceType } from './types.js';
 
 export const isFunctionState = (resource: EntryState): resource is FunctionState => {
   return resource.type === FunctionServiceType;
+};
+
+export const tryGetFunctionState = (context: EventContext, functionName: string, options: DeployOptions) => {
+  try {
+    const functionState = context.getServiceState(functionName, options);
+
+    if (isFunctionState(functionState)) {
+      return functionState;
+    }
+  } catch (error) {}
+
+  return undefined;
+};
+
+export const getFunctionState = (context: EventContext, functionName: string, options: DeployOptions) => {
+  const functionState = context.getServiceState(functionName, options);
+
+  if (!isFunctionState(functionState)) {
+    throw new FunctionNotFoundError(functionName);
+  }
+
+  return functionState;
 };
 
 export const getFunctionName = (serviceName: string, resourceId: string, context: StepContext) => {

@@ -3,7 +3,7 @@ import { describe, it } from 'node:test';
 
 import { isAnyBoolean } from '@ez4/utils';
 
-describe.only('boolean utils', () => {
+describe('boolean utils', () => {
   it('assert :: is any boolean', () => {
     ok(isAnyBoolean(true));
     ok(isAnyBoolean(false));

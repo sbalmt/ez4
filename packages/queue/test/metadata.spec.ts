@@ -18,7 +18,7 @@ const testFile = (fileName: string, overwrite = false) => {
   }
 };
 
-describe.only('queue metadata', () => {
+describe('queue metadata', () => {
   registerTriggers();
 
   process.env.TEST_ENV_VAR = 'test-env-var-value';

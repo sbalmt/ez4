@@ -1,15 +1,20 @@
 import type { Queue, ReceiveOptions, SendOptions, Client as SqsClient } from '@ez4/queue';
+import type { SendMessageRequest } from '@aws-sdk/client-sqs';
 import type { MessageSchema } from '@ez4/aws-queue/runtime';
+import type { AnyObject } from '@ez4/utils';
 
+import { MissingMessageGroupError, getJsonMessage, getJsonStringMessage } from '@ez4/aws-queue/runtime';
 import { ReceiveMessageCommand, SendMessageCommand, SQSClient } from '@aws-sdk/client-sqs';
-import { getJsonMessage, getJsonStringMessage } from '@ez4/aws-queue/runtime';
 
 const client = new SQSClient({});
+
+type FifoParameters = Pick<SendMessageRequest, 'MessageGroupId' | 'MessageDeduplicationId'>;
 
 export namespace Client {
   export const make = <T extends Queue.Message>(
     queueUrl: string,
-    messageSchema: MessageSchema
+    messageSchema: MessageSchema,
+    fifoMode?: Queue.FifoMode<T>
   ): SqsClient<T> => {
     return new (class {
       async sendMessage(message: T, options?: SendOptions) {
@@ -19,7 +24,10 @@ export namespace Client {
           new SendMessageCommand({
             QueueUrl: queueUrl,
             DelaySeconds: options?.delay,
-            MessageBody: messageBody
+            MessageBody: messageBody,
+            ...(fifoMode && {
+              ...getFifoParameters(message, fifoMode)
+            })
           })
         );
       }
@@ -42,3 +50,23 @@ export namespace Client {
     })();
   };
 }
+
+const getFifoParameters = <T extends Queue.Message>(message: AnyObject, fifoMode: Queue.FifoMode<T>) => {
+  const parameters: FifoParameters = {};
+
+  if (fifoMode) {
+    const { groupId, uniqueId } = fifoMode;
+
+    parameters.MessageGroupId = `${message[groupId]}`;
+
+    if (!parameters.MessageGroupId) {
+      throw new MissingMessageGroupError(groupId.toString());
+    }
+
+    if (uniqueId && message[uniqueId]) {
+      parameters.MessageDeduplicationId = `${message[uniqueId]}`;
+    }
+  }
+
+  return parameters;
+};

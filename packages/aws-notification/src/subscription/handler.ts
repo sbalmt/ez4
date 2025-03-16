@@ -4,9 +4,9 @@ import type { SubscriptionState, SubscriptionResult } from './types.js';
 import { ReplaceResourceError } from '@ez4/aws-common';
 import { deepCompare } from '@ez4/utils';
 
-import { SubscriptionServiceName } from './types.js';
-import { createSubscription, deleteSubscription } from './client.js';
 import { getSubscriptionProtocol } from './helpers/protocol.js';
+import { createSubscription, deleteSubscription } from './client.js';
+import { SubscriptionServiceName } from './types.js';
 
 export const getSubscriptionHandler = (): StepHandler<SubscriptionState> => ({
   equals: equalsResource,
@@ -32,14 +32,17 @@ const previewResource = async (candidate: SubscriptionState, current: Subscripti
     }
   });
 
-  return changes.counts ? changes : undefined;
+  if (!changes.counts) {
+    return undefined;
+  }
+
+  return {
+    ...changes,
+    name: target.fromService
+  };
 };
 
-const replaceResource = async (
-  candidate: SubscriptionState,
-  current: SubscriptionState,
-  context: StepContext
-) => {
+const replaceResource = async (candidate: SubscriptionState, current: SubscriptionState, context: StepContext) => {
   if (current.result) {
     throw new ReplaceResourceError(SubscriptionServiceName, candidate.entryId, current.entryId);
   }
@@ -47,16 +50,10 @@ const replaceResource = async (
   return createResource(candidate, context);
 };
 
-const createResource = async (
-  candidate: SubscriptionState,
-  context: StepContext
-): Promise<SubscriptionResult> => {
+const createResource = async (candidate: SubscriptionState, context: StepContext): Promise<SubscriptionResult> => {
   const parameters = candidate.parameters;
 
-  const [topicArn, endpoint] = await Promise.all([
-    parameters.getTopicArn(context),
-    parameters.getEndpoint(context)
-  ]);
+  const [topicArn, endpoint] = await Promise.all([parameters.getTopicArn(context), parameters.getEndpoint(context)]);
 
   const { subscriptionArn } = await createSubscription({
     protocol: getSubscriptionProtocol(SubscriptionServiceName, endpoint),

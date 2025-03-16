@@ -4,7 +4,7 @@ import { describe, it } from 'node:test';
 import { prepareCreateTable, prepareDeleteTable } from '@ez4/aws-aurora';
 import { SchemaType } from '@ez4/schema';
 
-describe.only('aurora migration (table)', () => {
+describe('aurora migration (table)', () => {
   it('assert :: create table (boolean)', () => {
     const statement = prepareCreateTable(
       'ez4-test-table',

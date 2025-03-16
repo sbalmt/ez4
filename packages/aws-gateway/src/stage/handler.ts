@@ -5,8 +5,8 @@ import { ReplaceResourceError } from '@ez4/aws-common';
 import { deepCompare, deepEqual } from '@ez4/utils';
 
 import { getGatewayId } from '../gateway/utils.js';
+import { createStage, deleteStage, importStage, updateStage } from './client.js';
 import { getStageName } from './helpers/stage.js';
-import { createStage, deleteStage, updateStage } from './client.js';
 import { StageServiceName } from './types.js';
 
 export const getStageHandler = (): StepHandler<StageState> => ({
@@ -31,11 +31,7 @@ const previewResource = async (candidate: StageState, current: StageState) => {
   return changes.counts ? changes : undefined;
 };
 
-const replaceResource = async (
-  candidate: StageState,
-  current: StageState,
-  context: StepContext
-) => {
+const replaceResource = async (candidate: StageState, current: StageState, context: StepContext) => {
   if (current.result) {
     throw new ReplaceResourceError(StageServiceName, candidate.entryId, current.entryId);
   }
@@ -43,17 +39,18 @@ const replaceResource = async (
   return createResource(candidate, context);
 };
 
-const createResource = async (
-  candidate: StageState,
-  context: StepContext
-): Promise<StageResult> => {
-  const stageName = getStageName(candidate.parameters);
+const createResource = async (candidate: StageState, context: StepContext): Promise<StageResult> => {
+  const parameters = candidate.parameters;
+
+  const stageName = getStageName(parameters);
   const apiId = getGatewayId(StageServiceName, stageName, context);
 
-  const response = await createStage(apiId, {
-    ...candidate.parameters,
-    stageName
-  });
+  const response =
+    (await importStage(apiId, stageName)) ??
+    (await createStage(apiId, {
+      ...parameters,
+      stageName
+    }));
 
   return {
     stageName: response.stageName,
@@ -68,12 +65,7 @@ const updateResource = async (candidate: StageState, current: StageState) => {
     return;
   }
 
-  await checkGeneralUpdates(
-    result.apiId,
-    result.stageName,
-    candidate.parameters,
-    current.parameters
-  );
+  await checkGeneralUpdates(result.apiId, result.stageName, candidate.parameters, current.parameters);
 };
 
 const deleteResource = async (candidate: StageState) => {
@@ -84,12 +76,7 @@ const deleteResource = async (candidate: StageState) => {
   }
 };
 
-const checkGeneralUpdates = async (
-  apiId: string,
-  stageName: string,
-  candidate: StageParameters,
-  current: StageParameters
-) => {
+const checkGeneralUpdates = async (apiId: string, stageName: string, candidate: StageParameters, current: StageParameters) => {
   const hasChanges = !deepEqual(candidate, current, {
     exclude: {
       stageName: true

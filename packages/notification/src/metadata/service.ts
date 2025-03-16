@@ -1,5 +1,5 @@
+import type { SourceMap, TypeModel } from '@ez4/reflection';
 import type { Incomplete } from '@ez4/utils';
-import type { SourceMap } from '@ez4/reflection';
 import type { NotificationService } from '../types/service.js';
 
 import {
@@ -12,11 +12,14 @@ import {
 } from '@ez4/common/library';
 
 import { isModelProperty } from '@ez4/reflection';
+import { hasSchemaProperty } from '@ez4/schema';
 
 import { ServiceType } from '../types/service.js';
 import { IncompleteServiceError } from '../errors/service.js';
+import { IncorrectFifoModePropertyError } from '../errors/fifo.js';
 import { getAllSubscription } from './subscription.js';
 import { getNotificationMessage } from './message.js';
+import { getNotificationFifoMode } from './fifo.js';
 import { isNotificationService } from './utils.js';
 
 export const getNotificationServices = (reflection: SourceMap) => {
@@ -30,8 +33,10 @@ export const getNotificationServices = (reflection: SourceMap) => {
       continue;
     }
 
-    const service: Incomplete<NotificationService> = { type: ServiceType };
+    const service: Incomplete<NotificationService> = { type: ServiceType, extras: {} };
     const properties = new Set(['subscriptions', 'schema']);
+
+    const fileName = statement.file;
 
     service.name = statement.name;
 
@@ -47,33 +52,27 @@ export const getNotificationServices = (reflection: SourceMap) => {
       switch (member.name) {
         default:
           if (!member.inherited) {
-            errorList.push(
-              new InvalidServicePropertyError(statement.name, member.name, statement.file)
-            );
+            errorList.push(new InvalidServicePropertyError(service.name, member.name, fileName));
           }
           break;
 
-        case 'schema': {
-          service.schema = getNotificationMessage(member.value, statement, reflection, errorList);
-
-          if (service.schema) {
+        case 'schema':
+          if ((service.schema = getNotificationMessage(member.value, statement, reflection, errorList))) {
             properties.delete(member.name);
           }
-
           break;
-        }
 
-        case 'subscriptions': {
-          if (!member.inherited) {
-            service.subscriptions = getAllSubscription(member, statement, reflection, errorList);
-
-            if (service.subscriptions) {
-              properties.delete(member.name);
-            }
+        case 'subscriptions':
+          if (!member.inherited && (service.subscriptions = getAllSubscription(member, statement, reflection, errorList))) {
+            properties.delete(member.name);
           }
-
           break;
-        }
+
+        case 'fifoMode':
+          if (!member.inherited) {
+            service.fifoMode = getNotificationFifoMode(member.value, statement, reflection, errorList);
+          }
+          break;
 
         case 'variables':
           if (!member.inherited) {
@@ -90,12 +89,19 @@ export const getNotificationServices = (reflection: SourceMap) => {
     }
 
     if (!isValidService(service)) {
-      errorList.push(new IncompleteServiceError([...properties], statement.file));
+      errorList.push(new IncompleteServiceError([...properties], fileName));
+      continue;
+    }
+
+    const validationErrors = validateFifoModeProperties(statement, service);
+
+    if (validationErrors.length) {
+      errorList.push(...validationErrors);
       continue;
     }
 
     if (allServices[statement.name]) {
-      errorList.push(new DuplicateServiceError(statement.name, statement.file));
+      errorList.push(new DuplicateServiceError(statement.name, fileName));
       continue;
     }
 
@@ -109,5 +115,15 @@ export const getNotificationServices = (reflection: SourceMap) => {
 };
 
 const isValidService = (type: Incomplete<NotificationService>): type is NotificationService => {
-  return !!type.name && !!type.schema && !!type.subscriptions;
+  return !!type.name && !!type.schema && !!type.subscriptions && !!type.extras;
+};
+
+const validateFifoModeProperties = (parent: TypeModel, service: NotificationService) => {
+  const { fifoMode } = service;
+
+  if (fifoMode && !hasSchemaProperty(service.schema, fifoMode.groupId)) {
+    return [new IncorrectFifoModePropertyError([fifoMode.groupId], parent.file)];
+  }
+
+  return [];
 };
