@@ -16,7 +16,6 @@ export type GetDistributionOrigin = (context?: StepContext) => Promise<Distribut
 
 export type DistributionDefaultOrigin = DistributionDefaultOriginParameters & {
   getDistributionOrigin: GetDistributionOrigin;
-  fromService: string;
 };
 
 export type DistributionAdditionalOrigin = DistributionAdditionalOriginParameters & {

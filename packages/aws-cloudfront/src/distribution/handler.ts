@@ -248,7 +248,9 @@ const bindOriginCachePolices = (
   allCachePolicyIds: string[],
   originPolicyId: string
 ) => {
-  const originList = parameters.origins ? [parameters.defaultOrigin, ...parameters.origins] : [parameters.defaultOrigin];
+  const originList: [DistributionDefaultOriginParameters, ...DistributionAdditionalOriginParameters[]] = parameters.origins
+    ? [parameters.defaultOrigin, ...parameters.origins]
+    : [parameters.defaultOrigin];
 
   const [defaultOrigin, ...origins] = originList.map((origin, index) => {
     const cachePolicyId = allCachePolicyIds[index];
@@ -262,7 +264,7 @@ const bindOriginCachePolices = (
   });
 
   return {
-    defaultOrigin: defaultOrigin as DistributionDefaultOriginParameters,
+    defaultOrigin: defaultOrigin,
     origins: origins as DistributionAdditionalOriginParameters[]
   };
 };

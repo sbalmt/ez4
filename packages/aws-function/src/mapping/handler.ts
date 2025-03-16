@@ -1,6 +1,6 @@
 import type { StepContext, StepHandler } from '@ez4/stateful';
-import type { MappingResult, MappingState } from './types.js';
-import type { CreateRequest } from './client.js';
+import type { MappingParameters, MappingResult, MappingState } from './types.js';
+import type { UpdateRequest } from './client.js';
 
 import { ReplaceResourceError } from '@ez4/aws-common';
 import { deepCompare, deepEqual } from '@ez4/utils';
@@ -8,6 +8,8 @@ import { deepCompare, deepEqual } from '@ez4/utils';
 import { getFunctionName } from '../function/utils.js';
 import { importMapping, createMapping, deleteMapping, updateMapping } from './client.js';
 import { MappingServiceName } from './types.js';
+
+type MappingUpdateParameters = MappingParameters & UpdateRequest;
 
 export const getMappingHandler = (): StepHandler<MappingState> => ({
   equals: equalsResource,
@@ -111,8 +113,13 @@ const deleteResource = async (candidate: MappingState) => {
   }
 };
 
-const checkGeneralUpdates = async <T extends CreateRequest>(eventId: string, candidate: T, current: T) => {
-  const hasChanges = !deepEqual(candidate, current);
+const checkGeneralUpdates = async (eventId: string, candidate: MappingUpdateParameters, current: MappingUpdateParameters) => {
+  const hasChanges = !deepEqual(candidate, current, {
+    exclude: {
+      getSourceArn: true,
+      fromService: true
+    }
+  });
 
   if (hasChanges) {
     await updateMapping(eventId, candidate);

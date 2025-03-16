@@ -1,5 +1,6 @@
 import type { StepContext, StepHandler } from '@ez4/stateful';
 import type { IntegrationState, IntegrationResult, IntegrationParameters } from './types.js';
+import type { UpdateRequest } from './client.js';
 
 import { getFunctionArn } from '@ez4/aws-function';
 import { ReplaceResourceError } from '@ez4/aws-common';
@@ -8,6 +9,8 @@ import { deepCompare, deepEqual } from '@ez4/utils';
 import { getGatewayId } from '../gateway/utils.js';
 import { createIntegration, deleteIntegration, updateIntegration } from './client.js';
 import { IntegrationServiceName } from './types.js';
+
+type IntegrationUpdateParameters = IntegrationParameters & UpdateRequest;
 
 export const getIntegrationHandler = (): StepHandler<IntegrationState> => ({
   equals: equalsResource,
@@ -86,8 +89,17 @@ const deleteResource = async (candidate: IntegrationState) => {
   }
 };
 
-const checkGeneralUpdates = async <T extends IntegrationParameters>(apiId: string, integrationId: string, candidate: T, current: T) => {
-  const hasChanges = !deepEqual(candidate, current);
+const checkGeneralUpdates = async (
+  apiId: string,
+  integrationId: string,
+  candidate: IntegrationUpdateParameters,
+  current: IntegrationUpdateParameters
+) => {
+  const hasChanges = !deepEqual(candidate, current, {
+    exclude: {
+      fromService: true
+    }
+  });
 
   if (hasChanges) {
     await updateIntegration(apiId, integrationId, candidate);
