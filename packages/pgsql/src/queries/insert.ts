@@ -9,6 +9,7 @@ import { SqlReference } from '../types/reference.js';
 import { SqlSource } from '../types/source.js';
 import { SqlReturningClause } from '../types/returning.js';
 import { MissingTableNameError } from '../errors/queries.js';
+import { getFields, getValues } from '../utils/column.js';
 import { escapeSqlName } from '../utils/escape.js';
 import { SqlSelectStatement } from './select.js';
 
@@ -30,11 +31,7 @@ export class SqlInsertStatement extends SqlSource {
     alias?: string;
   };
 
-  constructor(
-    schema: ObjectSchema | undefined,
-    references: SqlBuilderReferences,
-    options: SqlBuilderOptions
-  ) {
+  constructor(schema: ObjectSchema | undefined, references: SqlBuilderReferences, options: SqlBuilderOptions) {
     super();
 
     this.#state = {
@@ -45,11 +42,11 @@ export class SqlInsertStatement extends SqlSource {
   }
 
   get fields() {
-    return this.#state.record ? Object.keys(this.#state.record) : [];
+    return this.#state.record ? getFields(this.#state.record) : [];
   }
 
   get values() {
-    return this.#state.record ? Object.values(this.#state.record) : [];
+    return this.#state.record ? getValues(this.#state.record) : [];
   }
 
   get alias() {
@@ -88,9 +85,7 @@ export class SqlInsertStatement extends SqlSource {
     return this;
   }
 
-  returning(
-    result?: SqlResultRecord | SqlResultColumn[]
-  ): SqlInsertStatement & SqlSourceWithResults {
+  returning(result?: SqlResultRecord | SqlResultColumn[]): SqlInsertStatement & SqlSourceWithResults {
     const { returning } = this.#state;
 
     if (!returning) {
@@ -151,17 +146,17 @@ const getColumnsName = (columns: string[]) => {
   return columns.map((column) => escapeSqlName(column)).join(', ');
 };
 
-const getValueReferences = (
-  record: SqlRecord,
-  schema: ObjectSchema | undefined,
-  context: SqlInsertContext
-): string => {
+const getValueReferences = (record: SqlRecord, schema: ObjectSchema | undefined, context: SqlInsertContext): string => {
   const { variables, references, options } = context;
 
   const results = [];
 
   for (const field in record) {
     const value = record[field];
+
+    if (value === undefined) {
+      continue;
+    }
 
     if (value instanceof SqlReference) {
       results.push(value.build());

@@ -16,6 +16,12 @@ export class MissingTableNameError extends Error {
   }
 }
 
+export class MissingJoinConditionError extends Error {
+  constructor() {
+    super(`Join condition for the given table is missing.`);
+  }
+}
+
 export class MissingRecordError extends Error {
   constructor() {
     super(`Record for the statement is missing.`);

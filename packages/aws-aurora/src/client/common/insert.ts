@@ -25,12 +25,7 @@ export const prepareInsertQuery = <T extends Database.Schema, R extends Relation
 
   const insertRecord = getInsertRecord(query.data, relations, lastQuery);
 
-  const insertQuery = sql
-    .insert(schema)
-    .record(insertRecord)
-    .select(lastQuery)
-    .into(table)
-    .returning();
+  const insertQuery = sql.insert(schema).record(insertRecord).select(lastQuery).into(table).returning();
 
   const postQueries = preparePostRelations(query.data, relations, insertQuery, sql);
   const allQueries = [...preQueries, insertQuery, ...postQueries];
@@ -40,11 +35,7 @@ export const prepareInsertQuery = <T extends Database.Schema, R extends Relation
   return [statement, variables as SqlParameter[]];
 };
 
-const getInsertRecord = (
-  data: SqlRecord,
-  relations: RepositoryRelationsWithSchema,
-  statement: SqlInsertStatement
-) => {
+const getInsertRecord = (data: SqlRecord, relations: RepositoryRelationsWithSchema, statement: SqlInsertStatement) => {
   const record: SqlRecord = {};
 
   for (const fieldKey in data) {
@@ -89,11 +80,7 @@ const getInsertRecord = (
   return record;
 };
 
-const preparePreRelations = (
-  data: SqlRecord,
-  relations: RepositoryRelationsWithSchema,
-  sql: SqlBuilder
-) => {
+const preparePreRelations = (data: SqlRecord, relations: RepositoryRelationsWithSchema, sql: SqlBuilder) => {
   const allQueries = [];
 
   let previousQuery;
@@ -144,12 +131,7 @@ const preparePreRelations = (
   return allQueries;
 };
 
-const preparePostRelations = (
-  data: SqlRecord,
-  relations: RepositoryRelationsWithSchema,
-  source: SqlSourceWithResults,
-  sql: SqlBuilder
-) => {
+const preparePostRelations = (data: SqlRecord, relations: RepositoryRelationsWithSchema, source: SqlSourceWithResults, sql: SqlBuilder) => {
   const { results } = source;
 
   const allQueries = [];

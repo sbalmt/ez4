@@ -7,10 +7,11 @@ import { isObjectSchema, type ObjectSchema } from '@ez4/schema';
 import { isPlainObject } from '@ez4/utils';
 
 import { MissingTableNameError, MissingRecordError, EmptyRecordError } from '../errors/queries.js';
-import { SqlReturningClause } from '../types/returning.js';
 import { SqlSource } from '../types/source.js';
-import { SqlReference } from '../types/reference.js';
 import { SqlWhereClause } from '../types/where.js';
+import { SqlReference } from '../types/reference.js';
+import { SqlReturningClause } from '../types/returning.js';
+import { getFields, getValues } from '../utils/column.js';
 import { escapeSqlName } from '../utils/escape.js';
 import { mergeSqlPath } from '../utils/merge.js';
 import { SqlSelectStatement } from './select.js';
@@ -36,11 +37,7 @@ export class SqlUpdateStatement extends SqlSource {
     alias?: string;
   };
 
-  constructor(
-    schema: ObjectSchema | undefined,
-    references: SqlBuilderReferences,
-    options: SqlBuilderOptions
-  ) {
+  constructor(schema: ObjectSchema | undefined, references: SqlBuilderReferences, options: SqlBuilderOptions) {
     super();
 
     this.#state = {
@@ -51,11 +48,11 @@ export class SqlUpdateStatement extends SqlSource {
   }
 
   get fields() {
-    return this.#state.record ? Object.keys(this.#state.record) : [];
+    return this.#state.record ? getFields(this.#state.record) : [];
   }
 
   get values() {
-    return this.#state.record ? Object.values(this.#state.record) : [];
+    return this.#state.record ? getValues(this.#state.record) : [];
   }
 
   get filters() {
@@ -110,9 +107,7 @@ export class SqlUpdateStatement extends SqlSource {
     return this;
   }
 
-  returning(
-    result?: SqlResultRecord | SqlResultColumn[]
-  ): SqlUpdateStatement & SqlSourceWithResults {
+  returning(result?: SqlResultRecord | SqlResultColumn[]): SqlUpdateStatement & SqlSourceWithResults {
     const { returning } = this.#state;
 
     if (!returning) {
@@ -125,8 +120,7 @@ export class SqlUpdateStatement extends SqlSource {
   }
 
   build(): [string, unknown[]] {
-    const { table, alias, references, options, record, schema, source, where, returning } =
-      this.#state;
+    const { table, alias, references, options, record, schema, source, where, returning } = this.#state;
 
     if (!table) {
       throw new MissingTableNameError();
@@ -160,10 +154,14 @@ export class SqlUpdateStatement extends SqlSource {
     }
 
     if (where && !where.empty) {
-      const [whereClause, whereVariables] = where.build();
+      const whereResult = where.build();
 
-      statement.push(whereClause);
-      variables.push(...whereVariables);
+      if (whereResult) {
+        const [whereClause, whereVariables] = whereResult;
+
+        statement.push(whereClause);
+        variables.push(...whereVariables);
+      }
     }
 
     if (returning && !returning.empty) {
@@ -177,11 +175,7 @@ export class SqlUpdateStatement extends SqlSource {
   }
 }
 
-const getUpdateColumns = (
-  record: SqlRecord,
-  schema: ObjectSchema | undefined,
-  context: SqlUpdateContext
-): string[] => {
+const getUpdateColumns = (record: SqlRecord, schema: ObjectSchema | undefined, context: SqlUpdateContext): string[] => {
   const { variables, references, options, parent } = context;
 
   const columns = [];

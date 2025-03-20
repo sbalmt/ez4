@@ -405,10 +405,7 @@ describe('sql where tests', () => {
 
     deepEqual(variables, [123, 'abc', 456, 789]);
 
-    equal(
-      statement,
-      'SELECT * FROM "test" WHERE ("foo" = :0 AND "bar" = :1 AND ("baz" = :2 OR "qux" = :3))'
-    );
+    equal(statement, 'SELECT * FROM "test" WHERE ("foo" = :0 AND "bar" = :1 AND ("baz" = :2 OR "qux" = :3))');
   });
 
   it('assert :: where or', async () => {
@@ -423,10 +420,7 @@ describe('sql where tests', () => {
 
     deepEqual(variables, [123, 'abc', 456, 789]);
 
-    equal(
-      statement,
-      'SELECT * FROM "test" WHERE (("foo" = :0 AND "bar" = :1) OR ("baz" = :2 AND "qux" = :3))'
-    );
+    equal(statement, 'SELECT * FROM "test" WHERE (("foo" = :0 AND "bar" = :1) OR ("baz" = :2 AND "qux" = :3))');
   });
 
   it('assert :: where with alias', async () => {
@@ -510,10 +504,18 @@ describe('sql where tests', () => {
 
     deepEqual(variables, []);
 
-    equal(
-      statement,
-      `SELECT * FROM "test" AS "alias_test" ` +
-        `WHERE EXISTS (SELECT 1 FROM "inner" WHERE "foo" = "alias_test"."bar")`
-    );
+    equal(statement, `SELECT * FROM "test" AS "alias_test" ` + `WHERE EXISTS (SELECT 1 FROM "inner" WHERE "foo" = "alias_test"."bar")`);
+  });
+
+  it('assert :: where undefined', async () => {
+    const query = sql.select().from('test').where({
+      foo: undefined
+    });
+
+    const [statement, variables] = query.build();
+
+    deepEqual(variables, []);
+
+    equal(statement, `SELECT * FROM "test"`);
   });
 });

@@ -6,21 +6,12 @@ import type { SqlRawGenerator } from '../types/raw.js';
 import type { ObjectSchema } from '@ez4/schema';
 import type { Query } from '@ez4/database';
 
-import type {
-  SqlArrayColumn,
-  SqlObjectColumn,
-  SqlResultColumn,
-  SqlResultRecord
-} from '../types/results.js';
+import type { SqlArrayColumn, SqlObjectColumn, SqlResultColumn, SqlResultRecord } from '../types/results.js';
 
 import { isAnyNumber, isEmptyObject } from '@ez4/utils';
 import { Order } from '@ez4/database';
 
-import {
-  MissingTableNameError,
-  InvalidColumnOrderError,
-  NoColumnsError
-} from '../errors/queries.js';
+import { MissingTableNameError, InvalidColumnOrderError, NoColumnsError } from '../errors/queries.js';
 
 import { SqlSource } from '../types/source.js';
 import { escapeSqlName } from '../utils/escape.js';
@@ -43,11 +34,7 @@ export class SqlSelectStatement extends SqlSource implements SqlSourceWithResult
     take?: number;
   };
 
-  constructor(
-    schema: ObjectSchema | undefined,
-    references: SqlBuilderReferences,
-    options: SqlBuilderOptions
-  ) {
+  constructor(schema: ObjectSchema | undefined, references: SqlBuilderReferences, options: SqlBuilderOptions) {
     super();
 
     this.#state = {
@@ -200,10 +187,14 @@ export class SqlSelectStatement extends SqlSource implements SqlSourceWithResult
     }
 
     if (where && !where.empty) {
-      const [whereClause, whereVariables] = where.build();
+      const whereResult = where.build();
 
-      variables.push(...whereVariables);
-      statement.push(whereClause);
+      if (whereResult) {
+        const [whereClause, whereVariables] = whereResult;
+
+        variables.push(...whereVariables);
+        statement.push(whereClause);
+      }
     }
 
     if (ordering && !isEmptyObject(ordering)) {
