@@ -36,14 +36,7 @@ export type CloneResult<T extends AnyObject, O> = O extends { exclude: infer E }
  * @param options Clone options.
  * @returns Returns the clone object.
  */
-export const deepClone = <
-  T extends AnyObject,
-  U extends PartialProperties<T>,
-  O extends CloneOptions<T, U>
->(
-  source: T,
-  options?: O
-) => {
+export const deepClone = <T extends AnyObject, U extends PartialProperties<T>, O extends CloneOptions<T, U>>(source: T, options?: O) => {
   const clone: AnyObject = {};
 
   const includeStates = (options as AnyObject)?.include;
@@ -70,6 +63,7 @@ export const deepClone = <
     if (depth > 0) {
       if (Array.isArray(value)) {
         clone[key] = [...value];
+
         continue;
       }
 

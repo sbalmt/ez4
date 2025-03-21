@@ -41,15 +41,15 @@ export const deepCompareObject = <T extends AnyObject, S extends AnyObject>(
   source: S,
   options?: ObjectCompareOptions<T & S>
 ): ObjectComparison => {
-  const includeStates = (options as AnyObject)?.include;
-  const excludeStates = (options as AnyObject)?.exclude;
+  const includeStates = options?.include;
+  const excludeStates = options?.exclude;
 
   if (includeStates && excludeStates) {
     throw new TypeError(`Can't specify include and exclude options together.`);
   }
 
   const isInclude = !!includeStates;
-  const allStates = includeStates ?? excludeStates ?? {};
+  const allStates = includeStates ?? excludeStates ?? ({} as PartialProperties<T & S>);
 
   const depth = options?.depth ?? +Infinity;
 
@@ -69,7 +69,7 @@ export const deepCompareObject = <T extends AnyObject, S extends AnyObject>(
   const allKeys = new Set([...Object.keys(target), ...Object.keys(source)]);
 
   for (const key of allKeys) {
-    const keyState = allStates[key];
+    const keyState = allStates[key] as PartialProperties<T & S> | boolean;
 
     if ((isInclude && !keyState) || (!isInclude && keyState === true)) {
       continue;
@@ -122,6 +122,7 @@ export const deepCompareObject = <T extends AnyObject, S extends AnyObject>(
     }
 
     update[key] = targetValue;
+
     counts.update++;
   }
 

@@ -3,6 +3,9 @@ import type { AnyObject, PartialProperties } from './generics.js';
 import { deepEqualArray } from '../array/equal.js';
 import { isAnyObject } from './check.js';
 
+/**
+ * Deep equal options.
+ */
 export type ObjectEqualityOptions<T extends AnyObject> = {
   /**
    * After the given depth level, all objects and arrays are not deeply checked.
@@ -28,27 +31,23 @@ export type ObjectEqualityOptions<T extends AnyObject> = {
  * @param options Equality options.
  * @returns Returns `true` when `target` and `source` are equal, `false` otherwise.
  */
-export const deepEqualObject = <T extends AnyObject, S extends AnyObject>(
-  target: T,
-  source: S,
-  options?: ObjectEqualityOptions<T & S>
-) => {
-  const includeStates = (options as AnyObject)?.include;
-  const excludeStates = (options as AnyObject)?.exclude;
+export const deepEqualObject = <T extends AnyObject, S extends AnyObject>(target: T, source: S, options?: ObjectEqualityOptions<T & S>) => {
+  const includeStates = options?.include;
+  const excludeStates = options?.exclude;
 
   if (includeStates && excludeStates) {
-    throw new TypeError(`Can't specify include and exclude options together.`);
+    throw new TypeError(`Can't specify include and exclude equality options together.`);
   }
 
   const isInclude = !!includeStates;
-  const allStates = includeStates ?? excludeStates ?? {};
+  const allStates = includeStates ?? excludeStates ?? ({} as PartialProperties<T & S>);
 
   const depth = options?.depth ?? +Infinity;
 
   const allKeys = [...new Set([...Object.keys(target), ...Object.keys(source)])];
 
   for (const key of allKeys) {
-    const keyState = allStates[key];
+    const keyState = allStates[key] as PartialProperties<T & S> | boolean;
 
     if ((isInclude && !keyState) || (!isInclude && keyState === true)) {
       continue;
@@ -57,7 +56,7 @@ export const deepEqualObject = <T extends AnyObject, S extends AnyObject>(
     const targetValue = target[key];
     const sourceValue = source[key];
 
-    if (targetValue instanceof Function) {
+    if (targetValue instanceof Function || sourceValue instanceof Function) {
       continue;
     }
 
