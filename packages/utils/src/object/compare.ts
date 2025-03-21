@@ -45,7 +45,7 @@ export const deepCompareObject = <T extends AnyObject, S extends AnyObject>(
   const excludeStates = options?.exclude;
 
   if (includeStates && excludeStates) {
-    throw new TypeError(`Can't specify include and exclude options together.`);
+    throw new TypeError(`Can't specify include and exclude for compare options together.`);
   }
 
   const isInclude = !!includeStates;

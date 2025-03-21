@@ -43,7 +43,7 @@ export const deepClone = <T extends AnyObject, U extends PartialProperties<T>, O
   const excludeStates = (options as AnyObject)?.exclude;
 
   if (includeStates && excludeStates) {
-    throw new TypeError(`Can't specify include and exclude options together.`);
+    throw new TypeError(`Can't specify include and exclude for clone options together.`);
   }
 
   const isInclude = !!includeStates;
