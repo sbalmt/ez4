@@ -11,7 +11,7 @@ import type { SqlArrayColumn, SqlObjectColumn, SqlResultColumn, SqlResultRecord 
 import { isAnyNumber, isEmptyObject } from '@ez4/utils';
 import { Order } from '@ez4/database';
 
-import { MissingTableNameError, InvalidColumnOrderError, NoColumnsError } from '../errors/queries.js';
+import { MissingTableNameError, InvalidColumnOrderError, NoColumnsError, MissingTableAliasError } from '../errors/queries.js';
 
 import { SqlSource } from '../types/source.js';
 import { escapeSqlName } from '../utils/escape.js';
@@ -28,7 +28,7 @@ export class SqlSelectStatement extends SqlSource implements SqlSourceWithResult
     joins: SqlJoin[];
     where?: SqlWhereClause;
     ordering?: SqlOrder;
-    table?: string;
+    tables?: (string | SqlSource)[];
     alias?: string;
     skip?: number;
     take?: number;
@@ -108,8 +108,8 @@ export class SqlSelectStatement extends SqlSource implements SqlSourceWithResult
     return this;
   }
 
-  from(table: string | undefined) {
-    this.#state.table = table;
+  from(...tables: (string | SqlSource)[]) {
+    this.#state.tables = tables;
 
     return this;
   }
@@ -161,9 +161,9 @@ export class SqlSelectStatement extends SqlSource implements SqlSourceWithResult
   }
 
   build(): [string, unknown[]] {
-    const { table, alias, results, joins, where, ordering, skip, take } = this.#state;
+    const { tables, alias, results, joins, where, ordering, skip, take } = this.#state;
 
-    if (!table) {
+    if (!tables?.length) {
       throw new MissingTableNameError();
     }
 
@@ -173,7 +173,7 @@ export class SqlSelectStatement extends SqlSource implements SqlSourceWithResult
       throw new NoColumnsError();
     }
 
-    const statement = [`SELECT ${columns} FROM ${escapeSqlName(table)}`];
+    const statement = [`SELECT ${columns} FROM ${getTableNames(tables)}`];
 
     if (alias) {
       statement.push(`AS ${escapeSqlName(alias)}`);
@@ -212,6 +212,26 @@ export class SqlSelectStatement extends SqlSource implements SqlSourceWithResult
     return [statement.join(' '), variables];
   }
 }
+
+const getTableNames = (tables: (SqlSource | string)[]) => {
+  const tableNames = [];
+
+  for (const table of tables) {
+    if (table instanceof SqlSource) {
+      if (!table.alias) {
+        throw new MissingTableAliasError();
+      }
+
+      tableNames.push(escapeSqlName(table.alias));
+
+      continue;
+    }
+
+    tableNames.push(escapeSqlName(table));
+  }
+
+  return tableNames.join(', ');
+};
 
 const getOrderColumns = (ordering: Query.OrderInput<any>) => {
   const orderColumns = [];

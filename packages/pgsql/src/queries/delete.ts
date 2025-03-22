@@ -76,7 +76,7 @@ export class SqlDeleteStatement extends SqlSource {
 
     if (!returning) {
       this.#state.returning = new SqlReturningClause(this, result);
-    } else {
+    } else if (result) {
       returning.apply(result);
     }
 

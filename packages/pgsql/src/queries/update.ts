@@ -7,12 +7,12 @@ import { isObjectSchema, type ObjectSchema } from '@ez4/schema';
 import { isPlainObject } from '@ez4/utils';
 
 import { MissingTableNameError, MissingRecordError, EmptyRecordError } from '../errors/queries.js';
-import { SqlSource } from '../types/source.js';
-import { SqlWhereClause } from '../types/where.js';
 import { SqlReference } from '../types/reference.js';
 import { SqlReturningClause } from '../types/returning.js';
-import { getFields, getValues } from '../utils/column.js';
+import { SqlWhereClause } from '../types/where.js';
+import { SqlSource } from '../types/source.js';
 import { escapeSqlName } from '../utils/escape.js';
+import { getFields, getValues } from '../utils/column.js';
 import { mergeSqlPath } from '../utils/merge.js';
 import { SqlSelectStatement } from './select.js';
 import { SqlRaw } from '../types/raw.js';
@@ -112,7 +112,7 @@ export class SqlUpdateStatement extends SqlSource {
 
     if (!returning) {
       this.#state.returning = new SqlReturningClause(this, result);
-    } else {
+    } else if (result) {
       returning.apply(result);
     }
 

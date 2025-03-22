@@ -5,8 +5,8 @@ import type { SqlRecord } from '../types/common.js';
 import type { ObjectSchema } from '@ez4/schema';
 
 import { SqlRaw } from '../types/raw.js';
-import { SqlReference } from '../types/reference.js';
 import { SqlSource } from '../types/source.js';
+import { SqlReference } from '../types/reference.js';
 import { SqlReturningClause } from '../types/returning.js';
 import { MissingTableNameError } from '../errors/queries.js';
 import { getFields, getValues } from '../utils/column.js';
@@ -90,7 +90,7 @@ export class SqlInsertStatement extends SqlSource {
 
     if (!returning) {
       this.#state.returning = new SqlReturningClause(this, result);
-    } else {
+    } else if (result) {
       returning.apply(result);
     }
 
