@@ -127,21 +127,16 @@ describe('aurora query (insert)', () => {
   };
 
   it('assert :: prepare insert', () => {
-    const [statement, variables] = prepareInsertQuery<TestSchema, TestRelations>(
-      'ez4-test-insert',
-      testSchema,
-      testRelations,
-      {
-        data: {
-          id: '00000000-0000-1000-9000-000000000000',
-          foo: 123,
-          bar: {
-            barFoo: 'abc',
-            barBar: true
-          }
+    const [statement, variables] = prepareInsertQuery<TestSchema, {}, TestRelations>('ez4-test-insert', testSchema, testRelations, {
+      data: {
+        id: '00000000-0000-1000-9000-000000000000',
+        foo: 123,
+        bar: {
+          barFoo: 'abc',
+          barBar: true
         }
       }
-    );
+    });
 
     equal(statement, `INSERT INTO "ez4-test-insert" ("id", "foo", "bar") VALUES (:0, :1, :2)`);
 
@@ -152,21 +147,52 @@ describe('aurora query (insert)', () => {
     ]);
   });
 
-  it('assert :: prepare insert (primary foreign id)', () => {
-    const [statement, variables] = prepareInsertQuery<TestSchema, TestRelations>(
-      'ez4-test-insert',
-      testSchema,
-      testRelations,
-      {
-        data: {
-          id: '00000000-0000-1000-9000-000000000000',
-          bar: {},
-          relation1: {
-            relation1_id: '00000000-0000-1000-9000-000000000001'
-          }
+  it('assert :: prepare insert (with select)', () => {
+    const [statement, variables] = prepareInsertQuery<TestSchema, {}, TestRelations>('ez4-test-insert', testSchema, testRelations, {
+      select: {
+        foo: true,
+        bar: {
+          barBar: true
+        }
+      },
+      data: {
+        id: '00000000-0000-1000-9000-000000000000',
+        foo: 123,
+        bar: {
+          barFoo: 'abc',
+          barBar: true
         }
       }
+    });
+
+    equal(
+      statement,
+      `WITH ` +
+        // Main record
+        `"R0" AS (INSERT INTO "ez4-test-insert" ("id", "foo", "bar") ` +
+        `VALUES (:0, :1, :2) RETURNING "foo", "bar") ` +
+        // Select
+        `SELECT "foo", json_build_object('barBar', "bar"['barBar']) AS "bar" ` +
+        `FROM "R0"`
     );
+
+    deepEqual(variables, [
+      makeParameter('0', '00000000-0000-1000-9000-000000000000', 'UUID'),
+      makeParameter('1', 123),
+      makeParameter('2', { barFoo: 'abc', barBar: true })
+    ]);
+  });
+
+  it('assert :: prepare insert (primary foreign id)', () => {
+    const [statement, variables] = prepareInsertQuery<TestSchema, {}, TestRelations>('ez4-test-insert', testSchema, testRelations, {
+      data: {
+        id: '00000000-0000-1000-9000-000000000000',
+        bar: {},
+        relation1: {
+          relation1_id: '00000000-0000-1000-9000-000000000001'
+        }
+      }
+    });
 
     equal(
       statement,
@@ -181,43 +207,135 @@ describe('aurora query (insert)', () => {
     ]);
   });
 
+  it('assert :: prepare insert (primary foreign id with select)', ({ assert }) => {
+    const [statement, variables] = prepareInsertQuery<TestSchema, {}, TestRelations>('ez4-test-insert', testSchema, testRelations, {
+      select: {
+        id: true,
+        relation1: {
+          id: true,
+          foo: true
+        }
+      },
+      data: {
+        id: '00000000-0000-1000-9000-000000000000',
+        bar: {},
+        relation1: {
+          relation1_id: '00000000-0000-1000-9000-000000000001'
+        }
+      }
+    });
+
+    assert.equal(
+      statement,
+      `WITH ` +
+        // Main record
+        `"R0" AS (INSERT INTO "ez4-test-insert" ("id", "bar", "relation1_id") ` +
+        `VALUES (:0, :1, :2) RETURNING "id") ` +
+        // Select
+        `SELECT "id", ` +
+        `(SELECT json_build_object('id', "T"."id", 'foo', "T"."foo") ` +
+        `FROM "ez4-test-relation" AS "T" WHERE "T"."relation1_id" = "R0"."id"` +
+        `) AS "relation1" ` +
+        `FROM "R0"`
+    );
+
+    deepEqual(variables, [
+      makeParameter('0', '00000000-0000-1000-9000-000000000000', 'UUID'),
+      makeParameter('1', {}),
+      makeParameter('2', '00000000-0000-1000-9000-000000000001', 'UUID')
+    ]);
+  });
+
   it('assert :: prepare insert (primary foreign object)', () => {
-    const [statement, variables] = prepareInsertQuery<TestSchema, TestRelations>(
-      'ez4-test-insert',
-      testSchema,
-      testRelations,
-      {
-        data: {
-          id: '00000000-0000-1000-9000-000000000000',
-          bar: {},
-          relation1: {
-            id: '00000000-0000-1000-9000-000000000001',
-            bar: {
-              barBar: true
-            }
-          },
-          relation3: {
-            id: '00000000-0000-1000-9000-000000000002',
-            bar: {
-              barFoo: 'abc'
-            }
+    const [statement, variables] = prepareInsertQuery<TestSchema, {}, TestRelations>('ez4-test-insert', testSchema, testRelations, {
+      data: {
+        id: '00000000-0000-1000-9000-000000000000',
+        bar: {},
+        relation1: {
+          id: '00000000-0000-1000-9000-000000000001',
+          bar: {
+            barBar: true
+          }
+        },
+        relation3: {
+          id: '00000000-0000-1000-9000-000000000002',
+          bar: {
+            barFoo: 'abc'
           }
         }
       }
-    );
+    });
 
     equal(
       statement,
       `WITH ` +
         // First relation
         `"R0" AS (INSERT INTO "ez4-test-relation" ("id", "bar") ` +
-        `VALUES (:0, :1) RETURNING "id" AS "relation1"), ` +
+        `VALUES (:0, :1) RETURNING "id"), ` +
         // Second relation
         `"R1" AS (INSERT INTO "ez4-test-relation" ("id", "bar") ` +
-        `VALUES (:2, :3) RETURNING "id" AS "relation3", "R0".*) ` +
+        `VALUES (:2, :3) RETURNING "id") ` +
         // Main record
         `INSERT INTO "ez4-test-insert" ("id", "bar", "relation1_id", "relation3_id") ` +
-        `SELECT :4, :5, "R1"."relation1", "R1"."relation3" FROM "R1"`
+        `SELECT :4, :5, "R0"."id", "R1"."id" FROM "R0", "R1"`
+    );
+
+    deepEqual(variables, [
+      makeParameter('0', '00000000-0000-1000-9000-000000000001', 'UUID'),
+      makeParameter('1', { barBar: true }),
+      makeParameter('2', '00000000-0000-1000-9000-000000000002', 'UUID'),
+      makeParameter('3', { barFoo: 'abc' }),
+      makeParameter('4', '00000000-0000-1000-9000-000000000000', 'UUID'),
+      makeParameter('5', {})
+    ]);
+  });
+
+  it('assert :: prepare insert (primary foreign object with select)', () => {
+    const [statement, variables] = prepareInsertQuery<TestSchema, {}, TestRelations>('ez4-test-insert', testSchema, testRelations, {
+      select: {
+        id: true,
+        relation1: {
+          id: true
+        },
+        relation3: {
+          foo: true
+        }
+      },
+      data: {
+        id: '00000000-0000-1000-9000-000000000000',
+        bar: {},
+        relation1: {
+          id: '00000000-0000-1000-9000-000000000001',
+          bar: {
+            barBar: true
+          }
+        },
+        relation3: {
+          id: '00000000-0000-1000-9000-000000000002',
+          bar: {
+            barFoo: 'abc'
+          }
+        }
+      }
+    });
+
+    equal(
+      statement,
+      `WITH ` +
+        // First relation
+        `"R0" AS (INSERT INTO "ez4-test-relation" ("id", "bar") ` +
+        `VALUES (:0, :1) RETURNING "id"), ` +
+        // Second relation
+        `"R1" AS (INSERT INTO "ez4-test-relation" ("id", "bar") ` +
+        `VALUES (:2, :3) RETURNING "id", "foo"), ` +
+        // Main record
+        `"R2" AS (INSERT INTO "ez4-test-insert" ("id", "bar", "relation1_id", "relation3_id") ` +
+        `SELECT :4, :5, "R0"."id", "R1"."id" FROM "R0", "R1" RETURNING "id") ` +
+        // Select
+        `SELECT "id", ` +
+        `(SELECT json_build_object('id', "id") FROM "R0") AS "relation1", ` +
+        `(SELECT json_build_object('foo', "foo") FROM "R1") AS "relation3" ` +
+        `FROM "R2"`
     );
 
     deepEqual(variables, [
@@ -231,20 +349,15 @@ describe('aurora query (insert)', () => {
   });
 
   it('assert :: prepare insert (unique foreign id)', () => {
-    const [statement, variables] = prepareInsertQuery<TestSchema, TestRelations>(
-      'ez4-test-insert',
-      testSchema,
-      testRelations,
-      {
-        data: {
-          id: '00000000-0000-1000-9000-000000000000',
-          bar: {},
-          relation2: {
-            relation2_id: '00000000-0000-1000-9000-000000000001'
-          }
+    const [statement, variables] = prepareInsertQuery<TestSchema, {}, TestRelations>('ez4-test-insert', testSchema, testRelations, {
+      data: {
+        id: '00000000-0000-1000-9000-000000000000',
+        bar: {},
+        relation2: {
+          relation2_id: '00000000-0000-1000-9000-000000000001'
         }
       }
-    );
+    });
 
     equal(
       statement,
@@ -259,24 +372,58 @@ describe('aurora query (insert)', () => {
     ]);
   });
 
+  it('assert :: prepare insert (unique foreign id with select)', ({ assert }) => {
+    const [statement, variables] = prepareInsertQuery<TestSchema, {}, TestRelations>('ez4-test-insert', testSchema, testRelations, {
+      select: {
+        id: true,
+        relation2: {
+          id: true,
+          foo: true
+        }
+      },
+      data: {
+        id: '00000000-0000-1000-9000-000000000000',
+        bar: {},
+        relation2: {
+          relation2_id: '00000000-0000-1000-9000-000000000001'
+        }
+      }
+    });
+
+    assert.equal(
+      statement,
+      `WITH ` +
+        // Main record
+        `"R0" AS (INSERT INTO "ez4-test-insert" ("id", "bar", "relation2_id") ` +
+        `VALUES (:0, :1, :2) RETURNING "id") ` +
+        // Select
+        `SELECT "id", ` +
+        `(SELECT json_build_object('id', "T"."id", 'foo', "T"."foo") ` +
+        `FROM "ez4-test-relation" AS "T" WHERE "T"."relation2_id" = "R0"."id"` +
+        `) AS "relation2" ` +
+        `FROM "R0"`
+    );
+
+    deepEqual(variables, [
+      makeParameter('0', '00000000-0000-1000-9000-000000000000', 'UUID'),
+      makeParameter('1', {}),
+      makeParameter('2', '00000000-0000-1000-9000-000000000001', 'UUID')
+    ]);
+  });
+
   it('assert :: prepare insert (unique foreign object)', () => {
-    const [statement, variables] = prepareInsertQuery<TestSchema, TestRelations>(
-      'ez4-test-insert',
-      testSchema,
-      testRelations,
-      {
-        data: {
-          id: '00000000-0000-1000-9000-000000000000',
-          bar: {},
-          relation2: {
-            id: '00000000-0000-1000-9000-000000000001',
-            bar: {
-              barBar: true
-            }
+    const [statement, variables] = prepareInsertQuery<TestSchema, {}, TestRelations>('ez4-test-insert', testSchema, testRelations, {
+      data: {
+        id: '00000000-0000-1000-9000-000000000000',
+        bar: {},
+        relation2: {
+          id: '00000000-0000-1000-9000-000000000001',
+          bar: {
+            barBar: true
           }
         }
       }
-    );
+    });
 
     equal(
       statement,
@@ -297,32 +444,71 @@ describe('aurora query (insert)', () => {
     ]);
   });
 
-  it('assert :: prepare insert (inverse array object)', () => {
-    const [statement, variables] = prepareInsertQuery<TestSchema, TestRelations>(
-      'ez4-test-insert',
-      testSchema,
-      testRelations,
-      {
-        data: {
-          id: '00000000-0000-1000-9000-000000000000',
-          bar: {},
-          relations: [
-            {
-              id: '00000000-0000-1000-9000-000000000001',
-              bar: {
-                barBar: true
-              }
-            },
-            {
-              id: '00000000-0000-1000-9000-000000000002',
-              bar: {
-                barFoo: 'abc'
-              }
-            }
-          ]
+  it('assert :: prepare insert (unique foreign object with select)', () => {
+    const [statement, variables] = prepareInsertQuery<TestSchema, {}, TestRelations>('ez4-test-insert', testSchema, testRelations, {
+      select: {
+        id: true,
+        relation2: {
+          id: true,
+          foo: true
+        }
+      },
+      data: {
+        id: '00000000-0000-1000-9000-000000000000',
+        bar: {},
+        relation2: {
+          id: '00000000-0000-1000-9000-000000000001',
+          bar: {
+            barBar: true
+          }
         }
       }
+    });
+
+    equal(
+      statement,
+      `WITH ` +
+        // Main record
+        `"R0" AS (INSERT INTO "ez4-test-insert" ("id", "bar") ` +
+        `VALUES (:0, :1) RETURNING "id"), ` +
+        // First relation
+        `"R1" AS (INSERT INTO "ez4-test-relation" ("id", "bar", "relation2_id") ` +
+        `SELECT :2, :3, "R0"."id" FROM "R0" RETURNING "id", "foo") ` +
+        // Select
+        `SELECT "id", ` +
+        `(SELECT json_build_object('id', "id", 'foo', "foo") FROM "R1") AS "relation2" ` +
+        `FROM "R0"`
     );
+
+    deepEqual(variables, [
+      makeParameter('0', '00000000-0000-1000-9000-000000000000', 'UUID'),
+      makeParameter('1', {}),
+      makeParameter('2', '00000000-0000-1000-9000-000000000001', 'UUID'),
+      makeParameter('3', { barBar: true })
+    ]);
+  });
+
+  it('assert :: prepare insert (inverse array object)', () => {
+    const [statement, variables] = prepareInsertQuery<TestSchema, {}, TestRelations>('ez4-test-insert', testSchema, testRelations, {
+      data: {
+        id: '00000000-0000-1000-9000-000000000000',
+        bar: {},
+        relations: [
+          {
+            id: '00000000-0000-1000-9000-000000000001',
+            bar: {
+              barBar: true
+            }
+          },
+          {
+            id: '00000000-0000-1000-9000-000000000002',
+            bar: {
+              barFoo: 'abc'
+            }
+          }
+        ]
+      }
+    });
 
     equal(
       statement,
@@ -348,54 +534,185 @@ describe('aurora query (insert)', () => {
     ]);
   });
 
-  it('assert :: prepare insert (foreign and inverse)', () => {
-    const [statement, variables] = prepareInsertQuery<TestSchema, TestRelations>(
-      'ez4-test-insert',
-      testSchema,
-      testRelations,
-      {
-        data: {
-          id: '00000000-0000-1000-9000-000000000000',
-          bar: {},
-          relation1: {
+  it('assert :: prepare insert (inverse array object with select)', () => {
+    const [statement, variables] = prepareInsertQuery<TestSchema, {}, TestRelations>('ez4-test-insert', testSchema, testRelations, {
+      select: {
+        id: true,
+        relations: {
+          id: true,
+          bar: {
+            barFoo: true
+          }
+        }
+      },
+      data: {
+        id: '00000000-0000-1000-9000-000000000000',
+        bar: {},
+        relations: [
+          {
             id: '00000000-0000-1000-9000-000000000001',
+            bar: {
+              barBar: true
+            }
+          },
+          {
+            id: '00000000-0000-1000-9000-000000000002',
             bar: {
               barFoo: 'abc'
             }
-          },
-          relation2: {
-            id: '00000000-0000-1000-9000-000000000002',
-            bar: {
-              barBar: false
-            }
-          },
-          relations: [
-            {
-              id: '00000000-0000-1000-9000-000000000003',
-              bar: {
-                barFoo: 'def'
-              }
-            }
-          ]
-        }
+          }
+        ]
       }
+    });
+
+    equal(
+      statement,
+      `WITH ` +
+        // Main record
+        `"R0" AS (INSERT INTO "ez4-test-insert" ("id", "bar") ` +
+        `VALUES (:0, :1) RETURNING "id"), ` +
+        // First relation
+        `"R1" AS (INSERT INTO "ez4-test-relation" ("id", "bar", "relation1_id") ` +
+        `SELECT :2, :3, "R0"."id" FROM "R0" RETURNING "id", "bar"), ` +
+        // Second relation
+        `"R2" AS (INSERT INTO "ez4-test-relation" ("id", "bar", "relation1_id") ` +
+        `SELECT :4, :5, "R0"."id" FROM "R0" RETURNING "id", "bar") ` +
+        // Select
+        `SELECT "id", ` +
+        `(SELECT COALESCE(json_agg(json_build_object('id', "id", 'bar', json_build_object('barFoo', "bar"['barFoo']))), '[]'::json) ` +
+        `FROM "R1", "R2"` +
+        `) AS "relations" ` +
+        `FROM "R0"`
     );
+
+    deepEqual(variables, [
+      makeParameter('0', '00000000-0000-1000-9000-000000000000', 'UUID'),
+      makeParameter('1', {}),
+      makeParameter('2', '00000000-0000-1000-9000-000000000001', 'UUID'),
+      makeParameter('3', { barBar: true }),
+      makeParameter('4', '00000000-0000-1000-9000-000000000002', 'UUID'),
+      makeParameter('5', { barFoo: 'abc' })
+    ]);
+  });
+
+  it('assert :: prepare insert (foreign and inverse)', () => {
+    const [statement, variables] = prepareInsertQuery<TestSchema, {}, TestRelations>('ez4-test-insert', testSchema, testRelations, {
+      data: {
+        id: '00000000-0000-1000-9000-000000000000',
+        bar: {},
+        relation1: {
+          id: '00000000-0000-1000-9000-000000000001',
+          bar: {
+            barFoo: 'abc'
+          }
+        },
+        relation2: {
+          id: '00000000-0000-1000-9000-000000000002',
+          bar: {
+            barBar: false
+          }
+        },
+        relations: [
+          {
+            id: '00000000-0000-1000-9000-000000000003',
+            bar: {
+              barFoo: 'def'
+            }
+          }
+        ]
+      }
+    });
 
     equal(
       statement,
       `WITH ` +
         // First relation (primary)
         `"R0" AS (INSERT INTO "ez4-test-relation" ("id", "bar") ` +
-        `VALUES (:0, :1) RETURNING "id" AS "relation1"), ` +
+        `VALUES (:0, :1) RETURNING "id"), ` +
         // Main record
         `"R1" AS (INSERT INTO "ez4-test-insert" ("id", "bar", "relation1_id") ` +
-        `SELECT :2, :3, "R0"."relation1" FROM "R0" RETURNING "id"), ` +
+        `SELECT :2, :3, "R0"."id" FROM "R0" RETURNING "id"), ` +
         // Second relation (unique)
         `"R2" AS (INSERT INTO "ez4-test-relation" ("id", "bar", "relation2_id") ` +
         `SELECT :4, :5, "R1"."id" FROM "R1") ` +
         // Third relation (inverse)
         `INSERT INTO "ez4-test-relation" ("id", "bar", "relation1_id") ` +
         `SELECT :6, :7, "R1"."id" FROM "R1"`
+    );
+
+    deepEqual(variables, [
+      makeParameter('0', '00000000-0000-1000-9000-000000000001', 'UUID'),
+      makeParameter('1', { barFoo: 'abc' }),
+      makeParameter('2', '00000000-0000-1000-9000-000000000000', 'UUID'),
+      makeParameter('3', {}),
+      makeParameter('4', '00000000-0000-1000-9000-000000000002', 'UUID'),
+      makeParameter('5', { barBar: false }),
+      makeParameter('6', '00000000-0000-1000-9000-000000000003', 'UUID'),
+      makeParameter('7', { barFoo: 'def' })
+    ]);
+  });
+
+  it('assert :: prepare insert (foreign and inverse with select)', () => {
+    const [statement, variables] = prepareInsertQuery<TestSchema, {}, TestRelations>('ez4-test-insert', testSchema, testRelations, {
+      select: {
+        id: true,
+        relation1: {
+          foo: true
+        },
+        relation2: {
+          id: true
+        },
+        relations: {
+          foo: true
+        }
+      },
+      data: {
+        id: '00000000-0000-1000-9000-000000000000',
+        bar: {},
+        relation1: {
+          id: '00000000-0000-1000-9000-000000000001',
+          bar: {
+            barFoo: 'abc'
+          }
+        },
+        relation2: {
+          id: '00000000-0000-1000-9000-000000000002',
+          bar: {
+            barBar: false
+          }
+        },
+        relations: [
+          {
+            id: '00000000-0000-1000-9000-000000000003',
+            bar: {
+              barFoo: 'def'
+            }
+          }
+        ]
+      }
+    });
+
+    equal(
+      statement,
+      `WITH ` +
+        // First relation (primary)
+        `"R0" AS (INSERT INTO "ez4-test-relation" ("id", "bar") ` +
+        `VALUES (:0, :1) RETURNING "id", "foo"), ` +
+        // Main record
+        `"R1" AS (INSERT INTO "ez4-test-insert" ("id", "bar", "relation1_id") ` +
+        `SELECT :2, :3, "R0"."id" FROM "R0" RETURNING "id"), ` +
+        // Second relation (unique)
+        `"R2" AS (INSERT INTO "ez4-test-relation" ("id", "bar", "relation2_id") ` +
+        `SELECT :4, :5, "R1"."id" FROM "R1" RETURNING "id"), ` +
+        // Third relation (inverse)
+        `"R3" AS (INSERT INTO "ez4-test-relation" ("id", "bar", "relation1_id") ` +
+        `SELECT :6, :7, "R1"."id" FROM "R1" RETURNING "foo") ` +
+        // Select
+        `SELECT "id", ` +
+        `(SELECT json_build_object('foo', "foo") FROM "R0") AS "relation1", ` +
+        `(SELECT json_build_object('id', "id") FROM "R2") AS "relation2", ` +
+        `(SELECT COALESCE(json_agg(json_build_object('foo', "foo")), '[]'::json) FROM "R3") AS "relations" ` +
+        `FROM "R1"`
     );
 
     deepEqual(variables, [

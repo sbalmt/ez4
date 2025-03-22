@@ -20,14 +20,7 @@ export type SqlArrayColumn = Omit<SqlJsonColumnOptions, 'aggregate'>;
 export type SqlResultColumn = SqlColumn | SqlRaw | SqlReference | SqlSelectStatement;
 
 export type SqlResultRecord = {
-  [column: string]:
-    | undefined
-    | string
-    | boolean
-    | SqlRaw
-    | SqlReference
-    | SqlSelectStatement
-    | SqlJsonColumnSchema;
+  [column: string]: undefined | string | boolean | SqlRaw | SqlReference | SqlSelectStatement | SqlJsonColumnSchema;
 };
 
 type SqlResultsContext = {
@@ -91,15 +84,7 @@ export class SqlResults {
   }
 
   jsonColumn(schema: SqlJsonColumnSchema, options: SqlJsonColumnOptions) {
-    this.#state.columns.push(
-      new SqlJsonColumn(
-        schema,
-        this.#state.source,
-        options.aggregate,
-        options.column,
-        options.alias
-      )
-    );
+    this.#state.columns.push(new SqlJsonColumn(schema, this.#state.source, options.aggregate, options.column, options.alias));
 
     return this;
   }
@@ -152,10 +137,7 @@ const getRecordColumns = (record: SqlResultRecord, source: SqlSource) => {
   return columns;
 };
 
-const getResultColumns = (
-  columns: (SqlResultColumn | SqlJsonColumn)[],
-  context: SqlResultsContext
-) => {
+const getResultColumns = (columns: (SqlResultColumn | SqlJsonColumn)[], context: SqlResultsContext) => {
   const { source, variables } = context;
 
   const columnsList = columns.map((column) => {
@@ -182,9 +164,7 @@ const getResultColumns = (
         throw new MissingColumnAliasError();
       }
 
-      const [selectStatement, selectVariables] = column
-        .as(column.filters ? `T` : undefined)
-        .build();
+      const [selectStatement, selectVariables] = column.as(column.filters ? `T` : undefined).build();
 
       variables.push(...selectVariables);
 

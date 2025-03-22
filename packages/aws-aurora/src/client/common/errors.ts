@@ -6,18 +6,18 @@ export class MalformedRequestError extends Error {
 
 export class MissingRelationDataError extends Error {
   constructor(public alias: string) {
-    super(`Relation data for ${alias} is missing.`);
+    super(`Relation data for '${alias}' is missing.`);
   }
 }
 
 export class MissingFieldSchemaError extends Error {
   constructor(public field: string) {
-    super(`Schema for field ${field} is missing.`);
+    super(`Schema for field '${field}' is missing.`);
   }
 }
 
 export class InvalidRelationFieldError extends Error {
   constructor(public field: string) {
-    super(`Relation field ${field} has an invalid format.`);
+    super(`Relation field '${field}' has an invalid format.`);
   }
 }

@@ -13,11 +13,11 @@ import { prepareCountQuery } from './count.js';
 
 export type PreparedQueryCommand = Pick<ExecuteStatementCommandInput, 'sql' | 'parameters'>;
 
-export const prepareInsertOne = async <T extends Database.Schema, R extends RelationMetadata>(
+export const prepareInsertOne = async <T extends Database.Schema, S extends Query.SelectInput<T, R>, R extends RelationMetadata>(
   table: string,
   schema: ObjectSchema,
   relations: RepositoryRelationsWithSchema,
-  query: Query.InsertOneInput<T, R>
+  query: Query.InsertOneInput<T, S, R>
 ): Promise<PreparedQueryCommand> => {
   await validateSchema(query.data, getInsertSchema(schema, relations, query.data));
 
@@ -113,12 +113,14 @@ export const prepareInsertMany = async <T extends Database.Schema>(
     query.data.map(async (data) => {
       await validateSchema(data, getInsertSchema(schema, relations, data));
 
-      const [statement, variables] = prepareInsertQuery<
-        T,
-        { indexes: never; selects: {}; filters: {}; changes: {} }
-      >(table, schema, relations, {
-        data
-      });
+      const [statement, variables] = prepareInsertQuery<T, never, { indexes: never; selects: {}; filters: {}; changes: {} }>(
+        table,
+        schema,
+        relations,
+        {
+          data
+        }
+      );
 
       return {
         sql: statement,
@@ -151,11 +153,7 @@ export const prepareFindMany = <
   };
 };
 
-export const prepareUpdateMany = async <
-  T extends Database.Schema,
-  S extends Query.SelectInput<T, R>,
-  R extends RelationMetadata
->(
+export const prepareUpdateMany = async <T extends Database.Schema, S extends Query.SelectInput<T, R>, R extends RelationMetadata>(
   table: string,
   schema: ObjectSchema,
   relations: RepositoryRelationsWithSchema,
@@ -173,11 +171,7 @@ export const prepareUpdateMany = async <
   };
 };
 
-export const prepareDeleteMany = <
-  T extends Database.Schema,
-  S extends Query.SelectInput<T, R>,
-  R extends RelationMetadata
->(
+export const prepareDeleteMany = <T extends Database.Schema, S extends Query.SelectInput<T, R>, R extends RelationMetadata>(
   table: string,
   schema: ObjectSchema,
   relations: RepositoryRelationsWithSchema,

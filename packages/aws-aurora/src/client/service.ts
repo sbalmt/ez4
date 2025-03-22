@@ -16,19 +16,27 @@ const client = new RDSDataClient();
 
 const tableCache: Record<string, TableType> = {};
 
+export type ClientSettings = {
+  debug?: boolean;
+};
+
 export namespace Client {
-  export const make = <T extends Database.Service>(connection: Connection, repository: Repository, debug?: boolean): DbClient<T> => {
+  export const make = <T extends Database.Service>(
+    connection: Connection,
+    repository: Repository,
+    settings?: ClientSettings
+  ): DbClient<T> => {
     const instance = new (class {
       rawQuery(query: string, values: unknown[]) {
         const parameters = values.map((value, index) => detectFieldData(`${index}`, value));
 
-        return executeStatement(client, connection, { parameters, sql: query }, undefined, debug);
+        return executeStatement(client, connection, { parameters, sql: query }, undefined, settings?.debug);
       }
 
       async transaction<O extends Transaction.WriteOperations<T>>(operations: O): Promise<void> {
         const commands = await prepareTransactions(repository, operations);
 
-        await executeTransaction(client, connection, commands, debug);
+        await executeTransaction(client, connection, commands, settings?.debug);
       }
     })();
 
@@ -53,9 +61,9 @@ export namespace Client {
         const relationsWithSchema = getRelationsWithSchema(repository, relations);
 
         const table = new Table(name, schema, relationsWithSchema, {
-          client,
+          ...settings,
           connection,
-          debug
+          client
         });
 
         tableCache[alias] = table;

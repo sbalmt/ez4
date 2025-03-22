@@ -9,13 +9,7 @@ import { SchemaType } from '@ez4/schema';
 import { deploy } from '@ez4/aws-common';
 import { Order } from '@ez4/database';
 
-import {
-  createTable,
-  isTableState,
-  AttributeType,
-  AttributeKeyType,
-  registerTriggers
-} from '@ez4/aws-dynamodb';
+import { createTable, isTableState, AttributeType, AttributeKeyType, registerTriggers } from '@ez4/aws-dynamodb';
 
 declare class TestSchema implements Database.Schema {
   id: string;
@@ -215,12 +209,19 @@ describe('dynamodb client', () => {
   it('assert :: insert one', async () => {
     ok(dbClient);
 
-    await dbClient.testTable.insertOne({
+    const result = await dbClient.testTable.insertOne({
+      select: {
+        id: true
+      },
       data: {
         id: 'single',
         order: 0,
         value: 'initial'
       }
+    });
+
+    deepEqual(result, {
+      id: 'single'
     });
   });
 
@@ -286,14 +287,25 @@ describe('dynamodb client', () => {
       }
     };
 
+    // Return the current value
     const insertResult = await dbClient.testTable.upsertOne(query);
 
-    equal(insertResult, undefined);
-
-    const updateResult = await dbClient.testTable.upsertOne(query);
-
-    deepEqual(updateResult, {
+    deepEqual(insertResult, {
       value: 'initial'
+    });
+
+    // Return the last value
+    const update1Result = await dbClient.testTable.upsertOne(query);
+
+    deepEqual(update1Result, {
+      value: 'initial'
+    });
+
+    // Return the last value
+    const update2Result = await dbClient.testTable.upsertOne(query);
+
+    deepEqual(update2Result, {
+      value: 'updated'
     });
   });
 

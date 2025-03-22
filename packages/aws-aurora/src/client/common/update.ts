@@ -9,8 +9,8 @@ import { isObjectSchema } from '@ez4/schema';
 import { Index } from '@ez4/database';
 
 import { InvalidRelationFieldError } from './errors.js';
-import { createQueryBuilder } from './builder.js';
 import { getSelectFields, getSelectFilters } from './select.js';
+import { createQueryBuilder } from './builder.js';
 import { isSkippableData } from './data.js';
 
 export const prepareUpdateQuery = <
@@ -37,14 +37,7 @@ export const prepareUpdateQuery = <
   }
 
   if (query.select) {
-    const selectRecord = getSelectFields(
-      query.select,
-      query.include,
-      schema,
-      relations,
-      updateQuery,
-      sql
-    );
+    const selectRecord = getSelectFields(query.select, query.include, schema, relations, updateQuery, sql);
 
     updateQuery.results.record(selectRecord);
   }
@@ -56,12 +49,7 @@ export const prepareUpdateQuery = <
   return [statement, variables as SqlParameter[]];
 };
 
-const getUpdateRecord = (
-  data: SqlRecord,
-  schema: ObjectSchema,
-  relations: RepositoryRelationsWithSchema,
-  sql: SqlBuilder
-) => {
+const getUpdateRecord = (data: SqlRecord, schema: ObjectSchema, relations: RepositoryRelationsWithSchema, sql: SqlBuilder) => {
   const record: SqlRecord = {};
 
   for (const fieldKey in data) {
@@ -114,12 +102,7 @@ const getUpdateRecord = (
   return record;
 };
 
-const preparePostRelations = (
-  data: SqlRecord,
-  relations: RepositoryRelationsWithSchema,
-  source: SqlSourceWithResults,
-  sql: SqlBuilder
-) => {
+const preparePostRelations = (data: SqlRecord, relations: RepositoryRelationsWithSchema, source: SqlSourceWithResults, sql: SqlBuilder) => {
   const { results } = source;
 
   const allQueries = [];

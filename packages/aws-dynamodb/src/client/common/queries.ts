@@ -12,10 +12,10 @@ import { prepareUpdate } from './update.js';
 import { prepareSelect } from './select.js';
 import { prepareDelete } from './delete.js';
 
-export const prepareInsertOne = async <T extends Database.Schema, R extends RelationMetadata>(
+export const prepareInsertOne = async <T extends Database.Schema, S extends Query.SelectInput<T, R>, R extends RelationMetadata>(
   table: string,
   schema: ObjectSchema,
-  query: Query.InsertOneInput<T, R>
+  query: Query.InsertOneInput<T, S, R>
 ): Promise<ExecuteStatementCommandInput> => {
   await validateSchema(query.data, schema);
 

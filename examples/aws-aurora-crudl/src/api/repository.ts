@@ -16,24 +16,29 @@ export type CreateItemInput = {
 };
 
 export const createItem = async (client: DbClient, input: CreateItemInput) => {
-  const id = randomUUID();
-
   const now = new Date().toISOString();
 
-  const { name, description, category } = input;
-
-  await client.items.insertOne({
+  const { id: itemId, category } = await client.items.insertOne({
+    select: {
+      id: true,
+      category: {
+        id: true
+      }
+    },
     data: {
-      id,
-      name,
-      description,
-      category,
+      id: randomUUID(),
+      name: input.name,
+      description: input.description,
+      category: input.category,
       created_at: now,
       updated_at: now
     }
   });
 
-  return id;
+  return {
+    itemId,
+    categoryId: category?.id
+  };
 };
 
 export const readItem = async (client: DbClient, id: string) => {

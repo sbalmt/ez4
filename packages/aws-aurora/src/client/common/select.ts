@@ -34,14 +34,7 @@ export const prepareSelectQuery = <
 
   const selectQuery = sql.select(schema).from(table);
 
-  const selectRecord = getSelectFields(
-    query.select,
-    query.include,
-    schema,
-    relations,
-    selectQuery,
-    sql
-  );
+  const selectRecord = getSelectFields(query.select, query.include, schema, relations, selectQuery, sql);
 
   selectQuery.record(selectRecord);
 
@@ -68,18 +61,14 @@ export const prepareSelectQuery = <
   return [statement, variables as SqlParameter[]];
 };
 
-export const getSelectFields = <
-  T extends Database.Schema,
-  S extends AnyObject,
-  R extends RelationMetadata
->(
+export const getSelectFields = <T extends Database.Schema, S extends AnyObject, R extends RelationMetadata>(
   fields: Query.StrictSelectInput<T, S, R>,
   include: SqlFilters | undefined | null,
   schema: ObjectSchema,
   relations: RepositoryRelationsWithSchema,
   source: SqlSource,
   sql: SqlBuilder,
-  inner?: boolean
+  json?: boolean
 ) => {
   const allFields = isEmptyObject(fields) ? getDefaultSelectFields(schema) : fields;
   const output: SqlJsonColumnSchema = {};
@@ -96,8 +85,7 @@ export const getSelectFields = <
     if (relationData) {
       const { sourceTable, sourceColumn, sourceSchema, sourceIndex, targetColumn } = relationData;
 
-      const relationFields =
-        fieldValue === true ? getDefaultSelectFields(sourceSchema) : fieldValue;
+      const relationFields = fieldValue === true ? getDefaultSelectFields(sourceSchema) : fieldValue;
 
       if (!isAnyObject(relationFields)) {
         throw new InvalidRelationFieldError(fieldKey);
@@ -113,25 +101,17 @@ export const getSelectFields = <
           [sourceColumn]: source.reference(targetColumn)
         });
 
-      const relationRecord = getSelectFields(
-        relationFields,
-        relationFilters,
-        sourceSchema,
-        relations,
-        relationQuery,
-        sql,
-        true
-      );
-
-      output[fieldKey] = relationQuery;
-
-      source.as('R');
+      const relationRecord = getSelectFields(relationFields, relationFilters, sourceSchema, relations, relationQuery, sql, true);
 
       if (sourceIndex === Index.Primary || sourceIndex === Index.Unique) {
         relationQuery.objectColumn(relationRecord);
       } else {
         relationQuery.arrayColumn(relationRecord);
       }
+
+      output[fieldKey] = relationQuery;
+
+      source.as('R');
 
       continue;
     }
@@ -147,7 +127,7 @@ export const getSelectFields = <
       continue;
     }
 
-    const fieldColumn = getFieldColumn(fieldKey, fieldSchema, !inner);
+    const fieldColumn = getFieldColumn(fieldKey, fieldSchema, !json);
 
     if (fieldColumn instanceof Function) {
       output[fieldKey] = source.reference(fieldColumn);
@@ -159,12 +139,7 @@ export const getSelectFields = <
   return output;
 };
 
-export const getSelectFilters = (
-  filters: SqlFilters,
-  relations: RepositoryRelationsWithSchema,
-  source: SqlSource,
-  sql: SqlBuilder
-) => {
+export const getSelectFilters = (filters: SqlFilters, relations: RepositoryRelationsWithSchema, source: SqlSource, sql: SqlBuilder) => {
   const result: SqlFilters = {};
 
   for (const filterKey in filters) {
@@ -221,7 +196,7 @@ export const getSelectFilters = (
   return result;
 };
 
-const getDefaultSelectFields = (schema: ObjectSchema) => {
+export const getDefaultSelectFields = (schema: ObjectSchema) => {
   const fields: Record<string, boolean> = {};
 
   for (const fieldKey in schema.properties) {
@@ -231,7 +206,7 @@ const getDefaultSelectFields = (schema: ObjectSchema) => {
   return fields;
 };
 
-const getFieldColumn = (column: string, schema: AnySchema, alias?: boolean) => {
+export const getFieldColumn = (column: string, schema: AnySchema, alias?: boolean) => {
   if (!isStringSchema(schema)) {
     return column;
   }

@@ -12,6 +12,7 @@ import { MissingTableNameError } from '../errors/queries.js';
 import { getFields, getValues } from '../utils/column.js';
 import { escapeSqlName } from '../utils/escape.js';
 import { SqlSelectStatement } from './select.js';
+import { getTableNames } from '../utils/table.js';
 
 type SqlInsertContext = {
   options: SqlBuilderOptions;
@@ -26,7 +27,7 @@ export class SqlInsertStatement extends SqlSource {
     returning?: SqlReturningClause;
     schema?: ObjectSchema;
     record?: SqlRecord;
-    source?: SqlSource;
+    sources?: SqlSource[];
     table?: string;
     alias?: string;
   };
@@ -67,8 +68,8 @@ export class SqlInsertStatement extends SqlSource {
     return this;
   }
 
-  select(table: SqlSource | undefined) {
-    this.#state.source = table;
+  select(...tables: SqlSource[]) {
+    this.#state.sources = tables;
 
     return this;
   }
@@ -98,7 +99,7 @@ export class SqlInsertStatement extends SqlSource {
   }
 
   build(): [string, unknown[]] {
-    const { table, alias, references, options, record, schema, source, returning } = this.#state;
+    const { table, alias, references, options, record, schema, sources, returning } = this.#state;
 
     if (!table) {
       throw new MissingTableNameError();
@@ -121,8 +122,8 @@ export class SqlInsertStatement extends SqlSource {
       options
     });
 
-    if (source?.alias) {
-      statement.push(`SELECT ${values} FROM ${escapeSqlName(source.alias)}`);
+    if (sources?.length) {
+      statement.push(`SELECT ${values} FROM ${getTableNames(sources).join(', ')}`);
     } else {
       statement.push('VALUES');
 

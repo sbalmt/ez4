@@ -23,16 +23,18 @@ import {
   prepareCount
 } from './common/queries.js';
 
+export type TableSettings = {
+  client: RDSDataClient;
+  connection: Connection;
+  debug?: boolean;
+};
+
 export class Table<T extends Database.Schema, I extends Database.Indexes, R extends RelationMetadata> implements DbTable<T, I, R> {
   constructor(
     private name: string,
     private schema: ObjectSchema,
     private relations: RepositoryRelationsWithSchema,
-    private settings: {
-      client: RDSDataClient;
-      connection: Connection;
-      debug?: boolean;
-    }
+    private settings: TableSettings
   ) {}
 
   private parseRecord<T extends Record<string, unknown>>(record: T): T {
@@ -49,10 +51,16 @@ export class Table<T extends Database.Schema, I extends Database.Indexes, R exte
     return executeStatement(client, connection, input, undefined, debug);
   }
 
-  async insertOne(query: Query.InsertOneInput<T, R>): Promise<Query.InsertOneResult> {
+  async insertOne<S extends Query.SelectInput<T, R>>(query: Query.InsertOneInput<T, S, R>): Promise<Query.InsertOneResult<T, S, R>> {
     const command = await prepareInsertOne(this.name, this.schema, this.relations, query);
 
-    await this.sendCommand(command);
+    const [record] = await this.sendCommand(command);
+
+    if (record) {
+      return this.parseRecord(record);
+    }
+
+    return undefined as Query.InsertOneResult<T, S, R>;
   }
 
   async updateOne<S extends Query.SelectInput<T, R>>(query: Query.UpdateOneInput<T, S, I, R>): Promise<Query.UpdateOneResult<T, S, R>> {
@@ -116,11 +124,9 @@ export class Table<T extends Database.Schema, I extends Database.Indexes, R exte
     });
 
     if (!previous) {
-      await this.insertOne({
+      return this.insertOne({
         data: query.insert
-      });
-
-      return previous;
+      }) as Promise<Query.UpsertOneResult<T, S, R>>;
     }
 
     await this.updateOne({

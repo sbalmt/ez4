@@ -1,23 +1,22 @@
-import type { SqlBuilderOptions, SqlBuilderReferences } from '../builder.js';
+import type { ObjectSchema } from '@ez4/schema';
+import type { Query } from '@ez4/database';
+import type { SqlArrayColumn, SqlObjectColumn, SqlResultColumn, SqlResultRecord } from '../types/results.js';
 import type { SqlJsonColumnOptions, SqlJsonColumnSchema } from '../types/json.js';
+import type { SqlBuilderOptions, SqlBuilderReferences } from '../builder.js';
 import type { SqlSourceWithResults } from '../types/source.js';
 import type { SqlFilters, SqlOrder } from '../types/common.js';
 import type { SqlRawGenerator } from '../types/raw.js';
-import type { ObjectSchema } from '@ez4/schema';
-import type { Query } from '@ez4/database';
-
-import type { SqlArrayColumn, SqlObjectColumn, SqlResultColumn, SqlResultRecord } from '../types/results.js';
 
 import { isAnyNumber, isEmptyObject } from '@ez4/utils';
 import { Order } from '@ez4/database';
 
-import { MissingTableNameError, InvalidColumnOrderError, NoColumnsError, MissingTableAliasError } from '../errors/queries.js';
-
+import { MissingTableNameError, InvalidColumnOrderError, NoColumnsError } from '../errors/queries.js';
 import { SqlSource } from '../types/source.js';
-import { escapeSqlName } from '../utils/escape.js';
 import { SqlWhereClause } from '../types/where.js';
 import { SqlResults } from '../types/results.js';
 import { SqlJoin } from '../types/join.js';
+import { escapeSqlName } from '../utils/escape.js';
+import { getTableNames } from '../utils/table.js';
 
 export class SqlSelectStatement extends SqlSource implements SqlSourceWithResults {
   #state: {
@@ -173,7 +172,7 @@ export class SqlSelectStatement extends SqlSource implements SqlSourceWithResult
       throw new NoColumnsError();
     }
 
-    const statement = [`SELECT ${columns} FROM ${getTableNames(tables)}`];
+    const statement = [`SELECT ${columns} FROM ${getTableNames(tables).join(', ')}`];
 
     if (alias) {
       statement.push(`AS ${escapeSqlName(alias)}`);
@@ -212,26 +211,6 @@ export class SqlSelectStatement extends SqlSource implements SqlSourceWithResult
     return [statement.join(' '), variables];
   }
 }
-
-const getTableNames = (tables: (SqlSource | string)[]) => {
-  const tableNames = [];
-
-  for (const table of tables) {
-    if (table instanceof SqlSource) {
-      if (!table.alias) {
-        throw new MissingTableAliasError();
-      }
-
-      tableNames.push(escapeSqlName(table.alias));
-
-      continue;
-    }
-
-    tableNames.push(escapeSqlName(table));
-  }
-
-  return tableNames.join(', ');
-};
 
 const getOrderColumns = (ordering: Query.OrderInput<any>) => {
   const orderColumns = [];
