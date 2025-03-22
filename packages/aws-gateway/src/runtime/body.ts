@@ -1,15 +1,11 @@
-import type { ObjectSchema } from '@ez4/schema';
+import type { AnySchema } from '@ez4/schema';
 import type { Http } from '@ez4/gateway';
 
-import { HttpBadRequestError } from '@ez4/gateway';
 import { validate, getUniqueErrorMessages, getNewContext } from '@ez4/validator';
-import { getPartialSchemaProperties, isObjectSchema } from '@ez4/schema';
-import { deepClone } from '@ez4/utils';
+import { HttpBadRequestError } from '@ez4/gateway';
+import { transform } from '@ez4/transform';
 
-export const getRequestJsonBody = async (
-  body: Http.JsonBody,
-  schema: ObjectSchema
-): Promise<Http.JsonBody> => {
+export const getRequestJsonBody = async (body: Http.JsonBody, schema: AnySchema): Promise<Http.JsonBody> => {
   const errors = await validate(body, schema, getNewContext('$body'));
 
   if (errors.length) {
@@ -21,12 +17,6 @@ export const getRequestJsonBody = async (
   return body;
 };
 
-export const getResponseJsonBody = (body: Http.JsonBody, schema: ObjectSchema): Http.JsonBody => {
-  if (!isObjectSchema(schema) || schema.definitions?.extensible) {
-    return body;
-  }
-
-  return deepClone(body, {
-    include: getPartialSchemaProperties(schema)
-  });
+export const getResponseJsonBody = (body: unknown, schema: AnySchema) => {
+  return transform(body, schema);
 };
