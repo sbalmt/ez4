@@ -3,10 +3,10 @@ import type { AnyObject } from '@ez4/utils';
 
 import { isAnyObject } from '@ez4/utils';
 
-import { getNewContext } from '../types/context.js';
+import { createTransformContext } from '../types/context.js';
 import { transformAny } from './any.js';
 
-export const transformObject = (value: unknown, schema: ObjectSchema, context = getNewContext()) => {
+export const transformObject = (value: unknown, schema: ObjectSchema, context = createTransformContext()) => {
   if (value === null || value === undefined || !isAnyObject(value)) {
     return schema.definitions?.default;
   }

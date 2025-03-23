@@ -4,7 +4,7 @@ import { deepEqual } from 'node:assert/strict';
 import { describe, it } from 'node:test';
 
 import { SchemaType } from '@ez4/schema';
-import { transform } from '@ez4/transform';
+import { createTransformContext, transform } from '@ez4/transform';
 
 describe('default types transform', () => {
   it('assert :: number with default', () => {
@@ -35,11 +35,23 @@ describe('default types transform', () => {
 
     deepEqual(transform('abc', schema), 'abc');
 
-    deepEqual(transform(true, schema), 'foo');
-    deepEqual(transform(false, schema), 'foo');
-    deepEqual(transform(123, schema), 'foo');
+    // convert enabled
+    deepEqual(transform(true, schema), 'true');
+    deepEqual(transform(false, schema), 'false');
+    deepEqual(transform(123, schema), '123');
     deepEqual(transform(undefined, schema), 'foo');
     deepEqual(transform(null, schema), 'foo');
+
+    // convert disabled
+    const context = createTransformContext({
+      convert: false
+    });
+
+    deepEqual(transform(true, schema, context), 'foo');
+    deepEqual(transform(false, schema, context), 'foo');
+    deepEqual(transform(123, schema, context), 'foo');
+    deepEqual(transform(undefined, schema, context), 'foo');
+    deepEqual(transform(null, schema, context), 'foo');
   });
 
   it('assert :: object with default', () => {

@@ -14,11 +14,14 @@ describe('types transform', () => {
     };
 
     deepEqual(transform(true, schema), true);
-    deepEqual(transform('true', schema), true);
+    deepEqual(transform(false, schema), false);
     deepEqual(transform('false', schema), false);
+    deepEqual(transform('true', schema), true);
+
     deepEqual(transform('abc', schema), undefined);
     deepEqual(transform(0, schema), undefined);
     deepEqual(transform(undefined, schema), undefined);
+
     deepEqual(transform(null, schema), null);
   });
 
@@ -50,10 +53,10 @@ describe('types transform', () => {
 
     deepEqual(transform('abc', schema), 'abc');
     deepEqual(transform(' def ', schema), 'def');
+    deepEqual(transform(true, schema), 'true');
+    deepEqual(transform(false, schema), 'false');
+    deepEqual(transform(123, schema), '123');
 
-    deepEqual(transform(true, schema), undefined);
-    deepEqual(transform(false, schema), undefined);
-    deepEqual(transform(123, schema), undefined);
     deepEqual(transform(undefined, schema), undefined);
 
     deepEqual(transform(null, schema), null);
