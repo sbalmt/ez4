@@ -1,14 +1,27 @@
 import type { ObjectSchema } from '@ez4/schema';
 import type { Http } from '@ez4/gateway';
 
+import { getUniqueErrorMessages, createValidatorContext } from '@ez4/validator';
+import { createTransformContext, transform } from '@ez4/transform';
 import { HttpBadRequestError } from '@ez4/gateway';
-import { getNewContext, getUniqueErrorMessages } from '@ez4/validator';
-import { transform } from '@ez4/transform';
 import { validate } from '@ez4/validator';
 
-export const getQueryStrings = async (rawInput: Record<string, unknown>, schema: ObjectSchema): Promise<Http.QueryStrings | undefined> => {
-  const query = transform(rawInput, schema) as Http.QueryStrings;
-  const errors = await validate(query, schema, getNewContext('$query'));
+export const getQueryStrings = async (input: Record<string, unknown>, schema: ObjectSchema): Promise<Http.QueryStrings> => {
+  const query = transform(
+    input,
+    schema,
+    createTransformContext({
+      convert: true
+    })
+  );
+
+  const errors = await validate(
+    query,
+    schema,
+    createValidatorContext({
+      property: '$query'
+    })
+  );
 
   if (errors.length) {
     const messages = getUniqueErrorMessages(errors);
@@ -16,5 +29,5 @@ export const getQueryStrings = async (rawInput: Record<string, unknown>, schema:
     throw new HttpBadRequestError(`Malformed query strings.`, messages);
   }
 
-  return query;
+  return query as Http.QueryStrings;
 };
