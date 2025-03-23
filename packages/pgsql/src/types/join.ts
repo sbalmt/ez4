@@ -4,6 +4,7 @@ import type { SqlFilters } from './common.js';
 import { ObjectSchema } from '@ez4/schema';
 
 import { escapeSqlName } from '../utils/escape.js';
+import { MissingJoinConditionError } from '../errors/queries.js';
 import { SqlConditions } from './conditions.js';
 import { SqlResults } from './results.js';
 import { SqlSource } from './source.js';
@@ -17,12 +18,7 @@ export class SqlJoin extends SqlSource {
     alias?: string;
   };
 
-  constructor(
-    table: string,
-    schema: ObjectSchema | undefined,
-    references: SqlBuilderReferences,
-    options: SqlBuilderOptions
-  ) {
+  constructor(table: string, schema: ObjectSchema | undefined, references: SqlBuilderReferences, options: SqlBuilderOptions) {
     super();
 
     this.#state = {
@@ -65,14 +61,20 @@ export class SqlJoin extends SqlSource {
 
     const clause = [`INNER JOIN ${escapeSqlName(table)}`];
 
-    const [conditions, variables] = on.build();
+    const onResult = on.build();
+
+    if (!onResult) {
+      throw new MissingJoinConditionError();
+    }
 
     if (alias) {
       clause.push(`AS ${escapeSqlName(alias)}`);
     }
 
-    clause.push(`ON ${conditions}`);
+    const [onConditions, onVariables] = onResult;
 
-    return [clause.join(' '), variables];
+    clause.push(`ON ${onConditions}`);
+
+    return [clause.join(' '), onVariables];
   }
 }

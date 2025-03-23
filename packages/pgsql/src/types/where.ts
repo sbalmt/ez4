@@ -1,9 +1,15 @@
 import { SqlConditions } from './conditions.js';
 
 export class SqlWhereClause extends SqlConditions {
-  build(): [string, unknown[]] {
-    const [clause, variables] = super.build();
+  build(): [string, unknown[]] | undefined {
+    const result = super.build();
 
-    return [`WHERE ${clause}`, variables];
+    if (result) {
+      const [clause, variables] = result;
+
+      return [`WHERE ${clause}`, variables];
+    }
+
+    return undefined;
   }
 }

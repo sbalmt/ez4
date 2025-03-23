@@ -58,13 +58,10 @@ export declare class UpdateItemResponse implements Http.Response {
 /**
  * Handle item update requests.
  */
-export async function updateItemHandler(
-  request: UpdateItemRequest,
-  context: Service.Context<Api>
-): Promise<UpdateItemResponse> {
-  const { dynamoDb } = context;
+export async function updateItemHandler(request: UpdateItemRequest, context: Service.Context<Api>): Promise<UpdateItemResponse> {
   const { name, description, type } = request.body;
   const { id } = request.parameters;
+  const { dynamoDb } = context;
 
   const oldItem = await updateItem(dynamoDb, {
     id,

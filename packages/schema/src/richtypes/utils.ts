@@ -16,6 +16,8 @@ import {
   createArray
 } from '@ez4/reflection';
 
+import { isAnyBoolean, isAnyNumber } from '@ez4/utils';
+
 import { InvalidRichTypeProperty } from '../errors/richtype.js';
 
 export type RichTypes = {
@@ -113,7 +115,7 @@ export const createRichType = (richTypes: RichTypes) => {
       return {
         ...createBoolean(),
         definitions: {
-          ...(value !== undefined && { default: value })
+          ...(isAnyBoolean(value) && { default: value })
         }
       };
     }
@@ -126,9 +128,9 @@ export const createRichType = (richTypes: RichTypes) => {
         ...createNumber(),
         format,
         definitions: {
-          ...(value !== undefined && { default: value }),
-          ...(minValue !== undefined && { minValue }),
-          ...(maxValue !== undefined && { maxValue })
+          ...(isAnyNumber(value) && { default: value }),
+          ...(isAnyNumber(minValue) && { minValue }),
+          ...(isAnyNumber(maxValue) && { maxValue })
         }
       };
     }
@@ -140,6 +142,7 @@ export const createRichType = (richTypes: RichTypes) => {
         ...createString(),
         definitions: {
           ...(value && { default: value }),
+          ...((minLength || maxLength) && { trim: true }),
           ...(minLength && { minLength }),
           ...(maxLength && { maxLength })
         }

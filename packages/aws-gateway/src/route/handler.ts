@@ -29,7 +29,14 @@ const previewResource = async (candidate: RouteState, current: RouteState) => {
 
   const changes = deepCompare(target, source);
 
-  return changes.counts ? changes : undefined;
+  if (!changes.counts) {
+    return undefined;
+  }
+
+  return {
+    ...changes,
+    name: target.routePath ?? source.routePath
+  };
 };
 
 const replaceResource = async (candidate: RouteState, current: RouteState, context: StepContext) => {

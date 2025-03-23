@@ -47,20 +47,16 @@ describe('dynamodb query (insert)', () => {
   };
 
   it('assert :: prepare insert', () => {
-    const [statement, variables] = prepareInsert<TestSchema, TestRelations>(
-      'ez4-test-insert',
-      testSchema,
-      {
-        data: {
-          id: 'abc',
-          foo: 123,
-          bar: {
-            barFoo: 'def',
-            barBar: true
-          }
+    const [statement, variables] = prepareInsert<TestSchema, {}, TestRelations>('ez4-test-insert', testSchema, {
+      data: {
+        id: 'abc',
+        foo: 123,
+        bar: {
+          barFoo: 'def',
+          barBar: true
         }
       }
-    );
+    });
 
     equal(statement, `INSERT INTO "ez4-test-insert" value { 'id': ?, 'foo': ?, 'bar': ? }`);
 
@@ -68,20 +64,16 @@ describe('dynamodb query (insert)', () => {
   });
 
   it('assert :: prepare insert (ignore nulls)', () => {
-    const [statement, variables] = prepareInsert<TestSchema, TestRelations>(
-      'ez4-test-insert',
-      testSchema,
-      {
-        data: {
-          id: 'abc',
-          foo: null,
-          bar: {
-            barFoo: 'def',
-            barBar: false
-          }
+    const [statement, variables] = prepareInsert<TestSchema, {}, TestRelations>('ez4-test-insert', testSchema, {
+      data: {
+        id: 'abc',
+        foo: null,
+        bar: {
+          barFoo: 'def',
+          barBar: false
         }
       }
-    );
+    });
 
     equal(statement, `INSERT INTO "ez4-test-insert" value { 'id': ?, 'bar': ? }`);
 

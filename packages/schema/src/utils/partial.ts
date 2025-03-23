@@ -3,7 +3,6 @@ import type { AnyObject } from '@ez4/utils';
 
 import { isAnyObject } from '@ez4/utils';
 
-import { isObjectSchema } from '../types/type-object.js';
 import { SchemaType } from '../types/common.js';
 
 export type PartialSchemaProperties = {
@@ -27,10 +26,7 @@ export type PartialSchemaOptions = {
   include?: PartialSchemaProperties;
 };
 
-export const getPartialSchema = (
-  schema: ObjectSchema,
-  options: PartialSchemaOptions
-): ObjectSchema => {
+export const getPartialSchema = (schema: ObjectSchema, options: PartialSchemaOptions): ObjectSchema => {
   const properties: ObjectSchemaProperties = {};
 
   const includeStates = (options as AnyObject)?.include;
@@ -77,18 +73,3 @@ export const getPartialSchema = (
   };
 };
 
-export const getPartialSchemaProperties = (schema: ObjectSchema) => {
-  const properties: Record<string, unknown> = {};
-
-  for (const propertyName in schema.properties) {
-    const value = schema.properties[propertyName];
-
-    if (isObjectSchema(value) && !value.definitions?.extensible && !value.additional) {
-      properties[propertyName] = getPartialSchemaProperties(value);
-    } else {
-      properties[propertyName] = true;
-    }
-  }
-
-  return properties;
-};

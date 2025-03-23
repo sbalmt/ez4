@@ -14,9 +14,7 @@ export const enum Index {
 /**
  * Given an index name `T`, it produces the decomposed index names.
  */
-export type DecomposeIndexName<T> = T extends `${infer L}:${infer R}`
-  ? L | DecomposeIndexName<R>
-  : T;
+export type DecomposeIndexName<T> = T extends `${infer L}:${infer R}` ? L | DecomposeIndexName<R> : T;
 
 /**
  * Given an index object `T`, it produces an object containing only primary indexes.
@@ -42,23 +40,17 @@ export type SecondaryIndexes<T extends Database.Indexes> = {
 /**
  * Given an index object `T`, it produces the primary decomposed index names.
  */
-export type DecomposePrimaryIndexNames<T extends Database.Indexes> = DecomposeIndexName<
-  keyof PrimaryIndexes<T>
->;
+export type DecomposePrimaryIndexNames<T extends Database.Indexes> = DecomposeIndexName<keyof PrimaryIndexes<T>>;
 
 /**
  * Given an index object `T`, it produces the unique decomposed index names.
  */
-export type DecomposeUniqueIndexNames<T extends Database.Indexes> = DecomposeIndexName<
-  keyof UniqueIndexes<T>
->;
+export type DecomposeUniqueIndexNames<T extends Database.Indexes> = DecomposeIndexName<keyof UniqueIndexes<T>>;
 
 /**
  * Given an index object `T`, it produces the secondary decomposed index names.
  */
-export type DecomposeSecondaryIndexNames<T extends Database.Indexes> = DecomposeIndexName<
-  keyof SecondaryIndexes<T>
->;
+export type DecomposeSecondaryIndexNames<T extends Database.Indexes> = DecomposeIndexName<keyof SecondaryIndexes<T>>;
 
 /**
  * Given a database service `T`, it produces an object with all tables containing indexes.
@@ -69,8 +61,7 @@ export type IndexedTables<T extends Database.Service> = MergeIndexes<DatabaseTab
  * Given a list of tables with indexes `T`, it produces another object containing all the
  * table indexes.
  */
-type MergeIndexes<T extends Database.Table[]> =
-  IsArrayEmpty<T> extends false ? TableIndexes<T[0]> & MergeIndexes<ArrayRest<T>> : {};
+type MergeIndexes<T extends Database.Table[]> = IsArrayEmpty<T> extends false ? TableIndexes<T[0]> & MergeIndexes<ArrayRest<T>> : {};
 
 /**
  * Given a database table `T`, it produces an object containing all the table indexes.

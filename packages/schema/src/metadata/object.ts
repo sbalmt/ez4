@@ -5,11 +5,11 @@ import type { SchemaContext } from '../types/context.js';
 
 import { isTypeModel, isTypeObject, isTypeReference } from '@ez4/reflection';
 
-import { SchemaReferenceNotFound } from '../errors/reference.js';
-import { getObjectProperties } from '../reflection/object.js';
 import { getModelProperties } from '../reflection/model.js';
+import { getObjectProperties } from '../reflection/object.js';
+import { SchemaReferenceNotFound } from '../errors/reference.js';
 import { SchemaDefinitions, SchemaType } from '../types/common.js';
-import { getNewContext } from '../types/context.js';
+import { createSchemaContext } from '../types/context.js';
 import { createReferenceSchema } from './reference.js';
 import { getAnySchema } from './any.js';
 
@@ -47,7 +47,7 @@ export const isRichTypeModel = (type: AllType): type is RichTypeModel => {
 export const getObjectSchema = (
   type: AllType,
   reflection: SourceMap,
-  context = getNewContext(),
+  context = createSchemaContext(),
   description?: string
 ): ObjectSchema | ReferenceSchema | null => {
   const { references } = context;
@@ -106,11 +106,7 @@ export const getObjectSchema = (
   return null;
 };
 
-const getAnySchemaFromMembers = (
-  reflection: SourceMap,
-  context: SchemaContext,
-  members: ModelProperty[]
-) => {
+const getAnySchemaFromMembers = (reflection: SourceMap, context: SchemaContext, members: ModelProperty[]) => {
   const properties: ObjectSchemaProperties = {};
 
   for (const member of members) {
@@ -126,11 +122,7 @@ const getAnySchemaFromMembers = (
   return properties;
 };
 
-const getAnySchemaFromDynamicMembers = (
-  reflection: SourceMap,
-  context: SchemaContext,
-  type: TypeObject
-) => {
+const getAnySchemaFromDynamicMembers = (reflection: SourceMap, context: SchemaContext, type: TypeObject) => {
   if (!type.members || Array.isArray(type.members)) {
     return;
   }

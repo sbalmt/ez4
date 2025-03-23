@@ -13,11 +13,7 @@ import {
 
 import { isOptionalNullable } from './utils.js';
 
-export const validateNumber = (
-  value: unknown,
-  schema: NumberSchema,
-  context?: ValidationContext
-) => {
+export const validateNumber = (value: unknown, schema: NumberSchema, context?: ValidationContext) => {
   if (isOptionalNullable(value, schema)) {
     return [];
   }

@@ -12,11 +12,12 @@ export const prepareSelect = <
   T extends Database.Schema,
   S extends Query.SelectInput<T, R>,
   I extends Database.Indexes,
-  R extends RelationMetadata
+  R extends RelationMetadata,
+  C extends boolean
 >(
   table: string,
   index: string | undefined,
-  query: Query.FindOneInput<T, S, I, R> | Query.FindManyInput<T, S, I, R>
+  query: Query.FindOneInput<T, S, I, R> | Query.FindManyInput<T, S, I, R, C>
 ): PrepareResult => {
   const selectFields = getSelectFields(query.select);
 

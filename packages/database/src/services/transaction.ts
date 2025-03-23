@@ -15,37 +15,24 @@ export namespace Transaction {
    */
   export type WriteOperations<T extends Database.Service> = {
     [P in keyof TableSchemas<T>]?: (TableSchemas<T>[P] extends Database.Schema
-      ? AnyOperation<
-          TableSchemas<T>[P],
-          TableIndex<P, IndexedTables<T>>,
-          TableRelation<P, RelationTables<T>>
-        >
+      ? AnyOperation<TableSchemas<T>[P], TableIndex<P, IndexedTables<T>>, TableRelation<P, RelationTables<T>>>
       : AnyObject)[];
   };
 
-  type AnyOperation<
-    T extends Database.Schema,
-    I extends Database.Indexes,
-    R extends RelationMetadata
-  > = InsertOperation<T, R> | UpdateOperation<T, I, R> | DeleteOperation<T, I, R>;
+  type AnyOperation<T extends Database.Schema, I extends Database.Indexes, R extends RelationMetadata> =
+    | InsertOperation<T, R>
+    | UpdateOperation<T, I, R>
+    | DeleteOperation<T, I, R>;
 
   type InsertOperation<T extends Database.Schema, R extends RelationMetadata> = {
-    insert: Query.InsertOneInput<T, R>;
+    insert: Omit<Query.InsertOneInput<T, Query.SelectInput<T, R>, R>, 'select'>;
   };
 
-  type UpdateOperation<
-    T extends Database.Schema,
-    I extends Database.Indexes,
-    R extends RelationMetadata
-  > = {
+  type UpdateOperation<T extends Database.Schema, I extends Database.Indexes, R extends RelationMetadata> = {
     update: Omit<Query.UpdateOneInput<T, Query.SelectInput<T, R>, I, R>, 'select' | 'include'>;
   };
 
-  type DeleteOperation<
-    T extends Database.Schema,
-    I extends Database.Indexes,
-    R extends RelationMetadata
-  > = {
+  type DeleteOperation<T extends Database.Schema, I extends Database.Indexes, R extends RelationMetadata> = {
     delete: Omit<Query.DeleteOneInput<T, Query.SelectInput<T, R>, I, R>, 'select' | 'include'>;
   };
 }

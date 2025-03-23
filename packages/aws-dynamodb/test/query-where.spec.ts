@@ -22,16 +22,12 @@ type TestRelations = {
 
 describe('dynamodb query (where)', () => {
   const getWhereOperation = (where: Query.WhereInput<TestSchema, {}, TestRelations>) => {
-    const [statement, variables] = prepareSelect<TestSchema, {}, {}, TestRelations>(
-      'ez4-test-where-operation',
-      undefined,
-      {
-        select: {
-          id: true
-        },
-        where
-      }
-    );
+    const [statement, variables] = prepareSelect<TestSchema, {}, {}, TestRelations, false>('ez4-test-where-operation', undefined, {
+      select: {
+        id: true
+      },
+      where
+    });
 
     const whereStatement = statement.substring(statement.indexOf('WHERE'));
 

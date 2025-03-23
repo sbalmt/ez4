@@ -4,8 +4,8 @@ import { isAnyObject } from '../object/check.js';
 /**
  * Check whether `target` and `source` arrays are equal.
  *
- * @param target Target object.
- * @param source Source object.
+ * @param target Target array.
+ * @param source Source array.
  * @returns Returns `true` when `target` and `source` are equal, `false` otherwise.
  */
 export const deepEqualArray = (target: unknown[], source: unknown[]) => {

@@ -42,20 +42,22 @@ export declare class CreateItemResponse implements Http.Response {
      * Created item Id.
      */
     item_id: string;
+
+    /**
+     * Created category Id.
+     */
+    category_id?: string;
   };
 }
 
 /**
  * Handle item create requests.
  */
-export async function createItemHandler(
-  request: CreateItemRequest,
-  context: Service.Context<Api>
-): Promise<CreateItemResponse> {
+export async function createItemHandler(request: CreateItemRequest, context: Service.Context<Api>): Promise<CreateItemResponse> {
   const { auroraDb } = context;
   const { name, description, category } = request.body;
 
-  const itemId = await createItem(auroraDb, {
+  const { itemId, categoryId } = await createItem(auroraDb, {
     name,
     description,
     category
@@ -64,7 +66,8 @@ export async function createItemHandler(
   return {
     status: 201,
     body: {
-      item_id: itemId
+      item_id: itemId,
+      category_id: categoryId
     }
   };
 }

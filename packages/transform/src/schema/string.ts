@@ -1,9 +1,25 @@
 import type { StringSchema } from '@ez4/schema';
 
-export const transformString = (value: unknown, schema: StringSchema) => {
+import { createTransformContext } from '../types/context.js';
+
+export const transformString = (value: unknown, schema: StringSchema, context = createTransformContext()) => {
+  const { definitions } = schema;
+
   if (typeof value === 'string') {
-    return value;
+    return definitions?.trim ? value.trim() : value;
   }
 
-  return schema.definitions?.default;
+  const valueType = typeof value;
+
+  if (context.convert && (valueType === 'number' || valueType === 'boolean')) {
+    const input = String(value);
+
+    if (definitions?.trim) {
+      return input.trim();
+    }
+
+    return input;
+  }
+
+  return definitions?.default;
 };

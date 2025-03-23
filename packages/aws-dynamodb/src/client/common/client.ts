@@ -47,7 +47,5 @@ export const executeTransaction = async (client: DynamoDBDocumentClient, stateme
     operations.push(client.send(command));
   }
 
-  const result = await Promise.all(operations);
-
-  return result.flat();
+  await Promise.all(operations);
 };

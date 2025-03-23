@@ -21,11 +21,7 @@ export class SqlDeleteStatement extends SqlSource {
     alias?: string;
   };
 
-  constructor(
-    schema: ObjectSchema | undefined,
-    references: SqlBuilderReferences,
-    options: SqlBuilderOptions
-  ) {
+  constructor(schema: ObjectSchema | undefined, references: SqlBuilderReferences, options: SqlBuilderOptions) {
     super();
 
     this.#state = {
@@ -75,14 +71,12 @@ export class SqlDeleteStatement extends SqlSource {
     return this;
   }
 
-  returning(
-    result?: SqlResultRecord | SqlResultColumn[]
-  ): SqlDeleteStatement & SqlSourceWithResults {
+  returning(result?: SqlResultRecord | SqlResultColumn[]): SqlDeleteStatement & SqlSourceWithResults {
     const { returning } = this.#state;
 
     if (!returning) {
       this.#state.returning = new SqlReturningClause(this, result);
-    } else {
+    } else if (result) {
       returning.apply(result);
     }
 
@@ -104,10 +98,14 @@ export class SqlDeleteStatement extends SqlSource {
     }
 
     if (where && !where.empty) {
-      const [whereClause, whereVariables] = where.build();
+      const whereResult = where.build();
 
-      variables.push(...whereVariables);
-      statement.push(whereClause);
+      if (whereResult) {
+        const [whereClause, whereVariables] = whereResult;
+
+        variables.push(...whereVariables);
+        statement.push(whereClause);
+      }
     }
 
     if (returning && !returning.empty) {

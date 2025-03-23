@@ -20,9 +20,13 @@ export const prepareLinkedClient = (context: EventContext, service: DatabaseServ
 
   const repository = JSON.stringify(getRepository(service));
 
+  const settings = JSON.stringify({
+    debug: options.debug
+  });
+
   return {
     entryIds: [clusterId],
-    constructor: `make(${configuration}, ${repository}, ${options.debug})`,
+    constructor: `make(${configuration}, ${repository}, ${settings})`,
     from: '@ez4/aws-aurora/client',
     module: 'Client'
   };

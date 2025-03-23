@@ -22,11 +22,7 @@ export const beginTransaction = async (client: RDSDataClient, connection: Connec
   return result.transactionId!;
 };
 
-export const rollbackTransaction = async (
-  client: RDSDataClient,
-  connection: Connection,
-  transactionId: string
-) => {
+export const rollbackTransaction = async (client: RDSDataClient, connection: Connection, transactionId: string) => {
   await client.send(
     new RollbackTransactionCommand({
       ...connection,
@@ -35,11 +31,7 @@ export const rollbackTransaction = async (
   );
 };
 
-export const commitTransaction = async (
-  client: RDSDataClient,
-  connection: Connection,
-  transactionId: string
-) => {
+export const commitTransaction = async (client: RDSDataClient, connection: Connection, transactionId: string) => {
   await client.send(
     new CommitTransactionCommand({
       ...connection,

@@ -224,10 +224,7 @@ describe('aurora query (update)', () => {
       }
     );
 
-    equal(
-      statement,
-      `UPDATE ONLY "ez4-test-update" SET "bar"['barBaz'] = :0, "baz" = :1 WHERE "id" = :2`
-    );
+    equal(statement, `UPDATE ONLY "ez4-test-update" SET "bar"['barBaz'] = :0, "baz" = :1 WHERE "id" = :2`);
 
     deepEqual(variables, [
       makeParameter('0', { barBazFoo: 123 }),
@@ -267,6 +264,46 @@ describe('aurora query (update)', () => {
     ]);
   });
 
+  it('assert :: prepare update (primary foreign id with select)', () => {
+    const [statement, variables] = prepareUpdateQuery<TestSchema, {}, TestIndexes, TestRelations>(
+      'ez4-test-update',
+      testSchema,
+      testRelations,
+      {
+        select: {
+          id: true,
+          relation1: {
+            id: true,
+            foo: true
+          }
+        },
+        data: {
+          id: '00000000-0000-1000-9000-000000000000',
+          relation1: {
+            relation1_id: '00000000-0000-1000-9000-000000000001'
+          }
+        },
+        where: {
+          foo: 456
+        }
+      }
+    );
+
+    equal(
+      statement,
+      // Main record
+      `UPDATE ONLY "ez4-test-update" AS "R" SET "id" = :0, "relation1_id" = :1 WHERE "R"."foo" = :2 RETURNING "R"."id", ` +
+        `(SELECT json_build_object('id', "T"."id", 'foo', "T"."foo") FROM "ez4-test-relation" AS "T" ` +
+        `WHERE "T"."id" = "R"."relation1_id") AS "relation1"`
+    );
+
+    deepEqual(variables, [
+      makeParameter('0', '00000000-0000-1000-9000-000000000000', 'UUID'),
+      makeParameter('1', '00000000-0000-1000-9000-000000000001', 'UUID'),
+      makeParameter('2', 456)
+    ]);
+  });
+
   it('assert :: prepare update (primary foreign object)', () => {
     const [statement, variables] = prepareUpdateQuery<TestSchema, {}, TestIndexes, TestRelations>(
       'ez4-test-update',
@@ -292,11 +329,58 @@ describe('aurora query (update)', () => {
       statement,
       `WITH ` +
         // Main record
-        `"R0" AS (UPDATE ONLY "ez4-test-update" SET "id" = :0 ` +
-        `WHERE "foo" = :1 RETURNING "relation1_id") ` +
+        `"R0" AS (UPDATE ONLY "ez4-test-update" SET "id" = :0 WHERE "foo" = :1 RETURNING "relation1_id") ` +
         // Relation record
-        `UPDATE ONLY "ez4-test-relation" AS "T" SET "foo" = :2, "bar"['barFoo'] = :3 ` +
-        `FROM "R0" WHERE "T"."id" = "R0"."relation1_id"`
+        `UPDATE ONLY "ez4-test-relation" AS "T" SET "foo" = :2, "bar"['barFoo'] = :3 FROM "R0" WHERE "T"."id" = "R0"."relation1_id"`
+    );
+
+    deepEqual(variables, [
+      makeParameter('0', '00000000-0000-1000-9000-000000000000', 'UUID'),
+      makeParameter('1', 456),
+      makeParameter('2', 123),
+      makeParameter('3', '"abc"', 'JSON')
+    ]);
+  });
+
+  it('assert :: prepare update (primary foreign object with select)', () => {
+    const [statement, variables] = prepareUpdateQuery<TestSchema, {}, TestIndexes, TestRelations>(
+      'ez4-test-update',
+      testSchema,
+      testRelations,
+      {
+        select: {
+          id: true,
+          relation1: {
+            id: true,
+            foo: true
+          }
+        },
+        data: {
+          id: '00000000-0000-1000-9000-000000000000',
+          relation1: {
+            foo: 123,
+            bar: {
+              barFoo: 'abc'
+            }
+          }
+        },
+        where: {
+          foo: 456
+        }
+      }
+    );
+
+    equal(
+      statement,
+      `WITH ` +
+        // Main record
+        `"R0" AS (UPDATE ONLY "ez4-test-update" AS "R" SET "id" = :0 WHERE "R"."foo" = :1 RETURNING "R"."relation1_id"), ` +
+        // Relation record
+        `"R1" AS (UPDATE ONLY "ez4-test-relation" AS "T" SET "foo" = :2, "bar"['barFoo'] = :3 FROM "R0" WHERE "T"."id" = "R0"."relation1_id") ` +
+        // Select
+        `SELECT "id", (SELECT json_build_object('id', "T"."id", 'foo', "T"."foo") FROM "ez4-test-relation" AS "T" ` +
+        `WHERE "T"."id" = "R0"."relation1_id") AS "relation1" ` +
+        `FROM "ez4-test-update"`
     );
 
     deepEqual(variables, [
@@ -329,11 +413,9 @@ describe('aurora query (update)', () => {
       statement,
       `WITH ` +
         // Main record
-        `"R0" AS (UPDATE ONLY "ez4-test-update" SET "id" = :0 ` +
-        `WHERE "foo" = :1 RETURNING "id") ` +
+        `"R0" AS (UPDATE ONLY "ez4-test-update" SET "id" = :0 WHERE "foo" = :1 RETURNING "id") ` +
         // First relation
-        `UPDATE ONLY "ez4-test-relation" AS "T" SET "relation2_id" = :2 ` +
-        `FROM "R0" WHERE "T"."relation2_id" = "R0"."id"`
+        `UPDATE ONLY "ez4-test-relation" AS "T" SET "relation2_id" = :2 FROM "R0" WHERE "T"."relation2_id" = "R0"."id"`
     );
 
     deepEqual(variables, [
@@ -368,11 +450,58 @@ describe('aurora query (update)', () => {
       statement,
       `WITH ` +
         // Main record
-        `"R0" AS (UPDATE ONLY "ez4-test-update" SET "id" = :0 ` +
-        `WHERE "foo" = :1 RETURNING "id") ` +
+        `"R0" AS (UPDATE ONLY "ez4-test-update" SET "id" = :0 WHERE "foo" = :1 RETURNING "id") ` +
         // First relation
-        `UPDATE ONLY "ez4-test-relation" AS "T" SET "foo" = :2, "bar"['barBar'] = :3 ` +
-        `FROM "R0" WHERE "T"."relation2_id" = "R0"."id"`
+        `UPDATE ONLY "ez4-test-relation" AS "T" SET "foo" = :2, "bar"['barBar'] = :3 FROM "R0" WHERE "T"."relation2_id" = "R0"."id"`
+    );
+
+    deepEqual(variables, [
+      makeParameter('0', '00000000-0000-1000-9000-000000000000', 'UUID'),
+      makeParameter('1', 123),
+      makeParameter('2', 456),
+      makeParameter('3', 'false', 'JSON')
+    ]);
+  });
+
+  it('assert :: prepare update (unique foreign object with select)', () => {
+    const [statement, variables] = prepareUpdateQuery<TestSchema, {}, TestIndexes, TestRelations>(
+      'ez4-test-update',
+      testSchema,
+      testRelations,
+      {
+        select: {
+          id: true,
+          relation2: {
+            id: true,
+            foo: true
+          }
+        },
+        data: {
+          id: '00000000-0000-1000-9000-000000000000',
+          relation2: {
+            foo: 456,
+            bar: {
+              barBar: false
+            }
+          }
+        },
+        where: {
+          foo: 123
+        }
+      }
+    );
+
+    equal(
+      statement,
+      `WITH ` +
+        // Main record
+        `"R0" AS (UPDATE ONLY "ez4-test-update" AS "R" SET "id" = :0 WHERE "R"."foo" = :1 RETURNING "R"."id"), ` +
+        // First relation
+        `"R1" AS (UPDATE ONLY "ez4-test-relation" AS "T" SET "foo" = :2, "bar"['barBar'] = :3 FROM "R0" WHERE "T"."relation2_id" = "R0"."id") ` +
+        // Select
+        `SELECT "id", (SELECT json_build_object('id', "T"."id", 'foo', "T"."foo") FROM "ez4-test-relation" AS "T" ` +
+        `WHERE "T"."relation2_id" = "R0"."id") AS "relation2" ` +
+        `FROM "ez4-test-update"`
     );
 
     deepEqual(variables, [
@@ -405,11 +534,56 @@ describe('aurora query (update)', () => {
       statement,
       `WITH ` +
         // Main record
-        `"R0" AS (UPDATE ONLY "ez4-test-update" SET "id" = :0 ` +
-        `WHERE "foo" = :1 RETURNING "id") ` +
+        `"R0" AS (UPDATE ONLY "ez4-test-update" SET "id" = :0 WHERE "foo" = :1 RETURNING "id") ` +
         // First relation
-        `UPDATE ONLY "ez4-test-relation" AS "T" SET "foo" = :2 ` +
-        `FROM "R0" WHERE "T"."relation1_id" = "R0"."id"`
+        `UPDATE ONLY "ez4-test-relation" AS "T" SET "foo" = :2 FROM "R0" WHERE "T"."relation1_id" = "R0"."id"`
+    );
+
+    deepEqual(variables, [
+      makeParameter('0', '00000000-0000-1000-9000-000000000000', 'UUID'),
+      makeParameter('1', 456),
+      makeParameter('2', 123)
+    ]);
+  });
+
+  it('assert :: prepare update (inverse array object with select)', () => {
+    const [statement, variables] = prepareUpdateQuery<TestSchema, {}, TestIndexes, TestRelations>(
+      'ez4-test-update',
+      testSchema,
+      testRelations,
+      {
+        select: {
+          id: true,
+          relations: {
+            id: true,
+            bar: true
+          }
+        },
+        data: {
+          id: '00000000-0000-1000-9000-000000000000',
+          relations: {
+            foo: 123
+          }
+        },
+        where: {
+          foo: 456
+        }
+      }
+    );
+
+    ``;
+
+    equal(
+      statement,
+      `WITH ` +
+        // Main record
+        `"R0" AS (UPDATE ONLY "ez4-test-update" AS "R" SET "id" = :0 WHERE "R"."foo" = :1 RETURNING "R"."id"), ` +
+        // First relation
+        `"R1" AS (UPDATE ONLY "ez4-test-relation" AS "T" SET "foo" = :2 FROM "R0" WHERE "T"."relation1_id" = "R0"."id") ` +
+        // Select
+        `SELECT "id", (SELECT COALESCE(json_agg(json_build_object('id', "T"."id", 'bar', "T"."bar")), '[]'::json) FROM "ez4-test-relation" AS "T" ` +
+        `WHERE "T"."relation1_id" = "R0"."id") AS "relations" ` +
+        `FROM "ez4-test-update"`
     );
 
     deepEqual(variables, [
@@ -451,17 +625,84 @@ describe('aurora query (update)', () => {
       statement,
       `WITH ` +
         // Main record
-        `"R0" AS (UPDATE ONLY "ez4-test-update" SET "id" = :0 ` +
-        `WHERE "foo" = :1 RETURNING "relation1_id", "id"), ` +
+        `"R0" AS (UPDATE ONLY "ez4-test-update" SET "id" = :0 WHERE "foo" = :1 RETURNING "relation1_id", "id"), ` +
         // First relation (primary)
-        `"R1" AS (UPDATE ONLY "ez4-test-relation" AS "T" SET "bar"['barFoo'] = :2 ` +
-        `FROM "R0" WHERE "T"."id" = "R0"."relation1_id"), ` +
+        `"R1" AS (UPDATE ONLY "ez4-test-relation" AS "T" SET "bar"['barFoo'] = :2 FROM "R0" WHERE "T"."id" = "R0"."relation1_id"), ` +
         // Second relation (unique)
-        `"R2" AS (UPDATE ONLY "ez4-test-relation" AS "T" SET "bar"['barBar'] = :3 ` +
-        `FROM "R0" WHERE "T"."relation2_id" = "R0"."id") ` +
+        `"R2" AS (UPDATE ONLY "ez4-test-relation" AS "T" SET "bar"['barBar'] = :3 FROM "R0" WHERE "T"."relation2_id" = "R0"."id") ` +
         // Third relation (inverse)
-        `UPDATE ONLY "ez4-test-relation" AS "T" SET "foo" = :4 ` +
-        `FROM "R0" WHERE "T"."relation1_id" = "R0"."id"`
+        `UPDATE ONLY "ez4-test-relation" AS "T" SET "foo" = :4 FROM "R0" WHERE "T"."relation1_id" = "R0"."id"`
+    );
+
+    deepEqual(variables, [
+      makeParameter('0', '00000000-0000-1000-9000-000000000000', 'UUID'),
+      makeParameter('1', 456),
+      makeParameter('2', '"abc"', 'JSON'),
+      makeParameter('3', 'true', 'JSON'),
+      makeParameter('4', 123)
+    ]);
+  });
+
+  it('assert :: prepare update (foreign and inverse with select)', () => {
+    const [statement, variables] = prepareUpdateQuery<TestSchema, {}, TestIndexes, TestRelations>(
+      'ez4-test-update',
+      testSchema,
+      testRelations,
+      {
+        select: {
+          id: true,
+          relation1: {
+            foo: true
+          },
+          relation2: {
+            id: true
+          },
+          relations: {
+            foo: true
+          }
+        },
+        data: {
+          id: '00000000-0000-1000-9000-000000000000',
+          relation1: {
+            bar: {
+              barFoo: 'abc'
+            }
+          },
+          relation2: {
+            bar: {
+              barBar: true
+            }
+          },
+          relations: {
+            foo: 123
+          }
+        },
+        where: {
+          foo: 456
+        }
+      }
+    );
+
+    ``;
+
+    equal(
+      statement,
+      `WITH ` +
+        // Main record
+        `"R0" AS (UPDATE ONLY "ez4-test-update" AS "R" SET "id" = :0 WHERE "R"."foo" = :1 RETURNING "R"."relation1_id", "R"."id"), ` +
+        // First relation (primary)
+        `"R1" AS (UPDATE ONLY "ez4-test-relation" AS "T" SET "bar"['barFoo'] = :2 FROM "R0" WHERE "T"."id" = "R0"."relation1_id"), ` +
+        // Second relation (unique)
+        `"R2" AS (UPDATE ONLY "ez4-test-relation" AS "T" SET "bar"['barBar'] = :3 FROM "R0" WHERE "T"."relation2_id" = "R0"."id"), ` +
+        // Third relation (inverse)
+        `"R3" AS (UPDATE ONLY "ez4-test-relation" AS "T" SET "foo" = :4 FROM "R0" WHERE "T"."relation1_id" = "R0"."id") ` +
+        // Select
+        `SELECT "id", ` +
+        `(SELECT json_build_object('foo', "T"."foo") FROM "ez4-test-relation" AS "T" WHERE "T"."id" = "R0"."relation1_id") AS "relation1", ` +
+        `(SELECT json_build_object('id', "T"."id") FROM "ez4-test-relation" AS "T" WHERE "T"."relation2_id" = "R0"."id") AS "relation2", ` +
+        `(SELECT COALESCE(json_agg(json_build_object('foo', "T"."foo")), '[]'::json) FROM "ez4-test-relation" AS "T" ` +
+        `WHERE "T"."relation1_id" = "R0"."id") AS "relations" ` +
+        `FROM "ez4-test-update"`
     );
 
     deepEqual(variables, [
@@ -504,17 +745,13 @@ describe('aurora query (update)', () => {
       statement,
       `WITH ` +
         // Main record
-        `"R0" AS (SELECT "relation1_id", "id" ` +
-        `FROM "ez4-test-update" WHERE "foo" = :0), ` +
+        `"R0" AS (SELECT "relation1_id", "id" FROM "ez4-test-update" WHERE "foo" = :0), ` +
         // First relation (primary)
-        `"R1" AS (UPDATE ONLY "ez4-test-relation" AS "T" SET "bar"['barFoo'] = :1 ` +
-        `FROM "R0" WHERE "T"."id" = "R0"."relation1_id"), ` +
+        `"R1" AS (UPDATE ONLY "ez4-test-relation" AS "T" SET "bar"['barFoo'] = :1 FROM "R0" WHERE "T"."id" = "R0"."relation1_id"), ` +
         // Second relation (unique)
-        `"R2" AS (UPDATE ONLY "ez4-test-relation" AS "T" SET "bar"['barBar'] = :2 ` +
-        `FROM "R0" WHERE "T"."relation2_id" = "R0"."id") ` +
+        `"R2" AS (UPDATE ONLY "ez4-test-relation" AS "T" SET "bar"['barBar'] = :2 FROM "R0" WHERE "T"."relation2_id" = "R0"."id") ` +
         // Third relation (inverse)
-        `UPDATE ONLY "ez4-test-relation" AS "T" SET "foo" = :3 ` +
-        `FROM "R0" WHERE "T"."relation1_id" = "R0"."id"`
+        `UPDATE ONLY "ez4-test-relation" AS "T" SET "foo" = :3 FROM "R0" WHERE "T"."relation1_id" = "R0"."id"`
     );
 
     deepEqual(variables, [
@@ -552,9 +789,10 @@ describe('aurora query (update)', () => {
     equal(
       statement,
       `WITH ` +
+        // Main select
         `"R0" AS (SELECT "relation1_id" FROM "ez4-test-update" WHERE "id" = :0) ` +
-        `UPDATE ONLY "ez4-test-relation" AS "T" SET "bar"['barBaz'] = :1, "baz" = :2 ` +
-        `FROM "R0" WHERE "T"."id" = "R0"."relation1_id"`
+        // Update relation
+        `UPDATE ONLY "ez4-test-relation" AS "T" SET "bar"['barBaz'] = :1, "baz" = :2 FROM "R0" WHERE "T"."id" = "R0"."relation1_id"`
     );
 
     deepEqual(variables, [

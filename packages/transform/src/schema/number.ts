@@ -1,15 +1,17 @@
 import type { NumberSchema } from '@ez4/schema';
 
-export const transformNumber = (value: unknown, schema: NumberSchema) => {
+import { createTransformContext } from '../types/context.js';
+
+export const transformNumber = (value: unknown, schema: NumberSchema, context = createTransformContext()) => {
   if (typeof value === 'number') {
     return value;
   }
 
-  if (typeof value === 'string') {
-    const result = Number(value);
+  if (context.convert && typeof value === 'string') {
+    const input = Number(value);
 
-    if (!Number.isNaN(result) && Number.isFinite(result)) {
-      return result;
+    if (!Number.isNaN(input) && Number.isFinite(input)) {
+      return input;
     }
   }
 

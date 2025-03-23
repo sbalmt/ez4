@@ -22,7 +22,7 @@ export declare class TestDatabase extends Database.Service {
       name: 'tableA';
       schema: TestTableA;
       relations: {
-        'tableB:table_a_id': 'id@relation_b';
+        'id@relation_b': 'tableB:table_a_id';
       };
       indexes: {
         id: Index.Primary;
@@ -35,7 +35,7 @@ export declare class TestDatabase extends Database.Service {
       name: 'tableB';
       schema: TestTableB;
       relations: {
-        'tableA:id': 'table_a_id@relation_a';
+        'table_a_id@relation_a': 'tableA:id';
       };
       indexes: {
         id: Index.Primary;
@@ -49,10 +49,7 @@ export declare class TestDatabase extends Database.Service {
   };
 }
 
-export async function testHandler(
-  _change: StreamChange<TestTableA>,
-  { selfClient }: Service.Context<TestDatabase>
-) {
+export async function testHandler(_change: StreamChange<TestTableA>, { selfClient }: Service.Context<TestDatabase>) {
   testSelect(selfClient);
   testInsert(selfClient);
   testUpdate(selfClient);

@@ -10,9 +10,21 @@ export class InvalidColumnOrderError extends Error {
   }
 }
 
+export class MissingTableAliasError extends Error {
+  constructor() {
+    super(`Table alias for the statement is missing.`);
+  }
+}
+
 export class MissingTableNameError extends Error {
   constructor() {
     super(`Table name for the statement is missing.`);
+  }
+}
+
+export class MissingJoinConditionError extends Error {
+  constructor() {
+    super(`Join condition for the given table is missing.`);
   }
 }
 

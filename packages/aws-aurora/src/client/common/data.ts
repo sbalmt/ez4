@@ -2,11 +2,23 @@ import type { SqlParameter } from '@aws-sdk/client-rds-data';
 import type { AnySchema } from '@ez4/schema';
 
 import { TypeHint } from '@aws-sdk/client-rds-data';
-import { isDate, isDateTime, isTime, isUUID } from '@ez4/utils';
+import { isAnyObject, isDate, isDateTime, isTime, isUUID } from '@ez4/utils';
 import { SchemaType } from '@ez4/schema';
 
 export const isSkippableData = (value: unknown) => {
   return value === undefined;
+};
+
+export const isSingleRelationData = (value: unknown) => {
+  return isAnyObject(value);
+};
+
+export const isMultipleRelationData = (value: unknown) => {
+  return Array.isArray(value);
+};
+
+export const isRelationalData = (value: unknown): boolean => {
+  return isSingleRelationData(value) || isMultipleRelationData(value);
 };
 
 export const prepareFieldData = (name: string, value: unknown, schema: AnySchema): SqlParameter => {

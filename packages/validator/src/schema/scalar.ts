@@ -7,11 +7,7 @@ import { validateBoolean } from './boolean.js';
 import { validateNumber } from './number.js';
 import { validateString } from './string.js';
 
-export const validateScalar = (
-  value: unknown,
-  schema: ScalarSchema,
-  context?: ValidationContext
-) => {
+export const validateScalar = (value: unknown, schema: ScalarSchema, context?: ValidationContext) => {
   switch (schema.type) {
     case SchemaType.Boolean:
       return validateBoolean(value, schema, context);

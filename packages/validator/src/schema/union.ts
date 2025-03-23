@@ -1,14 +1,10 @@
 import type { UnionSchema } from '@ez4/schema';
 
-import { getNewContext } from '../types/context.js';
+import { createValidatorContext } from '../types/context.js';
 import { isOptionalNullable } from './utils.js';
 import { validateAny } from './any.js';
 
-export const validateUnion = async (
-  value: unknown,
-  schema: UnionSchema,
-  context = getNewContext()
-) => {
+export const validateUnion = async (value: unknown, schema: UnionSchema, context = createValidatorContext()) => {
   if (isOptionalNullable(value, schema)) {
     return [];
   }

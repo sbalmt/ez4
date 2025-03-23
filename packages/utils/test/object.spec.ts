@@ -13,6 +13,7 @@ describe('object utils', () => {
     ok(!isAnyObject(undefined));
     ok(!isAnyObject(null));
     ok(!isAnyObject(NaN));
+    ok(!isAnyObject([]));
   });
 
   it('assert :: is plain object', () => {
@@ -24,6 +25,7 @@ describe('object utils', () => {
     ok(!isPlainObject(undefined));
     ok(!isPlainObject(null));
     ok(!isPlainObject(NaN));
+    ok(!isPlainObject([]));
   });
 
   it('assert :: is empty object', () => {
@@ -31,10 +33,7 @@ describe('object utils', () => {
   });
 
   it('assert :: is not empty object', () => {
-    const result = isEmptyObject({
-      foo: undefined
-    });
-
-    ok(!result);
+    ok(!isEmptyObject({ foo: undefined }));
+    ok(!isEmptyObject([1, 2, 3]));
   });
 });

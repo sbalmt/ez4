@@ -41,10 +41,7 @@ export declare class DeleteItemResponse implements Http.Response {
 /**
  * Handle item delete requests.
  */
-export async function deleteItemHandler(
-  request: DeleteItemRequest,
-  context: Service.Context<Api>
-): Promise<DeleteItemResponse> {
+export async function deleteItemHandler(request: DeleteItemRequest, context: Service.Context<Api>): Promise<DeleteItemResponse> {
   const { dynamoDb } = context;
   const { id } = request.parameters;
 

@@ -100,7 +100,7 @@ describe('rich type validation errors', () => {
     await assertError('def', schema, [UnexpectedStringError]);
   });
 
-  it('assert :: uuid errors', async () => {
+  it('assert :: string (regex) errors', async () => {
     const schema: AnySchema = {
       type: SchemaType.String,
       format: 'regex',
@@ -112,7 +112,7 @@ describe('rich type validation errors', () => {
     await assertError('123', schema, [ExpectedRegexTypeError]);
   });
 
-  it('assert :: uuid errors', async () => {
+  it('assert :: string (uuid) errors', async () => {
     const schema: AnySchema = {
       type: SchemaType.String,
       format: 'uuid'
@@ -121,7 +121,7 @@ describe('rich type validation errors', () => {
     await assertError('', schema, [ExpectedUUIDTypeError]);
   });
 
-  it('assert :: email errors', async () => {
+  it('assert :: string (email) errors', async () => {
     const schema: AnySchema = {
       type: SchemaType.String,
       format: 'email'
@@ -130,7 +130,7 @@ describe('rich type validation errors', () => {
     await assertError('', schema, [ExpectedEmailTypeError]);
   });
 
-  it('assert :: time errors', async () => {
+  it('assert :: string (time) errors', async () => {
     const schema: AnySchema = {
       type: SchemaType.String,
       format: 'time'
@@ -139,7 +139,7 @@ describe('rich type validation errors', () => {
     await assertError('abc', schema, [ExpectedTimeTypeError]);
   });
 
-  it('assert :: date errors', async () => {
+  it('assert :: string (date) errors', async () => {
     const schema: AnySchema = {
       type: SchemaType.String,
       format: 'date'
@@ -148,7 +148,7 @@ describe('rich type validation errors', () => {
     await assertError('abc', schema, [ExpectedDateTypeError]);
   });
 
-  it('assert :: date-date errors', async () => {
+  it('assert :: string (date-time) errors', async () => {
     const schema: AnySchema = {
       type: SchemaType.String,
       format: 'date-time'

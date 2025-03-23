@@ -1,14 +1,13 @@
 import type { AnyObject, PartialProperties } from './generics.js';
 
-import { deepEqualArray } from '../array/equal.js';
 import { isAnyObject } from './check.js';
 
 /**
- * Deep equal options.
+ * Deep merge options.
  */
-export type ObjectEqualityOptions<T extends AnyObject> = {
+export type ObjectMergingOptions<T extends AnyObject> = {
   /**
-   * After the given depth level, all objects and arrays are not deeply checked.
+   * After the given depth level, all objects and arrays are not deeply merged.
    */
   depth?: number;
 
@@ -24,19 +23,19 @@ export type ObjectEqualityOptions<T extends AnyObject> = {
 };
 
 /**
- * Check whether `target` and `source` objects according to the given options.
+ * Merge into the `target` object the given `source` object and generate a new one according to the given options.
  *
  * @param target Target object.
  * @param source Source object.
- * @param options Equality options.
- * @returns Returns `true` when `target` and `source` are equal, `false` otherwise.
+ * @param options Merging options.
+ * @returns Returns the new object.
  */
-export const deepEqualObject = <T extends AnyObject, S extends AnyObject>(target: T, source: S, options?: ObjectEqualityOptions<T & S>) => {
+export const deepMerge = <T extends AnyObject, S extends AnyObject>(target: T, source: S, options?: ObjectMergingOptions<T & S>) => {
   const includeStates = options?.include;
   const excludeStates = options?.exclude;
 
   if (includeStates && excludeStates) {
-    throw new TypeError(`Can't specify include and exclude for equality options together.`);
+    throw new TypeError(`Can't specify include and exclude for merge options together.`);
   }
 
   const isInclude = !!includeStates;
@@ -45,6 +44,8 @@ export const deepEqualObject = <T extends AnyObject, S extends AnyObject>(target
   const depth = options?.depth ?? +Infinity;
 
   const allKeys = [...new Set([...Object.keys(target), ...Object.keys(source)])];
+
+  const object: AnyObject = {};
 
   for (const key of allKeys) {
     const keyState = allStates[key] as PartialProperties<T & S> | boolean;
@@ -60,33 +61,26 @@ export const deepEqualObject = <T extends AnyObject, S extends AnyObject>(target
       continue;
     }
 
-    if (depth > 0) {
-      if (Array.isArray(targetValue) && Array.isArray(sourceValue)) {
-        if (!deepEqualArray(targetValue, sourceValue)) {
-          return false;
-        }
-
-        continue;
-      }
-
-      if (isAnyObject(targetValue) && isAnyObject(sourceValue)) {
-        const result = deepEqualObject(targetValue, sourceValue, {
+    if (isAnyObject(targetValue) && isAnyObject(sourceValue)) {
+      if (depth > 0) {
+        object[key] = deepMerge(targetValue, sourceValue, {
           ...(isAnyObject(keyState) && (isInclude ? { include: keyState } : { exclude: keyState })),
           depth: depth - 1
         });
 
-        if (!result) {
-          return false;
-        }
-
         continue;
       }
+
+      object[key] = {
+        ...sourceValue,
+        ...targetValue
+      };
+
+      continue;
     }
 
-    if (targetValue !== sourceValue) {
-      return false;
-    }
+    object[key] = sourceValue ?? targetValue;
   }
 
-  return true;
+  return object;
 };

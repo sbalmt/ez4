@@ -24,6 +24,7 @@ export const bundlePackage = async (entryFile, outFile, format, definitions) => 
     packages: 'external',
     platform: 'node',
     target: 'node20',
+    sourcemap: 'linked',
     format,
     define: {
       ...definitions,

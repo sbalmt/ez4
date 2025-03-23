@@ -5,9 +5,13 @@ export type ValidationContext = {
   property?: string;
 };
 
-export const getNewContext = (property?: string): ValidationContext => {
+export type ValidationContextOptions = {
+  property?: string;
+};
+
+export const createValidatorContext = (options?: ValidationContextOptions): ValidationContext => {
   return {
-    references: {},
-    property
+    property: options?.property,
+    references: {}
   };
 };

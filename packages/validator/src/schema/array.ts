@@ -2,21 +2,12 @@ import type { ArraySchema } from '@ez4/schema';
 
 import { isAnyNumber } from '@ez4/utils';
 
-import {
-  ExpectedArrayTypeError,
-  UnexpectedMaxItemsError,
-  UnexpectedMinItemsError
-} from '../errors/array.js';
-
-import { getNewContext } from '../types/context.js';
+import { ExpectedArrayTypeError, UnexpectedMaxItemsError, UnexpectedMinItemsError } from '../errors/array.js';
+import { createValidatorContext } from '../types/context.js';
 import { isOptionalNullable } from './utils.js';
 import { validateAny } from './any.js';
 
-export const validateArray = async (
-  value: unknown,
-  schema: ArraySchema,
-  context = getNewContext()
-) => {
+export const validateArray = async (value: unknown, schema: ArraySchema, context = createValidatorContext()) => {
   if (isOptionalNullable(value, schema)) {
     return [];
   }

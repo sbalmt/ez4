@@ -27,7 +27,7 @@ export type ImportOrCreateResponse = {
 };
 
 export const importStage = async (apiId: string, stageName: string): Promise<ImportOrCreateResponse | undefined> => {
-  Logger.logImport(StageServiceName, apiId);
+  Logger.logImport(StageServiceName, stageName);
 
   try {
     const response = await client.send(

@@ -24,7 +24,7 @@ export declare class Db extends Database.Service {
       name: 'items';
       schema: ItemSchema;
       relations: {
-        'categories:id': 'category_id@category';
+        'category_id@category': 'categories:id';
       };
       indexes: {
         id: Index.Primary;
@@ -35,7 +35,7 @@ export declare class Db extends Database.Service {
       name: 'categories';
       schema: CategorySchema;
       relations: {
-        'items:category_id': 'id@items';
+        'id@items': 'items:category_id';
       };
       indexes: {
         id: Index.Primary;
