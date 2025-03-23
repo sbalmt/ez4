@@ -1,4 +1,4 @@
-import type { SqlSourceWithResults, SqlRecord, SqlBuilder } from '@ez4/pgsql';
+import type { SqlSourceWithResults, SqlRecord, SqlBuilder, SqlSelectStatement, SqlUpdateStatement } from '@ez4/pgsql';
 import type { Database, RelationMetadata, Query } from '@ez4/database';
 import type { SqlParameter } from '@aws-sdk/client-rds-data';
 import type { ObjectSchema } from '@ez4/schema';
@@ -32,19 +32,29 @@ export const prepareUpdateQuery = <
     ? sql.update(schema).only(table).record(updateRecord).returning()
     : sql.select(schema).from(table);
 
+  const postQueries = preparePostRelations(query.data, relations, updateQuery, sql);
+
+  const allQueries: (SqlSelectStatement | SqlUpdateStatement)[] = [updateQuery, ...postQueries];
+
   if (query.where) {
     updateQuery.where(getSelectFilters(query.where, relations, updateQuery, sql));
   }
 
   if (query.select) {
-    const selectRecord = getSelectFields(query.select, query.include, schema, relations, updateQuery, sql);
+    if (postQueries.length > 0) {
+      const selectQuery = sql.select(schema).from(table);
 
-    updateQuery.results.record(selectRecord);
+      selectQuery.record(getSelectFields(query.select, query.include, schema, relations, updateQuery, sql));
+
+      allQueries.push(selectQuery);
+    } else {
+      const selectRecord = getSelectFields(query.select, query.include, schema, relations, updateQuery, sql);
+
+      updateQuery.results.record(selectRecord);
+    }
   }
 
-  const queries = [updateQuery, ...preparePostRelations(query.data, relations, updateQuery, sql)];
-
-  const [statement, variables] = sql.with(queries, 'R').build();
+  const [statement, variables] = sql.with(allQueries, 'R').build();
 
   return [statement, variables as SqlParameter[]];
 };
