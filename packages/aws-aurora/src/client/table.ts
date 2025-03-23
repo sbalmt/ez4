@@ -58,10 +58,10 @@ export class Table<T extends Database.Schema, I extends Database.Indexes, R exte
   async insertOne<S extends Query.SelectInput<T, R>>(query: Query.InsertOneInput<T, S, R>): Promise<Query.InsertOneResult<T, S, R>> {
     const command = await prepareInsertOne(this.name, this.schema, this.relations, query);
 
-    const [record] = await this.sendCommand(command);
+    const result = await this.sendCommand(command);
 
-    if (record) {
-      return this.parseRecord(record);
+    if (Array.isArray(result)) {
+      return this.parseRecord(result[0]);
     }
 
     return undefined as Query.InsertOneResult<T, S, R>;
