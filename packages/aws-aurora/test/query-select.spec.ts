@@ -134,7 +134,7 @@ describe('aurora query (select)', () => {
   };
 
   it('assert :: prepare select (undefined columns)', () => {
-    const [statement, variables] = prepareSelectQuery<TestSchema, {}, TestIndexes, TestRelations>(
+    const [statement, variables] = prepareSelectQuery<TestSchema, {}, TestIndexes, TestRelations, false>(
       'ez4-test-select',
       testSchema,
       testRelations,
@@ -161,7 +161,7 @@ describe('aurora query (select)', () => {
   });
 
   it('assert :: prepare select (defined columns)', () => {
-    const [statement, variables] = prepareSelectQuery<TestSchema, {}, TestIndexes, TestRelations>(
+    const [statement, variables] = prepareSelectQuery<TestSchema, {}, TestIndexes, TestRelations, false>(
       'ez4-test-select',
       testSchema,
       testRelations,
@@ -180,7 +180,7 @@ describe('aurora query (select)', () => {
   });
 
   it('assert :: prepare select (with json columns)', () => {
-    const [statement, variables] = prepareSelectQuery<TestSchema, {}, TestIndexes, TestRelations>(
+    const [statement, variables] = prepareSelectQuery<TestSchema, {}, TestIndexes, TestRelations, false>(
       'ez4-test-select',
       testSchema,
       testRelations,
@@ -194,16 +194,13 @@ describe('aurora query (select)', () => {
       }
     );
 
-    equal(
-      statement,
-      `SELECT "id", json_build_object('barBar', "bar"['barBar']) AS "bar" FROM "ez4-test-select"`
-    );
+    equal(statement, `SELECT "id", json_build_object('barBar', "bar"['barBar']) AS "bar" FROM "ez4-test-select"`);
 
     deepEqual(variables, []);
   });
 
   it('assert :: prepare select (with filters)', () => {
-    const [statement, variables] = prepareSelectQuery<TestSchema, {}, TestIndexes, TestRelations>(
+    const [statement, variables] = prepareSelectQuery<TestSchema, {}, TestIndexes, TestRelations, false>(
       'ez4-test-select',
       testSchema,
       testRelations,
@@ -225,7 +222,7 @@ describe('aurora query (select)', () => {
   });
 
   it('assert :: prepare select (with order)', () => {
-    const [statement, variables] = prepareSelectQuery<TestSchema, {}, TestIndexes, TestRelations>(
+    const [statement, variables] = prepareSelectQuery<TestSchema, {}, TestIndexes, TestRelations, false>(
       'ez4-test-select',
       testSchema,
       testRelations,
@@ -247,7 +244,7 @@ describe('aurora query (select)', () => {
   });
 
   it('assert :: prepare select (with relationship)', () => {
-    const [statement, variables] = prepareSelectQuery<TestSchema, {}, TestIndexes, TestRelations>(
+    const [statement, variables] = prepareSelectQuery<TestSchema, {}, TestIndexes, TestRelations, false>(
       'ez4-test-select',
       testSchema,
       testRelations,
@@ -299,7 +296,7 @@ describe('aurora query (select)', () => {
   });
 
   it('assert :: prepare select (with relationship filters)', () => {
-    const [statement, variables] = prepareSelectQuery<TestSchema, {}, TestIndexes, TestRelations>(
+    const [statement, variables] = prepareSelectQuery<TestSchema, {}, TestIndexes, TestRelations, false>(
       'ez4-test-select',
       testSchema,
       testRelations,
@@ -374,7 +371,7 @@ describe('aurora query (select)', () => {
   });
 
   it('assert :: prepare select (with relationship connections)', () => {
-    const [statement, variables] = prepareSelectQuery<TestSchema, {}, TestIndexes, TestRelations>(
+    const [statement, variables] = prepareSelectQuery<TestSchema, {}, TestIndexes, TestRelations, false>(
       'ez4-test-select',
       testSchema,
       testRelations,
@@ -430,24 +427,24 @@ describe('aurora query (select)', () => {
       }
     };
 
-    const [statement, variables] = prepareSelectQuery<
-      TestSchema,
-      typeof select,
-      TestIndexes,
-      TestRelations
-    >('ez4-test-select', testSchema, testRelations, {
-      select,
-      include: {
-        relation1: {},
-        relation2: null,
-        relations: {
-          foo: 123
+    const [statement, variables] = prepareSelectQuery<TestSchema, typeof select, TestIndexes, TestRelations, false>(
+      'ez4-test-select',
+      testSchema,
+      testRelations,
+      {
+        select,
+        include: {
+          relation1: {},
+          relation2: null,
+          relations: {
+            foo: 123
+          }
+        },
+        where: {
+          id: '00000000-0000-1000-9000-000000000000'
         }
-      },
-      where: {
-        id: '00000000-0000-1000-9000-000000000000'
       }
-    });
+    );
 
     equal(
       statement,
@@ -469,9 +466,6 @@ describe('aurora query (select)', () => {
         `WHERE "R"."id" = :1`
     );
 
-    deepEqual(variables, [
-      makeParameter('0', 123),
-      makeParameter('1', '00000000-0000-1000-9000-000000000000', 'UUID')
-    ]);
+    deepEqual(variables, [makeParameter('0', 123), makeParameter('1', '00000000-0000-1000-9000-000000000000', 'UUID')]);
   });
 });

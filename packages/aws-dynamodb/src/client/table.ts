@@ -158,7 +158,7 @@ export class Table<T extends Database.Schema, I extends Database.Indexes, R exte
     return records;
   }
 
-  async findMany<S extends Query.SelectInput<T, R>, C extends boolean>(
+  async findMany<S extends Query.SelectInput<T, R>, C extends boolean = false>(
     query: Query.FindManyInput<T, S, I, R, C>
   ): Promise<Query.FindManyResult<T, S, R, C>> {
     const { client, debug } = this.settings;
