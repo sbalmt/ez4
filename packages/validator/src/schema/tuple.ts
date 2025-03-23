@@ -1,15 +1,11 @@
 import type { TupleSchema } from '@ez4/schema';
 
-import { getNewContext } from '../types/context.js';
+import { createValidatorContext } from '../types/context.js';
 import { ExpectedTupleTypeError } from '../errors/tuple.js';
 import { isOptionalNullable } from './utils.js';
 import { validateAny } from './any.js';
 
-export const validateTuple = async (
-  value: unknown,
-  schema: TupleSchema,
-  context = getNewContext()
-) => {
+export const validateTuple = async (value: unknown, schema: TupleSchema, context = createValidatorContext()) => {
   if (isOptionalNullable(value, schema)) {
     return [];
   }

@@ -5,8 +5,8 @@ import type { AnySchema } from '../types/type-any.js';
 
 import { isTypeArray } from '@ez4/reflection';
 
+import { createSchemaContext } from '../types/context.js';
 import { SchemaType } from '../types/common.js';
-import { getNewContext } from '../types/context.js';
 import { getAnySchema } from './any.js';
 
 export type RichTypeArray = TypeArray & {
@@ -33,7 +33,7 @@ export const isRichTypeArray = (type: AllType): type is RichTypeArray => {
 export const getArraySchema = (
   type: AllType,
   reflection: SourceMap,
-  context = getNewContext(),
+  context = createSchemaContext(),
   description?: string
 ): ArraySchema | null => {
   if (!isRichTypeArray(type)) {

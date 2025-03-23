@@ -5,11 +5,7 @@ import { ReferenceNotFoundError } from '../errors/reference.js';
 import { isOptionalNullable } from './utils.js';
 import { validateObject } from './object.js';
 
-export const validateReference = async (
-  value: unknown,
-  schema: ReferenceSchema,
-  context: ValidationContext
-) => {
+export const validateReference = async (value: unknown, schema: ReferenceSchema, context: ValidationContext) => {
   if (isOptionalNullable(value, schema)) {
     return [];
   }

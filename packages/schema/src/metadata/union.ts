@@ -31,12 +31,7 @@ export const isRichTypeUnion = (type: AllType): type is RichTypeUnion => {
   return isTypeUnion(type);
 };
 
-export const getUnionSchema = (
-  type: AllType,
-  reflection: SourceMap,
-  context: SchemaContext,
-  description?: string
-): AnySchema | null => {
+export const getUnionSchema = (type: AllType, reflection: SourceMap, context: SchemaContext, description?: string): AnySchema | null => {
   if (!isRichTypeUnion(type)) {
     return null;
   }
@@ -86,11 +81,7 @@ const hasOptionalType = (types: EveryType[]) => {
   return types.some((type) => isTypeUndefined(type));
 };
 
-const getAnySchemaFromTypeList = (
-  reflection: SourceMap,
-  context: SchemaContext,
-  types: AllType[]
-) => {
+const getAnySchemaFromTypeList = (reflection: SourceMap, context: SchemaContext, types: AllType[]) => {
   const typeList: AnySchema[] = [];
 
   for (const type of types) {
