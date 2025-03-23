@@ -78,7 +78,9 @@ export interface Table<T extends Database.Schema, I extends Database.Indexes, R 
    *
    * @param query Input query.
    */
-  findMany<S extends Query.SelectInput<T, R>>(query: Query.FindManyInput<T, S, I, R>): Promise<Query.FindManyResult<T, S, R>>;
+  findMany<S extends Query.SelectInput<T, R>, C extends boolean = false>(
+    query: Query.FindManyInput<T, S, I, R, C>
+  ): Promise<Query.FindManyResult<T, S, R, C>>;
 
   /**
    * Update multiple database records.

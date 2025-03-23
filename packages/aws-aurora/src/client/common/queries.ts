@@ -136,12 +136,13 @@ export const prepareFindMany = <
   T extends Database.Schema,
   S extends Query.SelectInput<T, R>,
   I extends Database.Indexes,
-  R extends RelationMetadata
+  R extends RelationMetadata,
+  C extends boolean
 >(
   table: string,
   schema: ObjectSchema,
   relations: RepositoryRelationsWithSchema,
-  query: Query.FindManyInput<T, S, I, R>
+  query: Query.FindManyInput<T, S, I, R, C>
 ): PreparedQueryCommand => {
   const [statement, variables] = prepareSelectQuery(table, schema, relations, query);
 

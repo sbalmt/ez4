@@ -1,8 +1,7 @@
+import type { DecomposeIndexName, DecomposePrimaryIndexNames, DecomposeUniqueIndexNames } from './indexes.js';
 import type { RelationMetadata } from './relations.js';
 import type { Database } from './database.js';
 import type { Order } from './order.js';
-
-import type { DecomposeIndexName, DecomposePrimaryIndexNames, DecomposeUniqueIndexNames } from './indexes.js';
 
 import type {
   AnyObject,
@@ -65,7 +64,14 @@ export namespace Query {
     limit?: number;
   };
 
-  export type FindManyInput<T extends Database.Schema, S extends AnyObject, I extends Database.Indexes, R extends RelationMetadata> = {
+  export type FindManyInput<
+    T extends Database.Schema,
+    S extends AnyObject,
+    I extends Database.Indexes,
+    R extends RelationMetadata,
+    C extends boolean
+  > = {
+    count?: C;
     select: StrictSelectInput<T, S, R>;
     include?: StrictIncludeInput<S, R>;
     where?: WhereInput<T, {}, R>;
@@ -99,10 +105,14 @@ export namespace Query {
 
   export type UpdateManyResult<T extends Database.Schema, S extends AnyObject, R extends RelationMetadata> = Record<T, S, R>[];
 
-  export type FindManyResult<T extends Database.Schema, S extends Database.Schema, R extends RelationMetadata> = {
-    records: Record<T, S, R>[];
-    cursor?: number | string;
-  };
+  export type FindManyResult<
+    T extends Database.Schema,
+    S extends Database.Schema,
+    R extends RelationMetadata,
+    C extends boolean
+  > = C extends true
+    ? { records: Record<T, S, R>[]; cursor?: number | string; total: number }
+    : { records: Record<T, S, R>[]; cursor?: number | string };
 
   export type DeleteManyResult<T extends Database.Schema, S extends AnyObject, R extends RelationMetadata> = Record<T, S, R>[];
 

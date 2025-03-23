@@ -23,12 +23,13 @@ export const prepareSelectQuery = <
   T extends Database.Schema,
   S extends Query.SelectInput<T, R>,
   I extends Database.Indexes,
-  R extends RelationMetadata
+  R extends RelationMetadata,
+  C extends boolean
 >(
   table: string,
   schema: ObjectSchema,
   relations: RepositoryRelationsWithSchema,
-  query: Query.FindOneInput<T, S, I, R> | Query.FindManyInput<T, S, I, R>
+  query: Query.FindOneInput<T, S, I, R> | Query.FindManyInput<T, S, I, R, C>
 ): [string, SqlParameter[]] => {
   const sql = createQueryBuilder();
 

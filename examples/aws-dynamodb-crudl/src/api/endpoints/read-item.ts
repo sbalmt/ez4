@@ -41,12 +41,9 @@ export declare class ReadItemResponse implements Http.Response {
 /**
  * Handle read item requests.
  */
-export async function readItemHandler(
-  request: ReadItemRequest,
-  context: Service.Context<Api>
-): Promise<ReadItemResponse> {
-  const { dynamoDb } = context;
+export async function readItemHandler(request: ReadItemRequest, context: Service.Context<Api>): Promise<ReadItemResponse> {
   const { id } = request.parameters;
+  const { dynamoDb } = context;
 
   const item = await readItem(dynamoDb, id);
 

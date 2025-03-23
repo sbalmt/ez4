@@ -97,7 +97,12 @@ export type ListItemsInput = {
 export const listItems = async (client: DbClient, input: ListItemsInput) => {
   const { cursor, limit = 5, type } = input;
 
-  return client.items.findMany({
+  const {
+    records: items,
+    cursor: next,
+    total
+  } = await client.items.findMany({
+    count: true,
     select: {
       id: true,
       name: true,
@@ -113,4 +118,10 @@ export const listItems = async (client: DbClient, input: ListItemsInput) => {
     limit,
     cursor
   });
+
+  return {
+    next: next?.toString(),
+    items,
+    total
+  };
 };

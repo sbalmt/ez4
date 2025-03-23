@@ -158,17 +158,40 @@ export class Table<T extends Database.Schema, I extends Database.Indexes, R exte
     return records;
   }
 
-  async findMany<S extends Query.SelectInput<T, R>>(query: Query.FindManyInput<T, S, I, R>): Promise<Query.FindManyResult<T, S, R>> {
+  async findMany<S extends Query.SelectInput<T, R>, C extends boolean>(
+    query: Query.FindManyInput<T, S, I, R, C>
+  ): Promise<Query.FindManyResult<T, S, R, C>> {
     const { client, debug } = this.settings;
 
-    const command = prepareFindMany(this.name, this.indexes, query);
+    const { count: shouldCount } = query;
 
-    const { Items: items = [], NextToken: cursor } = await executeStatement(client, command, debug);
+    const findCommand = prepareFindMany(this.name, this.indexes, query);
+
+    const findOperation = executeStatement(client, findCommand, debug);
+
+    const allOperations = [findOperation];
+
+    if (shouldCount) {
+      const countCommand = prepareCount(this.name, this.indexes, {
+        where: query.where
+      });
+
+      const countOperation = executeStatement(client, countCommand, debug);
+
+      allOperations.push(countOperation);
+    }
+
+    const results = await Promise.all(allOperations);
+
+    const [{ Items: items = [], NextToken: cursor }, total] = results;
 
     return {
       records: items as Query.Record<T, S, R>[],
+      ...(shouldCount && {
+        total: total?.Items?.length
+      }),
       cursor
-    };
+    } as Query.FindManyResult<T, S, R, C>;
   }
 
   async deleteMany<S extends Query.SelectInput<T, R>>(query: Query.DeleteManyInput<T, S, R>): Promise<Query.DeleteManyResult<T, S, R>> {

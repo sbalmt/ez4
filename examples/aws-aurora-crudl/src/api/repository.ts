@@ -96,23 +96,21 @@ export const deleteItem = async (client: DbClient, id: string) => {
 export const listItems = async (client: DbClient, page: number, limit: number) => {
   const cursor = (page - 1) * limit;
 
-  const [total, { records: items }] = await Promise.all([
-    client.items.count({}),
-    client.items.findMany({
-      select: {
-        id: true,
-        name: true,
-        category: {
-          name: true
-        }
-      },
-      order: {
-        created_at: Order.Desc
-      },
-      cursor,
-      limit
-    })
-  ]);
+  const { records: items, total } = await client.items.findMany({
+    count: true,
+    select: {
+      id: true,
+      name: true,
+      category: {
+        name: true
+      }
+    },
+    order: {
+      created_at: Order.Desc
+    },
+    cursor,
+    limit
+  });
 
   return {
     items,
