@@ -4,11 +4,7 @@ import { getNewContext } from '../types/context.js';
 import { stringToArray } from '../utils/array.js';
 import { transformAny } from './any.js';
 
-export const transformTuple = (
-  value: unknown,
-  schema: TupleSchema,
-  context = getNewContext()
-): unknown[] | undefined => {
+export const transformTuple = (value: unknown, schema: TupleSchema, context = getNewContext()): unknown[] | undefined => {
   if (typeof value === 'string') {
     return transformTuple(stringToArray(value), schema, context);
   }

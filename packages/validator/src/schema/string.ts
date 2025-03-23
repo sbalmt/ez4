@@ -3,24 +3,14 @@ import type { ValidationContext } from '../types/context.js';
 
 import { isAnyNumber } from '@ez4/utils';
 
-import {
-  ExpectedStringTypeError,
-  UnexpectedMaxLengthError,
-  UnexpectedMinLengthError,
-  UnexpectedStringError
-} from '../errors/string.js';
-
+import { ExpectedStringTypeError, UnexpectedMaxLengthError, UnexpectedMinLengthError, UnexpectedStringError } from '../errors/string.js';
 import { DuplicateStringFormatError } from '../errors/format.js';
 import { StringFormatHandler } from '../types/string.js';
 import { isOptionalNullable } from './utils.js';
 
 const allCustomFormats: Record<string, StringFormatHandler | undefined> = {};
 
-export const validateString = (
-  value: unknown,
-  schema: StringSchema,
-  context?: ValidationContext
-) => {
+export const validateString = (value: unknown, schema: StringSchema, context?: ValidationContext) => {
   if (isOptionalNullable(value, schema)) {
     return [];
   }
@@ -33,19 +23,21 @@ export const validateString = (
 
   const { definitions } = schema;
 
-  if (definitions?.value && value !== definitions.value) {
+  const input = definitions?.trim ? value.trim() : value;
+
+  if (definitions?.value && input !== definitions.value) {
     return [new UnexpectedStringError(definitions.value, property)];
   }
 
-  if (isAnyNumber(definitions?.minLength) && value.length < definitions.minLength) {
+  if (isAnyNumber(definitions?.minLength) && input.length < definitions.minLength) {
     return [new UnexpectedMinLengthError(definitions.minLength, property)];
   }
 
-  if (isAnyNumber(definitions?.maxLength) && value.length > definitions.maxLength) {
+  if (isAnyNumber(definitions?.maxLength) && input.length > definitions.maxLength) {
     return [new UnexpectedMaxLengthError(definitions.maxLength, property)];
   }
 
-  return validateStringFormat(value, schema, property);
+  return validateStringFormat(input, schema, property);
 };
 
 export const registerStringFormat = (format: string, handler: StringFormatHandler) => {

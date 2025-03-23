@@ -5,10 +5,7 @@ export const transformEnum = (value: unknown, schema: EnumSchema) => {
     for (const { value: enumValue } of schema.options) {
       const valueType = typeof enumValue;
 
-      if (
-        (valueType === 'string' && value === enumValue) ||
-        (valueType === 'number' && Number(value) === enumValue)
-      ) {
+      if ((valueType === 'string' && value === enumValue) || (valueType === 'number' && Number(value) === enumValue)) {
         return enumValue;
       }
     }

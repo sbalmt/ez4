@@ -42,10 +42,14 @@ describe('types transform', () => {
   it('assert :: string', () => {
     const schema: AnySchema = {
       type: SchemaType.String,
-      nullable: true
+      nullable: true,
+      definitions: {
+        trim: true
+      }
     };
 
     deepEqual(transform('abc', schema), 'abc');
+    deepEqual(transform(' def ', schema), 'def');
 
     deepEqual(transform(true, schema), undefined);
     deepEqual(transform(false, schema), undefined);

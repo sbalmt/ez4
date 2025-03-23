@@ -1,9 +1,15 @@
 import type { StringSchema } from '@ez4/schema';
 
 export const transformString = (value: unknown, schema: StringSchema) => {
-  if (typeof value === 'string') {
-    return value;
+  const { definitions } = schema;
+
+  if (typeof value !== 'string') {
+    return definitions?.default;
   }
 
-  return schema.definitions?.default;
+  if (definitions?.trim) {
+    return value.trim();
+  }
+
+  return value;
 };

@@ -6,6 +6,7 @@ import { SchemaType } from './common.js';
 export type StringSchemaDefinitions = SchemaDefinitions & {
   minLength?: number;
   maxLength?: number;
+  trim?: boolean;
   pattern?: string;
   default?: string;
   value?: string;

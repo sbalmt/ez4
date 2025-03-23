@@ -1,18 +1,14 @@
 import type { ObjectSchema } from '@ez4/schema';
 
-import { getNewContext } from '../types/context.js';
 import { UnexpectedPropertiesError } from '../errors/common.js';
 import { ExpectedObjectTypeError } from '../errors/object.js';
+import { getNewContext } from '../types/context.js';
 import { isAnyObject } from '@ez4/utils';
 
 import { isOptionalNullable } from './utils.js';
 import { validateAny } from './any.js';
 
-export const validateObject = async (
-  value: unknown,
-  schema: ObjectSchema,
-  context = getNewContext()
-) => {
+export const validateObject = async (value: unknown, schema: ObjectSchema, context = getNewContext()) => {
   if (isOptionalNullable(value, schema)) {
     return [];
   }

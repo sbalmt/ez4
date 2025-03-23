@@ -11,11 +11,7 @@ import { transformArray } from './array.js';
 import { transformTuple } from './tuple.js';
 import { transformEnum } from './enum.js';
 
-export const transformAny = (
-  value: unknown,
-  schema: AnySchema,
-  context = getNewContext()
-): unknown => {
+export const transformAny = (value: unknown, schema: AnySchema, context = getNewContext()): unknown => {
   if (value === null && schema.nullable) {
     return null;
   }

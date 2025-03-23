@@ -35,6 +35,7 @@
     "live:publish": "npm run test && npm publish --access public"
   },
   "dependencies": {
-    "@ez4/schema": "^0.16.0"
+    "@ez4/schema": "^0.16.0",
+    "@ez4/utils": "^0.16.0"
   }
 }

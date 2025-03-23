@@ -78,7 +78,7 @@ describe('rich types validation', () => {
     equal((await validate('abc', schema)).length, 0);
   });
 
-  it('assert :: regex', async () => {
+  it('assert :: string (regex)', async () => {
     const schema: AnySchema = {
       type: SchemaType.String,
       format: 'regex',
@@ -90,7 +90,7 @@ describe('rich types validation', () => {
     equal((await validate('abc', schema)).length, 0);
   });
 
-  it('assert :: uuid', async () => {
+  it('assert :: string (uuid)', async () => {
     const schema: AnySchema = {
       type: SchemaType.String,
       format: 'uuid'
@@ -99,7 +99,7 @@ describe('rich types validation', () => {
     equal((await validate('e213a9e4-4a5c-4851-8341-f03f5b8ed168', schema)).length, 0);
   });
 
-  it('assert :: email', async () => {
+  it('assert :: string (email)', async () => {
     const schema: AnySchema = {
       type: SchemaType.String,
       format: 'email'
@@ -108,7 +108,7 @@ describe('rich types validation', () => {
     equal((await validate('a.b@c.de', schema)).length, 0);
   });
 
-  it('assert :: time', async () => {
+  it('assert :: string (time)', async () => {
     const schema: AnySchema = {
       type: SchemaType.String,
       format: 'time'
@@ -117,7 +117,7 @@ describe('rich types validation', () => {
     equal((await validate('19:45:00', schema)).length, 0);
   });
 
-  it('assert :: date', async () => {
+  it('assert :: string (date)', async () => {
     const schema: AnySchema = {
       type: SchemaType.String,
       format: 'date'
@@ -126,7 +126,7 @@ describe('rich types validation', () => {
     equal((await validate('1991-04-23', schema)).length, 0);
   });
 
-  it('assert :: date-time', async () => {
+  it('assert :: string (date-time)', async () => {
     const schema: AnySchema = {
       type: SchemaType.String,
       format: 'date-time'
@@ -135,7 +135,20 @@ describe('rich types validation', () => {
     equal((await validate('1991-04-23T19:45:00-03:00', schema)).length, 0);
   });
 
-  it('assert :: extensible object', async () => {
+  it('assert :: string (trim)', async () => {
+    const schema: AnySchema = {
+      type: SchemaType.String,
+      definitions: {
+        trim: true,
+        minLength: 1,
+        maxLength: 3
+      }
+    };
+
+    equal((await validate('  foo  ', schema)).length, 0);
+  });
+
+  it('assert :: object (extensible)', async () => {
     const schema: AnySchema = {
       type: SchemaType.Object,
       identity: 1,
@@ -150,6 +163,28 @@ describe('rich types validation', () => {
     };
 
     equal((await validate({ foo: 'abc', bar: 123 }, schema)).length, 0);
+  });
+
+  it('assert :: object (additional)', async () => {
+    const schema: AnySchema = {
+      type: SchemaType.Object,
+      identity: 1,
+      properties: {
+        foo: {
+          type: SchemaType.Boolean
+        }
+      },
+      additional: {
+        property: {
+          type: SchemaType.String
+        },
+        value: {
+          type: SchemaType.Number
+        }
+      }
+    };
+
+    equal((await validate({ foo: true, bar: 123, baz: 456 }, schema)).length, 0);
   });
 
   it('assert :: array', async () => {
