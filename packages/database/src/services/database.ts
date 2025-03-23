@@ -1,5 +1,5 @@
-import type { Service } from '@ez4/common';
 import type { LinkedVariables } from '@ez4/project/library';
+import type { Service } from '@ez4/common';
 import type { StreamChange } from './streams.js';
 import type { Client } from './client.js';
 

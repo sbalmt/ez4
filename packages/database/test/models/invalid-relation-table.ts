@@ -11,7 +11,7 @@ export declare class TestDatabase extends Database.Service {
       };
       relations: {
         // Table `foo` doesn't exists on the database.
-        'foo:id': 'id@alias';
+        'id@alias': 'foo:id';
       };
       indexes: {};
     }

@@ -9,7 +9,7 @@ export declare class TestDatabase extends Database.Service {
       indexes: {};
       relations: {
         // Column `random_id` doesn't exists on `testTable`
-        'testTable:id': 'random_id@alias';
+        'random_id@alias': 'testTable:id';
       };
       schema: {
         id: string;

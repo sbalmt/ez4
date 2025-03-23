@@ -1,5 +1,5 @@
-import type { TableClients } from './table.js';
 import type { Transaction } from './transaction.js';
+import type { TableClients } from './table.js';
 import type { Database } from './database.js';
 
 /**

@@ -72,7 +72,7 @@ type TableRelation<T, S extends Record<string, Database.Schema>, I extends Recor
  * Produce an object containing all required relation indexes.
  */
 type RequiredRelationIndexes<T extends Database.Schema, I extends Record<string, Database.Indexes>, R extends AnyObject> = keyof {
-  [C in keyof R as IsOptionalRelation<C, R[C], T, I, true> extends true ? never : RelationTargetColumn<R[C]>]: never;
+  [C in keyof R as IsOptionalRelation<R[C], C, T, I, true> extends true ? never : RelationTargetColumn<C>]: never;
 };
 
 /**
@@ -83,9 +83,9 @@ type FilterableRelationSchemas<
   I extends Record<string, Database.Indexes>,
   R extends AnyObject
 > = {
-  [C in keyof R as RelationTargetAlias<R[C]>]: IsPrimaryIndex<C, I> extends false
-    ? Omit<PropertyType<RelationSourceTable<C>, S>, RelationSourceColumn<C>>
-    : PropertyType<RelationSourceTable<C>, S>;
+  [C in keyof R as RelationTargetAlias<C>]: IsPrimaryIndex<R[C], I> extends false
+    ? Omit<PropertyType<RelationSourceTable<R[C]>, S>, RelationSourceColumn<R[C]>>
+    : PropertyType<RelationSourceTable<R[C]>, S>;
 };
 
 /**
@@ -98,9 +98,9 @@ type RequiredRelationSchemas<
   R extends AnyObject,
   E extends boolean
 > = {
-  [C in keyof R as IsOptionalRelation<C, R[C], T, I, E> extends false ? RelationTargetAlias<R[C]> : never]: RelationSchema<
-    C,
+  [C in keyof R as IsOptionalRelation<R[C], C, T, I, E> extends false ? RelationTargetAlias<C> : never]: RelationSchema<
     R[C],
+    C,
     T,
     S,
     I,
@@ -118,9 +118,9 @@ type OptionalRelationSchemas<
   R extends AnyObject,
   E extends boolean
 > = {
-  [C in keyof R as IsOptionalRelation<C, R[C], T, I, E> extends true ? RelationTargetAlias<R[C]> : never]?: RelationSchema<
-    C,
+  [C in keyof R as IsOptionalRelation<R[C], C, T, I, E> extends true ? RelationTargetAlias<C> : never]?: RelationSchema<
     R[C],
+    C,
     T,
     S,
     I,
