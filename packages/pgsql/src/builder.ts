@@ -1,12 +1,12 @@
 import type { AnySchema, ObjectSchema } from '@ez4/schema';
 import type { SqlRawGenerator } from './types/raw.js';
 
+import { SqlRawValue, SqlRawOperation } from './types/raw.js';
 import { SqlSelectStatement } from './queries/select.js';
 import { SqlInsertStatement } from './queries/insert.js';
 import { SqlUpdateStatement } from './queries/update.js';
 import { SqlDeleteStatement } from './queries/delete.js';
 import { SqlWithClause } from './types/with.js';
-import { SqlRaw } from './types/raw.js';
 
 export type SqlBuilderReferences = {
   counter: number;
@@ -39,8 +39,12 @@ export class SqlBuilder {
     this.#options = options ?? {};
   }
 
-  raw(value: unknown | SqlRawGenerator) {
-    return new SqlRaw(undefined, value);
+  rawValue(value: unknown | SqlRawGenerator) {
+    return new SqlRawValue(value);
+  }
+
+  rawOperation(operator: string, value: unknown | SqlRawGenerator) {
+    return new SqlRawOperation(operator, value);
   }
 
   reset() {
@@ -49,15 +53,7 @@ export class SqlBuilder {
     return this;
   }
 
-  with(
-    statements: (
-      | SqlSelectStatement
-      | SqlInsertStatement
-      | SqlUpdateStatement
-      | SqlDeleteStatement
-    )[],
-    alias?: string
-  ) {
+  with(statements: (SqlSelectStatement | SqlInsertStatement | SqlUpdateStatement | SqlDeleteStatement)[], alias?: string) {
     return new SqlWithClause(statements, alias);
   }
 

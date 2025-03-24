@@ -7,6 +7,7 @@ import { isObjectSchema, type ObjectSchema } from '@ez4/schema';
 import { isPlainObject } from '@ez4/utils';
 
 import { MissingTableNameError, MissingRecordError, EmptyRecordError } from '../errors/queries.js';
+import { SqlRaw, SqlRawOperation } from '../types/raw.js';
 import { SqlReference } from '../types/reference.js';
 import { SqlReturningClause } from '../types/returning.js';
 import { SqlWhereClause } from '../types/where.js';
@@ -15,7 +16,6 @@ import { escapeSqlName } from '../utils/escape.js';
 import { getFields, getValues } from '../utils/column.js';
 import { mergeSqlPath } from '../utils/merge.js';
 import { SqlSelectStatement } from './select.js';
-import { SqlRaw } from '../types/raw.js';
 
 type SqlUpdateContext = {
   options: SqlBuilderOptions;
@@ -137,7 +137,7 @@ export class SqlUpdateStatement extends SqlSource {
       throw new MissingRecordError();
     }
 
-    const columns = getUpdateColumns(record, schema, {
+    const columns = getUpdateColumns(this, record, schema, {
       variables,
       references,
       options
@@ -175,7 +175,7 @@ export class SqlUpdateStatement extends SqlSource {
   }
 }
 
-const getUpdateColumns = (record: SqlRecord, schema: ObjectSchema | undefined, context: SqlUpdateContext): string[] => {
+const getUpdateColumns = (source: SqlSource, record: SqlRecord, schema: ObjectSchema | undefined, context: SqlUpdateContext): string[] => {
   const { variables, references, options, parent } = context;
 
   const columns = [];
@@ -208,7 +208,7 @@ const getUpdateColumns = (record: SqlRecord, schema: ObjectSchema | undefined, c
     if (isPlainObject(value)) {
       const nextSchema = valueSchema && isObjectSchema(valueSchema) ? valueSchema : undefined;
 
-      const innerValue = getUpdateColumns(value, nextSchema, {
+      const innerValue = getUpdateColumns(source, value, nextSchema, {
         ...context,
         parent: columnName
       });
@@ -217,10 +217,14 @@ const getUpdateColumns = (record: SqlRecord, schema: ObjectSchema | undefined, c
       continue;
     }
 
-    const fieldValue = value instanceof SqlRaw ? value.build() : value;
+    const fieldValue = value instanceof SqlRaw ? value.build(source) : value;
     const fieldIndex = references.counter++;
 
-    columns.push(`${columnName} = :${fieldIndex}`);
+    if (value instanceof SqlRawOperation) {
+      columns.push(`${columnName} = (${columnName} ${value.operator} :${fieldIndex})`);
+    } else {
+      columns.push(`${columnName} = :${fieldIndex}`);
+    }
 
     if (options.onPrepareVariable) {
       const preparedValue = options.onPrepareVariable(fieldValue, {

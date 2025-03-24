@@ -11,7 +11,7 @@ import { InvalidOperandError, MissingOperatorError, TooManyOperatorsError } from
 import { SqlSelectStatement } from '../queries/select.js';
 import { SqlReference } from './reference.js';
 import { SqlOperator } from './common.js';
-import { SqlRaw } from './raw.js';
+import { SqlRawValue } from './raw.js';
 
 type SqlConditionsContext = {
   options: SqlBuilderOptions;
@@ -148,7 +148,7 @@ const getFieldOperation = (
 
       const columnSchema = schema?.properties[field];
 
-      if (value instanceof SqlRaw || value instanceof SqlReference || !isAnyObject(value)) {
+      if (value instanceof SqlRawValue || value instanceof SqlReference || !isAnyObject(value)) {
         return getEqualOperation(columnPath, columnSchema, value, context);
       }
 
@@ -319,10 +319,14 @@ const getContainsOperation = (column: string, schema: AnySchema | undefined, ope
 };
 
 const getOperandValue = (schema: AnySchema | undefined, operand: unknown, context: SqlConditionsContext) => {
-  const { variables, references, options, parent } = context;
+  const { source, variables, references, options, parent } = context;
 
-  if (operand instanceof SqlRaw || operand instanceof SqlReference) {
+  if (operand instanceof SqlReference) {
     return operand.build();
+  }
+
+  if (operand instanceof SqlRawValue) {
+    return operand.build(source);
   }
 
   const index = references.counter++;

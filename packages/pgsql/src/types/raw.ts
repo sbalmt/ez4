@@ -2,21 +2,55 @@ import type { SqlSource } from './source.js';
 
 export type SqlRawGenerator = (statement?: SqlSource) => string;
 
-export class SqlRaw {
+export abstract class SqlRaw {
+  abstract build(source?: SqlSource): unknown;
+}
+
+export class SqlRawValue extends SqlRaw {
   #state: {
-    source?: SqlSource;
     value: unknown | SqlRawGenerator;
   };
 
-  constructor(source: undefined | SqlSource, value: unknown | SqlRawGenerator) {
+  constructor(value: unknown | SqlRawGenerator) {
+    super();
+
     this.#state = {
-      source,
       value
     };
   }
 
-  build() {
-    const { source, value } = this.#state;
+  build(source?: SqlSource) {
+    const { value } = this.#state;
+
+    if (value instanceof Function) {
+      return value(source);
+    }
+
+    return value;
+  }
+}
+
+export class SqlRawOperation extends SqlRaw {
+  #state: {
+    operator: string;
+    value: unknown | SqlRawGenerator;
+  };
+
+  constructor(operator: string, value: unknown | SqlRawGenerator) {
+    super();
+
+    this.#state = {
+      operator,
+      value
+    };
+  }
+
+  get operator() {
+    return this.#state.operator;
+  }
+
+  build(source?: SqlSource) {
+    const { value } = this.#state;
 
     if (value instanceof Function) {
       return value(source);

@@ -58,7 +58,7 @@ describe('sql insert tests', () => {
       .into('table')
       .record({
         foo: 123,
-        bar: sql.raw(value)
+        bar: sql.rawValue(value)
       });
 
     const [statement, variables] = query.build();

@@ -6,7 +6,7 @@ import { mergeSqlAlias, mergeSqlPath } from '../utils/merge.js';
 import { escapeSqlName, escapeSqlText } from '../utils/escape.js';
 import { SqlSelectStatement } from '../queries/select.js';
 import { SqlReference } from './reference.js';
-import { SqlRaw } from './raw.js';
+import { SqlRawValue } from './raw.js';
 
 type SqlJsonColumnContext = {
   variables: unknown[];
@@ -18,7 +18,7 @@ export type SqlJsonColumnSchema = {
   [field: string]:
     | undefined
     | boolean
-    | SqlRaw
+    | SqlRawValue
     | SqlReference
     | SqlSelectStatement
     | SqlJsonColumnSchema;
@@ -91,7 +91,7 @@ const getJsonObject = (schema: SqlJsonColumnSchema, context: SqlJsonColumnContex
 
     const columnName = mergeSqlPath(field, parent);
 
-    if (value instanceof SqlRaw || value instanceof SqlReference) {
+    if (value instanceof SqlRawValue || value instanceof SqlReference) {
       fields.push(`${escapeSqlText(field)}, ${value.build()}`);
       continue;
     }

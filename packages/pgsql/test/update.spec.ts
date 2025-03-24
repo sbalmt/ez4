@@ -88,7 +88,7 @@ describe('sql update tests', () => {
       .only('table')
       .record({
         foo: 123,
-        bar: sql.raw(value)
+        bar: sql.rawValue(value)
       });
 
     const [statement, variables] = query.build();
@@ -96,6 +96,22 @@ describe('sql update tests', () => {
     deepEqual(variables, [123, value]);
 
     equal(statement, 'UPDATE ONLY "table" SET "foo" = :0, "bar" = :1');
+  });
+
+  it('assert :: update with raw record operation', async () => {
+    const query = sql
+      .update()
+      .only('table')
+      .record({
+        foo: 123,
+        bar: sql.rawOperation('+', 456)
+      });
+
+    const [statement, variables] = query.build();
+
+    deepEqual(variables, [123, 456]);
+
+    equal(statement, 'UPDATE ONLY "table" SET "foo" = :0, "bar" = ("bar" + :1)');
   });
 
   it('assert :: update with alias', async () => {

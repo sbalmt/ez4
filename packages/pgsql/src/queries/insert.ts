@@ -4,7 +4,7 @@ import type { SqlSourceWithResults } from '../types/source.js';
 import type { SqlRecord } from '../types/common.js';
 import type { ObjectSchema } from '@ez4/schema';
 
-import { SqlRaw } from '../types/raw.js';
+import { SqlRawValue } from '../types/raw.js';
 import { SqlSource } from '../types/source.js';
 import { SqlReference } from '../types/reference.js';
 import { SqlReturningClause } from '../types/returning.js';
@@ -116,7 +116,7 @@ export class SqlInsertStatement extends SqlSource {
 
     statement.push(columns.length ? `(${columns})` : 'DEFAULT');
 
-    const values = getValueReferences(record ?? {}, schema, {
+    const values = getValueReferences(this, record ?? {}, schema, {
       variables,
       references,
       options
@@ -147,7 +147,7 @@ const getColumnsName = (columns: string[]) => {
   return columns.map((column) => escapeSqlName(column)).join(', ');
 };
 
-const getValueReferences = (record: SqlRecord, schema: ObjectSchema | undefined, context: SqlInsertContext): string => {
+const getValueReferences = (source: SqlSource, record: SqlRecord, schema: ObjectSchema | undefined, context: SqlInsertContext): string => {
   const { variables, references, options } = context;
 
   const results = [];
@@ -173,7 +173,7 @@ const getValueReferences = (record: SqlRecord, schema: ObjectSchema | undefined,
       continue;
     }
 
-    const fieldValue = value instanceof SqlRaw ? value.build() : value;
+    const fieldValue = value instanceof SqlRawValue ? value.build(source) : value;
     const fieldIndex = references.counter++;
 
     results.push(`:${fieldIndex}`);

@@ -458,8 +458,8 @@ describe('sql where tests', () => {
     const query = sql.select().from('test');
 
     query.where({
-      foo: sql.raw(() => 'plain_foo'),
-      bar: sql.raw('plain_bar')
+      foo: sql.rawValue(() => 'plain_foo'),
+      bar: sql.rawValue('plain_bar')
     });
 
     const [statement, variables] = query.build();

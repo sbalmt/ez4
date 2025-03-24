@@ -71,8 +71,8 @@ describe('sql select tests', () => {
       {
         foo: true,
         bar: {
-          baz: sql.raw(() => 'plain_baz'),
-          qux: sql.raw('plain_qux')
+          baz: sql.rawValue(() => 'plain_baz'),
+          qux: sql.rawValue('plain_qux')
         }
       },
       {
