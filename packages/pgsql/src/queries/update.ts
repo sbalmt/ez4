@@ -208,20 +208,26 @@ const getUpdateColumns = (source: SqlSource, record: SqlRecord, schema: ObjectSc
     if (isPlainObject(value)) {
       const nextSchema = valueSchema && isObjectSchema(valueSchema) ? valueSchema : undefined;
 
-      const innerValue = getUpdateColumns(source, value, nextSchema, {
+      const jsonValue = getUpdateColumns(source, value, nextSchema, {
         ...context,
         parent: columnName
       });
 
-      columns.push(...innerValue);
+      columns.push(...jsonValue);
       continue;
     }
 
     const fieldValue = value instanceof SqlRaw ? value.build(source) : value;
     const fieldIndex = references.counter++;
 
+    const json = !!parent;
+
     if (value instanceof SqlRawOperation) {
-      columns.push(`${columnName} = (${columnName} ${value.operator} :${fieldIndex})`);
+      if (json) {
+        columns.push(`${columnName} = (${columnName}::int ${value.operator} :${fieldIndex})::text::jsonb`);
+      } else {
+        columns.push(`${columnName} = (${columnName} ${value.operator} :${fieldIndex})`);
+      }
     } else {
       columns.push(`${columnName} = :${fieldIndex}`);
     }
@@ -230,7 +236,7 @@ const getUpdateColumns = (source: SqlSource, record: SqlRecord, schema: ObjectSc
       const preparedValue = options.onPrepareVariable(fieldValue, {
         index: fieldIndex,
         schema: valueSchema,
-        inner: !!parent
+        json
       });
 
       variables.push(preparedValue);

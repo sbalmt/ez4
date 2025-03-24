@@ -334,7 +334,7 @@ const getOperandValue = (schema: AnySchema | undefined, operand: unknown, contex
 
   if (options.onPrepareVariable) {
     const preparedValue = options.onPrepareVariable(operand, {
-      inner: !!parent,
+      json: !!parent,
       schema,
       index
     });

@@ -13,9 +13,20 @@ export type SqlBuilderReferences = {
 };
 
 export type SqlVariableContext = {
+  /**
+   * Variable index number.
+   */
   index: number;
+
+  /**
+   * Variable schema.
+   */
   schema?: AnySchema;
-  inner?: boolean;
+
+  /**
+   * Determines whether the variable is inside a JSON.
+   */
+  json?: boolean;
 };
 
 export type SqlBuilderOptions = {

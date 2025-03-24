@@ -182,7 +182,7 @@ const getValueReferences = (source: SqlSource, record: SqlRecord, schema: Object
       const preparedValue = options.onPrepareVariable(fieldValue, {
         index: fieldIndex,
         schema: schema?.properties[field],
-        inner: false
+        json: false
       });
 
       variables.push(preparedValue);
