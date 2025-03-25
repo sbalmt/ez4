@@ -12,7 +12,7 @@ export const validateArray = async (value: unknown, schema: ArraySchema, context
     return [];
   }
 
-  const { property, references } = context;
+  const { property, references, depth } = context;
 
   if (!(value instanceof Array)) {
     return [new ExpectedArrayTypeError(property)];
@@ -24,22 +24,27 @@ export const validateArray = async (value: unknown, schema: ArraySchema, context
 
   if (isAnyNumber(definitions?.minLength) && value.length < definitions.minLength) {
     allErrors.push(new UnexpectedMinItemsError(definitions.minLength, property));
-  } else if (isAnyNumber(definitions?.maxLength) && value.length > definitions.maxLength) {
+  }
+
+  if (isAnyNumber(definitions?.maxLength) && value.length > definitions.maxLength) {
     allErrors.push(new UnexpectedMaxItemsError(definitions.maxLength, property));
   }
 
-  let index = 0;
+  if (depth > 0) {
+    let index = 0;
 
-  for (const elementValue of value) {
-    const elementProperty = `${property}.${index++}`;
-    const elementSchema = schema.element;
+    for (const elementValue of value) {
+      const elementProperty = `${property}.${index++}`;
+      const elementSchema = schema.element;
 
-    const errorList = await validateAny(elementValue, elementSchema, {
-      property: elementProperty,
-      references
-    });
+      const errorList = await validateAny(elementValue, elementSchema, {
+        property: elementProperty,
+        depth: depth - 1,
+        references
+      });
 
-    allErrors.push(...errorList);
+      allErrors.push(...errorList);
+    }
   }
 
   return allErrors;

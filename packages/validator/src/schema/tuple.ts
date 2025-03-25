@@ -10,7 +10,7 @@ export const validateTuple = async (value: unknown, schema: TupleSchema, context
     return [];
   }
 
-  const { property, references } = context;
+  const { property, references, depth } = context;
 
   if (!(value instanceof Array)) {
     return [new ExpectedTupleTypeError(property)];
@@ -18,18 +18,21 @@ export const validateTuple = async (value: unknown, schema: TupleSchema, context
 
   const allErrors: Error[] = [];
 
-  let index = 0;
+  if (depth > 0) {
+    let index = 0;
 
-  for (const elementSchema of schema.elements) {
-    const elementProperty = `${property}.${index}`;
-    const elementValue = value[index++];
+    for (const elementSchema of schema.elements) {
+      const elementProperty = `${property}.${index}`;
+      const elementValue = value[index++];
 
-    const errorList = await validateAny(elementValue, elementSchema, {
-      property: elementProperty,
-      references
-    });
+      const errorList = await validateAny(elementValue, elementSchema, {
+        property: elementProperty,
+        references,
+        depth
+      });
 
-    allErrors.push(...errorList);
+      allErrors.push(...errorList);
+    }
   }
 
   return allErrors;

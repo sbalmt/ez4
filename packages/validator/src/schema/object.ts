@@ -13,7 +13,7 @@ export const validateObject = async (value: unknown, schema: ObjectSchema, conte
     return [];
   }
 
-  const { property, references } = context;
+  const { property, references, depth } = context;
 
   if (schema.identity) {
     references[schema.identity] = schema;
@@ -30,38 +30,43 @@ export const validateObject = async (value: unknown, schema: ObjectSchema, conte
   for (const propertyName in schema.properties) {
     allProperties.delete(propertyName);
 
-    const propertyPath = getObjectProperty(propertyName, parentProperty);
-    const valueSchema = schema.properties[propertyName];
-    const childValue = value[propertyName];
+    if (depth > 0) {
+      const propertyPath = getObjectProperty(propertyName, parentProperty);
+      const valueSchema = schema.properties[propertyName];
+      const childValue = value[propertyName];
 
-    const errorList = await validateAny(childValue, valueSchema, {
-      property: propertyPath,
-      references
-    });
+      const errorList = await validateAny(childValue, valueSchema, {
+        property: propertyPath,
+        depth: depth - 1,
+        references
+      });
 
-    allErrors.push(...errorList);
+      allErrors.push(...errorList);
+    }
   }
 
   if (schema.additional) {
     const { property: propertySchema, value: valueSchema } = schema.additional;
 
     for (const propertyName of allProperties) {
-      const propertyPath = getObjectProperty(propertyName, parentProperty);
-      const childValue = value[propertyName];
-
-      const [propertyErrors, valueErrors] = await Promise.all([
-        validateAny(propertyName, propertySchema),
-        validateAny(childValue, valueSchema, {
-          property: propertyPath,
-          references
-        })
-      ]);
+      const propertyErrors = await validateAny(propertyName, propertySchema);
 
       if (!propertyErrors.length) {
         allProperties.delete(propertyName);
       }
 
-      allErrors.push(...valueErrors);
+      if (depth > 0) {
+        const propertyPath = getObjectProperty(propertyName, parentProperty);
+        const childValue = value[propertyName];
+
+        const valueErrors = await validateAny(childValue, valueSchema, {
+          property: propertyPath,
+          depth: depth - 1,
+          references
+        });
+
+        allErrors.push(...valueErrors);
+      }
     }
   }
 
