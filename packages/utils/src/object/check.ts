@@ -35,7 +35,7 @@ export const isEmptyObject = (object: AnyObject) => {
   }
 
   for (const key in object) {
-    if (Object.hasOwn(object, key)) {
+    if (Object.hasOwn(object, key) && object[key] !== undefined) {
       return false;
     }
   }

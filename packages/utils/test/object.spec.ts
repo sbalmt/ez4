@@ -29,11 +29,11 @@ describe('object utils', () => {
   });
 
   it('assert :: is empty object', () => {
+    ok(isEmptyObject({ foo: undefined }));
     ok(isEmptyObject({}));
   });
 
   it('assert :: is not empty object', () => {
-    ok(!isEmptyObject({ foo: undefined }));
     ok(!isEmptyObject([1, 2, 3]));
   });
 });
