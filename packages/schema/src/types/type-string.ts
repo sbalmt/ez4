@@ -22,6 +22,6 @@ export type StringSchema = {
   format?: string;
 };
 
-export const isStringSchema = (value: AnySchema): value is StringSchema => {
-  return value.type === SchemaType.String;
+export const isStringSchema = (schema: AnySchema): schema is StringSchema => {
+  return schema.type === SchemaType.String;
 };

@@ -19,6 +19,6 @@ export type NumberSchema = {
   format?: string;
 };
 
-export const isNumberSchema = (value: AnySchema): value is NumberSchema => {
-  return value.type === SchemaType.Number;
+export const isNumberSchema = (schema: AnySchema): schema is NumberSchema => {
+  return schema.type === SchemaType.Number;
 };

@@ -16,6 +16,6 @@ export type BooleanSchema = {
   nullable?: boolean;
 };
 
-export const isBooleanSchema = (value: AnySchema): value is BooleanSchema => {
-  return value.type === SchemaType.Boolean;
+export const isBooleanSchema = (schema: AnySchema): schema is BooleanSchema => {
+  return schema.type === SchemaType.Boolean;
 };

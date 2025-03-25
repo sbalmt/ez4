@@ -18,6 +18,6 @@ export type ArraySchema = {
   nullable?: boolean;
 };
 
-export const isArraySchema = (value: AnySchema): value is ArraySchema => {
-  return value.type === SchemaType.Array;
+export const isArraySchema = (schema: AnySchema): schema is ArraySchema => {
+  return schema.type === SchemaType.Array;
 };

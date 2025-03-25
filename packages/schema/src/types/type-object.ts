@@ -30,6 +30,6 @@ export type ObjectSchema = {
   properties: ObjectSchemaProperties;
 };
 
-export const isObjectSchema = (value: AnySchema): value is ObjectSchema => {
-  return value.type === SchemaType.Object;
+export const isObjectSchema = (schema: AnySchema): schema is ObjectSchema => {
+  return schema.type === SchemaType.Object;
 };

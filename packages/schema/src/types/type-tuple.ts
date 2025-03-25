@@ -16,6 +16,6 @@ export type TupleSchema = {
   nullable?: boolean;
 };
 
-export const isTupleSchema = (value: AnySchema): value is TupleSchema => {
-  return value.type === SchemaType.Tuple;
+export const isTupleSchema = (schema: AnySchema): schema is TupleSchema => {
+  return schema.type === SchemaType.Tuple;
 };

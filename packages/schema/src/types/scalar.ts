@@ -9,6 +9,6 @@ export type ScalarTypeName = SchemaType.Boolean | SchemaType.Number | SchemaType
 
 export type ScalarSchema = BooleanSchema | NumberSchema | StringSchema;
 
-export const isScalarSchema = (value: AnySchema): value is ScalarSchema => {
-  return [SchemaType.Boolean, SchemaType.Number, SchemaType.String].includes(value.type);
+export const isScalarSchema = (schema: AnySchema): schema is ScalarSchema => {
+  return [SchemaType.Boolean, SchemaType.Number, SchemaType.String].includes(schema.type);
 };

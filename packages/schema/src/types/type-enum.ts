@@ -21,6 +21,6 @@ export type EnumSchema = {
   nullable?: boolean;
 };
 
-export const isEnumSchema = (value: AnySchema): value is EnumSchema => {
-  return value.type === SchemaType.Enum;
+export const isEnumSchema = (schema: AnySchema): schema is EnumSchema => {
+  return schema.type === SchemaType.Enum;
 };
