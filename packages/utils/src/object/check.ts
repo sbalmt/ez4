@@ -23,7 +23,7 @@ export const isPlainObject = (value: unknown): value is AnyObject => {
 };
 
 /**
- * Check whether the given object is empty.
+ * Deep check whether the given object is empty or not.
  * It always return `false` for array objects.
  *
  * @param object Object to check.
@@ -35,7 +35,13 @@ export const isEmptyObject = (object: AnyObject) => {
   }
 
   for (const key in object) {
-    if (Object.hasOwn(object, key) && object[key] !== undefined) {
+    if (!Object.hasOwn(object, key)) {
+      continue;
+    }
+
+    const value = object[key];
+
+    if (value !== undefined && (!isPlainObject(value) || !isEmptyObject(value))) {
       return false;
     }
   }
