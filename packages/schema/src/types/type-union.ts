@@ -6,8 +6,8 @@ import { SchemaType } from './common.js';
 export type UnionSchema = {
   type: SchemaType.Union;
   definitions?: SchemaDefinitions;
-  elements: AnySchema[];
   description?: string;
+  elements: AnySchema[];
   optional?: boolean;
   nullable?: boolean;
 };

@@ -10,8 +10,8 @@ export type TupleSchemaDefinitions = SchemaDefinitions & {
 export type TupleSchema = {
   type: SchemaType.Tuple;
   definitions?: TupleSchemaDefinitions;
-  elements: AnySchema[];
   description?: string;
+  elements: AnySchema[];
   optional?: boolean;
   nullable?: boolean;
 };

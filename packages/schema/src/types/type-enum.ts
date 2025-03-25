@@ -15,8 +15,8 @@ export type EnumSchemaDefinitions = SchemaDefinitions & {
 export type EnumSchema = {
   type: SchemaType.Enum;
   definitions?: EnumSchemaDefinitions;
-  options: EnumSchemaOption[];
   description?: string;
+  options: EnumSchemaOption[];
   optional?: boolean;
   nullable?: boolean;
 };

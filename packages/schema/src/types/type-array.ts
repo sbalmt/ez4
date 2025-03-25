@@ -12,8 +12,8 @@ export type ArraySchemaDefinitions = SchemaDefinitions & {
 export type ArraySchema = {
   type: SchemaType.Array;
   definitions?: ArraySchemaDefinitions;
-  element: AnySchema;
   description?: string;
+  element: AnySchema;
   optional?: boolean;
   nullable?: boolean;
 };

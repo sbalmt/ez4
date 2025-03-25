@@ -21,15 +21,19 @@ export type ObjectSchemaDefinitions = SchemaDefinitions & {
 
 export type ObjectSchema = {
   type: SchemaType.Object;
-  description?: string;
-  optional?: boolean;
-  nullable?: boolean;
   identity?: number;
+  description?: string;
   definitions?: ObjectSchemaDefinitions;
   additional?: ObjectSchemaAdditional;
   properties: ObjectSchemaProperties;
+  optional?: boolean;
+  nullable?: boolean;
 };
 
 export const isObjectSchema = (schema: AnySchema): schema is ObjectSchema => {
   return schema.type === SchemaType.Object;
+};
+
+export const isDynamicObjectSchema = (schema: ObjectSchema) => {
+  return schema.definitions?.extensible || !!schema.additional;
 };
