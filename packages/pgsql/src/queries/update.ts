@@ -222,14 +222,12 @@ const getUpdateColumns = (source: SqlSource, record: SqlRecord, schema: ObjectSc
 
     const json = !!parent;
 
-    if (value instanceof SqlRawOperation) {
-      if (json) {
-        columns.push(`${columnName} = (${columnName}::int ${value.operator} :${fieldIndex})::text::jsonb`);
-      } else {
-        columns.push(`${columnName} = (${columnName} ${value.operator} :${fieldIndex})`);
-      }
-    } else {
+    if (!(value instanceof SqlRawOperation)) {
       columns.push(`${columnName} = :${fieldIndex}`);
+    } else if (json) {
+      columns.push(`${columnName} = (${columnName}::int ${value.operator} :${fieldIndex}::int)::text::jsonb`);
+    } else {
+      columns.push(`${columnName} = (${columnName} ${value.operator} :${fieldIndex})`);
     }
 
     if (options.onPrepareVariable) {
