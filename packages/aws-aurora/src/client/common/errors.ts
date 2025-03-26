@@ -1,9 +1,9 @@
 export class MalformedRequestError extends Error {
   constructor(
-    public table: string,
+    public field: string,
     public details: string[]
   ) {
-    super(`Malformed schema for table '${table}'.`);
+    super(`Malformed schema for field '${field}'.`);
   }
 }
 
@@ -20,11 +20,8 @@ export class MissingFieldSchemaError extends Error {
 }
 
 export class InvalidRelationFieldError extends Error {
-  constructor(
-    public table: string,
-    public field: string
-  ) {
-    super(`Relation field '${field}' on table '${table}' has an invalid format.`);
+  constructor(public field: string) {
+    super(`Relation field '${field}' has an invalid format.`);
   }
 }
 

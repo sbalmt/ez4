@@ -15,7 +15,7 @@ type TestRelations = {
   changes: {};
 };
 
-describe('aurora query (insert operations)', () => {
+describe.only('aurora query (insert operations)', () => {
   const prepareInsert = <T extends Database.Schema, S extends Query.SelectInput<T, TestRelations>>(
     schema: ObjectSchema,
     data: Query.InsertOneInput<T, S, TestRelations>['data']

@@ -15,7 +15,7 @@ type TestRelations = {
   changes: {};
 };
 
-describe('aurora query (update schema)', () => {
+describe.only('aurora query (update schema)', () => {
   const prepareUpdate = <T extends Database.Schema, S extends Query.SelectInput<T, TestRelations>>(
     schema: ObjectSchema,
     data: Query.UpdateManyInput<T, S, TestRelations>['data']
@@ -127,6 +127,31 @@ describe('aurora query (update schema)', () => {
         }
       },
       {
+        optional: undefined
+      }
+    );
+
+    assert.equal(statement, `SELECT * FROM "ez4-test-update-schema"`);
+
+    assert.deepEqual(variables, []);
+  });
+
+  it('assert :: prepare update schema (scalar optional and required)', async ({ assert }) => {
+    const [statement, variables] = await prepareUpdate(
+      {
+        type: SchemaType.Object,
+        properties: {
+          required: {
+            type: SchemaType.Number
+          },
+          optional: {
+            type: SchemaType.String,
+            optional: true
+          }
+        }
+      },
+      {
+        required: undefined,
         optional: undefined
       }
     );
@@ -288,6 +313,38 @@ describe('aurora query (update schema)', () => {
       },
       {
         json: {
+          optional: undefined
+        }
+      }
+    );
+
+    assert.equal(statement, `SELECT * FROM "ez4-test-update-schema"`);
+
+    assert.deepEqual(variables, []);
+  });
+
+  it('assert :: prepare update schema (json optional and required)', async ({ assert }) => {
+    const [statement, variables] = await prepareUpdate(
+      {
+        type: SchemaType.Object,
+        properties: {
+          json: {
+            type: SchemaType.Object,
+            properties: {
+              required: {
+                type: SchemaType.String
+              },
+              optional: {
+                type: SchemaType.Number,
+                optional: true
+              }
+            }
+          }
+        }
+      },
+      {
+        json: {
+          required: undefined,
           optional: undefined
         }
       }

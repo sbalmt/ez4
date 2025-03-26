@@ -30,12 +30,12 @@ export const prepareInsertQuery = async <T extends Database.Schema, S extends Qu
 ): Promise<[string, SqlParameter[]]> => {
   const sql = createQueryBuilder();
 
-  const preQueriesMap = preparePreRelations(table, query.data, relations, sql);
+  const preQueriesMap = preparePreRelations(sql, query.data, relations, table);
   const preQueries = Object.values(preQueriesMap)
     .map(({ relationQueries }) => relationQueries)
     .flat();
 
-  const insertRecord = await getInsertRecord(table, query.data, schema, relations, preQueriesMap);
+  const insertRecord = await getInsertRecord(query.data, schema, relations, preQueriesMap, table);
 
   const insertQuery = sql
     .insert(schema)
@@ -44,7 +44,7 @@ export const prepareInsertQuery = async <T extends Database.Schema, S extends Qu
     .into(table)
     .returning();
 
-  const postQueriesMap = preparePostRelations(table, query.data, relations, insertQuery, sql);
+  const postQueriesMap = preparePostRelations(sql, query.data, relations, insertQuery, table);
   const postQueries = Object.values(postQueriesMap)
     .map(({ relationQueries }) => relationQueries)
     .flat();
@@ -55,7 +55,7 @@ export const prepareInsertQuery = async <T extends Database.Schema, S extends Qu
     const allRelations = { ...preQueriesMap, ...postQueriesMap };
     const selectQuery = sql.select(schema).from(insertQuery);
 
-    const selectRecord = getInsertSelectFields(table, query.select, schema, allRelations, insertQuery, selectQuery, sql);
+    const selectRecord = getInsertSelectFields(sql, query.select, schema, allRelations, insertQuery, selectQuery, table);
 
     selectQuery.record(selectRecord);
     allQueries.push(selectQuery);
@@ -67,40 +67,41 @@ export const prepareInsertQuery = async <T extends Database.Schema, S extends Qu
 };
 
 const getInsertRecord = async (
-  table: string,
   data: SqlRecord,
   schema: ObjectSchema,
   relations: RepositoryRelationsWithSchema,
-  relationsCache: InsertRelationsCache
+  relationsCache: InsertRelationsCache,
+  path: string
 ) => {
   const record: SqlRecord = {};
 
   for (const fieldKey in data) {
     const fieldRelation = relations[fieldKey];
     const fieldSchema = schema.properties[fieldKey];
+    const fieldPath = `${path}.${fieldKey}`;
     const fieldValue = data[fieldKey];
 
     if (!fieldRelation) {
-      await validateAllSchemaLevels(table, fieldValue, fieldSchema);
+      await validateAllSchemaLevels(fieldValue, fieldSchema, fieldPath);
 
       record[fieldKey] = fieldValue;
       continue;
     }
 
     if (!isRelationalData(fieldValue) || !relationsCache[fieldKey]) {
-      throw new InvalidRelationFieldError(table, fieldKey);
+      throw new InvalidRelationFieldError(fieldPath);
     }
 
     const { relationQueries, sourceSchema, sourceIndex, sourceColumn, targetColumn } = relationsCache[fieldKey];
 
     if (!sourceIndex || sourceIndex === Index.Secondary) {
       if (!isMultipleRelationData(fieldValue)) {
-        throw new InvalidRelationFieldError(table, fieldKey);
+        throw new InvalidRelationFieldError(fieldPath);
       }
 
       await Promise.all(
         fieldValue.map((current) => {
-          return validateAllSchemaLevels(table, current, sourceSchema);
+          return validateAllSchemaLevels(current, sourceSchema, fieldPath);
         })
       );
 
@@ -108,7 +109,7 @@ const getInsertRecord = async (
     }
 
     if (!isSingleRelationData(fieldValue)) {
-      throw new InvalidRelationFieldError(table, fieldKey);
+      throw new InvalidRelationFieldError(fieldPath);
     }
 
     if (sourceIndex === Index.Primary) {
@@ -116,14 +117,15 @@ const getInsertRecord = async (
 
       if (!isSkippableData(relationValue)) {
         const relationSchema = schema.properties[targetColumn];
+        const relationPath = `${path}.${targetColumn}`;
 
-        await validateFirstSchemaLevel(table, relationValue, relationSchema);
+        await validateFirstSchemaLevel(relationValue, relationSchema, relationPath);
 
         record[targetColumn] = relationValue;
         continue;
       }
 
-      await validateAllSchemaLevels(table, fieldValue, sourceSchema);
+      await validateAllSchemaLevels(fieldValue, sourceSchema, fieldPath);
 
       const [relationQuery] = relationQueries;
 
@@ -136,21 +138,22 @@ const getInsertRecord = async (
 
       if (!isSkippableData(relationValue)) {
         const relationSchema = sourceSchema.properties[sourceColumn];
+        const relationPath = `${path}.${sourceColumn}`;
 
-        await validateFirstSchemaLevel(table, relationValue, relationSchema);
+        await validateFirstSchemaLevel(relationValue, relationSchema, relationPath);
 
         record[sourceColumn] = relationValue;
         continue;
       }
 
-      await validateAllSchemaLevels(table, fieldValue, sourceSchema);
+      await validateAllSchemaLevels(fieldValue, sourceSchema, fieldPath);
     }
   }
 
   return record;
 };
 
-const preparePreRelations = (table: string, data: SqlRecord, relations: RepositoryRelationsWithSchema, sql: SqlBuilder) => {
+const preparePreRelations = (sql: SqlBuilder, data: SqlRecord, relations: RepositoryRelationsWithSchema, path: string) => {
   const allQueries: InsertRelationsCache = {};
 
   for (const relationAlias in relations) {
@@ -161,8 +164,10 @@ const preparePreRelations = (table: string, data: SqlRecord, relations: Reposito
       continue;
     }
 
+    const fieldPath = `${path}.${relationAlias}`;
+
     if (!isRelationalData(fieldValue)) {
-      throw new InvalidRelationFieldError(table, relationAlias);
+      throw new InvalidRelationFieldError(fieldPath);
     }
 
     const relationQueries: SqlInsertStatement[] = [];
@@ -199,11 +204,11 @@ const preparePreRelations = (table: string, data: SqlRecord, relations: Reposito
 };
 
 const preparePostRelations = (
-  table: string,
+  sql: SqlBuilder,
   data: SqlRecord,
   relations: RepositoryRelationsWithSchema,
   source: SqlSourceWithResults,
-  sql: SqlBuilder
+  path: string
 ) => {
   const allQueries: InsertRelationsCache = {};
 
@@ -217,8 +222,10 @@ const preparePostRelations = (
       continue;
     }
 
+    const fieldPath = `${path}.${relationAlias}`;
+
     if (!isRelationalData(fieldValue)) {
-      throw new InvalidRelationFieldError(table, relationAlias);
+      throw new InvalidRelationFieldError(fieldPath);
     }
 
     const { sourceIndex } = fieldRelation;
@@ -268,13 +275,13 @@ const preparePostRelations = (
 };
 
 const getInsertSelectFields = <T extends Database.Schema, S extends AnyObject, R extends RelationMetadata>(
-  table: string,
+  sql: SqlBuilder,
   fields: Query.StrictSelectInput<T, S, R>,
   schema: ObjectSchema,
   relations: InsertRelationsCache,
   main: SqlInsertStatement | undefined,
   source: SqlSelectStatement,
-  sql: SqlBuilder,
+  path: string,
   json?: boolean
 ) => {
   const allFields = isEmptyObject(fields) ? getDefaultSelectFields(schema) : fields;
@@ -288,10 +295,12 @@ const getInsertSelectFields = <T extends Database.Schema, S extends AnyObject, R
       continue;
     }
 
-    const relationSource = relations[fieldKey];
+    const fieldRelation = relations[fieldKey];
 
-    if (relationSource) {
-      const { relationQueries, sourceTable, sourceIndex, targetColumn, sourceColumn, sourceSchema } = relationSource;
+    const fieldPath = `${path}.${fieldKey}`;
+
+    if (fieldRelation) {
+      const { relationQueries, sourceTable, sourceIndex, targetColumn, sourceColumn, sourceSchema } = fieldRelation;
 
       const relationFields = fieldValue === true ? getDefaultSelectFields(sourceSchema) : fieldValue;
 
@@ -306,7 +315,7 @@ const getInsertSelectFields = <T extends Database.Schema, S extends AnyObject, R
 
         relationQuery.from(sourceTable).where(relationFilter);
 
-        const relationRecord = getSelectFields(table, relationFields, {}, sourceSchema, relations, relationQuery, sql, true);
+        const relationRecord = getSelectFields(sql, relationFields, {}, sourceSchema, relations, relationQuery, fieldPath, true);
 
         if (sourceIndex === Index.Primary || sourceIndex === Index.Unique) {
           relationQuery.objectColumn(relationRecord);
@@ -327,24 +336,23 @@ const getInsertSelectFields = <T extends Database.Schema, S extends AnyObject, R
           }
         }
 
-        const relationRecord = getInsertSelectFields(table, relationFields, sourceSchema, relations, undefined, relationQuery, sql, true);
+        const record = getInsertSelectFields(sql, relationFields, sourceSchema, relations, undefined, relationQuery, fieldPath, true);
 
         if (sourceIndex === Index.Primary || sourceIndex === Index.Unique) {
-          relationQuery.objectColumn(relationRecord);
+          relationQuery.objectColumn(record);
         } else {
-          relationQuery.arrayColumn(relationRecord);
+          relationQuery.arrayColumn(record);
         }
       }
 
       output[fieldKey] = relationQuery;
-
       continue;
     }
 
     const fieldSchema = schema.properties[fieldKey];
 
     if (!fieldSchema) {
-      throw new MissingFieldSchemaError(fieldKey);
+      throw new MissingFieldSchemaError(fieldPath);
     }
 
     if (main?.results && !main.results.has(fieldKey)) {
