@@ -37,7 +37,7 @@ export class Table<T extends Database.Schema, I extends Database.Indexes, R exte
     private settings: TableSettings
   ) {}
 
-  private parseRecord<T extends Record<string, unknown>>(record: T): T {
+  private parseRecord<T extends Record<string, unknown>>(record: T): T | undefined {
     return parseRecord(record, this.schema, this.relations);
   }
 

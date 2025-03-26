@@ -2,8 +2,13 @@ import type { AnySchema, ObjectSchema } from '@ez4/schema';
 import type { RepositoryRelations } from '../../types/repository.js';
 
 import { isArraySchema, isObjectSchema, isTupleSchema, isUnionSchema } from '@ez4/schema';
+import { isEmptyObject } from '@ez4/utils';
 
 export const parseRecord = <T extends Record<string, unknown>>(record: T, schema: ObjectSchema, relations: RepositoryRelations) => {
+  if (isEmptyObject(record)) {
+    return undefined;
+  }
+
   const result: Record<string, unknown> = {};
 
   for (const fieldKey in record) {
