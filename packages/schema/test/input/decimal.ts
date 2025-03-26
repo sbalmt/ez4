@@ -27,7 +27,7 @@ export interface DecimalTestSchema {
   /**
    * Default decimal value.
    */
-  value: Decimal.Default<4.56>;
+  default: Decimal.Default<4.56>;
 
   /**
    * Literal decimal value.

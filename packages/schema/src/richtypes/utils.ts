@@ -150,10 +150,10 @@ export const createRichType = (richTypes: RichTypes) => {
     }
 
     case 'object': {
-      const { extensible, value } = richTypes;
+      const { extensible, value, type = createObject('@ez4/schema') } = richTypes;
 
       return {
-        ...createObject('@ez4/schema'),
+        ...type,
         definitions: {
           ...(value && { default: value }),
           ...(extensible && { extensible })

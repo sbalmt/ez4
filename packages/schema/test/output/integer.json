@@ -34,7 +34,7 @@
         "maxValue": 50
       }
     },
-    "value": {
+    "default": {
       "type": "number",
       "description": "Default integer value.",
       "format": "integer",

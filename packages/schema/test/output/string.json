@@ -33,7 +33,7 @@
         "trim": true
       }
     },
-    "value": {
+    "default": {
       "type": "string",
       "description": "Default string value.",
       "definitions": {
