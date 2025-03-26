@@ -5,7 +5,7 @@ import { describe, it } from 'node:test';
 import { createValidatorContext, validate } from '@ez4/validator';
 import { SchemaType } from '@ez4/schema';
 
-describe.only('type depth validation', () => {
+describe('type depth validation', () => {
   it('assert :: object depth', async ({ assert }) => {
     const schema: AnySchema = {
       type: SchemaType.Object,
