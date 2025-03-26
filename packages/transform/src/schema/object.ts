@@ -17,14 +17,41 @@ export const transformObject = (value: unknown, schema: ObjectSchema, context = 
     context.references[schema.identity] = schema;
   }
 
-  for (const property in schema.properties) {
-    const valueSchema = schema.properties[property];
+  const allProperties = new Set(Object.keys(value));
 
-    const rawValue = value[property];
+  for (const propertyName in schema.properties) {
+    allProperties.delete(propertyName);
+
+    const valueSchema = schema.properties[propertyName];
+
+    const rawValue = value[propertyName];
     const newValue = transformAny(rawValue, valueSchema, context);
 
     if (newValue !== undefined) {
-      output[property] = newValue;
+      output[propertyName] = newValue;
+    }
+  }
+
+  if (schema.additional) {
+    const { value: valueSchema } = schema.additional;
+
+    for (const propertyName of allProperties) {
+      const rawValue = value[propertyName];
+      const newValue = transformAny(rawValue, valueSchema, context);
+
+      if (newValue !== undefined) {
+        allProperties.delete(propertyName);
+
+        output[propertyName] = newValue;
+      }
+    }
+  }
+
+  const allowExtraProperties = schema.definitions?.extensible;
+
+  if (allowExtraProperties) {
+    for (const propertyName of allProperties) {
+      output[propertyName] = value[propertyName];
     }
   }
 

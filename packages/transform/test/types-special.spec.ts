@@ -7,6 +7,84 @@ import { SchemaType } from '@ez4/schema';
 import { transform } from '@ez4/transform';
 
 describe('special types transform', () => {
+  it('assert :: object with extensible properties', () => {
+    const schema: AnySchema = {
+      type: SchemaType.Object,
+      definitions: {
+        extensible: true
+      },
+      properties: {
+        foo: {
+          type: SchemaType.Number
+        }
+      }
+    };
+
+    const output = {
+      foo: 123,
+      bar: 'abc',
+      baz: 'def'
+    };
+
+    deepEqual(transform({ foo: '123', bar: 'abc', baz: 'def' }, schema), output);
+  });
+
+  it('assert :: object with additional properties', () => {
+    const schema: AnySchema = {
+      type: SchemaType.Object,
+      properties: {
+        foo: {
+          type: SchemaType.String
+        }
+      },
+      additional: {
+        property: {
+          type: SchemaType.String
+        },
+        value: {
+          type: SchemaType.Number
+        }
+      }
+    };
+
+    const output = {
+      foo: 'abc',
+      bar: 123
+    };
+
+    deepEqual(transform({ foo: 'abc', bar: '123', baz: 'def' }, schema), output);
+  });
+
+  it('assert :: object with extensible and additional properties', () => {
+    const schema: AnySchema = {
+      type: SchemaType.Object,
+      definitions: {
+        extensible: true
+      },
+      properties: {
+        foo: {
+          type: SchemaType.Boolean
+        }
+      },
+      additional: {
+        property: {
+          type: SchemaType.String
+        },
+        value: {
+          type: SchemaType.Number
+        }
+      }
+    };
+
+    const output = {
+      foo: true,
+      bar: 123,
+      baz: 'def'
+    };
+
+    deepEqual(transform({ foo: 'true', bar: 123, baz: 'def' }, schema), output);
+  });
+
   it('assert :: array from string', () => {
     const schema: AnySchema = {
       type: SchemaType.Array,
