@@ -28,7 +28,7 @@ export const prepareDeleteQuery = <
   }
 
   if (query.select) {
-    const selectRecord = getSelectFields(query.select, query.include, schema, relations, deleteQuery, sql);
+    const selectRecord = getSelectFields(table, query.select, query.include, schema, relations, deleteQuery, sql);
 
     deleteQuery.returning(selectRecord);
   }

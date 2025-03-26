@@ -3,50 +3,48 @@ import type { Database, RelationMetadata, Query } from '@ez4/database';
 import type { SqlParameter } from '@aws-sdk/client-rds-data';
 import type { ObjectSchema } from '@ez4/schema';
 import type { AnyObject } from '@ez4/utils';
-import type { RepositoryRelationsWithSchema } from '../../types/repository.js';
+import type { RelationWithSchema, RepositoryRelationsWithSchema } from '../../types/repository.js';
 
 import { isObjectSchema } from '@ez4/schema';
 import { isEmptyObject } from '@ez4/utils';
 import { Index } from '@ez4/database';
 
-import { isMultipleRelationData, isSingleRelationData, isRelationalData, isSkippableData } from './data.js';
-import { InvalidRelationFieldError, MissingFieldSchemaError } from './errors.js';
+import { isMultipleRelationData, isSingleRelationData, isRelationalData } from './relation.js';
 import { getDefaultSelectFields, getFieldColumn, getSelectFields } from './select.js';
+import { InvalidRelationFieldError, MissingFieldSchemaError } from './errors.js';
+import { validateAllSchemaLevels, validateFirstSchemaLevel } from './schema.js';
 import { createQueryBuilder } from './builder.js';
+import { isSkippableData } from './data.js';
 
 type InsertRelationsCache = Record<string, InsertRelationEntry>;
 
-type InsertRelationEntry = {
+type InsertRelationEntry = RelationWithSchema & {
   relationQueries: SqlInsertStatement[];
-  sourceSchema: ObjectSchema;
-  targetColumn: string;
-  sourceColumn: string;
-  sourceIndex?: Index;
-  sourceTable: string;
-  sourceAlias: string;
 };
 
-export const prepareInsertQuery = <T extends Database.Schema, S extends Query.SelectInput<T, R>, R extends RelationMetadata>(
+export const prepareInsertQuery = async <T extends Database.Schema, S extends Query.SelectInput<T, R>, R extends RelationMetadata>(
   table: string,
   schema: ObjectSchema,
   relations: RepositoryRelationsWithSchema,
   query: Query.InsertOneInput<T, S, R>
-): [string, SqlParameter[]] => {
+): Promise<[string, SqlParameter[]]> => {
   const sql = createQueryBuilder();
 
-  const preQueriesMap = preparePreRelations(query.data, relations, sql);
+  const preQueriesMap = preparePreRelations(table, query.data, relations, sql);
   const preQueries = Object.values(preQueriesMap)
     .map(({ relationQueries }) => relationQueries)
     .flat();
 
+  const insertRecord = await getInsertRecord(table, query.data, schema, relations, preQueriesMap);
+
   const insertQuery = sql
     .insert(schema)
-    .record(getInsertRecord(query.data, relations, preQueriesMap))
+    .record(insertRecord)
     .select(...preQueries)
     .into(table)
     .returning();
 
-  const postQueriesMap = preparePostRelations(query.data, relations, insertQuery, sql);
+  const postQueriesMap = preparePostRelations(table, query.data, relations, insertQuery, sql);
   const postQueries = Object.values(postQueriesMap)
     .map(({ relationQueries }) => relationQueries)
     .flat();
@@ -55,13 +53,11 @@ export const prepareInsertQuery = <T extends Database.Schema, S extends Query.Se
 
   if (query.select) {
     const allRelations = { ...preQueriesMap, ...postQueriesMap };
-
     const selectQuery = sql.select(schema).from(insertQuery);
 
-    const selectRecord = getInsertSelectFields(query.select, schema, allRelations, insertQuery, selectQuery, sql);
+    const selectRecord = getInsertSelectFields(table, query.select, schema, allRelations, insertQuery, selectQuery, sql);
 
     selectQuery.record(selectRecord);
-
     allQueries.push(selectQuery);
   }
 
@@ -70,87 +66,120 @@ export const prepareInsertQuery = <T extends Database.Schema, S extends Query.Se
   return [statement, variables as SqlParameter[]];
 };
 
-const getInsertRecord = (data: SqlRecord, relations: RepositoryRelationsWithSchema, relationsCache: InsertRelationsCache) => {
+const getInsertRecord = async (
+  table: string,
+  data: SqlRecord,
+  schema: ObjectSchema,
+  relations: RepositoryRelationsWithSchema,
+  relationsCache: InsertRelationsCache
+) => {
   const record: SqlRecord = {};
 
   for (const fieldKey in data) {
+    const fieldRelation = relations[fieldKey];
+    const fieldSchema = schema.properties[fieldKey];
     const fieldValue = data[fieldKey];
 
-    if (isSkippableData(fieldValue)) {
-      continue;
-    }
+    if (!fieldRelation) {
+      await validateAllSchemaLevels(table, fieldValue, fieldSchema);
 
-    const relationData = relations[fieldKey];
-
-    if (!relationData) {
       record[fieldKey] = fieldValue;
       continue;
     }
 
-    if (!isRelationalData(fieldValue)) {
-      throw new InvalidRelationFieldError(fieldKey);
+    if (!isRelationalData(fieldValue) || !relationsCache[fieldKey]) {
+      throw new InvalidRelationFieldError(table, fieldKey);
     }
 
-    if (!isSingleRelationData(fieldValue) || !relationsCache[fieldKey]) {
+    const { relationQueries, sourceSchema, sourceIndex, sourceColumn, targetColumn } = relationsCache[fieldKey];
+
+    if (!sourceIndex || sourceIndex === Index.Secondary) {
+      if (!isMultipleRelationData(fieldValue)) {
+        throw new InvalidRelationFieldError(table, fieldKey);
+      }
+
+      await Promise.all(
+        fieldValue.map((current) => {
+          return validateAllSchemaLevels(table, current, sourceSchema);
+        })
+      );
+
       continue;
     }
 
-    const { relationQueries, sourceColumn, sourceIndex, targetColumn } = relationsCache[fieldKey];
-
-    const [relationQuery] = relationQueries;
+    if (!isSingleRelationData(fieldValue)) {
+      throw new InvalidRelationFieldError(table, fieldKey);
+    }
 
     if (sourceIndex === Index.Primary) {
-      const relationId = fieldValue[targetColumn];
+      const relationValue = fieldValue[targetColumn];
 
-      if (isSkippableData(relationId)) {
-        record[targetColumn] = relationQuery.reference(sourceColumn);
-      } else {
-        record[targetColumn] = relationId;
+      if (!isSkippableData(relationValue)) {
+        const relationSchema = schema.properties[targetColumn];
+
+        await validateFirstSchemaLevel(table, relationValue, relationSchema);
+
+        record[targetColumn] = relationValue;
+        continue;
       }
+
+      await validateAllSchemaLevels(table, fieldValue, sourceSchema);
+
+      const [relationQuery] = relationQueries;
+
+      record[targetColumn] = relationQuery.reference(sourceColumn);
+      continue;
     }
 
     if (sourceIndex === Index.Unique) {
-      const relationId = fieldValue[sourceColumn];
+      const relationValue = fieldValue[sourceColumn];
 
-      if (!isSkippableData(relationId)) {
-        record[sourceColumn] = relationId;
+      if (!isSkippableData(relationValue)) {
+        const relationSchema = sourceSchema.properties[sourceColumn];
+
+        await validateFirstSchemaLevel(table, relationValue, relationSchema);
+
+        record[sourceColumn] = relationValue;
+        continue;
       }
+
+      await validateAllSchemaLevels(table, fieldValue, sourceSchema);
     }
   }
 
   return record;
 };
 
-const preparePreRelations = (data: SqlRecord, relations: RepositoryRelationsWithSchema, sql: SqlBuilder) => {
+const preparePreRelations = (table: string, data: SqlRecord, relations: RepositoryRelationsWithSchema, sql: SqlBuilder) => {
   const allQueries: InsertRelationsCache = {};
 
   for (const relationAlias in relations) {
-    const relationData = relations[relationAlias];
+    const fieldRelation = relations[relationAlias];
     const fieldValue = data[relationAlias];
 
-    if (!relationData || isSkippableData(fieldValue)) {
+    if (!fieldRelation || isSkippableData(fieldValue)) {
       continue;
     }
 
     if (!isRelationalData(fieldValue)) {
-      throw new InvalidRelationFieldError(relationAlias);
+      throw new InvalidRelationFieldError(table, relationAlias);
     }
-
-    const isPreRelation = isSingleRelationData(fieldValue);
-
-    const { sourceTable, sourceIndex, sourceColumn, sourceSchema, targetColumn } = relationData;
 
     const relationQueries: SqlInsertStatement[] = [];
 
     allQueries[relationAlias] = {
-      ...relationData,
+      ...fieldRelation,
       relationQueries
     };
 
-    if (isPreRelation && sourceIndex === Index.Primary) {
-      const relationId = fieldValue[targetColumn];
+    const { sourceIndex } = fieldRelation;
 
-      if (!isSkippableData(relationId)) {
+    if (isSingleRelationData(fieldValue) && sourceIndex === Index.Primary) {
+      const { sourceTable, sourceColumn, sourceSchema, targetColumn } = fieldRelation;
+
+      const relationValue = fieldValue[targetColumn];
+
+      if (!isSkippableData(relationValue)) {
         continue;
       }
 
@@ -169,40 +198,46 @@ const preparePreRelations = (data: SqlRecord, relations: RepositoryRelationsWith
   return allQueries;
 };
 
-const preparePostRelations = (data: SqlRecord, relations: RepositoryRelationsWithSchema, source: SqlSourceWithResults, sql: SqlBuilder) => {
+const preparePostRelations = (
+  table: string,
+  data: SqlRecord,
+  relations: RepositoryRelationsWithSchema,
+  source: SqlSourceWithResults,
+  sql: SqlBuilder
+) => {
   const allQueries: InsertRelationsCache = {};
 
   const { results } = source;
 
   for (const relationAlias in relations) {
-    const relationData = relations[relationAlias];
+    const fieldRelation = relations[relationAlias];
     const fieldValue = data[relationAlias];
 
-    if (!relationData || isSkippableData(fieldValue)) {
+    if (!fieldRelation || isSkippableData(fieldValue)) {
       continue;
     }
 
     if (!isRelationalData(fieldValue)) {
-      throw new InvalidRelationFieldError(relationAlias);
+      throw new InvalidRelationFieldError(table, relationAlias);
     }
 
-    const { sourceTable, sourceIndex, sourceColumn, sourceSchema, targetColumn } = relationData;
+    const { sourceIndex } = fieldRelation;
 
     if (sourceIndex === Index.Primary) {
       continue;
     }
 
-    const isMultipleRelation = isMultipleRelationData(fieldValue);
+    const { sourceTable, sourceColumn, sourceSchema, targetColumn } = fieldRelation;
 
-    const allFieldValues = isMultipleRelation ? fieldValue : [fieldValue];
+    const allFieldValues = isMultipleRelationData(fieldValue) ? fieldValue : [fieldValue];
 
     const relationQueries = [];
 
     for (const currentValue of allFieldValues) {
       if (sourceIndex === Index.Unique) {
-        const uniqueRelationId = currentValue[sourceColumn];
+        const relationValue = currentValue[sourceColumn];
 
-        if (!isSkippableData(uniqueRelationId)) {
+        if (!isSkippableData(relationValue)) {
           continue;
         }
       }
@@ -224,7 +259,7 @@ const preparePostRelations = (data: SqlRecord, relations: RepositoryRelationsWit
     }
 
     allQueries[relationAlias] = {
-      ...relationData,
+      ...fieldRelation,
       relationQueries
     };
   }
@@ -233,6 +268,7 @@ const preparePostRelations = (data: SqlRecord, relations: RepositoryRelationsWit
 };
 
 const getInsertSelectFields = <T extends Database.Schema, S extends AnyObject, R extends RelationMetadata>(
+  table: string,
   fields: Query.StrictSelectInput<T, S, R>,
   schema: ObjectSchema,
   relations: InsertRelationsCache,
@@ -270,7 +306,7 @@ const getInsertSelectFields = <T extends Database.Schema, S extends AnyObject, R
 
         relationQuery.from(sourceTable).where(relationFilter);
 
-        const relationRecord = getSelectFields(relationFields, {}, sourceSchema, relations, relationQuery, sql, true);
+        const relationRecord = getSelectFields(table, relationFields, {}, sourceSchema, relations, relationQuery, sql, true);
 
         if (sourceIndex === Index.Primary || sourceIndex === Index.Unique) {
           relationQuery.objectColumn(relationRecord);
@@ -291,7 +327,7 @@ const getInsertSelectFields = <T extends Database.Schema, S extends AnyObject, R
           }
         }
 
-        const relationRecord = getInsertSelectFields(relationFields, sourceSchema, relations, undefined, relationQuery, sql, true);
+        const relationRecord = getInsertSelectFields(table, relationFields, sourceSchema, relations, undefined, relationQuery, sql, true);
 
         if (sourceIndex === Index.Primary || sourceIndex === Index.Unique) {
           relationQuery.objectColumn(relationRecord);

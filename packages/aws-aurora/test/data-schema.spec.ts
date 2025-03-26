@@ -1,7 +1,7 @@
 import { describe, it } from 'node:test';
 import { deepEqual } from 'node:assert/strict';
 
-import { getInsertSchema, getUpdateSchema, validateSchema } from '@ez4/aws-aurora/client';
+import { getInsertSchema, getUpdateSchema, validateAllSchemaLevels } from '@ez4/aws-aurora/client';
 import { ObjectSchema, SchemaType } from '@ez4/schema';
 import { Index } from '@ez4/database';
 
@@ -80,7 +80,7 @@ describe('aurora data schema', () => {
       }
     });
 
-    await validateSchema(data, schema);
+    await validateAllSchemaLevels('table', data, schema);
   });
 
   it('assert :: insert related schema (primary foreign object)', async () => {
@@ -104,7 +104,7 @@ describe('aurora data schema', () => {
       }
     });
 
-    await validateSchema(data, schema);
+    await validateAllSchemaLevels('table', data, schema);
   });
 
   it('assert :: insert related schema (unique foreign id)', async () => {
@@ -131,7 +131,7 @@ describe('aurora data schema', () => {
       }
     });
 
-    await validateSchema(data, schema);
+    await validateAllSchemaLevels('table', data, schema);
   });
 
   it('assert :: insert related schema (unique foreign object)', async () => {
@@ -159,7 +159,7 @@ describe('aurora data schema', () => {
       }
     });
 
-    await validateSchema(data, schema);
+    await validateAllSchemaLevels('table', data, schema);
   });
 
   it('assert :: insert related schema (inverse array object)', async () => {
@@ -194,7 +194,7 @@ describe('aurora data schema', () => {
       }
     });
 
-    await validateSchema(data, schema);
+    await validateAllSchemaLevels('table', data, schema);
   });
 
   it('assert :: update related schema (primary foreign id)', async () => {
@@ -225,7 +225,7 @@ describe('aurora data schema', () => {
       }
     });
 
-    await validateSchema(data, schema);
+    await validateAllSchemaLevels('table', data, schema);
   });
 
   it('assert :: update related schema (primary foreign object)', async () => {
@@ -256,7 +256,7 @@ describe('aurora data schema', () => {
       }
     });
 
-    await validateSchema(data, schema);
+    await validateAllSchemaLevels('table', data, schema);
   });
 
   it('assert :: update related schema (unique foreign id)', async () => {
@@ -287,7 +287,7 @@ describe('aurora data schema', () => {
       }
     });
 
-    await validateSchema(data, schema);
+    await validateAllSchemaLevels('table', data, schema);
   });
 
   it('assert :: update related schema (unique foreign object)', async () => {
@@ -318,7 +318,7 @@ describe('aurora data schema', () => {
       }
     });
 
-    await validateSchema(data, schema);
+    await validateAllSchemaLevels('table', data, schema);
   });
 
   it('assert :: update related schema (inverse array object)', async () => {
@@ -349,6 +349,6 @@ describe('aurora data schema', () => {
       }
     });
 
-    await validateSchema(data, schema);
+    await validateAllSchemaLevels('table', data, schema);
   });
 });

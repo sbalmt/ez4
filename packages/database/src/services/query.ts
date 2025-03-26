@@ -132,9 +132,8 @@ export namespace Query {
     IndexFields<R>
   >;
 
-  export type UpdateDataInput<T extends Database.Schema, R extends RelationMetadata> = Omit<
-    IsObjectEmpty<R['changes']> extends true ? T : T & FlatObject<R['changes']>,
-    IndexFields<R>
+  export type UpdateDataInput<T extends Database.Schema, R extends RelationMetadata> = AtomicDataInput<
+    Omit<IsObjectEmpty<R['changes']> extends true ? T : T & FlatObject<R['changes']>, IndexFields<R>>
   >;
 
   export type StrictIncludeInput<S extends AnyObject, R extends RelationMetadata> =
@@ -282,5 +281,43 @@ export namespace Query {
 
   type WhereContains<T> = {
     contains: IsObject<T> extends true ? Partial<T> : T;
+  };
+
+  export type AtomicOperators = keyof (AtomicIncrement & AtomicDecrement & AtomicMultiply & AtomicDivide);
+
+  type AtomicDataInput<T extends AnyObject> = AtomicRequiredFields<T> & AtomicOptionalFields<T>;
+
+  type AtomicDataField<T> = T extends number
+    ? AtomicOperation | number
+    : T extends AnyObject
+      ? AtomicDataInput<T>
+      : NonNullable<T> extends AnyObject
+        ? undefined | AtomicDataInput<NonNullable<T>>
+        : T;
+
+  type AtomicRequiredFields<T extends AnyObject> = {
+    [P in keyof T as T[P] extends undefined ? never : P]: AtomicDataField<T[P]>;
+  };
+
+  type AtomicOptionalFields<T extends AnyObject> = {
+    [P in keyof T as T[P] extends undefined ? P : never]?: AtomicDataField<T[P]>;
+  };
+
+  type AtomicOperation = AtomicIncrement | AtomicDecrement | AtomicMultiply | AtomicDivide;
+
+  type AtomicIncrement = {
+    increment: number;
+  };
+
+  type AtomicDecrement = {
+    decrement: number;
+  };
+
+  type AtomicMultiply = {
+    multiply: number;
+  };
+
+  type AtomicDivide = {
+    divide: number;
   };
 }

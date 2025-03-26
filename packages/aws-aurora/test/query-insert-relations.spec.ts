@@ -1,4 +1,5 @@
-import { equal, deepEqual } from 'node:assert/strict';
+import type { Query } from '@ez4/database';
+
 import { describe, it } from 'node:test';
 
 import { prepareInsertQuery } from '@ez4/aws-aurora/client';
@@ -126,29 +127,14 @@ describe('aurora query (insert)', () => {
     }
   };
 
-  it('assert :: prepare insert', () => {
-    const [statement, variables] = prepareInsertQuery<TestSchema, {}, TestRelations>('ez4-test-insert', testSchema, testRelations, {
-      data: {
-        id: '00000000-0000-1000-9000-000000000000',
-        foo: 123,
-        bar: {
-          barFoo: 'abc',
-          barBar: true
-        }
-      }
-    });
+  const prepareInsert = <S extends Query.SelectInput<TestSchema, TestRelations>>(
+    query: Query.InsertOneInput<TestSchema, S, TestRelations>
+  ) => {
+    return prepareInsertQuery<TestSchema, S, TestRelations>('ez4-test-insert-relations', testSchema, testRelations, query);
+  };
 
-    equal(statement, `INSERT INTO "ez4-test-insert" ("id", "foo", "bar") VALUES (:0, :1, :2)`);
-
-    deepEqual(variables, [
-      makeParameter('0', '00000000-0000-1000-9000-000000000000', 'UUID'),
-      makeParameter('1', 123),
-      makeParameter('2', { barFoo: 'abc', barBar: true })
-    ]);
-  });
-
-  it('assert :: prepare insert (with select)', () => {
-    const [statement, variables] = prepareInsertQuery<TestSchema, {}, TestRelations>('ez4-test-insert', testSchema, testRelations, {
+  it('assert :: prepare insert (with select)', async ({ assert }) => {
+    const [statement, variables] = await prepareInsert({
       select: {
         foo: true,
         bar: {
@@ -165,26 +151,26 @@ describe('aurora query (insert)', () => {
       }
     });
 
-    equal(
+    assert.equal(
       statement,
       `WITH ` +
         // Main record
-        `"R0" AS (INSERT INTO "ez4-test-insert" ("id", "foo", "bar") ` +
+        `"R0" AS (INSERT INTO "ez4-test-insert-relations" ("id", "foo", "bar") ` +
         `VALUES (:0, :1, :2) RETURNING "foo", "bar") ` +
         // Select
         `SELECT "foo", json_build_object('barBar', "bar"['barBar']) AS "bar" ` +
         `FROM "R0"`
     );
 
-    deepEqual(variables, [
+    assert.deepEqual(variables, [
       makeParameter('0', '00000000-0000-1000-9000-000000000000', 'UUID'),
       makeParameter('1', 123),
       makeParameter('2', { barFoo: 'abc', barBar: true })
     ]);
   });
 
-  it('assert :: prepare insert (primary foreign id)', () => {
-    const [statement, variables] = prepareInsertQuery<TestSchema, {}, TestRelations>('ez4-test-insert', testSchema, testRelations, {
+  it('assert :: prepare insert relations (primary foreign id)', async ({ assert }) => {
+    const [statement, variables] = await prepareInsert({
       data: {
         id: '00000000-0000-1000-9000-000000000000',
         bar: {},
@@ -194,21 +180,21 @@ describe('aurora query (insert)', () => {
       }
     });
 
-    equal(
+    assert.equal(
       statement,
       // Main record
-      `INSERT INTO "ez4-test-insert" ("id", "bar", "relation1_id") VALUES (:0, :1, :2)`
+      `INSERT INTO "ez4-test-insert-relations" ("id", "bar", "relation1_id") VALUES (:0, :1, :2)`
     );
 
-    deepEqual(variables, [
+    assert.deepEqual(variables, [
       makeParameter('0', '00000000-0000-1000-9000-000000000000', 'UUID'),
       makeParameter('1', {}),
       makeParameter('2', '00000000-0000-1000-9000-000000000001', 'UUID')
     ]);
   });
 
-  it('assert :: prepare insert (primary foreign id with select)', ({ assert }) => {
-    const [statement, variables] = prepareInsertQuery<TestSchema, {}, TestRelations>('ez4-test-insert', testSchema, testRelations, {
+  it('assert :: prepare insert relations (primary foreign id with select)', async ({ assert }) => {
+    const [statement, variables] = await prepareInsert({
       select: {
         id: true,
         relation1: {
@@ -229,7 +215,7 @@ describe('aurora query (insert)', () => {
       statement,
       `WITH ` +
         // Main record
-        `"R0" AS (INSERT INTO "ez4-test-insert" ("id", "bar", "relation1_id") ` +
+        `"R0" AS (INSERT INTO "ez4-test-insert-relations" ("id", "bar", "relation1_id") ` +
         `VALUES (:0, :1, :2) RETURNING "id") ` +
         // Select
         `SELECT "id", ` +
@@ -239,15 +225,15 @@ describe('aurora query (insert)', () => {
         `FROM "R0"`
     );
 
-    deepEqual(variables, [
+    assert.deepEqual(variables, [
       makeParameter('0', '00000000-0000-1000-9000-000000000000', 'UUID'),
       makeParameter('1', {}),
       makeParameter('2', '00000000-0000-1000-9000-000000000001', 'UUID')
     ]);
   });
 
-  it('assert :: prepare insert (primary foreign object)', () => {
-    const [statement, variables] = prepareInsertQuery<TestSchema, {}, TestRelations>('ez4-test-insert', testSchema, testRelations, {
+  it('assert :: prepare insert relations (primary foreign object)', async ({ assert }) => {
+    const [statement, variables] = await prepareInsert({
       data: {
         id: '00000000-0000-1000-9000-000000000000',
         bar: {},
@@ -266,7 +252,7 @@ describe('aurora query (insert)', () => {
       }
     });
 
-    equal(
+    assert.equal(
       statement,
       `WITH ` +
         // First relation
@@ -276,11 +262,11 @@ describe('aurora query (insert)', () => {
         `"R1" AS (INSERT INTO "ez4-test-relation" ("id", "bar") ` +
         `VALUES (:2, :3) RETURNING "id") ` +
         // Main record
-        `INSERT INTO "ez4-test-insert" ("id", "bar", "relation1_id", "relation3_id") ` +
+        `INSERT INTO "ez4-test-insert-relations" ("id", "bar", "relation1_id", "relation3_id") ` +
         `SELECT :4, :5, "R0"."id", "R1"."id" FROM "R0", "R1"`
     );
 
-    deepEqual(variables, [
+    assert.deepEqual(variables, [
       makeParameter('0', '00000000-0000-1000-9000-000000000001', 'UUID'),
       makeParameter('1', { barBar: true }),
       makeParameter('2', '00000000-0000-1000-9000-000000000002', 'UUID'),
@@ -290,8 +276,8 @@ describe('aurora query (insert)', () => {
     ]);
   });
 
-  it('assert :: prepare insert (primary foreign object with select)', () => {
-    const [statement, variables] = prepareInsertQuery<TestSchema, {}, TestRelations>('ez4-test-insert', testSchema, testRelations, {
+  it('assert :: prepare insert relations (primary foreign object with select)', async ({ assert }) => {
+    const [statement, variables] = await prepareInsert({
       select: {
         id: true,
         relation1: {
@@ -319,7 +305,7 @@ describe('aurora query (insert)', () => {
       }
     });
 
-    equal(
+    assert.equal(
       statement,
       `WITH ` +
         // First relation
@@ -329,7 +315,7 @@ describe('aurora query (insert)', () => {
         `"R1" AS (INSERT INTO "ez4-test-relation" ("id", "bar") ` +
         `VALUES (:2, :3) RETURNING "id", "foo"), ` +
         // Main record
-        `"R2" AS (INSERT INTO "ez4-test-insert" ("id", "bar", "relation1_id", "relation3_id") ` +
+        `"R2" AS (INSERT INTO "ez4-test-insert-relations" ("id", "bar", "relation1_id", "relation3_id") ` +
         `SELECT :4, :5, "R0"."id", "R1"."id" FROM "R0", "R1" RETURNING "id") ` +
         // Select
         `SELECT "id", ` +
@@ -338,7 +324,7 @@ describe('aurora query (insert)', () => {
         `FROM "R2"`
     );
 
-    deepEqual(variables, [
+    assert.deepEqual(variables, [
       makeParameter('0', '00000000-0000-1000-9000-000000000001', 'UUID'),
       makeParameter('1', { barBar: true }),
       makeParameter('2', '00000000-0000-1000-9000-000000000002', 'UUID'),
@@ -348,8 +334,8 @@ describe('aurora query (insert)', () => {
     ]);
   });
 
-  it('assert :: prepare insert (unique foreign id)', () => {
-    const [statement, variables] = prepareInsertQuery<TestSchema, {}, TestRelations>('ez4-test-insert', testSchema, testRelations, {
+  it('assert :: prepare insert relations (unique foreign id)', async ({ assert }) => {
+    const [statement, variables] = await prepareInsert({
       data: {
         id: '00000000-0000-1000-9000-000000000000',
         bar: {},
@@ -359,21 +345,21 @@ describe('aurora query (insert)', () => {
       }
     });
 
-    equal(
+    assert.equal(
       statement,
       // Main record
-      `INSERT INTO "ez4-test-insert" ("id", "bar", "relation2_id") VALUES (:0, :1, :2)`
+      `INSERT INTO "ez4-test-insert-relations" ("id", "bar", "relation2_id") VALUES (:0, :1, :2)`
     );
 
-    deepEqual(variables, [
+    assert.deepEqual(variables, [
       makeParameter('0', '00000000-0000-1000-9000-000000000000', 'UUID'),
       makeParameter('1', {}),
       makeParameter('2', '00000000-0000-1000-9000-000000000001', 'UUID')
     ]);
   });
 
-  it('assert :: prepare insert (unique foreign id with select)', ({ assert }) => {
-    const [statement, variables] = prepareInsertQuery<TestSchema, {}, TestRelations>('ez4-test-insert', testSchema, testRelations, {
+  it('assert :: prepare insert relations (unique foreign id with select)', async ({ assert }) => {
+    const [statement, variables] = await prepareInsert({
       select: {
         id: true,
         relation2: {
@@ -394,7 +380,7 @@ describe('aurora query (insert)', () => {
       statement,
       `WITH ` +
         // Main record
-        `"R0" AS (INSERT INTO "ez4-test-insert" ("id", "bar", "relation2_id") ` +
+        `"R0" AS (INSERT INTO "ez4-test-insert-relations" ("id", "bar", "relation2_id") ` +
         `VALUES (:0, :1, :2) RETURNING "id") ` +
         // Select
         `SELECT "id", ` +
@@ -404,15 +390,15 @@ describe('aurora query (insert)', () => {
         `FROM "R0"`
     );
 
-    deepEqual(variables, [
+    assert.deepEqual(variables, [
       makeParameter('0', '00000000-0000-1000-9000-000000000000', 'UUID'),
       makeParameter('1', {}),
       makeParameter('2', '00000000-0000-1000-9000-000000000001', 'UUID')
     ]);
   });
 
-  it('assert :: prepare insert (unique foreign object)', () => {
-    const [statement, variables] = prepareInsertQuery<TestSchema, {}, TestRelations>('ez4-test-insert', testSchema, testRelations, {
+  it('assert :: prepare insert relations (unique foreign object)', async ({ assert }) => {
+    const [statement, variables] = await prepareInsert({
       data: {
         id: '00000000-0000-1000-9000-000000000000',
         bar: {},
@@ -425,18 +411,18 @@ describe('aurora query (insert)', () => {
       }
     });
 
-    equal(
+    assert.equal(
       statement,
       `WITH ` +
         // Main record
-        `"R0" AS (INSERT INTO "ez4-test-insert" ("id", "bar") ` +
+        `"R0" AS (INSERT INTO "ez4-test-insert-relations" ("id", "bar") ` +
         `VALUES (:0, :1) RETURNING "id") ` +
         // First relation
         `INSERT INTO "ez4-test-relation" ("id", "bar", "relation2_id") ` +
         `SELECT :2, :3, "R0"."id" FROM "R0"`
     );
 
-    deepEqual(variables, [
+    assert.deepEqual(variables, [
       makeParameter('0', '00000000-0000-1000-9000-000000000000', 'UUID'),
       makeParameter('1', {}),
       makeParameter('2', '00000000-0000-1000-9000-000000000001', 'UUID'),
@@ -444,8 +430,8 @@ describe('aurora query (insert)', () => {
     ]);
   });
 
-  it('assert :: prepare insert (unique foreign object with select)', () => {
-    const [statement, variables] = prepareInsertQuery<TestSchema, {}, TestRelations>('ez4-test-insert', testSchema, testRelations, {
+  it('assert :: prepare insert relations (unique foreign object with select)', async ({ assert }) => {
+    const [statement, variables] = await prepareInsert({
       select: {
         id: true,
         relation2: {
@@ -465,11 +451,11 @@ describe('aurora query (insert)', () => {
       }
     });
 
-    equal(
+    assert.equal(
       statement,
       `WITH ` +
         // Main record
-        `"R0" AS (INSERT INTO "ez4-test-insert" ("id", "bar") ` +
+        `"R0" AS (INSERT INTO "ez4-test-insert-relations" ("id", "bar") ` +
         `VALUES (:0, :1) RETURNING "id"), ` +
         // First relation
         `"R1" AS (INSERT INTO "ez4-test-relation" ("id", "bar", "relation2_id") ` +
@@ -480,7 +466,7 @@ describe('aurora query (insert)', () => {
         `FROM "R0"`
     );
 
-    deepEqual(variables, [
+    assert.deepEqual(variables, [
       makeParameter('0', '00000000-0000-1000-9000-000000000000', 'UUID'),
       makeParameter('1', {}),
       makeParameter('2', '00000000-0000-1000-9000-000000000001', 'UUID'),
@@ -488,8 +474,8 @@ describe('aurora query (insert)', () => {
     ]);
   });
 
-  it('assert :: prepare insert (inverse array object)', () => {
-    const [statement, variables] = prepareInsertQuery<TestSchema, {}, TestRelations>('ez4-test-insert', testSchema, testRelations, {
+  it('assert :: prepare insert relations (inverse array object)', async ({ assert }) => {
+    const [statement, variables] = await prepareInsert({
       data: {
         id: '00000000-0000-1000-9000-000000000000',
         bar: {},
@@ -510,11 +496,11 @@ describe('aurora query (insert)', () => {
       }
     });
 
-    equal(
+    assert.equal(
       statement,
       `WITH ` +
         // Main record
-        `"R0" AS (INSERT INTO "ez4-test-insert" ("id", "bar") ` +
+        `"R0" AS (INSERT INTO "ez4-test-insert-relations" ("id", "bar") ` +
         `VALUES (:0, :1) RETURNING "id"), ` +
         // First relation
         `"R1" AS (INSERT INTO "ez4-test-relation" ("id", "bar", "relation1_id") ` +
@@ -524,7 +510,7 @@ describe('aurora query (insert)', () => {
         `SELECT :4, :5, "R0"."id" FROM "R0"`
     );
 
-    deepEqual(variables, [
+    assert.deepEqual(variables, [
       makeParameter('0', '00000000-0000-1000-9000-000000000000', 'UUID'),
       makeParameter('1', {}),
       makeParameter('2', '00000000-0000-1000-9000-000000000001', 'UUID'),
@@ -534,8 +520,8 @@ describe('aurora query (insert)', () => {
     ]);
   });
 
-  it('assert :: prepare insert (inverse array object with select)', () => {
-    const [statement, variables] = prepareInsertQuery<TestSchema, {}, TestRelations>('ez4-test-insert', testSchema, testRelations, {
+  it('assert :: prepare insert relations (inverse array object with select)', async ({ assert }) => {
+    const [statement, variables] = await prepareInsert({
       select: {
         id: true,
         relations: {
@@ -565,11 +551,11 @@ describe('aurora query (insert)', () => {
       }
     });
 
-    equal(
+    assert.equal(
       statement,
       `WITH ` +
         // Main record
-        `"R0" AS (INSERT INTO "ez4-test-insert" ("id", "bar") ` +
+        `"R0" AS (INSERT INTO "ez4-test-insert-relations" ("id", "bar") ` +
         `VALUES (:0, :1) RETURNING "id"), ` +
         // First relation
         `"R1" AS (INSERT INTO "ez4-test-relation" ("id", "bar", "relation1_id") ` +
@@ -585,7 +571,7 @@ describe('aurora query (insert)', () => {
         `FROM "R0"`
     );
 
-    deepEqual(variables, [
+    assert.deepEqual(variables, [
       makeParameter('0', '00000000-0000-1000-9000-000000000000', 'UUID'),
       makeParameter('1', {}),
       makeParameter('2', '00000000-0000-1000-9000-000000000001', 'UUID'),
@@ -595,8 +581,8 @@ describe('aurora query (insert)', () => {
     ]);
   });
 
-  it('assert :: prepare insert (foreign and inverse)', () => {
-    const [statement, variables] = prepareInsertQuery<TestSchema, {}, TestRelations>('ez4-test-insert', testSchema, testRelations, {
+  it('assert :: prepare insert relations (foreign and inverse)', async ({ assert }) => {
+    const [statement, variables] = await prepareInsert({
       data: {
         id: '00000000-0000-1000-9000-000000000000',
         bar: {},
@@ -623,14 +609,14 @@ describe('aurora query (insert)', () => {
       }
     });
 
-    equal(
+    assert.equal(
       statement,
       `WITH ` +
         // First relation (primary)
         `"R0" AS (INSERT INTO "ez4-test-relation" ("id", "bar") ` +
         `VALUES (:0, :1) RETURNING "id"), ` +
         // Main record
-        `"R1" AS (INSERT INTO "ez4-test-insert" ("id", "bar", "relation1_id") ` +
+        `"R1" AS (INSERT INTO "ez4-test-insert-relations" ("id", "bar", "relation1_id") ` +
         `SELECT :2, :3, "R0"."id" FROM "R0" RETURNING "id"), ` +
         // Second relation (unique)
         `"R2" AS (INSERT INTO "ez4-test-relation" ("id", "bar", "relation2_id") ` +
@@ -640,7 +626,7 @@ describe('aurora query (insert)', () => {
         `SELECT :6, :7, "R1"."id" FROM "R1"`
     );
 
-    deepEqual(variables, [
+    assert.deepEqual(variables, [
       makeParameter('0', '00000000-0000-1000-9000-000000000001', 'UUID'),
       makeParameter('1', { barFoo: 'abc' }),
       makeParameter('2', '00000000-0000-1000-9000-000000000000', 'UUID'),
@@ -652,8 +638,8 @@ describe('aurora query (insert)', () => {
     ]);
   });
 
-  it('assert :: prepare insert (foreign and inverse with select)', () => {
-    const [statement, variables] = prepareInsertQuery<TestSchema, {}, TestRelations>('ez4-test-insert', testSchema, testRelations, {
+  it('assert :: prepare insert relations (foreign and inverse with select)', async ({ assert }) => {
+    const [statement, variables] = await prepareInsert({
       select: {
         id: true,
         relation1: {
@@ -692,14 +678,14 @@ describe('aurora query (insert)', () => {
       }
     });
 
-    equal(
+    assert.equal(
       statement,
       `WITH ` +
         // First relation (primary)
         `"R0" AS (INSERT INTO "ez4-test-relation" ("id", "bar") ` +
         `VALUES (:0, :1) RETURNING "id", "foo"), ` +
         // Main record
-        `"R1" AS (INSERT INTO "ez4-test-insert" ("id", "bar", "relation1_id") ` +
+        `"R1" AS (INSERT INTO "ez4-test-insert-relations" ("id", "bar", "relation1_id") ` +
         `SELECT :2, :3, "R0"."id" FROM "R0" RETURNING "id"), ` +
         // Second relation (unique)
         `"R2" AS (INSERT INTO "ez4-test-relation" ("id", "bar", "relation2_id") ` +
@@ -715,7 +701,7 @@ describe('aurora query (insert)', () => {
         `FROM "R1"`
     );
 
-    deepEqual(variables, [
+    assert.deepEqual(variables, [
       makeParameter('0', '00000000-0000-1000-9000-000000000001', 'UUID'),
       makeParameter('1', { barFoo: 'abc' }),
       makeParameter('2', '00000000-0000-1000-9000-000000000000', 'UUID'),

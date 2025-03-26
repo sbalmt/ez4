@@ -1,6 +1,9 @@
 export class MalformedRequestError extends Error {
-  constructor(public details: string[]) {
-    super(`Malformed table schema.`);
+  constructor(
+    public table: string,
+    public details: string[]
+  ) {
+    super(`Malformed schema for table '${table}'.`);
   }
 }
 
@@ -17,7 +20,16 @@ export class MissingFieldSchemaError extends Error {
 }
 
 export class InvalidRelationFieldError extends Error {
+  constructor(
+    public table: string,
+    public field: string
+  ) {
+    super(`Relation field '${field}' on table '${table}' has an invalid format.`);
+  }
+}
+
+export class InvalidAtomicOperation extends Error {
   constructor(public field: string) {
-    super(`Relation field '${field}' has an invalid format.`);
+    super(`Atomic operation for field '${field}' isn't supported.`);
   }
 }

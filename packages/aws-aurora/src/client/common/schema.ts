@@ -1,8 +1,8 @@
-import type { ObjectSchema, PartialSchemaProperties } from '@ez4/schema';
+import type { AnySchema, ObjectSchema, PartialSchemaProperties } from '@ez4/schema';
 import type { AnyObject } from '@ez4/utils';
 import type { RepositoryRelationsWithSchema } from '../../types/repository.js';
 
-import { validate, getUniqueErrorMessages } from '@ez4/validator';
+import { validate, getUniqueErrorMessages, createValidatorContext } from '@ez4/validator';
 import { getPartialSchema, SchemaType } from '@ez4/schema';
 import { isAnyObject } from '@ez4/utils';
 import { Index } from '@ez4/database';
@@ -10,14 +10,26 @@ import { Index } from '@ez4/database';
 import { MalformedRequestError, MissingRelationDataError } from './errors.js';
 import { isSkippableData } from './data.js';
 
-export const validateSchema = async (data: AnyObject, schema: ObjectSchema) => {
-  const errors = await validate(data, schema);
+export const validateSchemaWithDepth = async (table: string, data: unknown, schema: AnySchema, depth: number) => {
+  const context = createValidatorContext({
+    depth
+  });
+
+  const errors = await validate(data, schema, context);
 
   if (errors.length) {
     const messages = getUniqueErrorMessages(errors);
 
-    throw new MalformedRequestError(messages);
+    throw new MalformedRequestError(table, messages);
   }
+};
+
+export const validateFirstSchemaLevel = async (table: string, data: unknown, schema: AnySchema) => {
+  return validateSchemaWithDepth(table, data, schema, 0);
+};
+
+export const validateAllSchemaLevels = async (table: string, data: unknown, schema: AnySchema) => {
+  return validateSchemaWithDepth(table, data, schema, Infinity);
 };
 
 export const getInsertSchema = (schema: ObjectSchema, relations: RepositoryRelationsWithSchema, data: AnyObject): ObjectSchema => {

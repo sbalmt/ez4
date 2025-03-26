@@ -35,7 +35,7 @@ export const prepareSelectQuery = <
 
   const selectQuery = sql.select(schema).from(table);
 
-  const selectRecord = getSelectFields(query.select, query.include, schema, relations, selectQuery, sql);
+  const selectRecord = getSelectFields(table, query.select, query.include, schema, relations, selectQuery, sql);
 
   selectQuery.record(selectRecord);
 
@@ -63,6 +63,7 @@ export const prepareSelectQuery = <
 };
 
 export const getSelectFields = <T extends Database.Schema, S extends AnyObject, R extends RelationMetadata>(
+  table: string,
   fields: Query.StrictSelectInput<T, S, R>,
   include: SqlFilters | undefined | null,
   schema: ObjectSchema,
@@ -89,7 +90,7 @@ export const getSelectFields = <T extends Database.Schema, S extends AnyObject, 
       const relationFields = fieldValue === true ? getDefaultSelectFields(sourceSchema) : fieldValue;
 
       if (!isAnyObject(relationFields)) {
-        throw new InvalidRelationFieldError(fieldKey);
+        throw new InvalidRelationFieldError(table, fieldKey);
       }
 
       const relationFilters = include && include[fieldKey];
@@ -102,7 +103,7 @@ export const getSelectFields = <T extends Database.Schema, S extends AnyObject, 
           [sourceColumn]: source.reference(targetColumn)
         });
 
-      const relationRecord = getSelectFields(relationFields, relationFilters, sourceSchema, relations, relationQuery, sql, true);
+      const relationRecord = getSelectFields(table, relationFields, relationFilters, sourceSchema, relations, relationQuery, sql, true);
 
       if (sourceIndex === Index.Primary || sourceIndex === Index.Unique) {
         relationQuery.objectColumn(relationRecord);
