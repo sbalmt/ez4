@@ -113,7 +113,7 @@ const getIntegrationFunction = (
   let handlerState = tryGetFunctionState(context, handlerName, options);
 
   if (!handlerState) {
-    const routeTimeout = route.timeout ?? service.defaults?.timeout ?? 30;
+    const routeTimeout = route.timeout ?? service.defaults?.timeout ?? 29;
     const routeMemory = route.memory ?? service.defaults?.memory ?? 192;
 
     handlerState = createIntegrationFunction(state, context.role, {
@@ -187,7 +187,7 @@ const getAuthorizerFunction = (
   const request = authorizer.request;
 
   if (!authorizerState) {
-    const routeTimeout = service.defaults?.timeout ?? 30;
+    const routeTimeout = service.defaults?.timeout ?? 29;
     const routeMemory = service.defaults?.memory ?? 192;
 
     authorizerState = createAuthorizerFunction(state, context.role, {
