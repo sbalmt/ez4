@@ -25,7 +25,7 @@ export type ClientSettings = {
 export namespace Client {
   export const make = <T extends Database.Service>(repository: Repository, settings?: ClientSettings): DbClient<T> => {
     const instance = new (class {
-      async rawQuery(query: string, values: unknown[]) {
+      async rawQuery(query: string, values: unknown[] = []) {
         const command = { ConsistentRead: true, Parameters: values, Statement: query };
 
         const result = await executeStatement(client, command, settings?.debug);

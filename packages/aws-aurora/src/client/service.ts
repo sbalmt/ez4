@@ -27,7 +27,7 @@ export namespace Client {
     settings?: ClientSettings
   ): DbClient<T> => {
     const instance = new (class {
-      rawQuery(query: string, values: unknown[]) {
+      rawQuery(query: string, values: unknown[] = []) {
         const parameters = values.map((value, index) => detectFieldData(`${index}`, value));
 
         return executeStatement(client, connection, { parameters, sql: query }, undefined, settings?.debug);
