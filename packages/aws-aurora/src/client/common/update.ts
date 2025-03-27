@@ -184,20 +184,20 @@ const getFullRelationTableUpdate = async (
 ) => {
   const { targetColumn } = fieldRelation;
 
-  const isFullRelationUpdate = !fieldValue[targetColumn];
+  const targetValue = fieldValue[targetColumn];
 
-  if (!isFullRelationUpdate) {
+  if (!isSkippableData(targetValue)) {
     return undefined;
   }
 
   const { sourceTable, sourceColumn, sourceSchema } = fieldRelation;
 
-  const relationRecord = await getUpdateRecord(sql, fieldValue, sourceSchema, relations, path);
+  const record = await getUpdateRecord(sql, fieldValue, sourceSchema, relations, path);
 
   const relationQuery = sql
     .update(sourceSchema)
     .only(sourceTable)
-    .record(relationRecord)
+    .record(record)
     .from(source)
     .where({ [sourceColumn]: source.reference(targetColumn) })
     .as('T');

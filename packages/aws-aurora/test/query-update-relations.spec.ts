@@ -11,8 +11,8 @@ import { makeParameter } from './common/parameters.js';
 type TestSchema = {
   id: string;
   foo?: number;
-  relation1_id?: string;
-  relation2_id?: string;
+  relation1_id?: string | null;
+  relation2_id?: string | null;
   bar: {
     barFoo?: string;
     barBar?: boolean;
@@ -61,11 +61,13 @@ describe.only('aurora query (update)', () => {
       relation1_id: {
         type: SchemaType.String,
         optional: true,
+        nullable: true,
         format: 'uuid'
       },
       relation2_id: {
         type: SchemaType.String,
         optional: true,
+        nullable: true,
         format: 'uuid'
       },
       foo: {
@@ -340,6 +342,32 @@ describe.only('aurora query (update)', () => {
       makeParameter('1', 456),
       makeParameter('2', 123),
       makeParameter('3', '"abc"', 'JSON')
+    ]);
+  });
+
+  it.only('assert :: prepare update relations (primary foreign object with null)', async ({ assert }) => {
+    const [statement, variables] = await prepareUpdate({
+      data: {
+        id: '00000000-0000-1000-9000-000000000000',
+        relation1: {
+          relation1_id: null
+        }
+      },
+      where: {
+        foo: 456
+      }
+    });
+
+    assert.equal(
+      statement,
+      // Main record
+      `UPDATE ONLY "ez4-test-update-relations" SET "id" = :0, "relation1_id" = :1 WHERE "foo" = :2`
+    );
+
+    assert.deepEqual(variables, [
+      makeParameter('0', '00000000-0000-1000-9000-000000000000', 'UUID'),
+      makeParameter('1', null),
+      makeParameter('2', 456)
     ]);
   });
 

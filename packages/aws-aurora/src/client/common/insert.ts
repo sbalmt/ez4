@@ -30,7 +30,7 @@ export const prepareInsertQuery = async <T extends Database.Schema, S extends Qu
 ): Promise<[string, SqlParameter[]]> => {
   const sql = createQueryBuilder();
 
-  const preQueriesMap = preparePreRelations(sql, query.data, relations, table);
+  const preQueriesMap = preparePreInsertRelations(sql, query.data, relations, table);
   const preQueries = Object.values(preQueriesMap)
     .map(({ relationQueries }) => relationQueries)
     .flat();
@@ -44,7 +44,7 @@ export const prepareInsertQuery = async <T extends Database.Schema, S extends Qu
     .into(table)
     .returning();
 
-  const postQueriesMap = preparePostRelations(sql, query.data, relations, insertQuery, table);
+  const postQueriesMap = preparePostInsertRelations(sql, query.data, relations, insertQuery, table);
   const postQueries = Object.values(postQueriesMap)
     .map(({ relationQueries }) => relationQueries)
     .flat();
@@ -153,7 +153,7 @@ const getInsertRecord = async (
   return record;
 };
 
-const preparePreRelations = (sql: SqlBuilder, data: SqlRecord, relations: RepositoryRelationsWithSchema, path: string) => {
+const preparePreInsertRelations = (sql: SqlBuilder, data: SqlRecord, relations: RepositoryRelationsWithSchema, path: string) => {
   const allQueries: InsertRelationsCache = {};
 
   for (const relationAlias in relations) {
@@ -203,7 +203,7 @@ const preparePreRelations = (sql: SqlBuilder, data: SqlRecord, relations: Reposi
   return allQueries;
 };
 
-const preparePostRelations = (
+const preparePostInsertRelations = (
   sql: SqlBuilder,
   data: SqlRecord,
   relations: RepositoryRelationsWithSchema,
