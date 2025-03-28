@@ -182,11 +182,10 @@ const getFullRelationTableUpdate = async (
   fieldRelation: RelationWithSchema,
   path: string
 ) => {
-  const { targetColumn } = fieldRelation;
-
+  const targetColumn = fieldRelation.targetColumn;
   const targetValue = fieldValue[targetColumn];
 
-  if (!isSkippableData(targetValue)) {
+  if (!isSkippableData(targetValue) || isEmptyObject(fieldValue)) {
     return undefined;
   }
 

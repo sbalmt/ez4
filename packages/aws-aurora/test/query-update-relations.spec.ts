@@ -38,8 +38,8 @@ type TestRelations = {
     relations?: TestSchema[];
   };
   changes: {
-    relation1?: TestSchema | { relation1_id: string };
-    relation2?: TestSchema | { relation2_id: string };
+    relation1?: TestSchema | { relation1_id?: string };
+    relation2?: TestSchema | { relation2_id?: string };
     relations?: TestSchema[];
   };
 };
@@ -147,7 +147,7 @@ describe.only('aurora query (update)', () => {
     return prepareUpdateQuery<TestSchema, S, TestIndexes, TestRelations>('ez4-test-update-relations', testSchema, testRelations, query);
   };
 
-  it('assert :: prepare update (with select)', async ({ assert }) => {
+  it('assert :: prepare update relations (with select)', async ({ assert }) => {
     const [statement, variables] = await prepareUpdate({
       select: {
         foo: true,
@@ -168,9 +168,7 @@ describe.only('aurora query (update)', () => {
 
     assert.equal(
       statement,
-      `UPDATE ONLY "ez4-test-update-relations" ` +
-        `SET "foo" = :0, "bar"['barBar'] = :1 ` +
-        `WHERE "id" = :2 ` +
+      `UPDATE ONLY "ez4-test-update-relations" SET "foo" = :0, "bar"['barBar'] = :1 WHERE "id" = :2 ` +
         `RETURNING "foo", json_build_object('barBar', "bar"['barBar']) AS "bar"`
     );
 
@@ -181,7 +179,7 @@ describe.only('aurora query (update)', () => {
     ]);
   });
 
-  it('assert :: prepare update (optional json)', async ({ assert }) => {
+  it('assert :: prepare update relations (optional json)', async ({ assert }) => {
     const [statement, variables] = await prepareUpdate({
       data: {
         bar: {
@@ -207,7 +205,7 @@ describe.only('aurora query (update)', () => {
     ]);
   });
 
-  it('assert :: prepare update relations (primary foreign id)', async ({ assert }) => {
+  it('assert :: prepare update relations (primary foreign id connection)', async ({ assert }) => {
     const [statement, variables] = await prepareUpdate({
       data: {
         id: '00000000-0000-1000-9000-000000000000',
@@ -216,24 +214,20 @@ describe.only('aurora query (update)', () => {
         }
       },
       where: {
-        foo: 456
+        foo: 123
       }
     });
 
-    assert.equal(
-      statement,
-      // Main record
-      `UPDATE ONLY "ez4-test-update-relations" SET "id" = :0, "relation1_id" = :1 WHERE "foo" = :2`
-    );
+    assert.equal(statement, `UPDATE ONLY "ez4-test-update-relations" SET "id" = :0, "relation1_id" = :1 WHERE "foo" = :2`);
 
     assert.deepEqual(variables, [
       makeParameter('0', '00000000-0000-1000-9000-000000000000', 'UUID'),
       makeParameter('1', '00000000-0000-1000-9000-000000000001', 'UUID'),
-      makeParameter('2', 456)
+      makeParameter('2', 123)
     ]);
   });
 
-  it('assert :: prepare update relations (primary foreign id with select)', async ({ assert }) => {
+  it('assert :: prepare update relations (primary foreign id connection with select)', async ({ assert }) => {
     const [statement, variables] = await prepareUpdate({
       select: {
         id: true,
@@ -249,13 +243,12 @@ describe.only('aurora query (update)', () => {
         }
       },
       where: {
-        foo: 456
+        foo: 123
       }
     });
 
     assert.equal(
       statement,
-      // Main record
       `UPDATE ONLY "ez4-test-update-relations" AS "R" SET "id" = :0, "relation1_id" = :1 WHERE "R"."foo" = :2 RETURNING "R"."id", ` +
         `(SELECT json_build_object('id', "T"."id", 'foo', "T"."foo") FROM "ez4-test-relation" AS "T" ` +
         `WHERE "T"."id" = "R"."relation1_id") AS "relation1"`
@@ -264,11 +257,52 @@ describe.only('aurora query (update)', () => {
     assert.deepEqual(variables, [
       makeParameter('0', '00000000-0000-1000-9000-000000000000', 'UUID'),
       makeParameter('1', '00000000-0000-1000-9000-000000000001', 'UUID'),
-      makeParameter('2', 456)
+      makeParameter('2', 123)
     ]);
   });
 
-  it('assert :: prepare update relations (primary foreign object)', async ({ assert }) => {
+  it('assert :: prepare update relations (primary foreign id disconnection)', async ({ assert }) => {
+    const [statement, variables] = await prepareUpdate({
+      data: {
+        id: '00000000-0000-1000-9000-000000000000',
+        relation1: {
+          relation1_id: null
+        }
+      },
+      where: {
+        foo: 123
+      }
+    });
+
+    assert.equal(statement, `UPDATE ONLY "ez4-test-update-relations" SET "id" = :0, "relation1_id" = :1 WHERE "foo" = :2`);
+
+    assert.deepEqual(variables, [
+      makeParameter('0', '00000000-0000-1000-9000-000000000000', 'UUID'),
+      makeParameter('1', null),
+      makeParameter('2', 123)
+    ]);
+  });
+
+  it('assert :: prepare update relations (primary foreign id empty)', async ({ assert }) => {
+    const [statement, variables] = await prepareUpdate({
+      data: {
+        id: '00000000-0000-1000-9000-000000000000',
+        relation2: undefined,
+        relation1: {
+          relation1_id: undefined
+        }
+      },
+      where: {
+        foo: 123
+      }
+    });
+
+    assert.equal(statement, `UPDATE ONLY "ez4-test-update-relations" SET "id" = :0 WHERE "foo" = :1`);
+
+    assert.deepEqual(variables, [makeParameter('0', '00000000-0000-1000-9000-000000000000', 'UUID'), makeParameter('1', 123)]);
+  });
+
+  it('assert :: prepare update relations (primary foreign creation)', async ({ assert }) => {
     const [statement, variables] = await prepareUpdate({
       data: {
         id: '00000000-0000-1000-9000-000000000000',
@@ -301,7 +335,7 @@ describe.only('aurora query (update)', () => {
     ]);
   });
 
-  it('assert :: prepare update relations (primary foreign object with select)', async ({ assert }) => {
+  it('assert :: prepare update relations (primary foreign creation with select)', async ({ assert }) => {
     const [statement, variables] = await prepareUpdate({
       select: {
         id: true,
@@ -345,33 +379,7 @@ describe.only('aurora query (update)', () => {
     ]);
   });
 
-  it.only('assert :: prepare update relations (primary foreign object with null)', async ({ assert }) => {
-    const [statement, variables] = await prepareUpdate({
-      data: {
-        id: '00000000-0000-1000-9000-000000000000',
-        relation1: {
-          relation1_id: null
-        }
-      },
-      where: {
-        foo: 456
-      }
-    });
-
-    assert.equal(
-      statement,
-      // Main record
-      `UPDATE ONLY "ez4-test-update-relations" SET "id" = :0, "relation1_id" = :1 WHERE "foo" = :2`
-    );
-
-    assert.deepEqual(variables, [
-      makeParameter('0', '00000000-0000-1000-9000-000000000000', 'UUID'),
-      makeParameter('1', null),
-      makeParameter('2', 456)
-    ]);
-  });
-
-  it('assert :: prepare update relations (unique foreign id)', async ({ assert }) => {
+  it('assert :: prepare update relations (unique foreign id connection)', async ({ assert }) => {
     const [statement, variables] = await prepareUpdate({
       data: {
         id: '00000000-0000-1000-9000-000000000000',
@@ -400,7 +408,55 @@ describe.only('aurora query (update)', () => {
     ]);
   });
 
-  it('assert :: prepare update relations (unique foreign object)', async ({ assert }) => {
+  it('assert :: prepare update relations (unique foreign id disconnection)', async ({ assert }) => {
+    const [statement, variables] = await prepareUpdate({
+      data: {
+        id: '00000000-0000-1000-9000-000000000000',
+        relation2: {
+          relation2_id: null
+        }
+      },
+      where: {
+        foo: 456
+      }
+    });
+
+    assert.equal(
+      statement,
+      `WITH ` +
+        // Main record
+        `"R0" AS (UPDATE ONLY "ez4-test-update-relations" SET "id" = :0 WHERE "foo" = :1 RETURNING "id") ` +
+        // First relation
+        `UPDATE ONLY "ez4-test-relation" AS "T" SET "relation2_id" = :2 FROM "R0" WHERE "T"."relation2_id" = "R0"."id"`
+    );
+
+    assert.deepEqual(variables, [
+      makeParameter('0', '00000000-0000-1000-9000-000000000000', 'UUID'),
+      makeParameter('1', 456),
+      makeParameter('2', null)
+    ]);
+  });
+
+  it('assert :: prepare update relations (unique foreign id empty)', async ({ assert }) => {
+    const [statement, variables] = await prepareUpdate({
+      data: {
+        id: '00000000-0000-1000-9000-000000000000',
+        relation1: undefined,
+        relation2: {
+          relation2_id: undefined
+        }
+      },
+      where: {
+        foo: 123
+      }
+    });
+
+    assert.equal(statement, `UPDATE ONLY "ez4-test-update-relations" SET "id" = :0 WHERE "foo" = :1`);
+
+    assert.deepEqual(variables, [makeParameter('0', '00000000-0000-1000-9000-000000000000', 'UUID'), makeParameter('1', 123)]);
+  });
+
+  it('assert :: prepare update relations (unique foreign creation)', async ({ assert }) => {
     const [statement, variables] = await prepareUpdate({
       data: {
         id: '00000000-0000-1000-9000-000000000000',
@@ -433,7 +489,7 @@ describe.only('aurora query (update)', () => {
     ]);
   });
 
-  it('assert :: prepare update relations (unique foreign object with select)', async ({ assert }) => {
+  it('assert :: prepare update relations (unique foreign creation with select)', async ({ assert }) => {
     const [statement, variables] = await prepareUpdate({
       select: {
         id: true,

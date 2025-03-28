@@ -34,8 +34,8 @@ type TestRelations = {
     relations?: TestSchema[];
   };
   changes: {
-    relation1?: TestSchema | { relation1_id: string };
-    relation2?: TestSchema | { relation2_id: string };
+    relation1?: TestSchema | { relation1_id?: string };
+    relation2?: TestSchema | { relation2_id?: string };
     relation3?: TestSchema | { relation3_id: string };
     relations?: TestSchema[];
   };
@@ -169,7 +169,7 @@ describe.only('aurora query (insert)', () => {
     ]);
   });
 
-  it('assert :: prepare insert relations (primary foreign id)', async ({ assert }) => {
+  it('assert :: prepare insert relations (primary foreign id connection)', async ({ assert }) => {
     const [statement, variables] = await prepareInsert({
       data: {
         id: '00000000-0000-1000-9000-000000000000',
@@ -193,7 +193,7 @@ describe.only('aurora query (insert)', () => {
     ]);
   });
 
-  it('assert :: prepare insert relations (primary foreign id with select)', async ({ assert }) => {
+  it('assert :: prepare insert relations (primary foreign id connection with select)', async ({ assert }) => {
     const [statement, variables] = await prepareInsert({
       select: {
         id: true,
@@ -232,7 +232,28 @@ describe.only('aurora query (insert)', () => {
     ]);
   });
 
-  it('assert :: prepare insert relations (primary foreign object)', async ({ assert }) => {
+  it('assert :: prepare insert relations (primary foreign id empty)', async ({ assert }) => {
+    const [statement, variables] = await prepareInsert({
+      data: {
+        id: '00000000-0000-1000-9000-000000000000',
+        bar: {},
+        relation2: undefined,
+        relation1: {
+          relation1_id: undefined
+        }
+      }
+    });
+
+    assert.equal(
+      statement,
+      // Main record
+      `INSERT INTO "ez4-test-insert-relations" ("id", "bar") VALUES (:0, :1)`
+    );
+
+    assert.deepEqual(variables, [makeParameter('0', '00000000-0000-1000-9000-000000000000', 'UUID'), makeParameter('1', {})]);
+  });
+
+  it('assert :: prepare insert relations (primary foreign creation)', async ({ assert }) => {
     const [statement, variables] = await prepareInsert({
       data: {
         id: '00000000-0000-1000-9000-000000000000',
@@ -276,7 +297,7 @@ describe.only('aurora query (insert)', () => {
     ]);
   });
 
-  it('assert :: prepare insert relations (primary foreign object with select)', async ({ assert }) => {
+  it('assert :: prepare insert relations (primary foreign creation with select)', async ({ assert }) => {
     const [statement, variables] = await prepareInsert({
       select: {
         id: true,
@@ -334,7 +355,7 @@ describe.only('aurora query (insert)', () => {
     ]);
   });
 
-  it('assert :: prepare insert relations (unique foreign id)', async ({ assert }) => {
+  it('assert :: prepare insert relations (unique foreign id connection)', async ({ assert }) => {
     const [statement, variables] = await prepareInsert({
       data: {
         id: '00000000-0000-1000-9000-000000000000',
@@ -358,7 +379,7 @@ describe.only('aurora query (insert)', () => {
     ]);
   });
 
-  it('assert :: prepare insert relations (unique foreign id with select)', async ({ assert }) => {
+  it('assert :: prepare insert relations (unique foreign id connection with select)', async ({ assert }) => {
     const [statement, variables] = await prepareInsert({
       select: {
         id: true,
@@ -397,7 +418,28 @@ describe.only('aurora query (insert)', () => {
     ]);
   });
 
-  it('assert :: prepare insert relations (unique foreign object)', async ({ assert }) => {
+  it('assert :: prepare update relations (unique foreign id empty)', async ({ assert }) => {
+    const [statement, variables] = await prepareInsert({
+      data: {
+        id: '00000000-0000-1000-9000-000000000000',
+        bar: {},
+        relation1: undefined,
+        relation2: {
+          relation2_id: undefined
+        }
+      }
+    });
+
+    assert.equal(
+      statement,
+      // Main record
+      `INSERT INTO "ez4-test-insert-relations" ("id", "bar") VALUES (:0, :1)`
+    );
+
+    assert.deepEqual(variables, [makeParameter('0', '00000000-0000-1000-9000-000000000000', 'UUID'), makeParameter('1', {})]);
+  });
+
+  it('assert :: prepare insert relations (unique foreign creation)', async ({ assert }) => {
     const [statement, variables] = await prepareInsert({
       data: {
         id: '00000000-0000-1000-9000-000000000000',
@@ -430,7 +472,7 @@ describe.only('aurora query (insert)', () => {
     ]);
   });
 
-  it('assert :: prepare insert relations (unique foreign object with select)', async ({ assert }) => {
+  it('assert :: prepare insert relations (unique foreign creation with select)', async ({ assert }) => {
     const [statement, variables] = await prepareInsert({
       select: {
         id: true,

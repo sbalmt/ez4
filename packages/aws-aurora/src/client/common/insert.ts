@@ -88,6 +88,10 @@ const getInsertRecord = async (
       continue;
     }
 
+    if (isSkippableData(fieldValue)) {
+      continue;
+    }
+
     if (!isRelationalData(fieldValue) || !relationsCache[fieldKey]) {
       throw new InvalidRelationFieldError(fieldPath);
     }
@@ -99,12 +103,7 @@ const getInsertRecord = async (
         throw new InvalidRelationFieldError(fieldPath);
       }
 
-      await Promise.all(
-        fieldValue.map((current) => {
-          return validateAllSchemaLevels(current, sourceSchema, fieldPath);
-        })
-      );
-
+      await Promise.all(fieldValue.map((current) => validateAllSchemaLevels(current, sourceSchema, fieldPath)));
       continue;
     }
 
@@ -125,11 +124,14 @@ const getInsertRecord = async (
         continue;
       }
 
-      await validateAllSchemaLevels(fieldValue, sourceSchema, fieldPath);
+      if (!isEmptyObject(fieldValue)) {
+        await validateAllSchemaLevels(fieldValue, sourceSchema, fieldPath);
 
-      const [relationQuery] = relationQueries;
+        const [relationQuery] = relationQueries;
 
-      record[targetColumn] = relationQuery.reference(sourceColumn);
+        record[targetColumn] = relationQuery.reference(sourceColumn);
+      }
+
       continue;
     }
 
@@ -146,7 +148,9 @@ const getInsertRecord = async (
         continue;
       }
 
-      await validateAllSchemaLevels(fieldValue, sourceSchema, fieldPath);
+      if (!isEmptyObject(fieldValue)) {
+        await validateAllSchemaLevels(fieldValue, sourceSchema, fieldPath);
+      }
     }
   }
 
@@ -160,7 +164,7 @@ const preparePreInsertRelations = (sql: SqlBuilder, data: SqlRecord, relations: 
     const fieldRelation = relations[relationAlias];
     const fieldValue = data[relationAlias];
 
-    if (!fieldRelation || isSkippableData(fieldValue)) {
+    if (isSkippableData(fieldValue)) {
       continue;
     }
 
@@ -177,27 +181,29 @@ const preparePreInsertRelations = (sql: SqlBuilder, data: SqlRecord, relations: 
       relationQueries
     };
 
-    const { sourceIndex } = fieldRelation;
+    const sourceIndex = fieldRelation.sourceIndex;
 
-    if (isSingleRelationData(fieldValue) && sourceIndex === Index.Primary) {
-      const { sourceTable, sourceColumn, sourceSchema, targetColumn } = fieldRelation;
-
-      const relationValue = fieldValue[targetColumn];
-
-      if (!isSkippableData(relationValue)) {
-        continue;
-      }
-
-      const relationQuery = sql
-        .insert(sourceSchema)
-        .into(sourceTable)
-        .record(fieldValue)
-        .returning({
-          [sourceColumn]: true
-        });
-
-      relationQueries.push(relationQuery);
+    if (!isSingleRelationData(fieldValue) || isEmptyObject(fieldValue) || sourceIndex !== Index.Primary) {
+      continue;
     }
+
+    const { sourceTable, sourceColumn, sourceSchema, targetColumn } = fieldRelation;
+
+    const relationValue = fieldValue[targetColumn];
+
+    if (!isSkippableData(relationValue)) {
+      continue;
+    }
+
+    const relationQuery = sql
+      .insert(sourceSchema)
+      .into(sourceTable)
+      .record(fieldValue)
+      .returning({
+        [sourceColumn]: true
+      });
+
+    relationQueries.push(relationQuery);
   }
 
   return allQueries;
@@ -218,7 +224,7 @@ const preparePostInsertRelations = (
     const fieldRelation = relations[relationAlias];
     const fieldValue = data[relationAlias];
 
-    if (!fieldRelation || isSkippableData(fieldValue)) {
+    if (isSkippableData(fieldValue)) {
       continue;
     }
 
@@ -240,9 +246,13 @@ const preparePostInsertRelations = (
 
     const relationQueries = [];
 
-    for (const currentValue of allFieldValues) {
+    for (const currentFieldValue of allFieldValues) {
+      if (isEmptyObject(currentFieldValue)) {
+        continue;
+      }
+
       if (sourceIndex === Index.Unique) {
-        const relationValue = currentValue[sourceColumn];
+        const relationValue = currentFieldValue[sourceColumn];
 
         if (!isSkippableData(relationValue)) {
           continue;
@@ -254,7 +264,7 @@ const preparePostInsertRelations = (
         .into(sourceTable)
         .select(source)
         .record({
-          ...currentValue,
+          ...currentFieldValue,
           [sourceColumn]: source.reference(targetColumn)
         });
 
