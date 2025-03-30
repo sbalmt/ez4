@@ -1,7 +1,10 @@
-import type { Database } from '@ez4/database';
+import type { Database, TransactionType } from '@ez4/database';
 
 export declare class TestDatabase extends Database.Service {
-  engine: 'test';
+  engine: {
+    transaction: TransactionType.Object;
+    name: 'test';
+  };
 
   tables: [
     {

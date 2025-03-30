@@ -1,4 +1,4 @@
-import type { Client, Database, Index, StreamChange } from '@ez4/database';
+import type { Client, Database, Index, TransactionType } from '@ez4/database';
 import type { Environment, Service } from '@ez4/common';
 
 declare class TestTableA implements Database.Schema {
@@ -19,7 +19,10 @@ declare class TestTableB implements Database.Schema {
 }
 
 export declare class TestDatabase extends Database.Service {
-  engine: 'test';
+  engine: {
+    transaction: TransactionType.Object;
+    name: 'test';
+  };
 
   client: Client<TestDatabase>;
 
@@ -32,9 +35,6 @@ export declare class TestDatabase extends Database.Service {
       };
       indexes: {
         id: Index.Primary;
-      };
-      stream: {
-        handler: typeof testHandler;
       };
     },
     {
@@ -55,14 +55,14 @@ export declare class TestDatabase extends Database.Service {
   };
 }
 
-export async function testHandler(_change: StreamChange<TestTableA>, { selfClient }: Service.Context<TestDatabase>) {
+export async function testHandler({ selfClient }: Service.Context<TestDatabase>) {
   testUpdate(selfClient);
   testUpsert(selfClient);
 }
 
-const testUpdate = (client: TestDatabase['client']) => {
+const testUpdate = async (client: TestDatabase['client']) => {
   // Update tableA and all tableB connections
-  client.tableA.updateOne({
+  await client.tableA.updateOne({
     data: {
       value_a1: { increment: 10 },
       value_a2: { decrement: 15 },
@@ -81,7 +81,7 @@ const testUpdate = (client: TestDatabase['client']) => {
   });
 
   // Update tableB and the connected tableA
-  client.tableB.updateOne({
+  await client.tableB.updateOne({
     data: {
       value_b1: { increment: 30 },
       value_b2: { decrement: 35 },
@@ -102,7 +102,7 @@ const testUpdate = (client: TestDatabase['client']) => {
 
 const testUpsert = (client: TestDatabase['client']) => {
   // Ensure insert and update follow relation rules.
-  client.tableA.upsertOne({
+  return client.tableA.upsertOne({
     insert: {
       id: 'foo',
       value_a1: 0,

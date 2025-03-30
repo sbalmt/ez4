@@ -18,7 +18,7 @@ export type Client<T extends Database.Service> = TableClients<T> & {
   /**
    * Prepare and execute the given transaction.
    *
-   * @param operations Transaction operations.
+   * @param operation Transaction operation.
    */
-  transaction<O extends Transaction.WriteOperations<T>>(operations: O): Promise<void>;
+  transaction<O extends Transaction.Operation<T>>(operation: O): Promise<void>;
 };

@@ -6,7 +6,6 @@ import { isModelDeclaration, getModelMembers, getObjectMembers, getPropertyStrin
 import { isModelProperty, isTypeObject, isTypeReference } from '@ez4/reflection';
 
 import { IncorrectRelationsTypeError, InvalidRelationsTypeError, InvalidRelationTargetError } from '../errors/relations.js';
-
 import { isTableRelations } from './utils.js';
 
 type TypeParent = TypeModel | TypeObject;

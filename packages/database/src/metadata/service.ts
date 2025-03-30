@@ -1,5 +1,5 @@
-import type { Incomplete } from '@ez4/utils';
 import type { ModelProperty, SourceMap, TypeModel, TypeObject } from '@ez4/reflection';
+import type { Incomplete } from '@ez4/utils';
 import type { DatabaseService } from '../types/service.js';
 import type { DatabaseTable } from '../types/table.js';
 import type { TableIndex } from '../types/indexes.js';
@@ -10,7 +10,6 @@ import {
   isExternalStatement,
   getLinkedServiceList,
   getLinkedVariableList,
-  getPropertyString,
   getPropertyTuple,
   getModelMembers
 } from '@ez4/common/library';
@@ -22,6 +21,7 @@ import { IncompleteServiceError } from '../errors/service.js';
 import { ServiceType } from '../types/service.js';
 import { isDatabaseService } from './utils.js';
 import { getDatabaseTable } from './table.js';
+import { getDatabaseEngine } from './engine.js';
 
 export const getDatabaseServices = (reflection: SourceMap) => {
   const allServices: Record<string, DatabaseService> = {};
@@ -52,7 +52,7 @@ export const getDatabaseServices = (reflection: SourceMap) => {
           break;
 
         case 'engine':
-          if ((service.engine = getPropertyString(member))) {
+          if ((service.engine = getDatabaseEngine(member.value, statement, reflection, errorList))) {
             properties.delete(member.name);
           }
           break;

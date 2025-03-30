@@ -1,7 +1,9 @@
 import type { AnyObject } from '@ez4/utils';
-import type { RelationMetadata, RelationTables } from './relations.js';
+
 import type { TableIndex, TableRelation } from './table.js';
+import type { RelationMetadata, RelationTables } from './relations.js';
 import type { IndexedTables } from './indexes.js';
+import type { TransactionType } from './engine.js';
 import type { TableSchemas } from './schemas.js';
 import type { Database } from './database.js';
 import type { Query } from './query.js';
@@ -11,9 +13,18 @@ import type { Query } from './query.js';
  */
 export namespace Transaction {
   /**
+   * Determines the transaction type based on the given database service.
+   */
+  export type Operation<T extends Database.Service> = T['engine'] extends { transaction: infer O }
+    ? O extends TransactionType.Function
+      ? () => Promise<void>
+      : Transaction.WriteOperation<T>
+    : never;
+
+  /**
    * Write operations.
    */
-  export type WriteOperations<T extends Database.Service> = {
+  export type WriteOperation<T extends Database.Service> = {
     [P in keyof TableSchemas<T>]?: (TableSchemas<T>[P] extends Database.Schema
       ? AnyOperation<TableSchemas<T>[P], TableIndex<P, IndexedTables<T>>, TableRelation<P, RelationTables<T>>>
       : AnyObject)[];

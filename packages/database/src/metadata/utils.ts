@@ -7,6 +7,10 @@ export const isDatabaseService = (type: AllType): type is TypeClass => {
   return isClassDeclaration(type) && hasHeritageType(type, 'Database.Service');
 };
 
+export const isDatabaseEngine = (type: AllType): type is TypeModel => {
+  return isModelDeclaration(type) && hasHeritageType(type, 'Database.Engine');
+};
+
 export const isDatabaseTable = (type: AllType): type is TypeModel => {
   return isModelDeclaration(type) && hasHeritageType(type, 'Database.Table');
 };
