@@ -6,6 +6,7 @@ import type { IndexedTables } from './indexes.js';
 import type { TransactionType } from './engine.js';
 import type { TableSchemas } from './schemas.js';
 import type { Database } from './database.js';
+import type { Client } from './client.js';
 import type { Query } from './query.js';
 
 /**
@@ -17,7 +18,7 @@ export namespace Transaction {
    */
   export type Operation<T extends Database.Service> = T['engine'] extends { transaction: infer O }
     ? O extends TransactionType.Function
-      ? () => Promise<void>
+      ? (client: Client<T>) => Promise<void>
       : Transaction.WriteOperation<T>
     : never;
 

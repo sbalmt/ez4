@@ -34,7 +34,7 @@ export namespace Client {
       }
 
       async transaction<O extends Transaction.Operation<T>>(operation: O): Promise<void> {
-        const commands = await prepareTransactions(repository, operation);
+        const commands = await prepareStaticTransaction(repository, operation);
 
         await executeTransaction(client, commands, settings?.debug);
       }
@@ -71,12 +71,12 @@ export namespace Client {
   };
 }
 
-const prepareTransactions = async <T extends Database.Service, U extends Transaction.Operation<T>>(
+const prepareStaticTransaction = async <T extends Database.Service, U extends Transaction.Operation<T>>(
   repository: Repository,
   operation: U
 ) => {
   if (operation instanceof Function) {
-    throw new Error(`DynamoDB tables don't support function transactions.`);
+    throw new Error(`DynamoDB tables don't support function transaction.`);
   }
 
   const commands = [];

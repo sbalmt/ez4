@@ -8,7 +8,7 @@ import type { Connection } from './types.js';
 
 import { isAnyNumber } from '@ez4/utils';
 
-import { executeStatement, executeTransaction } from './common/client.js';
+import { executeStatement, executeStatements, executeTransaction } from './common/client.js';
 import { parseRecord } from './common/record.js';
 
 import {
@@ -23,9 +23,10 @@ import {
   prepareCount
 } from './common/queries.js';
 
-export type TableSettings = {
-  client: RDSDataClient;
+export type TableContext = {
+  transactionId?: string;
   connection: Connection;
+  client: RDSDataClient;
   debug?: boolean;
 };
 
@@ -34,7 +35,7 @@ export class Table<T extends Database.Schema, I extends Database.Indexes, R exte
     private name: string,
     private schema: ObjectSchema,
     private relations: RepositoryRelationsWithSchema,
-    private settings: TableSettings
+    private context: TableContext
   ) {}
 
   private parseRecord<T extends Record<string, unknown>>(record: T): T | undefined {
@@ -42,14 +43,18 @@ export class Table<T extends Database.Schema, I extends Database.Indexes, R exte
   }
 
   private async sendCommand(input: PreparedQueryCommand | PreparedQueryCommand[]) {
-    const { client, connection, debug } = this.settings;
+    const { transactionId, connection, client, debug } = this.context;
 
     if (!Array.isArray(input)) {
-      return executeStatement(client, connection, input, undefined, debug);
+      return executeStatement(client, connection, input, transactionId, debug);
     }
 
     if (input.length === 1) {
-      return [await executeStatement(client, connection, input[0], undefined, debug)];
+      return [await executeStatement(client, connection, input[0], transactionId, debug)];
+    }
+
+    if (transactionId) {
+      return executeStatements(client, connection, input, transactionId, debug);
     }
 
     return executeTransaction(client, connection, input, debug);
