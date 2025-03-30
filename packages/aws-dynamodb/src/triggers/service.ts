@@ -1,13 +1,13 @@
 import type { ConnectResourceEvent, PrepareResourceEvent, ServiceEvent } from '@ez4/project/library';
 
-import { isDatabaseService } from '@ez4/database/library';
+import { TransactionType } from '@ez4/database';
 import { linkServiceExtras } from '@ez4/project/library';
 import { getFunctionState } from '@ez4/aws-function';
 import { isRoleState } from '@ez4/aws-identity';
 
 import { createTable } from '../table/service.js';
-import { RoleMissingError, UnsupportedRelationError } from './errors.js';
-import { getInternalName, getTableName } from './utils.js';
+import { getInternalName, getTableName, isDynamoDbService } from './utils.js';
+import { RoleMissingError, UnsupportedRelationError, UnsupportedTransactionError } from './errors.js';
 import { prepareLinkedClient } from './client.js';
 import { getAttributeSchema } from './schema.js';
 import { prepareTableStream } from './stream.js';
@@ -15,7 +15,7 @@ import { prepareTableStream } from './stream.js';
 export const prepareLinkedServices = (event: ServiceEvent) => {
   const { service, options, context } = event;
 
-  if (isDatabaseService(service) && service.engine === 'dynamodb') {
+  if (isDynamoDbService(service)) {
     return prepareLinkedClient(context, service, options);
   }
 
@@ -25,8 +25,12 @@ export const prepareLinkedServices = (event: ServiceEvent) => {
 export const prepareDatabaseServices = async (event: PrepareResourceEvent) => {
   const { state, service, options, context } = event;
 
-  if (!isDatabaseService(service) || service.engine !== 'dynamodb') {
+  if (!isDynamoDbService(service)) {
     return;
+  }
+
+  if (service.engine.transaction === TransactionType.Function) {
+    throw new UnsupportedTransactionError();
   }
 
   for (const table of service.tables) {
@@ -54,7 +58,7 @@ export const prepareDatabaseServices = async (event: PrepareResourceEvent) => {
 export const connectDatabaseServices = (event: ConnectResourceEvent) => {
   const { state, service, options, context } = event;
 
-  if (!isDatabaseService(service) || !service.extras || service.engine !== 'dynamodb') {
+  if (!isDynamoDbService(service)) {
     return;
   }
 

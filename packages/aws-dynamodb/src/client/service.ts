@@ -33,8 +33,8 @@ export namespace Client {
         return result.Items ?? [];
       }
 
-      async transaction<O extends Transaction.WriteOperations<T>>(operations: O): Promise<void> {
-        const commands = await prepareTransactions(repository, operations);
+      async transaction<O extends Transaction.Operation<T>>(operation: O): Promise<void> {
+        const commands = await prepareTransactions(repository, operation);
 
         await executeTransaction(client, commands, settings?.debug);
       }
@@ -71,24 +71,28 @@ export namespace Client {
   };
 }
 
-const prepareTransactions = async <T extends Database.Service, U extends Transaction.WriteOperations<T>>(
+const prepareTransactions = async <T extends Database.Service, U extends Transaction.Operation<T>>(
   repository: Repository,
-  operations: U
+  operation: U
 ) => {
+  if (operation instanceof Function) {
+    throw new Error(`DynamoDB tables don't support function transactions.`);
+  }
+
   const commands = [];
 
-  for (const alias in operations) {
-    const operationTable = operations[alias];
+  for (const tableAlias in operation) {
+    const operationTable = operation[tableAlias];
 
-    if (!repository[alias]) {
-      throw new Error(`Table ${alias} isn't part of the repository.`);
+    if (!repository[tableAlias]) {
+      throw new Error(`Table ${tableAlias} isn't part of the repository.`);
     }
 
     if (!operationTable) {
       continue;
     }
 
-    const { name, schema } = repository[alias];
+    const { name, schema } = repository[tableAlias];
 
     for (const query of operationTable) {
       if ('insert' in query) {

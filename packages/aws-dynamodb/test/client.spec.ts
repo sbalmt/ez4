@@ -1,4 +1,4 @@
-import type { Database, Client as DbClient, Index } from '@ez4/database';
+import type { Database, Client as DbClient, Index, TransactionType } from '@ez4/database';
 import type { EntryStates } from '@ez4/stateful';
 
 import { ok, equal, deepEqual } from 'node:assert/strict';
@@ -18,7 +18,10 @@ declare class TestSchema implements Database.Schema {
 }
 
 declare class Test extends Database.Service {
-  engine: 'test';
+  engine: {
+    transaction: TransactionType.Object;
+    name: 'test';
+  };
 
   tables: [
     {

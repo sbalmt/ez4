@@ -9,3 +9,9 @@ export class UnsupportedRelationError extends Error {
     super(`DynamoDB doesn't support relations.`);
   }
 }
+
+export class UnsupportedTransactionError extends Error {
+  constructor() {
+    super(`DynamoDB doesn't support function transactions.`);
+  }
+}
