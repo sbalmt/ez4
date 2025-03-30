@@ -20,14 +20,7 @@ describe.only('aurora query (update schema)', () => {
     schema: ObjectSchema,
     data: Query.UpdateManyInput<T, S, TestRelations>['data']
   ) => {
-    return prepareUpdateQuery<T, S, {}, TestRelations>(
-      'ez4-test-update-schema',
-      schema,
-      {},
-      {
-        data
-      }
-    );
+    return prepareUpdateQuery<T, S, {}, TestRelations>('ez4-test-update-schema', schema, {}, { data });
   };
 
   it('assert :: prepare update schema (scalar boolean)', async ({ assert }) => {
