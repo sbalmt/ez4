@@ -157,6 +157,26 @@ describe.only('aurora query (insert operations)', () => {
     );
   });
 
+  it('assert :: prepare insert schema (scalar missing field)', async ({ assert }) => {
+    await assert.rejects(
+      () =>
+        prepareInsert(
+          {
+            type: SchemaType.Object,
+            properties: {
+              foo: {
+                type: SchemaType.Boolean
+              }
+            }
+          },
+          {
+            // None of the required fields were given.
+          }
+        ),
+      MalformedRequestError
+    );
+  });
+
   it('assert :: prepare insert schema (json boolean)', async ({ assert }) => {
     const [statement, variables] = await prepareInsert(
       {

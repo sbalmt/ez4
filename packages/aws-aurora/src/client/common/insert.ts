@@ -73,9 +73,11 @@ const getInsertRecord = async (
   relationsCache: InsertRelationsCache,
   path: string
 ) => {
+  const allFields = new Set([...Object.keys(data), ...Object.keys(schema.properties)]);
+
   const record: SqlRecord = {};
 
-  for (const fieldKey in data) {
+  for (const fieldKey of allFields) {
     const fieldRelation = relations[fieldKey];
     const fieldSchema = schema.properties[fieldKey];
     const fieldPath = `${path}.${fieldKey}`;
@@ -84,7 +86,10 @@ const getInsertRecord = async (
     if (!fieldRelation) {
       await validateAllSchemaLevels(fieldValue, fieldSchema, fieldPath);
 
-      record[fieldKey] = fieldValue;
+      if (!isSkippableData(fieldValue)) {
+        record[fieldKey] = fieldValue;
+      }
+
       continue;
     }
 
@@ -104,6 +109,7 @@ const getInsertRecord = async (
       }
 
       await Promise.all(fieldValue.map((current) => validateAllSchemaLevels(current, sourceSchema, fieldPath)));
+
       continue;
     }
 
