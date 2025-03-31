@@ -25,7 +25,7 @@ declare class TestSchema implements Database.Schema {
 
 declare class Test extends Database.Service {
   engine: {
-    transaction: TransactionType.Object;
+    transaction: TransactionType.Static;
     name: 'test';
   };
 
@@ -393,7 +393,7 @@ describe('aurora client', () => {
     });
   });
 
-  it('assert :: transaction :: insert one', async () => {
+  it('assert :: static transaction :: insert one', async () => {
     ok(dbClient);
 
     await dbClient.transaction({
@@ -438,7 +438,7 @@ describe('aurora client', () => {
     ]);
   });
 
-  it('assert :: transaction :: update one', async () => {
+  it('assert :: static transaction :: update one', async () => {
     ok(dbClient);
 
     await dbClient.transaction({
@@ -487,7 +487,7 @@ describe('aurora client', () => {
     ]);
   });
 
-  it('assert :: transaction :: delete one', async () => {
+  it('assert :: static transaction :: delete one', async () => {
     ok(dbClient);
 
     await dbClient.transaction({
@@ -508,6 +508,25 @@ describe('aurora client', () => {
         }
       ]
     });
+
+    const result = await dbClient.testTable.findMany({
+      select: {
+        foo: true
+      },
+      where: {
+        id: {
+          startsWith: 'transaction'
+        }
+      }
+    });
+
+    deepEqual(result.records, []);
+  });
+
+  it('assert :: interactive transaction', async () => {
+    ok(dbClient);
+
+    await dbClient.transaction(async (transaction) => {});
 
     const result = await dbClient.testTable.findMany({
       select: {

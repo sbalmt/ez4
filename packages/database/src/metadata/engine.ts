@@ -81,8 +81,8 @@ const getTransactionType = (member: ModelProperty) => {
   const type = getPropertyString(member);
 
   switch (type) {
-    case TransactionType.Function:
-    case TransactionType.Object:
+    case TransactionType.Interactive:
+    case TransactionType.Static:
       return type;
   }
 

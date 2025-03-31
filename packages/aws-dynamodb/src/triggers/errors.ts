@@ -12,6 +12,6 @@ export class UnsupportedRelationError extends Error {
 
 export class UnsupportedTransactionError extends Error {
   constructor() {
-    super(`DynamoDB doesn't support function transactions.`);
+    super(`DynamoDB doesn't support interactive transactions.`);
   }
 }

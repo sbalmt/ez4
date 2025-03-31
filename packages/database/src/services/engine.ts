@@ -2,8 +2,8 @@
  * Transaction type.
  */
 export const enum TransactionType {
-  Function = 'function',
-  Object = 'object'
+  Interactive = 'interactive',
+  Static = 'static'
 }
 
 /**

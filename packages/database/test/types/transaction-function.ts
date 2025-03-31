@@ -8,7 +8,7 @@ declare class TestTable implements Database.Schema {
 
 export declare class TestDatabase extends Database.Service {
   engine: {
-    transaction: TransactionType.Function;
+    transaction: TransactionType.Interactive;
     name: 'test';
   };
 

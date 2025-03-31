@@ -17,10 +17,15 @@ export namespace Transaction {
    * Determines the transaction type based on the given database service.
    */
   export type Operation<T extends Database.Service> = T['engine'] extends { transaction: infer O }
-    ? O extends TransactionType.Function
-      ? (client: Client<T>) => Promise<void>
-      : Transaction.WriteOperation<T>
+    ? O extends TransactionType.Interactive
+      ? WriteOperation<T> | InteractiveOperation<T>
+      : WriteOperation<T>
     : never;
+
+  /**
+   * Interactive operations.
+   */
+  export type InteractiveOperation<T extends Database.Service> = (client: Client<T>) => Promise<void>;
 
   /**
    * Write operations.

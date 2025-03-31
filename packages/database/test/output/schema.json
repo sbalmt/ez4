@@ -4,7 +4,7 @@
     "name": "TestDatabase",
     "extras": {},
     "engine": {
-      "transaction": "object",
+      "transaction": "static",
       "name": "test"
     },
     "tables": [

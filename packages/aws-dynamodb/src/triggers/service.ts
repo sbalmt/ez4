@@ -29,7 +29,7 @@ export const prepareDatabaseServices = async (event: PrepareResourceEvent) => {
     return;
   }
 
-  if (service.engine.transaction === TransactionType.Function) {
+  if (service.engine.transaction === TransactionType.Interactive) {
     throw new UnsupportedTransactionError();
   }
 

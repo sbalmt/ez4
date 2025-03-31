@@ -20,7 +20,7 @@ declare class TestTableB implements Database.Schema {
 
 export declare class TestDatabase extends Database.Service {
   engine: {
-    transaction: TransactionType.Object;
+    transaction: TransactionType.Static;
     name: 'test';
   };
 

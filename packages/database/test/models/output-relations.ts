@@ -2,7 +2,7 @@ import type { Database, Index, TransactionType } from '@ez4/database';
 
 export declare class TestDatabase extends Database.Service {
   engine: {
-    transaction: TransactionType.Object;
+    transaction: TransactionType.Static;
     name: 'test';
   };
 

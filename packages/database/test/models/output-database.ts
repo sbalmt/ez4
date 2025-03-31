@@ -6,7 +6,7 @@ import type { Environment } from '@ez4/common';
  */
 export declare class TestDatabase1 extends Database.Service {
   engine: {
-    transaction: TransactionType.Object;
+    transaction: TransactionType.Static;
     name: 'test';
   };
 
@@ -23,7 +23,7 @@ export declare class TestDatabase1 extends Database.Service {
  */
 export declare class TestDatabase2 extends Database.Service {
   engine: {
-    transaction: TransactionType.Object;
+    transaction: TransactionType.Static;
     name: 'test';
   };
 

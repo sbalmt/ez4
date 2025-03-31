@@ -19,7 +19,7 @@ declare class TestSchema implements Database.Schema {
 
 declare class Test extends Database.Service {
   engine: {
-    transaction: TransactionType.Object;
+    transaction: TransactionType.Static;
     name: 'test';
   };
 
