@@ -41,7 +41,7 @@ type TestRelations = {
   };
 };
 
-describe.only('aurora query (insert relations)', () => {
+describe('aurora query (insert relations)', () => {
   const testSchema: ObjectSchema = {
     type: SchemaType.Object,
     properties: {

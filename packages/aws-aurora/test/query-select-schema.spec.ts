@@ -15,7 +15,7 @@ type TestRelations = {
   changes: {};
 };
 
-describe.only('aurora query (select schema)', () => {
+describe('aurora query (select schema)', () => {
   const prepareSelect = <T extends Database.Schema, S extends Query.SelectInput<T, TestRelations>>(
     schema: ObjectSchema,
     query: Query.FindManyInput<T, S, {}, TestRelations, false>
