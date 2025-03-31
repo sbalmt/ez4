@@ -14,18 +14,23 @@ import type { Query } from './query.js';
  */
 export namespace Transaction {
   /**
-   * Determines the transaction type based on the given database service.
+   * Extract the operation result from an interactive transaction.
    */
-  export type Operation<T extends Database.Service> = T['engine'] extends { transaction: infer O }
+  export type Result<O> = O extends (client: any) => infer R ? R : void;
+
+  /**
+   * Determines the transaction operation based on the given database service.
+   */
+  export type Operation<T extends Database.Service, R> = T['engine'] extends { transaction: infer O }
     ? O extends TransactionType.Interactive
-      ? WriteOperation<T> | InteractiveOperation<T>
+      ? WriteOperation<T> | InteractiveOperation<T, R>
       : WriteOperation<T>
     : never;
 
   /**
    * Interactive operations.
    */
-  export type InteractiveOperation<T extends Database.Service> = (client: Client<T>) => Promise<void>;
+  export type InteractiveOperation<T extends Database.Service, R = void> = (client: Client<T>) => Promise<R> | R;
 
   /**
    * Write operations.

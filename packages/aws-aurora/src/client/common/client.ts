@@ -104,7 +104,7 @@ export const executeTransaction = async (
   const transactionId = await beginTransaction(client, connection);
 
   try {
-    const results = executeStatements(client, connection, commands, transactionId, debug);
+    const results = await executeStatements(client, connection, commands, transactionId, debug);
 
     await commitTransaction(client, connection, transactionId);
 

@@ -33,7 +33,7 @@ export namespace Client {
         return result.Items ?? [];
       }
 
-      async transaction<O extends Transaction.Operation<T>>(operation: O): Promise<void> {
+      async transaction<O extends Transaction.Operation<T, void>>(operation: O) {
         const commands = await prepareStaticTransaction(repository, operation);
 
         await executeTransaction(client, commands, settings?.debug);
@@ -71,7 +71,7 @@ export namespace Client {
   };
 }
 
-const prepareStaticTransaction = async <T extends Database.Service, U extends Transaction.Operation<T>>(
+const prepareStaticTransaction = async <T extends Database.Service, U extends Transaction.Operation<T, R>, R>(
   repository: Repository,
   operation: U
 ) => {

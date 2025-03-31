@@ -31,7 +31,13 @@ export declare class TestDatabase extends Database.Service {
 }
 
 export async function testHandler({ selfClient }: Service.Context<TestDatabase>) {
-  return selfClient.transaction(async () => {
-    // Operations.
+  const result = await selfClient.transaction(async (client) => {
+    return client.table.count({
+      where: {
+        id: 'abc'
+      }
+    });
   });
+
+  return result;
 }

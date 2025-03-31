@@ -25,7 +25,7 @@ declare class TestSchema implements Database.Schema {
 
 declare class Test extends Database.Service {
   engine: {
-    transaction: TransactionType.Static;
+    transaction: TransactionType.Interactive;
     name: 'test';
   };
 
@@ -40,7 +40,7 @@ declare class Test extends Database.Service {
   ];
 }
 
-describe('aurora client', () => {
+describe.only('aurora client', () => {
   let lastState: EntryStates | undefined;
   let clusterId: string | undefined;
   let dbClient: DbClient<Test>;
@@ -526,20 +526,36 @@ describe('aurora client', () => {
   it('assert :: interactive transaction', async () => {
     ok(dbClient);
 
-    await dbClient.transaction(async (transaction) => {});
-
-    const result = await dbClient.testTable.findMany({
-      select: {
-        foo: true
-      },
-      where: {
-        id: {
-          startsWith: 'transaction'
+    const result = await dbClient.transaction(async (client) => {
+      await client.testTable.insertOne({
+        data: {
+          id: 'transaction-2',
+          foo: 'initial'
         }
-      }
+      });
+
+      await client.testTable.updateOne({
+        data: {
+          foo: 'updated'
+        },
+        where: {
+          id: 'transaction-2'
+        }
+      });
+
+      return client.testTable.findOne({
+        select: {
+          foo: true
+        },
+        where: {
+          id: 'transaction-2'
+        }
+      });
     });
 
-    deepEqual(result.records, []);
+    deepEqual(result, {
+      foo: 'updated'
+    });
   });
 
   it('assert :: destroy', async () => {

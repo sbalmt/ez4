@@ -22,8 +22,6 @@ type TableType = Table<Database.Schema, Database.Indexes, RelationMetadata>;
 
 const client = new RDSDataClient();
 
-const tableCache: Record<string, TableType> = {};
-
 export type ClientContext = {
   transactionId?: string;
   debug?: boolean;
@@ -35,7 +33,9 @@ export namespace Client {
     repository: Repository,
     context: ClientContext = {}
   ): DbClient<T> => {
-    const instance = new (class {
+    const tableCache: Record<string, TableType> = {};
+
+    const dbClientInstance = new (class {
       rawQuery(query: string, values: unknown[] = []) {
         const { transactionId, debug } = context;
 
@@ -47,32 +47,32 @@ export namespace Client {
         return executeStatement(client, connection, command, transactionId, debug);
       }
 
-      async transaction<O extends Transaction.Operation<T>>(operation: O): Promise<void> {
+      async transaction<O extends Transaction.Operation<T, R>, R>(operation: O) {
         if (operation instanceof Function) {
-          await executeInteractiveTransaction(connection, repository, context, operation);
-        } else {
-          await executeStaticTransaction(connection, repository, context, operation);
+          return executeInteractiveTransaction(connection, repository, context, operation);
         }
+
+        await executeStaticTransaction(connection, repository, context, operation);
       }
     })();
 
-    return new Proxy<any>(instance, {
+    return new Proxy<any>(dbClientInstance, {
       get: (target, property) => {
         if (property in target) {
           return target[property];
         }
 
-        const alias = property.toString();
+        const tableAlias = property.toString();
 
-        if (tableCache[alias]) {
-          return tableCache[alias];
+        if (tableCache[tableAlias]) {
+          return tableCache[tableAlias];
         }
 
-        if (!repository[alias]) {
-          throw new Error(`Table ${alias} isn't part of the repository.`);
+        if (!repository[tableAlias]) {
+          throw new Error(`Table ${tableAlias} isn't part of the repository.`);
         }
 
-        const { name, schema, relations } = repository[alias];
+        const { name, schema, relations } = repository[tableAlias];
 
         const relationsWithSchema = getRelationsWithSchema(repository, relations);
 
@@ -82,7 +82,7 @@ export namespace Client {
           client
         });
 
-        tableCache[alias] = table;
+        tableCache[tableAlias] = table;
 
         return table;
       }
@@ -120,14 +120,25 @@ const executeInteractiveTransaction = async (
   context: ClientContext,
   operation: Function
 ) => {
+  if (context.transactionId) {
+    const instance = Client.make(connection, repository, context);
+
+    return operation(instance);
+  }
+
   const transactionId = await beginTransaction(client, connection);
 
   try {
-    const instance = Client.make(connection, repository, context);
+    const instance = Client.make(connection, repository, {
+      ...context,
+      transactionId
+    });
 
-    await operation(instance);
+    const result = await operation(instance);
 
     await commitTransaction(client, connection, transactionId);
+
+    return result;
   } catch (error) {
     await rollbackTransaction(client, connection, transactionId);
 

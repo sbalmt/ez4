@@ -19,6 +19,7 @@ export type Client<T extends Database.Service> = TableClients<T> & {
    * Prepare and execute the given transaction.
    *
    * @param operation Transaction operation.
+   * @returns Returns the transaction result if the given transaction is interactive.
    */
-  transaction<O extends Transaction.Operation<T>>(operation: O): Promise<void>;
+  transaction<O extends Transaction.Operation<T, R>, R>(operation: O): Promise<Transaction.Result<O>>;
 };
