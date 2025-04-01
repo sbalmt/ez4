@@ -8,6 +8,7 @@ import {
   UpdateEventSourceMappingCommand,
   DeleteEventSourceMappingCommand,
   ListEventSourceMappingsCommand,
+  FunctionResponseType,
   EventSourcePosition,
   ResourceNotFoundException
 } from '@aws-sdk/client-lambda';
@@ -148,6 +149,9 @@ const upsertMappingRequest = (
 
   return {
     Enabled: enabled,
+    FunctionResponseTypes: [FunctionResponseType.ReportBatchItemFailures],
+    MaximumBatchingWindowInSeconds: batch?.maxWindow,
+    BatchSize: batch?.batchSize,
     ...(service === 'dynamodb' && {
       StartingPosition: EventSourcePosition.LATEST
     }),
@@ -156,10 +160,6 @@ const upsertMappingRequest = (
         ScalingConfig: {
           MaximumConcurrency: concurrency
         }
-      }),
-    ...(batch && {
-      MaximumBatchingWindowInSeconds: batch.maxWindow,
-      BatchSize: batch.batchSize
-    })
+      })
   };
 };
