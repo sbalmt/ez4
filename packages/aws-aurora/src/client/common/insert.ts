@@ -122,11 +122,13 @@ const getInsertRecord = async (
 
       if (!isSkippableData(relationValue)) {
         const relationSchema = schema.properties[targetColumn];
-        const relationPath = `${path}.${targetColumn}`;
+        const relationPath = `${fieldPath}.${targetColumn}`;
 
         await validateFirstSchemaLevel(relationValue, relationSchema, relationPath);
 
         record[targetColumn] = relationValue;
+
+        allFields.delete(targetColumn);
         continue;
       }
 
@@ -146,11 +148,13 @@ const getInsertRecord = async (
 
       if (!isSkippableData(relationValue)) {
         const relationSchema = sourceSchema.properties[sourceColumn];
-        const relationPath = `${path}.${sourceColumn}`;
+        const relationPath = `${fieldPath}.${sourceColumn}`;
 
         await validateFirstSchemaLevel(relationValue, relationSchema, relationPath);
 
         record[sourceColumn] = relationValue;
+
+        allFields.delete(sourceColumn);
         continue;
       }
 
