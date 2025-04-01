@@ -120,6 +120,8 @@ const getInsertRecord = async (
     if (sourceIndex === Index.Primary) {
       const relationValue = fieldValue[targetColumn];
 
+      allFields.delete(targetColumn);
+
       if (!isSkippableData(relationValue)) {
         const relationSchema = schema.properties[targetColumn];
         const relationPath = `${fieldPath}.${targetColumn}`;
@@ -128,7 +130,6 @@ const getInsertRecord = async (
 
         record[targetColumn] = relationValue;
 
-        allFields.delete(targetColumn);
         continue;
       }
 
@@ -146,6 +147,8 @@ const getInsertRecord = async (
     if (sourceIndex === Index.Unique) {
       const relationValue = fieldValue[sourceColumn];
 
+      allFields.delete(sourceColumn);
+
       if (!isSkippableData(relationValue)) {
         const relationSchema = sourceSchema.properties[sourceColumn];
         const relationPath = `${fieldPath}.${sourceColumn}`;
@@ -154,7 +157,6 @@ const getInsertRecord = async (
 
         record[sourceColumn] = relationValue;
 
-        allFields.delete(sourceColumn);
         continue;
       }
 
