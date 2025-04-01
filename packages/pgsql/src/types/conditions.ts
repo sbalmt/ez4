@@ -247,27 +247,45 @@ const getNullableOperation = (column: string, value: unknown) => {
 };
 
 const getEqualOperation = (column: string, schema: AnySchema | undefined, operand: unknown, context: SqlConditionsContext) => {
-  return `${column} = ${getOperandValue(schema, operand, context)}`;
+  const rhsOperand = getOperandValue(schema, operand, context);
+  const lhsOperand = getOperandColumn(schema, column, context);
+
+  return `${lhsOperand} = ${rhsOperand}`;
 };
 
 const getNotEqualOperation = (column: string, schema: AnySchema | undefined, operand: unknown, context: SqlConditionsContext) => {
-  return `${column} != ${getOperandValue(schema, operand, context)}`;
+  const rhsOperand = getOperandValue(schema, operand, context);
+  const lhsOperand = getOperandColumn(schema, column, context);
+
+  return `${lhsOperand} != ${rhsOperand}`;
 };
 
 const getGreaterThanOperation = (column: string, schema: AnySchema | undefined, operand: unknown, context: SqlConditionsContext) => {
-  return `${column} > ${getOperandValue(schema, operand, context)}`;
+  const rhsOperand = getOperandValue(schema, operand, context);
+  const lhsOperand = getOperandColumn(schema, column, context);
+
+  return `${lhsOperand} > ${rhsOperand}`;
 };
 
 const getGreaterOrEqualOperation = (column: string, schema: AnySchema | undefined, operand: unknown, context: SqlConditionsContext) => {
-  return `${column} >= ${getOperandValue(schema, operand, context)}`;
+  const rhsOperand = getOperandValue(schema, operand, context);
+  const lhsOperand = getOperandColumn(schema, column, context);
+
+  return `${lhsOperand} >= ${rhsOperand}`;
 };
 
 const getLessThanOperation = (column: string, schema: AnySchema | undefined, operand: unknown, context: SqlConditionsContext) => {
-  return `${column} < ${getOperandValue(schema, operand, context)}`;
+  const rhsOperand = getOperandValue(schema, operand, context);
+  const lhsOperand = getOperandColumn(schema, column, context);
+
+  return `${lhsOperand} < ${rhsOperand}`;
 };
 
 const getLessOrEqualOperation = (column: string, schema: AnySchema | undefined, operand: unknown, context: SqlConditionsContext) => {
-  return `${column} <= ${getOperandValue(schema, operand, context)}`;
+  const rhsOperand = getOperandValue(schema, operand, context);
+  const lhsOperand = getOperandColumn(schema, column, context);
+
+  return `${lhsOperand} <= ${rhsOperand}`;
 };
 
 const getIsInOperation = (column: string, schema: AnySchema | undefined, operand: unknown, context: SqlConditionsContext) => {
@@ -282,11 +300,10 @@ const getIsInOperation = (column: string, schema: AnySchema | undefined, operand
         throw new InvalidOperandError(column);
       }
 
-      const list = operand.map((current) => {
-        return getOperandValue(schema, current, context);
-      });
+      const rhsOperand = operand.map((current) => getOperandValue(schema, current, context));
+      const lhsOperand = getOperandColumn(schema, column, context);
 
-      return `${column} IN (${list.join(', ')})`;
+      return `${lhsOperand} IN (${rhsOperand.join(', ')})`;
   }
 };
 
@@ -299,22 +316,39 @@ const getIsBetweenOperation = (column: string, schema: AnySchema | undefined, op
     return getOperandValue(schema, current, context);
   });
 
-  return `${column} BETWEEN ${begin} AND ${end}`;
+  const lhsOperand = getOperandColumn(schema, column, context);
+
+  return `${lhsOperand} BETWEEN ${begin} AND ${end}`;
 };
 
 const getStartsWithOperation = (column: string, schema: AnySchema | undefined, operand: unknown, context: SqlConditionsContext) => {
-  return `${column} LIKE ${getOperandValue(schema, operand, context)} || '%'`;
+  const json = !!context.parent;
+
+  const valueContext = json ? { ...context, parent: undefined } : context;
+
+  const rhsOperand = getOperandValue(schema, operand, valueContext);
+  const lhsOperand = getOperandColumn(schema, column, context);
+
+  return `${lhsOperand} LIKE ${rhsOperand} || '%'`;
 };
 
 const getContainsOperation = (column: string, schema: AnySchema | undefined, operand: unknown, context: SqlConditionsContext) => {
+  const json = !!context.parent;
+
   switch (schema?.type) {
     case SchemaType.Object:
     case SchemaType.Array:
     case SchemaType.Tuple:
       return `${column} @> ${getOperandValue(schema, operand, context)}`;
 
-    default:
-      return `${column} LIKE '%' || ${getOperandValue(schema, operand, context)} || '%'`;
+    default: {
+      const valueContext = json ? { ...context, parent: undefined } : context;
+
+      const rhsOperand = getOperandValue(schema, operand, valueContext);
+      const lhsOperand = getOperandColumn(schema, column, context);
+
+      return `${lhsOperand} LIKE '%' || ${rhsOperand} || '%'`;
+    }
   }
 };
 
@@ -345,6 +379,32 @@ const getOperandValue = (schema: AnySchema | undefined, operand: unknown, contex
   }
 
   return field;
+};
+
+const getOperandColumn = (schema: AnySchema | undefined, column: string, context: SqlConditionsContext) => {
+  const json = !!context.parent;
+
+  if (!json) {
+    return column;
+  }
+
+  switch (schema?.type) {
+    case SchemaType.Boolean:
+      return `${column}::bool`;
+
+    case SchemaType.String:
+      return `${column}::text`;
+
+    case SchemaType.Number: {
+      if (schema.format === 'decimal') {
+        return `${column}::dec`;
+      }
+
+      return `${column}::int`;
+    }
+  }
+
+  return column;
 };
 
 const combineOperations = (operations: string[]) => {

@@ -1,7 +1,6 @@
-import type { ObjectSchema } from '@ez4/schema';
+import type { AnySchema, ObjectSchema } from '@ez4/schema';
 
 import { beforeEach, describe, it } from 'node:test';
-import { deepEqual, equal } from 'node:assert';
 
 import { SchemaType } from '@ez4/schema';
 import { SqlBuilder } from '@ez4/pgsql';
@@ -9,33 +8,47 @@ import { SqlBuilder } from '@ez4/pgsql';
 describe('sql where tests', () => {
   let sql: SqlBuilder;
 
+  const getJsonObject = (field: AnySchema): ObjectSchema => {
+    return {
+      type: SchemaType.Object,
+      properties: {
+        foo: {
+          type: SchemaType.Object,
+          properties: {
+            bar: field
+          }
+        }
+      }
+    };
+  };
+
   beforeEach(() => {
     sql = new SqlBuilder();
   });
 
-  it('assert :: where no filters', async () => {
+  it('assert :: where no filters', ({ assert }) => {
     const query = sql.select().from('test').where();
 
     const [statement, variables] = query.build();
 
-    deepEqual(variables, []);
+    assert.deepEqual(variables, []);
 
-    equal(statement, `SELECT * FROM "test"`);
+    assert.equal(statement, `SELECT * FROM "test"`);
   });
 
-  it('assert :: where equal (implicit)', async () => {
+  it('assert :: where equal (implicit)', ({ assert }) => {
     const query = sql.select().from('test').where({
       foo: 'abc'
     });
 
     const [statement, variables] = query.build();
 
-    deepEqual(variables, ['abc']);
+    assert.deepEqual(variables, ['abc']);
 
-    equal(statement, 'SELECT * FROM "test" WHERE "foo" = :0');
+    assert.equal(statement, 'SELECT * FROM "test" WHERE "foo" = :0');
   });
 
-  it('assert :: where equal (explicit)', async () => {
+  it('assert :: where equal (explicit)', ({ assert }) => {
     const query = sql
       .select()
       .from('test')
@@ -47,12 +60,35 @@ describe('sql where tests', () => {
 
     const [statement, variables] = query.build();
 
-    deepEqual(variables, ['abc']);
+    assert.deepEqual(variables, ['abc']);
 
-    equal(statement, 'SELECT * FROM "test" WHERE "foo" = :0');
+    assert.equal(statement, 'SELECT * FROM "test" WHERE "foo" = :0');
   });
 
-  it('assert :: where not equal', async () => {
+  it('assert :: where equal (with json value)', ({ assert }) => {
+    const schema = getJsonObject({
+      type: SchemaType.Boolean
+    });
+
+    const query = sql
+      .select(schema)
+      .from('test')
+      .where({
+        foo: {
+          bar: {
+            equal: 'abc'
+          }
+        }
+      });
+
+    const [statement, variables] = query.build();
+
+    assert.deepEqual(variables, ['abc']);
+
+    assert.equal(statement, `SELECT * FROM "test" WHERE "foo"['bar']::bool = :0`);
+  });
+
+  it('assert :: where not equal', ({ assert }) => {
     const query = sql
       .select()
       .from('test')
@@ -64,12 +100,35 @@ describe('sql where tests', () => {
 
     const [statement, variables] = query.build();
 
-    deepEqual(variables, [123]);
+    assert.deepEqual(variables, [123]);
 
-    equal(statement, 'SELECT * FROM "test" WHERE "foo" != :0');
+    assert.equal(statement, 'SELECT * FROM "test" WHERE "foo" != :0');
   });
 
-  it('assert :: where greater than', async () => {
+  it('assert :: where not equal (with json value)', ({ assert }) => {
+    const schema = getJsonObject({
+      type: SchemaType.String
+    });
+
+    const query = sql
+      .select(schema)
+      .from('test')
+      .where({
+        foo: {
+          bar: {
+            not: 'abc'
+          }
+        }
+      });
+
+    const [statement, variables] = query.build();
+
+    assert.deepEqual(variables, ['abc']);
+
+    assert.equal(statement, `SELECT * FROM "test" WHERE "foo"['bar']::text != :0`);
+  });
+
+  it('assert :: where greater than', ({ assert }) => {
     const query = sql
       .select()
       .from('test')
@@ -81,12 +140,35 @@ describe('sql where tests', () => {
 
     const [statement, variables] = query.build();
 
-    deepEqual(variables, [0]);
+    assert.deepEqual(variables, [0]);
 
-    equal(statement, 'SELECT * FROM "test" WHERE "foo" > :0');
+    assert.equal(statement, 'SELECT * FROM "test" WHERE "foo" > :0');
   });
 
-  it('assert :: where greater than or equal', async () => {
+  it('assert :: where greater than (with json value)', ({ assert }) => {
+    const schema = getJsonObject({
+      type: SchemaType.Number
+    });
+
+    const query = sql
+      .select(schema)
+      .from('test')
+      .where({
+        foo: {
+          bar: {
+            gt: 5
+          }
+        }
+      });
+
+    const [statement, variables] = query.build();
+
+    assert.deepEqual(variables, [5]);
+
+    assert.equal(statement, `SELECT * FROM "test" WHERE "foo"['bar']::int > :0`);
+  });
+
+  it('assert :: where greater than or equal', ({ assert }) => {
     const query = sql
       .select()
       .from('test')
@@ -98,12 +180,35 @@ describe('sql where tests', () => {
 
     const [statement, variables] = query.build();
 
-    deepEqual(variables, [0]);
+    assert.deepEqual(variables, [0]);
 
-    equal(statement, 'SELECT * FROM "test" WHERE "foo" >= :0');
+    assert.equal(statement, 'SELECT * FROM "test" WHERE "foo" >= :0');
   });
 
-  it('assert :: where less than', async () => {
+  it('assert :: where greater than or equal (with json value)', ({ assert }) => {
+    const schema = getJsonObject({
+      type: SchemaType.Number
+    });
+
+    const query = sql
+      .select(schema)
+      .from('test')
+      .where({
+        foo: {
+          bar: {
+            gte: 5
+          }
+        }
+      });
+
+    const [statement, variables] = query.build();
+
+    assert.deepEqual(variables, [5]);
+
+    assert.equal(statement, `SELECT * FROM "test" WHERE "foo"['bar']::int >= :0`);
+  });
+
+  it('assert :: where less than', ({ assert }) => {
     const query = sql
       .select()
       .from('test')
@@ -115,12 +220,35 @@ describe('sql where tests', () => {
 
     const [statement, variables] = query.build();
 
-    deepEqual(variables, [0]);
+    assert.deepEqual(variables, [0]);
 
-    equal(statement, 'SELECT * FROM "test" WHERE "foo" < :0');
+    assert.equal(statement, 'SELECT * FROM "test" WHERE "foo" < :0');
   });
 
-  it('assert :: where less than or equal', async () => {
+  it('assert :: where less than (with json value)', ({ assert }) => {
+    const schema = getJsonObject({
+      type: SchemaType.Number
+    });
+
+    const query = sql
+      .select(schema)
+      .from('test')
+      .where({
+        foo: {
+          bar: {
+            lt: 5
+          }
+        }
+      });
+
+    const [statement, variables] = query.build();
+
+    assert.deepEqual(variables, [5]);
+
+    assert.equal(statement, `SELECT * FROM "test" WHERE "foo"['bar']::int < :0`);
+  });
+
+  it('assert :: where less than or equal', ({ assert }) => {
     const query = sql
       .select()
       .from('test')
@@ -132,12 +260,35 @@ describe('sql where tests', () => {
 
     const [statement, variables] = query.build();
 
-    deepEqual(variables, [0]);
+    assert.deepEqual(variables, [0]);
 
-    equal(statement, 'SELECT * FROM "test" WHERE "foo" <= :0');
+    assert.equal(statement, 'SELECT * FROM "test" WHERE "foo" <= :0');
   });
 
-  it('assert :: where is in', async () => {
+  it('assert :: where less than or equal (with json value)', ({ assert }) => {
+    const schema = getJsonObject({
+      type: SchemaType.Number
+    });
+
+    const query = sql
+      .select(schema)
+      .from('test')
+      .where({
+        foo: {
+          bar: {
+            lte: 5
+          }
+        }
+      });
+
+    const [statement, variables] = query.build();
+
+    assert.deepEqual(variables, [5]);
+
+    assert.equal(statement, `SELECT * FROM "test" WHERE "foo"['bar']::int <= :0`);
+  });
+
+  it('assert :: where is in', ({ assert }) => {
     const query = sql
       .select()
       .from('test')
@@ -149,12 +300,36 @@ describe('sql where tests', () => {
 
     const [statement, variables] = query.build();
 
-    deepEqual(variables, [1, 2, 3]);
+    assert.deepEqual(variables, [1, 2, 3]);
 
-    equal(statement, 'SELECT * FROM "test" WHERE "foo" IN (:0, :1, :2)');
+    assert.equal(statement, 'SELECT * FROM "test" WHERE "foo" IN (:0, :1, :2)');
   });
 
-  it('assert :: where is in with json', async () => {
+  it('assert :: where is in (with json value)', ({ assert }) => {
+    const schema = getJsonObject({
+      type: SchemaType.Number,
+      format: 'decimal'
+    });
+
+    const query = sql
+      .select(schema)
+      .from('test')
+      .where({
+        foo: {
+          bar: {
+            isIn: [1.5, 2.1, 3.8]
+          }
+        }
+      });
+
+    const [statement, variables] = query.build();
+
+    assert.deepEqual(variables, [1.5, 2.1, 3.8]);
+
+    assert.equal(statement, `SELECT * FROM "test" WHERE "foo"['bar']::dec IN (:0, :1, :2)`);
+  });
+
+  it('assert :: where is in (with json array)', ({ assert }) => {
     const schema: ObjectSchema = {
       type: SchemaType.Object,
       properties: {
@@ -195,12 +370,12 @@ describe('sql where tests', () => {
 
     const [statement, variables] = query.build();
 
-    deepEqual(variables, [['abc'], { abc: 123 }]);
+    assert.deepEqual(variables, [['abc'], { abc: 123 }]);
 
-    equal(statement, `SELECT * FROM "test" WHERE "foo" <@ :0 AND "bar" <@ :1`);
+    assert.equal(statement, `SELECT * FROM "test" WHERE "foo" <@ :0 AND "bar" <@ :1`);
   });
 
-  it('assert :: where is between', async () => {
+  it('assert :: where is between', ({ assert }) => {
     const query = sql
       .select()
       .from('test')
@@ -212,12 +387,35 @@ describe('sql where tests', () => {
 
     const [statement, variables] = query.build();
 
-    deepEqual(variables, [1, 2]);
+    assert.deepEqual(variables, [1, 2]);
 
-    equal(statement, 'SELECT * FROM "test" WHERE "foo" BETWEEN :0 AND :1');
+    assert.equal(statement, 'SELECT * FROM "test" WHERE "foo" BETWEEN :0 AND :1');
   });
 
-  it('assert :: where is missing', async () => {
+  it('assert :: where is between (with json value)', ({ assert }) => {
+    const schema = getJsonObject({
+      type: SchemaType.Number
+    });
+
+    const query = sql
+      .select(schema)
+      .from('test')
+      .where({
+        foo: {
+          bar: {
+            isBetween: [1, 2]
+          }
+        }
+      });
+
+    const [statement, variables] = query.build();
+
+    assert.deepEqual(variables, [1, 2]);
+
+    assert.equal(statement, `SELECT * FROM "test" WHERE "foo"['bar']::int BETWEEN :0 AND :1`);
+  });
+
+  it('assert :: where is missing', ({ assert }) => {
     const query = sql
       .select()
       .from('test')
@@ -229,12 +427,12 @@ describe('sql where tests', () => {
 
     const [statement, variables] = query.build();
 
-    deepEqual(variables, []);
+    assert.deepEqual(variables, []);
 
-    equal(statement, 'SELECT * FROM "test" WHERE "foo" IS null');
+    assert.equal(statement, 'SELECT * FROM "test" WHERE "foo" IS null');
   });
 
-  it('assert :: where is not missing', async () => {
+  it('assert :: where is not missing', ({ assert }) => {
     const query = sql
       .select()
       .from('test')
@@ -246,22 +444,22 @@ describe('sql where tests', () => {
 
     const [statement, variables] = query.build();
 
-    deepEqual(variables, []);
+    assert.deepEqual(variables, []);
 
-    equal(statement, 'SELECT * FROM "test" WHERE "foo" IS NOT null');
+    assert.equal(statement, 'SELECT * FROM "test" WHERE "foo" IS NOT null');
   });
 
-  it('assert :: where is null (implicit)', async () => {
+  it('assert :: where is null (implicit)', ({ assert }) => {
     const query = sql.select().from('test').where({ foo: null });
 
     const [statement, variables] = query.build();
 
-    deepEqual(variables, []);
+    assert.deepEqual(variables, []);
 
-    equal(statement, 'SELECT * FROM "test" WHERE "foo" IS null');
+    assert.equal(statement, 'SELECT * FROM "test" WHERE "foo" IS null');
   });
 
-  it('assert :: where is null (explicit)', async () => {
+  it('assert :: where is null (explicit)', ({ assert }) => {
     const query = sql
       .select()
       .from('test')
@@ -273,12 +471,12 @@ describe('sql where tests', () => {
 
     const [statement, variables] = query.build();
 
-    deepEqual(variables, []);
+    assert.deepEqual(variables, []);
 
-    equal(statement, 'SELECT * FROM "test" WHERE "foo" IS null');
+    assert.equal(statement, 'SELECT * FROM "test" WHERE "foo" IS null');
   });
 
-  it('assert :: where is not null', async () => {
+  it('assert :: where is not null', ({ assert }) => {
     const query = sql
       .select()
       .from('test')
@@ -290,12 +488,12 @@ describe('sql where tests', () => {
 
     const [statement, variables] = query.build();
 
-    deepEqual(variables, []);
+    assert.deepEqual(variables, []);
 
-    equal(statement, 'SELECT * FROM "test" WHERE "foo" IS NOT null');
+    assert.equal(statement, 'SELECT * FROM "test" WHERE "foo" IS NOT null');
   });
 
-  it('assert :: where starts with', async () => {
+  it('assert :: where starts with', ({ assert }) => {
     const query = sql
       .select()
       .from('test')
@@ -307,12 +505,35 @@ describe('sql where tests', () => {
 
     const [statement, variables] = query.build();
 
-    deepEqual(variables, ['abc']);
+    assert.deepEqual(variables, ['abc']);
 
-    equal(statement, `SELECT * FROM "test" WHERE "foo" LIKE :0 || '%'`);
+    assert.equal(statement, `SELECT * FROM "test" WHERE "foo" LIKE :0 || '%'`);
   });
 
-  it('assert :: where contains', async () => {
+  it('assert :: where starts with (with json value)', ({ assert }) => {
+    const schema = getJsonObject({
+      type: SchemaType.String
+    });
+
+    const query = sql
+      .select(schema)
+      .from('test')
+      .where({
+        foo: {
+          bar: {
+            startsWith: 'abc'
+          }
+        }
+      });
+
+    const [statement, variables] = query.build();
+
+    assert.deepEqual(variables, ['abc']);
+
+    assert.equal(statement, `SELECT * FROM "test" WHERE "foo"['bar']::text LIKE :0 || '%'`);
+  });
+
+  it('assert :: where contains', ({ assert }) => {
     const query = sql
       .select()
       .from('test')
@@ -324,12 +545,35 @@ describe('sql where tests', () => {
 
     const [statement, variables] = query.build();
 
-    deepEqual(variables, ['abc']);
+    assert.deepEqual(variables, ['abc']);
 
-    equal(statement, `SELECT * FROM "test" WHERE "foo" LIKE '%' || :0 || '%'`);
+    assert.equal(statement, `SELECT * FROM "test" WHERE "foo" LIKE '%' || :0 || '%'`);
   });
 
-  it('assert :: where contains with json', async () => {
+  it('assert :: where contains (with json value)', ({ assert }) => {
+    const schema = getJsonObject({
+      type: SchemaType.String
+    });
+
+    const query = sql
+      .select(schema)
+      .from('test')
+      .where({
+        foo: {
+          bar: {
+            contains: 'abc'
+          }
+        }
+      });
+
+    const [statement, variables] = query.build();
+
+    assert.deepEqual(variables, ['abc']);
+
+    assert.equal(statement, `SELECT * FROM "test" WHERE "foo"['bar']::text LIKE '%' || :0 || '%'`);
+  });
+
+  it('assert :: where contains (with json object)', ({ assert }) => {
     const schema: ObjectSchema = {
       type: SchemaType.Object,
       properties: {
@@ -370,12 +614,12 @@ describe('sql where tests', () => {
 
     const [statement, variables] = query.build();
 
-    deepEqual(variables, [['abc'], { abc: 123 }]);
+    assert.deepEqual(variables, [['abc'], { abc: 123 }]);
 
-    equal(statement, `SELECT * FROM "test" WHERE "foo" @> :0 AND "bar" @> :1`);
+    assert.equal(statement, `SELECT * FROM "test" WHERE "foo" @> :0 AND "bar" @> :1`);
   });
 
-  it('assert :: where not', async () => {
+  it('assert :: where not', ({ assert }) => {
     const query = sql
       .select()
       .from('test')
@@ -388,12 +632,12 @@ describe('sql where tests', () => {
 
     const [statement, variables] = query.build();
 
-    deepEqual(variables, [123, 'abc']);
+    assert.deepEqual(variables, [123, 'abc']);
 
-    equal(statement, 'SELECT * FROM "test" WHERE NOT ("foo" = :0 AND "bar" = :1)');
+    assert.equal(statement, 'SELECT * FROM "test" WHERE NOT ("foo" = :0 AND "bar" = :1)');
   });
 
-  it('assert :: where and', async () => {
+  it('assert :: where and', ({ assert }) => {
     const query = sql
       .select()
       .from('test')
@@ -403,12 +647,12 @@ describe('sql where tests', () => {
 
     const [statement, variables] = query.build();
 
-    deepEqual(variables, [123, 'abc', 456, 789]);
+    assert.deepEqual(variables, [123, 'abc', 456, 789]);
 
-    equal(statement, 'SELECT * FROM "test" WHERE ("foo" = :0 AND "bar" = :1 AND ("baz" = :2 OR "qux" = :3))');
+    assert.equal(statement, 'SELECT * FROM "test" WHERE ("foo" = :0 AND "bar" = :1 AND ("baz" = :2 OR "qux" = :3))');
   });
 
-  it('assert :: where or', async () => {
+  it('assert :: where or', ({ assert }) => {
     const query = sql
       .select()
       .from('test')
@@ -418,43 +662,44 @@ describe('sql where tests', () => {
 
     const [statement, variables] = query.build();
 
-    deepEqual(variables, [123, 'abc', 456, 789]);
+    assert.deepEqual(variables, [123, 'abc', 456, 789]);
 
-    equal(statement, 'SELECT * FROM "test" WHERE (("foo" = :0 AND "bar" = :1) OR ("baz" = :2 AND "qux" = :3))');
+    assert.equal(statement, 'SELECT * FROM "test" WHERE (("foo" = :0 AND "bar" = :1) OR ("baz" = :2 AND "qux" = :3))');
   });
 
-  it('assert :: where with alias', async () => {
+  it('assert :: where with alias', ({ assert }) => {
     const query = sql.select().from('test').as('alias').where({
       foo: true
     });
 
     const [statement, variables] = query.build();
 
-    deepEqual(variables, [true]);
+    assert.deepEqual(variables, [true]);
 
-    equal(statement, `SELECT * FROM "test" AS "alias" WHERE "alias"."foo" = :0`);
+    assert.equal(statement, `SELECT * FROM "test" AS "alias" WHERE "alias"."foo" = :0`);
   });
 
-  it('assert :: where with nested fields', async () => {
+  it('assert :: where with nested fields', ({ assert }) => {
     const query = sql
       .select()
       .from('test')
       .where({
         foo: {
           bar: {
-            baz: true
+            baz: true,
+            qux: 'abc'
           }
         }
       });
 
     const [statement, variables] = query.build();
 
-    deepEqual(variables, [true]);
+    assert.deepEqual(variables, [true, 'abc']);
 
-    equal(statement, `SELECT * FROM "test" WHERE "foo"['bar']['baz'] = :0`);
+    assert.equal(statement, `SELECT * FROM "test" WHERE "foo"['bar']['baz'] = :0`);
   });
 
-  it('assert :: where with raw value', async () => {
+  it('assert :: where with raw value', ({ assert }) => {
     const query = sql.select().from('test');
 
     query.where({
@@ -464,12 +709,12 @@ describe('sql where tests', () => {
 
     const [statement, variables] = query.build();
 
-    deepEqual(variables, []);
+    assert.deepEqual(variables, []);
 
-    equal(statement, `SELECT * FROM "test" WHERE "foo" = plain_foo AND "bar" = plain_bar`);
+    assert.equal(statement, `SELECT * FROM "test" WHERE "foo" = plain_foo AND "bar" = plain_bar`);
   });
 
-  it('assert :: where with reference', async () => {
+  it('assert :: where with reference', ({ assert }) => {
     const query = sql.select().from('test');
 
     query.where({
@@ -482,12 +727,12 @@ describe('sql where tests', () => {
 
     const [statement, variables] = query.build();
 
-    deepEqual(variables, []);
+    assert.deepEqual(variables, []);
 
-    equal(statement, `SELECT * FROM "test" WHERE "foo"['bar']['baz'] = "column"`);
+    assert.equal(statement, `SELECT * FROM "test" WHERE "foo"['bar']['baz'] = "column"`);
   });
 
-  it('assert :: where with exists', async () => {
+  it('assert :: where with exists', ({ assert }) => {
     const query = sql.select().from('test').as('alias_test');
 
     query.where({
@@ -502,20 +747,28 @@ describe('sql where tests', () => {
 
     const [statement, variables] = query.build();
 
-    deepEqual(variables, []);
+    assert.deepEqual(variables, []);
 
-    equal(statement, `SELECT * FROM "test" AS "alias_test" ` + `WHERE EXISTS (SELECT 1 FROM "inner" WHERE "foo" = "alias_test"."bar")`);
+    assert.equal(
+      statement,
+      `SELECT * FROM "test" AS "alias_test" ` + `WHERE EXISTS (SELECT 1 FROM "inner" WHERE "foo" = "alias_test"."bar")`
+    );
   });
 
-  it('assert :: where undefined', async () => {
-    const query = sql.select().from('test').where({
-      foo: undefined
-    });
+  it('assert :: where undefined', ({ assert }) => {
+    const query = sql
+      .select()
+      .from('test')
+      .where({
+        foo: {
+          bar: undefined
+        }
+      });
 
     const [statement, variables] = query.build();
 
-    deepEqual(variables, []);
+    assert.deepEqual(variables, []);
 
-    equal(statement, `SELECT * FROM "test"`);
+    assert.equal(statement, `SELECT * FROM "test"`);
   });
 });
