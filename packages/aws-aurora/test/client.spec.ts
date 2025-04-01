@@ -40,7 +40,7 @@ declare class Test extends Database.Service {
   ];
 }
 
-describe.only('aurora client', () => {
+describe('aurora client', () => {
   let lastState: EntryStates | undefined;
   let clusterId: string | undefined;
   let dbClient: DbClient<Test>;

@@ -149,9 +149,14 @@ const preparePostUpdateRelations = async (
   return allRelationQueries;
 };
 
-const getOnlyRelationKeyUpdate = async (schema: ObjectSchema, fieldValue: unknown, fieldRelation: RelationWithSchema, path: string) => {
+const getOnlyRelationKeyUpdate = async (
+  schema: ObjectSchema,
+  fieldValue: unknown,
+  fieldRelation: RelationWithSchema,
+  fieldPath: string
+) => {
   if (!isSingleRelationData(fieldValue)) {
-    throw new InvalidRelationFieldError(path);
+    throw new InvalidRelationFieldError(fieldPath);
   }
 
   const { targetColumn, targetIndex } = fieldRelation;
@@ -164,7 +169,7 @@ const getOnlyRelationKeyUpdate = async (schema: ObjectSchema, fieldValue: unknow
   }
 
   const targetSchema = schema.properties[targetColumn];
-  const targetPath = `${path}.${targetColumn}`;
+  const targetPath = `${fieldPath}.${targetColumn}`;
 
   await validateFirstSchemaLevel(targetValue, targetSchema, targetPath);
 
@@ -180,7 +185,7 @@ const getFullRelationTableUpdate = async (
   source: SqlSourceWithResults,
   fieldValue: AnyObject,
   fieldRelation: RelationWithSchema,
-  path: string
+  fieldPath: string
 ) => {
   const targetColumn = fieldRelation.targetColumn;
   const targetValue = fieldValue[targetColumn];
@@ -191,7 +196,7 @@ const getFullRelationTableUpdate = async (
 
   const { sourceTable, sourceColumn, sourceSchema } = fieldRelation;
 
-  const record = await getUpdateRecord(sql, fieldValue, sourceSchema, relations, path);
+  const record = await getUpdateRecord(sql, fieldValue, sourceSchema, relations, fieldPath);
 
   const relationQuery = sql
     .update(sourceSchema)
@@ -210,7 +215,13 @@ const getFullRelationTableUpdate = async (
   return relationQuery;
 };
 
-const getAtomicOperationUpdate = async (sql: SqlBuilder, fieldKey: string, fieldValue: AnyObject, schema: NumberSchema, path: string) => {
+const getAtomicOperationUpdate = async (
+  sql: SqlBuilder,
+  fieldKey: string,
+  fieldValue: AnyObject,
+  fieldSchema: NumberSchema,
+  fieldPath: string
+) => {
   for (const operation in fieldValue) {
     const value = fieldValue[operation];
 
@@ -218,11 +229,11 @@ const getAtomicOperationUpdate = async (sql: SqlBuilder, fieldKey: string, field
       continue;
     }
 
-    await validateFirstSchemaLevel(value, schema, path);
+    await validateFirstSchemaLevel(value, fieldSchema, fieldPath);
 
     switch (operation) {
       default:
-        throw new InvalidAtomicOperation(`${path}.${fieldKey}`);
+        throw new InvalidAtomicOperation(`${fieldPath}.${fieldKey}`);
 
       case 'increment':
         return sql.rawOperation('+', value);

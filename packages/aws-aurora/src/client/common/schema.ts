@@ -15,14 +15,14 @@ export const validateSchemaWithContext = async (data: unknown, schema: AnySchema
   }
 };
 
-export const validateFirstSchemaLevel = async (data: unknown, schema: AnySchema, path: string) => {
+export const validateFirstSchemaLevel = (data: unknown, schema: AnySchema, path: string) => {
   return validateSchemaWithContext(data, schema, {
     property: path,
     depth: 0
   });
 };
 
-export const validateAllSchemaLevels = async (data: unknown, schema: AnySchema, path: string) => {
+export const validateAllSchemaLevels = (data: unknown, schema: AnySchema, path: string) => {
   return validateSchemaWithContext(data, schema, {
     property: path,
     depth: Infinity
