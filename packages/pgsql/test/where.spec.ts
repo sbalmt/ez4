@@ -66,7 +66,7 @@ describe('sql where tests', () => {
 
     assert.deepEqual(variables, ['abc']);
 
-    assert.equal(statement, `SELECT * FROM "test" WHERE "foo"['bar']::text = :0`);
+    assert.equal(statement, `SELECT * FROM "test" WHERE trim('"' from "foo"['bar']::text) = :0`);
   });
 
   it('assert :: where equal (explicit)', ({ assert }) => {
@@ -146,7 +146,7 @@ describe('sql where tests', () => {
 
     assert.deepEqual(variables, ['abc']);
 
-    assert.equal(statement, `SELECT * FROM "test" WHERE "foo"['bar']::text != :0`);
+    assert.equal(statement, `SELECT * FROM "test" WHERE trim('"' from "foo"['bar']::text) != :0`);
   });
 
   it('assert :: where greater than', ({ assert }) => {
@@ -551,7 +551,7 @@ describe('sql where tests', () => {
 
     assert.deepEqual(variables, ['abc']);
 
-    assert.equal(statement, `SELECT * FROM "test" WHERE "foo"['bar']::text LIKE :0 || '%'`);
+    assert.equal(statement, `SELECT * FROM "test" WHERE trim('"' from "foo"['bar']::text) LIKE :0 || '%'`);
   });
 
   it('assert :: where contains', ({ assert }) => {
@@ -591,7 +591,7 @@ describe('sql where tests', () => {
 
     assert.deepEqual(variables, ['abc']);
 
-    assert.equal(statement, `SELECT * FROM "test" WHERE "foo"['bar']::text LIKE '%' || :0 || '%'`);
+    assert.equal(statement, `SELECT * FROM "test" WHERE trim('"' from "foo"['bar']::text) LIKE '%' || :0 || '%'`);
   });
 
   it('assert :: where contains (with json object)', ({ assert }) => {

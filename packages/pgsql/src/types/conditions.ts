@@ -394,7 +394,7 @@ const getOperandColumn = (schema: AnySchema | undefined, column: string, context
 
     case SchemaType.Enum:
     case SchemaType.String:
-      return `${column}::text`;
+      return `trim('"' from ${column}::text)`;
 
     case SchemaType.Number: {
       if (schema.format === 'decimal') {
