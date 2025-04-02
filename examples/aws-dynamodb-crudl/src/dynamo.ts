@@ -1,4 +1,4 @@
-import type { Database, Index, Client } from '@ez4/database';
+import type { Database, Index, Client, TransactionType } from '@ez4/database';
 import type { ItemSchema } from './schemas/item.js';
 
 /**
@@ -13,7 +13,10 @@ export declare class Db extends Database.Service {
   /**
    * Database engine.
    */
-  engine: 'dynamodb';
+  engine: {
+    transaction: TransactionType.Static;
+    name: 'dynamodb';
+  };
 
   /**
    * Database tables.

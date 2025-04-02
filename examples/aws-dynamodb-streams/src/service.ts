@@ -1,4 +1,4 @@
-import type { Database, Index } from '@ez4/database';
+import type { Database, Index, TransactionType } from '@ez4/database';
 import type { streamHandler } from './stream.js';
 import type { streamListener } from './common.js';
 import type { ExampleSchema } from './schema.js';
@@ -7,7 +7,10 @@ import type { ExampleSchema } from './schema.js';
  * Example of AWS DynamoDB with Stream deployed with EZ4.
  */
 export declare class Db extends Database.Service {
-  engine: 'dynamodb';
+  engine: {
+    transaction: TransactionType.Static;
+    name: 'dynamodb';
+  };
 
   tables: [
     {

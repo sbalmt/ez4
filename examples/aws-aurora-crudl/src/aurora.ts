@@ -1,4 +1,4 @@
-import type { Database, Index, Client } from '@ez4/database';
+import type { Database, Index, Client, TransactionType } from '@ez4/database';
 import type { CategorySchema } from './schemas/category.js';
 import type { ItemSchema } from './schemas/item.js';
 
@@ -14,7 +14,10 @@ export declare class Db extends Database.Service {
   /**
    * Database engine.
    */
-  engine: 'aurora';
+  engine: {
+    transaction: TransactionType.Interactive;
+    name: 'aurora';
+  };
 
   /**
    * Database tables.
