@@ -218,9 +218,9 @@ describe('aurora query (where)', () => {
       baz: { contains: 'def' }
     });
 
-    equal(whereClause, `WHERE "bar"['barFoo'] LIKE '%' || :0 || '%' AND "baz" LIKE '%' || :1 || '%'`);
+    equal(whereClause, `WHERE trim('"' from "bar"['barFoo']::text) LIKE '%' || :0 || '%' AND "baz" LIKE '%' || :1 || '%'`);
 
-    deepEqual(variables, [makeParameter('0', '"abc"', 'JSON'), makeParameter('1', 'def')]);
+    deepEqual(variables, [makeParameter('0', 'abc'), makeParameter('1', 'def')]);
   });
 
   it('assert :: prepare where (starts with)', () => {
@@ -229,9 +229,9 @@ describe('aurora query (where)', () => {
       baz: { startsWith: 'def' }
     });
 
-    equal(whereClause, `WHERE "bar"['barFoo'] LIKE :0 || '%' AND "baz" LIKE :1 || '%'`);
+    equal(whereClause, `WHERE trim('"' from "bar"['barFoo']::text) LIKE :0 || '%' AND "baz" LIKE :1 || '%'`);
 
-    deepEqual(variables, [makeParameter('0', '"abc"', 'JSON'), makeParameter('1', 'def')]);
+    deepEqual(variables, [makeParameter('0', 'abc'), makeParameter('1', 'def')]);
   });
 
   it('assert :: prepare where (not)', () => {
