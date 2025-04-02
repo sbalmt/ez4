@@ -12,14 +12,16 @@
       "type": "string",
       "description": "String with minimum length.",
       "definitions": {
-        "minLength": 1
+        "minLength": 1,
+        "trim": true
       }
     },
     "max": {
       "type": "string",
       "description": "String with maximum length.",
       "definitions": {
-        "maxLength": 80
+        "maxLength": 80,
+        "trim": true
       }
     },
     "size": {
@@ -27,10 +29,11 @@
       "description": "String with minimum and maximum length.",
       "definitions": {
         "minLength": 1,
-        "maxLength": 80
+        "maxLength": 80,
+        "trim": true
       }
     },
-    "value": {
+    "default": {
       "type": "string",
       "description": "Default string value.",
       "definitions": {

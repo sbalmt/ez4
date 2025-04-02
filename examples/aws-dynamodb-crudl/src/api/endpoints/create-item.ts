@@ -39,10 +39,7 @@ export declare class CreateItemResponse implements Http.Response {
 /**
  * Handle item create requests.
  */
-export async function createItemHandler(
-  request: CreateItemRequest,
-  context: Service.Context<Api>
-): Promise<CreateItemResponse> {
+export async function createItemHandler(request: CreateItemRequest, context: Service.Context<Api>): Promise<CreateItemResponse> {
   const { name, description, type } = request.body;
   const { dynamoDb } = context;
 

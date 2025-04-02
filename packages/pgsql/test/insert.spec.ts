@@ -10,11 +10,12 @@ describe('sql insert tests', () => {
     sql = new SqlBuilder();
   });
 
-  it('assert :: insert with initial record', async () => {
+  it('assert :: insert with record', async () => {
     const query = sql.insert().into('table').record({
       foo: 123,
       bar: true,
-      baz: 'abc'
+      baz: 'abc',
+      qux: undefined
     });
 
     deepEqual(query.fields, ['foo', 'bar', 'baz']);
@@ -23,23 +24,6 @@ describe('sql insert tests', () => {
     const [statement, variables] = query.build();
 
     deepEqual(variables, [123, true, 'abc']);
-
-    equal(statement, 'INSERT INTO "table" ("foo", "bar", "baz") VALUES (:0, :1, :2)');
-  });
-
-  it('assert :: insert with defined record', async () => {
-    const query = sql.insert().into('table').record({
-      foo: 'abc',
-      bar: 123,
-      baz: false
-    });
-
-    deepEqual(query.fields, ['foo', 'bar', 'baz']);
-    deepEqual(query.values, ['abc', 123, false]);
-
-    const [statement, variables] = query.build();
-
-    deepEqual(variables, ['abc', 123, false]);
 
     equal(statement, 'INSERT INTO "table" ("foo", "bar", "baz") VALUES (:0, :1, :2)');
   });
@@ -59,10 +43,7 @@ describe('sql insert tests', () => {
 
     deepEqual(variables, [123]);
 
-    equal(
-      statement,
-      'INSERT INTO "table1" ("foo", "bar") VALUES (:0, (SELECT "baz" FROM "table2"))'
-    );
+    equal(statement, 'INSERT INTO "table1" ("foo", "bar") VALUES (:0, (SELECT "baz" FROM "table2"))');
   });
 
   it('assert :: insert with raw record value', async () => {
@@ -77,7 +58,7 @@ describe('sql insert tests', () => {
       .into('table')
       .record({
         foo: 123,
-        bar: sql.raw(value)
+        bar: sql.rawValue(value)
       });
 
     const [statement, variables] = query.build();
@@ -114,9 +95,6 @@ describe('sql insert tests', () => {
 
     deepEqual(variables, []);
 
-    equal(
-      statement,
-      'INSERT INTO "table" AS "alias" DEFAULT VALUES RETURNING "alias"."foo", "alias"."bar"'
-    );
+    equal(statement, 'INSERT INTO "table" AS "alias" DEFAULT VALUES RETURNING "alias"."foo", "alias"."bar"');
   });
 });

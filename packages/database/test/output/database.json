@@ -3,7 +3,10 @@
     "type": "@ez4/database",
     "name": "TestDatabase1",
     "extras": {},
-    "engine": "test",
+    "engine": {
+      "transaction": "static",
+      "name": "test"
+    },
     "tables": [],
     "services": {
       "testQueue": "TestDatabase2"
@@ -13,7 +16,10 @@
     "type": "@ez4/database",
     "name": "TestDatabase2",
     "extras": {},
-    "engine": "test",
+    "engine": {
+      "transaction": "static",
+      "name": "test"
+    },
     "tables": [],
     "variables": {
       "TEST_VAR1": "test-literal-value",

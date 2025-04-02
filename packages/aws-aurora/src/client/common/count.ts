@@ -19,7 +19,7 @@ export const prepareCountQuery = <T extends Database.Schema, R extends RelationM
   selectQuery.rawColumn('COUNT(1) AS "count"');
 
   if (query.where) {
-    const selectFilters = getSelectFilters(query.where, relations, selectQuery, sql);
+    const selectFilters = getSelectFilters(sql, query.where, relations, selectQuery);
 
     selectQuery.where(selectFilters);
   }

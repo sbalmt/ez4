@@ -1,19 +1,22 @@
-import type { SqlSourceWithResults, SqlRecord, SqlBuilder } from '@ez4/pgsql';
+import type { SqlSourceWithResults, SqlRecord, SqlBuilder, SqlSelectStatement, SqlUpdateStatement } from '@ez4/pgsql';
 import type { Database, RelationMetadata, Query } from '@ez4/database';
 import type { SqlParameter } from '@aws-sdk/client-rds-data';
-import type { ObjectSchema } from '@ez4/schema';
-import type { RepositoryRelationsWithSchema } from '../../types/repository.js';
+import type { NumberSchema, ObjectSchema } from '@ez4/schema';
+import type { AnyObject } from '@ez4/utils';
+import type { RelationWithSchema, RepositoryRelationsWithSchema } from '../../types/repository.js';
 
+import { isDynamicObjectSchema, IsNullishSchema, isNumberSchema, isObjectSchema } from '@ez4/schema';
 import { isAnyObject, isEmptyObject } from '@ez4/utils';
-import { isObjectSchema } from '@ez4/schema';
 import { Index } from '@ez4/database';
 
-import { InvalidRelationFieldError } from './errors.js';
-import { createQueryBuilder } from './builder.js';
+import { InvalidAtomicOperation, InvalidRelationFieldError } from './errors.js';
 import { getSelectFields, getSelectFilters } from './select.js';
+import { validateFirstSchemaLevel } from './schema.js';
+import { isSingleRelationData } from './relation.js';
+import { createQueryBuilder } from './builder.js';
 import { isSkippableData } from './data.js';
 
-export const prepareUpdateQuery = <
+export const prepareUpdateQuery = async <
   T extends Database.Schema,
   S extends Query.SelectInput<T, R>,
   I extends Database.Indexes,
@@ -23,44 +26,48 @@ export const prepareUpdateQuery = <
   schema: ObjectSchema,
   relations: RepositoryRelationsWithSchema,
   query: Query.UpdateOneInput<T, S, I, R> | Query.UpdateManyInput<T, S, R>
-): [string, SqlParameter[]] => {
+): Promise<[string, SqlParameter[]]> => {
   const sql = createQueryBuilder();
 
-  const updateRecord = getUpdateRecord(query.data, schema, relations, sql);
+  const updateRecord = await getUpdateRecord(sql, query.data, schema, relations, table);
 
   const updateQuery = !isEmptyObject(updateRecord)
     ? sql.update(schema).only(table).record(updateRecord).returning()
     : sql.select(schema).from(table);
 
+  const postUpdateQueries = await preparePostUpdateRelations(sql, query.data, relations, updateQuery, table);
+
+  const allQueries: (SqlSelectStatement | SqlUpdateStatement)[] = [updateQuery, ...postUpdateQueries];
+
   if (query.where) {
-    updateQuery.where(getSelectFilters(query.where, relations, updateQuery, sql));
+    updateQuery.where(getSelectFilters(sql, query.where, relations, updateQuery));
   }
 
   if (query.select) {
-    const selectRecord = getSelectFields(
-      query.select,
-      query.include,
-      schema,
-      relations,
-      updateQuery,
-      sql
-    );
+    if (!postUpdateQueries.length) {
+      const selectRecord = getSelectFields(sql, query.select, query.include, schema, relations, updateQuery, table);
 
-    updateQuery.results.record(selectRecord);
+      updateQuery.results.record(selectRecord);
+    } else {
+      const selectQuery = sql.select(schema).from(table);
+      const selectFields = getSelectFields(sql, query.select, query.include, schema, relations, updateQuery, table);
+
+      selectQuery.record(selectFields);
+      allQueries.push(selectQuery);
+    }
   }
 
-  const queries = [updateQuery, ...preparePostRelations(query.data, relations, updateQuery, sql)];
-
-  const [statement, variables] = sql.with(queries, 'R').build();
+  const [statement, variables] = sql.with(allQueries, 'R').build();
 
   return [statement, variables as SqlParameter[]];
 };
 
-const getUpdateRecord = (
+const getUpdateRecord = async (
+  sql: SqlBuilder,
   data: SqlRecord,
   schema: ObjectSchema,
   relations: RepositoryRelationsWithSchema,
-  sql: SqlBuilder
+  path: string
 ) => {
   const record: SqlRecord = {};
 
@@ -71,93 +78,176 @@ const getUpdateRecord = (
       continue;
     }
 
-    const relationData = relations[fieldKey];
+    const fieldRelation = relations[fieldKey];
+    const fieldPath = `${path}.${fieldKey}`;
 
-    if (relationData) {
-      if (!isAnyObject(fieldValue)) {
-        throw new InvalidRelationFieldError(fieldKey);
+    if (fieldRelation) {
+      const relationUpdate = await getOnlyRelationKeyUpdate(schema, fieldValue, fieldRelation, fieldPath);
+
+      if (relationUpdate) {
+        record[relationUpdate.targetColumn] = relationUpdate.targetValue;
       }
-
-      const { targetColumn, targetIndex } = relationData;
-
-      const targetValue = fieldValue[targetColumn];
-
-      if (!isSkippableData(targetValue) && targetIndex !== Index.Primary) {
-        record[targetColumn] = targetValue;
-      }
-
-      continue;
-    }
-
-    if (!isAnyObject(fieldValue)) {
-      record[fieldKey] = fieldValue;
 
       continue;
     }
 
     const fieldSchema = schema.properties[fieldKey];
 
-    const fieldOverwrite =
-      !isObjectSchema(fieldSchema) ||
-      fieldSchema.definitions?.extensible ||
-      fieldSchema.additional ||
-      fieldSchema.nullable ||
-      fieldSchema.optional;
+    if (!isAnyObject(fieldValue)) {
+      await validateFirstSchemaLevel(fieldValue, fieldSchema, fieldPath);
 
-    if (!fieldOverwrite) {
-      record[fieldKey] = getUpdateRecord(fieldValue, fieldSchema, relations, sql);
-    } else {
-      record[fieldKey] = sql.raw(fieldValue);
+      record[fieldKey] = fieldValue;
+      continue;
     }
+
+    if (isNumberSchema(fieldSchema)) {
+      record[fieldKey] = await getAtomicOperationUpdate(sql, fieldKey, fieldValue, fieldSchema, fieldPath);
+      continue;
+    }
+
+    if (isObjectSchema(fieldSchema) && !isDynamicObjectSchema(fieldSchema) && !IsNullishSchema(fieldSchema)) {
+      record[fieldKey] = await getUpdateRecord(sql, fieldValue, fieldSchema, relations, fieldPath);
+      continue;
+    }
+
+    record[fieldKey] = sql.rawValue(fieldValue);
   }
 
   return record;
 };
 
-const preparePostRelations = (
+const preparePostUpdateRelations = async (
+  sql: SqlBuilder,
   data: SqlRecord,
   relations: RepositoryRelationsWithSchema,
   source: SqlSourceWithResults,
-  sql: SqlBuilder
+  path: string
 ) => {
-  const { results } = source;
+  const allRelationQueries = [];
 
-  const allQueries = [];
+  for (const relationAlias in relations) {
+    const fieldRelation = relations[relationAlias];
+    const fieldValue = data[relationAlias];
 
-  for (const alias in relations) {
-    const relationData = relations[alias];
-    const fieldValue = data[alias];
-
-    if (!relationData || isSkippableData(fieldValue)) {
+    if (isSkippableData(fieldValue)) {
       continue;
     }
 
-    if (!isAnyObject(fieldValue) || Array.isArray(fieldValue)) {
-      throw new InvalidRelationFieldError(alias);
+    const fieldPath = `${path}.${relationAlias}`;
+
+    if (!isSingleRelationData(fieldValue)) {
+      throw new InvalidRelationFieldError(fieldPath);
     }
 
-    const { sourceTable, sourceColumn, sourceSchema, targetColumn } = relationData;
+    const relationUpdate = await getFullRelationTableUpdate(sql, relations, source, fieldValue, fieldRelation, fieldPath);
 
-    if (fieldValue[targetColumn]) {
-      continue;
-    }
-
-    const relationQuery = sql
-      .update(sourceSchema)
-      .record(getUpdateRecord(fieldValue, sourceSchema, relations, sql))
-      .only(sourceTable)
-      .from(source)
-      .as('T')
-      .where({
-        [sourceColumn]: source.reference(targetColumn)
-      });
-
-    allQueries.push(relationQuery);
-
-    if (!results.has(targetColumn)) {
-      results.column(targetColumn);
+    if (relationUpdate) {
+      allRelationQueries.push(relationUpdate);
     }
   }
 
-  return allQueries;
+  return allRelationQueries;
+};
+
+const getOnlyRelationKeyUpdate = async (
+  schema: ObjectSchema,
+  fieldValue: unknown,
+  fieldRelation: RelationWithSchema,
+  fieldPath: string
+) => {
+  if (!isSingleRelationData(fieldValue)) {
+    throw new InvalidRelationFieldError(fieldPath);
+  }
+
+  const { targetColumn, targetIndex } = fieldRelation;
+
+  const isForeignKey = targetIndex !== Index.Primary;
+  const targetValue = fieldValue[targetColumn];
+
+  if (!isForeignKey || isSkippableData(targetValue)) {
+    return undefined;
+  }
+
+  const targetSchema = schema.properties[targetColumn];
+  const targetPath = `${fieldPath}.${targetColumn}`;
+
+  await validateFirstSchemaLevel(targetValue, targetSchema, targetPath);
+
+  return {
+    targetColumn,
+    targetValue
+  };
+};
+
+const getFullRelationTableUpdate = async (
+  sql: SqlBuilder,
+  relations: RepositoryRelationsWithSchema,
+  source: SqlSourceWithResults,
+  fieldValue: AnyObject,
+  fieldRelation: RelationWithSchema,
+  fieldPath: string
+) => {
+  const targetColumn = fieldRelation.targetColumn;
+  const targetValue = fieldValue[targetColumn];
+
+  if (!isSkippableData(targetValue) || isEmptyObject(fieldValue)) {
+    return undefined;
+  }
+
+  const { sourceTable, sourceColumn, sourceSchema } = fieldRelation;
+
+  const record = await getUpdateRecord(sql, fieldValue, sourceSchema, relations, fieldPath);
+
+  const relationQuery = sql
+    .update(sourceSchema)
+    .only(sourceTable)
+    .record(record)
+    .from(source)
+    .where({ [sourceColumn]: source.reference(targetColumn) })
+    .as('T');
+
+  const { results } = source;
+
+  if (!results.has(targetColumn)) {
+    results.column(targetColumn);
+  }
+
+  return relationQuery;
+};
+
+const getAtomicOperationUpdate = async (
+  sql: SqlBuilder,
+  fieldKey: string,
+  fieldValue: AnyObject,
+  fieldSchema: NumberSchema,
+  fieldPath: string
+) => {
+  for (const operation in fieldValue) {
+    const value = fieldValue[operation];
+
+    if (value === undefined || value === null) {
+      continue;
+    }
+
+    await validateFirstSchemaLevel(value, fieldSchema, fieldPath);
+
+    switch (operation) {
+      default:
+        throw new InvalidAtomicOperation(`${fieldPath}.${fieldKey}`);
+
+      case 'increment':
+        return sql.rawOperation('+', value);
+
+      case 'decrement':
+        return sql.rawOperation('-', value);
+
+      case 'multiply':
+        return sql.rawOperation('*', value);
+
+      case 'divide':
+        return sql.rawOperation('/', value);
+    }
+  }
+
+  return undefined;
 };

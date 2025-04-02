@@ -6,11 +6,8 @@ import type { ArraySchema } from './type-array.js';
 import type { TupleSchema } from './type-tuple.js';
 import type { EnumSchema } from './type-enum.js';
 
-export type AnySchema =
-  | ScalarSchema
-  | ObjectSchema
-  | ReferenceSchema
-  | UnionSchema
-  | ArraySchema
-  | TupleSchema
-  | EnumSchema;
+export type AnySchema = ScalarSchema | ObjectSchema | ReferenceSchema | UnionSchema | ArraySchema | TupleSchema | EnumSchema;
+
+export const IsNullishSchema = (schema: AnySchema) => {
+  return schema.nullable || schema.optional
+};

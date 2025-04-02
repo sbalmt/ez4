@@ -3,7 +3,10 @@
     "type": "@ez4/database",
     "name": "TestDatabase",
     "extras": {},
-    "engine": "test",
+    "engine": {
+      "transaction": "static",
+      "name": "test"
+    },
     "tables": [
       {
         "name": "parentTestTable",

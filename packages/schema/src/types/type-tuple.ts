@@ -10,12 +10,12 @@ export type TupleSchemaDefinitions = SchemaDefinitions & {
 export type TupleSchema = {
   type: SchemaType.Tuple;
   definitions?: TupleSchemaDefinitions;
-  elements: AnySchema[];
   description?: string;
+  elements: AnySchema[];
   optional?: boolean;
   nullable?: boolean;
 };
 
-export const isTupleSchema = (value: AnySchema): value is TupleSchema => {
-  return value.type === SchemaType.Tuple;
+export const isTupleSchema = (schema: AnySchema): schema is TupleSchema => {
+  return schema.type === SchemaType.Tuple;
 };

@@ -73,11 +73,7 @@ describe('type validation errors', () => {
     await assertError(undefined, schema, [ExpectedObjectTypeError]);
     await assertError({ foo: 123, bar: 'abc' }, schema, [UnexpectedPropertiesError]);
     await assertError({ bar: 'abc' }, schema, [ExpectedNumberTypeError, UnexpectedPropertiesError]);
-
-    await assertError({ foo: 123, qux: 456 }, schema, [
-      ExpectedStringTypeError,
-      UnexpectedPropertiesError
-    ]);
+    await assertError({ foo: 123, qux: 456 }, schema, [ExpectedStringTypeError, UnexpectedPropertiesError]);
   });
 
   it('assert :: union errors', async () => {
@@ -129,11 +125,7 @@ describe('type validation errors', () => {
 
     await assertError(null, schema, [ExpectedArrayTypeError]);
     await assertError(undefined, schema, [ExpectedArrayTypeError]);
-
-    await assertError(['abc', 123, true], schema, [
-      ExpectedStringTypeError,
-      ExpectedStringTypeError
-    ]);
+    await assertError(['abc', 123, true], schema, [ExpectedStringTypeError, ExpectedStringTypeError]);
   });
 
   it('assert :: tuple errors', async () => {

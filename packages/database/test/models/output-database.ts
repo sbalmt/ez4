@@ -1,11 +1,14 @@
+import type { Database, TransactionType } from '@ez4/database';
 import type { Environment } from '@ez4/common';
-import type { Database } from '@ez4/database';
 
 /**
  * Test database 1.
  */
 export declare class TestDatabase1 extends Database.Service {
-  engine: 'test';
+  engine: {
+    transaction: TransactionType.Static;
+    name: 'test';
+  };
 
   tables: [];
 
@@ -19,7 +22,10 @@ export declare class TestDatabase1 extends Database.Service {
  * Test database 2.
  */
 export declare class TestDatabase2 extends Database.Service {
-  engine: 'test';
+  engine: {
+    transaction: TransactionType.Static;
+    name: 'test';
+  };
 
   tables: [];
 

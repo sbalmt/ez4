@@ -1,4 +1,4 @@
-import type { Client, Database, Index, StreamChange } from '@ez4/database';
+import type { Client, Database, Index, TransactionType } from '@ez4/database';
 import type { Environment, Service } from '@ez4/common';
 
 declare class TestTable implements Database.Schema {
@@ -7,7 +7,10 @@ declare class TestTable implements Database.Schema {
 }
 
 export declare class TestDatabase extends Database.Service {
-  engine: 'test';
+  engine: {
+    transaction: TransactionType.Static;
+    name: 'test';
+  };
 
   client: Client<TestDatabase>;
 
@@ -19,9 +22,6 @@ export declare class TestDatabase extends Database.Service {
         id: Index.Primary;
         value: Index.Unique;
       };
-      stream: {
-        handler: typeof testHandler;
-      };
     }
   ];
 
@@ -30,10 +30,7 @@ export declare class TestDatabase extends Database.Service {
   };
 }
 
-export async function testHandler(
-  _change: StreamChange<TestTable>,
-  { selfClient }: Service.Context<TestDatabase>
-) {
+export async function testHandler({ selfClient }: Service.Context<TestDatabase>) {
   testSelect(selfClient);
   testUpdate(selfClient);
   testUpsert(selfClient);
@@ -41,7 +38,7 @@ export async function testHandler(
 }
 
 const testSelect = (client: TestDatabase['client']) => {
-  client.table.findOne({
+  return client.table.findOne({
     select: {},
     where: {
       value: 123
@@ -50,7 +47,7 @@ const testSelect = (client: TestDatabase['client']) => {
 };
 
 const testUpdate = (client: TestDatabase['client']) => {
-  client.table.updateOne({
+  return client.table.updateOne({
     data: {
       value: 456
     },
@@ -61,7 +58,7 @@ const testUpdate = (client: TestDatabase['client']) => {
 };
 
 const testUpsert = (client: TestDatabase['client']) => {
-  client.table.upsertOne({
+  return client.table.upsertOne({
     insert: {
       id: 'foo',
       value: 456
@@ -76,7 +73,7 @@ const testUpsert = (client: TestDatabase['client']) => {
 };
 
 const testDelete = (client: TestDatabase['client']) => {
-  client.table.deleteOne({
+  return client.table.deleteOne({
     where: {
       value: 123
     }

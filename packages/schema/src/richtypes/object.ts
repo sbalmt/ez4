@@ -1,11 +1,18 @@
+import type { AnyObject } from '@ez4/utils';
+
 export namespace Object {
   /**
    * Any object value.
    */
-  export type Any = Record<string, unknown>;
+  export type Any = AnyObject;
+
+  /**
+   * Any object extending the object value.
+   */
+  export type Extends<Type extends AnyObject> = Type;
 
   /**
    * Object with default value.
    */
-  export type Default<Type extends Record<string, unknown>, _Value extends Type> = Type;
+  export type Default<Type extends AnyObject, _Value extends Type> = Type;
 }

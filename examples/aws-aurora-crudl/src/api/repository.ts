@@ -16,24 +16,29 @@ export type CreateItemInput = {
 };
 
 export const createItem = async (client: DbClient, input: CreateItemInput) => {
-  const id = randomUUID();
-
   const now = new Date().toISOString();
 
-  const { name, description, category } = input;
-
-  await client.items.insertOne({
+  const { id: itemId, category } = await client.items.insertOne({
+    select: {
+      id: true,
+      category: {
+        id: true
+      }
+    },
     data: {
-      id,
-      name,
-      description,
-      category,
+      id: randomUUID(),
+      name: input.name,
+      description: input.description,
+      category: input.category,
       created_at: now,
       updated_at: now
     }
   });
 
-  return id;
+  return {
+    itemId,
+    categoryId: category?.id
+  };
 };
 
 export const readItem = async (client: DbClient, id: string) => {
@@ -91,23 +96,21 @@ export const deleteItem = async (client: DbClient, id: string) => {
 export const listItems = async (client: DbClient, page: number, limit: number) => {
   const cursor = (page - 1) * limit;
 
-  const [total, { records: items }] = await Promise.all([
-    client.items.count({}),
-    client.items.findMany({
-      select: {
-        id: true,
-        name: true,
-        category: {
-          name: true
-        }
-      },
-      order: {
-        created_at: Order.Desc
-      },
-      cursor,
-      limit
-    })
-  ]);
+  const { records: items, total } = await client.items.findMany({
+    count: true,
+    select: {
+      id: true,
+      name: true,
+      category: {
+        name: true
+      }
+    },
+    order: {
+      created_at: Order.Desc
+    },
+    cursor,
+    limit
+  });
 
   return {
     items,

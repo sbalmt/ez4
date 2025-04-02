@@ -9,6 +9,6 @@ export type ReferenceSchema = {
   nullable?: boolean;
 };
 
-export const isReferenceSchema = (value: AnySchema): value is ReferenceSchema => {
-  return value.type === SchemaType.Reference;
+export const isReferenceSchema = (schema: AnySchema): schema is ReferenceSchema => {
+  return schema.type === SchemaType.Reference;
 };

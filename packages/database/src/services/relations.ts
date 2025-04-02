@@ -1,15 +1,7 @@
+import type { AnyObject, ArrayRest, PropertyType, ExclusiveType, IsArrayEmpty, IsUndefined } from '@ez4/utils';
 import type { IndexedTables, PrimaryIndexes, UniqueIndexes } from './indexes.js';
 import type { Database, DatabaseTables } from './database.js';
 import type { TableSchemas } from './schemas.js';
-
-import type {
-  AnyObject,
-  ArrayRest,
-  PropertyType,
-  ExclusiveType,
-  IsArrayEmpty,
-  IsUndefined
-} from '@ez4/utils';
 
 /**
  * Internal relation type.
@@ -44,33 +36,22 @@ export type RelationTargetAlias<T> = T extends `${string}@${infer U}` ? U : neve
 /**
  * Given a database service `T`, it produces an object with all relation tables.
  */
-export type RelationTables<T extends Database.Service> = MergeRelations<
-  DatabaseTables<T>,
-  TableSchemas<T>,
-  IndexedTables<T>
->;
+export type RelationTables<T extends Database.Service> = MergeRelations<DatabaseTables<T>, TableSchemas<T>, IndexedTables<T>>;
 
 /**
  * Given a list of tables with relations `T`, it produces an object containing all the
  * relation tables.
  */
-type MergeRelations<
-  T extends Database.Table[],
-  S extends Record<string, Database.Schema>,
-  I extends Record<string, Database.Indexes>
-> =
-  IsArrayEmpty<T> extends false
-    ? TableRelation<T[0], S, I> & MergeRelations<ArrayRest<T>, S, I>
-    : {};
+type MergeRelations<T extends Database.Table[], S extends Record<string, Database.Schema>, I extends Record<string, Database.Indexes>> =
+  IsArrayEmpty<T> extends false ? TableRelation<T[0], S, I> & MergeRelations<ArrayRest<T>, S, I> : {};
 
 /**
  * Given a database table `T`, it produces an object containing all its relations.
  */
-type TableRelation<
-  T,
-  S extends Record<string, Database.Schema>,
-  I extends Record<string, Database.Indexes>
-> = T extends { name: infer N; relations: infer R }
+type TableRelation<T, S extends Record<string, Database.Schema>, I extends Record<string, Database.Indexes>> = T extends {
+  name: infer N;
+  relations: infer R;
+}
   ? N extends string
     ? R extends AnyObject
       ? {
@@ -90,14 +71,8 @@ type TableRelation<
 /**
  * Produce an object containing all required relation indexes.
  */
-type RequiredRelationIndexes<
-  T extends Database.Schema,
-  I extends Record<string, Database.Indexes>,
-  R extends AnyObject
-> = keyof {
-  [C in keyof R as IsOptionalRelation<C, R[C], T, I, true> extends true
-    ? never
-    : RelationTargetColumn<R[C]>]: never;
+type RequiredRelationIndexes<T extends Database.Schema, I extends Record<string, Database.Indexes>, R extends AnyObject> = keyof {
+  [C in keyof R as IsOptionalRelation<R[C], C, T, I, true> extends true ? never : RelationTargetColumn<C>]: never;
 };
 
 /**
@@ -108,9 +83,9 @@ type FilterableRelationSchemas<
   I extends Record<string, Database.Indexes>,
   R extends AnyObject
 > = {
-  [C in keyof R as RelationTargetAlias<R[C]>]: IsPrimaryIndex<C, I> extends false
-    ? Omit<PropertyType<RelationSourceTable<C>, S>, RelationSourceColumn<C>>
-    : PropertyType<RelationSourceTable<C>, S>;
+  [C in keyof R as RelationTargetAlias<C>]: IsPrimaryIndex<R[C], I> extends false
+    ? Omit<PropertyType<RelationSourceTable<R[C]>, S>, RelationSourceColumn<R[C]>>
+    : PropertyType<RelationSourceTable<R[C]>, S>;
 };
 
 /**
@@ -123,9 +98,14 @@ type RequiredRelationSchemas<
   R extends AnyObject,
   E extends boolean
 > = {
-  [C in keyof R as IsOptionalRelation<C, R[C], T, I, E> extends false
-    ? RelationTargetAlias<R[C]>
-    : never]: RelationSchema<C, R[C], T, S, I, E>;
+  [C in keyof R as IsOptionalRelation<R[C], C, T, I, E> extends false ? RelationTargetAlias<C> : never]: RelationSchema<
+    R[C],
+    C,
+    T,
+    S,
+    I,
+    E
+  >;
 };
 
 /**
@@ -138,21 +118,20 @@ type OptionalRelationSchemas<
   R extends AnyObject,
   E extends boolean
 > = {
-  [C in keyof R as IsOptionalRelation<C, R[C], T, I, E> extends true
-    ? RelationTargetAlias<R[C]>
-    : never]?: RelationSchema<C, R[C], T, S, I, E>;
+  [C in keyof R as IsOptionalRelation<R[C], C, T, I, E> extends true ? RelationTargetAlias<C> : never]?: RelationSchema<
+    R[C],
+    C,
+    T,
+    S,
+    I,
+    E
+  >;
 };
 
 /**
  * Check whether a relation is optional or not.
  */
-type IsOptionalRelation<
-  C,
-  V,
-  T extends Database.Schema,
-  I extends Record<string, Database.Indexes>,
-  E extends boolean
-> =
+type IsOptionalRelation<C, V, T extends Database.Schema, I extends Record<string, Database.Indexes>, E extends boolean> =
   RelationSourceColumn<C> extends keyof PrimaryIndexes<PropertyType<RelationSourceTable<C>, I>>
     ? IsUndefined<PropertyType<RelationTargetColumn<V>, T>> extends true
       ? true
@@ -165,17 +144,13 @@ type IsOptionalRelation<
  * Check whether a column is primary.
  */
 type IsPrimaryIndex<C, I extends Record<string, Database.Indexes>> =
-  RelationSourceColumn<C> extends keyof PrimaryIndexes<PropertyType<RelationSourceTable<C>, I>>
-    ? true
-    : false;
+  RelationSourceColumn<C> extends keyof PrimaryIndexes<PropertyType<RelationSourceTable<C>, I>> ? true : false;
 
 /**
  * Check whether a column is unique.
  */
 type IsUniqueIndex<C, I extends Record<string, Database.Indexes>> =
-  RelationSourceColumn<C> extends keyof UniqueIndexes<PropertyType<RelationSourceTable<C>, I>>
-    ? true
-    : false;
+  RelationSourceColumn<C> extends keyof UniqueIndexes<PropertyType<RelationSourceTable<C>, I>> ? true : false;
 
 /**
  * Produce a relation schema according to its indexation.
@@ -191,10 +166,7 @@ type RelationSchema<
   IsPrimaryIndex<C, I> extends true
     ? E extends false
       ? PropertyType<RelationSourceTable<C>, S>
-      : ExclusiveType<
-          PropertyType<RelationSourceTable<C>, S>,
-          { [P in RelationTargetColumn<V>]: PropertyType<RelationTargetColumn<V>, T> }
-        >
+      : ExclusiveType<PropertyType<RelationSourceTable<C>, S>, { [P in RelationTargetColumn<V>]: PropertyType<RelationTargetColumn<V>, T> }>
     : IsUniqueIndex<C, I> extends true
       ? E extends false
         ? PropertyType<RelationSourceTable<C>, S>

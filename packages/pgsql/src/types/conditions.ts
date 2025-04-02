@@ -7,16 +7,11 @@ import { isAnyObject, isEmptyObject } from '@ez4/utils';
 import { isObjectSchema, SchemaType } from '@ez4/schema';
 
 import { mergeSqlAlias, mergeSqlPath } from '../utils/merge.js';
+import { InvalidOperandError, MissingOperatorError, TooManyOperatorsError } from '../errors/operation.js';
 import { SqlSelectStatement } from '../queries/select.js';
 import { SqlReference } from './reference.js';
 import { SqlOperator } from './common.js';
-import { SqlRaw } from './raw.js';
-
-import {
-  InvalidOperandError,
-  MissingOperatorError,
-  TooManyOperatorsError
-} from '../errors/operation.js';
+import { SqlRawValue } from './raw.js';
 
 type SqlConditionsContext = {
   options: SqlBuilderOptions;
@@ -34,12 +29,7 @@ export class SqlConditions {
     filters: SqlFilters;
   };
 
-  constructor(
-    source: SqlSource,
-    references: SqlBuilderReferences,
-    options: SqlBuilderOptions,
-    filters: SqlFilters = {}
-  ) {
+  constructor(source: SqlSource, references: SqlBuilderReferences, options: SqlBuilderOptions, filters: SqlFilters = {}) {
     this.#state = {
       source,
       references,
@@ -58,7 +48,7 @@ export class SqlConditions {
     return this;
   }
 
-  build(): [string, unknown[]] {
+  build(): [string, unknown[]] | undefined {
     const { source, references, options, filters } = this.#state;
 
     const context = {
@@ -70,15 +60,15 @@ export class SqlConditions {
 
     const operations = getOperations(filters, source.schema, context);
 
-    return [operations.join(' AND '), context.variables];
+    if (operations.length) {
+      return [operations.join(' AND '), context.variables];
+    }
+
+    return undefined;
   }
 }
 
-const getOperations = (
-  filters: SqlFilters,
-  schema: ObjectSchema | undefined,
-  context: SqlConditionsContext
-) => {
+const getOperations = (filters: SqlFilters, schema: ObjectSchema | undefined, context: SqlConditionsContext) => {
   const operations = [];
 
   for (const field in filters) {
@@ -158,36 +148,47 @@ const getFieldOperation = (
 
       const columnSchema = schema?.properties[field];
 
-      if (value instanceof SqlRaw || value instanceof SqlReference || !isAnyObject(value)) {
+      if (value instanceof SqlRawValue || value instanceof SqlReference || !isAnyObject(value)) {
         return getEqualOperation(columnPath, columnSchema, value, context);
       }
 
-      const [entry, ...rest] = Object.entries(value);
+      const valueEntries = Object.entries(value);
 
-      if (!entry) {
+      if (!valueEntries.length) {
         throw new MissingOperatorError(columnName);
       }
 
-      if (rest.length > 0) {
-        throw new TooManyOperatorsError(columnName);
-      }
+      const isNestedEntry = columnSchema && isObjectSchema(columnSchema);
 
-      const [operator, operand] = entry;
+      if (valueEntries.length > 1) {
+        if (!isNestedEntry) {
+          throw new TooManyOperatorsError(columnName);
+        }
 
-      const operation = getValueOperation(columnPath, columnSchema, operator, operand, context);
-
-      if (operation) {
-        return operation;
-      }
-
-      const nextSchema = columnSchema && isObjectSchema(columnSchema) ? columnSchema : undefined;
-
-      return combineOperations(
-        getOperations(value, nextSchema, {
+        const multipleOperations = getOperations(value, columnSchema, {
           ...context,
           parent: columnName
-        })
-      );
+        });
+
+        return combineOperations(multipleOperations);
+      }
+
+      const [[operator, operand]] = valueEntries;
+
+      const singleOperation = getValueOperation(columnPath, columnSchema, operator, operand, context);
+
+      if (!singleOperation) {
+        const operationSchema = isNestedEntry ? columnSchema : undefined;
+
+        const multipleOperations = getOperations(value, operationSchema, {
+          ...context,
+          parent: columnName
+        });
+
+        return combineOperations(multipleOperations);
+      }
+
+      return singleOperation;
     }
   }
 
@@ -256,137 +257,110 @@ const getNullableOperation = (column: string, value: unknown) => {
   return `${column} IS ${value ? 'null' : 'NOT null'}`;
 };
 
-const getEqualOperation = (
-  column: string,
-  schema: AnySchema | undefined,
-  operand: unknown,
-  context: SqlConditionsContext
-) => {
-  return `${column} = ${getOperandValue(schema, operand, context)}`;
+const getEqualOperation = (column: string, schema: AnySchema | undefined, operand: unknown, context: SqlConditionsContext) => {
+  const rhsOperand = getOperandValue(schema, operand, context);
+  const lhsOperand = getOperandColumn(schema, column, context);
+
+  return `${lhsOperand} = ${rhsOperand}`;
 };
 
-const getNotEqualOperation = (
-  column: string,
-  schema: AnySchema | undefined,
-  operand: unknown,
-  context: SqlConditionsContext
-) => {
-  return `${column} != ${getOperandValue(schema, operand, context)}`;
+const getNotEqualOperation = (column: string, schema: AnySchema | undefined, operand: unknown, context: SqlConditionsContext) => {
+  const rhsOperand = getOperandValue(schema, operand, context);
+  const lhsOperand = getOperandColumn(schema, column, context);
+
+  return `${lhsOperand} != ${rhsOperand}`;
 };
 
-const getGreaterThanOperation = (
-  column: string,
-  schema: AnySchema | undefined,
-  operand: unknown,
-  context: SqlConditionsContext
-) => {
-  return `${column} > ${getOperandValue(schema, operand, context)}`;
+const getGreaterThanOperation = (column: string, schema: AnySchema | undefined, operand: unknown, context: SqlConditionsContext) => {
+  const rhsOperand = getOperandValue(schema, operand, context);
+  const lhsOperand = getOperandColumn(schema, column, context);
+
+  return `${lhsOperand} > ${rhsOperand}`;
 };
 
-const getGreaterOrEqualOperation = (
-  column: string,
-  schema: AnySchema | undefined,
-  operand: unknown,
-  context: SqlConditionsContext
-) => {
-  return `${column} >= ${getOperandValue(schema, operand, context)}`;
+const getGreaterOrEqualOperation = (column: string, schema: AnySchema | undefined, operand: unknown, context: SqlConditionsContext) => {
+  const rhsOperand = getOperandValue(schema, operand, context);
+  const lhsOperand = getOperandColumn(schema, column, context);
+
+  return `${lhsOperand} >= ${rhsOperand}`;
 };
 
-const getLessThanOperation = (
-  column: string,
-  schema: AnySchema | undefined,
-  operand: unknown,
-  context: SqlConditionsContext
-) => {
-  return `${column} < ${getOperandValue(schema, operand, context)}`;
+const getLessThanOperation = (column: string, schema: AnySchema | undefined, operand: unknown, context: SqlConditionsContext) => {
+  const rhsOperand = getOperandValue(schema, operand, context);
+  const lhsOperand = getOperandColumn(schema, column, context);
+
+  return `${lhsOperand} < ${rhsOperand}`;
 };
 
-const getLessOrEqualOperation = (
-  column: string,
-  schema: AnySchema | undefined,
-  operand: unknown,
-  context: SqlConditionsContext
-) => {
-  return `${column} <= ${getOperandValue(schema, operand, context)}`;
+const getLessOrEqualOperation = (column: string, schema: AnySchema | undefined, operand: unknown, context: SqlConditionsContext) => {
+  const rhsOperand = getOperandValue(schema, operand, context);
+  const lhsOperand = getOperandColumn(schema, column, context);
+
+  return `${lhsOperand} <= ${rhsOperand}`;
 };
 
-const getIsInOperation = (
-  column: string,
-  schema: AnySchema | undefined,
-  operand: unknown,
-  context: SqlConditionsContext
-) => {
+const getIsInOperation = (column: string, schema: AnySchema | undefined, operand: unknown, context: SqlConditionsContext) => {
   switch (schema?.type) {
     case SchemaType.Object:
     case SchemaType.Array:
     case SchemaType.Tuple:
-      return `${column} <@ ${getOperandValue(schema, operand, context)}`;
+      return `${column} <@ ${getOperandValue(schema, operand, context, true)}`;
 
     default:
       if (!Array.isArray(operand)) {
         throw new InvalidOperandError(column);
       }
 
-      const list = operand.map((current) => {
-        return getOperandValue(schema, current, context);
-      });
+      const rhsOperand = operand.map((current) => getOperandValue(schema, current, context));
+      const lhsOperand = getOperandColumn(schema, column, context);
 
-      return `${column} IN (${list.join(', ')})`;
+      return `${lhsOperand} IN (${rhsOperand.join(', ')})`;
   }
 };
 
-const getIsBetweenOperation = (
-  column: string,
-  schema: AnySchema | undefined,
-  operand: unknown,
-  context: SqlConditionsContext
-) => {
+const getIsBetweenOperation = (column: string, schema: AnySchema | undefined, operand: unknown, context: SqlConditionsContext) => {
   if (!Array.isArray(operand)) {
     throw new InvalidOperandError(column);
   }
 
-  const [begin, end] = operand.map((current) => {
-    return getOperandValue(schema, current, context);
-  });
+  const [begin, end] = operand.map((current) => getOperandValue(schema, current, context));
+  const lhsOperand = getOperandColumn(schema, column, context);
 
-  return `${column} BETWEEN ${begin} AND ${end}`;
+  return `${lhsOperand} BETWEEN ${begin} AND ${end}`;
 };
 
-const getStartsWithOperation = (
-  column: string,
-  schema: AnySchema | undefined,
-  operand: unknown,
-  context: SqlConditionsContext
-) => {
-  return `${column} LIKE ${getOperandValue(schema, operand, context)} || '%'`;
+const getStartsWithOperation = (column: string, schema: AnySchema | undefined, operand: unknown, context: SqlConditionsContext) => {
+  const rhsOperand = getOperandValue(schema, operand, context);
+  const lhsOperand = getOperandColumn(schema, column, context);
+
+  return `${lhsOperand} LIKE ${rhsOperand} || '%'`;
 };
 
-const getContainsOperation = (
-  column: string,
-  schema: AnySchema | undefined,
-  operand: unknown,
-  context: SqlConditionsContext
-) => {
+const getContainsOperation = (column: string, schema: AnySchema | undefined, operand: unknown, context: SqlConditionsContext) => {
   switch (schema?.type) {
     case SchemaType.Object:
     case SchemaType.Array:
     case SchemaType.Tuple:
-      return `${column} @> ${getOperandValue(schema, operand, context)}`;
+      return `${column} @> ${getOperandValue(schema, operand, context, true)}`;
 
-    default:
-      return `${column} LIKE '%' || ${getOperandValue(schema, operand, context)} || '%'`;
+    default: {
+      const rhsOperand = getOperandValue(schema, operand, context);
+      const lhsOperand = getOperandColumn(schema, column, context);
+
+      return `${lhsOperand} LIKE '%' || ${rhsOperand} || '%'`;
+    }
   }
 };
 
-const getOperandValue = (
-  schema: AnySchema | undefined,
-  operand: unknown,
-  context: SqlConditionsContext
-) => {
-  const { variables, references, options, parent } = context;
+const getOperandValue = (schema: AnySchema | undefined, operand: unknown, context: SqlConditionsContext, encode?: boolean) => {
+  const { source, variables, references, options, parent } = context;
 
-  if (operand instanceof SqlRaw || operand instanceof SqlReference) {
+  if (operand instanceof SqlReference) {
     return operand.build();
+  }
+
+  if (operand instanceof SqlRawValue) {
+    return operand.build(source);
   }
 
   const index = references.counter++;
@@ -394,7 +368,7 @@ const getOperandValue = (
 
   if (options.onPrepareVariable) {
     const preparedValue = options.onPrepareVariable(operand, {
-      inner: !!parent,
+      json: encode && !!parent,
       schema,
       index
     });
@@ -405,6 +379,33 @@ const getOperandValue = (
   }
 
   return field;
+};
+
+const getOperandColumn = (schema: AnySchema | undefined, column: string, context: SqlConditionsContext) => {
+  const json = !!context.parent;
+
+  if (!json) {
+    return column;
+  }
+
+  switch (schema?.type) {
+    case SchemaType.Boolean:
+      return `${column}::bool`;
+
+    case SchemaType.Enum:
+    case SchemaType.String:
+      return `trim('"' from ${column}::text)`;
+
+    case SchemaType.Number: {
+      if (schema.format === 'decimal') {
+        return `${column}::dec`;
+      }
+
+      return `${column}::int`;
+    }
+  }
+
+  return column;
 };
 
 const combineOperations = (operations: string[]) => {

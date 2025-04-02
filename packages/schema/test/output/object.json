@@ -112,10 +112,33 @@
         "extensible": true
       }
     },
+    "default": {
+      "type": "object",
+      "description": "Default object value.",
+      "identity": 9,
+      "definitions": {
+        "default": {
+          "foo1": true,
+          "bar1": 123,
+          "baz1": "baz"
+        }
+      },
+      "properties": {
+        "foo1": {
+          "type": "boolean"
+        },
+        "bar1": {
+          "type": "number"
+        },
+        "baz1": {
+          "type": "string"
+        }
+      }
+    },
     "dynamic": {
       "type": "object",
       "description": "Dynamic properties.",
-      "identity": 9,
+      "identity": 10,
       "properties": {},
       "additional": {
         "property": {
@@ -135,16 +158,22 @@
         }
       }
     },
-    "value": {
+    "extends": {
       "type": "object",
-      "description": "Default object value.",
-      "identity": 10,
-      "properties": {},
+      "description": "Any object extending.",
+      "identity": 11,
       "definitions": {
-        "default": {
-          "foo1": true,
-          "bar1": 123,
-          "baz1": "baz"
+        "extensible": true
+      },
+      "properties": {
+        "foo": {
+          "type": "boolean"
+        },
+        "bar": {
+          "type": "number"
+        },
+        "baz": {
+          "type": "string"
         }
       }
     }

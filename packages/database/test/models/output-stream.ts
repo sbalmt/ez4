@@ -1,8 +1,11 @@
-import type { StreamChange, Database, Client } from '@ez4/database';
+import type { StreamChange, Database, Client, TransactionType } from '@ez4/database';
 import type { Environment, Service } from '@ez4/common';
 
 export declare class TestDatabase extends Database.Service {
-  engine: 'test';
+  engine: {
+    transaction: TransactionType.Static;
+    name: 'test';
+  };
 
   tables: [
     {
@@ -46,10 +49,7 @@ declare class TestStream implements Database.Stream<TestSchema> {
 /**
  * Test table stream.
  */
-export async function streamHandler(
-  _change: StreamChange<TestSchema>,
-  context: Service.Context<TestDatabase>
-) {
+export async function streamHandler(_change: StreamChange<TestSchema>, context: Service.Context<TestDatabase>) {
   context.selfClient.rawQuery;
   context.selfClient.testTable.findMany;
 }

@@ -35,7 +35,7 @@
         }
       ]
     },
-    "value": {
+    "default": {
       "type": "enum",
       "description": "Default enum value.",
       "definitions": {

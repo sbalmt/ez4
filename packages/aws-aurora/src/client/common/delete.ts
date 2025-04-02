@@ -22,20 +22,13 @@ export const prepareDeleteQuery = <
   const deleteQuery = sql.reset().delete(schema).from(table);
 
   if (query.where) {
-    const selectFilters = getSelectFilters(query.where, relations, deleteQuery, sql);
+    const selectFilters = getSelectFilters(sql, query.where, relations, deleteQuery);
 
     deleteQuery.where(selectFilters);
   }
 
   if (query.select) {
-    const selectRecord = getSelectFields(
-      query.select,
-      query.include,
-      schema,
-      relations,
-      deleteQuery,
-      sql
-    );
+    const selectRecord = getSelectFields(sql, query.select, query.include, schema, relations, deleteQuery, table);
 
     deleteQuery.returning(selectRecord);
   }

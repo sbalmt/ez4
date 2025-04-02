@@ -1,4 +1,4 @@
-import type { Database, Client as DbClient } from '@ez4/database';
+import type { Database, Client as DbClient, TransactionType } from '@ez4/database';
 import type { EntryStates } from '@ez4/stateful';
 import type { Repository } from '@ez4/aws-aurora';
 
@@ -10,13 +10,7 @@ import { SchemaType } from '@ez4/schema';
 import { Index, Order } from '@ez4/database';
 import { deploy } from '@ez4/aws-common';
 
-import {
-  createCluster,
-  createInstance,
-  createMigration,
-  isClusterState,
-  registerTriggers
-} from '@ez4/aws-aurora';
+import { createCluster, createInstance, createMigration, isClusterState, registerTriggers } from '@ez4/aws-aurora';
 
 declare class TestSchema implements Database.Schema {
   id: string;
@@ -30,7 +24,10 @@ declare class TestSchema implements Database.Schema {
 }
 
 declare class Test extends Database.Service {
-  engine: 'test';
+  engine: {
+    transaction: TransactionType.Interactive;
+    name: 'test';
+  };
 
   tables: [
     {
@@ -396,7 +393,7 @@ describe('aurora client', () => {
     });
   });
 
-  it('assert :: transaction :: insert one', async () => {
+  it('assert :: static transaction :: insert one', async () => {
     ok(dbClient);
 
     await dbClient.transaction({
@@ -441,7 +438,7 @@ describe('aurora client', () => {
     ]);
   });
 
-  it('assert :: transaction :: update one', async () => {
+  it('assert :: static transaction :: update one', async () => {
     ok(dbClient);
 
     await dbClient.transaction({
@@ -490,7 +487,7 @@ describe('aurora client', () => {
     ]);
   });
 
-  it('assert :: transaction :: delete one', async () => {
+  it('assert :: static transaction :: delete one', async () => {
     ok(dbClient);
 
     await dbClient.transaction({
@@ -524,6 +521,41 @@ describe('aurora client', () => {
     });
 
     deepEqual(result.records, []);
+  });
+
+  it('assert :: interactive transaction', async () => {
+    ok(dbClient);
+
+    const result = await dbClient.transaction(async (client) => {
+      await client.testTable.insertOne({
+        data: {
+          id: 'transaction-2',
+          foo: 'initial'
+        }
+      });
+
+      await client.testTable.updateOne({
+        data: {
+          foo: 'updated'
+        },
+        where: {
+          id: 'transaction-2'
+        }
+      });
+
+      return client.testTable.findOne({
+        select: {
+          foo: true
+        },
+        where: {
+          id: 'transaction-2'
+        }
+      });
+    });
+
+    deepEqual(result, {
+      foo: 'updated'
+    });
   });
 
   it('assert :: destroy', async () => {

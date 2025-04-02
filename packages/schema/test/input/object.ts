@@ -63,6 +63,11 @@ export interface ObjectTestSchema {
   any: Object.Any;
 
   /**
+   * Default object value.
+   */
+  default: Object.Default<ObjectType, { foo1: true; bar1: 123; baz1: 'baz' }>;
+
+  /**
    * Dynamic properties.
    */
   dynamic: {
@@ -70,7 +75,11 @@ export interface ObjectTestSchema {
   };
 
   /**
-   * Default object value.
+   * Any object extending.
    */
-  value: Object.Default<ObjectType, { foo1: true; bar1: 123; baz1: 'baz' }>;
+  extends: Object.Extends<{
+    foo: boolean;
+    bar: number;
+    baz: string;
+  }>;
 }

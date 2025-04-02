@@ -15,12 +15,12 @@ export type EnumSchemaDefinitions = SchemaDefinitions & {
 export type EnumSchema = {
   type: SchemaType.Enum;
   definitions?: EnumSchemaDefinitions;
-  options: EnumSchemaOption[];
   description?: string;
+  options: EnumSchemaOption[];
   optional?: boolean;
   nullable?: boolean;
 };
 
-export const isEnumSchema = (value: AnySchema): value is EnumSchema => {
-  return value.type === SchemaType.Enum;
+export const isEnumSchema = (schema: AnySchema): schema is EnumSchema => {
+  return schema.type === SchemaType.Enum;
 };

@@ -1,7 +1,10 @@
-import type { Database, Index } from '@ez4/database';
+import type { Database, Index, TransactionType } from '@ez4/database';
 
 export declare class TestDatabase extends Database.Service {
-  engine: 'test';
+  engine: {
+    transaction: TransactionType.Static;
+    name: 'test';
+  };
 
   tables: [
     {
@@ -10,7 +13,7 @@ export declare class TestDatabase extends Database.Service {
         id: string;
       };
       relations: {
-        'childTestTable:parent_id': 'id@children';
+        'id@children': 'childTestTable:parent_id';
       };
       indexes: {
         id: Index.Primary;
@@ -23,7 +26,7 @@ export declare class TestDatabase extends Database.Service {
         parent_id: string;
       };
       relations: {
-        'parentTestTable:id': 'parent_id@parent';
+        'parent_id@parent': 'parentTestTable:id';
       };
       indexes: {
         id: Index.Primary;

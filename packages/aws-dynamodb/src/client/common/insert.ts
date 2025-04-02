@@ -6,10 +6,10 @@ import { isSkippableData } from './data.js';
 
 type PrepareResult = [string, unknown[]];
 
-export const prepareInsert = <T extends Database.Schema, R extends RelationMetadata>(
+export const prepareInsert = <T extends Database.Schema, S extends Query.SelectInput<T, R>, R extends RelationMetadata>(
   table: string,
   schema: ObjectSchema,
-  query: Query.InsertOneInput<T, R>
+  query: Query.InsertOneInput<T, S, R>
 ): PrepareResult => {
   const [insertFields, variables] = prepareInsertFields(query.data, schema);
 

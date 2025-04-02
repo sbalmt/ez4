@@ -1,34 +1,17 @@
-import type { MemberType } from '@ez4/common/library';
 import type { AllType, SourceMap, TypeModel, TypeObject } from '@ez4/reflection';
+import type { MemberType } from '@ez4/common/library';
 import type { TableIndex } from '../types/indexes.js';
 
-import {
-  isModelDeclaration,
-  getModelMembers,
-  getObjectMembers,
-  getPropertyString,
-  getReferenceType
-} from '@ez4/common/library';
-
+import { isModelDeclaration, getModelMembers, getObjectMembers, getPropertyString, getReferenceType } from '@ez4/common/library';
 import { isModelProperty, isTypeObject, isTypeReference } from '@ez4/reflection';
 
-import {
-  IncorrectIndexesTypeError,
-  InvalidIndexesTypeError,
-  InvalidIndexTypeError
-} from '../errors/indexes.js';
-
+import { IncorrectIndexesTypeError, InvalidIndexesTypeError, InvalidIndexTypeError } from '../errors/indexes.js';
 import { Index } from '../services/indexes.js';
 import { isTableIndexes } from './utils.js';
 
 type TypeParent = TypeModel | TypeObject;
 
-export const getTableIndexes = (
-  type: AllType,
-  parent: TypeParent,
-  reflection: SourceMap,
-  errorList: Error[]
-) => {
+export const getTableIndexes = (type: AllType, parent: TypeParent, reflection: SourceMap, errorList: Error[]) => {
   if (!isTypeReference(type)) {
     return getTypeIndexes(type, parent, errorList);
   }
@@ -60,11 +43,7 @@ const getTypeIndexes = (type: AllType, parent: TypeParent, errorList: Error[]) =
   return getTypeFromMembers(type, getModelMembers(type), errorList);
 };
 
-const getTypeFromMembers = (
-  type: TypeObject | TypeModel,
-  members: MemberType[],
-  errorList: Error[]
-) => {
+const getTypeFromMembers = (type: TypeObject | TypeModel, members: MemberType[], errorList: Error[]) => {
   const indexes: TableIndex[] = [];
 
   for (const member of members) {

@@ -34,5 +34,5 @@ export interface EnumTestSchema {
   /**
    * Default enum value.
    */
-  value: Enum.Default<TestEnum, TestEnum.FOO>;
+  default: Enum.Default<TestEnum, TestEnum.FOO>;
 }

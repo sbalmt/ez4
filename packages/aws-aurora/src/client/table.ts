@@ -8,7 +8,7 @@ import type { Connection } from './types.js';
 
 import { isAnyNumber } from '@ez4/utils';
 
-import { executeStatement, executeTransaction } from './common/client.js';
+import { executeStatement, executeStatements, executeTransaction } from './common/client.js';
 import { parseRecord } from './common/record.js';
 
 import {
@@ -23,36 +23,53 @@ import {
   prepareCount
 } from './common/queries.js';
 
+export type TableContext = {
+  transactionId?: string;
+  connection: Connection;
+  client: RDSDataClient;
+  debug?: boolean;
+};
+
 export class Table<T extends Database.Schema, I extends Database.Indexes, R extends RelationMetadata> implements DbTable<T, I, R> {
   constructor(
     private name: string,
     private schema: ObjectSchema,
     private relations: RepositoryRelationsWithSchema,
-    private settings: {
-      client: RDSDataClient;
-      connection: Connection;
-      debug?: boolean;
-    }
+    private context: TableContext
   ) {}
 
-  private parseRecord<T extends Record<string, unknown>>(record: T): T {
+  private parseRecord<T extends Record<string, unknown>>(record: T): T | undefined {
     return parseRecord(record, this.schema, this.relations);
   }
 
   private async sendCommand(input: PreparedQueryCommand | PreparedQueryCommand[]) {
-    const { client, connection, debug } = this.settings;
+    const { transactionId, connection, client, debug } = this.context;
 
-    if (input instanceof Array) {
-      return executeTransaction(client, connection, input, debug);
+    if (!Array.isArray(input)) {
+      return executeStatement(client, connection, input, transactionId, debug);
     }
 
-    return executeStatement(client, connection, input, undefined, debug);
+    if (input.length === 1) {
+      return [await executeStatement(client, connection, input[0], transactionId, debug)];
+    }
+
+    if (transactionId) {
+      return executeStatements(client, connection, input, transactionId, debug);
+    }
+
+    return executeTransaction(client, connection, input, debug);
   }
 
-  async insertOne(query: Query.InsertOneInput<T, R>): Promise<Query.InsertOneResult> {
+  async insertOne<S extends Query.SelectInput<T, R>>(query: Query.InsertOneInput<T, S, R>): Promise<Query.InsertOneResult<T, S, R>> {
     const command = await prepareInsertOne(this.name, this.schema, this.relations, query);
 
-    await this.sendCommand(command);
+    const result = await this.sendCommand(command);
+
+    if (Array.isArray(result)) {
+      return this.parseRecord(result[0]);
+    }
+
+    return undefined as Query.InsertOneResult<T, S, R>;
   }
 
   async updateOne<S extends Query.SelectInput<T, R>>(query: Query.UpdateOneInput<T, S, I, R>): Promise<Query.UpdateOneResult<T, S, R>> {
@@ -116,11 +133,9 @@ export class Table<T extends Database.Schema, I extends Database.Indexes, R exte
     });
 
     if (!previous) {
-      await this.insertOne({
+      return this.insertOne({
         data: query.insert
-      });
-
-      return previous;
+      }) as Promise<Query.UpsertOneResult<T, S, R>>;
     }
 
     await this.updateOne({
@@ -160,17 +175,35 @@ export class Table<T extends Database.Schema, I extends Database.Indexes, R exte
     return records.map((record: AnyObject) => this.parseRecord(record));
   }
 
-  async findMany<S extends Query.SelectInput<T, R>>(query: Query.FindManyInput<T, S, I, R>): Promise<Query.FindManyResult<T, S, R>> {
-    const command = prepareFindMany(this.name, this.schema, this.relations, query);
+  async findMany<S extends Query.SelectInput<T, R>, C extends boolean = false>(
+    query: Query.FindManyInput<T, S, I, R, C>
+  ): Promise<Query.FindManyResult<T, S, R, C>> {
+    const { cursor, count: shouldCount } = query;
 
-    const records = await this.sendCommand(command);
+    const findCommand = prepareFindMany(this.name, this.schema, this.relations, query);
+    const allCommands = [findCommand];
+
+    if (shouldCount) {
+      const countCommand = prepareCount(this.name, this.schema, this.relations, {
+        where: query.where
+      });
+
+      allCommands.push(countCommand);
+    }
+
+    const [records, total] = await this.sendCommand(allCommands);
 
     return {
-      records: records.map((record: AnyObject) => this.parseRecord(record)),
-      ...(isAnyNumber(query.cursor) && {
-        cursor: Number(query.cursor) + records.length
+      records: records.map((record: AnyObject) => {
+        return this.parseRecord(record);
+      }),
+      ...(isAnyNumber(cursor) && {
+        cursor: Number(cursor) + records.length
+      }),
+      ...(shouldCount && {
+        total: total[0]?.count
       })
-    };
+    } as Query.FindManyResult<T, S, R, C>;
   }
 
   async deleteMany<S extends Query.SelectInput<T, R>>(query: Query.DeleteManyInput<T, S, R>): Promise<Query.DeleteManyResult<T, S, R>> {
@@ -184,8 +217,8 @@ export class Table<T extends Database.Schema, I extends Database.Indexes, R exte
   async count(query: Query.CountInput<T, R>): Promise<number> {
     const command = prepareCount(this.name, this.schema, this.relations, query);
 
-    const [record] = await this.sendCommand(command);
+    const [{ count }] = await this.sendCommand(command);
 
-    return this.parseRecord(record).count;
+    return count;
   }
 }

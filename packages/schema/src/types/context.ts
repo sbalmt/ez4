@@ -5,7 +5,7 @@ export type SchemaContext = {
   counter: number;
 };
 
-export const getNewContext = (): SchemaContext => {
+export const createSchemaContext = (): SchemaContext => {
   return {
     references: new WeakMap<AllType, number>(),
     counter: 0

@@ -30,6 +30,15 @@ export const makeParameter = (name: string, value: unknown, typeHint?: TypeHint)
       };
 
     case 'object': {
+      if (value === null) {
+        return {
+          name,
+          value: {
+            isNull: true
+          }
+        };
+      }
+
       return {
         name,
         typeHint: 'JSON',

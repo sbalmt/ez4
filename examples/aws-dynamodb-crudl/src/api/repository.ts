@@ -14,15 +14,16 @@ export type CreateItemInput = {
 };
 
 export const createItem = async (client: DbClient, input: CreateItemInput) => {
-  const id = randomUUID();
-
   const now = new Date().toISOString();
 
   const { name, description, type } = input;
 
-  await client.items.insertOne({
+  const { id } = await client.items.insertOne({
+    select: {
+      id: true
+    },
     data: {
-      id,
+      id: randomUUID(),
       name,
       description,
       type,
@@ -96,7 +97,12 @@ export type ListItemsInput = {
 export const listItems = async (client: DbClient, input: ListItemsInput) => {
   const { cursor, limit = 5, type } = input;
 
-  return client.items.findMany({
+  const {
+    records: items,
+    cursor: next,
+    total
+  } = await client.items.findMany({
+    count: true,
     select: {
       id: true,
       name: true,
@@ -112,4 +118,10 @@ export const listItems = async (client: DbClient, input: ListItemsInput) => {
     limit,
     cursor
   });
+
+  return {
+    next: next?.toString(),
+    items,
+    total
+  };
 };

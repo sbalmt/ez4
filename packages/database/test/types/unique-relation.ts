@@ -1,4 +1,4 @@
-import type { Client, Database, Index, StreamChange } from '@ez4/database';
+import type { Client, Database, Index, TransactionType } from '@ez4/database';
 import type { Environment, Service } from '@ez4/common';
 
 declare class TestTableA implements Database.Schema {
@@ -13,7 +13,10 @@ declare class TestTableB implements Database.Schema {
 }
 
 export declare class TestDatabase extends Database.Service {
-  engine: 'test';
+  engine: {
+    transaction: TransactionType.Static;
+    name: 'test';
+  };
 
   client: Client<TestDatabase>;
 
@@ -22,20 +25,17 @@ export declare class TestDatabase extends Database.Service {
       name: 'tableA';
       schema: TestTableA;
       relations: {
-        'tableB:table_a_id': 'id@relation_b';
+        'id@relation_b': 'tableB:table_a_id';
       };
       indexes: {
         id: Index.Primary;
-      };
-      stream: {
-        handler: typeof testHandler;
       };
     },
     {
       name: 'tableB';
       schema: TestTableB;
       relations: {
-        'tableA:id': 'table_a_id@relation_a';
+        'table_a_id@relation_a': 'tableA:id';
       };
       indexes: {
         id: Index.Primary;
@@ -49,10 +49,7 @@ export declare class TestDatabase extends Database.Service {
   };
 }
 
-export async function testHandler(
-  _change: StreamChange<TestTableA>,
-  { selfClient }: Service.Context<TestDatabase>
-) {
+export async function testHandler({ selfClient }: Service.Context<TestDatabase>) {
   testSelect(selfClient);
   testInsert(selfClient);
   testUpdate(selfClient);
@@ -100,9 +97,9 @@ const testSelect = async (client: TestDatabase['client']) => {
   resultB.records[0].relation_a.value_a;
 };
 
-const testInsert = (client: TestDatabase['client']) => {
+const testInsert = async (client: TestDatabase['client']) => {
   // Create tableB, tableA and connect
-  client.tableA.insertOne({
+  await client.tableA.insertOne({
     data: {
       id: 'foo',
       value_a: 1,
@@ -114,7 +111,7 @@ const testInsert = (client: TestDatabase['client']) => {
   });
 
   // Create tableA, tableB and connect
-  client.tableB.insertOne({
+  await client.tableB.insertOne({
     data: {
       id: 'foo',
       value_b: 1,
@@ -126,7 +123,7 @@ const testInsert = (client: TestDatabase['client']) => {
   });
 
   // Create tableB and connect existing tableA
-  client.tableB.insertOne({
+  await client.tableB.insertOne({
     data: {
       id: 'foo',
       value_b: 1,
@@ -137,9 +134,9 @@ const testInsert = (client: TestDatabase['client']) => {
   });
 };
 
-const testUpdate = (client: TestDatabase['client']) => {
+const testUpdate = async (client: TestDatabase['client']) => {
   // Update tableA and the connected tableB
-  client.tableA.updateMany({
+  await client.tableA.updateMany({
     data: {
       value_a: 1,
       relation_b: {
@@ -154,7 +151,7 @@ const testUpdate = (client: TestDatabase['client']) => {
   });
 
   // Update tableB and the connected tableA
-  client.tableB.updateMany({
+  await client.tableB.updateMany({
     data: {
       value_b: 2,
       relation_a: {
@@ -169,7 +166,7 @@ const testUpdate = (client: TestDatabase['client']) => {
   });
 
   // Update tableB and connect existing tableA
-  client.tableB.updateMany({
+  await client.tableB.updateMany({
     data: {
       value_b: 2,
       relation_a: {
@@ -184,9 +181,9 @@ const testUpdate = (client: TestDatabase['client']) => {
   });
 };
 
-const testUpsert = (client: TestDatabase['client']) => {
+const testUpsert = async (client: TestDatabase['client']) => {
   // Ensure insert and update follow relation rules.
-  client.tableA.upsertOne({
+  await client.tableA.upsertOne({
     insert: {
       id: 'foo',
       value_a: 1,

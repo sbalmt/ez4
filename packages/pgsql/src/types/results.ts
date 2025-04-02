@@ -11,23 +11,16 @@ import { escapeSqlName } from '../utils/escape.js';
 import { mergeSqlAlias } from '../utils/merge.js';
 import { SqlJsonColumn } from '../types/json.js';
 import { SqlReference } from './reference.js';
-import { SqlRaw } from './raw.js';
+import { SqlRawValue } from './raw.js';
 
 export type SqlObjectColumn = Omit<SqlJsonColumnOptions, 'aggregate'>;
 
 export type SqlArrayColumn = Omit<SqlJsonColumnOptions, 'aggregate'>;
 
-export type SqlResultColumn = SqlColumn | SqlRaw | SqlReference | SqlSelectStatement;
+export type SqlResultColumn = SqlColumn | SqlRawValue | SqlReference | SqlSelectStatement;
 
 export type SqlResultRecord = {
-  [column: string]:
-    | undefined
-    | string
-    | boolean
-    | SqlRaw
-    | SqlReference
-    | SqlSelectStatement
-    | SqlJsonColumnSchema;
+  [column: string]: undefined | string | boolean | SqlRawValue | SqlReference | SqlSelectStatement | SqlJsonColumnSchema;
 };
 
 type SqlResultsContext = {
@@ -85,21 +78,13 @@ export class SqlResults {
   }
 
   rawColumn(column: number | string | SqlRawGenerator) {
-    this.#state.columns.push(new SqlRaw(this.#state.source, column));
+    this.#state.columns.push(new SqlRawValue(column));
 
     return this;
   }
 
   jsonColumn(schema: SqlJsonColumnSchema, options: SqlJsonColumnOptions) {
-    this.#state.columns.push(
-      new SqlJsonColumn(
-        schema,
-        this.#state.source,
-        options.aggregate,
-        options.column,
-        options.alias
-      )
-    );
+    this.#state.columns.push(new SqlJsonColumn(schema, this.#state.source, options.aggregate, options.column, options.alias));
 
     return this;
   }
@@ -140,7 +125,7 @@ const getRecordColumns = (record: SqlResultRecord, source: SqlSource) => {
       columns.push(column);
     } else if (typeof value === 'string') {
       columns.push([column, value]);
-    } else if (value instanceof SqlRaw || value instanceof SqlReference) {
+    } else if (value instanceof SqlRawValue || value instanceof SqlReference) {
       columns.push(value);
     } else if (value instanceof SqlSelectStatement) {
       columns.push(value.as(column));
@@ -152,15 +137,12 @@ const getRecordColumns = (record: SqlResultRecord, source: SqlSource) => {
   return columns;
 };
 
-const getResultColumns = (
-  columns: (SqlResultColumn | SqlJsonColumn)[],
-  context: SqlResultsContext
-) => {
+const getResultColumns = (columns: (SqlResultColumn | SqlJsonColumn)[], context: SqlResultsContext) => {
   const { source, variables } = context;
 
   const columnsList = columns.map((column) => {
-    if (column instanceof SqlRaw) {
-      return column.build();
+    if (column instanceof SqlRawValue) {
+      return column.build(source);
     }
 
     if (column instanceof SqlReference) {
@@ -182,9 +164,7 @@ const getResultColumns = (
         throw new MissingColumnAliasError();
       }
 
-      const [selectStatement, selectVariables] = column
-        .as(column.filters ? `T` : undefined)
-        .build();
+      const [selectStatement, selectVariables] = column.as(column.filters ? `T` : undefined).build();
 
       variables.push(...selectVariables);
 

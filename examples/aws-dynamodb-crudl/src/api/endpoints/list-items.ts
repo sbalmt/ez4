@@ -40,6 +40,11 @@ export declare class ListItemsResponse implements Http.Response {
     }[];
 
     /**
+     * Total amount of items.
+     */
+    total: number;
+
+    /**
      * Next page.
      */
     next?: string;
@@ -49,34 +54,21 @@ export declare class ListItemsResponse implements Http.Response {
 /**
  * Handle item list requests.
  */
-export async function listItemsHandler(
-  request: ListItemsRequest,
-  context: Service.Context<Api>
-): Promise<ListItemsResponse> {
+export async function listItemsHandler(request: ListItemsRequest, context: Service.Context<Api>): Promise<ListItemsResponse> {
   const { cursor, limit, type } = request.query;
   const { dynamoDb } = context;
 
-  const result = await listItems(dynamoDb, {
+  const { items, total, next } = await listItems(dynamoDb, {
     cursor,
     limit,
     type
   });
 
-  const items = result.records.map(({ id, name, description, type }) => {
-    return {
-      id,
-      name,
-      description,
-      type
-    };
-  });
-
-  const next = result.cursor?.toString();
-
   return {
     status: 200,
     body: {
       items,
+      total,
       next
     }
   };

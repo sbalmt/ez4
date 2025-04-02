@@ -3,13 +3,13 @@ import type { PreparedQueryCommand } from './queries.js';
 import type { Connection } from '../types.js';
 
 import {
+  BeginTransactionCommand,
+  ExecuteStatementCommand,
+  CommitTransactionCommand,
+  RollbackTransactionCommand,
   RecordsFormatType,
   DecimalReturnType,
-  LongReturnType,
-  BeginTransactionCommand,
-  CommitTransactionCommand,
-  ExecuteStatementCommand,
-  RollbackTransactionCommand
+  LongReturnType
 } from '@aws-sdk/client-rds-data';
 
 export const beginTransaction = async (client: RDSDataClient, connection: Connection) => {
@@ -22,11 +22,7 @@ export const beginTransaction = async (client: RDSDataClient, connection: Connec
   return result.transactionId!;
 };
 
-export const rollbackTransaction = async (
-  client: RDSDataClient,
-  connection: Connection,
-  transactionId: string
-) => {
+export const rollbackTransaction = async (client: RDSDataClient, connection: Connection, transactionId: string) => {
   await client.send(
     new RollbackTransactionCommand({
       ...connection,
@@ -35,11 +31,7 @@ export const rollbackTransaction = async (
   );
 };
 
-export const commitTransaction = async (
-  client: RDSDataClient,
-  connection: Connection,
-  transactionId: string
-) => {
+export const commitTransaction = async (client: RDSDataClient, connection: Connection, transactionId: string) => {
   await client.send(
     new CommitTransactionCommand({
       ...connection,
@@ -85,6 +77,24 @@ export const executeStatement = async (
   }
 };
 
+export const executeStatements = async (
+  client: RDSDataClient,
+  connection: Connection,
+  commands: PreparedQueryCommand[],
+  transactionId?: string,
+  debug?: boolean
+) => {
+  const results = [];
+
+  for (const command of commands) {
+    const result = await executeStatement(client, connection, command, transactionId, debug);
+
+    results.push(result);
+  }
+
+  return results;
+};
+
 export const executeTransaction = async (
   client: RDSDataClient,
   connection: Connection,
@@ -92,21 +102,16 @@ export const executeTransaction = async (
   debug?: boolean
 ) => {
   const transactionId = await beginTransaction(client, connection);
-  const resultRecords = [];
 
   try {
-    for (const command of commands) {
-      const records = await executeStatement(client, connection, command, transactionId, debug);
-
-      resultRecords.push(records);
-    }
+    const results = await executeStatements(client, connection, commands, transactionId, debug);
 
     await commitTransaction(client, connection, transactionId);
+
+    return results;
   } catch (error) {
     await rollbackTransaction(client, connection, transactionId);
 
     throw error;
   }
-
-  return resultRecords;
 };

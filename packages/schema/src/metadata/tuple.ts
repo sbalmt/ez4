@@ -6,8 +6,8 @@ import type { AnySchema } from '../types/type-any.js';
 
 import { isTypeTuple } from '@ez4/reflection';
 
+import { createSchemaContext } from '../types/context.js';
 import { SchemaType } from '../types/common.js';
-import { getNewContext } from '../types/context.js';
 import { getAnySchema } from './any.js';
 
 export type RichTypeTuple = TypeTuple & {
@@ -34,7 +34,7 @@ export const isRichTypeTuple = (type: AllType): type is RichTypeTuple => {
 export const getTupleSchema = (
   type: AllType,
   reflection: SourceMap,
-  context = getNewContext(),
+  context = createSchemaContext(),
   description?: string
 ): TupleSchema | null => {
   if (!isRichTypeTuple(type)) {
@@ -50,11 +50,7 @@ export const getTupleSchema = (
   return null;
 };
 
-const getAnySchemaFromTypeList = (
-  reflection: SourceMap,
-  context: SchemaContext,
-  types: AllType[]
-) => {
+const getAnySchemaFromTypeList = (reflection: SourceMap, context: SchemaContext, types: AllType[]) => {
   const typeList: AnySchema[] = [];
 
   for (const type of types) {

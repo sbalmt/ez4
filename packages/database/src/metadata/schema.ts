@@ -10,12 +10,7 @@ import { isTableSchema } from './utils.js';
 
 type TypeParent = TypeModel | TypeObject;
 
-export const getTableSchema = (
-  type: AllType,
-  parent: TypeParent,
-  reflection: SourceMap,
-  errorList: Error[]
-) => {
+export const getTableSchema = (type: AllType, parent: TypeParent, reflection: SourceMap, errorList: Error[]) => {
   if (!isTypeReference(type)) {
     return getTypeSchema(type, parent, reflection, errorList);
   }
@@ -29,12 +24,7 @@ export const getTableSchema = (
   return null;
 };
 
-const getTypeSchema = (
-  type: AllType,
-  parent: TypeParent,
-  reflection: SourceMap,
-  errorList: Error[]
-): TableSchema | null => {
+const getTypeSchema = (type: AllType, parent: TypeParent, reflection: SourceMap, errorList: Error[]): TableSchema | null => {
   if (isTypeObject(type)) {
     return getSchema(type, reflection);
   }

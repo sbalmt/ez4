@@ -1,4 +1,4 @@
-import type { Client, Database, Index, StreamChange } from '@ez4/database';
+import type { Client, Database, Index, TransactionType } from '@ez4/database';
 import type { Environment, Service } from '@ez4/common';
 
 declare class TestTable implements Database.Schema {
@@ -7,7 +7,10 @@ declare class TestTable implements Database.Schema {
 }
 
 export declare class TestDatabase extends Database.Service {
-  engine: 'test';
+  engine: {
+    transaction: TransactionType.Static;
+    name: 'test';
+  };
 
   client: Client<TestDatabase>;
 
@@ -19,9 +22,6 @@ export declare class TestDatabase extends Database.Service {
         id: Index.Primary;
         value: Index.Unique;
       };
-      stream: {
-        handler: typeof testHandler;
-      };
     }
   ];
 
@@ -30,21 +30,17 @@ export declare class TestDatabase extends Database.Service {
   };
 }
 
-export async function testHandler(
-  _change: StreamChange<TestTable>,
-  { selfClient }: Service.Context<TestDatabase>
-) {
+export async function testHandler({ selfClient }: Service.Context<TestDatabase>) {
   testInsert(selfClient);
   testUpdate(selfClient);
   testDelete(selfClient);
 }
 
 const testInsert = (client: TestDatabase['client']) => {
-  client.transaction({
+  return client.transaction({
     table: [
       {
         insert: {
-          hehe: 123,
           data: {
             id: 'foo',
             value: 123
@@ -56,7 +52,7 @@ const testInsert = (client: TestDatabase['client']) => {
 };
 
 const testUpdate = (client: TestDatabase['client']) => {
-  client.transaction({
+  return client.transaction({
     table: [
       {
         update: {
@@ -73,7 +69,7 @@ const testUpdate = (client: TestDatabase['client']) => {
 };
 
 const testDelete = (client: TestDatabase['client']) => {
-  client.transaction({
+  return client.transaction({
     table: [
       {
         delete: {

@@ -1,18 +1,16 @@
 import type { PrepareResourceEvent, ServiceEvent } from '@ez4/project/library';
 
-import { isDatabaseService } from '@ez4/database/library';
-
 import { createCluster } from '../cluster/service.js';
-import { createInstance } from '../instance/service.js';
 import { createMigration } from '../migration/service.js';
-import { getClusterName, getDatabaseName, getInstanceName } from './utils.js';
+import { createInstance } from '../instance/service.js';
+import { getClusterName, getDatabaseName, getInstanceName, isAuroraService } from './utils.js';
 import { prepareLinkedClient } from './client.js';
 import { getRepository } from './repository.js';
 
 export const prepareLinkedServices = (event: ServiceEvent) => {
   const { service, options, context } = event;
 
-  if (isDatabaseService(service) && service.engine === 'aurora') {
+  if (isAuroraService(service)) {
     return prepareLinkedClient(context, service, options);
   }
 
@@ -22,7 +20,7 @@ export const prepareLinkedServices = (event: ServiceEvent) => {
 export const prepareDatabaseServices = async (event: PrepareResourceEvent) => {
   const { state, service, options, context } = event;
 
-  if (!isDatabaseService(service) || service.engine !== 'aurora') {
+  if (!isAuroraService(service)) {
     return;
   }
 

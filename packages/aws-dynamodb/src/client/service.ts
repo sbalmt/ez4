@@ -18,21 +18,25 @@ const client = DynamoDBDocumentClient.from(new DynamoDBClient(), {
 
 const tableCache: Record<string, TableType> = {};
 
+export type ClientSettings = {
+  debug?: boolean;
+};
+
 export namespace Client {
-  export const make = <T extends Database.Service>(repository: Repository, debug?: boolean): DbClient<T> => {
+  export const make = <T extends Database.Service>(repository: Repository, settings?: ClientSettings): DbClient<T> => {
     const instance = new (class {
-      async rawQuery(query: string, values: unknown[]) {
+      async rawQuery(query: string, values: unknown[] = []) {
         const command = { ConsistentRead: true, Parameters: values, Statement: query };
 
-        const result = await executeStatement(client, command, debug);
+        const result = await executeStatement(client, command, settings?.debug);
 
         return result.Items ?? [];
       }
 
-      async transaction<O extends Transaction.WriteOperations<T>>(operations: O): Promise<void> {
-        const commands = await prepareTransactions(repository, operations);
+      async transaction<O extends Transaction.Operation<T, void>>(operation: O) {
+        const commands = await prepareStaticTransaction(repository, operation);
 
-        await executeTransaction(client, commands, debug);
+        await executeTransaction(client, commands, settings?.debug);
       }
     })();
 
@@ -55,8 +59,8 @@ export namespace Client {
         const { name, schema, indexes } = repository[alias];
 
         const table = new Table(name, schema, indexes, {
-          client,
-          debug
+          ...settings,
+          client
         });
 
         tableCache[alias] = table;
@@ -67,24 +71,28 @@ export namespace Client {
   };
 }
 
-const prepareTransactions = async <T extends Database.Service, U extends Transaction.WriteOperations<T>>(
+const prepareStaticTransaction = async <T extends Database.Service, U extends Transaction.Operation<T, R>, R>(
   repository: Repository,
-  operations: U
+  operation: U
 ) => {
+  if (operation instanceof Function) {
+    throw new Error(`DynamoDB tables don't support function transaction.`);
+  }
+
   const commands = [];
 
-  for (const alias in operations) {
-    const operationTable = operations[alias];
+  for (const tableAlias in operation) {
+    const operationTable = operation[tableAlias];
 
-    if (!repository[alias]) {
-      throw new Error(`Table ${alias} isn't part of the repository.`);
+    if (!repository[tableAlias]) {
+      throw new Error(`Table ${tableAlias} isn't part of the repository.`);
     }
 
     if (!operationTable) {
       continue;
     }
 
-    const { name, schema } = repository[alias];
+    const { name, schema } = repository[tableAlias];
 
     for (const query of operationTable) {
       if ('insert' in query) {

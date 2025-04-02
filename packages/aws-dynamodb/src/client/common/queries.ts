@@ -12,10 +12,10 @@ import { prepareUpdate } from './update.js';
 import { prepareSelect } from './select.js';
 import { prepareDelete } from './delete.js';
 
-export const prepareInsertOne = async <T extends Database.Schema, R extends RelationMetadata>(
+export const prepareInsertOne = async <T extends Database.Schema, S extends Query.SelectInput<T, R>, R extends RelationMetadata>(
   table: string,
   schema: ObjectSchema,
-  query: Query.InsertOneInput<T, R>
+  query: Query.InsertOneInput<T, S, R>
 ): Promise<ExecuteStatementCommandInput> => {
   await validateSchema(query.data, schema);
 
@@ -140,11 +140,12 @@ export const prepareFindMany = <
   T extends Database.Schema,
   S extends Query.SelectInput<T, R>,
   I extends Database.Indexes,
-  R extends RelationMetadata
+  R extends RelationMetadata,
+  C extends boolean
 >(
   table: string,
   indexes: string[][],
-  query: Query.FindManyInput<T, S, I, R>
+  query: Query.FindManyInput<T, S, I, R, C>
 ): ExecuteStatementCommandInput => {
   const [, ...secondaryIndexes] = indexes;
 
@@ -296,7 +297,6 @@ export const prepareCount = <T extends Database.Schema, R extends RelationMetada
   });
 
   return {
-    ConsistentRead: !secondaryIndex,
     Statement: statement,
     ...(variables.length && {
       Parameters: variables

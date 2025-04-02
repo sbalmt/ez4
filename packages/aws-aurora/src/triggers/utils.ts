@@ -1,6 +1,7 @@
 import type { DatabaseService } from '@ez4/database/library';
-import type { DeployOptions } from '@ez4/project/library';
+import type { DeployOptions, ServiceMetadata } from '@ez4/project/library';
 
+import { isDatabaseService } from '@ez4/database/library';
 import { getServiceName } from '@ez4/project/library';
 import { toCamelCase } from '@ez4/utils';
 
@@ -17,4 +18,8 @@ export const getDatabaseName = (service: DatabaseService, options: DeployOptions
   const serviceName = toCamelCase(service.name);
 
   return `${projectName}_${serviceName}`;
+};
+
+export const isAuroraService = (service: ServiceMetadata): service is DatabaseService => {
+  return isDatabaseService(service) && service.engine.name === 'aurora';
 };

@@ -4,10 +4,10 @@ import { detectFieldData, prepareFieldData, getJsonFieldData } from './data.js';
 
 export const createQueryBuilder = () => {
   return new SqlBuilder({
-    onPrepareVariable: (value, { index, schema, inner }) => {
+    onPrepareVariable: (value, { index, schema, json }) => {
       const field = index.toString();
 
-      if (inner) {
+      if (json) {
         return getJsonFieldData(field, value);
       }
 

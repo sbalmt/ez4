@@ -34,7 +34,7 @@
         "maxValue": 5.5
       }
     },
-    "value": {
+    "default": {
       "type": "number",
       "description": "Default decimal value.",
       "format": "decimal",

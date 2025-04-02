@@ -26,48 +26,34 @@ type TestIndexes = {
 
 describe('dynamodb query (select)', () => {
   it('assert :: prepare select', () => {
-    const [statement, variables] = prepareSelect<TestSchema, {}, TestIndexes, TestRelations>(
-      'ez4-test-select',
-      undefined,
-      {
-        select: {
-          id: true,
-          foo: true,
-          bar: true
-        },
-        where: {
-          foo: 123
-        },
-        order: {
-          id: Order.Desc
-        }
+    const [statement, variables] = prepareSelect<TestSchema, {}, TestIndexes, TestRelations, false>('ez4-test-select', undefined, {
+      select: {
+        id: true,
+        foo: true,
+        bar: true
+      },
+      where: {
+        foo: 123
+      },
+      order: {
+        id: Order.Desc
       }
-    );
+    });
 
-    equal(
-      statement,
-      `SELECT "id", "foo", "bar" ` +
-        `FROM "ez4-test-select" ` +
-        `WHERE "foo" = ? ` +
-        `ORDER BY "id" DESC`
-    );
+    equal(statement, `SELECT "id", "foo", "bar" ` + `FROM "ez4-test-select" ` + `WHERE "foo" = ? ` + `ORDER BY "id" DESC`);
 
     deepEqual(variables, [123]);
   });
 
   it('assert :: prepare select (with index)', () => {
-    const [statement, variables] = prepareSelect<TestSchema, {}, TestIndexes, TestRelations>(
-      'ez4-test-select',
-      'foo-index',
-      {
-        select: {
-          id: true
-        },
-        where: {
-          foo: 123
-        }
+    const [statement, variables] = prepareSelect<TestSchema, {}, TestIndexes, TestRelations, false>('ez4-test-select', 'foo-index', {
+      select: {
+        id: true
+      },
+      where: {
+        foo: 123
       }
-    );
+    });
 
     equal(statement, `SELECT "id" FROM "ez4-test-select"."foo-index" WHERE "foo" = ?`);
 

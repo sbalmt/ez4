@@ -6,12 +6,12 @@ import { SchemaType } from './common.js';
 export type UnionSchema = {
   type: SchemaType.Union;
   definitions?: SchemaDefinitions;
-  elements: AnySchema[];
   description?: string;
+  elements: AnySchema[];
   optional?: boolean;
   nullable?: boolean;
 };
 
-export const isUnionSchema = (value: AnySchema): value is UnionSchema => {
-  return value.type === SchemaType.Union;
+export const isUnionSchema = (schema: AnySchema): schema is UnionSchema => {
+  return schema.type === SchemaType.Union;
 };

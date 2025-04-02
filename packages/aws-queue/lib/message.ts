@@ -1,5 +1,5 @@
+import type { SQSEvent, Context, SQSBatchItemFailure, SQSBatchResponse, SQSRecord } from 'aws-lambda';
 import type { MessageSchema } from '@ez4/aws-queue/runtime';
-import type { SQSEvent, Context } from 'aws-lambda';
 import type { Service } from '@ez4/common';
 import type { Queue } from '@ez4/queue';
 
@@ -11,17 +11,12 @@ declare const __EZ4_CONTEXT: object;
 
 declare function handle(request: Queue.Incoming<Queue.Message>, context: object): Promise<any>;
 
-declare function dispatch(
-  event: Service.Event<Queue.Incoming<Queue.Message>>,
-  context: object
-): Promise<void>;
+declare function dispatch(event: Service.Event<Queue.Incoming<Queue.Message>>, context: object): Promise<void>;
 
 /**
  * Entrypoint to handle SQS events.
  */
-export async function sqsEntryPoint(event: SQSEvent, context: Context): Promise<void> {
-  let lastRequest: Queue.Incoming<Queue.Message> | undefined;
-
+export async function sqsEntryPoint(event: SQSEvent, context: Context): Promise<SQSBatchResponse | void> {
   const request = {
     requestId: context.awsRequestId
   };
@@ -33,9 +28,31 @@ export async function sqsEntryPoint(event: SQSEvent, context: Context): Promise<
       throw new Error(`Validation schema for SQS message not found.`);
     }
 
-    for (const record of event.Records) {
+    const allFailures = await processAllRecords(request, __EZ4_SCHEMA, event.Records);
+
+    return {
+      batchItemFailures: allFailures
+    };
+  } catch (error) {
+    await onError(error, request);
+  } finally {
+    await onEnd(request);
+  }
+}
+
+const processAllRecords = async (
+  request: Pick<Queue.Incoming<Queue.Message>, 'requestId'>,
+  schema: MessageSchema,
+  records: SQSRecord[]
+) => {
+  const allFailures: SQSBatchItemFailure[] = [];
+
+  let lastRequest: Queue.Incoming<Queue.Message> | undefined;
+
+  for (const record of records) {
+    try {
       const body = JSON.parse(record.body);
-      const message = await getJsonMessage(body, __EZ4_SCHEMA);
+      const message = await getJsonMessage(body, schema);
 
       lastRequest = {
         ...request,
@@ -45,13 +62,17 @@ export async function sqsEntryPoint(event: SQSEvent, context: Context): Promise<
       await onReady(lastRequest);
 
       await handle(lastRequest, __EZ4_CONTEXT);
+    } catch (error) {
+      await onError(error, lastRequest ?? request);
+
+      allFailures.push({
+        itemIdentifier: record.messageId
+      });
     }
-  } catch (error) {
-    await onError(error, lastRequest ?? request);
-  } finally {
-    await onEnd(request);
   }
-}
+
+  return allFailures;
+};
 
 const onBegin = async (request: Partial<Queue.Incoming<Queue.Message>>) => {
   return dispatch(

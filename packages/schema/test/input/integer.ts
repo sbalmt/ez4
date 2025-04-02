@@ -27,7 +27,7 @@ export interface IntegerTestSchema {
   /**
    * Default integer value.
    */
-  value: Integer.Default<456>;
+  default: Integer.Default<456>;
 
   /**
    * Literal integer value.

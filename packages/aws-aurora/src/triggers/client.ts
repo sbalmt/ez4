@@ -16,13 +16,17 @@ export const prepareLinkedClient = (context: EventContext, service: DatabaseServ
   const resourceArn = getDefinitionName<ClusterState>(clusterId, 'clusterArn');
   const database = getDatabaseName(service, options);
 
-  const configuration = `{ database: "${database}", resourceArn: ${resourceArn}, secretArn: ${secretArn} }`;
+  const connection = `{ database: "${database}", resourceArn: ${resourceArn}, secretArn: ${secretArn} }`;
 
   const repository = JSON.stringify(getRepository(service));
 
+  const settings = JSON.stringify({
+    debug: options.debug
+  });
+
   return {
     entryIds: [clusterId],
-    constructor: `make(${configuration}, ${repository}, ${options.debug})`,
+    constructor: `make(${connection}, ${repository}, ${settings})`,
     from: '@ez4/aws-aurora/client',
     module: 'Client'
   };

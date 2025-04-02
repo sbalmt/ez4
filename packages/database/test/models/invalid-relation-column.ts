@@ -1,7 +1,10 @@
-import type { Database } from '@ez4/database';
+import type { Database, TransactionType } from '@ez4/database';
 
 export declare class TestDatabase extends Database.Service {
-  engine: 'test';
+  engine: {
+    transaction: TransactionType.Static;
+    name: 'test';
+  };
 
   tables: [
     {
@@ -9,7 +12,7 @@ export declare class TestDatabase extends Database.Service {
       indexes: {};
       relations: {
         // Column `random_id` doesn't exists on `testTable`
-        'testTable:id': 'random_id@alias';
+        'random_id@alias': 'testTable:id';
       };
       schema: {
         id: string;

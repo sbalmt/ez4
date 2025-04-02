@@ -1,6 +1,7 @@
-import type { Service } from '@ez4/common';
 import type { LinkedVariables } from '@ez4/project/library';
+import type { Service } from '@ez4/common';
 import type { StreamChange } from './streams.js';
+import type { DatabaseEngine } from './engine.js';
 import type { Client } from './client.js';
 
 /**
@@ -55,7 +56,15 @@ export namespace Database {
     context: Service.Context<Database.Service>
   ) => Promise<void> | void;
 
+  /**
+   * Service event.
+   */
   export type ServiceEvent<T extends Schema = Schema> = Service.Event<Incoming<T>>;
+
+  /**
+   * Service engine.
+   */
+  export type Engine = DatabaseEngine;
 
   /**
    * Table stream.
@@ -125,7 +134,7 @@ export namespace Database {
      * Determines which database engine to use.
      * Check the provider package to know all the possible values.
      */
-    abstract engine: string;
+    abstract engine: Engine;
 
     /**
      * Describe all available tables for the service.

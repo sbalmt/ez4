@@ -1,5 +1,5 @@
-import type { TableClients } from './table.js';
 import type { Transaction } from './transaction.js';
+import type { TableClients } from './table.js';
 import type { Database } from './database.js';
 
 /**
@@ -18,7 +18,8 @@ export type Client<T extends Database.Service> = TableClients<T> & {
   /**
    * Prepare and execute the given transaction.
    *
-   * @param operations Transaction operations.
+   * @param operation Transaction operation.
+   * @returns Returns the transaction result if the given transaction is interactive.
    */
-  transaction<O extends Transaction.WriteOperations<T>>(operations: O): Promise<void>;
+  transaction<O extends Transaction.Operation<T, R>, R>(operation: O): Promise<Transaction.Result<O>>;
 };

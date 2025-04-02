@@ -1,7 +1,10 @@
-import type { Database } from '@ez4/database';
+import type { Database, TransactionType } from '@ez4/database';
 
 export declare class TestDatabase extends Database.Service {
-  engine: 'test';
+  engine: {
+    transaction: TransactionType.Static;
+    name: 'test';
+  };
 
   tables: [
     {
@@ -11,7 +14,7 @@ export declare class TestDatabase extends Database.Service {
       };
       relations: {
         // Table `foo` doesn't exists on the database.
-        'foo:id': 'id@alias';
+        'id@alias': 'foo:id';
       };
       indexes: {};
     }

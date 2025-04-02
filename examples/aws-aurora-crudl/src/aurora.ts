@@ -1,4 +1,4 @@
-import type { Database, Index, Client } from '@ez4/database';
+import type { Database, Index, Client, TransactionType } from '@ez4/database';
 import type { CategorySchema } from './schemas/category.js';
 import type { ItemSchema } from './schemas/item.js';
 
@@ -14,7 +14,10 @@ export declare class Db extends Database.Service {
   /**
    * Database engine.
    */
-  engine: 'aurora';
+  engine: {
+    transaction: TransactionType.Interactive;
+    name: 'aurora';
+  };
 
   /**
    * Database tables.
@@ -24,7 +27,7 @@ export declare class Db extends Database.Service {
       name: 'items';
       schema: ItemSchema;
       relations: {
-        'categories:id': 'category_id@category';
+        'category_id@category': 'categories:id';
       };
       indexes: {
         id: Index.Primary;
@@ -35,7 +38,7 @@ export declare class Db extends Database.Service {
       name: 'categories';
       schema: CategorySchema;
       relations: {
-        'items:category_id': 'id@items';
+        'id@items': 'items:category_id';
       };
       indexes: {
         id: Index.Primary;

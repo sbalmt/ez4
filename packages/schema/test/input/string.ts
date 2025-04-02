@@ -27,7 +27,7 @@ export interface StringTestSchema {
   /**
    * Default string value.
    */
-  value: String.Default<'foo'>;
+  default: String.Default<'foo'>;
 
   /**
    * Literal string value.

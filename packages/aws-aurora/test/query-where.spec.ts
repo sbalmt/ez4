@@ -61,7 +61,7 @@ describe('aurora query (where)', () => {
   };
 
   const getWhereOperation = (where: Query.WhereInput<TestSchema, {}, TestRelations>) => {
-    const [statement, variables] = prepareSelectQuery<TestSchema, {}, TestIndexes, TestRelations>(
+    const [statement, variables] = prepareSelectQuery<TestSchema, {}, TestIndexes, TestRelations, false>(
       'ez4-test-where-operation',
       testSchema,
       {},
@@ -86,10 +86,7 @@ describe('aurora query (where)', () => {
 
     equal(whereClause, `WHERE "id" = :0 AND "foo" = :1`);
 
-    deepEqual(variables, [
-      makeParameter('0', '00000000-0000-1000-9000-000000000000', 'UUID'),
-      makeParameter('1', 123)
-    ]);
+    deepEqual(variables, [makeParameter('0', '00000000-0000-1000-9000-000000000000', 'UUID'), makeParameter('1', 123)]);
   });
 
   it('assert :: prepare where (equal)', () => {
@@ -221,12 +218,9 @@ describe('aurora query (where)', () => {
       baz: { contains: 'def' }
     });
 
-    equal(
-      whereClause,
-      `WHERE "bar"['barFoo'] LIKE '%' || :0 || '%' AND "baz" LIKE '%' || :1 || '%'`
-    );
+    equal(whereClause, `WHERE trim('"' from "bar"['barFoo']::text) LIKE '%' || :0 || '%' AND "baz" LIKE '%' || :1 || '%'`);
 
-    deepEqual(variables, [makeParameter('0', '"abc"', 'JSON'), makeParameter('1', 'def')]);
+    deepEqual(variables, [makeParameter('0', 'abc'), makeParameter('1', 'def')]);
   });
 
   it('assert :: prepare where (starts with)', () => {
@@ -235,9 +229,9 @@ describe('aurora query (where)', () => {
       baz: { startsWith: 'def' }
     });
 
-    equal(whereClause, `WHERE "bar"['barFoo'] LIKE :0 || '%' AND "baz" LIKE :1 || '%'`);
+    equal(whereClause, `WHERE trim('"' from "bar"['barFoo']::text) LIKE :0 || '%' AND "baz" LIKE :1 || '%'`);
 
-    deepEqual(variables, [makeParameter('0', '"abc"', 'JSON'), makeParameter('1', 'def')]);
+    deepEqual(variables, [makeParameter('0', 'abc'), makeParameter('1', 'def')]);
   });
 
   it('assert :: prepare where (not)', () => {
@@ -247,18 +241,12 @@ describe('aurora query (where)', () => {
 
     equal(whereClause, `WHERE NOT ("id" = :0 AND "foo" = :1)`);
 
-    deepEqual(variables, [
-      makeParameter('0', '00000000-0000-1000-9000-000000000000', 'UUID'),
-      makeParameter('1', 123)
-    ]);
+    deepEqual(variables, [makeParameter('0', '00000000-0000-1000-9000-000000000000', 'UUID'), makeParameter('1', 123)]);
   });
 
   it('assert :: prepare where (and)', () => {
     const [whereClause, variables] = getWhereOperation({
-      AND: [
-        { foo: 123, id: '00000000-0000-1000-9000-000000000000' },
-        { OR: [{ foo: 456 }, { foo: 789 }] }
-      ]
+      AND: [{ foo: 123, id: '00000000-0000-1000-9000-000000000000' }, { OR: [{ foo: 456 }, { foo: 789 }] }]
     });
 
     equal(whereClause, `WHERE ("foo" = :0 AND "id" = :1 AND ("foo" = :2 OR "foo" = :3))`);
@@ -276,10 +264,7 @@ describe('aurora query (where)', () => {
       OR: [
         { id: '00000000-0000-1000-9000-000000000000', foo: 123 },
         {
-          AND: [
-            { id: '00000000-0000-1000-9000-000000000001' },
-            { id: '00000000-0000-1000-9000-000000000002' }
-          ]
+          AND: [{ id: '00000000-0000-1000-9000-000000000001' }, { id: '00000000-0000-1000-9000-000000000002' }]
         }
       ]
     });
