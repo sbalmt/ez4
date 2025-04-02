@@ -152,32 +152,43 @@ const getFieldOperation = (
         return getEqualOperation(columnPath, columnSchema, value, context);
       }
 
-      const [entry, ...rest] = Object.entries(value);
+      const valueEntries = Object.entries(value);
 
-      if (!entry) {
+      if (!valueEntries.length) {
         throw new MissingOperatorError(columnName);
       }
 
-      if (rest.length > 0) {
-        throw new TooManyOperatorsError(columnName);
-      }
+      const isNestedEntry = columnSchema && isObjectSchema(columnSchema);
 
-      const [operator, operand] = entry;
+      if (valueEntries.length > 1) {
+        if (!isNestedEntry) {
+          throw new TooManyOperatorsError(columnName);
+        }
 
-      const operation = getValueOperation(columnPath, columnSchema, operator, operand, context);
-
-      if (operation) {
-        return operation;
-      }
-
-      const nextSchema = columnSchema && isObjectSchema(columnSchema) ? columnSchema : undefined;
-
-      return combineOperations(
-        getOperations(value, nextSchema, {
+        const multipleOperations = getOperations(value, columnSchema, {
           ...context,
           parent: columnName
-        })
-      );
+        });
+
+        return combineOperations(multipleOperations);
+      }
+
+      const [[operator, operand]] = valueEntries;
+
+      const singleOperation = getValueOperation(columnPath, columnSchema, operator, operand, context);
+
+      if (!singleOperation) {
+        const operationSchema = isNestedEntry ? columnSchema : undefined;
+
+        const multipleOperations = getOperations(value, operationSchema, {
+          ...context,
+          parent: columnName
+        });
+
+        return combineOperations(multipleOperations);
+      }
+
+      return singleOperation;
     }
   }
 
@@ -293,7 +304,7 @@ const getIsInOperation = (column: string, schema: AnySchema | undefined, operand
     case SchemaType.Object:
     case SchemaType.Array:
     case SchemaType.Tuple:
-      return `${column} <@ ${getOperandValue(schema, operand, context)}`;
+      return `${column} <@ ${getOperandValue(schema, operand, context, true)}`;
 
     default:
       if (!Array.isArray(operand)) {
@@ -312,39 +323,28 @@ const getIsBetweenOperation = (column: string, schema: AnySchema | undefined, op
     throw new InvalidOperandError(column);
   }
 
-  const [begin, end] = operand.map((current) => {
-    return getOperandValue(schema, current, context);
-  });
-
+  const [begin, end] = operand.map((current) => getOperandValue(schema, current, context));
   const lhsOperand = getOperandColumn(schema, column, context);
 
   return `${lhsOperand} BETWEEN ${begin} AND ${end}`;
 };
 
 const getStartsWithOperation = (column: string, schema: AnySchema | undefined, operand: unknown, context: SqlConditionsContext) => {
-  const json = !!context.parent;
-
-  const valueContext = json ? { ...context, parent: undefined } : context;
-
-  const rhsOperand = getOperandValue(schema, operand, valueContext);
+  const rhsOperand = getOperandValue(schema, operand, context);
   const lhsOperand = getOperandColumn(schema, column, context);
 
   return `${lhsOperand} LIKE ${rhsOperand} || '%'`;
 };
 
 const getContainsOperation = (column: string, schema: AnySchema | undefined, operand: unknown, context: SqlConditionsContext) => {
-  const json = !!context.parent;
-
   switch (schema?.type) {
     case SchemaType.Object:
     case SchemaType.Array:
     case SchemaType.Tuple:
-      return `${column} @> ${getOperandValue(schema, operand, context)}`;
+      return `${column} @> ${getOperandValue(schema, operand, context, true)}`;
 
     default: {
-      const valueContext = json ? { ...context, parent: undefined } : context;
-
-      const rhsOperand = getOperandValue(schema, operand, valueContext);
+      const rhsOperand = getOperandValue(schema, operand, context);
       const lhsOperand = getOperandColumn(schema, column, context);
 
       return `${lhsOperand} LIKE '%' || ${rhsOperand} || '%'`;
@@ -352,7 +352,7 @@ const getContainsOperation = (column: string, schema: AnySchema | undefined, ope
   }
 };
 
-const getOperandValue = (schema: AnySchema | undefined, operand: unknown, context: SqlConditionsContext) => {
+const getOperandValue = (schema: AnySchema | undefined, operand: unknown, context: SqlConditionsContext, encode?: boolean) => {
   const { source, variables, references, options, parent } = context;
 
   if (operand instanceof SqlReference) {
@@ -368,7 +368,7 @@ const getOperandValue = (schema: AnySchema | undefined, operand: unknown, contex
 
   if (options.onPrepareVariable) {
     const preparedValue = options.onPrepareVariable(operand, {
-      json: !!parent,
+      json: encode && !!parent,
       schema,
       index
     });
@@ -392,6 +392,7 @@ const getOperandColumn = (schema: AnySchema | undefined, column: string, context
     case SchemaType.Boolean:
       return `${column}::bool`;
 
+    case SchemaType.Enum:
     case SchemaType.String:
       return `${column}::text`;
 

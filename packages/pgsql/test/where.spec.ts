@@ -48,6 +48,27 @@ describe('sql where tests', () => {
     assert.equal(statement, 'SELECT * FROM "test" WHERE "foo" = :0');
   });
 
+  it('assert :: where equal (implicit with json value)', ({ assert }) => {
+    const schema = getJsonObject({
+      type: SchemaType.String
+    });
+
+    const query = sql
+      .select(schema)
+      .from('test')
+      .where({
+        foo: {
+          bar: 'abc'
+        }
+      });
+
+    const [statement, variables] = query.build();
+
+    assert.deepEqual(variables, ['abc']);
+
+    assert.equal(statement, `SELECT * FROM "test" WHERE "foo"['bar']::text = :0`);
+  });
+
   it('assert :: where equal (explicit)', ({ assert }) => {
     const query = sql
       .select()
@@ -65,7 +86,7 @@ describe('sql where tests', () => {
     assert.equal(statement, 'SELECT * FROM "test" WHERE "foo" = :0');
   });
 
-  it('assert :: where equal (with json value)', ({ assert }) => {
+  it('assert :: where equal (explicit with json value)', ({ assert }) => {
     const schema = getJsonObject({
       type: SchemaType.Boolean
     });
@@ -76,14 +97,14 @@ describe('sql where tests', () => {
       .where({
         foo: {
           bar: {
-            equal: 'abc'
+            equal: true
           }
         }
       });
 
     const [statement, variables] = query.build();
 
-    assert.deepEqual(variables, ['abc']);
+    assert.deepEqual(variables, [true]);
 
     assert.equal(statement, `SELECT * FROM "test" WHERE "foo"['bar']::bool = :0`);
   });
@@ -686,17 +707,52 @@ describe('sql where tests', () => {
       .where({
         foo: {
           bar: {
-            baz: true,
-            qux: 'abc'
+            baz: true
           }
         }
       });
 
     const [statement, variables] = query.build();
 
-    assert.deepEqual(variables, [true, 'abc']);
+    assert.deepEqual(variables, [true]);
 
     assert.equal(statement, `SELECT * FROM "test" WHERE "foo"['bar']['baz'] = :0`);
+  });
+
+  it('assert :: where with multiple fields', ({ assert }) => {
+    const schema: ObjectSchema = {
+      type: SchemaType.Object,
+      properties: {
+        foo: {
+          type: SchemaType.Object,
+          properties: {},
+          additional: {
+            property: {
+              type: SchemaType.String
+            },
+            value: {
+              type: SchemaType.Number
+            }
+          }
+        }
+      }
+    };
+
+    const query = sql
+      .select(schema)
+      .from('test')
+      .where({
+        foo: {
+          bar: 123,
+          baz: 456
+        }
+      });
+
+    const [statement, variables] = query.build();
+
+    assert.deepEqual(variables, [123, 456]);
+
+    assert.equal(statement, `SELECT * FROM "test" WHERE ("foo"['bar'] = :0 AND "foo"['baz'] = :1)`);
   });
 
   it('assert :: where with raw value', ({ assert }) => {
