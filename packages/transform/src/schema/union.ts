@@ -18,7 +18,7 @@ export const transformUnion = (value: unknown, schema: UnionSchema, context = cr
     if (result !== undefined) {
       if (isAnyObject(result) && isAnyObject(lastValue)) {
         lastValue = deepMerge(lastValue, result);
-      } else {
+      } else if (lastValue === undefined) {
         lastValue = result;
       }
     }
