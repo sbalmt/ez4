@@ -18,16 +18,9 @@ type TestRelations = {
 describe('aurora query (insert operations)', () => {
   const prepareInsert = <T extends Database.Schema, S extends Query.SelectInput<T, TestRelations>>(
     schema: ObjectSchema,
-    data: Query.InsertOneInput<T, S, TestRelations>['data']
+    query: Query.InsertOneInput<T, S, TestRelations>
   ) => {
-    return prepareInsertQuery<T, S, TestRelations>(
-      'ez4-test-insert-schema',
-      schema,
-      {},
-      {
-        data
-      }
-    );
+    return prepareInsertQuery<T, S, TestRelations>('ez4-test-insert-schema', schema, {}, query);
   };
 
   it('assert :: prepare insert schema (scalar boolean)', async ({ assert }) => {
@@ -44,8 +37,10 @@ describe('aurora query (insert operations)', () => {
         }
       },
       {
-        foo: true,
-        bar: false
+        data: {
+          foo: true,
+          bar: false
+        }
       }
     );
 
@@ -65,7 +60,9 @@ describe('aurora query (insert operations)', () => {
         }
       },
       {
-        number: 123
+        data: {
+          number: 123
+        }
       }
     );
 
@@ -85,7 +82,9 @@ describe('aurora query (insert operations)', () => {
         }
       },
       {
-        text: 'foo'
+        data: {
+          text: 'foo'
+        }
       }
     );
 
@@ -106,7 +105,9 @@ describe('aurora query (insert operations)', () => {
         }
       },
       {
-        nullable: null
+        data: {
+          nullable: null
+        }
       }
     );
 
@@ -127,54 +128,15 @@ describe('aurora query (insert operations)', () => {
         }
       },
       {
-        optional: undefined
+        data: {
+          optional: undefined
+        }
       }
     );
 
     assert.equal(statement, `INSERT INTO "ez4-test-insert-schema" DEFAULT VALUES`);
 
     assert.deepEqual(variables, []);
-  });
-
-  it('assert :: prepare insert schema (scalar invalid type)', async ({ assert }) => {
-    await assert.rejects(
-      () =>
-        prepareInsert(
-          {
-            type: SchemaType.Object,
-            properties: {
-              column: {
-                type: SchemaType.Number
-              }
-            }
-          },
-          {
-            // The `column` can't be string as per schema definition.
-            column: 'foo'
-          }
-        ),
-      MalformedRequestError
-    );
-  });
-
-  it('assert :: prepare insert schema (scalar missing field)', async ({ assert }) => {
-    await assert.rejects(
-      () =>
-        prepareInsert(
-          {
-            type: SchemaType.Object,
-            properties: {
-              foo: {
-                type: SchemaType.Boolean
-              }
-            }
-          },
-          {
-            // None of the required fields were given.
-          }
-        ),
-      MalformedRequestError
-    );
   });
 
   it('assert :: prepare insert schema (json boolean)', async ({ assert }) => {
@@ -196,9 +158,11 @@ describe('aurora query (insert operations)', () => {
         }
       },
       {
-        json: {
-          foo: true,
-          bar: false
+        data: {
+          json: {
+            foo: true,
+            bar: false
+          }
         }
       }
     );
@@ -224,8 +188,10 @@ describe('aurora query (insert operations)', () => {
         }
       },
       {
-        json: {
-          number: 123
+        data: {
+          json: {
+            number: 123
+          }
         }
       }
     );
@@ -251,8 +217,10 @@ describe('aurora query (insert operations)', () => {
         }
       },
       {
-        json: {
-          text: 'foo'
+        data: {
+          json: {
+            text: 'foo'
+          }
         }
       }
     );
@@ -279,8 +247,10 @@ describe('aurora query (insert operations)', () => {
         }
       },
       {
-        json: {
-          nullable: null
+        data: {
+          json: {
+            nullable: null
+          }
         }
       }
     );
@@ -307,8 +277,10 @@ describe('aurora query (insert operations)', () => {
         }
       },
       {
-        json: {
-          optional: undefined
+        data: {
+          json: {
+            optional: undefined
+          }
         }
       }
     );
@@ -316,6 +288,95 @@ describe('aurora query (insert operations)', () => {
     assert.equal(statement, `INSERT INTO "ez4-test-insert-schema" ("json") VALUES (:0)`);
 
     assert.deepEqual(variables, [makeParameter('0', { optional: undefined })]);
+  });
+
+  it('assert :: prepare insert schema (with select)', async ({ assert }) => {
+    const [statement, variables] = await prepareInsert(
+      {
+        type: SchemaType.Object,
+        properties: {
+          scalar: {
+            type: SchemaType.String,
+            optional: true
+          },
+          json: {
+            type: SchemaType.Object,
+            properties: {
+              scalar: {
+                type: SchemaType.Number
+              }
+            }
+          }
+        }
+      },
+      {
+        select: {
+          scalar: true,
+          json: {
+            scalar: true
+          }
+        },
+        data: {
+          scalar: 'foo',
+          json: {
+            scalar: 123
+          }
+        }
+      }
+    );
+
+    assert.equal(
+      statement,
+      `WITH "R0" AS (INSERT INTO "ez4-test-insert-schema" ("scalar", "json") VALUES (:0, :1) RETURNING "scalar", "json") ` +
+        `SELECT "scalar", json_build_object('scalar', "json"['scalar']) AS "json" FROM "R0"`
+    );
+
+    assert.deepEqual(variables, [makeParameter('0', 'foo'), makeParameter('1', { scalar: 123 })]);
+  });
+
+  it('assert :: prepare insert schema (scalar invalid type)', async ({ assert }) => {
+    await assert.rejects(
+      () =>
+        prepareInsert(
+          {
+            type: SchemaType.Object,
+            properties: {
+              column: {
+                type: SchemaType.Number
+              }
+            }
+          },
+          {
+            data: {
+              // The `column` can't be string as per schema definition.
+              column: 'foo'
+            }
+          }
+        ),
+      MalformedRequestError
+    );
+  });
+
+  it('assert :: prepare insert schema (scalar missing field)', async ({ assert }) => {
+    await assert.rejects(
+      () =>
+        prepareInsert(
+          {
+            type: SchemaType.Object,
+            properties: {
+              foo: {
+                type: SchemaType.Boolean
+              }
+            }
+          },
+          {
+            data: {
+              // None of the required fields were given.
+            }
+          }
+        ),
+      MalformedRequestError
+    );
   });
 
   it('assert :: prepare insert schema (json invalid type)', async ({ assert }) => {
@@ -336,9 +397,11 @@ describe('aurora query (insert operations)', () => {
             }
           },
           {
-            json: {
-              // The `column` can't be numeric as per schema definition.
-              column: 123
+            data: {
+              json: {
+                // The `column` can't be numeric as per schema definition.
+                column: 123
+              }
             }
           }
         ),

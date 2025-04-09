@@ -18,9 +18,9 @@ type TestRelations = {
 describe('aurora query (update schema)', () => {
   const prepareUpdate = <T extends Database.Schema, S extends Query.SelectInput<T, TestRelations>>(
     schema: ObjectSchema,
-    data: Query.UpdateManyInput<T, S, TestRelations>['data']
+    query: Query.UpdateManyInput<T, S, TestRelations>
   ) => {
-    return prepareUpdateQuery<T, S, {}, TestRelations>('ez4-test-update-schema', schema, {}, { data });
+    return prepareUpdateQuery<T, S, {}, TestRelations>('ez4-test-update-schema', schema, {}, query);
   };
 
   it('assert :: prepare update schema (scalar boolean)', async ({ assert }) => {
@@ -37,8 +37,10 @@ describe('aurora query (update schema)', () => {
         }
       },
       {
-        foo: true,
-        bar: false
+        data: {
+          foo: true,
+          bar: false
+        }
       }
     );
 
@@ -58,7 +60,9 @@ describe('aurora query (update schema)', () => {
         }
       },
       {
-        number: 123
+        data: {
+          number: 123
+        }
       }
     );
 
@@ -78,7 +82,9 @@ describe('aurora query (update schema)', () => {
         }
       },
       {
-        text: 'foo'
+        data: {
+          text: 'foo'
+        }
       }
     );
 
@@ -99,7 +105,9 @@ describe('aurora query (update schema)', () => {
         }
       },
       {
-        nullable: null
+        data: {
+          nullable: null
+        }
       }
     );
 
@@ -120,7 +128,9 @@ describe('aurora query (update schema)', () => {
         }
       },
       {
-        optional: undefined
+        data: {
+          optional: undefined
+        }
       }
     );
 
@@ -144,35 +154,16 @@ describe('aurora query (update schema)', () => {
         }
       },
       {
-        required: undefined,
-        optional: undefined
+        data: {
+          required: undefined,
+          optional: undefined
+        }
       }
     );
 
     assert.equal(statement, `SELECT * FROM "ez4-test-update-schema"`);
 
     assert.deepEqual(variables, []);
-  });
-
-  it('assert :: prepare update schema (scalar invalid type)', async ({ assert }) => {
-    await assert.rejects(
-      () =>
-        prepareUpdate(
-          {
-            type: SchemaType.Object,
-            properties: {
-              column: {
-                type: SchemaType.Number
-              }
-            }
-          },
-          {
-            // The `column` can't be string as per schema definition.
-            column: 'foo'
-          }
-        ),
-      MalformedRequestError
-    );
   });
 
   it('assert :: prepare update schema (json boolean)', async ({ assert }) => {
@@ -194,9 +185,11 @@ describe('aurora query (update schema)', () => {
         }
       },
       {
-        json: {
-          foo: true,
-          bar: false
+        data: {
+          json: {
+            foo: true,
+            bar: false
+          }
         }
       }
     );
@@ -222,8 +215,10 @@ describe('aurora query (update schema)', () => {
         }
       },
       {
-        json: {
-          number: 123
+        data: {
+          json: {
+            number: 123
+          }
         }
       }
     );
@@ -249,8 +244,10 @@ describe('aurora query (update schema)', () => {
         }
       },
       {
-        json: {
-          text: 'foo'
+        data: {
+          json: {
+            text: 'foo'
+          }
         }
       }
     );
@@ -277,8 +274,10 @@ describe('aurora query (update schema)', () => {
         }
       },
       {
-        json: {
-          nullable: null
+        data: {
+          json: {
+            nullable: null
+          }
         }
       }
     );
@@ -295,6 +294,36 @@ describe('aurora query (update schema)', () => {
         properties: {
           json: {
             type: SchemaType.Object,
+            optional: true,
+            properties: {
+              optional: {
+                type: SchemaType.Number
+              }
+            }
+          }
+        }
+      },
+      {
+        data: {
+          json: {
+            optional: 123
+          }
+        }
+      }
+    );
+
+    assert.equal(statement, `UPDATE ONLY "ez4-test-update-schema" SET "json" = :0`);
+
+    assert.deepEqual(variables, [makeParameter('0', { optional: 123 })]);
+  });
+
+  it('assert :: prepare update schema (json optional children)', async ({ assert }) => {
+    const [statement, variables] = await prepareUpdate(
+      {
+        type: SchemaType.Object,
+        properties: {
+          json: {
+            type: SchemaType.Object,
             properties: {
               optional: {
                 type: SchemaType.Number,
@@ -305,8 +334,10 @@ describe('aurora query (update schema)', () => {
         }
       },
       {
-        json: {
-          optional: undefined
+        data: {
+          json: {
+            optional: undefined
+          }
         }
       }
     );
@@ -336,9 +367,11 @@ describe('aurora query (update schema)', () => {
         }
       },
       {
-        json: {
-          required: undefined,
-          optional: undefined
+        data: {
+          json: {
+            required: undefined,
+            optional: undefined
+          }
         }
       }
     );
@@ -346,6 +379,73 @@ describe('aurora query (update schema)', () => {
     assert.equal(statement, `SELECT * FROM "ez4-test-update-schema"`);
 
     assert.deepEqual(variables, []);
+  });
+
+  it('assert :: prepare update schema (with select)', async ({ assert }) => {
+    const [statement, variables] = await prepareUpdate(
+      {
+        type: SchemaType.Object,
+        properties: {
+          scalar: {
+            type: SchemaType.String,
+            optional: true
+          },
+          json: {
+            type: SchemaType.Object,
+            properties: {
+              scalar: {
+                type: SchemaType.Number
+              }
+            }
+          }
+        }
+      },
+      {
+        select: {
+          scalar: true,
+          json: {
+            scalar: true
+          }
+        },
+        data: {
+          scalar: 'foo',
+          json: {
+            scalar: 123
+          }
+        }
+      }
+    );
+
+    assert.equal(
+      statement,
+      `UPDATE ONLY "ez4-test-update-schema" SET "scalar" = :0, "json"['scalar'] = :1 ` +
+        `RETURNING "scalar", json_build_object('scalar', "json"['scalar']) AS "json"`
+    );
+
+    assert.deepEqual(variables, [makeParameter('0', 'foo'), makeParameter('1', JSON.stringify(123), 'JSON')]);
+  });
+
+  it('assert :: prepare update schema (scalar invalid type)', async ({ assert }) => {
+    await assert.rejects(
+      () =>
+        prepareUpdate(
+          {
+            type: SchemaType.Object,
+            properties: {
+              column: {
+                type: SchemaType.Number
+              }
+            }
+          },
+          {
+            data: {
+              // The `column` can't be string as per schema definition.
+              column: 'foo'
+            }
+          }
+        ),
+      MalformedRequestError
+    );
   });
 
   it('assert :: prepare update schema (json invalid type)', async ({ assert }) => {
@@ -366,9 +466,11 @@ describe('aurora query (update schema)', () => {
             }
           },
           {
-            json: {
-              // The `column` can't be numeric as per schema definition.
-              column: 123
+            data: {
+              json: {
+                // The `column` can't be numeric as per schema definition.
+                column: 123
+              }
             }
           }
         ),

@@ -147,64 +147,6 @@ describe('aurora query (update relations)', () => {
     return prepareUpdateQuery<TestSchema, S, TestIndexes, TestRelations>('ez4-test-update-relations', testSchema, testRelations, query);
   };
 
-  it('assert :: prepare update relations (with select)', async ({ assert }) => {
-    const [statement, variables] = await prepareUpdate({
-      select: {
-        foo: true,
-        bar: {
-          barBar: true
-        }
-      },
-      data: {
-        foo: 123,
-        bar: {
-          barBar: false
-        }
-      },
-      where: {
-        id: '00000000-0000-1000-9000-000000000000'
-      }
-    });
-
-    assert.equal(
-      statement,
-      `UPDATE ONLY "ez4-test-update-relations" SET "foo" = :0, "bar"['barBar'] = :1 WHERE "id" = :2 ` +
-        `RETURNING "foo", json_build_object('barBar', "bar"['barBar']) AS "bar"`
-    );
-
-    assert.deepEqual(variables, [
-      makeParameter('0', 123),
-      makeParameter('1', 'false', 'JSON'),
-      makeParameter('2', '00000000-0000-1000-9000-000000000000', 'UUID')
-    ]);
-  });
-
-  it('assert :: prepare update relations (optional json)', async ({ assert }) => {
-    const [statement, variables] = await prepareUpdate({
-      data: {
-        bar: {
-          barBaz: {
-            barBazFoo: 123
-          }
-        },
-        baz: {
-          bazFoo: 456
-        }
-      },
-      where: {
-        id: '00000000-0000-1000-9000-000000000000'
-      }
-    });
-
-    assert.equal(statement, `UPDATE ONLY "ez4-test-update-relations" SET "bar"['barBaz'] = :0, "baz" = :1 WHERE "id" = :2`);
-
-    assert.deepEqual(variables, [
-      makeParameter('0', { barBazFoo: 123 }),
-      makeParameter('1', { bazFoo: 456 }),
-      makeParameter('2', '00000000-0000-1000-9000-000000000000', 'UUID')
-    ]);
-  });
-
   it('assert :: prepare update relations (primary foreign id connection)', async ({ assert }) => {
     const [statement, variables] = await prepareUpdate({
       data: {
