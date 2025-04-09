@@ -28,26 +28,20 @@ type TestSchema = {
 type TestRelations = {
   indexes: 'relation1_id' | 'relation2_id';
   filters: {
-    relation1: TestSchema;
-    relation2: TestSchema;
-    relations: TestSchema;
+    primary_to_secondary: TestSchema;
+    unique_to_primary: TestSchema;
+    secondary_to_primary: TestSchema;
   };
   selects: {
-    relation1?: TestSchema;
-    relation2?: TestSchema;
-    relations?: TestSchema[];
+    primary_to_secondary?: TestSchema;
+    unique_to_primary?: TestSchema;
+    secondary_to_primary?: TestSchema[];
   };
   changes: {
-    relation1?: TestSchema | { relation1_id?: string };
-    relation2?: TestSchema | { relation2_id?: string };
-    relations?: TestSchema[];
+    primary_to_secondary?: TestSchema | { relation1_id?: string };
+    unique_to_primary?: TestSchema | { relation2_id?: string };
+    secondary_to_primary?: TestSchema[];
   };
-};
-
-type TestIndexes = {
-  id: Index.Primary;
-  relation1_id: Index.Secondary;
-  relation2_id: Index.Secondary;
 };
 
 describe('aurora query (update relations)', () => {
@@ -109,31 +103,31 @@ describe('aurora query (update relations)', () => {
   };
 
   const testRelations = {
-    relation1: {
+    primary_to_secondary: {
       sourceSchema: testSchema,
       sourceTable: 'ez4-test-relation',
       sourceAlias: 'ez4-test-relation',
-      targetAlias: 'relation1',
+      targetAlias: 'primary_to_secondary',
       targetColumn: 'relation1_id',
       sourceColumn: 'id',
       sourceIndex: Index.Primary,
       targetIndex: Index.Secondary
     },
-    relation2: {
+    unique_to_primary: {
       sourceSchema: testSchema,
       sourceTable: 'ez4-test-relation',
       sourceAlias: 'ez4-test-relation',
-      targetAlias: 'relation2',
+      targetAlias: 'unique_to_primary',
       targetColumn: 'id',
       sourceColumn: 'relation2_id',
       sourceIndex: Index.Unique,
       targetIndex: Index.Primary
     },
-    relations: {
+    secondary_to_primary: {
       sourceSchema: testSchema,
       sourceTable: 'ez4-test-relation',
       sourceAlias: 'ez4-test-relation',
-      targetAlias: 'relations',
+      targetAlias: 'secondary_to_primary',
       targetColumn: 'id',
       sourceColumn: 'relation1_id',
       sourceIndex: Index.Secondary,
@@ -144,14 +138,14 @@ describe('aurora query (update relations)', () => {
   const prepareUpdate = <S extends Query.SelectInput<TestSchema, TestRelations>>(
     query: Query.UpdateManyInput<TestSchema, S, TestRelations>
   ) => {
-    return prepareUpdateQuery<TestSchema, S, TestIndexes, TestRelations>('ez4-test-update-relations', testSchema, testRelations, query);
+    return prepareUpdateQuery<TestSchema, S, {}, TestRelations>('ez4-test-update-relations', testSchema, testRelations, query);
   };
 
   it('assert :: prepare update relations (primary foreign id connection)', async ({ assert }) => {
     const [statement, variables] = await prepareUpdate({
       data: {
         id: '00000000-0000-1000-9000-000000000000',
-        relation1: {
+        primary_to_secondary: {
           relation1_id: '00000000-0000-1000-9000-000000000001'
         }
       },
@@ -173,14 +167,14 @@ describe('aurora query (update relations)', () => {
     const [statement, variables] = await prepareUpdate({
       select: {
         id: true,
-        relation1: {
+        primary_to_secondary: {
           id: true,
           foo: true
         }
       },
       data: {
         id: '00000000-0000-1000-9000-000000000000',
-        relation1: {
+        primary_to_secondary: {
           relation1_id: '00000000-0000-1000-9000-000000000001'
         }
       },
@@ -193,7 +187,7 @@ describe('aurora query (update relations)', () => {
       statement,
       `UPDATE ONLY "ez4-test-update-relations" AS "R" SET "id" = :0, "relation1_id" = :1 WHERE "R"."foo" = :2 RETURNING "R"."id", ` +
         `(SELECT json_build_object('id', "T"."id", 'foo', "T"."foo") FROM "ez4-test-relation" AS "T" ` +
-        `WHERE "T"."id" = "R"."relation1_id") AS "relation1"`
+        `WHERE "T"."id" = "R"."relation1_id") AS "primary_to_secondary"`
     );
 
     assert.deepEqual(variables, [
@@ -207,7 +201,7 @@ describe('aurora query (update relations)', () => {
     const [statement, variables] = await prepareUpdate({
       data: {
         id: '00000000-0000-1000-9000-000000000000',
-        relation1: {
+        primary_to_secondary: {
           relation1_id: null
         }
       },
@@ -229,8 +223,8 @@ describe('aurora query (update relations)', () => {
     const [statement, variables] = await prepareUpdate({
       data: {
         id: '00000000-0000-1000-9000-000000000000',
-        relation2: undefined,
-        relation1: {
+        unique_to_primary: undefined,
+        primary_to_secondary: {
           relation1_id: undefined
         }
       },
@@ -248,7 +242,7 @@ describe('aurora query (update relations)', () => {
     const [statement, variables] = await prepareUpdate({
       data: {
         id: '00000000-0000-1000-9000-000000000000',
-        relation1: {
+        primary_to_secondary: {
           foo: 123,
           bar: {
             barFoo: 'abc'
@@ -281,14 +275,14 @@ describe('aurora query (update relations)', () => {
     const [statement, variables] = await prepareUpdate({
       select: {
         id: true,
-        relation1: {
+        primary_to_secondary: {
           id: true,
           foo: true
         }
       },
       data: {
         id: '00000000-0000-1000-9000-000000000000',
-        relation1: {
+        primary_to_secondary: {
           foo: 123,
           bar: {
             barFoo: 'abc'
@@ -309,7 +303,7 @@ describe('aurora query (update relations)', () => {
         `"R1" AS (UPDATE ONLY "ez4-test-relation" AS "T" SET "foo" = :2, "bar"['barFoo'] = :3 FROM "R0" WHERE "T"."id" = "R0"."relation1_id") ` +
         // Select
         `SELECT "id", (SELECT json_build_object('id', "T"."id", 'foo', "T"."foo") FROM "ez4-test-relation" AS "T" ` +
-        `WHERE "T"."id" = "R0"."relation1_id") AS "relation1" ` +
+        `WHERE "T"."id" = "R0"."relation1_id") AS "primary_to_secondary" ` +
         `FROM "ez4-test-update-relations"`
     );
 
@@ -325,7 +319,7 @@ describe('aurora query (update relations)', () => {
     const [statement, variables] = await prepareUpdate({
       data: {
         id: '00000000-0000-1000-9000-000000000000',
-        relation2: {
+        unique_to_primary: {
           relation2_id: '00000000-0000-1000-9000-000000000001'
         }
       },
@@ -354,7 +348,7 @@ describe('aurora query (update relations)', () => {
     const [statement, variables] = await prepareUpdate({
       data: {
         id: '00000000-0000-1000-9000-000000000000',
-        relation2: {
+        unique_to_primary: {
           relation2_id: null
         }
       },
@@ -383,8 +377,8 @@ describe('aurora query (update relations)', () => {
     const [statement, variables] = await prepareUpdate({
       data: {
         id: '00000000-0000-1000-9000-000000000000',
-        relation1: undefined,
-        relation2: {
+        primary_to_secondary: undefined,
+        unique_to_primary: {
           relation2_id: undefined
         }
       },
@@ -402,7 +396,7 @@ describe('aurora query (update relations)', () => {
     const [statement, variables] = await prepareUpdate({
       data: {
         id: '00000000-0000-1000-9000-000000000000',
-        relation2: {
+        unique_to_primary: {
           foo: 456,
           bar: {
             barBar: false
@@ -435,14 +429,14 @@ describe('aurora query (update relations)', () => {
     const [statement, variables] = await prepareUpdate({
       select: {
         id: true,
-        relation2: {
+        unique_to_primary: {
           id: true,
           foo: true
         }
       },
       data: {
         id: '00000000-0000-1000-9000-000000000000',
-        relation2: {
+        unique_to_primary: {
           foo: 456,
           bar: {
             barBar: false
@@ -463,7 +457,7 @@ describe('aurora query (update relations)', () => {
         `"R1" AS (UPDATE ONLY "ez4-test-relation" AS "T" SET "foo" = :2, "bar"['barBar'] = :3 FROM "R0" WHERE "T"."relation2_id" = "R0"."id") ` +
         // Select
         `SELECT "id", (SELECT json_build_object('id', "T"."id", 'foo', "T"."foo") FROM "ez4-test-relation" AS "T" ` +
-        `WHERE "T"."relation2_id" = "R0"."id") AS "relation2" ` +
+        `WHERE "T"."relation2_id" = "R0"."id") AS "unique_to_primary" ` +
         `FROM "ez4-test-update-relations"`
     );
 
@@ -479,7 +473,7 @@ describe('aurora query (update relations)', () => {
     const [statement, variables] = await prepareUpdate({
       data: {
         id: '00000000-0000-1000-9000-000000000000',
-        relations: {
+        secondary_to_primary: {
           foo: 123
         }
       },
@@ -508,14 +502,14 @@ describe('aurora query (update relations)', () => {
     const [statement, variables] = await prepareUpdate({
       select: {
         id: true,
-        relations: {
+        secondary_to_primary: {
           id: true,
           bar: true
         }
       },
       data: {
         id: '00000000-0000-1000-9000-000000000000',
-        relations: {
+        secondary_to_primary: {
           foo: 123
         }
       },
@@ -533,7 +527,7 @@ describe('aurora query (update relations)', () => {
         `"R1" AS (UPDATE ONLY "ez4-test-relation" AS "T" SET "foo" = :2 FROM "R0" WHERE "T"."relation1_id" = "R0"."id") ` +
         // Select
         `SELECT "id", (SELECT COALESCE(json_agg(json_build_object('id', "T"."id", 'bar', "T"."bar")), '[]'::json) FROM "ez4-test-relation" AS "T" ` +
-        `WHERE "T"."relation1_id" = "R0"."id") AS "relations" ` +
+        `WHERE "T"."relation1_id" = "R0"."id") AS "secondary_to_primary" ` +
         `FROM "ez4-test-update-relations"`
     );
 
@@ -548,17 +542,17 @@ describe('aurora query (update relations)', () => {
     const [statement, variables] = await prepareUpdate({
       data: {
         id: '00000000-0000-1000-9000-000000000000',
-        relation1: {
+        primary_to_secondary: {
           bar: {
             barFoo: 'abc'
           }
         },
-        relation2: {
+        unique_to_primary: {
           bar: {
             barBar: true
           }
         },
-        relations: {
+        secondary_to_primary: {
           foo: 123
         }
       },
@@ -593,29 +587,29 @@ describe('aurora query (update relations)', () => {
     const [statement, variables] = await prepareUpdate({
       select: {
         id: true,
-        relation1: {
+        primary_to_secondary: {
           foo: true
         },
-        relation2: {
+        unique_to_primary: {
           id: true
         },
-        relations: {
+        secondary_to_primary: {
           foo: true
         }
       },
       data: {
         id: '00000000-0000-1000-9000-000000000000',
-        relation1: {
+        primary_to_secondary: {
           bar: {
             barFoo: 'abc'
           }
         },
-        relation2: {
+        unique_to_primary: {
           bar: {
             barBar: true
           }
         },
-        relations: {
+        secondary_to_primary: {
           foo: 123
         }
       },
@@ -637,10 +631,10 @@ describe('aurora query (update relations)', () => {
         `"R3" AS (UPDATE ONLY "ez4-test-relation" AS "T" SET "foo" = :4 FROM "R0" WHERE "T"."relation1_id" = "R0"."id") ` +
         // Select
         `SELECT "id", ` +
-        `(SELECT json_build_object('foo', "T"."foo") FROM "ez4-test-relation" AS "T" WHERE "T"."id" = "R0"."relation1_id") AS "relation1", ` +
-        `(SELECT json_build_object('id', "T"."id") FROM "ez4-test-relation" AS "T" WHERE "T"."relation2_id" = "R0"."id") AS "relation2", ` +
+        `(SELECT json_build_object('foo', "T"."foo") FROM "ez4-test-relation" AS "T" WHERE "T"."id" = "R0"."relation1_id") AS "primary_to_secondary", ` +
+        `(SELECT json_build_object('id', "T"."id") FROM "ez4-test-relation" AS "T" WHERE "T"."relation2_id" = "R0"."id") AS "unique_to_primary", ` +
         `(SELECT COALESCE(json_agg(json_build_object('foo', "T"."foo")), '[]'::json) FROM "ez4-test-relation" AS "T" ` +
-        `WHERE "T"."relation1_id" = "R0"."id") AS "relations" ` +
+        `WHERE "T"."relation1_id" = "R0"."id") AS "secondary_to_primary" ` +
         `FROM "ez4-test-update-relations"`
     );
 
@@ -656,17 +650,17 @@ describe('aurora query (update relations)', () => {
   it('assert :: prepare update relations (only relationships)', async ({ assert }) => {
     const [statement, variables] = await prepareUpdate({
       data: {
-        relation1: {
+        primary_to_secondary: {
           bar: {
             barFoo: 'abc'
           }
         },
-        relation2: {
+        unique_to_primary: {
           bar: {
             barBar: false
           }
         },
-        relations: {
+        secondary_to_primary: {
           foo: 123
         }
       },
@@ -699,7 +693,7 @@ describe('aurora query (update relations)', () => {
   it('assert :: prepare update relations (optional json relationships)', async ({ assert }) => {
     const [statement, variables] = await prepareUpdate({
       data: {
-        relation1: {
+        primary_to_secondary: {
           bar: {
             barBaz: {
               barBazFoo: 123

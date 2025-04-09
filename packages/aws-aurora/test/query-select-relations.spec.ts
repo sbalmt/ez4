@@ -18,19 +18,19 @@ type TestSchema = {
 type TestRelations = {
   indexes: 'relation1_id' | 'relation2_id';
   filters: {
-    relation1: TestSchema;
-    relation2: TestSchema;
-    relations: TestSchema;
+    primary_to_secondary: TestSchema;
+    unique_to_primary: TestSchema;
+    secondary_to_primary: TestSchema;
   };
   selects: {
-    relation1?: TestSchema;
-    relation2?: TestSchema;
-    relations?: TestSchema[];
+    primary_to_secondary?: TestSchema;
+    unique_to_primary?: TestSchema;
+    secondary_to_primary?: TestSchema[];
   };
   changes: {
-    relation1?: TestSchema | { relation1_id: string };
-    relation2?: TestSchema | { relation2_id: string };
-    relations?: TestSchema[];
+    primary_to_secondary?: TestSchema | { relation1_id: string };
+    unique_to_primary?: TestSchema | { relation2_id: string };
+    secondary_to_primary?: TestSchema[];
   };
 };
 
@@ -66,31 +66,31 @@ describe('aurora query (select relations)', () => {
   };
 
   const testRelations = {
-    relation1: {
+    primary_to_secondary: {
       sourceSchema: testSchema,
       sourceTable: 'ez4-test-relation',
       sourceAlias: 'ez4-test-relation',
-      targetAlias: 'relation1',
+      targetAlias: 'primary_to_secondary',
       targetColumn: 'relation1_id',
       sourceColumn: 'id',
       sourceIndex: Index.Primary,
       targetIndex: Index.Secondary
     },
-    relation2: {
+    unique_to_primary: {
       sourceSchema: testSchema,
       sourceTable: 'ez4-test-relation',
       sourceAlias: 'ez4-test-relation',
-      targetAlias: 'relation2',
+      targetAlias: 'unique_to_primary',
       targetColumn: 'id',
       sourceColumn: 'relation2_id',
       sourceIndex: Index.Unique,
       targetIndex: Index.Primary
     },
-    relations: {
+    secondary_to_primary: {
       sourceSchema: testSchema,
       sourceTable: 'ez4-test-relation',
       sourceAlias: 'ez4-test-relation',
-      targetAlias: 'relations',
+      targetAlias: 'it(',
       targetColumn: 'id',
       sourceColumn: 'relation1_id',
       sourceIndex: Index.Secondary,
@@ -114,11 +114,11 @@ describe('aurora query (select relations)', () => {
       select: {
         id: true,
         foo: true,
-        relation1: {
+        primary_to_secondary: {
           id: true
         },
-        relation2: true,
-        relations: {
+        unique_to_primary: true,
+        secondary_to_primary: {
           foo: true
         }
       },
@@ -132,17 +132,17 @@ describe('aurora query (select relations)', () => {
       `SELECT "R"."id", "R"."foo", ` +
         // First relation
         `(SELECT json_build_object('id', "T"."id") ` +
-        `FROM "ez4-test-relation" AS "T" WHERE "T"."id" = "R"."relation1_id") AS "relation1", ` +
+        `FROM "ez4-test-relation" AS "T" WHERE "T"."id" = "R"."relation1_id") AS "primary_to_secondary", ` +
         // Second relation
         `(SELECT json_build_object(` +
         `'id', "T"."id", ` +
         `'relation1_id', "T"."relation1_id", ` +
         `'relation2_id', "T"."relation2_id", ` +
         `'foo', "T"."foo") ` +
-        `FROM "ez4-test-relation" AS "T" WHERE "T"."relation2_id" = "R"."id") AS "relation2", ` +
+        `FROM "ez4-test-relation" AS "T" WHERE "T"."relation2_id" = "R"."id") AS "unique_to_primary", ` +
         // Third relation
         `(SELECT COALESCE(json_agg(json_build_object('foo', "T"."foo")), '[]'::json) ` +
-        `FROM "ez4-test-relation" AS "T" WHERE "T"."relation1_id" = "R"."id") AS "relations" ` +
+        `FROM "ez4-test-relation" AS "T" WHERE "T"."relation1_id" = "R"."id") AS "secondary_to_primary" ` +
         //
         `FROM "ez4-test-select-relations" AS "R" ` +
         `WHERE "R"."id" = :0`
@@ -156,25 +156,25 @@ describe('aurora query (select relations)', () => {
       select: {
         id: true,
         foo: true,
-        relation1: {
+        primary_to_secondary: {
           foo: true
         },
-        relation2: {
+        unique_to_primary: {
           foo: true
         },
-        relations: {
+        secondary_to_primary: {
           foo: true
         }
       },
       where: {
         id: '00000000-0000-1000-9000-000000000000',
-        relation1: {
+        primary_to_secondary: {
           foo: 123
         },
-        relation2: {
+        unique_to_primary: {
           foo: 456
         },
-        relations: {
+        secondary_to_primary: {
           id: '00000000-0000-1000-9000-000000000001'
         }
       }
@@ -184,12 +184,12 @@ describe('aurora query (select relations)', () => {
       statement,
       `SELECT "R"."id", "R"."foo", ` +
         // First relation
-        `(SELECT json_build_object('foo', "T"."foo") FROM "ez4-test-relation" AS "T" WHERE "T"."id" = "R"."relation1_id") AS "relation1", ` +
+        `(SELECT json_build_object('foo', "T"."foo") FROM "ez4-test-relation" AS "T" WHERE "T"."id" = "R"."relation1_id") AS "primary_to_secondary", ` +
         // Second relation
-        `(SELECT json_build_object('foo', "T"."foo") FROM "ez4-test-relation" AS "T" WHERE "T"."relation2_id" = "R"."id") AS "relation2", ` +
+        `(SELECT json_build_object('foo', "T"."foo") FROM "ez4-test-relation" AS "T" WHERE "T"."relation2_id" = "R"."id") AS "unique_to_primary", ` +
         // Third relation
         `(SELECT COALESCE(json_agg(json_build_object('foo', "T"."foo")), '[]'::json) ` +
-        `FROM "ez4-test-relation" AS "T" WHERE "T"."relation1_id" = "R"."id") AS "relations" ` +
+        `FROM "ez4-test-relation" AS "T" WHERE "T"."relation1_id" = "R"."id") AS "secondary_to_primary" ` +
         // Main condition
         `FROM "ez4-test-select-relations" AS "R" WHERE "R"."id" = :0 AND ` +
         // First relation condition
@@ -215,10 +215,10 @@ describe('aurora query (select relations)', () => {
       },
       where: {
         id: '00000000-0000-1000-9000-000000000000',
-        relation1: {},
-        relation2: null,
+        primary_to_secondary: {},
+        unique_to_primary: null,
         NOT: {
-          relations: null
+          secondary_to_primary: null
         }
       }
     });
@@ -241,20 +241,20 @@ describe('aurora query (select relations)', () => {
     const [statement, variables] = prepareSelect({
       select: {
         id: true,
-        relation1: {
+        primary_to_secondary: {
           foo: true
         },
-        relation2: {
+        unique_to_primary: {
           foo: true
         },
-        relations: {
+        secondary_to_primary: {
           foo: true
         }
       },
       include: {
-        relation1: {},
-        relation2: null,
-        relations: {
+        primary_to_secondary: {},
+        unique_to_primary: null,
+        secondary_to_primary: {
           foo: 123
         }
       },
@@ -267,12 +267,12 @@ describe('aurora query (select relations)', () => {
       statement,
       `SELECT "R"."id", ` +
         // First relation
-        `(SELECT json_build_object('foo', "T"."foo") FROM "ez4-test-relation" AS "T" WHERE "T"."id" = "R"."relation1_id") AS "relation1", ` +
+        `(SELECT json_build_object('foo', "T"."foo") FROM "ez4-test-relation" AS "T" WHERE "T"."id" = "R"."relation1_id") AS "primary_to_secondary", ` +
         // Second relation
-        `(SELECT json_build_object('foo', "T"."foo") FROM "ez4-test-relation" AS "T" WHERE "T"."relation2_id" = "R"."id") AS "relation2", ` +
+        `(SELECT json_build_object('foo', "T"."foo") FROM "ez4-test-relation" AS "T" WHERE "T"."relation2_id" = "R"."id") AS "unique_to_primary", ` +
         // Third relation
         `(SELECT COALESCE(json_agg(json_build_object('foo', "T"."foo")), '[]'::json) ` +
-        `FROM "ez4-test-relation" AS "T" WHERE "T"."foo" = :0 AND "T"."relation1_id" = "R"."id") AS "relations" ` +
+        `FROM "ez4-test-relation" AS "T" WHERE "T"."foo" = :0 AND "T"."relation1_id" = "R"."id") AS "secondary_to_primary" ` +
         //
         `FROM "ez4-test-select-relations" AS "R" ` +
         `WHERE "R"."id" = :1`
