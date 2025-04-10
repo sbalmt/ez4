@@ -291,10 +291,9 @@ describe('aurora query (insert secondary relations)', () => {
       () =>
         prepareRelationInsert(testSchema, getSingleTestRelation(testSchema), {
           data: {
-            id: '00000000-0000-1000-9000-000000000000',
             secondary_to_primary: [
               {
-                id: '00000000-0000-1000-9000-000000000001',
+                foo: 'foo',
 
                 // Extra fields aren't expected when creating relations.
                 bar: 'bar'

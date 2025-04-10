@@ -51,3 +51,13 @@ export const getTargetConnectionSchema = (schema: ObjectSchema, relation: Relati
     }
   };
 };
+
+export const getUpdatingSchema = (schema: ObjectSchema) => {
+  const relationSchema = deepClone(schema, { depth: 2 });
+
+  for (const propertyName in relationSchema.properties) {
+    relationSchema.properties[propertyName].optional = true;
+  }
+
+  return relationSchema;
+};

@@ -1,3 +1,4 @@
+import type { RepositoryRelationsWithSchema } from '@ez4/aws-aurora';
 import type { Database, Query } from '@ez4/database';
 
 import { describe, it } from 'node:test';
@@ -41,7 +42,7 @@ describe('aurora query (insert relations)', () => {
     }
   };
 
-  const testRelations = {
+  const testRelations: RepositoryRelationsWithSchema = {
     primary_to_secondary: {
       targetColumn: 'secondary_id',
       targetIndex: Index.Secondary,

@@ -272,13 +272,11 @@ const preparePostInsertRelations = (
       throw new InvalidRelationFieldError(fieldPath);
     }
 
-    const { sourceIndex } = fieldRelation;
+    const { sourceIndex, sourceTable, sourceColumn, sourceSchema, targetColumn } = fieldRelation;
 
-    if (sourceIndex === Index.Primary) {
+    if (fieldRelation.sourceIndex === Index.Primary) {
       continue;
     }
-
-    const { sourceTable, sourceColumn, sourceSchema, targetColumn } = fieldRelation;
 
     const allFieldValues = isMultipleRelationData(fieldValue) ? fieldValue : [fieldValue];
 
@@ -356,10 +354,11 @@ const getInsertSelectFields = <T extends Database.Schema, S extends AnyObject, R
 
       // Connected relations
       if (!relationQueries.length) {
-        const relationFilter =
-          sourceIndex === Index.Unique
-            ? { [sourceColumn]: main?.reference(targetColumn) }
-            : { [targetColumn]: main?.reference(sourceColumn) };
+        const isUniqueIndex = sourceIndex === Index.Unique;
+
+        const relationFilter = isUniqueIndex
+          ? { [sourceColumn]: main?.reference(targetColumn) }
+          : { [targetColumn]: main?.reference(sourceColumn) };
 
         relationQuery.from(sourceTable).where(relationFilter);
 

@@ -334,30 +334,7 @@ describe('aurora query (insert operations)', () => {
     assert.deepEqual(variables, [makeParameter('0', 'foo'), makeParameter('1', { scalar: 123 })]);
   });
 
-  it('assert :: prepare insert schema (scalar invalid type)', async ({ assert }) => {
-    await assert.rejects(
-      () =>
-        prepareInsert(
-          {
-            type: SchemaType.Object,
-            properties: {
-              column: {
-                type: SchemaType.Number
-              }
-            }
-          },
-          {
-            data: {
-              // The `column` can't be string as per schema definition.
-              column: 'foo'
-            }
-          }
-        ),
-      MalformedRequestError
-    );
-  });
-
-  it('assert :: prepare insert schema (scalar missing field)', async ({ assert }) => {
+  it('assert :: prepare insert schema (missing scalar field)', async ({ assert }) => {
     await assert.rejects(
       () =>
         prepareInsert(
@@ -379,7 +356,7 @@ describe('aurora query (insert operations)', () => {
     );
   });
 
-  it('assert :: prepare insert schema (json invalid type)', async ({ assert }) => {
+  it('assert :: prepare insert schema (invalid json field type)', async ({ assert }) => {
     await assert.rejects(
       () =>
         prepareInsert(
@@ -402,6 +379,29 @@ describe('aurora query (insert operations)', () => {
                 // The `column` can't be numeric as per schema definition.
                 column: 123
               }
+            }
+          }
+        ),
+      MalformedRequestError
+    );
+  });
+
+  it('assert :: prepare insert schema (invalid scalar field type)', async ({ assert }) => {
+    await assert.rejects(
+      () =>
+        prepareInsert(
+          {
+            type: SchemaType.Object,
+            properties: {
+              column: {
+                type: SchemaType.Number
+              }
+            }
+          },
+          {
+            data: {
+              // The `column` can't be string as per schema definition.
+              column: 'foo'
             }
           }
         ),

@@ -1,3 +1,4 @@
+import type { RepositoryRelationsWithSchema } from '@ez4/aws-aurora';
 import type { Query } from '@ez4/database';
 
 import { describe, it } from 'node:test';
@@ -65,12 +66,11 @@ describe('aurora query (select relations)', () => {
     }
   };
 
-  const testRelations = {
+  const testRelations: RepositoryRelationsWithSchema = {
     primary_to_secondary: {
       sourceSchema: testSchema,
       sourceTable: 'ez4-test-relation',
       sourceAlias: 'ez4-test-relation',
-      targetAlias: 'primary_to_secondary',
       targetColumn: 'relation1_id',
       sourceColumn: 'id',
       sourceIndex: Index.Primary,
@@ -80,7 +80,6 @@ describe('aurora query (select relations)', () => {
       sourceSchema: testSchema,
       sourceTable: 'ez4-test-relation',
       sourceAlias: 'ez4-test-relation',
-      targetAlias: 'unique_to_primary',
       targetColumn: 'id',
       sourceColumn: 'relation2_id',
       sourceIndex: Index.Unique,
@@ -90,7 +89,6 @@ describe('aurora query (select relations)', () => {
       sourceSchema: testSchema,
       sourceTable: 'ez4-test-relation',
       sourceAlias: 'ez4-test-relation',
-      targetAlias: 'it(',
       targetColumn: 'id',
       sourceColumn: 'relation1_id',
       sourceIndex: Index.Secondary,

@@ -3,7 +3,7 @@ import type { ObjectSchema } from '@ez4/schema';
 
 import { describe, it } from 'node:test';
 
-import { MalformedRequestError, prepareUpdateQuery } from '@ez4/aws-aurora/client';
+import { MalformedRequestError, MissingFieldSchemaError, prepareUpdateQuery } from '@ez4/aws-aurora/client';
 import { SchemaType } from '@ez4/schema';
 
 import { makeParameter } from './common/parameters.js';
@@ -425,7 +425,7 @@ describe('aurora query (update schema)', () => {
     assert.deepEqual(variables, [makeParameter('0', 'foo'), makeParameter('1', JSON.stringify(123), 'JSON')]);
   });
 
-  it('assert :: prepare update schema (scalar invalid type)', async ({ assert }) => {
+  it('assert :: prepare update schema (invalid scalar field type)', async ({ assert }) => {
     await assert.rejects(
       () =>
         prepareUpdate(
@@ -448,7 +448,30 @@ describe('aurora query (update schema)', () => {
     );
   });
 
-  it('assert :: prepare update schema (json invalid type)', async ({ assert }) => {
+  it('assert :: prepare update schema (invalid extra scalar field)', async ({ assert }) => {
+    await assert.rejects(
+      () =>
+        prepareUpdate(
+          {
+            type: SchemaType.Object,
+            properties: {
+              column: {
+                type: SchemaType.Number
+              }
+            }
+          },
+          {
+            data: {
+              // Extra fields aren't expected on json.
+              foo: 'foo'
+            }
+          }
+        ),
+      MissingFieldSchemaError
+    );
+  });
+
+  it('assert :: prepare update schema (invalid json field type)', async ({ assert }) => {
     await assert.rejects(
       () =>
         prepareUpdate(
@@ -475,6 +498,36 @@ describe('aurora query (update schema)', () => {
           }
         ),
       MalformedRequestError
+    );
+  });
+
+  it('assert :: prepare update schema (invalid extra json field)', async ({ assert }) => {
+    await assert.rejects(
+      () =>
+        prepareUpdate(
+          {
+            type: SchemaType.Object,
+            properties: {
+              json: {
+                type: SchemaType.Object,
+                properties: {
+                  column: {
+                    type: SchemaType.String
+                  }
+                }
+              }
+            }
+          },
+          {
+            data: {
+              json: {
+                // Extra fields aren't expected on json.
+                foo: 'foo'
+              }
+            }
+          }
+        ),
+      MissingFieldSchemaError
     );
   });
 });

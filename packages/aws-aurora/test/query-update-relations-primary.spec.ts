@@ -3,7 +3,7 @@ import type { Database, Query } from '@ez4/database';
 
 import { describe, it } from 'node:test';
 
-import { MalformedRequestError, prepareInsertQuery } from '@ez4/aws-aurora/client';
+import { MalformedRequestError, prepareUpdateQuery } from '@ez4/aws-aurora/client';
 import { ObjectSchema, SchemaType } from '@ez4/schema';
 import { Index } from '@ez4/database';
 
@@ -16,13 +16,13 @@ type TestRelations = {
   changes: {};
 };
 
-describe('aurora query (insert primary relations)', () => {
-  const prepareRelationInsert = <T extends Database.Schema, S extends Query.SelectInput<T, TestRelations>>(
+describe('aurora query (update primary relations)', () => {
+  const prepareRelationUpdate = <T extends Database.Schema, S extends Query.SelectInput<T, TestRelations>>(
     schema: ObjectSchema,
     relations: RepositoryRelationsWithSchema,
-    query: Query.InsertOneInput<T, S, TestRelations>
+    query: Query.UpdateManyInput<T, S, TestRelations>
   ) => {
-    return prepareInsertQuery<T, S, TestRelations>('ez4-test-insert-relations', schema, relations, query);
+    return prepareUpdateQuery<T, S, {}, TestRelations>('ez4-test-update-relations', schema, relations, query);
   };
 
   type TestSchemaOptions = {
@@ -108,38 +108,12 @@ describe('aurora query (insert primary relations)', () => {
     };
   };
 
-  it('assert :: prepare insert primary relation (optional connection)', async ({ assert }) => {
-    const testSchema = getTestRelationSchema({
-      nullish: true
-    });
-
-    const [statement, variables] = await prepareRelationInsert(testSchema, getSingleTestRelation(testSchema), {
-      data: {
-        id: '00000000-0000-1000-9000-000000000000',
-        primary_to_secondary: {
-          secondary_id: '00000000-0000-1000-9000-000000000001'
-        }
-      }
-    });
-
-    assert.equal(
-      statement,
-      // Main record
-      `INSERT INTO "ez4-test-insert-relations" ("id", "secondary_id") VALUES (:0, :1)`
-    );
-
-    assert.deepEqual(variables, [
-      makeParameter('0', '00000000-0000-1000-9000-000000000000', 'UUID'),
-      makeParameter('1', '00000000-0000-1000-9000-000000000001', 'UUID')
-    ]);
-  });
-
-  it('assert :: prepare insert primary relation (required connection)', async ({ assert }) => {
+  it('assert :: prepare update primary relation (new connection)', async ({ assert }) => {
     const testSchema = getTestRelationSchema({
       nullish: false
     });
 
-    const [statement, variables] = await prepareRelationInsert(testSchema, getSingleTestRelation(testSchema), {
+    const [statement, variables] = await prepareRelationUpdate(testSchema, getSingleTestRelation(testSchema), {
       data: {
         id: '00000000-0000-1000-9000-000000000000',
         primary_to_secondary: {
@@ -151,7 +125,7 @@ describe('aurora query (insert primary relations)', () => {
     assert.equal(
       statement,
       // Main record
-      `INSERT INTO "ez4-test-insert-relations" ("id", "secondary_id") VALUES (:0, :1)`
+      `UPDATE ONLY "ez4-test-update-relations" SET "id" = :0, "secondary_id" = :1`
     );
 
     assert.deepEqual(variables, [
@@ -160,16 +134,17 @@ describe('aurora query (insert primary relations)', () => {
     ]);
   });
 
-  it('assert :: prepare insert primary relation (empty connection)', async ({ assert }) => {
+  it('assert :: prepare update primary relation (empty connection)', async ({ assert }) => {
     const testSchema = getTestRelationSchema({
       nullish: true
     });
 
-    const [statement, variables] = await prepareRelationInsert(testSchema, getSingleTestRelation(testSchema), {
+    const [statement, variables] = await prepareRelationUpdate(testSchema, getSingleTestRelation(testSchema), {
       data: {
         id: '00000000-0000-1000-9000-000000000000',
         primary_to_secondary: {
-          secondary_id: undefined
+          secondary_id: undefined,
+          id: undefined
         }
       }
     });
@@ -177,18 +152,18 @@ describe('aurora query (insert primary relations)', () => {
     assert.equal(
       statement,
       // Main record
-      `INSERT INTO "ez4-test-insert-relations" ("id") VALUES (:0)`
+      `UPDATE ONLY "ez4-test-update-relations" SET "id" = :0`
     );
 
     assert.deepEqual(variables, [makeParameter('0', '00000000-0000-1000-9000-000000000000', 'UUID')]);
   });
 
-  it('assert :: prepare insert primary relation (select connection)', async ({ assert }) => {
+  it('assert :: prepare update primary relation (select new connection)', async ({ assert }) => {
     const testSchema = getTestRelationSchema({
       nullish: false
     });
 
-    const [statement, variables] = await prepareRelationInsert(testSchema, getSingleTestRelation(testSchema), {
+    const [statement, variables] = await prepareRelationUpdate(testSchema, getSingleTestRelation(testSchema), {
       select: {
         id: true,
         primary_to_secondary: {
@@ -206,14 +181,11 @@ describe('aurora query (insert primary relations)', () => {
 
     assert.equal(
       statement,
-      `WITH ` +
-        // Main record
-        `"R0" AS (INSERT INTO "ez4-test-insert-relations" ("id", "secondary_id") VALUES (:0, :1) RETURNING "id") ` +
+      // Main record
+      `UPDATE ONLY "ez4-test-update-relations" AS "R" SET "id" = :0, "secondary_id" = :1 ` +
         // Select
-        `SELECT "id", ` +
-        `(SELECT json_build_object('id', "T"."id", 'foo', "T"."foo") FROM "ez4-test-relation" AS "T" ` +
-        `WHERE "T"."secondary_id" = "R0"."id") AS "primary_to_secondary" ` +
-        `FROM "R0"`
+        `RETURNING "R"."id", (SELECT json_build_object('id', "T"."id", 'foo', "T"."foo") FROM "ez4-test-relation" AS "T" ` +
+        `WHERE "T"."id" = "R"."secondary_id") AS "primary_to_secondary"`
     );
 
     assert.deepEqual(variables, [
@@ -222,16 +194,38 @@ describe('aurora query (insert primary relations)', () => {
     ]);
   });
 
-  it('assert :: prepare insert primary relation (required creation)', async ({ assert }) => {
+  it('assert :: prepare update primary relation (disconnection)', async ({ assert }) => {
+    const testSchema = getTestRelationSchema({
+      nullish: true
+    });
+
+    const [statement, variables] = await prepareRelationUpdate(testSchema, getSingleTestRelation(testSchema), {
+      data: {
+        id: '00000000-0000-1000-9000-000000000000',
+        primary_to_secondary: {
+          secondary_id: null
+        }
+      }
+    });
+
+    assert.equal(
+      statement,
+      // Main record
+      `UPDATE ONLY "ez4-test-update-relations" SET "id" = :0, "secondary_id" = :1`
+    );
+
+    assert.deepEqual(variables, [makeParameter('0', '00000000-0000-1000-9000-000000000000', 'UUID'), makeParameter('1', null)]);
+  });
+
+  it('assert :: prepare update primary relation (active connection)', async ({ assert }) => {
     const testSchema = getTestRelationSchema({
       nullish: false
     });
 
-    const [statement, variables] = await prepareRelationInsert(testSchema, getSingleTestRelation(testSchema), {
+    const [statement, variables] = await prepareRelationUpdate(testSchema, getSingleTestRelation(testSchema), {
       data: {
         id: '00000000-0000-1000-9000-000000000000',
         primary_to_secondary: {
-          id: '00000000-0000-1000-9000-000000000001',
           foo: 'foo'
         }
       }
@@ -240,46 +234,21 @@ describe('aurora query (insert primary relations)', () => {
     assert.equal(
       statement,
       `WITH ` +
-        // Relation
-        `"R0" AS (INSERT INTO "ez4-test-relation" ("id", "foo") VALUES (:0, :1) RETURNING "id") ` +
         // Main record
-        `INSERT INTO "ez4-test-insert-relations" ("id", "secondary_id") SELECT :2, "R0"."id" FROM "R0"`
+        `"R0" AS (UPDATE ONLY "ez4-test-update-relations" SET "id" = :0 RETURNING "secondary_id") ` +
+        // Relation
+        `UPDATE ONLY "ez4-test-relation" AS "T" SET "foo" = :1 FROM "R0" WHERE "T"."id" = "R0"."secondary_id"`
     );
 
-    assert.deepEqual(variables, [
-      makeParameter('0', '00000000-0000-1000-9000-000000000001', 'UUID'),
-      makeParameter('1', 'foo'),
-      makeParameter('2', '00000000-0000-1000-9000-000000000000', 'UUID')
-    ]);
+    assert.deepEqual(variables, [makeParameter('0', '00000000-0000-1000-9000-000000000000', 'UUID'), makeParameter('1', 'foo')]);
   });
 
-  it('assert :: prepare insert primary relation (empty creation)', async ({ assert }) => {
-    const testSchema = getTestRelationSchema({
-      nullish: true
-    });
-
-    const [statement, variables] = await prepareRelationInsert(testSchema, getSingleTestRelation(testSchema), {
-      data: {
-        id: '00000000-0000-1000-9000-000000000000',
-        primary_to_secondary: {}
-      }
-    });
-
-    assert.equal(
-      statement,
-      // Main record
-      `INSERT INTO "ez4-test-insert-relations" ("id") VALUES (:0)`
-    );
-
-    assert.deepEqual(variables, [makeParameter('0', '00000000-0000-1000-9000-000000000000', 'UUID')]);
-  });
-
-  it('assert :: prepare insert primary relation (select creation)', async ({ assert }) => {
+  it('assert :: prepare update primary relation (select active connection)', async ({ assert }) => {
     const testSchema = getTestRelationSchema({
       nullish: false
     });
 
-    const [statement, variables] = await prepareRelationInsert(testSchema, getSingleTestRelation(testSchema), {
+    const [statement, variables] = await prepareRelationUpdate(testSchema, getSingleTestRelation(testSchema), {
       select: {
         id: true,
         primary_to_secondary: {
@@ -290,7 +259,6 @@ describe('aurora query (insert primary relations)', () => {
       data: {
         id: '00000000-0000-1000-9000-000000000000',
         primary_to_secondary: {
-          id: '00000000-0000-1000-9000-000000000001',
           foo: 'foo'
         }
       }
@@ -300,27 +268,24 @@ describe('aurora query (insert primary relations)', () => {
       statement,
       `WITH ` +
         // Main record
-        `"R0" AS (INSERT INTO "ez4-test-relation" ("id", "foo") VALUES (:0, :1) RETURNING "id", "foo"), ` +
+        `"R0" AS (UPDATE ONLY "ez4-test-update-relations" AS "R" SET "id" = :0 RETURNING "R"."secondary_id"), ` +
         // Relation
-        `"R1" AS (INSERT INTO "ez4-test-insert-relations" ("id", "secondary_id") SELECT :2, "R0"."id" FROM "R0" RETURNING "id") ` +
+        `"R1" AS (UPDATE ONLY "ez4-test-relation" AS "T" SET "foo" = :1 FROM "R0" WHERE "T"."id" = "R0"."secondary_id") ` +
         // Select
-        `SELECT "id", (SELECT json_build_object('id', "id", 'foo', "foo") FROM "R0") AS "primary_to_secondary" FROM "R1"`
+        `SELECT "id", (SELECT json_build_object('id', "T"."id", 'foo', "T"."foo") FROM "ez4-test-relation" AS "T" ` +
+        `WHERE "T"."id" = "R0"."secondary_id") AS "primary_to_secondary" FROM "ez4-test-update-relations"`
     );
 
-    assert.deepEqual(variables, [
-      makeParameter('0', '00000000-0000-1000-9000-000000000001', 'UUID'),
-      makeParameter('1', 'foo'),
-      makeParameter('2', '00000000-0000-1000-9000-000000000000', 'UUID')
-    ]);
+    assert.deepEqual(variables, [makeParameter('0', '00000000-0000-1000-9000-000000000000', 'UUID'), makeParameter('1', 'foo')]);
   });
 
-  it('assert :: prepare insert primary relation (connection, creation and select)', async ({ assert }) => {
+  it('assert :: prepare update primary relation (multiple connections and select)', async ({ assert }) => {
     const testSchema = getTestRelationSchema({
       multiple: true,
       nullish: true
     });
 
-    const [statement, variables] = await prepareRelationInsert(testSchema, getMultipleTestRelation(testSchema), {
+    const [statement, variables] = await prepareRelationUpdate(testSchema, getMultipleTestRelation(testSchema), {
       select: {
         id: true,
         primary_to_secondary_1: {
@@ -334,6 +299,7 @@ describe('aurora query (insert primary relations)', () => {
           id: '00000000-0000-1000-9000-000000000001',
           foo: 'foo'
         },
+        // Reconnect
         primary_to_secondary_2: {
           secondary_2_id: '00000000-0000-1000-9000-000000000002'
         },
@@ -346,34 +312,35 @@ describe('aurora query (insert primary relations)', () => {
     assert.equal(
       statement,
       `WITH ` +
-        // First relation
-        `"R0" AS (INSERT INTO "ez4-test-relation" ("id", "foo") VALUES (:0, :1) RETURNING "id", "foo"), ` +
-        // Third relation
-        `"R1" AS (INSERT INTO "ez4-test-relation" ("id") VALUES (:2) RETURNING "id"), ` +
         // Main record
-        `"R2" AS (INSERT INTO "ez4-test-insert-relations" ("id", "secondary_1_id", "secondary_2_id", "secondary_3_id") ` +
-        `SELECT :3, "R0"."id", :4, "R1"."id" FROM "R0", "R1" RETURNING "id") ` +
+        `"R0" AS (UPDATE ONLY "ez4-test-update-relations" AS "R" SET "id" = :0, "secondary_2_id" = :1 ` +
+        `RETURNING "R"."secondary_1_id", "R"."secondary_3_id"), ` +
+        // First relation
+        `"R1" AS (UPDATE ONLY "ez4-test-relation" AS "T" SET "id" = :2, "foo" = :3 FROM "R0" WHERE "T"."id" = "R0"."secondary_1_id"), ` +
+        // Third relation
+        `"R2" AS (UPDATE ONLY "ez4-test-relation" AS "T" SET "id" = :4 FROM "R0" WHERE "T"."id" = "R0"."secondary_3_id") ` +
         // Select
-        `SELECT "id", (SELECT json_build_object('id', "id", 'foo', "foo") FROM "R0") AS "primary_to_secondary_1" FROM "R2"`
+        `SELECT "id", (SELECT json_build_object('id', "T"."id", 'foo', "T"."foo") FROM "ez4-test-relation" AS "T" ` +
+        `WHERE "T"."id" = "R0"."secondary_1_id") AS "primary_to_secondary_1" FROM "ez4-test-update-relations"`
     );
 
     assert.deepEqual(variables, [
-      makeParameter('0', '00000000-0000-1000-9000-000000000001', 'UUID'),
-      makeParameter('1', 'foo'),
-      makeParameter('2', '00000000-0000-1000-9000-000000000003', 'UUID'),
-      makeParameter('3', '00000000-0000-1000-9000-000000000000', 'UUID'),
-      makeParameter('4', '00000000-0000-1000-9000-000000000002', 'UUID')
+      makeParameter('0', '00000000-0000-1000-9000-000000000000', 'UUID'),
+      makeParameter('1', '00000000-0000-1000-9000-000000000002', 'UUID'),
+      makeParameter('2', '00000000-0000-1000-9000-000000000001', 'UUID'),
+      makeParameter('3', 'foo'),
+      makeParameter('4', '00000000-0000-1000-9000-000000000003', 'UUID')
     ]);
   });
 
-  it('assert :: prepare insert primary relation (invalid connection field)', async ({ assert }) => {
+  it('assert :: prepare update primary relation (invalid new connection field)', async ({ assert }) => {
     const testSchema = getTestRelationSchema({
       nullish: false
     });
 
     await assert.rejects(
       () =>
-        prepareRelationInsert(testSchema, getSingleTestRelation(testSchema), {
+        prepareRelationUpdate(testSchema, getSingleTestRelation(testSchema), {
           data: {
             primary_to_secondary: {
               secondary_id: '00000000-0000-1000-9000-000000000001',
@@ -387,19 +354,19 @@ describe('aurora query (insert primary relations)', () => {
     );
   });
 
-  it('assert :: prepare insert primary relation (invalid creation field)', async ({ assert }) => {
+  it('assert :: prepare update primary relation (invalid active connection field)', async ({ assert }) => {
     const testSchema = getTestRelationSchema({
       nullish: false
     });
 
     await assert.rejects(
       () =>
-        prepareRelationInsert(testSchema, getSingleTestRelation(testSchema), {
+        prepareRelationUpdate(testSchema, getSingleTestRelation(testSchema), {
           data: {
             primary_to_secondary: {
               foo: 'foo',
 
-              // Extra fields aren't expected when creating relations.
+              // Extra fields aren't expected on active relations.
               bar: 'bar'
             }
           }
