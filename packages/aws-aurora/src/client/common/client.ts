@@ -1,4 +1,5 @@
 import type { RDSDataClient } from '@aws-sdk/client-rds-data';
+import type { AnyObject } from '@ez4/utils';
 import type { PreparedQueryCommand } from './queries.js';
 import type { Connection } from '../types.js';
 
@@ -46,7 +47,7 @@ export const executeStatement = async (
   command: PreparedQueryCommand,
   transactionId?: string,
   debug?: boolean
-) => {
+): Promise<AnyObject[]> => {
   try {
     if (debug) {
       const debugId = transactionId?.substring(0, 4) ?? '-';
@@ -75,6 +76,8 @@ export const executeStatement = async (
 
     throw e;
   }
+
+  return [];
 };
 
 export const executeStatements = async (

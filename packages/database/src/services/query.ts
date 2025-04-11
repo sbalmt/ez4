@@ -91,19 +91,31 @@ export namespace Query {
     where?: WhereInput<T, {}, R>;
   };
 
-  export type InsertOneResult<T extends Database.Schema, S extends AnyObject, R extends RelationMetadata> = Record<T, S, R>;
+  export type InsertOneResult<T extends Database.Schema, S extends AnyObject, R extends RelationMetadata> = S extends never
+    ? void
+    : Record<T, S, R>;
 
-  export type UpdateOneResult<T extends Database.Schema, S extends AnyObject, R extends RelationMetadata> = Record<T, S, R> | undefined;
+  export type UpdateOneResult<T extends Database.Schema, S extends AnyObject, R extends RelationMetadata> = S extends never
+    ? void
+    : Record<T, S, R> | undefined;
 
-  export type FindOneResult<T extends Database.Schema, S extends AnyObject, R extends RelationMetadata> = Record<T, S, R> | undefined;
+  export type FindOneResult<T extends Database.Schema, S extends AnyObject, R extends RelationMetadata> = S extends never
+    ? void
+    : Record<T, S, R> | undefined;
 
-  export type UpsertOneResult<T extends Database.Schema, S extends AnyObject, R extends RelationMetadata> = Record<T, S, R> | undefined;
+  export type UpsertOneResult<T extends Database.Schema, S extends AnyObject, R extends RelationMetadata> = S extends never
+    ? void
+    : Record<T, S, R> | undefined;
 
-  export type DeleteOneResult<T extends Database.Schema, S extends AnyObject, R extends RelationMetadata> = Record<T, S, R> | undefined;
+  export type DeleteOneResult<T extends Database.Schema, S extends AnyObject, R extends RelationMetadata> = S extends never
+    ? void
+    : Record<T, S, R> | undefined;
+
+  export type UpdateManyResult<T extends Database.Schema, S extends AnyObject, R extends RelationMetadata> = S extends never
+    ? void
+    : Record<T, S, R>[];
 
   export type InsertManyResult = void;
-
-  export type UpdateManyResult<T extends Database.Schema, S extends AnyObject, R extends RelationMetadata> = Record<T, S, R>[];
 
   export type FindManyResult<
     T extends Database.Schema,
