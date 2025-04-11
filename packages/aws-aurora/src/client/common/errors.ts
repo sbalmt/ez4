@@ -3,7 +3,7 @@ export class MalformedRequestError extends Error {
     public field: string,
     public details: string[]
   ) {
-    super(`Malformed schema for field '${field}'.`);
+    super(`Malformed table schema for field '${field}'.`);
   }
 }
 

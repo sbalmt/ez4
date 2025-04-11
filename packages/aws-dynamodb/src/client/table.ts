@@ -32,7 +32,7 @@ export class Table<T extends Database.Schema, I extends Database.Indexes, R exte
     private settings: TableSettings
   ) {}
 
-  async insertOne<S extends Query.SelectInput<T, R>>(query: Query.InsertOneInput<T, S, R>): Promise<Query.InsertOneResult<T, S, R>> {
+  async insertOne<S extends Query.SelectInput<T, R>>(query: Query.InsertOneInput<T, S, R>) {
     const { client, debug } = this.settings;
 
     const command = await prepareInsertOne(this.name, this.schema, query);
@@ -45,18 +45,16 @@ export class Table<T extends Database.Schema, I extends Database.Indexes, R exte
       });
     }
 
-    return undefined as Query.InsertOneResult<T, S, R>;
+    return undefined;
   }
 
-  async updateOne<S extends Query.SelectInput<T, R>>(query: Query.UpdateOneInput<T, S, I, R>): Promise<Query.UpdateOneResult<T, S, R>> {
+  async updateOne<S extends Query.SelectInput<T, R>>(query: Query.UpdateOneInput<T, S, I, R>) {
+    const { client, debug } = this.settings;
+
     const command = await prepareUpdateOne(this.name, this.schema, query);
 
     try {
-      const { client, debug } = this.settings;
-
-      const { Items: items = [] } = await executeStatement(client, command, debug);
-
-      const result = items[0] as Query.UpdateOneResult<T, S, R> | undefined;
+      const { Items: [result] = [] } = await executeStatement(client, command, debug);
 
       if (query.select && result) {
         return deepClone<any, any, any>(result, {
@@ -74,14 +72,12 @@ export class Table<T extends Database.Schema, I extends Database.Indexes, R exte
     }
   }
 
-  async findOne<S extends Query.SelectInput<T, R>>(query: Query.FindOneInput<T, S, I, R>): Promise<Query.FindOneResult<T, S, R>> {
+  async findOne<S extends Query.SelectInput<T, R>>(query: Query.FindOneInput<T, S, I, R>) {
     const { client, debug } = this.settings;
 
     const command = prepareFindOne(this.name, this.indexes, query);
 
-    const { Items: items = [] } = await executeStatement(client, command, debug);
-
-    const result = items[0] as Query.UpdateOneResult<T, S, R> | undefined;
+    const { Items: [result] = [] } = await executeStatement(client, command, debug);
 
     if (result) {
       return deepClone<any, any, any>(result, {
@@ -92,14 +88,12 @@ export class Table<T extends Database.Schema, I extends Database.Indexes, R exte
     return undefined;
   }
 
-  async deleteOne<S extends Query.SelectInput<T, R>>(query: Query.DeleteOneInput<T, S, I, R>): Promise<Query.DeleteOneResult<T, S, R>> {
+  async deleteOne<S extends Query.SelectInput<T, R>>(query: Query.DeleteOneInput<T, S, I, R>) {
     const { client, debug } = this.settings;
 
     const command = prepareDeleteOne(this.name, query);
 
-    const { Items: items = [] } = await executeStatement(client, command, debug);
-
-    const result = items[0] as Query.UpdateOneResult<T, S, R> | undefined;
+    const { Items: [result] = [] } = await executeStatement(client, command, debug);
 
     if (query.select && result) {
       return deepClone<any, any, any>(result, {
@@ -110,7 +104,7 @@ export class Table<T extends Database.Schema, I extends Database.Indexes, R exte
     return result;
   }
 
-  async upsertOne<S extends Query.SelectInput<T, R>>(query: Query.UpsertOneInput<T, S, I, R>): Promise<Query.UpsertOneResult<T, S, R>> {
+  async upsertOne<S extends Query.SelectInput<T, R>>(query: Query.UpsertOneInput<T, S, I, R>) {
     const previous = await this.findOne({
       select: query.select ?? ({} as Query.StrictSelectInput<T, S, R>),
       where: query.where
@@ -140,7 +134,7 @@ export class Table<T extends Database.Schema, I extends Database.Indexes, R exte
     return previous;
   }
 
-  async insertMany(query: Query.InsertManyInput<T>): Promise<Query.InsertManyResult> {
+  async insertMany(query: Query.InsertManyInput<T>) {
     const { client, debug } = this.settings;
 
     const transactions = await prepareInsertMany(this.name, this.schema, this.indexes, query);
@@ -148,7 +142,7 @@ export class Table<T extends Database.Schema, I extends Database.Indexes, R exte
     await executeTransaction(client, transactions, debug);
   }
 
-  async updateMany<S extends Query.SelectInput<T, R>>(query: Query.UpdateManyInput<T, S, R>): Promise<Query.UpdateManyResult<T, S, R>> {
+  async updateMany<S extends Query.SelectInput<T, R>>(query: Query.UpdateManyInput<T, S, R>) {
     const { client, debug } = this.settings;
 
     const [transactions, records] = await prepareUpdateMany(this.name, this.schema, this.indexes, client, query, debug);
@@ -158,9 +152,7 @@ export class Table<T extends Database.Schema, I extends Database.Indexes, R exte
     return records;
   }
 
-  async findMany<S extends Query.SelectInput<T, R>, C extends boolean = false>(
-    query: Query.FindManyInput<T, S, I, R, C>
-  ): Promise<Query.FindManyResult<T, S, R, C>> {
+  async findMany<S extends Query.SelectInput<T, R>, C extends boolean = false>(query: Query.FindManyInput<T, S, I, R, C>) {
     const { client, debug } = this.settings;
 
     const { count: shouldCount } = query;
@@ -186,15 +178,13 @@ export class Table<T extends Database.Schema, I extends Database.Indexes, R exte
     const [{ Items: items = [], NextToken: cursor }, total] = results;
 
     return {
-      records: items as Query.Record<T, S, R>[],
-      ...(shouldCount && {
-        total: total?.Items?.length
-      }),
+      total: total?.Items?.length,
+      records: items,
       cursor
     } as Query.FindManyResult<T, S, R, C>;
   }
 
-  async deleteMany<S extends Query.SelectInput<T, R>>(query: Query.DeleteManyInput<T, S, R>): Promise<Query.DeleteManyResult<T, S, R>> {
+  async deleteMany<S extends Query.SelectInput<T, R>>(query: Query.DeleteManyInput<T, S, R>) {
     const { client, debug } = this.settings;
 
     const [transactions, records] = await prepareDeleteMany(this.name, this.indexes, client, query, debug);
@@ -204,7 +194,7 @@ export class Table<T extends Database.Schema, I extends Database.Indexes, R exte
     return records;
   }
 
-  async count(query: Query.CountInput<T, R>): Promise<number> {
+  async count(query: Query.CountInput<T, R>) {
     const { client, debug } = this.settings;
 
     const command = prepareCount(this.name, this.indexes, query);
