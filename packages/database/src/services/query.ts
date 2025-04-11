@@ -155,23 +155,11 @@ export namespace Query {
     [P in DecomposeIndexName<keyof I>]?: Order;
   };
 
-  export type WhereInput<T extends Database.Schema, I extends Database.Indexes, R extends RelationMetadata> = WhereInputFilters<T, I, R> &
-    WhereNot<WhereInputFilters<T, I, R>> &
-    WhereAnd<WhereInputFilters<T, I, R>> &
-    WhereOr<WhereInputFilters<T, I, R>>;
-
-  export type WhereOperators = keyof (WhereNegate<any> &
-    WhereEqual<any> &
-    WhereGreaterThan<any> &
-    WhereGreaterThanOrEqual<any> &
-    WhereLessThan<any> &
-    WhereLessThanOrEqual<any> &
-    WhereIn<any> &
-    WhereBetween<any> &
-    WhereIsMissing &
-    WhereIsNull &
-    WhereStartsWith &
-    WhereContains<any>);
+  export type WhereInput<T extends Database.Schema, I extends Database.Indexes, R extends RelationMetadata> = WhereInputFilters<T, I, R> & {
+    NOT?: WhereInput<T, I, R>;
+    AND?: WhereInput<T, I, R>[];
+    OR?: WhereInput<T, I, R>[];
+  };
 
   type IndexFields<R extends RelationMetadata> = string extends R['indexes'] ? never : R['indexes'];
 
@@ -207,15 +195,16 @@ export namespace Query {
     [P in keyof T]?: WhereField<T[P]>;
   };
 
-  type WhereRelationField<T extends AnyObject> = WhereObjectField<T> &
-    WhereNot<WhereObjectField<T>> &
-    WhereAnd<WhereObjectField<T>> &
-    WhereOr<WhereObjectField<T>>;
+  type WhereRelationField<T extends AnyObject> = WhereObjectField<T> & {
+    NOT?: WhereRelationField<T>;
+    AND?: WhereRelationField<T>;
+    OR?: WhereRelationField<T>;
+  };
 
   type WhereRelationFilters<T extends AnyObject> = {
     [P in keyof T]?: IsObject<T[P]> extends true
       ? IsObjectEmpty<T[P]> extends false
-        ? null | WhereRelationField<NonNullable<T[P]>>
+        ? null | WhereRelationField<T[P]>
         : null | {}
       : never;
   };
@@ -228,22 +217,24 @@ export namespace Query {
     [P in Exclude<keyof T, DecomposeIndexName<I>>]?: WhereField<T[P]>;
   };
 
-  type WhereCommonFilters<T extends AnyObject, I extends Database.Indexes> = WhereRequiredFilters<T, I> & WhereOptionalFilters<T, I>;
+  type WhereCommonFilters<T extends AnyObject, I extends Database.Indexes> =
+    IsObjectEmpty<I> extends true ? WhereObjectField<T> : WhereRequiredFilters<T, I> & WhereOptionalFilters<T, I>;
 
   type WhereInputFilters<T extends Database.Schema, I extends Database.Indexes, R extends RelationMetadata> = WhereCommonFilters<T, I> &
     WhereRelationFilters<R['filters']>;
 
-  type WhereNot<T extends AnyObject> = {
-    NOT?: T | WhereAnd<T> | WhereOr<T>;
-  };
-
-  type WhereAnd<T extends AnyObject> = {
-    AND?: (T | WhereNot<T> | WhereAnd<T> | WhereOr<T>)[];
-  };
-
-  type WhereOr<T extends AnyObject> = {
-    OR?: (T | WhereNot<T> | WhereAnd<T> | WhereOr<T>)[];
-  };
+  export type WhereOperators = keyof (WhereNegate<any> &
+    WhereEqual<any> &
+    WhereGreaterThan<any> &
+    WhereGreaterThanOrEqual<any> &
+    WhereLessThan<any> &
+    WhereLessThanOrEqual<any> &
+    WhereIn<any> &
+    WhereBetween<any> &
+    WhereIsMissing &
+    WhereIsNull &
+    WhereStartsWith &
+    WhereContains<any>);
 
   type WhereNegate<T> = {
     not: T | WhereOperations<T>;
