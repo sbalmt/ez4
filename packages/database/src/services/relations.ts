@@ -133,9 +133,7 @@ type OptionalRelationSchemas<
  */
 type IsOptionalRelation<C, V, T extends Database.Schema, I extends Record<string, Database.Indexes>, E extends boolean> =
   RelationSourceColumn<C> extends keyof PrimaryIndexes<PropertyType<RelationSourceTable<C>, I>>
-    ? IsUndefined<PropertyType<RelationTargetColumn<V>, T>> extends true
-      ? true
-      : false
+    ? IsUndefined<PropertyType<RelationTargetColumn<V>, T>>
     : RelationSourceColumn<C> extends keyof UniqueIndexes<PropertyType<RelationSourceTable<C>, I>>
       ? true
       : E;
@@ -153,6 +151,11 @@ type IsUniqueIndex<C, I extends Record<string, Database.Indexes>> =
   RelationSourceColumn<C> extends keyof UniqueIndexes<PropertyType<RelationSourceTable<C>, I>> ? true : false;
 
 /**
+ * Produce a type corresponding to the source index column type.
+ */
+type ExtractSourceIndexType<C, S extends Record<string, Database.Schema>> = PropertyType<RelationSourceTable<C>, S>;
+
+/**
  * Produce a relation schema according to its indexation.
  */
 type RelationSchema<
@@ -165,10 +168,10 @@ type RelationSchema<
 > =
   IsPrimaryIndex<C, I> extends true
     ? E extends false
-      ? PropertyType<RelationSourceTable<C>, S>
-      : ExclusiveType<PropertyType<RelationSourceTable<C>, S>, { [P in RelationTargetColumn<V>]: PropertyType<RelationTargetColumn<V>, T> }>
+      ? ExtractSourceIndexType<C, S>
+      : ExclusiveType<ExtractSourceIndexType<C, S>, { [P in RelationTargetColumn<V>]: PropertyType<RelationTargetColumn<V>, T> }>
     : IsUniqueIndex<C, I> extends true
       ? E extends false
-        ? PropertyType<RelationSourceTable<C>, S>
-        : Omit<PropertyType<RelationSourceTable<C>, S>, RelationSourceColumn<C>>
-      : Omit<PropertyType<RelationSourceTable<C>, S>, RelationSourceColumn<C>>[];
+        ? ExtractSourceIndexType<C, S>
+        : Omit<ExtractSourceIndexType<C, S>, RelationSourceColumn<C>>
+      : Omit<ExtractSourceIndexType<C, S>, RelationSourceColumn<C>>[];

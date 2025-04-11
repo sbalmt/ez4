@@ -20,7 +20,6 @@ export declare class TestDatabase extends Database.Service {
       schema: TestTable;
       indexes: {
         id: Index.Primary;
-        value: Index.Unique;
       };
     }
   ];

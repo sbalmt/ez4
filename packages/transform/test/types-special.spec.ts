@@ -85,6 +85,40 @@ describe('special types transform', () => {
     deepEqual(transform({ foo: 'true', bar: 123, baz: 'def' }, schema), output);
   });
 
+  it('assert :: union with similar objects', () => {
+    const schema: AnySchema = {
+      type: SchemaType.Union,
+      elements: [
+        {
+          type: SchemaType.Object,
+          properties: {
+            foo: {
+              type: SchemaType.String
+            }
+          }
+        },
+        {
+          type: SchemaType.Object,
+          properties: {
+            foo: {
+              type: SchemaType.String
+            },
+            bar: {
+              type: SchemaType.Number
+            }
+          }
+        }
+      ]
+    };
+
+    const output = {
+      foo: 'abc',
+      bar: 123
+    };
+
+    deepEqual(transform({ foo: 'abc', bar: '123' }, schema), output);
+  });
+
   it('assert :: array from string', () => {
     const schema: AnySchema = {
       type: SchemaType.Array,

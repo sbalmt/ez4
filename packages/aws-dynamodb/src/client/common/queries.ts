@@ -195,7 +195,7 @@ export const prepareUpdateMany = async <
   const records = result.Items;
 
   if (!records?.length) {
-    return [[], []];
+    return [[], [] as unknown as Query.UpdateManyResult<T, S, R>];
   }
 
   const partialSchema = preparePartialSchema(schema, query.data);

@@ -1,5 +1,6 @@
 import type { Database, Client as DbClient, RelationMetadata, Transaction } from '@ez4/database';
 import type { Repository, RepositoryRelations, RepositoryRelationsWithSchema } from '../types/repository.js';
+import type { PreparedQueryCommand } from './common/queries.js';
 import type { Connection } from './types.js';
 
 import { RDSDataClient } from '@aws-sdk/client-rds-data';
@@ -13,9 +14,9 @@ import {
   rollbackTransaction
 } from './common/client.js';
 
+import { getTableName } from '../utils/tables.js';
 import { prepareDeleteOne, prepareInsertOne, prepareUpdateOne } from './common/queries.js';
 import { detectFieldData } from './common/data.js';
-import { getTableName } from '../utils/tables.js';
 import { Table } from './table.js';
 
 type TableType = Table<Database.Schema, Database.Indexes, RelationMetadata>;
@@ -167,7 +168,7 @@ const prepareStaticTransaction = async <T extends Database.Service, U extends Tr
   repository: Repository,
   operations: U
 ) => {
-  const commands = [];
+  const commands: PreparedQueryCommand[] = [];
 
   for (const tableAlias in operations) {
     const operationTable = operations[tableAlias];

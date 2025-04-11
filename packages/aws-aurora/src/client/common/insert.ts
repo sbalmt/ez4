@@ -9,7 +9,16 @@ import { isObjectSchema } from '@ez4/schema';
 import { isEmptyObject } from '@ez4/utils';
 import { Index } from '@ez4/database';
 
-import { isMultipleRelationData, isSingleRelationData, isRelationalData } from './relation.js';
+import {
+  isMultipleRelationData,
+  isSingleRelationData,
+  isRelationalData,
+  getTargetCreationSchema,
+  getTargetConnectionSchema,
+  getSourceCreationSchema,
+  getSourceConnectionSchema
+} from './relation.js';
+
 import { getDefaultSelectFields, getFieldColumn, getSelectFields } from './select.js';
 import { InvalidRelationFieldError, MissingFieldSchemaError } from './errors.js';
 import { validateAllSchemaLevels, validateFirstSchemaLevel } from './schema.js';
@@ -108,7 +117,19 @@ const getInsertRecord = async (
         throw new InvalidRelationFieldError(fieldPath);
       }
 
-      await Promise.all(fieldValue.map((current) => validateAllSchemaLevels(current, sourceSchema, fieldPath)));
+      const relationSchema = getSourceCreationSchema(sourceSchema, fieldRelation);
+
+      const allValidations = fieldValue.map((relationValue) => {
+        if (!isEmptyObject(relationValue)) {
+          return validateAllSchemaLevels(relationValue, relationSchema, fieldPath);
+        }
+
+        return Promise.resolve();
+      });
+
+      await Promise.all(allValidations);
+
+      allFields.delete(sourceColumn);
 
       continue;
     }
@@ -122,21 +143,23 @@ const getInsertRecord = async (
 
       allFields.delete(targetColumn);
 
+      // Will connect an existing relationship.
       if (!isSkippableData(relationValue)) {
-        const relationSchema = schema.properties[targetColumn];
-        const relationPath = `${fieldPath}.${targetColumn}`;
+        const relationSchema = getTargetConnectionSchema(schema, fieldRelation);
 
-        await validateFirstSchemaLevel(relationValue, relationSchema, relationPath);
+        await validateAllSchemaLevels(fieldValue, relationSchema, fieldPath);
 
         record[targetColumn] = relationValue;
 
         continue;
       }
 
+      // Will create a new relationship.
       if (!isEmptyObject(fieldValue)) {
-        await validateAllSchemaLevels(fieldValue, sourceSchema, fieldPath);
+        const relationSchema = getTargetCreationSchema(schema, fieldRelation);
+        const relationQuery = relationQueries[0];
 
-        const [relationQuery] = relationQueries;
+        await validateAllSchemaLevels(fieldValue, relationSchema, fieldPath);
 
         record[targetColumn] = relationQuery.reference(sourceColumn);
       }
@@ -149,19 +172,22 @@ const getInsertRecord = async (
 
       allFields.delete(sourceColumn);
 
+      // Will connect an existing relationship.
       if (!isSkippableData(relationValue)) {
-        const relationSchema = sourceSchema.properties[sourceColumn];
-        const relationPath = `${fieldPath}.${sourceColumn}`;
+        const relationSchema = getSourceConnectionSchema(sourceSchema, fieldRelation);
 
-        await validateFirstSchemaLevel(relationValue, relationSchema, relationPath);
+        await validateFirstSchemaLevel(fieldValue, relationSchema, fieldPath);
 
         record[sourceColumn] = relationValue;
 
         continue;
       }
 
+      // Will create a new relationship.
       if (!isEmptyObject(fieldValue)) {
-        await validateAllSchemaLevels(fieldValue, sourceSchema, fieldPath);
+        const relationSchema = getSourceCreationSchema(sourceSchema, fieldRelation);
+
+        await validateAllSchemaLevels(fieldValue, relationSchema, fieldPath);
       }
     }
   }
@@ -246,13 +272,11 @@ const preparePostInsertRelations = (
       throw new InvalidRelationFieldError(fieldPath);
     }
 
-    const { sourceIndex } = fieldRelation;
+    const { sourceIndex, sourceTable, sourceColumn, sourceSchema, targetColumn } = fieldRelation;
 
-    if (sourceIndex === Index.Primary) {
+    if (fieldRelation.sourceIndex === Index.Primary) {
       continue;
     }
-
-    const { sourceTable, sourceColumn, sourceSchema, targetColumn } = fieldRelation;
 
     const allFieldValues = isMultipleRelationData(fieldValue) ? fieldValue : [fieldValue];
 
@@ -330,10 +354,11 @@ const getInsertSelectFields = <T extends Database.Schema, S extends AnyObject, R
 
       // Connected relations
       if (!relationQueries.length) {
-        const relationFilter =
-          sourceIndex === Index.Unique
-            ? { [sourceColumn]: main?.reference(targetColumn) }
-            : { [targetColumn]: main?.reference(sourceColumn) };
+        const isUniqueIndex = sourceIndex === Index.Unique;
+
+        const relationFilter = isUniqueIndex
+          ? { [sourceColumn]: main?.reference(targetColumn) }
+          : { [targetColumn]: main?.reference(sourceColumn) };
 
         relationQuery.from(sourceTable).where(relationFilter);
 

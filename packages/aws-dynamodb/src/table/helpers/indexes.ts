@@ -23,11 +23,7 @@ export const getSecondaryIndexes = (...groups: AttributeSchemaGroup[]) => {
   return indexList;
 };
 
-export const waitForSecondaryIndex = async (
-  client: DynamoDBClient,
-  tableName: string,
-  indexName: string
-) => {
+export const waitForSecondaryIndex = async (client: DynamoDBClient, tableName: string, indexName: string) => {
   await waitFor(async () => {
     const result = await getSecondaryIndexStatus(client, tableName, indexName);
 
@@ -35,17 +31,13 @@ export const waitForSecondaryIndex = async (
   });
 };
 
-const getSecondaryIndexName = (schema: AttributeSchema[]) => {
+export const getSecondaryIndexName = (schema: AttributeSchema[]) => {
   const indexParts = schema.map(({ attributeName }) => attributeName);
 
   return getIndexName(indexParts);
 };
 
-const getSecondaryIndexStatus = async (
-  client: DynamoDBClient,
-  tableName: string,
-  indexName: string
-) => {
+const getSecondaryIndexStatus = async (client: DynamoDBClient, tableName: string, indexName: string) => {
   const { Table } = await client.send(
     new DescribeTableCommand({
       TableName: tableName
