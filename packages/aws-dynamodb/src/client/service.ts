@@ -71,7 +71,7 @@ export namespace Client {
   };
 }
 
-const prepareStaticTransaction = async <T extends Database.Service, U extends Transaction.Operation<T, R>, R>(
+const prepareStaticTransaction = async <T extends Database.Service, U extends Transaction.Operation<T, void>>(
   repository: Repository,
   operation: U
 ) => {

@@ -1,4 +1,4 @@
-import type { DecomposeIndexName } from './indexes.js';
+import type { DecomposeIndexName, PrimaryIndexes, UniqueIndexes } from './indexes.js';
 import type { RelationMetadata } from './relations.js';
 import type { Database } from './database.js';
 import type { Order } from './order.js';
@@ -209,12 +209,14 @@ export namespace Query {
       : never;
   };
 
+  type WhereIndexFields<I extends Database.Indexes> = PrimaryIndexes<I> & UniqueIndexes<I>;
+
   type WhereRequiredFilters<T extends AnyObject, I extends Database.Indexes> = {
-    [P in keyof I]: { [N in DecomposeIndexName<P>]: T[N] };
-  }[keyof I];
+    [P in keyof WhereIndexFields<I>]: { [N in DecomposeIndexName<P>]: T[N] };
+  }[keyof WhereIndexFields<I>];
 
   type WhereOptionalFilters<T extends AnyObject, I extends Database.Indexes> = {
-    [P in Exclude<keyof T, DecomposeIndexName<I>>]?: WhereField<T[P]>;
+    [P in Exclude<keyof T, keyof WhereIndexFields<I>>]?: WhereField<T[P]>;
   };
 
   type WhereCommonFilters<T extends AnyObject, I extends Database.Indexes> =
