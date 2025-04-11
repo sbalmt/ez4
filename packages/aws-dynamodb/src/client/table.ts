@@ -178,7 +178,7 @@ export class Table<T extends Database.Schema, I extends Database.Indexes, R exte
     const [{ Items: items = [], NextToken: cursor }, total] = results;
 
     return {
-      total: total?.Items?.length,
+      ...(shouldCount && { total: total?.Items?.length }),
       records: items,
       cursor
     } as Query.FindManyResult<T, S, R, C>;
