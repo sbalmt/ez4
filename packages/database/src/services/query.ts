@@ -156,9 +156,9 @@ export namespace Query {
   };
 
   export type WhereInput<T extends Database.Schema, I extends Database.Indexes, R extends RelationMetadata> = WhereInputFilters<T, I, R> & {
-    NOT?: WhereInput<T, I, R>;
-    AND?: WhereInput<T, I, R>[];
-    OR?: WhereInput<T, I, R>[];
+    NOT?: WhereInput<T, {}, R>;
+    AND?: WhereInput<T, {}, R>[];
+    OR?: WhereInput<T, {}, R>[];
   };
 
   type IndexFields<R extends RelationMetadata> = string extends R['indexes'] ? never : R['indexes'];
