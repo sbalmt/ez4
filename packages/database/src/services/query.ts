@@ -1,4 +1,4 @@
-import type { DecomposeIndexName, DecomposePrimaryIndexNames, DecomposeUniqueIndexNames } from './indexes.js';
+import type { DecomposeIndexName } from './indexes.js';
 import type { RelationMetadata } from './relations.js';
 import type { Database } from './database.js';
 import type { Order } from './order.js';
@@ -220,17 +220,15 @@ export namespace Query {
       : never;
   };
 
-  type WhereRequiredFilters<T extends AnyObject, N extends string> = {
-    [P in N as P extends keyof T ? P : never]: P extends keyof T ? WhereField<T[P]> : never;
+  type WhereRequiredFilters<T extends AnyObject, I extends Database.Indexes> = {
+    [P in keyof I]: { [N in DecomposeIndexName<P>]: T[N] };
+  }[keyof I];
+
+  type WhereOptionalFilters<T extends AnyObject, I extends Database.Indexes> = {
+    [P in Exclude<keyof T, DecomposeIndexName<I>>]?: WhereField<T[P]>;
   };
 
-  type WhereOptionalFilters<T extends AnyObject, N extends string> = {
-    [P in Exclude<keyof T, N>]?: WhereField<T[P]>;
-  };
-
-  type WhereCommonFilters<T extends AnyObject, I extends Database.Indexes> =
-    | (WhereRequiredFilters<T, DecomposePrimaryIndexNames<I>> & WhereOptionalFilters<T, DecomposePrimaryIndexNames<I>>)
-    | (WhereRequiredFilters<T, DecomposeUniqueIndexNames<I>> & WhereOptionalFilters<T, DecomposeUniqueIndexNames<I>>);
+  type WhereCommonFilters<T extends AnyObject, I extends Database.Indexes> = WhereRequiredFilters<T, I> & WhereOptionalFilters<T, I>;
 
   type WhereInputFilters<T extends Database.Schema, I extends Database.Indexes, R extends RelationMetadata> = WhereCommonFilters<T, I> &
     WhereRelationFilters<R['filters']>;
