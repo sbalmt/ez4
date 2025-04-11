@@ -5,21 +5,22 @@ import { getTagList, Logger, tryParseArn } from '@ez4/aws-common';
 
 import {
   DynamoDBClient,
+  DescribeTableCommand,
   CreateTableCommand,
   UpdateTableCommand,
   DeleteTableCommand,
   UpdateTimeToLiveCommand,
   TagResourceCommand,
   UntagResourceCommand,
-  StreamViewType,
-  BillingMode,
   waitUntilTableExists,
   waitUntilTableNotExists,
-  ResourceNotFoundException
+  ResourceNotFoundException,
+  StreamViewType,
+  BillingMode
 } from '@aws-sdk/client-dynamodb';
 
 import { getAttributeDefinitions, getAttributeKeyTypes } from './helpers/schema.js';
-import { getSecondaryIndexes, waitForSecondaryIndex } from './helpers/indexes.js';
+import { getSecondaryIndexes, getSecondaryIndexName, waitForSecondaryIndex } from './helpers/indexes.js';
 import { waitForTimeToLive } from './helpers/ttl.js';
 import { TableServiceName } from './types.js';
 
@@ -163,39 +164,87 @@ export const updateStreams = async (tableName: string, enableStreams: boolean) =
   );
 };
 
-export const createIndex = async (tableName: string, request: AttributeSchemaGroup) => {
-  Logger.logCreate(TableServiceName, `${tableName} index`);
+export const importIndex = async (tableName: string, request: AttributeSchemaGroup) => {
+  const indexName = getSecondaryIndexName(request);
 
-  const [Create] = getSecondaryIndexes(request);
+  Logger.logImport(TableServiceName, `${tableName} global index ${indexName}`);
+
+  try {
+    const response = await client.send(
+      new DescribeTableCommand({
+        TableName: tableName
+      })
+    );
+
+    return response.Table?.GlobalSecondaryIndexes?.some((index) => {
+      return index.IndexName === indexName;
+    });
+  } catch (error) {
+    if (!(error instanceof ResourceNotFoundException)) {
+      throw error;
+    }
+
+    return false;
+  }
+};
+
+export const createIndex = async (tableName: string, request: AttributeSchemaGroup) => {
+  const [globalIndex] = getSecondaryIndexes(request);
+
+  const indexName = globalIndex.IndexName!;
+
+  Logger.logCreate(TableServiceName, `${tableName} global index ${indexName}`);
 
   await client.send(
     new UpdateTableCommand({
       TableName: tableName,
       AttributeDefinitions: getAttributeDefinitions(request),
-      GlobalSecondaryIndexUpdates: [{ Create }]
-    })
-  );
-
-  await waitForSecondaryIndex(client, tableName, Create.IndexName!);
-};
-
-export const deleteIndex = async (tableName: string, request: AttributeSchemaGroup) => {
-  Logger.logDelete(TableServiceName, `${tableName} index`);
-
-  const [{ IndexName }] = getSecondaryIndexes(request);
-
-  await client.send(
-    new UpdateTableCommand({
-      TableName: tableName,
       GlobalSecondaryIndexUpdates: [
         {
-          Delete: { IndexName }
+          Create: globalIndex
         }
       ]
     })
   );
 
-  await waitForSecondaryIndex(client, tableName, IndexName!);
+  Logger.logWait(TableServiceName, `${tableName} global index ${indexName}`);
+
+  await waitForSecondaryIndex(client, tableName, indexName);
+};
+
+export const deleteIndex = async (tableName: string, request: AttributeSchemaGroup) => {
+  const [globalIndex] = getSecondaryIndexes(request);
+
+  const indexName = globalIndex.IndexName!;
+
+  Logger.logDelete(TableServiceName, `${tableName} global index ${indexName}`);
+
+  try {
+    await client.send(
+      new UpdateTableCommand({
+        TableName: tableName,
+        GlobalSecondaryIndexUpdates: [
+          {
+            Delete: {
+              IndexName: indexName
+            }
+          }
+        ]
+      })
+    );
+
+    Logger.logWait(TableServiceName, `${tableName} index ${indexName}`);
+
+    await waitForSecondaryIndex(client, tableName, indexName);
+
+    return true;
+  } catch (error) {
+    if (!(error instanceof ResourceNotFoundException)) {
+      throw error;
+    }
+
+    return false;
+  }
 };
 
 export const tagTable = async (tableArn: string, tags: ResourceTags) => {
