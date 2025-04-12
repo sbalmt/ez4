@@ -8,8 +8,8 @@ import { Index } from '@ez4/database';
 import { AttributeType, AttributeKeyType } from '../types/schema.js';
 
 export const getAttributeSchema = (indexes: TableIndex[], schema: ObjectSchema) => {
-  const primarySchema: AttributeSchema[] = [];
   const secondarySchema: AttributeSchemaGroup[] = [];
+  const primarySchema: AttributeSchema[] = [];
 
   let ttlAttribute: string | undefined;
 

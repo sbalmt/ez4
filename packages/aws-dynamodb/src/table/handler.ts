@@ -1,9 +1,10 @@
 import type { StepHandler } from '@ez4/stateful';
 import type { Arn } from '@ez4/aws-common';
+import type { AttributeSchema, AttributeSchemaGroup } from '../types/schema.js';
 import type { TableState, TableResult, TableParameters } from './types.js';
 
 import { applyTagUpdates, ReplaceResourceError, waitDeletion } from '@ez4/aws-common';
-import { deepCompare, deepCompareArray } from '@ez4/utils';
+import { deepCompare } from '@ez4/utils';
 
 import {
   createTable,
@@ -11,12 +12,14 @@ import {
   updateTimeToLive,
   updateDeletion,
   updateStreams,
+  importIndex,
   createIndex,
   deleteIndex,
   tagTable,
   untagTable
 } from './client.js';
 
+import { getSecondaryIndexName } from './helpers/indexes.js';
 import { TableServiceName } from './types.js';
 
 export const getTableHandler = (): StepHandler<TableState> => ({
@@ -129,32 +132,46 @@ const checkTimeToLiveUpdates = async (tableName: string, candidate: TableParamet
   }
 };
 
+const getAttributeSchemaMap = (attributeSchemas: AttributeSchemaGroup[]): Record<string, AttributeSchema[]> => {
+  return attributeSchemas.reduce((attributeSchemaMap, attributeSchema) => {
+    const indexName = getSecondaryIndexName(attributeSchema);
+
+    return {
+      ...attributeSchemaMap,
+      [indexName]: attributeSchema
+    };
+  }, {});
+};
+
 const checkIndexUpdates = async (tableName: string, candidate: TableParameters, current: TableParameters) => {
-  const [, ...target] = candidate.attributeSchema;
-  const [, ...source] = current.attributeSchema;
+  const [, ...targetAttributeSchema] = candidate.attributeSchema;
+  const [, ...sourceAttributeSchema] = current.attributeSchema;
 
-  const changes = deepCompareArray(target, source);
+  const targetAttributeSchemaMap = getAttributeSchemaMap(targetAttributeSchema);
+  const sourceAttributeSchemaMap = getAttributeSchemaMap(sourceAttributeSchema);
 
-  if (!changes.counts) {
-    return;
-  }
+  const attributeSchemaChanges = deepCompare(targetAttributeSchemaMap, sourceAttributeSchemaMap);
 
-  if (changes.create) {
-    for (const index in changes.create) {
-      await createIndex(tableName, target[index]);
+  if (attributeSchemaChanges.create) {
+    for (const indexName in attributeSchemaChanges.create) {
+      const exists = await importIndex(tableName, targetAttributeSchemaMap[indexName]);
+
+      if (!exists) {
+        await createIndex(tableName, targetAttributeSchemaMap[indexName]);
+      }
     }
   }
 
-  if (changes.update) {
-    for (const index in changes.update) {
-      await deleteIndex(tableName, source[index]);
-      await createIndex(tableName, target[index]);
+  if (attributeSchemaChanges.update) {
+    for (const indexName in attributeSchemaChanges.update) {
+      await deleteIndex(tableName, sourceAttributeSchemaMap[indexName]);
+      await createIndex(tableName, targetAttributeSchemaMap[indexName]);
     }
   }
 
-  if (changes.remove) {
-    for (const index in changes.remove) {
-      await deleteIndex(tableName, source[index]);
+  if (attributeSchemaChanges.remove) {
+    for (const indexName in attributeSchemaChanges.remove) {
+      await deleteIndex(tableName, sourceAttributeSchemaMap[indexName]);
     }
   }
 };

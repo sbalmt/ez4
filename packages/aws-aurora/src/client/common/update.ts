@@ -9,10 +9,10 @@ import { isDynamicObjectSchema, IsNullishSchema, isNumberSchema, isObjectSchema 
 import { isAnyObject, isEmptyObject } from '@ez4/utils';
 import { Index } from '@ez4/database';
 
-import { InvalidAtomicOperation, InvalidRelationFieldError } from './errors.js';
+import { InvalidAtomicOperation, InvalidRelationFieldError, MissingFieldSchemaError } from './errors.js';
+import { getSourceConnectionSchema, getTargetConnectionSchema, getUpdatingSchema, isSingleRelationData } from './relation.js';
 import { getSelectFields, getSelectFilters } from './select.js';
 import { validateFirstSchemaLevel } from './schema.js';
-import { isSingleRelationData } from './relation.js';
 import { createQueryBuilder } from './builder.js';
 import { isSkippableData } from './data.js';
 
@@ -82,10 +82,54 @@ const getUpdateRecord = async (
     const fieldPath = `${path}.${fieldKey}`;
 
     if (fieldRelation) {
-      const relationUpdate = await getOnlyRelationKeyUpdate(schema, fieldValue, fieldRelation, fieldPath);
+      if (!isSingleRelationData(fieldValue)) {
+        throw new InvalidRelationFieldError(fieldPath);
+      }
 
-      if (relationUpdate) {
-        record[relationUpdate.targetColumn] = relationUpdate.targetValue;
+      const { sourceSchema, sourceIndex, sourceColumn, targetColumn } = fieldRelation;
+
+      if (sourceIndex === Index.Primary) {
+        const relationValue = fieldValue[targetColumn];
+
+        // Will connect another relation.
+        if (!isSkippableData(relationValue)) {
+          const relationSchema = getTargetConnectionSchema(schema, fieldRelation);
+
+          await validateFirstSchemaLevel(fieldValue, relationSchema, fieldPath);
+
+          record[targetColumn] = relationValue;
+
+          continue;
+        }
+
+        // Will update the active relation.
+        if (!isEmptyObject(fieldValue)) {
+          const relationSchema = getUpdatingSchema(sourceSchema);
+
+          await validateFirstSchemaLevel(fieldValue, relationSchema, fieldPath);
+        }
+
+        continue;
+      }
+
+      const relationValue = fieldValue[sourceColumn];
+
+      // Will connect another relation.
+      if (!isSkippableData(relationValue)) {
+        const relationSchema = getSourceConnectionSchema(sourceSchema, fieldRelation);
+
+        await validateFirstSchemaLevel(fieldValue, relationSchema, fieldPath);
+
+        record[sourceColumn] = relationValue;
+
+        continue;
+      }
+
+      // Will update the active relation.
+      if (!isEmptyObject(fieldValue)) {
+        const relationSchema = getUpdatingSchema(schema);
+
+        await validateFirstSchemaLevel(fieldValue, relationSchema, fieldPath);
       }
 
       continue;
@@ -93,10 +137,15 @@ const getUpdateRecord = async (
 
     const fieldSchema = schema.properties[fieldKey];
 
+    if (!fieldSchema) {
+      throw new MissingFieldSchemaError(fieldPath);
+    }
+
     if (!isAnyObject(fieldValue)) {
       await validateFirstSchemaLevel(fieldValue, fieldSchema, fieldPath);
 
       record[fieldKey] = fieldValue;
+
       continue;
     }
 
@@ -139,6 +188,16 @@ const preparePostUpdateRelations = async (
       throw new InvalidRelationFieldError(fieldPath);
     }
 
+    const { sourceColumn, sourceIndex, targetColumn } = fieldRelation;
+
+    if (sourceIndex !== Index.Primary && !isSkippableData(fieldValue[sourceColumn])) {
+      continue;
+    }
+
+    if (sourceIndex === Index.Primary && !isSkippableData(fieldValue[targetColumn])) {
+      continue;
+    }
+
     const relationUpdate = await getFullRelationTableUpdate(sql, relations, source, fieldValue, fieldRelation, fieldPath);
 
     if (relationUpdate) {
@@ -147,36 +206,6 @@ const preparePostUpdateRelations = async (
   }
 
   return allRelationQueries;
-};
-
-const getOnlyRelationKeyUpdate = async (
-  schema: ObjectSchema,
-  fieldValue: unknown,
-  fieldRelation: RelationWithSchema,
-  fieldPath: string
-) => {
-  if (!isSingleRelationData(fieldValue)) {
-    throw new InvalidRelationFieldError(fieldPath);
-  }
-
-  const { targetColumn, targetIndex } = fieldRelation;
-
-  const isForeignKey = targetIndex !== Index.Primary;
-  const targetValue = fieldValue[targetColumn];
-
-  if (!isForeignKey || isSkippableData(targetValue)) {
-    return undefined;
-  }
-
-  const targetSchema = schema.properties[targetColumn];
-  const targetPath = `${fieldPath}.${targetColumn}`;
-
-  await validateFirstSchemaLevel(targetValue, targetSchema, targetPath);
-
-  return {
-    targetColumn,
-    targetValue
-  };
 };
 
 const getFullRelationTableUpdate = async (

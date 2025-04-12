@@ -4,6 +4,9 @@ import type { Environment, Service } from '@ez4/common';
 declare class TestTable implements Database.Schema {
   id: string;
   value: number;
+  unique_idx_p1: number;
+  unique_idx_p2: string;
+  unique_idx: number;
 }
 
 export declare class TestDatabase extends Database.Service {
@@ -20,7 +23,8 @@ export declare class TestDatabase extends Database.Service {
       schema: TestTable;
       indexes: {
         id: Index.Primary;
-        value: Index.Unique;
+        'unique_idx_p1:unique_idx_p2': Index.Unique;
+        unique_idx: Index.Unique;
       };
     }
   ];
@@ -41,7 +45,7 @@ const testSelect = (client: TestDatabase['client']) => {
   return client.table.findOne({
     select: {},
     where: {
-      value: 123
+      unique_idx: 123
     }
   });
 };
@@ -49,10 +53,11 @@ const testSelect = (client: TestDatabase['client']) => {
 const testUpdate = (client: TestDatabase['client']) => {
   return client.table.updateOne({
     data: {
-      value: 456
+      value: 123
     },
     where: {
-      value: 123
+      unique_idx_p1: 456,
+      unique_idx_p2: 'foo'
     }
   });
 };
@@ -61,13 +66,16 @@ const testUpsert = (client: TestDatabase['client']) => {
   return client.table.upsertOne({
     insert: {
       id: 'foo',
-      value: 456
+      value: 123,
+      unique_idx_p1: 456,
+      unique_idx_p2: 'bar',
+      unique_idx: 789
     },
     update: {
       value: 456
     },
     where: {
-      value: 123
+      unique_idx: 123
     }
   });
 };
@@ -75,7 +83,8 @@ const testUpsert = (client: TestDatabase['client']) => {
 const testDelete = (client: TestDatabase['client']) => {
   return client.table.deleteOne({
     where: {
-      value: 123
+      unique_idx_p1: 123,
+      unique_idx_p2: 'foo'
     }
   });
 };
