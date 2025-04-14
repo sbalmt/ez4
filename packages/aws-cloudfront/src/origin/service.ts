@@ -6,10 +6,7 @@ import { attachEntry } from '@ez4/stateful';
 
 import { OriginServiceType } from './types.js';
 
-export const createOriginPolicy = <E extends EntryState>(
-  state: EntryStates<E>,
-  parameters: OriginParameters
-) => {
+export const createOriginPolicy = <E extends EntryState>(state: EntryStates<E>, parameters: OriginParameters) => {
   const policyName = toKebabCase(parameters.policyName);
   const policyId = hashData(OriginServiceType, policyName);
 

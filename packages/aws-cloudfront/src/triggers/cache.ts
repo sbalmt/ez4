@@ -43,6 +43,7 @@ const getOriginCache = async <T extends DistributionDefaultOrigin | Distribution
     policyName: getCachePolicyName(service, origin, options),
     description: service.description,
     compress: cache?.compress ?? true,
+    headers: cache?.headers ?? [],
     defaultTTL: cache?.ttl ?? 86400,
     maxTTL: cache?.maxTTL ?? 31536000,
     minTTL: cache?.minTTL ?? 0
@@ -61,8 +62,8 @@ const getOriginCache = async <T extends DistributionDefaultOrigin | Distribution
         }
       : {
           http: origin.protocol === OriginProtocol.Http,
-          domain: origin.domain,
           headers: origin.headers,
+          domain: origin.domain,
           port: origin.port
         }),
     getDistributionOrigin: async () => {

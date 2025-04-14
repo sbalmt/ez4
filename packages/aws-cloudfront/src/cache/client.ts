@@ -22,6 +22,7 @@ export type CreateRequest = {
   policyName: string;
   description?: string;
   compress?: boolean;
+  headers?: string[];
   defaultTTL: number;
   minTTL: number;
   maxTTL: number;
@@ -103,7 +104,9 @@ const getCurrentPolicyVersion = async (policyId: string) => {
 };
 
 const upsertPolicyRequest = (request: CreateRequest | UpdateRequest): CachePolicyConfig => {
-  const { policyName, description, defaultTTL, minTTL, maxTTL, compress } = request;
+  const { policyName, description, defaultTTL, minTTL, maxTTL, headers, compress } = request;
+
+  const hasHeaders = !!headers?.length;
 
   return {
     Name: policyName,
@@ -114,15 +117,23 @@ const upsertPolicyRequest = (request: CreateRequest | UpdateRequest): CachePolic
     ParametersInCacheKeyAndForwardedToOrigin: {
       EnableAcceptEncodingGzip: !!compress,
       EnableAcceptEncodingBrotli: !!compress,
-      HeadersConfig: {
-        HeaderBehavior: CachePolicyHeaderBehavior.none
+      QueryStringsConfig: {
+        QueryStringBehavior: CachePolicyQueryStringBehavior.none
       },
       CookiesConfig: {
         CookieBehavior: CachePolicyCookieBehavior.none
       },
-      QueryStringsConfig: {
-        QueryStringBehavior: CachePolicyQueryStringBehavior.none
-      }
+      HeadersConfig: hasHeaders
+        ? {
+            HeaderBehavior: CachePolicyHeaderBehavior.whitelist,
+            Headers: {
+              Quantity: headers.length,
+              Items: headers
+            }
+          }
+        : {
+            HeaderBehavior: CachePolicyHeaderBehavior.none
+          }
     }
   };
 };

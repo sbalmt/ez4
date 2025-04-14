@@ -1,6 +1,7 @@
 export type CdnCache = {
-  ttl?: number;
+  compress?: boolean;
+  headers?: string[];
   maxTTL?: number;
   minTTL?: number;
-  compress?: boolean;
+  ttl?: number;
 };

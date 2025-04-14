@@ -96,6 +96,11 @@ export interface CdnCache {
    * Determines whether or not the results are compressed.
    */
   compress?: boolean;
+
+  /**
+   * A list containing all header names included in the cache key.
+   */
+  headers?: string[];
 }
 
 /**

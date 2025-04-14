@@ -37,8 +37,8 @@ export declare class TestCdn extends Cdn.Service {
 
   fallbacks: [
     {
-      code: 404;
       location: '/site';
+      code: 404;
       ttl: 3600;
     }
   ];
@@ -84,4 +84,6 @@ declare class TestCache implements Cdn.Cache {
   maxTTL: 3600;
 
   compress: true;
+
+  headers: ['header1', 'header2'];
 }
