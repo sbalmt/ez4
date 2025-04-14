@@ -127,7 +127,7 @@ const getUpdateRecord = async (
 
       // Will update the active relation.
       if (!isEmptyObject(fieldValue)) {
-        const relationSchema = getUpdatingSchema(schema);
+        const relationSchema = getUpdatingSchema(sourceSchema);
 
         await validateFirstSchemaLevel(fieldValue, relationSchema, fieldPath);
       }

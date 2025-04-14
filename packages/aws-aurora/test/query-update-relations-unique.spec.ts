@@ -17,17 +17,17 @@ type TestRelations = {
 };
 
 describe('aurora query (update unique relations)', () => {
+  type TestSchemaOptions = {
+    multiple?: boolean;
+    nullish: boolean;
+  };
+
   const prepareRelationUpdate = <T extends Database.Schema, S extends Query.SelectInput<T, TestRelations>>(
     schema: ObjectSchema,
     relations: RepositoryRelationsWithSchema,
     query: Query.UpdateManyInput<T, S, TestRelations>
   ) => {
     return prepareUpdateQuery<T, S, {}, TestRelations>('ez4-test-update-relations', schema, relations, query);
-  };
-
-  type TestSchemaOptions = {
-    multiple?: boolean;
-    nullish: boolean;
   };
 
   const getTestRelationSchema = ({ nullish, multiple }: TestSchemaOptions): ObjectSchema => {
@@ -37,10 +37,6 @@ describe('aurora query (update unique relations)', () => {
         id: {
           type: SchemaType.String,
           format: 'uuid'
-        },
-        foo: {
-          type: SchemaType.String,
-          optional: true
         },
         ...(multiple
           ? {
@@ -75,12 +71,26 @@ describe('aurora query (update unique relations)', () => {
     };
   };
 
-  const getSingleTestRelation = (testSchema: ObjectSchema): RepositoryRelationsWithSchema => {
+  const getSingleTestRelation = (): RepositoryRelationsWithSchema => {
+    const relationSchema: ObjectSchema = {
+      type: SchemaType.Object,
+      properties: {
+        id: {
+          type: SchemaType.String,
+          format: 'uuid'
+        },
+        foo: {
+          type: SchemaType.String,
+          optional: true
+        }
+      }
+    };
+
     return {
       unique_to_primary: {
         targetColumn: 'id',
         targetIndex: Index.Primary,
-        sourceSchema: testSchema,
+        sourceSchema: relationSchema,
         sourceTable: 'ez4-test-relation',
         sourceAlias: 'ez4-test-relation',
         sourceColumn: 'unique_id',
@@ -89,8 +99,8 @@ describe('aurora query (update unique relations)', () => {
     };
   };
 
-  const getMultipleTestRelation = (testSchema: ObjectSchema): RepositoryRelationsWithSchema => {
-    const { unique_to_primary } = getSingleTestRelation(testSchema);
+  const getMultipleTestRelation = (): RepositoryRelationsWithSchema => {
+    const { unique_to_primary } = getSingleTestRelation();
 
     return {
       unique_to_primary_1: {
@@ -113,7 +123,7 @@ describe('aurora query (update unique relations)', () => {
       nullish: false
     });
 
-    const [statement, variables] = await prepareRelationUpdate(testSchema, getSingleTestRelation(testSchema), {
+    const [statement, variables] = await prepareRelationUpdate(testSchema, getSingleTestRelation(), {
       data: {
         id: '00000000-0000-1000-9000-000000000000',
         unique_to_primary: {
@@ -139,7 +149,7 @@ describe('aurora query (update unique relations)', () => {
       nullish: true
     });
 
-    const [statement, variables] = await prepareRelationUpdate(testSchema, getSingleTestRelation(testSchema), {
+    const [statement, variables] = await prepareRelationUpdate(testSchema, getSingleTestRelation(), {
       data: {
         id: '00000000-0000-1000-9000-000000000000',
         unique_to_primary: {
@@ -163,7 +173,7 @@ describe('aurora query (update unique relations)', () => {
       nullish: false
     });
 
-    const [statement, variables] = await prepareRelationUpdate(testSchema, getSingleTestRelation(testSchema), {
+    const [statement, variables] = await prepareRelationUpdate(testSchema, getSingleTestRelation(), {
       select: {
         id: true,
         unique_to_primary: {
@@ -199,7 +209,7 @@ describe('aurora query (update unique relations)', () => {
       nullish: true
     });
 
-    const [statement, variables] = await prepareRelationUpdate(testSchema, getSingleTestRelation(testSchema), {
+    const [statement, variables] = await prepareRelationUpdate(testSchema, getSingleTestRelation(), {
       data: {
         id: '00000000-0000-1000-9000-000000000000',
         unique_to_primary: {
@@ -222,7 +232,7 @@ describe('aurora query (update unique relations)', () => {
       nullish: false
     });
 
-    const [statement, variables] = await prepareRelationUpdate(testSchema, getSingleTestRelation(testSchema), {
+    const [statement, variables] = await prepareRelationUpdate(testSchema, getSingleTestRelation(), {
       data: {
         id: '00000000-0000-1000-9000-000000000000',
         unique_to_primary: {
@@ -248,7 +258,7 @@ describe('aurora query (update unique relations)', () => {
       nullish: false
     });
 
-    const [statement, variables] = await prepareRelationUpdate(testSchema, getSingleTestRelation(testSchema), {
+    const [statement, variables] = await prepareRelationUpdate(testSchema, getSingleTestRelation(), {
       select: {
         id: true,
         unique_to_primary: {
@@ -285,7 +295,7 @@ describe('aurora query (update unique relations)', () => {
       nullish: true
     });
 
-    const [statement, variables] = await prepareRelationUpdate(testSchema, getMultipleTestRelation(testSchema), {
+    const [statement, variables] = await prepareRelationUpdate(testSchema, getMultipleTestRelation(), {
       select: {
         id: true,
         unique_to_primary_1: {
@@ -337,7 +347,7 @@ describe('aurora query (update unique relations)', () => {
 
     await assert.rejects(
       () =>
-        prepareRelationUpdate(testSchema, getSingleTestRelation(testSchema), {
+        prepareRelationUpdate(testSchema, getSingleTestRelation(), {
           data: {
             unique_to_primary: {
               unique_id: '00000000-0000-1000-9000-000000000001',
@@ -358,7 +368,7 @@ describe('aurora query (update unique relations)', () => {
 
     await assert.rejects(
       () =>
-        prepareRelationUpdate(testSchema, getSingleTestRelation(testSchema), {
+        prepareRelationUpdate(testSchema, getSingleTestRelation(), {
           data: {
             unique_to_primary: {
               foo: 'foo',
