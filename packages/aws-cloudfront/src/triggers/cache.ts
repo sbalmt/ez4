@@ -43,10 +43,14 @@ const getOriginCache = async <T extends DistributionDefaultOrigin | Distribution
     policyName: getCachePolicyName(service, origin, options),
     description: service.description,
     compress: cache?.compress ?? true,
-    headers: cache?.headers ?? [],
     defaultTTL: cache?.ttl ?? 86400,
     maxTTL: cache?.maxTTL ?? 31536000,
-    minTTL: cache?.minTTL ?? 0
+    minTTL: cache?.minTTL ?? 0,
+    cacheKeys: {
+      headers: cache?.headers,
+      cookies: cache?.cookies,
+      queries: cache?.queries
+    }
   });
 
   const isBucket = isCdnBucketOrigin(origin);

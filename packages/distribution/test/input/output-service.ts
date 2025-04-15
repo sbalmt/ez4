@@ -86,4 +86,8 @@ declare class TestCache implements Cdn.Cache {
   compress: true;
 
   headers: ['header1', 'header2'];
+
+  cookies: ['cookie1', 'cookie2'];
+
+  queries: ['query1', 'query2'];
 }

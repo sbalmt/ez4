@@ -93,5 +93,5 @@ const getIndexedReferenceMember = (type: AllType, index: string) => {
     return getObjectMembers(type).find(({ name }) => name === index);
   }
 
-  throw new Error(`Model or Object type is expected for index reference.`);
+  throw new Error(`Model or object type is expected for index reference.`);
 };

@@ -101,6 +101,16 @@ export interface CdnCache {
    * A list containing all header names included in the cache key.
    */
   headers?: string[];
+
+  /**
+   * A list containing all cookie names included in the cache key.
+   */
+  cookies?: string[];
+
+  /**
+   * A list containing all query names included in the cache key.
+   */
+  queries?: string[];
 }
 
 /**

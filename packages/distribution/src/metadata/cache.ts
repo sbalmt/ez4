@@ -1,4 +1,4 @@
-import type { AllType, ModelProperty, SourceMap, TypeModel, TypeObject } from '@ez4/reflection';
+import type { AllType, SourceMap, TypeModel, TypeObject } from '@ez4/reflection';
 import type { MemberType } from '@ez4/common/library';
 import type { Incomplete } from '@ez4/utils';
 import type { CdnCache } from '../types/cache.js';
@@ -11,10 +11,10 @@ import {
   getPropertyBoolean,
   getPropertyNumber,
   getReferenceType,
-  getPropertyTuple
+  getArrayStrings
 } from '@ez4/common/library';
 
-import { isModelProperty, isTypeObject, isTypeReference, isTypeString } from '@ez4/reflection';
+import { isModelProperty, isTypeObject, isTypeReference } from '@ez4/reflection';
 import { isAnyNumber } from '@ez4/utils';
 
 import { IncompleteCacheError, IncorrectCacheTypeError, InvalidCacheTypeError } from '../errors/cache.js';
@@ -88,7 +88,9 @@ const getTypeFromMembers = (type: TypeObject | TypeModel, parent: TypeModel, mem
         break;
 
       case 'headers':
-        cache.headers = getAllHeaders(member);
+      case 'cookies':
+      case 'queries':
+        cache[member.name] = getArrayStrings(member);
         break;
     }
   }
@@ -100,19 +102,4 @@ const getTypeFromMembers = (type: TypeObject | TypeModel, parent: TypeModel, mem
   errorList.push(new IncompleteCacheError([...properties], type.file));
 
   return null;
-};
-
-const getAllHeaders = (member: ModelProperty) => {
-  const headerItems = getPropertyTuple(member) ?? [];
-  const headerList: string[] = [];
-
-  for (const header of headerItems) {
-    if (!isTypeString(header) || !header.literal) {
-      continue;
-    }
-
-    headerList.push(header.literal);
-  }
-
-  return headerList;
 };

@@ -6,10 +6,7 @@ import { attachEntry } from '@ez4/stateful';
 
 import { CacheServiceType } from './types.js';
 
-export const createCachePolicy = <E extends EntryState>(
-  state: EntryStates<E>,
-  parameters: CacheParameters
-) => {
+export const createCachePolicy = <E extends EntryState>(state: EntryStates<E>, parameters: CacheParameters) => {
   const policyName = toKebabCase(parameters.policyName);
   const policyId = hashData(CacheServiceType, policyName);
 

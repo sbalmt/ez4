@@ -9,11 +9,7 @@ export const isCachePolicyState = (resource: EntryState): resource is CacheState
   return resource.type === CacheServiceType;
 };
 
-export const getCachePolicyIds = (
-  serviceName: string,
-  resourceId: string,
-  context: StepContext
-) => {
+export const getCachePolicyIds = (serviceName: string, resourceId: string, context: StepContext) => {
   const resources = context.getDependencies<CacheState>(CacheServiceType);
 
   return resources.map(({ result }) => {
