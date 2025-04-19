@@ -1,9 +1,9 @@
-import type { AllType, SourceMap, TypeModel, TypeObject } from '@ez4/reflection';
+import type { AllType, EveryType, ModelProperty, SourceMap, TypeModel, TypeObject } from '@ez4/reflection';
 import type { MemberType } from '@ez4/common/library';
 import type { Incomplete } from '@ez4/utils';
 import type { HttpRoute } from '../types/common.js';
 
-import { isModelProperty, isTypeObject, isTypeReference } from '@ez4/reflection';
+import { isModelProperty, isTypeObject, isTypeReference, isTypeTuple } from '@ez4/reflection';
 
 import {
   InvalidServicePropertyError,
@@ -14,7 +14,8 @@ import {
   getObjectMembers,
   getModelMembers,
   getServiceListener,
-  getReferenceType
+  getReferenceType,
+  getPropertyTuple
 } from '@ez4/common/library';
 
 import { IncompleteRouteError } from '../errors/route.js';
@@ -22,15 +23,37 @@ import { isHttpPath, isHttpRoute } from './utils.js';
 import { getHttpAuthorizer } from './authorizer.js';
 import { getHttpHandler } from './handler.js';
 
-export const getHttpRoute = (type: AllType, parent: TypeModel, reflection: SourceMap, errorList: Error[]) => {
+export const getHttpRoutes = (parent: TypeModel, member: ModelProperty, reflection: SourceMap, errorList: Error[]) => {
+  const routeItems = getPropertyTuple(member) ?? [];
+
+  return getRouteFromTuple(routeItems, parent, reflection, errorList);
+};
+
+const getRouteFromTuple = (routeItems: EveryType[], parent: TypeModel, reflection: SourceMap, errorList: Error[]) => {
+  const routeList: HttpRoute[] = [];
+
+  for (const route of routeItems) {
+    const result = getTypeFromRoute(route, parent, reflection, errorList);
+
+    if (Array.isArray(result)) {
+      routeList.push(...result);
+    } else if (result) {
+      routeList.push(result);
+    }
+  }
+
+  return routeList;
+};
+
+const getTypeFromRoute = (type: AllType, parent: TypeModel, reflection: SourceMap, errorList: Error[]) => {
   if (!isTypeReference(type)) {
-    return getTypeRoute(type, parent, reflection, errorList);
+    return getRouteType(type, parent, reflection, errorList);
   }
 
   const statement = getReferenceType(type, reflection);
 
   if (statement) {
-    return getTypeRoute(statement, parent, reflection, errorList);
+    return getRouteType(statement, parent, reflection, errorList);
   }
 
   return null;
@@ -40,13 +63,17 @@ const isValidRoute = (type: Incomplete<HttpRoute>): type is HttpRoute => {
   return !!type.path && !!type.handler;
 };
 
-const getTypeRoute = (type: AllType, parent: TypeModel, reflection: SourceMap, errorList: Error[]) => {
+const getRouteType = (type: AllType, parent: TypeModel, reflection: SourceMap, errorList: Error[]) => {
   if (isHttpRoute(type)) {
     return getTypeFromMembers(type, parent, getModelMembers(type), reflection, errorList);
   }
 
   if (isTypeObject(type)) {
     return getTypeFromMembers(type, parent, getObjectMembers(type), reflection, errorList);
+  }
+
+  if (isTypeTuple(type) && type.spread) {
+    return getRouteFromTuple(type.elements, parent, reflection, errorList);
   }
 
   return null;
