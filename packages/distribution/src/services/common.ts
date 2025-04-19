@@ -109,6 +109,7 @@ export interface CdnCache {
 
   /**
    * A list containing all query names included in the cache key.
+   * If not specified all query strings are included.
    */
   queries?: string[];
 }

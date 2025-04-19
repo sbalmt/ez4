@@ -158,7 +158,7 @@ const upsertPolicyRequest = (request: CreateRequest | UpdateRequest): CachePolic
             }
           }
         : {
-            QueryStringBehavior: CachePolicyQueryStringBehavior.none
+            QueryStringBehavior: CachePolicyQueryStringBehavior.all
           }
     }
   };
