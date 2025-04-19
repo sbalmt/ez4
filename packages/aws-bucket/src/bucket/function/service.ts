@@ -19,6 +19,7 @@ export const createBucketEventFunction = <E extends EntryState>(
     variables: parameters.variables,
     timeout: parameters.timeout,
     memory: parameters.memory,
+    debug: parameters.debug,
     tags: parameters.tags,
     getFunctionBundle: (context) => {
       const dependencies = context.getDependencies();

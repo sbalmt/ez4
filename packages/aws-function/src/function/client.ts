@@ -12,7 +12,10 @@ import {
   UntagResourceCommand,
   waitUntilFunctionActive,
   waitUntilFunctionUpdated,
-  ResourceNotFoundException
+  ResourceNotFoundException,
+  ApplicationLogLevel,
+  SystemLogLevel,
+  LogFormat
 } from '@aws-sdk/client-lambda';
 
 import { Logger, tryParseArn } from '@ez4/aws-common';
@@ -39,6 +42,7 @@ export type CreateRequest = {
   variables?: Variables;
   timeout?: number;
   memory?: number;
+  debug?: boolean;
   tags?: ResourceTags;
 };
 
@@ -53,6 +57,7 @@ export type UpdateConfigRequest = {
   variables?: Variables;
   timeout?: number;
   memory?: number;
+  debug?: boolean;
 };
 
 export type UpdateSourceCodeRequest = {
@@ -93,7 +98,7 @@ export const createFunction = async (request: CreateRequest): Promise<ImportOrCr
     assertVariables(variables);
   }
 
-  const { description, memory, timeout, roleArn, handlerName, sourceFile, tags } = request;
+  const { roleArn, handlerName, sourceFile, description, memory, timeout, debug, tags } = request;
 
   const response = await client.send(
     new CreateFunctionCommand({
@@ -106,6 +111,10 @@ export const createFunction = async (request: CreateRequest): Promise<ImportOrCr
       Handler: getSourceHandlerName(handlerName),
       Runtime: 'nodejs22.x',
       PackageType: 'Zip',
+      LoggingConfig: {
+        ApplicationLogLevel: debug ? ApplicationLogLevel.Debug : ApplicationLogLevel.Warn,
+        SystemLogLevel: SystemLogLevel.Warn
+      },
       Code: {
         ZipFile: await getSourceZipFile(sourceFile)
       },
@@ -161,7 +170,7 @@ export const updateConfiguration = async (functionName: string, request: UpdateC
     assertVariables(variables);
   }
 
-  const { description, memory, timeout, roleArn, handlerName } = request;
+  const { roleArn, handlerName, description, memory, timeout, debug } = request;
 
   await client.send(
     new UpdateFunctionConfigurationCommand({
@@ -173,6 +182,11 @@ export const updateConfiguration = async (functionName: string, request: UpdateC
       ...(handlerName && {
         Handler: getSourceHandlerName(handlerName)
       }),
+      LoggingConfig: {
+        ApplicationLogLevel: debug ? ApplicationLogLevel.Debug : ApplicationLogLevel.Warn,
+        SystemLogLevel: SystemLogLevel.Warn,
+        LogFormat: LogFormat.Json
+      },
       Environment: {
         Variables: variables
       }
