@@ -41,7 +41,7 @@
       },
       {
         "type": "property",
-        "name": "tuple",
+        "name": "tuple1",
         "value": {
           "type": "tuple",
           "elements": [
@@ -54,6 +54,30 @@
               "element": {
                 "type": "any"
               }
+            }
+          ]
+        }
+      },
+      {
+        "type": "property",
+        "name": "tuple2",
+        "value": {
+          "type": "tuple",
+          "elements": [
+            {
+              "type": "any"
+            },
+            {
+              "type": "tuple",
+              "spread": true,
+              "elements": [
+                {
+                  "type": "void"
+                },
+                {
+                  "type": "unknown"
+                }
+              ]
             }
           ]
         }
