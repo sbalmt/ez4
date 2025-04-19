@@ -37,6 +37,16 @@ export interface HttpCors {
 }
 
 /**
+ * HTTP cache.
+ */
+export interface HttpCache {
+  /**
+   * Default TTL (in seconds) for cached authorizations.
+   */
+  authorizerTTL: number;
+}
+
+/**
  * Request headers.
  */
 export interface HttpHeaders {}

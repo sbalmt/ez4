@@ -32,4 +32,11 @@ export declare class Api extends Http.Service {
       handler: typeof privateHandler;
     }
   ];
+
+  /**
+   * Cache configuration.
+   */
+  cache: {
+    authorizerTTL: 5;
+  };
 }

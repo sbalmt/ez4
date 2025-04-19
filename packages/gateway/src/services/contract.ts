@@ -16,7 +16,8 @@ import type {
   HttpIncoming,
   HttpListener,
   HttpAuthorizer,
-  HttpHandler
+  HttpHandler,
+  HttpCache
 } from './common.js';
 
 /**
@@ -24,6 +25,7 @@ import type {
  */
 export namespace Http {
   export type Cors = HttpCors;
+  export type Cache = HttpCache;
 
   export type Headers = HttpHeaders;
   export type Identity = HttpIdentity;
@@ -101,12 +103,12 @@ export namespace Http {
     listener?: Listener<T>;
 
     /**
-     * Default execution time (in seconds) for the routes.
+     * Default execution time (in seconds) for routes.
      */
     timeout?: number;
 
     /**
-     * Default amount of memory available for the handlers.
+     * Default amount of memory available for handlers.
      */
     memory?: number;
   };
@@ -126,19 +128,24 @@ export namespace Http {
     name?: string;
 
     /**
+     * Default parameters.
+     */
+    defaults?: Defaults;
+
+    /**
      * CORS configuration.
      */
     cors?: Cors;
 
     /**
+     * Cache configuration.
+     */
+    cache?: Cache;
+
+    /**
      * Variables associated to all routes.
      */
     variables?: LinkedVariables;
-
-    /**
-     * Default parameters.
-     */
-    defaults?: Defaults;
 
     /**
      * Service client.

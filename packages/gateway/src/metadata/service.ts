@@ -22,6 +22,7 @@ import { getHttpDefaults } from './defaults.js';
 import { isHttpService } from './utils.js';
 import { getHttpRoute } from './route.js';
 import { getHttpCors } from './cors.js';
+import { getHttpCache } from './cache.js';
 
 export const getHttpServices = (reflection: SourceMap) => {
   const allServices: Record<string, HttpService> = {};
@@ -71,6 +72,10 @@ export const getHttpServices = (reflection: SourceMap) => {
 
         case 'cors':
           service.cors = getHttpCors(member.value, statement, reflection, errorList);
+          break;
+
+        case 'cache':
+          service.cache = getHttpCache(member.value, statement, reflection, errorList);
           break;
 
         case 'variables':

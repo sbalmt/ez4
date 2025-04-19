@@ -1,0 +1,37 @@
+{
+  "TestService": {
+    "type": "@ez4/http",
+    "extras": {},
+    "name": "TestService",
+    "routes": [
+      {
+        "path": "POST /test-route-1",
+        "handler": {
+          "name": "testRoute",
+          "file": "test/input/output-cache.ts",
+          "response": {
+            "status": 204
+          }
+        }
+      },
+      {
+        "path": "PATCH /test-route-2",
+        "authorizer": {
+          "name": "testAuthorizer",
+          "file": "test/input/output-cache.ts",
+          "response": null
+        },
+        "handler": {
+          "name": "testRoute",
+          "file": "test/input/output-cache.ts",
+          "response": {
+            "status": 204
+          }
+        }
+      }
+    ],
+    "cache": {
+      "authorizerTTL": 5
+    }
+  }
+}

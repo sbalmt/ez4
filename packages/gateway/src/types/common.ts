@@ -72,3 +72,7 @@ export type HttpCors = {
   allowHeaders?: string[];
   maxAge?: number;
 };
+
+export type HttpCache = {
+  authorizerTTL?: number;
+};

@@ -1,5 +1,5 @@
 import type { ServiceMetadata } from '@ez4/project/library';
-import type { HttpRoute, HttpCors, HttpDefaults } from './common.js';
+import type { HttpRoute, HttpCors, HttpDefaults, HttpCache } from './common.js';
 
 export const ServiceType = '@ez4/http';
 
@@ -10,6 +10,7 @@ export type HttpService = ServiceMetadata & {
   defaults?: HttpDefaults;
   routes: HttpRoute[];
   cors?: HttpCors;
+  cache?: HttpCache;
 };
 
 export const isHttpService = (service: ServiceMetadata): service is HttpService => {

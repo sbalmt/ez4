@@ -228,7 +228,8 @@ const getAuthorizerFunction = (
     createAuthorizer(state, gatewayState, authorizerState, {
       name: authorizer.name,
       headerNames: getIdentitySources(request?.headers),
-      queryNames: getIdentitySources(request?.query)
+      queryNames: getIdentitySources(request?.query),
+      cacheTTL: service.cache?.authorizerTTL
     })
   );
 };

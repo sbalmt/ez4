@@ -60,8 +60,12 @@ export const isJsonBody = (type: TypeModel) => {
   return hasHeritageType(type, 'Http.JsonBody');
 };
 
-export const isHttpCors = (type: AllType) => {
-  return isModelDeclaration(type) && hasHeritageType(type, 'Http.Cors');
+export const isHttpCors = (type: TypeModel) => {
+  return hasHeritageType(type, 'Http.Cors');
+};
+
+export const isHttpCache = (type: TypeModel) => {
+  return hasHeritageType(type, 'Http.Cache');
 };
 
 export const isHttpAuthorizer = (type: AllType): type is TypeCallback | TypeFunction => {

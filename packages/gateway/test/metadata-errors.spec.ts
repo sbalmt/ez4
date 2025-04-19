@@ -6,8 +6,7 @@ import {
   IncompleteRouteError,
   IncompleteHandlerError,
   IncompleteCorsError,
-  IncorrectCorsTypeError,
-  IncorrectDefaultsTypeError,
+  IncompleteCacheError,
   IncorrectHeadersTypeError,
   IncorrectIdentityTypeError,
   IncorrectParameterTypeError,
@@ -15,6 +14,9 @@ import {
   IncorrectBodyTypeError,
   IncorrectRequestTypeError,
   IncorrectResponseTypeError,
+  IncorrectDefaultsTypeError,
+  IncorrectCorsTypeError,
+  IncorrectCacheTypeError,
   InvalidCorsTypeError,
   InvalidHeadersTypeError,
   InvalidIdentityTypeError,
@@ -23,7 +25,8 @@ import {
   InvalidBodyTypeError,
   InvalidRequestTypeError,
   InvalidResponseTypeError,
-  InvalidDefaultsTypeError
+  InvalidDefaultsTypeError,
+  InvalidCacheTypeError
 } from '@ez4/gateway/library';
 
 import { getReflection } from '@ez4/project/library';
@@ -237,5 +240,27 @@ describe('http metadata errors', () => {
 
     ok(error1 instanceof InvalidCorsTypeError);
     equal(error1.baseType, 'Http.Cors');
+  });
+
+  it('assert :: incomplete cache', () => {
+    const [error1] = parseFile('incomplete-cache', 1);
+
+    ok(error1 instanceof IncompleteCacheError);
+    deepEqual(error1.properties, ['authorizerTTL']);
+  });
+
+  it('assert :: incorrect cache', () => {
+    const [error1] = parseFile('incorrect-cache', 1);
+
+    ok(error1 instanceof IncorrectCacheTypeError);
+    equal(error1.baseType, 'Http.Cache');
+    equal(error1.modelType, 'TestCache');
+  });
+
+  it('assert :: invalid cache', () => {
+    const [error1] = parseFile('invalid-cache', 1);
+
+    ok(error1 instanceof InvalidCacheTypeError);
+    equal(error1.baseType, 'Http.Cache');
   });
 });
