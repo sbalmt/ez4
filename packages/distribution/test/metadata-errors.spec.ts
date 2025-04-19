@@ -4,6 +4,7 @@ import { describe, it } from 'node:test';
 import {
   IncompleteServiceError,
   IncompleteOriginError,
+  IncompleteCacheError,
   IncompleteFallbackError,
   IncompleteCertificateError,
   IncorrectOriginTypeError,
@@ -11,7 +12,9 @@ import {
   IncorrectCertificateTypeError,
   InvalidOriginTypeError,
   InvalidFallbackTypeError,
-  InvalidCertificateTypeError
+  InvalidCertificateTypeError,
+  IncorrectCacheTypeError,
+  InvalidCacheTypeError
 } from '@ez4/distribution/library';
 
 import { getReflection } from '@ez4/project/library';
@@ -67,6 +70,28 @@ describe('distribution metadata errors', () => {
 
     ok(error2 instanceof IncompleteServiceError);
     deepEqual(error2.properties, ['defaultOrigin']);
+  });
+
+  it('assert :: incomplete cache', () => {
+    const [error1] = parseFile('incomplete-cache', 1);
+
+    ok(error1 instanceof IncompleteCacheError);
+    deepEqual(error1.properties, ['ttl']);
+  });
+
+  it('assert :: incorrect cache', () => {
+    const [error1] = parseFile('incorrect-cache', 1);
+
+    ok(error1 instanceof IncorrectCacheTypeError);
+    deepEqual(error1.baseType, 'Cdn.Cache');
+    deepEqual(error1.cacheType, 'TestCache');
+  });
+
+  it('assert :: invalid cache', () => {
+    const [error1] = parseFile('invalid-cache', 1);
+
+    ok(error1 instanceof InvalidCacheTypeError);
+    deepEqual(error1.baseType, 'Cdn.Cache');
   });
 
   it('assert :: incomplete fallback', () => {
