@@ -3,12 +3,15 @@ import { describe, it } from 'node:test';
 
 import {
   IncompleteServiceError,
-  IncompleteFallbackError,
   IncompleteOriginError,
+  IncompleteFallbackError,
+  IncompleteCertificateError,
   IncorrectOriginTypeError,
   IncorrectFallbackTypeError,
+  IncorrectCertificateTypeError,
   InvalidOriginTypeError,
-  InvalidFallbackTypeError
+  InvalidFallbackTypeError,
+  InvalidCertificateTypeError
 } from '@ez4/distribution/library';
 
 import { getReflection } from '@ez4/project/library';
@@ -86,5 +89,27 @@ describe('distribution metadata errors', () => {
 
     ok(error1 instanceof InvalidFallbackTypeError);
     deepEqual(error1.baseType, 'Cdn.Fallback');
+  });
+
+  it('assert :: incomplete certificate', () => {
+    const [error1] = parseFile('incomplete-certificate', 1);
+
+    ok(error1 instanceof IncompleteCertificateError);
+    deepEqual(error1.properties, ['domain']);
+  });
+
+  it('assert :: incorrect certificate', () => {
+    const [error1] = parseFile('incorrect-certificate', 1);
+
+    ok(error1 instanceof IncorrectCertificateTypeError);
+    deepEqual(error1.baseType, 'Cdn.Certificate');
+    deepEqual(error1.certificateType, 'TestCertificate');
+  });
+
+  it('assert :: invalid certificate', () => {
+    const [error1] = parseFile('invalid-certificate', 1);
+
+    ok(error1 instanceof InvalidCertificateTypeError);
+    deepEqual(error1.baseType, 'Cdn.Certificate');
   });
 });
