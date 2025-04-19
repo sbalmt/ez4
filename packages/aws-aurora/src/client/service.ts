@@ -167,7 +167,7 @@ const executeStaticTransaction = async <T extends Database.Service, U extends Tr
 const prepareStaticTransaction = async <T extends Database.Service, U extends Transaction.WriteOperation<T>>(
   repository: Repository,
   operations: U
-) => {
+): Promise<PreparedQueryCommand[]> => {
   const commands: PreparedQueryCommand[] = [];
 
   for (const tableAlias in operations) {
