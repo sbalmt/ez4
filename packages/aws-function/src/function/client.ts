@@ -113,7 +113,8 @@ export const createFunction = async (request: CreateRequest): Promise<ImportOrCr
       PackageType: 'Zip',
       LoggingConfig: {
         ApplicationLogLevel: debug ? ApplicationLogLevel.Debug : ApplicationLogLevel.Warn,
-        SystemLogLevel: SystemLogLevel.Warn
+        SystemLogLevel: SystemLogLevel.Warn,
+        LogFormat: LogFormat.Json
       },
       Code: {
         ZipFile: await getSourceZipFile(sourceFile)
