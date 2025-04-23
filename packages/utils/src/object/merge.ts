@@ -1,11 +1,11 @@
-import type { AnyObject, PartialProperties } from './generics.js';
+import type { AnyObject, IsObject, PartialObject, PartialProperties } from './generics.js';
 
 import { isAnyObject } from './check.js';
 
 /**
  * Deep merge options.
  */
-export type ObjectMergingOptions<T extends AnyObject> = {
+export type MergeOptions<T extends AnyObject> = {
   /**
    * After the given depth level, all objects and arrays are not deeply merged.
    */
@@ -22,6 +22,16 @@ export type ObjectMergingOptions<T extends AnyObject> = {
   include?: PartialProperties<T>;
 };
 
+export type MergeResult<T extends AnyObject, O> = O extends { exclude: infer E }
+  ? IsObject<E> extends true
+    ? PartialObject<T, NonNullable<E>, true>
+    : unknown
+  : O extends { include: infer I }
+    ? IsObject<I> extends true
+      ? PartialObject<T, NonNullable<I>, false>
+      : unknown
+    : T;
+
 /**
  * Merge into the `target` object the given `source` object and generate a new one according to the given options.
  *
@@ -30,7 +40,7 @@ export type ObjectMergingOptions<T extends AnyObject> = {
  * @param options Merging options.
  * @returns Returns the new object.
  */
-export const deepMerge = <T extends AnyObject, S extends AnyObject>(target: T, source: S, options?: ObjectMergingOptions<T & S>) => {
+export const deepMerge = <T extends AnyObject, S extends AnyObject, O extends MergeOptions<T & S>>(target: T, source: S, options?: O) => {
   const includeStates = options?.include;
   const excludeStates = options?.exclude;
 
@@ -82,5 +92,5 @@ export const deepMerge = <T extends AnyObject, S extends AnyObject>(target: T, s
     object[key] = sourceValue ?? targetValue;
   }
 
-  return object;
+  return object as MergeResult<T & S, O>;
 };
