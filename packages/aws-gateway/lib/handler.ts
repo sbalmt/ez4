@@ -1,8 +1,7 @@
-import type { Service } from '@ez4/common';
-import type { ObjectSchema } from '@ez4/schema';
-import type { Http } from '@ez4/gateway';
-
 import type { APIGatewayProxyEventV2WithLambdaAuthorizer, APIGatewayProxyResultV2, Context } from 'aws-lambda';
+import type { ObjectSchema } from '@ez4/schema';
+import type { Service } from '@ez4/common';
+import type { Http } from '@ez4/gateway';
 
 import {
   getHeaders,
@@ -29,7 +28,6 @@ declare const __EZ4_HEADERS_SCHEMA: ObjectSchema | null;
 declare const __EZ4_CONTEXT: object;
 
 declare function handle(request: Http.Incoming<Http.Request>, context: object): Promise<Http.Response>;
-
 declare function dispatch(event: Service.Event<Http.Incoming<Http.Request>>, context: object): Promise<void>;
 
 /**

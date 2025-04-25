@@ -12,10 +12,7 @@ declare const __EZ4_CONTEXT: object;
 declare function handle(request: Cron.Incoming<Cron.Event>, context: object): Promise<void>;
 declare function handle(context: object): Promise<void>;
 
-declare function dispatch(
-  event: Service.Event<Cron.Incoming<Cron.Event>>,
-  context: object
-): Promise<void>;
+declare function dispatch(event: Service.Event<Cron.Incoming<Cron.Event>>, context: object): Promise<void>;
 
 /**
  * Entrypoint to handle EventBridge scheduler events.

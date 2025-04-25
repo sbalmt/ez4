@@ -31,14 +31,12 @@ export namespace Database {
   /**
    * Incoming stream event.
    */
-  export type Incoming<T extends Schema> = StreamChange<
-    T & {
-      /**
-       * Request tracking Id.
-       */
-      requestId: string;
-    }
-  >;
+  export type Incoming<T extends Schema> = StreamChange<T> & {
+    /**
+     * Request tracking Id.
+     */
+    requestId: string;
+  };
 
   /**
    * Stream listener.

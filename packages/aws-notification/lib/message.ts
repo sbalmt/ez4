@@ -9,15 +9,8 @@ import { ServiceEventType } from '@ez4/common';
 declare const __EZ4_SCHEMA: MessageSchema | null;
 declare const __EZ4_CONTEXT: object;
 
-declare function handle(
-  message: Notification.Incoming<Notification.Message>,
-  context: object
-): Promise<any>;
-
-declare function dispatch(
-  event: Service.Event<Notification.Incoming<Notification.Message>>,
-  context: object
-): Promise<void>;
+declare function handle(message: Notification.Incoming<Notification.Message>, context: object): Promise<any>;
+declare function dispatch(event: Service.Event<Notification.Incoming<Notification.Message>>, context: object): Promise<void>;
 
 /**
  * Entrypoint to handle SNS events.
@@ -76,10 +69,7 @@ const onReady = async (request: Partial<Notification.Incoming<Notification.Messa
   );
 };
 
-const onError = async (
-  error: Error,
-  request: Partial<Notification.Incoming<Notification.Message>>
-) => {
+const onError = async (error: Error, request: Partial<Notification.Incoming<Notification.Message>>) => {
   console.error(error);
 
   return dispatch(
