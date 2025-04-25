@@ -2,11 +2,7 @@ import type { Service } from '@ez4/common';
 import type { ObjectSchema } from '@ez4/schema';
 import type { Http } from '@ez4/gateway';
 
-import type {
-  APIGatewayProxyEventV2WithLambdaAuthorizer,
-  APIGatewayProxyResultV2,
-  Context
-} from 'aws-lambda';
+import type { APIGatewayProxyEventV2WithLambdaAuthorizer, APIGatewayProxyResultV2, Context } from 'aws-lambda';
 
 import {
   getHeaders,
@@ -32,15 +28,9 @@ declare const __EZ4_IDENTITY_SCHEMA: ObjectSchema | null;
 declare const __EZ4_HEADERS_SCHEMA: ObjectSchema | null;
 declare const __EZ4_CONTEXT: object;
 
-declare function handle(
-  request: Http.Incoming<Http.Request>,
-  context: object
-): Promise<Http.Response>;
+declare function handle(request: Http.Incoming<Http.Request>, context: object): Promise<Http.Response>;
 
-declare function dispatch(
-  event: Service.Event<Http.Incoming<Http.Request>>,
-  context: object
-): Promise<void>;
+declare function dispatch(event: Service.Event<Http.Incoming<Http.Request>>, context: object): Promise<void>;
 
 /**
  * Entrypoint to handle API Gateway requests.
@@ -124,10 +114,7 @@ const getRequestIdentity = (event: RequestEvent) => {
     return undefined;
   }
 
-  return getIdentity(
-    JSON.parse(event.requestContext?.authorizer?.lambda?.identity ?? '{}'),
-    __EZ4_IDENTITY_SCHEMA
-  );
+  return getIdentity(JSON.parse(event.requestContext?.authorizer?.lambda?.identity ?? '{}'), __EZ4_IDENTITY_SCHEMA);
 };
 
 const getRequestBody = (event: RequestEvent) => {
@@ -135,13 +122,13 @@ const getRequestBody = (event: RequestEvent) => {
     return undefined;
   }
 
-  const rawBody = event.body || '{}';
+  const body = event.body || '{}';
 
   try {
-    return getRequestJsonBody(JSON.parse(rawBody), __EZ4_BODY_SCHEMA);
+    return getRequestJsonBody(JSON.parse(body), __EZ4_BODY_SCHEMA);
   } catch (error) {
     if (error instanceof SyntaxError) {
-      console.debug(rawBody);
+      console.debug({ body });
     }
 
     throw error;
