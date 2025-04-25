@@ -17,7 +17,7 @@ export const executeStatement = async (client: DynamoDBDocumentClient, command: 
 
     return result;
   } catch (error) {
-    console.debug({ label: `[PartiQL/-]:`, sql: command.Statement });
+    console.error({ label: `[PartiQL/-]:`, sql: command.Statement });
 
     throw error;
   }

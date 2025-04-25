@@ -126,7 +126,7 @@ const getRequestBody = (event: RequestEvent) => {
     return getRequestJsonBody(JSON.parse(body), __EZ4_BODY_SCHEMA);
   } catch (error) {
     if (error instanceof SyntaxError) {
-      console.debug({ body });
+      console.error({ body });
     }
 
     throw error;

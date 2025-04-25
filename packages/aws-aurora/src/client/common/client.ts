@@ -70,7 +70,7 @@ export const executeStatement = async (
       return JSON.parse(formattedRecords);
     }
   } catch (error) {
-    console.debug({ label: `[PgSQL/${getDebugTransactionId(transactionId)}]:`, sql: command.sql });
+    console.error({ label: `[PgSQL/${getDebugTransactionId(transactionId)}]:`, sql: command.sql });
 
     throw error;
   }
