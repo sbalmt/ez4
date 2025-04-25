@@ -1,5 +1,4 @@
 import type { Database, Client as DbClient, Transaction, RelationMetadata } from '@ez4/database';
-import type { ExecuteStatementCommandInput } from '@aws-sdk/lib-dynamodb';
 import type { Repository } from './types.js';
 
 import { DynamoDBDocumentClient } from '@aws-sdk/lib-dynamodb';
@@ -72,10 +71,7 @@ export namespace Client {
   };
 }
 
-const prepareStaticTransaction = async <T extends Database.Service, U extends Transaction.Operation<T, void>>(
-  repository: Repository,
-  operation: U
-): Promise<ExecuteStatementCommandInput[]> => {
+const prepareStaticTransaction = async <T extends Database.Service>(repository: Repository, operation: Transaction.Operation<T, void>) => {
   if (operation instanceof Function) {
     throw new Error(`DynamoDB tables don't support function transaction.`);
   }

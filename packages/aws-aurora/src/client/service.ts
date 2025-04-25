@@ -147,11 +147,11 @@ const executeInteractiveTransaction = async (
   }
 };
 
-const executeStaticTransaction = async <T extends Database.Service, U extends Transaction.WriteOperation<T>>(
+const executeStaticTransaction = async <T extends Database.Service>(
   connection: Connection,
   repository: Repository,
   context: ClientContext,
-  operations: U
+  operations: Transaction.WriteOperation<T>
 ) => {
   const { transactionId, debug } = context;
 
@@ -164,9 +164,9 @@ const executeStaticTransaction = async <T extends Database.Service, U extends Tr
   }
 };
 
-const prepareStaticTransaction = async <T extends Database.Service, U extends Transaction.WriteOperation<T>>(
+const prepareStaticTransaction = async <T extends Database.Service>(
   repository: Repository,
-  operations: U
+  operations: Transaction.WriteOperation<T>
 ): Promise<PreparedQueryCommand[]> => {
   const commands: PreparedQueryCommand[] = [];
 
