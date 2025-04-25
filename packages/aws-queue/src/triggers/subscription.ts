@@ -31,7 +31,7 @@ export const prepareSubscriptions = async (
     let handlerState = tryGetFunctionState(context, internalName, options);
 
     if (!handlerState) {
-      const functionTimeout = service.timeout ?? 30;
+      const functionTimeout = service.timeout ?? 90;
       const functionMemory = subscription.memory ?? 192;
 
       handlerState = createQueueFunction(state, context.role, {

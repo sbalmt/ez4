@@ -34,7 +34,7 @@ export const prepareEvents = (state: EntryStates, service: BucketService, option
   const handlerState = createBucketEventFunction(state, context.role, {
     functionName: getFunctionName(service, handler.name, options),
     description: handler.description,
-    timeout: events.timeout ?? 30,
+    timeout: events.timeout ?? 150,
     memory: events.memory ?? 192,
     extras: service.extras,
     debug: options.debug,
