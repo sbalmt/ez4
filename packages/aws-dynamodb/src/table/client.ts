@@ -26,8 +26,6 @@ import { TableServiceName } from './types.js';
 
 const client = new DynamoDBClient({});
 
-const defaultRWU = 25;
-
 const waiter = {
   minDelay: 15,
   maxWaitTime: 1800,
@@ -72,8 +70,8 @@ export const createTable = async (request: CreateRequest): Promise<CreateRespons
 
   const [primarySchema, ...secondarySchema] = attributeSchema;
 
-  const maxWU = capacityUnits?.maxWriteUnits ?? defaultRWU;
-  const maxRU = capacityUnits?.maxReadUnits ?? defaultRWU;
+  const maxWU = capacityUnits?.maxWriteUnits ?? -1;
+  const maxRU = capacityUnits?.maxReadUnits ?? -1;
 
   const response = await client.send(
     new CreateTableCommand({
@@ -83,8 +81,8 @@ export const createTable = async (request: CreateRequest): Promise<CreateRespons
       KeySchema: getAttributeKeyTypes(primarySchema),
       BillingMode: BillingMode.PAY_PER_REQUEST,
       OnDemandThroughput: {
-        MaxReadRequestUnits: maxRU,
-        MaxWriteRequestUnits: maxWU
+        MaxWriteRequestUnits: maxWU,
+        MaxReadRequestUnits: maxRU
       },
       StreamSpecification: {
         StreamEnabled: !!enableStreams,
