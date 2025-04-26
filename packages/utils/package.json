@@ -19,13 +19,9 @@
   "exports": {
     ".": {
       "types": "./dist/main.d.ts",
+      "browser": "./dist/browser.mjs",
       "require": "./dist/main.cjs",
       "import": "./dist/main.mjs"
-    },
-    "./browser": {
-      "types": "./dist/browser.d.ts",
-      "require": "./dist/browser.cjs",
-      "import": "./dist/browser.mjs"
     }
   },
   "workspaces": [
