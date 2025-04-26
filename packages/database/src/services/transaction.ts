@@ -19,13 +19,15 @@ export namespace Transaction {
   export type Result<O> = O extends (client: any) => infer R ? R : void;
 
   /**
+   * Extract the transaction engine from the given database service.
+   */
+  export type Engine<T extends Database.Service> = T['engine'] extends { transaction: infer O } ? O : never;
+
+  /**
    * Determines the transaction operation based on the given database service.
    */
-  export type Operation<T extends Database.Service, R> = T['engine'] extends { transaction: infer O }
-    ? O extends TransactionType.Interactive
-      ? WriteOperation<T> | InteractiveOperation<T, R>
-      : WriteOperation<T>
-    : never;
+  export type Operation<T extends Database.Service, R> =
+    Engine<T> extends TransactionType.Interactive ? StaticOperation<T> | InteractiveOperation<T, R> : StaticOperation<T>;
 
   /**
    * Interactive operations.
@@ -33,9 +35,9 @@ export namespace Transaction {
   export type InteractiveOperation<T extends Database.Service, R = void> = (client: Client<T>) => Promise<R> | R;
 
   /**
-   * Write operations.
+   * Static operations.
    */
-  export type WriteOperation<T extends Database.Service> = {
+  export type StaticOperation<T extends Database.Service> = {
     [P in keyof TableSchemas<T>]?: (TableSchemas<T>[P] extends Database.Schema
       ? AnyOperation<TableSchemas<T>[P], TableIndex<P, IndexedTables<T>>, TableRelation<P, RelationTables<T>>>
       : AnyObject)[];

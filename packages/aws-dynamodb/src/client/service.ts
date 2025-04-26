@@ -4,8 +4,9 @@ import type { Repository } from './types.js';
 import { DynamoDBDocumentClient } from '@aws-sdk/lib-dynamodb';
 import { DynamoDBClient } from '@aws-sdk/client-dynamodb';
 
-import { prepareDeleteOne, prepareInsertOne, prepareUpdateOne } from './common/queries.js';
 import { executeStatement, executeTransaction } from './common/client.js';
+import { prepareDeleteOne, prepareInsertOne, prepareUpdateOne } from './common/queries.js';
+import { MissingRepositoryTableError, UnsupportedTransactionError } from './errors.js';
 import { Table } from './table.js';
 
 type TableType = Table<Database.Schema, Database.Indexes, RelationMetadata>;
@@ -16,54 +17,60 @@ const client = DynamoDBDocumentClient.from(new DynamoDBClient(), {
   }
 });
 
-const tableCache: Record<string, TableType> = {};
-
 export type ClientSettings = {
   debug?: boolean;
 };
 
 export namespace Client {
   export const make = <T extends Database.Service>(repository: Repository, settings?: ClientSettings): DbClient<T> => {
-    const instance = new (class {
+    const tableCache: Record<string, TableType> = {};
+
+    const debugMode = settings?.debug;
+
+    const clientInstance = new (class {
       async rawQuery(query: string, values: unknown[] = []) {
         const command = { ConsistentRead: true, Parameters: values, Statement: query };
 
-        const result = await executeStatement(client, command, settings?.debug);
+        const { Items: records = [] } = await executeStatement(client, command, debugMode);
 
-        return result.Items ?? [];
+        return records;
       }
 
       async transaction<O extends Transaction.Operation<T, void>>(operation: O) {
+        if (!isStaticTransaction<T>(operation)) {
+          throw new UnsupportedTransactionError();
+        }
+
         const commands = await prepareStaticTransaction(repository, operation);
 
-        await executeTransaction(client, commands, settings?.debug);
+        await executeTransaction(client, commands, debugMode);
       }
     })();
 
-    return new Proxy<any>(instance, {
+    return new Proxy<any>(clientInstance, {
       get: (target, property) => {
         if (property in target) {
           return target[property];
         }
 
-        const alias = property.toString();
+        const tableAlias = property.toString();
 
-        if (tableCache[alias]) {
-          return tableCache[alias];
+        if (tableCache[tableAlias]) {
+          return tableCache[tableAlias];
         }
 
-        if (!repository[alias]) {
-          throw new Error(`Table ${alias} isn't part of the repository.`);
+        if (!repository[tableAlias]) {
+          throw new MissingRepositoryTableError(tableAlias);
         }
 
-        const { name, schema, indexes } = repository[alias];
+        const { name, schema, indexes } = repository[tableAlias];
 
         const table = new Table(name, schema, indexes, {
           ...settings,
           client
         });
 
-        tableCache[alias] = table;
+        tableCache[tableAlias] = table;
 
         return table;
       }
@@ -71,32 +78,43 @@ export namespace Client {
   };
 }
 
-const prepareStaticTransaction = async <T extends Database.Service>(repository: Repository, operation: Transaction.Operation<T, void>) => {
-  if (operation instanceof Function) {
-    throw new Error(`DynamoDB tables don't support function transaction.`);
-  }
+const isStaticTransaction = <T extends Database.Service>(operation: unknown): operation is Transaction.StaticOperation<T> => {
+  return !(operation instanceof Function);
+};
 
+const prepareStaticTransaction = async <T extends Database.Service>(repository: Repository, operations: Transaction.StaticOperation<T>) => {
   const commands = [];
 
-  for (const tableAlias in operation) {
-    const operationTable = operation[tableAlias];
-
-    if (!repository[tableAlias]) {
-      throw new Error(`Table ${tableAlias} isn't part of the repository.`);
-    }
+  for (const tableAlias in operations) {
+    const repositoryTable = repository[tableAlias];
+    const operationTable = operations[tableAlias];
 
     if (!operationTable) {
       continue;
     }
 
-    const { name, schema } = repository[tableAlias];
+    if (!repositoryTable) {
+      throw new MissingRepositoryTableError(tableAlias);
+    }
+
+    const { name, schema } = repositoryTable;
 
     for (const query of operationTable) {
+      if (!query) {
+        continue;
+      }
+
       if ('insert' in query) {
         commands.push(await prepareInsertOne(name, schema, query.insert));
-      } else if ('update' in query) {
+        continue;
+      }
+
+      if ('update' in query) {
         commands.push(await prepareUpdateOne(name, schema, query.update));
-      } else if ('delete' in query) {
+        continue;
+      }
+
+      if ('delete' in query) {
         commands.push(prepareDeleteOne(name, query.delete));
       }
     }

@@ -1,7 +1,8 @@
 export * from './client/service.js';
+export * from './client/parameter.js';
 export * from './client/table.js';
 
-export * from './client/common/errors.js';
+export * from './client/errors.js';
 export * from './client/common/insert.js';
 export * from './client/common/update.js';
 export * from './client/common/select.js';

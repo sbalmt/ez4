@@ -20,7 +20,7 @@ import {
 } from './relation.js';
 
 import { getDefaultSelectFields, getFieldColumn, getSelectFields } from './select.js';
-import { InvalidRelationFieldError, MissingFieldSchemaError } from './errors.js';
+import { InvalidRelationFieldError, MissingFieldSchemaError } from '../errors.js';
 import { validateAllSchemaLevels, validateFirstSchemaLevel } from './schema.js';
 import { createQueryBuilder } from './builder.js';
 import { isSkippableData } from './data.js';

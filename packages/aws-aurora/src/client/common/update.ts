@@ -9,7 +9,7 @@ import { isDynamicObjectSchema, IsNullishSchema, isNumberSchema, isObjectSchema 
 import { isAnyObject, isEmptyObject } from '@ez4/utils';
 import { Index } from '@ez4/database';
 
-import { InvalidAtomicOperation, InvalidRelationFieldError, MissingFieldSchemaError } from './errors.js';
+import { InvalidAtomicOperation, InvalidRelationFieldError, MissingFieldSchemaError } from '../errors.js';
 import { getSourceConnectionSchema, getTargetConnectionSchema, getUpdatingSchema, isSingleRelationData } from './relation.js';
 import { getSelectFields, getSelectFilters } from './select.js';
 import { validateFirstSchemaLevel } from './schema.js';

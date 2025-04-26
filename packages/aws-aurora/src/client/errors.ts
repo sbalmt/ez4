@@ -7,9 +7,15 @@ export class MalformedRequestError extends Error {
   }
 }
 
+export class MissingRepositoryTableError extends Error {
+  constructor(public tableAlias: string) {
+    super(`DynamoDB table ${tableAlias} isn't part of the repository.`);
+  }
+}
+
 export class MissingRelationDataError extends Error {
-  constructor(public alias: string) {
-    super(`Relation data for '${alias}' is missing.`);
+  constructor(public tableAlias: string) {
+    super(`Relation data for '${tableAlias}' is missing.`);
   }
 }
 
