@@ -1,5 +1,8 @@
-import type { PolicyDocument, PolicyStatement } from '@ez4/aws-identity';
 import type { IdentityGrant } from '@ez4/project/library';
+import type { Arn } from '@ez4/aws-common';
+import type { PolicyDocument, PolicyStatement } from '../types/policy.js';
+
+import { getAccountId } from './account.js';
 
 export const createPolicyDocument = (grants: IdentityGrant[]): PolicyDocument => {
   return {
@@ -13,4 +16,12 @@ export const createPolicyDocument = (grants: IdentityGrant[]): PolicyDocument =>
       };
     })
   };
+};
+
+export const getPolicyArn = async (policyName: string) => {
+  const accountId = await getAccountId();
+
+  const policyArn = `arn:aws:iam::${accountId}:policy/${policyName}`;
+
+  return policyArn as Arn;
 };

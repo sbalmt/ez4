@@ -24,6 +24,7 @@ Ensure the user performing deployments has the permissions below:
       "Action": [
         "iam:CreatePolicy",
         "iam:DeletePolicy",
+        "iam:ListPolicyVersions",
         "iam:CreatePolicyVersion",
         "iam:DeletePolicyVersion",
         "iam:TagPolicy",

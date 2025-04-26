@@ -6,7 +6,7 @@ import type { PolicyState, PolicyResult, PolicyParameters } from './types.js';
 import { applyTagUpdates, ReplaceResourceError } from '@ez4/aws-common';
 import { deepCompare, deepEqual } from '@ez4/utils';
 
-import { createPolicyVersion, createPolicy, deletePolicy, deletePolicyVersion, tagPolicy, untagPolicy } from './client.js';
+import { createPolicyVersion, createPolicy, deletePolicy, deletePolicyVersion, tagPolicy, untagPolicy, importPolicy } from './client.js';
 import { PolicyServiceName } from './types.js';
 
 export const getPolicyHandler = (): StepHandler<PolicyState> => ({
@@ -47,12 +47,26 @@ const replaceResource = async (candidate: PolicyState, current: PolicyState) => 
 };
 
 const createResource = async (candidate: PolicyState): Promise<PolicyResult> => {
-  const response = await createPolicy(candidate.parameters);
+  const parameters = candidate.parameters;
+
+  const importedPolicy = await importPolicy(parameters.policyName);
+
+  if (importedPolicy) {
+    const { policyArn, currentVersion, versionHistory } = importedPolicy;
+
+    return {
+      versionHistory,
+      currentVersion,
+      policyArn
+    };
+  }
+
+  const response = await createPolicy(parameters);
 
   return {
-    policyArn: response.policyArn,
+    versionHistory: [],
     currentVersion: response.currentVersion,
-    versionHistory: []
+    policyArn: response.policyArn
   };
 };
 
