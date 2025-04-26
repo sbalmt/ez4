@@ -1,4 +1,4 @@
-import type { Database, Client as DbClient, Transaction, RelationMetadata } from '@ez4/database';
+import type { Database, Client as DbClient, Parameters, Transaction, RelationMetadata } from '@ez4/database';
 import type { Repository } from './types.js';
 
 import { DynamoDBDocumentClient } from '@aws-sdk/lib-dynamodb';
@@ -6,7 +6,7 @@ import { DynamoDBClient } from '@aws-sdk/client-dynamodb';
 
 import { executeStatement, executeTransaction } from './common/client.js';
 import { prepareDeleteOne, prepareInsertOne, prepareUpdateOne } from './common/queries.js';
-import { MissingRepositoryTableError, UnsupportedTransactionError } from './errors.js';
+import { MissingRepositoryTableError, UnsupportedNamedParametersError, UnsupportedTransactionError } from './errors.js';
 import { Table } from './table.js';
 
 type TableType = Table<Database.Schema, Database.Indexes, RelationMetadata>;
@@ -28,15 +28,19 @@ export namespace Client {
     const debugMode = settings?.debug;
 
     const clientInstance = new (class {
-      async rawQuery(query: string, values: unknown[] = []) {
-        const command = { ConsistentRead: true, Parameters: values, Statement: query };
+      async rawQuery(query: string, parameters: Parameters.Type<T> = []) {
+        if (!Array.isArray(parameters)) {
+          throw new UnsupportedNamedParametersError();
+        }
+
+        const command = { ConsistentRead: true, Parameters: parameters, Statement: query };
 
         const { Items: records = [] } = await executeStatement(client, command, debugMode);
 
         return records;
       }
 
-      async transaction<O extends Transaction.Operation<T, void>>(operation: O) {
+      async transaction<O extends Transaction.Type<T, void>>(operation: O) {
         if (!isStaticTransaction<T>(operation)) {
           throw new UnsupportedTransactionError();
         }
@@ -78,11 +82,14 @@ export namespace Client {
   };
 }
 
-const isStaticTransaction = <T extends Database.Service>(operation: unknown): operation is Transaction.StaticOperation<T> => {
+const isStaticTransaction = <T extends Database.Service>(operation: unknown): operation is Transaction.StaticOperationType<T> => {
   return !(operation instanceof Function);
 };
 
-const prepareStaticTransaction = async <T extends Database.Service>(repository: Repository, operations: Transaction.StaticOperation<T>) => {
+const prepareStaticTransaction = async <T extends Database.Service>(
+  repository: Repository,
+  operations: Transaction.StaticOperationType<T>
+) => {
   const commands = [];
 
   for (const tableAlias in operations) {

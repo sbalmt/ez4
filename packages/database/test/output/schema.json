@@ -4,6 +4,7 @@
     "name": "TestDatabase",
     "extras": {},
     "engine": {
+      "parameters": "index",
       "transaction": "static",
       "name": "test"
     },

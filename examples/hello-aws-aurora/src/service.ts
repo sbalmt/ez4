@@ -1,4 +1,5 @@
-import type { Database, Index, TransactionType } from '@ez4/database';
+import type { PostgresEngine } from '@ez4/aws-aurora/client';
+import type { Database, Index } from '@ez4/database';
 import type { TableSchema } from './types.js';
 
 /**
@@ -8,10 +9,7 @@ export declare class Db extends Database.Service {
   /**
    * Database engine.
    */
-  engine: {
-    transaction: TransactionType.Static;
-    name: 'aurora';
-  };
+  engine: PostgresEngine;
 
   /**
    * Database tables.

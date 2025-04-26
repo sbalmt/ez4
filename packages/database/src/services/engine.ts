@@ -7,9 +7,18 @@ export const enum TransactionType {
 }
 
 /**
+ * Parameters type.
+ */
+export const enum ParametersType {
+  NameAndIndex = 'both',
+  OnlyIndex = 'index'
+}
+
+/**
  * Database engine.
  */
 export type DatabaseEngine = {
   transaction: TransactionType;
+  parameters: ParametersType;
   name: string;
 };

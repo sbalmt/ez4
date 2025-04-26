@@ -1,4 +1,5 @@
-import type { Database, Index, Client, TransactionType } from '@ez4/database';
+import type { DynamoDbEngine } from '@ez4/aws-dynamodb/client';
+import type { Database, Index, Client } from '@ez4/database';
 import type { EventSchema } from './schemas/event.js';
 
 /**
@@ -13,10 +14,7 @@ export declare class EventDb extends Database.Service {
   /**
    * Database engine.
    */
-  engine: {
-    transaction: TransactionType.Static;
-    name: 'dynamodb';
-  };
+  engine: DynamoDbEngine;
 
   /**
    * Database tables.

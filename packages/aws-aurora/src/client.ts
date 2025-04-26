@@ -1,5 +1,6 @@
+export { PostgresEngine } from './client/types.js';
+
 export * from './client/service.js';
-export * from './client/parameter.js';
 export * from './client/table.js';
 
 export * from './client/errors.js';

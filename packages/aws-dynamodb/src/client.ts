@@ -1,3 +1,5 @@
+export { DynamoDbEngine } from './client/types.js';
+
 export * from './client/service.js';
 export * from './client/table.js';
 

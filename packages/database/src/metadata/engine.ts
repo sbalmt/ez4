@@ -6,8 +6,8 @@ import type { DatabaseEngine } from '../types/engine.js';
 import { InvalidServicePropertyError, getModelMembers, getObjectMembers, getPropertyString, getReferenceType } from '@ez4/common/library';
 import { isModelProperty, isTypeObject, isTypeReference } from '@ez4/reflection';
 
+import { ParametersType, TransactionType } from '../services/engine.js';
 import { IncompleteTableError } from '../errors/table.js';
-import { TransactionType } from '../services/engine.js';
 import { isDatabaseEngine } from './utils.js';
 
 export const getDatabaseEngine = (type: AllType, parent: TypeModel, reflection: SourceMap, errorList: Error[]) => {
@@ -43,7 +43,7 @@ const getTypeEngine = (type: AllType, parent: TypeModel, errorList: Error[]) => 
 const getTypeFromMembers = (type: TypeObject | TypeModel, parent: TypeModel, members: MemberType[], errorList: Error[]) => {
   const engine: Incomplete<DatabaseEngine> = {};
 
-  const properties = new Set(['name', 'transaction']);
+  const properties = new Set(['name', 'transaction', 'parameters']);
 
   for (const member of members) {
     if (!isModelProperty(member) || member.inherited) {
@@ -66,6 +66,12 @@ const getTypeFromMembers = (type: TypeObject | TypeModel, parent: TypeModel, mem
           properties.delete(member.name);
         }
         break;
+
+      case 'parameters':
+        if ((engine.parameters = getParametersType(member))) {
+          properties.delete(member.name);
+        }
+        break;
     }
   }
 
@@ -83,6 +89,18 @@ const getTransactionType = (member: ModelProperty) => {
   switch (type) {
     case TransactionType.Interactive:
     case TransactionType.Static:
+      return type;
+  }
+
+  return null;
+};
+
+const getParametersType = (member: ModelProperty) => {
+  const type = getPropertyString(member);
+
+  switch (type) {
+    case ParametersType.NameAndIndex:
+    case ParametersType.OnlyIndex:
       return type;
   }
 

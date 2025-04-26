@@ -19,44 +19,46 @@ export namespace Transaction {
   export type Result<O> = O extends (client: any) => infer R ? R : void;
 
   /**
-   * Extract the transaction engine from the given database service.
-   */
-  export type Engine<T extends Database.Service> = T['engine'] extends { transaction: infer O } ? O : never;
-
-  /**
    * Determines the transaction operation based on the given database service.
    */
-  export type Operation<T extends Database.Service, R> =
-    Engine<T> extends TransactionType.Interactive ? StaticOperation<T> | InteractiveOperation<T, R> : StaticOperation<T>;
+  export type Type<T extends Database.Service, R> =
+    EngineTransactionType<T> extends TransactionType.Interactive
+      ? StaticOperationType<T> | InteractiveOperationType<T, R>
+      : StaticOperationType<T>;
 
   /**
-   * Interactive operations.
+   * Interactive operation type.
    */
-  export type InteractiveOperation<T extends Database.Service, R = void> = (client: Client<T>) => Promise<R> | R;
+  export type InteractiveOperationType<T extends Database.Service, R = void> = (client: Client<T>) => Promise<R> | R;
 
   /**
-   * Static operations.
+   * Static operation type.
    */
-  export type StaticOperation<T extends Database.Service> = {
+  export type StaticOperationType<T extends Database.Service> = {
     [P in keyof TableSchemas<T>]?: (TableSchemas<T>[P] extends Database.Schema
-      ? AnyOperation<TableSchemas<T>[P], TableIndex<P, IndexedTables<T>>, TableRelation<P, RelationTables<T>>>
+      ? AnyOperationType<TableSchemas<T>[P], TableIndex<P, IndexedTables<T>>, TableRelation<P, RelationTables<T>>>
       : AnyObject)[];
   };
 
-  type AnyOperation<T extends Database.Schema, I extends Database.Indexes, R extends RelationMetadata> =
-    | InsertOperation<T, R>
-    | UpdateOperation<T, I, R>
-    | DeleteOperation<T, I, R>;
+  /**
+   * Extract the transaction type from the given database service.
+   */
+  type EngineTransactionType<T extends Database.Service> = T['engine'] extends { transaction: infer O } ? O : never;
 
-  type InsertOperation<T extends Database.Schema, R extends RelationMetadata> = {
+  type AnyOperationType<T extends Database.Schema, I extends Database.Indexes, R extends RelationMetadata> =
+    | InsertOperationType<T, R>
+    | UpdateOperationType<T, I, R>
+    | DeleteOperationType<T, I, R>;
+
+  type InsertOperationType<T extends Database.Schema, R extends RelationMetadata> = {
     insert: Omit<Query.InsertOneInput<T, Query.SelectInput<T, R>, R>, 'select'>;
   };
 
-  type UpdateOperation<T extends Database.Schema, I extends Database.Indexes, R extends RelationMetadata> = {
+  type UpdateOperationType<T extends Database.Schema, I extends Database.Indexes, R extends RelationMetadata> = {
     update: Omit<Query.UpdateOneInput<T, Query.SelectInput<T, R>, I, R>, 'select' | 'include'>;
   };
 
-  type DeleteOperation<T extends Database.Schema, I extends Database.Indexes, R extends RelationMetadata> = {
+  type DeleteOperationType<T extends Database.Schema, I extends Database.Indexes, R extends RelationMetadata> = {
     delete: Omit<Query.DeleteOneInput<T, Query.SelectInput<T, R>, I, R>, 'select' | 'include'>;
   };
 }
