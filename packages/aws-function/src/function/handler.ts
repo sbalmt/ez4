@@ -2,9 +2,8 @@ import type { StepContext, StepHandler } from '@ez4/stateful';
 import type { Arn } from '@ez4/aws-common';
 import type { FunctionState, FunctionResult, FunctionParameters } from './types.js';
 
-import { InvalidParameterValueException } from '@aws-sdk/client-lambda';
-import { applyTagUpdates, bundleHash, ReplaceResourceError, waitDeletion } from '@ez4/aws-common';
-import { deepCompare, deepEqual, waitFor } from '@ez4/utils';
+import { applyTagUpdates, bundleHash, ReplaceResourceError } from '@ez4/aws-common';
+import { deepCompare, deepEqual } from '@ez4/utils';
 import { getRoleArn } from '@ez4/aws-identity';
 
 import {
@@ -101,31 +100,11 @@ const createResource = async (candidate: FunctionState, context: StepContext): P
     };
   }
 
-  let lastError;
-
-  // If the given roleArn is new and still propagating on AWS, the creation
-  // will fail, `waitFor` will keep retrying until max attempts.
-  const response = await waitFor(async () => {
-    try {
-      return await createFunction({
-        ...parameters,
-        sourceFile,
-        roleArn
-      });
-    } catch (error) {
-      if (!(error instanceof InvalidParameterValueException)) {
-        throw error;
-      }
-
-      lastError = error;
-
-      return null;
-    }
+  const response = await createFunction({
+    ...parameters,
+    sourceFile,
+    roleArn
   });
-
-  if (!response) {
-    throw lastError;
-  }
 
   lockSensitiveData(candidate);
 
@@ -172,9 +151,7 @@ const deleteResource = async (candidate: FunctionState) => {
   const { result, parameters } = candidate;
 
   if (result) {
-    // If the function is still in use due to a prior change that's not
-    // done yet, keep retrying until max attempts.
-    await waitDeletion(async () => deleteFunction(parameters.functionName));
+    await deleteFunction(parameters.functionName);
   }
 };
 

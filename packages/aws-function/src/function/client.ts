@@ -8,17 +8,19 @@ import {
   DeleteFunctionCommand,
   UpdateFunctionCodeCommand,
   UpdateFunctionConfigurationCommand,
+  PublishVersionCommand,
   TagResourceCommand,
   UntagResourceCommand,
   waitUntilFunctionActive,
   waitUntilFunctionUpdated,
+  waitUntilPublishedVersionActive,
   ResourceNotFoundException,
   ApplicationLogLevel,
   SystemLogLevel,
   LogFormat
 } from '@aws-sdk/client-lambda';
 
-import { Logger, tryParseArn } from '@ez4/aws-common';
+import { Logger, tryParseArn, waitCreation, waitDeletion } from '@ez4/aws-common';
 
 import { assertVariables } from './helpers/variables.js';
 import { getZipBuffer } from './helpers/zip.js';
@@ -42,11 +44,13 @@ export type CreateRequest = {
   variables?: Variables;
   timeout?: number;
   memory?: number;
+  publish?: boolean;
   debug?: boolean;
   tags?: ResourceTags;
 };
 
 export type ImportOrCreateResponse = {
+  functionVersion?: string;
   functionArn: Arn;
 };
 
@@ -62,6 +66,7 @@ export type UpdateConfigRequest = {
 
 export type UpdateSourceCodeRequest = {
   sourceFile: string;
+  publish?: boolean;
 };
 
 export const importFunction = async (functionName: string, version?: string): Promise<ImportOrCreateResponse | undefined> => {
@@ -75,9 +80,11 @@ export const importFunction = async (functionName: string, version?: string): Pr
       })
     );
 
+    const functionVersion = response.Configuration!.Version;
     const functionArn = response.Configuration!.FunctionArn as Arn;
 
     return {
+      functionVersion,
       functionArn
     };
   } catch (error) {
@@ -98,44 +105,57 @@ export const createFunction = async (request: CreateRequest): Promise<ImportOrCr
     assertVariables(variables);
   }
 
-  const { roleArn, handlerName, sourceFile, description, memory, timeout, debug, tags } = request;
+  const handlerName = getSourceHandlerName(request.handlerName);
+  const sourceFile = await getSourceZipFile(request.sourceFile);
 
-  const response = await client.send(
-    new CreateFunctionCommand({
-      Publish: true,
-      FunctionName: functionName,
-      Description: description,
-      MemorySize: memory,
-      Timeout: timeout,
-      Role: roleArn,
-      Handler: getSourceHandlerName(handlerName),
-      Runtime: 'nodejs22.x',
-      PackageType: 'Zip',
-      LoggingConfig: {
-        ApplicationLogLevel: debug ? ApplicationLogLevel.Debug : ApplicationLogLevel.Warn,
-        SystemLogLevel: SystemLogLevel.Warn,
-        LogFormat: LogFormat.Json
-      },
-      Code: {
-        ZipFile: await getSourceZipFile(sourceFile)
-      },
-      Environment: {
-        Variables: variables
-      },
-      Tags: {
-        ...tags,
-        ManagedBy: 'EZ4'
-      }
-    })
-  );
-
-  const functionArn = response.FunctionArn as Arn;
+  // If the given roleArn is new and still propagating on AWS, the creation
+  // will fail, `waitFor` will keep retrying until max attempts.
+  const response = await waitCreation(() => {
+    return client.send(
+      new CreateFunctionCommand({
+        FunctionName: request.functionName,
+        Description: request.description,
+        MemorySize: request.memory,
+        Timeout: request.timeout,
+        Role: request.roleArn,
+        Handler: handlerName,
+        Runtime: 'nodejs22.x',
+        PackageType: 'Zip',
+        LoggingConfig: {
+          ApplicationLogLevel: request.debug ? ApplicationLogLevel.Debug : ApplicationLogLevel.Warn,
+          SystemLogLevel: SystemLogLevel.Warn,
+          LogFormat: LogFormat.Json
+        },
+        Code: {
+          ZipFile: sourceFile
+        },
+        Environment: {
+          Variables: variables
+        },
+        Tags: {
+          ...request.tags,
+          ManagedBy: 'EZ4'
+        }
+      })
+    );
+  });
 
   Logger.logWait(FunctionServiceName, functionName);
 
   await waitUntilFunctionActive(waiter, {
     FunctionName: functionName
   });
+
+  const functionArn = response.FunctionArn as Arn;
+
+  if (request.publish) {
+    const functionVersion = await publishFunction(functionName);
+
+    return {
+      functionVersion,
+      functionArn
+    };
+  }
 
   return {
     functionArn
@@ -145,13 +165,13 @@ export const createFunction = async (request: CreateRequest): Promise<ImportOrCr
 export const updateSourceCode = async (functionName: string, request: UpdateSourceCodeRequest) => {
   Logger.logUpdate(FunctionServiceName, `${functionName} source code`);
 
-  const { sourceFile } = request;
+  const sourceFile = await getSourceZipFile(request.sourceFile);
 
-  await client.send(
+  const response = await client.send(
     new UpdateFunctionCodeCommand({
       FunctionName: functionName,
-      ZipFile: await getSourceZipFile(sourceFile),
-      Publish: true
+      Publish: request.publish,
+      ZipFile: sourceFile
     })
   );
 
@@ -160,10 +180,25 @@ export const updateSourceCode = async (functionName: string, request: UpdateSour
   await waitUntilFunctionUpdated(waiter, {
     FunctionName: functionName
   });
+
+  const functionArn = response.FunctionArn as Arn;
+
+  if (request.publish) {
+    const functionVersion = await publishFunction(functionName);
+
+    return {
+      functionVersion,
+      functionArn
+    };
+  }
+
+  return {
+    functionArn
+  };
 };
 
 export const updateConfiguration = async (functionName: string, request: UpdateConfigRequest) => {
-  const { variables } = request;
+  const { handlerName, variables } = request;
 
   Logger.logUpdate(FunctionServiceName, `${functionName} configuration`);
 
@@ -171,20 +206,18 @@ export const updateConfiguration = async (functionName: string, request: UpdateC
     assertVariables(variables);
   }
 
-  const { roleArn, handlerName, description, memory, timeout, debug } = request;
-
   await client.send(
     new UpdateFunctionConfigurationCommand({
       FunctionName: functionName,
-      Description: description,
-      MemorySize: memory,
-      Timeout: timeout,
-      Role: roleArn,
+      Description: request.description,
+      MemorySize: request.memory,
+      Timeout: request.timeout,
+      Role: request.roleArn,
       ...(handlerName && {
         Handler: getSourceHandlerName(handlerName)
       }),
       LoggingConfig: {
-        ApplicationLogLevel: debug ? ApplicationLogLevel.Debug : ApplicationLogLevel.Warn,
+        ApplicationLogLevel: request.debug ? ApplicationLogLevel.Debug : ApplicationLogLevel.Warn,
         SystemLogLevel: SystemLogLevel.Warn,
         LogFormat: LogFormat.Json
       },
@@ -204,21 +237,46 @@ export const updateConfiguration = async (functionName: string, request: UpdateC
 export const deleteFunction = async (functionName: string) => {
   Logger.logDelete(FunctionServiceName, functionName);
 
-  try {
-    await client.send(
-      new DeleteFunctionCommand({
-        FunctionName: functionName
-      })
-    );
+  // If the function is still in use due to a prior change that's not
+  // done yet, keep retrying until max attempts.
+  await waitDeletion(async () => {
+    try {
+      await client.send(
+        new DeleteFunctionCommand({
+          FunctionName: functionName
+        })
+      );
 
-    return true;
-  } catch (error) {
-    if (!(error instanceof ResourceNotFoundException)) {
-      throw error;
+      return true;
+    } catch (error) {
+      if (!(error instanceof ResourceNotFoundException)) {
+        throw error;
+      }
+
+      return false;
     }
+  });
+};
 
-    return false;
-  }
+export const publishFunction = async (functionName: string) => {
+  Logger.logPublish(FunctionServiceName, functionName);
+
+  const response = await client.send(
+    new PublishVersionCommand({
+      FunctionName: functionName
+    })
+  );
+
+  Logger.logWait(FunctionServiceName, functionName);
+
+  const version = response.Version;
+
+  await waitUntilPublishedVersionActive(waiter, {
+    FunctionName: functionName,
+    Qualifier: version
+  });
+
+  return version;
 };
 
 export const tagFunction = async (functionArn: Arn, tags: ResourceTags) => {
