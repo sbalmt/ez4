@@ -3,6 +3,7 @@ import type { RoleDocument } from '../types/role.js';
 
 import {
   IAMClient,
+  GetRoleCommand,
   CreateRoleCommand,
   UpdateRoleCommand,
   DeleteRoleCommand,
@@ -26,17 +27,44 @@ export type CreateRequest = {
   tags?: ResourceTags;
 };
 
-export type CreateResponse = {
-  roleArn: Arn;
+export type ImportOrCreateResponse = {
   roleName: string;
+  roleArn: Arn;
 };
 
-export const createRole = async (request: CreateRequest): Promise<CreateResponse> => {
-  Logger.logCreate(RoleServiceName, request.roleName);
+export const importRole = async (roleName: string): Promise<ImportOrCreateResponse | undefined> => {
+  Logger.logImport(RoleServiceName, roleName);
+
+  try {
+    const response = await client.send(
+      new GetRoleCommand({
+        RoleName: roleName
+      })
+    );
+
+    const roleArn = response.Role!.Arn as Arn;
+
+    return {
+      roleName,
+      roleArn
+    };
+  } catch (error) {
+    if (!(error instanceof NoSuchEntityException)) {
+      throw error;
+    }
+
+    return undefined;
+  }
+};
+
+export const createRole = async (request: CreateRequest): Promise<ImportOrCreateResponse> => {
+  const { roleName } = request;
+
+  Logger.logCreate(RoleServiceName, roleName);
 
   const response = await client.send(
     new CreateRoleCommand({
-      RoleName: request.roleName,
+      RoleName: roleName,
       Description: request.description,
       AssumeRolePolicyDocument: JSON.stringify(request.roleDocument),
       Tags: getTagList({
@@ -46,11 +74,11 @@ export const createRole = async (request: CreateRequest): Promise<CreateResponse
     })
   );
 
-  const role = response.Role!;
+  const roleArn = response.Role!.Arn as Arn;
 
   return {
-    roleName: role.RoleName!,
-    roleArn: role.Arn as Arn
+    roleName,
+    roleArn
   };
 };
 
