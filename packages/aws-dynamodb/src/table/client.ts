@@ -1,7 +1,7 @@
 import type { Arn, ResourceTags } from '@ez4/aws-common';
 import type { AttributeSchemaGroup } from '../types/schema.js';
 
-import { getTagList, Logger, tryParseArn } from '@ez4/aws-common';
+import { getTagList, Logger, tryParseArn, waitDeletion } from '@ez4/aws-common';
 
 import {
   DynamoDBClient,
@@ -28,7 +28,7 @@ const client = new DynamoDBClient({});
 
 const waiter = {
   minDelay: 15,
-  maxWaitTime: 1800,
+  maxWaitTime: 3600,
   maxDelay: 60,
   client
 };
@@ -70,8 +70,10 @@ export const createTable = async (request: CreateRequest): Promise<CreateRespons
 
   const [primarySchema, ...secondarySchema] = attributeSchema;
 
-  const maxWU = capacityUnits?.maxWriteUnits ?? -1;
-  const maxRU = capacityUnits?.maxReadUnits ?? -1;
+  const maxWU = capacityUnits?.maxWriteUnits;
+  const maxRU = capacityUnits?.maxReadUnits;
+
+  const hasMaximumRWU = maxWU && maxRU;
 
   const response = await client.send(
     new CreateTableCommand({
@@ -80,10 +82,6 @@ export const createTable = async (request: CreateRequest): Promise<CreateRespons
       AttributeDefinitions: getAttributeDefinitions([...(secondarySchema ?? []).flat(), ...primarySchema]),
       KeySchema: getAttributeKeyTypes(primarySchema),
       BillingMode: BillingMode.PAY_PER_REQUEST,
-      OnDemandThroughput: {
-        MaxWriteRequestUnits: maxWU,
-        MaxReadRequestUnits: maxRU
-      },
       StreamSpecification: {
         StreamEnabled: !!enableStreams,
         ...(enableStreams && {
@@ -92,6 +90,12 @@ export const createTable = async (request: CreateRequest): Promise<CreateRespons
       },
       ...(secondarySchema?.length && {
         GlobalSecondaryIndexes: getSecondaryIndexes(...secondarySchema)
+      }),
+      ...(hasMaximumRWU && {
+        OnDemandThroughput: {
+          MaxWriteRequestUnits: maxWU,
+          MaxReadRequestUnits: maxRU
+        }
       }),
       Tags: getTagList({
         ...request.tags,
@@ -277,25 +281,31 @@ export const untagTable = async (tableArn: Arn, tagKeys: string[]) => {
 export const deleteTable = async (tableName: string) => {
   Logger.logDelete(TableServiceName, tableName);
 
-  try {
-    await client.send(
-      new DeleteTableCommand({
-        TableName: tableName
-      })
-    );
+  // If the table is still in use due to a prior change that's not
+  // done yet, keep retrying until max attempts.
+  const isDeletionScheduled = await waitDeletion(async () => {
+    try {
+      await client.send(
+        new DeleteTableCommand({
+          TableName: tableName
+        })
+      );
 
+      return true;
+    } catch (error) {
+      if (!(error instanceof ResourceNotFoundException)) {
+        throw error;
+      }
+
+      return false;
+    }
+  });
+
+  if (isDeletionScheduled) {
     Logger.logWait(TableServiceName, tableName);
 
     await waitUntilTableNotExists(waiter, {
       TableName: tableName
     });
-
-    return true;
-  } catch (error) {
-    if (!(error instanceof ResourceNotFoundException)) {
-      throw error;
-    }
-
-    return false;
   }
 };
