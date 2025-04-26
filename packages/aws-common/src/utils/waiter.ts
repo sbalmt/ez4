@@ -10,7 +10,7 @@ export type ActionAttempter<T> = () => Promise<T>;
  * @returns Returns the creation function result.
  */
 export const waitCreation = async <T>(createResource: ActionAttempter<T>) => {
-  return waitAction(createResource, ['InvalidParameterValueException']);
+  return waitAction(createResource, ['TooManyRequestsException', 'ConflictException', 'InvalidParameterValueException']);
 };
 
 /**
@@ -21,7 +21,7 @@ export const waitCreation = async <T>(createResource: ActionAttempter<T>) => {
  * @returns Returns the deletion function result.
  */
 export const waitDeletion = async <T>(deleteResource: ActionAttempter<T>) => {
-  return waitAction(deleteResource, ['ResourceInUseException']);
+  return waitAction(deleteResource, ['TooManyRequestsException', 'ConflictException', 'ResourceInUseException']);
 };
 
 /**
