@@ -31,28 +31,27 @@ export namespace Database {
   /**
    * Incoming stream event.
    */
-  export type Incoming<T extends Schema> = StreamChange<T> & {
-    /**
-     * Request tracking Id.
-     */
-    requestId: string;
-  };
+  export type Incoming<T extends Schema> = StreamChange<
+    T & {
+      /**
+       * Request tracking Id.
+       */
+      requestId: string;
+    }
+  >;
 
   /**
    * Stream listener.
    */
   export type Listener<T extends Schema> = (
-    event: Service.Event<Incoming<T> | StreamChange<T>>,
+    event: Service.Event<Incoming<T>>,
     context: Service.Context<Database.Service>
   ) => Promise<void> | void;
 
   /**
    * Stream handler.
    */
-  export type Handler<T extends Schema> = (
-    request: Incoming<T> | StreamChange<T>,
-    context: Service.Context<Database.Service>
-  ) => Promise<void> | void;
+  export type Handler<T extends Schema> = (request: Incoming<T>, context: Service.Context<Database.Service>) => Promise<void> | void;
 
   /**
    * Service event.

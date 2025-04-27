@@ -6,10 +6,7 @@ export namespace Service {
   /**
    * Service events listener.
    */
-  export type Listener<T extends ServiceRequest> = (
-    event: Event<T>,
-    context: Context<any>
-  ) => Promise<void> | void;
+  export type Listener<T extends ServiceRequest> = (event: Event<T>, context: Context<any>) => Promise<void> | void;
 
   /**
    * Common interface for service providers.
