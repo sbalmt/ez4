@@ -21,7 +21,14 @@ Ensure the user performing deployments has the permissions below:
     {
       "Sid": "LogManagement",
       "Effect": "Allow",
-      "Action": ["logs:CreateLogGroup", "logs:DeleteLogGroup", "logs:TagResource", "logs:UntagResource"],
+      "Action": [
+        "logs:CreateLogGroup",
+        "logs:DeleteLogGroup",
+        "logs:PutRetentionPolicy",
+        "logs:DeleteRetentionPolicy",
+        "logs:TagResource",
+        "logs:UntagResource"
+      ],
       "Resource": ["arn:aws:logs:{region}:{account-id}:log-group:{prefix}-*"]
     }
   ]

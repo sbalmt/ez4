@@ -36,6 +36,7 @@ describe('group', () => {
 
     const resource = createGroup(localState, {
       groupName: 'ez4-test-logs',
+      retention: 7,
       tags: {
         test1: 'ez4-tag1',
         test2: 'ez4-tag2'
@@ -45,6 +46,21 @@ describe('group', () => {
     groupId = resource.entryId;
 
     const { state } = await assertDeploy(groupId, localState, undefined);
+
+    lastState = state;
+  });
+
+  it('assert :: update', async () => {
+    ok(groupId && lastState);
+
+    const localState = deepClone(lastState);
+    const resource = localState[groupId];
+
+    ok(resource && isGroupState(resource));
+
+    resource.parameters.retention = undefined;
+
+    const { state } = await assertDeploy(groupId, localState, lastState);
 
     lastState = state;
   });

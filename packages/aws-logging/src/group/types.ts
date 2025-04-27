@@ -5,7 +5,9 @@ export const GroupServiceName = 'AWS:Log/Group';
 
 export const GroupServiceType = 'aws:iam.policy';
 
-export type GroupParameters = CreateRequest;
+export type GroupParameters = CreateRequest & {
+  retention?: number;
+};
 
 export type GroupResult = CreateResponse;
 

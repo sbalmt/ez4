@@ -4,6 +4,8 @@ import {
   CloudWatchLogsClient,
   CreateLogGroupCommand,
   DeleteLogGroupCommand,
+  PutRetentionPolicyCommand,
+  DeleteRetentionPolicyCommand,
   TagResourceCommand,
   UntagResourceCommand,
   ResourceAlreadyExistsException,
@@ -52,6 +54,27 @@ export const createGroup = async (request: CreateRequest): Promise<CreateRespons
   return {
     groupArn
   };
+};
+
+export const createRetention = async (groupName: string, retention: number) => {
+  Logger.logCreate(GroupServiceName, `${groupName} retention`);
+
+  await client.send(
+    new PutRetentionPolicyCommand({
+      logGroupName: groupName,
+      retentionInDays: retention
+    })
+  );
+};
+
+export const deleteRetention = async (groupName: string) => {
+  Logger.logDelete(GroupServiceName, `${groupName} retention`);
+
+  await client.send(
+    new DeleteRetentionPolicyCommand({
+      logGroupName: groupName
+    })
+  );
 };
 
 export const tagGroup = async (groupArn: Arn, tags: ResourceTags) => {
