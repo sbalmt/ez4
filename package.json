@@ -28,6 +28,7 @@
     "packages/pgsql",
     "packages/aws-common",
     "packages/aws-identity",
+    "packages/aws-logging",
     "packages/aws-function",
     "packages/aws-scheduler",
     "packages/aws-dynamodb",
