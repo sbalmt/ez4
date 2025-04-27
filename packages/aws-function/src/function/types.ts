@@ -8,7 +8,7 @@ export const FunctionServiceType = 'aws:lambda.function';
 
 export type GetFunctionBundle = (context: StepContext) => Promise<string> | string;
 
-export type FunctionParameters = Omit<CreateRequest, 'roleArn'> & {
+export type FunctionParameters = Omit<CreateRequest, 'roleArn' | 'publish'> & {
   getFunctionBundle: GetFunctionBundle;
 };
 

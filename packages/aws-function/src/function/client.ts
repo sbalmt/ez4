@@ -54,7 +54,7 @@ export type ImportOrCreateResponse = {
   functionArn: Arn;
 };
 
-export type UpdateConfigRequest = {
+export type UpdateConfigurationRequest = {
   roleArn?: Arn;
   handlerName?: string;
   description?: string;
@@ -197,7 +197,7 @@ export const updateSourceCode = async (functionName: string, request: UpdateSour
   };
 };
 
-export const updateConfiguration = async (functionName: string, request: UpdateConfigRequest) => {
+export const updateConfiguration = async (functionName: string, request: UpdateConfigurationRequest) => {
   const { handlerName, variables } = request;
 
   Logger.logUpdate(FunctionServiceName, `${functionName} configuration`);

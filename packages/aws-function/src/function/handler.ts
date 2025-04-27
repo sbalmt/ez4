@@ -84,6 +84,7 @@ const createResource = async (candidate: FunctionState, context: StepContext): P
     await updateConfiguration(functionName, parameters);
 
     await updateSourceCode(functionName, {
+      publish: false,
       sourceFile
     });
 
@@ -102,6 +103,7 @@ const createResource = async (candidate: FunctionState, context: StepContext): P
 
   const response = await createFunction({
     ...parameters,
+    publish: true,
     sourceFile,
     roleArn
   });
@@ -136,14 +138,14 @@ const updateResource = async (candidate: FunctionState, current: FunctionState, 
   ]);
 
   // Should always perform for last.
-  const sourceHash = await checkSourceCodeUpdates(functionName, parameters, current.result, context);
+  const newResult = await checkSourceCodeUpdates(functionName, parameters, current.result, context);
 
   lockSensitiveData(candidate);
 
   return {
     ...result,
-    roleArn: newRoleArn,
-    sourceHash
+    ...newResult,
+    roleArn: newRoleArn
   };
 };
 
@@ -204,15 +206,19 @@ const checkSourceCodeUpdates = async (
   const newSourceHash = await bundleHash(candidate.sourceFile);
   const oldSourceHash = current?.sourceHash;
 
-  if (newSourceHash !== oldSourceHash) {
-    const sourceFile = await candidate.getFunctionBundle(context);
-
-    await updateSourceCode(functionName, {
-      sourceFile
-    });
-
-    return newSourceHash;
+  if (newSourceHash === oldSourceHash) {
+    return current;
   }
 
-  return oldSourceHash;
+  const sourceFile = await candidate.getFunctionBundle(context);
+
+  const { functionVersion } = await updateSourceCode(functionName, {
+    publish: !current?.functionVersion,
+    sourceFile
+  });
+
+  return {
+    sourceHash: newSourceHash,
+    functionVersion
+  };
 };

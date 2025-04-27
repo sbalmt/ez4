@@ -28,6 +28,7 @@ Ensure the user performing deployments has the permissions below:
         "lambda:UpdateFunctionCode",
         "lambda:GetFunctionConfiguration",
         "lambda:UpdateFunctionConfiguration",
+        "lambda:PublishVersion",
         "lambda:AddPermission",
         "lambda:RemovePermission",
         "lambda:TagResource",
