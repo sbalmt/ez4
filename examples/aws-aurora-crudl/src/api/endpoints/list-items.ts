@@ -43,7 +43,7 @@ export declare class ListItemsResponse implements Http.Response {
  * Handle item list requests.
  */
 export async function listItemsHandler(
-  request: ListItemsRequest,
+  request: Http.Incoming<ListItemsRequest>,
   context: Service.Context<Api>
 ): Promise<ListItemsResponse> {
   const { page = 1, limit = 10 } = request.query;
