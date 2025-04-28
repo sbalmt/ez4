@@ -83,6 +83,11 @@ export namespace Database {
     variables?: LinkedVariables;
 
     /**
+     * Log retention (in days) for the handler.
+     */
+    retention?: number;
+
+    /**
      * Max execution time (in seconds) for the handler.
      */
     timeout?: number;

@@ -86,6 +86,7 @@ const getTypeFromMembers = (
 
       case 'memory':
       case 'timeout':
+      case 'retention':
         stream[member.name] = getPropertyNumber(member);
         break;
 

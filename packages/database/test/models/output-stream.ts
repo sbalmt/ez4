@@ -15,6 +15,7 @@ export declare class TestDatabase extends Database.Service {
       indexes: {};
       stream: {
         handler: typeof streamHandler;
+        retention: 14;
         timeout: 10;
         memory: 256;
       };
