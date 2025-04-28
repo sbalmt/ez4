@@ -7,8 +7,9 @@ import { join } from 'node:path';
 import { createBucket, createBucketEventFunction, isBucketState, registerTriggers } from '@ez4/aws-bucket';
 
 import { deploy } from '@ez4/aws-common';
-import { deepClone } from '@ez4/utils';
+import { createLogGroup } from '@ez4/aws-logs';
 import { createRole } from '@ez4/aws-identity';
+import { deepClone } from '@ez4/utils';
 
 import { getRoleDocument } from './common/role.js';
 
@@ -42,11 +43,16 @@ describe('bucket resources', () => {
     const localState: EntryStates = {};
 
     const roleResource = createRole(localState, [], {
-      roleName: 'ez4-test-lambda-bucket-role',
+      roleName: 'ez4-test-bucket-event-role',
       roleDocument: getRoleDocument()
     });
 
-    const lambdaResource = createBucketEventFunction(localState, roleResource, {
+    const logGroupResource = createLogGroup(localState, {
+      groupName: 'ez4-test-bucket-event-logs',
+      retention: 1
+    });
+
+    const lambdaResource = createBucketEventFunction(localState, roleResource, logGroupResource, {
       functionName: 'ez4-test-bucket-event-lambda',
       handler: {
         functionName: 'main',

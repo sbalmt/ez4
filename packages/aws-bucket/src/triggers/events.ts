@@ -9,6 +9,7 @@ import { isRoleState } from '@ez4/aws-identity';
 import { createBucketEventFunction } from '../bucket/function/service.js';
 import { getFunctionName, getInternalName } from './utils.js';
 import { RoleMissingError } from './errors.js';
+import { createLogGroup } from '@ez4/aws-logs';
 
 export const prepareEvents = (state: EntryStates, service: BucketService, options: DeployOptions, context: EventContext) => {
   if (!service.events) {
@@ -19,29 +20,38 @@ export const prepareEvents = (state: EntryStates, service: BucketService, option
     throw new RoleMissingError();
   }
 
-  const { events } = service;
-
-  const { handler, listener } = events;
+  const { handler, listener, retention, timeout, memory, variables } = service.events;
 
   const internalName = getInternalName(service, handler.name);
 
-  const currentHandlerState = tryGetFunctionState(context, internalName, options);
+  let handlerState = tryGetFunctionState(context, internalName, options);
 
-  if (currentHandlerState) {
-    return currentHandlerState;
+  if (handlerState) {
+    return handlerState;
   }
 
-  const handlerState = createBucketEventFunction(state, context.role, {
-    functionName: getFunctionName(service, handler.name, options),
+  const eventName = getFunctionName(service, handler.name, options);
+
+  const eventTimeout = timeout ?? 150;
+  const eventRetention = retention ?? 90;
+  const eventMemory = memory ?? 192;
+
+  const logGroupState = createLogGroup(state, {
+    groupName: eventName,
+    retention: eventRetention
+  });
+
+  handlerState = createBucketEventFunction(state, context.role, logGroupState, {
+    functionName: eventName,
     description: handler.description,
-    timeout: events.timeout ?? 150,
-    memory: events.memory ?? 192,
+    timeout: eventTimeout,
+    memory: eventMemory,
     extras: service.extras,
     debug: options.debug,
     variables: {
       ...options.variables,
       ...service.variables,
-      ...events.variables
+      ...variables
     },
     handler: {
       functionName: handler.name,

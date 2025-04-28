@@ -5,6 +5,7 @@ export declare class TestStorage extends Bucket.Service {
   events: {
     handler: typeof eventHandler;
     path: 'uploads/*';
+    retention: 14;
     memory: 128;
     timeout: 5;
   };

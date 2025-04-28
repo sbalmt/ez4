@@ -2,13 +2,7 @@ import type { LinkedVariables } from '@ez4/project/library';
 import type { Service } from '@ez4/common';
 import type { Client } from './client.js';
 
-import type {
-  BucketCors,
-  BucketEvent,
-  BucketHandler,
-  BucketIncoming,
-  BucketListener
-} from './common.js';
+import type { BucketCors, BucketEvent, BucketHandler, BucketIncoming, BucketListener } from './common.js';
 
 /**
  * Provide all contracts for a self-managed Bucket service.
@@ -29,6 +23,11 @@ export namespace Bucket {
    * Bucket events.
    */
   export interface Events {
+    /**
+     * Default log retention (in days).
+     */
+    retention?: number;
+
     /**
      * Event listener.
      */
