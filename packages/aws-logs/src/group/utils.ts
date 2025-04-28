@@ -1,8 +1,8 @@
 import type { EntryState } from '@ez4/stateful';
-import type { GroupState } from './types.js';
+import type { LogGroupState } from './types.js';
 
-import { GroupServiceType } from './types.js';
+import { LogGroupServiceType } from './types.js';
 
-export const isGroupState = (resource: EntryState): resource is GroupState => {
-  return resource.type === GroupServiceType;
+export const isLogGroupState = (resource: EntryState): resource is LogGroupState => {
+  return resource.type === LogGroupServiceType;
 };

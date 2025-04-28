@@ -1,14 +1,14 @@
 import type { StepHandler } from '@ez4/stateful';
 import type { Arn } from '@ez4/aws-common';
-import type { GroupState, GroupResult, GroupParameters } from './types.js';
+import type { LogGroupState, LogGroupResult, LogGroupParameters } from './types.js';
 
 import { applyTagUpdates, ReplaceResourceError } from '@ez4/aws-common';
 import { deepCompare } from '@ez4/utils';
 
 import { createGroup, deleteGroup, createRetention, deleteRetention, tagGroup, untagGroup } from './client.js';
-import { GroupServiceName } from './types.js';
+import { LogGroupServiceName } from './types.js';
 
-export const getGroupHandler = (): StepHandler<GroupState> => ({
+export const getLogGroupHandler = (): StepHandler<LogGroupState> => ({
   equals: equalsResource,
   create: createResource,
   replace: replaceResource,
@@ -17,11 +17,11 @@ export const getGroupHandler = (): StepHandler<GroupState> => ({
   delete: deleteResource
 });
 
-const equalsResource = (candidate: GroupState, current: GroupState) => {
+const equalsResource = (candidate: LogGroupState, current: LogGroupState) => {
   return !!candidate.result && candidate.result.groupArn === current.result?.groupArn;
 };
 
-const previewResource = async (candidate: GroupState, current: GroupState) => {
+const previewResource = async (candidate: LogGroupState, current: LogGroupState) => {
   const target = { ...candidate.parameters, dependencies: candidate.dependencies };
   const source = { ...current.parameters, dependencies: current.dependencies };
 
@@ -37,15 +37,15 @@ const previewResource = async (candidate: GroupState, current: GroupState) => {
   };
 };
 
-const replaceResource = async (candidate: GroupState, current: GroupState) => {
+const replaceResource = async (candidate: LogGroupState, current: LogGroupState) => {
   if (current.result) {
-    throw new ReplaceResourceError(GroupServiceName, candidate.entryId, current.entryId);
+    throw new ReplaceResourceError(LogGroupServiceName, candidate.entryId, current.entryId);
   }
 
   return createResource(candidate);
 };
 
-const createResource = async (candidate: GroupState): Promise<GroupResult> => {
+const createResource = async (candidate: LogGroupState): Promise<LogGroupResult> => {
   const parameters = candidate.parameters;
 
   const { groupArn } = await createGroup(parameters);
@@ -57,7 +57,7 @@ const createResource = async (candidate: GroupState): Promise<GroupResult> => {
   };
 };
 
-const updateResource = async (candidate: GroupState, current: GroupState) => {
+const updateResource = async (candidate: LogGroupState, current: LogGroupState) => {
   const parameters = candidate.parameters;
   const result = candidate.result;
 
@@ -67,7 +67,7 @@ const updateResource = async (candidate: GroupState, current: GroupState) => {
   }
 };
 
-const deleteResource = async (candidate: GroupState) => {
+const deleteResource = async (candidate: LogGroupState) => {
   const parameters = candidate.parameters;
   const result = candidate.result;
 
@@ -76,7 +76,7 @@ const deleteResource = async (candidate: GroupState) => {
   }
 };
 
-const checkTagUpdates = async (policyArn: Arn, candidate: GroupParameters, current: GroupParameters) => {
+const checkTagUpdates = async (policyArn: Arn, candidate: LogGroupParameters, current: LogGroupParameters) => {
   await applyTagUpdates(
     candidate.tags,
     current.tags,
@@ -85,7 +85,7 @@ const checkTagUpdates = async (policyArn: Arn, candidate: GroupParameters, curre
   );
 };
 
-const checkGeneralUpdates = async (groupName: string, candidate: GroupParameters, current?: GroupParameters) => {
+const checkGeneralUpdates = async (groupName: string, candidate: LogGroupParameters, current?: LogGroupParameters) => {
   if (candidate.retention === current?.retention) {
     return;
   }

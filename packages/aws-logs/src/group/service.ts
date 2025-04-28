@@ -1,17 +1,17 @@
 import type { EntryState, EntryStates } from '@ez4/stateful';
-import type { GroupParameters, GroupState } from './types.js';
+import type { LogGroupParameters, LogGroupState } from './types.js';
 
 import { toKebabCase, hashData } from '@ez4/utils';
 import { attachEntry } from '@ez4/stateful';
 
-import { GroupServiceType } from './types.js';
+import { LogGroupServiceType } from './types.js';
 
-export const createGroup = <E extends EntryState>(state: EntryStates<E>, parameters: GroupParameters) => {
+export const createLogGroup = <E extends EntryState>(state: EntryStates<E>, parameters: LogGroupParameters) => {
   const groupName = toKebabCase(parameters.groupName);
-  const groupId = hashData(GroupServiceType, groupName);
+  const groupId = hashData(LogGroupServiceType, groupName);
 
-  return attachEntry<E | GroupState, GroupState>(state, {
-    type: GroupServiceType,
+  return attachEntry<E | LogGroupState, LogGroupState>(state, {
+    type: LogGroupServiceType,
     entryId: groupId,
     dependencies: [],
     parameters: {

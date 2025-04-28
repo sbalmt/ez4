@@ -3,7 +3,7 @@ import type { EntryState, EntryStates } from '@ez4/stateful';
 import { describe, it } from 'node:test';
 import { ok, equal } from 'node:assert/strict';
 
-import { createGroup, isGroupState, registerTriggers } from '@ez4/aws-logs';
+import { createLogGroup, isLogGroupState, registerTriggers } from '@ez4/aws-logs';
 import { deploy } from '@ez4/aws-common';
 import { deepClone } from '@ez4/utils';
 
@@ -13,7 +13,7 @@ const assertDeploy = async <E extends EntryState>(resourceId: string, newState: 
   const resource = state[resourceId];
 
   ok(resource?.result);
-  ok(isGroupState(resource));
+  ok(isLogGroupState(resource));
 
   const { groupArn } = resource.result;
 
@@ -34,8 +34,8 @@ describe('group', () => {
   it('assert :: deploy', async () => {
     const localState: EntryStates = {};
 
-    const resource = createGroup(localState, {
-      groupName: 'ez4-test-logs',
+    const resource = createLogGroup(localState, {
+      groupName: 'ez4-test-log-group',
       retention: 7,
       tags: {
         test1: 'ez4-tag1',
@@ -56,7 +56,7 @@ describe('group', () => {
     const localState = deepClone(lastState);
     const resource = localState[groupId];
 
-    ok(resource && isGroupState(resource));
+    ok(resource && isLogGroupState(resource));
 
     resource.parameters.retention = undefined;
 
@@ -71,7 +71,7 @@ describe('group', () => {
     const localState = deepClone(lastState);
     const resource = localState[groupId];
 
-    ok(resource && isGroupState(resource));
+    ok(resource && isLogGroupState(resource));
 
     resource.parameters.tags = {
       test2: 'ez4-tag2',

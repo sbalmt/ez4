@@ -14,8 +14,8 @@ import {
 
 import { Logger, tryParseArn } from '@ez4/aws-common';
 
-import { getGroupArn } from '../utils/group.js';
-import { GroupServiceName } from './types.js';
+import { getLogGroupArn } from '../utils/group.js';
+import { LogGroupServiceName } from './types.js';
 
 const client = new CloudWatchLogsClient({});
 
@@ -31,7 +31,7 @@ export type CreateResponse = {
 export const createGroup = async (request: CreateRequest): Promise<CreateResponse> => {
   const { groupName } = request;
 
-  Logger.logCreate(GroupServiceName, groupName);
+  Logger.logCreate(LogGroupServiceName, groupName);
 
   try {
     await client.send(
@@ -49,7 +49,7 @@ export const createGroup = async (request: CreateRequest): Promise<CreateRespons
     }
   }
 
-  const groupArn = await getGroupArn(groupName);
+  const groupArn = await getLogGroupArn(groupName);
 
   return {
     groupArn
@@ -57,7 +57,7 @@ export const createGroup = async (request: CreateRequest): Promise<CreateRespons
 };
 
 export const createRetention = async (groupName: string, retention: number) => {
-  Logger.logCreate(GroupServiceName, `${groupName} retention`);
+  Logger.logCreate(LogGroupServiceName, `${groupName} retention`);
 
   await client.send(
     new PutRetentionPolicyCommand({
@@ -68,7 +68,7 @@ export const createRetention = async (groupName: string, retention: number) => {
 };
 
 export const deleteRetention = async (groupName: string) => {
-  Logger.logDelete(GroupServiceName, `${groupName} retention`);
+  Logger.logDelete(LogGroupServiceName, `${groupName} retention`);
 
   await client.send(
     new DeleteRetentionPolicyCommand({
@@ -80,7 +80,7 @@ export const deleteRetention = async (groupName: string) => {
 export const tagGroup = async (groupArn: Arn, tags: ResourceTags) => {
   const groupName = tryParseArn(groupArn)?.resourceName ?? groupArn;
 
-  Logger.logTag(GroupServiceName, groupName);
+  Logger.logTag(LogGroupServiceName, groupName);
 
   await client.send(
     new TagResourceCommand({
@@ -96,7 +96,7 @@ export const tagGroup = async (groupArn: Arn, tags: ResourceTags) => {
 export const untagGroup = async (groupArn: Arn, tagKeys: string[]) => {
   const groupName = tryParseArn(groupArn)?.resourceName ?? groupArn;
 
-  Logger.logUntag(GroupServiceName, groupName);
+  Logger.logUntag(LogGroupServiceName, groupName);
 
   await client.send(
     new UntagResourceCommand({
@@ -107,7 +107,7 @@ export const untagGroup = async (groupArn: Arn, tagKeys: string[]) => {
 };
 
 export const deleteGroup = async (groupName: string) => {
-  Logger.logDelete(GroupServiceName, groupName);
+  Logger.logDelete(LogGroupServiceName, groupName);
 
   try {
     await client.send(
