@@ -12,7 +12,7 @@ import {
   ResourceNotFoundException
 } from '@aws-sdk/client-cloudwatch-logs';
 
-import { Logger, tryParseArn } from '@ez4/aws-common';
+import { Logger, tryParseArn, waitCreation } from '@ez4/aws-common';
 
 import { getLogGroupArn } from '../utils/group.js';
 import { LogGroupServiceName } from './types.js';
@@ -59,12 +59,14 @@ export const createGroup = async (request: CreateRequest): Promise<CreateRespons
 export const createRetention = async (groupName: string, retention: number) => {
   Logger.logCreate(LogGroupServiceName, `${groupName} retention`);
 
-  await client.send(
-    new PutRetentionPolicyCommand({
-      logGroupName: groupName,
-      retentionInDays: retention
-    })
-  );
+  await waitCreation(() => {
+    return client.send(
+      new PutRetentionPolicyCommand({
+        retentionInDays: retention,
+        logGroupName: groupName
+      })
+    );
+  });
 };
 
 export const deleteRetention = async (groupName: string) => {
