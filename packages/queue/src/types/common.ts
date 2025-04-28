@@ -20,5 +20,6 @@ export type QueueSubscription = {
   handler: SubscriptionHandler;
   variables?: LinkedVariables | null;
   concurrency?: number;
+  retention?: number;
   memory?: number;
 };

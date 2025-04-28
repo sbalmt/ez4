@@ -100,6 +100,7 @@ const getTypeFromMembers = (
 
       case 'memory':
       case 'concurrency':
+      case 'retention':
         subscription[member.name] = getPropertyNumber(member);
         break;
 
