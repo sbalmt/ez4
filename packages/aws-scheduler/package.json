@@ -52,8 +52,9 @@
   "dependencies": {
     "@aws-sdk/client-scheduler": "^3.758.0",
     "@ez4/aws-common": "^0.17.0",
-    "@ez4/aws-identity": "^0.17.0",
     "@ez4/aws-function": "^0.17.0",
+    "@ez4/aws-identity": "^0.17.0",
+    "@ez4/aws-logs": "^0.17.0",
     "@ez4/project": "^0.17.0",
     "@ez4/schema": "^0.17.0",
     "@ez4/scheduler": "^0.17.0",
