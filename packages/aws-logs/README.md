@@ -1,13 +1,13 @@
-# EZ4: AWS Logging
+# EZ4: AWS Logs
 
-It provides all the components to manage logging on AWS.
+It provides all the components to manage logs on AWS.
 
 ## Getting started
 
 #### Install
 
 ```sh
-npm install @ez4/aws-logging -D
+npm install @ez4/aws-logs -D
 ```
 
 #### Permission

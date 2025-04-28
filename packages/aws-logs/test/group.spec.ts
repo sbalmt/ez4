@@ -3,7 +3,7 @@ import type { EntryState, EntryStates } from '@ez4/stateful';
 import { describe, it } from 'node:test';
 import { ok, equal } from 'node:assert/strict';
 
-import { createGroup, isGroupState, registerTriggers } from '@ez4/aws-logging';
+import { createGroup, isGroupState, registerTriggers } from '@ez4/aws-logs';
 import { deploy } from '@ez4/aws-common';
 import { deepClone } from '@ez4/utils';
 
