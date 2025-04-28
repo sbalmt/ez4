@@ -5,10 +5,8 @@ export const getPolicyDocument = async (resourcePrefix: string) => {
 
   return createPolicyDocument([
     {
-      permissions: ['logs:CreateLogGroup', 'logs:CreateLogStream', 'logs:PutLogEvents'],
-      resourceIds: [
-        `arn:aws:logs:${region}:${accountId}:log-group:/aws/lambda/${resourcePrefix}-*:*`
-      ]
+      permissions: ['logs:CreateLogStream', 'logs:PutLogEvents'],
+      resourceIds: [`arn:aws:logs:${region}:${accountId}:log-group:${resourcePrefix}-*:*`]
     }
   ]);
 };

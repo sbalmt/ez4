@@ -41,6 +41,7 @@ export type CreateRequest = {
   functionName: string;
   handlerName: string;
   description?: string;
+  logGroup?: string;
   variables?: Variables;
   timeout?: number;
   memory?: number;
@@ -58,6 +59,7 @@ export type UpdateConfigurationRequest = {
   roleArn?: Arn;
   handlerName?: string;
   description?: string;
+  logGroup?: string;
   variables?: Variables;
   timeout?: number;
   memory?: number;
@@ -122,6 +124,7 @@ export const createFunction = async (request: CreateRequest): Promise<ImportOrCr
         Runtime: 'nodejs22.x',
         PackageType: 'Zip',
         LoggingConfig: {
+          LogGroup: request.logGroup,
           ApplicationLogLevel: request.debug ? ApplicationLogLevel.Debug : ApplicationLogLevel.Warn,
           SystemLogLevel: SystemLogLevel.Warn,
           LogFormat: LogFormat.Json
@@ -217,6 +220,7 @@ export const updateConfiguration = async (functionName: string, request: UpdateC
         Handler: getSourceHandlerName(handlerName)
       }),
       LoggingConfig: {
+        LogGroup: request.logGroup,
         ApplicationLogLevel: request.debug ? ApplicationLogLevel.Debug : ApplicationLogLevel.Warn,
         SystemLogLevel: SystemLogLevel.Warn,
         LogFormat: LogFormat.Json
