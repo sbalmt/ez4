@@ -64,6 +64,7 @@ const getTypeFromMembers = (parent: TypeModel, members: MemberType[], errorList:
 
       case 'memory':
       case 'timeout':
+      case 'retention':
         defaults[member.name] = getPropertyNumber(member);
         break;
 

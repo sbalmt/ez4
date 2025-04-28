@@ -15,8 +15,9 @@ import {
   registerTriggers
 } from '@ez4/aws-gateway';
 
-import { createRole } from '@ez4/aws-identity';
 import { deploy } from '@ez4/aws-common';
+import { createLogGroup } from '@ez4/aws-logs';
+import { createRole } from '@ez4/aws-identity';
 import { deepClone } from '@ez4/utils';
 
 import { getRoleDocument } from './common/role.js';
@@ -55,17 +56,22 @@ describe('gateway route', () => {
     const localState: EntryStates = {};
 
     const gatewayResource = createGateway(localState, {
-      gatewayId: 'ez4-test-gateway',
+      gatewayId: 'ez4-test-gateway-route',
       gatewayName: 'EZ4: Test gateway for routes'
     });
 
     const roleResource = createRole(localState, [], {
-      roleName: 'EZ4: Test lambda route role',
+      roleName: 'ez4-test-gateway-route-role',
       roleDocument: getRoleDocument()
     });
 
-    const integrationLambdaResource = await createIntegrationFunction(localState, roleResource, {
-      functionName: 'EZ4: Test integration handler lambda',
+    const logGroupResource = createLogGroup(localState, {
+      groupName: 'ez4-test-gateway-route-logs',
+      retention: 1
+    });
+
+    const integrationLambdaResource = createIntegrationFunction(localState, roleResource, logGroupResource, {
+      functionName: 'ez4-test-gateway-route-integration-lambda',
       handler: {
         functionName: 'main',
         sourceFile: join(baseDir, 'lambda.js')
@@ -74,11 +80,11 @@ describe('gateway route', () => {
 
     const integrationResource = createIntegration(localState, gatewayResource, integrationLambdaResource, {
       fromService: integrationLambdaResource.parameters.functionName,
-      description: 'EZ4: Test route integration'
+      description: 'ez4-test-gateway-route-integration'
     });
 
-    const authorizerLambdaResource = await createAuthorizerFunction(localState, roleResource, {
-      functionName: 'EZ4: Test route authorizer lambda',
+    const authorizerLambdaResource = createAuthorizerFunction(localState, roleResource, logGroupResource, {
+      functionName: 'ez4-test-gateway-route-authorizer-lambda',
       authorizer: {
         functionName: 'main',
         sourceFile: join(baseDir, 'lambda.js')
@@ -86,12 +92,12 @@ describe('gateway route', () => {
     });
 
     const authorizerResource = createAuthorizer(localState, gatewayResource, authorizerLambdaResource, {
-      name: 'EZ4: Test route authorizer'
+      name: 'ez4-test-gateway-route-authorizer'
     });
 
     const resource = createRoute(localState, gatewayResource, integrationResource, authorizerResource, {
-      routePath: 'GET /ez4-test',
-      operationName: 'EZ4: Test route operation name'
+      operationName: 'ez4-test-gateway-route',
+      routePath: 'GET /ez4-test'
     });
 
     routeId = resource.entryId;
@@ -110,7 +116,7 @@ describe('gateway route', () => {
     ok(resource && isRouteState(resource));
 
     resource.parameters.routePath = 'GET /ez4/new-route';
-    resource.parameters.operationName = 'EZ4: New route operation Name';
+    resource.parameters.operationName = 'ez4-new-route-operation-name';
 
     const { state } = await assertDeploy(routeId, localState, lastState);
 

@@ -98,6 +98,11 @@ export namespace Http {
    */
   export type Defaults<T extends Request | AuthRequest = {}> = {
     /**
+     * Default log retention (in days).
+     */
+    retention?: number;
+
+    /**
      * Default route listener.
      */
     listener?: Listener<T>;

@@ -116,8 +116,9 @@ const getTypeFromMembers = (
         }
         break;
 
-      case 'timeout':
       case 'memory':
+      case 'timeout':
+      case 'retention':
         route[member.name] = getPropertyNumber(member);
         break;
 

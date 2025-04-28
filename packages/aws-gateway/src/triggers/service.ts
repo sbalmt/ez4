@@ -9,14 +9,15 @@ import { getServiceName, linkServiceExtras } from '@ez4/project/library';
 import { getFunctionState, tryGetFunctionState } from '@ez4/aws-function';
 import { isHttpService } from '@ez4/gateway/library';
 import { isRoleState } from '@ez4/aws-identity';
+import { createLogGroup } from '@ez4/aws-logs';
 
 import { createRoute } from '../route/service.js';
 import { createStage } from '../stage/service.js';
 import { createGateway } from '../gateway/service.js';
-import { getAuthorizer, createAuthorizer } from '../authorizer/service.js';
 import { createAuthorizerFunction } from '../authorizer/function/service.js';
-import { getIntegration, createIntegration } from '../integration/service.js';
+import { getAuthorizer, createAuthorizer } from '../authorizer/service.js';
 import { createIntegrationFunction } from '../integration/function/service.js';
+import { getIntegration, createIntegration } from '../integration/service.js';
 import { getFunctionName, getInternalName } from './utils.js';
 import { getCorsConfiguration } from './cors.js';
 import { RoleMissingError } from './errors.js';
@@ -83,7 +84,6 @@ const createHttpRoutes = (
 ) => {
   for (const route of service.routes) {
     const integrationState = getIntegrationFunction(state, service, gatewayState, route, options, context);
-
     const authorizerState = getAuthorizerFunction(state, service, gatewayState, route, options, context);
 
     createRoute(state, gatewayState, integrationState, authorizerState, {
@@ -113,11 +113,21 @@ const getIntegrationFunction = (
   let handlerState = tryGetFunctionState(context, handlerName, options);
 
   if (!handlerState) {
-    const routeTimeout = route.timeout ?? service.defaults?.timeout ?? 29;
-    const routeMemory = route.memory ?? service.defaults?.memory ?? 192;
+    const { defaults = {} } = service;
 
-    handlerState = createIntegrationFunction(state, context.role, {
-      functionName: getFunctionName(service, handler, options),
+    const routeMemory = defaults.memory ?? 192;
+    const routeRetention = defaults.retention ?? 90;
+    const routeTimeout = defaults.timeout ?? 29;
+
+    const integrationName = getFunctionName(service, handler, options);
+
+    const logGroupState = createLogGroup(state, {
+      groupName: integrationName,
+      retention: routeRetention
+    });
+
+    handlerState = createIntegrationFunction(state, context.role, logGroupState, {
+      functionName: integrationName,
       description: handler.description,
       responseSchema: response.body,
       headersSchema: request?.headers,
@@ -187,11 +197,21 @@ const getAuthorizerFunction = (
   const request = authorizer.request;
 
   if (!authorizerState) {
-    const routeTimeout = service.defaults?.timeout ?? 29;
-    const routeMemory = service.defaults?.memory ?? 192;
+    const { defaults = {} } = service;
 
-    authorizerState = createAuthorizerFunction(state, context.role, {
-      functionName: getFunctionName(service, authorizer, options),
+    const routeMemory = defaults.memory ?? 192;
+    const routeRetention = defaults.retention ?? 90;
+    const routeTimeout = defaults.timeout ?? 29;
+
+    const authorizerName = getFunctionName(service, authorizer, options);
+
+    const logGroupState = createLogGroup(state, {
+      groupName: authorizerName,
+      retention: routeRetention
+    });
+
+    authorizerState = createAuthorizerFunction(state, context.role, logGroupState, {
+      functionName: authorizerName,
       description: authorizer.description,
       timeout: routeTimeout,
       memory: routeMemory,
