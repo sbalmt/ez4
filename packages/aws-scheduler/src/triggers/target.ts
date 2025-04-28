@@ -28,7 +28,7 @@ export const prepareTarget = (state: EntryStates, service: CronService, options:
 
   const targetName = getTargetName(service, handler.name, options);
 
-  const targetTimeout = timeout ?? 45;
+  const targetTimeout = timeout ?? 90;
   const targetRetention = retention ?? 90;
   const targetMemory = memory ?? 192;
 

@@ -116,9 +116,9 @@ const getIntegrationFunction = (
     const integrationName = getFunctionName(service, handler, options);
     const integrationDefaults = service.defaults ?? {};
 
-    const integrationMemory = integrationDefaults.memory ?? 192;
-    const integrationRetention = integrationDefaults.retention ?? 90;
     const integrationTimeout = integrationDefaults.timeout ?? 29;
+    const integrationRetention = integrationDefaults.retention ?? 90;
+    const integrationMemory = integrationDefaults.memory ?? 192;
 
     const logGroupState = createLogGroup(state, {
       groupName: integrationName,
@@ -199,9 +199,9 @@ const getAuthorizerFunction = (
     const authorizerName = getFunctionName(service, authorizer, options);
     const authorizerDefaults = service.defaults ?? {};
 
-    const authorizerMemory = authorizerDefaults.memory ?? 192;
-    const authorizerRetention = authorizerDefaults.retention ?? 90;
     const authorizerTimeout = authorizerDefaults.timeout ?? 29;
+    const authorizerRetention = authorizerDefaults.retention ?? 90;
+    const authorizerMemory = authorizerDefaults.memory ?? 192;
 
     const logGroupState = createLogGroup(state, {
       groupName: authorizerName,

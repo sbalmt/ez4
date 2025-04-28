@@ -32,7 +32,7 @@ export const prepareEvents = (state: EntryStates, service: BucketService, option
 
   const eventName = getFunctionName(service, handler.name, options);
 
-  const eventTimeout = timeout ?? 150;
+  const eventTimeout = timeout ?? 90;
   const eventRetention = retention ?? 90;
   const eventMemory = memory ?? 192;
 

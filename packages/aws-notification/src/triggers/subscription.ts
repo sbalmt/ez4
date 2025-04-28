@@ -47,7 +47,7 @@ export const prepareSubscriptions = async (
         if (!handlerState) {
           const subscriptionName = getFunctionName(service, handler.name, options);
 
-          const subscriptionTimeout = subscription.timeout ?? 30;
+          const subscriptionTimeout = subscription.timeout ?? 90;
           const subscriptionRetention = subscription.retention ?? 90;
           const subscriptionMemory = subscription.memory ?? 192;
 
