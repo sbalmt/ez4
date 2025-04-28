@@ -3,7 +3,7 @@ import type { CreateRequest, CreateResponse } from './client.js';
 
 export const LogGroupServiceName = 'AWS:Log/Group';
 
-export const LogGroupServiceType = 'aws:iam.policy';
+export const LogGroupServiceType = 'aws:log.group';
 
 export type LogGroupParameters = CreateRequest & {
   retention?: number;
