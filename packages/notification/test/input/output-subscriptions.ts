@@ -14,7 +14,7 @@ export declare class TestNotification extends Notification.Service<TestMessage> 
     // Inline lambda subscription.
     {
       handler: typeof testHandler;
-      concurrency: 2;
+      retention: 14;
       timeout: 15;
     },
 
@@ -55,10 +55,7 @@ declare class TestQueueSubscription implements Notification.QueueSubscription<Te
   service: Environment.Service<TestQueue>;
 }
 
-function testHandler(
-  request: Notification.Incoming<TestMessage>,
-  context: Service.Context<TestNotification>
-) {
+function testHandler(request: Notification.Incoming<TestMessage>, context: Service.Context<TestNotification>) {
   const { selfClient } = context;
 
   // Ensure request types.

@@ -8,6 +8,7 @@ import { NotificationSubscriptionType } from '@ez4/notification/library';
 import { getFunctionState, tryGetFunctionState } from '@ez4/aws-function';
 import { InvalidParameterError } from '@ez4/aws-common';
 import { isRoleState } from '@ez4/aws-identity';
+import { createLogGroup } from '@ez4/aws-logs';
 import { getQueueState } from '@ez4/aws-queue';
 
 import { SubscriptionServiceName } from '../subscription/types.js';
@@ -44,11 +45,19 @@ export const prepareSubscriptions = async (
         let handlerState = tryGetFunctionState(context, internalName, options);
 
         if (!handlerState) {
+          const subscriptionName = getFunctionName(service, handler.name, options);
+
           const subscriptionTimeout = subscription.timeout ?? 30;
+          const subscriptionRetention = subscription.retention ?? 90;
           const subscriptionMemory = subscription.memory ?? 192;
 
-          handlerState = createSubscriptionFunction(state, context.role, {
-            functionName: getFunctionName(service, handler.name, options),
+          const logGroupState = createLogGroup(state, {
+            groupName: subscriptionName,
+            retention: subscriptionRetention
+          });
+
+          handlerState = createSubscriptionFunction(state, context.role, logGroupState, {
+            functionName: subscriptionName,
             description: handler.description,
             messageSchema: service.schema,
             timeout: subscriptionTimeout,

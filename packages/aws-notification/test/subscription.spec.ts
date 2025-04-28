@@ -6,6 +6,7 @@ import { join } from 'node:path';
 
 import { createSubscriptionFunction, createSubscription, createTopic, registerTriggers, isSubscriptionState } from '@ez4/aws-notification';
 import { createPolicy, createRole } from '@ez4/aws-identity';
+import { createLogGroup } from '@ez4/aws-logs';
 import { deploy } from '@ez4/aws-common';
 
 import { getPolicyDocument } from './common/policy.js';
@@ -55,7 +56,12 @@ describe('notification subscription', () => {
       roleDocument: getRoleDocument()
     });
 
-    const functionResource = createSubscriptionFunction(localState, roleResource, {
+    const logGroupResource = createLogGroup(localState, {
+      groupName: 'ez4-test-notification-topic-subscription-logs',
+      retention: 1
+    });
+
+    const functionResource = createSubscriptionFunction(localState, roleResource, logGroupResource, {
       functionName: 'ez4-test-notification-topic-subscription-lambda',
       handler: {
         functionName: 'main',

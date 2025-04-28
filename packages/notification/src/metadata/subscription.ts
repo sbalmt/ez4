@@ -89,19 +89,22 @@ const getTypeFromMembers = (
   reflection: SourceMap,
   errorList: Error[]
 ) => {
-  const allErrors: Error[] = [];
+  const allLambdaErrors: Error[] = [];
+  const allQueueErrors: Error[] = [];
 
   let subscription;
 
-  if ((subscription = getLambdaSubscription(type, parent, members, reflection, allErrors))) {
+  if ((subscription = getLambdaSubscription(type, parent, members, reflection, allLambdaErrors))) {
+    errorList.push(...allLambdaErrors);
     return subscription;
   }
 
-  if ((subscription = getQueueSubscription(type, parent, members, reflection, allErrors))) {
+  if ((subscription = getQueueSubscription(type, parent, members, reflection, allQueueErrors))) {
+    errorList.push(...allQueueErrors);
     return subscription;
   }
 
-  errorList.push(...allErrors);
+  errorList.push(...allLambdaErrors, ...allQueueErrors);
 
   return null;
 };
@@ -137,6 +140,7 @@ const getLambdaSubscription = (
 
       case 'memory':
       case 'timeout':
+      case 'retention':
         subscription[member.name] = getPropertyNumber(member);
         break;
 
