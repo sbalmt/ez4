@@ -24,11 +24,6 @@ export namespace Bucket {
    */
   export interface Events {
     /**
-     * Default log retention (in days).
-     */
-    retention?: number;
-
-    /**
      * Event listener.
      */
     listener?: Listener;
@@ -47,6 +42,11 @@ export namespace Bucket {
      * Variables associated to the handler.
      */
     variables?: LinkedVariables;
+
+    /**
+     * Log retention (in days) for the handler.
+     */
+    retention?: number;
 
     /**
      * Max execution time (in seconds) for the handler.

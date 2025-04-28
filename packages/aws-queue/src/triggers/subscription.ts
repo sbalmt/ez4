@@ -32,11 +32,11 @@ export const prepareSubscriptions = async (
     let handlerState = tryGetFunctionState(context, internalName, options);
 
     if (!handlerState) {
+      const subscriptionName = getFunctionName(service, handler.name, options);
+
       const subscriptionTimeout = service.timeout ?? 90;
       const subscriptionRetention = subscription.retention ?? 90;
       const subscriptionMemory = subscription.memory ?? 192;
-
-      const subscriptionName = getFunctionName(service, handler.name, options);
 
       const logGroupState = createLogGroup(state, {
         groupName: subscriptionName,

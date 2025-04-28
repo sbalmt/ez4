@@ -113,17 +113,16 @@ const getIntegrationFunction = (
   let handlerState = tryGetFunctionState(context, handlerName, options);
 
   if (!handlerState) {
-    const { defaults = {} } = service;
-
-    const routeMemory = defaults.memory ?? 192;
-    const routeRetention = defaults.retention ?? 90;
-    const routeTimeout = defaults.timeout ?? 29;
-
     const integrationName = getFunctionName(service, handler, options);
+    const integrationDefaults = service.defaults ?? {};
+
+    const integrationMemory = integrationDefaults.memory ?? 192;
+    const integrationRetention = integrationDefaults.retention ?? 90;
+    const integrationTimeout = integrationDefaults.timeout ?? 29;
 
     const logGroupState = createLogGroup(state, {
       groupName: integrationName,
-      retention: routeRetention
+      retention: integrationRetention
     });
 
     handlerState = createIntegrationFunction(state, context.role, logGroupState, {
@@ -135,8 +134,8 @@ const getIntegrationFunction = (
       parametersSchema: request?.parameters,
       querySchema: request?.query,
       bodySchema: request?.body,
-      timeout: routeTimeout,
-      memory: routeMemory,
+      timeout: integrationTimeout,
+      memory: integrationMemory,
       extras: service.extras,
       debug: options.debug,
       variables: {
@@ -197,24 +196,23 @@ const getAuthorizerFunction = (
   const request = authorizer.request;
 
   if (!authorizerState) {
-    const { defaults = {} } = service;
-
-    const routeMemory = defaults.memory ?? 192;
-    const routeRetention = defaults.retention ?? 90;
-    const routeTimeout = defaults.timeout ?? 29;
-
     const authorizerName = getFunctionName(service, authorizer, options);
+    const authorizerDefaults = service.defaults ?? {};
+
+    const authorizerMemory = authorizerDefaults.memory ?? 192;
+    const authorizerRetention = authorizerDefaults.retention ?? 90;
+    const authorizerTimeout = authorizerDefaults.timeout ?? 29;
 
     const logGroupState = createLogGroup(state, {
       groupName: authorizerName,
-      retention: routeRetention
+      retention: authorizerRetention
     });
 
     authorizerState = createAuthorizerFunction(state, context.role, logGroupState, {
       functionName: authorizerName,
       description: authorizer.description,
-      timeout: routeTimeout,
-      memory: routeMemory,
+      timeout: authorizerTimeout,
+      memory: authorizerMemory,
       headersSchema: request?.headers,
       parametersSchema: request?.parameters,
       querySchema: request?.query,

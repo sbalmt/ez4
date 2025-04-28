@@ -23,11 +23,6 @@ export namespace Queue {
    */
   export interface Subscription<T extends Message> {
     /**
-     * Default log retention (in days).
-     */
-    retention?: number;
-
-    /**
      * Subscription listener.
      */
     listener?: Listener<T>;
@@ -46,6 +41,11 @@ export namespace Queue {
      * Variables associated to the subscription.
      */
     variables?: LinkedVariables;
+
+    /**
+     * Log retention (in days) for the handler.
+     */
+    retention?: number;
 
     /**
      * Amount of memory available for the handler.
