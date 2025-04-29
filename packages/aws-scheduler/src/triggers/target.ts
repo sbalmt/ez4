@@ -10,6 +10,7 @@ import { createLogGroup } from '@ez4/aws-logs';
 import { createTargetFunction } from '../schedule/function/service.js';
 import { getInternalName, getTargetName } from './utils.js';
 import { RoleMissingError } from './errors.js';
+import { Defaults } from './defaults.js';
 
 export const prepareTarget = (state: EntryStates, service: CronService, options: DeployOptions, context: EventContext) => {
   if (!context.role || !isRoleState(context.role)) {
@@ -28,21 +29,17 @@ export const prepareTarget = (state: EntryStates, service: CronService, options:
 
   const targetName = getTargetName(service, handler.name, options);
 
-  const targetTimeout = timeout ?? 90;
-  const targetRetention = retention ?? 90;
-  const targetMemory = memory ?? 192;
-
   const logGroupState = createLogGroup(state, {
-    groupName: targetName,
-    retention: targetRetention
+    retention: retention ?? Defaults.LogRetention,
+    groupName: targetName
   });
 
   handlerState = createTargetFunction(state, context.role, logGroupState, {
     functionName: targetName,
     description: handler.description,
     eventSchema: service.schema,
-    timeout: targetTimeout,
-    memory: targetMemory,
+    timeout: timeout ?? Defaults.Timeout,
+    memory: memory ?? Defaults.Memory,
     extras: service.extras,
     debug: options.debug,
     variables: {

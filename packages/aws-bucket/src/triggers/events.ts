@@ -2,14 +2,15 @@ import type { DeployOptions, EventContext } from '@ez4/project/library';
 import type { BucketService } from '@ez4/storage/library';
 import type { EntryStates } from '@ez4/stateful';
 
-import { linkServiceExtras } from '@ez4/project/library';
 import { getFunctionState, tryGetFunctionState } from '@ez4/aws-function';
+import { linkServiceExtras } from '@ez4/project/library';
 import { isRoleState } from '@ez4/aws-identity';
+import { createLogGroup } from '@ez4/aws-logs';
 
 import { createBucketEventFunction } from '../bucket/function/service.js';
 import { getFunctionName, getInternalName } from './utils.js';
 import { RoleMissingError } from './errors.js';
-import { createLogGroup } from '@ez4/aws-logs';
+import { Defaults } from './defaults.js';
 
 export const prepareEvents = (state: EntryStates, service: BucketService, options: DeployOptions, context: EventContext) => {
   if (!service.events) {
@@ -32,20 +33,16 @@ export const prepareEvents = (state: EntryStates, service: BucketService, option
 
   const eventName = getFunctionName(service, handler.name, options);
 
-  const eventTimeout = timeout ?? 90;
-  const eventRetention = retention ?? 90;
-  const eventMemory = memory ?? 192;
-
   const logGroupState = createLogGroup(state, {
-    groupName: eventName,
-    retention: eventRetention
+    retention: retention ?? Defaults.LogRetention,
+    groupName: eventName
   });
 
   handlerState = createBucketEventFunction(state, context.role, logGroupState, {
     functionName: eventName,
     description: handler.description,
-    timeout: eventTimeout,
-    memory: eventMemory,
+    timeout: timeout ?? Defaults.Timeout,
+    memory: memory ?? Defaults.Memory,
     extras: service.extras,
     debug: options.debug,
     variables: {

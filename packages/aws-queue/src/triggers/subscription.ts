@@ -12,6 +12,7 @@ import { createQueueFunction } from '../mapping/function/service.js';
 import { getFunctionName, getInternalName } from './utils.js';
 import { RoleMissingError } from './errors.js';
 import { createLogGroup } from '@ez4/aws-logs';
+import { Defaults } from './defaults.js';
 
 export const prepareSubscriptions = async (
   state: EntryStates,
@@ -34,21 +35,17 @@ export const prepareSubscriptions = async (
     if (!handlerState) {
       const subscriptionName = getFunctionName(service, handler.name, options);
 
-      const subscriptionTimeout = service.timeout ?? 90;
-      const subscriptionRetention = subscription.retention ?? 90;
-      const subscriptionMemory = subscription.memory ?? 192;
-
       const logGroupState = createLogGroup(state, {
-        groupName: subscriptionName,
-        retention: subscriptionRetention
+        retention: subscription.retention ?? Defaults.LogRetention,
+        groupName: subscriptionName
       });
 
       handlerState = createQueueFunction(state, context.role, logGroupState, {
         functionName: subscriptionName,
         description: handler.description,
         messageSchema: service.schema,
-        timeout: subscriptionTimeout,
-        memory: subscriptionMemory,
+        timeout: service.timeout ?? Defaults.Timeout,
+        memory: subscription.memory ?? Defaults.Memory,
         extras: service.extras,
         debug: options.debug,
         variables: {

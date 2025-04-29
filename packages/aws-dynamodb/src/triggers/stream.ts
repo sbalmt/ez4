@@ -11,6 +11,7 @@ import { createMapping } from '../mapping/service.js';
 import { createStreamFunction } from '../mapping/function/service.js';
 import { getInternalName, getStreamName } from './utils.js';
 import { RoleMissingError } from './errors.js';
+import { Defaults } from './defaults.js';
 
 export const prepareTableStream = (
   state: EntryStates,
@@ -37,21 +38,17 @@ export const prepareTableStream = (
   if (!handlerState) {
     const streamName = getStreamName(service, table, handler.name, options);
 
-    const streamTimeout = timeout ?? 90;
-    const streamRetention = retention ?? 90;
-    const streamMemory = memory ?? 192;
-
     const logGroupState = createLogGroup(state, {
-      groupName: streamName,
-      retention: streamRetention
+      retention: retention ?? Defaults.LogRetention,
+      groupName: streamName
     });
 
     handlerState = createStreamFunction(state, context.role, logGroupState, {
       functionName: streamName,
       description: handler.description,
       tableSchema: table.schema,
-      timeout: streamTimeout,
-      memory: streamMemory,
+      timeout: timeout ?? Defaults.Timeout,
+      memory: memory ?? Defaults.Memory,
       extras: service.extras,
       debug: options.debug,
       variables: {

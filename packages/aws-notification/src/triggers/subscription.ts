@@ -16,6 +16,7 @@ import { createSubscriptionFunction } from '../subscription/function/service.js'
 import { createSubscription } from '../subscription/service.js';
 import { getFunctionName, getInternalName } from './utils.js';
 import { RoleMissingError } from './errors.js';
+import { Defaults } from './defaults.js';
 
 export const prepareSubscriptions = async (
   state: EntryStates,
@@ -47,21 +48,17 @@ export const prepareSubscriptions = async (
         if (!handlerState) {
           const subscriptionName = getFunctionName(service, handler.name, options);
 
-          const subscriptionTimeout = subscription.timeout ?? 90;
-          const subscriptionRetention = subscription.retention ?? 90;
-          const subscriptionMemory = subscription.memory ?? 192;
-
           const logGroupState = createLogGroup(state, {
-            groupName: subscriptionName,
-            retention: subscriptionRetention
+            retention: subscription.retention ?? Defaults.LogRetention,
+            groupName: subscriptionName
           });
 
           handlerState = createSubscriptionFunction(state, context.role, logGroupState, {
             functionName: subscriptionName,
             description: handler.description,
             messageSchema: service.schema,
-            timeout: subscriptionTimeout,
-            memory: subscriptionMemory,
+            timeout: subscription.timeout ?? Defaults.Timeout,
+            memory: subscription.memory ?? Defaults.Memory,
             extras: service.extras,
             debug: options.debug,
             variables: {
