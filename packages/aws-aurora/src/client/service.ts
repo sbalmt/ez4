@@ -1,6 +1,5 @@
-import type { Database, Client as DbClient, RelationMetadata, Transaction } from '@ez4/database';
+import type { Database, Client as DbClient, Parameters, RelationMetadata, Transaction } from '@ez4/database';
 import type { Repository, RepositoryRelations, RepositoryRelationsWithSchema } from '../types/repository.js';
-import type { PreparedQueryCommand } from './common/queries.js';
 import type { Connection } from './types.js';
 
 import { RDSDataClient } from '@aws-sdk/client-rds-data';
@@ -15,8 +14,9 @@ import {
 } from './common/client.js';
 
 import { getTableName } from '../utils/tables.js';
-import { prepareDeleteOne, prepareInsertOne, prepareUpdateOne } from './common/queries.js';
 import { detectFieldData } from './common/data.js';
+import { prepareDeleteOne, prepareInsertOne, prepareUpdateOne } from './common/queries.js';
+import { MissingRepositoryTableError } from './errors.js';
 import { Table } from './table.js';
 
 type TableType = Table<Database.Schema, Database.Indexes, RelationMetadata>;
@@ -36,20 +36,20 @@ export namespace Client {
   ): DbClient<T> => {
     const tableCache: Record<string, TableType> = {};
 
-    const dbClientInstance = new (class {
-      rawQuery(query: string, values: unknown[] = []) {
+    const clientInstance = new (class {
+      rawQuery(query: string, parameters: Parameters.Type<T> = []) {
         const { transactionId, debug } = context;
 
         const command = {
-          parameters: values.map((value, index) => detectFieldData(`${index}`, value)),
+          parameters: getParameters(parameters),
           sql: query
         };
 
         return executeStatement(client, connection, command, transactionId, debug);
       }
 
-      async transaction<O extends Transaction.Operation<T, R>, R>(operation: O) {
-        if (operation instanceof Function) {
+      async transaction<O extends Transaction.Type<T, R>, R>(operation: O) {
+        if (!isStaticTransaction<T>(operation)) {
           return executeInteractiveTransaction(connection, repository, context, operation);
         }
 
@@ -57,7 +57,7 @@ export namespace Client {
       }
     })();
 
-    return new Proxy<any>(dbClientInstance, {
+    return new Proxy<any>(clientInstance, {
       get: (target, property) => {
         if (property in target) {
           return target[property];
@@ -70,7 +70,7 @@ export namespace Client {
         }
 
         if (!repository[tableAlias]) {
-          throw new Error(`Table ${tableAlias} isn't part of the repository.`);
+          throw new MissingRepositoryTableError(tableAlias);
         }
 
         const { name, schema, relations } = repository[tableAlias];
@@ -94,25 +94,32 @@ export namespace Client {
 const getRelationsWithSchema = (repository: Repository, relations: RepositoryRelations) => {
   const relationsWithSchema: RepositoryRelationsWithSchema = {};
 
-  for (const alias in relations) {
-    const relation = relations[alias]!;
+  for (const tableAlias in relations) {
+    const tableRelation = relations[tableAlias];
 
-    const sourceAlias = relation.sourceAlias;
+    if (!tableRelation) {
+      throw new MissingRepositoryTableError(tableAlias);
+    }
 
+    const sourceAlias = tableRelation.sourceAlias;
     const sourceRepository = repository[sourceAlias];
 
     if (!sourceRepository) {
-      throw new Error(`Table ${sourceAlias} isn't part of the repository.`);
+      throw new MissingRepositoryTableError(sourceAlias);
     }
 
-    relationsWithSchema[alias] = {
+    relationsWithSchema[tableAlias] = {
       sourceSchema: sourceRepository.schema,
       sourceTable: getTableName(sourceAlias),
-      ...relation
+      ...tableRelation
     };
   }
 
   return relationsWithSchema;
+};
+
+const isStaticTransaction = <T extends Database.Service>(operation: unknown): operation is Transaction.StaticOperationType<T> => {
+  return !(operation instanceof Function);
 };
 
 const executeInteractiveTransaction = async (
@@ -147,11 +154,31 @@ const executeInteractiveTransaction = async (
   }
 };
 
-const executeStaticTransaction = async <T extends Database.Service, U extends Transaction.WriteOperation<T>>(
+const getParametersFromList = (parameters: unknown[]) => {
+  return parameters.map((value, index) => {
+    return detectFieldData(`${index}`, value);
+  });
+};
+
+const getParametersFromMap = (parameters: Record<string, unknown>) => {
+  return Object.entries(parameters).map(([name, value]) => {
+    return detectFieldData(name, value);
+  });
+};
+
+const getParameters = <T extends Database.Service>(parameters: Parameters.Type<T>) => {
+  if (Array.isArray(parameters)) {
+    return getParametersFromList(parameters);
+  }
+
+  return getParametersFromMap(parameters);
+};
+
+const executeStaticTransaction = async <T extends Database.Service>(
   connection: Connection,
   repository: Repository,
   context: ClientContext,
-  operations: U
+  operations: Transaction.StaticOperationType<T>
 ) => {
   const { transactionId, debug } = context;
 
@@ -164,33 +191,44 @@ const executeStaticTransaction = async <T extends Database.Service, U extends Tr
   }
 };
 
-const prepareStaticTransaction = async <T extends Database.Service, U extends Transaction.WriteOperation<T>>(
+const prepareStaticTransaction = async <T extends Database.Service>(
   repository: Repository,
-  operations: U
+  operations: Transaction.StaticOperationType<T>
 ) => {
-  const commands: PreparedQueryCommand[] = [];
+  const commands = [];
 
   for (const tableAlias in operations) {
+    const repositoryTable = repository[tableAlias];
     const operationTable = operations[tableAlias];
-
-    if (!repository[tableAlias]) {
-      throw new Error(`Table ${tableAlias} isn't part of the repository.`);
-    }
 
     if (!operationTable) {
       continue;
     }
 
-    const { name, schema, relations } = repository[tableAlias];
+    if (!repositoryTable) {
+      throw new MissingRepositoryTableError(tableAlias);
+    }
+
+    const { name, schema, relations } = repositoryTable;
 
     const relationsWithSchema = getRelationsWithSchema(repository, relations);
 
     for (const query of operationTable) {
+      if (!query) {
+        continue;
+      }
+
       if ('insert' in query) {
         commands.push(await prepareInsertOne(name, schema, relationsWithSchema, query.insert));
-      } else if ('update' in query) {
+        continue;
+      }
+
+      if ('update' in query) {
         commands.push(await prepareUpdateOne(name, schema, relationsWithSchema, query.update));
-      } else if ('delete' in query) {
+        continue;
+      }
+
+      if ('delete' in query) {
         commands.push(prepareDeleteOne(name, schema, relationsWithSchema, query.delete));
       }
     }

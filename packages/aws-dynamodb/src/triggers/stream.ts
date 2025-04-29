@@ -5,11 +5,13 @@ import type { TableState } from '../table/types.js';
 
 import { tryGetFunctionState } from '@ez4/aws-function';
 import { isRoleState } from '@ez4/aws-identity';
+import { createLogGroup } from '@ez4/aws-logs';
 
 import { createMapping } from '../mapping/service.js';
 import { createStreamFunction } from '../mapping/function/service.js';
 import { getInternalName, getStreamName } from './utils.js';
 import { RoleMissingError } from './errors.js';
+import { Defaults } from './defaults.js';
 
 export const prepareTableStream = (
   state: EntryStates,
@@ -27,27 +29,32 @@ export const prepareTableStream = (
     throw new RoleMissingError();
   }
 
-  const { stream } = table;
-
-  const { handler, listener } = stream;
+  const { handler, listener, retention, timeout, memory, variables } = table.stream;
 
   const internalName = getInternalName(service, table, handler.name);
 
   let handlerState = tryGetFunctionState(context, internalName, options);
 
   if (!handlerState) {
-    handlerState = createStreamFunction(state, context.role, {
-      functionName: getStreamName(service, table, handler.name, options),
+    const streamName = getStreamName(service, table, handler.name, options);
+
+    const logGroupState = createLogGroup(state, {
+      retention: retention ?? Defaults.LogRetention,
+      groupName: streamName
+    });
+
+    handlerState = createStreamFunction(state, context.role, logGroupState, {
+      functionName: streamName,
       description: handler.description,
       tableSchema: table.schema,
-      timeout: stream.timeout ?? 30,
-      memory: stream.memory ?? 192,
+      timeout: timeout ?? Defaults.Timeout,
+      memory: memory ?? Defaults.Memory,
       extras: service.extras,
       debug: options.debug,
       variables: {
         ...options.variables,
         ...service.variables,
-        ...stream.variables
+        ...variables
       },
       handler: {
         functionName: handler.name,

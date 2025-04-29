@@ -1,7 +1,6 @@
-import type { ModelProperty, SourceMap, TypeModel } from '@ez4/reflection';
+import type { SourceMap } from '@ez4/reflection';
 import type { Incomplete } from '@ez4/utils';
 import type { HttpService } from '../types/service.js';
-import type { HttpRoute } from '../types/common.js';
 
 import {
   DuplicateServiceError,
@@ -10,7 +9,6 @@ import {
   getLinkedVariableList,
   getModelMembers,
   getPropertyString,
-  getPropertyTuple,
   InvalidServicePropertyError
 } from '@ez4/common/library';
 
@@ -19,9 +17,10 @@ import { isModelProperty } from '@ez4/reflection';
 import { ServiceType } from '../types/service.js';
 import { IncompleteServiceError } from '../errors/service.js';
 import { getHttpDefaults } from './defaults.js';
-import { isHttpService } from './utils.js';
-import { getHttpRoute } from './route.js';
+import { getHttpRoutes } from './route.js';
 import { getHttpCors } from './cors.js';
+import { getHttpCache } from './cache.js';
+import { isHttpService } from './utils.js';
 
 export const getHttpServices = (reflection: SourceMap) => {
   const allServices: Record<string, HttpService> = {};
@@ -56,7 +55,7 @@ export const getHttpServices = (reflection: SourceMap) => {
           break;
 
         case 'routes':
-          if ((service.routes = getAllRoutes(statement, member, reflection, errorList))) {
+          if ((service.routes = getHttpRoutes(statement, member, reflection, errorList))) {
             properties.delete(member.name);
           }
           break;
@@ -71,6 +70,10 @@ export const getHttpServices = (reflection: SourceMap) => {
 
         case 'cors':
           service.cors = getHttpCors(member.value, statement, reflection, errorList);
+          break;
+
+        case 'cache':
+          service.cache = getHttpCache(member.value, statement, reflection, errorList);
           break;
 
         case 'variables':
@@ -104,19 +107,4 @@ export const getHttpServices = (reflection: SourceMap) => {
 
 const isValidService = (type: Incomplete<HttpService>): type is HttpService => {
   return !!type.name && !!type.routes && !!type.extras;
-};
-
-const getAllRoutes = (parent: TypeModel, member: ModelProperty, reflection: SourceMap, errorList: Error[]) => {
-  const routeItems = getPropertyTuple(member) ?? [];
-  const routeList: HttpRoute[] = [];
-
-  for (const route of routeItems) {
-    const result = getHttpRoute(route, parent, reflection, errorList);
-
-    if (result) {
-      routeList.push(result);
-    }
-  }
-
-  return routeList;
 };

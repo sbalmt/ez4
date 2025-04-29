@@ -53,7 +53,10 @@ export declare class CreateItemResponse implements Http.Response {
 /**
  * Handle item create requests.
  */
-export async function createItemHandler(request: CreateItemRequest, context: Service.Context<Api>): Promise<CreateItemResponse> {
+export async function createItemHandler(
+  request: Http.Incoming<CreateItemRequest>,
+  context: Service.Context<Api>
+): Promise<CreateItemResponse> {
   const { auroraDb } = context;
   const { name, description, category } = request.body;
 

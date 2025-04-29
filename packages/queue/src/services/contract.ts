@@ -2,13 +2,7 @@ import type { LinkedVariables } from '@ez4/project/library';
 import type { Service } from '@ez4/common';
 import type { Client } from './client.js';
 
-import type {
-  QueueMessage,
-  QueueIncoming,
-  SubscriptionHandler,
-  SubscriptionListener,
-  QueueFifoMode
-} from './common.js';
+import type { QueueMessage, QueueIncoming, SubscriptionHandler, SubscriptionListener, QueueFifoMode } from './common.js';
 
 /**
  * Provide all contracts for a self-managed queue service.
@@ -47,6 +41,11 @@ export namespace Queue {
      * Variables associated to the subscription.
      */
     variables?: LinkedVariables;
+
+    /**
+     * Log retention (in days) for the handler.
+     */
+    retention?: number;
 
     /**
      * Amount of memory available for the handler.

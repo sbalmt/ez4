@@ -4,6 +4,7 @@
     "name": "TestDatabase1",
     "extras": {},
     "engine": {
+      "parameters": "index",
       "transaction": "static",
       "name": "test"
     },
@@ -17,7 +18,8 @@
     "name": "TestDatabase2",
     "extras": {},
     "engine": {
-      "transaction": "static",
+      "parameters": "both",
+      "transaction": "interactive",
       "name": "test"
     },
     "tables": [],

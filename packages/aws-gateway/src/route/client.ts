@@ -10,7 +10,7 @@ import {
   NotFoundException
 } from '@aws-sdk/client-apigatewayv2';
 
-import { Logger } from '@ez4/aws-common';
+import { Logger, waitCreation, waitDeletion } from '@ez4/aws-common';
 
 import { RouteServiceName } from './types.js';
 
@@ -60,18 +60,22 @@ export const createRoute = async (apiId: string, request: CreateRequest): Promis
 
   const { integrationId, authorizerId, operationName, routePath } = request;
 
-  const response = await client.send(
-    new CreateRouteCommand({
-      ApiId: apiId,
-      RouteKey: routePath,
-      OperationName: operationName,
-      Target: `integrations/${integrationId}`,
-      ...(authorizerId && {
-        AuthorizationType: AuthorizationType.CUSTOM,
-        AuthorizerId: authorizerId
+  // If the multiple routes being created triggers the conflict error,
+  // keep retrying until max attempts.
+  const response = await waitCreation(() => {
+    return client.send(
+      new CreateRouteCommand({
+        ApiId: apiId,
+        RouteKey: routePath,
+        OperationName: operationName,
+        Target: `integrations/${integrationId}`,
+        ...(authorizerId && {
+          AuthorizationType: AuthorizationType.CUSTOM,
+          AuthorizerId: authorizerId
+        })
       })
-    })
-  );
+    );
+  });
 
   const routeId = response.RouteId!;
   const routeArn = await getRouteArn(apiId, routeId);
@@ -107,22 +111,26 @@ export const updateRoute = async (apiId: string, routeId: string, request: Updat
 export const deleteRoute = async (apiId: string, routeId: string) => {
   Logger.logDelete(RouteServiceName, routeId);
 
-  try {
-    await client.send(
-      new DeleteRouteCommand({
-        ApiId: apiId,
-        RouteId: routeId
-      })
-    );
+  // If the multiple routes being deleted triggers the conflict error,
+  // keep retrying until max attempts.
+  await waitDeletion(async () => {
+    try {
+      await client.send(
+        new DeleteRouteCommand({
+          ApiId: apiId,
+          RouteId: routeId
+        })
+      );
 
-    return true;
-  } catch (error) {
-    if (!(error instanceof NotFoundException)) {
-      throw error;
+      return true;
+    } catch (error) {
+      if (!(error instanceof NotFoundException)) {
+        throw error;
+      }
+
+      return false;
     }
-
-    return false;
-  }
+  });
 };
 
 const getRouteArn = async (apiId: string, routeId: string) => {

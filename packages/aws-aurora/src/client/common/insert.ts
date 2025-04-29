@@ -20,7 +20,7 @@ import {
 } from './relation.js';
 
 import { getDefaultSelectFields, getFieldColumn, getSelectFields } from './select.js';
-import { InvalidRelationFieldError, MissingFieldSchemaError } from './errors.js';
+import { InvalidRelationFieldError, MissingFieldSchemaError } from '../errors.js';
 import { validateAllSchemaLevels, validateFirstSchemaLevel } from './schema.js';
 import { createQueryBuilder } from './builder.js';
 import { isSkippableData } from './data.js';
@@ -156,7 +156,7 @@ const getInsertRecord = async (
 
       // Will create a new relationship.
       if (!isEmptyObject(fieldValue)) {
-        const relationSchema = getTargetCreationSchema(schema, fieldRelation);
+        const relationSchema = getTargetCreationSchema(sourceSchema, fieldRelation);
         const relationQuery = relationQueries[0];
 
         await validateAllSchemaLevels(fieldValue, relationSchema, fieldPath);

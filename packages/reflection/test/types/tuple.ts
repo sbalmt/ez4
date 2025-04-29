@@ -6,6 +6,9 @@ export interface Tuple {
   // Regular
   regular: [any, void, never];
 
+  // Spread
+  spread: [any, ...[void, unknown]];
+
   // Template
   template1: Type<[unknown, undefined]>;
   template2: [Type<any>, Type<null>];

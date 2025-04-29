@@ -45,7 +45,12 @@ const getOriginCache = async <T extends DistributionDefaultOrigin | Distribution
     compress: cache?.compress ?? true,
     defaultTTL: cache?.ttl ?? 86400,
     maxTTL: cache?.maxTTL ?? 31536000,
-    minTTL: cache?.minTTL ?? 0
+    minTTL: cache?.minTTL ?? 0,
+    cacheKeys: {
+      headers: cache?.headers,
+      cookies: cache?.cookies,
+      queries: cache?.queries
+    }
   });
 
   const isBucket = isCdnBucketOrigin(origin);
@@ -61,8 +66,8 @@ const getOriginCache = async <T extends DistributionDefaultOrigin | Distribution
         }
       : {
           http: origin.protocol === OriginProtocol.Http,
-          domain: origin.domain,
           headers: origin.headers,
+          domain: origin.domain,
           port: origin.port
         }),
     getDistributionOrigin: async () => {

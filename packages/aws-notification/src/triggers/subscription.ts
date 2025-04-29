@@ -8,6 +8,7 @@ import { NotificationSubscriptionType } from '@ez4/notification/library';
 import { getFunctionState, tryGetFunctionState } from '@ez4/aws-function';
 import { InvalidParameterError } from '@ez4/aws-common';
 import { isRoleState } from '@ez4/aws-identity';
+import { createLogGroup } from '@ez4/aws-logs';
 import { getQueueState } from '@ez4/aws-queue';
 
 import { SubscriptionServiceName } from '../subscription/types.js';
@@ -15,6 +16,7 @@ import { createSubscriptionFunction } from '../subscription/function/service.js'
 import { createSubscription } from '../subscription/service.js';
 import { getFunctionName, getInternalName } from './utils.js';
 import { RoleMissingError } from './errors.js';
+import { Defaults } from './defaults.js';
 
 export const prepareSubscriptions = async (
   state: EntryStates,
@@ -44,15 +46,19 @@ export const prepareSubscriptions = async (
         let handlerState = tryGetFunctionState(context, internalName, options);
 
         if (!handlerState) {
-          const subscriptionTimeout = subscription.timeout ?? 30;
-          const subscriptionMemory = subscription.memory ?? 192;
+          const subscriptionName = getFunctionName(service, handler.name, options);
 
-          handlerState = createSubscriptionFunction(state, context.role, {
-            functionName: getFunctionName(service, handler.name, options),
+          const logGroupState = createLogGroup(state, {
+            retention: subscription.retention ?? Defaults.LogRetention,
+            groupName: subscriptionName
+          });
+
+          handlerState = createSubscriptionFunction(state, context.role, logGroupState, {
+            functionName: subscriptionName,
             description: handler.description,
             messageSchema: service.schema,
-            timeout: subscriptionTimeout,
-            memory: subscriptionMemory,
+            timeout: subscription.timeout ?? Defaults.Timeout,
+            memory: subscription.memory ?? Defaults.Memory,
             extras: service.extras,
             debug: options.debug,
             variables: {

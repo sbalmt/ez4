@@ -10,7 +10,8 @@ import {
   getObjectMembers,
   getPropertyBoolean,
   getPropertyNumber,
-  getReferenceType
+  getReferenceType,
+  getArrayStrings
 } from '@ez4/common/library';
 
 import { isModelProperty, isTypeObject, isTypeReference } from '@ez4/reflection';
@@ -84,6 +85,12 @@ const getTypeFromMembers = (type: TypeObject | TypeModel, parent: TypeModel, mem
 
       case 'compress':
         cache.compress = getPropertyBoolean(member);
+        break;
+
+      case 'headers':
+      case 'cookies':
+      case 'queries':
+        cache[member.name] = getArrayStrings(member);
         break;
     }
   }

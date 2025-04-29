@@ -7,6 +7,7 @@ import { join } from 'node:path';
 import { createQueueFunction, createMapping, createQueue, registerTriggers } from '@ez4/aws-queue';
 import { createPolicy, createRole } from '@ez4/aws-identity';
 import { isMappingState } from '@ez4/aws-function';
+import { createLogGroup } from '@ez4/aws-logs';
 import { deploy } from '@ez4/aws-common';
 import { deepClone } from '@ez4/utils';
 
@@ -49,17 +50,22 @@ describe('queue mapping', () => {
     });
 
     const policyResource = createPolicy(localState, {
-      policyName: 'EZ4: Test queue mapping policy',
+      policyName: 'ez4-test-queue-mapping-policy',
       policyDocument: getPolicyDocument()
     });
 
     const roleResource = createRole(localState, [policyResource], {
-      roleName: 'EZ4: Test queue mapping role',
+      roleName: 'ez4-test-queue-mapping-role',
       roleDocument: getRoleDocument()
     });
 
-    const functionResource = await createQueueFunction(localState, roleResource, {
-      functionName: 'EZ4: Test queue mapping lambda',
+    const logGroupResource = createLogGroup(localState, {
+      groupName: 'ez4-test-queue-logs',
+      retention: 1
+    });
+
+    const functionResource = createQueueFunction(localState, roleResource, logGroupResource, {
+      functionName: 'ez4-test-queue-mapping-lambda',
       handler: {
         functionName: 'main',
         sourceFile: join(baseDir, 'lambda.js')

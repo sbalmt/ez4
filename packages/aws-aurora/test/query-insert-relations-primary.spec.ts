@@ -17,17 +17,17 @@ type TestRelations = {
 };
 
 describe('aurora query (insert primary relations)', () => {
+  type TestSchemaOptions = {
+    multiple?: boolean;
+    nullish: boolean;
+  };
+
   const prepareRelationInsert = <T extends Database.Schema, S extends Query.SelectInput<T, TestRelations>>(
     schema: ObjectSchema,
     relations: RepositoryRelationsWithSchema,
     query: Query.InsertOneInput<T, S, TestRelations>
   ) => {
     return prepareInsertQuery<T, S, TestRelations>('ez4-test-insert-relations', schema, relations, query);
-  };
-
-  type TestSchemaOptions = {
-    multiple?: boolean;
-    nullish: boolean;
   };
 
   const getTestRelationSchema = ({ nullish, multiple }: TestSchemaOptions): ObjectSchema => {
@@ -37,10 +37,6 @@ describe('aurora query (insert primary relations)', () => {
         id: {
           type: SchemaType.String,
           format: 'uuid'
-        },
-        foo: {
-          type: SchemaType.String,
-          optional: true
         },
         ...(multiple
           ? {
@@ -75,12 +71,26 @@ describe('aurora query (insert primary relations)', () => {
     };
   };
 
-  const getSingleTestRelation = (testSchema: ObjectSchema): RepositoryRelationsWithSchema => {
+  const getSingleTestRelation = (): RepositoryRelationsWithSchema => {
+    const relationSchema: ObjectSchema = {
+      type: SchemaType.Object,
+      properties: {
+        id: {
+          type: SchemaType.String,
+          format: 'uuid'
+        },
+        foo: {
+          type: SchemaType.String,
+          optional: true
+        }
+      }
+    };
+
     return {
       primary_to_secondary: {
         targetColumn: 'secondary_id',
         targetIndex: Index.Secondary,
-        sourceSchema: testSchema,
+        sourceSchema: relationSchema,
         sourceTable: 'ez4-test-relation',
         sourceAlias: 'ez4-test-relation',
         sourceColumn: 'id',
@@ -89,8 +99,8 @@ describe('aurora query (insert primary relations)', () => {
     };
   };
 
-  const getMultipleTestRelation = (testSchema: ObjectSchema): RepositoryRelationsWithSchema => {
-    const { primary_to_secondary } = getSingleTestRelation(testSchema);
+  const getMultipleTestRelation = (): RepositoryRelationsWithSchema => {
+    const { primary_to_secondary } = getSingleTestRelation();
 
     return {
       primary_to_secondary_1: {
@@ -113,7 +123,7 @@ describe('aurora query (insert primary relations)', () => {
       nullish: true
     });
 
-    const [statement, variables] = await prepareRelationInsert(testSchema, getSingleTestRelation(testSchema), {
+    const [statement, variables] = await prepareRelationInsert(testSchema, getSingleTestRelation(), {
       data: {
         id: '00000000-0000-1000-9000-000000000000',
         primary_to_secondary: {
@@ -139,7 +149,7 @@ describe('aurora query (insert primary relations)', () => {
       nullish: false
     });
 
-    const [statement, variables] = await prepareRelationInsert(testSchema, getSingleTestRelation(testSchema), {
+    const [statement, variables] = await prepareRelationInsert(testSchema, getSingleTestRelation(), {
       data: {
         id: '00000000-0000-1000-9000-000000000000',
         primary_to_secondary: {
@@ -165,7 +175,7 @@ describe('aurora query (insert primary relations)', () => {
       nullish: true
     });
 
-    const [statement, variables] = await prepareRelationInsert(testSchema, getSingleTestRelation(testSchema), {
+    const [statement, variables] = await prepareRelationInsert(testSchema, getSingleTestRelation(), {
       data: {
         id: '00000000-0000-1000-9000-000000000000',
         primary_to_secondary: {
@@ -188,7 +198,7 @@ describe('aurora query (insert primary relations)', () => {
       nullish: false
     });
 
-    const [statement, variables] = await prepareRelationInsert(testSchema, getSingleTestRelation(testSchema), {
+    const [statement, variables] = await prepareRelationInsert(testSchema, getSingleTestRelation(), {
       select: {
         id: true,
         primary_to_secondary: {
@@ -227,7 +237,7 @@ describe('aurora query (insert primary relations)', () => {
       nullish: false
     });
 
-    const [statement, variables] = await prepareRelationInsert(testSchema, getSingleTestRelation(testSchema), {
+    const [statement, variables] = await prepareRelationInsert(testSchema, getSingleTestRelation(), {
       data: {
         id: '00000000-0000-1000-9000-000000000000',
         primary_to_secondary: {
@@ -258,7 +268,7 @@ describe('aurora query (insert primary relations)', () => {
       nullish: true
     });
 
-    const [statement, variables] = await prepareRelationInsert(testSchema, getSingleTestRelation(testSchema), {
+    const [statement, variables] = await prepareRelationInsert(testSchema, getSingleTestRelation(), {
       data: {
         id: '00000000-0000-1000-9000-000000000000',
         primary_to_secondary: {}
@@ -279,7 +289,7 @@ describe('aurora query (insert primary relations)', () => {
       nullish: false
     });
 
-    const [statement, variables] = await prepareRelationInsert(testSchema, getSingleTestRelation(testSchema), {
+    const [statement, variables] = await prepareRelationInsert(testSchema, getSingleTestRelation(), {
       select: {
         id: true,
         primary_to_secondary: {
@@ -320,7 +330,7 @@ describe('aurora query (insert primary relations)', () => {
       nullish: true
     });
 
-    const [statement, variables] = await prepareRelationInsert(testSchema, getMultipleTestRelation(testSchema), {
+    const [statement, variables] = await prepareRelationInsert(testSchema, getMultipleTestRelation(), {
       select: {
         id: true,
         primary_to_secondary_1: {
@@ -373,7 +383,7 @@ describe('aurora query (insert primary relations)', () => {
 
     await assert.rejects(
       () =>
-        prepareRelationInsert(testSchema, getSingleTestRelation(testSchema), {
+        prepareRelationInsert(testSchema, getSingleTestRelation(), {
           data: {
             primary_to_secondary: {
               secondary_id: '00000000-0000-1000-9000-000000000001',
@@ -394,7 +404,7 @@ describe('aurora query (insert primary relations)', () => {
 
     await assert.rejects(
       () =>
-        prepareRelationInsert(testSchema, getSingleTestRelation(testSchema), {
+        prepareRelationInsert(testSchema, getSingleTestRelation(), {
           data: {
             primary_to_secondary: {
               foo: 'foo',

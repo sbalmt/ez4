@@ -1,5 +1,6 @@
 import { registerTriggers as registerAwsTriggers } from '@ez4/aws-common';
 import { registerTriggers as registerAwsIdentityTriggers } from '@ez4/aws-identity';
+import { registerTriggers as registerAwsLogsTriggers } from '@ez4/aws-logs';
 import { createTrigger } from '@ez4/project/library';
 
 import { registerFunctionProvider } from '../function/provider.js';
@@ -17,6 +18,7 @@ export const registerTriggers = () => {
 
   registerAwsTriggers();
   registerAwsIdentityTriggers();
+  registerAwsLogsTriggers();
 
   createTrigger('@ez4/aws-function', {
     'deploy:prepareIdentityAccount': prepareIdentityAccount,

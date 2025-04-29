@@ -1,8 +1,5 @@
 import type { Http } from '@ez4/gateway';
-import type { headerAuthorizer } from './authorizers/header.js';
-import type { queryAuthorizer } from './authorizers/query.js';
-import type { publicHandler } from './endpoints/public.js';
-import type { privateHandler } from './endpoints/private.js';
+import type { AllRoutes } from './routes.js';
 
 /**
  * Example of AWS API deployed with EZ4.
@@ -16,20 +13,12 @@ export declare class Api extends Http.Service {
   /**
    * All API routes.
    */
-  routes: [
-    {
-      path: 'GET /public-route';
-      handler: typeof publicHandler;
-    },
-    {
-      path: 'GET /private-header-route';
-      authorizer: typeof headerAuthorizer;
-      handler: typeof privateHandler;
-    },
-    {
-      path: 'GET /private-query-route';
-      authorizer: typeof queryAuthorizer;
-      handler: typeof privateHandler;
-    }
-  ];
+  routes: [...AllRoutes];
+
+  /**
+   * Cache configuration.
+   */
+  cache: {
+    authorizerTTL: 5;
+  };
 }

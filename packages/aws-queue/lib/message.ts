@@ -10,7 +10,6 @@ declare const __EZ4_SCHEMA: MessageSchema | null;
 declare const __EZ4_CONTEXT: object;
 
 declare function handle(request: Queue.Incoming<Queue.Message>, context: object): Promise<any>;
-
 declare function dispatch(event: Service.Event<Queue.Incoming<Queue.Message>>, context: object): Promise<void>;
 
 /**

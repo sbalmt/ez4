@@ -7,11 +7,7 @@ const getSourceType = (source: string) => {
   return isArn(source) ? 'AWS:SourceArn' : 'AWS:SourceAccount';
 };
 
-export const createRoleDocument = (
-  grant: IdentityGrant,
-  services: IdentityAccount[],
-  source: string
-): RoleDocument => {
+export const createRoleDocument = (grant: IdentityGrant, services: IdentityAccount[], source: string): RoleDocument => {
   const sourceType = getSourceType(source);
 
   const { permissions, resourceIds } = grant;

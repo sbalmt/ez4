@@ -23,6 +23,7 @@ export declare class Site extends Cdn.Service {
       path: 'forward/*';
       domain: 'another.domain';
       cache: {
+        headers: ['Authorization'];
         ttl: 600;
       };
     }

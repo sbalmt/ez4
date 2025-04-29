@@ -6,6 +6,7 @@ import { TypeName } from './common.js';
 export type TypeTuple = {
   type: TypeName.Tuple;
   elements: EveryType[];
+  spread?: boolean;
 };
 
 /**

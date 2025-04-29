@@ -9,7 +9,8 @@ export interface Array {
   regular3: ArrayLike<any>;
 
   // Tuple
-  tuple: [any, ...any[]];
+  tuple1: [any, ...any[]];
+  tuple2: [any, ...[void, unknown]];
 
   // Union
   union: (any | void)[];

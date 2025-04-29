@@ -1,4 +1,4 @@
-import { readFileSync, writeFileSync } from 'node:fs';
+import { existsSync, readFileSync, writeFileSync } from 'node:fs';
 import { deepEqual, equal } from 'node:assert/strict';
 import { describe, it } from 'node:test';
 
@@ -18,7 +18,7 @@ const testFile = (fileName: string, overwrite = false) => {
 
   equal(result.errors.length, 0);
 
-  if (overwrite) {
+  if (overwrite || !existsSync(outputFile)) {
     writeFileSync(outputFile, JSON.stringify(result.services, undefined, 2));
   } else {
     deepEqual(result.services, JSON.parse(readFileSync(outputFile).toString()));
@@ -35,11 +35,12 @@ describe('http metadata', () => {
   it('assert :: service routes', () => testFile('route'));
   it('assert :: route authorizers', () => testFile('authorizer'));
   it('assert :: route listener', () => testFile('listener'));
+  it('assert :: route response', () => testFile('response'));
   it('assert :: route headers', () => testFile('headers'));
   it('assert :: route identity', () => testFile('identity'));
   it('assert :: route parameters', () => testFile('parameters'));
   it('assert :: route query', () => testFile('query'));
   it('assert :: route body', () => testFile('body'));
   it('assert :: route cors', () => testFile('cors'));
-  it('assert :: route response', () => testFile('response'));
+  it('assert :: route cache', () => testFile('cache'));
 });

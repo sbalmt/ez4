@@ -2,43 +2,50 @@ import type { DeployOptions, EventContext } from '@ez4/project/library';
 import type { CronService } from '@ez4/scheduler/library';
 import type { EntryStates } from '@ez4/stateful';
 
-import { linkServiceExtras } from '@ez4/project/library';
 import { getFunctionState, tryGetFunctionState } from '@ez4/aws-function';
+import { linkServiceExtras } from '@ez4/project/library';
 import { isRoleState } from '@ez4/aws-identity';
+import { createLogGroup } from '@ez4/aws-logs';
 
 import { createTargetFunction } from '../schedule/function/service.js';
 import { getInternalName, getTargetName } from './utils.js';
 import { RoleMissingError } from './errors.js';
+import { Defaults } from './defaults.js';
 
 export const prepareTarget = (state: EntryStates, service: CronService, options: DeployOptions, context: EventContext) => {
   if (!context.role || !isRoleState(context.role)) {
     throw new RoleMissingError();
   }
 
-  const { target } = service;
-
-  const { handler, listener } = target;
+  const { handler, listener, retention, timeout, memory, variables } = service.target;
 
   const internalName = getInternalName(service, handler.name);
 
-  const currentHandlerState = tryGetFunctionState(context, internalName, options);
+  let handlerState = tryGetFunctionState(context, internalName, options);
 
-  if (currentHandlerState) {
-    return currentHandlerState;
+  if (handlerState) {
+    return handlerState;
   }
 
-  const handlerState = createTargetFunction(state, context.role, {
-    functionName: getTargetName(service, handler.name, options),
+  const targetName = getTargetName(service, handler.name, options);
+
+  const logGroupState = createLogGroup(state, {
+    retention: retention ?? Defaults.LogRetention,
+    groupName: targetName
+  });
+
+  handlerState = createTargetFunction(state, context.role, logGroupState, {
+    functionName: targetName,
     description: handler.description,
     eventSchema: service.schema,
-    timeout: target.timeout ?? 10,
-    memory: target.memory ?? 192,
+    timeout: timeout ?? Defaults.Timeout,
+    memory: memory ?? Defaults.Memory,
     extras: service.extras,
     debug: options.debug,
     variables: {
       ...options.variables,
       ...service.variables,
-      ...target.variables
+      ...variables
     },
     handler: {
       functionName: handler.name,

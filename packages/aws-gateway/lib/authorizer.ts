@@ -1,12 +1,7 @@
-import type { Service } from '@ez4/common';
+import type { APIGatewayRequestAuthorizerEventV2, APIGatewaySimpleAuthorizerWithContextResult, Context } from 'aws-lambda';
 import type { ObjectSchema } from '@ez4/schema';
+import type { Service } from '@ez4/common';
 import type { Http } from '@ez4/gateway';
-
-import type {
-  APIGatewayRequestAuthorizerEventV2,
-  APIGatewaySimpleAuthorizerWithContextResult,
-  Context
-} from 'aws-lambda';
 
 import { getHeaders, getPathParameters, getQueryStrings } from '@ez4/aws-gateway/runtime';
 import { ServiceEventType } from '@ez4/common';
@@ -19,15 +14,8 @@ declare const __EZ4_PARAMETERS_SCHEMA: ObjectSchema | null;
 declare const __EZ4_QUERY_SCHEMA: ObjectSchema | null;
 declare const __EZ4_CONTEXT: object;
 
-declare function handle(
-  request: Http.Incoming<Http.AuthRequest>,
-  context: object
-): Promise<Http.AuthResponse>;
-
-declare function dispatch(
-  event: Service.Event<Http.Incoming<Http.AuthRequest>>,
-  context: object
-): Promise<void>;
+declare function handle(request: Http.Incoming<Http.AuthRequest>, context: object): Promise<Http.AuthResponse>;
+declare function dispatch(event: Service.Event<Http.Incoming<Http.AuthRequest>>, context: object): Promise<void>;
 
 /**
  * Entrypoint to handle API Gateway authorizations.

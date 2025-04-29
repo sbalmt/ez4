@@ -12,6 +12,7 @@ export * from './metadata/parameters.js';
 export * from './metadata/query.js';
 export * from './metadata/body.js';
 export * from './metadata/cors.js';
+export * from './metadata/cache.js';
 
 export * from './errors/service.js';
 export * from './errors/defaults.js';
@@ -26,6 +27,7 @@ export * from './errors/parameters.js';
 export * from './errors/query.js';
 export * from './errors/body.js';
 export * from './errors/cors.js';
+export * from './errors/cache.js';
 
 export * from './types/common.js';
 export * from './types/service.js';

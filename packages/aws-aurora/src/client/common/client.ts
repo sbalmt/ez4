@@ -50,9 +50,7 @@ export const executeStatement = async (
 ): Promise<AnyObject[]> => {
   try {
     if (debug) {
-      const debugId = transactionId?.substring(0, 4) ?? '-';
-
-      console.debug(`[PgSQL/${debugId}]:`, command.sql);
+      console.debug({ label: `[PgSQL/${getDebugTransactionId(transactionId)}]:`, sql: command.sql });
     }
 
     const { formattedRecords } = await client.send(
@@ -71,10 +69,10 @@ export const executeStatement = async (
     if (formattedRecords) {
       return JSON.parse(formattedRecords);
     }
-  } catch (e) {
-    console.debug(command.sql);
+  } catch (error) {
+    console.error({ label: `[PgSQL/${getDebugTransactionId(transactionId)}]:`, sql: command.sql });
 
-    throw e;
+    throw error;
   }
 
   return [];
@@ -117,4 +115,8 @@ export const executeTransaction = async (
 
     throw error;
   }
+};
+
+const getDebugTransactionId = (transactionId: string | undefined) => {
+  return transactionId?.substring(0, 4) ?? '-';
 };

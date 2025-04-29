@@ -88,6 +88,7 @@ const getTypeFromMembers = (
 
       case 'memory':
       case 'timeout':
+      case 'retention':
         target[member.name] = getPropertyNumber(member);
         break;
 

@@ -13,19 +13,12 @@ declare const __EZ4_SCHEMA: ObjectSchema | null;
 declare const __EZ4_CONTEXT: object;
 
 declare function handle(changes: StreamChange<object>, context: object): Promise<any>;
-
-declare function dispatch(
-  event: Service.Event<Database.Incoming<object>>,
-  context: object
-): Promise<void>;
+declare function dispatch(event: Service.Event<Database.Incoming<object>>, context: object): Promise<void>;
 
 /**
  * Entrypoint to handle DynamoDB stream events.
  */
-export async function dbStreamEntryPoint(
-  event: DynamoDBStreamEvent,
-  context: Context
-): Promise<void> {
+export async function dbStreamEntryPoint(event: DynamoDBStreamEvent, context: Context): Promise<void> {
   let lastRequest: StreamChange<object> | undefined | null;
 
   const request = {
@@ -62,10 +55,7 @@ export async function dbStreamEntryPoint(
   }
 }
 
-const getRecordChange = async (
-  record: DynamoDBRecord,
-  schema: ObjectSchema
-): Promise<StreamChange<object> | null> => {
+const getRecordChange = async (record: DynamoDBRecord, schema: ObjectSchema): Promise<StreamChange<object> | null> => {
   const { eventName, dynamodb } = record;
 
   if (!dynamodb) {
@@ -104,10 +94,7 @@ const getRecordChange = async (
   return null;
 };
 
-const getInsertRecordChange = async (
-  newImage: Record<string, AttributeValue>,
-  schema: ObjectSchema
-): Promise<StreamChange<object>> => {
+const getInsertRecordChange = async (newImage: Record<string, AttributeValue>, schema: ObjectSchema): Promise<StreamChange<object>> => {
   const record = unmarshall(newImage);
 
   await validateSchema(record, schema);
@@ -135,10 +122,7 @@ const getUpdateRecordChange = async (
   };
 };
 
-const getDeleteRecordChange = async (
-  oldImage: Record<string, AttributeValue>,
-  schema: ObjectSchema
-): Promise<StreamChange<object>> => {
+const getDeleteRecordChange = async (oldImage: Record<string, AttributeValue>, schema: ObjectSchema): Promise<StreamChange<object>> => {
   const record = unmarshall(oldImage);
 
   await validateSchema(record, schema);

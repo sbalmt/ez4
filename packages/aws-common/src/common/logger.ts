@@ -15,24 +15,36 @@ export class Logger {
     console.error(`[${serviceName}]: ${message}`);
   }
 
-  static logCreate(serviceName: string, resource: string) {
-    Logger.logInfo(serviceName, `Creating ${resource}`);
-  }
-
   static logImport(serviceName: string, resource: string) {
     Logger.logInfo(serviceName, `Importing ${resource}`);
   }
 
-  static logAttach(serviceName: string, resource: string, attachment: string) {
-    Logger.logInfo(serviceName, `Attaching ${attachment} to ${resource}`);
+  static logFetch(serviceName: string, resource: string) {
+    Logger.logInfo(serviceName, `Fetching ${resource}`);
+  }
+
+  static logCreate(serviceName: string, resource: string) {
+    Logger.logInfo(serviceName, `Creating ${resource}`);
   }
 
   static logUpdate(serviceName: string, resource: string) {
     Logger.logInfo(serviceName, `Updating ${resource}`);
   }
 
-  static logFetch(serviceName: string, resource: string) {
-    Logger.logInfo(serviceName, `Fetching ${resource}`);
+  static logDelete(serviceName: string, resource: string) {
+    Logger.logInfo(serviceName, `Deleting ${resource}`);
+  }
+
+  static logAttach(serviceName: string, resource: string, attachment: string) {
+    Logger.logInfo(serviceName, `Attaching ${attachment} to ${resource}`);
+  }
+
+  static logDetach(serviceName: string, resource: string, attachment: string) {
+    Logger.logInfo(serviceName, `Detaching ${attachment} from ${resource}`);
+  }
+
+  static logPublish(serviceName: string, resource: string) {
+    Logger.logInfo(serviceName, `Publishing ${resource}`);
   }
 
   static logTag(serviceName: string, resource: string) {
@@ -41,14 +53,6 @@ export class Logger {
 
   static logUntag(serviceName: string, resource: string) {
     Logger.logInfo(serviceName, `Untagging ${resource}`);
-  }
-
-  static logDetach(serviceName: string, resource: string, attachment: string) {
-    Logger.logInfo(serviceName, `Detaching ${attachment} from ${resource}`);
-  }
-
-  static logDelete(serviceName: string, resource: string) {
-    Logger.logInfo(serviceName, `Deleting ${resource}`);
   }
 
   static logWait(serviceName: string, resource: string) {

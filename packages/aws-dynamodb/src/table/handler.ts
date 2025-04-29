@@ -3,7 +3,7 @@ import type { Arn } from '@ez4/aws-common';
 import type { AttributeSchema, AttributeSchemaGroup } from '../types/schema.js';
 import type { TableState, TableResult, TableParameters } from './types.js';
 
-import { applyTagUpdates, ReplaceResourceError, waitDeletion } from '@ez4/aws-common';
+import { applyTagUpdates, ReplaceResourceError } from '@ez4/aws-common';
 import { deepCompare } from '@ez4/utils';
 
 import {
@@ -99,9 +99,7 @@ const deleteResource = async (candidate: TableState) => {
     return;
   }
 
-  // If the table is still in use due to a prior change that's not
-  // done yet, keep retrying until max attempts.
-  await waitDeletion(async () => deleteTable(result.tableName));
+  await deleteTable(result.tableName);
 };
 
 const checkDeletionUpdates = async (tableName: string, candidate: TableParameters, current: TableParameters) => {

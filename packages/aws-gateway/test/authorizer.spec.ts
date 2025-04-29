@@ -4,25 +4,16 @@ import { describe, it } from 'node:test';
 import { ok, equal } from 'node:assert/strict';
 import { join } from 'node:path';
 
-import {
-  createGateway,
-  createAuthorizer,
-  createAuthorizerFunction,
-  isAuthorizerState,
-  registerTriggers
-} from '@ez4/aws-gateway';
+import { createGateway, createAuthorizer, createAuthorizerFunction, isAuthorizerState, registerTriggers } from '@ez4/aws-gateway';
 
-import { createRole } from '@ez4/aws-identity';
 import { deploy } from '@ez4/aws-common';
+import { createLogGroup } from '@ez4/aws-logs';
+import { createRole } from '@ez4/aws-identity';
 import { deepClone } from '@ez4/utils';
 
 import { getRoleDocument } from './common/role.js';
 
-const assertDeploy = async <E extends EntryState>(
-  resourceId: string,
-  newState: EntryStates<E>,
-  oldState: EntryStates<E> | undefined
-) => {
+const assertDeploy = async <E extends EntryState>(resourceId: string, newState: EntryStates<E>, oldState: EntryStates<E> | undefined) => {
   const { result: state } = await deploy(newState, oldState);
 
   const resource = state[resourceId];
@@ -54,16 +45,21 @@ describe('gateway authorizer', () => {
     const localState: EntryStates = {};
 
     const gatewayResource = createGateway(localState, {
-      gatewayId: 'ez4-test-gateway',
+      gatewayId: 'ez4-test-gateway-authorizer',
       gatewayName: 'EZ4: Test gateway for authorizers'
     });
 
     const roleResource = createRole(localState, [], {
-      roleName: 'ez4-test-lambda-authorizer-role',
+      roleName: 'ez4-test-gateway-authorizer-role',
       roleDocument: getRoleDocument()
     });
 
-    const lambdaResource = await createAuthorizerFunction(localState, roleResource, {
+    const logGroupResource = createLogGroup(localState, {
+      groupName: 'ez4-test-gateway-authorizer-logs',
+      retention: 1
+    });
+
+    const lambdaResource = createAuthorizerFunction(localState, roleResource, logGroupResource, {
       functionName: 'ez4-test-authorizer-lambda',
       authorizer: {
         functionName: 'main',

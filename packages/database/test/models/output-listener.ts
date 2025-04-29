@@ -1,4 +1,4 @@
-import type { StreamChange, Database, Client, TransactionType } from '@ez4/database';
+import type { StreamChange, Database, Client, TransactionType, ParametersType } from '@ez4/database';
 
 declare class TestSchema implements Database.Schema {
   foo: string;
@@ -6,6 +6,7 @@ declare class TestSchema implements Database.Schema {
 
 export declare class TestDatabase extends Database.Service {
   engine: {
+    parameters: ParametersType.OnlyIndex;
     transaction: TransactionType.Static;
     name: 'test';
   };

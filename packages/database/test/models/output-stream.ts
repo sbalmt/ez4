@@ -1,8 +1,9 @@
-import type { StreamChange, Database, Client, TransactionType } from '@ez4/database';
+import type { StreamChange, Database, Client, TransactionType, ParametersType } from '@ez4/database';
 import type { Environment, Service } from '@ez4/common';
 
 export declare class TestDatabase extends Database.Service {
   engine: {
+    parameters: ParametersType.OnlyIndex;
     transaction: TransactionType.Static;
     name: 'test';
   };
@@ -14,6 +15,7 @@ export declare class TestDatabase extends Database.Service {
       indexes: {};
       stream: {
         handler: typeof streamHandler;
+        retention: 14;
         timeout: 10;
         memory: 256;
       };

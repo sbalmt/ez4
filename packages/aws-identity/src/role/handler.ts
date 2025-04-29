@@ -7,8 +7,19 @@ import { applyTagUpdates, IncompleteResourceError, ReplaceResourceError } from '
 import { deepCompare, deepEqual } from '@ez4/utils';
 
 import { PolicyServiceType } from '../policy/types.js';
-import { attachPolicy, createRole, deleteRole, detachPolicy, tagRole, untagRole, updateAssumeRole, updateRole } from './client.js';
 import { RoleServiceName } from './types.js';
+
+import {
+  attachPolicy,
+  createRole,
+  deleteRole,
+  detachPolicy,
+  importRole,
+  tagRole,
+  untagRole,
+  updateAssumeRole,
+  updateRole
+} from './client.js';
 
 export const getRoleHandler = (): StepHandler<RoleState> => ({
   equals: equalsResource,
@@ -48,7 +59,9 @@ const replaceResource = async (candidate: RoleState, current: RoleState, context
 };
 
 const createResource = async (candidate: RoleState, context: StepContext): Promise<RoleResult> => {
-  const response = await createRole(candidate.parameters);
+  const parameters = candidate.parameters;
+
+  const response = (await importRole(parameters.roleName)) || (await createRole(parameters));
 
   const policies = context.getDependencies<PolicyState>(PolicyServiceType);
   const policyArns = getPolicyArns(response.roleName, policies);

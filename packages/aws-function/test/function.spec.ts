@@ -5,17 +5,14 @@ import { describe, it } from 'node:test';
 import { join } from 'node:path';
 
 import { createFunction, isFunctionState, registerTriggers } from '@ez4/aws-function';
+import { createLogGroup } from '@ez4/aws-logs';
 import { createRole } from '@ez4/aws-identity';
 import { deploy } from '@ez4/aws-common';
 import { deepClone } from '@ez4/utils';
 
 import { getRoleDocument } from './common/role.js';
 
-const assertDeploy = async <E extends EntryState>(
-  resourceId: string,
-  newState: EntryStates<E>,
-  oldState: EntryStates<E> | undefined
-) => {
+const assertDeploy = async <E extends EntryState>(resourceId: string, newState: EntryStates<E>, oldState: EntryStates<E> | undefined) => {
   const { result: state } = await deploy(newState, oldState);
 
   const resource = state[resourceId];
@@ -51,9 +48,14 @@ describe('function', () => {
       roleDocument: getRoleDocument()
     });
 
+    const logGroupResource = createLogGroup(localState, {
+      groupName: 'ez4-test-lambda-logs',
+      retention: 14
+    });
+
     const sourceFile = join(baseDir, 'lambda-1.js');
 
-    const resource = createFunction(localState, roleResource, {
+    const resource = createFunction(localState, roleResource, logGroupResource, {
       functionName: 'ez4-test-lambda-function',
       description: 'EZ4 Test lambda',
       handlerName: 'main',

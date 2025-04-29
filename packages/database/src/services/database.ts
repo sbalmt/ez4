@@ -44,17 +44,14 @@ export namespace Database {
    * Stream listener.
    */
   export type Listener<T extends Schema> = (
-    event: Service.Event<Incoming<T> | StreamChange<T>>,
+    event: Service.Event<Incoming<T>>,
     context: Service.Context<Database.Service>
   ) => Promise<void> | void;
 
   /**
    * Stream handler.
    */
-  export type Handler<T extends Schema> = (
-    request: Incoming<T> | StreamChange<T>,
-    context: Service.Context<Database.Service>
-  ) => Promise<void> | void;
+  export type Handler<T extends Schema> = (request: Incoming<T>, context: Service.Context<Database.Service>) => Promise<void> | void;
 
   /**
    * Service event.
@@ -84,6 +81,11 @@ export namespace Database {
      * Variables associated to the handler.
      */
     variables?: LinkedVariables;
+
+    /**
+     * Log retention (in days) for the handler.
+     */
+    retention?: number;
 
     /**
      * Max execution time (in seconds) for the handler.

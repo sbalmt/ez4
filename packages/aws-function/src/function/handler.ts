@@ -2,9 +2,9 @@ import type { StepContext, StepHandler } from '@ez4/stateful';
 import type { Arn } from '@ez4/aws-common';
 import type { FunctionState, FunctionResult, FunctionParameters } from './types.js';
 
-import { InvalidParameterValueException } from '@aws-sdk/client-lambda';
-import { applyTagUpdates, bundleHash, ReplaceResourceError, waitDeletion } from '@ez4/aws-common';
-import { deepCompare, deepEqual, waitFor } from '@ez4/utils';
+import { applyTagUpdates, bundleHash, ReplaceResourceError } from '@ez4/aws-common';
+import { deepCompare, deepEqual } from '@ez4/utils';
+import { getLogGroupName } from '@ez4/aws-logs';
 import { getRoleArn } from '@ez4/aws-identity';
 
 import {
@@ -75,16 +75,23 @@ const createResource = async (candidate: FunctionState, context: StepContext): P
   const parameters = candidate.parameters;
 
   const functionName = parameters.functionName;
+
   const roleArn = getRoleArn(FunctionServiceName, functionName, context);
+  const logGroup = getLogGroupName(FunctionServiceName, functionName, context);
 
   const [sourceFile, sourceHash] = await Promise.all([parameters.getFunctionBundle(context), bundleHash(parameters.sourceFile)]);
 
   const importedFunction = await importFunction(functionName);
 
   if (importedFunction) {
-    await updateConfiguration(functionName, parameters);
+    await updateConfiguration(functionName, {
+      ...parameters,
+      logGroup,
+      roleArn
+    });
 
     await updateSourceCode(functionName, {
+      publish: false,
       sourceFile
     });
 
@@ -97,41 +104,25 @@ const createResource = async (candidate: FunctionState, context: StepContext): P
     return {
       functionArn: importedFunction.functionArn,
       sourceHash,
+      logGroup,
       roleArn
     };
   }
 
-  let lastError;
-
-  // If the given roleArn is new and still propagating on AWS, the creation
-  // will fail, `waitFor` will keep retrying until max attempts.
-  const response = await waitFor(async () => {
-    try {
-      return await createFunction({
-        ...parameters,
-        sourceFile,
-        roleArn
-      });
-    } catch (error) {
-      if (!(error instanceof InvalidParameterValueException)) {
-        throw error;
-      }
-
-      lastError = error;
-
-      return null;
-    }
+  const response = await createFunction({
+    ...parameters,
+    publish: true,
+    sourceFile,
+    logGroup,
+    roleArn
   });
-
-  if (!response) {
-    throw lastError;
-  }
 
   lockSensitiveData(candidate);
 
   return {
     functionArn: response.functionArn,
     sourceHash,
+    logGroup,
     roleArn
   };
 };
@@ -148,23 +139,24 @@ const updateResource = async (candidate: FunctionState, current: FunctionState, 
   const newRoleArn = getRoleArn(FunctionServiceName, functionName, context);
   const oldRoleArn = current.result?.roleArn ?? newRoleArn;
 
-  const newConfig = { ...parameters, roleArn: newRoleArn };
-  const oldConfig = { ...current.parameters, roleArn: oldRoleArn };
+  const newLogGroup = getLogGroupName(FunctionServiceName, functionName, context);
+  const oldLogGroup = current.result?.logGroup ?? newLogGroup;
 
-  await Promise.all([
-    checkConfigurationUpdates(functionName, newConfig, oldConfig),
-    checkTagUpdates(result.functionArn, parameters, current.parameters)
-  ]);
+  const newConfig = { ...parameters, roleArn: newRoleArn, logGroup: newLogGroup };
+  const oldConfig = { ...current.parameters, roleArn: oldRoleArn, logGroup: oldLogGroup };
 
-  // Should always perform for last.
-  const sourceHash = await checkSourceCodeUpdates(functionName, parameters, current.result, context);
+  await checkConfigurationUpdates(functionName, newConfig, oldConfig);
+  await checkTagUpdates(result.functionArn, parameters, current.parameters);
+
+  const newResult = await checkSourceCodeUpdates(functionName, parameters, current.result, context);
 
   lockSensitiveData(candidate);
 
   return {
     ...result,
-    roleArn: newRoleArn,
-    sourceHash
+    ...newResult,
+    logGroup: newLogGroup,
+    roleArn: newRoleArn
   };
 };
 
@@ -172,9 +164,7 @@ const deleteResource = async (candidate: FunctionState) => {
   const { result, parameters } = candidate;
 
   if (result) {
-    // If the function is still in use due to a prior change that's not
-    // done yet, keep retrying until max attempts.
-    await waitDeletion(async () => deleteFunction(parameters.functionName));
+    await deleteFunction(parameters.functionName);
   }
 };
 
@@ -227,15 +217,19 @@ const checkSourceCodeUpdates = async (
   const newSourceHash = await bundleHash(candidate.sourceFile);
   const oldSourceHash = current?.sourceHash;
 
-  if (newSourceHash !== oldSourceHash) {
-    const sourceFile = await candidate.getFunctionBundle(context);
-
-    await updateSourceCode(functionName, {
-      sourceFile
-    });
-
-    return newSourceHash;
+  if (newSourceHash === oldSourceHash) {
+    return current;
   }
 
-  return oldSourceHash;
+  const sourceFile = await candidate.getFunctionBundle(context);
+
+  const { functionVersion } = await updateSourceCode(functionName, {
+    publish: !current?.functionVersion,
+    sourceFile
+  });
+
+  return {
+    sourceHash: newSourceHash,
+    functionVersion
+  };
 };

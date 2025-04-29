@@ -197,8 +197,8 @@ export namespace Query {
 
   type WhereRelationField<T extends AnyObject> = WhereObjectField<T> & {
     NOT?: WhereRelationField<T>;
-    AND?: WhereRelationField<T>;
-    OR?: WhereRelationField<T>;
+    AND?: WhereRelationField<T>[];
+    OR?: WhereRelationField<T>[];
   };
 
   type WhereRelationFilters<T extends AnyObject> = {

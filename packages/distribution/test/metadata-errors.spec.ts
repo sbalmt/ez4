@@ -3,12 +3,18 @@ import { describe, it } from 'node:test';
 
 import {
   IncompleteServiceError,
-  IncompleteFallbackError,
   IncompleteOriginError,
+  IncompleteCacheError,
+  IncompleteFallbackError,
+  IncompleteCertificateError,
   IncorrectOriginTypeError,
   IncorrectFallbackTypeError,
+  IncorrectCertificateTypeError,
   InvalidOriginTypeError,
-  InvalidFallbackTypeError
+  InvalidFallbackTypeError,
+  InvalidCertificateTypeError,
+  IncorrectCacheTypeError,
+  InvalidCacheTypeError
 } from '@ez4/distribution/library';
 
 import { getReflection } from '@ez4/project/library';
@@ -66,6 +72,28 @@ describe('distribution metadata errors', () => {
     deepEqual(error2.properties, ['defaultOrigin']);
   });
 
+  it('assert :: incomplete cache', () => {
+    const [error1] = parseFile('incomplete-cache', 1);
+
+    ok(error1 instanceof IncompleteCacheError);
+    deepEqual(error1.properties, ['ttl']);
+  });
+
+  it('assert :: incorrect cache', () => {
+    const [error1] = parseFile('incorrect-cache', 1);
+
+    ok(error1 instanceof IncorrectCacheTypeError);
+    deepEqual(error1.baseType, 'Cdn.Cache');
+    deepEqual(error1.cacheType, 'TestCache');
+  });
+
+  it('assert :: invalid cache', () => {
+    const [error1] = parseFile('invalid-cache', 1);
+
+    ok(error1 instanceof InvalidCacheTypeError);
+    deepEqual(error1.baseType, 'Cdn.Cache');
+  });
+
   it('assert :: incomplete fallback', () => {
     const [error1] = parseFile('incomplete-fallback', 1);
 
@@ -86,5 +114,27 @@ describe('distribution metadata errors', () => {
 
     ok(error1 instanceof InvalidFallbackTypeError);
     deepEqual(error1.baseType, 'Cdn.Fallback');
+  });
+
+  it('assert :: incomplete certificate', () => {
+    const [error1] = parseFile('incomplete-certificate', 1);
+
+    ok(error1 instanceof IncompleteCertificateError);
+    deepEqual(error1.properties, ['domain']);
+  });
+
+  it('assert :: incorrect certificate', () => {
+    const [error1] = parseFile('incorrect-certificate', 1);
+
+    ok(error1 instanceof IncorrectCertificateTypeError);
+    deepEqual(error1.baseType, 'Cdn.Certificate');
+    deepEqual(error1.certificateType, 'TestCertificate');
+  });
+
+  it('assert :: invalid certificate', () => {
+    const [error1] = parseFile('invalid-certificate', 1);
+
+    ok(error1 instanceof InvalidCertificateTypeError);
+    deepEqual(error1.baseType, 'Cdn.Certificate');
   });
 });

@@ -3,7 +3,7 @@ import type { AnySchema } from '@ez4/schema';
 
 import { validate, getUniqueErrorMessages, createValidatorContext } from '@ez4/validator';
 
-import { MalformedRequestError } from './errors.js';
+import { MalformedRequestError } from '../errors.js';
 
 export const validateSchemaWithContext = async (data: unknown, schema: AnySchema, context: Required<ValidationContextOptions>) => {
   const errors = await validate(data, schema, createValidatorContext(context));

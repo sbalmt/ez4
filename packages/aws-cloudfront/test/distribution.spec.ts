@@ -66,6 +66,7 @@ describe('cloudfront :: distribution', () => {
     const cachePolicyResource = createCachePolicy(localState, {
       policyName: 'ez4-test-distribution-cache',
       description: 'EZ4: Test cache description',
+      cacheKeys: {},
       defaultTTL: 300,
       maxTTL: 3600,
       minTTL: 1

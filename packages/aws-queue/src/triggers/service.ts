@@ -6,6 +6,7 @@ import { createQueue } from '../queue/service.js';
 import { connectSubscriptions, prepareSubscriptions } from './subscription.js';
 import { prepareLinkedClient } from './client.js';
 import { getQueueName } from './utils.js';
+import { Defaults } from './defaults.js';
 
 export const prepareLinkedServices = (event: ServiceEvent) => {
   const { service, options, context } = event;
@@ -29,7 +30,7 @@ export const prepareServices = async (event: PrepareResourceEvent) => {
   const queueState = createQueue(state, {
     queueName: getQueueName(service, options),
     fifoMode: !!fifoMode,
-    ...(timeout !== undefined && { timeout }),
+    timeout: timeout ?? Defaults.Timeout,
     ...(retention !== undefined && { retention }),
     ...(polling !== undefined && { polling }),
     ...(delay !== undefined && { delay })

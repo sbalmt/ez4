@@ -7,11 +7,7 @@ import { createCachePolicy, isCachePolicyState, registerTriggers } from '@ez4/aw
 import { deploy } from '@ez4/aws-common';
 import { deepClone } from '@ez4/utils';
 
-const assertDeploy = async <E extends EntryState>(
-  resourceId: string,
-  newState: EntryStates<E>,
-  oldState: EntryStates<E> | undefined
-) => {
+const assertDeploy = async <E extends EntryState>(resourceId: string, newState: EntryStates<E>, oldState: EntryStates<E> | undefined) => {
   const { result: state } = await deploy(newState, oldState);
 
   const resource = state[resourceId];
@@ -44,7 +40,12 @@ describe('cloudfront :: cache policy', () => {
       compress: true,
       defaultTTL: 300,
       maxTTL: 3600,
-      minTTL: 1
+      minTTL: 1,
+      cacheKeys: {
+        headers: ['header1'],
+        cookies: ['cookie1'],
+        queries: ['query1']
+      }
     });
 
     cacheId = resource.entryId;

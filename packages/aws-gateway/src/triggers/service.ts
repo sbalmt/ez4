@@ -9,17 +9,19 @@ import { getServiceName, linkServiceExtras } from '@ez4/project/library';
 import { getFunctionState, tryGetFunctionState } from '@ez4/aws-function';
 import { isHttpService } from '@ez4/gateway/library';
 import { isRoleState } from '@ez4/aws-identity';
+import { createLogGroup } from '@ez4/aws-logs';
 
 import { createRoute } from '../route/service.js';
 import { createStage } from '../stage/service.js';
 import { createGateway } from '../gateway/service.js';
-import { getAuthorizer, createAuthorizer } from '../authorizer/service.js';
 import { createAuthorizerFunction } from '../authorizer/function/service.js';
-import { getIntegration, createIntegration } from '../integration/service.js';
+import { getAuthorizer, createAuthorizer } from '../authorizer/service.js';
 import { createIntegrationFunction } from '../integration/function/service.js';
+import { getIntegration, createIntegration } from '../integration/service.js';
 import { getFunctionName, getInternalName } from './utils.js';
 import { getCorsConfiguration } from './cors.js';
 import { RoleMissingError } from './errors.js';
+import { Defaults } from './defaults.js';
 
 export const prepareHttpServices = (event: PrepareResourceEvent) => {
   const { state, service, options, context } = event;
@@ -83,7 +85,6 @@ const createHttpRoutes = (
 ) => {
   for (const route of service.routes) {
     const integrationState = getIntegrationFunction(state, service, gatewayState, route, options, context);
-
     const authorizerState = getAuthorizerFunction(state, service, gatewayState, route, options, context);
 
     createRoute(state, gatewayState, integrationState, authorizerState, {
@@ -104,20 +105,32 @@ const getIntegrationFunction = (
     throw new RoleMissingError();
   }
 
-  const { handler, listener = service.defaults?.listener } = route;
+  const defaults = service.defaults ?? {};
+
+  const {
+    handler,
+    listener = defaults.listener,
+    retention = defaults.retention,
+    timeout = defaults.timeout,
+    memory = defaults.memory
+  } = route;
 
   const { request, response } = handler;
 
-  const handlerName = getInternalName(service, handler.name);
+  const internalName = getInternalName(service, handler.name);
 
-  let handlerState = tryGetFunctionState(context, handlerName, options);
+  let handlerState = tryGetFunctionState(context, internalName, options);
 
   if (!handlerState) {
-    const routeTimeout = route.timeout ?? service.defaults?.timeout ?? 29;
-    const routeMemory = route.memory ?? service.defaults?.memory ?? 192;
+    const integrationName = getFunctionName(service, handler, options);
 
-    handlerState = createIntegrationFunction(state, context.role, {
-      functionName: getFunctionName(service, handler, options),
+    const logGroupState = createLogGroup(state, {
+      retention: retention ?? Defaults.LogRetention,
+      groupName: integrationName
+    });
+
+    handlerState = createIntegrationFunction(state, context.role, logGroupState, {
+      functionName: integrationName,
       description: handler.description,
       responseSchema: response.body,
       headersSchema: request?.headers,
@@ -125,8 +138,8 @@ const getIntegrationFunction = (
       parametersSchema: request?.parameters,
       querySchema: request?.query,
       bodySchema: request?.body,
-      timeout: routeTimeout,
-      memory: routeMemory,
+      timeout: Math.max(5, (timeout ?? Defaults.Timeout) - 1),
+      memory: memory ?? Defaults.Memory,
       extras: service.extras,
       debug: options.debug,
       variables: {
@@ -145,7 +158,7 @@ const getIntegrationFunction = (
       })
     });
 
-    context.setServiceState(handlerState, handlerName, options);
+    context.setServiceState(handlerState, internalName, options);
   }
 
   if (route.variables) {
@@ -180,21 +193,27 @@ const getAuthorizerFunction = (
 
   const { authorizer, listener = service.defaults?.listener } = route;
 
-  const authorizerName = getInternalName(service, authorizer.name);
+  const internalName = getInternalName(service, authorizer.name);
 
-  let authorizerState = tryGetFunctionState(context, authorizerName, options);
+  let authorizerState = tryGetFunctionState(context, internalName, options);
 
   const request = authorizer.request;
 
   if (!authorizerState) {
-    const routeTimeout = service.defaults?.timeout ?? 29;
-    const routeMemory = service.defaults?.memory ?? 192;
+    const { retention, timeout, memory } = service.defaults ?? {};
 
-    authorizerState = createAuthorizerFunction(state, context.role, {
-      functionName: getFunctionName(service, authorizer, options),
+    const authorizerName = getFunctionName(service, authorizer, options);
+
+    const logGroupState = createLogGroup(state, {
+      retention: retention ?? Defaults.LogRetention,
+      groupName: authorizerName
+    });
+
+    authorizerState = createAuthorizerFunction(state, context.role, logGroupState, {
+      functionName: authorizerName,
       description: authorizer.description,
-      timeout: routeTimeout,
-      memory: routeMemory,
+      timeout: Math.max(5, (timeout ?? Defaults.Timeout) - 1),
+      memory: memory ?? Defaults.Memory,
       headersSchema: request?.headers,
       parametersSchema: request?.parameters,
       querySchema: request?.query,
@@ -216,7 +235,7 @@ const getAuthorizerFunction = (
       })
     });
 
-    context.setServiceState(authorizerState, authorizerName, options);
+    context.setServiceState(authorizerState, internalName, options);
   }
 
   if (route.variables) {
@@ -228,7 +247,8 @@ const getAuthorizerFunction = (
     createAuthorizer(state, gatewayState, authorizerState, {
       name: authorizer.name,
       headerNames: getIdentitySources(request?.headers),
-      queryNames: getIdentitySources(request?.query)
+      queryNames: getIdentitySources(request?.query),
+      cacheTTL: service.cache?.authorizerTTL
     })
   );
 };

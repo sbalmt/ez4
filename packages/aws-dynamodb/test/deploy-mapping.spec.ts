@@ -7,6 +7,7 @@ import { join } from 'node:path';
 import { AttributeKeyType, AttributeType, createStreamFunction, createMapping, createTable, registerTriggers } from '@ez4/aws-dynamodb';
 import { createPolicy, createRole } from '@ez4/aws-identity';
 import { isMappingState } from '@ez4/aws-function';
+import { createLogGroup } from '@ez4/aws-logs';
 import { deploy } from '@ez4/aws-common';
 import { deepClone } from '@ez4/utils';
 
@@ -68,7 +69,12 @@ describe('dynamodb mapping', () => {
       roleDocument: getRoleDocument()
     });
 
-    const functionResource = await createStreamFunction(localState, roleResource, {
+    const logGroupResource = createLogGroup(localState, {
+      groupName: 'ez4-test-table-mapping-logs',
+      retention: 1
+    });
+
+    const functionResource = createStreamFunction(localState, roleResource, logGroupResource, {
       functionName: 'ez4-test-table-mapping-lambda',
       handler: {
         sourceFile: join(baseDir, 'lambda.js'),

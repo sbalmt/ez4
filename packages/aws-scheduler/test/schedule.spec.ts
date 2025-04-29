@@ -4,24 +4,16 @@ import { describe, it } from 'node:test';
 import { ok, equal } from 'node:assert/strict';
 import { join } from 'node:path';
 
-import {
-  createSchedule,
-  createTargetFunction,
-  isScheduleState,
-  registerTriggers
-} from '@ez4/aws-scheduler';
+import { createSchedule, createTargetFunction, isScheduleState, registerTriggers } from '@ez4/aws-scheduler';
 
-import { createRole } from '@ez4/aws-identity';
 import { deploy } from '@ez4/aws-common';
+import { createLogGroup } from '@ez4/aws-logs';
+import { createRole } from '@ez4/aws-identity';
 import { deepClone } from '@ez4/utils';
 
 import { getRoleDocument } from './common/role.js';
 
-const assertDeploy = async <E extends EntryState>(
-  resourceId: string,
-  newState: EntryStates<E>,
-  oldState: EntryStates<E> | undefined
-) => {
+const assertDeploy = async <E extends EntryState>(resourceId: string, newState: EntryStates<E>, oldState: EntryStates<E> | undefined) => {
   const { result: state } = await deploy(newState, oldState);
 
   const resource = state[resourceId];
@@ -53,11 +45,16 @@ describe('scheduler', () => {
     const localState: EntryStates = {};
 
     const roleResource = createRole(localState, [], {
-      roleName: 'ez4-test-lambda-scheduler-role',
+      roleName: 'ez4-test-scheduler-role',
       roleDocument: getRoleDocument()
     });
 
-    const lambdaResource = createTargetFunction(localState, roleResource, {
+    const logGroupResource = createLogGroup(localState, {
+      groupName: 'ez4-test-scheduler-logs',
+      retention: 1
+    });
+
+    const lambdaResource = createTargetFunction(localState, roleResource, logGroupResource, {
       functionName: 'ez4-test-scheduler-lambda',
       handler: {
         sourceFile: join(baseDir, 'lambda.js'),

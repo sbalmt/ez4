@@ -46,7 +46,7 @@ export declare class ReadItemResponse implements Http.Response {
  * Handle item read requests.
  */
 export async function readItemHandler(
-  request: ReadItemRequest,
+  request: Http.Incoming<ReadItemRequest>,
   context: Service.Context<Api>
 ): Promise<ReadItemResponse> {
   const { auroraDb } = context;

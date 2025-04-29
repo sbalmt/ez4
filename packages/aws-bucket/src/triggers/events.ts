@@ -2,13 +2,15 @@ import type { DeployOptions, EventContext } from '@ez4/project/library';
 import type { BucketService } from '@ez4/storage/library';
 import type { EntryStates } from '@ez4/stateful';
 
-import { linkServiceExtras } from '@ez4/project/library';
 import { getFunctionState, tryGetFunctionState } from '@ez4/aws-function';
+import { linkServiceExtras } from '@ez4/project/library';
 import { isRoleState } from '@ez4/aws-identity';
+import { createLogGroup } from '@ez4/aws-logs';
 
 import { createBucketEventFunction } from '../bucket/function/service.js';
 import { getFunctionName, getInternalName } from './utils.js';
 import { RoleMissingError } from './errors.js';
+import { Defaults } from './defaults.js';
 
 export const prepareEvents = (state: EntryStates, service: BucketService, options: DeployOptions, context: EventContext) => {
   if (!service.events) {
@@ -19,29 +21,34 @@ export const prepareEvents = (state: EntryStates, service: BucketService, option
     throw new RoleMissingError();
   }
 
-  const { events } = service;
-
-  const { handler, listener } = events;
+  const { handler, listener, retention, timeout, memory, variables } = service.events;
 
   const internalName = getInternalName(service, handler.name);
 
-  const currentHandlerState = tryGetFunctionState(context, internalName, options);
+  let handlerState = tryGetFunctionState(context, internalName, options);
 
-  if (currentHandlerState) {
-    return currentHandlerState;
+  if (handlerState) {
+    return handlerState;
   }
 
-  const handlerState = createBucketEventFunction(state, context.role, {
-    functionName: getFunctionName(service, handler.name, options),
+  const eventName = getFunctionName(service, handler.name, options);
+
+  const logGroupState = createLogGroup(state, {
+    retention: retention ?? Defaults.LogRetention,
+    groupName: eventName
+  });
+
+  handlerState = createBucketEventFunction(state, context.role, logGroupState, {
+    functionName: eventName,
     description: handler.description,
-    timeout: events.timeout ?? 30,
-    memory: events.memory ?? 192,
+    timeout: timeout ?? Defaults.Timeout,
+    memory: memory ?? Defaults.Memory,
     extras: service.extras,
     debug: options.debug,
     variables: {
       ...options.variables,
       ...service.variables,
-      ...events.variables
+      ...variables
     },
     handler: {
       functionName: handler.name,

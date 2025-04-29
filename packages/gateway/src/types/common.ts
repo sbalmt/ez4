@@ -53,12 +53,14 @@ export type HttpRoute = {
   authorizer?: HttpAuthorizer;
   handler: HttpHandler;
   variables?: LinkedVariables | null;
+  retention?: number;
   timeout?: number;
   memory?: number;
   cors?: boolean;
 };
 
 export type HttpDefaults = {
+  retention?: number | null;
   listener?: ServiceListener | null;
   timeout?: number | null;
   memory?: number | null;
@@ -71,4 +73,8 @@ export type HttpCors = {
   exposeHeaders?: string[];
   allowHeaders?: string[];
   maxAge?: number;
+};
+
+export type HttpCache = {
+  authorizerTTL?: number;
 };

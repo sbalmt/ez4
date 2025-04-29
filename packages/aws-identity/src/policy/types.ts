@@ -1,5 +1,5 @@
 import type { EntryState } from '@ez4/stateful';
-import type { CreateRequest, CreateResponse } from './client.js';
+import type { CreateRequest, ImportOrCreateResponse } from './client.js';
 
 export const PolicyServiceName = 'AWS:IAM/Policy';
 
@@ -7,7 +7,7 @@ export const PolicyServiceType = 'aws:iam.policy';
 
 export type PolicyParameters = CreateRequest;
 
-export type PolicyResult = CreateResponse & {
+export type PolicyResult = ImportOrCreateResponse & {
   versionHistory: string[];
 };
 

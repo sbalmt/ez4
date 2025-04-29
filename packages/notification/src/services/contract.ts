@@ -57,6 +57,11 @@ export namespace Notification {
     variables?: LinkedVariables;
 
     /**
+     * Log retention (in days) for the handler.
+     */
+    retention?: number;
+
+    /**
      * Maximum execution time (in seconds) for the handler.
      */
     timeout?: number;

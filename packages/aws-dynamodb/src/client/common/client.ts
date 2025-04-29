@@ -6,7 +6,7 @@ import { ExecuteStatementCommand } from '@aws-sdk/lib-dynamodb';
 export const executeStatement = async (client: DynamoDBDocumentClient, command: ExecuteStatementCommandInput, debug?: boolean) => {
   try {
     if (debug) {
-      console.debug(`[PartiQL/-]:`, command.Statement);
+      console.debug({ label: `[PartiQL/-]:`, sql: command.Statement });
     }
 
     const result = await client.send(
@@ -16,10 +16,10 @@ export const executeStatement = async (client: DynamoDBDocumentClient, command: 
     );
 
     return result;
-  } catch (e) {
-    console.debug(command.Statement);
+  } catch (error) {
+    console.error({ label: `[PartiQL/-]:`, sql: command.Statement });
 
-    throw e;
+    throw error;
   }
 };
 
@@ -36,7 +36,7 @@ export const executeTransaction = async (client: DynamoDBDocumentClient, stateme
       const debugId = transactionId.padStart(4, '0');
 
       commandList.forEach((command) => {
-        console.debug(`[PartiQL/${debugId}]:`, command.Statement);
+        console.debug({ label: `[PartiQL/${debugId}]:`, sql: command.Statement });
       });
     }
 

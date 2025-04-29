@@ -26,6 +26,30 @@
       },
       {
         "type": "property",
+        "name": "spread",
+        "value": {
+          "type": "tuple",
+          "elements": [
+            {
+              "type": "any"
+            },
+            {
+              "type": "tuple",
+              "spread": true,
+              "elements": [
+                {
+                  "type": "void"
+                },
+                {
+                  "type": "unknown"
+                }
+              ]
+            }
+          ]
+        }
+      },
+      {
+        "type": "property",
         "name": "template1",
         "value": {
           "type": "tuple",

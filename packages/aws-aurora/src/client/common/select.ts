@@ -9,7 +9,7 @@ import { isObjectSchema, isStringSchema } from '@ez4/schema';
 import { escapeSqlName, mergeSqlAlias } from '@ez4/pgsql';
 import { Index } from '@ez4/database';
 
-import { InvalidRelationFieldError, MissingFieldSchemaError } from './errors.js';
+import { InvalidRelationFieldError, MissingFieldSchemaError } from '../errors.js';
 import { createQueryBuilder } from './builder.js';
 import { isSkippableData } from './data.js';
 

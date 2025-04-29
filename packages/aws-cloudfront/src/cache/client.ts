@@ -18,9 +18,16 @@ import { CacheServiceName } from './types.js';
 
 const client = new CloudFrontClient({});
 
+export type CacheKeys = {
+  headers?: string[];
+  cookies?: string[];
+  queries?: string[];
+};
+
 export type CreateRequest = {
   policyName: string;
   description?: string;
+  cacheKeys: CacheKeys;
   compress?: boolean;
   defaultTTL: number;
   minTTL: number;
@@ -103,7 +110,13 @@ const getCurrentPolicyVersion = async (policyId: string) => {
 };
 
 const upsertPolicyRequest = (request: CreateRequest | UpdateRequest): CachePolicyConfig => {
-  const { policyName, description, defaultTTL, minTTL, maxTTL, compress } = request;
+  const { policyName, description, cacheKeys, defaultTTL, minTTL, maxTTL, compress } = request;
+
+  const { headers, cookies, queries } = cacheKeys;
+
+  const hasHeaderKeys = !!headers?.length;
+  const hasCookieKeys = !!cookies?.length;
+  const hasQueryKeys = !!queries?.length;
 
   return {
     Name: policyName,
@@ -114,15 +127,39 @@ const upsertPolicyRequest = (request: CreateRequest | UpdateRequest): CachePolic
     ParametersInCacheKeyAndForwardedToOrigin: {
       EnableAcceptEncodingGzip: !!compress,
       EnableAcceptEncodingBrotli: !!compress,
-      HeadersConfig: {
-        HeaderBehavior: CachePolicyHeaderBehavior.none
-      },
-      CookiesConfig: {
-        CookieBehavior: CachePolicyCookieBehavior.none
-      },
-      QueryStringsConfig: {
-        QueryStringBehavior: CachePolicyQueryStringBehavior.none
-      }
+      HeadersConfig: hasHeaderKeys
+        ? {
+            HeaderBehavior: CachePolicyHeaderBehavior.whitelist,
+            Headers: {
+              Quantity: headers.length,
+              Items: headers
+            }
+          }
+        : {
+            HeaderBehavior: CachePolicyHeaderBehavior.none
+          },
+      CookiesConfig: hasCookieKeys
+        ? {
+            CookieBehavior: CachePolicyCookieBehavior.whitelist,
+            Cookies: {
+              Quantity: cookies.length,
+              Items: cookies
+            }
+          }
+        : {
+            CookieBehavior: CachePolicyCookieBehavior.none
+          },
+      QueryStringsConfig: hasQueryKeys
+        ? {
+            QueryStringBehavior: CachePolicyQueryStringBehavior.whitelist,
+            QueryStrings: {
+              Quantity: queries.length,
+              Items: queries
+            }
+          }
+        : {
+            QueryStringBehavior: CachePolicyQueryStringBehavior.all
+          }
     }
   };
 };

@@ -1,6 +1,7 @@
-import type { Database, Client as DbClient, TransactionType } from '@ez4/database';
-import type { EntryStates } from '@ez4/stateful';
+import type { Database, Client as DbClient } from '@ez4/database';
+import type { PostgresEngine } from '@ez4/aws-aurora/client';
 import type { Repository } from '@ez4/aws-aurora';
+import type { EntryStates } from '@ez4/stateful';
 
 import { ok, equal, deepEqual } from 'node:assert/strict';
 import { describe, it } from 'node:test';
@@ -24,10 +25,7 @@ declare class TestSchema implements Database.Schema {
 }
 
 declare class Test extends Database.Service {
-  engine: {
-    transaction: TransactionType.Interactive;
-    name: 'test';
-  };
+  engine: PostgresEngine;
 
   tables: [
     {

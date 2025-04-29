@@ -24,6 +24,7 @@ Ensure the user performing deployments has the permissions below:
       "Action": [
         "iam:CreatePolicy",
         "iam:DeletePolicy",
+        "iam:ListPolicyVersions",
         "iam:CreatePolicyVersion",
         "iam:DeletePolicyVersion",
         "iam:TagPolicy",
@@ -35,6 +36,7 @@ Ensure the user performing deployments has the permissions below:
       "Sid": "RoleManagement",
       "Effect": "Allow",
       "Action": [
+        "iam:GetRole",
         "iam:CreateRole",
         "iam:UpdateRole",
         "iam:DeleteRole",

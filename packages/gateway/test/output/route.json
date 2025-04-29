@@ -6,6 +6,7 @@
     "routes": [
       {
         "path": "ANY /test-route-1",
+        "retention": 7,
         "handler": {
           "name": "testRoute1",
           "file": "test/input/output-route.ts",

@@ -27,7 +27,19 @@
           "ttl": 300,
           "minTTL": 1,
           "maxTTL": 3600,
-          "compress": true
+          "compress": true,
+          "headers": [
+            "header1",
+            "header2"
+          ],
+          "cookies": [
+            "cookie1",
+            "cookie2"
+          ],
+          "queries": [
+            "query1",
+            "query2"
+          ]
         }
       },
       {
@@ -56,7 +68,19 @@
           "ttl": 300,
           "minTTL": 1,
           "maxTTL": 3600,
-          "compress": true
+          "compress": true,
+          "headers": [
+            "header1",
+            "header2"
+          ],
+          "cookies": [
+            "cookie1",
+            "cookie2"
+          ],
+          "queries": [
+            "query1",
+            "query2"
+          ]
         }
       },
       {
