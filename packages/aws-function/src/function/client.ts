@@ -216,6 +216,7 @@ export const updateConfiguration = async (functionName: string, request: UpdateC
       MemorySize: request.memory,
       Timeout: request.timeout,
       Role: request.roleArn,
+      Runtime: 'nodejs22.x',
       ...(handlerName && {
         Handler: getSourceHandlerName(handlerName)
       }),
