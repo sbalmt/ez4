@@ -53,7 +53,7 @@ export namespace Client {
           return executeInteractiveTransaction(connection, repository, context, operation);
         }
 
-        await executeStaticTransaction(connection, repository, context, operation);
+        await executeStaticTransaction<T>(connection, repository, context, operation);
       }
     })();
 
@@ -182,7 +182,7 @@ const executeStaticTransaction = async <T extends Database.Service>(
 ) => {
   const { transactionId, debug } = context;
 
-  const commands = await prepareStaticTransaction(repository, operations);
+  const commands = await prepareStaticTransaction<T>(repository, operations);
 
   if (transactionId) {
     await executeStatements(client, connection, commands, transactionId, debug);

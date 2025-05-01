@@ -45,7 +45,7 @@ export namespace Client {
           throw new UnsupportedTransactionError();
         }
 
-        const commands = await prepareStaticTransaction(repository, operation);
+        const commands = await prepareStaticTransaction<T>(repository, operation);
 
         await executeTransaction(client, commands, debugMode);
       }
