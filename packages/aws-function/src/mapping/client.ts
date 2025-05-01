@@ -16,7 +16,7 @@ import {
 import { Logger, parseArn } from '@ez4/aws-common';
 import { waitFor } from '@ez4/utils';
 
-import { MappingServiceName } from './types.js';
+import { MappingService, MappingServiceName } from './types.js';
 
 const client = new LambdaClient({});
 
@@ -152,14 +152,13 @@ const upsertMappingRequest = (
     FunctionResponseTypes: [FunctionResponseType.ReportBatchItemFailures],
     MaximumBatchingWindowInSeconds: batch?.maxWindow,
     BatchSize: batch?.batchSize,
-    ...(service === 'dynamodb' && {
+    ...(service === MappingService.DynamoDB && {
       StartingPosition: EventSourcePosition.LATEST
     }),
-    ...(service === 'sqs' &&
-      concurrency && {
-        ScalingConfig: {
-          MaximumConcurrency: concurrency
-        }
-      })
+    ...(service === MappingService.Queue && {
+      ScalingConfig: {
+        MaximumConcurrency: concurrency
+      }
+    })
   };
 };
