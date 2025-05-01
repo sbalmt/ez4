@@ -1,6 +1,6 @@
 import type { CompilerOptions as BaseCompilerOptions, CompilerHost, SourceFile } from 'typescript';
 
-import { sys, getDefaultLibFilePath, createSourceFile, ScriptTarget, ModuleKind } from 'typescript';
+import { sys, getDefaultLibFilePath, createSourceFile, ScriptTarget, ModuleKind, ModuleResolutionKind } from 'typescript';
 
 const sourceCache = new Map<string, SourceFile>();
 
@@ -13,9 +13,12 @@ export type CompilerEvents = {
 export const createCompilerOptions = (options?: CompilerOptions): BaseCompilerOptions => {
   return {
     ...options,
+    moduleResolution: ModuleResolutionKind.Node16,
     module: ModuleKind.Preserve,
     target: ScriptTarget.ESNext,
     skipDefaultLibCheck: true,
+    skipLibCheck: true,
+    noCheck: true,
     strict: true
   };
 };
