@@ -105,17 +105,17 @@ export const getFunctionBundle = async (serviceName: string, options: BundlerOpt
     outfile: outputFile,
     packages: 'bundle',
     platform: 'node',
-    target: 'node20',
+    target: 'node22',
     format: 'esm',
     external: ['@aws-sdk/*'],
     define: {
       ...options.define
     },
     stdin: {
-      loader: 'ts',
-      sourcefile: 'main.ts',
       resolveDir: process.cwd(),
-      contents: await getEntrypointCode(options)
+      contents: await getEntrypointCode(options),
+      sourcefile: 'main.ts',
+      loader: 'ts'
     },
     banner: {
       js: getCompatibilityCode()
