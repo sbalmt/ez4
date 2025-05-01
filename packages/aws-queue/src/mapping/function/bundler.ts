@@ -10,12 +10,10 @@ import { bundleFunction } from '@ez4/aws-common';
 // __MODULE_PATH is defined by the package bundler.
 declare const __MODULE_PATH: string;
 
-export type BundleQueueFunctionParameters = QueueFunctionParameters & {
-  queueUrl: string;
-};
+export type BundleQueueFunctionParameters = QueueFunctionParameters;
 
 export const bundleQueueFunction = async (dependencies: EntryState[], parameters: BundleQueueFunctionParameters) => {
-  const { queueUrl, handler, listener, messageSchema, extras, debug } = parameters;
+  const { handler, listener, messageSchema, extras, debug } = parameters;
 
   const definitions = getDefinitionsObject(dependencies);
 
@@ -24,8 +22,7 @@ export const bundleQueueFunction = async (dependencies: EntryState[], parameters
     filePrefix: 'sqs',
     define: {
       ...definitions,
-      __EZ4_SCHEMA: messageSchema ? JSON.stringify(messageSchema) : 'undefined',
-      __EZ4_QUEUE_URL: `'${queueUrl}'`
+      __EZ4_SCHEMA: messageSchema ? JSON.stringify(messageSchema) : 'undefined'
     },
     handler,
     listener,

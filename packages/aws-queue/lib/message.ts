@@ -10,7 +10,6 @@ import { ServiceEventType } from '@ez4/common';
 const client = new SQSClient({});
 
 declare const __EZ4_SCHEMA: MessageSchema | null;
-declare const __EZ4_QUEUE_URL: string;
 declare const __EZ4_CONTEXT: object;
 
 declare function handle(request: Queue.Incoming<Queue.Message>, context: object): Promise<any>;
@@ -66,7 +65,7 @@ const processAllRecords = async (
 
       await handle(lastRequest, __EZ4_CONTEXT);
 
-      await acknowledge(record);
+      await ackMessage(record);
     } catch (error) {
       const currentRequest = lastRequest ?? request;
 
@@ -81,13 +80,25 @@ const processAllRecords = async (
   return failedRecords;
 };
 
-const acknowledge = async (record: SQSRecord) => {
+const getQueueUrl = (queueArn: string): string => {
+  const arnParts = queueArn.match(/^arn:aws:sqs:([^:]+):([^:]+):(.+)$/);
+
+  if (!arnParts) {
+    throw new Error('Invalid event source ARN.');
+  }
+
+  const [, region, accountId, queueName] = arnParts;
+
+  return `https://sqs.${region}.amazonaws.com/${accountId}/${queueName}`;
+};
+
+const ackMessage = async (record: SQSRecord) => {
   const { messageId, receiptHandle } = record;
 
   try {
     await client.send(
       new DeleteMessageCommand({
-        QueueUrl: __EZ4_QUEUE_URL,
+        QueueUrl: getQueueUrl(record.eventSourceARN),
         ReceiptHandle: receiptHandle
       })
     );
