@@ -3,9 +3,10 @@ import type { LogGroupState } from '@ez4/aws-logs';
 import type { RoleState } from '@ez4/aws-identity';
 import type { QueueFunctionParameters } from './types.js';
 
-import { createFunction } from '@ez4/aws-function';
+import { createFunction, MappingServiceName } from '@ez4/aws-function';
 
 import { bundleQueueFunction } from './bundler.js';
+import { getQueueUrl } from '../../main.js';
 
 export const createQueueFunction = <E extends EntryState>(
   state: EntryStates<E>,
@@ -13,9 +14,11 @@ export const createQueueFunction = <E extends EntryState>(
   logGroupState: LogGroupState,
   parameters: QueueFunctionParameters
 ) => {
+  const queueFunctionName = parameters.functionName;
+
   return createFunction(state, roleState, logGroupState, {
     handlerName: 'sqsEntryPoint',
-    functionName: parameters.functionName,
+    functionName: queueFunctionName,
     sourceFile: parameters.handler.sourceFile,
     description: parameters.description,
     variables: parameters.variables,
@@ -25,7 +28,13 @@ export const createQueueFunction = <E extends EntryState>(
     tags: parameters.tags,
     getFunctionBundle: (context) => {
       const dependencies = context.getDependencies();
-      return bundleQueueFunction(dependencies, parameters);
+
+      const queueUrl = getQueueUrl(MappingServiceName, queueFunctionName, context);
+
+      return bundleQueueFunction(dependencies, {
+        ...parameters,
+        queueUrl
+      });
     }
   });
 };

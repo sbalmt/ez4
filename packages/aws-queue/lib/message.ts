@@ -3,10 +3,14 @@ import type { MessageSchema } from '@ez4/aws-queue/runtime';
 import type { Service } from '@ez4/common';
 import type { Queue } from '@ez4/queue';
 
+import { SQSClient, DeleteMessageCommand } from '@aws-sdk/client-sqs';
 import { getJsonMessage } from '@ez4/aws-queue/runtime';
 import { ServiceEventType } from '@ez4/common';
 
+const client = new SQSClient({});
+
 declare const __EZ4_SCHEMA: MessageSchema | null;
+declare const __EZ4_QUEUE_URL: string;
 declare const __EZ4_CONTEXT: object;
 
 declare function handle(request: Queue.Incoming<Queue.Message>, context: object): Promise<any>;
@@ -24,13 +28,13 @@ export async function sqsEntryPoint(event: SQSEvent, context: Context): Promise<
     await onBegin(request);
 
     if (!__EZ4_SCHEMA) {
-      throw new Error(`Validation schema for SQS message not found.`);
+      throw new Error('Validation schema for SQS message not found.');
     }
 
-    const allFailures = await processAllRecords(request, __EZ4_SCHEMA, event.Records);
+    const batchItemFailures = await processAllRecords(request, __EZ4_SCHEMA, event.Records);
 
     return {
-      batchItemFailures: allFailures
+      batchItemFailures
     };
   } catch (error) {
     await onError(error, request);
@@ -44,7 +48,7 @@ const processAllRecords = async (
   schema: MessageSchema,
   records: SQSRecord[]
 ) => {
-  const allFailures: SQSBatchItemFailure[] = [];
+  const failedRecords: SQSBatchItemFailure[] = [];
 
   let lastRequest: Queue.Incoming<Queue.Message> | undefined;
 
@@ -61,16 +65,39 @@ const processAllRecords = async (
       await onReady(lastRequest);
 
       await handle(lastRequest, __EZ4_CONTEXT);
-    } catch (error) {
-      await onError(error, lastRequest ?? request);
 
-      allFailures.push({
+      await acknowledge(record);
+    } catch (error) {
+      const currentRequest = lastRequest ?? request;
+
+      await onError(error, currentRequest);
+
+      failedRecords.push({
         itemIdentifier: record.messageId
       });
     }
   }
 
-  return allFailures;
+  return failedRecords;
+};
+
+const acknowledge = async (record: SQSRecord) => {
+  const { messageId, receiptHandle } = record;
+
+  try {
+    await client.send(
+      new DeleteMessageCommand({
+        QueueUrl: __EZ4_QUEUE_URL,
+        ReceiptHandle: receiptHandle
+      })
+    );
+  } catch (error) {
+    console.warn({
+      label: '[SQS-Ack-Error]',
+      errorMessage: error instanceof Error ? error.message : error,
+      messageId
+    });
+  }
 };
 
 const onBegin = async (request: Partial<Queue.Incoming<Queue.Message>>) => {

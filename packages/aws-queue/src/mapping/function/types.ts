@@ -7,10 +7,7 @@ export type QueueEntryPoint = {
   sourceFile: string;
 };
 
-export type QueueFunctionParameters = Omit<
-  FunctionParameters,
-  'getFunctionBundle' | 'sourceFile' | 'handlerName'
-> & {
+export type QueueFunctionParameters = Omit<FunctionParameters, 'getFunctionBundle' | 'sourceFile' | 'handlerName'> & {
   handler: QueueEntryPoint;
   listener?: QueueEntryPoint;
   messageSchema?: QueueMessageSchema | null;
