@@ -4,8 +4,8 @@ import { reflectionFiles } from '@ez4/reflection';
 
 import { build, formatMessages } from 'esbuild';
 
-import { dirname, join, parse, relative } from 'node:path';
 import { readFile, stat } from 'node:fs/promises';
+import { dirname, join, parse, relative } from 'node:path';
 import { createHash } from 'node:crypto';
 import { existsSync } from 'node:fs';
 
@@ -13,6 +13,7 @@ import { SourceFileError } from '../errors/bundler.js';
 import { Logger } from './logger.js';
 
 const fileCache = new Map<string, string>();
+const hashCache = new Map<string, string>();
 const pathCache = new Map<string, string>();
 
 export type BundlerEntryPoint = {
@@ -30,7 +31,7 @@ export type BundlerOptions = {
   debug?: boolean;
 };
 
-export const bundleHash = async (sourceFile: string) => {
+export const getBundleHash = async (sourceFile: string) => {
   const basePath = process.cwd();
 
   const allSourceFiles = [relative(basePath, sourceFile), ...reflectionFiles([sourceFile])];
@@ -66,7 +67,19 @@ export const bundleHash = async (sourceFile: string) => {
   return fileSignatures.digest('hex');
 };
 
-export const bundleFunction = async (serviceName: string, options: BundlerOptions) => {
+export const getBundleHashFromCache = async (sourceFile: string) => {
+  let bundleHash = hashCache.get(sourceFile);
+
+  if (!bundleHash) {
+    bundleHash = await getBundleHash(sourceFile);
+
+    hashCache.set(sourceFile, bundleHash);
+  }
+
+  return bundleHash;
+};
+
+export const getFunctionBundle = async (serviceName: string, options: BundlerOptions) => {
   const { sourceFile, functionName } = options.handler;
 
   const cacheKey = `${sourceFile}:${functionName}`;

@@ -2,7 +2,7 @@ import type { StepContext, StepHandler } from '@ez4/stateful';
 import type { Arn } from '@ez4/aws-common';
 import type { FunctionState, FunctionResult, FunctionParameters } from './types.js';
 
-import { applyTagUpdates, bundleHash, ReplaceResourceError } from '@ez4/aws-common';
+import { applyTagUpdates, getBundleHashFromCache, ReplaceResourceError } from '@ez4/aws-common';
 import { deepCompare, deepEqual } from '@ez4/utils';
 import { getLogGroupName } from '@ez4/aws-logs';
 import { getRoleArn } from '@ez4/aws-identity';
@@ -41,7 +41,7 @@ const previewResource = async (candidate: FunctionState, current: FunctionState)
     {
       ...target,
       dependencies: candidate.dependencies,
-      sourceHash: await bundleHash(target.sourceFile),
+      sourceHash: await getBundleHashFromCache(target.sourceFile),
       ...(target.variables && {
         variables: protectVariables(target.variables)
       })
@@ -79,7 +79,10 @@ const createResource = async (candidate: FunctionState, context: StepContext): P
   const roleArn = getRoleArn(FunctionServiceName, functionName, context);
   const logGroup = getLogGroupName(FunctionServiceName, functionName, context);
 
-  const [sourceFile, sourceHash] = await Promise.all([parameters.getFunctionBundle(context), bundleHash(parameters.sourceFile)]);
+  const [sourceFile, sourceHash] = await Promise.all([
+    parameters.getFunctionBundle(context),
+    getBundleHashFromCache(parameters.sourceFile)
+  ]);
 
   const importedFunction = await importFunction(functionName);
 
@@ -214,7 +217,7 @@ const checkSourceCodeUpdates = async (
   current: FunctionResult | undefined,
   context: StepContext
 ) => {
-  const newSourceHash = await bundleHash(candidate.sourceFile);
+  const newSourceHash = await getBundleHashFromCache(candidate.sourceFile);
   const oldSourceHash = current?.sourceHash;
 
   if (newSourceHash === oldSourceHash) {
