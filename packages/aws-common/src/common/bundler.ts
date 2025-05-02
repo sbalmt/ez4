@@ -152,9 +152,9 @@ export const getFunctionBundle = async (serviceName: string, options: BundlerOpt
 
 const getCompatibilityCode = () => {
   return `
-import { createRequire as __EZ4_CREATE_REQUIRE } from 'module';
-import { fileURLToPath as __EZ4_FILE_URL_TO_PATH } from 'url';
-import { dirname as __EZ4_DIRNAME } from 'path';
+import { createRequire as __EZ4_CREATE_REQUIRE } from 'node:module';
+import { fileURLToPath as __EZ4_FILE_URL_TO_PATH } from 'node:url';
+import { dirname as __EZ4_DIRNAME } from 'node:path';
 
 const require = __EZ4_CREATE_REQUIRE(import.meta.url);
 
