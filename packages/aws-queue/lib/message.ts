@@ -19,26 +19,26 @@ declare function dispatch(event: Service.Event<Queue.Incoming<Queue.Message>>, c
  * Entrypoint to handle SQS events.
  */
 export async function sqsEntryPoint(event: SQSEvent, context: Context): Promise<SQSBatchResponse | void> {
-  const request = {
+  if (!__EZ4_SCHEMA) {
+    throw new Error('Validation schema for SQS message not found.');
+  }
+
+  const emptyRequest = {
     requestId: context.awsRequestId
   };
 
   try {
-    await onBegin(request);
+    await onBegin(emptyRequest);
 
-    if (!__EZ4_SCHEMA) {
-      throw new Error('Validation schema for SQS message not found.');
-    }
-
-    const batchItemFailures = await processAllRecords(request, __EZ4_SCHEMA, event.Records);
+    const batchItemFailures = await processAllRecords(emptyRequest, __EZ4_SCHEMA, event.Records);
 
     return {
       batchItemFailures
     };
   } catch (error) {
-    await onError(error, request);
+    await onError(error, emptyRequest);
   } finally {
-    await onEnd(request);
+    await onEnd(emptyRequest);
   }
 }
 
@@ -47,12 +47,26 @@ const processAllRecords = async (
   schema: MessageSchema,
   records: SQSRecord[]
 ) => {
-  const failedRecords: SQSBatchItemFailure[] = [];
+  const failedMessages: SQSBatchItemFailure[] = [];
+  const failedGroupIds = new Set<string>();
 
   let lastRequest: Queue.Incoming<Queue.Message> | undefined;
 
   for (const record of records) {
+    const messageGroupId = record.attributes.MessageGroupId;
+    const messageId = record.messageId;
+
     try {
+      // If a previous message from the message group (FIFO Queues) has failed,
+      // skip all the next messages in that group to avoid duplication.
+      if (messageGroupId && failedGroupIds.has(messageGroupId)) {
+        failedMessages.push({
+          itemIdentifier: messageId
+        });
+
+        continue;
+      }
+
       const body = JSON.parse(record.body);
       const message = await getJsonMessage(body, schema);
 
@@ -71,13 +85,17 @@ const processAllRecords = async (
 
       await onError(error, currentRequest);
 
-      failedRecords.push({
-        itemIdentifier: record.messageId
+      if (messageGroupId) {
+        failedGroupIds.add(messageGroupId);
+      }
+
+      failedMessages.push({
+        itemIdentifier: messageId
       });
     }
   }
 
-  return failedRecords;
+  return failedMessages;
 };
 
 const getQueueUrl = (queueArn: string): string => {
@@ -104,8 +122,8 @@ const ackMessage = async (record: SQSRecord) => {
     );
   } catch (error) {
     console.warn({
-      label: '[SQS-Ack-Error]',
-      errorMessage: error instanceof Error ? error.message : error,
+      error: error instanceof Error ? error.message : error,
+      receiptHandle,
       messageId
     });
   }
