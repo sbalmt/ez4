@@ -1,12 +1,11 @@
 import type { AnySchema } from '@ez4/schema';
-import type { AnyObject } from '@ez4/utils';
 import type { Http } from '@ez4/gateway';
 
-import { validate, getUniqueErrorMessages, createValidatorContext } from '@ez4/validator';
+import { validate, createValidatorContext, getUniqueErrorMessages } from '@ez4/validator';
 import { createTransformContext, transform } from '@ez4/transform';
 import { HttpBadRequestError } from '@ez4/gateway';
 
-export const getRequestJsonBody = async (input: AnyObject, schema: AnySchema): Promise<Http.JsonBody> => {
+export const getRequestJsonBody = async <T extends Http.JsonBody>(input: T, schema: AnySchema): Promise<T> => {
   const errors = await validate(
     input,
     schema,
@@ -29,7 +28,7 @@ export const getRequestJsonBody = async (input: AnyObject, schema: AnySchema): P
     })
   );
 
-  return body as Http.JsonBody;
+  return body as T;
 };
 
 export const getResponseJsonBody = (body: unknown, schema: AnySchema) => {

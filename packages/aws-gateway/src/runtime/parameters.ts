@@ -1,13 +1,11 @@
 import type { ObjectSchema } from '@ez4/schema';
-import type { AnyObject } from '@ez4/utils';
 import type { Http } from '@ez4/gateway';
 
-import { getUniqueErrorMessages, createValidatorContext } from '@ez4/validator';
+import { validate, getUniqueErrorMessages, createValidatorContext } from '@ez4/validator';
 import { createTransformContext, transform } from '@ez4/transform';
 import { HttpBadRequestError } from '@ez4/gateway';
-import { validate } from '@ez4/validator';
 
-export const getPathParameters = async (input: AnyObject, schema: ObjectSchema): Promise<Http.PathParameters> => {
+export const getPathParameters = async <T extends Http.PathParameters>(input: T, schema: ObjectSchema): Promise<T> => {
   const parameters = transform(
     input,
     schema,
@@ -30,5 +28,5 @@ export const getPathParameters = async (input: AnyObject, schema: ObjectSchema):
     throw new HttpBadRequestError('Malformed path parameters.', messages);
   }
 
-  return parameters as Http.PathParameters;
+  return parameters as T;
 };
