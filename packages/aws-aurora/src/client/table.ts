@@ -146,7 +146,7 @@ export class Table<T extends Database.Schema, I extends Database.Indexes, R exte
       data: query.update
     });
 
-    return previous;
+    return previous as Query.UpsertOneResult<T, S, R>;
   }
 
   async insertMany(query: Query.InsertManyInput<T>) {

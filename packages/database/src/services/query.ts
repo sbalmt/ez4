@@ -105,7 +105,7 @@ export namespace Query {
 
   export type UpsertOneResult<T extends Database.Schema, S extends AnyObject, R extends RelationMetadata> = S extends never
     ? void
-    : Record<T, S, R> | undefined;
+    : Record<T, S, R>;
 
   export type DeleteOneResult<T extends Database.Schema, S extends AnyObject, R extends RelationMetadata> = S extends never
     ? void
