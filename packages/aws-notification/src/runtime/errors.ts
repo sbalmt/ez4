@@ -1,6 +1,6 @@
 export class MalformedMessageError extends Error {
   constructor(public details: string[]) {
-    super(`Malformed topic message body.`);
+    super('Malformed topic message body.');
   }
 }
 

@@ -59,6 +59,7 @@
     "@ez4/queue": "^0.18.0",
     "@ez4/schema": "^0.18.0",
     "@ez4/stateful": "^0.18.0",
+    "@ez4/transform": "^0.18.0",
     "@ez4/validator": "^0.18.0",
     "@ez4/utils": "^0.18.0"
   }
