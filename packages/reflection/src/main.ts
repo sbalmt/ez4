@@ -1,7 +1,7 @@
 import type { CompilerOptions, CompilerEvents } from './compiler.js';
 import type { ResolverOptions, ResolverEvents } from './resolver.js';
 
-import { createProgram } from 'typescript';
+import { createProgram, ModuleResolutionKind } from 'typescript';
 
 import { createCompilerHost, createCompilerOptions } from './compiler.js';
 import { getReflectionMetadata, getReflectionFiles } from './resolver.js';
@@ -50,8 +50,13 @@ export const reflectionFiles = (fileNames: string[], options?: CompilerOptions) 
 
   const program = createProgram({
     host: createCompilerHost(compilerOptions, options),
-    options: compilerOptions,
-    rootNames: fileNames
+    rootNames: fileNames,
+    options: {
+      ...compilerOptions,
+      moduleResolution: ModuleResolutionKind.Node16,
+      skipLibCheck: true,
+      noCheck: true
+    }
   });
 
   return getReflectionFiles(program);
