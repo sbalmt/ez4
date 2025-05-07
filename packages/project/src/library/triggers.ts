@@ -20,10 +20,7 @@ export const createTrigger = (identifier: string, trigger: Partial<Trigger>) => 
   allTriggers[identifier] = trigger;
 };
 
-export const triggerAllSync = <T extends keyof SyncEvent>(
-  event: T,
-  trigger: SyncEventTrigger<T>
-): SyncTriggerResult<T> | null => {
+export const triggerAllSync = <T extends keyof SyncEvent>(event: T, trigger: SyncEventTrigger<T>): SyncTriggerResult<T> | null => {
   for (const identifier in allTriggers) {
     const handler = (allTriggers[identifier] as SyncEvent)[event];
 
