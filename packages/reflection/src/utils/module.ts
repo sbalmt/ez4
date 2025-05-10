@@ -1,16 +1,14 @@
-import { ModuleResolutionKind, resolveModuleName, sys } from 'typescript';
+import { bundlerModuleNameResolver, createCompilerHost, getDefaultCompilerOptions, ModuleResolutionKind } from 'typescript';
 
 const defaultOptions = {
-  moduleResolution: ModuleResolutionKind.Node16
+  ...getDefaultCompilerOptions(),
+  moduleResolution: ModuleResolutionKind.Bundler
 };
 
-const defaultHost = {
-  fileExists: sys.fileExists,
-  readFile: sys.readFile
-};
+const compilerHost = createCompilerHost(defaultOptions);
 
 export const getModulePath = (moduleName: string, sourceFile: string) => {
-  const { resolvedModule } = resolveModuleName(moduleName, sourceFile, defaultOptions, defaultHost);
+  const { resolvedModule } = bundlerModuleNameResolver(moduleName, sourceFile, defaultOptions, compilerHost);
 
   return resolvedModule?.resolvedFileName;
 };
