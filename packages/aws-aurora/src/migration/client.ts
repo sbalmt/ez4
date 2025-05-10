@@ -8,16 +8,11 @@ import { Logger } from '@ez4/aws-common';
 import { PreparedQueryCommand } from '../client/common/queries.js';
 import { executeStatement, executeTransaction } from '../client/common/client.js';
 import { prepareCreateDatabase, prepareDeleteDatabase } from './common/database.js';
+import { prepareCreateColumns, prepareUpdateColumns, prepareDeleteColumns, prepareRenameColumns } from './common/columns.js';
 import { prepareCreateRelations, prepareDeleteRelations } from './common/relations.js';
 import { prepareCreateIndexes, prepareDeleteIndexes } from './common/indexes.js';
 import { prepareCreateTable, prepareDeleteTable } from './common/table.js';
 import { MigrationServiceName } from './types.js';
-
-import {
-  prepareCreateColumns,
-  prepareUpdateColumns,
-  prepareDeleteColumns
-} from './common/columns.js';
 
 const client = new RDSDataClient({});
 
@@ -32,7 +27,8 @@ export type CreateTableRequest = ConnectionRequest & {
 };
 
 export type UpdateTableRequest = ConnectionRequest & {
-  repository: Record<string, RepositoryUpdates>;
+  updates: Record<string, RepositoryUpdates>;
+  repository: Repository;
 };
 
 export type DeleteTableRequest = ConnectionRequest & {
@@ -45,6 +41,7 @@ export type RepositoryUpdates = {
     toCreate: Record<string, AnySchema>;
     toUpdate: Record<string, AnySchema>;
     toRemove: Record<string, AnySchema>;
+    toRename: Record<string, string>;
   };
   relations: {
     toCreate: RepositoryRelations;
@@ -91,19 +88,15 @@ export const createTables = async (request: CreateTableRequest): Promise<void> =
     const { name, schema, indexes, relations } = repository[table];
 
     tablesCommands.push({ sql: prepareCreateTable(name, schema, indexes) });
-    indexesCommands.push(...prepareCreateIndexes(name, indexes).map((sql) => ({ sql })));
+    indexesCommands.push(...prepareCreateIndexes(name, schema, indexes).map((sql) => ({ sql })));
     relationsCommands.push(...prepareCreateRelations(name, relations).map((sql) => ({ sql })));
   }
 
-  await executeTransaction(client, connection, [
-    ...tablesCommands,
-    ...indexesCommands,
-    ...relationsCommands
-  ]);
+  await executeTransaction(client, connection, [...tablesCommands, ...indexesCommands, ...relationsCommands]);
 };
 
 export const updateTables = async (request: UpdateTableRequest): Promise<void> => {
-  const { clusterArn, secretArn, database, repository } = request;
+  const { clusterArn, secretArn, database, repository, updates } = request;
 
   Logger.logUpdate(MigrationServiceName, `${database} tables`);
 
@@ -115,28 +108,31 @@ export const updateTables = async (request: UpdateTableRequest): Promise<void> =
 
   const commands: PreparedQueryCommand[] = [];
 
-  for (const table in repository) {
-    const { name, schema, indexes, relations } = repository[table];
+  for (const table in updates) {
+    const { schema: schemaUpdates, indexes: indexesUpdates, relations: relationUpdates, name } = updates[table];
+    const { schema: tableSchema, indexes: tableIndexes } = repository[table];
 
-    const removeRelations = prepareDeleteRelations(name, relations.toRemove);
-    const removeIndexes = prepareDeleteIndexes(name, indexes.toRemove);
-    const removeColumns = prepareDeleteColumns(name, schema.toRemove);
+    const createColumns = prepareCreateColumns(name, tableIndexes, schemaUpdates.toCreate);
+    const createIndexes = prepareCreateIndexes(name, tableSchema, indexesUpdates.toCreate);
+    const createRelations = prepareCreateRelations(name, relationUpdates.toCreate);
 
-    const updateColumns = prepareUpdateColumns(name, indexes.toCreate, schema.toUpdate);
+    const updateColumns = prepareUpdateColumns(name, tableIndexes, schemaUpdates.toUpdate);
+    const renameColumns = prepareRenameColumns(name, schemaUpdates.toRename);
 
-    const createColumns = prepareCreateColumns(name, indexes.toCreate, schema.toCreate);
-    const createIndexes = prepareCreateIndexes(name, indexes.toCreate);
-    const createRelations = prepareCreateRelations(name, relations.toCreate);
+    const removeRelations = prepareDeleteRelations(name, relationUpdates.toRemove);
+    const removeIndexes = prepareDeleteIndexes(name, indexesUpdates.toRemove);
+    const removeColumns = prepareDeleteColumns(name, schemaUpdates.toRemove);
 
     commands.push(
       ...[
-        ...removeRelations,
-        ...removeIndexes,
-        ...removeColumns,
-        ...updateColumns,
         ...createColumns,
         ...createIndexes,
-        ...createRelations
+        ...createRelations,
+        ...updateColumns,
+        ...renameColumns,
+        ...removeRelations,
+        ...removeIndexes,
+        ...removeColumns
       ].map((sql) => ({ sql }))
     );
   }

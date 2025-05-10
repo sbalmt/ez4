@@ -33,11 +33,7 @@ export const prepareCreateRelations = (table: string, relations: RepositoryRelat
   return statements;
 };
 
-export const prepareUpdateRelations = (
-  table: string,
-  toCreate: RepositoryRelations,
-  toRemove: RepositoryRelations
-) => {
+export const prepareUpdateRelations = (table: string, toCreate: RepositoryRelations, toRemove: RepositoryRelations) => {
   return [...prepareDeleteRelations(table, toRemove), ...prepareCreateRelations(table, toCreate)];
 };
 

@@ -138,7 +138,8 @@ const applyUpdateTables = async (connection: ConnectionRequest, comparison: Reco
       schema: {
         toCreate: {},
         toUpdate: {},
-        toRemove: {}
+        toRemove: {},
+        toRename: {}
       },
       relations: {
         toCreate: {},
@@ -166,6 +167,10 @@ const applyUpdateTables = async (connection: ConnectionRequest, comparison: Reco
       changes.schema.toRemove = targetColumns.remove;
     }
 
+    if (targetColumns?.rename) {
+      changes.schema.toRename = targetColumns.rename;
+    }
+
     // Relations
 
     if (relations?.create) {
@@ -188,8 +193,9 @@ const applyUpdateTables = async (connection: ConnectionRequest, comparison: Reco
   }
 
   await updateTables({
-    repository: updates,
-    ...connection
+    ...connection,
+    repository,
+    updates
   });
 };
 
