@@ -12,8 +12,9 @@ export * from './object/equal.js';
 export * from './object/clone.js';
 export * from './object/merge.js';
 
-export * from './boolean/any.js';
+export * from './boolean/check.js';
 export * from './number/check.js';
+export * from './string/check.js';
 
 export * from './format/uuid.js';
 export * from './format/email.js';
