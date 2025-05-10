@@ -23,6 +23,7 @@ export type ObjectCompareOptions<T extends AnyObject> = {
 export type ObjectComparison = {
   counts: number;
   nested?: Record<string, ObjectComparison>;
+  rename?: Record<string, string>;
   create?: AnyObject;
   update?: AnyObject;
   remove?: AnyObject;
@@ -55,14 +56,19 @@ export const deepCompareObject = <T extends AnyObject, S extends AnyObject>(
 
   const nested: Record<string, ObjectComparison> = {};
 
-  const create: AnyObject = {};
-  const update: AnyObject = {};
-  const remove: AnyObject = {};
+  const toCreateKeys = [];
+  const toRemoveKeys = [];
+
+  const toRename: AnyObject = {};
+  const toCreate: AnyObject = {};
+  const toUpdate: AnyObject = {};
+  const toRemove: AnyObject = {};
 
   const counts = {
     create: 0,
     update: 0,
     remove: 0,
+    rename: 0,
     nested: 0
   };
 
@@ -83,14 +89,44 @@ export const deepCompareObject = <T extends AnyObject, S extends AnyObject>(
     }
 
     if (targetValue !== undefined && sourceValue === undefined) {
-      create[key] = targetValue;
+      toCreateKeys.push(key);
+
+      const removeKey = getSimilarKeyName(key, toRemoveKeys);
+
+      if (removeKey) {
+        delete toRemove[removeKey];
+        counts.remove--;
+
+        toRename[removeKey] = key;
+        counts.rename++;
+
+        continue;
+      }
+
+      toCreate[key] = targetValue;
       counts.create++;
+
       continue;
     }
 
     if (targetValue === undefined && sourceValue !== undefined) {
-      remove[key] = sourceValue;
+      toRemoveKeys.push(key);
+
+      const createKey = getSimilarKeyName(key, toCreateKeys);
+
+      if (createKey) {
+        delete toCreate[createKey];
+        counts.create--;
+
+        toRename[key] = createKey;
+        counts.rename++;
+
+        continue;
+      }
+
+      toRemove[key] = sourceValue;
       counts.remove++;
+
       continue;
     }
 
@@ -99,7 +135,7 @@ export const deepCompareObject = <T extends AnyObject, S extends AnyObject>(
         const changes = deepCompareArray(targetValue, sourceValue);
 
         if (changes.counts > 0) {
-          update[key] = changes;
+          toUpdate[key] = changes;
           counts.update++;
         }
 
@@ -121,16 +157,29 @@ export const deepCompareObject = <T extends AnyObject, S extends AnyObject>(
       }
     }
 
-    update[key] = targetValue;
+    toUpdate[key] = targetValue;
 
     counts.update++;
   }
 
   return {
-    counts: counts.create + counts.remove + counts.update + counts.nested,
-    ...(counts.nested && { nested }),
-    ...(counts.create && { create }),
-    ...(counts.remove && { remove }),
-    ...(counts.update && { update })
+    counts: counts.create + counts.update + counts.remove + counts.rename + counts.nested,
+    ...(counts.create && { create: toCreate }),
+    ...(counts.update && { update: toUpdate }),
+    ...(counts.remove && { remove: toRemove }),
+    ...(counts.rename && { rename: toRename }),
+    ...(counts.nested && { nested })
   };
+};
+
+/**
+ * Find a similar key `name` from the given `keys` list.
+ *
+ * @param name Key name
+ * @param keys Keys list.
+ *
+ * @returns Returns the similar key name or undefined.
+ */
+const getSimilarKeyName = (name: string, keys: string[]) => {
+  return keys.find((key) => key.includes(name) || name.includes(key));
 };

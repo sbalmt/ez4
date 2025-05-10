@@ -103,4 +103,23 @@ describe('object comparison utils', () => {
       counts: 0
     });
   });
+
+  it('assert :: deep compare (rename)', () => {
+    const source = {
+      level: 1,
+      first_old: {
+        level: 2,
+        second_old: 'value'
+      }
+    };
+
+    const changes = deepCompare(target, source);
+
+    deepEqual(changes, {
+      counts: 1,
+      rename: {
+        first_old: 'first'
+      }
+    });
+  });
 });
