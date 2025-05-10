@@ -17,6 +17,7 @@ export * from './number/check.js';
 
 export * from './format/uuid.js';
 export * from './format/email.js';
+export * from './format/base64.js';
 export * from './format/date.js';
 
 export * from './common/generics.js';

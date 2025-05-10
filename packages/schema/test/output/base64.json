@@ -1,0 +1,13 @@
+{
+  "type": "object",
+  "description": "String type enriched with base64 format.",
+  "identity": 1,
+  "properties": {
+    "test": {
+      "type": "string",
+      "description": "String following a base64 format.",
+      "format": "base64",
+      "definitions": {}
+    }
+  }
+}

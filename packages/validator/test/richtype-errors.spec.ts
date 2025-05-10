@@ -3,13 +3,14 @@ import type { AnySchema } from '@ez4/schema';
 import { describe, it } from 'node:test';
 
 import {
-  ExpectedDateTimeTypeError,
-  ExpectedDateTypeError,
-  ExpectedEmailTypeError,
   ExpectedIntegerTypeError,
   ExpectedRegexTypeError,
-  ExpectedTimeTypeError,
   ExpectedUUIDTypeError,
+  ExpectedEmailTypeError,
+  ExpectedTimeTypeError,
+  ExpectedDateTypeError,
+  ExpectedDateTimeTypeError,
+  ExpectedBase64TypeError,
   UnexpectedMaxLengthError,
   UnexpectedMaxRangeError,
   UnexpectedMaxItemsError,
@@ -155,6 +156,15 @@ describe('rich type validation errors', () => {
     };
 
     await assertError('abc', schema, [ExpectedDateTimeTypeError]);
+  });
+
+  it('assert :: string (base64) errors', async () => {
+    const schema: AnySchema = {
+      type: SchemaType.String,
+      format: 'base64'
+    };
+
+    await assertError('ad2ae==', schema, [ExpectedBase64TypeError]);
   });
 
   it('assert :: array errors', async () => {

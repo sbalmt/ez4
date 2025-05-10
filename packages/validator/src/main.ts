@@ -24,6 +24,7 @@ export * from './formats/email.js';
 export * from './formats/date.js';
 export * from './formats/time.js';
 export * from './formats/date-time.js';
+export * from './formats/base64.js';
 
 export * from './errors/common.js';
 export * from './errors/boolean.js';
@@ -39,3 +40,4 @@ export * from './errors/email.js';
 export * from './errors/date.js';
 export * from './errors/time.js';
 export * from './errors/date-time.js';
+export * from './errors/base64.js';

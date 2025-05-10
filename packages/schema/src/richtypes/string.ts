@@ -30,6 +30,16 @@ export namespace String {
   export type Regex<_Pattern extends string, _Name extends string> = string;
 
   /**
+   * String following the UUID format.
+   */
+  export type UUID = string;
+
+  /**
+   * String following the email format.
+   */
+  export type Email = string;
+
+  /**
    * String following the time format.
    */
   export type Time = string;
@@ -50,12 +60,7 @@ export namespace String {
   export type Duration = string;
 
   /**
-   * String following the email format.
+   * String following the base64 format.
    */
-  export type Email = string;
-
-  /**
-   * String following the UUID format.
-   */
-  export type UUID = string;
+  export type Base64 = string;
 }
