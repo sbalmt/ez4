@@ -17,6 +17,7 @@ import {
   UnexpectedMinLengthError,
   UnexpectedMinRangeError,
   UnexpectedMinItemsError,
+  UnexpectedBooleanError,
   UnexpectedNumberError,
   UnexpectedStringError
 } from '@ez4/validator';
@@ -66,6 +67,17 @@ describe('rich type validation errors', () => {
 
     await assertError('', schema, [UnexpectedMinLengthError]);
     await assertError('abcd', schema, [UnexpectedMaxLengthError]);
+  });
+
+  it('assert :: boolean (literal) errors', async () => {
+    const schema: AnySchema = {
+      type: SchemaType.Boolean,
+      definitions: {
+        value: true
+      }
+    };
+
+    await assertError(false, schema, [UnexpectedBooleanError]);
   });
 
   it('assert :: decimal (literal) errors', async () => {

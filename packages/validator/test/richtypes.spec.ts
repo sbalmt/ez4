@@ -45,6 +45,17 @@ describe('rich types validation', () => {
     equal((await validate('test', schema)).length, 0);
   });
 
+  it('assert :: boolean (literal)', async () => {
+    const schema: AnySchema = {
+      type: SchemaType.Boolean,
+      definitions: {
+        value: false
+      }
+    };
+
+    equal((await validate(false, schema)).length, 0);
+  });
+
   it('assert :: decimal (literal)', async () => {
     const schema: AnySchema = {
       type: SchemaType.Number,

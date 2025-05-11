@@ -18,7 +18,8 @@ import {
   UnexpectedMinLengthError,
   UnexpectedMinRangeError,
   UnexpectedNumberError,
-  UnexpectedStringError
+  UnexpectedStringError,
+  UnexpectedBooleanError
 } from '@ez4/validator';
 
 type ErrorTypes =
@@ -35,6 +36,7 @@ type ErrorTypes =
   | typeof UnexpectedMaxRangeError
   | typeof UnexpectedMinLengthError
   | typeof UnexpectedMinRangeError
+  | typeof UnexpectedBooleanError
   | typeof UnexpectedNumberError
   | typeof UnexpectedStringError;
 
