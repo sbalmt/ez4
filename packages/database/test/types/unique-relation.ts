@@ -1,6 +1,8 @@
 import type { Client, Database, Index, ParametersType, TransactionType } from '@ez4/database';
 import type { Environment, Service } from '@ez4/common';
 
+import { Order } from '@ez4/database';
+
 declare class TestTableA implements Database.Schema {
   id: string;
   value_a: number;
@@ -70,7 +72,12 @@ const testSelect = async (client: TestDatabase['client']) => {
       relation_b: {
         where: {
           value_b: 2
-        }
+        },
+        order: {
+          value_b: Order.Asc
+        },
+        skip: 0,
+        take: 1
       }
     },
     where: {

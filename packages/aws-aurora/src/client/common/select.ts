@@ -96,13 +96,16 @@ export const getSelectFields = <T extends Database.Schema, S extends AnyObject, 
         throw new InvalidRelationFieldError(fieldPath);
       }
 
-      const relationFilters = include && include[fieldKey]?.where;
+      const relationIncludes = include && include[fieldKey];
 
       const relationQuery = sql
         .select(sourceSchema)
         .from(sourceTable)
+        .order(relationIncludes?.order)
+        .skip(relationIncludes?.skip)
+        .take(relationIncludes?.take)
         .where({
-          ...relationFilters,
+          ...relationIncludes?.where,
           [sourceColumn]: source.reference(targetColumn)
         });
 

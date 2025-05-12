@@ -5,7 +5,7 @@ import { describe, it } from 'node:test';
 
 import { prepareSelectQuery } from '@ez4/aws-aurora/client';
 import { ObjectSchema, SchemaType } from '@ez4/schema';
-import { Index } from '@ez4/database';
+import { Index, Order } from '@ez4/database';
 
 import { makeParameter } from './common/parameters.js';
 
@@ -41,7 +41,7 @@ type TestIndexes = {
   relation2_id: Index.Secondary;
 };
 
-describe('aurora query (select relations)', () => {
+describe.only('aurora query (select relations)', () => {
   const testSchema: ObjectSchema = {
     type: SchemaType.Object,
     properties: {
@@ -235,7 +235,7 @@ describe('aurora query (select relations)', () => {
     assert.deepEqual(variables, [makeParameter('0', '00000000-0000-1000-9000-000000000000', 'UUID')]);
   });
 
-  it('assert :: prepare select relations (with includes)', ({ assert }) => {
+  it.only('assert :: prepare select relations (with includes)', ({ assert }) => {
     const [statement, variables] = prepareSelect({
       select: {
         id: true,
@@ -251,7 +251,12 @@ describe('aurora query (select relations)', () => {
       },
       include: {
         primary_to_secondary: {
-          where: {}
+          where: {},
+          order: {
+            foo: Order.Desc
+          },
+          skip: 1,
+          take: 5
         },
         unique_to_primary: {},
         secondary_to_primary: {
@@ -269,12 +274,14 @@ describe('aurora query (select relations)', () => {
       statement,
       `SELECT "R"."id", ` +
         // First relation
-        `(SELECT json_build_object('foo', "T"."foo") FROM "ez4-test-relation" AS "T" WHERE "T"."id" = "R"."relation1_id") AS "primary_to_secondary", ` +
+        `(SELECT json_build_object('foo', "T"."foo") FROM "ez4-test-relation" AS "T" ` +
+        `WHERE "T"."id" = "R"."relation1_id" ORDER BY "foo" DESC OFFSET 1 LIMIT 5) AS "primary_to_secondary", ` +
         // Second relation
-        `(SELECT json_build_object('foo', "T"."foo") FROM "ez4-test-relation" AS "T" WHERE "T"."relation2_id" = "R"."id") AS "unique_to_primary", ` +
+        `(SELECT json_build_object('foo', "T"."foo") FROM "ez4-test-relation" AS "T" ` +
+        `WHERE "T"."relation2_id" = "R"."id") AS "unique_to_primary", ` +
         // Third relation
-        `(SELECT COALESCE(json_agg(json_build_object('foo', "T"."foo")), '[]'::json) ` +
-        `FROM "ez4-test-relation" AS "T" WHERE "T"."foo" = :0 AND "T"."relation1_id" = "R"."id") AS "secondary_to_primary" ` +
+        `(SELECT COALESCE(json_agg(json_build_object('foo', "T"."foo")), '[]'::json) FROM "ez4-test-relation" AS "T" ` +
+        `WHERE "T"."foo" = :0 AND "T"."relation1_id" = "R"."id") AS "secondary_to_primary" ` +
         //
         `FROM "ez4-test-select-relations" AS "R" ` +
         `WHERE "R"."id" = :1`

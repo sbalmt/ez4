@@ -150,7 +150,14 @@ export namespace Query {
 
   export type StrictIncludeInput<S extends AnyObject, R extends RelationMetadata> =
     IsObjectEmpty<R['filters']> extends false
-      ? { [P in keyof IncludeFilters<R['filters'], S>]: { where?: IncludeFilters<R['filters'], S>[P] } }
+      ? {
+          [P in keyof IncludeFilters<R['filters'], S>]: {
+            where?: IncludeFilters<R['filters'], S>[P];
+            order?: OrderInput<{}>;
+            skip?: number;
+            take?: number;
+          };
+        }
       : never;
 
   export type OrderInput<I extends Database.Indexes> = {
