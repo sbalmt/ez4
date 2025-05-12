@@ -250,10 +250,14 @@ describe('aurora query (select relations)', () => {
         }
       },
       include: {
-        primary_to_secondary: {},
-        unique_to_primary: null,
+        primary_to_secondary: {
+          where: {}
+        },
+        unique_to_primary: {},
         secondary_to_primary: {
-          foo: 123
+          where: {
+            foo: 123
+          }
         }
       },
       where: {

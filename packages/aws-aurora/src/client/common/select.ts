@@ -65,7 +65,7 @@ export const prepareSelectQuery = <
 export const getSelectFields = <T extends Database.Schema, S extends AnyObject, R extends RelationMetadata>(
   sql: SqlBuilder,
   fields: Query.StrictSelectInput<T, S, R>,
-  include: SqlFilters | undefined | null,
+  include: Query.StrictIncludeInput<S, R> | undefined | null,
   schema: ObjectSchema,
   relations: RepositoryRelationsWithSchema,
   source: SqlSource,
@@ -96,7 +96,7 @@ export const getSelectFields = <T extends Database.Schema, S extends AnyObject, 
         throw new InvalidRelationFieldError(fieldPath);
       }
 
-      const relationFilters = include && include[fieldKey];
+      const relationFilters = include && include[fieldKey]?.where;
 
       const relationQuery = sql
         .select(sourceSchema)
@@ -106,7 +106,7 @@ export const getSelectFields = <T extends Database.Schema, S extends AnyObject, 
           [sourceColumn]: source.reference(targetColumn)
         });
 
-      const record = getSelectFields(sql, relationFields, relationFilters, sourceSchema, relations, relationQuery, fieldPath, true);
+      const record = getSelectFields(sql, relationFields, null, sourceSchema, relations, relationQuery, fieldPath, true);
 
       if (sourceIndex === Index.Primary || sourceIndex === Index.Unique) {
         relationQuery.objectColumn(record);

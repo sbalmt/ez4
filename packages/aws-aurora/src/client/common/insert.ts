@@ -362,7 +362,7 @@ const getInsertSelectFields = <T extends Database.Schema, S extends AnyObject, R
 
         relationQuery.from(sourceTable).where(relationFilter);
 
-        const relationRecord = getSelectFields(sql, relationFields, {}, sourceSchema, relations, relationQuery, fieldPath, true);
+        const relationRecord = getSelectFields(sql, relationFields, null, sourceSchema, relations, relationQuery, fieldPath, true);
 
         if (sourceIndex === Index.Primary || sourceIndex === Index.Unique) {
           relationQuery.objectColumn(relationRecord);

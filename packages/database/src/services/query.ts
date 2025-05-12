@@ -149,7 +149,9 @@ export namespace Query {
   >;
 
   export type StrictIncludeInput<S extends AnyObject, R extends RelationMetadata> =
-    IsObjectEmpty<R['filters']> extends true ? never : IncludeFilters<R['filters'], S>;
+    IsObjectEmpty<R['filters']> extends false
+      ? { [P in keyof IncludeFilters<R['filters'], S>]: { where?: IncludeFilters<R['filters'], S>[P] } }
+      : never;
 
   export type OrderInput<I extends Database.Indexes> = {
     [P in DecomposeIndexName<keyof I>]?: Order;
