@@ -1,7 +1,6 @@
+import type { ArraySchema, ObjectSchema, ScalarSchema, UnionSchema } from '@ez4/schema';
 import type { LinkedVariables } from '@ez4/project/library';
 import type { ServiceListener } from '@ez4/common/library';
-
-import type { BooleanSchema, NumberSchema, ObjectSchema, StringSchema, UnionSchema } from '@ez4/schema';
 
 export type HttpVerb = 'ANY' | 'GET' | 'POST' | 'PUT' | 'PATCH' | 'DELETE' | 'OPTIONS';
 
@@ -22,13 +21,13 @@ export type HttpRequest = {
   identity?: ObjectSchema | UnionSchema | null;
   parameters?: ObjectSchema | null;
   query?: ObjectSchema | null;
-  body?: ObjectSchema | UnionSchema | null;
+  body?: ObjectSchema | UnionSchema | ArraySchema | null;
 };
 
 export type HttpResponse = {
   status: number;
   headers?: ObjectSchema | null;
-  body?: ObjectSchema | UnionSchema | NumberSchema | StringSchema | BooleanSchema | null;
+  body?: ObjectSchema | UnionSchema | ArraySchema | ScalarSchema | null;
 };
 
 export type HttpHandler = {

@@ -1,68 +1,40 @@
 import type { AllType, SourceMap, TypeModel, TypeObject } from '@ez4/reflection';
-import type { AnySchema, ObjectSchema, UnionSchema } from '@ez4/schema/library';
+import type { AnySchema, ArraySchema, ObjectSchema, UnionSchema } from '@ez4/schema/library';
 
+import { isTypeArray, isTypeObject, isTypeReference, isTypeScalar, isTypeUndefined, isTypeUnion } from '@ez4/reflection';
+import { isObjectSchema, createUnionSchema, getObjectSchema, getScalarSchema, createArraySchema } from '@ez4/schema/library';
 import { getReferenceType, isModelDeclaration } from '@ez4/common/library';
-
-import {
-  isObjectSchema,
-  createUnionSchema,
-  getObjectSchema,
-  getScalarSchema
-} from '@ez4/schema/library';
-
-import {
-  isTypeObject,
-  isTypeReference,
-  isTypeScalar,
-  isTypeUndefined,
-  isTypeUnion
-} from '@ez4/reflection';
 
 import { IncorrectBodyTypeError, InvalidBodyTypeError } from '../errors/body.js';
 import { isJsonBody } from './utils.js';
 
 type TypeParent = TypeObject | TypeModel;
 
-export const getHttpRequestBody = (
-  type: AllType,
-  parent: TypeParent,
-  reflection: SourceMap,
-  errorList: Error[]
-) => {
-  return getHttpBody(type, parent, reflection, (type, parent) => {
-    return getCompoundTypeBody(type, parent, reflection, errorList);
+export const getHttpRequestBody = (type: AllType, parent: TypeParent, reflection: SourceMap, errorList: Error[]) => {
+  return getHttpBody(type, reflection, (currentType) => {
+    return getCompoundTypeBody(currentType, parent, reflection, errorList);
   });
 };
 
-export const getHttpResponseBody = (
-  type: AllType,
-  parent: TypeParent,
-  reflection: SourceMap,
-  errorList: Error[]
-) => {
-  return getHttpBody(type, parent, reflection, (type, parent) => {
-    return getScalarTypeBody(type) ?? getCompoundTypeBody(type, parent, reflection, errorList);
+export const getHttpResponseBody = (type: AllType, parent: TypeParent, reflection: SourceMap, errorList: Error[]) => {
+  return getHttpBody(type, reflection, (currentType) => {
+    return getScalarTypeBody(currentType) ?? getCompoundTypeBody(currentType, parent, reflection, errorList);
   });
 };
 
-const getHttpBody = <T>(
-  type: AllType,
-  parent: TypeParent,
-  reflection: SourceMap,
-  resolver: (type: AllType, parent: TypeParent) => T | null
-) => {
+const getHttpBody = <T>(type: AllType, reflection: SourceMap, resolver: (type: AllType) => T | null) => {
   if (isTypeUndefined(type)) {
     return null;
   }
 
   if (!isTypeReference(type)) {
-    return resolver(type, parent);
+    return resolver(type);
   }
 
   const statement = getReferenceType(type, reflection);
 
   if (statement) {
-    return resolver(statement, parent);
+    return resolver(statement);
   }
 
   return null;
@@ -81,10 +53,16 @@ const getCompoundTypeBody = (
   parent: TypeParent,
   reflection: SourceMap,
   errorList: Error[]
-): ObjectSchema | UnionSchema | null => {
+): ObjectSchema | UnionSchema | ArraySchema | null => {
   if (isTypeUnion(type)) {
-    return getUnionTypeBody(type.elements, parent, reflection, (type, parent) => {
-      return getScalarTypeBody(type) ?? getCompoundTypeBody(type, parent, reflection, errorList);
+    return getUnionTypeBody(type.elements, reflection, (currentType) => {
+      return getScalarTypeBody(currentType) ?? getCompoundTypeBody(currentType, parent, reflection, errorList);
+    });
+  }
+
+  if (isTypeArray(type)) {
+    return getArrayTypeBody(type.element, reflection, (currentType) => {
+      return getScalarTypeBody(currentType) ?? getCompoundTypeBody(currentType, parent, reflection, errorList);
     });
   }
 
@@ -105,16 +83,11 @@ const getCompoundTypeBody = (
   return getBodySchema(type, reflection);
 };
 
-const getUnionTypeBody = (
-  types: AllType[],
-  parent: TypeParent,
-  reflection: SourceMap,
-  resolver: (type: AllType, parent: TypeParent) => AnySchema | null
-) => {
+const getUnionTypeBody = (types: AllType[], reflection: SourceMap, resolver: (type: AllType) => AnySchema | null) => {
   const schemaList = [];
 
   for (const type of types) {
-    const schema = getHttpBody(type, parent, reflection, resolver);
+    const schema = getHttpBody(type, reflection, resolver);
 
     if (schema) {
       schemaList.push(schema);
@@ -128,6 +101,18 @@ const getUnionTypeBody = (
   return createUnionSchema({
     elements: schemaList
   });
+};
+
+const getArrayTypeBody = (type: AllType, reflection: SourceMap, resolver: (type: AllType) => AnySchema | null) => {
+  const schema = getHttpBody(type, reflection, resolver);
+
+  if (schema) {
+    return createArraySchema({
+      element: schema
+    });
+  }
+
+  return null;
 };
 
 const getBodySchema = (type: TypeObject | TypeModel, reflection: SourceMap) => {
