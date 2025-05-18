@@ -50,7 +50,11 @@ export const executeStatement = async (
 ): Promise<AnyObject[]> => {
   try {
     if (debug) {
-      console.debug({ label: `[PgSQL/${getDebugTransactionId(transactionId)}]:`, sql: command.sql });
+      console.debug({
+        query: command.sql,
+        transaction: getDebugTransactionId(transactionId),
+        type: 'PgSQL'
+      });
     }
 
     const { formattedRecords } = await client.send(
@@ -70,7 +74,11 @@ export const executeStatement = async (
       return JSON.parse(formattedRecords);
     }
   } catch (error) {
-    console.error({ label: `[PgSQL/${getDebugTransactionId(transactionId)}]:`, sql: command.sql });
+    console.error({
+      query: command.sql,
+      transaction: getDebugTransactionId(transactionId),
+      type: 'PgSQL'
+    });
 
     throw error;
   }
@@ -118,5 +126,5 @@ export const executeTransaction = async (
 };
 
 const getDebugTransactionId = (transactionId: string | undefined) => {
-  return transactionId?.substring(0, 4) ?? '-';
+  return transactionId?.substring(0, 8) ?? '-';
 };
