@@ -19,6 +19,7 @@ export const prepareExecutionPolicy = (event: PolicyResourceEvent) => {
   return (
     tryGetPolicy(state, policyName) ??
     createPolicy(state, {
+      tags: options.tags,
       policyDocument: getPolicyDocument(policyPrefix),
       policyName
     })

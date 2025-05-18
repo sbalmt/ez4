@@ -36,6 +36,7 @@ export const prepareHttpServices = (event: PrepareResourceEvent) => {
 
   const gatewayState = createGateway(state, {
     gatewayName: displayName ?? name,
+    tags: options.tags,
     gatewayId,
     description,
     ...(cors && {
