@@ -26,7 +26,8 @@ export const prepareExecutionRole = async (event: RoleResourceEvent) => {
   if (grants.length > 0) {
     const policyResource = createPolicy(state, {
       policyName: `${namePrefix}-policy`,
-      policyDocument: createPolicyDocument(grants)
+      policyDocument: createPolicyDocument(grants),
+      tags: options.tags
     });
 
     policyList.push(policyResource);
@@ -34,6 +35,7 @@ export const prepareExecutionRole = async (event: RoleResourceEvent) => {
 
   return createRole(state, policyList, {
     roleName: `${namePrefix}-role`,
+    tags: options.tags,
     roleDocument: createRoleDocument(
       {
         permissions: ['sts:AssumeRole'],

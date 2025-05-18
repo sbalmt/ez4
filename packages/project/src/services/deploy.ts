@@ -26,7 +26,8 @@ export const deploy = async (project: ProjectOptions) => {
     projectName: toKebabCase(project.projectName),
     imports: await loadImports(project),
     variables: project.variables,
-    debug: project.debugMode
+    debug: project.debugMode,
+    tags: project.tags
   };
 
   const stateFile = project.stateFile;

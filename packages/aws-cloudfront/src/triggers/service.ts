@@ -37,7 +37,8 @@ export const prepareCdnServices = async (event: PrepareResourceEvent) => {
 
   if (certificate) {
     certificateState = createCertificate(state, {
-      domainName: certificate.domain
+      domainName: certificate.domain,
+      tags: options.tags
     });
   }
 
@@ -58,6 +59,7 @@ export const prepareCdnServices = async (event: PrepareResourceEvent) => {
     compress: defaultCache?.compress ?? true,
     enabled: !service.disabled,
     aliases: service.aliases,
+    tags: options.tags,
     distributionName,
     description,
     customErrors,

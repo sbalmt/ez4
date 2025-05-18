@@ -52,6 +52,11 @@ export type ProjectOptions = {
    * Variables associated to all services.
    */
   variables?: LinkedVariables;
+
+  /**
+   * Tags associated to all services.
+   */
+  tags?: Record<string, string>;
 };
 
 /**

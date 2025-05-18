@@ -8,5 +8,6 @@ export type StateOptions = {
 export type DeployOptions = StateOptions & {
   imports?: Record<string, DeployOptions>;
   variables?: LinkedVariables;
+  tags?: Record<string, string>;
   debug?: boolean;
 };

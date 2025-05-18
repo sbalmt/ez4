@@ -35,7 +35,8 @@ export const prepareEvents = (state: EntryStates, service: BucketService, option
 
   const logGroupState = createLogGroup(state, {
     retention: retention ?? Defaults.LogRetention,
-    groupName: eventName
+    groupName: eventName,
+    tags: options.tags
   });
 
   handlerState = createBucketEventFunction(state, context.role, logGroupState, {
@@ -45,6 +46,7 @@ export const prepareEvents = (state: EntryStates, service: BucketService, option
     memory: memory ?? Defaults.Memory,
     extras: service.extras,
     debug: options.debug,
+    tags: options.tags,
     variables: {
       ...options.variables,
       ...service.variables,

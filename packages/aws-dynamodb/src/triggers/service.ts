@@ -43,6 +43,7 @@ export const prepareDatabaseServices = async (event: PrepareResourceEvent) => {
     const tableState = createTable(state, {
       tableName: getTableName(service, table, options),
       enableStreams: !!table.stream,
+      tags: options.tags,
       attributeSchema,
       ttlAttribute
     });

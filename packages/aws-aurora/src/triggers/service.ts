@@ -26,12 +26,14 @@ export const prepareDatabaseServices = async (event: PrepareResourceEvent) => {
 
   const clusterState = createCluster(state, {
     clusterName: getClusterName(service, options),
+    tags: options.tags,
     enableInsights: true,
     enableHttp: true
   });
 
   const instanceState = createInstance(state, clusterState, {
-    instanceName: getInstanceName(service, options)
+    instanceName: getInstanceName(service, options),
+    tags: options.tags,
   });
 
   createMigration(state, clusterState, instanceState, {
