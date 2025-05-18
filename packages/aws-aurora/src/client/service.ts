@@ -154,24 +154,34 @@ const executeInteractiveTransaction = async (
   }
 };
 
-const getParametersFromList = (parameters: unknown[]) => {
-  return parameters.map((value, index) => {
-    return detectFieldData(`${index}`, value);
-  });
-};
-
-const getParametersFromMap = (parameters: Record<string, unknown>) => {
-  return Object.entries(parameters).map(([name, value]) => {
-    return detectFieldData(name, value);
-  });
-};
-
 const getParameters = <T extends Database.Service>(parameters: Parameters.Type<T>) => {
   if (Array.isArray(parameters)) {
     return getParametersFromList(parameters);
   }
 
   return getParametersFromMap(parameters);
+};
+
+const getParametersFromList = (parameters: unknown[]) => {
+  return parameters.map((value, index) => {
+    const field = index.toString();
+
+    return detectFieldData(field, value);
+  });
+};
+
+const getParametersFromMap = (parameters: Record<string, unknown>) => {
+  const parameterList = [];
+
+  for (const field in parameters) {
+    const value = parameters[field];
+
+    if (value !== undefined) {
+      parameterList.push(detectFieldData(field, value));
+    }
+  }
+
+  return parameterList;
 };
 
 const executeStaticTransaction = async <T extends Database.Service>(

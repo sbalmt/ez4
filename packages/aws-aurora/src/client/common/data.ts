@@ -5,6 +5,8 @@ import { TypeHint } from '@aws-sdk/client-rds-data';
 import { isDate, isDateTime, isTime, isUUID } from '@ez4/utils';
 import { SchemaType } from '@ez4/schema';
 
+import { UnsupportedFieldType } from '../errors.js';
+
 export const isSkippableData = (value: unknown) => {
   return value === undefined;
 };
@@ -82,7 +84,7 @@ export const detectFieldData = (name: string, value: unknown): SqlParameter => {
     }
 
     default:
-      throw new Error(`Field type isn't supported.`);
+      throw new UnsupportedFieldType(name, typeof value);
   }
 };
 
