@@ -6,7 +6,7 @@ import type { DatabaseEngine } from '../types/engine.js';
 import { InvalidServicePropertyError, getModelMembers, getObjectMembers, getPropertyString, getReferenceType } from '@ez4/common/library';
 import { isModelProperty, isTypeObject, isTypeReference } from '@ez4/reflection';
 
-import { ParametersType, TransactionType } from '../services/engine.js';
+import { Engine } from '../services/engine.js';
 import { IncompleteTableError } from '../errors/table.js';
 import { isDatabaseEngine } from './utils.js';
 
@@ -25,7 +25,7 @@ export const getDatabaseEngine = (type: AllType, parent: TypeModel, reflection: 
 };
 
 const isValidEngine = (type: Incomplete<DatabaseEngine>): type is DatabaseEngine => {
-  return !!type.name && !!type.transaction;
+  return !!type.name && !!type.parametersMode && !!type.transactionMode && !!type.orderMode;
 };
 
 const getTypeEngine = (type: AllType, parent: TypeModel, errorList: Error[]) => {
@@ -43,7 +43,7 @@ const getTypeEngine = (type: AllType, parent: TypeModel, errorList: Error[]) => 
 const getTypeFromMembers = (type: TypeObject | TypeModel, parent: TypeModel, members: MemberType[], errorList: Error[]) => {
   const engine: Incomplete<DatabaseEngine> = {};
 
-  const properties = new Set(['name', 'transaction', 'parameters']);
+  const properties = new Set(['name', 'parameters', 'transaction', 'order']);
 
   for (const member of members) {
     if (!isModelProperty(member) || member.inherited) {
@@ -61,14 +61,20 @@ const getTypeFromMembers = (type: TypeObject | TypeModel, parent: TypeModel, mem
         }
         break;
 
-      case 'transaction':
-        if ((engine.transaction = getTransactionType(member))) {
+      case 'parameters':
+        if ((engine.parametersMode = getParametersMode(member))) {
           properties.delete(member.name);
         }
         break;
 
-      case 'parameters':
-        if ((engine.parameters = getParametersType(member))) {
+      case 'transaction':
+        if ((engine.transactionMode = getTransactionMode(member))) {
+          properties.delete(member.name);
+        }
+        break;
+
+      case 'order':
+        if ((engine.orderMode = getOrderMode(member))) {
           properties.delete(member.name);
         }
         break;
@@ -83,24 +89,36 @@ const getTypeFromMembers = (type: TypeObject | TypeModel, parent: TypeModel, mem
   return engine;
 };
 
-const getTransactionType = (member: ModelProperty) => {
+const getParametersMode = (member: ModelProperty) => {
   const type = getPropertyString(member);
 
   switch (type) {
-    case TransactionType.Interactive:
-    case TransactionType.Static:
+    case Engine.ParametersMode.NameAndIndex:
+    case Engine.ParametersMode.OnlyIndex:
       return type;
   }
 
   return null;
 };
 
-const getParametersType = (member: ModelProperty) => {
+const getTransactionMode = (member: ModelProperty) => {
   const type = getPropertyString(member);
 
   switch (type) {
-    case ParametersType.NameAndIndex:
-    case ParametersType.OnlyIndex:
+    case Engine.TransactionMode.Interactive:
+    case Engine.TransactionMode.Static:
+      return type;
+  }
+
+  return null;
+};
+
+const getOrderMode = (member: ModelProperty) => {
+  const type = getPropertyString(member);
+
+  switch (type) {
+    case Engine.OrderMode.IndexColumns:
+    case Engine.OrderMode.AnyColumns:
       return type;
   }
 

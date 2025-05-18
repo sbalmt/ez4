@@ -149,16 +149,16 @@ export namespace Query {
   >;
 
   export type StrictIncludeInput<S extends AnyObject, R extends RelationMetadata> =
-    IsObjectEmpty<R['filters']> extends false
-      ? {
+    IsObjectEmpty<R['filters']> extends true
+      ? never
+      : {
           [P in keyof IncludeFilters<R['filters'], S>]: {
             where?: IncludeFilters<R['filters'], S>[P];
             order?: OrderInput<{}>;
             skip?: number;
             take?: number;
           };
-        }
-      : never;
+        };
 
   export type OrderInput<I extends Database.Indexes> = {
     [P in DecomposeIndexName<keyof I>]?: Order;

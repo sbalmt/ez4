@@ -1,7 +1,8 @@
-import type { ParametersType, TransactionType } from '../services/engine.js';
+import type { Engine } from '../services/engine.js';
 
 export type DatabaseEngine = {
-  transaction: TransactionType;
-  parameters: ParametersType;
+  parametersMode: Engine.ParametersMode;
+  transactionMode: Engine.TransactionMode;
+  orderMode: Engine.OrderMode;
   name: string;
 };

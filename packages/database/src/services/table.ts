@@ -3,6 +3,7 @@ import type { RelationMetadata, RelationTables } from './relations.js';
 import type { IndexedTables } from './indexes.js';
 import type { TableSchemas } from './schemas.js';
 import type { Database } from './database.js';
+import type { DatabaseEngine } from './engine.js';
 import type { Query } from './query.js';
 
 /**
@@ -23,14 +24,14 @@ export type TableRelation<P, T extends AnyObject> =
  */
 export type TableClients<T extends Database.Service> = {
   [P in keyof TableSchemas<T>]: TableSchemas<T>[P] extends Database.Schema
-    ? Table<TableSchemas<T>[P], TableIndex<P, IndexedTables<T>>, TableRelation<P, RelationTables<T>>>
+    ? Table<TableSchemas<T>[P], TableIndex<P, IndexedTables<T>>, TableRelation<P, RelationTables<T>>, T['engine']>
     : never;
 };
 
 /**
  * Table client.
  */
-export interface Table<T extends Database.Schema, I extends Database.Indexes, R extends RelationMetadata> {
+export interface Table<T extends Database.Schema, I extends Database.Indexes, R extends RelationMetadata, E extends DatabaseEngine> {
   /**
    * Insert one record into the database.
    *

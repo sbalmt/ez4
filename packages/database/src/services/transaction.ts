@@ -3,14 +3,14 @@ import type { AnyObject } from '@ez4/utils';
 import type { TableIndex, TableRelation } from './table.js';
 import type { RelationMetadata, RelationTables } from './relations.js';
 import type { IndexedTables } from './indexes.js';
-import type { TransactionType } from './engine.js';
+import type { Engine } from './engine.js';
 import type { TableSchemas } from './schemas.js';
 import type { Database } from './database.js';
 import type { Client } from './client.js';
 import type { Query } from './query.js';
 
 /**
- * Transaction builder types.
+ * Transaction utils.
  */
 export namespace Transaction {
   /**
@@ -22,7 +22,7 @@ export namespace Transaction {
    * Determines the transaction operation based on the given database service.
    */
   export type Type<T extends Database.Service, R> =
-    EngineTransactionType<T> extends TransactionType.Interactive
+    Engine.GetTransactionMode<T> extends Engine.TransactionMode.Interactive
       ? StaticOperationType<T> | InteractiveOperationType<T, R>
       : StaticOperationType<T>;
 
@@ -39,11 +39,6 @@ export namespace Transaction {
       ? AnyOperationType<TableSchemas<T>[P], TableIndex<P, IndexedTables<T>>, TableRelation<P, RelationTables<T>>>
       : AnyObject)[];
   };
-
-  /**
-   * Extract the transaction type from the given database service.
-   */
-  type EngineTransactionType<T extends Database.Service> = T['engine'] extends { transaction: infer O } ? O : never;
 
   type AnyOperationType<T extends Database.Schema, I extends Database.Indexes, R extends RelationMetadata> =
     | InsertOperationType<T, R>
