@@ -1,7 +1,7 @@
 import type { DecomposeIndexName, PrimaryIndexes, UniqueIndexes } from './indexes.js';
 import type { RelationMetadata } from './relations.js';
+import type { OrderUtils } from './order.js';
 import type { Database } from './database.js';
-import type { Order } from './order.js';
 
 import type {
   AnyObject,
@@ -25,30 +25,54 @@ export namespace Query {
     data: InsertDataInput<T, R>;
   };
 
-  export type UpdateOneInput<T extends Database.Schema, S extends AnyObject, I extends Database.Indexes, R extends RelationMetadata> = {
+  export type UpdateOneInput<
+    T extends Database.Schema,
+    S extends AnyObject,
+    I extends Database.Indexes,
+    R extends RelationMetadata,
+    E extends Database.Engine
+  > = {
     select?: StrictSelectInput<T, S, R>;
-    include?: StrictIncludeInput<S, R>;
+    include?: StrictIncludeInput<S, I, R, E>;
     data: OptionalObject<UpdateDataInput<T, R>>;
     where: WhereInput<T, I, R>;
   };
 
-  export type FindOneInput<T extends Database.Schema, S extends AnyObject, I extends Database.Indexes, R extends RelationMetadata> = {
+  export type FindOneInput<
+    T extends Database.Schema,
+    S extends AnyObject,
+    I extends Database.Indexes,
+    R extends RelationMetadata,
+    E extends Database.Engine
+  > = {
     select: StrictSelectInput<T, S, R>;
-    include?: StrictIncludeInput<S, R>;
+    include?: StrictIncludeInput<S, I, R, E>;
     where: WhereInput<T, I, R>;
   };
 
-  export type UpsertOneInput<T extends Database.Schema, S extends AnyObject, I extends Database.Indexes, R extends RelationMetadata> = {
+  export type UpsertOneInput<
+    T extends Database.Schema,
+    S extends AnyObject,
+    I extends Database.Indexes,
+    R extends RelationMetadata,
+    E extends Database.Engine
+  > = {
     select?: StrictSelectInput<T, S, R>;
-    include?: StrictIncludeInput<S, R>;
+    include?: StrictIncludeInput<S, I, R, E>;
     update: OptionalObject<UpdateDataInput<T, R>>;
     insert: InsertDataInput<T, R>;
     where: WhereInput<T, I, R>;
   };
 
-  export type DeleteOneInput<T extends Database.Schema, S extends AnyObject, I extends Database.Indexes, R extends RelationMetadata> = {
+  export type DeleteOneInput<
+    T extends Database.Schema,
+    S extends AnyObject,
+    I extends Database.Indexes,
+    R extends RelationMetadata,
+    E extends Database.Engine
+  > = {
     select?: StrictSelectInput<T, S, R>;
-    include?: StrictIncludeInput<S, R>;
+    include?: StrictIncludeInput<S, I, R, E>;
     where: WhereInput<T, I, R>;
   };
 
@@ -56,9 +80,15 @@ export namespace Query {
     data: T[];
   };
 
-  export type UpdateManyInput<T extends Database.Schema, S extends AnyObject, R extends RelationMetadata> = {
+  export type UpdateManyInput<
+    T extends Database.Schema,
+    S extends AnyObject,
+    I extends Database.Indexes,
+    R extends RelationMetadata,
+    E extends Database.Engine
+  > = {
     select?: StrictSelectInput<T, S, R>;
-    include?: StrictIncludeInput<S, R>;
+    include?: StrictIncludeInput<S, I, R, E>;
     data: OptionalObject<UpdateDataInput<T, R>>;
     where?: WhereInput<T, {}, R>;
     limit?: number;
@@ -69,20 +99,27 @@ export namespace Query {
     S extends AnyObject,
     I extends Database.Indexes,
     R extends RelationMetadata,
-    C extends boolean
+    C extends boolean,
+    E extends Database.Engine
   > = {
     count?: C;
     select: StrictSelectInput<T, S, R>;
-    include?: StrictIncludeInput<S, R>;
+    include?: StrictIncludeInput<S, I, R, E>;
     where?: WhereInput<T, {}, R>;
-    order?: OrderInput<I>;
+    order?: OrderUtils.Input<T, I, E>;
     cursor?: number | string;
     limit?: number;
   };
 
-  export type DeleteManyInput<T extends Database.Schema, S extends AnyObject, R extends RelationMetadata> = {
+  export type DeleteManyInput<
+    T extends Database.Schema,
+    S extends AnyObject,
+    I extends Database.Indexes,
+    R extends RelationMetadata,
+    E extends Database.Engine
+  > = {
     select?: StrictSelectInput<T, S, R>;
-    include?: StrictIncludeInput<S, R>;
+    include?: StrictIncludeInput<S, I, R, E>;
     where?: WhereInput<T, {}, R>;
     limit?: number;
   };
@@ -148,21 +185,17 @@ export namespace Query {
     Omit<IsObjectEmpty<R['changes']> extends true ? T : T & FlatObject<R['changes']>, IndexFields<R>>
   >;
 
-  export type StrictIncludeInput<S extends AnyObject, R extends RelationMetadata> =
+  export type StrictIncludeInput<S extends AnyObject, I extends Database.Indexes, R extends RelationMetadata, E extends Database.Engine> =
     IsObjectEmpty<R['filters']> extends true
       ? never
       : {
           [P in keyof IncludeFilters<R['filters'], S>]: {
             where?: IncludeFilters<R['filters'], S>[P];
-            order?: OrderInput<{}>;
+            order?: OrderUtils.Input<R['filters'][P], I, E>;
             skip?: number;
             take?: number;
           };
         };
-
-  export type OrderInput<I extends Database.Indexes> = {
-    [P in DecomposeIndexName<keyof I>]?: Order;
-  };
 
   export type WhereInput<T extends Database.Schema, I extends Database.Indexes, R extends RelationMetadata> = WhereInputFilters<T, I, R> & {
     NOT?: WhereInput<T, {}, R>;

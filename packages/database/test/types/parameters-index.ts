@@ -1,10 +1,11 @@
-import type { Client, Database, ParametersType, TransactionType } from '@ez4/database';
+import type { Client, Database, ParametersMode, TransactionMode, OrderMode } from '@ez4/database';
 import type { Environment, Service } from '@ez4/common';
 
 export declare class TestDatabase extends Database.Service {
   engine: {
-    parameters: ParametersType.OnlyIndex;
-    transaction: TransactionType.Static;
+    parametersMode: ParametersMode.OnlyIndex;
+    transactionMode: TransactionMode.Static;
+    orderMode: OrderMode.AnyColumns;
     name: 'test';
   };
 

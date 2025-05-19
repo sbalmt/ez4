@@ -44,28 +44,28 @@ export interface Table<T extends Database.Schema, I extends Database.Indexes, R 
    *
    * @param query Input query.
    */
-  findOne<S extends Query.SelectInput<T, R>>(query: Query.FindOneInput<T, S, I, R>): Promise<Query.FindOneResult<T, S, R>>;
+  findOne<S extends Query.SelectInput<T, R>>(query: Query.FindOneInput<T, S, I, R, E>): Promise<Query.FindOneResult<T, S, R>>;
 
   /**
    * Update one database record.
    *
    * @param query Input query.
    */
-  updateOne<S extends Query.SelectInput<T, R> = never>(query: Query.UpdateOneInput<T, S, I, R>): Promise<Query.UpdateOneResult<T, S, R>>;
+  updateOne<S extends Query.SelectInput<T, R> = never>(query: Query.UpdateOneInput<T, S, I, R, E>): Promise<Query.UpdateOneResult<T, S, R>>;
 
   /**
    * Try to insert a database record, and if it already exists, perform an update instead.
    *
    * @param query Input query.
    */
-  upsertOne<S extends Query.SelectInput<T, R> = never>(query: Query.UpsertOneInput<T, S, I, R>): Promise<Query.UpsertOneResult<T, S, R>>;
+  upsertOne<S extends Query.SelectInput<T, R> = never>(query: Query.UpsertOneInput<T, S, I, R, E>): Promise<Query.UpsertOneResult<T, S, R>>;
 
   /**
    * Delete one database record.
    *
    * @param query Input query.
    */
-  deleteOne<S extends Query.SelectInput<T, R> = never>(query: Query.DeleteOneInput<T, S, I, R>): Promise<Query.DeleteOneResult<T, S, R>>;
+  deleteOne<S extends Query.SelectInput<T, R> = never>(query: Query.DeleteOneInput<T, S, I, R, E>): Promise<Query.DeleteOneResult<T, S, R>>;
 
   /**
    * Insert multiple records into the database.
@@ -80,7 +80,7 @@ export interface Table<T extends Database.Schema, I extends Database.Indexes, R 
    * @param query Input query.
    */
   findMany<S extends Query.SelectInput<T, R>, C extends boolean = false>(
-    query: Query.FindManyInput<T, S, I, R, C>
+    query: Query.FindManyInput<T, S, I, R, C, E>
   ): Promise<Query.FindManyResult<T, S, R, C>>;
 
   /**
@@ -88,14 +88,18 @@ export interface Table<T extends Database.Schema, I extends Database.Indexes, R 
    *
    * @param query Input query.
    */
-  updateMany<S extends Query.SelectInput<T, R> = never>(query: Query.UpdateManyInput<T, S, R>): Promise<Query.UpdateManyResult<T, S, R>>;
+  updateMany<S extends Query.SelectInput<T, R> = never>(
+    query: Query.UpdateManyInput<T, S, I, R, E>
+  ): Promise<Query.UpdateManyResult<T, S, R>>;
 
   /**
    * Delete multiple database records.
    *
    * @param query Input query.
    */
-  deleteMany<S extends Query.SelectInput<T, R> = never>(query: Query.DeleteManyInput<T, S, R>): Promise<Query.DeleteManyResult<T, S, R>>;
+  deleteMany<S extends Query.SelectInput<T, R> = never>(
+    query: Query.DeleteManyInput<T, S, I, R, E>
+  ): Promise<Query.DeleteManyResult<T, S, R>>;
 
   /**
    * Count database records.

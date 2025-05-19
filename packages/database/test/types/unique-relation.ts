@@ -1,4 +1,4 @@
-import type { Client, Database, Index, ParametersType, TransactionType } from '@ez4/database';
+import type { Client, Database, Index, ParametersMode, TransactionMode, OrderMode } from '@ez4/database';
 import type { Environment, Service } from '@ez4/common';
 
 import { Order } from '@ez4/database';
@@ -16,8 +16,9 @@ declare class TestTableB implements Database.Schema {
 
 export declare class TestDatabase extends Database.Service {
   engine: {
-    parameters: ParametersType.OnlyIndex;
-    transaction: TransactionType.Static;
+    parametersMode: ParametersMode.OnlyIndex;
+    transactionMode: TransactionMode.Static;
+    orderMode: OrderMode.AnyColumns;
     name: 'test';
   };
 

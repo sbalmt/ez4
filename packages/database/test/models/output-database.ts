@@ -1,4 +1,4 @@
-import type { Database, ParametersType, TransactionType } from '@ez4/database';
+import type { Database, ParametersMode, TransactionMode, OrderMode } from '@ez4/database';
 import type { Environment } from '@ez4/common';
 
 /**
@@ -6,8 +6,9 @@ import type { Environment } from '@ez4/common';
  */
 export declare class TestDatabase1 extends Database.Service {
   engine: {
-    parameters: ParametersType.OnlyIndex;
-    transaction: TransactionType.Static;
+    parametersMode: ParametersMode.OnlyIndex;
+    transactionMode: TransactionMode.Static;
+    orderMode: OrderMode.AnyColumns;
     name: 'test';
   };
 
@@ -24,8 +25,9 @@ export declare class TestDatabase1 extends Database.Service {
  */
 export declare class TestDatabase2 extends Database.Service {
   engine: {
-    parameters: ParametersType.NameAndIndex;
-    transaction: TransactionType.Interactive;
+    parametersMode: ParametersMode.NameAndIndex;
+    transactionMode: TransactionMode.Interactive;
+    orderMode: OrderMode.AnyColumns;
     name: 'test';
   };
 

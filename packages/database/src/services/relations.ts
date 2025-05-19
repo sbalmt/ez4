@@ -8,9 +8,9 @@ import type { TableSchemas } from './schemas.js';
  */
 export type RelationMetadata = {
   indexes: string;
-  filters: Record<string, unknown>;
-  selects: Record<string, unknown>;
-  changes: Record<string, unknown>;
+  filters: Record<string, {}>;
+  selects: Record<string, {}>;
+  changes: Record<string, {}>;
 };
 
 /**

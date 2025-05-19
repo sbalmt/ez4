@@ -4,8 +4,9 @@
     "name": "TestDatabase",
     "extras": {},
     "engine": {
-      "parameters": "index",
-      "transaction": "static",
+      "parametersMode": "index",
+      "transactionMode": "static",
+      "orderMode": "any",
       "name": "test"
     },
     "tables": [
