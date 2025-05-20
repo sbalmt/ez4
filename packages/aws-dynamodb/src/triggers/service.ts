@@ -1,13 +1,20 @@
 import type { ConnectResourceEvent, PrepareResourceEvent, ServiceEvent } from '@ez4/project/library';
 
-import { TransactionMode } from '@ez4/database';
+import { OrderMode, ParametersMode, TransactionMode } from '@ez4/database';
 import { linkServiceExtras } from '@ez4/project/library';
 import { getFunctionState } from '@ez4/aws-function';
 import { isRoleState } from '@ez4/aws-identity';
 
+import {
+  RoleMissingError,
+  UnsupportedOrderModeError,
+  UnsupportedParametersModeError,
+  UnsupportedRelationError,
+  UnsupportedTransactionModeError
+} from './errors.js';
+
 import { createTable } from '../table/service.js';
 import { getInternalName, getTableName, isDynamoDbService } from './utils.js';
-import { RoleMissingError, UnsupportedRelationError, UnsupportedTransactionError } from './errors.js';
 import { prepareLinkedClient } from './client.js';
 import { getAttributeSchema } from './schema.js';
 import { prepareTableStream } from './stream.js';
@@ -29,8 +36,18 @@ export const prepareDatabaseServices = async (event: PrepareResourceEvent) => {
     return;
   }
 
-  if (service.engine.transactionMode === TransactionMode.Interactive) {
-    throw new UnsupportedTransactionError();
+  const { engine } = service;
+
+  if (engine.parametersMode === ParametersMode.NameAndIndex) {
+    throw new UnsupportedParametersModeError(engine.parametersMode);
+  }
+
+  if (engine.transactionMode === TransactionMode.Interactive) {
+    throw new UnsupportedTransactionModeError(engine.transactionMode);
+  }
+
+  if (engine.orderMode === OrderMode.AnyColumns) {
+    throw new UnsupportedOrderModeError(engine.orderMode);
   }
 
   for (const table of service.tables) {
