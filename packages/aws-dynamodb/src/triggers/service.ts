@@ -1,6 +1,6 @@
 import type { ConnectResourceEvent, PrepareResourceEvent, ServiceEvent } from '@ez4/project/library';
 
-import { TransactionType } from '@ez4/database';
+import { TransactionMode } from '@ez4/database';
 import { linkServiceExtras } from '@ez4/project/library';
 import { getFunctionState } from '@ez4/aws-function';
 import { isRoleState } from '@ez4/aws-identity';
@@ -29,7 +29,7 @@ export const prepareDatabaseServices = async (event: PrepareResourceEvent) => {
     return;
   }
 
-  if (service.engine.transaction === TransactionType.Interactive) {
+  if (service.engine.transactionMode === TransactionMode.Interactive) {
     throw new UnsupportedTransactionError();
   }
 

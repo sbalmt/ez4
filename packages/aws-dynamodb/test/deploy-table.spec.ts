@@ -1,24 +1,14 @@
 import type { EntryState, EntryStates } from '@ez4/stateful';
 
-import { describe, it } from 'node:test';
 import { ok, equal } from 'node:assert/strict';
+import { describe, it } from 'node:test';
 
 import { deploy } from '@ez4/aws-common';
 import { deepClone } from '@ez4/utils';
 
-import {
-  createTable,
-  isTableState,
-  AttributeType,
-  AttributeKeyType,
-  registerTriggers
-} from '@ez4/aws-dynamodb';
+import { createTable, isTableState, AttributeType, AttributeKeyType, registerTriggers } from '@ez4/aws-dynamodb';
 
-const assertDeploy = async <E extends EntryState>(
-  resourceId: string,
-  newState: EntryStates<E>,
-  oldState: EntryStates<E> | undefined
-) => {
+const assertDeploy = async <E extends EntryState>(resourceId: string, newState: EntryStates<E>, oldState: EntryStates<E> | undefined) => {
   const { result: state } = await deploy(newState, oldState);
 
   const resource = state[resourceId];

@@ -1,7 +1,7 @@
 import type { SqlSourceWithResults, SqlRecord, SqlBuilder, SqlSelectStatement, SqlUpdateStatement } from '@ez4/pgsql';
-import type { Database, RelationMetadata, Query } from '@ez4/database';
-import type { SqlParameter } from '@aws-sdk/client-rds-data';
 import type { NumberSchema, ObjectSchema } from '@ez4/schema';
+import type { SqlParameter } from '@aws-sdk/client-rds-data';
+import type { Query, TableMetadata } from '@ez4/database';
 import type { AnyObject } from '@ez4/utils';
 import type { RelationWithSchema, RepositoryRelationsWithSchema } from '../../types/repository.js';
 
@@ -16,16 +16,11 @@ import { validateFirstSchemaLevel } from './schema.js';
 import { createQueryBuilder } from './builder.js';
 import { isSkippableData } from './data.js';
 
-export const prepareUpdateQuery = async <
-  T extends Database.Schema,
-  S extends Query.SelectInput<T, R>,
-  I extends Database.Indexes,
-  R extends RelationMetadata
->(
+export const prepareUpdateQuery = async <T extends TableMetadata, S extends Query.SelectInput<T>>(
   table: string,
   schema: ObjectSchema,
   relations: RepositoryRelationsWithSchema,
-  query: Query.UpdateOneInput<T, S, I, R> | Query.UpdateManyInput<T, S, R>
+  query: Query.UpdateOneInput<S, T> | Query.UpdateManyInput<S, T>
 ): Promise<[string, SqlParameter[]]> => {
   const sql = createQueryBuilder();
 

@@ -1,4 +1,5 @@
-import type { Database, Query } from '@ez4/database';
+import type { Query, RelationMetadata } from '@ez4/database';
+import type { PostgresEngine } from '@ez4/aws-aurora/client';
 import type { ObjectSchema } from '@ez4/schema';
 
 import { describe, it } from 'node:test';
@@ -8,19 +9,19 @@ import { SchemaType } from '@ez4/schema';
 
 import { makeParameter } from './common/parameters.js';
 
-type TestRelations = {
-  indexes: never;
-  filters: {};
-  selects: {};
-  changes: {};
+type TestTableMetadata = {
+  engine: PostgresEngine;
+  relations: RelationMetadata;
+  indexes: {};
+  schema: {};
 };
 
 describe('aurora query (update schema)', () => {
-  const prepareUpdate = <T extends Database.Schema, S extends Query.SelectInput<T, TestRelations>>(
+  const prepareUpdate = <S extends Query.SelectInput<TestTableMetadata>>(
     schema: ObjectSchema,
-    query: Query.UpdateManyInput<T, S, TestRelations>
+    query: Query.UpdateManyInput<S, TestTableMetadata>
   ) => {
-    return prepareUpdateQuery<T, S, {}, TestRelations>('ez4-test-update-schema', schema, {}, query);
+    return prepareUpdateQuery<TestTableMetadata, S>('ez4-test-update-schema', schema, {}, query);
   };
 
   it('assert :: prepare update schema (scalar boolean)', async ({ assert }) => {

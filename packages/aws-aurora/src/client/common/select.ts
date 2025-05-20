@@ -1,7 +1,7 @@
 import type { SqlBuilder, SqlFilters, SqlJsonColumnSchema, SqlSource } from '@ez4/pgsql';
-import type { Database, RelationMetadata, Query } from '@ez4/database';
 import type { SqlParameter } from '@aws-sdk/client-rds-data';
 import type { AnySchema, ObjectSchema } from '@ez4/schema';
+import type { Query, TableMetadata } from '@ez4/database';
 import type { RepositoryRelationsWithSchema } from '../../types/repository.js';
 
 import { AnyObject, isAnyNumber, isAnyObject, isEmptyObject } from '@ez4/utils';
@@ -19,17 +19,11 @@ const FORMATS: Record<string, string> = {
   ['date']: `'YYYY-MM-DD'`
 };
 
-export const prepareSelectQuery = <
-  T extends Database.Schema,
-  S extends Query.SelectInput<T, R>,
-  I extends Database.Indexes,
-  R extends RelationMetadata,
-  C extends boolean
->(
+export const prepareSelectQuery = <T extends TableMetadata, S extends Query.SelectInput<T>, C extends boolean>(
   table: string,
   schema: ObjectSchema,
   relations: RepositoryRelationsWithSchema,
-  query: Query.FindOneInput<T, S, I, R> | Query.FindManyInput<T, S, I, R, C>
+  query: Query.FindOneInput<S, T> | Query.FindManyInput<S, T, C>
 ): [string, SqlParameter[]] => {
   const sql = createQueryBuilder();
 
@@ -62,10 +56,10 @@ export const prepareSelectQuery = <
   return [statement, variables as SqlParameter[]];
 };
 
-export const getSelectFields = <T extends Database.Schema, S extends AnyObject, R extends RelationMetadata>(
+export const getSelectFields = <T extends TableMetadata, S extends AnyObject>(
   sql: SqlBuilder,
-  fields: Query.StrictSelectInput<T, S, R>,
-  include: Query.StrictIncludeInput<S, R> | undefined | null,
+  fields: Query.StrictSelectInput<S, T>,
+  include: Query.StrictIncludeInput<S, T> | undefined | null,
   schema: ObjectSchema,
   relations: RepositoryRelationsWithSchema,
   source: SqlSource,

@@ -1,5 +1,5 @@
 import type { ExecuteStatementCommandInput } from '@aws-sdk/client-rds-data';
-import type { Database, RelationMetadata, Query } from '@ez4/database';
+import type { Query, TableMetadata } from '@ez4/database';
 import type { ObjectSchema } from '@ez4/schema';
 import type { RepositoryRelationsWithSchema } from '../../types/repository.js';
 
@@ -11,11 +11,11 @@ import { prepareCountQuery } from './count.js';
 
 export type PreparedQueryCommand = Pick<ExecuteStatementCommandInput, 'sql' | 'parameters'>;
 
-export const prepareInsertOne = async <T extends Database.Schema, S extends Query.SelectInput<T, R>, R extends RelationMetadata>(
+export const prepareInsertOne = async <T extends TableMetadata, S extends Query.SelectInput<T>>(
   table: string,
   schema: ObjectSchema,
   relations: RepositoryRelationsWithSchema,
-  query: Query.InsertOneInput<T, S, R>
+  query: Query.InsertOneInput<S, T>
 ): Promise<PreparedQueryCommand> => {
   const [statement, variables] = await prepareInsertQuery(table, schema, relations, query);
 
@@ -25,16 +25,11 @@ export const prepareInsertOne = async <T extends Database.Schema, S extends Quer
   };
 };
 
-export const prepareFindOne = <
-  T extends Database.Schema,
-  S extends Query.SelectInput<T, R>,
-  I extends Database.Indexes,
-  R extends RelationMetadata
->(
+export const prepareFindOne = <T extends TableMetadata, S extends Query.SelectInput<T>>(
   table: string,
   schema: ObjectSchema,
   relations: RepositoryRelationsWithSchema,
-  query: Query.FindOneInput<T, S, I, R>
+  query: Query.FindOneInput<S, T>
 ): PreparedQueryCommand => {
   const [statement, variables] = prepareSelectQuery(table, schema, relations, {
     ...query,
@@ -49,16 +44,11 @@ export const prepareFindOne = <
   };
 };
 
-export const prepareUpdateOne = async <
-  T extends Database.Schema,
-  S extends Query.SelectInput<T, R>,
-  I extends Database.Indexes,
-  R extends RelationMetadata
->(
+export const prepareUpdateOne = async <T extends TableMetadata, S extends Query.SelectInput<T>>(
   table: string,
   schema: ObjectSchema,
   relations: RepositoryRelationsWithSchema,
-  query: Query.UpdateOneInput<T, S, I, R>
+  query: Query.UpdateOneInput<S, T>
 ): Promise<PreparedQueryCommand> => {
   const [statement, variables] = await prepareUpdateQuery(table, schema, relations, {
     ...query
@@ -73,16 +63,11 @@ export const prepareUpdateOne = async <
   };
 };
 
-export const prepareDeleteOne = <
-  T extends Database.Schema,
-  S extends Query.SelectInput<T, R>,
-  I extends Database.Indexes,
-  R extends RelationMetadata
->(
+export const prepareDeleteOne = <T extends TableMetadata, S extends Query.SelectInput<T>>(
   table: string,
   schema: ObjectSchema,
   relations: RepositoryRelationsWithSchema,
-  query: Query.DeleteOneInput<T, S, I, R>
+  query: Query.DeleteOneInput<S, T>
 ): PreparedQueryCommand => {
   const [statement, variables] = prepareDeleteQuery(table, schema, relations, {
     ...query,
@@ -97,7 +82,7 @@ export const prepareDeleteOne = <
   };
 };
 
-export const prepareInsertMany = async <T extends Database.Schema>(
+export const prepareInsertMany = async <T extends TableMetadata>(
   table: string,
   schema: ObjectSchema,
   relations: RepositoryRelationsWithSchema,
@@ -119,17 +104,11 @@ export const prepareInsertMany = async <T extends Database.Schema>(
   );
 };
 
-export const prepareFindMany = <
-  T extends Database.Schema,
-  S extends Query.SelectInput<T, R>,
-  I extends Database.Indexes,
-  R extends RelationMetadata,
-  C extends boolean
->(
+export const prepareFindMany = <T extends TableMetadata, S extends Query.SelectInput<T>, C extends boolean>(
   table: string,
   schema: ObjectSchema,
   relations: RepositoryRelationsWithSchema,
-  query: Query.FindManyInput<T, S, I, R, C>
+  query: Query.FindManyInput<S, T, C>
 ): PreparedQueryCommand => {
   const [statement, variables] = prepareSelectQuery(table, schema, relations, query);
 
@@ -141,11 +120,11 @@ export const prepareFindMany = <
   };
 };
 
-export const prepareUpdateMany = async <T extends Database.Schema, S extends Query.SelectInput<T, R>, R extends RelationMetadata>(
+export const prepareUpdateMany = async <T extends TableMetadata, S extends Query.SelectInput<T>>(
   table: string,
   schema: ObjectSchema,
   relations: RepositoryRelationsWithSchema,
-  query: Query.UpdateManyInput<T, S, R>
+  query: Query.UpdateManyInput<S, T>
 ): Promise<PreparedQueryCommand> => {
   const [statement, variables] = await prepareUpdateQuery(table, schema, relations, query);
 
@@ -157,11 +136,11 @@ export const prepareUpdateMany = async <T extends Database.Schema, S extends Que
   };
 };
 
-export const prepareDeleteMany = <T extends Database.Schema, S extends Query.SelectInput<T, R>, R extends RelationMetadata>(
+export const prepareDeleteMany = <T extends TableMetadata, S extends Query.SelectInput<T>>(
   table: string,
   schema: ObjectSchema,
   relations: RepositoryRelationsWithSchema,
-  query: Query.DeleteManyInput<T, S, R>
+  query: Query.DeleteManyInput<S, T>
 ): PreparedQueryCommand => {
   const [statement, variables] = prepareDeleteQuery(table, schema, relations, query);
 
@@ -173,11 +152,11 @@ export const prepareDeleteMany = <T extends Database.Schema, S extends Query.Sel
   };
 };
 
-export const prepareCount = <T extends Database.Schema, R extends RelationMetadata>(
+export const prepareCount = <T extends TableMetadata>(
   table: string,
   schema: ObjectSchema,
   relations: RepositoryRelationsWithSchema,
-  query: Query.CountInput<T, R>
+  query: Query.CountInput<T>
 ): PreparedQueryCommand => {
   const [statement, variables] = prepareCountQuery(table, schema, relations, query);
 

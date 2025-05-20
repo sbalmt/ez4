@@ -1,6 +1,5 @@
-import type { AnyObject } from '@ez4/utils';
-import type { TableIndex, TableRelation } from './table.js';
-import type { RelationMetadata, RelationTables } from './relations.js';
+import type { TableIndex, TableMetadata, TableRelation } from './table.js';
+import type { RelationTables } from './relations.js';
 import type { IndexedTables } from './indexes.js';
 import type { EngineUtils } from './engine.js';
 import type { TableSchemas } from './schemas.js';
@@ -43,24 +42,26 @@ export namespace TransactionUtils {
    */
   export type StaticOperationType<T extends Database.Service> = {
     [P in keyof TableSchemas<T>]?: (TableSchemas<T>[P] extends Database.Schema
-      ? AnyOperationType<TableSchemas<T>[P], TableIndex<P, IndexedTables<T>>, TableRelation<P, RelationTables<T>>, T['engine']>
-      : AnyObject)[];
+      ? AnyOperationType<{
+          schema: TableSchemas<T>[P];
+          indexes: TableIndex<P, IndexedTables<T>>;
+          relations: TableRelation<P, RelationTables<T>>;
+          engine: T['engine'];
+        }>
+      : never)[];
   };
 
-  type AnyOperationType<T extends Database.Schema, I extends Database.Indexes, R extends RelationMetadata, E extends Database.Engine> =
-    | InsertOperationType<T, R>
-    | UpdateOperationType<T, I, R, E>
-    | DeleteOperationType<T, I, R, E>;
+  type AnyOperationType<T extends TableMetadata> = InsertOperationType<T> | UpdateOperationType<T> | DeleteOperationType<T>;
 
-  type InsertOperationType<T extends Database.Schema, R extends RelationMetadata> = {
-    insert: Omit<Query.InsertOneInput<T, Query.SelectInput<T, R>, R>, 'select'>;
+  type InsertOperationType<T extends TableMetadata> = {
+    insert: Omit<Query.InsertOneInput<Query.SelectInput<T>, T>, 'select'>;
   };
 
-  type UpdateOperationType<T extends Database.Schema, I extends Database.Indexes, R extends RelationMetadata, E extends Database.Engine> = {
-    update: Omit<Query.UpdateOneInput<T, Query.SelectInput<T, R>, I, R, E>, 'select' | 'include'>;
+  type UpdateOperationType<T extends TableMetadata> = {
+    update: Omit<Query.UpdateOneInput<Query.SelectInput<T>, T>, 'select' | 'include'>;
   };
 
-  type DeleteOperationType<T extends Database.Schema, I extends Database.Indexes, R extends RelationMetadata, E extends Database.Engine> = {
-    delete: Omit<Query.DeleteOneInput<T, Query.SelectInput<T, R>, I, R, E>, 'select' | 'include'>;
+  type DeleteOperationType<T extends TableMetadata> = {
+    delete: Omit<Query.DeleteOneInput<Query.SelectInput<T>, T>, 'select' | 'include'>;
   };
 }

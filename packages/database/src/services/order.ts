@@ -1,4 +1,6 @@
+import type { AnyObject } from '@ez4/utils';
 import type { DecomposeIndexName } from './indexes.js';
+import type { DatabaseEngine } from './engine.js';
 import type { Database } from './database.js';
 
 /**
@@ -38,9 +40,7 @@ export namespace OrderUtils {
   /**
    * Determines the order mode based on the given database service.
    */
-  export type Input<
-    T extends Database.Schema,
-    I extends Database.Indexes,
-    E extends Database.Engine
-  > = E['orderMode'] extends OrderMode.AnyColumns ? AnyInput<T> : IndexInput<I>;
+  export type Input<T extends AnyObject, E extends DatabaseEngine> = E['orderMode'] extends OrderMode.AnyColumns
+    ? AnyInput<T['schema']>
+    : IndexInput<T['indexes']>;
 }

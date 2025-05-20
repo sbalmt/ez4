@@ -1,4 +1,4 @@
-import type { Query, RelationMetadata } from '@ez4/database';
+import type { Query, TableMetadata } from '@ez4/database';
 import type { AnyObject } from '@ez4/utils';
 
 import { isAnyObject } from '@ez4/utils';
@@ -7,7 +7,7 @@ import { isSkippableData } from './data.js';
 
 type PrepareResult = [string, unknown[]];
 
-export const prepareWhereFields = (input: Query.WhereInput<{}, {}, RelationMetadata>): PrepareResult => {
+export const prepareWhereFields = (input: Query.WhereInput<TableMetadata>): PrepareResult => {
   const prepareFields = (data: AnyObject, path?: string): [string[], unknown[]] => {
     const operations: string[] = [];
     const variables: unknown[] = [];

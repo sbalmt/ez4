@@ -1,5 +1,6 @@
 import type { RepositoryRelationsWithSchema } from '@ez4/aws-aurora';
-import type { Database, Query } from '@ez4/database';
+import type { Query, RelationMetadata } from '@ez4/database';
+import type { PostgresEngine } from '@ez4/aws-aurora/client';
 
 import { describe, it } from 'node:test';
 
@@ -9,11 +10,11 @@ import { Index } from '@ez4/database';
 
 import { makeParameter } from './common/parameters.js';
 
-type TestRelations = {
-  indexes: never;
-  filters: {};
-  selects: {};
-  changes: {};
+type TestTableMetadata = {
+  engine: PostgresEngine;
+  relations: RelationMetadata;
+  indexes: {};
+  schema: {};
 };
 
 describe('aurora query (insert secondary relations)', () => {
@@ -22,12 +23,12 @@ describe('aurora query (insert secondary relations)', () => {
     nullish: boolean;
   };
 
-  const prepareRelationInsert = <T extends Database.Schema, S extends Query.SelectInput<T, TestRelations>>(
+  const prepareRelationInsert = <S extends Query.SelectInput<TestTableMetadata>>(
     schema: ObjectSchema,
     relations: RepositoryRelationsWithSchema,
-    query: Query.InsertOneInput<T, S, TestRelations>
+    query: Query.InsertOneInput<S, TestTableMetadata>
   ) => {
-    return prepareInsertQuery<T, S, TestRelations>('ez4-test-insert-relations', schema, relations, query);
+    return prepareInsertQuery<TestTableMetadata, S>('ez4-test-insert-relations', schema, relations, query);
   };
 
   const getTestRelationSchema = ({ nullish, multiple }: TestSchemaOptions): ObjectSchema => {

@@ -8,11 +8,7 @@ import { deepClone } from '@ez4/utils';
 
 import { createCluster, createInstance, isInstanceState, registerTriggers } from '@ez4/aws-aurora';
 
-const assertDeploy = async <E extends EntryState>(
-  resourceId: string,
-  newState: EntryStates<E>,
-  oldState: EntryStates<E> | undefined
-) => {
+const assertDeploy = async <E extends EntryState>(resourceId: string, newState: EntryStates<E>, oldState: EntryStates<E> | undefined) => {
   const { result: state } = await deploy(newState, oldState);
 
   const resource = state[resourceId];

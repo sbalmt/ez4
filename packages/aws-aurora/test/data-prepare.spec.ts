@@ -2,7 +2,6 @@ import { deepEqual } from 'node:assert/strict';
 import { describe, it } from 'node:test';
 
 import { prepareFieldData } from '@ez4/aws-aurora/client';
-
 import { SchemaType } from '@ez4/schema';
 
 describe('aurora data prepare', () => {

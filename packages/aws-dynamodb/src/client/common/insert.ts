@@ -1,4 +1,4 @@
-import type { Database, Query, RelationMetadata } from '@ez4/database';
+import type { Query, TableMetadata } from '@ez4/database';
 import type { ObjectSchema } from '@ez4/schema';
 import type { AnyObject } from '@ez4/utils';
 
@@ -6,10 +6,10 @@ import { isSkippableData } from './data.js';
 
 type PrepareResult = [string, unknown[]];
 
-export const prepareInsert = <T extends Database.Schema, S extends Query.SelectInput<T, R>, R extends RelationMetadata>(
+export const prepareInsert = <T extends TableMetadata, S extends Query.SelectInput<T>>(
   table: string,
   schema: ObjectSchema,
-  query: Query.InsertOneInput<T, S, R>
+  query: Query.InsertOneInput<S, T>
 ): PrepareResult => {
   const [insertFields, variables] = prepareInsertFields(query.data, schema);
 

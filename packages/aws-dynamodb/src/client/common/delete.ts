@@ -1,17 +1,12 @@
-import type { Database, RelationMetadata, Query } from '@ez4/database';
+import type { Query, TableMetadata } from '@ez4/database';
 
 import { prepareWhereFields } from './where.js';
 
 type PrepareResult = [string, unknown[]];
 
-export const prepareDelete = <
-  T extends Database.Schema,
-  S extends Query.SelectInput<T, R>,
-  I extends Database.Indexes,
-  R extends RelationMetadata
->(
+export const prepareDelete = <T extends TableMetadata, S extends Query.SelectInput<T>>(
   table: string,
-  query: Query.DeleteOneInput<T, S, I, R> | Query.DeleteManyInput<T, S, R>
+  query: Query.DeleteOneInput<S, T> | Query.DeleteManyInput<S, T>
 ): PrepareResult => {
   const statement = [`DELETE FROM "${table}"`];
   const variables = [];

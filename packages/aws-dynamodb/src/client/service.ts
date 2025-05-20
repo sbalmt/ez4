@@ -1,4 +1,4 @@
-import type { Database, Client as DbClient, Parameters, Transaction, RelationMetadata } from '@ez4/database';
+import type { Database, Client as DbClient, ParametersUtils, TransactionUtils, TableMetadata } from '@ez4/database';
 import type { Repository } from './types.js';
 
 import { DynamoDBDocumentClient } from '@aws-sdk/lib-dynamodb';
@@ -9,7 +9,7 @@ import { prepareDeleteOne, prepareInsertOne, prepareUpdateOne } from './common/q
 import { MissingRepositoryTableError, UnsupportedNamedParametersError, UnsupportedTransactionError } from './errors.js';
 import { Table } from './table.js';
 
-type TableType = Table<Database.Schema, Database.Indexes, RelationMetadata>;
+type TableType = Table<TableMetadata>;
 
 const client = DynamoDBDocumentClient.from(new DynamoDBClient(), {
   marshallOptions: {
@@ -28,7 +28,7 @@ export namespace Client {
     const debugMode = settings?.debug;
 
     const clientInstance = new (class {
-      async rawQuery(query: string, parameters: Parameters.Type<T> = []) {
+      async rawQuery(query: string, parameters: ParametersUtils.Type<T> = []) {
         if (!Array.isArray(parameters)) {
           throw new UnsupportedNamedParametersError();
         }
@@ -40,7 +40,7 @@ export namespace Client {
         return records;
       }
 
-      async transaction<O extends Transaction.Type<T, void>>(operation: O) {
+      async transaction<O extends TransactionUtils.Type<T, void>>(operation: O) {
         if (!isStaticTransaction<T>(operation)) {
           throw new UnsupportedTransactionError();
         }
@@ -82,13 +82,13 @@ export namespace Client {
   };
 }
 
-const isStaticTransaction = <T extends Database.Service>(operation: unknown): operation is Transaction.StaticOperationType<T> => {
+const isStaticTransaction = <T extends Database.Service>(operation: unknown): operation is TransactionUtils.StaticOperationType<T> => {
   return !(operation instanceof Function);
 };
 
 const prepareStaticTransaction = async <T extends Database.Service>(
   repository: Repository,
-  operations: Transaction.StaticOperationType<T>
+  operations: TransactionUtils.StaticOperationType<T>
 ) => {
   const commands = [];
 
@@ -117,7 +117,7 @@ const prepareStaticTransaction = async <T extends Database.Service>(
       }
 
       if ('update' in query) {
-        commands.push(await prepareUpdateOne(name, schema, query.update));
+        commands.push(await prepareUpdateOne(name, schema, query.update as any));
         continue;
       }
 

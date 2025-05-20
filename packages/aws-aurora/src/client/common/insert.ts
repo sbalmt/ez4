@@ -1,6 +1,6 @@
 import type { SqlInsertStatement, SqlSelectStatement, SqlSourceWithResults, SqlJsonColumnSchema, SqlBuilder, SqlRecord } from '@ez4/pgsql';
-import type { Database, RelationMetadata, Query } from '@ez4/database';
 import type { SqlParameter } from '@aws-sdk/client-rds-data';
+import type { Query, TableMetadata } from '@ez4/database';
 import type { ObjectSchema } from '@ez4/schema';
 import type { AnyObject } from '@ez4/utils';
 import type { RelationWithSchema, RepositoryRelationsWithSchema } from '../../types/repository.js';
@@ -31,11 +31,11 @@ type InsertRelationEntry = RelationWithSchema & {
   relationQueries: SqlInsertStatement[];
 };
 
-export const prepareInsertQuery = async <T extends Database.Schema, S extends Query.SelectInput<T, R>, R extends RelationMetadata>(
+export const prepareInsertQuery = async <T extends TableMetadata, S extends Query.SelectInput<T>>(
   table: string,
   schema: ObjectSchema,
   relations: RepositoryRelationsWithSchema,
-  query: Query.InsertOneInput<T, S, R>
+  query: Query.InsertOneInput<S, T>
 ): Promise<[string, SqlParameter[]]> => {
   const sql = createQueryBuilder();
 
@@ -320,9 +320,9 @@ const preparePostInsertRelations = (
   return allQueries;
 };
 
-const getInsertSelectFields = <T extends Database.Schema, S extends AnyObject, R extends RelationMetadata>(
+const getInsertSelectFields = <T extends TableMetadata>(
   sql: SqlBuilder,
-  fields: Query.StrictSelectInput<T, S, R>,
+  fields: Query.StrictSelectInput<AnyObject, T>,
   schema: ObjectSchema,
   relations: InsertRelationsCache,
   main: SqlInsertStatement | undefined,

@@ -1,29 +1,27 @@
+import type { DynamoDbEngine } from '@ez4/aws-dynamodb/client';
+import type { Index, RelationMetadata } from '@ez4/database';
+import type { ObjectSchema } from '@ez4/schema';
+
 import { equal, deepEqual } from 'node:assert/strict';
 import { describe, it } from 'node:test';
 
-import { ObjectSchema, SchemaType } from '@ez4/schema';
-import { Index } from '@ez4/database';
-
 import { prepareUpdate } from '@ez4/aws-dynamodb/client';
+import { SchemaType } from '@ez4/schema';
 
-type TestSchema = {
-  id: string;
-  foo?: number | null;
-  bar: {
-    barFoo: string;
-    barBar: boolean;
+type TestTableMetadata = {
+  engine: DynamoDbEngine;
+  relations: RelationMetadata;
+  indexes: {
+    id: Index.Primary;
   };
-};
-
-type TestRelations = {
-  indexes: never;
-  filters: {};
-  selects: {};
-  changes: {};
-};
-
-type TestIndexes = {
-  id: Index.Primary;
+  schema: {
+    id: string;
+    foo?: number | null;
+    bar: {
+      barFoo: string;
+      barBar: boolean;
+    };
+  };
 };
 
 describe('dynamodb query (update)', () => {
@@ -53,18 +51,14 @@ describe('dynamodb query (update)', () => {
   };
 
   it('assert :: prepare update', () => {
-    const [statement, variables] = prepareUpdate<TestSchema, {}, TestIndexes, TestRelations>(
-      'ez4-test-update',
-      testSchema,
-      {
-        data: {
-          foo: 456
-        },
-        where: {
-          foo: 123
-        }
+    const [statement, variables] = prepareUpdate<TestTableMetadata, {}>('ez4-test-update', testSchema, {
+      data: {
+        foo: 456
+      },
+      where: {
+        foo: 123
       }
-    );
+    });
 
     equal(statement, `UPDATE "ez4-test-update" SET "foo" = ? WHERE "foo" = ?`);
 
@@ -72,18 +66,14 @@ describe('dynamodb query (update)', () => {
   });
 
   it('assert :: prepare update (remove nulls)', () => {
-    const [statement, variables] = prepareUpdate<TestSchema, {}, TestIndexes, TestRelations>(
-      'ez4-test-update',
-      testSchema,
-      {
-        data: {
-          foo: null,
-          bar: {
-            barFoo: 'abc'
-          }
+    const [statement, variables] = prepareUpdate<TestTableMetadata, {}>('ez4-test-update', testSchema, {
+      data: {
+        foo: null,
+        bar: {
+          barFoo: 'abc'
         }
       }
-    );
+    });
 
     equal(statement, `UPDATE "ez4-test-update" REMOVE "foo" SET "bar"."barFoo" = ?`);
 
@@ -91,32 +81,25 @@ describe('dynamodb query (update)', () => {
   });
 
   it('assert :: prepare update (with select)', () => {
-    const [statement, variables] = prepareUpdate<TestSchema, {}, TestIndexes, TestRelations>(
-      'ez4-test-update',
-      testSchema,
-      {
-        select: {
-          foo: true,
-          bar: {
-            barBar: true
-          }
-        },
-        data: {
-          foo: 456,
-          bar: {
-            barBar: false
-          }
-        },
-        where: {
-          id: 'abc'
+    const [statement, variables] = prepareUpdate<TestTableMetadata, {}>('ez4-test-update', testSchema, {
+      select: {
+        foo: true,
+        bar: {
+          barBar: true
         }
+      },
+      data: {
+        foo: 456,
+        bar: {
+          barBar: false
+        }
+      },
+      where: {
+        id: 'abc'
       }
-    );
+    });
 
-    equal(
-      statement,
-      `UPDATE "ez4-test-update" SET "foo" = ? SET "bar"."barBar" = ? WHERE "id" = ? RETURNING ALL OLD *`
-    );
+    equal(statement, `UPDATE "ez4-test-update" SET "foo" = ? SET "bar"."barBar" = ? WHERE "id" = ? RETURNING ALL OLD *`);
 
     deepEqual(variables, [456, false, 'abc']);
   });

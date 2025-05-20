@@ -21,9 +21,7 @@ describe('aurora migration (columns)', () => {
       }
     );
 
-    deepEqual(statements, [
-      `ALTER TABLE "ez4-test-table" ADD COLUMN "column" boolean DEFAULT false`
-    ]);
+    deepEqual(statements, [`ALTER TABLE "ez4-test-table" ADD COLUMN "column" boolean DEFAULT false`]);
   });
 
   it('assert :: create column (default, not nullable)', () => {
@@ -40,9 +38,7 @@ describe('aurora migration (columns)', () => {
       }
     );
 
-    deepEqual(statements, [
-      `ALTER TABLE "ez4-test-table" ADD COLUMN "column" boolean NOT null DEFAULT true`
-    ]);
+    deepEqual(statements, [`ALTER TABLE "ez4-test-table" ADD COLUMN "column" boolean NOT null DEFAULT true`]);
   });
 
   it('assert :: create column (not default, nullable)', () => {
@@ -57,9 +53,7 @@ describe('aurora migration (columns)', () => {
       }
     );
 
-    deepEqual(statements, [
-      `ALTER TABLE "ez4-test-table" ADD COLUMN "column" boolean DEFAULT null`
-    ]);
+    deepEqual(statements, [`ALTER TABLE "ez4-test-table" ADD COLUMN "column" boolean DEFAULT null`]);
   });
 
   it('assert :: create column (not default, not nullable)', () => {

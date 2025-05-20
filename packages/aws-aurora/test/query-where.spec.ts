@@ -1,31 +1,28 @@
+import type { Index, Query, RelationMetadata } from '@ez4/database';
+
 import { equal, deepEqual } from 'node:assert/strict';
 import { describe, it } from 'node:test';
 
-import { prepareSelectQuery } from '@ez4/aws-aurora/client';
+import { PostgresEngine, prepareSelectQuery } from '@ez4/aws-aurora/client';
 import { ObjectSchema, SchemaType } from '@ez4/schema';
-import { Index, Query } from '@ez4/database';
 
 import { makeParameter } from './common/parameters.js';
 
-type TestSchema = {
-  id: string;
-  foo?: number;
-  bar: {
-    barFoo?: string;
-    barBar?: boolean;
+type TestTableMetadata = {
+  engine: PostgresEngine;
+  relations: RelationMetadata;
+  indexes: {
+    id: Index.Primary;
   };
-  baz?: string;
-};
-
-type TestRelations = {
-  indexes: never;
-  filters: {};
-  selects: {};
-  changes: {};
-};
-
-type TestIndexes = {
-  id: Index.Primary;
+  schema: {
+    id: string;
+    foo?: number;
+    bar: {
+      barFoo?: string;
+      barBar?: boolean;
+    };
+    baz?: string;
+  };
 };
 
 describe('aurora query (where)', () => {
@@ -60,8 +57,8 @@ describe('aurora query (where)', () => {
     }
   };
 
-  const getWhereOperation = (where: Query.WhereInput<TestSchema, {}, TestRelations>) => {
-    const [statement, variables] = prepareSelectQuery<TestSchema, {}, TestIndexes, TestRelations, false>(
+  const getWhereOperation = (where: Query.WhereInput<TestTableMetadata>) => {
+    const [statement, variables] = prepareSelectQuery<TestTableMetadata, {}, false>(
       'ez4-test-where-operation',
       testSchema,
       {},

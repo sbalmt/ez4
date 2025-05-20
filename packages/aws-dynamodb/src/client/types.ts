@@ -1,4 +1,4 @@
-import type { ParametersType, TransactionType } from '@ez4/database';
+import type { OrderMode, ParametersMode, TransactionMode } from '@ez4/database';
 import type { ObjectSchema } from '@ez4/schema';
 
 export type Repository = Record<string, RepositoryTable>;
@@ -13,7 +13,8 @@ export type RepositoryTable = {
  * Default DynamoDB engine settings.
  */
 export type DynamoDbEngine = {
-  transaction: TransactionType.Static;
-  parameters: ParametersType.OnlyIndex;
+  parametersMode: ParametersMode.OnlyIndex;
+  transactionMode: TransactionMode.Static;
+  orderMode: OrderMode.IndexColumns;
   name: 'dynamodb';
 };

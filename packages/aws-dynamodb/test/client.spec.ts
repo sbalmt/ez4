@@ -1,16 +1,15 @@
-import type { Database, Client as DbClient, Index } from '@ez4/database';
+import type { Database, Index, Client as DbClient } from '@ez4/database';
 import type { DynamoDbEngine } from '@ez4/aws-dynamodb/client';
 import type { EntryStates } from '@ez4/stateful';
 
 import { ok, equal, deepEqual } from 'node:assert/strict';
 import { describe, it } from 'node:test';
 
+import { createTable, isTableState, AttributeType, AttributeKeyType, registerTriggers } from '@ez4/aws-dynamodb';
 import { Client } from '@ez4/aws-dynamodb/client';
 import { SchemaType } from '@ez4/schema';
 import { deploy } from '@ez4/aws-common';
 import { Order } from '@ez4/database';
-
-import { createTable, isTableState, AttributeType, AttributeKeyType, registerTriggers } from '@ez4/aws-dynamodb';
 
 declare class TestSchema implements Database.Schema {
   id: string;

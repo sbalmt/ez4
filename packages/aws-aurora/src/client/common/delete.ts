@@ -1,21 +1,16 @@
-import type { Database, RelationMetadata, Query } from '@ez4/database';
 import type { SqlParameter } from '@aws-sdk/client-rds-data';
+import type { Query, TableMetadata } from '@ez4/database';
 import type { ObjectSchema } from '@ez4/schema';
 import type { RepositoryRelationsWithSchema } from '../../types/repository.js';
 
 import { getSelectFilters, getSelectFields } from './select.js';
 import { createQueryBuilder } from './builder.js';
 
-export const prepareDeleteQuery = <
-  T extends Database.Schema,
-  S extends Query.SelectInput<T, R>,
-  I extends Database.Indexes,
-  R extends RelationMetadata
->(
+export const prepareDeleteQuery = <T extends TableMetadata, S extends Query.SelectInput<T>>(
   table: string,
   schema: ObjectSchema,
   relations: RepositoryRelationsWithSchema,
-  query: Query.DeleteOneInput<T, S, I, R> | Query.DeleteManyInput<T, S, R>
+  query: Query.DeleteOneInput<S, T> | Query.DeleteManyInput<S, T>
 ): [string, SqlParameter[]] => {
   const sql = createQueryBuilder();
 

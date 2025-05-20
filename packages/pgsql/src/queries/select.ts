@@ -1,5 +1,4 @@
 import type { ObjectSchema } from '@ez4/schema';
-import type { Query } from '@ez4/database';
 import type { SqlArrayColumn, SqlObjectColumn, SqlResultColumn, SqlResultRecord } from '../types/results.js';
 import type { SqlJsonColumnOptions, SqlJsonColumnSchema } from '../types/json.js';
 import type { SqlBuilderOptions, SqlBuilderReferences } from '../builder.js';
@@ -212,7 +211,7 @@ export class SqlSelectStatement extends SqlSource implements SqlSourceWithResult
   }
 }
 
-const getOrderColumns = (ordering: Query.OrderInput<any>) => {
+const getOrderColumns = (ordering: SqlOrder) => {
   const orderColumns = [];
 
   for (const column in ordering) {

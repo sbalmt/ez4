@@ -26,13 +26,7 @@ describe('aurora migration (table)', () => {
       {}
     );
 
-    equal(
-      statement,
-      `CREATE TABLE "ez4-test-table" (` +
-        `"default" boolean NOT null DEFAULT true, ` +
-        `"optional" boolean DEFAULT null` +
-        `)`
-    );
+    equal(statement, `CREATE TABLE "ez4-test-table" ("default" boolean NOT null DEFAULT true, "optional" boolean DEFAULT null)`);
   });
 
   it('assert :: create table (number)', () => {
@@ -169,13 +163,7 @@ describe('aurora migration (table)', () => {
       {}
     );
 
-    equal(
-      statement,
-      `CREATE TABLE "ez4-test-table" (` +
-        `"default" text NOT null DEFAULT 'foo', ` +
-        `"optional" text DEFAULT null` +
-        `)`
-    );
+    equal(statement, `CREATE TABLE "ez4-test-table" ("default" text NOT null DEFAULT 'foo', "optional" text DEFAULT null)`);
   });
 
   it('assert :: create table (jsonb)', () => {

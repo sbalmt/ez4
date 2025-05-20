@@ -1,4 +1,4 @@
-import type { Database, Client as DbClient, Parameters, RelationMetadata, Transaction } from '@ez4/database';
+import type { Database, Client as DbClient, ParametersUtils, TransactionUtils, TableMetadata } from '@ez4/database';
 import type { Repository, RepositoryRelations, RepositoryRelationsWithSchema } from '../types/repository.js';
 import type { Connection } from './types.js';
 
@@ -19,7 +19,7 @@ import { prepareDeleteOne, prepareInsertOne, prepareUpdateOne } from './common/q
 import { MissingRepositoryTableError } from './errors.js';
 import { Table } from './table.js';
 
-type TableType = Table<Database.Schema, Database.Indexes, RelationMetadata>;
+type TableType = Table<TableMetadata>;
 
 const client = new RDSDataClient();
 
@@ -37,7 +37,7 @@ export namespace Client {
     const tableCache: Record<string, TableType> = {};
 
     const clientInstance = new (class {
-      rawQuery(query: string, parameters: Parameters.Type<T> = []) {
+      rawQuery(query: string, parameters: ParametersUtils.Type<T> = []) {
         const { transactionId, debug } = context;
 
         const command = {
@@ -48,7 +48,7 @@ export namespace Client {
         return executeStatement(client, connection, command, transactionId, debug);
       }
 
-      async transaction<O extends Transaction.Type<T, R>, R>(operation: O) {
+      async transaction<O extends TransactionUtils.Type<T, R>, R>(operation: O) {
         if (!isStaticTransaction<T>(operation)) {
           return executeInteractiveTransaction(connection, repository, context, operation);
         }
@@ -118,7 +118,7 @@ const getRelationsWithSchema = (repository: Repository, relations: RepositoryRel
   return relationsWithSchema;
 };
 
-const isStaticTransaction = <T extends Database.Service>(operation: unknown): operation is Transaction.StaticOperationType<T> => {
+const isStaticTransaction = <T extends Database.Service>(operation: unknown): operation is TransactionUtils.StaticOperationType<T> => {
   return !(operation instanceof Function);
 };
 
@@ -154,7 +154,7 @@ const executeInteractiveTransaction = async (
   }
 };
 
-const getParameters = <T extends Database.Service>(parameters: Parameters.Type<T>) => {
+const getParameters = <T extends Database.Service>(parameters: ParametersUtils.Type<T>) => {
   if (Array.isArray(parameters)) {
     return getParametersFromList(parameters);
   }
@@ -188,7 +188,7 @@ const executeStaticTransaction = async <T extends Database.Service>(
   connection: Connection,
   repository: Repository,
   context: ClientContext,
-  operations: Transaction.StaticOperationType<T>
+  operations: TransactionUtils.StaticOperationType<T>
 ) => {
   const { transactionId, debug } = context;
 
@@ -203,7 +203,7 @@ const executeStaticTransaction = async <T extends Database.Service>(
 
 const prepareStaticTransaction = async <T extends Database.Service>(
   repository: Repository,
-  operations: Transaction.StaticOperationType<T>
+  operations: TransactionUtils.StaticOperationType<T>
 ) => {
   const commands = [];
 
@@ -234,7 +234,7 @@ const prepareStaticTransaction = async <T extends Database.Service>(
       }
 
       if ('update' in query) {
-        commands.push(await prepareUpdateOne(name, schema, relationsWithSchema, query.update));
+        commands.push(await prepareUpdateOne(name, schema, relationsWithSchema, query.update as any));
         continue;
       }
 

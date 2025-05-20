@@ -1,4 +1,4 @@
-import type { Database, Query, RelationMetadata, Table as DbTable } from '@ez4/database';
+import type { Table as DbTable, Query, TableMetadata } from '@ez4/database';
 import type { DynamoDBDocumentClient } from '@aws-sdk/lib-dynamodb';
 import type { ObjectSchema } from '@ez4/schema';
 
@@ -24,7 +24,7 @@ export type TableSettings = {
   debug?: boolean;
 };
 
-export class Table<T extends Database.Schema, I extends Database.Indexes, R extends RelationMetadata> implements DbTable<T, I, R> {
+export class Table<T extends TableMetadata> implements DbTable<T> {
   constructor(
     private name: string,
     private schema: ObjectSchema,
@@ -32,7 +32,7 @@ export class Table<T extends Database.Schema, I extends Database.Indexes, R exte
     private settings: TableSettings
   ) {}
 
-  async insertOne<S extends Query.SelectInput<T, R>>(query: Query.InsertOneInput<T, S, R>) {
+  async insertOne<S extends Query.SelectInput<T>>(query: Query.InsertOneInput<S, T>) {
     const { client, debug } = this.settings;
 
     const command = await prepareInsertOne(this.name, this.schema, query);
@@ -48,7 +48,7 @@ export class Table<T extends Database.Schema, I extends Database.Indexes, R exte
     return undefined;
   }
 
-  async updateOne<S extends Query.SelectInput<T, R>>(query: Query.UpdateOneInput<T, S, I, R>) {
+  async updateOne<S extends Query.SelectInput<T>>(query: Query.UpdateOneInput<S, T>) {
     const { client, debug } = this.settings;
 
     const command = await prepareUpdateOne(this.name, this.schema, query);
@@ -72,7 +72,7 @@ export class Table<T extends Database.Schema, I extends Database.Indexes, R exte
     }
   }
 
-  async findOne<S extends Query.SelectInput<T, R>>(query: Query.FindOneInput<T, S, I, R>) {
+  async findOne<S extends Query.SelectInput<T>>(query: Query.FindOneInput<S, T>) {
     const { client, debug } = this.settings;
 
     const command = prepareFindOne(this.name, this.indexes, query);
@@ -88,7 +88,7 @@ export class Table<T extends Database.Schema, I extends Database.Indexes, R exte
     return undefined;
   }
 
-  async deleteOne<S extends Query.SelectInput<T, R>>(query: Query.DeleteOneInput<T, S, I, R>) {
+  async deleteOne<S extends Query.SelectInput<T>>(query: Query.DeleteOneInput<S, T>) {
     const { client, debug } = this.settings;
 
     const command = prepareDeleteOne(this.name, query);
@@ -104,9 +104,9 @@ export class Table<T extends Database.Schema, I extends Database.Indexes, R exte
     return result;
   }
 
-  async upsertOne<S extends Query.SelectInput<T, R>>(query: Query.UpsertOneInput<T, S, I, R>) {
+  async upsertOne<S extends Query.SelectInput<T>>(query: Query.UpsertOneInput<S, T>) {
     const previous = await this.findOne({
-      select: query.select ?? ({} as Query.StrictSelectInput<T, S, R>),
+      select: query.select ?? ({} as Query.StrictSelectInput<S, T>),
       where: query.where
     });
 
@@ -126,7 +126,7 @@ export class Table<T extends Database.Schema, I extends Database.Indexes, R exte
 
     await this.updateMany({
       select: query.select,
-      where: query.where as Query.WhereInput<T, {}, R>,
+      where: query.where as Query.WhereInput<T>,
       data: query.update,
       limit: 1
     });
@@ -142,17 +142,17 @@ export class Table<T extends Database.Schema, I extends Database.Indexes, R exte
     await executeTransaction(client, transactions, debug);
   }
 
-  async updateMany<S extends Query.SelectInput<T, R>>(query: Query.UpdateManyInput<T, S, R>) {
+  async updateMany<S extends Query.SelectInput<T>>(query: Query.UpdateManyInput<S, T>) {
     const { client, debug } = this.settings;
 
     const [transactions, records] = await prepareUpdateMany(this.name, this.schema, this.indexes, client, query, debug);
 
     await executeTransaction(client, transactions, debug);
 
-    return records;
+    return records as Query.UpdateManyResult<S, T>;
   }
 
-  async findMany<S extends Query.SelectInput<T, R>, C extends boolean = false>(query: Query.FindManyInput<T, S, I, R, C>) {
+  async findMany<S extends Query.SelectInput<T>, C extends boolean = false>(query: Query.FindManyInput<S, T, C>) {
     const { client, debug } = this.settings;
 
     const { count: shouldCount } = query;
@@ -181,20 +181,20 @@ export class Table<T extends Database.Schema, I extends Database.Indexes, R exte
       ...(shouldCount && { total: total?.Items?.length }),
       records: items,
       cursor
-    } as Query.FindManyResult<T, S, R, C>;
+    } as Query.FindManyResult<S, T, C>;
   }
 
-  async deleteMany<S extends Query.SelectInput<T, R>>(query: Query.DeleteManyInput<T, S, R>) {
+  async deleteMany<S extends Query.SelectInput<T>>(query: Query.DeleteManyInput<S, T>) {
     const { client, debug } = this.settings;
 
     const [transactions, records] = await prepareDeleteMany(this.name, this.indexes, client, query, debug);
 
     await executeTransaction(client, transactions, debug);
 
-    return records;
+    return records as Query.DeleteManyResult<S, T>;
   }
 
-  async count(query: Query.CountInput<T, R>) {
+  async count(query: Query.CountInput<T>) {
     const { client, debug } = this.settings;
 
     const command = prepareCount(this.name, this.indexes, query);

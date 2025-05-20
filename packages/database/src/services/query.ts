@@ -1,5 +1,6 @@
 import type { DecomposeIndexName, PrimaryIndexes, UniqueIndexes } from './indexes.js';
 import type { RelationMetadata } from './relations.js';
+import type { TableMetadata } from './table.js';
 import type { OrderUtils } from './order.js';
 import type { Database } from './database.js';
 
@@ -20,187 +21,136 @@ import type {
  * Query builder types.
  */
 export namespace Query {
-  export type InsertOneInput<T extends Database.Schema, S extends AnyObject, R extends RelationMetadata> = {
-    select?: StrictSelectInput<T, S, R>;
-    data: InsertDataInput<T, R>;
+  export type InsertOneInput<S extends AnyObject, T extends TableMetadata> = {
+    select?: StrictSelectInput<S, T>;
+    data: InsertDataInput<T>;
   };
 
-  export type UpdateOneInput<
-    T extends Database.Schema,
-    S extends AnyObject,
-    I extends Database.Indexes,
-    R extends RelationMetadata,
-    E extends Database.Engine
-  > = {
-    select?: StrictSelectInput<T, S, R>;
-    include?: StrictIncludeInput<S, I, R, E>;
-    data: OptionalObject<UpdateDataInput<T, R>>;
-    where: WhereInput<T, I, R>;
+  export type UpdateOneInput<S extends AnyObject, T extends TableMetadata> = {
+    select?: StrictSelectInput<S, T>;
+    include?: StrictIncludeInput<S, T>;
+    data: OptionalObject<UpdateDataInput<T>>;
+    where: WhereInput<T, true>;
   };
 
-  export type FindOneInput<
-    T extends Database.Schema,
-    S extends AnyObject,
-    I extends Database.Indexes,
-    R extends RelationMetadata,
-    E extends Database.Engine
-  > = {
-    select: StrictSelectInput<T, S, R>;
-    include?: StrictIncludeInput<S, I, R, E>;
-    where: WhereInput<T, I, R>;
+  export type FindOneInput<S extends AnyObject, T extends TableMetadata> = {
+    select: StrictSelectInput<S, T>;
+    include?: StrictIncludeInput<S, T>;
+    where: WhereInput<T, true>;
   };
 
-  export type UpsertOneInput<
-    T extends Database.Schema,
-    S extends AnyObject,
-    I extends Database.Indexes,
-    R extends RelationMetadata,
-    E extends Database.Engine
-  > = {
-    select?: StrictSelectInput<T, S, R>;
-    include?: StrictIncludeInput<S, I, R, E>;
-    update: OptionalObject<UpdateDataInput<T, R>>;
-    insert: InsertDataInput<T, R>;
-    where: WhereInput<T, I, R>;
+  export type UpsertOneInput<S extends AnyObject, T extends TableMetadata> = {
+    select?: StrictSelectInput<S, T>;
+    include?: StrictIncludeInput<S, T>;
+    update: OptionalObject<UpdateDataInput<T>>;
+    insert: InsertDataInput<T>;
+    where: WhereInput<T, true>;
   };
 
-  export type DeleteOneInput<
-    T extends Database.Schema,
-    S extends AnyObject,
-    I extends Database.Indexes,
-    R extends RelationMetadata,
-    E extends Database.Engine
-  > = {
-    select?: StrictSelectInput<T, S, R>;
-    include?: StrictIncludeInput<S, I, R, E>;
-    where: WhereInput<T, I, R>;
+  export type DeleteOneInput<S extends AnyObject, T extends TableMetadata> = {
+    select?: StrictSelectInput<S, T>;
+    include?: StrictIncludeInput<S, T>;
+    where: WhereInput<T, true>;
   };
 
-  export type InsertManyInput<T extends Database.Schema = {}> = {
-    data: T[];
+  export type InsertManyInput<T extends TableMetadata> = {
+    data: T['schema'][];
   };
 
-  export type UpdateManyInput<
-    T extends Database.Schema,
-    S extends AnyObject,
-    I extends Database.Indexes,
-    R extends RelationMetadata,
-    E extends Database.Engine
-  > = {
-    select?: StrictSelectInput<T, S, R>;
-    include?: StrictIncludeInput<S, I, R, E>;
-    data: OptionalObject<UpdateDataInput<T, R>>;
-    where?: WhereInput<T, {}, R>;
+  export type UpdateManyInput<S extends AnyObject, T extends TableMetadata> = {
+    select?: StrictSelectInput<S, T>;
+    include?: StrictIncludeInput<S, T>;
+    data: OptionalObject<UpdateDataInput<T>>;
+    where?: WhereInput<T>;
     limit?: number;
   };
 
-  export type FindManyInput<
-    T extends Database.Schema,
-    S extends AnyObject,
-    I extends Database.Indexes,
-    R extends RelationMetadata,
-    C extends boolean,
-    E extends Database.Engine
-  > = {
+  export type FindManyInput<S extends AnyObject, T extends TableMetadata, C extends boolean> = {
     count?: C;
-    select: StrictSelectInput<T, S, R>;
-    include?: StrictIncludeInput<S, I, R, E>;
-    where?: WhereInput<T, {}, R>;
-    order?: OrderUtils.Input<T, I, E>;
+    select: StrictSelectInput<S, T>;
+    include?: StrictIncludeInput<S, T>;
+    where?: WhereInput<T>;
+    order?: OrderInput<T>;
     cursor?: number | string;
     limit?: number;
   };
 
-  export type DeleteManyInput<
-    T extends Database.Schema,
-    S extends AnyObject,
-    I extends Database.Indexes,
-    R extends RelationMetadata,
-    E extends Database.Engine
-  > = {
-    select?: StrictSelectInput<T, S, R>;
-    include?: StrictIncludeInput<S, I, R, E>;
-    where?: WhereInput<T, {}, R>;
+  export type DeleteManyInput<S extends AnyObject, T extends TableMetadata> = {
+    select?: StrictSelectInput<S, T>;
+    include?: StrictIncludeInput<S, T>;
+    where?: WhereInput<T>;
     limit?: number;
   };
 
-  export type CountInput<T extends Database.Schema, R extends RelationMetadata> = {
-    where?: WhereInput<T, {}, R>;
+  export type CountInput<T extends TableMetadata> = {
+    where?: WhereInput<T>;
   };
 
-  export type InsertOneResult<T extends Database.Schema, S extends AnyObject, R extends RelationMetadata> = S extends never
-    ? void
-    : Record<T, S, R>;
+  export type InsertOneResult<S extends AnyObject, T extends TableMetadata> = S extends never ? void : Record<S, T>;
 
-  export type UpdateOneResult<T extends Database.Schema, S extends AnyObject, R extends RelationMetadata> = S extends never
-    ? void
-    : Record<T, S, R> | undefined;
+  export type UpdateOneResult<S extends AnyObject, T extends TableMetadata> = S extends never ? void : Record<S, T> | undefined;
 
-  export type FindOneResult<T extends Database.Schema, S extends AnyObject, R extends RelationMetadata> = S extends never
-    ? void
-    : Record<T, S, R> | undefined;
+  export type FindOneResult<S extends AnyObject, T extends TableMetadata> = S extends never ? void : Record<S, T> | undefined;
 
-  export type UpsertOneResult<T extends Database.Schema, S extends AnyObject, R extends RelationMetadata> = S extends never
-    ? void
-    : Record<T, S, R>;
+  export type UpsertOneResult<S extends AnyObject, T extends TableMetadata> = S extends never ? void : Record<S, T>;
 
-  export type DeleteOneResult<T extends Database.Schema, S extends AnyObject, R extends RelationMetadata> = S extends never
-    ? void
-    : Record<T, S, R> | undefined;
+  export type DeleteOneResult<S extends AnyObject, T extends TableMetadata> = S extends never ? void : Record<S, T> | undefined;
 
-  export type UpdateManyResult<T extends Database.Schema, S extends AnyObject, R extends RelationMetadata> = S extends never
-    ? void
-    : Record<T, S, R>[];
+  export type UpdateManyResult<S extends AnyObject, T extends TableMetadata> = S extends never ? void : Record<S, T>[];
 
   export type InsertManyResult = void;
 
-  export type FindManyResult<
-    T extends Database.Schema,
-    S extends Database.Schema,
-    R extends RelationMetadata,
-    C extends boolean
-  > = C extends true
-    ? { records: Record<T, S, R>[]; cursor?: number | string; total: number }
-    : { records: Record<T, S, R>[]; cursor?: number | string };
+  export type FindManyResult<S extends AnyObject, T extends TableMetadata, C extends boolean> = C extends true
+    ? { records: Record<S, T>[]; cursor?: number | string; total: number }
+    : { records: Record<S, T>[]; cursor?: number | string };
 
-  export type DeleteManyResult<T extends Database.Schema, S extends AnyObject, R extends RelationMetadata> = Record<T, S, R>[];
+  export type DeleteManyResult<S extends AnyObject, T extends TableMetadata> = Record<S, T>[];
 
-  export type Record<T extends Database.Schema, S extends AnyObject, R extends RelationMetadata> = S extends never
+  export type Record<S extends AnyObject, T extends TableMetadata> = S extends never
     ? undefined
-    : PartialObject<SelectFields<T, R>, S, false>;
+    : PartialObject<SelectFields<T['schema'], T['relations']>, S, false>;
 
-  export type SelectInput<T extends Database.Schema, R extends RelationMetadata> = PartialProperties<SelectFields<T, R>>;
+  export type SelectInput<T extends TableMetadata> = PartialProperties<SelectFields<T['schema'], T['relations']>>;
 
-  export type StrictSelectInput<T extends Database.Schema, S extends AnyObject, R extends RelationMetadata> = StrictObject<
+  export type StrictSelectInput<S extends AnyObject, T extends TableMetadata> = StrictObject<
     S,
-    FlatObject<SelectFields<T, R>>
+    FlatObject<SelectFields<T['schema'], T['relations']>>
   >;
 
-  export type InsertDataInput<T extends Database.Schema, R extends RelationMetadata> = Omit<
-    IsObjectEmpty<R['changes']> extends true ? T : T & R['changes'],
-    IndexFields<R>
+  export type InsertDataInput<T extends TableMetadata> = Omit<
+    IsObjectEmpty<T['relations']['changes']> extends true ? T['schema'] : T['schema'] & T['relations']['changes'],
+    IndexFields<T['relations']>
   >;
 
-  export type UpdateDataInput<T extends Database.Schema, R extends RelationMetadata> = AtomicDataInput<
-    Omit<IsObjectEmpty<R['changes']> extends true ? T : T & FlatObject<R['changes']>, IndexFields<R>>
+  export type UpdateDataInput<T extends TableMetadata> = AtomicDataInput<
+    Omit<
+      IsObjectEmpty<T['relations']['changes']> extends true ? T['schema'] : T['schema'] & FlatObject<T['relations']['changes']>,
+      IndexFields<T['relations']>
+    >
   >;
 
-  export type StrictIncludeInput<S extends AnyObject, I extends Database.Indexes, R extends RelationMetadata, E extends Database.Engine> =
-    IsObjectEmpty<R['filters']> extends true
+  export type OrderInput<T extends TableMetadata, O extends AnyObject = T['schema']> = OrderUtils.Input<O, T['engine']>;
+
+  export type StrictIncludeInput<S extends AnyObject, T extends TableMetadata> =
+    IsObjectEmpty<T['relations']['filters']> extends true
       ? never
       : {
-          [P in keyof IncludeFilters<R['filters'], S>]: {
-            where?: IncludeFilters<R['filters'], S>[P];
-            order?: OrderUtils.Input<R['filters'][P], I, E>;
+          [P in keyof IncludeFilters<T['relations']['filters'], S>]: {
+            where?: IncludeFilters<T['relations']['filters'], S>[P];
+            order?: OrderInput<T, T['relations']['filters'][P]>;
             skip?: number;
             take?: number;
           };
         };
 
-  export type WhereInput<T extends Database.Schema, I extends Database.Indexes, R extends RelationMetadata> = WhereInputFilters<T, I, R> & {
-    NOT?: WhereInput<T, {}, R>;
-    AND?: WhereInput<T, {}, R>[];
-    OR?: WhereInput<T, {}, R>[];
+  export type WhereInput<T extends TableMetadata, I extends boolean = false> = WhereInputFilters<
+    T['schema'],
+    I extends true ? T['indexes'] : {},
+    T['relations']
+  > & {
+    NOT?: WhereInput<T>;
+    AND?: WhereInput<T>[];
+    OR?: WhereInput<T>[];
   };
 
   type IndexFields<R extends RelationMetadata> = string extends R['indexes'] ? never : R['indexes'];

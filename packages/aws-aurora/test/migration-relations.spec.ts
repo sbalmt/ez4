@@ -37,8 +37,6 @@ describe('aurora migration (relations)', () => {
       }
     });
 
-    deepEqual(statements, [
-      `ALTER TABLE "ez4-test-table" DROP CONSTRAINT IF EXISTS "ez4-test-table_relation_fk"`
-    ]);
+    deepEqual(statements, [`ALTER TABLE "ez4-test-table" DROP CONSTRAINT IF EXISTS "ez4-test-table_relation_fk"`]);
   });
 });

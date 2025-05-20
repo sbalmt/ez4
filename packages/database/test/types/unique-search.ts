@@ -77,7 +77,7 @@ const testUpsert = (client: TestDatabase['client']) => {
       value: 456
     },
     where: {
-      unique_idx: 123
+      unique_idx: 789
     }
   });
 };
