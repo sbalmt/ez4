@@ -1,16 +1,17 @@
 import type { ConnectResourceEvent, PrepareResourceEvent, ServiceEvent } from '@ez4/project/library';
 
-import { OrderMode, ParametersMode, TransactionMode } from '@ez4/database';
+import { OrderMode, PaginationMode, ParametersMode, TransactionMode } from '@ez4/database';
 import { linkServiceExtras } from '@ez4/project/library';
 import { getFunctionState } from '@ez4/aws-function';
 import { isRoleState } from '@ez4/aws-identity';
 
 import {
   RoleMissingError,
-  UnsupportedOrderModeError,
+  UnsupportedPaginationModeError,
+  UnsupportedTransactionModeError,
   UnsupportedParametersModeError,
-  UnsupportedRelationError,
-  UnsupportedTransactionModeError
+  UnsupportedOrderModeError,
+  UnsupportedRelationError
 } from './errors.js';
 
 import { createTable } from '../table/service.js';
@@ -44,6 +45,10 @@ export const prepareDatabaseServices = async (event: PrepareResourceEvent) => {
 
   if (engine.transactionMode === TransactionMode.Interactive) {
     throw new UnsupportedTransactionModeError(engine.transactionMode);
+  }
+
+  if (engine.paginationMode === PaginationMode.Offset) {
+    throw new UnsupportedPaginationModeError(engine.paginationMode);
   }
 
   if (engine.orderMode === OrderMode.AnyColumns) {

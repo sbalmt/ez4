@@ -181,7 +181,7 @@ export class Table<T extends TableMetadata> implements DbTable<T> {
       ...(shouldCount && { total: total?.Items?.length }),
       records: items,
       cursor
-    } as Query.FindManyResult<S, T, C>;
+    } as unknown as Query.FindManyResult<S, T, C>;
   }
 
   async deleteMany<S extends Query.SelectInput<T>>(query: Query.DeleteManyInput<S, T>) {

@@ -1,9 +1,12 @@
 import type { PrepareResourceEvent, ServiceEvent } from '@ez4/project/library';
 
+import { PaginationMode } from '@ez4/database';
+
 import { createCluster } from '../cluster/service.js';
-import { createMigration } from '../migration/service.js';
 import { createInstance } from '../instance/service.js';
+import { createMigration } from '../migration/service.js';
 import { getClusterName, getDatabaseName, getInstanceName, isAuroraService } from './utils.js';
+import { UnsupportedPaginationModeError } from './errors.js';
 import { prepareLinkedClient } from './client.js';
 import { getRepository } from './repository.js';
 
@@ -24,6 +27,12 @@ export const prepareDatabaseServices = async (event: PrepareResourceEvent) => {
     return;
   }
 
+  const { engine } = service;
+
+  if (engine.paginationMode === PaginationMode.Cursor) {
+    throw new UnsupportedPaginationModeError(engine.paginationMode);
+  }
+
   const clusterState = createCluster(state, {
     clusterName: getClusterName(service, options),
     tags: options.tags,
@@ -33,7 +42,7 @@ export const prepareDatabaseServices = async (event: PrepareResourceEvent) => {
 
   const instanceState = createInstance(state, clusterState, {
     instanceName: getInstanceName(service, options),
-    tags: options.tags,
+    tags: options.tags
   });
 
   createMigration(state, clusterState, instanceState, {

@@ -1,5 +1,6 @@
 import type { ParametersMode } from './parameters.js';
 import type { TransactionMode } from './transaction.js';
+import type { PaginationMode } from './pagination.js';
 import type { OrderMode } from './order.js';
 import type { Database } from './database.js';
 
@@ -9,6 +10,7 @@ import type { Database } from './database.js';
 export type DatabaseEngine = {
   parametersMode: ParametersMode;
   transactionMode: TransactionMode;
+  paginationMode: PaginationMode;
   orderMode: OrderMode;
   name: string;
 };

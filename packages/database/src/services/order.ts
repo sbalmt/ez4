@@ -26,19 +26,19 @@ export namespace OrderUtils {
   /**
    * Order input for index columns.
    */
-  export type IndexInput<I extends Database.Indexes> = {
+  type IndexInput<I extends Database.Indexes> = {
     [P in DecomposeIndexName<keyof I>]?: Order;
   };
 
   /**
    * Order input for any columns.
    */
-  export type AnyInput<T extends Database.Schema> = {
+  type AnyInput<T extends Database.Schema> = {
     [P in keyof T]?: Order;
   };
 
   /**
-   * Determines the order mode based on the given database service.
+   * Order input type based on the
    */
   export type Input<T extends AnyObject, E extends DatabaseEngine> = E['orderMode'] extends OrderMode.AnyColumns
     ? AnyInput<T['schema']>

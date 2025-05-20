@@ -132,13 +132,15 @@ export const prepareFindMany = <T extends TableMetadata, S extends Query.SelectI
 
   const [statement, variables] = prepareSelect(table, secondaryIndex, query);
 
-  const { cursor, limit } = query;
-
   return {
-    ConsistentRead: !secondaryIndex,
-    NextToken: cursor?.toString(),
     Statement: statement,
-    Limit: limit,
+    ConsistentRead: !secondaryIndex,
+    ...('cursor' in query && {
+      NextToken: query.cursor
+    }),
+    ...('limit' in query && {
+      Limit: query.limit
+    }),
     ...(variables.length && {
       Parameters: variables
     })

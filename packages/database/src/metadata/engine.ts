@@ -9,6 +9,7 @@ import { isModelProperty, isTypeObject, isTypeReference } from '@ez4/reflection'
 import { IncompleteTableError } from '../errors/table.js';
 import { ParametersMode } from '../services/parameters.js';
 import { TransactionMode } from '../services/transaction.js';
+import { PaginationMode } from '../services/pagination.js';
 import { OrderMode } from '../services/order.js';
 import { isDatabaseEngine } from './utils.js';
 
@@ -45,7 +46,7 @@ const getTypeEngine = (type: AllType, parent: TypeModel, errorList: Error[]) => 
 const getTypeFromMembers = (type: TypeObject | TypeModel, parent: TypeModel, members: MemberType[], errorList: Error[]) => {
   const engine: Incomplete<DatabaseEngine> = {};
 
-  const properties = new Set(['name', 'parametersMode', 'transactionMode', 'orderMode']);
+  const properties = new Set(['name', 'parametersMode', 'transactionMode', 'paginationMode', 'orderMode']);
 
   for (const member of members) {
     if (!isModelProperty(member) || member.inherited) {
@@ -71,6 +72,12 @@ const getTypeFromMembers = (type: TypeObject | TypeModel, parent: TypeModel, mem
 
       case 'transactionMode':
         if ((engine.transactionMode = getTransactionMode(member))) {
+          properties.delete(member.name);
+        }
+        break;
+
+      case 'paginationMode':
+        if ((engine.paginationMode = getPaginationMode(member))) {
           properties.delete(member.name);
         }
         break;
@@ -109,6 +116,18 @@ const getTransactionMode = (member: ModelProperty) => {
   switch (type) {
     case TransactionMode.Interactive:
     case TransactionMode.Static:
+      return type;
+  }
+
+  return null;
+};
+
+const getPaginationMode = (member: ModelProperty) => {
+  const type = getPropertyString(member);
+
+  switch (type) {
+    case PaginationMode.Cursor:
+    case PaginationMode.Offset:
       return type;
   }
 

@@ -1,4 +1,4 @@
-import type { StreamChange, Database, Client, TransactionMode, ParametersMode, OrderMode } from '@ez4/database';
+import type { StreamChange, Database, Client, TransactionMode, ParametersMode, PaginationMode, OrderMode } from '@ez4/database';
 
 declare class TestSchema implements Database.Schema {
   foo: string;
@@ -8,6 +8,7 @@ export declare class TestDatabase extends Database.Service {
   engine: {
     parametersMode: ParametersMode.OnlyIndex;
     transactionMode: TransactionMode.Static;
+    paginationMode: PaginationMode.Offset;
     orderMode: OrderMode.AnyColumns;
     name: 'test';
   };

@@ -22,6 +22,12 @@ export class UnsupportedParametersModeError extends Error {
   }
 }
 
+export class UnsupportedPaginationModeError extends Error {
+  constructor(public mode: string) {
+    super(`DynamoDB doesn't support '${mode}' pagination mode.`);
+  }
+}
+
 export class UnsupportedOrderModeError extends Error {
   constructor(public mode: string) {
     super(`DynamoDB doesn't support '${mode}' order mode.`);

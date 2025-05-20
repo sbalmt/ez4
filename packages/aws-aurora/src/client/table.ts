@@ -6,8 +6,6 @@ import type { RepositoryRelationsWithSchema } from '../types/repository.js';
 import type { PreparedQueryCommand } from './common/queries.js';
 import type { Connection } from './types.js';
 
-import { isAnyNumber } from '@ez4/utils';
-
 import { executeStatement, executeStatements, executeTransaction } from './common/client.js';
 import { parseRecord } from './common/record.js';
 
@@ -182,7 +180,7 @@ export class Table<T extends TableMetadata> implements DbTable<T> {
   }
 
   async findMany<S extends Query.SelectInput<T>, C extends boolean = false>(query: Query.FindManyInput<S, T, C>) {
-    const { cursor, count: shouldCount } = query;
+    const { count: shouldCount } = query;
 
     const findCommand = prepareFindMany(this.name, this.schema, this.relations, query);
     const allCommands = [findCommand];
@@ -200,9 +198,6 @@ export class Table<T extends TableMetadata> implements DbTable<T> {
     return {
       records: records.map((record: AnyObject) => {
         return this.parseRecord(record);
-      }),
-      ...(isAnyNumber(cursor) && {
-        cursor: Number(cursor) + records.length
       }),
       ...(shouldCount && {
         total: total[0]?.count

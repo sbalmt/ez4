@@ -33,8 +33,8 @@ export const prepareFindOne = <T extends TableMetadata, S extends Query.SelectIn
 ): PreparedQueryCommand => {
   const [statement, variables] = prepareSelectQuery(table, schema, relations, {
     ...query,
-    limit: 1
-  });
+    take: 1
+  } as any);
 
   return {
     sql: statement,
@@ -52,7 +52,7 @@ export const prepareUpdateOne = async <T extends TableMetadata, S extends Query.
 ): Promise<PreparedQueryCommand> => {
   const [statement, variables] = await prepareUpdateQuery(table, schema, relations, {
     ...query
-    // limit: 1
+    // take: 1
   });
 
   return {
@@ -71,8 +71,8 @@ export const prepareDeleteOne = <T extends TableMetadata, S extends Query.Select
 ): PreparedQueryCommand => {
   const [statement, variables] = prepareDeleteQuery(table, schema, relations, {
     ...query,
-    limit: 1
-  });
+    take: 1
+  } as any);
 
   return {
     sql: statement,

@@ -1,4 +1,4 @@
-import type { ParametersMode, TransactionMode, OrderMode } from '@ez4/database';
+import type { ParametersMode, TransactionMode, PaginationMode, OrderMode } from '@ez4/database';
 import type { Arn } from '@ez4/aws-common';
 
 export type Connection = {
@@ -13,6 +13,7 @@ export type Connection = {
 export type PostgresEngine = {
   parametersMode: ParametersMode.NameAndIndex;
   transactionMode: TransactionMode.Interactive;
+  paginationMode: PaginationMode.Offset;
   orderMode: OrderMode.AnyColumns;
   name: 'aurora';
 };

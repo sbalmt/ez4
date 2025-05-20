@@ -43,12 +43,12 @@ export const prepareSelectQuery = <T extends TableMetadata, S extends Query.Sele
     selectQuery.order(query.order);
   }
 
-  if ('cursor' in query && isAnyNumber(query.cursor)) {
-    selectQuery.skip(query.cursor);
+  if ('skip' in query && isAnyNumber(query.skip)) {
+    selectQuery.skip(query.skip);
   }
 
-  if ('limit' in query && isAnyNumber(query.limit)) {
-    selectQuery.take(query.limit);
+  if ('take' in query && isAnyNumber(query.take)) {
+    selectQuery.take(query.take);
   }
 
   const [statement, variables] = selectQuery.build();
@@ -95,13 +95,22 @@ export const getSelectFields = <T extends TableMetadata, S extends AnyObject>(
       const relationQuery = sql
         .select(sourceSchema)
         .from(sourceTable)
-        .order(relationIncludes?.order)
-        .skip(relationIncludes?.skip)
-        .take(relationIncludes?.take)
         .where({
           ...relationIncludes?.where,
           [sourceColumn]: source.reference(targetColumn)
         });
+
+      if (relationIncludes) {
+        relationQuery.order(relationIncludes.order);
+
+        if ('skip' in relationIncludes) {
+          relationQuery.skip(relationIncludes.skip);
+        }
+
+        if ('take' in relationIncludes) {
+          relationQuery.take(relationIncludes.take);
+        }
+      }
 
       const record = getSelectFields(sql, relationFields, null, sourceSchema, relations, relationQuery, fieldPath, true);
 

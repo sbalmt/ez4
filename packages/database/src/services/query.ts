@@ -1,5 +1,6 @@
 import type { DecomposeIndexName, PrimaryIndexes, UniqueIndexes } from './indexes.js';
 import type { RelationMetadata } from './relations.js';
+import type { PaginationUtils } from './pagination.js';
 import type { TableMetadata } from './table.js';
 import type { OrderUtils } from './order.js';
 import type { Database } from './database.js';
@@ -65,14 +66,12 @@ export namespace Query {
     limit?: number;
   };
 
-  export type FindManyInput<S extends AnyObject, T extends TableMetadata, C extends boolean> = {
+  export type FindManyInput<S extends AnyObject, T extends TableMetadata, C extends boolean> = PaginationUtils.Input<T['engine']> & {
     count?: C;
     select: StrictSelectInput<S, T>;
     include?: StrictIncludeInput<S, T>;
     where?: WhereInput<T>;
     order?: OrderInput<T>;
-    cursor?: number | string;
-    limit?: number;
   };
 
   export type DeleteManyInput<S extends AnyObject, T extends TableMetadata> = {
@@ -100,9 +99,10 @@ export namespace Query {
 
   export type InsertManyResult = void;
 
-  export type FindManyResult<S extends AnyObject, T extends TableMetadata, C extends boolean> = C extends true
-    ? { records: Record<S, T>[]; cursor?: number | string; total: number }
-    : { records: Record<S, T>[]; cursor?: number | string };
+  export type FindManyResult<S extends AnyObject, T extends TableMetadata, C extends boolean> = PaginationUtils.Result<T['engine']> &
+    C extends true
+    ? { records: Record<S, T>[]; total: number }
+    : { records: Record<S, T>[] };
 
   export type DeleteManyResult<S extends AnyObject, T extends TableMetadata> = Record<S, T>[];
 
@@ -135,11 +135,9 @@ export namespace Query {
     IsObjectEmpty<T['relations']['filters']> extends true
       ? never
       : {
-          [P in keyof IncludeFilters<T['relations']['filters'], S>]: {
+          [P in keyof IncludeFilters<T['relations']['filters'], S>]: PaginationUtils.Input<T['engine']> & {
             where?: IncludeFilters<T['relations']['filters'], S>[P];
             order?: OrderInput<T, T['relations']['filters'][P]>;
-            skip?: number;
-            take?: number;
           };
         };
 

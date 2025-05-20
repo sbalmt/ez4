@@ -14,7 +14,7 @@ export const enum ParametersMode {
  */
 export namespace ParametersUtils {
   /**
-   * Determines the parameters mode based on the given database service.
+   * Get the parameters type based on the given database service.
    */
   export type Type<T extends Database.Service> =
     EngineUtils.GetParametersMode<T> extends ParametersMode.NameAndIndex ? unknown[] | Record<string, unknown> : unknown[];

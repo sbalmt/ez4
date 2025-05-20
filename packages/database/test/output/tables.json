@@ -6,6 +6,7 @@
     "engine": {
       "parametersMode": "index",
       "transactionMode": "static",
+      "paginationMode": "offset",
       "orderMode": "any",
       "name": "test"
     },
@@ -15,7 +16,14 @@
         "schema": {
           "type": "object",
           "identity": 1,
-          "properties": {}
+          "properties": {
+            "id": {
+              "type": "string"
+            },
+            "foo": {
+              "type": "string"
+            }
+          }
         },
         "indexes": []
       },

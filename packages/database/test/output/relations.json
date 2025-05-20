@@ -6,6 +6,7 @@
     "engine": {
       "parametersMode": "index",
       "transactionMode": "static",
+      "paginationMode": "offset",
       "orderMode": "any",
       "name": "test"
     },

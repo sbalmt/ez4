@@ -1,8 +1,6 @@
 import type { Client, Database, ParametersMode, TransactionMode, OrderMode, PaginationMode, Index } from '@ez4/database';
 import type { Environment, Service } from '@ez4/common';
 
-import { Order } from '@ez4/database';
-
 declare class TestTable implements Database.Schema {
   id: string;
   next_id: string;
@@ -39,18 +37,17 @@ export declare class TestDatabase extends Database.Service {
 }
 
 export async function testHandler({ selfClient }: Service.Context<TestDatabase>) {
-  // Order by any column in the main query.
+  // Paginate using cursor.
   selfClient.table.findMany({
     select: {
       id: true,
       value: true
     },
-    order: {
-      value: Order.Desc
-    }
+    skip: 5,
+    take: 5
   });
 
-  // Order by any column in the sub-query.
+  // Paginate using cursor in the sub-query.
   selfClient.table.findMany({
     select: {
       id: true,
@@ -58,9 +55,8 @@ export async function testHandler({ selfClient }: Service.Context<TestDatabase>)
     },
     include: {
       next: {
-        order: {
-          value: Order.Asc
-        }
+        skip: 5,
+        take: 5
       }
     }
   });
