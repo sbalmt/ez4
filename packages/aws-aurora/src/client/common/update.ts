@@ -1,9 +1,10 @@
 import type { SqlSourceWithResults, SqlRecord, SqlBuilder, SqlSelectStatement, SqlUpdateStatement } from '@ez4/pgsql';
 import type { NumberSchema, ObjectSchema } from '@ez4/schema';
 import type { SqlParameter } from '@aws-sdk/client-rds-data';
-import type { Query, TableMetadata } from '@ez4/database';
 import type { AnyObject } from '@ez4/utils';
+import type { Query } from '@ez4/database';
 import type { RelationWithSchema, RepositoryRelationsWithSchema } from '../../types/repository.js';
+import type { InternalTableMetadata } from '../types.js';
 
 import { isDynamicObjectSchema, IsNullishSchema, isNumberSchema, isObjectSchema } from '@ez4/schema';
 import { isAnyObject, isEmptyObject } from '@ez4/utils';
@@ -16,7 +17,7 @@ import { validateFirstSchemaLevel } from './schema.js';
 import { createQueryBuilder } from './builder.js';
 import { isSkippableData } from './data.js';
 
-export const prepareUpdateQuery = async <T extends TableMetadata, S extends Query.SelectInput<T>>(
+export const prepareUpdateQuery = async <T extends InternalTableMetadata, S extends Query.SelectInput<T>>(
   table: string,
   schema: ObjectSchema,
   relations: RepositoryRelationsWithSchema,

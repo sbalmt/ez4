@@ -1,9 +1,10 @@
 import type { SqlInsertStatement, SqlSelectStatement, SqlSourceWithResults, SqlJsonColumnSchema, SqlBuilder, SqlRecord } from '@ez4/pgsql';
 import type { SqlParameter } from '@aws-sdk/client-rds-data';
-import type { Query, TableMetadata } from '@ez4/database';
 import type { ObjectSchema } from '@ez4/schema';
 import type { AnyObject } from '@ez4/utils';
+import type { Query } from '@ez4/database';
 import type { RelationWithSchema, RepositoryRelationsWithSchema } from '../../types/repository.js';
+import type { InternalTableMetadata } from '../types.js';
 
 import { isObjectSchema } from '@ez4/schema';
 import { isEmptyObject } from '@ez4/utils';
@@ -31,7 +32,7 @@ type InsertRelationEntry = RelationWithSchema & {
   relationQueries: SqlInsertStatement[];
 };
 
-export const prepareInsertQuery = async <T extends TableMetadata, S extends Query.SelectInput<T>>(
+export const prepareInsertQuery = async <T extends InternalTableMetadata, S extends Query.SelectInput<T>>(
   table: string,
   schema: ObjectSchema,
   relations: RepositoryRelationsWithSchema,
@@ -320,7 +321,7 @@ const preparePostInsertRelations = (
   return allQueries;
 };
 
-const getInsertSelectFields = <T extends TableMetadata>(
+const getInsertSelectFields = <T extends InternalTableMetadata>(
   sql: SqlBuilder,
   fields: Query.StrictSelectInput<AnyObject, T>,
   schema: ObjectSchema,

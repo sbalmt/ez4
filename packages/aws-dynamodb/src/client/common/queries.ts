@@ -93,8 +93,8 @@ export const prepareInsertMany = async <T extends TableMetadata>(
 
   const transactions = [];
 
-  for (const data of query.data as any) {
-    const { [partitionKey]: partitionId, [sortKey]: sortId } = data;
+  for (const data of query.data) {
+    const { [partitionKey]: partitionId, [sortKey]: sortId } = data as any;
 
     const uniqueRecordId = `${partitionId}${sortId ?? ''}`;
 

@@ -1,6 +1,6 @@
-import type { Database, Client as DbClient, ParametersUtils, TransactionUtils, TableMetadata } from '@ez4/database';
+import type { Database, Client as DbClient, ParametersUtils, TransactionUtils } from '@ez4/database';
 import type { Repository, RepositoryRelations, RepositoryRelationsWithSchema } from '../types/repository.js';
-import type { Connection } from './types.js';
+import type { Connection, InternalTableMetadata } from './types.js';
 
 import { RDSDataClient } from '@aws-sdk/client-rds-data';
 
@@ -19,7 +19,7 @@ import { prepareDeleteOne, prepareInsertOne, prepareUpdateOne } from './common/q
 import { MissingRepositoryTableError } from './errors.js';
 import { Table } from './table.js';
 
-type TableType = Table<TableMetadata>;
+type TableType = Table<InternalTableMetadata>;
 
 const client = new RDSDataClient();
 

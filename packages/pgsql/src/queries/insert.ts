@@ -86,7 +86,7 @@ export class SqlInsertStatement extends SqlSource {
     return this;
   }
 
-  returning(result?: SqlResultRecord | SqlResultColumn[]): SqlInsertStatement & SqlSourceWithResults {
+  returning(result?: SqlResultRecord | SqlResultColumn[]) {
     const { returning } = this.#state;
 
     if (!returning) {
@@ -95,7 +95,7 @@ export class SqlInsertStatement extends SqlSource {
       returning.apply(result);
     }
 
-    return this as any;
+    return this as SqlInsertStatement & SqlSourceWithResults;
   }
 
   build(): [string, unknown[]] {

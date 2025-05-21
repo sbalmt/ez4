@@ -1,4 +1,5 @@
-import type { DatabaseEngine } from './engine.js';
+import type { TableMetadata } from './table.js';
+import type { EngineUtils } from './engine.js';
 
 /**
  * Pagination mode.
@@ -13,14 +14,25 @@ export const enum PaginationMode {
  */
 export namespace PaginationUtils {
   /**
-   * Get the pagination input based on the given database engine.
+   * Get the pagination range based on the given table metadata.
    */
-  export type Input<E extends DatabaseEngine> = E['paginationMode'] extends PaginationMode.Cursor
-    ? { cursor?: string; limit?: number }
-    : { skip?: number; take?: number };
+  export type Range<T extends TableMetadata> =
+    EngineUtils.GetPaginationMode<T> extends PaginationMode.Cursor ? { cursor?: string; limit?: number } : { skip?: number; take?: number };
 
   /**
-   * Get the pagination result based on the given database engine.
+   * Get the pagination begin based on the given table metadata.
    */
-  export type Result<E extends DatabaseEngine> = E['paginationMode'] extends PaginationMode.Cursor ? { cursor?: string } : {};
+  export type Begin<T extends TableMetadata> =
+    EngineUtils.GetPaginationMode<T> extends PaginationMode.Cursor ? { cursor?: string } : { skip?: number };
+
+  /**
+   * Get the pagination end based on the given table metadata.
+   */
+  export type End<T extends TableMetadata> =
+    EngineUtils.GetPaginationMode<T> extends PaginationMode.Cursor ? { limit?: number } : { take?: number };
+
+  /**
+   * Get the pagination result based on the given table metadata.
+   */
+  export type Result<T extends TableMetadata> = EngineUtils.GetPaginationMode<T> extends PaginationMode.Cursor ? { cursor?: string } : {};
 }

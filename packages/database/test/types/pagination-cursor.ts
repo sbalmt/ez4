@@ -38,7 +38,7 @@ export declare class TestDatabase extends Database.Service {
 
 export async function testHandler({ selfClient }: Service.Context<TestDatabase>) {
   // Paginate using cursor.
-  selfClient.table.findMany({
+  const resultA = await selfClient.table.findMany({
     select: {
       id: true,
       value: true
@@ -47,8 +47,10 @@ export async function testHandler({ selfClient }: Service.Context<TestDatabase>)
     limit: 5
   });
 
+  resultA.cursor;
+
   // Paginate using cursor in the sub-query.
-  selfClient.table.findMany({
+  const resultB = await selfClient.table.findMany({
     select: {
       id: true,
       value: true
@@ -60,4 +62,6 @@ export async function testHandler({ selfClient }: Service.Context<TestDatabase>)
       }
     }
   });
+
+  resultB.cursor;
 }

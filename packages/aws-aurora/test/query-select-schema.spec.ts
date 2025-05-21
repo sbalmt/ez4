@@ -205,7 +205,7 @@ describe('aurora query (select schema)', () => {
         },
         where: {
           bar: 123
-        } as any
+        }
       }
     );
 

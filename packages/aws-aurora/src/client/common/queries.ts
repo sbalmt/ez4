@@ -1,7 +1,8 @@
 import type { ExecuteStatementCommandInput } from '@aws-sdk/client-rds-data';
-import type { Query, TableMetadata } from '@ez4/database';
 import type { ObjectSchema } from '@ez4/schema';
+import type { Query } from '@ez4/database';
 import type { RepositoryRelationsWithSchema } from '../../types/repository.js';
+import type { InternalTableMetadata } from '../types.js';
 
 import { prepareInsertQuery } from './insert.js';
 import { prepareUpdateQuery } from './update.js';
@@ -11,7 +12,7 @@ import { prepareCountQuery } from './count.js';
 
 export type PreparedQueryCommand = Pick<ExecuteStatementCommandInput, 'sql' | 'parameters'>;
 
-export const prepareInsertOne = async <T extends TableMetadata, S extends Query.SelectInput<T>>(
+export const prepareInsertOne = async <T extends InternalTableMetadata, S extends Query.SelectInput<T>>(
   table: string,
   schema: ObjectSchema,
   relations: RepositoryRelationsWithSchema,
@@ -25,16 +26,13 @@ export const prepareInsertOne = async <T extends TableMetadata, S extends Query.
   };
 };
 
-export const prepareFindOne = <T extends TableMetadata, S extends Query.SelectInput<T>>(
+export const prepareFindOne = <T extends InternalTableMetadata, S extends Query.SelectInput<T>>(
   table: string,
   schema: ObjectSchema,
   relations: RepositoryRelationsWithSchema,
   query: Query.FindOneInput<S, T>
 ): PreparedQueryCommand => {
-  const [statement, variables] = prepareSelectQuery(table, schema, relations, {
-    ...query,
-    take: 1
-  } as any);
+  const [statement, variables] = prepareSelectQuery(table, schema, relations, query);
 
   return {
     sql: statement,
@@ -44,16 +42,13 @@ export const prepareFindOne = <T extends TableMetadata, S extends Query.SelectIn
   };
 };
 
-export const prepareUpdateOne = async <T extends TableMetadata, S extends Query.SelectInput<T>>(
+export const prepareUpdateOne = async <T extends InternalTableMetadata, S extends Query.SelectInput<T>>(
   table: string,
   schema: ObjectSchema,
   relations: RepositoryRelationsWithSchema,
   query: Query.UpdateOneInput<S, T>
 ): Promise<PreparedQueryCommand> => {
-  const [statement, variables] = await prepareUpdateQuery(table, schema, relations, {
-    ...query
-    // take: 1
-  });
+  const [statement, variables] = await prepareUpdateQuery(table, schema, relations, query);
 
   return {
     sql: statement,
@@ -63,16 +58,13 @@ export const prepareUpdateOne = async <T extends TableMetadata, S extends Query.
   };
 };
 
-export const prepareDeleteOne = <T extends TableMetadata, S extends Query.SelectInput<T>>(
+export const prepareDeleteOne = <T extends InternalTableMetadata, S extends Query.SelectInput<T>>(
   table: string,
   schema: ObjectSchema,
   relations: RepositoryRelationsWithSchema,
   query: Query.DeleteOneInput<S, T>
 ): PreparedQueryCommand => {
-  const [statement, variables] = prepareDeleteQuery(table, schema, relations, {
-    ...query,
-    take: 1
-  } as any);
+  const [statement, variables] = prepareDeleteQuery(table, schema, relations, query);
 
   return {
     sql: statement,
@@ -82,7 +74,7 @@ export const prepareDeleteOne = <T extends TableMetadata, S extends Query.Select
   };
 };
 
-export const prepareInsertMany = async <T extends TableMetadata>(
+export const prepareInsertMany = async <T extends InternalTableMetadata>(
   table: string,
   schema: ObjectSchema,
   relations: RepositoryRelationsWithSchema,
@@ -104,7 +96,7 @@ export const prepareInsertMany = async <T extends TableMetadata>(
   );
 };
 
-export const prepareFindMany = <T extends TableMetadata, S extends Query.SelectInput<T>, C extends boolean>(
+export const prepareFindMany = <T extends InternalTableMetadata, S extends Query.SelectInput<T>, C extends boolean>(
   table: string,
   schema: ObjectSchema,
   relations: RepositoryRelationsWithSchema,
@@ -120,7 +112,7 @@ export const prepareFindMany = <T extends TableMetadata, S extends Query.SelectI
   };
 };
 
-export const prepareUpdateMany = async <T extends TableMetadata, S extends Query.SelectInput<T>>(
+export const prepareUpdateMany = async <T extends InternalTableMetadata, S extends Query.SelectInput<T>>(
   table: string,
   schema: ObjectSchema,
   relations: RepositoryRelationsWithSchema,
@@ -136,7 +128,7 @@ export const prepareUpdateMany = async <T extends TableMetadata, S extends Query
   };
 };
 
-export const prepareDeleteMany = <T extends TableMetadata, S extends Query.SelectInput<T>>(
+export const prepareDeleteMany = <T extends InternalTableMetadata, S extends Query.SelectInput<T>>(
   table: string,
   schema: ObjectSchema,
   relations: RepositoryRelationsWithSchema,
@@ -152,7 +144,7 @@ export const prepareDeleteMany = <T extends TableMetadata, S extends Query.Selec
   };
 };
 
-export const prepareCount = <T extends TableMetadata>(
+export const prepareCount = <T extends InternalTableMetadata>(
   table: string,
   schema: ObjectSchema,
   relations: RepositoryRelationsWithSchema,

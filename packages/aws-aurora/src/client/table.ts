@@ -1,10 +1,10 @@
-import type { Table as DbTable, Query, TableMetadata } from '@ez4/database';
+import type { Table as DbTable, Query } from '@ez4/database';
 import type { RDSDataClient } from '@aws-sdk/client-rds-data';
 import type { AnyObject, IsArray } from '@ez4/utils';
 import type { ObjectSchema } from '@ez4/schema';
 import type { RepositoryRelationsWithSchema } from '../types/repository.js';
 import type { PreparedQueryCommand } from './common/queries.js';
-import type { Connection } from './types.js';
+import type { Connection, InternalTableMetadata } from './types.js';
 
 import { executeStatement, executeStatements, executeTransaction } from './common/client.js';
 import { parseRecord } from './common/record.js';
@@ -30,7 +30,7 @@ export type TableContext = {
 
 type SendCommandResult<T> = IsArray<T> extends true ? AnyObject[][] : AnyObject[];
 
-export class Table<T extends TableMetadata> implements DbTable<T> {
+export class Table<T extends InternalTableMetadata> implements DbTable<T> {
   constructor(
     private name: string,
     private schema: ObjectSchema,
@@ -154,7 +154,7 @@ export class Table<T extends TableMetadata> implements DbTable<T> {
   }
 
   async updateMany<S extends Query.SelectInput<T>>(query: Query.UpdateManyInput<S, T>) {
-    const { select, where, limit } = query;
+    const { select, where } = query;
 
     const updateCommand = await prepareUpdateMany(this.name, this.schema, this.relations, query);
 
@@ -167,7 +167,9 @@ export class Table<T extends TableMetadata> implements DbTable<T> {
     const selectCommand = prepareFindMany(this.name, this.schema, this.relations, {
       select,
       where,
-      limit
+      ...('take' in query && {
+        take: query.take
+      })
     });
 
     const [records] = await this.sendCommand([selectCommand, updateCommand]);

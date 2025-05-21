@@ -58,15 +58,14 @@ export namespace Query {
     data: T['schema'][];
   };
 
-  export type UpdateManyInput<S extends AnyObject, T extends TableMetadata> = {
+  export type UpdateManyInput<S extends AnyObject, T extends TableMetadata> = PaginationUtils.End<T> & {
     select?: StrictSelectInput<S, T>;
     include?: StrictIncludeInput<S, T>;
     data: OptionalObject<UpdateDataInput<T>>;
     where?: WhereInput<T>;
-    limit?: number;
   };
 
-  export type FindManyInput<S extends AnyObject, T extends TableMetadata, C extends boolean> = PaginationUtils.Input<T['engine']> & {
+  export type FindManyInput<S extends AnyObject, T extends TableMetadata, C extends boolean> = PaginationUtils.Range<T> & {
     count?: C;
     select: StrictSelectInput<S, T>;
     include?: StrictIncludeInput<S, T>;
@@ -74,11 +73,10 @@ export namespace Query {
     order?: OrderInput<T>;
   };
 
-  export type DeleteManyInput<S extends AnyObject, T extends TableMetadata> = {
+  export type DeleteManyInput<S extends AnyObject, T extends TableMetadata> = PaginationUtils.End<T> & {
     select?: StrictSelectInput<S, T>;
     include?: StrictIncludeInput<S, T>;
     where?: WhereInput<T>;
-    limit?: number;
   };
 
   export type CountInput<T extends TableMetadata> = {
@@ -99,10 +97,8 @@ export namespace Query {
 
   export type InsertManyResult = void;
 
-  export type FindManyResult<S extends AnyObject, T extends TableMetadata, C extends boolean> = PaginationUtils.Result<T['engine']> &
-    C extends true
-    ? { records: Record<S, T>[]; total: number }
-    : { records: Record<S, T>[] };
+  export type FindManyResult<S extends AnyObject, T extends TableMetadata, C extends boolean> = PaginationUtils.Result<T> &
+    (C extends true ? { records: Record<S, T>[]; total: number } : { records: Record<S, T>[] });
 
   export type DeleteManyResult<S extends AnyObject, T extends TableMetadata> = Record<S, T>[];
 
@@ -135,7 +131,7 @@ export namespace Query {
     IsObjectEmpty<T['relations']['filters']> extends true
       ? never
       : {
-          [P in keyof IncludeFilters<T['relations']['filters'], S>]: PaginationUtils.Input<T['engine']> & {
+          [P in keyof IncludeFilters<T['relations']['filters'], S>]: PaginationUtils.Range<T> & {
             where?: IncludeFilters<T['relations']['filters'], S>[P];
             order?: OrderInput<T, T['relations']['filters'][P]>;
           };
