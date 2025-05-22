@@ -134,6 +134,7 @@ export class Table<T extends InternalTableMetadata> implements DbTable<T> {
 
     if (!previous) {
       return this.insertOne({
+        select: query.select,
         data: query.insert
       }) as Promise<Query.UpsertOneResult<S, T>>;
     }
