@@ -50,7 +50,11 @@ export const prepareUpdateColumns = (table: string, indexes: RepositoryIndexes, 
 
     const columnType = getColumnType(columnSchema, columnIsPrimary);
 
-    allStatements.push(`${statement} TYPE ${columnType}`);
+    if (columnType === 'jsonb') {
+      allStatements.push(`${statement} TYPE ${columnType} USING "${columnName}"::jsonb`);
+    } else {
+      allStatements.push(`${statement} TYPE ${columnType}`);
+    }
 
     const columnNullable = isOptionalColumn(columnSchema);
 
