@@ -22,7 +22,7 @@ export namespace String {
   /**
    * String with default value.
    */
-  export type Default<_Value extends string> = string | undefined;
+  export type Default<_Value extends string> = string;
 
   /**
    * String matching regex.

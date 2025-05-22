@@ -22,5 +22,5 @@ export namespace Decimal {
   /**
    * Decimal with default value.
    */
-  export type Default<_Value extends number> = number | undefined;
+  export type Default<_Value extends number> = number;
 }

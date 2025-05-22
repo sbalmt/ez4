@@ -17,5 +17,5 @@ export namespace Array {
   /**
    * Array with default value.
    */
-  export type Default<Type, _Value extends Type[]> = Type[] | undefined;
+  export type Default<Type, _Value extends Type[]> = Type[];
 }
