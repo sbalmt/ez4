@@ -120,3 +120,8 @@ export type PartialObject<T extends AnyObject, O extends AnyObject, V extends bo
  * - In any other case, it returns `never`.
  */
 type PartialObjectProperty<T, K, V> = T extends true | AnyObject ? (V extends true ? never : K) : V extends false ? never : K;
+
+/**
+ * Given a type `T`, is produces a union containing all inner types.
+ */
+export type InnerTypes<T> = IsObject<T> extends true ? InnerTypes<T[keyof T]> : T;

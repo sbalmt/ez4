@@ -1,9 +1,9 @@
-import type { AnyObject, PartialProperties } from './generics.js';
+import type { AnyObject, InnerTypes, PartialProperties } from './generics.js';
 
 import { deepCompareArray } from '../array/compare.js';
 import { isAnyObject } from './check.js';
 
-export type ObjectCompareOptions<T extends AnyObject> = {
+export type ObjectCompareOptions<T extends AnyObject, S extends AnyObject> = {
   /**
    * After the given depth level, all objects and arrays are not deeply checked.
    */
@@ -12,12 +12,21 @@ export type ObjectCompareOptions<T extends AnyObject> = {
   /**
    * Determines which property must be excluded, all other properties are included.
    */
-  exclude?: PartialProperties<T>;
+  exclude?: PartialProperties<T & S>;
 
   /**
    * Determines which property must be included, all other properties are excluded.
    */
-  include?: PartialProperties<T>;
+  include?: PartialProperties<T & S>;
+
+  /**
+   * Determines whether or not an object property can be renamed.
+   *
+   * @param target Target value.
+   * @param source Source value.
+   * @returns Returns `true` when the object property can be renamed, `false` otherwise.
+   */
+  onRename?: (target: InnerTypes<T>, source: InnerTypes<S>) => boolean;
 };
 
 export type ObjectComparison = {
@@ -40,7 +49,7 @@ export type ObjectComparison = {
 export const deepCompareObject = <T extends AnyObject, S extends AnyObject>(
   target: T,
   source: S,
-  options?: ObjectCompareOptions<T & S>
+  options?: ObjectCompareOptions<T, S>
 ): ObjectComparison => {
   const includeStates = options?.include;
   const excludeStates = options?.exclude;
@@ -51,6 +60,8 @@ export const deepCompareObject = <T extends AnyObject, S extends AnyObject>(
 
   const isInclude = !!includeStates;
   const allStates = includeStates ?? excludeStates ?? ({} as PartialProperties<T & S>);
+
+  const onRename = options?.onRename;
 
   const depth = options?.depth ?? +Infinity;
 
@@ -93,7 +104,7 @@ export const deepCompareObject = <T extends AnyObject, S extends AnyObject>(
 
       const removeKey = getSimilarKeyName(key, toRemoveKeys);
 
-      if (removeKey) {
+      if (removeKey && (!onRename || onRename(targetValue, toRemove[removeKey]))) {
         delete toRemove[removeKey];
         counts.remove--;
 
@@ -114,7 +125,7 @@ export const deepCompareObject = <T extends AnyObject, S extends AnyObject>(
 
       const createKey = getSimilarKeyName(key, toCreateKeys);
 
-      if (createKey) {
+      if (createKey && (!onRename || onRename(toCreate[createKey], sourceValue))) {
         delete toCreate[createKey];
         counts.create--;
 
@@ -145,7 +156,8 @@ export const deepCompareObject = <T extends AnyObject, S extends AnyObject>(
       if (isAnyObject(targetValue) && isAnyObject(sourceValue)) {
         const changes = deepCompareObject(targetValue, sourceValue, {
           ...(isAnyObject(keyState) && (isInclude ? { include: keyState } : { exclude: keyState })),
-          depth: depth - 1
+          depth: depth - 1,
+          onRename
         });
 
         if (changes.counts > 0) {
