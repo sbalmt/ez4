@@ -5,7 +5,7 @@ import { toCamelCase } from '@ez4/utils';
 import { SchemaType } from '@ez4/schema';
 import { Index } from '@ez4/database';
 
-export const prepareCreateIndexes = (table: string, schema: ObjectSchema, indexes: RepositoryIndexes) => {
+export const prepareCreateIndexes = (table: string, schema: ObjectSchema, indexes: RepositoryIndexes, concurrently: boolean) => {
   const statements = [];
 
   for (const indexName in indexes) {
@@ -20,6 +20,7 @@ export const prepareCreateIndexes = (table: string, schema: ObjectSchema, indexe
     switch (type) {
       case Index.Primary: {
         const primaryIndexName = getPrimaryKey(table, indexName);
+
         statements.push(`ALTER TABLE "${table}" ADD CONSTRAINT "${primaryIndexName}" PRIMARY KEY (${columnsList})`);
         break;
       }
@@ -35,7 +36,11 @@ export const prepareCreateIndexes = (table: string, schema: ObjectSchema, indexe
         const secondaryIndexName = getSecondaryKey(table, indexName);
         const secondaryIndexType = getIndexType(columns, schema);
 
-        statements.push(`CREATE INDEX "${secondaryIndexName}" ON "${table}" USING ${secondaryIndexType} (${columnsList})`);
+        statements.push(
+          `CREATE INDEX ${concurrently ? 'CONCURRENTLY' : ''} IF NOT EXISTS "${secondaryIndexName}" ` +
+            `ON "${table}" USING ${secondaryIndexType} (${columnsList})`
+        );
+
         break;
       }
     }
@@ -44,11 +49,17 @@ export const prepareCreateIndexes = (table: string, schema: ObjectSchema, indexe
   return statements;
 };
 
-export const prepareUpdateIndexes = (table: string, schema: ObjectSchema, toCreate: RepositoryIndexes, toRemove: RepositoryIndexes) => {
-  return [...prepareDeleteIndexes(table, toRemove), ...prepareCreateIndexes(table, schema, toCreate)];
+export const prepareUpdateIndexes = (
+  table: string,
+  schema: ObjectSchema,
+  toCreate: RepositoryIndexes,
+  toRemove: RepositoryIndexes,
+  concurrently: boolean
+) => {
+  return [...prepareDeleteIndexes(table, toRemove, concurrently), ...prepareCreateIndexes(table, schema, toCreate, concurrently)];
 };
 
-export const prepareDeleteIndexes = (table: string, indexes: RepositoryIndexes) => {
+export const prepareDeleteIndexes = (table: string, indexes: RepositoryIndexes, concurrently: boolean) => {
   const statements = [];
 
   for (const indexName in indexes) {
@@ -68,7 +79,7 @@ export const prepareDeleteIndexes = (table: string, indexes: RepositoryIndexes) 
         break;
 
       case Index.Secondary:
-        statements.push(`DROP INDEX IF EXISTS "${getSecondaryKey(table, indexName)}"`);
+        statements.push(`DROP INDEX ${concurrently ? 'CONCURRENTLY' : ''} IF EXISTS "${getSecondaryKey(table, indexName)}"`);
         break;
     }
   }
