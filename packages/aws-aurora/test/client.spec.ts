@@ -296,14 +296,25 @@ describe('aurora client', () => {
       }
     };
 
+    // Return the current value
     const insertResult = await dbClient.testTable.upsertOne(query);
 
-    equal(insertResult, undefined);
-
-    const updateResult = await dbClient.testTable.upsertOne(query);
-
-    deepEqual(updateResult, {
+    deepEqual(insertResult, {
       foo: 'initial'
+    });
+
+    // Return the last value
+    const update1Result = await dbClient.testTable.upsertOne(query);
+
+    deepEqual(update1Result, {
+      foo: 'initial'
+    });
+
+    // Return the last value
+    const update2Result = await dbClient.testTable.upsertOne(query);
+
+    deepEqual(update2Result, {
+      foo: 'updated'
     });
   });
 
