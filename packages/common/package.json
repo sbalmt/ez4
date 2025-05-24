@@ -43,6 +43,7 @@
   },
   "dependencies": {
     "@ez4/project": "^0.18.0",
-    "@ez4/reflection": "^0.18.0"
+    "@ez4/reflection": "^0.18.0",
+    "@ez4/utils": "^0.18.0"
   }
 }

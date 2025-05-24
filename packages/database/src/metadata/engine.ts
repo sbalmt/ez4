@@ -1,10 +1,18 @@
-import type { AllType, ModelProperty, SourceMap, TypeModel, TypeObject } from '@ez4/reflection';
+import type { AllType, SourceMap, TypeModel, TypeObject } from '@ez4/reflection';
 import type { MemberType } from '@ez4/common/library';
 import type { Incomplete } from '@ez4/utils';
 import type { DatabaseEngine } from '../types/engine.js';
 
-import { InvalidServicePropertyError, getModelMembers, getObjectMembers, getPropertyString, getReferenceType } from '@ez4/common/library';
 import { isModelProperty, isTypeObject, isTypeReference } from '@ez4/reflection';
+
+import {
+  InvalidServicePropertyError,
+  getModelMembers,
+  getObjectMembers,
+  getPropertyString,
+  getPropertyStringIn,
+  getReferenceType
+} from '@ez4/common/library';
 
 import { IncompleteTableError } from '../errors/table.js';
 import { ParametersMode } from '../services/parameters.js';
@@ -66,31 +74,31 @@ const getTypeFromMembers = (type: TypeObject | TypeModel, parent: TypeModel, mem
         break;
 
       case 'parametersMode':
-        if ((engine.parametersMode = getParametersMode(member))) {
+        if ((engine.parametersMode = getPropertyStringIn(member, [ParametersMode.OnlyIndex, ParametersMode.NameAndIndex]))) {
           properties.delete(member.name);
         }
         break;
 
       case 'transactionMode':
-        if ((engine.transactionMode = getTransactionMode(member))) {
+        if ((engine.transactionMode = getPropertyStringIn(member, [TransactionMode.Static, TransactionMode.Interactive]))) {
           properties.delete(member.name);
         }
         break;
 
       case 'insensitiveMode':
-        if ((engine.insensitiveMode = getInsensitiveMode(member))) {
+        if ((engine.insensitiveMode = getPropertyStringIn(member, [InsensitiveMode.Unsupported, InsensitiveMode.Enabled]))) {
           properties.delete(member.name);
         }
         break;
 
       case 'paginationMode':
-        if ((engine.paginationMode = getPaginationMode(member))) {
+        if ((engine.paginationMode = getPropertyStringIn(member, [PaginationMode.Cursor, PaginationMode.Offset]))) {
           properties.delete(member.name);
         }
         break;
 
       case 'orderMode':
-        if ((engine.orderMode = getOrderMode(member))) {
+        if ((engine.orderMode = getPropertyStringIn(member, [OrderMode.AnyColumns, OrderMode.IndexColumns]))) {
           properties.delete(member.name);
         }
         break;
@@ -103,64 +111,4 @@ const getTypeFromMembers = (type: TypeObject | TypeModel, parent: TypeModel, mem
   }
 
   return engine;
-};
-
-const getParametersMode = (member: ModelProperty) => {
-  const type = getPropertyString(member);
-
-  switch (type) {
-    case ParametersMode.NameAndIndex:
-    case ParametersMode.OnlyIndex:
-      return type;
-  }
-
-  return null;
-};
-
-const getTransactionMode = (member: ModelProperty) => {
-  const type = getPropertyString(member);
-
-  switch (type) {
-    case TransactionMode.Interactive:
-    case TransactionMode.Static:
-      return type;
-  }
-
-  return null;
-};
-
-const getInsensitiveMode = (member: ModelProperty) => {
-  const type = getPropertyString(member);
-
-  switch (type) {
-    case InsensitiveMode.Unsupported:
-    case InsensitiveMode.Enabled:
-      return type;
-  }
-
-  return null;
-};
-
-const getPaginationMode = (member: ModelProperty) => {
-  const type = getPropertyString(member);
-
-  switch (type) {
-    case PaginationMode.Cursor:
-    case PaginationMode.Offset:
-      return type;
-  }
-
-  return null;
-};
-
-const getOrderMode = (member: ModelProperty) => {
-  const type = getPropertyString(member);
-
-  switch (type) {
-    case OrderMode.IndexColumns:
-    case OrderMode.AnyColumns:
-      return type;
-  }
-
-  return null;
 };
