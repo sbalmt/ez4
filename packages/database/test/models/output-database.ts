@@ -1,17 +1,12 @@
-import type { Database, ParametersMode, TransactionMode, PaginationMode, OrderMode } from '@ez4/database';
 import type { Environment } from '@ez4/common';
+import type { Database, OrderMode, PaginationMode, TransactionMode } from '@ez4/database';
+import type { TestEngineOrder, TestEnginePagination, TestEngineTransaction } from '../common/engines.js';
 
 /**
  * Test database 1.
  */
 export declare class TestDatabase1 extends Database.Service {
-  engine: {
-    parametersMode: ParametersMode.OnlyIndex;
-    transactionMode: TransactionMode.Static;
-    paginationMode: PaginationMode.Offset;
-    orderMode: OrderMode.AnyColumns;
-    name: 'test';
-  };
+  engine: TestEngineTransaction<TransactionMode.Interactive>;
 
   tables: [];
 
@@ -25,13 +20,7 @@ export declare class TestDatabase1 extends Database.Service {
  * Test database 2.
  */
 export declare class TestDatabase2 extends Database.Service {
-  engine: {
-    parametersMode: ParametersMode.NameAndIndex;
-    transactionMode: TransactionMode.Interactive;
-    paginationMode: PaginationMode.Cursor;
-    orderMode: OrderMode.AnyColumns;
-    name: 'test';
-  };
+  engine: TestEnginePagination<PaginationMode.Cursor>;
 
   tables: [];
 
@@ -40,4 +29,13 @@ export declare class TestDatabase2 extends Database.Service {
     TEST_VAR1: 'test-literal-value';
     TEST_VAR2: Environment.Variable<'TEST_ENV_VAR'>;
   };
+}
+
+/**
+ * Test database 3.
+ */
+export declare class TestDatabase3 extends Database.Service {
+  engine: TestEngineOrder<OrderMode.IndexColumns>;
+
+  tables: [];
 }

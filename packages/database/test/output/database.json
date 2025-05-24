@@ -5,7 +5,8 @@
     "extras": {},
     "engine": {
       "parametersMode": "index",
-      "transactionMode": "static",
+      "transactionMode": "interactive",
+      "insensitiveMode": "unsupported",
       "paginationMode": "offset",
       "orderMode": "any",
       "name": "test"
@@ -20,8 +21,9 @@
     "name": "TestDatabase2",
     "extras": {},
     "engine": {
-      "parametersMode": "both",
-      "transactionMode": "interactive",
+      "parametersMode": "index",
+      "transactionMode": "static",
+      "insensitiveMode": "unsupported",
       "paginationMode": "cursor",
       "orderMode": "any",
       "name": "test"
@@ -31,5 +33,19 @@
       "TEST_VAR1": "test-literal-value",
       "TEST_VAR2": "test-env-var-value"
     }
+  },
+  "TestDatabase3": {
+    "type": "@ez4/database",
+    "name": "TestDatabase3",
+    "extras": {},
+    "engine": {
+      "parametersMode": "index",
+      "transactionMode": "static",
+      "insensitiveMode": "unsupported",
+      "paginationMode": "offset",
+      "orderMode": "index",
+      "name": "test"
+    },
+    "tables": []
   }
 }

@@ -531,6 +531,24 @@ describe('sql where tests', () => {
     assert.equal(statement, `SELECT * FROM "test" WHERE "foo" LIKE :0 || '%'`);
   });
 
+  it('assert :: where starts with (with insensitive)', ({ assert }) => {
+    const query = sql
+      .select()
+      .from('test')
+      .where({
+        foo: {
+          startsWith: 'abc',
+          insensitive: true
+        }
+      });
+
+    const [statement, variables] = query.build();
+
+    assert.deepEqual(variables, ['abc']);
+
+    assert.equal(statement, `SELECT * FROM "test" WHERE "foo" ILIKE :0 || '%'`);
+  });
+
   it('assert :: where starts with (with json value)', ({ assert }) => {
     const schema = getJsonObject({
       type: SchemaType.String
@@ -569,6 +587,24 @@ describe('sql where tests', () => {
     assert.deepEqual(variables, ['abc']);
 
     assert.equal(statement, `SELECT * FROM "test" WHERE "foo" LIKE '%' || :0 || '%'`);
+  });
+
+  it('assert :: where contains (with insensitive)', ({ assert }) => {
+    const query = sql
+      .select()
+      .from('test')
+      .where({
+        foo: {
+          contains: 'abc',
+          insensitive: true
+        }
+      });
+
+    const [statement, variables] = query.build();
+
+    assert.deepEqual(variables, ['abc']);
+
+    assert.equal(statement, `SELECT * FROM "test" WHERE "foo" ILIKE '%' || :0 || '%'`);
   });
 
   it('assert :: where contains (with json value)', ({ assert }) => {

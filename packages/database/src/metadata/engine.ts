@@ -12,6 +12,7 @@ import { TransactionMode } from '../services/transaction.js';
 import { PaginationMode } from '../services/pagination.js';
 import { OrderMode } from '../services/order.js';
 import { isDatabaseEngine } from './utils.js';
+import { InsensitiveMode } from '../main.js';
 
 export const getDatabaseEngine = (type: AllType, parent: TypeModel, reflection: SourceMap, errorList: Error[]) => {
   if (!isTypeReference(type)) {
@@ -46,7 +47,7 @@ const getTypeEngine = (type: AllType, parent: TypeModel, errorList: Error[]) => 
 const getTypeFromMembers = (type: TypeObject | TypeModel, parent: TypeModel, members: MemberType[], errorList: Error[]) => {
   const engine: Incomplete<DatabaseEngine> = {};
 
-  const properties = new Set(['name', 'parametersMode', 'transactionMode', 'paginationMode', 'orderMode']);
+  const properties = new Set(['name', 'parametersMode', 'transactionMode', 'insensitiveMode', 'paginationMode', 'orderMode']);
 
   for (const member of members) {
     if (!isModelProperty(member) || member.inherited) {
@@ -72,6 +73,12 @@ const getTypeFromMembers = (type: TypeObject | TypeModel, parent: TypeModel, mem
 
       case 'transactionMode':
         if ((engine.transactionMode = getTransactionMode(member))) {
+          properties.delete(member.name);
+        }
+        break;
+
+      case 'insensitiveMode':
+        if ((engine.insensitiveMode = getInsensitiveMode(member))) {
           properties.delete(member.name);
         }
         break;
@@ -116,6 +123,18 @@ const getTransactionMode = (member: ModelProperty) => {
   switch (type) {
     case TransactionMode.Interactive:
     case TransactionMode.Static:
+      return type;
+  }
+
+  return null;
+};
+
+const getInsensitiveMode = (member: ModelProperty) => {
+  const type = getPropertyString(member);
+
+  switch (type) {
+    case InsensitiveMode.Unsupported:
+    case InsensitiveMode.Enabled:
       return type;
   }
 

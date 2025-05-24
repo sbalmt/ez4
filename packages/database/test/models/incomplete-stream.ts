@@ -1,13 +1,8 @@
-import type { Database, ParametersMode, TransactionMode, PaginationMode, OrderMode } from '@ez4/database';
+import type { Database } from '@ez4/database';
+import type { TestEngine } from '../common/engines.js';
 
 export declare class TestDatabase extends Database.Service {
-  engine: {
-    parametersMode: ParametersMode.OnlyIndex;
-    transactionMode: TransactionMode.Static;
-    paginationMode: PaginationMode.Offset;
-    orderMode: OrderMode.AnyColumns;
-    name: 'test';
-  };
+  engine: TestEngine;
 
   // @ts-ignore Incomplete stream, missing handler.
   tables: [

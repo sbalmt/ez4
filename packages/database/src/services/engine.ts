@@ -11,10 +11,16 @@ import type { TableMetadata } from './table.js';
 export type DatabaseEngine = {
   parametersMode: ParametersMode;
   transactionMode: TransactionMode;
+  insensitiveMode: InsensitiveMode;
   paginationMode: PaginationMode;
   orderMode: OrderMode;
   name: string;
 };
+
+export const enum InsensitiveMode {
+  Unsupported = 'unsupported',
+  Enabled = 'enabled'
+}
 
 /**
  * Engine utils.

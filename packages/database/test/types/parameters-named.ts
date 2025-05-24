@@ -1,14 +1,9 @@
-import type { Client, Database, ParametersMode, TransactionMode, PaginationMode, OrderMode } from '@ez4/database';
+import type { Client, Database, ParametersMode } from '@ez4/database';
 import type { Environment, Service } from '@ez4/common';
+import type { TestEngineParameters } from '../common/engines.js';
 
 export declare class TestDatabase extends Database.Service {
-  engine: {
-    parametersMode: ParametersMode.NameAndIndex;
-    transactionMode: TransactionMode.Static;
-    paginationMode: PaginationMode.Offset;
-    orderMode: OrderMode.AnyColumns;
-    name: 'test';
-  };
+  engine: TestEngineParameters<ParametersMode.NameAndIndex>;
 
   client: Client<TestDatabase>;
 
