@@ -1,6 +1,6 @@
 import type { ConnectResourceEvent, PrepareResourceEvent, ServiceEvent } from '@ez4/project/library';
 
-import { OrderMode, PaginationMode, ParametersMode, TransactionMode } from '@ez4/database';
+import { InsensitiveMode, OrderMode, PaginationMode, ParametersMode, TransactionMode } from '@ez4/database';
 import { linkServiceExtras } from '@ez4/project/library';
 import { getFunctionState } from '@ez4/aws-function';
 import { isRoleState } from '@ez4/aws-identity';
@@ -9,6 +9,7 @@ import {
   RoleMissingError,
   UnsupportedPaginationModeError,
   UnsupportedTransactionModeError,
+  UnsupportedInsensitiveModeError,
   UnsupportedParametersModeError,
   UnsupportedOrderModeError,
   UnsupportedRelationError
@@ -39,15 +40,19 @@ export const prepareDatabaseServices = async (event: PrepareResourceEvent) => {
 
   const { engine } = service;
 
-  if (engine.parametersMode === ParametersMode.NameAndIndex) {
+  if (engine.parametersMode !== ParametersMode.OnlyIndex) {
     throw new UnsupportedParametersModeError(engine.parametersMode);
   }
 
-  if (engine.transactionMode === TransactionMode.Interactive) {
+  if (engine.transactionMode !== TransactionMode.Static) {
     throw new UnsupportedTransactionModeError(engine.transactionMode);
   }
 
-  if (engine.paginationMode === PaginationMode.Offset) {
+  if (engine.insensitiveMode !== InsensitiveMode.Unsupported) {
+    throw new UnsupportedInsensitiveModeError(engine.insensitiveMode);
+  }
+
+  if (engine.paginationMode !== PaginationMode.Cursor) {
     throw new UnsupportedPaginationModeError(engine.paginationMode);
   }
 

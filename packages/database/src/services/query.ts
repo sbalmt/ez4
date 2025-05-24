@@ -271,12 +271,12 @@ export namespace Query {
   };
 
   type WhereStartsWith<E extends DatabaseEngine> = {
-    insensitive: E['insensitiveMode'] extends InsensitiveMode.Enabled ? boolean : never;
+    insensitive?: E['insensitiveMode'] extends InsensitiveMode.Enabled ? boolean : never;
     startsWith: string;
   };
 
   type WhereContains<T, E extends DatabaseEngine> = {
-    insensitive: T extends string ? (E['insensitiveMode'] extends InsensitiveMode.Enabled ? boolean : never) : never;
+    insensitive?: T extends string ? (E['insensitiveMode'] extends InsensitiveMode.Enabled ? boolean : never) : never;
     contains: IsObject<T> extends true ? Partial<T> : T;
   };
 

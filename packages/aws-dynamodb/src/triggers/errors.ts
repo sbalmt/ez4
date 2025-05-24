@@ -16,6 +16,12 @@ export class UnsupportedTransactionModeError extends Error {
   }
 }
 
+export class UnsupportedInsensitiveModeError extends Error {
+  constructor(public mode: string) {
+    super(`DynamoDB doesn't support '${mode}' insensitive mode.`);
+  }
+}
+
 export class UnsupportedParametersModeError extends Error {
   constructor(public mode: string) {
     super(`DynamoDB doesn't support '${mode}' parameters mode.`);
