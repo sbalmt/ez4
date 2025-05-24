@@ -132,7 +132,7 @@ export namespace Query {
     IsObjectEmpty<T['relations']['filters']> extends true
       ? never
       : {
-          [P in keyof T['relations']['filters']]: PaginationUtils.Range<T> & {
+          [P in keyof T['relations']['filters']]?: PaginationUtils.Range<T> & {
             where?: WhereRelationField<T['relations']['filters'][P], T>;
             order?: OrderInput<T, T['relations']['filters'][P]>;
           };
