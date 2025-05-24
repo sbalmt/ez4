@@ -10,4 +10,8 @@ export interface Internal {
   template2: Set<any>;
   template3: Array<void>;
   template4: Map<never, unknown>;
+
+  // Built-in
+  required: Required<{ foo?: any; bar: null | undefined }>;
+  partial: Partial<{ foo: any; bar: null }>;
 }

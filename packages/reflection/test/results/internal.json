@@ -58,6 +58,70 @@
           "internal": true,
           "path": ":Map"
         }
+      },
+      {
+        "type": "property",
+        "name": "required",
+        "value": {
+          "type": "object",
+          "members": [
+            {
+              "type": "property",
+              "name": "foo",
+              "value": {
+                "type": "any"
+              }
+            },
+            {
+              "type": "property",
+              "name": "bar",
+              "value": {
+                "literal": true,
+                "type": "null"
+              }
+            }
+          ]
+        }
+      },
+      {
+        "type": "property",
+        "name": "partial",
+        "value": {
+          "type": "object",
+          "members": [
+            {
+              "type": "property",
+              "name": "foo",
+              "value": {
+                "type": "union",
+                "elements": [
+                  {
+                    "type": "any"
+                  },
+                  {
+                    "type": "undefined"
+                  }
+                ]
+              }
+            },
+            {
+              "type": "property",
+              "name": "bar",
+              "value": {
+                "type": "union",
+                "elements": [
+                  {
+                    "literal": true,
+                    "type": "null"
+                  },
+                  {
+                    "type": "undefined"
+                  }
+                ]
+              }
+            }
+          ]
+        }
       }
     ]
   },
