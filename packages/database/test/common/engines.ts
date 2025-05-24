@@ -27,6 +27,15 @@ export type TestEngineTransaction<T extends TransactionMode> = {
   name: 'test';
 };
 
+export type TestEngineInsensitive<I extends InsensitiveMode> = {
+  parametersMode: ParametersMode.OnlyIndex;
+  transactionMode: TransactionMode.Static;
+  insensitiveMode: I;
+  paginationMode: PaginationMode.Offset;
+  orderMode: OrderMode.AnyColumns;
+  name: 'test';
+};
+
 export type TestEnginePagination<P extends PaginationMode> = {
   parametersMode: ParametersMode.OnlyIndex;
   transactionMode: TransactionMode.Static;

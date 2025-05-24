@@ -1,9 +1,10 @@
 import type { ParametersMode } from './parameters.js';
 import type { TransactionMode } from './transaction.js';
+import type { InsensitiveMode } from './insensitive.js';
 import type { PaginationMode } from './pagination.js';
 import type { OrderMode } from './order.js';
-import type { Database } from './database.js';
 import type { TableMetadata } from './table.js';
+import type { Database } from './database.js';
 
 /**
  * Database engine.
@@ -16,11 +17,6 @@ export type DatabaseEngine = {
   orderMode: OrderMode;
   name: string;
 };
-
-export const enum InsensitiveMode {
-  Unsupported = 'unsupported',
-  Enabled = 'enabled'
-}
 
 /**
  * Engine utils.
@@ -35,6 +31,11 @@ export namespace EngineUtils {
    * Get the transaction mode from the given database service.
    */
   export type GetTransactionMode<T extends Database.Service> = T['engine'] extends { transactionMode: infer M } ? M : never;
+
+  /**
+   * Get the insensitive mode from the given table service.
+   */
+  export type GetInsensitiveMode<T extends TableMetadata> = T['engine'] extends { insensitiveMode: infer M } ? M : never;
 
   /**
    * Get the pagination mode from the given table metadata.

@@ -1,7 +1,7 @@
 import type { DecomposeIndexName, PrimaryIndexes, UniqueIndexes } from './indexes.js';
 import type { RelationMetadata } from './relations.js';
+import type { InsensitiveUtils } from './insensitive.js';
 import type { PaginationUtils } from './pagination.js';
-import type { DatabaseEngine, InsensitiveMode } from './engine.js';
 import type { TableMetadata } from './table.js';
 import type { OrderUtils } from './order.js';
 import type { Database } from './database.js';
@@ -30,20 +30,20 @@ export namespace Query {
 
   export type UpdateOneInput<S extends AnyObject, T extends TableMetadata> = {
     select?: StrictSelectInput<S, T>;
-    include?: StrictIncludeInput<S, T>;
+    include?: StrictIncludeInput<T>;
     data: OptionalObject<UpdateDataInput<T>>;
     where: WhereInput<T, true>;
   };
 
   export type FindOneInput<S extends AnyObject, T extends TableMetadata> = {
     select: StrictSelectInput<S, T>;
-    include?: StrictIncludeInput<S, T>;
+    include?: StrictIncludeInput<T>;
     where: WhereInput<T, true>;
   };
 
   export type UpsertOneInput<S extends AnyObject, T extends TableMetadata> = {
     select?: StrictSelectInput<S, T>;
-    include?: StrictIncludeInput<S, T>;
+    include?: StrictIncludeInput<T>;
     update: OptionalObject<UpdateDataInput<T>>;
     insert: InsertDataInput<T>;
     where: WhereInput<T, true>;
@@ -51,7 +51,7 @@ export namespace Query {
 
   export type DeleteOneInput<S extends AnyObject, T extends TableMetadata> = {
     select?: StrictSelectInput<S, T>;
-    include?: StrictIncludeInput<S, T>;
+    include?: StrictIncludeInput<T>;
     where: WhereInput<T, true>;
   };
 
@@ -61,7 +61,7 @@ export namespace Query {
 
   export type UpdateManyInput<S extends AnyObject, T extends TableMetadata> = PaginationUtils.End<T> & {
     select?: StrictSelectInput<S, T>;
-    include?: StrictIncludeInput<S, T>;
+    include?: StrictIncludeInput<T>;
     data: OptionalObject<UpdateDataInput<T>>;
     where?: WhereInput<T>;
   };
@@ -69,14 +69,14 @@ export namespace Query {
   export type FindManyInput<S extends AnyObject, T extends TableMetadata, C extends boolean> = PaginationUtils.Range<T> & {
     count?: C;
     select: StrictSelectInput<S, T>;
-    include?: StrictIncludeInput<S, T>;
+    include?: StrictIncludeInput<T>;
     where?: WhereInput<T>;
     order?: OrderInput<T>;
   };
 
   export type DeleteManyInput<S extends AnyObject, T extends TableMetadata> = PaginationUtils.End<T> & {
     select?: StrictSelectInput<S, T>;
-    include?: StrictIncludeInput<S, T>;
+    include?: StrictIncludeInput<T>;
     where?: WhereInput<T>;
   };
 
@@ -128,22 +128,17 @@ export namespace Query {
 
   export type OrderInput<T extends TableMetadata, O extends AnyObject = T['schema']> = OrderUtils.Input<O, T['engine']>;
 
-  export type StrictIncludeInput<S extends AnyObject, T extends TableMetadata> =
+  export type StrictIncludeInput<T extends TableMetadata> =
     IsObjectEmpty<T['relations']['filters']> extends true
       ? never
       : {
-          [P in keyof IncludeFilters<T['relations']['filters'], T['engine'], S>]: PaginationUtils.Range<T> & {
-            where?: IncludeFilters<T['relations']['filters'], T['engine'], S>[P];
+          [P in keyof T['relations']['filters']]: PaginationUtils.Range<T> & {
+            where?: WhereRelationField<T['relations']['filters'][P], T>;
             order?: OrderInput<T, T['relations']['filters'][P]>;
           };
         };
 
-  export type WhereInput<T extends TableMetadata, I extends boolean = false> = WhereInputFilters<
-    T['schema'],
-    T['engine'],
-    I extends true ? T['indexes'] : {},
-    T['relations']
-  > & {
+  export type WhereInput<T extends TableMetadata, I extends boolean = false> = WhereInputFilters<T, I extends true ? T['indexes'] : {}> & {
     NOT?: WhereInput<T>;
     AND?: WhereInput<T>[];
     OR?: WhereInput<T>[];
@@ -154,68 +149,60 @@ export namespace Query {
   type SelectFields<T extends Database.Schema, R extends RelationMetadata> =
     IsObjectEmpty<R['selects']> extends true ? T : T & R['selects'];
 
-  type IncludeFilters<T extends AnyObject, E extends DatabaseEngine, S extends AnyObject> = {
-    [P in keyof T]?: P extends keyof S ? (IsObject<T[P]> extends true ? null | WhereRelationField<NonNullable<T[P]>, E> : never) : never;
-  };
-
-  type WhereOperations<T, E extends DatabaseEngine> =
-    | WhereNegate<T, E>
-    | WhereEqual<T>
-    | WhereGreaterThan<T>
-    | WhereGreaterThanOrEqual<T>
-    | WhereLessThan<T>
-    | WhereLessThanOrEqual<T>
-    | WhereIn<T>
-    | WhereBetween<T>
+  type WhereOperations<V, T extends TableMetadata> =
+    | WhereNegate<V, T>
+    | WhereEqual<V>
+    | WhereGreaterThan<V>
+    | WhereGreaterThanOrEqual<V>
+    | WhereLessThan<V>
+    | WhereLessThanOrEqual<V>
+    | WhereIn<V>
+    | WhereBetween<V>
     | WhereIsMissing
     | WhereIsNull
-    | WhereStartsWith<E>
-    | WhereContains<T, E>;
+    | WhereStartsWith<T>
+    | WhereContains<V, T>;
 
-  type WhereField<T, E extends DatabaseEngine> =
-    IsObject<T> extends false
-      ? T | WhereOperations<T, E>
-      : IsNullable<T> extends true
-        ? null | WhereObjectField<NonNullable<T>, E>
-        : WhereObjectField<NonNullable<T>, E>;
+  type WhereField<V, T extends TableMetadata> =
+    IsObject<V> extends false
+      ? V | WhereOperations<V, T>
+      : IsNullable<V> extends true
+        ? null | WhereObjectField<NonNullable<V>, T>
+        : WhereObjectField<NonNullable<V>, T>;
 
-  type WhereObjectField<T extends AnyObject, E extends DatabaseEngine> = {
-    [P in keyof T]?: WhereField<T[P], E>;
+  type WhereObjectField<V extends AnyObject, T extends TableMetadata> = {
+    [P in keyof V]?: WhereField<V[P], T>;
   };
 
-  type WhereRelationField<T extends AnyObject, E extends DatabaseEngine> = WhereObjectField<T, E> & {
-    NOT?: WhereRelationField<T, E>;
-    AND?: WhereRelationField<T, E>[];
-    OR?: WhereRelationField<T, E>[];
+  type WhereRelationField<V extends AnyObject, T extends TableMetadata> = WhereObjectField<V, T> & {
+    NOT?: WhereRelationField<V, T>;
+    AND?: WhereRelationField<V, T>[];
+    OR?: WhereRelationField<V, T>[];
   };
 
-  type WhereRelationFilters<T extends AnyObject, E extends DatabaseEngine> = {
-    [P in keyof T]?: IsObject<T[P]> extends true
-      ? IsObjectEmpty<T[P]> extends false
-        ? null | WhereRelationField<T[P], E>
+  type WhereRelationFilters<V extends AnyObject, T extends TableMetadata> = {
+    [P in keyof V]?: IsObject<V[P]> extends true
+      ? IsObjectEmpty<V[P]> extends false
+        ? null | WhereRelationField<V[P], T>
         : null | {}
       : never;
   };
 
   type WhereIndexFields<I extends Database.Indexes> = PrimaryIndexes<I> & UniqueIndexes<I>;
 
-  type WhereRequiredFilters<T extends AnyObject, I extends Database.Indexes> = {
-    [P in keyof WhereIndexFields<I>]: { [N in DecomposeIndexName<P>]: T[N] };
+  type WhereRequiredFilters<V extends AnyObject, I extends Database.Indexes> = {
+    [P in keyof WhereIndexFields<I>]: { [N in DecomposeIndexName<P>]: V[N] };
   }[keyof WhereIndexFields<I>];
 
-  type WhereOptionalFilters<T extends AnyObject, E extends DatabaseEngine, I extends Database.Indexes> = {
-    [P in Exclude<keyof T, keyof WhereIndexFields<I>>]?: WhereField<T[P], E>;
+  type WhereOptionalFilters<V extends AnyObject, T extends TableMetadata, I extends Database.Indexes> = {
+    [P in Exclude<keyof V, keyof WhereIndexFields<I>>]?: WhereField<V[P], T>;
   };
 
-  type WhereCommonFilters<T extends AnyObject, E extends DatabaseEngine, I extends Database.Indexes> =
-    IsObjectEmpty<I> extends true ? WhereObjectField<T, E> : WhereRequiredFilters<T, I> & WhereOptionalFilters<T, E, I>;
+  type WhereCommonFilters<V extends AnyObject, T extends TableMetadata, I extends Database.Indexes> =
+    IsObjectEmpty<I> extends true ? WhereObjectField<V, T> : WhereRequiredFilters<V, I> & WhereOptionalFilters<V, T, I>;
 
-  type WhereInputFilters<
-    T extends Database.Schema,
-    E extends DatabaseEngine,
-    I extends Database.Indexes,
-    R extends RelationMetadata
-  > = WhereCommonFilters<T, E, I> & WhereRelationFilters<R['filters'], E>;
+  type WhereInputFilters<T extends TableMetadata, I extends Database.Indexes> = WhereCommonFilters<T['schema'], T, I> &
+    WhereRelationFilters<T['relations']['filters'], T>;
 
   export type WhereOperators = keyof (WhereNegate<any, never> &
     WhereEqual<any> &
@@ -230,36 +217,36 @@ export namespace Query {
     WhereStartsWith<never> &
     WhereContains<any, never>);
 
-  type WhereNegate<T, E extends DatabaseEngine> = {
-    not: T | WhereOperations<T, E>;
+  type WhereNegate<V, T extends TableMetadata> = {
+    not: V | WhereOperations<V, T>;
   };
 
-  type WhereEqual<T> = {
-    equal: T;
+  type WhereEqual<V> = {
+    equal: V;
   };
 
-  type WhereGreaterThan<T> = {
-    gt: T;
+  type WhereGreaterThan<V> = {
+    gt: V;
   };
 
-  type WhereGreaterThanOrEqual<T> = {
-    gte: T;
+  type WhereGreaterThanOrEqual<V> = {
+    gte: V;
   };
 
-  type WhereLessThan<T> = {
-    lt: T;
+  type WhereLessThan<V> = {
+    lt: V;
   };
 
-  type WhereLessThanOrEqual<T> = {
-    lte: T;
+  type WhereLessThanOrEqual<V> = {
+    lte: V;
   };
 
-  type WhereIn<T> = {
-    isIn: IsArray<T> extends true ? T : IsObject<T> extends true ? T : T[];
+  type WhereIn<V> = {
+    isIn: IsArray<V> extends true ? V : IsObject<V> extends true ? V : V[];
   };
 
-  type WhereBetween<T> = {
-    isBetween: [T, T];
+  type WhereBetween<V> = {
+    isBetween: [V, V];
   };
 
   type WhereIsMissing = {
@@ -270,14 +257,12 @@ export namespace Query {
     isNull: boolean;
   };
 
-  type WhereStartsWith<E extends DatabaseEngine> = {
-    insensitive?: E['insensitiveMode'] extends InsensitiveMode.Enabled ? boolean : never;
+  type WhereStartsWith<T extends TableMetadata> = InsensitiveUtils.Input<T> & {
     startsWith: string;
   };
 
-  type WhereContains<T, E extends DatabaseEngine> = {
-    insensitive?: T extends string ? (E['insensitiveMode'] extends InsensitiveMode.Enabled ? boolean : never) : never;
-    contains: IsObject<T> extends true ? Partial<T> : T;
+  type WhereContains<V, T extends TableMetadata> = (V extends string ? InsensitiveUtils.Input<T> : {}) & {
+    contains: IsObject<V> extends true ? Partial<V> : V;
   };
 
   export type AtomicOperators = keyof (AtomicIncrement & AtomicDecrement & AtomicMultiply & AtomicDivide);
