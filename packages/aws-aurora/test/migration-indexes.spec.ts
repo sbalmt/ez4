@@ -46,7 +46,28 @@ describe('aurora migration (indexes)', () => {
       }
     });
 
-    deepEqual(statements, [`CREATE INDEX "ez4-test-table_index_idx" ON "ez4-test-table" USING BTREE ("column_a", "column_b")`]);
+    deepEqual(statements, [
+      `CREATE INDEX IF NOT EXISTS "ez4-test-table_index_idx" ON "ez4-test-table" USING BTREE ("column_a", "column_b")`
+    ]);
+  });
+
+  it('assert :: create index concurrently (secondary)', () => {
+    const statements = prepareCreateIndexes(
+      'ez4-test-table',
+      tableSchema,
+      {
+        index: {
+          name: 'index',
+          columns: ['column_a', 'column_b'],
+          type: Index.Secondary
+        }
+      },
+      true
+    );
+
+    deepEqual(statements, [
+      `CREATE INDEX CONCURRENTLY IF NOT EXISTS "ez4-test-table_index_idx" ON "ez4-test-table" USING BTREE ("column_a", "column_b")`
+    ]);
   });
 
   it('assert :: delete index (primary)', () => {
@@ -83,5 +104,21 @@ describe('aurora migration (indexes)', () => {
     });
 
     deepEqual(statements, [`DROP INDEX IF EXISTS "ez4-test-table_index_idx"`]);
+  });
+
+  it('assert :: delete index concurrently (secondary)', () => {
+    const statements = prepareDeleteIndexes(
+      'ez4-test-table',
+      {
+        index: {
+          name: 'index',
+          columns: ['column_a', 'column_b'],
+          type: Index.Secondary
+        }
+      },
+      true
+    );
+
+    deepEqual(statements, [`DROP INDEX CONCURRENTLY IF EXISTS "ez4-test-table_index_idx"`]);
   });
 });

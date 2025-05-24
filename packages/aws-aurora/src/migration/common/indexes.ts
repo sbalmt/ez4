@@ -1,11 +1,11 @@
 import type { ObjectSchema } from '@ez4/schema';
 import type { RepositoryIndexes } from '../../types/repository.js';
 
-import { toCamelCase } from '@ez4/utils';
+import { joinString, toSnakeCase } from '@ez4/utils';
 import { SchemaType } from '@ez4/schema';
 import { Index } from '@ez4/database';
 
-export const prepareCreateIndexes = (table: string, schema: ObjectSchema, indexes: RepositoryIndexes, concurrently: boolean) => {
+export const prepareCreateIndexes = (table: string, schema: ObjectSchema, indexes: RepositoryIndexes, concurrently = false) => {
   const statements = [];
 
   for (const indexName in indexes) {
@@ -37,8 +37,12 @@ export const prepareCreateIndexes = (table: string, schema: ObjectSchema, indexe
         const secondaryIndexType = getIndexType(columns, schema);
 
         statements.push(
-          `CREATE INDEX ${concurrently ? 'CONCURRENTLY' : ''} IF NOT EXISTS "${secondaryIndexName}" ` +
+          joinString(' ', [
+            'CREATE INDEX',
+            concurrently ? 'CONCURRENTLY' : null,
+            `IF NOT EXISTS "${secondaryIndexName}"`,
             `ON "${table}" USING ${secondaryIndexType} (${columnsList})`
+          ])
         );
 
         break;
@@ -54,12 +58,12 @@ export const prepareUpdateIndexes = (
   schema: ObjectSchema,
   toCreate: RepositoryIndexes,
   toRemove: RepositoryIndexes,
-  concurrently: boolean
+  concurrently = false
 ) => {
   return [...prepareDeleteIndexes(table, toRemove, concurrently), ...prepareCreateIndexes(table, schema, toCreate, concurrently)];
 };
 
-export const prepareDeleteIndexes = (table: string, indexes: RepositoryIndexes, concurrently: boolean) => {
+export const prepareDeleteIndexes = (table: string, indexes: RepositoryIndexes, concurrently = false) => {
   const statements = [];
 
   for (const indexName in indexes) {
@@ -70,17 +74,26 @@ export const prepareDeleteIndexes = (table: string, indexes: RepositoryIndexes, 
     const { type } = indexes[indexName];
 
     switch (type) {
-      case Index.Primary:
-        statements.push(`ALTER TABLE "${table}" DROP CONSTRAINT IF EXISTS "${getPrimaryKey(table, indexName)}"`);
-        break;
+      case Index.Primary: {
+        const primaryIndexName = getPrimaryKey(table, indexName);
 
-      case Index.Unique:
-        statements.push(`ALTER TABLE "${table}" DROP CONSTRAINT IF EXISTS "${getUniqueKey(table, indexName)}"`);
+        statements.push(`ALTER TABLE "${table}" DROP CONSTRAINT IF EXISTS "${primaryIndexName}"`);
         break;
+      }
 
-      case Index.Secondary:
-        statements.push(`DROP INDEX ${concurrently ? 'CONCURRENTLY' : ''} IF EXISTS "${getSecondaryKey(table, indexName)}"`);
+      case Index.Unique: {
+        const uniqueIndexName = getUniqueKey(table, indexName);
+
+        statements.push(`ALTER TABLE "${table}" DROP CONSTRAINT IF EXISTS "${uniqueIndexName}"`);
         break;
+      }
+
+      case Index.Secondary: {
+        const secondaryIndexName = getSecondaryKey(table, indexName);
+
+        statements.push(joinString(' ', ['DROP INDEX', concurrently ? 'CONCURRENTLY' : null, `IF EXISTS "${secondaryIndexName}"`]));
+        break;
+      }
     }
   }
 
@@ -88,7 +101,7 @@ export const prepareDeleteIndexes = (table: string, indexes: RepositoryIndexes, 
 };
 
 const getName = (name: string) => {
-  return toCamelCase(name.replaceAll(':', '_'));
+  return toSnakeCase(name.replaceAll(':', '_'));
 };
 
 const getPrimaryKey = (table: string, name: string) => {
