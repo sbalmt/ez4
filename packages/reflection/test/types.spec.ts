@@ -17,7 +17,7 @@ const testFile = (fileName: string, overwrite: boolean = false) => {
   }
 };
 
-describe.only('reflection types', () => {
+describe('reflection types', () => {
   it('assert :: boolean', () => testFile('boolean'));
   it('assert :: number', () => testFile('number'));
   it('assert :: string', () => testFile('string'));
@@ -35,5 +35,5 @@ describe.only('reflection types', () => {
   it('assert :: typeof', () => testFile('typeof'));
   it('assert :: type', () => testFile('type'));
   it('assert :: comments', () => testFile('comments'));
-  it.only('assert :: internal', () => testFile('internal'));
+  it('assert :: internal', () => testFile('internal'));
 });

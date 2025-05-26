@@ -1,0 +1,24 @@
+{
+  "type": "object",
+  "description": "Partial test object.",
+  "properties": {
+    "property": {
+      "type": "object",
+      "description": "Property with partial object.",
+      "properties": {
+        "foo": {
+          "type": "number",
+          "description": "Inner optional property.",
+          "optional": true
+        },
+        "bar": {
+          "type": "string",
+          "description": "Inner optional property.",
+          "optional": true
+        }
+      },
+      "identity": 2
+    }
+  },
+  "identity": 1
+}

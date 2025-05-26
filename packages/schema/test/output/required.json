@@ -1,0 +1,22 @@
+{
+  "type": "object",
+  "description": "Required test object.",
+  "properties": {
+    "property": {
+      "type": "object",
+      "description": "Property with required object.",
+      "properties": {
+        "foo": {
+          "type": "number",
+          "description": "Inner required property."
+        },
+        "bar": {
+          "type": "string",
+          "description": "Inner required property."
+        }
+      },
+      "identity": 2
+    }
+  },
+  "identity": 1
+}

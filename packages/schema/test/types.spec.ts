@@ -15,4 +15,6 @@ describe('schema types', () => {
   it('assert :: array types', () => testFile('array'));
   it('assert :: tuple types', () => testFile('tuple'));
   it('assert :: enum types', () => testFile('enum'));
+  it('assert :: required types', () => testFile('required'));
+  it('assert :: partial types', () => testFile('partial'));
 });
