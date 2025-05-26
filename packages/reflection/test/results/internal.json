@@ -34,7 +34,7 @@
       },
       {
         "type": "property",
-        "name": "template2",
+        "name": "template1",
         "value": {
           "type": "reference",
           "internal": true,
@@ -43,7 +43,7 @@
       },
       {
         "type": "property",
-        "name": "template3",
+        "name": "template2",
         "value": {
           "type": "reference",
           "internal": true,
@@ -52,7 +52,7 @@
       },
       {
         "type": "property",
-        "name": "template4",
+        "name": "template3",
         "value": {
           "type": "reference",
           "internal": true,
@@ -61,7 +61,7 @@
       },
       {
         "type": "property",
-        "name": "required",
+        "name": "required1",
         "value": {
           "type": "object",
           "members": [
@@ -85,7 +85,48 @@
       },
       {
         "type": "property",
-        "name": "partial",
+        "name": "required2",
+        "value": {
+          "type": "union",
+          "elements": [
+            {
+              "type": "object",
+              "members": [
+                {
+                  "type": "property",
+                  "name": "foo",
+                  "value": {
+                    "type": "any"
+                  }
+                },
+                {
+                  "type": "property",
+                  "name": "bar",
+                  "value": {
+                    "literal": true,
+                    "type": "null"
+                  }
+                }
+              ]
+            },
+            {
+              "type": "object",
+              "members": [
+                {
+                  "type": "property",
+                  "name": "baz",
+                  "value": {
+                    "type": "unknown"
+                  }
+                }
+              ]
+            }
+          ]
+        }
+      },
+      {
+        "type": "property",
+        "name": "partial1",
         "value": {
           "type": "object",
           "members": [
@@ -119,6 +160,71 @@
                   }
                 ]
               }
+            }
+          ]
+        }
+      },
+      {
+        "type": "property",
+        "name": "partial2",
+        "value": {
+          "type": "union",
+          "elements": [
+            {
+              "type": "object",
+              "members": [
+                {
+                  "type": "property",
+                  "name": "foo",
+                  "value": {
+                    "type": "union",
+                    "elements": [
+                      {
+                        "type": "any"
+                      },
+                      {
+                        "type": "undefined"
+                      }
+                    ]
+                  }
+                },
+                {
+                  "type": "property",
+                  "name": "bar",
+                  "value": {
+                    "type": "union",
+                    "elements": [
+                      {
+                        "literal": true,
+                        "type": "null"
+                      },
+                      {
+                        "type": "undefined"
+                      }
+                    ]
+                  }
+                }
+              ]
+            },
+            {
+              "type": "object",
+              "members": [
+                {
+                  "type": "property",
+                  "name": "baz",
+                  "value": {
+                    "type": "union",
+                    "elements": [
+                      {
+                        "type": "unknown"
+                      },
+                      {
+                        "type": "undefined"
+                      }
+                    ]
+                  }
+                }
+              ]
             }
           ]
         }

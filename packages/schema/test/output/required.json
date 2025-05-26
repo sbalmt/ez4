@@ -1,10 +1,12 @@
 {
   "type": "object",
   "description": "Required test object.",
+  "identity": 1,
   "properties": {
-    "property": {
+    "single": {
       "type": "object",
-      "description": "Property with required object.",
+      "description": "Single property with required object.",
+      "identity": 2,
       "properties": {
         "foo": {
           "type": "number",
@@ -14,9 +16,36 @@
           "type": "string",
           "description": "Inner required property."
         }
-      },
-      "identity": 2
+      }
+    },
+    "union": {
+      "type": "union",
+      "description": "Union property with required object.",
+      "elements": [
+        {
+          "type": "object",
+          "identity": 3,
+          "properties": {
+            "foo": {
+              "type": "number",
+              "description": "Inner required property."
+            },
+            "bar": {
+              "type": "string",
+              "description": "Inner required property."
+            }
+          }
+        },
+        {
+          "type": "object",
+          "identity": 4,
+          "properties": {
+            "baz": {
+              "type": "boolean"
+            }
+          }
+        }
+      ]
     }
-  },
-  "identity": 1
+  }
 }

@@ -1,10 +1,12 @@
 {
   "type": "object",
   "description": "Partial test object.",
+  "identity": 1,
   "properties": {
-    "property": {
+    "single": {
       "type": "object",
-      "description": "Property with partial object.",
+      "description": "Single property with partial object.",
+      "identity": 2,
       "properties": {
         "foo": {
           "type": "number",
@@ -16,9 +18,39 @@
           "description": "Inner optional property.",
           "optional": true
         }
-      },
-      "identity": 2
+      }
+    },
+    "union": {
+      "type": "union",
+      "description": "Union property with partial object.",
+      "elements": [
+        {
+          "type": "object",
+          "identity": 3,
+          "properties": {
+            "foo": {
+              "type": "number",
+              "description": "Inner optional property.",
+              "optional": true
+            },
+            "bar": {
+              "type": "string",
+              "description": "Inner optional property.",
+              "optional": true
+            }
+          }
+        },
+        {
+          "type": "object",
+          "identity": 4,
+          "properties": {
+            "baz": {
+              "type": "boolean",
+              "optional": true
+            }
+          }
+        }
+      ]
     }
-  },
-  "identity": 1
+  }
 }

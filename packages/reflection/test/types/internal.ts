@@ -1,8 +1,13 @@
 interface InternalHeritage extends Array<any> {}
 
-type AnotherType = {
+type RequiredType = {
   foo: any;
   bar: null;
+};
+
+type PartialType = {
+  foo?: any;
+  bar?: null | undefined;
 };
 
 export interface Internal {
@@ -12,13 +17,15 @@ export interface Internal {
   regular3: InternalHeritage;
 
   // Template
-  template2: Set<any>;
-  template3: Array<void>;
-  template4: Map<never, unknown>;
+  template1: Set<any>;
+  template2: Array<void>;
+  template3: Map<never, unknown>;
 
   // Required
-  required: Required<{ foo?: any; bar: null | undefined }>;
+  required1: Required<PartialType>;
+  required2: Required<PartialType | { baz?: unknown | undefined }>;
 
   // Partial
-  partial: Partial<AnotherType>;
+  partial1: Partial<RequiredType>;
+  partial2: Partial<RequiredType | { baz: unknown }>;
 }

@@ -1,19 +1,26 @@
+type InnerType = {
+  /**
+   * Inner required property.
+   */
+  foo?: number;
+
+  /**
+   * Inner required property.
+   */
+  bar?: string;
+};
+
 /**
  * Required test object.
  */
 export interface RequiredTestSchema {
   /**
-   * Property with required object.
+   * Single property with required object.
    */
-  property: Required<{
-    /**
-     * Inner required property.
-     */
-    foo?: number;
+  single: Required<InnerType>;
 
-    /**
-     * Inner required property.
-     */
-    bar?: string;
-  }>;
+  /**
+   * Union property with required object.
+   */
+  union: Required<InnerType | { baz: boolean }>;
 }
