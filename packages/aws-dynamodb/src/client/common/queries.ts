@@ -157,7 +157,7 @@ export const prepareUpdateMany = async <T extends TableMetadata, S extends Query
 ): Promise<[ExecuteStatementCommandInput[], Query.UpdateManyResult<S, T>]> => {
   const [[partitionKey, sortKey]] = indexes;
 
-  const command = prepareFindMany(table, [], {
+  const command = prepareFindMany(table, indexes, {
     ...query,
     select: {
       ...query.select,
@@ -211,7 +211,7 @@ export const prepareDeleteMany = async <T extends TableMetadata, S extends Query
 ): Promise<[ExecuteStatementCommandInput[], Query.DeleteManyResult<S, T>]> => {
   const [[partitionKey, sortKey]] = indexes;
 
-  const command = prepareFindMany(table, [], {
+  const command = prepareFindMany(table, indexes, {
     ...query,
     select: {
       ...query.select,
