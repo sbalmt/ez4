@@ -151,6 +151,13 @@ export interface HttpResponse {
   body?: HttpJsonBody;
 }
 
+export interface HttpProvider {
+  /**
+   * All services associated to the provider.
+   */
+  services: Record<string, unknown>;
+}
+
 /**
  * Incoming request.
  */
@@ -181,7 +188,7 @@ export type HttpIncoming<T extends HttpRequest | HttpAuthRequest> = T & {
  */
 export type HttpListener<T extends HttpRequest | HttpAuthRequest> = (
   event: Service.Event<HttpIncoming<T>>,
-  context: Service.Context<Http.Service>
+  context: Service.Context<Http.Service | HttpProvider>
 ) => Promise<void> | void;
 
 /**
@@ -189,7 +196,7 @@ export type HttpListener<T extends HttpRequest | HttpAuthRequest> = (
  */
 export type HttpAuthorizer<T extends HttpAuthRequest> = (
   request: HttpIncoming<T> | T,
-  context: Service.Context<Http.Service>
+  context: Service.Context<Http.Service | HttpProvider>
 ) => Promise<HttpAuthResponse> | HttpAuthResponse;
 
 /**
@@ -197,5 +204,5 @@ export type HttpAuthorizer<T extends HttpAuthRequest> = (
  */
 export type HttpHandler<T extends HttpRequest> = (
   request: HttpIncoming<T> | T,
-  context: Service.Context<Http.Service>
+  context: Service.Context<Http.Service | HttpProvider>
 ) => Promise<HttpResponse> | HttpResponse;
