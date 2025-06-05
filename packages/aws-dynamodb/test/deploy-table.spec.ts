@@ -37,7 +37,7 @@ describe('dynamodb table', () => {
     const localState: EntryStates = {};
 
     const resource = createTable(localState, {
-      tableName: 'ez4TestTable2',
+      tableName: 'ez4TestTable',
       enableStreams: true,
       ttlAttribute: 'ttl',
       attributeSchema: [
