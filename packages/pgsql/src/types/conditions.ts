@@ -319,6 +319,10 @@ const getIsInOperation = (column: string, schema: AnySchema | undefined, operand
         throw new InvalidOperandError(column);
       }
 
+      if (!operand.length) {
+        return 'false';
+      }
+
       const rhsOperand = operand.map((current) => getOperandValue(schema, current, context));
       const lhsOperand = getOperandColumn(schema, column, context);
 
@@ -382,17 +386,17 @@ const getOperandValue = (schema: AnySchema | undefined, operand: unknown, contex
   const index = references.counter++;
   const field = `:${index}`;
 
-  if (options.onPrepareVariable) {
-    const preparedValue = options.onPrepareVariable(operand, {
-      json: encode && !!parent,
-      schema,
-      index
-    });
-
-    variables.push(preparedValue);
-  } else {
-    variables.push(operand);
+  if (!options.onPrepareVariable) {
+    return variables.push(operand), field;
   }
+
+  const preparedValue = options.onPrepareVariable(operand, {
+    json: encode && !!parent,
+    schema,
+    index
+  });
+
+  variables.push(preparedValue);
 
   return field;
 };

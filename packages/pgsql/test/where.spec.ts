@@ -847,13 +847,34 @@ describe('sql where tests', () => {
     );
   });
 
-  it('assert :: where undefined', ({ assert }) => {
+  it('assert :: where empty', ({ assert }) => {
     const query = sql
       .select()
       .from('test')
       .where({
         foo: {
-          bar: undefined
+          isIn: []
+        }
+      });
+
+    const [statement, variables] = query.build();
+
+    assert.deepEqual(variables, []);
+
+    assert.equal(statement, `SELECT * FROM "test" WHERE false`);
+  });
+
+  it('assert :: where undefined', ({ assert }) => {
+    const query = sql
+      .select()
+      .from('test')
+      .where({
+        foo: undefined,
+        bar: {
+          equal: undefined
+        },
+        baz: {
+          qux: undefined
         }
       });
 
