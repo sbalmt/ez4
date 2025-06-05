@@ -1,58 +1,69 @@
 import type { DynamoDBDocumentClient, ExecuteStatementCommandInput } from '@aws-sdk/lib-dynamodb';
+import type { ConsumedCapacity } from '@aws-sdk/client-dynamodb';
 
+import { ReturnConsumedCapacity } from '@aws-sdk/client-dynamodb';
 import { ExecuteTransactionCommand } from '@aws-sdk/lib-dynamodb';
 import { ExecuteStatementCommand } from '@aws-sdk/lib-dynamodb';
 
 export const executeStatement = async (client: DynamoDBDocumentClient, command: ExecuteStatementCommandInput, debug?: boolean) => {
   try {
-    if (debug) {
-      console.debug({
-        query: command.Statement,
-        type: 'PartiQL'
-      });
-    }
-
     const result = await client.send(
       new ExecuteStatementCommand({
+        ReturnConsumedCapacity: debug ? ReturnConsumedCapacity.TOTAL : ReturnConsumedCapacity.NONE,
         ...command
       })
     );
 
+    if (debug) {
+      logStatement(command, result.ConsumedCapacity);
+    }
+
     return result;
   } catch (error) {
-    console.error({
-      query: command.Statement,
-      type: 'PartiQL'
-    });
-
+    logError(command);
     throw error;
   }
 };
 
-export const executeTransaction = async (client: DynamoDBDocumentClient, statements: any[], debug?: boolean) => {
+export const executeTransaction = async (client: DynamoDBDocumentClient, statements: ExecuteStatementCommandInput[], debug?: boolean) => {
   const maxLength = statements.length;
-  const operations = [];
   const batchSize = 100;
 
   for (let offset = 0; offset < maxLength; offset += batchSize) {
     const commandList = statements.slice(offset, offset + batchSize);
 
-    if (debug) {
-      commandList.forEach((command) => {
-        console.debug({
-          query: command.Statement,
-          transaction: true,
-          type: 'PartiQL'
-        });
+    try {
+      const command = new ExecuteTransactionCommand({
+        ReturnConsumedCapacity: debug ? ReturnConsumedCapacity.TOTAL : ReturnConsumedCapacity.NONE,
+        TransactStatements: commandList
       });
+
+      const result = await client.send(command);
+
+      if (debug) {
+        const consumption = result.ConsumedCapacity?.[0];
+        commandList.forEach((command) => logStatement(command, consumption, true));
+      }
+    } catch (error) {
+      commandList.forEach((command) => logError(command));
+
+      throw error;
     }
-
-    const command = new ExecuteTransactionCommand({
-      TransactStatements: commandList
-    });
-
-    operations.push(client.send(command));
   }
+};
 
-  await Promise.all(operations);
+const logStatement = (input: ExecuteStatementCommandInput, consumption: ConsumedCapacity | undefined, transaction?: boolean) => {
+  console.debug({
+    query: input.Statement,
+    consumption: consumption?.CapacityUnits,
+    transaction,
+    type: 'PartiQL'
+  });
+};
+
+const logError = (input: ExecuteStatementCommandInput) => {
+  console.error({
+    query: input.Statement,
+    type: 'PartiQL'
+  });
 };
