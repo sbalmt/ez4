@@ -1,9 +1,10 @@
 import type { SqlInsertStatement, SqlSelectStatement, SqlSourceWithResults, SqlJsonColumnSchema, SqlBuilder, SqlRecord } from '@ez4/pgsql';
-import type { Database, RelationMetadata, Query } from '@ez4/database';
 import type { SqlParameter } from '@aws-sdk/client-rds-data';
 import type { ObjectSchema } from '@ez4/schema';
 import type { AnyObject } from '@ez4/utils';
+import type { Query } from '@ez4/database';
 import type { RelationWithSchema, RepositoryRelationsWithSchema } from '../../types/repository.js';
+import type { InternalTableMetadata } from '../types.js';
 
 import { isObjectSchema } from '@ez4/schema';
 import { isEmptyObject } from '@ez4/utils';
@@ -31,11 +32,11 @@ type InsertRelationEntry = RelationWithSchema & {
   relationQueries: SqlInsertStatement[];
 };
 
-export const prepareInsertQuery = async <T extends Database.Schema, S extends Query.SelectInput<T, R>, R extends RelationMetadata>(
+export const prepareInsertQuery = async <T extends InternalTableMetadata, S extends Query.SelectInput<T>>(
   table: string,
   schema: ObjectSchema,
   relations: RepositoryRelationsWithSchema,
-  query: Query.InsertOneInput<T, S, R>
+  query: Query.InsertOneInput<S, T>
 ): Promise<[string, SqlParameter[]]> => {
   const sql = createQueryBuilder();
 
@@ -320,9 +321,9 @@ const preparePostInsertRelations = (
   return allQueries;
 };
 
-const getInsertSelectFields = <T extends Database.Schema, S extends AnyObject, R extends RelationMetadata>(
+const getInsertSelectFields = <T extends InternalTableMetadata>(
   sql: SqlBuilder,
-  fields: Query.StrictSelectInput<T, S, R>,
+  fields: Query.StrictSelectInput<AnyObject, T>,
   schema: ObjectSchema,
   relations: InsertRelationsCache,
   main: SqlInsertStatement | undefined,
@@ -362,7 +363,7 @@ const getInsertSelectFields = <T extends Database.Schema, S extends AnyObject, R
 
         relationQuery.from(sourceTable).where(relationFilter);
 
-        const relationRecord = getSelectFields(sql, relationFields, {}, sourceSchema, relations, relationQuery, fieldPath, true);
+        const relationRecord = getSelectFields(sql, relationFields, null, sourceSchema, relations, relationQuery, fieldPath, true);
 
         if (sourceIndex === Index.Primary || sourceIndex === Index.Unique) {
           relationQuery.objectColumn(relationRecord);

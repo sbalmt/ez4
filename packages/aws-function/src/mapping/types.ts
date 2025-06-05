@@ -23,3 +23,8 @@ export type MappingState = EntryState & {
   parameters: MappingParameters;
   result?: MappingResult;
 };
+
+export const enum MappingService {
+  DynamoDB = 'dynamodb',
+  Queue = 'sqs'
+}

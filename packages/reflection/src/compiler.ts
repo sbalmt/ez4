@@ -1,6 +1,6 @@
 import type { CompilerOptions as BaseCompilerOptions, CompilerHost, SourceFile } from 'typescript';
 
-import { sys, getDefaultLibFilePath, createSourceFile, ScriptTarget, ModuleKind } from 'typescript';
+import { sys, getDefaultLibFilePath, createSourceFile, ModuleKind, ModuleResolutionKind, ScriptTarget } from 'typescript';
 
 const sourceCache = new Map<string, SourceFile>();
 
@@ -14,6 +14,7 @@ export const createCompilerOptions = (options?: CompilerOptions): BaseCompilerOp
   return {
     ...options,
     module: ModuleKind.Preserve,
+    moduleResolution: ModuleResolutionKind.Bundler,
     target: ScriptTarget.ESNext,
     skipDefaultLibCheck: true,
     strict: true

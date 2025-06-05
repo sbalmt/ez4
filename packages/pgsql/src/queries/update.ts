@@ -107,7 +107,7 @@ export class SqlUpdateStatement extends SqlSource {
     return this;
   }
 
-  returning(result?: SqlResultRecord | SqlResultColumn[]): SqlUpdateStatement & SqlSourceWithResults {
+  returning(result?: SqlResultRecord | SqlResultColumn[]) {
     const { returning } = this.#state;
 
     if (!returning) {
@@ -116,7 +116,7 @@ export class SqlUpdateStatement extends SqlSource {
       returning.apply(result);
     }
 
-    return this as any;
+    return this as SqlUpdateStatement & SqlSourceWithResults;
   }
 
   build(): [string, unknown[]] {

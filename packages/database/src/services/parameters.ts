@@ -1,18 +1,21 @@
-import type { ParametersType } from './engine.js';
+import type { EngineUtils } from './engine.js';
 import type { Database } from './database.js';
 
 /**
- * Parameters builder types.
+ * Parameters mode.
  */
-export namespace Parameters {
+export const enum ParametersMode {
+  NameAndIndex = 'both',
+  OnlyIndex = 'index'
+}
+
+/**
+ * Parameters utils.
+ */
+export namespace ParametersUtils {
   /**
-   * Determines the parameters type based on the given database service.
+   * Get the parameters type based on the given database service.
    */
   export type Type<T extends Database.Service> =
-    EngineParametersType<T> extends ParametersType.NameAndIndex ? unknown[] | Record<string, unknown> : unknown[];
-
-  /**
-   * Extract the parameters from the given database service.
-   */
-  type EngineParametersType<T extends Database.Service> = T['engine'] extends { parameters: infer R } ? R : never;
+    EngineUtils.GetParametersMode<T> extends ParametersMode.NameAndIndex ? unknown[] | Record<string, unknown> : unknown[];
 }

@@ -8,9 +8,9 @@ import type { TableSchemas } from './schemas.js';
  */
 export type RelationMetadata = {
   indexes: string;
-  filters: Record<string, unknown>;
-  selects: Record<string, unknown>;
-  changes: Record<string, unknown>;
+  filters: Record<string, {}>;
+  selects: Record<string, {}>;
+  changes: Record<string, {}>;
 };
 
 /**
@@ -57,7 +57,7 @@ type TableRelation<T, S extends Record<string, Database.Schema>, I extends Recor
       ? {
           [P in N]: {
             indexes: RequiredRelationIndexes<PropertyType<N, S>, I, R>;
-            filters: FilterableRelationSchemas<S, I, R>;
+            filters: FilterableRelationSchemas<S, R>;
             changes: RequiredRelationSchemas<PropertyType<N, S>, S, I, R, true> &
               OptionalRelationSchemas<PropertyType<N, S>, S, I, R, true>;
             selects: RequiredRelationSchemas<PropertyType<N, S>, S, I, R, false> &
@@ -78,14 +78,8 @@ type RequiredRelationIndexes<T extends Database.Schema, I extends Record<string,
 /**
  * Produce an object containing all filterable relation schemas.
  */
-type FilterableRelationSchemas<
-  S extends Record<string, Database.Schema>,
-  I extends Record<string, Database.Indexes>,
-  R extends AnyObject
-> = {
-  [C in keyof R as RelationTargetAlias<C>]: IsPrimaryIndex<R[C], I> extends false
-    ? Omit<PropertyType<RelationSourceTable<R[C]>, S>, RelationSourceColumn<R[C]>>
-    : PropertyType<RelationSourceTable<R[C]>, S>;
+type FilterableRelationSchemas<S extends Record<string, Database.Schema>, R extends AnyObject> = {
+  [C in keyof R as RelationTargetAlias<C>]: Omit<PropertyType<RelationSourceTable<R[C]>, S>, RelationTargetColumn<R[C]>>;
 };
 
 /**

@@ -4,8 +4,11 @@
     "name": "TestDatabase",
     "extras": {},
     "engine": {
-      "parameters": "index",
-      "transaction": "static",
+      "parametersMode": "index",
+      "transactionMode": "static",
+      "insensitiveMode": "unsupported",
+      "paginationMode": "offset",
+      "orderMode": "any",
       "name": "test"
     },
     "tables": [
@@ -14,7 +17,14 @@
         "schema": {
           "type": "object",
           "identity": 1,
-          "properties": {}
+          "properties": {
+            "id": {
+              "type": "string"
+            },
+            "foo": {
+              "type": "string"
+            }
+          }
         },
         "indexes": []
       },

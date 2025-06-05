@@ -1,23 +1,27 @@
+import type { DynamoDbEngine } from '@ez4/aws-dynamodb/client';
+import type { Index, RelationMetadata } from '@ez4/database';
+import type { ObjectSchema } from '@ez4/schema';
+
 import { equal, deepEqual } from 'node:assert/strict';
 import { describe, it } from 'node:test';
 
 import { prepareInsert } from '@ez4/aws-dynamodb/client';
-import { ObjectSchema, SchemaType } from '@ez4/schema';
+import { SchemaType } from '@ez4/schema';
 
-type TestSchema = {
-  id: string;
-  foo?: number | null;
-  bar: {
-    barFoo: string;
-    barBar: boolean;
+type TestTableMetadata = {
+  engine: DynamoDbEngine;
+  relations: RelationMetadata;
+  indexes: {
+    id: Index.Primary;
   };
-};
-
-type TestRelations = {
-  indexes: never;
-  filters: {};
-  selects: {};
-  changes: {};
+  schema: {
+    id: string;
+    foo?: number | null;
+    bar: {
+      barFoo: string;
+      barBar: boolean;
+    };
+  };
 };
 
 describe('dynamodb query (insert)', () => {
@@ -47,7 +51,7 @@ describe('dynamodb query (insert)', () => {
   };
 
   it('assert :: prepare insert', () => {
-    const [statement, variables] = prepareInsert<TestSchema, {}, TestRelations>('ez4-test-insert', testSchema, {
+    const [statement, variables] = prepareInsert<TestTableMetadata, {}>('ez4-test-insert', testSchema, {
       data: {
         id: 'abc',
         foo: 123,
@@ -64,7 +68,7 @@ describe('dynamodb query (insert)', () => {
   });
 
   it('assert :: prepare insert (ignore nulls)', () => {
-    const [statement, variables] = prepareInsert<TestSchema, {}, TestRelations>('ez4-test-insert', testSchema, {
+    const [statement, variables] = prepareInsert<TestTableMetadata, {}>('ez4-test-insert', testSchema, {
       data: {
         id: 'abc',
         foo: null,

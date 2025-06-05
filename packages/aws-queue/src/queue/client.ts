@@ -12,7 +12,7 @@ import {
   QueueDoesNotExist
 } from '@aws-sdk/client-sqs';
 
-import { Logger } from '@ez4/aws-common';
+import { Logger, waitCreation } from '@ez4/aws-common';
 
 import { parseQueueUrl } from './helpers/url.js';
 import { QueueServiceName } from './types.js';
@@ -54,24 +54,26 @@ export const createQueue = async (request: CreateRequest): Promise<CreateRespons
 
   Logger.logCreate(QueueServiceName, queueName);
 
-  const response = await client.send(
-    new CreateQueueCommand({
-      QueueName: queueName,
-      Attributes: {
-        ...upsertQueueAttributes(request),
-        ...(fifoMode && {
-          ContentBasedDeduplication: 'true',
-          DeduplicationScope: 'messageGroup',
-          FifoThroughputLimit: 'perMessageGroupId',
-          FifoQueue: 'true'
-        })
-      },
-      tags: {
-        ...request.tags,
-        ManagedBy: 'EZ4'
-      }
-    })
-  );
+  const response = await waitCreation(async () => {
+    return client.send(
+      new CreateQueueCommand({
+        QueueName: queueName,
+        Attributes: {
+          ...upsertQueueAttributes(request),
+          ...(fifoMode && {
+            ContentBasedDeduplication: 'true',
+            DeduplicationScope: 'messageGroup',
+            FifoThroughputLimit: 'perMessageGroupId',
+            FifoQueue: 'true'
+          })
+        },
+        tags: {
+          ...request.tags,
+          ManagedBy: 'EZ4'
+        }
+      })
+    );
+  }, ['QueueDeletedRecently']);
 
   return {
     queueUrl: response.QueueUrl!

@@ -1,4 +1,4 @@
-import type { Database, Query, RelationMetadata } from '@ez4/database';
+import type { Query, TableMetadata } from '@ez4/database';
 import type { ObjectSchema } from '@ez4/schema';
 import type { AnyObject } from '@ez4/utils';
 
@@ -10,15 +10,10 @@ import { isSkippableData } from './data.js';
 
 type PrepareResult = [string, unknown[]];
 
-export const prepareUpdate = <
-  T extends Database.Schema,
-  S extends Query.SelectInput<T, R>,
-  I extends Database.Indexes,
-  R extends RelationMetadata
->(
+export const prepareUpdate = <T extends TableMetadata, S extends Query.SelectInput<T>>(
   table: string,
   schema: ObjectSchema,
-  query: Query.UpdateOneInput<T, S, I, R> | Query.UpdateManyInput<T, S, R>
+  query: Query.UpdateOneInput<S, T> | Query.UpdateManyInput<S, T>
 ): PrepareResult => {
   const [updateFields, variables] = prepareUpdateFields(query.data, schema);
 

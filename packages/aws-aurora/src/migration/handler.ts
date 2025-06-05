@@ -4,12 +4,13 @@ import type { Repository } from '../types/repository.js';
 import type { ConnectionRequest, RepositoryUpdates } from './client.js';
 import type { MigrationState, MigrationResult } from './types.js';
 
+import { deepCompare, deepEqual, isAnyObject } from '@ez4/utils';
 import { ReplaceResourceError } from '@ez4/aws-common';
-import { deepCompare } from '@ez4/utils';
 
 import { getClusterResult } from '../cluster/utils.js';
 import { createDatabase, deleteDatabase, createTables, updateTables, deleteTables } from './client.js';
 import { MigrationServiceName } from './types.js';
+import { isAnySchema } from '@ez4/schema';
 
 export const getMigrationHandler = (): StepHandler<MigrationState> => ({
   equals: equalsResource,
@@ -28,7 +29,23 @@ const previewResource = async (candidate: MigrationState, current: MigrationStat
   const target = { ...candidate.parameters, dependencies: candidate.dependencies };
   const source = { ...current.parameters, dependencies: current.dependencies };
 
-  return deepCompare(target, source);
+  const repositoryChanges = getRepositoryChanges(target.repository, source.repository);
+
+  const resourceChanges = deepCompare(target, source, {
+    exclude: {
+      repository: true
+    }
+  });
+
+  return {
+    ...resourceChanges,
+    counts: resourceChanges.counts + Math.max(repositoryChanges.counts, 1),
+    name: target.database,
+    nested: {
+      ...resourceChanges.nested,
+      repository: repositoryChanges
+    }
+  };
 };
 
 const replaceResource = async (candidate: MigrationState, current: MigrationState, context: StepContext) => {
@@ -69,7 +86,7 @@ const updateResource = async (candidate: MigrationState, current: MigrationState
   const target = parameters.repository;
   const source = current.parameters.repository;
 
-  const changes = deepCompare(target, source);
+  const changes = getRepositoryChanges(target, source);
 
   if (!changes.counts) {
     return;
@@ -110,6 +127,29 @@ const deleteResource = async (candidate: MigrationState) => {
   });
 };
 
+const getRepositoryChanges = (target: Repository, source: Repository) => {
+  return deepCompare(target, source, {
+    onRename: (target, source) => {
+      if (!isAnyObject(target) || !isAnyObject(source)) {
+        return target === source;
+      }
+
+      if (!isAnySchema(target) || !isAnySchema(source)) {
+        return deepEqual(target, source);
+      }
+
+      return deepEqual(target, source, {
+        include: {
+          type: true,
+          definitions: true,
+          nullable: true,
+          optional: true
+        }
+      });
+    }
+  });
+};
+
 const applyCreateTables = async (connection: ConnectionRequest, repository: Repository) => {
   await createTables({
     ...connection,
@@ -138,7 +178,8 @@ const applyUpdateTables = async (connection: ConnectionRequest, comparison: Reco
       schema: {
         toCreate: {},
         toUpdate: {},
-        toRemove: {}
+        toRemove: {},
+        toRename: {}
       },
       relations: {
         toCreate: {},
@@ -166,6 +207,10 @@ const applyUpdateTables = async (connection: ConnectionRequest, comparison: Reco
       changes.schema.toRemove = targetColumns.remove;
     }
 
+    if (targetColumns?.rename) {
+      changes.schema.toRename = targetColumns.rename;
+    }
+
     // Relations
 
     if (relations?.create) {
@@ -188,8 +233,9 @@ const applyUpdateTables = async (connection: ConnectionRequest, comparison: Reco
   }
 
   await updateTables({
-    repository: updates,
-    ...connection
+    ...connection,
+    repository,
+    updates
   });
 };
 

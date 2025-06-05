@@ -33,6 +33,7 @@ export const prepareBucketServices = async (event: PrepareResourceEvent) => {
 
   const bucketState = createBucket(state, functionState, {
     eventsPath: events?.path,
+    tags: options.tags,
     bucketName,
     autoExpireDays,
     localPath,

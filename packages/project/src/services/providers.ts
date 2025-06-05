@@ -1,9 +1,11 @@
 import type { ProjectOptions } from '../types/project.js';
 
+import { pathToFileURL } from 'node:url';
 import { join } from 'node:path';
 
 export const loadProviders = async (options: ProjectOptions) => {
-  const packagePath = join(process.cwd(), options.packageFile ?? 'package.json');
+  const packageFile = options.packageFile ?? 'package.json';
+  const packagePath = join(process.cwd(), packageFile);
 
   const projectProviders = await fetchProviderPackages(packagePath);
 
@@ -11,7 +13,9 @@ export const loadProviders = async (options: ProjectOptions) => {
 };
 
 const fetchProviderPackages = async (packagePath: string) => {
-  const { default: packageJson } = await import(packagePath, {
+  const packageUrl = pathToFileURL(packagePath).href;
+
+  const { default: packageJson } = await import(packageUrl, {
     with: {
       type: 'json'
     }

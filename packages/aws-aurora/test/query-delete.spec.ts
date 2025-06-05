@@ -1,27 +1,25 @@
+import type { PostgresEngine } from '@ez4/aws-aurora/client';
+import type { RelationMetadata, Index } from '@ez4/database';
+
 import { equal, deepEqual } from 'node:assert/strict';
 import { describe, it } from 'node:test';
 
 import { prepareDeleteQuery } from '@ez4/aws-aurora/client';
 import { ObjectSchema, SchemaType } from '@ez4/schema';
-import { Index } from '@ez4/database';
 
 import { makeParameter } from './common/parameters.js';
 
-type TestSchema = {
-  id: string;
-  foo?: number;
-  bar?: boolean;
-};
-
-type TestRelations = {
-  indexes: never;
-  filters: {};
-  selects: {};
-  changes: {};
-};
-
-type TestIndexes = {
-  id: Index.Primary;
+type TestTableMetadata = {
+  engine: PostgresEngine;
+  relations: RelationMetadata;
+  indexes: {
+    id: Index.Primary;
+  };
+  schema: {
+    id: string;
+    foo?: number;
+    bar?: boolean;
+  };
 };
 
 describe('aurora query (delete)', () => {
@@ -44,7 +42,7 @@ describe('aurora query (delete)', () => {
   };
 
   it('assert :: prepare delete', () => {
-    const [statement, variables] = prepareDeleteQuery<TestSchema, {}, TestIndexes, TestRelations>(
+    const [statement, variables] = prepareDeleteQuery<TestTableMetadata, {}>(
       'ez4-test-delete',
       testSchema,
       {},
@@ -61,7 +59,7 @@ describe('aurora query (delete)', () => {
   });
 
   it('assert :: prepare delete (with select)', () => {
-    const [statement, variables] = prepareDeleteQuery<TestSchema, {}, TestIndexes, TestRelations>(
+    const [statement, variables] = prepareDeleteQuery<TestTableMetadata, {}>(
       'ez4-test-delete',
       testSchema,
       {},

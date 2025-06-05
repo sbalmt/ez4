@@ -4,8 +4,11 @@
     "name": "TestDatabase",
     "extras": {},
     "engine": {
-      "parameters": "index",
-      "transaction": "static",
+      "parametersMode": "index",
+      "transactionMode": "static",
+      "insensitiveMode": "unsupported",
+      "paginationMode": "offset",
+      "orderMode": "any",
       "name": "test"
     },
     "tables": [

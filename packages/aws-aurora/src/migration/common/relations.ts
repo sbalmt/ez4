@@ -1,6 +1,6 @@
 import type { RepositoryRelations } from '../../types/repository.js';
 
-import { toCamelCase } from '@ez4/utils';
+import { toSnakeCase } from '@ez4/utils';
 import { Index } from '@ez4/database';
 
 import { getTableName } from '../../utils/tables.js';
@@ -33,11 +33,7 @@ export const prepareCreateRelations = (table: string, relations: RepositoryRelat
   return statements;
 };
 
-export const prepareUpdateRelations = (
-  table: string,
-  toCreate: RepositoryRelations,
-  toRemove: RepositoryRelations
-) => {
+export const prepareUpdateRelations = (table: string, toCreate: RepositoryRelations, toRemove: RepositoryRelations) => {
   return [...prepareDeleteRelations(table, toRemove), ...prepareCreateRelations(table, toCreate)];
 };
 
@@ -60,5 +56,5 @@ export const prepareDeleteRelations = (table: string, relations: RepositoryRelat
 };
 
 const getRelationName = (table: string, alias: string) => {
-  return `${table}_${toCamelCase(alias)}_fk`;
+  return `${table}_${toSnakeCase(alias)}_fk`;
 };

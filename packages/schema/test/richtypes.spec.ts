@@ -12,5 +12,6 @@ describe('schema rich types', () => {
   it('assert :: string', () => testFile('string'));
   it('assert :: date time', () => testFile('date-time'));
   it('assert :: identity', () => testFile('identity'));
+  it('assert :: base64', () => testFile('base64'));
   it('assert :: regex', () => testFile('regex'));
 });

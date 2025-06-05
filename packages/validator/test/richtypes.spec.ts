@@ -45,6 +45,17 @@ describe('rich types validation', () => {
     equal((await validate('test', schema)).length, 0);
   });
 
+  it('assert :: boolean (literal)', async () => {
+    const schema: AnySchema = {
+      type: SchemaType.Boolean,
+      definitions: {
+        value: false
+      }
+    };
+
+    equal((await validate(false, schema)).length, 0);
+  });
+
   it('assert :: decimal (literal)', async () => {
     const schema: AnySchema = {
       type: SchemaType.Number,
@@ -133,6 +144,15 @@ describe('rich types validation', () => {
     };
 
     equal((await validate('1991-04-23T19:45:00-03:00', schema)).length, 0);
+  });
+
+  it('assert :: string (base64)', async () => {
+    const schema: AnySchema = {
+      type: SchemaType.String,
+      format: 'base64'
+    };
+
+    equal((await validate('2de=', schema)).length, 0);
   });
 
   it('assert :: string (trim)', async () => {

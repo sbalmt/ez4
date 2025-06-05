@@ -12,6 +12,11 @@ import type { TypeObjectEvents } from './types/type-object.js';
 import type { TypeReferenceEvents } from './types/type-reference.js';
 import type { SourceMap } from './types/source.js';
 
+import { isImportDeclaration } from 'typescript';
+import { relative } from 'node:path';
+
+import { getModulePath } from './utils/module.js';
+import { isTypeLiteralString } from './resolver/type-string.js';
 import { trySource } from './resolver/source.js';
 import { AllType } from './types.js';
 
@@ -103,7 +108,7 @@ export type ReflectionOptions = {
   resolverEvents?: ResolverEvents;
 };
 
-export const createReflection = (program: Program, options?: ReflectionOptions) => {
+export const getReflectionMetadata = (program: Program, options?: ReflectionOptions) => {
   const reflection: SourceMap = {};
 
   const sourceContext = {
@@ -124,4 +129,25 @@ export const createReflection = (program: Program, options?: ReflectionOptions) 
   }
 
   return reflection;
+};
+
+export const getReflectionFiles = (program: Program) => {
+  const basePath = program.getCurrentDirectory();
+  const pathList = new Set<string>();
+
+  for (const sourceFile of program.getSourceFiles()) {
+    sourceFile.forEachChild((node) => {
+      if (!isImportDeclaration(node) || !isTypeLiteralString(node.moduleSpecifier)) {
+        return;
+      }
+
+      const importedFilePath = getModulePath(node.moduleSpecifier.text, sourceFile.fileName);
+
+      if (importedFilePath) {
+        pathList.add(relative(basePath, importedFilePath));
+      }
+    });
+  }
+
+  return [...pathList.values()];
 };

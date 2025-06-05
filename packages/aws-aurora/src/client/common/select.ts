@@ -1,8 +1,9 @@
 import type { SqlBuilder, SqlFilters, SqlJsonColumnSchema, SqlSource } from '@ez4/pgsql';
-import type { Database, RelationMetadata, Query } from '@ez4/database';
 import type { SqlParameter } from '@aws-sdk/client-rds-data';
 import type { AnySchema, ObjectSchema } from '@ez4/schema';
+import type { Query } from '@ez4/database';
 import type { RepositoryRelationsWithSchema } from '../../types/repository.js';
+import type { InternalTableMetadata } from '../types.js';
 
 import { AnyObject, isAnyNumber, isAnyObject, isEmptyObject } from '@ez4/utils';
 import { isObjectSchema, isStringSchema } from '@ez4/schema';
@@ -19,17 +20,11 @@ const FORMATS: Record<string, string> = {
   ['date']: `'YYYY-MM-DD'`
 };
 
-export const prepareSelectQuery = <
-  T extends Database.Schema,
-  S extends Query.SelectInput<T, R>,
-  I extends Database.Indexes,
-  R extends RelationMetadata,
-  C extends boolean
->(
+export const prepareSelectQuery = <T extends InternalTableMetadata, S extends Query.SelectInput<T>, C extends boolean>(
   table: string,
   schema: ObjectSchema,
   relations: RepositoryRelationsWithSchema,
-  query: Query.FindOneInput<T, S, I, R> | Query.FindManyInput<T, S, I, R, C>
+  query: Query.FindOneInput<S, T> | Query.FindManyInput<S, T, C>
 ): [string, SqlParameter[]] => {
   const sql = createQueryBuilder();
 
@@ -49,12 +44,12 @@ export const prepareSelectQuery = <
     selectQuery.order(query.order);
   }
 
-  if ('cursor' in query && isAnyNumber(query.cursor)) {
-    selectQuery.skip(query.cursor);
+  if ('skip' in query && isAnyNumber(query.skip)) {
+    selectQuery.skip(query.skip);
   }
 
-  if ('limit' in query && isAnyNumber(query.limit)) {
-    selectQuery.take(query.limit);
+  if ('take' in query && isAnyNumber(query.take)) {
+    selectQuery.take(query.take);
   }
 
   const [statement, variables] = selectQuery.build();
@@ -62,10 +57,10 @@ export const prepareSelectQuery = <
   return [statement, variables as SqlParameter[]];
 };
 
-export const getSelectFields = <T extends Database.Schema, S extends AnyObject, R extends RelationMetadata>(
+export const getSelectFields = <T extends InternalTableMetadata, S extends AnyObject>(
   sql: SqlBuilder,
-  fields: Query.StrictSelectInput<T, S, R>,
-  include: SqlFilters | undefined | null,
+  fields: Query.StrictSelectInput<S, T>,
+  include: Query.StrictIncludeInput<T> | undefined | null,
   schema: ObjectSchema,
   relations: RepositoryRelationsWithSchema,
   source: SqlSource,
@@ -96,17 +91,29 @@ export const getSelectFields = <T extends Database.Schema, S extends AnyObject, 
         throw new InvalidRelationFieldError(fieldPath);
       }
 
-      const relationFilters = include && include[fieldKey];
+      const relationIncludes = include && include[fieldKey];
 
       const relationQuery = sql
         .select(sourceSchema)
         .from(sourceTable)
         .where({
-          ...relationFilters,
+          ...relationIncludes?.where,
           [sourceColumn]: source.reference(targetColumn)
         });
 
-      const record = getSelectFields(sql, relationFields, relationFilters, sourceSchema, relations, relationQuery, fieldPath, true);
+      if (relationIncludes) {
+        relationQuery.order(relationIncludes.order);
+
+        if ('skip' in relationIncludes) {
+          relationQuery.skip(relationIncludes.skip);
+        }
+
+        if ('take' in relationIncludes) {
+          relationQuery.take(relationIncludes.take);
+        }
+      }
+
+      const record = getSelectFields(sql, relationFields, null, sourceSchema, relations, relationQuery, fieldPath, true);
 
       if (sourceIndex === Index.Primary || sourceIndex === Index.Unique) {
         relationQuery.objectColumn(record);

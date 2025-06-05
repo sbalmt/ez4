@@ -21,9 +21,7 @@ describe('aurora migration (columns)', () => {
       }
     );
 
-    deepEqual(statements, [
-      `ALTER TABLE "ez4-test-table" ADD COLUMN "column" boolean DEFAULT false`
-    ]);
+    deepEqual(statements, [`ALTER TABLE "ez4-test-table" ADD COLUMN "column" boolean DEFAULT false`]);
   });
 
   it('assert :: create column (default, not nullable)', () => {
@@ -40,9 +38,7 @@ describe('aurora migration (columns)', () => {
       }
     );
 
-    deepEqual(statements, [
-      `ALTER TABLE "ez4-test-table" ADD COLUMN "column" boolean NOT null DEFAULT true`
-    ]);
+    deepEqual(statements, [`ALTER TABLE "ez4-test-table" ADD COLUMN "column" boolean NOT null DEFAULT true`]);
   });
 
   it('assert :: create column (not default, nullable)', () => {
@@ -57,9 +53,7 @@ describe('aurora migration (columns)', () => {
       }
     );
 
-    deepEqual(statements, [
-      `ALTER TABLE "ez4-test-table" ADD COLUMN "column" boolean DEFAULT null`
-    ]);
+    deepEqual(statements, [`ALTER TABLE "ez4-test-table" ADD COLUMN "column" boolean DEFAULT null`]);
   });
 
   it('assert :: create column (not default, not nullable)', () => {
@@ -164,7 +158,7 @@ describe('aurora migration (columns)', () => {
     );
 
     deepEqual(statements, [
-      `ALTER TABLE "ez4-test-table" ALTER COLUMN "column" TYPE boolean`,
+      `ALTER TABLE "ez4-test-table" ALTER COLUMN "column" TYPE boolean USING "column"::boolean`,
       `ALTER TABLE "ez4-test-table" ALTER COLUMN "column" DROP NOT null`,
       `ALTER TABLE "ez4-test-table" ALTER COLUMN "column" SET DEFAULT true`
     ]);
@@ -185,7 +179,7 @@ describe('aurora migration (columns)', () => {
     );
 
     deepEqual(statements, [
-      `ALTER TABLE "ez4-test-table" ALTER COLUMN "column" TYPE boolean`,
+      `ALTER TABLE "ez4-test-table" ALTER COLUMN "column" TYPE boolean USING "column"::boolean`,
       `ALTER TABLE "ez4-test-table" ALTER COLUMN "column" SET NOT null`,
       `ALTER TABLE "ez4-test-table" ALTER COLUMN "column" SET DEFAULT true`
     ]);
@@ -204,7 +198,7 @@ describe('aurora migration (columns)', () => {
     );
 
     deepEqual(statements, [
-      `ALTER TABLE "ez4-test-table" ALTER COLUMN "column" TYPE boolean`,
+      `ALTER TABLE "ez4-test-table" ALTER COLUMN "column" TYPE boolean USING "column"::boolean`,
       `ALTER TABLE "ez4-test-table" ALTER COLUMN "column" DROP NOT null`,
       `ALTER TABLE "ez4-test-table" ALTER COLUMN "column" SET DEFAULT null`
     ]);
@@ -222,7 +216,7 @@ describe('aurora migration (columns)', () => {
     );
 
     deepEqual(statements, [
-      `ALTER TABLE "ez4-test-table" ALTER COLUMN "column" TYPE boolean`,
+      `ALTER TABLE "ez4-test-table" ALTER COLUMN "column" TYPE boolean USING "column"::boolean`,
       `ALTER TABLE "ez4-test-table" ALTER COLUMN "column" SET NOT null`,
       `ALTER TABLE "ez4-test-table" ALTER COLUMN "column" DROP DEFAULT`
     ]);
@@ -284,27 +278,27 @@ describe('aurora migration (columns)', () => {
 
     deepEqual(statements, [
       // Serial
-      `ALTER TABLE "ez4-test-table" ALTER COLUMN "serial" TYPE bigserial`,
+      `ALTER TABLE "ez4-test-table" ALTER COLUMN "serial" TYPE bigserial USING "serial"::bigserial`,
       `ALTER TABLE "ez4-test-table" ALTER COLUMN "serial" SET NOT null`,
       `ALTER TABLE "ez4-test-table" ALTER COLUMN "serial" DROP DEFAULT`,
 
       // Date Time
-      `ALTER TABLE "ez4-test-table" ALTER COLUMN "date_time" TYPE timestamptz`,
+      `ALTER TABLE "ez4-test-table" ALTER COLUMN "date_time" TYPE timestamptz USING "date_time"::timestamptz`,
       `ALTER TABLE "ez4-test-table" ALTER COLUMN "date_time" SET NOT null`,
       `ALTER TABLE "ez4-test-table" ALTER COLUMN "date_time" SET DEFAULT now()`,
 
       // Date
-      `ALTER TABLE "ez4-test-table" ALTER COLUMN "date" TYPE date`,
+      `ALTER TABLE "ez4-test-table" ALTER COLUMN "date" TYPE date USING "date"::date`,
       `ALTER TABLE "ez4-test-table" ALTER COLUMN "date" SET NOT null`,
       `ALTER TABLE "ez4-test-table" ALTER COLUMN "date" SET DEFAULT now()`,
 
       // Time
-      `ALTER TABLE "ez4-test-table" ALTER COLUMN "time" TYPE time`,
+      `ALTER TABLE "ez4-test-table" ALTER COLUMN "time" TYPE time USING "time"::time`,
       `ALTER TABLE "ez4-test-table" ALTER COLUMN "time" SET NOT null`,
       `ALTER TABLE "ez4-test-table" ALTER COLUMN "time" SET DEFAULT now()`,
 
       // UUID
-      `ALTER TABLE "ez4-test-table" ALTER COLUMN "uuid" TYPE uuid`,
+      `ALTER TABLE "ez4-test-table" ALTER COLUMN "uuid" TYPE uuid USING "uuid"::uuid`,
       `ALTER TABLE "ez4-test-table" ALTER COLUMN "uuid" SET NOT null`,
       `ALTER TABLE "ez4-test-table" ALTER COLUMN "uuid" SET DEFAULT gen_random_uuid()`
     ]);

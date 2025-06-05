@@ -1,6 +1,7 @@
 import type { ModelProperty } from '@ez4/reflection';
 
 import { isTypeObject } from '@ez4/reflection';
+import { isAnyString } from '@ez4/utils';
 
 import { getLiteralBoolean, getLiteralNumber, getLiteralString, getLiteralTuple } from './value.js';
 
@@ -22,4 +23,14 @@ export const getPropertyTuple = (type: ModelProperty) => {
 
 export const getPropertyObject = (type: ModelProperty) => {
   return isTypeObject(type.value) ? type.value : null;
+};
+
+export const getPropertyStringIn = <T extends string>(type: ModelProperty, values: T[]): T | null => {
+  const value = getLiteralString(type.value) as T | null | undefined;
+
+  if (isAnyString(value) && values.includes(value)) {
+    return value;
+  }
+
+  return null;
 };

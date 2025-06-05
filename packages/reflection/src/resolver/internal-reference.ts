@@ -12,12 +12,7 @@ export const isInternalReference = (node: Node): node is InterfaceDeclaration =>
   return isTypeInterface(node) && isInternalType(node);
 };
 
-export const tryInternalReference = (
-  node: Node,
-  types: TypeArguments | undefined,
-  context: Context,
-  state: State
-) => {
+export const tryInternalReference = (node: Node, types: TypeArguments | undefined, context: Context, state: State) => {
   if (!types || !isInternalReference(node)) {
     return null;
   }

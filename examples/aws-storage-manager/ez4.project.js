@@ -8,5 +8,8 @@ export default {
   sourceFiles: ['./src/api.ts', './src/dynamo.ts', './src/storage.ts'],
   stateFile: {
     path: 'ez4-deploy'
+  },
+  tags: {
+    Owner: 'EZ4 Examples'
   }
 };

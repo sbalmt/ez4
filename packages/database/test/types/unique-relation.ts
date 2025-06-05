@@ -1,5 +1,8 @@
-import type { Client, Database, Index, ParametersType, TransactionType } from '@ez4/database';
+import type { Client, Database, Index } from '@ez4/database';
 import type { Environment, Service } from '@ez4/common';
+import type { TestEngine } from '../common/engines.js';
+
+import { Order } from '@ez4/database';
 
 declare class TestTableA implements Database.Schema {
   id: string;
@@ -13,11 +16,7 @@ declare class TestTableB implements Database.Schema {
 }
 
 export declare class TestDatabase extends Database.Service {
-  engine: {
-    parameters: ParametersType.OnlyIndex;
-    transaction: TransactionType.Static;
-    name: 'test';
-  };
+  engine: TestEngine;
 
   client: Client<TestDatabase>;
 
@@ -68,7 +67,14 @@ const testSelect = async (client: TestDatabase['client']) => {
     },
     include: {
       relation_b: {
-        value_b: 2
+        where: {
+          value_b: 2
+        },
+        order: {
+          value_b: Order.Asc
+        },
+        skip: 0,
+        take: 1
       }
     },
     where: {

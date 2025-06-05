@@ -1,13 +1,11 @@
 import type { ObjectSchema } from '@ez4/schema';
-import type { AnyObject } from '@ez4/utils';
 import type { Http } from '@ez4/gateway';
 
-import { getUniqueErrorMessages, createValidatorContext } from '@ez4/validator';
-import { HttpBadRequestError } from '@ez4/gateway';
+import { validate, createValidatorContext, getUniqueErrorMessages } from '@ez4/validator';
 import { createTransformContext, transform } from '@ez4/transform';
-import { validate } from '@ez4/validator';
+import { HttpBadRequestError } from '@ez4/gateway';
 
-export const getHeaders = async (input: AnyObject, schema: ObjectSchema): Promise<Http.Headers> => {
+export const getHeaders = async <T extends Http.Headers>(input: T, schema: ObjectSchema): Promise<T> => {
   const headers = transform(
     input,
     schema,
@@ -27,8 +25,8 @@ export const getHeaders = async (input: AnyObject, schema: ObjectSchema): Promis
   if (errors.length) {
     const messages = getUniqueErrorMessages(errors);
 
-    throw new HttpBadRequestError('Malformed headers.', messages);
+    throw new HttpBadRequestError('Malformed request headers.', messages);
   }
 
-  return headers as Http.Headers;
+  return headers as T;
 };

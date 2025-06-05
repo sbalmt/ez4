@@ -50,7 +50,8 @@ export const prepareSubscriptions = async (
 
           const logGroupState = createLogGroup(state, {
             retention: subscription.retention ?? Defaults.LogRetention,
-            groupName: subscriptionName
+            groupName: subscriptionName,
+            tags: options.tags
           });
 
           handlerState = createSubscriptionFunction(state, context.role, logGroupState, {
@@ -61,6 +62,7 @@ export const prepareSubscriptions = async (
             memory: subscription.memory ?? Defaults.Memory,
             extras: service.extras,
             debug: options.debug,
+            tags: options.tags,
             variables: {
               ...options.variables,
               ...service.variables,

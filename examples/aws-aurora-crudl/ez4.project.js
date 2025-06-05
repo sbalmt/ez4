@@ -8,5 +8,8 @@ export default {
   sourceFiles: ['./src/api.ts', './src/aurora.ts'],
   stateFile: {
     path: 'ez4-deploy'
+  },
+  tags: {
+    Owner: 'EZ4 Examples'
   }
 };

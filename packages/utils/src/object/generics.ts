@@ -1,9 +1,15 @@
 import type { ArrayType, IsAny, IsArray } from '../main.js';
 
 /**
- * Represent any object.
+ * A type to represent any object.
  */
 export type AnyObject = Record<any, any>;
+
+/**
+ * Given a type `T`, it returns `true` when `T` is an empty object, otherwise returns `false`.
+ */
+export type IsObjectEmpty<T extends AnyObject> =
+  IsAny<T> extends true ? true : keyof T extends never ? true : string extends keyof T ? true : false;
 
 /**
  * Given a type `T`, it returns `true` when `T` is an object, otherwise returns `false`.
@@ -14,19 +20,9 @@ export type IsObject<T> =
     : IsArray<T> extends true
       ? false
       : NonNullable<T> extends AnyObject
-        ? true
-        : false;
-
-/**
- * Given a type `T`, it returns `true` when `T` is an empty object, otherwise returns `false`.
- */
-export type IsObjectEmpty<T extends AnyObject> =
-  IsAny<T> extends true
-    ? true
-    : keyof T extends never
-      ? true
-      : string extends keyof T
-        ? true
+        ? NonNullable<T> extends Array<any> | Function | RegExp | Date | Error | Map<any, any> | Set<any>
+          ? false
+          : true
         : false;
 
 /**
@@ -65,11 +61,7 @@ export type FlatObject<T extends AnyObject> = {
  * Given a type `T`, it produces a new `T` type having all properties set to optional.
  */
 export type OptionalObject<T extends AnyObject> = {
-  [P in keyof T]?: IsArray<T[P]> extends false
-    ? IsObject<T[P]> extends true
-      ? OptionalObject<T[P]>
-      : T[P]
-    : T[P];
+  [P in keyof T]?: IsArray<T[P]> extends false ? (IsObject<T[P]> extends true ? OptionalObject<T[P]> : T[P]) : T[P];
 };
 
 /**
@@ -127,10 +119,9 @@ export type PartialObject<T extends AnyObject, O extends AnyObject, V extends bo
  * - When the given `T` is `false` or not an object, it returns `K` if `V` is also false.
  * - In any other case, it returns `never`.
  */
-type PartialObjectProperty<T, K, V> = T extends true | AnyObject
-  ? V extends true
-    ? never
-    : K
-  : V extends false
-    ? never
-    : K;
+type PartialObjectProperty<T, K, V> = T extends true | AnyObject ? (V extends true ? never : K) : V extends false ? never : K;
+
+/**
+ * Given a type `T`, is produces a union containing all inner types.
+ */
+export type InnerTypes<T> = IsObject<T> extends true ? InnerTypes<T[keyof T]> : T;

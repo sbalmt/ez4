@@ -9,6 +9,9 @@ export default {
   stateFile: {
     path: 'ez4-deploy'
   },
+  tags: {
+    Owner: 'EZ4 Examples'
+  },
   importProjects: {
     'hello-aws-queue': {
       projectFile: '../hello-aws-queue/ez4.project.js'

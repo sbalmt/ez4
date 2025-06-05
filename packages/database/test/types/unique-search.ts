@@ -1,5 +1,6 @@
-import type { Client, Database, Index, ParametersType, TransactionType } from '@ez4/database';
+import type { Client, Database, Index } from '@ez4/database';
 import type { Environment, Service } from '@ez4/common';
+import type { TestEngine } from '../common/engines.js';
 
 declare class TestTable implements Database.Schema {
   id: string;
@@ -10,11 +11,7 @@ declare class TestTable implements Database.Schema {
 }
 
 export declare class TestDatabase extends Database.Service {
-  engine: {
-    parameters: ParametersType.OnlyIndex;
-    transaction: TransactionType.Static;
-    name: 'test';
-  };
+  engine: TestEngine;
 
   client: Client<TestDatabase>;
 
@@ -76,7 +73,7 @@ const testUpsert = (client: TestDatabase['client']) => {
       value: 456
     },
     where: {
-      unique_idx: 123
+      unique_idx: 789
     }
   });
 };

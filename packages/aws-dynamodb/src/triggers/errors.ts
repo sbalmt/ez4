@@ -10,8 +10,32 @@ export class UnsupportedRelationError extends Error {
   }
 }
 
-export class UnsupportedTransactionError extends Error {
-  constructor() {
-    super(`DynamoDB doesn't support interactive transactions.`);
+export class UnsupportedTransactionModeError extends Error {
+  constructor(public mode: string) {
+    super(`DynamoDB doesn't support '${mode}' transaction mode.`);
+  }
+}
+
+export class UnsupportedInsensitiveModeError extends Error {
+  constructor(public mode: string) {
+    super(`DynamoDB doesn't support '${mode}' insensitive mode.`);
+  }
+}
+
+export class UnsupportedParametersModeError extends Error {
+  constructor(public mode: string) {
+    super(`DynamoDB doesn't support '${mode}' parameters mode.`);
+  }
+}
+
+export class UnsupportedPaginationModeError extends Error {
+  constructor(public mode: string) {
+    super(`DynamoDB doesn't support '${mode}' pagination mode.`);
+  }
+}
+
+export class UnsupportedOrderModeError extends Error {
+  constructor(public mode: string) {
+    super(`DynamoDB doesn't support '${mode}' order mode.`);
   }
 }

@@ -94,8 +94,6 @@ export const deleteItem = async (client: DbClient, id: string) => {
 };
 
 export const listItems = async (client: DbClient, page: number, limit: number) => {
-  const cursor = (page - 1) * limit;
-
   const { records: items, total } = await client.items.findMany({
     count: true,
     select: {
@@ -108,8 +106,8 @@ export const listItems = async (client: DbClient, page: number, limit: number) =
     order: {
       created_at: Order.Desc
     },
-    cursor,
-    limit
+    skip: (page - 1) * limit,
+    take: limit
   });
 
   return {

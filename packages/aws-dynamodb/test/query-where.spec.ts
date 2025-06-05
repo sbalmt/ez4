@@ -1,28 +1,28 @@
+import type { DynamoDbEngine } from '@ez4/aws-dynamodb/client';
+import type { Query, RelationMetadata } from '@ez4/database';
+
 import { equal, deepEqual } from 'node:assert/strict';
 import { describe, it } from 'node:test';
 
 import { prepareSelect } from '@ez4/aws-dynamodb/client';
-import { Query } from '@ez4/database';
 
-type TestSchema = {
-  id: string;
-  foo?: number;
-  bar: {
-    barFoo: string;
-    barBar: boolean;
+type TestTableMetadata = {
+  engine: DynamoDbEngine;
+  relations: RelationMetadata;
+  indexes: {};
+  schema: {
+    id: string;
+    foo?: number;
+    bar: {
+      barFoo: string;
+      barBar: boolean;
+    };
   };
 };
 
-type TestRelations = {
-  indexes: never;
-  filters: {};
-  selects: {};
-  changes: {};
-};
-
 describe('dynamodb query (where)', () => {
-  const getWhereOperation = (where: Query.WhereInput<TestSchema, {}, TestRelations>) => {
-    const [statement, variables] = prepareSelect<TestSchema, {}, {}, TestRelations, false>('ez4-test-where-operation', undefined, {
+  const getWhereOperation = (where: Query.WhereInput<TestTableMetadata>) => {
+    const [statement, variables] = prepareSelect<TestTableMetadata, {}, false>('ez4-test-where-operation', undefined, {
       select: {
         id: true
       },

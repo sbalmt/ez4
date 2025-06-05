@@ -3,16 +3,11 @@ import type { EntryState, EntryStates } from '@ez4/stateful';
 import { describe, it } from 'node:test';
 import { ok, equal } from 'node:assert/strict';
 
+import { createCluster, isClusterState, registerTriggers } from '@ez4/aws-aurora';
 import { deploy } from '@ez4/aws-common';
 import { deepClone } from '@ez4/utils';
 
-import { createCluster, isClusterState, registerTriggers } from '@ez4/aws-aurora';
-
-const assertDeploy = async <E extends EntryState>(
-  resourceId: string,
-  newState: EntryStates<E>,
-  oldState: EntryStates<E> | undefined
-) => {
+const assertDeploy = async <E extends EntryState>(resourceId: string, newState: EntryStates<E>, oldState: EntryStates<E> | undefined) => {
   const { result: state } = await deploy(newState, oldState);
 
   const resource = state[resourceId];

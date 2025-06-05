@@ -1,7 +1,6 @@
 import type { AllType, SourceMap, TypeArray } from '@ez4/reflection';
 import type { SchemaDefinitions } from '../types/common.js';
 import type { ArraySchema } from '../types/type-array.js';
-import type { AnySchema } from '../types/type-any.js';
 
 import { isTypeArray } from '@ez4/reflection';
 
@@ -13,14 +12,14 @@ export type RichTypeArray = TypeArray & {
   definitions?: SchemaDefinitions;
 };
 
-export const createArraySchema = (
-  element: AnySchema,
-  description: string | undefined,
-  definitions: SchemaDefinitions | undefined
-): ArraySchema => {
+export const createArraySchema = (data: Omit<ArraySchema, 'type'>): ArraySchema => {
+  const { description, optional, nullable, element, definitions } = data;
+
   return {
     type: SchemaType.Array,
     ...(description && { description }),
+    ...(optional && { optional }),
+    ...(nullable && { nullable }),
     ...(definitions && { definitions }),
     element
   };
@@ -40,10 +39,14 @@ export const getArraySchema = (
     return null;
   }
 
-  const schema = getAnySchema(type.element, reflection, context);
+  const element = getAnySchema(type.element, reflection, context);
 
-  if (schema) {
-    return createArraySchema(schema, description, type.definitions);
+  if (element) {
+    return createArraySchema({
+      definitions: type.definitions,
+      description,
+      element
+    });
   }
 
   return null;

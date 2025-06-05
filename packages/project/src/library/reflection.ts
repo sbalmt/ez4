@@ -1,6 +1,6 @@
 import type { SourceMap, TypeObject } from '@ez4/reflection';
 
-import { createReflection, createCompilerHost, createCompilerOptions } from '@ez4/reflection';
+import { getReflectionMetadata, createCompilerHost, createCompilerOptions } from '@ez4/reflection';
 import { triggerAllSync } from '@ez4/project/library';
 import { createProgram } from 'typescript';
 import { existsSync } from 'node:fs';
@@ -8,7 +8,7 @@ import { existsSync } from 'node:fs';
 import { ReflectionSourceFileNotFound } from '../errors/reflection.js';
 
 export const getReflection = (sourceFiles: string[]): SourceMap => {
-  assetSourceFiles(sourceFiles);
+  assertSourceFiles(sourceFiles);
 
   const options = createCompilerOptions();
 
@@ -22,7 +22,7 @@ export const getReflection = (sourceFiles: string[]): SourceMap => {
     })
   });
 
-  return createReflection(program, {
+  return getReflectionMetadata(program, {
     resolverOptions: {
       includePath: true,
       ignoreMethod: true
@@ -35,7 +35,7 @@ export const getReflection = (sourceFiles: string[]): SourceMap => {
   });
 };
 
-const assetSourceFiles = (sourceFiles: string[]) => {
+const assertSourceFiles = (sourceFiles: string[]) => {
   for (const sourceFile of sourceFiles) {
     if (!existsSync(sourceFile)) {
       throw new ReflectionSourceFileNotFound(sourceFile);

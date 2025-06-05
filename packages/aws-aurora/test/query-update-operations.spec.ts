@@ -1,5 +1,6 @@
+import type { Query, RelationMetadata } from '@ez4/database';
+import type { PostgresEngine } from '@ez4/aws-aurora/client';
 import type { ObjectSchema } from '@ez4/schema';
-import type { Query } from '@ez4/database';
 
 import { describe, it } from 'node:test';
 
@@ -8,18 +9,16 @@ import { SchemaType } from '@ez4/schema';
 
 import { makeParameter } from './common/parameters.js';
 
-type TestSchema = {
-  scalar?: number;
-  json: {
-    foo?: number;
+type TestTableMetadata = {
+  engine: PostgresEngine;
+  relations: RelationMetadata;
+  indexes: {};
+  schema: {
+    scalar?: number;
+    json: {
+      foo?: number;
+    };
   };
-};
-
-type TestRelations = {
-  indexes: never;
-  filters: {};
-  selects: {};
-  changes: {};
 };
 
 describe('aurora query (update operations)', () => {
@@ -46,10 +45,8 @@ describe('aurora query (update operations)', () => {
     }
   };
 
-  const prepareUpdate = <S extends Query.SelectInput<TestSchema, TestRelations>>(
-    data: Query.UpdateManyInput<TestSchema, S, TestRelations>['data']
-  ) => {
-    return prepareUpdateQuery<TestSchema, S, {}, TestRelations>(
+  const prepareUpdate = <S extends Query.SelectInput<TestTableMetadata>>(data: Query.UpdateManyInput<S, TestTableMetadata>['data']) => {
+    return prepareUpdateQuery<TestTableMetadata, S>(
       'ez4-test-update-operation',
       testSchema,
       {},

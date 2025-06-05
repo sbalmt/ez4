@@ -1,23 +1,16 @@
-import type { Database, Query, RelationMetadata } from '@ez4/database';
-import type { AnyObject } from '@ez4/utils';
+import type { Query, TableMetadata } from '@ez4/database';
 
-import { isAnyObject } from '@ez4/utils';
+import { AnyObject, isAnyObject } from '@ez4/utils';
 
 import { prepareWhereFields } from './where.js';
 import { prepareOrderFields } from './order.js';
 
 type PrepareResult = [string, unknown[]];
 
-export const prepareSelect = <
-  T extends Database.Schema,
-  S extends Query.SelectInput<T, R>,
-  I extends Database.Indexes,
-  R extends RelationMetadata,
-  C extends boolean
->(
+export const prepareSelect = <T extends TableMetadata, S extends Query.SelectInput<T>, C extends boolean>(
   table: string,
   index: string | undefined,
-  query: Query.FindOneInput<T, S, I, R> | Query.FindManyInput<T, S, I, R, C>
+  query: Query.FindOneInput<S, T> | Query.FindManyInput<S, T, C>
 ): PrepareResult => {
   const selectFields = getSelectFields(query.select);
 
@@ -44,10 +37,7 @@ export const prepareSelect = <
   return [statement.join(' '), variables];
 };
 
-const getSelectFields = <T extends Database.Schema, S extends AnyObject, R extends RelationMetadata>(
-  fields: Query.StrictSelectInput<T, S, R>,
-  path?: string
-): string => {
+const getSelectFields = <T extends TableMetadata, S extends AnyObject>(fields: Query.StrictSelectInput<S, T>, path?: string): string => {
   const selectFields: string[] = [];
 
   for (const fieldKey in fields) {

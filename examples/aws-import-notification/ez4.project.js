@@ -9,6 +9,9 @@ export default {
   stateFile: {
     path: 'ez4-deploy'
   },
+  tags: {
+    Owner: 'EZ4 Examples'
+  },
   importProjects: {
     'hello-aws-notification': {
       projectFile: '../hello-aws-notification/ez4.project.js'

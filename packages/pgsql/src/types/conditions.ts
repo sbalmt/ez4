@@ -16,6 +16,7 @@ import { SqlRawValue } from './raw.js';
 type SqlConditionsContext = {
   options: SqlBuilderOptions;
   references: SqlBuilderReferences;
+  insensitive?: boolean;
   source: SqlSource;
   variables: unknown[];
   parent?: string;
@@ -152,37 +153,44 @@ const getFieldOperation = (
         return getEqualOperation(columnPath, columnSchema, value, context);
       }
 
-      const valueEntries = Object.entries(value);
+      const { insensitive, ...valueOperation } = value;
 
-      if (!valueEntries.length) {
+      const operationEntries = Object.entries(valueOperation);
+
+      if (!operationEntries.length) {
         throw new MissingOperatorError(columnName);
       }
 
       const isNestedEntry = columnSchema && isObjectSchema(columnSchema);
 
-      if (valueEntries.length > 1) {
+      if (operationEntries.length > 1) {
         if (!isNestedEntry) {
           throw new TooManyOperatorsError(columnName);
         }
 
         const multipleOperations = getOperations(value, columnSchema, {
           ...context,
-          parent: columnName
+          parent: columnName,
+          insensitive
         });
 
         return combineOperations(multipleOperations);
       }
 
-      const [[operator, operand]] = valueEntries;
+      const [[operator, operand]] = operationEntries;
 
-      const singleOperation = getValueOperation(columnPath, columnSchema, operator, operand, context);
+      const singleOperation = getValueOperation(columnPath, columnSchema, operator, operand, {
+        ...context,
+        insensitive
+      });
 
       if (!singleOperation) {
         const operationSchema = isNestedEntry ? columnSchema : undefined;
 
         const multipleOperations = getOperations(value, operationSchema, {
           ...context,
-          parent: columnName
+          parent: columnName,
+          insensitive
         });
 
         return combineOperations(multipleOperations);
@@ -311,6 +319,10 @@ const getIsInOperation = (column: string, schema: AnySchema | undefined, operand
         throw new InvalidOperandError(column);
       }
 
+      if (!operand.length) {
+        return 'false';
+      }
+
       const rhsOperand = operand.map((current) => getOperandValue(schema, current, context));
       const lhsOperand = getOperandColumn(schema, column, context);
 
@@ -333,6 +345,10 @@ const getStartsWithOperation = (column: string, schema: AnySchema | undefined, o
   const rhsOperand = getOperandValue(schema, operand, context);
   const lhsOperand = getOperandColumn(schema, column, context);
 
+  if (context.insensitive) {
+    return `${lhsOperand} ILIKE ${rhsOperand} || '%'`;
+  }
+
   return `${lhsOperand} LIKE ${rhsOperand} || '%'`;
 };
 
@@ -346,6 +362,10 @@ const getContainsOperation = (column: string, schema: AnySchema | undefined, ope
     default: {
       const rhsOperand = getOperandValue(schema, operand, context);
       const lhsOperand = getOperandColumn(schema, column, context);
+
+      if (context.insensitive) {
+        return `${lhsOperand} ILIKE '%' || ${rhsOperand} || '%'`;
+      }
 
       return `${lhsOperand} LIKE '%' || ${rhsOperand} || '%'`;
     }
@@ -366,17 +386,17 @@ const getOperandValue = (schema: AnySchema | undefined, operand: unknown, contex
   const index = references.counter++;
   const field = `:${index}`;
 
-  if (options.onPrepareVariable) {
-    const preparedValue = options.onPrepareVariable(operand, {
-      json: encode && !!parent,
-      schema,
-      index
-    });
-
-    variables.push(preparedValue);
-  } else {
-    variables.push(operand);
+  if (!options.onPrepareVariable) {
+    return variables.push(operand), field;
   }
+
+  const preparedValue = options.onPrepareVariable(operand, {
+    json: encode && !!parent,
+    schema,
+    index
+  });
+
+  variables.push(preparedValue);
 
   return field;
 };

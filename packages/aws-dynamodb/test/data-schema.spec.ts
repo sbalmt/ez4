@@ -1,9 +1,11 @@
+import type { ObjectSchema } from '@ez4/schema';
+
 import { deepEqual } from 'node:assert/strict';
 import { describe, it } from 'node:test';
 
 import { preparePartialSchema } from '@ez4/aws-dynamodb/client';
 import { validateSchema } from '@ez4/aws-dynamodb/runtime';
-import { ObjectSchema, SchemaType } from '@ez4/schema';
+import { SchemaType } from '@ez4/schema';
 
 describe('dynamodb data schema', () => {
   const testSchema: ObjectSchema = {

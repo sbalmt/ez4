@@ -40,7 +40,8 @@ export const prepareTableStream = (
 
     const logGroupState = createLogGroup(state, {
       retention: retention ?? Defaults.LogRetention,
-      groupName: streamName
+      groupName: streamName,
+      tags: options.tags
     });
 
     handlerState = createStreamFunction(state, context.role, logGroupState, {
@@ -51,6 +52,7 @@ export const prepareTableStream = (
       memory: memory ?? Defaults.Memory,
       extras: service.extras,
       debug: options.debug,
+      tags: options.tags,
       variables: {
         ...options.variables,
         ...service.variables,

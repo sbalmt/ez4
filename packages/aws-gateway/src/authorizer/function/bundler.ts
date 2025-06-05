@@ -4,7 +4,7 @@ import type { AuthorizerFunctionParameters } from './types.js';
 import { join } from 'node:path';
 
 import { getDefinitionsObject } from '@ez4/project/library';
-import { bundleFunction } from '@ez4/aws-common';
+import { getFunctionBundle } from '@ez4/aws-common';
 
 import { AuthorizerServiceName } from '../types.js';
 
@@ -20,7 +20,7 @@ export const bundleApiFunction = async (
 
   const definitions = getDefinitionsObject(dependencies);
 
-  return bundleFunction(AuthorizerServiceName, {
+  return getFunctionBundle(AuthorizerServiceName, {
     templateFile: join(__MODULE_PATH, '../lib/authorizer.ts'),
     filePrefix: 'auth',
     define: {

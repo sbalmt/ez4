@@ -30,23 +30,27 @@ export namespace String {
     name: Name;
   };
 
-  export type Date = {
-    '@ez4/schema': 'date';
-  };
-
-  export type Time = {
-    '@ez4/schema': 'time';
-  };
-
-  export type DateTime = {
-    '@ez4/schema': 'date-time';
-  };
-
   export type UUID = {
     '@ez4/schema': 'uuid';
   };
 
   export type Email = {
     '@ez4/schema': 'email';
+  };
+
+  export type Time = {
+    '@ez4/schema': 'time';
+  };
+
+  export type Date = {
+    '@ez4/schema': 'date';
+  };
+
+  export type DateTime = {
+    '@ez4/schema': 'date-time';
+  };
+
+  export type Base64 = {
+    '@ez4/schema': 'base64';
   };
 }

@@ -31,7 +31,8 @@ export const prepareTarget = (state: EntryStates, service: CronService, options:
 
   const logGroupState = createLogGroup(state, {
     retention: retention ?? Defaults.LogRetention,
-    groupName: targetName
+    groupName: targetName,
+    tags: options.tags,
   });
 
   handlerState = createTargetFunction(state, context.role, logGroupState, {
@@ -42,6 +43,7 @@ export const prepareTarget = (state: EntryStates, service: CronService, options:
     memory: memory ?? Defaults.Memory,
     extras: service.extras,
     debug: options.debug,
+    tags: options.tags,
     variables: {
       ...options.variables,
       ...service.variables,

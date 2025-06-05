@@ -1,5 +1,5 @@
-import { toCamelCase } from '@ez4/utils';
+import { toSnakeCase } from '@ez4/utils';
 
 export const getTableName = (table: string) => {
-  return toCamelCase(table);
+  return toSnakeCase(table);
 };

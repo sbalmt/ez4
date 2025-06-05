@@ -1,12 +1,9 @@
-import type { Client, Database, ParametersType, TransactionType } from '@ez4/database';
+import type { Client, Database, ParametersMode } from '@ez4/database';
 import type { Environment, Service } from '@ez4/common';
+import type { TestEngineParameters } from '../common/engines.js';
 
 export declare class TestDatabase extends Database.Service {
-  engine: {
-    parameters: ParametersType.NameAndIndex;
-    transaction: TransactionType.Static;
-    name: 'test';
-  };
+  engine: TestEngineParameters<ParametersMode.NameAndIndex>;
 
   client: Client<TestDatabase>;
 

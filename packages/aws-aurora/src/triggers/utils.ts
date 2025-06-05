@@ -3,7 +3,7 @@ import type { DeployOptions, ServiceMetadata } from '@ez4/project/library';
 
 import { isDatabaseService } from '@ez4/database/library';
 import { getServiceName } from '@ez4/project/library';
-import { toCamelCase } from '@ez4/utils';
+import { toSnakeCase } from '@ez4/utils';
 
 export const getClusterName = (service: DatabaseService, options: DeployOptions) => {
   return getServiceName(service, options);
@@ -14,8 +14,8 @@ export const getInstanceName = (service: DatabaseService, options: DeployOptions
 };
 
 export const getDatabaseName = (service: DatabaseService, options: DeployOptions) => {
-  const projectName = toCamelCase(options.projectName);
-  const serviceName = toCamelCase(service.name);
+  const projectName = toSnakeCase(options.projectName);
+  const serviceName = toSnakeCase(service.name);
 
   return `${projectName}_${serviceName}`;
 };

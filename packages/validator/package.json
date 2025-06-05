@@ -1,7 +1,7 @@
 {
   "name": "@ez4/validator",
   "description": "EZ4: Validate data according to a given schema",
-  "version": "0.18.0",
+  "version": "0.19.0",
   "author": "Silas B.",
   "license": "MIT",
   "type": "module",
@@ -35,7 +35,7 @@
     "live:publish": "npm run test && npm publish --access public"
   },
   "dependencies": {
-    "@ez4/schema": "^0.18.0",
-    "@ez4/utils": "^0.18.0"
+    "@ez4/schema": "^0.19.0",
+    "@ez4/utils": "^0.19.0"
   }
 }

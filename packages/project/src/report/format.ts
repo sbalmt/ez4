@@ -1,6 +1,6 @@
 import type { AnyObject, ObjectComparison } from '@ez4/utils';
 
-import { toGray, toGreen, toRed } from '../console/format.js';
+import { toGray, toGreen, toRed, toYellow } from '../console/format.js';
 
 export const formatReportChanges = (changes: ObjectComparison, values: AnyObject, path?: string) => {
   const length = getMaxPropertyLength({
@@ -21,6 +21,7 @@ export const formatReportChanges = (changes: ObjectComparison, values: AnyObject
   };
 
   const createSign = toGreen(`+`);
+  const renameSign = toYellow(`~`);
   const removeSign = toRed(`-`);
 
   const output: string[] = [];
@@ -30,6 +31,14 @@ export const formatReportChanges = (changes: ObjectComparison, values: AnyObject
       const oldValue = getOutputValue(property, changes.remove[property]);
 
       output.push(`${removeSign} ${oldValue}`);
+    }
+  }
+
+  if (changes.rename) {
+    for (const property in changes.rename) {
+      const renameValue = getOutputValue(property, changes.rename[property]);
+
+      output.push(`${renameSign} ${renameValue}`);
     }
   }
 

@@ -29,6 +29,7 @@ export const prepareServices = async (event: PrepareResourceEvent) => {
   const topicState = createTopic(state, {
     topicName: getServiceName(service, options),
     fifoMode: !!fifoMode,
+    tags: options.tags
   });
 
   context.setServiceState(topicState, service, options);

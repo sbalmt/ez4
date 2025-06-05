@@ -1,13 +1,11 @@
 import type { TypeObject } from '@ez4/reflection';
 
-import { join } from 'node:path';
-
 import { createTrigger } from '@ez4/project/library';
 
 import { getRichTypes, createRichType } from '../richtypes/utils.js';
 
 const libraryFiles = ['boolean', 'integer', 'decimal', 'string', 'object', 'array', 'enum'];
-const libraryPath = new RegExp(join('dist', 'richtypes', `(${libraryFiles.join('|')}).d.ts`));
+const libraryPath = new RegExp(`dist/richtypes/(${libraryFiles.join('|')}).d.ts`);
 
 let isRegistered = false;
 
@@ -26,7 +24,7 @@ export const registerTriggers = () => {
 
 const applyRichTypePath = (file: string) => {
   if (libraryPath.test(file)) {
-    return file.replace(libraryPath, (_, module) => join('lib', `${module}.ts`));
+    return file.replace(libraryPath, (_, module) => `lib/${module}.ts`);
   }
 
   return null;

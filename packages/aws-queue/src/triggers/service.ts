@@ -31,6 +31,7 @@ export const prepareServices = async (event: PrepareResourceEvent) => {
     queueName: getQueueName(service, options),
     fifoMode: !!fifoMode,
     timeout: timeout ?? Defaults.Timeout,
+    tags: options.tags,
     ...(retention !== undefined && { retention }),
     ...(polling !== undefined && { polling }),
     ...(delay !== undefined && { delay })

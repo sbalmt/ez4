@@ -22,14 +22,10 @@ export type IsOptional<T> = true extends IsNullable<T> | IsUndefined<T> ? true :
 /**
  * Given the types `T` and `U`, it ensures the object satisfies only `T` or `U`.
  */
-export type ExclusiveType<T, U> = T | U extends object
-  ? (VoidType<T, U> & U) | (VoidType<U, T> & T)
-  : T | U;
+export type ExclusiveType<T, U> = T | U extends object ? (VoidType<T, U> & U) | (VoidType<U, T> & T) : T | U;
 
 /**
  * Given the types `T` and `U`, it produces a new type containing all properties
  * from `T` and ensures that no properties from `U` are accepted.
  */
-export type VoidType<T, U> = T | U extends object
-  ? { [P in Exclude<keyof T, keyof U>]?: never }
-  : T | U;
+export type VoidType<T, U> = T | U extends object ? { [P in Exclude<keyof T, keyof U>]?: never } : T | U;

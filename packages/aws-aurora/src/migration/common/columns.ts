@@ -1,26 +1,14 @@
 import type { AnySchema, NumberSchema, StringSchema } from '@ez4/schema';
 import type { RepositoryIndexes } from '../../main.js';
 
-import {
-  SchemaType,
-  isScalarSchema,
-  isStringSchema,
-  isObjectSchema,
-  isArraySchema,
-  isTupleSchema,
-  isEnumSchema
-} from '@ez4/schema';
+import { SchemaType, isScalarSchema, isStringSchema, isObjectSchema, isArraySchema, isTupleSchema, isEnumSchema } from '@ez4/schema';
 
 import { isAnyNumber } from '@ez4/utils';
 import { Index } from '@ez4/database';
 
 export type ColumnSchema = Record<string, AnySchema>;
 
-export const prepareCreateColumns = (
-  table: string,
-  indexes: RepositoryIndexes,
-  columns: ColumnSchema
-) => {
+export const prepareCreateColumns = (table: string, indexes: RepositoryIndexes, columns: ColumnSchema) => {
   const allStatements = [];
 
   for (const columnName in columns) {
@@ -49,11 +37,7 @@ export const prepareCreateColumns = (
   return allStatements;
 };
 
-export const prepareUpdateColumns = (
-  table: string,
-  indexes: RepositoryIndexes,
-  columns: ColumnSchema
-) => {
+export const prepareUpdateColumns = (table: string, indexes: RepositoryIndexes, columns: ColumnSchema) => {
   const allStatements = [];
 
   for (const columnName in columns) {
@@ -66,7 +50,7 @@ export const prepareUpdateColumns = (
 
     const columnType = getColumnType(columnSchema, columnIsPrimary);
 
-    allStatements.push(`${statement} TYPE ${columnType}`);
+    allStatements.push(`${statement} TYPE ${columnType} USING "${columnName}"::${columnType}`);
 
     const columnNullable = isOptionalColumn(columnSchema);
 
@@ -98,18 +82,24 @@ export const prepareDeleteColumns = (table: string, columns: ColumnSchema) => {
   return statements;
 };
 
+export const prepareRenameColumns = (table: string, columns: Record<string, string>) => {
+  const statements = [];
+
+  for (const fromColumn in columns) {
+    const toColum = columns[fromColumn];
+
+    statements.push(`ALTER TABLE "${table}" RENAME COLUMN "${fromColumn}" TO "${toColum}"`);
+  }
+
+  return statements;
+};
+
 export const isOptionalColumn = (schema: AnySchema) => {
   return !!(schema.nullable || schema.optional);
 };
 
 export const getColumnDefault = (schema: AnySchema, primaryIndex: boolean) => {
-  if (
-    isScalarSchema(schema) ||
-    isObjectSchema(schema) ||
-    isArraySchema(schema) ||
-    isTupleSchema(schema) ||
-    isEnumSchema(schema)
-  ) {
+  if (isScalarSchema(schema) || isObjectSchema(schema) || isArraySchema(schema) || isTupleSchema(schema) || isEnumSchema(schema)) {
     const { definitions } = schema;
 
     switch (typeof definitions?.default) {

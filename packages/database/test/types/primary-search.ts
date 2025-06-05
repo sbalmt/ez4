@@ -1,5 +1,6 @@
-import type { Client, Database, Index, ParametersType, TransactionType } from '@ez4/database';
+import type { Client, Database, Index } from '@ez4/database';
 import type { Environment, Service } from '@ez4/common';
+import type { TestEngine } from '../common/engines.js';
 
 declare class TestTable implements Database.Schema {
   id: string;
@@ -7,11 +8,7 @@ declare class TestTable implements Database.Schema {
 }
 
 export declare class TestDatabase extends Database.Service {
-  engine: {
-    parameters: ParametersType.OnlyIndex;
-    transaction: TransactionType.Static;
-    name: 'test';
-  };
+  engine: TestEngine;
 
   client: Client<TestDatabase>;
 

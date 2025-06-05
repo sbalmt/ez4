@@ -1,18 +1,15 @@
-import type { Database, ParametersType, TransactionType } from '@ez4/database';
+import type { Database } from '@ez4/database';
+import type { TestEngine } from '../common/engines.js';
 
 export declare class TestDatabase extends Database.Service {
-  engine: {
-    parameters: ParametersType.OnlyIndex;
-    transaction: TransactionType.Static;
-    name: 'test';
-  };
+  engine: TestEngine;
 
   tables: [
     {
       name: 'testTable';
-      schema: {};
-      indexes: {};
       stream: TestStream;
+      indexes: {};
+      schema: {};
     }
   ];
 }

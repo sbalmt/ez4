@@ -36,6 +36,7 @@ export const prepareHttpServices = (event: PrepareResourceEvent) => {
 
   const gatewayState = createGateway(state, {
     gatewayName: displayName ?? name,
+    tags: options.tags,
     gatewayId,
     description,
     ...(cors && {
@@ -126,7 +127,8 @@ const getIntegrationFunction = (
 
     const logGroupState = createLogGroup(state, {
       retention: retention ?? Defaults.LogRetention,
-      groupName: integrationName
+      groupName: integrationName,
+      tags: options.tags
     });
 
     handlerState = createIntegrationFunction(state, context.role, logGroupState, {
@@ -142,6 +144,7 @@ const getIntegrationFunction = (
       memory: memory ?? Defaults.Memory,
       extras: service.extras,
       debug: options.debug,
+      tags: options.tags,
       variables: {
         ...options.variables,
         ...service.variables
@@ -206,7 +209,8 @@ const getAuthorizerFunction = (
 
     const logGroupState = createLogGroup(state, {
       retention: retention ?? Defaults.LogRetention,
-      groupName: authorizerName
+      groupName: authorizerName,
+      tags: options.tags
     });
 
     authorizerState = createAuthorizerFunction(state, context.role, logGroupState, {
@@ -219,6 +223,7 @@ const getAuthorizerFunction = (
       querySchema: request?.query,
       extras: service.extras,
       debug: options.debug,
+      tags: options.tags,
       variables: {
         ...options.variables,
         ...service.variables

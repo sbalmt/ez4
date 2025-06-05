@@ -19,9 +19,9 @@ import { isModelProperty } from '@ez4/reflection';
 import { InvalidRelationAliasError, InvalidRelationColumnError, InvalidRelationTableError } from '../errors/relations.js';
 import { IncompleteServiceError } from '../errors/service.js';
 import { ServiceType } from '../types/service.js';
+import { getDatabaseEngine } from './engine.js';
 import { isDatabaseService } from './utils.js';
 import { getDatabaseTable } from './table.js';
-import { getDatabaseEngine } from './engine.js';
 
 export const getDatabaseServices = (reflection: SourceMap) => {
   const allServices: Record<string, DatabaseService> = {};

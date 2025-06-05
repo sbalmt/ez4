@@ -1,7 +1,7 @@
 import type { EntryState, EntryStates } from '@ez4/stateful';
 
-import { describe, it } from 'node:test';
 import { ok, equal } from 'node:assert/strict';
+import { describe, it } from 'node:test';
 import { join } from 'node:path';
 
 import { AttributeKeyType, AttributeType, createStreamFunction, createMapping, createTable, registerTriggers } from '@ez4/aws-dynamodb';

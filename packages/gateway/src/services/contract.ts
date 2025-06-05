@@ -13,6 +13,7 @@ import type {
   HttpAuthResponse,
   HttpRequest,
   HttpResponse,
+  HttpProvider,
   HttpIncoming,
   HttpListener,
   HttpAuthorizer,
@@ -39,6 +40,8 @@ export namespace Http {
 
   export type AuthResponse = HttpAuthResponse;
   export type Response = HttpResponse;
+
+  export type Provider = HttpProvider;
 
   export type Incoming<T extends Request | AuthRequest> = HttpIncoming<T>;
 

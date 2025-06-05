@@ -22,12 +22,22 @@ export namespace String {
   /**
    * String with default value.
    */
-  export type Default<_Value extends string> = string | undefined;
+  export type Default<_Value extends string> = string;
 
   /**
    * String matching regex.
    */
   export type Regex<_Pattern extends string, _Name extends string> = string;
+
+  /**
+   * String following the UUID format.
+   */
+  export type UUID = string;
+
+  /**
+   * String following the email format.
+   */
+  export type Email = string;
 
   /**
    * String following the time format.
@@ -50,12 +60,7 @@ export namespace String {
   export type Duration = string;
 
   /**
-   * String following the email format.
+   * String following the base64 format.
    */
-  export type Email = string;
-
-  /**
-   * String following the UUID format.
-   */
-  export type UUID = string;
+  export type Base64 = string;
 }

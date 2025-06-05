@@ -1,5 +1,6 @@
+import type { Query, RelationMetadata } from '@ez4/database';
 import type { RepositoryRelationsWithSchema } from '@ez4/aws-aurora';
-import type { Database, Query } from '@ez4/database';
+import type { PostgresEngine } from '@ez4/aws-aurora/client';
 
 import { describe, it } from 'node:test';
 
@@ -9,11 +10,11 @@ import { Index } from '@ez4/database';
 
 import { makeParameter } from './common/parameters.js';
 
-type TestRelations = {
-  indexes: never;
-  filters: {};
-  selects: {};
-  changes: {};
+type TestTableMetadata = {
+  engine: PostgresEngine;
+  relations: RelationMetadata;
+  indexes: {};
+  schema: {};
 };
 
 describe('aurora query (update relations)', () => {
@@ -76,10 +77,8 @@ describe('aurora query (update relations)', () => {
     }
   };
 
-  const prepareUpdate = <T extends Database.Schema, S extends Query.SelectInput<T, TestRelations>>(
-    query: Query.UpdateManyInput<T, S, TestRelations>
-  ) => {
-    return prepareUpdateQuery<T, S, {}, TestRelations>('ez4-test-update-relations', testSchema, testRelations, query);
+  const prepareUpdate = <S extends Query.SelectInput<TestTableMetadata>>(query: Query.UpdateManyInput<S, TestTableMetadata>) => {
+    return prepareUpdateQuery<TestTableMetadata, S>('ez4-test-update-relations', testSchema, testRelations, query);
   };
 
   it('assert :: prepare update relations (active connections)', async ({ assert }) => {

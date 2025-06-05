@@ -40,7 +40,6 @@ export declare class Sqs extends Queue.Service<MessageRequest> {
     {
       listener: typeof queueListener;
       handler: typeof messageHandlerB;
-      concurrency: 4;
     }
   ];
 
@@ -66,7 +65,7 @@ export declare class FifoSqs extends Queue.Service<MessageRequest> {
   /**
    * Maximum amount of time for the handler to acknowledge the message.
    */
-  timeout: 30;
+  timeout: 150;
 
   /**
    * All handlers for this queue.

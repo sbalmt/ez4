@@ -1,4 +1,5 @@
-import type { Database, Query } from '@ez4/database';
+import type { Query, RelationMetadata } from '@ez4/database';
+import type { PostgresEngine } from '@ez4/aws-aurora/client';
 
 import { describe, it } from 'node:test';
 
@@ -8,19 +9,19 @@ import { Order } from '@ez4/database';
 
 import { makeParameter } from './common/parameters.js';
 
-type TestRelations = {
-  indexes: never;
-  filters: {};
-  selects: {};
-  changes: {};
+type TestTableMetadata = {
+  engine: PostgresEngine;
+  relations: RelationMetadata;
+  indexes: {};
+  schema: {};
 };
 
 describe('aurora query (select schema)', () => {
-  const prepareSelect = <T extends Database.Schema, S extends Query.SelectInput<T, TestRelations>>(
+  const prepareSelect = <S extends Query.SelectInput<TestTableMetadata>>(
     schema: ObjectSchema,
-    query: Query.FindManyInput<T, S, {}, TestRelations, false>
+    query: Query.FindManyInput<S, TestTableMetadata, false>
   ) => {
-    return prepareSelectQuery<T, S, {}, TestRelations, false>('ez4-test-select-schema', schema, {}, query);
+    return prepareSelectQuery<TestTableMetadata, S, false>('ez4-test-select-schema', schema, {}, query);
   };
 
   it('assert :: prepare select schema (all fields)', ({ assert }) => {
@@ -204,7 +205,7 @@ describe('aurora query (select schema)', () => {
         },
         where: {
           bar: 123
-        } as any
+        }
       }
     );
 

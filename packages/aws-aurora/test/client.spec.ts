@@ -7,8 +7,8 @@ import { ok, equal, deepEqual } from 'node:assert/strict';
 import { describe, it } from 'node:test';
 
 import { Client } from '@ez4/aws-aurora/client';
-import { SchemaType } from '@ez4/schema';
 import { Index, Order } from '@ez4/database';
+import { SchemaType } from '@ez4/schema';
 import { deploy } from '@ez4/aws-common';
 
 import { createCluster, createInstance, createMigration, isClusterState, registerTriggers } from '@ez4/aws-aurora';
@@ -296,14 +296,25 @@ describe('aurora client', () => {
       }
     };
 
+    // Return the current value
     const insertResult = await dbClient.testTable.upsertOne(query);
 
-    equal(insertResult, undefined);
-
-    const updateResult = await dbClient.testTable.upsertOne(query);
-
-    deepEqual(updateResult, {
+    deepEqual(insertResult, {
       foo: 'initial'
+    });
+
+    // Return the last value
+    const update1Result = await dbClient.testTable.upsertOne(query);
+
+    deepEqual(update1Result, {
+      foo: 'initial'
+    });
+
+    // Return the last value
+    const update2Result = await dbClient.testTable.upsertOne(query);
+
+    deepEqual(update2Result, {
+      foo: 'updated'
     });
   });
 

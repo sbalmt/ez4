@@ -1,6 +1,6 @@
 import { deepClone, isAnyObject } from '@ez4/utils';
 import { ObjectSchema, SchemaType } from '@ez4/schema';
-import { RelationWithSchema } from '../../main.js';
+import { RelationWithSchema } from '../../types/repository.js';
 
 export const isSingleRelationData = (value: unknown) => {
   return isAnyObject(value);

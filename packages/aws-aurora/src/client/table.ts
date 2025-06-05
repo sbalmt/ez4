@@ -1,12 +1,10 @@
-import type { Database, RelationMetadata, Query, Table as DbTable } from '@ez4/database';
+import type { Table as DbTable, Query } from '@ez4/database';
 import type { RDSDataClient } from '@aws-sdk/client-rds-data';
 import type { AnyObject, IsArray } from '@ez4/utils';
 import type { ObjectSchema } from '@ez4/schema';
 import type { RepositoryRelationsWithSchema } from '../types/repository.js';
 import type { PreparedQueryCommand } from './common/queries.js';
-import type { Connection } from './types.js';
-
-import { isAnyNumber } from '@ez4/utils';
+import type { Connection, InternalTableMetadata } from './types.js';
 
 import { executeStatement, executeStatements, executeTransaction } from './common/client.js';
 import { parseRecord } from './common/record.js';
@@ -32,7 +30,7 @@ export type TableContext = {
 
 type SendCommandResult<T> = IsArray<T> extends true ? AnyObject[][] : AnyObject[];
 
-export class Table<T extends Database.Schema, I extends Database.Indexes, R extends RelationMetadata> implements DbTable<T, I, R> {
+export class Table<T extends InternalTableMetadata> implements DbTable<T> {
   constructor(
     private name: string,
     private schema: ObjectSchema,
@@ -62,19 +60,19 @@ export class Table<T extends Database.Schema, I extends Database.Indexes, R exte
     return parseRecord(record, this.schema, this.relations);
   }
 
-  async insertOne<S extends Query.SelectInput<T, R>>(query: Query.InsertOneInput<T, S, R>) {
+  async insertOne<S extends Query.SelectInput<T>>(query: Query.InsertOneInput<S, T>) {
     const command = await prepareInsertOne(this.name, this.schema, this.relations, query);
 
     const results = await this.sendCommand(command);
 
     if (results.length > 0) {
-      return this.parseRecord(results[0]) as Query.InsertOneResult<T, S, R>;
+      return this.parseRecord(results[0]) as Query.InsertOneResult<S, T>;
     }
 
-    return undefined as Query.InsertOneResult<T, S, R>;
+    return undefined as Query.InsertOneResult<S, T>;
   }
 
-  async updateOne<S extends Query.SelectInput<T, R>>(query: Query.UpdateOneInput<T, S, I, R>) {
+  async updateOne<S extends Query.SelectInput<T>>(query: Query.UpdateOneInput<S, T>) {
     const { select, data, where } = query;
 
     const updateQuery = {
@@ -87,7 +85,7 @@ export class Table<T extends Database.Schema, I extends Database.Indexes, R exte
     if (!select) {
       await this.sendCommand(updateCommand);
 
-      return undefined as Query.UpdateOneResult<T, S, R>;
+      return undefined as Query.UpdateOneResult<S, T>;
     }
 
     const selectCommand = prepareFindOne(this.name, this.schema, this.relations, {
@@ -98,46 +96,47 @@ export class Table<T extends Database.Schema, I extends Database.Indexes, R exte
     const [records] = await this.sendCommand([selectCommand, updateCommand]);
 
     if (records.length > 0) {
-      return this.parseRecord(records[0]) as Query.UpdateOneResult<T, S, R>;
+      return this.parseRecord(records[0]) as Query.UpdateOneResult<S, T>;
     }
 
-    return undefined as Query.UpdateOneResult<T, S, R>;
+    return undefined as Query.UpdateOneResult<S, T>;
   }
 
-  async findOne<S extends Query.SelectInput<T, R>>(query: Query.FindOneInput<T, S, I, R>) {
+  async findOne<S extends Query.SelectInput<T>>(query: Query.FindOneInput<S, T>) {
     const command = prepareFindOne(this.name, this.schema, this.relations, query);
 
     const records = await this.sendCommand(command);
 
     if (records.length > 0) {
-      return this.parseRecord(records[0]) as Query.FindOneResult<T, S, R>;
+      return this.parseRecord(records[0]) as Query.FindOneResult<S, T>;
     }
 
-    return undefined as Query.FindOneResult<T, S, R>;
+    return undefined as Query.FindOneResult<S, T>;
   }
 
-  async deleteOne<S extends Query.SelectInput<T, R>>(query: Query.DeleteOneInput<T, S, I, R>) {
+  async deleteOne<S extends Query.SelectInput<T>>(query: Query.DeleteOneInput<S, T>) {
     const command = prepareDeleteOne(this.name, this.schema, this.relations, query);
 
     const records = await this.sendCommand(command);
 
     if (records.length > 0) {
-      return this.parseRecord(records[0]) as Query.DeleteOneResult<T, S, R>;
+      return this.parseRecord(records[0]) as Query.DeleteOneResult<S, T>;
     }
 
-    return undefined as Query.DeleteOneResult<T, S, R>;
+    return undefined as Query.DeleteOneResult<S, T>;
   }
 
-  async upsertOne<S extends Query.SelectInput<T, R>>(query: Query.UpsertOneInput<T, S, I, R>) {
+  async upsertOne<S extends Query.SelectInput<T>>(query: Query.UpsertOneInput<S, T>) {
     const previous = await this.findOne({
-      select: query.select ?? ({} as Query.StrictSelectInput<T, S, R>),
+      select: query.select ?? ({} as Query.StrictSelectInput<S, T>),
       where: query.where
     });
 
     if (!previous) {
       return this.insertOne({
+        select: query.select,
         data: query.insert
-      }) as Promise<Query.UpsertOneResult<T, S, R>>;
+      }) as Promise<Query.UpsertOneResult<S, T>>;
     }
 
     await this.updateOne({
@@ -146,7 +145,7 @@ export class Table<T extends Database.Schema, I extends Database.Indexes, R exte
       data: query.update
     });
 
-    return previous;
+    return previous as Query.UpsertOneResult<S, T>;
   }
 
   async insertMany(query: Query.InsertManyInput<T>) {
@@ -155,34 +154,36 @@ export class Table<T extends Database.Schema, I extends Database.Indexes, R exte
     await this.sendCommand(commands);
   }
 
-  async updateMany<S extends Query.SelectInput<T, R>>(query: Query.UpdateManyInput<T, S, R>) {
-    const { select, where, limit } = query;
+  async updateMany<S extends Query.SelectInput<T>>(query: Query.UpdateManyInput<S, T>) {
+    const { select, where } = query;
 
     const updateCommand = await prepareUpdateMany(this.name, this.schema, this.relations, query);
 
     if (!select) {
       await this.sendCommand(updateCommand);
 
-      return undefined as Query.UpdateManyResult<T, S, R>;
+      return undefined as Query.UpdateManyResult<S, T>;
     }
 
     const selectCommand = prepareFindMany(this.name, this.schema, this.relations, {
       select,
       where,
-      limit
+      ...('take' in query && {
+        take: query.take
+      })
     });
 
     const [records] = await this.sendCommand([selectCommand, updateCommand]);
 
     if (records.length > 0) {
-      return records.map((record: AnyObject) => this.parseRecord(record)) as Query.UpdateManyResult<T, S, R>;
+      return records.map((record: AnyObject) => this.parseRecord(record)) as Query.UpdateManyResult<S, T>;
     }
 
-    return [] as unknown as Query.UpdateManyResult<T, S, R>;
+    return [] as unknown as Query.UpdateManyResult<S, T>;
   }
 
-  async findMany<S extends Query.SelectInput<T, R>, C extends boolean = false>(query: Query.FindManyInput<T, S, I, R, C>) {
-    const { cursor, count: shouldCount } = query;
+  async findMany<S extends Query.SelectInput<T>, C extends boolean = false>(query: Query.FindManyInput<S, T, C>) {
+    const { count: shouldCount } = query;
 
     const findCommand = prepareFindMany(this.name, this.schema, this.relations, query);
     const allCommands = [findCommand];
@@ -201,28 +202,25 @@ export class Table<T extends Database.Schema, I extends Database.Indexes, R exte
       records: records.map((record: AnyObject) => {
         return this.parseRecord(record);
       }),
-      ...(isAnyNumber(cursor) && {
-        cursor: Number(cursor) + records.length
-      }),
       ...(shouldCount && {
         total: total[0]?.count
       })
-    } as Query.FindManyResult<T, S, R, C>;
+    } as Query.FindManyResult<S, T, C>;
   }
 
-  async deleteMany<S extends Query.SelectInput<T, R>>(query: Query.DeleteManyInput<T, S, R>) {
+  async deleteMany<S extends Query.SelectInput<T>>(query: Query.DeleteManyInput<S, T>) {
     const command = prepareDeleteMany(this.name, this.schema, this.relations, query);
 
     const records = await this.sendCommand(command);
 
     if (records.length > 0) {
-      return records.map((record: AnyObject) => this.parseRecord(record)) as Query.DeleteManyResult<T, S, R>;
+      return records.map((record: AnyObject) => this.parseRecord(record)) as Query.DeleteManyResult<S, T>;
     }
 
     return [];
   }
 
-  async count(query: Query.CountInput<T, R>) {
+  async count(query: Query.CountInput<T>) {
     const command = prepareCount(this.name, this.schema, this.relations, query);
 
     const [{ count }] = await this.sendCommand(command);

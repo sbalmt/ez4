@@ -1,4 +1,4 @@
-import type { TransactionType, ParametersType } from '@ez4/database';
+import type { ParametersMode, TransactionMode, PaginationMode, OrderMode, TableMetadata, InsensitiveMode } from '@ez4/database';
 import type { Arn } from '@ez4/aws-common';
 
 export type Connection = {
@@ -11,7 +11,17 @@ export type Connection = {
  * Default Postgres engine settings.
  */
 export type PostgresEngine = {
-  transaction: TransactionType.Interactive;
-  parameters: ParametersType.NameAndIndex;
+  parametersMode: ParametersMode.NameAndIndex;
+  transactionMode: TransactionMode.Interactive;
+  insensitiveMode: InsensitiveMode.Enabled;
+  paginationMode: PaginationMode.Offset;
+  orderMode: OrderMode.AnyColumns;
   name: 'aurora';
+};
+
+/**
+ * Internal table metadata.
+ */
+export type InternalTableMetadata = TableMetadata & {
+  engine: PostgresEngine;
 };
