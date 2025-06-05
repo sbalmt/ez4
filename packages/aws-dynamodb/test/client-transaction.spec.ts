@@ -12,7 +12,6 @@ import { deploy } from '@ez4/aws-common';
 
 declare class TestSchema implements Database.Schema {
   id: string;
-  order: number;
   value: string;
 }
 
@@ -24,7 +23,7 @@ declare class Test extends Database.Service {
       name: 'testTable';
       schema: TestSchema;
       indexes: {
-        'id:order': Index.Primary;
+        id: Index.Primary;
       };
     }
   ];
@@ -51,11 +50,6 @@ describe('dynamodb client (transaction)', () => {
             attributeName: 'id',
             attributeType: AttributeType.String,
             keyType: AttributeKeyType.Hash
-          },
-          {
-            attributeName: 'order',
-            attributeType: AttributeType.Number,
-            keyType: AttributeKeyType.Range
           }
         ]
       ]
@@ -75,15 +69,12 @@ describe('dynamodb client (transaction)', () => {
     dbClient = Client.make({
       testTable: {
         name: tableName,
-        indexes: [['id', 'order']],
+        indexes: [['id']],
         schema: {
           type: SchemaType.Object,
           properties: {
             id: {
               type: SchemaType.String
-            },
-            order: {
-              type: SchemaType.Number
             },
             value: {
               type: SchemaType.String
@@ -105,7 +96,6 @@ describe('dynamodb client (transaction)', () => {
           insert: {
             data: {
               id: 'foo',
-              order: 1,
               value: 'initial'
             }
           }
@@ -114,7 +104,6 @@ describe('dynamodb client (transaction)', () => {
           insert: {
             data: {
               id: 'bar',
-              order: 2,
               value: 'initial'
             }
           }
@@ -154,8 +143,7 @@ describe('dynamodb client (transaction)', () => {
               value: 'updated'
             },
             where: {
-              id: 'foo',
-              order: 1
+              id: 'foo'
             }
           }
         },
@@ -165,8 +153,7 @@ describe('dynamodb client (transaction)', () => {
               value: 'updated'
             },
             where: {
-              id: 'bar',
-              order: 2
+              id: 'bar'
             }
           }
         }
@@ -202,16 +189,14 @@ describe('dynamodb client (transaction)', () => {
         {
           delete: {
             where: {
-              id: 'foo',
-              order: 1
+              id: 'foo'
             }
           }
         },
         {
           delete: {
             where: {
-              id: 'bar',
-              order: 2
+              id: 'bar'
             }
           }
         }
