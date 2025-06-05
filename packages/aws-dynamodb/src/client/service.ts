@@ -35,7 +35,7 @@ export namespace Client {
 
         const command = { ConsistentRead: true, Parameters: parameters, Statement: query };
 
-        const { Items: records = [] } = await executeStatement(client, command, debugMode);
+        const { records } = await executeStatement(client, command, debugMode);
 
         return records;
       }

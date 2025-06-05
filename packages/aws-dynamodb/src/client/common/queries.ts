@@ -166,9 +166,7 @@ export const prepareUpdateMany = async <T extends TableMetadata, S extends Query
     } as Query.StrictSelectInput<S, T>
   });
 
-  const result = await executeStatement(client, command, debug);
-
-  const records = result.Items;
+  const { records } = await executeStatement(client, command, debug);
 
   if (!records?.length) {
     return [[], [] as unknown as Query.UpdateManyResult<S, T>];
@@ -220,9 +218,7 @@ export const prepareDeleteMany = async <T extends TableMetadata, S extends Query
     } as Query.StrictSelectInput<S, T>
   });
 
-  const result = await executeStatement(client, command, debug);
-
-  const records = result.Items;
+  const { records } = await executeStatement(client, command, debug);
 
   if (!records?.length) {
     return [[], []];

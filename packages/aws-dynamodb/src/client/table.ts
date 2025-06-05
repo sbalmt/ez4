@@ -35,9 +35,9 @@ export class Table<T extends TableMetadata> implements DbTable<T> {
   async insertOne<S extends Query.SelectInput<T>>(query: Query.InsertOneInput<S, T>) {
     const { client, debug } = this.settings;
 
-    const command = await prepareInsertOne(this.name, this.schema, query);
+    const statement = await prepareInsertOne(this.name, this.schema, query);
 
-    await executeStatement(client, command, debug);
+    await executeStatement(client, statement, debug);
 
     if (query.select) {
       return deepClone<any, any, any>(query.data, {
@@ -51,18 +51,20 @@ export class Table<T extends TableMetadata> implements DbTable<T> {
   async updateOne<S extends Query.SelectInput<T>>(query: Query.UpdateOneInput<S, T>) {
     const { client, debug } = this.settings;
 
-    const command = await prepareUpdateOne(this.name, this.schema, query);
+    const statement = await prepareUpdateOne(this.name, this.schema, query);
 
     try {
-      const { Items: [result] = [] } = await executeStatement(client, command, debug);
+      const { records } = await executeStatement(client, statement, debug);
 
-      if (query.select && result) {
-        return deepClone<any, any, any>(result, {
+      const [firstRecord] = records;
+
+      if (query.select && firstRecord) {
+        return deepClone<any, any, any>(firstRecord, {
           include: query.select
         });
       }
 
-      return result;
+      return firstRecord;
     } catch (e) {
       if (!(e instanceof ConditionalCheckFailedException)) {
         throw e;
@@ -75,12 +77,14 @@ export class Table<T extends TableMetadata> implements DbTable<T> {
   async findOne<S extends Query.SelectInput<T>>(query: Query.FindOneInput<S, T>) {
     const { client, debug } = this.settings;
 
-    const command = prepareFindOne(this.name, this.indexes, query);
+    const statement = prepareFindOne(this.name, this.indexes, query);
 
-    const { Items: [result] = [] } = await executeStatement(client, command, debug);
+    const { records } = await executeStatement(client, statement, debug);
 
-    if (result) {
-      return deepClone<any, any, any>(result, {
+    const [firstRecord] = records;
+
+    if (firstRecord) {
+      return deepClone<any, any, any>(firstRecord, {
         include: query.select
       });
     }
@@ -91,17 +95,19 @@ export class Table<T extends TableMetadata> implements DbTable<T> {
   async deleteOne<S extends Query.SelectInput<T>>(query: Query.DeleteOneInput<S, T>) {
     const { client, debug } = this.settings;
 
-    const command = prepareDeleteOne(this.name, query);
+    const statement = prepareDeleteOne(this.name, query);
 
-    const { Items: [result] = [] } = await executeStatement(client, command, debug);
+    const { records } = await executeStatement(client, statement, debug);
 
-    if (query.select && result) {
-      return deepClone<any, any, any>(result, {
+    const [firstRecord] = records;
+
+    if (query.select && firstRecord) {
+      return deepClone<any, any, any>(firstRecord, {
         include: query.select
       });
     }
 
-    return result;
+    return firstRecord;
   }
 
   async upsertOne<S extends Query.SelectInput<T>>(query: Query.UpsertOneInput<S, T>) {
@@ -111,14 +117,10 @@ export class Table<T extends TableMetadata> implements DbTable<T> {
     });
 
     if (!previous) {
-      await this.insertOne({
-        data: query.insert
-      });
+      await this.insertOne({ data: query.insert });
 
       if (query.select) {
-        return deepClone<any, any, any>(query.insert, {
-          include: query.select
-        });
+        return deepClone<any, any, any>(query.insert, { include: query.select });
       }
 
       return undefined;
@@ -157,29 +159,25 @@ export class Table<T extends TableMetadata> implements DbTable<T> {
 
     const { count: shouldCount } = query;
 
-    const findCommand = prepareFindMany(this.name, this.indexes, query);
-
-    const findOperation = executeStatement(client, findCommand, debug);
+    const findStatement = prepareFindMany(this.name, this.indexes, query);
+    const findOperation = executeStatement(client, findStatement, debug);
 
     const allOperations = [findOperation];
 
     if (shouldCount) {
-      const countCommand = prepareCount(this.name, this.indexes, {
-        where: query.where
-      });
-
-      const countOperation = executeStatement(client, countCommand, debug);
+      const countStatement = prepareCount(this.name, this.indexes, { where: query.where });
+      const countOperation = executeStatement(client, countStatement, debug);
 
       allOperations.push(countOperation);
     }
 
     const results = await Promise.all(allOperations);
 
-    const [{ Items: items = [], NextToken: cursor }, total] = results;
+    const [{ records, cursor }, countResult] = results;
 
     return {
-      ...(shouldCount && { total: total?.Items?.length }),
-      records: items,
+      ...(shouldCount && { total: countResult?.records.length }),
+      records,
       cursor
     } as unknown as Query.FindManyResult<S, T, C>;
   }
@@ -197,10 +195,10 @@ export class Table<T extends TableMetadata> implements DbTable<T> {
   async count(query: Query.CountInput<T>) {
     const { client, debug } = this.settings;
 
-    const command = prepareCount(this.name, this.indexes, query);
+    const statement = prepareCount(this.name, this.indexes, query);
 
-    const { Items: items = [] } = await executeStatement(client, command, debug);
+    const { records } = await executeStatement(client, statement, debug);
 
-    return items.length;
+    return records.length;
   }
 }
