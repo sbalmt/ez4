@@ -9,7 +9,6 @@ import { createTable, isTableState, AttributeType, AttributeKeyType, registerTri
 import { Client } from '@ez4/aws-dynamodb/client';
 import { SchemaType } from '@ez4/schema';
 import { deploy } from '@ez4/aws-common';
-import { Order } from '@ez4/database';
 
 declare class TestSchema implements Database.Schema {
   id: string;
@@ -31,12 +30,12 @@ declare class Test extends Database.Service {
   ];
 }
 
-describe('dynamodb client', () => {
+describe('dynamodb client (transaction)', () => {
   let lastState: EntryStates | undefined;
   let dbClient: DbClient<Test>;
   let tableId: string | undefined;
 
-  const tableName = 'ez4-test-table-client';
+  const tableName = 'ez4-test-table-client-transaction';
 
   registerTriggers();
 
@@ -97,236 +96,6 @@ describe('dynamodb client', () => {
     ok(dbClient);
   });
 
-  it('assert :: insert many', async () => {
-    ok(dbClient);
-
-    const data: any[] = [];
-
-    for (let index = 0; index < 150; index++) {
-      data.push({
-        id: `bulk-${index}`,
-        value: 'test',
-        order: 1000 + index
-      });
-    }
-
-    await dbClient.testTable.insertMany({
-      data
-    });
-  });
-
-  it('assert :: count (filtered)', async () => {
-    ok(dbClient);
-
-    const result = await dbClient.testTable.count({
-      where: {
-        order: {
-          gt: 1099
-        }
-      }
-    });
-
-    equal(result, 50);
-  });
-
-  it('assert :: update many', async () => {
-    ok(dbClient);
-
-    const result = await dbClient.testTable.updateMany({
-      data: {
-        value: 'updated'
-      },
-      select: {
-        value: true
-      }
-    });
-
-    equal(result.length, 150);
-  });
-
-  it('assert :: find many', async () => {
-    ok(dbClient);
-
-    const { records } = await dbClient.testTable.findMany({
-      select: {
-        id: true,
-        order: true,
-        value: true
-      },
-      where: {
-        order: {
-          isIn: [1149, 1139]
-        }
-      }
-    });
-
-    equal(records.length, 2);
-  });
-
-  it('assert :: find many (ordered)', async () => {
-    ok(dbClient);
-
-    const result = await dbClient.testTable.findMany({
-      select: {
-        id: true
-      },
-      where: {
-        id: {
-          isIn: ['bulk-149', 'bulk-139']
-        }
-      },
-      order: {
-        id: Order.Desc,
-        order: Order.Asc
-      }
-    });
-
-    deepEqual(result, {
-      cursor: undefined,
-      records: [
-        {
-          id: 'bulk-149'
-        },
-        {
-          id: 'bulk-139'
-        }
-      ]
-    });
-  });
-
-  it('assert :: delete many', async () => {
-    ok(dbClient);
-
-    const result = await dbClient.testTable.deleteMany({
-      select: {
-        value: true
-      }
-    });
-
-    equal(result.length, 150);
-  });
-
-  it('assert :: insert one', async () => {
-    ok(dbClient);
-
-    const result = await dbClient.testTable.insertOne({
-      select: {
-        id: true
-      },
-      data: {
-        id: 'single',
-        order: 0,
-        value: 'initial'
-      }
-    });
-
-    deepEqual(result, {
-      id: 'single'
-    });
-  });
-
-  it('assert :: update one', async () => {
-    ok(dbClient);
-
-    const result = await dbClient.testTable.updateOne({
-      data: {
-        value: 'updated',
-        order: undefined
-      },
-      select: {
-        value: true
-      },
-      where: {
-        id: 'single',
-        order: 0
-      }
-    });
-
-    deepEqual(result, {
-      value: 'initial'
-    });
-  });
-
-  it('assert :: find one', async () => {
-    ok(dbClient);
-
-    const result = await dbClient.testTable.findOne({
-      select: {
-        value: true,
-        order: false
-      },
-      where: {
-        id: 'single',
-        order: 0
-      }
-    });
-
-    deepEqual(result, {
-      value: 'updated'
-    });
-  });
-
-  it('assert :: upsert one', async () => {
-    ok(dbClient);
-
-    const query = {
-      select: {
-        value: true
-      },
-      where: {
-        id: 'upsert',
-        order: 0
-      },
-      insert: {
-        id: 'upsert',
-        order: 0,
-        value: 'initial'
-      },
-      update: {
-        value: 'updated'
-      }
-    };
-
-    // Return the current value
-    const insertResult = await dbClient.testTable.upsertOne(query);
-
-    deepEqual(insertResult, {
-      value: 'initial'
-    });
-
-    // Return the last value
-    const update1Result = await dbClient.testTable.upsertOne(query);
-
-    deepEqual(update1Result, {
-      value: 'initial'
-    });
-
-    // Return the last value
-    const update2Result = await dbClient.testTable.upsertOne(query);
-
-    deepEqual(update2Result, {
-      value: 'updated'
-    });
-  });
-
-  it('assert :: delete one', async () => {
-    ok(dbClient);
-
-    const result = await dbClient.testTable.deleteOne({
-      select: {
-        value: true
-      },
-      where: {
-        id: 'upsert',
-        order: 0
-      }
-    });
-
-    deepEqual(result, {
-      value: 'updated'
-    });
-  });
-
   it('assert :: transaction :: insert one', async () => {
     ok(dbClient);
 
@@ -335,7 +104,7 @@ describe('dynamodb client', () => {
         {
           insert: {
             data: {
-              id: 'transaction-1',
+              id: 'foo',
               order: 1,
               value: 'initial'
             }
@@ -344,7 +113,7 @@ describe('dynamodb client', () => {
         {
           insert: {
             data: {
-              id: 'transaction-2',
+              id: 'bar',
               order: 2,
               value: 'initial'
             }
@@ -359,7 +128,7 @@ describe('dynamodb client', () => {
       },
       where: {
         id: {
-          startsWith: 'transaction'
+          isIn: ['foo', 'bar']
         }
       }
     });
@@ -385,7 +154,7 @@ describe('dynamodb client', () => {
               value: 'updated'
             },
             where: {
-              id: 'transaction-1',
+              id: 'foo',
               order: 1
             }
           }
@@ -396,7 +165,7 @@ describe('dynamodb client', () => {
               value: 'updated'
             },
             where: {
-              id: 'transaction-2',
+              id: 'bar',
               order: 2
             }
           }
@@ -410,7 +179,7 @@ describe('dynamodb client', () => {
       },
       where: {
         id: {
-          startsWith: 'transaction'
+          isIn: ['foo', 'bar']
         }
       }
     });
@@ -433,7 +202,7 @@ describe('dynamodb client', () => {
         {
           delete: {
             where: {
-              id: 'transaction-1',
+              id: 'foo',
               order: 1
             }
           }
@@ -441,7 +210,7 @@ describe('dynamodb client', () => {
         {
           delete: {
             where: {
-              id: 'transaction-2',
+              id: 'bar',
               order: 2
             }
           }
@@ -455,7 +224,7 @@ describe('dynamodb client', () => {
       },
       where: {
         id: {
-          startsWith: 'transaction'
+          isIn: ['foo', 'bar']
         }
       }
     });
