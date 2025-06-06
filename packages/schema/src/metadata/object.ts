@@ -3,13 +3,14 @@ import type { ObjectSchema, ObjectSchemaProperties } from '../types/type-object.
 import type { ReferenceSchema } from '../types/type-reference.js';
 import type { SchemaContext } from '../types/context.js';
 
-import { isTypeModel, isTypeObject, isTypeReference } from '@ez4/reflection';
+import { isTypeIntersection, isTypeModel, isTypeObject, isTypeReference } from '@ez4/reflection';
 
 import { getModelProperties } from '../reflection/model.js';
 import { getObjectProperties } from '../reflection/object.js';
 import { SchemaReferenceNotFound } from '../errors/reference.js';
 import { SchemaDefinitions, SchemaType } from '../types/common.js';
 import { createSchemaContext } from '../types/context.js';
+import { isObjectSchema } from '../types/type-object.js';
 import { createReferenceSchema } from './reference.js';
 import { getAnySchema } from './any.js';
 
@@ -91,6 +92,47 @@ export const getObjectSchema = (
     references.delete(type);
 
     return modelSchema;
+  }
+
+  if (isTypeIntersection(type)) {
+    const identity = ++context.counter;
+
+    references.set(type, identity);
+
+    const objectSchema = createObjectSchema({
+      properties: {},
+      description,
+      identity
+    });
+
+    for (const element of type.elements) {
+      const elementSchema = getObjectSchema(element, reflection, context);
+
+      if (!elementSchema || !isObjectSchema(elementSchema)) {
+        continue;
+      }
+
+      const hasDefinitions = !!objectSchema.definitions || !!elementSchema.definitions;
+      const hasAdditional = !!objectSchema.additional || !!elementSchema.additional;
+
+      Object.assign(objectSchema, {
+        ...(hasAdditional && { additional: elementSchema.additional ?? objectSchema.additional }),
+        ...(hasDefinitions && {
+          definitions: {
+            ...objectSchema.definitions,
+            ...elementSchema.definitions
+          }
+        }),
+        properties: {
+          ...objectSchema.properties,
+          ...elementSchema.properties
+        }
+      });
+    }
+
+    references.delete(type);
+
+    return objectSchema;
   }
 
   if (isTypeReference(type)) {
