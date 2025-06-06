@@ -1,14 +1,24 @@
-import type { AllType, SourceMap, TypeModel, TypeObject } from '@ez4/reflection';
+import type { AllType, SourceMap, TypeIntersection, TypeModel, TypeObject } from '@ez4/reflection';
 import type { AnySchema, ArraySchema, ObjectSchema, UnionSchema } from '@ez4/schema/library';
 
-import { isTypeArray, isTypeObject, isTypeReference, isTypeScalar, isTypeUndefined, isTypeUnion } from '@ez4/reflection';
-import { isObjectSchema, createUnionSchema, getObjectSchema, getScalarSchema, createArraySchema } from '@ez4/schema/library';
+import { createUnionSchema, getScalarSchema, createArraySchema } from '@ez4/schema/library';
 import { getReferenceType, isModelDeclaration } from '@ez4/common/library';
 
+import {
+  isTypeArray,
+  isTypeIntersection,
+  isTypeObject,
+  isTypeReference,
+  isTypeScalar,
+  isTypeUndefined,
+  isTypeUnion
+} from '@ez4/reflection';
+
 import { IncorrectBodyTypeError, InvalidBodyTypeError } from '../errors/body.js';
+import { getSchemaFromType } from './schema.js';
 import { isJsonBody } from './utils.js';
 
-type TypeParent = TypeObject | TypeModel;
+type TypeParent = TypeObject | TypeModel | TypeIntersection;
 
 export const getHttpRequestBody = (type: AllType, parent: TypeParent, reflection: SourceMap, errorList: Error[]) => {
   return getHttpBody(type, reflection, (currentType) => {
@@ -66,8 +76,8 @@ const getCompoundTypeBody = (
     });
   }
 
-  if (isTypeObject(type)) {
-    return getBodySchema(type, reflection);
+  if (isTypeObject(type) || isTypeIntersection(type)) {
+    return getSchemaFromType(type, reflection);
   }
 
   if (!isModelDeclaration(type)) {
@@ -80,7 +90,7 @@ const getCompoundTypeBody = (
     return null;
   }
 
-  return getBodySchema(type, reflection);
+  return getSchemaFromType(type, reflection);
 };
 
 const getUnionTypeBody = (types: AllType[], reflection: SourceMap, resolver: (type: AllType) => AnySchema | null) => {
@@ -110,16 +120,6 @@ const getArrayTypeBody = (type: AllType, reflection: SourceMap, resolver: (type:
     return createArraySchema({
       element: schema
     });
-  }
-
-  return null;
-};
-
-const getBodySchema = (type: TypeObject | TypeModel, reflection: SourceMap) => {
-  const schema = getObjectSchema(type, reflection);
-
-  if (schema && isObjectSchema(schema)) {
-    return schema;
   }
 
   return null;
