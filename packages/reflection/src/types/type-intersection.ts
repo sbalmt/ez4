@@ -5,6 +5,7 @@ import { TypeName } from './common.js';
 
 export type TypeIntersection = {
   type: TypeName.Intersection;
+  file?: string;
   elements: EveryType[];
 };
 

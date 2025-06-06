@@ -3,13 +3,16 @@ import type { EveryType, TypeIntersection } from '../types.js';
 import type { Context, State } from './common.js';
 
 import { isIntersectionTypeNode } from 'typescript';
+
+import { getNodeFilePath } from '../helpers/node.js';
 import { TypeName } from '../types.js';
 import { getNewState } from './common.js';
 import { tryTypes } from './types.js';
 
-export const createIntersection = (elements: EveryType[]): TypeIntersection => {
+export const createIntersection = (file: string | null, elements: EveryType[]): TypeIntersection => {
   return {
     type: TypeName.Intersection,
+    ...(file && { file }),
     elements
   };
 };
@@ -23,16 +26,18 @@ export const tryTypeIntersection = (node: Node, context: Context, state: State) 
     return null;
   }
 
+  const file = context.options.includePath ? getNodeFilePath(node) : null;
+
   const newState = getNewState({ types: state.types });
-  const intersectionTypes: EveryType[] = [];
+  const allTypes: EveryType[] = [];
 
   node.types.forEach((type) => {
     const elementType = tryTypes(type, context, newState);
 
     if (elementType) {
-      intersectionTypes.push(elementType);
+      allTypes.push(elementType);
     }
   });
 
-  return createIntersection(intersectionTypes);
+  return createIntersection(file, allTypes);
 };
