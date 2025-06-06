@@ -18,6 +18,7 @@ export const enum TypeName {
   Reference = 'reference',
   Object = 'object',
   Union = 'union',
+  Intersection = 'intersection',
   Array = 'array',
   Tuple = 'tuple',
   Enum = 'enum',

@@ -10,6 +10,7 @@ import type { TypeString } from './type-string.js';
 import type { TypeReference } from './type-reference.js';
 import type { TypeObject } from './type-object.js';
 import type { TypeUnion } from './type-union.js';
+import type { TypeIntersection } from './type-intersection.js';
 import type { TypeArray } from './type-array.js';
 import type { TypeTuple } from './type-tuple.js';
 import type { TypeCallback } from './type-callback.js';
@@ -28,6 +29,7 @@ export type EveryType =
   | TypeReference
   | TypeObject
   | TypeUnion
+  | TypeIntersection
   | TypeArray
   | TypeTuple
   | TypeCallback

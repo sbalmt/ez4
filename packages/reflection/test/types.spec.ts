@@ -23,6 +23,7 @@ describe('reflection types', () => {
   it('assert :: string', () => testFile('string'));
   it('assert :: object', () => testFile('object'));
   it('assert :: union', () => testFile('union'));
+  it('assert :: intersection', () => testFile('intersection'));
   it('assert :: array', () => testFile('array'));
   it('assert :: tuple', () => testFile('tuple'));
   it('assert :: enum', () => testFile('enum'));
