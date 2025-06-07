@@ -1,11 +1,10 @@
 import type { ExtraSource } from '@ez4/project/library';
 
-import { reflectionFiles } from '@ez4/reflection';
-
+import { getReflectionFiles } from '@ez4/reflection';
 import { build, formatMessages } from 'esbuild';
 
-import { readFile, stat } from 'node:fs/promises';
 import { dirname, join, parse, relative } from 'node:path';
+import { readFile, stat } from 'node:fs/promises';
 import { createHash } from 'node:crypto';
 import { existsSync } from 'node:fs';
 
@@ -34,7 +33,7 @@ export type BundlerOptions = {
 export const getBundleHash = async (sourceFile: string) => {
   const basePath = process.cwd();
 
-  const allSourceFiles = [relative(basePath, sourceFile), ...reflectionFiles([sourceFile])];
+  const allSourceFiles = [relative(basePath, sourceFile), ...getReflectionFiles([sourceFile])];
   const fileSignatures = createHash('sha256');
 
   const pathSignatures = await Promise.all(
