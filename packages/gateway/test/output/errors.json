@@ -15,13 +15,9 @@
           }
         },
         "errors": {
-          "404": [
-            "TestErrorA",
-            "TestErrorB"
-          ],
-          "422": [
-            "TestErrorC"
-          ]
+          "TestErrorA": 404,
+          "TestErrorB": 404,
+          "TestErrorC": 422
         }
       }
     ]

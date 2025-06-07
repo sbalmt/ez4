@@ -44,16 +44,13 @@ const getTypeFromMembers = (
     }
 
     const errorCode = parseInt(member.name, 10);
+    const errorMap = getErrorClasses(member, errorCode, reflection);
 
-    if (!isAnyNumber(errorCode)) {
+    if (!isAnyNumber(errorCode) || isEmptyObject(errorMap)) {
       errorList.push(new InvalidServicePropertyError(parent.name, member.name, type.file));
     }
 
-    const errorClasses = getErrorClasses(member, reflection);
-
-    if (errorClasses?.length) {
-      errors[errorCode] = errorClasses;
-    }
+    Object.assign(errors, errorMap);
   }
 
   if (!isEmptyObject(errors)) {
@@ -63,14 +60,9 @@ const getTypeFromMembers = (
   return null;
 };
 
-export const getErrorClasses = (member: ModelProperty, reflection: SourceMap) => {
-  const errorTypes = getPropertyTuple(member);
-
-  if (!errorTypes?.length) {
-    return null;
-  }
-
-  const errorNames = [];
+export const getErrorClasses = (member: ModelProperty, errorCode: number, reflection: SourceMap) => {
+  const errorTypes = getPropertyTuple(member) ?? [];
+  const errorMap: HttpErrors = {};
 
   for (const errorType of errorTypes) {
     if (!isTypeReference(errorType)) {
@@ -80,9 +72,9 @@ export const getErrorClasses = (member: ModelProperty, reflection: SourceMap) =>
     const statement = getReferenceType(errorType, reflection);
 
     if (statement && isTypeClass(statement)) {
-      errorNames.push(statement.name);
+      errorMap[statement.name] = errorCode;
     }
   }
 
-  return errorNames;
+  return errorMap;
 };

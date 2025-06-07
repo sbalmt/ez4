@@ -47,7 +47,7 @@ export type HttpAuthorizer = {
 };
 
 export type HttpErrors = {
-  [code: number]: string[];
+  [name: string]: number;
 };
 
 export type HttpRoute = {

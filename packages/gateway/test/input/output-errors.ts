@@ -8,8 +8,8 @@ class TestErrorB extends Error {}
 class TestErrorC extends Error {}
 
 type TestErrorMap = {
-  [404]: [TestErrorA, TestErrorB];
-  [422]: [TestErrorC];
+  404: [TestErrorA, TestErrorB];
+  422: [TestErrorC];
 };
 
 export declare class TestService extends Http.Service {
