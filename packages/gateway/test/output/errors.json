@@ -1,0 +1,29 @@
+{
+  "TestService": {
+    "type": "@ez4/http",
+    "extras": {},
+    "name": "TestService",
+    "routes": [
+      {
+        "path": "GET /test-route-a",
+        "handler": {
+          "name": "testRoute",
+          "file": "test/input/output-errors.ts",
+          "request": {},
+          "response": {
+            "status": 204
+          }
+        },
+        "errors": {
+          "404": [
+            "TestErrorA",
+            "TestErrorB"
+          ],
+          "422": [
+            "TestErrorC"
+          ]
+        }
+      }
+    ]
+  }
+}

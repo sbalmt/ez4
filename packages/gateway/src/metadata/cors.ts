@@ -1,4 +1,4 @@
-import type { AllType, ModelProperty, SourceMap, TypeModel, TypeObject } from '@ez4/reflection';
+import type { AllType, SourceMap, TypeModel, TypeObject } from '@ez4/reflection';
 import type { MemberType } from '@ez4/common/library';
 import type { Incomplete } from '@ez4/utils';
 import type { HttpCors } from '../types/common.js';
@@ -6,12 +6,11 @@ import type { HttpCors } from '../types/common.js';
 import {
   InvalidServicePropertyError,
   isModelDeclaration,
-  getLiteralString,
   getModelMembers,
   getObjectMembers,
   getPropertyBoolean,
+  getPropertyStringList,
   getPropertyNumber,
-  getPropertyTuple,
   getReferenceType
 } from '@ez4/common/library';
 
@@ -74,7 +73,7 @@ const getTypeFromMembers = (type: TypeObject | TypeModel, parent: TypeModel, mem
       case 'allowMethods':
       case 'allowHeaders':
       case 'exposeHeaders':
-        cors[member.name] = getStringValues(member);
+        cors[member.name] = getPropertyStringList(member);
         break;
 
       case 'allowCredentials':
@@ -94,19 +93,4 @@ const getTypeFromMembers = (type: TypeObject | TypeModel, parent: TypeModel, mem
   errorList.push(new IncompleteCorsError([...properties], type.file));
 
   return null;
-};
-
-const getStringValues = (member: ModelProperty) => {
-  const stringItems = getPropertyTuple(member) ?? [];
-  const stringList: string[] = [];
-
-  for (const item of stringItems) {
-    const result = getLiteralString(item);
-
-    if (result) {
-      stringList.push(result);
-    }
-  }
-
-  return stringList;
 };

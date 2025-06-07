@@ -68,12 +68,12 @@ export const getHttpServices = (reflection: SourceMap) => {
           service.defaults = getHttpDefaults(member.value, statement, reflection, errorList);
           break;
 
-        case 'cors':
-          service.cors = getHttpCors(member.value, statement, reflection, errorList);
-          break;
-
         case 'cache':
           service.cache = getHttpCache(member.value, statement, reflection, errorList);
+          break;
+
+        case 'cors':
+          service.cors = getHttpCors(member.value, statement, reflection, errorList);
           break;
 
         case 'variables':

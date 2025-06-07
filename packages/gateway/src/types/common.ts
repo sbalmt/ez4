@@ -46,16 +46,21 @@ export type HttpAuthorizer = {
   request?: HttpAuthRequest;
 };
 
+export type HttpErrors = {
+  [code: number]: string[];
+};
+
 export type HttpRoute = {
   path: HttpPath;
-  listener?: ServiceListener;
-  authorizer?: HttpAuthorizer;
   handler: HttpHandler;
+  listener?: ServiceListener | null;
+  authorizer?: HttpAuthorizer | null;
+  errors?: HttpErrors | null;
   variables?: LinkedVariables | null;
-  retention?: number;
-  timeout?: number;
-  memory?: number;
-  cors?: boolean;
+  retention?: number | null;
+  timeout?: number | null;
+  memory?: number | null;
+  cors?: boolean | null;
 };
 
 export type HttpDefaults = {
@@ -65,6 +70,10 @@ export type HttpDefaults = {
   memory?: number | null;
 };
 
+export type HttpCache = {
+  authorizerTTL?: number;
+};
+
 export type HttpCors = {
   allowOrigins: string[];
   allowMethods?: string[];
@@ -72,8 +81,4 @@ export type HttpCors = {
   exposeHeaders?: string[];
   allowHeaders?: string[];
   maxAge?: number;
-};
-
-export type HttpCache = {
-  authorizerTTL?: number;
 };
