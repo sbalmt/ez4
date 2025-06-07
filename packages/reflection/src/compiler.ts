@@ -2,6 +2,8 @@ import type { CompilerOptions as BaseCompilerOptions, CompilerHost, SourceFile }
 
 import { sys, getDefaultLibFilePath, createSourceFile, ModuleKind, ModuleResolutionKind, ScriptTarget } from 'typescript';
 
+import { getCanonicalFileName } from './utils/compiler.js';
+
 const sourceCache = new Map<string, SourceFile>();
 
 export type CompilerOptions = Omit<BaseCompilerOptions, 'module' | 'target' | 'strict'>;
@@ -30,13 +32,7 @@ export const createCompilerHost = (options: CompilerOptions, events?: CompilerEv
     getCurrentDirectory: sys.getCurrentDirectory,
     getDefaultLibFileName: () => getDefaultLibFilePath(options),
     useCaseSensitiveFileNames: () => sys.useCaseSensitiveFileNames,
-    getCanonicalFileName: (fileName) => {
-      if (!sys.useCaseSensitiveFileNames) {
-        return fileName.toLowerCase();
-      }
-
-      return fileName;
-    },
+    getCanonicalFileName: getCanonicalFileName,
     getSourceFile: (fileName, languageVersion) => {
       const resolvedFileName = events?.onResolveFileName?.(fileName) ?? fileName;
       const cacheSourceFile = sourceCache.get(resolvedFileName);
