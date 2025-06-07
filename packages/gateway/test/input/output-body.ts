@@ -11,13 +11,23 @@ declare class TestRequest implements Http.Request {
 export declare class TestService extends Http.Service {
   routes: [
     {
-      path: 'GET /test-route';
-      handler: typeof testRoute;
+      path: 'GET /test-route-a';
+      handler: typeof testRouteA;
+    },
+    {
+      path: 'GET /test-route-b';
+      handler: typeof testRouteB;
     }
   ];
 }
 
-export function testRoute(_request: TestRequest): SuccessResponse {
+export function testRouteA(_request: TestRequest): SuccessResponse {
+  return {
+    status: 204
+  };
+}
+
+export function testRouteB(_request: Http.Incoming<TestRequest>): SuccessResponse {
   return {
     status: 204
   };

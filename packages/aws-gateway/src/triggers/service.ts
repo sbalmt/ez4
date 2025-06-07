@@ -12,10 +12,10 @@ import { isRoleState } from '@ez4/aws-identity';
 import { createLogGroup } from '@ez4/aws-logs';
 
 import { createRoute } from '../route/service.js';
-import { createStage } from '../stage/service.js';
 import { createGateway } from '../gateway/service.js';
-import { createAuthorizerFunction } from '../authorizer/function/service.js';
+import { createStage } from '../stage/service.js';
 import { getAuthorizer, createAuthorizer } from '../authorizer/service.js';
+import { createAuthorizerFunction } from '../authorizer/function/service.js';
 import { createIntegrationFunction } from '../integration/function/service.js';
 import { getIntegration, createIntegration } from '../integration/service.js';
 import { getFunctionName, getInternalName } from './utils.js';
@@ -145,6 +145,10 @@ const getIntegrationFunction = (
       extras: service.extras,
       debug: options.debug,
       tags: options.tags,
+      errorsMap: {
+        ...defaults.errors,
+        ...route.errors
+      },
       variables: {
         ...options.variables,
         ...service.variables

@@ -22,6 +22,7 @@ import { IncompleteRouteError } from '../errors/route.js';
 import { isHttpPath, isHttpRoute } from './utils.js';
 import { getHttpAuthorizer } from './authorizer.js';
 import { getHttpHandler } from './handler.js';
+import { getHttpErrors } from './errors.js';
 
 export const getHttpRoutes = (parent: TypeModel, member: ModelProperty, reflection: SourceMap, errorList: Error[]) => {
   const routeItems = getPropertyTuple(member) ?? [];
@@ -116,18 +117,22 @@ const getTypeFromMembers = (
         }
         break;
 
+      case 'authorizer':
+        route.authorizer = getHttpAuthorizer(member.value, parent, reflection, errorList);
+        break;
+
+      case 'errors':
+        route.errors = getHttpErrors(member.value, parent, reflection, errorList);
+        break;
+
       case 'memory':
-      case 'timeout':
       case 'retention':
+      case 'timeout':
         route[member.name] = getPropertyNumber(member);
         break;
 
       case 'cors':
         route.cors = getPropertyBoolean(member);
-        break;
-
-      case 'authorizer':
-        route.authorizer = getHttpAuthorizer(member.value, parent, reflection, errorList);
         break;
 
       case 'listener':

@@ -1,17 +1,17 @@
-import type { AllType, SourceMap, TypeModel, TypeObject } from '@ez4/reflection';
+import type { AllType, SourceMap, TypeIntersection, TypeModel, TypeObject } from '@ez4/reflection';
 import type { MemberType } from '@ez4/common/library';
 import type { HttpAuthRequest, HttpRequest } from '../types/common.js';
+
+import { isModelProperty, isTypeIntersection, isTypeObject, isTypeReference } from '@ez4/reflection';
 
 import {
   InvalidServicePropertyError,
   isModelDeclaration,
   hasHeritageType,
-  getModelMembers,
   getObjectMembers,
+  getModelMembers,
   getReferenceType
 } from '@ez4/common/library';
-
-import { isModelProperty, isTypeObject, isTypeReference } from '@ez4/reflection';
 
 import { IncorrectRequestTypeError, InvalidRequestTypeError } from '../errors/request.js';
 import { getHttpParameters } from './parameters.js';
@@ -29,6 +29,10 @@ export const getHttpHandlerRequest = (type: AllType, parent: TypeModel, reflecti
 };
 
 const getHttpRequest = (type: AllType, parent: TypeModel, reflection: SourceMap, errorList: Error[], baseType: string) => {
+  if (isTypeIntersection(type) && type.elements.length > 0) {
+    return getHttpRequest(type.elements[0], parent, reflection, errorList, baseType);
+  }
+
   if (!isTypeReference(type)) {
     return getTypeRequest(type, parent, reflection, errorList, baseType);
   }
@@ -61,7 +65,7 @@ const getTypeRequest = (type: AllType, parent: TypeModel, reflection: SourceMap,
 };
 
 const getTypeFromMembers = (
-  type: TypeObject | TypeModel,
+  type: TypeObject | TypeModel | TypeIntersection,
   parent: TypeModel,
   members: MemberType[],
   reflection: SourceMap,

@@ -16,6 +16,7 @@ export type IntegrationFunctionParameters = Omit<FunctionParameters, 'getFunctio
   parametersSchema?: ObjectSchema | null;
   querySchema?: ObjectSchema | null;
   bodySchema?: ObjectSchema | UnionSchema | ArraySchema | null;
+  errorsMap?: Record<string, number> | null;
   extras?: Record<string, ExtraSource>;
   debug?: boolean;
 };

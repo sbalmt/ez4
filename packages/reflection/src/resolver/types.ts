@@ -15,6 +15,7 @@ import { tryTypeNumber } from './type-number.js';
 import { tryTypeString } from './type-string.js';
 import { tryTypeObject } from './type-object.js';
 import { tryTypeUnion } from './type-union.js';
+import { tryTypeIntersection } from './type-intersection.js';
 import { tryTypeArray } from './type-array.js';
 import { tryTypeTuple } from './type-tuple.js';
 import { tryTypeReference } from './type-reference.js';
@@ -44,6 +45,7 @@ export const tryTypes = (node: Node, context: Context, state: State): EveryType 
     tryTypeString(node, context) ||
     tryTypeObject(node, context, state) ||
     tryTypeUnion(node, context, state) ||
+    tryTypeIntersection(node, context, state) ||
     tryTypeArray(node, context, state) ||
     tryTypeTuple(node, context, state) ||
     tryTypeReference(node, context, state) ||

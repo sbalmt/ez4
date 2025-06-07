@@ -1,0 +1,117 @@
+{
+  "57845bdaf1fa089b84b78c75d18f6a0c:Intersection": {
+    "type": "interface",
+    "name": "Intersection",
+    "modifiers": {
+      "export": true
+    },
+    "members": [
+      {
+        "type": "property",
+        "name": "regular",
+        "value": {
+          "type": "intersection",
+          "elements": [
+            {
+              "type": "object",
+              "members": [
+                {
+                  "type": "property",
+                  "name": "foo",
+                  "value": {
+                    "type": "string"
+                  }
+                }
+              ]
+            },
+            {
+              "type": "object",
+              "members": [
+                {
+                  "type": "property",
+                  "name": "bar",
+                  "value": {
+                    "type": "boolean"
+                  }
+                }
+              ]
+            }
+          ]
+        }
+      },
+      {
+        "type": "property",
+        "name": "template",
+        "value": {
+          "type": "intersection",
+          "elements": [
+            {
+              "type": "object",
+              "members": [
+                {
+                  "type": "property",
+                  "name": "foo",
+                  "value": {
+                    "type": "string"
+                  }
+                }
+              ]
+            },
+            {
+              "type": "object",
+              "members": [
+                {
+                  "type": "property",
+                  "name": "bar",
+                  "value": {
+                    "type": "boolean"
+                  }
+                }
+              ]
+            }
+          ]
+        }
+      },
+      {
+        "type": "property",
+        "name": "inline",
+        "value": {
+          "type": "intersection",
+          "elements": [
+            {
+              "type": "object",
+              "members": [
+                {
+                  "type": "property",
+                  "name": "foo",
+                  "value": {
+                    "type": "boolean"
+                  }
+                }
+              ]
+            },
+            {
+              "type": "object",
+              "members": [
+                {
+                  "type": "property",
+                  "name": "foo",
+                  "value": {
+                    "type": "number"
+                  }
+                },
+                {
+                  "type": "property",
+                  "name": "bar",
+                  "value": {
+                    "type": "string"
+                  }
+                }
+              ]
+            }
+          ]
+        }
+      }
+    ]
+  }
+}

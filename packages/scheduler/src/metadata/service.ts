@@ -55,6 +55,9 @@ export const getCronServices = (reflection: SourceMap) => {
           errorList.push(new InvalidServicePropertyError(service.name, member.name, fileName));
           break;
 
+        case 'client':
+          break;
+
         case 'schema':
           if ((service.schema = getCronEvent(member.value, statement, reflection, errorList))) {
             properties.delete(member.name);

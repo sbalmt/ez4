@@ -34,3 +34,23 @@ export const getPropertyStringIn = <T extends string>(type: ModelProperty, value
 
   return null;
 };
+
+export const getPropertyStringList = (member: ModelProperty) => {
+  const elements = getPropertyTuple(member);
+
+  if (!elements?.length) {
+    return null;
+  }
+
+  const stringList = [];
+
+  for (const element of elements) {
+    const value = getLiteralString(element);
+
+    if (value) {
+      stringList.push(value);
+    }
+  }
+
+  return stringList;
+};

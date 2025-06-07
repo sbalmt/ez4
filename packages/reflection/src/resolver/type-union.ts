@@ -24,15 +24,15 @@ export const tryTypeUnion = (node: Node, context: Context, state: State) => {
   }
 
   const newState = getNewState({ types: state.types });
-  const unionTypes: EveryType[] = [];
+  const allTypes: EveryType[] = [];
 
   node.types.forEach((type) => {
     const elementType = tryTypes(type, context, newState);
 
     if (elementType) {
-      unionTypes.push(elementType);
+      allTypes.push(elementType);
     }
   });
 
-  return createUnion(unionTypes);
+  return createUnion(allTypes);
 };

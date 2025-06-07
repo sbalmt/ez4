@@ -11,6 +11,7 @@ export * from './types/type-string.js';
 export * from './types/type-reference.js';
 export * from './types/type-object.js';
 export * from './types/type-union.js';
+export * from './types/type-intersection.js';
 export * from './types/type-array.js';
 export * from './types/type-tuple.js';
 export * from './types/type-enum.js';

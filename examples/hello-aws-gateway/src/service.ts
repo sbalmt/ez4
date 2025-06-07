@@ -1,5 +1,5 @@
 import type { Http } from '@ez4/gateway';
-import type { apiListener } from './common.js';
+import type { apiListener } from './listener.js';
 import type { AllRoutes } from './routes.js';
 
 /**

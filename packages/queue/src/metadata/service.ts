@@ -57,6 +57,9 @@ export const getQueueServices = (reflection: SourceMap) => {
           }
           break;
 
+        case 'client':
+          break;
+
         case 'schema':
           if ((service.schema = getQueueMessage(member.value, statement, reflection, errorList))) {
             properties.delete(member.name);
