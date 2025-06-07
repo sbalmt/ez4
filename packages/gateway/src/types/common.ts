@@ -32,10 +32,10 @@ export type HttpResponse = {
 
 export type HttpHandler = {
   name: string;
-  file: string;
   description?: string;
   response: HttpResponse;
   request?: HttpRequest;
+  file: string;
 };
 
 export type HttpAuthorizer = {
@@ -64,6 +64,7 @@ export type HttpRoute = {
 };
 
 export type HttpDefaults = {
+  errors?: HttpErrors | null;
   retention?: number | null;
   listener?: ServiceListener | null;
   timeout?: number | null;

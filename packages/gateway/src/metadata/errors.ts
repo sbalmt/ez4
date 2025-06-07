@@ -6,6 +6,7 @@ import { InvalidServicePropertyError, getObjectMembers, getPropertyTuple, getRef
 import { isAnyNumber, isEmptyObject } from '@ez4/utils';
 
 import { isModelProperty, isTypeClass, isTypeObject, isTypeReference } from '@ez4/reflection';
+import { InvalidRouteErrorTypeError } from '../library.js';
 
 export const getHttpErrors = (type: AllType, parent: TypeModel, reflection: SourceMap, errorList: Error[]) => {
   if (!isTypeReference(type)) {
@@ -44,13 +45,16 @@ const getTypeFromMembers = (
     }
 
     const errorCode = parseInt(member.name, 10);
-    const errorMap = getErrorClasses(member, errorCode, reflection);
 
-    if (!isAnyNumber(errorCode) || isEmptyObject(errorMap)) {
+    if (!isAnyNumber(errorCode)) {
       errorList.push(new InvalidServicePropertyError(parent.name, member.name, type.file));
     }
 
-    Object.assign(errors, errorMap);
+    const errorMap = getErrorClasses(member, errorCode, parent, reflection, errorList);
+
+    if (errorMap) {
+      Object.assign(errors, errorMap);
+    }
   }
 
   if (!isEmptyObject(errors)) {
@@ -60,20 +64,24 @@ const getTypeFromMembers = (
   return null;
 };
 
-export const getErrorClasses = (member: ModelProperty, errorCode: number, reflection: SourceMap) => {
+export const getErrorClasses = (member: ModelProperty, errorCode: number, parent: TypeModel, reflection: SourceMap, errorList: Error[]) => {
   const errorTypes = getPropertyTuple(member) ?? [];
   const errorMap: HttpErrors = {};
 
   for (const errorType of errorTypes) {
     if (!isTypeReference(errorType)) {
+      errorList.push(new InvalidRouteErrorTypeError(parent.file));
       continue;
     }
 
     const statement = getReferenceType(errorType, reflection);
 
-    if (statement && isTypeClass(statement)) {
-      errorMap[statement.name] = errorCode;
+    if (!statement || !isTypeClass(statement)) {
+      errorList.push(new InvalidRouteErrorTypeError(parent.file));
+      continue;
     }
+
+    errorMap[statement.name] = errorCode;
   }
 
   return errorMap;

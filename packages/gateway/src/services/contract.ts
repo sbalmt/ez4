@@ -78,7 +78,7 @@ export namespace Http {
     handler: Handler<T>;
 
     /**
-     * Status codes for all known exceptions.
+     * Map status codes and errors for all known exceptions.
      */
     errors?: Errors;
 
@@ -111,6 +111,11 @@ export namespace Http {
      * Default route listener.
      */
     listener?: Listener<T>;
+
+    /**
+     * Map status codes and errors for all known exceptions.
+     */
+    errors?: Errors;
 
     /**
      * Default log retention (in days) for the handlers.

@@ -140,12 +140,15 @@ const getIntegrationFunction = (
       parametersSchema: request?.parameters,
       querySchema: request?.query,
       bodySchema: request?.body,
-      errorsMap: route.errors,
       timeout: Math.max(5, (timeout ?? Defaults.Timeout) - 1),
       memory: memory ?? Defaults.Memory,
       extras: service.extras,
       debug: options.debug,
       tags: options.tags,
+      errorsMap: {
+        ...defaults.errors,
+        ...route.errors
+      },
       variables: {
         ...options.variables,
         ...service.variables

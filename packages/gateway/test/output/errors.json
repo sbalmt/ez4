@@ -9,7 +9,6 @@
         "handler": {
           "name": "testRoute",
           "file": "test/input/output-errors.ts",
-          "request": {},
           "response": {
             "status": 204
           }
