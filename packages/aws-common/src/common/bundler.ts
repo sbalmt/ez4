@@ -98,15 +98,16 @@ export const getFunctionBundle = async (serviceName: string, options: BundlerOpt
   const { debug } = options;
 
   const result = await build({
-    bundle: true,
-    minify: !debug,
-    treeShaking: !debug,
     outfile: outputFile,
+    treeShaking: !debug,
+    minify: !debug,
     packages: 'bundle',
     platform: 'node',
     target: 'node22',
     format: 'esm',
     external: ['@aws-sdk/*'],
+    keepNames: true,
+    bundle: true,
     define: {
       ...options.define
     },

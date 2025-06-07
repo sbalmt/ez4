@@ -22,7 +22,7 @@ export const getReflection = (sourceFiles: string[]): SourceMap => {
     })
   });
 
-  return resolveReflectionMetadata(program, {
+  const metadata = resolveReflectionMetadata(program, {
     resolverOptions: {
       includePath: true,
       ignoreMethod: true
@@ -33,6 +33,8 @@ export const getReflection = (sourceFiles: string[]): SourceMap => {
       }
     }
   });
+
+  return metadata;
 };
 
 const assertSourceFiles = (sourceFiles: string[]) => {
