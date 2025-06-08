@@ -97,7 +97,7 @@ describe('queue mapping', () => {
     ok(resource && isMappingState(resource));
     ok(resource.parameters.batch);
 
-    resource.parameters.batch.batchSize = 10;
+    resource.parameters.batch.size = 10;
     resource.parameters.enabled = false;
 
     const { state } = await assertDeploy(mappingId, localState, lastState);
