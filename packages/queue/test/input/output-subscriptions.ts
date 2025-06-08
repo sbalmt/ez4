@@ -15,6 +15,7 @@ export declare class TestQueue extends Queue.Service<TestMessage> {
       handler: typeof testHandler;
       logRetention: 7;
       concurrency: 2;
+      batch: 5;
     },
 
     // Subscription reference.

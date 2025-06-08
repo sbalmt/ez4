@@ -76,8 +76,8 @@ describe('queue mapping', () => {
       fromService: functionResource.parameters.functionName,
       enabled: true,
       batch: {
-        batchSize: 100,
-        maxWindow: 5
+        maxWait: 5,
+        size: 100
       }
     });
 

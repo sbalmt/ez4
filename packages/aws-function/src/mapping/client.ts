@@ -21,8 +21,8 @@ import { MappingService, MappingServiceName } from './types.js';
 const client = new LambdaClient({});
 
 export type BatchOptions = {
-  batchSize: number;
-  maxWindow: number;
+  maxWait?: number;
+  size: number;
 };
 
 export type CreateRequest = {
@@ -150,8 +150,8 @@ const upsertMappingRequest = (
   return {
     Enabled: enabled,
     FunctionResponseTypes: [FunctionResponseType.ReportBatchItemFailures],
-    MaximumBatchingWindowInSeconds: batch?.maxWindow,
-    BatchSize: batch?.batchSize,
+    MaximumBatchingWindowInSeconds: batch?.maxWait,
+    BatchSize: batch?.size,
     ...(service === MappingService.DynamoDB && {
       StartingPosition: EventSourcePosition.LATEST
     }),

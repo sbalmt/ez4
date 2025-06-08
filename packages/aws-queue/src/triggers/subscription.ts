@@ -70,9 +70,16 @@ export const prepareSubscriptions = async (
       context.setServiceState(handlerState, internalName, options);
     }
 
+    const { batch, concurrency } = subscription;
+
     createMapping(state, queueState, handlerState, {
-      concurrency: subscription.concurrency,
-      fromService: internalName
+      fromService: internalName,
+      concurrency,
+      ...(batch && {
+        batch: {
+          size: batch
+        }
+      })
     });
   }
 };

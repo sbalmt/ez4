@@ -34,9 +34,14 @@ export namespace Queue {
     handler: Handler<T>;
 
     /**
-     * Maximum number of concurrent lambdas.
+     * Maximum number of concurrent lambda handlers.
      */
     concurrency?: number;
+
+    /**
+     * Maximum number of messages per handler invocation.
+     */
+    batch?: number;
 
     /**
      * Variables associated to the subscription.

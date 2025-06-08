@@ -39,17 +39,33 @@ export declare class Sqs extends Queue.Service<MessageRequest> {
   };
 
   /**
-   * All handlers for this queue.
+   * All handlers for this queue (When more than one subscription is set, they are chosen randomly).
    */
   subscriptions: [
     {
+      /**
+       * Invocation life-cycle function.
+       */
       listener: typeof queueListener;
+
+      /**
+       * Message handler.
+       */
       handler: typeof messageHandlerA;
+
+      /**
+       * Allow up to 2 lambdas concurrently.
+       */
       concurrency: 2;
     },
     {
       listener: typeof queueListener;
       handler: typeof messageHandlerB;
+
+      /**
+       * Allow up to 5 messages per handler invocation.
+       */
+      batch: 5;
     }
   ];
 

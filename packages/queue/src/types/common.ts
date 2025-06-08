@@ -25,5 +25,6 @@ export type QueueSubscription = {
   variables?: LinkedVariables | null;
   logRetention?: number;
   concurrency?: number;
+  batch?: number;
   memory?: number;
 };
