@@ -29,6 +29,16 @@ export declare class Sqs extends Queue.Service<MessageRequest> {
   delay: 10;
 
   /**
+   * Optionally enable dead-letter queue.
+   */
+  deadLetter: {
+    /**
+     * After 5 retries, the message will be sent to the dead-letter.
+     */
+    maxRetries: 5;
+  };
+
+  /**
    * All handlers for this queue.
    */
   subscriptions: [
@@ -60,6 +70,16 @@ export declare class FifoSqs extends Queue.Service<MessageRequest> {
    */
   fifoMode: {
     groupId: 'foo';
+  };
+
+  /**
+   * Optionally enable dead-letter queue.
+   */
+  deadLetter: {
+    /**
+     * After 10 retries, the message will be sent to the dead-letter.
+     */
+    maxRetries: 10;
   };
 
   /**

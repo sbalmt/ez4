@@ -18,7 +18,7 @@ describe('queue client', () => {
   it('assert :: deploy', async () => {
     const localState: EntryStates = {};
 
-    const resource = createQueue(localState, {
+    const resource = createQueue(localState, undefined, {
       queueName: 'ez4-test-queue-client',
       fifoMode: false
     });

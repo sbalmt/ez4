@@ -1,5 +1,5 @@
 import type { QueueAttributeName } from '@aws-sdk/client-sqs';
-import type { ResourceTags } from '@ez4/aws-common';
+import type { Arn, ResourceTags } from '@ez4/aws-common';
 
 import {
   SQSClient,
@@ -19,6 +19,11 @@ import { QueueServiceName } from './types.js';
 
 const client = new SQSClient({});
 
+export type DeadLetter = {
+  targetQueueArn: Arn;
+  maxRetries: number;
+};
+
 export type CreateRequest = {
   queueName: string;
   fifoMode: boolean;
@@ -26,6 +31,7 @@ export type CreateRequest = {
   retention?: number;
   polling?: number;
   delay?: number;
+  deadLetter?: DeadLetter;
   tags?: ResourceTags;
 };
 
@@ -33,7 +39,7 @@ export type CreateResponse = {
   queueUrl: string;
 };
 
-export type UpdateRequest = Pick<CreateRequest, 'timeout' | 'retention' | 'polling' | 'delay'>;
+export type UpdateRequest = Pick<CreateRequest, 'timeout' | 'retention' | 'polling' | 'delay' | 'deadLetter'>;
 
 export const fetchQueue = async (queueName: string) => {
   Logger.logFetch(QueueServiceName, queueName);
@@ -147,12 +153,18 @@ export const deleteQueue = async (queueUrl: string) => {
 };
 
 const upsertQueueAttributes = (request: CreateRequest | UpdateRequest): Partial<Record<QueueAttributeName, string>> => {
-  const { timeout, retention, polling, delay } = request;
+  const { timeout, retention, polling, delay, deadLetter } = request;
 
   return {
     ...(timeout !== undefined && { VisibilityTimeout: timeout.toString() }),
     ...(retention !== undefined && { MessageRetentionPeriod: (retention * 60).toString() }),
     ...(polling !== undefined && { ReceiveMessageWaitTimeSeconds: polling.toString() }),
-    ...(delay !== undefined && { DelaySeconds: delay.toString() })
+    ...(delay !== undefined && { DelaySeconds: delay.toString() }),
+    ...(deadLetter && {
+      RedrivePolicy: JSON.stringify({
+        deadLetterTargetArn: deadLetter.targetQueueArn,
+        maxReceiveCount: deadLetter.maxRetries
+      })
+    })
   };
 };

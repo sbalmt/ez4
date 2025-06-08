@@ -44,7 +44,7 @@ describe('queue mapping', () => {
   it('assert :: deploy', async () => {
     const localState: EntryStates = {};
 
-    const queueResource = createQueue(localState, {
+    const queueResource = createQueue(localState, undefined, {
       queueName: 'ez4-test-queue-mapping',
       fifoMode: false
     });
