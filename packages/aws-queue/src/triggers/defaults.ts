@@ -13,4 +13,9 @@ export namespace Defaults {
    * Default lambda memory.
    */
   export const Memory = 192;
+
+  /**
+   * Default batch size.
+   */
+  export const Batch = 10;
 }

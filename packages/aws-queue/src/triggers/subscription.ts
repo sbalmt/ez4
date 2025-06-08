@@ -75,11 +75,9 @@ export const prepareSubscriptions = async (
     createMapping(state, queueState, handlerState, {
       fromService: internalName,
       concurrency,
-      ...(batch && {
-        batch: {
-          size: batch
-        }
-      })
+      batch: {
+        size: batch ?? Defaults.Batch
+      }
     });
   }
 };
