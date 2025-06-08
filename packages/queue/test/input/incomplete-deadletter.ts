@@ -1,15 +1,10 @@
 import type { Queue } from '@ez4/queue';
 
-type TestMessage = {
-  id: string;
-  user: string;
-};
+type TestMessage = {};
 
 export declare class TestQueue extends Queue.Service<TestMessage> {
-  // @ts-ignore Missing groupId field.
-  fifoMode: {
-    uniqueId: 'id';
-  };
+  // @ts-ignore Missing maxRetries field.
+  deadLetter: {};
 
   subscriptions: [];
 }

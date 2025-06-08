@@ -22,6 +22,7 @@ import { getAllSubscription } from './subscription.js';
 import { getQueueMessage } from './message.js';
 import { getQueueFifoMode } from './fifo.js';
 import { isQueueService } from './utils.js';
+import { getQueueDeadLetter } from './deadletter.js';
 
 export const getQueueServices = (reflection: SourceMap) => {
   const allServices: Record<string, QueueService> = {};
@@ -78,6 +79,12 @@ export const getQueueServices = (reflection: SourceMap) => {
         case 'fifoMode':
           if (!member.inherited) {
             service.fifoMode = getQueueFifoMode(member.value, statement, reflection, errorList);
+          }
+          break;
+
+        case 'deadLetter':
+          if (!member.inherited) {
+            service.deadLetter = getQueueDeadLetter(member.value, statement, reflection, errorList);
           }
           break;
 

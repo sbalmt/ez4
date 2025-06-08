@@ -1,52 +1,52 @@
 import type { AllType, SourceMap, TypeModel, TypeObject } from '@ez4/reflection';
 import type { MemberType } from '@ez4/common/library';
 import type { Incomplete } from '@ez4/utils';
-import type { QueueFifoMode } from '../types/common.js';
+import type { QueueDeadLetter } from '../types/common.js';
 
 import {
   InvalidServicePropertyError,
   isModelDeclaration,
   getModelMembers,
   getObjectMembers,
-  getPropertyString,
-  getReferenceType
+  getReferenceType,
+  getPropertyNumber
 } from '@ez4/common/library';
 
 import { isModelProperty, isTypeObject, isTypeReference } from '@ez4/reflection';
 
-import { IncompleteFifoModeError, IncorrectFifoModeTypeError, InvalidFifoModeTypeError } from '../errors/fifo.js';
-import { isQueueFifoMode } from './utils.js';
+import { IncompleteDeadLetterError, IncorrectDeadLetterTypeError, InvalidDeadLetterTypeError } from '../errors/deadletter.js';
+import { isQueueDeadLetter } from './utils.js';
 
-export const getQueueFifoMode = (type: AllType, parent: TypeModel, reflection: SourceMap, errorList: Error[]) => {
+export const getQueueDeadLetter = (type: AllType, parent: TypeModel, reflection: SourceMap, errorList: Error[]) => {
   if (!isTypeReference(type)) {
-    return getTypeFifoMode(type, parent, errorList);
+    return getTypeDeadLetter(type, parent, errorList);
   }
 
   const statement = getReferenceType(type, reflection);
 
   if (statement) {
-    return getTypeFifoMode(statement, parent, errorList);
+    return getTypeDeadLetter(statement, parent, errorList);
   }
 
   return null;
 };
 
-const isValidFifoMode = (type: Incomplete<QueueFifoMode>): type is QueueFifoMode => {
-  return !!type.groupId;
+const isValidDeadLetter = (type: Incomplete<QueueDeadLetter>): type is QueueDeadLetter => {
+  return !!type.maxRetries;
 };
 
-const getTypeFifoMode = (type: AllType, parent: TypeModel, errorList: Error[]) => {
+const getTypeDeadLetter = (type: AllType, parent: TypeModel, errorList: Error[]) => {
   if (isTypeObject(type)) {
     return getTypeFromMembers(type, parent, getObjectMembers(type), errorList);
   }
 
   if (!isModelDeclaration(type)) {
-    errorList.push(new InvalidFifoModeTypeError(parent.file));
+    errorList.push(new InvalidDeadLetterTypeError(parent.file));
     return null;
   }
 
-  if (!isQueueFifoMode(type)) {
-    errorList.push(new IncorrectFifoModeTypeError(type.name, type.file));
+  if (!isQueueDeadLetter(type)) {
+    errorList.push(new IncorrectDeadLetterTypeError(type.name, type.file));
     return null;
   }
 
@@ -54,8 +54,8 @@ const getTypeFifoMode = (type: AllType, parent: TypeModel, errorList: Error[]) =
 };
 
 const getTypeFromMembers = (type: TypeObject | TypeModel, parent: TypeModel, members: MemberType[], errorList: Error[]) => {
-  const fifoMode: Incomplete<QueueFifoMode> = {};
-  const properties = new Set(['groupId']);
+  const deadLetter: Incomplete<QueueDeadLetter> = {};
+  const properties = new Set(['maxRetries']);
 
   for (const member of members) {
     if (!isModelProperty(member) || member.inherited) {
@@ -67,20 +67,19 @@ const getTypeFromMembers = (type: TypeObject | TypeModel, parent: TypeModel, mem
         errorList.push(new InvalidServicePropertyError(parent.name, member.name, type.file));
         break;
 
-      case 'groupId':
-      case 'uniqueId':
-        if ((fifoMode[member.name] = getPropertyString(member))) {
+      case 'maxRetries':
+        if ((deadLetter[member.name] = getPropertyNumber(member))) {
           properties.delete(member.name);
         }
         break;
     }
   }
 
-  if (isValidFifoMode(fifoMode)) {
-    return fifoMode;
+  if (isValidDeadLetter(deadLetter)) {
+    return deadLetter;
   }
 
-  errorList.push(new IncompleteFifoModeError([...properties], type.file));
+  errorList.push(new IncompleteDeadLetterError([...properties], type.file));
 
   return null;
 };

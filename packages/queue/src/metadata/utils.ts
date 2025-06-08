@@ -19,6 +19,10 @@ export const isQueueFifoMode = (type: TypeModel) => {
   return hasHeritageType(type, 'Queue.FifoMode');
 };
 
+export const isQueueDeadLetter = (type: TypeModel) => {
+  return hasHeritageType(type, 'Queue.DeadLetter');
+};
+
 export const isQueueSubscription = (type: AllType) => {
   return isModelDeclaration(type) && hasHeritageType(type, 'Queue.Subscription');
 };

@@ -1,0 +1,17 @@
+{
+  "TestQueue": {
+    "type": "@ez4/queue",
+    "extras": {},
+    "name": "TestQueue",
+    "description": "Queue to test subscription listener.",
+    "subscriptions": [],
+    "schema": {
+      "type": "object",
+      "properties": {},
+      "identity": 1
+    },
+    "deadLetter": {
+      "maxRetries": 5
+    }
+  }
+}

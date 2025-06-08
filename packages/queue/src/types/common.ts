@@ -9,6 +9,10 @@ export type QueueFifoMode = {
   groupId: string;
 };
 
+export type QueueDeadLetter = {
+  maxRetries: number;
+};
+
 export type SubscriptionHandler = {
   name: string;
   file: string;

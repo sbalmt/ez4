@@ -22,6 +22,16 @@ export interface QueueFifoMode<T extends QueueMessage> {
 }
 
 /**
+ * Queue dead-letter configuration.
+ */
+export interface QueueDeadLetter {
+  /**
+   * Maximum retry attempts for the message before it fails.
+   */
+  maxRetries: number;
+}
+
+/**
  * Incoming message.
  */
 export type QueueIncoming<T extends QueueMessage> = {
