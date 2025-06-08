@@ -113,14 +113,14 @@ export namespace Http {
     listener?: Listener<T>;
 
     /**
-     * Map status codes and errors for all known exceptions.
+     * Status codes for all known exceptions.
      */
-    errors?: Errors;
+    httpErrors?: Errors;
 
     /**
      * Default log retention (in days) for the handlers.
      */
-    retention?: number;
+    logRetention?: number;
 
     /**
      * Default execution time (in seconds) for handlers and routes.

@@ -121,12 +121,12 @@ const getTypeFromMembers = (
         route.authorizer = getHttpAuthorizer(member.value, parent, reflection, errorList);
         break;
 
-      case 'errors':
-        route.errors = getHttpErrors(member.value, parent, reflection, errorList);
+      case 'httpErrors':
+        route.httpErrors = getHttpErrors(member.value, parent, reflection, errorList);
         break;
 
       case 'memory':
-      case 'retention':
+      case 'logRetention':
       case 'timeout':
         route[member.name] = getPropertyNumber(member);
         break;

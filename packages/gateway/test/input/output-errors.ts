@@ -15,7 +15,7 @@ export declare class TestService extends Http.Service {
     {
       path: 'GET /test-route-a';
       handler: typeof testRoute;
-      errors: TestErrorMap;
+      httpErrors: TestErrorMap;
     }
   ];
 }

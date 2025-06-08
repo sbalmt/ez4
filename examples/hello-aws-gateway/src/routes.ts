@@ -20,13 +20,13 @@ export type AllRoutes = [
   {
     path: 'POST /post-route';
     handler: typeof postHandler;
-    errors: ApiErrors;
+    httpErrors: ApiErrors;
     cors: true;
   },
   {
     path: 'PATCH /patch-route/{id}';
     handler: typeof patchHandler;
-    errors: ApiErrors;
+    httpErrors: ApiErrors;
     cors: true;
   },
   {

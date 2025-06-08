@@ -3,9 +3,9 @@ import type { Bucket } from '@ez4/storage';
 
 export declare class TestStorage extends Bucket.Service {
   events: {
-    handler: typeof eventHandler;
     path: 'uploads/*';
-    retention: 14;
+    handler: typeof eventHandler;
+    logRetention: 14;
     memory: 128;
     timeout: 5;
   };

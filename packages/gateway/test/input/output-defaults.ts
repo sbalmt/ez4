@@ -7,10 +7,10 @@ export declare class TestService extends Http.Service {
 
   defaults: {
     listener: typeof testListener;
-    retention: 14;
+    logRetention: 14;
     timeout: 15;
     memory: 192;
-    errors: {
+    httpErrors: {
       400: [CustomError];
     };
   };

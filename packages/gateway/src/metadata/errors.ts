@@ -37,7 +37,7 @@ const getTypeFromMembers = (
   reflection: SourceMap,
   errorList: Error[]
 ) => {
-  const errors: HttpErrors = {};
+  const httpErrors: HttpErrors = {};
 
   for (const member of members) {
     if (!isModelProperty(member) || member.inherited) {
@@ -53,12 +53,12 @@ const getTypeFromMembers = (
     const errorMap = getErrorClasses(member, errorCode, parent, reflection, errorList);
 
     if (errorMap) {
-      Object.assign(errors, errorMap);
+      Object.assign(httpErrors, errorMap);
     }
   }
 
-  if (!isEmptyObject(errors)) {
-    return errors;
+  if (!isEmptyObject(httpErrors)) {
+    return httpErrors;
   }
 
   return null;

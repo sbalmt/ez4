@@ -85,7 +85,7 @@ export namespace Database {
     /**
      * Log retention (in days) for the handler.
      */
-    retention?: number;
+    logRetention?: number;
 
     /**
      * Max execution time (in seconds) for the handler.

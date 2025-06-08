@@ -16,7 +16,7 @@
     "subscriptions": [
       {
         "type": "lambda",
-        "retention": 14,
+        "logRetention": 14,
         "timeout": 15,
         "handler": {
           "name": "testHandler",

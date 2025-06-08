@@ -111,7 +111,7 @@ const getIntegrationFunction = (
   const {
     handler,
     listener = defaults.listener,
-    retention = defaults.retention,
+    logRetention = defaults.logRetention,
     timeout = defaults.timeout,
     memory = defaults.memory
   } = route;
@@ -126,7 +126,7 @@ const getIntegrationFunction = (
     const integrationName = getFunctionName(service, handler, options);
 
     const logGroupState = createLogGroup(state, {
-      retention: retention ?? Defaults.LogRetention,
+      retention: logRetention ?? Defaults.LogRetention,
       groupName: integrationName,
       tags: options.tags
     });
@@ -146,8 +146,8 @@ const getIntegrationFunction = (
       debug: options.debug,
       tags: options.tags,
       errorsMap: {
-        ...defaults.errors,
-        ...route.errors
+        ...defaults.httpErrors,
+        ...route.httpErrors
       },
       variables: {
         ...options.variables,
@@ -207,12 +207,12 @@ const getAuthorizerFunction = (
   const request = authorizer.request;
 
   if (!authorizerState) {
-    const { retention, timeout, memory } = service.defaults ?? {};
+    const { logRetention, timeout, memory } = service.defaults ?? {};
 
     const authorizerName = getFunctionName(service, authorizer, options);
 
     const logGroupState = createLogGroup(state, {
-      retention: retention ?? Defaults.LogRetention,
+      retention: logRetention ?? Defaults.LogRetention,
       groupName: authorizerName,
       tags: options.tags
     });

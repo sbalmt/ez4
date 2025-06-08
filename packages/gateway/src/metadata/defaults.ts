@@ -63,12 +63,12 @@ const getTypeFromMembers = (parent: TypeModel, members: MemberType[], reflection
         errorList.push(new InvalidServicePropertyError(parent.name, member.name, parent.file));
         break;
 
-      case 'errors':
-        defaults.errors = getHttpErrors(member.value, parent, reflection, errorList);
+      case 'httpErrors':
+        defaults.httpErrors = getHttpErrors(member.value, parent, reflection, errorList);
         break;
 
       case 'memory':
-      case 'retention':
+      case 'logRetention':
       case 'timeout':
         defaults[member.name] = getPropertyNumber(member);
         break;

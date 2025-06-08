@@ -36,7 +36,7 @@ export const prepareSubscriptions = async (
       const subscriptionName = getFunctionName(service, handler.name, options);
 
       const logGroupState = createLogGroup(state, {
-        retention: subscription.retention ?? Defaults.LogRetention,
+        retention: subscription.logRetention ?? Defaults.LogRetention,
         groupName: subscriptionName,
         tags: options.tags
       });

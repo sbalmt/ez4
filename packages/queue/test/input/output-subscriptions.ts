@@ -13,8 +13,8 @@ export declare class TestQueue extends Queue.Service<TestMessage> {
     // Inline subscription.
     {
       handler: typeof testHandler;
+      logRetention: 7;
       concurrency: 2;
-      retention: 7;
     },
 
     // Subscription reference.

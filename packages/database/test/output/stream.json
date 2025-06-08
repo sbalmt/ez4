@@ -30,7 +30,7 @@
             "name": "streamHandler",
             "file": "test/models/output-stream.ts"
           },
-          "retention": 14,
+          "logRetention": 14,
           "timeout": 10,
           "memory": 256
         }

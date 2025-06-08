@@ -55,17 +55,17 @@ export type HttpRoute = {
   handler: HttpHandler;
   listener?: ServiceListener | null;
   authorizer?: HttpAuthorizer | null;
-  errors?: HttpErrors | null;
   variables?: LinkedVariables | null;
-  retention?: number | null;
+  logRetention?: number | null;
+  httpErrors?: HttpErrors | null;
   timeout?: number | null;
   memory?: number | null;
   cors?: boolean | null;
 };
 
 export type HttpDefaults = {
-  errors?: HttpErrors | null;
-  retention?: number | null;
+  logRetention?: number | null;
+  httpErrors?: HttpErrors | null;
   listener?: ServiceListener | null;
   timeout?: number | null;
   memory?: number | null;

@@ -16,11 +16,11 @@ export type EventHandler = {
 };
 
 export type BucketEvent = {
+  path?: string;
   listener?: ServiceListener;
   handler: EventHandler;
-  path?: string;
   variables?: LinkedVariables | null;
-  retention?: number;
+  logRetention?: number;
   timeout?: number;
   memory?: number;
 };

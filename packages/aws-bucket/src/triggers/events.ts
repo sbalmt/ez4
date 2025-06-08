@@ -21,7 +21,7 @@ export const prepareEvents = (state: EntryStates, service: BucketService, option
     throw new RoleMissingError();
   }
 
-  const { handler, listener, retention, timeout, memory, variables } = service.events;
+  const { handler, listener, logRetention, timeout, memory, variables } = service.events;
 
   const internalName = getInternalName(service, handler.name);
 
@@ -34,7 +34,7 @@ export const prepareEvents = (state: EntryStates, service: BucketService, option
   const eventName = getFunctionName(service, handler.name, options);
 
   const logGroupState = createLogGroup(state, {
-    retention: retention ?? Defaults.LogRetention,
+    retention: logRetention ?? Defaults.LogRetention,
     groupName: eventName,
     tags: options.tags
   });

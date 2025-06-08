@@ -59,7 +59,7 @@ export namespace Notification {
     /**
      * Log retention (in days) for the handler.
      */
-    retention?: number;
+    logRetention?: number;
 
     /**
      * Maximum execution time (in seconds) for the handler.

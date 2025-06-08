@@ -45,7 +45,7 @@ export namespace Queue {
     /**
      * Log retention (in days) for the handler.
      */
-    retention?: number;
+    logRetention?: number;
 
     /**
      * Amount of memory available for the handler.

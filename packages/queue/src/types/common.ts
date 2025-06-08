@@ -19,7 +19,7 @@ export type QueueSubscription = {
   listener?: ServiceListener;
   handler: SubscriptionHandler;
   variables?: LinkedVariables | null;
+  logRetention?: number;
   concurrency?: number;
-  retention?: number;
   memory?: number;
 };

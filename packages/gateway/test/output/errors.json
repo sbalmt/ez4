@@ -13,7 +13,7 @@
             "status": 204
           }
         },
-        "errors": {
+        "httpErrors": {
           "TestErrorA": 404,
           "TestErrorB": 404,
           "TestErrorC": 422

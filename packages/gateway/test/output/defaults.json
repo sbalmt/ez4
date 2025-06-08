@@ -9,10 +9,10 @@
         "name": "testListener",
         "file": "test/input/output-defaults.ts"
       },
-      "errors": {
+      "httpErrors": {
         "CustomError": 400
       },
-      "retention": 14,
+      "logRetention": 14,
       "timeout": 15,
       "memory": 192
     }
