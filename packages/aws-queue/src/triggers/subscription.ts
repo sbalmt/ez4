@@ -70,13 +70,15 @@ export const prepareSubscriptions = async (
       context.setServiceState(handlerState, internalName, options);
     }
 
-    const { batch, concurrency } = subscription;
+    const { batch = Defaults.Batch, concurrency } = subscription;
+    const { fifoMode } = service;
 
     createMapping(state, queueState, handlerState, {
       fromService: internalName,
       concurrency,
       batch: {
-        size: batch ?? Defaults.Batch
+        ...(!fifoMode && { maxWait: Math.trunc(batch / 10) }),
+        size: batch
       }
     });
   }
