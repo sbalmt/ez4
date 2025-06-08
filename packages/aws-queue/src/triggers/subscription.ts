@@ -77,7 +77,7 @@ export const prepareSubscriptions = async (
       fromService: internalName,
       concurrency,
       batch: {
-        ...(!fifoMode && { maxWait: Math.trunc(batch / 10) }),
+        ...(!fifoMode && { maxWait: Math.min(Math.ceil(batch / 20), 10) }),
         size: batch
       }
     });
