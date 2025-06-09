@@ -80,7 +80,7 @@ export namespace Http {
     /**
      * Map status codes and errors for all known exceptions.
      */
-    errors?: Errors;
+    httpErrors?: Errors;
 
     /**
      * Variables associated to the route.
