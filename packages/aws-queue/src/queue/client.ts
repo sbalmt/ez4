@@ -13,6 +13,7 @@ import {
 } from '@aws-sdk/client-sqs';
 
 import { Logger, waitCreation } from '@ez4/aws-common';
+import { isEmptyObject } from '@ez4/utils';
 
 import { parseQueueUrl } from './helpers/url.js';
 import { QueueServiceName } from './types.js';
@@ -27,11 +28,11 @@ export type DeadLetter = {
 export type CreateRequest = {
   queueName: string;
   fifoMode: boolean;
-  timeout?: number;
+  deadLetter?: DeadLetter;
   retention?: number;
   polling?: number;
+  timeout?: number;
   delay?: number;
-  deadLetter?: DeadLetter;
   tags?: ResourceTags;
 };
 
@@ -91,12 +92,16 @@ export const updateQueue = async (queueUrl: string, request: UpdateRequest) => {
 
   Logger.logUpdate(QueueServiceName, queueName);
 
+  const attributes = upsertQueueAttributes(request);
+
+  if (isEmptyObject(attributes)) {
+    return;
+  }
+
   await client.send(
     new SetQueueAttributesCommand({
       QueueUrl: queueUrl,
-      Attributes: {
-        ...upsertQueueAttributes(request)
-      }
+      Attributes: attributes
     })
   );
 };

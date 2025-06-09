@@ -11,6 +11,7 @@ export type QueueFifoMode = {
 
 export type QueueDeadLetter = {
   maxRetries: number;
+  retention?: number;
 };
 
 export type SubscriptionHandler = {

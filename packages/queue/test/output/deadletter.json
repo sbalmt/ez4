@@ -11,6 +11,7 @@
       "identity": 1
     },
     "deadLetter": {
+      "retention": 60,
       "maxRetries": 5
     }
   }

@@ -67,6 +67,10 @@ const getTypeFromMembers = (type: TypeObject | TypeModel, parent: TypeModel, mem
         errorList.push(new InvalidServicePropertyError(parent.name, member.name, type.file));
         break;
 
+      case 'retention':
+        deadLetter[member.name] = getPropertyNumber(member);
+        break;
+
       case 'maxRetries':
         if ((deadLetter[member.name] = getPropertyNumber(member))) {
           properties.delete(member.name);

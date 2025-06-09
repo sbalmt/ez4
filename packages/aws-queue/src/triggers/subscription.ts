@@ -9,7 +9,7 @@ import { isRoleState } from '@ez4/aws-identity';
 
 import { createMapping } from '../mapping/service.js';
 import { createQueueFunction } from '../mapping/function/service.js';
-import { getFunctionName, getInternalName } from './utils.js';
+import { getFunctionName, getInternalName, getMaxWaitForBatchSize } from './utils.js';
 import { RoleMissingError } from './errors.js';
 import { createLogGroup } from '@ez4/aws-logs';
 import { Defaults } from './defaults.js';
@@ -77,7 +77,7 @@ export const prepareSubscriptions = async (
       fromService: internalName,
       concurrency,
       batch: {
-        ...(!fifoMode && { maxWait: Math.min(Math.ceil(batch / 20), 10) }),
+        ...(!fifoMode && { maxWait: getMaxWaitForBatchSize(batch) }),
         size: batch
       }
     });

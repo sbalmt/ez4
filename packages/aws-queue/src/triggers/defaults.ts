@@ -15,7 +15,17 @@ export namespace Defaults {
   export const Memory = 192;
 
   /**
-   * Default batch size.
+   * Default queue retention (14 days)
+   */
+  export const Retention = 20160;
+
+  /**
+   * Default queue batch size.
    */
   export const Batch = 10;
+
+  /**
+   * Default queue delay.
+   */
+  export const Delay = 0;
 }

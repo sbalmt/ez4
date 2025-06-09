@@ -27,19 +27,19 @@ export const prepareServices = async (event: PrepareResourceEvent) => {
     return;
   }
 
-  const { fifoMode, timeout, retention, polling, delay } = service;
+  const { fifoMode, retention = Defaults.Retention, timeout = Defaults.Timeout, polling, delay } = service;
 
   const queueDeadLetter = getDeadLetterQueue(state, service, options);
 
   const queueState = createQueue(state, queueDeadLetter, {
     queueName: getQueueName(service, options),
-    timeout: timeout ?? Defaults.Timeout,
     deadLetter: service.deadLetter,
     fifoMode: !!fifoMode,
     tags: options.tags,
-    ...(retention !== undefined && { retention }),
-    ...(polling !== undefined && { polling }),
-    ...(delay !== undefined && { delay })
+    retention,
+    polling,
+    timeout,
+    delay
   });
 
   context.setServiceState(queueState, service, options);
@@ -56,17 +56,20 @@ export const connectServices = (event: ConnectResourceEvent) => {
 };
 
 const getDeadLetterQueue = (state: EntryStates, service: QueueService, options: DeployOptions) => {
-  const { fifoMode, retention, deadLetter } = service;
+  const { fifoMode, deadLetter } = service;
 
   if (!deadLetter) {
     return undefined;
   }
 
+  const { retention = Defaults.Retention } = deadLetter;
+
   const queueState = createQueue(state, undefined, {
     queueName: getDeadLetterQueueName(service, options),
     fifoMode: !!fifoMode,
     tags: options.tags,
-    ...(retention !== undefined && { retention })
+    timeout: Defaults.Timeout,
+    retention
   });
 
   return queueState;

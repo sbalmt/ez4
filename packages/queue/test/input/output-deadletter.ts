@@ -9,6 +9,7 @@ export declare class TestQueue extends Queue.Service<TestMessage> {
   subscriptions: [];
 
   deadLetter: {
+    retention: 60;
     maxRetries: 5;
   };
 }
