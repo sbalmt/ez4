@@ -46,10 +46,7 @@ describe('sql select tests', () => {
 
     deepEqual(variables, []);
 
-    equal(
-      statement,
-      'SELECT "alias_table"."foo", "alias_table"."bar" AS "alias_bar" FROM "table" AS "alias_table"'
-    );
+    equal(statement, 'SELECT "alias_table"."foo", "alias_table"."bar" AS "alias_bar" FROM "table" AS "alias_table"');
   });
 
   it('assert :: select with raw columns', async () => {
@@ -107,7 +104,10 @@ describe('sql select tests', () => {
         baz: query.reference('column2')
       },
       {
-        alias: 'json'
+        alias: 'json',
+        order: {
+          qux: Order.Desc
+        }
       }
     );
 
@@ -118,18 +118,17 @@ describe('sql select tests', () => {
     equal(
       statement,
       `SELECT "alias"."foo", "alias"."bar", ` +
-        `COALESCE(json_agg(json_build_object(` +
-        `'foo', "alias"."foo", ` +
-        `'bar', "alias".column1, ` +
-        `'baz', "alias"."column2"` +
-        `)), '[]'::json) AS "json" ` +
+        `COALESCE(json_agg(` +
+        `json_build_object('foo', "alias"."foo", 'bar', "alias".column1, 'baz', "alias"."column2") ` +
+        `ORDER BY "alias"."qux" DESC` +
+        `), '[]'::json) AS "json" ` +
         `FROM "table" AS "alias"`
     );
   });
 
   it('assert :: select with inner select columns', async () => {
-    const inner = sql.select().columns('bar').from('inner').as('alias_bar').where({
-      baz: 'abc'
+    const inner = sql.select().columns('bar').from('inner').as('alias_bar').where({ baz: 'abc' }).take(1).order({
+      bar: Order.Desc
     });
 
     const query = sql.select().from('table').columns('foo', inner);
@@ -142,7 +141,7 @@ describe('sql select tests', () => {
 
     equal(
       statement,
-      'SELECT "foo", (SELECT "T"."bar" FROM "inner" AS "T" WHERE "T"."baz" = :0) AS "alias_bar" FROM "table"'
+      'SELECT "foo", (SELECT "T"."bar" FROM "inner" AS "T" WHERE "T"."baz" = :0 ORDER BY "T"."bar" DESC LIMIT 1) AS "alias_bar" FROM "table"'
     );
   });
 

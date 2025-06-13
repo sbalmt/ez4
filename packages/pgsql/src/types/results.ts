@@ -13,7 +13,7 @@ import { SqlJsonColumn } from '../types/json.js';
 import { SqlReference } from './reference.js';
 import { SqlRawValue } from './raw.js';
 
-export type SqlObjectColumn = Omit<SqlJsonColumnOptions, 'aggregate'>;
+export type SqlObjectColumn = Omit<SqlJsonColumnOptions, 'aggregate' | 'order'>;
 
 export type SqlArrayColumn = Omit<SqlJsonColumnOptions, 'aggregate'>;
 
@@ -84,7 +84,7 @@ export class SqlResults {
   }
 
   jsonColumn(schema: SqlJsonColumnSchema, options: SqlJsonColumnOptions) {
-    this.#state.columns.push(new SqlJsonColumn(schema, this.#state.source, options.aggregate, options.column, options.alias));
+    this.#state.columns.push(new SqlJsonColumn(schema, this.#state.source, options));
 
     return this;
   }
@@ -130,7 +130,7 @@ const getRecordColumns = (record: SqlResultRecord, source: SqlSource) => {
     } else if (value instanceof SqlSelectStatement) {
       columns.push(value.as(column));
     } else if (isAnyObject(value)) {
-      columns.push(new SqlJsonColumn(value, source, false, column));
+      columns.push(new SqlJsonColumn(value, source, { aggregate: false, column }));
     }
   }
 

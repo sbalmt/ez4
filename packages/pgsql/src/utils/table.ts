@@ -12,7 +12,6 @@ export const getTableNames = (tables: (SqlSource | string)[]) => {
       }
 
       tableNames.push(escapeSqlName(table.alias));
-
       continue;
     }
 
