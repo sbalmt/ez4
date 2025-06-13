@@ -6,7 +6,7 @@ import { getServiceName } from '@ez4/project/library';
 import { toKebabCase } from '@ez4/utils';
 
 export const getMaxWaitForBatchSize = (batchSize: number) => {
-  return Math.min(Math.round(batchSize / 20), 10);
+  return Math.min(Math.round(batchSize / 21), 10);
 };
 
 export const getQueueName = (service: QueueService | QueueImport, options: DeployOptions) => {
