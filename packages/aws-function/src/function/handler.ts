@@ -233,6 +233,8 @@ const checkSourceCodeUpdates = async (
 
   return {
     sourceHash: newSourceHash,
-    functionVersion
+    ...(functionVersion && {
+      functionVersion
+    })
   };
 };
