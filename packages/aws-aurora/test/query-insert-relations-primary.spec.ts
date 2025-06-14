@@ -39,6 +39,11 @@ describe('aurora query (insert primary relations)', () => {
           type: SchemaType.String,
           format: 'uuid'
         },
+        bar: {
+          type: SchemaType.Number,
+          optional: true,
+          nullable: true
+        },
         ...(multiple
           ? {
               secondary_1_id: {
@@ -201,7 +206,6 @@ describe('aurora query (insert primary relations)', () => {
 
     const [statement, variables] = await prepareRelationInsert(testSchema, getSingleTestRelation(), {
       select: {
-        id: true,
         primary_to_secondary: {
           id: true,
           foo: true
@@ -221,7 +225,7 @@ describe('aurora query (insert primary relations)', () => {
         // Main record
         `"R0" AS (INSERT INTO "ez4-test-insert-relations" ("id", "secondary_id") VALUES (:0, :1) RETURNING "id") ` +
         // Select
-        `SELECT "id", ` +
+        `SELECT ` +
         `(SELECT json_build_object('id', "T"."id", 'foo', "T"."foo") FROM "ez4-test-relation" AS "T" ` +
         `WHERE "T"."secondary_id" = "R0"."id") AS "primary_to_secondary" ` +
         `FROM "R0"`
@@ -292,7 +296,7 @@ describe('aurora query (insert primary relations)', () => {
 
     const [statement, variables] = await prepareRelationInsert(testSchema, getSingleTestRelation(), {
       select: {
-        id: true,
+        bar: true,
         primary_to_secondary: {
           id: true,
           foo: true
@@ -313,9 +317,9 @@ describe('aurora query (insert primary relations)', () => {
         // Main record
         `"R0" AS (INSERT INTO "ez4-test-relation" ("id", "foo") VALUES (:0, :1) RETURNING "id", "foo"), ` +
         // Relation
-        `"R1" AS (INSERT INTO "ez4-test-insert-relations" ("id", "secondary_id") SELECT :2, "R0"."id" FROM "R0" RETURNING "id") ` +
+        `"R1" AS (INSERT INTO "ez4-test-insert-relations" ("id", "secondary_id") SELECT :2, "R0"."id" FROM "R0" RETURNING "bar") ` +
         // Select
-        `SELECT "id", (SELECT json_build_object('id', "id", 'foo', "foo") FROM "R0") AS "primary_to_secondary" FROM "R1"`
+        `SELECT "bar", (SELECT json_build_object('id', "id", 'foo', "foo") FROM "R0") AS "primary_to_secondary" FROM "R1"`
     );
 
     assert.deepEqual(variables, [

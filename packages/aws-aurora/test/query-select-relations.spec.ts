@@ -45,7 +45,7 @@ type TestTableMetadata = {
   };
 };
 
-describe.only('aurora query (select relations)', () => {
+describe('aurora query (select relations)', () => {
   const testSchema: ObjectSchema = {
     type: SchemaType.Object,
     properties: {
@@ -232,7 +232,7 @@ describe.only('aurora query (select relations)', () => {
     assert.deepEqual(variables, [makeParameter('0', '00000000-0000-1000-9000-000000000000', 'UUID')]);
   });
 
-  it.only('assert :: prepare select relations (with includes)', ({ assert }) => {
+  it('assert :: prepare select relations (with includes)', ({ assert }) => {
     const [statement, variables] = prepareSelect({
       select: {
         id: true,
@@ -282,7 +282,7 @@ describe.only('aurora query (select relations)', () => {
     assert.deepEqual(variables, [makeParameter('0', 123), makeParameter('1', '00000000-0000-1000-9000-000000000000', 'UUID')]);
   });
 
-  it.only('assert :: prepare select relations (with ordered includes)', ({ assert }) => {
+  it('assert :: prepare select relations (with ordered includes)', ({ assert }) => {
     const [statement, variables] = prepareSelect({
       select: {
         id: true,

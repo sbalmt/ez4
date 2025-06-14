@@ -39,6 +39,11 @@ describe('aurora query (insert unique relations)', () => {
           type: SchemaType.String,
           format: 'uuid'
         },
+        bar: {
+          type: SchemaType.Number,
+          optional: true,
+          nullable: true
+        },
         ...(multiple
           ? {
               unique_1_id: {
@@ -201,7 +206,6 @@ describe('aurora query (insert unique relations)', () => {
 
     const [statement, variables] = await prepareRelationInsert(testSchema, getSingleTestRelation(), {
       select: {
-        id: true,
         unique_to_primary: {
           id: true,
           foo: true
@@ -221,7 +225,7 @@ describe('aurora query (insert unique relations)', () => {
         // Main record
         `"R0" AS (INSERT INTO "ez4-test-insert-relations" ("id", "unique_id") VALUES (:0, :1) RETURNING "id") ` +
         // Select
-        `SELECT "id", ` +
+        `SELECT ` +
         `(SELECT json_build_object('id', "T"."id", 'foo', "T"."foo") FROM "ez4-test-relation" AS "T" ` +
         `WHERE "T"."unique_id" = "R0"."id") AS "unique_to_primary" ` +
         `FROM "R0"`
@@ -293,7 +297,7 @@ describe('aurora query (insert unique relations)', () => {
 
     const [statement, variables] = await prepareRelationInsert(testSchema, getSingleTestRelation(), {
       select: {
-        id: true,
+        bar: true,
         unique_to_primary: {
           id: true,
           foo: true
@@ -312,11 +316,11 @@ describe('aurora query (insert unique relations)', () => {
       statement,
       `WITH ` +
         // Relation
-        `"R0" AS (INSERT INTO "ez4-test-insert-relations" ("id") VALUES (:0) RETURNING "id"), ` +
+        `"R0" AS (INSERT INTO "ez4-test-insert-relations" ("id") VALUES (:0) RETURNING "id", "bar"), ` +
         // Main record
         `"R1" AS (INSERT INTO "ez4-test-relation" ("id", "foo", "unique_id") SELECT :1, :2, "R0"."id" FROM "R0" RETURNING "id", "foo") ` +
         // Select
-        `SELECT "id", (SELECT json_build_object('id', "id", 'foo', "foo") FROM "R1") AS "unique_to_primary" FROM "R0"`
+        `SELECT "bar", (SELECT json_build_object('id', "id", 'foo', "foo") FROM "R1") AS "unique_to_primary" FROM "R0"`
     );
 
     assert.deepEqual(variables, [
