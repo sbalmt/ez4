@@ -8,7 +8,6 @@ import { StepAction } from './step.js';
 
 export type PlanOptions<E extends EntryState> = {
   handlers: StepHandlers<E>;
-  force?: boolean;
 };
 
 export const planSteps = async <E extends EntryState>(

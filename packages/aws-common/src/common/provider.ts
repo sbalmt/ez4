@@ -15,14 +15,9 @@ export const registerProvider = <E extends EntryState>(providerName: string, han
   allProviderHandlers[providerName] = handler;
 };
 
-export const report = <E extends EntryState>(
-  newState: EntryStates<E> | undefined,
-  oldState: EntryStates<E> | undefined,
-  force?: boolean
-) => {
+export const report = <E extends EntryState>(newState: EntryStates<E> | undefined, oldState: EntryStates<E> | undefined) => {
   return planSteps(newState, oldState, {
-    handlers: allProviderHandlers,
-    force
+    handlers: allProviderHandlers
   });
 };
 
@@ -36,8 +31,7 @@ export const deploy = async <E extends EntryState>(
   Logger.logInfo(serviceName, 'Started');
 
   const plannedSteps = await planSteps(newState, oldState, {
-    handlers: allProviderHandlers,
-    force
+    handlers: allProviderHandlers
   });
 
   const resultState = await applySteps(plannedSteps, newState, oldState, {
