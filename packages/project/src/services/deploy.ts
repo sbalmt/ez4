@@ -27,17 +27,20 @@ export const deploy = async (project: ProjectOptions) => {
     imports: await loadImports(project),
     variables: project.variables,
     debug: project.debugMode,
+    force: project.forceMode,
     tags: project.tags
   };
 
   const stateFile = project.stateFile;
-
   const statePath = `${stateFile.path}.ezstate`;
+
+  if (options.force) {
+    console.info('[EZ4]: Force option enabled.');
+  }
 
   const oldState = stateFile.remote ? await loadRemoteState(statePath, options) : await loadLocalState(statePath);
 
   const newState: EntryStates = {};
-
   const stateAliases = {};
 
   const role = await prepareExecutionRole(newState, metadata, options);
@@ -49,23 +52,23 @@ export const deploy = async (project: ProjectOptions) => {
 
   combineStates(newState, oldState);
 
-  const hasChanges = await reportResourceChanges(newState, oldState);
+  const hasChanges = await reportResourceChanges(newState, oldState, options.force);
 
-  if (!hasChanges) {
-    console.info('No changes.');
+  if (!hasChanges && !options.force) {
+    console.info('[EZ4]: No changes.');
     return;
   }
 
   if (project.confirm !== false) {
-    const proceed = await waitConfirmation('Are you sure to proceed?');
+    const proceed = await waitConfirmation('[EZ4]: Are you sure to proceed?');
 
     if (!proceed) {
-      console.info('Aborted.');
+      console.info('[EZ4]: Aborted.');
       return;
     }
   }
 
-  const applyState = await applyDeploy(newState, oldState);
+  const applyState = await applyDeploy(newState, oldState, options.force);
 
   if (stateFile.remote) {
     await saveRemoteState(statePath, options, applyState.result);

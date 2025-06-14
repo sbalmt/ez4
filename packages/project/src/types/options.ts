@@ -10,4 +10,5 @@ export type DeployOptions = StateOptions & {
   variables?: LinkedVariables;
   tags?: Record<string, string>;
   debug?: boolean;
+  force?: boolean;
 };

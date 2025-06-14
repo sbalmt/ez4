@@ -86,6 +86,7 @@ export type ConnectResourceEvent = {
 export type DeployEvent = {
   newState: EntryStates;
   oldState: EntryStates;
+  force?: boolean;
 };
 
 export type StateEvent = {

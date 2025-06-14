@@ -13,6 +13,7 @@ export type ApplyResult<E extends EntryState = EntryState> = {
 export type ApplyOptions<E extends EntryState> = {
   handlers: StepHandlers<E>;
   batchSize?: number;
+  force?: boolean;
 };
 
 export const applySteps = async <E extends EntryState>(
@@ -28,11 +29,10 @@ export const applySteps = async <E extends EntryState>(
   const tmpEntries: EntryStates<E> = {};
   const errorList: Error[] = [];
 
+  const { handlers, batchSize = 10, force = false } = options;
+
   const tmpNewEntries = newEntries ?? {};
   const tmpOldEntries = oldEntries ?? {};
-
-  const batchSize = options.batchSize ?? 10;
-  const handlers = options.handlers;
 
   for (let order = 0; ; order++) {
     const nextSteps = findPendingByOrder(stepList, order);
@@ -46,9 +46,9 @@ export const applySteps = async <E extends EntryState>(
     for (let offset = 0; offset < nextSteps.length; offset += batchSize) {
       const stepsBatch = nextSteps.slice(offset, offset + batchSize);
 
-      const stepPromises = stepsBatch.map((entry) =>
-        applyPendingStep(entry, tmpNewEntries, tmpOldEntries, tmpEntries, handlers, errorList)
-      );
+      const stepPromises = stepsBatch.map((entry) => {
+        return applyPendingStep(entry, tmpNewEntries, tmpOldEntries, tmpEntries, handlers, errorList, force);
+      });
 
       resultEntries.push(...(await Promise.all(stepPromises)));
     }
@@ -77,7 +77,8 @@ const applyPendingStep = async <E extends EntryState<T>, T extends string>(
   oldEntries: EntryStates<E>,
   tmpEntries: EntryStates<E>,
   handlers: StepHandlers<E>,
-  errorList: Error[]
+  errorList: Error[],
+  force: boolean
 ): Promise<E | undefined> => {
   const { action, entryId } = step;
 
@@ -87,6 +88,7 @@ const applyPendingStep = async <E extends EntryState<T>, T extends string>(
 
   const buildContext = (entryMap: EntryStates<E>, entry: E) => {
     return {
+      force,
       getDependencies: <T extends EntryState>(type?: T['type']) => {
         return getDependencies<T>(entryMap, entry, type);
       }
@@ -110,7 +112,7 @@ const applyPendingStep = async <E extends EntryState<T>, T extends string>(
       }
 
       case StepAction.Update: {
-        if (!step.preview || step.preview.counts === 0) {
+        if (!force && (!step.preview || step.preview.counts === 0)) {
           return getEntry(oldEntries, entryId);
         }
 
@@ -138,10 +140,7 @@ const applyPendingStep = async <E extends EntryState<T>, T extends string>(
   return undefined;
 };
 
-const getEntryHandler = <E extends EntryState<T>, T extends string>(
-  handlers: StepHandlers<E>,
-  entry: E
-) => {
+const getEntryHandler = <E extends EntryState<T>, T extends string>(handlers: StepHandlers<E>, entry: E) => {
   const handler = handlers[entry.type];
 
   if (!handler) {
