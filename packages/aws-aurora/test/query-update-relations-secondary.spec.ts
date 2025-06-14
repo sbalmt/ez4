@@ -170,7 +170,6 @@ describe('aurora query (update secondary relations)', () => {
 
     const [statement, variables] = await prepareRelationUpdate(testSchema, getSingleTestRelation(), {
       select: {
-        id: true,
         secondary_to_primary: {
           id: true,
           foo: true
@@ -189,7 +188,7 @@ describe('aurora query (update secondary relations)', () => {
       // Main record
       `UPDATE ONLY "ez4-test-update-relations" AS "R" SET "id" = :0, "primary_id" = :1 ` +
         // Select
-        `RETURNING "R"."id", (SELECT COALESCE(json_agg(json_build_object('id', "T"."id", 'foo', "T"."foo")), '[]'::json) ` +
+        `RETURNING (SELECT COALESCE(json_agg(json_build_object('id', "T"."id", 'foo', "T"."foo")), '[]'::json) ` +
         `FROM "ez4-test-relation" AS "T" WHERE "T"."primary_id" = "R"."id") AS "secondary_to_primary"`
     );
 

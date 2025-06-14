@@ -176,7 +176,6 @@ describe('aurora query (update primary relations)', () => {
 
     const [statement, variables] = await prepareRelationUpdate(testSchema, getSingleTestRelation(), {
       select: {
-        id: true,
         primary_to_secondary: {
           id: true,
           foo: true
@@ -195,7 +194,7 @@ describe('aurora query (update primary relations)', () => {
       // Main record
       `UPDATE ONLY "ez4-test-update-relations" AS "R" SET "id" = :0, "secondary_id" = :1 ` +
         // Select
-        `RETURNING "R"."id", (SELECT json_build_object('id', "T"."id", 'foo', "T"."foo") FROM "ez4-test-relation" AS "T" ` +
+        `RETURNING (SELECT json_build_object('id', "T"."id", 'foo', "T"."foo") FROM "ez4-test-relation" AS "T" ` +
         `WHERE "T"."id" = "R"."secondary_id") AS "primary_to_secondary"`
     );
 
@@ -261,7 +260,6 @@ describe('aurora query (update primary relations)', () => {
 
     const [statement, variables] = await prepareRelationUpdate(testSchema, getSingleTestRelation(), {
       select: {
-        id: true,
         primary_to_secondary: {
           id: true,
           foo: true
@@ -283,7 +281,7 @@ describe('aurora query (update primary relations)', () => {
         // Relation
         `"R1" AS (UPDATE ONLY "ez4-test-relation" AS "T" SET "foo" = :1 FROM "R0" WHERE "T"."id" = "R0"."secondary_id") ` +
         // Select
-        `SELECT "id", (SELECT json_build_object('id', "T"."id", 'foo', "T"."foo") FROM "ez4-test-relation" AS "T" ` +
+        `SELECT (SELECT json_build_object('id', "T"."id", 'foo', "T"."foo") FROM "ez4-test-relation" AS "T" ` +
         `WHERE "T"."id" = "R0"."secondary_id") AS "primary_to_secondary" FROM "ez4-test-update-relations"`
     );
 
