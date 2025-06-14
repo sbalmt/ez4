@@ -117,13 +117,13 @@ export namespace Query {
 
   export type InsertDataInput<T extends TableMetadata> = Omit<
     IsObjectEmpty<T['relations']['changes']> extends true ? T['schema'] : T['schema'] & T['relations']['changes'],
-    IndexFields<T['relations']>
+    T['relations']['indexes']
   >;
 
   export type UpdateDataInput<T extends TableMetadata> = AtomicDataInput<
     Omit<
       IsObjectEmpty<T['relations']['changes']> extends true ? T['schema'] : T['schema'] & FlatObject<T['relations']['changes']>,
-      IndexFields<T['relations']>
+      T['relations']['indexes']
     >
   >;
 
@@ -150,8 +150,6 @@ export namespace Query {
     AND?: WhereInput<T>[];
     OR?: WhereInput<T>[];
   };
-
-  type IndexFields<R extends RelationMetadata> = string extends R['indexes'] ? never : R['indexes'];
 
   type SelectFields<T extends Database.Schema, R extends RelationMetadata> =
     IsObjectEmpty<R['selects']> extends true ? T : T & R['selects'];

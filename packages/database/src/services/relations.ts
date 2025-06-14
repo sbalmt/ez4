@@ -7,10 +7,10 @@ import type { TableSchemas } from './schemas.js';
  * Internal relation type.
  */
 export type RelationMetadata = {
-  indexes: string;
   filters: Record<string, {}>;
   selects: Record<string, {}>;
   changes: Record<string, {}>;
+  indexes: string;
 };
 
 /**
@@ -56,7 +56,7 @@ type TableRelation<T, S extends Record<string, Database.Schema>, I extends Recor
     ? R extends AnyObject
       ? {
           [P in N]: {
-            indexes: RequiredRelationIndexes<PropertyType<N, S>, I, R>;
+            indexes: RelationIndexes<PropertyType<N, I>, R>;
             filters: FilterableRelationSchemas<S, R>;
             changes: RequiredRelationSchemas<PropertyType<N, S>, S, I, R, true> &
               OptionalRelationSchemas<PropertyType<N, S>, S, I, R, true>;
@@ -69,10 +69,10 @@ type TableRelation<T, S extends Record<string, Database.Schema>, I extends Recor
   : {};
 
 /**
- * Produce an object containing all required relation indexes.
+ * Produce an object containing all relation indexes.
  */
-type RequiredRelationIndexes<T extends Database.Schema, I extends Record<string, Database.Indexes>, R extends AnyObject> = keyof {
-  [C in keyof R as IsOptionalRelation<R[C], C, T, I, true> extends true ? never : RelationTargetColumn<C>]: never;
+type RelationIndexes<I extends Database.Indexes, R extends AnyObject> = keyof {
+  [C in keyof R as RelationTargetColumn<C> extends keyof PrimaryIndexes<I> ? never : RelationTargetColumn<C>]: never;
 };
 
 /**
