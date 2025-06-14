@@ -30,20 +30,20 @@ export namespace Query {
 
   export type UpdateOneInput<S extends AnyObject, T extends TableMetadata> = {
     select?: StrictSelectInput<S, T>;
-    include?: StrictIncludeInput<T>;
+    include?: StrictIncludeInput<S, T>;
     data: OptionalObject<UpdateDataInput<T>>;
     where: WhereInput<T, true>;
   };
 
   export type FindOneInput<S extends AnyObject, T extends TableMetadata> = {
     select: StrictSelectInput<S, T>;
-    include?: StrictIncludeInput<T>;
+    include?: StrictIncludeInput<S, T>;
     where: WhereInput<T, true>;
   };
 
   export type UpsertOneInput<S extends AnyObject, T extends TableMetadata> = {
     select?: StrictSelectInput<S, T>;
-    include?: StrictIncludeInput<T>;
+    include?: StrictIncludeInput<S, T>;
     update: OptionalObject<UpdateDataInput<T>>;
     insert: InsertDataInput<T>;
     where: WhereInput<T, true>;
@@ -51,7 +51,7 @@ export namespace Query {
 
   export type DeleteOneInput<S extends AnyObject, T extends TableMetadata> = {
     select?: StrictSelectInput<S, T>;
-    include?: StrictIncludeInput<T>;
+    include?: StrictIncludeInput<S, T>;
     where: WhereInput<T, true>;
   };
 
@@ -61,7 +61,7 @@ export namespace Query {
 
   export type UpdateManyInput<S extends AnyObject, T extends TableMetadata> = PaginationUtils.End<T> & {
     select?: StrictSelectInput<S, T>;
-    include?: StrictIncludeInput<T>;
+    include?: StrictIncludeInput<S, T>;
     data: OptionalObject<UpdateDataInput<T>>;
     where?: WhereInput<T>;
   };
@@ -69,14 +69,14 @@ export namespace Query {
   export type FindManyInput<S extends AnyObject, T extends TableMetadata, C extends boolean> = PaginationUtils.Range<T> & {
     count?: C;
     select: StrictSelectInput<S, T>;
-    include?: StrictIncludeInput<T>;
+    include?: StrictIncludeInput<S, T>;
     where?: WhereInput<T>;
     order?: OrderInput<T>;
   };
 
   export type DeleteManyInput<S extends AnyObject, T extends TableMetadata> = PaginationUtils.End<T> & {
     select?: StrictSelectInput<S, T>;
-    include?: StrictIncludeInput<T>;
+    include?: StrictIncludeInput<S, T>;
     where?: WhereInput<T>;
   };
 
@@ -128,15 +128,17 @@ export namespace Query {
 
   export type OrderInput<T extends TableMetadata, O extends AnyObject = T['schema']> = OrderUtils.Input<O, T['engine']>;
 
-  export type StrictIncludeInput<T extends TableMetadata> =
+  export type StrictIncludeInput<S extends AnyObject, T extends TableMetadata> =
     IsObjectEmpty<T['relations']['filters']> extends true
       ? never
       : {
-          [P in keyof T['relations']['filters']]?: PaginationUtils.Range<T> & {
-            where?: WhereRelationField<T['relations']['filters'][P], T>;
-            order?: OrderInput<T, T['relations']['filters'][P]>;
-          };
+          [P in keyof T['relations']['filters']]?: P extends keyof S ? StrictIncludeRelation<T['relations']['filters'][P], T> : never;
         };
+
+  export type StrictIncludeRelation<V extends AnyObject, T extends TableMetadata> = PaginationUtils.Range<T> & {
+    where?: WhereRelationField<V, T>;
+    order?: OrderInput<T, V>;
+  };
 
   export type WhereInput<T extends TableMetadata, I extends boolean = false> = WhereInputFilters<T, I extends true ? T['indexes'] : {}> & {
     NOT?: WhereInput<T>;

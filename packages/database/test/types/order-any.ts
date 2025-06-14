@@ -49,7 +49,8 @@ export async function testHandler({ selfClient }: Service.Context<TestDatabase>)
   selfClient.table.findMany({
     select: {
       id: true,
-      value: true
+      value: true,
+      next: true
     },
     include: {
       next: {

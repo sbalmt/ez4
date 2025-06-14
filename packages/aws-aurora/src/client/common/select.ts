@@ -60,7 +60,7 @@ export const prepareSelectQuery = <T extends InternalTableMetadata, S extends Qu
 export const getSelectFields = <T extends InternalTableMetadata, S extends AnyObject>(
   sql: SqlBuilder,
   fields: Query.StrictSelectInput<S, T>,
-  include: Query.StrictIncludeInput<T> | undefined | null,
+  include: Query.StrictIncludeInput<S, T> | undefined | null,
   schema: ObjectSchema,
   relations: RepositoryRelationsWithSchema,
   source: SqlSource,
