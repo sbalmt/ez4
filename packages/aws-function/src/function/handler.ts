@@ -220,7 +220,7 @@ const checkSourceCodeUpdates = async (
   const newSourceHash = await getBundleHashFromCache(candidate.sourceFile);
   const oldSourceHash = current?.sourceHash;
 
-  if (newSourceHash === oldSourceHash) {
+  if (newSourceHash === oldSourceHash && !context.force) {
     return current;
   }
 
