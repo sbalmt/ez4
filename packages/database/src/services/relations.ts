@@ -79,7 +79,7 @@ type RelationIndexes<I extends Database.Indexes, R extends AnyObject> = keyof {
  * Produce an object containing all filterable relation schemas.
  */
 type FilterableRelationSchemas<S extends Record<string, Database.Schema>, R extends AnyObject> = {
-  [C in keyof R as RelationTargetAlias<C>]: Omit<PropertyType<RelationSourceTable<R[C]>, S>, RelationTargetColumn<R[C]>>;
+  [C in keyof R as RelationTargetAlias<C>]: Omit<PropertyType<RelationSourceTable<R[C]>, S>, RelationSourceColumn<R[C]>>;
 };
 
 /**

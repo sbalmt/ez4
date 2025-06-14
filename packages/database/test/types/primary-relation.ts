@@ -241,7 +241,7 @@ const testUpdate = async (client: TestDatabase['client']) => {
     },
     where: {
       relation_b: {
-        id: 'foo'
+        value_b: 1
       }
     }
   });
