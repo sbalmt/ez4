@@ -355,15 +355,15 @@ const getInsertSelectFields = <T extends InternalTableMetadata>(
       if (!relationQueries.length) {
         const isUniqueIndex = sourceIndex === Index.Unique;
 
-        const filterColumn = isUniqueIndex ? sourceColumn : targetColumn;
-        const filterValue = isUniqueIndex ? targetColumn : sourceColumn;
+        const filterTarget = isUniqueIndex ? targetColumn : sourceColumn;
+        const filterSource = isUniqueIndex ? sourceColumn : targetColumn;
 
         relationQuery.from(sourceTable).where({
-          [filterColumn]: main?.reference(filterValue)
+          [filterTarget]: main?.reference(filterSource)
         });
 
-        if (main?.results && !main.results.has(filterValue)) {
-          main.results.column(filterValue);
+        if (main?.results && !main.results.has(filterSource)) {
+          main.results.column(filterSource);
         }
 
         const relationRecord = getSelectFields(sql, relationFields, null, sourceSchema, relations, relationQuery, fieldPath, true);

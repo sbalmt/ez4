@@ -223,11 +223,11 @@ describe('aurora query (insert primary relations)', () => {
       statement,
       `WITH ` +
         // Main record
-        `"R0" AS (INSERT INTO "ez4-test-insert-relations" ("id", "secondary_id") VALUES (:0, :1) RETURNING "id") ` +
+        `"R0" AS (INSERT INTO "ez4-test-insert-relations" ("id", "secondary_id") VALUES (:0, :1) RETURNING "secondary_id") ` +
         // Select
         `SELECT ` +
         `(SELECT json_build_object('id', "T"."id", 'foo', "T"."foo") FROM "ez4-test-relation" AS "T" ` +
-        `WHERE "T"."secondary_id" = "R0"."id") AS "primary_to_secondary" ` +
+        `WHERE "T"."id" = "R0"."secondary_id") AS "primary_to_secondary" ` +
         `FROM "R0"`
     );
 
