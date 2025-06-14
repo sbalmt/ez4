@@ -1,18 +1,15 @@
-import type { AllType, SourceMap, TypeModel, TypeObject } from '@ez4/reflection';
+import type { AllType, SourceMap, TypeIntersection, TypeModel, TypeObject } from '@ez4/reflection';
 
+import { isTypeIntersection, isTypeObject, isTypeReference } from '@ez4/reflection';
 import { getReferenceType, isModelDeclaration } from '@ez4/common/library';
-import { getObjectSchema, isObjectSchema } from '@ez4/schema/library';
-import { isTypeObject, isTypeReference } from '@ez4/reflection';
 
 import { IncorrectQueryTypeError, InvalidQueryTypeError } from '../errors/query.js';
+import { getSchemaFromType } from './schema.js';
 import { isHttpQuery } from './utils.js';
 
-export const getHttpQuery = (
-  type: AllType,
-  parent: TypeObject | TypeModel,
-  reflection: SourceMap,
-  errorList: Error[]
-) => {
+type TypeParent = TypeObject | TypeModel | TypeIntersection;
+
+export const getHttpQuery = (type: AllType, parent: TypeParent, reflection: SourceMap, errorList: Error[]) => {
   if (!isTypeReference(type)) {
     return getTypeQuery(type, parent, reflection, errorList);
   }
@@ -26,14 +23,9 @@ export const getHttpQuery = (
   return null;
 };
 
-const getTypeQuery = (
-  type: AllType,
-  parent: TypeObject | TypeModel,
-  reflection: SourceMap,
-  errorList: Error[]
-) => {
-  if (isTypeObject(type)) {
-    return getQuerySchema(type, reflection);
+const getTypeQuery = (type: AllType, parent: TypeParent, reflection: SourceMap, errorList: Error[]) => {
+  if (isTypeObject(type) || isTypeIntersection(type)) {
+    return getSchemaFromType(type, reflection);
   }
 
   if (!isModelDeclaration(type)) {
@@ -46,15 +38,5 @@ const getTypeQuery = (
     return null;
   }
 
-  return getQuerySchema(type, reflection);
-};
-
-const getQuerySchema = (type: TypeObject | TypeModel, reflection: SourceMap) => {
-  const schema = getObjectSchema(type, reflection);
-
-  if (schema && isObjectSchema(schema)) {
-    return schema;
-  }
-
-  return null;
+  return getSchemaFromType(type, reflection);
 };

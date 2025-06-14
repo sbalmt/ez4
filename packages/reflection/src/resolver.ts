@@ -108,7 +108,7 @@ export type ReflectionOptions = {
   resolverEvents?: ResolverEvents;
 };
 
-export const getReflectionMetadata = (program: Program, options?: ReflectionOptions) => {
+export const resolveReflectionMetadata = (program: Program, options?: ReflectionOptions) => {
   const reflection: SourceMap = {};
 
   const sourceContext = {
@@ -131,7 +131,7 @@ export const getReflectionMetadata = (program: Program, options?: ReflectionOpti
   return reflection;
 };
 
-export const getReflectionFiles = (program: Program) => {
+export const resolveReflectionFiles = (program: Program) => {
   const basePath = program.getCurrentDirectory();
   const pathList = new Set<string>();
 
@@ -141,7 +141,8 @@ export const getReflectionFiles = (program: Program) => {
         return;
       }
 
-      const importedFilePath = getModulePath(node.moduleSpecifier.text, sourceFile.fileName);
+      const importModuleName = node.moduleSpecifier.text;
+      const importedFilePath = getModulePath(importModuleName, sourceFile.fileName);
 
       if (importedFilePath) {
         pathList.add(relative(basePath, importedFilePath));

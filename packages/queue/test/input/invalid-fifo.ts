@@ -12,8 +12,6 @@ class TestFifoMode implements Queue.FifoMode<TestMessage> {
 }
 
 export declare class TestQueue extends Queue.Service<TestMessage> {
-  schema: TestMessage;
-
   fifoMode: TestFifoMode;
 
   subscriptions: [];

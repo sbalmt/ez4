@@ -7,11 +7,7 @@ import { createQueue, isQueueState, registerTriggers } from '@ez4/aws-queue';
 import { deploy } from '@ez4/aws-common';
 import { deepClone } from '@ez4/utils';
 
-const assertDeploy = async <E extends EntryState>(
-  resourceId: string,
-  newState: EntryStates<E>,
-  oldState: EntryStates<E> | undefined
-) => {
+const assertDeploy = async <E extends EntryState>(resourceId: string, newState: EntryStates<E>, oldState: EntryStates<E> | undefined) => {
   const { result: state } = await deploy(newState, oldState);
 
   const resource = state[resourceId];
@@ -38,7 +34,7 @@ describe('queue', () => {
   it('assert :: deploy', async () => {
     const localState: EntryStates = {};
 
-    const resource = createQueue(localState, {
+    const resource = createQueue(localState, undefined, {
       queueName: 'ez4-test-queue',
       fifoMode: false,
       timeout: 30,

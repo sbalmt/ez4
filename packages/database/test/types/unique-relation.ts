@@ -11,8 +11,14 @@ declare class TestTableA implements Database.Schema {
 
 declare class TestTableB implements Database.Schema {
   id: string;
-  value_b: number;
   table_a_id: string;
+  value_b: number;
+}
+
+declare class TestTableC implements Database.Schema {
+  id: string;
+  table_b_id?: string;
+  value_c: number;
 }
 
 export declare class TestDatabase extends Database.Service {
@@ -40,6 +46,17 @@ export declare class TestDatabase extends Database.Service {
       indexes: {
         id: Index.Primary;
         table_a_id: Index.Unique;
+      };
+    },
+    {
+      name: 'tableC';
+      schema: TestTableC;
+      relations: {
+        'table_b_id@relation_b': 'tableB:id';
+      };
+      indexes: {
+        id: Index.Primary;
+        table_b_id: Index.Unique;
       };
     }
   ];
@@ -102,6 +119,21 @@ const testSelect = async (client: TestDatabase['client']) => {
   });
 
   resultB.records[0].relation_a.value_a;
+
+  // Fetch tableC and its optional tableB connection
+  const resultC = await client.tableC.findMany({
+    select: {
+      value_c: true,
+      relation_b: true
+    },
+    where: {
+      relation_b: {
+        value_b: 1
+      }
+    }
+  });
+
+  resultC.records[0].relation_b?.value_b;
 };
 
 const testInsert = async (client: TestDatabase['client']) => {
@@ -136,6 +168,19 @@ const testInsert = async (client: TestDatabase['client']) => {
       value_b: 1,
       relation_a: {
         table_a_id: 'bar'
+      }
+    }
+  });
+
+  // Create tableC, optionally tableB and connect
+  await client.tableC.insertOne({
+    data: {
+      id: 'foo',
+      value_c: 1,
+      relation_b: {
+        id: 'bar',
+        table_a_id: 'baz',
+        value_b: 2
       }
     }
   });
@@ -183,6 +228,20 @@ const testUpdate = async (client: TestDatabase['client']) => {
     where: {
       relation_a: {
         value_a: 1
+      }
+    }
+  });
+
+  // Update tableB from tableC.
+  await client.tableC.updateMany({
+    data: {
+      relation_b: {
+        value_b: 2
+      }
+    },
+    where: {
+      relation_b: {
+        value_b: 1
       }
     }
   });

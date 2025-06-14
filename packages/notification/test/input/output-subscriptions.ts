@@ -14,7 +14,7 @@ export declare class TestNotification extends Notification.Service<TestMessage> 
     // Inline lambda subscription.
     {
       handler: typeof testHandler;
-      retention: 14;
+      logRetention: 14;
       timeout: 15;
     },
 

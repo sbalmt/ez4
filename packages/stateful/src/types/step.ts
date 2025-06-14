@@ -18,6 +18,11 @@ export type StepState = {
  */
 export type StepContext = {
   /**
+   * Determines whether the current action has the `force` option enabled.
+   */
+  force: boolean;
+
+  /**
    * Get all dependencies from the current step entry, if a `type` is given
    * the resulting list is filtered by type.
    *
@@ -45,10 +50,7 @@ export type StepHandler<E extends EntryState = EntryState> = {
    * @param context Action context.
    * @returns Must returns the resulting state of the create action.
    */
-  create: (
-    candidate: Readonly<E>,
-    context: StepContext
-  ) => Record<string, any> | undefined | Promise<Record<string, any> | undefined>;
+  create: (candidate: Readonly<E>, context: StepContext) => Record<string, any> | undefined | Promise<Record<string, any> | undefined>;
 
   /**
    * Handle entry replacement.
@@ -69,10 +71,7 @@ export type StepHandler<E extends EntryState = EntryState> = {
    * @param current Current entry.
    * @returns Must returns the comparison object from the preview action.
    */
-  preview: (
-    candidate: Readonly<E>,
-    current: Readonly<E>
-  ) => ObjectComparison | undefined | Promise<ObjectComparison | undefined>;
+  preview: (candidate: Readonly<E>, current: Readonly<E>) => ObjectComparison | undefined | Promise<ObjectComparison | undefined>;
 
   /**
    * Handle entry updates.

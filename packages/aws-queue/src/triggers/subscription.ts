@@ -9,7 +9,7 @@ import { isRoleState } from '@ez4/aws-identity';
 
 import { createMapping } from '../mapping/service.js';
 import { createQueueFunction } from '../mapping/function/service.js';
-import { getFunctionName, getInternalName } from './utils.js';
+import { getFunctionName, getInternalName, getMaxWaitForBatchSize } from './utils.js';
 import { RoleMissingError } from './errors.js';
 import { createLogGroup } from '@ez4/aws-logs';
 import { Defaults } from './defaults.js';
@@ -36,7 +36,7 @@ export const prepareSubscriptions = async (
       const subscriptionName = getFunctionName(service, handler.name, options);
 
       const logGroupState = createLogGroup(state, {
-        retention: subscription.retention ?? Defaults.LogRetention,
+        retention: subscription.logRetention ?? Defaults.LogRetention,
         groupName: subscriptionName,
         tags: options.tags
       });
@@ -70,9 +70,16 @@ export const prepareSubscriptions = async (
       context.setServiceState(handlerState, internalName, options);
     }
 
+    const { batch = Defaults.Batch, concurrency } = subscription;
+    const { fifoMode } = service;
+
     createMapping(state, queueState, handlerState, {
-      concurrency: subscription.concurrency,
-      fromService: internalName
+      fromService: internalName,
+      concurrency,
+      batch: {
+        ...(!fifoMode && { maxWait: getMaxWaitForBatchSize(batch) }),
+        size: batch
+      }
     });
   }
 };

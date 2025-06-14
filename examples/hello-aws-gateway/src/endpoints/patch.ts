@@ -1,6 +1,8 @@
 import type { String } from '@ez4/schema';
 import type { Http } from '@ez4/gateway';
 
+import { CustomError } from '../errors.js';
+
 /**
  * Patch request example.
  */
@@ -44,7 +46,7 @@ export function patchHandler(request: PatchRequest): PatchResponse {
 
   // Check error catcher.
   if (foo === 'error') {
-    throw new Error(`Patch error.`);
+    throw new CustomError('Patch error.');
   }
 
   return {

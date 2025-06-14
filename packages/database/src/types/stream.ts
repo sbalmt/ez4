@@ -6,7 +6,7 @@ export type TableStream = {
   listener?: ServiceListener;
   handler: StreamHandler;
   variables?: LinkedVariables | null;
-  retention?: number;
+  logRetention?: number;
   timeout?: number;
   memory?: number;
 };

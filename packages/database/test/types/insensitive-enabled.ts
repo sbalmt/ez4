@@ -48,7 +48,8 @@ export async function testHandler({ selfClient }: Service.Context<TestDatabase>)
   // Insensitive in the sub-query.
   selfClient.table.findMany({
     select: {
-      id: true
+      id: true,
+      next: true
     },
     include: {
       next: {

@@ -1,10 +1,4 @@
-import type {
-  ApplyResult,
-  EntryState,
-  EntryStates,
-  StepHandler,
-  StepHandlers
-} from '@ez4/stateful';
+import type { ApplyResult, EntryState, EntryStates, StepHandler, StepHandlers } from '@ez4/stateful';
 
 import { applySteps, planSteps } from '@ez4/stateful';
 
@@ -13,10 +7,7 @@ import { Logger } from './logger.js';
 
 const allProviderHandlers: StepHandlers<any> = {};
 
-export const registerProvider = <E extends EntryState>(
-  providerName: string,
-  handler: StepHandler<E>
-) => {
+export const registerProvider = <E extends EntryState>(providerName: string, handler: StepHandler<E>) => {
   if (providerName in allProviderHandlers) {
     throw new DuplicateProviderError(providerName);
   }
@@ -24,10 +15,7 @@ export const registerProvider = <E extends EntryState>(
   allProviderHandlers[providerName] = handler;
 };
 
-export const report = <E extends EntryState>(
-  newState: EntryStates<E> | undefined,
-  oldState: EntryStates<E> | undefined
-) => {
+export const report = <E extends EntryState>(newState: EntryStates<E> | undefined, oldState: EntryStates<E> | undefined) => {
   return planSteps(newState, oldState, {
     handlers: allProviderHandlers
   });
@@ -35,7 +23,8 @@ export const report = <E extends EntryState>(
 
 export const deploy = async <E extends EntryState>(
   newState: EntryStates<E> | undefined,
-  oldState: EntryStates<E> | undefined
+  oldState: EntryStates<E> | undefined,
+  force?: boolean
 ): Promise<ApplyResult<E>> => {
   const serviceName = 'EZ4:Deploy';
 
@@ -46,7 +35,8 @@ export const deploy = async <E extends EntryState>(
   });
 
   const resultState = await applySteps(plannedSteps, newState, oldState, {
-    handlers: allProviderHandlers
+    handlers: allProviderHandlers,
+    force
   });
 
   resultState.errors.forEach((error) => {

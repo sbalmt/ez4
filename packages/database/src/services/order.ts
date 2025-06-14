@@ -1,6 +1,5 @@
-import type { AnyObject } from '@ez4/utils';
 import type { DecomposeIndexName } from './indexes.js';
-import type { DatabaseEngine } from './engine.js';
+import type { TableMetadata } from './table.js';
 import type { Database } from './database.js';
 
 /**
@@ -26,21 +25,21 @@ export namespace OrderUtils {
   /**
    * Order input for index columns.
    */
-  type IndexInput<I extends Database.Indexes> = {
+  export type IndexInput<I extends Database.Indexes> = {
     [P in DecomposeIndexName<keyof I>]?: Order;
   };
 
   /**
    * Order input for any columns.
    */
-  type AnyInput<T extends Database.Schema> = {
+  export type AnyInput<T extends Database.Schema> = {
     [P in keyof T]?: Order;
   };
 
   /**
-   * Order input type based on the
+   * Order input type based on the table metadata.
    */
-  export type Input<T extends AnyObject, E extends DatabaseEngine> = E['orderMode'] extends OrderMode.AnyColumns
-    ? AnyInput<T['schema']>
-    : IndexInput<T['indexes']>;
+  export type Input<T extends TableMetadata> = T['engine']['orderMode'] extends OrderMode.IndexColumns
+    ? IndexInput<T['indexes']>
+    : AnyInput<T['schema']>;
 }

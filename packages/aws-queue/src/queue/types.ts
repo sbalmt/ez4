@@ -1,15 +1,21 @@
 import type { EntryState } from '@ez4/stateful';
-import type { CreateRequest, CreateResponse } from './client.js';
+import type { Arn } from '@ez4/aws-common';
+import type { CreateRequest, CreateResponse, DeadLetter } from './client.js';
 
 export const QueueServiceName = 'AWS:SQS/Queue';
 
 export const QueueServiceType = 'aws:sqs.queue';
 
-export type QueueParameters = CreateRequest & {
+export type QueueDeadLetter = Omit<DeadLetter, 'targetQueueArn'>;
+
+export type QueueParameters = Omit<CreateRequest, 'deadLetter'> & {
+  deadLetter?: QueueDeadLetter;
   import?: boolean;
 };
 
-export type QueueResult = CreateResponse;
+export type QueueResult = CreateResponse & {
+  deadLetterArn?: Arn;
+};
 
 export type QueueState = EntryState & {
   type: typeof QueueServiceType;

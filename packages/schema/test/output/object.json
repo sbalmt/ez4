@@ -176,6 +176,19 @@
           "type": "string"
         }
       }
+    },
+    "intersection": {
+      "type": "object",
+      "description": "Intersection object.",
+      "identity": 12,
+      "properties": {
+        "bar": {
+          "type": "string"
+        },
+        "foo": {
+          "type": "string"
+        }
+      }
     }
   }
 }

@@ -197,7 +197,6 @@ describe('aurora query (insert secondary relations)', () => {
 
     const [statement, variables] = await prepareRelationInsert(testSchema, getSingleTestRelation(), {
       select: {
-        id: true,
         secondary_to_primary: {
           id: true,
           foo: true
@@ -222,7 +221,7 @@ describe('aurora query (insert secondary relations)', () => {
         // Relation
         `"R1" AS (INSERT INTO "ez4-test-relation" ("id", "foo", "primary_id") SELECT :1, :2, "R0"."id" FROM "R0" RETURNING "id", "foo") ` +
         // Select
-        `SELECT "id", ` +
+        `SELECT ` +
         `(SELECT COALESCE(json_agg(json_build_object('id', "id", 'foo', "foo")), '[]'::json) FROM "R1") AS "secondary_to_primary" ` +
         `FROM "R0"`
     );

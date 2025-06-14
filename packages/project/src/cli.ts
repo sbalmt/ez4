@@ -18,6 +18,7 @@ type CommandOptions = {
   environmentFile?: string;
   projectFile?: string;
   debugMode?: boolean;
+  forceMode?: boolean;
 };
 
 const checkMinVersion = () => {
@@ -76,6 +77,10 @@ const main = async () => {
         case '--debug':
           options.debugMode = true;
           break;
+
+        case '--force':
+          options.forceMode = true;
+          break;
       }
     }
 
@@ -94,6 +99,7 @@ const main = async () => {
     const project = await loadProject(options.projectFile);
 
     project.debugMode = options.debugMode ?? project.debugMode;
+    project.forceMode = options.forceMode ?? project.forceMode;
 
     if (options.command === CommandType.Deploy) {
       return deploy(project);
@@ -117,7 +123,8 @@ const main = async () => {
       'Options:',
       '  --environment, -e  Specify the environment file',
       '  --project, -p      Specify the project file',
-      '  --debug            Enable the debug mode',
+      '  --debug            Enable debug mode on deployed resources',
+      '  --force            Force deploy of everything',
       ''
     ];
 

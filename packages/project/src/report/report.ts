@@ -10,9 +10,8 @@ import { MissingEntryResourceError } from '../errors/resource.js';
 import { MissingProviderError } from '../errors/provider.js';
 import { formatReportChanges } from './format.js';
 
-export const reportResourceChanges = async (newState: EntryStates, oldState: EntryStates) => {
-  const event = { newState, oldState };
-  const steps = await triggerAllAsync('deploy:plan', (handler) => handler(event));
+export const reportResourceChanges = async (newState: EntryStates, oldState: EntryStates, force?: boolean) => {
+  const steps = await triggerAllAsync('deploy:plan', (handler) => handler({ newState, oldState, force }));
 
   if (!steps) {
     throw new MissingProviderError('deploy:plan');

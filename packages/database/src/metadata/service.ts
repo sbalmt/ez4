@@ -51,6 +51,9 @@ export const getDatabaseServices = (reflection: SourceMap) => {
           errorList.push(new InvalidServicePropertyError(service.name, member.name, fileName));
           break;
 
+        case 'client':
+          break;
+
         case 'engine':
           if ((service.engine = getDatabaseEngine(member.value, statement, reflection, errorList))) {
             properties.delete(member.name);

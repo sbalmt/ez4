@@ -48,6 +48,9 @@ export const getBucketServices = (reflection: SourceMap) => {
           errorList.push(new InvalidServicePropertyError(service.name, member.name, fileName));
           break;
 
+        case 'client':
+          break;
+
         case 'localPath':
         case 'globalName':
           service[member.name] = getPropertyString(member);

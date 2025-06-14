@@ -3,8 +3,8 @@ import type { SqlBuilderOptions, SqlBuilderReferences } from '../builder.js';
 import type { SqlSource } from './source.js';
 import type { SqlFilters } from './common.js';
 
-import { isAnyObject, isEmptyObject } from '@ez4/utils';
 import { isObjectSchema, SchemaType } from '@ez4/schema';
+import { isAnyObject, isEmptyObject } from '@ez4/utils';
 
 import { mergeSqlAlias, mergeSqlPath } from '../utils/merge.js';
 import { InvalidOperandError, MissingOperatorError, TooManyOperatorsError } from '../errors/operation.js';

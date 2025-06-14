@@ -3,8 +3,8 @@ import type { ResolverOptions, ResolverEvents } from './resolver.js';
 
 import { createProgram } from 'typescript';
 
+import { resolveReflectionMetadata, resolveReflectionFiles } from './resolver.js';
 import { createCompilerHost, createCompilerOptions } from './compiler.js';
-import { getReflectionMetadata, getReflectionFiles } from './resolver.js';
 
 export * from './types.js';
 export * from './compiler.js';
@@ -33,7 +33,7 @@ export type Options = {
   compilerEvents?: CompilerEvents;
 };
 
-export const reflectionFromFiles = (fileNames: string[], options?: Options) => {
+export const getReflectionFromFiles = (fileNames: string[], options?: Options) => {
   const compilerOptions = createCompilerOptions(options?.compilerOptions);
 
   const program = createProgram({
@@ -42,10 +42,10 @@ export const reflectionFromFiles = (fileNames: string[], options?: Options) => {
     rootNames: fileNames
   });
 
-  return getReflectionMetadata(program, options);
+  return resolveReflectionMetadata(program, options);
 };
 
-export const reflectionFiles = (fileNames: string[], options?: CompilerOptions) => {
+export const getReflectionFiles = (fileNames: string[], options?: CompilerOptions) => {
   const compilerOptions = createCompilerOptions(options);
 
   const program = createProgram({
@@ -58,5 +58,5 @@ export const reflectionFiles = (fileNames: string[], options?: CompilerOptions) 
     }
   });
 
-  return getReflectionFiles(program);
+  return resolveReflectionFiles(program);
 };

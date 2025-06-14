@@ -3,7 +3,6 @@ import type { TransactionMode } from './transaction.js';
 import type { InsensitiveMode } from './insensitive.js';
 import type { PaginationMode } from './pagination.js';
 import type { OrderMode } from './order.js';
-import type { TableMetadata } from './table.js';
 import type { Database } from './database.js';
 
 /**
@@ -33,14 +32,14 @@ export namespace EngineUtils {
   export type GetTransactionMode<T extends Database.Service> = T['engine'] extends { transactionMode: infer M } ? M : never;
 
   /**
-   * Get the insensitive mode from the given table service.
+   * Get the insensitive mode from the given database engine.
    */
-  export type GetInsensitiveMode<T extends TableMetadata> = T['engine'] extends { insensitiveMode: infer M } ? M : never;
+  export type GetInsensitiveMode<E extends DatabaseEngine> = E extends { insensitiveMode: infer M } ? M : never;
 
   /**
-   * Get the pagination mode from the given table metadata.
+   * Get the pagination mode from the given database engine.
    */
-  export type GetPaginationMode<T extends TableMetadata> = T['engine'] extends { paginationMode: infer M } ? M : never;
+  export type GetPaginationMode<E extends DatabaseEngine> = E extends { paginationMode: infer M } ? M : never;
 
   /**
    * Get the order mode from the given database service.

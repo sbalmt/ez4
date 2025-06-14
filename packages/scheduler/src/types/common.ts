@@ -15,7 +15,7 @@ export type CronTarget = {
   listener?: ServiceListener;
   handler: TargetHandler;
   variables?: LinkedVariables | null;
-  retention?: number;
+  logRetention?: number;
   timeout?: number;
   memory?: number;
 };

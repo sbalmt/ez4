@@ -6,16 +6,16 @@ import type { SqlSourceWithResults } from '../types/source.js';
 import type { SqlFilters, SqlOrder } from '../types/common.js';
 import type { SqlRawGenerator } from '../types/raw.js';
 
-import { isAnyNumber, isEmptyObject } from '@ez4/utils';
-import { Order } from '@ez4/database';
+import { isAnyNumber } from '@ez4/utils';
 
-import { MissingTableNameError, InvalidColumnOrderError, NoColumnsError } from '../errors/queries.js';
+import { MissingTableNameError, NoColumnsError } from '../errors/queries.js';
+import { getTableNames } from '../utils/table.js';
+import { escapeSqlName } from '../utils/escape.js';
 import { SqlSource } from '../types/source.js';
 import { SqlWhereClause } from '../types/where.js';
+import { SqlOrderClause } from '../types/order.js';
 import { SqlResults } from '../types/results.js';
 import { SqlJoin } from '../types/join.js';
-import { escapeSqlName } from '../utils/escape.js';
-import { getTableNames } from '../utils/table.js';
 
 export class SqlSelectStatement extends SqlSource implements SqlSourceWithResults {
   #state: {
@@ -25,7 +25,7 @@ export class SqlSelectStatement extends SqlSource implements SqlSourceWithResult
     results: SqlResults;
     joins: SqlJoin[];
     where?: SqlWhereClause;
-    ordering?: SqlOrder;
+    order?: SqlOrderClause;
     tables?: (string | SqlSource)[];
     alias?: string;
     skip?: number;
@@ -140,8 +140,14 @@ export class SqlSelectStatement extends SqlSource implements SqlSourceWithResult
     return this;
   }
 
-  order(ordering: SqlOrder | undefined) {
-    this.#state.ordering = ordering;
+  order(columns: SqlOrder | undefined) {
+    const { order } = this.#state;
+
+    if (!order) {
+      this.#state.order = new SqlOrderClause(this, columns);
+    } else if (columns) {
+      order.apply(columns);
+    }
 
     return this;
   }
@@ -159,7 +165,7 @@ export class SqlSelectStatement extends SqlSource implements SqlSourceWithResult
   }
 
   build(): [string, unknown[]] {
-    const { tables, alias, results, joins, where, ordering, skip, take } = this.#state;
+    const { tables, alias, results, joins, where, order, skip, take } = this.#state;
 
     if (!tables?.length) {
       throw new MissingTableNameError();
@@ -195,8 +201,8 @@ export class SqlSelectStatement extends SqlSource implements SqlSourceWithResult
       }
     }
 
-    if (ordering && !isEmptyObject(ordering)) {
-      statement.push(`ORDER BY ${getOrderColumns(ordering)}`);
+    if (order && !order.empty) {
+      statement.push(order.build());
     }
 
     if (isAnyNumber(skip)) {
@@ -210,24 +216,3 @@ export class SqlSelectStatement extends SqlSource implements SqlSourceWithResult
     return [statement.join(' '), variables];
   }
 }
-
-const getOrderColumns = (ordering: SqlOrder) => {
-  const orderColumns = [];
-
-  for (const column in ordering) {
-    switch (ordering[column]) {
-      case Order.Asc:
-        orderColumns.push(`${escapeSqlName(column)} ASC`);
-        break;
-
-      case Order.Desc:
-        orderColumns.push(`${escapeSqlName(column)} DESC`);
-        break;
-
-      default:
-        throw new InvalidColumnOrderError(column);
-    }
-  }
-
-  return orderColumns.join(', ');
-};

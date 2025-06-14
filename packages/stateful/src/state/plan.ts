@@ -37,13 +37,7 @@ export const planSteps = async <E extends EntryState>(
         break;
       }
 
-      const nextSteps = await planPendingChanges(
-        entries,
-        newEntrySet,
-        oldEntries,
-        handlers,
-        actionOrder++
-      );
+      const nextSteps = await planPendingChanges(entries, newEntrySet, oldEntries, handlers, actionOrder++);
 
       creationSteps.push(...nextSteps);
     }
@@ -89,10 +83,7 @@ const findPendingChanges = <E extends EntryState>(entryList: E[], visitSet: Set<
   });
 };
 
-const findPendingRemoval = <E extends EntryState>(
-  entryList: HydratedEntryState<E>[],
-  visitSet: Set<string>
-) => {
+const findPendingRemoval = <E extends EntryState>(entryList: HydratedEntryState<E>[], visitSet: Set<string>) => {
   return entryList.filter(({ entryId, dependents }) => {
     return !visitSet.has(entryId) && dependents.every((identifier) => visitSet.has(identifier));
   });
@@ -142,11 +133,7 @@ const planPendingChanges = async <E extends EntryState<T>, T extends string>(
   return stateList;
 };
 
-const planPendingRemoval = <E extends EntryState>(
-  entryList: HydratedEntryState<E>[],
-  visitSet: Set<string>,
-  order: number
-) => {
+const planPendingRemoval = <E extends EntryState>(entryList: HydratedEntryState<E>[], visitSet: Set<string>, order: number) => {
   return entryList.map<StepState>(({ entryId }) => {
     visitSet.add(entryId);
 
@@ -166,10 +153,7 @@ const planPendingRemoval = <E extends EntryState>(
  * @param sourceMap Source entry map.
  * @returns Returns a new entry map combining `target` and `source` entries.
  */
-const combineEntryMaps = <E extends EntryState>(
-  targetMap: EntryStates<E>,
-  sourceMap: EntryStates<E>
-) => {
+const combineEntryMaps = <E extends EntryState>(targetMap: EntryStates<E>, sourceMap: EntryStates<E>) => {
   const tmpEntries: EntryStates<E> = {};
   const entryIds = new Set([...Object.keys(targetMap), ...Object.keys(sourceMap)]);
 

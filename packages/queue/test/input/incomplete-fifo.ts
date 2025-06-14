@@ -6,8 +6,6 @@ type TestMessage = {
 };
 
 export declare class TestQueue extends Queue.Service<TestMessage> {
-  schema: TestMessage;
-
   // @ts-ignore Missing groupId field.
   fifoMode: {
     uniqueId: 'id';

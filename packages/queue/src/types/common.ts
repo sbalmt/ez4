@@ -9,6 +9,11 @@ export type QueueFifoMode = {
   groupId: string;
 };
 
+export type QueueDeadLetter = {
+  maxRetries: number;
+  retention?: number;
+};
+
 export type SubscriptionHandler = {
   name: string;
   file: string;
@@ -19,7 +24,8 @@ export type QueueSubscription = {
   listener?: ServiceListener;
   handler: SubscriptionHandler;
   variables?: LinkedVariables | null;
+  logRetention?: number;
   concurrency?: number;
-  retention?: number;
+  batch?: number;
   memory?: number;
 };

@@ -17,7 +17,7 @@ export const prepareTarget = (state: EntryStates, service: CronService, options:
     throw new RoleMissingError();
   }
 
-  const { handler, listener, retention, timeout, memory, variables } = service.target;
+  const { handler, listener, logRetention, timeout, memory, variables } = service.target;
 
   const internalName = getInternalName(service, handler.name);
 
@@ -30,7 +30,7 @@ export const prepareTarget = (state: EntryStates, service: CronService, options:
   const targetName = getTargetName(service, handler.name, options);
 
   const logGroupState = createLogGroup(state, {
-    retention: retention ?? Defaults.LogRetention,
+    retention: logRetention ?? Defaults.LogRetention,
     groupName: targetName,
     tags: options.tags,
   });

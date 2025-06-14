@@ -17,6 +17,12 @@ export type ProjectOptions = {
   debugMode?: boolean;
 
   /**
+   * Determines whether the deploy and destroy actions are forced.
+   * Default is: `false`
+   */
+  forceMode?: boolean;
+
+  /**
    * Determine whether the deployment must be confirmed before proceeding.
    * Default is: `true`
    */

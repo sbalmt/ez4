@@ -2,6 +2,8 @@ import type { Http } from '@ez4/gateway';
 
 import { randomUUID } from 'node:crypto';
 
+import { CustomError } from '../errors.js';
+
 /**
  * Post request example.
  */
@@ -38,7 +40,7 @@ export function postHandler(request: PostRequest): PostResponse {
 
   // Check error catcher.
   if (foo === 'error') {
-    throw new Error(`Post error.`);
+    throw new CustomError('Post error.');
   }
 
   return {

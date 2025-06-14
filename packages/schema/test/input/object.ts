@@ -82,4 +82,9 @@ export interface ObjectTestSchema {
     bar: number;
     baz: string;
   }>;
+
+  /**
+   * Intersection object.
+   */
+  intersection: { foo: number } & { foo: string; bar: string };
 }

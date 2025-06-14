@@ -3,7 +3,6 @@ import type { LinkedVariables } from '@ez4/project/library';
 import type { HttpPath } from '../types/common.js';
 
 import type {
-  HttpCors,
   HttpHeaders,
   HttpIdentity,
   HttpPathParameters,
@@ -13,21 +12,20 @@ import type {
   HttpAuthResponse,
   HttpRequest,
   HttpResponse,
+  HttpErrors,
   HttpProvider,
   HttpIncoming,
   HttpListener,
   HttpAuthorizer,
   HttpHandler,
-  HttpCache
+  HttpCache,
+  HttpCors
 } from './common.js';
 
 /**
  * Provide all contracts for a self-managed HTTP service.
  */
 export namespace Http {
-  export type Cors = HttpCors;
-  export type Cache = HttpCache;
-
   export type Headers = HttpHeaders;
   export type Identity = HttpIdentity;
 
@@ -41,7 +39,11 @@ export namespace Http {
   export type AuthResponse = HttpAuthResponse;
   export type Response = HttpResponse;
 
+  export type Errors = HttpErrors;
   export type Provider = HttpProvider;
+
+  export type Cache = HttpCache;
+  export type Cors = HttpCors;
 
   export type Incoming<T extends Request | AuthRequest> = HttpIncoming<T>;
 
@@ -76,6 +78,11 @@ export namespace Http {
     handler: Handler<T>;
 
     /**
+     * Map status codes and errors for all known exceptions.
+     */
+    httpErrors?: Errors;
+
+    /**
      * Variables associated to the route.
      */
     variables?: LinkedVariables;
@@ -106,9 +113,14 @@ export namespace Http {
     listener?: Listener<T>;
 
     /**
+     * Status codes for all known exceptions.
+     */
+    httpErrors?: Errors;
+
+    /**
      * Default log retention (in days) for the handlers.
      */
-    retention?: number;
+    logRetention?: number;
 
     /**
      * Default execution time (in seconds) for handlers and routes.

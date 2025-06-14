@@ -5,7 +5,7 @@
     "extras": {},
     "events": {
       "path": "uploads/*",
-      "retention": 14,
+      "logRetention": 14,
       "memory": 128,
       "timeout": 5,
       "handler": {

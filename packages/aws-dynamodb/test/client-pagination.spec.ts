@@ -29,7 +29,7 @@ declare class Test extends Database.Service {
   ];
 }
 
-describe.only('dynamodb client (1mb pagination)', () => {
+describe('dynamodb client (1mb pagination)', () => {
   let lastState: EntryStates | undefined;
   let dbClient: DbClient<Test>;
   let tableId: string | undefined;

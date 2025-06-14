@@ -25,7 +25,7 @@ export type NotificationLambdaSubscription = {
   listener?: ServiceListener;
   handler: SubscriptionHandler;
   variables?: LinkedVariables | null;
-  retention?: number;
+  logRetention?: number;
   timeout?: number;
   memory?: number;
 };

@@ -90,8 +90,8 @@ const getTypeFromMembers = (
         break;
 
       case 'memory':
+      case 'logRetention':
       case 'timeout':
-      case 'retention':
         event[member.name] = getPropertyNumber(member);
         break;
 

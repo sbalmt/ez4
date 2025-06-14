@@ -85,19 +85,19 @@ const updateResource = async (candidate: MappingState, current: MappingState, co
   const newFunctionName = getFunctionName(MappingServiceName, 'mapping', context);
   const oldFunctionName = current.result?.functionName ?? result.functionName;
 
-  await checkGeneralUpdates(
-    result.eventId,
-    {
-      ...candidate.parameters,
-      functionName: newFunctionName,
-      sourceArn
-    },
-    {
-      ...current.parameters,
-      functionName: oldFunctionName,
-      sourceArn
-    }
-  );
+  const newRequest = {
+    ...candidate.parameters,
+    functionName: newFunctionName,
+    sourceArn
+  };
+
+  const oldRequest = {
+    ...current.parameters,
+    functionName: oldFunctionName,
+    sourceArn
+  };
+
+  await checkGeneralUpdates(result.eventId, newRequest, oldRequest);
 
   return {
     ...result,

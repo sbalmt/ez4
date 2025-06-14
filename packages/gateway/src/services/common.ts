@@ -206,3 +206,10 @@ export type HttpHandler<T extends HttpRequest> = (
   request: HttpIncoming<T> | T,
   context: Service.Context<Http.Service | HttpProvider>
 ) => Promise<HttpResponse> | HttpResponse;
+
+/**
+ * HTTP errors.
+ */
+export type HttpErrors = {
+  [code: number]: Error[];
+};

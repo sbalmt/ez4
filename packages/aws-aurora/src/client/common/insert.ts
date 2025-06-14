@@ -343,25 +343,28 @@ const getInsertSelectFields = <T extends InternalTableMetadata>(
     }
 
     const fieldRelation = relations[fieldKey];
-
     const fieldPath = `${path}.${fieldKey}`;
 
     if (fieldRelation) {
       const { relationQueries, sourceTable, sourceIndex, targetColumn, sourceColumn, sourceSchema } = fieldRelation;
 
       const relationFields = fieldValue === true ? getDefaultSelectFields(sourceSchema) : fieldValue;
-
       const relationQuery = sql.select(sourceSchema);
 
       // Connected relations
       if (!relationQueries.length) {
         const isUniqueIndex = sourceIndex === Index.Unique;
 
-        const relationFilter = isUniqueIndex
-          ? { [sourceColumn]: main?.reference(targetColumn) }
-          : { [targetColumn]: main?.reference(sourceColumn) };
+        const filterTarget = isUniqueIndex ? targetColumn : sourceColumn;
+        const filterSource = isUniqueIndex ? sourceColumn : targetColumn;
 
-        relationQuery.from(sourceTable).where(relationFilter);
+        relationQuery.from(sourceTable).where({
+          [filterTarget]: main?.reference(filterSource)
+        });
+
+        if (main?.results && !main.results.has(filterSource)) {
+          main.results.column(filterSource);
+        }
 
         const relationRecord = getSelectFields(sql, relationFields, null, sourceSchema, relations, relationQuery, fieldPath, true);
 

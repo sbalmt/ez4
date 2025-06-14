@@ -60,7 +60,7 @@ export const prepareSelectQuery = <T extends InternalTableMetadata, S extends Qu
 export const getSelectFields = <T extends InternalTableMetadata, S extends AnyObject>(
   sql: SqlBuilder,
   fields: Query.StrictSelectInput<S, T>,
-  include: Query.StrictIncludeInput<T> | undefined | null,
+  include: Query.StrictIncludeInput<S, T> | undefined | null,
   schema: ObjectSchema,
   relations: RepositoryRelationsWithSchema,
   source: SqlSource,
@@ -102,8 +102,6 @@ export const getSelectFields = <T extends InternalTableMetadata, S extends AnyOb
         });
 
       if (relationIncludes) {
-        relationQuery.order(relationIncludes.order);
-
         if ('skip' in relationIncludes) {
           relationQuery.skip(relationIncludes.skip);
         }
@@ -118,7 +116,9 @@ export const getSelectFields = <T extends InternalTableMetadata, S extends AnyOb
       if (sourceIndex === Index.Primary || sourceIndex === Index.Unique) {
         relationQuery.objectColumn(record);
       } else {
-        relationQuery.arrayColumn(record);
+        relationQuery.arrayColumn(record, {
+          order: relationIncludes?.order
+        });
       }
 
       output[fieldKey] = relationQuery;

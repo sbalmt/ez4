@@ -25,6 +25,7 @@ declare const __EZ4_PARAMETERS_SCHEMA: ObjectSchema | null;
 declare const __EZ4_QUERY_SCHEMA: ObjectSchema | null;
 declare const __EZ4_IDENTITY_SCHEMA: ObjectSchema | null;
 declare const __EZ4_HEADERS_SCHEMA: ObjectSchema | null;
+declare const __EZ4_ERRORS_MAP: Record<string, number> | null;
 declare const __EZ4_CONTEXT: object;
 
 declare function handle(request: Http.Incoming<Http.Request>, context: object): Promise<Http.Response>;
@@ -61,11 +62,15 @@ export async function apiEntryPoint(event: RequestEvent, context: Context): Prom
 
     return getJsonResponse(status, body, headers);
   } catch (error) {
+    await onError(error, lastRequest ?? request);
+
     if (error instanceof HttpError) {
       return getErrorResponse(error);
     }
 
-    await onError(error, lastRequest ?? request);
+    if (error instanceof Error) {
+      return getMappedErrorResponse(error) ?? getErrorResponse();
+    }
 
     return getErrorResponse();
   } finally {
@@ -141,6 +146,40 @@ const getResponseBody = (body: Http.JsonBody) => {
   return undefined;
 };
 
+const getErrorResponse = (error?: HttpError) => {
+  const { status, body } = getJsonError(error ?? new HttpInternalServerError());
+
+  return {
+    statusCode: status,
+    body: JSON.stringify(body),
+    headers: {
+      ['content-type']: 'application/json'
+    }
+  };
+};
+
+const getMappedErrorResponse = (error: Error) => {
+  if (!__EZ4_ERRORS_MAP) {
+    return undefined;
+  }
+
+  const errorType = Object.getPrototypeOf(error);
+  const errorClass = errorType?.constructor;
+  const errorName = errorClass?.name;
+
+  const statusCode = __EZ4_ERRORS_MAP[errorName];
+
+  if (!statusCode) {
+    return undefined;
+  }
+
+  return getErrorResponse({
+    status: statusCode,
+    message: error.message,
+    name: errorName
+  });
+};
+
 const getJsonResponse = (status: number, body?: Http.JsonBody, headers?: Http.Headers) => {
   return {
     statusCode: status,
@@ -152,18 +191,6 @@ const getJsonResponse = (status: number, body?: Http.JsonBody, headers?: Http.He
       ...(body && {
         ['content-type']: 'application/json'
       })
-    }
-  };
-};
-
-const getErrorResponse = (error?: HttpError) => {
-  const { status, body } = getJsonError(error ?? new HttpInternalServerError());
-
-  return {
-    statusCode: status,
-    body: JSON.stringify(body),
-    headers: {
-      ['content-type']: 'application/json'
     }
   };
 };
