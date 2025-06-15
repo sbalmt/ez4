@@ -49,8 +49,8 @@ export const prepareInsertQuery = async <T extends InternalTableMetadata, S exte
 
   const insertQuery = sql
     .insert(schema)
+    .select(...preQueries.map((query) => query.reference()))
     .record(insertRecord)
-    .select(...preQueries)
     .into(table)
     .returning();
 
@@ -63,7 +63,7 @@ export const prepareInsertQuery = async <T extends InternalTableMetadata, S exte
 
   if (query.select) {
     const allRelations = { ...preQueriesMap, ...postQueriesMap };
-    const selectQuery = sql.select(schema).from(insertQuery);
+    const selectQuery = sql.select(schema).from(insertQuery.reference());
 
     const selectRecord = getInsertSelectFields(sql, query.select, schema, allRelations, insertQuery, selectQuery, table);
 
@@ -298,8 +298,8 @@ const preparePostInsertRelations = (
 
       const relationQuery = sql
         .insert(sourceSchema)
+        .select(source.reference())
         .into(sourceTable)
-        .select(source)
         .record({
           ...currentFieldValue,
           [sourceColumn]: source.reference(targetColumn)
@@ -375,7 +375,7 @@ const getInsertSelectFields = <T extends InternalTableMetadata>(
         }
       } else {
         // Inserted relations
-        relationQuery.from(...relationQueries);
+        relationQuery.from(...relationQueries.map((query) => query.reference()));
 
         for (const relationFieldKey in relationFields) {
           for (const relationQuery of relationQueries) {
