@@ -8,13 +8,14 @@ import type { SqlRawGenerator } from '../types/raw.js';
 
 import { isAnyNumber } from '@ez4/utils';
 
-import { MissingTableNameError, NoColumnsError } from '../errors/queries.js';
-import { getTableNames } from '../utils/table.js';
 import { escapeSqlName } from '../utils/escape.js';
-import { SqlSource } from '../types/source.js';
+import { getTableExpressions } from '../utils/table.js';
+import { MissingTableNameError, NoColumnsError } from '../errors/queries.js';
+import { SqlTableReference } from '../types/reference.js';
 import { SqlWhereClause } from '../types/where.js';
 import { SqlOrderClause } from '../types/order.js';
 import { SqlResults } from '../types/results.js';
+import { SqlSource } from '../types/source.js';
 import { SqlJoin } from '../types/join.js';
 
 export class SqlSelectStatement extends SqlSource implements SqlSourceWithResults {
@@ -26,7 +27,7 @@ export class SqlSelectStatement extends SqlSource implements SqlSourceWithResult
     joins: SqlJoin[];
     where?: SqlWhereClause;
     order?: SqlOrderClause;
-    tables?: (string | SqlSource)[];
+    tables?: (string | SqlTableReference | SqlSource)[];
     alias?: string;
     skip?: number;
     take?: number;
@@ -106,7 +107,7 @@ export class SqlSelectStatement extends SqlSource implements SqlSourceWithResult
     return this;
   }
 
-  from(...tables: (string | SqlSource)[]) {
+  from(...tables: (string | SqlTableReference | SqlSource)[]) {
     this.#state.tables = tables;
 
     return this;
@@ -177,7 +178,11 @@ export class SqlSelectStatement extends SqlSource implements SqlSourceWithResult
       throw new NoColumnsError();
     }
 
-    const statement = [`SELECT ${columns} FROM ${getTableNames(tables).join(', ')}`];
+    const [tableExpressions, tableVariables] = getTableExpressions(tables);
+
+    const statement = [`SELECT ${columns} FROM ${tableExpressions.join(', ')}`];
+
+    variables.push(...tableVariables);
 
     if (alias) {
       statement.push(`AS ${escapeSqlName(alias)}`);

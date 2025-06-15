@@ -6,9 +6,10 @@ import { isObjectSchema, type ObjectSchema } from '@ez4/schema';
 
 import { isPlainObject } from '@ez4/utils';
 
-import { MissingTableNameError, MissingRecordError, EmptyRecordError } from '../errors/queries.js';
+import { getTableExpressions } from '../utils/table.js';
 import { SqlRaw, SqlRawOperation } from '../types/raw.js';
-import { SqlReference } from '../types/reference.js';
+import { MissingTableNameError, MissingRecordError, EmptyRecordError } from '../errors/queries.js';
+import { SqlColumnReference, SqlTableReference } from '../types/reference.js';
 import { SqlReturningClause } from '../types/returning.js';
 import { SqlWhereClause } from '../types/where.js';
 import { SqlSource } from '../types/source.js';
@@ -29,9 +30,9 @@ export class SqlUpdateStatement extends SqlSource {
     options: SqlBuilderOptions;
     references: SqlBuilderReferences;
     returning?: SqlReturningClause;
+    source?: SqlTableReference | SqlSource;
     schema?: ObjectSchema;
     record?: SqlRecord;
-    source?: SqlSource;
     where?: SqlWhereClause;
     table?: string;
     alias?: string;
@@ -77,7 +78,7 @@ export class SqlUpdateStatement extends SqlSource {
     return this;
   }
 
-  from(table: SqlSource | undefined) {
+  from(table: SqlTableReference | SqlSource | undefined) {
     this.#state.source = table;
 
     return this;
@@ -149,8 +150,11 @@ export class SqlUpdateStatement extends SqlSource {
 
     statement.push(`SET ${columns.join(', ')}`);
 
-    if (source?.alias) {
-      statement.push(`FROM ${escapeSqlName(source.alias)}`);
+    if (source) {
+      const [tableExpressions, tableVariables] = getTableExpressions([source]);
+
+      statement.push(`FROM ${tableExpressions[0]}`);
+      variables.push(...tableVariables);
     }
 
     if (where && !where.empty) {
@@ -189,7 +193,7 @@ const getUpdateColumns = (source: SqlSource, record: SqlRecord, schema: ObjectSc
 
     const columnName = mergeSqlPath(field, parent);
 
-    if (value instanceof SqlReference) {
+    if (value instanceof SqlColumnReference) {
       columns.push(`${columnName} = ${value.build()}`);
       continue;
     }

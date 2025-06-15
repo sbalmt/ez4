@@ -9,7 +9,7 @@ import { isAnyObject, isEmptyObject } from '@ez4/utils';
 import { mergeSqlAlias, mergeSqlPath } from '../utils/merge.js';
 import { InvalidOperandError, MissingOperatorError, TooManyOperatorsError } from '../errors/operation.js';
 import { SqlSelectStatement } from '../queries/select.js';
-import { SqlReference } from './reference.js';
+import { SqlColumnReference } from './reference.js';
 import { SqlOperator } from './common.js';
 import { SqlRawValue } from './raw.js';
 
@@ -149,7 +149,7 @@ const getFieldOperation = (
 
       const columnSchema = schema?.properties[field];
 
-      if (value instanceof SqlRawValue || value instanceof SqlReference || !isAnyObject(value)) {
+      if (value instanceof SqlRawValue || value instanceof SqlColumnReference || !isAnyObject(value)) {
         return getEqualOperation(columnPath, columnSchema, value, context);
       }
 
@@ -375,7 +375,7 @@ const getContainsOperation = (column: string, schema: AnySchema | undefined, ope
 const getOperandValue = (schema: AnySchema | undefined, operand: unknown, context: SqlConditionsContext, encode?: boolean) => {
   const { source, variables, references, options, parent } = context;
 
-  if (operand instanceof SqlReference) {
+  if (operand instanceof SqlColumnReference) {
     return operand.build();
   }
 

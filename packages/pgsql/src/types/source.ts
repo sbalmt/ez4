@@ -2,7 +2,9 @@ import type { ObjectSchema } from '@ez4/schema';
 import type { SqlReferenceGenerator } from './reference.js';
 import type { SqlResults } from './results.js';
 
-import { SqlReference } from './reference.js';
+import { SqlColumnReference, SqlTableReference } from './reference.js';
+
+type ReferenceReturnType<T> = undefined extends T ? SqlTableReference : SqlColumnReference;
 
 export type SqlSourceWithResults = SqlSource & {
   readonly results: SqlResults;
@@ -19,7 +21,11 @@ export abstract class SqlSource {
 
   abstract build(): [string, unknown[]];
 
-  reference(column: string | SqlReferenceGenerator) {
-    return new SqlReference(this, column);
+  reference<T extends string | SqlReferenceGenerator | undefined>(column?: T): ReferenceReturnType<T> {
+    if (column) {
+      return new SqlColumnReference(this, column) as ReferenceReturnType<T>;
+    }
+
+    return new SqlTableReference(this) as ReferenceReturnType<T>;
   }
 }

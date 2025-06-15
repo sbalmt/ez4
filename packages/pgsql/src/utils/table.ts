@@ -1,22 +1,28 @@
+import { SqlTableReference } from '../types/reference.js';
 import { SqlSource } from '../types/source.js';
-import { MissingTableAliasError } from '../errors/queries.js';
 import { escapeSqlName } from './escape.js';
 
-export const getTableNames = (tables: (SqlSource | string)[]) => {
-  const tableNames = [];
+export const getTableExpressions = (tables: (string | SqlTableReference | SqlSource)[]) => {
+  const tableExpressions = [];
+  const tableVariables = [];
 
   for (const table of tables) {
-    if (table instanceof SqlSource) {
-      if (!table.alias) {
-        throw new MissingTableAliasError();
-      }
-
-      tableNames.push(escapeSqlName(table.alias));
+    if (table instanceof SqlTableReference) {
+      tableExpressions.push(table.build());
       continue;
     }
 
-    tableNames.push(escapeSqlName(table));
+    if (table instanceof SqlSource) {
+      const [statement, variables] = table.build();
+
+      tableVariables.push(...variables);
+      tableExpressions.push(`(${statement})`);
+
+      continue;
+    }
+
+    tableExpressions.push(escapeSqlName(table));
   }
 
-  return tableNames;
+  return [tableExpressions, tableVariables];
 };

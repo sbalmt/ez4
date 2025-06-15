@@ -38,7 +38,7 @@ describe('sql with tests', () => {
     const query2 = sql
       .insert()
       .into('table2')
-      .select(query1)
+      .select(query1.reference())
       .record({
         foo: query1.reference('foo'),
         bar: 123
@@ -57,7 +57,7 @@ describe('sql with tests', () => {
     const query2 = sql
       .insert()
       .into('table2')
-      .select(query1)
+      .select(query1.reference())
       .record({
         bar: query1.reference('foo'),
         baz: 'def'
@@ -80,13 +80,16 @@ describe('sql with tests', () => {
     const query2 = sql
       .insert()
       .into('table2')
-      .select(query1)
+      .select(query1.reference())
       .record({
         bar: query1.reference('foo'),
         baz: 'def'
       });
 
-    const query3 = sql.select().from(query1, query2).columns(query1.reference('foo'), query2.reference('bar'), 'baz');
+    const query3 = sql
+      .select()
+      .from(query1.reference(), query2.reference())
+      .columns(query1.reference('foo'), query2.reference('bar'), 'baz');
 
     const [statement, variables] = sql.with([query1, query2, query3]).build();
 
@@ -107,7 +110,7 @@ describe('sql with tests', () => {
     const query2 = sql
       .update()
       .only('table2')
-      .from(query1)
+      .from(query1.reference())
       .record({
         foo: query1.reference('foo'),
         bar: 123
@@ -128,7 +131,7 @@ describe('sql with tests', () => {
     const query2 = sql
       .update()
       .only('table2')
-      .from(query1)
+      .from(query1.reference())
       .record({
         bar: query1.reference('foo'),
         baz: 'def'
@@ -154,14 +157,17 @@ describe('sql with tests', () => {
     const query2 = sql
       .update()
       .only('table2')
-      .from(query1)
+      .from(query1.reference())
       .returning(['bar', 'baz'])
       .record({
         bar: query1.reference('foo'),
         baz: 'def'
       });
 
-    const query3 = sql.select().from(query1, query2).columns(query1.reference('foo'), query2.reference('bar'), 'baz');
+    const query3 = sql
+      .select()
+      .from(query1.reference(), query2.reference())
+      .columns(query1.reference('foo'), query2.reference('bar'), 'baz');
 
     const [statement, variables] = sql.with([query1, query2, query3]).build();
 

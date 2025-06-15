@@ -10,17 +10,17 @@ import { SqlSelectStatement } from '../queries/select.js';
 import { escapeSqlName } from '../utils/escape.js';
 import { mergeSqlAlias } from '../utils/merge.js';
 import { SqlJsonColumn } from '../types/json.js';
-import { SqlReference } from './reference.js';
+import { SqlColumnReference } from './reference.js';
 import { SqlRawValue } from './raw.js';
 
 export type SqlObjectColumn = Omit<SqlJsonColumnOptions, 'aggregate' | 'order'>;
 
 export type SqlArrayColumn = Omit<SqlJsonColumnOptions, 'aggregate'>;
 
-export type SqlResultColumn = SqlColumn | SqlRawValue | SqlReference | SqlSelectStatement;
+export type SqlResultColumn = SqlColumn | SqlRawValue | SqlColumnReference | SqlSelectStatement;
 
 export type SqlResultRecord = {
-  [column: string]: undefined | string | boolean | SqlRawValue | SqlReference | SqlSelectStatement | SqlJsonColumnSchema;
+  [column: string]: undefined | string | boolean | SqlRawValue | SqlColumnReference | SqlSelectStatement | SqlJsonColumnSchema;
 };
 
 type SqlResultsContext = {
@@ -125,7 +125,7 @@ const getRecordColumns = (record: SqlResultRecord, source: SqlSource) => {
       columns.push(column);
     } else if (typeof value === 'string') {
       columns.push([column, value]);
-    } else if (value instanceof SqlRawValue || value instanceof SqlReference) {
+    } else if (value instanceof SqlRawValue || value instanceof SqlColumnReference) {
       columns.push(value);
     } else if (value instanceof SqlSelectStatement) {
       columns.push(value.as(column));
@@ -145,7 +145,7 @@ const getResultColumns = (columns: (SqlResultColumn | SqlJsonColumn)[], context:
       return column.build(source);
     }
 
-    if (column instanceof SqlReference) {
+    if (column instanceof SqlColumnReference) {
       return column.build();
     }
 

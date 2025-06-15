@@ -5,7 +5,7 @@ import { isAnyObject } from '@ez4/utils';
 import { mergeSqlAlias, mergeSqlPath } from '../utils/merge.js';
 import { escapeSqlName, escapeSqlText } from '../utils/escape.js';
 import { SqlSelectStatement } from '../queries/select.js';
-import { SqlReference } from './reference.js';
+import { SqlColumnReference } from './reference.js';
 import { SqlOrderClause } from './order.js';
 import { SqlRawValue } from './raw.js';
 import { SqlOrder } from './common.js';
@@ -17,7 +17,7 @@ type SqlJsonColumnContext = {
 };
 
 export type SqlJsonColumnSchema = {
-  [field: string]: undefined | boolean | SqlRawValue | SqlReference | SqlSelectStatement | SqlJsonColumnSchema;
+  [field: string]: undefined | boolean | SqlRawValue | SqlColumnReference | SqlSelectStatement | SqlJsonColumnSchema;
 };
 
 export type SqlJsonColumnOptions = {
@@ -86,7 +86,7 @@ const getJsonObject = (schema: SqlJsonColumnSchema, context: SqlJsonColumnContex
 
     const columnName = mergeSqlPath(field, parent);
 
-    if (value instanceof SqlRawValue || value instanceof SqlReference) {
+    if (value instanceof SqlRawValue || value instanceof SqlColumnReference) {
       fields.push(`${escapeSqlText(field)}, ${value.build()}`);
       continue;
     }
