@@ -13,10 +13,17 @@ export const getTableExpressions = (tables: (string | SqlTableReference | SqlSou
     }
 
     if (table instanceof SqlSource) {
-      const [statement, variables] = table.build();
+      const originalAlias = table.alias;
+
+      const [statement, variables] = table.as('S').build();
 
       tableVariables.push(...variables);
-      tableExpressions.push(`(${statement})`);
+
+      if (originalAlias) {
+        tableExpressions.push(`(${statement}) AS ${escapeSqlName(originalAlias)}`);
+      } else {
+        tableExpressions.push(`(${statement})`);
+      }
 
       continue;
     }

@@ -127,7 +127,7 @@ describe('sql select tests', () => {
   });
 
   it('assert :: select with inner select columns', async () => {
-    const inner = sql.select().columns('bar').from('inner').as('alias_bar').where({ baz: 'abc' }).take(1).order({
+    const inner = sql.select().columns('bar').from('inner').as('alias').where({ baz: 'abc' }).take(1).order({
       bar: Order.Desc
     });
 
@@ -141,7 +141,7 @@ describe('sql select tests', () => {
 
     equal(
       statement,
-      'SELECT "foo", (SELECT "T"."bar" FROM "inner" AS "T" WHERE "T"."baz" = :0 ORDER BY "T"."bar" DESC LIMIT 1) AS "alias_bar" FROM "table"'
+      'SELECT "foo", (SELECT "T"."bar" FROM "inner" AS "T" WHERE "T"."baz" = :0 ORDER BY "T"."bar" DESC LIMIT 1) AS "alias" FROM "table"'
     );
   });
 
@@ -220,6 +220,24 @@ describe('sql select tests', () => {
     deepEqual(variables, ['abc']);
 
     equal(statement, 'SELECT * FROM "table" WHERE "foo" = :0');
+  });
+
+  it('assert :: select with inner query', async () => {
+    const inner = sql.select().columns('foo', 'bar').from('inner').as('alias').where({ baz: 'abc' }).take(1).order({
+      qux: Order.Desc
+    });
+
+    const query = sql.select().columns('foo', inner.reference('bar')).from(inner);
+
+    const [statement, variables] = query.build();
+
+    deepEqual(variables, ['abc']);
+
+    equal(
+      statement,
+      `SELECT "foo", "alias"."bar" FROM ` +
+        `(SELECT "S"."foo", "S"."bar" FROM "inner" AS "S" WHERE "S"."baz" = :0 ORDER BY "S"."qux" DESC LIMIT 1) AS "alias"`
+    );
   });
 
   it('assert :: select with inner join', async () => {
