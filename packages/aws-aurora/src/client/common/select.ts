@@ -135,7 +135,7 @@ export const getSelectFields = <T extends InternalTableMetadata, S extends AnyOb
         relationQuery.take(relationIncludes.take);
       }
 
-      const wrapQuery = sql.select().from(relationQuery.as('S'));
+      const wrapQuery = sql.select().from(relationQuery);
 
       wrapQuery.arrayColumn(relationFields, {
         order: relationIncludes?.order
