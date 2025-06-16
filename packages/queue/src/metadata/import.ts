@@ -5,7 +5,7 @@ import type { QueueImport } from '../types/import.js';
 import {
   DuplicateServiceError,
   InvalidServicePropertyError,
-  isExternalStatement,
+  isExternalDeclaration,
   getLinkedServiceList,
   getLinkedVariableList,
   getModelMembers,
@@ -29,24 +29,24 @@ export const getQueueImports = (reflection: SourceMap) => {
   const errorList: Error[] = [];
 
   for (const identity in reflection) {
-    const statement = reflection[identity];
+    const declaration = reflection[identity];
 
-    if (!isQueueImport(statement) || isExternalStatement(statement)) {
+    if (!isQueueImport(declaration) || isExternalDeclaration(declaration)) {
       continue;
     }
 
     const service: Incomplete<QueueImport> = { type: ImportType };
     const properties = new Set(['project', 'reference', 'schema']);
 
-    const fileName = statement.file;
+    const fileName = declaration.file;
 
-    service.name = statement.name;
+    service.name = declaration.name;
 
-    if (statement.description) {
-      service.description = statement.description;
+    if (declaration.description) {
+      service.description = declaration.description;
     }
 
-    for (const member of getModelMembers(statement, true)) {
+    for (const member of getModelMembers(declaration, true)) {
       if (!isModelProperty(member)) {
         continue;
       }
@@ -72,7 +72,7 @@ export const getQueueImports = (reflection: SourceMap) => {
           break;
 
         case 'schema':
-          if (member.inherited && (service.schema = getQueueMessage(member.value, statement, reflection, errorList))) {
+          if (member.inherited && (service.schema = getQueueMessage(member.value, declaration, reflection, errorList))) {
             properties.delete(member.name);
           }
           break;
@@ -82,14 +82,14 @@ export const getQueueImports = (reflection: SourceMap) => {
             const reference = getReferenceModel(member.value, reflection);
 
             if (reference && !isTypeUnion(reference)) {
-              service.fifoMode = getQueueFifoMode(reference, statement, reflection, errorList);
+              service.fifoMode = getQueueFifoMode(reference, declaration, reflection, errorList);
             }
           }
           break;
 
         case 'subscriptions':
           if (!member.inherited) {
-            service.subscriptions = getAllSubscription(member, statement, reflection, errorList);
+            service.subscriptions = getAllSubscription(member, declaration, reflection, errorList);
           } else {
             service.subscriptions = [];
           }
@@ -120,12 +120,12 @@ export const getQueueImports = (reflection: SourceMap) => {
       continue;
     }
 
-    if (queueImports[statement.name]) {
-      errorList.push(new DuplicateServiceError(statement.name, fileName));
+    if (queueImports[declaration.name]) {
+      errorList.push(new DuplicateServiceError(declaration.name, fileName));
       continue;
     }
 
-    queueImports[statement.name] = service;
+    queueImports[declaration.name] = service;
   }
 
   return {

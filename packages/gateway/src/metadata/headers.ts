@@ -14,10 +14,10 @@ export const getHttpHeaders = (type: AllType, parent: TypeParent, reflection: So
     return getTypeHeaders(type, parent, reflection, errorList);
   }
 
-  const statement = getReferenceType(type, reflection);
+  const declaration = getReferenceType(type, reflection);
 
-  if (statement) {
-    return getTypeHeaders(statement, parent, reflection, errorList);
+  if (declaration) {
+    return getTypeHeaders(declaration, parent, reflection, errorList);
   }
 
   return null;

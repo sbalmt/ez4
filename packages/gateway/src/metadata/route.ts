@@ -51,10 +51,10 @@ const getTypeFromRoute = (type: AllType, parent: TypeModel, reflection: SourceMa
     return getRouteType(type, parent, reflection, errorList);
   }
 
-  const statement = getReferenceType(type, reflection);
+  const declaration = getReferenceType(type, reflection);
 
-  if (statement) {
-    return getRouteType(statement, parent, reflection, errorList);
+  if (declaration) {
+    return getRouteType(declaration, parent, reflection, errorList);
   }
 
   return null;

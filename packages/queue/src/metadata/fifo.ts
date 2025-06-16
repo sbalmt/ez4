@@ -22,10 +22,10 @@ export const getQueueFifoMode = (type: AllType, parent: TypeModel, reflection: S
     return getTypeFifoMode(type, parent, errorList);
   }
 
-  const statement = getReferenceType(type, reflection);
+  const declaration = getReferenceType(type, reflection);
 
-  if (statement) {
-    return getTypeFifoMode(statement, parent, errorList);
+  if (declaration) {
+    return getTypeFifoMode(declaration, parent, errorList);
   }
 
   return null;

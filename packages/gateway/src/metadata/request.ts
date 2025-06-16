@@ -37,10 +37,10 @@ const getHttpRequest = (type: AllType, parent: TypeModel, reflection: SourceMap,
     return getTypeRequest(type, parent, reflection, errorList, baseType);
   }
 
-  const statement = getReferenceType(type, reflection);
+  const declaration = getReferenceType(type, reflection);
 
-  if (statement) {
-    return getTypeRequest(statement, parent, reflection, errorList, baseType);
+  if (declaration) {
+    return getTypeRequest(declaration, parent, reflection, errorList, baseType);
   }
 
   return null;

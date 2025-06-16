@@ -41,10 +41,10 @@ const getHttpBody = <T>(type: AllType, reflection: SourceMap, resolver: (type: A
     return resolver(type);
   }
 
-  const statement = getReferenceType(type, reflection);
+  const declaration = getReferenceType(type, reflection);
 
-  if (statement) {
-    return resolver(statement);
+  if (declaration) {
+    return resolver(declaration);
   }
 
   return null;

@@ -13,10 +13,10 @@ export const getHttpErrors = (type: AllType, parent: TypeModel, reflection: Sour
     return getTypeErrors(type, parent, reflection, errorList);
   }
 
-  const statement = getReferenceType(type, reflection);
+  const declaration = getReferenceType(type, reflection);
 
-  if (statement) {
-    return getTypeErrors(statement, parent, reflection, errorList);
+  if (declaration) {
+    return getTypeErrors(declaration, parent, reflection, errorList);
   }
 
   return null;
@@ -74,14 +74,14 @@ export const getErrorClasses = (member: ModelProperty, errorCode: number, parent
       continue;
     }
 
-    const statement = getReferenceType(errorType, reflection);
+    const declaration = getReferenceType(errorType, reflection);
 
-    if (!statement || !isTypeClass(statement)) {
+    if (!declaration || !isTypeClass(declaration)) {
       errorList.push(new InvalidRouteErrorTypeError(parent.file));
       continue;
     }
 
-    errorMap[statement.name] = errorCode;
+    errorMap[declaration.name] = errorCode;
   }
 
   return errorMap;

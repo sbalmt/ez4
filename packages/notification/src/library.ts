@@ -1,5 +1,5 @@
 export * from './triggers/register.js';
-export * from './triggers/link.js';
+export * from './triggers/service.js';
 
 export * from './errors/service.js';
 export * from './errors/subscription.js';

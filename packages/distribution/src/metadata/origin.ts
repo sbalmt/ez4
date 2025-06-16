@@ -42,10 +42,10 @@ export const getCdnOrigin = (type: AllType, parent: TypeModel, reflection: Sourc
     return getTypeOrigin(type, parent, reflection, errorList);
   }
 
-  const statement = getReferenceType(type, reflection);
+  const declaration = getReferenceType(type, reflection);
 
-  if (statement) {
-    return getTypeOrigin(statement, parent, reflection, errorList);
+  if (declaration) {
+    return getTypeOrigin(declaration, parent, reflection, errorList);
   }
 
   return null;

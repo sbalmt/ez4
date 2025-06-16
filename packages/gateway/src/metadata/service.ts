@@ -4,7 +4,7 @@ import type { HttpService } from '../types/service.js';
 
 import {
   DuplicateServiceError,
-  isExternalStatement,
+  isExternalDeclaration,
   getLinkedServiceList,
   getLinkedVariableList,
   getModelMembers,
@@ -27,24 +27,24 @@ export const getHttpServices = (reflection: SourceMap) => {
   const errorList: Error[] = [];
 
   for (const identity in reflection) {
-    const statement = reflection[identity];
+    const declaration = reflection[identity];
 
-    if (!isHttpService(statement) || isExternalStatement(statement)) {
+    if (!isHttpService(declaration) || isExternalDeclaration(declaration)) {
       continue;
     }
 
     const service: Incomplete<HttpService> = { type: ServiceType, extras: {} };
     const properties = new Set(['routes']);
 
-    const fileName = statement.file;
+    const fileName = declaration.file;
 
-    service.name = statement.name;
+    service.name = declaration.name;
 
-    if (statement.description) {
-      service.description = statement.description;
+    if (declaration.description) {
+      service.description = declaration.description;
     }
 
-    for (const member of getModelMembers(statement)) {
+    for (const member of getModelMembers(declaration)) {
       if (!isModelProperty(member) || member.inherited) {
         continue;
       }
@@ -55,7 +55,7 @@ export const getHttpServices = (reflection: SourceMap) => {
           break;
 
         case 'routes':
-          if ((service.routes = getHttpRoutes(statement, member, reflection, errorList))) {
+          if ((service.routes = getHttpRoutes(declaration, member, reflection, errorList))) {
             properties.delete(member.name);
           }
           break;
@@ -65,15 +65,15 @@ export const getHttpServices = (reflection: SourceMap) => {
           break;
 
         case 'defaults':
-          service.defaults = getHttpDefaults(member.value, statement, reflection, errorList);
+          service.defaults = getHttpDefaults(member.value, declaration, reflection, errorList);
           break;
 
         case 'cache':
-          service.cache = getHttpCache(member.value, statement, reflection, errorList);
+          service.cache = getHttpCache(member.value, declaration, reflection, errorList);
           break;
 
         case 'cors':
-          service.cors = getHttpCors(member.value, statement, reflection, errorList);
+          service.cors = getHttpCors(member.value, declaration, reflection, errorList);
           break;
 
         case 'variables':
@@ -91,12 +91,12 @@ export const getHttpServices = (reflection: SourceMap) => {
       continue;
     }
 
-    if (allServices[statement.name]) {
-      errorList.push(new DuplicateServiceError(statement.name, fileName));
+    if (allServices[declaration.name]) {
+      errorList.push(new DuplicateServiceError(declaration.name, fileName));
       continue;
     }
 
-    allServices[statement.name] = service;
+    allServices[declaration.name] = service;
   }
 
   return {

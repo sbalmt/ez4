@@ -15,10 +15,10 @@ export const getTableRelations = (type: AllType, parent: TypeParent, reflection:
     return getTypeRelations(type, parent, errorList);
   }
 
-  const statement = getReferenceType(type, reflection);
+  const declaration = getReferenceType(type, reflection);
 
-  if (statement) {
-    return getTypeRelations(statement, parent, errorList);
+  if (declaration) {
+    return getTypeRelations(declaration, parent, errorList);
   }
 
   return null;

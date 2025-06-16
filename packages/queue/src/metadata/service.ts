@@ -5,7 +5,7 @@ import type { QueueService } from '../types/service.js';
 import {
   DuplicateServiceError,
   InvalidServicePropertyError,
-  isExternalStatement,
+  isExternalDeclaration,
   getLinkedServiceList,
   getLinkedVariableList,
   getModelMembers,
@@ -29,24 +29,24 @@ export const getQueueServices = (reflection: SourceMap) => {
   const errorList: Error[] = [];
 
   for (const identity in reflection) {
-    const statement = reflection[identity];
+    const declaration = reflection[identity];
 
-    if (!isQueueService(statement) || isExternalStatement(statement)) {
+    if (!isQueueService(declaration) || isExternalDeclaration(declaration)) {
       continue;
     }
 
     const service: Incomplete<QueueService> = { type: ServiceType, extras: {} };
     const properties = new Set(['subscriptions', 'schema']);
 
-    service.name = statement.name;
+    service.name = declaration.name;
 
-    if (statement.description) {
-      service.description = statement.description;
+    if (declaration.description) {
+      service.description = declaration.description;
     }
 
-    const fileName = statement.file;
+    const fileName = declaration.file;
 
-    for (const member of getModelMembers(statement, true)) {
+    for (const member of getModelMembers(declaration, true)) {
       if (!isModelProperty(member)) {
         continue;
       }
@@ -62,7 +62,7 @@ export const getQueueServices = (reflection: SourceMap) => {
           break;
 
         case 'schema':
-          if ((service.schema = getQueueMessage(member.value, statement, reflection, errorList))) {
+          if ((service.schema = getQueueMessage(member.value, declaration, reflection, errorList))) {
             properties.delete(member.name);
           }
           break;
@@ -78,18 +78,18 @@ export const getQueueServices = (reflection: SourceMap) => {
 
         case 'fifoMode':
           if (!member.inherited) {
-            service.fifoMode = getQueueFifoMode(member.value, statement, reflection, errorList);
+            service.fifoMode = getQueueFifoMode(member.value, declaration, reflection, errorList);
           }
           break;
 
         case 'deadLetter':
           if (!member.inherited) {
-            service.deadLetter = getQueueDeadLetter(member.value, statement, reflection, errorList);
+            service.deadLetter = getQueueDeadLetter(member.value, declaration, reflection, errorList);
           }
           break;
 
         case 'subscriptions': {
-          if (!member.inherited && (service.subscriptions = getAllSubscription(member, statement, reflection, errorList))) {
+          if (!member.inherited && (service.subscriptions = getAllSubscription(member, declaration, reflection, errorList))) {
             properties.delete(member.name);
           }
 
@@ -115,19 +115,19 @@ export const getQueueServices = (reflection: SourceMap) => {
       continue;
     }
 
-    const validationErrors = validateFifoModeProperties(statement, service);
+    const validationErrors = validateFifoModeProperties(declaration, service);
 
     if (validationErrors.length) {
       errorList.push(...validationErrors);
       continue;
     }
 
-    if (allServices[statement.name]) {
-      errorList.push(new DuplicateServiceError(statement.name, fileName));
+    if (allServices[declaration.name]) {
+      errorList.push(new DuplicateServiceError(declaration.name, fileName));
       continue;
     }
 
-    allServices[statement.name] = service;
+    allServices[declaration.name] = service;
   }
 
   return {

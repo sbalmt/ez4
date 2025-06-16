@@ -24,10 +24,10 @@ export const getHttpCors = (type: AllType, parent: TypeModel, reflection: Source
     return getTypeCors(type, parent, errorList);
   }
 
-  const statement = getReferenceType(type, reflection);
+  const declaration = getReferenceType(type, reflection);
 
-  if (statement) {
-    return getTypeCors(statement, parent, errorList);
+  if (declaration) {
+    return getTypeCors(declaration, parent, errorList);
   }
 
   return null;

@@ -27,10 +27,10 @@ export const getDatabaseEngine = (type: AllType, parent: TypeModel, reflection: 
     return getTypeEngine(type, parent, errorList);
   }
 
-  const statement = getReferenceType(type, reflection);
+  const declaration = getReferenceType(type, reflection);
 
-  if (statement) {
-    return getTypeEngine(statement, parent, errorList);
+  if (declaration) {
+    return getTypeEngine(declaration, parent, errorList);
   }
 
   return null;

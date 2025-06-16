@@ -21,10 +21,10 @@ export const getDatabaseTable = (type: AllType, parent: TypeModel, reflection: S
     return getTypeTable(type, parent, reflection, errorList);
   }
 
-  const statement = getReferenceType(type, reflection);
+  const declaration = getReferenceType(type, reflection);
 
-  if (statement) {
-    return getTypeTable(statement, parent, reflection, errorList);
+  if (declaration) {
+    return getTypeTable(declaration, parent, reflection, errorList);
   }
 
   return null;

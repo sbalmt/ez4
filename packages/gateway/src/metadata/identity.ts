@@ -20,10 +20,10 @@ export const getHttpIdentity = (type: AllType, parent: TypeParent, reflection: S
     return getTypeIdentity(type, parent, reflection, errorList);
   }
 
-  const statement = getReferenceType(type, reflection);
+  const declaration = getReferenceType(type, reflection);
 
-  if (statement) {
-    return getTypeIdentity(statement, parent, reflection, errorList);
+  if (declaration) {
+    return getTypeIdentity(declaration, parent, reflection, errorList);
   }
 
   return null;

@@ -41,10 +41,10 @@ const getQueueSubscription = (type: AllType, parent: TypeModel, reflection: Sour
     return getTypeSubscription(type, parent, reflection, errorList);
   }
 
-  const statement = getReferenceType(type, reflection);
+  const declaration = getReferenceType(type, reflection);
 
-  if (statement) {
-    return getTypeSubscription(statement, parent, reflection, errorList);
+  if (declaration) {
+    return getTypeSubscription(declaration, parent, reflection, errorList);
   }
 
   return null;

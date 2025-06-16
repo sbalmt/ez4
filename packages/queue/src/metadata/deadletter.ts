@@ -22,10 +22,10 @@ export const getQueueDeadLetter = (type: AllType, parent: TypeModel, reflection:
     return getTypeDeadLetter(type, parent, errorList);
   }
 
-  const statement = getReferenceType(type, reflection);
+  const declaration = getReferenceType(type, reflection);
 
-  if (statement) {
-    return getTypeDeadLetter(statement, parent, errorList);
+  if (declaration) {
+    return getTypeDeadLetter(declaration, parent, errorList);
   }
 
   return null;

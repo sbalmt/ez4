@@ -25,10 +25,10 @@ export const getTableStream = (type: AllType, parent: TypeModel, reflection: Sou
     return getTypeStream(type, parent, reflection, errorList);
   }
 
-  const statement = getReferenceType(type, reflection);
+  const declaration = getReferenceType(type, reflection);
 
-  if (statement) {
-    return getTypeStream(statement, parent, reflection, errorList);
+  if (declaration) {
+    return getTypeStream(declaration, parent, reflection, errorList);
   }
 
   return null;

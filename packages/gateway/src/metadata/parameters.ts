@@ -14,10 +14,10 @@ export const getHttpParameters = (type: AllType, parent: TypeParent, reflection:
     return getTypeParameter(type, parent, reflection, errorList);
   }
 
-  const statement = getReferenceType(type, reflection);
+  const declaration = getReferenceType(type, reflection);
 
-  if (statement) {
-    return getTypeParameter(statement, parent, reflection, errorList);
+  if (declaration) {
+    return getTypeParameter(declaration, parent, reflection, errorList);
   }
 
   return null;

@@ -136,13 +136,13 @@ export const getObjectSchema = (
   }
 
   if (isTypeReference(type)) {
-    const statement = reflection[type.path];
+    const declaration = reflection[type.path];
 
-    if (!statement) {
+    if (!declaration) {
       throw new SchemaReferenceNotFound(type.path);
     }
 
-    return getObjectSchema(statement, reflection, context, description);
+    return getObjectSchema(declaration, reflection, context, description);
   }
 
   return null;

@@ -22,10 +22,10 @@ export const getCdnCertificate = (type: AllType, parent: TypeModel, reflection: 
     return getTypeCertificate(type, parent, errorList);
   }
 
-  const statement = getReferenceType(type, reflection);
+  const declaration = getReferenceType(type, reflection);
 
-  if (statement) {
-    return getTypeCertificate(statement, parent, errorList);
+  if (declaration) {
+    return getTypeCertificate(declaration, parent, errorList);
   }
 
   return null;

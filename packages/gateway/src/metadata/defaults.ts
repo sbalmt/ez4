@@ -23,10 +23,10 @@ export const getHttpDefaults = (type: AllType, parent: TypeModel, reflection: So
     return getTypeDefaults(type, parent, reflection, errorList);
   }
 
-  const statement = getReferenceType(type, reflection);
+  const declaration = getReferenceType(type, reflection);
 
-  if (statement) {
-    return getTypeDefaults(statement, parent, reflection, errorList);
+  if (declaration) {
+    return getTypeDefaults(declaration, parent, reflection, errorList);
   }
 
   return null;

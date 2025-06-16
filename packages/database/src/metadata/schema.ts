@@ -15,10 +15,10 @@ export const getTableSchema = (type: AllType, parent: TypeParent, reflection: So
     return getTypeSchema(type, parent, reflection, errorList);
   }
 
-  const statement = getReferenceType(type, reflection);
+  const declaration = getReferenceType(type, reflection);
 
-  if (statement) {
-    return getTypeSchema(statement, parent, reflection, errorList);
+  if (declaration) {
+    return getTypeSchema(declaration, parent, reflection, errorList);
   }
 
   return null;
