@@ -10,7 +10,7 @@ import { deleteEvent } from '../repository.js';
 /**
  * Delete schedule request.
  */
-export declare class DeleteScheduleRequest implements Http.Request {
+declare class DeleteScheduleRequest implements Http.Request {
   parameters: {
     scheduleId: String.UUID;
   };
@@ -19,7 +19,7 @@ export declare class DeleteScheduleRequest implements Http.Request {
 /**
  * Delete schedule response.
  */
-export declare class DeleteScheduleResponse implements Http.Response {
+declare class DeleteScheduleResponse implements Http.Response {
   status: 204;
 }
 

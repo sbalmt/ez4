@@ -4,7 +4,7 @@ import type { Http } from '@ez4/gateway';
 /**
  * Delete request example.
  */
-export declare class DeleteRequest implements Http.Request {
+declare class DeleteRequest implements Http.Request {
   parameters: {
     /**
      * Example of `id` in the delete parameters.
@@ -16,7 +16,7 @@ export declare class DeleteRequest implements Http.Request {
 /**
  * Delete response example.
  */
-export declare class DeleteResponse implements Http.Response {
+declare class DeleteResponse implements Http.Response {
   status: 204;
 }
 

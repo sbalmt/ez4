@@ -4,7 +4,7 @@ import type { GeneralResponse } from '../types.js';
 /**
  * Public request example.
  */
-export declare class PublicRequest implements Http.Request {}
+declare class PublicRequest implements Http.Request {}
 
 /**
  * Handler for `public` requests.

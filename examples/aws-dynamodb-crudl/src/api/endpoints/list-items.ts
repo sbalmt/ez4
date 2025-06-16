@@ -6,7 +6,7 @@ import type { Api } from '../../api.js';
 
 import { listItems } from '../repository.js';
 
-export declare class ListItemsRequest implements Http.Request {
+declare class ListItemsRequest implements Http.Request {
   query: {
     /**
      * Page cursor.

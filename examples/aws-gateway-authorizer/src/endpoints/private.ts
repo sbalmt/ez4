@@ -4,7 +4,7 @@ import type { GeneralResponse, Identity } from '../types.js';
 /**
  * Private request example.
  */
-export declare class PrivateRequest implements Http.Request {
+declare class PrivateRequest implements Http.Request {
   identity: Identity;
 }
 

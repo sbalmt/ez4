@@ -5,7 +5,7 @@ import type { Api } from '../../api.js';
 
 import { createItem } from '../repository.js';
 
-export declare class CreateItemRequest implements Http.Request {
+declare class CreateItemRequest implements Http.Request {
   body: {
     /**
      * Item name.

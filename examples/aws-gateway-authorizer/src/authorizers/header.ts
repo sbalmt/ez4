@@ -6,7 +6,7 @@ const SUPER_SECRET_API_KEY = 'header-api-key';
 /**
  * Header authorizer example.
  */
-export declare class HeaderAuthorizer implements Http.AuthRequest {
+declare class HeaderAuthorizer implements Http.AuthRequest {
   headers: {
     authorization: string;
   };

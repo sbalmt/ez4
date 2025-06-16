@@ -9,7 +9,7 @@ import { deleteFile } from '../repository.js';
 /**
  * Delete file request.
  */
-export declare class DeleteFileRequest implements Http.Request {
+declare class DeleteFileRequest implements Http.Request {
   parameters: {
     /**
      * File name.
@@ -21,17 +21,14 @@ export declare class DeleteFileRequest implements Http.Request {
 /**
  * Delete file response.
  */
-export declare class DeleteFileResponse implements Http.Response {
+declare class DeleteFileResponse implements Http.Response {
   status: 204;
 }
 
 /**
  * Handle delete file requests.
  */
-export async function deleteFileHandler(
-  request: DeleteFileRequest,
-  context: Service.Context<Api>
-): Promise<DeleteFileResponse> {
+export async function deleteFileHandler(request: DeleteFileRequest, context: Service.Context<Api>): Promise<DeleteFileResponse> {
   const { fileDb, fileStorage } = context;
   const { fileId } = request.parameters;
 

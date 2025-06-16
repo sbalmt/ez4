@@ -6,7 +6,7 @@ import { CustomError } from '../errors.js';
 /**
  * Patch request example.
  */
-export declare class PatchRequest implements Http.Request {
+declare class PatchRequest implements Http.Request {
   parameters: {
     /**
      * Example of `id` in the path parameters.
@@ -25,7 +25,7 @@ export declare class PatchRequest implements Http.Request {
 /**
  * Patch response example.
  */
-export declare class PatchResponse implements Http.Response {
+declare class PatchResponse implements Http.Response {
   status: 200;
 
   body: {

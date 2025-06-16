@@ -7,7 +7,7 @@ import { CustomError } from '../errors.js';
 /**
  * Post request example.
  */
-export declare class PostRequest implements Http.Request {
+declare class PostRequest implements Http.Request {
   body: {
     /**
      * Example of validated `string` coming from the body request.
@@ -19,7 +19,7 @@ export declare class PostRequest implements Http.Request {
 /**
  * Post response example.
  */
-export declare class PostResponse implements Http.Response {
+declare class PostResponse implements Http.Response {
   status: 201;
 
   body: {

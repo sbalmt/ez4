@@ -9,7 +9,7 @@ import { listFiles } from '../repository.js';
 /**
  * List files request.
  */
-export declare class ListFilesRequest implements Http.Request {
+declare class ListFilesRequest implements Http.Request {
   parameters: {
     /**
      * Page cursor.
@@ -26,7 +26,7 @@ export declare class ListFilesRequest implements Http.Request {
 /**
  * List files response.
  */
-export declare class ListFilesResponse implements Http.Response {
+declare class ListFilesResponse implements Http.Response {
   status: 200;
 
   body: {
@@ -65,10 +65,7 @@ export declare class ListFilesResponse implements Http.Response {
 /**
  * Handle list files requests.
  */
-export async function listFilesHandler(
-  request: ListFilesRequest,
-  context: Service.Context<Api>
-): Promise<ListFilesResponse> {
+export async function listFilesHandler(request: ListFilesRequest, context: Service.Context<Api>): Promise<ListFilesResponse> {
   const { cursor, limit } = request.parameters;
   const { fileDb } = context;
 
