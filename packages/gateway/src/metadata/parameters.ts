@@ -1,39 +1,31 @@
-import type { AllType, SourceMap, TypeModel, TypeObject } from '@ez4/reflection';
+import type { AllType, SourceMap, TypeIntersection, TypeModel, TypeObject } from '@ez4/reflection';
 
+import { isTypeIntersection, isTypeObject, isTypeReference } from '@ez4/reflection';
 import { getReferenceType, isModelDeclaration } from '@ez4/common/library';
-import { getObjectSchema, isObjectSchema } from '@ez4/schema/library';
-import { isTypeObject, isTypeReference } from '@ez4/reflection';
 
 import { IncorrectParameterTypeError, InvalidParameterTypeError } from '../errors/parameters.js';
+import { getSchemaFromType } from './schema.js';
 import { isHttpParameters } from './utils.js';
 
-export const getHttpParameters = (
-  type: AllType,
-  parent: TypeObject | TypeModel,
-  reflection: SourceMap,
-  errorList: Error[]
-) => {
+type TypeParent = TypeObject | TypeModel | TypeIntersection;
+
+export const getHttpParameters = (type: AllType, parent: TypeParent, reflection: SourceMap, errorList: Error[]) => {
   if (!isTypeReference(type)) {
     return getTypeParameter(type, parent, reflection, errorList);
   }
 
-  const statement = getReferenceType(type, reflection);
+  const declaration = getReferenceType(type, reflection);
 
-  if (statement) {
-    return getTypeParameter(statement, parent, reflection, errorList);
+  if (declaration) {
+    return getTypeParameter(declaration, parent, reflection, errorList);
   }
 
   return null;
 };
 
-const getTypeParameter = (
-  type: AllType,
-  parent: TypeObject | TypeModel,
-  reflection: SourceMap,
-  errorList: Error[]
-) => {
-  if (isTypeObject(type)) {
-    return getParameterSchema(type, reflection);
+const getTypeParameter = (type: AllType, parent: TypeParent, reflection: SourceMap, errorList: Error[]) => {
+  if (isTypeObject(type) || isTypeIntersection(type)) {
+    return getSchemaFromType(type, reflection);
   }
 
   if (!isModelDeclaration(type)) {
@@ -46,15 +38,5 @@ const getTypeParameter = (
     return null;
   }
 
-  return getParameterSchema(type, reflection);
-};
-
-const getParameterSchema = (type: TypeObject | TypeModel, reflection: SourceMap) => {
-  const schema = getObjectSchema(type, reflection);
-
-  if (schema && isObjectSchema(schema)) {
-    return schema;
-  }
-
-  return null;
+  return getSchemaFromType(type, reflection);
 };

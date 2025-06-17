@@ -2,13 +2,13 @@ import { readFileSync, writeFileSync } from 'node:fs';
 import { deepEqual } from 'node:assert/strict';
 import { describe, it } from 'node:test';
 
-import { reflectionFromFiles } from '@ez4/reflection';
+import { getReflectionFromFiles } from '@ez4/reflection';
 
 const testFile = (fileName: string, overwrite: boolean = false) => {
   const sourceFile = `./test/types/${fileName}.ts`;
   const outputFile = `./test/results/${fileName}.json`;
 
-  const reflection = reflectionFromFiles([sourceFile]);
+  const reflection = getReflectionFromFiles([sourceFile]);
 
   if (overwrite) {
     writeFileSync(outputFile, JSON.stringify(reflection, undefined, 2));
@@ -23,6 +23,7 @@ describe('reflection types', () => {
   it('assert :: string', () => testFile('string'));
   it('assert :: object', () => testFile('object'));
   it('assert :: union', () => testFile('union'));
+  it('assert :: intersection', () => testFile('intersection'));
   it('assert :: array', () => testFile('array'));
   it('assert :: tuple', () => testFile('tuple'));
   it('assert :: enum', () => testFile('enum'));

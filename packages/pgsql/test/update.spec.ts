@@ -2,6 +2,7 @@ import { beforeEach, describe, it } from 'node:test';
 import { equal, deepEqual } from 'node:assert';
 
 import { SqlBuilder } from '@ez4/pgsql';
+import { Order } from '@ez4/database';
 
 describe('sql update tests', () => {
   let sql: SqlBuilder;
@@ -154,5 +155,29 @@ describe('sql update tests', () => {
     deepEqual(variables, [true, 'abc']);
 
     equal(statement, 'UPDATE ONLY "table" SET "foo" = :0 WHERE "bar" = :1');
+  });
+
+  it('assert :: update with inner query', async () => {
+    const inner = sql.select().columns('foo').from('inner').as('alias').where({ bar: 'abc' }).take(1).order({
+      baz: Order.Desc
+    });
+
+    const query = sql
+      .update()
+      .only('table')
+      .from(inner)
+      .record({
+        qux: inner.reference('foo')
+      });
+
+    const [statement, variables] = query.build();
+
+    deepEqual(variables, ['abc']);
+
+    equal(
+      statement,
+      `UPDATE ONLY "table" SET "qux" = "alias"."foo" FROM ` +
+        `(SELECT "S"."foo" FROM "inner" AS "S" WHERE "S"."bar" = :0 ORDER BY "S"."baz" DESC LIMIT 1) AS "alias"`
+    );
   });
 });

@@ -5,14 +5,14 @@ import type { SqlRecord } from '../types/common.js';
 import type { ObjectSchema } from '@ez4/schema';
 
 import { SqlRawValue } from '../types/raw.js';
-import { SqlSource } from '../types/source.js';
-import { SqlReference } from '../types/reference.js';
+import { getTableExpressions } from '../utils/table.js';
+import { SqlColumnReference, SqlTableReference } from '../types/reference.js';
 import { SqlReturningClause } from '../types/returning.js';
 import { MissingTableNameError } from '../errors/queries.js';
 import { getFields, getValues } from '../utils/column.js';
 import { escapeSqlName } from '../utils/escape.js';
+import { SqlSource } from '../types/source.js';
 import { SqlSelectStatement } from './select.js';
-import { getTableNames } from '../utils/table.js';
 
 type SqlInsertContext = {
   options: SqlBuilderOptions;
@@ -25,9 +25,9 @@ export class SqlInsertStatement extends SqlSource {
     options: SqlBuilderOptions;
     references: SqlBuilderReferences;
     returning?: SqlReturningClause;
+    sources?: (SqlTableReference | SqlSource)[];
     schema?: ObjectSchema;
     record?: SqlRecord;
-    sources?: SqlSource[];
     table?: string;
     alias?: string;
   };
@@ -68,7 +68,7 @@ export class SqlInsertStatement extends SqlSource {
     return this;
   }
 
-  select(...tables: SqlSource[]) {
+  select(...tables: (SqlTableReference | SqlSource)[]) {
     this.#state.sources = tables;
 
     return this;
@@ -123,7 +123,10 @@ export class SqlInsertStatement extends SqlSource {
     });
 
     if (sources?.length) {
-      statement.push(`SELECT ${values} FROM ${getTableNames(sources).join(', ')}`);
+      const [tableExpressions, tableVariables] = getTableExpressions(sources);
+
+      statement.push(`SELECT ${values} FROM ${tableExpressions.join(', ')}`);
+      variables.push(...tableVariables);
     } else {
       statement.push('VALUES');
 
@@ -159,7 +162,7 @@ const getValueReferences = (source: SqlSource, record: SqlRecord, schema: Object
       continue;
     }
 
-    if (value instanceof SqlReference) {
+    if (value instanceof SqlColumnReference) {
       results.push(value.build());
       continue;
     }

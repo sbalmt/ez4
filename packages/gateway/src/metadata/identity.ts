@@ -1,19 +1,17 @@
-import type { AllType, SourceMap, TypeModel, TypeObject } from '@ez4/reflection';
+import type { AllType, SourceMap, TypeIntersection, TypeModel, TypeObject } from '@ez4/reflection';
 import type { ObjectSchema, UnionSchema } from '@ez4/schema/library';
 
-import { isTypeObject, isTypeReference, isTypeUndefined, isTypeUnion } from '@ez4/reflection';
-import { createUnionSchema, getObjectSchema, isObjectSchema } from '@ez4/schema/library';
+import { isTypeIntersection, isTypeObject, isTypeReference, isTypeUndefined, isTypeUnion } from '@ez4/reflection';
 import { getReferenceType, isModelDeclaration } from '@ez4/common/library';
+import { createUnionSchema } from '@ez4/schema/library';
 
 import { IncorrectIdentityTypeError, InvalidIdentityTypeError } from '../errors/identity.js';
+import { getSchemaFromType } from './schema.js';
 import { isHttpIdentity } from './utils.js';
 
-export const getHttpIdentity = (
-  type: AllType,
-  parent: TypeObject | TypeModel,
-  reflection: SourceMap,
-  errorList: Error[]
-) => {
+type TypeParent = TypeObject | TypeModel | TypeIntersection;
+
+export const getHttpIdentity = (type: AllType, parent: TypeParent, reflection: SourceMap, errorList: Error[]) => {
   if (isTypeUndefined(type)) {
     return null;
   }
@@ -22,10 +20,10 @@ export const getHttpIdentity = (
     return getTypeIdentity(type, parent, reflection, errorList);
   }
 
-  const statement = getReferenceType(type, reflection);
+  const declaration = getReferenceType(type, reflection);
 
-  if (statement) {
-    return getTypeIdentity(statement, parent, reflection, errorList);
+  if (declaration) {
+    return getTypeIdentity(declaration, parent, reflection, errorList);
   }
 
   return null;
@@ -33,7 +31,7 @@ export const getHttpIdentity = (
 
 const getTypeIdentity = (
   type: AllType,
-  parent: TypeObject | TypeModel,
+  parent: TypeParent,
   reflection: SourceMap,
   errorList: Error[]
 ): ObjectSchema | UnionSchema | null => {
@@ -41,8 +39,8 @@ const getTypeIdentity = (
     return getIdentityFromUnion(type.elements, parent, reflection, errorList);
   }
 
-  if (isTypeObject(type)) {
-    return getIdentitySchema(type, reflection);
+  if (isTypeObject(type) || isTypeIntersection(type)) {
+    return getSchemaFromType(type, reflection);
   }
 
   if (!isModelDeclaration(type)) {
@@ -55,7 +53,7 @@ const getTypeIdentity = (
     return null;
   }
 
-  const schema = getIdentitySchema(type, reflection);
+  const schema = getSchemaFromType(type, reflection);
 
   if (schema) {
     schema.definitions = {
@@ -67,12 +65,7 @@ const getTypeIdentity = (
   return schema;
 };
 
-const getIdentityFromUnion = (
-  types: AllType[],
-  parent: TypeObject | TypeModel,
-  reflection: SourceMap,
-  errorList: Error[]
-) => {
+const getIdentityFromUnion = (types: AllType[], parent: TypeParent, reflection: SourceMap, errorList: Error[]) => {
   const schemaList = [];
 
   for (const type of types) {
@@ -90,14 +83,4 @@ const getIdentityFromUnion = (
   }
 
   return schemaList[0];
-};
-
-const getIdentitySchema = (type: TypeObject | TypeModel, reflection: SourceMap) => {
-  const schema = getObjectSchema(type, reflection);
-
-  if (schema && isObjectSchema(schema)) {
-    return schema;
-  }
-
-  return null;
 };

@@ -44,7 +44,7 @@ describe('queue mapping', () => {
   it('assert :: deploy', async () => {
     const localState: EntryStates = {};
 
-    const queueResource = createQueue(localState, {
+    const queueResource = createQueue(localState, undefined, {
       queueName: 'ez4-test-queue-mapping',
       fifoMode: false
     });
@@ -67,8 +67,9 @@ describe('queue mapping', () => {
     const functionResource = createQueueFunction(localState, roleResource, logGroupResource, {
       functionName: 'ez4-test-queue-mapping-lambda',
       handler: {
+        sourceFile: join(baseDir, 'lambda.js'),
         functionName: 'main',
-        sourceFile: join(baseDir, 'lambda.js')
+        dependencies: []
       }
     });
 
@@ -76,8 +77,8 @@ describe('queue mapping', () => {
       fromService: functionResource.parameters.functionName,
       enabled: true,
       batch: {
-        batchSize: 100,
-        maxWindow: 5
+        maxWait: 5,
+        size: 100
       }
     });
 
@@ -97,7 +98,7 @@ describe('queue mapping', () => {
     ok(resource && isMappingState(resource));
     ok(resource.parameters.batch);
 
-    resource.parameters.batch.batchSize = 10;
+    resource.parameters.batch.size = 10;
     resource.parameters.enabled = false;
 
     const { state } = await assertDeploy(mappingId, localState, lastState);

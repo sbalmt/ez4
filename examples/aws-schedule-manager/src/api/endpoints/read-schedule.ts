@@ -8,7 +8,7 @@ import { HttpNotFoundError } from '@ez4/gateway';
 /**
  * Read schedule request.
  */
-export declare class ReadScheduleRequest implements Http.Request {
+declare class ReadScheduleRequest implements Http.Request {
   parameters: {
     scheduleId: String.UUID;
   };
@@ -17,7 +17,7 @@ export declare class ReadScheduleRequest implements Http.Request {
 /**
  * Read schedule response.
  */
-export declare class ReadScheduleResponse implements Http.Response {
+declare class ReadScheduleResponse implements Http.Response {
   status: 200;
 
   body: {
@@ -36,10 +36,7 @@ export declare class ReadScheduleResponse implements Http.Response {
 /**
  * Handle read schedule requests.
  */
-export async function readScheduleHandler(
-  request: ReadScheduleRequest,
-  context: Service.Context<Api>
-): Promise<ReadScheduleResponse> {
+export async function readScheduleHandler(request: ReadScheduleRequest, context: Service.Context<Api>): Promise<ReadScheduleResponse> {
   const { scheduleId } = request.parameters;
   const { eventScheduler } = context;
 

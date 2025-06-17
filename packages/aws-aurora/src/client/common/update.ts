@@ -94,7 +94,6 @@ const getUpdateRecord = async (
           await validateFirstSchemaLevel(fieldValue, relationSchema, fieldPath);
 
           record[targetColumn] = relationValue;
-
           continue;
         }
 
@@ -117,7 +116,6 @@ const getUpdateRecord = async (
         await validateFirstSchemaLevel(fieldValue, relationSchema, fieldPath);
 
         record[sourceColumn] = relationValue;
-
         continue;
       }
 
@@ -141,7 +139,6 @@ const getUpdateRecord = async (
       await validateFirstSchemaLevel(fieldValue, fieldSchema, fieldPath);
 
       record[fieldKey] = fieldValue;
-
       continue;
     }
 
@@ -225,9 +222,9 @@ const getFullRelationTableUpdate = async (
 
   const relationQuery = sql
     .update(sourceSchema)
+    .from(source.reference())
     .only(sourceTable)
     .record(record)
-    .from(source)
     .where({ [sourceColumn]: source.reference(targetColumn) })
     .as('T');
 

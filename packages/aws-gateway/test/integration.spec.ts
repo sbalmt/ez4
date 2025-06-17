@@ -62,8 +62,9 @@ describe('gateway integration', () => {
     const lambdaResource = createIntegrationFunction(localState, roleResource, logGroupResource, {
       functionName: 'ez4-test-gateway-integration-lambda',
       handler: {
+        sourceFile: join(baseDir, 'lambda.js'),
         functionName: 'main',
-        sourceFile: join(baseDir, 'lambda.js')
+        dependencies: []
       }
     });
 

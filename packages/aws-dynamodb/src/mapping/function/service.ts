@@ -13,10 +13,12 @@ export const createStreamFunction = <E extends EntryState>(
   logGroupState: LogGroupState,
   parameters: StreamFunctionParameters
 ) => {
+  const { handler } = parameters;
+
   return createFunction(state, roleState, logGroupState, {
     handlerName: 'dbStreamEntryPoint',
+    sourceFile: handler.sourceFile,
     functionName: parameters.functionName,
-    sourceFile: parameters.handler.sourceFile,
     description: parameters.description,
     variables: parameters.variables,
     timeout: parameters.timeout,
@@ -26,6 +28,9 @@ export const createStreamFunction = <E extends EntryState>(
     getFunctionBundle: (context) => {
       const dependencies = context.getDependencies();
       return bundleStreamFunction(dependencies, parameters);
+    },
+    getFunctionFiles: () => {
+      return [handler.sourceFile, handler.dependencies];
     }
   });
 };

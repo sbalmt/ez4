@@ -26,10 +26,10 @@ export const getBucketEvent = (type: AllType, parent: TypeModel, reflection: Sou
     return getTypeEvent(type, parent, reflection, errorList);
   }
 
-  const statement = getReferenceType(type, reflection);
+  const declaration = getReferenceType(type, reflection);
 
-  if (statement) {
-    return getTypeEvent(statement, parent, reflection, errorList);
+  if (declaration) {
+    return getTypeEvent(declaration, parent, reflection, errorList);
   }
 
   return null;
@@ -90,8 +90,8 @@ const getTypeFromMembers = (
         break;
 
       case 'memory':
+      case 'logRetention':
       case 'timeout':
-      case 'retention':
         event[member.name] = getPropertyNumber(member);
         break;
 

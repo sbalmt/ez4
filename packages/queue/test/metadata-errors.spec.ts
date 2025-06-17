@@ -5,12 +5,15 @@ import {
   IncompleteServiceError,
   IncompleteSubscriptionError,
   IncompleteHandlerError,
+  IncompleteDeadLetterError,
   IncompleteFifoModeError,
   IncorrectSubscriptionTypeError,
+  IncorrectDeadLetterTypeError,
   IncorrectFifoModePropertyError,
   IncorrectFifoModeTypeError,
   IncorrectMessageTypeError,
   InvalidSubscriptionTypeError,
+  InvalidDeadLetterTypeError,
   InvalidFifoModeTypeError,
   InvalidMessageTypeError
 } from '@ez4/queue/library';
@@ -127,5 +130,27 @@ describe('queue metadata errors', () => {
 
     ok(error1 instanceof InvalidFifoModeTypeError);
     equal(error1.baseType, 'Queue.FifoMode');
+  });
+
+  it('assert :: incomplete dead-letter', () => {
+    const [error1] = parseFile('incomplete-deadletter', 1);
+
+    ok(error1 instanceof IncompleteDeadLetterError);
+    deepEqual(error1.properties, ['maxRetries']);
+  });
+
+  it('assert :: incorrect dead-letter', () => {
+    const [error1] = parseFile('incorrect-deadletter', 1);
+
+    ok(error1 instanceof IncorrectDeadLetterTypeError);
+    equal(error1.baseType, 'Queue.DeadLetter');
+    equal(error1.modelType, 'TestDeadLetter');
+  });
+
+  it('assert :: invalid dead-letter', () => {
+    const [error1] = parseFile('invalid-deadletter', 1);
+
+    ok(error1 instanceof InvalidDeadLetterTypeError);
+    equal(error1.baseType, 'Queue.DeadLetter');
   });
 });

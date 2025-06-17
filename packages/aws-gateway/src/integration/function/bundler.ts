@@ -25,7 +25,8 @@ export const bundleApiFunction = async (
     querySchema,
     bodySchema,
     identitySchema,
-    responseSchema
+    responseSchema,
+    errorsMap
   } = parameters;
 
   const definitions = getDefinitionsObject(dependencies);
@@ -40,7 +41,8 @@ export const bundleApiFunction = async (
       __EZ4_QUERY_SCHEMA: querySchema ? JSON.stringify(querySchema) : 'undefined',
       __EZ4_BODY_SCHEMA: bodySchema ? JSON.stringify(bodySchema) : 'undefined',
       __EZ4_IDENTITY_SCHEMA: identitySchema ? JSON.stringify(identitySchema) : 'undefined',
-      __EZ4_RESPONSE_SCHEMA: responseSchema ? JSON.stringify(responseSchema) : 'undefined'
+      __EZ4_RESPONSE_SCHEMA: responseSchema ? JSON.stringify(responseSchema) : 'undefined',
+      __EZ4_ERRORS_MAP: errorsMap ? JSON.stringify(errorsMap) : 'undefined',
     },
     handler,
     listener,

@@ -69,6 +69,9 @@ describe('function', () => {
       },
       getFunctionBundle: () => {
         return sourceFile;
+      },
+      getFunctionFiles: () => {
+        return [sourceFile, [sourceFile]];
       }
     });
 
@@ -117,6 +120,10 @@ describe('function', () => {
 
     resource.parameters.getFunctionBundle = () => {
       return sourceFile;
+    };
+
+    resource.parameters.getFunctionFiles = () => {
+      return [sourceFile, [sourceFile]];
     };
 
     const { state, result } = await assertDeploy(functionId, localState, lastState);

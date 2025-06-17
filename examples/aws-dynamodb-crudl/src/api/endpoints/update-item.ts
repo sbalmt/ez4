@@ -8,7 +8,7 @@ import { HttpNotFoundError } from '@ez4/gateway';
 
 import { updateItem } from '../repository.js';
 
-export declare class UpdateItemRequest implements Http.Request {
+declare class UpdateItemRequest implements Http.Request {
   parameters: {
     /**
      * Item Id.

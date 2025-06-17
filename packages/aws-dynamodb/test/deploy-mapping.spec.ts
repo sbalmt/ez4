@@ -78,7 +78,8 @@ describe('dynamodb mapping', () => {
       functionName: 'ez4-test-table-mapping-lambda',
       handler: {
         sourceFile: join(baseDir, 'lambda.js'),
-        functionName: 'main'
+        functionName: 'main',
+        dependencies: []
       }
     });
 

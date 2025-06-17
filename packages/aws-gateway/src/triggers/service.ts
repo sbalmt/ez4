@@ -12,10 +12,10 @@ import { isRoleState } from '@ez4/aws-identity';
 import { createLogGroup } from '@ez4/aws-logs';
 
 import { createRoute } from '../route/service.js';
-import { createStage } from '../stage/service.js';
 import { createGateway } from '../gateway/service.js';
-import { createAuthorizerFunction } from '../authorizer/function/service.js';
+import { createStage } from '../stage/service.js';
 import { getAuthorizer, createAuthorizer } from '../authorizer/service.js';
+import { createAuthorizerFunction } from '../authorizer/function/service.js';
 import { createIntegrationFunction } from '../integration/function/service.js';
 import { getIntegration, createIntegration } from '../integration/service.js';
 import { getFunctionName, getInternalName } from './utils.js';
@@ -111,7 +111,7 @@ const getIntegrationFunction = (
   const {
     handler,
     listener = defaults.listener,
-    retention = defaults.retention,
+    logRetention = defaults.logRetention,
     timeout = defaults.timeout,
     memory = defaults.memory
   } = route;
@@ -126,7 +126,7 @@ const getIntegrationFunction = (
     const integrationName = getFunctionName(service, handler, options);
 
     const logGroupState = createLogGroup(state, {
-      retention: retention ?? Defaults.LogRetention,
+      retention: logRetention ?? Defaults.LogRetention,
       groupName: integrationName,
       tags: options.tags
     });
@@ -145,11 +145,16 @@ const getIntegrationFunction = (
       extras: service.extras,
       debug: options.debug,
       tags: options.tags,
+      errorsMap: {
+        ...defaults.httpErrors,
+        ...route.httpErrors
+      },
       variables: {
         ...options.variables,
         ...service.variables
       },
       handler: {
+        dependencies: context.getDependencies(handler.file),
         functionName: handler.name,
         sourceFile: handler.file
       },
@@ -203,12 +208,12 @@ const getAuthorizerFunction = (
   const request = authorizer.request;
 
   if (!authorizerState) {
-    const { retention, timeout, memory } = service.defaults ?? {};
+    const { logRetention, timeout, memory } = service.defaults ?? {};
 
     const authorizerName = getFunctionName(service, authorizer, options);
 
     const logGroupState = createLogGroup(state, {
-      retention: retention ?? Defaults.LogRetention,
+      retention: logRetention ?? Defaults.LogRetention,
       groupName: authorizerName,
       tags: options.tags
     });
@@ -229,6 +234,7 @@ const getAuthorizerFunction = (
         ...service.variables
       },
       authorizer: {
+        dependencies: context.getDependencies(authorizer.file),
         functionName: authorizer.name,
         sourceFile: authorizer.file
       },

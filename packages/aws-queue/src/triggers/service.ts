@@ -1,11 +1,13 @@
-import type { ConnectResourceEvent, PrepareResourceEvent, ServiceEvent } from '@ez4/project/library';
+import type { ConnectResourceEvent, DeployOptions, PrepareResourceEvent, ServiceEvent } from '@ez4/project/library';
+import type { QueueService } from '@ez4/queue/library';
+import type { EntryStates } from '@ez4/stateful';
 
 import { isQueueService } from '@ez4/queue/library';
 
 import { createQueue } from '../queue/service.js';
 import { connectSubscriptions, prepareSubscriptions } from './subscription.js';
+import { getDeadLetterQueueName, getQueueName } from './utils.js';
 import { prepareLinkedClient } from './client.js';
-import { getQueueName } from './utils.js';
 import { Defaults } from './defaults.js';
 
 export const prepareLinkedServices = (event: ServiceEvent) => {
@@ -25,16 +27,19 @@ export const prepareServices = async (event: PrepareResourceEvent) => {
     return;
   }
 
-  const { fifoMode, timeout, retention, polling, delay } = service;
+  const { fifoMode, retention = Defaults.Retention, timeout = Defaults.Timeout, polling, delay } = service;
 
-  const queueState = createQueue(state, {
+  const queueDeadLetter = getDeadLetterQueue(state, service, options);
+
+  const queueState = createQueue(state, queueDeadLetter, {
     queueName: getQueueName(service, options),
+    deadLetter: service.deadLetter,
     fifoMode: !!fifoMode,
-    timeout: timeout ?? Defaults.Timeout,
     tags: options.tags,
-    ...(retention !== undefined && { retention }),
-    ...(polling !== undefined && { polling }),
-    ...(delay !== undefined && { delay })
+    retention,
+    polling,
+    timeout,
+    delay
   });
 
   context.setServiceState(queueState, service, options);
@@ -48,4 +53,24 @@ export const connectServices = (event: ConnectResourceEvent) => {
   if (isQueueService(service)) {
     connectSubscriptions(state, service, options, context);
   }
+};
+
+const getDeadLetterQueue = (state: EntryStates, service: QueueService, options: DeployOptions) => {
+  const { fifoMode, deadLetter } = service;
+
+  if (!deadLetter) {
+    return undefined;
+  }
+
+  const { retention = Defaults.Retention } = deadLetter;
+
+  const queueState = createQueue(state, undefined, {
+    queueName: getDeadLetterQueueName(service, options),
+    fifoMode: !!fifoMode,
+    tags: options.tags,
+    timeout: Defaults.Timeout,
+    retention
+  });
+
+  return queueState;
 };

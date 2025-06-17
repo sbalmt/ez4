@@ -1,11 +1,8 @@
 import type { ExtraSource } from '@ez4/project/library';
 
-import { reflectionFiles } from '@ez4/reflection';
-
 import { build, formatMessages } from 'esbuild';
-
+import { dirname, join, parse } from 'node:path';
 import { readFile, stat } from 'node:fs/promises';
-import { dirname, join, parse, relative } from 'node:path';
 import { createHash } from 'node:crypto';
 import { existsSync } from 'node:fs';
 
@@ -31,10 +28,7 @@ export type BundlerOptions = {
   debug?: boolean;
 };
 
-export const getBundleHash = async (sourceFile: string) => {
-  const basePath = process.cwd();
-
-  const allSourceFiles = [relative(basePath, sourceFile), ...reflectionFiles([sourceFile])];
+export const createBundleHash = async (allSourceFiles: string[]) => {
   const fileSignatures = createHash('sha256');
 
   const pathSignatures = await Promise.all(
@@ -67,11 +61,11 @@ export const getBundleHash = async (sourceFile: string) => {
   return fileSignatures.digest('hex');
 };
 
-export const getBundleHashFromCache = async (sourceFile: string) => {
+export const getBundleHash = async (sourceFile: string, dependencyFiles: string[]) => {
   let bundleHash = hashCache.get(sourceFile);
 
   if (!bundleHash) {
-    bundleHash = await getBundleHash(sourceFile);
+    bundleHash = await createBundleHash(dependencyFiles);
 
     hashCache.set(sourceFile, bundleHash);
   }
@@ -99,15 +93,16 @@ export const getFunctionBundle = async (serviceName: string, options: BundlerOpt
   const { debug } = options;
 
   const result = await build({
-    bundle: true,
-    minify: !debug,
-    treeShaking: !debug,
     outfile: outputFile,
+    treeShaking: !debug,
+    minify: !debug,
     packages: 'bundle',
     platform: 'node',
     target: 'node22',
     format: 'esm',
     external: ['@aws-sdk/*'],
+    keepNames: true,
+    bundle: true,
     define: {
       ...options.define
     },

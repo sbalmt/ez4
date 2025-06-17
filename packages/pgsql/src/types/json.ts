@@ -5,8 +5,10 @@ import { isAnyObject } from '@ez4/utils';
 import { mergeSqlAlias, mergeSqlPath } from '../utils/merge.js';
 import { escapeSqlName, escapeSqlText } from '../utils/escape.js';
 import { SqlSelectStatement } from '../queries/select.js';
-import { SqlReference } from './reference.js';
+import { SqlColumnReference } from './reference.js';
+import { SqlOrderClause } from './order.js';
 import { SqlRawValue } from './raw.js';
+import { SqlOrder } from './common.js';
 
 type SqlJsonColumnContext = {
   variables: unknown[];
@@ -15,16 +17,11 @@ type SqlJsonColumnContext = {
 };
 
 export type SqlJsonColumnSchema = {
-  [field: string]:
-    | undefined
-    | boolean
-    | SqlRawValue
-    | SqlReference
-    | SqlSelectStatement
-    | SqlJsonColumnSchema;
+  [field: string]: undefined | boolean | SqlRawValue | SqlColumnReference | SqlSelectStatement | SqlJsonColumnSchema;
 };
 
 export type SqlJsonColumnOptions = {
+  order?: SqlOrder;
   aggregate: boolean;
   column?: string;
   alias?: string;
@@ -34,19 +31,17 @@ export class SqlJsonColumn {
   #state: {
     schema: SqlJsonColumnSchema;
     source: SqlSource;
+    order?: SqlOrderClause;
     aggregate: boolean;
     column?: string;
     alias?: string;
   };
 
-  constructor(
-    schema: SqlJsonColumnSchema,
-    source: SqlSource,
-    aggregate: boolean,
-    column?: string,
-    alias?: string
-  ) {
+  constructor(schema: SqlJsonColumnSchema, source: SqlSource, options: SqlJsonColumnOptions) {
+    const { order, aggregate, column, alias } = options;
+
     this.#state = {
+      order: order ? new SqlOrderClause(source, order) : undefined,
       source,
       schema,
       aggregate,
@@ -56,7 +51,7 @@ export class SqlJsonColumn {
   }
 
   build() {
-    const { source, aggregate, schema, alias, column } = this.#state;
+    const { schema, source, aggregate, order, column, alias } = this.#state;
 
     const variables: unknown[] = [];
 
@@ -66,7 +61,7 @@ export class SqlJsonColumn {
       variables
     });
 
-    const jsonResult = aggregate ? `COALESCE(json_agg(${result}), '[]'::json)` : result;
+    const jsonResult = aggregate ? getJsonArray(result, order) : result;
     const jsonColumn = alias ?? column;
 
     if (jsonColumn) {
@@ -91,7 +86,7 @@ const getJsonObject = (schema: SqlJsonColumnSchema, context: SqlJsonColumnContex
 
     const columnName = mergeSqlPath(field, parent);
 
-    if (value instanceof SqlRawValue || value instanceof SqlReference) {
+    if (value instanceof SqlRawValue || value instanceof SqlColumnReference) {
       fields.push(`${escapeSqlText(field)}, ${value.build()}`);
       continue;
     }
@@ -119,4 +114,14 @@ const getJsonObject = (schema: SqlJsonColumnSchema, context: SqlJsonColumnContex
   }
 
   return `json_build_object(${fields.join(', ')})`;
+};
+
+const getJsonArray = (value: string, order?: SqlOrderClause) => {
+  const expression = [value];
+
+  if (order && !order.empty) {
+    expression.push(order.build());
+  }
+
+  return `COALESCE(json_agg(${expression.join(' ')}), '[]'::json)`;
 };

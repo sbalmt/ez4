@@ -1,15 +1,12 @@
-import type { ServiceAliases, ServiceMetadata } from '../types/service.js';
+import type { EventContext } from '@ez4/project/library';
+import type { ServiceMetadata } from '../types/service.js';
 import type { MetadataReflection } from '../types/metadata.js';
 import type { DeployOptions } from '../types/options.js';
 
-import { EventContext, triggerAllAsync } from '@ez4/project/library';
+import { triggerAllAsync } from '@ez4/project/library';
 
-import { getEventContext } from './common.js';
-
-export const prepareLinkedServices = async (aliases: ServiceAliases, metadata: MetadataReflection, options: DeployOptions) => {
+export const prepareLinkedServices = async (metadata: MetadataReflection, context: EventContext, options: DeployOptions) => {
   const allEvents = [];
-
-  const context = getEventContext(aliases, null);
 
   for (const identity in metadata) {
     const target = metadata[identity];

@@ -28,10 +28,10 @@ export const getCronEvent = (
     return getTypeEvent(type, parent, reflection, errorList);
   }
 
-  const statement = getReferenceType(type, reflection);
+  const declaration = getReferenceType(type, reflection);
 
-  if (statement) {
-    return getTypeEvent(statement, parent, reflection, errorList);
+  if (declaration) {
+    return getTypeEvent(declaration, parent, reflection, errorList);
   }
 
   return null;

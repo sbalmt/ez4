@@ -16,10 +16,10 @@ export const getTableIndexes = (type: AllType, parent: TypeParent, reflection: S
     return getTypeIndexes(type, parent, errorList);
   }
 
-  const statement = getReferenceType(type, reflection);
+  const declaration = getReferenceType(type, reflection);
 
-  if (statement) {
-    return getTypeIndexes(statement, parent, errorList);
+  if (declaration) {
+    return getTypeIndexes(declaration, parent, errorList);
   }
 
   return null;

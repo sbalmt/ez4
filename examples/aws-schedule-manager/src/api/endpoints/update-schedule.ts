@@ -9,7 +9,7 @@ import { updateEvent } from '../repository.js';
 /**
  * Update schedule request.
  */
-export declare class UpdateScheduleRequest implements Http.Request {
+declare class UpdateScheduleRequest implements Http.Request {
   parameters: {
     scheduleId: String.UUID;
   };
@@ -29,7 +29,7 @@ export declare class UpdateScheduleRequest implements Http.Request {
 /**
  * Update schedule response.
  */
-export declare class UpdateScheduleResponse implements Http.Response {
+declare class UpdateScheduleResponse implements Http.Response {
   status: 200;
 
   body: {

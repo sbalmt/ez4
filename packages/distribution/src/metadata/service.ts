@@ -5,7 +5,7 @@ import type { CdnService } from '../types/service.js';
 import {
   DuplicateServiceError,
   InvalidServicePropertyError,
-  isExternalStatement,
+  isExternalDeclaration,
   getModelMembers,
   getPropertyBoolean,
   getPropertyString,
@@ -26,24 +26,24 @@ export const getCdnServices = (reflection: SourceMap) => {
   const errorList: Error[] = [];
 
   for (const identity in reflection) {
-    const statement = reflection[identity];
+    const declaration = reflection[identity];
 
-    if (!isCdnService(statement) || isExternalStatement(statement)) {
+    if (!isCdnService(declaration) || isExternalDeclaration(declaration)) {
       continue;
     }
 
     const service: Incomplete<CdnService> = { type: ServiceType, extras: {} };
     const properties = new Set(['defaultOrigin']);
 
-    const fileName = statement.file;
+    const fileName = declaration.file;
 
-    service.name = statement.name;
+    service.name = declaration.name;
 
-    if (statement.description) {
-      service.description = statement.description;
+    if (declaration.description) {
+      service.description = declaration.description;
     }
 
-    for (const member of getModelMembers(statement)) {
+    for (const member of getModelMembers(declaration)) {
       if (!isModelProperty(member) || member.inherited) {
         continue;
       }
@@ -54,7 +54,7 @@ export const getCdnServices = (reflection: SourceMap) => {
           break;
 
         case 'defaultOrigin':
-          if ((service.defaultOrigin = getCdnOrigin(member.value, statement, reflection, errorList))) {
+          if ((service.defaultOrigin = getCdnOrigin(member.value, declaration, reflection, errorList))) {
             properties.delete(member.name);
           }
           break;
@@ -68,15 +68,15 @@ export const getCdnServices = (reflection: SourceMap) => {
           break;
 
         case 'certificate':
-          service.certificate = getCdnCertificate(member.value, statement, reflection, errorList);
+          service.certificate = getCdnCertificate(member.value, declaration, reflection, errorList);
           break;
 
         case 'origins':
-          service.origins = getAllCdnOrigins(member.value, statement, reflection, errorList);
+          service.origins = getAllCdnOrigins(member.value, declaration, reflection, errorList);
           break;
 
         case 'fallbacks':
-          service.fallbacks = getAllFallbacks(member, statement, reflection, errorList);
+          service.fallbacks = getAllFallbacks(member, declaration, reflection, errorList);
           break;
 
         case 'disabled':
@@ -90,12 +90,12 @@ export const getCdnServices = (reflection: SourceMap) => {
       continue;
     }
 
-    if (allServices[statement.name]) {
-      errorList.push(new DuplicateServiceError(statement.name, fileName));
+    if (allServices[declaration.name]) {
+      errorList.push(new DuplicateServiceError(declaration.name, fileName));
       continue;
     }
 
-    allServices[statement.name] = service;
+    allServices[declaration.name] = service;
   }
 
   return {

@@ -16,24 +16,25 @@ import { isModelProperty, isTypeObject, isTypeReference } from '@ez4/reflection'
 
 import { IncorrectDefaultsTypeError, InvalidDefaultsTypeError } from '../library.js';
 import { isHttpDefaults } from './utils.js';
+import { getHttpErrors } from './errors.js';
 
 export const getHttpDefaults = (type: AllType, parent: TypeModel, reflection: SourceMap, errorList: Error[]) => {
   if (!isTypeReference(type)) {
-    return getTypeDefaults(type, parent, errorList);
+    return getTypeDefaults(type, parent, reflection, errorList);
   }
 
-  const statement = getReferenceType(type, reflection);
+  const declaration = getReferenceType(type, reflection);
 
-  if (statement) {
-    return getTypeDefaults(statement, parent, errorList);
+  if (declaration) {
+    return getTypeDefaults(declaration, parent, reflection, errorList);
   }
 
   return null;
 };
 
-const getTypeDefaults = (type: AllType, parent: TypeModel, errorList: Error[]) => {
+const getTypeDefaults = (type: AllType, parent: TypeModel, reflection: SourceMap, errorList: Error[]) => {
   if (isTypeObject(type)) {
-    return getTypeFromMembers(parent, getObjectMembers(type), errorList);
+    return getTypeFromMembers(parent, getObjectMembers(type), reflection, errorList);
   }
 
   if (!isModelDeclaration(type)) {
@@ -46,10 +47,10 @@ const getTypeDefaults = (type: AllType, parent: TypeModel, errorList: Error[]) =
     return null;
   }
 
-  return getTypeFromMembers(parent, getModelMembers(type), errorList);
+  return getTypeFromMembers(parent, getModelMembers(type), reflection, errorList);
 };
 
-const getTypeFromMembers = (parent: TypeModel, members: MemberType[], errorList: Error[]) => {
+const getTypeFromMembers = (parent: TypeModel, members: MemberType[], reflection: SourceMap, errorList: Error[]) => {
   const defaults: HttpDefaults = {};
 
   for (const member of members) {
@@ -62,9 +63,13 @@ const getTypeFromMembers = (parent: TypeModel, members: MemberType[], errorList:
         errorList.push(new InvalidServicePropertyError(parent.name, member.name, parent.file));
         break;
 
+      case 'httpErrors':
+        defaults.httpErrors = getHttpErrors(member.value, parent, reflection, errorList);
+        break;
+
       case 'memory':
+      case 'logRetention':
       case 'timeout':
-      case 'retention':
         defaults[member.name] = getPropertyNumber(member);
         break;
 

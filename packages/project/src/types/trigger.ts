@@ -42,6 +42,7 @@ export type EventContext = {
   role: EntryState | null;
   getServiceState: (service: ServiceMetadata | string, options: DeployOptions) => EntryState;
   setServiceState: (state: EntryState, service: ServiceMetadata | string, options: DeployOptions) => void;
+  getDependencies: (fileName: string) => string[];
 };
 
 export type ServiceEvent = {
@@ -86,6 +87,7 @@ export type ConnectResourceEvent = {
 export type DeployEvent = {
   newState: EntryStates;
   oldState: EntryStates;
+  force?: boolean;
 };
 
 export type StateEvent = {

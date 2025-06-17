@@ -1,39 +1,31 @@
-import type { AllType, SourceMap, TypeModel, TypeObject } from '@ez4/reflection';
+import type { AllType, SourceMap, TypeIntersection, TypeModel, TypeObject } from '@ez4/reflection';
 
+import { isTypeIntersection, isTypeObject, isTypeReference } from '@ez4/reflection';
 import { getReferenceType, isModelDeclaration } from '@ez4/common/library';
-import { getObjectSchema, isObjectSchema } from '@ez4/schema/library';
-import { isTypeObject, isTypeReference } from '@ez4/reflection';
 
 import { IncorrectHeadersTypeError, InvalidHeadersTypeError } from '../errors/headers.js';
+import { getSchemaFromType } from './schema.js';
 import { isHttpHeaders } from './utils.js';
 
-export const getHttpHeaders = (
-  type: AllType,
-  parent: TypeObject | TypeModel,
-  reflection: SourceMap,
-  errorList: Error[]
-) => {
+type TypeParent = TypeObject | TypeModel | TypeIntersection;
+
+export const getHttpHeaders = (type: AllType, parent: TypeParent, reflection: SourceMap, errorList: Error[]) => {
   if (!isTypeReference(type)) {
     return getTypeHeaders(type, parent, reflection, errorList);
   }
 
-  const statement = getReferenceType(type, reflection);
+  const declaration = getReferenceType(type, reflection);
 
-  if (statement) {
-    return getTypeHeaders(statement, parent, reflection, errorList);
+  if (declaration) {
+    return getTypeHeaders(declaration, parent, reflection, errorList);
   }
 
   return null;
 };
 
-const getTypeHeaders = (
-  type: AllType,
-  parent: TypeObject | TypeModel,
-  reflection: SourceMap,
-  errorList: Error[]
-) => {
-  if (isTypeObject(type)) {
-    return getHeaderSchema(type, reflection);
+const getTypeHeaders = (type: AllType, parent: TypeParent, reflection: SourceMap, errorList: Error[]) => {
+  if (isTypeObject(type) || isTypeIntersection(type)) {
+    return getSchemaFromType(type, reflection);
   }
 
   if (!isModelDeclaration(type)) {
@@ -46,15 +38,5 @@ const getTypeHeaders = (
     return null;
   }
 
-  return getHeaderSchema(type, reflection);
-};
-
-const getHeaderSchema = (type: TypeObject | TypeModel, reflection: SourceMap) => {
-  const schema = getObjectSchema(type, reflection);
-
-  if (schema && isObjectSchema(schema)) {
-    return schema;
-  }
-
-  return null;
+  return getSchemaFromType(type, reflection);
 };

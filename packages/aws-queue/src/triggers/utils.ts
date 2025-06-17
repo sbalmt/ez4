@@ -5,8 +5,16 @@ import { isQueueImport } from '@ez4/queue/library';
 import { getServiceName } from '@ez4/project/library';
 import { toKebabCase } from '@ez4/utils';
 
+export const getMaxWaitForBatchSize = (batchSize: number) => {
+  return Math.min(Math.round(batchSize / 21), 10);
+};
+
 export const getQueueName = (service: QueueService | QueueImport, options: DeployOptions) => {
   return getServiceName(isQueueImport(service) ? service.reference : service, options);
+};
+
+export const getDeadLetterQueueName = (service: QueueService, options: DeployOptions) => {
+  return `${getServiceName(service, options)}-deadletter`;
 };
 
 export const getInternalName = (service: QueueService | QueueImport, suffixName: string) => {

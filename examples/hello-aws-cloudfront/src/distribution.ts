@@ -7,8 +7,26 @@ import type { SiteBucket } from './storage.js';
  * Example of AWS CloudFront deploy with EZ4.
  */
 export declare class Site extends Cdn.Service {
+  /**
+   * Specify the default index file path.
+   */
   defaultIndex: 'index.html';
 
+  /**
+   * Aliases authorized to access CloudFront.
+   */
+  aliases: ['a.custom-domain.tld', 'b.custom-domain.tld'];
+
+  /**
+   * Specify the certificate for the given alias domain.
+   */
+  certificate: {
+    domain: '*.custom-domain.tld';
+  };
+
+  /**
+   * Default origin coming from bucket.
+   */
   defaultOrigin: {
     bucket: Environment.Service<SiteBucket>;
     cache: {
@@ -18,6 +36,9 @@ export declare class Site extends Cdn.Service {
     };
   };
 
+  /**
+   * Other origins.
+   */
   origins: [
     {
       path: 'forward/*';
@@ -29,7 +50,9 @@ export declare class Site extends Cdn.Service {
     }
   ];
 
-  // Fallback 404 to default index (Useful for SPAs)
+  /**
+   * Fallback 404 to default index (Useful for SPAs)
+   */
   fallbacks: [
     {
       code: 404;

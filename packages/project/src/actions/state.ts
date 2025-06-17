@@ -25,10 +25,7 @@ export const loadLocalState = async (filePath: string): Promise<EntryStates> => 
   return {};
 };
 
-export const loadRemoteState = async (
-  filePath: string,
-  options: DeployOptions
-): Promise<EntryStates> => {
+export const loadRemoteState = async (filePath: string, options: DeployOptions): Promise<EntryStates> => {
   const path = getRemotePath(options.projectName, filePath);
 
   const buffer = await triggerAllAsync('state:load', (handler) =>
@@ -51,11 +48,7 @@ export const saveLocalState = async (filePath: string, state: EntryStates) => {
   await writeFile(filePath, contents);
 };
 
-export const saveRemoteState = async (
-  filePath: string,
-  options: DeployOptions,
-  state: EntryStates
-) => {
+export const saveRemoteState = async (filePath: string, options: DeployOptions, state: EntryStates) => {
   const path = getRemotePath(options.projectName, filePath);
   const contents = packState(state);
 

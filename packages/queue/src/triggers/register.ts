@@ -3,12 +3,10 @@ import { registerTriggers as registerSchemaTriggers } from '@ez4/schema/library'
 import { createTrigger } from '@ez4/project/library';
 
 import { ImportType } from '../types/import.js';
-import { getQueueImports } from '../metadata/import.js';
-
 import { ServiceType } from '../types/service.js';
 import { getQueueServices } from '../metadata/service.js';
-
-import { getLinkedService, getLinkedImport } from './linked.js';
+import { getQueueImports } from '../metadata/import.js';
+import { getLinkedService, getLinkedImport } from './service.js';
 
 let isRegistered = false;
 

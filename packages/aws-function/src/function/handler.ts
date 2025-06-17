@@ -2,7 +2,7 @@ import type { StepContext, StepHandler } from '@ez4/stateful';
 import type { Arn } from '@ez4/aws-common';
 import type { FunctionState, FunctionResult, FunctionParameters } from './types.js';
 
-import { applyTagUpdates, getBundleHashFromCache, ReplaceResourceError } from '@ez4/aws-common';
+import { applyTagUpdates, getBundleHash, ReplaceResourceError } from '@ez4/aws-common';
 import { deepCompare, deepEqual } from '@ez4/utils';
 import { getLogGroupName } from '@ez4/aws-logs';
 import { getRoleArn } from '@ez4/aws-identity';
@@ -41,7 +41,7 @@ const previewResource = async (candidate: FunctionState, current: FunctionState)
     {
       ...target,
       dependencies: candidate.dependencies,
-      sourceHash: await getBundleHashFromCache(target.sourceFile),
+      sourceHash: await getBundleHash(...target.getFunctionFiles()),
       ...(target.variables && {
         variables: protectVariables(target.variables)
       })
@@ -79,9 +79,9 @@ const createResource = async (candidate: FunctionState, context: StepContext): P
   const roleArn = getRoleArn(FunctionServiceName, functionName, context);
   const logGroup = getLogGroupName(FunctionServiceName, functionName, context);
 
-  const [sourceFile, sourceHash] = await Promise.all([
-    parameters.getFunctionBundle(context),
-    getBundleHashFromCache(parameters.sourceFile)
+  const [sourceHash, sourceFile] = await Promise.all([
+    getBundleHash(...parameters.getFunctionFiles()),
+    parameters.getFunctionBundle(context)
   ]);
 
   const importedFunction = await importFunction(functionName);
@@ -217,10 +217,10 @@ const checkSourceCodeUpdates = async (
   current: FunctionResult | undefined,
   context: StepContext
 ) => {
-  const newSourceHash = await getBundleHashFromCache(candidate.sourceFile);
+  const newSourceHash = await getBundleHash(...candidate.getFunctionFiles());
   const oldSourceHash = current?.sourceHash;
 
-  if (newSourceHash === oldSourceHash) {
+  if (newSourceHash === oldSourceHash && !context.force) {
     return current;
   }
 
@@ -233,6 +233,8 @@ const checkSourceCodeUpdates = async (
 
   return {
     sourceHash: newSourceHash,
-    functionVersion
+    ...(functionVersion && {
+      functionVersion
+    })
   };
 };

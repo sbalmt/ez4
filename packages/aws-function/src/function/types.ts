@@ -8,8 +8,11 @@ export const FunctionServiceType = 'aws:lambda.function';
 
 export type GetFunctionBundle = (context: StepContext) => Promise<string> | string;
 
+export type GetFunctionFiles = () => [string, string[]];
+
 export type FunctionParameters = Omit<CreateRequest, 'roleArn' | 'publish'> & {
   getFunctionBundle: GetFunctionBundle;
+  getFunctionFiles: GetFunctionFiles;
 };
 
 export type FunctionResult = ImportOrCreateResponse & {

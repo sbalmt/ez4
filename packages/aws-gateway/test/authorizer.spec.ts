@@ -62,8 +62,9 @@ describe('gateway authorizer', () => {
     const lambdaResource = createAuthorizerFunction(localState, roleResource, logGroupResource, {
       functionName: 'ez4-test-authorizer-lambda',
       authorizer: {
+        sourceFile: join(baseDir, 'lambda.js'),
         functionName: 'main',
-        sourceFile: join(baseDir, 'lambda.js')
+        dependencies: []
       }
     });
 

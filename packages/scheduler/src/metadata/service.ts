@@ -5,7 +5,7 @@ import type { CronService } from '../types/service.js';
 import {
   DuplicateServiceError,
   InvalidServicePropertyError,
-  isExternalStatement,
+  isExternalDeclaration,
   getLinkedServiceList,
   getLinkedVariableList,
   getPropertyBoolean,
@@ -28,24 +28,24 @@ export const getCronServices = (reflection: SourceMap) => {
   const errorList: Error[] = [];
 
   for (const identity in reflection) {
-    const statement = reflection[identity];
+    const declaration = reflection[identity];
 
-    if (!isCronService(statement) || isExternalStatement(statement)) {
+    if (!isCronService(declaration) || isExternalDeclaration(declaration)) {
       continue;
     }
 
     const service: Incomplete<CronService> = { type: ServiceType, extras: {} };
     const properties = new Set(['target', 'expression']);
 
-    const fileName = statement.file;
+    const fileName = declaration.file;
 
-    service.name = statement.name;
+    service.name = declaration.name;
 
-    if (statement.description) {
-      service.description = statement.description;
+    if (declaration.description) {
+      service.description = declaration.description;
     }
 
-    for (const member of getModelMembers(statement, true)) {
+    for (const member of getModelMembers(declaration, true)) {
       if (!isModelProperty(member)) {
         continue;
       }
@@ -55,14 +55,17 @@ export const getCronServices = (reflection: SourceMap) => {
           errorList.push(new InvalidServicePropertyError(service.name, member.name, fileName));
           break;
 
+        case 'client':
+          break;
+
         case 'schema':
-          if ((service.schema = getCronEvent(member.value, statement, reflection, errorList))) {
+          if ((service.schema = getCronEvent(member.value, declaration, reflection, errorList))) {
             properties.delete(member.name);
           }
           break;
 
         case 'target':
-          if (!member.inherited && (service.target = getCronTarget(member.value, statement, reflection, errorList))) {
+          if (!member.inherited && (service.target = getCronTarget(member.value, declaration, reflection, errorList))) {
             properties.delete(member.name);
           }
           break;
@@ -120,19 +123,19 @@ export const getCronServices = (reflection: SourceMap) => {
       continue;
     }
 
-    const validationErrors = validateDynamicProperties(statement, service);
+    const validationErrors = validateDynamicProperties(declaration, service);
 
     if (validationErrors.length) {
       errorList.push(...validationErrors);
       continue;
     }
 
-    if (allServices[statement.name]) {
-      errorList.push(new DuplicateServiceError(statement.name, fileName));
+    if (allServices[declaration.name]) {
+      errorList.push(new DuplicateServiceError(declaration.name, fileName));
       continue;
     }
 
-    allServices[statement.name] = service;
+    allServices[declaration.name] = service;
   }
 
   return {

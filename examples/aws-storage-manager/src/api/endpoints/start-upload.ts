@@ -9,7 +9,7 @@ import { createFile } from '../repository.js';
 /**
  * Start upload request.
  */
-export declare class StartUploadRequest implements Http.Request {
+declare class StartUploadRequest implements Http.Request {
   body: {
     /**
      * Content type of the given file.
@@ -21,7 +21,7 @@ export declare class StartUploadRequest implements Http.Request {
 /**
  * Start upload response.
  */
-export declare class StartUploadResponse implements Http.Response {
+declare class StartUploadResponse implements Http.Response {
   status: 200;
 
   body: {
@@ -40,10 +40,7 @@ export declare class StartUploadResponse implements Http.Response {
 /**
  * Handle start upload requests.
  */
-export async function startUploadHandler(
-  request: StartUploadRequest,
-  context: Service.Context<Api>
-): Promise<StartUploadResponse> {
+export async function startUploadHandler(request: StartUploadRequest, context: Service.Context<Api>): Promise<StartUploadResponse> {
   const { fileDb, fileStorage } = context;
   const { contentType } = request.body;
 

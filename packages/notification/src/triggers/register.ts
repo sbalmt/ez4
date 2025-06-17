@@ -8,8 +8,7 @@ import { getNotificationImports } from '../metadata/import.js';
 
 import { ServiceType } from '../types/service.js';
 import { getNotificationServices } from '../metadata/service.js';
-
-import { getLinkedService, getLinkedImport } from './link.js';
+import { getLinkedService, getLinkedImport } from './service.js';
 
 let isRegistered = false;
 

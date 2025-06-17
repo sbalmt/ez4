@@ -22,6 +22,7 @@ import { IncompleteRouteError } from '../errors/route.js';
 import { isHttpPath, isHttpRoute } from './utils.js';
 import { getHttpAuthorizer } from './authorizer.js';
 import { getHttpHandler } from './handler.js';
+import { getHttpErrors } from './errors.js';
 
 export const getHttpRoutes = (parent: TypeModel, member: ModelProperty, reflection: SourceMap, errorList: Error[]) => {
   const routeItems = getPropertyTuple(member) ?? [];
@@ -50,10 +51,10 @@ const getTypeFromRoute = (type: AllType, parent: TypeModel, reflection: SourceMa
     return getRouteType(type, parent, reflection, errorList);
   }
 
-  const statement = getReferenceType(type, reflection);
+  const declaration = getReferenceType(type, reflection);
 
-  if (statement) {
-    return getRouteType(statement, parent, reflection, errorList);
+  if (declaration) {
+    return getRouteType(declaration, parent, reflection, errorList);
   }
 
   return null;
@@ -116,18 +117,22 @@ const getTypeFromMembers = (
         }
         break;
 
+      case 'authorizer':
+        route.authorizer = getHttpAuthorizer(member.value, parent, reflection, errorList);
+        break;
+
+      case 'httpErrors':
+        route.httpErrors = getHttpErrors(member.value, parent, reflection, errorList);
+        break;
+
       case 'memory':
+      case 'logRetention':
       case 'timeout':
-      case 'retention':
         route[member.name] = getPropertyNumber(member);
         break;
 
       case 'cors':
         route.cors = getPropertyBoolean(member);
-        break;
-
-      case 'authorizer':
-        route.authorizer = getHttpAuthorizer(member.value, parent, reflection, errorList);
         break;
 
       case 'listener':

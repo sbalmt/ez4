@@ -18,7 +18,7 @@ export const trySource = (node: SourceFile, context: Context) => {
 
   const reflection: SourceMap = {};
 
-  const resolver = (node: Node) => {
+  const resolveStatement = (node: Node) => {
     const state = getNewState();
 
     const result =
@@ -43,13 +43,13 @@ export const trySource = (node: SourceFile, context: Context) => {
 
   node.statements.forEach((statement) => {
     if (hasModifierExport(statement)) {
-      resolver(statement);
+      resolveStatement(statement);
     }
   });
 
   context.pending.forEach((statement) => {
     if (!context.cache.has(statement)) {
-      resolver(statement);
+      resolveStatement(statement);
     }
   });
 

@@ -13,10 +13,12 @@ export const createAuthorizerFunction = <E extends EntryState>(
   logGroupState: LogGroupState,
   parameters: AuthorizerFunctionParameters
 ) => {
+  const { authorizer } = parameters;
+
   return createFunction(state, roleState, logGroupState, {
     handlerName: 'apiEntryPoint',
+    sourceFile: authorizer.sourceFile,
     functionName: parameters.functionName,
-    sourceFile: parameters.authorizer.sourceFile,
     description: parameters.description,
     variables: parameters.variables,
     timeout: parameters.timeout,
@@ -26,6 +28,9 @@ export const createAuthorizerFunction = <E extends EntryState>(
     getFunctionBundle: (context) => {
       const dependencies = context.getDependencies();
       return bundleApiFunction(dependencies, parameters);
+    },
+    getFunctionFiles: () => {
+      return [authorizer.sourceFile, authorizer.dependencies];
     }
   });
 };

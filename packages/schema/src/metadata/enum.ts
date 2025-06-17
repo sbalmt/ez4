@@ -34,13 +34,13 @@ export const getEnumSchema = (
   description?: string
 ): EnumSchema | null => {
   if (isTypeReference(type)) {
-    const statement = reflection[type.path];
+    const declaration = reflection[type.path];
 
-    if (!statement) {
+    if (!declaration) {
       throw new SchemaReferenceNotFound(type.path);
     }
 
-    const schema = getEnumSchema(statement, reflection, description);
+    const schema = getEnumSchema(declaration, reflection, description);
 
     if (isRichTypeReference(type) && type.definitions && schema) {
       schema.definitions = {

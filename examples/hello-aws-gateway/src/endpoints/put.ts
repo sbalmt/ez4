@@ -1,10 +1,12 @@
 import type { String } from '@ez4/schema';
 import type { Http } from '@ez4/gateway';
 
+import { CustomError } from '../errors.js';
+
 /**
  * Put request example.
  */
-export declare class PutRequest implements Http.Request {
+declare class PutRequest implements Http.Request {
   parameters: {
     /**
      * Example of `id` in the path parameters.
@@ -23,7 +25,7 @@ export declare class PutRequest implements Http.Request {
 /**
  * Put response example.
  */
-export declare class PutResponse implements Http.Response {
+declare class PutResponse implements Http.Response {
   status: 200;
 
   body: {
@@ -44,7 +46,7 @@ export function putHandler(request: PutRequest): PutResponse {
 
   // Check error catcher.
   if (foo === 'error') {
-    throw new Error(`Put error.`);
+    throw new CustomError('Put error.');
   }
 
   return {

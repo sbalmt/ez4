@@ -8,7 +8,7 @@ import { HttpBadRequestError } from '@ez4/gateway';
 /**
  * Start download request.
  */
-export declare class StartDownloadRequest implements Http.Request {
+declare class StartDownloadRequest implements Http.Request {
   parameters: {
     /**
      * File Id.
@@ -20,7 +20,7 @@ export declare class StartDownloadRequest implements Http.Request {
 /**
  * Start download response.
  */
-export declare class StartDownloadResponse implements Http.Response {
+declare class StartDownloadResponse implements Http.Response {
   status: 200;
 
   body: {
@@ -31,10 +31,7 @@ export declare class StartDownloadResponse implements Http.Response {
 /**
  * Handle start download requests.
  */
-export async function startDownloadHandler(
-  request: StartDownloadRequest,
-  context: Service.Context<Api>
-): Promise<StartDownloadResponse> {
+export async function startDownloadHandler(request: StartDownloadRequest, context: Service.Context<Api>): Promise<StartDownloadResponse> {
   const { fileId } = request.parameters;
   const { fileStorage } = context;
 

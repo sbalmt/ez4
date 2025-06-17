@@ -17,7 +17,7 @@
         "name": "targetHandler",
         "file": "test/input/output-service.ts"
       },
-      "retention": 14,
+      "logRetention": 14,
       "timeout": 30,
       "memory": 128,
       "variables": {

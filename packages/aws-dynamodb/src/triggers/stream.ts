@@ -29,7 +29,7 @@ export const prepareTableStream = (
     throw new RoleMissingError();
   }
 
-  const { handler, listener, retention, timeout, memory, variables } = table.stream;
+  const { handler, listener, logRetention, timeout, memory, variables } = table.stream;
 
   const internalName = getInternalName(service, table, handler.name);
 
@@ -39,7 +39,7 @@ export const prepareTableStream = (
     const streamName = getStreamName(service, table, handler.name, options);
 
     const logGroupState = createLogGroup(state, {
-      retention: retention ?? Defaults.LogRetention,
+      retention: logRetention ?? Defaults.LogRetention,
       groupName: streamName,
       tags: options.tags
     });
@@ -59,6 +59,7 @@ export const prepareTableStream = (
         ...variables
       },
       handler: {
+        dependencies: context.getDependencies(handler.file),
         functionName: handler.name,
         sourceFile: handler.file
       },

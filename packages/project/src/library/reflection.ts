@@ -1,6 +1,6 @@
 import type { SourceMap, TypeObject } from '@ez4/reflection';
 
-import { getReflectionMetadata, createCompilerHost, createCompilerOptions } from '@ez4/reflection';
+import { resolveReflectionMetadata, createCompilerHost, createCompilerOptions } from '@ez4/reflection';
 import { triggerAllSync } from '@ez4/project/library';
 import { createProgram } from 'typescript';
 import { existsSync } from 'node:fs';
@@ -22,7 +22,7 @@ export const getReflection = (sourceFiles: string[]): SourceMap => {
     })
   });
 
-  return getReflectionMetadata(program, {
+  const metadata = resolveReflectionMetadata(program, {
     resolverOptions: {
       includePath: true,
       ignoreMethod: true
@@ -33,6 +33,8 @@ export const getReflection = (sourceFiles: string[]): SourceMap => {
       }
     }
   });
+
+  return metadata;
 };
 
 const assertSourceFiles = (sourceFiles: string[]) => {

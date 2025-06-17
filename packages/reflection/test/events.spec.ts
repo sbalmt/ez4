@@ -3,13 +3,13 @@ import type { ResolverEvents } from '@ez4/reflection';
 import { strictEqual } from 'node:assert/strict';
 import { describe, it, mock } from 'node:test';
 
-import { reflectionFromFiles } from '@ez4/reflection';
+import { getReflectionFromFiles } from '@ez4/reflection';
 
 const testFile = (fileName: string, eventName: keyof ResolverEvents, callCount: number) => {
   const sourceFile = `./test/events/${fileName}.ts`;
   const eventFunction = mock.fn();
 
-  reflectionFromFiles([sourceFile], {
+  getReflectionFromFiles([sourceFile], {
     resolverEvents: {
       [eventName]: eventFunction
     }

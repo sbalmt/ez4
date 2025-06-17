@@ -1,17 +1,21 @@
 import type { FunctionParameters } from '@ez4/aws-function';
 import type { ExtraSource } from '@ez4/project/library';
 
-export type BucketEventEntryPoint = {
+export type BucketEventFunction = {
   functionName: string;
   sourceFile: string;
 };
 
+export type BucketEventEntryPoint = BucketEventFunction & {
+  dependencies: string[];
+};
+
 export type BucketEventFunctionParameters = Omit<
   FunctionParameters,
-  'getFunctionBundle' | 'sourceFile' | 'handlerName'
+  'getFunctionBundle' | 'getFunctionFiles' | 'sourceFile' | 'handlerName'
 > & {
   handler: BucketEventEntryPoint;
-  listener?: BucketEventEntryPoint;
+  listener?: BucketEventFunction;
   extras?: Record<string, ExtraSource>;
   debug?: boolean;
 };

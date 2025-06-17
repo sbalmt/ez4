@@ -58,7 +58,8 @@ describe('scheduler', () => {
       functionName: 'ez4-test-scheduler-lambda',
       handler: {
         sourceFile: join(baseDir, 'lambda.js'),
-        functionName: 'main'
+        functionName: 'main',
+        dependencies: []
       }
     });
 

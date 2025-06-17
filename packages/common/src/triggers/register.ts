@@ -14,7 +14,7 @@ export const registerTriggers = () => {
     return;
   }
 
-  createTrigger('@ez4/project', {
+  createTrigger('@ez4/common', {
     'reflection:loadFile': applyRichTypePath,
     'reflection:typeObject': applyRichTypeObject
   });

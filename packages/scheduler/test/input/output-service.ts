@@ -23,7 +23,7 @@ export declare class TestScheduler extends Cron.Service {
 
   target: {
     handler: typeof targetHandler;
-    retention: 14;
+    logRetention: 14;
     timeout: 30;
     memory: 128;
     variables: {

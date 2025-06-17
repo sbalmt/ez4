@@ -25,10 +25,10 @@ export const getCronTarget = (type: AllType, parent: TypeModel, reflection: Sour
     return getTypeTarget(type, parent, reflection, errorList);
   }
 
-  const statement = getReferenceType(type, reflection);
+  const declaration = getReferenceType(type, reflection);
 
-  if (statement) {
-    return getTypeTarget(statement, parent, reflection, errorList);
+  if (declaration) {
+    return getTypeTarget(declaration, parent, reflection, errorList);
   }
 
   return null;
@@ -87,8 +87,8 @@ const getTypeFromMembers = (
         break;
 
       case 'memory':
+      case 'logRetention':
       case 'timeout':
-      case 'retention':
         target[member.name] = getPropertyNumber(member);
         break;
 

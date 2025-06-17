@@ -1,7 +1,7 @@
 {
   "name": "@ez4/distribution",
   "description": "EZ4: Components to build CDN services",
-  "version": "0.19.0",
+  "version": "0.20.0",
   "author": "Silas B.",
   "license": "MIT",
   "type": "module",
@@ -42,10 +42,10 @@
     "live:publish": "npm run test && npm publish --access public"
   },
   "dependencies": {
-    "@ez4/common": "^0.19.0",
-    "@ez4/project": "^0.19.0",
-    "@ez4/reflection": "^0.19.0",
-    "@ez4/storage": "^0.19.0",
-    "@ez4/utils": "^0.19.0"
+    "@ez4/common": "^0.20.0",
+    "@ez4/project": "^0.20.0",
+    "@ez4/reflection": "^0.20.0",
+    "@ez4/storage": "^0.20.0",
+    "@ez4/utils": "^0.20.0"
   }
 }

@@ -2,8 +2,8 @@ import { existsSync, readFileSync, writeFileSync } from 'node:fs';
 import { deepEqual, equal } from 'node:assert/strict';
 import { describe, it } from 'node:test';
 
-import { getReflection } from '@ez4/project/library';
 import { registerTriggers, getHttpServices } from '@ez4/gateway/library';
+import { getReflection } from '@ez4/project/library';
 
 const testFile = (fileName: string, overwrite = false) => {
   const sourceFile = `./test/input/output-${fileName}.ts`;
@@ -41,6 +41,7 @@ describe('http metadata', () => {
   it('assert :: route parameters', () => testFile('parameters'));
   it('assert :: route query', () => testFile('query'));
   it('assert :: route body', () => testFile('body'));
-  it('assert :: route cors', () => testFile('cors'));
+  it('assert :: route errors', () => testFile('errors'));
   it('assert :: route cache', () => testFile('cache'));
+  it('assert :: route cors', () => testFile('cors'));
 });

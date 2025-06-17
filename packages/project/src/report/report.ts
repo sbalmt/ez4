@@ -10,9 +10,8 @@ import { MissingEntryResourceError } from '../errors/resource.js';
 import { MissingProviderError } from '../errors/provider.js';
 import { formatReportChanges } from './format.js';
 
-export const reportResourceChanges = async (newState: EntryStates, oldState: EntryStates) => {
-  const event = { newState, oldState };
-  const steps = await triggerAllAsync('deploy:plan', (handler) => handler(event));
+export const reportResourceChanges = async (newState: EntryStates, oldState: EntryStates, force?: boolean) => {
+  const steps = await triggerAllAsync('deploy:plan', (handler) => handler({ newState, oldState, force }));
 
   if (!steps) {
     throw new MissingProviderError('deploy:plan');
@@ -39,7 +38,13 @@ export const reportResourceChanges = async (newState: EntryStates, oldState: Ent
     }
   }
 
-  return changes > 0;
+  if (changes > 0) {
+    console.log('');
+
+    return true;
+  }
+
+  return false;
 };
 
 const reportResourceCreate = (entryId: string, newState: EntryStates) => {
@@ -94,11 +99,11 @@ const printResourceChanges = (entryId: string, type: string, changes: ObjectComp
   if (output.length > 0) {
     const name = 'name' in changes ? changes.name : 'unnamed';
 
+    console.log('');
+
     console.group(`# ${toBold(type)} ${toGray(`(${entryId} / ${name})`)} ${action}`);
     console.log(output.join('\n'));
     console.groupEnd();
-
-    console.log('');
   }
 
   return output.length;

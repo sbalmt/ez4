@@ -60,7 +60,7 @@ export const prepareSelectQuery = <T extends InternalTableMetadata, S extends Qu
 export const getSelectFields = <T extends InternalTableMetadata, S extends AnyObject>(
   sql: SqlBuilder,
   fields: Query.StrictSelectInput<S, T>,
-  include: Query.StrictIncludeInput<T> | undefined | null,
+  include: Query.StrictIncludeInput<S, T> | undefined | null,
   schema: ObjectSchema,
   relations: RepositoryRelationsWithSchema,
   source: SqlSource,
@@ -101,29 +101,47 @@ export const getSelectFields = <T extends InternalTableMetadata, S extends AnyOb
           [sourceColumn]: source.reference(targetColumn)
         });
 
-      if (relationIncludes) {
-        relationQuery.order(relationIncludes.order);
-
-        if ('skip' in relationIncludes) {
-          relationQuery.skip(relationIncludes.skip);
-        }
-
-        if ('take' in relationIncludes) {
-          relationQuery.take(relationIncludes.take);
-        }
-      }
-
-      const record = getSelectFields(sql, relationFields, null, sourceSchema, relations, relationQuery, fieldPath, true);
+      source.as('R');
 
       if (sourceIndex === Index.Primary || sourceIndex === Index.Unique) {
+        const record = getSelectFields(sql, relationFields, null, sourceSchema, relations, relationQuery, fieldPath, true);
+
         relationQuery.objectColumn(record);
-      } else {
-        relationQuery.arrayColumn(record);
+
+        output[fieldKey] = relationQuery;
+        continue;
       }
 
-      output[fieldKey] = relationQuery;
+      if (!relationIncludes || (!('skip' in relationIncludes) && !('take' in relationIncludes))) {
+        const record = getSelectFields(sql, relationFields, null, sourceSchema, relations, relationQuery, fieldPath, true);
 
-      source.as('R');
+        relationQuery.arrayColumn(record, {
+          order: relationIncludes?.order
+        });
+
+        output[fieldKey] = relationQuery;
+        continue;
+      }
+
+      const record = getSelectFields(sql, relationFields, null, sourceSchema, relations, relationQuery, fieldPath);
+
+      relationQuery.order(relationIncludes?.order).record(record);
+
+      if ('skip' in relationIncludes) {
+        relationQuery.skip(relationIncludes.skip);
+      }
+
+      if ('take' in relationIncludes) {
+        relationQuery.take(relationIncludes.take);
+      }
+
+      const wrapQuery = sql.select().from(relationQuery);
+
+      wrapQuery.arrayColumn(relationFields, {
+        order: relationIncludes?.order
+      });
+
+      output[fieldKey] = wrapQuery;
       continue;
     }
 

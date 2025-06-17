@@ -6,12 +6,12 @@ import type { QueueState } from '../queue/types.js';
 import { linkServiceExtras } from '@ez4/project/library';
 import { getFunctionState, tryGetFunctionState } from '@ez4/aws-function';
 import { isRoleState } from '@ez4/aws-identity';
+import { createLogGroup } from '@ez4/aws-logs';
 
 import { createMapping } from '../mapping/service.js';
 import { createQueueFunction } from '../mapping/function/service.js';
-import { getFunctionName, getInternalName } from './utils.js';
+import { getFunctionName, getInternalName, getMaxWaitForBatchSize } from './utils.js';
 import { RoleMissingError } from './errors.js';
-import { createLogGroup } from '@ez4/aws-logs';
 import { Defaults } from './defaults.js';
 
 export const prepareSubscriptions = async (
@@ -36,7 +36,7 @@ export const prepareSubscriptions = async (
       const subscriptionName = getFunctionName(service, handler.name, options);
 
       const logGroupState = createLogGroup(state, {
-        retention: subscription.retention ?? Defaults.LogRetention,
+        retention: subscription.logRetention ?? Defaults.LogRetention,
         groupName: subscriptionName,
         tags: options.tags
       });
@@ -56,6 +56,7 @@ export const prepareSubscriptions = async (
           ...subscription.variables
         },
         handler: {
+          dependencies: context.getDependencies(handler.file),
           functionName: handler.name,
           sourceFile: handler.file
         },
@@ -70,9 +71,16 @@ export const prepareSubscriptions = async (
       context.setServiceState(handlerState, internalName, options);
     }
 
+    const { batch = Defaults.Batch, concurrency } = subscription;
+    const { fifoMode } = service;
+
     createMapping(state, queueState, handlerState, {
-      concurrency: subscription.concurrency,
-      fromService: internalName
+      fromService: internalName,
+      concurrency,
+      batch: {
+        ...(!fifoMode && { maxWait: getMaxWaitForBatchSize(batch) }),
+        size: batch
+      }
     });
   }
 };

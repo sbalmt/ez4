@@ -32,10 +32,10 @@ export type HttpResponse = {
 
 export type HttpHandler = {
   name: string;
-  file: string;
   description?: string;
   response: HttpResponse;
   request?: HttpRequest;
+  file: string;
 };
 
 export type HttpAuthorizer = {
@@ -46,23 +46,33 @@ export type HttpAuthorizer = {
   request?: HttpAuthRequest;
 };
 
+export type HttpErrors = {
+  [name: string]: number;
+};
+
 export type HttpRoute = {
   path: HttpPath;
-  listener?: ServiceListener;
-  authorizer?: HttpAuthorizer;
   handler: HttpHandler;
+  listener?: ServiceListener | null;
+  authorizer?: HttpAuthorizer | null;
   variables?: LinkedVariables | null;
-  retention?: number;
-  timeout?: number;
-  memory?: number;
-  cors?: boolean;
+  logRetention?: number | null;
+  httpErrors?: HttpErrors | null;
+  timeout?: number | null;
+  memory?: number | null;
+  cors?: boolean | null;
 };
 
 export type HttpDefaults = {
-  retention?: number | null;
+  logRetention?: number | null;
+  httpErrors?: HttpErrors | null;
   listener?: ServiceListener | null;
   timeout?: number | null;
   memory?: number | null;
+};
+
+export type HttpCache = {
+  authorizerTTL?: number;
 };
 
 export type HttpCors = {
@@ -72,8 +82,4 @@ export type HttpCors = {
   exposeHeaders?: string[];
   allowHeaders?: string[];
   maxAge?: number;
-};
-
-export type HttpCache = {
-  authorizerTTL?: number;
 };

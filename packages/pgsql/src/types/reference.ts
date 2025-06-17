@@ -1,11 +1,34 @@
 import type { SqlSource } from './source.js';
 
+import { MissingTableAliasError } from '../errors/queries.js';
 import { escapeSqlName } from '../utils/escape.js';
 import { mergeSqlAlias } from '../utils/merge.js';
 
 export type SqlReferenceGenerator = (source: SqlSource) => string;
 
-export class SqlReference {
+export class SqlTableReference {
+  #state: {
+    source: SqlSource;
+  };
+
+  constructor(source: SqlSource) {
+    this.#state = {
+      source
+    };
+  }
+
+  build() {
+    const { source } = this.#state;
+
+    if (source.alias) {
+      return escapeSqlName(source.alias);
+    }
+
+    throw new MissingTableAliasError();
+  }
+}
+
+export class SqlColumnReference {
   #state: {
     source: SqlSource;
     column: string | SqlReferenceGenerator;

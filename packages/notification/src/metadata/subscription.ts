@@ -43,10 +43,10 @@ const getNotificationSubscription = (type: AllType, parent: TypeModel, reflectio
     return getTypeSubscription(type, parent, reflection, errorList);
   }
 
-  const statement = getReferenceType(type, reflection);
+  const declaration = getReferenceType(type, reflection);
 
-  if (statement) {
-    return getTypeSubscription(statement, parent, reflection, errorList);
+  if (declaration) {
+    return getTypeSubscription(declaration, parent, reflection, errorList);
   }
 
   return null;
@@ -139,8 +139,8 @@ const getLambdaSubscription = (
         break;
 
       case 'memory':
+      case 'logRetention':
       case 'timeout':
-      case 'retention':
         subscription[member.name] = getPropertyNumber(member);
         break;
 

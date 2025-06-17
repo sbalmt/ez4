@@ -1,5 +1,5 @@
 import type { QueueAttributeName } from '@aws-sdk/client-sqs';
-import type { ResourceTags } from '@ez4/aws-common';
+import type { Arn, ResourceTags } from '@ez4/aws-common';
 
 import {
   SQSClient,
@@ -13,18 +13,25 @@ import {
 } from '@aws-sdk/client-sqs';
 
 import { Logger, waitCreation } from '@ez4/aws-common';
+import { isEmptyObject } from '@ez4/utils';
 
 import { parseQueueUrl } from './helpers/url.js';
 import { QueueServiceName } from './types.js';
 
 const client = new SQSClient({});
 
+export type DeadLetter = {
+  targetQueueArn: Arn;
+  maxRetries: number;
+};
+
 export type CreateRequest = {
   queueName: string;
   fifoMode: boolean;
-  timeout?: number;
+  deadLetter?: DeadLetter;
   retention?: number;
   polling?: number;
+  timeout?: number;
   delay?: number;
   tags?: ResourceTags;
 };
@@ -33,7 +40,7 @@ export type CreateResponse = {
   queueUrl: string;
 };
 
-export type UpdateRequest = Pick<CreateRequest, 'timeout' | 'retention' | 'polling' | 'delay'>;
+export type UpdateRequest = Pick<CreateRequest, 'timeout' | 'retention' | 'polling' | 'delay' | 'deadLetter'>;
 
 export const fetchQueue = async (queueName: string) => {
   Logger.logFetch(QueueServiceName, queueName);
@@ -85,12 +92,16 @@ export const updateQueue = async (queueUrl: string, request: UpdateRequest) => {
 
   Logger.logUpdate(QueueServiceName, queueName);
 
+  const attributes = upsertQueueAttributes(request);
+
+  if (isEmptyObject(attributes)) {
+    return;
+  }
+
   await client.send(
     new SetQueueAttributesCommand({
       QueueUrl: queueUrl,
-      Attributes: {
-        ...upsertQueueAttributes(request)
-      }
+      Attributes: attributes
     })
   );
 };
@@ -147,12 +158,18 @@ export const deleteQueue = async (queueUrl: string) => {
 };
 
 const upsertQueueAttributes = (request: CreateRequest | UpdateRequest): Partial<Record<QueueAttributeName, string>> => {
-  const { timeout, retention, polling, delay } = request;
+  const { timeout, retention, polling, delay, deadLetter } = request;
 
   return {
     ...(timeout !== undefined && { VisibilityTimeout: timeout.toString() }),
     ...(retention !== undefined && { MessageRetentionPeriod: (retention * 60).toString() }),
     ...(polling !== undefined && { ReceiveMessageWaitTimeSeconds: polling.toString() }),
-    ...(delay !== undefined && { DelaySeconds: delay.toString() })
+    ...(delay !== undefined && { DelaySeconds: delay.toString() }),
+    ...(deadLetter && {
+      RedrivePolicy: JSON.stringify({
+        deadLetterTargetArn: deadLetter.targetQueueArn,
+        maxReceiveCount: deadLetter.maxRetries
+      })
+    })
   };
 };

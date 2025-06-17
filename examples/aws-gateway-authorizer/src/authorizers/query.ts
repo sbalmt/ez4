@@ -6,7 +6,7 @@ const SUPER_SECRET_API_KEY = 'query-api-key';
 /**
  * Query authorizer example.
  */
-export declare class QueryAuthorizer implements Http.AuthRequest {
+declare class QueryAuthorizer implements Http.AuthRequest {
   query: {
     apiKey: string;
   };

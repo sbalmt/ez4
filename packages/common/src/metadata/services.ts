@@ -33,22 +33,22 @@ export const getLinkedServiceName = (
 ): string | null => {
   const referencePath = getPropertyString(member);
 
-  const statement = referencePath && reflection[referencePath];
+  const declaration = referencePath && reflection[referencePath];
 
-  if (!statement) {
+  if (!declaration) {
     errorList.push(new MissingServiceError(member.name, parent.file));
     return null;
   }
 
-  if (!isClassDeclaration(statement)) {
-    errorList.push(new InvalidServiceError(statement.name, statement.file));
+  if (!isClassDeclaration(declaration)) {
+    errorList.push(new InvalidServiceError(declaration.name, declaration.file));
     return null;
   }
 
-  const service = triggerAllSync('metadata:getLinkedService', (handler) => handler(statement));
+  const service = triggerAllSync('metadata:getLinkedService', (handler) => handler(declaration));
 
   if (!service) {
-    errorList.push(new MissingServiceProviderError(statement.name, statement.file));
+    errorList.push(new MissingServiceProviderError(declaration.name, declaration.file));
   }
 
   return service;

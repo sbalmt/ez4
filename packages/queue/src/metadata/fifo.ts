@@ -1,6 +1,6 @@
-import type { Incomplete } from '@ez4/utils';
-import type { MemberType } from '@ez4/common/library';
 import type { AllType, SourceMap, TypeModel, TypeObject } from '@ez4/reflection';
+import type { MemberType } from '@ez4/common/library';
+import type { Incomplete } from '@ez4/utils';
 import type { QueueFifoMode } from '../types/common.js';
 
 import {
@@ -22,10 +22,10 @@ export const getQueueFifoMode = (type: AllType, parent: TypeModel, reflection: S
     return getTypeFifoMode(type, parent, errorList);
   }
 
-  const statement = getReferenceType(type, reflection);
+  const declaration = getReferenceType(type, reflection);
 
-  if (statement) {
-    return getTypeFifoMode(statement, parent, errorList);
+  if (declaration) {
+    return getTypeFifoMode(declaration, parent, errorList);
   }
 
   return null;
@@ -54,7 +54,7 @@ const getTypeFifoMode = (type: AllType, parent: TypeModel, errorList: Error[]) =
 };
 
 const getTypeFromMembers = (type: TypeObject | TypeModel, parent: TypeModel, members: MemberType[], errorList: Error[]) => {
-  const fifoOptions: Incomplete<QueueFifoMode> = {};
+  const fifoMode: Incomplete<QueueFifoMode> = {};
   const properties = new Set(['groupId']);
 
   for (const member of members) {
@@ -67,17 +67,17 @@ const getTypeFromMembers = (type: TypeObject | TypeModel, parent: TypeModel, mem
         errorList.push(new InvalidServicePropertyError(parent.name, member.name, type.file));
         break;
 
-      case 'uniqueId':
       case 'groupId':
-        if ((fifoOptions[member.name] = getPropertyString(member))) {
+      case 'uniqueId':
+        if ((fifoMode[member.name] = getPropertyString(member))) {
           properties.delete(member.name);
         }
         break;
     }
   }
 
-  if (isValidFifoMode(fifoOptions)) {
-    return fifoOptions;
+  if (isValidFifoMode(fifoMode)) {
+    return fifoMode;
   }
 
   errorList.push(new IncompleteFifoModeError([...properties], type.file));

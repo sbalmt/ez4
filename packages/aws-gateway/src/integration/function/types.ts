@@ -2,20 +2,28 @@ import type { ArraySchema, ObjectSchema, ScalarSchema, UnionSchema } from '@ez4/
 import type { FunctionParameters } from '@ez4/aws-function';
 import type { ExtraSource } from '@ez4/project/library';
 
-export type IntegrationEntryPoint = {
+export type IntegrationFunction = {
   functionName: string;
   sourceFile: string;
 };
 
-export type IntegrationFunctionParameters = Omit<FunctionParameters, 'getFunctionBundle' | 'sourceFile' | 'handlerName'> & {
+export type IntegrationEntryPoint = IntegrationFunction & {
+  dependencies: string[];
+};
+
+export type IntegrationFunctionParameters = Omit<
+  FunctionParameters,
+  'getFunctionBundle' | 'getFunctionFiles' | 'sourceFile' | 'handlerName'
+> & {
   handler: IntegrationEntryPoint;
-  listener?: IntegrationEntryPoint;
+  listener?: IntegrationFunction;
   responseSchema?: ObjectSchema | UnionSchema | ArraySchema | ScalarSchema | null;
   headersSchema?: ObjectSchema | null;
   identitySchema?: ObjectSchema | UnionSchema | null;
   parametersSchema?: ObjectSchema | null;
   querySchema?: ObjectSchema | null;
   bodySchema?: ObjectSchema | UnionSchema | ArraySchema | null;
+  errorsMap?: Record<string, number> | null;
   extras?: Record<string, ExtraSource>;
   debug?: boolean;
 };

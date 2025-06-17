@@ -5,7 +5,7 @@ import type { BucketService } from '../types/service.js';
 import {
   DuplicateServiceError,
   InvalidServicePropertyError,
-  isExternalStatement,
+  isExternalDeclaration,
   getLinkedVariableList,
   getLinkedServiceList,
   getModelMembers,
@@ -26,19 +26,19 @@ export const getBucketServices = (reflection: SourceMap) => {
   const errorList: Error[] = [];
 
   for (const identity in reflection) {
-    const statement = reflection[identity];
+    const declaration = reflection[identity];
 
-    if (!isBucketService(statement) || isExternalStatement(statement)) {
+    if (!isBucketService(declaration) || isExternalDeclaration(declaration)) {
       continue;
     }
 
     const service: Incomplete<BucketService> = { type: ServiceType, extras: {} };
 
-    const fileName = statement.file;
+    const fileName = declaration.file;
 
-    service.name = statement.name;
+    service.name = declaration.name;
 
-    for (const member of getModelMembers(statement)) {
+    for (const member of getModelMembers(declaration)) {
       if (!isModelProperty(member) || member.inherited) {
         continue;
       }
@@ -46,6 +46,9 @@ export const getBucketServices = (reflection: SourceMap) => {
       switch (member.name) {
         default:
           errorList.push(new InvalidServicePropertyError(service.name, member.name, fileName));
+          break;
+
+        case 'client':
           break;
 
         case 'localPath':
@@ -58,11 +61,11 @@ export const getBucketServices = (reflection: SourceMap) => {
           break;
 
         case 'events':
-          service.events = getBucketEvent(member.value, statement, reflection, errorList);
+          service.events = getBucketEvent(member.value, declaration, reflection, errorList);
           break;
 
         case 'cors':
-          service.cors = getBucketCors(member.value, statement, reflection, errorList);
+          service.cors = getBucketCors(member.value, declaration, reflection, errorList);
           break;
 
         case 'variables':
@@ -80,12 +83,12 @@ export const getBucketServices = (reflection: SourceMap) => {
       continue;
     }
 
-    if (allServices[statement.name]) {
-      errorList.push(new DuplicateServiceError(statement.name, fileName));
+    if (allServices[declaration.name]) {
+      errorList.push(new DuplicateServiceError(declaration.name, fileName));
       continue;
     }
 
-    allServices[statement.name] = service;
+    allServices[declaration.name] = service;
   }
 
   return {

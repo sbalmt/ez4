@@ -40,10 +40,10 @@ const getCdnFallback = (type: AllType, parent: TypeModel, reflection: SourceMap,
     return getTypeFallback(type, parent, errorList);
   }
 
-  const statement = getReferenceType(type, reflection);
+  const declaration = getReferenceType(type, reflection);
 
-  if (statement) {
-    return getTypeFallback(statement, parent, errorList);
+  if (declaration) {
+    return getTypeFallback(declaration, parent, errorList);
   }
 
   return null;

@@ -45,7 +45,7 @@ type TestTableMetadata = {
   };
 };
 
-describe.only('aurora query (select relations)', () => {
+describe('aurora query (select relations)', () => {
   const testSchema: ObjectSchema = {
     type: SchemaType.Object,
     properties: {
@@ -232,7 +232,7 @@ describe.only('aurora query (select relations)', () => {
     assert.deepEqual(variables, [makeParameter('0', '00000000-0000-1000-9000-000000000000', 'UUID')]);
   });
 
-  it.only('assert :: prepare select relations (with includes)', ({ assert }) => {
+  it('assert :: prepare select relations (with include)', ({ assert }) => {
     const [statement, variables] = prepareSelect({
       select: {
         id: true,
@@ -248,12 +248,7 @@ describe.only('aurora query (select relations)', () => {
       },
       include: {
         primary_to_secondary: {
-          where: {},
-          order: {
-            foo: Order.Desc
-          },
-          skip: 1,
-          take: 5
+          where: {}
         },
         unique_to_primary: {},
         secondary_to_primary: {
@@ -272,13 +267,87 @@ describe.only('aurora query (select relations)', () => {
       `SELECT "R"."id", ` +
         // First relation
         `(SELECT json_build_object('foo', "T"."foo") FROM "ez4-test-relation" AS "T" ` +
-        `WHERE "T"."id" = "R"."relation1_id" ORDER BY "foo" DESC OFFSET 1 LIMIT 5) AS "primary_to_secondary", ` +
+        `WHERE "T"."id" = "R"."relation1_id") AS "primary_to_secondary", ` +
         // Second relation
         `(SELECT json_build_object('foo', "T"."foo") FROM "ez4-test-relation" AS "T" ` +
         `WHERE "T"."relation2_id" = "R"."id") AS "unique_to_primary", ` +
         // Third relation
         `(SELECT COALESCE(json_agg(json_build_object('foo', "T"."foo")), '[]'::json) FROM "ez4-test-relation" AS "T" ` +
         `WHERE "T"."foo" = :0 AND "T"."relation1_id" = "R"."id") AS "secondary_to_primary" ` +
+        //
+        `FROM "ez4-test-select-relations" AS "R" ` +
+        `WHERE "R"."id" = :1`
+    );
+
+    assert.deepEqual(variables, [makeParameter('0', 123), makeParameter('1', '00000000-0000-1000-9000-000000000000', 'UUID')]);
+  });
+
+  it('assert :: prepare select relations (with ordered include)', ({ assert }) => {
+    const [statement, variables] = prepareSelect({
+      select: {
+        id: true,
+        secondary_to_primary: {
+          foo: true
+        }
+      },
+      include: {
+        secondary_to_primary: {
+          where: {
+            foo: 123
+          },
+          order: {
+            foo: Order.Desc
+          }
+        }
+      },
+      where: {
+        id: '00000000-0000-1000-9000-000000000000'
+      }
+    });
+
+    assert.equal(
+      statement,
+      `SELECT "R"."id", ` +
+        // First relation
+        `(SELECT COALESCE(json_agg(json_build_object('foo', "T"."foo") ORDER BY "T"."foo" DESC), '[]'::json) FROM "ez4-test-relation" AS "T" ` +
+        `WHERE "T"."foo" = :0 AND "T"."relation1_id" = "R"."id") AS "secondary_to_primary" ` +
+        //
+        `FROM "ez4-test-select-relations" AS "R" ` +
+        `WHERE "R"."id" = :1`
+    );
+
+    assert.deepEqual(variables, [makeParameter('0', 123), makeParameter('1', '00000000-0000-1000-9000-000000000000', 'UUID')]);
+  });
+
+  it('assert :: prepare select relations (with limited include)', ({ assert }) => {
+    const [statement, variables] = prepareSelect({
+      select: {
+        id: true,
+        secondary_to_primary: {
+          foo: true
+        }
+      },
+      include: {
+        secondary_to_primary: {
+          where: {
+            foo: 123
+          },
+          skip: 5,
+          take: 5
+        }
+      },
+      where: {
+        id: '00000000-0000-1000-9000-000000000000'
+      }
+    });
+
+    assert.equal(
+      statement,
+      `SELECT "R"."id", ` +
+        // First relation
+        `(SELECT COALESCE(json_agg(json_build_object('foo', "foo")), '[]'::json) ` +
+        `FROM (SELECT "S"."foo" FROM "ez4-test-relation" AS "S" WHERE "S"."foo" = :0 AND "S"."relation1_id" = "R"."id" OFFSET 5 LIMIT 5)` +
+        `) AS "secondary_to_primary" ` +
         //
         `FROM "ez4-test-select-relations" AS "R" ` +
         `WHERE "R"."id" = :1`

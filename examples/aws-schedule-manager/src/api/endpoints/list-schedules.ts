@@ -9,7 +9,7 @@ import { listEvents } from '../repository.js';
 /**
  * List schedules request.
  */
-export declare class ListSchedulesRequest implements Http.Request {
+declare class ListSchedulesRequest implements Http.Request {
   parameters: {
     /**
      * Page cursor.
@@ -26,7 +26,7 @@ export declare class ListSchedulesRequest implements Http.Request {
 /**
  * List schedules response.
  */
-export declare class ListSchedulesResponse implements Http.Response {
+declare class ListSchedulesResponse implements Http.Response {
   status: 200;
 
   body: {
@@ -70,10 +70,7 @@ export declare class ListSchedulesResponse implements Http.Response {
 /**
  * Handle list schedules requests.
  */
-export async function listSchedulesHandler(
-  request: ListSchedulesRequest,
-  context: Service.Context<Api>
-): Promise<ListSchedulesResponse> {
+export async function listSchedulesHandler(request: ListSchedulesRequest, context: Service.Context<Api>): Promise<ListSchedulesResponse> {
   const { cursor, limit } = request.parameters;
   const { eventDb } = context;
 

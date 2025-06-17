@@ -4,7 +4,7 @@ import type { Http } from '@ez4/gateway';
 /**
  * Get request example.
  */
-export declare class GetRequest implements Http.Request {
+declare class GetRequest implements Http.Request {
   parameters: {
     /**
      * Example of `id` in the path parameters.
@@ -16,7 +16,7 @@ export declare class GetRequest implements Http.Request {
 /**
  * Get response example.
  */
-export declare class GetResponse implements Http.Response {
+declare class GetResponse implements Http.Response {
   status: 200;
 
   body: {

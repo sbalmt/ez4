@@ -15,8 +15,9 @@
     },
     "subscriptions": [
       {
+        "logRetention": 7,
         "concurrency": 2,
-        "retention": 7,
+        "batch": 5,
         "handler": {
           "name": "testHandler",
           "file": "test/input/output-subscriptions.ts"

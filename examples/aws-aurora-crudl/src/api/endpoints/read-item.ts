@@ -7,7 +7,7 @@ import { HttpNotFoundError } from '@ez4/gateway';
 
 import { readItem } from '../repository.js';
 
-export declare class ReadItemRequest implements Http.Request {
+declare class ReadItemRequest implements Http.Request {
   parameters: {
     /**
      * Item Id.
@@ -45,10 +45,7 @@ export declare class ReadItemResponse implements Http.Response {
 /**
  * Handle item read requests.
  */
-export async function readItemHandler(
-  request: Http.Incoming<ReadItemRequest>,
-  context: Service.Context<Api>
-): Promise<ReadItemResponse> {
+export async function readItemHandler(request: Http.Incoming<ReadItemRequest>, context: Service.Context<Api>): Promise<ReadItemResponse> {
   const { auroraDb } = context;
   const { id } = request.parameters;
 

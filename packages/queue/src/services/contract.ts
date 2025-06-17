@@ -2,13 +2,14 @@ import type { LinkedVariables } from '@ez4/project/library';
 import type { Service } from '@ez4/common';
 import type { Client } from './client.js';
 
-import type { QueueMessage, QueueIncoming, SubscriptionHandler, SubscriptionListener, QueueFifoMode } from './common.js';
+import type { QueueMessage, QueueIncoming, SubscriptionHandler, SubscriptionListener, QueueFifoMode, QueueDeadLetter } from './common.js';
 
 /**
  * Provide all contracts for a self-managed queue service.
  */
 export namespace Queue {
   export type Message = QueueMessage;
+  export type DeadLetter = QueueDeadLetter;
 
   export type FifoMode<T extends Message> = QueueFifoMode<T>;
   export type Incoming<T extends Message> = QueueIncoming<T>;
@@ -33,9 +34,14 @@ export namespace Queue {
     handler: Handler<T>;
 
     /**
-     * Maximum number of concurrent lambdas.
+     * Maximum number of concurrent lambda handlers.
      */
     concurrency?: number;
+
+    /**
+     * Maximum number of messages per handler invocation.
+     */
+    batch?: number;
 
     /**
      * Variables associated to the subscription.
@@ -45,7 +51,7 @@ export namespace Queue {
     /**
      * Log retention (in days) for the handler.
      */
-    retention?: number;
+    logRetention?: number;
 
     /**
      * Amount of memory available for the handler.
@@ -71,6 +77,11 @@ export namespace Queue {
      * Enable and configure the FIFO mode options.
      */
     fifoMode?: FifoMode<T>;
+
+    /**
+     * Enable and configure the dead-letter queue options.
+     */
+    deadLetter?: DeadLetter;
 
     /**
      * Maximum acknowledge time (in seconds) for the handler.

@@ -7,7 +7,7 @@ import type { TableIndex } from '../types/indexes.js';
 import {
   DuplicateServiceError,
   InvalidServicePropertyError,
-  isExternalStatement,
+  isExternalDeclaration,
   getLinkedServiceList,
   getLinkedVariableList,
   getPropertyTuple,
@@ -28,20 +28,20 @@ export const getDatabaseServices = (reflection: SourceMap) => {
   const errorList: Error[] = [];
 
   for (const identity in reflection) {
-    const statement = reflection[identity];
+    const declaration = reflection[identity];
 
-    if (!isDatabaseService(statement) || isExternalStatement(statement)) {
+    if (!isDatabaseService(declaration) || isExternalDeclaration(declaration)) {
       continue;
     }
 
     const service: Incomplete<DatabaseService> = { type: ServiceType, extras: {} };
     const properties = new Set(['engine', 'tables']);
 
-    const fileName = statement.file;
+    const fileName = declaration.file;
 
-    service.name = statement.name;
+    service.name = declaration.name;
 
-    for (const member of getModelMembers(statement)) {
+    for (const member of getModelMembers(declaration)) {
       if (!isModelProperty(member) || member.inherited) {
         continue;
       }
@@ -51,14 +51,17 @@ export const getDatabaseServices = (reflection: SourceMap) => {
           errorList.push(new InvalidServicePropertyError(service.name, member.name, fileName));
           break;
 
+        case 'client':
+          break;
+
         case 'engine':
-          if ((service.engine = getDatabaseEngine(member.value, statement, reflection, errorList))) {
+          if ((service.engine = getDatabaseEngine(member.value, declaration, reflection, errorList))) {
             properties.delete(member.name);
           }
           break;
 
         case 'tables':
-          if ((service.tables = getAllTables(member, statement, reflection, errorList))) {
+          if ((service.tables = getAllTables(member, declaration, reflection, errorList))) {
             properties.delete(member.name);
           }
           break;
@@ -78,19 +81,19 @@ export const getDatabaseServices = (reflection: SourceMap) => {
       continue;
     }
 
-    const relationErrors = validateRelations(statement, service.tables);
+    const relationErrors = validateRelations(declaration, service.tables);
 
     if (relationErrors.length) {
       errorList.push(...relationErrors);
       continue;
     }
 
-    if (allServices[statement.name]) {
-      errorList.push(new DuplicateServiceError(statement.name, fileName));
+    if (allServices[declaration.name]) {
+      errorList.push(new DuplicateServiceError(declaration.name, fileName));
       continue;
     }
 
-    allServices[statement.name] = service;
+    allServices[declaration.name] = service;
   }
 
   return {

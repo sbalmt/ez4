@@ -9,7 +9,7 @@ import { createEvent } from '../repository.js';
 /**
  * Create schedule request.
  */
-export declare class CreateScheduleRequest implements Http.Request {
+declare class CreateScheduleRequest implements Http.Request {
   body: {
     /**
      * Event date.
@@ -26,7 +26,7 @@ export declare class CreateScheduleRequest implements Http.Request {
 /**
  * Create schedule response.
  */
-export declare class CreateScheduleResponse implements Http.Response {
+declare class CreateScheduleResponse implements Http.Response {
   status: 201;
 
   body: {

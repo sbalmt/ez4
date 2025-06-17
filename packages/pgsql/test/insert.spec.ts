@@ -2,6 +2,7 @@ import { beforeEach, describe, it } from 'node:test';
 import { equal, deepEqual } from 'node:assert';
 
 import { SqlBuilder } from '@ez4/pgsql';
+import { Order } from '@ez4/database';
 
 describe('sql insert tests', () => {
   let sql: SqlBuilder;
@@ -96,5 +97,29 @@ describe('sql insert tests', () => {
     deepEqual(variables, []);
 
     equal(statement, 'INSERT INTO "table" AS "alias" DEFAULT VALUES RETURNING "alias"."foo", "alias"."bar"');
+  });
+
+  it('assert :: insert with inner query', async () => {
+    const inner = sql.select().columns('foo').from('inner').as('alias').where({ bar: 'abc' }).take(1).order({
+      baz: Order.Desc
+    });
+
+    const query = sql
+      .insert()
+      .into('table')
+      .select(inner)
+      .record({
+        qux: inner.reference('foo')
+      });
+
+    const [statement, variables] = query.build();
+
+    deepEqual(variables, ['abc']);
+
+    equal(
+      statement,
+      `INSERT INTO "table" ("qux") SELECT "alias"."foo" FROM ` +
+        `(SELECT "S"."foo" FROM "inner" AS "S" WHERE "S"."bar" = :0 ORDER BY "S"."baz" DESC LIMIT 1) AS "alias"`
+    );
   });
 });
