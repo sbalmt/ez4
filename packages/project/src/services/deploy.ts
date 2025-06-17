@@ -11,41 +11,46 @@ import { prepareLinkedServices } from '../actions/services.js';
 import { combineStates, loadRemoteState, loadLocalState, saveRemoteState, saveLocalState } from '../actions/state.js';
 import { connectDeployResources, prepareDeployResources } from '../actions/resources.js';
 import { reportResourceChanges } from '../report/report.js';
-import { waitConfirmation } from '../console/prompt.js';
+import { waitConfirmation } from '../utils/prompt.js';
 import { getMetadata } from '../library/metadata.js';
 import { assertNoErrors } from '../utils/errors.js';
 import { loadProviders } from './providers.js';
 import { loadProject } from './project.js';
+import { Logger } from '../utils/logger.js';
 
 export const deploy = async (project: ProjectOptions) => {
-  console.log('[EZ4]: Loading providers');
+  await Logger.execute('Loading providers', () => {
+    return loadProviders(project);
+  });
 
-  await loadProviders(project);
+  const { metadata, dependencies } = await Logger.execute('Loading metadata', () => {
+    return getMetadata(project.sourceFiles);
+  });
 
-  console.log('[EZ4]: Loading metadata');
-
-  const { metadata, dependencies } = getMetadata(project.sourceFiles);
+  const imports = await Logger.execute('Loading imports', () => {
+    return loadImports(project);
+  });
 
   const options: DeployOptions = {
     resourcePrefix: toKebabCase(project.prefix ?? 'ez4'),
     projectName: toKebabCase(project.projectName),
-    imports: await loadImports(project),
     variables: project.variables,
     debug: project.debugMode,
     force: project.forceMode,
-    tags: project.tags
+    tags: project.tags,
+    imports
   };
 
   const stateFile = project.stateFile;
   const statePath = `${stateFile.path}.ezstate`;
 
   if (options.force) {
-    console.info('[EZ4]: Force option enabled.');
+    Logger.log('Force option is enabled');
   }
 
-  console.log('[EZ4]: Loading state');
-
-  const oldState = await (stateFile.remote ? loadRemoteState(statePath, options) : loadLocalState(statePath));
+  const oldState = await Logger.execute('Loading state', () => {
+    return stateFile.remote ? loadRemoteState(statePath, options) : loadLocalState(statePath);
+  });
 
   const newState: EntryStates = {};
 
@@ -62,15 +67,15 @@ export const deploy = async (project: ProjectOptions) => {
   const hasChanges = await reportResourceChanges(newState, oldState, options.force);
 
   if (!hasChanges && !options.force) {
-    console.info('[EZ4]: No changes.');
+    Logger.log('No changes');
     return;
   }
 
   if (project.confirm !== false) {
-    const proceed = await waitConfirmation('[EZ4]: Are you sure to proceed?');
+    const proceed = await waitConfirmation('Are you sure you want to proceed?');
 
     if (!proceed) {
-      console.info('[EZ4]: Aborted.');
+      Logger.log('Aborted');
       return;
     }
   }

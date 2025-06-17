@@ -38,7 +38,13 @@ export const reportResourceChanges = async (newState: EntryStates, oldState: Ent
     }
   }
 
-  return changes > 0;
+  if (changes > 0) {
+    console.log('');
+
+    return true;
+  }
+
+  return false;
 };
 
 const reportResourceCreate = (entryId: string, newState: EntryStates) => {
@@ -93,11 +99,11 @@ const printResourceChanges = (entryId: string, type: string, changes: ObjectComp
   if (output.length > 0) {
     const name = 'name' in changes ? changes.name : 'unnamed';
 
+    console.log('');
+
     console.group(`# ${toBold(type)} ${toGray(`(${entryId} / ${name})`)} ${action}`);
     console.log(output.join('\n'));
     console.groupEnd();
-
-    console.log('');
   }
 
   return output.length;
