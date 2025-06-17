@@ -1,16 +1,17 @@
 import {
-  bundlerModuleNameResolver,
+  ModuleResolutionKind,
+  getDefaultCompilerOptions,
   createModuleResolutionCache,
   createCompilerHost,
-  getDefaultCompilerOptions,
-  ModuleResolutionKind
+  resolveModuleName
 } from 'typescript';
 
 import { getCanonicalFileName } from './compiler.js';
 
 const defaultOptions = {
   ...getDefaultCompilerOptions(),
-  moduleResolution: ModuleResolutionKind.Bundler
+  moduleResolution: ModuleResolutionKind.Bundler,
+  preserveSymlinks: true
 };
 
 const compilerCache = createModuleResolutionCache(process.cwd(), getCanonicalFileName);
@@ -18,7 +19,7 @@ const compilerCache = createModuleResolutionCache(process.cwd(), getCanonicalFil
 const compilerHost = createCompilerHost(defaultOptions);
 
 export const getModulePath = (moduleName: string, sourceFile: string) => {
-  const { resolvedModule } = bundlerModuleNameResolver(moduleName, sourceFile, defaultOptions, compilerHost, compilerCache);
+  const { resolvedModule } = resolveModuleName(moduleName, sourceFile, defaultOptions, compilerHost, compilerCache);
 
   return resolvedModule?.resolvedFileName;
 };

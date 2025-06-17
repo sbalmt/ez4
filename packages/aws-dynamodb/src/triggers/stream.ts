@@ -59,6 +59,7 @@ export const prepareTableStream = (
         ...variables
       },
       handler: {
+        dependencies: context.getDependencies(handler.file),
         functionName: handler.name,
         sourceFile: handler.file
       },

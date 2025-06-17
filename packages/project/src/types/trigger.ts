@@ -42,6 +42,7 @@ export type EventContext = {
   role: EntryState | null;
   getServiceState: (service: ServiceMetadata | string, options: DeployOptions) => EntryState;
   setServiceState: (state: EntryState, service: ServiceMetadata | string, options: DeployOptions) => void;
+  getDependencies: (fileName: string) => string[];
 };
 
 export type ServiceEvent = {

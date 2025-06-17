@@ -13,12 +13,12 @@ export const createQueueFunction = <E extends EntryState>(
   logGroupState: LogGroupState,
   parameters: QueueFunctionParameters
 ) => {
-  const queueFunctionName = parameters.functionName;
+  const { handler } = parameters;
 
   return createFunction(state, roleState, logGroupState, {
     handlerName: 'sqsEntryPoint',
-    functionName: queueFunctionName,
-    sourceFile: parameters.handler.sourceFile,
+    sourceFile: handler.sourceFile,
+    functionName: parameters.functionName,
     description: parameters.description,
     variables: parameters.variables,
     timeout: parameters.timeout,
@@ -28,6 +28,9 @@ export const createQueueFunction = <E extends EntryState>(
     getFunctionBundle: (context) => {
       const dependencies = context.getDependencies();
       return bundleQueueFunction(dependencies, parameters);
+    },
+    getFunctionFiles: () => {
+      return [handler.sourceFile, handler.dependencies];
     }
   });
 };

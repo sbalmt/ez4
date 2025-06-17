@@ -13,10 +13,12 @@ export const createTargetFunction = <E extends EntryState>(
   logGroupState: LogGroupState,
   parameters: TargetFunctionParameters
 ) => {
+  const { handler } = parameters;
+
   return createFunction(state, roleState, logGroupState, {
     handlerName: 'eventEntryPoint',
+    sourceFile: handler.sourceFile,
     functionName: parameters.functionName,
-    sourceFile: parameters.handler.sourceFile,
     description: parameters.description,
     variables: parameters.variables,
     timeout: parameters.timeout,
@@ -26,6 +28,9 @@ export const createTargetFunction = <E extends EntryState>(
     getFunctionBundle: (context) => {
       const dependencies = context.getDependencies();
       return bundleTargetFunction(dependencies, parameters);
+    },
+    getFunctionFiles: () => {
+      return [handler.sourceFile, handler.dependencies];
     }
   });
 };

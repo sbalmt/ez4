@@ -53,6 +53,7 @@ export const prepareEvents = (state: EntryStates, service: BucketService, option
       ...variables
     },
     handler: {
+      dependencies: context.getDependencies(handler.file),
       functionName: handler.name,
       sourceFile: handler.file
     },

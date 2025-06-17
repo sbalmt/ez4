@@ -13,10 +13,12 @@ export const createBucketEventFunction = <E extends EntryState>(
   logGroupState: LogGroupState,
   parameters: BucketEventFunctionParameters
 ) => {
+  const { handler } = parameters;
+
   return createFunction(state, roleState, logGroupState, {
     handlerName: 's3EntryPoint',
+    sourceFile: handler.sourceFile,
     functionName: parameters.functionName,
-    sourceFile: parameters.handler.sourceFile,
     description: parameters.description,
     variables: parameters.variables,
     timeout: parameters.timeout,
@@ -26,6 +28,9 @@ export const createBucketEventFunction = <E extends EntryState>(
     getFunctionBundle: (context) => {
       const dependencies = context.getDependencies();
       return bundleBucketEventFunction(dependencies, parameters);
+    },
+    getFunctionFiles: () => {
+      return [handler.sourceFile, handler.dependencies];
     }
   });
 };

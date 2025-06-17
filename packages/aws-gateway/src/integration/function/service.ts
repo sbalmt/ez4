@@ -13,10 +13,12 @@ export const createIntegrationFunction = <E extends EntryState>(
   logGroupState: LogGroupState,
   parameters: IntegrationFunctionParameters
 ) => {
+  const { handler } = parameters;
+
   return createFunction(state, roleState, logGroupState, {
     handlerName: 'apiEntryPoint',
+    sourceFile: handler.sourceFile,
     functionName: parameters.functionName,
-    sourceFile: parameters.handler.sourceFile,
     description: parameters.description,
     variables: parameters.variables,
     timeout: parameters.timeout,
@@ -26,6 +28,9 @@ export const createIntegrationFunction = <E extends EntryState>(
     getFunctionBundle: (context) => {
       const dependencies = context.getDependencies();
       return bundleApiFunction(dependencies, parameters);
+    },
+    getFunctionFiles: () => {
+      return [handler.sourceFile, handler.dependencies];
     }
   });
 };

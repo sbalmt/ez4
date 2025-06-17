@@ -69,6 +69,7 @@ export const prepareSubscriptions = async (
               ...subscription.variables
             },
             handler: {
+              dependencies: context.getDependencies(handler.file),
               functionName: handler.name,
               sourceFile: handler.file
             },

@@ -5,6 +5,7 @@ import type { DeployOptions } from '../types/options.js';
 import { toKebabCase } from '@ez4/utils';
 
 import { applyDeploy } from '../actions/deploy.js';
+import { getEventContext } from '../actions/common.js';
 import { prepareExecutionRole } from '../actions/identity.js';
 import { prepareLinkedServices } from '../actions/services.js';
 import { combineStates, loadRemoteState, loadLocalState, saveRemoteState, saveLocalState } from '../actions/state.js';
@@ -17,9 +18,13 @@ import { loadProviders } from './providers.js';
 import { loadProject } from './project.js';
 
 export const deploy = async (project: ProjectOptions) => {
+  console.log('[EZ4]: Loading providers');
+
   await loadProviders(project);
 
-  const metadata = getMetadata(project.sourceFiles);
+  console.log('[EZ4]: Loading metadata');
+
+  const { metadata, dependencies } = getMetadata(project.sourceFiles);
 
   const options: DeployOptions = {
     resourcePrefix: toKebabCase(project.prefix ?? 'ez4'),
@@ -38,17 +43,19 @@ export const deploy = async (project: ProjectOptions) => {
     console.info('[EZ4]: Force option enabled.');
   }
 
-  const oldState = stateFile.remote ? await loadRemoteState(statePath, options) : await loadLocalState(statePath);
+  console.log('[EZ4]: Loading state');
+
+  const oldState = await (stateFile.remote ? loadRemoteState(statePath, options) : loadLocalState(statePath));
 
   const newState: EntryStates = {};
-  const stateAliases = {};
 
   const role = await prepareExecutionRole(newState, metadata, options);
+  const context = getEventContext(dependencies, role);
 
-  await prepareDeployResources(stateAliases, newState, metadata, role, options);
-  await prepareLinkedServices(stateAliases, metadata, options);
+  await prepareDeployResources(newState, metadata, context, options);
+  await prepareLinkedServices(metadata, context, options);
 
-  await connectDeployResources(stateAliases, newState, metadata, role, options);
+  await connectDeployResources(newState, metadata, context, options);
 
   combineStates(newState, oldState);
 

@@ -32,7 +32,7 @@ export const prepareTarget = (state: EntryStates, service: CronService, options:
   const logGroupState = createLogGroup(state, {
     retention: logRetention ?? Defaults.LogRetention,
     groupName: targetName,
-    tags: options.tags,
+    tags: options.tags
   });
 
   handlerState = createTargetFunction(state, context.role, logGroupState, {
@@ -50,6 +50,7 @@ export const prepareTarget = (state: EntryStates, service: CronService, options:
       ...variables
     },
     handler: {
+      dependencies: context.getDependencies(handler.file),
       functionName: handler.name,
       sourceFile: handler.file
     },

@@ -154,6 +154,7 @@ const getIntegrationFunction = (
         ...service.variables
       },
       handler: {
+        dependencies: context.getDependencies(handler.file),
         functionName: handler.name,
         sourceFile: handler.file
       },
@@ -233,6 +234,7 @@ const getAuthorizerFunction = (
         ...service.variables
       },
       authorizer: {
+        dependencies: context.getDependencies(authorizer.file),
         functionName: authorizer.name,
         sourceFile: authorizer.file
       },

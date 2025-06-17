@@ -12,7 +12,7 @@ import type { TypeObjectEvents } from './types/type-object.js';
 import type { TypeReferenceEvents } from './types/type-reference.js';
 import type { SourceMap } from './types/source.js';
 
-import { isImportDeclaration } from 'typescript';
+import { isExportDeclaration, isImportDeclaration } from 'typescript';
 import { relative } from 'node:path';
 
 import { getModulePath } from './utils/module.js';
@@ -108,6 +108,59 @@ export type ReflectionOptions = {
   resolverEvents?: ResolverEvents;
 };
 
+export const resolveReflectionFiles = (program: Program) => {
+  const basePath = program.getCurrentDirectory();
+  const importGraph: Record<string, string[]> = {};
+
+  for (const sourceFile of program.getSourceFiles()) {
+    const importFiles: string[] = [];
+
+    sourceFile.forEachChild((node) => {
+      if (!isImportDeclaration(node) && !isExportDeclaration(node)) {
+        return;
+      }
+
+      if (!node.moduleSpecifier || !isTypeLiteralString(node.moduleSpecifier)) {
+        return;
+      }
+
+      const moduleName = node.moduleSpecifier.text;
+      const modulePath = getModulePath(moduleName, sourceFile.fileName);
+
+      if (modulePath) {
+        importFiles.push(relative(basePath, modulePath));
+      }
+    });
+
+    if (importFiles.length > 0) {
+      const importName = relative(basePath, sourceFile.fileName);
+
+      importGraph[importName] = importFiles;
+    }
+  }
+
+  const groupReflectionFiles = (fileName: string, dependencies = new Set<string>()) => {
+    if (!dependencies.has(fileName)) {
+      const importFiles = importGraph[fileName];
+
+      dependencies.add(fileName);
+
+      importFiles?.forEach((importFile) => {
+        groupReflectionFiles(importFile, dependencies);
+      });
+    }
+
+    return dependencies;
+  };
+
+  return program.getRootFileNames().reduce((imports, fileName) => {
+    return {
+      ...imports,
+      [fileName]: [...groupReflectionFiles(fileName)]
+    };
+  }, {});
+};
+
 export const resolveReflectionMetadata = (program: Program, options?: ReflectionOptions) => {
   const reflection: SourceMap = {};
 
@@ -129,26 +182,4 @@ export const resolveReflectionMetadata = (program: Program, options?: Reflection
   }
 
   return reflection;
-};
-
-export const resolveReflectionFiles = (program: Program) => {
-  const basePath = program.getCurrentDirectory();
-  const pathList = new Set<string>();
-
-  for (const sourceFile of program.getSourceFiles()) {
-    sourceFile.forEachChild((node) => {
-      if (!isImportDeclaration(node) || !isTypeLiteralString(node.moduleSpecifier)) {
-        return;
-      }
-
-      const importModuleName = node.moduleSpecifier.text;
-      const importedFilePath = getModulePath(importModuleName, sourceFile.fileName);
-
-      if (importedFilePath) {
-        pathList.add(relative(basePath, importedFilePath));
-      }
-    });
-  }
-
-  return [...pathList.values()];
 };
