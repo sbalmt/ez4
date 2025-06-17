@@ -9,7 +9,7 @@ const testFile = (fileName: string, overwrite = false) => {
   const sourceFile = `./test/input/output-${fileName}.ts`;
   const outputFile = `./test/output/${fileName}.json`;
 
-  const metadata = getMetadata([sourceFile]);
+  const { metadata } = getMetadata([sourceFile]);
 
   if (overwrite) {
     writeFileSync(outputFile, JSON.stringify(metadata, undefined, 2));
