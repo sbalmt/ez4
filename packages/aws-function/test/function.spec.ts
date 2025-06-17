@@ -69,6 +69,9 @@ describe('function', () => {
       },
       getFunctionBundle: () => {
         return sourceFile;
+      },
+      getFunctionFiles: () => {
+        return ['', []];
       }
     });
 

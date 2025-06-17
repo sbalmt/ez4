@@ -64,8 +64,9 @@ describe('notification subscription', () => {
     const functionResource = createSubscriptionFunction(localState, roleResource, logGroupResource, {
       functionName: 'ez4-test-notification-topic-subscription-lambda',
       handler: {
+        sourceFile: join(baseDir, 'lambda.js'),
         functionName: 'main',
-        sourceFile: join(baseDir, 'lambda.js')
+        dependencies: []
       }
     });
 

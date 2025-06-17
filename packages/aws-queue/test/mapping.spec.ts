@@ -67,8 +67,9 @@ describe('queue mapping', () => {
     const functionResource = createQueueFunction(localState, roleResource, logGroupResource, {
       functionName: 'ez4-test-queue-mapping-lambda',
       handler: {
+        sourceFile: join(baseDir, 'lambda.js'),
         functionName: 'main',
-        sourceFile: join(baseDir, 'lambda.js')
+        dependencies: []
       }
     });
 
