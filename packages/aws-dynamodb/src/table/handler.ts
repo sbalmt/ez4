@@ -1,4 +1,4 @@
-import type { StepHandler } from '@ez4/stateful';
+import type { StepContext, StepHandler } from '@ez4/stateful';
 import type { Arn } from '@ez4/aws-common';
 import type { AttributeSchema, AttributeSchemaGroup } from '../types/schema.js';
 import type { TableState, TableResult, TableParameters } from './types.js';
@@ -81,22 +81,26 @@ const createResource = async (candidate: TableState): Promise<TableResult> => {
 const updateResource = async (candidate: TableState, current: TableState) => {
   const { result, parameters } = candidate;
 
-  if (!result) {
+  if (result) {
+    await checkTimeToLiveUpdates(result.tableName, parameters, current.parameters);
+    await checkDeletionUpdates(result.tableName, parameters, current.parameters);
+    await checkStreamsUpdates(result.tableName, parameters, current.parameters);
+    await checkIndexUpdates(result.tableName, parameters, current.parameters);
+    await checkTagUpdates(result.tableArn, parameters, current.parameters);
+  }
+};
+
+const deleteResource = async (candidate: TableState, context: StepContext) => {
+  const { result, parameters } = candidate;
+
+  const allowDeletion = !!parameters.allowDeletion;
+
+  if (!result || (!allowDeletion && !context.force)) {
     return;
   }
 
-  await checkTimeToLiveUpdates(result.tableName, parameters, current.parameters);
-  await checkDeletionUpdates(result.tableName, parameters, current.parameters);
-  await checkStreamsUpdates(result.tableName, parameters, current.parameters);
-  await checkIndexUpdates(result.tableName, parameters, current.parameters);
-  await checkTagUpdates(result.tableArn, parameters, current.parameters);
-};
-
-const deleteResource = async (candidate: TableState) => {
-  const { result, parameters } = candidate;
-
-  if (!result || !parameters.allowDeletion) {
-    return;
+  if (!allowDeletion) {
+    await updateDeletion(result.tableName, true);
   }
 
   await deleteTable(result.tableName);
