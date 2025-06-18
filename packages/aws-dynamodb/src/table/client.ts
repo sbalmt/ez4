@@ -105,7 +105,6 @@ export const createTable = async (request: CreateRequest): Promise<CreateRespons
   );
 
   const tableDescription = response.TableDescription!;
-
   const tableName = tableDescription.TableName!;
 
   Logger.logWait(TableServiceName, tableName);
@@ -153,7 +152,7 @@ export const updateDeletion = async (tableName: string, allowDeletion: boolean) 
 export const updateStreams = async (tableName: string, enableStreams: boolean) => {
   Logger.logUpdate(TableServiceName, tableName);
 
-  await client.send(
+  const response = await client.send(
     new UpdateTableCommand({
       TableName: tableName,
       StreamSpecification: {
@@ -164,6 +163,12 @@ export const updateStreams = async (tableName: string, enableStreams: boolean) =
       }
     })
   );
+
+  const tableDescription = response.TableDescription!;
+
+  return {
+    streamArn: tableDescription.LatestStreamArn as Arn
+  };
 };
 
 export const importIndex = async (tableName: string, request: AttributeSchemaGroup) => {

@@ -81,13 +81,21 @@ const createResource = async (candidate: TableState): Promise<TableResult> => {
 const updateResource = async (candidate: TableState, current: TableState) => {
   const { result, parameters } = candidate;
 
-  if (result) {
-    await checkTimeToLiveUpdates(result.tableName, parameters, current.parameters);
-    await checkDeletionUpdates(result.tableName, parameters, current.parameters);
-    await checkStreamsUpdates(result.tableName, parameters, current.parameters);
-    await checkIndexUpdates(result.tableName, parameters, current.parameters);
-    await checkTagUpdates(result.tableArn, parameters, current.parameters);
+  if (!result) {
+    return;
   }
+
+  const newStreamsResult = await checkStreamsUpdates(result.tableName, parameters, current.parameters);
+
+  await checkTimeToLiveUpdates(result.tableName, parameters, current.parameters);
+  await checkDeletionUpdates(result.tableName, parameters, current.parameters);
+  await checkIndexUpdates(result.tableName, parameters, current.parameters);
+  await checkTagUpdates(result.tableArn, parameters, current.parameters);
+
+  return {
+    ...result,
+    ...newStreamsResult
+  };
 };
 
 const deleteResource = async (candidate: TableState, context: StepContext) => {
@@ -118,8 +126,10 @@ const checkStreamsUpdates = async (tableName: string, candidate: TableParameters
   const enableStreams = !!candidate.enableStreams;
 
   if (enableStreams !== !!current.enableStreams) {
-    await updateStreams(tableName, enableStreams);
+    return updateStreams(tableName, enableStreams);
   }
+
+  return undefined;
 };
 
 const checkTimeToLiveUpdates = async (tableName: string, candidate: TableParameters, current: TableParameters) => {
