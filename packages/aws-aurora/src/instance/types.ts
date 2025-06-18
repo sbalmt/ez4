@@ -1,5 +1,5 @@
 import type { EntryState } from '@ez4/stateful';
-import type { CreateRequest, CreateResponse } from './client.js';
+import type { CreateRequest, ImportOrCreateResponse } from './client.js';
 
 export const InstanceServiceName = 'AWS:Aurora/Instance';
 
@@ -7,7 +7,7 @@ export const InstanceServiceType = 'aws:aurora.instance';
 
 export type InstanceParameters = Omit<CreateRequest, 'clusterName'>;
 
-export type InstanceResult = CreateResponse & {
+export type InstanceResult = ImportOrCreateResponse & {
   clusterName: string;
 };
 

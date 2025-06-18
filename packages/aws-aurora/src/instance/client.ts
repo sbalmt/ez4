@@ -10,7 +10,8 @@ import {
   RemoveTagsFromResourceCommand,
   waitUntilDBInstanceAvailable,
   waitUntilDBInstanceDeleted,
-  DBInstanceNotFoundFault
+  DBInstanceNotFoundFault,
+  DescribeDBInstancesCommand
 } from '@aws-sdk/client-rds';
 
 import { InstanceServiceName } from './types.js';
@@ -30,12 +31,38 @@ export type CreateRequest = {
   tags?: ResourceTags;
 };
 
-export type CreateResponse = {
+export type ImportOrCreateResponse = {
   instanceName: string;
   instanceArn: Arn;
 };
 
-export const createInstance = async (request: CreateRequest): Promise<CreateResponse> => {
+export const importInstance = async (instanceName: string): Promise<ImportOrCreateResponse | undefined> => {
+  Logger.logImport(InstanceServiceName, instanceName);
+
+  try {
+    const response = await client.send(
+      new DescribeDBInstancesCommand({
+        DBInstanceIdentifier: instanceName,
+        MaxRecords: 20
+      })
+    );
+
+    const [{ DBInstanceArn }] = response.DBInstances!;
+
+    return {
+      instanceArn: DBInstanceArn as Arn,
+      instanceName
+    };
+  } catch (error) {
+    if (!(error instanceof DBInstanceNotFoundFault)) {
+      throw error;
+    }
+
+    return undefined;
+  }
+};
+
+export const createInstance = async (request: CreateRequest): Promise<ImportOrCreateResponse> => {
   const { instanceName } = request;
 
   Logger.logCreate(InstanceServiceName, instanceName);
@@ -62,8 +89,8 @@ export const createInstance = async (request: CreateRequest): Promise<CreateResp
   const { DBInstanceArn } = response.DBInstance!;
 
   return {
-    instanceName,
-    instanceArn: DBInstanceArn as Arn
+    instanceArn: DBInstanceArn as Arn,
+    instanceName
   };
 };
 
