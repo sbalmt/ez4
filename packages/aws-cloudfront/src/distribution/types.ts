@@ -6,13 +6,13 @@ export const DistributionServiceName = 'AWS:CloudFront/Distribution';
 
 export const DistributionServiceType = 'aws:cloudfront.distribution';
 
-type DistributionDefaultOriginParameters = Omit<DefaultOrigin, 'originPolicyId'>;
+type DistributionDefaultOriginParameters = Omit<DefaultOrigin, 'originPolicyId' | 'cachePolicyId'>;
 
-type DistributionAdditionalOriginParameters = Omit<AdditionalOrigin, 'originPolicyId'>;
+type DistributionAdditionalOriginParameters = Omit<AdditionalOrigin, 'originPolicyId' | 'cachePolicyId'>;
 
-export type DistributionOrigin = Pick<DefaultOrigin | AdditionalOrigin, 'domain'>;
+export type DistributionOrigin = Pick<DefaultOrigin | AdditionalOrigin, 'domain' | 'originPolicyId' | 'cachePolicyId'>;
 
-export type GetDistributionOrigin = (context?: StepContext) => Promise<DistributionOrigin> | DistributionOrigin;
+export type GetDistributionOrigin = (context: StepContext) => Promise<DistributionOrigin> | DistributionOrigin;
 
 export type DistributionDefaultOrigin = DistributionDefaultOriginParameters & {
   getDistributionOrigin: GetDistributionOrigin;
@@ -28,8 +28,6 @@ export type DistributionParameters = Omit<CreateRequest, 'originAccessId' | 'cer
 };
 
 export type DistributionResult = CreateResponse & {
-  cachePolicyIds: string[];
-  originPolicyId: string;
   originAccessId: string;
   certificateArn: Arn | undefined;
   defaultOrigin: DistributionOrigin;

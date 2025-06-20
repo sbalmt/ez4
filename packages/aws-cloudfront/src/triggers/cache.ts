@@ -6,40 +6,35 @@ import { getBucketDomain, getBucketState } from '@ez4/aws-bucket';
 import { getServiceName } from '@ez4/project/library';
 import { OriginProtocol } from '@ez4/distribution';
 
-import { DistributionAdditionalOrigin, DistributionDefaultOrigin } from '../distribution/types.js';
+import { DistributionAdditionalOrigin, DistributionDefaultOrigin, DistributionServiceName } from '../distribution/types.js';
 import { createCachePolicy } from '../cache/service.js';
+import { getOriginPolicyId } from '../origin/utils.js';
+import { getCachePolicyId } from '../cache/utils.js';
 import { getCachePolicyName } from './utils.js';
 
-export const getDefaultOriginCache = async (state: EntryStates, service: CdnService, options: DeployOptions, context: EventContext) => {
+export const getDefaultOriginCache = (state: EntryStates, service: CdnService, options: DeployOptions, context: EventContext) => {
   return getOriginCache<DistributionDefaultOrigin>(state, service, 'default', service.defaultOrigin, options, context);
 };
 
-export const getAdditionalOriginCache = async (state: EntryStates, service: CdnService, options: DeployOptions, context: EventContext) => {
+export const getAdditionalOriginCache = (state: EntryStates, service: CdnService, options: DeployOptions, context: EventContext) => {
   const { origins = [] } = service;
 
-  const additionalOrigins = await Promise.all(
-    origins.map((origin, index) => {
-      return getOriginCache<DistributionAdditionalOrigin>(state, service, `origin_${index + 1}`, origin, options, context);
-    })
-  );
-
-  // Ensure same position to not trigger updates without real changes.
-  additionalOrigins.sort((a, b) => a.id.localeCompare(b.id));
-
-  return additionalOrigins;
+  return origins.map((origin, index) => {
+    return getOriginCache<DistributionAdditionalOrigin>(state, service, `origin_${index + 1}`, origin, options, context);
+  });
 };
 
-const getOriginCache = async <T extends DistributionDefaultOrigin | DistributionAdditionalOrigin>(
+const getOriginCache = <T extends DistributionDefaultOrigin | DistributionAdditionalOrigin>(
   state: EntryStates,
   service: CdnService,
   id: string,
   origin: CdnOrigin,
   options: DeployOptions,
-  context: EventContext
+  eventContext: EventContext
 ) => {
   const { location, path, cache } = origin;
 
-  const originCache = createCachePolicy(state, {
+  const cacheState = createCachePolicy(state, {
     policyName: getCachePolicyName(service, origin, options),
     description: service.description,
     compress: cache?.compress ?? true,
@@ -55,35 +50,48 @@ const getOriginCache = async <T extends DistributionDefaultOrigin | Distribution
 
   const isBucket = isCdnBucketOrigin(origin);
 
-  return {
+  const originData = isBucket
+    ? {
+        domain: getServiceName(origin.bucket, options)
+      }
+    : {
+        http: origin.protocol === OriginProtocol.Http,
+        headers: origin.headers,
+        domain: origin.domain,
+        port: origin.port
+      };
+
+  const originCache = {
     id,
     path,
     location,
-    cachePolicyId: originCache.entryId,
-    ...(isBucket
-      ? {
-          domain: getServiceName(origin.bucket, options)
-        }
-      : {
-          http: origin.protocol === OriginProtocol.Http,
-          headers: origin.headers,
-          domain: origin.domain,
-          port: origin.port
-        }),
-    getDistributionOrigin: async () => {
+    ...originData,
+    getDistributionOrigin: async (stepContext) => {
+      const originPolicyId = getOriginPolicyId(DistributionServiceName, cacheState.entryId, stepContext);
+      const cachePolicyId = getCachePolicyId(DistributionServiceName, cacheState.entryId, stepContext);
+
       if (isBucket) {
-        const bucketState = getBucketState(context, origin.bucket, options);
+        const bucketState = getBucketState(eventContext, origin.bucket, options);
         const bucketName = bucketState.parameters.bucketName;
         const bucketDomain = await getBucketDomain(bucketName);
 
         return {
-          domain: bucketDomain
+          domain: bucketDomain,
+          originPolicyId,
+          cachePolicyId
         };
       }
 
       return {
-        domain: origin.domain
+        domain: origin.domain,
+        originPolicyId,
+        cachePolicyId
       };
     }
   } as T;
+
+  return {
+    origin: originCache,
+    state: cacheState
+  };
 };
