@@ -15,6 +15,7 @@ import {
 
 import { HttpError, HttpInternalServerError } from '@ez4/gateway';
 import { ServiceEventType } from '@ez4/common';
+import { isScalarSchema } from '@ez4/schema';
 
 type RequestEvent = APIGatewayProxyEventV2WithLambdaAuthorizer<any>;
 type ResponseEvent = APIGatewayProxyResultV2;
@@ -42,6 +43,7 @@ export async function apiEntryPoint(event: RequestEvent, context: Context): Prom
   const request = {
     requestId: context.awsRequestId,
     timestamp: new Date(requestContext.timeEpoch),
+    encoded: event.isBase64Encoded,
     method: requestContext.http.method,
     path: requestContext.http.path
   };
@@ -121,11 +123,15 @@ const getRequestIdentity = (event: RequestEvent) => {
 };
 
 const getRequestBody = (event: RequestEvent) => {
-  if (!__EZ4_BODY_SCHEMA) {
+  if (!__EZ4_BODY_SCHEMA || !event.body) {
     return undefined;
   }
 
-  const body = event.body || '{}';
+  const { body } = event;
+
+  if (isScalarSchema(__EZ4_BODY_SCHEMA)) {
+    return getRequestJsonBody(body, __EZ4_BODY_SCHEMA);
+  }
 
   try {
     return getRequestJsonBody(JSON.parse(body), __EZ4_BODY_SCHEMA);
@@ -138,12 +144,16 @@ const getRequestBody = (event: RequestEvent) => {
   }
 };
 
-const getResponseBody = (body: Http.JsonBody) => {
-  if (__EZ4_RESPONSE_SCHEMA) {
+const getResponseBody = (body: Http.JsonBody | Http.RawBody) => {
+  if (!__EZ4_RESPONSE_SCHEMA) {
+    return undefined;
+  }
+
+  if (!isScalarSchema(__EZ4_RESPONSE_SCHEMA)) {
     return JSON.stringify(getResponseJsonBody(body, __EZ4_RESPONSE_SCHEMA));
   }
 
-  return undefined;
+  return body.toString();
 };
 
 const getErrorResponse = (error?: HttpError) => {

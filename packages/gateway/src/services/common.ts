@@ -173,6 +173,11 @@ export type HttpIncoming<T extends HttpRequest | HttpAuthRequest> = T & {
   requestId: string;
 
   /**
+   * Determines whether request is base64 encoded or not.
+   */
+  encoded: boolean;
+
+  /**
    * Request timestamp.
    */
   timestamp: Date;
