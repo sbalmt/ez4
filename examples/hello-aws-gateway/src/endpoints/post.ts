@@ -38,7 +38,7 @@ declare class PostResponse implements Http.Response {
 export function postHandler(request: PostRequest): PostResponse {
   const { foo } = request.body;
 
-  // Check error catcher.
+  // Check custom error catcher.
   if (foo === 'error') {
     throw new CustomError('Post error.');
   }

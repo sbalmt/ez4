@@ -16,9 +16,9 @@ import {
 import { IncorrectRequestTypeError, InvalidRequestTypeError } from '../errors/request.js';
 import { getHttpParameters } from './parameters.js';
 import { getHttpIdentity } from './identity.js';
-import { getHttpRequestBody } from './body.js';
 import { getHttpHeaders } from './headers.js';
 import { getHttpQuery } from './query.js';
+import { getHttpBody } from './body.js';
 
 export const getHttpAuthRequest = (type: AllType, parent: TypeModel, reflection: SourceMap, errorList: Error[]) => {
   return getHttpRequest(type, parent, reflection, errorList, 'Http.AuthRequest');
@@ -124,7 +124,7 @@ const getTypeFromMembers = (
       }
 
       case 'body': {
-        request.body = getHttpRequestBody(member.value, type, reflection, errorList);
+        request.body = getHttpBody(member.value, type, reflection, errorList);
 
         if (request.body && member.description) {
           request.body.description = member.description;

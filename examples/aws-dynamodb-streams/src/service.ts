@@ -1,5 +1,6 @@
 import type { DynamoDbEngine } from '@ez4/aws-dynamodb/client';
-import type { Database, Index } from '@ez4/database';
+import type { Client, Database, Index } from '@ez4/database';
+import type { Environment } from '@ez4/common';
 import type { streamHandler } from './stream.js';
 import type { streamListener } from './common.js';
 import type { ExampleSchema } from './schema.js';
@@ -8,6 +9,8 @@ import type { ExampleSchema } from './schema.js';
  * Example of AWS DynamoDB with Stream deployed with EZ4.
  */
 export declare class Db extends Database.Service {
+  client: Client<typeof this>;
+
   engine: DynamoDbEngine;
 
   tables: [
@@ -24,4 +27,11 @@ export declare class Db extends Database.Service {
       };
     }
   ];
+
+  /**
+   * Expose its client to all handlers.
+   */
+  services: {
+    selfClient: Environment.Service<Db>;
+  };
 }

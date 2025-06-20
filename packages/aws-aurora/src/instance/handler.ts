@@ -5,7 +5,7 @@ import type { InstanceState, InstanceResult, InstanceParameters } from './types.
 import { applyTagUpdates, ReplaceResourceError } from '@ez4/aws-common';
 import { deepCompare } from '@ez4/utils';
 
-import { createInstance, deleteInstance, tagInstance, untagInstance } from './client.js';
+import { createInstance, deleteInstance, importInstance, tagInstance, untagInstance } from './client.js';
 
 import { getClusterName } from '../cluster/utils.js';
 import { InstanceServiceName } from './types.js';
@@ -52,10 +52,7 @@ const createResource = async (candidate: InstanceState, context: StepContext): P
 
   const clusterName = getClusterName(InstanceServiceName, parameters.instanceName, context);
 
-  const response = await createInstance({
-    ...parameters,
-    clusterName
-  });
+  const response = (await importInstance(parameters.instanceName)) ?? (await createInstance({ ...parameters, clusterName }));
 
   return {
     instanceName: response.instanceName,

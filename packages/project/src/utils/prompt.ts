@@ -12,7 +12,5 @@ export const waitConfirmation = async (question: string) => {
 
   tty.close();
 
-  process.stdout.write('\n');
-
   return result;
 };

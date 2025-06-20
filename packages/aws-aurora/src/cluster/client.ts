@@ -149,6 +149,17 @@ export const updateCluster = async (clusterName: string, request: UpdateRequest)
   };
 };
 
+export const updateDeletion = async (clusterName: string, allowDeletion: boolean) => {
+  Logger.logUpdate(ClusterServiceName, clusterName);
+
+  await client.send(
+    new ModifyDBClusterCommand({
+      DBClusterIdentifier: clusterName,
+      DeletionProtection: !allowDeletion
+    })
+  );
+};
+
 export const tagCluster = async (clusterArn: Arn, tags: ResourceTags) => {
   const clusterName = tryParseArn(clusterArn)?.resourceName ?? clusterArn;
 

@@ -1,4 +1,4 @@
-import type { StepHandler } from '@ez4/stateful';
+import type { StepContext, StepHandler } from '@ez4/stateful';
 import type { Arn } from '@ez4/aws-common';
 import type { CertificateState, CertificateResult, CertificateParameters } from './types.js';
 
@@ -67,10 +67,10 @@ const updateResource = async (candidate: CertificateState, current: CertificateS
   await checkTagUpdates(certificateArn, parameters, current.parameters);
 };
 
-const deleteResource = async (candidate: CertificateState) => {
+const deleteResource = async (candidate: CertificateState, context: StepContext) => {
   const { result, parameters } = candidate;
 
-  if (!result || !parameters.allowDeletion) {
+  if (!result || (!parameters.allowDeletion && !context.force)) {
     return;
   }
 

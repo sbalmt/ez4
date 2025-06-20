@@ -13,14 +13,20 @@ import { loadProviders } from './providers.js';
 import { Logger } from '../utils/logger.js';
 
 export const destroy = async (project: ProjectOptions) => {
+  const options: StateOptions = {
+    resourcePrefix: project.prefix ?? 'ez4',
+    projectName: toKebabCase(project.projectName),
+    force: project.forceMode,
+    debug: project.debugMode
+  };
+
+  if (options.force) {
+    Logger.log('Force option is enabled');
+  }
+
   await Logger.execute('Loading providers', () => {
     return loadProviders(project);
   });
-
-  const options: StateOptions = {
-    resourcePrefix: project.prefix ?? 'ez4',
-    projectName: toKebabCase(project.projectName)
-  };
 
   const stateFile = project.stateFile;
   const statePath = `${stateFile.path}.ezstate`;
@@ -46,13 +52,15 @@ export const destroy = async (project: ProjectOptions) => {
     }
   }
 
-  const applyState = await applyDeploy(newState, oldState);
+  const applyState = await applyDeploy(newState, oldState, options.force);
 
-  if (stateFile.remote) {
-    await saveRemoteState(statePath, options, applyState.result);
-  } else {
-    await saveLocalState(statePath, applyState.result);
-  }
+  await Logger.execute('Saving state', () => {
+    if (stateFile.remote) {
+      return saveRemoteState(statePath, options, applyState.result);
+    }
+
+    return saveLocalState(statePath, applyState.result);
+  });
 
   assertNoErrors(applyState.errors);
 };

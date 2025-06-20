@@ -8,6 +8,7 @@ import type {
   HttpPathParameters,
   HttpQueryStrings,
   HttpJsonBody,
+  HttpRawBody,
   HttpAuthRequest,
   HttpAuthResponse,
   HttpRequest,
@@ -32,6 +33,7 @@ export namespace Http {
   export type PathParameters = HttpPathParameters;
   export type QueryStrings = HttpQueryStrings;
   export type JsonBody = HttpJsonBody;
+  export type RawBody = HttpRawBody;
 
   export type AuthRequest = HttpAuthRequest;
   export type Request = HttpRequest;

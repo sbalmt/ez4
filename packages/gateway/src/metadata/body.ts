@@ -20,19 +20,13 @@ import { isJsonBody } from './utils.js';
 
 type TypeParent = TypeObject | TypeModel | TypeIntersection;
 
-export const getHttpRequestBody = (type: AllType, parent: TypeParent, reflection: SourceMap, errorList: Error[]) => {
-  return getHttpBody(type, reflection, (currentType) => {
-    return getCompoundTypeBody(currentType, parent, reflection, errorList);
-  });
-};
-
-export const getHttpResponseBody = (type: AllType, parent: TypeParent, reflection: SourceMap, errorList: Error[]) => {
-  return getHttpBody(type, reflection, (currentType) => {
+export const getHttpBody = (type: AllType, parent: TypeParent, reflection: SourceMap, errorList: Error[]) => {
+  return getTypeBody(type, reflection, (currentType) => {
     return getScalarTypeBody(currentType) ?? getCompoundTypeBody(currentType, parent, reflection, errorList);
   });
 };
 
-const getHttpBody = <T>(type: AllType, reflection: SourceMap, resolver: (type: AllType) => T | null) => {
+const getTypeBody = <T>(type: AllType, reflection: SourceMap, resolver: (type: AllType) => T | null) => {
   if (isTypeUndefined(type)) {
     return null;
   }
@@ -97,7 +91,7 @@ const getUnionTypeBody = (types: AllType[], reflection: SourceMap, resolver: (ty
   const schemaList = [];
 
   for (const type of types) {
-    const schema = getHttpBody(type, reflection, resolver);
+    const schema = getTypeBody(type, reflection, resolver);
 
     if (schema) {
       schemaList.push(schema);
@@ -114,7 +108,7 @@ const getUnionTypeBody = (types: AllType[], reflection: SourceMap, resolver: (ty
 };
 
 const getArrayTypeBody = (type: AllType, reflection: SourceMap, resolver: (type: AllType) => AnySchema | null) => {
-  const schema = getHttpBody(type, reflection, resolver);
+  const schema = getTypeBody(type, reflection, resolver);
 
   if (schema) {
     return createArraySchema({

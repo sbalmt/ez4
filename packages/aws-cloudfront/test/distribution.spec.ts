@@ -4,12 +4,16 @@ import { ok, equal } from 'node:assert/strict';
 import { describe, it } from 'node:test';
 
 import {
-  createOriginAccess,
-  createCachePolicy,
+  DistributionServiceName,
   createDistribution,
-  isDistributionState,
+  createOriginAccess,
+  createOriginPolicy,
+  createCachePolicy,
+  getOriginPolicyId,
+  getCachePolicyId,
   registerTriggers,
-  createOriginPolicy
+  isDistributionState,
+  isCachePolicyState
 } from '@ez4/aws-cloudfront';
 
 import { createBucket, getBucketDomain } from '@ez4/aws-bucket';
@@ -26,11 +30,12 @@ const assertDeploy = async <E extends EntryState>(resourceId: string, newState: 
 
   const result = resource.result;
 
+  ok(result.endpoint);
   ok(result.distributionId);
   ok(result.distributionArn);
   ok(result.originAccessId);
-  ok(result.cachePolicyIds);
-  ok(result.endpoint);
+  ok(result.defaultOrigin);
+  ok(result.origins);
 
   return {
     result,
@@ -41,6 +46,7 @@ const assertDeploy = async <E extends EntryState>(resourceId: string, newState: 
 describe('cloudfront :: distribution', () => {
   let lastState: EntryStates | undefined;
   let distributionId: string | undefined;
+  let cachePolicyId: string | undefined;
 
   registerTriggers();
 
@@ -72,10 +78,11 @@ describe('cloudfront :: distribution', () => {
       minTTL: 1
     });
 
-    const resource = createDistribution(
+    const distributionResource = createDistribution(
       localState,
       originAccessResource,
       originPolicyResource,
+      [cachePolicyResource],
       undefined, // Don't issue certificate.
       {
         distributionName: 'ez4-test-distribution',
@@ -84,11 +91,15 @@ describe('cloudfront :: distribution', () => {
         defaultOrigin: {
           id: 's3-bucket',
           location: '/home',
-          cachePolicyId: cachePolicyResource.entryId,
           domain: originBucketName,
-          getDistributionOrigin: async () => {
+          getDistributionOrigin: async (context) => {
+            const originPolicyId = getOriginPolicyId(DistributionServiceName, cachePolicyResource.entryId, context);
+            const cachePolicyId = getCachePolicyId(DistributionServiceName, cachePolicyResource.entryId, context);
+
             return {
-              domain: await getBucketDomain(originBucketName)
+              domain: await getBucketDomain(originBucketName),
+              originPolicyId,
+              cachePolicyId
             };
           }
         },
@@ -96,14 +107,19 @@ describe('cloudfront :: distribution', () => {
           {
             id: 'ez4-test',
             path: 'test*',
-            cachePolicyId: cachePolicyResource.entryId,
+
             headers: {
               ['x-custom-header']: 'ez4-custom-value'
             },
             domain: 'unresolved.ez4.test',
-            getDistributionOrigin: () => {
+            getDistributionOrigin: (context) => {
+              const originPolicyId = getOriginPolicyId(DistributionServiceName, cachePolicyResource.entryId, context);
+              const cachePolicyId = getCachePolicyId(DistributionServiceName, cachePolicyResource.entryId, context);
+
               return {
-                domain: 'resolved.ez4.test'
+                domain: 'resolved.ez4.test',
+                originPolicyId,
+                cachePolicyId
               };
             }
           }
@@ -122,9 +138,10 @@ describe('cloudfront :: distribution', () => {
       }
     );
 
-    resource.dependencies.push(bucketResource.entryId);
+    distributionResource.dependencies.push(bucketResource.entryId);
 
-    distributionId = resource.entryId;
+    distributionId = distributionResource.entryId;
+    cachePolicyId = cachePolicyResource.entryId;
 
     const { state } = await assertDeploy(distributionId, localState, undefined);
 
@@ -132,29 +149,35 @@ describe('cloudfront :: distribution', () => {
   });
 
   it('assert :: update', async () => {
-    ok(distributionId && lastState);
+    ok(distributionId && cachePolicyId && lastState);
 
     const localState = deepClone(lastState);
-    const resource = localState[distributionId];
 
-    ok(resource && isDistributionState(resource));
-    ok(resource.parameters.origins);
+    const distributionResource = localState[distributionId];
+    const cachePolicyResource = localState[cachePolicyId];
 
-    const { cachePolicyId } = resource.parameters.defaultOrigin;
+    ok(distributionResource && isDistributionState(distributionResource));
+    ok(cachePolicyResource && isCachePolicyState(cachePolicyResource));
 
-    resource.parameters.origins.push({
+    ok(distributionResource.parameters.origins);
+
+    distributionResource.parameters.origins.push({
       id: 'ez4-test-new',
       path: 'test-new*',
-      cachePolicyId,
       domain: 'resolved.ez4.test',
-      getDistributionOrigin: () => {
+      getDistributionOrigin: (context) => {
+        const originPolicyId = getOriginPolicyId(DistributionServiceName, cachePolicyResource.entryId, context);
+        const cachePolicyId = getCachePolicyId(DistributionServiceName, cachePolicyResource.entryId, context);
+
         return {
-          domain: 'ez4.test.new'
+          domain: 'ez4.test.new',
+          originPolicyId,
+          cachePolicyId
         };
       }
     });
 
-    resource.parameters.tags = {
+    distributionResource.parameters.tags = {
       test2: 'ez4-tag2'
     };
 

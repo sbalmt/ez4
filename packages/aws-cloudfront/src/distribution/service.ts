@@ -2,30 +2,33 @@ import type { EntryState, EntryStates } from '@ez4/stateful';
 import type { CertificateState } from '@ez4/aws-certificate';
 import type { DistributionParameters, DistributionState } from './types.js';
 
-import { attachEntry, linkDependency, tryLinkDependency } from '@ez4/stateful';
+import { attachEntry } from '@ez4/stateful';
 import { toKebabCase } from '@ez4/utils';
 
-import { OriginState } from '../origin/types.js';
 import { AccessState } from '../access/types.js';
-import { DistributionServiceType } from './types.js';
+import { OriginState } from '../origin/types.js';
+import { CacheState } from '../cache/types.js';
 import { createDistributionStateId } from './utils.js';
+import { DistributionServiceType } from './types.js';
 
 export const createDistribution = <E extends EntryState>(
   state: EntryStates<E>,
   accessState: AccessState,
   originState: OriginState,
+  cacheStates: CacheState[],
   certificateState: CertificateState | undefined,
   parameters: DistributionParameters
 ) => {
   const distributionName = toKebabCase(parameters.distributionName);
   const distributionId = createDistributionStateId(distributionName);
-  const dependencies = [accessState.entryId, originState.entryId];
+
+  const dependencies = [accessState.entryId, originState.entryId, ...cacheStates.map(({ entryId }) => entryId)];
 
   if (certificateState) {
     dependencies.push(certificateState.entryId);
   }
 
-  const resource = attachEntry<E | DistributionState, DistributionState>(state, {
+  return attachEntry<E | DistributionState, DistributionState>(state, {
     type: DistributionServiceType,
     entryId: distributionId,
     dependencies,
@@ -34,12 +37,4 @@ export const createDistribution = <E extends EntryState>(
       distributionName
     }
   });
-
-  linkDependency(state, resource.entryId, parameters.defaultOrigin.cachePolicyId);
-
-  parameters.origins?.forEach(({ cachePolicyId }) => {
-    tryLinkDependency(state, resource.entryId, cachePolicyId);
-  });
-
-  return resource;
 };

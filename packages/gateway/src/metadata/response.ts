@@ -17,9 +17,9 @@ import { isModelProperty, isTypeObject, isTypeReference } from '@ez4/reflection'
 import { isAnyNumber } from '@ez4/utils';
 
 import { IncorrectResponseTypeError, InvalidResponseTypeError } from '../errors/response.js';
-import { getHttpResponseBody } from './body.js';
 import { getHttpIdentity } from './identity.js';
 import { getHttpHeaders } from './headers.js';
+import { getHttpBody } from './body.js';
 
 export const getHttpAuthResponse = (type: AllType, parent: TypeModel, reflection: SourceMap, errorList: Error[]) => {
   const response = getHttpResponse(type, parent, reflection, errorList, 'Http.AuthResponse');
@@ -125,7 +125,7 @@ const getTypeFromMembers = (
       }
 
       case 'body': {
-        response.body = getHttpResponseBody(member.value, type, reflection, errorList);
+        response.body = getHttpBody(member.value, type, reflection, errorList);
 
         if (response.body && member.description) {
           response.body.description = member.description;

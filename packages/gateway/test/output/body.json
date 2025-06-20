@@ -12,7 +12,7 @@
           "request": {
             "body": {
               "type": "object",
-              "description": "Expected JSON body payload.",
+              "description": "Expected HTTP body payload.",
               "identity": 1,
               "properties": {
                 "foo": {
@@ -36,17 +36,8 @@
           "file": "test/input/output-body.ts",
           "request": {
             "body": {
-              "type": "object",
-              "description": "Expected JSON body payload.",
-              "identity": 1,
-              "properties": {
-                "foo": {
-                  "type": "string"
-                },
-                "bar": {
-                  "type": "number"
-                }
-              }
+              "type": "string",
+              "description": "Expected HTTP body payload."
             }
           },
           "response": {

@@ -5,6 +5,7 @@ import type { patchHandler } from './endpoints/patch.js';
 import type { putHandler } from './endpoints/put.js';
 import type { getHandler } from './endpoints/get.js';
 import type { deleteHandler } from './endpoints/delete.js';
+import type { rawHandler } from './endpoints/raw.js';
 
 /**
  * Map HTTP status codes to known errors.
@@ -43,5 +44,9 @@ export type AllRoutes = [
     path: 'DELETE /delete-route/{id}';
     handler: typeof deleteHandler;
     cors: true;
+  },
+  {
+    path: 'ANY /raw-route/{proxy+}';
+    handler: typeof rawHandler;
   }
 ];

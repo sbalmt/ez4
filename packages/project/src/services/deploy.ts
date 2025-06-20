@@ -19,6 +19,19 @@ import { loadProject } from './project.js';
 import { Logger } from '../utils/logger.js';
 
 export const deploy = async (project: ProjectOptions) => {
+  const options: DeployOptions = {
+    resourcePrefix: toKebabCase(project.prefix ?? 'ez4'),
+    projectName: toKebabCase(project.projectName),
+    variables: project.variables,
+    debug: project.debugMode,
+    force: project.forceMode,
+    tags: project.tags
+  };
+
+  if (options.force) {
+    Logger.log('Force option is enabled');
+  }
+
   await Logger.execute('Loading providers', () => {
     return loadProviders(project);
   });
@@ -27,29 +40,19 @@ export const deploy = async (project: ProjectOptions) => {
     return getMetadata(project.sourceFiles);
   });
 
-  const imports = await Logger.execute('Loading imports', () => {
+  options.imports = await Logger.execute('Loading imports', () => {
     return loadImports(project);
   });
-
-  const options: DeployOptions = {
-    resourcePrefix: toKebabCase(project.prefix ?? 'ez4'),
-    projectName: toKebabCase(project.projectName),
-    variables: project.variables,
-    debug: project.debugMode,
-    force: project.forceMode,
-    tags: project.tags,
-    imports
-  };
 
   const stateFile = project.stateFile;
   const statePath = `${stateFile.path}.ezstate`;
 
-  if (options.force) {
-    Logger.log('Force option is enabled');
-  }
-
   const oldState = await Logger.execute('Loading state', () => {
-    return stateFile.remote ? loadRemoteState(statePath, options) : loadLocalState(statePath);
+    if (stateFile.remote) {
+      return loadRemoteState(statePath, options);
+    }
+
+    return loadLocalState(statePath);
   });
 
   const newState: EntryStates = {};
@@ -82,17 +85,19 @@ export const deploy = async (project: ProjectOptions) => {
 
   const applyState = await applyDeploy(newState, oldState, options.force);
 
-  if (stateFile.remote) {
-    await saveRemoteState(statePath, options, applyState.result);
-  } else {
-    await saveLocalState(statePath, applyState.result);
-  }
+  await Logger.execute('Saving state', () => {
+    if (stateFile.remote) {
+      return saveRemoteState(statePath, options, applyState.result);
+    }
+
+    return saveLocalState(statePath, applyState.result);
+  });
 
   assertNoErrors(applyState.errors);
 };
 
 const loadImports = async (projectOptions: ProjectOptions) => {
-  const importProjects = projectOptions.importProjects;
+  const { importProjects } = projectOptions;
 
   if (!importProjects) {
     return undefined;

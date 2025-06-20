@@ -9,14 +9,14 @@ export const isCachePolicyState = (resource: EntryState): resource is CacheState
   return resource.type === CacheServiceType;
 };
 
-export const getCachePolicyIds = (serviceName: string, resourceId: string, context: StepContext) => {
+export const getCachePolicyId = (serviceName: string, resourceId: string, context: StepContext) => {
   const resources = context.getDependencies<CacheState>(CacheServiceType);
 
-  return resources.map(({ result }) => {
-    if (!result?.policyId) {
-      throw new IncompleteResourceError(serviceName, resourceId, 'policyId');
-    }
+  const cachePolicy = resources.find(({ entryId }) => entryId === resourceId);
 
-    return result.policyId;
-  });
+  if (!cachePolicy?.result?.policyId) {
+    throw new IncompleteResourceError(serviceName, resourceId, 'policyId');
+  }
+
+  return cachePolicy.result.policyId;
 };

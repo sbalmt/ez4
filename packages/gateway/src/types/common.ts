@@ -21,7 +21,7 @@ export type HttpRequest = {
   identity?: ObjectSchema | UnionSchema | null;
   parameters?: ObjectSchema | null;
   query?: ObjectSchema | null;
-  body?: ObjectSchema | UnionSchema | ArraySchema | null;
+  body?: ObjectSchema | UnionSchema | ArraySchema | ScalarSchema | null;
 };
 
 export type HttpResponse = {

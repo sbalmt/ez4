@@ -52,20 +52,22 @@ export const prepareCdnServices = async (event: PrepareResourceEvent) => {
 
   const distributionName = getServiceName(service, options);
 
-  const defaultOrigin = await getDefaultOriginCache(state, service, options, context);
-  const origins = await getAdditionalOriginCache(state, service, options, context);
+  const defaultOrigin = getDefaultOriginCache(state, service, options, context);
+  const origins = getAdditionalOriginCache(state, service, options, context);
 
-  createDistribution(state, originAccessState, originPolicyState, certificateState, {
+  const originCacheStates = [defaultOrigin.state, ...origins.map(({ state }) => state)];
+
+  createDistribution(state, originAccessState, originPolicyState, originCacheStates, certificateState, {
+    origins: origins.map(({ origin }) => origin),
+    defaultOrigin: defaultOrigin.origin,
     compress: defaultCache?.compress ?? true,
     enabled: !service.disabled,
     aliases: service.aliases,
     tags: options.tags,
     distributionName,
-    description,
     customErrors,
-    defaultOrigin,
     defaultIndex,
-    origins
+    description
   });
 };
 

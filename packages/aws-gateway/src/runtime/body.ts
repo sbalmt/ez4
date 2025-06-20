@@ -5,7 +5,7 @@ import { validate, createValidatorContext, getUniqueErrorMessages } from '@ez4/v
 import { createTransformContext, transform } from '@ez4/transform';
 import { HttpBadRequestError } from '@ez4/gateway';
 
-export const getRequestJsonBody = async <T extends Http.JsonBody>(input: T, schema: AnySchema): Promise<T> => {
+export const getRequestBody = async <T extends Http.JsonBody>(input: T, schema: AnySchema): Promise<T> => {
   const errors = await validate(
     input,
     schema,
@@ -31,7 +31,7 @@ export const getRequestJsonBody = async <T extends Http.JsonBody>(input: T, sche
   return body as T;
 };
 
-export const getResponseJsonBody = (body: unknown, schema: AnySchema) => {
+export const getResponseBody = (body: unknown, schema: AnySchema) => {
   return transform(
     body,
     schema,
