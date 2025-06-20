@@ -153,7 +153,7 @@ export interface HttpResponse {
   /**
    * HTTP body payload.
    */
-  body?: HttpJsonBody;
+  body?: HttpJsonBody | HttpRawBody;
 }
 
 export interface HttpProvider {
@@ -175,7 +175,7 @@ export type HttpIncoming<T extends HttpRequest | HttpAuthRequest> = T & {
   /**
    * Determines whether request is base64 encoded or not.
    */
-  encoded: boolean;
+  encoded?: boolean;
 
   /**
    * Request timestamp.

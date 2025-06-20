@@ -35,11 +35,9 @@ export async function apiEntryPoint(event: RequestEvent, context: Context): Prom
   try {
     await onBegin(request);
 
-    const incomingRequest = await getIncomingRequest(event);
-
     lastRequest = {
       ...request,
-      ...incomingRequest
+      ...(await getIncomingRequest(event))
     };
 
     await onReady(lastRequest);
@@ -66,13 +64,13 @@ export async function apiEntryPoint(event: RequestEvent, context: Context): Prom
 
 const getIncomingRequest = async (event: RequestEvent) => {
   return {
-    headers: __EZ4_HEADERS_SCHEMA ? await getRequestHeaders(event) : undefined,
-    parameters: __EZ4_PARAMETERS_SCHEMA ? await getRequestParameters(event) : undefined,
-    query: __EZ4_QUERY_SCHEMA ? await getRequestQuery(event) : undefined
+    headers: __EZ4_HEADERS_SCHEMA ? await getIncomingRequestHeaders(event) : undefined,
+    parameters: __EZ4_PARAMETERS_SCHEMA ? await getIncomingRequestParameters(event) : undefined,
+    query: __EZ4_QUERY_SCHEMA ? await getIncomingRequestQuery(event) : undefined
   };
 };
 
-const getRequestHeaders = (event: RequestEvent) => {
+const getIncomingRequestHeaders = (event: RequestEvent) => {
   if (__EZ4_HEADERS_SCHEMA) {
     return getHeaders(event.headers ?? {}, __EZ4_HEADERS_SCHEMA);
   }
@@ -80,7 +78,7 @@ const getRequestHeaders = (event: RequestEvent) => {
   return undefined;
 };
 
-const getRequestParameters = (event: RequestEvent) => {
+const getIncomingRequestParameters = (event: RequestEvent) => {
   if (__EZ4_PARAMETERS_SCHEMA) {
     return getPathParameters(event.pathParameters ?? {}, __EZ4_PARAMETERS_SCHEMA);
   }
@@ -88,7 +86,7 @@ const getRequestParameters = (event: RequestEvent) => {
   return undefined;
 };
 
-const getRequestQuery = (event: RequestEvent) => {
+const getIncomingRequestQuery = (event: RequestEvent) => {
   if (__EZ4_QUERY_SCHEMA) {
     return getQueryStrings(event.queryStringParameters ?? {}, __EZ4_QUERY_SCHEMA);
   }
