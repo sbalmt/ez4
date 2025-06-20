@@ -67,26 +67,31 @@ export interface HttpPathParameters {}
 export interface HttpQueryStrings {}
 
 /**
- * Request body payload.
+ * Json body payload.
  */
 export interface HttpJsonBody {}
+
+/**
+ * Raw body payload.
+ */
+export type HttpRawBody = string;
 
 /**
  * Authorizer request.
  */
 export interface HttpAuthRequest {
   /**
-   * Expected headers.
+   * Expected HTTP headers.
    */
   headers?: HttpHeaders;
 
   /**
-   * Expected path parameters.
+   * Expected HTTP path parameters.
    */
   parameters?: HttpPathParameters;
 
   /**
-   * Expected query strings.
+   * Expected HTTP query strings.
    */
   query?: HttpQueryStrings;
 }
@@ -106,29 +111,29 @@ export interface HttpAuthResponse {
  */
 export interface HttpRequest {
   /**
-   * Expected headers.
-   */
-  headers?: HttpHeaders;
-
-  /**
    * Expected identity.
    */
   identity?: HttpIdentity;
 
   /**
-   * Expected path parameters.
+   * Expected HTTP headers.
+   */
+  headers?: HttpHeaders;
+
+  /**
+   * Expected HTTP path parameters.
    */
   parameters?: HttpPathParameters;
 
   /**
-   * Expected query strings.
+   * Expected HTTP query strings.
    */
   query?: HttpQueryStrings;
 
   /**
-   * Expected JSON body payload.
+   * Expected HTTP body payload.
    */
-  body?: HttpJsonBody;
+  body?: HttpJsonBody | HttpRawBody;
 }
 
 /**
@@ -136,17 +141,17 @@ export interface HttpRequest {
  */
 export interface HttpResponse {
   /**
-   * Response status code.
+   * HTTP status code.
    */
   status: number;
 
   /**
-   * Response headers.
+   * HTTP headers.
    */
   headers?: HttpHeaders;
 
   /**
-   * Response body.
+   * HTTP body payload.
    */
   body?: HttpJsonBody;
 }

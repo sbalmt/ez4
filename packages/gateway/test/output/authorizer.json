@@ -13,7 +13,7 @@
           "request": {
             "query": {
               "type": "object",
-              "description": "Expected query strings.",
+              "description": "Expected HTTP query strings.",
               "identity": 1,
               "properties": {
                 "apiKey": {
