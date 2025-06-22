@@ -5,6 +5,8 @@ export * from './metadata/table.js';
 export * from './metadata/schema.js';
 
 export * from './errors/service.js';
+export * from './errors/scalability.js';
+export * from './errors/engine.js';
 export * from './errors/table.js';
 export * from './errors/schema.js';
 export * from './errors/relations.js';

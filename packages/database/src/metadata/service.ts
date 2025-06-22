@@ -16,9 +16,10 @@ import {
 
 import { isModelProperty } from '@ez4/reflection';
 
-import { InvalidRelationAliasError, InvalidRelationColumnError, InvalidRelationTableError } from '../errors/relations.js';
-import { IncompleteServiceError } from '../errors/service.js';
 import { ServiceType } from '../types/service.js';
+import { IncompleteServiceError } from '../errors/service.js';
+import { InvalidRelationAliasError, InvalidRelationColumnError, InvalidRelationTableError } from '../errors/relations.js';
+import { getDatabaseScalability } from './scalability.js';
 import { getDatabaseEngine } from './engine.js';
 import { isDatabaseService } from './utils.js';
 import { getDatabaseTable } from './table.js';
@@ -52,6 +53,12 @@ export const getDatabaseServices = (reflection: SourceMap) => {
           break;
 
         case 'client':
+          break;
+
+        case 'scalability':
+          if ((service.scalability = getDatabaseScalability(member.value, declaration, reflection, errorList))) {
+            properties.delete(member.name);
+          }
           break;
 
         case 'engine':

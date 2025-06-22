@@ -32,6 +32,7 @@ describe('database service metadata', () => {
 
   it('assert :: empty databases', () => testFile('database'));
   it('assert :: database tables', () => testFile('tables'));
+  it('assert :: database scalability', () => testFile('scalability', true));
   it('assert :: table schema', () => testFile('schema'));
   it('assert :: table indexes', () => testFile('indexes'));
   it('assert :: table relations', () => testFile('relations'));
