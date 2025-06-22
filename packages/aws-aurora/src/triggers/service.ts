@@ -27,7 +27,7 @@ export const prepareDatabaseServices = async (event: PrepareResourceEvent) => {
     return;
   }
 
-  const { engine } = service;
+  const { engine, scalability } = service;
 
   if (engine.paginationMode === PaginationMode.Cursor) {
     throw new UnsupportedPaginationModeError(engine.paginationMode);
@@ -37,7 +37,8 @@ export const prepareDatabaseServices = async (event: PrepareResourceEvent) => {
     clusterName: getClusterName(service, options),
     tags: options.tags,
     enableInsights: true,
-    enableHttp: true
+    enableHttp: true,
+    scalability
   });
 
   const instanceState = createInstance(state, clusterState, {
