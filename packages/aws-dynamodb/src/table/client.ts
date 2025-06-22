@@ -120,35 +120,6 @@ export const createTable = async (request: CreateRequest): Promise<CreateRespons
   };
 };
 
-export const updateTimeToLive = async (tableName: string, request: UpdateTimeToLiveRequest) => {
-  Logger.logUpdate(TableServiceName, tableName);
-
-  const { enabled, attributeName } = request;
-
-  await client.send(
-    new UpdateTimeToLiveCommand({
-      TableName: tableName,
-      TimeToLiveSpecification: {
-        AttributeName: attributeName,
-        Enabled: enabled
-      }
-    })
-  );
-
-  await waitForTimeToLive(client, tableName);
-};
-
-export const updateDeletion = async (tableName: string, allowDeletion: boolean) => {
-  Logger.logUpdate(TableServiceName, tableName);
-
-  await client.send(
-    new UpdateTableCommand({
-      TableName: tableName,
-      DeletionProtectionEnabled: !allowDeletion
-    })
-  );
-};
-
 export const updateStreams = async (tableName: string, enableStreams: boolean) => {
   Logger.logUpdate(TableServiceName, tableName);
 
@@ -169,6 +140,50 @@ export const updateStreams = async (tableName: string, enableStreams: boolean) =
   return {
     streamArn: tableDescription.LatestStreamArn as Arn
   };
+};
+
+export const updateCapacity = async (tableName: string, request: CapacityUnits | undefined) => {
+  Logger.logUpdate(TableServiceName, tableName);
+
+  await client.send(
+    new UpdateTableCommand({
+      TableName: tableName,
+      BillingMode: BillingMode.PAY_PER_REQUEST,
+      OnDemandThroughput: {
+        MaxWriteRequestUnits: request?.maxWriteUnits ?? -1,
+        MaxReadRequestUnits: request?.maxReadUnits ?? -1
+      }
+    })
+  );
+};
+
+export const updateDeletion = async (tableName: string, allowDeletion: boolean) => {
+  Logger.logUpdate(TableServiceName, tableName);
+
+  await client.send(
+    new UpdateTableCommand({
+      TableName: tableName,
+      DeletionProtectionEnabled: !allowDeletion
+    })
+  );
+};
+
+export const updateTimeToLive = async (tableName: string, request: UpdateTimeToLiveRequest) => {
+  Logger.logUpdate(TableServiceName, tableName);
+
+  const { enabled, attributeName } = request;
+
+  await client.send(
+    new UpdateTimeToLiveCommand({
+      TableName: tableName,
+      TimeToLiveSpecification: {
+        AttributeName: attributeName,
+        Enabled: enabled
+      }
+    })
+  );
+
+  await waitForTimeToLive(client, tableName);
 };
 
 export const importIndex = async (tableName: string, request: AttributeSchemaGroup) => {
