@@ -80,6 +80,11 @@ export namespace Http {
     handler: Handler<T>;
 
     /**
+     * Default log retention (in days) for the handlers.
+     */
+    logRetention?: number;
+
+    /**
      * Map status codes and errors for all known exceptions.
      */
     httpErrors?: Errors;
