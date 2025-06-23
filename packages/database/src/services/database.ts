@@ -64,6 +64,14 @@ export namespace Database {
   export type Engine = DatabaseEngine;
 
   /**
+   * Service scalability configuration.
+   */
+  export interface Scalability {
+    minCapacity: number;
+    maxCapacity: number;
+  }
+
+  /**
    * Table stream.
    */
   export interface Stream<T extends Schema = Schema> {
@@ -142,6 +150,11 @@ export namespace Database {
      * Describe all available tables for the service.
      */
     abstract tables: Table<any>[];
+
+    /**
+     * Scalability configuration.
+     */
+    scalability: Scalability;
 
     /**
      * Service client.

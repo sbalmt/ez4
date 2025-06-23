@@ -105,7 +105,6 @@ export const createTable = async (request: CreateRequest): Promise<CreateRespons
   );
 
   const tableDescription = response.TableDescription!;
-
   const tableName = tableDescription.TableName!;
 
   Logger.logWait(TableServiceName, tableName);
@@ -119,6 +118,54 @@ export const createTable = async (request: CreateRequest): Promise<CreateRespons
     streamArn: tableDescription.LatestStreamArn as Arn,
     tableArn: tableDescription.TableArn as Arn
   };
+};
+
+export const updateStreams = async (tableName: string, enableStreams: boolean) => {
+  Logger.logUpdate(TableServiceName, tableName);
+
+  const response = await client.send(
+    new UpdateTableCommand({
+      TableName: tableName,
+      StreamSpecification: {
+        StreamEnabled: enableStreams,
+        ...(enableStreams && {
+          StreamViewType: StreamViewType.NEW_AND_OLD_IMAGES
+        })
+      }
+    })
+  );
+
+  const tableDescription = response.TableDescription!;
+
+  return {
+    streamArn: tableDescription.LatestStreamArn as Arn
+  };
+};
+
+export const updateCapacity = async (tableName: string, request: CapacityUnits | undefined) => {
+  Logger.logUpdate(TableServiceName, tableName);
+
+  await client.send(
+    new UpdateTableCommand({
+      TableName: tableName,
+      BillingMode: BillingMode.PAY_PER_REQUEST,
+      OnDemandThroughput: {
+        MaxWriteRequestUnits: request?.maxWriteUnits ?? -1,
+        MaxReadRequestUnits: request?.maxReadUnits ?? -1
+      }
+    })
+  );
+};
+
+export const updateDeletion = async (tableName: string, allowDeletion: boolean) => {
+  Logger.logUpdate(TableServiceName, tableName);
+
+  await client.send(
+    new UpdateTableCommand({
+      TableName: tableName,
+      DeletionProtectionEnabled: !allowDeletion
+    })
+  );
 };
 
 export const updateTimeToLive = async (tableName: string, request: UpdateTimeToLiveRequest) => {
@@ -137,33 +184,6 @@ export const updateTimeToLive = async (tableName: string, request: UpdateTimeToL
   );
 
   await waitForTimeToLive(client, tableName);
-};
-
-export const updateDeletion = async (tableName: string, allowDeletion: boolean) => {
-  Logger.logUpdate(TableServiceName, tableName);
-
-  await client.send(
-    new UpdateTableCommand({
-      TableName: tableName,
-      DeletionProtectionEnabled: !allowDeletion
-    })
-  );
-};
-
-export const updateStreams = async (tableName: string, enableStreams: boolean) => {
-  Logger.logUpdate(TableServiceName, tableName);
-
-  await client.send(
-    new UpdateTableCommand({
-      TableName: tableName,
-      StreamSpecification: {
-        StreamEnabled: enableStreams,
-        ...(enableStreams && {
-          StreamViewType: StreamViewType.NEW_AND_OLD_IMAGES
-        })
-      }
-    })
-  );
 };
 
 export const importIndex = async (tableName: string, request: AttributeSchemaGroup) => {

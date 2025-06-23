@@ -25,7 +25,7 @@ declare class ListItemsRequest implements Http.Request {
   };
 }
 
-export declare class ListItemsResponse implements Http.Response {
+declare class ListItemsResponse implements Http.Response {
   status: 200;
 
   body: {

@@ -12,7 +12,7 @@
           "request": {
             "headers": {
               "type": "object",
-              "description": "Expected headers.",
+              "description": "Expected HTTP headers.",
               "identity": 1,
               "properties": {
                 "foo": {
@@ -34,7 +34,7 @@
           "request": {
             "headers": {
               "type": "object",
-              "description": "Expected headers.",
+              "description": "Expected HTTP headers.",
               "identity": 1,
               "properties": {
                 "foo": {

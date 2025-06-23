@@ -17,7 +17,7 @@ declare class ReadItemRequest implements Http.Request {
   };
 }
 
-export declare class ReadItemResponse implements Http.Response {
+declare class ReadItemResponse implements Http.Response {
   status: 200;
 
   body: {

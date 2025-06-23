@@ -18,8 +18,9 @@
     "destroy": "ez4 destroy -e local.env -p ez4.project.js"
   },
   "dependencies": {
-    "@ez4/aws-dynamodb": "^0.20.0",
-    "@ez4/database": "^0.20.0",
-    "@ez4/project": "^0.20.0"
+    "@ez4/aws-dynamodb": "^0.21.0",
+    "@ez4/common": "^0.21.0",
+    "@ez4/database": "^0.21.0",
+    "@ez4/project": "^0.21.0"
   }
 }

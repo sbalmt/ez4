@@ -44,7 +44,7 @@ declare class PatchResponse implements Http.Response {
 export function patchHandler(request: PatchRequest): PatchResponse {
   const { foo } = request.body;
 
-  // Check error catcher.
+  // Check custom error catcher.
   if (foo === 'error') {
     throw new CustomError('Patch error.');
   }

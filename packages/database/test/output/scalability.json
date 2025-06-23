@@ -1,0 +1,20 @@
+{
+  "TestDatabase": {
+    "type": "@ez4/database",
+    "extras": {},
+    "name": "TestDatabase",
+    "engine": {
+      "parametersMode": "index",
+      "transactionMode": "static",
+      "insensitiveMode": "unsupported",
+      "paginationMode": "offset",
+      "orderMode": "any",
+      "name": "test"
+    },
+    "tables": [],
+    "scalability": {
+      "maxCapacity": 100,
+      "minCapacity": 0
+    }
+  }
+}

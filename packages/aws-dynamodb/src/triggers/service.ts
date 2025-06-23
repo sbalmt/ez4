@@ -38,7 +38,7 @@ export const prepareDatabaseServices = async (event: PrepareResourceEvent) => {
     return;
   }
 
-  const { engine } = service;
+  const { engine, scalability } = service;
 
   if (engine.parametersMode !== ParametersMode.OnlyIndex) {
     throw new UnsupportedParametersModeError(engine.parametersMode);
@@ -72,7 +72,13 @@ export const prepareDatabaseServices = async (event: PrepareResourceEvent) => {
       enableStreams: !!table.stream,
       tags: options.tags,
       attributeSchema,
-      ttlAttribute
+      ttlAttribute,
+      ...(scalability && {
+        capacityUnits: {
+          maxReadUnits: scalability.maxCapacity,
+          maxWriteUnits: scalability.maxCapacity
+        }
+      })
     });
 
     const internalName = getInternalName(service, table);

@@ -17,12 +17,12 @@ export type IntegrationFunctionParameters = Omit<
 > & {
   handler: IntegrationEntryPoint;
   listener?: IntegrationFunction;
-  responseSchema?: ObjectSchema | UnionSchema | ArraySchema | ScalarSchema | null;
   headersSchema?: ObjectSchema | null;
   identitySchema?: ObjectSchema | UnionSchema | null;
   parametersSchema?: ObjectSchema | null;
   querySchema?: ObjectSchema | null;
-  bodySchema?: ObjectSchema | UnionSchema | ArraySchema | null;
+  bodySchema?: ObjectSchema | UnionSchema | ArraySchema | ScalarSchema | null;
+  responseSchema?: ObjectSchema | UnionSchema | ArraySchema | ScalarSchema | null;
   errorsMap?: Record<string, number> | null;
   extras?: Record<string, ExtraSource>;
   debug?: boolean;

@@ -18,6 +18,15 @@ export declare class Db extends Database.Service {
   engine: PostgresEngine;
 
   /**
+   * Database scalability.
+   * (When `minCapacity` is zero, the auto-pause is activate)
+   */
+  scalability: {
+    minCapacity: 0;
+    maxCapacity: 2;
+  };
+
+  /**
    * Database tables.
    */
   tables: [

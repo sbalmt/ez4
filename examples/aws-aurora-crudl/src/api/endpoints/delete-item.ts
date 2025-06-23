@@ -16,7 +16,7 @@ declare class DeleteItemRequest implements Http.Request {
   };
 }
 
-export declare class DeleteItemResponse implements Http.Response {
+declare class DeleteItemResponse implements Http.Response {
   status: 200;
 
   body: {

@@ -43,7 +43,7 @@ declare class UpdateItemRequest implements Http.Request {
   };
 }
 
-export declare class UpdateItemResponse implements Http.Response {
+declare class UpdateItemResponse implements Http.Response {
   status: 200;
 
   body: {

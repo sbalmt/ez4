@@ -1,6 +1,7 @@
 import type { Service } from '@ez4/common';
 import type { LinkedVariables } from '@ez4/project/library';
 import type { HttpPath } from '../types/common.js';
+import type { HttpSuccessStatuses, HttpEmptySuccessResponse, HttpSuccessResponse } from './utils.js';
 
 import type {
   HttpHeaders,
@@ -8,6 +9,7 @@ import type {
   HttpPathParameters,
   HttpQueryStrings,
   HttpJsonBody,
+  HttpRawBody,
   HttpAuthRequest,
   HttpAuthResponse,
   HttpRequest,
@@ -32,6 +34,7 @@ export namespace Http {
   export type PathParameters = HttpPathParameters;
   export type QueryStrings = HttpQueryStrings;
   export type JsonBody = HttpJsonBody;
+  export type RawBody = HttpRawBody;
 
   export type AuthRequest = HttpAuthRequest;
   export type Request = HttpRequest;
@@ -52,6 +55,9 @@ export namespace Http {
   export type Handler<T extends Request> = HttpHandler<T>;
 
   export type ServiceEvent<T extends Request | AuthRequest = Request> = Service.Event<Incoming<T>>;
+
+  export type EmptySuccessResponse<S extends HttpSuccessStatuses = 204> = HttpEmptySuccessResponse<S>;
+  export type SuccessResponse<S extends HttpSuccessStatuses, T extends HttpRawBody | HttpJsonBody> = HttpSuccessResponse<S, T>;
 
   /**
    * HTTP route.
@@ -76,6 +82,11 @@ export namespace Http {
      * Route handler.
      */
     handler: Handler<T>;
+
+    /**
+     * Default log retention (in days) for the handlers.
+     */
+    logRetention?: number;
 
     /**
      * Map status codes and errors for all known exceptions.

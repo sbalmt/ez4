@@ -18,12 +18,14 @@ export const loadTestMember = (fileName: string) => {
 
   ok(testType.members);
 
-  const member = testType.members[0];
+  const members = testType.members.filter((member) => {
+    return isModelProperty(member);
+  });
 
-  ok(isModelProperty(member));
+  ok(members.length);
 
   return {
     reflection,
-    member
+    members
   };
 };

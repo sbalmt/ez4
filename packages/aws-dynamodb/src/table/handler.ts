@@ -1,17 +1,18 @@
-import type { StepHandler } from '@ez4/stateful';
+import type { StepContext, StepHandler } from '@ez4/stateful';
 import type { Arn } from '@ez4/aws-common';
 import type { AttributeSchema, AttributeSchemaGroup } from '../types/schema.js';
 import type { TableState, TableResult, TableParameters } from './types.js';
 
 import { applyTagUpdates, ReplaceResourceError } from '@ez4/aws-common';
-import { deepCompare } from '@ez4/utils';
+import { deepEqual, deepCompare } from '@ez4/utils';
 
 import {
   createTable,
-  deleteTable,
-  updateTimeToLive,
-  updateDeletion,
   updateStreams,
+  updateCapacity,
+  updateDeletion,
+  updateTimeToLive,
+  deleteTable,
   importIndex,
   createIndex,
   deleteIndex,
@@ -85,21 +86,52 @@ const updateResource = async (candidate: TableState, current: TableState) => {
     return;
   }
 
-  await checkTimeToLiveUpdates(result.tableName, parameters, current.parameters);
+  const newResult = await checkStreamsUpdates(result.tableName, parameters, current.parameters);
+
+  await checkCapacityUpdates(result.tableName, parameters, current.parameters);
   await checkDeletionUpdates(result.tableName, parameters, current.parameters);
-  await checkStreamsUpdates(result.tableName, parameters, current.parameters);
+  await checkTimeToLiveUpdates(result.tableName, parameters, current.parameters);
   await checkIndexUpdates(result.tableName, parameters, current.parameters);
   await checkTagUpdates(result.tableArn, parameters, current.parameters);
+
+  return {
+    ...result,
+    ...newResult
+  };
 };
 
-const deleteResource = async (candidate: TableState) => {
+const deleteResource = async (candidate: TableState, context: StepContext) => {
   const { result, parameters } = candidate;
 
-  if (!result || !parameters.allowDeletion) {
+  const allowDeletion = !!parameters.allowDeletion;
+
+  if (!result || (!allowDeletion && !context.force)) {
     return;
   }
 
+  if (!allowDeletion) {
+    await updateDeletion(result.tableName, true);
+  }
+
   await deleteTable(result.tableName);
+};
+
+const checkStreamsUpdates = async (tableName: string, candidate: TableParameters, current: TableParameters) => {
+  const enableStreams = !!candidate.enableStreams;
+
+  if (enableStreams !== !!current.enableStreams) {
+    return updateStreams(tableName, enableStreams);
+  }
+
+  return undefined;
+};
+
+const checkCapacityUpdates = async (tableName: string, candidate: TableParameters, current: TableParameters) => {
+  const hasChanges = !deepEqual(candidate.capacityUnits ?? {}, current.capacityUnits ?? {});
+
+  if (hasChanges) {
+    await updateCapacity(tableName, candidate.capacityUnits);
+  }
 };
 
 const checkDeletionUpdates = async (tableName: string, candidate: TableParameters, current: TableParameters) => {
@@ -107,14 +139,6 @@ const checkDeletionUpdates = async (tableName: string, candidate: TableParameter
 
   if (allowDeletion !== !!current.allowDeletion) {
     await updateDeletion(tableName, allowDeletion);
-  }
-};
-
-const checkStreamsUpdates = async (tableName: string, candidate: TableParameters, current: TableParameters) => {
-  const enableStreams = !!candidate.enableStreams;
-
-  if (enableStreams !== !!current.enableStreams) {
-    await updateStreams(tableName, enableStreams);
   }
 };
 

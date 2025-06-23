@@ -44,7 +44,7 @@ declare class PutResponse implements Http.Response {
 export function putHandler(request: PutRequest): PutResponse {
   const { foo } = request.body;
 
-  // Check error catcher.
+  // Check default error catcher.
   if (foo === 'error') {
     throw new CustomError('Put error.');
   }

@@ -14,12 +14,10 @@ import type {
 import { applyTagUpdates, ReplaceResourceError } from '@ez4/aws-common';
 import { deepCompare, deepEqual } from '@ez4/utils';
 
-import { getCachePolicyIds } from '../cache/utils.js';
-import { getOriginPolicyId } from '../origin/utils.js';
-import { tryGetCertificateArn } from '../certificate/utils.js';
 import { getOriginAccessId } from '../access/utils.js';
-import { protectHeaders } from './helpers/headers.js';
+import { tryGetCertificateArn } from '../certificate/utils.js';
 import { createDistribution, updateDistribution, deleteDistribution, tagDistribution, untagDistribution } from './client.js';
+import { protectHeaders } from './helpers/headers.js';
 import { DistributionServiceName } from './types.js';
 
 type GeneralUpdateParameters = CreateRequest & UpdateRequest;
@@ -81,35 +79,30 @@ const createResource = async (candidate: DistributionState, context: StepContext
   const resourceId = parameters.distributionName;
 
   const certificateArn = tryGetCertificateArn(context);
-
-  const originPolicyId = getOriginPolicyId(DistributionServiceName, resourceId, context);
   const originAccessId = getOriginAccessId(DistributionServiceName, resourceId, context);
-  const cachePolicyIds = getCachePolicyIds(DistributionServiceName, resourceId, context);
 
-  const allOriginsData = await getAllOrigins(parameters, context);
-  const requestOrigins = bindOriginCachePolices(parameters, allOriginsData, cachePolicyIds, originPolicyId);
+  const originsData = await getOriginsData(parameters, context);
+  const allOrigins = bindOriginsData(parameters, originsData);
 
   const { distributionId, distributionArn, endpoint } = await createDistribution({
     ...parameters,
-    ...requestOrigins,
+    ...allOrigins,
     originAccessId,
     certificateArn
   });
 
   lockSensitiveData(candidate);
 
-  const [defaultOrigin, ...origins] = allOriginsData;
+  const [defaultOrigin, ...origins] = originsData;
 
   return {
+    endpoint,
     distributionId,
     distributionArn,
     certificateArn,
-    originPolicyId,
     originAccessId,
-    cachePolicyIds,
     defaultOrigin,
-    origins,
-    endpoint
+    origins
   };
 };
 
@@ -129,50 +122,40 @@ const updateResource = async (
   const newCertificateArn = tryGetCertificateArn(context);
   const oldCertificateArn = current.result?.certificateArn;
 
-  const newOriginPolicyId = getOriginPolicyId(DistributionServiceName, resourceId, context);
-  const oldOriginPolicyId = current.result?.originAccessId ?? newOriginPolicyId;
-
   const newOriginAccessId = getOriginAccessId(DistributionServiceName, resourceId, context);
   const oldOriginAccessId = current.result?.originAccessId ?? newOriginAccessId;
 
-  const newCachePolicyIds = getCachePolicyIds(DistributionServiceName, resourceId, context);
-  const oldCachePolicyIds = current.result?.cachePolicyIds ?? newCachePolicyIds;
-
-  const newAllOriginsData = await getAllOrigins(parameters, context);
-  const newRequestOrigins = bindOriginCachePolices(parameters, newAllOriginsData, newCachePolicyIds, newOriginPolicyId);
+  const newOriginsData = await getOriginsData(parameters, context);
+  const newAllOrigins = bindOriginsData(parameters, newOriginsData);
 
   const newRequest = {
     ...parameters,
-    ...newRequestOrigins,
+    ...newAllOrigins,
     originAccessId: newOriginAccessId,
     certificateArn: newCertificateArn
   };
 
-  const oldAllOriginsData = [result.defaultOrigin, ...result.origins];
-  const oldRequestOrigins = bindOriginCachePolices(current.parameters, oldAllOriginsData, oldCachePolicyIds, oldOriginPolicyId);
+  const oldOriginsData = [result.defaultOrigin, ...result.origins];
+  const oldAllOrigins = bindOriginsData(current.parameters, oldOriginsData);
 
   const oldRequest = {
     ...current.parameters,
-    ...oldRequestOrigins,
+    ...oldAllOrigins,
     originAccessId: oldOriginAccessId,
     certificateArn: oldCertificateArn
   };
 
-  await Promise.all([
-    checkGeneralUpdates(result.distributionId, newRequest, oldRequest),
-    checkTagUpdates(result.distributionArn, parameters, current.parameters)
-  ]);
+  await checkGeneralUpdates(result.distributionId, newRequest, oldRequest);
+  await checkTagUpdates(result.distributionArn, parameters, current.parameters);
 
   lockSensitiveData(candidate);
 
-  const [defaultOrigin, ...origins] = newAllOriginsData;
+  const [defaultOrigin, ...origins] = newOriginsData;
 
   return {
     ...result,
     certificateArn: newCertificateArn,
-    originPolicyId: newOriginPolicyId,
     originAccessId: newOriginAccessId,
-    cachePolicyIds: newCachePolicyIds,
     defaultOrigin,
     origins
   };
@@ -185,16 +168,16 @@ const deleteResource = async (candidate: DistributionState) => {
     return;
   }
 
-  const { distributionId, originPolicyId, originAccessId, cachePolicyIds } = result;
+  const { distributionId, originAccessId } = result;
 
   // Only disabled distributions can be deleted.
   if (parameters.enabled) {
-    const allOriginsData = [result.defaultOrigin, ...result.origins];
-    const requestOrigins = bindOriginCachePolices(parameters, allOriginsData, cachePolicyIds, originPolicyId);
+    const originsData = [result.defaultOrigin, ...result.origins];
+    const allOrigins = bindOriginsData(parameters, originsData);
 
     await updateDistribution(distributionId, {
       ...parameters,
-      ...requestOrigins,
+      ...allOrigins,
       originAccessId,
       enabled: false
     });
@@ -228,42 +211,27 @@ const lockSensitiveData = (candidate: DistributionState) => {
   return candidate;
 };
 
-const getAllOrigins = async (parameters: DistributionParameters, context: StepContext) => {
-  const defaultOrigin = await parameters.defaultOrigin.getDistributionOrigin(context);
+const getOriginsData = async (parameters: DistributionParameters, context: StepContext) => {
+  const { defaultOrigin, origins = [] } = parameters;
 
-  const origins = await Promise.all(
-    (parameters.origins ?? []).map((additionalOrigin) => {
-      return additionalOrigin.getDistributionOrigin(context);
-    })
-  );
-
-  return [defaultOrigin, ...origins];
+  return Promise.all([
+    defaultOrigin.getDistributionOrigin(context),
+    ...origins.map((additionalOrigin) => additionalOrigin.getDistributionOrigin(context))
+  ]);
 };
 
-const bindOriginCachePolices = (
-  parameters: DistributionParameters,
-  allOrigins: DistributionOrigin[],
-  allCachePolicyIds: string[],
-  originPolicyId: string
-) => {
-  const [defaultCachePolicyId, ...additionalCachePolicyIds] = allCachePolicyIds;
-  const [defaultOriginData, ...additionalOriginsData] = allOrigins;
+const bindOriginsData = (parameters: DistributionParameters, originsData: DistributionOrigin[]) => {
+  const [defaultOriginData, ...additionalOriginsData] = originsData;
 
   const defaultOrigin = {
     ...parameters.defaultOrigin,
-    ...defaultOriginData,
-    cachePolicyId: defaultCachePolicyId,
-    originPolicyId
+    ...defaultOriginData
   };
 
   const origins = parameters.origins?.map((additionalOrigin, index) => {
-    const cachePolicyId = additionalCachePolicyIds[index] ?? defaultCachePolicyId;
-
     return {
       ...additionalOrigin,
-      ...additionalOriginsData[index],
-      originPolicyId,
-      cachePolicyId
+      ...additionalOriginsData[index]
     };
   });
 

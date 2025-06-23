@@ -27,9 +27,15 @@ const waiter = {
   client
 };
 
+export type Scalability = {
+  minCapacity: number;
+  maxCapacity: number;
+};
+
 export type CreateRequest = {
   clusterName: string;
   allowDeletion?: boolean;
+  scalability?: Scalability | null;
   enableInsights?: boolean;
   enableHttp?: boolean;
   tags?: ResourceTags;
@@ -75,9 +81,11 @@ export const importCluster = async (clusterName: string): Promise<ImportOrCreate
 };
 
 export const createCluster = async (request: CreateRequest): Promise<ImportOrCreateResponse> => {
-  const { clusterName } = request;
+  const { clusterName, scalability } = request;
 
   Logger.logCreate(ClusterServiceName, clusterName);
+
+  const canPause = scalability?.minCapacity === 0;
 
   const response = await client.send(
     new CreateDBClusterCommand({
@@ -93,8 +101,11 @@ export const createCluster = async (request: CreateRequest): Promise<ImportOrCre
       EngineMode: 'provisioned',
       Engine: 'aurora-postgresql',
       ServerlessV2ScalingConfiguration: {
-        MinCapacity: 0.5,
-        MaxCapacity: 8
+        MinCapacity: scalability?.minCapacity ?? 0,
+        MaxCapacity: scalability?.maxCapacity ?? 8,
+        ...(canPause && {
+          SecondsUntilAutoPause: 300
+        })
       },
       Tags: getTagList({
         ...request.tags,
@@ -122,6 +133,10 @@ export const createCluster = async (request: CreateRequest): Promise<ImportOrCre
 export const updateCluster = async (clusterName: string, request: UpdateRequest): Promise<UpdateResponse> => {
   Logger.logUpdate(ClusterServiceName, clusterName);
 
+  const { scalability } = request;
+
+  const canPause = scalability?.minCapacity === 0;
+
   const response = await client.send(
     new ModifyDBClusterCommand({
       DBClusterIdentifier: clusterName,
@@ -129,7 +144,14 @@ export const updateCluster = async (clusterName: string, request: UpdateRequest)
       EnablePerformanceInsights: request.enableInsights,
       EnableHttpEndpoint: request.enableHttp,
       RotateMasterUserPassword: true,
-      ApplyImmediately: true
+      ApplyImmediately: true,
+      ServerlessV2ScalingConfiguration: {
+        MinCapacity: scalability?.minCapacity ?? 0,
+        MaxCapacity: scalability?.maxCapacity ?? 8,
+        ...(canPause && {
+          SecondsUntilAutoPause: 300
+        })
+      }
     })
   );
 
@@ -147,6 +169,17 @@ export const updateCluster = async (clusterName: string, request: UpdateRequest)
     readerEndpoint: ReaderEndpoint!,
     writerEndpoint: Endpoint!
   };
+};
+
+export const updateDeletion = async (clusterName: string, allowDeletion: boolean) => {
+  Logger.logUpdate(ClusterServiceName, clusterName);
+
+  await client.send(
+    new ModifyDBClusterCommand({
+      DBClusterIdentifier: clusterName,
+      DeletionProtection: !allowDeletion
+    })
+  );
 };
 
 export const tagCluster = async (clusterArn: Arn, tags: ResourceTags) => {

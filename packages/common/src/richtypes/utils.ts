@@ -1,12 +1,12 @@
 import type { TypeObject } from '@ez4/reflection';
 
-import { createString, isModelProperty, isTypeReference, isTypeString } from '@ez4/reflection';
+import { createBoolean, createNumber, createString, isModelProperty, isTypeReference, isTypeScalar, isTypeString } from '@ez4/reflection';
+import { isAnyBoolean, isAnyNumber } from '@ez4/utils';
 
 export type RichTypes = {
   format?: string;
-
   variable?: string;
-
+  default?: number | string | boolean;
   service?: string;
 };
 
@@ -38,6 +38,12 @@ export const getRichTypes = (type: TypeObject) => {
         }
         break;
 
+      case 'default':
+        if (isTypeScalar(type)) {
+          richTypes.default = type.literal;
+        }
+        break;
+
       case 'service':
         if (isTypeReference(type)) {
           richTypes.service = type.path;
@@ -54,15 +60,29 @@ export const getRichTypes = (type: TypeObject) => {
 };
 
 export const createRichType = (richTypes: RichTypes) => {
-  const format = richTypes.format;
+  const { format, variable, service, default: defaultValue } = richTypes;
 
   switch (format) {
     case 'variable': {
-      return createString('literal', richTypes?.variable && process.env[richTypes.variable]);
+      return createString('literal', variable && process.env[variable]);
     }
 
     case 'service':
-      return createString('literal', richTypes.service);
+      return createString('literal', service);
+
+    case 'value': {
+      const variableValue = variable ? process.env[variable] : undefined;
+
+      if (isAnyBoolean(defaultValue)) {
+        return createBoolean('literal', (variableValue ? variableValue === 'true' : defaultValue) ?? defaultValue);
+      }
+
+      if (isAnyNumber(defaultValue)) {
+        return createNumber('literal', (variableValue ? parseFloat(variableValue) : undefined) ?? defaultValue);
+      }
+
+      return createString('literal', variableValue ?? defaultValue);
+    }
   }
 
   return null;

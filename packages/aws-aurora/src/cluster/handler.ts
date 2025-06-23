@@ -1,11 +1,11 @@
-import type { StepHandler } from '@ez4/stateful';
+import type { StepContext, StepHandler } from '@ez4/stateful';
 import type { Arn } from '@ez4/aws-common';
 import type { ClusterState, ClusterResult, ClusterParameters } from './types.js';
 
 import { applyTagUpdates, ReplaceResourceError } from '@ez4/aws-common';
 import { deepCompare, deepEqual } from '@ez4/utils';
 
-import { importCluster, createCluster, updateCluster, deleteCluster, tagCluster, untagCluster } from './client.js';
+import { importCluster, createCluster, updateCluster, deleteCluster, tagCluster, untagCluster, updateDeletion } from './client.js';
 import { ClusterServiceName } from './types.js';
 
 export const getClusterHandler = (): StepHandler<ClusterState> => ({
@@ -67,22 +67,38 @@ const updateResource = async (candidate: ClusterState, current: ClusterState) =>
     return;
   }
 
-  const [newResult] = await Promise.all([
-    checkGeneralUpdates(parameters.clusterName, result, parameters, current.parameters),
-    checkTagUpdates(result.clusterArn, parameters, current.parameters)
-  ]);
+  const { clusterName } = parameters;
+
+  const newResult = await checkGeneralUpdates(clusterName, result, parameters, current.parameters);
+
+  await checkDeletionUpdates(clusterName, parameters, current.parameters);
+  await checkTagUpdates(result.clusterArn, parameters, current.parameters);
 
   return newResult;
 };
 
-const deleteResource = async (candidate: ClusterState) => {
+const deleteResource = async (candidate: ClusterState, context: StepContext) => {
   const { result, parameters } = candidate;
 
-  if (!result || !parameters.allowDeletion) {
+  const allowDeletion = !!parameters.allowDeletion;
+
+  if (!result || (!allowDeletion && !context.force)) {
     return;
   }
 
+  if (!allowDeletion) {
+    await updateDeletion(parameters.clusterName, true);
+  }
+
   await deleteCluster(parameters.clusterName);
+};
+
+const checkDeletionUpdates = async (clusterName: string, candidate: ClusterParameters, current: ClusterParameters) => {
+  const allowDeletion = !!candidate.allowDeletion;
+
+  if (allowDeletion !== !!current.allowDeletion) {
+    await updateDeletion(clusterName, allowDeletion);
+  }
 };
 
 const checkGeneralUpdates = async (

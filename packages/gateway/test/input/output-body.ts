@@ -1,11 +1,15 @@
 import type { Http } from '@ez4/gateway';
 import type { SuccessResponse } from './common.js';
 
-declare class TestRequest implements Http.Request {
+declare class TestJsonRequest implements Http.Request {
   body: {
     foo: string;
     bar: number;
   };
+}
+
+declare class TestRawRequest implements Http.Request {
+  body: Http.RawBody;
 }
 
 export declare class TestService extends Http.Service {
@@ -21,13 +25,13 @@ export declare class TestService extends Http.Service {
   ];
 }
 
-export function testRouteA(_request: TestRequest): SuccessResponse {
+export function testRouteA(_request: TestJsonRequest): SuccessResponse {
   return {
     status: 204
   };
 }
 
-export function testRouteB(_request: Http.Incoming<TestRequest>): SuccessResponse {
+export function testRouteB(_request: Http.Incoming<TestRawRequest>): SuccessResponse {
   return {
     status: 204
   };

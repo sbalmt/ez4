@@ -14,13 +14,13 @@ import {
   getReferenceType
 } from '@ez4/common/library';
 
-import { IncompleteTableError } from '../errors/table.js';
 import { ParametersMode } from '../services/parameters.js';
-import { TransactionMode } from '../services/transaction.js';
 import { PaginationMode } from '../services/pagination.js';
+import { TransactionMode } from '../services/transaction.js';
+import { InsensitiveMode } from '../services/insensitive.js';
+import { IncompleteEngineError } from '../errors/engine.js';
 import { OrderMode } from '../services/order.js';
 import { isDatabaseEngine } from './utils.js';
-import { InsensitiveMode } from '../main.js';
 
 export const getDatabaseEngine = (type: AllType, parent: TypeModel, reflection: SourceMap, errorList: Error[]) => {
   if (!isTypeReference(type)) {
@@ -37,7 +37,9 @@ export const getDatabaseEngine = (type: AllType, parent: TypeModel, reflection: 
 };
 
 const isValidEngine = (type: Incomplete<DatabaseEngine>): type is DatabaseEngine => {
-  return !!type.name && !!type.parametersMode && !!type.transactionMode && !!type.orderMode;
+  return (
+    !!type.name && !!type.parametersMode && !!type.transactionMode && !!type.insensitiveMode && !!type.paginationMode && !!type.orderMode
+  );
 };
 
 const getTypeEngine = (type: AllType, parent: TypeModel, errorList: Error[]) => {
@@ -106,7 +108,7 @@ const getTypeFromMembers = (type: TypeObject | TypeModel, parent: TypeModel, mem
   }
 
   if (!isValidEngine(engine)) {
-    errorList.push(new IncompleteTableError([...properties], type.file));
+    errorList.push(new IncompleteEngineError([...properties], type.file));
     return null;
   }
 
