@@ -1,6 +1,7 @@
 import type { Service } from '@ez4/common';
 import type { LinkedVariables } from '@ez4/project/library';
 import type { HttpPath } from '../types/common.js';
+import type { HttpSuccessStatuses, HttpEmptySuccessResponse, HttpSuccessResponse } from './utils.js';
 
 import type {
   HttpHeaders,
@@ -54,6 +55,9 @@ export namespace Http {
   export type Handler<T extends Request> = HttpHandler<T>;
 
   export type ServiceEvent<T extends Request | AuthRequest = Request> = Service.Event<Incoming<T>>;
+
+  export type EmptySuccessResponse<S extends HttpSuccessStatuses = 204> = HttpEmptySuccessResponse<S>;
+  export type SuccessResponse<S extends HttpSuccessStatuses, T extends HttpRawBody | HttpJsonBody> = HttpSuccessResponse<S, T>;
 
   /**
    * HTTP route.
