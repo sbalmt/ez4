@@ -1,12 +1,7 @@
 import { ok, equal } from 'assert/strict';
 import { describe, it } from 'node:test';
 
-import {
-  InvalidServiceError,
-  MissingServiceProviderError,
-  MissingServiceError,
-  MissingVariableError
-} from '@ez4/common/library';
+import { InvalidServiceError, MissingServiceProviderError, MissingServiceError, MissingVariableError } from '@ez4/common/library';
 
 import { registerTriggers, getLinkedVariableList, getLinkedServiceList } from '@ez4/common/library';
 
@@ -16,10 +11,10 @@ describe('common metadata errors', () => {
   registerTriggers();
 
   it('assert :: missing variable', () => {
-    const { member } = loadTestMember('missing-variable');
+    const { members } = loadTestMember('missing-variable');
     const testErrors: Error[] = [];
 
-    getLinkedVariableList(member, testErrors);
+    getLinkedVariableList(members[0], testErrors);
 
     equal(testErrors.length, 1);
 
@@ -30,10 +25,10 @@ describe('common metadata errors', () => {
   });
 
   it('assert :: missing service', () => {
-    const { member, reflection } = loadTestMember('missing-service');
+    const { members, reflection } = loadTestMember('missing-service');
     const testErrors: Error[] = [];
 
-    getLinkedServiceList(member, reflection, testErrors);
+    getLinkedServiceList(members[0], reflection, testErrors);
 
     equal(testErrors.length, 1);
 
@@ -44,10 +39,10 @@ describe('common metadata errors', () => {
   });
 
   it('assert :: missing service provider', () => {
-    const { member, reflection } = loadTestMember('missing-service-provider');
+    const { members, reflection } = loadTestMember('missing-service-provider');
     const testErrors: Error[] = [];
 
-    getLinkedServiceList(member, reflection, testErrors);
+    getLinkedServiceList(members[0], reflection, testErrors);
 
     equal(testErrors.length, 1);
 
@@ -58,10 +53,10 @@ describe('common metadata errors', () => {
   });
 
   it('assert :: invalid service', () => {
-    const { member, reflection } = loadTestMember('invalid-service');
+    const { members, reflection } = loadTestMember('invalid-service');
     const testErrors: Error[] = [];
 
-    getLinkedServiceList(member, reflection, testErrors);
+    getLinkedServiceList(members[0], reflection, testErrors);
 
     equal(testErrors.length, 1);
 

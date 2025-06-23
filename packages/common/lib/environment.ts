@@ -1,7 +1,13 @@
 export namespace Environment {
-  export type Variable<T extends string> = {
+  export type Variable<Name extends string> = {
     '@ez4/project': 'variable';
-    variable: T;
+    variable: Name;
+  };
+
+  export type Value<Name extends string, Default> = {
+    '@ez4/project': 'value';
+    variable: Name;
+    default: Default;
   };
 
   export type Service<T> = {
