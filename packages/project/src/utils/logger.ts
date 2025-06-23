@@ -8,12 +8,18 @@ export namespace Logger {
 
     process.stdout.write(`[EZ4]: ${message} ...`);
 
-    const result = await callback();
-    const endTime = performance.now();
+    try {
+      const result = await callback();
+      const endTime = performance.now();
 
-    process.stdout.write(`\r[EZ4]: ${message} (${(endTime - startTime).toFixed(2)}ms)\n`);
+      process.stdout.write(`\r[EZ4]: ${message} (${(endTime - startTime).toFixed(2)}ms)\n`);
 
-    return result;
+      return result;
+    } catch (error) {
+      process.stdout.write('\n');
+
+      throw error;
+    }
   };
 
   export const log = (message: string) => {
