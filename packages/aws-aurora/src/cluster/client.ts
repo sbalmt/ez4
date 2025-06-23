@@ -133,6 +133,10 @@ export const createCluster = async (request: CreateRequest): Promise<ImportOrCre
 export const updateCluster = async (clusterName: string, request: UpdateRequest): Promise<UpdateResponse> => {
   Logger.logUpdate(ClusterServiceName, clusterName);
 
+  const { scalability } = request;
+
+  const canPause = scalability?.minCapacity === 0;
+
   const response = await client.send(
     new ModifyDBClusterCommand({
       DBClusterIdentifier: clusterName,
@@ -140,7 +144,14 @@ export const updateCluster = async (clusterName: string, request: UpdateRequest)
       EnablePerformanceInsights: request.enableInsights,
       EnableHttpEndpoint: request.enableHttp,
       RotateMasterUserPassword: true,
-      ApplyImmediately: true
+      ApplyImmediately: true,
+      ServerlessV2ScalingConfiguration: {
+        MinCapacity: scalability?.minCapacity ?? 0,
+        MaxCapacity: scalability?.maxCapacity ?? 8,
+        ...(canPause && {
+          SecondsUntilAutoPause: 300
+        })
+      }
     })
   );
 
