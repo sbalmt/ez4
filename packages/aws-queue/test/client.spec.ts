@@ -7,11 +7,16 @@ import { createQueue, isQueueState, registerTriggers } from '@ez4/aws-queue';
 import { Client } from '@ez4/aws-queue/client';
 import { SchemaType } from '@ez4/schema';
 import { deploy } from '@ez4/aws-common';
+import { Queue, Client as QueueClient } from '@ez4/queue';
+
+declare class Test extends Queue.Service<{ test: string }> {
+  subscriptions: [];
+}
 
 describe('queue client', () => {
   let lastState: EntryStates | undefined;
   let queueId: string | undefined;
-  let queueClient: ReturnType<typeof Client.make>;
+  let queueClient: QueueClient<Test>;
 
   registerTriggers();
 
@@ -34,7 +39,7 @@ describe('queue client', () => {
 
     const { queueUrl } = resultResource.result;
 
-    queueClient = Client.make(queueUrl, {
+    queueClient = Client.make<Test>(queueUrl, {
       type: SchemaType.Object,
       properties: {
         test: {

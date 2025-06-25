@@ -3,14 +3,14 @@ import type { Queue } from './contract.js';
 /**
  * Queue client.
  */
-export interface Client<T extends Queue.Message> {
+export interface Client<T extends Queue.Service<any>> {
   /**
    * Send a new JSON message to the queue.
    *
    * @param message Message object.
    * @param options Send options.
    */
-  sendMessage(message: T, options?: SendOptions): Promise<void>;
+  sendMessage(message: T['schema'], options?: SendOptions<T>): Promise<void>;
 
   /**
    * Receive JSON messages from the queue.
@@ -39,7 +39,12 @@ export type ReceiveOptions = {
 /**
  * Options for sending messages with queue client.
  */
-export type SendOptions = {
+export type SendOptions<T extends Queue.Service<any>> = undefined extends T['fifoMode'] ? StandardSendOptions : never;
+
+/**
+ * Options for sending messages with standard queue client.
+ */
+export type StandardSendOptions = {
   /**
    * Maximum delay time (in seconds) for making the message available.
    */
