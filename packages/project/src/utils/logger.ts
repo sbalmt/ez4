@@ -1,4 +1,5 @@
 import { performance } from 'node:perf_hooks';
+import { toRed } from '../console/format.js';
 
 export namespace Logger {
   export type Callback<T> = () => T;
@@ -20,6 +21,10 @@ export namespace Logger {
 
       throw error;
     }
+  };
+
+  export const error = (message: string) => {
+    process.stderr.write(toRed(`[EZ4]: ${message}\n`));
   };
 
   export const log = (message: string) => {
