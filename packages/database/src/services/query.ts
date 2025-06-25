@@ -106,7 +106,7 @@ export namespace Query {
 
   export type Record<S extends AnyObject, T extends TableMetadata> = S extends never
     ? undefined
-    : PartialObject<SelectFields<T['schema'], T['relations']>, S, false>;
+    : PartialObject<SelectFields<T['schema'], T['relations']>, S>;
 
   export type SelectInput<T extends TableMetadata> = PartialProperties<SelectFields<T['schema'], T['relations']>>;
 

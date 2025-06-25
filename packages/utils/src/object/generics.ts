@@ -6,13 +6,13 @@ import type { ArrayType, IsAny, IsArray } from '../main.js';
 export type AnyObject = Record<any, any>;
 
 /**
- * Given a type `T`, it returns `true` when `T` is an empty object, otherwise returns `false`.
+ * Given an object type `T`, it returns `true` when `T` is an empty object, otherwise returns `false`.
  */
 export type IsObjectEmpty<T extends AnyObject> =
   IsAny<T> extends true ? true : keyof T extends never ? true : string extends keyof T ? true : false;
 
 /**
- * Given a type `T`, it returns `true` when `T` is an object, otherwise returns `false`.
+ * Given an object type `T`, it returns `true` when `T` is an object, otherwise returns `false`.
  */
 export type IsObject<T> =
   IsAny<T> extends true
@@ -26,12 +26,16 @@ export type IsObject<T> =
         : false;
 
 /**
- * Given a type `T`, it produces a new object type allowing its original type, `undefined`
+ * Given an object type `T`, it produces a new object type allowing its original type, `undefined`
  * and `null` for all first-level properties.
  */
-export type Incomplete<T> = {
-  [P in keyof T]?: T[P] | null;
-};
+export type Incomplete<T extends AnyObject> = { [P in keyof T]?: T[P] | null };
+
+/**
+ * Given a complex object type `T`, it produces a new object type resolving its all first-level
+ * property names.
+ */
+export type Prettify<T extends AnyObject> = { [K in keyof T]: T[K] } & unknown;
 
 /**
  * Given a type `T` and a property `P`, it returns `true` when the property exists,
@@ -93,14 +97,14 @@ export type PartialProperties<T extends AnyObject> = {
 };
 
 /**
- * Given the types `T` and `O`, it produces a new type containing only properties that
+ * Given the object types `T` and `O`, it produces a new type containing only properties that
  * are in `O` if `V` is `true` or omit them if `V` is `false`, the original property type
  * is kept the same. This is used in conjunction with `PartialProperties`.
  * 
  @example
  type Foo = PartialObject<{ bar: string, baz: number }, { bar: true }>; // { bar: string }
  */
-export type PartialObject<T extends AnyObject, O extends AnyObject, V extends boolean = true> = {
+export type PartialObject<T extends AnyObject, O extends AnyObject, V extends boolean = true> = Prettify<{
   [P in keyof T as PartialObjectProperty<O[P], P, V>]: IsArray<T[P]> extends false
     ? IsObject<O[P]> extends true
       ? PartialObject<T[P], O[P], V>
@@ -110,7 +114,7 @@ export type PartialObject<T extends AnyObject, O extends AnyObject, V extends bo
         ? PartialObject<ArrayType<T[P]>, O[P], V>[]
         : T[P]
       : T[P];
-};
+}>;
 
 /**
  * Helper type to determine if a property exists or not in a `PartialObject`.
@@ -119,7 +123,7 @@ export type PartialObject<T extends AnyObject, O extends AnyObject, V extends bo
  * - When the given `T` is `false` or not an object, it returns `K` if `V` is also false.
  * - In any other case, it returns `never`.
  */
-type PartialObjectProperty<T, K, V> = T extends true | AnyObject ? (V extends true ? never : K) : V extends false ? never : K;
+type PartialObjectProperty<T, K, V> = T extends AnyObject ? K : T extends true ? (V extends true ? K : never) : V extends true ? never : K;
 
 /**
  * Given a type `T`, is produces a union containing all inner types.
