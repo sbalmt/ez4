@@ -45,11 +45,7 @@ export const executeStatement = async (
       );
 
       if (options?.debug) {
-        console.debug({
-          query: command.sql,
-          transaction: getDebugTransactionId(transactionId),
-          type: 'PgSQL'
-        });
+        logQuerySuccess(command, transactionId);
       }
 
       if (formattedRecords) {
@@ -59,11 +55,7 @@ export const executeStatement = async (
       return [];
     });
   } catch (error) {
-    console.error({
-      query: command.sql,
-      transaction: getDebugTransactionId(transactionId),
-      type: 'PgSQL'
-    });
+    logQueryError(command, transactionId);
 
     throw error;
   }
@@ -140,10 +132,6 @@ export const commitTransaction = async (client: RDSDataClient, connection: Conne
   );
 };
 
-const getDebugTransactionId = (transactionId: string | undefined) => {
-  return transactionId?.substring(0, 8) ?? '-';
-};
-
 const callWithRetryOnResume = async <T>(callback: () => Promise<T>) => {
   for (let milliseconds = 4500; ; milliseconds -= 500) {
     try {
@@ -157,4 +145,24 @@ const callWithRetryOnResume = async <T>(callback: () => Promise<T>) => {
       throw error;
     }
   }
+};
+
+const getTransactionId = (transactionId: string | undefined) => {
+  return transactionId?.substring(0, 8) ?? '-';
+};
+
+const logQuerySuccess = (command: PreparedQueryCommand, transactionId?: string) => {
+  console.debug({
+    query: command.sql,
+    transaction: getTransactionId(transactionId),
+    type: 'PgSQL'
+  });
+};
+
+const logQueryError = (command: PreparedQueryCommand, transactionId?: string) => {
+  console.error({
+    query: command.sql,
+    transaction: getTransactionId(transactionId),
+    type: 'PgSQL'
+  });
 };

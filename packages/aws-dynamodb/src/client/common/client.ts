@@ -24,7 +24,7 @@ export const executeStatement = async (
     );
 
     if (debug) {
-      logStatement(command, result.ConsumedCapacity);
+      logQuerySuccess(command, result.ConsumedCapacity);
     }
 
     const records = result.Items ?? [];
@@ -59,7 +59,7 @@ export const executeStatement = async (
       records: [...records, ...nextResult.records]
     };
   } catch (error) {
-    logError(command);
+    logQueryError(command);
 
     throw error;
   }
@@ -82,17 +82,17 @@ export const executeTransaction = async (client: DynamoDBDocumentClient, stateme
 
       if (debug) {
         const consumption = result.ConsumedCapacity?.[0];
-        commandList.forEach((command) => logStatement(command, consumption, true));
+        commandList.forEach((command) => logQuerySuccess(command, consumption, true));
       }
     } catch (error) {
-      commandList.forEach((command) => logError(command));
+      commandList.forEach((command) => logQueryError(command));
 
       throw error;
     }
   }
 };
 
-const logStatement = (input: ExecuteStatementCommandInput, consumption: ConsumedCapacity | undefined, transaction?: boolean) => {
+const logQuerySuccess = (input: ExecuteStatementCommandInput, consumption: ConsumedCapacity | undefined, transaction?: boolean) => {
   console.debug({
     query: input.Statement,
     consumption: consumption?.CapacityUnits,
@@ -101,7 +101,7 @@ const logStatement = (input: ExecuteStatementCommandInput, consumption: Consumed
   });
 };
 
-const logError = (input: ExecuteStatementCommandInput) => {
+const logQueryError = (input: ExecuteStatementCommandInput) => {
   console.error({
     query: input.Statement,
     type: 'PartiQL'
