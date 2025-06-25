@@ -45,7 +45,10 @@ export namespace Client {
           sql: query
         };
 
-        return executeStatement(client, connection, command, transactionId, debug);
+        return executeStatement(client, connection, command, {
+          transactionId,
+          debug
+        });
       }
 
       async transaction<O extends TransactionUtils.Type<T, R>, R>(operation: O) {
@@ -194,11 +197,14 @@ const executeStaticTransaction = async <T extends Database.Service>(
 
   const commands = await prepareStaticTransaction<T>(repository, operations);
 
-  if (transactionId) {
-    await executeStatements(client, connection, commands, transactionId, debug);
-  } else {
-    await executeTransaction(client, connection, commands, debug);
+  if (!transactionId) {
+    return executeTransaction(client, connection, commands, { debug });
   }
+
+  return executeStatements(client, connection, commands, {
+    transactionId,
+    debug
+  });
 };
 
 const prepareStaticTransaction = async <T extends Database.Service>(
