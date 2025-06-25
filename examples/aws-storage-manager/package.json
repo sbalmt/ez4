@@ -15,7 +15,7 @@
   ],
   "scripts": {
     "deploy": "tsc -p tsconfig.json && ez4 deploy -e local.env -p ez4.project.js",
-    "destroy": "ez4 destroy -e local.env -p ez4.project.js"
+    "destroy": "ez4 destroy -e local.env -p ez4.project.js --force"
   },
   "dependencies": {
     "@ez4/aws-bucket": "^0.21.0",
