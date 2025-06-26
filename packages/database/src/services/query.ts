@@ -17,7 +17,8 @@ import type {
   IsNullable,
   IsObjectEmpty,
   IsObject,
-  IsArray
+  IsArray,
+  Prettify
 } from '@ez4/utils';
 
 /**
@@ -26,13 +27,13 @@ import type {
 export namespace Query {
   export type InsertOneInput<S extends AnyObject, T extends TableMetadata> = {
     select?: StrictSelectInput<S, T>;
-    data: InsertDataInput<T>;
+    data: Prettify<InsertDataInput<T>>;
   };
 
   export type UpdateOneInput<S extends AnyObject, T extends TableMetadata> = {
     select?: StrictSelectInput<S, T>;
     include?: StrictIncludeInput<S, T>;
-    data: OptionalObject<UpdateDataInput<T>>;
+    data: Prettify<OptionalObject<UpdateDataInput<T>>>;
     where: WhereInput<T, true>;
   };
 
@@ -45,8 +46,8 @@ export namespace Query {
   export type UpsertOneInput<S extends AnyObject, T extends TableMetadata> = {
     select?: StrictSelectInput<S, T>;
     include?: StrictIncludeInput<S, T>;
-    update: OptionalObject<UpdateDataInput<T>>;
-    insert: InsertDataInput<T>;
+    update: Prettify<OptionalObject<UpdateDataInput<T>>>;
+    insert: Prettify<InsertDataInput<T>>;
     where: WhereInput<T, true>;
   };
 
@@ -57,13 +58,13 @@ export namespace Query {
   };
 
   export type InsertManyInput<T extends TableMetadata> = {
-    data: T['schema'][];
+    data: Prettify<T['schema']>[];
   };
 
   export type UpdateManyInput<S extends AnyObject, T extends TableMetadata> = PaginationUtils.End<T['engine']> & {
     select?: StrictSelectInput<S, T>;
     include?: StrictIncludeInput<S, T>;
-    data: OptionalObject<UpdateDataInput<T>>;
+    data: Prettify<OptionalObject<UpdateDataInput<T>>>;
     where?: WhereInput<T>;
   };
 
@@ -144,11 +145,13 @@ export namespace Query {
     order?: StrictIncludeOrder<V>;
   };
 
-  export type WhereInput<T extends TableMetadata, I extends boolean = false> = WhereInputFilters<T, I extends true ? T['indexes'] : {}> & {
-    NOT?: WhereInput<T>;
-    AND?: WhereInput<T>[];
-    OR?: WhereInput<T>[];
-  };
+  export type WhereInput<T extends TableMetadata, I extends boolean = false> = Prettify<
+    WhereInputFilters<T, I extends true ? T['indexes'] : {}> & {
+      NOT?: WhereInput<T>;
+      AND?: WhereInput<T>[];
+      OR?: WhereInput<T>[];
+    }
+  >;
 
   type SelectFields<T extends Database.Schema, R extends RelationMetadata> =
     IsObjectEmpty<R['selects']> extends true ? T : T & R['selects'];
