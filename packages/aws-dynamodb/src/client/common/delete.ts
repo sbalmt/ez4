@@ -1,10 +1,11 @@
-import type { Query, TableMetadata } from '@ez4/database';
+import type { Query } from '@ez4/database';
+import type { InternalTableMetadata } from '../types.js';
 
 import { prepareWhereFields } from './where.js';
 
 type PrepareResult = [string, unknown[]];
 
-export const prepareDelete = <T extends TableMetadata, S extends Query.SelectInput<T>>(
+export const prepareDelete = <T extends InternalTableMetadata, S extends Query.SelectInput<T>>(
   table: string,
   query: Query.DeleteOneInput<S, T> | Query.DeleteManyInput<S, T>
 ): PrepareResult => {

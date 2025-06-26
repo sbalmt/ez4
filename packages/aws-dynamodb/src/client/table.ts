@@ -1,6 +1,7 @@
-import type { Table as DbTable, Query, TableMetadata } from '@ez4/database';
 import type { DynamoDBDocumentClient } from '@aws-sdk/lib-dynamodb';
+import type { Table as DbTable, Query } from '@ez4/database';
 import type { ObjectSchema } from '@ez4/schema';
+import type { InternalTableMetadata } from './types.js';
 
 import { ConditionalCheckFailedException } from '@aws-sdk/client-dynamodb';
 import { deepClone } from '@ez4/utils';
@@ -24,7 +25,7 @@ export type TableSettings = {
   debug?: boolean;
 };
 
-export class Table<T extends TableMetadata> implements DbTable<T> {
+export class Table<T extends InternalTableMetadata> implements DbTable<T> {
   constructor(
     private name: string,
     private schema: ObjectSchema,

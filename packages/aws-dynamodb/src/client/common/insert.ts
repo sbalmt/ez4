@@ -1,12 +1,13 @@
-import type { Query, TableMetadata } from '@ez4/database';
+import type { Query } from '@ez4/database';
 import type { ObjectSchema } from '@ez4/schema';
 import type { AnyObject } from '@ez4/utils';
+import type { InternalTableMetadata } from '../types.js';
 
 import { isSkippableData } from './data.js';
 
 type PrepareResult = [string, unknown[]];
 
-export const prepareInsert = <T extends TableMetadata, S extends Query.SelectInput<T>>(
+export const prepareInsert = <T extends InternalTableMetadata, S extends Query.SelectInput<T>>(
   table: string,
   schema: ObjectSchema,
   query: Query.InsertOneInput<S, T>

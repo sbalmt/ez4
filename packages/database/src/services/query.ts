@@ -115,16 +115,15 @@ export namespace Query {
     FlatObject<SelectFields<T['schema'], T['relations']>>
   >;
 
-  export type InsertDataInput<T extends TableMetadata> = Omit<
-    IsObjectEmpty<T['relations']['changes']> extends true ? T['schema'] : T['schema'] & T['relations']['changes'],
-    T['relations']['indexes']
-  >;
+  export type InsertDataInput<T extends TableMetadata> =
+    IsObjectEmpty<T['relations']['changes']> extends false
+      ? Omit<T['schema'] & T['relations']['changes'], T['relations']['indexes']>
+      : T['schema'];
 
   export type UpdateDataInput<T extends TableMetadata> = AtomicDataInput<
-    Omit<
-      IsObjectEmpty<T['relations']['changes']> extends true ? T['schema'] : T['schema'] & FlatObject<T['relations']['changes']>,
-      T['relations']['indexes']
-    >
+    IsObjectEmpty<T['relations']['changes']> extends false
+      ? Omit<T['schema'] & FlatObject<T['relations']['changes']>, T['relations']['indexes']>
+      : T['schema']
   >;
 
   export type OrderInput<T extends TableMetadata> = OrderUtils.Input<T>;
