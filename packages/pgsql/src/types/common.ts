@@ -1,10 +1,11 @@
 import type { Order, Query, TableMetadata } from '@ez4/database';
+import type { AnyObject } from '@ez4/utils';
 
 export type SqlColumn = string | [string, string];
 
-export type SqlRecord = Record<string, unknown>;
+export type SqlFilters = Query.WhereInput<InternalTableMetadata>;
 
-export type SqlFilters = Query.WhereInput<TableMetadata>;
+export type SqlRecord = Record<string, unknown>;
 
 export type SqlOrder = Record<string, Order | undefined>;
 
@@ -22,3 +23,7 @@ export const enum SqlOperator {
   StartsWith = 'startsWith',
   Contains = 'contains'
 }
+
+type InternalTableMetadata = TableMetadata & {
+  schema: AnyObject;
+};

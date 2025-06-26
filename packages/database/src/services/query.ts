@@ -209,7 +209,7 @@ export namespace Query {
     IsObjectEmpty<I> extends true ? WhereObjectField<V, T['engine']> : WhereRequiredFilters<V, I> & WhereOptionalFilters<V, T, I>;
 
   type WhereInputFilters<T extends TableMetadata, I extends Database.Indexes> = WhereCommonFilters<T['schema'], T, I> &
-    WhereRelationFilters<T['relations']['filters'], T['engine']>;
+    (IsObjectEmpty<T['relations']['filters']> extends false ? WhereRelationFilters<T['relations']['filters'], T['engine']> : {});
 
   export type WhereOperators = keyof (WhereNegate<any> &
     WhereEqual<any> &
