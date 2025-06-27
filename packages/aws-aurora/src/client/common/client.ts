@@ -3,10 +3,9 @@ import type { AnyObject } from '@ez4/utils';
 import type { PreparedQueryCommand } from './queries.js';
 import type { Connection } from '../types.js';
 
-import { setTimeout } from 'node:timers/promises';
+import { callWithRetryOnResume } from '../../utils/retry.js';
 
 import {
-  DatabaseResumingException,
   BeginTransactionCommand,
   RollbackTransactionCommand,
   CommitTransactionCommand,
@@ -130,21 +129,6 @@ export const commitTransaction = async (client: RDSDataClient, connection: Conne
       transactionId
     })
   );
-};
-
-const callWithRetryOnResume = async <T>(callback: () => Promise<T>) => {
-  for (let milliseconds = 4500; ; milliseconds -= 500) {
-    try {
-      return await callback();
-    } catch (error) {
-      if (error instanceof DatabaseResumingException && milliseconds > 0) {
-        await setTimeout(milliseconds);
-        continue;
-      }
-
-      throw error;
-    }
-  }
 };
 
 const getTransactionId = (transactionId: string | undefined) => {

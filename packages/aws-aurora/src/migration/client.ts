@@ -5,7 +5,7 @@ import type { Repository, RepositoryIndexes, RepositoryRelations } from '../type
 import { RDSDataClient } from '@aws-sdk/client-rds-data';
 import { Logger } from '@ez4/aws-common';
 
-import { PreparedQueryCommand } from '../client/common/queries.js';
+import { callWithRetryOnResume } from '../utils/retry.js';
 import { executeStatement, executeStatements, executeTransaction } from '../client/common/client.js';
 import { prepareCreateColumns, prepareUpdateColumns, prepareDeleteColumns, prepareRenameColumns } from './common/columns.js';
 import { prepareCreateRelations, prepareDeleteRelations } from './common/relations.js';
@@ -64,8 +64,12 @@ export const createDatabase = async (request: ConnectionRequest): Promise<void> 
     secretArn
   };
 
-  await executeStatement(client, connection, {
+  const createCommand = {
     sql: prepareCreateDatabase(database)
+  };
+
+  await callWithRetryOnResume(async () => {
+    await executeStatement(client, connection, createCommand);
   });
 };
 
@@ -80,19 +84,23 @@ export const createTables = async (request: CreateTableRequest): Promise<void> =
     database
   };
 
-  const tablesCommands: PreparedQueryCommand[] = [];
-  const relationsCommands: PreparedQueryCommand[] = [];
-  const indexesCommands: PreparedQueryCommand[] = [];
+  const tableQueries = [];
+  const relationsQueries = [];
+  const indexesQueries = [];
 
   for (const table in repository) {
     const { name, schema, indexes, relations } = repository[table];
 
-    indexesCommands.push(...prepareCreateIndexes(name, schema, indexes, false).map((sql) => ({ sql })));
-    relationsCommands.push(...prepareCreateRelations(name, relations).map((sql) => ({ sql })));
-    tablesCommands.push({ sql: prepareCreateTable(name, schema, indexes) });
+    indexesQueries.push(...prepareCreateIndexes(name, schema, indexes, false));
+    relationsQueries.push(...prepareCreateRelations(name, relations));
+    tableQueries.push(prepareCreateTable(name, schema, indexes));
   }
 
-  await executeTransaction(client, connection, [...tablesCommands, ...indexesCommands, ...relationsCommands]);
+  const createCommands = [...tableQueries, ...indexesQueries, ...relationsQueries].map((sql) => ({ sql }));
+
+  await callWithRetryOnResume(async () => {
+    await executeTransaction(client, connection, createCommands);
+  });
 };
 
 export const updateTables = async (request: UpdateTableRequest): Promise<void> => {
@@ -106,17 +114,16 @@ export const updateTables = async (request: UpdateTableRequest): Promise<void> =
     database
   };
 
-  const indexCommands = [];
-  const otherCommands = [];
+  const indexQueries = [];
+  const otherQueries = [];
 
   for (const table in updates) {
     const { schema: schemaUpdates, indexes: indexesUpdates, relations: relationUpdates, name } = updates[table];
-
     const { schema: tableSchema, indexes: tableIndexes } = repository[table];
 
-    indexCommands.push(...prepareUpdateIndexes(name, tableSchema, indexesUpdates.toCreate, indexesUpdates.toRemove, true));
+    indexQueries.push(...prepareUpdateIndexes(name, tableSchema, indexesUpdates.toCreate, indexesUpdates.toRemove, true));
 
-    otherCommands.push(
+    otherQueries.push(
       ...prepareCreateColumns(name, tableIndexes, schemaUpdates.toCreate),
       ...prepareCreateRelations(name, relationUpdates.toCreate),
       ...prepareUpdateColumns(name, tableIndexes, schemaUpdates.toUpdate),
@@ -126,17 +133,13 @@ export const updateTables = async (request: UpdateTableRequest): Promise<void> =
     );
   }
 
-  await executeTransaction(
-    client,
-    connection,
-    otherCommands.map((sql) => ({ sql }))
-  );
+  const otherCommands = otherQueries.map((sql) => ({ sql }));
+  const indexCommands = indexQueries.map((sql) => ({ sql }));
 
-  await executeStatements(
-    client,
-    connection,
-    indexCommands.map((sql) => ({ sql }))
-  );
+  await callWithRetryOnResume(async () => {
+    await executeTransaction(client, connection, otherCommands);
+    await executeStatements(client, connection, indexCommands);
+  });
 };
 
 export const deleteTables = async (request: DeleteTableRequest): Promise<void> => {
@@ -150,13 +153,13 @@ export const deleteTables = async (request: DeleteTableRequest): Promise<void> =
     database
   };
 
-  await executeTransaction(
-    client,
-    connection,
-    tables.map((table) => ({
-      sql: prepareDeleteTable(table)
-    }))
-  );
+  const deleteCommands = tables.map((table) => ({
+    sql: prepareDeleteTable(table)
+  }));
+
+  await callWithRetryOnResume(async () => {
+    await executeTransaction(client, connection, deleteCommands);
+  });
 };
 
 export const deleteDatabase = async (request: ConnectionRequest): Promise<void> => {
@@ -170,7 +173,11 @@ export const deleteDatabase = async (request: ConnectionRequest): Promise<void> 
     secretArn
   };
 
-  await executeStatement(client, connection, {
+  const deleteCommand = {
     sql: prepareDeleteDatabase(database)
+  };
+
+  await callWithRetryOnResume(async () => {
+    await executeStatement(client, connection, deleteCommand);
   });
 };
