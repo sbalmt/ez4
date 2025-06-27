@@ -3,7 +3,7 @@ import type { AnyObject } from '@ez4/utils';
 import type { PreparedQueryCommand } from './queries.js';
 import type { Connection } from '../types.js';
 
-import { callWithRetryOnResume } from '../../utils/retry.js';
+import { withRetryOnResume } from '../../utils/retry.js';
 
 import {
   BeginTransactionCommand,
@@ -14,6 +14,8 @@ import {
   DecimalReturnType,
   LongReturnType
 } from '@aws-sdk/client-rds-data';
+
+const RESUME_WAIT_TIME = 4500;
 
 export type ExecuteOptions = {
   transactionId?: string;
@@ -29,7 +31,7 @@ export const executeStatement = async (
   const transactionId = options?.transactionId;
 
   try {
-    return await callWithRetryOnResume(async () => {
+    return await withRetryOnResume(RESUME_WAIT_TIME, async () => {
       const { formattedRecords } = await client.send(
         new ExecuteStatementCommand({
           formatRecordsAs: RecordsFormatType.JSON,
@@ -102,7 +104,7 @@ export const executeTransaction = async (
 };
 
 export const beginTransaction = async (client: RDSDataClient, connection: Connection) => {
-  return callWithRetryOnResume(async () => {
+  return withRetryOnResume(RESUME_WAIT_TIME, async () => {
     const { transactionId } = await client.send(
       new BeginTransactionCommand({
         ...connection

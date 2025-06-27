@@ -5,7 +5,7 @@ import type { Repository, RepositoryIndexes, RepositoryRelations } from '../type
 import { RDSDataClient } from '@aws-sdk/client-rds-data';
 import { Logger } from '@ez4/aws-common';
 
-import { callWithRetryOnResume } from '../utils/retry.js';
+import { withRetryOnResume } from '../utils/retry.js';
 import { executeStatement, executeStatements, executeTransaction } from '../client/common/client.js';
 import { prepareCreateColumns, prepareUpdateColumns, prepareDeleteColumns, prepareRenameColumns } from './common/columns.js';
 import { prepareCreateRelations, prepareDeleteRelations } from './common/relations.js';
@@ -15,6 +15,8 @@ import { prepareCreateTable, prepareDeleteTable } from './common/table.js';
 import { MigrationServiceName } from './types.js';
 
 const client = new RDSDataClient({});
+
+const RESUME_WAIT_TIME = 6500;
 
 export type ConnectionRequest = {
   database: string;
@@ -68,7 +70,7 @@ export const createDatabase = async (request: ConnectionRequest): Promise<void> 
     sql: prepareCreateDatabase(database)
   };
 
-  await callWithRetryOnResume(async () => {
+  await withRetryOnResume(RESUME_WAIT_TIME, async () => {
     await executeStatement(client, connection, createCommand);
   });
 };
@@ -98,7 +100,7 @@ export const createTables = async (request: CreateTableRequest): Promise<void> =
 
   const createCommands = [...tableQueries, ...indexesQueries, ...relationsQueries].map((sql) => ({ sql }));
 
-  await callWithRetryOnResume(async () => {
+  await withRetryOnResume(RESUME_WAIT_TIME, async () => {
     await executeTransaction(client, connection, createCommands);
   });
 };
@@ -136,7 +138,7 @@ export const updateTables = async (request: UpdateTableRequest): Promise<void> =
   const otherCommands = otherQueries.map((sql) => ({ sql }));
   const indexCommands = indexQueries.map((sql) => ({ sql }));
 
-  await callWithRetryOnResume(async () => {
+  await withRetryOnResume(RESUME_WAIT_TIME, async () => {
     await executeTransaction(client, connection, otherCommands);
     await executeStatements(client, connection, indexCommands);
   });
@@ -157,7 +159,7 @@ export const deleteTables = async (request: DeleteTableRequest): Promise<void> =
     sql: prepareDeleteTable(table)
   }));
 
-  await callWithRetryOnResume(async () => {
+  await withRetryOnResume(RESUME_WAIT_TIME, async () => {
     await executeTransaction(client, connection, deleteCommands);
   });
 };
@@ -177,7 +179,7 @@ export const deleteDatabase = async (request: ConnectionRequest): Promise<void> 
     sql: prepareDeleteDatabase(database)
   };
 
-  await callWithRetryOnResume(async () => {
+  await withRetryOnResume(RESUME_WAIT_TIME, async () => {
     await executeStatement(client, connection, deleteCommand);
   });
 };
