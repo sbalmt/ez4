@@ -26,7 +26,7 @@ export type ProjectOptions = {
    * Determine whether the deployment must be confirmed before proceeding.
    * Default is: `true`
    */
-  confirm?: boolean;
+  confirmMode?: boolean;
 
   /**
    * Project name that's combined with the `prefix`.

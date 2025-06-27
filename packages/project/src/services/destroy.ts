@@ -43,7 +43,7 @@ export const destroy = async (project: ProjectOptions) => {
     return;
   }
 
-  if (project.confirm !== false) {
+  if (project.confirmMode !== false) {
     const proceed = await waitConfirmation('Are you sure you want to proceed?');
 
     if (!proceed) {
