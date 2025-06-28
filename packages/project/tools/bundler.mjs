@@ -1,6 +1,9 @@
 import { bundlePackage } from '../../../tools/esbuild.mjs';
 
-// CLI package.
+// CLI.
+bundlePackage('src/terminal/application.ts', 'bin/app.mjs', 'esm');
+bundlePackage('src/terminal/extensions.ts', 'bin/ext.mjs', 'esm');
+
 bundlePackage('src/cli.ts', 'bin/cli.mjs', 'esm');
 
 // Default package.

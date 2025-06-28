@@ -37,11 +37,12 @@ export const serveCommand = async (project: ProjectOptions) => {
 
     request.on('end', async () => {
       try {
+        const payload = buffer.length ? Buffer.concat(buffer) : undefined;
+
         const response = await service.emulator.requestHandler({
+          ...service.request,
           method: request.method ?? 'GET',
-          body: buffer.length ? Buffer.concat(buffer) : undefined,
-          headers: service.headers,
-          path: service.path
+          body: payload
         });
 
         if (response) {
@@ -53,6 +54,10 @@ export const serveCommand = async (project: ProjectOptions) => {
         stream.end();
       }
     });
+  });
+
+  server.on('error', () => {
+    Logger.error(`Unable to serve project ${project.projectName}`);
   });
 
   server.listen(3734, () => {
@@ -67,14 +72,16 @@ const getRequestService = (emulator: EmulatorServices, request: IncomingMessage)
 
   const { pathname, searchParams } = new URL(request.url, 'http://localhost');
 
-  const [, identifier, path = ''] = pathname.split('/', 3);
+  const [, identifier, ...path] = pathname.split('/');
 
   return {
     identifier,
     emulator: emulator[identifier],
-    headers: getDistinctHeaders(request.headersDistinct),
-    query: searchParams,
-    path: `/${path}`
+    request: {
+      path: `/${path.join('/')}`,
+      headers: getDistinctHeaders(request.headersDistinct),
+      query: searchParams
+    }
   };
 };
 

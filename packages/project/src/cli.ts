@@ -1,27 +1,14 @@
 #!/usr/bin/env node
-import { runActionCommand, runHelpCommand } from './terminal/commands.js';
-import { checkMinNodeVersion, suppressNodeWarning } from './terminal/utils.js';
-import { getInputOptions } from './terminal/options.js';
-import { Logger } from './utils/logger.js';
+import { spawn } from 'node:child_process';
+import { join } from 'node:path';
+
+import { checkMinNodeVersion } from './terminal/version.js';
 
 checkMinNodeVersion();
-suppressNodeWarning();
 
-const options = getInputOptions();
+const appPath = join(import.meta.dirname, 'app.mjs');
+const extPath = join(import.meta.dirname, 'ext.mjs');
 
-try {
-  if (options?.command) {
-    await runActionCommand(options);
-  } else {
-    runHelpCommand();
-    process.exit(1);
-  }
-} catch (error) {
-  if (error instanceof Error && error.stack && options?.debugMode) {
-    Logger.error(error.stack);
-  } else {
-    Logger.error(`${error}`);
-  }
-
-  process.exit(1);
-}
+spawn('node', ['--experimental-strip-types', '--no-warnings', '--loader', extPath, appPath, ...process.argv.slice(2)], {
+  stdio: 'inherit'
+});
