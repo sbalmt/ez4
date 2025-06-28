@@ -5,6 +5,7 @@ import { loadEnvFile } from 'node:process';
 import { loadProject } from '../services/project.js';
 import { destroy } from '../services/destroy.js';
 import { deploy } from '../services/deploy.js';
+import { serveCommand } from './commands/serve.js';
 import { CommandType } from './options.js';
 
 export const runActionCommand = async (options: InputOptions) => {
@@ -17,12 +18,18 @@ export const runActionCommand = async (options: InputOptions) => {
   project.debugMode = options.debugMode ?? project.debugMode;
   project.forceMode = options.forceMode ?? project.forceMode;
 
-  if (options.command === CommandType.Deploy) {
-    return deploy(project);
-  }
+  switch (options.command) {
+    case CommandType.Deploy:
+      return deploy(project);
 
-  if (options.command === CommandType.Destroy) {
-    return destroy(project);
+    case CommandType.Destroy:
+      return destroy(project);
+
+    case CommandType.Serve:
+      return serveCommand(project);
+
+    case CommandType.Help:
+      return runHelpCommand();
   }
 };
 
@@ -35,7 +42,8 @@ export const runHelpCommand = () => {
     '',
     'Commands:',
     '  deploy   Create and publish all resources for the given project',
-    '  destroy  Remove all deployed resources for the given project',
+    '  destroy  Remove all resources from the last deploy for the given project',
+    '  serve    Emulate locally all resources for the given project',
     '  help     Display the command line options',
     '',
     'Options:',

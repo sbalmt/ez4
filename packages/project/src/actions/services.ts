@@ -6,19 +6,19 @@ import type { DeployOptions } from '../types/options.js';
 import { triggerAllAsync } from '@ez4/project/library';
 
 export const prepareLinkedServices = async (metadata: MetadataReflection, context: EventContext, options: DeployOptions) => {
-  const allEvents = [];
+  const allPrepareEvents = [];
 
   for (const identity in metadata) {
     const target = metadata[identity];
 
     if (target.services) {
-      const event = prepareTargetLinkedServiceList(target, metadata, options, context);
+      const prepareEvent = prepareTargetLinkedServiceList(target, metadata, options, context);
 
-      allEvents.push(event);
+      allPrepareEvents.push(prepareEvent);
     }
   }
 
-  await Promise.all(allEvents);
+  await Promise.all(allPrepareEvents);
 };
 
 const prepareTargetLinkedServiceList = async (
@@ -27,21 +27,21 @@ const prepareTargetLinkedServiceList = async (
   options: DeployOptions,
   context: EventContext
 ) => {
-  const allEvents = [];
+  const allPrepareEvents = [];
 
   for (const name in target.services) {
     const identity = target.services[name];
     const service = metadata[identity];
 
-    const event = prepareLinkedService(name, target, service, options, context);
+    const prepareEvent = prepareTargetLinkedService(name, target, service, options, context);
 
-    allEvents.push(event);
+    allPrepareEvents.push(prepareEvent);
   }
 
-  await Promise.all(allEvents);
+  await Promise.all(allPrepareEvents);
 };
 
-const prepareLinkedService = async (
+const prepareTargetLinkedService = async (
   contextName: string,
   targetService: ServiceMetadata,
   sourceService: ServiceMetadata,
