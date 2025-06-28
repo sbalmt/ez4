@@ -14,7 +14,7 @@
     "directory": "packages/scheduler"
   },
   "engines": {
-    "node": ">=22.3.0"
+    "node": ">=22.7"
   },
   "exports": {
     ".": {

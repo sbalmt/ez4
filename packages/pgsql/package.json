@@ -14,7 +14,7 @@
     "directory": "packages/pgsql"
   },
   "engines": {
-    "node": ">=22.3.0"
+    "node": ">=22.7"
   },
   "exports": {
     "types": "./dist/main.d.ts",
