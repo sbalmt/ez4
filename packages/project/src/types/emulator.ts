@@ -1,5 +1,7 @@
 export type EmulatorService = {
+  type: string;
   identifier: string;
+  name: string;
   requestHandler: EmulatorRequestHandler;
 };
 

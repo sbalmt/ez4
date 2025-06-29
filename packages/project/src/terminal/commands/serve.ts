@@ -69,11 +69,17 @@ export const serveCommand = async (project: ProjectOptions) => {
   });
 
   server.on('error', () => {
-    Logger.error(`Unable to serve project ${project.projectName} at http://${options.host}.`);
+    Logger.error(`Unable to serve project ${project.projectName} at http://${options.host}`);
   });
 
   server.listen(servicePort, serviceHost, () => {
-    Logger.log(`Project ${project.projectName} ready!`);
+    for (const identifier in emulators) {
+      const { type, name } = emulators[identifier];
+
+      Logger.log(`Serving ${type}(${name}) at http://${options.host}/${identifier}`);
+    }
+
+    Logger.log(`Project ${project.projectName} up and running!`);
   });
 };
 
