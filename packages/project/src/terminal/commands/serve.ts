@@ -37,14 +37,14 @@ export const serveCommand = async (project: ProjectOptions) => {
     const service = getRequestService(emulators, request, options);
 
     if (!service?.emulator) {
-      sendErrorResponse(stream, 422, 'Service emulator not found.');
+      sendErrorResponse(stream, 404, 'Service emulator not found.');
       return;
     }
 
-    const { name: serviceName, requestHandler } = service.emulator;
+    const { requestHandler, ...emulator } = service.emulator;
 
     if (!requestHandler) {
-      sendErrorResponse(stream, 422, `Service ${serviceName} can't handle requests.`);
+      sendErrorResponse(stream, 422, `Service ${emulator.name} can't handle requests.`);
       return;
     }
 
@@ -68,7 +68,13 @@ export const serveCommand = async (project: ProjectOptions) => {
           sendPlainResponse(stream, response);
         }
       } catch (error) {
-        sendErrorResponse(stream, 500, `${error}`);
+        Logger.error(`${emulator.type} [${emulator.name}] ${error}`);
+
+        if (error instanceof Error) {
+          sendErrorResponse(stream, 500, error.message);
+        } else {
+          sendErrorResponse(stream, 500, `${error}`);
+        }
       } finally {
         stream.end();
       }
