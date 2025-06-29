@@ -196,7 +196,12 @@ const getInsertRecord = async (
   return record;
 };
 
-const preparePreInsertRelations = (sql: SqlBuilder, data: SqlRecord, relations: RepositoryRelationsWithSchema, path: string) => {
+const preparePreInsertRelations = (
+  sql: SqlBuilder,
+  data: Query.InsertDataInput<InternalTableMetadata>,
+  relations: RepositoryRelationsWithSchema,
+  path: string
+) => {
   const allQueries: InsertRelationsCache = {};
 
   for (const relationAlias in relations) {
@@ -250,7 +255,7 @@ const preparePreInsertRelations = (sql: SqlBuilder, data: SqlRecord, relations: 
 
 const preparePostInsertRelations = (
   sql: SqlBuilder,
-  data: SqlRecord,
+  data: Query.InsertDataInput<InternalTableMetadata>,
   relations: RepositoryRelationsWithSchema,
   source: SqlSourceWithResults,
   path: string
@@ -321,9 +326,9 @@ const preparePostInsertRelations = (
   return allQueries;
 };
 
-const getInsertSelectFields = <T extends InternalTableMetadata>(
+const getInsertSelectFields = (
   sql: SqlBuilder,
-  fields: Query.StrictSelectInput<AnyObject, T>,
+  fields: Query.StrictSelectInput<AnyObject, InternalTableMetadata>,
   schema: ObjectSchema,
   relations: InsertRelationsCache,
   main: SqlInsertStatement | undefined,

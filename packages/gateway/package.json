@@ -14,7 +14,7 @@
     "directory": "packages/gateway"
   },
   "engines": {
-    "node": ">=22.3.0"
+    "node": ">=22.7"
   },
   "exports": {
     ".": {
@@ -26,6 +26,11 @@
       "types": "./dist/library.d.ts",
       "require": "./dist/library.cjs",
       "import": "./dist/library.mjs"
+    },
+    "./utils": {
+      "types": "./dist/utils.d.ts",
+      "require": "./dist/utils.cjs",
+      "import": "./dist/utils.mjs"
     }
   },
   "workspaces": [

@@ -1,6 +1,7 @@
-import type { Query, TableMetadata } from '@ez4/database';
 import type { ObjectSchema } from '@ez4/schema';
 import type { AnyObject } from '@ez4/utils';
+import type { Query } from '@ez4/database';
+import type { InternalTableMetadata } from '../types.js';
 
 import { isAnyObject } from '@ez4/utils';
 import { SchemaType } from '@ez4/schema';
@@ -10,7 +11,7 @@ import { isSkippableData } from './data.js';
 
 type PrepareResult = [string, unknown[]];
 
-export const prepareUpdate = <T extends TableMetadata, S extends Query.SelectInput<T>>(
+export const prepareUpdate = <T extends InternalTableMetadata, S extends Query.SelectInput<T>>(
   table: string,
   schema: ObjectSchema,
   query: Query.UpdateOneInput<S, T> | Query.UpdateManyInput<S, T>

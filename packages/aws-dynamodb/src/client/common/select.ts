@@ -1,4 +1,5 @@
-import type { Query, TableMetadata } from '@ez4/database';
+import type { Query } from '@ez4/database';
+import type { InternalTableMetadata } from '../types.js';
 
 import { AnyObject, isAnyObject } from '@ez4/utils';
 
@@ -7,7 +8,7 @@ import { prepareOrderFields } from './order.js';
 
 type PrepareResult = [string, unknown[]];
 
-export const prepareSelect = <T extends TableMetadata, S extends Query.SelectInput<T>, C extends boolean>(
+export const prepareSelect = <T extends InternalTableMetadata, S extends Query.SelectInput<T>, C extends boolean>(
   table: string,
   index: string | undefined,
   query: Query.FindOneInput<S, T> | Query.FindManyInput<S, T, C>
@@ -37,7 +38,10 @@ export const prepareSelect = <T extends TableMetadata, S extends Query.SelectInp
   return [statement.join(' '), variables];
 };
 
-const getSelectFields = <T extends TableMetadata, S extends AnyObject>(fields: Query.StrictSelectInput<S, T>, path?: string): string => {
+const getSelectFields = <T extends InternalTableMetadata, S extends AnyObject>(
+  fields: Query.StrictSelectInput<S, T>,
+  path?: string
+): string => {
   const selectFields: string[] = [];
 
   for (const fieldKey in fields) {

@@ -11,12 +11,12 @@ export const prepareDeployResources = async (
   context: EventContext,
   options: DeployOptions
 ) => {
-  const allEvents = [];
+  const allPrepareEvents = [];
 
   for (const identity in metadata) {
     const service = metadata[identity];
 
-    const event = triggerAllAsync('deploy:prepareResources', (handler) =>
+    const preparedEvent = triggerAllAsync('deploy:prepareResources', (handler) =>
       handler({
         state,
         service,
@@ -25,10 +25,10 @@ export const prepareDeployResources = async (
       })
     );
 
-    allEvents.push(event);
+    allPrepareEvents.push(preparedEvent);
   }
 
-  await Promise.all(allEvents);
+  await Promise.all(allPrepareEvents);
 };
 
 export const connectDeployResources = async (
@@ -37,12 +37,12 @@ export const connectDeployResources = async (
   context: EventContext,
   options: DeployOptions
 ) => {
-  const allEvents = [];
+  const allPrepareEvents = [];
 
   for (const identity in metadata) {
     const service = metadata[identity];
 
-    const event = triggerAllAsync('deploy:connectResources', (handler) =>
+    const preparedEvent = triggerAllAsync('deploy:connectResources', (handler) =>
       handler({
         state,
         service,
@@ -51,8 +51,8 @@ export const connectDeployResources = async (
       })
     );
 
-    allEvents.push(event);
+    allPrepareEvents.push(preparedEvent);
   }
 
-  await Promise.all(allEvents);
+  await Promise.all(allPrepareEvents);
 };

@@ -15,9 +15,10 @@ const cjsDefinitions = {
 
 export const bundlePackage = async (entryFile, outFile, format, definitions) => {
   const result = await build({
+    treeShaking: true,
+    keepNames: true,
     minify: true,
     bundle: true,
-    treeShaking: true,
     lineLimit: 80,
     entryPoints: [entryFile],
     outfile: outFile,

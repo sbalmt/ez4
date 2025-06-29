@@ -7,7 +7,7 @@
   "type": "module",
   "private": true,
   "engines": {
-    "node": ">=22.3.0"
+    "node": ">=22.7"
   },
   "workspaces": [
     "packages/utils",
@@ -52,7 +52,7 @@
     "live:publish": "npm run live:publish --workspaces --if-present"
   },
   "devDependencies": {
-    "@types/node": "^22.3.0",
+    "@types/node": "^22.9.0",
     "esbuild": "^0.25.0",
     "prettier": "^3.3.2",
     "ts-node": "^10.9.2",

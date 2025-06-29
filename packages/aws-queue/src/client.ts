@@ -11,13 +11,15 @@ const client = new SQSClient({});
 type FifoParameters = Pick<SendMessageRequest, 'MessageGroupId' | 'MessageDeduplicationId'>;
 
 export namespace Client {
-  export const make = <T extends Queue.Message>(
+  export const make = <T extends Queue.Service<any>>(
     queueUrl: string,
     messageSchema: MessageSchema,
     fifoMode?: Queue.FifoMode<T>
   ): SqsClient<T> => {
+    type MessageSchema = T['schema'];
+
     return new (class {
-      async sendMessage(message: T, options?: SendOptions) {
+      async sendMessage(message: MessageSchema, options?: SendOptions<T>) {
         const messageBody = await getJsonStringMessage(message, messageSchema);
 
         await client.send(

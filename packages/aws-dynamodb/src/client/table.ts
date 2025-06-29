@@ -1,6 +1,7 @@
-import type { Table as DbTable, Query, TableMetadata } from '@ez4/database';
 import type { DynamoDBDocumentClient } from '@aws-sdk/lib-dynamodb';
+import type { Table as DbTable, Query } from '@ez4/database';
 import type { ObjectSchema } from '@ez4/schema';
+import type { InternalTableMetadata } from './types.js';
 
 import { ConditionalCheckFailedException } from '@aws-sdk/client-dynamodb';
 import { deepClone } from '@ez4/utils';
@@ -24,7 +25,7 @@ export type TableSettings = {
   debug?: boolean;
 };
 
-export class Table<T extends TableMetadata> implements DbTable<T> {
+export class Table<T extends InternalTableMetadata> implements DbTable<T> {
   constructor(
     private name: string,
     private schema: ObjectSchema,
@@ -40,12 +41,10 @@ export class Table<T extends TableMetadata> implements DbTable<T> {
     await executeStatement(client, statement, debug);
 
     if (query.select) {
-      return deepClone<any, any, any>(query.data, {
-        include: query.select
-      });
+      return deepClone<any, any, any>(query.data, { include: query.select }) as Query.InsertOneResult<S, T>;
     }
 
-    return undefined;
+    return undefined as Query.InsertOneResult<S, T>;
   }
 
   async updateOne<S extends Query.SelectInput<T>>(query: Query.UpdateOneInput<S, T>) {
@@ -84,12 +83,10 @@ export class Table<T extends TableMetadata> implements DbTable<T> {
     const [firstRecord] = records;
 
     if (firstRecord) {
-      return deepClone<any, any, any>(firstRecord, {
-        include: query.select
-      });
+      return deepClone<any, any, any>(firstRecord, { include: query.select }) as Query.FindOneResult<S, T>;
     }
 
-    return undefined;
+    return undefined as Query.FindOneResult<S, T>;
   }
 
   async deleteOne<S extends Query.SelectInput<T>>(query: Query.DeleteOneInput<S, T>) {
@@ -120,10 +117,10 @@ export class Table<T extends TableMetadata> implements DbTable<T> {
       await this.insertOne({ data: query.insert });
 
       if (query.select) {
-        return deepClone<any, any, any>(query.insert, { include: query.select });
+        return deepClone<any, any, any>(query.insert, { include: query.select }) as Query.UpsertOneResult<S, T>;
       }
 
-      return undefined;
+      return undefined as Query.UpsertOneResult<S, T>;
     }
 
     await this.updateMany({
@@ -133,7 +130,7 @@ export class Table<T extends TableMetadata> implements DbTable<T> {
       limit: 1
     });
 
-    return previous;
+    return previous as Query.UpsertOneResult<S, T>;
   }
 
   async insertMany(query: Query.InsertManyInput<T>) {

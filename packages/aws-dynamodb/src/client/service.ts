@@ -1,5 +1,5 @@
-import type { Database, Client as DbClient, ParametersUtils, TransactionUtils, TableMetadata } from '@ez4/database';
-import type { Repository } from './types.js';
+import type { Database, Client as DbClient, ParametersUtils, TransactionUtils } from '@ez4/database';
+import type { InternalTableMetadata, Repository } from './types.js';
 
 import { DynamoDBDocumentClient } from '@aws-sdk/lib-dynamodb';
 import { DynamoDBClient } from '@aws-sdk/client-dynamodb';
@@ -9,7 +9,7 @@ import { prepareDeleteOne, prepareInsertOne, prepareUpdateOne } from './common/q
 import { MissingRepositoryTableError, UnsupportedNamedParametersError, UnsupportedTransactionError } from './errors.js';
 import { Table } from './table.js';
 
-type TableType = Table<TableMetadata>;
+type TableType = Table<InternalTableMetadata>;
 
 const client = DynamoDBDocumentClient.from(new DynamoDBClient(), {
   marshallOptions: {

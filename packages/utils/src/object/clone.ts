@@ -1,4 +1,4 @@
-import type { AnyObject, PartialProperties, PartialObject, IsObject } from './generics.js';
+import type { AnyObject, PartialProperties, PartialObject, IsObject, Prettify } from './generics.js';
 
 import { isAnyObject } from './check.js';
 
@@ -19,15 +19,20 @@ export type CloneOptions<T extends AnyObject, U extends PartialProperties<T>> = 
   include?: U;
 };
 
-export type CloneResult<T extends AnyObject, O> = O extends { exclude: infer E }
-  ? IsObject<E> extends true
-    ? PartialObject<T, NonNullable<E>, true>
-    : unknown
-  : O extends { include: infer I }
-    ? IsObject<I> extends true
-      ? PartialObject<T, NonNullable<I>, false>
+/**
+ * Given the `deepClone` inferred types, it produces a new type matching the deep clone result type.
+ */
+export type CloneResult<T extends AnyObject, O> = Prettify<
+  O extends { exclude: infer E }
+    ? IsObject<E> extends true
+      ? PartialObject<T, NonNullable<E>, false>
       : unknown
-    : T;
+    : O extends { include: infer I }
+      ? IsObject<I> extends true
+        ? PartialObject<T, NonNullable<I>>
+        : unknown
+      : T
+>;
 
 /**
  * Create a deep clone of the given `source` according to the given options.
