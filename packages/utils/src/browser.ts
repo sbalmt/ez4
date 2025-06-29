@@ -13,7 +13,9 @@ export * from './object/clone.js';
 export * from './object/merge.js';
 
 export * from './boolean/check.js';
+
 export * from './number/check.js';
+export * from './number/random.js';
 
 export * from './string/case.js';
 export * from './string/utils.js';
