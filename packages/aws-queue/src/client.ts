@@ -1,9 +1,9 @@
 import type { Queue, ReceiveOptions, SendOptions, Client as SqsClient } from '@ez4/queue';
 import type { SendMessageRequest } from '@aws-sdk/client-sqs';
-import type { MessageSchema } from '@ez4/aws-queue/runtime';
+import type { MessageSchema } from '@ez4/queue/utils';
 import type { AnyObject } from '@ez4/utils';
 
-import { MissingMessageGroupError, getJsonMessage, getJsonStringMessage } from '@ez4/aws-queue/runtime';
+import { MissingMessageGroupError, getJsonMessage, getJsonStringMessage } from '@ez4/queue/utils';
 import { ReceiveMessageCommand, SendMessageCommand, SQSClient } from '@aws-sdk/client-sqs';
 
 const client = new SQSClient({});
@@ -16,10 +16,8 @@ export namespace Client {
     messageSchema: MessageSchema,
     fifoMode?: Queue.FifoMode<T>
   ): SqsClient<T> => {
-    type MessageSchema = T['schema'];
-
     return new (class {
-      async sendMessage(message: MessageSchema, options?: SendOptions<T>) {
+      async sendMessage(message: T['schema'], options?: SendOptions<T>) {
         const messageBody = await getJsonStringMessage(message, messageSchema);
 
         await client.send(

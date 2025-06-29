@@ -1,10 +1,11 @@
 import type { SQSEvent, Context, SQSBatchItemFailure, SQSBatchResponse, SQSRecord } from 'aws-lambda';
-import type { MessageSchema } from '@ez4/aws-queue/runtime';
+import type { MessageSchema } from '@ez4/queue/utils';
 import type { Service } from '@ez4/common';
 import type { Queue } from '@ez4/queue';
 
+import * as QueueUtils from '@ez4/queue/utils';
+
 import { SQSClient, DeleteMessageCommand } from '@aws-sdk/client-sqs';
-import { getJsonMessage } from '@ez4/aws-queue/runtime';
 import { ServiceEventType } from '@ez4/common';
 
 const client = new SQSClient({});
@@ -67,8 +68,8 @@ const processAllRecords = async (
         continue;
       }
 
-      const body = JSON.parse(record.body);
-      const message = await getJsonMessage(body, schema);
+      const payload = JSON.parse(record.body);
+      const message = await QueueUtils.getJsonMessage(payload, schema);
 
       lastRequest = {
         ...request,
