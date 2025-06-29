@@ -85,8 +85,8 @@ export const serveCommand = async (project: ProjectOptions) => {
     Logger.error(`Unable to serve project ${project.projectName} at http://${options.host}`);
   });
 
-  server.listen(servicePort, serviceHost, () => {
-    printServingEndpoints(emulators, options);
+  server.listen(servicePort, serviceHost, async () => {
+    await bootstrapServices(emulators, options);
 
     Logger.log(`Project ${project.projectName} up and running!`);
   });
@@ -148,9 +148,13 @@ const sendErrorResponse = (stream: ServerResponse<IncomingMessage>, status: numb
   });
 };
 
-const printServingEndpoints = (emulators: EmulatorServices, options: ServeOptions) => {
+const bootstrapServices = async (emulators: EmulatorServices, options: ServeOptions) => {
   for (const identifier in emulators) {
     const emulator = emulators[identifier];
+
+    if (emulator.bootstrapHandler) {
+      await emulator.bootstrapHandler();
+    }
 
     if (emulator.requestHandler) {
       Logger.log(`Serving ${emulator.type} [${emulator.name}] at http://${options.host}/${identifier}`);
