@@ -40,7 +40,7 @@ const createEmulatorContext = (emulators: EmulatorServices, options: ServeOption
         throw new Error(`Service ${serviceName} has no emulators.`);
       }
 
-      const client = service.clientMaker();
+      const client = service.clientMaker?.();
 
       if (!client) {
         throw new Error(`Service ${serviceName} has no client emulator.`);

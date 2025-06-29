@@ -41,6 +41,13 @@ export const serveCommand = async (project: ProjectOptions) => {
       return;
     }
 
+    const { name: serviceName, requestHandler } = service.emulator;
+
+    if (!requestHandler) {
+      sendErrorResponse(stream, 422, `Service ${serviceName} can't handle requests.`);
+      return;
+    }
+
     const buffer: Buffer[] = [];
 
     request.on('data', (chunk) => {
@@ -51,7 +58,7 @@ export const serveCommand = async (project: ProjectOptions) => {
       try {
         const payload = buffer.length ? Buffer.concat(buffer) : undefined;
 
-        const response = await service.emulator.requestHandler({
+        const response = await requestHandler({
           ...service.request,
           method: request.method ?? 'GET',
           body: payload
