@@ -76,7 +76,7 @@ export const serveCommand = async (project: ProjectOptions) => {
     for (const identifier in emulators) {
       const { type, name } = emulators[identifier];
 
-      Logger.log(`Serving ${type}(${name}) at http://${options.host}/${identifier}`);
+      Logger.log(`Serving ${type} [${name}] at http://${options.host}/${identifier}`);
     }
 
     Logger.log(`Project ${project.projectName} up and running!`);
