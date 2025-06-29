@@ -19,5 +19,5 @@ export type DestroyOptions = CommonOptions & {
 };
 
 export type ServeOptions = CommonOptions & {
-  port: number;
+  host: string;
 };

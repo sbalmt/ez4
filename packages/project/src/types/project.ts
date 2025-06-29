@@ -96,4 +96,10 @@ export type ProjectServeOptions = {
    * Default is: `3734`
    */
   port?: number;
+
+  /**
+   * Host to run the local development server.
+   * Default is: `localhost`
+   */
+  host?: string;
 };
