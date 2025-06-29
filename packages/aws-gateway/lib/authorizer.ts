@@ -3,7 +3,8 @@ import type { ObjectSchema } from '@ez4/schema';
 import type { Service } from '@ez4/common';
 import type { Http } from '@ez4/gateway';
 
-import { getHeaders, getPathParameters, getQueryStrings } from '@ez4/aws-gateway/runtime';
+import * as GatewayUtils from '@ez4/gateway/utils';
+
 import { ServiceEventType } from '@ez4/common';
 
 type RequestEvent = APIGatewayRequestAuthorizerEventV2;
@@ -72,7 +73,7 @@ const getIncomingRequest = async (event: RequestEvent) => {
 
 const getIncomingRequestHeaders = (event: RequestEvent) => {
   if (__EZ4_HEADERS_SCHEMA) {
-    return getHeaders(event.headers ?? {}, __EZ4_HEADERS_SCHEMA);
+    return GatewayUtils.getHeaders(event.headers ?? {}, __EZ4_HEADERS_SCHEMA);
   }
 
   return undefined;
@@ -80,7 +81,7 @@ const getIncomingRequestHeaders = (event: RequestEvent) => {
 
 const getIncomingRequestParameters = (event: RequestEvent) => {
   if (__EZ4_PARAMETERS_SCHEMA) {
-    return getPathParameters(event.pathParameters ?? {}, __EZ4_PARAMETERS_SCHEMA);
+    return GatewayUtils.getPathParameters(event.pathParameters ?? {}, __EZ4_PARAMETERS_SCHEMA);
   }
 
   return undefined;
@@ -88,7 +89,7 @@ const getIncomingRequestParameters = (event: RequestEvent) => {
 
 const getIncomingRequestQuery = (event: RequestEvent) => {
   if (__EZ4_QUERY_SCHEMA) {
-    return getQueryStrings(event.queryStringParameters ?? {}, __EZ4_QUERY_SCHEMA);
+    return GatewayUtils.getQueryStrings(event.queryStringParameters ?? {}, __EZ4_QUERY_SCHEMA);
   }
 
   return undefined;

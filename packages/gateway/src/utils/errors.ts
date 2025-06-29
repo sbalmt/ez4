@@ -6,12 +6,9 @@ import type { HttpError } from '@ez4/gateway';
  * @returns Returns an error response containing `status`, `message` and `details`.
  */
 export const getJsonError = ({ status, message, details }: HttpError) => {
-  console.warn({ status, message, details });
-
   return {
     status,
     body: {
-      status: 'error',
       message,
       details
     }

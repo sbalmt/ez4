@@ -3,15 +3,7 @@ import type { ObjectSchema } from '@ez4/schema';
 import type { Service } from '@ez4/common';
 import type { Http } from '@ez4/gateway';
 
-import {
-  getHeaders,
-  getIdentity,
-  getPathParameters,
-  getQueryStrings,
-  getRequestBody,
-  getResponseBody,
-  getJsonError
-} from '@ez4/aws-gateway/runtime';
+import * as GatewayUtils from '@ez4/gateway/utils';
 
 import { HttpError, HttpInternalServerError } from '@ez4/gateway';
 import { ServiceEventType } from '@ez4/common';
@@ -90,7 +82,7 @@ const getIncomingRequest = async (event: RequestEvent) => {
 
 const getIncomingRequestHeaders = (event: RequestEvent) => {
   if (__EZ4_HEADERS_SCHEMA) {
-    return getHeaders(event.headers ?? {}, __EZ4_HEADERS_SCHEMA);
+    return GatewayUtils.getHeaders(event.headers ?? {}, __EZ4_HEADERS_SCHEMA);
   }
 
   return undefined;
@@ -98,7 +90,7 @@ const getIncomingRequestHeaders = (event: RequestEvent) => {
 
 const getIncomingRequestParameters = (event: RequestEvent) => {
   if (__EZ4_PARAMETERS_SCHEMA) {
-    return getPathParameters(event.pathParameters ?? {}, __EZ4_PARAMETERS_SCHEMA);
+    return GatewayUtils.getPathParameters(event.pathParameters ?? {}, __EZ4_PARAMETERS_SCHEMA);
   }
 
   return undefined;
@@ -106,7 +98,7 @@ const getIncomingRequestParameters = (event: RequestEvent) => {
 
 const getIncomingRequestQueryStrings = (event: RequestEvent) => {
   if (__EZ4_QUERY_SCHEMA) {
-    return getQueryStrings(event.queryStringParameters ?? {}, __EZ4_QUERY_SCHEMA);
+    return GatewayUtils.getQueryStrings(event.queryStringParameters ?? {}, __EZ4_QUERY_SCHEMA);
   }
 
   return undefined;
@@ -119,7 +111,7 @@ const getIncomingRequestIdentity = (event: RequestEvent) => {
 
   const identity = event.requestContext?.authorizer?.lambda?.identity;
 
-  return getIdentity(JSON.parse(identity ?? '{}'), __EZ4_IDENTITY_SCHEMA);
+  return GatewayUtils.getIdentity(JSON.parse(identity ?? '{}'), __EZ4_IDENTITY_SCHEMA);
 };
 
 const getIncomingRequestBody = (event: RequestEvent) => {
@@ -130,11 +122,11 @@ const getIncomingRequestBody = (event: RequestEvent) => {
   const { body } = event;
 
   if (isScalarSchema(__EZ4_BODY_SCHEMA)) {
-    return getRequestBody(body ?? '', __EZ4_BODY_SCHEMA);
+    return GatewayUtils.getRequestBody(body ?? '', __EZ4_BODY_SCHEMA);
   }
 
   try {
-    return getRequestBody(JSON.parse(body ?? '{}'), __EZ4_BODY_SCHEMA);
+    return GatewayUtils.getRequestBody(JSON.parse(body ?? '{}'), __EZ4_BODY_SCHEMA);
   } catch (error) {
     if (error instanceof SyntaxError) {
       console.error({ body });
@@ -144,7 +136,7 @@ const getIncomingRequestBody = (event: RequestEvent) => {
   }
 };
 
-const getSuccessResponse = (status: number, body?: Http.JsonBody, headers?: Http.Headers) => {
+const getSuccessResponse = (status: number, body?: Http.JsonBody | Http.RawBody, headers?: Http.Headers) => {
   const response = body ? getSuccessResponseBody(body, headers) : undefined;
 
   return {
@@ -177,13 +169,13 @@ const getSuccessResponseBody = (body: Http.JsonBody | Http.RawBody, headers?: Ht
 
   return {
     type: 'application/json',
-    content: JSON.stringify(getResponseBody(body, __EZ4_RESPONSE_SCHEMA)),
+    content: JSON.stringify(GatewayUtils.getResponseBody(body, __EZ4_RESPONSE_SCHEMA)),
     encoded: false
   };
 };
 
 const getDefaultErrorResponse = (error?: HttpError) => {
-  const { status, body } = getJsonError(error ?? new HttpInternalServerError());
+  const { status, body } = GatewayUtils.getJsonError(error ?? new HttpInternalServerError());
 
   return {
     statusCode: status,
