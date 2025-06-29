@@ -1,9 +1,9 @@
 import type { Notification, Client as SnsClient } from '@ez4/notification';
-import type { MessageSchema } from '@ez4/aws-notification/runtime';
+import type { MessageSchema } from '@ez4/notification/utils';
 import type { PublishInput } from '@aws-sdk/client-sns';
 import type { AnyObject } from '@ez4/utils';
 
-import { getJsonStringMessage, MissingMessageGroupError } from '@ez4/aws-notification/runtime';
+import { getJsonStringMessage, MissingMessageGroupError } from '@ez4/notification/utils';
 import { PublishCommand, SNSClient } from '@aws-sdk/client-sns';
 
 const client = new SNSClient({});

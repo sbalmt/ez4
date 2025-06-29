@@ -1,9 +1,10 @@
-import type { MessageSchema } from '@ez4/aws-notification/runtime';
+import type { MessageSchema } from '@ez4/notification/utils';
 import type { Notification } from '@ez4/notification';
 import type { SNSEvent, Context } from 'aws-lambda';
 import type { Service } from '@ez4/common';
 
-import { getJsonMessage } from '@ez4/aws-notification/runtime';
+import * as NotificationUtils from '@ez4/notification/utils';
+
 import { ServiceEventType } from '@ez4/common';
 
 declare const __EZ4_SCHEMA: MessageSchema | null;
@@ -30,8 +31,8 @@ export async function snsEntryPoint(event: SNSEvent, context: Context): Promise<
     }
 
     for (const record of event.Records) {
-      const body = JSON.parse(record.Sns.Message);
-      const message = await getJsonMessage(body, __EZ4_SCHEMA);
+      const payload = JSON.parse(record.Sns.Message);
+      const message = await NotificationUtils.getJsonMessage(payload, __EZ4_SCHEMA);
 
       lastRequest = {
         ...request,
