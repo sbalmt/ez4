@@ -2,6 +2,9 @@ import type { IncomingMessage, ServerResponse } from 'node:http';
 import type { EmulatorHandlerResponse } from '../../types/emulator.js';
 import type { EmulatorServices } from '../../library/emulator.js';
 import type { ProjectOptions } from '../../types/project.js';
+import type { ServeOptions } from '../../types/options.js';
+
+import { toKebabCase } from '@ez4/utils';
 
 import { createServer } from 'node:http';
 
@@ -11,6 +14,12 @@ import { getEmulators } from '../../library/emulator.js';
 import { Logger } from '../../utils/logger.js';
 
 export const serveCommand = async (project: ProjectOptions) => {
+  const options: ServeOptions = {
+    resourcePrefix: project.prefix ?? 'ez4',
+    projectName: toKebabCase(project.projectName),
+    port: project.serve?.port ?? 3734
+  };
+
   await Logger.execute('Loading providers', () => {
     return loadProviders(project);
   });
@@ -19,7 +28,7 @@ export const serveCommand = async (project: ProjectOptions) => {
     return getMetadata(project.sourceFiles);
   });
 
-  const { emulators } = await getEmulators(metadata, project);
+  const { emulators } = await getEmulators(metadata, options);
 
   const server = createServer((request, stream) => {
     const service = getRequestService(emulators, request);
@@ -57,10 +66,10 @@ export const serveCommand = async (project: ProjectOptions) => {
   });
 
   server.on('error', () => {
-    Logger.error(`Unable to serve project ${project.projectName}`);
+    Logger.error(`Unable to serve project ${project.projectName}.`);
   });
 
-  server.listen(3734, () => {
+  server.listen(options.port, () => {
     Logger.log(`Project ${project.projectName} ready!`);
   });
 };
@@ -71,7 +80,6 @@ const getRequestService = (emulator: EmulatorServices, request: IncomingMessage)
   }
 
   const { pathname, searchParams } = new URL(request.url, 'http://localhost');
-
   const [, identifier, ...path] = pathname.split('/');
 
   return {

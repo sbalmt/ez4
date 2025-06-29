@@ -8,12 +8,12 @@ import { loadLocalState, loadRemoteState, saveLocalState, saveRemoteState } from
 import { reportResourceChanges } from '../report/report.js';
 import { waitConfirmation } from '../utils/prompt.js';
 import { assertNoErrors } from '../utils/errors.js';
-import { StateOptions } from '../types/options.js';
+import { DestroyOptions } from '../types/options.js';
 import { loadProviders } from './providers.js';
 import { Logger } from '../utils/logger.js';
 
 export const destroy = async (project: ProjectOptions) => {
-  const options: StateOptions = {
+  const options: DestroyOptions = {
     resourcePrefix: project.prefix ?? 'ez4',
     projectName: toKebabCase(project.projectName),
     force: project.forceMode,

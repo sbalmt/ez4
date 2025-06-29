@@ -1,13 +1,13 @@
 import type { EntryState, EntryStates } from '@ez4/stateful';
 import type { ExtraSource, ServiceAliases, ServiceMetadata } from '../types/service.js';
-import type { DeployOptions } from '../types/options.js';
+import type { CommonOptions } from '../types/options.js';
 
 import { tryLinkDependency } from '@ez4/stateful';
 import { toKebabCase } from '@ez4/utils';
 
 import { isServiceMetadata } from '../types/service.js';
 
-export const getServiceName = (service: ServiceMetadata | string, options: DeployOptions) => {
+export const getServiceName = (service: ServiceMetadata | string, options: CommonOptions) => {
   const resourcePrefix = toKebabCase(options.resourcePrefix);
   const projectName = toKebabCase(options.projectName);
 
@@ -24,7 +24,7 @@ export const getServiceName = (service: ServiceMetadata | string, options: Deplo
   return servicePrefix;
 };
 
-export const getServiceState = (aliases: ServiceAliases, service: ServiceMetadata | string, options: DeployOptions) => {
+export const getServiceState = (aliases: ServiceAliases, service: ServiceMetadata | string, options: CommonOptions) => {
   const serviceName = getServiceName(service, options);
 
   const serviceState = aliases[serviceName];
@@ -36,7 +36,7 @@ export const getServiceState = (aliases: ServiceAliases, service: ServiceMetadat
   return serviceState;
 };
 
-export const setServiceState = (aliases: ServiceAliases, state: EntryState, service: ServiceMetadata | string, options: DeployOptions) => {
+export const setServiceState = (aliases: ServiceAliases, state: EntryState, service: ServiceMetadata | string, options: CommonOptions) => {
   const serviceName = getServiceName(service, options);
 
   if (aliases[serviceName]) {

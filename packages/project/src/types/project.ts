@@ -1,8 +1,5 @@
 import type { LinkedVariables } from './service.js';
 
-/**
- * Project options.
- */
 export type ProjectOptions = {
   /**
    * Prefix to be used as part of the resource names.
@@ -55,6 +52,11 @@ export type ProjectOptions = {
   stateFile: ProjectStateOptions;
 
   /**
+   * Configuration for serving the local development.
+   */
+  serve?: ProjectServeOptions;
+
+  /**
    * Variables associated to all services.
    */
   variables?: LinkedVariables;
@@ -81,12 +83,17 @@ export type ProjectStateOptions = {
   path: string;
 };
 
-/**
- * Project import options.
- */
 export type ProjectImportOptions = {
   /**
    * Project options file path.
    */
   projectFile: string;
+};
+
+export type ProjectServeOptions = {
+  /**
+   * Port to run the local development service.
+   * Default is: `3734`
+   */
+  port?: number;
 };
