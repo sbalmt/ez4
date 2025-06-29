@@ -80,11 +80,7 @@ export const serveCommand = async (project: ProjectOptions) => {
   });
 
   server.listen(servicePort, serviceHost, () => {
-    for (const identifier in emulators) {
-      const { type, name } = emulators[identifier];
-
-      Logger.log(`Serving ${type} [${name}] at http://${options.host}/${identifier}`);
-    }
+    printServingEndpoints(emulators, options);
 
     Logger.log(`Project ${project.projectName} up and running!`);
   });
@@ -144,4 +140,14 @@ const sendErrorResponse = (stream: ServerResponse<IncomingMessage>, status: numb
       message
     })
   });
+};
+
+const printServingEndpoints = (emulators: EmulatorServices, options: ServeOptions) => {
+  for (const identifier in emulators) {
+    const emulator = emulators[identifier];
+
+    if (emulator.requestHandler) {
+      Logger.log(`Serving ${emulator.type} [${emulator.name}] at http://${options.host}/${identifier}`);
+    }
+  }
 };
