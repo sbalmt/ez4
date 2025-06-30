@@ -1,6 +1,6 @@
 import type { AnyObject, PartialProperties, PartialObject, IsObject, Prettify } from './generics.js';
 
-import { isAnyObject } from './check.js';
+import { isAnyObject, isPlainObject } from './check.js';
 
 export type CloneOptions<T extends AnyObject, U extends PartialProperties<T>> = {
   /**
@@ -72,7 +72,7 @@ export const deepClone = <T extends AnyObject, U extends PartialProperties<T>, O
         continue;
       }
 
-      if (isAnyObject(value)) {
+      if (isPlainObject(value)) {
         clone[key] = deepClone(value, {
           ...(isAnyObject(keyState) && (isInclude ? { include: keyState } : { exclude: keyState })),
           depth: depth - 1

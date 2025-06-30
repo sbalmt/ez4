@@ -1,6 +1,6 @@
 import type { AnyObject, IsObject, PartialObject, PartialProperties, Prettify } from './generics.js';
 
-import { isAnyObject } from './check.js';
+import { isAnyObject, isPlainObject } from './check.js';
 
 /**
  * Deep merge options.
@@ -73,11 +73,7 @@ export const deepMerge = <T extends AnyObject, S extends AnyObject, O extends Me
     const targetValue = target[key];
     const sourceValue = source[key];
 
-    if (targetValue instanceof Function || sourceValue instanceof Function) {
-      continue;
-    }
-
-    if (isAnyObject(targetValue) && isAnyObject(sourceValue)) {
+    if (isPlainObject(targetValue) && isPlainObject(sourceValue)) {
       if (depth > 0) {
         object[key] = deepMerge(targetValue, sourceValue, {
           ...(isAnyObject(keyState) && (isInclude ? { include: keyState } : { exclude: keyState })),
