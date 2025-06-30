@@ -1,4 +1,4 @@
-import type { EmulatorService } from '../types/emulator.js';
+import type { EmulatorLinkedServices, EmulatorService, EmulatorServiceClients } from '../types/emulator.js';
 import type { MetadataReflection } from '../types/metadata.js';
 import type { ServeOptions } from '../types/options.js';
 
@@ -10,8 +10,8 @@ export const getEmulators = async (metadata: MetadataReflection, options: ServeO
   const emulators: EmulatorServices = {};
 
   const context = {
-    makeAllClients: (serviceNames: string[]) => {
-      return makeAllEmulatorClients(serviceNames, emulators, options);
+    makeClients: (linkedServices: EmulatorLinkedServices) => {
+      return makeEmulatorClients(linkedServices, emulators, options);
     },
     makeClient: (serviceName: string) => {
       return makeEmulatorClient(serviceName, emulators, options);
@@ -37,11 +37,13 @@ export const getEmulators = async (metadata: MetadataReflection, options: ServeO
   };
 };
 
-const makeAllEmulatorClients = (serviceNames: string[], emulators: EmulatorServices, options: ServeOptions) => {
-  const allClients: Record<string, unknown> = {};
+const makeEmulatorClients = (linkedServices: EmulatorLinkedServices, emulators: EmulatorServices, options: ServeOptions) => {
+  const allClients: EmulatorServiceClients = {};
 
-  for (const serviceName of serviceNames) {
-    allClients[serviceName] = makeEmulatorClient(serviceName, emulators, options);
+  for (const linkedServiceName in linkedServices) {
+    const serviceName = linkedServices[linkedServiceName];
+
+    allClients[linkedServiceName] = makeEmulatorClient(serviceName, emulators, options);
   }
 
   return allClients;

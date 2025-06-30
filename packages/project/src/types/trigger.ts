@@ -1,8 +1,8 @@
 import type { ApplyResult, EntryState, EntryStates, StepState } from '@ez4/stateful';
 import type { EveryType, SourceMap, TypeClass, TypeObject } from '@ez4/reflection';
-import type { DeployOptions, DestroyOptions, ServeOptions } from './options.js';
-import type { EmulateServiceContext, EmulatorService } from './emulator.js';
+import type { EmulatorService, EmulateServiceEvent } from './emulator.js';
 import type { IdentityAccount, IdentityGrant } from './identity.js';
+import type { DeployOptions, DestroyOptions } from './options.js';
 import type { ServiceMetadata, ExtraSource } from './service.js';
 import type { MetadataResult } from './metadata.js';
 
@@ -96,10 +96,4 @@ export type StateEvent = {
   options: DestroyOptions;
   contents?: string;
   path: string;
-};
-
-export type EmulateServiceEvent = {
-  context: EmulateServiceContext;
-  service: ServiceMetadata;
-  options: ServeOptions;
 };

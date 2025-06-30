@@ -1,3 +1,6 @@
+import type { ServiceMetadata } from './service.js';
+import type { ServeOptions } from './options.js';
+
 export type EmulatorClientHandler = () => unknown;
 
 export type EmulatorBootstrapHandler = () => unknown;
@@ -28,7 +31,17 @@ export type EmulatorService = {
   requestHandler?: EmulatorRequestHandler;
 };
 
+export type EmulatorServiceClients = Record<string, unknown>;
+
+export type EmulatorLinkedServices = Record<string, string>;
+
 export type EmulateServiceContext = {
-  makeAllClients: (serviceNames: string[]) => Record<string, unknown>;
+  makeClients: (linkedServices: EmulatorLinkedServices) => EmulatorServiceClients;
   makeClient: (serviceName: string) => unknown;
+};
+
+export type EmulateServiceEvent = {
+  context: EmulateServiceContext;
+  service: ServiceMetadata;
+  options: ServeOptions;
 };
