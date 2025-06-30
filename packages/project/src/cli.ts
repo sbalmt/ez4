@@ -6,8 +6,8 @@ import { checkMinNodeVersion } from './terminal/version.js';
 
 checkMinNodeVersion();
 
-const applicationPath = join(import.meta.dirname, 'app.mjs');
-const extensionsPath = join(import.meta.dirname, 'ext.mjs');
+const applicationPath = join(import.meta.dirname, './application.mjs');
+const extensionsPath = join(import.meta.dirname, './extensions.mjs');
 
 spawn(
   'node',
