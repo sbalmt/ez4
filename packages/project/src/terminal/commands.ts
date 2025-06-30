@@ -2,10 +2,11 @@ import type { InputOptions } from './options.js';
 
 import { loadEnvFile } from 'node:process';
 
-import { loadProject } from '../services/project.js';
-import { destroy } from '../services/destroy.js';
-import { deploy } from '../services/deploy.js';
+import { loadProject } from '../common/project.js';
+import { deployCommand } from './commands/deploy.js';
+import { destroyCommand } from './commands/destroy.js';
 import { serveCommand } from './commands/serve.js';
+import { helpCommand } from './commands/help.js';
 import { CommandType } from './options.js';
 
 export const runActionCommand = async (options: InputOptions) => {
@@ -20,39 +21,15 @@ export const runActionCommand = async (options: InputOptions) => {
 
   switch (options.command) {
     case CommandType.Deploy:
-      return deploy(project);
+      return deployCommand(project);
 
     case CommandType.Destroy:
-      return destroy(project);
+      return destroyCommand(project);
 
     case CommandType.Serve:
       return serveCommand(project);
 
     case CommandType.Help:
-      return runHelpCommand();
+      return helpCommand();
   }
-};
-
-export const runHelpCommand = () => {
-  const { stdout } = process;
-
-  const helpText = [
-    'Usage:',
-    '  ez4 [command] [options] [ ez4.project.js ]',
-    '',
-    'Commands:',
-    '  deploy   Create and publish all resources for the given project',
-    '  destroy  Remove all resources from the last deploy for the given project',
-    '  serve    Emulate locally all resources for the given project',
-    '  help     Display the command line options',
-    '',
-    'Options:',
-    '  --environment, -e  Specify the environment file',
-    '  --project, -p      Specify the project file (Default is ez4.project.js)',
-    '  --debug            Enable debug mode on deployed resources',
-    '  --force            Force deploy of everything',
-    ''
-  ];
-
-  stdout.write(helpText.join('\n'));
 };

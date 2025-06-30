@@ -8,7 +8,7 @@ import { toKebabCase } from '@ez4/utils';
 
 import { createServer } from 'node:http';
 
-import { loadProviders } from '../../services/providers.js';
+import { loadProviders } from '../../common/providers.js';
 import { getMetadata } from '../../library/metadata.js';
 import { getEmulators } from '../../library/emulator.js';
 import { Logger } from '../../utils/logger.js';

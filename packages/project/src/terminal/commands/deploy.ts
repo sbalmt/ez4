@@ -1,24 +1,24 @@
 import type { EntryStates } from '@ez4/stateful';
-import type { ProjectOptions } from '../types/project.js';
-import type { DeployOptions } from '../types/options.js';
+import type { ProjectOptions } from '../../types/project.js';
+import type { DeployOptions } from '../../types/options.js';
 
 import { toKebabCase } from '@ez4/utils';
 
-import { applyDeploy } from '../actions/deploy.js';
-import { getEventContext } from '../actions/common.js';
-import { prepareExecutionRole } from '../actions/identity.js';
-import { prepareLinkedServices } from '../actions/services.js';
-import { combineStates, loadRemoteState, loadLocalState, saveRemoteState, saveLocalState } from '../actions/state.js';
-import { connectDeployResources, prepareDeployResources } from '../actions/resources.js';
-import { reportResourceChanges } from '../report/report.js';
-import { waitConfirmation } from '../utils/prompt.js';
-import { getMetadata } from '../library/metadata.js';
-import { assertNoErrors } from '../utils/errors.js';
-import { loadProviders } from './providers.js';
-import { loadProject } from './project.js';
-import { Logger } from '../utils/logger.js';
+import { applyDeploy } from '../../actions/deploy.js';
+import { getEventContext } from '../../actions/common.js';
+import { prepareExecutionRole } from '../../actions/identity.js';
+import { prepareLinkedServices } from '../../actions/services.js';
+import { combineStates, loadRemoteState, loadLocalState, saveRemoteState, saveLocalState } from '../../actions/state.js';
+import { connectDeployResources, prepareDeployResources } from '../../actions/resources.js';
+import { reportResourceChanges } from '../../report/report.js';
+import { waitConfirmation } from '../../utils/prompt.js';
+import { getMetadata } from '../../library/metadata.js';
+import { assertNoErrors } from '../../utils/errors.js';
+import { loadProviders } from '../../common/providers.js';
+import { loadImports } from '../../common/imports.js';
+import { Logger } from '../../utils/logger.js';
 
-export const deploy = async (project: ProjectOptions) => {
+export const deployCommand = async (project: ProjectOptions) => {
   const options: DeployOptions = {
     resourcePrefix: toKebabCase(project.prefix ?? 'ez4'),
     projectName: toKebabCase(project.projectName),
@@ -94,27 +94,4 @@ export const deploy = async (project: ProjectOptions) => {
   });
 
   assertNoErrors(applyState.errors);
-};
-
-const loadImports = async (projectOptions: ProjectOptions) => {
-  const { importProjects } = projectOptions;
-
-  if (!importProjects) {
-    return undefined;
-  }
-
-  const allImports: Record<string, DeployOptions> = {};
-
-  for (const alias in importProjects) {
-    const { projectFile } = importProjects[alias];
-
-    const project = await loadProject(projectFile);
-
-    allImports[alias] = {
-      resourcePrefix: project.prefix ?? 'ez4',
-      projectName: toKebabCase(project.projectName)
-    };
-  }
-
-  return allImports;
 };

@@ -1,4 +1,5 @@
-import { runActionCommand, runHelpCommand } from './commands.js';
+import { helpCommand } from './commands/help.js';
+import { runActionCommand } from './commands.js';
 import { getInputOptions } from './options.js';
 import { Logger } from '../utils/logger.js';
 
@@ -8,7 +9,7 @@ try {
   if (options?.command) {
     await runActionCommand(options);
   } else {
-    runHelpCommand(), process.exit(1);
+    helpCommand(), process.exit(1);
   }
 } catch (error) {
   if (error instanceof Error && error.stack && options?.debugMode) {
