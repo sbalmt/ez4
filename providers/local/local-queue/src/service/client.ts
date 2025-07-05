@@ -15,12 +15,11 @@ export const createQueueClient = <T extends Queue.Service<any>>(
 
   return new (class {
     async sendMessage(message: T['schema']) {
-      const notificationMessage = await getJsonStringMessage(message, messageSchema);
-      const notificationPayload = JSON.stringify(notificationMessage);
+      const safeMessage = await getJsonStringMessage(message, messageSchema);
 
       const response = await fetch(queueHost, {
         method: 'POST',
-        body: notificationPayload,
+        body: safeMessage,
         headers: {
           ['content-type']: 'application/json'
         }
