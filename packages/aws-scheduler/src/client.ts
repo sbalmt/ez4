@@ -98,7 +98,7 @@ export namespace Client {
         );
       }
 
-      async updateEvent(identifier: string, event: Partial<ScheduleEvent<T>>) {
+      async updateEvent(identifier: string, input: Partial<ScheduleEvent<T>>) {
         const response = await client.send(
           new GetScheduleCommand({
             Name: `${parameters.prefix}-${identifier}`,
@@ -109,16 +109,16 @@ export namespace Client {
         const target = response.Target;
         const policy = target?.RetryPolicy;
 
-        const date = event.date ? `at(${event.date.toISOString().substring(0, 19)})` : response.ScheduleExpression;
+        const date = input.date ? `at(${input.date.toISOString().substring(0, 19)})` : response.ScheduleExpression;
 
-        const message = event.event ? await getJsonStringEvent(event.event, parameters.schema) : target?.Input;
+        const message = input.event ? await getJsonStringEvent(input.event, parameters.schema) : target?.Input;
 
         const defaults = parameters.defaults;
 
-        const maxRetries = policy?.MaximumRetryAttempts ?? event.maxRetries ?? defaults.maxRetries;
+        const maxRetries = policy?.MaximumRetryAttempts ?? input.maxRetries ?? defaults.maxRetries;
         const hasMaxRetries = isAnyNumber(maxRetries);
 
-        const maxAge = policy?.MaximumEventAgeInSeconds ?? event.maxAge ?? defaults.maxAge;
+        const maxAge = policy?.MaximumEventAgeInSeconds ?? input.maxAge ?? defaults.maxAge;
         const hasMaxAge = isAnyNumber(maxAge);
 
         const hasPolicy = hasMaxRetries || hasMaxAge;

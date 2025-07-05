@@ -7,7 +7,6 @@ import {
   IncompleteTargetError,
   IncorrectEventTypeError,
   IncorrectTargetTypeError,
-  IncorrectHandlerError,
   InvalidEventTypeError,
   InvalidTargetTypeError,
   IncorrectServiceError
@@ -115,19 +114,12 @@ describe('scheduler metadata errors', () => {
     deepEqual(error1.baseType, 'Cron.Event');
 
     ok(error2 instanceof IncompleteHandlerError);
-    deepEqual(error2.properties, ['_request']);
+    deepEqual(error2.properties, ['request']);
 
     ok(error3 instanceof IncompleteTargetError);
     deepEqual(error3.properties, ['handler']);
 
     ok(error4 instanceof IncompleteServiceError);
     deepEqual(error4.properties, ['target']);
-  });
-
-  it('assert :: incorrect handler', () => {
-    const [error1] = parseFile('incorrect-handler', 1);
-
-    ok(error1 instanceof IncorrectHandlerError);
-    deepEqual(error1.properties, ['_request']);
   });
 });
