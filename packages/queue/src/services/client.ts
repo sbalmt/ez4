@@ -18,7 +18,7 @@ export interface Client<T extends Queue.Service<any>> {
    * @param options Receive options.
    * @returns Returns a list containing zero or more messages.
    */
-  receiveMessage(options?: ReceiveOptions): Promise<T[]>;
+  receiveMessage(options?: ReceiveOptions): Promise<T['schema'][]>;
 }
 
 /**
