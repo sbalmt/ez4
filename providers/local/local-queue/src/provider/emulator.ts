@@ -4,7 +4,7 @@ import type { Queue } from '@ez4/queue';
 
 import { createModule } from '@ez4/local-common';
 import { getRandomInteger, getRandomUUID } from '@ez4/utils';
-import { getServiceName } from '@ez4/project/library';
+import { getServiceName, Logger } from '@ez4/project/library';
 import { getJsonMessage } from '@ez4/queue/utils';
 import { ServiceEventType } from '@ez4/common';
 
@@ -74,6 +74,7 @@ const processLambdaMessage = async (
     await lambdaModule.handler(request, lambdaContext);
   } catch (error) {
     await lambdaModule.listener?.({ type: ServiceEventType.Error, request, error }, lambdaContext);
+    Logger.error(`${error}`);
   } finally {
     await lambdaModule.listener?.({ type: ServiceEventType.End, request }, lambdaContext);
   }

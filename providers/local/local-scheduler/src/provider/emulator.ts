@@ -84,6 +84,7 @@ const handleSchedulerEvent = async (service: CronService, context: EmulateServic
     await lambdaModule.handler(request, lambdaContext);
   } catch (error) {
     await lambdaModule.listener?.({ type: ServiceEventType.Error, request, error }, lambdaContext);
+    Logger.error(`${error}`);
   } finally {
     await lambdaModule.listener?.({ type: ServiceEventType.End, request }, lambdaContext);
   }
