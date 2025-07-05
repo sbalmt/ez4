@@ -25,12 +25,7 @@ export const getLinkedServiceList = (member: ModelProperty, reflection: SourceMa
   return null;
 };
 
-export const getLinkedServiceName = (
-  member: ModelProperty,
-  parent: TypeObject | TypeModel,
-  reflection: SourceMap,
-  errorList: Error[]
-): string | null => {
+export const getLinkedServiceName = (member: ModelProperty, parent: TypeObject | TypeModel, reflection: SourceMap, errorList: Error[]) => {
   const referencePath = getPropertyString(member);
 
   const declaration = referencePath && reflection[referencePath];

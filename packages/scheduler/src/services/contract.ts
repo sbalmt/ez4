@@ -9,17 +9,17 @@ import type { Client } from './client.js';
 export namespace Cron {
   export type Event = CronEvent;
 
-  export type Incoming<T extends Event> = CronIncoming<T>;
+  export type Incoming<T extends Event | null> = CronIncoming<T>;
 
-  export type Listener<T extends Event> = CronListener<T>;
-  export type Handler<T extends Event> = CronHandler<T>;
+  export type Listener<T extends Event | null> = CronListener<T>;
+  export type Handler<T extends Event | null> = CronHandler<T>;
 
-  export type ServiceEvent<T extends Event = Event> = Service.Event<Incoming<T>>;
+  export type ServiceEvent<T extends Event | null = null> = Service.Event<Incoming<T>>;
 
   /**
    * Cron target.
    */
-  export interface Target<T extends Event = Event> {
+  export interface Target<T extends Event | null> {
     /**
      * Target listener.
      */
@@ -56,7 +56,7 @@ export namespace Cron {
   /**
    * Cron service.
    */
-  export declare abstract class Service<T extends Event = never> implements Service.Provider {
+  export declare abstract class Service<T extends Event | null = null> implements Service.Provider {
     /**
      * Scheduler target.
      */
@@ -116,6 +116,6 @@ export namespace Cron {
     /**
      * Service client.
      */
-    client: T extends never ? never : Client<T>;
+    client: T extends null ? never : Client<NonNullable<T>>;
   }
 }

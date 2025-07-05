@@ -47,11 +47,14 @@ const getMetadataFiles = (reflection: SourceMap) => {
   for (const identity in reflection) {
     const declaration = reflection[identity];
 
+    // It needs to be a file in the project's root.
     if (!declaration.file || declaration.file.startsWith('..')) {
       continue;
     }
 
     groupDeclarationFiles(declaration, metadataFiles);
+
+    metadataFiles.add(declaration.file);
   }
 
   return [...metadataFiles];
@@ -67,13 +70,17 @@ const groupDeclarationFiles = (declaration: AllType, files = new Set<string>()) 
 
     case TypeName.Object:
       if (Array.isArray(declaration.members)) {
-        declaration.members?.forEach((member) => groupDeclarationFiles(member, files));
+        declaration.members?.forEach((member) => {
+          groupDeclarationFiles(member, files);
+        });
       }
       break;
 
     case TypeName.Class:
     case TypeName.Interface:
-      declaration.members?.forEach((member) => groupDeclarationFiles(member, files));
+      declaration.members?.forEach((member) => {
+        groupDeclarationFiles(member, files);
+      });
       break;
   }
 

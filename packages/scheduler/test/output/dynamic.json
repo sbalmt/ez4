@@ -9,8 +9,7 @@
     "target": {
       "handler": {
         "name": "targetHandler",
-        "file": "test/input/output-dynamic.ts",
-        "input": "_request"
+        "file": "test/input/output-dynamic.ts"
       }
     },
     "schema": {

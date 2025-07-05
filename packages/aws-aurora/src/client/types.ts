@@ -1,4 +1,5 @@
 import type { ParametersMode, TransactionMode, PaginationMode, OrderMode, TableMetadata, InsensitiveMode } from '@ez4/database';
+import type { AnyObject } from '@ez4/utils';
 import type { Arn } from '@ez4/aws-common';
 
 export type Connection = {
@@ -24,4 +25,5 @@ export type PostgresEngine = {
  */
 export type InternalTableMetadata = TableMetadata & {
   engine: PostgresEngine;
+  schema: AnyObject;
 };

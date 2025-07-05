@@ -26,16 +26,10 @@ export const getTargetHandler = (type: AllType, reflection: SourceMap, errorList
     properties.delete('file');
   }
 
-  const eventRequest = type.parameters?.[0];
+  const request = type.parameters?.[0].value;
 
-  if (eventRequest) {
-    handler.input = eventRequest.name;
-
-    if (!getCronEvent(eventRequest.value, type, reflection, errorList)) {
-      errorList.push(new IncompleteHandlerError([eventRequest.name], type.file));
-
-      return null;
-    }
+  if (request && !getCronEvent(request, type, reflection, errorList)) {
+    properties.add('request');
   }
 
   if (properties.size === 0 && isValidHandler(handler)) {

@@ -9,47 +9,36 @@ import { ServiceEventType } from '@ez4/common';
 declare const __EZ4_SCHEMA: ObjectSchema | UnionSchema | null;
 declare const __EZ4_CONTEXT: object;
 
-declare function handle(request: Cron.Incoming<Cron.Event>, context: object): Promise<void>;
-declare function handle(context: object): Promise<void>;
-
-declare function dispatch(event: Service.Event<Cron.Incoming<Cron.Event>>, context: object): Promise<void>;
+declare function dispatch(event: Service.Event<Cron.Incoming<any>>, context: object): Promise<void>;
+declare function handle(request: Cron.Incoming<any>, context: object): Promise<void>;
 
 /**
  * Entrypoint to handle EventBridge scheduler events.
  */
 export async function eventEntryPoint(event: ScheduledEvent, context: Context): Promise<void> {
-  let lastRequest: Cron.Incoming<Cron.Event> | undefined;
-
-  const request = {
-    requestId: context.awsRequestId
+  const request: Cron.Incoming<any> = {
+    requestId: context.awsRequestId,
+    event: null
   };
 
   try {
     await onBegin(request);
 
-    if (!__EZ4_SCHEMA) {
-      await handle(__EZ4_CONTEXT);
-      return;
+    if (__EZ4_SCHEMA) {
+      request.event = await getJsonEvent(event, __EZ4_SCHEMA);
+
+      await onReady(request);
     }
 
-    const safeEvent = await getJsonEvent(event, __EZ4_SCHEMA);
-
-    lastRequest = {
-      ...request,
-      event: safeEvent
-    };
-
-    await onReady(lastRequest);
-
-    await handle(lastRequest, __EZ4_CONTEXT);
+    await handle(request, __EZ4_CONTEXT);
   } catch (error) {
-    await onError(error, lastRequest ?? request);
+    await onError(error, request);
   } finally {
     await onEnd(request);
   }
 }
 
-const onBegin = async (request: Partial<Cron.Incoming<Cron.Event>>) => {
+const onBegin = async (request: Partial<Cron.Incoming<any>>) => {
   return dispatch(
     {
       type: ServiceEventType.Begin,
@@ -59,7 +48,7 @@ const onBegin = async (request: Partial<Cron.Incoming<Cron.Event>>) => {
   );
 };
 
-const onReady = async (request: Partial<Cron.Incoming<Cron.Event>>) => {
+const onReady = async (request: Partial<Cron.Incoming<any>>) => {
   return dispatch(
     {
       type: ServiceEventType.Ready,
@@ -69,7 +58,7 @@ const onReady = async (request: Partial<Cron.Incoming<Cron.Event>>) => {
   );
 };
 
-const onError = async (error: Error, request: Partial<Cron.Incoming<Cron.Event>>) => {
+const onError = async (error: Error, request: Partial<Cron.Incoming<any>>) => {
   console.error(error);
 
   return dispatch(
@@ -82,7 +71,7 @@ const onError = async (error: Error, request: Partial<Cron.Incoming<Cron.Event>>
   );
 };
 
-const onEnd = async (request: Partial<Cron.Incoming<Cron.Event>>) => {
+const onEnd = async (request: Partial<Cron.Incoming<any>>) => {
   return dispatch(
     {
       type: ServiceEventType.End,

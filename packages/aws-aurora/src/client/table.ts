@@ -42,18 +42,19 @@ export class Table<T extends InternalTableMetadata> implements DbTable<T> {
     const { transactionId, connection, client, debug } = this.context;
 
     if (!Array.isArray(input)) {
-      return executeStatement(client, connection, input, transactionId, debug) as Promise<SendCommandResult<T>>;
+      return executeStatement(client, connection, input, { transactionId, debug }) as Promise<SendCommandResult<T>>;
     }
 
-    if (input.length === 1) {
-      return [await executeStatement(client, connection, input[0], transactionId, debug)];
+    if (!transactionId) {
+      return executeTransaction(client, connection, input, {
+        debug
+      });
     }
 
-    if (transactionId) {
-      return executeStatements(client, connection, input, transactionId, debug);
-    }
-
-    return executeTransaction(client, connection, input, debug);
+    return executeStatements(client, connection, input, {
+      transactionId,
+      debug
+    });
   }
 
   private parseRecord<T extends Record<string, unknown>>(record: T): T | undefined {

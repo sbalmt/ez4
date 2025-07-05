@@ -1,9 +1,9 @@
 import type { Queue, ReceiveOptions, SendOptions, Client as SqsClient } from '@ez4/queue';
 import type { SendMessageRequest } from '@aws-sdk/client-sqs';
-import type { MessageSchema } from '@ez4/aws-queue/runtime';
+import type { MessageSchema } from '@ez4/queue/utils';
 import type { AnyObject } from '@ez4/utils';
 
-import { MissingMessageGroupError, getJsonMessage, getJsonStringMessage } from '@ez4/aws-queue/runtime';
+import { MissingMessageGroupError, getJsonMessage, getJsonStringMessage } from '@ez4/queue/utils';
 import { ReceiveMessageCommand, SendMessageCommand, SQSClient } from '@aws-sdk/client-sqs';
 
 const client = new SQSClient({});
@@ -11,13 +11,13 @@ const client = new SQSClient({});
 type FifoParameters = Pick<SendMessageRequest, 'MessageGroupId' | 'MessageDeduplicationId'>;
 
 export namespace Client {
-  export const make = <T extends Queue.Message>(
+  export const make = <T extends Queue.Service<any>>(
     queueUrl: string,
     messageSchema: MessageSchema,
     fifoMode?: Queue.FifoMode<T>
   ): SqsClient<T> => {
     return new (class {
-      async sendMessage(message: T, options?: SendOptions) {
+      async sendMessage(message: T['schema'], options?: SendOptions<T>) {
         const messageBody = await getJsonStringMessage(message, messageSchema);
 
         await client.send(

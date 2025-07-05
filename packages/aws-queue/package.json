@@ -14,18 +14,13 @@
     "directory": "packages/aws-queue"
   },
   "engines": {
-    "node": ">=22.3.0"
+    "node": ">=22.7"
   },
   "exports": {
     ".": {
       "types": "./dist/main.d.ts",
       "require": "./dist/main.cjs",
       "import": "./dist/main.mjs"
-    },
-    "./runtime": {
-      "types": "./dist/runtime.d.ts",
-      "require": "./dist/runtime.cjs",
-      "import": "./dist/runtime.mjs"
     },
     "./client": {
       "types": "./dist/client.d.ts",

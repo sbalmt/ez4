@@ -1,6 +1,7 @@
 import type { DynamoDBDocumentClient, ExecuteStatementCommandInput } from '@aws-sdk/lib-dynamodb';
-import type { Query, TableMetadata } from '@ez4/database';
 import type { ObjectSchema } from '@ez4/schema';
+import type { Query } from '@ez4/database';
+import type { InternalTableMetadata } from '../types.js';
 
 import { validateSchema } from '@ez4/aws-dynamodb/runtime';
 
@@ -12,7 +13,7 @@ import { prepareUpdate } from './update.js';
 import { prepareSelect } from './select.js';
 import { prepareDelete } from './delete.js';
 
-export const prepareInsertOne = async <T extends TableMetadata, S extends Query.SelectInput<T>>(
+export const prepareInsertOne = async <T extends InternalTableMetadata, S extends Query.SelectInput<T>>(
   table: string,
   schema: ObjectSchema,
   query: Query.InsertOneInput<S, T>
@@ -29,7 +30,7 @@ export const prepareInsertOne = async <T extends TableMetadata, S extends Query.
   };
 };
 
-export const prepareFindOne = <T extends TableMetadata, S extends Query.SelectInput<T>>(
+export const prepareFindOne = <T extends InternalTableMetadata, S extends Query.SelectInput<T>>(
   table: string,
   indexes: string[][],
   query: Query.FindOneInput<S, T>
@@ -50,7 +51,7 @@ export const prepareFindOne = <T extends TableMetadata, S extends Query.SelectIn
   };
 };
 
-export const prepareUpdateOne = async <T extends TableMetadata, S extends Query.SelectInput<T>>(
+export const prepareUpdateOne = async <T extends InternalTableMetadata, S extends Query.SelectInput<T>>(
   table: string,
   schema: ObjectSchema,
   query: Query.UpdateOneInput<S, T>
@@ -67,7 +68,7 @@ export const prepareUpdateOne = async <T extends TableMetadata, S extends Query.
   };
 };
 
-export const prepareDeleteOne = <T extends TableMetadata, S extends Query.SelectInput<T>>(
+export const prepareDeleteOne = <T extends InternalTableMetadata, S extends Query.SelectInput<T>>(
   table: string,
   query: Query.DeleteOneInput<S, T>
 ): ExecuteStatementCommandInput => {
@@ -81,7 +82,7 @@ export const prepareDeleteOne = <T extends TableMetadata, S extends Query.Select
   };
 };
 
-export const prepareInsertMany = async <T extends TableMetadata>(
+export const prepareInsertMany = async <T extends InternalTableMetadata>(
   table: string,
   schema: ObjectSchema,
   indexes: string[][],
@@ -121,7 +122,7 @@ export const prepareInsertMany = async <T extends TableMetadata>(
   return transactions;
 };
 
-export const prepareFindMany = <T extends TableMetadata, S extends Query.SelectInput<T>, C extends boolean>(
+export const prepareFindMany = <T extends InternalTableMetadata, S extends Query.SelectInput<T>, C extends boolean>(
   table: string,
   indexes: string[][],
   query: Query.FindManyInput<S, T, C>
@@ -147,7 +148,7 @@ export const prepareFindMany = <T extends TableMetadata, S extends Query.SelectI
   };
 };
 
-export const prepareUpdateMany = async <T extends TableMetadata, S extends Query.SelectInput<T>>(
+export const prepareUpdateMany = async <T extends InternalTableMetadata, S extends Query.SelectInput<T>>(
   table: string,
   schema: ObjectSchema,
   indexes: string[][],
@@ -200,7 +201,7 @@ export const prepareUpdateMany = async <T extends TableMetadata, S extends Query
   return [transactions, records as Query.UpdateManyResult<S, T>];
 };
 
-export const prepareDeleteMany = async <T extends TableMetadata, S extends Query.SelectInput<T>>(
+export const prepareDeleteMany = async <T extends InternalTableMetadata, S extends Query.SelectInput<T>>(
   table: string,
   indexes: string[][],
   client: DynamoDBDocumentClient,
@@ -247,7 +248,7 @@ export const prepareDeleteMany = async <T extends TableMetadata, S extends Query
   return [transactions, records as Query.DeleteManyResult<S, T>];
 };
 
-export const prepareCount = <T extends TableMetadata, S extends Query.SelectInput<T>>(
+export const prepareCount = <T extends InternalTableMetadata, S extends Query.SelectInput<T>>(
   table: string,
   indexes: string[][],
   query: Query.CountInput<T>
