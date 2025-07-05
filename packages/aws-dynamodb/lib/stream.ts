@@ -12,8 +12,8 @@ import { StreamType } from '@ez4/database';
 declare const __EZ4_SCHEMA: ObjectSchema | null;
 declare const __EZ4_CONTEXT: object;
 
-declare function handle(changes: StreamChange<object>, context: object): Promise<any>;
 declare function dispatch(event: Service.Event<Database.Incoming<object>>, context: object): Promise<void>;
+declare function handle(changes: StreamChange<object>, context: object): Promise<any>;
 
 /**
  * Entrypoint to handle DynamoDB stream events.

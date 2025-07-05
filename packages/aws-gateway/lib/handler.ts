@@ -21,8 +21,8 @@ declare const __EZ4_HEADERS_SCHEMA: ObjectSchema | null;
 declare const __EZ4_ERRORS_MAP: Record<string, number> | null;
 declare const __EZ4_CONTEXT: object;
 
-declare function handle(request: Http.Incoming<Http.Request>, context: object): Promise<Http.Response>;
 declare function dispatch(event: Service.Event<Http.Incoming<Http.Request>>, context: object): Promise<void>;
+declare function handle(request: Http.Incoming<Http.Request>, context: object): Promise<Http.Response>;
 
 /**
  * Entrypoint to handle API Gateway requests.

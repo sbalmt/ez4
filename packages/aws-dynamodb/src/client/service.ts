@@ -24,7 +24,6 @@ export type ClientSettings = {
 export namespace Client {
   export const make = <T extends Database.Service>(repository: Repository, settings?: ClientSettings): DbClient<T> => {
     const tableCache: Record<string, TableType> = {};
-
     const debugMode = settings?.debug;
 
     const clientInstance = new (class {

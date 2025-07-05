@@ -10,8 +10,8 @@ import { ServiceEventType } from '@ez4/common';
 declare const __EZ4_SCHEMA: MessageSchema | null;
 declare const __EZ4_CONTEXT: object;
 
-declare function handle(message: Notification.Incoming<Notification.Message>, context: object): Promise<any>;
 declare function dispatch(event: Service.Event<Notification.Incoming<Notification.Message>>, context: object): Promise<void>;
+declare function handle(message: Notification.Incoming<Notification.Message>, context: object): Promise<any>;
 
 /**
  * Entrypoint to handle SNS events.

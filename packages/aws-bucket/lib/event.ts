@@ -7,8 +7,8 @@ import { BucketEventType } from '@ez4/storage';
 
 declare const __EZ4_CONTEXT: object;
 
-declare function handle(event: Bucket.Event, context: object): Promise<any>;
 declare function dispatch(event: Service.Event<Bucket.Event>, context: object): Promise<void>;
+declare function handle(event: Bucket.Event, context: object): Promise<any>;
 
 /**
  * Entrypoint to handle S3 notifications.

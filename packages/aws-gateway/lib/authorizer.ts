@@ -15,8 +15,8 @@ declare const __EZ4_PARAMETERS_SCHEMA: ObjectSchema | null;
 declare const __EZ4_QUERY_SCHEMA: ObjectSchema | null;
 declare const __EZ4_CONTEXT: object;
 
-declare function handle(request: Http.Incoming<Http.AuthRequest>, context: object): Promise<Http.AuthResponse>;
 declare function dispatch(event: Service.Event<Http.Incoming<Http.AuthRequest>>, context: object): Promise<void>;
+declare function handle(request: Http.Incoming<Http.AuthRequest>, context: object): Promise<Http.AuthResponse>;
 
 /**
  * Entrypoint to handle API Gateway authorizations.
