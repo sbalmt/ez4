@@ -14,7 +14,7 @@ export namespace Cron {
   export type Listener<T extends Event | null> = CronListener<T>;
   export type Handler<T extends Event | null> = CronHandler<T>;
 
-  export type ServiceEvent<T extends Event | null> = Service.Event<Incoming<T>>;
+  export type ServiceEvent<T extends Event | null = null> = Service.Event<Incoming<T>>;
 
   /**
    * Cron target.

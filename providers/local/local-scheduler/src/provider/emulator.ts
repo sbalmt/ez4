@@ -60,31 +60,31 @@ const handleCronExpression = (service: CronService, context: EmulateServiceConte
 const handleSchedulerEvent = async (service: CronService, context: EmulateServiceContext, event: Cron.Event | null) => {
   const { services: linkedServices, target } = service;
 
-  const eventModule = await createModule({
+  const lambdaModule = await createModule({
     handler: target.handler,
     listener: target.listener
   });
 
-  const eventContext = linkedServices && context.makeClients(linkedServices);
+  const lambdaContext = linkedServices && context.makeClients(linkedServices);
 
-  const eventRequest: Cron.Incoming<Cron.Event | null> = {
+  const request: Cron.Incoming<Cron.Event | null> = {
     requestId: getRandomUUID(),
     event: null
   };
 
   try {
-    await eventModule.listener?.({ type: ServiceEventType.Begin, request: eventRequest }, eventContext);
+    await lambdaModule.listener?.({ type: ServiceEventType.Begin, request }, lambdaContext);
 
-    eventRequest.event = event;
+    request.event = event;
 
     if (event != null) {
-      await eventModule.listener?.({ type: ServiceEventType.Ready, request: eventRequest }, eventContext);
+      await lambdaModule.listener?.({ type: ServiceEventType.Ready, request }, lambdaContext);
     }
 
-    await eventModule.handler(eventRequest, eventContext);
+    await lambdaModule.handler(request, lambdaContext);
   } catch (error) {
-    await eventModule.listener?.({ type: ServiceEventType.Error, request: eventRequest, error }, eventContext);
+    await lambdaModule.listener?.({ type: ServiceEventType.Error, request, error }, lambdaContext);
   } finally {
-    await eventModule.listener?.({ type: ServiceEventType.End, request: eventRequest }, eventContext);
+    await lambdaModule.listener?.({ type: ServiceEventType.End, request }, lambdaContext);
   }
 };
