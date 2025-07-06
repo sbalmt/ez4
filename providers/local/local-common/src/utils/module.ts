@@ -3,25 +3,32 @@ import { Logger } from '@ez4/project/library';
 import { pathToFileURL } from 'node:url';
 import { join } from 'node:path';
 
-export type ModuleFunction = {
+export type VirtualFunction = <T>(...inputs: unknown[]) => Promise<T>;
+
+export type VirtualModule = {
+  listener?: VirtualFunction;
+  handler: VirtualFunction;
+};
+
+export type ModuleEntrySource = {
   file: string;
   name: string;
 };
 
 export type ModuleDefinition = {
-  handler: ModuleFunction;
-  listener?: ModuleFunction;
+  handler: ModuleEntrySource;
+  listener?: ModuleEntrySource | null;
   reload?: boolean;
 };
 
-export const createModule = async (module: ModuleDefinition) => {
+export const createModule = async (module: ModuleDefinition): Promise<VirtualModule> => {
   const { handler, listener, reload = true } = module;
 
   if (!listener || listener.file === handler.file) {
     const module = await loadModule(handler.file, reload);
 
     return {
-      listener: listener && prepareFunction(listener, module[listener.name]),
+      listener: listener ? prepareFunction(listener, module[listener.name]) : undefined,
       handler: prepareFunction(handler, module[handler.name])
     };
   }
@@ -35,18 +42,18 @@ export const createModule = async (module: ModuleDefinition) => {
   };
 };
 
-const prepareFunction = (moduleFunction: ModuleFunction, callback: (...inputs: unknown[]) => unknown) => {
-  return async (...inputs: unknown[]) => {
+const prepareFunction = (entrySource: ModuleEntrySource, callback: (...inputs: unknown[]) => any) => {
+  return async <T>(...inputs: unknown[]): Promise<T> => {
     try {
-      Logger.log(`${moduleFunction.file} [${moduleFunction.name}] Start`);
-
+      Logger.log(`${entrySource.file} [${entrySource.name}] Start`);
       return await callback(...inputs);
+      //
     } catch (error) {
-      Logger.error(`${moduleFunction.file} [${moduleFunction.name}] ${error}`);
-
+      Logger.error(`${entrySource.file} [${entrySource.name}] ${error}`);
       throw error;
+      //
     } finally {
-      Logger.log(`${moduleFunction.file} [${moduleFunction.name}] End`);
+      Logger.log(`${entrySource.file} [${entrySource.name}] End`);
     }
   };
 };
