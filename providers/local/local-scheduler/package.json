@@ -39,10 +39,11 @@
     "live:publish": "npm run test && npm publish --access public"
   },
   "dependencies": {
-    "@ez4/local-common": "^0.21.0",
     "@ez4/common": "^0.21.0",
+    "@ez4/local-common": "^0.21.0",
     "@ez4/project": "^0.21.0",
     "@ez4/scheduler": "^0.21.0",
-    "@ez4/utils": "^0.21.0"
+    "@ez4/utils": "^0.21.0",
+    "cron-parser": "^5.3.0"
   }
 }

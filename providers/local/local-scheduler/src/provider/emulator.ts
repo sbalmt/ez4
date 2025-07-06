@@ -31,22 +31,24 @@ export const registerCronEmulator = (service: CronService, options: ServeOptions
       if (isDynamicCronService(service)) {
         Logger.log(`Dynamic scheduler [${serviceName}] is ready`);
       } else {
-        handleCronExpression(service, context);
+        scheduleNextExpression(service, context);
       }
     }
   };
 };
 
-const handleCronExpression = (service: CronService, context: EmulateServiceContext) => {
+const scheduleNextExpression = (service: CronService, context: EmulateServiceContext) => {
   const { interval, type, value } = parseExpression(service.expression);
 
   switch (type) {
-    default:
-      throw new Error(`Scheduler ${service.name} with invalid expression.`);
+    case ExpressionType.Cron:
+      Logger.log(`Scheduler [${service.name}] will run in cron (${value})`);
+      setTimeout(() => handleSchedulerEvent(service, context, null).then(() => scheduleNextExpression(service, context)), interval);
+      break;
 
     case ExpressionType.Rate:
-      Logger.log(`Scheduler [${service.name}] will run every ${value}`);
-      setInterval(() => handleSchedulerEvent(service, context, null), interval);
+      Logger.log(`Scheduler [${service.name}] will run in ${value}`);
+      setTimeout(() => handleSchedulerEvent(service, context, null).then(() => scheduleNextExpression(service, context)), interval);
       break;
 
     case ExpressionType.At:
@@ -74,9 +76,7 @@ const handleSchedulerEvent = async (service: CronService, context: EmulateServic
   try {
     await onBegin(lambdaModule, lambdaContext, lambdaRequest);
 
-    if (event != null) {
-      lambdaRequest.event = event;
-
+    if ((lambdaRequest.event = event) !== null) {
       await onReady(lambdaModule, lambdaContext, lambdaRequest);
     }
 

@@ -4,8 +4,9 @@ import type { targetHandler } from './handlers.js';
 
 /**
  * Example of AWS EventBridge Scheduler deployed with EZ4.
+ * For rate expressions.
  */
-export declare class Event extends Cron.Service {
+export declare class RateEvent extends Cron.Service {
   /**
    * Group for the scheduler.
    */
@@ -22,12 +23,38 @@ export declare class Event extends Cron.Service {
   timezone: 'America/Sao_Paulo';
 
   /**
+   * Retry up to 10 times in case it fails.
+   */
+  maxRetries: 10;
+
+  /**
    * Event target.
    */
   target: {
     listener: typeof schedulerListener;
     handler: typeof targetHandler;
   };
+}
+
+/**
+ * Example of AWS EventBridge Scheduler deployed with EZ4.
+ * For cron expressions.
+ */
+export declare class CronEvent extends Cron.Service {
+  /**
+   * Group for the scheduler.
+   */
+  group: 'ez4-group';
+
+  /**
+   * Execute every 15 minutes.
+   */
+  expression: 'cron(*/15 * * * *)';
+
+  /**
+   * Execute using the specified timezone.
+   */
+  timezone: 'America/Sao_Paulo';
 
   /**
    * Retry up to 10 times in case it fails.
@@ -35,19 +62,10 @@ export declare class Event extends Cron.Service {
   maxRetries: 10;
 
   /**
-   * Define the scheduler start date
-   * If defined, it should be higher than the current timestamp.
+   * Event target.
    */
-  // startDate: '2030-01-01T00:00:00-03:00';
-
-  /**
-   * Define the scheduler end date.
-   * If defined, it should be higher than `startDate`.
-   */
-  // endDate: '2030-01-01T23:59:59-03:00';
-
-  /**
-   * Provide a way to disable the scheduler without deleting it.
-   */
-  // disabled: true;
+  target: {
+    listener: typeof schedulerListener;
+    handler: typeof targetHandler;
+  };
 }
