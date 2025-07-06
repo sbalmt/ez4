@@ -1,6 +1,6 @@
 {
   "name": "@ez4/pgsql",
-  "description": "EZ4: State management with dependencies for providers",
+  "description": "EZ4: A PostgreSQL builder",
   "version": "0.21.0",
   "author": "Silas B.",
   "license": "MIT",
