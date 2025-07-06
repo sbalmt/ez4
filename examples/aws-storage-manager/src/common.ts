@@ -8,19 +8,19 @@ import { ServiceEventType } from '@ez4/common';
 export function syncStorageListener(event: Bucket.ServiceEvent) {
   switch (event.type) {
     case ServiceEventType.Begin:
-      console.log('Event begin', JSON.stringify(event.request));
+      console.log('Event begin', event.request);
       break;
 
     case ServiceEventType.Ready:
-      console.log('Event ready', JSON.stringify(event.request));
+      console.log('Event ready', event.request);
       break;
 
     case ServiceEventType.Error:
-      console.log('Event error', JSON.stringify(event.request));
+      console.log('Event error', event.request);
       break;
 
     case ServiceEventType.End:
-      console.log('Event end', JSON.stringify(event.request));
+      console.log('Event end', event.request);
       break;
   }
 }

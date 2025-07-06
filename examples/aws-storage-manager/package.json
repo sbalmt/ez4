@@ -15,7 +15,8 @@
   ],
   "scripts": {
     "deploy": "tsc -p tsconfig.json && ez4 deploy -e local.env -p ez4.project.js",
-    "destroy": "ez4 destroy -e local.env -p ez4.project.js --force"
+    "destroy": "ez4 destroy -e local.env -p ez4.project.js --force",
+    "serve": "ez4 serve -e local.env -p ez4.project.js"
   },
   "dependencies": {
     "@ez4/aws-bucket": "^0.21.0",
@@ -24,6 +25,9 @@
     "@ez4/common": "^0.21.0",
     "@ez4/database": "^0.21.0",
     "@ez4/gateway": "^0.21.0",
+    "@ez4/local-database": "^0.21.0",
+    "@ez4/local-gateway": "^0.21.0",
+    "@ez4/local-storage": "^0.21.0",
     "@ez4/project": "^0.21.0",
     "@ez4/schema": "^0.21.0",
     "@ez4/storage": "^0.21.0"

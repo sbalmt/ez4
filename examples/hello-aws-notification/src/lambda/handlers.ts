@@ -4,7 +4,7 @@ import type { MessageRequest } from '../types.js';
 export function messageHandlerA(request: Notification.Incoming<MessageRequest>): void {
   const { message } = request;
 
-  console.log('Handler A', JSON.stringify(message));
+  console.log('Handler A (direct subscription)', message);
 
   // Do another stuff...
   message.foo;
@@ -13,7 +13,7 @@ export function messageHandlerA(request: Notification.Incoming<MessageRequest>):
 export function messageHandlerB(request: Notification.Incoming<MessageRequest>): void {
   const { message } = request;
 
-  console.log('Handler B', JSON.stringify(message));
+  console.log('Handler B (direct subscription)', message);
 
   // Do another stuff...
   message.foo;
