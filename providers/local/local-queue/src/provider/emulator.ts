@@ -2,11 +2,10 @@ import type { EmulateServiceContext, EmulatorServiceRequest, ServeOptions } from
 import type { QueueService, QueueSubscription } from '@ez4/queue/library';
 import type { Queue } from '@ez4/queue';
 
-import { createModule } from '@ez4/local-common';
+import { createModule, onBegin, onEnd, onError, onReady } from '@ez4/local-common';
 import { getRandomInteger, getRandomUUID } from '@ez4/utils';
-import { getServiceName, Logger } from '@ez4/project/library';
+import { getServiceName } from '@ez4/project/library';
 import { getJsonMessage } from '@ez4/queue/utils';
-import { ServiceEventType } from '@ez4/common';
 
 import { createQueueClient } from '../service/client.js';
 
@@ -54,28 +53,26 @@ const processLambdaMessage = async (
 
   const lambdaContext = service.services && context.makeClients(service.services);
 
-  let request: Partial<Queue.Incoming<Queue.Message>> = {
+  const lambdaRequest: Partial<Queue.Incoming<Queue.Message>> = {
     requestId: getRandomUUID()
   };
 
   try {
-    await lambdaModule.listener?.({ type: ServiceEventType.Begin, request }, lambdaContext);
+    await onBegin(lambdaModule, lambdaContext, lambdaRequest);
 
     const jsonMessage = JSON.parse(message.toString());
     const safeMessage = await getJsonMessage(jsonMessage, service.schema);
 
-    request = {
-      ...request,
-      message: safeMessage
-    };
+    Object.assign(lambdaRequest, { message: safeMessage });
 
-    await lambdaModule.listener?.({ type: ServiceEventType.Ready, request }, lambdaContext);
+    await onReady(lambdaModule, lambdaContext, lambdaRequest);
 
-    await lambdaModule.handler(request, lambdaContext);
+    await lambdaModule.handler(lambdaRequest, lambdaContext);
+    //
   } catch (error) {
-    await lambdaModule.listener?.({ type: ServiceEventType.Error, request, error }, lambdaContext);
-    Logger.error(`${error}`);
+    await onError(lambdaModule, lambdaContext, lambdaRequest, error);
+    //
   } finally {
-    await lambdaModule.listener?.({ type: ServiceEventType.End, request }, lambdaContext);
+    await onEnd(lambdaModule, lambdaContext, lambdaRequest);
   }
 };

@@ -3,11 +3,10 @@ import type { NotificationLambdaSubscription, NotificationQueueSubscription, Not
 import type { Client as QueueClient } from '@ez4/queue';
 import type { Notification } from '@ez4/notification';
 
-import { createModule } from '@ez4/local-common';
+import { createModule, onBegin, onEnd, onError, onReady } from '@ez4/local-common';
 import { NotificationSubscriptionType } from '@ez4/notification/library';
 import { getJsonMessage } from '@ez4/notification/utils';
-import { getServiceName, Logger } from '@ez4/project/library';
-import { ServiceEventType } from '@ez4/common';
+import { getServiceName } from '@ez4/project/library';
 import { getRandomUUID } from '@ez4/utils';
 
 import { createNotificationClient } from '../service/client.js';
@@ -77,28 +76,25 @@ const processLambdaMessage = async (
 
   const lambdaContext = service.services && context.makeClients(service.services);
 
-  let request: Partial<Notification.Incoming<Notification.Message>> = {
+  const lambdaRequest: Partial<Notification.Incoming<Notification.Message>> = {
     requestId: getRandomUUID()
   };
 
   try {
-    await lambdaModule.listener?.({ type: ServiceEventType.Begin, request }, lambdaContext);
+    await onBegin(lambdaModule, lambdaContext, lambdaRequest);
 
     const jsonMessage = JSON.parse(message.toString());
     const safeMessage = await getJsonMessage(jsonMessage, service.schema);
 
-    request = {
-      ...request,
-      message: safeMessage
-    };
+    Object.assign(lambdaRequest, { message: safeMessage });
 
-    await lambdaModule.listener?.({ type: ServiceEventType.Ready, request }, lambdaContext);
-
-    await lambdaModule.handler(request, lambdaContext);
+    await onReady(lambdaModule, lambdaContext, lambdaRequest);
+    await lambdaModule.handler(lambdaRequest, lambdaContext);
+    //
   } catch (error) {
-    await lambdaModule.listener?.({ type: ServiceEventType.Error, request, error }, lambdaContext);
-    Logger.error(`${error}`);
+    await onError(lambdaModule, lambdaContext, lambdaRequest, error);
+    //
   } finally {
-    await lambdaModule.listener?.({ type: ServiceEventType.End, request }, lambdaContext);
+    await onEnd(lambdaModule, lambdaContext, lambdaRequest);
   }
 };

@@ -3,11 +3,10 @@ import type { HttpService } from '@ez4/gateway/library';
 import type { Http } from '@ez4/gateway';
 import type { MatchingRoute } from '../utils/route.js';
 
-import { createModule } from '@ez4/local-common';
+import { createModule, onBegin, onEnd, onError, onReady } from '@ez4/local-common';
 import { getRandomUUID } from '@ez4/utils';
 
 import { getOutgoingErrorResponse, getOutgoingSuccessResponse } from '../utils/response.js';
-import { onBegin, onEnd, onError, onReady } from '../utils/dispatch.js';
 
 import {
   getIncomingRequestIdentity,

@@ -2,10 +2,9 @@ import type { EmulateServiceContext, ServeOptions } from '@ez4/project/library';
 import type { CronService } from '@ez4/scheduler/library';
 import type { Cron } from '@ez4/scheduler';
 
-import { createModule } from '@ez4/local-common';
+import { createModule, onBegin, onEnd, onError, onReady } from '@ez4/local-common';
 import { isDynamicCronService } from '@ez4/scheduler/library';
 import { getServiceName, Logger } from '@ez4/project/library';
-import { ServiceEventType } from '@ez4/common';
 import { getRandomUUID } from '@ez4/utils';
 
 import { ExpressionType, parseExpression } from '../utils/expression.js';
@@ -67,25 +66,26 @@ const handleSchedulerEvent = async (service: CronService, context: EmulateServic
 
   const lambdaContext = linkedServices && context.makeClients(linkedServices);
 
-  const request: Cron.Incoming<Cron.Event | null> = {
+  const lambdaRequest: Cron.Incoming<Cron.Event | null> = {
     requestId: getRandomUUID(),
     event: null
   };
 
   try {
-    await lambdaModule.listener?.({ type: ServiceEventType.Begin, request }, lambdaContext);
-
-    request.event = event;
+    await onBegin(lambdaModule, lambdaContext, lambdaRequest);
 
     if (event != null) {
-      await lambdaModule.listener?.({ type: ServiceEventType.Ready, request }, lambdaContext);
+      lambdaRequest.event = event;
+
+      await onReady(lambdaModule, lambdaContext, lambdaRequest);
     }
 
-    await lambdaModule.handler(request, lambdaContext);
+    await lambdaModule.handler(lambdaRequest, lambdaContext);
+    //
   } catch (error) {
-    await lambdaModule.listener?.({ type: ServiceEventType.Error, request, error }, lambdaContext);
-    Logger.error(`${error}`);
+    await onError(lambdaModule, lambdaContext, lambdaRequest, error);
+    //
   } finally {
-    await lambdaModule.listener?.({ type: ServiceEventType.End, request }, lambdaContext);
+    await onEnd(lambdaModule, lambdaContext, lambdaRequest);
   }
 };

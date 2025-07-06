@@ -3,11 +3,10 @@ import type { HttpService } from '@ez4/gateway/library';
 import type { Http } from '@ez4/gateway';
 import type { MatchingRoute } from '../utils/route.js';
 
-import { createModule } from '@ez4/local-common';
+import { createModule, onBegin, onEnd, onError, onReady } from '@ez4/local-common';
 import { getRandomUUID } from '@ez4/utils';
 
 import { getIncomingRequestHeaders, getIncomingRequestParameters, getIncomingRequestQuery } from '../utils/request.js';
-import { onBegin, onEnd, onError, onReady } from '../utils/dispatch.js';
 
 export const processHttpAuthorization = async (
   service: HttpService,
