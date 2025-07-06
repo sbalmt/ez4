@@ -28,8 +28,6 @@ declare function handle(request: Http.Incoming<Http.Request>, context: object): 
  * Entrypoint to handle API Gateway requests.
  */
 export async function apiEntryPoint(event: RequestEvent, context: Context): Promise<ResponseEvent> {
-  let lastRequest: Http.Incoming<Http.Request> | undefined;
-
   const { requestContext } = event;
 
   const request = {
@@ -43,18 +41,16 @@ export async function apiEntryPoint(event: RequestEvent, context: Context): Prom
   try {
     await onBegin(request);
 
-    lastRequest = {
-      ...request,
-      ...(await getIncomingRequest(event))
-    };
+    Object.assign(request, await getIncomingRequest(event));
 
-    await onReady(lastRequest);
+    await onReady(request);
 
-    const { status, body, headers } = await handle(lastRequest, __EZ4_CONTEXT);
+    const { status, body, headers } = await handle(request, __EZ4_CONTEXT);
 
     return getSuccessResponse(status, body, headers);
+    //
   } catch (error) {
-    await onError(error, lastRequest ?? request);
+    await onError(error, request);
 
     if (error instanceof HttpError) {
       return getDefaultErrorResponse(error);
@@ -65,6 +61,7 @@ export async function apiEntryPoint(event: RequestEvent, context: Context): Prom
     }
 
     return getDefaultErrorResponse();
+    //
   } finally {
     await onEnd(request);
   }

@@ -22,11 +22,9 @@ declare function handle(request: Http.Incoming<Http.AuthRequest>, context: objec
  * Entrypoint to handle API Gateway authorizations.
  */
 export async function apiEntryPoint(event: RequestEvent, context: Context): Promise<ResponseEvent> {
-  let lastRequest: Http.Incoming<Http.AuthRequest> | undefined;
-
   const { requestContext } = event;
 
-  const request = {
+  const request: Http.Incoming<Http.AuthRequest> = {
     requestId: context.awsRequestId,
     timestamp: new Date(requestContext.timeEpoch),
     method: requestContext.http.method,
@@ -36,14 +34,11 @@ export async function apiEntryPoint(event: RequestEvent, context: Context): Prom
   try {
     await onBegin(request);
 
-    lastRequest = {
-      ...request,
-      ...(await getIncomingRequest(event))
-    };
+    Object.assign(request, await getIncomingRequest(event));
 
-    await onReady(lastRequest);
+    await onReady(request);
 
-    const { identity } = await handle(lastRequest, __EZ4_CONTEXT);
+    const { identity } = await handle(request, __EZ4_CONTEXT);
 
     return {
       isAuthorized: !!identity,
@@ -52,7 +47,7 @@ export async function apiEntryPoint(event: RequestEvent, context: Context): Prom
       }
     };
   } catch (error) {
-    await onError(error, lastRequest ?? request);
+    await onError(error, request);
 
     return {
       isAuthorized: false,

@@ -17,7 +17,7 @@ declare function handle(message: Notification.Incoming<Notification.Message>, co
  * Entrypoint to handle SNS events.
  */
 export async function snsEntryPoint(event: SNSEvent, context: Context): Promise<void> {
-  let lastRequest: Notification.Incoming<Notification.Message> | undefined;
+  let currentRequest: Notification.Incoming<Notification.Message> | undefined;
 
   const request = {
     requestId: context.awsRequestId
@@ -34,17 +34,17 @@ export async function snsEntryPoint(event: SNSEvent, context: Context): Promise<
       const payload = JSON.parse(record.Sns.Message);
       const message = await NotificationUtils.getJsonMessage(payload, __EZ4_SCHEMA);
 
-      lastRequest = {
+      currentRequest = {
         ...request,
         message
       };
 
-      await onReady(lastRequest);
+      await onReady(currentRequest);
 
-      await handle(lastRequest, __EZ4_CONTEXT);
+      await handle(currentRequest, __EZ4_CONTEXT);
     }
   } catch (error) {
-    await onError(error, lastRequest ?? request);
+    await onError(error, currentRequest ?? request);
   } finally {
     await onEnd(request);
   }

@@ -51,7 +51,7 @@ const processAllRecords = async (
   const failedMessages: SQSBatchItemFailure[] = [];
   const failedGroupIds = new Set<string>();
 
-  let lastRequest: Queue.Incoming<Queue.Message> | undefined;
+  let currentRequest: Queue.Incoming<Queue.Message> | undefined;
 
   for (const record of records) {
     const messageGroupId = record.attributes.MessageGroupId;
@@ -71,20 +71,18 @@ const processAllRecords = async (
       const payload = JSON.parse(record.body);
       const message = await QueueUtils.getJsonMessage(payload, schema);
 
-      lastRequest = {
+      currentRequest = {
         ...request,
         message
       };
 
-      await onReady(lastRequest);
+      await onReady(currentRequest);
 
-      await handle(lastRequest, __EZ4_CONTEXT);
+      await handle(currentRequest, __EZ4_CONTEXT);
 
       await ackMessage(record);
     } catch (error) {
-      const currentRequest = lastRequest ?? request;
-
-      await onError(error, currentRequest);
+      await onError(error, currentRequest ?? request);
 
       if (messageGroupId) {
         failedGroupIds.add(messageGroupId);

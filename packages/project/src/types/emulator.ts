@@ -12,6 +12,7 @@ export type EmulatorRequestHandler = (
 export type EmulatorServiceRequest = {
   method: string;
   path: string;
+  query: Record<string, string>;
   headers: Record<string, string>;
   body?: Buffer;
 };

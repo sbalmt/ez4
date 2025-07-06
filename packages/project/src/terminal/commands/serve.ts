@@ -106,7 +106,7 @@ const getRequestService = (emulator: EmulatorServices, request: IncomingMessage,
     request: {
       path: `/${path.join('/')}`,
       headers: getDistinctHeaders(request.headersDistinct),
-      query: searchParams
+      query: Object.fromEntries(searchParams.entries())
     }
   };
 };

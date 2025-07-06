@@ -13,13 +13,13 @@ declare const __EZ4_SCHEMA: ObjectSchema | null;
 declare const __EZ4_CONTEXT: object;
 
 declare function dispatch(event: Service.Event<Database.Incoming<object>>, context: object): Promise<void>;
-declare function handle(changes: StreamChange<object>, context: object): Promise<any>;
+declare function handle(changes: Database.Incoming<object>, context: object): Promise<void>;
 
 /**
  * Entrypoint to handle DynamoDB stream events.
  */
 export async function dbStreamEntryPoint(event: DynamoDBStreamEvent, context: Context): Promise<void> {
-  let lastRequest: StreamChange<object> | undefined | null;
+  let currentRequest: Database.Incoming<object> | undefined;
 
   const request = {
     requestId: context.awsRequestId
@@ -39,17 +39,17 @@ export async function dbStreamEntryPoint(event: DynamoDBStreamEvent, context: Co
         continue;
       }
 
-      lastRequest = {
+      currentRequest = {
         ...request,
         ...change
       };
 
-      await onReady(lastRequest);
+      await onReady(currentRequest);
 
-      await handle(lastRequest, __EZ4_CONTEXT);
+      await handle(currentRequest, __EZ4_CONTEXT);
     }
   } catch (error) {
-    await onError(error, lastRequest ?? request);
+    await onError(error, currentRequest ?? request);
   } finally {
     await onEnd(request);
   }
