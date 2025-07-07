@@ -9,11 +9,21 @@ import { Order } from '@ez4/database';
 
 import { makeParameter } from './common/parameters.js';
 
+type TestTableSchema = {
+  foo: boolean;
+  bar: number;
+  baz: string;
+  qux: {
+    quxFoo: string;
+    quxBar: boolean;
+  };
+};
+
 type TestTableMetadata = {
   engine: PostgresEngine;
   relations: RelationMetadata;
+  schema: TestTableSchema;
   indexes: {};
-  schema: {};
 };
 
 describe('aurora query (select schema)', () => {
@@ -86,7 +96,7 @@ describe('aurora query (select schema)', () => {
       {
         type: SchemaType.Object,
         properties: {
-          foo: {
+          baz: {
             type: SchemaType.String,
             format: 'date'
           }
@@ -94,12 +104,12 @@ describe('aurora query (select schema)', () => {
       },
       {
         select: {
-          foo: true
+          baz: true
         }
       }
     );
 
-    assert.equal(statement, `SELECT to_char("foo", 'YYYY-MM-DD') AS "foo" FROM "ez4-test-select-schema"`);
+    assert.equal(statement, `SELECT to_char("baz", 'YYYY-MM-DD') AS "baz" FROM "ez4-test-select-schema"`);
 
     assert.deepEqual(variables, []);
   });
@@ -109,7 +119,7 @@ describe('aurora query (select schema)', () => {
       {
         type: SchemaType.Object,
         properties: {
-          foo: {
+          baz: {
             type: SchemaType.String,
             format: 'time'
           }
@@ -117,12 +127,12 @@ describe('aurora query (select schema)', () => {
       },
       {
         select: {
-          foo: true
+          baz: true
         }
       }
     );
 
-    assert.equal(statement, `SELECT to_char("foo", 'HH24:MI:SS.MS"Z"') AS "foo" FROM "ez4-test-select-schema"`);
+    assert.equal(statement, `SELECT to_char("baz", 'HH24:MI:SS.MS"Z"') AS "baz" FROM "ez4-test-select-schema"`);
 
     assert.deepEqual(variables, []);
   });
@@ -132,7 +142,7 @@ describe('aurora query (select schema)', () => {
       {
         type: SchemaType.Object,
         properties: {
-          foo: {
+          baz: {
             type: SchemaType.String,
             format: 'date-time'
           }
@@ -140,12 +150,12 @@ describe('aurora query (select schema)', () => {
       },
       {
         select: {
-          foo: true
+          baz: true
         }
       }
     );
 
-    assert.equal(statement, `SELECT to_char("foo", 'YYYY-MM-DD"T"HH24:MI:SS.MS"Z"') AS "foo" FROM "ez4-test-select-schema"`);
+    assert.equal(statement, `SELECT to_char("baz", 'YYYY-MM-DD"T"HH24:MI:SS.MS"Z"') AS "baz" FROM "ez4-test-select-schema"`);
 
     assert.deepEqual(variables, []);
   });
@@ -155,16 +165,16 @@ describe('aurora query (select schema)', () => {
       {
         type: SchemaType.Object,
         properties: {
-          foo: {
+          bar: {
             type: SchemaType.Number
           },
-          bar: {
+          qux: {
             type: SchemaType.Object,
             properties: {
-              barFoo: {
+              quxFoo: {
                 type: SchemaType.String
               },
-              barBar: {
+              quxBar: {
                 type: SchemaType.Boolean
               }
             }
@@ -173,15 +183,15 @@ describe('aurora query (select schema)', () => {
       },
       {
         select: {
-          foo: true,
-          bar: {
-            barBar: true
+          bar: true,
+          qux: {
+            quxBar: true
           }
         }
       }
     );
 
-    assert.equal(statement, `SELECT "foo", json_build_object('barBar', "bar"['barBar']) AS "bar" FROM "ez4-test-select-schema"`);
+    assert.equal(statement, `SELECT "bar", json_build_object('quxBar', "qux"['quxBar']) AS "qux" FROM "ez4-test-select-schema"`);
 
     assert.deepEqual(variables, []);
   });
