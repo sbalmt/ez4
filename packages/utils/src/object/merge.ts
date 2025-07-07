@@ -1,6 +1,6 @@
-import type { AnyObject, IsObject, PartialObject, PartialProperties } from './generics.js';
+import type { AnyObject, IsObject, PartialObject, PartialProperties, Prettify } from './generics.js';
 
-import { isAnyObject } from './check.js';
+import { isAnyObject, isPlainObject } from './check.js';
 
 /**
  * Deep merge options.
@@ -22,18 +22,24 @@ export type MergeOptions<T extends AnyObject> = {
   include?: PartialProperties<T>;
 };
 
-export type MergeResult<T extends AnyObject, O> = O extends { exclude: infer E }
-  ? IsObject<E> extends true
-    ? PartialObject<T, NonNullable<E>, true>
-    : unknown
-  : O extends { include: infer I }
-    ? IsObject<I> extends true
-      ? PartialObject<T, NonNullable<I>, false>
+/**
+ * Given the `deepMerge` inferred types, it produces a new type matching the deep merge result type.
+ */
+export type MergeResult<T extends AnyObject, O extends MergeOptions<T>> = Prettify<
+  O extends { exclude: infer E }
+    ? IsObject<E> extends true
+      ? PartialObject<T, NonNullable<E>, false>
       : unknown
-    : T;
+    : O extends { include: infer I }
+      ? IsObject<I> extends true
+        ? PartialObject<T, NonNullable<I>>
+        : unknown
+      : T
+>;
 
 /**
- * Merge into the `target` object the given `source` object and generate a new one according to the given options.
+ * Merge into the `target` object the given `source` object and generate a new one according to the
+ * given options.
  *
  * @param target Target object.
  * @param source Source object.
@@ -67,11 +73,7 @@ export const deepMerge = <T extends AnyObject, S extends AnyObject, O extends Me
     const targetValue = target[key];
     const sourceValue = source[key];
 
-    if (targetValue instanceof Function || sourceValue instanceof Function) {
-      continue;
-    }
-
-    if (isAnyObject(targetValue) && isAnyObject(sourceValue)) {
+    if (isPlainObject(targetValue) && isPlainObject(sourceValue)) {
       if (depth > 0) {
         object[key] = deepMerge(targetValue, sourceValue, {
           ...(isAnyObject(keyState) && (isInclude ? { include: keyState } : { exclude: keyState })),

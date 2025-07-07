@@ -16,11 +16,9 @@ export declare class Sns extends Notification.Service<MessageRequest> {
     {
       listener: typeof notificationListener;
       handler: typeof messageHandlerA;
-      concurrency: 2;
     },
     {
       handler: typeof messageHandlerB;
-      concurrency: 4;
     },
     {
       service: Environment.Service<Sqs>;

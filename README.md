@@ -42,8 +42,8 @@ All components provide a common interface to handle the real resource properties
 
 ## Requirements
 
-- TypeScript 5.5+
-- NodeJS 20.15+
+- TypeScript 5.8+
+- NodeJS 22.7+
 
 ## License
 

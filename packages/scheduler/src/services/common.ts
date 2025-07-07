@@ -9,7 +9,7 @@ export interface CronEvent {}
 /**
  * Incoming event.
  */
-export type CronIncoming<T extends CronEvent> = {
+export type CronIncoming<T extends CronEvent | null> = {
   /**
    * Request Id.
    */
@@ -24,7 +24,7 @@ export type CronIncoming<T extends CronEvent> = {
 /**
  * Event listener.
  */
-export type CronListener<T extends CronEvent> = (
+export type CronListener<T extends CronEvent | null> = (
   event: Service.Event<CronIncoming<T>>,
   context: Service.Context<Cron.Service>
 ) => Promise<void> | void;
@@ -32,7 +32,7 @@ export type CronListener<T extends CronEvent> = (
 /**
  * Event handler.
  */
-export type CronHandler<T extends CronEvent> = (
+export type CronHandler<T extends CronEvent | null> = (
   request: CronIncoming<T>,
   context: Service.Context<Cron.Service<any>>
 ) => Promise<void> | void;

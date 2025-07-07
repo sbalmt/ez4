@@ -12,6 +12,14 @@ Create a `local.env` following the contents of `example.env` file in the example
 npm install
 ```
 
+#### Emulate
+
+```sh
+npm run serve
+```
+
+> This action will run a local version of the project.
+
 #### Deploy
 
 ```sh

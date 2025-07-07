@@ -1,0 +1,61 @@
+{
+  "name": "@ez4/aws-queue",
+  "description": "EZ4: Self-managed AWS Simple Queue provider",
+  "version": "0.22.0",
+  "author": "Silas B.",
+  "license": "MIT",
+  "type": "module",
+  "keywords": [
+    "ez4"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/sbalmt/ez4.git",
+    "directory": "providers/aws/aws-queue"
+  },
+  "engines": {
+    "node": ">=22.7"
+  },
+  "exports": {
+    ".": {
+      "types": "./dist/main.d.ts",
+      "require": "./dist/main.cjs",
+      "import": "./dist/main.mjs"
+    },
+    "./client": {
+      "types": "./dist/client.d.ts",
+      "require": "./dist/client.cjs",
+      "import": "./dist/client.mjs"
+    }
+  },
+  "workspaces": [
+    "packages/*"
+  ],
+  "scripts": {
+    "clean": "rm -f *.tsbuildinfo && rm -rf dist/*",
+    "build": "tsc -p tsconfig.json && node tools/bundler.mjs",
+    "test": "npm run test:types && node --env-file ../../../local.env --test --import ../../../tools/tsnode.mjs test/*.spec.ts",
+    "test:only": "npm run test:types && node --env-file ../../../local.env --test-only --test --import ../../../tools/tsnode.mjs test/*.spec.ts",
+    "test:types": "npm run build && tsc -p tsconfig.test.json",
+    "local:publish": "npm run build && npm run clean:registry && npm publish --registry http://localhost:4873",
+    "clean:registry": "rm -rf ../../../.registry/@ez4/aws-queue",
+    "live:publish": "npm run test && npm publish --access public"
+  },
+  "devDependencies": {
+    "@types/aws-lambda": "^8.10.147"
+  },
+  "dependencies": {
+    "@aws-sdk/client-sqs": "^3.758.0",
+    "@ez4/aws-common": "^0.22.0",
+    "@ez4/aws-function": "^0.22.0",
+    "@ez4/aws-identity": "^0.22.0",
+    "@ez4/aws-logs": "^0.22.0",
+    "@ez4/project": "^0.22.0",
+    "@ez4/queue": "^0.22.0",
+    "@ez4/schema": "^0.22.0",
+    "@ez4/stateful": "^0.22.0",
+    "@ez4/transform": "^0.22.0",
+    "@ez4/validator": "^0.22.0",
+    "@ez4/utils": "^0.22.0"
+  }
+}

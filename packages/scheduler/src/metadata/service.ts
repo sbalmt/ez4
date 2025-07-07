@@ -16,9 +16,8 @@ import {
 
 import { isModelProperty } from '@ez4/reflection';
 
-import { ServiceType, DynamicExpression } from '../types/service.js';
+import { ServiceType, DynamicExpression, isDynamicCronService } from '../types/service.js';
 import { IncompleteServiceError, IncorrectServiceError } from '../errors/service.js';
-import { IncorrectHandlerError } from '../errors/handler.js';
 import { getCronTarget } from './target.js';
 import { isCronService } from './utils.js';
 import { getCronEvent } from './event.js';
@@ -159,11 +158,7 @@ const isValidService = (type: Incomplete<CronService>): type is CronService => {
 const validateDynamicProperties = (parent: TypeModel, service: CronService) => {
   const errorList = [];
 
-  if (!service.schema) {
-    if (service.target.handler.input) {
-      errorList.push(new IncorrectHandlerError([service.target.handler.input], parent.file));
-    }
-  } else {
+  if (isDynamicCronService(service)) {
     const allProperties: (keyof CronService)[] = ['disabled', 'timezone', 'startDate', 'endDate'];
     const allIncorrect = [];
 

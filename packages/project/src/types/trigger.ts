@@ -1,13 +1,14 @@
 import type { ApplyResult, EntryState, EntryStates, StepState } from '@ez4/stateful';
 import type { EveryType, SourceMap, TypeClass, TypeObject } from '@ez4/reflection';
+import type { EmulatorService, EmulateServiceEvent } from './emulator.js';
 import type { IdentityAccount, IdentityGrant } from './identity.js';
+import type { DeployOptions, DestroyOptions } from './options.js';
 import type { ServiceMetadata, ExtraSource } from './service.js';
-import type { DeployOptions, StateOptions } from './options.js';
 import type { MetadataResult } from './metadata.js';
 
 export type Trigger = SyncEvent | AsyncEvent;
 
-export type SyncEventResult<T> = T | null;
+export type SyncEventResult<T> = T | null | undefined;
 export type AsyncEventResult<T> = SyncEventResult<T> | Promise<SyncEventResult<T>>;
 
 export type SyncTriggerResult<T extends keyof SyncEvent> = ReturnType<SyncEvent[T]>;
@@ -22,6 +23,7 @@ export type SyncEvent = {
   'reflection:typeObject': (type: TypeObject) => SyncEventResult<EveryType>;
   'metadata:getServices': (reflection: SourceMap) => SyncEventResult<MetadataResult>;
   'metadata:getLinkedService': (type: TypeClass) => SyncEventResult<string>;
+  'emulator:getServices': (event: EmulateServiceEvent) => SyncEventResult<EmulatorService>;
 };
 
 export type AsyncEvent = {
@@ -91,7 +93,7 @@ export type DeployEvent = {
 };
 
 export type StateEvent = {
-  options: StateOptions;
+  options: DestroyOptions;
   contents?: string;
   path: string;
 };

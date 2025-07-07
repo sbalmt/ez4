@@ -9,13 +9,10 @@ import { updateEvent } from '../repository.js';
 /**
  * Handle all schedule events.
  */
-export async function scheduleEventHandler(
-  request: Cron.Incoming<EventRequest>,
-  context: Service.Context<EventScheduler>
-): Promise<void> {
+export async function scheduleEventHandler(request: Cron.Incoming<EventRequest>, context: Service.Context<EventScheduler>): Promise<void> {
   const { eventDb } = context;
 
-  console.log('Schedule executed.', JSON.stringify(request));
+  console.log('Schedule executed.', request);
 
   await updateEvent(eventDb, {
     id: request.event.id,

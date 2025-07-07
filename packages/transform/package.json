@@ -1,7 +1,7 @@
 {
   "name": "@ez4/transform",
   "description": "EZ4: Transform data according to a given schema",
-  "version": "0.21.0",
+  "version": "0.22.0",
   "author": "Silas B.",
   "license": "MIT",
   "type": "module",
@@ -14,7 +14,7 @@
     "directory": "packages/transform"
   },
   "engines": {
-    "node": ">=22.3.0"
+    "node": ">=22.7"
   },
   "exports": {
     "types": "./dist/main.d.ts",
@@ -35,7 +35,7 @@
     "live:publish": "npm run test && npm publish --access public"
   },
   "dependencies": {
-    "@ez4/schema": "^0.21.0",
-    "@ez4/utils": "^0.21.0"
+    "@ez4/schema": "^0.22.0",
+    "@ez4/utils": "^0.22.0"
   }
 }

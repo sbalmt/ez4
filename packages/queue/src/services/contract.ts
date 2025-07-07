@@ -106,7 +106,7 @@ export namespace Queue {
     /**
      * Service client.
      */
-    client: Client<T>;
+    client: Client<Service<T>>;
   }
 
   /**

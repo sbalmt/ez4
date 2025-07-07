@@ -7,7 +7,7 @@ export declare class TestScheduler extends Cron.Service {
 }
 
 // Concrete class is not allowed.
-class TestTarget implements Cron.Target {
+class TestTarget implements Cron.Target<null> {
   handler!: typeof targetHandler;
 }
 

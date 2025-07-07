@@ -19,8 +19,13 @@ export declare class Db extends Database.Service {
       name: 'table';
       schema: TableSchema;
       indexes: {
-        id: Index.Primary; // Partition key only
-        'enum:date': Index.Secondary; // Partition and Sort key
+        // Partition key
+        // Use: 'column_1:column_2' to create a compound partition key.
+        id: Index.Primary;
+
+        // Partition and Sort key (Secondary indexes aren't unique).
+        // Use: 'column' to create omitting the sort key.
+        'enum:date': Index.Secondary;
       };
     }
   ];

@@ -17,7 +17,8 @@ import type {
   IsNullable,
   IsObjectEmpty,
   IsObject,
-  IsArray
+  IsArray,
+  Prettify
 } from '@ez4/utils';
 
 /**
@@ -26,13 +27,13 @@ import type {
 export namespace Query {
   export type InsertOneInput<S extends AnyObject, T extends TableMetadata> = {
     select?: StrictSelectInput<S, T>;
-    data: InsertDataInput<T>;
+    data: Prettify<InsertDataInput<T>>;
   };
 
   export type UpdateOneInput<S extends AnyObject, T extends TableMetadata> = {
     select?: StrictSelectInput<S, T>;
     include?: StrictIncludeInput<S, T>;
-    data: OptionalObject<UpdateDataInput<T>>;
+    data: Prettify<OptionalObject<UpdateDataInput<T>>>;
     where: WhereInput<T, true>;
   };
 
@@ -45,8 +46,8 @@ export namespace Query {
   export type UpsertOneInput<S extends AnyObject, T extends TableMetadata> = {
     select?: StrictSelectInput<S, T>;
     include?: StrictIncludeInput<S, T>;
-    update: OptionalObject<UpdateDataInput<T>>;
-    insert: InsertDataInput<T>;
+    update: Prettify<OptionalObject<UpdateDataInput<T>>>;
+    insert: Prettify<InsertDataInput<T>>;
     where: WhereInput<T, true>;
   };
 
@@ -57,13 +58,13 @@ export namespace Query {
   };
 
   export type InsertManyInput<T extends TableMetadata> = {
-    data: T['schema'][];
+    data: Prettify<T['schema']>[];
   };
 
   export type UpdateManyInput<S extends AnyObject, T extends TableMetadata> = PaginationUtils.End<T['engine']> & {
     select?: StrictSelectInput<S, T>;
     include?: StrictIncludeInput<S, T>;
-    data: OptionalObject<UpdateDataInput<T>>;
+    data: Prettify<OptionalObject<UpdateDataInput<T>>>;
     where?: WhereInput<T>;
   };
 
@@ -106,7 +107,7 @@ export namespace Query {
 
   export type Record<S extends AnyObject, T extends TableMetadata> = S extends never
     ? undefined
-    : PartialObject<SelectFields<T['schema'], T['relations']>, S, false>;
+    : PartialObject<SelectFields<T['schema'], T['relations']>, S>;
 
   export type SelectInput<T extends TableMetadata> = PartialProperties<SelectFields<T['schema'], T['relations']>>;
 
@@ -115,16 +116,15 @@ export namespace Query {
     FlatObject<SelectFields<T['schema'], T['relations']>>
   >;
 
-  export type InsertDataInput<T extends TableMetadata> = Omit<
-    IsObjectEmpty<T['relations']['changes']> extends true ? T['schema'] : T['schema'] & T['relations']['changes'],
-    T['relations']['indexes']
-  >;
+  export type InsertDataInput<T extends TableMetadata> =
+    IsObjectEmpty<T['relations']['changes']> extends false
+      ? Omit<T['schema'] & T['relations']['changes'], T['relations']['indexes']>
+      : T['schema'];
 
   export type UpdateDataInput<T extends TableMetadata> = AtomicDataInput<
-    Omit<
-      IsObjectEmpty<T['relations']['changes']> extends true ? T['schema'] : T['schema'] & FlatObject<T['relations']['changes']>,
-      T['relations']['indexes']
-    >
+    IsObjectEmpty<T['relations']['changes']> extends false
+      ? Omit<T['schema'] & FlatObject<T['relations']['changes']>, T['relations']['indexes']>
+      : T['schema']
   >;
 
   export type OrderInput<T extends TableMetadata> = OrderUtils.Input<T>;
@@ -145,11 +145,13 @@ export namespace Query {
     order?: StrictIncludeOrder<V>;
   };
 
-  export type WhereInput<T extends TableMetadata, I extends boolean = false> = WhereInputFilters<T, I extends true ? T['indexes'] : {}> & {
-    NOT?: WhereInput<T>;
-    AND?: WhereInput<T>[];
-    OR?: WhereInput<T>[];
-  };
+  export type WhereInput<T extends TableMetadata, I extends boolean = false> = Prettify<
+    WhereInputFilters<T, I extends true ? T['indexes'] : {}> & {
+      NOT?: WhereInput<T>;
+      AND?: WhereInput<T>[];
+      OR?: WhereInput<T>[];
+    }
+  >;
 
   type SelectFields<T extends Database.Schema, R extends RelationMetadata> =
     IsObjectEmpty<R['selects']> extends true ? T : T & R['selects'];
@@ -207,7 +209,7 @@ export namespace Query {
     IsObjectEmpty<I> extends true ? WhereObjectField<V, T['engine']> : WhereRequiredFilters<V, I> & WhereOptionalFilters<V, T, I>;
 
   type WhereInputFilters<T extends TableMetadata, I extends Database.Indexes> = WhereCommonFilters<T['schema'], T, I> &
-    WhereRelationFilters<T['relations']['filters'], T['engine']>;
+    (IsObjectEmpty<T['relations']['filters']> extends false ? WhereRelationFilters<T['relations']['filters'], T['engine']> : {});
 
   export type WhereOperators = keyof (WhereNegate<any> &
     WhereEqual<any> &

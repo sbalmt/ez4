@@ -1,4 +1,4 @@
-import type { SourceMap, TypeObject } from '@ez4/reflection';
+import type { SourceMap } from '@ez4/reflection';
 
 import { resolveReflectionMetadata, createCompilerHost, createCompilerOptions } from '@ez4/reflection';
 import { triggerAllSync } from '@ez4/project/library';
@@ -16,7 +16,7 @@ export const getReflection = (sourceFiles: string[]): SourceMap => {
     options,
     rootNames: sourceFiles,
     host: createCompilerHost(options, {
-      onResolveFileName: (fileName: string) => {
+      onResolveFileName: (fileName) => {
         return triggerAllSync('reflection:loadFile', (handler) => handler(fileName)) ?? fileName;
       }
     })
@@ -24,11 +24,11 @@ export const getReflection = (sourceFiles: string[]): SourceMap => {
 
   const metadata = resolveReflectionMetadata(program, {
     resolverOptions: {
-      includePath: true,
-      ignoreMethod: true
+      ignoreMethod: true,
+      includePath: true
     },
     resolverEvents: {
-      onTypeObject: (type: TypeObject) => {
+      onTypeObject: (type) => {
         return triggerAllSync('reflection:typeObject', (handler) => handler(type)) ?? type;
       }
     }
