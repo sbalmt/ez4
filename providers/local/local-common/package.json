@@ -31,8 +31,8 @@
   "scripts": {
     "clean": "rm -f *.tsbuildinfo && rm -rf dist/*",
     "build": "tsc -p tsconfig.json && node tools/bundler.mjs",
-    "test": "npm run test:types && node --test --import ../../tools/tsnode.mjs test/*.spec.ts",
-    "test:only": "npm run test:types && node --test-only --test --import ../../tools/tsnode.mjs test/*.spec.ts",
+    "test": "npm run test:types && node --test --import ../../../tools/tsnode.mjs test/*.spec.ts",
+    "test:only": "npm run test:types && node --test-only --test --import ../../../tools/tsnode.mjs test/*.spec.ts",
     "test:types": "npm run build && tsc -p tsconfig.test.json",
     "local:publish": "npm run build && npm run clean:registry && npm publish --registry http://localhost:4873",
     "clean:registry": "rm -rf ../../../.registry/@ez4/local-common",
