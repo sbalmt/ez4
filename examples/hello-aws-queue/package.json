@@ -25,10 +25,10 @@
     "serve": "ez4 serve -e local.env -p ez4.project.js"
   },
   "dependencies": {
-    "@ez4/aws-queue": "^0.21.0",
-    "@ez4/common": "^0.21.0",
-    "@ez4/local-queue": "^0.21.0",
-    "@ez4/queue": "^0.21.0",
-    "@ez4/project": "^0.21.0"
+    "@ez4/aws-queue": "^0.22.0",
+    "@ez4/common": "^0.22.0",
+    "@ez4/local-queue": "^0.22.0",
+    "@ez4/queue": "^0.22.0",
+    "@ez4/project": "^0.22.0"
   }
 }

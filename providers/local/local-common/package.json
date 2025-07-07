@@ -1,7 +1,7 @@
 {
   "name": "@ez4/local-common",
   "description": "EZ4: Local common components to use across local emulator packages.",
-  "version": "0.21.0",
+  "version": "0.22.0",
   "author": "Silas B.",
   "license": "MIT",
   "type": "module",
@@ -39,6 +39,6 @@
     "live:publish": "npm run test && npm publish --access public"
   },
   "dependencies": {
-    "@ez4/project": "^0.21.0"
+    "@ez4/project": "^0.22.0"
   }
 }

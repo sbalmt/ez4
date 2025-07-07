@@ -19,11 +19,11 @@
   },
   "dependencies": {
     "hello-aws-notification": "^0.0.0",
-    "@ez4/aws-notification": "^0.21.0",
-    "@ez4/aws-queue": "^0.21.0",
-    "@ez4/common": "^0.21.0",
-    "@ez4/notification": "^0.21.0",
-    "@ez4/queue": "^0.21.0",
-    "@ez4/project": "^0.21.0"
+    "@ez4/aws-notification": "^0.22.0",
+    "@ez4/aws-queue": "^0.22.0",
+    "@ez4/common": "^0.22.0",
+    "@ez4/notification": "^0.22.0",
+    "@ez4/queue": "^0.22.0",
+    "@ez4/project": "^0.22.0"
   }
 }
