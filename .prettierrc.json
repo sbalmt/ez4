@@ -1,6 +1,7 @@
 {
   "endOfLine": "lf",
   "trailingComma": "none",
+  "objectWrap": "preserve",
   "singleQuote": true,
   "printWidth": 140,
   "tabWidth": 2,
