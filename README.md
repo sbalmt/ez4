@@ -30,15 +30,15 @@ Check out some examples to get started with.
 
 All components provide a common interface to handle the real resource properties and store their state between deployments.
 
-| Components                               | AWS Providers                                                                  |
-| ---------------------------------------- | ------------------------------------------------------------------------------ |
-| [Gateway](./packages/gateway/)           | [AWS API Gateway](./packages/aws-gateway/)                                     |
-| [Distribution](./packages/distribution/) | [AWS CloudFront](./packages/aws-cloudfront/)                                   |
-| [Database](./packages/database/)         | [AWS DynamoDB](./packages/aws-dynamodb/), [AWS Aurora](./packages/aws-aurora/) |
-| [Scheduler](./packages/scheduler/)       | [AWS Scheduler](./packages/aws-scheduler/)                                     |
-| [Storage](./packages/storage/)           | [AWS Bucket](./packages/aws-bucket/)                                           |
-| [Notification](./packages/notification/) | [AWS Notification](./packages/aws-notification/)                               |
-| [Queue](./packages/queue/)               | [AWS Queue](./packages/aws-queue/)                                             |
+| Components                               | AWS Providers                                                                            |
+| ---------------------------------------- | ---------------------------------------------------------------------------------------- |
+| [Gateway](./packages/gateway/)           | [AWS API Gateway](./providers/aws/aws-gateway/)                                          |
+| [Distribution](./packages/distribution/) | [AWS CloudFront](./providers/aws/aws-cloudfront/)                                        |
+| [Database](./packages/database/)         | [AWS DynamoDB](./providers/aws/aws-dynamodb/), [AWS Aurora](./providers/aws/aws-aurora/) |
+| [Scheduler](./packages/scheduler/)       | [AWS Scheduler](./providers/aws/aws-scheduler/)                                          |
+| [Storage](./packages/storage/)           | [AWS Bucket](./providers/aws/aws-bucket/)                                                |
+| [Notification](./packages/notification/) | [AWS Notification](./providers/aws/aws-notification/)                                    |
+| [Queue](./packages/queue/)               | [AWS Queue](./providers/aws/aws-queue/)                                                  |
 
 ## Requirements
 
