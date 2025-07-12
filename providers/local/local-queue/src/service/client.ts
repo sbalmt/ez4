@@ -11,7 +11,7 @@ export const createQueueClient = <T extends Queue.Service<any>>(
   serveOptions: ServeOptions
 ): Client<T> => {
   const queueIdentifier = getServiceName(serviceName, serveOptions);
-  const queueHost = `http://${serveOptions.host}/${queueIdentifier}`;
+  const queueHost = `http://${serveOptions.serviceHost}/${queueIdentifier}`;
 
   return new (class {
     async sendMessage(message: T['schema']) {

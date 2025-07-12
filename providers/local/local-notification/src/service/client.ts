@@ -11,7 +11,7 @@ export const createNotificationClient = <T extends Notification.Message = any>(
   serveOptions: ServeOptions
 ): Client<T> => {
   const notificationIdentifier = getServiceName(serviceName, serveOptions);
-  const notificationHost = `http://${serveOptions.host}/${notificationIdentifier}`;
+  const notificationHost = `http://${serveOptions.serviceHost}/${notificationIdentifier}`;
 
   return new (class {
     async sendMessage(message: T) {
