@@ -1,9 +1,8 @@
 import type { PgRelationRepository } from '@ez4/pgclient/library';
 
+import { getTableName } from '@ez4/pgclient/library';
 import { toSnakeCase } from '@ez4/utils';
 import { Index } from '@ez4/database';
-
-import { getTableName } from '../../utils/tables.js';
 
 export const prepareCreateRelations = (table: string, relations: PgRelationRepository) => {
   const statements = [];

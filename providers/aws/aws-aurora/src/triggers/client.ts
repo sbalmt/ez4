@@ -1,12 +1,11 @@
 import type { DeployOptions, EventContext, ExtraSource } from '@ez4/project/library';
 
+import { getDatabaseName, getTableRepository } from '@ez4/pgclient/library';
 import { getDefinitionName } from '@ez4/project/library';
-import { getTableRepository } from '@ez4/pgclient/library';
 import { DatabaseService } from '@ez4/database/library';
 
 import { ClusterState } from '../cluster/types.js';
 import { getClusterState } from '../cluster/utils.js';
-import { getDatabaseName } from './utils.js';
 
 export const prepareLinkedClient = (context: EventContext, service: DatabaseService, options: DeployOptions): ExtraSource => {
   const clusterState = getClusterState(context, service.name, options);

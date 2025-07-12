@@ -2,6 +2,7 @@ export * from './types/repository.js';
 export * from './types/engine.js';
 
 export * from './utils/repository.js';
+export * from './utils/resources.js';
 export * from './utils/schema.js';
 
 export * from './common/insert.js';

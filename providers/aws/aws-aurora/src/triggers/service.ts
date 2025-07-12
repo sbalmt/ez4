@@ -1,12 +1,12 @@
 import type { PrepareResourceEvent, ServiceEvent } from '@ez4/project/library';
 
-import { getTableRepository } from '@ez4/pgclient/library';
+import { getDatabaseName, getTableRepository } from '@ez4/pgclient/library';
 import { PaginationMode } from '@ez4/database';
 
 import { createCluster } from '../cluster/service.js';
 import { createInstance } from '../instance/service.js';
 import { createMigration } from '../migration/service.js';
-import { getClusterName, getDatabaseName, getInstanceName, isAuroraService } from './utils.js';
+import { getClusterName, getInstanceName, isAuroraService } from './utils.js';
 import { UnsupportedPaginationModeError } from './errors.js';
 import { prepareLinkedClient } from './client.js';
 
