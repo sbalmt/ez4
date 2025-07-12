@@ -14,13 +14,17 @@ import { getEmulators } from '../../library/emulator.js';
 import { Logger } from '../../utils/logger.js';
 
 export const serveCommand = async (project: ProjectOptions) => {
-  const serviceHost = project.serve?.host ?? 'localhost';
-  const servicePort = project.serve?.port ?? 3734;
+  const serveOptions = project.serveOptions;
+
+  const serviceHost = serveOptions?.localHost ?? 'localhost';
+  const servicePort = serveOptions?.localPort ?? 3734;
 
   const options: ServeOptions = {
     resourcePrefix: project.prefix ?? 'ez4',
     projectName: toKebabCase(project.projectName),
-    host: `${serviceHost}:${servicePort}`
+    providerOptions: serveOptions?.providerOptions ?? {},
+    serviceHost: `${serviceHost}:${servicePort}`,
+    debug: project.debugMode
   };
 
   await Logger.execute('Loading providers', () => {
@@ -82,13 +86,13 @@ export const serveCommand = async (project: ProjectOptions) => {
   });
 
   server.on('error', () => {
-    Logger.error(`Unable to serve project ${project.projectName} at http://${options.host}`);
+    Logger.error(`❌ Unable to serve project ${project.projectName} at http://${options.serviceHost}`);
   });
 
   server.listen(servicePort, serviceHost, async () => {
     await bootstrapServices(emulators, options);
 
-    Logger.log(`Project ${project.projectName} up and running!`);
+    Logger.log(`🚀 Project ${project.projectName} up and running!`);
   });
 };
 
@@ -97,7 +101,7 @@ const getRequestService = (emulator: EmulatorServices, request: IncomingMessage,
     return undefined;
   }
 
-  const { pathname, searchParams } = new URL(request.url, `http://${options.host}`);
+  const { pathname, searchParams } = new URL(request.url, `http://${options.serviceHost}`);
   const [, identifier, ...path] = pathname.split('/');
 
   return {
@@ -157,7 +161,7 @@ const bootstrapServices = async (emulators: EmulatorServices, options: ServeOpti
     }
 
     if (emulator.requestHandler) {
-      Logger.log(`Serving ${emulator.type} [${emulator.name}] at http://${options.host}/${identifier}`);
+      Logger.log(`🌐 Serving ${emulator.type} [${emulator.name}] at http://${options.serviceHost}/${identifier}`);
     }
   }
 };
