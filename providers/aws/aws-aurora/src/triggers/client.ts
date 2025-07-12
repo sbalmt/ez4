@@ -1,11 +1,11 @@
 import type { DeployOptions, EventContext, ExtraSource } from '@ez4/project/library';
 
 import { getDefinitionName } from '@ez4/project/library';
+import { getTableRepository } from '@ez4/pgclient/library';
 import { DatabaseService } from '@ez4/database/library';
 
 import { ClusterState } from '../cluster/types.js';
 import { getClusterState } from '../cluster/utils.js';
-import { getRepository } from './repository.js';
 import { getDatabaseName } from './utils.js';
 
 export const prepareLinkedClient = (context: EventContext, service: DatabaseService, options: DeployOptions): ExtraSource => {
@@ -18,7 +18,7 @@ export const prepareLinkedClient = (context: EventContext, service: DatabaseServ
 
   const connection = `{ database: "${database}", resourceArn: ${resourceArn}, secretArn: ${secretArn} }`;
 
-  const repository = JSON.stringify(getRepository(service));
+  const repository = JSON.stringify(getTableRepository(service));
 
   const settings = JSON.stringify({
     debug: options.debug

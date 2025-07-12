@@ -1,11 +1,11 @@
+import type { PgIndexRepository } from '@ez4/pgclient/library';
 import type { ObjectSchema } from '@ez4/schema';
-import type { RepositoryIndexes } from '../../types/repository.js';
 
 import { joinString, toSnakeCase } from '@ez4/utils';
 import { SchemaType } from '@ez4/schema';
 import { Index } from '@ez4/database';
 
-export const prepareCreateIndexes = (table: string, schema: ObjectSchema, indexes: RepositoryIndexes, concurrently = false) => {
+export const prepareCreateIndexes = (table: string, schema: ObjectSchema, indexes: PgIndexRepository, concurrently = false) => {
   const statements = [];
 
   for (const indexName in indexes) {
@@ -56,14 +56,14 @@ export const prepareCreateIndexes = (table: string, schema: ObjectSchema, indexe
 export const prepareUpdateIndexes = (
   table: string,
   schema: ObjectSchema,
-  toCreate: RepositoryIndexes,
-  toRemove: RepositoryIndexes,
+  toCreate: PgIndexRepository,
+  toRemove: PgIndexRepository,
   concurrently = false
 ) => {
   return [...prepareDeleteIndexes(table, toRemove, concurrently), ...prepareCreateIndexes(table, schema, toCreate, concurrently)];
 };
 
-export const prepareDeleteIndexes = (table: string, indexes: RepositoryIndexes, concurrently = false) => {
+export const prepareDeleteIndexes = (table: string, indexes: PgIndexRepository, concurrently = false) => {
   const statements = [];
 
   for (const indexName in indexes) {

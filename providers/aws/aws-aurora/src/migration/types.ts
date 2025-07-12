@@ -1,14 +1,14 @@
-import type { Arn } from '@ez4/aws-common';
+import type { PgTableRepository } from '@ez4/pgclient/library';
 import type { EntryState } from '@ez4/stateful';
-import type { Repository } from '../types/repository.js';
+import type { Arn } from '@ez4/aws-common';
 
 export const MigrationServiceName = 'AWS:Aurora/Migration';
 
 export const MigrationServiceType = 'aws:aurora.migration';
 
 export type MigrationParameters = {
+  repository: PgTableRepository;
   database: string;
-  repository: Repository;
 };
 
 export type MigrationResult = {

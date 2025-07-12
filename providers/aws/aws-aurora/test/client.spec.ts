@@ -1,6 +1,6 @@
 import type { Database, Client as DbClient } from '@ez4/database';
+import type { PgTableRepository } from '@ez4/pgclient/library';
 import type { PostgresEngine } from '@ez4/aws-aurora/client';
-import type { Repository } from '@ez4/aws-aurora';
 import type { EntryStates } from '@ez4/stateful';
 
 import { ok, equal, deepEqual } from 'node:assert/strict';
@@ -43,7 +43,7 @@ describe('aurora client', () => {
   let clusterId: string | undefined;
   let dbClient: DbClient<Test>;
 
-  const repository: Repository = {
+  const repository: PgTableRepository = {
     testTable: {
       name: 'test_table',
       relations: {},
@@ -117,13 +117,14 @@ describe('aurora client', () => {
     ok(resultResource && isClusterState(resultResource));
     ok(resultResource.result);
 
-    const configuration = {
-      database: migrationState.parameters.database,
-      resourceArn: resultResource.result.clusterArn,
-      secretArn: resultResource.result.secretArn!
-    };
-
-    dbClient = Client.make(configuration, repository);
+    dbClient = Client.make({
+      repository,
+      connection: {
+        database: migrationState.parameters.database,
+        resourceArn: resultResource.result.clusterArn,
+        secretArn: resultResource.result.secretArn!
+      }
+    });
 
     lastState = result;
 

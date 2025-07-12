@@ -1,5 +1,5 @@
 import type { AnySchema, NumberSchema, StringSchema } from '@ez4/schema';
-import type { RepositoryIndexes } from '../../main.js';
+import type { PgIndexRepository } from '@ez4/pgclient/library';
 
 import { SchemaType, isScalarSchema, isStringSchema, isObjectSchema, isArraySchema, isTupleSchema, isEnumSchema } from '@ez4/schema';
 
@@ -8,7 +8,7 @@ import { Index } from '@ez4/database';
 
 export type ColumnSchema = Record<string, AnySchema>;
 
-export const prepareCreateColumns = (table: string, indexes: RepositoryIndexes, columns: ColumnSchema) => {
+export const prepareCreateColumns = (table: string, indexes: PgIndexRepository, columns: ColumnSchema) => {
   const allStatements = [];
 
   for (const columnName in columns) {
@@ -37,7 +37,7 @@ export const prepareCreateColumns = (table: string, indexes: RepositoryIndexes, 
   return allStatements;
 };
 
-export const prepareUpdateColumns = (table: string, indexes: RepositoryIndexes, columns: ColumnSchema) => {
+export const prepareUpdateColumns = (table: string, indexes: PgIndexRepository, columns: ColumnSchema) => {
   const allStatements = [];
 
   for (const columnName in columns) {

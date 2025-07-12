@@ -1,5 +1,4 @@
 export * from './triggers/register.js';
-export * from './types/repository.js';
 
 export * from './cluster/service.js';
 export * from './cluster/types.js';
