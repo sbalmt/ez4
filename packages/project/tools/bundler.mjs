@@ -1,7 +1,7 @@
 import { bundlePackage } from '../../../tools/esbuild.mjs';
 
 // CLI
-bundlePackage('src/cli.ts', 'bin/cli.mjs', 'esm');
+bundlePackage('src/cli.ts', 'bin/cli.mjs', 'esm', 'node12');
 
 // CLI components.
 bundlePackage('src/terminal/application.ts', 'bin/application.mjs', 'esm');
