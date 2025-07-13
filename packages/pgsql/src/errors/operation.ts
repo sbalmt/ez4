@@ -19,3 +19,9 @@ export class InvalidOperandError extends Error {
     }
   }
 }
+
+export class InvalidAtomicOperation extends Error {
+  constructor(public columnName: string) {
+    super(`Column ${columnName} doesn't support atomic operations.`);
+  }
+}

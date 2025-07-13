@@ -1,10 +1,10 @@
-import type { ObjectSchema } from '@ez4/schema';
+import type { AnySchema, ObjectSchema } from '@ez4/schema';
 import type { SqlBuilderOptions, SqlBuilderReferences } from '../builder.js';
 import type { SqlResultColumn, SqlResultRecord } from '../types/results.js';
 import type { SqlSourceWithResults } from '../types/source.js';
 import type { SqlFilters, SqlRecord } from '../types/common.js';
 
-import { isDynamicObjectSchema, IsNullishSchema, isObjectSchema } from '@ez4/schema';
+import { isDynamicObjectSchema, IsNullishSchema, isObjectSchema, SchemaType } from '@ez4/schema';
 import { isPlainObject } from '@ez4/utils';
 
 import { SqlRaw, SqlRawOperation } from '../types/raw.js';
@@ -18,6 +18,7 @@ import { escapeSqlName } from '../utils/escape.js';
 import { SqlWhereClause } from '../types/where.js';
 import { SqlSource } from '../types/source.js';
 import { SqlSelectStatement } from './select.js';
+import { InvalidAtomicOperation } from '../main.js';
 
 type SqlUpdateContext = {
   options: SqlBuilderOptions;
@@ -208,8 +209,10 @@ const getUpdateColumns = (source: SqlSource, record: SqlRecord, schema: ObjectSc
 
     if (value instanceof SqlSelectStatement) {
       const [selectStatement, selectVariables] = value.build();
+
       pushUpdate(fieldName, `(${selectStatement})`);
       variables.push(...selectVariables);
+
       continue;
     }
 
@@ -246,13 +249,16 @@ const getUpdateColumns = (source: SqlSource, record: SqlRecord, schema: ObjectSc
     } else {
       const columnName = mergeSqlJsonPath(fieldName, parent);
 
-      if (json) {
-        pushUpdate(
-          fieldName,
-          `(${coalesce ? `COALESCE(${columnName}, '0')::int` : `${columnName}::int`} ${value.operator} :${fieldIndex}::int)::text::jsonb`
-        );
-      } else {
+      if (!json) {
         pushUpdate(fieldName, `(${columnName} ${value.operator} :${fieldIndex})`);
+      } else {
+        const rhsOperand = getOperandColumn(fieldSchema, `:${fieldIndex}`);
+
+        const lhsOperand = coalesce
+          ? getOperandColumn(fieldSchema, `COALESCE(${columnName}, '0')`)
+          : getOperandColumn(fieldSchema, columnName);
+
+        pushUpdate(fieldName, `(${lhsOperand} ${value.operator} ${rhsOperand})::text::jsonb`);
       }
     }
 
@@ -271,4 +277,16 @@ const getUpdateColumns = (source: SqlSource, record: SqlRecord, schema: ObjectSc
   }
 
   return columns;
+};
+
+const getOperandColumn = (schema: AnySchema | undefined, fieldName: string) => {
+  if (schema?.type !== SchemaType.Number) {
+    throw new InvalidAtomicOperation(fieldName);
+  }
+
+  if (schema.format === 'decimal') {
+    return `${fieldName}::dec`;
+  }
+
+  return `${fieldName}::int`;
 };
