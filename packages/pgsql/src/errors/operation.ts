@@ -4,12 +4,6 @@ export class MissingOperatorError extends Error {
   }
 }
 
-export class TooManyOperatorsError extends Error {
-  constructor(public columnName: string) {
-    super(`Column ${columnName} must have only one operator.`);
-  }
-}
-
 export class InvalidOperandError extends Error {
   constructor(public columnName?: string) {
     if (columnName) {

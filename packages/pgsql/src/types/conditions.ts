@@ -1,13 +1,13 @@
 import type { AnySchema, ObjectSchema } from '@ez4/schema';
 import type { SqlBuilderOptions, SqlBuilderReferences } from '../builder.js';
-import type { SqlSource } from './source.js';
 import type { SqlFilters } from './common.js';
+import type { SqlSource } from './source.js';
 
 import { isObjectSchema, SchemaType } from '@ez4/schema';
 import { isAnyObject, isEmptyObject } from '@ez4/utils';
 
 import { mergeSqlAlias, mergeSqlPath } from '../utils/merge.js';
-import { InvalidOperandError, MissingOperatorError, TooManyOperatorsError } from '../errors/operation.js';
+import { InvalidOperandError, MissingOperatorError } from '../errors/operation.js';
 import { SqlSelectStatement } from '../queries/select.js';
 import { SqlColumnReference } from './reference.js';
 import { SqlOperator } from './common.js';
@@ -59,7 +59,7 @@ export class SqlConditions {
       source
     };
 
-    const operations = getOperations(filters, source.schema, context);
+    const operations = getFilterOperations(filters, source.schema, context);
 
     if (operations.length) {
       return [operations.join(' AND '), context.variables];
@@ -69,7 +69,7 @@ export class SqlConditions {
   }
 }
 
-const getOperations = (filters: SqlFilters, schema: ObjectSchema | undefined, context: SqlConditionsContext) => {
+const getFilterOperations = (filters: SqlFilters, schema: ObjectSchema | undefined, context: SqlConditionsContext) => {
   const operations = [];
 
   for (const field in filters) {
@@ -98,42 +98,12 @@ const getFieldOperation = (
   const { source, parent } = context;
 
   switch (field) {
-    case 'NOT': {
-      if (Array.isArray(value) || !isAnyObject(value)) {
-        throw new InvalidOperandError();
-      }
-
-      const operations = getOperations(value, schema, context);
-
-      if (operations.length) {
-        return `NOT ${combineOperations(operations)}`;
-      }
-
-      break;
-    }
-
     case 'AND':
-    case 'OR': {
-      if (!Array.isArray(value)) {
-        throw new InvalidOperandError();
-      }
+    case 'OR':
+      return getLogicalOperations(field, value, schema, context);
 
-      const operations = [];
-
-      for (const current of value) {
-        if (field === 'OR') {
-          operations.push(combineOperations(getOperations(current, schema, context)));
-        } else {
-          operations.push(...getOperations(current, schema, context));
-        }
-      }
-
-      if (operations.length) {
-        return `(${operations.join(` ${field} `)})`;
-      }
-
-      break;
-    }
+    case 'NOT':
+      return getNegateOperations(value, schema, context);
 
     default: {
       const columnName = mergeSqlPath(field, parent);
@@ -157,59 +127,68 @@ const getFieldOperation = (
 
       const operationEntries = Object.entries(valueOperation);
 
-      if (!operationEntries.length) {
+      if (operationEntries.length === 0) {
         throw new MissingOperatorError(columnName);
       }
 
+      if (operationEntries.length === 1) {
+        return getSingleOperation(columnPath, columnSchema, operationEntries[0], {
+          ...context,
+          insensitive
+        });
+      }
+
       const isNestedEntry = columnSchema && isObjectSchema(columnSchema);
+      const nestedContext = { ...context, parent: columnName };
 
-      if (operationEntries.length > 1) {
-        if (!isNestedEntry) {
-          throw new TooManyOperatorsError(columnName);
-        }
+      const allOperations = !isNestedEntry
+        ? getMultipleOperations(columnPath, columnSchema, operationEntries, nestedContext)
+        : getFilterOperations(valueOperation, columnSchema, nestedContext);
 
-        const multipleOperations = getOperations(value, columnSchema, {
-          ...context,
-          parent: columnName,
-          insensitive
-        });
+      return combineOperations(allOperations);
+    }
+  }
+};
 
-        return combineOperations(multipleOperations);
-      }
+const getSingleOperation = (column: string, schema: AnySchema | undefined, operation: [string, unknown], context: SqlConditionsContext) => {
+  const finalOperation = getFinalOperation(column, schema, operation, context);
 
-      const [[operator, operand]] = operationEntries;
+  if (!finalOperation) {
+    const nestedSchema = schema && isObjectSchema(schema) ? schema : undefined;
 
-      const singleOperation = getValueOperation(columnPath, columnSchema, operator, operand, {
-        ...context,
-        insensitive
-      });
+    const allOperation = getFilterOperations({ [operation[0]]: operation[1] }, nestedSchema, {
+      ...context,
+      parent: column
+    });
 
-      if (!singleOperation) {
-        const operationSchema = isNestedEntry ? columnSchema : undefined;
+    return combineOperations(allOperation);
+  }
 
-        const multipleOperations = getOperations(value, operationSchema, {
-          ...context,
-          parent: columnName,
-          insensitive
-        });
+  return finalOperation;
+};
 
-        return combineOperations(multipleOperations);
-      }
+const getMultipleOperations = (
+  column: string,
+  schema: AnySchema | undefined,
+  entries: [string, unknown][],
+  context: SqlConditionsContext
+) => {
+  const allOperations = [];
 
-      return singleOperation;
+  for (const operation of entries) {
+    const finalOperation = getFinalOperation(column, schema, operation, context);
+
+    if (finalOperation) {
+      allOperations.push(finalOperation);
     }
   }
 
-  return undefined;
+  return allOperations;
 };
 
-const getValueOperation = (
-  column: string,
-  schema: AnySchema | undefined,
-  operator: string,
-  operand: unknown,
-  context: SqlConditionsContext
-) => {
+const getFinalOperation = (column: string, schema: AnySchema | undefined, operation: [string, unknown], context: SqlConditionsContext) => {
+  const [operator, operand] = operation;
+
   switch (operator) {
     case SqlOperator.IsNull:
     case SqlOperator.IsMissing:
@@ -244,6 +223,42 @@ const getValueOperation = (
 
     case SqlOperator.Contains:
       return getContainsOperation(column, schema, operand, context);
+  }
+
+  return undefined;
+};
+
+const getNegateOperations = (value: unknown, schema: ObjectSchema | undefined, context: SqlConditionsContext) => {
+  if (Array.isArray(value) || !isAnyObject(value)) {
+    throw new InvalidOperandError();
+  }
+
+  const allOperations = getFilterOperations(value, schema, context);
+
+  if (allOperations.length) {
+    return `NOT ${combineOperations(allOperations)}`;
+  }
+
+  return undefined;
+};
+
+const getLogicalOperations = (field: string, value: unknown, schema: ObjectSchema | undefined, context: SqlConditionsContext) => {
+  if (!Array.isArray(value)) {
+    throw new InvalidOperandError();
+  }
+
+  const allOperations = [];
+
+  for (const current of value) {
+    if (field === 'OR') {
+      allOperations.push(combineOperations(getFilterOperations(current, schema, context)));
+    } else {
+      allOperations.push(...getFilterOperations(current, schema, context));
+    }
+  }
+
+  if (allOperations.length) {
+    return `(${allOperations.join(` ${field} `)})`;
   }
 
   return undefined;
@@ -387,7 +402,7 @@ const getOperandValue = (schema: AnySchema | undefined, operand: unknown, contex
   const field = `:${index}`;
 
   if (!options.onPrepareVariable) {
-    return variables.push(operand), field;
+    return (variables.push(operand), field);
   }
 
   const preparedValue = options.onPrepareVariable(operand, {

@@ -676,6 +676,62 @@ describe('sql where tests', () => {
     assert.equal(statement, `SELECT * FROM "test" WHERE "foo" @> :0 AND "bar" @> :1`);
   });
 
+  it('assert :: where multiple operators', ({ assert }) => {
+    const query = sql
+      .select()
+      .from('test')
+      .where({
+        foo: {
+          gte: 123,
+          lt: 456
+        }
+      });
+
+    const [statement, variables] = query.build();
+
+    assert.deepEqual(variables, [123, 456]);
+
+    assert.equal(statement, 'SELECT * FROM "test" WHERE ("foo" >= :0 AND "foo" < :1)');
+  });
+
+  it('assert :: where multiple operators (with json object)', ({ assert }) => {
+    const schema: ObjectSchema = {
+      type: SchemaType.Object,
+      properties: {
+        foo: {
+          type: SchemaType.Object,
+          properties: {},
+          additional: {
+            property: {
+              type: SchemaType.String
+            },
+            value: {
+              type: SchemaType.Number
+            }
+          }
+        }
+      }
+    };
+
+    const query = sql
+      .select(schema)
+      .from('test')
+      .where({
+        foo: {
+          bar: {
+            gte: 123,
+            lt: 456
+          }
+        }
+      });
+
+    const [statement, variables] = query.build();
+
+    assert.deepEqual(variables, [123, 456]);
+
+    assert.equal(statement, `SELECT * FROM "test" WHERE ("foo"['bar'] >= :0 AND "foo"['bar'] < :1)`);
+  });
+
   it('assert :: where not', ({ assert }) => {
     const query = sql
       .select()
