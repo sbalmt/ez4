@@ -252,11 +252,8 @@ const getUpdateColumns = (source: SqlSource, record: SqlRecord, schema: ObjectSc
       if (!json) {
         pushUpdate(fieldName, `(${columnName} ${value.operator} :${fieldIndex})`);
       } else {
+        const lhsOperand = getOperandColumn(fieldSchema, coalesce ? getOperandCoalesce(fieldSchema, columnName) : columnName);
         const rhsOperand = getOperandColumn(fieldSchema, `:${fieldIndex}`);
-
-        const lhsOperand = coalesce
-          ? getOperandColumn(fieldSchema, `COALESCE(${columnName}, '0')`)
-          : getOperandColumn(fieldSchema, columnName);
 
         pushUpdate(fieldName, `(${lhsOperand} ${value.operator} ${rhsOperand})::text::jsonb`);
       }
@@ -289,4 +286,14 @@ const getOperandColumn = (schema: AnySchema | undefined, fieldName: string) => {
   }
 
   return `${fieldName}::int`;
+};
+
+const getOperandCoalesce = (schema: AnySchema | undefined, columnName: string) => {
+  if (schema?.type === SchemaType.Number) {
+    const defaultValue = schema.definitions?.value ?? schema.definitions?.default ?? schema.definitions?.minValue ?? 0;
+
+    return `COALESCE(${columnName}, '${defaultValue}')`;
+  }
+
+  return columnName;
 };

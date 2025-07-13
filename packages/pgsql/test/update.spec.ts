@@ -150,6 +150,46 @@ describe('sql update tests', () => {
     equal(statement, 'UPDATE ONLY "table" SET "foo" = :0, "bar" = ("bar" + :1)');
   });
 
+  it('assert :: update with raw json record operation (optional in schema)', async () => {
+    const schema: ObjectSchema = {
+      type: SchemaType.Object,
+      properties: {
+        foo: {
+          type: SchemaType.Object,
+          optional: true,
+          properties: {
+            bar: {
+              type: SchemaType.Number,
+              format: 'decimal',
+              definitions: {
+                default: 999
+              }
+            }
+          }
+        }
+      }
+    };
+
+    const query = sql
+      .update(schema)
+      .only('table')
+      .record({
+        foo: {
+          bar: sql.rawOperation('*', 123)
+        }
+      });
+
+    const [statement, variables] = query.build();
+
+    deepEqual(variables, [123]);
+
+    equal(
+      statement,
+      `UPDATE ONLY "table" ` +
+        `SET "foo" = COALESCE("foo", '{}'::jsonb) || jsonb_build_object('bar', (COALESCE("foo"->>'bar', '999')::dec * :0::dec)::text::jsonb)`
+    );
+  });
+
   it('assert :: update with alias', async () => {
     const query = sql.update().only('table').as('alias').record({
       foo: true
