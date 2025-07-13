@@ -49,17 +49,17 @@ export namespace PgClient {
     return new Proxy<any>(clientInstance, {
       get: (target, property) => {
         if (property in target) {
-          return target[property];
+          return Reflect.get(target, property);
         }
 
         const tableAlias = property.toString();
 
-        if (tableCache[tableAlias]) {
-          return tableCache[tableAlias];
+        if (!repository[tableAlias]) {
+          return undefined;
         }
 
-        if (!repository[tableAlias]) {
-          throw new MissingRepositoryTableError(tableAlias);
+        if (tableCache[tableAlias]) {
+          return tableCache[tableAlias];
         }
 
         const { name, schema, relations } = repository[tableAlias];

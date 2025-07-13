@@ -46,3 +46,8 @@ export type EmulateServiceEvent = {
   service: ServiceMetadata;
   options: ServeOptions;
 };
+
+export type EmulateClientEvent = {
+  service: ServiceMetadata;
+  options: ServeOptions;
+};

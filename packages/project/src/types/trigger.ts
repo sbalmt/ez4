@@ -1,6 +1,6 @@
 import type { ApplyResult, EntryState, EntryStates, StepState } from '@ez4/stateful';
 import type { EveryType, SourceMap, TypeClass, TypeObject } from '@ez4/reflection';
-import type { EmulatorService, EmulateServiceEvent } from './emulator.js';
+import type { EmulatorService, EmulateServiceEvent, EmulateClientEvent } from './emulator.js';
 import type { IdentityAccount, IdentityGrant } from './identity.js';
 import type { DeployOptions, DestroyOptions } from './options.js';
 import type { ServiceMetadata, ExtraSource } from './service.js';
@@ -23,10 +23,11 @@ export type SyncEvent = {
   'reflection:typeObject': (type: TypeObject) => SyncEventResult<EveryType>;
   'metadata:getServices': (reflection: SourceMap) => SyncEventResult<MetadataResult>;
   'metadata:getLinkedService': (type: TypeClass) => SyncEventResult<string>;
-  'emulator:getServices': (event: EmulateServiceEvent) => SyncEventResult<EmulatorService>;
 };
 
 export type AsyncEvent = {
+  'emulator:getClient': (event: EmulateClientEvent) => AsyncEventResult<unknown>;
+  'emulator:getServices': (event: EmulateServiceEvent) => AsyncEventResult<EmulatorService>;
   'deploy:prepareLinkedService': (event: ServiceEvent) => AsyncEventResult<ExtraSource>;
   'deploy:prepareIdentityAccount': (event: IdentityEvent) => AsyncEventResult<IdentityAccount[]>;
   'deploy:prepareIdentityGrant': (event: IdentityEvent) => AsyncEventResult<IdentityGrant>;
