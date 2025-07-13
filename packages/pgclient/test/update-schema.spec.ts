@@ -4,7 +4,7 @@ import type { ObjectSchema } from '@ez4/schema';
 
 import { describe, it } from 'node:test';
 
-import { MalformedRequestError, MissingFieldSchemaError } from '@ez4/pgclient';
+import { MalformedRequestError } from '@ez4/pgclient';
 import { prepareUpdateQuery } from '@ez4/pgclient/library';
 import { SchemaType } from '@ez4/schema';
 import { SqlBuilder } from '@ez4/pgsql';
@@ -167,6 +167,29 @@ describe('update schema', () => {
     assert.equal(statement, `SELECT * FROM "ez4-test-update-schema"`);
 
     assert.deepEqual(variables, []);
+  });
+
+  it('assert :: prepare update schema (scalar extra field)', async ({ assert }) => {
+    const [statement, variables] = await prepareUpdate(
+      {
+        type: SchemaType.Object,
+        properties: {
+          foo: {
+            type: SchemaType.Number
+          }
+        }
+      },
+      {
+        data: {
+          foo: 123,
+          bar: 'extra'
+        }
+      }
+    );
+
+    assert.equal(statement, `UPDATE ONLY "ez4-test-update-schema" SET "foo" = :0`);
+
+    assert.deepEqual(variables, [123]);
   });
 
   it('assert :: prepare update schema (json boolean)', async ({ assert }) => {
@@ -384,6 +407,36 @@ describe('update schema', () => {
     assert.deepEqual(variables, []);
   });
 
+  it('assert :: prepare update schema (json extra field)', async ({ assert }) => {
+    const [statement, variables] = await prepareUpdate(
+      {
+        type: SchemaType.Object,
+        properties: {
+          json: {
+            type: SchemaType.Object,
+            properties: {
+              foo: {
+                type: SchemaType.Number
+              }
+            }
+          }
+        }
+      },
+      {
+        data: {
+          json: {
+            foo: 123,
+            bar: 'extra'
+          }
+        }
+      }
+    );
+
+    assert.equal(statement, `UPDATE ONLY "ez4-test-update-schema" SET "json"['foo'] = :0`);
+
+    assert.deepEqual(variables, [123]);
+  });
+
   it('assert :: prepare update schema (with select)', async ({ assert }) => {
     const [statement, variables] = await prepareUpdate(
       {
@@ -451,29 +504,6 @@ describe('update schema', () => {
     );
   });
 
-  it('assert :: prepare update schema (invalid extra scalar field)', async ({ assert }) => {
-    await assert.rejects(
-      () =>
-        prepareUpdate(
-          {
-            type: SchemaType.Object,
-            properties: {
-              column: {
-                type: SchemaType.Number
-              }
-            }
-          },
-          {
-            data: {
-              // Extra fields aren't expected on json.
-              foo: 'foo'
-            }
-          }
-        ),
-      MissingFieldSchemaError
-    );
-  });
-
   it('assert :: prepare update schema (invalid json field type)', async ({ assert }) => {
     await assert.rejects(
       () =>
@@ -501,36 +531,6 @@ describe('update schema', () => {
           }
         ),
       MalformedRequestError
-    );
-  });
-
-  it('assert :: prepare update schema (invalid extra json field)', async ({ assert }) => {
-    await assert.rejects(
-      () =>
-        prepareUpdate(
-          {
-            type: SchemaType.Object,
-            properties: {
-              json: {
-                type: SchemaType.Object,
-                properties: {
-                  column: {
-                    type: SchemaType.String
-                  }
-                }
-              }
-            }
-          },
-          {
-            data: {
-              json: {
-                // Extra fields aren't expected on json.
-                foo: 'foo'
-              }
-            }
-          }
-        ),
-      MissingFieldSchemaError
     );
   });
 });

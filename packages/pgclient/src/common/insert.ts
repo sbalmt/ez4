@@ -21,7 +21,7 @@ import {
   getSourceConnectionSchema
 } from '../utils/relation.js';
 
-import { validateAllSchemaLevels, validateFirstSchemaLevel } from '../utils/schema.js';
+import { getSchemaValidatedData, validateAllSchemaLevels, validateFirstSchemaLevel } from '../utils/schema.js';
 import { getDefaultSelectFields, getFieldColumn, getSelectFields } from './select.js';
 
 type InsertRelationsCache = Record<string, InsertRelationEntry>;
@@ -84,17 +84,15 @@ const getInsertRecord = async (
 
   const record: SqlRecord = {};
 
-  for (const fieldKey of allFields) {
-    const fieldRelation = relations[fieldKey];
-    const fieldSchema = schema.properties[fieldKey];
-    const fieldPath = `${path}.${fieldKey}`;
-    const fieldValue = data[fieldKey];
+  for (const fieldName of allFields) {
+    const fieldRelation = relations[fieldName];
+    const fieldSchema = schema.properties[fieldName];
+    const fieldPath = `${path}.${fieldName}`;
+    const fieldValue = data[fieldName];
 
     if (!fieldRelation) {
-      await validateAllSchemaLevels(fieldValue, fieldSchema, fieldPath);
-
-      if (fieldValue !== undefined) {
-        record[fieldKey] = fieldValue;
+      if (fieldSchema) {
+        record[fieldName] = await getSchemaValidatedData(fieldValue, fieldSchema, fieldPath);
       }
 
       continue;
@@ -104,11 +102,11 @@ const getInsertRecord = async (
       continue;
     }
 
-    if (!isRelationalData(fieldValue) || !relationsCache[fieldKey]) {
+    if (!isRelationalData(fieldValue) || !relationsCache[fieldName]) {
       throw new InvalidRelationFieldError(fieldPath);
     }
 
-    const { relationQueries, sourceSchema, sourceIndex, sourceColumn, targetColumn } = relationsCache[fieldKey];
+    const { relationQueries, sourceSchema, sourceIndex, sourceColumn, targetColumn } = relationsCache[fieldName];
 
     if (!sourceIndex || sourceIndex === Index.Secondary) {
       if (!isMultipleRelationData(fieldValue)) {
@@ -128,7 +126,6 @@ const getInsertRecord = async (
       await Promise.all(allValidations);
 
       allFields.delete(sourceColumn);
-
       continue;
     }
 
@@ -148,7 +145,6 @@ const getInsertRecord = async (
         await validateAllSchemaLevels(fieldValue, relationSchema, fieldPath);
 
         record[targetColumn] = relationValue;
-
         continue;
       }
 
@@ -177,7 +173,6 @@ const getInsertRecord = async (
         await validateFirstSchemaLevel(fieldValue, relationSchema, fieldPath);
 
         record[sourceColumn] = relationValue;
-
         continue;
       }
 

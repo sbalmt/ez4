@@ -46,6 +46,8 @@
     "@ez4/pgsql": "^0.22.0",
     "@ez4/project": "^0.22.0",
     "@ez4/schema": "^0.22.0",
+    "@ez4/transform": "^0.22.0",
+    "@ez4/validator": "^0.22.0",
     "@ez4/utils": "^0.22.0"
   }
 }

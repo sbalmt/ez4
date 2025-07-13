@@ -198,7 +198,7 @@ describe('select relations', () => {
     assert.deepEqual(variables, ['00000000-0000-1000-9000-000000000000', 123, 456, '00000000-0000-1000-9000-000000000001']);
   });
 
-  it('assert :: prepare select (with relationship connections)', ({ assert }) => {
+  it('assert :: prepare select relations (with connections)', ({ assert }) => {
     const [statement, variables] = prepareSelect({
       select: {
         id: true

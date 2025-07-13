@@ -6,14 +6,14 @@ import type { Query } from '@ez4/database';
 import type { RelationWithSchema, RepositoryRelationsWithSchema } from '../types/repository.js';
 import type { InternalTableMetadata } from '../types/table.js';
 
-import { InvalidAtomicOperation, InvalidRelationFieldError, MissingFieldSchemaError } from '@ez4/pgclient';
+import { InvalidAtomicOperation, InvalidRelationFieldError } from '@ez4/pgclient';
 import { isDynamicObjectSchema, IsNullishSchema, isNumberSchema, isObjectSchema } from '@ez4/schema';
 import { isAnyObject, isEmptyObject } from '@ez4/utils';
 import { Index } from '@ez4/database';
 
 import { getSourceConnectionSchema, getTargetConnectionSchema, getUpdatingSchema, isSingleRelationData } from '../utils/relation.js';
+import { getSchemaValidatedData, validateFirstSchemaLevel } from '../utils/schema.js';
 import { getSelectFields, getSelectFilters } from './select.js';
-import { validateFirstSchemaLevel } from '../utils/schema.js';
 
 export const prepareUpdateQuery = async <T extends InternalTableMetadata, S extends Query.SelectInput<T>>(
   table: string,
@@ -64,15 +64,15 @@ const getUpdateRecord = async (
 ) => {
   const record: SqlRecord = {};
 
-  for (const fieldKey in data) {
-    const fieldValue = data[fieldKey];
+  for (const fieldName in data) {
+    const fieldValue = data[fieldName];
 
     if (fieldValue === undefined) {
       continue;
     }
 
-    const fieldRelation = relations[fieldKey];
-    const fieldPath = `${path}.${fieldKey}`;
+    const fieldRelation = relations[fieldName];
+    const fieldPath = `${path}.${fieldName}`;
 
     if (fieldRelation) {
       if (!isSingleRelationData(fieldValue)) {
@@ -126,30 +126,26 @@ const getUpdateRecord = async (
       continue;
     }
 
-    const fieldSchema = schema.properties[fieldKey];
+    const fieldSchema = schema.properties[fieldName];
 
-    if (!fieldSchema) {
-      throw new MissingFieldSchemaError(fieldPath);
+    if (fieldSchema) {
+      if (!isAnyObject(fieldValue)) {
+        record[fieldName] = await getSchemaValidatedData(fieldValue, fieldSchema, fieldPath);
+        continue;
+      }
+
+      if (isNumberSchema(fieldSchema)) {
+        record[fieldName] = await getAtomicOperationUpdate(builder, fieldName, fieldValue, fieldSchema, fieldPath);
+        continue;
+      }
+
+      if (isObjectSchema(fieldSchema) && !isDynamicObjectSchema(fieldSchema) && !IsNullishSchema(fieldSchema)) {
+        record[fieldName] = await getUpdateRecord(builder, fieldValue, fieldSchema, relations, fieldPath);
+        continue;
+      }
+
+      record[fieldName] = builder.rawValue(fieldValue);
     }
-
-    if (!isAnyObject(fieldValue)) {
-      await validateFirstSchemaLevel(fieldValue, fieldSchema, fieldPath);
-
-      record[fieldKey] = fieldValue;
-      continue;
-    }
-
-    if (isNumberSchema(fieldSchema)) {
-      record[fieldKey] = await getAtomicOperationUpdate(builder, fieldKey, fieldValue, fieldSchema, fieldPath);
-      continue;
-    }
-
-    if (isObjectSchema(fieldSchema) && !isDynamicObjectSchema(fieldSchema) && !IsNullishSchema(fieldSchema)) {
-      record[fieldKey] = await getUpdateRecord(builder, fieldValue, fieldSchema, relations, fieldPath);
-      continue;
-    }
-
-    record[fieldKey] = builder.rawValue(fieldValue);
   }
 
   return record;
