@@ -1,7 +1,10 @@
+import type { ObjectSchema } from '@ez4/schema';
+
 import { beforeEach, describe, it } from 'node:test';
 import { equal, deepEqual } from 'node:assert';
 
 import { SqlBuilder } from '@ez4/pgsql';
+import { SchemaType } from '@ez4/schema';
 import { Order } from '@ez4/database';
 
 describe('sql update tests', () => {
@@ -55,6 +58,38 @@ describe('sql update tests', () => {
     deepEqual(variables, [true]);
 
     equal(statement, `UPDATE ONLY "table" SET "foo"['bar']['baz'] = :0`);
+  });
+
+  it('assert :: update with json record (optional in schema)', async () => {
+    const schema: ObjectSchema = {
+      type: SchemaType.Object,
+      properties: {
+        foo: {
+          type: SchemaType.Object,
+          optional: true,
+          properties: {
+            bar: {
+              type: SchemaType.String
+            }
+          }
+        }
+      }
+    };
+
+    const query = sql
+      .update(schema)
+      .only('table')
+      .record({
+        foo: {
+          bar: 'baz'
+        }
+      });
+
+    const [statement, variables] = query.build();
+
+    deepEqual(variables, ['baz']);
+
+    equal(statement, `UPDATE ONLY "table" SET "foo" = COALESCE("foo", '{}'::jsonb) || jsonb_build_object('bar', :0)`);
   });
 
   it('assert :: update with inner select record', async () => {
