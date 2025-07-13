@@ -6,13 +6,7 @@ import { createTransformContext, transform } from '@ez4/transform';
 import { HttpBadRequestError } from '@ez4/gateway';
 
 export const getRequestBody = async <T extends Http.JsonBody | Http.RawBody>(input: T, schema: AnySchema): Promise<T> => {
-  const errors = await validate(
-    input,
-    schema,
-    createValidatorContext({
-      property: '$body'
-    })
-  );
+  const errors = await validate(input, schema, createValidatorContext({ property: '$body' }));
 
   if (errors.length) {
     const messages = getUniqueErrorMessages(errors);
@@ -20,23 +14,11 @@ export const getRequestBody = async <T extends Http.JsonBody | Http.RawBody>(inp
     throw new HttpBadRequestError('Malformed body payload.', messages);
   }
 
-  const body = transform(
-    input,
-    schema,
-    createTransformContext({
-      convert: false
-    })
-  );
+  const body = transform(input, schema, createTransformContext({ convert: false }));
 
   return body as T;
 };
 
 export const getResponseBody = (body: unknown, schema: AnySchema) => {
-  return transform(
-    body,
-    schema,
-    createTransformContext({
-      convert: false
-    })
-  );
+  return transform(body, schema, createTransformContext({ convert: false }));
 };

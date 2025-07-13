@@ -172,7 +172,6 @@ const getValueReferences = (source: SqlSource, record: SqlRecord, schema: Object
 
       variables.push(...selectVariables);
       results.push(`(${selectStatement})`);
-
       continue;
     }
 
@@ -183,8 +182,8 @@ const getValueReferences = (source: SqlSource, record: SqlRecord, schema: Object
 
     if (options.onPrepareVariable) {
       const preparedValue = options.onPrepareVariable(fieldValue, {
-        index: fieldIndex,
         schema: schema?.properties[field],
+        index: fieldIndex,
         json: false
       });
 

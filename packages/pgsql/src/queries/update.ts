@@ -200,10 +200,8 @@ const getUpdateColumns = (source: SqlSource, record: SqlRecord, schema: ObjectSc
 
     if (value instanceof SqlSelectStatement) {
       const [selectStatement, selectVariables] = value.build();
-
       columns.push(`${columnName} = (${selectStatement})`);
       variables.push(...selectVariables);
-
       continue;
     }
 
@@ -236,8 +234,8 @@ const getUpdateColumns = (source: SqlSource, record: SqlRecord, schema: ObjectSc
 
     if (options.onPrepareVariable) {
       const preparedValue = options.onPrepareVariable(fieldValue, {
-        index: fieldIndex,
         schema: valueSchema,
+        index: fieldIndex,
         json
       });
 
