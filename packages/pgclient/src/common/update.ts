@@ -7,7 +7,7 @@ import type { RelationWithSchema, RepositoryRelationsWithSchema } from '../types
 import type { InternalTableMetadata } from '../types/table.js';
 
 import { InvalidAtomicOperation, InvalidRelationFieldError } from '@ez4/pgclient';
-import { isDynamicObjectSchema, IsNullishSchema, isNumberSchema, isObjectSchema } from '@ez4/schema';
+import { isNumberSchema, isObjectSchema } from '@ez4/schema';
 import { isAnyObject, isEmptyObject } from '@ez4/utils';
 import { Index } from '@ez4/database';
 
@@ -139,7 +139,7 @@ const getUpdateRecord = async (
         continue;
       }
 
-      if (isObjectSchema(fieldSchema) && !isDynamicObjectSchema(fieldSchema) && !IsNullishSchema(fieldSchema)) {
+      if (isObjectSchema(fieldSchema)) {
         record[fieldName] = await getUpdateRecord(builder, fieldValue, fieldSchema, relations, fieldPath);
         continue;
       }

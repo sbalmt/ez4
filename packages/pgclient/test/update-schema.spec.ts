@@ -338,9 +338,12 @@ describe('update schema', () => {
       }
     );
 
-    assert.equal(statement, `UPDATE ONLY "ez4-test-update-schema" SET "json" = :0`);
+    assert.equal(
+      statement,
+      `UPDATE ONLY "ez4-test-update-schema" SET "json" = COALESCE("json", '{}'::jsonb) || jsonb_build_object('optional', :0)`
+    );
 
-    assert.deepEqual(variables, [{ optional: 123 }]);
+    assert.deepEqual(variables, [123]);
   });
 
   it('assert :: prepare update schema (json optional children)', async ({ assert }) => {

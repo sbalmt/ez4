@@ -1,27 +1,29 @@
+import type { ObjectSchema } from '@ez4/schema';
 import type { SqlBuilderOptions, SqlBuilderReferences } from '../builder.js';
 import type { SqlResultColumn, SqlResultRecord } from '../types/results.js';
 import type { SqlSourceWithResults } from '../types/source.js';
 import type { SqlFilters, SqlRecord } from '../types/common.js';
-import { isObjectSchema, type ObjectSchema } from '@ez4/schema';
 
+import { isDynamicObjectSchema, IsNullishSchema, isObjectSchema } from '@ez4/schema';
 import { isPlainObject } from '@ez4/utils';
 
-import { getTableExpressions } from '../utils/table.js';
 import { SqlRaw, SqlRawOperation } from '../types/raw.js';
-import { MissingTableNameError, MissingRecordError, EmptyRecordError } from '../errors/queries.js';
-import { SqlColumnReference, SqlTableReference } from '../types/reference.js';
 import { SqlReturningClause } from '../types/returning.js';
+import { SqlColumnReference, SqlTableReference } from '../types/reference.js';
+import { MissingTableNameError, MissingRecordError, EmptyRecordError } from '../errors/queries.js';
+import { mergeSqlJsonPath, mergeSqlPath } from '../utils/merge.js';
+import { getFields, getValues } from '../utils/column.js';
+import { getTableExpressions } from '../utils/table.js';
+import { escapeSqlName } from '../utils/escape.js';
 import { SqlWhereClause } from '../types/where.js';
 import { SqlSource } from '../types/source.js';
-import { escapeSqlName } from '../utils/escape.js';
-import { getFields, getValues } from '../utils/column.js';
-import { mergeSqlPath } from '../utils/merge.js';
 import { SqlSelectStatement } from './select.js';
 
 type SqlUpdateContext = {
   options: SqlBuilderOptions;
   references: SqlBuilderReferences;
   variables: unknown[];
+  coalesce?: boolean;
   parent?: string;
 };
 
@@ -180,42 +182,57 @@ export class SqlUpdateStatement extends SqlSource {
 }
 
 const getUpdateColumns = (source: SqlSource, record: SqlRecord, schema: ObjectSchema | undefined, context: SqlUpdateContext): string[] => {
-  const { variables, references, options, parent } = context;
+  const { variables, references, options, coalesce, parent } = context;
 
   const columns = [];
 
-  for (const field in record) {
-    const value = record[field];
+  const pushUpdate = (fieldName: string, fieldValue: string) => {
+    if (!coalesce) {
+      columns.push(`${mergeSqlPath(fieldName, parent)} = ${fieldValue}`);
+    } else {
+      columns.push(`'${fieldName}', ${fieldValue}`);
+    }
+  };
+
+  for (const fieldName in record) {
+    const value = record[fieldName];
 
     if (value === undefined) {
       continue;
     }
 
-    const columnName = mergeSqlPath(field, parent);
-
     if (value instanceof SqlColumnReference) {
-      columns.push(`${columnName} = ${value.build()}`);
+      pushUpdate(fieldName, value.build());
       continue;
     }
 
     if (value instanceof SqlSelectStatement) {
       const [selectStatement, selectVariables] = value.build();
-      columns.push(`${columnName} = (${selectStatement})`);
+      pushUpdate(fieldName, `(${selectStatement})`);
       variables.push(...selectVariables);
       continue;
     }
 
-    const valueSchema = schema?.properties[field];
+    const fieldSchema = schema?.properties[fieldName];
 
     if (isPlainObject(value)) {
-      const nextSchema = valueSchema && isObjectSchema(valueSchema) ? valueSchema : undefined;
+      const nextSchema = fieldSchema && isObjectSchema(fieldSchema) ? fieldSchema : undefined;
+      const columnName = mergeSqlPath(fieldName, parent);
+
+      const isNullish = nextSchema && (isDynamicObjectSchema(nextSchema) || IsNullishSchema(nextSchema));
 
       const jsonValue = getUpdateColumns(source, value, nextSchema, {
         ...context,
+        coalesce: isNullish,
         parent: columnName
       });
 
-      columns.push(...jsonValue);
+      if (isNullish) {
+        columns.push(`${columnName} = COALESCE(${columnName}, '{}'::jsonb) || jsonb_build_object(${jsonValue.join(',')})`);
+      } else {
+        columns.push(...jsonValue);
+      }
+
       continue;
     }
 
@@ -225,16 +242,23 @@ const getUpdateColumns = (source: SqlSource, record: SqlRecord, schema: ObjectSc
     const json = !!parent;
 
     if (!(value instanceof SqlRawOperation)) {
-      columns.push(`${columnName} = :${fieldIndex}`);
-    } else if (json) {
-      columns.push(`${columnName} = (${columnName}::int ${value.operator} :${fieldIndex}::int)::text::jsonb`);
+      pushUpdate(fieldName, `:${fieldIndex}`);
     } else {
-      columns.push(`${columnName} = (${columnName} ${value.operator} :${fieldIndex})`);
+      const columnName = mergeSqlJsonPath(fieldName, parent);
+
+      if (json) {
+        pushUpdate(
+          fieldName,
+          `(${coalesce ? `COALESCE(${columnName}, '0')::int` : `${columnName}::int`} ${value.operator} :${fieldIndex}::int)::text::jsonb`
+        );
+      } else {
+        pushUpdate(fieldName, `(${columnName} ${value.operator} :${fieldIndex})`);
+      }
     }
 
     if (options.onPrepareVariable) {
       const preparedValue = options.onPrepareVariable(fieldValue, {
-        schema: valueSchema,
+        schema: fieldSchema,
         index: fieldIndex,
         json
       });
