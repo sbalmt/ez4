@@ -214,4 +214,17 @@ describe('dynamodb query (where)', () => {
 
     deepEqual(variables, ['abc', 123, 'def', 'ghi']);
   });
+
+  it('assert :: prepare where (multiple operators)', () => {
+    const [whereStatement, variables] = getWhereOperation({
+      foo: {
+        lt: 123,
+        gte: 456
+      }
+    });
+
+    equal(whereStatement, `WHERE "foo" < ? AND "foo" >= ?`);
+
+    deepEqual(variables, [123, 456]);
+  });
 });
