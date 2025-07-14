@@ -1,5 +1,5 @@
 import type { EmulateServiceContext, EmulatorServiceRequest, ServeOptions } from '@ez4/project/library';
-import type { QueueService, QueueSubscription } from '@ez4/queue/library';
+import type { QueueImport, QueueService, QueueSubscription } from '@ez4/queue/library';
 import type { Queue } from '@ez4/queue';
 
 import { createModule, onBegin, onEnd, onError, onReady } from '@ez4/local-common';
@@ -9,7 +9,7 @@ import { getJsonMessage } from '@ez4/queue/utils';
 
 import { createQueueClient } from '../service/client.js';
 
-export const registerQueueServices = (service: QueueService, options: ServeOptions, context: EmulateServiceContext) => {
+export const registerQueueServices = (service: QueueService | QueueImport, options: ServeOptions, context: EmulateServiceContext) => {
   const { name: serviceName, schema: messageSchema } = service;
 
   return {
@@ -25,7 +25,7 @@ export const registerQueueServices = (service: QueueService, options: ServeOptio
   };
 };
 
-const handleQueueMessage = async (service: QueueService, context: EmulateServiceContext, request: EmulatorServiceRequest) => {
+const handleQueueMessage = async (service: QueueService | QueueImport, context: EmulateServiceContext, request: EmulatorServiceRequest) => {
   if (request.method !== 'POST' || request.path !== '/' || !request.body) {
     throw new Error('Unsupported queue request.');
   }
@@ -41,7 +41,7 @@ const handleQueueMessage = async (service: QueueService, context: EmulateService
 };
 
 const processLambdaMessage = async (
-  service: QueueService,
+  service: QueueService | QueueImport,
   context: EmulateServiceContext,
   subscription: QueueSubscription,
   message: Buffer
