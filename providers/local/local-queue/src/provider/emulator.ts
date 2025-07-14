@@ -33,7 +33,9 @@ const handleQueueMessage = async (service: QueueService | QueueImport, context: 
   const subscriptionIndex = getRandomInteger(0, service.subscriptions.length - 1);
   const queueSubscription = service.subscriptions[subscriptionIndex];
 
-  await processLambdaMessage(service, context, queueSubscription, request.body);
+  if (queueSubscription) {
+    await processLambdaMessage(service, context, queueSubscription, request.body);
+  }
 
   return {
     status: 204
