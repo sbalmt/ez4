@@ -15,6 +15,7 @@ spawn(
     // Enforce options
     '--experimental-strip-types',
     '--experimental-transform-types',
+    '--enable-source-maps',
     '--no-warnings',
 
     // Handle file extensions
