@@ -1,8 +1,4 @@
-import type {
-  PrepareResourceEvent,
-  ConnectResourceEvent,
-  ServiceEvent
-} from '@ez4/project/library';
+import type { PrepareResourceEvent, ConnectResourceEvent, ServiceEvent } from '@ez4/project/library';
 
 import { registerTriggers as registerAwsTriggers } from '@ez4/aws-common';
 import { registerTriggers as registerAwsIdentityTriggers } from '@ez4/aws-identity';
@@ -49,7 +45,7 @@ const prepareLinkedService = (event: ServiceEvent) => {
 };
 
 const prepareQueueResources = async (event: PrepareResourceEvent) => {
-  await Promise.all([prepareServices(event), prepareImports(event)]);
+  return (await prepareServices(event)) || (await prepareImports(event));
 };
 
 const connectQueueResources = async (event: ConnectResourceEvent) => {

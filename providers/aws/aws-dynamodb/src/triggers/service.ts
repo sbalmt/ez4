@@ -35,7 +35,7 @@ export const prepareDatabaseServices = async (event: PrepareResourceEvent) => {
   const { state, service, options, context } = event;
 
   if (!isDynamoDbService(service)) {
-    return;
+    return false;
   }
 
   const { engine, scalability } = service;
@@ -87,6 +87,8 @@ export const prepareDatabaseServices = async (event: PrepareResourceEvent) => {
 
     prepareTableStream(state, service, table, tableState, options, context);
   }
+
+  return true;
 };
 
 export const connectDatabaseServices = (event: ConnectResourceEvent) => {

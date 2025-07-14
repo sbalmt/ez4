@@ -1,11 +1,11 @@
-import type { DeployOptions, EventContext, ExtraSource, ServeOptions } from '@ez4/project/library';
+import type { DeployOptions, EmulateClientEvent, EventContext, ExtraSource } from '@ez4/project/library';
 import type { DatabaseService, TableIndex } from '@ez4/database/library';
 
 import { Index } from '@ez4/database';
 
 import { getTableState } from '../table/utils.js';
 import { Client } from '../client.js';
-import { getInternalName, getTableName } from './utils.js';
+import { getInternalName, getTableName, isDynamoDbService } from './utils.js';
 
 export const prepareLinkedClient = (context: EventContext, service: DatabaseService, options: DeployOptions): ExtraSource => {
   const tableIds = service.tables.map((table) => {
@@ -26,7 +26,13 @@ export const prepareLinkedClient = (context: EventContext, service: DatabaseServ
   };
 };
 
-export const prepareEmulatorClient = (service: DatabaseService, options: ServeOptions) => {
+export const prepareEmulatorClient = (event: EmulateClientEvent) => {
+  const { service, options } = event;
+
+  if (!isDynamoDbService(service)) {
+    return null;
+  }
+
   return Client.make({
     repository: getTableRepository(service, options),
     debug: options.debug

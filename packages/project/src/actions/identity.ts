@@ -5,7 +5,7 @@ import type { DeployOptions } from '../types/options.js';
 
 import { triggerAllAsync } from '@ez4/project/library';
 
-import { MissingProviderError } from '../errors/provider.js';
+import { MissingActionProviderError } from '../errors/provider.js';
 
 export const prepareExecutionRole = async (state: EntryStates, metadata: MetadataReflection, options: DeployOptions) => {
   const serviceTypes = getAllServiceTypes(metadata);
@@ -25,7 +25,7 @@ export const prepareExecutionRole = async (state: EntryStates, metadata: Metadat
   );
 
   if (role === undefined) {
-    throw new MissingProviderError('deploy:prepareExecutionRole');
+    throw new MissingActionProviderError('deploy:prepareExecutionRole');
   }
 
   return role;

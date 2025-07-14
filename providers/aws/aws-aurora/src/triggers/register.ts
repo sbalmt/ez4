@@ -10,7 +10,6 @@ import { registerMigrationProvider } from '../migration/provider.js';
 import { prepareDatabaseServices, prepareLinkedServices } from './service.js';
 import { prepareExecutionPolicy } from './policy.js';
 import { prepareEmulatorClient } from './client.js';
-import { isAuroraService } from './utils.js';
 
 let isRegistered = false;
 
@@ -27,13 +26,7 @@ export const registerTriggers = () => {
     'deploy:prepareExecutionPolicy': prepareExecutionPolicy,
     'deploy:prepareLinkedService': prepareLinkedServices,
     'deploy:prepareResources': prepareDatabaseServices,
-    'emulator:getClient': ({ service, options }) => {
-      if (isAuroraService(service)) {
-        return prepareEmulatorClient(service, options);
-      }
-
-      return null;
-    }
+    'emulator:getClient': prepareEmulatorClient
   });
 
   registerClusterProvider();

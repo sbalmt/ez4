@@ -27,7 +27,7 @@ export const prepareHttpServices = (event: PrepareResourceEvent) => {
   const { state, service, options, context } = event;
 
   if (!isHttpService(service)) {
-    return;
+    return false;
   }
 
   const { name, displayName, description, routes, cors } = service;
@@ -49,6 +49,8 @@ export const prepareHttpServices = (event: PrepareResourceEvent) => {
   });
 
   createHttpRoutes(state, service, gatewayState, options, context);
+
+  return true;
 };
 
 export const connectHttpServices = (event: ConnectResourceEvent) => {

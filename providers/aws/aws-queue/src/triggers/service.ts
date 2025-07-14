@@ -24,7 +24,7 @@ export const prepareServices = async (event: PrepareResourceEvent) => {
   const { state, service, options, context } = event;
 
   if (!isQueueService(service)) {
-    return;
+    return false;
   }
 
   const { fifoMode, retention = Defaults.Retention, timeout = Defaults.Timeout, polling, delay } = service;
@@ -45,6 +45,8 @@ export const prepareServices = async (event: PrepareResourceEvent) => {
   context.setServiceState(queueState, service, options);
 
   await prepareSubscriptions(state, service, queueState, options, context);
+
+  return true;
 };
 
 export const connectServices = (event: ConnectResourceEvent) => {

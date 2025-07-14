@@ -1,4 +1,4 @@
-import type { DeployOptions, EventContext, ExtraSource, ServeOptions } from '@ez4/project/library';
+import type { DeployOptions, EmulateClientEvent, EventContext, ExtraSource } from '@ez4/project/library';
 
 import { getDatabaseName, getTableRepository } from '@ez4/pgclient/library';
 import { getDefinitionName } from '@ez4/project/library';
@@ -8,7 +8,7 @@ import { ClusterState } from '../cluster/types.js';
 import { getClusterState } from '../cluster/utils.js';
 import { importCluster } from '../cluster/client.js';
 import { Client } from '../client.js';
-import { getClusterName } from './utils.js';
+import { getClusterName, isAuroraService } from './utils.js';
 
 export const prepareLinkedClient = (context: EventContext, service: DatabaseService, options: DeployOptions): ExtraSource => {
   const clusterState = getClusterState(context, service.name, options);
@@ -31,7 +31,13 @@ export const prepareLinkedClient = (context: EventContext, service: DatabaseServ
   };
 };
 
-export const prepareEmulatorClient = async (service: DatabaseService, options: ServeOptions) => {
+export const prepareEmulatorClient = async (event: EmulateClientEvent) => {
+  const { service, options } = event;
+
+  if (!isAuroraService(service)) {
+    return null;
+  }
+
   const cluster = await importCluster(getClusterName(service, options));
 
   if (!cluster) {

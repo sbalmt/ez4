@@ -24,7 +24,7 @@ export const prepareDatabaseServices = async (event: PrepareResourceEvent) => {
   const { state, service, options, context } = event;
 
   if (!isAuroraService(service)) {
-    return;
+    return false;
   }
 
   const { engine, scalability } = service;
@@ -52,4 +52,6 @@ export const prepareDatabaseServices = async (event: PrepareResourceEvent) => {
   });
 
   context.setServiceState(clusterState, service, options);
+
+  return true;
 };

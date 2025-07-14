@@ -26,7 +26,7 @@ export const prepareCronServices = async (event: PrepareResourceEvent) => {
   const { state, service, options, context } = event;
 
   if (!isCronService(service)) {
-    return;
+    return false;
   }
 
   if (!context.role || !isRoleState(context.role)) {
@@ -55,6 +55,8 @@ export const prepareCronServices = async (event: PrepareResourceEvent) => {
   });
 
   context.setServiceState(scheduleState, service, options);
+
+  return true;
 };
 
 export const connectCronResources = (event: ConnectResourceEvent) => {

@@ -4,6 +4,8 @@ import type { ServeOptions } from '../types/options.js';
 
 import { getServiceName, triggerAllAsync } from '@ez4/project/library';
 
+import { MissingEmulatorProvider } from '../errors/provider.js';
+
 export type EmulatorServices = Record<string, EmulatorService>;
 
 export const getEmulators = async (metadata: MetadataReflection, options: ServeOptions) => {
@@ -21,15 +23,21 @@ export const getEmulators = async (metadata: MetadataReflection, options: ServeO
   for (const identity in metadata) {
     const service = metadata[identity];
 
-    await triggerAllAsync('emulator:getServices', async (handler) => {
-      const result = await handler({ service, options, context });
+    const result = await triggerAllAsync('emulator:getServices', (handler) =>
+      handler({
+        service,
+        options,
+        context
+      })
+    );
 
-      if (result) {
-        emulators[result.identifier] = result;
-      }
+    if (!result) {
+      throw new MissingEmulatorProvider(service.name);
+    }
 
-      return null;
-    });
+    if (result) {
+      emulators[result.identifier] = result;
+    }
   }
 
   return {

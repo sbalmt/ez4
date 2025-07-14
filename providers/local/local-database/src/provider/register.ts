@@ -1,6 +1,6 @@
 import type { EmulateServiceEvent } from '@ez4/project/library';
 
-import { isDatabaseService } from '@ez4/database/library';
+import { isDatabaseService, registerTriggers as registerDatabaseTriggers } from '@ez4/database/library';
 import { createTrigger } from '@ez4/project/library';
 
 import { registerDatabaseEmulator } from './emulator.js';
@@ -11,6 +11,8 @@ export const registerTriggers = () => {
   if (isRegistered) {
     return;
   }
+
+  registerDatabaseTriggers();
 
   createTrigger('@ez4/local-database', {
     'emulator:getServices': ({ service, options }: EmulateServiceEvent) => {
