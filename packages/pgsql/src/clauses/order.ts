@@ -1,4 +1,4 @@
-import type { SqlSource } from './source.js';
+import type { SqlSource } from '../common/source.js';
 
 import { isEmptyObject } from '@ez4/utils';
 import { Order } from '@ez4/database';
@@ -6,7 +6,7 @@ import { Order } from '@ez4/database';
 import { escapeSqlName } from '../utils/escape.js';
 import { mergeSqlAlias } from '../utils/merge.js';
 import { InvalidColumnOrderError } from '../errors/queries.js';
-import { SqlOrder } from './common.js';
+import { SqlOrder } from '../common/types.js';
 
 export class SqlOrderClause {
   #state: {

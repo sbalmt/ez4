@@ -1,15 +1,15 @@
-import type { SqlJsonColumnOptions, SqlJsonColumnSchema } from '../types/json.js';
-import type { SqlColumn } from '../types/common.js';
+import type { SqlJsonColumnOptions, SqlJsonColumnSchema } from './json.js';
+import type { SqlColumn } from './types.js';
 import type { SqlRawGenerator } from './raw.js';
 import type { SqlSource } from './source.js';
 
 import { isAnyObject } from '@ez4/utils';
 
 import { MissingColumnAliasError } from '../errors/queries.js';
-import { SqlSelectStatement } from '../queries/select.js';
+import { SqlSelectStatement } from '../statements/select.js';
 import { escapeSqlName } from '../utils/escape.js';
 import { mergeSqlAlias } from '../utils/merge.js';
-import { SqlJsonColumn } from '../types/json.js';
+import { SqlJsonColumn } from './json.js';
 import { SqlColumnReference } from './reference.js';
 import { SqlRawValue } from './raw.js';
 

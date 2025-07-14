@@ -1,22 +1,22 @@
 import type { AnySchema, ObjectSchema } from '@ez4/schema';
 import type { SqlBuilderOptions, SqlBuilderReferences } from '../builder.js';
-import type { SqlResultColumn, SqlResultRecord } from '../types/results.js';
-import type { SqlSourceWithResults } from '../types/source.js';
-import type { SqlFilters, SqlRecord } from '../types/common.js';
+import type { SqlResultColumn, SqlResultRecord } from '../common/results.js';
+import type { SqlSourceWithResults } from '../common/source.js';
+import type { SqlFilters, SqlRecord } from '../common/types.js';
 
 import { isDynamicObjectSchema, IsNullishSchema, isObjectSchema, SchemaType } from '@ez4/schema';
 import { isPlainObject } from '@ez4/utils';
 
-import { SqlRaw, SqlRawOperation } from '../types/raw.js';
-import { SqlReturningClause } from '../types/returning.js';
-import { SqlColumnReference, SqlTableReference } from '../types/reference.js';
+import { SqlRaw, SqlRawOperation } from '../common/raw.js';
+import { SqlReturningClause } from '../clauses/returning.js';
+import { SqlColumnReference, SqlTableReference } from '../common/reference.js';
 import { MissingTableNameError, MissingRecordError, EmptyRecordError } from '../errors/queries.js';
 import { mergeSqlJsonPath, mergeSqlPath } from '../utils/merge.js';
 import { getFields, getValues } from '../utils/column.js';
 import { getTableExpressions } from '../utils/table.js';
 import { escapeSqlName } from '../utils/escape.js';
-import { SqlWhereClause } from '../types/where.js';
-import { SqlSource } from '../types/source.js';
+import { SqlWhereClause } from '../clauses/where.js';
+import { SqlSource } from '../common/source.js';
 import { SqlSelectStatement } from './select.js';
 import { InvalidAtomicOperation } from '../main.js';
 

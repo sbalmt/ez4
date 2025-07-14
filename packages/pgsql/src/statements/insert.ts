@@ -1,17 +1,17 @@
 import type { SqlBuilderOptions, SqlBuilderReferences } from '../builder.js';
-import type { SqlResultColumn, SqlResultRecord } from '../types/results.js';
-import type { SqlSourceWithResults } from '../types/source.js';
-import type { SqlRecord } from '../types/common.js';
+import type { SqlResultColumn, SqlResultRecord } from '../common/results.js';
+import type { SqlSourceWithResults } from '../common/source.js';
+import type { SqlRecord } from '../common/types.js';
 import type { ObjectSchema } from '@ez4/schema';
 
-import { SqlRawValue } from '../types/raw.js';
+import { SqlRawValue } from '../common/raw.js';
 import { getTableExpressions } from '../utils/table.js';
-import { SqlColumnReference, SqlTableReference } from '../types/reference.js';
-import { SqlReturningClause } from '../types/returning.js';
+import { SqlColumnReference, SqlTableReference } from '../common/reference.js';
+import { SqlReturningClause } from '../clauses/returning.js';
 import { MissingTableNameError } from '../errors/queries.js';
 import { getFields, getValues } from '../utils/column.js';
 import { escapeSqlName } from '../utils/escape.js';
-import { SqlSource } from '../types/source.js';
+import { SqlSource } from '../common/source.js';
 import { SqlSelectStatement } from './select.js';
 
 type SqlInsertContext = {

@@ -1,22 +1,22 @@
 import type { ObjectSchema } from '@ez4/schema';
-import type { SqlArrayColumn, SqlObjectColumn, SqlResultColumn, SqlResultRecord } from '../types/results.js';
-import type { SqlJsonColumnOptions, SqlJsonColumnSchema } from '../types/json.js';
+import type { SqlArrayColumn, SqlObjectColumn, SqlResultColumn, SqlResultRecord } from '../common/results.js';
+import type { SqlJsonColumnOptions, SqlJsonColumnSchema } from '../common/json.js';
 import type { SqlBuilderOptions, SqlBuilderReferences } from '../builder.js';
-import type { SqlSourceWithResults } from '../types/source.js';
-import type { SqlFilters, SqlOrder } from '../types/common.js';
-import type { SqlRawGenerator } from '../types/raw.js';
+import type { SqlSourceWithResults } from '../common/source.js';
+import type { SqlFilters, SqlOrder } from '../common/types.js';
+import type { SqlRawGenerator } from '../common/raw.js';
 
 import { isAnyNumber } from '@ez4/utils';
 
 import { escapeSqlName } from '../utils/escape.js';
 import { getTableExpressions } from '../utils/table.js';
 import { MissingTableNameError, NoColumnsError } from '../errors/queries.js';
-import { SqlTableReference } from '../types/reference.js';
-import { SqlWhereClause } from '../types/where.js';
-import { SqlOrderClause } from '../types/order.js';
-import { SqlResults } from '../types/results.js';
-import { SqlSource } from '../types/source.js';
-import { SqlJoin } from '../types/join.js';
+import { SqlTableReference } from '../common/reference.js';
+import { SqlWhereClause } from '../clauses/where.js';
+import { SqlOrderClause } from '../clauses/order.js';
+import { SqlResults } from '../common/results.js';
+import { SqlSource } from '../common/source.js';
+import { SqlJoin } from '../clauses/join.js';
 
 export class SqlSelectStatement extends SqlSource implements SqlSourceWithResults {
   #state: {

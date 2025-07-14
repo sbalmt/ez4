@@ -1,5 +1,5 @@
-import { SqlTableReference } from '../types/reference.js';
-import { SqlSource } from '../types/source.js';
+import { SqlTableReference } from '../common/reference.js';
+import { SqlSource } from '../common/source.js';
 import { escapeSqlName } from './escape.js';
 
 export const getTableExpressions = (tables: (string | SqlTableReference | SqlSource)[]) => {

@@ -1,6 +1,6 @@
 import type { AnySchema, ObjectSchema } from '@ez4/schema';
 import type { SqlBuilderOptions, SqlBuilderReferences } from '../builder.js';
-import type { SqlFilters } from './common.js';
+import type { SqlFilters } from './types.js';
 import type { SqlSource } from './source.js';
 
 import { isObjectSchema, SchemaType } from '@ez4/schema';
@@ -8,9 +8,9 @@ import { isAnyObject, isEmptyObject } from '@ez4/utils';
 
 import { mergeSqlAlias, mergeSqlPath } from '../utils/merge.js';
 import { InvalidOperandError, MissingOperatorError } from '../errors/operation.js';
-import { SqlSelectStatement } from '../queries/select.js';
+import { SqlSelectStatement } from '../statements/select.js';
 import { SqlColumnReference } from './reference.js';
-import { SqlOperator } from './common.js';
+import { SqlOperator } from './types.js';
 import { SqlRawValue } from './raw.js';
 
 type SqlConditionsContext = {
