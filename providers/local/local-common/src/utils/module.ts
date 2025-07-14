@@ -60,7 +60,7 @@ const prepareFunction = (entrySource: ModuleEntrySource, callback: (...inputs: u
 
 const loadModule = async (file: string, reload: boolean) => {
   const moduleFile = pathToFileURL(join(process.cwd(), file)).href;
-  const modulePath = `${moduleFile}?v=${reload ? Date.now() : 0}`;
+  const modulePath = reload ? `${moduleFile}?v=${Date.now()}` : moduleFile;
 
   return import(modulePath);
 };
