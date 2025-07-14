@@ -97,7 +97,9 @@ const logQuerySuccess = (input: ExecuteStatementCommandInput, consumption: Consu
     type: 'PartiQL',
     query: input.Statement,
     consumption: consumption?.CapacityUnits,
-    transaction
+    ...(transaction && {
+      transaction
+    })
   });
 };
 
