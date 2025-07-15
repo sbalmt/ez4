@@ -9,7 +9,15 @@ export const loadProviders = async (options: ProjectOptions) => {
 
   const projectProviders = await fetchProviderPackages(packagePath);
 
-  await registerAllProviders(projectProviders);
+  const allPromises = projectProviders.map(async (packageName) => {
+    const registerTriggers = await tryImportProvider([`${packageName}/library`, packageName]);
+
+    if (registerTriggers) {
+      registerTriggers();
+    }
+  });
+
+  await Promise.all(allPromises);
 };
 
 const fetchProviderPackages = async (packagePath: string) => {
@@ -29,24 +37,6 @@ const fetchProviderPackages = async (packagePath: string) => {
   return Object.keys(allDependencies).filter((packageName) => {
     return packageName.startsWith('@ez4/');
   });
-};
-
-const registerAllProviders = async (packageNames: string[]) => {
-  const allPromises = [];
-
-  for (const packageName of packageNames) {
-    allPromises.push(registerProvider(packageName));
-  }
-
-  await Promise.all(allPromises);
-};
-
-const registerProvider = async (packageName: string) => {
-  const registerTriggers = await tryImportProvider([`${packageName}/library`, packageName]);
-
-  if (registerTriggers) {
-    registerTriggers();
-  }
 };
 
 const tryImportProvider = async (packageNames: string[]) => {
