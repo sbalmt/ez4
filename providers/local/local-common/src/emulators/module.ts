@@ -5,7 +5,7 @@ import { Logger } from '@ez4/project/library';
 import { pathToFileURL } from 'node:url';
 import { join } from 'node:path';
 
-import { attachVariables, detachVariables } from './environment.js';
+import { runWithVariables } from './environment.js';
 
 export type VirtualFunction = <T>(...inputs: unknown[]) => Promise<T>;
 
@@ -20,17 +20,16 @@ export type ModuleEntrySource = {
 };
 
 export type ModuleDefinition = {
-  handler: ModuleEntrySource;
+  variables?: LinkedVariables;
   listener?: ModuleEntrySource | null;
-  variables?: LinkedVariables | null;
-  reload?: boolean;
+  handler: ModuleEntrySource;
 };
 
 export const createModule = async (module: ModuleDefinition): Promise<VirtualModule> => {
-  const { handler, listener, variables, reload = true } = module;
+  const { handler, listener, variables = {} } = module;
 
   if (!listener || listener.file === handler.file) {
-    const module = await loadModule(handler.file, reload);
+    const module = await loadModule(handler.file, variables);
 
     return {
       listener: listener ? prepareFunction(listener, variables, module[listener.name]) : undefined,
@@ -38,8 +37,8 @@ export const createModule = async (module: ModuleDefinition): Promise<VirtualMod
     };
   }
 
-  const { [listener.name]: listenerCallback } = await loadModule(listener.file, reload);
-  const { [handler.name]: handlerCallback } = await loadModule(handler.file, reload);
+  const { [listener.name]: listenerCallback } = await loadModule(listener.file, variables);
+  const { [handler.name]: handlerCallback } = await loadModule(handler.file, variables);
 
   return {
     listener: prepareFunction(listener, variables, listenerCallback),
@@ -47,20 +46,13 @@ export const createModule = async (module: ModuleDefinition): Promise<VirtualMod
   };
 };
 
-const prepareFunction = (
-  entrySource: ModuleEntrySource,
-  variables: LinkedVariables | undefined | null,
-  callback: (...inputs: unknown[]) => any
-) => {
+const prepareFunction = (entrySource: ModuleEntrySource, variables: LinkedVariables, callback: (...inputs: unknown[]) => any) => {
   return async <T>(...inputs: unknown[]): Promise<T> => {
     try {
-      if (variables) {
-        attachVariables(variables);
-      }
-
-      Logger.log(`${entrySource.file} [${entrySource.name}] Start`);
-
-      return await callback(...inputs);
+      return await runWithVariables(variables, () => {
+        Logger.log(`${entrySource.file} [${entrySource.name}] Start`);
+        return callback(...inputs);
+      });
       //
     } catch (error) {
       Logger.error(`${entrySource.file} [${entrySource.name}] ${error}`);
@@ -68,17 +60,14 @@ const prepareFunction = (
       //
     } finally {
       Logger.log(`${entrySource.file} [${entrySource.name}] End`);
-
-      if (variables) {
-        detachVariables(variables);
-      }
     }
   };
 };
 
-const loadModule = async (file: string, reload: boolean) => {
-  const moduleFile = pathToFileURL(join(process.cwd(), file)).href;
-  const modulePath = reload ? `${moduleFile}?v=${Date.now()}` : moduleFile;
+const loadModule = async (file: string, variables: LinkedVariables) => {
+  const modulePath = pathToFileURL(join(process.cwd(), file)).href;
 
-  return import(modulePath);
+  return runWithVariables(variables, async () => {
+    return import(`${modulePath}?v=${Date.now()}`);
+  });
 };
