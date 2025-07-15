@@ -1,5 +1,5 @@
 import type { EmulatorServiceClients } from '@ez4/project/library';
-import type { VirtualModule } from './module.js';
+import type { VirtualModule } from '../emulators/module.js';
 
 import { ServiceEventType } from '@ez4/common';
 

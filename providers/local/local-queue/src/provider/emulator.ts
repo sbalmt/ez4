@@ -20,12 +20,17 @@ export const registerQueueServices = (service: QueueService | QueueImport, optio
       return createQueueClient(serviceName, messageSchema, options);
     },
     requestHandler: (request: EmulatorServiceRequest) => {
-      return handleQueueMessage(service, context, request);
+      return handleQueueMessage(service, options, context, request);
     }
   };
 };
 
-const handleQueueMessage = async (service: QueueService | QueueImport, context: EmulateServiceContext, request: EmulatorServiceRequest) => {
+const handleQueueMessage = async (
+  service: QueueService | QueueImport,
+  options: ServeOptions,
+  context: EmulateServiceContext,
+  request: EmulatorServiceRequest
+) => {
   if (request.method !== 'POST' || request.path !== '/' || !request.body) {
     throw new Error('Unsupported queue request.');
   }
@@ -34,7 +39,7 @@ const handleQueueMessage = async (service: QueueService | QueueImport, context: 
   const queueSubscription = service.subscriptions[subscriptionIndex];
 
   if (queueSubscription) {
-    await processLambdaMessage(service, context, queueSubscription, request.body);
+    await processLambdaMessage(service, options, context, queueSubscription, request.body);
   }
 
   return {
@@ -44,13 +49,19 @@ const handleQueueMessage = async (service: QueueService | QueueImport, context: 
 
 const processLambdaMessage = async (
   service: QueueService | QueueImport,
+  options: ServeOptions,
   context: EmulateServiceContext,
   subscription: QueueSubscription,
   message: Buffer
 ) => {
   const lambdaModule = await createModule({
     listener: subscription.listener,
-    handler: subscription.handler
+    handler: subscription.handler,
+    variables: {
+      ...options.variables,
+      ...service.variables,
+      ...subscription.variables
+    }
   });
 
   const lambdaContext = service.services && context.makeClients(service.services);

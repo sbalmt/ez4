@@ -26,13 +26,13 @@ export const registerHttpServices = (service: HttpService, options: ServeOptions
       }
 
       if (!currentRoute.authorizer) {
-        return processHttpRequest(service, context, currentRoute);
+        return processHttpRequest(service, options, context, currentRoute);
       }
 
-      const identity = await processHttpAuthorization(service, context, currentRoute);
+      const identity = await processHttpAuthorization(service, options, context, currentRoute);
 
       if (identity) {
-        return processHttpRequest(service, context, currentRoute, identity);
+        return processHttpRequest(service, options, context, currentRoute, identity);
       }
 
       return getOutgoingErrorResponse(new HttpForbiddenError());

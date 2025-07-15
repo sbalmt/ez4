@@ -1,4 +1,4 @@
-import type { EmulateServiceContext } from '@ez4/project/library';
+import type { EmulateServiceContext, ServeOptions } from '@ez4/project/library';
 import type { HttpService } from '@ez4/gateway/library';
 import type { Http } from '@ez4/gateway';
 import type { MatchingRoute } from '../utils/route.js';
@@ -10,6 +10,7 @@ import { getIncomingRequestHeaders, getIncomingRequestParameters, getIncomingReq
 
 export const processHttpAuthorization = async (
   service: HttpService,
+  options: ServeOptions,
   context: EmulateServiceContext,
   route: MatchingRoute
 ): Promise<Http.Identity | undefined> => {
@@ -19,7 +20,12 @@ export const processHttpAuthorization = async (
 
   const lambdaModule = await createModule({
     handler: route.authorizer,
-    listener: route.listener
+    listener: route.listener,
+    variables: {
+      ...options.variables,
+      ...service.variables,
+      ...route.variables
+    }
   });
 
   const lambdaContext = service.services && context.makeClients(service.services);

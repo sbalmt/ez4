@@ -1,4 +1,4 @@
-import type { EmulateServiceContext } from '@ez4/project/library';
+import type { EmulateServiceContext, ServeOptions } from '@ez4/project/library';
 import type { HttpService } from '@ez4/gateway/library';
 import type { Http } from '@ez4/gateway';
 import type { MatchingRoute } from '../utils/route.js';
@@ -18,13 +18,19 @@ import {
 
 export const processHttpRequest = async (
   service: HttpService,
+  options: ServeOptions,
   context: EmulateServiceContext,
   route: MatchingRoute,
   identity?: Http.Identity
 ) => {
   const lambdaModule = await createModule({
     listener: route.listener,
-    handler: route.handler
+    handler: route.handler,
+    variables: {
+      ...options.variables,
+      ...service.variables,
+      ...route.variables
+    }
   });
 
   const lambdaContext = service.services && context.makeClients(service.services);

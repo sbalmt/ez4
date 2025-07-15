@@ -16,7 +16,7 @@ export const registerCronEmulator = (service: CronService, options: ServeOptions
 
   InMemoryScheduler.createScheduler(serviceName, {
     handler: async (event: Cron.Event) => {
-      await handleSchedulerEvent(service, context, event);
+      await handleSchedulerEvent(service, options, context, event);
     }
   });
 
@@ -29,41 +29,68 @@ export const registerCronEmulator = (service: CronService, options: ServeOptions
     },
     bootstrapHandler: () => {
       if (isDynamicCronService(service)) {
-        Logger.log(`Dynamic scheduler [${serviceName}] is ready`);
+        Logger.log(`⏱️ Dynamic scheduler [${serviceName}] is ready`);
       } else {
-        scheduleNextExpression(service, context);
+        scheduleNextExpression(service, options, context);
       }
     }
   };
 };
 
-const scheduleNextExpression = (service: CronService, context: EmulateServiceContext) => {
+const scheduleNextExpression = (service: CronService, options: ServeOptions, context: EmulateServiceContext) => {
   const { interval, type, value } = parseExpression(service.expression);
 
   switch (type) {
-    case ExpressionType.Cron:
-      Logger.log(`Scheduler [${service.name}] will run in cron (${value})`);
-      setTimeout(() => handleSchedulerEvent(service, context, null).then(() => scheduleNextExpression(service, context)), interval);
-      break;
+    case ExpressionType.Cron: {
+      Logger.log(`⏱️ Scheduler [${service.name}] will run in cron (${value})`);
 
-    case ExpressionType.Rate:
-      Logger.log(`Scheduler [${service.name}] will run in ${value}`);
-      setTimeout(() => handleSchedulerEvent(service, context, null).then(() => scheduleNextExpression(service, context)), interval);
-      break;
+      setTimeout(() => {
+        handleSchedulerEvent(service, options, context, null);
+        scheduleNextExpression(service, options, context);
+      }, interval);
 
-    case ExpressionType.At:
-      Logger.log(`Scheduler [${service.name}] will run at ${value}`);
-      setTimeout(() => handleSchedulerEvent(service, context, null), interval);
       break;
+    }
+
+    case ExpressionType.Rate: {
+      Logger.log(`⏱️ Scheduler [${service.name}] will run in ${value}`);
+
+      setTimeout(() => {
+        handleSchedulerEvent(service, options, context, null);
+        scheduleNextExpression(service, options, context);
+      }, interval);
+
+      break;
+    }
+
+    case ExpressionType.At: {
+      Logger.log(`⏱️ Scheduler [${service.name}] will run at ${value}`);
+
+      setTimeout(() => {
+        handleSchedulerEvent(service, options, context, null);
+      }, interval);
+
+      break;
+    }
   }
 };
 
-const handleSchedulerEvent = async (service: CronService, context: EmulateServiceContext, event: Cron.Event | null) => {
+const handleSchedulerEvent = async (
+  service: CronService,
+  options: ServeOptions,
+  context: EmulateServiceContext,
+  event: Cron.Event | null
+) => {
   const { services: linkedServices, target } = service;
 
   const lambdaModule = await createModule({
+    listener: target.listener,
     handler: target.handler,
-    listener: target.listener
+    variables: {
+      ...options.variables,
+      ...service.variables,
+      ...target.variables
+    }
   });
 
   const lambdaContext = linkedServices && context.makeClients(linkedServices);

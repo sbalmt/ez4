@@ -32,15 +32,16 @@ export const registerNotificationServices = (
       return createNotificationClient(serviceName, messageSchema, options);
     },
     requestHandler: (request: EmulatorServiceRequest) => {
-      return handleNotificationMessage(service, request, context);
+      return handleNotificationMessage(service, options, context, request);
     }
   };
 };
 
 const handleNotificationMessage = async (
   service: NotificationService | NotificationImport,
-  request: EmulatorServiceRequest,
-  context: EmulateServiceContext
+  options: ServeOptions,
+  context: EmulateServiceContext,
+  request: EmulatorServiceRequest
 ) => {
   if (request.method !== 'POST' || request.path !== '/' || !request.body) {
     throw new Error('Unsupported notification request.');
@@ -53,7 +54,7 @@ const handleNotificationMessage = async (
         break;
 
       case NotificationSubscriptionType.Lambda:
-        await processLambdaMessage(service, context, subscription, request.body);
+        await processLambdaMessage(service, options, context, subscription, request.body);
         break;
     }
   }
@@ -79,13 +80,19 @@ const processQueueMessage = async (
 
 const processLambdaMessage = async (
   service: NotificationService | NotificationImport,
+  options: ServeOptions,
   context: EmulateServiceContext,
   subscription: NotificationLambdaSubscription,
   message: Buffer
 ) => {
   const lambdaModule = await createModule({
     listener: subscription.listener,
-    handler: subscription.handler
+    handler: subscription.handler,
+    variables: {
+      ...options.variables,
+      ...service.variables,
+      ...subscription.variables
+    }
   });
 
   const lambdaContext = service.services && context.makeClients(service.services);

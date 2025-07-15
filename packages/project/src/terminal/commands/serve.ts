@@ -24,6 +24,7 @@ export const serveCommand = async (project: ProjectOptions) => {
     projectName: toKebabCase(project.projectName),
     providerOptions: serveOptions?.providerOptions ?? {},
     serviceHost: `${serviceHost}:${servicePort}`,
+    variables: project.variables,
     debug: project.debugMode
   };
 
