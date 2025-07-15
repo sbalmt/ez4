@@ -29,7 +29,7 @@ export const registerCronEmulator = (service: CronService, options: ServeOptions
     },
     bootstrapHandler: () => {
       if (isDynamicCronService(service)) {
-        Logger.log(`⏱️ Dynamic scheduler [${serviceName}] is ready`);
+        Logger.log(`⌚ Dynamic scheduler [${serviceName}] is ready`);
       } else {
         scheduleNextExpression(service, options, context);
       }
@@ -42,7 +42,7 @@ const scheduleNextExpression = (service: CronService, options: ServeOptions, con
 
   switch (type) {
     case ExpressionType.Cron: {
-      Logger.log(`⏱️ Scheduler [${service.name}] will run in cron (${value})`);
+      Logger.log(`⌚ Scheduler [${service.name}] will run in cron (${value})`);
 
       setTimeout(() => {
         handleSchedulerEvent(service, options, context, null);
@@ -53,7 +53,7 @@ const scheduleNextExpression = (service: CronService, options: ServeOptions, con
     }
 
     case ExpressionType.Rate: {
-      Logger.log(`⏱️ Scheduler [${service.name}] will run in ${value}`);
+      Logger.log(`⌚ Scheduler [${service.name}] will run in ${value}`);
 
       setTimeout(() => {
         handleSchedulerEvent(service, options, context, null);
@@ -64,7 +64,7 @@ const scheduleNextExpression = (service: CronService, options: ServeOptions, con
     }
 
     case ExpressionType.At: {
-      Logger.log(`⏱️ Scheduler [${service.name}] will run at ${value}`);
+      Logger.log(`⌚ Scheduler [${service.name}] will run at ${value}`);
 
       setTimeout(() => {
         handleSchedulerEvent(service, options, context, null);
