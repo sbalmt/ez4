@@ -7,21 +7,34 @@ export const attachVariables = (variables: LinkedVariables) => {
     const variableValue = variables[variableName];
 
     if (variableValue) {
-      if (!referencesCount[variableName]) {
-        process.env[variableName] = variableValue;
-        referencesCount[variableName] = 0;
+      // It's already referenced, just increment the counter.
+      if (variableName in referencesCount) {
+        referencesCount[variableName]++;
+        continue;
       }
 
-      referencesCount[variableName]++;
+      // It's not referenced, but already defined.
+      if (variableName in process.env) {
+        referencesCount[variableName] = +Infinity;
+        continue;
+      }
+
+      process.env[variableName] = variableValue;
+
+      referencesCount[variableName] = 1;
     }
   }
 };
 
 export const detachVariables = (variables: LinkedVariables) => {
   for (const variableName in variables) {
-    if (referencesCount[variableName] && --referencesCount[variableName] <= 0) {
-      delete referencesCount[variableName];
-      delete process.env[variableName];
+    if (variableName in referencesCount) {
+      referencesCount[variableName]--;
+
+      if (referencesCount[variableName] === 0) {
+        delete referencesCount[variableName];
+        delete process.env[variableName];
+      }
     }
   }
 };
