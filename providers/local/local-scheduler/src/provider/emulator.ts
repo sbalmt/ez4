@@ -42,7 +42,7 @@ const scheduleNextExpression = (service: CronService, options: ServeOptions, con
 
   switch (type) {
     case ExpressionType.Cron: {
-      Logger.log(`⌚ Scheduler [${service.name}] will run in cron (${value})`);
+      Logger.log(`⌚ Scheduler [${service.name}] will run using cron (${value})`);
 
       setTimeout(() => {
         handleSchedulerEvent(service, options, context, null);
