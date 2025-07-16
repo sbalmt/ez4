@@ -2,8 +2,8 @@ import type { Client, Queue } from '@ez4/queue';
 import type { ServeOptions } from '@ez4/project/library';
 import type { MessageSchema } from '@ez4/queue/utils';
 
+import { getServiceName, Logger } from '@ez4/project/library';
 import { getJsonStringMessage } from '@ez4/queue/utils';
-import { getServiceName } from '@ez4/project/library';
 
 export const createQueueClient = <T extends Queue.Service<any>>(
   serviceName: string,
@@ -16,6 +16,8 @@ export const createQueueClient = <T extends Queue.Service<any>>(
   return new (class {
     async sendMessage(message: T['schema']) {
       const safeMessage = await getJsonStringMessage(message, messageSchema);
+
+      Logger.log(`➡️  Sending message to Queue [${serviceName}] at ${queueHost}`);
 
       const response = await fetch(queueHost, {
         method: 'POST',

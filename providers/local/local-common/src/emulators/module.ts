@@ -50,16 +50,16 @@ const prepareFunction = (entrySource: ModuleEntrySource, variables: LinkedVariab
   return async <T>(...inputs: unknown[]): Promise<T> => {
     try {
       return await runWithVariables(variables, () => {
-        Logger.log(`${entrySource.file} [${entrySource.name}] Start`);
+        Logger.log(`▶️  ${entrySource.file} [${entrySource.name}] Start`);
         return callback(...inputs);
       });
       //
     } catch (error) {
-      Logger.error(`${entrySource.file} [${entrySource.name}] ${error}`);
+      Logger.error(`❌ ${entrySource.file} [${entrySource.name}] ${error}`);
       throw error;
       //
     } finally {
-      Logger.log(`${entrySource.file} [${entrySource.name}] End`);
+      Logger.log(`✅ ${entrySource.file} [${entrySource.name}] Finish`);
     }
   };
 };
