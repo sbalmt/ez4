@@ -142,7 +142,7 @@ describe('insert schema', () => {
     assert.deepEqual(variables, []);
   });
 
-  it('assert :: prepare insert schema (scalar extra field)', async ({ assert }) => {
+  it('assert :: prepare insert schema (scalar unexpected field)', async ({ assert }) => {
     const [statement, variables] = await prepareInsert(
       {
         type: SchemaType.Object,
@@ -316,7 +316,7 @@ describe('insert schema', () => {
     assert.deepEqual(variables, [{}]);
   });
 
-  it('assert :: prepare insert schema (json extra field)', async ({ assert }) => {
+  it('assert :: prepare insert schema (json unexpected field)', async ({ assert }) => {
     const [statement, variables] = await prepareInsert(
       {
         type: SchemaType.Object,
@@ -344,6 +344,70 @@ describe('insert schema', () => {
     assert.equal(statement, `INSERT INTO "ez4-test-insert-schema" ("json") VALUES (:0)`);
 
     assert.deepEqual(variables, [{ foo: 123 }]);
+  });
+
+  it('assert :: prepare insert schema (json additional field)', async ({ assert }) => {
+    const [statement, variables] = await prepareInsert(
+      {
+        type: SchemaType.Object,
+        properties: {
+          json: {
+            type: SchemaType.Object,
+            properties: {},
+            additional: {
+              property: {
+                type: SchemaType.String
+              },
+              value: {
+                type: SchemaType.Number
+              }
+            }
+          }
+        }
+      },
+      {
+        data: {
+          json: {
+            foo: 123,
+            bar: 456
+          }
+        }
+      }
+    );
+
+    assert.equal(statement, `INSERT INTO "ez4-test-insert-schema" ("json") VALUES (:0)`);
+
+    assert.deepEqual(variables, [{ foo: 123, bar: 456 }]);
+  });
+
+  it('assert :: prepare insert schema (json unknown field)', async ({ assert }) => {
+    const [statement, variables] = await prepareInsert(
+      {
+        type: SchemaType.Object,
+        properties: {
+          json: {
+            type: SchemaType.Object,
+            properties: {},
+            definitions: {
+              extensible: true
+            }
+          }
+        }
+      },
+      {
+        data: {
+          json: {
+            foo: 123,
+            bar: 'bar',
+            baz: true
+          }
+        }
+      }
+    );
+
+    assert.equal(statement, `INSERT INTO "ez4-test-insert-schema" ("json") VALUES (:0)`);
+
+    assert.deepEqual(variables, [{ foo: 123, bar: 'bar', baz: true }]);
   });
 
   it('assert :: prepare insert schema (with select)', async ({ assert }) => {
@@ -412,6 +476,29 @@ describe('insert schema', () => {
     );
   });
 
+  it('assert :: prepare insert schema (invalid scalar field type)', async ({ assert }) => {
+    await assert.rejects(
+      () =>
+        prepareInsert(
+          {
+            type: SchemaType.Object,
+            properties: {
+              column: {
+                type: SchemaType.Number
+              }
+            }
+          },
+          {
+            data: {
+              // The `column` can't be string as per schema definition.
+              column: 'foo'
+            }
+          }
+        ),
+      MalformedRequestError
+    );
+  });
+
   it('assert :: prepare insert schema (invalid json field type)', async ({ assert }) => {
     await assert.rejects(
       () =>
@@ -435,29 +522,6 @@ describe('insert schema', () => {
                 // The `column` can't be numeric as per schema definition.
                 column: 123
               }
-            }
-          }
-        ),
-      MalformedRequestError
-    );
-  });
-
-  it('assert :: prepare insert schema (invalid scalar field type)', async ({ assert }) => {
-    await assert.rejects(
-      () =>
-        prepareInsert(
-          {
-            type: SchemaType.Object,
-            properties: {
-              column: {
-                type: SchemaType.Number
-              }
-            }
-          },
-          {
-            data: {
-              // The `column` can't be string as per schema definition.
-              column: 'foo'
             }
           }
         ),

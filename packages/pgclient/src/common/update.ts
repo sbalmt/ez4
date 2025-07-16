@@ -7,12 +7,12 @@ import type { RelationWithSchema, RepositoryRelationsWithSchema } from '../types
 import type { InternalTableMetadata } from '../types/table.js';
 
 import { InvalidAtomicOperation, InvalidRelationFieldError } from '@ez4/pgclient';
-import { isNumberSchema, isObjectSchema } from '@ez4/schema';
+import { getObjectSchemaProperty, isDynamicObjectSchema, isNumberSchema, isObjectSchema } from '@ez4/schema';
 import { isAnyObject, isEmptyObject } from '@ez4/utils';
 import { Index } from '@ez4/database';
 
 import { getSourceConnectionSchema, getTargetConnectionSchema, getUpdatingSchema, isSingleRelationData } from '../utils/relation.js';
-import { getSchemaValidatedData, validateFirstSchemaLevel } from '../utils/schema.js';
+import { getWithSchemaValidation, validateFirstSchemaLevel } from '../utils/schema.js';
 import { getSelectFields, getSelectFilters } from './select.js';
 
 export const prepareUpdateQuery = async <T extends InternalTableMetadata, S extends Query.SelectInput<T>>(
@@ -126,26 +126,32 @@ const getUpdateRecord = async (
       continue;
     }
 
-    const fieldSchema = schema.properties[fieldName];
+    const fieldSchema = getObjectSchemaProperty(schema, fieldName);
 
-    if (fieldSchema) {
-      if (!isAnyObject(fieldValue)) {
-        record[fieldName] = await getSchemaValidatedData(fieldValue, fieldSchema, fieldPath);
-        continue;
+    if (!fieldSchema) {
+      if (isDynamicObjectSchema(schema)) {
+        record[fieldName] = builder.rawValue(fieldValue);
       }
 
-      if (isNumberSchema(fieldSchema)) {
-        record[fieldName] = await getAtomicOperationUpdate(builder, fieldName, fieldValue, fieldSchema, fieldPath);
-        continue;
-      }
-
-      if (isObjectSchema(fieldSchema)) {
-        record[fieldName] = await getUpdateRecord(builder, fieldValue, fieldSchema, relations, fieldPath);
-        continue;
-      }
-
-      record[fieldName] = builder.rawValue(fieldValue);
+      continue;
     }
+
+    if (!isAnyObject(fieldValue)) {
+      record[fieldName] = await getWithSchemaValidation(fieldValue, fieldSchema, fieldPath);
+      continue;
+    }
+
+    if (isNumberSchema(fieldSchema)) {
+      record[fieldName] = await getAtomicOperationUpdate(builder, fieldName, fieldValue, fieldSchema, fieldPath);
+      continue;
+    }
+
+    if (isObjectSchema(fieldSchema)) {
+      record[fieldName] = await getUpdateRecord(builder, fieldValue, fieldSchema, relations, fieldPath);
+      continue;
+    }
+
+    record[fieldName] = builder.rawValue(fieldValue);
   }
 
   return record;

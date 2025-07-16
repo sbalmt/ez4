@@ -37,3 +37,7 @@ export const isObjectSchema = (schema: AnySchema): schema is ObjectSchema => {
 export const isDynamicObjectSchema = (schema: ObjectSchema) => {
   return schema.definitions?.extensible || !!schema.additional;
 };
+
+export const getObjectSchemaProperty = (schema: ObjectSchema, propertyName: string) => {
+  return schema.properties[propertyName] ?? schema.additional?.value;
+};

@@ -29,7 +29,7 @@ export const validateAllSchemaLevels = (data: unknown, schema: AnySchema, path: 
   });
 };
 
-export const getSchemaValidatedData = async (data: unknown, schema: AnySchema, path: string) => {
+export const getWithSchemaValidation = async (data: unknown, schema: AnySchema, path: string) => {
   const record = transform(data, schema, createTransformContext({ convert: false }));
 
   await validateAllSchemaLevels(record, schema, path);

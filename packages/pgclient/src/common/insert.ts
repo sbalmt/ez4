@@ -21,7 +21,7 @@ import {
   getSourceConnectionSchema
 } from '../utils/relation.js';
 
-import { getSchemaValidatedData, validateAllSchemaLevels, validateFirstSchemaLevel } from '../utils/schema.js';
+import { getWithSchemaValidation, validateAllSchemaLevels, validateFirstSchemaLevel } from '../utils/schema.js';
 import { getDefaultSelectFields, getFieldColumn, getSelectFields } from './select.js';
 
 type InsertRelationsCache = Record<string, InsertRelationEntry>;
@@ -92,7 +92,7 @@ const getInsertRecord = async (
 
     if (!fieldRelation) {
       if (fieldSchema) {
-        record[fieldName] = await getSchemaValidatedData(fieldValue, fieldSchema, fieldPath);
+        record[fieldName] = await getWithSchemaValidation(fieldValue, fieldSchema, fieldPath);
       }
 
       continue;
