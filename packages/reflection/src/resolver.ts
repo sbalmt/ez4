@@ -108,9 +108,11 @@ export type ReflectionOptions = {
   resolverEvents?: ResolverEvents;
 };
 
+export type ReflectionFiles = Record<string, string[]>;
+
 export const resolveReflectionFiles = (program: Program) => {
   const basePath = program.getCurrentDirectory();
-  const importGraph: Record<string, string[]> = {};
+  const importGraph: ReflectionFiles = {};
 
   for (const sourceFile of program.getSourceFiles()) {
     const importFiles: string[] = [];
@@ -153,7 +155,7 @@ export const resolveReflectionFiles = (program: Program) => {
     return dependencies;
   };
 
-  return program.getRootFileNames().reduce((imports, fileName) => {
+  return program.getRootFileNames().reduce<ReflectionFiles>((imports, fileName) => {
     return {
       ...imports,
       [fileName]: [...groupReflectionFiles(fileName)]
@@ -173,9 +175,9 @@ export const resolveReflectionMetadata = (program: Program, options?: Reflection
   };
 
   for (const sourceFile of program.getSourceFiles()) {
-    const source = trySource(sourceFile, sourceContext);
+    if (!sourceFile.isDeclarationFile) {
+      const source = trySource(sourceFile, sourceContext);
 
-    if (source) {
       Object.assign(reflection, source);
       sourceContext.pending.clear();
     }

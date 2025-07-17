@@ -12,10 +12,6 @@ import { tryTypeEnum } from './type-enum.js';
 import { getNewState } from './common.js';
 
 export const trySource = (node: SourceFile, context: Context) => {
-  if (node.isDeclarationFile) {
-    return null;
-  }
-
   const reflection: SourceMap = {};
 
   const resolveStatement = (node: Node) => {
