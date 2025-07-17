@@ -26,7 +26,7 @@ export const serveCommand = async (project: ProjectOptions) => {
     serviceHost: `${serviceHost}:${servicePort}`,
     variables: project.variables,
     debug: project.debugMode,
-    version: Date.now()
+    version: 0
   };
 
   await Logger.execute('Loading providers', () => {
@@ -37,6 +37,10 @@ export const serveCommand = async (project: ProjectOptions) => {
 
   const watcher = await watchMetadata(project.sourceFiles, async ({ metadata }) => {
     Logger.clear();
+
+    if (options.version > 0) {
+      await shutdownServices(emulators);
+    }
 
     options.version++;
 
@@ -171,6 +175,16 @@ const bootstrapServices = async (emulators: EmulatorServices, options: ServeOpti
 
     if (emulator.requestHandler) {
       Logger.log(`🌐 Serving ${emulator.type} [${emulator.name}] at http://${options.serviceHost}/${identifier}`);
+    }
+  }
+};
+
+const shutdownServices = async (emulators: EmulatorServices) => {
+  for (const identifier in emulators) {
+    const emulator = emulators[identifier];
+
+    if (emulator.shutdownHandler) {
+      await emulator.shutdownHandler();
     }
   }
 };

@@ -3,18 +3,15 @@ import type { Cron, ScheduleEvent } from '@ez4/scheduler';
 import { deepClone, deepMerge } from '@ez4/utils';
 
 type InMemorySchedulerData<T extends Cron.Event> = InMemoryScheduler.SchedulerParameters & {
-  events: Record<string, InMemorySchedulerEvent<T>>;
-};
-
-type InMemorySchedulerEvent<T extends Cron.Event> = ScheduleEvent<T> & {
-  timerId: NodeJS.Timeout;
+  events: Record<string, ScheduleEvent<T>>;
+  timers: Record<string, NodeJS.Timeout>;
 };
 
 const ALL_SCHEDULERS: Record<string, InMemorySchedulerData<any>> = {};
 
 export namespace InMemoryScheduler {
   export type SchedulerParameters = {
-    handler: (event: Cron.Event) => Promise<void> | void;
+    handler: (event: Cron.Event | null) => Promise<void> | void;
   };
 
   export const createScheduler = (schedulerName: string, parameters: SchedulerParameters) => {
@@ -24,8 +21,19 @@ export namespace InMemoryScheduler {
 
     ALL_SCHEDULERS[schedulerName] = {
       ...parameters,
-      events: {}
+      events: {},
+      timers: {}
     };
+  };
+
+  export const deleteScheduler = (schedulerName: string) => {
+    const instance = getScheduler(schedulerName);
+
+    for (const timerId in instance.timers) {
+      clearTimeout(instance.timers[timerId]);
+    }
+
+    delete ALL_SCHEDULERS[schedulerName];
   };
 
   export const getScheduler = (schedulerName: string) => {
@@ -36,6 +44,15 @@ export namespace InMemoryScheduler {
     return ALL_SCHEDULERS[schedulerName];
   };
 
+  export const createTimer = (schedulerName: string, identifier: string, timeout: number, callback?: () => void) => {
+    const instance = getScheduler(schedulerName);
+
+    instance.timers[identifier] = setTimeout(async () => {
+      callback?.();
+      await instance.handler(null);
+    }, timeout);
+  };
+
   export const createEvent = <T extends Cron.Event>(schedulerName: string, identifier: string, input: ScheduleEvent<T>) => {
     const instance = getScheduler(schedulerName);
     const interval = input.date.getTime() - Date.now();
@@ -44,44 +61,45 @@ export namespace InMemoryScheduler {
       throw new Error(`Event for scheduler ${schedulerName} is too old.`);
     }
 
-    const timerId = setTimeout(async () => await instance.handler(input.event), interval);
+    instance.timers[identifier] = setTimeout(async () => await instance.handler(input.event), interval);
 
     instance.events[identifier] = {
-      ...input,
-      timerId
+      ...input
     };
   };
 
   export const deleteEvent = (schedulerName: string, identifier: string) => {
     const instance = getScheduler(schedulerName);
-    const current = instance.events[identifier];
 
-    if (!current) {
+    const event = instance.events[identifier];
+    const timer = instance.timers[identifier];
+
+    if (!event || !timer) {
       throw new Error(`Event ${identifier} not found on scheduler ${schedulerName}.`);
     }
 
-    clearTimeout(current.timerId);
+    clearTimeout(timer);
 
     delete instance.events[identifier];
 
-    return current;
+    return event;
   };
 
   export const updateEvent = <T extends Cron.Event>(schedulerName: string, identifier: string, input: Partial<ScheduleEvent<T>>) => {
-    const previous = deleteEvent(schedulerName, identifier);
-    const current = deepMerge(previous, input);
+    const previousEvent = deleteEvent(schedulerName, identifier);
+    const currentEvent = deepMerge(previousEvent, input);
 
-    createEvent(schedulerName, identifier, current);
+    createEvent(schedulerName, identifier, currentEvent);
   };
 
   export const getEvent = (schedulerName: string, identifier: string) => {
-    const current = getScheduler(schedulerName).events[identifier];
+    const event = getScheduler(schedulerName).events[identifier];
 
-    if (!current) {
+    if (!event) {
       return undefined;
     }
 
-    return deepClone(current, {
+    return deepClone(event, {
       include: {
         date: true,
         maxRetries: true,
