@@ -1,14 +1,21 @@
 import type { AllType, SourceMap } from '@ez4/reflection';
-import type { MetadataReflection } from '../types/metadata.js';
+import type { MetadataDependencies, MetadataReflection } from '../types/metadata.js';
 
 import { getReflectionFiles, TypeName } from '@ez4/reflection';
-import { triggerAllSync } from '@ez4/project/library';
+import { Logger, triggerAllSync } from '@ez4/project/library';
 
-import { DuplicateMetadataError } from '../errors/metadata.js';
 import { assertNoErrors } from '../utils/errors.js';
-import { getReflection } from './reflection.js';
+import { DuplicateMetadataError } from '../errors/metadata.js';
+import { getReflection, watchReflection } from './reflection.js';
 
-export const getMetadata = (sourceFiles: string[]) => {
+export type MetadataReadyListener = (metadata: MetadataResult) => Promise<void> | void;
+
+export type MetadataResult = {
+  dependencies: MetadataDependencies;
+  metadata: MetadataReflection;
+};
+
+export const getMetadata = (sourceFiles: string[]): MetadataResult => {
   const reflectionTypes = getReflection(sourceFiles);
   const reflectionFiles = getMetadataFiles(reflectionTypes);
 
@@ -29,6 +36,35 @@ export const getMetadata = (sourceFiles: string[]) => {
     dependencies: getReflectionFiles(reflectionFiles),
     metadata
   };
+};
+
+export const watchMetadata = (sourceFiles: string[], onMetadataReady: MetadataReadyListener) => {
+  return watchReflection(sourceFiles, async (reflectionTypes) => {
+    const reflectionFiles = getMetadataFiles(reflectionTypes);
+
+    const metadata: MetadataReflection = {};
+
+    triggerAllSync('metadata:getServices', (handler) => {
+      const result = handler(reflectionTypes);
+
+      if (result) {
+        if (!result.errors.length) {
+          assignMetadataServices(metadata, result.services);
+        }
+
+        for (const error of result.errors) {
+          Logger.error(error.message);
+        }
+      }
+
+      return null;
+    });
+
+    await onMetadataReady({
+      dependencies: getReflectionFiles(reflectionFiles),
+      metadata
+    });
+  });
 };
 
 const assignMetadataServices = (metadata: MetadataReflection, services: MetadataReflection) => {

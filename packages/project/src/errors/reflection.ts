@@ -1,5 +1,5 @@
 export class ReflectionSourceFileNotFound extends Error {
   constructor(public sourceFile: string) {
-    super(`Reflection source file ${sourceFile} was not found.`);
+    super(`Source file ${sourceFile} for reflection was not found.`);
   }
 }

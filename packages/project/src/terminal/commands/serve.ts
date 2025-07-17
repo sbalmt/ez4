@@ -9,7 +9,7 @@ import { toKebabCase } from '@ez4/utils';
 import { createServer } from 'node:http';
 
 import { loadProviders } from '../../common/providers.js';
-import { getMetadata } from '../../library/metadata.js';
+import { watchMetadata } from '../../library/metadata.js';
 import { getEmulators } from '../../library/emulator.js';
 import { Logger } from '../../utils/logger.js';
 
@@ -32,11 +32,15 @@ export const serveCommand = async (project: ProjectOptions) => {
     return loadProviders(project);
   });
 
-  const { metadata } = await Logger.execute('Loading metadata', () => {
-    return getMetadata(project.sourceFiles);
-  });
+  let emulators = {};
 
-  const { emulators } = await getEmulators(metadata, options);
+  await watchMetadata(project.sourceFiles, async ({ metadata }) => {
+    emulators = await Logger.execute('Loading emulators', async () => {
+      return getEmulators(metadata, options);
+    });
+
+    await bootstrapServices(emulators, options);
+  });
 
   const server = createServer((request, stream) => {
     const service = getRequestService(emulators, request, options);
@@ -91,8 +95,6 @@ export const serveCommand = async (project: ProjectOptions) => {
   });
 
   server.listen(servicePort, serviceHost, async () => {
-    await bootstrapServices(emulators, options);
-
     Logger.log(`🚀 Project ${project.projectName} up and running!`);
   });
 };

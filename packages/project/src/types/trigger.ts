@@ -4,7 +4,7 @@ import type { EmulatorService, EmulateServiceEvent, EmulateClientEvent } from '.
 import type { IdentityAccount, IdentityGrant } from './identity.js';
 import type { DeployOptions, DestroyOptions } from './options.js';
 import type { ServiceMetadata, ExtraSource } from './service.js';
-import type { MetadataResult } from './metadata.js';
+import type { MetadataServiceResult } from './metadata.js';
 
 export type Trigger = SyncEvent | AsyncEvent;
 
@@ -21,7 +21,7 @@ export type AsyncEventTrigger<T extends keyof AsyncEvent> = (handler: AsyncEvent
 export type SyncEvent = {
   'reflection:loadFile': (file: string) => SyncEventResult<string>;
   'reflection:typeObject': (type: TypeObject) => SyncEventResult<EveryType>;
-  'metadata:getServices': (reflection: SourceMap) => SyncEventResult<MetadataResult>;
+  'metadata:getServices': (reflection: SourceMap) => SyncEventResult<MetadataServiceResult>;
   'metadata:getLinkedService': (type: TypeClass) => SyncEventResult<string>;
 };
 

@@ -1,40 +1,42 @@
-import type { SourceMap } from '@ez4/reflection';
+import type { ReflectionOptions, ReflectionReadyListener, SourceMap } from '@ez4/reflection';
 
-import { resolveReflectionMetadata, createCompilerHost, createCompilerOptions } from '@ez4/reflection';
-import { triggerAllSync } from '@ez4/project/library';
-import { createProgram } from 'typescript';
 import { existsSync } from 'node:fs';
+
+import { getReflectionFromFiles, watchReflectionFromFiles } from '@ez4/reflection';
+import { triggerAllSync } from '@ez4/project/library';
 
 import { ReflectionSourceFileNotFound } from '../errors/reflection.js';
 
 export const getReflection = (sourceFiles: string[]): SourceMap => {
   assertSourceFiles(sourceFiles);
 
-  const options = createCompilerOptions();
+  return getReflectionFromFiles(sourceFiles, getReflectionOptions());
+};
 
-  const program = createProgram({
-    options,
-    rootNames: sourceFiles,
-    host: createCompilerHost(options, {
+export const watchReflection = (sourceFiles: string[], onReflectionReady: ReflectionReadyListener) => {
+  assertSourceFiles(sourceFiles);
+
+  return watchReflectionFromFiles(sourceFiles, getReflectionOptions(onReflectionReady));
+};
+
+const getReflectionOptions = (onReflectionReady?: ReflectionReadyListener): ReflectionOptions => {
+  return {
+    compilerEvents: {
+      onReflectionReady,
       onResolveFileName: (fileName) => {
         return triggerAllSync('reflection:loadFile', (handler) => handler(fileName)) ?? fileName;
       }
-    })
-  });
-
-  const metadata = resolveReflectionMetadata(program, {
-    resolverOptions: {
-      ignoreMethod: true,
-      includePath: true
     },
     resolverEvents: {
       onTypeObject: (type) => {
         return triggerAllSync('reflection:typeObject', (handler) => handler(type)) ?? type;
       }
+    },
+    resolverOptions: {
+      ignoreMethod: true,
+      includePath: true
     }
-  });
-
-  return metadata;
+  };
 };
 
 const assertSourceFiles = (sourceFiles: string[]) => {

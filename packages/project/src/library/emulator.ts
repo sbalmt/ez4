@@ -40,9 +40,7 @@ export const getEmulators = async (metadata: MetadataReflection, options: ServeO
     }
   }
 
-  return {
-    emulators
-  };
+  return emulators;
 };
 
 const makeEmulatorClients = (linkedServices: EmulatorLinkedServices, emulators: EmulatorServices, options: ServeOptions) => {
