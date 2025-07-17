@@ -29,8 +29,14 @@ export const tryTypeObject = (node: Node, context: Context, state: State) => {
   const generic = !!Object.keys(state.types).length;
   const event = context.events.onTypeObject;
 
-  if (context.cache.has(node)) {
-    return context.cache.get(node) as TypeObject;
+  if (!generic && context.cache.has(node)) {
+    const cache = context.cache.get(node) as TypeObject;
+
+    if (event) {
+      return event(cache);
+    }
+
+    return cache;
   }
 
   const file = context.options.includePath ? getNodeFilePath(node) : null;
