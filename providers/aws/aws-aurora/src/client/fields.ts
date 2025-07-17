@@ -6,8 +6,13 @@ import { isDate, isDateTime, isTime, isUUID } from '@ez4/utils';
 import { SchemaType } from '@ez4/schema';
 
 import { UnsupportedFieldType } from './errors.js';
+import { isJsonField } from './schema.js';
 
 export const prepareFieldData = (name: string, value: unknown, schema: AnySchema): SqlParameter => {
+  if (isJsonField(schema)) {
+    return getJsonFieldData(name, value as object);
+  }
+
   if (value === null) {
     return getNullFieldData(name);
   }
@@ -21,12 +26,6 @@ export const prepareFieldData = (name: string, value: unknown, schema: AnySchema
 
     case SchemaType.String:
       return getStringFieldData(name, value as string, schema.format);
-
-    case SchemaType.Object:
-    case SchemaType.Union:
-    case SchemaType.Array:
-    case SchemaType.Tuple:
-      return getJsonFieldData(name, value as object);
 
     default:
       return getTextFieldData(name, value as string);
