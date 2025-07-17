@@ -149,7 +149,7 @@ export class DataClientDriver implements PgClientDriver {
  * @returns Returns the callback result.
  */
 const withRetryOnResume = async <T>(callback: () => Promise<T>) => {
-  for (let timeout = 5000; ; timeout -= 500) {
+  for (let timeout = 4500; ; timeout -= 500) {
     try {
       return await callback();
     } catch (error) {

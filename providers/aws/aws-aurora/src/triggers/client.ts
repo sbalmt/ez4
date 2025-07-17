@@ -38,7 +38,7 @@ export const prepareEmulatorClient = async (event: EmulateClientEvent) => {
     return null;
   }
 
-  const cluster = await importCluster(getClusterName(service, options));
+  const cluster = await importCluster(getClusterName(service, options), false);
 
   if (!cluster) {
     return null;
