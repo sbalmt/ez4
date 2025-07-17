@@ -23,6 +23,10 @@ export namespace Logger {
     }
   };
 
+  export const clear = () => {
+    process.stdout.write('\x1Bc\r');
+  };
+
   export const error = (message: string) => {
     process.stderr.write(toRed(`[EZ4]: ${message}\n`));
   };

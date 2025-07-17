@@ -53,7 +53,7 @@ export const watchReflectionFromFiles = (fileNames: string[], options?: Reflecti
   const compilerOptions = createCompilerOptions(options?.compilerOptions);
   const onReflectionReady = options?.compilerEvents?.onReflectionReady;
 
-  return new Promise((resolve) => {
+  return new Promise<WatchReflectionHandler>((resolve) => {
     const program = createWatchProgram({
       ...createWatchCompilerHost(compilerOptions, options?.compilerEvents),
       options: compilerOptions,
@@ -67,7 +67,7 @@ export const watchReflectionFromFiles = (fileNames: string[], options?: Reflecti
       }
     });
 
-    const handler: WatchReflectionHandler = {
+    const handler = {
       stop: () => {
         program.close();
       }
