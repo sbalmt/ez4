@@ -20,16 +20,17 @@ export type ModuleEntrySource = {
 };
 
 export type ModuleDefinition = {
-  variables?: LinkedVariables;
   listener?: ModuleEntrySource | null;
   handler: ModuleEntrySource;
+  variables: LinkedVariables;
+  version: number;
 };
 
 export const createModule = async (module: ModuleDefinition): Promise<VirtualModule> => {
-  const { handler, listener, variables = {} } = module;
+  const { handler, listener, variables, version } = module;
 
   if (!listener || listener.file === handler.file) {
-    const module = await loadModule(handler.file, variables);
+    const module = await loadModule(handler.file, variables, version);
 
     return {
       listener: listener ? prepareFunction(listener, variables, module[listener.name]) : undefined,
@@ -37,8 +38,8 @@ export const createModule = async (module: ModuleDefinition): Promise<VirtualMod
     };
   }
 
-  const { [listener.name]: listenerCallback } = await loadModule(listener.file, variables);
-  const { [handler.name]: handlerCallback } = await loadModule(handler.file, variables);
+  const { [listener.name]: listenerCallback } = await loadModule(listener.file, variables, version);
+  const { [handler.name]: handlerCallback } = await loadModule(handler.file, variables, version);
 
   return {
     listener: prepareFunction(listener, variables, listenerCallback),
@@ -64,10 +65,10 @@ const prepareFunction = (entrySource: ModuleEntrySource, variables: LinkedVariab
   };
 };
 
-const loadModule = async (file: string, variables: LinkedVariables) => {
+const loadModule = async (file: string, variables: LinkedVariables, version: number) => {
   const modulePath = pathToFileURL(join(process.cwd(), file)).href;
 
   return runWithVariables(variables, async () => {
-    return import(`${modulePath}?v=${Date.now()}`);
+    return import(`${modulePath}?v=${version}`);
   });
 };

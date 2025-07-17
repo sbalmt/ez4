@@ -84,6 +84,7 @@ const handleSchedulerEvent = async (
   const { services: linkedServices, target } = service;
 
   const lambdaModule = await createModule({
+    version: options.version,
     listener: target.listener,
     handler: target.handler,
     variables: {

@@ -25,7 +25,8 @@ export const serveCommand = async (project: ProjectOptions) => {
     providerOptions: serveOptions?.providerOptions ?? {},
     serviceHost: `${serviceHost}:${servicePort}`,
     variables: project.variables,
-    debug: project.debugMode
+    debug: project.debugMode,
+    version: Date.now()
   };
 
   await Logger.execute('Loading providers', () => {
@@ -34,8 +35,10 @@ export const serveCommand = async (project: ProjectOptions) => {
 
   let emulators = {};
 
-  const handler = await watchMetadata(project.sourceFiles, async ({ metadata }) => {
+  const watcher = await watchMetadata(project.sourceFiles, async ({ metadata }) => {
     Logger.clear();
+
+    options.version++;
 
     emulators = await Logger.execute('🔄️ Loading emulators', async () => {
       return getEmulators(metadata, options);
@@ -94,7 +97,7 @@ export const serveCommand = async (project: ProjectOptions) => {
 
   server.on('error', () => {
     Logger.error(`❌ Unable to serve project [${project.projectName}] at http://${options.serviceHost}`);
-    handler.stop();
+    watcher.stop();
   });
 
   server.listen(servicePort, serviceHost, async () => {

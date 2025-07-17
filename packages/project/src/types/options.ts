@@ -22,4 +22,5 @@ export type ServeOptions = CommonOptions & {
   providerOptions: Record<string, AnyObject>;
   variables?: LinkedVariables;
   serviceHost: string;
+  version: number;
 };

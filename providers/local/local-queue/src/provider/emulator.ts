@@ -55,6 +55,7 @@ const processLambdaMessage = async (
   message: Buffer
 ) => {
   const lambdaModule = await createModule({
+    version: options.version,
     listener: subscription.listener,
     handler: subscription.handler,
     variables: {
