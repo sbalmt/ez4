@@ -4,7 +4,7 @@ import type { EmulatorServices } from '../../library/emulator.js';
 import type { ProjectOptions } from '../../types/project.js';
 import type { ServeOptions } from '../../types/options.js';
 
-import { isEmptyObject, toKebabCase } from '@ez4/utils';
+import { toKebabCase } from '@ez4/utils';
 
 import { createServer } from 'node:http';
 
@@ -35,9 +35,7 @@ export const serveCommand = async (project: ProjectOptions) => {
   let emulators = {};
 
   await watchMetadata(project.sourceFiles, async ({ metadata }) => {
-    if (!isEmptyObject(emulators)) {
-      console.clear();
-    }
+    console.clear();
 
     emulators = await Logger.execute('🔄️ Loading emulators', async () => {
       return getEmulators(metadata, options);
@@ -95,11 +93,11 @@ export const serveCommand = async (project: ProjectOptions) => {
   });
 
   server.on('error', () => {
-    Logger.error(`❌ Unable to serve project ${project.projectName} at http://${options.serviceHost}`);
+    Logger.error(`❌ Unable to serve project [${project.projectName}] at http://${options.serviceHost}`);
   });
 
   server.listen(servicePort, serviceHost, async () => {
-    Logger.log(`🚀 Project ${project.projectName} up and running!`);
+    Logger.log(`🚀 Project [${project.projectName}] up and running!`);
   });
 };
 
