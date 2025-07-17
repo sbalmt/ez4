@@ -55,6 +55,7 @@ const buildHttpRoutes = (service: HttpService) => {
     httpRoutes[method][path] = {
       httpErrors: route.httpErrors,
       authorizer: route.authorizer,
+      variables: route.variables,
       listener: route.listener,
       handler: route.handler
     };
