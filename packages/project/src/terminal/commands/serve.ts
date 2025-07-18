@@ -52,18 +52,20 @@ export const serveCommand = async (project: ProjectOptions) => {
   });
 
   const server = createServer((request, stream) => {
+    if (request.method === 'OPTIONS') {
+      return sendCorsResponse(stream, 204);
+    }
+
     const service = getRequestService(emulators, request, options);
 
     if (!service?.emulator) {
-      sendErrorResponse(stream, 404, 'Service emulator not found.');
-      return;
+      return sendErrorResponse(stream, 404, 'Service emulator not found.');
     }
 
     const { requestHandler, ...emulator } = service.emulator;
 
     if (!requestHandler) {
-      sendErrorResponse(stream, 422, `Service ${emulator.name} can't handle requests.`);
-      return;
+      return sendErrorResponse(stream, 422, `Service ${emulator.name} can't handle requests.`);
     }
 
     const buffer: Buffer[] = [];
@@ -94,7 +96,9 @@ export const serveCommand = async (project: ProjectOptions) => {
           sendErrorResponse(stream, 500, `${error}`);
         }
       } finally {
-        stream.end();
+        if (!stream.closed) {
+          stream.end();
+        }
       }
     });
   });
@@ -156,12 +160,23 @@ const sendErrorResponse = (stream: ServerResponse<IncomingMessage>, status: numb
   sendPlainResponse(stream, {
     status,
     headers: {
-      ['content-type']: 'application/json'
+      ['Content-Type']: 'application/json'
     },
     body: JSON.stringify({
       status: 'error',
       message
     })
+  });
+};
+
+export const sendCorsResponse = (stream: ServerResponse<IncomingMessage>, status: number) => {
+  sendPlainResponse(stream, {
+    status,
+    headers: {
+      ['Access-Control-Allow-Methods']: 'GET, POST, PATCH, PUT, DELETE, OPTIONS',
+      ['Access-Control-Allow-Headers']: 'Content-Type, Authorization',
+      ['Access-Control-Allow-Origin']: '*'
+    }
   });
 };
 
