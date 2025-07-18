@@ -53,7 +53,6 @@ export const serveCommand = async (project: ProjectOptions) => {
 
   const server = createServer((request, stream) => {
     const service = getRequestService(emulators, request, options);
-    const origin = request.headers.origin;
 
     Logger.log(`➡️  ${request.method} ${request.url}`);
 
@@ -62,7 +61,7 @@ export const serveCommand = async (project: ProjectOptions) => {
     }
 
     if (request.method === 'OPTIONS') {
-      return sendPlainResponse(stream, request, { status: 204 }, origin);
+      return sendPlainResponse(stream, request, { status: 204 });
     }
 
     const { requestHandler, ...emulator } = service.emulator;
@@ -88,9 +87,9 @@ export const serveCommand = async (project: ProjectOptions) => {
         });
 
         if (!response) {
-          sendPlainResponse(stream, request, { status: 204 }, origin);
+          sendPlainResponse(stream, request, { status: 204 });
         } else {
-          sendPlainResponse(stream, request, response, origin);
+          sendPlainResponse(stream, request, response);
         }
       } catch (error) {
         Logger.error(`${emulator.type} [${emulator.name}] ${error}`);
@@ -147,33 +146,20 @@ const getDistinctHeaders = (allHeaders: Record<string, string[] | undefined>) =>
   return distinctHeaders;
 };
 
-const sendPlainResponse = (
-  stream: ServerResponse<IncomingMessage>,
-  request: IncomingMessage,
-  response: EmulatorHandlerResponse,
-  origin?: string
-) => {
-  if (response.status >= 400 && response.status <= 499) {
-    Logger.log(`⛔ ${response.status} ${request.url ?? '/'}`);
-  }
+const sendPlainResponse = (stream: ServerResponse<IncomingMessage>, request: IncomingMessage, response: EmulatorHandlerResponse) => {
+  const origin = request.headers.origin;
+  const status = response.status;
 
-  if (response.status >= 500 && response.status <= 599) {
-    Logger.log(`❌ ${response.status} ${request.url ?? '/'}`);
-  }
+  Logger.log(`⬅️  ${status} ${request.url ?? '/'}`);
 
-  if (response.status >= 200 && response.status <= 299) {
-    Logger.log(`⬅️  ${response.status} ${request.url ?? '/'}`);
-
+  if (status >= 200 && status <= 299) {
     stream.setHeader('Access-Control-Allow-Methods', 'GET,POST,PATCH,PUT,DELETE,OPTIONS');
     stream.setHeader('Access-Control-Allow-Headers', 'content-type,authorization');
+    stream.setHeader('Access-Control-Allow-Credentials', 'true');
     stream.setHeader('Access-Control-Allow-Origin', origin ?? '*');
-
-    if (origin) {
-      stream.setHeader('Access-Control-Allow-Credentials', 'true');
-    }
   }
 
-  stream.writeHead(response.status, {
+  stream.writeHead(status, {
     ...response.headers,
     ...(response.body && {
       ['Content-Length']: Buffer.byteLength(response.body)
