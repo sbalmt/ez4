@@ -58,15 +58,15 @@ const prepareFunction = (entrySource: ModuleEntrySource, variables: LinkedVariab
       });
       //
     } catch (error) {
-      Logger.error(`❌ ${entrySource.file} [${entrySource.name}] ${error}`);
+      Logger.error(`${entrySource.file} [${entrySource.name}] ${error}`);
       failed = true;
       throw error;
       //
     } finally {
       if (failed) {
-        Logger.log(`❌ ${entrySource.file} [${entrySource.name}] Finished (with error)`);
+        Logger.log(`${entrySource.file} [${entrySource.name}] Finished (with error)`);
       } else {
-        Logger.log(`✅ ${entrySource.file} [${entrySource.name}] Finished`);
+        Logger.success(`${entrySource.file} [${entrySource.name}] Finished`);
       }
     }
   };

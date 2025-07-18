@@ -104,7 +104,7 @@ export const serveCommand = async (project: ProjectOptions) => {
   });
 
   server.on('error', () => {
-    Logger.error(`❌ Unable to serve project [${project.projectName}] at http://${options.serviceHost}`);
+    Logger.error(`Unable to serve project [${project.projectName}] at http://${options.serviceHost}`);
     watcher.stop();
   });
 
