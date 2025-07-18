@@ -147,19 +147,15 @@ const getDistinctHeaders = (allHeaders: Record<string, string[] | undefined>) =>
 };
 
 const sendPlainResponse = (stream: ServerResponse<IncomingMessage>, request: IncomingMessage, response: EmulatorHandlerResponse) => {
-  const origin = request.headers.origin;
-  const status = response.status;
+  const responseStatus = response.status;
 
-  Logger.log(`⬅️  ${status} ${request.url ?? '/'}`);
+  Logger.log(`⬅️  ${responseStatus} ${request.url ?? '/'}`);
 
-  if (status >= 200 && status <= 299) {
-    stream.setHeader('Access-Control-Allow-Methods', 'GET,POST,PATCH,PUT,DELETE,OPTIONS');
-    stream.setHeader('Access-Control-Allow-Headers', 'content-type,authorization');
-    stream.setHeader('Access-Control-Allow-Credentials', 'true');
-    stream.setHeader('Access-Control-Allow-Origin', origin ?? '*');
+  if (responseStatus >= 200 && responseStatus <= 299) {
+    setCorsResponseHeaders(stream, request);
   }
 
-  stream.writeHead(status, {
+  stream.writeHead(responseStatus, {
     ...response.headers,
     ...(response.body && {
       ['Content-Length']: Buffer.byteLength(response.body)
@@ -184,6 +180,28 @@ const sendErrorResponse = (stream: ServerResponse<IncomingMessage>, request: Inc
       message
     })
   });
+};
+
+const setCorsResponseHeaders = (stream: ServerResponse<IncomingMessage>, request: IncomingMessage) => {
+  const responseOrigin = request.headers['origin'];
+
+  if (responseOrigin) {
+    stream.setHeader('Access-Control-Allow-Origin', responseOrigin);
+    stream.setHeader('Access-Control-Allow-Credentials', 'true');
+
+    if (request.method !== 'OPTIONS') {
+      return;
+    }
+
+    const responseMethod = request.headers['access-control-request-method'] ?? request.method;
+    const responseHeaders = request.headers['access-control-request-headers'];
+
+    if (responseHeaders) {
+      stream.setHeader('Access-Control-Allow-Headers', responseHeaders);
+    }
+
+    stream.setHeader('Access-Control-Allow-Methods', responseMethod);
+  }
 };
 
 const bootstrapServices = async (emulators: EmulatorServices, options: ServeOptions) => {
