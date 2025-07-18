@@ -14,12 +14,6 @@ import { InMemoryScheduler } from '../service/scheduler.js';
 export const registerCronEmulator = (service: CronService, options: ServeOptions, context: EmulateServiceContext) => {
   const serviceName = service.name;
 
-  InMemoryScheduler.createScheduler(serviceName, {
-    handler: async (event: Cron.Event) => {
-      await handleSchedulerEvent(service, context, event);
-    }
-  });
-
   return {
     type: 'Scheduler',
     name: serviceName,
@@ -28,42 +22,77 @@ export const registerCronEmulator = (service: CronService, options: ServeOptions
       return createSchedulerClient(serviceName);
     },
     bootstrapHandler: () => {
+      InMemoryScheduler.createScheduler(serviceName, {
+        handler: async (event) => {
+          await handleSchedulerEvent(service, options, context, event);
+        }
+      });
+
       if (isDynamicCronService(service)) {
-        Logger.log(`Dynamic scheduler [${serviceName}] is ready`);
+        Logger.log(`⌚ Dynamic scheduler [${serviceName}] is ready`);
       } else {
-        scheduleNextExpression(service, context);
+        scheduleNextExpression(service, options, context);
       }
+    },
+    shutdownHandler: () => {
+      InMemoryScheduler.deleteScheduler(serviceName);
+
+      Logger.log(`⛔ Stopped scheduler [${serviceName}] events`);
     }
   };
 };
 
-const scheduleNextExpression = (service: CronService, context: EmulateServiceContext) => {
-  const { interval, type, value } = parseExpression(service.expression);
+const scheduleNextExpression = (service: CronService, options: ServeOptions, context: EmulateServiceContext) => {
+  const { name: serviceName, expression } = service;
+  const { interval, type, value } = parseExpression(expression);
 
   switch (type) {
-    case ExpressionType.Cron:
-      Logger.log(`Scheduler [${service.name}] will run in cron (${value})`);
-      setTimeout(() => handleSchedulerEvent(service, context, null).then(() => scheduleNextExpression(service, context)), interval);
-      break;
+    case ExpressionType.Cron: {
+      Logger.log(`⌚ Scheduler [${serviceName}] will run using cron (${value})`);
 
-    case ExpressionType.Rate:
-      Logger.log(`Scheduler [${service.name}] will run in ${value}`);
-      setTimeout(() => handleSchedulerEvent(service, context, null).then(() => scheduleNextExpression(service, context)), interval);
-      break;
+      InMemoryScheduler.createTimer(serviceName, 'cron', interval, () => {
+        scheduleNextExpression(service, options, context);
+      });
 
-    case ExpressionType.At:
-      Logger.log(`Scheduler [${service.name}] will run at ${value}`);
-      setTimeout(() => handleSchedulerEvent(service, context, null), interval);
       break;
+    }
+
+    case ExpressionType.Rate: {
+      Logger.log(`⌚ Scheduler [${serviceName}] will run in ${value}`);
+
+      InMemoryScheduler.createTimer(serviceName, 'rate', interval, () => {
+        scheduleNextExpression(service, options, context);
+      });
+
+      break;
+    }
+
+    case ExpressionType.At: {
+      Logger.log(`⌚ Scheduler [${serviceName}] will run at ${value}`);
+
+      InMemoryScheduler.createTimer(serviceName, 'at', interval);
+      break;
+    }
   }
 };
 
-const handleSchedulerEvent = async (service: CronService, context: EmulateServiceContext, event: Cron.Event | null) => {
+const handleSchedulerEvent = async (
+  service: CronService,
+  options: ServeOptions,
+  context: EmulateServiceContext,
+  event: Cron.Event | null
+) => {
   const { services: linkedServices, target } = service;
 
   const lambdaModule = await createModule({
+    version: options.version,
+    listener: target.listener,
     handler: target.handler,
-    listener: target.listener
+    variables: {
+      ...options.variables,
+      ...service.variables,
+      ...target.variables
+    }
   });
 
   const lambdaContext = linkedServices && context.makeClients(linkedServices);

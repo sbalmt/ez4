@@ -9,7 +9,15 @@ export const loadProviders = async (options: ProjectOptions) => {
 
   const projectProviders = await fetchProviderPackages(packagePath);
 
-  await registerAllProviderPackages(projectProviders);
+  const allPromises = projectProviders.map(async (packageName) => {
+    const registerTriggers = await tryImportProvider([`${packageName}/library`, packageName]);
+
+    if (registerTriggers) {
+      registerTriggers();
+    }
+  });
+
+  await Promise.all(allPromises);
 };
 
 const fetchProviderPackages = async (packagePath: string) => {
@@ -31,20 +39,14 @@ const fetchProviderPackages = async (packagePath: string) => {
   });
 };
 
-const registerAllProviderPackages = async (packageNames: string[]) => {
-  const allPromises = [];
-
+const tryImportProvider = async (packageNames: string[]) => {
   for (const packageName of packageNames) {
-    allPromises.push(registerProviderPackage(packageName));
-  }
+    try {
+      const { registerTriggers } = await import(packageName);
 
-  await Promise.all(allPromises);
-};
-
-const registerProviderPackage = async (packageName: string) => {
-  const { registerTriggers } = await import(packageName);
-
-  if (registerTriggers) {
-    registerTriggers();
+      if (registerTriggers) {
+        return registerTriggers;
+      }
+    } catch {}
   }
 };

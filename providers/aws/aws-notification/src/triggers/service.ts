@@ -21,7 +21,7 @@ export const prepareServices = async (event: PrepareResourceEvent) => {
   const { state, service, options, context } = event;
 
   if (!isNotificationService(service)) {
-    return;
+    return false;
   }
 
   const { fifoMode } = service;
@@ -35,6 +35,8 @@ export const prepareServices = async (event: PrepareResourceEvent) => {
   context.setServiceState(topicState, service, options);
 
   await prepareSubscriptions(state, service, topicState, options, context);
+
+  return true;
 };
 
 export const connectServices = (event: ConnectResourceEvent) => {

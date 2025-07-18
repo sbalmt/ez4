@@ -1,12 +1,12 @@
 import type { AnySchema, ObjectSchema } from '@ez4/schema';
-import type { SqlRawGenerator } from './types/raw.js';
+import type { SqlRawGenerator } from './common/raw.js';
 
-import { SqlRawValue, SqlRawOperation } from './types/raw.js';
-import { SqlSelectStatement } from './queries/select.js';
-import { SqlInsertStatement } from './queries/insert.js';
-import { SqlUpdateStatement } from './queries/update.js';
-import { SqlDeleteStatement } from './queries/delete.js';
-import { SqlWithClause } from './types/with.js';
+import { SqlRawValue, SqlRawOperation } from './common/raw.js';
+import { SqlSelectStatement } from './statements/select.js';
+import { SqlInsertStatement } from './statements/insert.js';
+import { SqlUpdateStatement } from './statements/update.js';
+import { SqlDeleteStatement } from './statements/delete.js';
+import { SqlWithClause } from './clauses/with.js';
 
 export type SqlBuilderReferences = {
   counter: number;

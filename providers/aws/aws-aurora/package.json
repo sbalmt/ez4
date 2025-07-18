@@ -38,7 +38,7 @@
     "test:only": "npm run test:types && node --env-file ../../../local.env --test-only --test --import ../../../tools/tsnode.mjs test/*.spec.ts",
     "test:types": "npm run build && tsc -p tsconfig.test.json",
     "test:migration": "npm run test:types && node --env-file ../../../local.env --test --import ../../../tools/tsnode.mjs test/migration-*.spec.ts",
-    "test:query": "npm run test:types && node --env-file ../../../local.env --test --import ../../../tools/tsnode.mjs test/query-*.spec.ts",
+    "test:data": "npm run test:types && node --env-file ../../../local.env --test --import ../../../tools/tsnode.mjs test/data-*.spec.ts",
     "local:publish": "npm run build && npm run clean:registry && npm publish --registry http://localhost:4873",
     "clean:registry": "rm -rf ../../../.registry/@ez4/aws-aurora",
     "live:publish": "npm run test && npm publish --access public"
@@ -49,6 +49,7 @@
     "@ez4/aws-common": "^0.22.0",
     "@ez4/aws-identity": "^0.22.0",
     "@ez4/database": "^0.22.0",
+    "@ez4/pgclient": "^0.22.0",
     "@ez4/pgsql": "^0.22.0",
     "@ez4/project": "^0.22.0",
     "@ez4/stateful": "^0.22.0",

@@ -6,21 +6,9 @@ import { createTransformContext, transform } from '@ez4/transform';
 import { HttpBadRequestError } from '@ez4/gateway';
 
 export const getPathParameters = async <T extends Http.PathParameters>(input: T, schema: ObjectSchema): Promise<T> => {
-  const parameters = transform(
-    input,
-    schema,
-    createTransformContext({
-      convert: false
-    })
-  );
+  const parameters = transform(input, schema, createTransformContext({ convert: false }));
 
-  const errors = await validate(
-    parameters,
-    schema,
-    createValidatorContext({
-      property: '$path'
-    })
-  );
+  const errors = await validate(parameters, schema, createValidatorContext({ property: '$path' }));
 
   if (errors.length) {
     const messages = getUniqueErrorMessages(errors);

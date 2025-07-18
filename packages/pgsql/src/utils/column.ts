@@ -1,4 +1,4 @@
-import type { SqlRecord } from '../types/common.js';
+import type { SqlRecord } from '../common/types.js';
 
 export const getFields = (record: SqlRecord) => {
   const values = [];

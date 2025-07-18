@@ -1,10 +1,10 @@
+import type { PgIndexRepository } from '@ez4/pgclient/library';
 import type { ObjectSchema } from '@ez4/schema';
-import type { RepositoryIndexes } from '../../types/repository.js';
 
 import { getColumnDefault, getColumnType, isOptionalColumn } from './columns.js';
 import { Index } from '@ez4/database';
 
-export const prepareCreateTable = (table: string, schema: ObjectSchema, indexes: RepositoryIndexes): string => {
+export const prepareCreateTable = (table: string, schema: ObjectSchema, indexes: PgIndexRepository): string => {
   const allColumnTypes = [];
 
   for (const columnName in schema.properties) {

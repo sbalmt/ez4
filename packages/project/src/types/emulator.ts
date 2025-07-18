@@ -5,6 +5,8 @@ export type EmulatorClientHandler = () => unknown;
 
 export type EmulatorBootstrapHandler = () => unknown;
 
+export type EmulatorShutdownHandler = () => unknown;
+
 export type EmulatorRequestHandler = (
   request: EmulatorServiceRequest
 ) => Promise<EmulatorHandlerResponse | undefined> | EmulatorHandlerResponse | undefined;
@@ -29,6 +31,7 @@ export type EmulatorService = {
   name: string;
   clientHandler?: EmulatorClientHandler;
   bootstrapHandler?: EmulatorBootstrapHandler;
+  shutdownHandler?: EmulatorShutdownHandler;
   requestHandler?: EmulatorRequestHandler;
 };
 
@@ -43,6 +46,11 @@ export type EmulateServiceContext = {
 
 export type EmulateServiceEvent = {
   context: EmulateServiceContext;
+  service: ServiceMetadata;
+  options: ServeOptions;
+};
+
+export type EmulateClientEvent = {
   service: ServiceMetadata;
   options: ServeOptions;
 };

@@ -1,6 +1,6 @@
 import type { EmulateServiceEvent } from '@ez4/project/library';
 
-import { isCronService } from '@ez4/scheduler/library';
+import { isCronService, registerTriggers as registerSchedulerTriggers } from '@ez4/scheduler/library';
 import { createTrigger } from '@ez4/project/library';
 
 import { registerCronEmulator } from './emulator.js';
@@ -11,6 +11,8 @@ export const registerTriggers = () => {
   if (isRegistered) {
     return;
   }
+
+  registerSchedulerTriggers();
 
   createTrigger('@ez4/local-scheduler', {
     'emulator:getServices': ({ service, options, context }: EmulateServiceEvent) => {

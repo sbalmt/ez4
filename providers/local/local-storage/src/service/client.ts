@@ -39,11 +39,11 @@ export const createStorageClient = (serviceName: string, serveOptions: ServeOpti
     }
 
     async getWriteUrl(key: string): Promise<string> {
-      return `http://${serveOptions.host}/${storageIdentifier}/${key}`;
+      return `http://${serveOptions.serviceHost}/${storageIdentifier}/${key}`;
     }
 
     async getReadUrl(key: string): Promise<string> {
-      return `http://${serveOptions.host}/${storageIdentifier}/${key}`;
+      return `http://${serveOptions.serviceHost}/${storageIdentifier}/${key}`;
     }
 
     async getStats(key: string) {

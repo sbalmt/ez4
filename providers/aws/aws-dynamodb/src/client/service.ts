@@ -17,14 +17,16 @@ const client = DynamoDBDocumentClient.from(new DynamoDBClient(), {
   }
 });
 
-export type ClientSettings = {
+export type ClientContext = {
+  repository: Repository;
   debug?: boolean;
 };
 
 export namespace Client {
-  export const make = <T extends Database.Service>(repository: Repository, settings?: ClientSettings): DbClient<T> => {
+  export const make = <T extends Database.Service>(context: ClientContext): DbClient<T> => {
+    const { repository, debug } = context;
+
     const tableCache: Record<string, TableType> = {};
-    const debugMode = settings?.debug;
 
     const clientInstance = new (class {
       async rawQuery(query: string, parameters: ParametersUtils.Type<T> = []) {
@@ -34,7 +36,7 @@ export namespace Client {
 
         const command = { ConsistentRead: true, Parameters: parameters, Statement: query };
 
-        const { records } = await executeStatement(client, command, debugMode);
+        const { records } = await executeStatement(client, command, debug);
 
         return records;
       }
@@ -46,31 +48,31 @@ export namespace Client {
 
         const commands = await prepareStaticTransaction<T>(repository, operation);
 
-        await executeTransaction(client, commands, debugMode);
+        await executeTransaction(client, commands, debug);
       }
     })();
 
     return new Proxy<any>(clientInstance, {
       get: (target, property) => {
         if (property in target) {
-          return target[property];
+          return Reflect.get(target, property);
         }
 
         const tableAlias = property.toString();
+
+        if (!repository[tableAlias]) {
+          return undefined;
+        }
 
         if (tableCache[tableAlias]) {
           return tableCache[tableAlias];
         }
 
-        if (!repository[tableAlias]) {
-          throw new MissingRepositoryTableError(tableAlias);
-        }
-
         const { name, schema, indexes } = repository[tableAlias];
 
         const table = new Table(name, schema, indexes, {
-          ...settings,
-          client
+          client,
+          debug
         });
 
         tableCache[tableAlias] = table;

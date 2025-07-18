@@ -1,5 +1,5 @@
 import type { EmulateServiceContext, EmulatorServiceRequest, ServeOptions } from '@ez4/project/library';
-import type { QueueService, QueueSubscription } from '@ez4/queue/library';
+import type { QueueImport, QueueService, QueueSubscription } from '@ez4/queue/library';
 import type { Queue } from '@ez4/queue';
 
 import { createModule, onBegin, onEnd, onError, onReady } from '@ez4/local-common';
@@ -9,7 +9,7 @@ import { getJsonMessage } from '@ez4/queue/utils';
 
 import { createQueueClient } from '../service/client.js';
 
-export const registerQueueServices = (service: QueueService, options: ServeOptions, context: EmulateServiceContext) => {
+export const registerQueueServices = (service: QueueService | QueueImport, options: ServeOptions, context: EmulateServiceContext) => {
   const { name: serviceName, schema: messageSchema } = service;
 
   return {
@@ -20,12 +20,17 @@ export const registerQueueServices = (service: QueueService, options: ServeOptio
       return createQueueClient(serviceName, messageSchema, options);
     },
     requestHandler: (request: EmulatorServiceRequest) => {
-      return handleQueueMessage(service, context, request);
+      return handleQueueMessage(service, options, context, request);
     }
   };
 };
 
-const handleQueueMessage = async (service: QueueService, context: EmulateServiceContext, request: EmulatorServiceRequest) => {
+const handleQueueMessage = async (
+  service: QueueService | QueueImport,
+  options: ServeOptions,
+  context: EmulateServiceContext,
+  request: EmulatorServiceRequest
+) => {
   if (request.method !== 'POST' || request.path !== '/' || !request.body) {
     throw new Error('Unsupported queue request.');
   }
@@ -33,7 +38,9 @@ const handleQueueMessage = async (service: QueueService, context: EmulateService
   const subscriptionIndex = getRandomInteger(0, service.subscriptions.length - 1);
   const queueSubscription = service.subscriptions[subscriptionIndex];
 
-  await processLambdaMessage(service, context, queueSubscription, request.body);
+  if (queueSubscription) {
+    await processLambdaMessage(service, options, context, queueSubscription, request.body);
+  }
 
   return {
     status: 204
@@ -41,14 +48,21 @@ const handleQueueMessage = async (service: QueueService, context: EmulateService
 };
 
 const processLambdaMessage = async (
-  service: QueueService,
+  service: QueueService | QueueImport,
+  options: ServeOptions,
   context: EmulateServiceContext,
   subscription: QueueSubscription,
   message: Buffer
 ) => {
   const lambdaModule = await createModule({
+    version: options.version,
     listener: subscription.listener,
-    handler: subscription.handler
+    handler: subscription.handler,
+    variables: {
+      ...options.variables,
+      ...service.variables,
+      ...subscription.variables
+    }
   });
 
   const lambdaContext = service.services && context.makeClients(service.services);

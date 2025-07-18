@@ -1,7 +1,13 @@
 import type { EmulateServiceContext, EmulatorServiceRequest, ServeOptions } from '@ez4/project/library';
-import type { NotificationLambdaSubscription, NotificationQueueSubscription, NotificationService } from '@ez4/notification/library';
 import type { Client as QueueClient } from '@ez4/queue';
 import type { Notification } from '@ez4/notification';
+
+import type {
+  NotificationImport,
+  NotificationLambdaSubscription,
+  NotificationQueueSubscription,
+  NotificationService
+} from '@ez4/notification/library';
 
 import { createModule, onBegin, onEnd, onError, onReady } from '@ez4/local-common';
 import { NotificationSubscriptionType } from '@ez4/notification/library';
@@ -11,7 +17,11 @@ import { getRandomUUID } from '@ez4/utils';
 
 import { createNotificationClient } from '../service/client.js';
 
-export const registerNotificationServices = (service: NotificationService, options: ServeOptions, context: EmulateServiceContext) => {
+export const registerNotificationServices = (
+  service: NotificationService | NotificationImport,
+  options: ServeOptions,
+  context: EmulateServiceContext
+) => {
   const { name: serviceName, schema: messageSchema } = service;
 
   return {
@@ -22,12 +32,17 @@ export const registerNotificationServices = (service: NotificationService, optio
       return createNotificationClient(serviceName, messageSchema, options);
     },
     requestHandler: (request: EmulatorServiceRequest) => {
-      return handleNotificationMessage(service, request, context);
+      return handleNotificationMessage(service, options, context, request);
     }
   };
 };
 
-const handleNotificationMessage = async (service: NotificationService, request: EmulatorServiceRequest, context: EmulateServiceContext) => {
+const handleNotificationMessage = async (
+  service: NotificationService | NotificationImport,
+  options: ServeOptions,
+  context: EmulateServiceContext,
+  request: EmulatorServiceRequest
+) => {
   if (request.method !== 'POST' || request.path !== '/' || !request.body) {
     throw new Error('Unsupported notification request.');
   }
@@ -39,7 +54,7 @@ const handleNotificationMessage = async (service: NotificationService, request: 
         break;
 
       case NotificationSubscriptionType.Lambda:
-        await processLambdaMessage(service, context, subscription, request.body);
+        await processLambdaMessage(service, options, context, subscription, request.body);
         break;
     }
   }
@@ -50,7 +65,7 @@ const handleNotificationMessage = async (service: NotificationService, request: 
 };
 
 const processQueueMessage = async (
-  service: NotificationService,
+  service: NotificationService | NotificationImport,
   context: EmulateServiceContext,
   subscription: NotificationQueueSubscription,
   message: Buffer
@@ -64,14 +79,21 @@ const processQueueMessage = async (
 };
 
 const processLambdaMessage = async (
-  service: NotificationService,
+  service: NotificationService | NotificationImport,
+  options: ServeOptions,
   context: EmulateServiceContext,
   subscription: NotificationLambdaSubscription,
   message: Buffer
 ) => {
   const lambdaModule = await createModule({
+    version: options.version,
     listener: subscription.listener,
-    handler: subscription.handler
+    handler: subscription.handler,
+    variables: {
+      ...options.variables,
+      ...service.variables,
+      ...subscription.variables
+    }
   });
 
   const lambdaContext = service.services && context.makeClients(service.services);

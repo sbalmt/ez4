@@ -18,7 +18,7 @@ export const prepareCdnServices = async (event: PrepareResourceEvent) => {
   const { state, service, options, context } = event;
 
   if (!isCdnService(service)) {
-    return;
+    return false;
   }
 
   const { description, certificate, defaultIndex } = service;
@@ -69,6 +69,8 @@ export const prepareCdnServices = async (event: PrepareResourceEvent) => {
     defaultIndex,
     description
   });
+
+  return true;
 };
 
 export const connectCdnServices = async (event: ConnectResourceEvent) => {

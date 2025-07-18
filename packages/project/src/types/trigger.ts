@@ -1,10 +1,10 @@
 import type { ApplyResult, EntryState, EntryStates, StepState } from '@ez4/stateful';
 import type { EveryType, SourceMap, TypeClass, TypeObject } from '@ez4/reflection';
-import type { EmulatorService, EmulateServiceEvent } from './emulator.js';
+import type { EmulatorService, EmulateServiceEvent, EmulateClientEvent } from './emulator.js';
 import type { IdentityAccount, IdentityGrant } from './identity.js';
 import type { DeployOptions, DestroyOptions } from './options.js';
 import type { ServiceMetadata, ExtraSource } from './service.js';
-import type { MetadataResult } from './metadata.js';
+import type { MetadataServiceResult } from './metadata.js';
 
 export type Trigger = SyncEvent | AsyncEvent;
 
@@ -21,18 +21,19 @@ export type AsyncEventTrigger<T extends keyof AsyncEvent> = (handler: AsyncEvent
 export type SyncEvent = {
   'reflection:loadFile': (file: string) => SyncEventResult<string>;
   'reflection:typeObject': (type: TypeObject) => SyncEventResult<EveryType>;
-  'metadata:getServices': (reflection: SourceMap) => SyncEventResult<MetadataResult>;
+  'metadata:getServices': (reflection: SourceMap) => SyncEventResult<MetadataServiceResult>;
   'metadata:getLinkedService': (type: TypeClass) => SyncEventResult<string>;
-  'emulator:getServices': (event: EmulateServiceEvent) => SyncEventResult<EmulatorService>;
 };
 
 export type AsyncEvent = {
+  'emulator:getClient': (event: EmulateClientEvent) => AsyncEventResult<unknown>;
+  'emulator:getServices': (event: EmulateServiceEvent) => AsyncEventResult<EmulatorService>;
   'deploy:prepareLinkedService': (event: ServiceEvent) => AsyncEventResult<ExtraSource>;
   'deploy:prepareIdentityAccount': (event: IdentityEvent) => AsyncEventResult<IdentityAccount[]>;
   'deploy:prepareIdentityGrant': (event: IdentityEvent) => AsyncEventResult<IdentityGrant>;
   'deploy:prepareExecutionPolicy': (event: PolicyResourceEvent) => AsyncEventResult<EntryState>;
   'deploy:prepareExecutionRole': (event: RoleResourceEvent) => AsyncEventResult<EntryState>;
-  'deploy:prepareResources': (event: PrepareResourceEvent) => AsyncEventResult<void>;
+  'deploy:prepareResources': (event: PrepareResourceEvent) => AsyncEventResult<boolean>;
   'deploy:connectResources': (event: ConnectResourceEvent) => AsyncEventResult<void>;
   'deploy:plan': (event: DeployEvent) => AsyncEventResult<StepState[]>;
   'deploy:apply': (event: DeployEvent) => AsyncEventResult<ApplyResult>;

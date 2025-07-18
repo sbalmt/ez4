@@ -1,6 +1,6 @@
 import { createTrigger, EmulateServiceEvent } from '@ez4/project/library';
 
-import { isHttpService } from '@ez4/gateway/library';
+import { isHttpService, registerTriggers as registerGatewayTriggers } from '@ez4/gateway/library';
 
 import { registerHttpServices } from './emulator.js';
 
@@ -10,6 +10,8 @@ export const registerTriggers = () => {
   if (isRegistered) {
     return;
   }
+
+  registerGatewayTriggers();
 
   createTrigger('@ez4/local-gateway', {
     'emulator:getServices': ({ service, options, context }: EmulateServiceEvent) => {

@@ -52,8 +52,10 @@ export type UpdateRequest = Partial<Omit<CreateRequest, 'clusterName' | 'databas
 
 export type UpdateResponse = ImportOrCreateResponse;
 
-export const importCluster = async (clusterName: string): Promise<ImportOrCreateResponse | undefined> => {
-  Logger.logImport(ClusterServiceName, clusterName);
+export const importCluster = async (clusterName: string, log = true): Promise<ImportOrCreateResponse | undefined> => {
+  if (log) {
+    Logger.logImport(ClusterServiceName, clusterName);
+  }
 
   try {
     const response = await client.send(

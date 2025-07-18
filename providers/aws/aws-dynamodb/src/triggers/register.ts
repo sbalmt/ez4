@@ -6,13 +6,9 @@ import { registerTriggers as registerDatabaseTriggers } from '@ez4/database/libr
 import { createTrigger } from '@ez4/project/library';
 
 import { registerTableProvider } from '../table/provider.js';
+import { connectDatabaseServices, prepareDatabaseServices, prepareLinkedServices } from './service.js';
 import { prepareExecutionPolicy } from './policy.js';
-
-import {
-  connectDatabaseServices,
-  prepareDatabaseServices,
-  prepareLinkedServices
-} from './service.js';
+import { prepareEmulatorClient } from './client.js';
 
 let isRegistered = false;
 
@@ -30,7 +26,8 @@ export const registerTriggers = () => {
     'deploy:prepareExecutionPolicy': prepareExecutionPolicy,
     'deploy:prepareLinkedService': prepareLinkedServices,
     'deploy:prepareResources': prepareDatabaseServices,
-    'deploy:connectResources': connectDatabaseServices
+    'deploy:connectResources': connectDatabaseServices,
+    'emulator:getClient': prepareEmulatorClient
   });
 
   registerTableProvider();

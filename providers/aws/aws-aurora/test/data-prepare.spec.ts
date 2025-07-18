@@ -133,6 +133,21 @@ describe('aurora data prepare', () => {
     });
   });
 
+  it('assert :: prepare json null data', () => {
+    const data = prepareFieldData('field', null, {
+      type: SchemaType.Object,
+      properties: {}
+    });
+
+    deepEqual(data, {
+      name: 'field',
+      typeHint: 'JSON',
+      value: {
+        stringValue: 'null'
+      }
+    });
+  });
+
   it('assert :: prepare json object data', () => {
     const data = prepareFieldData(
       'field',
@@ -152,7 +167,26 @@ describe('aurora data prepare', () => {
     });
   });
 
-  it('assert :: prepare json list data', () => {
+  it('assert :: prepare json tuple data', () => {
+    const data = prepareFieldData('field', [], {
+      type: SchemaType.Tuple,
+      elements: [
+        {
+          type: SchemaType.String
+        }
+      ]
+    });
+
+    deepEqual(data, {
+      name: 'field',
+      typeHint: 'JSON',
+      value: {
+        stringValue: '[]'
+      }
+    });
+  });
+
+  it('assert :: prepare json array data', () => {
     const data = prepareFieldData('field', [], {
       type: SchemaType.Array,
       element: {
@@ -165,6 +199,25 @@ describe('aurora data prepare', () => {
       typeHint: 'JSON',
       value: {
         stringValue: '[]'
+      }
+    });
+  });
+
+  it('assert :: prepare json union data', () => {
+    const data = prepareFieldData('field', 'bar', {
+      type: SchemaType.Union,
+      elements: [
+        {
+          type: SchemaType.String
+        }
+      ]
+    });
+
+    deepEqual(data, {
+      name: 'field',
+      typeHint: 'JSON',
+      value: {
+        stringValue: '"bar"'
       }
     });
   });

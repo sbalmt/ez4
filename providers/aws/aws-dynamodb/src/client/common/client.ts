@@ -94,16 +94,18 @@ export const executeTransaction = async (client: DynamoDBDocumentClient, stateme
 
 const logQuerySuccess = (input: ExecuteStatementCommandInput, consumption: ConsumedCapacity | undefined, transaction?: boolean) => {
   console.debug({
+    type: 'PartiQL',
     query: input.Statement,
     consumption: consumption?.CapacityUnits,
-    transaction,
-    type: 'PartiQL'
+    ...(transaction && {
+      transaction
+    })
   });
 };
 
 const logQueryError = (input: ExecuteStatementCommandInput) => {
   console.error({
-    query: input.Statement,
-    type: 'PartiQL'
+    type: 'PartiQL',
+    query: input.Statement
   });
 };

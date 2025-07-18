@@ -4,7 +4,7 @@ A collection of high-quality components that make it EZ4 building modern applica
 
 ## Why
 
-Most engineering teams strive to build solid foundations and deliver value while building production-ready cloud applications (develop, test, deploy, scale, and maintain). EZ4's mission is to provide all the tools for making this possible with as little friction as possible.
+Most engineering teams strive to build solid foundations and deliver value while building production-ready cloud applications... EZ4's mission is to provide all the tools for making this possible (develop, test, deploy, scale, and maintain) with as little friction as possible.
 
 ## Getting started
 
@@ -28,17 +28,17 @@ Check out some examples to get started with.
 
 ## Components
 
-All components provide a common interface to handle the real resource properties and store their state between deployments.
+All components provide a common interface (a.k.a contract) to handle cloud-based resources and store their state between deployments.
 
-| Components                               | AWS Providers                                                                  |
-| ---------------------------------------- | ------------------------------------------------------------------------------ |
-| [Gateway](./packages/gateway/)           | [AWS API Gateway](./packages/aws-gateway/)                                     |
-| [Distribution](./packages/distribution/) | [AWS CloudFront](./packages/aws-cloudfront/)                                   |
-| [Database](./packages/database/)         | [AWS DynamoDB](./packages/aws-dynamodb/), [AWS Aurora](./packages/aws-aurora/) |
-| [Scheduler](./packages/scheduler/)       | [AWS Scheduler](./packages/aws-scheduler/)                                     |
-| [Storage](./packages/storage/)           | [AWS Bucket](./packages/aws-bucket/)                                           |
-| [Notification](./packages/notification/) | [AWS Notification](./packages/aws-notification/)                               |
-| [Queue](./packages/queue/)               | [AWS Queue](./packages/aws-queue/)                                             |
+| Contact                                  | Local Provider                                        | AWS Provider                                                                         |
+| ---------------------------------------- | ----------------------------------------------------- | ------------------------------------------------------------------------------------ |
+| [Gateway](./packages/gateway/)           | [Gateway](./providers/local/local-gateway/)           | [API Gateway](./providers/aws/aws-gateway/)                                          |
+| [Database](./packages/database/)         | [Database](./providers/local/local-database/)         | [DynamoDB](./providers/aws/aws-dynamodb/), [AWS Aurora](./providers/aws/aws-aurora/) |
+| [Scheduler](./packages/scheduler/)       | [Scheduler](./providers//local/local-scheduler/)      | [Scheduler](./providers/aws/aws-scheduler/)                                          |
+| [Storage](./packages/storage/)           | [Storage](./providers/local/local-storage/)           | [Bucket](./providers/aws/aws-bucket/)                                                |
+| [Notification](./packages/notification/) | [Notification](./providers/local/local-notification/) | [Notification](./providers/aws/aws-notification/)                                    |
+| [Queue](./packages/queue/)               | [Queue](./providers/local/local-queue/)               | [Queue](./providers/aws/aws-queue/)                                                  |
+| [Distribution](./packages/distribution/) | N/A                                                   | [CloudFront](./providers/aws/aws-cloudfront/)                                        |
 
 ## Requirements
 

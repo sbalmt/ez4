@@ -6,21 +6,9 @@ import { createTransformContext, transform } from '@ez4/transform';
 import { HttpBadRequestError } from '@ez4/gateway';
 
 export const getQueryStrings = async <T extends Http.QueryStrings>(input: T, schema: ObjectSchema): Promise<T> => {
-  const query = transform(
-    input,
-    schema,
-    createTransformContext({
-      convert: true
-    })
-  );
+  const query = transform(input, schema, createTransformContext({ convert: true }));
 
-  const errors = await validate(
-    query,
-    schema,
-    createValidatorContext({
-      property: '$query'
-    })
-  );
+  const errors = await validate(query, schema, createValidatorContext({ property: '$query' }));
 
   if (errors.length) {
     const messages = getUniqueErrorMessages(errors);

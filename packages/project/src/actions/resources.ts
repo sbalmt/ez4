@@ -5,18 +5,18 @@ import type { DeployOptions } from '../types/options.js';
 
 import { triggerAllAsync } from '@ez4/project/library';
 
+import { MissingResourceProvider } from '../errors/provider.js';
+
 export const prepareDeployResources = async (
   state: EntryStates,
   metadata: MetadataReflection,
   context: EventContext,
   options: DeployOptions
 ) => {
-  const allPrepareEvents = [];
-
   for (const identity in metadata) {
     const service = metadata[identity];
 
-    const preparedEvent = triggerAllAsync('deploy:prepareResources', (handler) =>
+    const result = await triggerAllAsync('deploy:prepareResources', (handler) =>
       handler({
         state,
         service,
@@ -25,10 +25,10 @@ export const prepareDeployResources = async (
       })
     );
 
-    allPrepareEvents.push(preparedEvent);
+    if (!result) {
+      throw new MissingResourceProvider(service.name);
+    }
   }
-
-  await Promise.all(allPrepareEvents);
 };
 
 export const connectDeployResources = async (
@@ -42,7 +42,7 @@ export const connectDeployResources = async (
   for (const identity in metadata) {
     const service = metadata[identity];
 
-    const preparedEvent = triggerAllAsync('deploy:connectResources', (handler) =>
+    const result = triggerAllAsync('deploy:connectResources', (handler) =>
       handler({
         state,
         service,
@@ -51,7 +51,7 @@ export const connectDeployResources = async (
       })
     );
 
-    allPrepareEvents.push(preparedEvent);
+    allPrepareEvents.push(result);
   }
 
   await Promise.all(allPrepareEvents);

@@ -22,7 +22,7 @@ export const prepareBucketServices = async (event: PrepareResourceEvent) => {
   const { state, service, options, context } = event;
 
   if (!isBucketService(service)) {
-    return;
+    return false;
   }
 
   const { localPath, autoExpireDays, events, cors } = service;
@@ -45,6 +45,8 @@ export const prepareBucketServices = async (event: PrepareResourceEvent) => {
   if (localPath) {
     await prepareLocalContent(state, bucketState, localPath);
   }
+
+  return true;
 };
 
 export const connectBucketServices = (event: ConnectResourceEvent) => {

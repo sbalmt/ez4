@@ -4,7 +4,7 @@ export const checkMinNodeVersion = () => {
   });
 
   if (major < 22 || (major === 22 && minor < 7)) {
-    console.error('Node v22.7+ is required.');
+    console.error('❌ Node v22.7+ is required.');
     process.exit(1);
   }
 };

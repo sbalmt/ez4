@@ -12,14 +12,6 @@ Create a `local.env` following the contents of `example.env` file in the example
 npm install
 ```
 
-#### Emulate
-
-```sh
-npm run serve
-```
-
-> This action will run a local version of the project.
-
 #### Deploy
 
 ```sh
@@ -27,6 +19,14 @@ npm run deploy
 ```
 
 > This action will create resources on the given AWS account.
+
+#### Emulate
+
+```sh
+npm run serve
+```
+
+> This action will run a local version of the project using the deployed database.
 
 #### Destroy
 

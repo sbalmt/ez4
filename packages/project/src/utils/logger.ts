@@ -2,7 +2,7 @@ import { performance } from 'node:perf_hooks';
 import { toRed } from '../console/format.js';
 
 export namespace Logger {
-  export type Callback<T> = () => T;
+  export type Callback<T> = () => Promise<T> | T;
 
   export const execute = async <T>(message: string, callback: Callback<T>) => {
     const startTime = performance.now();
@@ -21,6 +21,10 @@ export namespace Logger {
 
       throw error;
     }
+  };
+
+  export const clear = () => {
+    process.stdout.write('\x1Bc\r');
   };
 
   export const error = (message: string) => {

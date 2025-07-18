@@ -2,7 +2,9 @@ import type { EmulatorLinkedServices, EmulatorService, EmulatorServiceClients } 
 import type { MetadataReflection } from '../types/metadata.js';
 import type { ServeOptions } from '../types/options.js';
 
-import { getServiceName, triggerAllSync } from '@ez4/project/library';
+import { getServiceName, triggerAllAsync } from '@ez4/project/library';
+
+import { MissingEmulatorProvider } from '../errors/provider.js';
 
 export type EmulatorServices = Record<string, EmulatorService>;
 
@@ -21,20 +23,24 @@ export const getEmulators = async (metadata: MetadataReflection, options: ServeO
   for (const identity in metadata) {
     const service = metadata[identity];
 
-    triggerAllSync('emulator:getServices', (handler) => {
-      const result = handler({ service, options, context });
+    const result = await triggerAllAsync('emulator:getServices', (handler) =>
+      handler({
+        service,
+        options,
+        context
+      })
+    );
 
-      if (result) {
-        emulators[result.identifier] = result;
-      }
+    if (!result) {
+      throw new MissingEmulatorProvider(service.name);
+    }
 
-      return null;
-    });
+    if (result) {
+      emulators[result.identifier] = result;
+    }
   }
 
-  return {
-    emulators
-  };
+  return emulators;
 };
 
 const makeEmulatorClients = (linkedServices: EmulatorLinkedServices, emulators: EmulatorServices, options: ServeOptions) => {

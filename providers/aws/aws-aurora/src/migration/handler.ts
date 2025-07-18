@@ -1,16 +1,16 @@
 import type { StepContext, StepHandler } from '@ez4/stateful';
+import type { PgTableRepository } from '@ez4/pgclient/library';
 import type { ObjectComparison } from '@ez4/utils';
-import type { Repository } from '../types/repository.js';
 import type { ConnectionRequest, RepositoryUpdates } from './client.js';
 import type { MigrationState, MigrationResult } from './types.js';
 
 import { deepCompare, deepEqual, isAnyObject } from '@ez4/utils';
 import { ReplaceResourceError } from '@ez4/aws-common';
+import { isAnySchema } from '@ez4/schema';
 
 import { getClusterResult } from '../cluster/utils.js';
 import { createDatabase, deleteDatabase, createTables, updateTables, deleteTables } from './client.js';
 import { MigrationServiceName } from './types.js';
-import { isAnySchema } from '@ez4/schema';
 
 export const getMigrationHandler = (): StepHandler<MigrationState> => ({
   equals: equalsResource,
@@ -127,7 +127,7 @@ const deleteResource = async (candidate: MigrationState) => {
   });
 };
 
-const getRepositoryChanges = (target: Repository, source: Repository) => {
+const getRepositoryChanges = (target: PgTableRepository, source: PgTableRepository) => {
   return deepCompare(target, source, {
     onRename: (target, source) => {
       if (!isAnyObject(target) || !isAnyObject(source)) {
@@ -150,14 +150,18 @@ const getRepositoryChanges = (target: Repository, source: Repository) => {
   });
 };
 
-const applyCreateTables = async (connection: ConnectionRequest, repository: Repository) => {
+const applyCreateTables = async (connection: ConnectionRequest, repository: PgTableRepository) => {
   await createTables({
     ...connection,
     repository
   });
 };
 
-const applyUpdateTables = async (connection: ConnectionRequest, comparison: Record<string, ObjectComparison>, repository: Repository) => {
+const applyUpdateTables = async (
+  connection: ConnectionRequest,
+  comparison: Record<string, ObjectComparison>,
+  repository: PgTableRepository
+) => {
   const updates: Record<string, RepositoryUpdates> = {};
 
   for (const table in comparison) {
@@ -239,7 +243,7 @@ const applyUpdateTables = async (connection: ConnectionRequest, comparison: Reco
   });
 };
 
-const applyDeleteTables = async (connection: ConnectionRequest, repository: Repository) => {
+const applyDeleteTables = async (connection: ConnectionRequest, repository: PgTableRepository) => {
   const tables = [];
 
   for (const alias in repository) {

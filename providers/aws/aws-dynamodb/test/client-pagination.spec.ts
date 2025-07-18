@@ -67,17 +67,19 @@ describe('dynamodb client (1mb pagination)', () => {
     lastState = result;
 
     dbClient = Client.make({
-      testTable: {
-        name: tableName,
-        indexes: [['id']],
-        schema: {
-          type: SchemaType.Object,
-          properties: {
-            id: {
-              type: SchemaType.String
-            },
-            value: {
-              type: SchemaType.String
+      repository: {
+        testTable: {
+          name: tableName,
+          indexes: [['id']],
+          schema: {
+            type: SchemaType.Object,
+            properties: {
+              id: {
+                type: SchemaType.String
+              },
+              value: {
+                type: SchemaType.String
+              }
             }
           }
         }

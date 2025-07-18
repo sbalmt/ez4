@@ -5,16 +5,16 @@ import { StepAction } from '@ez4/stateful';
 import { triggerAllAsync } from '@ez4/project/library';
 import { deepCompare } from '@ez4/utils';
 
-import { toBold, toGray } from '../console/format.js';
 import { MissingEntryResourceError } from '../errors/resource.js';
-import { MissingProviderError } from '../errors/provider.js';
+import { MissingActionProviderError } from '../errors/provider.js';
+import { toBold, toGray } from '../console/format.js';
 import { formatReportChanges } from './format.js';
 
 export const reportResourceChanges = async (newState: EntryStates, oldState: EntryStates, force?: boolean) => {
   const steps = await triggerAllAsync('deploy:plan', (handler) => handler({ newState, oldState, force }));
 
   if (!steps) {
-    throw new MissingProviderError('deploy:plan');
+    throw new MissingActionProviderError('deploy:plan');
   }
 
   let changes = 0;

@@ -4,12 +4,6 @@ export class MissingOperatorError extends Error {
   }
 }
 
-export class TooManyOperatorsError extends Error {
-  constructor(public columnName: string) {
-    super(`Column ${columnName} must have only one operator.`);
-  }
-}
-
 export class InvalidOperandError extends Error {
   constructor(public columnName?: string) {
     if (columnName) {
@@ -17,5 +11,11 @@ export class InvalidOperandError extends Error {
     } else {
       super(`Column has an invalid operand.`);
     }
+  }
+}
+
+export class InvalidAtomicOperation extends Error {
+  constructor(public columnName: string) {
+    super(`Column ${columnName} doesn't support atomic operations.`);
   }
 }

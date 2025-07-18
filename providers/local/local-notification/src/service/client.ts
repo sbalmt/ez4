@@ -3,7 +3,7 @@ import type { MessageSchema } from '@ez4/notification/utils';
 import type { ServeOptions } from '@ez4/project/library';
 
 import { getJsonStringMessage } from '@ez4/notification/utils';
-import { getServiceName } from '@ez4/project/library';
+import { getServiceName, Logger } from '@ez4/project/library';
 
 export const createNotificationClient = <T extends Notification.Message = any>(
   serviceName: string,
@@ -11,11 +11,13 @@ export const createNotificationClient = <T extends Notification.Message = any>(
   serveOptions: ServeOptions
 ): Client<T> => {
   const notificationIdentifier = getServiceName(serviceName, serveOptions);
-  const notificationHost = `http://${serveOptions.host}/${notificationIdentifier}`;
+  const notificationHost = `http://${serveOptions.serviceHost}/${notificationIdentifier}`;
 
   return new (class {
     async sendMessage(message: T) {
       const safeMessage = await getJsonStringMessage(message, messageSchema);
+
+      Logger.log(`➡️  Sending message to Topic [${serviceName}] at ${notificationHost}`);
 
       const response = await fetch(notificationHost, {
         method: 'POST',

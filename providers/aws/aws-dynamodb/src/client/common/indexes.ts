@@ -9,17 +9,22 @@ export const findBestSecondaryIndex = (secondaryIndexes: string[][], fields: Any
     return undefined;
   }
 
-  let bestIndexes = secondaryIndexes;
+  let currentIndexes = secondaryIndexes;
+  let bestIndexes;
 
   for (const fieldKey in fields) {
-    bestIndexes = bestIndexes.filter((index) => index.includes(fieldKey));
+    currentIndexes = currentIndexes.filter((index) => index.includes(fieldKey));
 
-    if (!bestIndexes.length) {
-      return undefined;
+    if (currentIndexes.length) {
+      bestIndexes = currentIndexes;
     }
   }
 
-  const [firstBestIndex] = bestIndexes;
+  const firstBestIndex = bestIndexes?.[0];
 
-  return getIndexName(firstBestIndex);
+  if (firstBestIndex) {
+    return getIndexName(firstBestIndex);
+  }
+
+  return undefined;
 };

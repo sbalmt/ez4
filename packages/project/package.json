@@ -35,7 +35,7 @@
     "packages/*"
   ],
   "scripts": {
-    "clean": "rm -f *.tsbuildinfo && rm -rf dist/*",
+    "clean": "rm -f *.tsbuildinfo && rm -rf bin/* && rm -rf dist/*",
     "build": "tsc -p tsconfig.json && node tools/bundler.mjs",
     "test": "npm run test:types && node --test --import ../../tools/tsnode.mjs test/*.spec.ts",
     "test:only": "npm run test:types && node --test-only --test --import ../../tools/tsnode.mjs test/*.spec.ts",

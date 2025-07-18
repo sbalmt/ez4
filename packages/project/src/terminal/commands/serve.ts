@@ -9,29 +9,47 @@ import { toKebabCase } from '@ez4/utils';
 import { createServer } from 'node:http';
 
 import { loadProviders } from '../../common/providers.js';
-import { getMetadata } from '../../library/metadata.js';
+import { watchMetadata } from '../../library/metadata.js';
 import { getEmulators } from '../../library/emulator.js';
 import { Logger } from '../../utils/logger.js';
 
 export const serveCommand = async (project: ProjectOptions) => {
-  const serviceHost = project.serve?.host ?? 'localhost';
-  const servicePort = project.serve?.port ?? 3734;
+  const serveOptions = project.serveOptions;
+
+  const serviceHost = serveOptions?.localHost ?? 'localhost';
+  const servicePort = serveOptions?.localPort ?? 3734;
 
   const options: ServeOptions = {
     resourcePrefix: project.prefix ?? 'ez4',
     projectName: toKebabCase(project.projectName),
-    host: `${serviceHost}:${servicePort}`
+    providerOptions: serveOptions?.providerOptions ?? {},
+    serviceHost: `${serviceHost}:${servicePort}`,
+    variables: project.variables,
+    debug: project.debugMode,
+    version: 0
   };
 
   await Logger.execute('Loading providers', () => {
     return loadProviders(project);
   });
 
-  const { metadata } = await Logger.execute('Loading metadata', () => {
-    return getMetadata(project.sourceFiles);
-  });
+  let emulators = {};
 
-  const { emulators } = await getEmulators(metadata, options);
+  const watcher = await watchMetadata(project.sourceFiles, async ({ metadata }) => {
+    Logger.clear();
+
+    if (options.version > 0) {
+      await shutdownServices(emulators);
+    }
+
+    options.version++;
+
+    emulators = await Logger.execute('🔄️ Loading emulators', async () => {
+      return getEmulators(metadata, options);
+    });
+
+    await bootstrapServices(emulators, options);
+  });
 
   const server = createServer((request, stream) => {
     const service = getRequestService(emulators, request, options);
@@ -82,13 +100,12 @@ export const serveCommand = async (project: ProjectOptions) => {
   });
 
   server.on('error', () => {
-    Logger.error(`Unable to serve project ${project.projectName} at http://${options.host}`);
+    Logger.error(`❌ Unable to serve project [${project.projectName}] at http://${options.serviceHost}`);
+    watcher.stop();
   });
 
   server.listen(servicePort, serviceHost, async () => {
-    await bootstrapServices(emulators, options);
-
-    Logger.log(`Project ${project.projectName} up and running!`);
+    Logger.log(`🚀 Project [${project.projectName}] up and running!`);
   });
 };
 
@@ -97,7 +114,7 @@ const getRequestService = (emulator: EmulatorServices, request: IncomingMessage,
     return undefined;
   }
 
-  const { pathname, searchParams } = new URL(request.url, `http://${options.host}`);
+  const { pathname, searchParams } = new URL(request.url, `http://${options.serviceHost}`);
   const [, identifier, ...path] = pathname.split('/');
 
   return {
@@ -157,7 +174,17 @@ const bootstrapServices = async (emulators: EmulatorServices, options: ServeOpti
     }
 
     if (emulator.requestHandler) {
-      Logger.log(`Serving ${emulator.type} [${emulator.name}] at http://${options.host}/${identifier}`);
+      Logger.log(`🌐 Serving ${emulator.type} [${emulator.name}] at http://${options.serviceHost}/${identifier}`);
+    }
+  }
+};
+
+const shutdownServices = async (emulators: EmulatorServices) => {
+  for (const identifier in emulators) {
+    const emulator = emulators[identifier];
+
+    if (emulator.shutdownHandler) {
+      await emulator.shutdownHandler();
     }
   }
 };

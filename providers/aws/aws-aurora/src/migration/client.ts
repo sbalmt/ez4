@@ -1,22 +1,16 @@
-import type { Arn } from '@ez4/aws-common';
+import type { PgIndexRepository, PgRelationRepository, PgTableRepository } from '@ez4/pgclient/library';
 import type { AnySchema } from '@ez4/schema';
-import type { Repository, RepositoryIndexes, RepositoryRelations } from '../types/repository.js';
+import type { Arn } from '@ez4/aws-common';
 
-import { RDSDataClient } from '@aws-sdk/client-rds-data';
 import { Logger } from '@ez4/aws-common';
 
-import { withRetryOnResume } from '../utils/retry.js';
-import { executeStatement, executeStatements, executeTransaction } from '../client/common/client.js';
 import { prepareCreateColumns, prepareUpdateColumns, prepareDeleteColumns, prepareRenameColumns } from './common/columns.js';
 import { prepareCreateRelations, prepareDeleteRelations } from './common/relations.js';
 import { prepareCreateDatabase, prepareDeleteDatabase } from './common/database.js';
 import { prepareCreateIndexes, prepareUpdateIndexes } from './common/indexes.js';
 import { prepareCreateTable, prepareDeleteTable } from './common/table.js';
 import { MigrationServiceName } from './types.js';
-
-const client = new RDSDataClient({});
-
-const RESUME_WAIT_TIME = 6500;
+import { DataClientDriver } from '../client/driver.js';
 
 export type ConnectionRequest = {
   database: string;
@@ -25,12 +19,12 @@ export type ConnectionRequest = {
 };
 
 export type CreateTableRequest = ConnectionRequest & {
-  repository: Repository;
+  repository: PgTableRepository;
 };
 
 export type UpdateTableRequest = ConnectionRequest & {
   updates: Record<string, RepositoryUpdates>;
-  repository: Repository;
+  repository: PgTableRepository;
 };
 
 export type DeleteTableRequest = ConnectionRequest & {
@@ -46,12 +40,12 @@ export type RepositoryUpdates = {
     toRename: Record<string, string>;
   };
   relations: {
-    toCreate: RepositoryRelations;
-    toRemove: RepositoryRelations;
+    toCreate: PgRelationRepository;
+    toRemove: PgRelationRepository;
   };
   indexes: {
-    toCreate: RepositoryIndexes;
-    toRemove: RepositoryIndexes;
+    toCreate: PgIndexRepository;
+    toRemove: PgIndexRepository;
   };
 };
 
@@ -60,18 +54,14 @@ export const createDatabase = async (request: ConnectionRequest): Promise<void> 
 
   Logger.logCreate(MigrationServiceName, `${database} database`);
 
-  const connection = {
+  const driver = new DataClientDriver({
     database: 'postgres',
     resourceArn: clusterArn,
     secretArn
-  };
+  });
 
-  const createCommand = {
-    sql: prepareCreateDatabase(database)
-  };
-
-  await withRetryOnResume(RESUME_WAIT_TIME, async () => {
-    await executeStatement(client, connection, createCommand);
+  await driver.executeStatement({
+    query: prepareCreateDatabase(database)
   });
 };
 
@@ -80,11 +70,11 @@ export const createTables = async (request: CreateTableRequest): Promise<void> =
 
   Logger.logCreate(MigrationServiceName, `${database} tables`);
 
-  const connection = {
+  const driver = new DataClientDriver({
     resourceArn: clusterArn,
     secretArn,
     database
-  };
+  });
 
   const tableQueries = [];
   const relationsQueries = [];
@@ -98,11 +88,9 @@ export const createTables = async (request: CreateTableRequest): Promise<void> =
     tableQueries.push(prepareCreateTable(name, schema, indexes));
   }
 
-  const createCommands = [...tableQueries, ...indexesQueries, ...relationsQueries].map((sql) => ({ sql }));
+  const createStatements = [...tableQueries, ...indexesQueries, ...relationsQueries].map((query) => ({ query }));
 
-  await withRetryOnResume(RESUME_WAIT_TIME, async () => {
-    await executeTransaction(client, connection, createCommands);
-  });
+  await driver.executeTransaction(createStatements);
 };
 
 export const updateTables = async (request: UpdateTableRequest): Promise<void> => {
@@ -110,11 +98,11 @@ export const updateTables = async (request: UpdateTableRequest): Promise<void> =
 
   Logger.logUpdate(MigrationServiceName, `${database} tables`);
 
-  const connection = {
+  const driver = new DataClientDriver({
     resourceArn: clusterArn,
     secretArn,
     database
-  };
+  });
 
   const indexQueries = [];
   const otherQueries = [];
@@ -135,13 +123,11 @@ export const updateTables = async (request: UpdateTableRequest): Promise<void> =
     );
   }
 
-  const otherCommands = otherQueries.map((sql) => ({ sql }));
-  const indexCommands = indexQueries.map((sql) => ({ sql }));
+  const otherStatements = otherQueries.map((query) => ({ query }));
+  const indexStatements = indexQueries.map((query) => ({ query }));
 
-  await withRetryOnResume(RESUME_WAIT_TIME, async () => {
-    await executeTransaction(client, connection, otherCommands);
-    await executeStatements(client, connection, indexCommands);
-  });
+  await driver.executeTransaction(otherStatements);
+  await driver.executeStatements(indexStatements);
 };
 
 export const deleteTables = async (request: DeleteTableRequest): Promise<void> => {
@@ -149,19 +135,17 @@ export const deleteTables = async (request: DeleteTableRequest): Promise<void> =
 
   Logger.logDelete(MigrationServiceName, `${database} tables`);
 
-  const connection = {
+  const driver = new DataClientDriver({
     resourceArn: clusterArn,
     secretArn,
     database
-  };
+  });
 
-  const deleteCommands = tables.map((table) => ({
-    sql: prepareDeleteTable(table)
+  const deleteStatements = tables.map((table) => ({
+    query: prepareDeleteTable(table)
   }));
 
-  await withRetryOnResume(RESUME_WAIT_TIME, async () => {
-    await executeTransaction(client, connection, deleteCommands);
-  });
+  await driver.executeTransaction(deleteStatements);
 };
 
 export const deleteDatabase = async (request: ConnectionRequest): Promise<void> => {
@@ -169,17 +153,13 @@ export const deleteDatabase = async (request: ConnectionRequest): Promise<void> 
 
   Logger.logDelete(MigrationServiceName, `${database} database`);
 
-  const connection = {
+  const driver = new DataClientDriver({
     database: 'postgres',
     resourceArn: clusterArn,
     secretArn
-  };
+  });
 
-  const deleteCommand = {
-    sql: prepareDeleteDatabase(database)
-  };
-
-  await withRetryOnResume(RESUME_WAIT_TIME, async () => {
-    await executeStatement(client, connection, deleteCommand);
+  await driver.executeStatement({
+    query: prepareDeleteDatabase(database)
   });
 };

@@ -1,43 +1,55 @@
-import type { DeployOptions, EventContext, ExtraSource } from '@ez4/project/library';
+import type { DeployOptions, EmulateClientEvent, EventContext, ExtraSource } from '@ez4/project/library';
 import type { DatabaseService, TableIndex } from '@ez4/database/library';
 
 import { Index } from '@ez4/database';
 
 import { getTableState } from '../table/utils.js';
-import { getInternalName, getTableName } from './utils.js';
+import { Client } from '../client.js';
+import { getInternalName, getTableName, isDynamoDbService } from './utils.js';
 
 export const prepareLinkedClient = (context: EventContext, service: DatabaseService, options: DeployOptions): ExtraSource => {
-  const tableIds: string[] = [];
+  const tableIds = service.tables.map((table) => {
+    const internalName = getInternalName(service, table);
+    const tableState = getTableState(context, internalName, options);
 
-  const repository = JSON.stringify(
-    service.tables.reduce((current, table) => {
-      const internalName = getInternalName(service, table);
-
-      const tableState = getTableState(context, internalName, options);
-
-      tableIds.push(tableState.entryId);
-
-      return {
-        ...current,
-        [table.name]: {
-          name: getTableName(service, table, options),
-          indexes: getTableIndexes(table.indexes),
-          schema: table.schema
-        }
-      };
-    }, {})
-  );
-
-  const settings = JSON.stringify({
-    debug: options.debug
+    return tableState.entryId;
   });
 
   return {
     entryIds: tableIds,
-    constructor: `make(${repository}, ${settings})`,
     from: '@ez4/aws-dynamodb/client',
-    module: 'Client'
+    module: 'Client',
+    constructor: `make(${JSON.stringify({
+      repository: getTableRepository(service, options),
+      debug: options.debug
+    })})`
   };
+};
+
+export const prepareEmulatorClient = (event: EmulateClientEvent) => {
+  const { service, options } = event;
+
+  if (!isDynamoDbService(service)) {
+    return null;
+  }
+
+  return Client.make({
+    repository: getTableRepository(service, options),
+    debug: options.debug
+  });
+};
+
+const getTableRepository = (service: DatabaseService, options: DeployOptions) => {
+  return service.tables.reduce((current, table) => {
+    return {
+      ...current,
+      [table.name]: {
+        name: getTableName(service, table, options),
+        indexes: getTableIndexes(table.indexes),
+        schema: table.schema
+      }
+    };
+  }, {});
 };
 
 const getTableIndexes = (tableIndexes: TableIndex[]): string[][] => {

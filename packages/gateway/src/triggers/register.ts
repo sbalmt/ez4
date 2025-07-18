@@ -18,5 +18,5 @@ export const registerTriggers = () => {
     'metadata:getServices': getHttpServices
   });
 
-  isRegistered = false;
+  isRegistered = true;
 };

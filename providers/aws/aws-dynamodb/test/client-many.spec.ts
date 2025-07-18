@@ -74,20 +74,22 @@ describe('dynamodb client (many operations)', () => {
     lastState = result;
 
     dbClient = Client.make({
-      testTable: {
-        name: tableName,
-        indexes: [['id', 'order']],
-        schema: {
-          type: SchemaType.Object,
-          properties: {
-            id: {
-              type: SchemaType.String
-            },
-            order: {
-              type: SchemaType.Number
-            },
-            value: {
-              type: SchemaType.String
+      repository: {
+        testTable: {
+          name: tableName,
+          indexes: [['id', 'order']],
+          schema: {
+            type: SchemaType.Object,
+            properties: {
+              id: {
+                type: SchemaType.String
+              },
+              order: {
+                type: SchemaType.Number
+              },
+              value: {
+                type: SchemaType.String
+              }
             }
           }
         }

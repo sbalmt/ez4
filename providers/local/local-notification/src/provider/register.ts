@@ -1,6 +1,6 @@
 import { createTrigger, EmulateServiceEvent } from '@ez4/project/library';
 
-import { isNotificationService } from '@ez4/notification/library';
+import { isNotificationImport, isNotificationService, registerTriggers as registerNotificationTriggers } from '@ez4/notification/library';
 
 import { registerNotificationServices } from './emulator.js';
 
@@ -11,9 +11,11 @@ export const registerTriggers = () => {
     return;
   }
 
+  registerNotificationTriggers();
+
   createTrigger('@ez4/local-notification', {
     'emulator:getServices': ({ service, options, context }: EmulateServiceEvent) => {
-      if (isNotificationService(service)) {
+      if (isNotificationService(service) || isNotificationImport(service)) {
         return registerNotificationServices(service, options, context);
       }
 

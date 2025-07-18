@@ -13,14 +13,14 @@ export const prepareWhereFields = (input: Query.WhereInput<InternalTableMetadata
     const operations: string[] = [];
     const variables: unknown[] = [];
 
-    for (const key in data) {
-      const value = data[key];
+    for (const fieldName in data) {
+      const value = data[fieldName];
 
       if (isSkippableData(value)) {
         continue;
       }
 
-      switch (key) {
+      switch (fieldName) {
         case 'NOT': {
           const [nestedOperations, nestedVariables] = prepareFields(value, path);
 
@@ -44,7 +44,7 @@ export const prepareWhereFields = (input: Query.WhereInput<InternalTableMetadata
             ([allOperations, allVariables], input) => {
               const [operations, variables] = prepareFields(input, path);
 
-              if (key === 'OR' && operations.length > 1) {
+              if (fieldName === 'OR' && operations.length > 1) {
                 allOperations.push(`(${operations.join(' AND ')})`);
               } else {
                 allOperations.push(...operations);
@@ -57,8 +57,8 @@ export const prepareWhereFields = (input: Query.WhereInput<InternalTableMetadata
             [[], []]
           );
 
-          if (key === 'OR' && nestedOperations.length > 1) {
-            operations.push(`(${nestedOperations.join(` ${key} `)})`);
+          if (fieldName === 'OR' && nestedOperations.length > 1) {
+            operations.push(`(${nestedOperations.join(` ${fieldName} `)})`);
           } else {
             operations.push(...nestedOperations);
           }
@@ -68,22 +68,24 @@ export const prepareWhereFields = (input: Query.WhereInput<InternalTableMetadata
         }
 
         default: {
-          const nestedPath = path ? `${path}."${key}"` : `"${key}"`;
+          const nestedPath = path ? `${path}."${fieldName}"` : `"${fieldName}"`;
 
           const nestedValue = isAnyObject(value) ? value : value === null ? { isNull: true } : { equal: value };
 
-          const nestedResult = prepareOperation(nestedValue, nestedPath);
+          for (const operation of Object.entries(nestedValue)) {
+            const nestedResult = prepareOperation(operation, nestedPath);
 
-          if (!nestedResult) {
-            const [nestedOperations, nestedVariables] = prepareFields(value, nestedPath);
+            if (!nestedResult) {
+              const [nestedOperations, nestedVariables] = prepareFields(value, nestedPath);
 
-            operations.push(...nestedOperations);
-            variables.push(...nestedVariables);
-          } else {
-            const [nestedOperation, ...nestedVariables] = nestedResult;
+              operations.push(...nestedOperations);
+              variables.push(...nestedVariables);
+            } else {
+              const [nestedOperation, ...nestedVariables] = nestedResult;
 
-            operations.push(nestedOperation);
-            variables.push(...nestedVariables);
+              operations.push(nestedOperation);
+              variables.push(...nestedVariables);
+            }
           }
         }
       }
@@ -97,8 +99,8 @@ export const prepareWhereFields = (input: Query.WhereInput<InternalTableMetadata
   return [operations.join(' AND '), variables];
 };
 
-const prepareOperation = (operation: AnyObject, path: string) => {
-  const [operator, value] = Object.entries(operation)[0];
+const prepareOperation = (operation: [string, any], path: string) => {
+  const [operator, value] = operation;
 
   switch (operator) {
     case 'equal':

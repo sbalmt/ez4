@@ -29,7 +29,7 @@ export const prepareImports = async (event: PrepareResourceEvent) => {
   const { state, service, options, context } = event;
 
   if (!isNotificationImport(service)) {
-    return;
+    return false;
   }
 
   const { reference, project } = service;
@@ -48,6 +48,8 @@ export const prepareImports = async (event: PrepareResourceEvent) => {
   context.setServiceState(topicState, service, options);
 
   await prepareSubscriptions(state, service, topicState, options, context);
+
+  return true;
 };
 
 export const connectImports = (event: ConnectResourceEvent) => {

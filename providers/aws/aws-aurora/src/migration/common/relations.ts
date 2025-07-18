@@ -1,11 +1,10 @@
-import type { RepositoryRelations } from '../../types/repository.js';
+import type { PgRelationRepository } from '@ez4/pgclient/library';
 
+import { getTableName } from '@ez4/pgclient/library';
 import { toSnakeCase } from '@ez4/utils';
 import { Index } from '@ez4/database';
 
-import { getTableName } from '../../utils/tables.js';
-
-export const prepareCreateRelations = (table: string, relations: RepositoryRelations) => {
+export const prepareCreateRelations = (table: string, relations: PgRelationRepository) => {
   const statements = [];
 
   for (const alias in relations) {
@@ -33,11 +32,11 @@ export const prepareCreateRelations = (table: string, relations: RepositoryRelat
   return statements;
 };
 
-export const prepareUpdateRelations = (table: string, toCreate: RepositoryRelations, toRemove: RepositoryRelations) => {
+export const prepareUpdateRelations = (table: string, toCreate: PgRelationRepository, toRemove: PgRelationRepository) => {
   return [...prepareDeleteRelations(table, toRemove), ...prepareCreateRelations(table, toCreate)];
 };
 
-export const prepareDeleteRelations = (table: string, relations: RepositoryRelations) => {
+export const prepareDeleteRelations = (table: string, relations: PgRelationRepository) => {
   const statements = [];
 
   for (const alias in relations) {

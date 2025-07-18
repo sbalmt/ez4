@@ -1,3 +1,4 @@
+import type { AnyObject } from '@ez4/utils';
 import type { LinkedVariables } from './service.js';
 
 export type ProjectOptions = {
@@ -6,6 +7,12 @@ export type ProjectOptions = {
    * Default is: `ez4`
    */
   prefix?: string;
+
+  /**
+   * Determine whether the deployment must be confirmed before proceeding.
+   * Default is: `true`
+   */
+  confirmMode?: boolean;
 
   /**
    * Determine whether the debug mode is active for the project.
@@ -18,12 +25,6 @@ export type ProjectOptions = {
    * Default is: `false`
    */
   forceMode?: boolean;
-
-  /**
-   * Determine whether the deployment must be confirmed before proceeding.
-   * Default is: `true`
-   */
-  confirmMode?: boolean;
 
   /**
    * Project name that's combined with the `prefix`.
@@ -54,7 +55,7 @@ export type ProjectOptions = {
   /**
    * Configuration for serving the local development.
    */
-  serve?: ProjectServeOptions;
+  serveOptions?: ProjectServeOptions;
 
   /**
    * Variables associated to all services.
@@ -92,14 +93,19 @@ export type ProjectImportOptions = {
 
 export type ProjectServeOptions = {
   /**
+   * Provider-specific configurations.
+   */
+  providerOptions?: Record<string, AnyObject>;
+
+  /**
    * Port to run the local development service.
    * Default is: `3734`
    */
-  port?: number;
+  localPort?: number;
 
   /**
    * Host to run the local development server.
    * Default is: `localhost`
    */
-  host?: string;
+  localHost?: string;
 };
