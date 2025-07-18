@@ -52,20 +52,23 @@ export const serveCommand = async (project: ProjectOptions) => {
   });
 
   const server = createServer((request, stream) => {
-    if (request.method === 'OPTIONS') {
-      return sendCorsResponse(stream, 204);
-    }
-
     const service = getRequestService(emulators, request, options);
+    const origin = request.headers.origin;
+
+    Logger.log(`➡️  ${request.method} ${request.url}`);
 
     if (!service?.emulator) {
-      return sendErrorResponse(stream, 404, 'Service emulator not found.');
+      return sendErrorResponse(stream, request, 404, 'Service emulator not found.');
+    }
+
+    if (request.method === 'OPTIONS') {
+      return sendPlainResponse(stream, request, { status: 204 }, origin);
     }
 
     const { requestHandler, ...emulator } = service.emulator;
 
     if (!requestHandler) {
-      return sendErrorResponse(stream, 422, `Service ${emulator.name} can't handle requests.`);
+      return sendErrorResponse(stream, request, 422, `Service ${emulator.name} can't handle requests.`);
     }
 
     const buffer: Buffer[] = [];
@@ -84,20 +87,18 @@ export const serveCommand = async (project: ProjectOptions) => {
           body: payload
         });
 
-        if (response) {
-          sendPlainResponse(stream, response);
+        if (!response) {
+          sendPlainResponse(stream, request, { status: 204 }, origin);
+        } else {
+          sendPlainResponse(stream, request, response, origin);
         }
       } catch (error) {
         Logger.error(`${emulator.type} [${emulator.name}] ${error}`);
 
         if (error instanceof Error) {
-          sendErrorResponse(stream, 500, error.message);
+          sendErrorResponse(stream, request, 500, error.message);
         } else {
-          sendErrorResponse(stream, 500, `${error}`);
-        }
-      } finally {
-        if (!stream.closed) {
-          stream.end();
+          sendErrorResponse(stream, request, 500, `${error}`);
         }
       }
     });
@@ -146,8 +147,38 @@ const getDistinctHeaders = (allHeaders: Record<string, string[] | undefined>) =>
   return distinctHeaders;
 };
 
-const sendPlainResponse = (stream: ServerResponse<IncomingMessage>, response: EmulatorHandlerResponse) => {
-  stream.writeHead(response.status, response.headers);
+const sendPlainResponse = (
+  stream: ServerResponse<IncomingMessage>,
+  request: IncomingMessage,
+  response: EmulatorHandlerResponse,
+  origin?: string
+) => {
+  if (response.status >= 400 && response.status <= 499) {
+    Logger.log(`⛔ ${response.status} ${request.url ?? '/'}`);
+  }
+
+  if (response.status >= 500 && response.status <= 599) {
+    Logger.log(`❌ ${response.status} ${request.url ?? '/'}`);
+  }
+
+  if (response.status >= 200 && response.status <= 299) {
+    Logger.log(`⬅️  ${response.status} ${request.url ?? '/'}`);
+
+    stream.setHeader('Access-Control-Allow-Methods', 'GET,POST,PATCH,PUT,DELETE,OPTIONS');
+    stream.setHeader('Access-Control-Allow-Headers', 'content-type,authorization');
+    stream.setHeader('Access-Control-Allow-Origin', origin ?? '*');
+
+    if (origin) {
+      stream.setHeader('Access-Control-Allow-Credentials', 'true');
+    }
+  }
+
+  stream.writeHead(response.status, {
+    ...response.headers,
+    ...(response.body && {
+      ['Content-Length']: Buffer.byteLength(response.body)
+    })
+  });
 
   if (response.body) {
     stream.write(response.body);
@@ -156,8 +187,8 @@ const sendPlainResponse = (stream: ServerResponse<IncomingMessage>, response: Em
   stream.end();
 };
 
-const sendErrorResponse = (stream: ServerResponse<IncomingMessage>, status: number, message: string) => {
-  sendPlainResponse(stream, {
+const sendErrorResponse = (stream: ServerResponse<IncomingMessage>, request: IncomingMessage, status: number, message: string) => {
+  sendPlainResponse(stream, request, {
     status,
     headers: {
       ['Content-Type']: 'application/json'
@@ -166,17 +197,6 @@ const sendErrorResponse = (stream: ServerResponse<IncomingMessage>, status: numb
       status: 'error',
       message
     })
-  });
-};
-
-export const sendCorsResponse = (stream: ServerResponse<IncomingMessage>, status: number) => {
-  sendPlainResponse(stream, {
-    status,
-    headers: {
-      ['Access-Control-Allow-Methods']: 'GET, POST, PATCH, PUT, DELETE, OPTIONS',
-      ['Access-Control-Allow-Headers']: 'Content-Type, Authorization',
-      ['Access-Control-Allow-Origin']: '*'
-    }
   });
 };
 

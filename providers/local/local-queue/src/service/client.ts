@@ -17,7 +17,7 @@ export const createQueueClient = <T extends Queue.Service<any>>(
     async sendMessage(message: T['schema']) {
       const safeMessage = await getJsonStringMessage(message, messageSchema);
 
-      Logger.log(`➡️  Sending message to Queue [${serviceName}] at ${queueHost}`);
+      Logger.log(`✉️  Sending message to Queue [${serviceName}] at ${queueHost}`);
 
       const response = await fetch(queueHost, {
         method: 'POST',

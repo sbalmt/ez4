@@ -17,7 +17,7 @@ export const createNotificationClient = <T extends Notification.Message = any>(
     async sendMessage(message: T) {
       const safeMessage = await getJsonStringMessage(message, messageSchema);
 
-      Logger.log(`➡️  Sending message to Topic [${serviceName}] at ${notificationHost}`);
+      Logger.log(`✉️  Sending message to Topic [${serviceName}] at ${notificationHost}`);
 
       const response = await fetch(notificationHost, {
         method: 'POST',
