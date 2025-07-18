@@ -151,7 +151,7 @@ const sendPlainResponse = (stream: ServerResponse<IncomingMessage>, request: Inc
 
   Logger.log(`⬅️  ${responseStatus} ${request.url ?? '/'}`);
 
-  if (responseStatus >= 200 && responseStatus <= 299) {
+  if (request.headers.origin) {
     setCorsResponseHeaders(stream, request);
   }
 
@@ -183,7 +183,7 @@ const sendErrorResponse = (stream: ServerResponse<IncomingMessage>, request: Inc
 };
 
 const setCorsResponseHeaders = (stream: ServerResponse<IncomingMessage>, request: IncomingMessage) => {
-  const responseOrigin = request.headers['origin'];
+  const responseOrigin = request.headers.origin;
 
   if (responseOrigin) {
     stream.setHeader('Access-Control-Allow-Origin', responseOrigin);
