@@ -30,7 +30,7 @@ Check out some examples to get started with.
 
 All components provide a common interface (a.k.a contract) to handle cloud-based resources and store their state between deployments.
 
-| Contact                                  | Local Provider                                        | AWS Provider                                                                         |
+| Contract                                 | Local Provider                                        | AWS Provider                                                                         |
 | ---------------------------------------- | ----------------------------------------------------- | ------------------------------------------------------------------------------------ |
 | [Gateway](./packages/gateway/)           | [Gateway](./providers/local/local-gateway/)           | [API Gateway](./providers/aws/aws-gateway/)                                          |
 | [Database](./packages/database/)         | [Database](./providers/local/local-database/)         | [DynamoDB](./providers/aws/aws-dynamodb/), [AWS Aurora](./providers/aws/aws-aurora/) |
