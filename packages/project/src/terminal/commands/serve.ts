@@ -54,16 +54,20 @@ export const serveCommand = async (project: ProjectOptions) => {
   const server = createServer((request, stream) => {
     const service = getRequestService(emulators, request, options);
 
+    Logger.log(`➡️  ${request.method} ${request.url}`);
+
     if (!service?.emulator) {
-      sendErrorResponse(stream, 404, 'Service emulator not found.');
-      return;
+      return sendErrorResponse(stream, request, 404, 'Service emulator not found.');
+    }
+
+    if (request.method === 'OPTIONS') {
+      return sendPlainResponse(stream, request, { status: 204 });
     }
 
     const { requestHandler, ...emulator } = service.emulator;
 
     if (!requestHandler) {
-      sendErrorResponse(stream, 422, `Service ${emulator.name} can't handle requests.`);
-      return;
+      return sendErrorResponse(stream, request, 422, `Service ${emulator.name} can't handle requests.`);
     }
 
     const buffer: Buffer[] = [];
@@ -82,19 +86,19 @@ export const serveCommand = async (project: ProjectOptions) => {
           body: payload
         });
 
-        if (response) {
-          sendPlainResponse(stream, response);
+        if (!response) {
+          sendPlainResponse(stream, request, { status: 204 });
+        } else {
+          sendPlainResponse(stream, request, response);
         }
       } catch (error) {
         Logger.error(`${emulator.type} [${emulator.name}] ${error}`);
 
         if (error instanceof Error) {
-          sendErrorResponse(stream, 500, error.message);
+          sendErrorResponse(stream, request, 500, error.message);
         } else {
-          sendErrorResponse(stream, 500, `${error}`);
+          sendErrorResponse(stream, request, 500, `${error}`);
         }
-      } finally {
-        stream.end();
       }
     });
   });
@@ -142,8 +146,21 @@ const getDistinctHeaders = (allHeaders: Record<string, string[] | undefined>) =>
   return distinctHeaders;
 };
 
-const sendPlainResponse = (stream: ServerResponse<IncomingMessage>, response: EmulatorHandlerResponse) => {
-  stream.writeHead(response.status, response.headers);
+const sendPlainResponse = (stream: ServerResponse<IncomingMessage>, request: IncomingMessage, response: EmulatorHandlerResponse) => {
+  const responseStatus = response.status;
+
+  Logger.log(`⬅️  ${responseStatus} ${request.url ?? '/'}`);
+
+  if (responseStatus >= 200 && responseStatus <= 299) {
+    setCorsResponseHeaders(stream, request);
+  }
+
+  stream.writeHead(responseStatus, {
+    ...response.headers,
+    ...(response.body && {
+      ['Content-Length']: Buffer.byteLength(response.body)
+    })
+  });
 
   if (response.body) {
     stream.write(response.body);
@@ -152,17 +169,39 @@ const sendPlainResponse = (stream: ServerResponse<IncomingMessage>, response: Em
   stream.end();
 };
 
-const sendErrorResponse = (stream: ServerResponse<IncomingMessage>, status: number, message: string) => {
-  sendPlainResponse(stream, {
+const sendErrorResponse = (stream: ServerResponse<IncomingMessage>, request: IncomingMessage, status: number, message: string) => {
+  sendPlainResponse(stream, request, {
     status,
     headers: {
-      ['content-type']: 'application/json'
+      ['Content-Type']: 'application/json'
     },
     body: JSON.stringify({
       status: 'error',
       message
     })
   });
+};
+
+const setCorsResponseHeaders = (stream: ServerResponse<IncomingMessage>, request: IncomingMessage) => {
+  const responseOrigin = request.headers['origin'];
+
+  if (responseOrigin) {
+    stream.setHeader('Access-Control-Allow-Origin', responseOrigin);
+    stream.setHeader('Access-Control-Allow-Credentials', 'true');
+
+    if (request.method !== 'OPTIONS') {
+      return;
+    }
+
+    const responseMethod = request.headers['access-control-request-method'] ?? request.method;
+    const responseHeaders = request.headers['access-control-request-headers'];
+
+    if (responseHeaders) {
+      stream.setHeader('Access-Control-Allow-Headers', responseHeaders);
+    }
+
+    stream.setHeader('Access-Control-Allow-Methods', responseMethod);
+  }
 };
 
 const bootstrapServices = async (emulators: EmulatorServices, options: ServeOptions) => {
