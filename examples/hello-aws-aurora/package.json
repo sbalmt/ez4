@@ -18,8 +18,8 @@
     "destroy": "ez4 destroy -e local.env -p ez4.project.js --force"
   },
   "dependencies": {
-    "@ez4/aws-aurora": "^0.22.0",
-    "@ez4/database": "^0.22.0",
-    "@ez4/project": "^0.22.0"
+    "@ez4/aws-aurora": "^0.23.0",
+    "@ez4/database": "^0.23.0",
+    "@ez4/project": "^0.23.0"
   }
 }
