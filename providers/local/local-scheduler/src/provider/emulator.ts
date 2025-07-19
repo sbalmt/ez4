@@ -36,7 +36,6 @@ export const registerCronEmulator = (service: CronService, options: ServeOptions
     },
     shutdownHandler: () => {
       InMemoryScheduler.deleteScheduler(serviceName);
-
       Logger.log(`⛔ Stopped scheduler [${serviceName}] events`);
     }
   };

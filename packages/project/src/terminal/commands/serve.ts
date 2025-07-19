@@ -103,8 +103,9 @@ export const serveCommand = async (project: ProjectOptions) => {
     });
   });
 
-  server.on('error', () => {
+  server.on('error', async () => {
     Logger.error(`Unable to serve project [${project.projectName}] at http://${options.serviceHost}`);
+    await shutdownServices(emulators);
     watcher.stop();
   });
 
