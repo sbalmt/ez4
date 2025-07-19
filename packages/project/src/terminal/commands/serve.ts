@@ -29,22 +29,20 @@ export const serveCommand = async (project: ProjectOptions) => {
     version: 0
   };
 
-  await Logger.execute('Loading providers', () => {
+  await Logger.execute('🔄️ Loading providers', () => {
     return loadProviders(project);
   });
 
   let emulators = {};
 
   const watcher = await watchMetadata(project.sourceFiles, async ({ metadata }) => {
-    Logger.clear();
-
     if (options.version > 0) {
       await shutdownServices(emulators);
     }
 
     options.version++;
 
-    emulators = await Logger.execute('🔄️ Loading emulators', async () => {
+    emulators = await Logger.execute('🔄️ Loading emulators', () => {
       return getEmulators(metadata, options);
     });
 
@@ -206,6 +204,8 @@ const setCorsResponseHeaders = (stream: ServerResponse<IncomingMessage>, request
 };
 
 const bootstrapServices = async (emulators: EmulatorServices, options: ServeOptions) => {
+  Logger.clear();
+
   for (const identifier in emulators) {
     const emulator = emulators[identifier];
 
