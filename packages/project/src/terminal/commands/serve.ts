@@ -33,20 +33,25 @@ export const serveCommand = async (project: ProjectOptions) => {
     return loadProviders(project);
   });
 
-  let emulators = {};
+  let emulators: EmulatorServices = {};
 
   const watcher = await watchMetadata(project.sourceFiles, async ({ metadata }) => {
     if (options.version > 0) {
       await shutdownServices(emulators);
+      Logger.space();
     }
-
-    options.version++;
 
     emulators = await Logger.execute('🔄️ Loading emulators', () => {
       return getEmulators(metadata, options);
     });
 
     await bootstrapServices(emulators, options);
+
+    if (options.version > 0) {
+      Logger.log(`🚀 Project [${project.projectName}] reloaded`);
+    }
+
+    options.version++;
   });
 
   const server = createServer((request, stream) => {
@@ -108,7 +113,7 @@ export const serveCommand = async (project: ProjectOptions) => {
   });
 
   server.listen(servicePort, serviceHost, async () => {
-    Logger.log(`🚀 Project [${project.projectName}] up and running!`);
+    Logger.log(`🚀 Project [${project.projectName}] up and running`);
   });
 };
 
@@ -204,8 +209,6 @@ const setCorsResponseHeaders = (stream: ServerResponse<IncomingMessage>, request
 };
 
 const bootstrapServices = async (emulators: EmulatorServices, options: ServeOptions) => {
-  Logger.clear();
-
   for (const identifier in emulators) {
     const emulator = emulators[identifier];
 

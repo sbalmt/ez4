@@ -23,20 +23,22 @@ export const registerBucketEmulator = (service: BucketService, options: ServeOpt
 };
 
 const handleRequest = async (client: StorageClient, request: EmulatorServiceRequest) => {
-  if (!request.path || request.path === '/') {
+  const { method, path, body } = request;
+
+  if (!path || path === '/') {
     throw new Error(`File path wasn\'t given.`);
   }
 
-  switch (request.method) {
+  switch (method) {
     case 'GET':
-      return loadFile(client, request.path);
+      return loadFile(client, path);
 
     case 'PUT': {
-      if (!request.body) {
+      if (!body) {
         throw new Error("File content wasn't given.");
       }
 
-      return storeFile(client, request.path, request.body);
+      return storeFile(client, path, body);
     }
 
     default:

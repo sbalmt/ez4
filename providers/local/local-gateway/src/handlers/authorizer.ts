@@ -4,6 +4,7 @@ import type { Http } from '@ez4/gateway';
 import type { MatchingRoute } from '../utils/route.js';
 
 import { createModule, onBegin, onEnd, onError, onReady } from '@ez4/local-common';
+import { Logger } from '@ez4/project/library';
 import { getRandomUUID } from '@ez4/utils';
 
 import { getIncomingRequestHeaders, getIncomingRequestParameters, getIncomingRequestQuery } from '../utils/request.js';
@@ -54,6 +55,8 @@ export const processHttpAuthorization = async (
     return identity;
     //
   } catch (error) {
+    Logger.error(`${error}`);
+
     await onError(lambdaModule, lambdaContext, lambdaRequest, error);
 
     return undefined;
