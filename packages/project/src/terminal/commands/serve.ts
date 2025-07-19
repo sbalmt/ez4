@@ -16,6 +16,7 @@ import { Logger } from '../../utils/logger.js';
 export const serveCommand = async (project: ProjectOptions) => {
   const serveOptions = project.serveOptions;
 
+  const bindAddress = serveOptions?.localHost ?? '0.0.0.0';
   const serviceHost = serveOptions?.localHost ?? 'localhost';
   const servicePort = serveOptions?.localPort ?? 3734;
 
@@ -112,7 +113,7 @@ export const serveCommand = async (project: ProjectOptions) => {
     watcher.stop();
   });
 
-  server.listen(servicePort, serviceHost, async () => {
+  server.listen(servicePort, bindAddress, async () => {
     Logger.log(`🚀 Project [${project.projectName}] up and running`);
   });
 };
