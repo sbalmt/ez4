@@ -266,8 +266,8 @@ const getUpdateColumns = (source: SqlSource, record: SqlRecord, schema: ObjectSc
       if (!json) {
         pushUpdate(fieldName, `(${columnName} ${value.operator} :${fieldIndex})`);
       } else {
-        const lhsOperand = getOperandColumn(fieldSchema, coalesce ? getOperandCoalesce(fieldSchema, columnName) : columnName);
-        const rhsOperand = getOperandColumn(fieldSchema, `:${fieldIndex}`);
+        const lhsOperand = getOperandColumn(fieldSchema, fieldName, coalesce ? getOperandCoalesce(fieldSchema, columnName) : columnName);
+        const rhsOperand = getOperandColumn(fieldSchema, fieldName, `:${fieldIndex}`);
 
         pushUpdate(fieldName, `(${lhsOperand} ${value.operator} ${rhsOperand})::text::jsonb`);
       }
@@ -284,16 +284,16 @@ const getUpdateColumns = (source: SqlSource, record: SqlRecord, schema: ObjectSc
   return columns;
 };
 
-const getOperandColumn = (schema: AnySchema | undefined, fieldName: string) => {
+const getOperandColumn = (schema: AnySchema | undefined, fieldName: string, fieldExpression: string) => {
   if (schema?.type !== SchemaType.Number) {
     throw new InvalidAtomicOperation(fieldName);
   }
 
   if (schema.format === 'decimal') {
-    return `${fieldName}::dec`;
+    return `(${fieldExpression})::dec`;
   }
 
-  return `${fieldName}::int`;
+  return `(${fieldExpression})::int`;
 };
 
 const getOperandCoalesce = (schema: AnySchema | undefined, columnName: string) => {
