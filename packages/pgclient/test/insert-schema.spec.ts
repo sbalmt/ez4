@@ -316,36 +316,6 @@ describe('insert schema', () => {
     assert.deepEqual(variables, [{}]);
   });
 
-  it('assert :: prepare insert schema (json unexpected field)', async ({ assert }) => {
-    const [statement, variables] = await prepareInsert(
-      {
-        type: SchemaType.Object,
-        properties: {
-          json: {
-            type: SchemaType.Object,
-            properties: {
-              foo: {
-                type: SchemaType.Number
-              }
-            }
-          }
-        }
-      },
-      {
-        data: {
-          json: {
-            foo: 123,
-            bar: 'extra'
-          }
-        }
-      }
-    );
-
-    assert.equal(statement, `INSERT INTO "ez4-test-insert-schema" ("json") VALUES (:0)`);
-
-    assert.deepEqual(variables, [{ foo: 123 }]);
-  });
-
   it('assert :: prepare insert schema (json additional field)', async ({ assert }) => {
     const [statement, variables] = await prepareInsert(
       {
@@ -408,6 +378,36 @@ describe('insert schema', () => {
     assert.equal(statement, `INSERT INTO "ez4-test-insert-schema" ("json") VALUES (:0)`);
 
     assert.deepEqual(variables, [{ foo: 123, bar: 'bar', baz: true }]);
+  });
+
+  it('assert :: prepare insert schema (json unexpected field)', async ({ assert }) => {
+    const [statement, variables] = await prepareInsert(
+      {
+        type: SchemaType.Object,
+        properties: {
+          json: {
+            type: SchemaType.Object,
+            properties: {
+              foo: {
+                type: SchemaType.Number
+              }
+            }
+          }
+        }
+      },
+      {
+        data: {
+          json: {
+            foo: 123,
+            bar: 'extra'
+          }
+        }
+      }
+    );
+
+    assert.equal(statement, `INSERT INTO "ez4-test-insert-schema" ("json") VALUES (:0)`);
+
+    assert.deepEqual(variables, [{ foo: 123 }]);
   });
 
   it('assert :: prepare insert schema (with select)', async ({ assert }) => {

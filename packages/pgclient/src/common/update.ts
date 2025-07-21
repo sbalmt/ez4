@@ -6,7 +6,7 @@ import type { Query } from '@ez4/database';
 import type { RelationWithSchema, RepositoryRelationsWithSchema } from '../types/repository.js';
 import type { InternalTableMetadata } from '../types/table.js';
 
-import { InvalidAtomicOperation, InvalidRelationFieldError } from '@ez4/pgclient';
+import { InvalidAtomicOperation, InvalidFieldSchemaError, InvalidRelationFieldError } from '@ez4/pgclient';
 import { getObjectSchemaProperty, isDynamicObjectSchema, isNumberSchema, isObjectSchema } from '@ez4/schema';
 import { isAnyObject, isEmptyObject } from '@ez4/utils';
 import { Index } from '@ez4/database';
@@ -129,10 +129,6 @@ const getUpdateRecord = async (
     const fieldSchema = getObjectSchemaProperty(schema, fieldName);
 
     if (!fieldSchema) {
-      if (isDynamicObjectSchema(schema)) {
-        record[fieldName] = builder.rawValue(fieldValue);
-      }
-
       continue;
     }
 
@@ -146,12 +142,16 @@ const getUpdateRecord = async (
       continue;
     }
 
-    if (isObjectSchema(fieldSchema)) {
-      record[fieldName] = await getUpdateRecord(builder, fieldValue, fieldSchema, relations, fieldPath);
+    if (!isObjectSchema(fieldSchema)) {
+      throw new InvalidFieldSchemaError(fieldName);
+    }
+
+    if (isDynamicObjectSchema(fieldSchema)) {
+      record[fieldName] = await getWithSchemaValidation(fieldValue, fieldSchema, fieldPath);
       continue;
     }
 
-    record[fieldName] = builder.rawValue(fieldValue);
+    record[fieldName] = await getUpdateRecord(builder, fieldValue, fieldSchema, relations, fieldPath);
   }
 
   return record;

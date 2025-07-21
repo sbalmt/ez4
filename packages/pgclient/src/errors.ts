@@ -19,6 +19,12 @@ export class MissingFieldSchemaError extends Error {
   }
 }
 
+export class InvalidFieldSchemaError extends Error {
+  constructor(public field: string) {
+    super(`Schema for field '${field}' is invalid.`);
+  }
+}
+
 export class InvalidRelationFieldError extends Error {
   constructor(public field: string) {
     super(`Relation field '${field}' has an invalid format.`);
