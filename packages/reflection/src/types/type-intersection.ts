@@ -6,6 +6,7 @@ import { TypeName } from './common.js';
 export type TypeIntersection = {
   type: TypeName.Intersection;
   file?: string;
+  module?: string | null;
   elements: EveryType[];
 };
 

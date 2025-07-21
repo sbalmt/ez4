@@ -23,3 +23,19 @@ export const getModulePath = (moduleName: string, sourceFile: string) => {
 
   return resolvedModule?.resolvedFileName;
 };
+
+export const getPathModule = (filePath: string): string | null => {
+  const moduleStart = filePath.indexOf('/node_modules/');
+
+  if (moduleStart === -1) {
+    return null;
+  }
+
+  const [moduleName, modulePath] = filePath.substring(moduleStart).split('/');
+
+  if (moduleName.startsWith('@')) {
+    return `${moduleName}/${modulePath}`;
+  }
+
+  return moduleName;
+};

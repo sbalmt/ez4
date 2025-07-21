@@ -3,10 +3,12 @@ import type { TypeFunction, TypeParameter, EveryType, FunctionModifiers } from '
 import type { Context, State } from './common.js';
 
 import { isFunctionDeclaration } from 'typescript';
-import { TypeName } from '../types.js';
+
 import { getNodeFilePath } from '../helpers/node.js';
-import { getNodeModifiers } from '../helpers/modifier.js';
 import { getNodeDocumentation } from '../helpers/documentation.js';
+import { getNodeModifiers } from '../helpers/modifier.js';
+import { getPathModule } from '../utils/module.js';
+import { TypeName } from '../types.js';
 import { tryCallableParameters } from './callable-parameters.js';
 import { tryCallableReturns } from './callable-returns.js';
 
@@ -24,6 +26,7 @@ export const createFunction = (
     type: TypeName.Function,
     name,
     ...(file && { file }),
+    ...(file && { module: getPathModule(file) }),
     ...(description && { description }),
     ...(modifiers && { modifiers }),
     ...(parameterTypes?.length && { parameters: parameterTypes }),
@@ -36,12 +39,7 @@ export const isTypeFunction = (node: Node): node is FunctionNodes => {
 };
 
 export const tryTypeFunction = (node: Node, context: Context, state: State) => {
-  if (
-    context.options.ignoreFunction ||
-    !isTypeFunction(node) ||
-    !node.name ||
-    node.typeParameters
-  ) {
+  if (context.options.ignoreFunction || !isTypeFunction(node) || !node.name || node.typeParameters) {
     return null;
   }
 

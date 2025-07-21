@@ -1,18 +1,14 @@
 import type { InterfaceDeclaration, Node } from 'typescript';
 import type { Context, State } from './common.js';
 
-import type {
-  EveryMemberType,
-  InterfaceModifiers,
-  ModelHeritage,
-  TypeInterface
-} from '../types.js';
+import type { EveryMemberType, InterfaceModifiers, ModelHeritage, TypeInterface } from '../types.js';
 
 import { isInterfaceDeclaration } from 'typescript';
-import { TypeName } from '../types.js';
 import { getNodeFilePath } from '../helpers/node.js';
-import { getNodeModifiers } from '../helpers/modifier.js';
 import { getNodeDocumentation } from '../helpers/documentation.js';
+import { getNodeModifiers } from '../helpers/modifier.js';
+import { getPathModule } from '../utils/module.js';
+import { TypeName } from '../types.js';
 import { tryModelHeritage } from './model-heritage.js';
 import { tryModelMembers } from './model-members.js';
 
@@ -30,6 +26,7 @@ export const createInterface = (
     type: TypeName.Interface,
     name,
     ...(file && { file }),
+    ...(file && { module: getPathModule(file) }),
     ...(description && { description }),
     ...(modifiers && { modifiers }),
     ...(heritage?.length && { heritage }),
