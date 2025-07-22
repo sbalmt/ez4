@@ -5,6 +5,7 @@ import type { ExtraSource } from '@ez4/project/library';
 export type IntegrationFunction = {
   functionName: string;
   sourceFile: string;
+  module?: string;
 };
 
 export type IntegrationEntryPoint = IntegrationFunction & {

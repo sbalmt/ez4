@@ -5,6 +5,7 @@ import type { ObjectSchema } from '@ez4/schema';
 export type AuthorizerFunction = {
   functionName: string;
   sourceFile: string;
+  module?: string;
 };
 
 export type AuthorizerEntryPoint = AuthorizerFunction & {

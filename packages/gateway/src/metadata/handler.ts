@@ -12,12 +12,14 @@ export const getHttpHandler = (type: AllType, parent: TypeModel, reflection: Sou
     return null;
   }
 
-  const handler: Incomplete<HttpHandler> = {};
-  const properties = new Set(['name', 'file', 'response']);
+  const { description, module } = type;
 
-  if (type.description) {
-    handler.description = type.description;
-  }
+  const handler: Incomplete<HttpHandler> = {
+    ...(description && { description }),
+    ...(module && { module })
+  };
+
+  const properties = new Set(['name', 'file', 'response']);
 
   if ((handler.name = type.name)) {
     properties.delete('name');

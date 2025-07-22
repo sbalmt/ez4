@@ -5,6 +5,7 @@ import type { ObjectSchema } from '@ez4/schema';
 export type StreamFunction = {
   functionName: string;
   sourceFile: string;
+  module?: string;
 };
 
 export type StreamEntryPoint = StreamFunction & {

@@ -16,6 +16,7 @@ export type VirtualModule = {
 
 export type ModuleEntrySource = {
   file: string;
+  module?: string;
   name: string;
 };
 

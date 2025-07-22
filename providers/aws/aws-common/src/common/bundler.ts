@@ -16,6 +16,7 @@ const pathCache = new Map<string, string>();
 export type BundlerEntryPoint = {
   functionName: string;
   sourceFile: string;
+  module?: string;
 };
 
 export type BundlerOptions = {
@@ -88,7 +89,7 @@ export const getFunctionBundle = async (serviceName: string, options: BundlerOpt
   const targetPath = dirname(sourceFile);
   const targetFile = `${options.filePrefix}.${sourceName}.${functionName}.mjs`;
 
-  const outputFile = join('.ez4/tmp', targetPath, targetFile);
+  const outputFile = join('.ez4', targetPath, targetFile);
 
   const { debug } = options;
 
