@@ -10,8 +10,9 @@ export type BucketCors = {
 };
 
 export type EventHandler = {
-  name: string;
   file: string;
+  module?: string;
+  name: string;
   description?: string;
 };
 

@@ -11,10 +11,7 @@ import { IntegrationServiceName } from '../types.js';
 // __MODULE_PATH is defined by the package bundler.
 declare const __MODULE_PATH: string;
 
-export const bundleApiFunction = async (
-  dependencies: EntryState[],
-  parameters: IntegrationFunctionParameters
-) => {
+export const bundleApiFunction = async (dependencies: EntryState[], parameters: IntegrationFunctionParameters) => {
   const {
     extras,
     debug,
@@ -42,7 +39,7 @@ export const bundleApiFunction = async (
       __EZ4_BODY_SCHEMA: bodySchema ? JSON.stringify(bodySchema) : 'undefined',
       __EZ4_IDENTITY_SCHEMA: identitySchema ? JSON.stringify(identitySchema) : 'undefined',
       __EZ4_RESPONSE_SCHEMA: responseSchema ? JSON.stringify(responseSchema) : 'undefined',
-      __EZ4_ERRORS_MAP: errorsMap ? JSON.stringify(errorsMap) : 'undefined',
+      __EZ4_ERRORS_MAP: errorsMap ? JSON.stringify(errorsMap) : 'undefined'
     },
     handler,
     listener,

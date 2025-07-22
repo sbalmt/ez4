@@ -36,10 +36,12 @@ export type HttpHandler = {
   response: HttpResponse;
   request?: HttpRequest;
   file: string;
+  module?: string;
 };
 
 export type HttpAuthorizer = {
   name: string;
+  module?: string;
   file: string;
   description?: string;
   response?: HttpAuthResponse;

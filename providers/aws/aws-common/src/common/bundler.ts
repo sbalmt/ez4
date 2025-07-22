@@ -13,7 +13,7 @@ const fileCache = new Map<string, string>();
 const hashCache = new Map<string, string>();
 const pathCache = new Map<string, string>();
 
-export type BundlerEntryPoint = {
+export type BundlerEntrypoint = {
   functionName: string;
   sourceFile: string;
   module?: string;
@@ -22,8 +22,8 @@ export type BundlerEntryPoint = {
 export type BundlerOptions = {
   filePrefix: string;
   templateFile: string;
-  handler: BundlerEntryPoint;
-  listener?: BundlerEntryPoint;
+  handler: BundlerEntrypoint;
+  listener?: BundlerEntrypoint;
   extras?: Record<string, ExtraSource>;
   define?: Record<string, string>;
   debug?: boolean;
@@ -166,14 +166,18 @@ const getEntrypointCode = async (options: BundlerOptions) => {
   const { handler, listener } = options;
 
   return `
-import { ${handler.functionName} as handle } from './${handler.sourceFile}';
-${listener ? `import { ${listener.functionName} as dispatch } from './${listener.sourceFile}'` : `const dispatch = () => {}`};
+import { ${handler.functionName} as handle } from '${getEntrypointImport(handler)}';
+${listener ? `import { ${listener.functionName} as dispatch } from '${getEntrypointImport(listener)}'` : `const dispatch = () => {}`};
 ${context.packages}
 
 const __EZ4_CONTEXT = ${context.services};
 
 ${template}
 `;
+};
+
+const getEntrypointImport = (entrypoint: BundlerEntrypoint) => {
+  return entrypoint.module ?? `./${entrypoint.sourceFile}`;
 };
 
 const getExtraContext = (extras: Record<string, ExtraSource>) => {

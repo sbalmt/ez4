@@ -158,12 +158,14 @@ const getIntegrationFunction = (
       handler: {
         dependencies: context.getDependencies(handler.file),
         functionName: handler.name,
-        sourceFile: handler.file
+        sourceFile: handler.file,
+        module: handler.module
       },
       ...(listener && {
         listener: {
           functionName: listener.name,
-          sourceFile: listener.file
+          sourceFile: listener.file,
+          module: listener.module
         }
       })
     });
@@ -238,12 +240,14 @@ const getAuthorizerFunction = (
       authorizer: {
         dependencies: context.getDependencies(authorizer.file),
         functionName: authorizer.name,
-        sourceFile: authorizer.file
+        sourceFile: authorizer.file,
+        module: authorizer.module
       },
       ...(listener && {
         listener: {
           functionName: listener.name,
-          sourceFile: listener.file
+          sourceFile: listener.file,
+          module: listener.module
         }
       })
     });
