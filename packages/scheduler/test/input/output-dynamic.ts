@@ -19,7 +19,4 @@ export declare class TestScheduler extends Cron.Service<TestEvent> {
   };
 }
 
-function targetHandler(
-  _request: Cron.Incoming<TestEvent>,
-  _context: Service.Context<TestScheduler>
-) {}
+function targetHandler(_request: Cron.Incoming<TestEvent>, _context: Service.Context<TestScheduler>) {}

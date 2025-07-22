@@ -28,11 +28,7 @@ export const isRichTypeEnum = (type: AllType): type is RichTypeEnum => {
   return isTypeEnum(type);
 };
 
-export const getEnumSchema = (
-  type: AllType,
-  reflection: SourceMap,
-  description?: string
-): EnumSchema | null => {
+export const getEnumSchema = (type: AllType, reflection: SourceMap, description?: string): EnumSchema | null => {
   if (isTypeReference(type)) {
     const declaration = reflection[type.path];
 

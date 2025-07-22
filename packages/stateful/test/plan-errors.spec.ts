@@ -1,12 +1,7 @@
 import type { EntryStates } from '@ez4/stateful';
 import type { TestEntryState } from './common/entry.js';
 
-import {
-  EntriesNotFoundError,
-  HandlerNotFoundError,
-  CorruptedStateReferences,
-  planSteps
-} from '@ez4/stateful';
+import { EntriesNotFoundError, HandlerNotFoundError, CorruptedStateReferences, planSteps } from '@ez4/stateful';
 
 import { describe, it } from 'node:test';
 import { rejects } from 'node:assert/strict';
@@ -16,10 +11,7 @@ import { TestEntryType } from './common/entry.js';
 
 describe('plan errors tests', () => {
   it('throws :: entries not found', async () => {
-    await rejects(
-      () => planSteps(undefined, undefined, { handlers: commonStepHandlers }),
-      EntriesNotFoundError
-    );
+    await rejects(() => planSteps(undefined, undefined, { handlers: commonStepHandlers }), EntriesNotFoundError);
   });
 
   it('throws :: handler not found', async () => {
@@ -47,9 +39,6 @@ describe('plan errors tests', () => {
     };
 
     // Can't find entryC reference.
-    await rejects(
-      () => planSteps(state, undefined, { handlers: commonStepHandlers }),
-      CorruptedStateReferences
-    );
+    await rejects(() => planSteps(state, undefined, { handlers: commonStepHandlers }), CorruptedStateReferences);
   });
 });

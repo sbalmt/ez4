@@ -13,10 +13,7 @@ export declare class TestQueue extends Queue.Service<TestMessage> {
   polling: 10;
 }
 
-function testHandler(
-  request: Queue.Incoming<TestMessage>,
-  context: Service.Context<TestImport1Queue>
-) {
+function testHandler(request: Queue.Incoming<TestMessage>, context: Service.Context<TestImport1Queue>) {
   const { selfClient } = context;
 
   // Ensure request types.

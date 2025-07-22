@@ -9,7 +9,7 @@ try {
   if (options?.command) {
     await runActionCommand(options);
   } else {
-    helpCommand(), process.exit(1);
+    (helpCommand(), process.exit(1));
   }
 } catch (error) {
   if (error instanceof Error && error.stack && options?.debugMode) {

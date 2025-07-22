@@ -7,12 +7,7 @@ import { getNodeDocumentation } from '../helpers/documentation.js';
 import { TypeName } from '../types.js';
 import { EnumNodes } from './type-enum.js';
 
-export const createEnumMember = <T extends EnumMember>(
-  type: T['type'],
-  value: T['value'],
-  name: string,
-  description: string | null
-) => {
+export const createEnumMember = <T extends EnumMember>(type: T['type'], value: T['value'], name: string, description: string | null) => {
   return {
     type,
     name,

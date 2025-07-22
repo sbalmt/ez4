@@ -13,8 +13,7 @@ export const tryModelMembers = (node: NodeWithMembers, context: Context, state: 
   const memberList: EveryMemberType[] = [];
 
   node.members.forEach((member) => {
-    const result =
-      tryModelProperty(member, context, state) || tryModelMethod(member, context, state);
+    const result = tryModelProperty(member, context, state) || tryModelMethod(member, context, state);
 
     if (result) {
       memberList.push(result);

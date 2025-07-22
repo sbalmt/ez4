@@ -1,12 +1,7 @@
 import { ok, equal, deepEqual } from 'assert/strict';
 import { describe, it } from 'node:test';
 
-import {
-  IncompleteServiceError,
-  IncompleteTableError,
-  IncorrectSchemaTypeError,
-  InvalidSchemaTypeError
-} from '@ez4/database/library';
+import { IncompleteServiceError, IncompleteTableError, IncorrectSchemaTypeError, InvalidSchemaTypeError } from '@ez4/database/library';
 
 import { registerTriggers } from '@ez4/database/library';
 import { parseFile } from './common/parser.js';

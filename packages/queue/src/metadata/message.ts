@@ -1,13 +1,6 @@
 import type { QueueMessageSchema } from '../types/common.js';
 
-import type {
-  AllType,
-  SourceMap,
-  TypeCallback,
-  TypeFunction,
-  TypeModel,
-  TypeObject
-} from '@ez4/reflection';
+import type { AllType, SourceMap, TypeCallback, TypeFunction, TypeModel, TypeObject } from '@ez4/reflection';
 
 import { createUnionSchema, getObjectSchema, isObjectSchema } from '@ez4/schema/library';
 import { isTypeObject, isTypeReference, isTypeUnion } from '@ez4/reflection';
@@ -18,12 +11,7 @@ import { isQueueMessage } from './utils.js';
 
 type TypeParent = TypeModel | TypeCallback | TypeFunction;
 
-export const getQueueMessage = (
-  type: AllType,
-  parent: TypeParent,
-  reflection: SourceMap,
-  errorList: Error[]
-) => {
+export const getQueueMessage = (type: AllType, parent: TypeParent, reflection: SourceMap, errorList: Error[]) => {
   if (!isTypeReference(type)) {
     return getTypeMessage(type, parent, reflection, errorList);
   }
@@ -37,12 +25,7 @@ export const getQueueMessage = (
   return null;
 };
 
-const getTypeMessage = (
-  type: AllType,
-  parent: TypeParent,
-  reflection: SourceMap,
-  errorList: Error[]
-): QueueMessageSchema | null => {
+const getTypeMessage = (type: AllType, parent: TypeParent, reflection: SourceMap, errorList: Error[]): QueueMessageSchema | null => {
   if (isTypeUnion(type)) {
     return getMessageFromUnion(type.elements, parent, reflection, errorList);
   }
@@ -64,12 +47,7 @@ const getTypeMessage = (
   return getMessageSchema(type, reflection);
 };
 
-const getMessageFromUnion = (
-  types: AllType[],
-  parent: TypeParent,
-  reflection: SourceMap,
-  errorList: Error[]
-) => {
+const getMessageFromUnion = (types: AllType[], parent: TypeParent, reflection: SourceMap, errorList: Error[]) => {
   const schemaList = [];
 
   for (const type of types) {

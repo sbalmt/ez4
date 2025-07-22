@@ -1,9 +1,6 @@
 import { scheduler } from 'node:timers/promises';
 
-export type Attempter<T> = (
-  count: number,
-  attempts: number
-) => Promise<T | undefined> | T | undefined;
+export type Attempter<T> = (count: number, attempts: number) => Promise<T | undefined> | T | undefined;
 
 /**
  * Wait until the given `attempter` returns a truthy value or the maximum number

@@ -1,12 +1,6 @@
 import type { Context, State, TypeMap } from './common.js';
 
-import type {
-  Node,
-  NodeArray,
-  TypeAliasDeclaration,
-  TypeNode,
-  TypeParameterDeclaration
-} from 'typescript';
+import type { Node, NodeArray, TypeAliasDeclaration, TypeNode, TypeParameterDeclaration } from 'typescript';
 
 import { isTypeParameterDeclaration } from 'typescript';
 import { InterfaceNodes } from './type-interface.js';
@@ -36,12 +30,7 @@ export const tryTypeParameter = (node: Node, context: Context, state: State) => 
   return type;
 };
 
-export const getTypeArguments = (
-  node: NodeWithTypeParameters,
-  types: TypeArguments,
-  context: Context,
-  state: State
-) => {
+export const getTypeArguments = (node: NodeWithTypeParameters, types: TypeArguments, context: Context, state: State) => {
   const newTypes: TypeMap = {};
 
   node.typeParameters?.forEach((parameter, index) => {

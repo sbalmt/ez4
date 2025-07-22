@@ -15,22 +15,11 @@ import { isModelProperty } from '../resolver/model-property.js';
 import { isModelMethod } from '../resolver/model-method.js';
 import { isTypeFunction } from '../resolver/type-function.js';
 
-export type DeclarationNodes =
-  | EnumNodes
-  | ClassNodes
-  | InterfaceNodes
-  | PropertyNodes
-  | MethodNodes
-  | FunctionNodes;
+export type DeclarationNodes = EnumNodes | ClassNodes | InterfaceNodes | PropertyNodes | MethodNodes | FunctionNodes;
 
 export const isTypeDeclaration = (node: Node): node is DeclarationNodes => {
   return (
-    isTypeEnum(node) ||
-    isTypeClass(node) ||
-    isTypeInterface(node) ||
-    isModelProperty(node) ||
-    isModelMethod(node) ||
-    isTypeFunction(node)
+    isTypeEnum(node) || isTypeClass(node) || isTypeInterface(node) || isModelProperty(node) || isModelMethod(node) || isTypeFunction(node)
   );
 };
 
