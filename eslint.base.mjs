@@ -9,7 +9,7 @@ export default {
     sourceType: 'module'
   },
   ignores: ['node_modules/**', 'dist/**'],
-  files: ['packages/**/*.ts'],
+  files: ['src/**/*.ts'],
   plugins: {
     '@typescript-eslint': typescriptPlugin,
     import: nodeImport,
@@ -23,12 +23,10 @@ export default {
     }
   },
   rules: {
-    '@typescript-eslint/no-unused-vars': 'error',
+    '@typescript-eslint/no-unused-vars': ['error', { argsIgnorePattern: '^_', varsIgnorePattern: '^_' }],
     '@typescript-eslint/consistent-type-imports': 'error',
-    '@typescript-eslint/no-explicit-any': 'warn',
+    'import/no-extraneous-dependencies': 'error',
     'import/no-unresolved': 'error',
-    'n/no-missing-import': 'error',
-    'no-console': 'warn',
-    eqeqeq: 'error'
+    'n/no-missing-import': 'error'
   }
 };

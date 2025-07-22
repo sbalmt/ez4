@@ -1,10 +1,10 @@
 import type { EntryState, EntryStates } from '@ez4/stateful';
 import type { InvalidationParameters, InvalidationState } from './types.js';
+import type { DistributionState } from '../distribution/types.js';
 
 import { attachEntry } from '@ez4/stateful';
 import { hashData } from '@ez4/utils';
 
-import { DistributionState } from '../distribution/types.js';
 import { InvalidationServiceType } from './types.js';
 
 export const createInvalidation = <E extends EntryState>(

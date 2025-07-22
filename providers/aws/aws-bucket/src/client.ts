@@ -13,7 +13,7 @@ import {
   NoSuchKey
 } from '@aws-sdk/client-s3';
 
-import mime from 'mime/lite.js';
+import mime from 'mime';
 
 const client = new S3Client({});
 

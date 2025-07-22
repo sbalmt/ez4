@@ -1,4 +1,4 @@
-import type { Node } from 'typescript';
+import type { Node, TypeChecker } from 'typescript';
 import type { EnumNodes } from '../resolver/type-enum.js';
 import type { ClassNodes } from '../resolver/type-class.js';
 import type { InterfaceNodes } from '../resolver/type-interface.js';
@@ -6,7 +6,7 @@ import type { PropertyNodes } from '../resolver/model-property.js';
 import type { MethodNodes } from '../resolver/model-method.js';
 import type { FunctionNodes } from '../resolver/type-function.js';
 
-import { isImportSpecifier, TypeChecker } from 'typescript';
+import { isImportSpecifier } from 'typescript';
 
 import { isTypeEnum } from '../resolver/type-enum.js';
 import { isTypeClass } from '../resolver/type-class.js';

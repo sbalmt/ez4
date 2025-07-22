@@ -1,4 +1,4 @@
-import type { Service } from '@ez4/common';
+import type { Service as CommonService } from '@ez4/common';
 import type { LinkedVariables } from '@ez4/project/library';
 import type { CronEvent, CronHandler, CronIncoming, CronListener } from './common.js';
 import type { Client } from './client.js';
@@ -14,7 +14,7 @@ export namespace Cron {
   export type Listener<T extends Event | null> = CronListener<T>;
   export type Handler<T extends Event | null> = CronHandler<T>;
 
-  export type ServiceEvent<T extends Event | null = null> = Service.Event<Incoming<T>>;
+  export type ServiceEvent<T extends Event | null = null> = CommonService.Event<Incoming<T>>;
 
   /**
    * Cron target.
@@ -56,7 +56,7 @@ export namespace Cron {
   /**
    * Cron service.
    */
-  export declare abstract class Service<T extends Event | null = null> implements Service.Provider {
+  export declare abstract class Service<T extends Event | null = null> implements CommonService.Provider {
     /**
      * Scheduler target.
      */

@@ -53,6 +53,8 @@
     "@ez4/queue": "^0.23.0",
     "@ez4/reflection": "^0.23.0",
     "@ez4/schema": "^0.23.0",
-    "@ez4/utils": "^0.23.0"
+    "@ez4/transform": "^0.23.0",
+    "@ez4/utils": "^0.23.0",
+    "@ez4/validator": "^0.23.0"
   }
 }

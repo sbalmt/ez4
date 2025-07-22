@@ -1,6 +1,7 @@
-import { createTrigger, EmulateServiceEvent } from '@ez4/project/library';
+import type { EmulateServiceEvent } from '@ez4/project/library';
 
 import { isNotificationImport, isNotificationService, registerTriggers as registerNotificationTriggers } from '@ez4/notification/library';
+import { createTrigger } from '@ez4/project/library';
 
 import { registerNotificationServices } from './emulator.js';
 

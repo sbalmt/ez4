@@ -18,7 +18,7 @@ export const tryGetFunctionState = (context: EventContext, functionName: string,
     if (isFunctionState(functionState)) {
       return functionState;
     }
-  } catch (error) {}
+  } catch {}
 
   return undefined;
 };

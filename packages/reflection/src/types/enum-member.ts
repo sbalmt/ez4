@@ -1,4 +1,4 @@
-import { TypeName } from './common.js';
+import type { TypeName } from './common.js';
 
 export type EnumMember = EnumStringMember | EnumNumberMember;
 

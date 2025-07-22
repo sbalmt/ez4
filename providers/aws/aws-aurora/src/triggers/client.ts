@@ -1,12 +1,12 @@
 import type { DeployOptions, EmulateClientEvent, EventContext, ExtraSource } from '@ez4/project/library';
+import type { DatabaseService } from '@ez4/database/library';
+import type { ClusterState } from '../cluster/types.js';
 
 import { getDatabaseName, getTableRepository } from '@ez4/pgclient/library';
 import { getDefinitionName } from '@ez4/project/library';
-import { DatabaseService } from '@ez4/database/library';
 
-import { ClusterState } from '../cluster/types.js';
-import { getClusterState } from '../cluster/utils.js';
 import { importCluster } from '../cluster/client.js';
+import { getClusterState } from '../cluster/utils.js';
 import { Client } from '../client.js';
 import { getClusterName, isAuroraService } from './utils.js';
 

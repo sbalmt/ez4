@@ -1,6 +1,7 @@
 import type { AllType, ModelProperty, SourceMap, TypeModel, TypeObject } from '@ez4/reflection';
 import type { ObjectSchema, ObjectSchemaProperties } from '../types/type-object.js';
 import type { ReferenceSchema } from '../types/type-reference.js';
+import type { SchemaDefinitions } from '../types/common.js';
 import type { SchemaContext } from '../types/context.js';
 
 import { isTypeIntersection, isTypeModel, isTypeObject, isTypeReference } from '@ez4/reflection';
@@ -8,9 +9,9 @@ import { isTypeIntersection, isTypeModel, isTypeObject, isTypeReference } from '
 import { getModelProperties } from '../reflection/model.js';
 import { getObjectProperties } from '../reflection/object.js';
 import { SchemaReferenceNotFound } from '../errors/reference.js';
-import { SchemaDefinitions, SchemaType } from '../types/common.js';
 import { createSchemaContext } from '../types/context.js';
 import { isObjectSchema } from '../types/type-object.js';
+import { SchemaType } from '../types/common.js';
 import { createReferenceSchema } from './reference.js';
 import { getAnySchema } from './any.js';
 

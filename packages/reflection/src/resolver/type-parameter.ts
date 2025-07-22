@@ -1,10 +1,10 @@
-import type { Context, State, TypeMap } from './common.js';
-
 import type { Node, NodeArray, TypeAliasDeclaration, TypeNode, TypeParameterDeclaration } from 'typescript';
+import type { Context, State, TypeMap } from './common.js';
+import type { InterfaceNodes } from './type-interface.js';
+import type { ClassNodes } from './type-class.js';
 
 import { isTypeParameterDeclaration } from 'typescript';
-import { InterfaceNodes } from './type-interface.js';
-import { ClassNodes } from './type-class.js';
+
 import { tryTypes } from './types.js';
 
 export type NodeWithTypeParameters = ClassNodes | InterfaceNodes | TypeAliasDeclaration;

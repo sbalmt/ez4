@@ -1,11 +1,11 @@
 import type { EntryState, EntryStates } from '@ez4/stateful';
+import type { BucketState } from '../bucket/types.js';
 import type { PolicyParameters, PolicyState } from './types.js';
 
 import { attachEntry } from '@ez4/stateful';
 import { hashData } from '@ez4/utils';
 
 import { PolicyServiceType } from './types.js';
-import { BucketState } from '../main.js';
 
 export const createBucketPolicy = <E extends EntryState>(
   state: EntryStates<E>,

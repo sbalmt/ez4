@@ -1,5 +1,5 @@
+import type { Service as CommonService } from '@ez4/common';
 import type { LinkedVariables } from '@ez4/project/library';
-import type { Service } from '@ez4/common';
 import type { Client } from './client.js';
 
 import type { BucketCors, BucketEvent, BucketHandler, BucketIncoming, BucketListener } from './common.js';
@@ -17,7 +17,7 @@ export namespace Bucket {
   export type Listener = BucketListener<Event>;
   export type Handler = BucketHandler<Event>;
 
-  export type ServiceEvent = Service.Event<Incoming>;
+  export type ServiceEvent = CommonService.Event<Incoming>;
 
   /**
    * Bucket events.
@@ -62,7 +62,7 @@ export namespace Bucket {
   /**
    * Bucket service.
    */
-  export declare abstract class Service implements Service.Provider {
+  export declare abstract class Service implements CommonService.Provider {
     /**
      * Overwrite the global bucket name.
      */

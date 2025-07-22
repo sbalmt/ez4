@@ -1,11 +1,11 @@
 import type { Node } from 'typescript';
 import type { EnumNumberMember, EnumStringMember, EnumMember } from '../types.js';
+import type { EnumNodes } from './type-enum.js';
 import type { Context } from './common.js';
 
 import { isEnumMember } from 'typescript';
 import { getNodeDocumentation } from '../helpers/documentation.js';
 import { TypeName } from '../types.js';
-import { EnumNodes } from './type-enum.js';
 
 export const createEnumMember = <T extends EnumMember>(type: T['type'], value: T['value'], name: string, description: string | null) => {
   return {

@@ -1,6 +1,7 @@
 import type { AnySchema, ObjectSchema } from '@ez4/schema';
 import type { SqlBuilderOptions, SqlBuilderReferences } from '../builder.js';
 import type { SqlResultColumn, SqlResultRecord } from '../common/results.js';
+import type { SqlTableReference } from '../common/reference.js';
 import type { SqlSourceWithResults } from '../common/source.js';
 import type { SqlFilters, SqlRecord } from '../common/types.js';
 
@@ -9,8 +10,8 @@ import { isPlainObject } from '@ez4/utils';
 
 import { SqlRaw, SqlRawOperation } from '../common/raw.js';
 import { SqlReturningClause } from '../clauses/returning.js';
-import { SqlColumnReference, SqlTableReference } from '../common/reference.js';
 import { MissingTableNameError, MissingRecordError, EmptyRecordError } from '../errors/queries.js';
+import { SqlColumnReference } from '../common/reference.js';
 import { mergeSqlJsonPath, mergeSqlPath } from '../utils/merge.js';
 import { InvalidAtomicOperation } from '../errors/operation.js';
 import { getFields, getValues } from '../utils/column.js';
