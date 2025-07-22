@@ -25,9 +25,9 @@ export const processHttpRequest = async (
   identity?: Http.Identity
 ) => {
   const lambdaModule = await createModule({
-    version: options.version,
-    listener: route.listener,
+    listener: route.listener ?? service.defaults?.listener,
     handler: route.handler,
+    version: options.version,
     variables: {
       ...options.variables,
       ...service.variables,

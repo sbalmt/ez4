@@ -20,9 +20,9 @@ export const processHttpAuthorization = async (
   }
 
   const lambdaModule = await createModule({
-    version: options.version,
+    listener: route.listener ?? service.defaults?.listener,
     handler: route.authorizer,
-    listener: route.listener,
+    version: options.version,
     variables: {
       ...options.variables,
       ...service.variables,
