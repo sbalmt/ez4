@@ -29,6 +29,7 @@
     "providers/local/*"
   ],
   "scripts": {
+    "lint": "eslint",
     "clean": "rm -f *.tsbuildinfo && rm -rf dist/*",
     "build": "tsc -p tsconfig.json && node tools/bundler.mjs",
     "test": "npm run test:types && node --test --import ../../../tools/tsnode.mjs test/*.spec.ts",

@@ -1,0 +1,2 @@
+npm run prettify -- --log-level silent
+npm run lint
