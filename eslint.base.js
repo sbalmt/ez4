@@ -1,7 +1,6 @@
 import typescriptPlugin from '@typescript-eslint/eslint-plugin';
 import typescriptParser from '@typescript-eslint/parser';
-import nodeImport from 'eslint-plugin-import';
-import nodePlugin from 'eslint-plugin-n';
+import eslintImport from 'eslint-plugin-import';
 
 export default {
   languageOptions: {
@@ -12,8 +11,7 @@ export default {
   files: ['src/**/*.ts'],
   plugins: {
     '@typescript-eslint': typescriptPlugin,
-    import: nodeImport,
-    n: nodePlugin
+    import: eslintImport
   },
   settings: {
     'import/resolver': {
@@ -26,7 +24,6 @@ export default {
     '@typescript-eslint/no-unused-vars': ['error', { argsIgnorePattern: '^_', varsIgnorePattern: '^_' }],
     '@typescript-eslint/consistent-type-imports': 'error',
     'import/no-extraneous-dependencies': 'error',
-    'import/no-unresolved': 'error',
-    'n/no-missing-import': 'error'
+    'import/no-unresolved': 'error'
   }
 };

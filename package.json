@@ -50,7 +50,7 @@
     "examples/*"
   ],
   "scripts": {
-    "prepare": "husky install",
+    "prepare": "husky",
     "prettify": "npx prettier 'packages/**/*.ts' 'providers/**/*.ts' --write",
     "lint": "npm run lint --workspaces --if-present",
     "clean": "npm run clean --workspaces --if-present",
@@ -68,7 +68,6 @@
     "esbuild": "^0.25.0",
     "eslint-import-resolver-typescript": "^4.4.4",
     "eslint-plugin-import": "^2.32.0",
-    "eslint-plugin-n": "^17.21.0",
     "husky": "^9.1.7",
     "prettier": "^3.3.2",
     "ts-node": "^10.9.2",
