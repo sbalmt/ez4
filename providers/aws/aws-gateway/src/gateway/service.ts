@@ -7,10 +7,7 @@ import { attachEntry } from '@ez4/stateful';
 import { GatewayServiceType } from './types.js';
 import { isGatewayState } from './utils.js';
 
-export const createGateway = <E extends EntryState>(
-  state: EntryStates<E>,
-  parameters: GatewayParameters
-) => {
+export const createGateway = <E extends EntryState>(state: EntryStates<E>, parameters: GatewayParameters) => {
   const gatewayId = toKebabCase(parameters.gatewayId);
   const entryId = hashData(GatewayServiceType, gatewayId);
 

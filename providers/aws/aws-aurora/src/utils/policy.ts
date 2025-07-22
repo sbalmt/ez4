@@ -12,12 +12,7 @@ export const getPolicyDocument = async (prefix: string) => {
     },
     {
       resourceIds: [`arn:aws:rds:${region}:${accountId}:cluster:${prefix}-*`],
-      permissions: [
-        'rds-data:BeginTransaction',
-        'rds-data:CommitTransaction',
-        'rds-data:ExecuteStatement',
-        'rds-data:RollbackTransaction'
-      ]
+      permissions: ['rds-data:BeginTransaction', 'rds-data:CommitTransaction', 'rds-data:ExecuteStatement', 'rds-data:RollbackTransaction']
     }
   ];
 

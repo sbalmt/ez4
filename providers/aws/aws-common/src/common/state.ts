@@ -1,13 +1,6 @@
 import { getRandomName } from '../utils/names.js';
 
-import {
-  S3Client,
-  CreateBucketCommand,
-  GetObjectCommand,
-  PutObjectCommand,
-  NotFound,
-  NoSuchKey
-} from '@aws-sdk/client-s3';
+import { S3Client, CreateBucketCommand, GetObjectCommand, PutObjectCommand, NotFound, NoSuchKey } from '@aws-sdk/client-s3';
 
 const s3Client = new S3Client();
 

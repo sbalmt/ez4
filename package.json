@@ -51,7 +51,7 @@
   ],
   "scripts": {
     "prepare": "husky install",
-    "prettify": "npx prettier 'packages/**/*.ts' --write",
+    "prettify": "npx prettier 'packages/**/*.ts' 'providers/**/*.ts' --write",
     "lint": "npm run lint --workspaces --if-present",
     "clean": "npm run clean --workspaces --if-present",
     "build": "npm run build --workspaces --if-present",

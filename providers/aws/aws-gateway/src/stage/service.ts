@@ -8,11 +8,7 @@ import { hashData } from '@ez4/utils';
 import { getStageName } from './helpers/stage.js';
 import { StageServiceType } from './types.js';
 
-export const createStage = <E extends EntryState>(
-  state: EntryStates<E>,
-  gatewayState: GatewayState,
-  parameters: StageParameters
-) => {
+export const createStage = <E extends EntryState>(state: EntryStates<E>, gatewayState: GatewayState, parameters: StageParameters) => {
   const stageName = getStageName(parameters);
   const stageId = hashData(StageServiceType, gatewayState.entryId, stageName);
 

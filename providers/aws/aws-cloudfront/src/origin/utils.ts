@@ -9,11 +9,7 @@ export const isOriginPolicyState = (resource: EntryState): resource is OriginSta
   return resource.type === OriginServiceType;
 };
 
-export const getOriginPolicyId = (
-  serviceName: string,
-  resourceId: string,
-  context: StepContext
-) => {
+export const getOriginPolicyId = (serviceName: string, resourceId: string, context: StepContext) => {
   const resource = context.getDependencies<OriginState>(OriginServiceType).at(0)?.result;
 
   if (!resource?.policyId) {
