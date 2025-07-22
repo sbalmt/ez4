@@ -2,12 +2,15 @@ import typescriptPlugin from '@typescript-eslint/eslint-plugin';
 import typescriptParser from '@typescript-eslint/parser';
 import eslintImport from 'eslint-plugin-import';
 
-export default {
+export const eslintIgnore = {
+  ignores: ['node_modules/**', 'dist/**']
+};
+
+export const eslintProject = {
   languageOptions: {
     parser: typescriptParser,
     sourceType: 'module'
   },
-  ignores: ['node_modules/**', 'dist/**'],
   files: ['src/**/*.ts'],
   plugins: {
     '@typescript-eslint': typescriptPlugin,

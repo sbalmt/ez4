@@ -1,3 +1,3 @@
-import eslintBase from '../../eslint.base.js';
+import { eslintIgnore, eslintProject } from '../../eslint.base.js';
 
-export default [eslintBase];
+export default [eslintIgnore, eslintProject];
