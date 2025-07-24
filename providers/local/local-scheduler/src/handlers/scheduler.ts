@@ -3,7 +3,6 @@ import type { CronService } from '@ez4/scheduler/library';
 import type { Cron } from '@ez4/scheduler';
 
 import { createModule, onBegin, onEnd, onError, onReady } from '@ez4/local-common';
-import { Logger } from '@ez4/project/library';
 import { getRandomUUID } from '@ez4/utils';
 
 export const processSchedulerEvent = async (
@@ -42,8 +41,6 @@ export const processSchedulerEvent = async (
     await lambdaModule.handler(lambdaRequest, lambdaContext);
     //
   } catch (error) {
-    Logger.error(`${error}`);
-
     await onError(lambdaModule, lambdaContext, lambdaRequest, error);
     //
   } finally {

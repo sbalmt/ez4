@@ -4,7 +4,6 @@ import type { Http } from '@ez4/gateway';
 import type { MatchingRoute } from '../utils/route.js';
 
 import { createModule, onBegin, onEnd, onError, onReady } from '@ez4/local-common';
-import { Logger } from '@ez4/project/library';
 import { getRandomUUID } from '@ez4/utils';
 
 import { getOutgoingErrorResponse, getOutgoingSuccessResponse } from '../utils/response.js';
@@ -63,8 +62,6 @@ export const processHttpRequest = async (
     return getOutgoingSuccessResponse(route.handler.response, status, headers, body);
     //
   } catch (error) {
-    Logger.error(`${error}`);
-
     await onError(lambdaModule, lambdaContext, lambdaRequest, error);
 
     if (error instanceof Error) {

@@ -1,11 +1,9 @@
+import type { NotificationImport, NotificationLambdaSubscription, NotificationService } from '@ez4/notification/library';
 import type { EmulateServiceContext, ServeOptions } from '@ez4/project/library';
 import type { Notification } from '@ez4/notification';
 
-import type { NotificationImport, NotificationLambdaSubscription, NotificationService } from '@ez4/notification/library';
-
 import { createModule, onBegin, onEnd, onError, onReady } from '@ez4/local-common';
 import { getJsonMessage } from '@ez4/notification/utils';
-import { Logger } from '@ez4/project/library';
 import { getRandomUUID } from '@ez4/utils';
 
 export const processLambdaMessage = async (
@@ -28,7 +26,9 @@ export const processLambdaMessage = async (
 
   const lambdaContext = service.services && context.makeClients(service.services);
 
-  const lambdaRequest: Partial<Notification.Incoming<Notification.Message>> = {
+  let currentRequest: Notification.Incoming<Notification.Message> | undefined;
+
+  const lambdaRequest = {
     requestId: getRandomUUID()
   };
 
@@ -38,15 +38,16 @@ export const processLambdaMessage = async (
     const jsonMessage = JSON.parse(message.toString());
     const safeMessage = await getJsonMessage(jsonMessage, service.schema);
 
-    Object.assign(lambdaRequest, { message: safeMessage });
+    currentRequest = {
+      ...lambdaRequest,
+      message: safeMessage
+    };
 
-    await onReady(lambdaModule, lambdaContext, lambdaRequest);
-    await lambdaModule.handler(lambdaRequest, lambdaContext);
+    await onReady(lambdaModule, lambdaContext, currentRequest);
+    await lambdaModule.handler(currentRequest, lambdaContext);
     //
   } catch (error) {
-    Logger.error(`${error}`);
-
-    await onError(lambdaModule, lambdaContext, lambdaRequest, error);
+    await onError(lambdaModule, lambdaContext, currentRequest ?? lambdaRequest, error);
     //
   } finally {
     await onEnd(lambdaModule, lambdaContext, lambdaRequest);
