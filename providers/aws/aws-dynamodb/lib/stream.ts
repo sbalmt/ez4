@@ -2,10 +2,10 @@ import type { DynamoDBStreamEvent, Context, DynamoDBRecord } from 'aws-lambda';
 import type { Database, StreamChange } from '@ez4/database';
 import type { AnyObject } from '@ez4/utils';
 import type { ObjectSchema } from '@ez4/schema';
-import type { Service } from '@ez4/common';
 
 import { unmarshall } from '@aws-sdk/util-dynamodb';
 import { validateSchema } from '@ez4/aws-dynamodb/runtime';
+import { createTransformContext, transform } from '@ez4/transform';
 import { ServiceEventType } from '@ez4/common';
 import { StreamType } from '@ez4/database';
 
@@ -88,7 +88,7 @@ const getRecordChange = async (record: DynamoDBRecord, schema: ObjectSchema) => 
 };
 
 const getInsertChange = async (newImage: AnyObject, schema: ObjectSchema): Promise<StreamChange<Database.Schema>> => {
-  const record = unmarshall(newImage);
+  const record = transformRecord(unmarshall(newImage), schema);
 
   await validateSchema(record, schema);
 
@@ -99,8 +99,8 @@ const getInsertChange = async (newImage: AnyObject, schema: ObjectSchema): Promi
 };
 
 const getUpdateChange = async (newImage: AnyObject, oldImage: AnyObject, schema: ObjectSchema): Promise<StreamChange<Database.Schema>> => {
-  const newRecord = unmarshall(newImage);
-  const oldRecord = unmarshall(oldImage);
+  const newRecord = transformRecord(unmarshall(newImage), schema);
+  const oldRecord = transformRecord(unmarshall(oldImage), schema);
 
   await Promise.all([validateSchema(newRecord, schema), validateSchema(oldRecord, schema)]);
 
@@ -112,7 +112,7 @@ const getUpdateChange = async (newImage: AnyObject, oldImage: AnyObject, schema:
 };
 
 const getDeleteChange = async (oldImage: AnyObject, schema: ObjectSchema): Promise<StreamChange<Database.Schema>> => {
-  const record = unmarshall(oldImage);
+  const record = transformRecord(unmarshall(oldImage), schema);
 
   await validateSchema(record, schema);
 
@@ -120,6 +120,12 @@ const getDeleteChange = async (oldImage: AnyObject, schema: ObjectSchema): Promi
     type: StreamType.Delete,
     record
   };
+};
+
+const transformRecord = (input: AnyObject, schema: ObjectSchema) => {
+  const record = transform(input, schema, createTransformContext({ convert: false }));
+
+  return record as AnyObject;
 };
 
 const onBegin = async (request: Database.Request) => {
