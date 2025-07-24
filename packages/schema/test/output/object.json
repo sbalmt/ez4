@@ -194,7 +194,7 @@
       "type": "object",
       "description": "Any object extending intersection.",
       "identity": 15,
-       "definitions": {
+      "definitions": {
         "extensible": true
       },
       "properties": {
@@ -203,6 +203,23 @@
         },
         "foo": {
           "type": "string"
+        }
+      }
+    },
+    "dynamic_intersection": {
+      "type": "object",
+      "description": "Dynamic object intersection.",
+      "identity": 18,
+      "properties": {},
+      "definitions": {
+        "extensible": true
+      },
+      "additional": {
+        "property": {
+          "type": "string"
+        },
+        "value": {
+          "type": "number"
         }
       }
     }

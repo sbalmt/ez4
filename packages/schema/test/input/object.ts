@@ -70,18 +70,12 @@ export interface ObjectTestSchema {
   /**
    * Dynamic properties.
    */
-  dynamic: {
-    [name: string | number]: boolean | undefined;
-  };
+  dynamic: { [name: string | number]: boolean | undefined };
 
   /**
    * Any object extending.
    */
-  extends: Object.Extends<{
-    foo: boolean;
-    bar: number;
-    baz: string;
-  }>;
+  extends: Object.Extends<{ foo: boolean; bar: number; baz: string }>;
 
   /**
    * Intersection object.
@@ -92,4 +86,9 @@ export interface ObjectTestSchema {
    * Any object extending intersection.
    */
   extends_intersection: Object.Extends<{ foo: string } & { bar: number }>;
+
+  /**
+   * Dynamic object intersection.
+   */
+  dynamic_intersection: Object.Extends<{ [name: string]: number }>;
 }
