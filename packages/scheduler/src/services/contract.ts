@@ -1,6 +1,6 @@
 import type { Service as CommonService } from '@ez4/common';
 import type { LinkedVariables } from '@ez4/project/library';
-import type { CronEvent, CronHandler, CronIncoming, CronListener } from './common.js';
+import type { CronEvent, CronHandler, CronIncoming, CronListener, CronRequest } from './common.js';
 import type { Client } from './client.js';
 
 /**
@@ -8,13 +8,14 @@ import type { Client } from './client.js';
  */
 export namespace Cron {
   export type Event = CronEvent;
+  export type Request = CronRequest;
 
   export type Incoming<T extends Event | null> = CronIncoming<T>;
 
   export type Listener<T extends Event | null> = CronListener<T>;
   export type Handler<T extends Event | null> = CronHandler<T>;
 
-  export type ServiceEvent<T extends Event | null = null> = CommonService.Event<Incoming<T>>;
+  export type ServiceEvent<T extends Event | null = null> = CommonService.AnyEvent<Incoming<T>>;
 
   /**
    * Cron target.

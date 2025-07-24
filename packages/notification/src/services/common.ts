@@ -24,12 +24,7 @@ export interface NotificationFifoMode<T extends NotificationMessage> {
 /**
  * Incoming message.
  */
-export type NotificationIncoming<T extends NotificationMessage> = {
-  /**
-   * Request Id.
-   */
-  requestId: string;
-
+export type NotificationIncoming<T extends NotificationMessage> = NotificationRequest & {
   /**
    * Message payload.
    */
@@ -37,10 +32,20 @@ export type NotificationIncoming<T extends NotificationMessage> = {
 };
 
 /**
+ * Incoming request.
+ */
+export type NotificationRequest = {
+  /**
+   * Request tracking Id.
+   */
+  requestId: string;
+};
+
+/**
  * Message listener.
  */
 export type SubscriptionListener<T extends NotificationMessage> = (
-  event: Service.Event<NotificationIncoming<T>>,
+  event: Service.AnyEvent<NotificationIncoming<T>>,
   context: Service.Context<Notification.Service<any> | Notification.Import<any>>
 ) => Promise<void> | void;
 

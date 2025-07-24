@@ -5,6 +5,7 @@ import type { Client } from './client.js';
 
 import type {
   NotificationMessage,
+  NotificationRequest,
   NotificationIncoming,
   SubscriptionHandler,
   SubscriptionListener,
@@ -16,6 +17,7 @@ import type {
  */
 export namespace Notification {
   export type Message = NotificationMessage;
+  export type Request = NotificationRequest;
 
   export type FifoMode<T extends Message> = NotificationFifoMode<T>;
   export type Incoming<T extends Message> = NotificationIncoming<T>;
@@ -25,7 +27,11 @@ export namespace Notification {
 
   export type Subscription<T extends Message> = LambdaSubscription<T> | QueueSubscription<T>;
 
-  export type ServiceEvent<T extends Message = Message> = CommonService.Event<Incoming<T>>;
+  export type ServiceEvent<T extends Message = Message> =
+    | CommonService.BeginEvent<Request>
+    | CommonService.ReadyEvent<Incoming<T>>
+    | CommonService.ErrorEvent<Request | Incoming<T>>
+    | CommonService.EndEvent<Request>;
 
   /**
    * Queue subscription.

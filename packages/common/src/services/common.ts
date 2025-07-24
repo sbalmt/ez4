@@ -1,7 +1,7 @@
 /**
  * All service events.
  */
-export type ServiceEvent<T extends ServiceRequest> =
+export type ServiceAnyEvent<T extends ServiceRequest> =
   | ServiceBeginEvent<T>
   | ServiceReadyEvent<T>
   | ServiceErrorEvent<T>

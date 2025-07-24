@@ -197,7 +197,7 @@ export type HttpIncoming<T extends HttpRequest | HttpAuthRequest> = T & {
  * Request listener.
  */
 export type HttpListener<T extends HttpRequest | HttpAuthRequest> = (
-  event: Service.Event<HttpIncoming<T>>,
+  event: Service.AnyEvent<HttpIncoming<T>>,
   context: Service.Context<Http.Service | HttpProvider>
 ) => Promise<void> | void;
 

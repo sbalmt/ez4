@@ -1,5 +1,4 @@
 import type { S3Event, Context } from 'aws-lambda';
-import type { Service } from '@ez4/common';
 import type { Bucket } from '@ez4/storage';
 
 import { ServiceEventType } from '@ez4/common';
@@ -7,14 +6,14 @@ import { BucketEventType } from '@ez4/storage';
 
 declare const __EZ4_CONTEXT: object;
 
-declare function dispatch(event: Service.Event<Bucket.Event>, context: object): Promise<void>;
+declare function dispatch(event: Bucket.ServiceEvent, context: object): Promise<void>;
 declare function handle(event: Bucket.Event, context: object): Promise<any>;
 
 /**
  * Entrypoint to handle S3 notifications.
  */
 export async function s3EntryPoint(event: S3Event, context: Context): Promise<void> {
-  let currentRequest: Bucket.Event | undefined;
+  let currentRequest: Bucket.Incoming | undefined;
 
   const request = {
     requestId: context.awsRequestId
@@ -59,7 +58,7 @@ const getKnownEventType = (eventName: string) => {
   throw new Error(`Event type ${eventName} isn't supported.`);
 };
 
-const onBegin = async (request: Partial<Bucket.Incoming>) => {
+const onBegin = async (request: Bucket.Request) => {
   return dispatch(
     {
       type: ServiceEventType.Begin,
@@ -69,7 +68,7 @@ const onBegin = async (request: Partial<Bucket.Incoming>) => {
   );
 };
 
-const onReady = async (request: Partial<Bucket.Incoming>) => {
+const onReady = async (request: Bucket.Incoming) => {
   return dispatch(
     {
       type: ServiceEventType.Ready,
@@ -79,7 +78,7 @@ const onReady = async (request: Partial<Bucket.Incoming>) => {
   );
 };
 
-const onError = async (error: Error, request: Partial<Bucket.Incoming>) => {
+const onError = async (error: Error, request: Bucket.Request | Bucket.Incoming) => {
   console.error(error);
 
   return dispatch(
@@ -92,7 +91,7 @@ const onError = async (error: Error, request: Partial<Bucket.Incoming>) => {
   );
 };
 
-const onEnd = async (request: Partial<Bucket.Incoming>) => {
+const onEnd = async (request: Bucket.Request) => {
   return dispatch(
     {
       type: ServiceEventType.End,

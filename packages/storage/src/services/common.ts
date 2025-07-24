@@ -67,7 +67,12 @@ export interface BucketCors {
 /**
  * Incoming event.
  */
-export type BucketIncoming<T extends BucketEvent> = T & {
+export type BucketIncoming<T extends BucketEvent> = T & BucketRequest;
+
+/**
+ * Bucket request.
+ */
+export type BucketRequest = {
   /**
    * Request tracking Id.
    */
@@ -78,7 +83,7 @@ export type BucketIncoming<T extends BucketEvent> = T & {
  * Message listener.
  */
 export type BucketListener<T extends BucketEvent> = (
-  event: Service.Event<BucketIncoming<T>>,
+  event: Service.AnyEvent<BucketIncoming<T>>,
   context: Service.Context<Bucket.Service>
 ) => Promise<void> | void;
 

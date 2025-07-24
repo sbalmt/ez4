@@ -2,7 +2,7 @@ import type { Service as CommonService } from '@ez4/common';
 import type { LinkedVariables } from '@ez4/project/library';
 import type { Client } from './client.js';
 
-import type { BucketCors, BucketEvent, BucketHandler, BucketIncoming, BucketListener } from './common.js';
+import type { BucketCors, BucketEvent, BucketHandler, BucketIncoming, BucketListener, BucketRequest } from './common.js';
 
 /**
  * Provide all contracts for a self-managed Bucket service.
@@ -13,11 +13,16 @@ export namespace Bucket {
   export type Event = BucketEvent;
 
   export type Incoming = BucketIncoming<Event>;
+  export type Request = BucketRequest;
 
   export type Listener = BucketListener<Event>;
   export type Handler = BucketHandler<Event>;
 
-  export type ServiceEvent = CommonService.Event<Incoming>;
+  export type ServiceEvent =
+    | CommonService.BeginEvent<Request>
+    | CommonService.ReadyEvent<Incoming>
+    | CommonService.ErrorEvent<Request | Incoming>
+    | CommonService.EndEvent<Request>;
 
   /**
    * Bucket events.

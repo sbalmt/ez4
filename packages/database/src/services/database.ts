@@ -31,20 +31,23 @@ export namespace Database {
   /**
    * Incoming stream event.
    */
-  export type Incoming<T extends Schema> = StreamChange<
-    T & {
-      /**
-       * Request tracking Id.
-       */
-      requestId: string;
-    }
-  >;
+  export type Incoming<T extends Schema> = StreamChange<T> & Request;
+
+  /**
+   * Incoming request.
+   */
+  export type Request = {
+    /**
+     * Request tracking Id.
+     */
+    requestId: string;
+  };
 
   /**
    * Stream listener.
    */
   export type Listener<T extends Schema> = (
-    event: CommonService.Event<Incoming<T>>,
+    event: CommonService.AnyEvent<Incoming<T>>,
     context: CommonService.Context<Database.Service>
   ) => Promise<void> | void;
 
@@ -56,7 +59,11 @@ export namespace Database {
   /**
    * Service event.
    */
-  export type ServiceEvent<T extends Schema = Schema> = CommonService.Event<Incoming<T>>;
+  export type ServiceEvent<T extends Schema = Schema> =
+    | CommonService.BeginEvent<Request>
+    | CommonService.ReadyEvent<Incoming<T>>
+    | CommonService.ErrorEvent<Request | Incoming<T>>
+    | CommonService.EndEvent<Request>;
 
   /**
    * Service engine.

@@ -1,6 +1,5 @@
 import type { APIGatewayProxyEventV2WithLambdaAuthorizer, APIGatewayProxyResultV2, Context } from 'aws-lambda';
 import type { ObjectSchema } from '@ez4/schema';
-import type { Service } from '@ez4/common';
 import type { Http } from '@ez4/gateway';
 
 import * as GatewayUtils from '@ez4/gateway/utils';
@@ -21,8 +20,8 @@ declare const __EZ4_HEADERS_SCHEMA: ObjectSchema | null;
 declare const __EZ4_ERRORS_MAP: Record<string, number> | null;
 declare const __EZ4_CONTEXT: object;
 
-declare function dispatch(event: Service.Event<Http.Incoming<Http.Request>>, context: object): Promise<void>;
 declare function handle(request: Http.Incoming<Http.Request>, context: object): Promise<Http.Response>;
+declare function dispatch(event: Http.ServiceEvent<Http.Request>, context: object): Promise<void>;
 
 /**
  * Entrypoint to handle API Gateway requests.
@@ -205,7 +204,7 @@ const getMappedErrorResponse = (error: Error) => {
   });
 };
 
-const onBegin = async (request: Partial<Http.Incoming<Http.Request>>) => {
+const onBegin = async (request: Http.Incoming<Http.Request>) => {
   return dispatch(
     {
       type: ServiceEventType.Begin,
@@ -215,7 +214,7 @@ const onBegin = async (request: Partial<Http.Incoming<Http.Request>>) => {
   );
 };
 
-const onReady = async (request: Partial<Http.Incoming<Http.Request>>) => {
+const onReady = async (request: Http.Incoming<Http.Request>) => {
   return dispatch(
     {
       type: ServiceEventType.Ready,
@@ -225,7 +224,7 @@ const onReady = async (request: Partial<Http.Incoming<Http.Request>>) => {
   );
 };
 
-const onError = async (error: Error, request: Partial<Http.Incoming<Http.Request>>) => {
+const onError = async (error: Error, request: Http.Incoming<Http.Request>) => {
   console.error(error);
 
   return dispatch(
@@ -238,7 +237,7 @@ const onError = async (error: Error, request: Partial<Http.Incoming<Http.Request
   );
 };
 
-const onEnd = async (request: Partial<Http.Incoming<Http.Request>>) => {
+const onEnd = async (request: Http.Incoming<Http.Request>) => {
   return dispatch(
     {
       type: ServiceEventType.End,

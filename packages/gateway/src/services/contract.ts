@@ -54,7 +54,7 @@ export namespace Http {
   export type Authorizer<T extends AuthRequest> = HttpAuthorizer<T>;
   export type Handler<T extends Request> = HttpHandler<T>;
 
-  export type ServiceEvent<T extends Request | AuthRequest = Request> = CommonService.Event<Incoming<T>>;
+  export type ServiceEvent<T extends Request | AuthRequest = Request> = CommonService.AnyEvent<Incoming<T>>;
 
   export type EmptySuccessResponse<S extends HttpSuccessStatuses = 204> = HttpEmptySuccessResponse<S>;
   export type SuccessResponse<S extends HttpSuccessStatuses, T extends HttpRawBody | HttpJsonBody> = HttpSuccessResponse<S, T>;
