@@ -1,4 +1,4 @@
-import type { AllType, ModelProperty, SourceMap, TypeModel, TypeObject } from '@ez4/reflection';
+import type { AllType, ModelProperty, SourceMap, TypeIntersection, TypeModel, TypeObject } from '@ez4/reflection';
 import type { ObjectSchema, ObjectSchemaProperties } from '../types/type-object.js';
 import type { ReferenceSchema } from '../types/type-reference.js';
 import type { SchemaDefinitions } from '../types/common.js';
@@ -21,6 +21,8 @@ type RichTypeBase = {
 
 export type RichTypeObject = TypeObject & RichTypeBase;
 
+export type RichTypeIntersection = TypeIntersection & RichTypeBase;
+
 export type RichTypeModel = TypeModel & RichTypeBase;
 
 export const createObjectSchema = (data: Omit<ObjectSchema, 'type'>): ObjectSchema => {
@@ -40,6 +42,10 @@ export const createObjectSchema = (data: Omit<ObjectSchema, 'type'>): ObjectSche
 
 export const isRichTypeObject = (type: AllType): type is RichTypeObject => {
   return isTypeObject(type);
+};
+
+export const isRichTypeIntersection = (type: AllType): type is RichTypeIntersection => {
+  return isTypeIntersection(type);
 };
 
 export const isRichTypeModel = (type: AllType): type is RichTypeModel => {
@@ -95,12 +101,13 @@ export const getObjectSchema = (
     return modelSchema;
   }
 
-  if (isTypeIntersection(type)) {
+  if (isRichTypeIntersection(type)) {
     const identity = ++context.counter;
 
     references.set(type, identity);
 
     const objectSchema = createObjectSchema({
+      definitions: type.definitions,
       properties: {},
       description,
       identity

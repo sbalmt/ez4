@@ -189,6 +189,22 @@
           "type": "string"
         }
       }
+    },
+    "extends_intersection": {
+      "type": "object",
+      "description": "Any object extending intersection.",
+      "identity": 15,
+       "definitions": {
+        "extensible": true
+      },
+      "properties": {
+        "bar": {
+          "type": "number"
+        },
+        "foo": {
+          "type": "string"
+        }
+      }
     }
   }
 }

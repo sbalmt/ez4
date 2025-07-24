@@ -87,4 +87,9 @@ export interface ObjectTestSchema {
    * Intersection object.
    */
   intersection: { foo: number } & { foo: string; bar: string };
+
+  /**
+   * Any object extending intersection.
+   */
+  extends_intersection: Object.Extends<{ foo: string } & { bar: number }>;
 }
