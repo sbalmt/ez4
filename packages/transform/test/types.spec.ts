@@ -69,7 +69,8 @@ describe('types transform', () => {
       identity: 1,
       properties: {
         foo: {
-          type: SchemaType.Boolean
+          type: SchemaType.Boolean,
+          alias: 'FOO'
         },
         bar: {
           type: SchemaType.Number
@@ -81,7 +82,7 @@ describe('types transform', () => {
     };
 
     const output = {
-      foo: true,
+      FOO: true,
       bar: 123,
       baz: 'abc'
     };

@@ -27,29 +27,61 @@ describe('naming validation', () => {
   };
 
   it('assert :: camel case', async () => {
-    const payload = { fooFoo: 'abc', fooBar: 123, fooBaz: 'abc', fooQux: 123 };
-    const context = createValidatorContext({ namingStyle: NamingStyle.CamelCase });
+    const payload = {
+      fooFoo: 'abc',
+      fooBar: 123,
+      fooBaz: 'abc',
+      fooQux: 123
+    };
+
+    const context = createValidatorContext({
+      namingStyle: NamingStyle.CamelCase
+    });
 
     equal((await validate(payload, schema, context)).length, 0);
   });
 
   it('assert :: pascal case', async () => {
-    const payload = { FooFoo: 'abc', FooBar: 123, FooBaz: 'abc', FooQux: 123 };
-    const context = createValidatorContext({ namingStyle: NamingStyle.PascalCase });
+    const payload = {
+      FooFoo: 'abc',
+      FooBar: 123,
+      FooBaz: 'abc',
+      FooQux: 123
+    };
+
+    const context = createValidatorContext({
+      namingStyle: NamingStyle.PascalCase
+    });
 
     equal((await validate(payload, schema, context)).length, 0);
   });
 
   it('assert :: snake case', async () => {
-    const payload = { foo_foo: 'abc', foo_bar: 123, foo_baz: 'abc', foo_qux: 123 };
-    const context = createValidatorContext({ namingStyle: NamingStyle.SnakeCase });
+    const payload = {
+      foo_foo: 'abc',
+      foo_bar: 123,
+      foo_baz: 'abc',
+      foo_qux: 123
+    };
+
+    const context = createValidatorContext({
+      namingStyle: NamingStyle.SnakeCase
+    });
 
     equal((await validate(payload, schema, context)).length, 0);
   });
 
   it('assert :: kebab case', async () => {
-    const payload = { 'foo-foo': 'abc', 'foo-bar': 123, 'foo-baz': 'abc', 'foo-qux': 123 };
-    const context = createValidatorContext({ namingStyle: NamingStyle.KebabCase });
+    const payload = {
+      'foo-foo': 'abc',
+      'foo-bar': 123,
+      'foo-baz': 'abc',
+      'foo-qux': 123
+    };
+
+    const context = createValidatorContext({
+      namingStyle: NamingStyle.KebabCase
+    });
 
     equal((await validate(payload, schema, context)).length, 0);
   });
