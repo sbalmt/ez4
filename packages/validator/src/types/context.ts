@@ -2,13 +2,13 @@ import type { NamingStyle, ObjectSchema } from '@ez4/schema';
 
 export type ValidationContext = {
   references: Record<number, ObjectSchema>;
-  namingStyle?: NamingStyle;
+  inputStyle?: NamingStyle;
   property?: string;
   depth: number;
 };
 
 export type ValidationContextOptions = {
-  namingStyle?: NamingStyle;
+  inputStyle?: NamingStyle;
   property?: string;
   depth?: number;
 };
@@ -16,7 +16,7 @@ export type ValidationContextOptions = {
 export const createValidatorContext = (options?: ValidationContextOptions): ValidationContext => {
   return {
     depth: options?.depth ?? +Infinity,
-    namingStyle: options?.namingStyle,
+    inputStyle: options?.inputStyle,
     property: options?.property,
     references: {}
   };

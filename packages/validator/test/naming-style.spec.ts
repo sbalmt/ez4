@@ -35,7 +35,7 @@ describe('naming validation', () => {
     };
 
     const context = createValidatorContext({
-      namingStyle: NamingStyle.CamelCase
+      inputStyle: NamingStyle.CamelCase
     });
 
     equal((await validate(payload, schema, context)).length, 0);
@@ -50,7 +50,7 @@ describe('naming validation', () => {
     };
 
     const context = createValidatorContext({
-      namingStyle: NamingStyle.PascalCase
+      inputStyle: NamingStyle.PascalCase
     });
 
     equal((await validate(payload, schema, context)).length, 0);
@@ -65,7 +65,7 @@ describe('naming validation', () => {
     };
 
     const context = createValidatorContext({
-      namingStyle: NamingStyle.SnakeCase
+      inputStyle: NamingStyle.SnakeCase
     });
 
     equal((await validate(payload, schema, context)).length, 0);
@@ -80,7 +80,7 @@ describe('naming validation', () => {
     };
 
     const context = createValidatorContext({
-      namingStyle: NamingStyle.KebabCase
+      inputStyle: NamingStyle.KebabCase
     });
 
     equal((await validate(payload, schema, context)).length, 0);

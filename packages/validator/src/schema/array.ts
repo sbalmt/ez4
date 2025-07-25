@@ -38,7 +38,7 @@ export const validateArray = async (value: unknown, schema: ArraySchema, context
       const elementSchema = schema.element;
 
       const errorList = await validateAny(elementValue, elementSchema, {
-        namingStyle: context.namingStyle,
+        inputStyle: context.inputStyle,
         property: elementProperty,
         depth: depth - 1,
         references

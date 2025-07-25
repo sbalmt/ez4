@@ -26,7 +26,7 @@ export const validateTuple = async (value: unknown, schema: TupleSchema, context
       const elementValue = value[index++];
 
       const errorList = await validateAny(elementValue, elementSchema, {
-        namingStyle: context.namingStyle,
+        inputStyle: context.inputStyle,
         property: elementProperty,
         depth: depth - 1,
         references

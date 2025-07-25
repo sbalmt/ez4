@@ -19,8 +19,7 @@ export const validateFirstSchemaLevel = (data: unknown, schema: AnySchema, path:
 
 export const validateAllSchemaLevels = (data: unknown, schema: AnySchema, path: string) => {
   return validateSchemaWithContext(data, schema, {
-    property: path,
-    depth: Infinity
+    property: path
   });
 };
 
@@ -32,12 +31,17 @@ export const getWithSchemaValidation = async (data: unknown, schema: AnySchema, 
   return record;
 };
 
-const validateSchemaWithContext = async (data: unknown, schema: AnySchema, context: Required<ValidationContextOptions>) => {
+type ValidateContextOptions = ValidationContextOptions & {
+  property: string;
+};
+
+const validateSchemaWithContext = async (data: unknown, schema: AnySchema, context: ValidateContextOptions) => {
   const errors = await validate(data, schema, createValidatorContext(context));
 
   if (errors.length) {
     const messages = getUniqueErrorMessages(errors);
+    const property = context.property;
 
-    throw new MalformedRequestError(context.property, messages);
+    throw new MalformedRequestError(property, messages);
   }
 };
