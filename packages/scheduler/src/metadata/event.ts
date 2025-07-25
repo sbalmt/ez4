@@ -1,9 +1,9 @@
 import type { CronEventSchema } from '../types/common.js';
 
-import type { AllType, SourceMap, TypeCallback, TypeFunction, TypeModel, TypeObject } from '@ez4/reflection';
+import type { AllType, SourceMap, TypeCallback, TypeFunction, TypeIntersection, TypeModel, TypeObject } from '@ez4/reflection';
 
 import { createUnionSchema, getObjectSchema, isObjectSchema } from '@ez4/schema/library';
-import { isTypeObject, isTypeReference, isTypeUnion } from '@ez4/reflection';
+import { isTypeIntersection, isTypeObject, isTypeReference, isTypeUnion } from '@ez4/reflection';
 import { getReferenceType, isModelDeclaration } from '@ez4/common/library';
 
 import { IncorrectEventTypeError, InvalidEventTypeError } from '../errors/event.js';
@@ -30,7 +30,7 @@ const getTypeEvent = (type: AllType, parent: TypeParent, reflection: SourceMap, 
     return getEventFromUnion(type.elements, parent, reflection, errorList);
   }
 
-  if (isTypeObject(type)) {
+  if (isTypeObject(type) || isTypeIntersection(type)) {
     return getEventSchema(type, reflection);
   }
 
@@ -63,7 +63,7 @@ const getEventFromUnion = (types: AllType[], parent: TypeParent, reflection: Sou
   });
 };
 
-const getEventSchema = (type: TypeObject | TypeModel, reflection: SourceMap) => {
+const getEventSchema = (type: TypeObject | TypeModel | TypeIntersection, reflection: SourceMap) => {
   const schema = getObjectSchema(type, reflection);
 
   if (schema && isObjectSchema(schema)) {
