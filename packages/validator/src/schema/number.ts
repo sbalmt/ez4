@@ -11,10 +11,10 @@ import {
   UnexpectedNumberError
 } from '../errors/number.js';
 
-import { isOptionalNullable } from './utils.js';
+import { isNullish } from '../utils/nullish.js';
 
 export const validateNumber = (value: unknown, schema: NumberSchema, context?: ValidationContext) => {
-  if (isOptionalNullable(value, schema)) {
+  if (isNullish(value, schema)) {
     return [];
   }
 

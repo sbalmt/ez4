@@ -1,15 +1,16 @@
 import type { ObjectSchema } from '@ez4/schema';
 
-import { UnexpectedPropertiesError } from '../errors/common.js';
-import { ExpectedObjectTypeError } from '../errors/object.js';
-import { createValidatorContext } from '../types/context.js';
+import { getPropertyName } from '@ez4/schema';
 import { isAnyObject } from '@ez4/utils';
 
-import { isOptionalNullable } from './utils.js';
+import { ExpectedObjectTypeError } from '../errors/object.js';
+import { UnexpectedPropertiesError } from '../errors/common.js';
+import { createValidatorContext } from '../types/context.js';
+import { isNullish } from '../utils/nullish.js';
 import { validateAny } from './any.js';
 
 export const validateObject = async (value: unknown, schema: ObjectSchema, context = createValidatorContext()) => {
-  if (isOptionalNullable(value, schema)) {
+  if (isNullish(value, schema)) {
     return [];
   }
 
@@ -27,15 +28,17 @@ export const validateObject = async (value: unknown, schema: ObjectSchema, conte
   const parentProperty = property;
   const allErrors: Error[] = [];
 
-  for (const propertyName in schema.properties) {
-    allProperties.delete(propertyName);
+  for (const propertyKey in schema.properties) {
+    const propertyName = getPropertyName(propertyKey, context.namingStyle);
 
     if (depth > 0) {
-      const propertyPath = getObjectProperty(propertyName, parentProperty);
-      const valueSchema = schema.properties[propertyName];
-      const childValue = value[propertyName];
+      const propertyPath = getPropertyPath(propertyName, parentProperty);
 
-      const errorList = await validateAny(childValue, valueSchema, {
+      const propertySchema = schema.properties[propertyKey];
+      const propertyValue = value[propertyName];
+
+      const errorList = await validateAny(propertyValue, propertySchema, {
+        namingStyle: context.namingStyle,
         property: propertyPath,
         depth: depth - 1,
         references
@@ -43,23 +46,26 @@ export const validateObject = async (value: unknown, schema: ObjectSchema, conte
 
       allErrors.push(...errorList);
     }
+
+    allProperties.delete(propertyName);
   }
 
   if (schema.additional) {
-    const { property: propertySchema, value: valueSchema } = schema.additional;
+    const { property: propertyNameSchema, value: propertyValueSchema } = schema.additional;
 
     for (const propertyName of allProperties) {
-      const propertyErrors = await validateAny(propertyName, propertySchema);
+      const propertyErrors = await validateAny(propertyName, propertyNameSchema);
 
       if (!propertyErrors.length) {
         allProperties.delete(propertyName);
       }
 
       if (depth > 0) {
-        const propertyPath = getObjectProperty(propertyName, parentProperty);
-        const childValue = value[propertyName];
+        const propertyPath = getPropertyPath(propertyName, parentProperty);
+        const propertyValue = value[propertyName];
 
-        const valueErrors = await validateAny(childValue, valueSchema, {
+        const valueErrors = await validateAny(propertyValue, propertyValueSchema, {
+          namingStyle: context.namingStyle,
           property: propertyPath,
           depth: depth - 1,
           references
@@ -74,7 +80,7 @@ export const validateObject = async (value: unknown, schema: ObjectSchema, conte
 
   if (!allowExtraProperties && allProperties.size > 0) {
     const extraProperties = [...allProperties.values()].map((property) => {
-      return getObjectProperty(property, parentProperty);
+      return getPropertyPath(property, parentProperty);
     });
 
     allErrors.push(new UnexpectedPropertiesError(extraProperties));
@@ -83,6 +89,6 @@ export const validateObject = async (value: unknown, schema: ObjectSchema, conte
   return allErrors;
 };
 
-const getObjectProperty = (childProperty: string, parentProperty: string | undefined) => {
+const getPropertyPath = (childProperty: string, parentProperty: string | undefined) => {
   return parentProperty ? `${parentProperty}.${childProperty}` : childProperty;
 };

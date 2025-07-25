@@ -5,15 +5,15 @@ import type { SchemaDefinitions } from '../types/common.js';
 import type { SchemaContext } from '../types/context.js';
 
 import { isTypeIntersection, isTypeModel, isTypeObject, isTypeReference } from '@ez4/reflection';
-import { toCamelCase, toKebabCase, toPascalCase, toSnakeCase } from '@ez4/utils';
 
+import { getPropertyName } from '../utils/naming.js';
 import { getModelProperties } from '../reflection/model.js';
 import { getObjectProperties } from '../reflection/object.js';
 import { SchemaReferenceNotFound } from '../errors/reference.js';
-import { NamingStyle, SchemaType } from '../types/common.js';
 import { createSchemaContext } from '../types/context.js';
 import { isObjectSchema } from '../types/type-object.js';
 import { createReferenceSchema } from './reference.js';
+import { SchemaType } from '../types/common.js';
 import { getAnySchema } from './any.js';
 
 type RichTypeBase = {
@@ -202,23 +202,4 @@ const getAnySchemaFromDynamicMembers = (reflection: SourceMap, context: SchemaCo
     property: propertySchema,
     value: valueSchema
   };
-};
-
-const getPropertyName = (property: string, namingStyle?: NamingStyle) => {
-  switch (namingStyle) {
-    case NamingStyle.CamelCase:
-      return toCamelCase(property);
-
-    case NamingStyle.PascalCase:
-      return toPascalCase(property);
-
-    case NamingStyle.SnakeCase:
-      return toSnakeCase(property);
-
-    case NamingStyle.KebabCase:
-      return toKebabCase(property);
-
-    default:
-      return property;
-  }
 };
