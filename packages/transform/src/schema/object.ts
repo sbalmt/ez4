@@ -18,17 +18,21 @@ export const transformObject = (value: unknown, schema: ObjectSchema, context = 
     context.references[schema.identity] = schema;
   }
 
+  const { inputStyle, outputStyle } = context;
+
   const allProperties = new Set(Object.keys(value));
 
   for (const propertyKey in schema.properties) {
-    const propertyName = getPropertyName(propertyKey, context.namingStyle);
+    const propertyName = getPropertyName(propertyKey, inputStyle);
     const propertySchema = schema.properties[propertyKey];
 
     const rawValue = value[propertyName];
     const newValue = transformAny(rawValue, propertySchema, context);
 
     if (newValue !== undefined) {
-      output[propertySchema.alias ?? propertyName] = newValue;
+      const outputPropertyName = propertySchema.alias ?? getPropertyName(propertyKey, outputStyle);
+
+      output[outputPropertyName] = newValue;
     }
 
     allProperties.delete(propertyName);
@@ -37,16 +41,16 @@ export const transformObject = (value: unknown, schema: ObjectSchema, context = 
   if (schema.additional) {
     const { value: propertySchema } = schema.additional;
 
-    for (const propertyKey of allProperties) {
-      const propertyName = getPropertyName(propertyKey, context.namingStyle);
-
+    for (const propertyName of allProperties) {
       const rawValue = value[propertyName];
       const newValue = transformAny(rawValue, propertySchema, context);
 
       if (newValue !== undefined) {
-        allProperties.delete(propertyName);
+        const outputPropertyName = getPropertyName(propertyName, outputStyle);
 
-        output[propertyName] = newValue;
+        output[outputPropertyName] = newValue;
+
+        allProperties.delete(propertyName);
       }
     }
   }
@@ -54,10 +58,10 @@ export const transformObject = (value: unknown, schema: ObjectSchema, context = 
   const allowExtraProperties = schema.definitions?.extensible;
 
   if (allowExtraProperties) {
-    for (const propertyKey of allProperties) {
-      const propertyName = getPropertyName(propertyKey, context.namingStyle);
+    for (const propertyName of allProperties) {
+      const outputPropertyName = getPropertyName(propertyName, outputStyle);
 
-      output[propertyName] = value[propertyName];
+      output[outputPropertyName] = value[propertyName];
     }
   }
 

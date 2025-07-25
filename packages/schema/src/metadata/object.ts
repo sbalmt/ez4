@@ -162,13 +162,15 @@ export const getObjectSchema = (
 const getAnySchemaFromMembers = (reflection: SourceMap, context: SchemaContext, members: ModelProperty[]) => {
   const properties: ObjectSchemaProperties = {};
 
+  const { namingStyle } = context;
+
   for (const member of members) {
     const { name, value, description } = member;
 
     const propertySchema = getAnySchema(value, reflection, context, description);
 
     if (propertySchema) {
-      const propertyName = getPropertyName(name, context.namingStyle);
+      const propertyName = getPropertyName(name, namingStyle);
 
       properties[propertyName] = propertySchema;
 

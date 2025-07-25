@@ -48,7 +48,8 @@ describe('naming transform', () => {
     };
 
     const context = createTransformContext({
-      namingStyle: NamingStyle.CamelCase
+      outputStyle: NamingStyle.CamelCase,
+      inputStyle: NamingStyle.CamelCase
     });
 
     deepEqual(transform(input, schema, context), output);
@@ -72,7 +73,8 @@ describe('naming transform', () => {
     };
 
     const context = createTransformContext({
-      namingStyle: NamingStyle.PascalCase
+      outputStyle: NamingStyle.PascalCase,
+      inputStyle: NamingStyle.PascalCase
     });
 
     deepEqual(transform(input, schema, context), output);
@@ -96,7 +98,8 @@ describe('naming transform', () => {
     };
 
     const context = createTransformContext({
-      namingStyle: NamingStyle.SnakeCase
+      outputStyle: NamingStyle.SnakeCase,
+      inputStyle: NamingStyle.SnakeCase
     });
 
     deepEqual(transform(input, schema, context), output);
@@ -120,7 +123,8 @@ describe('naming transform', () => {
     };
 
     const context = createTransformContext({
-      namingStyle: NamingStyle.KebabCase
+      outputStyle: NamingStyle.KebabCase,
+      inputStyle: NamingStyle.KebabCase
     });
 
     deepEqual(transform(input, schema, context), output);

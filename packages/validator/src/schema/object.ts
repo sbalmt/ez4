@@ -28,8 +28,10 @@ export const validateObject = async (value: unknown, schema: ObjectSchema, conte
   const parentProperty = property;
   const allErrors: Error[] = [];
 
+  const { namingStyle } = context;
+
   for (const propertyKey in schema.properties) {
-    const propertyName = getPropertyName(propertyKey, context.namingStyle);
+    const propertyName = getPropertyName(propertyKey, namingStyle);
 
     if (depth > 0) {
       const propertyPath = getPropertyPath(propertyName, parentProperty);
@@ -38,9 +40,9 @@ export const validateObject = async (value: unknown, schema: ObjectSchema, conte
       const propertyValue = value[propertyName];
 
       const errorList = await validateAny(propertyValue, propertySchema, {
-        namingStyle: context.namingStyle,
         property: propertyPath,
         depth: depth - 1,
+        namingStyle,
         references
       });
 
@@ -65,9 +67,9 @@ export const validateObject = async (value: unknown, schema: ObjectSchema, conte
         const propertyValue = value[propertyName];
 
         const valueErrors = await validateAny(propertyValue, propertyValueSchema, {
-          namingStyle: context.namingStyle,
           property: propertyPath,
           depth: depth - 1,
+          namingStyle,
           references
         });
 
