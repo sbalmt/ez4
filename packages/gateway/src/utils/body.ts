@@ -1,24 +1,47 @@
 import type { AnySchema } from '@ez4/schema';
 import type { Http } from '../services/contract.js';
 
-import { validate, createValidatorContext, getUniqueErrorMessages } from '@ez4/validator';
 import { createTransformContext, transform } from '@ez4/transform';
+import { validate, createValidatorContext, getUniqueErrorMessages } from '@ez4/validator';
 import { HttpBadRequestError } from '@ez4/gateway';
 
-export const getRequestBody = async <T extends Http.JsonBody | Http.RawBody>(input: T, schema: AnySchema): Promise<T> => {
-  const errors = await validate(input, schema, createValidatorContext({ property: '$body' }));
+export const getRequestBody = async <T extends Http.JsonBody | Http.RawBody>(
+  input: T,
+  schema: AnySchema,
+  preferences?: Http.Preferences
+): Promise<T> => {
+  const inputStyle = preferences?.namingStyle;
 
-  if (errors.length) {
-    const messages = getUniqueErrorMessages(errors);
+  const validationContext = createValidatorContext({
+    property: '$body',
+    inputStyle
+  });
+
+  const validationErrors = await validate(input, schema, validationContext);
+
+  if (validationErrors.length) {
+    const messages = getUniqueErrorMessages(validationErrors);
 
     throw new HttpBadRequestError('Malformed body payload.', messages);
   }
 
-  const body = transform(input, schema, createTransformContext({ convert: false }));
+  const transformContext = createTransformContext({
+    convert: false,
+    inputStyle
+  });
 
-  return body as T;
+  const payload = transform(input, schema, transformContext);
+
+  return payload as T;
 };
 
-export const getResponseBody = (body: unknown, schema: AnySchema) => {
-  return transform(body, schema, createTransformContext({ convert: false }));
+export const getResponseBody = (body: unknown, schema: AnySchema, preferences?: Http.Preferences) => {
+  const outputStyle = preferences?.namingStyle;
+
+  const context = createTransformContext({
+    convert: false,
+    outputStyle
+  });
+
+  return transform(body, schema, context);
 };

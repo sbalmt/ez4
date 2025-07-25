@@ -6,17 +6,58 @@
     "description": "Service for testing route authorizers.",
     "routes": [
       {
-        "path": "ANY /test-route",
+        "path": "ANY /test-route-a",
         "authorizer": {
-          "name": "testAuthorizer",
+          "name": "testQueryAuthorizer",
           "file": "test/input/output-authorizer.ts",
           "request": {
+            "preferences": {
+              "namingStyle": "kebab"
+            },
             "query": {
               "type": "object",
               "description": "Expected HTTP query strings.",
               "identity": 1,
               "properties": {
                 "apiKey": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "response": {
+            "identity": {
+              "type": "object",
+              "description": "Authorization identity.",
+              "identity": 1,
+              "properties": {
+                "id": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        },
+        "handler": {
+          "name": "testHandler",
+          "file": "test/input/output-authorizer.ts",
+          "response": {
+            "status": 204
+          }
+        }
+      },
+      {
+        "path": "ANY /test-route-b",
+        "authorizer": {
+          "name": "testHeaderAuthorizer",
+          "file": "test/input/output-authorizer.ts",
+          "request": {
+            "headers": {
+              "type": "object",
+              "description": "Expected HTTP headers.",
+              "identity": 1,
+              "properties": {
+                "x-api-key": {
                   "type": "string"
                 }
               }

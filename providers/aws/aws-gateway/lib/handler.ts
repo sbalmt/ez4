@@ -1,5 +1,5 @@
 import type { APIGatewayProxyEventV2WithLambdaAuthorizer, APIGatewayProxyResultV2, Context } from 'aws-lambda';
-import type { ObjectSchema } from '@ez4/schema';
+import type { ArraySchema, ObjectSchema, ScalarSchema, UnionSchema } from '@ez4/schema';
 import type { Http } from '@ez4/gateway';
 
 import * as GatewayUtils from '@ez4/gateway/utils';
@@ -11,13 +11,14 @@ import { isScalarSchema } from '@ez4/schema';
 type RequestEvent = APIGatewayProxyEventV2WithLambdaAuthorizer<any>;
 type ResponseEvent = APIGatewayProxyResultV2;
 
-declare const __EZ4_RESPONSE_SCHEMA: ObjectSchema | null;
-declare const __EZ4_BODY_SCHEMA: ObjectSchema | null;
+declare const __EZ4_HEADERS_SCHEMA: ObjectSchema | null;
+declare const __EZ4_IDENTITY_SCHEMA: ObjectSchema | UnionSchema | null;
 declare const __EZ4_PARAMETERS_SCHEMA: ObjectSchema | null;
 declare const __EZ4_QUERY_SCHEMA: ObjectSchema | null;
-declare const __EZ4_IDENTITY_SCHEMA: ObjectSchema | null;
-declare const __EZ4_HEADERS_SCHEMA: ObjectSchema | null;
+declare const __EZ4_BODY_SCHEMA: ObjectSchema | UnionSchema | ArraySchema | ScalarSchema | null;
+declare const __EZ4_RESPONSE_SCHEMA: ObjectSchema | UnionSchema | ArraySchema | ScalarSchema | null;
 declare const __EZ4_ERRORS_MAP: Record<string, number> | null;
+declare const __EZ4_PREFERENCES: Http.Preferences;
 declare const __EZ4_CONTEXT: object;
 
 declare function handle(request: Http.Incoming<Http.Request>, context: object): Promise<Http.Response>;
@@ -94,7 +95,7 @@ const getIncomingRequestParameters = (event: RequestEvent) => {
 
 const getIncomingRequestQueryStrings = (event: RequestEvent) => {
   if (__EZ4_QUERY_SCHEMA) {
-    return GatewayUtils.getQueryStrings(event.queryStringParameters ?? {}, __EZ4_QUERY_SCHEMA);
+    return GatewayUtils.getQueryStrings(event.queryStringParameters ?? {}, __EZ4_QUERY_SCHEMA, __EZ4_PREFERENCES);
   }
 
   return undefined;
@@ -122,7 +123,7 @@ const getIncomingRequestBody = (event: RequestEvent) => {
   }
 
   try {
-    return GatewayUtils.getRequestBody(JSON.parse(body ?? '{}'), __EZ4_BODY_SCHEMA);
+    return GatewayUtils.getRequestBody(JSON.parse(body ?? '{}'), __EZ4_BODY_SCHEMA, __EZ4_PREFERENCES);
   } catch (error) {
     if (error instanceof SyntaxError) {
       console.error({ body });
@@ -163,9 +164,11 @@ const getSuccessResponseBody = (body: Http.JsonBody | Http.RawBody, headers?: Ht
     };
   }
 
+  const payload = GatewayUtils.getResponseBody(body, __EZ4_RESPONSE_SCHEMA, __EZ4_PREFERENCES);
+
   return {
     type: 'application/json',
-    content: JSON.stringify(GatewayUtils.getResponseBody(body, __EZ4_RESPONSE_SCHEMA)),
+    content: JSON.stringify(payload),
     encoded: false
   };
 };

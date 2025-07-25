@@ -10,6 +10,7 @@ import type {
   HttpQueryStrings,
   HttpJsonBody,
   HttpRawBody,
+  HttpPreferences,
   HttpAuthRequest,
   HttpAuthResponse,
   HttpRequest,
@@ -35,6 +36,8 @@ export namespace Http {
   export type QueryStrings = HttpQueryStrings;
   export type JsonBody = HttpJsonBody;
   export type RawBody = HttpRawBody;
+
+  export type Preferences = HttpPreferences;
 
   export type AuthRequest = HttpAuthRequest;
   export type Request = HttpRequest;
@@ -84,14 +87,14 @@ export namespace Http {
     handler: Handler<T>;
 
     /**
-     * Default log retention (in days) for the handlers.
-     */
-    logRetention?: number;
-
-    /**
      * Map status codes and errors for all known exceptions.
      */
     httpErrors?: Errors;
+
+    /**
+     * Default log retention (in days) for the handlers.
+     */
+    logRetention?: number;
 
     /**
      * Variables associated to the route.
@@ -127,6 +130,11 @@ export namespace Http {
      * Status codes for all known exceptions.
      */
     httpErrors?: Errors;
+
+    /**
+     * Default preferences for all handlers and routes.
+     */
+    preferences?: Preferences;
 
     /**
      * Default log retention (in days) for the handlers.

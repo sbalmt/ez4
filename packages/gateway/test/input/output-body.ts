@@ -1,6 +1,12 @@
 import type { Http } from '@ez4/gateway';
 import type { SuccessResponse } from './common.js';
 
+import { NamingStyle } from '@ez4/schema';
+
+declare class TestRawRequest implements Http.Request {
+  body: Http.RawBody;
+}
+
 declare class TestJsonRequest implements Http.Request {
   body: {
     foo: string;
@@ -8,8 +14,14 @@ declare class TestJsonRequest implements Http.Request {
   };
 }
 
-declare class TestRawRequest implements Http.Request {
-  body: Http.RawBody;
+declare class TestNamingStyleRequest implements Http.Request {
+  preferences: {
+    namingStyle: NamingStyle.SnakeCase;
+  };
+  body: {
+    fooKey: string;
+    barKey: number;
+  };
 }
 
 export declare class TestService extends Http.Service {
@@ -21,17 +33,27 @@ export declare class TestService extends Http.Service {
     {
       path: 'GET /test-route-b';
       handler: typeof testRouteB;
+    },
+    {
+      path: 'GET /test-route-c';
+      handler: typeof testRouteC;
     }
   ];
 }
 
-export function testRouteA(_request: TestJsonRequest): SuccessResponse {
+export function testRouteA(_request: Http.Incoming<TestRawRequest>): SuccessResponse {
   return {
     status: 204
   };
 }
 
-export function testRouteB(_request: Http.Incoming<TestRawRequest>): SuccessResponse {
+export function testRouteB(_request: TestJsonRequest): SuccessResponse {
+  return {
+    status: 204
+  };
+}
+
+export function testRouteC(_request: TestNamingStyleRequest): SuccessResponse {
   return {
     status: 204
   };
