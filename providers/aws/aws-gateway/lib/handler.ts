@@ -1,5 +1,6 @@
 import type { APIGatewayProxyEventV2WithLambdaAuthorizer, APIGatewayProxyResultV2, Context } from 'aws-lambda';
 import type { ArraySchema, ObjectSchema, ScalarSchema, UnionSchema } from '@ez4/schema';
+import type { HttpPreferences } from '@ez4/gateway/library';
 import type { Http } from '@ez4/gateway';
 
 import * as GatewayUtils from '@ez4/gateway/utils';
@@ -18,7 +19,7 @@ declare const __EZ4_QUERY_SCHEMA: ObjectSchema | null;
 declare const __EZ4_BODY_SCHEMA: ObjectSchema | UnionSchema | ArraySchema | ScalarSchema | null;
 declare const __EZ4_RESPONSE_SCHEMA: ObjectSchema | UnionSchema | ArraySchema | ScalarSchema | null;
 declare const __EZ4_ERRORS_MAP: Record<string, number> | null;
-declare const __EZ4_PREFERENCES: Http.Preferences;
+declare const __EZ4_PREFERENCES: HttpPreferences;
 declare const __EZ4_CONTEXT: object;
 
 declare function handle(request: Http.Incoming<Http.Request>, context: object): Promise<Http.Response>;

@@ -1,4 +1,5 @@
 import type { APIGatewayRequestAuthorizerEventV2, APIGatewaySimpleAuthorizerWithContextResult, Context } from 'aws-lambda';
+import type { HttpPreferences } from '@ez4/gateway/library';
 import type { ObjectSchema } from '@ez4/schema';
 import type { Http } from '@ez4/gateway';
 
@@ -12,6 +13,7 @@ type ResponseEvent = APIGatewaySimpleAuthorizerWithContextResult<any>;
 declare const __EZ4_HEADERS_SCHEMA: ObjectSchema | null;
 declare const __EZ4_PARAMETERS_SCHEMA: ObjectSchema | null;
 declare const __EZ4_QUERY_SCHEMA: ObjectSchema | null;
+declare const __EZ4_PREFERENCES: HttpPreferences;
 declare const __EZ4_CONTEXT: object;
 
 declare function handle(request: Http.Incoming<Http.AuthRequest>, context: object): Promise<Http.AuthResponse>;
@@ -83,7 +85,7 @@ const getIncomingRequestParameters = (event: RequestEvent) => {
 
 const getIncomingRequestQuery = (event: RequestEvent) => {
   if (__EZ4_QUERY_SCHEMA) {
-    return GatewayUtils.getQueryStrings(event.queryStringParameters ?? {}, __EZ4_QUERY_SCHEMA);
+    return GatewayUtils.getQueryStrings(event.queryStringParameters ?? {}, __EZ4_QUERY_SCHEMA, __EZ4_PREFERENCES);
   }
 
   return undefined;

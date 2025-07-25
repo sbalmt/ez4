@@ -17,6 +17,7 @@ export const bundleApiFunction = async (dependencies: EntryState[], parameters: 
     debug,
     handler,
     listener,
+    preferences,
     headersSchema,
     parametersSchema,
     querySchema,
@@ -39,7 +40,8 @@ export const bundleApiFunction = async (dependencies: EntryState[], parameters: 
       __EZ4_BODY_SCHEMA: bodySchema ? JSON.stringify(bodySchema) : 'undefined',
       __EZ4_IDENTITY_SCHEMA: identitySchema ? JSON.stringify(identitySchema) : 'undefined',
       __EZ4_RESPONSE_SCHEMA: responseSchema ? JSON.stringify(responseSchema) : 'undefined',
-      __EZ4_ERRORS_MAP: errorsMap ? JSON.stringify(errorsMap) : 'undefined'
+      __EZ4_ERRORS_MAP: errorsMap ? JSON.stringify(errorsMap) : 'undefined',
+      __EZ4_PREFERENCES: preferences ? JSON.stringify(preferences) : 'undefined'
     },
     handler,
     listener,

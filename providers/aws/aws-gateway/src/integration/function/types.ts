@@ -1,4 +1,5 @@
 import type { ArraySchema, ObjectSchema, ScalarSchema, UnionSchema } from '@ez4/schema';
+import type { HttpPreferences } from '@ez4/gateway/library';
 import type { FunctionParameters } from '@ez4/aws-function';
 import type { ExtraSource } from '@ez4/project/library';
 
@@ -18,6 +19,7 @@ export type IntegrationFunctionParameters = Omit<
 > & {
   handler: IntegrationEntryPoint;
   listener?: IntegrationFunction;
+  preferences?: HttpPreferences;
   headersSchema?: ObjectSchema | null;
   identitySchema?: ObjectSchema | UnionSchema | null;
   parametersSchema?: ObjectSchema | null;

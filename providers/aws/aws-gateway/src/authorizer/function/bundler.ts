@@ -12,7 +12,7 @@ import { AuthorizerServiceName } from '../types.js';
 declare const __MODULE_PATH: string;
 
 export const bundleApiFunction = async (dependencies: EntryState[], parameters: AuthorizerFunctionParameters) => {
-  const { extras, debug, authorizer, listener, headersSchema, parametersSchema, querySchema } = parameters;
+  const { extras, debug, authorizer, listener, headersSchema, parametersSchema, querySchema, preferences } = parameters;
 
   const definitions = getDefinitionsObject(dependencies);
 
@@ -23,7 +23,8 @@ export const bundleApiFunction = async (dependencies: EntryState[], parameters: 
       ...definitions,
       __EZ4_HEADERS_SCHEMA: headersSchema ? JSON.stringify(headersSchema) : 'undefined',
       __EZ4_PARAMETERS_SCHEMA: parametersSchema ? JSON.stringify(parametersSchema) : 'undefined',
-      __EZ4_QUERY_SCHEMA: querySchema ? JSON.stringify(querySchema) : 'undefined'
+      __EZ4_QUERY_SCHEMA: querySchema ? JSON.stringify(querySchema) : 'undefined',
+      __EZ4_PREFERENCES: preferences ? JSON.stringify(preferences) : 'undefined'
     },
     handler: authorizer,
     listener,

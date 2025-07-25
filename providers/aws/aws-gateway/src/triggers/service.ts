@@ -136,12 +136,13 @@ const getIntegrationFunction = (
     handlerState = createIntegrationFunction(state, context.role, logGroupState, {
       functionName: integrationName,
       description: handler.description,
-      responseSchema: response.body,
-      headersSchema: request?.headers,
       identitySchema: request?.identity,
+      headersSchema: request?.headers,
       parametersSchema: request?.parameters,
       querySchema: request?.query,
       bodySchema: request?.body,
+      responseSchema: response.body,
+      preferences: route.preferences,
       timeout: Math.max(5, (timeout ?? Defaults.Timeout) - 1),
       memory: memory ?? Defaults.Memory,
       extras: service.extras,
@@ -203,7 +204,15 @@ const getAuthorizerFunction = (
     throw new RoleMissingError();
   }
 
-  const { authorizer, listener = service.defaults?.listener } = route;
+  const defaults = service.defaults ?? {};
+
+  const {
+    authorizer,
+    listener = defaults.listener,
+    logRetention = defaults.logRetention,
+    timeout = defaults.timeout,
+    memory = defaults.memory
+  } = route;
 
   const internalName = getInternalName(service, authorizer.name);
 
@@ -212,8 +221,6 @@ const getAuthorizerFunction = (
   const request = authorizer.request;
 
   if (!authorizerState) {
-    const { logRetention, timeout, memory } = service.defaults ?? {};
-
     const authorizerName = getFunctionName(service, authorizer, options);
 
     const logGroupState = createLogGroup(state, {
@@ -225,11 +232,12 @@ const getAuthorizerFunction = (
     authorizerState = createAuthorizerFunction(state, context.role, logGroupState, {
       functionName: authorizerName,
       description: authorizer.description,
-      timeout: Math.max(5, (timeout ?? Defaults.Timeout) - 1),
-      memory: memory ?? Defaults.Memory,
       headersSchema: request?.headers,
       parametersSchema: request?.parameters,
       querySchema: request?.query,
+      preferences: route.preferences,
+      timeout: Math.max(5, (timeout ?? Defaults.Timeout) - 1),
+      memory: memory ?? Defaults.Memory,
       extras: service.extras,
       debug: options.debug,
       tags: options.tags,
