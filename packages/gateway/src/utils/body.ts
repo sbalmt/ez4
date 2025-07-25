@@ -8,7 +8,7 @@ import { HttpBadRequestError } from '@ez4/gateway';
 export const getRequestBody = async <T extends Http.JsonBody | Http.RawBody>(
   input: T,
   schema: AnySchema,
-  preferences?: Http.Preferences
+  preferences?: Http.Preferences | null
 ): Promise<T> => {
   const inputStyle = preferences?.namingStyle;
 

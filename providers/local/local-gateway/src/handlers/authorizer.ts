@@ -42,9 +42,9 @@ export const processHttpAuthorization = async (
     await onBegin(lambdaModule, lambdaContext, lambdaRequest);
 
     if (route.authorizer?.request) {
-      Object.assign(lambdaRequest, await getIncomingRequestHeaders(route.authorizer.request, route.headers));
-      Object.assign(lambdaRequest, await getIncomingRequestParameters(route.authorizer.request, route.parameters));
-      Object.assign(lambdaRequest, await getIncomingRequestQuery(route.authorizer.request, route.query));
+      Object.assign(lambdaRequest, await getIncomingRequestHeaders(route.authorizer.request, route));
+      Object.assign(lambdaRequest, await getIncomingRequestParameters(route.authorizer.request, route));
+      Object.assign(lambdaRequest, await getIncomingRequestQuery(route.authorizer.request, route));
     }
 
     await onReady(lambdaModule, lambdaContext, lambdaRequest);

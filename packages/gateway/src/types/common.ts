@@ -7,11 +7,10 @@ export type HttpVerb = 'ANY' | 'GET' | 'POST' | 'PUT' | 'PATCH' | 'DELETE' | 'OP
 export type HttpPath = `${HttpVerb} /${string}`;
 
 export type HttpPreferences = {
-  namingStyle?: NamingStyle | null;
+  namingStyle?: NamingStyle;
 };
 
 export type HttpAuthRequest = {
-  preferences?: HttpPreferences | null;
   headers?: ObjectSchema | null;
   parameters?: ObjectSchema | null;
   query?: ObjectSchema | null;
@@ -22,7 +21,6 @@ export type HttpAuthResponse = {
 };
 
 export type HttpRequest = {
-  preferences?: HttpPreferences | null;
   identity?: ObjectSchema | UnionSchema | null;
   headers?: ObjectSchema | null;
   parameters?: ObjectSchema | null;
@@ -65,6 +63,7 @@ export type HttpRoute = {
   authorizer?: HttpAuthorizer | null;
   variables?: LinkedVariables | null;
   httpErrors?: HttpErrors | null;
+  preferences?: HttpPreferences;
   logRetention?: number | null;
   timeout?: number | null;
   memory?: number | null;
@@ -74,7 +73,7 @@ export type HttpRoute = {
 export type HttpDefaults = {
   listener?: ServiceListener | null;
   httpErrors?: HttpErrors | null;
-  preferences?: HttpPreferences | null;
+  preferences?: HttpPreferences;
   logRetention?: number | null;
   timeout?: number | null;
   memory?: number | null;

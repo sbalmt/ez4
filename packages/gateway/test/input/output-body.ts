@@ -1,7 +1,6 @@
+import type { NamingStyle } from '@ez4/schema';
 import type { Http } from '@ez4/gateway';
 import type { SuccessResponse } from './common.js';
-
-import { NamingStyle } from '@ez4/schema';
 
 declare class TestRawRequest implements Http.Request {
   body: Http.RawBody;
@@ -15,9 +14,6 @@ declare class TestJsonRequest implements Http.Request {
 }
 
 declare class TestNamingStyleRequest implements Http.Request {
-  preferences: {
-    namingStyle: NamingStyle.SnakeCase;
-  };
   body: {
     fooKey: string;
     barKey: number;
@@ -37,6 +33,9 @@ export declare class TestService extends Http.Service {
     {
       path: 'GET /test-route-c';
       handler: typeof testRouteC;
+      preferences: {
+        namingStyle: NamingStyle.SnakeCase;
+      };
     }
   ];
 }

@@ -1,60 +1,62 @@
 import type { HttpRequest } from '@ez4/gateway/library';
 import type { Http } from '@ez4/gateway';
+import type { MatchingRoute } from './route.js';
 
 import { getHeaders, getIdentity, getPathParameters, getQueryStrings, getRequestBody } from '@ez4/gateway/utils';
 import { isScalarSchema } from '@ez4/schema';
 
-export const getIncomingRequestIdentity = async <T extends Http.Identity>(request: HttpRequest, identity: T | undefined) => {
-  if (!request.identity) {
+export const getIncomingRequestIdentity = async <T extends Http.Identity>(metadata: HttpRequest, identity: T | undefined) => {
+  if (!metadata.identity) {
     return undefined;
   }
 
   return {
-    identity: await getIdentity(identity ?? {}, request.identity)
+    identity: await getIdentity(identity ?? {}, metadata.identity)
   };
 };
 
-export const getIncomingRequestHeaders = async (request: HttpRequest, headers: Record<string, string> | undefined) => {
-  if (!request.headers) {
+export const getIncomingRequestHeaders = async (metadata: HttpRequest, route: MatchingRoute) => {
+  if (!metadata.headers) {
     return undefined;
   }
 
   return {
-    headers: await getHeaders(headers ?? {}, request.headers)
+    headers: await getHeaders(route.headers ?? {}, metadata.headers)
   };
 };
 
-export const getIncomingRequestParameters = async (request: HttpRequest, parameters: Record<string, string> | undefined) => {
-  if (!request.parameters) {
+export const getIncomingRequestParameters = async (metadata: HttpRequest, route: MatchingRoute) => {
+  if (!metadata.parameters) {
     return undefined;
   }
 
   return {
-    parameters: await getPathParameters(parameters ?? {}, request.parameters)
+    parameters: await getPathParameters(route.parameters ?? {}, metadata.parameters)
   };
 };
 
-export const getIncomingRequestQuery = async (request: HttpRequest, query: Record<string, string> | undefined) => {
-  if (!request.query) {
+export const getIncomingRequestQuery = async (metadata: HttpRequest, route: MatchingRoute) => {
+  if (!metadata.query) {
     return undefined;
   }
 
   return {
-    query: await getQueryStrings(query ?? {}, request.query)
+    query: await getQueryStrings(route.query ?? {}, metadata.query, route.preferences)
   };
 };
 
-export const getIncomingRequestBody = async (request: HttpRequest, body: Buffer | undefined) => {
-  if (!request.body) {
+export const getIncomingRequestBody = async (metadata: HttpRequest, route: MatchingRoute) => {
+  if (!metadata.body) {
     return undefined;
   }
 
-  const isPlainBody = isScalarSchema(request.body);
-  const bodyContent = body?.toString();
+  const content = route.body?.toString();
 
-  const bodyPayload = isPlainBody ? (bodyContent ?? '') : JSON.parse(bodyContent ?? '{}');
+  const payload = !isScalarSchema(metadata.body)
+    ? await getRequestBody(JSON.parse(content ?? '{}'), metadata.body, route.preferences)
+    : await getRequestBody(content ?? '', metadata.body);
 
   return {
-    body: await getRequestBody(bodyPayload, request.body)
+    body: payload
   };
 };

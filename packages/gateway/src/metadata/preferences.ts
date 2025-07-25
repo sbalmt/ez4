@@ -28,7 +28,7 @@ export const getHttpPreferences = (type: AllType, parent: TypeModel, reflection:
     return getTypePreferences(declaration, parent, errorList);
   }
 
-  return null;
+  return undefined;
 };
 
 const getTypePreferences = (type: AllType, parent: TypeModel, errorList: Error[]) => {
@@ -38,12 +38,12 @@ const getTypePreferences = (type: AllType, parent: TypeModel, errorList: Error[]
 
   if (!isModelDeclaration(type)) {
     errorList.push(new InvalidPreferencesTypeError(parent.file));
-    return null;
+    return undefined;
   }
 
   if (!isHttpPreferences(type)) {
     errorList.push(new IncorrectPreferencesTypeError(type.name, parent.file));
-    return null;
+    return undefined;
   }
 
   return getTypeFromMembers(parent, getModelMembers(type), errorList);

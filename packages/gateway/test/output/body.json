@@ -47,13 +47,13 @@
       },
       {
         "path": "GET /test-route-c",
+        "preferences": {
+          "namingStyle": "snake"
+        },
         "handler": {
           "name": "testRouteC",
           "file": "test/input/output-body.ts",
           "request": {
-            "preferences": {
-              "namingStyle": "snake"
-            },
             "body": {
               "type": "object",
               "description": "Expected HTTP body payload.",

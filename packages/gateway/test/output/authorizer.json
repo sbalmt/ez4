@@ -7,13 +7,13 @@
     "routes": [
       {
         "path": "ANY /test-route-a",
+        "preferences": {
+          "namingStyle": "kebab"
+        },
         "authorizer": {
           "name": "testQueryAuthorizer",
           "file": "test/input/output-authorizer.ts",
           "request": {
-            "preferences": {
-              "namingStyle": "kebab"
-            },
             "query": {
               "type": "object",
               "description": "Expected HTTP query strings.",

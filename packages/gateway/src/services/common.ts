@@ -162,6 +162,11 @@ export interface HttpRequest {
  */
 export interface HttpResponse {
   /**
+   * Response preferences.
+   */
+  preferences?: HttpPreferences;
+
+  /**
    * HTTP status code.
    */
   status: number;

@@ -45,6 +45,8 @@ const buildHttpRoutes = (service: HttpService) => {
     ANY: {}
   };
 
+  const defaultPreferences = service.defaults?.preferences;
+
   for (const route of service.routes) {
     const [method, path] = route.path.split(' ', 2);
 
@@ -54,8 +56,9 @@ const buildHttpRoutes = (service: HttpService) => {
 
     httpRoutes[method][path] = {
       httpErrors: route.httpErrors,
-      authorizer: route.authorizer,
+      preferences: route.preferences ?? defaultPreferences,
       variables: route.variables,
+      authorizer: route.authorizer,
       listener: route.listener,
       handler: route.handler
     };

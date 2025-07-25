@@ -11,6 +11,9 @@ export declare class TestService extends Http.Service {
       path: 'ANY /test-route-a';
       authorizer: typeof testQueryAuthorizer;
       handler: typeof testHandler;
+      preferences: {
+        namingStyle: NamingStyle.KebabCase;
+      };
     },
     {
       path: 'ANY /test-route-b';
@@ -21,9 +24,6 @@ export declare class TestService extends Http.Service {
 }
 
 declare class TestQueryAuthRequest implements Http.AuthRequest {
-  preferences: {
-    namingStyle: NamingStyle.KebabCase;
-  };
   query: {
     apiKey: string;
   };

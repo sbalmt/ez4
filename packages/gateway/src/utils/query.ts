@@ -8,7 +8,7 @@ import { HttpBadRequestError } from '@ez4/gateway';
 export const getQueryStrings = async <T extends Http.QueryStrings>(
   input: T,
   schema: ObjectSchema,
-  preferences?: Http.Preferences
+  preferences?: Http.Preferences | null
 ): Promise<T> => {
   const inputStyle = preferences?.namingStyle;
 

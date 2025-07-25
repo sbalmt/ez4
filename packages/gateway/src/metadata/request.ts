@@ -14,9 +14,8 @@ import {
 } from '@ez4/common/library';
 
 import { IncorrectRequestTypeError, InvalidRequestTypeError } from '../errors/request.js';
-import { getHttpPreferences } from './preferences.js';
-import { getHttpHeaders } from './headers.js';
 import { getHttpIdentity } from './identity.js';
+import { getHttpHeaders } from './headers.js';
 import { getHttpParameters } from './parameters.js';
 import { getHttpQuery } from './query.js';
 import { getHttpBody } from './body.js';
@@ -82,10 +81,6 @@ const getTypeFromMembers = (
     switch (member.name) {
       default:
         errorList.push(new InvalidServicePropertyError(parent.name, member.name, type.file));
-        break;
-
-      case 'preferences':
-        request.preferences = getHttpPreferences(member.value, parent, reflection, errorList);
         break;
 
       case 'headers': {
