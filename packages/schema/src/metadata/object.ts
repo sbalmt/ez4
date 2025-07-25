@@ -5,13 +5,14 @@ import type { SchemaDefinitions } from '../types/common.js';
 import type { SchemaContext } from '../types/context.js';
 
 import { isTypeIntersection, isTypeModel, isTypeObject, isTypeReference } from '@ez4/reflection';
+import { toCamelCase, toKebabCase, toPascalCase, toSnakeCase } from '@ez4/utils';
 
 import { getModelProperties } from '../reflection/model.js';
 import { getObjectProperties } from '../reflection/object.js';
 import { SchemaReferenceNotFound } from '../errors/reference.js';
+import { NamingStyle, SchemaType } from '../types/common.js';
 import { createSchemaContext } from '../types/context.js';
 import { isObjectSchema } from '../types/type-object.js';
-import { SchemaType } from '../types/common.js';
 import { createReferenceSchema } from './reference.js';
 import { getAnySchema } from './any.js';
 
@@ -124,7 +125,9 @@ export const getObjectSchema = (
       const hasAdditional = !!objectSchema.additional || !!elementSchema.additional;
 
       Object.assign(objectSchema, {
-        ...(hasAdditional && { additional: elementSchema.additional ?? objectSchema.additional }),
+        ...(hasAdditional && {
+          additional: elementSchema.additional ?? objectSchema.additional
+        }),
         ...(hasDefinitions && {
           definitions: {
             ...objectSchema.definitions,
@@ -162,10 +165,16 @@ const getAnySchemaFromMembers = (reflection: SourceMap, context: SchemaContext, 
   for (const member of members) {
     const { name, value, description } = member;
 
-    const schema = getAnySchema(value, reflection, context, description);
+    const propertySchema = getAnySchema(value, reflection, context, description);
 
-    if (schema) {
-      properties[name] = schema;
+    if (propertySchema) {
+      const propertyName = getPropertyName(name, context.namingStyle);
+
+      properties[propertyName] = propertySchema;
+
+      if (propertyName !== name) {
+        Object.assign(propertySchema, { alias: name });
+      }
     }
   }
 
@@ -193,4 +202,23 @@ const getAnySchemaFromDynamicMembers = (reflection: SourceMap, context: SchemaCo
     property: propertySchema,
     value: valueSchema
   };
+};
+
+const getPropertyName = (property: string, namingStyle?: NamingStyle) => {
+  switch (namingStyle) {
+    case NamingStyle.CamelCase:
+      return toCamelCase(property);
+
+    case NamingStyle.PascalCase:
+      return toPascalCase(property);
+
+    case NamingStyle.SnakeCase:
+      return toSnakeCase(property);
+
+    case NamingStyle.KebabCase:
+      return toKebabCase(property);
+
+    default:
+      return property;
+  }
 };

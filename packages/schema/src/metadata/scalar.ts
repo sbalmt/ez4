@@ -1,5 +1,5 @@
 import type { AllType } from '@ez4/reflection';
-import type { ScalarSchema } from '../types/scalar.js';
+import type { ScalarSchema } from '../types/type-scalar.js';
 
 import { getBooleanSchema } from './boolean.js';
 import { getNumberSchema } from './number.js';
