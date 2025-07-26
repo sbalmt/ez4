@@ -27,6 +27,7 @@ export type RichTypes = {
   value?: boolean | number | string | AnyObject;
   type?: EveryType;
 
+  encoded?: boolean;
   extensible?: boolean;
   pattern?: string;
 
@@ -67,6 +68,7 @@ export const getRichTypes = (type: TypeObject) => {
         }
         break;
 
+      case 'encoded':
       case 'extensible':
         if (isTypeBoolean(type)) {
           richTypes[name] = type.literal;
@@ -150,13 +152,14 @@ export const createRichType = (richTypes: RichTypes) => {
     }
 
     case 'object': {
-      const { extensible, value, type = createObject('@ez4/schema') } = richTypes;
+      const { encoded, extensible, value, type } = richTypes;
 
       return {
-        ...type,
+        ...(type ?? createObject('@ez4/schema')),
         definitions: {
           ...(value && { default: value }),
-          ...(extensible && { extensible })
+          ...(extensible && { extensible }),
+          ...(encoded && { encoded })
         }
       };
     }

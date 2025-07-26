@@ -182,10 +182,10 @@
       "description": "Intersection object.",
       "identity": 12,
       "properties": {
-        "bar": {
+        "foo": {
           "type": "string"
         },
-        "foo": {
+        "bar": {
           "type": "string"
         }
       }
@@ -198,11 +198,11 @@
         "extensible": true
       },
       "properties": {
-        "bar": {
-          "type": "number"
-        },
         "foo": {
           "type": "string"
+        },
+        "bar": {
+          "type": "number"
         }
       }
     },
@@ -220,6 +220,22 @@
         },
         "value": {
           "type": "number"
+        }
+      }
+    },
+    "encoded": {
+      "type": "object",
+      "description": "Base64-encoded object.",
+      "identity": 19,
+      "definitions": {
+        "encoded": true
+      },
+      "properties": {
+        "foo": {
+          "type": "number"
+        },
+        "bar": {
+          "type": "string"
         }
       }
     }

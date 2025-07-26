@@ -91,4 +91,9 @@ export interface ObjectTestSchema {
    * Dynamic object intersection.
    */
   dynamic_intersection: Object.Extends<{ [name: string]: number }>;
+
+  /**
+   * Base64-encoded object.
+   */
+  encoded: Object.Base64<{ foo: number; bar: string }>;
 }

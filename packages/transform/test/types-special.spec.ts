@@ -7,7 +7,7 @@ import { SchemaType } from '@ez4/schema';
 import { transform } from '@ez4/transform';
 
 describe('special types transform', () => {
-  it('assert :: object with extensible properties', () => {
+  it('assert :: object (extensible properties)', () => {
     const schema: AnySchema = {
       type: SchemaType.Object,
       definitions: {
@@ -29,7 +29,7 @@ describe('special types transform', () => {
     deepEqual(transform({ foo: '123', bar: 'abc', baz: 'def' }, schema), output);
   });
 
-  it('assert :: object with additional properties', () => {
+  it('assert :: object (additional properties)', () => {
     const schema: AnySchema = {
       type: SchemaType.Object,
       properties: {
@@ -55,7 +55,7 @@ describe('special types transform', () => {
     deepEqual(transform({ foo: 'abc', bar: '123', baz: 'def' }, schema), output);
   });
 
-  it('assert :: object with extensible and additional properties', () => {
+  it('assert :: object (extensible and additional properties)', () => {
     const schema: AnySchema = {
       type: SchemaType.Object,
       definitions: {
@@ -85,7 +85,38 @@ describe('special types transform', () => {
     deepEqual(transform({ foo: 'true', bar: 123, baz: 'def' }, schema), output);
   });
 
-  it('assert :: union with similar objects', () => {
+  it('assert :: object (base64-encoded)', () => {
+    const schema: AnySchema = {
+      type: SchemaType.Object,
+      definitions: {
+        encoded: true
+      },
+      properties: {
+        foo: {
+          type: SchemaType.Number
+        },
+        bar: {
+          type: SchemaType.String
+        }
+      }
+    };
+
+    const input = Buffer.from(
+      JSON.stringify({
+        foo: 123,
+        bar: 'abc'
+      })
+    ).toString('base64');
+
+    const output = {
+      foo: 123,
+      bar: 'abc'
+    };
+
+    deepEqual(transform(input, schema), output);
+  });
+
+  it('assert :: union (similar objects)', () => {
     const schema: AnySchema = {
       type: SchemaType.Union,
       elements: [
@@ -119,7 +150,7 @@ describe('special types transform', () => {
     deepEqual(transform({ foo: 'abc', bar: '123' }, schema), output);
   });
 
-  it('assert :: array from string', () => {
+  it('assert :: array (from string)', () => {
     const schema: AnySchema = {
       type: SchemaType.Array,
       element: {
@@ -130,7 +161,7 @@ describe('special types transform', () => {
     deepEqual(transform('123, 4.56', schema), [123, 4.56]);
   });
 
-  it('assert :: tuple from string', () => {
+  it('assert :: tuple (from string)', () => {
     const schema: AnySchema = {
       type: SchemaType.Tuple,
       elements: [

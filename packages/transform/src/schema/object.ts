@@ -1,32 +1,35 @@
 import type { ObjectSchema } from '@ez4/schema';
 import type { AnyObject } from '@ez4/utils';
 
+import { isAnyObject, isAnyString } from '@ez4/utils';
 import { getPropertyName } from '@ez4/schema';
-import { isAnyObject } from '@ez4/utils';
 
 import { createTransformContext } from '../types/context.js';
 import { transformAny } from './any.js';
 
 export const transformObject = (value: unknown, schema: ObjectSchema, context = createTransformContext()) => {
-  if (value === null || value === undefined || !isAnyObject(value)) {
-    return schema.definitions?.default;
+  const definitions = schema.definitions;
+
+  const objectValue = definitions?.encoded ? tryDecodeObject(value) : value;
+
+  if (objectValue === null || objectValue === undefined || !isAnyObject(objectValue)) {
+    return definitions?.default;
   }
 
-  const output: AnyObject = {};
+  const { references, inputStyle, outputStyle } = context;
 
   if (schema.identity) {
-    context.references[schema.identity] = schema;
+    references[schema.identity] = schema;
   }
 
-  const { inputStyle, outputStyle } = context;
-
-  const allProperties = new Set(Object.keys(value));
+  const allProperties = new Set(Object.keys(objectValue));
+  const output: AnyObject = {};
 
   for (const propertyKey in schema.properties) {
-    const propertyName = getPropertyName(propertyKey, inputStyle);
     const propertySchema = schema.properties[propertyKey];
+    const propertyName = getPropertyName(propertyKey, inputStyle);
 
-    const rawValue = value[propertyName];
+    const rawValue = objectValue[propertyName];
     const newValue = transformAny(rawValue, propertySchema, context);
 
     const outputPropertyName = propertySchema.alias ?? getPropertyName(propertyKey, outputStyle);
@@ -44,7 +47,7 @@ export const transformObject = (value: unknown, schema: ObjectSchema, context = 
     const { value: propertySchema } = schema.additional;
 
     for (const propertyName of allProperties) {
-      const rawValue = value[propertyName];
+      const rawValue = objectValue[propertyName];
       const newValue = transformAny(rawValue, propertySchema, context);
 
       if (newValue !== undefined) {
@@ -57,15 +60,26 @@ export const transformObject = (value: unknown, schema: ObjectSchema, context = 
     }
   }
 
-  const allowExtraProperties = schema.definitions?.extensible;
+  const allowExtraProperties = definitions?.extensible;
 
   if (allowExtraProperties) {
     for (const propertyName of allProperties) {
       const outputPropertyName = getPropertyName(propertyName, outputStyle);
 
-      output[outputPropertyName] = value[propertyName];
+      output[outputPropertyName] = objectValue[propertyName];
     }
   }
 
   return output;
+};
+
+const tryDecodeObject = (value: unknown) => {
+  if (isAnyString(value)) {
+    try {
+      const decodedValue = Buffer.from(value, 'base64');
+      return JSON.parse(decodedValue.toString('utf8'));
+    } catch {}
+  }
+
+  return undefined;
 };
