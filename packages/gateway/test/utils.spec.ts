@@ -3,7 +3,7 @@ import type { ObjectSchema } from '@ez4/schema';
 import { describe, it } from 'node:test';
 import { deepEqual } from 'node:assert';
 
-import { getHeaders, getPathParameters, getQueryStrings, getRequestBody, getResponseBody } from '@ez4/gateway/utils';
+import { getHeaders, getIdentity, getPathParameters, getQueryStrings, getRequestBody, getResponseBody } from '@ez4/gateway/utils';
 import { NamingStyle, SchemaType } from '@ez4/schema';
 
 describe('http utils', () => {
@@ -21,7 +21,7 @@ describe('http utils', () => {
       fooKey: 'foo'
     };
 
-    const identityOutput = await getHeaders(identityInput, identitySchema);
+    const identityOutput = await getIdentity(identityInput, identitySchema);
 
     deepEqual(identityOutput, {
       fooKey: 'foo'
