@@ -55,7 +55,7 @@ describe('naming transform', () => {
     deepEqual(transform(input, schema, context), output);
   });
 
-  it('assert :: camel case', async () => {
+  it('assert :: pascal case', async () => {
     const input = {
       FooFoo: 'abc',
       FooBar: '123',

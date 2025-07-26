@@ -29,10 +29,12 @@ export const transformObject = (value: unknown, schema: ObjectSchema, context = 
     const rawValue = value[propertyName];
     const newValue = transformAny(rawValue, propertySchema, context);
 
-    if (newValue !== undefined) {
-      const outputPropertyName = propertySchema.alias ?? getPropertyName(propertyKey, outputStyle);
+    const outputPropertyName = propertySchema.alias ?? getPropertyName(propertyKey, outputStyle);
 
+    if (newValue !== undefined) {
       output[outputPropertyName] = newValue;
+    } else if (rawValue !== undefined) {
+      output[outputPropertyName] = rawValue;
     }
 
     allProperties.delete(propertyName);
