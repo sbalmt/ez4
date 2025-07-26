@@ -11,10 +11,7 @@ import { TestEntryType } from './common/entry.js';
 
 describe('apply errors tests', () => {
   it('throws :: entries not found', async () => {
-    await rejects(
-      () => applySteps([], undefined, undefined, { handlers: commonStepHandlers }),
-      EntriesNotFoundError
-    );
+    await rejects(() => applySteps([], undefined, undefined, { handlers: commonStepHandlers }), EntriesNotFoundError);
   });
 
   it('throws :: handler not found', async () => {
@@ -32,9 +29,6 @@ describe('apply errors tests', () => {
     });
 
     // Can't find handler for TestEntryType.A.
-    await rejects(
-      () => applySteps(steps, state, undefined, { handlers: {} }),
-      HandlerNotFoundError
-    );
+    await rejects(() => applySteps(steps, state, undefined, { handlers: {} }), HandlerNotFoundError);
   });
 });

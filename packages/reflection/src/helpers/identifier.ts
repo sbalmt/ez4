@@ -1,12 +1,6 @@
 import type { Node, TypeChecker } from 'typescript';
 
-import {
-  isComputedPropertyName,
-  isPropertyAccessExpression,
-  isLiteralTypeNode,
-  isStringLiteral,
-  isIdentifier
-} from 'typescript';
+import { isComputedPropertyName, isPropertyAccessExpression, isLiteralTypeNode, isStringLiteral, isIdentifier } from 'typescript';
 
 export const getPropertyName = (node: Node, checker: TypeChecker): string => {
   if (isLiteralTypeNode(node)) {

@@ -8,6 +8,7 @@ export type TypeCallback = {
   type: TypeName.Callback;
   name?: string;
   file?: string;
+  module?: string | null;
   description?: string;
   parameters?: TypeParameter[];
   return?: EveryType;

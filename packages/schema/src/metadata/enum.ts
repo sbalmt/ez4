@@ -1,10 +1,11 @@
 import type { AllType, EnumMember, SourceMap, TypeEnum } from '@ez4/reflection';
 import type { EnumSchema, EnumSchemaOption } from '../types/type-enum.js';
+import type { SchemaDefinitions } from '../types/common.js';
 
 import { isTypeEnum, isTypeReference } from '@ez4/reflection';
 
+import { SchemaType } from '../types/common.js';
 import { SchemaReferenceNotFound } from '../errors/reference.js';
-import { SchemaDefinitions, SchemaType } from '../types/common.js';
 import { isRichTypeReference } from './reference.js';
 
 export type RichTypeEnum = TypeEnum & {
@@ -28,11 +29,7 @@ export const isRichTypeEnum = (type: AllType): type is RichTypeEnum => {
   return isTypeEnum(type);
 };
 
-export const getEnumSchema = (
-  type: AllType,
-  reflection: SourceMap,
-  description?: string
-): EnumSchema | null => {
+export const getEnumSchema = (type: AllType, reflection: SourceMap, description?: string): EnumSchema | null => {
   if (isTypeReference(type)) {
     const declaration = reflection[type.path];
 

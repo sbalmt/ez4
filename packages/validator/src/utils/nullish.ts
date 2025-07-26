@@ -7,6 +7,6 @@ import type { AnySchema } from '@ez4/schema';
  * @param schema Schema to check.
  * @returns Returns true if the value is nullable and/or optional.
  */
-export const isOptionalNullable = (value: unknown, schema: AnySchema) => {
+export const isNullish = (value: unknown, schema: AnySchema) => {
   return (value === null && schema.nullable) || (value === undefined && schema.optional);
 };

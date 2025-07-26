@@ -10,12 +10,14 @@ export const getStreamHandler = (type: AllType, _reflection: SourceMap, errorLis
     return null;
   }
 
-  const handler: Incomplete<StreamHandler> = {};
-  const properties = new Set(['name', 'file', 'change']);
+  const { description, module } = type;
 
-  if (type.description) {
-    handler.description = type.description;
-  }
+  const handler: Incomplete<StreamHandler> = {
+    ...(description && { description }),
+    ...(module && { module })
+  };
+
+  const properties = new Set(['name', 'file', 'change']);
 
   if ((handler.name = type.name)) {
     properties.delete('name');

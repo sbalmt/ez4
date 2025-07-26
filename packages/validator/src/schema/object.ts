@@ -1,67 +1,78 @@
 import type { ObjectSchema } from '@ez4/schema';
 
-import { UnexpectedPropertiesError } from '../errors/common.js';
-import { ExpectedObjectTypeError } from '../errors/object.js';
-import { createValidatorContext } from '../types/context.js';
-import { isAnyObject } from '@ez4/utils';
+import { isAnyObject, isAnyString } from '@ez4/utils';
+import { getPropertyName } from '@ez4/schema';
 
-import { isOptionalNullable } from './utils.js';
+import { isNullish } from '../utils/nullish.js';
+import { ExpectedObjectTypeError } from '../errors/object.js';
+import { UnexpectedPropertiesError } from '../errors/common.js';
+import { createValidatorContext } from '../types/context.js';
 import { validateAny } from './any.js';
 
 export const validateObject = async (value: unknown, schema: ObjectSchema, context = createValidatorContext()) => {
-  if (isOptionalNullable(value, schema)) {
+  if (isNullish(value, schema)) {
     return [];
   }
 
   const { property, references, depth } = context;
+  const { definitions } = schema;
 
   if (schema.identity) {
     references[schema.identity] = schema;
   }
 
-  if (!isAnyObject(value)) {
+  const objectValue = definitions?.encoded ? tryDecodeObject(value) : value;
+
+  if (!isAnyObject(objectValue)) {
     return [new ExpectedObjectTypeError(property)];
   }
 
-  const allProperties = new Set(Object.keys(value));
+  const allProperties = new Set(Object.keys(objectValue));
   const parentProperty = property;
   const allErrors: Error[] = [];
 
-  for (const propertyName in schema.properties) {
-    allProperties.delete(propertyName);
+  const { inputStyle } = context;
+
+  for (const propertyKey in schema.properties) {
+    const propertyName = getPropertyName(propertyKey, inputStyle);
 
     if (depth > 0) {
-      const propertyPath = getObjectProperty(propertyName, parentProperty);
-      const valueSchema = schema.properties[propertyName];
-      const childValue = value[propertyName];
+      const propertyPath = getPropertyPath(propertyName, parentProperty);
 
-      const errorList = await validateAny(childValue, valueSchema, {
+      const propertySchema = schema.properties[propertyKey];
+      const propertyValue = objectValue[propertyName];
+
+      const errorList = await validateAny(propertyValue, propertySchema, {
         property: propertyPath,
         depth: depth - 1,
+        inputStyle,
         references
       });
 
       allErrors.push(...errorList);
     }
+
+    allProperties.delete(propertyName);
   }
 
   if (schema.additional) {
-    const { property: propertySchema, value: valueSchema } = schema.additional;
+    const { property: propertyNameSchema, value: propertyValueSchema } = schema.additional;
 
     for (const propertyName of allProperties) {
-      const propertyErrors = await validateAny(propertyName, propertySchema);
+      const propertyErrors = await validateAny(propertyName, propertyNameSchema);
 
       if (!propertyErrors.length) {
         allProperties.delete(propertyName);
       }
 
       if (depth > 0) {
-        const propertyPath = getObjectProperty(propertyName, parentProperty);
-        const childValue = value[propertyName];
+        const propertyPath = getPropertyPath(propertyName, parentProperty);
+        const propertyValue = objectValue[propertyName];
 
-        const valueErrors = await validateAny(childValue, valueSchema, {
+        const valueErrors = await validateAny(propertyValue, propertyValueSchema, {
           property: propertyPath,
           depth: depth - 1,
+          inputStyle,
           references
         });
 
@@ -70,11 +81,11 @@ export const validateObject = async (value: unknown, schema: ObjectSchema, conte
     }
   }
 
-  const allowExtraProperties = schema.definitions?.extensible;
+  const allowExtraProperties = definitions?.extensible;
 
   if (!allowExtraProperties && allProperties.size > 0) {
     const extraProperties = [...allProperties.values()].map((property) => {
-      return getObjectProperty(property, parentProperty);
+      return getPropertyPath(property, parentProperty);
     });
 
     allErrors.push(new UnexpectedPropertiesError(extraProperties));
@@ -83,6 +94,17 @@ export const validateObject = async (value: unknown, schema: ObjectSchema, conte
   return allErrors;
 };
 
-const getObjectProperty = (childProperty: string, parentProperty: string | undefined) => {
+const getPropertyPath = (childProperty: string, parentProperty: string | undefined) => {
   return parentProperty ? `${parentProperty}.${childProperty}` : childProperty;
+};
+
+const tryDecodeObject = (value: unknown) => {
+  if (isAnyString(value)) {
+    try {
+      const decodedValue = Buffer.from(value, 'base64');
+      return JSON.parse(decodedValue.toString('utf8'));
+    } catch {}
+  }
+
+  return undefined;
 };

@@ -39,12 +39,7 @@ export interface QueueDeadLetter {
 /**
  * Incoming message.
  */
-export type QueueIncoming<T extends QueueMessage> = {
-  /**
-   * Request Id.
-   */
-  requestId: string;
-
+export type QueueIncoming<T extends QueueMessage> = QueueRequest & {
   /**
    * Message payload.
    */
@@ -52,10 +47,20 @@ export type QueueIncoming<T extends QueueMessage> = {
 };
 
 /**
+ * Incoming request.
+ */
+export type QueueRequest = {
+  /**
+   * Request tracking Id.
+   */
+  requestId: string;
+};
+
+/**
  * Message listener.
  */
 export type SubscriptionListener<T extends QueueMessage> = (
-  event: Service.Event<QueueIncoming<T>>,
+  event: Service.AnyEvent<QueueIncoming<T>>,
   context: Service.Context<Queue.Service<any> | Queue.Import<any>>
 ) => Promise<void> | void;
 

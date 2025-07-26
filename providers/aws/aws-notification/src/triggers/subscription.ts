@@ -71,12 +71,14 @@ export const prepareSubscriptions = async (
             handler: {
               dependencies: context.getDependencies(handler.file),
               functionName: handler.name,
-              sourceFile: handler.file
+              sourceFile: handler.file,
+              module: handler.module
             },
             ...(listener && {
               listener: {
                 functionName: listener.name,
-                sourceFile: listener.file
+                sourceFile: listener.file,
+                module: listener.module
               }
             })
           });

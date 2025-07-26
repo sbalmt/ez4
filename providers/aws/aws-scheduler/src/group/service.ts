@@ -6,10 +6,7 @@ import { attachEntry } from '@ez4/stateful';
 
 import { GroupServiceType } from './types.js';
 
-export const createGroup = <E extends EntryState>(
-  state: EntryStates<E>,
-  parameters: GroupParameters
-) => {
+export const createGroup = <E extends EntryState>(state: EntryStates<E>, parameters: GroupParameters) => {
   const groupName = toKebabCase(parameters.groupName);
   const groupId = hashData(GroupServiceType, groupName);
 

@@ -1,17 +1,17 @@
 import type { StringSchema } from '@ez4/schema';
+import type { StringFormatHandler } from '../types/string.js';
 import type { ValidationContext } from '../types/context.js';
 
 import { isAnyNumber } from '@ez4/utils';
 
 import { DuplicateStringFormatError } from '../errors/format.js';
 import { ExpectedStringTypeError, UnexpectedMaxLengthError, UnexpectedMinLengthError, UnexpectedStringError } from '../errors/string.js';
-import { StringFormatHandler } from '../types/string.js';
-import { isOptionalNullable } from './utils.js';
+import { isNullish } from '../utils/nullish.js';
 
 const allCustomFormats: Record<string, StringFormatHandler | undefined> = {};
 
 export const validateString = (value: unknown, schema: StringSchema, context?: ValidationContext) => {
-  if (isOptionalNullable(value, schema)) {
+  if (isNullish(value, schema)) {
     return [];
   }
 

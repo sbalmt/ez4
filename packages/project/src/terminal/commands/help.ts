@@ -14,8 +14,8 @@ export const helpCommand = () => {
     'Options:',
     '  --environment, -e  Specify the environment file',
     '  --project, -p      Specify the project file (Default is ez4.project.js)',
-    '  --debug            Enable debug mode on deployed resources',
-    '  --force            Force deploy of everything',
+    '  --debug            Enable debug mode on all providers resources',
+    '  --force            Force deployment or destruction of resources',
     ''
   ];
 

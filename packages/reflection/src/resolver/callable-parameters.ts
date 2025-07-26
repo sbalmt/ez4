@@ -16,11 +16,7 @@ import { tryTypes } from './types.js';
 
 export type NodeWithParameters = MethodNodes | CallbackNodes | FunctionNodes;
 
-export const createParameter = (
-  name: string,
-  value: EveryType,
-  description?: string | null
-): TypeParameter => {
+export const createParameter = (name: string, value: EveryType, description?: string | null): TypeParameter => {
   return {
     type: TypeName.Parameter,
     name,
@@ -73,11 +69,7 @@ export const tryCallableParameter = (node: Node, context: Context, state: State)
   return createParameter(name, unionType, description);
 };
 
-export const tryCallableParameters = (
-  nodes: NodeWithParameters,
-  context: Context,
-  state: State
-) => {
+export const tryCallableParameters = (nodes: NodeWithParameters, context: Context, state: State) => {
   if (context.options.ignoreParameters) {
     return null;
   }

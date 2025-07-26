@@ -1,8 +1,10 @@
 import type { AllType, TypeReference } from '@ez4/reflection';
 import type { ReferenceSchema } from '../types/type-reference.js';
+import type { SchemaDefinitions } from '../types/common.js';
 
-import { SchemaDefinitions, SchemaType } from '../types/common.js';
 import { isTypeReference } from '@ez4/reflection';
+
+import { SchemaType } from '../types/common.js';
 
 export type RichTypeReference = TypeReference & {
   definitions?: SchemaDefinitions;

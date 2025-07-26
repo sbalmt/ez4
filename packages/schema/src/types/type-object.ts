@@ -5,7 +5,11 @@ import type { AnySchema } from './type-any.js';
 import { SchemaType } from './common.js';
 
 export type ObjectSchemaProperties = {
-  [property: string]: AnySchema;
+  [property: string]: ObjectSchemaProperty;
+};
+
+export type ObjectSchemaProperty = AnySchema & {
+  alias?: string;
 };
 
 export type ObjectSchemaAdditional = {
@@ -14,6 +18,7 @@ export type ObjectSchemaAdditional = {
 };
 
 export type ObjectSchemaDefinitions = SchemaDefinitions & {
+  encoded?: boolean;
   extensible?: boolean;
   default?: AnyObject;
   value?: AnyObject;

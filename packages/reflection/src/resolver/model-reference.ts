@@ -9,11 +9,7 @@ import { isTypeInterface } from './type-interface.js';
 import { isTypeClass } from './type-class.js';
 import { isTypeEnum } from './type-enum.js';
 
-export const createReference = (
-  path: string,
-  internal: boolean,
-  namespace?: string | null
-): TypeReference => {
+export const createReference = (path: string, internal: boolean, namespace?: string | null): TypeReference => {
   return {
     type: TypeName.Reference,
     ...(namespace && { namespace }),

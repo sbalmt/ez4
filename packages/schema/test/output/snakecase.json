@@ -1,0 +1,21 @@
+{
+  "type": "object",
+  "description": "Naming test object.",
+  "properties": {
+    "foo_foo": {
+      "type": "string",
+      "description": "Camel-case property.",
+      "alias": "fooFoo"
+    },
+    "foo_bar": {
+      "type": "number",
+      "description": "Pascal-case property.",
+      "alias": "FooBar"
+    },
+    "foo_baz": {
+      "type": "boolean",
+      "description": "Snake-case property."
+    }
+  },
+  "identity": 1
+}

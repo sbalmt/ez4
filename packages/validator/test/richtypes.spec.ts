@@ -207,6 +207,33 @@ describe('rich types validation', () => {
     equal((await validate({ foo: true, bar: 123, baz: 456 }, schema)).length, 0);
   });
 
+  it('assert :: object (base64-encoded)', async () => {
+    const schema: AnySchema = {
+      type: SchemaType.Object,
+      identity: 1,
+      definitions: {
+        encoded: true
+      },
+      properties: {
+        foo: {
+          type: SchemaType.Number
+        },
+        bar: {
+          type: SchemaType.Boolean
+        }
+      }
+    };
+
+    const input = Buffer.from(
+      JSON.stringify({
+        foo: 123,
+        bar: false
+      })
+    ).toString('base64');
+
+    equal((await validate(input, schema)).length, 0);
+  });
+
   it('assert :: array', async () => {
     const schema: AnySchema = {
       type: SchemaType.Array,

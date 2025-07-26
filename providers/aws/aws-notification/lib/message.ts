@@ -1,7 +1,6 @@
+import type { SNSEvent, Context } from 'aws-lambda';
 import type { MessageSchema } from '@ez4/notification/utils';
 import type { Notification } from '@ez4/notification';
-import type { SNSEvent, Context } from 'aws-lambda';
-import type { Service } from '@ez4/common';
 
 import * as NotificationUtils from '@ez4/notification/utils';
 
@@ -10,7 +9,7 @@ import { ServiceEventType } from '@ez4/common';
 declare const __EZ4_SCHEMA: MessageSchema | null;
 declare const __EZ4_CONTEXT: object;
 
-declare function dispatch(event: Service.Event<Notification.Incoming<Notification.Message>>, context: object): Promise<void>;
+declare function dispatch(event: Notification.ServiceEvent<Notification.Message>, context: object): Promise<void>;
 declare function handle(message: Notification.Incoming<Notification.Message>, context: object): Promise<any>;
 
 /**
@@ -50,7 +49,7 @@ export async function snsEntryPoint(event: SNSEvent, context: Context): Promise<
   }
 }
 
-const onBegin = async (request: Partial<Notification.Incoming<Notification.Message>>) => {
+const onBegin = async (request: Notification.Request) => {
   return dispatch(
     {
       type: ServiceEventType.Begin,
@@ -60,7 +59,7 @@ const onBegin = async (request: Partial<Notification.Incoming<Notification.Messa
   );
 };
 
-const onReady = async (request: Partial<Notification.Incoming<Notification.Message>>) => {
+const onReady = async (request: Notification.Incoming<Notification.Message>) => {
   return dispatch(
     {
       type: ServiceEventType.Ready,
@@ -70,7 +69,7 @@ const onReady = async (request: Partial<Notification.Incoming<Notification.Messa
   );
 };
 
-const onError = async (error: Error, request: Partial<Notification.Incoming<Notification.Message>>) => {
+const onError = async (error: Error, request: Notification.Request | Notification.Incoming<Notification.Message>) => {
   console.error(error);
 
   return dispatch(
@@ -83,7 +82,7 @@ const onError = async (error: Error, request: Partial<Notification.Incoming<Noti
   );
 };
 
-const onEnd = async (request: Partial<Notification.Incoming<Notification.Message>>) => {
+const onEnd = async (request: Notification.Request) => {
   return dispatch(
     {
       type: ServiceEventType.End,

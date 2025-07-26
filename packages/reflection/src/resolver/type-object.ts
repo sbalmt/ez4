@@ -4,8 +4,9 @@ import { getNewState, type Context, type State } from './common.js';
 
 import { isIndexSignatureDeclaration, isTypeLiteralNode, SyntaxKind } from 'typescript';
 
-import { TypeName } from '../types.js';
+import { getPathModule } from '../utils/module.js';
 import { getNodeFilePath } from '../helpers/node.js';
+import { TypeName } from '../types.js';
 import { tryModelMembers } from './model-members.js';
 import { tryTypes } from './types.js';
 
@@ -13,6 +14,7 @@ export const createObject = (file: string | null, members?: EveryMemberType[]): 
   return {
     type: TypeName.Object,
     ...(file && { file }),
+    ...(file && { module: getPathModule(file) }),
     ...(members?.length && { members })
   };
 };

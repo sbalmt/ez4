@@ -107,7 +107,7 @@ describe('update operations', () => {
       }
     });
 
-    assert.equal(statement, `UPDATE ONLY "ez4-test-update-operation" SET "json"['foo'] = ("json"->>'foo'::int + :0::int)::text::jsonb`);
+    assert.equal(statement, `UPDATE ONLY "ez4-test-update-operation" SET "json"['foo'] = (("json"->>'foo')::int + (:0)::int)::text::jsonb`);
 
     assert.deepEqual(variables, [456]);
   });
@@ -121,7 +121,7 @@ describe('update operations', () => {
       }
     });
 
-    assert.equal(statement, `UPDATE ONLY "ez4-test-update-operation" SET "json"['foo'] = ("json"->>'foo'::int - :0::int)::text::jsonb`);
+    assert.equal(statement, `UPDATE ONLY "ez4-test-update-operation" SET "json"['foo'] = (("json"->>'foo')::int - (:0)::int)::text::jsonb`);
 
     assert.deepEqual(variables, [456]);
   });
@@ -135,7 +135,7 @@ describe('update operations', () => {
       }
     });
 
-    assert.equal(statement, `UPDATE ONLY "ez4-test-update-operation" SET "json"['foo'] = ("json"->>'foo'::int * :0::int)::text::jsonb`);
+    assert.equal(statement, `UPDATE ONLY "ez4-test-update-operation" SET "json"['foo'] = (("json"->>'foo')::int * (:0)::int)::text::jsonb`);
 
     assert.deepEqual(variables, [456]);
   });
@@ -149,7 +149,7 @@ describe('update operations', () => {
       }
     });
 
-    assert.equal(statement, `UPDATE ONLY "ez4-test-update-operation" SET "json"['foo'] = ("json"->>'foo'::int / :0::int)::text::jsonb`);
+    assert.equal(statement, `UPDATE ONLY "ez4-test-update-operation" SET "json"['foo'] = (("json"->>'foo')::int / (:0)::int)::text::jsonb`);
 
     assert.deepEqual(variables, [456]);
   });

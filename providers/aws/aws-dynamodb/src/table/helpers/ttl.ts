@@ -1,9 +1,6 @@
-import {
-  DynamoDBClient,
-  DescribeTimeToLiveCommand,
-  TimeToLiveStatus
-} from '@aws-sdk/client-dynamodb';
+import type { DynamoDBClient } from '@aws-sdk/client-dynamodb';
 
+import { DescribeTimeToLiveCommand, TimeToLiveStatus } from '@aws-sdk/client-dynamodb';
 import { waitFor } from '@ez4/utils';
 
 export const waitForTimeToLive = async (client: DynamoDBClient, tableName: string) => {

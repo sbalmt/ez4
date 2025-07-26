@@ -6,13 +6,13 @@ import type { Query } from '@ez4/database';
 import type { RelationWithSchema, RepositoryRelationsWithSchema } from '../types/repository.js';
 import type { InternalTableMetadata } from '../types/table.js';
 
-import { InvalidAtomicOperation, InvalidRelationFieldError } from '@ez4/pgclient';
-import { getObjectSchemaProperty, isDynamicObjectSchema, isNumberSchema, isObjectSchema } from '@ez4/schema';
+import { getObjectSchemaProperty, isNumberSchema, isObjectSchema } from '@ez4/schema';
+import { InvalidAtomicOperation, InvalidFieldSchemaError, InvalidRelationFieldError } from '@ez4/pgclient';
 import { isAnyObject, isEmptyObject } from '@ez4/utils';
 import { Index } from '@ez4/database';
 
+import { getWithSchemaValidation, isDynamicFieldSchema, validateFirstSchemaLevel } from '../utils/schema.js';
 import { getSourceConnectionSchema, getTargetConnectionSchema, getUpdatingSchema, isSingleRelationData } from '../utils/relation.js';
-import { getWithSchemaValidation, validateFirstSchemaLevel } from '../utils/schema.js';
 import { getSelectFields, getSelectFilters } from './select.js';
 
 export const prepareUpdateQuery = async <T extends InternalTableMetadata, S extends Query.SelectInput<T>>(
@@ -129,10 +129,6 @@ const getUpdateRecord = async (
     const fieldSchema = getObjectSchemaProperty(schema, fieldName);
 
     if (!fieldSchema) {
-      if (isDynamicObjectSchema(schema)) {
-        record[fieldName] = builder.rawValue(fieldValue);
-      }
-
       continue;
     }
 
@@ -146,12 +142,17 @@ const getUpdateRecord = async (
       continue;
     }
 
+    if (isDynamicFieldSchema(fieldSchema)) {
+      record[fieldName] = await getWithSchemaValidation(fieldValue, fieldSchema, fieldPath);
+      continue;
+    }
+
     if (isObjectSchema(fieldSchema)) {
       record[fieldName] = await getUpdateRecord(builder, fieldValue, fieldSchema, relations, fieldPath);
       continue;
     }
 
-    record[fieldName] = builder.rawValue(fieldValue);
+    throw new InvalidFieldSchemaError(fieldName);
   }
 
   return record;

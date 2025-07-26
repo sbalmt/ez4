@@ -1,14 +1,23 @@
+import type { Service as CommonService } from '@ez4/common';
 import type { LinkedVariables } from '@ez4/project/library';
-import type { Service } from '@ez4/common';
 import type { Client } from './client.js';
 
-import type { QueueMessage, QueueIncoming, SubscriptionHandler, SubscriptionListener, QueueFifoMode, QueueDeadLetter } from './common.js';
+import type {
+  QueueMessage,
+  QueueRequest,
+  QueueIncoming,
+  SubscriptionHandler,
+  SubscriptionListener,
+  QueueFifoMode,
+  QueueDeadLetter
+} from './common.js';
 
 /**
  * Provide all contracts for a self-managed queue service.
  */
 export namespace Queue {
   export type Message = QueueMessage;
+  export type Request = QueueRequest;
   export type DeadLetter = QueueDeadLetter;
 
   export type FifoMode<T extends Message> = QueueFifoMode<T>;
@@ -17,7 +26,11 @@ export namespace Queue {
   export type Listener<T extends Message> = SubscriptionListener<T>;
   export type Handler<T extends Message> = SubscriptionHandler<T>;
 
-  export type ServiceEvent<T extends Message = Message> = Service.Event<Incoming<T>>;
+  export type ServiceEvent<T extends Message = Message> =
+    | CommonService.BeginEvent<Request>
+    | CommonService.ReadyEvent<Incoming<T>>
+    | CommonService.ErrorEvent<Request | Incoming<T>>
+    | CommonService.EndEvent<Request>;
 
   /**
    * Queue subscription.
@@ -62,7 +75,7 @@ export namespace Queue {
   /**
    * Queue service.
    */
-  export declare abstract class Service<T extends Message> implements Service.Provider {
+  export declare abstract class Service<T extends Message> implements CommonService.Provider {
     /**
      * All subscriptions associated to the queue.
      */
@@ -112,7 +125,7 @@ export namespace Queue {
   /**
    * Imported queue service.
    */
-  export declare abstract class Import<T extends Service<any>> implements Service.Provider {
+  export declare abstract class Import<T extends Service<any>> implements CommonService.Provider {
     /**
      * Name of the imported project defined in the project options file.
      */

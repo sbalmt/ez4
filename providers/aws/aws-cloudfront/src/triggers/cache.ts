@@ -1,12 +1,14 @@
 import type { DeployOptions, EventContext } from '@ez4/project/library';
+import type { CdnService, CdnOrigin } from '@ez4/distribution/library';
 import type { EntryStates } from '@ez4/stateful';
+import type { DistributionAdditionalOrigin, DistributionDefaultOrigin } from '../distribution/types.js';
 
-import { CdnService, CdnOrigin, isCdnBucketOrigin } from '@ez4/distribution/library';
+import { isCdnBucketOrigin } from '@ez4/distribution/library';
 import { getBucketDomain, getBucketState } from '@ez4/aws-bucket';
 import { getServiceName } from '@ez4/project/library';
 import { OriginProtocol } from '@ez4/distribution';
 
-import { DistributionAdditionalOrigin, DistributionDefaultOrigin, DistributionServiceName } from '../distribution/types.js';
+import { DistributionServiceName } from '../distribution/types.js';
 import { createCachePolicy } from '../cache/service.js';
 import { getOriginPolicyId } from '../origin/utils.js';
 import { getCachePolicyId } from '../cache/utils.js';

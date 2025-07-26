@@ -1,12 +1,13 @@
 import type { SqlBuilderOptions, SqlBuilderReferences } from '../builder.js';
 import type { SqlResultColumn, SqlResultRecord } from '../common/results.js';
 import type { SqlSourceWithResults } from '../common/source.js';
+import type { SqlTableReference } from '../common/reference.js';
 import type { SqlRecord } from '../common/types.js';
 import type { ObjectSchema } from '@ez4/schema';
 
 import { SqlRawValue } from '../common/raw.js';
 import { getTableExpressions } from '../utils/table.js';
-import { SqlColumnReference, SqlTableReference } from '../common/reference.js';
+import { SqlColumnReference } from '../common/reference.js';
 import { SqlReturningClause } from '../clauses/returning.js';
 import { MissingTableNameError } from '../errors/queries.js';
 import { getFields, getValues } from '../utils/column.js';

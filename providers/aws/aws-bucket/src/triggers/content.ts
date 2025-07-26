@@ -1,10 +1,10 @@
 import type { BucketState } from '@ez4/aws-bucket';
+import type { EntryStates } from '@ez4/stateful';
 
 import { readdir } from 'node:fs/promises';
 import { join, relative } from 'node:path';
 
 import { createBucketObject } from '@ez4/aws-bucket';
-import { EntryStates } from '@ez4/stateful';
 
 export const prepareLocalContent = async (state: EntryStates, bucketState: BucketState, localPath: string) => {
   const basePath = process.cwd();

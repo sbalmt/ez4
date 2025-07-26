@@ -7,6 +7,7 @@ import { TypeName } from './common.js';
 export type TypeObject = {
   type: TypeName.Object;
   file?: string;
+  module?: string | null;
   members?: DynamicObjectMember | EveryMemberType[];
 };
 

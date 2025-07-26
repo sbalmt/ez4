@@ -16,12 +16,7 @@ export const getPolicyDocument = async (prefix: string) => {
     },
     {
       resourceIds: [buildScheduleArn(`${prefix}-*`, region, accountId)],
-      permissions: [
-        'scheduler:GetSchedule',
-        'scheduler:CreateSchedule',
-        'scheduler:UpdateSchedule',
-        'scheduler:DeleteSchedule'
-      ]
+      permissions: ['scheduler:GetSchedule', 'scheduler:CreateSchedule', 'scheduler:UpdateSchedule', 'scheduler:DeleteSchedule']
     },
     {
       resourceIds: [`arn:aws:iam::${accountId}:role/${prefix}-*`],

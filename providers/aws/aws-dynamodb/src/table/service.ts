@@ -6,10 +6,7 @@ import { attachEntry } from '@ez4/stateful';
 
 import { TableServiceType } from './types.js';
 
-export const createTable = <E extends EntryState>(
-  state: EntryStates<E>,
-  parameters: TableParameters
-) => {
+export const createTable = <E extends EntryState>(state: EntryStates<E>, parameters: TableParameters) => {
   const tableName = toKebabCase(parameters.tableName);
   const tableId = hashData(TableServiceType, tableName);
 

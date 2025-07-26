@@ -1,4 +1,5 @@
 import type { SqlSource } from './source.js';
+import type { SqlOrder } from './types.js';
 
 import { isAnyObject } from '@ez4/utils';
 
@@ -8,7 +9,6 @@ import { SqlSelectStatement } from '../statements/select.js';
 import { SqlColumnReference } from './reference.js';
 import { SqlOrderClause } from '../clauses/order.js';
 import { SqlRawValue } from './raw.js';
-import { SqlOrder } from './types.js';
 
 type SqlJsonColumnContext = {
   variables: unknown[];

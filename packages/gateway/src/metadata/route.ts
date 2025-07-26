@@ -20,6 +20,7 @@ import {
 
 import { IncompleteRouteError } from '../errors/route.js';
 import { isHttpPath, isHttpRoute } from './utils.js';
+import { getHttpPreferences } from './preferences.js';
 import { getHttpAuthorizer } from './authorizer.js';
 import { getHttpHandler } from './handler.js';
 import { getHttpErrors } from './errors.js';
@@ -123,6 +124,10 @@ const getTypeFromMembers = (
 
       case 'httpErrors':
         route.httpErrors = getHttpErrors(member.value, parent, reflection, errorList);
+        break;
+
+      case 'preferences':
+        route.preferences = getHttpPreferences(member.value, parent, reflection, errorList);
         break;
 
       case 'memory':

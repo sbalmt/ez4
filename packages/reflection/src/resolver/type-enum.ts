@@ -3,23 +3,21 @@ import type { TypeEnum, EnumMember } from '../types.js';
 import type { Context } from './common.js';
 
 import { isEnumDeclaration } from 'typescript';
-import { TypeName } from '../types.js';
+
 import { getNodeFilePath } from '../helpers/node.js';
 import { getNodeDocumentation } from '../helpers/documentation.js';
+import { getPathModule } from '../utils/module.js';
+import { TypeName } from '../types.js';
 import { tryEnumMembers } from './enum-member.js';
 
 export type EnumNodes = EnumDeclaration;
 
-export const createEnum = (
-  name: string,
-  file: string | null,
-  description: string | null,
-  members?: EnumMember[]
-): TypeEnum => {
+export const createEnum = (name: string, file: string | null, description: string | null, members?: EnumMember[]): TypeEnum => {
   return {
     type: TypeName.Enum,
     name,
     ...(file && { file }),
+    ...(file && { module: getPathModule(file) }),
     ...(description && { description }),
     ...(members?.length && { members })
   };

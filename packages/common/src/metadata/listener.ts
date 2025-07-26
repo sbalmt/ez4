@@ -15,13 +15,14 @@ export const getServiceListener = (type: AllType, errorList: Error[]) => {
     return null;
   }
 
-  const handler: Incomplete<ServiceListener> = {};
+  const { description, module } = type;
+
+  const handler: Incomplete<ServiceListener> = {
+    ...(description && { description }),
+    ...(module && { module })
+  };
 
   const properties = new Set(['name', 'file']);
-
-  if (type.description) {
-    handler.description = type.description;
-  }
 
   if ((handler.name = type.name)) {
     properties.delete('name');

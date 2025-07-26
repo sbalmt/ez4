@@ -9,7 +9,7 @@ export type EmulatorShutdownHandler = () => unknown;
 
 export type EmulatorRequestHandler = (
   request: EmulatorServiceRequest
-) => Promise<EmulatorHandlerResponse | undefined> | EmulatorHandlerResponse | undefined;
+) => Promise<EmulatorHandlerResponse | void> | EmulatorHandlerResponse | void;
 
 export type EmulatorServiceRequest = {
   method: string;

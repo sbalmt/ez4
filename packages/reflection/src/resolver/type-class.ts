@@ -3,10 +3,12 @@ import type { ClassModifiers, EveryMemberType, ModelHeritage, TypeClass } from '
 import type { Context, State } from './common.js';
 
 import { isClassDeclaration } from 'typescript';
-import { TypeName } from '../types.js';
+
 import { getNodeFilePath } from '../helpers/node.js';
-import { getNodeModifiers } from '../helpers/modifier.js';
 import { getNodeDocumentation } from '../helpers/documentation.js';
+import { getNodeModifiers } from '../helpers/modifier.js';
+import { getPathModule } from '../utils/module.js';
+import { TypeName } from '../types.js';
 import { tryModelHeritage } from './model-heritage.js';
 import { tryModelMembers } from './model-members.js';
 
@@ -15,6 +17,7 @@ export type ClassNodes = ClassDeclaration;
 export const createClass = (
   name: string,
   file: string | null,
+
   description: string | null,
   modifiers: ClassModifiers | null,
   heritage?: ModelHeritage[],
@@ -24,6 +27,7 @@ export const createClass = (
     type: TypeName.Class,
     name,
     ...(file && { file }),
+    ...(file && { module: getPathModule(file) }),
     ...(description && { description }),
     ...(modifiers && { modifiers }),
     ...(heritage?.length && { heritage }),

@@ -15,6 +15,7 @@ import {
 import { isModelProperty, isTypeObject, isTypeReference } from '@ez4/reflection';
 
 import { IncorrectDefaultsTypeError, InvalidDefaultsTypeError } from '../library.js';
+import { getHttpPreferences } from './preferences.js';
 import { isHttpDefaults } from './utils.js';
 import { getHttpErrors } from './errors.js';
 
@@ -65,6 +66,10 @@ const getTypeFromMembers = (parent: TypeModel, members: MemberType[], reflection
 
       case 'httpErrors':
         defaults.httpErrors = getHttpErrors(member.value, parent, reflection, errorList);
+        break;
+
+      case 'preferences':
+        defaults.preferences = getHttpPreferences(member.value, parent, reflection, errorList);
         break;
 
       case 'memory':

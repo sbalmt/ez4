@@ -1,6 +1,6 @@
 import type { AnyObject } from '@ez4/utils';
 
-import type { ScalarSchema } from './scalar.js';
+import type { ScalarSchema } from './type-scalar.js';
 import type { ObjectSchema } from './type-object.js';
 import type { ReferenceSchema } from './type-reference.js';
 import type { UnionSchema } from './type-union.js';

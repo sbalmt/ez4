@@ -14,6 +14,7 @@ export type TypeFunction = {
   type: TypeName.Function;
   name: string;
   file?: string;
+  module?: string | null;
   description?: string;
   modifiers?: FunctionModifiers;
   parameters?: TypeParameter[];

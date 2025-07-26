@@ -10,10 +10,7 @@ import { getFunctionBundle } from '@ez4/aws-common';
 // __MODULE_PATH is defined by the package bundler.
 declare const __MODULE_PATH: string;
 
-export const bundleTargetFunction = async (
-  dependencies: EntryState[],
-  parameters: TargetFunctionParameters
-) => {
+export const bundleTargetFunction = async (dependencies: EntryState[], parameters: TargetFunctionParameters) => {
   const { extras, debug, handler, listener, eventSchema } = parameters;
 
   const definitions = getDefinitionsObject(dependencies);

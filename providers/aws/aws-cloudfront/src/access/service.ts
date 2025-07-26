@@ -6,10 +6,7 @@ import { attachEntry } from '@ez4/stateful';
 
 import { AccessServiceType } from './types.js';
 
-export const createOriginAccess = <E extends EntryState>(
-  state: EntryStates<E>,
-  parameters: AccessParameters
-) => {
+export const createOriginAccess = <E extends EntryState>(state: EntryStates<E>, parameters: AccessParameters) => {
   const accessName = toKebabCase(parameters.accessName);
   const accessId = hashData(AccessServiceType, accessName);
 

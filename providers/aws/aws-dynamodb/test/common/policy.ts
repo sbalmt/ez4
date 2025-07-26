@@ -8,12 +8,7 @@ export const getPolicyDocument = (): PolicyDocument => {
         Sid: 'AllowTableStreamConsumer',
         Effect: 'Allow',
         Resource: ['arn:aws:dynamodb:*:*:table/ez4-*/stream/*'],
-        Action: [
-          'dynamodb:GetRecords',
-          'dynamodb:GetShardIterator',
-          'dynamodb:DescribeStream',
-          'dynamodb:ListStreams'
-        ]
+        Action: ['dynamodb:GetRecords', 'dynamodb:GetShardIterator', 'dynamodb:DescribeStream', 'dynamodb:ListStreams']
       }
     ]
   };

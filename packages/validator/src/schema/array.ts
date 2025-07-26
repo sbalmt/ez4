@@ -2,13 +2,13 @@ import type { ArraySchema } from '@ez4/schema';
 
 import { isAnyNumber } from '@ez4/utils';
 
-import { ExpectedArrayTypeError, UnexpectedMaxItemsError, UnexpectedMinItemsError } from '../errors/array.js';
 import { createValidatorContext } from '../types/context.js';
-import { isOptionalNullable } from './utils.js';
+import { ExpectedArrayTypeError, UnexpectedMaxItemsError, UnexpectedMinItemsError } from '../errors/array.js';
+import { isNullish } from '../utils/nullish.js';
 import { validateAny } from './any.js';
 
 export const validateArray = async (value: unknown, schema: ArraySchema, context = createValidatorContext()) => {
-  if (isOptionalNullable(value, schema)) {
+  if (isNullish(value, schema)) {
     return [];
   }
 
@@ -38,6 +38,7 @@ export const validateArray = async (value: unknown, schema: ArraySchema, context
       const elementSchema = schema.element;
 
       const errorList = await validateAny(elementValue, elementSchema, {
+        inputStyle: context.inputStyle,
         property: elementProperty,
         depth: depth - 1,
         references

@@ -1,12 +1,23 @@
-import type { ServiceEvent, ServiceRequest } from './common.js';
+import type {
+  ServiceAnyEvent,
+  ServiceBeginEvent,
+  ServiceEndEvent,
+  ServiceErrorEvent,
+  ServiceReadyEvent,
+  ServiceRequest
+} from './common.js';
 
 export namespace Service {
-  export type Event<T extends ServiceRequest> = ServiceEvent<T>;
+  export type AnyEvent<T extends ServiceRequest> = ServiceAnyEvent<T>;
+  export type BeginEvent<T extends ServiceRequest> = ServiceBeginEvent<T>;
+  export type ReadyEvent<T extends ServiceRequest> = ServiceReadyEvent<T>;
+  export type ErrorEvent<T extends ServiceRequest> = ServiceErrorEvent<T>;
+  export type EndEvent<T extends ServiceRequest> = ServiceEndEvent<T>;
 
   /**
    * Service events listener.
    */
-  export type Listener<T extends ServiceRequest> = (event: Event<T>, context: Context<any>) => Promise<void> | void;
+  export type Listener<T extends ServiceRequest> = (event: AnyEvent<T>, context: Context<any>) => Promise<void> | void;
 
   /**
    * Common interface for service providers.

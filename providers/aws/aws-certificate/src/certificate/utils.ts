@@ -20,11 +20,7 @@ export const tryGetCertificateArn = (context: StepContext) => {
   return resources[0]?.result?.certificateArn;
 };
 
-export const getCertificateArn = (
-  serviceName: string,
-  resourceId: string,
-  context: StepContext
-) => {
+export const getCertificateArn = (serviceName: string, resourceId: string, context: StepContext) => {
   const certificateArn = tryGetCertificateArn(context);
 
   if (!certificateArn) {

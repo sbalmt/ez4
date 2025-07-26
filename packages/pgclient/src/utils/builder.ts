@@ -1,9 +1,8 @@
 import type { ObjectSchema } from '@ez4/schema';
+import type { PgClientDriver } from '../types/driver.js';
 
 import { SchemaType } from '@ez4/schema';
 import { SqlBuilder } from '@ez4/pgsql';
-
-import { PgClientDriver } from '../types/driver.js';
 
 const jsonSchema: ObjectSchema = {
   type: SchemaType.Object,

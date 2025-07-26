@@ -13,6 +13,7 @@ export type TypeInterface = {
   type: TypeName.Interface;
   name: string;
   file?: string;
+  module?: string | null;
   description?: string;
   modifiers?: InterfaceModifiers;
   heritage?: ModelHeritage[];

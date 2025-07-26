@@ -37,6 +37,7 @@
     "packages/*"
   ],
   "scripts": {
+    "lint": "eslint",
     "clean": "rm -f *.tsbuildinfo && rm -rf dist/*",
     "build": "tsc -p tsconfig.json && node tools/bundler.mjs",
     "test": "npm run test:types && node --env-file ../../../local.env --test --import ../../../tools/tsnode.mjs test/*.spec.ts",
@@ -59,6 +60,7 @@
     "@ez4/schema": "^0.23.0",
     "@ez4/scheduler": "^0.23.0",
     "@ez4/stateful": "^0.23.0",
-    "@ez4/utils": "^0.23.0"
+    "@ez4/utils": "^0.23.0",
+    "@ez4/validator": "^0.23.0"
   }
 }

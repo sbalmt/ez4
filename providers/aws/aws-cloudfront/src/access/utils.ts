@@ -9,11 +9,7 @@ export const isOriginAccessState = (resource: EntryState): resource is AccessSta
   return resource.type === AccessServiceType;
 };
 
-export const getOriginAccessId = (
-  serviceName: string,
-  resourceId: string,
-  context: StepContext
-) => {
+export const getOriginAccessId = (serviceName: string, resourceId: string, context: StepContext) => {
   const resource = context.getDependencies<AccessState>(AccessServiceType).at(0)?.result;
 
   if (!resource?.accessId) {

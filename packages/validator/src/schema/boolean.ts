@@ -4,10 +4,10 @@ import type { ValidationContext } from '../types/context.js';
 import { isAnyBoolean } from '@ez4/utils';
 
 import { ExpectedBooleanTypeError, UnexpectedBooleanError } from '../errors/boolean.js';
-import { isOptionalNullable } from './utils.js';
+import { isNullish } from '../utils/nullish.js';
 
 export const validateBoolean = (value: unknown, schema: BooleanSchema, context?: ValidationContext) => {
-  if (isOptionalNullable(value, schema)) {
+  if (isNullish(value, schema)) {
     return [];
   }
 

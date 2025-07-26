@@ -124,7 +124,6 @@ export class Table<T extends InternalTableMetadata> implements DbTable<T> {
     }
 
     await this.updateMany({
-      select: query.select,
       where: query.where as Query.WhereInput<T>,
       data: query.update,
       limit: 1

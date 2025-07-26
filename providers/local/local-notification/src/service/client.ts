@@ -15,20 +15,24 @@ export const createNotificationClient = <T extends Notification.Message = any>(
 
   return new (class {
     async sendMessage(message: T) {
-      const safeMessage = await getJsonStringMessage(message, messageSchema);
-
       Logger.log(`✉️  Sending message to Topic [${serviceName}] at ${notificationHost}`);
 
-      const response = await fetch(notificationHost, {
-        method: 'POST',
-        body: safeMessage,
-        headers: {
-          ['content-type']: 'application/json'
-        }
-      });
+      const payload = await getJsonStringMessage(message, messageSchema);
 
-      if (!response.ok) {
-        throw new Error(`Notification ${serviceName} isn't available.`);
+      try {
+        const response = await fetch(notificationHost, {
+          method: 'POST',
+          body: payload,
+          headers: {
+            ['content-type']: 'application/json'
+          }
+        });
+
+        if (!response.ok) {
+          Logger.error(`Topic [${serviceName}] isn't available.`);
+        }
+      } catch (error) {
+        Logger.error(`${error}`);
       }
     }
   })();

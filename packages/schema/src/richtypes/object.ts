@@ -12,6 +12,11 @@ export namespace Object {
   export type Extends<Type extends AnyObject> = Type;
 
   /**
+   * Object in base64 format.
+   */
+  export type Base64<Type extends AnyObject> = Type;
+
+  /**
    * Object with default value.
    */
   export type Default<Type extends AnyObject, _Value extends Type> = Type;

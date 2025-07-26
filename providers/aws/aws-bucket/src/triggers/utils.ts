@@ -1,7 +1,7 @@
+import type { BucketService } from '@ez4/storage/library';
 import type { DeployOptions } from '@ez4/project/library';
 
 import { getServiceName } from '@ez4/project/library';
-import { BucketService } from '@ez4/storage/library';
 import { getRandomName } from '@ez4/aws-common';
 import { toKebabCase } from '@ez4/utils';
 

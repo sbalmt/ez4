@@ -7,7 +7,7 @@ import { SchemaType } from '@ez4/schema';
 import { createTransformContext, transform } from '@ez4/transform';
 
 describe('default types transform', () => {
-  it('assert :: number with default', () => {
+  it('assert :: number', () => {
     const schema: AnySchema = {
       type: SchemaType.Number,
       definitions: {
@@ -25,7 +25,7 @@ describe('default types transform', () => {
     deepEqual(transform(null, schema), 789);
   });
 
-  it('assert :: string with default', () => {
+  it('assert :: string', () => {
     const schema: AnySchema = {
       type: SchemaType.String,
       definitions: {
@@ -54,7 +54,7 @@ describe('default types transform', () => {
     deepEqual(transform(null, schema, context), 'foo');
   });
 
-  it('assert :: object with default', () => {
+  it('assert :: object', () => {
     const output = { foo: true, bar: 123, baz: 'abc' };
 
     const schema: AnySchema = {
@@ -82,7 +82,7 @@ describe('default types transform', () => {
     deepEqual(transform(null, schema), output);
   });
 
-  it('assert :: array with default', () => {
+  it('assert :: array', () => {
     const schema: AnySchema = {
       type: SchemaType.Array,
       definitions: {
@@ -102,7 +102,7 @@ describe('default types transform', () => {
     deepEqual(transform(null, schema), [789, 10.1]);
   });
 
-  it('assert :: tuple with default', () => {
+  it('assert :: tuple', () => {
     const schema: AnySchema = {
       type: SchemaType.Tuple,
       definitions: {
@@ -127,7 +127,7 @@ describe('default types transform', () => {
     deepEqual(transform(null, schema), [456, 'def']);
   });
 
-  it('assert :: enum with default', () => {
+  it('assert :: enum', () => {
     const schema: AnySchema = {
       type: SchemaType.Enum,
       definitions: {

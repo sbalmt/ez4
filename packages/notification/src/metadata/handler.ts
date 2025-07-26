@@ -6,21 +6,19 @@ import { IncompleteHandlerError } from '../errors/handler.js';
 import { isSubscriptionHandler } from './utils.js';
 import { getNotificationMessage } from './message.js';
 
-export const getSubscriptionHandler = (
-  type: AllType,
-  reflection: SourceMap,
-  errorList: Error[]
-) => {
+export const getSubscriptionHandler = (type: AllType, reflection: SourceMap, errorList: Error[]) => {
   if (!isSubscriptionHandler(type)) {
     return null;
   }
 
-  const handler: Incomplete<SubscriptionHandler> = {};
-  const properties = new Set(['name', 'file', 'request']);
+  const { description, module } = type;
 
-  if (type.description) {
-    handler.description = type.description;
-  }
+  const handler: Incomplete<SubscriptionHandler> = {
+    ...(description && { description }),
+    ...(module && { module })
+  };
+
+  const properties = new Set(['name', 'file', 'request']);
 
   if ((handler.name = type.name)) {
     properties.delete('name');

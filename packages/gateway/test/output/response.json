@@ -5,9 +5,9 @@
     "extras": {},
     "routes": [
       {
-        "path": "ANY /test-route-1",
+        "path": "ANY /test-route-a",
         "handler": {
-          "name": "testRoute1",
+          "name": "testRouteA",
           "file": "test/input/output-response.ts",
           "response": {
             "status": 204,
@@ -25,9 +25,9 @@
         }
       },
       {
-        "path": "ANY /test-route-2",
+        "path": "ANY /test-route-b",
         "handler": {
-          "name": "testRoute2",
+          "name": "testRouteB",
           "file": "test/input/output-response.ts",
           "response": {
             "status": 204,
@@ -47,14 +47,40 @@
         }
       },
       {
-        "path": "ANY /test-route-3",
+        "path": "ANY /test-route-c",
         "handler": {
-          "name": "testRoute3",
+          "name": "testRouteC",
           "file": "test/input/output-response.ts",
           "response": {
             "status": 204,
             "body": {
               "type": "number"
+            }
+          }
+        }
+      },
+      {
+        "path": "ANY /test-route-d",
+        "preferences": {
+          "namingStyle": "snake"
+        },
+        "handler": {
+          "name": "testRouteD",
+          "file": "test/input/output-response.ts",
+          "response": {
+            "status": 204,
+            "body": {
+              "type": "object",
+              "description": "HTTP body payload.",
+              "identity": 1,
+              "properties": {
+                "barBaz": {
+                  "type": "number"
+                },
+                "fooBar": {
+                  "type": "string"
+                }
+              }
             }
           }
         }

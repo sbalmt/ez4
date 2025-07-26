@@ -1,12 +1,13 @@
 import type { SqlBuilder, SqlFilters, SqlJsonColumnSchema, SqlSource } from '@ez4/pgsql';
 import type { SqlParameter } from '@aws-sdk/client-rds-data';
 import type { AnySchema, ObjectSchema } from '@ez4/schema';
+import type { AnyObject } from '@ez4/utils';
 import type { Query } from '@ez4/database';
 import type { RepositoryRelationsWithSchema } from '../types/repository.js';
 import type { InternalTableMetadata } from '../types/table.js';
 
 import { InvalidRelationFieldError, MissingFieldSchemaError } from '@ez4/pgclient';
-import { AnyObject, isAnyNumber, isAnyObject, isEmptyObject } from '@ez4/utils';
+import { isAnyNumber, isAnyObject, isEmptyObject } from '@ez4/utils';
 import { isObjectSchema, isStringSchema } from '@ez4/schema';
 import { escapeSqlName, mergeSqlAlias } from '@ez4/pgsql';
 import { Index } from '@ez4/database';

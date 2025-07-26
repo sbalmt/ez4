@@ -1,5 +1,16 @@
 import type { Service } from '@ez4/common';
+import type { NamingStyle } from '@ez4/schema';
 import type { Http } from './contract.js';
+
+/**
+ * Contract for HTTP preferences.
+ */
+export interface HttpPreferences {
+  /**
+   * Determines the naming style for the query strings and body payloads.
+   */
+  namingStyle?: NamingStyle;
+}
 
 /**
  * HTTP CORS configuration.
@@ -81,6 +92,11 @@ export type HttpRawBody = string;
  */
 export interface HttpAuthRequest {
   /**
+   * Auth request preferences.
+   */
+  preferences?: HttpPreferences;
+
+  /**
    * Expected HTTP headers.
    */
   headers?: HttpHeaders;
@@ -111,6 +127,11 @@ export interface HttpAuthResponse {
  */
 export interface HttpRequest {
   /**
+   * Request preferences.
+   */
+  preferences?: HttpPreferences;
+
+  /**
    * Expected identity.
    */
   identity?: HttpIdentity;
@@ -140,6 +161,11 @@ export interface HttpRequest {
  * HTTP response.
  */
 export interface HttpResponse {
+  /**
+   * Response preferences.
+   */
+  preferences?: HttpPreferences;
+
   /**
    * HTTP status code.
    */
@@ -197,7 +223,7 @@ export type HttpIncoming<T extends HttpRequest | HttpAuthRequest> = T & {
  * Request listener.
  */
 export type HttpListener<T extends HttpRequest | HttpAuthRequest> = (
-  event: Service.Event<HttpIncoming<T>>,
+  event: Service.AnyEvent<HttpIncoming<T>>,
   context: Service.Context<Http.Service | HttpProvider>
 ) => Promise<void> | void;
 

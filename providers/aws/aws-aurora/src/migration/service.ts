@@ -1,11 +1,11 @@
 import type { EntryState, EntryStates } from '@ez4/stateful';
 import type { MigrationParameters, MigrationState } from './types.js';
+import type { InstanceState } from '../instance/types.js';
+import type { ClusterState } from '../cluster/types.js';
 
 import { attachEntry } from '@ez4/stateful';
 import { hashData } from '@ez4/utils';
 
-import { ClusterState } from '../cluster/types.js';
-import { InstanceState } from '../instance/types.js';
 import { MigrationServiceType } from './types.js';
 
 export const createMigration = <E extends EntryState>(

@@ -1,6 +1,6 @@
 import type { APIGatewayRequestAuthorizerEventV2, APIGatewaySimpleAuthorizerWithContextResult, Context } from 'aws-lambda';
+import type { HttpPreferences } from '@ez4/gateway/library';
 import type { ObjectSchema } from '@ez4/schema';
-import type { Service } from '@ez4/common';
 import type { Http } from '@ez4/gateway';
 
 import * as GatewayUtils from '@ez4/gateway/utils';
@@ -13,10 +13,11 @@ type ResponseEvent = APIGatewaySimpleAuthorizerWithContextResult<any>;
 declare const __EZ4_HEADERS_SCHEMA: ObjectSchema | null;
 declare const __EZ4_PARAMETERS_SCHEMA: ObjectSchema | null;
 declare const __EZ4_QUERY_SCHEMA: ObjectSchema | null;
+declare const __EZ4_PREFERENCES: HttpPreferences;
 declare const __EZ4_CONTEXT: object;
 
-declare function dispatch(event: Service.Event<Http.Incoming<Http.AuthRequest>>, context: object): Promise<void>;
 declare function handle(request: Http.Incoming<Http.AuthRequest>, context: object): Promise<Http.AuthResponse>;
+declare function dispatch(event: Http.ServiceEvent<Http.AuthRequest>, context: object): Promise<void>;
 
 /**
  * Entrypoint to handle API Gateway authorizations.
@@ -84,13 +85,13 @@ const getIncomingRequestParameters = (event: RequestEvent) => {
 
 const getIncomingRequestQuery = (event: RequestEvent) => {
   if (__EZ4_QUERY_SCHEMA) {
-    return GatewayUtils.getQueryStrings(event.queryStringParameters ?? {}, __EZ4_QUERY_SCHEMA);
+    return GatewayUtils.getQueryStrings(event.queryStringParameters ?? {}, __EZ4_QUERY_SCHEMA, __EZ4_PREFERENCES);
   }
 
   return undefined;
 };
 
-const onBegin = async (request: Partial<Http.Incoming<Http.AuthRequest>>) => {
+const onBegin = async (request: Http.Incoming<Http.AuthRequest>) => {
   return dispatch(
     {
       type: ServiceEventType.Begin,
@@ -100,7 +101,7 @@ const onBegin = async (request: Partial<Http.Incoming<Http.AuthRequest>>) => {
   );
 };
 
-const onReady = async (request: Partial<Http.Incoming<Http.AuthRequest>>) => {
+const onReady = async (request: Http.Incoming<Http.AuthRequest>) => {
   return dispatch(
     {
       type: ServiceEventType.Ready,
@@ -110,7 +111,7 @@ const onReady = async (request: Partial<Http.Incoming<Http.AuthRequest>>) => {
   );
 };
 
-const onError = async (error: Error, request: Partial<Http.Incoming<Http.AuthRequest>>) => {
+const onError = async (error: Error, request: Http.Incoming<Http.AuthRequest>) => {
   console.error(error);
 
   return dispatch(
@@ -123,7 +124,7 @@ const onError = async (error: Error, request: Partial<Http.Incoming<Http.AuthReq
   );
 };
 
-const onEnd = async (request: Partial<Http.Incoming<Http.AuthRequest>>) => {
+const onEnd = async (request: Http.Incoming<Http.AuthRequest>) => {
   return dispatch(
     {
       type: ServiceEventType.End,

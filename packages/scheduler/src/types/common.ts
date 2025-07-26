@@ -5,8 +5,9 @@ import type { ServiceListener } from '@ez4/common/library';
 export type CronEventSchema = ObjectSchema | UnionSchema;
 
 export type TargetHandler = {
-  name: string;
   file: string;
+  module?: string;
+  name: string;
   description?: string;
 };
 

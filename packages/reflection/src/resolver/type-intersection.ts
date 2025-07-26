@@ -4,6 +4,7 @@ import type { Context, State } from './common.js';
 
 import { isIntersectionTypeNode } from 'typescript';
 
+import { getPathModule } from '../utils/module.js';
 import { getNodeFilePath } from '../helpers/node.js';
 import { TypeName } from '../types.js';
 import { getNewState } from './common.js';
@@ -13,6 +14,7 @@ export const createIntersection = (file: string | null, elements: EveryType[]): 
   return {
     type: TypeName.Intersection,
     ...(file && { file }),
+    ...(file && { module: getPathModule(file) }),
     elements
   };
 };

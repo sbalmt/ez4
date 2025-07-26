@@ -16,6 +16,7 @@ import { Logger } from '../../utils/logger.js';
 export const serveCommand = async (project: ProjectOptions) => {
   const serveOptions = project.serveOptions;
 
+  const bindAddress = serveOptions?.localHost ?? '0.0.0.0';
   const serviceHost = serveOptions?.localHost ?? 'localhost';
   const servicePort = serveOptions?.localPort ?? 3734;
 
@@ -29,26 +30,29 @@ export const serveCommand = async (project: ProjectOptions) => {
     version: 0
   };
 
-  await Logger.execute('Loading providers', () => {
+  await Logger.execute('🔄️ Loading providers', () => {
     return loadProviders(project);
   });
 
-  let emulators = {};
+  let emulators: EmulatorServices = {};
 
   const watcher = await watchMetadata(project.sourceFiles, async ({ metadata }) => {
-    Logger.clear();
-
     if (options.version > 0) {
       await shutdownServices(emulators);
+      Logger.space();
     }
 
-    options.version++;
-
-    emulators = await Logger.execute('🔄️ Loading emulators', async () => {
+    emulators = await Logger.execute('🔄️ Loading emulators', () => {
       return getEmulators(metadata, options);
     });
 
     await bootstrapServices(emulators, options);
+
+    if (options.version > 0) {
+      Logger.log(`🚀 Project [${project.projectName}] reloaded`);
+    }
+
+    options.version++;
   });
 
   const server = createServer((request, stream) => {
@@ -103,13 +107,14 @@ export const serveCommand = async (project: ProjectOptions) => {
     });
   });
 
-  server.on('error', () => {
-    Logger.error(`❌ Unable to serve project [${project.projectName}] at http://${options.serviceHost}`);
+  server.on('error', async () => {
+    Logger.error(`Unable to serve project [${project.projectName}] at http://${options.serviceHost}`);
+    await shutdownServices(emulators);
     watcher.stop();
   });
 
-  server.listen(servicePort, serviceHost, async () => {
-    Logger.log(`🚀 Project [${project.projectName}] up and running!`);
+  server.listen(servicePort, bindAddress, async () => {
+    Logger.log(`🚀 Project [${project.projectName}] up and running`);
   });
 };
 
@@ -151,7 +156,7 @@ const sendPlainResponse = (stream: ServerResponse<IncomingMessage>, request: Inc
 
   Logger.log(`⬅️  ${responseStatus} ${request.url ?? '/'}`);
 
-  if (responseStatus >= 200 && responseStatus <= 299) {
+  if (request.headers.origin) {
     setCorsResponseHeaders(stream, request);
   }
 
@@ -183,7 +188,7 @@ const sendErrorResponse = (stream: ServerResponse<IncomingMessage>, request: Inc
 };
 
 const setCorsResponseHeaders = (stream: ServerResponse<IncomingMessage>, request: IncomingMessage) => {
-  const responseOrigin = request.headers['origin'];
+  const responseOrigin = request.headers.origin;
 
   if (responseOrigin) {
     stream.setHeader('Access-Control-Allow-Origin', responseOrigin);

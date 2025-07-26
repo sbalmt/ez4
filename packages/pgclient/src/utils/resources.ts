@@ -1,5 +1,6 @@
-import { DatabaseService } from '@ez4/database/library';
-import { DeployOptions } from '@ez4/project/library';
+import type { DatabaseService } from '@ez4/database/library';
+import type { DeployOptions } from '@ez4/project/library';
+
 import { toSnakeCase } from '@ez4/utils';
 
 export const getTableName = (table: string) => {
