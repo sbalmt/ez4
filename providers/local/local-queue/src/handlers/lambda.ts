@@ -1,9 +1,9 @@
 import type { QueueImport, QueueService, QueueSubscription } from '@ez4/queue/library';
-import type { EmulateServiceContext, ServeOptions } from '@ez4/project/library';
+import { Logger, type EmulateServiceContext, type ServeOptions } from '@ez4/project/library';
 import type { Queue } from '@ez4/queue';
 
+import { getJsonMessage, MalformedMessageError } from '@ez4/queue/utils';
 import { createModule, onBegin, onEnd, onError, onReady } from '@ez4/local-common';
-import { getJsonMessage } from '@ez4/queue/utils';
 import { getRandomUUID } from '@ez4/utils';
 
 export const processLambdaMessage = async (
@@ -49,6 +49,10 @@ export const processLambdaMessage = async (
     //
   } catch (error) {
     await onError(lambdaModule, lambdaContext, currentRequest ?? lambdaRequest, error);
+
+    if (error instanceof MalformedMessageError) {
+      error.details.forEach((detail) => Logger.error(detail));
+    }
     //
   } finally {
     await onEnd(lambdaModule, lambdaContext, lambdaRequest);
