@@ -2,6 +2,8 @@ import type { EmulateServiceContext, EmulatorServiceRequest, ServeOptions } from
 import type { NotificationImport, NotificationService } from '@ez4/notification/library';
 
 import { NotificationSubscriptionType } from '@ez4/notification/library';
+import { getJsonMessage, MalformedMessageError } from '@ez4/notification/utils';
+import { getResponseError, getResponseSuccess } from '@ez4/local-common';
 import { getServiceName } from '@ez4/project/library';
 
 import { createNotificationClient } from '../service/client.js';
@@ -40,15 +42,32 @@ const handleNotificationMessage = async (
     throw new Error('Unsupported notification request.');
   }
 
-  const allNotifications = service.subscriptions.map((subscription) => {
-    switch (subscription.type) {
-      case NotificationSubscriptionType.Lambda:
-        return processLambdaMessage(service, options, context, subscription, body);
+  try {
+    const jsonMessage = JSON.parse(body.toString());
+    const safeMessage = await getJsonMessage(jsonMessage, service.schema);
 
-      case NotificationSubscriptionType.Queue:
-        return processQueueMessage(service, context, subscription, body);
+    const allNotifications = service.subscriptions.map((subscription) => {
+      switch (subscription.type) {
+        case NotificationSubscriptionType.Lambda:
+          return processLambdaMessage(service, options, context, subscription, safeMessage);
+
+        case NotificationSubscriptionType.Queue:
+          return processQueueMessage(service, context, subscription, safeMessage);
+      }
+    });
+
+    await Promise.all(allNotifications);
+
+    return getResponseSuccess(201);
+    //
+  } catch (error) {
+    if (!(error instanceof MalformedMessageError)) {
+      throw error;
     }
-  });
 
-  await Promise.all(allNotifications);
+    return getResponseError(400, {
+      message: error.message,
+      details: error.details
+    });
+  }
 };

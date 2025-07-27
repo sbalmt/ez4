@@ -2,6 +2,8 @@ import type { EmulateServiceContext, EmulatorServiceRequest, ServeOptions } from
 import type { QueueImport, QueueService } from '@ez4/queue/library';
 
 import { getServiceName } from '@ez4/project/library';
+import { getJsonMessage, MalformedMessageError } from '@ez4/queue/utils';
+import { getResponseError, getResponseSuccess } from '@ez4/local-common';
 import { getRandomInteger } from '@ez4/utils';
 
 import { processLambdaMessage } from '../handlers/lambda.js';
@@ -35,10 +37,27 @@ const handleQueueMessage = async (
     throw new Error('Unsupported queue request.');
   }
 
-  const subscriptionIndex = getRandomInteger(0, service.subscriptions.length - 1);
-  const queueSubscription = service.subscriptions[subscriptionIndex];
+  try {
+    const subscriptionIndex = getRandomInteger(0, service.subscriptions.length - 1);
+    const queueSubscription = service.subscriptions[subscriptionIndex];
 
-  if (queueSubscription) {
-    await processLambdaMessage(service, options, context, queueSubscription, body);
+    const jsonMessage = JSON.parse(body.toString());
+    const safeMessage = await getJsonMessage(jsonMessage, service.schema);
+
+    if (queueSubscription) {
+      await processLambdaMessage(service, options, context, queueSubscription, safeMessage);
+    }
+
+    return getResponseSuccess(201);
+    //
+  } catch (error) {
+    if (!(error instanceof MalformedMessageError)) {
+      throw error;
+    }
+
+    return getResponseError(400, {
+      message: error.message,
+      details: error.details
+    });
   }
 };

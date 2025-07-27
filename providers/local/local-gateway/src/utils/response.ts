@@ -2,8 +2,9 @@ import type { HttpErrors, HttpPreferences, HttpResponse } from '@ez4/gateway/lib
 import type { AnyObject } from '@ez4/utils';
 import type { Http } from '@ez4/gateway';
 
-import { isScalarSchema } from '@ez4/schema';
 import { getJsonError, getResponseBody } from '@ez4/gateway/utils';
+import { getResponseError, getResponseSuccess } from '@ez4/local-common';
+import { isScalarSchema } from '@ez4/schema';
 import { HttpError } from '@ez4/gateway';
 
 export const getOutgoingSuccessResponse = (metadata: HttpResponse, response: Http.Response, preferences?: HttpPreferences) => {
@@ -61,30 +62,5 @@ const getMappedErrorData = (error: Error, errorsMap: HttpErrors) => {
     status: statusCode,
     message: error.message,
     name: errorName
-  };
-};
-
-const getResponseSuccess = (status: number, headers?: AnyObject, contentType?: string, contentData?: string) => {
-  return {
-    status,
-    headers: {
-      ...headers,
-      ...(contentType && {
-        ['content-type']: contentType
-      })
-    },
-    ...(contentData && {
-      body: contentData
-    })
-  };
-};
-
-const getResponseError = (status: number, errorData: AnyObject) => {
-  return {
-    status,
-    body: JSON.stringify(errorData),
-    headers: {
-      ['content-type']: 'application/json'
-    }
   };
 };

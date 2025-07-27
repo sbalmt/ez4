@@ -1,8 +1,8 @@
 import type { NotificationImport, NotificationLambdaSubscription, NotificationService } from '@ez4/notification/library';
-import { Logger, type EmulateServiceContext, type ServeOptions } from '@ez4/project/library';
+import type { EmulateServiceContext, ServeOptions } from '@ez4/project/library';
 import type { Notification } from '@ez4/notification';
+import type { AnyObject } from '@ez4/utils';
 
-import { getJsonMessage, MalformedMessageError } from '@ez4/notification/utils';
 import { createModule, onBegin, onEnd, onError, onReady } from '@ez4/local-common';
 import { getRandomUUID } from '@ez4/utils';
 
@@ -11,7 +11,7 @@ export const processLambdaMessage = async (
   options: ServeOptions,
   context: EmulateServiceContext,
   subscription: NotificationLambdaSubscription,
-  message: Buffer
+  message: AnyObject
 ) => {
   const lambdaModule = await createModule({
     listener: subscription.listener,
@@ -35,12 +35,9 @@ export const processLambdaMessage = async (
   try {
     await onBegin(lambdaModule, lambdaContext, lambdaRequest);
 
-    const jsonMessage = JSON.parse(message.toString());
-    const safeMessage = await getJsonMessage(jsonMessage, service.schema);
-
     currentRequest = {
       ...lambdaRequest,
-      message: safeMessage
+      message
     };
 
     await onReady(lambdaModule, lambdaContext, currentRequest);
@@ -48,10 +45,6 @@ export const processLambdaMessage = async (
     //
   } catch (error) {
     await onError(lambdaModule, lambdaContext, currentRequest ?? lambdaRequest, error);
-
-    if (error instanceof MalformedMessageError) {
-      error.details.forEach((detail) => Logger.error(detail));
-    }
     //
   } finally {
     await onEnd(lambdaModule, lambdaContext, lambdaRequest);
