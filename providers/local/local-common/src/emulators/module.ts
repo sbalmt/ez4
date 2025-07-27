@@ -50,24 +50,26 @@ export const createModule = async (module: ModuleDefinition): Promise<VirtualMod
 
 const prepareFunction = (entrypoint: ModuleEntrypoint, variables: LinkedVariables, callback: (...inputs: unknown[]) => any) => {
   return async <T>(...inputs: unknown[]): Promise<T> => {
+    const headline = `${entrypoint.file} [${entrypoint.name}]`;
+
     let failed = false;
 
     try {
       return await runWithVariables(variables, () => {
-        Logger.log(`▶️  ${entrypoint.file} [${entrypoint.name}] Started`);
+        Logger.log(`▶️  ${headline} Started`);
         return callback(...inputs);
       });
       //
     } catch (error) {
-      Logger.error(`${entrypoint.file} [${entrypoint.name}] ${error}`);
+      Logger.error(`${headline} ${error}`);
       failed = true;
       throw error;
       //
     } finally {
       if (failed) {
-        Logger.log(`${entrypoint.file} [${entrypoint.name}] Finished (with error)`);
+        Logger.error(`${headline} Finished (with error)`);
       } else {
-        Logger.success(`${entrypoint.file} [${entrypoint.name}] Finished`);
+        Logger.success(`${headline} Finished`);
       }
     }
   };
