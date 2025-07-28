@@ -22,7 +22,7 @@ describe('aurora migration (indexes)', () => {
       }
     });
 
-    deepEqual(statements, [`ALTER TABLE "ez4-test-table" ADD CONSTRAINT "ez4-test-table_index_pk" PRIMARY KEY ("column_a", "column_b")`]);
+    deepEqual(statements, [`ALTER TABLE "ez4-test-table" ADD CONSTRAINT "index_pk" PRIMARY KEY ("column_a", "column_b")`]);
   });
 
   it('assert :: create index (unique)', () => {
@@ -34,7 +34,7 @@ describe('aurora migration (indexes)', () => {
       }
     });
 
-    deepEqual(statements, [`ALTER TABLE "ez4-test-table" ADD CONSTRAINT "ez4-test-table_index_unq" UNIQUE ("column_a", "column_b")`]);
+    deepEqual(statements, [`ALTER TABLE "ez4-test-table" ADD CONSTRAINT "index_uq" UNIQUE ("column_a", "column_b")`]);
   });
 
   it('assert :: create index (secondary)', () => {
@@ -46,9 +46,7 @@ describe('aurora migration (indexes)', () => {
       }
     });
 
-    deepEqual(statements, [
-      `CREATE INDEX IF NOT EXISTS "ez4-test-table_index_idx" ON "ez4-test-table" USING BTREE ("column_a", "column_b")`
-    ]);
+    deepEqual(statements, [`CREATE INDEX IF NOT EXISTS "index_ix" ON "ez4-test-table" USING BTREE ("column_a", "column_b")`]);
   });
 
   it('assert :: create index concurrently (secondary)', () => {
@@ -65,9 +63,7 @@ describe('aurora migration (indexes)', () => {
       true
     );
 
-    deepEqual(statements, [
-      `CREATE INDEX CONCURRENTLY IF NOT EXISTS "ez4-test-table_index_idx" ON "ez4-test-table" USING BTREE ("column_a", "column_b")`
-    ]);
+    deepEqual(statements, [`CREATE INDEX CONCURRENTLY IF NOT EXISTS "index_ix" ON "ez4-test-table" USING BTREE ("column_a", "column_b")`]);
   });
 
   it('assert :: delete index (primary)', () => {
@@ -79,7 +75,7 @@ describe('aurora migration (indexes)', () => {
       }
     });
 
-    deepEqual(statements, [`ALTER TABLE "ez4-test-table" DROP CONSTRAINT IF EXISTS "ez4-test-table_index_pk"`]);
+    deepEqual(statements, [`ALTER TABLE "ez4-test-table" DROP CONSTRAINT IF EXISTS "index_pk"`]);
   });
 
   it('assert :: delete index (unique)', () => {
@@ -91,7 +87,7 @@ describe('aurora migration (indexes)', () => {
       }
     });
 
-    deepEqual(statements, [`ALTER TABLE "ez4-test-table" DROP CONSTRAINT IF EXISTS "ez4-test-table_index_unq"`]);
+    deepEqual(statements, [`ALTER TABLE "ez4-test-table" DROP CONSTRAINT IF EXISTS "index_uq"`]);
   });
 
   it('assert :: delete index (secondary)', () => {
@@ -103,7 +99,7 @@ describe('aurora migration (indexes)', () => {
       }
     });
 
-    deepEqual(statements, [`DROP INDEX IF EXISTS "ez4-test-table_index_idx"`]);
+    deepEqual(statements, [`DROP INDEX IF EXISTS "index_ix"`]);
   });
 
   it('assert :: delete index concurrently (secondary)', () => {
@@ -119,6 +115,6 @@ describe('aurora migration (indexes)', () => {
       true
     );
 
-    deepEqual(statements, [`DROP INDEX CONCURRENTLY IF EXISTS "ez4-test-table_index_idx"`]);
+    deepEqual(statements, [`DROP INDEX CONCURRENTLY IF EXISTS "index_ix"`]);
   });
 });

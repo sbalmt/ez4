@@ -16,7 +16,7 @@ export const prepareCreateRelations = (table: string, relations: PgRelationRepos
 
     const { sourceAlias, sourceColumn, targetColumn } = relation;
 
-    const relationName = getRelationName(table, alias);
+    const relationName = getRelationName(alias);
     const sourceTable = getTableName(sourceAlias);
 
     statements.push(
@@ -46,7 +46,7 @@ export const prepareDeleteRelations = (table: string, relations: PgRelationRepos
       continue;
     }
 
-    const relationName = getRelationName(table, alias);
+    const relationName = getRelationName(alias);
 
     statements.push(`ALTER TABLE "${table}" DROP CONSTRAINT IF EXISTS "${relationName}"`);
   }
@@ -54,6 +54,6 @@ export const prepareDeleteRelations = (table: string, relations: PgRelationRepos
   return statements;
 };
 
-const getRelationName = (table: string, alias: string) => {
-  return `${table}_${toSnakeCase(alias)}_fk`;
+const getRelationName = (alias: string) => {
+  return `${toSnakeCase(alias)}_fk`;
 };

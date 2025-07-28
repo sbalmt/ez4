@@ -19,21 +19,21 @@ export const prepareCreateIndexes = (table: string, schema: ObjectSchema, indexe
 
     switch (type) {
       case Index.Primary: {
-        const primaryIndexName = getPrimaryKey(table, indexName);
+        const primaryIndexName = getPrimaryKey(indexName);
 
         statements.push(`ALTER TABLE "${table}" ADD CONSTRAINT "${primaryIndexName}" PRIMARY KEY (${columnsList})`);
         break;
       }
 
       case Index.Unique: {
-        const uniqueIndexName = getUniqueKey(table, indexName);
+        const uniqueIndexName = getUniqueKey(indexName);
 
         statements.push(`ALTER TABLE "${table}" ADD CONSTRAINT "${uniqueIndexName}" UNIQUE (${columnsList})`);
         break;
       }
 
       case Index.Secondary: {
-        const secondaryIndexName = getSecondaryKey(table, indexName);
+        const secondaryIndexName = getSecondaryKey(indexName);
         const secondaryIndexType = getIndexType(columns, schema);
 
         statements.push(
@@ -75,21 +75,21 @@ export const prepareDeleteIndexes = (table: string, indexes: PgIndexRepository, 
 
     switch (type) {
       case Index.Primary: {
-        const primaryIndexName = getPrimaryKey(table, indexName);
+        const primaryIndexName = getPrimaryKey(indexName);
 
         statements.push(`ALTER TABLE "${table}" DROP CONSTRAINT IF EXISTS "${primaryIndexName}"`);
         break;
       }
 
       case Index.Unique: {
-        const uniqueIndexName = getUniqueKey(table, indexName);
+        const uniqueIndexName = getUniqueKey(indexName);
 
         statements.push(`ALTER TABLE "${table}" DROP CONSTRAINT IF EXISTS "${uniqueIndexName}"`);
         break;
       }
 
       case Index.Secondary: {
-        const secondaryIndexName = getSecondaryKey(table, indexName);
+        const secondaryIndexName = getSecondaryKey(indexName);
 
         statements.push(joinString(' ', ['DROP INDEX', concurrently ? 'CONCURRENTLY' : null, `IF EXISTS "${secondaryIndexName}"`]));
         break;
@@ -104,16 +104,16 @@ const getName = (name: string) => {
   return toSnakeCase(name.replaceAll(':', '_'));
 };
 
-const getPrimaryKey = (table: string, name: string) => {
-  return `${table}_${getName(name)}_pk`;
+const getPrimaryKey = (name: string) => {
+  return `${getName(name)}_pk`;
 };
 
-const getUniqueKey = (table: string, name: string) => {
-  return `${table}_${getName(name)}_unq`;
+const getUniqueKey = (name: string) => {
+  return `${getName(name)}_uq`;
 };
 
-const getSecondaryKey = (table: string, name: string) => {
-  return `${table}_${getName(name)}_idx`;
+const getSecondaryKey = (name: string) => {
+  return `${getName(name)}_ix`;
 };
 
 const getIndexType = (columns: string[], schema: ObjectSchema) => {
