@@ -4,6 +4,7 @@ bin/
 
 .*/
 
+*.eslintcache
 *.tsbuildinfo
 *.ezstate
 *.env
