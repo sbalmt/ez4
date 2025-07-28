@@ -1,12 +1,6 @@
-import type { Service } from '@ez4/common';
+import type { Service as CommonService } from '@ez4/common';
 
-import type {
-  CdnBucketOrigin,
-  CdnRegularOrigin,
-  CdnCertificate,
-  CdnFallback,
-  CdnCache
-} from './common.js';
+import type { CdnBucketOrigin, CdnRegularOrigin, CdnCertificate, CdnFallback, CdnCache } from './common.js';
 
 /**
  * Provide all contracts for a self-managed CDN service.
@@ -26,7 +20,7 @@ export namespace Cdn {
   /**
    * CDN service.
    */
-  export declare abstract class Service implements Service.Provider {
+  export declare abstract class Service implements CommonService.Provider {
     /**
      * List of CNAME aliases for the distribution.
      */

@@ -11,6 +11,7 @@ import type { TypeStringEvents } from './types/type-string.js';
 import type { TypeObjectEvents } from './types/type-object.js';
 import type { TypeReferenceEvents } from './types/type-reference.js';
 import type { SourceMap } from './types/source.js';
+import type { AllType } from './types.js';
 
 import { isExportDeclaration, isImportDeclaration } from 'typescript';
 import { relative } from 'node:path';
@@ -18,7 +19,6 @@ import { relative } from 'node:path';
 import { getModulePath } from './utils/module.js';
 import { isTypeLiteralString } from './resolver/type-string.js';
 import { trySource } from './resolver/source.js';
-import { AllType } from './types.js';
 
 export { createAny } from './resolver/type-any.js';
 export { createVoid } from './resolver/type-void.js';

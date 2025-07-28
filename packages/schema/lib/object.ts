@@ -17,4 +17,10 @@ export namespace Object {
     extensible: true;
     type: Type;
   };
+
+  export type Base64<Type extends AnyObject> = {
+    '@ez4/schema': 'object';
+    encoded: true;
+    type: Type;
+  };
 }

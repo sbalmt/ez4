@@ -70,21 +70,30 @@ export interface ObjectTestSchema {
   /**
    * Dynamic properties.
    */
-  dynamic: {
-    [name: string | number]: boolean | undefined;
-  };
+  dynamic: { [name: string | number]: boolean | undefined };
 
   /**
    * Any object extending.
    */
-  extends: Object.Extends<{
-    foo: boolean;
-    bar: number;
-    baz: string;
-  }>;
+  extends: Object.Extends<{ foo: boolean; bar: number; baz: string }>;
 
   /**
    * Intersection object.
    */
   intersection: { foo: number } & { foo: string; bar: string };
+
+  /**
+   * Any object extending intersection.
+   */
+  extends_intersection: Object.Extends<{ foo: string } & { bar: number }>;
+
+  /**
+   * Dynamic object intersection.
+   */
+  dynamic_intersection: Object.Extends<{ [name: string]: number }>;
+
+  /**
+   * Base64-encoded object.
+   */
+  encoded: Object.Base64<{ foo: number; bar: string }>;
 }

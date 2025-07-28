@@ -1,6 +1,7 @@
 import type { AnySchema, ObjectSchema } from '@ez4/schema';
 import type { SqlBuilderOptions, SqlBuilderReferences } from '../builder.js';
 import type { SqlResultColumn, SqlResultRecord } from '../common/results.js';
+import type { SqlTableReference } from '../common/reference.js';
 import type { SqlSourceWithResults } from '../common/source.js';
 import type { SqlFilters, SqlRecord } from '../common/types.js';
 
@@ -9,16 +10,16 @@ import { isPlainObject } from '@ez4/utils';
 
 import { SqlRaw, SqlRawOperation } from '../common/raw.js';
 import { SqlReturningClause } from '../clauses/returning.js';
-import { SqlColumnReference, SqlTableReference } from '../common/reference.js';
 import { MissingTableNameError, MissingRecordError, EmptyRecordError } from '../errors/queries.js';
+import { SqlColumnReference } from '../common/reference.js';
 import { mergeSqlJsonPath, mergeSqlPath } from '../utils/merge.js';
+import { InvalidAtomicOperation } from '../errors/operation.js';
 import { getFields, getValues } from '../utils/column.js';
 import { getTableExpressions } from '../utils/table.js';
 import { escapeSqlName } from '../utils/escape.js';
 import { SqlWhereClause } from '../clauses/where.js';
 import { SqlSource } from '../common/source.js';
 import { SqlSelectStatement } from './select.js';
-import { InvalidAtomicOperation } from '../main.js';
 
 type SqlUpdateContext = {
   options: SqlBuilderOptions;
@@ -220,17 +221,31 @@ const getUpdateColumns = (source: SqlSource, record: SqlRecord, schema: ObjectSc
 
     if (isPlainObject(value)) {
       const nextSchema = fieldSchema && isObjectSchema(fieldSchema) ? fieldSchema : undefined;
-      const columnName = mergeSqlPath(fieldName, parent);
+      const canReplace = nextSchema && isDynamicObjectSchema(nextSchema);
 
-      const isNullish = nextSchema && (isDynamicObjectSchema(nextSchema) || IsNullishSchema(nextSchema));
+      if (canReplace) {
+        const fieldIndex = references.counter++;
+
+        if (options.onPrepareVariable) {
+          variables.push(options.onPrepareVariable(value, { schema: nextSchema, index: fieldIndex, json: true }));
+        } else {
+          variables.push(value);
+        }
+
+        pushUpdate(fieldName, `:${fieldIndex}`);
+        continue;
+      }
+
+      const canCombine = nextSchema && IsNullishSchema(nextSchema);
+      const columnName = mergeSqlPath(fieldName, parent);
 
       const jsonValue = getUpdateColumns(source, value, nextSchema, {
         ...context,
-        coalesce: isNullish,
+        coalesce: canCombine,
         parent: columnName
       });
 
-      if (isNullish) {
+      if (canCombine) {
         columns.push(`${columnName} = COALESCE(${columnName}, '{}'::jsonb) || jsonb_build_object(${jsonValue.join(',')})`);
       } else {
         columns.push(...jsonValue);
@@ -252,21 +267,15 @@ const getUpdateColumns = (source: SqlSource, record: SqlRecord, schema: ObjectSc
       if (!json) {
         pushUpdate(fieldName, `(${columnName} ${value.operator} :${fieldIndex})`);
       } else {
-        const lhsOperand = getOperandColumn(fieldSchema, coalesce ? getOperandCoalesce(fieldSchema, columnName) : columnName);
-        const rhsOperand = getOperandColumn(fieldSchema, `:${fieldIndex}`);
+        const lhsOperand = getOperandColumn(fieldSchema, fieldName, coalesce ? getOperandCoalesce(fieldSchema, columnName) : columnName);
+        const rhsOperand = getOperandColumn(fieldSchema, fieldName, `:${fieldIndex}`);
 
         pushUpdate(fieldName, `(${lhsOperand} ${value.operator} ${rhsOperand})::text::jsonb`);
       }
     }
 
     if (options.onPrepareVariable) {
-      const preparedValue = options.onPrepareVariable(fieldValue, {
-        schema: fieldSchema,
-        index: fieldIndex,
-        json
-      });
-
-      variables.push(preparedValue);
+      variables.push(options.onPrepareVariable(fieldValue, { schema: fieldSchema, index: fieldIndex, json }));
       continue;
     }
 
@@ -276,16 +285,16 @@ const getUpdateColumns = (source: SqlSource, record: SqlRecord, schema: ObjectSc
   return columns;
 };
 
-const getOperandColumn = (schema: AnySchema | undefined, fieldName: string) => {
+const getOperandColumn = (schema: AnySchema | undefined, fieldName: string, fieldExpression: string) => {
   if (schema?.type !== SchemaType.Number) {
     throw new InvalidAtomicOperation(fieldName);
   }
 
   if (schema.format === 'decimal') {
-    return `${fieldName}::dec`;
+    return `(${fieldExpression})::dec`;
   }
 
-  return `${fieldName}::int`;
+  return `(${fieldExpression})::int`;
 };
 
 const getOperandCoalesce = (schema: AnySchema | undefined, columnName: string) => {

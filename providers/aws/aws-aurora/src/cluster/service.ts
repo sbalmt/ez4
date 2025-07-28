@@ -6,10 +6,7 @@ import { attachEntry } from '@ez4/stateful';
 
 import { ClusterServiceType } from './types.js';
 
-export const createCluster = <E extends EntryState>(
-  state: EntryStates<E>,
-  parameters: ClusterParameters
-) => {
+export const createCluster = <E extends EntryState>(state: EntryStates<E>, parameters: ClusterParameters) => {
   const clusterName = toKebabCase(parameters.clusterName);
   const clusterId = hashData(ClusterServiceType, clusterName);
 

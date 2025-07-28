@@ -9,10 +9,7 @@ export declare class TestNotification extends Notification.Service<TestMessage> 
   subscriptions: [];
 }
 
-function testHandler(
-  request: Notification.Incoming<TestMessage>,
-  context: Service.Context<TestImport1Notification>
-) {
+function testHandler(request: Notification.Incoming<TestMessage>, context: Service.Context<TestImport1Notification>) {
   const { selfClient } = context;
 
   // Ensure request types.

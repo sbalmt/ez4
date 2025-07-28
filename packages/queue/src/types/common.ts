@@ -16,6 +16,7 @@ export type QueueDeadLetter = {
 
 export type SubscriptionHandler = {
   name: string;
+  module?: string;
   file: string;
   description?: string;
 };

@@ -10,12 +10,14 @@ export const getEventHandler = (type: AllType, _reflection: SourceMap, errorList
     return null;
   }
 
-  const handler: Incomplete<EventHandler> = {};
-  const properties = new Set(['name', 'file']);
+  const { description, module } = type;
 
-  if (type.description) {
-    handler.description = type.description;
-  }
+  const handler: Incomplete<EventHandler> = {
+    ...(description && { description }),
+    ...(module && { module })
+  };
+
+  const properties = new Set(['name', 'file']);
 
   if ((handler.name = type.name)) {
     properties.delete('name');

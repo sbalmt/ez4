@@ -1,4 +1,4 @@
-import type { Service } from '@ez4/common';
+import type { Service as CommonService } from '@ez4/common';
 import type { LinkedVariables } from '@ez4/project/library';
 import type { HttpPath } from '../types/common.js';
 import type { HttpSuccessStatuses, HttpEmptySuccessResponse, HttpSuccessResponse } from './utils.js';
@@ -10,6 +10,7 @@ import type {
   HttpQueryStrings,
   HttpJsonBody,
   HttpRawBody,
+  HttpPreferences,
   HttpAuthRequest,
   HttpAuthResponse,
   HttpRequest,
@@ -36,6 +37,8 @@ export namespace Http {
   export type JsonBody = HttpJsonBody;
   export type RawBody = HttpRawBody;
 
+  export type Preferences = HttpPreferences;
+
   export type AuthRequest = HttpAuthRequest;
   export type Request = HttpRequest;
 
@@ -54,7 +57,7 @@ export namespace Http {
   export type Authorizer<T extends AuthRequest> = HttpAuthorizer<T>;
   export type Handler<T extends Request> = HttpHandler<T>;
 
-  export type ServiceEvent<T extends Request | AuthRequest = Request> = Service.Event<Incoming<T>>;
+  export type ServiceEvent<T extends Request | AuthRequest = Request> = CommonService.AnyEvent<Incoming<T>>;
 
   export type EmptySuccessResponse<S extends HttpSuccessStatuses = 204> = HttpEmptySuccessResponse<S>;
   export type SuccessResponse<S extends HttpSuccessStatuses, T extends HttpRawBody | HttpJsonBody> = HttpSuccessResponse<S, T>;
@@ -84,14 +87,14 @@ export namespace Http {
     handler: Handler<T>;
 
     /**
-     * Default log retention (in days) for the handlers.
-     */
-    logRetention?: number;
-
-    /**
      * Map status codes and errors for all known exceptions.
      */
     httpErrors?: Errors;
+
+    /**
+     * Default log retention (in days) for the handlers.
+     */
+    logRetention?: number;
 
     /**
      * Variables associated to the route.
@@ -129,6 +132,11 @@ export namespace Http {
     httpErrors?: Errors;
 
     /**
+     * Default preferences for all handlers and routes.
+     */
+    preferences?: Preferences;
+
+    /**
      * Default log retention (in days) for the handlers.
      */
     logRetention?: number;
@@ -147,7 +155,7 @@ export namespace Http {
   /**
    * HTTP service.
    */
-  export declare abstract class Service implements Service.Provider {
+  export declare abstract class Service implements CommonService.Provider {
     /**
      * All expected routes.
      */

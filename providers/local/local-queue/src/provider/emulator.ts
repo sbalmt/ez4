@@ -1,12 +1,12 @@
 import type { EmulateServiceContext, EmulatorServiceRequest, ServeOptions } from '@ez4/project/library';
-import type { QueueImport, QueueService, QueueSubscription } from '@ez4/queue/library';
-import type { Queue } from '@ez4/queue';
+import type { QueueImport, QueueService } from '@ez4/queue/library';
 
-import { createModule, onBegin, onEnd, onError, onReady } from '@ez4/local-common';
-import { getRandomInteger, getRandomUUID } from '@ez4/utils';
 import { getServiceName } from '@ez4/project/library';
-import { getJsonMessage } from '@ez4/queue/utils';
+import { getJsonMessage, MalformedMessageError } from '@ez4/queue/utils';
+import { getResponseError, getResponseSuccess } from '@ez4/local-common';
+import { getRandomInteger } from '@ez4/utils';
 
+import { processLambdaMessage } from '../handlers/lambda.js';
 import { createQueueClient } from '../service/client.js';
 
 export const registerQueueServices = (service: QueueService | QueueImport, options: ServeOptions, context: EmulateServiceContext) => {
@@ -31,62 +31,33 @@ const handleQueueMessage = async (
   context: EmulateServiceContext,
   request: EmulatorServiceRequest
 ) => {
-  if (request.method !== 'POST' || request.path !== '/' || !request.body) {
+  const { method, path, body } = request;
+
+  if (method !== 'POST' || path !== '/' || !body) {
     throw new Error('Unsupported queue request.');
   }
 
-  const subscriptionIndex = getRandomInteger(0, service.subscriptions.length - 1);
-  const queueSubscription = service.subscriptions[subscriptionIndex];
-
-  if (queueSubscription) {
-    await processLambdaMessage(service, options, context, queueSubscription, request.body);
-  }
-
-  return {
-    status: 204
-  };
-};
-
-const processLambdaMessage = async (
-  service: QueueService | QueueImport,
-  options: ServeOptions,
-  context: EmulateServiceContext,
-  subscription: QueueSubscription,
-  message: Buffer
-) => {
-  const lambdaModule = await createModule({
-    version: options.version,
-    listener: subscription.listener,
-    handler: subscription.handler,
-    variables: {
-      ...options.variables,
-      ...service.variables,
-      ...subscription.variables
-    }
-  });
-
-  const lambdaContext = service.services && context.makeClients(service.services);
-
-  const lambdaRequest: Partial<Queue.Incoming<Queue.Message>> = {
-    requestId: getRandomUUID()
-  };
-
   try {
-    await onBegin(lambdaModule, lambdaContext, lambdaRequest);
+    const subscriptionIndex = getRandomInteger(0, service.subscriptions.length - 1);
+    const queueSubscription = service.subscriptions[subscriptionIndex];
 
-    const jsonMessage = JSON.parse(message.toString());
+    const jsonMessage = JSON.parse(body.toString());
     const safeMessage = await getJsonMessage(jsonMessage, service.schema);
 
-    Object.assign(lambdaRequest, { message: safeMessage });
+    if (queueSubscription) {
+      await processLambdaMessage(service, options, context, queueSubscription, safeMessage);
+    }
 
-    await onReady(lambdaModule, lambdaContext, lambdaRequest);
-
-    await lambdaModule.handler(lambdaRequest, lambdaContext);
+    return getResponseSuccess(201);
     //
   } catch (error) {
-    await onError(lambdaModule, lambdaContext, lambdaRequest, error);
-    //
-  } finally {
-    await onEnd(lambdaModule, lambdaContext, lambdaRequest);
+    if (!(error instanceof MalformedMessageError)) {
+      throw error;
+    }
+
+    return getResponseError(400, {
+      message: error.message,
+      details: error.details
+    });
   }
 };

@@ -1,10 +1,10 @@
 import type { NotificationImport, NotificationService } from '@ez4/notification/library';
 import type { DeployOptions, EventContext, ExtraSource } from '@ez4/project/library';
+import type { TopicState } from '../topic/types.js';
 
 import { getDefinitionName } from '@ez4/project/library';
 
 import { getTopicState } from '../topic/utils.js';
-import { TopicState } from '../topic/types.js';
 
 export const prepareLinkedClient = (
   context: EventContext,

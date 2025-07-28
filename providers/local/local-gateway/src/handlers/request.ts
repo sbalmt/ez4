@@ -24,9 +24,9 @@ export const processHttpRequest = async (
   identity?: Http.Identity
 ) => {
   const lambdaModule = await createModule({
-    version: options.version,
-    listener: route.listener,
+    listener: route.listener ?? service.defaults?.listener,
     handler: route.handler,
+    version: options.version,
     variables: {
       ...options.variables,
       ...service.variables,
@@ -49,17 +49,18 @@ export const processHttpRequest = async (
 
     if (route.handler.request) {
       Object.assign(lambdaRequest, await getIncomingRequestIdentity(route.handler.request, identity));
-      Object.assign(lambdaRequest, await getIncomingRequestHeaders(route.handler.request, route.headers));
-      Object.assign(lambdaRequest, await getIncomingRequestParameters(route.handler.request, route.parameters));
-      Object.assign(lambdaRequest, await getIncomingRequestQuery(route.handler.request, route.query));
-      Object.assign(lambdaRequest, await getIncomingRequestBody(route.handler.request, route.body));
+      Object.assign(lambdaRequest, await getIncomingRequestHeaders(route.handler.request, route));
+      Object.assign(lambdaRequest, await getIncomingRequestParameters(route.handler.request, route));
+      Object.assign(lambdaRequest, await getIncomingRequestQuery(route.handler.request, route));
+      Object.assign(lambdaRequest, await getIncomingRequestBody(route.handler.request, route));
     }
 
     await onReady(lambdaModule, lambdaContext, lambdaRequest);
 
-    const { status, headers, body } = await lambdaModule.handler<Http.Response>(lambdaRequest, lambdaContext);
+    const response = await lambdaModule.handler<Http.Response>(lambdaRequest, lambdaContext);
+    const preferences = route.preferences;
 
-    return getOutgoingSuccessResponse(route.handler.response, status, headers, body);
+    return getOutgoingSuccessResponse(route.handler.response, response, preferences);
     //
   } catch (error) {
     await onError(lambdaModule, lambdaContext, lambdaRequest, error);

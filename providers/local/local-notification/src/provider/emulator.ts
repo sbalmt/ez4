@@ -1,21 +1,14 @@
 import type { EmulateServiceContext, EmulatorServiceRequest, ServeOptions } from '@ez4/project/library';
-import type { Client as QueueClient } from '@ez4/queue';
-import type { Notification } from '@ez4/notification';
+import type { NotificationImport, NotificationService } from '@ez4/notification/library';
 
-import type {
-  NotificationImport,
-  NotificationLambdaSubscription,
-  NotificationQueueSubscription,
-  NotificationService
-} from '@ez4/notification/library';
-
-import { createModule, onBegin, onEnd, onError, onReady } from '@ez4/local-common';
 import { NotificationSubscriptionType } from '@ez4/notification/library';
-import { getJsonMessage } from '@ez4/notification/utils';
+import { getJsonMessage, MalformedMessageError } from '@ez4/notification/utils';
+import { getResponseError, getResponseSuccess } from '@ez4/local-common';
 import { getServiceName } from '@ez4/project/library';
-import { getRandomUUID } from '@ez4/utils';
 
 import { createNotificationClient } from '../service/client.js';
+import { processLambdaMessage } from '../handlers/lambda.js';
+import { processQueueMessage } from '../handlers/queue.js';
 
 export const registerNotificationServices = (
   service: NotificationService | NotificationImport,
@@ -43,80 +36,38 @@ const handleNotificationMessage = async (
   context: EmulateServiceContext,
   request: EmulatorServiceRequest
 ) => {
-  if (request.method !== 'POST' || request.path !== '/' || !request.body) {
+  const { method, path, body } = request;
+
+  if (method !== 'POST' || path !== '/' || !body) {
     throw new Error('Unsupported notification request.');
   }
 
-  for (const subscription of service.subscriptions) {
-    switch (subscription.type) {
-      case NotificationSubscriptionType.Queue:
-        await processQueueMessage(service, context, subscription, request.body);
-        break;
-
-      case NotificationSubscriptionType.Lambda:
-        await processLambdaMessage(service, options, context, subscription, request.body);
-        break;
-    }
-  }
-
-  return {
-    status: 204
-  };
-};
-
-const processQueueMessage = async (
-  service: NotificationService | NotificationImport,
-  context: EmulateServiceContext,
-  subscription: NotificationQueueSubscription,
-  message: Buffer
-) => {
-  const jsonMessage = JSON.parse(message.toString());
-  const safeMessage = await getJsonMessage(jsonMessage, service.schema);
-
-  const queueClient = context.makeClient(subscription.service) as QueueClient<any>;
-
-  await queueClient.sendMessage(safeMessage);
-};
-
-const processLambdaMessage = async (
-  service: NotificationService | NotificationImport,
-  options: ServeOptions,
-  context: EmulateServiceContext,
-  subscription: NotificationLambdaSubscription,
-  message: Buffer
-) => {
-  const lambdaModule = await createModule({
-    version: options.version,
-    listener: subscription.listener,
-    handler: subscription.handler,
-    variables: {
-      ...options.variables,
-      ...service.variables,
-      ...subscription.variables
-    }
-  });
-
-  const lambdaContext = service.services && context.makeClients(service.services);
-
-  const lambdaRequest: Partial<Notification.Incoming<Notification.Message>> = {
-    requestId: getRandomUUID()
-  };
-
   try {
-    await onBegin(lambdaModule, lambdaContext, lambdaRequest);
-
-    const jsonMessage = JSON.parse(message.toString());
+    const jsonMessage = JSON.parse(body.toString());
     const safeMessage = await getJsonMessage(jsonMessage, service.schema);
 
-    Object.assign(lambdaRequest, { message: safeMessage });
+    const allNotifications = service.subscriptions.map((subscription) => {
+      switch (subscription.type) {
+        case NotificationSubscriptionType.Lambda:
+          return processLambdaMessage(service, options, context, subscription, safeMessage);
 
-    await onReady(lambdaModule, lambdaContext, lambdaRequest);
-    await lambdaModule.handler(lambdaRequest, lambdaContext);
+        case NotificationSubscriptionType.Queue:
+          return processQueueMessage(service, context, subscription, safeMessage);
+      }
+    });
+
+    await Promise.all(allNotifications);
+
+    return getResponseSuccess(201);
     //
   } catch (error) {
-    await onError(lambdaModule, lambdaContext, lambdaRequest, error);
-    //
-  } finally {
-    await onEnd(lambdaModule, lambdaContext, lambdaRequest);
+    if (!(error instanceof MalformedMessageError)) {
+      throw error;
+    }
+
+    return getResponseError(400, {
+      message: error.message,
+      details: error.details
+    });
   }
 };

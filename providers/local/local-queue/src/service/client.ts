@@ -1,6 +1,6 @@
-import type { Client, Queue } from '@ez4/queue';
 import type { ServeOptions } from '@ez4/project/library';
 import type { MessageSchema } from '@ez4/queue/utils';
+import type { Client, Queue } from '@ez4/queue';
 
 import { getServiceName, Logger } from '@ez4/project/library';
 import { getJsonStringMessage } from '@ez4/queue/utils';
@@ -15,20 +15,24 @@ export const createQueueClient = <T extends Queue.Service<any>>(
 
   return new (class {
     async sendMessage(message: T['schema']) {
-      const safeMessage = await getJsonStringMessage(message, messageSchema);
-
       Logger.log(`✉️  Sending message to Queue [${serviceName}] at ${queueHost}`);
 
-      const response = await fetch(queueHost, {
-        method: 'POST',
-        body: safeMessage,
-        headers: {
-          ['content-type']: 'application/json'
-        }
-      });
+      const payload = await getJsonStringMessage(message, messageSchema);
 
-      if (!response.ok) {
-        throw new Error(`Queue ${serviceName} isn't available.`);
+      try {
+        const response = await fetch(queueHost, {
+          method: 'POST',
+          body: payload,
+          headers: {
+            ['content-type']: 'application/json'
+          }
+        });
+
+        if (!response.ok) {
+          Logger.error(`Queue [${serviceName}] isn't available.`);
+        }
+      } catch (error) {
+        Logger.error(`${error}`);
       }
     }
 

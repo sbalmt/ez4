@@ -14,11 +14,7 @@ import { isTypeAlias } from './type-alias.js';
 import { isTypeClass } from './type-class.js';
 import { getNewState } from './common.js';
 
-export const createModelHeritage = (
-  path: string,
-  namespace?: string | null,
-  members?: EveryMemberType[]
-): ModelHeritage => {
+export const createModelHeritage = (path: string, namespace?: string | null, members?: EveryMemberType[]): ModelHeritage => {
   return {
     path,
     ...(namespace && { namespace }),

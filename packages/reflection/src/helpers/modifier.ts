@@ -8,11 +8,7 @@ import type { MethodModifiers } from '../types/model-method.js';
 import { SyntaxKind } from 'typescript';
 import { isTypeDeclaration } from './declaration.js';
 
-export type StatementModifiers = ClassModifiers &
-  InterfaceModifiers &
-  FunctionModifiers &
-  PropertyModifiers &
-  MethodModifiers;
+export type StatementModifiers = ClassModifiers & InterfaceModifiers & FunctionModifiers & PropertyModifiers & MethodModifiers;
 
 export const isModifierExport = (node: Node) => {
   return node.kind === SyntaxKind.ExportKeyword;

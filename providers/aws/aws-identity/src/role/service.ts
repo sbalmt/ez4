@@ -7,11 +7,7 @@ import { attachEntry } from '@ez4/stateful';
 
 import { RoleServiceType } from './types.js';
 
-export const createRole = <E extends EntryState>(
-  state: EntryStates<E>,
-  policyList: PolicyState[],
-  parameters: RoleParameters
-) => {
+export const createRole = <E extends EntryState>(state: EntryStates<E>, policyList: PolicyState[], parameters: RoleParameters) => {
   const roleName = toKebabCase(parameters.roleName);
   const roleId = hashData(RoleServiceType, roleName);
 

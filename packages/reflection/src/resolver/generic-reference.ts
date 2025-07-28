@@ -18,12 +18,7 @@ export const isGenericReference = (node: Node): node is ClassNodes | InterfaceNo
   return (isTypeClass(node) || isTypeInterface(node)) && !!node.typeParameters;
 };
 
-export const tryGenericReference = (
-  node: Node,
-  types: TypeArguments | undefined,
-  context: Context,
-  state: State
-) => {
+export const tryGenericReference = (node: Node, types: TypeArguments | undefined, context: Context, state: State) => {
   if (!types || !isGenericReference(node) || isInternalType(node)) {
     return null;
   }

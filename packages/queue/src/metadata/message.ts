@@ -1,16 +1,8 @@
+import type { AllType, SourceMap, TypeCallback, TypeFunction, TypeIntersection, TypeModel, TypeObject } from '@ez4/reflection';
 import type { QueueMessageSchema } from '../types/common.js';
 
-import type {
-  AllType,
-  SourceMap,
-  TypeCallback,
-  TypeFunction,
-  TypeModel,
-  TypeObject
-} from '@ez4/reflection';
-
 import { createUnionSchema, getObjectSchema, isObjectSchema } from '@ez4/schema/library';
-import { isTypeObject, isTypeReference, isTypeUnion } from '@ez4/reflection';
+import { isTypeIntersection, isTypeObject, isTypeReference, isTypeUnion } from '@ez4/reflection';
 import { getReferenceType, isModelDeclaration } from '@ez4/common/library';
 
 import { IncorrectMessageTypeError, InvalidMessageTypeError } from '../errors/message.js';
@@ -18,12 +10,7 @@ import { isQueueMessage } from './utils.js';
 
 type TypeParent = TypeModel | TypeCallback | TypeFunction;
 
-export const getQueueMessage = (
-  type: AllType,
-  parent: TypeParent,
-  reflection: SourceMap,
-  errorList: Error[]
-) => {
+export const getQueueMessage = (type: AllType, parent: TypeParent, reflection: SourceMap, errorList: Error[]) => {
   if (!isTypeReference(type)) {
     return getTypeMessage(type, parent, reflection, errorList);
   }
@@ -37,17 +24,12 @@ export const getQueueMessage = (
   return null;
 };
 
-const getTypeMessage = (
-  type: AllType,
-  parent: TypeParent,
-  reflection: SourceMap,
-  errorList: Error[]
-): QueueMessageSchema | null => {
+const getTypeMessage = (type: AllType, parent: TypeParent, reflection: SourceMap, errorList: Error[]): QueueMessageSchema | null => {
   if (isTypeUnion(type)) {
     return getMessageFromUnion(type.elements, parent, reflection, errorList);
   }
 
-  if (isTypeObject(type)) {
+  if (isTypeObject(type) || isTypeIntersection(type)) {
     return getMessageSchema(type, reflection);
   }
 
@@ -64,12 +46,7 @@ const getTypeMessage = (
   return getMessageSchema(type, reflection);
 };
 
-const getMessageFromUnion = (
-  types: AllType[],
-  parent: TypeParent,
-  reflection: SourceMap,
-  errorList: Error[]
-) => {
+const getMessageFromUnion = (types: AllType[], parent: TypeParent, reflection: SourceMap, errorList: Error[]) => {
   const schemaList = [];
 
   for (const type of types) {
@@ -85,7 +62,7 @@ const getMessageFromUnion = (
   });
 };
 
-const getMessageSchema = (type: TypeObject | TypeModel, reflection: SourceMap) => {
+const getMessageSchema = (type: TypeObject | TypeModel | TypeIntersection, reflection: SourceMap) => {
   const schema = getObjectSchema(type, reflection);
 
   if (schema && isObjectSchema(schema)) {

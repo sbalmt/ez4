@@ -1,10 +1,14 @@
-import type { ArraySchema, ObjectSchema, ScalarSchema, UnionSchema } from '@ez4/schema';
+import type { ArraySchema, NamingStyle, ObjectSchema, ScalarSchema, UnionSchema } from '@ez4/schema';
 import type { LinkedVariables } from '@ez4/project/library';
 import type { ServiceListener } from '@ez4/common/library';
 
 export type HttpVerb = 'ANY' | 'GET' | 'POST' | 'PUT' | 'PATCH' | 'DELETE' | 'OPTIONS';
 
 export type HttpPath = `${HttpVerb} /${string}`;
+
+export type HttpPreferences = {
+  namingStyle?: NamingStyle;
+};
 
 export type HttpAuthRequest = {
   headers?: ObjectSchema | null;
@@ -17,8 +21,8 @@ export type HttpAuthResponse = {
 };
 
 export type HttpRequest = {
-  headers?: ObjectSchema | null;
   identity?: ObjectSchema | UnionSchema | null;
+  headers?: ObjectSchema | null;
   parameters?: ObjectSchema | null;
   query?: ObjectSchema | null;
   body?: ObjectSchema | UnionSchema | ArraySchema | ScalarSchema | null;
@@ -36,10 +40,12 @@ export type HttpHandler = {
   response: HttpResponse;
   request?: HttpRequest;
   file: string;
+  module?: string;
 };
 
 export type HttpAuthorizer = {
   name: string;
+  module?: string;
   file: string;
   description?: string;
   response?: HttpAuthResponse;
@@ -56,17 +62,19 @@ export type HttpRoute = {
   listener?: ServiceListener | null;
   authorizer?: HttpAuthorizer | null;
   variables?: LinkedVariables | null;
-  logRetention?: number | null;
   httpErrors?: HttpErrors | null;
+  preferences?: HttpPreferences;
+  logRetention?: number | null;
   timeout?: number | null;
   memory?: number | null;
   cors?: boolean | null;
 };
 
 export type HttpDefaults = {
-  logRetention?: number | null;
-  httpErrors?: HttpErrors | null;
   listener?: ServiceListener | null;
+  httpErrors?: HttpErrors | null;
+  preferences?: HttpPreferences;
+  logRetention?: number | null;
   timeout?: number | null;
   memory?: number | null;
 };

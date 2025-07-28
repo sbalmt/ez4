@@ -14,9 +14,9 @@ import {
 } from '@ez4/common/library';
 
 import { IncorrectRequestTypeError, InvalidRequestTypeError } from '../errors/request.js';
-import { getHttpParameters } from './parameters.js';
 import { getHttpIdentity } from './identity.js';
 import { getHttpHeaders } from './headers.js';
+import { getHttpParameters } from './parameters.js';
 import { getHttpQuery } from './query.js';
 import { getHttpBody } from './body.js';
 

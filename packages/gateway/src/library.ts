@@ -16,6 +16,7 @@ export * from './metadata/cache.js';
 
 export * from './errors/service.js';
 export * from './errors/defaults.js';
+export * from './errors/preferences.js';
 export * from './errors/route.js';
 export * from './errors/handler.js';
 export * from './errors/identity.js';

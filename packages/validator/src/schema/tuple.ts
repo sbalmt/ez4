@@ -1,12 +1,12 @@
 import type { TupleSchema } from '@ez4/schema';
 
+import { isNullish } from '../utils/nullish.js';
 import { createValidatorContext } from '../types/context.js';
 import { ExpectedTupleTypeError } from '../errors/tuple.js';
-import { isOptionalNullable } from './utils.js';
 import { validateAny } from './any.js';
 
 export const validateTuple = async (value: unknown, schema: TupleSchema, context = createValidatorContext()) => {
-  if (isOptionalNullable(value, schema)) {
+  if (isNullish(value, schema)) {
     return [];
   }
 
@@ -26,9 +26,10 @@ export const validateTuple = async (value: unknown, schema: TupleSchema, context
       const elementValue = value[index++];
 
       const errorList = await validateAny(elementValue, elementSchema, {
+        inputStyle: context.inputStyle,
         property: elementProperty,
-        references,
-        depth
+        depth: depth - 1,
+        references
       });
 
       allErrors.push(...errorList);

@@ -1,8 +1,9 @@
 import type { EntryState, StepContext } from '@ez4/stateful';
+import type { RoleState } from './types.js';
 
 import { IncompleteResourceError } from '@ez4/aws-common';
 
-import { RoleServiceType, RoleState } from './types.js';
+import { RoleServiceType } from './types.js';
 
 export const isRoleState = (resource: EntryState): resource is RoleState => {
   return resource.type === RoleServiceType;

@@ -14,6 +14,7 @@ export type TypeClass = {
   type: TypeName.Class;
   name: string;
   file?: string;
+  module?: string | null;
   description?: string;
   modifiers?: ClassModifiers;
   heritage?: ModelHeritage[];

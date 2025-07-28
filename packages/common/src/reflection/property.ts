@@ -25,14 +25,14 @@ export const getPropertyObject = (type: ModelProperty) => {
   return isTypeObject(type.value) ? type.value : null;
 };
 
-export const getPropertyStringIn = <T extends string>(type: ModelProperty, values: T[]): T | null => {
+export const getPropertyStringIn = <T extends string>(type: ModelProperty, values: T[]): T | undefined => {
   const value = getLiteralString(type.value) as T | null | undefined;
 
   if (isAnyString(value) && values.includes(value)) {
     return value;
   }
 
-  return null;
+  return undefined;
 };
 
 export const getPropertyStringList = (member: ModelProperty) => {

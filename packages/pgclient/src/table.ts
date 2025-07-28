@@ -114,7 +114,6 @@ export class Table<T extends InternalTableMetadata> implements DbTable<T> {
     }
 
     await this.updateOne({
-      select: query.select,
       where: query.where,
       data: query.update
     });

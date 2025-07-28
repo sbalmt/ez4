@@ -11,6 +11,22 @@
           "file": "test/input/output-body.ts",
           "request": {
             "body": {
+              "type": "string",
+              "description": "Expected HTTP body payload."
+            }
+          },
+          "response": {
+            "status": 204
+          }
+        }
+      },
+      {
+        "path": "GET /test-route-b",
+        "handler": {
+          "name": "testRouteB",
+          "file": "test/input/output-body.ts",
+          "request": {
+            "body": {
               "type": "object",
               "description": "Expected HTTP body payload.",
               "identity": 1,
@@ -30,14 +46,26 @@
         }
       },
       {
-        "path": "GET /test-route-b",
+        "path": "GET /test-route-c",
+        "preferences": {
+          "namingStyle": "snake"
+        },
         "handler": {
-          "name": "testRouteB",
+          "name": "testRouteC",
           "file": "test/input/output-body.ts",
           "request": {
             "body": {
-              "type": "string",
-              "description": "Expected HTTP body payload."
+              "type": "object",
+              "description": "Expected HTTP body payload.",
+              "identity": 1,
+              "properties": {
+                "fooKey": {
+                  "type": "string"
+                },
+                "barKey": {
+                  "type": "number"
+                }
+              }
             }
           },
           "response": {

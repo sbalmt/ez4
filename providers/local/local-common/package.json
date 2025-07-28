@@ -29,6 +29,7 @@
     "providers/local/*"
   ],
   "scripts": {
+    "lint": "eslint",
     "clean": "rm -f *.tsbuildinfo && rm -rf dist/*",
     "build": "tsc -p tsconfig.json && node tools/bundler.mjs",
     "test": "npm run test:types && node --test --import ../../../tools/tsnode.mjs test/*.spec.ts",
@@ -39,6 +40,8 @@
     "live:publish": "npm run test && npm publish --access public"
   },
   "dependencies": {
-    "@ez4/project": "^0.23.0"
+    "@ez4/common": "^0.23.0",
+    "@ez4/project": "^0.23.0",
+    "@ez4/utils": "^0.23.0"
   }
 }

@@ -1,5 +1,5 @@
+import type { Service as CommonService } from '@ez4/common';
 import type { LinkedVariables } from '@ez4/project/library';
-import type { Service } from '@ez4/common';
 import type { StreamChange } from './streams.js';
 import type { DatabaseEngine } from './engine.js';
 import type { Client } from './client.js';
@@ -31,32 +31,39 @@ export namespace Database {
   /**
    * Incoming stream event.
    */
-  export type Incoming<T extends Schema> = StreamChange<
-    T & {
-      /**
-       * Request tracking Id.
-       */
-      requestId: string;
-    }
-  >;
+  export type Incoming<T extends Schema> = StreamChange<T> & Request;
+
+  /**
+   * Incoming request.
+   */
+  export type Request = {
+    /**
+     * Request tracking Id.
+     */
+    requestId: string;
+  };
 
   /**
    * Stream listener.
    */
   export type Listener<T extends Schema> = (
-    event: Service.Event<Incoming<T>>,
-    context: Service.Context<Database.Service>
+    event: CommonService.AnyEvent<Incoming<T>>,
+    context: CommonService.Context<Database.Service>
   ) => Promise<void> | void;
 
   /**
    * Stream handler.
    */
-  export type Handler<T extends Schema> = (request: Incoming<T>, context: Service.Context<Database.Service>) => Promise<void> | void;
+  export type Handler<T extends Schema> = (request: Incoming<T>, context: CommonService.Context<Database.Service>) => Promise<void> | void;
 
   /**
    * Service event.
    */
-  export type ServiceEvent<T extends Schema = Schema> = Service.Event<Incoming<T>>;
+  export type ServiceEvent<T extends Schema = Schema> =
+    | CommonService.BeginEvent<Request>
+    | CommonService.ReadyEvent<Incoming<T>>
+    | CommonService.ErrorEvent<Request | Incoming<T>>
+    | CommonService.EndEvent<Request>;
 
   /**
    * Service engine.
@@ -139,7 +146,7 @@ export namespace Database {
   /**
    * Database service.
    */
-  export declare abstract class Service implements Service.Provider {
+  export declare abstract class Service implements CommonService.Provider {
     /**
      * Determines which database engine to use.
      * Check the provider package to know all the possible values.

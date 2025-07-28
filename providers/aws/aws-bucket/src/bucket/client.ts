@@ -1,4 +1,5 @@
 import type { Arn, ResourceTags } from '@ez4/aws-common';
+import type { Event } from '@aws-sdk/client-s3';
 import type { Bucket } from '@ez4/storage';
 
 import { getTagList, Logger } from '@ez4/aws-common';
@@ -15,7 +16,6 @@ import {
   DeleteBucketLifecycleCommand,
   PutBucketNotificationConfigurationCommand,
   ExpirationStatus,
-  Event,
   NoSuchBucket
 } from '@aws-sdk/client-s3';
 

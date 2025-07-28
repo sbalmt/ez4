@@ -1,17 +1,19 @@
-import type { AllType, ModelProperty, SourceMap, TypeModel, TypeObject } from '@ez4/reflection';
+import type { AllType, ModelProperty, SourceMap, TypeIntersection, TypeModel, TypeObject } from '@ez4/reflection';
 import type { ObjectSchema, ObjectSchemaProperties } from '../types/type-object.js';
 import type { ReferenceSchema } from '../types/type-reference.js';
+import type { SchemaDefinitions } from '../types/common.js';
 import type { SchemaContext } from '../types/context.js';
 
 import { isTypeIntersection, isTypeModel, isTypeObject, isTypeReference } from '@ez4/reflection';
 
+import { getPropertyName } from '../utils/naming.js';
 import { getModelProperties } from '../reflection/model.js';
 import { getObjectProperties } from '../reflection/object.js';
 import { SchemaReferenceNotFound } from '../errors/reference.js';
-import { SchemaDefinitions, SchemaType } from '../types/common.js';
 import { createSchemaContext } from '../types/context.js';
 import { isObjectSchema } from '../types/type-object.js';
 import { createReferenceSchema } from './reference.js';
+import { SchemaType } from '../types/common.js';
 import { getAnySchema } from './any.js';
 
 type RichTypeBase = {
@@ -19,6 +21,8 @@ type RichTypeBase = {
 };
 
 export type RichTypeObject = TypeObject & RichTypeBase;
+
+export type RichTypeIntersection = TypeIntersection & RichTypeBase;
 
 export type RichTypeModel = TypeModel & RichTypeBase;
 
@@ -39,6 +43,10 @@ export const createObjectSchema = (data: Omit<ObjectSchema, 'type'>): ObjectSche
 
 export const isRichTypeObject = (type: AllType): type is RichTypeObject => {
   return isTypeObject(type);
+};
+
+export const isRichTypeIntersection = (type: AllType): type is RichTypeIntersection => {
+  return isTypeIntersection(type);
 };
 
 export const isRichTypeModel = (type: AllType): type is RichTypeModel => {
@@ -94,12 +102,13 @@ export const getObjectSchema = (
     return modelSchema;
   }
 
-  if (isTypeIntersection(type)) {
+  if (isRichTypeIntersection(type)) {
     const identity = ++context.counter;
 
     references.set(type, identity);
 
     const objectSchema = createObjectSchema({
+      definitions: type.definitions,
       properties: {},
       description,
       identity
@@ -116,7 +125,9 @@ export const getObjectSchema = (
       const hasAdditional = !!objectSchema.additional || !!elementSchema.additional;
 
       Object.assign(objectSchema, {
-        ...(hasAdditional && { additional: elementSchema.additional ?? objectSchema.additional }),
+        ...(hasAdditional && {
+          additional: elementSchema.additional ?? objectSchema.additional
+        }),
         ...(hasDefinitions && {
           definitions: {
             ...objectSchema.definitions,
@@ -151,13 +162,21 @@ export const getObjectSchema = (
 const getAnySchemaFromMembers = (reflection: SourceMap, context: SchemaContext, members: ModelProperty[]) => {
   const properties: ObjectSchemaProperties = {};
 
+  const { namingStyle } = context;
+
   for (const member of members) {
     const { name, value, description } = member;
 
-    const schema = getAnySchema(value, reflection, context, description);
+    const propertySchema = getAnySchema(value, reflection, context, description);
 
-    if (schema) {
-      properties[name] = schema;
+    if (propertySchema) {
+      const propertyName = getPropertyName(name, namingStyle);
+
+      properties[propertyName] = propertySchema;
+
+      if (propertyName !== name) {
+        Object.assign(propertySchema, { alias: name });
+      }
     }
   }
 

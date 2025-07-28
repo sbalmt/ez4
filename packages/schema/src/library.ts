@@ -2,6 +2,7 @@ export * from './triggers/register.js';
 
 export * from './utils/property.js';
 export * from './utils/partial.js';
+export * from './utils/naming.js';
 
 export * from './metadata/any.js';
 export * from './metadata/boolean.js';
@@ -17,11 +18,12 @@ export * from './metadata/enum.js';
 
 export * from './types/common.js';
 export * from './types/context.js';
-export * from './types/scalar.js';
+export * from './types/naming.js';
 export * from './types/type-any.js';
 export * from './types/type-boolean.js';
 export * from './types/type-number.js';
 export * from './types/type-string.js';
+export * from './types/type-scalar.js';
 export * from './types/type-object.js';
 export * from './types/type-reference.js';
 export * from './types/type-union.js';

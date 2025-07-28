@@ -3,9 +3,11 @@ import type { TypeCallback, TypeParameter, EveryType } from '../types.js';
 import type { Context, State } from './common.js';
 
 import { isFunctionDeclaration, isFunctionTypeNode } from 'typescript';
-import { TypeName } from '../types.js';
+
 import { getNodeFilePath } from '../helpers/node.js';
 import { getNodeDocumentation } from '../helpers/documentation.js';
+import { getPathModule } from '../utils/module.js';
+import { TypeName } from '../types.js';
 import { tryCallableParameters } from './callable-parameters.js';
 import { tryCallableReturns } from './callable-returns.js';
 
@@ -22,6 +24,7 @@ export const createCallback = (
     type: TypeName.Callback,
     ...(name && { name }),
     ...(file && { file }),
+    ...(file && { module: getPathModule(file) }),
     ...(description && { description }),
     ...(parameterTypes?.length && { parameters: parameterTypes }),
     ...(returnType && { return: returnType })

@@ -24,11 +24,7 @@ export const createPolicy = <E extends EntryState>(
   });
 };
 
-export const getPolicy = <E extends EntryState>(
-  state: EntryStates<E>,
-  sourceState: EntryState,
-  queueState: QueueState
-) => {
+export const getPolicy = <E extends EntryState>(state: EntryStates<E>, sourceState: EntryState, queueState: QueueState) => {
   const policyId = hashData(PolicyServiceType, sourceState.entryId, queueState.entryId);
 
   const policyState = state[policyId];

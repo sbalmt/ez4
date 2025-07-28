@@ -1,8 +1,8 @@
-import type { AllType, SourceMap, TypeCallback, TypeFunction, TypeModel, TypeObject } from '@ez4/reflection';
+import type { AllType, SourceMap, TypeCallback, TypeFunction, TypeIntersection, TypeModel, TypeObject } from '@ez4/reflection';
 import type { NotificationMessageSchema } from '../types/common.js';
 
-import { isTypeObject, isTypeReference, isTypeUnion } from '@ez4/reflection';
 import { createUnionSchema, getObjectSchema, isObjectSchema } from '@ez4/schema/library';
+import { isTypeIntersection, isTypeObject, isTypeReference, isTypeUnion } from '@ez4/reflection';
 import { getReferenceType, isModelDeclaration } from '@ez4/common/library';
 
 import { IncorrectMessageTypeError, InvalidMessageTypeError } from '../errors/message.js';
@@ -29,7 +29,7 @@ const getTypeMessage = (type: AllType, parent: TypeParent, reflection: SourceMap
     return getMessageFromUnion(type.elements, parent, reflection, errorList);
   }
 
-  if (isTypeObject(type)) {
+  if (isTypeObject(type) || isTypeIntersection(type)) {
     return getMessageSchema(type, reflection);
   }
 
@@ -62,7 +62,7 @@ const getMessageFromUnion = (types: AllType[], parent: TypeParent, reflection: S
   });
 };
 
-const getMessageSchema = (type: TypeObject | TypeModel, reflection: SourceMap) => {
+const getMessageSchema = (type: TypeObject | TypeModel | TypeIntersection, reflection: SourceMap) => {
   const schema = getObjectSchema(type, reflection);
 
   if (schema && isObjectSchema(schema)) {

@@ -1,4 +1,5 @@
-import { EntryState } from '@ez4/stateful';
+import type { EntryState } from '@ez4/stateful';
+
 import { isAnyObject } from '@ez4/utils';
 
 export type LinkedVariables = Record<string, string>;

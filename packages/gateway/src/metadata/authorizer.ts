@@ -12,12 +12,14 @@ export const getHttpAuthorizer = (type: AllType, parent: TypeModel, reflection: 
     return null;
   }
 
-  const handler: Incomplete<HttpAuthorizer> = {};
-  const properties = new Set(['name', 'file']);
+  const { description, module } = type;
 
-  if (type.description) {
-    handler.description = type.description;
-  }
+  const handler: Incomplete<HttpAuthorizer> = {
+    ...(description && { description }),
+    ...(module && { module })
+  };
+
+  const properties = new Set(['name', 'file']);
 
   if ((handler.name = type.name)) {
     properties.delete('name');

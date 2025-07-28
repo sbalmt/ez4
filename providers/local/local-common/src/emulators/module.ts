@@ -14,14 +14,15 @@ export type VirtualModule = {
   handler: VirtualFunction;
 };
 
-export type ModuleEntrySource = {
+export type ModuleEntrypoint = {
   file: string;
+  module?: string;
   name: string;
 };
 
 export type ModuleDefinition = {
-  listener?: ModuleEntrySource | null;
-  handler: ModuleEntrySource;
+  listener?: ModuleEntrypoint | null;
+  handler: ModuleEntrypoint;
   variables: LinkedVariables;
   version: number;
 };
@@ -30,7 +31,7 @@ export const createModule = async (module: ModuleDefinition): Promise<VirtualMod
   const { handler, listener, variables, version } = module;
 
   if (!listener || listener.file === handler.file) {
-    const module = await loadModule(handler.file, variables, version);
+    const module = await loadModule(handler, variables, version);
 
     return {
       listener: listener ? prepareFunction(listener, variables, module[listener.name]) : undefined,
@@ -38,8 +39,8 @@ export const createModule = async (module: ModuleDefinition): Promise<VirtualMod
     };
   }
 
-  const { [listener.name]: listenerCallback } = await loadModule(listener.file, variables, version);
-  const { [handler.name]: handlerCallback } = await loadModule(handler.file, variables, version);
+  const { [listener.name]: listenerCallback } = await loadModule(listener, variables, version);
+  const { [handler.name]: handlerCallback } = await loadModule(handler, variables, version);
 
   return {
     listener: prepareFunction(listener, variables, listenerCallback),
@@ -47,35 +48,41 @@ export const createModule = async (module: ModuleDefinition): Promise<VirtualMod
   };
 };
 
-const prepareFunction = (entrySource: ModuleEntrySource, variables: LinkedVariables, callback: (...inputs: unknown[]) => any) => {
+const prepareFunction = (entrypoint: ModuleEntrypoint, variables: LinkedVariables, callback: (...inputs: unknown[]) => any) => {
   return async <T>(...inputs: unknown[]): Promise<T> => {
+    const headline = `${entrypoint.file} [${entrypoint.name}]`;
+
     let failed = false;
 
     try {
       return await runWithVariables(variables, () => {
-        Logger.log(`▶️  ${entrySource.file} [${entrySource.name}] Started`);
+        Logger.log(`▶️  ${headline} Started`);
         return callback(...inputs);
       });
       //
     } catch (error) {
-      Logger.error(`❌ ${entrySource.file} [${entrySource.name}] ${error}`);
+      Logger.error(`${headline} ${error}`);
       failed = true;
       throw error;
       //
     } finally {
       if (failed) {
-        Logger.log(`❌ ${entrySource.file} [${entrySource.name}] Finished (with error)`);
+        Logger.error(`${headline} Finished (with error)`);
       } else {
-        Logger.log(`✅ ${entrySource.file} [${entrySource.name}] Finished`);
+        Logger.success(`${headline} Finished`);
       }
     }
   };
 };
 
-const loadModule = async (file: string, variables: LinkedVariables, version: number) => {
-  const modulePath = pathToFileURL(join(process.cwd(), file)).href;
+const loadModule = async (entrypoint: ModuleEntrypoint, variables: LinkedVariables, version: number) => {
+  return runWithVariables(variables, () => {
+    if (!entrypoint.module) {
+      const moduleUrl = pathToFileURL(join(process.cwd(), entrypoint.file));
 
-  return runWithVariables(variables, async () => {
-    return import(`${modulePath}?v=${version}`);
+      return import(`${moduleUrl.href}?v=${version}`);
+    }
+
+    return import(entrypoint.module);
   });
 };

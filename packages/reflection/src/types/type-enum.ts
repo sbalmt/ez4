@@ -7,6 +7,7 @@ export type TypeEnum = {
   type: TypeName.Enum;
   name: string;
   file?: string;
+  module?: string | null;
   description?: string;
   members?: EnumMember[];
 };
