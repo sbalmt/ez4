@@ -113,7 +113,6 @@ const getIntegrationFunction = (
   const {
     handler,
     listener = defaults.listener,
-    preferences = defaults.preferences,
     logRetention = defaults.logRetention,
     timeout = defaults.timeout,
     memory = defaults.memory
@@ -148,7 +147,10 @@ const getIntegrationFunction = (
       extras: service.extras,
       debug: options.debug,
       tags: options.tags,
-      preferences,
+      preferences: {
+        ...defaults.preferences,
+        ...route.preferences
+      },
       errorsMap: {
         ...defaults.httpErrors,
         ...route.httpErrors
@@ -210,7 +212,6 @@ const getAuthorizerFunction = (
   const {
     authorizer,
     listener = defaults.listener,
-    preferences = defaults.preferences,
     logRetention = defaults.logRetention,
     timeout = defaults.timeout,
     memory = defaults.memory
@@ -242,7 +243,10 @@ const getAuthorizerFunction = (
       extras: service.extras,
       debug: options.debug,
       tags: options.tags,
-      preferences,
+      preferences: {
+        ...defaults.preferences,
+        ...route.preferences
+      },
       variables: {
         ...options.variables,
         ...service.variables
