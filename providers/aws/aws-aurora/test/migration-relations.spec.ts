@@ -18,7 +18,7 @@ describe('aurora migration (relations)', () => {
 
     deepEqual(statements, [
       `ALTER TABLE "ez4-test-table" ` +
-        `ADD CONSTRAINT "relation_fk" ` +
+        `ADD CONSTRAINT "ez4-test-table_relation_fk" ` +
         `FOREIGN KEY ("target_column") ` +
         `REFERENCES "ez4_test_relation" ("source_column") ` +
         `ON DELETE CASCADE ` +
@@ -37,6 +37,6 @@ describe('aurora migration (relations)', () => {
       }
     });
 
-    deepEqual(statements, [`ALTER TABLE "ez4-test-table" DROP CONSTRAINT IF EXISTS "relation_fk"`]);
+    deepEqual(statements, [`ALTER TABLE "ez4-test-table" DROP CONSTRAINT IF EXISTS "ez4-test-table_relation_fk"`]);
   });
 });
