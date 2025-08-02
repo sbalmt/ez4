@@ -17,10 +17,10 @@ export const createStringSchema = (data: Omit<StringSchema, 'type'>): StringSche
   return {
     type: SchemaType.String,
     ...(description && { description }),
+    ...(definitions && { definitions }),
     ...(optional && { optional }),
     ...(nullable && { nullable }),
-    ...(format && { format }),
-    ...(definitions && { definitions })
+    ...(format && { format })
   };
 };
 

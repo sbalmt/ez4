@@ -35,6 +35,71 @@
         }
       ]
     },
+    "union": {
+      "type": "enum",
+      "description": "Enum values union.",
+      "options": [
+        {
+          "value": "baz"
+        },
+        {
+          "description": "Foo option.",
+          "value": "foo"
+        },
+        {
+          "value": "bar"
+        },
+        {
+          "value": "literal"
+        },
+        {
+          "value": 123
+        }
+      ]
+    },
+    "nullable": {
+      "type": "enum",
+      "description": "Nullable property.",
+      "nullable": true,
+      "options": [
+        {
+          "value": "foo",
+          "description": "Foo option."
+        },
+        {
+          "value": "bar"
+        }
+      ]
+    },
+    "optional": {
+      "type": "enum",
+      "description": "Optional property.",
+      "optional": true,
+      "options": [
+        {
+          "value": "foo",
+          "description": "Foo option."
+        },
+        {
+          "value": "bar"
+        }
+      ]
+    },
+    "both": {
+      "type": "enum",
+      "description": "Nullable and optional property.",
+      "optional": true,
+      "nullable": true,
+      "options": [
+        {
+          "value": "foo",
+          "description": "Foo option."
+        },
+        {
+          "value": "bar"
+        }
+      ]
+    },
     "default": {
       "type": "enum",
       "description": "Default enum value.",

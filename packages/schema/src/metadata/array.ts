@@ -18,9 +18,9 @@ export const createArraySchema = (data: Omit<ArraySchema, 'type'>): ArraySchema 
   return {
     type: SchemaType.Array,
     ...(description && { description }),
+    ...(definitions && { definitions }),
     ...(optional && { optional }),
     ...(nullable && { nullable }),
-    ...(definitions && { definitions }),
     element
   };
 };

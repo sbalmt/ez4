@@ -30,6 +30,22 @@
       "definitions": {
         "default": false
       }
+    },
+    "nullable": {
+      "type": "boolean",
+      "description": "Nullable property.",
+      "nullable": true
+    },
+    "optional": {
+      "type": "boolean",
+      "description": "Optional property.",
+      "optional": true
+    },
+    "both": {
+      "type": "boolean",
+      "description": "Nullable and optional property.",
+      "optional": true,
+      "nullable": true
     }
   }
 }
