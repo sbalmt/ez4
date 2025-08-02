@@ -1,9 +1,10 @@
 import type { EmulateServiceContext, EmulatorServiceRequest, ServeOptions } from '@ez4/project/library';
 import type { QueueImport, QueueService } from '@ez4/queue/library';
 
-import { getServiceName } from '@ez4/project/library';
 import { getJsonMessage, MalformedMessageError } from '@ez4/queue/utils';
 import { getResponseError, getResponseSuccess } from '@ez4/local-common';
+import { getServiceName } from '@ez4/project/library';
+import { isQueueService } from '@ez4/queue/library';
 import { getRandomInteger } from '@ez4/utils';
 
 import { processLambdaMessage } from '../handlers/lambda.js';
@@ -12,12 +13,17 @@ import { createQueueClient } from '../service/client.js';
 export const registerQueueServices = (service: QueueService | QueueImport, options: ServeOptions, context: EmulateServiceContext) => {
   const { name: serviceName, schema: messageSchema } = service;
 
+  const clientOptions = {
+    ...options,
+    delay: isQueueService(service) ? service.delay : undefined
+  };
+
   return {
     type: 'Queue',
     name: serviceName,
     identifier: getServiceName(serviceName, options),
     clientHandler: () => {
-      return createQueueClient(serviceName, messageSchema, options);
+      return createQueueClient(serviceName, messageSchema, clientOptions);
     },
     requestHandler: (request: EmulatorServiceRequest) => {
       return handleQueueMessage(service, options, context, request);

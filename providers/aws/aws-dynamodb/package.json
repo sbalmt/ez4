@@ -1,7 +1,7 @@
 {
   "name": "@ez4/aws-dynamodb",
   "description": "EZ4: Self-managed AWS DynamoDB provider",
-  "version": "0.23.0",
+  "version": "0.24.0",
   "author": "Silas B.",
   "license": "MIT",
   "type": "module",
@@ -37,7 +37,7 @@
     "packages/*"
   ],
   "scripts": {
-    "lint": "eslint",
+    "lint": "eslint --cache",
     "clean": "rm -f *.tsbuildinfo && rm -rf dist/*",
     "build": "tsc -p tsconfig.json && node tools/bundler.mjs",
     "test": "npm run test:types && node --env-file ../../../local.env --test --import ../../../tools/tsnode.mjs test/*.spec.ts",
@@ -56,16 +56,16 @@
     "@aws-sdk/client-dynamodb": "^3.758.0",
     "@aws-sdk/lib-dynamodb": "^3.758.0",
     "@aws-sdk/util-dynamodb": "^3.758.0",
-    "@ez4/aws-common": "^0.23.0",
-    "@ez4/aws-function": "^0.23.0",
-    "@ez4/aws-identity": "^0.23.0",
-    "@ez4/aws-logs": "^0.23.0",
-    "@ez4/database": "^0.23.0",
-    "@ez4/project": "^0.23.0",
-    "@ez4/schema": "^0.23.0",
-    "@ez4/stateful": "^0.23.0",
-    "@ez4/transform": "^0.23.0",
-    "@ez4/utils": "^0.23.0",
-    "@ez4/validator": "^0.23.0"
+    "@ez4/aws-common": "^0.24.0",
+    "@ez4/aws-function": "^0.24.0",
+    "@ez4/aws-identity": "^0.24.0",
+    "@ez4/aws-logs": "^0.24.0",
+    "@ez4/database": "^0.24.0",
+    "@ez4/project": "^0.24.0",
+    "@ez4/schema": "^0.24.0",
+    "@ez4/stateful": "^0.24.0",
+    "@ez4/transform": "^0.24.0",
+    "@ez4/utils": "^0.24.0",
+    "@ez4/validator": "^0.24.0"
   }
 }

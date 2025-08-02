@@ -17,10 +17,10 @@ export const createNumberSchema = (data: Omit<NumberSchema, 'type'>): NumberSche
   return {
     type: SchemaType.Number,
     ...(description && { description }),
+    ...(definitions && { definitions }),
     ...(optional && { optional }),
     ...(nullable && { nullable }),
-    ...(format && { format }),
-    ...(definitions && { definitions })
+    ...(format && { format })
   };
 };
 

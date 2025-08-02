@@ -28,19 +28,19 @@
     },
     "nullable": {
       "type": "array",
+      "description": "Nullable property.",
+      "nullable": true,
       "element": {
         "type": "boolean"
-      },
-      "description": "Nullable property.",
-      "nullable": true
+      }
     },
     "optional": {
       "type": "array",
+      "description": "Optional property.",
+      "optional": true,
       "element": {
         "type": "number"
-      },
-      "description": "Optional property.",
-      "optional": true
+      }
     },
     "both": {
       "type": "array",

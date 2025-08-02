@@ -65,11 +65,14 @@ export const processHttpRequest = async (
   } catch (error) {
     await onError(lambdaModule, lambdaContext, lambdaRequest, error);
 
-    if (error instanceof Error) {
-      return getOutgoingErrorResponse(error, route.httpErrors);
+    if (!(error instanceof Error)) {
+      return getOutgoingErrorResponse();
     }
 
-    return getOutgoingErrorResponse();
+    return getOutgoingErrorResponse(error, {
+      ...service.defaults?.httpErrors,
+      ...route.httpErrors
+    });
     //
   } finally {
     await onEnd(lambdaModule, lambdaContext, lambdaRequest);

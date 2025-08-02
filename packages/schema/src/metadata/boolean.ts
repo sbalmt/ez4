@@ -16,9 +16,9 @@ export const createBooleanSchema = (data: Omit<BooleanSchema, 'type'>): BooleanS
   return {
     type: SchemaType.Boolean,
     ...(description && { description }),
+    ...(definitions && { definitions }),
     ...(optional && { optional }),
-    ...(nullable && { nullable }),
-    ...(definitions && { definitions })
+    ...(nullable && { nullable })
   };
 };
 

@@ -1,7 +1,7 @@
 {
   "name": "@ez4/local-scheduler",
   "description": "EZ4: Local scheduler emulator",
-  "version": "0.23.0",
+  "version": "0.24.0",
   "author": "Silas B.",
   "license": "MIT",
   "type": "module",
@@ -29,7 +29,7 @@
     "providers/local/*"
   ],
   "scripts": {
-    "lint": "eslint",
+    "lint": "eslint --cache",
     "clean": "rm -f *.tsbuildinfo && rm -rf dist/*",
     "build": "tsc -p tsconfig.json && node tools/bundler.mjs",
     "test": "npm run test:types && node --test --import ../../../tools/tsnode.mjs test/*.spec.ts",
@@ -40,11 +40,11 @@
     "live:publish": "npm run test && npm publish --access public"
   },
   "dependencies": {
-    "@ez4/common": "^0.23.0",
-    "@ez4/local-common": "^0.23.0",
-    "@ez4/project": "^0.23.0",
-    "@ez4/scheduler": "^0.23.0",
-    "@ez4/utils": "^0.23.0",
+    "@ez4/common": "^0.24.0",
+    "@ez4/local-common": "^0.24.0",
+    "@ez4/project": "^0.24.0",
+    "@ez4/scheduler": "^0.24.0",
+    "@ez4/utils": "^0.24.0",
     "cron-parser": "^5.3.0"
   }
 }
