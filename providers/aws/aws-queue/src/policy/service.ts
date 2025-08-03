@@ -1,37 +1,55 @@
 import type { EntryState, EntryStates } from '@ez4/stateful';
 import type { QueueState } from '../queue/types.js';
-import type { PolicyParameters, PolicyState } from './types.js';
+import type { QueuePolicyParameters, QueuePolicyState } from './types.js';
 
 import { attachEntry } from '@ez4/stateful';
 import { hashData } from '@ez4/utils';
 
-import { PolicyServiceType } from './types.js';
-import { isPolicyState } from './utils.js';
+import { QueuePolicyServiceType } from './types.js';
+import { isQueuePolicyState } from './utils.js';
 
-export const createPolicy = <E extends EntryState>(
+export const createQueuePolicy = <E extends EntryState>(
   state: EntryStates<E>,
-  sourceState: EntryState,
   queueState: QueueState,
-  parameters: PolicyParameters
+  sourceState: EntryState,
+  parameters: QueuePolicyParameters
 ) => {
-  const policyId = hashData(PolicyServiceType, sourceState.entryId, queueState.entryId);
+  const policyId = hashData(QueuePolicyServiceType, queueState.entryId);
 
-  return attachEntry<E | PolicyState, PolicyState>(state, {
-    type: PolicyServiceType,
+  return attachEntry<E | QueuePolicyState, QueuePolicyState>(state, {
+    type: QueuePolicyServiceType,
     entryId: policyId,
     dependencies: [sourceState.entryId, queueState.entryId],
     parameters
   });
 };
 
-export const getPolicy = <E extends EntryState>(state: EntryStates<E>, sourceState: EntryState, queueState: QueueState) => {
-  const policyId = hashData(PolicyServiceType, sourceState.entryId, queueState.entryId);
+export const getQueuePolicy = <E extends EntryState>(state: EntryStates<E>, queueState: QueueState) => {
+  const policyId = hashData(QueuePolicyServiceType, queueState.entryId);
 
   const policyState = state[policyId];
 
-  if (policyState && isPolicyState(policyState)) {
+  if (policyState && isQueuePolicyState(policyState)) {
     return policyState;
   }
 
   return null;
+};
+
+export const attachQueuePolicy = <E extends EntryState>(
+  state: EntryStates<E>,
+  queueState: QueueState,
+  sourceState: EntryState,
+  parameters: QueuePolicyParameters
+) => {
+  const policyState = getQueuePolicy(state, queueState);
+
+  if (!policyState) {
+    return createQueuePolicy(state, queueState, sourceState, parameters);
+  }
+
+  policyState.parameters.fromService += `, ${parameters.fromService}`;
+  policyState.parameters.policyGetters.push(...parameters.policyGetters);
+
+  return policyState;
 };

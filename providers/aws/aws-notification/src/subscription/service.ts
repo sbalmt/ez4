@@ -5,7 +5,7 @@ import type { TopicState } from '../topic/types.js';
 import type { SubscriptionParameters, SubscriptionState } from './types.js';
 
 import { createPermission, getFunctionArn, getPermission, isFunctionState } from '@ez4/aws-function';
-import { createPolicy, getQueueArn, isQueueState } from '@ez4/aws-queue';
+import { attachQueuePolicy, getQueueArn, isQueueState } from '@ez4/aws-queue';
 import { getAccountId, getRegion } from '@ez4/aws-identity';
 import { attachEntry } from '@ez4/stateful';
 import { hashData } from '@ez4/utils';
@@ -41,17 +41,21 @@ export const createSubscription = <E extends EntryState>(
       });
 
     dependencies.push(permissionState.entryId);
-  } else if (isQueueState(endpointState)) {
-    const policyState = createPolicy(state, topicState, endpointState, {
-      fromService: parameters.fromService,
-      getPolicy: async () => {
-        const [region, account] = await Promise.all([getRegion(), getAccountId()]);
+  }
 
-        return {
-          principal: 'sns.amazonaws.com',
-          sourceArn: buildNotificationArn(topicName, region, account)
-        };
-      }
+  if (isQueueState(endpointState)) {
+    const policyState = attachQueuePolicy(state, endpointState, topicState, {
+      fromService: parameters.fromService,
+      policyGetters: [
+        async () => {
+          const [region, account] = await Promise.all([getRegion(), getAccountId()]);
+
+          return {
+            principal: 'sns.amazonaws.com',
+            sourceArn: buildNotificationArn(topicName, region, account)
+          };
+        }
+      ]
     });
 
     dependencies.push(policyState.entryId);
