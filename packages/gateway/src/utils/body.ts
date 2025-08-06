@@ -6,7 +6,7 @@ import { validate, createValidatorContext, getUniqueErrorMessages } from '@ez4/v
 import { HttpBadRequestError } from '@ez4/gateway';
 
 export const getRequestBody = async <T extends Http.JsonBody | Http.RawBody>(
-  input: T,
+  input: T | undefined,
   schema: AnySchema,
   preferences?: Http.Preferences | null
 ): Promise<T> => {
