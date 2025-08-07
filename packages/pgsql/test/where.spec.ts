@@ -953,7 +953,7 @@ describe('sql where tests', () => {
     assert.equal(statement, `SELECT * FROM "test" WHERE false`);
   });
 
-  it.only('assert :: where undefined', ({ assert }) => {
+  it('assert :: where undefined', ({ assert }) => {
     const query = sql
       .select()
       .from('test')
