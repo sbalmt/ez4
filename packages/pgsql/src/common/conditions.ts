@@ -145,7 +145,11 @@ const getFieldOperation = (
         ? getMultipleOperations(columnPath, columnSchema, operationEntries, nestedContext)
         : getFilterOperations(valueOperation, columnSchema, nestedContext);
 
-      return combineOperations(allOperations);
+      if (allOperations.length) {
+        return combineOperations(allOperations);
+      }
+
+      return undefined;
     }
   }
 };
@@ -161,7 +165,9 @@ const getSingleOperation = (column: string, schema: AnySchema | undefined, opera
       parent: column
     });
 
-    return combineOperations(allOperation);
+    if (allOperation.length) {
+      return combineOperations(allOperation);
+    }
   }
 
   return finalOperation;
@@ -229,7 +235,7 @@ const getFinalOperation = (column: string, schema: AnySchema | undefined, operat
 };
 
 const getNegateOperations = (value: unknown, schema: ObjectSchema | undefined, context: SqlConditionsContext) => {
-  if (Array.isArray(value) || !isAnyObject(value)) {
+  if (!isAnyObject(value)) {
     throw new InvalidOperandError();
   }
 
@@ -250,10 +256,15 @@ const getLogicalOperations = (field: string, value: unknown, schema: ObjectSchem
   const allOperations = [];
 
   for (const current of value) {
-    if (field === 'OR') {
-      allOperations.push(combineOperations(getFilterOperations(current, schema, context)));
-    } else {
+    if (field === 'AND') {
       allOperations.push(...getFilterOperations(current, schema, context));
+      continue;
+    }
+
+    const operations = getFilterOperations(current, schema, context);
+
+    if (operations.length) {
+      allOperations.push(combineOperations(operations));
     }
   }
 
