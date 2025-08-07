@@ -50,8 +50,10 @@ export const getIncomingRequestBody = async (metadata: HttpRequest, route: Match
     return undefined;
   }
 
-  const content = isScalarSchema(metadata.body) ? route.body?.toString() : route.body?.toJSON();
-  const payload = await getRequestBody(content, metadata.body, route.preferences);
+  const content = route.body?.toString();
+  const request = isScalarSchema(metadata.body) ? content : content && JSON.parse(content);
+
+  const payload = await getRequestBody(request, metadata.body, route.preferences);
 
   return {
     body: payload
