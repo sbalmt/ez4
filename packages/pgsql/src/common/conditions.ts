@@ -70,7 +70,7 @@ export class SqlConditions {
 }
 
 const getFilterOperations = (filters: SqlFilters, schema: ObjectSchema | undefined, context: SqlConditionsContext) => {
-  const operations = [];
+  const allOperations = [];
 
   for (const field in filters) {
     const value = filters[field];
@@ -82,11 +82,11 @@ const getFilterOperations = (filters: SqlFilters, schema: ObjectSchema | undefin
     const operation = getFieldOperation(field, value, schema, context);
 
     if (operation) {
-      operations.push(operation);
+      allOperations.push(operation);
     }
   }
 
-  return operations;
+  return allOperations;
 };
 
 const getFieldOperation = (
@@ -194,6 +194,10 @@ const getMultipleOperations = (
 
 const getFinalOperation = (column: string, schema: AnySchema | undefined, operation: [string, unknown], context: SqlConditionsContext) => {
   const [operator, operand] = operation;
+
+  if (operand === undefined) {
+    return undefined;
+  }
 
   switch (operator) {
     case SqlOperator.IsNull:

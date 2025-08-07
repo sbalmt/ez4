@@ -755,7 +755,22 @@ describe('sql where tests', () => {
       .select()
       .from('test')
       .where({
-        AND: [{ foo: 123, bar: 'abc' }, { OR: [{ baz: 456 }, { qux: 789 }] }]
+        AND: [
+          {
+            foo: 123,
+            bar: 'abc'
+          },
+          {
+            OR: [
+              {
+                baz: 456
+              },
+              {
+                qux: 789
+              }
+            ]
+          }
+        ]
       });
 
     const [statement, variables] = query.build();
@@ -770,7 +785,22 @@ describe('sql where tests', () => {
       .select()
       .from('test')
       .where({
-        OR: [{ foo: 123, bar: 'abc' }, { AND: [{ baz: 456 }, { qux: 789 }] }]
+        OR: [
+          {
+            foo: 123,
+            bar: 'abc'
+          },
+          {
+            AND: [
+              {
+                baz: 456
+              },
+              {
+                qux: 789
+              }
+            ]
+          }
+        ]
       });
 
     const [statement, variables] = query.build();
@@ -910,7 +940,10 @@ describe('sql where tests', () => {
       .where({
         foo: {
           isIn: []
-        }
+        },
+        AND: [],
+        OR: [],
+        NOT: {}
       });
 
     const [statement, variables] = query.build();
@@ -920,7 +953,7 @@ describe('sql where tests', () => {
     assert.equal(statement, `SELECT * FROM "test" WHERE false`);
   });
 
-  it('assert :: where undefined', ({ assert }) => {
+  it.only('assert :: where undefined', ({ assert }) => {
     const query = sql
       .select()
       .from('test')
@@ -931,6 +964,21 @@ describe('sql where tests', () => {
         },
         baz: {
           qux: undefined
+        },
+        AND: [
+          {
+            foo: undefined
+          },
+          {}
+        ],
+        OR: [
+          {
+            bar: undefined
+          },
+          {}
+        ],
+        NOT: {
+          baz: undefined
         }
       });
 
