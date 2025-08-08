@@ -11,7 +11,6 @@ import { InvalidColumnOrderError } from '../errors/queries.js';
 export class SqlOrderClause {
   #state: {
     source: SqlSource;
-
     columns: SqlOrder;
   };
 

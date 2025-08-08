@@ -5,14 +5,15 @@ import type { SqlTableReference } from '../common/reference.js';
 import type { SqlRecord } from '../common/types.js';
 import type { ObjectSchema } from '@ez4/schema';
 
-import { SqlRawValue } from '../common/raw.js';
-import { getTableExpressions } from '../utils/table.js';
-import { SqlColumnReference } from '../common/reference.js';
-import { SqlReturningClause } from '../clauses/returning.js';
-import { MissingTableNameError } from '../errors/queries.js';
+import { getTableExpressions } from '../helpers/table.js';
 import { getFields, getValues } from '../utils/column.js';
-import { escapeSqlName } from '../utils/escape.js';
+import { escapeSqlName, escapeSqlNames } from '../utils/escape.js';
+import { MissingTableNameError } from '../errors/queries.js';
+import { SqlReturningClause } from '../clauses/returning.js';
+import { SqlConflictClause } from '../clauses/conflict.js';
+import { SqlColumnReference } from '../common/reference.js';
 import { SqlSource } from '../common/source.js';
+import { SqlRawValue } from '../common/raw.js';
 import { SqlSelectStatement } from './select.js';
 
 type SqlInsertContext = {
@@ -26,6 +27,7 @@ export class SqlInsertStatement extends SqlSource {
     options: SqlBuilderOptions;
     references: SqlBuilderReferences;
     returning?: SqlReturningClause;
+    conflict?: SqlConflictClause;
     sources?: (SqlTableReference | SqlSource)[];
     schema?: ObjectSchema;
     record?: SqlRecord;
@@ -87,6 +89,18 @@ export class SqlInsertStatement extends SqlSource {
     return this;
   }
 
+  conflict(columns: string[], record?: SqlRecord) {
+    const { conflict, schema, references, options } = this.#state;
+
+    if (!conflict) {
+      this.#state.conflict = new SqlConflictClause(this, schema, references, options, columns, record);
+    } else if (record) {
+      conflict.apply(record);
+    }
+
+    return this;
+  }
+
   returning(result?: SqlResultRecord | SqlResultColumn[]) {
     const { returning } = this.#state;
 
@@ -100,7 +114,7 @@ export class SqlInsertStatement extends SqlSource {
   }
 
   build(): [string, unknown[]] {
-    const { table, alias, references, options, record, schema, sources, returning } = this.#state;
+    const { table, alias, references, options, record, schema, sources, returning, conflict } = this.#state;
 
     if (!table) {
       throw new MissingTableNameError();
@@ -113,7 +127,7 @@ export class SqlInsertStatement extends SqlSource {
       statement.push(`AS ${escapeSqlName(alias)}`);
     }
 
-    const columns = getColumnsName(this.fields);
+    const columns = escapeSqlNames(this.fields);
 
     statement.push(columns.length ? `(${columns})` : 'DEFAULT');
 
@@ -136,6 +150,13 @@ export class SqlInsertStatement extends SqlSource {
       }
     }
 
+    if (conflict && !conflict.empty) {
+      const [conflictClause, conflictVariables] = conflict.build();
+
+      variables.push(...conflictVariables);
+      statement.push(conflictClause);
+    }
+
     if (returning && !returning.empty) {
       const [returningClause, returningVariables] = returning.build();
 
@@ -146,10 +167,6 @@ export class SqlInsertStatement extends SqlSource {
     return [statement.join(' '), variables];
   }
 }
-
-const getColumnsName = (columns: string[]) => {
-  return columns.map((column) => escapeSqlName(column)).join(', ');
-};
 
 const getValueReferences = (source: SqlSource, record: SqlRecord, schema: ObjectSchema | undefined, context: SqlInsertContext): string => {
   const { variables, references, options } = context;

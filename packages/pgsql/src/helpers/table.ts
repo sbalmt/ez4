@@ -1,6 +1,6 @@
+import { escapeSqlName } from '../utils/escape.js';
 import { SqlTableReference } from '../common/reference.js';
 import { SqlSource } from '../common/source.js';
-import { escapeSqlName } from './escape.js';
 
 export const getTableExpressions = (tables: (string | SqlTableReference | SqlSource)[]) => {
   const tableExpressions = [];
