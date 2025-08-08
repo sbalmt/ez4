@@ -143,7 +143,7 @@ const getFieldOperation = (
       }
 
       const isNestedEntry = columnSchema && isObjectSchema(columnSchema);
-      const nestedContext = { ...context, parent: columnName };
+      const nestedContext = { ...context, parent: columnPath };
 
       const allOperations = !isNestedEntry
         ? getMultipleOperations(columnPath, columnSchema, operationEntries, nestedContext)
@@ -186,7 +186,7 @@ const getMultipleOperations = (
   const allOperations = [];
 
   for (const operation of entries) {
-    const finalOperation = getFinalOperation(column, schema, operation, { ...context });
+    const finalOperation = getFinalOperation(column, schema, operation, context);
 
     if (finalOperation) {
       allOperations.push(finalOperation);

@@ -864,6 +864,7 @@ describe('sql where tests', () => {
     const query = sql
       .select(schema)
       .from('test')
+      .as('alias')
       .where({
         foo: {
           bar: 123,
@@ -875,7 +876,7 @@ describe('sql where tests', () => {
 
     assert.deepEqual(variables, [123, 456]);
 
-    assert.equal(statement, `SELECT * FROM "test" WHERE ("foo"['bar'] = :0 AND "foo"['baz'] = :1)`);
+    assert.equal(statement, `SELECT * FROM "test" AS "alias" WHERE ("alias"."foo"['bar'] = :0 AND "alias"."foo"['baz'] = :1)`);
   });
 
   it('assert :: where with raw value', ({ assert }) => {
@@ -940,6 +941,7 @@ describe('sql where tests', () => {
       .from('test')
       .where({
         foo: {
+          // Make where condition to be falsy.
           isIn: []
         },
         AND: [],
