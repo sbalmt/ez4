@@ -8,7 +8,9 @@ export declare class TestDatabase extends Database.Service {
     {
       name: 'inlineTestTable';
       schema: {
-        foo: string;
+        inline_1: string;
+        inline_2: boolean;
+        inline_3: number;
       };
       indexes: {};
     },
@@ -20,16 +22,26 @@ export declare class TestDatabase extends Database.Service {
   ];
 }
 
+const enum TestSchemaEnum {
+  Foo = 'foo',
+  Bar = 'bar'
+}
+
 declare class TestSchema implements Database.Schema {
-  foo?: string;
+  literal_1: string;
+  literal_2: number;
+  literal_3: boolean;
+  literal_4: 'foo' | 'bar' | 'baz';
+  literal_5: TestSchemaEnum;
 
-  bar: number | null;
+  nullish_1?: string;
+  nullish_2: number | null;
 
-  baz: {
-    nested: boolean;
+  json_1: {
+    nested_1: boolean;
   };
 
-  qux: {
+  json_2: {
     [key: string]: number;
   };
 }

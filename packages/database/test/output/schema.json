@@ -18,8 +18,14 @@
           "type": "object",
           "identity": 1,
           "properties": {
-            "foo": {
+            "inline_1": {
               "type": "string"
+            },
+            "inline_2": {
+              "type": "boolean"
+            },
+            "inline_3": {
+              "type": "number"
             }
           }
         },
@@ -31,25 +37,59 @@
           "type": "object",
           "identity": 1,
           "properties": {
-            "foo": {
+            "literal_1": {
+              "type": "string"
+            },
+            "literal_2": {
+              "type": "number"
+            },
+            "literal_3": {
+              "type": "boolean"
+            },
+            "literal_4": {
+              "type": "enum",
+              "options": [
+                {
+                  "value": "foo"
+                },
+                {
+                  "value": "bar"
+                },
+                {
+                  "value": "baz"
+                }
+              ]
+            },
+            "literal_5": {
+              "type": "enum",
+              "options": [
+                {
+                  "value": "foo"
+                },
+                {
+                  "value": "bar"
+                }
+              ]
+            },
+            "nullish_1": {
               "type": "string",
               "optional": true,
               "nullable": true
             },
-            "bar": {
+            "nullish_2": {
               "type": "number",
               "nullable": true
             },
-            "baz": {
+            "json_1": {
               "type": "object",
               "identity": 2,
               "properties": {
-                "nested": {
+                "nested_1": {
                   "type": "boolean"
                 }
               }
             },
-            "qux": {
+            "json_2": {
               "type": "object",
               "identity": 3,
               "properties": {},
