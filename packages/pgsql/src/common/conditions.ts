@@ -111,7 +111,7 @@ const getFieldOperation = (
 
     default: {
       const columnName = mergeSqlPath(field, parent);
-      const columnPath = mergeSqlAlias(columnName, source.alias);
+      const columnPath = parent ? columnName : mergeSqlAlias(columnName, source.alias);
 
       if (value === null) {
         return getIsNullOperation(columnPath, true);
@@ -186,7 +186,7 @@ const getMultipleOperations = (
   const allOperations = [];
 
   for (const operation of entries) {
-    const finalOperation = getFinalOperation(column, schema, operation, context);
+    const finalOperation = getFinalOperation(column, schema, operation, { ...context });
 
     if (finalOperation) {
       allOperations.push(finalOperation);

@@ -826,6 +826,7 @@ describe('sql where tests', () => {
     const query = sql
       .select()
       .from('test')
+      .as('alias')
       .where({
         foo: {
           bar: {
@@ -838,7 +839,7 @@ describe('sql where tests', () => {
 
     assert.deepEqual(variables, [true]);
 
-    assert.equal(statement, `SELECT * FROM "test" WHERE "foo"['bar']['baz'] = :0`);
+    assert.equal(statement, `SELECT * FROM "test" AS "alias" WHERE "alias"."foo"['bar']['baz'] = :0`);
   });
 
   it('assert :: where with multiple fields', ({ assert }) => {
