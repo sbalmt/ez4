@@ -227,7 +227,7 @@ describe('select relations', () => {
     assert.deepEqual(variables, ['00000000-0000-1000-9000-000000000000']);
   });
 
-  it('assert :: prepare select relations (with include)', ({ assert }) => {
+  it('assert :: prepare select relations (with where include)', ({ assert }) => {
     const [statement, variables] = prepareSelect({
       select: {
         id: true,
@@ -243,14 +243,64 @@ describe('select relations', () => {
       },
       include: {
         primary_to_secondary: {
-          where: {}
-        },
-        unique_to_primary: {},
-        secondary_to_primary: {
           where: {
             foo: 123
           }
+        },
+        unique_to_primary: {
+          where: {
+            foo: 456
+          }
+        },
+        secondary_to_primary: {
+          where: {
+            foo: 789
+          }
         }
+      },
+      where: {
+        id: '00000000-0000-1000-9000-000000000000'
+      }
+    });
+
+    assert.equal(
+      statement,
+      `SELECT "R"."id", ` +
+        // First relation
+        `(SELECT json_build_object('foo', "T"."foo") FROM "ez4-test-relation" AS "T" ` +
+        `WHERE "T"."foo" = :0 AND "T"."id" = "R"."relation1_id") AS "primary_to_secondary", ` +
+        // Second relation
+        `(SELECT json_build_object('foo', "T"."foo") FROM "ez4-test-relation" AS "T" ` +
+        `WHERE "T"."foo" = :1 AND "T"."relation2_id" = "R"."id") AS "unique_to_primary", ` +
+        // Third relation
+        `(SELECT COALESCE(json_agg(json_build_object('foo', "T"."foo")), '[]'::json) FROM "ez4-test-relation" AS "T" ` +
+        `WHERE "T"."foo" = :2 AND "T"."relation1_id" = "R"."id") AS "secondary_to_primary" ` +
+        //
+        `FROM "ez4-test-select-relations" AS "R" ` +
+        `WHERE "R"."id" = :3`
+    );
+
+    assert.deepEqual(variables, [123, 456, 789, '00000000-0000-1000-9000-000000000000']);
+  });
+
+  it('assert :: prepare select relations (with empty include)', ({ assert }) => {
+    const [statement, variables] = prepareSelect({
+      select: {
+        id: true,
+        primary_to_secondary: {
+          foo: true
+        },
+        unique_to_primary: {
+          foo: true
+        },
+        secondary_to_primary: {
+          foo: true
+        }
+      },
+      include: {
+        primary_to_secondary: {},
+        unique_to_primary: {},
+        secondary_to_primary: {}
       },
       where: {
         id: '00000000-0000-1000-9000-000000000000'
@@ -268,16 +318,16 @@ describe('select relations', () => {
         `WHERE "T"."relation2_id" = "R"."id") AS "unique_to_primary", ` +
         // Third relation
         `(SELECT COALESCE(json_agg(json_build_object('foo', "T"."foo")), '[]'::json) FROM "ez4-test-relation" AS "T" ` +
-        `WHERE "T"."foo" = :0 AND "T"."relation1_id" = "R"."id") AS "secondary_to_primary" ` +
+        `WHERE "T"."relation1_id" = "R"."id") AS "secondary_to_primary" ` +
         //
         `FROM "ez4-test-select-relations" AS "R" ` +
-        `WHERE "R"."id" = :1`
+        `WHERE "R"."id" = :0`
     );
 
-    assert.deepEqual(variables, [123, '00000000-0000-1000-9000-000000000000']);
+    assert.deepEqual(variables, ['00000000-0000-1000-9000-000000000000']);
   });
 
-  it('assert :: prepare select relations (with ordered include)', ({ assert }) => {
+  it('assert :: prepare select relations (with order include)', ({ assert }) => {
     const [statement, variables] = prepareSelect({
       select: {
         id: true,
@@ -314,7 +364,7 @@ describe('select relations', () => {
     assert.deepEqual(variables, [123, '00000000-0000-1000-9000-000000000000']);
   });
 
-  it('assert :: prepare select relations (with limited include)', ({ assert }) => {
+  it('assert :: prepare select relations (with limit include)', ({ assert }) => {
     const [statement, variables] = prepareSelect({
       select: {
         id: true,
