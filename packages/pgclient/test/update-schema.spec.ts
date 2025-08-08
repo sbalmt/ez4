@@ -114,9 +114,9 @@ describe('update schema', () => {
       }
     );
 
-    assert.equal(statement, `UPDATE ONLY "ez4-test-update-schema" SET "nullable" = :0`);
+    assert.equal(statement, `UPDATE ONLY "ez4-test-update-schema" SET "nullable" = null`);
 
-    assert.deepEqual(variables, [null]);
+    assert.deepEqual(variables, []);
   });
 
   it('assert :: prepare update schema (scalar optional)', async ({ assert }) => {
@@ -400,9 +400,9 @@ describe('update schema', () => {
       }
     );
 
-    assert.equal(statement, `UPDATE ONLY "ez4-test-update-schema" SET "json" = :0`);
+    assert.equal(statement, `UPDATE ONLY "ez4-test-update-schema" SET "json" = null`);
 
-    assert.deepEqual(variables, [null]);
+    assert.deepEqual(variables, []);
   });
 
   it('assert :: prepare update schema (json optional parent)', async ({ assert }) => {
