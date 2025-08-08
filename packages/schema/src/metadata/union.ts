@@ -41,9 +41,12 @@ export const getUnionSchema = (type: AllType, reflection: SourceMap, context: Sc
     return null;
   }
 
+  const { nullish } = context;
+
   const elements = getAnySchemaFromTypeList(reflection, context, type.elements);
+
   const optional = hasOptionalType(type.elements);
-  const nullable = hasNullableType(type.elements);
+  const nullable = hasNullableType(type.elements) || (optional && nullish);
 
   const definitions = type.definitions;
 
@@ -60,12 +63,12 @@ export const getUnionSchema = (type: AllType, reflection: SourceMap, context: Sc
       single.description = description;
     }
 
-    if (optional) {
-      single.optional = optional;
+    if (nullable) {
+      single.nullable = true;
     }
 
-    if (nullable) {
-      single.nullable = nullable;
+    if (optional) {
+      single.optional = true;
     }
 
     return single;

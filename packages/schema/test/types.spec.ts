@@ -17,4 +17,5 @@ describe('schema types', () => {
   it('assert :: enum types', () => testFile('enum'));
   it('assert :: required types', () => testFile('required'));
   it('assert :: partial types', () => testFile('partial'));
+  it('assert :: nullish types', () => testFile('nullish', { nullish: true }));
 });

@@ -9,6 +9,7 @@ import { getReflection } from '@ez4/project/library';
 export type TestFileOptions = SchemaContextOptions & {
   overwrite?: boolean;
   fileName?: string;
+  nullish?: boolean;
 };
 
 export const testFile = (fileName: string, options?: TestFileOptions) => {

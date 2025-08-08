@@ -1,0 +1,13 @@
+{
+  "type": "object",
+  "description": "Nullish test object.",
+  "properties": {
+    "nullish": {
+      "type": "string",
+      "description": "Nullish property.",
+      "nullable": true,
+      "optional": true
+    }
+  },
+  "identity": 1
+}
