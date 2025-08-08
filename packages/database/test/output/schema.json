@@ -32,10 +32,13 @@
           "identity": 1,
           "properties": {
             "foo": {
-              "type": "string"
+              "type": "string",
+              "optional": true,
+              "nullable": true
             },
             "bar": {
-              "type": "number"
+              "type": "number",
+              "nullable": true
             },
             "baz": {
               "type": "object",

@@ -21,9 +21,9 @@ export declare class TestDatabase extends Database.Service {
 }
 
 declare class TestSchema implements Database.Schema {
-  foo: string;
+  foo?: string;
 
-  bar: number;
+  bar: number | null;
 
   baz: {
     nested: boolean;
