@@ -82,9 +82,9 @@ describe('sql update tests', () => {
 
     const [statement, variables] = query.build();
 
-    deepEqual(variables, [null]);
+    deepEqual(variables, []);
 
-    equal(statement, `UPDATE ONLY "table" SET "foo" = :0`);
+    equal(statement, `UPDATE ONLY "table" SET "foo" = null`);
   });
 
   it('assert :: update with json record (optional in schema)', async () => {

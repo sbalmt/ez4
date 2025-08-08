@@ -156,10 +156,15 @@ const getValueReferences = (source: SqlSource, record: SqlRecord, schema: Object
 
   const results = [];
 
-  for (const field in record) {
-    const value = record[field];
+  for (const fieldName in record) {
+    const value = record[fieldName];
 
     if (value === undefined) {
+      continue;
+    }
+
+    if (value === null) {
+      results.push('null');
       continue;
     }
 
@@ -181,18 +186,20 @@ const getValueReferences = (source: SqlSource, record: SqlRecord, schema: Object
 
     results.push(`:${fieldIndex}`);
 
-    if (options.onPrepareVariable) {
-      const preparedValue = options.onPrepareVariable(fieldValue, {
-        schema: schema?.properties[field],
-        index: fieldIndex,
-        json: false
-      });
-
-      variables.push(preparedValue);
+    if (!options.onPrepareVariable) {
+      variables.push(fieldValue);
       continue;
     }
 
-    variables.push(fieldValue);
+    const fieldSchema = schema?.properties[fieldName];
+
+    const preparedValue = options.onPrepareVariable(fieldValue, {
+      schema: fieldSchema,
+      index: fieldIndex,
+      json: false
+    });
+
+    variables.push(preparedValue);
   }
 
   return results.join(', ');

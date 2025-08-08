@@ -29,6 +29,43 @@ describe('sql insert tests', () => {
     equal(statement, 'INSERT INTO "table" ("foo", "bar", "baz") VALUES (:0, :1, :2)');
   });
 
+  it('assert :: insert with json record', async () => {
+    const query = sql
+      .insert()
+      .into('table')
+      .record({
+        foo: {
+          bar: {
+            baz: true
+          }
+        }
+      });
+
+    deepEqual(query.fields, ['foo']);
+    deepEqual(query.values, [{ bar: { baz: true } }]);
+
+    const [statement, variables] = query.build();
+
+    deepEqual(variables, [{ bar: { baz: true } }]);
+
+    equal(statement, 'INSERT INTO "table" ("foo") VALUES (:0)');
+  });
+
+  it('assert :: insert with nullable record', async () => {
+    const query = sql.insert().into('table').record({
+      foo: null
+    });
+
+    deepEqual(query.fields, ['foo']);
+    deepEqual(query.values, [null]);
+
+    const [statement, variables] = query.build();
+
+    deepEqual(variables, []);
+
+    equal(statement, 'INSERT INTO "table" ("foo") VALUES (null)');
+  });
+
   it('assert :: insert with inner select record', async () => {
     const inner = sql.select().columns('baz').from('table2');
 

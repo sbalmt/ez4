@@ -196,10 +196,17 @@ const getUpdateColumns = (source: SqlSource, record: SqlRecord, schema: ObjectSc
     }
   };
 
+  const json = !!parent;
+
   for (const fieldName in record) {
     const value = record[fieldName];
 
     if (value === undefined) {
+      continue;
+    }
+
+    if (value === null && !json) {
+      pushUpdate(fieldName, 'null');
       continue;
     }
 
@@ -256,8 +263,6 @@ const getUpdateColumns = (source: SqlSource, record: SqlRecord, schema: ObjectSc
 
     const fieldValue = value instanceof SqlRaw ? value.build(source) : value;
     const fieldIndex = references.counter++;
-
-    const json = !!parent;
 
     if (!(value instanceof SqlRawOperation)) {
       pushUpdate(fieldName, `:${fieldIndex}`);
