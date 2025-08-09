@@ -22,7 +22,7 @@
   "scripts": {
     "deploy": "tsc -p tsconfig.json && ez4 deploy -e local.env -p ez4.project.js",
     "destroy": "ez4 destroy -e local.env -p ez4.project.js",
-    "serve": "ez4 serve -e local.env -p ez4.project.js",
+    "serve": "ez4 serve -e local.env -p ez4.project.js --debug",
     "test": "ez4 test -e local.env -p ez4.project.js"
   },
   "dependencies": {

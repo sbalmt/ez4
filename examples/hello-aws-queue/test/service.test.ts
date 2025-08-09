@@ -8,10 +8,15 @@ describe('hello aws queue', () => {
     const result = QueueTester.getClient('Sqs');
 
     // Ignore 'bar' since it's not in message schema.
-    await result.sendMessage({
-      foo: 'abc',
-      bar: 'def'
-    });
+    await result.sendMessage(
+      {
+        foo: 'abc',
+        bar: 'def'
+      },
+      {
+        delay: 0 // Don't need to wait for tests.
+      }
+    );
   });
 
   it('send message with failure', async () => {

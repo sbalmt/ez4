@@ -6,28 +6,28 @@ import type { AnyObject } from '@ez4/utils';
 import { getJsonMessage } from '@ez4/queue/utils';
 import { Logger } from '@ez4/project/library';
 
-export type ClientOptions = ServeOptions & {
-  delay?: number;
-  handler: (message: AnyObject) => void;
+export type ServiceClientOptions = ServeOptions & {
+  handler: (message: AnyObject) => Promise<void>;
+  delay: number;
 };
 
 export const createServiceClient = <T extends Queue.Service<any>>(
   serviceName: string,
   messageSchema: MessageSchema,
-  clientOptions: ClientOptions
+  clientOptions: ServiceClientOptions
 ): Client<T> => {
   return new (class {
     async sendMessage(message: T['schema'], options?: SendOptions<T>) {
       Logger.debug(`✉️  Sending message to Queue [${serviceName}]`);
 
       const payload = await getJsonMessage(message, messageSchema);
-      const delay = clientOptions.delay ?? options?.delay ?? 0;
+      const delay = options?.delay ?? clientOptions.delay;
 
       setTimeout(() => clientOptions.handler(payload), delay * 1000);
     }
 
     async receiveMessage(): Promise<T['schema'][]> {
-      throw new Error(`Receive message isn\'t supported yet.`);
+      throw new Error(`Receive message isn't supported yet.`);
     }
   })();
 };
