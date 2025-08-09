@@ -1,21 +1,26 @@
 import type { EmulateServiceContext, EmulatorServiceRequest, ServeOptions } from '@ez4/project/library';
 import type { QueueImport, QueueService } from '@ez4/queue/library';
+import type { AnyObject } from '@ez4/utils';
 
 import { getJsonMessage, MalformedMessageError } from '@ez4/queue/utils';
 import { getResponseError, getResponseSuccess } from '@ez4/local-common';
 import { getServiceName } from '@ez4/project/library';
-import { isQueueService } from '@ez4/queue/library';
+import { isQueueImport, isQueueService } from '@ez4/queue/library';
 import { getRandomInteger } from '@ez4/utils';
 
 import { processLambdaMessage } from '../handlers/lambda.js';
-import { createQueueClient } from '../service/client.js';
+import { createServiceClient } from '../client/service.js';
+import { createImportClient } from '../client/import.js';
 
 export const registerQueueServices = (service: QueueService | QueueImport, options: ServeOptions, context: EmulateServiceContext) => {
   const { name: serviceName, schema: messageSchema } = service;
 
   const clientOptions = {
     ...options,
-    delay: isQueueService(service) ? service.delay : undefined
+    delay: isQueueService(service) ? service.delay : undefined,
+    handler: (jsonMessage: AnyObject) => {
+      handleQueueMessage(service, options, context, jsonMessage);
+    }
   };
 
   return {
@@ -23,15 +28,18 @@ export const registerQueueServices = (service: QueueService | QueueImport, optio
     name: serviceName,
     identifier: getServiceName(serviceName, options),
     clientHandler: () => {
-      return createQueueClient(serviceName, messageSchema, clientOptions);
+      if (isQueueImport(service)) {
+        return createImportClient(serviceName, messageSchema, clientOptions);
+      }
+      return createServiceClient(serviceName, messageSchema, clientOptions);
     },
     requestHandler: (request: EmulatorServiceRequest) => {
-      return handleQueueMessage(service, options, context, request);
+      return handleQueueRequest(service, options, context, request);
     }
   };
 };
 
-const handleQueueMessage = async (
+const handleQueueRequest = async (
   service: QueueService | QueueImport,
   options: ServeOptions,
   context: EmulateServiceContext,
@@ -44,15 +52,9 @@ const handleQueueMessage = async (
   }
 
   try {
-    const subscriptionIndex = getRandomInteger(0, service.subscriptions.length - 1);
-    const queueSubscription = service.subscriptions[subscriptionIndex];
-
     const jsonMessage = JSON.parse(body.toString());
-    const safeMessage = await getJsonMessage(jsonMessage, service.schema);
 
-    if (queueSubscription) {
-      await processLambdaMessage(service, options, context, queueSubscription, safeMessage);
-    }
+    await handleQueueMessage(service, options, context, jsonMessage);
 
     return getResponseSuccess(201);
     //
@@ -65,5 +67,21 @@ const handleQueueMessage = async (
       message: error.message,
       details: error.details
     });
+  }
+};
+
+const handleQueueMessage = async (
+  service: QueueService | QueueImport,
+  options: ServeOptions,
+  context: EmulateServiceContext,
+  message: AnyObject
+) => {
+  const subscriptionIndex = getRandomInteger(0, service.subscriptions.length - 1);
+  const queueSubscription = service.subscriptions[subscriptionIndex];
+
+  const safeMessage = await getJsonMessage(message, service.schema);
+
+  if (queueSubscription) {
+    await processLambdaMessage(service, options, context, queueSubscription, safeMessage);
   }
 };
