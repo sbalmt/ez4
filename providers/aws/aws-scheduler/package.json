@@ -22,11 +22,6 @@
       "require": "./dist/main.cjs",
       "import": "./dist/main.mjs"
     },
-    "./runtime": {
-      "types": "./dist/runtime.d.ts",
-      "require": "./dist/runtime.cjs",
-      "import": "./dist/runtime.mjs"
-    },
     "./client": {
       "types": "./dist/client.d.ts",
       "require": "./dist/client.cjs",
@@ -60,7 +55,6 @@
     "@ez4/schema": "^0.24.0",
     "@ez4/scheduler": "^0.24.0",
     "@ez4/stateful": "^0.24.0",
-    "@ez4/utils": "^0.24.0",
-    "@ez4/validator": "^0.24.0"
+    "@ez4/utils": "^0.24.0"
   }
 }

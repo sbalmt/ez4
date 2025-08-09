@@ -1,10 +1,10 @@
 import type { Cron } from '@ez4/scheduler';
 import type { schedulerListener } from './common.js';
-import type { targetHandler } from './handlers.js';
+import type { dynamicTargetHandler, staticTargetHandler } from './handlers.js';
+import type { DynamicEvent } from './types.js';
 
 /**
- * Example of AWS EventBridge Scheduler deployed with EZ4.
- * For rate expressions.
+ * Example of AWS EventBridge Scheduler for rate expressions.
  */
 export declare class RateEvent extends Cron.Service {
   /**
@@ -32,13 +32,12 @@ export declare class RateEvent extends Cron.Service {
    */
   target: {
     listener: typeof schedulerListener;
-    handler: typeof targetHandler;
+    handler: typeof staticTargetHandler;
   };
 }
 
 /**
- * Example of AWS EventBridge Scheduler deployed with EZ4.
- * For cron expressions.
+ * Example of AWS EventBridge Scheduler for cron expressions.
  */
 export declare class CronEvent extends Cron.Service {
   /**
@@ -66,6 +65,34 @@ export declare class CronEvent extends Cron.Service {
    */
   target: {
     listener: typeof schedulerListener;
-    handler: typeof targetHandler;
+    handler: typeof staticTargetHandler;
+  };
+}
+
+/**
+ * Example of AWS EventBridge Scheduler for dynamic events.
+ */
+export declare class DynamicCron extends Cron.Service<DynamicEvent> {
+  /**
+   * Group for the scheduler.
+   */
+  group: 'ez4-group';
+
+  /**
+   * Execute dynamically on-demand.
+   */
+  expression: 'dynamic';
+
+  /**
+   * Retry up to 10 times in case it fails.
+   */
+  maxRetries: 10;
+
+  /**
+   * Event target.
+   */
+  target: {
+    listener: typeof schedulerListener;
+    handler: typeof dynamicTargetHandler;
   };
 }

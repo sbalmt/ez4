@@ -6,8 +6,8 @@ import { getServiceName, Logger } from '@ez4/project/library';
 
 import { processTimerEvent } from '../handlers/timer.js';
 import { processSchedulerEvent } from '../handlers/scheduler.js';
-import { createSchedulerClient } from '../service/client.js';
 import { InMemoryScheduler } from '../service/scheduler.js';
+import { createServiceClient } from '../client/service.js';
 
 export const registerCronEmulator = (service: CronService, options: ServeOptions, context: EmulateServiceContext) => {
   const serviceName = service.name;
@@ -17,13 +17,11 @@ export const registerCronEmulator = (service: CronService, options: ServeOptions
     name: serviceName,
     identifier: getServiceName(serviceName, options),
     clientHandler: () => {
-      return createSchedulerClient(serviceName);
+      return service.schema ? createServiceClient(serviceName, service.schema) : undefined;
     },
     bootstrapHandler: () => {
       InMemoryScheduler.createScheduler(serviceName, {
-        handler: (event) => {
-          return processSchedulerEvent(service, options, context, event);
-        }
+        handler: (event) => processSchedulerEvent(service, options, context, event)
       });
 
       if (isDynamicCronService(service)) {

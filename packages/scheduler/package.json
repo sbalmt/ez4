@@ -26,6 +26,11 @@
       "types": "./dist/library.d.ts",
       "require": "./dist/library.cjs",
       "import": "./dist/library.mjs"
+    },
+    "./utils": {
+      "types": "./dist/utils.d.ts",
+      "require": "./dist/utils.cjs",
+      "import": "./dist/utils.mjs"
     }
   },
   "workspaces": [
@@ -47,6 +52,8 @@
     "@ez4/project": "^0.24.0",
     "@ez4/reflection": "^0.24.0",
     "@ez4/schema": "^0.24.0",
-    "@ez4/utils": "^0.24.0"
+    "@ez4/transform": "^0.24.0",
+    "@ez4/utils": "^0.24.0",
+    "@ez4/validator": "^0.24.0"
   }
 }
