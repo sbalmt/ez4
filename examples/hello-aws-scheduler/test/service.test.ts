@@ -1,7 +1,7 @@
 import { rejects } from 'node:assert/strict';
 import { describe, it } from 'node:test';
 
-import { CronTester } from '@ez4/local-scheduler';
+import { CronTester } from '@ez4/local-scheduler/test';
 
 describe('hello aws scheduler', () => {
   it('create dynamic event with success', async () => {

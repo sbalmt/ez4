@@ -1,7 +1,7 @@
 import { rejects } from 'node:assert/strict';
 import { describe, it } from 'node:test';
 
-import { QueueTester } from '@ez4/local-queue';
+import { QueueTester } from '@ez4/local-queue/test';
 
 describe('hello aws queue', () => {
   it('send message with success', async () => {

@@ -1,7 +1,7 @@
 import { rejects } from 'node:assert/strict';
 import { describe, it } from 'node:test';
 
-import { NotificationTester } from '@ez4/local-notification';
+import { NotificationTester } from '@ez4/local-notification/test';
 
 describe('hello aws notification', () => {
   it('send message with success', async () => {
