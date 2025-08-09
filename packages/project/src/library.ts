@@ -12,3 +12,4 @@ export * from './types/options.js';
 export * from './utils/definitions.js';
 export * from './utils/service.js';
 export * from './utils/logger.js';
+export * from './utils/tester.js';
