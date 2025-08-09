@@ -3,8 +3,6 @@ import type { LinkedVariables } from '@ez4/project/library';
 const referencesCount: Record<string, number> = {};
 
 export const runWithVariables = async <T>(variables: LinkedVariables, callback: () => Promise<T> | T) => {
-  process.env.EZ4_IS_LOCAL = 'true';
-
   try {
     attachVariables(variables);
     return await callback();

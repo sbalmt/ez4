@@ -67,6 +67,8 @@ export const testCommand = async (project: ProjectOptions) => {
 };
 
 const bootstrapServices = async (emulators: EmulatorServices) => {
+  process.env.EZ4_IS_LOCAL = 'true';
+
   for (const identifier in emulators) {
     const emulator = emulators[identifier];
 

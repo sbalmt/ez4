@@ -214,6 +214,8 @@ const setCorsResponseHeaders = (stream: ServerResponse<IncomingMessage>, request
 };
 
 const bootstrapServices = async (emulators: EmulatorServices, options: ServeOptions) => {
+  process.env.EZ4_IS_LOCAL = 'true';
+
   for (const identifier in emulators) {
     const emulator = emulators[identifier];
 
