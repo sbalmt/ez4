@@ -32,6 +32,26 @@ export interface EnumTestSchema {
   single: TestSingleEnum;
 
   /**
+   * Enum values union.
+   */
+  union: TestSingleEnum | TestEnum | 'literal' | 123;
+
+  /**
+   * Nullable property.
+   */
+  nullable: TestEnum | null;
+
+  /**
+   * Optional property.
+   */
+  optional: TestEnum | undefined;
+
+  /**
+   * Nullable and optional property.
+   */
+  both?: TestEnum | null;
+
+  /**
    * Default enum value.
    */
   default: Enum.Default<TestEnum, TestEnum.FOO>;

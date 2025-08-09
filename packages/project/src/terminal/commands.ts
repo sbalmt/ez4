@@ -6,6 +6,7 @@ import { loadProject } from '../common/project.js';
 import { deployCommand } from './commands/deploy.js';
 import { destroyCommand } from './commands/destroy.js';
 import { serveCommand } from './commands/serve.js';
+import { testCommand } from './commands/test.js';
 import { helpCommand } from './commands/help.js';
 import { CommandType } from './options.js';
 
@@ -28,6 +29,9 @@ export const runActionCommand = async (options: InputOptions) => {
 
     case CommandType.Serve:
       return serveCommand(project);
+
+    case CommandType.Test:
+      return testCommand(project);
 
     case CommandType.Help:
       return helpCommand();

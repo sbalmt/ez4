@@ -5,7 +5,7 @@ import { Logger } from '@ez4/project/library';
 import { pathToFileURL } from 'node:url';
 import { join } from 'node:path';
 
-import { runWithVariables } from './environment.js';
+import { runWithVariables } from '../utils/environment.js';
 
 export type VirtualFunction = <T>(...inputs: unknown[]) => Promise<T>;
 
@@ -56,7 +56,7 @@ const prepareFunction = (entrypoint: ModuleEntrypoint, variables: LinkedVariable
 
     try {
       return await runWithVariables(variables, () => {
-        Logger.log(`▶️  ${headline} Started`);
+        Logger.debug(`▶️  ${headline} Started`);
         return callback(...inputs);
       });
       //

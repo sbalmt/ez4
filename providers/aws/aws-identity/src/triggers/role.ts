@@ -8,7 +8,7 @@ import { createRole } from '../role/service.js';
 import { createPolicy } from '../policy/service.js';
 import { isPolicyState } from '../policy/utils.js';
 import { createPolicyDocument } from '../utils/policy.js';
-import { createRoleDocument } from '../utils/role.js';
+import { createRoleDocument, createRoleStatement } from '../utils/role.js';
 import { getAccountId } from '../utils/account.js';
 
 export const prepareExecutionRole = async (event: RoleResourceEvent) => {
@@ -36,14 +36,16 @@ export const prepareExecutionRole = async (event: RoleResourceEvent) => {
   return createRole(state, policyList, {
     roleName: `${namePrefix}-role`,
     tags: options.tags,
-    roleDocument: createRoleDocument(
-      {
-        permissions: ['sts:AssumeRole'],
-        resourceIds: []
-      },
-      accounts,
-      accountId
-    )
+    roleDocument: createRoleDocument([
+      createRoleStatement(
+        {
+          permissions: ['sts:AssumeRole'],
+          resourceIds: []
+        },
+        accounts,
+        accountId
+      )
+    ])
   });
 };
 

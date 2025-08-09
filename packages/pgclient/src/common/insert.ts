@@ -52,6 +52,7 @@ export const prepareInsertQuery = async <T extends InternalTableMetadata, S exte
     .returning();
 
   const postQueriesMap = preparePostInsertRelations(builder, query.data, relations, insertQuery, table);
+
   const postQueries = Object.values(postQueriesMap)
     .map(({ relationQueries }) => relationQueries)
     .flat();

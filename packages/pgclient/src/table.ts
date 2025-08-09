@@ -76,6 +76,7 @@ export class Table<T extends InternalTableMetadata> implements DbTable<T> {
 
     const selectStatement = prepareFindOne(this.name, this.schema, this.relations, this.context.driver, {
       select: query.select,
+      include: query.include,
       where: query.where
     });
 
@@ -103,6 +104,7 @@ export class Table<T extends InternalTableMetadata> implements DbTable<T> {
   async upsertOne<S extends Query.SelectInput<T>>(query: Query.UpsertOneInput<S, T>) {
     const previous = await this.findOne({
       select: query.select ?? ({} as Query.StrictSelectInput<S, T>),
+      include: query.include,
       where: query.where
     });
 
@@ -138,6 +140,7 @@ export class Table<T extends InternalTableMetadata> implements DbTable<T> {
 
     const selectStatement = prepareFindMany(this.name, this.schema, this.relations, this.context.driver, {
       select: query.select,
+      include: query.include,
       where: query.where,
       ...('take' in query && {
         take: query.take

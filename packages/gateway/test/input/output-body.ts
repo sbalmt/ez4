@@ -13,6 +13,12 @@ declare class TestJsonRequest implements Http.Request {
   };
 }
 
+declare class TestOptionalRequest implements Http.Request {
+  body?: {
+    foo: string;
+  };
+}
+
 declare class TestNamingStyleRequest implements Http.Request {
   body: {
     fooKey: string;
@@ -33,6 +39,10 @@ export declare class TestService extends Http.Service {
     {
       path: 'GET /test-route-c';
       handler: typeof testRouteC;
+    },
+    {
+      path: 'GET /test-route-d';
+      handler: typeof testRouteD;
       preferences: {
         namingStyle: NamingStyle.SnakeCase;
       };
@@ -52,7 +62,13 @@ export function testRouteB(_request: TestJsonRequest): SuccessResponse {
   };
 }
 
-export function testRouteC(_request: TestNamingStyleRequest): SuccessResponse {
+export function testRouteC(_request: TestOptionalRequest): SuccessResponse {
+  return {
+    status: 204
+  };
+}
+
+export function testRouteD(_request: TestNamingStyleRequest): SuccessResponse {
   return {
     status: 204
   };

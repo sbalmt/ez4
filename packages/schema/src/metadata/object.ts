@@ -32,10 +32,10 @@ export const createObjectSchema = (data: Omit<ObjectSchema, 'type'>): ObjectSche
   return {
     type: SchemaType.Object,
     ...(description && { description }),
-    ...(optional && { optional }),
-    ...(nullable && { nullable }),
     ...(definitions && { definitions }),
     ...(additional && { additional }),
+    ...(optional && { optional }),
+    ...(nullable && { nullable }),
     properties,
     identity
   };

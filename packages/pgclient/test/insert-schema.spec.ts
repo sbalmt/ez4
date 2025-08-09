@@ -114,9 +114,9 @@ describe('insert schema', () => {
       }
     );
 
-    assert.equal(statement, `INSERT INTO "ez4-test-insert-schema" ("nullable") VALUES (:0)`);
+    assert.equal(statement, `INSERT INTO "ez4-test-insert-schema" ("nullable") VALUES (null)`);
 
-    assert.deepEqual(variables, [null]);
+    assert.deepEqual(variables, []);
   });
 
   it('assert :: prepare insert schema (scalar optional)', async ({ assert }) => {

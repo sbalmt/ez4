@@ -1,5 +1,6 @@
 import type { QueueImport, QueueService, QueueSubscription } from '@ez4/queue/library';
 import type { EmulateServiceContext, ServeOptions } from '@ez4/project/library';
+import type { AnyObject } from '@ez4/utils';
 import type { Queue } from '@ez4/queue';
 
 import { createModule, onBegin, onEnd, onError, onReady } from '@ez4/local-common';
@@ -10,7 +11,7 @@ export const processLambdaMessage = async (
   options: ServeOptions,
   context: EmulateServiceContext,
   subscription: QueueSubscription,
-  message: Buffer
+  message: AnyObject
 ) => {
   const lambdaModule = await createModule({
     listener: subscription.listener,

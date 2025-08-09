@@ -1,8 +1,8 @@
 import type { AllType, SourceMap, TypeModel, TypeObject } from '@ez4/reflection';
 import type { TableSchema } from '../types/schema.js';
 
+import { createSchemaContext, getObjectSchema, isObjectSchema } from '@ez4/schema/library';
 import { getReferenceType, isModelDeclaration } from '@ez4/common/library';
-import { getObjectSchema, isObjectSchema } from '@ez4/schema/library';
 import { isTypeObject, isTypeReference } from '@ez4/reflection';
 
 import { IncorrectSchemaTypeError, InvalidSchemaTypeError } from '../errors/schema.js';
@@ -43,7 +43,7 @@ const getTypeSchema = (type: AllType, parent: TypeParent, reflection: SourceMap,
 };
 
 const getSchema = (type: TypeObject | TypeModel, reflection: SourceMap) => {
-  const schema = getObjectSchema(type, reflection);
+  const schema = getObjectSchema(type, reflection, createSchemaContext({ nullish: true }));
 
   if (schema && isObjectSchema(schema)) {
     return schema;

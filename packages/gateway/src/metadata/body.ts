@@ -88,9 +88,16 @@ const getCompoundTypeBody = (
 };
 
 const getUnionTypeBody = (types: AllType[], reflection: SourceMap, resolver: (type: AllType) => AnySchema | null) => {
-  const schemaList = [];
+  const schemaList: AnySchema[] = [];
+
+  let optional: undefined | boolean;
 
   for (const type of types) {
+    if (isTypeUndefined(type)) {
+      optional = true;
+      continue;
+    }
+
     const schema = getTypeBody(type, reflection, resolver);
 
     if (schema) {
@@ -103,7 +110,8 @@ const getUnionTypeBody = (types: AllType[], reflection: SourceMap, resolver: (ty
   }
 
   return createUnionSchema({
-    elements: schemaList
+    elements: schemaList,
+    optional
   });
 };
 

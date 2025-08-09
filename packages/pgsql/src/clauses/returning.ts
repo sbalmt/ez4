@@ -35,12 +35,6 @@ export class SqlReturningClause {
     return this;
   }
 
-  record(record: SqlResultRecord) {
-    this.#state.results.reset(record);
-
-    return this;
-  }
-
   column(column: SqlResultColumn) {
     this.#state.results.column(column);
 

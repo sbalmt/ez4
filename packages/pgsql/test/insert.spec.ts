@@ -16,17 +16,55 @@ describe('sql insert tests', () => {
       foo: 123,
       bar: true,
       baz: 'abc',
-      qux: undefined
+      qux: undefined,
+      xyz: null
     });
 
-    deepEqual(query.fields, ['foo', 'bar', 'baz']);
-    deepEqual(query.values, [123, true, 'abc']);
+    deepEqual(query.fields, ['foo', 'bar', 'baz', 'xyz']);
+    deepEqual(query.values, [123, true, 'abc', null]);
 
     const [statement, variables] = query.build();
 
     deepEqual(variables, [123, true, 'abc']);
 
-    equal(statement, 'INSERT INTO "table" ("foo", "bar", "baz") VALUES (:0, :1, :2)');
+    equal(statement, 'INSERT INTO "table" ("foo", "bar", "baz", "xyz") VALUES (:0, :1, :2, null)');
+  });
+
+  it('assert :: insert with json record', async () => {
+    const query = sql
+      .insert()
+      .into('table')
+      .record({
+        foo: {
+          bar: {
+            baz: true
+          }
+        }
+      });
+
+    deepEqual(query.fields, ['foo']);
+    deepEqual(query.values, [{ bar: { baz: true } }]);
+
+    const [statement, variables] = query.build();
+
+    deepEqual(variables, [{ bar: { baz: true } }]);
+
+    equal(statement, 'INSERT INTO "table" ("foo") VALUES (:0)');
+  });
+
+  it('assert :: insert with nullable record', async () => {
+    const query = sql.insert().into('table').record({
+      foo: null
+    });
+
+    deepEqual(query.fields, ['foo']);
+    deepEqual(query.values, [null]);
+
+    const [statement, variables] = query.build();
+
+    deepEqual(variables, []);
+
+    equal(statement, 'INSERT INTO "table" ("foo") VALUES (null)');
   });
 
   it('assert :: insert with inner select record', async () => {
@@ -97,6 +135,39 @@ describe('sql insert tests', () => {
     deepEqual(variables, []);
 
     equal(statement, 'INSERT INTO "table" AS "alias" DEFAULT VALUES RETURNING "alias"."foo", "alias"."bar"');
+  });
+
+  it('assert :: insert with conflict (do nothing)', async () => {
+    const query = sql.insert().into('table').as('alias').conflict(['foo', 'bar']).record({
+      foo: 'abc',
+      bar: true
+    });
+
+    const [statement, variables] = query.build();
+
+    deepEqual(variables, ['abc', true]);
+
+    equal(statement, `INSERT INTO "table" AS "alias" ("foo", "bar") VALUES (:0, :1) ON CONFLICT ("foo", "bar") DO NOTHING`);
+  });
+
+  it('assert :: insert with conflict (do update)', async () => {
+    const query = sql
+      .insert()
+      .into('table')
+      .as('alias')
+      .conflict(['foo', 'bar'], {
+        bar: false
+      })
+      .record({
+        foo: 'abc',
+        bar: true
+      });
+
+    const [statement, variables] = query.build();
+
+    deepEqual(variables, ['abc', true, false]);
+
+    equal(statement, `INSERT INTO "table" AS "alias" ("foo", "bar") VALUES (:0, :1) ON CONFLICT ("foo", "bar") DO UPDATE SET "bar" = :2`);
   });
 
   it('assert :: insert with inner query', async () => {

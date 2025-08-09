@@ -47,11 +47,39 @@
       },
       {
         "path": "GET /test-route-c",
+        "handler": {
+          "name": "testRouteC",
+          "file": "test/input/output-body.ts",
+          "request": {
+            "body": {
+              "type": "union",
+              "description": "Expected HTTP body payload.",
+              "optional": true,
+              "elements": [
+                {
+                  "type": "object",
+                  "identity": 1,
+                  "properties": {
+                    "foo": {
+                      "type": "string"
+                    }
+                  }
+                }
+              ]
+            }
+          },
+          "response": {
+            "status": 204
+          }
+        }
+      },
+      {
+        "path": "GET /test-route-d",
         "preferences": {
           "namingStyle": "snake"
         },
         "handler": {
-          "name": "testRouteC",
+          "name": "testRouteD",
           "file": "test/input/output-body.ts",
           "request": {
             "body": {

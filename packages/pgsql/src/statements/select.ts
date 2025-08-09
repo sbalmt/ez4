@@ -10,7 +10,7 @@ import type { SqlRawGenerator } from '../common/raw.js';
 import { isAnyNumber } from '@ez4/utils';
 
 import { escapeSqlName } from '../utils/escape.js';
-import { getTableExpressions } from '../utils/table.js';
+import { getTableExpressions } from '../helpers/table.js';
 import { MissingTableNameError, NoColumnsError } from '../errors/queries.js';
 import { SqlWhereClause } from '../clauses/where.js';
 import { SqlOrderClause } from '../clauses/order.js';

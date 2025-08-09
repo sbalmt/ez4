@@ -210,10 +210,10 @@ describe('update secondary relations', () => {
     assert.equal(
       statement,
       // Main record
-      `UPDATE ONLY "ez4-test-update-relations" SET "id" = :0, "primary_id" = :1`
+      `UPDATE ONLY "ez4-test-update-relations" SET "id" = :0, "primary_id" = null`
     );
 
-    assert.deepEqual(variables, ['00000000-0000-1000-9000-000000000000', null]);
+    assert.deepEqual(variables, ['00000000-0000-1000-9000-000000000000']);
   });
 
   it('assert :: prepare update secondary relation (active connection)', async ({ assert }) => {

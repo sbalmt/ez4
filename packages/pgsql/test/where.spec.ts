@@ -755,7 +755,22 @@ describe('sql where tests', () => {
       .select()
       .from('test')
       .where({
-        AND: [{ foo: 123, bar: 'abc' }, { OR: [{ baz: 456 }, { qux: 789 }] }]
+        AND: [
+          {
+            foo: 123,
+            bar: 'abc'
+          },
+          {
+            OR: [
+              {
+                baz: 456
+              },
+              {
+                qux: 789
+              }
+            ]
+          }
+        ]
       });
 
     const [statement, variables] = query.build();
@@ -770,7 +785,22 @@ describe('sql where tests', () => {
       .select()
       .from('test')
       .where({
-        OR: [{ foo: 123, bar: 'abc' }, { AND: [{ baz: 456 }, { qux: 789 }] }]
+        OR: [
+          {
+            foo: 123,
+            bar: 'abc'
+          },
+          {
+            AND: [
+              {
+                baz: 456
+              },
+              {
+                qux: 789
+              }
+            ]
+          }
+        ]
       });
 
     const [statement, variables] = query.build();
@@ -796,6 +826,7 @@ describe('sql where tests', () => {
     const query = sql
       .select()
       .from('test')
+      .as('alias')
       .where({
         foo: {
           bar: {
@@ -808,7 +839,7 @@ describe('sql where tests', () => {
 
     assert.deepEqual(variables, [true]);
 
-    assert.equal(statement, `SELECT * FROM "test" WHERE "foo"['bar']['baz'] = :0`);
+    assert.equal(statement, `SELECT * FROM "test" AS "alias" WHERE "alias"."foo"['bar']['baz'] = :0`);
   });
 
   it('assert :: where with multiple fields', ({ assert }) => {
@@ -833,6 +864,7 @@ describe('sql where tests', () => {
     const query = sql
       .select(schema)
       .from('test')
+      .as('alias')
       .where({
         foo: {
           bar: 123,
@@ -844,7 +876,7 @@ describe('sql where tests', () => {
 
     assert.deepEqual(variables, [123, 456]);
 
-    assert.equal(statement, `SELECT * FROM "test" WHERE ("foo"['bar'] = :0 AND "foo"['baz'] = :1)`);
+    assert.equal(statement, `SELECT * FROM "test" AS "alias" WHERE ("alias"."foo"['bar'] = :0 AND "alias"."foo"['baz'] = :1)`);
   });
 
   it('assert :: where with raw value', ({ assert }) => {
@@ -909,8 +941,12 @@ describe('sql where tests', () => {
       .from('test')
       .where({
         foo: {
+          // Make where condition to be falsy.
           isIn: []
-        }
+        },
+        AND: [],
+        OR: [],
+        NOT: {}
       });
 
     const [statement, variables] = query.build();
@@ -931,6 +967,21 @@ describe('sql where tests', () => {
         },
         baz: {
           qux: undefined
+        },
+        AND: [
+          {
+            foo: undefined
+          },
+          {}
+        ],
+        OR: [
+          {
+            bar: undefined
+          },
+          {}
+        ],
+        NOT: {
+          baz: undefined
         }
       });
 

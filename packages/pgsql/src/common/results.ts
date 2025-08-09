@@ -1,7 +1,7 @@
 import type { SqlJsonColumnOptions, SqlJsonColumnSchema } from './json.js';
-import type { SqlColumn } from './types.js';
 import type { SqlRawGenerator } from './raw.js';
 import type { SqlSource } from './source.js';
+import type { SqlColumn } from './types.js';
 
 import { isAnyObject } from '@ez4/utils';
 

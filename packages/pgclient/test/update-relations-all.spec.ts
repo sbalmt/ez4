@@ -11,8 +11,10 @@ import { Index } from '@ez4/database';
 type TestTableMetadata = {
   engine: PostgresEngine;
   relations: RelationMetadata;
-  indexes: {};
   schema: {};
+  indexes: {
+    id: Index.Primary;
+  };
 };
 
 describe('update relations', () => {
@@ -75,7 +77,9 @@ describe('update relations', () => {
     }
   };
 
-  const prepareUpdate = <S extends Query.SelectInput<TestTableMetadata>>(query: Query.UpdateManyInput<S, TestTableMetadata>) => {
+  const prepareUpdate = <S extends Query.SelectInput<TestTableMetadata>>(
+    query: Query.UpdateManyInput<S, TestTableMetadata> | Query.UpdateOneInput<S, TestTableMetadata>
+  ) => {
     const builder = new SqlBuilder();
 
     return prepareUpdateQuery('ez4-test-update-relations', testSchema, testRelations, query, builder);
@@ -160,5 +164,77 @@ describe('update relations', () => {
     );
 
     assert.deepEqual(variables, ['foo1', 'foo2', 'foo3']);
+  });
+
+  it('assert :: prepare update relations (with where include)', async ({ assert }) => {
+    const [statement, variables] = await prepareUpdate({
+      select: {
+        id: true,
+        primary_to_secondary: {
+          id: true
+        },
+        unique_to_primary: {
+          foo: true
+        },
+        secondary_to_primary: {
+          foo: true
+        }
+      },
+      include: {
+        primary_to_secondary: {
+          where: {
+            foo: 123
+          }
+        },
+        unique_to_primary: {
+          where: {
+            foo: 456
+          }
+        },
+        secondary_to_primary: {
+          where: {
+            foo: 789
+          }
+        }
+      } as any,
+      data: {
+        primary_to_secondary: {
+          foo: 'foo1'
+        },
+        unique_to_primary: {
+          foo: 'foo2'
+        },
+        secondary_to_primary: {
+          foo: 'foo3'
+        }
+      },
+      where: {
+        id: '00000000-0000-1000-9000-000000000000'
+      }
+    });
+
+    assert.equal(
+      statement,
+      `WITH ` +
+        // Main record
+        `"R0" AS (SELECT "R"."secondary_id", "R"."id" FROM "ez4-test-update-relations" AS "R" WHERE "R"."id" = :0), ` +
+        // First relation
+        `"R1" AS (UPDATE ONLY "ez4-test-relation" AS "T" SET "foo" = :1 FROM "R0" WHERE "T"."id" = "R0"."secondary_id"), ` +
+        // Second relation
+        `"R2" AS (UPDATE ONLY "ez4-test-relation" AS "T" SET "foo" = :2 FROM "R0" WHERE "T"."unique_id" = "R0"."id"), ` +
+        // Third relation
+        `"R3" AS (UPDATE ONLY "ez4-test-relation" AS "T" SET "foo" = :3 FROM "R0" WHERE "T"."primary_id" = "R0"."id") ` +
+        // Select
+        `SELECT "id", ` +
+        `(SELECT json_build_object('id', "T"."id") FROM "ez4-test-relation" AS "T" ` +
+        `WHERE "T"."foo" = :4 AND "T"."id" = "R0"."secondary_id") AS "primary_to_secondary", ` +
+        `(SELECT json_build_object('foo', "T"."foo") FROM "ez4-test-relation" AS "T" ` +
+        `WHERE "T"."foo" = :5 AND "T"."unique_id" = "R0"."id") AS "unique_to_primary", ` +
+        `(SELECT COALESCE(json_agg(json_build_object('foo', "T"."foo")), '[]'::json) FROM "ez4-test-relation" AS "T" ` +
+        `WHERE "T"."foo" = :6 AND "T"."primary_id" = "R0"."id") AS "secondary_to_primary" ` +
+        `FROM "ez4-test-update-relations"`
+    );
+
+    assert.deepEqual(variables, ['00000000-0000-1000-9000-000000000000', 'foo1', 'foo2', 'foo3', 123, 456, 789]);
   });
 });

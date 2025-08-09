@@ -1,5 +1,5 @@
 import type { Cron, ScheduleEvent, Client as CronClient } from '@ez4/scheduler';
-import type { EventSchema } from '@ez4/aws-scheduler/runtime';
+import type { EventSchema } from '@ez4/scheduler/utils';
 import type { Arn } from '@ez4/aws-common';
 
 import {
@@ -13,7 +13,7 @@ import {
   ResourceNotFoundException
 } from '@aws-sdk/client-scheduler';
 
-import { getJsonStringEvent } from '@ez4/aws-scheduler/runtime';
+import { getJsonStringEvent } from '@ez4/scheduler/utils';
 import { isAnyNumber } from '@ez4/utils';
 
 const client = new SchedulerClient({});

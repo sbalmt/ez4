@@ -1,5 +1,6 @@
 import type { DynamoDBDocumentClient, ExecuteStatementCommandInput } from '@aws-sdk/lib-dynamodb';
 import type { ConsumedCapacity } from '@aws-sdk/client-dynamodb';
+import type { AnyObject } from '@ez4/utils';
 
 import { ReturnConsumedCapacity } from '@aws-sdk/client-dynamodb';
 import { ExecuteTransactionCommand } from '@aws-sdk/lib-dynamodb';
@@ -85,27 +86,57 @@ export const executeTransaction = async (client: DynamoDBDocumentClient, stateme
         commandList.forEach((command) => logQuerySuccess(command, consumption, true));
       }
     } catch (error) {
-      commandList.forEach((command) => logQueryError(command));
+      commandList.forEach((command) => logQueryError(command, true));
 
       throw error;
     }
   }
 };
 
+const isLocal = () => {
+  return process.env.EZ4_IS_LOCAL === 'true';
+};
+
 const logQuerySuccess = (input: ExecuteStatementCommandInput, consumption: ConsumedCapacity | undefined, transaction?: boolean) => {
+  const parameters = getDebugParameters(input);
+
   console.debug({
     type: 'PartiQL',
-    query: input.Statement,
     consumption: consumption?.CapacityUnits,
+    query: input.Statement,
+    ...(transaction && {
+      transaction
+    }),
+    ...(parameters && {
+      parameters
+    })
+  });
+};
+
+const logQueryError = (input: ExecuteStatementCommandInput, transaction?: boolean) => {
+  const parameters = getDebugParameters(input);
+
+  console.error({
+    type: 'PartiQL',
+    ...(parameters && {
+      parameters
+    }),
     ...(transaction && {
       transaction
     })
   });
 };
 
-const logQueryError = (input: ExecuteStatementCommandInput) => {
-  console.error({
-    type: 'PartiQL',
-    query: input.Statement
+const getDebugParameters = (input: ExecuteStatementCommandInput) => {
+  if (!isLocal() || !input.Parameters?.length) {
+    return undefined;
+  }
+
+  const parameters: AnyObject = {};
+
+  input.Parameters.forEach((variable, index) => {
+    parameters[index] = variable;
   });
+
+  return parameters;
 };

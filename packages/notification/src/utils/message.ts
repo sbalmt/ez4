@@ -11,7 +11,7 @@ export type MessageSchema = ObjectSchema | UnionSchema;
 export const getJsonMessage = async <T extends Notification.Message>(input: T, schema: MessageSchema): Promise<T> => {
   const message = transform(input, schema, createTransformContext({ convert: false }));
 
-  const errors = await validate(message, schema, createValidatorContext({ property: '$body' }));
+  const errors = await validate(message, schema, createValidatorContext({ property: '$message' }));
 
   if (errors.length) {
     throw new MalformedMessageError(getUniqueErrorMessages(errors));

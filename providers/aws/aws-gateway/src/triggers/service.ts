@@ -142,12 +142,15 @@ const getIntegrationFunction = (
       querySchema: request?.query,
       bodySchema: request?.body,
       responseSchema: response.body,
-      preferences: route.preferences,
       timeout: Math.max(5, (timeout ?? Defaults.Timeout) - 1),
       memory: memory ?? Defaults.Memory,
       extras: service.extras,
       debug: options.debug,
       tags: options.tags,
+      preferences: {
+        ...defaults.preferences,
+        ...route.preferences
+      },
       errorsMap: {
         ...defaults.httpErrors,
         ...route.httpErrors
@@ -235,12 +238,15 @@ const getAuthorizerFunction = (
       headersSchema: request?.headers,
       parametersSchema: request?.parameters,
       querySchema: request?.query,
-      preferences: route.preferences,
       timeout: Math.max(5, (timeout ?? Defaults.Timeout) - 1),
       memory: memory ?? Defaults.Memory,
       extras: service.extras,
       debug: options.debug,
       tags: options.tags,
+      preferences: {
+        ...defaults.preferences,
+        ...route.preferences
+      },
       variables: {
         ...options.variables,
         ...service.variables

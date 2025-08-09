@@ -1,25 +1,25 @@
 import type { EntryState, StepContext } from '@ez4/stateful';
-import type { CreateRequest, CreateResponse } from './client.js';
+import type { AttachRequest, AttachResponse } from './client.js';
 
-export const PolicyServiceName = 'AWS:SQS/Policy';
+export const QueuePolicyServiceName = 'AWS:SQS/Policy';
 
-export const PolicyServiceType = 'aws:sqs.policy';
+export const QueuePolicyServiceType = 'aws:sqs.policy';
 
-export type Policy = Omit<CreateRequest, 'queueUrl'>;
+export type QueuePolicy = Omit<AttachRequest, 'queueUrl'>;
 
-export type GetPolicy = (context: StepContext) => Promise<Policy> | Policy;
+export type QueuePolicyGetter = (context: StepContext) => Promise<QueuePolicy> | QueuePolicy;
 
-export type PolicyParameters = {
-  getPolicy: GetPolicy;
+export type QueuePolicyParameters = {
+  policyGetters: QueuePolicyGetter[];
   fromService: string;
 };
 
-export type PolicyResult = CreateResponse & {
+export type QueuePolicyResult = AttachResponse & {
   queueUrl: string;
 };
 
-export type PolicyState = EntryState & {
-  type: typeof PolicyServiceType;
-  parameters: PolicyParameters;
-  result?: PolicyResult;
+export type QueuePolicyState = EntryState & {
+  type: typeof QueuePolicyServiceType;
+  parameters: QueuePolicyParameters;
+  result?: QueuePolicyResult;
 };

@@ -20,13 +20,13 @@
   },
   "dependencies": {
     "hello-aws-notification": "^0.0.0",
-    "@ez4/aws-notification": "^0.23.0",
-    "@ez4/aws-queue": "^0.23.0",
-    "@ez4/common": "^0.23.0",
-    "@ez4/local-notification": "^0.23.0",
-    "@ez4/local-queue": "^0.23.0",
-    "@ez4/notification": "^0.23.0",
-    "@ez4/queue": "^0.23.0",
-    "@ez4/project": "^0.23.0"
+    "@ez4/aws-notification": "^0.24.0",
+    "@ez4/aws-queue": "^0.24.0",
+    "@ez4/common": "^0.24.0",
+    "@ez4/local-notification": "^0.24.0",
+    "@ez4/local-queue": "^0.24.0",
+    "@ez4/notification": "^0.24.0",
+    "@ez4/queue": "^0.24.0",
+    "@ez4/project": "^0.24.0"
   }
 }

@@ -2,7 +2,7 @@ import type { Context, ScheduledEvent } from 'aws-lambda';
 import type { ObjectSchema, UnionSchema } from '@ez4/schema';
 import type { Cron } from '@ez4/scheduler';
 
-import { getJsonEvent } from '@ez4/aws-scheduler/runtime';
+import { getJsonEvent } from '@ez4/scheduler/utils';
 import { ServiceEventType } from '@ez4/common';
 
 declare const __EZ4_SCHEMA: ObjectSchema | UnionSchema | null;
