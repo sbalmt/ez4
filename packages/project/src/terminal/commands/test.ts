@@ -27,6 +27,7 @@ export const testCommand = async (project: ProjectOptions) => {
     serviceHost: `${serviceHost}:${servicePort}`,
     variables: project.variables,
     debug: project.debugMode,
+    test: true,
     version: 0
   };
 

@@ -24,16 +24,20 @@ export const registerCronEmulator = (service: CronService, options: ServeOptions
         handler: (event) => processSchedulerEvent(service, options, context, event)
       });
 
-      if (isDynamicCronService(service)) {
-        Logger.log(`⌚ Dynamic scheduler [${serviceName}] is ready`);
-      } else {
-        processTimerEvent(service, options, context);
+      if (!options.test) {
+        if (!isDynamicCronService(service)) {
+          Logger.log(`⌚ Dynamic scheduler [${serviceName}] is ready`);
+        } else {
+          processTimerEvent(service, options, context);
+        }
       }
     },
     shutdownHandler: () => {
       InMemoryScheduler.deleteScheduler(serviceName);
 
-      Logger.log(`⛔ Stopped scheduler [${serviceName}] events`);
+      if (!options.test) {
+        Logger.log(`⛔ Stopped scheduler [${serviceName}] events`);
+      }
     }
   };
 };

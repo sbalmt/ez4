@@ -23,4 +23,5 @@ export type ServeOptions = CommonOptions & {
   variables?: LinkedVariables;
   serviceHost: string;
   version: number;
+  test?: boolean;
 };
