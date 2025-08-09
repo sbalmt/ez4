@@ -15,7 +15,7 @@ export const createNotificationClient = <T extends Notification.Message = any>(
 
   return new (class {
     async sendMessage(message: T) {
-      Logger.log(`✉️  Sending message to Topic [${serviceName}] at ${notificationHost}`);
+      Logger.debug(`✉️  Sending message to Topic [${serviceName}] at ${notificationHost}`);
 
       const payload = await getJsonStringMessage(message, messageSchema);
 

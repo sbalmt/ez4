@@ -2,6 +2,7 @@ import type { EntryStates } from '@ez4/stateful';
 import type { ProjectOptions } from '../../types/project.js';
 import type { DestroyOptions } from '../../types/options.js';
 
+import { Logger } from '@ez4/project/library';
 import { toKebabCase } from '@ez4/utils';
 
 import { applyDeploy } from '../../actions/deploy.js';
@@ -10,7 +11,6 @@ import { reportResourceChanges } from '../../report/report.js';
 import { loadProviders } from '../../common/providers.js';
 import { waitConfirmation } from '../../utils/prompt.js';
 import { assertNoErrors } from '../../utils/errors.js';
-import { Logger } from '../../utils/logger.js';
 
 export const destroyCommand = async (project: ProjectOptions) => {
   const options: DestroyOptions = {

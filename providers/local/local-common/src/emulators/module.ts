@@ -56,7 +56,7 @@ const prepareFunction = (entrypoint: ModuleEntrypoint, variables: LinkedVariable
 
     try {
       return await runWithVariables(variables, () => {
-        Logger.log(`▶️  ${headline} Started`);
+        Logger.debug(`▶️  ${headline} Started`);
         return callback(...inputs);
       });
       //

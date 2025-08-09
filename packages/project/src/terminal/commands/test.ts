@@ -2,13 +2,12 @@ import type { ProjectOptions } from '../../types/project.js';
 import type { EmulatorServices } from '../../library/emulator.js';
 import type { ServeOptions } from '../../types/options.js';
 
-import { Tester } from '@ez4/project/library';
+import { Tester, Logger, LogLevel } from '@ez4/project/library';
 import { toKebabCase } from '@ez4/utils';
 
 import { loadProviders } from '../../common/providers.js';
 import { getMetadata } from '../../library/metadata.js';
 import { getEmulators } from '../../library/emulator.js';
-import { Logger } from '../../utils/logger.js';
 
 import { readdir } from 'node:fs/promises';
 import { join } from 'node:path';
@@ -31,6 +30,10 @@ export const testCommand = async (project: ProjectOptions) => {
     version: 0
   };
 
+  if (options.debug) {
+    Logger.setLevel(LogLevel.Debug);
+  }
+
   await Logger.execute('🔄️ Loading providers', () => {
     return loadProviders(project);
   });
@@ -46,8 +49,6 @@ export const testCommand = async (project: ProjectOptions) => {
 
     Tester.configure(emulators, options);
   });
-
-  Logger.space();
 
   const testPath = process.cwd();
 

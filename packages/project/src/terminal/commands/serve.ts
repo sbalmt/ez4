@@ -4,6 +4,7 @@ import type { EmulatorServices } from '../../library/emulator.js';
 import type { ProjectOptions } from '../../types/project.js';
 import type { ServeOptions } from '../../types/options.js';
 
+import { Logger, LogLevel } from '@ez4/project/library';
 import { toKebabCase } from '@ez4/utils';
 
 import { createServer } from 'node:http';
@@ -11,7 +12,6 @@ import { createServer } from 'node:http';
 import { loadProviders } from '../../common/providers.js';
 import { watchMetadata } from '../../library/metadata.js';
 import { getEmulators } from '../../library/emulator.js';
-import { Logger } from '../../utils/logger.js';
 
 export const serveCommand = async (project: ProjectOptions) => {
   const serveOptions = project.serveOptions;
@@ -29,6 +29,10 @@ export const serveCommand = async (project: ProjectOptions) => {
     debug: project.debugMode,
     version: 0
   };
+
+  if (options.debug) {
+    Logger.setLevel(LogLevel.Debug);
+  }
 
   await Logger.execute('🔄️ Loading providers', () => {
     return loadProviders(project);

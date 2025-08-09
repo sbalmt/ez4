@@ -2,6 +2,7 @@ import type { EntryStates } from '@ez4/stateful';
 import type { ProjectOptions } from '../../types/project.js';
 import type { DeployOptions } from '../../types/options.js';
 
+import { Logger } from '@ez4/project/library';
 import { toKebabCase } from '@ez4/utils';
 
 import { applyDeploy } from '../../actions/deploy.js';
@@ -16,7 +17,6 @@ import { getMetadata } from '../../library/metadata.js';
 import { assertNoErrors } from '../../utils/errors.js';
 import { loadProviders } from '../../common/providers.js';
 import { loadImports } from '../../common/imports.js';
-import { Logger } from '../../utils/logger.js';
 
 export const deployCommand = async (project: ProjectOptions) => {
   const options: DeployOptions = {
