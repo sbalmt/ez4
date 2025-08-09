@@ -22,6 +22,11 @@
       "types": "./dist/main.d.ts",
       "require": "./dist/main.cjs",
       "import": "./dist/main.mjs"
+    },
+    "./test": {
+      "types": "./dist/test.d.ts",
+      "require": "./dist/test.cjs",
+      "import": "./dist/test.mjs"
     }
   },
   "workspaces": [

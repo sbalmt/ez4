@@ -3,7 +3,7 @@
  */
 export default {
   prefix: 'ez4',
-  debugMode: true,
+  debugMode: false,
   projectName: 'storage-manager',
   sourceFiles: ['./src/api.ts', './src/dynamo.ts', './src/storage.ts'],
   stateFile: {

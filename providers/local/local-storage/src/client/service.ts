@@ -8,7 +8,7 @@ import { existsSync } from 'node:fs';
 import { isAnyObject, toKebabCase } from '@ez4/utils';
 import { getServiceName } from '@ez4/project/library';
 
-export const createStorageClient = (serviceName: string, serveOptions: ServeOptions): Client => {
+export const createServiceClient = (serviceName: string, serveOptions: ServeOptions): Client => {
   const storageIdentifier = getServiceName(serviceName, serveOptions);
   const storageDirectory = join('.ez4', toKebabCase(serviceName));
 
