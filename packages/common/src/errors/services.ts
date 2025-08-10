@@ -51,6 +51,6 @@ export class ExternalReferenceError extends TypeError {
     public serviceName: string,
     fileName?: string
   ) {
-    super(`External service ${serviceName} needs to be an import`, fileName);
+    super(`External service ${serviceName} needs to be an import.`, fileName);
   }
 }
