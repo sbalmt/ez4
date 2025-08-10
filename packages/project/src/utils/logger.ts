@@ -47,8 +47,11 @@ export namespace Logger {
 
       process.stdout.write(`\r[EZ4]: ${message} (${elapsedTime}ms)\n`);
 
-      if (Context.capture === 0) {
-        process.stdout.write(Context.buffer.join(''));
+      if (Context.capture === 0 && Context.buffer.length) {
+        process.stdout.write('\n');
+        process.stdout.write(Context.buffer.join('\n'));
+        process.stdout.write('\n\n');
+
         Context.buffer = [];
       }
     }
@@ -64,15 +67,15 @@ export namespace Logger {
     if (Context.capture === 0) {
       process.stdout.write('\n');
     } else {
-      Context.buffer.push('\n');
+      Context.buffer.push('');
     }
   };
 
   export const log = (message: string) => {
-    const logMessage = `[EZ4]: ${message}\n`;
+    const logMessage = `[EZ4]: ${message}`;
 
     if (Context.capture === 0) {
-      process.stdout.write(logMessage);
+      process.stdout.write(`${logMessage}\n`);
     } else {
       Context.buffer.push(logMessage);
     }
@@ -89,10 +92,10 @@ export namespace Logger {
       return;
     }
 
-    const errorMessage = toRed(`[EZ4]: ❌ ${message}\n`);
+    const errorMessage = toRed(`[EZ4]: ❌ ${message}`);
 
     if (Context.capture === 0) {
-      process.stderr.write(errorMessage);
+      process.stderr.write(`${errorMessage}\n`);
     } else {
       Context.buffer.push(errorMessage);
     }
