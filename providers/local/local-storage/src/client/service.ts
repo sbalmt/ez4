@@ -20,28 +20,29 @@ export const createServiceClient = (serviceName: string, serveOptions: ServeOpti
     }
 
     async write(key: string, contents: Content) {
-      Logger.debug(`⬆️  File ${key} uploaded.`);
-
       const filePath = join(storageDirectory, key);
 
       await mkdir(dirname(filePath), { recursive: true });
       await writeFile(filePath, contents);
+
+      Logger.debug(`⬆️  File ${key} uploaded.`);
     }
 
     async read(key: string): Promise<Buffer> {
+      const filePath = join(storageDirectory, key);
+      const fileContent = await readFile(filePath);
+
       Logger.debug(`⬇️  File ${key} downloaded.`);
 
-      const filePath = join(storageDirectory, key);
-
-      return readFile(filePath);
+      return fileContent;
     }
 
     async delete(key: string) {
-      Logger.debug(`ℹ️  File ${key} deleted.`);
-
       const filePath = join(storageDirectory, key);
 
       await unlink(filePath);
+
+      Logger.debug(`ℹ️  File ${key} deleted.`);
     }
 
     async getWriteUrl(key: string): Promise<string> {
