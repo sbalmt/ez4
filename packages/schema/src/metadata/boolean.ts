@@ -10,7 +10,9 @@ export type RichTypeBoolean = TypeBoolean & {
   definitions?: SchemaDefinitions;
 };
 
-export const createBooleanSchema = (data: Omit<BooleanSchema, 'type'>): BooleanSchema => {
+export type BooleanSchemaData = Omit<BooleanSchema, 'type'>;
+
+export const createBooleanSchema = (data: BooleanSchemaData): BooleanSchema => {
   const { description, optional, nullable, definitions } = data;
 
   return {

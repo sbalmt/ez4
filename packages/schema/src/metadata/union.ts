@@ -19,7 +19,9 @@ export type RichTypeUnion = TypeUnion & {
   definitions?: SchemaDefinitions;
 };
 
-export const createUnionSchema = (data: Omit<UnionSchema, 'type'>): UnionSchema => {
+export type UnionSchemaData = Omit<UnionSchema, 'type'>;
+
+export const createUnionSchema = (data: UnionSchemaData): UnionSchema => {
   const { description, optional, nullable, elements, definitions } = data;
 
   return {

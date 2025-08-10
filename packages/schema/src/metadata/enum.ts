@@ -12,7 +12,9 @@ export type RichTypeEnum = TypeEnum & {
   definitions?: SchemaDefinitions;
 };
 
-export const createEnumSchema = (data: Omit<EnumSchema, 'type'>): EnumSchema => {
+export type EnumSchemaData = Omit<EnumSchema, 'type'>;
+
+export const createEnumSchema = (data: EnumSchemaData): EnumSchema => {
   const { options, description, optional, nullable, definitions } = data;
 
   return {

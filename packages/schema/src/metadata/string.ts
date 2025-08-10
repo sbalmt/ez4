@@ -11,7 +11,9 @@ export type RichTypeString = TypeString & {
   definitions?: SchemaDefinitions;
 };
 
-export const createStringSchema = (data: Omit<StringSchema, 'type'>): StringSchema => {
+export type StringSchemaData = Omit<StringSchema, 'type'>;
+
+export const createStringSchema = (data: StringSchemaData): StringSchema => {
   const { description, optional, nullable, format, definitions } = data;
 
   return {
