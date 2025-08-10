@@ -32,7 +32,7 @@ export namespace Tester {
 
   export const getServiceClient = (resourceName: string) => {
     if (!ensureContext(Context)) {
-      throw new Error('Tester is not configure yet.');
+      throw new Error('Tester is not configured yet.');
     }
 
     const serviceName = getServiceName(resourceName, Context.options);
