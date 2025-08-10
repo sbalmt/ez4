@@ -8,13 +8,17 @@ export const enum LogLevel {
 
 type LoggerContext = {
   logLevel: LogLevel;
+  capture: number;
+  buffer: string[];
 };
 
 export namespace Logger {
   export type Callback<T> = () => Promise<T> | T;
 
   const Context: LoggerContext = {
-    logLevel: LogLevel.Error
+    logLevel: LogLevel.Error,
+    capture: 0,
+    buffer: []
   };
 
   export const setLevel = (logLevel: LogLevel) => {
@@ -27,42 +31,50 @@ export namespace Logger {
     process.stdout.write(`[EZ4]: ${message} ...`);
 
     try {
+      Context.capture++;
+
       const response = await callback();
+
+      return response;
+      //
+    } catch (error) {
+      throw error;
+      //
+    } finally {
+      Context.capture--;
 
       const elapsedTime = (performance.now() - startTime).toFixed(2);
 
       process.stdout.write(`\r[EZ4]: ${message} (${elapsedTime}ms)\n`);
 
-      return response;
-      //
-    } catch (error) {
-      process.stdout.write('\n');
-
-      throw error;
+      if (Context.capture === 0) {
+        process.stdout.write(Context.buffer.join(''));
+        Context.buffer = [];
+      }
     }
   };
 
   export const clear = () => {
-    process.stdout.write('\x1Bc\r');
-  };
-
-  export const space = () => {
-    process.stdout.write('\n');
-  };
-
-  export const log = (message: string) => {
-    process.stdout.write(`[EZ4]: ${message}\n`);
-  };
-
-  export const error = (message: string) => {
-    if (Context.logLevel >= LogLevel.Error) {
-      process.stderr.write(toRed(`[EZ4]: ❌ ${message}\n`));
+    if (Context.capture === 0) {
+      process.stdout.write('\x1Bc\r');
     }
   };
 
-  export const success = (message: string) => {
-    if (Context.logLevel >= LogLevel.Debug) {
-      debug(`✅ ${message}`);
+  export const space = () => {
+    if (Context.capture === 0) {
+      process.stdout.write('\n');
+    } else {
+      Context.buffer.push('\n');
+    }
+  };
+
+  export const log = (message: string) => {
+    const logMessage = `[EZ4]: ${message}\n`;
+
+    if (Context.capture === 0) {
+      process.stdout.write(logMessage);
+    } else {
+      Context.buffer.push(logMessage);
     }
   };
 
@@ -70,5 +82,23 @@ export namespace Logger {
     if (Context.logLevel >= LogLevel.Debug) {
       log(message);
     }
+  };
+
+  export const error = (message: string) => {
+    if (Context.logLevel < LogLevel.Error) {
+      return;
+    }
+
+    const errorMessage = toRed(`[EZ4]: ❌ ${message}\n`);
+
+    if (Context.capture === 0) {
+      process.stderr.write(errorMessage);
+    } else {
+      Context.buffer.push(errorMessage);
+    }
+  };
+
+  export const success = (message: string) => {
+    debug(`✅ ${message}`);
   };
 }
