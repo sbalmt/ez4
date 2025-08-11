@@ -6,9 +6,9 @@ import { dirname, join } from 'node:path';
 import { existsSync } from 'node:fs';
 
 import { isAnyObject, toKebabCase } from '@ez4/utils';
-import { getServiceName } from '@ez4/project/library';
+import { getServiceName, Logger } from '@ez4/project/library';
 
-export const createStorageClient = (serviceName: string, serveOptions: ServeOptions): Client => {
+export const createServiceClient = (serviceName: string, serveOptions: ServeOptions): Client => {
   const storageIdentifier = getServiceName(serviceName, serveOptions);
   const storageDirectory = join('.ez4', toKebabCase(serviceName));
 
@@ -24,18 +24,25 @@ export const createStorageClient = (serviceName: string, serveOptions: ServeOpti
 
       await mkdir(dirname(filePath), { recursive: true });
       await writeFile(filePath, contents);
+
+      Logger.debug(`⬆️  File ${key} uploaded.`);
     }
 
     async read(key: string): Promise<Buffer> {
       const filePath = join(storageDirectory, key);
+      const fileContent = await readFile(filePath);
 
-      return readFile(filePath);
+      Logger.debug(`⬇️  File ${key} downloaded.`);
+
+      return fileContent;
     }
 
     async delete(key: string) {
       const filePath = join(storageDirectory, key);
 
       await unlink(filePath);
+
+      Logger.debug(`ℹ️  File ${key} deleted.`);
     }
 
     async getWriteUrl(key: string): Promise<string> {

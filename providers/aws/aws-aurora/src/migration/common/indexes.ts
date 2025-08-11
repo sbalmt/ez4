@@ -100,20 +100,20 @@ export const prepareDeleteIndexes = (table: string, indexes: PgIndexRepository, 
   return statements;
 };
 
-const getName = (name: string) => {
-  return toSnakeCase(name.replaceAll(':', '_'));
+const getName = (table: string, name: string) => {
+  return `${table}_${toSnakeCase(name.replaceAll(':', '_'))}`;
 };
 
 const getPrimaryKey = (table: string, name: string) => {
-  return `${table}_${getName(name)}_pk`;
+  return `${getName(table, name)}_pk`;
 };
 
 const getUniqueKey = (table: string, name: string) => {
-  return `${table}_${getName(name)}_unq`;
+  return `${getName(table, name)}_uq`;
 };
 
 const getSecondaryKey = (table: string, name: string) => {
-  return `${table}_${getName(name)}_idx`;
+  return `${getName(table, name)}_ix`;
 };
 
 const getIndexType = (columns: string[], schema: ObjectSchema) => {

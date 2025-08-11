@@ -4,8 +4,9 @@ import type { LinkedServices } from '@ez4/project/library';
 import { isModelProperty, isTypeObject } from '@ez4/reflection';
 import { triggerAllSync } from '@ez4/project/library';
 
-import { InvalidServiceError, MissingServiceError, MissingServiceProviderError } from '../errors/services.js';
+import { ExternalReferenceError, InvalidServiceError, MissingServiceError, MissingServiceProviderError } from '../errors/services.js';
 import { getPropertyObject, getPropertyString } from '../reflection/property.js';
+import { isExternalDeclaration } from '../reflection/declaration.js';
 import { isClassDeclaration } from '../reflection/model.js';
 import { getObjectMembers } from '../reflection/object.js';
 
@@ -37,6 +38,11 @@ export const getLinkedServiceName = (member: ModelProperty, parent: TypeObject |
 
   if (!isClassDeclaration(declaration)) {
     errorList.push(new InvalidServiceError(declaration.name, declaration.file));
+    return null;
+  }
+
+  if (isExternalDeclaration(declaration)) {
+    errorList.push(new ExternalReferenceError(declaration.name, declaration.file));
     return null;
   }
 

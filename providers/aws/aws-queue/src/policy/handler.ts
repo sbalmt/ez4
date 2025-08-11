@@ -1,13 +1,13 @@
 import type { StepContext, StepHandler } from '@ez4/stateful';
-import type { PolicyResult, PolicyState } from './types.js';
+import type { QueuePolicyResult, QueuePolicyState } from './types.js';
 
 import { ReplaceResourceError } from '@ez4/aws-common';
 
 import { getQueueUrl } from '../queue/utils.js';
-import { attachPolicy, detachPolicy } from './client.js';
-import { PolicyServiceName } from './types.js';
+import { attachPolicies, detachPolicy } from './client.js';
+import { QueuePolicyServiceName } from './types.js';
 
-export const getPolicyHandler = (): StepHandler<PolicyState> => ({
+export const getQueuePolicyHandler = (): StepHandler<QueuePolicyState> => ({
   equals: equalsResource,
   create: createResource,
   replace: replaceResource,
@@ -16,46 +16,44 @@ export const getPolicyHandler = (): StepHandler<PolicyState> => ({
   delete: deleteResource
 });
 
-const equalsResource = (candidate: PolicyState, current: PolicyState) => {
+const equalsResource = (candidate: QueuePolicyState, current: QueuePolicyState) => {
   return !!candidate.result && candidate.result.queueUrl === current.result?.queueUrl;
 };
 
-const previewResource = async (_candidate: PolicyState, _current: PolicyState) => {
+const previewResource = async (_candidate: QueuePolicyState, _current: QueuePolicyState) => {
   // Policy is generated dynamically, no changes to compare.
   return undefined;
 };
 
-const replaceResource = async (candidate: PolicyState, current: PolicyState, context: StepContext) => {
+const replaceResource = async (candidate: QueuePolicyState, current: QueuePolicyState, context: StepContext) => {
   if (current.result) {
-    throw new ReplaceResourceError(PolicyServiceName, candidate.entryId, current.entryId);
+    throw new ReplaceResourceError(QueuePolicyServiceName, candidate.entryId, current.entryId);
   }
 
   return createResource(candidate, context);
 };
 
-const createResource = async (candidate: PolicyState, context: StepContext): Promise<PolicyResult> => {
+const createResource = async (candidate: QueuePolicyState, context: StepContext): Promise<QueuePolicyResult> => {
   const parameters = candidate.parameters;
 
-  const queueUrl = getQueueUrl(PolicyServiceName, 'subscription', context);
-  const permission = await parameters.getPolicy(context);
+  const queueUrl = getQueueUrl(QueuePolicyServiceName, 'subscription', context);
+  const permissions = await Promise.all(parameters.policyGetters.map((getPolicy) => getPolicy(context)));
 
-  const response = await attachPolicy(queueUrl, {
-    principal: permission.principal,
-    sourceArn: permission.sourceArn
-  });
+  const { sourceArns } = await attachPolicies(queueUrl, permissions);
 
   return {
-    sourceArn: response.sourceArn,
+    sourceArns,
     queueUrl
   };
 };
 
 const updateResource = async () => {};
 
-const deleteResource = async (candidate: PolicyState) => {
-  const result = candidate.result;
+const deleteResource = async ({ result }: QueuePolicyState) => {
+  const sourceArns = result?.sourceArns;
+  const queueUrl = result?.queueUrl;
 
-  if (result) {
-    await detachPolicy(result.queueUrl, result.sourceArn);
+  if (queueUrl && sourceArns) {
+    await detachPolicy(queueUrl, sourceArns);
   }
 };

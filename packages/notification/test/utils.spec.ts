@@ -18,7 +18,10 @@ describe('notification utils', () => {
     };
 
     const messageInput = {
-      fooKey: 'foo'
+      fooKey: 'foo',
+
+      // Ignored properties
+      barKey: 'bar'
     };
 
     const outputOutput = await getJsonMessage(messageInput, messageSchema);

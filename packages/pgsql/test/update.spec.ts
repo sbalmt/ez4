@@ -60,6 +60,33 @@ describe('sql update tests', () => {
     equal(statement, `UPDATE ONLY "table" SET "foo"['bar']['baz'] = :0`);
   });
 
+  it('assert :: update with json record (nullable in schema)', async () => {
+    const schema: ObjectSchema = {
+      type: SchemaType.Object,
+      properties: {
+        foo: {
+          type: SchemaType.Object,
+          nullable: true,
+          properties: {
+            bar: {
+              type: SchemaType.String
+            }
+          }
+        }
+      }
+    };
+
+    const query = sql.update(schema).only('table').record({
+      foo: null
+    });
+
+    const [statement, variables] = query.build();
+
+    deepEqual(variables, []);
+
+    equal(statement, `UPDATE ONLY "table" SET "foo" = null`);
+  });
+
   it('assert :: update with json record (optional in schema)', async () => {
     const schema: ObjectSchema = {
       type: SchemaType.Object,

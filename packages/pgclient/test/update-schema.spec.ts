@@ -114,9 +114,9 @@ describe('update schema', () => {
       }
     );
 
-    assert.equal(statement, `UPDATE ONLY "ez4-test-update-schema" SET "nullable" = :0`);
+    assert.equal(statement, `UPDATE ONLY "ez4-test-update-schema" SET "nullable" = null`);
 
-    assert.deepEqual(variables, [null]);
+    assert.deepEqual(variables, []);
   });
 
   it('assert :: prepare update schema (scalar optional)', async ({ assert }) => {
@@ -373,6 +373,34 @@ describe('update schema', () => {
     );
 
     assert.equal(statement, `SELECT * FROM "ez4-test-update-schema"`);
+
+    assert.deepEqual(variables, []);
+  });
+
+  it('assert :: prepare update schema (json nullable parent)', async ({ assert }) => {
+    const [statement, variables] = await prepareUpdate(
+      {
+        type: SchemaType.Object,
+        properties: {
+          json: {
+            type: SchemaType.Object,
+            nullable: true,
+            properties: {
+              optional: {
+                type: SchemaType.Number
+              }
+            }
+          }
+        }
+      },
+      {
+        data: {
+          json: null
+        }
+      }
+    );
+
+    assert.equal(statement, `UPDATE ONLY "ez4-test-update-schema" SET "json" = null`);
 
     assert.deepEqual(variables, []);
   });

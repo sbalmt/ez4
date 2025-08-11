@@ -51,10 +51,9 @@ export const getIncomingRequestBody = async (metadata: HttpRequest, route: Match
   }
 
   const content = route.body?.toString();
+  const request = isScalarSchema(metadata.body) ? content : content && JSON.parse(content);
 
-  const payload = !isScalarSchema(metadata.body)
-    ? await getRequestBody(JSON.parse(content ?? '{}'), metadata.body, route.preferences)
-    : await getRequestBody(content ?? '', metadata.body);
+  const payload = await getRequestBody(request, metadata.body, route.preferences);
 
   return {
     body: payload

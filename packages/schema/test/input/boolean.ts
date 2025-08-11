@@ -23,4 +23,19 @@ export interface BooleanTestSchema {
    * Default false value.
    */
   value_false: Boolean.Default<false>;
+
+  /**
+   * Nullable property.
+   */
+  nullable: boolean | null;
+
+  /**
+   * Optional property.
+   */
+  optional: boolean | undefined;
+
+  /**
+   * Nullable and optional property.
+   */
+  both?: boolean | null;
 }

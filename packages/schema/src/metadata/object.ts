@@ -26,16 +26,18 @@ export type RichTypeIntersection = TypeIntersection & RichTypeBase;
 
 export type RichTypeModel = TypeModel & RichTypeBase;
 
-export const createObjectSchema = (data: Omit<ObjectSchema, 'type'>): ObjectSchema => {
+export type ObjectSchemaData = Omit<ObjectSchema, 'type'>;
+
+export const createObjectSchema = (data: ObjectSchemaData): ObjectSchema => {
   const { description, identity, optional, nullable, definitions, additional, properties } = data;
 
   return {
     type: SchemaType.Object,
     ...(description && { description }),
-    ...(optional && { optional }),
-    ...(nullable && { nullable }),
     ...(definitions && { definitions }),
     ...(additional && { additional }),
+    ...(optional && { optional }),
+    ...(nullable && { nullable }),
     properties,
     identity
   };

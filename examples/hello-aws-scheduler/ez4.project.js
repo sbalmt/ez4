@@ -3,7 +3,7 @@
  */
 export default {
   prefix: 'ez4',
-  debugMode: true,
+  debugMode: false,
   projectName: 'hello-scheduler',
   sourceFiles: ['./src/service.ts'],
   stateFile: {

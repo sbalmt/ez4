@@ -2,62 +2,67 @@ import type { Arn } from '@ez4/aws-common';
 
 import { SQSClient, SetQueueAttributesCommand } from '@aws-sdk/client-sqs';
 
-import { createRoleDocument } from '@ez4/aws-identity';
+import { createRoleDocument, createRoleStatement } from '@ez4/aws-identity';
 import { Logger, tryParseArn } from '@ez4/aws-common';
 
 import { parseQueueUrl } from '../queue/helpers/url.js';
 import { buildQueueArn } from '../utils/policy.js';
-import { PolicyServiceName } from './types.js';
+import { QueuePolicyServiceName } from './types.js';
 
 const client = new SQSClient({});
 
-export type CreateRequest = {
+export type AttachRequest = {
   principal: string;
   sourceArn: Arn;
 };
 
-export type CreateResponse = {
-  sourceArn: string;
+export type AttachResponse = {
+  sourceArns: Arn[];
 };
 
-export const attachPolicy = async (queueUrl: string, request: CreateRequest): Promise<CreateResponse> => {
-  const { principal, sourceArn } = request;
-
+export const attachPolicies = async (queueUrl: string, policies: AttachRequest[]): Promise<AttachResponse> => {
   const { queueName, accountId, region } = parseQueueUrl(queueUrl);
+  const sourceArns = new Set<Arn>();
 
-  const sourceName = tryParseArn(sourceArn)?.resourceName ?? sourceArn;
+  const statements = policies.map(({ principal, sourceArn }) => {
+    const sourceName = tryParseArn(sourceArn)?.resourceName ?? sourceArn;
 
-  Logger.logAttach(PolicyServiceName, queueName, sourceName);
+    Logger.logAttach(QueuePolicyServiceName, queueName, sourceName);
 
-  const policy = createRoleDocument(
-    {
-      permissions: ['sqs:SendMessage'],
-      resourceIds: [buildQueueArn(region, accountId, queueName)]
-    },
-    [{ account: principal }],
-    sourceArn
-  );
+    sourceArns.add(sourceArn);
+
+    return createRoleStatement(
+      {
+        permissions: ['sqs:SendMessage'],
+        resourceIds: [buildQueueArn(region, accountId, queueName)]
+      },
+      [{ account: principal }],
+      sourceArn
+    );
+  });
 
   await client.send(
     new SetQueueAttributesCommand({
       QueueUrl: queueUrl,
       Attributes: {
-        Policy: JSON.stringify(policy)
+        Policy: JSON.stringify(createRoleDocument(statements))
       }
     })
   );
 
   return {
-    sourceArn
+    sourceArns: [...sourceArns.values()]
   };
 };
 
-export const detachPolicy = async (queueUrl: string, sourceArn: string) => {
+export const detachPolicy = async (queueUrl: string, sourceArns: Arn[]) => {
   const { queueName } = parseQueueUrl(queueUrl);
 
-  const sourceName = tryParseArn(sourceArn)?.resourceName ?? sourceArn;
+  sourceArns.forEach((sourceArn) => {
+    const sourceName = tryParseArn(sourceArn)?.resourceName ?? sourceArn;
 
-  Logger.logDetach(PolicyServiceName, queueName, sourceName);
+    Logger.logDetach(QueuePolicyServiceName, queueName, sourceName);
+  });
 
   await client.send(
     new SetQueueAttributesCommand({

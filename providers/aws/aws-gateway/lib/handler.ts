@@ -120,11 +120,13 @@ const getIncomingRequestBody = (event: RequestEvent) => {
   const { body } = event;
 
   if (isScalarSchema(__EZ4_BODY_SCHEMA)) {
-    return GatewayUtils.getRequestBody(body ?? '', __EZ4_BODY_SCHEMA);
+    return GatewayUtils.getRequestBody(body, __EZ4_BODY_SCHEMA);
   }
 
   try {
-    return GatewayUtils.getRequestBody(JSON.parse(body ?? '{}'), __EZ4_BODY_SCHEMA, __EZ4_PREFERENCES);
+    const payload = body && JSON.parse(body);
+    return GatewayUtils.getRequestBody(payload, __EZ4_BODY_SCHEMA, __EZ4_PREFERENCES);
+    //
   } catch (error) {
     if (error instanceof SyntaxError) {
       console.error({ body });

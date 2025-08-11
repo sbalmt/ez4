@@ -39,13 +39,15 @@ const attachVariables = (variables: LinkedVariables) => {
 
 const detachVariables = (variables: LinkedVariables) => {
   for (const variableName in variables) {
-    if (variableName in referencesCount) {
-      referencesCount[variableName]--;
+    if (!(variableName in referencesCount)) {
+      continue;
+    }
 
-      if (referencesCount[variableName] === 0) {
-        delete referencesCount[variableName];
-        delete process.env[variableName];
-      }
+    referencesCount[variableName]--;
+
+    if (referencesCount[variableName] === 0) {
+      delete referencesCount[variableName];
+      delete process.env[variableName];
     }
   }
 };

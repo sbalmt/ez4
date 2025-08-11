@@ -12,15 +12,17 @@ export type RichTypeArray = TypeArray & {
   definitions?: SchemaDefinitions;
 };
 
-export const createArraySchema = (data: Omit<ArraySchema, 'type'>): ArraySchema => {
+export type ArraySchemaData = Omit<ArraySchema, 'type'>;
+
+export const createArraySchema = (data: ArraySchemaData): ArraySchema => {
   const { description, optional, nullable, element, definitions } = data;
 
   return {
     type: SchemaType.Array,
     ...(description && { description }),
+    ...(definitions && { definitions }),
     ...(optional && { optional }),
     ...(nullable && { nullable }),
-    ...(definitions && { definitions }),
     element
   };
 };

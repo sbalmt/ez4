@@ -1,11 +1,12 @@
 import type { Cron } from '@ez4/scheduler';
+import type { DynamicEvent } from './types.js';
 
 import { ServiceEventType } from '@ez4/common';
 
 /**
  * Watch scheduler lifecycle events.
  */
-export function schedulerListener(event: Cron.ServiceEvent) {
+export function schedulerListener(event: Cron.ServiceEvent | Cron.ServiceEvent<DynamicEvent>) {
   switch (event.type) {
     case ServiceEventType.Begin:
       console.log('Event begin', event.request);

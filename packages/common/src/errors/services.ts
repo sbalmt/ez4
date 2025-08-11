@@ -45,3 +45,12 @@ export class DuplicateServiceError extends TypeError {
     super(`Service ${serviceName} is duplicate.`, fileName);
   }
 }
+
+export class ExternalReferenceError extends TypeError {
+  constructor(
+    public serviceName: string,
+    fileName?: string
+  ) {
+    super(`External service ${serviceName} needs to be an import.`, fileName);
+  }
+}

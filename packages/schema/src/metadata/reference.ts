@@ -10,7 +10,9 @@ export type RichTypeReference = TypeReference & {
   definitions?: SchemaDefinitions;
 };
 
-export const createReferenceSchema = (data: Omit<ReferenceSchema, 'type'>): ReferenceSchema => {
+export type ReferenceSchemaData = Omit<ReferenceSchema, 'type'>;
+
+export const createReferenceSchema = (data: ReferenceSchemaData): ReferenceSchema => {
   const { identity, nullable, optional } = data;
 
   return {

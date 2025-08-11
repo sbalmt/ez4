@@ -11,16 +11,18 @@ export type RichTypeNumber = TypeNumber & {
   definitions?: SchemaDefinitions;
 };
 
-export const createNumberSchema = (data: Omit<NumberSchema, 'type'>): NumberSchema => {
+export type NumberSchemaData = Omit<NumberSchema, 'type'>;
+
+export const createNumberSchema = (data: NumberSchemaData): NumberSchema => {
   const { description, optional, nullable, format, definitions } = data;
 
   return {
     type: SchemaType.Number,
     ...(description && { description }),
+    ...(definitions && { definitions }),
     ...(optional && { optional }),
     ...(nullable && { nullable }),
-    ...(format && { format }),
-    ...(definitions && { definitions })
+    ...(format && { format })
   };
 };
 

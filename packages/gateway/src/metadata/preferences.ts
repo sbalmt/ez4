@@ -64,6 +64,7 @@ const getTypeFromMembers = (parent: TypeModel, members: MemberType[], errorList:
 
       case 'namingStyle':
         preferences.namingStyle = getPropertyStringIn(member, [
+          NamingStyle.Preserve,
           NamingStyle.CamelCase,
           NamingStyle.PascalCase,
           NamingStyle.SnakeCase,

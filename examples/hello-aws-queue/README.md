@@ -12,6 +12,12 @@ Create a `local.env` following the contents of `example.env` file in the example
 npm install
 ```
 
+#### Test
+
+```sh
+npm test
+```
+
 #### Emulate
 
 ```sh

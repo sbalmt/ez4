@@ -1,5 +1,5 @@
 import type { AllType, SourceMap, TypeIntersection, TypeModel, TypeObject } from '@ez4/reflection';
-import type { AnySchema, ArraySchema, ObjectSchema, UnionSchema } from '@ez4/schema/library';
+import type { AnySchema, ArraySchema, ObjectSchema, UnionSchema, UnionSchemaData } from '@ez4/schema/library';
 
 import { createUnionSchema, getScalarSchema, createArraySchema } from '@ez4/schema/library';
 import { getReferenceType, isModelDeclaration } from '@ez4/common/library';
@@ -88,23 +88,29 @@ const getCompoundTypeBody = (
 };
 
 const getUnionTypeBody = (types: AllType[], reflection: SourceMap, resolver: (type: AllType) => AnySchema | null) => {
-  const schemaList = [];
+  const schemaData: UnionSchemaData = {
+    optional: false,
+    elements: []
+  };
 
   for (const type of types) {
+    if (isTypeUndefined(type)) {
+      schemaData.optional = true;
+      continue;
+    }
+
     const schema = getTypeBody(type, reflection, resolver);
 
     if (schema) {
-      schemaList.push(schema);
+      schemaData.elements.push(schema);
     }
   }
 
-  if (!schemaList.length) {
+  if (!schemaData.elements.length) {
     return null;
   }
 
-  return createUnionSchema({
-    elements: schemaList
-  });
+  return createUnionSchema(schemaData);
 };
 
 const getArrayTypeBody = (type: AllType, reflection: SourceMap, resolver: (type: AllType) => AnySchema | null) => {

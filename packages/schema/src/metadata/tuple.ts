@@ -14,11 +14,11 @@ export type RichTypeTuple = TypeTuple & {
   definitions?: SchemaDefinitions;
 };
 
-export const createTupleSchema = (
-  elements: AnySchema[],
-  description: string | undefined,
-  definitions: SchemaDefinitions | undefined
-): TupleSchema => {
+export type TupleSchemaData = Omit<TupleSchema, 'type'>;
+
+export const createTupleSchema = (data: TupleSchemaData): TupleSchema => {
+  const { description, definitions, elements } = data;
+
   return {
     type: SchemaType.Tuple,
     ...(description && { description }),
@@ -41,10 +41,10 @@ export const getTupleSchema = (
     return null;
   }
 
-  const schemas = getAnySchemaFromTypeList(reflection, context, type.elements);
+  const elements = getAnySchemaFromTypeList(reflection, context, type.elements);
 
-  if (schemas) {
-    return createTupleSchema(schemas, description, type.definitions);
+  if (elements) {
+    return createTupleSchema({ definitions: type.definitions, elements, description });
   }
 
   return null;

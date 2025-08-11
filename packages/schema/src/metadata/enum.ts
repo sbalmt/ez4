@@ -12,15 +12,17 @@ export type RichTypeEnum = TypeEnum & {
   definitions?: SchemaDefinitions;
 };
 
-export const createEnumSchema = (
-  options: EnumSchemaOption[],
-  description: string | undefined,
-  definitions: SchemaDefinitions | undefined
-): EnumSchema => {
+export type EnumSchemaData = Omit<EnumSchema, 'type'>;
+
+export const createEnumSchema = (data: EnumSchemaData): EnumSchema => {
+  const { options, description, optional, nullable, definitions } = data;
+
   return {
     type: SchemaType.Enum,
     ...(description && { description }),
     ...(definitions && { definitions }),
+    ...(optional && { optional }),
+    ...(nullable && { nullable }),
     options
   };
 };
@@ -52,7 +54,11 @@ export const getEnumSchema = (type: AllType, reflection: SourceMap, description?
   if (isRichTypeEnum(type) && type.members?.length) {
     const options = getAnySchemaFromMembers(type.members);
 
-    return createEnumSchema(options, description, type.definitions);
+    return createEnumSchema({
+      definitions: type.definitions,
+      description,
+      options
+    });
   }
 
   return null;

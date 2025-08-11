@@ -12,8 +12,10 @@ try {
     (helpCommand(), process.exit(1));
   }
 } catch (error) {
-  if (error instanceof Error && error.stack && options?.debugMode) {
-    Logger.error(error.stack);
+  //
+
+  if (error instanceof Error) {
+    Logger.error(error.stack && options?.debugMode ? error.stack : error.message);
   } else {
     Logger.error(`${error}`);
   }

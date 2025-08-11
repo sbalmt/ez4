@@ -2,6 +2,7 @@ import type { EntryStates } from '@ez4/stateful';
 import type { ProjectOptions } from '../../types/project.js';
 import type { DeployOptions } from '../../types/options.js';
 
+import { Logger } from '@ez4/project/library';
 import { toKebabCase } from '@ez4/utils';
 
 import { applyDeploy } from '../../actions/deploy.js';
@@ -16,7 +17,6 @@ import { getMetadata } from '../../library/metadata.js';
 import { assertNoErrors } from '../../utils/errors.js';
 import { loadProviders } from '../../common/providers.js';
 import { loadImports } from '../../common/imports.js';
-import { Logger } from '../../utils/logger.js';
 
 export const deployCommand = async (project: ProjectOptions) => {
   const options: DeployOptions = {
@@ -29,25 +29,25 @@ export const deployCommand = async (project: ProjectOptions) => {
   };
 
   if (options.force) {
-    Logger.log('Force option is enabled');
+    Logger.log('ℹ️  Force option is enabled');
   }
 
-  await Logger.execute('Loading providers', () => {
+  await Logger.execute('🔄️ Loading providers', () => {
     return loadProviders(project);
   });
 
-  const { metadata, dependencies } = await Logger.execute('Loading metadata', () => {
+  const { metadata, dependencies } = await Logger.execute('🔄️ Loading metadata', () => {
     return getMetadata(project.sourceFiles);
   });
 
-  options.imports = await Logger.execute('Loading imports', () => {
+  options.imports = await Logger.execute('🔄️ Loading imports', () => {
     return loadImports(project);
   });
 
   const stateFile = project.stateFile;
   const statePath = `${stateFile.path}.ezstate`;
 
-  const oldState = await Logger.execute('Loading state', () => {
+  const oldState = await Logger.execute('🔄️ Loading state', () => {
     if (stateFile.remote) {
       return loadRemoteState(statePath, options);
     }
@@ -70,22 +70,22 @@ export const deployCommand = async (project: ProjectOptions) => {
   const hasChanges = await reportResourceChanges(newState, oldState, options.force);
 
   if (!hasChanges && !options.force) {
-    Logger.log('No changes');
+    Logger.log('ℹ️  No changes');
     return;
   }
 
   if (project.confirmMode !== false) {
-    const proceed = await waitConfirmation('Are you sure you want to proceed?');
+    const proceed = await waitConfirmation('⁉️  Are you sure you want to proceed?');
 
     if (!proceed) {
-      Logger.log('Aborted');
+      Logger.log('⛔ Aborted');
       return;
     }
   }
 
   const applyState = await applyDeploy(newState, oldState, options.force);
 
-  await Logger.execute('Saving state', () => {
+  await Logger.execute('💾 Saving state', () => {
     if (stateFile.remote) {
       return saveRemoteState(statePath, options, applyState.result);
     }
