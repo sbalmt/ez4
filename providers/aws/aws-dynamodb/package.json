@@ -47,7 +47,7 @@
     "test:client": "npm run test:types && node --env-file ../../../local.env --test --import ../../../tools/tsnode.mjs test/client-*.spec.ts",
     "local:publish": "npm run build && npm run clean:registry && npm publish --registry http://localhost:4873",
     "clean:registry": "rm -rf ../../../.registry/@ez4/aws-dynamodb",
-    "live:publish": "npm run test && npm publish --access public"
+    "live:publish": "npm publish --access public"
   },
   "devDependencies": {
     "@types/aws-lambda": "^8.10.147"

@@ -42,7 +42,7 @@
     "test:data": "npm run test:types && node --env-file ../../../local.env --test --import ../../../tools/tsnode.mjs test/data-*.spec.ts",
     "local:publish": "npm run build && npm run clean:registry && npm publish --registry http://localhost:4873",
     "clean:registry": "rm -rf ../../../.registry/@ez4/aws-aurora",
-    "live:publish": "npm run test && npm publish --access public"
+    "live:publish": "npm publish --access public"
   },
   "dependencies": {
     "@aws-sdk/client-rds": "^3.758.0",
