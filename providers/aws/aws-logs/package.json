@@ -1,7 +1,7 @@
 {
   "name": "@ez4/aws-logs",
   "description": "EZ4: Self-managed AWS logs provider",
-  "version": "0.24.0",
+  "version": "0.25.0",
   "author": "Silas B.",
   "license": "MIT",
   "type": "module",
@@ -39,10 +39,10 @@
   },
   "dependencies": {
     "@aws-sdk/client-cloudwatch-logs": "^3.797.0",
-    "@ez4/aws-common": "^0.24.0",
-    "@ez4/aws-identity": "^0.24.0",
-    "@ez4/project": "^0.24.0",
-    "@ez4/stateful": "^0.24.0",
-    "@ez4/utils": "^0.24.0"
+    "@ez4/aws-common": "^0.25.0",
+    "@ez4/aws-identity": "^0.25.0",
+    "@ez4/project": "^0.25.0",
+    "@ez4/stateful": "^0.25.0",
+    "@ez4/utils": "^0.25.0"
   }
 }
