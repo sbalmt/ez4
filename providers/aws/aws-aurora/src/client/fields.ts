@@ -152,7 +152,6 @@ const getDateTimeFieldData = (name: string, value: string): SqlParameter => {
 
 const getJsonFieldData = (name: string, value: unknown): SqlParameter => {
   return {
-    name,
     typeHint: TypeHint.JSON,
     ...getTextFieldData(name, JSON.stringify(value))
   };
