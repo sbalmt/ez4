@@ -1,0 +1,11 @@
+name: ez4
+services:
+  postgres:
+    image: 'postgres:16'
+    restart: always
+    environment:
+      POSTGRES_USER: 'postgres'
+      POSTGRES_PASSWORD: 'postgres'
+      POSTGRES_DB: pg
+    ports:
+      - 5432:5432
