@@ -25,11 +25,11 @@ export const registerCronEmulator = (service: CronService, options: ServeOptions
       });
 
       if (!options.test) {
-        if (!isDynamicCronService(service)) {
-          Logger.log(`⌚ Dynamic scheduler [${serviceName}] is ready`);
-        } else {
-          processTimerEvent(service, options, context);
+        if (isDynamicCronService(service)) {
+          return Logger.log(`⌚ Dynamic scheduler [${serviceName}] is ready`);
         }
+
+        processTimerEvent(service, options, context);
       }
     },
     shutdownHandler: () => {
