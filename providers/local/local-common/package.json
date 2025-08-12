@@ -37,7 +37,7 @@
     "test:types": "npm run build && tsc -p tsconfig.test.json",
     "local:publish": "npm run build && npm run clean:registry && npm publish --registry http://localhost:4873",
     "clean:registry": "rm -rf ../../../.registry/@ez4/local-common",
-    "live:publish": "npm publish --access public"
+    "live:publish": "npm run build && npm publish --access public"
   },
   "dependencies": {
     "@ez4/common": "^0.25.0",
