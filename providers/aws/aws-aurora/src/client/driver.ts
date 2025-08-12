@@ -14,11 +14,12 @@ import {
 } from '@aws-sdk/client-rds-data';
 
 import { DatabaseResumingException } from '@aws-sdk/client-rds-data';
+import { parseRecords } from '@ez4/pgclient';
+
 import { setTimeout } from 'node:timers/promises';
 
 import { logQueryError, logQuerySuccess } from './logger.js';
 import { detectFieldData, prepareFieldData } from './fields.js';
-import { parseRecords } from './records.js';
 
 const client = new RDSDataClient();
 
