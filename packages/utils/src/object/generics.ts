@@ -1,4 +1,5 @@
-import type { ArrayType, IsAny, IsArray } from '../main.js';
+import type { ArrayType, IsArray } from '../array/generics.js';
+import type { IsAny } from '../common/generics.js';
 
 /**
  * A type to represent any object.
