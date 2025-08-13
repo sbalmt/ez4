@@ -4,7 +4,7 @@ import type { SqlRecord } from '../common/types.js';
 import type { SqlBuilderOptions, SqlBuilderReferences } from '../builder.js';
 
 import { getUpdateColumns } from '../helpers/update.js';
-import { escapeSqlNames } from '../main.js';
+import { escapeSqlNames } from '../utils/escape.js';
 
 export class SqlConflictClause {
   #state: {

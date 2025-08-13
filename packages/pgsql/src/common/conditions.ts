@@ -8,7 +8,7 @@ import { isAnyObject, isEmptyObject } from '@ez4/utils';
 import { isObjectSchema } from '@ez4/schema';
 
 import { mergeSqlAlias, mergeSqlPath } from '../utils/merge.js';
-import { InvalidOperandError, MissingOperatorError } from '../errors/operation.js';
+import { InvalidOperandError, MissingOperatorError } from '../errors/operations.js';
 import { SqlSelectStatement } from '../statements/select.js';
 import { getIsNullOperation } from '../operations/is-null.js';
 import { getExistsOperation } from '../operations/exists.js';

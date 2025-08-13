@@ -2,6 +2,7 @@ import type { AnySchema, ObjectSchema } from '@ez4/schema';
 import type { SqlRawGenerator } from './common/raw.js';
 
 import { SqlRawValue, SqlRawOperation } from './common/raw.js';
+import { SqlTableStatement } from './statements/table.js';
 import { SqlSelectStatement } from './statements/select.js';
 import { SqlInsertStatement } from './statements/insert.js';
 import { SqlUpdateStatement } from './statements/update.js';
@@ -66,6 +67,10 @@ export class SqlBuilder {
 
   with(statements: (SqlSelectStatement | SqlInsertStatement | SqlUpdateStatement | SqlDeleteStatement)[], alias?: string) {
     return new SqlWithClause(statements, alias);
+  }
+
+  table(name: string) {
+    return new SqlTableStatement(name);
   }
 
   select(schema?: ObjectSchema) {

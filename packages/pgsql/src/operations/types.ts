@@ -1,5 +1,5 @@
 import type { SqlBuilderOptions, SqlBuilderReferences } from '../builder.js';
-import type { SqlSource } from '../main.js';
+import type { SqlSource } from '../common/source.js';
 
 export type SqlOperationContext = {
   options: SqlBuilderOptions;

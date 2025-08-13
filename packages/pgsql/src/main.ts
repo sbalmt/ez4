@@ -1,6 +1,19 @@
-export * from './errors/operation.js';
+export * from './errors/operations.js';
 export * from './errors/queries.js';
 
+export * from './clauses/column/add.js';
+export * from './clauses/column/alter.js';
+export * from './clauses/column/rename.js';
+export * from './clauses/column/drop.js';
+
+export * from './clauses/table/create.js';
+export * from './clauses/table/alter.js';
+export * from './clauses/table/rename.js';
+export * from './clauses/table/drop.js';
+
+export * from './clauses/errors.js';
+
+export * from './statements/table.js';
 export * from './statements/insert.js';
 export * from './statements/select.js';
 export * from './statements/update.js';
