@@ -140,7 +140,7 @@ describe('sql table tests', () => {
     equal(statement, `ALTER TABLE "table" RENAME COLUMN "foo" TO "bar"`);
   });
 
-  it('assert :: alter table (alter columns type)', () => {
+  it('assert :: alter table (alter column type)', () => {
     const query = sql.table('table').columns();
 
     query.alter('foo').type('boolean');

@@ -45,18 +45,18 @@ export class SqlDropColumnClause {
       return table.build();
     }
 
-    const statement = ['DROP COLUMN'];
+    const clause = ['DROP COLUMN'];
 
     if (check) {
-      statement.push('IF EXISTS');
+      clause.push('IF EXISTS');
     }
 
-    statement.push(escapeSqlName(name));
+    clause.push(escapeSqlName(name));
 
     if (cascade) {
-      statement.push('CASCADE');
+      clause.push('CASCADE');
     }
 
-    return statement.join(' ');
+    return clause.join(' ');
   }
 }

@@ -60,10 +60,10 @@ export class SqlConstraintClause {
   }
 
   drop() {
-    const { clause, table, name } = this.#state;
+    const { clause } = this.#state;
 
     if (!(clause instanceof SqlDropConstraintClause)) {
-      this.#state.clause = new SqlDropConstraintClause(table, name);
+      this.#state.clause = new SqlDropConstraintClause(this);
     }
 
     return this.#state.clause as SqlDropConstraintClause;

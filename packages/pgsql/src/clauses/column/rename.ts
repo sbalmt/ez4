@@ -28,8 +28,8 @@ export class SqlRenameColumnClause {
       return table.build();
     }
 
-    const statement = ['RENAME COLUMN', escapeSqlName(name), 'TO', escapeSqlName(to)];
+    const clause = ['RENAME COLUMN', escapeSqlName(name), 'TO', escapeSqlName(to)];
 
-    return statement.join(' ');
+    return clause.join(' ');
   }
 }

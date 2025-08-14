@@ -52,30 +52,30 @@ export class SqlAlterColumnClause {
 
     const columnName = escapeSqlName(name);
 
-    const statement = ['ALTER COLUMN'];
+    const clause = ['ALTER COLUMN'];
 
     if (check) {
-      statement.push('IF NOT EXISTS');
+      clause.push('IF NOT EXISTS');
     }
 
-    statement.push(columnName);
+    clause.push(columnName);
 
     if (type) {
-      statement.push('TYPE', type, `USING ${columnName}::${type}`);
+      clause.push('TYPE', type, `USING ${columnName}::${type}`);
     }
 
     if (value) {
-      statement.push('SET DEFAULT', value);
+      clause.push('SET DEFAULT', value);
     } else if (value === null) {
-      statement.push('DROP DEFAULT');
+      clause.push('DROP DEFAULT');
     }
 
     if (required) {
-      statement.push('SET NOT null');
+      clause.push('SET NOT null');
     } else if (required === false) {
-      statement.push('DROP NOT null');
+      clause.push('DROP NOT null');
     }
 
-    return statement.join(' ');
+    return clause.join(' ');
   }
 }

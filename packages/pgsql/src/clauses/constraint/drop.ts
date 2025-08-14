@@ -1,19 +1,17 @@
-import type { SqlAlterTableClause } from '../table/alter.js';
+import type { SqlConstraintClause } from './clause.js';
 
 import { escapeSqlName } from '../../utils/escape.js';
 
 export class SqlDropConstraintClause {
   #state: {
-    table: SqlAlterTableClause;
+    constraint: SqlConstraintClause;
     check: boolean;
-    name: string;
   };
 
-  constructor(table: SqlAlterTableClause, name: string) {
+  constructor(constraint: SqlConstraintClause) {
     this.#state = {
       check: false,
-      table,
-      name
+      constraint
     };
   }
 
@@ -22,7 +20,7 @@ export class SqlDropConstraintClause {
   }
 
   get name() {
-    return this.#state.name;
+    return this.#state.constraint.name;
   }
 
   existing(check = true) {
@@ -31,20 +29,20 @@ export class SqlDropConstraintClause {
   }
 
   build() {
-    const { table, name, check } = this.#state;
+    const { constraint, check } = this.#state;
 
-    if (!table.building) {
-      return table.build();
+    if (!constraint.building) {
+      return constraint.build();
     }
 
-    const statement = ['DROP CONSTRAINT'];
+    const clause = ['DROP CONSTRAINT'];
 
     if (check) {
-      statement.push('IF EXISTS');
+      clause.push('IF EXISTS');
     }
 
-    statement.push(escapeSqlName(name));
+    clause.push(escapeSqlName(constraint.name));
 
-    return statement.join(' ');
+    return clause.join(' ');
   }
 }

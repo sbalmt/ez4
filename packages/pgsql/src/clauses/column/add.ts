@@ -58,22 +58,22 @@ export class SqlAddColumnClause {
       return table.build();
     }
 
-    const statement = ['ADD COLUMN'];
+    const clause = ['ADD COLUMN'];
 
     if (check) {
-      statement.push('IF NOT EXISTS');
+      clause.push('IF NOT EXISTS');
     }
 
-    statement.push(escapeSqlName(name), type);
+    clause.push(escapeSqlName(name), type);
 
     if (value) {
-      statement.push('DEFAULT', value);
+      clause.push('DEFAULT', value);
     }
 
     if (required) {
-      statement.push('NOT null');
+      clause.push('NOT null');
     }
 
-    return statement.join(' ');
+    return clause.join(' ');
   }
 }
