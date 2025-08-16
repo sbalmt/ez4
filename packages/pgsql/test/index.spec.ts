@@ -34,6 +34,14 @@ describe('sql index tests', () => {
     equal(statement, `CREATE INDEX IF NOT EXISTS "index" ON "table" ("foo", "bar", "baz")`);
   });
 
+  it('assert :: create index (using type)', () => {
+    const query = sql.index('index').create('table', ['foo', 'bar', 'baz']).type('GIN');
+
+    const statement = query.build();
+
+    equal(statement, `CREATE INDEX "index" ON "table" USING GIN ("foo", "bar", "baz")`);
+  });
+
   it('assert :: rename index', () => {
     const query = sql.index('index').rename('renamed');
 

@@ -9,6 +9,7 @@ export class SqlCreateIndexClause {
     check?: boolean;
     columns: string[];
     table: string;
+    type?: string;
   };
 
   constructor(index: SqlIndexStatement, table: string, columns: string[] = []) {
@@ -51,8 +52,14 @@ export class SqlCreateIndexClause {
     return this;
   }
 
+  type(type: string) {
+    this.#state.type = type;
+
+    return this;
+  }
+
   build() {
-    const { index, table, check, concurrently, columns } = this.#state;
+    const { index, table, check, concurrently, columns, type } = this.#state;
 
     const statement = ['CREATE INDEX'];
 
@@ -64,7 +71,13 @@ export class SqlCreateIndexClause {
       statement.push('IF NOT EXISTS');
     }
 
-    statement.push(escapeSqlName(index.name), 'ON', escapeSqlName(table), `(${escapeSqlNames(columns)})`);
+    statement.push(escapeSqlName(index.name), 'ON', escapeSqlName(table));
+
+    if (type) {
+      statement.push('USING', type);
+    }
+
+    statement.push(`(${escapeSqlNames(columns)})`);
 
     return statement.join(' ');
   }
