@@ -5,7 +5,6 @@ import { escapeSqlName } from '../../utils/escape.js';
 export class SqlAlterColumnClause {
   #state: {
     table: SqlAlterTableClause;
-    check: boolean;
     name: string;
     required?: boolean;
     value?: string | null;
@@ -14,14 +13,9 @@ export class SqlAlterColumnClause {
 
   constructor(table: SqlAlterTableClause, name: string) {
     this.#state = {
-      check: false,
       table,
       name
     };
-  }
-
-  get conditional() {
-    return this.#state.check;
   }
 
   get name() {
@@ -44,7 +38,7 @@ export class SqlAlterColumnClause {
   }
 
   build() {
-    const { table, name, type, required, value, check } = this.#state;
+    const { table, name, type, required, value } = this.#state;
 
     if (!table.building) {
       return table.build();
@@ -52,13 +46,7 @@ export class SqlAlterColumnClause {
 
     const columnName = escapeSqlName(name);
 
-    const clause = ['ALTER COLUMN'];
-
-    if (check) {
-      clause.push('IF NOT EXISTS');
-    }
-
-    clause.push(columnName);
+    const clause = ['ALTER COLUMN', columnName];
 
     if (type) {
       clause.push('TYPE', type, 'USING', `${columnName}::${type}`);
