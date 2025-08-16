@@ -5,14 +5,14 @@ import type { SqlTableReference } from '../common/reference.js';
 import type { SqlResultColumn, SqlResultRecord } from '../common/results.js';
 import type { SqlBuilderOptions, SqlBuilderReferences } from '../builder.js';
 
-import { SqlReturningClause } from '../clauses/returning.js';
-import { MissingTableNameError, MissingRecordError, EmptyRecordError } from '../errors/queries.js';
-import { escapeSqlName } from '../utils/escape.js';
-import { getFields, getValues } from '../utils/column.js';
-import { getTableExpressions } from '../helpers/table.js';
 import { getUpdateColumns } from '../helpers/update.js';
-import { SqlWhereClause } from '../clauses/where.js';
+import { getSelectExpressions } from '../helpers/select.js';
+import { SqlReturningClause } from '../clauses/query/returning.js';
+import { SqlWhereClause } from '../clauses/query/where.js';
+import { getFields, getValues } from '../utils/column.js';
+import { escapeSqlName } from '../utils/escape.js';
 import { SqlSource } from '../common/source.js';
+import { MissingTableNameError, MissingRecordError, EmptyRecordError } from './errors.js';
 
 export class SqlUpdateStatement extends SqlSource {
   #state: {
@@ -140,7 +140,7 @@ export class SqlUpdateStatement extends SqlSource {
     statement.push(`SET ${columns.join(', ')}`);
 
     if (source) {
-      const [tableExpressions, tableVariables] = getTableExpressions([source]);
+      const [tableExpressions, tableVariables] = getSelectExpressions([source]);
 
       statement.push(`FROM ${tableExpressions[0]}`);
       variables.push(...tableVariables);

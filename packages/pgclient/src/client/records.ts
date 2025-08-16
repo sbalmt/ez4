@@ -2,8 +2,9 @@ import type { PgRelationRepository } from '@ez4/pgclient/library';
 import type { ObjectSchema } from '@ez4/schema';
 
 import { isAnyString, isEmptyObject } from '@ez4/utils';
+import { isNumberSchema } from '@ez4/schema';
 
-import { isJsonField } from './schema.js';
+import { isJsonFieldSchema } from './schema.js';
 
 export const parseRecords = <T extends Record<string, unknown>>(records: T[], schema: ObjectSchema, relations: PgRelationRepository) => {
   return records.map((record) => {
@@ -24,9 +25,16 @@ export const parseRecord = <T extends Record<string, unknown>>(record: T, schema
     if (isAnyString(value)) {
       const fieldSchema = schema.properties[fieldKey];
 
-      if (fieldSchema && isJsonField(fieldSchema)) {
-        result[fieldKey] = JSON.parse(value);
-        continue;
+      if (fieldSchema) {
+        if (isJsonFieldSchema(fieldSchema)) {
+          result[fieldKey] = JSON.parse(value);
+          continue;
+        }
+
+        if (isNumberSchema(fieldSchema)) {
+          result[fieldKey] = Number(value);
+          continue;
+        }
       }
 
       if (relations[fieldKey]) {

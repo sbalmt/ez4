@@ -15,7 +15,7 @@ import {
   prepareDeleteMany,
   prepareDeleteOne,
   prepareCount
-} from './common/queries.js';
+} from './queries/queries.js';
 
 export type TableContext = {
   transactionId?: string;

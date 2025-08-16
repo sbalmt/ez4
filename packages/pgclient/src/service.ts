@@ -5,7 +5,7 @@ import type { PgClientDriver } from './types/driver.js';
 
 import { MissingRepositoryTableError } from '@ez4/pgclient';
 
-import { prepareDeleteOne, prepareInsertOne, prepareUpdateOne } from './common/queries.js';
+import { prepareDeleteOne, prepareInsertOne, prepareUpdateOne } from './queries/queries.js';
 import { getTableName } from './utils/resources.js';
 import { Table } from './table.js';
 

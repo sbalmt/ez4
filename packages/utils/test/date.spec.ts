@@ -11,10 +11,14 @@ describe('date and time formats', () => {
 
   it('assert :: time', () => {
     ok(isTime('00:00:00'));
-    ok(isTime('12:30:30'));
-    ok(isTime('23:59:59'));
+    ok(isTime('12:30:30Z'));
+    ok(isTime('23:59:59+01:00'));
+    ok(isTime('23:59:59-02:00'));
 
     ok(isTime('12:34:56.789'));
+    ok(isTime('12:34:56.789Z'));
+    ok(isTime('12:34:56.789+03:00'));
+    ok(isTime('12:34:56.789-04:00'));
   });
 
   it('assert :: date-time', () => {

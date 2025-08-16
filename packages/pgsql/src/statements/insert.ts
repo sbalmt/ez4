@@ -5,15 +5,15 @@ import type { SqlTableReference } from '../common/reference.js';
 import type { SqlRecord } from '../common/types.js';
 import type { ObjectSchema } from '@ez4/schema';
 
-import { getTableExpressions } from '../helpers/table.js';
 import { getFields, getValues } from '../utils/column.js';
 import { escapeSqlName, escapeSqlNames } from '../utils/escape.js';
-import { MissingTableNameError } from '../errors/queries.js';
-import { SqlReturningClause } from '../clauses/returning.js';
-import { SqlConflictClause } from '../clauses/conflict.js';
+import { SqlReturningClause } from '../clauses/query/returning.js';
+import { SqlConflictClause } from '../clauses/query/conflict.js';
 import { SqlColumnReference } from '../common/reference.js';
-import { SqlSource } from '../common/source.js';
+import { getSelectExpressions } from '../helpers/select.js';
 import { SqlRawValue } from '../common/raw.js';
+import { SqlSource } from '../common/source.js';
+import { MissingTableNameError } from './errors.js';
 import { SqlSelectStatement } from './select.js';
 
 type SqlInsertContext = {
@@ -138,7 +138,7 @@ export class SqlInsertStatement extends SqlSource {
     });
 
     if (sources?.length) {
-      const [tableExpressions, tableVariables] = getTableExpressions(sources);
+      const [tableExpressions, tableVariables] = getSelectExpressions(sources);
 
       statement.push(`SELECT ${values} FROM ${tableExpressions.join(', ')}`);
       variables.push(...tableVariables);

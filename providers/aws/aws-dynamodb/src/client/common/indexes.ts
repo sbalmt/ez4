@@ -20,11 +20,15 @@ export const findBestSecondaryIndex = (secondaryIndexes: string[][], fields: Any
     }
   }
 
-  const firstBestIndex = bestIndexes?.[0];
-
-  if (firstBestIndex) {
-    return getIndexName(firstBestIndex);
+  if (!bestIndexes) {
+    return undefined;
   }
 
-  return undefined;
+  if (bestIndexes.length > 1) {
+    bestIndexes.sort((a, b) => a.length - b.length);
+  }
+
+  const firstBestIndex = bestIndexes[0];
+
+  return getIndexName(firstBestIndex);
 };

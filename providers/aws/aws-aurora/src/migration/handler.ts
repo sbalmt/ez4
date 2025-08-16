@@ -198,7 +198,6 @@ const applyUpdateTables = async (
     updates[table] = changes;
 
     // Columns
-
     if (targetColumns?.create) {
       changes.schema.toCreate = targetColumns.create;
     }
@@ -216,7 +215,6 @@ const applyUpdateTables = async (
     }
 
     // Relations
-
     if (relations?.create) {
       changes.relations.toCreate = relations.create;
     }
@@ -226,7 +224,6 @@ const applyUpdateTables = async (
     }
 
     // Indexes
-
     if (indexes?.create) {
       changes.indexes.toCreate = indexes.create;
     }

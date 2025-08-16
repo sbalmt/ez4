@@ -19,7 +19,7 @@ export const prepareCreateColumns = (table: string, indexes: PgIndexRepository, 
 
     const columnType = getColumnType(columnSchema, columnIsPrimary);
 
-    const statement = [`ALTER TABLE "${table}" ADD COLUMN "${columnName}" ${columnType}`];
+    const statement = [`ALTER TABLE "${table}" ADD COLUMN IF NOT EXISTS "${columnName}" ${columnType}`];
 
     if (!isOptionalColumn(columnSchema)) {
       statement.push(`NOT null`);

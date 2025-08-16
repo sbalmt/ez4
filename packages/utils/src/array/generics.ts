@@ -1,4 +1,4 @@
-import type { IsAny } from '../main.js';
+import type { IsAny } from '../common/generics.js';
 
 /**
  * Given a type `T`, it returns `true` when `T` is an array, otherwise returns `false`.

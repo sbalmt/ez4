@@ -2,11 +2,13 @@ import type { AnySchema, ObjectSchema } from '@ez4/schema';
 import type { SqlRawGenerator } from './common/raw.js';
 
 import { SqlRawValue, SqlRawOperation } from './common/raw.js';
+import { SqlTableStatement } from './statements/table.js';
+import { SqlIndexStatement } from './statements/index.js';
 import { SqlSelectStatement } from './statements/select.js';
 import { SqlInsertStatement } from './statements/insert.js';
 import { SqlUpdateStatement } from './statements/update.js';
 import { SqlDeleteStatement } from './statements/delete.js';
-import { SqlWithClause } from './clauses/with.js';
+import { SqlWithClause } from './clauses/query/with.js';
 
 export type SqlBuilderReferences = {
   counter: number;
@@ -66,6 +68,14 @@ export class SqlBuilder {
 
   with(statements: (SqlSelectStatement | SqlInsertStatement | SqlUpdateStatement | SqlDeleteStatement)[], alias?: string) {
     return new SqlWithClause(statements, alias);
+  }
+
+  table(name: string) {
+    return new SqlTableStatement(name);
+  }
+
+  index(name: string) {
+    return new SqlIndexStatement(name);
   }
 
   select(schema?: ObjectSchema) {

@@ -1,8 +1,8 @@
 import type { SqlSource } from './source.js';
 
-import { MissingTableAliasError } from '../errors/queries.js';
 import { escapeSqlName } from '../utils/escape.js';
 import { mergeSqlAlias } from '../utils/merge.js';
+import { MissingTableAliasError } from './errors.js';
 
 export type SqlReferenceGenerator = (source: SqlSource) => string;
 
