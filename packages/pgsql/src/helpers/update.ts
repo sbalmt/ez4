@@ -9,7 +9,7 @@ import { isPlainObject } from '@ez4/utils';
 import { SqlRaw, SqlRawOperation } from '../common/raw.js';
 import { SqlSelectStatement } from '../statements/select.js';
 import { mergeSqlJsonPath, mergeSqlPath } from '../utils/merge.js';
-import { InvalidAtomicOperation } from '../errors/operations.js';
+import { InvalidAtomicOperation } from '../operations/errors.js';
 import { SqlColumnReference } from '../common/reference.js';
 
 export type SqlUpdateContext = {

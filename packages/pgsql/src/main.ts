@@ -1,5 +1,5 @@
-export * from './errors/operations.js';
-export * from './errors/queries.js';
+export * from './operations/errors.js';
+export * from './statements/errors.js';
 
 export * from './clauses/column/add.js';
 export * from './clauses/column/alter.js';

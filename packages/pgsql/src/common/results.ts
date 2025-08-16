@@ -5,12 +5,12 @@ import type { SqlColumn } from './types.js';
 
 import { isAnyObject } from '@ez4/utils';
 
-import { MissingColumnAliasError } from '../errors/queries.js';
 import { SqlSelectStatement } from '../statements/select.js';
 import { escapeSqlName } from '../utils/escape.js';
 import { mergeSqlAlias } from '../utils/merge.js';
 import { SqlJsonColumn } from './json.js';
 import { SqlColumnReference } from './reference.js';
+import { MissingColumnAliasError } from './errors.js';
 import { SqlRawValue } from './raw.js';
 
 export type SqlObjectColumn = Omit<SqlJsonColumnOptions, 'aggregate' | 'order'>;

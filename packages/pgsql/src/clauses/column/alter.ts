@@ -61,7 +61,7 @@ export class SqlAlterColumnClause {
     clause.push(columnName);
 
     if (type) {
-      clause.push('TYPE', type, `USING ${columnName}::${type}`);
+      clause.push('TYPE', type, 'USING', `${columnName}::${type}`);
     }
 
     if (value) {

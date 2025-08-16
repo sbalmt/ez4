@@ -1,7 +1,7 @@
-import type { SqlSource } from '../common/source.js';
+import type { SqlSource } from '../../common/source.js';
 
-import { NoStatementsError } from '../errors/queries.js';
-import { escapeSqlName } from '../utils/escape.js';
+import { escapeSqlName } from '../../utils/escape.js';
+import { NoStatementsError } from '../errors.js';
 
 type SqlWithContext = {
   variables: unknown[];

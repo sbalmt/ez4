@@ -2,7 +2,7 @@ import { escapeSqlName } from '../utils/escape.js';
 import { SqlTableReference } from '../common/reference.js';
 import { SqlSource } from '../common/source.js';
 
-export const getTableExpressions = (tables: (string | SqlTableReference | SqlSource)[]) => {
+export const getSelectExpressions = (tables: (string | SqlTableReference | SqlSource)[]) => {
   const tableExpressions = [];
   const tableVariables = [];
 

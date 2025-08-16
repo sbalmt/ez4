@@ -8,7 +8,7 @@ import { SqlSelectStatement } from './statements/select.js';
 import { SqlInsertStatement } from './statements/insert.js';
 import { SqlUpdateStatement } from './statements/update.js';
 import { SqlDeleteStatement } from './statements/delete.js';
-import { SqlWithClause } from './clauses/with.js';
+import { SqlWithClause } from './clauses/query/with.js';
 
 export type SqlBuilderReferences = {
   counter: number;

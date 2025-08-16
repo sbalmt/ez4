@@ -9,14 +9,14 @@ import type { SqlRawGenerator } from '../common/raw.js';
 
 import { isAnyNumber } from '@ez4/utils';
 
-import { escapeSqlName } from '../utils/escape.js';
-import { getTableExpressions } from '../helpers/table.js';
-import { MissingTableNameError, NoColumnsError } from '../errors/queries.js';
-import { SqlWhereClause } from '../clauses/where.js';
-import { SqlOrderClause } from '../clauses/order.js';
-import { SqlResults } from '../common/results.js';
 import { SqlSource } from '../common/source.js';
-import { SqlJoin } from '../clauses/join.js';
+import { SqlResults } from '../common/results.js';
+import { escapeSqlName } from '../utils/escape.js';
+import { SqlWhereClause } from '../clauses/query/where.js';
+import { SqlOrderClause } from '../clauses/query/order.js';
+import { SqlJoin } from '../clauses/query/join.js';
+import { getSelectExpressions } from '../helpers/select.js';
+import { MissingTableNameError, NoColumnsError } from './errors.js';
 
 export class SqlSelectStatement extends SqlSource implements SqlSourceWithResults {
   #state: {
@@ -178,7 +178,7 @@ export class SqlSelectStatement extends SqlSource implements SqlSourceWithResult
       throw new NoColumnsError();
     }
 
-    const [tableExpressions, tableVariables] = getTableExpressions(tables);
+    const [tableExpressions, tableVariables] = getSelectExpressions(tables);
 
     const statement = [`SELECT ${columns} FROM ${tableExpressions.join(', ')}`];
 

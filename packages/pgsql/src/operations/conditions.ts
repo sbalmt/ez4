@@ -1,30 +1,31 @@
 import type { AnySchema, ObjectSchema } from '@ez4/schema';
 import type { SqlBuilderOptions, SqlBuilderReferences } from '../builder.js';
-import type { SqlOperationContext } from '../operations/types.js';
-import type { SqlFilters } from './types.js';
-import type { SqlSource } from './source.js';
+import type { SqlOperationContext } from './types.js';
+import type { SqlFilters } from '../common/types.js';
+import type { SqlSource } from '../common/source.js';
 
 import { isAnyObject, isEmptyObject } from '@ez4/utils';
 import { isObjectSchema } from '@ez4/schema';
 
 import { mergeSqlAlias, mergeSqlPath } from '../utils/merge.js';
-import { InvalidOperandError, MissingOperatorError } from '../errors/operations.js';
 import { SqlSelectStatement } from '../statements/select.js';
-import { getIsNullOperation } from '../operations/is-null.js';
-import { getExistsOperation } from '../operations/exists.js';
-import { getEqualOperation } from '../operations/equal.js';
-import { getNotEqualOperation } from '../operations/not-equal.js';
-import { getGreaterThanOperation } from '../operations/greater.js';
-import { getGreaterOrEqualOperation } from '../operations/greater-equal.js';
-import { getLessThanOperation } from '../operations/less.js';
-import { getLessOrEqualOperation } from '../operations/less-equal.js';
-import { getIsInOperation } from '../operations/is-in.js';
-import { getIsBetweenOperation } from '../operations/is-between.js';
-import { getStartsWithOperation } from '../operations/starts-with.js';
-import { getContainsOperation } from '../operations/contains.js';
-import { SqlColumnReference } from './reference.js';
-import { SqlOperator } from './types.js';
-import { SqlRawValue } from './raw.js';
+import { getIsNullOperation } from './is-null.js';
+import { getExistsOperation } from './exists.js';
+import { getEqualOperation } from './equal.js';
+import { getNotEqualOperation } from './not-equal.js';
+import { getGreaterThanOperation } from './greater.js';
+import { getGreaterOrEqualOperation } from './greater-equal.js';
+import { getLessThanOperation } from './less.js';
+import { getLessOrEqualOperation } from './less-equal.js';
+import { getIsInOperation } from './is-in.js';
+import { getIsBetweenOperation } from './is-between.js';
+import { getStartsWithOperation } from './starts-with.js';
+import { getContainsOperation } from './contains.js';
+import { SqlColumnReference } from '../common/reference.js';
+import { SqlOperator } from '../common/types.js';
+import { SqlRawValue } from '../common/raw.js';
+
+import { InvalidOperandError, MissingOperatorError } from './errors.js';
 
 export class SqlConditions {
   #state: {
