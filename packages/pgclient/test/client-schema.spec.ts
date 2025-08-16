@@ -38,7 +38,7 @@ declare class Test extends Database.Service {
   ];
 }
 
-describe('client queries', async () => {
+describe('client schema', async () => {
   const client: DbClient<Test> = await Client.make({
     debug: false,
     repository: {

@@ -5,7 +5,7 @@ import { deepEqual } from 'assert/strict';
 
 import { Client } from '@ez4/pgclient';
 
-describe('client native driver', () => {
+describe('client driver', () => {
   let client: DbClient<Database.Service>;
 
   before(async () => {

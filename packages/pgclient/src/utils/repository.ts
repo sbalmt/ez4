@@ -1,12 +1,12 @@
-import type { DatabaseService, TableIndex, TableRelation } from '@ez4/database/library';
+import type { DatabaseTable, TableIndex, TableRelation } from '@ez4/database/library';
 import type { PgTableRepository, PgIndexRepository, PgRelationRepository } from '../types/repository.js';
 
 import { Index } from '@ez4/database';
 
 import { getTableName } from './resources.js';
 
-export const getTableRepository = (service: DatabaseService): PgTableRepository => {
-  return service.tables.reduce((current, { name, schema, relations, indexes }) => {
+export const getTableRepository = (tables: DatabaseTable[]): PgTableRepository => {
+  return tables.reduce((current, { name, schema, relations, indexes }) => {
     return {
       ...current,
       [name]: {
