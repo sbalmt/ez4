@@ -27,6 +27,7 @@
     "packages/distribution",
     "packages/pgsql",
     "packages/pgclient",
+    "packages/pgmigration",
     "providers/local/local-common",
     "providers/local/local-scheduler",
     "providers/local/local-database",
