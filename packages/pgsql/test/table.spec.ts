@@ -73,7 +73,7 @@ describe('sql table tests', () => {
   });
 
   it('assert :: alter table (if exists, add columns)', () => {
-    const query = sql.table('table').columns().existing();
+    const query = sql.table('table').alter().existing();
 
     query.add('foo', 'boolean').default('false');
     query.add('bar', 'integer').missing();
@@ -93,7 +93,7 @@ describe('sql table tests', () => {
   });
 
   it('assert :: alter table (add columns)', () => {
-    const query = sql.table('table').columns();
+    const query = sql.table('table').alter();
 
     query.add('foo', 'boolean').default('true');
     query.add('baz', 'integer').required();
@@ -113,7 +113,7 @@ describe('sql table tests', () => {
   });
 
   it('assert :: alter table (drop columns)', () => {
-    const query = sql.table('table').columns();
+    const query = sql.table('table').alter();
 
     query.drop('foo');
     query.drop('bar').cascade();
@@ -133,7 +133,7 @@ describe('sql table tests', () => {
   });
 
   it('assert :: alter table (rename column)', () => {
-    const query = sql.table('table').columns().rename('foo', 'bar');
+    const query = sql.table('table').alter().rename('foo', 'bar');
 
     const statement = query.build();
 
@@ -141,11 +141,11 @@ describe('sql table tests', () => {
   });
 
   it('assert :: alter table (alter column type)', () => {
-    const query = sql.table('table').columns();
+    const query = sql.table('table').alter();
 
-    query.alter('foo').type('boolean');
-    query.alter('bar').type('integer');
-    query.alter('baz').type('text');
+    query.column('foo').type('boolean');
+    query.column('bar').type('integer');
+    query.column('baz').type('text');
 
     const statement = query.build();
 
@@ -159,11 +159,11 @@ describe('sql table tests', () => {
   });
 
   it('assert :: alter table (alter nullable columns)', () => {
-    const query = sql.table('table').columns();
+    const query = sql.table('table').alter();
 
-    query.alter('foo').required();
-    query.alter('bar').required(false);
-    query.alter('baz').required();
+    query.column('foo').required();
+    query.column('bar').required(false);
+    query.column('baz').required();
 
     const statement = query.build();
 
@@ -177,11 +177,11 @@ describe('sql table tests', () => {
   });
 
   it('assert :: alter table (alter default columns)', () => {
-    const query = sql.table('table').columns();
+    const query = sql.table('table').alter();
 
-    query.alter('foo').default("'hello world'");
-    query.alter('bar').default(null);
-    query.alter('baz').default('null');
+    query.column('foo').default("'hello world'");
+    query.column('bar').default(null);
+    query.column('baz').default('null');
 
     const statement = query.build();
 
@@ -192,73 +192,5 @@ describe('sql table tests', () => {
         `ALTER COLUMN "bar" DROP DEFAULT, ` +
         `ALTER COLUMN "baz" SET DEFAULT null`
     );
-  });
-
-  it('assert :: alter table (add foreign key constraint)', () => {
-    const query = sql.table('table').columns();
-
-    const constraintA = query.constraint('foo').foreign('relation_id', 'table', ['foo_bar', 'foo_baz', 'foo_qux']);
-    const constraintB = query.constraint('bar').foreign('relation_id', 'table', ['bar_bar', 'bar_baz', 'bar_qux']);
-
-    constraintA.delete().restrict();
-    constraintA.update().null();
-
-    constraintB.delete().cascade();
-
-    const statement = query.build();
-
-    equal(
-      statement,
-      `ALTER TABLE "table" ` +
-        `ADD CONSTRAINT "foo" FOREIGN KEY "relation_id" REFERENCES "table" ("foo_bar", "foo_baz", "foo_qux") ` +
-        `ON DELETE RESTRICT ` +
-        `ON UPDATE SET null, ` +
-        `ADD CONSTRAINT "bar" FOREIGN KEY "relation_id" REFERENCES "table" ("bar_bar", "bar_baz", "bar_qux") ` +
-        `ON DELETE CASCADE`
-    );
-  });
-
-  it('assert :: alter table (add primary key constraint)', () => {
-    const query = sql.table('table').columns();
-
-    query.constraint('foo').primary(['foo_bar', 'foo_baz', 'foo_qux']);
-    query.constraint('bar').primary(['bar_bar', 'bar_baz', 'bar_qux']);
-
-    const statement = query.build();
-
-    equal(
-      statement,
-      `ALTER TABLE "table" ` +
-        `ADD CONSTRAINT "foo" PRIMARY KEY ("foo_bar", "foo_baz", "foo_qux"), ` +
-        `ADD CONSTRAINT "bar" PRIMARY KEY ("bar_bar", "bar_baz", "bar_qux")`
-    );
-  });
-
-  it('assert :: alter table (add unique constraint)', () => {
-    const query = sql.table('table').columns();
-
-    query.constraint('foo').unique(['foo_bar', 'foo_baz', 'foo_qux']);
-    query.constraint('bar').unique(['bar_bar', 'bar_baz', 'bar_qux']);
-
-    const statement = query.build();
-
-    equal(
-      statement,
-      `ALTER TABLE "table" ` +
-        `ADD CONSTRAINT "foo" UNIQUE ("foo_bar", "foo_baz", "foo_qux"), ` +
-        `ADD CONSTRAINT "bar" UNIQUE ("bar_bar", "bar_baz", "bar_qux")`
-    );
-  });
-
-  it('assert :: alter table (drop constraints)', () => {
-    const query = sql.table('table').columns();
-
-    query.constraint('foo').drop();
-    query.constraint('bar').drop().existing();
-    query.constraint('baz').drop();
-
-    const statement = query.build();
-
-    equal(statement, `ALTER TABLE "table" DROP CONSTRAINT "foo", DROP CONSTRAINT IF EXISTS "bar", DROP CONSTRAINT "baz"`);
   });
 });

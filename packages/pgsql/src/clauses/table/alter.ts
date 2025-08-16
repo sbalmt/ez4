@@ -88,7 +88,7 @@ export class SqlAlterTableClause {
     return column;
   }
 
-  alter(name: string) {
+  column(name: string) {
     const { change, modify } = this.#state;
 
     if (change && change !== ChangeType.Modify) {

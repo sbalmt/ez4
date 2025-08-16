@@ -70,7 +70,7 @@ export class SqlTableStatement {
     return this.#state.remove;
   }
 
-  columns() {
+  alter() {
     const { change } = this.#state;
 
     if (change && change !== ChangeType.Modify) {
