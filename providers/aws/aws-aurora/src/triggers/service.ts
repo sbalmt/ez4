@@ -47,8 +47,8 @@ export const prepareDatabaseServices = async (event: PrepareResourceEvent) => {
   });
 
   createMigration(state, clusterState, instanceState, {
-    database: getDatabaseName(service, options),
-    repository: getTableRepository(service)
+    repository: getTableRepository(service.tables),
+    database: getDatabaseName(service, options)
   });
 
   context.setServiceState(clusterState, service, options);

@@ -1,16 +1,12 @@
-import type { PgIndexRepository, PgRelationRepository, PgTableRepository } from '@ez4/pgclient/library';
-import type { AnySchema } from '@ez4/schema';
+import type { PgTableRepository } from '@ez4/pgclient/library';
 import type { Arn } from '@ez4/aws-common';
 
+import { getCreateQueries, getDeleteQueries, getUpdateQueries } from '@ez4/pgmigration';
+import { prepareCreateDatabase, prepareDeleteDatabase } from '@ez4/pgmigration/library';
 import { Logger } from '@ez4/aws-common';
 
-import { prepareCreateColumns, prepareUpdateColumns, prepareDeleteColumns, prepareRenameColumns } from './common/columns.js';
-import { prepareCreateRelations, prepareDeleteRelations } from './common/relations.js';
-import { prepareCreateDatabase, prepareDeleteDatabase } from './common/database.js';
-import { prepareCreateIndexes, prepareUpdateIndexes } from './common/indexes.js';
-import { prepareCreateTable, prepareDeleteTable } from './common/table.js';
-import { MigrationServiceName } from './types.js';
 import { DataClientDriver } from '../client/driver.js';
+import { MigrationServiceName } from './types.js';
 
 export type ConnectionRequest = {
   database: string;
@@ -23,30 +19,14 @@ export type CreateTableRequest = ConnectionRequest & {
 };
 
 export type UpdateTableRequest = ConnectionRequest & {
-  updates: Record<string, RepositoryUpdates>;
-  repository: PgTableRepository;
+  repository: {
+    target: PgTableRepository;
+    source: PgTableRepository;
+  };
 };
 
 export type DeleteTableRequest = ConnectionRequest & {
-  tables: string[];
-};
-
-export type RepositoryUpdates = {
-  name: string;
-  schema: {
-    toCreate: Record<string, AnySchema>;
-    toUpdate: Record<string, AnySchema>;
-    toRemove: Record<string, AnySchema>;
-    toRename: Record<string, string>;
-  };
-  relations: {
-    toCreate: PgRelationRepository;
-    toRemove: PgRelationRepository;
-  };
-  indexes: {
-    toCreate: PgIndexRepository;
-    toRemove: PgIndexRepository;
-  };
+  repository: PgTableRepository;
 };
 
 export const createDatabase = async (request: ConnectionRequest): Promise<void> => {
@@ -76,25 +56,15 @@ export const createTables = async (request: CreateTableRequest): Promise<void> =
     database
   });
 
-  const tableQueries = [];
-  const relationsQueries = [];
-  const indexesQueries = [];
+  const queries = getCreateQueries(repository);
 
-  for (const table in repository) {
-    const { name, schema, indexes, relations } = repository[table];
+  const statements = [...queries.tables, ...queries.indexes, ...queries.relations].map((query) => ({ query }));
 
-    indexesQueries.push(...prepareCreateIndexes(name, schema, indexes, false));
-    relationsQueries.push(...prepareCreateRelations(name, relations));
-    tableQueries.push(prepareCreateTable(name, schema, indexes));
-  }
-
-  const createStatements = [...tableQueries, ...indexesQueries, ...relationsQueries].map((query) => ({ query }));
-
-  await driver.executeTransaction(createStatements);
+  await driver.executeTransaction(statements);
 };
 
 export const updateTables = async (request: UpdateTableRequest): Promise<void> => {
-  const { clusterArn, secretArn, database, repository, updates } = request;
+  const { clusterArn, secretArn, database, repository } = request;
 
   Logger.logUpdate(MigrationServiceName, `${database} tables`);
 
@@ -104,34 +74,17 @@ export const updateTables = async (request: UpdateTableRequest): Promise<void> =
     database
   });
 
-  const indexQueries = [];
-  const otherQueries = [];
+  const queries = getUpdateQueries(repository.target, repository.source);
 
-  for (const table in updates) {
-    const { schema: schemaUpdates, indexes: indexesUpdates, relations: relationUpdates, name } = updates[table];
-    const { schema: tableSchema, indexes: tableIndexes } = repository[table];
-
-    indexQueries.push(...prepareUpdateIndexes(name, tableSchema, indexesUpdates.toCreate, indexesUpdates.toRemove, true));
-
-    otherQueries.push(
-      ...prepareCreateColumns(name, tableIndexes, schemaUpdates.toCreate),
-      ...prepareCreateRelations(name, relationUpdates.toCreate),
-      ...prepareUpdateColumns(name, tableIndexes, schemaUpdates.toUpdate),
-      ...prepareRenameColumns(name, schemaUpdates.toRename),
-      ...prepareDeleteRelations(name, relationUpdates.toRemove),
-      ...prepareDeleteColumns(name, schemaUpdates.toRemove)
-    );
-  }
-
-  const otherStatements = otherQueries.map((query) => ({ query }));
-  const indexStatements = indexQueries.map((query) => ({ query }));
+  const otherStatements = [...queries.tables, ...queries.relations].map((query) => ({ query }));
+  const indexStatements = queries.indexes.map((query) => ({ query }));
 
   await driver.executeTransaction(otherStatements);
   await driver.executeStatements(indexStatements);
 };
 
 export const deleteTables = async (request: DeleteTableRequest): Promise<void> => {
-  const { clusterArn, secretArn, database, tables } = request;
+  const { clusterArn, secretArn, database, repository } = request;
 
   Logger.logDelete(MigrationServiceName, `${database} tables`);
 
@@ -141,11 +94,15 @@ export const deleteTables = async (request: DeleteTableRequest): Promise<void> =
     database
   });
 
-  const deleteStatements = tables.map((table) => ({
-    query: prepareDeleteTable(table)
-  }));
+  const queries = getDeleteQueries(repository);
 
-  await driver.executeTransaction(deleteStatements);
+  const statements = queries.tables.map((query) => {
+    return {
+      query
+    };
+  });
+
+  await driver.executeTransaction(statements);
 };
 
 export const deleteDatabase = async (request: ConnectionRequest): Promise<void> => {

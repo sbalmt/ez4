@@ -43,17 +43,14 @@
     "clean:registry": "rm -rf ../../.registry/@ez4/pgmigration",
     "live:publish": "npm run build && npm publish --access public"
   },
-  "devDependencies": {
-    "@types/pg": "^8.15.5"
-  },
   "dependencies": {
     "@ez4/database": "^0.25.0",
     "@ez4/pgsql": "^0.25.0",
+    "@ez4/pgclient": "^0.25.0",
     "@ez4/project": "^0.25.0",
     "@ez4/schema": "^0.25.0",
     "@ez4/transform": "^0.25.0",
     "@ez4/utils": "^0.25.0",
-    "@ez4/validator": "^0.25.0",
-    "pg": "^8.16.3"
+    "@ez4/validator": "^0.25.0"
   }
 }
