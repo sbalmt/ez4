@@ -1,6 +1,7 @@
 import type { SqlAlterTableClause } from '../table/alter.js';
 
 import { escapeSqlName } from '../../utils/escape.js';
+import { MissingClauseError } from '../errors.js';
 
 export class SqlAlterColumnClause {
   #state: {
@@ -22,7 +23,7 @@ export class SqlAlterColumnClause {
     return this.#state.name;
   }
 
-  type(type: string) {
+  type(type?: string) {
     this.#state.type = type;
     return this;
   }
@@ -32,7 +33,7 @@ export class SqlAlterColumnClause {
     return this;
   }
 
-  default(value: string | null) {
+  default(value?: string | null) {
     this.#state.value = value;
     return this;
   }
@@ -63,6 +64,10 @@ export class SqlAlterColumnClause {
       clauses.push([...base, 'SET', 'NOT', 'null']);
     } else if (required === false) {
       clauses.push([...base, 'DROP', 'NOT', 'null']);
+    }
+
+    if (!clauses.length) {
+      throw new MissingClauseError();
     }
 
     return clauses.map((clause) => clause.join(' ')).join(', ');
