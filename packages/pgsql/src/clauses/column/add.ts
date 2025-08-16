@@ -12,9 +12,11 @@ export class SqlAddColumnClause {
     value?: string;
   };
 
-  constructor(table: SqlAlterTableClause, name: string, type: string) {
+  constructor(table: SqlAlterTableClause, name: string, type: string, required?: boolean, value?: string) {
     this.#state = {
       check: false,
+      required,
+      value,
       table,
       name,
       type
@@ -25,29 +27,31 @@ export class SqlAddColumnClause {
     return this.#state.check;
   }
 
+  get typing() {
+    return this.#state.type;
+  }
+
   get name() {
     return this.#state.name;
   }
 
-  get type() {
-    return this.#state.type;
-  }
-
   missing(check = true) {
     this.#state.check = check;
-
     return this;
   }
 
   required(apply = true) {
     this.#state.required = apply;
-
     return this;
   }
 
-  default(value: string) {
+  default(value?: string) {
     this.#state.value = value;
+    return this;
+  }
 
+  type(type: string) {
+    this.#state.type = type;
     return this;
   }
 

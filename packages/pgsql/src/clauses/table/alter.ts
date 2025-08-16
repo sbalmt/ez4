@@ -64,7 +64,7 @@ export class SqlAlterTableClause {
     return this.#state.rename;
   };
 
-  add(name: string, type: string) {
+  add(name: string, type: string, required?: boolean, value?: string) {
     const { change, create } = this.#state;
 
     if (change && change !== ChangeType.Create) {
@@ -78,10 +78,12 @@ export class SqlAlterTableClause {
     });
 
     if (current) {
+      current.type(type);
+
       return current;
     }
 
-    const column = new SqlAddColumnClause(this, name, type);
+    const column = new SqlAddColumnClause(this, name, type, required, value);
 
     create.push(column);
 

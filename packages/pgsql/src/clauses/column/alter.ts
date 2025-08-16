@@ -46,24 +46,25 @@ export class SqlAlterColumnClause {
 
     const columnName = escapeSqlName(name);
 
-    const clause = ['ALTER COLUMN', columnName];
+    const base = ['ALTER COLUMN', columnName];
+    const clauses = [];
 
     if (type) {
-      clause.push('TYPE', type, 'USING', `${columnName}::${type}`);
+      clauses.push([...base, 'TYPE', type, 'USING', `${columnName}::${type}`]);
     }
 
     if (value) {
-      clause.push('SET DEFAULT', value);
+      clauses.push([...base, 'SET', 'DEFAULT', value]);
     } else if (value === null) {
-      clause.push('DROP DEFAULT');
+      clauses.push([...base, 'DROP', 'DEFAULT']);
     }
 
     if (required) {
-      clause.push('SET NOT null');
+      clauses.push([...base, 'SET', 'NOT', 'null']);
     } else if (required === false) {
-      clause.push('DROP NOT null');
+      clauses.push([...base, 'DROP', 'NOT', 'null']);
     }
 
-    return clause.join(' ');
+    return clauses.map((clause) => clause.join(' ')).join(', ');
   }
 }
