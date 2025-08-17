@@ -56,6 +56,10 @@ export class SqlBuilder {
     return new SqlRawValue(value);
   }
 
+  rawString(value: string) {
+    return new SqlRawValue(`'${value.replaceAll(/'/g, `\\'`)}'`);
+  }
+
   rawOperation(operator: string, value: unknown | SqlRawGenerator) {
     return new SqlRawOperation(operator, value);
   }
