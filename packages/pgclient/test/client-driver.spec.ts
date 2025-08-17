@@ -1,24 +1,20 @@
 import type { Database, Client as DbClient } from '@ez4/database';
 
-import { describe, it, before } from 'node:test';
+import { describe, it } from 'node:test';
 import { deepEqual } from 'assert/strict';
 
 import { Client } from '@ez4/pgclient';
 
-describe('client driver', () => {
-  let client: DbClient<Database.Service>;
-
-  before(async () => {
-    client = await Client.make({
-      debug: false,
-      repository: {},
-      connection: {
-        database: 'pg',
-        password: 'postgres',
-        user: 'postgres',
-        host: '127.0.0.1'
-      }
-    });
+describe('client driver', async () => {
+  const client = await Client.make({
+    debug: false,
+    repository: {},
+    connection: {
+      database: 'pg',
+      password: 'postgres',
+      user: 'postgres',
+      host: '127.0.0.1'
+    }
   });
 
   it('assert :: raw query', async () => {

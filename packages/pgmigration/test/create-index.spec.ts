@@ -9,7 +9,7 @@ import { getTableRepository } from '@ez4/pgclient/library';
 import { SchemaType } from '@ez4/schema';
 import { Index } from '@ez4/database';
 
-describe('migration create index tests', () => {
+describe('migration :: create index tests', () => {
   const getDatabaseTables = (properties: ObjectSchemaProperties, indexes: TableIndex[] = []) => {
     return getTableRepository([
       {

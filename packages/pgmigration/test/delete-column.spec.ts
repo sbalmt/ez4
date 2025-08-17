@@ -8,7 +8,7 @@ import { getTableRepository } from '@ez4/pgclient/library';
 import { SchemaType } from '@ez4/schema';
 import { Index } from '@ez4/database';
 
-describe('migration delete column tests', () => {
+describe('migration :: delete column tests', () => {
   const getDatabaseTables = (properties: ObjectSchemaProperties) => {
     return getTableRepository([
       {
