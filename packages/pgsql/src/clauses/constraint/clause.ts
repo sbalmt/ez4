@@ -4,14 +4,20 @@ import { MissingClauseError } from '../errors.js';
 import { SqlPrimaryKeyConstraintClause } from './primary.js';
 import { SqlForeignKeyConstraintClause } from './foreign.js';
 import { SqlUniqueConstraintClause } from './unique.js';
+import { SqlRenameConstraintClause } from './rename.js';
 import { SqlDropConstraintClause } from './drop.js';
 
 export class SqlConstraintClause {
   #state: {
     table: SqlAlterTableClause;
-    clause?: SqlPrimaryKeyConstraintClause | SqlForeignKeyConstraintClause | SqlUniqueConstraintClause | SqlDropConstraintClause;
     building?: boolean;
     name: string;
+    clause?:
+      | SqlPrimaryKeyConstraintClause
+      | SqlForeignKeyConstraintClause
+      | SqlUniqueConstraintClause
+      | SqlRenameConstraintClause
+      | SqlDropConstraintClause;
   };
 
   constructor(table: SqlAlterTableClause, name: string) {
@@ -57,6 +63,16 @@ export class SqlConstraintClause {
     }
 
     return this.#state.clause as SqlUniqueConstraintClause;
+  }
+
+  rename(name: string) {
+    const { clause } = this.#state;
+
+    if (!(clause instanceof SqlRenameConstraintClause)) {
+      this.#state.clause = new SqlRenameConstraintClause(this, name);
+    }
+
+    return this.#state.clause as SqlRenameConstraintClause;
   }
 
   drop() {

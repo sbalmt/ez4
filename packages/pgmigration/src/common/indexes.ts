@@ -5,7 +5,7 @@ import type { SqlBuilder } from '@ez4/pgsql';
 import { SchemaType } from '@ez4/schema';
 import { Index } from '@ez4/database';
 
-import { getPrimaryKeyName, getSecondaryKeyName, getUniqueKeyName } from '../utils/names.js';
+import { getPrimaryKeyName, getSecondaryKeyName, getUniqueKeyName } from '../utils/naming.js';
 
 export const prepareCreateIndexes = (
   builder: SqlBuilder,
@@ -17,15 +17,89 @@ export const prepareCreateIndexes = (
   const statements = [];
 
   for (const indexName in indexes) {
-    if (!indexes[indexName]) {
-      continue;
-    }
-
     const { columns, type } = indexes[indexName];
 
-    const statement = prepareCreateIndex(builder, table, schema, indexName, type, columns, concurrent);
+    switch (type) {
+      default:
+        throw new Error(`Unsupported index type.`);
 
-    statements.push(statement.build());
+      case Index.Primary: {
+        const name = getPrimaryKeyName(table, indexName);
+
+        const statement = builder.table(table).alter().constraint(name).primary(columns);
+
+        statements.push(statement.build());
+        break;
+      }
+
+      case Index.Unique: {
+        const name = getUniqueKeyName(table, indexName);
+
+        const statement = builder.table(table).alter().constraint(name).unique(columns);
+
+        statements.push(statement.build());
+        break;
+      }
+
+      case Index.Secondary: {
+        const name = getSecondaryKeyName(table, indexName);
+        const type = getIndexType(columns, schema);
+
+        const statement = builder.index(name).create(table, columns).type(type).missing();
+
+        if (concurrent) {
+          statement.concurrent();
+        }
+
+        statements.push(statement.build());
+        break;
+      }
+    }
+  }
+
+  return statements;
+};
+
+export const prepareRenameIndexes = (builder: SqlBuilder, fromTable: string, toTable: string, indexes: PgIndexRepository) => {
+  const statements: string[] = [];
+
+  for (const indexName in indexes) {
+    const { type } = indexes[indexName];
+
+    switch (type) {
+      default:
+        throw new Error(`Unsupported index type.`);
+
+      case Index.Primary: {
+        const fromName = getPrimaryKeyName(fromTable, indexName);
+        const toName = getPrimaryKeyName(toTable, indexName);
+
+        const statement = builder.table(toTable).alter().constraint(fromName).rename(toName);
+
+        statements.push(statement.build());
+        break;
+      }
+
+      case Index.Unique: {
+        const fromName = getUniqueKeyName(fromTable, indexName);
+        const toName = getUniqueKeyName(toTable, indexName);
+
+        const statement = builder.table(toTable).alter().constraint(fromName).rename(toName);
+
+        statements.push(statement.build());
+        break;
+      }
+
+      case Index.Secondary: {
+        const fromName = getSecondaryKeyName(fromTable, indexName);
+        const toName = getSecondaryKeyName(toTable, indexName);
+
+        const statement = builder.index(fromName).rename(toName);
+
+        statements.push(statement.build());
+        break;
+      }
+    }
   }
 
   return statements;
@@ -35,69 +109,39 @@ export const prepareDeleteIndexes = (builder: SqlBuilder, table: string, indexes
   const statements = [];
 
   for (const indexName in indexes) {
-    if (!indexes[indexName]) {
-      continue;
-    }
-
     const { type } = indexes[indexName];
 
-    const statement = prepareDeleteIndex(builder, table, indexName, type);
+    switch (type) {
+      default:
+        throw new Error(`Unsupported index type.`);
 
-    statements.push(statement.build());
+      case Index.Primary: {
+        const name = getPrimaryKeyName(table, indexName);
+        const statement = builder.table(table).alter().constraint(name).drop().existing();
+
+        statements.push(statement.build());
+        break;
+      }
+
+      case Index.Unique: {
+        const name = getUniqueKeyName(table, indexName);
+        const statement = builder.table(table).alter().constraint(name).drop().existing();
+
+        statements.push(statement.build());
+        break;
+      }
+
+      case Index.Secondary: {
+        const name = getSecondaryKeyName(table, indexName);
+        const statement = builder.index(name).drop().existing().concurrent();
+
+        statements.push(statement.build());
+        break;
+      }
+    }
   }
 
   return statements;
-};
-
-const prepareCreateIndex = (
-  builder: SqlBuilder,
-  table: string,
-  schema: ObjectSchema,
-  name: string,
-  type: Index,
-  columns: string[],
-  concurrent: boolean
-) => {
-  switch (type) {
-    default:
-      throw new Error(`Unsupported index type.`);
-
-    case Index.Primary:
-      return builder.table(table).alter().constraint(getPrimaryKeyName(table, name)).primary(columns);
-
-    case Index.Unique:
-      return builder.table(table).alter().constraint(getUniqueKeyName(table, name)).unique(columns);
-
-    case Index.Secondary: {
-      const statement = builder
-        .index(getSecondaryKeyName(table, name))
-        .create(table, columns)
-        .type(getIndexType(columns, schema))
-        .missing();
-
-      if (concurrent) {
-        statement.concurrent();
-      }
-
-      return statement;
-    }
-  }
-};
-
-const prepareDeleteIndex = (builder: SqlBuilder, table: string, name: string, type: Index) => {
-  switch (type) {
-    case Index.Primary:
-      return builder.table(table).alter().constraint(getPrimaryKeyName(table, name)).drop().existing();
-
-    case Index.Unique:
-      return builder.table(table).alter().constraint(getUniqueKeyName(table, name)).drop().existing();
-
-    case Index.Secondary:
-      return builder.index(getSecondaryKeyName(table, name)).drop().existing().concurrent();
-
-    default:
-      throw new Error(`Unsupported index type.`);
-  }
 };
 
 const getIndexType = (columns: string[], schema: ObjectSchema) => {

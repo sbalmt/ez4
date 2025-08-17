@@ -69,6 +69,14 @@ describe('sql table constraint tests', () => {
     );
   });
 
+  it('assert :: alter table (rename constraints)', () => {
+    const query = sql.table('table').alter().constraint('foo').rename('bar');
+
+    const statement = query.build();
+
+    equal(statement, `ALTER TABLE "table" RENAME CONSTRAINT "foo" TO "bar"`);
+  });
+
   it('assert :: alter table (drop constraints)', () => {
     const query = sql.table('table').alter();
 

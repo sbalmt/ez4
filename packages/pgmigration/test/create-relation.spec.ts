@@ -4,13 +4,13 @@ import { describe, it } from 'node:test';
 import { deepEqual } from 'assert/strict';
 
 import { getUpdateQueries } from '@ez4/pgmigration';
-import { getTableRepository } from '@ez4/pgclient/library';
+import { getTablesRepository } from '@ez4/pgclient/library';
 import { SchemaType } from '@ez4/schema';
 import { Index } from '@ez4/database';
 
 describe('migration :: create relation tests', () => {
   const getDatabaseTables = (relations: TableRelation[]) => {
-    return getTableRepository([
+    return getTablesRepository([
       {
         name: 'table_a',
         indexes: [],
@@ -57,7 +57,6 @@ describe('migration :: create relation tests', () => {
 
     deepEqual(queries.relations, [
       `ALTER TABLE "table_a" ` +
-        //
         `ADD CONSTRAINT "table_a_table_b_fk" FOREIGN KEY "column_b" ` +
         `REFERENCES "table_a" ("column_a") ` +
         `ON DELETE CASCADE ` +
@@ -86,7 +85,6 @@ describe('migration :: create relation tests', () => {
 
     deepEqual(queries.relations, [
       `ALTER TABLE "table_a" ` +
-        //
         `ADD CONSTRAINT "table_a_table_b_fk" FOREIGN KEY "column_b" ` +
         `REFERENCES "table_a" ("column_a") ` +
         `ON DELETE CASCADE ` +

@@ -4,7 +4,7 @@ import type { SqlBuilder } from '@ez4/pgsql';
 import { getTableName } from '@ez4/pgclient/library';
 import { Index } from '@ez4/database';
 
-import { getRelationName } from '../utils/names.js';
+import { getRelationName } from '../utils/naming.js';
 
 export const prepareCreateRelations = (builder: SqlBuilder, table: string, relations: PgRelationRepository) => {
   const statements = [];
@@ -12,7 +12,7 @@ export const prepareCreateRelations = (builder: SqlBuilder, table: string, relat
   for (const alias in relations) {
     const relation = relations[alias];
 
-    if (!relation || relation.targetIndex === Index.Primary) {
+    if (relation.targetIndex === Index.Primary) {
       continue;
     }
 
@@ -32,13 +32,34 @@ export const prepareCreateRelations = (builder: SqlBuilder, table: string, relat
   return statements;
 };
 
+export const prepareRenameRelations = (builder: SqlBuilder, fromTable: string, toTable: string, relations: PgRelationRepository) => {
+  const statements = [];
+
+  for (const alias in relations) {
+    const relation = relations[alias];
+
+    if (relation.targetIndex === Index.Primary) {
+      continue;
+    }
+
+    const oldRelationName = getRelationName(fromTable, alias);
+    const newRelationName = getRelationName(toTable, alias);
+
+    const statement = builder.table(toTable).alter().constraint(oldRelationName).rename(newRelationName);
+
+    statements.push(statement.build());
+  }
+
+  return statements;
+};
+
 export const prepareDeleteRelations = (builder: SqlBuilder, table: string, relations: PgRelationRepository) => {
   const statements = [];
 
   for (const alias in relations) {
     const relation = relations[alias];
 
-    if (!relation || relation.targetIndex === Index.Primary) {
+    if (relation.targetIndex === Index.Primary) {
       continue;
     }
 

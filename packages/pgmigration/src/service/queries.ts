@@ -2,10 +2,10 @@ import type { PgTableRepository } from '@ez4/pgclient/library';
 
 import { SqlBuilder } from '@ez4/pgsql';
 
-import { prepareCreateTable, prepareDeleteTable } from '../common/tables.js';
-import { prepareCreateRelations, prepareDeleteRelations } from '../common/relations.js';
+import { prepareCreateTable, prepareDeleteTable, prepareRenameTable } from '../common/tables.js';
+import { prepareCreateRelations, prepareDeleteRelations, prepareRenameRelations } from '../common/relations.js';
 import { prepareCreateColumns, prepareDeleteColumns, prepareRenameColumns, prepareUpdateColumns } from '../common/columns.js';
-import { prepareCreateIndexes, prepareDeleteIndexes } from '../common/indexes.js';
+import { prepareCreateIndexes, prepareDeleteIndexes, prepareRenameIndexes } from '../common/indexes.js';
 import { getTableRepositoryChanges } from '../utils/repository.js';
 
 export type MigrationQueries = {
@@ -26,9 +26,9 @@ export const getCreateQueries = (target: PgTableRepository) => {
   for (const table in target) {
     const { name, schema, indexes, relations } = target[table];
 
-    queries.tables.push(prepareCreateTable(builder, name, schema, indexes));
     queries.indexes.push(...prepareCreateIndexes(builder, name, schema, indexes, false));
     queries.relations.push(...prepareCreateRelations(builder, name, relations));
+    queries.tables.push(prepareCreateTable(builder, name, schema, indexes));
   }
 
   return queries;
@@ -36,6 +36,8 @@ export const getCreateQueries = (target: PgTableRepository) => {
 
 export const getUpdateQueries = (target: PgTableRepository, source: PgTableRepository) => {
   const changes = getTableRepositoryChanges(target, source);
+
+  const builder = new SqlBuilder();
 
   const queries: MigrationQueries = {
     tables: [],
@@ -47,9 +49,20 @@ export const getUpdateQueries = (target: PgTableRepository, source: PgTableRepos
     combineMigrationQueries(queries, getCreateQueries(changes.create));
   }
 
-  if (changes.nested) {
-    const builder = new SqlBuilder();
+  if (changes.rename) {
+    for (const fromTable in changes.rename) {
+      const toTable = changes.rename[fromTable];
 
+      const targetIndexes = target[toTable].indexes;
+      const targetRelations = target[toTable].relations;
+
+      queries.indexes.push(...prepareRenameIndexes(builder, fromTable, toTable, targetIndexes));
+      queries.relations.push(...prepareRenameRelations(builder, fromTable, toTable, targetRelations));
+      queries.tables.push(prepareRenameTable(builder, fromTable, toTable));
+    }
+  }
+
+  if (changes.nested) {
     for (const table in changes.nested) {
       const { nested: tableChanges } = changes.nested[table];
 

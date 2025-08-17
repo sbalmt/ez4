@@ -5,11 +5,11 @@ export const getPrimaryKeyName = (table: string, name: string) => {
 };
 
 export const getUniqueKeyName = (table: string, name: string) => {
-  return `${getName(table, name)}_uq`;
+  return `${getName(table, name)}_uk`;
 };
 
 export const getSecondaryKeyName = (table: string, name: string) => {
-  return `${getName(table, name)}_ix`;
+  return `${getName(table, name)}_sk`;
 };
 
 export const getRelationName = (table: string, name: string) => {

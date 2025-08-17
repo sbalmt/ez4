@@ -25,6 +25,10 @@ export const prepareCreateTable = (builder: SqlBuilder, table: string, schema: O
   return statement.build();
 };
 
+export const prepareRenameTable = (builder: SqlBuilder, fromTable: string, toTable: string) => {
+  return builder.table(fromTable).rename(toTable).build();
+};
+
 export const prepareDeleteTable = (builder: SqlBuilder, table: string): string => {
   return builder.table(table).drop().existing().cascade().build();
 };

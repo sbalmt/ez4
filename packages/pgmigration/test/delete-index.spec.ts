@@ -4,13 +4,13 @@ import { describe, it } from 'node:test';
 import { deepEqual } from 'assert/strict';
 
 import { getUpdateQueries } from '@ez4/pgmigration';
-import { getTableRepository } from '@ez4/pgclient/library';
+import { getTablesRepository } from '@ez4/pgclient/library';
 import { SchemaType } from '@ez4/schema';
 import { Index } from '@ez4/database';
 
 describe('migration :: delete index tests', () => {
   const getDatabaseTables = (indexes: TableIndex[]) => {
-    return getTableRepository([
+    return getTablesRepository([
       {
         name: 'table',
         schema: {
@@ -58,7 +58,7 @@ describe('migration :: delete index tests', () => {
 
     const queries = getUpdateQueries(targetTable, sourceTable);
 
-    deepEqual(queries.indexes, [`ALTER TABLE "table" DROP CONSTRAINT IF EXISTS "table_index_uq"`]);
+    deepEqual(queries.indexes, [`ALTER TABLE "table" DROP CONSTRAINT IF EXISTS "table_index_uk"`]);
 
     deepEqual(queries.relations, []);
     deepEqual(queries.tables, []);
@@ -77,7 +77,7 @@ describe('migration :: delete index tests', () => {
 
     const queries = getUpdateQueries(targetTable, sourceTable);
 
-    deepEqual(queries.indexes, [`DROP INDEX CONCURRENTLY IF EXISTS "table_index_ix"`]);
+    deepEqual(queries.indexes, [`DROP INDEX CONCURRENTLY IF EXISTS "table_index_sk"`]);
 
     deepEqual(queries.relations, []);
     deepEqual(queries.tables, []);

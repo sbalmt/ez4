@@ -20,7 +20,7 @@ export const prepareLinkedClient = (context: EventContext, service: DatabaseServ
     from: '@ez4/aws-dynamodb/client',
     module: 'Client',
     constructor: `make(${JSON.stringify({
-      repository: getTableRepository(service, options),
+      repository: getTablesRepository(service, options),
       debug: options.debug
     })})`
   };
@@ -34,12 +34,12 @@ export const prepareEmulatorClient = (event: EmulateClientEvent) => {
   }
 
   return Client.make({
-    repository: getTableRepository(service, options),
+    repository: getTablesRepository(service, options),
     debug: options.debug
   });
 };
 
-const getTableRepository = (service: DatabaseService, options: DeployOptions) => {
+const getTablesRepository = (service: DatabaseService, options: DeployOptions) => {
   return service.tables.reduce((current, table) => {
     return {
       ...current,

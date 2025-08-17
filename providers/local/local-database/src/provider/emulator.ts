@@ -2,7 +2,7 @@ import type { DatabaseService } from '@ez4/database/library';
 import type { ServeOptions } from '@ez4/project/library';
 
 import { getServiceName, triggerAllAsync } from '@ez4/project/library';
-import { getDatabaseName, getTableRepository } from '@ez4/pgclient/library';
+import { getDatabaseName, getTablesRepository } from '@ez4/pgclient/library';
 import { Client } from '@ez4/pgclient';
 
 export const registerDatabaseEmulator = async (service: DatabaseService, options: ServeOptions) => {
@@ -36,7 +36,7 @@ const createDatabaseClient = async (service: DatabaseService, options: ServeOpti
     case 'local': {
       const { user, password, database, host } = providerOptions;
 
-      const repository = getTableRepository(service.tables);
+      const repository = getTablesRepository(service.tables);
 
       return Client.make({
         debug: options.debug,

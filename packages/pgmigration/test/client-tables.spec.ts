@@ -23,7 +23,7 @@ describe('migration :: client tables tests', async () => {
     }
   });
 
-  const initialRepository: PgTableRepository = {
+  const repositoryV1: PgTableRepository = {
     table_a: {
       name: 'table_a',
       relations: {},
@@ -46,8 +46,8 @@ describe('migration :: client tables tests', async () => {
     }
   };
 
-  const migrationRepository: PgTableRepository = {
-    ...initialRepository,
+  const repositoryV2: PgTableRepository = {
+    ...repositoryV1,
     table_b: {
       name: 'table_b',
       relations: {},
@@ -70,8 +70,19 @@ describe('migration :: client tables tests', async () => {
     }
   };
 
+  const repositoryV3: PgTableRepository = {
+    renamed_table_a: {
+      ...repositoryV2.table_a,
+      name: 'renamed_table_a'
+    },
+    table_b_renamed: {
+      ...repositoryV2.table_b,
+      name: 'table_b_renamed'
+    }
+  };
+
   it('assert :: create tables', async () => {
-    const queries = getCreateQueries(initialRepository);
+    const queries = getCreateQueries(repositoryV1);
 
     await runMigration(client, [...queries.tables, ...queries.indexes, ...queries.relations]);
 
@@ -86,7 +97,7 @@ describe('migration :: client tables tests', async () => {
   });
 
   it('assert :: update tables', async () => {
-    const queries = getUpdateQueries(migrationRepository, initialRepository);
+    const queries = getUpdateQueries(repositoryV2, repositoryV1);
 
     await runMigration(client, [...queries.tables, ...queries.indexes, ...queries.relations]);
 
@@ -100,8 +111,8 @@ describe('migration :: client tables tests', async () => {
     deepEqual(result, [[{ table_a: true }], [{ table_b: true }], [{ table_a_id_pk: true }], [{ table_b_id_pk: true }]]);
   });
 
-  it('assert :: delete tables', async () => {
-    const queries = getDeleteQueries(migrationRepository);
+  it('assert :: rename tables', async () => {
+    const queries = getUpdateQueries(repositoryV3, repositoryV2);
 
     await runMigration(client, [...queries.tables, ...queries.indexes, ...queries.relations]);
 
@@ -109,7 +120,35 @@ describe('migration :: client tables tests', async () => {
       tableExists(client, 'table_a'),
       tableExists(client, 'table_b'),
       constraintExists(client, 'table_a_id_pk'),
-      constraintExists(client, 'table_b_id_pk')
+      constraintExists(client, 'table_b_id_pk'),
+      tableExists(client, 'renamed_table_a'),
+      tableExists(client, 'table_b_renamed'),
+      constraintExists(client, 'renamed_table_a_id_pk'),
+      constraintExists(client, 'table_b_renamed_id_pk')
+    ]);
+
+    deepEqual(result, [
+      [],
+      [],
+      [],
+      [],
+      [{ renamed_table_a: true }],
+      [{ table_b_renamed: true }],
+      [{ renamed_table_a_id_pk: true }],
+      [{ table_b_renamed_id_pk: true }]
+    ]);
+  });
+
+  it('assert :: delete tables', async () => {
+    const queries = getDeleteQueries(repositoryV3);
+
+    await runMigration(client, [...queries.tables, ...queries.indexes, ...queries.relations]);
+
+    const result = await Promise.all([
+      tableExists(client, 'renamed_table_a'),
+      tableExists(client, 'table_b_renamed'),
+      constraintExists(client, 'renamed_table_a_id_pk'),
+      constraintExists(client, 'table_b_renamed_id_pk')
     ]);
 
     deepEqual(result, [[], [], [], []]);

@@ -5,7 +5,7 @@ import { Index } from '@ez4/database';
 
 import { getTableName } from './resources.js';
 
-export const getTableRepository = (tables: DatabaseTable[]): PgTableRepository => {
+export const getTablesRepository = (tables: DatabaseTable[]): PgTableRepository => {
   return tables.reduce((current, { name, schema, relations, indexes }) => {
     return {
       ...current,
