@@ -149,10 +149,6 @@ describe('migration :: update column tests', () => {
 
     deepEqual(queries.tables, [
       {
-        check: `SELECT 1 FROM "information_schema.columns" WHERE "column_name" = 'default' AND "table_name" = 'table'`,
-        query: `ALTER TABLE IF EXISTS "table" ALTER COLUMN "default" SET DEFAULT false`
-      },
-      {
         check: `SELECT 1 FROM "information_schema.columns" WHERE "column_name" = 'nullable' AND "table_name" = 'table'`,
         query: `ALTER TABLE IF EXISTS "table" ALTER COLUMN "nullable" DROP NOT null`
       }

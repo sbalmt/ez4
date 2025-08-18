@@ -39,28 +39,25 @@ export const prepareUpdateColumns = (
   table: string,
   schema: ObjectSchema,
   indexes: PgIndexRepository,
-  updates: Record<string, ObjectComparison>
+  changes: Record<string, ObjectComparison>
 ) => {
   const statements = [];
 
-  for (const columnName in updates) {
-    const { update } = updates[columnName];
-
-    if (!update) {
-      continue;
-    }
+  for (const columnName in changes) {
+    const { update, nested } = changes[columnName];
 
     const columnSchema = schema.properties[columnName];
 
     const columnIndexType = indexes[columnName]?.type;
     const columnIsPrimary = columnIndexType === Index.Primary;
 
-    const columnRequired = update.optional ?? update.nullable;
-    const columnDefault = update.definitions?.default;
+    const columnDefault = nested?.definitions?.update?.default;
+    const columnRequired = update?.optional ?? update?.nullable;
+    const columnType = update?.type;
 
     const query = builder.table(table).alter().existing().column(columnName);
 
-    if (update.type) {
+    if (columnType !== undefined) {
       query.type(getColumnType(columnSchema, columnIsPrimary));
     }
 

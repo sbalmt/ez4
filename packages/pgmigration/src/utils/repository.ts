@@ -7,7 +7,7 @@ import { isAnySchema } from '@ez4/schema';
 
 export const getTableRepositoryChanges = (target: PgTableRepository, source: PgTableRepository) => {
   return deepCompareObject(target, source, {
-    depth: 4,
+    depth: 5,
     onRename: (target, source) => {
       if (!isAnyObject(target) || !isAnyObject(source)) {
         return false;
@@ -36,7 +36,8 @@ const canRenameColumn = (target: AnySchema, source: AnySchema) => {
     include: {
       type: true,
       definitions: true,
-      nullable: true
+      nullable: true,
+      format: true
     }
   });
 };
