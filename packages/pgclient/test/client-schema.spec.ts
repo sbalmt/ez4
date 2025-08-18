@@ -122,7 +122,7 @@ describe('client schema', async () => {
       }
     },
     connection: {
-      database: 'pg',
+      database: 'postgres',
       password: 'postgres',
       user: 'postgres',
       host: '127.0.0.1'

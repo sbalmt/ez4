@@ -10,7 +10,7 @@ describe('client driver', async () => {
     debug: false,
     repository: {},
     connection: {
-      database: 'pg',
+      database: 'postgres',
       password: 'postgres',
       user: 'postgres',
       host: '127.0.0.1'
