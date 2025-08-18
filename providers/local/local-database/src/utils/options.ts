@@ -11,12 +11,13 @@ export const getConnectionOptions = (service: DatabaseService, options: ServeOpt
     return undefined;
   }
 
-  const { user, password, database, host } = localOptions;
+  const { database, user, password, host, port } = localOptions;
 
   return {
     database: database ?? getDatabaseName(service, options),
     host: host ?? '127.0.0.1',
     password,
-    user
+    user,
+    port
   };
 };
