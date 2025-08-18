@@ -46,33 +46,40 @@ export const prepareUpdateColumns = (
   for (const columnName in updates) {
     const { update } = updates[columnName];
 
+    if (!update) {
+      continue;
+    }
+
     const columnSchema = schema.properties[columnName];
+
     const columnIndexType = indexes[columnName]?.type;
     const columnIsPrimary = columnIndexType === Index.Primary;
 
+    const columnRequired = update.optional ?? update.nullable;
+    const columnDefault = update.definitions?.default;
+
     const query = builder.table(table).alter().existing().column(columnName);
 
-    if (update) {
-      const columnRequired = update.optional ?? update.nullable;
-      const columnDefault = update.definitions?.default;
-
-      if (update.type) {
-        query.type(getColumnType(columnSchema, columnIsPrimary));
-      }
-
-      if (columnRequired !== undefined) {
-        query.required(columnRequired);
-      }
-
-      if (columnDefault !== undefined) {
-        query.default(getColumnDefault(columnSchema, columnIsPrimary));
-      }
-
-      statements.push({
-        check: getCheckColumnQuery(builder, table, columnName),
-        query: query.build()
-      });
+    if (update.type) {
+      query.type(getColumnType(columnSchema, columnIsPrimary));
     }
+
+    if (columnRequired !== undefined) {
+      query.required(columnRequired);
+    }
+
+    if (columnDefault !== undefined) {
+      query.default(getColumnDefault(columnSchema, columnIsPrimary));
+    }
+
+    if (query.empty) {
+      continue;
+    }
+
+    statements.push({
+      check: getCheckColumnQuery(builder, table, columnName),
+      query: query.build()
+    });
   }
 
   return statements;

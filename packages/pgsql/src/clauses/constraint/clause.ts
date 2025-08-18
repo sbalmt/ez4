@@ -31,6 +31,10 @@ export class SqlConstraintClause {
     return this.#state.name;
   }
 
+  get empty() {
+    return !this.#state.clause;
+  }
+
   get building() {
     return this.#state.building;
   }

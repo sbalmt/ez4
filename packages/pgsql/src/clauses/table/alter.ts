@@ -31,16 +31,20 @@ export class SqlAlterTableClause {
     };
   }
 
-  get building() {
-    return this.#state.building;
+  get name() {
+    return this.#state.table.name;
+  }
+
+  get empty() {
+    return !this.#state.change;
   }
 
   get conditional() {
     return this.#state.check;
   }
 
-  get name() {
-    return this.#state.table.name;
+  get building() {
+    return this.#state.building;
   }
 
   existing(check = true) {

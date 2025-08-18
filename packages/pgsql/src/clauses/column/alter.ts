@@ -23,6 +23,10 @@ export class SqlAlterColumnClause {
     return this.#state.name;
   }
 
+  get empty() {
+    return !this.#state.type && !this.#state.value && this.#state.required === undefined;
+  }
+
   type(type?: string) {
     this.#state.type = type;
     return this;
