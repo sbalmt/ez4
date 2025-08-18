@@ -4,13 +4,13 @@ import { describe, it } from 'node:test';
 import { deepEqual } from 'assert/strict';
 
 import { getUpdateQueries } from '@ez4/pgmigration';
-import { getTablesRepository } from '@ez4/pgclient/library';
+import { getTableRepository } from '@ez4/pgclient/library';
 import { SchemaType } from '@ez4/schema';
 import { Index } from '@ez4/database';
 
 describe('migration :: delete relation tests', () => {
   const getDatabaseTables = (relations: TableRelation[]) => {
-    return getTablesRepository([
+    return getTableRepository([
       {
         name: 'table_a',
         indexes: [],

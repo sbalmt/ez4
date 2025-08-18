@@ -1,4 +1,4 @@
-import type { PgMigrationQuery } from '@ez4/pgmigration/library';
+import type { PgMigrationStatement } from '@ez4/pgmigration/library';
 import type { PgTableRepository } from '@ez4/pgclient/library';
 import type { Arn } from '@ez4/aws-common';
 
@@ -107,7 +107,7 @@ export const deleteDatabase = async (request: ConnectionRequest): Promise<void> 
   await executeMigrationStatement(driver, prepareDeleteDatabase(database));
 };
 
-const executeMigrationTransaction = async (driver: DataClientDriver, statements: PgMigrationQuery[]) => {
+const executeMigrationTransaction = async (driver: DataClientDriver, statements: PgMigrationStatement[]) => {
   const transactionId = await driver.beginTransaction();
   try {
     await executeMigrationStatements(driver, statements);
@@ -119,13 +119,13 @@ const executeMigrationTransaction = async (driver: DataClientDriver, statements:
   }
 };
 
-const executeMigrationStatements = async (driver: DataClientDriver, statements: PgMigrationQuery[]) => {
+const executeMigrationStatements = async (driver: DataClientDriver, statements: PgMigrationStatement[]) => {
   for (const statement of statements) {
     await executeMigrationStatement(driver, statement);
   }
 };
 
-const executeMigrationStatement = async (driver: DataClientDriver, statement: PgMigrationQuery) => {
+const executeMigrationStatement = async (driver: DataClientDriver, statement: PgMigrationStatement) => {
   const { check, query } = statement;
 
   if (check) {

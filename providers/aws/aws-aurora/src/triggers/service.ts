@@ -1,6 +1,6 @@
 import type { PrepareResourceEvent, ServiceEvent } from '@ez4/project/library';
 
-import { getDatabaseName, getTablesRepository } from '@ez4/pgclient/library';
+import { getDatabaseName, getTableRepository } from '@ez4/pgclient/library';
 import { PaginationMode } from '@ez4/database';
 
 import { createCluster } from '../cluster/service.js';
@@ -47,7 +47,7 @@ export const prepareDatabaseServices = async (event: PrepareResourceEvent) => {
   });
 
   createMigration(state, clusterState, instanceState, {
-    repository: getTablesRepository(service.tables),
+    repository: getTableRepository(service.tables),
     database: getDatabaseName(service, options)
   });
 

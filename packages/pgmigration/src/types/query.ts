@@ -1,10 +1,10 @@
-export type PgMigrationQuery = {
+export type PgMigrationStatement = {
   check?: string;
   query: string;
 };
 
 export type PgMigrationQueries = {
-  tables: PgMigrationQuery[];
-  relations: PgMigrationQuery[];
-  indexes: PgMigrationQuery[];
+  tables: PgMigrationStatement[];
+  relations: PgMigrationStatement[];
+  indexes: PgMigrationStatement[];
 };

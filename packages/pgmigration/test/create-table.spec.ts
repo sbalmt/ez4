@@ -4,13 +4,13 @@ import { describe, it } from 'node:test';
 import { deepEqual } from 'assert/strict';
 
 import { getCreateQueries } from '@ez4/pgmigration';
-import { getTablesRepository } from '@ez4/pgclient/library';
+import { getTableRepository } from '@ez4/pgclient/library';
 import { SchemaType } from '@ez4/schema';
 import { Index } from '@ez4/database';
 
 describe('migration :: create table tests', () => {
   const getDatabaseTables = (properties: ObjectSchemaProperties) => {
-    return getTablesRepository([
+    return getTableRepository([
       {
         name: 'table',
         schema: {

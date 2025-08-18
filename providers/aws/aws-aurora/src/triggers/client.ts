@@ -2,7 +2,7 @@ import type { DeployOptions, EmulateClientEvent, EventContext, ExtraSource } fro
 import type { DatabaseService } from '@ez4/database/library';
 import type { ClusterState } from '../cluster/types.js';
 
-import { getDatabaseName, getTablesRepository } from '@ez4/pgclient/library';
+import { getDatabaseName, getTableRepository } from '@ez4/pgclient/library';
 import { getDefinitionName } from '@ez4/project/library';
 
 import { importCluster } from '../cluster/client.js';
@@ -25,7 +25,7 @@ export const prepareLinkedClient = (context: EventContext, service: DatabaseServ
     constructor:
       `make({` +
       `connection: { database: "${database}", resourceArn: ${resourceArn}, secretArn: ${secretArn} }, ` +
-      `repository: ${JSON.stringify(getTablesRepository(service.tables))}, ` +
+      `repository: ${JSON.stringify(getTableRepository(service.tables))}, ` +
       `debug: ${options.debug ?? false}` +
       `})`
   };
@@ -46,7 +46,7 @@ export const prepareEmulatorClient = async (event: EmulateClientEvent) => {
 
   return Client.make({
     debug: options.debug,
-    repository: getTablesRepository(service.tables),
+    repository: getTableRepository(service.tables),
     connection: {
       database: getDatabaseName(service, options),
       resourceArn: cluster.clusterArn,
