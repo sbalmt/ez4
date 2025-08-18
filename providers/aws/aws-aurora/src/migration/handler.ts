@@ -26,7 +26,7 @@ const previewResource = async (candidate: MigrationState, current: MigrationStat
   const target = { ...candidate.parameters, dependencies: candidate.dependencies };
   const source = { ...current.parameters, dependencies: current.dependencies };
 
-  const repositoryChanges = getTableRepositoryChanges(target.repository, source.repository);
+  const databaseChanges = getTableRepositoryChanges(target.repository, source.repository);
 
   const resourceChanges = deepCompare(target, source, {
     exclude: {
@@ -36,11 +36,11 @@ const previewResource = async (candidate: MigrationState, current: MigrationStat
 
   return {
     ...resourceChanges,
-    counts: resourceChanges.counts + Math.max(repositoryChanges.counts, 1),
+    counts: resourceChanges.counts + Math.max(databaseChanges.counts, 1),
     name: target.database,
     nested: {
       ...resourceChanges.nested,
-      repository: repositoryChanges
+      repository: databaseChanges
     }
   };
 };
@@ -77,6 +77,12 @@ const updateResource = async (candidate: MigrationState, current: MigrationState
   const { result, parameters } = candidate;
 
   if (!result) {
+    return;
+  }
+
+  const databaseChanges = getTableRepositoryChanges(parameters.repository, current.parameters.repository);
+
+  if (!databaseChanges.counts) {
     return;
   }
 
