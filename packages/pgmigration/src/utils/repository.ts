@@ -7,7 +7,6 @@ import { isAnySchema } from '@ez4/schema';
 
 export const getTableRepositoryChanges = (target: PgTableRepository, source: PgTableRepository) => {
   return deepCompareObject(target, source, {
-    depth: 5,
     onRename: (target, source) => {
       if (!isAnyObject(target) || !isAnyObject(source)) {
         return false;
