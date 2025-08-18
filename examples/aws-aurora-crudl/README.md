@@ -26,7 +26,13 @@ npm run deploy
 npm run serve
 ```
 
-> This action will run a local version of the project using the deployed database.
+> This action will run a local version of the project using the remote database.
+
+```sh
+npm run serve -- --local
+```
+
+> This action will run a local version of the project using the local database.
 
 #### Destroy
 

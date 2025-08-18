@@ -25,7 +25,7 @@ export const registerDatabaseEmulator = async (service: DatabaseService, options
 };
 
 const runDatabaseMigration = async (service: DatabaseService, options: ServeOptions) => {
-  const connection = getConnectionOptions(service, options);
+  const connection = options.local ? getConnectionOptions(service, options) : undefined;
 
   if (connection) {
     const repository = getTableRepository(service.tables);
@@ -37,7 +37,7 @@ const runDatabaseMigration = async (service: DatabaseService, options: ServeOpti
 };
 
 const getDatabaseClient = async (service: DatabaseService, options: ServeOptions) => {
-  const connection = getConnectionOptions(service, options);
+  const connection = options.local ? getConnectionOptions(service, options) : undefined;
 
   if (connection) {
     const repository = getTableRepository(service.tables);

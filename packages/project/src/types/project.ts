@@ -21,10 +21,16 @@ export type ProjectOptions = {
   debugMode?: boolean;
 
   /**
-   * Determines whether the deploy and destroy actions are forced.
+   * Determines whether the deploy and destroy commands are forced.
    * Default is: `false`
    */
   forceMode?: boolean;
+
+  /**
+   * Determines whether the serve command must use the `localOptions`.
+   * Default is: `false`
+   */
+  localMode?: boolean;
 
   /**
    * Project name that's combined with the `prefix`.

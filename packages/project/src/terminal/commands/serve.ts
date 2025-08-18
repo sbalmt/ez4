@@ -27,6 +27,7 @@ export const serveCommand = async (project: ProjectOptions) => {
     localOptions: project.localOptions ?? {},
     variables: project.variables,
     debug: project.debugMode,
+    local: project.localMode,
     version: 0
   };
 

@@ -19,6 +19,7 @@ export const runActionCommand = async (options: InputOptions) => {
 
   project.debugMode = options.debugMode ?? project.debugMode;
   project.forceMode = options.forceMode ?? project.forceMode;
+  project.localMode = options.localMode ?? project.localMode;
 
   switch (options.command) {
     case CommandType.Deploy:
