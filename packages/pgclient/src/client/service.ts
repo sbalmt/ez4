@@ -21,18 +21,19 @@ export type ClientContext = {
   debug?: boolean;
 };
 
-let pool: Pool | undefined;
+const DatabasePools: Record<string, Pool> = {};
 
 export namespace Client {
   export const make = async <T extends Database.Service>(context: ClientContext): Promise<DbClient<T>> => {
     const { connection, repository, debug } = context;
+    const { database } = connection;
 
-    if (!pool) {
-      pool = createPool(connection);
+    if (!DatabasePools[database]) {
+      DatabasePools[database] = createPool(connection);
     }
 
     return PgClient.make({
-      driver: new ClientDriver(pool),
+      driver: new ClientDriver(DatabasePools[database]),
       repository,
       debug
     });
