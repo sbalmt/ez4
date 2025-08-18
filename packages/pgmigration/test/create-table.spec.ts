@@ -61,6 +61,7 @@ describe('migration :: create table tests', () => {
 
     deepEqual(queries.indexes, [
       {
+        check: `SELECT 1 FROM "pg_constraint" WHERE "conname" = 'table_id_pk'`,
         query: `ALTER TABLE IF EXISTS "table" ADD CONSTRAINT "table_id_pk" PRIMARY KEY ("id")`
       }
     ]);
@@ -104,6 +105,7 @@ describe('migration :: create table tests', () => {
 
     deepEqual(queries.indexes, [
       {
+        check: `SELECT 1 FROM "pg_constraint" WHERE "conname" = 'table_id_pk'`,
         query: `ALTER TABLE IF EXISTS "table" ADD CONSTRAINT "table_id_pk" PRIMARY KEY ("id")`
       }
     ]);
@@ -147,6 +149,7 @@ describe('migration :: create table tests', () => {
 
     deepEqual(queries.indexes, [
       {
+        check: `SELECT 1 FROM "pg_constraint" WHERE "conname" = 'table_id_pk'`,
         query: `ALTER TABLE IF EXISTS "table" ADD CONSTRAINT "table_id_pk" PRIMARY KEY ("id")`
       }
     ]);
@@ -187,6 +190,7 @@ describe('migration :: create table tests', () => {
 
     deepEqual(queries.indexes, [
       {
+        check: `SELECT 1 FROM "pg_constraint" WHERE "conname" = 'table_id_pk'`,
         query: `ALTER TABLE IF EXISTS "table" ADD CONSTRAINT "table_id_pk" PRIMARY KEY ("id")`
       }
     ]);
@@ -234,6 +238,7 @@ describe('migration :: create table tests', () => {
 
     deepEqual(queries.indexes, [
       {
+        check: `SELECT 1 FROM "pg_constraint" WHERE "conname" = 'table_id_pk'`,
         query: `ALTER TABLE IF EXISTS "table" ADD CONSTRAINT "table_id_pk" PRIMARY KEY ("id")`
       }
     ]);
@@ -277,6 +282,7 @@ describe('migration :: create table tests', () => {
 
     deepEqual(queries.indexes, [
       {
+        check: `SELECT 1 FROM "pg_constraint" WHERE "conname" = 'table_id_pk'`,
         query: `ALTER TABLE IF EXISTS "table" ADD CONSTRAINT "table_id_pk" PRIMARY KEY ("id")`
       }
     ]);
@@ -320,6 +326,7 @@ describe('migration :: create table tests', () => {
 
     deepEqual(queries.indexes, [
       {
+        check: `SELECT 1 FROM "pg_constraint" WHERE "conname" = 'table_id_pk'`,
         query: `ALTER TABLE IF EXISTS "table" ADD CONSTRAINT "table_id_pk" PRIMARY KEY ("id")`
       }
     ]);
@@ -363,6 +370,7 @@ describe('migration :: create table tests', () => {
 
     deepEqual(queries.indexes, [
       {
+        check: `SELECT 1 FROM "pg_constraint" WHERE "conname" = 'table_id_pk'`,
         query: `ALTER TABLE IF EXISTS "table" ADD CONSTRAINT "table_id_pk" PRIMARY KEY ("id")`
       }
     ]);
@@ -406,6 +414,7 @@ describe('migration :: create table tests', () => {
 
     deepEqual(queries.indexes, [
       {
+        check: `SELECT 1 FROM "pg_constraint" WHERE "conname" = 'table_id_pk'`,
         query: `ALTER TABLE IF EXISTS "table" ADD CONSTRAINT "table_id_pk" PRIMARY KEY ("id")`
       }
     ]);
@@ -465,6 +474,7 @@ describe('migration :: create table tests', () => {
 
     deepEqual(queries.indexes, [
       {
+        check: `SELECT 1 FROM "pg_constraint" WHERE "conname" = 'table_id_pk'`,
         query: `ALTER TABLE IF EXISTS "table" ADD CONSTRAINT "table_id_pk" PRIMARY KEY ("id")`
       }
     ]);
@@ -512,6 +522,7 @@ describe('migration :: create table tests', () => {
 
     deepEqual(queries.indexes, [
       {
+        check: `SELECT 1 FROM "pg_constraint" WHERE "conname" = 'table_id_pk'`,
         query: `ALTER TABLE IF EXISTS "table" ADD CONSTRAINT "table_id_pk" PRIMARY KEY ("id")`
       }
     ]);
@@ -561,6 +572,7 @@ describe('migration :: create table tests', () => {
 
     deepEqual(queries.indexes, [
       {
+        check: `SELECT 1 FROM "pg_constraint" WHERE "conname" = 'table_id_pk'`,
         query: `ALTER TABLE IF EXISTS "table" ADD CONSTRAINT "table_id_pk" PRIMARY KEY ("id")`
       }
     ]);
@@ -611,6 +623,7 @@ describe('migration :: create table tests', () => {
 
     deepEqual(queries.indexes, [
       {
+        check: `SELECT 1 FROM "pg_constraint" WHERE "conname" = 'table_id_pk'`,
         query: `ALTER TABLE IF EXISTS "table" ADD CONSTRAINT "table_id_pk" PRIMARY KEY ("id")`
       }
     ]);

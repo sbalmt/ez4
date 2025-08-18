@@ -57,10 +57,10 @@ describe('migration :: create relation tests', () => {
 
     deepEqual(queries.relations, [
       {
+        check: `SELECT 1 FROM "pg_constraint" WHERE "conname" = 'table_a_table_b_fk'`,
         query:
-          `ALTER TABLE IF EXISTS "table_a" ` +
-          `ADD CONSTRAINT "table_a_table_b_fk" FOREIGN KEY "column_b" ` +
-          `REFERENCES "table_a" ("column_a") ` +
+          `ALTER TABLE IF EXISTS "table_a" ADD CONSTRAINT "table_a_table_b_fk" ` +
+          `FOREIGN KEY "column_b" REFERENCES "table_a" ("column_a") ` +
           `ON DELETE CASCADE ` +
           `ON UPDATE CASCADE`
       }
@@ -88,10 +88,10 @@ describe('migration :: create relation tests', () => {
 
     deepEqual(queries.relations, [
       {
+        check: `SELECT 1 FROM "pg_constraint" WHERE "conname" = 'table_a_table_b_fk'`,
         query:
-          `ALTER TABLE IF EXISTS "table_a" ` +
-          `ADD CONSTRAINT "table_a_table_b_fk" FOREIGN KEY "column_b" ` +
-          `REFERENCES "table_a" ("column_a") ` +
+          `ALTER TABLE IF EXISTS "table_a" ADD CONSTRAINT "table_a_table_b_fk" ` +
+          `FOREIGN KEY "column_b" REFERENCES "table_a" ("column_a") ` +
           `ON DELETE CASCADE ` +
           `ON UPDATE CASCADE`
       }

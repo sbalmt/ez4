@@ -73,12 +73,16 @@ describe('migration :: update column tests', () => {
 
     deepEqual(queries.tables, [
       {
-        query:
-          `ALTER TABLE IF EXISTS "table" ` +
-          `ALTER COLUMN "column" TYPE text USING "column"::text, ` +
-          `ALTER COLUMN "default" TYPE text USING "default"::text, ` +
-          `ALTER COLUMN "default" SET DEFAULT 'foo', ` +
-          `ALTER COLUMN "nullable" TYPE text USING "nullable"::text`
+        check: `SELECT 1 FROM "information_schema.columns" WHERE "column_name" = 'column' AND "table_name" = 'table'`,
+        query: `ALTER TABLE IF EXISTS "table" ALTER COLUMN "column" TYPE text USING "column"::text`
+      },
+      {
+        check: `SELECT 1 FROM "information_schema.columns" WHERE "column_name" = 'default' AND "table_name" = 'table'`,
+        query: `ALTER TABLE IF EXISTS "table" ALTER COLUMN "default" TYPE text USING "default"::text, ALTER COLUMN "default" SET DEFAULT 'foo'`
+      },
+      {
+        check: `SELECT 1 FROM "information_schema.columns" WHERE "column_name" = 'nullable' AND "table_name" = 'table'`,
+        query: `ALTER TABLE IF EXISTS "table" ALTER COLUMN "nullable" TYPE text USING "nullable"::text`
       }
     ]);
 
@@ -111,6 +115,7 @@ describe('migration :: update column tests', () => {
 
     deepEqual(queries.tables, [
       {
+        check: `SELECT 1 FROM "information_schema.columns" WHERE "column_name" = 'default' AND "table_name" = 'table'`,
         query: `ALTER TABLE IF EXISTS "table" ALTER COLUMN "default" SET DEFAULT true`
       }
     ]);
@@ -144,7 +149,12 @@ describe('migration :: update column tests', () => {
 
     deepEqual(queries.tables, [
       {
-        query: `ALTER TABLE IF EXISTS "table" ALTER COLUMN "default" SET DEFAULT false, ALTER COLUMN "nullable" DROP NOT null`
+        check: `SELECT 1 FROM "information_schema.columns" WHERE "column_name" = 'default' AND "table_name" = 'table'`,
+        query: `ALTER TABLE IF EXISTS "table" ALTER COLUMN "default" SET DEFAULT false`
+      },
+      {
+        check: `SELECT 1 FROM "information_schema.columns" WHERE "column_name" = 'nullable' AND "table_name" = 'table'`,
+        query: `ALTER TABLE IF EXISTS "table" ALTER COLUMN "nullable" DROP NOT null`
       }
     ]);
 
@@ -177,12 +187,15 @@ describe('migration :: update column tests', () => {
 
     deepEqual(queries.tables, [
       {
+        check: `SELECT 1 FROM "information_schema.columns" WHERE "column_name" = 'column' AND "table_name" = 'table'`,
         query: `ALTER TABLE IF EXISTS "table" RENAME COLUMN "column" TO "column_renamed"`
       },
       {
+        check: `SELECT 1 FROM "information_schema.columns" WHERE "column_name" = 'default' AND "table_name" = 'table'`,
         query: `ALTER TABLE IF EXISTS "table" RENAME COLUMN "default" TO "renamed_default"`
       },
       {
+        check: `SELECT 1 FROM "information_schema.columns" WHERE "column_name" = 'nullable' AND "table_name" = 'table'`,
         query: `ALTER TABLE IF EXISTS "table" RENAME COLUMN "nullable" TO "nullable_renamed"`
       }
     ]);

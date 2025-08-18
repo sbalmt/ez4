@@ -60,6 +60,7 @@ describe('migration :: create index tests', () => {
 
     deepEqual(queries.indexes, [
       {
+        check: `SELECT 1 FROM "pg_constraint" WHERE "conname" = 'table_index_pk'`,
         query: `ALTER TABLE IF EXISTS "table" ADD CONSTRAINT "table_index_pk" PRIMARY KEY ("column")`
       }
     ]);
@@ -83,6 +84,7 @@ describe('migration :: create index tests', () => {
 
     deepEqual(queries.indexes, [
       {
+        check: `SELECT 1 FROM "pg_constraint" WHERE "conname" = 'table_index_uk'`,
         query: `ALTER TABLE IF EXISTS "table" ADD CONSTRAINT "table_index_uk" UNIQUE ("column")`
       }
     ]);
@@ -129,6 +131,7 @@ describe('migration :: create index tests', () => {
 
     deepEqual(queries.indexes, [
       {
+        check: `SELECT 1 FROM "pg_constraint" WHERE "conname" = 'table_index_pk'`,
         query: `ALTER TABLE IF EXISTS "table" ADD CONSTRAINT "table_index_pk" PRIMARY KEY ("column_a", "column_b")`
       }
     ]);
@@ -152,6 +155,7 @@ describe('migration :: create index tests', () => {
 
     deepEqual(queries.indexes, [
       {
+        check: `SELECT 1 FROM "pg_constraint" WHERE "conname" = 'table_index_uk'`,
         query: `ALTER TABLE IF EXISTS "table" ADD CONSTRAINT "table_index_uk" UNIQUE ("column_a", "column_b")`
       }
     ]);

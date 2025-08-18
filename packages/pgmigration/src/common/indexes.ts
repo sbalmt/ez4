@@ -6,6 +6,7 @@ import { SchemaType } from '@ez4/schema';
 import { Index } from '@ez4/database';
 
 import { getPrimaryKeyName, getSecondaryKeyName, getUniqueKeyName } from '../utils/naming.js';
+import { getCheckConstraintQuery } from '../utils/checks.js';
 
 export const prepareCreateIndexes = (
   builder: SqlBuilder,
@@ -26,10 +27,11 @@ export const prepareCreateIndexes = (
       case Index.Primary: {
         const name = getPrimaryKeyName(table, indexName);
 
-        const statement = builder.table(table).alter().existing().constraint(name).primary(columns);
+        const query = builder.table(table).alter().existing().constraint(name).primary(columns);
 
         statements.push({
-          query: statement.build()
+          check: getCheckConstraintQuery(builder, name),
+          query: query.build()
         });
 
         break;
@@ -38,10 +40,11 @@ export const prepareCreateIndexes = (
       case Index.Unique: {
         const name = getUniqueKeyName(table, indexName);
 
-        const statement = builder.table(table).alter().existing().constraint(name).unique(columns);
+        const query = builder.table(table).alter().existing().constraint(name).unique(columns);
 
         statements.push({
-          query: statement.build()
+          check: getCheckConstraintQuery(builder, name),
+          query: query.build()
         });
 
         break;
@@ -51,14 +54,14 @@ export const prepareCreateIndexes = (
         const name = getSecondaryKeyName(table, indexName);
         const type = getIndexType(columns, schema);
 
-        const statement = builder.index(name).create(table, columns).type(type).missing();
+        const query = builder.index(name).create(table, columns).type(type).missing();
 
         if (concurrent) {
-          statement.concurrent();
+          query.concurrent();
         }
 
         statements.push({
-          query: statement.build()
+          query: query.build()
         });
 
         break;
@@ -83,10 +86,11 @@ export const prepareRenameIndexes = (builder: SqlBuilder, fromTable: string, toT
         const fromName = getPrimaryKeyName(fromTable, indexName);
         const toName = getPrimaryKeyName(toTable, indexName);
 
-        const statement = builder.table(toTable).alter().existing().constraint(fromName).rename(toName);
+        const query = builder.table(toTable).alter().existing().constraint(fromName).rename(toName);
 
         statements.push({
-          query: statement.build()
+          check: getCheckConstraintQuery(builder, toName),
+          query: query.build()
         });
 
         break;
@@ -96,10 +100,11 @@ export const prepareRenameIndexes = (builder: SqlBuilder, fromTable: string, toT
         const fromName = getUniqueKeyName(fromTable, indexName);
         const toName = getUniqueKeyName(toTable, indexName);
 
-        const statement = builder.table(toTable).alter().existing().constraint(fromName).rename(toName);
+        const query = builder.table(toTable).alter().existing().constraint(fromName).rename(toName);
 
         statements.push({
-          query: statement.build()
+          check: getCheckConstraintQuery(builder, toName),
+          query: query.build()
         });
 
         break;
@@ -109,10 +114,10 @@ export const prepareRenameIndexes = (builder: SqlBuilder, fromTable: string, toT
         const fromName = getSecondaryKeyName(fromTable, indexName);
         const toName = getSecondaryKeyName(toTable, indexName);
 
-        const statement = builder.index(fromName).rename(toName).existing();
+        const query = builder.index(fromName).rename(toName).existing();
 
         statements.push({
-          query: statement.build()
+          query: query.build()
         });
 
         break;
@@ -136,10 +141,10 @@ export const prepareDeleteIndexes = (builder: SqlBuilder, table: string, indexes
       case Index.Primary: {
         const name = getPrimaryKeyName(table, indexName);
 
-        const statement = builder.table(table).alter().existing().constraint(name).drop().existing();
+        const query = builder.table(table).alter().existing().constraint(name).drop().existing();
 
         statements.push({
-          query: statement.build()
+          query: query.build()
         });
 
         break;
@@ -148,10 +153,10 @@ export const prepareDeleteIndexes = (builder: SqlBuilder, table: string, indexes
       case Index.Unique: {
         const name = getUniqueKeyName(table, indexName);
 
-        const statement = builder.table(table).alter().existing().constraint(name).drop().existing();
+        const query = builder.table(table).alter().existing().constraint(name).drop().existing();
 
         statements.push({
-          query: statement.build()
+          query: query.build()
         });
 
         break;
@@ -160,10 +165,10 @@ export const prepareDeleteIndexes = (builder: SqlBuilder, table: string, indexes
       case Index.Secondary: {
         const name = getSecondaryKeyName(table, indexName);
 
-        const statement = builder.index(name).drop().existing().concurrent();
+        const query = builder.index(name).drop().existing().concurrent();
 
         statements.push({
-          query: statement.build()
+          query: query.build()
         });
 
         break;

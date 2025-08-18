@@ -29,7 +29,7 @@ export const prepareCreateTable = (builder: SqlBuilder, table: string, schema: O
 
 export const prepareRenameTable = (builder: SqlBuilder, fromTable: string, toTable: string) => {
   return {
-    query: builder.table(fromTable).rename(toTable).build()
+    query: builder.table(fromTable).rename(toTable).existing().build()
   };
 };
 

@@ -40,6 +40,14 @@ describe('sql table tests', () => {
     equal(statement, `ALTER TABLE "table" RENAME TO "renamed"`);
   });
 
+  it('assert :: rename table (if exists)', () => {
+    const query = sql.table('table').rename('renamed').existing();
+
+    const statement = query.build();
+
+    equal(statement, `ALTER TABLE IF EXISTS "table" RENAME TO "renamed"`);
+  });
+
   it('assert :: drop table', () => {
     const query = sql.table('table').drop();
 

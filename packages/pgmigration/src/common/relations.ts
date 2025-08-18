@@ -4,6 +4,7 @@ import type { SqlBuilder } from '@ez4/pgsql';
 import { getTableName } from '@ez4/pgclient/library';
 import { Index } from '@ez4/database';
 
+import { getCheckConstraintQuery } from '../utils/checks.js';
 import { getRelationName } from '../utils/naming.js';
 
 export const prepareCreateRelations = (builder: SqlBuilder, table: string, relations: PgRelationRepository) => {
@@ -21,13 +22,14 @@ export const prepareCreateRelations = (builder: SqlBuilder, table: string, relat
     const relationName = getRelationName(table, alias);
     const sourceTable = getTableName(sourceAlias);
 
-    const statement = builder.table(table).alter().existing().constraint(relationName).foreign(targetColumn, sourceTable, [sourceColumn]);
+    const query = builder.table(table).alter().existing().constraint(relationName).foreign(targetColumn, sourceTable, [sourceColumn]);
 
-    statement.delete().cascade();
-    statement.update().cascade();
+    query.delete().cascade();
+    query.update().cascade();
 
     statements.push({
-      query: statement.build()
+      check: getCheckConstraintQuery(builder, relationName),
+      query: query.build()
     });
   }
 
@@ -44,12 +46,13 @@ export const prepareRenameRelations = (builder: SqlBuilder, fromTable: string, t
       continue;
     }
 
-    const oldRelationName = getRelationName(fromTable, alias);
-    const newRelationName = getRelationName(toTable, alias);
+    const oldName = getRelationName(fromTable, alias);
+    const newName = getRelationName(toTable, alias);
 
-    const statement = builder.table(toTable).alter().existing().constraint(oldRelationName).rename(newRelationName);
+    const statement = builder.table(toTable).alter().existing().constraint(oldName).rename(newName);
 
     statements.push({
+      check: getCheckConstraintQuery(builder, newName),
       query: statement.build()
     });
   }
@@ -67,12 +70,12 @@ export const prepareDeleteRelations = (builder: SqlBuilder, table: string, relat
       continue;
     }
 
-    const relationName = getRelationName(table, alias);
+    const name = getRelationName(table, alias);
 
-    const statement = builder.table(table).alter().existing().constraint(relationName).drop().existing();
+    const query = builder.table(table).alter().existing().constraint(name).drop().existing();
 
     statements.push({
-      query: statement.build()
+      query: query.build()
     });
   }
 

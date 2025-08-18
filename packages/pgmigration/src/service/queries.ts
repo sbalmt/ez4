@@ -76,7 +76,7 @@ export const getUpdateQueries = (target: PgTableRepository, source: PgTableRepos
       }
 
       if (targetColumns?.nested) {
-        queries.tables.push(prepareUpdateColumns(builder, table, targetSchema, targetIndexes, targetColumns?.nested));
+        queries.tables.push(...prepareUpdateColumns(builder, table, targetSchema, targetIndexes, targetColumns?.nested));
       }
 
       if (targetColumns?.rename) {

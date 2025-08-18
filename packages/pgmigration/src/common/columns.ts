@@ -4,7 +4,9 @@ import type { ObjectComparison } from '@ez4/utils';
 import type { SqlBuilder } from '@ez4/pgsql';
 
 import { Index } from '@ez4/database';
+
 import { getColumnDefault, getColumnType, isOptionalColumn } from '../utils/columns.js';
+import { getCheckColumnQuery } from '../utils/checks.js';
 
 export const prepareCreateColumns = (
   builder: SqlBuilder,
@@ -39,7 +41,7 @@ export const prepareUpdateColumns = (
   indexes: PgIndexRepository,
   updates: Record<string, ObjectComparison>
 ) => {
-  const statement = builder.table(table).alter().existing();
+  const statements = [];
 
   for (const columnName in updates) {
     const { update } = updates[columnName];
@@ -48,29 +50,32 @@ export const prepareUpdateColumns = (
     const columnIndexType = indexes[columnName]?.type;
     const columnIsPrimary = columnIndexType === Index.Primary;
 
-    const clause = statement.column(columnName);
+    const query = builder.table(table).alter().existing().column(columnName);
 
     if (update) {
       const columnRequired = update.optional ?? update.nullable;
       const columnDefault = update.definitions?.default;
 
       if (update.type) {
-        clause.type(getColumnType(columnSchema, columnIsPrimary));
+        query.type(getColumnType(columnSchema, columnIsPrimary));
       }
 
       if (columnRequired !== undefined) {
-        clause.required(columnRequired);
+        query.required(columnRequired);
       }
 
       if (columnDefault !== undefined) {
-        clause.default(getColumnDefault(columnSchema, columnIsPrimary));
+        query.default(getColumnDefault(columnSchema, columnIsPrimary));
       }
+
+      statements.push({
+        check: getCheckColumnQuery(builder, table, columnName),
+        query: query.build()
+      });
     }
   }
 
-  return {
-    query: statement.build()
-  };
+  return statements;
 };
 
 export const prepareRenameColumns = (builder: SqlBuilder, table: string, columns: Record<string, string>) => {
@@ -82,6 +87,7 @@ export const prepareRenameColumns = (builder: SqlBuilder, table: string, columns
     const statement = builder.table(table).alter().existing().rename(fromColumn, toColum);
 
     statements.push({
+      check: getCheckColumnQuery(builder, table, fromColumn),
       query: statement.build()
     });
   }

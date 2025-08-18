@@ -5,24 +5,42 @@ import { escapeSqlName } from '../../utils/escape.js';
 export class SqlRenameTableClause {
   #state: {
     table: SqlTableStatement;
+    check: boolean;
     name: string;
   };
 
   constructor(table: SqlTableStatement, name: string) {
     this.#state = {
+      check: false,
       table,
       name
     };
+  }
+
+  get conditional() {
+    return this.#state.check;
   }
 
   to(name: string) {
     this.#state.name = name;
   }
 
-  build() {
-    const { table, name } = this.#state;
+  existing(check = true) {
+    this.#state.check = check;
 
-    const statement = ['ALTER TABLE', escapeSqlName(table.name), 'RENAME TO', escapeSqlName(name)];
+    return this;
+  }
+
+  build() {
+    const { table, name, check } = this.#state;
+
+    const statement = ['ALTER', 'TABLE'];
+
+    if (check) {
+      statement.push('IF', 'EXISTS');
+    }
+
+    statement.push(escapeSqlName(table.name), 'RENAME', 'TO', escapeSqlName(name));
 
     return statement.join(' ');
   }
