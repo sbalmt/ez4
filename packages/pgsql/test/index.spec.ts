@@ -50,6 +50,14 @@ describe('sql index tests', () => {
     equal(statement, `ALTER INDEX "index" RENAME TO "renamed"`);
   });
 
+  it('assert :: rename index (if exists)', () => {
+    const query = sql.index('index').rename('renamed').existing();
+
+    const statement = query.build();
+
+    equal(statement, `ALTER INDEX IF EXISTS "index" RENAME TO "renamed"`);
+  });
+
   it('assert :: drop index (concurrently)', () => {
     const query = sql.index('index').drop().concurrent();
 

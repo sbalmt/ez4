@@ -64,14 +64,28 @@ describe('migration :: update table tests', () => {
 
     const queries = getUpdateQueries(targetTable, sourceTable);
 
-    deepEqual(queries.tables, ['ALTER TABLE "table" RENAME TO "renamed_table"']);
+    deepEqual(queries.tables, [
+      {
+        query: 'ALTER TABLE "table" RENAME TO "renamed_table"'
+      }
+    ]);
 
-    deepEqual(queries.relations, ['ALTER TABLE "renamed_table" RENAME CONSTRAINT "table_relation_fk" TO "renamed_table_relation_fk"']);
+    deepEqual(queries.relations, [
+      {
+        query: 'ALTER TABLE IF EXISTS "renamed_table" RENAME CONSTRAINT "table_relation_fk" TO "renamed_table_relation_fk"'
+      }
+    ]);
 
     deepEqual(queries.indexes, [
-      'ALTER TABLE "renamed_table" RENAME CONSTRAINT "table_id_pk" TO "renamed_table_id_pk"',
-      'ALTER INDEX "table_column_a_sk" RENAME TO "renamed_table_column_a_sk"',
-      'ALTER TABLE "renamed_table" RENAME CONSTRAINT "table_column_b_uk" TO "renamed_table_column_b_uk"'
+      {
+        query: 'ALTER TABLE IF EXISTS "renamed_table" RENAME CONSTRAINT "table_id_pk" TO "renamed_table_id_pk"'
+      },
+      {
+        query: 'ALTER INDEX IF EXISTS "table_column_a_sk" RENAME TO "renamed_table_column_a_sk"'
+      },
+      {
+        query: 'ALTER TABLE IF EXISTS "renamed_table" RENAME CONSTRAINT "table_column_b_uk" TO "renamed_table_column_b_uk"'
+      }
     ]);
   });
 });

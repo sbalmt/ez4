@@ -58,11 +58,13 @@ describe('migration :: create column tests', () => {
     const queries = getUpdateQueries(targetTable, sourceTable);
 
     deepEqual(queries.tables, [
-      `ALTER TABLE IF EXISTS "table" ` +
-        //
-        `ADD COLUMN "column" boolean NOT null, ` +
-        `ADD COLUMN "default" boolean DEFAULT false NOT null, ` +
-        `ADD COLUMN "nullable" boolean DEFAULT null`
+      {
+        query:
+          `ALTER TABLE IF EXISTS "table" ` +
+          `ADD COLUMN IF NOT EXISTS "column" boolean NOT null, ` +
+          `ADD COLUMN IF NOT EXISTS "default" boolean DEFAULT false NOT null, ` +
+          `ADD COLUMN IF NOT EXISTS "nullable" boolean DEFAULT null`
+      }
     ]);
 
     deepEqual(queries.relations, []);
@@ -96,11 +98,13 @@ describe('migration :: create column tests', () => {
     const queries = getUpdateQueries(targetTable, sourceTable);
 
     deepEqual(queries.tables, [
-      `ALTER TABLE IF EXISTS "table" ` +
-        //
-        `ADD COLUMN "column" bigint NOT null, ` +
-        `ADD COLUMN "default" bigint DEFAULT 123 NOT null, ` +
-        `ADD COLUMN "nullable" bigint DEFAULT null`
+      {
+        query:
+          `ALTER TABLE IF EXISTS "table" ` +
+          `ADD COLUMN IF NOT EXISTS "column" bigint NOT null, ` +
+          `ADD COLUMN IF NOT EXISTS "default" bigint DEFAULT 123 NOT null, ` +
+          `ADD COLUMN IF NOT EXISTS "nullable" bigint DEFAULT null`
+      }
     ]);
 
     deepEqual(queries.relations, []);
@@ -134,11 +138,13 @@ describe('migration :: create column tests', () => {
     const queries = getUpdateQueries(targetTable, sourceTable);
 
     deepEqual(queries.tables, [
-      `ALTER TABLE IF EXISTS "table" ` +
-        //
-        `ADD COLUMN "column" decimal NOT null, ` +
-        `ADD COLUMN "default" decimal DEFAULT 1.23 NOT null, ` +
-        `ADD COLUMN "nullable" decimal DEFAULT null`
+      {
+        query:
+          `ALTER TABLE IF EXISTS "table" ` +
+          `ADD COLUMN IF NOT EXISTS "column" decimal NOT null, ` +
+          `ADD COLUMN IF NOT EXISTS "default" decimal DEFAULT 1.23 NOT null, ` +
+          `ADD COLUMN IF NOT EXISTS "nullable" decimal DEFAULT null`
+      }
     ]);
 
     deepEqual(queries.relations, []);
@@ -169,11 +175,13 @@ describe('migration :: create column tests', () => {
     const queries = getUpdateQueries(targetTable, sourceTable);
 
     deepEqual(queries.tables, [
-      `ALTER TABLE IF EXISTS "table" ` +
-        //
-        `ADD COLUMN "column" decimal NOT null, ` +
-        `ADD COLUMN "default" decimal DEFAULT 12.34 NOT null, ` +
-        `ADD COLUMN "nullable" decimal DEFAULT null`
+      {
+        query:
+          `ALTER TABLE IF EXISTS "table" ` +
+          `ADD COLUMN IF NOT EXISTS "column" decimal NOT null, ` +
+          `ADD COLUMN IF NOT EXISTS "default" decimal DEFAULT 12.34 NOT null, ` +
+          `ADD COLUMN IF NOT EXISTS "nullable" decimal DEFAULT null`
+      }
     ]);
 
     deepEqual(queries.relations, []);
@@ -210,12 +218,14 @@ describe('migration :: create column tests', () => {
     const queries = getUpdateQueries(targetTable, sourceTable);
 
     deepEqual(queries.tables, [
-      `ALTER TABLE IF EXISTS "table" ` +
-        //
-        `ADD COLUMN "column" text NOT null, ` +
-        `ADD COLUMN "default" text DEFAULT 'foo' NOT null, ` +
-        `ADD COLUMN "nullable" text DEFAULT null, ` +
-        `ADD COLUMN "limited" varchar(32) NOT null`
+      {
+        query:
+          `ALTER TABLE IF EXISTS "table" ` +
+          `ADD COLUMN IF NOT EXISTS "column" text NOT null, ` +
+          `ADD COLUMN IF NOT EXISTS "default" text DEFAULT 'foo' NOT null, ` +
+          `ADD COLUMN IF NOT EXISTS "nullable" text DEFAULT null, ` +
+          `ADD COLUMN IF NOT EXISTS "limited" varchar(32) NOT null`
+      }
     ]);
 
     deepEqual(queries.relations, []);
@@ -249,11 +259,13 @@ describe('migration :: create column tests', () => {
     const queries = getUpdateQueries(targetTable, sourceTable);
 
     deepEqual(queries.tables, [
-      `ALTER TABLE IF EXISTS "table" ` +
-        //
-        `ADD COLUMN "column" timestamptz NOT null, ` +
-        `ADD COLUMN "default" timestamptz DEFAULT '2025-01-01T00:00:00Z' NOT null, ` +
-        `ADD COLUMN "nullable" timestamptz DEFAULT null`
+      {
+        query:
+          `ALTER TABLE IF EXISTS "table" ` +
+          `ADD COLUMN IF NOT EXISTS "column" timestamptz NOT null, ` +
+          `ADD COLUMN IF NOT EXISTS "default" timestamptz DEFAULT '2025-01-01T00:00:00Z' NOT null, ` +
+          `ADD COLUMN IF NOT EXISTS "nullable" timestamptz DEFAULT null`
+      }
     ]);
 
     deepEqual(queries.relations, []);
@@ -287,11 +299,13 @@ describe('migration :: create column tests', () => {
     const queries = getUpdateQueries(targetTable, sourceTable);
 
     deepEqual(queries.tables, [
-      `ALTER TABLE IF EXISTS "table" ` +
-        //
-        `ADD COLUMN "column" date NOT null, ` +
-        `ADD COLUMN "default" date DEFAULT '2025-01-01' NOT null, ` +
-        `ADD COLUMN "nullable" date DEFAULT null`
+      {
+        query:
+          `ALTER TABLE IF EXISTS "table" ` +
+          `ADD COLUMN IF NOT EXISTS "column" date NOT null, ` +
+          `ADD COLUMN IF NOT EXISTS "default" date DEFAULT '2025-01-01' NOT null, ` +
+          `ADD COLUMN IF NOT EXISTS "nullable" date DEFAULT null`
+      }
     ]);
 
     deepEqual(queries.relations, []);
@@ -325,11 +339,13 @@ describe('migration :: create column tests', () => {
     const queries = getUpdateQueries(targetTable, sourceTable);
 
     deepEqual(queries.tables, [
-      `ALTER TABLE IF EXISTS "table" ` +
-        //
-        `ADD COLUMN "column" time NOT null, ` +
-        `ADD COLUMN "default" time DEFAULT '00:00:00' NOT null, ` +
-        `ADD COLUMN "nullable" time DEFAULT null`
+      {
+        query:
+          `ALTER TABLE IF EXISTS "table" ` +
+          `ADD COLUMN IF NOT EXISTS "column" time NOT null, ` +
+          `ADD COLUMN IF NOT EXISTS "default" time DEFAULT '00:00:00' NOT null, ` +
+          `ADD COLUMN IF NOT EXISTS "nullable" time DEFAULT null`
+      }
     ]);
 
     deepEqual(queries.relations, []);
@@ -363,11 +379,13 @@ describe('migration :: create column tests', () => {
     const queries = getUpdateQueries(targetTable, sourceTable);
 
     deepEqual(queries.tables, [
-      `ALTER TABLE IF EXISTS "table" ` +
-        //
-        `ADD COLUMN "column" uuid NOT null, ` +
-        `ADD COLUMN "default" uuid DEFAULT '00000000-0000-1000-9000-000000000000' NOT null, ` +
-        `ADD COLUMN "nullable" uuid DEFAULT null`
+      {
+        query:
+          `ALTER TABLE IF EXISTS "table" ` +
+          `ADD COLUMN IF NOT EXISTS "column" uuid NOT null, ` +
+          `ADD COLUMN IF NOT EXISTS "default" uuid DEFAULT '00000000-0000-1000-9000-000000000000' NOT null, ` +
+          `ADD COLUMN IF NOT EXISTS "nullable" uuid DEFAULT null`
+      }
     ]);
 
     deepEqual(queries.relations, []);
@@ -416,12 +434,14 @@ describe('migration :: create column tests', () => {
     const queries = getUpdateQueries(targetTable, sourceTable);
 
     deepEqual(queries.tables, [
-      `ALTER TABLE IF EXISTS "table" ` +
-        //
-        `ADD COLUMN "column" text NOT null, ` +
-        `ADD COLUMN "default_a" text DEFAULT 'foo' NOT null, ` +
-        `ADD COLUMN "default_b" text DEFAULT '123' NOT null, ` +
-        `ADD COLUMN "nullable" text DEFAULT null`
+      {
+        query:
+          `ALTER TABLE IF EXISTS "table" ` +
+          `ADD COLUMN IF NOT EXISTS "column" text NOT null, ` +
+          `ADD COLUMN IF NOT EXISTS "default_a" text DEFAULT 'foo' NOT null, ` +
+          `ADD COLUMN IF NOT EXISTS "default_b" text DEFAULT '123' NOT null, ` +
+          `ADD COLUMN IF NOT EXISTS "nullable" text DEFAULT null`
+      }
     ]);
 
     deepEqual(queries.relations, []);
@@ -459,11 +479,13 @@ describe('migration :: create column tests', () => {
     const queries = getUpdateQueries(targetTable, sourceTable);
 
     deepEqual(queries.tables, [
-      `ALTER TABLE IF EXISTS "table" ` +
-        //
-        `ADD COLUMN "column" jsonb NOT null, ` +
-        `ADD COLUMN "default" jsonb DEFAULT '{"foo":true,"bar":"bar","baz":123}' NOT null, ` +
-        `ADD COLUMN "nullable" jsonb DEFAULT null`
+      {
+        query:
+          `ALTER TABLE IF EXISTS "table" ` +
+          `ADD COLUMN IF NOT EXISTS "column" jsonb NOT null, ` +
+          `ADD COLUMN IF NOT EXISTS "default" jsonb DEFAULT '{"foo":true,"bar":"bar","baz":123}' NOT null, ` +
+          `ADD COLUMN IF NOT EXISTS "nullable" jsonb DEFAULT null`
+      }
     ]);
 
     deepEqual(queries.relations, []);
@@ -503,11 +525,13 @@ describe('migration :: create column tests', () => {
     const queries = getUpdateQueries(targetTable, sourceTable);
 
     deepEqual(queries.tables, [
-      `ALTER TABLE IF EXISTS "table" ` +
-        //
-        `ADD COLUMN "column" jsonb NOT null, ` +
-        `ADD COLUMN "default" jsonb DEFAULT '["foo","bar"]' NOT null, ` +
-        `ADD COLUMN "nullable" jsonb DEFAULT null`
+      {
+        query:
+          `ALTER TABLE IF EXISTS "table" ` +
+          `ADD COLUMN IF NOT EXISTS "column" jsonb NOT null, ` +
+          `ADD COLUMN IF NOT EXISTS "default" jsonb DEFAULT '["foo","bar"]' NOT null, ` +
+          `ADD COLUMN IF NOT EXISTS "nullable" jsonb DEFAULT null`
+      }
     ]);
 
     deepEqual(queries.relations, []);
@@ -548,11 +572,13 @@ describe('migration :: create column tests', () => {
     const queries = getUpdateQueries(targetTable, sourceTable);
 
     deepEqual(queries.tables, [
-      `ALTER TABLE IF EXISTS "table" ` +
-        //
-        `ADD COLUMN "column" jsonb NOT null, ` +
-        `ADD COLUMN "default" jsonb DEFAULT '["foo",123]' NOT null, ` +
-        `ADD COLUMN "nullable" jsonb DEFAULT null`
+      {
+        query:
+          `ALTER TABLE IF EXISTS "table" ` +
+          `ADD COLUMN IF NOT EXISTS "column" jsonb NOT null, ` +
+          `ADD COLUMN IF NOT EXISTS "default" jsonb DEFAULT '["foo",123]' NOT null, ` +
+          `ADD COLUMN IF NOT EXISTS "nullable" jsonb DEFAULT null`
+      }
     ]);
 
     deepEqual(queries.relations, []);

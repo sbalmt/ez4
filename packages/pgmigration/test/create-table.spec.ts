@@ -49,17 +49,20 @@ describe('migration :: create table tests', () => {
     const queries = getCreateQueries(tables);
 
     deepEqual(queries.tables, [
-      `CREATE TABLE IF NOT EXISTS "table" (` +
-        `"id" boolean NOT null, ` +
-        `"default" boolean DEFAULT true NOT null, ` +
-        `"nullable" boolean DEFAULT null` +
-        `)`
+      {
+        query:
+          `CREATE TABLE IF NOT EXISTS "table" (` +
+          `"id" boolean NOT null, ` +
+          `"default" boolean DEFAULT true NOT null, ` +
+          `"nullable" boolean DEFAULT null` +
+          `)`
+      }
     ]);
 
     deepEqual(queries.indexes, [
-      `ALTER TABLE "table" ` +
-        //
-        `ADD CONSTRAINT "table_id_pk" PRIMARY KEY ("id")`
+      {
+        query: `ALTER TABLE IF EXISTS "table" ADD CONSTRAINT "table_id_pk" PRIMARY KEY ("id")`
+      }
     ]);
 
     deepEqual(queries.relations, []);
@@ -89,17 +92,20 @@ describe('migration :: create table tests', () => {
     const queries = getCreateQueries(tables);
 
     deepEqual(queries.tables, [
-      `CREATE TABLE IF NOT EXISTS "table" (` +
-        `"id" bigserial NOT null, ` +
-        `"default" bigint DEFAULT 123 NOT null, ` +
-        `"nullable" bigint DEFAULT null` +
-        `)`
+      {
+        query:
+          `CREATE TABLE IF NOT EXISTS "table" (` +
+          `"id" bigserial NOT null, ` +
+          `"default" bigint DEFAULT 123 NOT null, ` +
+          `"nullable" bigint DEFAULT null` +
+          `)`
+      }
     ]);
 
     deepEqual(queries.indexes, [
-      `ALTER TABLE "table" ` +
-        //
-        `ADD CONSTRAINT "table_id_pk" PRIMARY KEY ("id")`
+      {
+        query: `ALTER TABLE IF EXISTS "table" ADD CONSTRAINT "table_id_pk" PRIMARY KEY ("id")`
+      }
     ]);
 
     deepEqual(queries.relations, []);
@@ -129,17 +135,20 @@ describe('migration :: create table tests', () => {
     const queries = getCreateQueries(tables);
 
     deepEqual(queries.tables, [
-      `CREATE TABLE IF NOT EXISTS "table" (` +
-        `"id" decimal NOT null, ` +
-        `"default" decimal DEFAULT 1.23 NOT null, ` +
-        `"nullable" decimal DEFAULT null` +
-        `)`
+      {
+        query:
+          `CREATE TABLE IF NOT EXISTS "table" (` +
+          `"id" decimal NOT null, ` +
+          `"default" decimal DEFAULT 1.23 NOT null, ` +
+          `"nullable" decimal DEFAULT null` +
+          `)`
+      }
     ]);
 
     deepEqual(queries.indexes, [
-      `ALTER TABLE "table" ` +
-        //
-        `ADD CONSTRAINT "table_id_pk" PRIMARY KEY ("id")`
+      {
+        query: `ALTER TABLE IF EXISTS "table" ADD CONSTRAINT "table_id_pk" PRIMARY KEY ("id")`
+      }
     ]);
 
     deepEqual(queries.relations, []);
@@ -166,17 +175,20 @@ describe('migration :: create table tests', () => {
     const queries = getCreateQueries(tables);
 
     deepEqual(queries.tables, [
-      `CREATE TABLE IF NOT EXISTS "table" (` +
-        `"id" decimal NOT null, ` +
-        `"default" decimal DEFAULT 12.345 NOT null, ` +
-        `"nullable" decimal DEFAULT null` +
-        `)`
+      {
+        query:
+          `CREATE TABLE IF NOT EXISTS "table" (` +
+          `"id" decimal NOT null, ` +
+          `"default" decimal DEFAULT 12.345 NOT null, ` +
+          `"nullable" decimal DEFAULT null` +
+          `)`
+      }
     ]);
 
     deepEqual(queries.indexes, [
-      `ALTER TABLE "table" ` +
-        //
-        `ADD CONSTRAINT "table_id_pk" PRIMARY KEY ("id")`
+      {
+        query: `ALTER TABLE IF EXISTS "table" ADD CONSTRAINT "table_id_pk" PRIMARY KEY ("id")`
+      }
     ]);
 
     deepEqual(queries.relations, []);
@@ -209,18 +221,21 @@ describe('migration :: create table tests', () => {
     const queries = getCreateQueries(tables);
 
     deepEqual(queries.tables, [
-      `CREATE TABLE IF NOT EXISTS "table" (` +
-        `"id" text NOT null, ` +
-        `"default" text DEFAULT 'foo' NOT null, ` +
-        `"nullable" text DEFAULT null, ` +
-        `"limited" varchar(32) NOT null` +
-        `)`
+      {
+        query:
+          `CREATE TABLE IF NOT EXISTS "table" (` +
+          `"id" text NOT null, ` +
+          `"default" text DEFAULT 'foo' NOT null, ` +
+          `"nullable" text DEFAULT null, ` +
+          `"limited" varchar(32) NOT null` +
+          `)`
+      }
     ]);
 
     deepEqual(queries.indexes, [
-      `ALTER TABLE "table" ` +
-        //
-        `ADD CONSTRAINT "table_id_pk" PRIMARY KEY ("id")`
+      {
+        query: `ALTER TABLE IF EXISTS "table" ADD CONSTRAINT "table_id_pk" PRIMARY KEY ("id")`
+      }
     ]);
 
     deepEqual(queries.relations, []);
@@ -250,17 +265,20 @@ describe('migration :: create table tests', () => {
     const queries = getCreateQueries(tables);
 
     deepEqual(queries.tables, [
-      `CREATE TABLE IF NOT EXISTS "table" (` +
-        `"id" timestamptz DEFAULT now() NOT null, ` +
-        `"default" timestamptz DEFAULT '1991-04-23T00:00:00Z' NOT null, ` +
-        `"nullable" timestamptz DEFAULT null` +
-        `)`
+      {
+        query:
+          `CREATE TABLE IF NOT EXISTS "table" (` +
+          `"id" timestamptz DEFAULT now() NOT null, ` +
+          `"default" timestamptz DEFAULT '1991-04-23T00:00:00Z' NOT null, ` +
+          `"nullable" timestamptz DEFAULT null` +
+          `)`
+      }
     ]);
 
     deepEqual(queries.indexes, [
-      `ALTER TABLE "table" ` +
-        //
-        `ADD CONSTRAINT "table_id_pk" PRIMARY KEY ("id")`
+      {
+        query: `ALTER TABLE IF EXISTS "table" ADD CONSTRAINT "table_id_pk" PRIMARY KEY ("id")`
+      }
     ]);
 
     deepEqual(queries.relations, []);
@@ -290,17 +308,20 @@ describe('migration :: create table tests', () => {
     const queries = getCreateQueries(tables);
 
     deepEqual(queries.tables, [
-      `CREATE TABLE IF NOT EXISTS "table" (` +
-        `"id" date DEFAULT now() NOT null, ` +
-        `"default" date DEFAULT '1991-04-23' NOT null, ` +
-        `"nullable" date DEFAULT null` +
-        `)`
+      {
+        query:
+          `CREATE TABLE IF NOT EXISTS "table" (` +
+          `"id" date DEFAULT now() NOT null, ` +
+          `"default" date DEFAULT '1991-04-23' NOT null, ` +
+          `"nullable" date DEFAULT null` +
+          `)`
+      }
     ]);
 
     deepEqual(queries.indexes, [
-      `ALTER TABLE "table" ` +
-        //
-        `ADD CONSTRAINT "table_id_pk" PRIMARY KEY ("id")`
+      {
+        query: `ALTER TABLE IF EXISTS "table" ADD CONSTRAINT "table_id_pk" PRIMARY KEY ("id")`
+      }
     ]);
 
     deepEqual(queries.relations, []);
@@ -330,17 +351,20 @@ describe('migration :: create table tests', () => {
     const queries = getCreateQueries(tables);
 
     deepEqual(queries.tables, [
-      `CREATE TABLE IF NOT EXISTS "table" (` +
-        `"id" time DEFAULT now() NOT null, ` +
-        `"default" time DEFAULT '00:00:00' NOT null, ` +
-        `"nullable" time DEFAULT null` +
-        `)`
+      {
+        query:
+          `CREATE TABLE IF NOT EXISTS "table" (` +
+          `"id" time DEFAULT now() NOT null, ` +
+          `"default" time DEFAULT '00:00:00' NOT null, ` +
+          `"nullable" time DEFAULT null` +
+          `)`
+      }
     ]);
 
     deepEqual(queries.indexes, [
-      `ALTER TABLE "table" ` +
-        //
-        `ADD CONSTRAINT "table_id_pk" PRIMARY KEY ("id")`
+      {
+        query: `ALTER TABLE IF EXISTS "table" ADD CONSTRAINT "table_id_pk" PRIMARY KEY ("id")`
+      }
     ]);
 
     deepEqual(queries.relations, []);
@@ -370,17 +394,20 @@ describe('migration :: create table tests', () => {
     const queries = getCreateQueries(tables);
 
     deepEqual(queries.tables, [
-      `CREATE TABLE IF NOT EXISTS "table" (` +
-        `"id" uuid DEFAULT gen_random_uuid() NOT null, ` +
-        `"default" uuid DEFAULT '00000000-0000-1000-9000-000000000000' NOT null, ` +
-        `"nullable" uuid DEFAULT null` +
-        `)`
+      {
+        query:
+          `CREATE TABLE IF NOT EXISTS "table" (` +
+          `"id" uuid DEFAULT gen_random_uuid() NOT null, ` +
+          `"default" uuid DEFAULT '00000000-0000-1000-9000-000000000000' NOT null, ` +
+          `"nullable" uuid DEFAULT null` +
+          `)`
+      }
     ]);
 
     deepEqual(queries.indexes, [
-      `ALTER TABLE "table" ` +
-        //
-        `ADD CONSTRAINT "table_id_pk" PRIMARY KEY ("id")`
+      {
+        query: `ALTER TABLE IF EXISTS "table" ADD CONSTRAINT "table_id_pk" PRIMARY KEY ("id")`
+      }
     ]);
 
     deepEqual(queries.relations, []);
@@ -425,18 +452,21 @@ describe('migration :: create table tests', () => {
     const queries = getCreateQueries(tables);
 
     deepEqual(queries.tables, [
-      `CREATE TABLE IF NOT EXISTS "table" (` +
-        `"id" text NOT null, ` +
-        `"default_a" text DEFAULT 'foo' NOT null, ` +
-        `"default_b" text DEFAULT '123' NOT null, ` +
-        `"nullable" text DEFAULT null` +
-        `)`
+      {
+        query:
+          `CREATE TABLE IF NOT EXISTS "table" (` +
+          `"id" text NOT null, ` +
+          `"default_a" text DEFAULT 'foo' NOT null, ` +
+          `"default_b" text DEFAULT '123' NOT null, ` +
+          `"nullable" text DEFAULT null` +
+          `)`
+      }
     ]);
 
     deepEqual(queries.indexes, [
-      `ALTER TABLE "table" ` +
-        //
-        `ADD CONSTRAINT "table_id_pk" PRIMARY KEY ("id")`
+      {
+        query: `ALTER TABLE IF EXISTS "table" ADD CONSTRAINT "table_id_pk" PRIMARY KEY ("id")`
+      }
     ]);
 
     deepEqual(queries.relations, []);
@@ -470,17 +500,20 @@ describe('migration :: create table tests', () => {
     const queries = getCreateQueries(tables);
 
     deepEqual(queries.tables, [
-      `CREATE TABLE IF NOT EXISTS "table" (` +
-        `"id" jsonb NOT null, ` +
-        `"default" jsonb DEFAULT '{"foo":true,"bar":"bar","baz":123}' NOT null, ` +
-        `"nullable" jsonb DEFAULT null` +
-        `)`
+      {
+        query:
+          `CREATE TABLE IF NOT EXISTS "table" (` +
+          `"id" jsonb NOT null, ` +
+          `"default" jsonb DEFAULT '{"foo":true,"bar":"bar","baz":123}' NOT null, ` +
+          `"nullable" jsonb DEFAULT null` +
+          `)`
+      }
     ]);
 
     deepEqual(queries.indexes, [
-      `ALTER TABLE "table" ` +
-        //
-        `ADD CONSTRAINT "table_id_pk" PRIMARY KEY ("id")`
+      {
+        query: `ALTER TABLE IF EXISTS "table" ADD CONSTRAINT "table_id_pk" PRIMARY KEY ("id")`
+      }
     ]);
 
     deepEqual(queries.relations, []);
@@ -516,17 +549,20 @@ describe('migration :: create table tests', () => {
     const queries = getCreateQueries(tables);
 
     deepEqual(queries.tables, [
-      `CREATE TABLE IF NOT EXISTS "table" (` +
-        `"id" jsonb NOT null, ` +
-        `"default" jsonb DEFAULT '["foo","bar"]' NOT null, ` +
-        `"nullable" jsonb DEFAULT null` +
-        `)`
+      {
+        query:
+          `CREATE TABLE IF NOT EXISTS "table" (` +
+          `"id" jsonb NOT null, ` +
+          `"default" jsonb DEFAULT '["foo","bar"]' NOT null, ` +
+          `"nullable" jsonb DEFAULT null` +
+          `)`
+      }
     ]);
 
     deepEqual(queries.indexes, [
-      `ALTER TABLE "table" ` +
-        //
-        `ADD CONSTRAINT "table_id_pk" PRIMARY KEY ("id")`
+      {
+        query: `ALTER TABLE IF EXISTS "table" ADD CONSTRAINT "table_id_pk" PRIMARY KEY ("id")`
+      }
     ]);
 
     deepEqual(queries.relations, []);
@@ -563,17 +599,20 @@ describe('migration :: create table tests', () => {
     const queries = getCreateQueries(tables);
 
     deepEqual(queries.tables, [
-      `CREATE TABLE IF NOT EXISTS "table" (` +
-        `"id" jsonb NOT null, ` +
-        `"default" jsonb DEFAULT '["foo",123]' NOT null, ` +
-        `"nullable" jsonb DEFAULT null` +
-        `)`
+      {
+        query:
+          `CREATE TABLE IF NOT EXISTS "table" (` +
+          `"id" jsonb NOT null, ` +
+          `"default" jsonb DEFAULT '["foo",123]' NOT null, ` +
+          `"nullable" jsonb DEFAULT null` +
+          `)`
+      }
     ]);
 
     deepEqual(queries.indexes, [
-      `ALTER TABLE "table" ` +
-        //
-        `ADD CONSTRAINT "table_id_pk" PRIMARY KEY ("id")`
+      {
+        query: `ALTER TABLE IF EXISTS "table" ADD CONSTRAINT "table_id_pk" PRIMARY KEY ("id")`
+      }
     ]);
 
     deepEqual(queries.relations, []);

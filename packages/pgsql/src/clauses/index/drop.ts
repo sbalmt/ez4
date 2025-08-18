@@ -6,11 +6,12 @@ export class SqlDropIndexClause {
   #state: {
     index: SqlIndexStatement;
     concurrently?: boolean;
-    check?: boolean;
+    check: boolean;
   };
 
   constructor(index: SqlIndexStatement) {
     this.#state = {
+      check: false,
       index
     };
   }
@@ -38,14 +39,14 @@ export class SqlDropIndexClause {
   build() {
     const { index, check, concurrently } = this.#state;
 
-    const statement = ['DROP INDEX'];
+    const statement = ['DROP', 'INDEX'];
 
     if (concurrently) {
       statement.push('CONCURRENTLY');
     }
 
     if (check) {
-      statement.push('IF EXISTS');
+      statement.push('IF', 'EXISTS');
     }
 
     statement.push(escapeSqlName(index.name));

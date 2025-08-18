@@ -1,3 +1,4 @@
+import type { PgMigrationQuery } from '@ez4/pgmigration/library';
 import type { PgTableRepository } from '@ez4/pgclient/library';
 import type { Arn } from '@ez4/aws-common';
 
@@ -40,9 +41,7 @@ export const createDatabase = async (request: ConnectionRequest): Promise<void> 
     secretArn
   });
 
-  await driver.executeStatement({
-    query: prepareCreateDatabase(database)
-  });
+  await executeMigrationStatement(driver, prepareCreateDatabase(database));
 };
 
 export const createTables = async (request: CreateTableRequest): Promise<void> => {
@@ -58,9 +57,7 @@ export const createTables = async (request: CreateTableRequest): Promise<void> =
 
   const queries = getCreateQueries(repository);
 
-  const statements = [...queries.tables, ...queries.indexes, ...queries.relations].map((query) => ({ query }));
-
-  await driver.executeTransaction(statements);
+  await executeMigrationTransaction(driver, [...queries.tables, ...queries.indexes, ...queries.relations]);
 };
 
 export const updateTables = async (request: UpdateTableRequest): Promise<void> => {
@@ -76,11 +73,8 @@ export const updateTables = async (request: UpdateTableRequest): Promise<void> =
 
   const queries = getUpdateQueries(repository.target, repository.source);
 
-  const otherStatements = [...queries.tables, ...queries.relations].map((query) => ({ query }));
-  const indexStatements = queries.indexes.map((query) => ({ query }));
-
-  await driver.executeTransaction(otherStatements);
-  await driver.executeStatements(indexStatements);
+  await executeMigrationTransaction(driver, [...queries.tables, ...queries.relations]);
+  await executeMigrationStatements(driver, queries.indexes);
 };
 
 export const deleteTables = async (request: DeleteTableRequest): Promise<void> => {
@@ -96,13 +90,7 @@ export const deleteTables = async (request: DeleteTableRequest): Promise<void> =
 
   const queries = getDeleteQueries(repository);
 
-  const statements = queries.tables.map((query) => {
-    return {
-      query
-    };
-  });
-
-  await driver.executeTransaction(statements);
+  await executeMigrationTransaction(driver, queries.tables);
 };
 
 export const deleteDatabase = async (request: ConnectionRequest): Promise<void> => {
@@ -116,7 +104,43 @@ export const deleteDatabase = async (request: ConnectionRequest): Promise<void> 
     secretArn
   });
 
+  await executeMigrationStatement(driver, prepareDeleteDatabase(database));
+};
+
+const executeMigrationTransaction = async (driver: DataClientDriver, statements: PgMigrationQuery[]) => {
+  const transactionId = await driver.beginTransaction();
+  try {
+    await executeMigrationStatements(driver, statements);
+    await driver.commitTransaction(transactionId);
+  } catch (error) {
+    throw error;
+  } finally {
+    await driver.rollbackTransaction(transactionId);
+  }
+};
+
+const executeMigrationStatements = async (driver: DataClientDriver, statements: PgMigrationQuery[]) => {
+  for (const statement of statements) {
+    await executeMigrationStatement(driver, statement);
+  }
+};
+
+const executeMigrationStatement = async (driver: DataClientDriver, statement: PgMigrationQuery) => {
+  const { check, query } = statement;
+
+  if (check) {
+    const [{ execute }] = await driver.executeStatement({
+      query: check
+    });
+
+    if (!execute) {
+      return false;
+    }
+  }
+
   await driver.executeStatement({
-    query: prepareDeleteDatabase(database)
+    query
   });
+
+  return true;
 };

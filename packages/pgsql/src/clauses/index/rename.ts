@@ -6,23 +6,41 @@ export class SqlRenameIndexClause {
   #state: {
     index: SqlIndexStatement;
     name: string;
+    check: boolean;
   };
 
   constructor(index: SqlIndexStatement, name: string) {
     this.#state = {
+      check: false,
       index,
       name
     };
+  }
+
+  get conditional() {
+    return this.#state.check;
   }
 
   to(name: string) {
     this.#state.name = name;
   }
 
-  build() {
-    const { index, name } = this.#state;
+  existing(check = true) {
+    this.#state.check = check;
 
-    const statement = ['ALTER INDEX', escapeSqlName(index.name), 'RENAME TO', escapeSqlName(name)];
+    return this;
+  }
+
+  build() {
+    const { index, name, check } = this.#state;
+
+    const statement = ['ALTER', 'INDEX'];
+
+    if (check) {
+      statement.push('IF', 'EXISTS');
+    }
+
+    statement.push(escapeSqlName(index.name), 'RENAME', 'TO', escapeSqlName(name));
 
     return statement.join(' ');
   }

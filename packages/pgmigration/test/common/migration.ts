@@ -1,9 +1,18 @@
 import type { Database, Client as DbClient } from '@ez4/database';
+import type { PgMigrationQuery } from '@ez4/pgmigration/library';
 
-export const runMigration = (client: DbClient<Database.Service>, statements: string[]) => {
+export const runMigration = (client: DbClient<Database.Service>, queries: PgMigrationQuery[]) => {
   return client.transaction(async (transaction: DbClient<Database.Service>) => {
-    for (const statement of statements) {
-      await transaction.rawQuery(statement);
+    for (const { query, check } of queries) {
+      if (check) {
+        const [{ execute }] = await transaction.rawQuery(check);
+
+        if (!execute) {
+          continue;
+        }
+      }
+
+      await transaction.rawQuery(query);
     }
   });
 };

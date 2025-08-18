@@ -24,10 +24,12 @@ export const prepareCreateColumns = (
     const columnType = getColumnType(columnSchema, columnIsPrimary);
     const columnValue = getColumnDefault(columnSchema, columnIsPrimary);
 
-    statement.add(columnName, columnType, columnRequired, columnValue);
+    statement.add(columnName, columnType, columnRequired, columnValue).missing();
   }
 
-  return statement.build();
+  return {
+    query: statement.build()
+  };
 };
 
 export const prepareUpdateColumns = (
@@ -66,7 +68,9 @@ export const prepareUpdateColumns = (
     }
   }
 
-  return statement.build();
+  return {
+    query: statement.build()
+  };
 };
 
 export const prepareRenameColumns = (builder: SqlBuilder, table: string, columns: Record<string, string>) => {
@@ -75,9 +79,11 @@ export const prepareRenameColumns = (builder: SqlBuilder, table: string, columns
   for (const fromColumn in columns) {
     const toColum = columns[fromColumn];
 
-    const statement = builder.table(table).alter().rename(fromColumn, toColum);
+    const statement = builder.table(table).alter().existing().rename(fromColumn, toColum);
 
-    statements.push(statement.build());
+    statements.push({
+      query: statement.build()
+    });
   }
 
   return statements;
@@ -90,5 +96,7 @@ export const prepareDeleteColumns = (builder: SqlBuilder, table: string, columns
     statement.drop(columnName).existing();
   }
 
-  return statement.build();
+  return {
+    query: statement.build()
+  };
 };

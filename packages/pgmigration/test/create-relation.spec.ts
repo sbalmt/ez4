@@ -56,11 +56,14 @@ describe('migration :: create relation tests', () => {
     const queries = getUpdateQueries(targetTable, sourceTable);
 
     deepEqual(queries.relations, [
-      `ALTER TABLE "table_a" ` +
-        `ADD CONSTRAINT "table_a_table_b_fk" FOREIGN KEY "column_b" ` +
-        `REFERENCES "table_a" ("column_a") ` +
-        `ON DELETE CASCADE ` +
-        `ON UPDATE CASCADE`
+      {
+        query:
+          `ALTER TABLE IF EXISTS "table_a" ` +
+          `ADD CONSTRAINT "table_a_table_b_fk" FOREIGN KEY "column_b" ` +
+          `REFERENCES "table_a" ("column_a") ` +
+          `ON DELETE CASCADE ` +
+          `ON UPDATE CASCADE`
+      }
     ]);
 
     deepEqual(queries.indexes, []);
@@ -84,11 +87,14 @@ describe('migration :: create relation tests', () => {
     const queries = getUpdateQueries(targetTable, sourceTable);
 
     deepEqual(queries.relations, [
-      `ALTER TABLE "table_a" ` +
-        `ADD CONSTRAINT "table_a_table_b_fk" FOREIGN KEY "column_b" ` +
-        `REFERENCES "table_a" ("column_a") ` +
-        `ON DELETE CASCADE ` +
-        `ON UPDATE CASCADE`
+      {
+        query:
+          `ALTER TABLE IF EXISTS "table_a" ` +
+          `ADD CONSTRAINT "table_a_table_b_fk" FOREIGN KEY "column_b" ` +
+          `REFERENCES "table_a" ("column_a") ` +
+          `ON DELETE CASCADE ` +
+          `ON UPDATE CASCADE`
+      }
     ]);
 
     deepEqual(queries.indexes, []);

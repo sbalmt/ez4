@@ -72,12 +72,14 @@ describe('migration :: update column tests', () => {
     const queries = getUpdateQueries(targetTable, sourceTable);
 
     deepEqual(queries.tables, [
-      `ALTER TABLE IF EXISTS "table" ` +
-        //
-        `ALTER COLUMN "column" TYPE text USING "column"::text, ` +
-        `ALTER COLUMN "default" TYPE text USING "default"::text, ` +
-        `ALTER COLUMN "default" SET DEFAULT 'foo', ` +
-        `ALTER COLUMN "nullable" TYPE text USING "nullable"::text`
+      {
+        query:
+          `ALTER TABLE IF EXISTS "table" ` +
+          `ALTER COLUMN "column" TYPE text USING "column"::text, ` +
+          `ALTER COLUMN "default" TYPE text USING "default"::text, ` +
+          `ALTER COLUMN "default" SET DEFAULT 'foo', ` +
+          `ALTER COLUMN "nullable" TYPE text USING "nullable"::text`
+      }
     ]);
 
     deepEqual(queries.relations, []);
@@ -108,9 +110,9 @@ describe('migration :: update column tests', () => {
     const queries = getUpdateQueries(targetTable, sourceTable);
 
     deepEqual(queries.tables, [
-      `ALTER TABLE IF EXISTS "table" ` +
-        //
-        `ALTER COLUMN "default" SET DEFAULT true`
+      {
+        query: `ALTER TABLE IF EXISTS "table" ALTER COLUMN "default" SET DEFAULT true`
+      }
     ]);
 
     deepEqual(queries.relations, []);
@@ -141,10 +143,9 @@ describe('migration :: update column tests', () => {
     const queries = getUpdateQueries(targetTable, sourceTable);
 
     deepEqual(queries.tables, [
-      `ALTER TABLE IF EXISTS "table" ` +
-        //
-        `ALTER COLUMN "default" SET DEFAULT false, ` +
-        `ALTER COLUMN "nullable" DROP NOT null`
+      {
+        query: `ALTER TABLE IF EXISTS "table" ALTER COLUMN "default" SET DEFAULT false, ALTER COLUMN "nullable" DROP NOT null`
+      }
     ]);
 
     deepEqual(queries.relations, []);
@@ -175,9 +176,15 @@ describe('migration :: update column tests', () => {
     const queries = getUpdateQueries(targetTable, sourceTable);
 
     deepEqual(queries.tables, [
-      `ALTER TABLE "table" RENAME COLUMN "column" TO "column_renamed"`,
-      `ALTER TABLE "table" RENAME COLUMN "default" TO "renamed_default"`,
-      `ALTER TABLE "table" RENAME COLUMN "nullable" TO "nullable_renamed"`
+      {
+        query: `ALTER TABLE IF EXISTS "table" RENAME COLUMN "column" TO "column_renamed"`
+      },
+      {
+        query: `ALTER TABLE IF EXISTS "table" RENAME COLUMN "default" TO "renamed_default"`
+      },
+      {
+        query: `ALTER TABLE IF EXISTS "table" RENAME COLUMN "nullable" TO "nullable_renamed"`
+      }
     ]);
 
     deepEqual(queries.relations, []);

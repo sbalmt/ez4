@@ -6,7 +6,7 @@ export class SqlCreateIndexClause {
   #state: {
     index: SqlIndexStatement;
     concurrently?: boolean;
-    check?: boolean;
+    check: boolean;
     columns: string[];
     table: string;
     type?: string;
@@ -14,6 +14,7 @@ export class SqlCreateIndexClause {
 
   constructor(index: SqlIndexStatement, table: string, columns: string[] = []) {
     this.#state = {
+      check: false,
       columns,
       table,
       index
@@ -61,14 +62,14 @@ export class SqlCreateIndexClause {
   build() {
     const { index, table, check, concurrently, columns, type } = this.#state;
 
-    const statement = ['CREATE INDEX'];
+    const statement = ['CREATE', 'INDEX'];
 
     if (concurrently) {
       statement.push('CONCURRENTLY');
     }
 
     if (check) {
-      statement.push('IF NOT EXISTS');
+      statement.push('IF', 'NOT', 'EXISTS');
     }
 
     statement.push(escapeSqlName(index.name), 'ON', escapeSqlName(table));

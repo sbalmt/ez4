@@ -37,7 +37,11 @@ describe('migration :: delete table tests', () => {
 
     const queries = getDeleteQueries(tables);
 
-    deepEqual(queries.tables, [`DROP TABLE IF EXISTS "table" CASCADE`]);
+    deepEqual(queries.tables, [
+      {
+        query: `DROP TABLE IF EXISTS "table" CASCADE`
+      }
+    ]);
 
     deepEqual(queries.relations, []);
     deepEqual(queries.indexes, []);

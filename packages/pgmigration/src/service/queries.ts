@@ -1,4 +1,5 @@
 import type { PgTableRepository } from '@ez4/pgclient/library';
+import type { PgMigrationQueries } from '../types/query.js';
 
 import { SqlBuilder } from '@ez4/pgsql';
 
@@ -8,16 +9,10 @@ import { prepareCreateColumns, prepareDeleteColumns, prepareRenameColumns, prepa
 import { prepareCreateIndexes, prepareDeleteIndexes, prepareRenameIndexes } from '../common/indexes.js';
 import { getTableRepositoryChanges } from '../utils/repository.js';
 
-export type MigrationQueries = {
-  tables: string[];
-  relations: string[];
-  indexes: string[];
-};
-
 export const getCreateQueries = (target: PgTableRepository) => {
   const builder = new SqlBuilder();
 
-  const queries: MigrationQueries = {
+  const queries: PgMigrationQueries = {
     tables: [],
     relations: [],
     indexes: []
@@ -39,7 +34,7 @@ export const getUpdateQueries = (target: PgTableRepository, source: PgTableRepos
 
   const builder = new SqlBuilder();
 
-  const queries: MigrationQueries = {
+  const queries: PgMigrationQueries = {
     tables: [],
     relations: [],
     indexes: []
@@ -120,7 +115,7 @@ export const getUpdateQueries = (target: PgTableRepository, source: PgTableRepos
 export const getDeleteQueries = (target: PgTableRepository) => {
   const builder = new SqlBuilder();
 
-  const queries: MigrationQueries = {
+  const queries: PgMigrationQueries = {
     tables: [],
     relations: [],
     indexes: []
@@ -135,7 +130,7 @@ export const getDeleteQueries = (target: PgTableRepository) => {
   return queries;
 };
 
-const combineMigrationQueries = (target: MigrationQueries, source: MigrationQueries) => {
+const combineMigrationQueries = (target: PgMigrationQueries, source: PgMigrationQueries) => {
   target.indexes.push(...source.indexes);
   target.relations.push(...source.relations);
   target.tables.push(...source.tables);

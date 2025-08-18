@@ -58,7 +58,11 @@ describe('migration :: create index tests', () => {
 
     const queries = getUpdateQueries(targetTable, sourceTable);
 
-    deepEqual(queries.indexes, [`ALTER TABLE "table" ADD CONSTRAINT "table_index_pk" PRIMARY KEY ("column")`]);
+    deepEqual(queries.indexes, [
+      {
+        query: `ALTER TABLE IF EXISTS "table" ADD CONSTRAINT "table_index_pk" PRIMARY KEY ("column")`
+      }
+    ]);
 
     deepEqual(queries.relations, []);
     deepEqual(queries.tables, []);
@@ -77,7 +81,11 @@ describe('migration :: create index tests', () => {
 
     const queries = getUpdateQueries(targetTable, sourceTable);
 
-    deepEqual(queries.indexes, [`ALTER TABLE "table" ADD CONSTRAINT "table_index_uk" UNIQUE ("column")`]);
+    deepEqual(queries.indexes, [
+      {
+        query: `ALTER TABLE IF EXISTS "table" ADD CONSTRAINT "table_index_uk" UNIQUE ("column")`
+      }
+    ]);
 
     deepEqual(queries.relations, []);
     deepEqual(queries.tables, []);
@@ -96,7 +104,11 @@ describe('migration :: create index tests', () => {
 
     const queries = getUpdateQueries(targetTable, sourceTable);
 
-    deepEqual(queries.indexes, [`CREATE INDEX CONCURRENTLY IF NOT EXISTS "table_index_sk" ON "table" USING BTREE ("column")`]);
+    deepEqual(queries.indexes, [
+      {
+        query: `CREATE INDEX CONCURRENTLY IF NOT EXISTS "table_index_sk" ON "table" USING BTREE ("column")`
+      }
+    ]);
 
     deepEqual(queries.relations, []);
     deepEqual(queries.tables, []);
@@ -115,7 +127,11 @@ describe('migration :: create index tests', () => {
 
     const queries = getUpdateQueries(targetTable, sourceTable);
 
-    deepEqual(queries.indexes, [`ALTER TABLE "table" ADD CONSTRAINT "table_index_pk" PRIMARY KEY ("column_a", "column_b")`]);
+    deepEqual(queries.indexes, [
+      {
+        query: `ALTER TABLE IF EXISTS "table" ADD CONSTRAINT "table_index_pk" PRIMARY KEY ("column_a", "column_b")`
+      }
+    ]);
 
     deepEqual(queries.relations, []);
     deepEqual(queries.tables, []);
@@ -134,7 +150,11 @@ describe('migration :: create index tests', () => {
 
     const queries = getUpdateQueries(targetTable, sourceTable);
 
-    deepEqual(queries.indexes, [`ALTER TABLE "table" ADD CONSTRAINT "table_index_uk" UNIQUE ("column_a", "column_b")`]);
+    deepEqual(queries.indexes, [
+      {
+        query: `ALTER TABLE IF EXISTS "table" ADD CONSTRAINT "table_index_uk" UNIQUE ("column_a", "column_b")`
+      }
+    ]);
 
     deepEqual(queries.relations, []);
     deepEqual(queries.tables, []);
@@ -154,7 +174,9 @@ describe('migration :: create index tests', () => {
     const queries = getUpdateQueries(targetTable, sourceTable);
 
     deepEqual(queries.indexes, [
-      `CREATE INDEX CONCURRENTLY IF NOT EXISTS "table_index_sk" ON "table" USING BTREE ("column_a", "column_b")`
+      {
+        query: `CREATE INDEX CONCURRENTLY IF NOT EXISTS "table_index_sk" ON "table" USING BTREE ("column_a", "column_b")`
+      }
     ]);
 
     deepEqual(queries.relations, []);
@@ -174,7 +196,11 @@ describe('migration :: create index tests', () => {
 
     const queries = getUpdateQueries(targetTable, sourceTable);
 
-    deepEqual(queries.indexes, [`CREATE INDEX CONCURRENTLY IF NOT EXISTS "table_index_sk" ON "table" USING GIN ("column")`]);
+    deepEqual(queries.indexes, [
+      {
+        query: `CREATE INDEX CONCURRENTLY IF NOT EXISTS "table_index_sk" ON "table" USING GIN ("column")`
+      }
+    ]);
 
     deepEqual(queries.relations, []);
     deepEqual(queries.tables, []);

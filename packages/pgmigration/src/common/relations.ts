@@ -21,12 +21,14 @@ export const prepareCreateRelations = (builder: SqlBuilder, table: string, relat
     const relationName = getRelationName(table, alias);
     const sourceTable = getTableName(sourceAlias);
 
-    const statement = builder.table(table).alter().constraint(relationName).foreign(targetColumn, sourceTable, [sourceColumn]);
+    const statement = builder.table(table).alter().existing().constraint(relationName).foreign(targetColumn, sourceTable, [sourceColumn]);
 
     statement.delete().cascade();
     statement.update().cascade();
 
-    statements.push(statement.build());
+    statements.push({
+      query: statement.build()
+    });
   }
 
   return statements;
@@ -45,9 +47,11 @@ export const prepareRenameRelations = (builder: SqlBuilder, fromTable: string, t
     const oldRelationName = getRelationName(fromTable, alias);
     const newRelationName = getRelationName(toTable, alias);
 
-    const statement = builder.table(toTable).alter().constraint(oldRelationName).rename(newRelationName);
+    const statement = builder.table(toTable).alter().existing().constraint(oldRelationName).rename(newRelationName);
 
-    statements.push(statement.build());
+    statements.push({
+      query: statement.build()
+    });
   }
 
   return statements;
@@ -65,9 +69,11 @@ export const prepareDeleteRelations = (builder: SqlBuilder, table: string, relat
 
     const relationName = getRelationName(table, alias);
 
-    const statement = builder.table(table).alter().constraint(relationName).drop().existing();
+    const statement = builder.table(table).alter().existing().constraint(relationName).drop().existing();
 
-    statements.push(statement.build());
+    statements.push({
+      query: statement.build()
+    });
   }
 
   return statements;
