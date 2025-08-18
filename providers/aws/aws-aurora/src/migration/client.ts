@@ -113,9 +113,8 @@ const executeMigrationTransaction = async (driver: DataClientDriver, statements:
     await executeMigrationStatements(driver, statements);
     await driver.commitTransaction(transactionId);
   } catch (error) {
-    throw error;
-  } finally {
     await driver.rollbackTransaction(transactionId);
+    throw error;
   }
 };
 
