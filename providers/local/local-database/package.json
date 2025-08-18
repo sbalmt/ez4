@@ -47,6 +47,7 @@
   "dependencies": {
     "@ez4/local-common": "^0.25.0",
     "@ez4/pgclient": "^0.25.0",
+    "@ez4/pgmigration": "^0.25.0",
     "@ez4/project": "^0.25.0",
     "@ez4/database": "^0.25.0",
     "@ez4/utils": "^0.25.0"

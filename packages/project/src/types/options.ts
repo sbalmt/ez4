@@ -19,7 +19,7 @@ export type DestroyOptions = CommonOptions & {
 };
 
 export type ServeOptions = CommonOptions & {
-  providerOptions: Record<string, AnyObject>;
+  localOptions: Record<string, AnyObject>;
   variables?: LinkedVariables;
   serviceHost: string;
   version: number;

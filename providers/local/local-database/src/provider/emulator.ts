@@ -1,53 +1,58 @@
 import type { DatabaseService } from '@ez4/database/library';
 import type { ServeOptions } from '@ez4/project/library';
 
+import { getTableRepository } from '@ez4/pgclient/library';
 import { getServiceName, triggerAllAsync } from '@ez4/project/library';
-import { getDatabaseName, getTablesRepository } from '@ez4/pgclient/library';
 import { Client } from '@ez4/pgclient';
 
+import { ensureDatabase, ensureMigration } from '../service/migration.js';
+import { getConnectionOptions } from '../utils/options.js';
+
 export const registerDatabaseEmulator = async (service: DatabaseService, options: ServeOptions) => {
-  const client = await createDatabaseClient(service, options);
+  const client = await getDatabaseClient(service, options);
 
   return {
     type: 'Database',
     name: service.name,
     identifier: getServiceName(service.name, options),
+    bootstrapHandler: () => {
+      return runDatabaseMigration(service, options);
+    },
     clientHandler: () => {
       return client;
     }
   };
 };
 
-const createDatabaseClient = async (service: DatabaseService, options: ServeOptions) => {
-  const providerOptions = options.providerOptions[service.engine.name];
+const runDatabaseMigration = async (service: DatabaseService, options: ServeOptions) => {
+  const connection = getConnectionOptions(service, options);
 
-  switch (providerOptions?.mode) {
-    default:
-      throw new Error(`Malformed provider options.`);
+  if (connection) {
+    const repository = getTableRepository(service.tables);
 
-    case 'remote':
-      return triggerAllAsync('emulator:getClient', (handler) =>
-        handler({
-          service,
-          options
-        })
-      );
+    await ensureDatabase(connection);
 
-    case 'local': {
-      const { user, password, database, host } = providerOptions;
-
-      const repository = getTablesRepository(service.tables);
-
-      return Client.make({
-        debug: options.debug,
-        repository,
-        connection: {
-          database: database ?? getDatabaseName(service, options),
-          host: host ?? '127.0.0.1',
-          password,
-          user
-        }
-      });
-    }
+    await ensureMigration(connection, repository);
   }
+};
+
+const getDatabaseClient = async (service: DatabaseService, options: ServeOptions) => {
+  const connection = getConnectionOptions(service, options);
+
+  if (connection) {
+    const repository = getTableRepository(service.tables);
+
+    return Client.make({
+      debug: options.debug,
+      connection,
+      repository
+    });
+  }
+
+  return triggerAllAsync('emulator:getClient', (handler) =>
+    handler({
+      service,
+      options
+    })
+  );
 };
