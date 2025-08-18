@@ -1,6 +1,8 @@
-import { isRepositoryTable, type PgTableRepository } from '@ez4/pgclient/library';
+import type { PgTableRepository } from '@ez4/pgclient/library';
+import type { AnySchema, ObjectSchema } from '@ez4/schema';
 
 import { deepEqual, deepCompareObject, isAnyObject } from '@ez4/utils';
+import { isRepositoryTable } from '@ez4/pgclient/library';
 import { isAnySchema } from '@ez4/schema';
 
 export const getTableRepositoryChanges = (target: PgTableRepository, source: PgTableRepository) => {
@@ -8,25 +10,33 @@ export const getTableRepositoryChanges = (target: PgTableRepository, source: PgT
     depth: 4,
     onRename: (target, source) => {
       if (!isAnyObject(target) || !isAnyObject(source)) {
-        return target !== source;
+        return false;
       }
 
       if (isRepositoryTable(target) && isRepositoryTable(source)) {
-        return target.name !== source.name;
+        return canRenameTable(target.schema, source.schema);
       }
 
-      if (!isAnySchema(target) || !isAnySchema(source)) {
-        return deepEqual(target, source);
+      if (isAnySchema(target) && isAnySchema(source)) {
+        return canRenameColumn(target, source);
       }
 
-      return deepEqual(target, source, {
-        depth: 2,
-        include: {
-          type: true,
-          definitions: true,
-          nullable: true
-        }
-      });
+      return false;
+    }
+  });
+};
+
+const canRenameTable = (target: ObjectSchema, source: ObjectSchema) => {
+  return deepEqual(Object.keys(target.properties), Object.keys(source.properties));
+};
+
+const canRenameColumn = (target: AnySchema, source: AnySchema) => {
+  return deepEqual(target, source, {
+    depth: 1,
+    include: {
+      type: true,
+      definitions: true,
+      nullable: true
     }
   });
 };

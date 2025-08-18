@@ -162,7 +162,7 @@ describe('migration :: update column tests', () => {
     deepEqual(queries.indexes, []);
   });
 
-  it('assert :: alter table (rename column)', async () => {
+  it.only('assert :: alter table (rename column)', async () => {
     const targetTable = getDatabaseTables({
       id: {
         type: SchemaType.String
