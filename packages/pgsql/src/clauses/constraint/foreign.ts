@@ -71,7 +71,7 @@ export class SqlForeignKeyConstraintClause {
       'ADD CONSTRAINT',
       escapeSqlName(constraint.name),
       'FOREIGN KEY',
-      escapeSqlName(sourceColumn),
+      `(${escapeSqlName(sourceColumn)})`,
       'REFERENCES',
       escapeSqlName(targetTable),
       `(${escapeSqlNames(targetColumns)})`

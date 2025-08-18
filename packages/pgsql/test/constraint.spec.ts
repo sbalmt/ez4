@@ -26,12 +26,12 @@ describe('sql table constraint tests', () => {
     equal(
       statement,
       `ALTER TABLE "table" ` +
-        `ADD CONSTRAINT "foo" FOREIGN KEY "relation_id" ` +
+        `ADD CONSTRAINT "foo" FOREIGN KEY ("relation_id") ` +
         `REFERENCES "table" ("foo_bar", "foo_baz", "foo_qux") ` +
         `ON DELETE RESTRICT ` +
         `ON UPDATE SET null, ` +
         //
-        `ADD CONSTRAINT "bar" FOREIGN KEY "relation_id" ` +
+        `ADD CONSTRAINT "bar" FOREIGN KEY ("relation_id") ` +
         `REFERENCES "table" ("bar_bar", "bar_baz", "bar_qux") ` +
         `ON DELETE CASCADE`
     );
