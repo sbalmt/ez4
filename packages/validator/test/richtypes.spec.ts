@@ -224,14 +224,12 @@ describe('rich types validation', () => {
       }
     };
 
-    const input = Buffer.from(
-      JSON.stringify({
-        foo: 123,
-        bar: false
-      })
-    ).toString('base64');
+    const rawInput = { foo: 123, bar: false };
 
-    equal((await validate(input, schema)).length, 0);
+    const b64Input = Buffer.from(JSON.stringify(rawInput)).toString('base64');
+
+    equal((await validate(rawInput, schema)).length, 0);
+    equal((await validate(b64Input, schema)).length, 0);
   });
 
   it('assert :: array', async () => {
