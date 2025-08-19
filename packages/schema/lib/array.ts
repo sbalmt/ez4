@@ -23,4 +23,10 @@ export namespace Array {
     default: Value;
     type: Type;
   };
+
+  export type Base64<Type> = {
+    '@ez4/schema': 'array';
+    encoded: true;
+    type: Type;
+  };
 }

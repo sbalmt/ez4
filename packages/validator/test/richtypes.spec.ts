@@ -246,4 +246,23 @@ describe('rich types validation', () => {
 
     equal((await validate([1, 2, 3], schema)).length, 0);
   });
+
+  it('assert :: array (base64-encoded)', async () => {
+    const schema: AnySchema = {
+      type: SchemaType.Array,
+      definitions: {
+        encoded: true
+      },
+      element: {
+        type: SchemaType.Number
+      }
+    };
+
+    const rawInput = [1, 2, 3];
+
+    const b64Input = Buffer.from(JSON.stringify(rawInput)).toString('base64');
+
+    equal((await validate(rawInput, schema)).length, 0);
+    equal((await validate(b64Input, schema)).length, 0);
+  });
 });

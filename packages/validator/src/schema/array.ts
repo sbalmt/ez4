@@ -2,8 +2,9 @@ import type { ArraySchema } from '@ez4/schema';
 
 import { isAnyNumber } from '@ez4/utils';
 
-import { createValidatorContext } from '../types/context.js';
+import { tryDecodeBase64Json } from '../utils/base64.js';
 import { ExpectedArrayTypeError, UnexpectedMaxItemsError, UnexpectedMinItemsError } from '../errors/array.js';
+import { createValidatorContext } from '../types/context.js';
 import { isNullish } from '../utils/nullish.js';
 import { validateAny } from './any.js';
 
@@ -13,27 +14,28 @@ export const validateArray = async (value: unknown, schema: ArraySchema, context
   }
 
   const { property, references, depth } = context;
+  const { definitions } = schema;
 
-  if (!(value instanceof Array)) {
+  const arrayValues = definitions?.encoded ? tryDecodeBase64Json(value) : value;
+
+  if (!(arrayValues instanceof Array)) {
     return [new ExpectedArrayTypeError(property)];
   }
 
   const allErrors: Error[] = [];
 
-  const { definitions } = schema;
-
-  if (isAnyNumber(definitions?.minLength) && value.length < definitions.minLength) {
+  if (isAnyNumber(definitions?.minLength) && arrayValues.length < definitions.minLength) {
     allErrors.push(new UnexpectedMinItemsError(definitions.minLength, property));
   }
 
-  if (isAnyNumber(definitions?.maxLength) && value.length > definitions.maxLength) {
+  if (isAnyNumber(definitions?.maxLength) && arrayValues.length > definitions.maxLength) {
     allErrors.push(new UnexpectedMaxItemsError(definitions.maxLength, property));
   }
 
   if (depth > 0) {
     let index = 0;
 
-    for (const elementValue of value) {
+    for (const elementValue of arrayValues) {
       const elementProperty = `${property}.${index++}`;
       const elementSchema = schema.element;
 

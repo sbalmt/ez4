@@ -47,5 +47,10 @@ export interface ArrayTestSchema {
   /**
    * Default array value.
    */
-  value: Array.Default<string | number, ['foo', 123]>;
+  default: Array.Default<string | number, ['foo', 123]>;
+
+  /**
+   * Base64-encoded array.
+   */
+  encoded: Array.Base64<{ foo: number; bar: string }>;
 }

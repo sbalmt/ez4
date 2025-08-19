@@ -1,16 +1,17 @@
 import type { ObjectSchema } from '@ez4/schema';
 import type { AnyObject } from '@ez4/utils';
 
-import { isAnyObject, isAnyString } from '@ez4/utils';
 import { getPropertyName } from '@ez4/schema';
+import { isAnyObject } from '@ez4/utils';
 
+import { tryDecodeBase64Json } from '../utils/base64.js';
 import { createTransformContext } from '../types/context.js';
 import { transformAny } from './any.js';
 
 export const transformObject = (value: unknown, schema: ObjectSchema, context = createTransformContext()) => {
   const definitions = schema.definitions;
 
-  const objectValue = definitions?.encoded ? tryDecodeObject(value) : value;
+  const objectValue = definitions?.encoded ? tryDecodeBase64Json(value) : value;
 
   if (objectValue === null || objectValue === undefined || !isAnyObject(objectValue)) {
     return definitions?.default;
@@ -71,15 +72,4 @@ export const transformObject = (value: unknown, schema: ObjectSchema, context = 
   }
 
   return output;
-};
-
-const tryDecodeObject = (value: unknown) => {
-  if (isAnyString(value)) {
-    try {
-      const decodedValue = Buffer.from(value, 'base64');
-      return JSON.parse(decodedValue.toString('utf8'));
-    } catch {}
-  }
-
-  return undefined;
 };

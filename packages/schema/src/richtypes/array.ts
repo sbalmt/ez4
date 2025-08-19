@@ -18,4 +18,9 @@ export namespace Array {
    * Array with default value.
    */
   export type Default<Type, _Value extends Type[]> = Type[];
+
+  /**
+   * Array in base64 format.
+   */
+  export type Base64<Type> = Type[];
 }

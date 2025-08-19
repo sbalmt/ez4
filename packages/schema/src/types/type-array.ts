@@ -7,6 +7,7 @@ export type ArraySchemaDefinitions = SchemaDefinitions & {
   minLength?: number;
   maxLength?: number;
   default?: unknown[];
+  encoded?: boolean;
 };
 
 export type ArraySchema = {

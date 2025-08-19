@@ -1,12 +1,13 @@
 import type { ObjectSchema } from '@ez4/schema';
 
-import { isAnyObject, isAnyString } from '@ez4/utils';
 import { getPropertyName } from '@ez4/schema';
+import { isAnyObject } from '@ez4/utils';
 
 import { isNullish } from '../utils/nullish.js';
 import { ExpectedObjectTypeError } from '../errors/object.js';
 import { UnexpectedPropertiesError } from '../errors/common.js';
 import { createValidatorContext } from '../types/context.js';
+import { tryDecodeBase64Json } from '../utils/base64.js';
 import { validateAny } from './any.js';
 
 export const validateObject = async (value: unknown, schema: ObjectSchema, context = createValidatorContext()) => {
@@ -21,7 +22,7 @@ export const validateObject = async (value: unknown, schema: ObjectSchema, conte
     references[schema.identity] = schema;
   }
 
-  const objectValue = definitions?.encoded ? tryDecodeObject(value) : value;
+  const objectValue = definitions?.encoded ? tryDecodeBase64Json(value) : value;
 
   if (!isAnyObject(objectValue)) {
     return [new ExpectedObjectTypeError(property)];
@@ -96,17 +97,4 @@ export const validateObject = async (value: unknown, schema: ObjectSchema, conte
 
 const getPropertyPath = (childProperty: string, parentProperty: string | undefined) => {
   return parentProperty ? `${parentProperty}.${childProperty}` : childProperty;
-};
-
-const tryDecodeObject = (value: unknown) => {
-  if (!isAnyString(value)) {
-    return value;
-  }
-
-  try {
-    const decodedValue = Buffer.from(value, 'base64');
-    return JSON.parse(decodedValue.toString('utf8'));
-  } catch {
-    return undefined;
-  }
 };

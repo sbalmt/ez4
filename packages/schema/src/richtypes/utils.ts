@@ -165,14 +165,15 @@ export const createRichType = (richTypes: RichTypes) => {
     }
 
     case 'array': {
-      const { minLength, maxLength, type, value } = richTypes;
+      const { encoded, minLength, maxLength, type, value } = richTypes;
 
       return {
         ...createArray(type!, { spread: false }),
         definitions: {
           ...(value && { default: value }),
           ...(minLength && { minLength }),
-          ...(maxLength && { maxLength })
+          ...(maxLength && { maxLength }),
+          ...(encoded && { encoded })
         }
       };
     }
