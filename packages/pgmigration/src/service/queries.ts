@@ -22,7 +22,7 @@ export const getCreateQueries = (target: PgTableRepository) => {
     const { name, schema, indexes, relations } = target[table];
 
     queries.indexes.push(...prepareCreateIndexes(builder, name, schema, indexes, false));
-    queries.relations.push(...prepareCreateRelations(builder, name, relations));
+    queries.relations.push(...prepareCreateRelations(builder, name, schema, relations));
     queries.tables.push(prepareCreateTable(builder, name, schema, indexes));
   }
 
@@ -96,7 +96,7 @@ export const getUpdateQueries = (target: PgTableRepository, source: PgTableRepos
       }
 
       if (relationChanges?.create) {
-        queries.relations.push(...prepareCreateRelations(builder, table, relationChanges.create));
+        queries.relations.push(...prepareCreateRelations(builder, table, targetSchema, relationChanges.create));
       }
 
       if (relationChanges?.remove) {

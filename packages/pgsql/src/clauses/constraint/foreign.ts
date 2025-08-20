@@ -8,16 +8,16 @@ export class SqlForeignKeyConstraintClause {
     constraint: SqlConstraintClause;
     delete?: SqlForeignKeyActionClause;
     update?: SqlForeignKeyActionClause;
-    sourceColumn: string;
-    targetColumns: string[];
-    targetTable: string;
+    targetColumn: string;
+    sourceColumns: string[];
+    sourceTable: string;
   };
 
-  constructor(constraint: SqlConstraintClause, sourceColumn: string, targetTable: string, targetColumns: string[]) {
+  constructor(constraint: SqlConstraintClause, targetColumn: string, sourceTable: string, sourceColumns: string[]) {
     this.#state = {
-      targetTable,
-      targetColumns,
-      sourceColumn,
+      sourceTable,
+      sourceColumns,
+      targetColumn,
       constraint
     };
   }
@@ -27,19 +27,19 @@ export class SqlForeignKeyConstraintClause {
   }
 
   columns(columns: string[]) {
-    this.#state.targetColumns = columns;
+    this.#state.sourceColumns = columns;
 
     return this;
   }
 
-  target(table: string) {
-    this.#state.targetTable = table;
+  source(table: string) {
+    this.#state.sourceTable = table;
 
     return this;
   }
 
-  source(column: string) {
-    this.#state.sourceColumn = column;
+  target(column: string) {
+    this.#state.targetColumn = column;
 
     return this;
   }
@@ -61,7 +61,7 @@ export class SqlForeignKeyConstraintClause {
   }
 
   build() {
-    const { constraint, sourceColumn, targetTable, targetColumns, ...actions } = this.#state;
+    const { constraint, targetColumn, sourceTable, sourceColumns, ...actions } = this.#state;
 
     if (!constraint.building) {
       return constraint.build();
@@ -69,8 +69,8 @@ export class SqlForeignKeyConstraintClause {
 
     const clause = ['ADD', 'CONSTRAINT', escapeSqlName(constraint.name)];
 
-    clause.push('FOREIGN', 'KEY', `(${escapeSqlName(sourceColumn)})`);
-    clause.push('REFERENCES', escapeSqlName(targetTable), `(${escapeSqlNames(targetColumns)})`);
+    clause.push('FOREIGN', 'KEY', `(${escapeSqlName(targetColumn)})`);
+    clause.push('REFERENCES', escapeSqlName(sourceTable), `(${escapeSqlNames(sourceColumns)})`);
 
     const deleteAction = actions.delete?.build();
     const updateAction = actions.update?.build();

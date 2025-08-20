@@ -9,7 +9,7 @@ import { SchemaType } from '@ez4/schema';
 import { Index } from '@ez4/database';
 
 describe('migration :: create relation tests', () => {
-  const getDatabaseTables = (relations: TableRelation[]) => {
+  const getDatabaseTables = (nullish: boolean, relations: TableRelation[]) => {
     return getTableRepository([
       {
         name: 'table_a',
@@ -19,7 +19,9 @@ describe('migration :: create relation tests', () => {
           type: SchemaType.Object,
           properties: {
             column_a: {
-              type: SchemaType.String
+              type: SchemaType.String,
+              optional: nullish,
+              nullable: nullish
             }
           }
         }
@@ -39,16 +41,16 @@ describe('migration :: create relation tests', () => {
     ]);
   };
 
-  it('assert :: create relation (primary to secondary)', async () => {
-    const sourceTable = getDatabaseTables([]);
+  it('assert :: create relation (mandatory)', async () => {
+    const sourceTable = getDatabaseTables(false, []);
 
-    const targetTable = getDatabaseTables([
+    const targetTable = getDatabaseTables(false, [
       {
-        sourceTable: 'table_a',
-        targetAlias: 'table_b',
-        targetColumn: 'column_b',
-        sourceColumn: 'column_a',
+        sourceTable: 'table_b',
+        sourceColumn: 'column_b',
         sourceIndex: Index.Primary,
+        targetAlias: 'relation',
+        targetColumn: 'column_a',
         targetIndex: Index.Secondary
       }
     ]);
@@ -57,10 +59,10 @@ describe('migration :: create relation tests', () => {
 
     deepEqual(queries.relations, [
       {
-        check: `SELECT 1 FROM "pg_constraint" WHERE "conname" = 'table_a_table_b_fk'`,
+        check: `SELECT 1 FROM "pg_constraint" WHERE "conname" = 'table_a_relation_fk'`,
         query:
-          `ALTER TABLE IF EXISTS "table_a" ADD CONSTRAINT "table_a_table_b_fk" ` +
-          `FOREIGN KEY ("column_b") REFERENCES "table_a" ("column_a") ` +
+          `ALTER TABLE IF EXISTS "table_a" ADD CONSTRAINT "table_a_relation_fk" ` +
+          `FOREIGN KEY ("column_a") REFERENCES "table_b" ("column_b") ` +
           `ON DELETE CASCADE ` +
           `ON UPDATE CASCADE`
       }
@@ -70,16 +72,16 @@ describe('migration :: create relation tests', () => {
     deepEqual(queries.tables, []);
   });
 
-  it('assert :: create relation (primary to unique)', async () => {
-    const sourceTable = getDatabaseTables([]);
+  it('assert :: create relation (nullable)', async () => {
+    const sourceTable = getDatabaseTables(true, []);
 
-    const targetTable = getDatabaseTables([
+    const targetTable = getDatabaseTables(true, [
       {
-        sourceTable: 'table_a',
-        targetAlias: 'table_b',
-        targetColumn: 'column_b',
-        sourceColumn: 'column_a',
+        sourceTable: 'table_b',
+        sourceColumn: 'column_b',
         sourceIndex: Index.Primary,
+        targetAlias: 'relation',
+        targetColumn: 'column_a',
         targetIndex: Index.Unique
       }
     ]);
@@ -88,11 +90,11 @@ describe('migration :: create relation tests', () => {
 
     deepEqual(queries.relations, [
       {
-        check: `SELECT 1 FROM "pg_constraint" WHERE "conname" = 'table_a_table_b_fk'`,
+        check: `SELECT 1 FROM "pg_constraint" WHERE "conname" = 'table_a_relation_fk'`,
         query:
-          `ALTER TABLE IF EXISTS "table_a" ADD CONSTRAINT "table_a_table_b_fk" ` +
-          `FOREIGN KEY ("column_b") REFERENCES "table_a" ("column_a") ` +
-          `ON DELETE CASCADE ` +
+          `ALTER TABLE IF EXISTS "table_a" ADD CONSTRAINT "table_a_relation_fk" ` +
+          `FOREIGN KEY ("column_a") REFERENCES "table_b" ("column_b") ` +
+          `ON DELETE SET null ` +
           `ON UPDATE CASCADE`
       }
     ]);

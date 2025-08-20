@@ -42,11 +42,11 @@ describe('migration :: delete relation tests', () => {
   it('assert :: delete relation', async () => {
     const sourceTable = getDatabaseTables([
       {
-        sourceTable: 'table_a',
-        targetAlias: 'table_b',
-        targetColumn: 'column_b',
-        sourceColumn: 'column_a',
+        sourceTable: 'table_b',
+        sourceColumn: 'column_b',
         sourceIndex: Index.Primary,
+        targetAlias: 'relation',
+        targetColumn: 'column_a',
         targetIndex: Index.Secondary
       }
     ]);
@@ -57,7 +57,7 @@ describe('migration :: delete relation tests', () => {
 
     deepEqual(queries.relations, [
       {
-        query: `ALTER TABLE IF EXISTS "table_a" DROP CONSTRAINT IF EXISTS "table_a_table_b_fk"`
+        query: `ALTER TABLE IF EXISTS "table_a" DROP CONSTRAINT IF EXISTS "table_a_relation_fk"`
       }
     ]);
 
