@@ -52,35 +52,35 @@ export interface Table<T extends TableMetadata> {
    *
    * @param query Input query.
    */
-  insertOne<S extends Query.SelectInput<T> = never>(query: Query.InsertOneInput<S, T>): Promise<Query.InsertOneResult<S, T>>;
+  insertOne<S extends Query.SelectInput<T>, Q extends Query.InsertOneInput<S, T>>(query: Q): Promise<Query.InsertOneResult<Q, T>>;
 
   /**
    * Find one database record.
    *
    * @param query Input query.
    */
-  findOne<S extends Query.SelectInput<T>>(query: Query.FindOneInput<S, T>): Promise<Query.FindOneResult<S, T>>;
+  findOne<S extends Query.SelectInput<T>, Q extends Query.FindOneInput<S, T>>(query: Q): Promise<Query.FindOneResult<Q, T>>;
 
   /**
    * Update one database record.
    *
    * @param query Input query.
    */
-  updateOne<S extends Query.SelectInput<T> = never>(query: Query.UpdateOneInput<S, T>): Promise<Query.UpdateOneResult<S, T>>;
+  updateOne<S extends Query.SelectInput<T>, Q extends Query.UpdateOneInput<S, T>>(query: Q): Promise<Query.UpdateOneResult<Q, T>>;
 
   /**
    * Try to insert a database record, and if it already exists, perform an update instead.
    *
    * @param query Input query.
    */
-  upsertOne<S extends Query.SelectInput<T> = never>(query: Query.UpsertOneInput<S, T>): Promise<Query.UpsertOneResult<S, T>>;
+  upsertOne<S extends Query.SelectInput<T>, Q extends Query.UpsertOneInput<S, T>>(query: Q): Promise<Query.UpsertOneResult<Q, T>>;
 
   /**
    * Delete one database record.
    *
    * @param query Input query.
    */
-  deleteOne<S extends Query.SelectInput<T> = never>(query: Query.DeleteOneInput<S, T>): Promise<Query.DeleteOneResult<S, T>>;
+  deleteOne<S extends Query.SelectInput<T>, Q extends Query.DeleteOneInput<S, T>>(query: Q): Promise<Query.DeleteOneResult<Q, T>>;
 
   /**
    * Insert multiple records into the database.
@@ -94,23 +94,21 @@ export interface Table<T extends TableMetadata> {
    *
    * @param query Input query.
    */
-  findMany<S extends Query.SelectInput<T>, C extends boolean = false>(
-    query: Query.FindManyInput<S, T, C>
-  ): Promise<Query.FindManyResult<S, T, C>>;
+  findMany<S extends Query.SelectInput<T>, Q extends Query.FindManyInput<S, T>>(query: Q): Promise<Query.FindManyResult<Q, T>>;
 
   /**
    * Update multiple database records.
    *
    * @param query Input query.
    */
-  updateMany<S extends Query.SelectInput<T> = never>(query: Query.UpdateManyInput<S, T>): Promise<Query.UpdateManyResult<S, T>>;
+  updateMany<S extends Query.SelectInput<T>, Q extends Query.UpdateManyInput<S, T>>(query: Q): Promise<Query.UpdateManyResult<Q, T>>;
 
   /**
    * Delete multiple database records.
    *
    * @param query Input query.
    */
-  deleteMany<S extends Query.SelectInput<T> = never>(query: Query.DeleteManyInput<S, T>): Promise<Query.DeleteManyResult<S, T>>;
+  deleteMany<S extends Query.SelectInput<T>, Q extends Query.DeleteManyInput<S, T>>(query: Q): Promise<Query.DeleteManyResult<Q, T>>;
 
   /**
    * Count database records.

@@ -68,8 +68,8 @@ export namespace Query {
     where?: WhereInput<T>;
   };
 
-  export type FindManyInput<S extends AnyObject, T extends TableMetadata, C extends boolean> = PaginationUtils.Range<T['engine']> & {
-    count?: C;
+  export type FindManyInput<S extends AnyObject, T extends TableMetadata> = PaginationUtils.Range<T['engine']> & {
+    count?: boolean;
     select: StrictSelectInput<S, T>;
     include?: StrictIncludeInput<S, T>;
     where?: WhereInput<T>;
@@ -86,28 +86,55 @@ export namespace Query {
     where?: WhereInput<T>;
   };
 
-  export type InsertOneResult<S extends AnyObject, T extends TableMetadata> = S extends never ? void : Record<S, T>;
+  export type InsertOneResult<Q extends AnyObject, T extends TableMetadata> = Q extends { select: infer S }
+    ? S extends AnyObject
+      ? Record<S, T>
+      : void
+    : void;
 
-  export type UpdateOneResult<S extends AnyObject, T extends TableMetadata> = S extends never ? void : Record<S, T> | undefined;
+  export type UpdateOneResult<Q extends AnyObject, T extends TableMetadata> = Q extends { select: infer S }
+    ? S extends AnyObject
+      ? Record<S, T> | undefined
+      : void
+    : void;
 
-  export type FindOneResult<S extends AnyObject, T extends TableMetadata> = S extends never ? void : Record<S, T> | undefined;
+  export type FindOneResult<Q extends AnyObject, T extends TableMetadata> = Q extends { select: infer S }
+    ? S extends AnyObject
+      ? Record<S, T> | undefined
+      : void
+    : void;
 
-  export type UpsertOneResult<S extends AnyObject, T extends TableMetadata> = S extends never ? void : Record<S, T>;
+  export type UpsertOneResult<Q extends AnyObject, T extends TableMetadata> = Q extends { select: infer S }
+    ? S extends AnyObject
+      ? Record<S, T>
+      : void
+    : void;
 
-  export type DeleteOneResult<S extends AnyObject, T extends TableMetadata> = S extends never ? void : Record<S, T> | undefined;
+  export type DeleteOneResult<Q extends AnyObject, T extends TableMetadata> = Q extends { select: infer S }
+    ? S extends AnyObject
+      ? Record<S, T> | undefined
+      : void
+    : void;
 
-  export type UpdateManyResult<S extends AnyObject, T extends TableMetadata> = S extends never ? void : Record<S, T>[];
+  export type UpdateManyResult<Q extends AnyObject, T extends TableMetadata> = Q extends { select: infer S }
+    ? S extends AnyObject
+      ? Record<S, T>[]
+      : void
+    : void;
 
   export type InsertManyResult = void;
 
-  export type FindManyResult<S extends AnyObject, T extends TableMetadata, C extends boolean> = PaginationUtils.Result<T['engine']> &
-    (C extends true ? { records: Record<S, T>[]; total: number } : { records: Record<S, T>[] });
+  export type FindManyResult<Q extends AnyObject, T extends TableMetadata> = PaginationUtils.Result<T['engine']> &
+    (Q extends { select: AnyObject } ? { records: Record<Q['select'], T>[] } : {}) &
+    (Q extends { count: true } ? { total: number } : {});
 
-  export type DeleteManyResult<S extends AnyObject, T extends TableMetadata> = Record<S, T>[];
+  export type DeleteManyResult<Q extends AnyObject, T extends TableMetadata> = Q extends { select: infer S }
+    ? S extends AnyObject
+      ? Record<S, T>[]
+      : void
+    : void;
 
-  export type Record<S extends AnyObject, T extends TableMetadata> = S extends never
-    ? undefined
-    : PartialObject<SelectFields<T['schema'], T['relations']>, S>;
+  export type Record<S extends AnyObject, T extends TableMetadata> = PartialObject<SelectFields<T['schema'], T['relations']>, S>;
 
   export type SelectInput<T extends TableMetadata> = PartialProperties<SelectFields<T['schema'], T['relations']>>;
 
