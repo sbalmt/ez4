@@ -4,7 +4,7 @@ import type { PgMigrationQueries } from '../types/query.js';
 import { SqlBuilder } from '@ez4/pgsql';
 
 import { prepareCreateTable, prepareDeleteTable, prepareRenameTable } from '../common/tables.js';
-import { prepareCreateRelations, prepareDeleteRelations, prepareRenameRelations } from '../common/relations.js';
+import { prepareCreateRelations, prepareDeleteRelations, prepareRenameRelations, prepareUpdateRelations } from '../common/relations.js';
 import { prepareCreateColumns, prepareDeleteColumns, prepareRenameColumns, prepareUpdateColumns } from '../common/columns.js';
 import { prepareCreateIndexes, prepareDeleteIndexes, prepareRenameIndexes } from '../common/indexes.js';
 import { getTableRepositoryChanges } from '../utils/repository.js';
@@ -69,6 +69,7 @@ export const getUpdateQueries = (target: PgTableRepository, source: PgTableRepos
 
       const targetColumns = schema?.nested?.properties;
       const targetIndexes = target[table].indexes;
+      const targetRelations = target[table].relations;
       const targetSchema = target[table].schema;
 
       if (targetColumns?.create) {
@@ -77,6 +78,7 @@ export const getUpdateQueries = (target: PgTableRepository, source: PgTableRepos
 
       if (targetColumns?.nested) {
         queries.tables.push(...prepareUpdateColumns(builder, table, targetSchema, targetIndexes, targetColumns.nested));
+        queries.relations.push(...prepareUpdateRelations(builder, table, targetRelations, targetColumns.nested));
       }
 
       if (targetColumns?.rename) {

@@ -1,5 +1,6 @@
 import type { PgRelationRepository } from '@ez4/pgclient/library';
 import type { ObjectSchema } from '@ez4/schema';
+import type { AnyObject, ObjectComparison } from '@ez4/utils';
 import type { SqlBuilder } from '@ez4/pgsql';
 
 import { getTableName } from '@ez4/pgclient/library';
@@ -19,26 +20,53 @@ export const prepareCreateRelations = (builder: SqlBuilder, table: string, schem
       continue;
     }
 
-    const { sourceAlias, sourceColumn, targetColumn } = relation;
-    const { [targetColumn]: targetSchema } = schema.properties;
+    const { [relation.targetColumn]: targetSchema } = schema.properties;
 
     const relationName = getRelationName(table, targetAlias);
-    const sourceTable = getTableName(sourceAlias);
 
-    const query = builder.table(table).alter().existing().constraint(relationName).foreign(targetColumn, sourceTable, [sourceColumn]);
-
-    if (!IsNullishSchema(targetSchema)) {
-      query.delete().cascade();
-    } else {
-      query.delete().null();
-    }
-
-    query.update().cascade();
+    const targetRequired = !!IsNullishSchema(targetSchema);
 
     statements.push({
       check: getCheckConstraintQuery(builder, relationName),
-      query: query.build()
+      query: getCreateRelationQuery(builder, table, relationName, relation, targetRequired).build()
     });
+  }
+
+  return statements;
+};
+
+export const prepareUpdateRelations = (
+  builder: SqlBuilder,
+  table: string,
+  relations: PgRelationRepository,
+  changes: Record<string, ObjectComparison>
+) => {
+  const statements: any[] = [];
+
+  for (const targetAlias in relations) {
+    const relation = relations[targetAlias];
+
+    if (relation.targetIndex === Index.Primary) {
+      continue;
+    }
+
+    const targetUpdates = changes[relation.targetColumn]?.update;
+    const targetRequired = targetUpdates?.optional ?? targetUpdates?.nullable;
+
+    if (targetRequired === undefined) {
+      continue;
+    }
+
+    const relationName = getRelationName(table, targetAlias);
+
+    statements.push(
+      {
+        query: getDeleteRelationQuery(builder, table, relationName).build()
+      },
+      {
+        query: getCreateRelationQuery(builder, table, relationName, relation, targetRequired).build()
+      }
+    );
   }
 
   return statements;
@@ -78,14 +106,34 @@ export const prepareDeleteRelations = (builder: SqlBuilder, table: string, relat
       continue;
     }
 
-    const name = getRelationName(table, targetAlias);
-
-    const query = builder.table(table).alter().existing().constraint(name).drop().existing();
+    const relationName = getRelationName(table, targetAlias);
 
     statements.push({
-      query: query.build()
+      query: getDeleteRelationQuery(builder, table, relationName).build()
     });
   }
 
   return statements;
+};
+
+const getDeleteRelationQuery = (builder: SqlBuilder, table: string, name: string) => {
+  return builder.table(table).alter().existing().constraint(name).drop().existing();
+};
+
+const getCreateRelationQuery = (builder: SqlBuilder, table: string, name: string, relation: AnyObject, optional: boolean) => {
+  const { sourceAlias, sourceColumn, targetColumn } = relation;
+
+  const sourceTable = getTableName(sourceAlias);
+
+  const query = builder.table(table).alter().existing().constraint(name).foreign(targetColumn, sourceTable, [sourceColumn]);
+
+  if (!optional) {
+    query.delete().cascade();
+  } else {
+    query.delete().null();
+  }
+
+  query.update().cascade();
+
+  return query;
 };

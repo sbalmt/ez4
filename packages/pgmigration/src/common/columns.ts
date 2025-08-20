@@ -52,7 +52,7 @@ export const prepareUpdateColumns = (
     const columnIsPrimary = columnIndexType === Index.Primary;
 
     const columnDefault = nested?.definitions?.update?.default;
-    const columnRequired = update?.optional ?? update?.nullable;
+    const columnOptional = update?.optional ?? update?.nullable;
     const columnType = update?.type;
 
     const query = builder.table(table).alter().existing().column(columnName);
@@ -61,8 +61,8 @@ export const prepareUpdateColumns = (
       query.type(getColumnType(columnSchema, columnIsPrimary));
     }
 
-    if (columnRequired !== undefined) {
-      query.required(columnRequired);
+    if (columnOptional !== undefined) {
+      query.optional(columnOptional);
     }
 
     if (columnDefault !== undefined) {

@@ -19,6 +19,10 @@ export class SqlAlterColumnClause {
     };
   }
 
+  get nullable() {
+    return !this.#state.required;
+  }
+
   get name() {
     return this.#state.name;
   }
@@ -34,6 +38,11 @@ export class SqlAlterColumnClause {
 
   required(apply = true) {
     this.#state.required = apply;
+    return this;
+  }
+
+  optional(apply = true) {
+    this.#state.required = !apply;
     return this;
   }
 

@@ -16,7 +16,7 @@ describe('sql column tests', () => {
     query.add('foo', 'boolean').default('false');
     query.add('bar', 'integer').missing();
     query.add('baz', 'text').required();
-    query.add('qux', 'uuid');
+    query.add('qux', 'uuid').optional();
 
     const statement = query.build();
 
@@ -36,7 +36,7 @@ describe('sql column tests', () => {
     query.add('foo', 'boolean').default('true');
     query.add('baz', 'integer').required();
     query.add('bar', 'text').missing();
-    query.add('qux', 'uuid');
+    query.add('qux', 'uuid').optional();
 
     const statement = query.build();
 
@@ -80,7 +80,7 @@ describe('sql column tests', () => {
     const query = sql.table('table').alter();
 
     query.column('foo').required();
-    query.column('bar').required(false);
+    query.column('bar').optional();
     query.column('baz').required();
 
     const statement = query.build();

@@ -27,6 +27,10 @@ export class SqlAddColumnClause {
     return this.#state.check;
   }
 
+  get nullable() {
+    return !this.#state.required;
+  }
+
   get typing() {
     return this.#state.type;
   }
@@ -42,6 +46,11 @@ export class SqlAddColumnClause {
 
   required(apply = true) {
     this.#state.required = apply;
+    return this;
+  }
+
+  optional(apply = true) {
+    this.#state.required = !apply;
     return this;
   }
 
