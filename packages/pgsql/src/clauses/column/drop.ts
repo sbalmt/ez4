@@ -45,10 +45,10 @@ export class SqlDropColumnClause {
       return table.build();
     }
 
-    const clause = ['DROP COLUMN'];
+    const clause = ['DROP', 'COLUMN'];
 
     if (check) {
-      clause.push('IF EXISTS');
+      clause.push('IF', 'EXISTS');
     }
 
     clause.push(escapeSqlName(name));

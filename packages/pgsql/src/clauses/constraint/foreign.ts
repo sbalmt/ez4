@@ -67,25 +67,20 @@ export class SqlForeignKeyConstraintClause {
       return constraint.build();
     }
 
-    const clause = [
-      'ADD CONSTRAINT',
-      escapeSqlName(constraint.name),
-      'FOREIGN KEY',
-      `(${escapeSqlName(sourceColumn)})`,
-      'REFERENCES',
-      escapeSqlName(targetTable),
-      `(${escapeSqlNames(targetColumns)})`
-    ];
+    const clause = ['ADD', 'CONSTRAINT', escapeSqlName(constraint.name)];
+
+    clause.push('FOREIGN', 'KEY', `(${escapeSqlName(sourceColumn)})`);
+    clause.push('REFERENCES', escapeSqlName(targetTable), `(${escapeSqlNames(targetColumns)})`);
 
     const deleteAction = actions.delete?.build();
     const updateAction = actions.update?.build();
 
     if (deleteAction) {
-      clause.push('ON DELETE', deleteAction);
+      clause.push('ON', 'DELETE', deleteAction);
     }
 
     if (updateAction) {
-      clause.push('ON UPDATE', updateAction);
+      clause.push('ON', 'UPDATE', updateAction);
     }
 
     return clause.join(' ');

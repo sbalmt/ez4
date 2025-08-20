@@ -35,10 +35,10 @@ export class SqlDropTableClause {
   build() {
     const { table, cascade, check } = this.#state;
 
-    const statement = ['DROP TABLE'];
+    const statement = ['DROP', 'TABLE'];
 
     if (check) {
-      statement.push('IF EXISTS');
+      statement.push('IF', 'EXISTS');
     }
 
     statement.push(escapeSqlName(table.name));
