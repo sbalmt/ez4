@@ -32,15 +32,8 @@ export declare class TestDatabase extends Database.Service {
   };
 }
 
-export async function testHandler({ selfClient }: Service.Context<TestDatabase>) {
-  testSelect(selfClient);
-  testUpdate(selfClient);
-  testUpsert(selfClient);
-  testDelete(selfClient);
-}
-
-const testSelect = (client: TestDatabase['client']) => {
-  return client.table.findOne({
+export const testSelect = ({ selfClient }: Service.Context<TestDatabase>) => {
+  return selfClient.table.findOne({
     select: {},
     where: {
       unique_idx: 123
@@ -48,8 +41,8 @@ const testSelect = (client: TestDatabase['client']) => {
   });
 };
 
-const testUpdate = (client: TestDatabase['client']) => {
-  return client.table.updateOne({
+export const testUpdate = ({ selfClient }: Service.Context<TestDatabase>) => {
+  return selfClient.table.updateOne({
     data: {
       value: 123
     },
@@ -60,8 +53,8 @@ const testUpdate = (client: TestDatabase['client']) => {
   });
 };
 
-const testUpsert = (client: TestDatabase['client']) => {
-  return client.table.upsertOne({
+export const testUpsert = ({ selfClient }: Service.Context<TestDatabase>) => {
+  return selfClient.table.upsertOne({
     insert: {
       id: 'foo',
       value: 123,
@@ -78,8 +71,8 @@ const testUpsert = (client: TestDatabase['client']) => {
   });
 };
 
-const testDelete = (client: TestDatabase['client']) => {
-  return client.table.deleteOne({
+export const testDelete = ({ selfClient }: Service.Context<TestDatabase>) => {
+  return selfClient.table.deleteOne({
     where: {
       unique_idx_p1: 123,
       unique_idx_p2: 'foo'

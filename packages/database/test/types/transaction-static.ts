@@ -28,14 +28,8 @@ export declare class TestDatabase extends Database.Service {
   };
 }
 
-export async function testHandler({ selfClient }: Service.Context<TestDatabase>) {
-  testInsert(selfClient);
-  testUpdate(selfClient);
-  testDelete(selfClient);
-}
-
-const testInsert = (client: TestDatabase['client']) => {
-  return client.transaction({
+export const testInsert = ({ selfClient }: Service.Context<TestDatabase>) => {
+  return selfClient.transaction({
     table: [
       {
         insert: {
@@ -49,8 +43,8 @@ const testInsert = (client: TestDatabase['client']) => {
   });
 };
 
-const testUpdate = (client: TestDatabase['client']) => {
-  return client.transaction({
+export const testUpdate = ({ selfClient }: Service.Context<TestDatabase>) => {
+  return selfClient.transaction({
     table: [
       {
         update: {
@@ -66,8 +60,8 @@ const testUpdate = (client: TestDatabase['client']) => {
   });
 };
 
-const testDelete = (client: TestDatabase['client']) => {
-  return client.transaction({
+export const testDelete = ({ selfClient }: Service.Context<TestDatabase>) => {
+  return selfClient.transaction({
     table: [
       {
         delete: {
