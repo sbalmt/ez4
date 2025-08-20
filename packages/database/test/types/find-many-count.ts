@@ -38,12 +38,12 @@ export async function testFindMany({ selfClient }: Service.Context<TestDatabase>
   ((_records: { id: string }[]) => {})(outputA);
 
   // Find with count
-  const { records: outputB, total } = await selfClient.table.findMany({
+  const { records: outputB, total: totalB } = await selfClient.table.findMany({
     count: true,
     select: {
       id: true
     }
   });
 
-  ((_records: { id: string }[], _total: number) => {})(outputB, total);
+  ((_records: { id: string }[], _total: number) => {})(outputB, totalB);
 }

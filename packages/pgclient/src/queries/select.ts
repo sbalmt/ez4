@@ -22,7 +22,7 @@ export const prepareSelectQuery = <T extends InternalTableMetadata, S extends Qu
   table: string,
   schema: ObjectSchema,
   relations: RepositoryRelationsWithSchema,
-  query: Query.FindOneInput<S, T> | Query.FindManyInput<S, T, C>,
+  query: Query.FindOneInput<S, T> | Query.FindManyInput<S, C, T>,
   builder: SqlBuilder
 ): [string, SqlParameter[]] => {
   const selectQuery = builder.select(schema).from(table);

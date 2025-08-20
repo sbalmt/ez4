@@ -126,7 +126,7 @@ export const prepareFindMany = <T extends InternalTableMetadata, S extends Query
   schema: ObjectSchema,
   relations: RepositoryRelationsWithSchema,
   driver: PgClientDriver,
-  query: Query.FindManyInput<S, T, C>
+  query: Query.FindManyInput<S, C, T>
 ) => {
   const builder = createQueryBuilder(driver);
 

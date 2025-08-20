@@ -12,7 +12,7 @@ type PrepareResult = [string, unknown[]];
 export const prepareSelect = <T extends InternalTableMetadata, S extends Query.SelectInput<T>, C extends boolean>(
   table: string,
   index: string | undefined,
-  query: Query.FindOneInput<S, T> | Query.FindManyInput<S, T, C>
+  query: Query.FindOneInput<S, T> | Query.FindManyInput<S, C, T>
 ): PrepareResult => {
   const selectFields = getSelectFields(query.select);
 

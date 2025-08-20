@@ -69,11 +69,11 @@ export namespace Query {
   };
 
   export type FindManyInput<S extends AnyObject, C extends boolean, T extends TableMetadata> = PaginationUtils.Range<T['engine']> & {
-    count?: C;
     select: StrictSelectInput<S, T>;
     include?: StrictIncludeInput<S, T>;
     where?: WhereInput<T>;
     order?: OrderInput<T>;
+    count?: C;
   };
 
   export type DeleteManyInput<S extends AnyObject, T extends TableMetadata> = PaginationUtils.End<T['engine']> & {
@@ -103,9 +103,9 @@ export namespace Query {
 
   export type InsertManyResult = void;
 
-  export type FindManyResult<S extends AnyObject, C extends boolean, T extends TableMetadata> = PaginationUtils.Result<T['engine']> &
-    (Query.SelectInput<T> extends S ? {} : { records: Record<S, T>[] }) &
-    (C extends true ? { total: number } : {});
+  export type FindManyResult<S extends AnyObject, C extends boolean, T extends TableMetadata> = PaginationUtils.Result<T['engine']> & {
+    records: Query.SelectInput<T> extends S ? void : Record<S, T>[];
+  } & (false extends C ? {} : { total: number });
 
   export type DeleteManyResult<S extends AnyObject, T extends TableMetadata> = Query.SelectInput<T> extends S ? void : Record<S, T>[];
 
