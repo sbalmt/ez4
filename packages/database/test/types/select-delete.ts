@@ -30,9 +30,6 @@ export declare class TestDatabase extends Database.Service {
 export async function testDeleteOne({ selfClient }: Service.Context<TestDatabase>) {
   // Delete without select
   const resultA = await selfClient.table.deleteOne({
-    data: {
-      value: 123
-    },
     where: {
       id: 'foo'
     }
@@ -45,9 +42,6 @@ export async function testDeleteOne({ selfClient }: Service.Context<TestDatabase
     select: {
       id: true
     },
-    data: {
-      value: 123
-    },
     where: {
       id: 'foo'
     }
@@ -59,9 +53,6 @@ export async function testDeleteOne({ selfClient }: Service.Context<TestDatabase
 export async function testDeleteMany({ selfClient }: Service.Context<TestDatabase>) {
   // Delete without select
   const resultA = await selfClient.table.deleteMany({
-    data: {
-      value: 123
-    },
     where: {
       id: 'foo'
     }
@@ -73,9 +64,6 @@ export async function testDeleteMany({ selfClient }: Service.Context<TestDatabas
   const resultB = await selfClient.table.deleteMany({
     select: {
       id: true
-    },
-    data: {
-      value: 123
     },
     where: {
       id: 'foo'
