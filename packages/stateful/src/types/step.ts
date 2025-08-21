@@ -14,6 +14,16 @@ export type StepState = {
 };
 
 /**
+ * Options containing flags for the step.
+ */
+export type StepOptions = {
+  /**
+   * Determines whether the current action has the `force` option enabled.
+   */
+  force: boolean;
+};
+
+/**
  * Context containing helper methods for the step.
  */
 export type StepContext = {
@@ -69,9 +79,14 @@ export type StepHandler<E extends EntryState = EntryState> = {
    * Handle entry preview.
    * @param candidate Candidate entry.
    * @param current Current entry.
+   * @param options Action options.
    * @returns Must returns the comparison object from the preview action.
    */
-  preview: (candidate: Readonly<E>, current: Readonly<E>) => ObjectComparison | undefined | Promise<ObjectComparison | undefined>;
+  preview: (
+    candidate: Readonly<E>,
+    current: Readonly<E>,
+    options: StepOptions
+  ) => ObjectComparison | undefined | Promise<ObjectComparison | undefined>;
 
   /**
    * Handle entry updates.

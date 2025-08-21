@@ -1,5 +1,5 @@
 import type { EntryState, EntryStates } from '../types/entry.js';
-import type { StepState, StepHandlers } from '../types/step.js';
+import type { StepState, StepHandlers, StepOptions } from '../types/step.js';
 import type { HydratedEntryState } from '../types/hydrate.js';
 
 import { CorruptedStateReferences, HandlerNotFoundError, EntriesNotFoundError } from './errors.js';
@@ -8,6 +8,7 @@ import { StepAction } from './step.js';
 
 export type PlanOptions<E extends EntryState> = {
   handlers: StepHandlers<E>;
+  force?: boolean;
 };
 
 export const planSteps = async <E extends EntryState>(
@@ -30,6 +31,10 @@ export const planSteps = async <E extends EntryState>(
     const newEntryList = Object.values(newEntries).filter((entry) => !!entry);
     const handlers = options.handlers;
 
+    const stepOptions: StepOptions = {
+      force: !!options.force
+    };
+
     while (true) {
       const entries = findPendingChanges(newEntryList, newEntrySet);
 
@@ -37,7 +42,7 @@ export const planSteps = async <E extends EntryState>(
         break;
       }
 
-      const nextSteps = await planPendingChanges(entries, newEntrySet, oldEntries, handlers, actionOrder++);
+      const nextSteps = await planPendingChanges(entries, newEntrySet, oldEntries, handlers, actionOrder++, stepOptions);
 
       creationSteps.push(...nextSteps);
     }
@@ -94,7 +99,8 @@ const planPendingChanges = async <E extends EntryState<T>, T extends string>(
   visitSet: Set<string>,
   oldEntries: EntryStates<E> | undefined,
   handlers: StepHandlers<E>,
-  order: number
+  order: number,
+  options: StepOptions
 ) => {
   const stateList: StepState[] = [];
 
@@ -120,7 +126,7 @@ const planPendingChanges = async <E extends EntryState<T>, T extends string>(
       continue;
     }
 
-    const preview = await handler.preview(candidate, current);
+    const preview = await handler.preview(candidate, current, options);
 
     if (!handler.equals(candidate, current)) {
       stateList.push({ action: StepAction.Replace, entryId, order, preview });
