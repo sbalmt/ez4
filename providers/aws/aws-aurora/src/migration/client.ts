@@ -2,8 +2,8 @@ import type { PgMigrationStatement } from '@ez4/pgmigration/library';
 import type { PgTableRepository } from '@ez4/pgclient/library';
 import type { Arn } from '@ez4/aws-common';
 
-import { getCreateQueries, getDeleteQueries, getUpdateQueries } from '@ez4/pgmigration';
 import { prepareCreateDatabase, prepareDeleteDatabase } from '@ez4/pgmigration/library';
+import { getCreateQueries, getDeleteQueries, getUpdateQueries } from '@ez4/pgmigration';
 import { Logger } from '@ez4/aws-common';
 
 import { DataClientDriver } from '../client/driver.js';

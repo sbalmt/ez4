@@ -462,7 +462,24 @@ describe('migration :: create column tests', () => {
             `ADD COLUMN IF NOT EXISTS "nullable" text DEFAULT null`
         }
       ],
-      constraints: [],
+      constraints: [
+        {
+          check: `SELECT 1 FROM "pg_constraint" WHERE "conname" = 'table_column_ck'`,
+          query: `ALTER TABLE IF EXISTS "table" ADD CONSTRAINT "table_column_ck" CHECK (false)`
+        },
+        {
+          check: `SELECT 1 FROM "pg_constraint" WHERE "conname" = 'table_default_a_ck'`,
+          query: `ALTER TABLE IF EXISTS "table" ADD CONSTRAINT "table_default_a_ck" CHECK ("default_a" IN ('foo'))`
+        },
+        {
+          check: `SELECT 1 FROM "pg_constraint" WHERE "conname" = 'table_default_b_ck'`,
+          query: `ALTER TABLE IF EXISTS "table" ADD CONSTRAINT "table_default_b_ck" CHECK ("default_b" IN ('123'))`
+        },
+        {
+          check: `SELECT 1 FROM "pg_constraint" WHERE "conname" = 'table_nullable_ck'`,
+          query: `ALTER TABLE IF EXISTS "table" ADD CONSTRAINT "table_nullable_ck" CHECK (false)`
+        }
+      ],
       relations: [],
       indexes: []
     });

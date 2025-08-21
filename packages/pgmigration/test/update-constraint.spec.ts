@@ -22,7 +22,7 @@ describe('migration :: create update tests', () => {
     ]);
   };
 
-  it.only('assert :: update (with column type)', async () => {
+  it('assert :: update (with column type)', async () => {
     const sourceTable = getDatabaseTables({
       column: {
         type: SchemaType.Enum,

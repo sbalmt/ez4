@@ -43,50 +43,44 @@ export const prepareUpdateConstraints = (
     if (remove) {
       const schema = sourceSchema.properties[columnName];
 
-      if (!isEnumSchema(schema)) {
-        continue;
+      if (isEnumSchema(schema)) {
+        const name = getConstraintName(table, columnName);
+
+        statements.push({
+          query: getDeleteConstraintQuery(builder, table, name).build()
+        });
       }
-
-      const name = getConstraintName(table, columnName);
-
-      statements.push({
-        query: getDeleteConstraintQuery(builder, table, name).build()
-      });
     }
 
     if (update) {
       const source = sourceSchema.properties[columnName];
       const target = targetSchema.properties[columnName];
 
-      if (!isEnumSchema(source) || !isEnumSchema(target)) {
-        continue;
+      if (isEnumSchema(source) && isEnumSchema(target)) {
+        const name = getConstraintName(table, columnName);
+
+        statements.push(
+          {
+            query: getDeleteConstraintQuery(builder, table, name).build()
+          },
+          {
+            query: getCreateConstraintQuery(builder, table, name, columnName, target.options).build()
+          }
+        );
       }
-
-      const name = getConstraintName(table, columnName);
-
-      statements.push(
-        {
-          query: getDeleteConstraintQuery(builder, table, name).build()
-        },
-        {
-          query: getCreateConstraintQuery(builder, table, name, columnName, target.options).build()
-        }
-      );
     }
 
     if (create) {
       const schema = targetSchema.properties[columnName];
 
-      if (!isEnumSchema(schema)) {
-        continue;
+      if (isEnumSchema(schema)) {
+        const name = getConstraintName(table, columnName);
+
+        statements.push({
+          check: getCheckConstraintQuery(builder, name),
+          query: getCreateConstraintQuery(builder, table, name, columnName, schema.options).build()
+        });
       }
-
-      const name = getConstraintName(table, columnName);
-
-      statements.push({
-        check: getCheckConstraintQuery(builder, name),
-        query: getCreateConstraintQuery(builder, table, name, columnName, schema.options).build()
-      });
     }
   }
 

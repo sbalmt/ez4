@@ -3,8 +3,8 @@ import type { ObjectSchemaProperties } from '@ez4/schema';
 import { describe, it } from 'node:test';
 import { deepEqual } from 'assert/strict';
 
-import { getCreateQueries, getUpdateQueries } from '@ez4/pgmigration';
 import { getTableRepository } from '@ez4/pgclient/library';
+import { getCreateQueries, getUpdateQueries } from '@ez4/pgmigration';
 import { SchemaType } from '@ez4/schema';
 
 describe('migration :: create constraint tests', () => {

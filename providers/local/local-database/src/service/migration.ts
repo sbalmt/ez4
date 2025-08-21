@@ -39,7 +39,7 @@ export const ensureMigration = async (connection: ClientConnection, repository: 
 
   const queries = getUpdateQueries(repository, currentRepository);
 
-  const allQueries = [...queries.tables, ...queries.indexes, ...queries.relations];
+  const allQueries = [...queries.tables, ...queries.constraints, ...queries.relations, ...queries.indexes];
 
   await client.transaction(async (transaction: MigrationClient) => {
     for (const query of allQueries) {

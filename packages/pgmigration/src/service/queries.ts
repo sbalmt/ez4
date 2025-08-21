@@ -88,6 +88,7 @@ export const getUpdateQueries = (target: PgTableRepository, source: PgTableRepos
 
       if (targetColumns?.create) {
         queries.tables.push(prepareCreateColumns(builder, table, targetIndexes, targetColumns.create));
+        queries.constraints.push(...prepareCreateConstraints(builder, table, targetColumns.create));
       }
 
       if (targetColumns?.nested) {
