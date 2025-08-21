@@ -16,8 +16,8 @@ export const destroyCommand = async (project: ProjectOptions) => {
   const options: DestroyOptions = {
     resourcePrefix: project.prefix ?? 'ez4',
     projectName: toKebabCase(project.projectName),
-    force: project.forceMode,
-    debug: project.debugMode
+    debug: project.debugMode,
+    force: project.forceMode
   };
 
   if (options.force) {

@@ -26,7 +26,7 @@ export const ensureDatabase = async (connection: ClientConnection) => {
   await runMigrationStatement(client, query);
 };
 
-export const ensureMigration = async (connection: ClientConnection, repository: PgTableRepository) => {
+export const ensureMigration = async (connection: ClientConnection, repository: PgTableRepository, force?: boolean) => {
   const { database } = connection;
 
   const client: MigrationClient = await Client.make({
@@ -35,9 +35,9 @@ export const ensureMigration = async (connection: ClientConnection, repository: 
     connection
   });
 
-  const currentRepository = await loadRepositoryState(database);
+  const oldRepository = force ? {} : await loadRepositoryState(database);
 
-  const queries = getUpdateQueries(repository, currentRepository);
+  const queries = getUpdateQueries(repository, oldRepository);
 
   const allQueries = [...queries.tables, ...queries.constraints, ...queries.relations, ...queries.indexes];
 

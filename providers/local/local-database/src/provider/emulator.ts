@@ -32,7 +32,7 @@ const runDatabaseMigration = async (service: DatabaseService, options: ServeOpti
 
     await ensureDatabase(connection);
 
-    await ensureMigration(connection, repository);
+    await ensureMigration(connection, repository, options.force);
   }
 };
 
