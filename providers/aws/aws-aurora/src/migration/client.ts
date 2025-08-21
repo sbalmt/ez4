@@ -57,7 +57,7 @@ export const createTables = async (request: CreateTableRequest): Promise<void> =
 
   const queries = getCreateQueries(repository);
 
-  await executeMigrationTransaction(driver, [...queries.tables, ...queries.indexes, ...queries.relations]);
+  await executeMigrationTransaction(driver, [...queries.tables, ...queries.constraints, ...queries.relations, ...queries.indexes]);
 };
 
 export const updateTables = async (request: UpdateTableRequest): Promise<void> => {
@@ -73,7 +73,7 @@ export const updateTables = async (request: UpdateTableRequest): Promise<void> =
 
   const queries = getUpdateQueries(repository.target, repository.source);
 
-  await executeMigrationTransaction(driver, [...queries.tables, ...queries.relations]);
+  await executeMigrationTransaction(driver, [...queries.tables, ...queries.relations, ...queries.constraints]);
   await executeMigrationStatements(driver, queries.indexes);
 };
 

@@ -1,4 +1,4 @@
-import type { StepContext, StepHandler } from '@ez4/stateful';
+import type { StepContext, StepHandler, StepOptions } from '@ez4/stateful';
 import type { MigrationState, MigrationResult } from './types.js';
 
 import { getTableRepositoryChanges } from '@ez4/pgmigration/library';
@@ -22,11 +22,11 @@ const equalsResource = (candidate: MigrationState, current: MigrationState) => {
   return !!candidate.result && candidate.result.clusterArn === current.result?.clusterArn;
 };
 
-const previewResource = async (candidate: MigrationState, current: MigrationState) => {
+const previewResource = async (candidate: MigrationState, current: MigrationState, options: StepOptions) => {
   const target = { ...candidate.parameters, dependencies: candidate.dependencies };
   const source = { ...current.parameters, dependencies: current.dependencies };
 
-  const databaseChanges = getTableRepositoryChanges(target.repository, source.repository);
+  const databaseChanges = getTableRepositoryChanges(target.repository, options.force ? {} : source.repository);
 
   const resourceChanges = deepCompare(target, source, {
     exclude: {
@@ -73,14 +73,17 @@ const createResource = async (candidate: MigrationState, context: StepContext): 
   };
 };
 
-const updateResource = async (candidate: MigrationState, current: MigrationState) => {
+const updateResource = async (candidate: MigrationState, current: MigrationState, context: StepContext) => {
   const { result, parameters } = candidate;
 
   if (!result) {
     return;
   }
 
-  const databaseChanges = getTableRepositoryChanges(parameters.repository, current.parameters.repository);
+  const targetRepository = parameters.repository;
+  const sourceRepository = context.force ? {} : current.parameters.repository;
+
+  const databaseChanges = getTableRepositoryChanges(targetRepository, sourceRepository);
 
   if (!databaseChanges.counts) {
     return;
