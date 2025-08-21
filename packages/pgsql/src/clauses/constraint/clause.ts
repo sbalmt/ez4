@@ -1,3 +1,4 @@
+import type { SqlFilters } from '../../common/types.js';
 import type { SqlAlterTableClause } from '../table/alter.js';
 
 import { MissingClauseError } from '../errors.js';
@@ -6,6 +7,7 @@ import { SqlForeignKeyConstraintClause } from './foreign.js';
 import { SqlUniqueConstraintClause } from './unique.js';
 import { SqlRenameConstraintClause } from './rename.js';
 import { SqlDropConstraintClause } from './drop.js';
+import { SqlCheckConstraintClause } from './check.js';
 
 export class SqlConstraintClause {
   #state: {
@@ -16,6 +18,7 @@ export class SqlConstraintClause {
       | SqlPrimaryKeyConstraintClause
       | SqlForeignKeyConstraintClause
       | SqlUniqueConstraintClause
+      | SqlCheckConstraintClause
       | SqlRenameConstraintClause
       | SqlDropConstraintClause;
   };
@@ -67,6 +70,18 @@ export class SqlConstraintClause {
     }
 
     return this.#state.clause as SqlUniqueConstraintClause;
+  }
+
+  check(filters: SqlFilters) {
+    const { clause } = this.#state;
+
+    if (!(clause instanceof SqlCheckConstraintClause)) {
+      this.#state.clause = new SqlCheckConstraintClause(this);
+    }
+
+    (this.#state.clause as SqlCheckConstraintClause).apply(filters);
+
+    return this.#state.clause as SqlCheckConstraintClause;
   }
 
   rename(name: string) {

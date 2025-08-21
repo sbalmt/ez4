@@ -69,6 +69,32 @@ describe('sql table constraint tests', () => {
     );
   });
 
+  it('assert :: alter table (add check constraint)', () => {
+    const query = sql.table('table').alter();
+
+    query.constraint('foo').check({
+      column: {
+        isIn: ['a', 'b', 'c']
+      }
+    });
+
+    query.constraint('baz').check({
+      column: {
+        gt: 0,
+        lt: 100
+      }
+    });
+
+    const statement = query.build();
+
+    equal(
+      statement,
+      `ALTER TABLE "table" ` +
+        `ADD CONSTRAINT "foo" CHECK ("column" IN ('a', 'b', 'c')), ` +
+        `ADD CONSTRAINT "baz" CHECK (("column" > 0 AND "column" < 100))`
+    );
+  });
+
   it('assert :: alter table (rename constraints)', () => {
     const query = sql.table('table').alter().constraint('foo').rename('bar');
 

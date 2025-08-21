@@ -5,6 +5,7 @@ import { SchemaType } from '@ez4/schema';
 
 import { SqlColumnReference } from '../common/reference.js';
 import { SqlRawValue } from '../common/raw.js';
+import { escapeSqlData } from '../main.js';
 
 export const getOperandValue = (schema: AnySchema | undefined, operand: unknown, context: SqlOperationContext, encode?: boolean) => {
   const { source, variables, references, options, parent } = context;
@@ -15,6 +16,10 @@ export const getOperandValue = (schema: AnySchema | undefined, operand: unknown,
 
   if (operand instanceof SqlRawValue) {
     return operand.build(source);
+  }
+
+  if (!references) {
+    return escapeSqlData(operand);
   }
 
   const index = references.counter++;

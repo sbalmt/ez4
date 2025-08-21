@@ -29,13 +29,18 @@ import { InvalidOperandError, MissingOperatorError } from './errors.js';
 
 export class SqlConditions {
   #state: {
-    source: SqlSource;
+    source?: SqlSource;
+    references?: SqlBuilderReferences;
     options: SqlBuilderOptions;
-    references: SqlBuilderReferences;
     filters: SqlFilters;
   };
 
-  constructor(source: SqlSource, references: SqlBuilderReferences, options: SqlBuilderOptions, filters: SqlFilters = {}) {
+  constructor(
+    source: SqlSource | undefined,
+    references: SqlBuilderReferences | undefined,
+    options: SqlBuilderOptions,
+    filters: SqlFilters = {}
+  ) {
     this.#state = {
       source,
       references,
@@ -50,7 +55,6 @@ export class SqlConditions {
 
   apply(filters: SqlFilters) {
     this.#state.filters = filters;
-
     return this;
   }
 
@@ -64,7 +68,7 @@ export class SqlConditions {
       source
     };
 
-    const operations = getFilterOperations(filters, source.schema, context);
+    const operations = getFilterOperations(filters, source?.schema, context);
 
     if (operations.length) {
       return [operations.join(' AND '), context.variables];
@@ -112,7 +116,7 @@ const getFieldOperation = (
 
     default: {
       const columnName = mergeSqlPath(field, parent);
-      const columnPath = parent ? columnName : mergeSqlAlias(columnName, source.alias);
+      const columnPath = parent ? columnName : mergeSqlAlias(columnName, source?.alias);
 
       if (value === null) {
         return getIsNullOperation(columnPath, true);

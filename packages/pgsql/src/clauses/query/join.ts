@@ -45,13 +45,11 @@ export class SqlJoin extends SqlSource {
 
   as(alias: string | undefined) {
     this.#state.alias = alias;
-
     return this;
   }
 
   on(filters: SqlFilters) {
     this.#state.on.apply(filters);
-
     return this;
   }
 

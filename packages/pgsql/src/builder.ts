@@ -9,6 +9,7 @@ import { SqlInsertStatement } from './statements/insert.js';
 import { SqlUpdateStatement } from './statements/update.js';
 import { SqlDeleteStatement } from './statements/delete.js';
 import { SqlWithClause } from './clauses/query/with.js';
+import { escapeSqlText } from './utils/escape.js';
 
 export type SqlBuilderReferences = {
   counter: number;
@@ -57,7 +58,7 @@ export class SqlBuilder {
   }
 
   rawString(value: string) {
-    return new SqlRawValue(`'${value.replaceAll(/'/g, `\\'`)}'`);
+    return new SqlRawValue(escapeSqlText(value));
   }
 
   rawOperation(operator: string, value: unknown | SqlRawGenerator) {
@@ -66,7 +67,6 @@ export class SqlBuilder {
 
   reset() {
     this.#references.counter = 0;
-
     return this;
   }
 
