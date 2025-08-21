@@ -33,10 +33,10 @@ export type IsObject<T> =
 export type Incomplete<T extends AnyObject> = { [P in keyof T]?: T[P] | null };
 
 /**
- * Given a complex object type `T`, it produces a new object type resolving its all first-level
+ * Given a complex object type `T`, it produces a new object type resolving all its first-level
  * property names.
  */
-export type Prettify<T extends AnyObject> = { [K in keyof T]: T[K] } & unknown;
+export type Prettify<T extends AnyObject> = { [P in keyof T]: T[P] } & unknown;
 
 /**
  * Given a type `T` and a property `P`, it returns `true` when the property exists,
