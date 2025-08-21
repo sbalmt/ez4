@@ -59,14 +59,14 @@ describe('migration :: create table tests', () => {
             `)`
         }
       ],
-      indexes: [
+      constraints: [
         {
           check: `SELECT 1 FROM "pg_constraint" WHERE "conname" = 'table_id_pk'`,
           query: `ALTER TABLE IF EXISTS "table" ADD CONSTRAINT "table_id_pk" PRIMARY KEY ("id")`
         }
       ],
-      constraints: [],
-      relations: []
+      relations: [],
+      indexes: []
     });
   });
 
@@ -104,14 +104,14 @@ describe('migration :: create table tests', () => {
             `)`
         }
       ],
-      indexes: [
+      constraints: [
         {
           check: `SELECT 1 FROM "pg_constraint" WHERE "conname" = 'table_id_pk'`,
           query: `ALTER TABLE IF EXISTS "table" ADD CONSTRAINT "table_id_pk" PRIMARY KEY ("id")`
         }
       ],
-      constraints: [],
-      relations: []
+      relations: [],
+      indexes: []
     });
   });
 
@@ -149,14 +149,14 @@ describe('migration :: create table tests', () => {
             `)`
         }
       ],
-      indexes: [
+      constraints: [
         {
           check: `SELECT 1 FROM "pg_constraint" WHERE "conname" = 'table_id_pk'`,
           query: `ALTER TABLE IF EXISTS "table" ADD CONSTRAINT "table_id_pk" PRIMARY KEY ("id")`
         }
       ],
-      constraints: [],
-      relations: []
+      relations: [],
+      indexes: []
     });
   });
 
@@ -191,14 +191,14 @@ describe('migration :: create table tests', () => {
             `)`
         }
       ],
-      indexes: [
+      constraints: [
         {
           check: `SELECT 1 FROM "pg_constraint" WHERE "conname" = 'table_id_pk'`,
           query: `ALTER TABLE IF EXISTS "table" ADD CONSTRAINT "table_id_pk" PRIMARY KEY ("id")`
         }
       ],
-      constraints: [],
-      relations: []
+      relations: [],
+      indexes: []
     });
   });
 
@@ -240,14 +240,14 @@ describe('migration :: create table tests', () => {
             `)`
         }
       ],
-      indexes: [
+      constraints: [
         {
           check: `SELECT 1 FROM "pg_constraint" WHERE "conname" = 'table_id_pk'`,
           query: `ALTER TABLE IF EXISTS "table" ADD CONSTRAINT "table_id_pk" PRIMARY KEY ("id")`
         }
       ],
-      constraints: [],
-      relations: []
+      relations: [],
+      indexes: []
     });
   });
 
@@ -285,14 +285,14 @@ describe('migration :: create table tests', () => {
             `)`
         }
       ],
-      indexes: [
+      constraints: [
         {
           check: `SELECT 1 FROM "pg_constraint" WHERE "conname" = 'table_id_pk'`,
           query: `ALTER TABLE IF EXISTS "table" ADD CONSTRAINT "table_id_pk" PRIMARY KEY ("id")`
         }
       ],
-      constraints: [],
-      relations: []
+      relations: [],
+      indexes: []
     });
   });
 
@@ -330,14 +330,14 @@ describe('migration :: create table tests', () => {
             `)`
         }
       ],
-      indexes: [
+      constraints: [
         {
           check: `SELECT 1 FROM "pg_constraint" WHERE "conname" = 'table_id_pk'`,
           query: `ALTER TABLE IF EXISTS "table" ADD CONSTRAINT "table_id_pk" PRIMARY KEY ("id")`
         }
       ],
-      constraints: [],
-      relations: []
+      relations: [],
+      indexes: []
     });
   });
 
@@ -375,14 +375,14 @@ describe('migration :: create table tests', () => {
             `)`
         }
       ],
-      indexes: [
+      constraints: [
         {
           check: `SELECT 1 FROM "pg_constraint" WHERE "conname" = 'table_id_pk'`,
           query: `ALTER TABLE IF EXISTS "table" ADD CONSTRAINT "table_id_pk" PRIMARY KEY ("id")`
         }
       ],
-      constraints: [],
-      relations: []
+      relations: [],
+      indexes: []
     });
   });
 
@@ -420,14 +420,14 @@ describe('migration :: create table tests', () => {
             `)`
         }
       ],
-      indexes: [
+      constraints: [
         {
           check: `SELECT 1 FROM "pg_constraint" WHERE "conname" = 'table_id_pk'`,
           query: `ALTER TABLE IF EXISTS "table" ADD CONSTRAINT "table_id_pk" PRIMARY KEY ("id")`
         }
       ],
-      constraints: [],
-      relations: []
+      relations: [],
+      indexes: []
     });
   });
 
@@ -481,13 +481,12 @@ describe('migration :: create table tests', () => {
             `)`
         }
       ],
-      indexes: [
+
+      constraints: [
         {
           check: `SELECT 1 FROM "pg_constraint" WHERE "conname" = 'table_id_pk'`,
           query: `ALTER TABLE IF EXISTS "table" ADD CONSTRAINT "table_id_pk" PRIMARY KEY ("id")`
-        }
-      ],
-      constraints: [
+        },
         {
           check: `SELECT 1 FROM "pg_constraint" WHERE "conname" = 'table_id_ck'`,
           query: `ALTER TABLE IF EXISTS "table" ADD CONSTRAINT "table_id_ck" CHECK (false)`
@@ -505,7 +504,8 @@ describe('migration :: create table tests', () => {
           query: `ALTER TABLE IF EXISTS "table" ADD CONSTRAINT "table_nullable_ck" CHECK (false)`
         }
       ],
-      relations: []
+      relations: [],
+      indexes: []
     });
   });
 
@@ -547,14 +547,14 @@ describe('migration :: create table tests', () => {
             `)`
         }
       ],
-      indexes: [
+      constraints: [
         {
           check: `SELECT 1 FROM "pg_constraint" WHERE "conname" = 'table_id_pk'`,
           query: `ALTER TABLE IF EXISTS "table" ADD CONSTRAINT "table_id_pk" PRIMARY KEY ("id")`
         }
       ],
-      constraints: [],
-      relations: []
+      relations: [],
+      indexes: []
     });
   });
 
@@ -598,14 +598,14 @@ describe('migration :: create table tests', () => {
             `)`
         }
       ],
-      indexes: [
+      constraints: [
         {
           check: `SELECT 1 FROM "pg_constraint" WHERE "conname" = 'table_id_pk'`,
           query: `ALTER TABLE IF EXISTS "table" ADD CONSTRAINT "table_id_pk" PRIMARY KEY ("id")`
         }
       ],
-      constraints: [],
-      relations: []
+      relations: [],
+      indexes: []
     });
   });
 
@@ -650,14 +650,14 @@ describe('migration :: create table tests', () => {
             `)`
         }
       ],
-      indexes: [
+      constraints: [
         {
           check: `SELECT 1 FROM "pg_constraint" WHERE "conname" = 'table_id_pk'`,
           query: `ALTER TABLE IF EXISTS "table" ADD CONSTRAINT "table_id_pk" PRIMARY KEY ("id")`
         }
       ],
-      constraints: [],
-      relations: []
+      relations: [],
+      indexes: []
     });
   });
 });

@@ -59,13 +59,13 @@ describe('migration :: create index tests', () => {
     const queries = getUpdateQueries(targetTable, sourceTable);
 
     deepEqual(queries, {
-      indexes: [
+      constraints: [
         {
           check: `SELECT 1 FROM "pg_constraint" WHERE "conname" = 'table_index_pk'`,
           query: `ALTER TABLE IF EXISTS "table" ADD CONSTRAINT "table_index_pk" PRIMARY KEY ("column")`
         }
       ],
-      constraints: [],
+      indexes: [],
       relations: [],
       tables: []
     });
@@ -85,13 +85,13 @@ describe('migration :: create index tests', () => {
     const queries = getUpdateQueries(targetTable, sourceTable);
 
     deepEqual(queries, {
-      indexes: [
+      constraints: [
         {
           check: `SELECT 1 FROM "pg_constraint" WHERE "conname" = 'table_index_uk'`,
           query: `ALTER TABLE IF EXISTS "table" ADD CONSTRAINT "table_index_uk" UNIQUE ("column")`
         }
       ],
-      constraints: [],
+      indexes: [],
       relations: [],
       tables: []
     });
@@ -136,13 +136,13 @@ describe('migration :: create index tests', () => {
     const queries = getUpdateQueries(targetTable, sourceTable);
 
     deepEqual(queries, {
-      indexes: [
+      constraints: [
         {
           check: `SELECT 1 FROM "pg_constraint" WHERE "conname" = 'table_index_pk'`,
           query: `ALTER TABLE IF EXISTS "table" ADD CONSTRAINT "table_index_pk" PRIMARY KEY ("column_a", "column_b")`
         }
       ],
-      constraints: [],
+      indexes: [],
       relations: [],
       tables: []
     });
@@ -162,13 +162,13 @@ describe('migration :: create index tests', () => {
     const queries = getUpdateQueries(targetTable, sourceTable);
 
     deepEqual(queries, {
-      indexes: [
+      constraints: [
         {
           check: `SELECT 1 FROM "pg_constraint" WHERE "conname" = 'table_index_uk'`,
           query: `ALTER TABLE IF EXISTS "table" ADD CONSTRAINT "table_index_uk" UNIQUE ("column_a", "column_b")`
         }
       ],
-      constraints: [],
+      indexes: [],
       relations: [],
       tables: []
     });

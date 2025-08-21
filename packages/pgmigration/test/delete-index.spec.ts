@@ -40,12 +40,12 @@ describe('migration :: delete index tests', () => {
     const queries = getUpdateQueries(targetTable, sourceTable);
 
     deepEqual(queries, {
-      indexes: [
+      constraints: [
         {
           query: `ALTER TABLE IF EXISTS "table" DROP CONSTRAINT IF EXISTS "table_index_pk"`
         }
       ],
-      constraints: [],
+      indexes: [],
       relations: [],
       tables: []
     });
@@ -65,12 +65,12 @@ describe('migration :: delete index tests', () => {
     const queries = getUpdateQueries(targetTable, sourceTable);
 
     deepEqual(queries, {
-      indexes: [
+      constraints: [
         {
           query: `ALTER TABLE IF EXISTS "table" DROP CONSTRAINT IF EXISTS "table_index_uk"`
         }
       ],
-      constraints: [],
+      indexes: [],
       relations: [],
       tables: []
     });

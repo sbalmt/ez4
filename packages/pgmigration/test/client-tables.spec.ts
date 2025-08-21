@@ -108,7 +108,7 @@ describe('migration :: client tables tests', async () => {
   it('assert :: create tables', async () => {
     const queries = getCreateQueries(repositoryV1);
 
-    await runMigration(client, [...queries.tables, ...queries.indexes, ...queries.relations]);
+    await runMigration(client, queries);
 
     const result = await Promise.all([
       tableExists(client, 'table_a'),
@@ -123,7 +123,7 @@ describe('migration :: client tables tests', async () => {
   it('assert :: update tables', async () => {
     const queries = getUpdateQueries(repositoryV2, repositoryV1);
 
-    await runMigration(client, [...queries.tables, ...queries.indexes, ...queries.relations]);
+    await runMigration(client, queries);
 
     const result = await Promise.all([
       tableExists(client, 'table_a'),
@@ -138,7 +138,7 @@ describe('migration :: client tables tests', async () => {
   it('assert :: rename tables', async () => {
     const queries = getUpdateQueries(repositoryV3, repositoryV2);
 
-    await runMigration(client, [...queries.tables, ...queries.indexes, ...queries.relations]);
+    await runMigration(client, queries);
 
     const result = await Promise.all([
       tableExists(client, 'table_a'),
@@ -166,7 +166,7 @@ describe('migration :: client tables tests', async () => {
   it('assert :: extra tables', async () => {
     const queries = getUpdateQueries(repositoryV4, repositoryV3);
 
-    await runMigration(client, [...queries.tables, ...queries.indexes, ...queries.relations]);
+    await runMigration(client, queries);
 
     const result = await Promise.all([
       tableExists(client, 'renamed_table_a'),
@@ -190,7 +190,7 @@ describe('migration :: client tables tests', async () => {
   it('assert :: delete tables', async () => {
     const queries = getDeleteQueries(repositoryV4);
 
-    await runMigration(client, [...queries.tables, ...queries.indexes, ...queries.relations]);
+    await runMigration(client, queries);
 
     const result = await Promise.all([
       tableExists(client, 'renamed_table_a'),

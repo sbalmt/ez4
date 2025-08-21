@@ -29,10 +29,11 @@ export const getCreateQueries = (target: PgTableRepository) => {
   for (const table in target) {
     const { name, schema, indexes, relations } = target[table];
 
+    combineMigrationQueries(queries, prepareCreateIndexes(builder, name, schema, indexes, false));
+
     queries.tables.push(prepareCreateTable(builder, name, schema, indexes));
     queries.constraints.push(...prepareCreateConstraints(builder, name, schema.properties));
     queries.relations.push(...prepareCreateRelations(builder, name, schema, relations));
-    queries.indexes.push(...prepareCreateIndexes(builder, name, schema, indexes, false));
   }
 
   return queries;
@@ -62,7 +63,8 @@ export const getUpdateQueries = (target: PgTableRepository, source: PgTableRepos
       const targetRelations = target[toTable].relations;
       const targetSchema = target[toTable].schema;
 
-      queries.indexes.push(...prepareRenameIndexes(builder, fromTable, toTable, targetIndexes));
+      combineMigrationQueries(queries, prepareRenameIndexes(builder, fromTable, toTable, targetIndexes));
+
       queries.constraints.push(...prepareRenameConstraints(builder, fromTable, toTable, targetSchema.properties));
       queries.relations.push(...prepareRenameRelations(builder, fromTable, toTable, targetRelations));
       queries.tables.push(prepareRenameTable(builder, fromTable, toTable));
@@ -108,11 +110,11 @@ export const getUpdateQueries = (target: PgTableRepository, source: PgTableRepos
       }
 
       if (indexChanges?.create) {
-        queries.indexes.push(...prepareCreateIndexes(builder, table, targetSchema, indexChanges.create, true));
+        combineMigrationQueries(queries, prepareCreateIndexes(builder, table, targetSchema, indexChanges.create, true));
       }
 
       if (indexChanges?.remove) {
-        queries.indexes.push(...prepareDeleteIndexes(builder, table, indexChanges.remove));
+        combineMigrationQueries(queries, prepareDeleteIndexes(builder, table, indexChanges.remove));
       }
 
       if (relationChanges?.create) {
@@ -151,9 +153,20 @@ export const getDeleteQueries = (target: PgTableRepository) => {
   return queries;
 };
 
-const combineMigrationQueries = (target: PgMigrationQueries, source: PgMigrationQueries) => {
-  target.indexes.push(...source.indexes);
-  target.constraints.push(...source.constraints);
-  target.relations.push(...source.relations);
-  target.tables.push(...source.tables);
+const combineMigrationQueries = (target: PgMigrationQueries, source: Partial<PgMigrationQueries>) => {
+  if (source.indexes) {
+    target.indexes.push(...source.indexes);
+  }
+
+  if (source.constraints) {
+    target.constraints.push(...source.constraints);
+  }
+
+  if (source.relations) {
+    target.relations.push(...source.relations);
+  }
+
+  if (source.tables) {
+    target.tables.push(...source.tables);
+  }
 };

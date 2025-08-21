@@ -1,12 +1,15 @@
 import type { PgIndexRepository } from '@ez4/pgclient/library';
 import type { ObjectSchema } from '@ez4/schema';
 import type { SqlBuilder } from '@ez4/pgsql';
+import type { PgMigrationQueries } from '../types/query.js';
 
 import { SchemaType } from '@ez4/schema';
 import { Index } from '@ez4/database';
 
 import { getPrimaryKeyName, getSecondaryKeyName, getUniqueKeyName } from '../utils/naming.js';
 import { getCheckConstraintQuery } from '../utils/checks.js';
+
+type IndexQueries = Pick<PgMigrationQueries, 'constraints' | 'indexes'>;
 
 export const prepareCreateIndexes = (
   builder: SqlBuilder,
@@ -15,7 +18,10 @@ export const prepareCreateIndexes = (
   indexes: PgIndexRepository,
   concurrent: boolean
 ) => {
-  const statements = [];
+  const statements: IndexQueries = {
+    constraints: [],
+    indexes: []
+  };
 
   for (const indexName in indexes) {
     const { columns, type } = indexes[indexName];
@@ -29,7 +35,7 @@ export const prepareCreateIndexes = (
 
         const query = builder.table(table).alter().existing().constraint(name).primary(columns);
 
-        statements.push({
+        statements.constraints.push({
           check: getCheckConstraintQuery(builder, name),
           query: query.build()
         });
@@ -42,7 +48,7 @@ export const prepareCreateIndexes = (
 
         const query = builder.table(table).alter().existing().constraint(name).unique(columns);
 
-        statements.push({
+        statements.constraints.push({
           check: getCheckConstraintQuery(builder, name),
           query: query.build()
         });
@@ -60,7 +66,7 @@ export const prepareCreateIndexes = (
           query.concurrent();
         }
 
-        statements.push({
+        statements.indexes.push({
           query: query.build()
         });
 
@@ -73,7 +79,10 @@ export const prepareCreateIndexes = (
 };
 
 export const prepareRenameIndexes = (builder: SqlBuilder, fromTable: string, toTable: string, indexes: PgIndexRepository) => {
-  const statements = [];
+  const statements: IndexQueries = {
+    constraints: [],
+    indexes: []
+  };
 
   for (const indexName in indexes) {
     const { type } = indexes[indexName];
@@ -88,7 +97,7 @@ export const prepareRenameIndexes = (builder: SqlBuilder, fromTable: string, toT
 
         const query = builder.table(toTable).alter().existing().constraint(fromName).rename(toName);
 
-        statements.push({
+        statements.constraints.push({
           check: getCheckConstraintQuery(builder, toName),
           query: query.build()
         });
@@ -102,7 +111,7 @@ export const prepareRenameIndexes = (builder: SqlBuilder, fromTable: string, toT
 
         const query = builder.table(toTable).alter().existing().constraint(fromName).rename(toName);
 
-        statements.push({
+        statements.constraints.push({
           check: getCheckConstraintQuery(builder, toName),
           query: query.build()
         });
@@ -116,7 +125,7 @@ export const prepareRenameIndexes = (builder: SqlBuilder, fromTable: string, toT
 
         const query = builder.index(fromName).rename(toName).existing();
 
-        statements.push({
+        statements.indexes.push({
           query: query.build()
         });
 
@@ -129,7 +138,10 @@ export const prepareRenameIndexes = (builder: SqlBuilder, fromTable: string, toT
 };
 
 export const prepareDeleteIndexes = (builder: SqlBuilder, table: string, indexes: PgIndexRepository) => {
-  const statements = [];
+  const statements: IndexQueries = {
+    constraints: [],
+    indexes: []
+  };
 
   for (const indexName in indexes) {
     const { type } = indexes[indexName];
@@ -143,7 +155,7 @@ export const prepareDeleteIndexes = (builder: SqlBuilder, table: string, indexes
 
         const query = builder.table(table).alter().existing().constraint(name).drop().existing();
 
-        statements.push({
+        statements.constraints.push({
           query: query.build()
         });
 
@@ -155,7 +167,7 @@ export const prepareDeleteIndexes = (builder: SqlBuilder, table: string, indexes
 
         const query = builder.table(table).alter().existing().constraint(name).drop().existing();
 
-        statements.push({
+        statements.constraints.push({
           query: query.build()
         });
 
@@ -167,7 +179,7 @@ export const prepareDeleteIndexes = (builder: SqlBuilder, table: string, indexes
 
         const query = builder.index(name).drop().existing().concurrent();
 
-        statements.push({
+        statements.indexes.push({
           query: query.build()
         });
 
