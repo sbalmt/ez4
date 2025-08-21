@@ -23,7 +23,7 @@ export const registerTriggers = () => {
 };
 
 const planDeploy = async (event: DeployEvent) => {
-  return report(event.newState, event.oldState);
+  return report(event.newState, event.oldState, event.force);
 };
 
 const applyDeploy = async (event: DeployEvent) => {
