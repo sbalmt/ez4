@@ -109,6 +109,24 @@ describe('sql where tests', () => {
     assert.equal(statement, `SELECT * FROM "test" WHERE "foo"['bar']::bool = :0`);
   });
 
+  it('assert :: where equal (with insensitive)', ({ assert }) => {
+    const query = sql
+      .select()
+      .from('test')
+      .where({
+        foo: {
+          insensitive: true,
+          equal: 'abc'
+        }
+      });
+
+    const [statement, variables] = query.build();
+
+    assert.deepEqual(variables, ['abc']);
+
+    assert.equal(statement, `SELECT * FROM "test" WHERE LOWER("foo") = LOWER(:0)`);
+  });
+
   it('assert :: where not equal', ({ assert }) => {
     const query = sql
       .select()
@@ -147,6 +165,24 @@ describe('sql where tests', () => {
     assert.deepEqual(variables, ['abc']);
 
     assert.equal(statement, `SELECT * FROM "test" WHERE trim('"' from "foo"['bar']::text) != :0`);
+  });
+
+  it('assert :: where not equal (with insensitive)', ({ assert }) => {
+    const query = sql
+      .select()
+      .from('test')
+      .where({
+        foo: {
+          insensitive: true,
+          not: 'abc'
+        }
+      });
+
+    const [statement, variables] = query.build();
+
+    assert.deepEqual(variables, ['abc']);
+
+    assert.equal(statement, `SELECT * FROM "test" WHERE LOWER("foo") != LOWER(:0)`);
   });
 
   it('assert :: where greater than', ({ assert }) => {

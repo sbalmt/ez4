@@ -7,5 +7,9 @@ export const getNotEqualOperation = (column: string, schema: AnySchema | undefin
   const rhsOperand = getOperandValue(schema, operand, context);
   const lhsOperand = getOperandColumn(schema, column, context);
 
+  if (context.insensitive) {
+    return `LOWER(${lhsOperand}) != LOWER(${rhsOperand})`;
+  }
+
   return `${lhsOperand} != ${rhsOperand}`;
 };

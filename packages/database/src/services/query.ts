@@ -159,8 +159,8 @@ export namespace Query {
     IsObjectEmpty<R['selects']> extends true ? T : T & R['selects'];
 
   type WhereOperations<V, E extends DatabaseEngine> =
-    | WhereNegate<V>
-    | WhereEqual<V>
+    | WhereNegate<V, E>
+    | WhereEqual<V, E>
     | WhereGreaterThan<V>
     | WhereGreaterThanOrEqual<V>
     | WhereLessThan<V>
@@ -213,8 +213,8 @@ export namespace Query {
   type WhereInputFilters<T extends TableMetadata, I extends Database.Indexes> = WhereCommonFilters<T['schema'], T, I> &
     (IsObjectEmpty<T['relations']['filters']> extends false ? WhereRelationFilters<T['relations']['filters'], T['engine']> : {});
 
-  export type WhereOperators = keyof (WhereNegate<any> &
-    WhereEqual<any> &
+  export type WhereOperators = keyof (WhereNegate<any, never> &
+    WhereEqual<any, never> &
     WhereGreaterThan<any> &
     WhereGreaterThanOrEqual<any> &
     WhereLessThan<any> &
@@ -226,11 +226,11 @@ export namespace Query {
     WhereStartsWith<never> &
     WhereContains<any, never>);
 
-  type WhereNegate<V> = {
+  type WhereNegate<V, E extends DatabaseEngine> = (V extends string ? InsensitiveUtils.Input<E> : {}) & {
     not: V;
   };
 
-  type WhereEqual<V> = {
+  type WhereEqual<V, E extends DatabaseEngine> = (V extends string ? InsensitiveUtils.Input<E> : {}) & {
     equal: V;
   };
 
