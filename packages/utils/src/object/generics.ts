@@ -85,7 +85,7 @@ export type StrictObject<T, U extends AnyObject> =
  * This is used in conjunction with `PartialObject`.
  *
  * @example
- * type Foo = PartialProperties<{ bar: string, baz: number }>; // { bar: true, baz: true }
+ * type Foo = PartialProperties<{ bar: string, baz: number }>; // { bar: boolean, baz: boolean }
  */
 export type PartialProperties<T extends AnyObject> = {
   [P in keyof T]?: IsArray<T[P]> extends false
@@ -99,8 +99,8 @@ export type PartialProperties<T extends AnyObject> = {
 
 /**
  * Given the object types `T` and `O`, it produces a new type containing only properties that
- * are in `O` if `V` is `true` or omit them if `V` is `false`, the original property type
- * is kept the same. This is used in conjunction with `PartialProperties`.
+ * are in `O` if `V` is `true` or omit them if `V` is `false`, the original property type is
+ * preserved. This is used in conjunction with `PartialProperties`.
  * 
  @example
  type Foo = PartialObject<{ bar: string, baz: number }, { bar: true }>; // { bar: string }
