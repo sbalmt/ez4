@@ -73,7 +73,7 @@ export const updateTables = async (request: UpdateTableRequest): Promise<void> =
 
   const queries = getUpdateQueries(repository.target, repository.source);
 
-  await executeMigrationTransaction(driver, [...queries.tables, ...queries.relations, ...queries.constraints]);
+  await executeMigrationTransaction(driver, [...queries.tables, ...queries.constraints, ...queries.relations]);
   await executeMigrationStatements(driver, queries.indexes);
 };
 
