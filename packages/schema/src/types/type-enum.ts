@@ -24,3 +24,7 @@ export type EnumSchema = {
 export const isEnumSchema = (schema: AnySchema): schema is EnumSchema => {
   return schema.type === SchemaType.Enum;
 };
+
+export const isEmptyEnumSchema = (schema: EnumSchema) => {
+  return !schema.options.length;
+};

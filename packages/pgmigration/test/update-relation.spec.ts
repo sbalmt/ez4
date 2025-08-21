@@ -54,27 +54,28 @@ describe('migration :: update relation tests', () => {
 
     const queries = getUpdateQueries(targetTable, sourceTable);
 
-    deepEqual(queries.tables, [
-      {
-        check: `SELECT 1 FROM "information_schema.columns" WHERE "column_name" = 'column_a' AND "table_name" = 'table_a'`,
-        query: `ALTER TABLE IF EXISTS "table_a" ALTER COLUMN "column_a" SET NOT null`
-      }
-    ]);
-
-    deepEqual(queries.relations, [
-      {
-        query: `ALTER TABLE IF EXISTS "table_a" DROP CONSTRAINT IF EXISTS "table_a_relation_fk"`
-      },
-      {
-        query:
-          `ALTER TABLE IF EXISTS "table_a" ADD CONSTRAINT "table_a_relation_fk" ` +
-          `FOREIGN KEY ("column_a") REFERENCES "table_b" ("column_b") ` +
-          `ON DELETE CASCADE ` +
-          `ON UPDATE CASCADE`
-      }
-    ]);
-
-    deepEqual(queries.indexes, []);
+    deepEqual(queries, {
+      tables: [
+        {
+          check: `SELECT 1 FROM "information_schema.columns" WHERE "column_name" = 'column_a' AND "table_name" = 'table_a'`,
+          query: `ALTER TABLE IF EXISTS "table_a" ALTER COLUMN "column_a" SET NOT null`
+        }
+      ],
+      relations: [
+        {
+          query: `ALTER TABLE IF EXISTS "table_a" DROP CONSTRAINT IF EXISTS "table_a_relation_fk"`
+        },
+        {
+          query:
+            `ALTER TABLE IF EXISTS "table_a" ADD CONSTRAINT "table_a_relation_fk" ` +
+            `FOREIGN KEY ("column_a") REFERENCES "table_b" ("column_b") ` +
+            `ON DELETE CASCADE ` +
+            `ON UPDATE CASCADE`
+        }
+      ],
+      constraints: [],
+      indexes: []
+    });
   });
 
   it('assert :: update relation (set nullable)', async () => {
@@ -83,26 +84,27 @@ describe('migration :: update relation tests', () => {
 
     const queries = getUpdateQueries(targetTable, sourceTable);
 
-    deepEqual(queries.tables, [
-      {
-        check: `SELECT 1 FROM "information_schema.columns" WHERE "column_name" = 'column_a' AND "table_name" = 'table_a'`,
-        query: `ALTER TABLE IF EXISTS "table_a" ALTER COLUMN "column_a" DROP NOT null`
-      }
-    ]);
-
-    deepEqual(queries.relations, [
-      {
-        query: `ALTER TABLE IF EXISTS "table_a" DROP CONSTRAINT IF EXISTS "table_a_relation_fk"`
-      },
-      {
-        query:
-          `ALTER TABLE IF EXISTS "table_a" ADD CONSTRAINT "table_a_relation_fk" ` +
-          `FOREIGN KEY ("column_a") REFERENCES "table_b" ("column_b") ` +
-          `ON DELETE SET null ` +
-          `ON UPDATE CASCADE`
-      }
-    ]);
-
-    deepEqual(queries.indexes, []);
+    deepEqual(queries, {
+      tables: [
+        {
+          check: `SELECT 1 FROM "information_schema.columns" WHERE "column_name" = 'column_a' AND "table_name" = 'table_a'`,
+          query: `ALTER TABLE IF EXISTS "table_a" ALTER COLUMN "column_a" DROP NOT null`
+        }
+      ],
+      relations: [
+        {
+          query: `ALTER TABLE IF EXISTS "table_a" DROP CONSTRAINT IF EXISTS "table_a_relation_fk"`
+        },
+        {
+          query:
+            `ALTER TABLE IF EXISTS "table_a" ADD CONSTRAINT "table_a_relation_fk" ` +
+            `FOREIGN KEY ("column_a") REFERENCES "table_b" ("column_b") ` +
+            `ON DELETE SET null ` +
+            `ON UPDATE CASCADE`
+        }
+      ],
+      constraints: [],
+      indexes: []
+    });
   });
 });

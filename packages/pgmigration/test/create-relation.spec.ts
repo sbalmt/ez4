@@ -41,7 +41,7 @@ describe('migration :: create relation tests', () => {
     ]);
   };
 
-  it('assert :: create relation (mandatory)', async () => {
+  it('assert :: create (mandatory)', async () => {
     const sourceTable = getDatabaseTables(false, []);
 
     const targetTable = getDatabaseTables(false, [
@@ -57,22 +57,24 @@ describe('migration :: create relation tests', () => {
 
     const queries = getUpdateQueries(targetTable, sourceTable);
 
-    deepEqual(queries.relations, [
-      {
-        check: `SELECT 1 FROM "pg_constraint" WHERE "conname" = 'table_a_relation_fk'`,
-        query:
-          `ALTER TABLE IF EXISTS "table_a" ADD CONSTRAINT "table_a_relation_fk" ` +
-          `FOREIGN KEY ("column_a") REFERENCES "table_b" ("column_b") ` +
-          `ON DELETE CASCADE ` +
-          `ON UPDATE CASCADE`
-      }
-    ]);
-
-    deepEqual(queries.indexes, []);
-    deepEqual(queries.tables, []);
+    deepEqual(queries, {
+      relations: [
+        {
+          check: `SELECT 1 FROM "pg_constraint" WHERE "conname" = 'table_a_relation_fk'`,
+          query:
+            `ALTER TABLE IF EXISTS "table_a" ADD CONSTRAINT "table_a_relation_fk" ` +
+            `FOREIGN KEY ("column_a") REFERENCES "table_b" ("column_b") ` +
+            `ON DELETE CASCADE ` +
+            `ON UPDATE CASCADE`
+        }
+      ],
+      constraints: [],
+      indexes: [],
+      tables: []
+    });
   });
 
-  it('assert :: create relation (nullable)', async () => {
+  it('assert :: create (nullable)', async () => {
     const sourceTable = getDatabaseTables(true, []);
 
     const targetTable = getDatabaseTables(true, [
@@ -88,18 +90,20 @@ describe('migration :: create relation tests', () => {
 
     const queries = getUpdateQueries(targetTable, sourceTable);
 
-    deepEqual(queries.relations, [
-      {
-        check: `SELECT 1 FROM "pg_constraint" WHERE "conname" = 'table_a_relation_fk'`,
-        query:
-          `ALTER TABLE IF EXISTS "table_a" ADD CONSTRAINT "table_a_relation_fk" ` +
-          `FOREIGN KEY ("column_a") REFERENCES "table_b" ("column_b") ` +
-          `ON DELETE SET null ` +
-          `ON UPDATE CASCADE`
-      }
-    ]);
-
-    deepEqual(queries.indexes, []);
-    deepEqual(queries.tables, []);
+    deepEqual(queries, {
+      relations: [
+        {
+          check: `SELECT 1 FROM "pg_constraint" WHERE "conname" = 'table_a_relation_fk'`,
+          query:
+            `ALTER TABLE IF EXISTS "table_a" ADD CONSTRAINT "table_a_relation_fk" ` +
+            `FOREIGN KEY ("column_a") REFERENCES "table_b" ("column_b") ` +
+            `ON DELETE SET null ` +
+            `ON UPDATE CASCADE`
+        }
+      ],
+      constraints: [],
+      indexes: [],
+      tables: []
+    });
   });
 });

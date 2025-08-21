@@ -52,17 +52,19 @@ describe('migration :: delete column tests', () => {
 
     const queries = getUpdateQueries(targetTable, sourceTable);
 
-    deepEqual(queries.tables, [
-      {
-        query:
-          `ALTER TABLE IF EXISTS "table" ` +
-          `DROP COLUMN IF EXISTS "column_a", ` +
-          `DROP COLUMN IF EXISTS "column_b", ` +
-          `DROP COLUMN IF EXISTS "column_c"`
-      }
-    ]);
-
-    deepEqual(queries.relations, []);
-    deepEqual(queries.indexes, []);
+    deepEqual(queries, {
+      tables: [
+        {
+          query:
+            `ALTER TABLE IF EXISTS "table" ` +
+            `DROP COLUMN IF EXISTS "column_a", ` +
+            `DROP COLUMN IF EXISTS "column_b", ` +
+            `DROP COLUMN IF EXISTS "column_c"`
+        }
+      ],
+      constraints: [],
+      relations: [],
+      indexes: []
+    });
   });
 });

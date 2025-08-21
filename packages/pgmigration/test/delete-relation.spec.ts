@@ -55,13 +55,15 @@ describe('migration :: delete relation tests', () => {
 
     const queries = getUpdateQueries(targetTable, sourceTable);
 
-    deepEqual(queries.relations, [
-      {
-        query: `ALTER TABLE IF EXISTS "table_a" DROP CONSTRAINT IF EXISTS "table_a_relation_fk"`
-      }
-    ]);
-
-    deepEqual(queries.indexes, []);
-    deepEqual(queries.tables, []);
+    deepEqual(queries, {
+      relations: [
+        {
+          query: `ALTER TABLE IF EXISTS "table_a" DROP CONSTRAINT IF EXISTS "table_a_relation_fk"`
+        }
+      ],
+      constraints: [],
+      indexes: [],
+      tables: []
+    });
   });
 });

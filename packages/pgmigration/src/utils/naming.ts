@@ -16,6 +16,10 @@ export const getRelationName = (table: string, name: string) => {
   return `${getName(table, name)}_fk`;
 };
 
+export const getConstraintName = (table: string, name: string) => {
+  return `${getName(table, name)}_ck`;
+};
+
 const getName = (table: string, name: string) => {
   return `${table}_${toSnakeCase(name.replaceAll(':', '_'))}`;
 };

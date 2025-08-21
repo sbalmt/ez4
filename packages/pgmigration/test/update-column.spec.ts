@@ -28,27 +28,27 @@ describe('migration :: update column tests', () => {
     ]);
   };
 
-  const sourceTable = getDatabaseTables({
-    id: {
-      type: SchemaType.String
-    },
-    column: {
-      type: SchemaType.Boolean
-    },
-    default: {
-      type: SchemaType.Boolean,
-      definitions: {
-        default: false
-      }
-    },
-    nullable: {
-      type: SchemaType.Boolean,
-      optional: true,
-      nullable: true
-    }
-  });
-
   it('assert :: alter table (alter column type)', async () => {
+    const sourceTable = getDatabaseTables({
+      id: {
+        type: SchemaType.String
+      },
+      column: {
+        type: SchemaType.Boolean
+      },
+      default: {
+        type: SchemaType.Boolean,
+        definitions: {
+          default: false
+        }
+      },
+      nullable: {
+        type: SchemaType.Boolean,
+        optional: true,
+        nullable: true
+      }
+    });
+
     const targetTable = getDatabaseTables({
       id: {
         type: SchemaType.String
@@ -71,39 +71,63 @@ describe('migration :: update column tests', () => {
 
     const queries = getUpdateQueries(targetTable, sourceTable);
 
-    deepEqual(queries.tables, [
-      {
-        check: `SELECT 1 FROM "information_schema.columns" WHERE "column_name" = 'column' AND "table_name" = 'table'`,
-        query: `ALTER TABLE IF EXISTS "table" ALTER COLUMN "column" TYPE text USING "column"::text`
-      },
-      {
-        check: `SELECT 1 FROM "information_schema.columns" WHERE "column_name" = 'default' AND "table_name" = 'table'`,
-        query: `ALTER TABLE IF EXISTS "table" ALTER COLUMN "default" TYPE text USING "default"::text, ALTER COLUMN "default" SET DEFAULT 'foo'`
-      },
-      {
-        check: `SELECT 1 FROM "information_schema.columns" WHERE "column_name" = 'nullable' AND "table_name" = 'table'`,
-        query: `ALTER TABLE IF EXISTS "table" ALTER COLUMN "nullable" TYPE text USING "nullable"::text`
-      }
-    ]);
-
-    deepEqual(queries.relations, []);
-    deepEqual(queries.indexes, []);
+    deepEqual(queries, {
+      tables: [
+        {
+          check: `SELECT 1 FROM "information_schema.columns" WHERE "column_name" = 'column' AND "table_name" = 'table'`,
+          query: `ALTER TABLE IF EXISTS "table" ALTER COLUMN "column" TYPE text USING "column"::text`
+        },
+        {
+          check: `SELECT 1 FROM "information_schema.columns" WHERE "column_name" = 'default' AND "table_name" = 'table'`,
+          query: `ALTER TABLE IF EXISTS "table" ALTER COLUMN "default" TYPE text USING "default"::text, ALTER COLUMN "default" SET DEFAULT 'foo'`
+        },
+        {
+          check: `SELECT 1 FROM "information_schema.columns" WHERE "column_name" = 'nullable' AND "table_name" = 'table'`,
+          query: `ALTER TABLE IF EXISTS "table" ALTER COLUMN "nullable" TYPE text USING "nullable"::text`
+        }
+      ],
+      constraints: [],
+      relations: [],
+      indexes: []
+    });
   });
 
   it('assert :: alter table (alter default column)', async () => {
+    const sourceTable = getDatabaseTables({
+      default: {
+        type: SchemaType.Boolean,
+        definitions: {
+          default: false
+        }
+      }
+    });
+
     const targetTable = getDatabaseTables({
-      id: {
-        type: SchemaType.String
-      },
-      column: {
-        type: SchemaType.Boolean
-      },
       default: {
         type: SchemaType.Boolean,
         definitions: {
           default: true
         }
-      },
+      }
+    });
+
+    const queries = getUpdateQueries(targetTable, sourceTable);
+
+    deepEqual(queries, {
+      tables: [
+        {
+          check: `SELECT 1 FROM "information_schema.columns" WHERE "column_name" = 'default' AND "table_name" = 'table'`,
+          query: `ALTER TABLE IF EXISTS "table" ALTER COLUMN "default" SET DEFAULT true`
+        }
+      ],
+      constraints: [],
+      relations: [],
+      indexes: []
+    });
+  });
+
+  it('assert :: alter table (alter required column)', async () => {
+    const sourceTable = getDatabaseTables({
       nullable: {
         type: SchemaType.Boolean,
         optional: true,
@@ -111,33 +135,7 @@ describe('migration :: update column tests', () => {
       }
     });
 
-    const queries = getUpdateQueries(targetTable, sourceTable);
-
-    deepEqual(queries.tables, [
-      {
-        check: `SELECT 1 FROM "information_schema.columns" WHERE "column_name" = 'default' AND "table_name" = 'table'`,
-        query: `ALTER TABLE IF EXISTS "table" ALTER COLUMN "default" SET DEFAULT true`
-      }
-    ]);
-
-    deepEqual(queries.relations, []);
-    deepEqual(queries.indexes, []);
-  });
-
-  it('assert :: alter table (alter required column)', async () => {
     const targetTable = getDatabaseTables({
-      id: {
-        type: SchemaType.String
-      },
-      column: {
-        type: SchemaType.Boolean
-      },
-      default: {
-        type: SchemaType.Boolean,
-        definitions: {
-          default: false
-        }
-      },
       nullable: {
         type: SchemaType.Boolean,
         optional: false,
@@ -147,56 +145,70 @@ describe('migration :: update column tests', () => {
 
     const queries = getUpdateQueries(targetTable, sourceTable);
 
-    deepEqual(queries.tables, [
-      {
-        check: `SELECT 1 FROM "information_schema.columns" WHERE "column_name" = 'nullable' AND "table_name" = 'table'`,
-        query: `ALTER TABLE IF EXISTS "table" ALTER COLUMN "nullable" SET NOT null`
-      }
-    ]);
-
-    deepEqual(queries.relations, []);
-    deepEqual(queries.indexes, []);
+    deepEqual(queries, {
+      tables: [
+        {
+          check: `SELECT 1 FROM "information_schema.columns" WHERE "column_name" = 'nullable' AND "table_name" = 'table'`,
+          query: `ALTER TABLE IF EXISTS "table" ALTER COLUMN "nullable" SET NOT null`
+        }
+      ],
+      constraints: [],
+      relations: [],
+      indexes: []
+    });
   });
 
-  it.only('assert :: alter table (rename column)', async () => {
-    const targetTable = getDatabaseTables({
-      id: {
+  it('assert :: alter table (rename column)', async () => {
+    const options = [
+      {
+        value: 123
+      },
+      {
+        value: 'foo'
+      }
+    ];
+
+    const sourceTable = getDatabaseTables({
+      column: {
         type: SchemaType.String
       },
-      column_renamed: {
-        type: SchemaType.Boolean
+      enumerable: {
+        type: SchemaType.Enum,
+        options
+      }
+    });
+
+    const targetTable = getDatabaseTables({
+      renamed_column: {
+        type: SchemaType.String
       },
-      renamed_default: {
-        type: SchemaType.Boolean,
-        definitions: {
-          default: false
-        }
-      },
-      nullable_renamed: {
-        type: SchemaType.Boolean,
-        optional: true,
-        nullable: true
+      enumerable_renamed: {
+        type: SchemaType.Enum,
+        options
       }
     });
 
     const queries = getUpdateQueries(targetTable, sourceTable);
 
-    deepEqual(queries.tables, [
-      {
-        check: `SELECT 1 FROM "information_schema.columns" WHERE "column_name" = 'column' AND "table_name" = 'table'`,
-        query: `ALTER TABLE IF EXISTS "table" RENAME COLUMN "column" TO "column_renamed"`
-      },
-      {
-        check: `SELECT 1 FROM "information_schema.columns" WHERE "column_name" = 'default' AND "table_name" = 'table'`,
-        query: `ALTER TABLE IF EXISTS "table" RENAME COLUMN "default" TO "renamed_default"`
-      },
-      {
-        check: `SELECT 1 FROM "information_schema.columns" WHERE "column_name" = 'nullable' AND "table_name" = 'table'`,
-        query: `ALTER TABLE IF EXISTS "table" RENAME COLUMN "nullable" TO "nullable_renamed"`
-      }
-    ]);
-
-    deepEqual(queries.relations, []);
-    deepEqual(queries.indexes, []);
+    deepEqual(queries, {
+      tables: [
+        {
+          check: `SELECT 1 FROM "information_schema.columns" WHERE "column_name" = 'column' AND "table_name" = 'table'`,
+          query: `ALTER TABLE IF EXISTS "table" RENAME COLUMN "column" TO "renamed_column"`
+        },
+        {
+          check: `SELECT 1 FROM "information_schema.columns" WHERE "column_name" = 'enumerable' AND "table_name" = 'table'`,
+          query: `ALTER TABLE IF EXISTS "table" RENAME COLUMN "enumerable" TO "enumerable_renamed"`
+        }
+      ],
+      constraints: [
+        {
+          check: `SELECT 1 FROM "pg_constraint" WHERE "conname" = 'table_enumerable_renamed_ck'`,
+          query: `ALTER TABLE IF EXISTS "table" RENAME CONSTRAINT "table_enumerable_ck" TO "table_enumerable_renamed_ck"`
+        }
+      ],
+      relations: [],
+      indexes: []
+    });
   });
 });

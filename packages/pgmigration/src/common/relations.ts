@@ -85,11 +85,11 @@ export const prepareRenameRelations = (builder: SqlBuilder, fromTable: string, t
     const oldName = getRelationName(fromTable, targetAlias);
     const newName = getRelationName(toTable, targetAlias);
 
-    const statement = builder.table(toTable).alter().existing().constraint(oldName).rename(newName);
+    const query = builder.table(toTable).alter().existing().constraint(oldName).rename(newName);
 
     statements.push({
       check: getCheckConstraintQuery(builder, newName),
-      query: statement.build()
+      query: query.build()
     });
   }
 

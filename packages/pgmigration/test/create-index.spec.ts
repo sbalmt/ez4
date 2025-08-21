@@ -58,15 +58,17 @@ describe('migration :: create index tests', () => {
 
     const queries = getUpdateQueries(targetTable, sourceTable);
 
-    deepEqual(queries.indexes, [
-      {
-        check: `SELECT 1 FROM "pg_constraint" WHERE "conname" = 'table_index_pk'`,
-        query: `ALTER TABLE IF EXISTS "table" ADD CONSTRAINT "table_index_pk" PRIMARY KEY ("column")`
-      }
-    ]);
-
-    deepEqual(queries.relations, []);
-    deepEqual(queries.tables, []);
+    deepEqual(queries, {
+      indexes: [
+        {
+          check: `SELECT 1 FROM "pg_constraint" WHERE "conname" = 'table_index_pk'`,
+          query: `ALTER TABLE IF EXISTS "table" ADD CONSTRAINT "table_index_pk" PRIMARY KEY ("column")`
+        }
+      ],
+      constraints: [],
+      relations: [],
+      tables: []
+    });
   });
 
   it('assert :: create unique index', async () => {
@@ -82,15 +84,17 @@ describe('migration :: create index tests', () => {
 
     const queries = getUpdateQueries(targetTable, sourceTable);
 
-    deepEqual(queries.indexes, [
-      {
-        check: `SELECT 1 FROM "pg_constraint" WHERE "conname" = 'table_index_uk'`,
-        query: `ALTER TABLE IF EXISTS "table" ADD CONSTRAINT "table_index_uk" UNIQUE ("column")`
-      }
-    ]);
-
-    deepEqual(queries.relations, []);
-    deepEqual(queries.tables, []);
+    deepEqual(queries, {
+      indexes: [
+        {
+          check: `SELECT 1 FROM "pg_constraint" WHERE "conname" = 'table_index_uk'`,
+          query: `ALTER TABLE IF EXISTS "table" ADD CONSTRAINT "table_index_uk" UNIQUE ("column")`
+        }
+      ],
+      constraints: [],
+      relations: [],
+      tables: []
+    });
   });
 
   it('assert :: create secondary index', async () => {
@@ -106,14 +110,16 @@ describe('migration :: create index tests', () => {
 
     const queries = getUpdateQueries(targetTable, sourceTable);
 
-    deepEqual(queries.indexes, [
-      {
-        query: `CREATE INDEX CONCURRENTLY IF NOT EXISTS "table_index_sk" ON "table" USING BTREE ("column")`
-      }
-    ]);
-
-    deepEqual(queries.relations, []);
-    deepEqual(queries.tables, []);
+    deepEqual(queries, {
+      indexes: [
+        {
+          query: `CREATE INDEX CONCURRENTLY IF NOT EXISTS "table_index_sk" ON "table" USING BTREE ("column")`
+        }
+      ],
+      constraints: [],
+      relations: [],
+      tables: []
+    });
   });
 
   it('assert :: create primary index (compound)', async () => {
@@ -129,15 +135,17 @@ describe('migration :: create index tests', () => {
 
     const queries = getUpdateQueries(targetTable, sourceTable);
 
-    deepEqual(queries.indexes, [
-      {
-        check: `SELECT 1 FROM "pg_constraint" WHERE "conname" = 'table_index_pk'`,
-        query: `ALTER TABLE IF EXISTS "table" ADD CONSTRAINT "table_index_pk" PRIMARY KEY ("column_a", "column_b")`
-      }
-    ]);
-
-    deepEqual(queries.relations, []);
-    deepEqual(queries.tables, []);
+    deepEqual(queries, {
+      indexes: [
+        {
+          check: `SELECT 1 FROM "pg_constraint" WHERE "conname" = 'table_index_pk'`,
+          query: `ALTER TABLE IF EXISTS "table" ADD CONSTRAINT "table_index_pk" PRIMARY KEY ("column_a", "column_b")`
+        }
+      ],
+      constraints: [],
+      relations: [],
+      tables: []
+    });
   });
 
   it('assert :: create unique index (compound)', async () => {
@@ -153,15 +161,17 @@ describe('migration :: create index tests', () => {
 
     const queries = getUpdateQueries(targetTable, sourceTable);
 
-    deepEqual(queries.indexes, [
-      {
-        check: `SELECT 1 FROM "pg_constraint" WHERE "conname" = 'table_index_uk'`,
-        query: `ALTER TABLE IF EXISTS "table" ADD CONSTRAINT "table_index_uk" UNIQUE ("column_a", "column_b")`
-      }
-    ]);
-
-    deepEqual(queries.relations, []);
-    deepEqual(queries.tables, []);
+    deepEqual(queries, {
+      indexes: [
+        {
+          check: `SELECT 1 FROM "pg_constraint" WHERE "conname" = 'table_index_uk'`,
+          query: `ALTER TABLE IF EXISTS "table" ADD CONSTRAINT "table_index_uk" UNIQUE ("column_a", "column_b")`
+        }
+      ],
+      constraints: [],
+      relations: [],
+      tables: []
+    });
   });
 
   it('assert :: create secondary index (compound)', async () => {
@@ -177,14 +187,16 @@ describe('migration :: create index tests', () => {
 
     const queries = getUpdateQueries(targetTable, sourceTable);
 
-    deepEqual(queries.indexes, [
-      {
-        query: `CREATE INDEX CONCURRENTLY IF NOT EXISTS "table_index_sk" ON "table" USING BTREE ("column_a", "column_b")`
-      }
-    ]);
-
-    deepEqual(queries.relations, []);
-    deepEqual(queries.tables, []);
+    deepEqual(queries, {
+      indexes: [
+        {
+          query: `CREATE INDEX CONCURRENTLY IF NOT EXISTS "table_index_sk" ON "table" USING BTREE ("column_a", "column_b")`
+        }
+      ],
+      constraints: [],
+      relations: [],
+      tables: []
+    });
   });
 
   it('assert :: create secondary index (gin)', async () => {
@@ -200,13 +212,15 @@ describe('migration :: create index tests', () => {
 
     const queries = getUpdateQueries(targetTable, sourceTable);
 
-    deepEqual(queries.indexes, [
-      {
-        query: `CREATE INDEX CONCURRENTLY IF NOT EXISTS "table_index_sk" ON "table" USING GIN ("column")`
-      }
-    ]);
-
-    deepEqual(queries.relations, []);
-    deepEqual(queries.tables, []);
+    deepEqual(queries, {
+      indexes: [
+        {
+          query: `CREATE INDEX CONCURRENTLY IF NOT EXISTS "table_index_sk" ON "table" USING GIN ("column")`
+        }
+      ],
+      constraints: [],
+      relations: [],
+      tables: []
+    });
   });
 });

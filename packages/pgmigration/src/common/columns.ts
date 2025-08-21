@@ -82,11 +82,11 @@ export const prepareUpdateColumns = (
   return statements;
 };
 
-export const prepareRenameColumns = (builder: SqlBuilder, table: string, columns: Record<string, string>) => {
+export const prepareRenameColumns = (builder: SqlBuilder, table: string, changes: Record<string, string>) => {
   const statements = [];
 
-  for (const fromColumn in columns) {
-    const toColum = columns[fromColumn];
+  for (const fromColumn in changes) {
+    const toColum = changes[fromColumn];
 
     const statement = builder.table(table).alter().existing().rename(fromColumn, toColum);
 

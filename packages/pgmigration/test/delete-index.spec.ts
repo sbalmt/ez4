@@ -26,7 +26,7 @@ describe('migration :: delete index tests', () => {
     ]);
   };
 
-  it('assert :: delete primary index', async () => {
+  it('assert :: delete (primary index)', async () => {
     const sourceTable = getDatabaseTables([
       {
         name: 'index',
@@ -39,17 +39,19 @@ describe('migration :: delete index tests', () => {
 
     const queries = getUpdateQueries(targetTable, sourceTable);
 
-    deepEqual(queries.indexes, [
-      {
-        query: `ALTER TABLE IF EXISTS "table" DROP CONSTRAINT IF EXISTS "table_index_pk"`
-      }
-    ]);
-
-    deepEqual(queries.relations, []);
-    deepEqual(queries.tables, []);
+    deepEqual(queries, {
+      indexes: [
+        {
+          query: `ALTER TABLE IF EXISTS "table" DROP CONSTRAINT IF EXISTS "table_index_pk"`
+        }
+      ],
+      constraints: [],
+      relations: [],
+      tables: []
+    });
   });
 
-  it('assert :: delete unique index', async () => {
+  it('assert :: delete (unique index)', async () => {
     const sourceTable = getDatabaseTables([
       {
         name: 'index',
@@ -62,17 +64,19 @@ describe('migration :: delete index tests', () => {
 
     const queries = getUpdateQueries(targetTable, sourceTable);
 
-    deepEqual(queries.indexes, [
-      {
-        query: `ALTER TABLE IF EXISTS "table" DROP CONSTRAINT IF EXISTS "table_index_uk"`
-      }
-    ]);
-
-    deepEqual(queries.relations, []);
-    deepEqual(queries.tables, []);
+    deepEqual(queries, {
+      indexes: [
+        {
+          query: `ALTER TABLE IF EXISTS "table" DROP CONSTRAINT IF EXISTS "table_index_uk"`
+        }
+      ],
+      constraints: [],
+      relations: [],
+      tables: []
+    });
   });
 
-  it('assert :: delete secondary index', async () => {
+  it('assert :: delete (secondary index)', async () => {
     const sourceTable = getDatabaseTables([
       {
         name: 'index',
@@ -85,13 +89,15 @@ describe('migration :: delete index tests', () => {
 
     const queries = getUpdateQueries(targetTable, sourceTable);
 
-    deepEqual(queries.indexes, [
-      {
-        query: `DROP INDEX CONCURRENTLY IF EXISTS "table_index_sk"`
-      }
-    ]);
-
-    deepEqual(queries.relations, []);
-    deepEqual(queries.tables, []);
+    deepEqual(queries, {
+      indexes: [
+        {
+          query: `DROP INDEX CONCURRENTLY IF EXISTS "table_index_sk"`
+        }
+      ],
+      constraints: [],
+      relations: [],
+      tables: []
+    });
   });
 });
