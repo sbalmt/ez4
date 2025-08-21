@@ -28,7 +28,7 @@ type TestTableMetadata = {
 describe('select schema', () => {
   const prepareSelect = <S extends Query.SelectInput<TestTableMetadata>>(
     schema: ObjectSchema,
-    query: Query.FindManyInput<S, TestTableMetadata, false>
+    query: Query.FindManyInput<S, false, TestTableMetadata>
   ) => {
     const builder = new SqlBuilder();
 
