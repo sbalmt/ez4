@@ -94,8 +94,8 @@ const updateResource = async (candidate: MigrationState, current: MigrationState
     clusterArn: result.clusterArn,
     secretArn: result.secretArn,
     repository: {
-      target: parameters.repository,
-      source: current.parameters.repository
+      target: targetRepository,
+      source: sourceRepository
     }
   });
 };
