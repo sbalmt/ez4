@@ -109,6 +109,7 @@ export const deleteDatabase = async (request: ConnectionRequest): Promise<void> 
 
 const executeMigrationTransaction = async (driver: DataClientDriver, statements: PgMigrationStatement[]) => {
   const transactionId = await driver.beginTransaction();
+
   try {
     await executeMigrationStatements(driver, statements);
     await driver.commitTransaction(transactionId);
