@@ -1,6 +1,36 @@
-export * from './errors/operation.js';
-export * from './errors/queries.js';
+export * from './operations/errors.js';
+export * from './statements/errors.js';
+export * from './clauses/errors.js';
 
+export * from './clauses/query/where.js';
+export * from './clauses/query/join.js';
+export * from './clauses/query/conflict.js';
+export * from './clauses/query/returning.js';
+export * from './clauses/query/order.js';
+export * from './clauses/query/with.js';
+
+export * from './clauses/column/add.js';
+export * from './clauses/column/alter.js';
+export * from './clauses/column/rename.js';
+export * from './clauses/column/drop.js';
+
+export * from './clauses/constraint/primary.js';
+export * from './clauses/constraint/foreign.js';
+export * from './clauses/constraint/unique.js';
+export * from './clauses/constraint/check.js';
+export * from './clauses/constraint/drop.js';
+
+export * from './clauses/table/create.js';
+export * from './clauses/table/alter.js';
+export * from './clauses/table/rename.js';
+export * from './clauses/table/drop.js';
+
+export * from './clauses/index/create.js';
+export * from './clauses/index/rename.js';
+export * from './clauses/index/drop.js';
+
+export * from './statements/table.js';
+export * from './statements/index.js';
 export * from './statements/insert.js';
 export * from './statements/select.js';
 export * from './statements/update.js';

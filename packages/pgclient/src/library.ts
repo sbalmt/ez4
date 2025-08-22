@@ -5,7 +5,7 @@ export * from './utils/repository.js';
 export * from './utils/resources.js';
 export * from './utils/schema.js';
 
-export * from './common/insert.js';
-export * from './common/update.js';
-export * from './common/select.js';
-export * from './common/delete.js';
+export * from './queries/insert.js';
+export * from './queries/update.js';
+export * from './queries/select.js';
+export * from './queries/delete.js';

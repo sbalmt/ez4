@@ -10,8 +10,9 @@ export type InputOptions = {
   command: CommandType;
   environmentFile?: string;
   projectFile?: string;
-  debugMode?: boolean;
   forceMode?: boolean;
+  debugMode?: boolean;
+  localMode?: boolean;
 };
 
 export const isInputOptions = (options: Partial<InputOptions>): options is InputOptions => {
@@ -44,12 +45,16 @@ export const getInputOptions = () => {
         options.projectFile = input[++index];
         break;
 
+      case '--force':
+        options.forceMode = true;
+        break;
+
       case '--debug':
         options.debugMode = true;
         break;
 
-      case '--force':
-        options.forceMode = true;
+      case '--local':
+        options.localMode = true;
         break;
     }
   }

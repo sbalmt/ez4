@@ -23,10 +23,12 @@ export const serveCommand = async (project: ProjectOptions) => {
   const options: ServeOptions = {
     resourcePrefix: project.prefix ?? 'ez4',
     projectName: toKebabCase(project.projectName),
-    providerOptions: serveOptions?.providerOptions ?? {},
     serviceHost: `${serviceHost}:${servicePort}`,
+    localOptions: project.localOptions ?? {},
     variables: project.variables,
+    force: project.forceMode,
     debug: project.debugMode,
+    local: project.localMode,
     version: 0
   };
 

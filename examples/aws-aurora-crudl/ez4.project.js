@@ -9,6 +9,12 @@ export default {
   stateFile: {
     path: 'ez4-deploy'
   },
+  localOptions: {
+    db: {
+      password: 'postgres',
+      user: 'postgres'
+    }
+  },
   tags: {
     Owner: 'EZ4 Examples'
   }

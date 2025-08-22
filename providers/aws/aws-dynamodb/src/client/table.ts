@@ -150,7 +150,7 @@ export class Table<T extends InternalTableMetadata> implements DbTable<T> {
     return records as Query.UpdateManyResult<S, T>;
   }
 
-  async findMany<S extends Query.SelectInput<T>, C extends boolean = false>(query: Query.FindManyInput<S, T, C>) {
+  async findMany<S extends Query.SelectInput<T>, C extends boolean = false>(query: Query.FindManyInput<S, C, T>) {
     const { client, debug } = this.settings;
 
     const { count: shouldCount } = query;
@@ -175,7 +175,7 @@ export class Table<T extends InternalTableMetadata> implements DbTable<T> {
       ...(shouldCount && { total: countResult?.records.length }),
       records,
       cursor
-    } as unknown as Query.FindManyResult<S, T, C>;
+    } as unknown as Query.FindManyResult<S, C, T>;
   }
 
   async deleteMany<S extends Query.SelectInput<T>>(query: Query.DeleteManyInput<S, T>) {

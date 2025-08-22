@@ -82,7 +82,7 @@
         "type": "string"
       }
     },
-    "value": {
+    "default": {
       "type": "array",
       "description": "Default array value.",
       "definitions": {
@@ -101,6 +101,25 @@
             "type": "number"
           }
         ]
+      }
+    },
+    "encoded": {
+      "type": "array",
+      "description": "Base64-encoded array.",
+      "definitions": {
+        "encoded": true
+      },
+      "element": {
+        "type": "object",
+        "identity": 2,
+        "properties": {
+          "foo": {
+            "type": "number"
+          },
+          "bar": {
+            "type": "string"
+          }
+        }
       }
     }
   }

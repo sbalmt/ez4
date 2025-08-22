@@ -101,19 +101,12 @@ describe('special types transform', () => {
       }
     };
 
-    const input = Buffer.from(
-      JSON.stringify({
-        foo: 123,
-        bar: 'abc'
-      })
-    ).toString('base64');
+    const rawInput = { foo: 123, bar: 'abc' };
 
-    const output = {
-      foo: 123,
-      bar: 'abc'
-    };
+    const b64Input = Buffer.from(JSON.stringify(rawInput)).toString('base64');
 
-    deepEqual(transform(input, schema), output);
+    deepEqual(transform(b64Input, schema), rawInput);
+    deepEqual(transform(rawInput, schema), rawInput);
   });
 
   it('assert :: union (similar objects)', () => {
@@ -159,6 +152,25 @@ describe('special types transform', () => {
     };
 
     deepEqual(transform('123, 4.56', schema), [123, 4.56]);
+  });
+
+  it('assert :: array (base64-encoded)', () => {
+    const schema: AnySchema = {
+      type: SchemaType.Array,
+      definitions: {
+        encoded: true
+      },
+      element: {
+        type: SchemaType.Number
+      }
+    };
+
+    const rawInput = [123, 456];
+
+    const b64Input = Buffer.from(JSON.stringify([123, 456])).toString('base64');
+
+    deepEqual(transform(b64Input, schema), rawInput);
+    deepEqual(transform(rawInput, schema), rawInput);
   });
 
   it('assert :: tuple (from string)', () => {

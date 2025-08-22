@@ -1,5 +1,5 @@
 import type { EntryState, EntryStates } from '@ez4/stateful';
-import type { GatewayState } from '../main.js';
+import type { GatewayState } from '../gateway/types.js';
 import type { StageParameters, StageState } from './types.js';
 
 import { attachEntry } from '@ez4/stateful';

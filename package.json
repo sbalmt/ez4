@@ -27,6 +27,7 @@
     "packages/distribution",
     "packages/pgsql",
     "packages/pgclient",
+    "packages/pgmigration",
     "providers/local/local-common",
     "providers/local/local-scheduler",
     "providers/local/local-database",
@@ -59,13 +60,13 @@
     "test:only": "npm run test:only --workspaces --if-present",
     "local:publish": "npm run local:publish --workspaces --if-present",
     "local:registry": "rm -rf .registry/* && node tools/verdaccio.mjs",
-    "live:publish": "npm run live:publish --workspaces --if-present"
+    "live:publish": "npm run build && npm run live:publish --workspaces --if-present"
   },
   "devDependencies": {
     "@types/node": "^22.9.0",
     "@typescript-eslint/eslint-plugin": "^8.38.0",
     "@typescript-eslint/parser": "^8.38.0",
-    "esbuild": "^0.25.0",
+    "esbuild": "^0.25.9",
     "eslint-import-resolver-typescript": "^4.4.4",
     "eslint-plugin-import": "^2.32.0",
     "husky": "^9.1.7",

@@ -53,14 +53,9 @@ export declare class TestDatabase extends Database.Service {
   };
 }
 
-export async function testHandler({ selfClient }: Service.Context<TestDatabase>) {
-  testUpdate(selfClient);
-  testUpsert(selfClient);
-}
-
-const testUpdate = async (client: TestDatabase['client']) => {
+export const testUpdate = async ({ selfClient }: Service.Context<TestDatabase>) => {
   // Update tableA and all tableB connections
-  await client.tableA.updateOne({
+  await selfClient.tableA.updateOne({
     data: {
       value_a1: { increment: 10 },
       value_a2: { decrement: 15 },
@@ -79,7 +74,7 @@ const testUpdate = async (client: TestDatabase['client']) => {
   });
 
   // Update tableB and the connected tableA
-  await client.tableB.updateOne({
+  await selfClient.tableB.updateOne({
     data: {
       value_b1: { increment: 30 },
       value_b2: { decrement: 35 },
@@ -98,9 +93,9 @@ const testUpdate = async (client: TestDatabase['client']) => {
   });
 };
 
-const testUpsert = (client: TestDatabase['client']) => {
+export const testUpsert = ({ selfClient }: Service.Context<TestDatabase>) => {
   // Ensure insert and update follow relation rules.
-  return client.tableA.upsertOne({
+  return selfClient.tableA.upsertOne({
     insert: {
       id: 'foo',
       value_a1: 0,

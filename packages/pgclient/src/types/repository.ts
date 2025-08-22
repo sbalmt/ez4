@@ -1,5 +1,6 @@
 import type { TableIndex, TableRelation } from '@ez4/database/library';
 import type { ObjectSchema } from '@ez4/schema';
+import type { AnyObject } from '@ez4/utils';
 
 export type PgTableRepository = Record<string, RepositoryTable>;
 
@@ -23,4 +24,8 @@ export type RelationWithSchema = InternalRelation & {
 
 type InternalRelation = Omit<TableRelation, 'targetAlias' | 'sourceTable'> & {
   sourceAlias: string;
+};
+
+export const isRepositoryTable = (input: AnyObject): input is RepositoryTable => {
+  return 'name' in input && 'indexes' in input && 'relations' in input && 'schema' in input;
 };

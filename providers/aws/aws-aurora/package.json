@@ -1,7 +1,7 @@
 {
   "name": "@ez4/aws-aurora",
   "description": "EZ4: Self-managed AWS Aurora serverless v2 provider",
-  "version": "0.25.0",
+  "version": "0.26.0",
   "author": "Silas B.",
   "license": "MIT",
   "type": "module",
@@ -42,20 +42,20 @@
     "test:data": "npm run test:types && node --env-file ../../../local.env --test --import ../../../tools/tsnode.mjs test/data-*.spec.ts",
     "local:publish": "npm run build && npm run clean:registry && npm publish --registry http://localhost:4873",
     "clean:registry": "rm -rf ../../../.registry/@ez4/aws-aurora",
-    "live:publish": "npm publish --access public"
+    "live:publish": "npm run build && npm publish --access public"
   },
   "dependencies": {
     "@aws-sdk/client-rds": "^3.758.0",
     "@aws-sdk/client-rds-data": "^3.758.0",
-    "@ez4/aws-common": "^0.25.0",
-    "@ez4/aws-identity": "^0.25.0",
-    "@ez4/database": "^0.25.0",
-    "@ez4/pgclient": "^0.25.0",
-    "@ez4/pgsql": "^0.25.0",
-    "@ez4/project": "^0.25.0",
-    "@ez4/stateful": "^0.25.0",
-    "@ez4/schema": "^0.25.0",
-    "@ez4/utils": "^0.25.0",
-    "@ez4/validator": "^0.25.0"
+    "@ez4/aws-common": "^0.26.0",
+    "@ez4/aws-identity": "^0.26.0",
+    "@ez4/database": "^0.26.0",
+    "@ez4/pgclient": "^0.26.0",
+    "@ez4/pgmigration": "^0.26.0",
+    "@ez4/pgsql": "^0.26.0",
+    "@ez4/project": "^0.26.0",
+    "@ez4/stateful": "^0.26.0",
+    "@ez4/schema": "^0.26.0",
+    "@ez4/utils": "^0.26.0"
   }
 }

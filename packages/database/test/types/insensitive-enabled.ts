@@ -31,7 +31,7 @@ export declare class TestDatabase extends Database.Service {
   };
 }
 
-export async function testHandler({ selfClient }: Service.Context<TestDatabase>) {
+export async function testWhere({ selfClient }: Service.Context<TestDatabase>) {
   // Insensitive in the main query.
   selfClient.table.findMany({
     select: {
@@ -59,6 +59,60 @@ export async function testHandler({ selfClient }: Service.Context<TestDatabase>)
             startsWith: 'bar'
           }
         }
+      }
+    }
+  });
+}
+
+export async function testOperators({ selfClient }: Service.Context<TestDatabase>) {
+  // Contains operator
+  selfClient.table.findMany({
+    select: {
+      id: true
+    },
+    where: {
+      text: {
+        insensitive: true,
+        contains: 'foo'
+      }
+    }
+  });
+
+  // Starts With operator
+  selfClient.table.findMany({
+    select: {
+      id: true
+    },
+    where: {
+      text: {
+        insensitive: true,
+        startsWith: 'foo'
+      }
+    }
+  });
+
+  // Equals operator
+  selfClient.table.findMany({
+    select: {
+      id: true
+    },
+    where: {
+      text: {
+        insensitive: true,
+        equal: 'foo'
+      }
+    }
+  });
+
+  // Not equals operator
+  selfClient.table.findMany({
+    select: {
+      id: true
+    },
+    where: {
+      text: {
+        insensitive: true,
+        not: 'foo'
       }
     }
   });

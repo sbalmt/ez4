@@ -65,16 +65,9 @@ export declare class TestDatabase extends Database.Service {
   };
 }
 
-export async function testHandler({ selfClient }: Service.Context<TestDatabase>) {
-  testSelect(selfClient);
-  testInsert(selfClient);
-  testUpdate(selfClient);
-  testUpsert(selfClient);
-}
-
-const testSelect = async (client: TestDatabase['client']) => {
+export const testSelect = async ({ selfClient }: Service.Context<TestDatabase>) => {
   // Fetch tableA and all tableB connections
-  const resultA = await client.tableA.findMany({
+  const resultA = await selfClient.tableA.findMany({
     select: {
       value_a: true,
       all_relations_b: {
@@ -103,7 +96,7 @@ const testSelect = async (client: TestDatabase['client']) => {
   resultA.records[0].all_relations_b[0].value_b;
 
   // Fetch tableB and its tableA connection
-  const resultB = await client.tableB.findMany({
+  const resultB = await selfClient.tableB.findMany({
     select: {
       value_b: true,
       relation_a: {
@@ -120,7 +113,7 @@ const testSelect = async (client: TestDatabase['client']) => {
   resultB.records[0].relation_a.value_a;
 
   // Fetch tableC and its optional tableB connection
-  const resultC = await client.tableC.findMany({
+  const resultC = await selfClient.tableC.findMany({
     select: {
       value_c: true,
       relation_b: true
@@ -135,9 +128,9 @@ const testSelect = async (client: TestDatabase['client']) => {
   resultC.records[0].relation_b?.value_b;
 };
 
-const testInsert = async (client: TestDatabase['client']) => {
+export const testInsert = async ({ selfClient }: Service.Context<TestDatabase>) => {
   // Create tableA, all tableB and connect
-  await client.tableA.insertOne({
+  await selfClient.tableA.insertOne({
     data: {
       id: 'foo',
       value_a: 1,
@@ -155,7 +148,7 @@ const testInsert = async (client: TestDatabase['client']) => {
   });
 
   // Create tableA, tableB and connect
-  await client.tableB.insertOne({
+  await selfClient.tableB.insertOne({
     data: {
       id: 'bar',
       value_b: 2,
@@ -167,7 +160,7 @@ const testInsert = async (client: TestDatabase['client']) => {
   });
 
   // Create tableB and connect existing tableA
-  await client.tableB.insertOne({
+  await selfClient.tableB.insertOne({
     data: {
       id: 'bar',
       value_b: 2,
@@ -178,7 +171,7 @@ const testInsert = async (client: TestDatabase['client']) => {
   });
 
   // Create tableC, optionally tableB and connect
-  await client.tableC.insertOne({
+  await selfClient.tableC.insertOne({
     data: {
       id: 'foo',
       value_c: 1,
@@ -191,7 +184,7 @@ const testInsert = async (client: TestDatabase['client']) => {
   });
 };
 
-const testUpdate = async (client: TestDatabase['client']) => {
+export const testUpdate = async (client: TestDatabase['client']) => {
   // Update tableA and all tableB connections
   await client.tableA.updateMany({
     data: {
@@ -247,7 +240,7 @@ const testUpdate = async (client: TestDatabase['client']) => {
   });
 };
 
-const testUpsert = (client: TestDatabase['client']) => {
+export const testUpsert = (client: TestDatabase['client']) => {
   // Ensure insert and update follow relation rules.
   return client.tableA.upsertOne({
     insert: {

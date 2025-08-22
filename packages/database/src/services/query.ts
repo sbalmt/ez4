@@ -68,12 +68,12 @@ export namespace Query {
     where?: WhereInput<T>;
   };
 
-  export type FindManyInput<S extends AnyObject, T extends TableMetadata, C extends boolean> = PaginationUtils.Range<T['engine']> & {
-    count?: C;
+  export type FindManyInput<S extends AnyObject, C extends boolean, T extends TableMetadata> = PaginationUtils.Range<T['engine']> & {
     select: StrictSelectInput<S, T>;
     include?: StrictIncludeInput<S, T>;
     where?: WhereInput<T>;
     order?: OrderInput<T>;
+    count?: C;
   };
 
   export type DeleteManyInput<S extends AnyObject, T extends TableMetadata> = PaginationUtils.End<T['engine']> & {
@@ -86,28 +86,30 @@ export namespace Query {
     where?: WhereInput<T>;
   };
 
-  export type InsertOneResult<S extends AnyObject, T extends TableMetadata> = S extends never ? void : Record<S, T>;
+  export type InsertOneResult<S extends AnyObject, T extends TableMetadata> = Query.SelectInput<T> extends S ? void : Record<S, T>;
 
-  export type UpdateOneResult<S extends AnyObject, T extends TableMetadata> = S extends never ? void : Record<S, T> | undefined;
+  export type UpdateOneResult<S extends AnyObject, T extends TableMetadata> =
+    Query.SelectInput<T> extends S ? void : Record<S, T> | undefined;
 
-  export type FindOneResult<S extends AnyObject, T extends TableMetadata> = S extends never ? void : Record<S, T> | undefined;
+  export type FindOneResult<S extends AnyObject, T extends TableMetadata> =
+    Query.SelectInput<T> extends S ? void : Record<S, T> | undefined;
 
-  export type UpsertOneResult<S extends AnyObject, T extends TableMetadata> = S extends never ? void : Record<S, T>;
+  export type UpsertOneResult<S extends AnyObject, T extends TableMetadata> = Query.SelectInput<T> extends S ? void : Record<S, T>;
 
-  export type DeleteOneResult<S extends AnyObject, T extends TableMetadata> = S extends never ? void : Record<S, T> | undefined;
+  export type DeleteOneResult<S extends AnyObject, T extends TableMetadata> =
+    Query.SelectInput<T> extends S ? void : Record<S, T> | undefined;
 
-  export type UpdateManyResult<S extends AnyObject, T extends TableMetadata> = S extends never ? void : Record<S, T>[];
+  export type UpdateManyResult<S extends AnyObject, T extends TableMetadata> = Query.SelectInput<T> extends S ? void : Record<S, T>[];
 
   export type InsertManyResult = void;
 
-  export type FindManyResult<S extends AnyObject, T extends TableMetadata, C extends boolean> = PaginationUtils.Result<T['engine']> &
-    (C extends true ? { records: Record<S, T>[]; total: number } : { records: Record<S, T>[] });
+  export type FindManyResult<S extends AnyObject, C extends boolean, T extends TableMetadata> = PaginationUtils.Result<T['engine']> & {
+    records: Query.SelectInput<T> extends S ? void : Record<S, T>[];
+  } & (false extends C ? {} : { total: number });
 
-  export type DeleteManyResult<S extends AnyObject, T extends TableMetadata> = Record<S, T>[];
+  export type DeleteManyResult<S extends AnyObject, T extends TableMetadata> = Query.SelectInput<T> extends S ? void : Record<S, T>[];
 
-  export type Record<S extends AnyObject, T extends TableMetadata> = S extends never
-    ? undefined
-    : PartialObject<SelectFields<T['schema'], T['relations']>, S>;
+  export type Record<S extends AnyObject, T extends TableMetadata> = PartialObject<SelectFields<T['schema'], T['relations']>, S>;
 
   export type SelectInput<T extends TableMetadata> = PartialProperties<SelectFields<T['schema'], T['relations']>>;
 
@@ -157,8 +159,8 @@ export namespace Query {
     IsObjectEmpty<R['selects']> extends true ? T : T & R['selects'];
 
   type WhereOperations<V, E extends DatabaseEngine> =
-    | WhereNegate<V>
-    | WhereEqual<V>
+    | WhereNegate<V, E>
+    | WhereEqual<V, E>
     | WhereGreaterThan<V>
     | WhereGreaterThanOrEqual<V>
     | WhereLessThan<V>
@@ -211,8 +213,8 @@ export namespace Query {
   type WhereInputFilters<T extends TableMetadata, I extends Database.Indexes> = WhereCommonFilters<T['schema'], T, I> &
     (IsObjectEmpty<T['relations']['filters']> extends false ? WhereRelationFilters<T['relations']['filters'], T['engine']> : {});
 
-  export type WhereOperators = keyof (WhereNegate<any> &
-    WhereEqual<any> &
+  export type WhereOperators = keyof (WhereNegate<any, never> &
+    WhereEqual<any, never> &
     WhereGreaterThan<any> &
     WhereGreaterThanOrEqual<any> &
     WhereLessThan<any> &
@@ -224,11 +226,11 @@ export namespace Query {
     WhereStartsWith<never> &
     WhereContains<any, never>);
 
-  type WhereNegate<V> = {
+  type WhereNegate<V, E extends DatabaseEngine> = (V extends string ? InsensitiveUtils.Input<E> : {}) & {
     not: V;
   };
 
-  type WhereEqual<V> = {
+  type WhereEqual<V, E extends DatabaseEngine> = (V extends string ? InsensitiveUtils.Input<E> : {}) & {
     equal: V;
   };
 

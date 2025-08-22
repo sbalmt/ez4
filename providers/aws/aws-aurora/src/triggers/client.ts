@@ -25,7 +25,7 @@ export const prepareLinkedClient = (context: EventContext, service: DatabaseServ
     constructor:
       `make({` +
       `connection: { database: "${database}", resourceArn: ${resourceArn}, secretArn: ${secretArn} }, ` +
-      `repository: ${JSON.stringify(getTableRepository(service))}, ` +
+      `repository: ${JSON.stringify(getTableRepository(service.tables))}, ` +
       `debug: ${options.debug ?? false}` +
       `})`
   };
@@ -46,7 +46,7 @@ export const prepareEmulatorClient = async (event: EmulateClientEvent) => {
 
   return Client.make({
     debug: options.debug,
-    repository: getTableRepository(service),
+    repository: getTableRepository(service.tables),
     connection: {
       database: getDatabaseName(service, options),
       resourceArn: cluster.clusterArn,

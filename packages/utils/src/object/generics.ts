@@ -1,4 +1,5 @@
-import type { ArrayType, IsAny, IsArray } from '../main.js';
+import type { ArrayType, IsArray } from '../array/generics.js';
+import type { IsAny } from '../common/generics.js';
 
 /**
  * A type to represent any object.
@@ -32,10 +33,10 @@ export type IsObject<T> =
 export type Incomplete<T extends AnyObject> = { [P in keyof T]?: T[P] | null };
 
 /**
- * Given a complex object type `T`, it produces a new object type resolving its all first-level
+ * Given a complex object type `T`, it produces a new object type resolving all its first-level
  * property names.
  */
-export type Prettify<T extends AnyObject> = { [K in keyof T]: T[K] } & unknown;
+export type Prettify<T extends AnyObject> = { [P in keyof T]: T[P] } & unknown;
 
 /**
  * Given a type `T` and a property `P`, it returns `true` when the property exists,
@@ -84,7 +85,7 @@ export type StrictObject<T, U extends AnyObject> =
  * This is used in conjunction with `PartialObject`.
  *
  * @example
- * type Foo = PartialProperties<{ bar: string, baz: number }>; // { bar: true, baz: true }
+ * type Foo = PartialProperties<{ bar: string, baz: number }>; // { bar: boolean, baz: boolean }
  */
 export type PartialProperties<T extends AnyObject> = {
   [P in keyof T]?: IsArray<T[P]> extends false
@@ -98,8 +99,8 @@ export type PartialProperties<T extends AnyObject> = {
 
 /**
  * Given the object types `T` and `O`, it produces a new type containing only properties that
- * are in `O` if `V` is `true` or omit them if `V` is `false`, the original property type
- * is kept the same. This is used in conjunction with `PartialProperties`.
+ * are in `O` if `V` is `true` or omit them if `V` is `false`, the original property type is
+ * preserved. This is used in conjunction with `PartialProperties`.
  * 
  @example
  type Foo = PartialObject<{ bar: string, baz: number }, { bar: true }>; // { bar: string }

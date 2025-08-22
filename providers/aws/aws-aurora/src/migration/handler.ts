@@ -1,15 +1,12 @@
-import type { StepContext, StepHandler } from '@ez4/stateful';
-import type { PgTableRepository } from '@ez4/pgclient/library';
-import type { ObjectComparison } from '@ez4/utils';
-import type { ConnectionRequest, RepositoryUpdates } from './client.js';
+import type { StepContext, StepHandler, StepOptions } from '@ez4/stateful';
 import type { MigrationState, MigrationResult } from './types.js';
 
-import { deepCompare, deepEqual, isAnyObject } from '@ez4/utils';
+import { getTableRepositoryChanges } from '@ez4/pgmigration/library';
 import { ReplaceResourceError } from '@ez4/aws-common';
-import { isAnySchema } from '@ez4/schema';
+import { deepCompare } from '@ez4/utils';
 
 import { getClusterResult } from '../cluster/utils.js';
-import { createDatabase, deleteDatabase, createTables, updateTables, deleteTables } from './client.js';
+import { createDatabase, deleteDatabase, createTables, updateTables } from './client.js';
 import { MigrationServiceName } from './types.js';
 
 export const getMigrationHandler = (): StepHandler<MigrationState> => ({
@@ -25,11 +22,11 @@ const equalsResource = (candidate: MigrationState, current: MigrationState) => {
   return !!candidate.result && candidate.result.clusterArn === current.result?.clusterArn;
 };
 
-const previewResource = async (candidate: MigrationState, current: MigrationState) => {
+const previewResource = async (candidate: MigrationState, current: MigrationState, options: StepOptions) => {
   const target = { ...candidate.parameters, dependencies: candidate.dependencies };
   const source = { ...current.parameters, dependencies: current.dependencies };
 
-  const repositoryChanges = getRepositoryChanges(target.repository, source.repository);
+  const databaseChanges = getTableRepositoryChanges(target.repository, options.force ? {} : source.repository);
 
   const resourceChanges = deepCompare(target, source, {
     exclude: {
@@ -39,11 +36,11 @@ const previewResource = async (candidate: MigrationState, current: MigrationStat
 
   return {
     ...resourceChanges,
-    counts: resourceChanges.counts + Math.max(repositoryChanges.counts, 1),
+    counts: resourceChanges.counts + Math.max(databaseChanges.counts, 1),
     name: target.database,
     nested: {
       ...resourceChanges.nested,
-      repository: repositoryChanges
+      repository: databaseChanges
     }
   };
 };
@@ -76,39 +73,31 @@ const createResource = async (candidate: MigrationState, context: StepContext): 
   };
 };
 
-const updateResource = async (candidate: MigrationState, current: MigrationState) => {
+const updateResource = async (candidate: MigrationState, current: MigrationState, context: StepContext) => {
   const { result, parameters } = candidate;
 
   if (!result) {
     return;
   }
 
-  const target = parameters.repository;
-  const source = current.parameters.repository;
+  const targetRepository = parameters.repository;
+  const sourceRepository = context.force ? {} : current.parameters.repository;
 
-  const changes = getRepositoryChanges(target, source);
+  const databaseChanges = getTableRepositoryChanges(targetRepository, sourceRepository);
 
-  if (!changes.counts) {
+  if (!databaseChanges.counts) {
     return;
   }
 
-  const connection = {
+  updateTables({
     database: parameters.database,
     clusterArn: result.clusterArn,
-    secretArn: result.secretArn
-  };
-
-  if (changes.create) {
-    await applyCreateTables(connection, changes.create);
-  }
-
-  if (changes.nested) {
-    await applyUpdateTables(connection, changes.nested, target);
-  }
-
-  if (changes.remove) {
-    await applyDeleteTables(connection, changes.remove);
-  }
+    secretArn: result.secretArn,
+    repository: {
+      target: parameters.repository,
+      source: current.parameters.repository
+    }
+  });
 };
 
 const deleteResource = async (candidate: MigrationState) => {
@@ -124,134 +113,5 @@ const deleteResource = async (candidate: MigrationState) => {
     database: parameters.database,
     clusterArn,
     secretArn
-  });
-};
-
-const getRepositoryChanges = (target: PgTableRepository, source: PgTableRepository) => {
-  return deepCompare(target, source, {
-    onRename: (target, source) => {
-      if (!isAnyObject(target) || !isAnyObject(source)) {
-        return target === source;
-      }
-
-      if (!isAnySchema(target) || !isAnySchema(source)) {
-        return deepEqual(target, source);
-      }
-
-      return deepEqual(target, source, {
-        include: {
-          type: true,
-          definitions: true,
-          nullable: true,
-          optional: true
-        }
-      });
-    }
-  });
-};
-
-const applyCreateTables = async (connection: ConnectionRequest, repository: PgTableRepository) => {
-  await createTables({
-    ...connection,
-    repository
-  });
-};
-
-const applyUpdateTables = async (
-  connection: ConnectionRequest,
-  comparison: Record<string, ObjectComparison>,
-  repository: PgTableRepository
-) => {
-  const updates: Record<string, RepositoryUpdates> = {};
-
-  for (const table in comparison) {
-    const { nested } = comparison[table];
-
-    if (!nested) {
-      continue;
-    }
-
-    const { schema, relations, indexes } = nested;
-
-    const targetColumns = schema?.nested?.properties;
-    const targetSchema = repository[table].schema.properties;
-    const targetName = repository[table].name;
-
-    const changes: RepositoryUpdates = {
-      name: targetName,
-      schema: {
-        toCreate: {},
-        toUpdate: {},
-        toRemove: {},
-        toRename: {}
-      },
-      relations: {
-        toCreate: {},
-        toRemove: {}
-      },
-      indexes: {
-        toCreate: {},
-        toRemove: {}
-      }
-    };
-
-    updates[table] = changes;
-
-    // Columns
-
-    if (targetColumns?.create) {
-      changes.schema.toCreate = targetColumns.create;
-    }
-
-    for (const column in targetColumns?.nested) {
-      changes.schema.toUpdate[column] = targetSchema[column];
-    }
-
-    if (targetColumns?.remove) {
-      changes.schema.toRemove = targetColumns.remove;
-    }
-
-    if (targetColumns?.rename) {
-      changes.schema.toRename = targetColumns.rename;
-    }
-
-    // Relations
-
-    if (relations?.create) {
-      changes.relations.toCreate = relations.create;
-    }
-
-    if (relations?.remove) {
-      changes.relations.toRemove = relations.remove;
-    }
-
-    // Indexes
-
-    if (indexes?.create) {
-      changes.indexes.toCreate = indexes.create;
-    }
-
-    if (indexes?.remove) {
-      changes.indexes.toRemove = indexes.remove;
-    }
-  }
-
-  await updateTables({
-    ...connection,
-    repository,
-    updates
-  });
-};
-
-const applyDeleteTables = async (connection: ConnectionRequest, repository: PgTableRepository) => {
-  const tables = [];
-
-  for (const alias in repository) {
-    tables.push(repository[alias].name);
-  }
-
-  await deleteTables({
-    ...connection,
-    tables
   });
 };

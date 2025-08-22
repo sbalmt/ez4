@@ -1,7 +1,7 @@
 {
   "name": "@ez4/validator",
   "description": "EZ4: Validate data according to a given schema",
-  "version": "0.25.0",
+  "version": "0.26.0",
   "author": "Silas B.",
   "license": "MIT",
   "type": "module",
@@ -33,10 +33,10 @@
     "test:types": "npm run build && tsc -p tsconfig.test.json",
     "local:publish": "npm run build && npm run clean:registry && npm publish --registry http://localhost:4873",
     "clean:registry": "rm -rf ../../.registry/@ez4/validator",
-    "live:publish": "npm publish --access public"
+    "live:publish": "npm run build && npm publish --access public"
   },
   "dependencies": {
-    "@ez4/schema": "^0.25.0",
-    "@ez4/utils": "^0.25.0"
+    "@ez4/schema": "^0.26.0",
+    "@ez4/utils": "^0.26.0"
   }
 }

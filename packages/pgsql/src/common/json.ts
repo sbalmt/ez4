@@ -6,8 +6,8 @@ import { isAnyObject } from '@ez4/utils';
 import { mergeSqlAlias, mergeSqlPath } from '../utils/merge.js';
 import { escapeSqlName, escapeSqlText } from '../utils/escape.js';
 import { SqlSelectStatement } from '../statements/select.js';
+import { SqlOrderClause } from '../clauses/query/order.js';
 import { SqlColumnReference } from './reference.js';
-import { SqlOrderClause } from '../clauses/order.js';
 import { SqlRawValue } from './raw.js';
 
 type SqlJsonColumnContext = {

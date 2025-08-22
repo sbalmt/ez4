@@ -2,14 +2,12 @@ import type { SqlParameter } from '@aws-sdk/client-rds-data';
 import type { AnySchema } from '@ez4/schema';
 
 import { TypeHint } from '@aws-sdk/client-rds-data';
+import { UnsupportedFieldType, isJsonFieldSchema } from '@ez4/pgclient';
 import { isDate, isDateTime, isTime, isUUID } from '@ez4/utils';
 import { SchemaType } from '@ez4/schema';
 
-import { UnsupportedFieldType } from './errors.js';
-import { isJsonField } from './schema.js';
-
 export const prepareFieldData = (name: string, value: unknown, schema: AnySchema): SqlParameter => {
-  if (isJsonField(schema)) {
+  if (isJsonFieldSchema(schema)) {
     return getJsonFieldData(name, value as object);
   }
 
@@ -152,7 +150,6 @@ const getDateTimeFieldData = (name: string, value: string): SqlParameter => {
 
 const getJsonFieldData = (name: string, value: unknown): SqlParameter => {
   return {
-    name,
     typeHint: TypeHint.JSON,
     ...getTextFieldData(name, JSON.stringify(value))
   };

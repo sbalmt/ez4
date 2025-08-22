@@ -15,7 +15,7 @@ import {
   prepareDeleteMany,
   prepareDeleteOne,
   prepareCount
-} from './common/queries.js';
+} from './queries/queries.js';
 
 export type TableContext = {
   transactionId?: string;
@@ -152,7 +152,7 @@ export class Table<T extends InternalTableMetadata> implements DbTable<T> {
     return records as Query.UpdateManyResult<S, T>;
   }
 
-  async findMany<S extends Query.SelectInput<T>, C extends boolean = false>(query: Query.FindManyInput<S, T, C>) {
+  async findMany<S extends Query.SelectInput<T>, C extends boolean = false>(query: Query.FindManyInput<S, C, T>) {
     const findStatement = prepareFindMany(this.name, this.schema, this.relations, this.context.driver, query);
     const allStatements = [findStatement];
 
@@ -171,7 +171,7 @@ export class Table<T extends InternalTableMetadata> implements DbTable<T> {
       ...(query.count && {
         total: total[0]?.count
       })
-    } as Query.FindManyResult<S, T, C>;
+    } as Query.FindManyResult<S, C, T>;
   }
 
   async deleteMany<S extends Query.SelectInput<T>>(query: Query.DeleteManyInput<S, T>) {

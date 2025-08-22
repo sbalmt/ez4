@@ -125,7 +125,7 @@ export const prepareInsertMany = async <T extends InternalTableMetadata>(
 export const prepareFindMany = <T extends InternalTableMetadata, S extends Query.SelectInput<T>, C extends boolean>(
   table: string,
   indexes: string[][],
-  query: Query.FindManyInput<S, T, C>
+  query: Query.FindManyInput<S, C, T>
 ): ExecuteStatementCommandInput => {
   const [, ...secondaryIndexes] = indexes;
 
@@ -222,7 +222,7 @@ export const prepareDeleteMany = async <T extends InternalTableMetadata, S exten
   const { records } = await executeStatement(client, command, debug);
 
   if (!records?.length) {
-    return [[], []];
+    return [[], [] as unknown as Query.DeleteManyResult<S, T>];
   }
 
   const transactions = [];

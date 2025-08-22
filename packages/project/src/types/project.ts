@@ -21,10 +21,16 @@ export type ProjectOptions = {
   debugMode?: boolean;
 
   /**
-   * Determines whether the deploy and destroy actions are forced.
+   * Determines whether the deploy and destroy commands are forced.
    * Default is: `false`
    */
   forceMode?: boolean;
+
+  /**
+   * Determines whether the serve command must use the `localOptions`.
+   * Default is: `false`
+   */
+  localMode?: boolean;
 
   /**
    * Project name that's combined with the `prefix`.
@@ -53,9 +59,14 @@ export type ProjectOptions = {
   stateFile: ProjectStateOptions;
 
   /**
-   * Configuration for serving the local development.
+   * Options for serving the local development.
    */
   serveOptions?: ProjectServeOptions;
+
+  /**
+   * Options for local development.
+   */
+  localOptions?: Record<string, AnyObject>;
 
   /**
    * Variables associated to all services.
@@ -92,11 +103,6 @@ export type ProjectImportOptions = {
 };
 
 export type ProjectServeOptions = {
-  /**
-   * Provider-specific configurations.
-   */
-  providerOptions?: Record<string, AnyObject>;
-
   /**
    * Port to run the local development service.
    * Default is: `3734`
