@@ -484,10 +484,6 @@ describe('migration :: create table tests', () => {
 
       constraints: [
         {
-          check: `SELECT 1 FROM "pg_constraint" WHERE "conname" = 'table_id_pk'`,
-          query: `ALTER TABLE IF EXISTS "table" ADD CONSTRAINT "table_id_pk" PRIMARY KEY ("id")`
-        },
-        {
           check: `SELECT 1 FROM "pg_constraint" WHERE "conname" = 'table_id_ck'`,
           query: `ALTER TABLE IF EXISTS "table" ADD CONSTRAINT "table_id_ck" CHECK (false)`
         },
@@ -502,6 +498,10 @@ describe('migration :: create table tests', () => {
         {
           check: `SELECT 1 FROM "pg_constraint" WHERE "conname" = 'table_nullable_ck'`,
           query: `ALTER TABLE IF EXISTS "table" ADD CONSTRAINT "table_nullable_ck" CHECK (false)`
+        },
+        {
+          check: `SELECT 1 FROM "pg_constraint" WHERE "conname" = 'table_id_pk'`,
+          query: `ALTER TABLE IF EXISTS "table" ADD CONSTRAINT "table_id_pk" PRIMARY KEY ("id")`
         }
       ],
       relations: [],
