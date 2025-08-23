@@ -29,7 +29,7 @@ export const deployCommand = async (project: ProjectOptions) => {
   };
 
   if (options.force) {
-    Logger.log('ℹ️  Force option is enabled');
+    Logger.log('‼️  Force option is enabled');
   }
 
   await Logger.execute('🔄️ Loading providers', () => {
