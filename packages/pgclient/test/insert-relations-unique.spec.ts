@@ -221,8 +221,8 @@ describe('insert unique relations', () => {
         `"R0" AS (INSERT INTO "ez4-test-insert-relations" ("id", "unique_id") VALUES (:0, :1) RETURNING "unique_id") ` +
         // Select
         `SELECT ` +
-        `(SELECT json_build_object('id', "T"."id", 'foo', "T"."foo") FROM "ez4-test-relation" AS "T" ` +
-        `WHERE "T"."id" = "R0"."unique_id") AS "unique_to_primary" ` +
+        `(SELECT json_build_object('id', "S"."id", 'foo', "S"."foo") FROM "ez4-test-relation" AS "S" ` +
+        `WHERE "S"."id" = "R0"."unique_id") AS "unique_to_primary" ` +
         `FROM "R0"`
     );
 

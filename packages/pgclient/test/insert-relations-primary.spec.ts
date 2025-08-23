@@ -221,8 +221,8 @@ describe('insert primary relations', () => {
         `"R0" AS (INSERT INTO "ez4-test-insert-relations" ("id", "secondary_id") VALUES (:0, :1) RETURNING "secondary_id") ` +
         // Select
         `SELECT ` +
-        `(SELECT json_build_object('id', "T"."id", 'foo', "T"."foo") FROM "ez4-test-relation" AS "T" ` +
-        `WHERE "T"."id" = "R0"."secondary_id") AS "primary_to_secondary" ` +
+        `(SELECT json_build_object('id', "S"."id", 'foo', "S"."foo") FROM "ez4-test-relation" AS "S" ` +
+        `WHERE "S"."id" = "R0"."secondary_id") AS "primary_to_secondary" ` +
         `FROM "R0"`
     );
 

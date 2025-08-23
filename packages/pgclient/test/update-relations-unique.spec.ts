@@ -192,8 +192,8 @@ describe('update unique relations', () => {
       // Main record
       `UPDATE ONLY "ez4-test-update-relations" AS "R" SET "id" = :0, "unique_id" = :1 ` +
         // Select
-        `RETURNING (SELECT json_build_object('id', "T"."id", 'foo', "T"."foo") FROM "ez4-test-relation" AS "T" ` +
-        `WHERE "T"."unique_id" = "R"."id") AS "unique_to_primary"`
+        `RETURNING (SELECT json_build_object('id', "S"."id", 'foo', "S"."foo") FROM "ez4-test-relation" AS "S" ` +
+        `WHERE "S"."unique_id" = "R"."id") AS "unique_to_primary"`
     );
 
     assert.deepEqual(variables, ['00000000-0000-1000-9000-000000000000', '00000000-0000-1000-9000-000000000001']);
@@ -276,8 +276,8 @@ describe('update unique relations', () => {
         // Relation
         `"R1" AS (UPDATE ONLY "ez4-test-relation" AS "T" SET "foo" = :1 FROM "R0" WHERE "T"."unique_id" = "R0"."id") ` +
         // Select
-        `SELECT (SELECT json_build_object('id', "T"."id", 'foo', "T"."foo") FROM "ez4-test-relation" AS "T" ` +
-        `WHERE "T"."unique_id" = "R0"."id") AS "unique_to_primary" FROM "ez4-test-update-relations"`
+        `SELECT (SELECT json_build_object('id', "S"."id", 'foo', "S"."foo") FROM "ez4-test-relation" AS "S" ` +
+        `WHERE "S"."unique_id" = "R0"."id") AS "unique_to_primary" FROM "ez4-test-update-relations"`
     );
 
     assert.deepEqual(variables, ['00000000-0000-1000-9000-000000000000', 'foo']);
@@ -322,8 +322,8 @@ describe('update unique relations', () => {
         // Third relation
         `"R2" AS (UPDATE ONLY "ez4-test-relation" AS "T" SET "foo" = :3 FROM "R0" WHERE "T"."unique_3_id" = "R0"."id") ` +
         // Select
-        `SELECT "id", (SELECT json_build_object('id', "T"."id", 'foo', "T"."foo") FROM "ez4-test-relation" AS "T" ` +
-        `WHERE "T"."unique_1_id" = "R0"."id") AS "unique_to_primary_1" FROM "ez4-test-update-relations"`
+        `SELECT "id", (SELECT json_build_object('id', "S"."id", 'foo', "S"."foo") FROM "ez4-test-relation" AS "S" ` +
+        `WHERE "S"."unique_1_id" = "R0"."id") AS "unique_to_primary_1" FROM "ez4-test-update-relations"`
     );
 
     assert.deepEqual(variables, ['00000000-0000-1000-9000-000000000000', '00000000-0000-1000-9000-000000000001', 'foo', 'foo']);

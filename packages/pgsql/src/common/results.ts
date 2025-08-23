@@ -164,7 +164,7 @@ const getResultColumns = (columns: (SqlResultColumn | SqlJsonColumn)[], context:
         throw new MissingColumnAliasError();
       }
 
-      const [selectStatement, selectVariables] = column.as(column.filters ? `T` : undefined).build();
+      const [selectStatement, selectVariables] = column.as(column.filters ? 'S' : undefined).build();
 
       variables.push(...selectVariables);
 

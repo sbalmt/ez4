@@ -192,8 +192,8 @@ describe('update primary relations', () => {
       // Main record
       `UPDATE ONLY "ez4-test-update-relations" AS "R" SET "id" = :0, "secondary_id" = :1 ` +
         // Select
-        `RETURNING (SELECT json_build_object('id', "T"."id", 'foo', "T"."foo") FROM "ez4-test-relation" AS "T" ` +
-        `WHERE "T"."id" = "R"."secondary_id") AS "primary_to_secondary"`
+        `RETURNING (SELECT json_build_object('id', "S"."id", 'foo', "S"."foo") FROM "ez4-test-relation" AS "S" ` +
+        `WHERE "S"."id" = "R"."secondary_id") AS "primary_to_secondary"`
     );
 
     assert.deepEqual(variables, ['00000000-0000-1000-9000-000000000000', '00000000-0000-1000-9000-000000000001']);
@@ -276,8 +276,8 @@ describe('update primary relations', () => {
         // Relation
         `"R1" AS (UPDATE ONLY "ez4-test-relation" AS "T" SET "foo" = :1 FROM "R0" WHERE "T"."id" = "R0"."secondary_id") ` +
         // Select
-        `SELECT (SELECT json_build_object('id', "T"."id", 'foo', "T"."foo") FROM "ez4-test-relation" AS "T" ` +
-        `WHERE "T"."id" = "R0"."secondary_id") AS "primary_to_secondary" FROM "ez4-test-update-relations"`
+        `SELECT (SELECT json_build_object('id', "S"."id", 'foo', "S"."foo") FROM "ez4-test-relation" AS "S" ` +
+        `WHERE "S"."id" = "R0"."secondary_id") AS "primary_to_secondary" FROM "ez4-test-update-relations"`
     );
 
     assert.deepEqual(variables, ['00000000-0000-1000-9000-000000000000', 'foo']);
@@ -324,8 +324,8 @@ describe('update primary relations', () => {
         // Third relation
         `"R2" AS (UPDATE ONLY "ez4-test-relation" AS "T" SET "id" = :4 FROM "R0" WHERE "T"."id" = "R0"."secondary_3_id") ` +
         // Select
-        `SELECT "id", (SELECT json_build_object('id', "T"."id", 'foo', "T"."foo") FROM "ez4-test-relation" AS "T" ` +
-        `WHERE "T"."id" = "R0"."secondary_1_id") AS "primary_to_secondary_1" FROM "ez4-test-update-relations"`
+        `SELECT "id", (SELECT json_build_object('id', "S"."id", 'foo', "S"."foo") FROM "ez4-test-relation" AS "S" ` +
+        `WHERE "S"."id" = "R0"."secondary_1_id") AS "primary_to_secondary_1" FROM "ez4-test-update-relations"`
     );
 
     assert.deepEqual(variables, [

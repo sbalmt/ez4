@@ -186,8 +186,8 @@ describe('update secondary relations', () => {
       // Main record
       `UPDATE ONLY "ez4-test-update-relations" AS "R" SET "id" = :0, "primary_id" = :1 ` +
         // Select
-        `RETURNING (SELECT COALESCE(json_agg(json_build_object('id', "T"."id", 'foo', "T"."foo")), '[]'::json) ` +
-        `FROM "ez4-test-relation" AS "T" WHERE "T"."primary_id" = "R"."id") AS "secondary_to_primary"`
+        `RETURNING (SELECT COALESCE(json_agg(json_build_object('id', "S"."id", 'foo', "S"."foo")), '[]'::json) ` +
+        `FROM "ez4-test-relation" AS "S" WHERE "S"."primary_id" = "R"."id") AS "secondary_to_primary"`
     );
 
     assert.deepEqual(variables, ['00000000-0000-1000-9000-000000000000', '00000000-0000-1000-9000-000000000001']);
@@ -281,8 +281,8 @@ describe('update secondary relations', () => {
         // Third relation
         `"R2" AS (UPDATE ONLY "ez4-test-relation" AS "T" SET "foo" = :3 FROM "R0" WHERE "T"."primary_3_id" = "R0"."id") ` +
         // Select
-        `SELECT "id", (SELECT COALESCE(json_agg(json_build_object('id', "T"."id", 'foo', "T"."foo")), '[]'::json) ` +
-        `FROM "ez4-test-relation" AS "T" WHERE "T"."primary_1_id" = "R0"."id") AS "secondary_to_primary_1" FROM "ez4-test-update-relations"`
+        `SELECT "id", (SELECT COALESCE(json_agg(json_build_object('id', "S"."id", 'foo', "S"."foo")), '[]'::json) ` +
+        `FROM "ez4-test-relation" AS "S" WHERE "S"."primary_1_id" = "R0"."id") AS "secondary_to_primary_1" FROM "ez4-test-update-relations"`
     );
 
     assert.deepEqual(variables, ['00000000-0000-1000-9000-000000000000', '00000000-0000-1000-9000-000000000001', 'foo', 'foo']);

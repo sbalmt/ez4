@@ -125,18 +125,18 @@ describe('select relations', () => {
       statement,
       `SELECT "R"."id", "R"."foo", ` +
         // First relation
-        `(SELECT json_build_object('id', "T"."id") ` +
-        `FROM "ez4-test-relation" AS "T" WHERE "T"."id" = "R"."relation1_id") AS "secondary_to_unique", ` +
+        `(SELECT json_build_object('id', "S"."id") ` +
+        `FROM "ez4-test-relation" AS "S" WHERE "S"."id" = "R"."relation1_id") AS "secondary_to_unique", ` +
         // Second relation
         `(SELECT json_build_object(` +
-        `'id', "T"."id", ` +
-        `'relation1_id', "T"."relation1_id", ` +
-        `'relation2_id', "T"."relation2_id", ` +
-        `'foo', "T"."foo") ` +
-        `FROM "ez4-test-relation" AS "T" WHERE "T"."relation2_id" = "R"."id") AS "primary_to_unique", ` +
+        `'id', "S"."id", ` +
+        `'relation1_id', "S"."relation1_id", ` +
+        `'relation2_id', "S"."relation2_id", ` +
+        `'foo', "S"."foo") ` +
+        `FROM "ez4-test-relation" AS "S" WHERE "S"."relation2_id" = "R"."id") AS "primary_to_unique", ` +
         // Third relation
-        `(SELECT COALESCE(json_agg(json_build_object('foo', "T"."foo")), '[]'::json) ` +
-        `FROM "ez4-test-relation" AS "T" WHERE "T"."relation1_id" = "R"."id") AS "primary_to_secondary" ` +
+        `(SELECT COALESCE(json_agg(json_build_object('foo', "S"."foo")), '[]'::json) ` +
+        `FROM "ez4-test-relation" AS "S" WHERE "S"."relation1_id" = "R"."id") AS "primary_to_secondary" ` +
         //
         `FROM "ez4-test-select-relations" AS "R" ` +
         `WHERE "R"."id" = :0`
@@ -178,12 +178,12 @@ describe('select relations', () => {
       statement,
       `SELECT "R"."id", "R"."foo", ` +
         // First relation
-        `(SELECT json_build_object('foo', "T"."foo") FROM "ez4-test-relation" AS "T" WHERE "T"."id" = "R"."relation1_id") AS "secondary_to_unique", ` +
+        `(SELECT json_build_object('foo', "S"."foo") FROM "ez4-test-relation" AS "S" WHERE "S"."id" = "R"."relation1_id") AS "secondary_to_unique", ` +
         // Second relation
-        `(SELECT json_build_object('foo', "T"."foo") FROM "ez4-test-relation" AS "T" WHERE "T"."relation2_id" = "R"."id") AS "primary_to_unique", ` +
+        `(SELECT json_build_object('foo', "S"."foo") FROM "ez4-test-relation" AS "S" WHERE "S"."relation2_id" = "R"."id") AS "primary_to_unique", ` +
         // Third relation
-        `(SELECT COALESCE(json_agg(json_build_object('foo', "T"."foo")), '[]'::json) ` +
-        `FROM "ez4-test-relation" AS "T" WHERE "T"."relation1_id" = "R"."id") AS "primary_to_secondary" ` +
+        `(SELECT COALESCE(json_agg(json_build_object('foo', "S"."foo")), '[]'::json) ` +
+        `FROM "ez4-test-relation" AS "S" WHERE "S"."relation1_id" = "R"."id") AS "primary_to_secondary" ` +
         // Main condition
         `FROM "ez4-test-select-relations" AS "R" WHERE "R"."id" = :0 AND ` +
         // First relation condition
@@ -266,14 +266,14 @@ describe('select relations', () => {
       statement,
       `SELECT "R"."id", ` +
         // First relation
-        `(SELECT json_build_object('foo', "T"."foo") FROM "ez4-test-relation" AS "T" ` +
-        `WHERE "T"."foo" = :0 AND "T"."id" = "R"."relation1_id") AS "secondary_to_unique", ` +
+        `(SELECT json_build_object('foo', "S"."foo") FROM "ez4-test-relation" AS "S" ` +
+        `WHERE "S"."foo" = :0 AND "S"."id" = "R"."relation1_id") AS "secondary_to_unique", ` +
         // Second relation
-        `(SELECT json_build_object('foo', "T"."foo") FROM "ez4-test-relation" AS "T" ` +
-        `WHERE "T"."foo" = :1 AND "T"."relation2_id" = "R"."id") AS "primary_to_unique", ` +
+        `(SELECT json_build_object('foo', "S"."foo") FROM "ez4-test-relation" AS "S" ` +
+        `WHERE "S"."foo" = :1 AND "S"."relation2_id" = "R"."id") AS "primary_to_unique", ` +
         // Third relation
-        `(SELECT COALESCE(json_agg(json_build_object('foo', "T"."foo")), '[]'::json) FROM "ez4-test-relation" AS "T" ` +
-        `WHERE "T"."foo" = :2 AND "T"."relation1_id" = "R"."id") AS "primary_to_secondary" ` +
+        `(SELECT COALESCE(json_agg(json_build_object('foo', "S"."foo")), '[]'::json) FROM "ez4-test-relation" AS "S" ` +
+        `WHERE "S"."foo" = :2 AND "S"."relation1_id" = "R"."id") AS "primary_to_secondary" ` +
         //
         `FROM "ez4-test-select-relations" AS "R" ` +
         `WHERE "R"."id" = :3`
@@ -310,14 +310,14 @@ describe('select relations', () => {
       statement,
       `SELECT "R"."id", ` +
         // First relation
-        `(SELECT json_build_object('foo', "T"."foo") FROM "ez4-test-relation" AS "T" ` +
-        `WHERE "T"."id" = "R"."relation1_id") AS "secondary_to_unique", ` +
+        `(SELECT json_build_object('foo', "S"."foo") FROM "ez4-test-relation" AS "S" ` +
+        `WHERE "S"."id" = "R"."relation1_id") AS "secondary_to_unique", ` +
         // Second relation
-        `(SELECT json_build_object('foo', "T"."foo") FROM "ez4-test-relation" AS "T" ` +
-        `WHERE "T"."relation2_id" = "R"."id") AS "primary_to_unique", ` +
+        `(SELECT json_build_object('foo', "S"."foo") FROM "ez4-test-relation" AS "S" ` +
+        `WHERE "S"."relation2_id" = "R"."id") AS "primary_to_unique", ` +
         // Third relation
-        `(SELECT COALESCE(json_agg(json_build_object('foo', "T"."foo")), '[]'::json) FROM "ez4-test-relation" AS "T" ` +
-        `WHERE "T"."relation1_id" = "R"."id") AS "primary_to_secondary" ` +
+        `(SELECT COALESCE(json_agg(json_build_object('foo', "S"."foo")), '[]'::json) FROM "ez4-test-relation" AS "S" ` +
+        `WHERE "S"."relation1_id" = "R"."id") AS "primary_to_secondary" ` +
         //
         `FROM "ez4-test-select-relations" AS "R" ` +
         `WHERE "R"."id" = :0`
@@ -353,8 +353,8 @@ describe('select relations', () => {
       statement,
       `SELECT "R"."id", ` +
         // First relation
-        `(SELECT COALESCE(json_agg(json_build_object('foo', "T"."foo") ORDER BY "T"."foo" DESC), '[]'::json) FROM "ez4-test-relation" AS "T" ` +
-        `WHERE "T"."foo" = :0 AND "T"."relation1_id" = "R"."id") AS "primary_to_secondary" ` +
+        `(SELECT COALESCE(json_agg(json_build_object('foo', "S"."foo") ORDER BY "S"."foo" DESC), '[]'::json) FROM "ez4-test-relation" AS "S" ` +
+        `WHERE "S"."foo" = :0 AND "S"."relation1_id" = "R"."id") AS "primary_to_secondary" ` +
         //
         `FROM "ez4-test-select-relations" AS "R" ` +
         `WHERE "R"."id" = :1`
@@ -401,7 +401,7 @@ describe('select relations', () => {
     assert.deepEqual(variables, [123, '00000000-0000-1000-9000-000000000000']);
   });
 
-  it.only('assert :: prepare select nested relations', ({ assert }) => {
+  it('assert :: prepare select nested relations', ({ assert }) => {
     const [statement, variables] = prepareSelect({
       select: {
         id: true,
@@ -430,21 +430,21 @@ describe('select relations', () => {
       statement,
       `SELECT "R"."id", ` +
         // First relation
-        `(SELECT json_build_object('foo', "T"."foo") FROM "ez4-test-relation" AS "T" ` +
-        `WHERE "T"."relation2_id" = "R"."id") AS "primary_to_unique", ` +
+        `(SELECT json_build_object('foo', "S"."foo") FROM "ez4-test-relation" AS "S" ` +
+        `WHERE "S"."relation2_id" = "R"."id") AS "primary_to_unique", ` +
         // Second relation
-        `(SELECT COALESCE(json_agg(json_build_object('foo', "T"."foo")), '[]'::json) FROM "ez4-test-relation" AS "T" ` +
-        `WHERE "T"."relation1_id" = "R"."id") AS "primary_to_secondary", ` +
+        `(SELECT COALESCE(json_agg(json_build_object('foo', "S"."foo")), '[]'::json) FROM "ez4-test-relation" AS "S" ` +
+        `WHERE "S"."relation1_id" = "R"."id") AS "primary_to_secondary", ` +
         // Third relation
-        `(SELECT json_build_object('foo', "T"."foo", ` +
+        `(SELECT json_build_object('foo', "S"."foo", ` +
         //
-        /****/ `'primary_to_unique', (SELECT json_build_object('foo', "T"."foo") ` +
-        /*****/ `FROM "ez4-test-relation" AS "T" WHERE "T"."relation2_id" = "T"."id"), ` +
+        /****/ `'primary_to_unique', (SELECT json_build_object('foo', "O"."foo") ` +
+        /*****/ `FROM "ez4-test-relation" AS "O" WHERE "O"."relation2_id" = "S"."id"), ` +
         //
-        /****/ `'primary_to_secondary', (SELECT COALESCE(json_agg(json_build_object('foo', "T"."foo")), '[]'::json) ` +
-        /*****/ `FROM "ez4-test-relation" AS "T" WHERE "T"."relation1_id" = "T"."id")` +
+        /****/ `'primary_to_secondary', (SELECT COALESCE(json_agg(json_build_object('foo', "O"."foo")), '[]'::json) ` +
+        /*****/ `FROM "ez4-test-relation" AS "O" WHERE "O"."relation1_id" = "S"."id")` +
         //
-        `) FROM "ez4-test-relation" AS "T" WHERE "T"."id" = "R"."relation1_id") AS "secondary_to_unique" ` +
+        `) FROM "ez4-test-relation" AS "S" WHERE "S"."id" = "R"."relation1_id") AS "secondary_to_unique" ` +
         //
         `FROM "ez4-test-select-relations" AS "R" ` +
         `WHERE "R"."id" = :0`

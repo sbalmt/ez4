@@ -92,7 +92,7 @@ const getJsonObject = (schema: SqlJsonColumnSchema, context: SqlJsonColumnContex
     }
 
     if (value instanceof SqlSelectStatement) {
-      const [selectStatement, selectVariables] = value.as(value.filters ? `T` : undefined).build();
+      const [selectStatement, selectVariables] = value.as(value.filters ? 'O' : undefined).build();
 
       fields.push(`${escapeSqlText(field)}, (${selectStatement})`);
       variables.push(...selectVariables);

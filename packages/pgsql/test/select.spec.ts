@@ -141,7 +141,7 @@ describe('sql select tests', () => {
 
     equal(
       statement,
-      'SELECT "foo", (SELECT "T"."bar" FROM "inner" AS "T" WHERE "T"."baz" = :0 ORDER BY "T"."bar" DESC LIMIT 1) AS "alias" FROM "table"'
+      'SELECT "foo", (SELECT "S"."bar" FROM "inner" AS "S" WHERE "S"."baz" = :0 ORDER BY "S"."bar" DESC LIMIT 1) AS "alias" FROM "table"'
     );
   });
 
