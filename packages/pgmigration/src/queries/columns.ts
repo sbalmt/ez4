@@ -8,7 +8,7 @@ import { Index } from '@ez4/database';
 import { getColumnDefault, getColumnType, isOptionalColumn } from '../utils/columns.js';
 import { getCheckColumnQuery } from '../utils/checks.js';
 
-export namespace ColumnsQuery {
+export namespace ColumnQuery {
   export const prepareCreate = (builder: SqlBuilder, table: string, indexes: PgIndexRepository, columns: Record<string, AnySchema>) => {
     const statement = builder.table(table).alter().existing();
 

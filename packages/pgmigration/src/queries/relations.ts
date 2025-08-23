@@ -10,7 +10,7 @@ import { Index } from '@ez4/database';
 import { getCheckConstraintQuery } from '../utils/checks.js';
 import { getRelationName } from '../utils/naming.js';
 
-export namespace RelationsQuery {
+export namespace RelationQuery {
   export const prepareCreate = (builder: SqlBuilder, table: string, schema: ObjectSchema, relations: PgRelationRepository) => {
     const statements = [];
 

@@ -2,7 +2,7 @@ import type { PgMigrationStatement } from '@ez4/pgmigration/library';
 import type { PgTableRepository } from '@ez4/pgclient/library';
 import type { Arn } from '@ez4/aws-common';
 
-import { prepareCreateDatabase, prepareDeleteDatabase } from '@ez4/pgmigration/library';
+import { DatabaseQueries } from '@ez4/pgmigration/library';
 import { getCreateQueries, getDeleteQueries, getUpdateQueries } from '@ez4/pgmigration';
 import { Logger } from '@ez4/aws-common';
 
@@ -41,7 +41,7 @@ export const createDatabase = async (request: ConnectionRequest): Promise<void> 
     secretArn
   });
 
-  await executeMigrationStatement(driver, prepareCreateDatabase(database));
+  await executeMigrationStatement(driver, DatabaseQueries.prepareCreate(database));
 };
 
 export const createTables = async (request: CreateTableRequest): Promise<void> => {
@@ -104,7 +104,7 @@ export const deleteDatabase = async (request: ConnectionRequest): Promise<void> 
     secretArn
   });
 
-  await executeMigrationStatement(driver, prepareDeleteDatabase(database));
+  await executeMigrationStatement(driver, DatabaseQueries.prepareDelete(database));
 };
 
 const executeMigrationTransaction = async (driver: DataClientDriver, statements: PgMigrationStatement[]) => {

@@ -7,7 +7,7 @@ import { isEnumSchema } from '@ez4/schema';
 import { getCheckConstraintQuery } from '../utils/checks.js';
 import { getConstraintName } from '../utils/naming.js';
 
-export namespace ConstraintsQuery {
+export namespace ConstraintQuery {
   export const prepareCreate = (builder: SqlBuilder, table: string, columns: Record<string, AnySchema>) => {
     const statements = [];
 

@@ -9,9 +9,9 @@ import { Index } from '@ez4/database';
 import { getPrimaryKeyName, getSecondaryKeyName, getUniqueKeyName } from '../utils/naming.js';
 import { getCheckConstraintQuery } from '../utils/checks.js';
 
-type IndexQueries = Pick<PgMigrationQueries, 'constraints' | 'indexes'>;
+type IndexMigrationQueries = Pick<PgMigrationQueries, 'constraints' | 'indexes'>;
 
-export namespace IndexesQueries {
+export namespace IndexQueries {
   export const prepareCreate = (
     builder: SqlBuilder,
     table: string,
@@ -19,7 +19,7 @@ export namespace IndexesQueries {
     indexes: PgIndexRepository,
     concurrent: boolean
   ) => {
-    const statements: IndexQueries = {
+    const statements: IndexMigrationQueries = {
       constraints: [],
       indexes: []
     };
@@ -80,7 +80,7 @@ export namespace IndexesQueries {
   };
 
   export const prepareRename = (builder: SqlBuilder, fromTable: string, toTable: string, indexes: PgIndexRepository) => {
-    const statements: IndexQueries = {
+    const statements: IndexMigrationQueries = {
       constraints: [],
       indexes: []
     };
@@ -139,7 +139,7 @@ export namespace IndexesQueries {
   };
 
   export const prepareDelete = (builder: SqlBuilder, table: string, indexes: PgIndexRepository) => {
-    const statements: IndexQueries = {
+    const statements: IndexMigrationQueries = {
       constraints: [],
       indexes: []
     };

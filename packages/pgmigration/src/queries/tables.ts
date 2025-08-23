@@ -6,7 +6,7 @@ import { Index } from '@ez4/database';
 
 import { getColumnDefault, getColumnType, isOptionalColumn } from '../utils/columns.js';
 
-export namespace TablesQuery {
+export namespace TableQuery {
   export const prepareCreate = (builder: SqlBuilder, table: string, schema: ObjectSchema, indexes: PgIndexRepository) => {
     const statement = builder.table(table).create().missing();
 
