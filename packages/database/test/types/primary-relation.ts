@@ -88,7 +88,7 @@ export const testSelect = async ({ selfClient }: Service.Context<TestDatabase>) 
     },
     where: {
       all_relations_b: {
-        value_b: 2
+        value_b: 1
       }
     }
   });
@@ -126,6 +126,23 @@ export const testSelect = async ({ selfClient }: Service.Context<TestDatabase>) 
   });
 
   resultC.records[0].relation_b?.value_b;
+
+  // Fetch tableA through tableB connection in tableC.
+  const resultD = await selfClient.tableC.findMany({
+    select: {
+      relation_b: {
+        id: true,
+        relation_a: {
+          value_a: true
+        }
+      }
+    },
+    where: {
+      value_c: 1
+    }
+  });
+
+  resultD.records[0].relation_b?.relation_a.value_a;
 };
 
 export const testInsert = async ({ selfClient }: Service.Context<TestDatabase>) => {

@@ -36,19 +36,33 @@ export type RelationTargetAlias<T> = T extends `${string}@${infer U}` ? U : neve
 /**
  * Given a database service `T`, it produces an object with all relation tables.
  */
-export type RelationTables<T extends Database.Service> = MergeRelations<DatabaseTables<T>, TableSchemas<T>, IndexedTables<T>>;
+export type RelationTables<T extends Database.Service> = MergeRelations<
+  DatabaseTables<T>,
+  DatabaseTables<T>,
+  TableSchemas<T>,
+  IndexedTables<T>
+>;
 
 /**
  * Given a list of tables with relations `T`, it produces an object containing all the
  * relation tables.
  */
-type MergeRelations<T extends Database.Table[], S extends Record<string, Database.Schema>, I extends Record<string, Database.Indexes>> =
-  IsArrayEmpty<T> extends false ? TableRelation<T[0], S, I> & MergeRelations<ArrayRest<T>, S, I> : {};
+type MergeRelations<
+  T extends Database.Table[],
+  C extends Database.Table[],
+  S extends Record<string, Database.Schema>,
+  I extends Record<string, Database.Indexes>
+> = IsArrayEmpty<C> extends false ? TableRelation<T, C[0], S, I> & MergeRelations<T, ArrayRest<C>, S, I> : {};
 
 /**
  * Given a database table `T`, it produces an object containing all its relations.
  */
-type TableRelation<T, S extends Record<string, Database.Schema>, I extends Record<string, Database.Indexes>> = T extends {
+type TableRelation<
+  T extends Database.Table[],
+  C extends Database.Table,
+  S extends Record<string, Database.Schema>,
+  I extends Record<string, Database.Indexes>
+> = C extends {
   name: infer N;
   relations: infer R;
 }
@@ -61,7 +75,8 @@ type TableRelation<T, S extends Record<string, Database.Schema>, I extends Recor
             changes: RequiredRelationSchemas<PropertyType<N, S>, S, I, R, true> &
               OptionalRelationSchemas<PropertyType<N, S>, S, I, R, true>;
             selects: RequiredRelationSchemas<PropertyType<N, S>, S, I, R, false> &
-              OptionalRelationSchemas<PropertyType<N, S>, S, I, R, false>;
+              OptionalRelationSchemas<PropertyType<N, S>, S, I, R, false> &
+              NestedRelationSchemas<T, S, I, R>;
           };
         }
       : {}
@@ -120,6 +135,22 @@ type OptionalRelationSchemas<
     I,
     E
   >;
+};
+
+/**
+ * Produce an object containing all nested relation schemas.
+ */
+type NestedRelationSchemas<
+  T extends Database.Table[],
+  S extends Record<string, Database.Schema>,
+  I extends Record<string, Database.Indexes>,
+  R extends AnyObject
+> = {
+  [C in keyof R as RelationTargetAlias<C>]?: RelationSourceTable<R[C]> extends keyof MergeRelations<T, T, S, I>
+    ? MergeRelations<T, T, S, I>[RelationSourceTable<R[C]>] extends { selects: infer S }
+      ? S
+      : never
+    : never;
 };
 
 /**
