@@ -1,7 +1,7 @@
 import type { Database, Client as DbClient } from '@ez4/database';
 
-import { describe, it } from 'node:test';
 import { deepEqual } from 'assert/strict';
+import { describe, it } from 'node:test';
 
 import { Client } from '@ez4/pgclient';
 

@@ -132,7 +132,7 @@ describe('client schema', async () => {
   before(async () => {
     await client.rawQuery(
       `CREATE TABLE IF NOT EXISTS "ez4_test_table" (` +
-        `id UUID, ` +
+        `id UUID PRIMARY KEY, ` +
         `"integer" bigint, ` +
         `"decimal" decimal, ` +
         `"boolean" boolean, ` +
