@@ -19,7 +19,7 @@ export const prepareCountQuery = <T extends InternalTableMetadata>(
   selectQuery.rawColumn('COUNT(1) AS "count"');
 
   if (query.where) {
-    const selectFilters = getSelectFilters(builder, query.where, relations, selectQuery);
+    const selectFilters = getSelectFilters(builder, query.where, relations, selectQuery, table);
 
     selectQuery.where(selectFilters);
   }

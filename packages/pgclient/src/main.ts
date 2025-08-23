@@ -1,11 +1,11 @@
-export * from './client/service.js';
-export * from './client/errors.js';
-export * from './client/records.js';
-export * from './client/schema.js';
+export * from './driver/service.js';
+export * from './driver/errors.js';
+export * from './driver/records.js';
+export * from './driver/schema.js';
 
 export * from './types/driver.js';
 export * from './types/engine.js';
 
-export * from './errors.js';
-export * from './service.js';
-export * from './table.js';
+export * from './service/errors.js';
+export * from './service/client.js';
+export * from './service/table.js';

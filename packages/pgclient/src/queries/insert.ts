@@ -85,15 +85,15 @@ const getInsertRecord = async (
 
   const record: SqlRecord = {};
 
-  for (const fieldName of allFields) {
-    const fieldRelation = relations[fieldName];
-    const fieldSchema = schema.properties[fieldName];
-    const fieldPath = `${path}.${fieldName}`;
-    const fieldValue = data[fieldName];
+  for (const fieldKey of allFields) {
+    const fieldPath = `${path}.${fieldKey}`;
+    const fieldRelation = relations[fieldPath];
+    const fieldSchema = schema.properties[fieldKey];
+    const fieldValue = data[fieldKey];
 
     if (!fieldRelation) {
       if (fieldSchema) {
-        record[fieldName] = await getWithSchemaValidation(fieldValue, fieldSchema, fieldPath);
+        record[fieldKey] = await getWithSchemaValidation(fieldValue, fieldSchema, fieldPath);
       }
 
       continue;
@@ -103,11 +103,11 @@ const getInsertRecord = async (
       continue;
     }
 
-    if (!isRelationalData(fieldValue) || !relationsCache[fieldName]) {
+    if (!isRelationalData(fieldValue) || !relationsCache[fieldKey]) {
       throw new InvalidRelationFieldError(fieldPath);
     }
 
-    const { relationQueries, sourceSchema, sourceIndex, sourceColumn, targetColumn } = relationsCache[fieldName];
+    const { relationQueries, sourceSchema, sourceIndex, sourceColumn, targetColumn } = relationsCache[fieldKey];
 
     if (!sourceIndex || sourceIndex === Index.Secondary) {
       if (!isMultipleRelationData(fieldValue)) {
@@ -197,15 +197,17 @@ const preparePreInsertRelations = (
 ) => {
   const allQueries: InsertRelationsCache = {};
 
-  for (const relationAlias in relations) {
-    const fieldRelation = relations[relationAlias];
-    const fieldValue = data[relationAlias];
+  for (const relationPath in relations) {
+    const fieldRelation = relations[relationPath];
+
+    const fieldKey = fieldRelation.targetAlias;
+    const fieldValue = data[fieldKey];
 
     if (fieldValue === undefined) {
       continue;
     }
 
-    const fieldPath = `${path}.${relationAlias}`;
+    const fieldPath = `${path}.${fieldKey}`;
 
     if (!isRelationalData(fieldValue)) {
       throw new InvalidRelationFieldError(fieldPath);
@@ -213,7 +215,7 @@ const preparePreInsertRelations = (
 
     const relationQueries: SqlInsertStatement[] = [];
 
-    allQueries[relationAlias] = {
+    allQueries[fieldKey] = {
       ...fieldRelation,
       relationQueries
     };
@@ -257,15 +259,17 @@ const preparePostInsertRelations = (
 
   const { results } = source;
 
-  for (const relationAlias in relations) {
-    const fieldRelation = relations[relationAlias];
-    const fieldValue = data[relationAlias];
+  for (const relationPath in relations) {
+    const fieldRelation = relations[relationPath];
+
+    const fieldKey = fieldRelation.targetAlias;
+    const fieldValue = data[fieldKey];
 
     if (fieldValue === undefined) {
       continue;
     }
 
-    const fieldPath = `${path}.${relationAlias}`;
+    const fieldPath = `${path}.${fieldKey}`;
 
     if (!isRelationalData(fieldValue)) {
       throw new InvalidRelationFieldError(fieldPath);
@@ -310,7 +314,7 @@ const preparePostInsertRelations = (
       relationQueries.push(relationQuery);
     }
 
-    allQueries[relationAlias] = {
+    allQueries[fieldKey] = {
       ...fieldRelation,
       relationQueries
     };

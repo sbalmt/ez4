@@ -4,7 +4,7 @@ import type { AnyObject } from '@ez4/utils';
 
 export type PgTableRepository = Record<string, RepositoryTable>;
 
-export type PgRelationRepository = Record<string, InternalRelation>;
+export type PgRelationRepository = Record<string, Omit<TableRelation, 'targetAlias'>>;
 
 export type RepositoryRelationsWithSchema = Record<string, RelationWithSchema>;
 
@@ -17,13 +17,8 @@ export type RepositoryTable = {
   schema: ObjectSchema;
 };
 
-export type RelationWithSchema = InternalRelation & {
+export type RelationWithSchema = TableRelation & {
   sourceSchema: ObjectSchema;
-  sourceTable: string;
-};
-
-type InternalRelation = Omit<TableRelation, 'targetAlias' | 'sourceTable'> & {
-  sourceAlias: string;
 };
 
 export const isRepositoryTable = (input: AnyObject): input is RepositoryTable => {

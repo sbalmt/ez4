@@ -16,10 +16,26 @@ type TestTableMetadata = {
   schema: {};
 };
 
+type TestSchemaOptions = {
+  multiple?: boolean;
+  nullish: boolean;
+};
+
 describe('update unique relations', () => {
-  type TestSchemaOptions = {
-    multiple?: boolean;
-    nullish: boolean;
+  const testTableName = 'ez4_test_table';
+
+  const relationSchema: ObjectSchema = {
+    type: SchemaType.Object,
+    properties: {
+      id: {
+        type: SchemaType.String,
+        format: 'uuid'
+      },
+      foo: {
+        type: SchemaType.String,
+        optional: true
+      }
+    }
   };
 
   const prepareRelationUpdate = <S extends Query.SelectInput<TestTableMetadata>>(
@@ -29,7 +45,7 @@ describe('update unique relations', () => {
   ) => {
     const builder = new SqlBuilder();
 
-    return prepareUpdateQuery('ez4-test-update-relations', schema, relations, query, builder);
+    return prepareUpdateQuery(testTableName, schema, relations, query, builder);
   };
 
   const getTestRelationSchema = ({ nullish, multiple }: TestSchemaOptions): ObjectSchema => {
@@ -74,48 +90,43 @@ describe('update unique relations', () => {
   };
 
   const getSingleTestRelation = (): RepositoryRelationsWithSchema => {
-    const relationSchema: ObjectSchema = {
-      type: SchemaType.Object,
-      properties: {
-        id: {
-          type: SchemaType.String,
-          format: 'uuid'
-        },
-        foo: {
-          type: SchemaType.String,
-          optional: true
-        }
-      }
-    };
-
     return {
-      unique_to_primary: {
+      [`${testTableName}.unique_to_primary`]: {
+        targetAlias: 'unique_to_primary',
         targetColumn: 'id',
         targetIndex: Index.Primary,
+        sourceIndex: Index.Unique,
         sourceSchema: relationSchema,
-        sourceTable: 'ez4-test-relation',
-        sourceAlias: 'ez4-test-relation',
-        sourceColumn: 'unique_id',
-        sourceIndex: Index.Unique
+        sourceTable: testTableName,
+        sourceColumn: 'unique_id'
       }
     };
   };
 
   const getMultipleTestRelation = (): RepositoryRelationsWithSchema => {
-    const { unique_to_primary } = getSingleTestRelation();
+    const baseRelation = {
+      targetColumn: 'id',
+      targetIndex: Index.Primary,
+      sourceIndex: Index.Unique,
+      sourceSchema: relationSchema,
+      sourceTable: testTableName
+    };
 
     return {
-      unique_to_primary_1: {
-        ...unique_to_primary,
-        sourceColumn: 'unique_1_id'
+      [`${testTableName}.unique_to_primary_1`]: {
+        targetAlias: 'unique_to_primary_1',
+        sourceColumn: 'unique_1_id',
+        ...baseRelation
       },
-      unique_to_primary_2: {
-        ...unique_to_primary,
-        sourceColumn: 'unique_2_id'
+      [`${testTableName}.unique_to_primary_2`]: {
+        targetAlias: 'unique_to_primary_2',
+        sourceColumn: 'unique_2_id',
+        ...baseRelation
       },
-      unique_to_primary_3: {
-        ...unique_to_primary,
-        sourceColumn: 'unique_3_id'
+      [`${testTableName}.unique_to_primary_3`]: {
+        targetAlias: 'unique_to_primary_3',
+        sourceColumn: 'unique_3_id',
+        ...baseRelation
       }
     };
   };
@@ -137,7 +148,7 @@ describe('update unique relations', () => {
     assert.equal(
       statement,
       // Main record
-      `UPDATE ONLY "ez4-test-update-relations" SET "id" = :0, "unique_id" = :1`
+      `UPDATE ONLY "ez4_test_table" SET "id" = :0, "unique_id" = :1`
     );
 
     assert.deepEqual(variables, ['00000000-0000-1000-9000-000000000000', '00000000-0000-1000-9000-000000000001']);
@@ -161,7 +172,7 @@ describe('update unique relations', () => {
     assert.equal(
       statement,
       // Main record
-      `UPDATE ONLY "ez4-test-update-relations" SET "id" = :0`
+      `UPDATE ONLY "ez4_test_table" SET "id" = :0`
     );
 
     assert.deepEqual(variables, ['00000000-0000-1000-9000-000000000000']);
@@ -190,9 +201,9 @@ describe('update unique relations', () => {
     assert.equal(
       statement,
       // Main record
-      `UPDATE ONLY "ez4-test-update-relations" AS "R" SET "id" = :0, "unique_id" = :1 ` +
+      `UPDATE ONLY "ez4_test_table" AS "R" SET "id" = :0, "unique_id" = :1 ` +
         // Select
-        `RETURNING (SELECT json_build_object('id', "S"."id", 'foo', "S"."foo") FROM "ez4-test-relation" AS "S" ` +
+        `RETURNING (SELECT json_build_object('id', "S"."id", 'foo', "S"."foo") FROM "ez4_test_table" AS "S" ` +
         `WHERE "S"."unique_id" = "R"."id") AS "unique_to_primary"`
     );
 
@@ -216,7 +227,7 @@ describe('update unique relations', () => {
     assert.equal(
       statement,
       // Main record
-      `UPDATE ONLY "ez4-test-update-relations" SET "id" = :0, "unique_id" = null`
+      `UPDATE ONLY "ez4_test_table" SET "id" = :0, "unique_id" = null`
     );
 
     assert.deepEqual(variables, ['00000000-0000-1000-9000-000000000000']);
@@ -240,9 +251,9 @@ describe('update unique relations', () => {
       statement,
       `WITH ` +
         // Main record
-        `"R0" AS (UPDATE ONLY "ez4-test-update-relations" SET "id" = :0 RETURNING "id") ` +
+        `"R0" AS (UPDATE ONLY "ez4_test_table" SET "id" = :0 RETURNING "id") ` +
         // Relation
-        `UPDATE ONLY "ez4-test-relation" AS "T" SET "foo" = :1 FROM "R0" WHERE "T"."unique_id" = "R0"."id"`
+        `UPDATE ONLY "ez4_test_table" AS "T" SET "foo" = :1 FROM "R0" WHERE "T"."unique_id" = "R0"."id"`
     );
 
     assert.deepEqual(variables, ['00000000-0000-1000-9000-000000000000', 'foo']);
@@ -272,12 +283,12 @@ describe('update unique relations', () => {
       statement,
       `WITH ` +
         // Main record
-        `"R0" AS (UPDATE ONLY "ez4-test-update-relations" AS "R" SET "id" = :0 RETURNING "R"."id"), ` +
+        `"R0" AS (UPDATE ONLY "ez4_test_table" AS "R" SET "id" = :0 RETURNING "R"."id"), ` +
         // Relation
-        `"R1" AS (UPDATE ONLY "ez4-test-relation" AS "T" SET "foo" = :1 FROM "R0" WHERE "T"."unique_id" = "R0"."id") ` +
+        `"R1" AS (UPDATE ONLY "ez4_test_table" AS "T" SET "foo" = :1 FROM "R0" WHERE "T"."unique_id" = "R0"."id") ` +
         // Select
-        `SELECT (SELECT json_build_object('id', "S"."id", 'foo', "S"."foo") FROM "ez4-test-relation" AS "S" ` +
-        `WHERE "S"."unique_id" = "R0"."id") AS "unique_to_primary" FROM "ez4-test-update-relations"`
+        `SELECT (SELECT json_build_object('id', "S"."id", 'foo', "S"."foo") FROM "ez4_test_table" AS "S" ` +
+        `WHERE "S"."unique_id" = "R0"."id") AS "unique_to_primary" FROM "ez4_test_table"`
     );
 
     assert.deepEqual(variables, ['00000000-0000-1000-9000-000000000000', 'foo']);
@@ -316,14 +327,14 @@ describe('update unique relations', () => {
       statement,
       `WITH ` +
         // Main record
-        `"R0" AS (UPDATE ONLY "ez4-test-update-relations" AS "R" SET "id" = :0, "unique_2_id" = :1 RETURNING "R"."id"), ` +
+        `"R0" AS (UPDATE ONLY "ez4_test_table" AS "R" SET "id" = :0, "unique_2_id" = :1 RETURNING "R"."id"), ` +
         // First relation
-        `"R1" AS (UPDATE ONLY "ez4-test-relation" AS "T" SET "foo" = :2 FROM "R0" WHERE "T"."unique_1_id" = "R0"."id"), ` +
+        `"R1" AS (UPDATE ONLY "ez4_test_table" AS "T" SET "foo" = :2 FROM "R0" WHERE "T"."unique_1_id" = "R0"."id"), ` +
         // Third relation
-        `"R2" AS (UPDATE ONLY "ez4-test-relation" AS "T" SET "foo" = :3 FROM "R0" WHERE "T"."unique_3_id" = "R0"."id") ` +
+        `"R2" AS (UPDATE ONLY "ez4_test_table" AS "T" SET "foo" = :3 FROM "R0" WHERE "T"."unique_3_id" = "R0"."id") ` +
         // Select
-        `SELECT "id", (SELECT json_build_object('id', "S"."id", 'foo', "S"."foo") FROM "ez4-test-relation" AS "S" ` +
-        `WHERE "S"."unique_1_id" = "R0"."id") AS "unique_to_primary_1" FROM "ez4-test-update-relations"`
+        `SELECT "id", (SELECT json_build_object('id', "S"."id", 'foo', "S"."foo") FROM "ez4_test_table" AS "S" ` +
+        `WHERE "S"."unique_1_id" = "R0"."id") AS "unique_to_primary_1" FROM "ez4_test_table"`
     );
 
     assert.deepEqual(variables, ['00000000-0000-1000-9000-000000000000', '00000000-0000-1000-9000-000000000001', 'foo', 'foo']);

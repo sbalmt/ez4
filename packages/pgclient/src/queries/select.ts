@@ -32,7 +32,7 @@ export const prepareSelectQuery = <T extends InternalTableMetadata, S extends Qu
   selectQuery.record(selectRecord);
 
   if (query.where) {
-    const selectFilters = getSelectFilters(builder, query.where, relations, selectQuery);
+    const selectFilters = getSelectFilters(builder, query.where, relations, selectQuery, table);
 
     selectQuery.where(selectFilters);
   }
@@ -75,9 +75,9 @@ export const getSelectFields = <T extends InternalTableMetadata, S extends AnyOb
       continue;
     }
 
-    const fieldRelation = relations[fieldKey];
-
     const fieldPath = `${path}.${fieldKey}`;
+
+    const fieldRelation = relations[fieldPath];
 
     if (fieldRelation) {
       const { sourceTable, sourceColumn, sourceSchema, sourceIndex, targetColumn } = fieldRelation;
@@ -101,7 +101,7 @@ export const getSelectFields = <T extends InternalTableMetadata, S extends AnyOb
       source.as('R');
 
       if (sourceIndex === Index.Primary || sourceIndex === Index.Unique) {
-        const record = getSelectFields(builder, relationFields, null, sourceSchema, relations, relationQuery, fieldPath, true);
+        const record = getSelectFields(builder, relationFields, null, sourceSchema, relations, relationQuery, sourceTable, true);
 
         relationQuery.objectColumn(record);
 
@@ -110,7 +110,7 @@ export const getSelectFields = <T extends InternalTableMetadata, S extends AnyOb
       }
 
       if (!relationIncludes || (!('skip' in relationIncludes) && !('take' in relationIncludes))) {
-        const record = getSelectFields(builder, relationFields, null, sourceSchema, relations, relationQuery, fieldPath, true);
+        const record = getSelectFields(builder, relationFields, null, sourceSchema, relations, relationQuery, sourceTable, true);
 
         relationQuery.arrayColumn(record, {
           order: relationIncludes?.order
@@ -120,7 +120,7 @@ export const getSelectFields = <T extends InternalTableMetadata, S extends AnyOb
         continue;
       }
 
-      const record = getSelectFields(builder, relationFields, null, sourceSchema, relations, relationQuery, fieldPath);
+      const record = getSelectFields(builder, relationFields, null, sourceSchema, relations, relationQuery, sourceTable);
 
       relationQuery.order(relationIncludes?.order).record(record);
 
@@ -165,7 +165,13 @@ export const getSelectFields = <T extends InternalTableMetadata, S extends AnyOb
   return output;
 };
 
-export const getSelectFilters = (builder: SqlBuilder, filters: SqlFilters, relations: RepositoryRelationsWithSchema, source: SqlSource) => {
+export const getSelectFilters = (
+  builder: SqlBuilder,
+  filters: SqlFilters,
+  relations: RepositoryRelationsWithSchema,
+  source: SqlSource,
+  path: string
+) => {
   const result: SqlFilters = {};
 
   for (const filterKey in filters) {
@@ -177,17 +183,19 @@ export const getSelectFilters = (builder: SqlBuilder, filters: SqlFilters, relat
       case 'OR':
       case 'AND':
         result[filterKey] = filters[filterKey].map((operation: SqlFilters) => {
-          return getSelectFilters(builder, operation, relations, source);
+          return getSelectFilters(builder, operation, relations, source, path);
         });
         break;
 
       case 'NOT':
-        result[filterKey] = getSelectFilters(builder, filters[filterKey], relations, source);
+        result[filterKey] = getSelectFilters(builder, filters[filterKey], relations, source, path);
         break;
 
       default:
         const relationFilters = filters[filterKey];
-        const fieldRelation = relations[filterKey];
+
+        const filterPath = `${path}.${filterKey}`;
+        const fieldRelation = relations[filterPath];
 
         if (!fieldRelation) {
           result[filterKey] = relationFilters;

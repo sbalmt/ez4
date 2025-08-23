@@ -1,10 +1,10 @@
-import type { PostgresEngine, RepositoryRelationsWithSchema } from '@ez4/pgclient/library';
+import type { PostgresEngine } from '@ez4/pgclient/library';
 import type { Query, RelationMetadata } from '@ez4/database';
 
 import { describe, it } from 'node:test';
 
-import { prepareInsertQuery } from '@ez4/pgclient/library';
-import { ObjectSchema, SchemaType } from '@ez4/schema';
+import { getRelationsWithSchema, getTableRepository, prepareInsertQuery } from '@ez4/pgclient/library';
+import { SchemaType } from '@ez4/schema';
 import { SqlBuilder } from '@ez4/pgsql';
 import { Index } from '@ez4/database';
 
@@ -16,65 +16,72 @@ type TestTableMetadata = {
 };
 
 describe('insert relations', () => {
-  const testSchema: ObjectSchema = {
-    type: SchemaType.Object,
-    properties: {
-      id: {
-        type: SchemaType.String,
-        format: 'uuid'
-      },
-      primary_id: {
-        type: SchemaType.String,
-        optional: true,
-        format: 'uuid'
-      },
-      unique_id: {
-        type: SchemaType.String,
-        optional: true,
-        format: 'uuid'
-      },
-      secondary_id: {
-        type: SchemaType.String,
-        optional: true,
-        format: 'uuid'
+  const testTableName = 'ez4_test_table';
+
+  const repository = getTableRepository([
+    {
+      name: testTableName,
+      indexes: [],
+      relations: [
+        {
+          targetAlias: 'primary_to_secondary',
+          targetColumn: 'secondary_id',
+          targetIndex: Index.Secondary,
+          sourceIndex: Index.Primary,
+          sourceTable: 'ez4_test_table',
+          sourceColumn: 'id'
+        },
+        {
+          targetAlias: 'unique_to_primary',
+          targetColumn: 'id',
+          targetIndex: Index.Primary,
+          sourceIndex: Index.Unique,
+          sourceTable: 'ez4_test_table',
+          sourceColumn: 'unique_id'
+        },
+        {
+          targetAlias: 'secondary_to_primary',
+          targetColumn: 'id',
+          targetIndex: Index.Primary,
+          sourceIndex: Index.Secondary,
+          sourceTable: 'ez4_test_table',
+          sourceColumn: 'primary_id'
+        }
+      ],
+      schema: {
+        type: SchemaType.Object,
+        properties: {
+          id: {
+            type: SchemaType.String,
+            format: 'uuid'
+          },
+          primary_id: {
+            type: SchemaType.String,
+            optional: true,
+            format: 'uuid'
+          },
+          unique_id: {
+            type: SchemaType.String,
+            optional: true,
+            format: 'uuid'
+          },
+          secondary_id: {
+            type: SchemaType.String,
+            optional: true,
+            format: 'uuid'
+          }
+        }
       }
     }
-  };
-
-  const testRelations: RepositoryRelationsWithSchema = {
-    primary_to_secondary: {
-      targetColumn: 'secondary_id',
-      targetIndex: Index.Secondary,
-      sourceSchema: testSchema,
-      sourceTable: 'ez4-test-relation',
-      sourceAlias: 'ez4-test-relation',
-      sourceColumn: 'id',
-      sourceIndex: Index.Primary
-    },
-    unique_to_primary: {
-      targetColumn: 'id',
-      targetIndex: Index.Primary,
-      sourceSchema: testSchema,
-      sourceTable: 'ez4-test-relation',
-      sourceAlias: 'ez4-test-relation',
-      sourceColumn: 'unique_id',
-      sourceIndex: Index.Unique
-    },
-    secondary_to_primary: {
-      targetColumn: 'id',
-      targetIndex: Index.Primary,
-      sourceSchema: testSchema,
-      sourceTable: 'ez4-test-relation',
-      sourceAlias: 'ez4-test-relation',
-      sourceColumn: 'primary_id',
-      sourceIndex: Index.Secondary
-    }
-  };
+  ]);
 
   const prepareInsert = <S extends Query.SelectInput<TestTableMetadata>>(query: Query.InsertOneInput<S, TestTableMetadata>) => {
     const builder = new SqlBuilder();
 
-    return prepareInsertQuery('ez4-test-insert-relations', testSchema, testRelations, query, builder);
+    const relations = getRelationsWithSchema(testTableName, repository);
+    const table = repository[testTableName];
+
+    return prepareInsertQuery(testTableName, table.schema, relations, query, builder);
   };
 
   it('assert :: prepare insert relations (create primary, unique and secondary)', async ({ assert }) => {
@@ -99,13 +106,13 @@ describe('insert relations', () => {
       statement,
       `WITH ` +
         // First relation (primary)
-        `"R0" AS (INSERT INTO "ez4-test-relation" ("id") VALUES (:0) RETURNING "id"), ` +
+        `"R0" AS (INSERT INTO "ez4_test_table" ("id") VALUES (:0) RETURNING "id"), ` +
         // Main record
-        `"R1" AS (INSERT INTO "ez4-test-insert-relations" ("id", "secondary_id") SELECT :1, "R0"."id" FROM "R0" RETURNING "id"), ` +
+        `"R1" AS (INSERT INTO "ez4_test_table" ("id", "secondary_id") SELECT :1, "R0"."id" FROM "R0" RETURNING "id"), ` +
         // Second relation (unique)
-        `"R2" AS (INSERT INTO "ez4-test-relation" ("id", "unique_id") SELECT :2, "R1"."id" FROM "R1") ` +
+        `"R2" AS (INSERT INTO "ez4_test_table" ("id", "unique_id") SELECT :2, "R1"."id" FROM "R1") ` +
         // Third relation (inverse)
-        `INSERT INTO "ez4-test-relation" ("id", "primary_id") SELECT :3, "R1"."id" FROM "R1"`
+        `INSERT INTO "ez4_test_table" ("id", "primary_id") SELECT :3, "R1"."id" FROM "R1"`
     );
 
     assert.deepEqual(variables, [
@@ -150,13 +157,13 @@ describe('insert relations', () => {
       statement,
       `WITH ` +
         // First relation (primary)
-        `"R0" AS (INSERT INTO "ez4-test-relation" ("id") VALUES (:0) RETURNING "id"), ` +
+        `"R0" AS (INSERT INTO "ez4_test_table" ("id") VALUES (:0) RETURNING "id"), ` +
         // Main record
-        `"R1" AS (INSERT INTO "ez4-test-insert-relations" ("id", "secondary_id") SELECT :1, "R0"."id" FROM "R0" RETURNING "id"), ` +
+        `"R1" AS (INSERT INTO "ez4_test_table" ("id", "secondary_id") SELECT :1, "R0"."id" FROM "R0" RETURNING "id"), ` +
         // Second relation (unique)
-        `"R2" AS (INSERT INTO "ez4-test-relation" ("id", "unique_id") SELECT :2, "R1"."id" FROM "R1" RETURNING "id"), ` +
+        `"R2" AS (INSERT INTO "ez4_test_table" ("id", "unique_id") SELECT :2, "R1"."id" FROM "R1" RETURNING "id"), ` +
         // Third relation (inverse)
-        `"R3" AS (INSERT INTO "ez4-test-relation" ("id", "primary_id") SELECT :3, "R1"."id" FROM "R1" RETURNING "id") ` +
+        `"R3" AS (INSERT INTO "ez4_test_table" ("id", "primary_id") SELECT :3, "R1"."id" FROM "R1" RETURNING "id") ` +
         // Select
         `SELECT "id", ` +
         `(SELECT json_build_object('id', "id") FROM "R0") AS "primary_to_secondary", ` +

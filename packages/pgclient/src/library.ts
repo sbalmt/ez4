@@ -9,3 +9,5 @@ export * from './queries/insert.js';
 export * from './queries/update.js';
 export * from './queries/select.js';
 export * from './queries/delete.js';
+
+export * from './service/relations.js';

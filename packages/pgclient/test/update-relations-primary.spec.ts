@@ -16,10 +16,26 @@ type TestTableMetadata = {
   schema: {};
 };
 
+type TestSchemaOptions = {
+  multiple?: boolean;
+  nullish: boolean;
+};
+
 describe('update primary relations', () => {
-  type TestSchemaOptions = {
-    multiple?: boolean;
-    nullish: boolean;
+  const testTableName = 'ez4_test_table';
+
+  const relationSchema: ObjectSchema = {
+    type: SchemaType.Object,
+    properties: {
+      id: {
+        type: SchemaType.String,
+        format: 'uuid'
+      },
+      foo: {
+        type: SchemaType.String,
+        optional: true
+      }
+    }
   };
 
   const prepareRelationUpdate = <S extends Query.SelectInput<TestTableMetadata>>(
@@ -29,7 +45,7 @@ describe('update primary relations', () => {
   ) => {
     const builder = new SqlBuilder();
 
-    return prepareUpdateQuery('ez4-test-update-relations', schema, relations, query, builder);
+    return prepareUpdateQuery(testTableName, schema, relations, query, builder);
   };
 
   const getTestRelationSchema = ({ nullish, multiple }: TestSchemaOptions): ObjectSchema => {
@@ -74,48 +90,43 @@ describe('update primary relations', () => {
   };
 
   const getSingleTestRelation = (): RepositoryRelationsWithSchema => {
-    const relationSchema: ObjectSchema = {
-      type: SchemaType.Object,
-      properties: {
-        id: {
-          type: SchemaType.String,
-          format: 'uuid'
-        },
-        foo: {
-          type: SchemaType.String,
-          optional: true
-        }
-      }
-    };
-
     return {
-      primary_to_secondary: {
+      [`${testTableName}.primary_to_secondary`]: {
+        targetAlias: 'primary_to_secondary',
         targetColumn: 'secondary_id',
         targetIndex: Index.Secondary,
+        sourceIndex: Index.Primary,
         sourceSchema: relationSchema,
-        sourceTable: 'ez4-test-relation',
-        sourceAlias: 'ez4-test-relation',
-        sourceColumn: 'id',
-        sourceIndex: Index.Primary
+        sourceTable: testTableName,
+        sourceColumn: 'id'
       }
     };
   };
 
   const getMultipleTestRelation = (): RepositoryRelationsWithSchema => {
-    const { primary_to_secondary } = getSingleTestRelation();
+    const baseRelation = {
+      targetIndex: Index.Secondary,
+      sourceIndex: Index.Primary,
+      sourceSchema: relationSchema,
+      sourceTable: testTableName,
+      sourceColumn: 'id'
+    };
 
     return {
-      primary_to_secondary_1: {
-        ...primary_to_secondary,
-        targetColumn: 'secondary_1_id'
+      [`${testTableName}.primary_to_secondary_1`]: {
+        targetAlias: 'primary_to_secondary_1',
+        targetColumn: 'secondary_1_id',
+        ...baseRelation
       },
-      primary_to_secondary_2: {
-        ...primary_to_secondary,
-        targetColumn: 'secondary_2_id'
+      [`${testTableName}.primary_to_secondary_2`]: {
+        targetAlias: 'primary_to_secondary_2',
+        targetColumn: 'secondary_2_id',
+        ...baseRelation
       },
-      primary_to_secondary_3: {
-        ...primary_to_secondary,
-        targetColumn: 'secondary_3_id'
+      [`${testTableName}.primary_to_secondary_3`]: {
+        targetAlias: 'primary_to_secondary_3',
+        targetColumn: 'secondary_3_id',
+        ...baseRelation
       }
     };
   };
@@ -137,7 +148,7 @@ describe('update primary relations', () => {
     assert.equal(
       statement,
       // Main record
-      `UPDATE ONLY "ez4-test-update-relations" SET "id" = :0, "secondary_id" = :1`
+      `UPDATE ONLY "ez4_test_table" SET "id" = :0, "secondary_id" = :1`
     );
 
     assert.deepEqual(variables, ['00000000-0000-1000-9000-000000000000', '00000000-0000-1000-9000-000000000001']);
@@ -161,7 +172,7 @@ describe('update primary relations', () => {
     assert.equal(
       statement,
       // Main record
-      `UPDATE ONLY "ez4-test-update-relations" SET "id" = :0`
+      `UPDATE ONLY "ez4_test_table" SET "id" = :0`
     );
 
     assert.deepEqual(variables, ['00000000-0000-1000-9000-000000000000']);
@@ -190,9 +201,9 @@ describe('update primary relations', () => {
     assert.equal(
       statement,
       // Main record
-      `UPDATE ONLY "ez4-test-update-relations" AS "R" SET "id" = :0, "secondary_id" = :1 ` +
+      `UPDATE ONLY "ez4_test_table" AS "R" SET "id" = :0, "secondary_id" = :1 ` +
         // Select
-        `RETURNING (SELECT json_build_object('id', "S"."id", 'foo', "S"."foo") FROM "ez4-test-relation" AS "S" ` +
+        `RETURNING (SELECT json_build_object('id', "S"."id", 'foo', "S"."foo") FROM "ez4_test_table" AS "S" ` +
         `WHERE "S"."id" = "R"."secondary_id") AS "primary_to_secondary"`
     );
 
@@ -216,7 +227,7 @@ describe('update primary relations', () => {
     assert.equal(
       statement,
       // Main record
-      `UPDATE ONLY "ez4-test-update-relations" SET "id" = :0, "secondary_id" = null`
+      `UPDATE ONLY "ez4_test_table" SET "id" = :0, "secondary_id" = null`
     );
 
     assert.deepEqual(variables, ['00000000-0000-1000-9000-000000000000']);
@@ -240,9 +251,9 @@ describe('update primary relations', () => {
       statement,
       `WITH ` +
         // Main record
-        `"R0" AS (UPDATE ONLY "ez4-test-update-relations" SET "id" = :0 RETURNING "secondary_id") ` +
+        `"R0" AS (UPDATE ONLY "ez4_test_table" SET "id" = :0 RETURNING "secondary_id") ` +
         // Relation
-        `UPDATE ONLY "ez4-test-relation" AS "T" SET "foo" = :1 FROM "R0" WHERE "T"."id" = "R0"."secondary_id"`
+        `UPDATE ONLY "ez4_test_table" AS "T" SET "foo" = :1 FROM "R0" WHERE "T"."id" = "R0"."secondary_id"`
     );
 
     assert.deepEqual(variables, ['00000000-0000-1000-9000-000000000000', 'foo']);
@@ -272,12 +283,12 @@ describe('update primary relations', () => {
       statement,
       `WITH ` +
         // Main record
-        `"R0" AS (UPDATE ONLY "ez4-test-update-relations" AS "R" SET "id" = :0 RETURNING "R"."secondary_id"), ` +
+        `"R0" AS (UPDATE ONLY "ez4_test_table" AS "R" SET "id" = :0 RETURNING "R"."secondary_id"), ` +
         // Relation
-        `"R1" AS (UPDATE ONLY "ez4-test-relation" AS "T" SET "foo" = :1 FROM "R0" WHERE "T"."id" = "R0"."secondary_id") ` +
+        `"R1" AS (UPDATE ONLY "ez4_test_table" AS "T" SET "foo" = :1 FROM "R0" WHERE "T"."id" = "R0"."secondary_id") ` +
         // Select
-        `SELECT (SELECT json_build_object('id', "S"."id", 'foo', "S"."foo") FROM "ez4-test-relation" AS "S" ` +
-        `WHERE "S"."id" = "R0"."secondary_id") AS "primary_to_secondary" FROM "ez4-test-update-relations"`
+        `SELECT (SELECT json_build_object('id', "S"."id", 'foo', "S"."foo") FROM "ez4_test_table" AS "S" ` +
+        `WHERE "S"."id" = "R0"."secondary_id") AS "primary_to_secondary" FROM "ez4_test_table"`
     );
 
     assert.deepEqual(variables, ['00000000-0000-1000-9000-000000000000', 'foo']);
@@ -317,15 +328,15 @@ describe('update primary relations', () => {
       statement,
       `WITH ` +
         // Main record
-        `"R0" AS (UPDATE ONLY "ez4-test-update-relations" AS "R" SET "id" = :0, "secondary_2_id" = :1 ` +
+        `"R0" AS (UPDATE ONLY "ez4_test_table" AS "R" SET "id" = :0, "secondary_2_id" = :1 ` +
         `RETURNING "R"."secondary_1_id", "R"."secondary_3_id"), ` +
         // First relation
-        `"R1" AS (UPDATE ONLY "ez4-test-relation" AS "T" SET "id" = :2, "foo" = :3 FROM "R0" WHERE "T"."id" = "R0"."secondary_1_id"), ` +
+        `"R1" AS (UPDATE ONLY "ez4_test_table" AS "T" SET "id" = :2, "foo" = :3 FROM "R0" WHERE "T"."id" = "R0"."secondary_1_id"), ` +
         // Third relation
-        `"R2" AS (UPDATE ONLY "ez4-test-relation" AS "T" SET "id" = :4 FROM "R0" WHERE "T"."id" = "R0"."secondary_3_id") ` +
+        `"R2" AS (UPDATE ONLY "ez4_test_table" AS "T" SET "id" = :4 FROM "R0" WHERE "T"."id" = "R0"."secondary_3_id") ` +
         // Select
-        `SELECT "id", (SELECT json_build_object('id', "S"."id", 'foo', "S"."foo") FROM "ez4-test-relation" AS "S" ` +
-        `WHERE "S"."id" = "R0"."secondary_1_id") AS "primary_to_secondary_1" FROM "ez4-test-update-relations"`
+        `SELECT "id", (SELECT json_build_object('id', "S"."id", 'foo', "S"."foo") FROM "ez4_test_table" AS "S" ` +
+        `WHERE "S"."id" = "R0"."secondary_1_id") AS "primary_to_secondary_1" FROM "ez4_test_table"`
     );
 
     assert.deepEqual(variables, [

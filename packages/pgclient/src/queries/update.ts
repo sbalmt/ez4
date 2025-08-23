@@ -33,7 +33,7 @@ export const prepareUpdateQuery = async <T extends InternalTableMetadata, S exte
   const allQueries: (SqlSelectStatement | SqlUpdateStatement)[] = [updateQuery, ...postUpdateQueries];
 
   if (query.where) {
-    updateQuery.where(getSelectFilters(builder, query.where, relations, updateQuery));
+    updateQuery.where(getSelectFilters(builder, query.where, relations, updateQuery, table));
   }
 
   if (query.select) {
@@ -64,15 +64,15 @@ const getUpdateRecord = async (
 ) => {
   const record: SqlRecord = {};
 
-  for (const fieldName in data) {
-    const fieldValue = data[fieldName];
+  for (const fieldKey in data) {
+    const fieldValue = data[fieldKey];
 
     if (fieldValue === undefined) {
       continue;
     }
 
-    const fieldRelation = relations[fieldName];
-    const fieldPath = `${path}.${fieldName}`;
+    const fieldPath = `${path}.${fieldKey}`;
+    const fieldRelation = relations[fieldPath];
 
     if (fieldRelation) {
       if (!isSingleRelationData(fieldValue)) {
@@ -126,33 +126,33 @@ const getUpdateRecord = async (
       continue;
     }
 
-    const fieldSchema = getObjectSchemaProperty(schema, fieldName);
+    const fieldSchema = getObjectSchemaProperty(schema, fieldKey);
 
     if (!fieldSchema) {
       continue;
     }
 
     if (!isAnyObject(fieldValue)) {
-      record[fieldName] = await getWithSchemaValidation(fieldValue, fieldSchema, fieldPath);
+      record[fieldKey] = await getWithSchemaValidation(fieldValue, fieldSchema, fieldPath);
       continue;
     }
 
     if (isNumberSchema(fieldSchema)) {
-      record[fieldName] = await getAtomicOperationUpdate(builder, fieldName, fieldValue, fieldSchema, fieldPath);
+      record[fieldKey] = await getAtomicOperationUpdate(builder, fieldKey, fieldValue, fieldSchema, fieldPath);
       continue;
     }
 
     if (isDynamicFieldSchema(fieldSchema)) {
-      record[fieldName] = await getWithSchemaValidation(fieldValue, fieldSchema, fieldPath);
+      record[fieldKey] = await getWithSchemaValidation(fieldValue, fieldSchema, fieldPath);
       continue;
     }
 
     if (isObjectSchema(fieldSchema)) {
-      record[fieldName] = await getUpdateRecord(builder, fieldValue, fieldSchema, relations, fieldPath);
+      record[fieldKey] = await getUpdateRecord(builder, fieldValue, fieldSchema, relations, fieldPath);
       continue;
     }
 
-    throw new InvalidFieldSchemaError(fieldName);
+    throw new InvalidFieldSchemaError(fieldKey);
   }
 
   return record;
@@ -167,15 +167,17 @@ const preparePostUpdateRelations = async (
 ) => {
   const allRelationQueries = [];
 
-  for (const relationAlias in relations) {
-    const fieldRelation = relations[relationAlias];
-    const fieldValue = data[relationAlias];
+  for (const relationPath in relations) {
+    const fieldRelation = relations[relationPath];
+
+    const fieldKey = fieldRelation.targetAlias;
+    const fieldValue = data[fieldKey];
 
     if (fieldValue === undefined) {
       continue;
     }
 
-    const fieldPath = `${path}.${relationAlias}`;
+    const fieldPath = `${path}.${fieldKey}`;
 
     if (!isSingleRelationData(fieldValue)) {
       throw new InvalidRelationFieldError(fieldPath);

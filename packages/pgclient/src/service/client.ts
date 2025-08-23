@@ -1,12 +1,12 @@
 import type { Database, Client as DbClient, ParametersUtils, TransactionUtils } from '@ez4/database';
-import type { PgTableRepository, PgRelationRepository, RepositoryRelationsWithSchema } from './types/repository.js';
-import type { InternalTableMetadata } from './types/table.js';
-import type { PgClientDriver } from './types/driver.js';
+import type { PgTableRepository } from '../types/repository.js';
+import type { InternalTableMetadata } from '../types/table.js';
+import type { PgClientDriver } from '../types/driver.js';
 
 import { MissingRepositoryTableError } from '@ez4/pgclient';
 
-import { prepareDeleteOne, prepareInsertOne, prepareUpdateOne } from './queries/queries.js';
-import { getTableName } from './utils/resources.js';
+import { prepareDeleteOne, prepareInsertOne, prepareUpdateOne } from '../queries/queries.js';
+import { getRelationsWithSchema } from './relations.js';
 import { Table } from './table.js';
 
 type TableType = Table<InternalTableMetadata>;
@@ -62,9 +62,9 @@ export namespace PgClient {
           return tableCache[tableAlias];
         }
 
-        const { name, schema, relations } = repository[tableAlias];
+        const { name, schema } = repository[tableAlias];
 
-        const relationsWithSchema = getRelationsWithSchema(repository, relations);
+        const relationsWithSchema = getRelationsWithSchema(name, repository);
 
         const table = new Table(name, schema, relationsWithSchema, context);
 
@@ -75,33 +75,6 @@ export namespace PgClient {
     });
   };
 }
-
-const getRelationsWithSchema = (repository: PgTableRepository, relations: PgRelationRepository) => {
-  const relationsWithSchema: RepositoryRelationsWithSchema = {};
-
-  for (const tableAlias in relations) {
-    const tableRelation = relations[tableAlias];
-
-    if (!tableRelation) {
-      throw new MissingRepositoryTableError(tableAlias);
-    }
-
-    const sourceAlias = tableRelation.sourceAlias;
-    const sourceRepository = repository[sourceAlias];
-
-    if (!sourceRepository) {
-      throw new MissingRepositoryTableError(sourceAlias);
-    }
-
-    relationsWithSchema[tableAlias] = {
-      sourceSchema: sourceRepository.schema,
-      sourceTable: getTableName(sourceAlias),
-      ...tableRelation
-    };
-  }
-
-  return relationsWithSchema;
-};
 
 const getStatementParameters = <T extends Database.Service>(driver: PgClientDriver, parameters: ParametersUtils.Type<T>) => {
   if (Array.isArray(parameters)) {
@@ -200,9 +173,9 @@ const prepareStaticTransaction = async <T extends Database.Service>(
       throw new MissingRepositoryTableError(tableAlias);
     }
 
-    const { name, schema, relations } = repositoryTable;
+    const { name, schema } = repositoryTable;
 
-    const relationsWithSchema = getRelationsWithSchema(repository, relations);
+    const relationsWithSchema = getRelationsWithSchema(name, repository);
 
     for (const query of operationTable) {
       if (!query) {

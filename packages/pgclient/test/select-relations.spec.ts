@@ -1,12 +1,12 @@
-import type { PostgresEngine, RepositoryRelationsWithSchema } from '@ez4/pgclient/library';
+import type { PostgresEngine } from '@ez4/pgclient/library';
 import type { IndexedTables, RelationTables } from '@ez4/database/library';
 import type { Database, Query } from '@ez4/database';
 
 import { describe, it } from 'node:test';
 
-import { prepareSelectQuery } from '@ez4/pgclient/library';
-import { ObjectSchema, SchemaType } from '@ez4/schema';
+import { getRelationsWithSchema, getTableRepository, prepareSelectQuery } from '@ez4/pgclient/library';
 import { Index, Order } from '@ez4/database';
+import { SchemaType } from '@ez4/schema';
 import { SqlBuilder } from '@ez4/pgsql';
 
 declare class Test extends Database.Service {
@@ -43,64 +43,71 @@ type TestTableMetadata = {
 };
 
 describe('select relations', () => {
-  const testSchema: ObjectSchema = {
-    type: SchemaType.Object,
-    properties: {
-      id: {
-        type: SchemaType.String,
-        format: 'uuid'
-      },
-      relation1_id: {
-        type: SchemaType.String,
-        optional: true,
-        format: 'uuid'
-      },
-      relation2_id: {
-        type: SchemaType.String,
-        optional: true,
-        format: 'uuid'
-      },
-      foo: {
-        type: SchemaType.Number,
-        optional: true
+  const testTableName = 'ez4_test_table';
+
+  const repository = getTableRepository([
+    {
+      name: testTableName,
+      indexes: [],
+      relations: [
+        {
+          targetAlias: 'secondary_to_unique',
+          targetColumn: 'relation1_id',
+          targetIndex: Index.Secondary,
+          sourceIndex: Index.Primary,
+          sourceTable: testTableName,
+          sourceColumn: 'id'
+        },
+        {
+          targetAlias: 'primary_to_unique',
+          targetColumn: 'id',
+          targetIndex: Index.Primary,
+          sourceIndex: Index.Unique,
+          sourceTable: testTableName,
+          sourceColumn: 'relation2_id'
+        },
+        {
+          targetAlias: 'primary_to_secondary',
+          targetColumn: 'id',
+          targetIndex: Index.Primary,
+          sourceIndex: Index.Secondary,
+          sourceTable: testTableName,
+          sourceColumn: 'relation1_id'
+        }
+      ],
+      schema: {
+        type: SchemaType.Object,
+        properties: {
+          id: {
+            type: SchemaType.String,
+            format: 'uuid'
+          },
+          relation1_id: {
+            type: SchemaType.String,
+            optional: true,
+            format: 'uuid'
+          },
+          relation2_id: {
+            type: SchemaType.String,
+            optional: true,
+            format: 'uuid'
+          },
+          foo: {
+            type: SchemaType.Number,
+            optional: true
+          }
+        }
       }
     }
-  };
-
-  const testRelations: RepositoryRelationsWithSchema = {
-    secondary_to_unique: {
-      sourceSchema: testSchema,
-      sourceTable: 'ez4-test-relation',
-      sourceAlias: 'ez4-test-relation',
-      targetColumn: 'relation1_id',
-      sourceColumn: 'id',
-      sourceIndex: Index.Primary,
-      targetIndex: Index.Secondary
-    },
-    primary_to_unique: {
-      sourceSchema: testSchema,
-      sourceTable: 'ez4-test-relation',
-      sourceAlias: 'ez4-test-relation',
-      targetColumn: 'id',
-      sourceColumn: 'relation2_id',
-      sourceIndex: Index.Unique,
-      targetIndex: Index.Primary
-    },
-    primary_to_secondary: {
-      sourceSchema: testSchema,
-      sourceTable: 'ez4-test-relation',
-      sourceAlias: 'ez4-test-relation',
-      targetColumn: 'id',
-      sourceColumn: 'relation1_id',
-      sourceIndex: Index.Secondary,
-      targetIndex: Index.Primary
-    }
-  };
+  ]);
 
   const prepareSelect = <S extends Query.SelectInput<TestTableMetadata>>(query: Query.FindOneInput<S, TestTableMetadata>) => {
     const builder = new SqlBuilder();
 
-    return prepareSelectQuery('ez4-test-select-relations', testSchema, testRelations, query, builder);
+    const relations = getRelationsWithSchema(testTableName, repository);
+    const table = repository[testTableName];
+
+    return prepareSelectQuery(testTableName, table.schema, relations, query, builder);
   };
 
   it('assert :: prepare select relations', ({ assert }) => {
@@ -126,19 +133,19 @@ describe('select relations', () => {
       `SELECT "R"."id", "R"."foo", ` +
         // First relation
         `(SELECT json_build_object('id', "S"."id") ` +
-        `FROM "ez4-test-relation" AS "S" WHERE "S"."id" = "R"."relation1_id") AS "secondary_to_unique", ` +
+        `FROM "ez4_test_table" AS "S" WHERE "S"."id" = "R"."relation1_id") AS "secondary_to_unique", ` +
         // Second relation
         `(SELECT json_build_object(` +
         `'id', "S"."id", ` +
         `'relation1_id', "S"."relation1_id", ` +
         `'relation2_id', "S"."relation2_id", ` +
         `'foo', "S"."foo") ` +
-        `FROM "ez4-test-relation" AS "S" WHERE "S"."relation2_id" = "R"."id") AS "primary_to_unique", ` +
+        `FROM "ez4_test_table" AS "S" WHERE "S"."relation2_id" = "R"."id") AS "primary_to_unique", ` +
         // Third relation
         `(SELECT COALESCE(json_agg(json_build_object('foo', "S"."foo")), '[]'::json) ` +
-        `FROM "ez4-test-relation" AS "S" WHERE "S"."relation1_id" = "R"."id") AS "primary_to_secondary" ` +
+        `FROM "ez4_test_table" AS "S" WHERE "S"."relation1_id" = "R"."id") AS "primary_to_secondary" ` +
         //
-        `FROM "ez4-test-select-relations" AS "R" ` +
+        `FROM "ez4_test_table" AS "R" ` +
         `WHERE "R"."id" = :0`
     );
 
@@ -178,20 +185,20 @@ describe('select relations', () => {
       statement,
       `SELECT "R"."id", "R"."foo", ` +
         // First relation
-        `(SELECT json_build_object('foo', "S"."foo") FROM "ez4-test-relation" AS "S" WHERE "S"."id" = "R"."relation1_id") AS "secondary_to_unique", ` +
+        `(SELECT json_build_object('foo', "S"."foo") FROM "ez4_test_table" AS "S" WHERE "S"."id" = "R"."relation1_id") AS "secondary_to_unique", ` +
         // Second relation
-        `(SELECT json_build_object('foo', "S"."foo") FROM "ez4-test-relation" AS "S" WHERE "S"."relation2_id" = "R"."id") AS "primary_to_unique", ` +
+        `(SELECT json_build_object('foo', "S"."foo") FROM "ez4_test_table" AS "S" WHERE "S"."relation2_id" = "R"."id") AS "primary_to_unique", ` +
         // Third relation
         `(SELECT COALESCE(json_agg(json_build_object('foo', "S"."foo")), '[]'::json) ` +
-        `FROM "ez4-test-relation" AS "S" WHERE "S"."relation1_id" = "R"."id") AS "primary_to_secondary" ` +
+        `FROM "ez4_test_table" AS "S" WHERE "S"."relation1_id" = "R"."id") AS "primary_to_secondary" ` +
         // Main condition
-        `FROM "ez4-test-select-relations" AS "R" WHERE "R"."id" = :0 AND ` +
+        `FROM "ez4_test_table" AS "R" WHERE "R"."id" = :0 AND ` +
         // First relation condition
-        `EXISTS (SELECT 1 FROM "ez4-test-relation" AS "T" WHERE "T"."foo" = :1 AND "T"."id" = "R"."relation1_id") AND ` +
+        `EXISTS (SELECT 1 FROM "ez4_test_table" AS "T" WHERE "T"."foo" = :1 AND "T"."id" = "R"."relation1_id") AND ` +
         // Second relation condition
-        `EXISTS (SELECT 1 FROM "ez4-test-relation" AS "T" WHERE "T"."foo" = :2 AND "T"."relation2_id" = "R"."id") AND ` +
+        `EXISTS (SELECT 1 FROM "ez4_test_table" AS "T" WHERE "T"."foo" = :2 AND "T"."relation2_id" = "R"."id") AND ` +
         // Third relation condition
-        `EXISTS (SELECT 1 FROM "ez4-test-relation" AS "T" WHERE "T"."id" = :3 AND "T"."relation1_id" = "R"."id")`
+        `EXISTS (SELECT 1 FROM "ez4_test_table" AS "T" WHERE "T"."id" = :3 AND "T"."relation1_id" = "R"."id")`
     );
 
     assert.deepEqual(variables, ['00000000-0000-1000-9000-000000000000', 123, 456, '00000000-0000-1000-9000-000000000001']);
@@ -214,13 +221,13 @@ describe('select relations', () => {
 
     assert.equal(
       statement,
-      `SELECT "R"."id" FROM "ez4-test-select-relations" AS "R" WHERE "R"."id" = :0 AND ` +
+      `SELECT "R"."id" FROM "ez4_test_table" AS "R" WHERE "R"."id" = :0 AND ` +
         // First relation
-        `EXISTS (SELECT 1 FROM "ez4-test-relation" AS "T" WHERE "T"."id" = "R"."relation1_id") AND ` +
+        `EXISTS (SELECT 1 FROM "ez4_test_table" AS "T" WHERE "T"."id" = "R"."relation1_id") AND ` +
         // Second relation
-        `EXISTS (SELECT 1 FROM "ez4-test-relation" AS "T" WHERE "T"."relation2_id" != "R"."id") AND ` +
+        `EXISTS (SELECT 1 FROM "ez4_test_table" AS "T" WHERE "T"."relation2_id" != "R"."id") AND ` +
         // Third relation
-        `NOT EXISTS (SELECT 1 FROM "ez4-test-relation" AS "T" WHERE "T"."relation1_id" != "R"."id")`
+        `NOT EXISTS (SELECT 1 FROM "ez4_test_table" AS "T" WHERE "T"."relation1_id" != "R"."id")`
     );
 
     assert.deepEqual(variables, ['00000000-0000-1000-9000-000000000000']);
@@ -266,16 +273,16 @@ describe('select relations', () => {
       statement,
       `SELECT "R"."id", ` +
         // First relation
-        `(SELECT json_build_object('foo', "S"."foo") FROM "ez4-test-relation" AS "S" ` +
+        `(SELECT json_build_object('foo', "S"."foo") FROM "ez4_test_table" AS "S" ` +
         `WHERE "S"."foo" = :0 AND "S"."id" = "R"."relation1_id") AS "secondary_to_unique", ` +
         // Second relation
-        `(SELECT json_build_object('foo', "S"."foo") FROM "ez4-test-relation" AS "S" ` +
+        `(SELECT json_build_object('foo', "S"."foo") FROM "ez4_test_table" AS "S" ` +
         `WHERE "S"."foo" = :1 AND "S"."relation2_id" = "R"."id") AS "primary_to_unique", ` +
         // Third relation
-        `(SELECT COALESCE(json_agg(json_build_object('foo', "S"."foo")), '[]'::json) FROM "ez4-test-relation" AS "S" ` +
+        `(SELECT COALESCE(json_agg(json_build_object('foo', "S"."foo")), '[]'::json) FROM "ez4_test_table" AS "S" ` +
         `WHERE "S"."foo" = :2 AND "S"."relation1_id" = "R"."id") AS "primary_to_secondary" ` +
         //
-        `FROM "ez4-test-select-relations" AS "R" ` +
+        `FROM "ez4_test_table" AS "R" ` +
         `WHERE "R"."id" = :3`
     );
 
@@ -310,16 +317,16 @@ describe('select relations', () => {
       statement,
       `SELECT "R"."id", ` +
         // First relation
-        `(SELECT json_build_object('foo', "S"."foo") FROM "ez4-test-relation" AS "S" ` +
+        `(SELECT json_build_object('foo', "S"."foo") FROM "ez4_test_table" AS "S" ` +
         `WHERE "S"."id" = "R"."relation1_id") AS "secondary_to_unique", ` +
         // Second relation
-        `(SELECT json_build_object('foo', "S"."foo") FROM "ez4-test-relation" AS "S" ` +
+        `(SELECT json_build_object('foo', "S"."foo") FROM "ez4_test_table" AS "S" ` +
         `WHERE "S"."relation2_id" = "R"."id") AS "primary_to_unique", ` +
         // Third relation
-        `(SELECT COALESCE(json_agg(json_build_object('foo', "S"."foo")), '[]'::json) FROM "ez4-test-relation" AS "S" ` +
+        `(SELECT COALESCE(json_agg(json_build_object('foo', "S"."foo")), '[]'::json) FROM "ez4_test_table" AS "S" ` +
         `WHERE "S"."relation1_id" = "R"."id") AS "primary_to_secondary" ` +
         //
-        `FROM "ez4-test-select-relations" AS "R" ` +
+        `FROM "ez4_test_table" AS "R" ` +
         `WHERE "R"."id" = :0`
     );
 
@@ -353,10 +360,10 @@ describe('select relations', () => {
       statement,
       `SELECT "R"."id", ` +
         // First relation
-        `(SELECT COALESCE(json_agg(json_build_object('foo', "S"."foo") ORDER BY "S"."foo" DESC), '[]'::json) FROM "ez4-test-relation" AS "S" ` +
+        `(SELECT COALESCE(json_agg(json_build_object('foo', "S"."foo") ORDER BY "S"."foo" DESC), '[]'::json) FROM "ez4_test_table" AS "S" ` +
         `WHERE "S"."foo" = :0 AND "S"."relation1_id" = "R"."id") AS "primary_to_secondary" ` +
         //
-        `FROM "ez4-test-select-relations" AS "R" ` +
+        `FROM "ez4_test_table" AS "R" ` +
         `WHERE "R"."id" = :1`
     );
 
@@ -390,11 +397,11 @@ describe('select relations', () => {
       `SELECT "R"."id", ` +
         // First relation
         `(SELECT COALESCE(json_agg(json_build_object('foo', "foo")), '[]'::json) ` +
-        `FROM (SELECT "S"."foo" FROM "ez4-test-relation" AS "S" ` +
+        `FROM (SELECT "S"."foo" FROM "ez4_test_table" AS "S" ` +
         `WHERE "S"."foo" = :0 AND "S"."relation1_id" = "R"."id" OFFSET 5 LIMIT 5)` +
         `) AS "primary_to_secondary" ` +
         //
-        `FROM "ez4-test-select-relations" AS "R" ` +
+        `FROM "ez4_test_table" AS "R" ` +
         `WHERE "R"."id" = :1`
     );
 
@@ -430,23 +437,23 @@ describe('select relations', () => {
       statement,
       `SELECT "R"."id", ` +
         // First relation
-        `(SELECT json_build_object('foo', "S"."foo") FROM "ez4-test-relation" AS "S" ` +
+        `(SELECT json_build_object('foo', "S"."foo") FROM "ez4_test_table" AS "S" ` +
         `WHERE "S"."relation2_id" = "R"."id") AS "primary_to_unique", ` +
         // Second relation
-        `(SELECT COALESCE(json_agg(json_build_object('foo', "S"."foo")), '[]'::json) FROM "ez4-test-relation" AS "S" ` +
+        `(SELECT COALESCE(json_agg(json_build_object('foo', "S"."foo")), '[]'::json) FROM "ez4_test_table" AS "S" ` +
         `WHERE "S"."relation1_id" = "R"."id") AS "primary_to_secondary", ` +
         // Third relation
         `(SELECT json_build_object('foo', "S"."foo", ` +
         //
         /****/ `'primary_to_unique', (SELECT json_build_object('foo', "O"."foo") ` +
-        /*****/ `FROM "ez4-test-relation" AS "O" WHERE "O"."relation2_id" = "S"."id"), ` +
+        /****/ `FROM "ez4_test_table" AS "O" WHERE "O"."relation2_id" = "S"."id"), ` +
         //
         /****/ `'primary_to_secondary', (SELECT COALESCE(json_agg(json_build_object('foo', "O"."foo")), '[]'::json) ` +
-        /*****/ `FROM "ez4-test-relation" AS "O" WHERE "O"."relation1_id" = "S"."id")` +
+        /****/ `FROM "ez4_test_table" AS "O" WHERE "O"."relation1_id" = "S"."id")` +
         //
-        `) FROM "ez4-test-relation" AS "S" WHERE "S"."id" = "R"."relation1_id") AS "secondary_to_unique" ` +
+        `) FROM "ez4_test_table" AS "S" WHERE "S"."id" = "R"."relation1_id") AS "secondary_to_unique" ` +
         //
-        `FROM "ez4-test-select-relations" AS "R" ` +
+        `FROM "ez4_test_table" AS "R" ` +
         `WHERE "R"."id" = :0`
     );
 

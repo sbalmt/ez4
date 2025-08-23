@@ -16,10 +16,26 @@ type TestTableMetadata = {
   schema: {};
 };
 
+type TestSchemaOptions = {
+  multiple?: boolean;
+  nullish: boolean;
+};
+
 describe('insert secondary relations', () => {
-  type TestSchemaOptions = {
-    multiple?: boolean;
-    nullish: boolean;
+  const testTableName = 'ez4_test_table';
+
+  const relationSchema: ObjectSchema = {
+    type: SchemaType.Object,
+    properties: {
+      id: {
+        type: SchemaType.String,
+        format: 'uuid'
+      },
+      foo: {
+        type: SchemaType.String,
+        optional: true
+      }
+    }
   };
 
   const prepareRelationInsert = <S extends Query.SelectInput<TestTableMetadata>>(
@@ -29,7 +45,7 @@ describe('insert secondary relations', () => {
   ) => {
     const builder = new SqlBuilder();
 
-    return prepareInsertQuery('ez4-test-insert-relations', schema, relations, query, builder);
+    return prepareInsertQuery(testTableName, schema, relations, query, builder);
   };
 
   const getTestRelationSchema = ({ nullish, multiple }: TestSchemaOptions): ObjectSchema => {
@@ -68,44 +84,43 @@ describe('insert secondary relations', () => {
   };
 
   const getSingleTestRelation = (): RepositoryRelationsWithSchema => {
-    const relationSchema: ObjectSchema = {
-      type: SchemaType.Object,
-      properties: {
-        id: {
-          type: SchemaType.String,
-          format: 'uuid'
-        },
-        foo: {
-          type: SchemaType.String,
-          optional: true
-        }
-      }
-    };
-
     return {
-      secondary_to_primary: {
+      [`${testTableName}.secondary_to_primary`]: {
+        targetAlias: 'secondary_to_primary',
         targetColumn: 'id',
         targetIndex: Index.Primary,
+        sourceIndex: Index.Secondary,
         sourceSchema: relationSchema,
-        sourceTable: 'ez4-test-relation',
-        sourceAlias: 'ez4-test-relation',
-        sourceColumn: 'primary_id',
-        sourceIndex: Index.Secondary
+        sourceTable: testTableName,
+        sourceColumn: 'primary_id'
       }
     };
   };
 
   const getMultipleTestRelation = (): RepositoryRelationsWithSchema => {
-    const { secondary_to_primary } = getSingleTestRelation();
+    const baseRelation = {
+      targetColumn: 'id',
+      targetIndex: Index.Primary,
+      sourceIndex: Index.Secondary,
+      sourceSchema: relationSchema,
+      sourceTable: testTableName
+    };
 
     return {
-      secondary_to_primary_1: {
-        ...secondary_to_primary,
-        sourceColumn: 'primary_1_id'
+      [`${testTableName}.secondary_to_primary_1`]: {
+        targetAlias: 'secondary_to_primary_1',
+        sourceColumn: 'primary_1_id',
+        ...baseRelation
       },
-      secondary_to_primary_2: {
-        ...secondary_to_primary,
-        sourceColumn: 'primary_2_id'
+      [`${testTableName}.secondary_to_primary_2`]: {
+        targetAlias: 'secondary_to_primary_2',
+        sourceColumn: 'primary_2_id',
+        ...baseRelation
+      },
+      [`${testTableName}.secondary_to_primary_3`]: {
+        targetAlias: 'secondary_to_primary_3',
+        sourceColumn: 'primary_3_id',
+        ...baseRelation
       }
     };
   };
@@ -130,9 +145,9 @@ describe('insert secondary relations', () => {
       statement,
       `WITH ` +
         // Main record
-        `"R0" AS (INSERT INTO "ez4-test-insert-relations" ("id") VALUES (:0) RETURNING "id") ` +
+        `"R0" AS (INSERT INTO "ez4_test_table" ("id") VALUES (:0) RETURNING "id") ` +
         // Relation
-        `INSERT INTO "ez4-test-relation" ("id", "primary_id") SELECT :1, "R0"."id" FROM "R0"`
+        `INSERT INTO "ez4_test_table" ("id", "primary_id") SELECT :1, "R0"."id" FROM "R0"`
     );
 
     assert.deepEqual(variables, ['00000000-0000-1000-9000-000000000000', '00000000-0000-1000-9000-000000000001']);
@@ -159,9 +174,9 @@ describe('insert secondary relations', () => {
       statement,
       `WITH ` +
         // Main record
-        `"R0" AS (INSERT INTO "ez4-test-insert-relations" ("id") VALUES (:0) RETURNING "id") ` +
+        `"R0" AS (INSERT INTO "ez4_test_table" ("id") VALUES (:0) RETURNING "id") ` +
         // Relation
-        `INSERT INTO "ez4-test-relation" ("id", "foo", "primary_id") SELECT :1, :2, "R0"."id" FROM "R0"`
+        `INSERT INTO "ez4_test_table" ("id", "foo", "primary_id") SELECT :1, :2, "R0"."id" FROM "R0"`
     );
 
     assert.deepEqual(variables, ['00000000-0000-1000-9000-000000000000', '00000000-0000-1000-9000-000000000001', 'foo']);
@@ -179,7 +194,7 @@ describe('insert secondary relations', () => {
       }
     });
 
-    assert.equal(statement, `INSERT INTO "ez4-test-insert-relations" ("id") VALUES (:0)`);
+    assert.equal(statement, `INSERT INTO "ez4_test_table" ("id") VALUES (:0)`);
 
     assert.deepEqual(variables, ['00000000-0000-1000-9000-000000000000']);
   });
@@ -211,9 +226,9 @@ describe('insert secondary relations', () => {
       statement,
       `WITH ` +
         // Main record
-        `"R0" AS (INSERT INTO "ez4-test-insert-relations" ("id") VALUES (:0) RETURNING "id"), ` +
+        `"R0" AS (INSERT INTO "ez4_test_table" ("id") VALUES (:0) RETURNING "id"), ` +
         // Relation
-        `"R1" AS (INSERT INTO "ez4-test-relation" ("id", "foo", "primary_id") SELECT :1, :2, "R0"."id" FROM "R0" RETURNING "id", "foo") ` +
+        `"R1" AS (INSERT INTO "ez4_test_table" ("id", "foo", "primary_id") SELECT :1, :2, "R0"."id" FROM "R0" RETURNING "id", "foo") ` +
         // Select
         `SELECT ` +
         `(SELECT COALESCE(json_agg(json_build_object('id', "id", 'foo', "foo")), '[]'::json) FROM "R1") AS "secondary_to_primary" ` +
@@ -260,13 +275,13 @@ describe('insert secondary relations', () => {
       statement,
       `WITH ` +
         // Main record
-        `"R0" AS (INSERT INTO "ez4-test-insert-relations" ("id") VALUES (:0) RETURNING "id"), ` +
+        `"R0" AS (INSERT INTO "ez4_test_table" ("id") VALUES (:0) RETURNING "id"), ` +
         // First relation
-        `"R1" AS (INSERT INTO "ez4-test-relation" ("id", "foo", "primary_1_id") SELECT :1, :2, "R0"."id" FROM "R0" RETURNING "id", "foo"), ` +
+        `"R1" AS (INSERT INTO "ez4_test_table" ("id", "foo", "primary_1_id") SELECT :1, :2, "R0"."id" FROM "R0" RETURNING "id", "foo"), ` +
         // Second relation
-        `"R2" AS (INSERT INTO "ez4-test-relation" ("id", "primary_1_id") SELECT :3, "R0"."id" FROM "R0" RETURNING "id", "foo"), ` +
+        `"R2" AS (INSERT INTO "ez4_test_table" ("id", "primary_1_id") SELECT :3, "R0"."id" FROM "R0" RETURNING "id", "foo"), ` +
         // Third relation
-        `"R3" AS (INSERT INTO "ez4-test-relation" ("id", "primary_2_id") SELECT :4, "R0"."id" FROM "R0") ` +
+        `"R3" AS (INSERT INTO "ez4_test_table" ("id", "primary_2_id") SELECT :4, "R0"."id" FROM "R0") ` +
         // Select
         `SELECT "id", ` +
         `(SELECT COALESCE(json_agg(json_build_object('id', "id", 'foo', "foo")), '[]'::json) FROM "R1", "R2") AS "secondary_to_primary_1" ` +

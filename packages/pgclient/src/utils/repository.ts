@@ -44,7 +44,7 @@ const getTableRelations = (tableRelations: TableRelation[]) => {
     const { sourceColumn, sourceIndex, targetColumn, targetIndex } = relation;
 
     relations[relation.targetAlias] = {
-      sourceAlias: relation.sourceTable,
+      sourceTable: relation.sourceTable,
       sourceColumn,
       sourceIndex,
       targetColumn,

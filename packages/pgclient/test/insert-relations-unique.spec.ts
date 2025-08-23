@@ -16,10 +16,26 @@ type TestTableMetadata = {
   schema: {};
 };
 
+type TestSchemaOptions = {
+  multiple?: boolean;
+  nullish: boolean;
+};
+
 describe('insert unique relations', () => {
-  type TestSchemaOptions = {
-    multiple?: boolean;
-    nullish: boolean;
+  const testTableName = 'ez4_test_table';
+
+  const relationSchema: ObjectSchema = {
+    type: SchemaType.Object,
+    properties: {
+      id: {
+        type: SchemaType.String,
+        format: 'uuid'
+      },
+      foo: {
+        type: SchemaType.String,
+        optional: true
+      }
+    }
   };
 
   const prepareRelationInsert = <S extends Query.SelectInput<TestTableMetadata>>(
@@ -29,7 +45,7 @@ describe('insert unique relations', () => {
   ) => {
     const builder = new SqlBuilder();
 
-    return prepareInsertQuery('ez4-test-insert-relations', schema, relations, query, builder);
+    return prepareInsertQuery(testTableName, schema, relations, query, builder);
   };
 
   const getTestRelationSchema = ({ nullish, multiple }: TestSchemaOptions): ObjectSchema => {
@@ -79,48 +95,43 @@ describe('insert unique relations', () => {
   };
 
   const getSingleTestRelation = (): RepositoryRelationsWithSchema => {
-    const relationSchema: ObjectSchema = {
-      type: SchemaType.Object,
-      properties: {
-        id: {
-          type: SchemaType.String,
-          format: 'uuid'
-        },
-        foo: {
-          type: SchemaType.String,
-          optional: true
-        }
-      }
-    };
-
     return {
-      unique_to_primary: {
+      [`${testTableName}.unique_to_primary`]: {
+        targetAlias: 'unique_to_primary',
         targetColumn: 'id',
         targetIndex: Index.Primary,
+        sourceIndex: Index.Unique,
         sourceSchema: relationSchema,
-        sourceTable: 'ez4-test-relation',
-        sourceAlias: 'ez4-test-relation',
-        sourceColumn: 'unique_id',
-        sourceIndex: Index.Unique
+        sourceTable: testTableName,
+        sourceColumn: 'unique_id'
       }
     };
   };
 
   const getMultipleTestRelation = (): RepositoryRelationsWithSchema => {
-    const { unique_to_primary } = getSingleTestRelation();
+    const baseRelation = {
+      targetColumn: 'id',
+      targetIndex: Index.Primary,
+      sourceIndex: Index.Unique,
+      sourceSchema: relationSchema,
+      sourceTable: testTableName
+    };
 
     return {
-      unique_to_primary_1: {
-        ...unique_to_primary,
-        sourceColumn: 'unique_1_id'
+      [`${testTableName}.unique_to_primary_1`]: {
+        targetAlias: 'unique_to_primary_1',
+        sourceColumn: 'unique_1_id',
+        ...baseRelation
       },
-      unique_to_primary_2: {
-        ...unique_to_primary,
-        sourceColumn: 'unique_2_id'
+      [`${testTableName}.unique_to_primary_2`]: {
+        targetAlias: 'unique_to_primary_2',
+        sourceColumn: 'unique_2_id',
+        ...baseRelation
       },
-      unique_to_primary_3: {
-        ...unique_to_primary,
-        sourceColumn: 'unique_3_id'
+      [`${testTableName}.unique_to_primary_3`]: {
+        targetAlias: 'unique_to_primary_3',
+        sourceColumn: 'unique_3_id',
+        ...baseRelation
       }
     };
   };
@@ -142,7 +153,7 @@ describe('insert unique relations', () => {
     assert.equal(
       statement,
       // Main record
-      `INSERT INTO "ez4-test-insert-relations" ("id", "unique_id") VALUES (:0, :1)`
+      `INSERT INTO "ez4_test_table" ("id", "unique_id") VALUES (:0, :1)`
     );
 
     assert.deepEqual(variables, ['00000000-0000-1000-9000-000000000000', '00000000-0000-1000-9000-000000000001']);
@@ -165,7 +176,7 @@ describe('insert unique relations', () => {
     assert.equal(
       statement,
       // Main record
-      `INSERT INTO "ez4-test-insert-relations" ("id", "unique_id") VALUES (:0, :1)`
+      `INSERT INTO "ez4_test_table" ("id", "unique_id") VALUES (:0, :1)`
     );
 
     assert.deepEqual(variables, ['00000000-0000-1000-9000-000000000000', '00000000-0000-1000-9000-000000000001']);
@@ -188,7 +199,7 @@ describe('insert unique relations', () => {
     assert.equal(
       statement,
       // Main record
-      `INSERT INTO "ez4-test-insert-relations" ("id") VALUES (:0)`
+      `INSERT INTO "ez4_test_table" ("id") VALUES (:0)`
     );
 
     assert.deepEqual(variables, ['00000000-0000-1000-9000-000000000000']);
@@ -218,10 +229,10 @@ describe('insert unique relations', () => {
       statement,
       `WITH ` +
         // Main record
-        `"R0" AS (INSERT INTO "ez4-test-insert-relations" ("id", "unique_id") VALUES (:0, :1) RETURNING "unique_id") ` +
+        `"R0" AS (INSERT INTO "ez4_test_table" ("id", "unique_id") VALUES (:0, :1) RETURNING "unique_id") ` +
         // Select
         `SELECT ` +
-        `(SELECT json_build_object('id', "S"."id", 'foo', "S"."foo") FROM "ez4-test-relation" AS "S" ` +
+        `(SELECT json_build_object('id', "S"."id", 'foo', "S"."foo") FROM "ez4_test_table" AS "S" ` +
         `WHERE "S"."id" = "R0"."unique_id") AS "unique_to_primary" ` +
         `FROM "R0"`
     );
@@ -248,9 +259,9 @@ describe('insert unique relations', () => {
       statement,
       `WITH ` +
         // Main record
-        `"R0" AS (INSERT INTO "ez4-test-insert-relations" ("id") VALUES (:0) RETURNING "id") ` +
+        `"R0" AS (INSERT INTO "ez4_test_table" ("id") VALUES (:0) RETURNING "id") ` +
         // Relation
-        `INSERT INTO "ez4-test-relation" ("id", "foo", "unique_id") ` +
+        `INSERT INTO "ez4_test_table" ("id", "foo", "unique_id") ` +
         `SELECT :1, :2, "R0"."id" FROM "R0"`
     );
 
@@ -272,7 +283,7 @@ describe('insert unique relations', () => {
     assert.equal(
       statement,
       // Main record
-      `INSERT INTO "ez4-test-insert-relations" ("id") VALUES (:0)`
+      `INSERT INTO "ez4_test_table" ("id") VALUES (:0)`
     );
 
     assert.deepEqual(variables, ['00000000-0000-1000-9000-000000000000']);
@@ -304,9 +315,9 @@ describe('insert unique relations', () => {
       statement,
       `WITH ` +
         // Relation
-        `"R0" AS (INSERT INTO "ez4-test-insert-relations" ("id") VALUES (:0) RETURNING "id", "bar"), ` +
+        `"R0" AS (INSERT INTO "ez4_test_table" ("id") VALUES (:0) RETURNING "id", "bar"), ` +
         // Main record
-        `"R1" AS (INSERT INTO "ez4-test-relation" ("id", "foo", "unique_id") SELECT :1, :2, "R0"."id" FROM "R0" RETURNING "id", "foo") ` +
+        `"R1" AS (INSERT INTO "ez4_test_table" ("id", "foo", "unique_id") SELECT :1, :2, "R0"."id" FROM "R0" RETURNING "id", "foo") ` +
         // Select
         `SELECT "bar", (SELECT json_build_object('id', "id", 'foo', "foo") FROM "R1") AS "unique_to_primary" FROM "R0"`
     );
@@ -347,11 +358,11 @@ describe('insert unique relations', () => {
       statement,
       `WITH ` +
         // Main record
-        `"R0" AS (INSERT INTO "ez4-test-insert-relations" ("id", "unique_2_id") VALUES (:0, :1) RETURNING "id"), ` +
+        `"R0" AS (INSERT INTO "ez4_test_table" ("id", "unique_2_id") VALUES (:0, :1) RETURNING "id"), ` +
         // First relation
-        `"R1" AS (INSERT INTO "ez4-test-relation" ("id", "foo", "unique_1_id") SELECT :2, :3, "R0"."id" FROM "R0" RETURNING "id", "foo"), ` +
+        `"R1" AS (INSERT INTO "ez4_test_table" ("id", "foo", "unique_1_id") SELECT :2, :3, "R0"."id" FROM "R0" RETURNING "id", "foo"), ` +
         // Third relation
-        `"R2" AS (INSERT INTO "ez4-test-relation" ("id", "unique_3_id") SELECT :4, "R0"."id" FROM "R0") ` +
+        `"R2" AS (INSERT INTO "ez4_test_table" ("id", "unique_3_id") SELECT :4, "R0"."id" FROM "R0") ` +
         // Select
         `SELECT "id", (SELECT json_build_object('id', "id", 'foo', "foo") FROM "R1") AS "unique_to_primary_1" FROM "R0"`
     );
