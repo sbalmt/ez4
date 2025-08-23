@@ -14,6 +14,9 @@ export * from './errors/indexes.js';
 export * from './errors/stream.js';
 export * from './errors/handler.js';
 
+export * from './services/indexes.js';
+export * from './services/relations.js';
+
 export * from './types/service.js';
 export * from './types/relations.js';
 export * from './types/indexes.js';

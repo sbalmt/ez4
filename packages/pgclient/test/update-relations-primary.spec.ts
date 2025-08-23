@@ -222,7 +222,7 @@ describe('update primary relations', () => {
     assert.deepEqual(variables, ['00000000-0000-1000-9000-000000000000']);
   });
 
-  it('assert :: prepare update primary relation (active connection)', async ({ assert }) => {
+  it('assert :: prepare update primary relation (activate connection)', async ({ assert }) => {
     const testSchema = getTestRelationSchema({
       nullish: false
     });
