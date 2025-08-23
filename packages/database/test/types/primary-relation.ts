@@ -12,6 +12,7 @@ declare class TestTableA implements Database.Schema {
 declare class TestTableB implements Database.Schema {
   id: string;
   table_a_id: string;
+  table_c_id?: string;
   value_b: number;
 }
 
@@ -42,6 +43,7 @@ export declare class TestDatabase extends Database.Service {
       schema: TestTableB;
       relations: {
         'table_a_id@relation_a': 'tableA:id';
+        'table_c_id@relation_c': 'tableC:id';
       };
       indexes: {
         id: Index.Primary;
@@ -131,9 +133,11 @@ export const testSelect = async ({ selfClient }: Service.Context<TestDatabase>) 
   const resultD = await selfClient.tableC.findMany({
     select: {
       relation_b: {
-        id: true,
         relation_a: {
           value_a: true
+        },
+        relation_c: {
+          value_c: true
         }
       }
     },
@@ -143,6 +147,7 @@ export const testSelect = async ({ selfClient }: Service.Context<TestDatabase>) 
   });
 
   resultD.records[0].relation_b?.relation_a.value_a;
+  resultD.records[0].relation_b?.relation_c?.value_c;
 };
 
 export const testInsert = async ({ selfClient }: Service.Context<TestDatabase>) => {

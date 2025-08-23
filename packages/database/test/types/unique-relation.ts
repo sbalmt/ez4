@@ -12,6 +12,7 @@ declare class TestTableA implements Database.Schema {
 declare class TestTableB implements Database.Schema {
   id: string;
   table_a_id: string;
+  table_c_id?: string;
   value_b: number;
 }
 
@@ -42,6 +43,7 @@ export declare class TestDatabase extends Database.Service {
       schema: TestTableB;
       relations: {
         'table_a_id@relation_a': 'tableA:id';
+        'table_c_id@relation_c': 'tableC:id';
       };
       indexes: {
         id: Index.Primary;
@@ -127,6 +129,26 @@ export const testSelect = async ({ selfClient }: Service.Context<TestDatabase>) 
   });
 
   resultC.records[0].relation_b?.value_b;
+
+  // Fetch tableA through tableB connection in tableC.
+  const resultD = await selfClient.tableC.findMany({
+    select: {
+      relation_b: {
+        relation_a: {
+          value_a: true
+        },
+        relation_c: {
+          value_c: true
+        }
+      }
+    },
+    where: {
+      value_c: 1
+    }
+  });
+
+  resultD.records[0].relation_b?.relation_a.value_a;
+  resultD.records[0].relation_b?.relation_c?.value_c;
 };
 
 export const testInsert = async ({ selfClient }: Service.Context<TestDatabase>) => {
