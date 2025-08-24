@@ -232,7 +232,7 @@ describe('insert primary relations', () => {
         `"Q0" AS (INSERT INTO "ez4_test_table" ("id", "secondary_id") VALUES (:0, :1) RETURNING "secondary_id") ` +
         // Select
         `SELECT ` +
-        `(SELECT json_build_object('id', "S0"."id", 'foo', "S0"."foo") FROM "ez4_test_table" AS "S0" ` +
+        `(SELECT jsonb_build_object('id', "S0"."id", 'foo', "S0"."foo") FROM "ez4_test_table" AS "S0" ` +
         `WHERE "S0"."id" = "Q0"."secondary_id") AS "primary_to_secondary" ` +
         `FROM "Q0"`
     );
@@ -318,7 +318,7 @@ describe('insert primary relations', () => {
         // Relation
         `"Q1" AS (INSERT INTO "ez4_test_table" ("id", "secondary_id") SELECT :2, "Q0"."id" FROM "Q0" RETURNING "bar") ` +
         // Select
-        `SELECT "bar", (SELECT json_build_object('id', "id", 'foo', "foo") FROM "Q0") AS "primary_to_secondary" FROM "Q1"`
+        `SELECT "bar", (SELECT jsonb_build_object('id', "id", 'foo', "foo") FROM "Q0") AS "primary_to_secondary" FROM "Q1"`
     );
 
     assert.deepEqual(variables, ['00000000-0000-1000-9000-000000000001', 'foo', '00000000-0000-1000-9000-000000000000']);
@@ -364,7 +364,7 @@ describe('insert primary relations', () => {
         `"Q2" AS (INSERT INTO "ez4_test_table" ("id", "secondary_1_id", "secondary_2_id", "secondary_3_id") ` +
         `SELECT :3, "Q0"."id", :4, "Q1"."id" FROM "Q0", "Q1" RETURNING "id") ` +
         // Select
-        `SELECT "id", (SELECT json_build_object('id', "id", 'foo', "foo") FROM "Q0") AS "primary_to_secondary_1" FROM "Q2"`
+        `SELECT "id", (SELECT jsonb_build_object('id', "id", 'foo', "foo") FROM "Q0") AS "primary_to_secondary_1" FROM "Q2"`
     );
 
     assert.deepEqual(variables, [

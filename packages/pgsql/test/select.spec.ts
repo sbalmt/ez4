@@ -77,6 +77,16 @@ describe('sql select tests', () => {
       }
     );
 
+    query.objectColumn(
+      {
+        foo: true
+      },
+      {
+        column: 'jsonb',
+        binary: true
+      }
+    );
+
     const [statement, variables] = query.build();
 
     deepEqual(variables, []);
@@ -85,11 +95,16 @@ describe('sql select tests', () => {
       statement,
       `SELECT "alias"."foo", "alias"."bar", ` +
         `json_build_object(` +
-        `'foo', "alias"."json"['foo'], ` +
-        `'bar', json_build_object(` +
-        `'baz', plain_baz, ` +
-        `'qux', plain_qux` +
-        `)) AS "json" ` +
+        /**/ `'foo', "alias"."json"['foo'], ` +
+        /**/ `'bar', json_build_object(` +
+        /**/ `'baz', plain_baz, ` +
+        /**/ `'qux', plain_qux` +
+        `)) AS "json", ` +
+        //
+        `jsonb_build_object(` +
+        /**/ `'foo', "alias"."jsonb"['foo']` +
+        `) AS "jsonb" ` +
+        //
         `FROM "table" AS "alias"`
     );
   });

@@ -203,7 +203,7 @@ describe('update primary relations', () => {
       // Main record
       `UPDATE ONLY "ez4_test_table" AS "R0" SET "id" = :0, "secondary_id" = :1 ` +
         // Select
-        `RETURNING (SELECT json_build_object('id', "S0"."id", 'foo', "S0"."foo") FROM "ez4_test_table" AS "S0" ` +
+        `RETURNING (SELECT jsonb_build_object('id', "S0"."id", 'foo', "S0"."foo") FROM "ez4_test_table" AS "S0" ` +
         `WHERE "S0"."id" = "R0"."secondary_id") AS "primary_to_secondary"`
     );
 
@@ -287,7 +287,7 @@ describe('update primary relations', () => {
         // Relation
         `"Q1" AS (UPDATE ONLY "ez4_test_table" AS "T" SET "foo" = :1 FROM "Q0" WHERE "T"."id" = "Q0"."secondary_id") ` +
         // Select
-        `SELECT (SELECT json_build_object('id', "S0"."id", 'foo', "S0"."foo") FROM "ez4_test_table" AS "S0" ` +
+        `SELECT (SELECT jsonb_build_object('id', "S0"."id", 'foo', "S0"."foo") FROM "ez4_test_table" AS "S0" ` +
         `WHERE "S0"."id" = "Q0"."secondary_id") AS "primary_to_secondary" FROM "ez4_test_table"`
     );
 
@@ -335,7 +335,7 @@ describe('update primary relations', () => {
         // Third relation
         `"Q2" AS (UPDATE ONLY "ez4_test_table" AS "T" SET "id" = :4 FROM "Q0" WHERE "T"."id" = "Q0"."secondary_3_id") ` +
         // Select
-        `SELECT "id", (SELECT json_build_object('id', "S0"."id", 'foo', "S0"."foo") FROM "ez4_test_table" AS "S0" ` +
+        `SELECT "id", (SELECT jsonb_build_object('id', "S0"."id", 'foo', "S0"."foo") FROM "ez4_test_table" AS "S0" ` +
         `WHERE "S0"."id" = "Q0"."secondary_1_id") AS "primary_to_secondary_1" FROM "ez4_test_table"`
     );
 

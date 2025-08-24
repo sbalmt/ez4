@@ -105,7 +105,9 @@ export const getSelectFields = <T extends InternalTableMetadata, S extends AnyOb
       if (sourceIndex === Index.Primary || sourceIndex === Index.Unique) {
         const record = getSelectFields(builder, relationFields, null, sourceSchema, relations, relationQuery, sourceTable, true);
 
-        relationQuery.objectColumn(record);
+        relationQuery.objectColumn(record, {
+          binary: true
+        });
 
         output[fieldKey] = relationQuery;
         continue;
@@ -115,7 +117,8 @@ export const getSelectFields = <T extends InternalTableMetadata, S extends AnyOb
         const record = getSelectFields(builder, relationFields, null, sourceSchema, relations, relationQuery, sourceTable, true);
 
         relationQuery.arrayColumn(record, {
-          order: relationIncludes?.order
+          order: relationIncludes?.order,
+          binary: true
         });
 
         output[fieldKey] = relationQuery;
@@ -137,7 +140,8 @@ export const getSelectFields = <T extends InternalTableMetadata, S extends AnyOb
       const wrapQuery = builder.select().from(relationQuery);
 
       wrapQuery.arrayColumn(relationFields, {
-        order: relationIncludes?.order
+        order: relationIncludes?.order,
+        binary: true
       });
 
       output[fieldKey] = wrapQuery;

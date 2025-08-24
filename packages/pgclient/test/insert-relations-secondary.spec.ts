@@ -231,7 +231,7 @@ describe('insert secondary relations', () => {
         `"Q1" AS (INSERT INTO "ez4_test_table" ("id", "foo", "primary_id") SELECT :1, :2, "Q0"."id" FROM "Q0" RETURNING "id", "foo") ` +
         // Select
         `SELECT ` +
-        `(SELECT COALESCE(json_agg(json_build_object('id', "id", 'foo', "foo")), '[]'::json) FROM "Q1") AS "secondary_to_primary" ` +
+        `(SELECT COALESCE(json_agg(jsonb_build_object('id', "id", 'foo', "foo")), '[]'::json) FROM "Q1") AS "secondary_to_primary" ` +
         `FROM "Q0"`
     );
 
@@ -284,7 +284,7 @@ describe('insert secondary relations', () => {
         `"Q3" AS (INSERT INTO "ez4_test_table" ("id", "primary_2_id") SELECT :4, "Q0"."id" FROM "Q0") ` +
         // Select
         `SELECT "id", ` +
-        `(SELECT COALESCE(json_agg(json_build_object('id', "id", 'foo', "foo")), '[]'::json) FROM "Q1", "Q2") AS "secondary_to_primary_1" ` +
+        `(SELECT COALESCE(json_agg(jsonb_build_object('id', "id", 'foo', "foo")), '[]'::json) FROM "Q1", "Q2") AS "secondary_to_primary_1" ` +
         `FROM "Q0"`
     );
 

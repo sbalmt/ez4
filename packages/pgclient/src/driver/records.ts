@@ -1,22 +1,22 @@
-import type { PgRelationRepository } from '@ez4/pgclient/library';
-import type { ObjectSchema } from '@ez4/schema';
+import type { PgStatementMetadata } from '../types/driver.js';
 
 import { isAnyString, isEmptyObject } from '@ez4/utils';
 import { isNumberSchema } from '@ez4/schema';
 
 import { isJsonFieldSchema } from './schema.js';
 
-export const parseRecords = <T extends Record<string, unknown>>(records: T[], schema: ObjectSchema, relations: PgRelationRepository) => {
+export const parseRecords = <T extends Record<string, unknown>>(records: T[], metadata: PgStatementMetadata) => {
   return records.map((record) => {
     if (!isEmptyObject(record)) {
-      return parseRecord(record, schema, relations);
+      return parseRecord(record, metadata);
     }
 
     return undefined;
   });
 };
 
-export const parseRecord = <T extends Record<string, unknown>>(record: T, schema: ObjectSchema, relations: PgRelationRepository) => {
+export const parseRecord = <T extends Record<string, unknown>>(record: T, metadata: PgStatementMetadata) => {
+  const { table, schema, relations } = metadata;
   const result: Record<string, unknown> = {};
 
   for (const fieldKey in record) {
@@ -37,7 +37,9 @@ export const parseRecord = <T extends Record<string, unknown>>(record: T, schema
         }
       }
 
-      if (relations[fieldKey]) {
+      const relationPath = `${table}.${fieldKey}`;
+
+      if (relations[relationPath]) {
         result[fieldKey] = JSON.parse(value);
         continue;
       }

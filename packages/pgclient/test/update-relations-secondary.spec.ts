@@ -197,7 +197,7 @@ describe('update secondary relations', () => {
       // Main record
       `UPDATE ONLY "ez4_test_table" AS "R0" SET "id" = :0, "primary_id" = :1 ` +
         // Select
-        `RETURNING (SELECT COALESCE(json_agg(json_build_object('id', "S0"."id", 'foo', "S0"."foo")), '[]'::json) ` +
+        `RETURNING (SELECT COALESCE(json_agg(jsonb_build_object('id', "S0"."id", 'foo', "S0"."foo")), '[]'::json) ` +
         `FROM "ez4_test_table" AS "S0" WHERE "S0"."primary_id" = "R0"."id") AS "secondary_to_primary"`
     );
 
@@ -292,7 +292,7 @@ describe('update secondary relations', () => {
         // Third relation
         `"Q2" AS (UPDATE ONLY "ez4_test_table" AS "T" SET "foo" = :3 FROM "Q0" WHERE "T"."primary_3_id" = "Q0"."id") ` +
         // Select
-        `SELECT "id", (SELECT COALESCE(json_agg(json_build_object('id', "S0"."id", 'foo', "S0"."foo")), '[]'::json) ` +
+        `SELECT "id", (SELECT COALESCE(json_agg(jsonb_build_object('id', "S0"."id", 'foo', "S0"."foo")), '[]'::json) ` +
         `FROM "ez4_test_table" AS "S0" WHERE "S0"."primary_1_id" = "Q0"."id") AS "secondary_to_primary_1" FROM "ez4_test_table"`
     );
 

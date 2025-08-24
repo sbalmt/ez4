@@ -63,7 +63,7 @@ export class DataClientDriver implements PgClientDriver {
         const metadata = statement.metadata;
 
         if (metadata) {
-          return parseRecords(records, metadata.schema, metadata.relations);
+          return parseRecords(records, metadata);
         }
 
         return records;

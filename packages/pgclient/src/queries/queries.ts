@@ -27,6 +27,7 @@ export const prepareInsertOne = async <T extends InternalTableMetadata, S extend
     query: statement,
     variables,
     metadata: {
+      table,
       relations,
       schema
     }
@@ -48,6 +49,7 @@ export const prepareFindOne = <T extends InternalTableMetadata, S extends Query.
     query: statement,
     variables,
     metadata: {
+      table,
       relations,
       schema
     }
@@ -69,6 +71,7 @@ export const prepareUpdateOne = async <T extends InternalTableMetadata, S extend
     query: statement,
     variables,
     metadata: {
+      table,
       relations,
       schema
     }
@@ -90,6 +93,7 @@ export const prepareDeleteOne = <T extends InternalTableMetadata, S extends Quer
     query: statement,
     variables,
     metadata: {
+      table,
       relations,
       schema
     }
@@ -113,6 +117,7 @@ export const prepareInsertMany = async <T extends InternalTableMetadata>(
         query: statement,
         variables,
         metadata: {
+          table,
           relations,
           schema
         }
@@ -136,6 +141,7 @@ export const prepareFindMany = <T extends InternalTableMetadata, S extends Query
     query: statement,
     variables,
     metadata: {
+      table,
       relations,
       schema
     }
@@ -157,6 +163,7 @@ export const prepareUpdateMany = async <T extends InternalTableMetadata, S exten
     query: statement,
     variables,
     metadata: {
+      table,
       relations,
       schema
     }
@@ -178,6 +185,7 @@ export const prepareDeleteMany = <T extends InternalTableMetadata, S extends Que
     query: statement,
     variables,
     metadata: {
+      table,
       relations,
       schema
     }
@@ -199,6 +207,7 @@ export const prepareCount = <T extends InternalTableMetadata>(
     query: statement,
     variables,
     metadata: {
+      table,
       relations,
       schema
     }

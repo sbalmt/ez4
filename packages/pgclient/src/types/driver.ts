@@ -7,13 +7,16 @@ export type PgExecuteOptions = {
   debug?: boolean;
 };
 
+export type PgStatementMetadata = {
+  table: string;
+  relations: RepositoryRelationsWithSchema;
+  schema: ObjectSchema;
+};
+
 export type PgExecuteStatement = {
+  metadata?: PgStatementMetadata;
   variables?: any[];
   query: string;
-  metadata?: {
-    relations: RepositoryRelationsWithSchema;
-    schema: ObjectSchema;
-  };
 };
 
 /**

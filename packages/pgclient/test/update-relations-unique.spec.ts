@@ -203,7 +203,7 @@ describe('update unique relations', () => {
       // Main record
       `UPDATE ONLY "ez4_test_table" AS "R0" SET "id" = :0, "unique_id" = :1 ` +
         // Select
-        `RETURNING (SELECT json_build_object('id', "S0"."id", 'foo', "S0"."foo") FROM "ez4_test_table" AS "S0" ` +
+        `RETURNING (SELECT jsonb_build_object('id', "S0"."id", 'foo', "S0"."foo") FROM "ez4_test_table" AS "S0" ` +
         `WHERE "S0"."unique_id" = "R0"."id") AS "unique_to_primary"`
     );
 
@@ -287,7 +287,7 @@ describe('update unique relations', () => {
         // Relation
         `"Q1" AS (UPDATE ONLY "ez4_test_table" AS "T" SET "foo" = :1 FROM "Q0" WHERE "T"."unique_id" = "Q0"."id") ` +
         // Select
-        `SELECT (SELECT json_build_object('id', "S0"."id", 'foo', "S0"."foo") FROM "ez4_test_table" AS "S0" ` +
+        `SELECT (SELECT jsonb_build_object('id', "S0"."id", 'foo', "S0"."foo") FROM "ez4_test_table" AS "S0" ` +
         `WHERE "S0"."unique_id" = "Q0"."id") AS "unique_to_primary" FROM "ez4_test_table"`
     );
 
@@ -333,7 +333,7 @@ describe('update unique relations', () => {
         // Third relation
         `"Q2" AS (UPDATE ONLY "ez4_test_table" AS "T" SET "foo" = :3 FROM "Q0" WHERE "T"."unique_3_id" = "Q0"."id") ` +
         // Select
-        `SELECT "id", (SELECT json_build_object('id', "S0"."id", 'foo', "S0"."foo") FROM "ez4_test_table" AS "S0" ` +
+        `SELECT "id", (SELECT jsonb_build_object('id', "S0"."id", 'foo', "S0"."foo") FROM "ez4_test_table" AS "S0" ` +
         `WHERE "S0"."unique_1_id" = "Q0"."id") AS "unique_to_primary_1" FROM "ez4_test_table"`
     );
 

@@ -16,6 +16,7 @@ type SqlJsonColumnContext = {
   variables: unknown[];
   references: SqlBuilderReferences;
   parent?: string;
+  binary?: boolean;
   alias?: string;
 };
 
@@ -27,6 +28,7 @@ export type SqlJsonColumnOptions = {
   order?: SqlOrder;
   aggregate: boolean;
   column?: string;
+  binary?: boolean;
   alias?: string;
 };
 
@@ -38,11 +40,12 @@ export class SqlJsonColumn {
     order?: SqlOrderClause;
     aggregate: boolean;
     column?: string;
+    binary?: boolean;
     alias?: string;
   };
 
   constructor(schema: SqlJsonColumnSchema, source: SqlSource, references: SqlBuilderReferences, options: SqlJsonColumnOptions) {
-    const { order, aggregate, column, alias } = options;
+    const { order, aggregate, column, binary, alias } = options;
 
     this.#state = {
       order: order ? new SqlOrderClause(source, order) : undefined,
@@ -51,12 +54,13 @@ export class SqlJsonColumn {
       schema,
       aggregate,
       column,
+      binary,
       alias
     };
   }
 
   build() {
-    const { schema, source, references, aggregate, order, column, alias } = this.#state;
+    const { schema, source, references, aggregate, order, column, binary, alias } = this.#state;
 
     const variables: unknown[] = [];
 
@@ -64,7 +68,8 @@ export class SqlJsonColumn {
       ...(column && { parent: escapeSqlName(column) }),
       alias: source.alias,
       references,
-      variables
+      variables,
+      binary
     });
 
     const jsonResult = aggregate ? getJsonArray(result, order) : result;
@@ -79,7 +84,7 @@ export class SqlJsonColumn {
 }
 
 const getJsonObject = (schema: SqlJsonColumnSchema, context: SqlJsonColumnContext): string => {
-  const { variables, references, parent, alias } = context;
+  const { variables, references, parent, binary, alias } = context;
 
   const fields = [];
 
@@ -121,7 +126,7 @@ const getJsonObject = (schema: SqlJsonColumnSchema, context: SqlJsonColumnContex
     fields.push(`${escapeSqlText(field)}, ${nestedObject}`);
   }
 
-  return `json_build_object(${fields.join(', ')})`;
+  return `${binary ? 'jsonb' : 'json'}_build_object(${fields.join(', ')})`;
 };
 
 const getJsonArray = (value: string, order?: SqlOrderClause) => {

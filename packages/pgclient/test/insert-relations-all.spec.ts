@@ -166,9 +166,9 @@ describe('insert relations', () => {
         `"Q3" AS (INSERT INTO "ez4_test_table" ("id", "primary_id") SELECT :3, "Q1"."id" FROM "Q1" RETURNING "id") ` +
         // Select
         `SELECT "id", ` +
-        `(SELECT json_build_object('id', "id") FROM "Q0") AS "primary_to_secondary", ` +
-        `(SELECT json_build_object('id', "id") FROM "Q2") AS "unique_to_primary", ` +
-        `(SELECT COALESCE(json_agg(json_build_object('id', "id")), '[]'::json) FROM "Q3") AS "secondary_to_primary" ` +
+        `(SELECT jsonb_build_object('id', "id") FROM "Q0") AS "primary_to_secondary", ` +
+        `(SELECT jsonb_build_object('id', "id") FROM "Q2") AS "unique_to_primary", ` +
+        `(SELECT COALESCE(json_agg(jsonb_build_object('id', "id")), '[]'::json) FROM "Q3") AS "secondary_to_primary" ` +
         `FROM "Q1"`
     );
 
