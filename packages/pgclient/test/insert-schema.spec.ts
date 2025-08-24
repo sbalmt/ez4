@@ -447,8 +447,8 @@ describe('insert schema', () => {
 
     assert.equal(
       statement,
-      `WITH "R0" AS (INSERT INTO "ez4-test-insert-schema" ("scalar", "json") VALUES (:0, :1) RETURNING "scalar", "json") ` +
-        `SELECT "scalar", json_build_object('scalar', "json"['scalar']) AS "json" FROM "R0"`
+      `WITH "Q0" AS (INSERT INTO "ez4-test-insert-schema" ("scalar", "json") VALUES (:0, :1) RETURNING "scalar", "json") ` +
+        `SELECT "scalar", json_build_object('scalar', "json"['scalar']) AS "json" FROM "Q0"`
     );
 
     assert.deepEqual(variables, ['foo', { scalar: 123 }]);

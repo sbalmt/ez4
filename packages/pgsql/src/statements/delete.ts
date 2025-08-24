@@ -49,13 +49,11 @@ export class SqlDeleteStatement extends SqlSource {
 
   from(table: string) {
     this.#state.table = table;
-
     return this;
   }
 
   as(alias: string | undefined) {
     this.#state.alias = alias;
-
     return this;
   }
 
@@ -72,10 +70,10 @@ export class SqlDeleteStatement extends SqlSource {
   }
 
   returning(result?: SqlResultRecord | SqlResultColumn[]) {
-    const { returning } = this.#state;
+    const { references, returning } = this.#state;
 
     if (!returning) {
-      this.#state.returning = new SqlReturningClause(this, result);
+      this.#state.returning = new SqlReturningClause(this, references, result);
     } else if (result) {
       returning.apply(result);
     }

@@ -229,12 +229,12 @@ describe('insert unique relations', () => {
       statement,
       `WITH ` +
         // Main record
-        `"R0" AS (INSERT INTO "ez4_test_table" ("id", "unique_id") VALUES (:0, :1) RETURNING "unique_id") ` +
+        `"Q0" AS (INSERT INTO "ez4_test_table" ("id", "unique_id") VALUES (:0, :1) RETURNING "unique_id") ` +
         // Select
         `SELECT ` +
-        `(SELECT json_build_object('id', "S"."id", 'foo', "S"."foo") FROM "ez4_test_table" AS "S" ` +
-        `WHERE "S"."id" = "R0"."unique_id") AS "unique_to_primary" ` +
-        `FROM "R0"`
+        `(SELECT json_build_object('id', "S0"."id", 'foo', "S0"."foo") FROM "ez4_test_table" AS "S0" ` +
+        `WHERE "S0"."id" = "Q0"."unique_id") AS "unique_to_primary" ` +
+        `FROM "Q0"`
     );
 
     assert.deepEqual(variables, ['00000000-0000-1000-9000-000000000000', '00000000-0000-1000-9000-000000000001']);
@@ -259,10 +259,10 @@ describe('insert unique relations', () => {
       statement,
       `WITH ` +
         // Main record
-        `"R0" AS (INSERT INTO "ez4_test_table" ("id") VALUES (:0) RETURNING "id") ` +
+        `"Q0" AS (INSERT INTO "ez4_test_table" ("id") VALUES (:0) RETURNING "id") ` +
         // Relation
         `INSERT INTO "ez4_test_table" ("id", "foo", "unique_id") ` +
-        `SELECT :1, :2, "R0"."id" FROM "R0"`
+        `SELECT :1, :2, "Q0"."id" FROM "Q0"`
     );
 
     assert.deepEqual(variables, ['00000000-0000-1000-9000-000000000000', '00000000-0000-1000-9000-000000000001', 'foo']);
@@ -315,11 +315,11 @@ describe('insert unique relations', () => {
       statement,
       `WITH ` +
         // Relation
-        `"R0" AS (INSERT INTO "ez4_test_table" ("id") VALUES (:0) RETURNING "id", "bar"), ` +
+        `"Q0" AS (INSERT INTO "ez4_test_table" ("id") VALUES (:0) RETURNING "id", "bar"), ` +
         // Main record
-        `"R1" AS (INSERT INTO "ez4_test_table" ("id", "foo", "unique_id") SELECT :1, :2, "R0"."id" FROM "R0" RETURNING "id", "foo") ` +
+        `"Q1" AS (INSERT INTO "ez4_test_table" ("id", "foo", "unique_id") SELECT :1, :2, "Q0"."id" FROM "Q0" RETURNING "id", "foo") ` +
         // Select
-        `SELECT "bar", (SELECT json_build_object('id', "id", 'foo', "foo") FROM "R1") AS "unique_to_primary" FROM "R0"`
+        `SELECT "bar", (SELECT json_build_object('id', "id", 'foo', "foo") FROM "Q1") AS "unique_to_primary" FROM "Q0"`
     );
 
     assert.deepEqual(variables, ['00000000-0000-1000-9000-000000000000', '00000000-0000-1000-9000-000000000001', 'foo']);
@@ -358,13 +358,13 @@ describe('insert unique relations', () => {
       statement,
       `WITH ` +
         // Main record
-        `"R0" AS (INSERT INTO "ez4_test_table" ("id", "unique_2_id") VALUES (:0, :1) RETURNING "id"), ` +
+        `"Q0" AS (INSERT INTO "ez4_test_table" ("id", "unique_2_id") VALUES (:0, :1) RETURNING "id"), ` +
         // First relation
-        `"R1" AS (INSERT INTO "ez4_test_table" ("id", "foo", "unique_1_id") SELECT :2, :3, "R0"."id" FROM "R0" RETURNING "id", "foo"), ` +
+        `"Q1" AS (INSERT INTO "ez4_test_table" ("id", "foo", "unique_1_id") SELECT :2, :3, "Q0"."id" FROM "Q0" RETURNING "id", "foo"), ` +
         // Third relation
-        `"R2" AS (INSERT INTO "ez4_test_table" ("id", "unique_3_id") SELECT :4, "R0"."id" FROM "R0") ` +
+        `"Q2" AS (INSERT INTO "ez4_test_table" ("id", "unique_3_id") SELECT :4, "Q0"."id" FROM "Q0") ` +
         // Select
-        `SELECT "id", (SELECT json_build_object('id', "id", 'foo', "foo") FROM "R1") AS "unique_to_primary_1" FROM "R0"`
+        `SELECT "id", (SELECT json_build_object('id', "id", 'foo', "foo") FROM "Q1") AS "unique_to_primary_1" FROM "Q0"`
     );
 
     assert.deepEqual(variables, [

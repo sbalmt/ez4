@@ -98,7 +98,9 @@ export const getSelectFields = <T extends InternalTableMetadata, S extends AnyOb
           [sourceColumn]: source.reference(targetColumn)
         });
 
-      source.as('R');
+      if (!source.alias) {
+        source.as(builder.alias('R'));
+      }
 
       if (sourceIndex === Index.Primary || sourceIndex === Index.Unique) {
         const record = getSelectFields(builder, relationFields, null, sourceSchema, relations, relationQuery, sourceTable, true);
@@ -208,7 +210,9 @@ export const getSelectFilters = (
 
         result[filterKey] = relationQuery;
 
-        source.as('R');
+        if (!source.alias) {
+          source.as(builder.alias('R'));
+        }
 
         if (relationFilters) {
           relationQuery.where({

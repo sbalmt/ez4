@@ -130,23 +130,23 @@ describe('select relations', () => {
 
     assert.equal(
       statement,
-      `SELECT "R"."id", "R"."foo", ` +
+      `SELECT "R0"."id", "R0"."foo", ` +
         // First relation
-        `(SELECT json_build_object('id', "S"."id") ` +
-        `FROM "ez4_test_table" AS "S" WHERE "S"."id" = "R"."relation1_id") AS "secondary_to_unique", ` +
+        `(SELECT json_build_object('id', "S0"."id") ` +
+        `FROM "ez4_test_table" AS "S0" WHERE "S0"."id" = "R0"."relation1_id") AS "secondary_to_unique", ` +
         // Second relation
         `(SELECT json_build_object(` +
-        `'id', "S"."id", ` +
-        `'relation1_id', "S"."relation1_id", ` +
-        `'relation2_id', "S"."relation2_id", ` +
-        `'foo', "S"."foo") ` +
-        `FROM "ez4_test_table" AS "S" WHERE "S"."relation2_id" = "R"."id") AS "primary_to_unique", ` +
+        `'id', "S1"."id", ` +
+        `'relation1_id', "S1"."relation1_id", ` +
+        `'relation2_id', "S1"."relation2_id", ` +
+        `'foo', "S1"."foo") ` +
+        `FROM "ez4_test_table" AS "S1" WHERE "S1"."relation2_id" = "R0"."id") AS "primary_to_unique", ` +
         // Third relation
-        `(SELECT COALESCE(json_agg(json_build_object('foo', "S"."foo")), '[]'::json) ` +
-        `FROM "ez4_test_table" AS "S" WHERE "S"."relation1_id" = "R"."id") AS "primary_to_secondary" ` +
+        `(SELECT COALESCE(json_agg(json_build_object('foo', "S2"."foo")), '[]'::json) ` +
+        `FROM "ez4_test_table" AS "S2" WHERE "S2"."relation1_id" = "R0"."id") AS "primary_to_secondary" ` +
         //
-        `FROM "ez4_test_table" AS "R" ` +
-        `WHERE "R"."id" = :0`
+        `FROM "ez4_test_table" AS "R0" ` +
+        `WHERE "R0"."id" = :0`
     );
 
     assert.deepEqual(variables, ['00000000-0000-1000-9000-000000000000']);
@@ -183,22 +183,22 @@ describe('select relations', () => {
 
     assert.equal(
       statement,
-      `SELECT "R"."id", "R"."foo", ` +
+      `SELECT "R0"."id", "R0"."foo", ` +
         // First relation
-        `(SELECT json_build_object('foo', "S"."foo") FROM "ez4_test_table" AS "S" WHERE "S"."id" = "R"."relation1_id") AS "secondary_to_unique", ` +
+        `(SELECT json_build_object('foo', "S0"."foo") FROM "ez4_test_table" AS "S0" WHERE "S0"."id" = "R0"."relation1_id") AS "secondary_to_unique", ` +
         // Second relation
-        `(SELECT json_build_object('foo', "S"."foo") FROM "ez4_test_table" AS "S" WHERE "S"."relation2_id" = "R"."id") AS "primary_to_unique", ` +
+        `(SELECT json_build_object('foo', "S1"."foo") FROM "ez4_test_table" AS "S1" WHERE "S1"."relation2_id" = "R0"."id") AS "primary_to_unique", ` +
         // Third relation
-        `(SELECT COALESCE(json_agg(json_build_object('foo', "S"."foo")), '[]'::json) ` +
-        `FROM "ez4_test_table" AS "S" WHERE "S"."relation1_id" = "R"."id") AS "primary_to_secondary" ` +
+        `(SELECT COALESCE(json_agg(json_build_object('foo', "S2"."foo")), '[]'::json) ` +
+        `FROM "ez4_test_table" AS "S2" WHERE "S2"."relation1_id" = "R0"."id") AS "primary_to_secondary" ` +
         // Main condition
-        `FROM "ez4_test_table" AS "R" WHERE "R"."id" = :0 AND ` +
+        `FROM "ez4_test_table" AS "R0" WHERE "R0"."id" = :0 AND ` +
         // First relation condition
-        `EXISTS (SELECT 1 FROM "ez4_test_table" AS "T" WHERE "T"."foo" = :1 AND "T"."id" = "R"."relation1_id") AND ` +
+        `EXISTS (SELECT 1 FROM "ez4_test_table" AS "T" WHERE "T"."foo" = :1 AND "T"."id" = "R0"."relation1_id") AND ` +
         // Second relation condition
-        `EXISTS (SELECT 1 FROM "ez4_test_table" AS "T" WHERE "T"."foo" = :2 AND "T"."relation2_id" = "R"."id") AND ` +
+        `EXISTS (SELECT 1 FROM "ez4_test_table" AS "T" WHERE "T"."foo" = :2 AND "T"."relation2_id" = "R0"."id") AND ` +
         // Third relation condition
-        `EXISTS (SELECT 1 FROM "ez4_test_table" AS "T" WHERE "T"."id" = :3 AND "T"."relation1_id" = "R"."id")`
+        `EXISTS (SELECT 1 FROM "ez4_test_table" AS "T" WHERE "T"."id" = :3 AND "T"."relation1_id" = "R0"."id")`
     );
 
     assert.deepEqual(variables, ['00000000-0000-1000-9000-000000000000', 123, 456, '00000000-0000-1000-9000-000000000001']);
@@ -221,13 +221,13 @@ describe('select relations', () => {
 
     assert.equal(
       statement,
-      `SELECT "R"."id" FROM "ez4_test_table" AS "R" WHERE "R"."id" = :0 AND ` +
+      `SELECT "R0"."id" FROM "ez4_test_table" AS "R0" WHERE "R0"."id" = :0 AND ` +
         // First relation
-        `EXISTS (SELECT 1 FROM "ez4_test_table" AS "T" WHERE "T"."id" = "R"."relation1_id") AND ` +
+        `EXISTS (SELECT 1 FROM "ez4_test_table" AS "T" WHERE "T"."id" = "R0"."relation1_id") AND ` +
         // Second relation
-        `EXISTS (SELECT 1 FROM "ez4_test_table" AS "T" WHERE "T"."relation2_id" != "R"."id") AND ` +
+        `EXISTS (SELECT 1 FROM "ez4_test_table" AS "T" WHERE "T"."relation2_id" != "R0"."id") AND ` +
         // Third relation
-        `NOT EXISTS (SELECT 1 FROM "ez4_test_table" AS "T" WHERE "T"."relation1_id" != "R"."id")`
+        `NOT EXISTS (SELECT 1 FROM "ez4_test_table" AS "T" WHERE "T"."relation1_id" != "R0"."id")`
     );
 
     assert.deepEqual(variables, ['00000000-0000-1000-9000-000000000000']);
@@ -271,19 +271,19 @@ describe('select relations', () => {
 
     assert.equal(
       statement,
-      `SELECT "R"."id", ` +
+      `SELECT "R0"."id", ` +
         // First relation
-        `(SELECT json_build_object('foo', "S"."foo") FROM "ez4_test_table" AS "S" ` +
-        `WHERE "S"."foo" = :0 AND "S"."id" = "R"."relation1_id") AS "secondary_to_unique", ` +
+        `(SELECT json_build_object('foo', "S0"."foo") FROM "ez4_test_table" AS "S0" ` +
+        `WHERE "S0"."foo" = :0 AND "S0"."id" = "R0"."relation1_id") AS "secondary_to_unique", ` +
         // Second relation
-        `(SELECT json_build_object('foo', "S"."foo") FROM "ez4_test_table" AS "S" ` +
-        `WHERE "S"."foo" = :1 AND "S"."relation2_id" = "R"."id") AS "primary_to_unique", ` +
+        `(SELECT json_build_object('foo', "S1"."foo") FROM "ez4_test_table" AS "S1" ` +
+        `WHERE "S1"."foo" = :1 AND "S1"."relation2_id" = "R0"."id") AS "primary_to_unique", ` +
         // Third relation
-        `(SELECT COALESCE(json_agg(json_build_object('foo', "S"."foo")), '[]'::json) FROM "ez4_test_table" AS "S" ` +
-        `WHERE "S"."foo" = :2 AND "S"."relation1_id" = "R"."id") AS "primary_to_secondary" ` +
+        `(SELECT COALESCE(json_agg(json_build_object('foo', "S2"."foo")), '[]'::json) FROM "ez4_test_table" AS "S2" ` +
+        `WHERE "S2"."foo" = :2 AND "S2"."relation1_id" = "R0"."id") AS "primary_to_secondary" ` +
         //
-        `FROM "ez4_test_table" AS "R" ` +
-        `WHERE "R"."id" = :3`
+        `FROM "ez4_test_table" AS "R0" ` +
+        `WHERE "R0"."id" = :3`
     );
 
     assert.deepEqual(variables, [123, 456, 789, '00000000-0000-1000-9000-000000000000']);
@@ -315,19 +315,19 @@ describe('select relations', () => {
 
     assert.equal(
       statement,
-      `SELECT "R"."id", ` +
+      `SELECT "R0"."id", ` +
         // First relation
-        `(SELECT json_build_object('foo', "S"."foo") FROM "ez4_test_table" AS "S" ` +
-        `WHERE "S"."id" = "R"."relation1_id") AS "secondary_to_unique", ` +
+        `(SELECT json_build_object('foo', "S0"."foo") FROM "ez4_test_table" AS "S0" ` +
+        `WHERE "S0"."id" = "R0"."relation1_id") AS "secondary_to_unique", ` +
         // Second relation
-        `(SELECT json_build_object('foo', "S"."foo") FROM "ez4_test_table" AS "S" ` +
-        `WHERE "S"."relation2_id" = "R"."id") AS "primary_to_unique", ` +
+        `(SELECT json_build_object('foo', "S1"."foo") FROM "ez4_test_table" AS "S1" ` +
+        `WHERE "S1"."relation2_id" = "R0"."id") AS "primary_to_unique", ` +
         // Third relation
-        `(SELECT COALESCE(json_agg(json_build_object('foo', "S"."foo")), '[]'::json) FROM "ez4_test_table" AS "S" ` +
-        `WHERE "S"."relation1_id" = "R"."id") AS "primary_to_secondary" ` +
+        `(SELECT COALESCE(json_agg(json_build_object('foo', "S2"."foo")), '[]'::json) FROM "ez4_test_table" AS "S2" ` +
+        `WHERE "S2"."relation1_id" = "R0"."id") AS "primary_to_secondary" ` +
         //
-        `FROM "ez4_test_table" AS "R" ` +
-        `WHERE "R"."id" = :0`
+        `FROM "ez4_test_table" AS "R0" ` +
+        `WHERE "R0"."id" = :0`
     );
 
     assert.deepEqual(variables, ['00000000-0000-1000-9000-000000000000']);
@@ -358,13 +358,13 @@ describe('select relations', () => {
 
     assert.equal(
       statement,
-      `SELECT "R"."id", ` +
+      `SELECT "R0"."id", ` +
         // First relation
-        `(SELECT COALESCE(json_agg(json_build_object('foo', "S"."foo") ORDER BY "S"."foo" DESC), '[]'::json) FROM "ez4_test_table" AS "S" ` +
-        `WHERE "S"."foo" = :0 AND "S"."relation1_id" = "R"."id") AS "primary_to_secondary" ` +
+        `(SELECT COALESCE(json_agg(json_build_object('foo', "S0"."foo") ORDER BY "S0"."foo" DESC), '[]'::json) FROM "ez4_test_table" AS "S0" ` +
+        `WHERE "S0"."foo" = :0 AND "S0"."relation1_id" = "R0"."id") AS "primary_to_secondary" ` +
         //
-        `FROM "ez4_test_table" AS "R" ` +
-        `WHERE "R"."id" = :1`
+        `FROM "ez4_test_table" AS "R0" ` +
+        `WHERE "R0"."id" = :1`
     );
 
     assert.deepEqual(variables, [123, '00000000-0000-1000-9000-000000000000']);
@@ -394,15 +394,15 @@ describe('select relations', () => {
 
     assert.equal(
       statement,
-      `SELECT "R"."id", ` +
+      `SELECT "R0"."id", ` +
         // First relation
         `(SELECT COALESCE(json_agg(json_build_object('foo', "foo")), '[]'::json) ` +
-        `FROM (SELECT "S"."foo" FROM "ez4_test_table" AS "S" ` +
-        `WHERE "S"."foo" = :0 AND "S"."relation1_id" = "R"."id" OFFSET 5 LIMIT 5)` +
+        `FROM (SELECT "S0"."foo" FROM "ez4_test_table" AS "S0" ` +
+        `WHERE "S0"."foo" = :0 AND "S0"."relation1_id" = "R0"."id" OFFSET 5 LIMIT 5)` +
         `) AS "primary_to_secondary" ` +
         //
-        `FROM "ez4_test_table" AS "R" ` +
-        `WHERE "R"."id" = :1`
+        `FROM "ez4_test_table" AS "R0" ` +
+        `WHERE "R0"."id" = :1`
     );
 
     assert.deepEqual(variables, [123, '00000000-0000-1000-9000-000000000000']);
@@ -435,26 +435,26 @@ describe('select relations', () => {
 
     assert.equal(
       statement,
-      `SELECT "R"."id", ` +
+      `SELECT "R0"."id", ` +
         // First relation
-        `(SELECT json_build_object('foo', "S"."foo") FROM "ez4_test_table" AS "S" ` +
-        `WHERE "S"."relation2_id" = "R"."id") AS "primary_to_unique", ` +
+        `(SELECT json_build_object('foo', "S0"."foo") FROM "ez4_test_table" AS "S0" ` +
+        `WHERE "S0"."relation2_id" = "R0"."id") AS "primary_to_unique", ` +
         // Second relation
-        `(SELECT COALESCE(json_agg(json_build_object('foo', "S"."foo")), '[]'::json) FROM "ez4_test_table" AS "S" ` +
-        `WHERE "S"."relation1_id" = "R"."id") AS "primary_to_secondary", ` +
+        `(SELECT COALESCE(json_agg(json_build_object('foo', "S1"."foo")), '[]'::json) FROM "ez4_test_table" AS "S1" ` +
+        `WHERE "S1"."relation1_id" = "R0"."id") AS "primary_to_secondary", ` +
         // Third relation
-        `(SELECT json_build_object('foo', "S"."foo", ` +
+        `(SELECT json_build_object('foo', "S2"."foo", ` +
         //
-        /****/ `'primary_to_unique', (SELECT json_build_object('foo', "O"."foo") ` +
-        /****/ `FROM "ez4_test_table" AS "O" WHERE "O"."relation2_id" = "S"."id"), ` +
+        /****/ `'primary_to_unique', (SELECT json_build_object('foo', "S3"."foo") ` +
+        /****/ `FROM "ez4_test_table" AS "S3" WHERE "S3"."relation2_id" = "S2"."id"), ` +
         //
-        /****/ `'primary_to_secondary', (SELECT COALESCE(json_agg(json_build_object('foo', "O"."foo")), '[]'::json) ` +
-        /****/ `FROM "ez4_test_table" AS "O" WHERE "O"."relation1_id" = "S"."id")` +
+        /****/ `'primary_to_secondary', (SELECT COALESCE(json_agg(json_build_object('foo', "S4"."foo")), '[]'::json) ` +
+        /****/ `FROM "ez4_test_table" AS "S4" WHERE "S4"."relation1_id" = "S2"."id")` +
         //
-        `) FROM "ez4_test_table" AS "S" WHERE "S"."id" = "R"."relation1_id") AS "secondary_to_unique" ` +
+        `) FROM "ez4_test_table" AS "S2" WHERE "S2"."id" = "R0"."relation1_id") AS "secondary_to_unique" ` +
         //
-        `FROM "ez4_test_table" AS "R" ` +
-        `WHERE "R"."id" = :0`
+        `FROM "ez4_test_table" AS "R0" ` +
+        `WHERE "R0"."id" = :0`
     );
 
     assert.deepEqual(variables, ['00000000-0000-1000-9000-000000000000']);

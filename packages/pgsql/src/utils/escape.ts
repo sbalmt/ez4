@@ -23,6 +23,6 @@ export const escapeSqlData = (data: unknown) => {
       return escapeSqlText(JSON.stringify(data));
 
     default:
-      throw new Error('Unsupported SQL data');
+      throw new Error('Unsupported SQL data.');
   }
 };

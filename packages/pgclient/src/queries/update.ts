@@ -50,7 +50,7 @@ export const prepareUpdateQuery = async <T extends InternalTableMetadata, S exte
     }
   }
 
-  const [statement, variables] = builder.with(allQueries, 'R').build();
+  const [statement, variables] = builder.with(allQueries).build();
 
   return [statement, variables as SqlParameter[]];
 };

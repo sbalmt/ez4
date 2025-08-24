@@ -10,8 +10,10 @@ import { SqlUpdateStatement } from './statements/update.js';
 import { SqlDeleteStatement } from './statements/delete.js';
 import { SqlWithClause } from './clauses/query/with.js';
 import { escapeSqlText } from './utils/escape.js';
+import { getUniqueAlias } from './helpers/alias.js';
 
 export type SqlBuilderReferences = {
+  aliases: Record<string, number>;
   counter: number;
 };
 
@@ -46,6 +48,7 @@ export class SqlBuilder {
   #options: SqlBuilderOptions;
 
   #references: SqlBuilderReferences = {
+    aliases: {},
     counter: 0
   };
 
@@ -66,12 +69,20 @@ export class SqlBuilder {
   }
 
   reset() {
-    this.#references.counter = 0;
+    this.#references = {
+      aliases: {},
+      counter: 0
+    };
+
     return this;
   }
 
+  alias(name: string) {
+    return getUniqueAlias(name, this.#references);
+  }
+
   with(statements: (SqlSelectStatement | SqlInsertStatement | SqlUpdateStatement | SqlDeleteStatement)[], alias?: string) {
-    return new SqlWithClause(statements, alias);
+    return new SqlWithClause(statements, this.#references, alias);
   }
 
   table(name: string) {

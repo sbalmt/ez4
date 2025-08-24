@@ -106,13 +106,13 @@ describe('insert relations', () => {
       statement,
       `WITH ` +
         // First relation (primary)
-        `"R0" AS (INSERT INTO "ez4_test_table" ("id") VALUES (:0) RETURNING "id"), ` +
+        `"Q0" AS (INSERT INTO "ez4_test_table" ("id") VALUES (:0) RETURNING "id"), ` +
         // Main record
-        `"R1" AS (INSERT INTO "ez4_test_table" ("id", "secondary_id") SELECT :1, "R0"."id" FROM "R0" RETURNING "id"), ` +
+        `"Q1" AS (INSERT INTO "ez4_test_table" ("id", "secondary_id") SELECT :1, "Q0"."id" FROM "Q0" RETURNING "id"), ` +
         // Second relation (unique)
-        `"R2" AS (INSERT INTO "ez4_test_table" ("id", "unique_id") SELECT :2, "R1"."id" FROM "R1") ` +
+        `"Q2" AS (INSERT INTO "ez4_test_table" ("id", "unique_id") SELECT :2, "Q1"."id" FROM "Q1") ` +
         // Third relation (inverse)
-        `INSERT INTO "ez4_test_table" ("id", "primary_id") SELECT :3, "R1"."id" FROM "R1"`
+        `INSERT INTO "ez4_test_table" ("id", "primary_id") SELECT :3, "Q1"."id" FROM "Q1"`
     );
 
     assert.deepEqual(variables, [
@@ -157,19 +157,19 @@ describe('insert relations', () => {
       statement,
       `WITH ` +
         // First relation (primary)
-        `"R0" AS (INSERT INTO "ez4_test_table" ("id") VALUES (:0) RETURNING "id"), ` +
+        `"Q0" AS (INSERT INTO "ez4_test_table" ("id") VALUES (:0) RETURNING "id"), ` +
         // Main record
-        `"R1" AS (INSERT INTO "ez4_test_table" ("id", "secondary_id") SELECT :1, "R0"."id" FROM "R0" RETURNING "id"), ` +
+        `"Q1" AS (INSERT INTO "ez4_test_table" ("id", "secondary_id") SELECT :1, "Q0"."id" FROM "Q0" RETURNING "id"), ` +
         // Second relation (unique)
-        `"R2" AS (INSERT INTO "ez4_test_table" ("id", "unique_id") SELECT :2, "R1"."id" FROM "R1" RETURNING "id"), ` +
+        `"Q2" AS (INSERT INTO "ez4_test_table" ("id", "unique_id") SELECT :2, "Q1"."id" FROM "Q1" RETURNING "id"), ` +
         // Third relation (inverse)
-        `"R3" AS (INSERT INTO "ez4_test_table" ("id", "primary_id") SELECT :3, "R1"."id" FROM "R1" RETURNING "id") ` +
+        `"Q3" AS (INSERT INTO "ez4_test_table" ("id", "primary_id") SELECT :3, "Q1"."id" FROM "Q1" RETURNING "id") ` +
         // Select
         `SELECT "id", ` +
-        `(SELECT json_build_object('id', "id") FROM "R0") AS "primary_to_secondary", ` +
-        `(SELECT json_build_object('id', "id") FROM "R2") AS "unique_to_primary", ` +
-        `(SELECT COALESCE(json_agg(json_build_object('id', "id")), '[]'::json) FROM "R3") AS "secondary_to_primary" ` +
-        `FROM "R1"`
+        `(SELECT json_build_object('id', "id") FROM "Q0") AS "primary_to_secondary", ` +
+        `(SELECT json_build_object('id', "id") FROM "Q2") AS "unique_to_primary", ` +
+        `(SELECT COALESCE(json_agg(json_build_object('id', "id")), '[]'::json) FROM "Q3") AS "secondary_to_primary" ` +
+        `FROM "Q1"`
     );
 
     assert.deepEqual(variables, [

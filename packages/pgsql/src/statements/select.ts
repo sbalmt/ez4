@@ -12,10 +12,10 @@ import { isAnyNumber } from '@ez4/utils';
 import { SqlSource } from '../common/source.js';
 import { SqlResults } from '../common/results.js';
 import { escapeSqlName } from '../utils/escape.js';
+import { getSelectExpressions } from '../helpers/select.js';
 import { SqlWhereClause } from '../clauses/query/where.js';
 import { SqlOrderClause } from '../clauses/query/order.js';
 import { SqlJoin } from '../clauses/query/join.js';
-import { getSelectExpressions } from '../helpers/select.js';
 import { MissingTableNameError, NoColumnsError } from './errors.js';
 
 export class SqlSelectStatement extends SqlSource implements SqlSourceWithResults {
@@ -37,7 +37,7 @@ export class SqlSelectStatement extends SqlSource implements SqlSourceWithResult
     super();
 
     this.#state = {
-      results: new SqlResults(this),
+      results: new SqlResults(this, references),
       joins: [],
       schema,
       references,
@@ -67,55 +67,46 @@ export class SqlSelectStatement extends SqlSource implements SqlSourceWithResult
 
   columns(...columns: SqlResultColumn[]) {
     this.#state.results.reset(columns);
-
     return this;
   }
 
   record(record: SqlResultRecord) {
     this.#state.results.reset(record);
-
     return this;
   }
 
   column(column: SqlResultColumn) {
     this.#state.results.column(column);
-
     return this;
   }
 
   rawColumn(column: number | string | SqlRawGenerator) {
     this.#state.results.rawColumn(column);
-
     return this;
   }
 
   jsonColumn(schema: SqlJsonColumnSchema, options: SqlJsonColumnOptions) {
     this.#state.results.jsonColumn(schema, options);
-
     return this;
   }
 
   objectColumn(schema: SqlJsonColumnSchema, options?: SqlObjectColumn) {
     this.#state.results.objectColumn(schema, options);
-
     return this;
   }
 
   arrayColumn(schema: SqlJsonColumnSchema, options?: SqlArrayColumn) {
     this.#state.results.arrayColumn(schema, options);
-
     return this;
   }
 
   from(...tables: (string | SqlTableReference | SqlSource)[]) {
     this.#state.tables = tables;
-
     return this;
   }
 
   as(alias: string | undefined) {
     this.#state.alias = alias;
-
     return this;
   }
 
@@ -166,7 +157,7 @@ export class SqlSelectStatement extends SqlSource implements SqlSourceWithResult
   }
 
   build(): [string, unknown[]] {
-    const { tables, alias, results, joins, where, order, skip, take } = this.#state;
+    const { tables, references, alias, results, joins, where, order, skip, take } = this.#state;
 
     if (!tables?.length) {
       throw new MissingTableNameError();
@@ -178,7 +169,7 @@ export class SqlSelectStatement extends SqlSource implements SqlSourceWithResult
       throw new NoColumnsError();
     }
 
-    const [tableExpressions, tableVariables] = getSelectExpressions(tables);
+    const [tableExpressions, tableVariables] = getSelectExpressions(tables, references);
 
     const statement = [`SELECT ${columns} FROM ${tableExpressions.join(', ')}`];
 

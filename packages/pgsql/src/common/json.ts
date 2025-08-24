@@ -1,17 +1,20 @@
+import type { SqlBuilderReferences } from '../builder.js';
 import type { SqlSource } from './source.js';
 import type { SqlOrder } from './types.js';
 
 import { isAnyObject } from '@ez4/utils';
 
+import { SqlSelectStatement } from '../statements/select.js';
 import { mergeSqlAlias, mergeSqlPath } from '../utils/merge.js';
 import { escapeSqlName, escapeSqlText } from '../utils/escape.js';
-import { SqlSelectStatement } from '../statements/select.js';
 import { SqlOrderClause } from '../clauses/query/order.js';
+import { getUniqueAlias } from '../helpers/alias.js';
 import { SqlColumnReference } from './reference.js';
 import { SqlRawValue } from './raw.js';
 
 type SqlJsonColumnContext = {
   variables: unknown[];
+  references: SqlBuilderReferences;
   parent?: string;
   alias?: string;
 };
@@ -29,19 +32,21 @@ export type SqlJsonColumnOptions = {
 
 export class SqlJsonColumn {
   #state: {
-    schema: SqlJsonColumnSchema;
     source: SqlSource;
+    schema: SqlJsonColumnSchema;
+    references: SqlBuilderReferences;
     order?: SqlOrderClause;
     aggregate: boolean;
     column?: string;
     alias?: string;
   };
 
-  constructor(schema: SqlJsonColumnSchema, source: SqlSource, options: SqlJsonColumnOptions) {
+  constructor(schema: SqlJsonColumnSchema, source: SqlSource, references: SqlBuilderReferences, options: SqlJsonColumnOptions) {
     const { order, aggregate, column, alias } = options;
 
     this.#state = {
       order: order ? new SqlOrderClause(source, order) : undefined,
+      references,
       source,
       schema,
       aggregate,
@@ -51,13 +56,14 @@ export class SqlJsonColumn {
   }
 
   build() {
-    const { schema, source, aggregate, order, column, alias } = this.#state;
+    const { schema, source, references, aggregate, order, column, alias } = this.#state;
 
     const variables: unknown[] = [];
 
     const result = getJsonObject(schema, {
       ...(column && { parent: escapeSqlName(column) }),
       alias: source.alias,
+      references,
       variables
     });
 
@@ -73,7 +79,7 @@ export class SqlJsonColumn {
 }
 
 const getJsonObject = (schema: SqlJsonColumnSchema, context: SqlJsonColumnContext): string => {
-  const { variables, parent, alias } = context;
+  const { variables, references, parent, alias } = context;
 
   const fields = [];
 
@@ -92,7 +98,9 @@ const getJsonObject = (schema: SqlJsonColumnSchema, context: SqlJsonColumnContex
     }
 
     if (value instanceof SqlSelectStatement) {
-      const [selectStatement, selectVariables] = value.as(value.filters ? 'O' : undefined).build();
+      const temporaryAlias = value.filters ? getUniqueAlias('S', references) : undefined;
+
+      const [selectStatement, selectVariables] = value.as(temporaryAlias).build();
 
       fields.push(`${escapeSqlText(field)}, (${selectStatement})`);
       variables.push(...selectVariables);

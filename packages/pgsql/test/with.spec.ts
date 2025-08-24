@@ -29,7 +29,7 @@ describe('sql with tests', () => {
 
     deepEqual(variables, []);
 
-    equal(statement, `WITH "R0" AS (SELECT * FROM "table1") SELECT "R0"."foo" FROM "table2"`);
+    equal(statement, `WITH "Q0" AS (SELECT * FROM "table1") SELECT "Q0"."foo" FROM "table2"`);
   });
 
   it('assert :: with single insert', async () => {
@@ -48,7 +48,7 @@ describe('sql with tests', () => {
 
     deepEqual(variables, [123]);
 
-    equal(statement, `WITH "R0" AS (SELECT "foo" FROM "table1") ` + `INSERT INTO "table2" ("foo", "bar") SELECT "R0"."foo", :0 FROM "R0"`);
+    equal(statement, `WITH "Q0" AS (SELECT "foo" FROM "table1") ` + `INSERT INTO "table2" ("foo", "bar") SELECT "Q0"."foo", :0 FROM "Q0"`);
   });
 
   it('assert :: with multiple inserts', async () => {
@@ -69,8 +69,8 @@ describe('sql with tests', () => {
 
     equal(
       statement,
-      `WITH "R0" AS (INSERT INTO "table1" ("foo") VALUES (:0) RETURNING "foo") ` +
-        `INSERT INTO "table2" ("bar", "baz") SELECT "R0"."foo", :1 FROM "R0"`
+      `WITH "Q0" AS (INSERT INTO "table1" ("foo") VALUES (:0) RETURNING "foo") ` +
+        `INSERT INTO "table2" ("bar", "baz") SELECT "Q0"."foo", :1 FROM "Q0"`
     );
   });
 
@@ -98,9 +98,9 @@ describe('sql with tests', () => {
     equal(
       statement,
       `WITH ` +
-        `"R0" AS (INSERT INTO "table1" ("foo") VALUES (:0) RETURNING "foo"), ` +
-        `"R1" AS (INSERT INTO "table2" ("bar", "baz") SELECT "R0"."foo", :1 FROM "R0") ` +
-        `SELECT "R0"."foo", "R1"."bar", "baz" FROM "R0", "R1"`
+        `"Q0" AS (INSERT INTO "table1" ("foo") VALUES (:0) RETURNING "foo"), ` +
+        `"Q1" AS (INSERT INTO "table2" ("bar", "baz") SELECT "Q0"."foo", :1 FROM "Q0") ` +
+        `SELECT "Q0"."foo", "Q1"."bar", "baz" FROM "Q0", "Q1"`
     );
   });
 
@@ -120,7 +120,7 @@ describe('sql with tests', () => {
 
     deepEqual(variables, [123]);
 
-    equal(statement, `WITH "R0" AS (SELECT "foo" FROM "table1") UPDATE ONLY "table2" SET "foo" = "R0"."foo", "bar" = :0 FROM "R0"`);
+    equal(statement, `WITH "Q0" AS (SELECT "foo" FROM "table1") UPDATE ONLY "table2" SET "foo" = "Q0"."foo", "bar" = :0 FROM "Q0"`);
   });
 
   it('assert :: with multiple updates', async () => {
@@ -144,8 +144,8 @@ describe('sql with tests', () => {
     equal(
       statement,
       `WITH ` +
-        `"R0" AS (UPDATE ONLY "table1" SET "foo" = :0 RETURNING "foo") ` +
-        `UPDATE ONLY "table2" SET "bar" = "R0"."foo", "baz" = :1 FROM "R0"`
+        `"Q0" AS (UPDATE ONLY "table1" SET "foo" = :0 RETURNING "foo") ` +
+        `UPDATE ONLY "table2" SET "bar" = "Q0"."foo", "baz" = :1 FROM "Q0"`
     );
   });
 
@@ -176,9 +176,9 @@ describe('sql with tests', () => {
     equal(
       statement,
       `WITH ` +
-        `"R0" AS (UPDATE ONLY "table1" SET "foo" = :0 RETURNING "foo"), ` +
-        `"R1" AS (UPDATE ONLY "table2" SET "bar" = "R0"."foo", "baz" = :1 FROM "R0" RETURNING "bar", "baz") ` +
-        `SELECT "R0"."foo", "R1"."bar", "baz" FROM "R0", "R1"`
+        `"Q0" AS (UPDATE ONLY "table1" SET "foo" = :0 RETURNING "foo"), ` +
+        `"Q1" AS (UPDATE ONLY "table2" SET "bar" = "Q0"."foo", "baz" = :1 FROM "Q0" RETURNING "bar", "baz") ` +
+        `SELECT "Q0"."foo", "Q1"."bar", "baz" FROM "Q0", "Q1"`
     );
   });
 });

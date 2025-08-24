@@ -1,28 +1,33 @@
+import type { SqlBuilderReferences } from '../../builder.js';
 import type { SqlSource } from '../../common/source.js';
 
 import { escapeSqlName } from '../../utils/escape.js';
+import { getUniqueAlias } from '../../helpers/alias.js';
 import { NoStatementsError } from '../errors.js';
 
 type SqlWithContext = {
   variables: unknown[];
+  references: SqlBuilderReferences;
   alias: string;
 };
 
 export class SqlWithClause {
   #state: {
     sources: SqlSource[];
+    references: SqlBuilderReferences;
     alias: string;
   };
 
-  constructor(sources: SqlSource[], alias?: string) {
+  constructor(sources: SqlSource[], references: SqlBuilderReferences, alias?: string) {
     this.#state = {
-      alias: alias || 'R',
+      alias: alias || 'Q',
+      references,
       sources
     };
   }
 
   build(): [string, unknown[]] {
-    const { sources, alias } = this.#state;
+    const { sources, references, alias } = this.#state;
 
     if (sources.length === 0) {
       throw new NoStatementsError();
@@ -34,7 +39,7 @@ export class SqlWithClause {
 
     const variables: unknown[] = [];
 
-    const queries = getQueries(sources, { variables, alias });
+    const queries = getQueries(sources, { variables, references, alias });
     const clause = ['WITH'];
 
     const lastQuery = queries.splice(-1);
@@ -50,14 +55,13 @@ export class SqlWithClause {
 }
 
 const getQueries = (statements: SqlSource[], context: SqlWithContext) => {
-  const { variables, alias } = context;
+  const { variables, references, alias } = context;
 
-  const queries = [];
+  const lastQuery = statements[statements.length - 1];
+  const allQueries = [];
 
   let previousQuery;
   let previousAlias;
-
-  let counter = 0;
 
   for (const currentQuery of statements) {
     previousQuery?.as(previousAlias);
@@ -66,18 +70,18 @@ const getQueries = (statements: SqlSource[], context: SqlWithContext) => {
 
     variables.push(...innerVariables);
 
-    if (counter + 1 === statements.length) {
-      queries.push(innerStatement);
+    if (currentQuery === lastQuery) {
+      allQueries.push(innerStatement);
       continue;
     }
 
-    const currentAlias = `${alias}${counter++}`;
+    const currentAlias = getUniqueAlias(alias, references);
 
-    queries.push(`${escapeSqlName(currentAlias)} AS (${innerStatement})`);
+    allQueries.push(`${escapeSqlName(currentAlias)} AS (${innerStatement})`);
 
     previousQuery = currentQuery;
     previousAlias = currentAlias;
   }
 
-  return queries;
+  return allQueries;
 };

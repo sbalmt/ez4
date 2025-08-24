@@ -141,7 +141,7 @@ describe('sql select tests', () => {
 
     equal(
       statement,
-      'SELECT "foo", (SELECT "S"."bar" FROM "inner" AS "S" WHERE "S"."baz" = :0 ORDER BY "S"."bar" DESC LIMIT 1) AS "alias" FROM "table"'
+      'SELECT "foo", (SELECT "S0"."bar" FROM "inner" AS "S0" WHERE "S0"."baz" = :0 ORDER BY "S0"."bar" DESC LIMIT 1) AS "alias" FROM "table"'
     );
   });
 
@@ -236,7 +236,7 @@ describe('sql select tests', () => {
     equal(
       statement,
       `SELECT "foo", "alias"."bar" FROM ` +
-        `(SELECT "S"."foo", "S"."bar" FROM "inner" AS "S" WHERE "S"."baz" = :0 ORDER BY "S"."qux" DESC LIMIT 1) AS "alias"`
+        `(SELECT "S0"."foo", "S0"."bar" FROM "inner" AS "S0" WHERE "S0"."baz" = :0 ORDER BY "S0"."qux" DESC LIMIT 1) AS "alias"`
     );
   });
 

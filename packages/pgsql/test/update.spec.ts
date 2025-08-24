@@ -311,7 +311,7 @@ describe('sql update tests', () => {
     equal(
       statement,
       `UPDATE ONLY "table" SET "qux" = "alias"."foo" FROM ` +
-        `(SELECT "S"."foo" FROM "inner" AS "S" WHERE "S"."bar" = :0 ORDER BY "S"."baz" DESC LIMIT 1) AS "alias"`
+        `(SELECT "S0"."foo" FROM "inner" AS "S0" WHERE "S0"."bar" = :0 ORDER BY "S0"."baz" DESC LIMIT 1) AS "alias"`
     );
   });
 });

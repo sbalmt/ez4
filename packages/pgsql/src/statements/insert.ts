@@ -9,10 +9,10 @@ import { getFields, getValues } from '../utils/column.js';
 import { escapeSqlName, escapeSqlNames } from '../utils/escape.js';
 import { SqlReturningClause } from '../clauses/query/returning.js';
 import { SqlConflictClause } from '../clauses/query/conflict.js';
-import { SqlColumnReference } from '../common/reference.js';
 import { getSelectExpressions } from '../helpers/select.js';
-import { SqlRawValue } from '../common/raw.js';
+import { SqlColumnReference } from '../common/reference.js';
 import { SqlSource } from '../common/source.js';
+import { SqlRawValue } from '../common/raw.js';
 import { MissingTableNameError } from './errors.js';
 import { SqlSelectStatement } from './select.js';
 
@@ -67,25 +67,21 @@ export class SqlInsertStatement extends SqlSource {
 
   into(table: string) {
     this.#state.table = table;
-
     return this;
   }
 
   select(...tables: (SqlTableReference | SqlSource)[]) {
     this.#state.sources = tables;
-
     return this;
   }
 
   as(alias: string | undefined) {
     this.#state.alias = alias;
-
     return this;
   }
 
   record(record: SqlRecord) {
     this.#state.record = record;
-
     return this;
   }
 
@@ -102,10 +98,10 @@ export class SqlInsertStatement extends SqlSource {
   }
 
   returning(result?: SqlResultRecord | SqlResultColumn[]) {
-    const { returning } = this.#state;
+    const { references, returning } = this.#state;
 
     if (!returning) {
-      this.#state.returning = new SqlReturningClause(this, result);
+      this.#state.returning = new SqlReturningClause(this, references, result);
     } else if (result) {
       returning.apply(result);
     }
@@ -138,7 +134,7 @@ export class SqlInsertStatement extends SqlSource {
     });
 
     if (sources?.length) {
-      const [tableExpressions, tableVariables] = getSelectExpressions(sources);
+      const [tableExpressions, tableVariables] = getSelectExpressions(sources, references);
 
       statement.push(`SELECT ${values} FROM ${tableExpressions.join(', ')}`);
       variables.push(...tableVariables);

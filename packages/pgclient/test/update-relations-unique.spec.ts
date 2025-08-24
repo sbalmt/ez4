@@ -201,10 +201,10 @@ describe('update unique relations', () => {
     assert.equal(
       statement,
       // Main record
-      `UPDATE ONLY "ez4_test_table" AS "R" SET "id" = :0, "unique_id" = :1 ` +
+      `UPDATE ONLY "ez4_test_table" AS "R0" SET "id" = :0, "unique_id" = :1 ` +
         // Select
-        `RETURNING (SELECT json_build_object('id', "S"."id", 'foo', "S"."foo") FROM "ez4_test_table" AS "S" ` +
-        `WHERE "S"."unique_id" = "R"."id") AS "unique_to_primary"`
+        `RETURNING (SELECT json_build_object('id', "S0"."id", 'foo', "S0"."foo") FROM "ez4_test_table" AS "S0" ` +
+        `WHERE "S0"."unique_id" = "R0"."id") AS "unique_to_primary"`
     );
 
     assert.deepEqual(variables, ['00000000-0000-1000-9000-000000000000', '00000000-0000-1000-9000-000000000001']);
@@ -251,9 +251,9 @@ describe('update unique relations', () => {
       statement,
       `WITH ` +
         // Main record
-        `"R0" AS (UPDATE ONLY "ez4_test_table" SET "id" = :0 RETURNING "id") ` +
+        `"Q0" AS (UPDATE ONLY "ez4_test_table" SET "id" = :0 RETURNING "id") ` +
         // Relation
-        `UPDATE ONLY "ez4_test_table" AS "T" SET "foo" = :1 FROM "R0" WHERE "T"."unique_id" = "R0"."id"`
+        `UPDATE ONLY "ez4_test_table" AS "T" SET "foo" = :1 FROM "Q0" WHERE "T"."unique_id" = "Q0"."id"`
     );
 
     assert.deepEqual(variables, ['00000000-0000-1000-9000-000000000000', 'foo']);
@@ -283,12 +283,12 @@ describe('update unique relations', () => {
       statement,
       `WITH ` +
         // Main record
-        `"R0" AS (UPDATE ONLY "ez4_test_table" AS "R" SET "id" = :0 RETURNING "R"."id"), ` +
+        `"Q0" AS (UPDATE ONLY "ez4_test_table" AS "R0" SET "id" = :0 RETURNING "R0"."id"), ` +
         // Relation
-        `"R1" AS (UPDATE ONLY "ez4_test_table" AS "T" SET "foo" = :1 FROM "R0" WHERE "T"."unique_id" = "R0"."id") ` +
+        `"Q1" AS (UPDATE ONLY "ez4_test_table" AS "T" SET "foo" = :1 FROM "Q0" WHERE "T"."unique_id" = "Q0"."id") ` +
         // Select
-        `SELECT (SELECT json_build_object('id', "S"."id", 'foo', "S"."foo") FROM "ez4_test_table" AS "S" ` +
-        `WHERE "S"."unique_id" = "R0"."id") AS "unique_to_primary" FROM "ez4_test_table"`
+        `SELECT (SELECT json_build_object('id', "S0"."id", 'foo', "S0"."foo") FROM "ez4_test_table" AS "S0" ` +
+        `WHERE "S0"."unique_id" = "Q0"."id") AS "unique_to_primary" FROM "ez4_test_table"`
     );
 
     assert.deepEqual(variables, ['00000000-0000-1000-9000-000000000000', 'foo']);
@@ -327,14 +327,14 @@ describe('update unique relations', () => {
       statement,
       `WITH ` +
         // Main record
-        `"R0" AS (UPDATE ONLY "ez4_test_table" AS "R" SET "id" = :0, "unique_2_id" = :1 RETURNING "R"."id"), ` +
+        `"Q0" AS (UPDATE ONLY "ez4_test_table" AS "R0" SET "id" = :0, "unique_2_id" = :1 RETURNING "R0"."id"), ` +
         // First relation
-        `"R1" AS (UPDATE ONLY "ez4_test_table" AS "T" SET "foo" = :2 FROM "R0" WHERE "T"."unique_1_id" = "R0"."id"), ` +
+        `"Q1" AS (UPDATE ONLY "ez4_test_table" AS "T" SET "foo" = :2 FROM "Q0" WHERE "T"."unique_1_id" = "Q0"."id"), ` +
         // Third relation
-        `"R2" AS (UPDATE ONLY "ez4_test_table" AS "T" SET "foo" = :3 FROM "R0" WHERE "T"."unique_3_id" = "R0"."id") ` +
+        `"Q2" AS (UPDATE ONLY "ez4_test_table" AS "T" SET "foo" = :3 FROM "Q0" WHERE "T"."unique_3_id" = "Q0"."id") ` +
         // Select
-        `SELECT "id", (SELECT json_build_object('id', "S"."id", 'foo', "S"."foo") FROM "ez4_test_table" AS "S" ` +
-        `WHERE "S"."unique_1_id" = "R0"."id") AS "unique_to_primary_1" FROM "ez4_test_table"`
+        `SELECT "id", (SELECT json_build_object('id', "S0"."id", 'foo', "S0"."foo") FROM "ez4_test_table" AS "S0" ` +
+        `WHERE "S0"."unique_1_id" = "Q0"."id") AS "unique_to_primary_1" FROM "ez4_test_table"`
     );
 
     assert.deepEqual(variables, ['00000000-0000-1000-9000-000000000000', '00000000-0000-1000-9000-000000000001', 'foo', 'foo']);

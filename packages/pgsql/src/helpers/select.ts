@@ -1,8 +1,11 @@
+import type { SqlBuilderReferences } from '../builder.js';
+
 import { escapeSqlName } from '../utils/escape.js';
 import { SqlTableReference } from '../common/reference.js';
 import { SqlSource } from '../common/source.js';
+import { getUniqueAlias } from './alias.js';
 
-export const getSelectExpressions = (tables: (string | SqlTableReference | SqlSource)[]) => {
+export const getSelectExpressions = (tables: (string | SqlTableReference | SqlSource)[], references: SqlBuilderReferences) => {
   const tableExpressions = [];
   const tableVariables = [];
 
@@ -13,9 +16,10 @@ export const getSelectExpressions = (tables: (string | SqlTableReference | SqlSo
     }
 
     if (table instanceof SqlSource) {
+      const temporaryAlias = getUniqueAlias('S', references);
       const originalAlias = table.alias;
 
-      const [statement, variables] = table.as('S').build();
+      const [statement, variables] = table.as(temporaryAlias).build();
 
       tableVariables.push(...variables);
 

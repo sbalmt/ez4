@@ -69,7 +69,7 @@ export const prepareInsertQuery = async <T extends InternalTableMetadata, S exte
     allQueries.push(selectQuery);
   }
 
-  const [statement, variables] = builder.with(allQueries, 'R').build();
+  const [statement, variables] = builder.with(allQueries).build();
 
   return [statement, variables as SqlParameter[]];
 };

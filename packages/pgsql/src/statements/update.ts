@@ -63,25 +63,21 @@ export class SqlUpdateStatement extends SqlSource {
 
   only(table: string) {
     this.#state.table = table;
-
     return this;
   }
 
   from(table: SqlTableReference | SqlSource | undefined) {
     this.#state.source = table;
-
     return this;
   }
 
   as(alias: string | undefined) {
     this.#state.alias = alias;
-
     return this;
   }
 
   record(record: SqlRecord) {
     this.#state.record = record;
-
     return this;
   }
 
@@ -98,10 +94,10 @@ export class SqlUpdateStatement extends SqlSource {
   }
 
   returning(result?: SqlResultRecord | SqlResultColumn[]) {
-    const { returning } = this.#state;
+    const { references, returning } = this.#state;
 
     if (!returning) {
-      this.#state.returning = new SqlReturningClause(this, result);
+      this.#state.returning = new SqlReturningClause(this, references, result);
     } else if (result) {
       returning.apply(result);
     }
@@ -140,7 +136,7 @@ export class SqlUpdateStatement extends SqlSource {
     statement.push(`SET ${columns.join(', ')}`);
 
     if (source) {
-      const [tableExpressions, tableVariables] = getSelectExpressions([source]);
+      const [tableExpressions, tableVariables] = getSelectExpressions([source], references);
 
       statement.push(`FROM ${tableExpressions[0]}`);
       variables.push(...tableVariables);

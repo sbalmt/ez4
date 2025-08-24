@@ -111,13 +111,13 @@ describe('update relations', () => {
       statement,
       `WITH ` +
         // Main record
-        `"R0" AS (SELECT "secondary_id", "id" FROM "ez4_test_table"), ` +
+        `"Q0" AS (SELECT "secondary_id", "id" FROM "ez4_test_table"), ` +
         // First relation
-        `"R1" AS (UPDATE ONLY "ez4_test_table" AS "T" SET "foo" = :0 FROM "R0" WHERE "T"."id" = "R0"."secondary_id"), ` +
+        `"Q1" AS (UPDATE ONLY "ez4_test_table" AS "T" SET "foo" = :0 FROM "Q0" WHERE "T"."id" = "Q0"."secondary_id"), ` +
         // Second relation
-        `"R2" AS (UPDATE ONLY "ez4_test_table" AS "T" SET "foo" = :1 FROM "R0" WHERE "T"."unique_id" = "R0"."id") ` +
+        `"Q2" AS (UPDATE ONLY "ez4_test_table" AS "T" SET "foo" = :1 FROM "Q0" WHERE "T"."unique_id" = "Q0"."id") ` +
         // Third relation
-        `UPDATE ONLY "ez4_test_table" AS "T" SET "foo" = :2 FROM "R0" WHERE "T"."primary_id" = "R0"."id"`
+        `UPDATE ONLY "ez4_test_table" AS "T" SET "foo" = :2 FROM "Q0" WHERE "T"."primary_id" = "Q0"."id"`
     );
 
     assert.deepEqual(variables, ['foo1', 'foo2', 'foo3']);
@@ -154,19 +154,19 @@ describe('update relations', () => {
       statement,
       `WITH ` +
         // Main record
-        `"R0" AS (SELECT "R"."secondary_id", "R"."id" FROM "ez4_test_table" AS "R"), ` +
+        `"Q0" AS (SELECT "R0"."secondary_id", "R0"."id" FROM "ez4_test_table" AS "R0"), ` +
         // First relation
-        `"R1" AS (UPDATE ONLY "ez4_test_table" AS "T" SET "foo" = :0 FROM "R0" WHERE "T"."id" = "R0"."secondary_id"), ` +
+        `"Q1" AS (UPDATE ONLY "ez4_test_table" AS "T" SET "foo" = :0 FROM "Q0" WHERE "T"."id" = "Q0"."secondary_id"), ` +
         // Second relation
-        `"R2" AS (UPDATE ONLY "ez4_test_table" AS "T" SET "foo" = :1 FROM "R0" WHERE "T"."unique_id" = "R0"."id"), ` +
+        `"Q2" AS (UPDATE ONLY "ez4_test_table" AS "T" SET "foo" = :1 FROM "Q0" WHERE "T"."unique_id" = "Q0"."id"), ` +
         // Third relation
-        `"R3" AS (UPDATE ONLY "ez4_test_table" AS "T" SET "foo" = :2 FROM "R0" WHERE "T"."primary_id" = "R0"."id") ` +
+        `"Q3" AS (UPDATE ONLY "ez4_test_table" AS "T" SET "foo" = :2 FROM "Q0" WHERE "T"."primary_id" = "Q0"."id") ` +
         // Select
         `SELECT "id", ` +
-        `(SELECT json_build_object('foo', "S"."foo") FROM "ez4_test_table" AS "S" WHERE "S"."id" = "R0"."secondary_id") AS "primary_to_secondary", ` +
-        `(SELECT json_build_object('id', "S"."id") FROM "ez4_test_table" AS "S" WHERE "S"."unique_id" = "R0"."id") AS "unique_to_primary", ` +
-        `(SELECT COALESCE(json_agg(json_build_object('foo', "S"."foo")), '[]'::json) FROM "ez4_test_table" AS "S" ` +
-        `WHERE "S"."primary_id" = "R0"."id") AS "secondary_to_primary" ` +
+        `(SELECT json_build_object('foo', "S0"."foo") FROM "ez4_test_table" AS "S0" WHERE "S0"."id" = "Q0"."secondary_id") AS "primary_to_secondary", ` +
+        `(SELECT json_build_object('id', "S1"."id") FROM "ez4_test_table" AS "S1" WHERE "S1"."unique_id" = "Q0"."id") AS "unique_to_primary", ` +
+        `(SELECT COALESCE(json_agg(json_build_object('foo', "S2"."foo")), '[]'::json) FROM "ez4_test_table" AS "S2" ` +
+        `WHERE "S2"."primary_id" = "Q0"."id") AS "secondary_to_primary" ` +
         `FROM "ez4_test_table"`
     );
 
@@ -224,21 +224,21 @@ describe('update relations', () => {
       statement,
       `WITH ` +
         // Main record
-        `"R0" AS (SELECT "R"."secondary_id", "R"."id" FROM "ez4_test_table" AS "R" WHERE "R"."id" = :0), ` +
+        `"Q0" AS (SELECT "R0"."secondary_id", "R0"."id" FROM "ez4_test_table" AS "R0" WHERE "R0"."id" = :0), ` +
         // First relation
-        `"R1" AS (UPDATE ONLY "ez4_test_table" AS "T" SET "foo" = :1 FROM "R0" WHERE "T"."id" = "R0"."secondary_id"), ` +
+        `"Q1" AS (UPDATE ONLY "ez4_test_table" AS "T" SET "foo" = :1 FROM "Q0" WHERE "T"."id" = "Q0"."secondary_id"), ` +
         // Second relation
-        `"R2" AS (UPDATE ONLY "ez4_test_table" AS "T" SET "foo" = :2 FROM "R0" WHERE "T"."unique_id" = "R0"."id"), ` +
+        `"Q2" AS (UPDATE ONLY "ez4_test_table" AS "T" SET "foo" = :2 FROM "Q0" WHERE "T"."unique_id" = "Q0"."id"), ` +
         // Third relation
-        `"R3" AS (UPDATE ONLY "ez4_test_table" AS "T" SET "foo" = :3 FROM "R0" WHERE "T"."primary_id" = "R0"."id") ` +
+        `"Q3" AS (UPDATE ONLY "ez4_test_table" AS "T" SET "foo" = :3 FROM "Q0" WHERE "T"."primary_id" = "Q0"."id") ` +
         // Select
         `SELECT "id", ` +
-        `(SELECT json_build_object('id', "S"."id") FROM "ez4_test_table" AS "S" ` +
-        `WHERE "S"."foo" = :4 AND "S"."id" = "R0"."secondary_id") AS "primary_to_secondary", ` +
-        `(SELECT json_build_object('foo', "S"."foo") FROM "ez4_test_table" AS "S" ` +
-        `WHERE "S"."foo" = :5 AND "S"."unique_id" = "R0"."id") AS "unique_to_primary", ` +
-        `(SELECT COALESCE(json_agg(json_build_object('foo', "S"."foo")), '[]'::json) FROM "ez4_test_table" AS "S" ` +
-        `WHERE "S"."foo" = :6 AND "S"."primary_id" = "R0"."id") AS "secondary_to_primary" ` +
+        `(SELECT json_build_object('id', "S0"."id") FROM "ez4_test_table" AS "S0" ` +
+        `WHERE "S0"."foo" = :4 AND "S0"."id" = "Q0"."secondary_id") AS "primary_to_secondary", ` +
+        `(SELECT json_build_object('foo', "S1"."foo") FROM "ez4_test_table" AS "S1" ` +
+        `WHERE "S1"."foo" = :5 AND "S1"."unique_id" = "Q0"."id") AS "unique_to_primary", ` +
+        `(SELECT COALESCE(json_agg(json_build_object('foo', "S2"."foo")), '[]'::json) FROM "ez4_test_table" AS "S2" ` +
+        `WHERE "S2"."foo" = :6 AND "S2"."primary_id" = "Q0"."id") AS "secondary_to_primary" ` +
         `FROM "ez4_test_table"`
     );
 
