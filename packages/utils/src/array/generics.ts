@@ -1,4 +1,4 @@
-import type { IsAny } from '../common/generics.js';
+import type { IsAny, MergeType } from '../common/generics.js';
 
 /**
  * Given a type `T`, it returns `true` when `T` is an array, otherwise returns `false`.
@@ -20,3 +20,8 @@ export type ArrayRest<T extends unknown[]> = IsAny<T> extends true ? [] : T exte
  * Given the array type `T`, it returns the array element type.
  */
 export type ArrayType<T extends unknown[]> = IsAny<T> extends true ? never : T extends (infer U)[] ? NonNullable<U> : never;
+
+/**
+ * Given the array types `T` and `U`, it produces a new array type merging both array types.
+ */
+export type MergeArray<T extends unknown[], U extends unknown[]> = MergeType<ArrayType<T>, ArrayType<U>>[];

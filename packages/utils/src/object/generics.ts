@@ -1,5 +1,5 @@
 import type { ArrayType, IsArray } from '../array/generics.js';
-import type { IsAny } from '../common/generics.js';
+import type { IsAny, MergeType } from '../common/generics.js';
 
 /**
  * A type to represent any object.
@@ -57,9 +57,16 @@ export type FlatObject<T extends AnyObject> = {
     ? IsObject<T[P]> extends true
       ? FlatObject<T[P]>
       : T[P]
-    : ArrayType<T[P]> extends AnyObject
+    : IsObject<ArrayType<T[P]>> extends true
       ? FlatObject<ArrayType<T[P]>>
       : ArrayType<T[P]>;
+};
+
+/**
+ * Given the object types `T` and `U`, it produces a new object type merging both types.
+ */
+export type MergeObject<T extends AnyObject, U extends AnyObject> = {
+  [P in keyof T | keyof U]: P extends keyof T ? (P extends keyof U ? MergeType<T[P], U[P]> : T[P]) : P extends keyof U ? U[P] : never;
 };
 
 /**
@@ -70,7 +77,7 @@ export type OptionalObject<T extends AnyObject> = {
 };
 
 /**
- * Given the types `T` and `U`, it produces a new `T` type ensuring only properties in
+ * Given the types `T` and `U`, it produces a new object type ensuring only properties in
  * common with `U` type.
  */
 export type StrictObject<T, U extends AnyObject> =

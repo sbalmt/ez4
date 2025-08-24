@@ -1,3 +1,6 @@
+import type { IsObject, MergeObject } from '../object/generics.js';
+import type { MergeArray } from '../array/generics.js';
+
 /**
  * Given a type `T`, it returns `true` when `T` is `any`, otherwise it returns `false`;
  */
@@ -29,3 +32,21 @@ export type ExclusiveType<T, U> = T | U extends object ? (VoidType<T, U> & U) | 
  * from `T` and ensures that no properties from `U` are accepted.
  */
 export type VoidType<T, U> = T | U extends object ? { [P in Exclude<keyof T, keyof U>]?: never } : T | U;
+
+/**
+ * Given the types `T` and `U`, it produces a new type merging both types.
+ */
+export type MergeType<T, U> =
+  IsObject<T> extends true
+    ? IsObject<U> extends true
+      ? MergeObject<NonNullable<T>, NonNullable<U>>
+      : U extends unknown[]
+        ? MergeArray<T[], U>
+        : T | U
+    : T extends unknown[]
+      ? U extends unknown[]
+        ? MergeArray<T, U>
+        : MergeArray<T, U[]>
+      : U extends unknown[]
+        ? MergeArray<T[], U>
+        : T | U;
