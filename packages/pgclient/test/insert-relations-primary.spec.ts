@@ -100,6 +100,7 @@ describe('insert primary relations', () => {
         targetAlias: 'primary_to_secondary',
         targetColumn: 'secondary_id',
         targetIndex: Index.Secondary,
+        targetTable: testTableName,
         sourceIndex: Index.Primary,
         sourceSchema: relationSchema,
         sourceTable: testTableName,
@@ -111,6 +112,7 @@ describe('insert primary relations', () => {
   const getMultipleTestRelation = (): RepositoryRelationsWithSchema => {
     const baseRelation = {
       targetIndex: Index.Secondary,
+      targetTable: testTableName,
       sourceIndex: Index.Primary,
       sourceSchema: relationSchema,
       sourceTable: testTableName,

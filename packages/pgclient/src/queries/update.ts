@@ -163,12 +163,16 @@ const preparePostUpdateRelations = async (
   data: SqlRecord,
   relations: RepositoryRelationsWithSchema,
   source: SqlSourceWithResults,
-  path: string
+  table: string
 ) => {
   const allRelationQueries = [];
 
   for (const relationPath in relations) {
     const fieldRelation = relations[relationPath];
+
+    if (fieldRelation.targetTable !== table) {
+      continue;
+    }
 
     const fieldKey = fieldRelation.targetAlias;
     const fieldValue = data[fieldKey];
@@ -177,7 +181,7 @@ const preparePostUpdateRelations = async (
       continue;
     }
 
-    const fieldPath = `${path}.${fieldKey}`;
+    const fieldPath = `${table}.${fieldKey}`;
 
     if (!isSingleRelationData(fieldValue)) {
       throw new InvalidRelationFieldError(fieldPath);

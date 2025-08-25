@@ -89,6 +89,7 @@ describe('update secondary relations', () => {
         targetAlias: 'secondary_to_primary',
         targetColumn: 'id',
         targetIndex: Index.Primary,
+        targetTable: testTableName,
         sourceIndex: Index.Secondary,
         sourceSchema: relationSchema,
         sourceTable: testTableName,
@@ -101,6 +102,7 @@ describe('update secondary relations', () => {
     const baseRelation = {
       targetColumn: 'id',
       targetIndex: Index.Primary,
+      targetTable: testTableName,
       sourceIndex: Index.Secondary,
       sourceSchema: relationSchema,
       sourceTable: testTableName

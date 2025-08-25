@@ -100,6 +100,7 @@ describe('insert unique relations', () => {
         targetAlias: 'unique_to_primary',
         targetColumn: 'id',
         targetIndex: Index.Primary,
+        targetTable: testTableName,
         sourceIndex: Index.Unique,
         sourceSchema: relationSchema,
         sourceTable: testTableName,
@@ -112,6 +113,7 @@ describe('insert unique relations', () => {
     const baseRelation = {
       targetColumn: 'id',
       targetIndex: Index.Primary,
+      targetTable: testTableName,
       sourceIndex: Index.Unique,
       sourceSchema: relationSchema,
       sourceTable: testTableName

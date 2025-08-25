@@ -19,6 +19,7 @@ export type RepositoryTable = {
 
 export type RelationWithSchema = TableRelation & {
   sourceSchema: ObjectSchema;
+  targetTable: string;
 };
 
 export const isRepositoryTable = (input: AnyObject): input is RepositoryTable => {

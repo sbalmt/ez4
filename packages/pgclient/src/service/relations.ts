@@ -30,7 +30,8 @@ export const getRelationsWithSchema = (tableName: string, repository: PgTableRep
       relationsWithSchema[relationPath] = {
         ...tableRelation,
         sourceSchema: sourceRepository.schema,
-        targetAlias: relationAlias
+        targetAlias: relationAlias,
+        targetTable: tableName
       };
 
       tableAliasCache.add(relationPath);

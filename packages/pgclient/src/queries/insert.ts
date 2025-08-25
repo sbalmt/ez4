@@ -193,12 +193,16 @@ const preparePreInsertRelations = (
   builder: SqlBuilder,
   data: Query.InsertDataInput<InternalTableMetadata>,
   relations: RepositoryRelationsWithSchema,
-  path: string
+  table: string
 ) => {
   const allQueries: InsertRelationsCache = {};
 
   for (const relationPath in relations) {
     const fieldRelation = relations[relationPath];
+
+    if (fieldRelation.targetTable !== table) {
+      continue;
+    }
 
     const fieldKey = fieldRelation.targetAlias;
     const fieldValue = data[fieldKey];
@@ -207,7 +211,7 @@ const preparePreInsertRelations = (
       continue;
     }
 
-    const fieldPath = `${path}.${fieldKey}`;
+    const fieldPath = `${table}.${fieldKey}`;
 
     if (!isRelationalData(fieldValue)) {
       throw new InvalidRelationFieldError(fieldPath);
@@ -253,7 +257,7 @@ const preparePostInsertRelations = (
   data: Query.InsertDataInput<InternalTableMetadata>,
   relations: RepositoryRelationsWithSchema,
   source: SqlSourceWithResults,
-  path: string
+  table: string
 ) => {
   const allQueries: InsertRelationsCache = {};
 
@@ -262,6 +266,10 @@ const preparePostInsertRelations = (
   for (const relationPath in relations) {
     const fieldRelation = relations[relationPath];
 
+    if (fieldRelation.targetTable !== table) {
+      continue;
+    }
+
     const fieldKey = fieldRelation.targetAlias;
     const fieldValue = data[fieldKey];
 
@@ -269,7 +277,7 @@ const preparePostInsertRelations = (
       continue;
     }
 
-    const fieldPath = `${path}.${fieldKey}`;
+    const fieldPath = `${table}.${fieldKey}`;
 
     if (!isRelationalData(fieldValue)) {
       throw new InvalidRelationFieldError(fieldPath);
