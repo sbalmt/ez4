@@ -86,36 +86,33 @@ export namespace Query {
     where?: WhereInput<T>;
   };
 
-  export type InsertOneResult<S extends AnyObject, T extends TableMetadata> = Query.SelectInput<T> extends S ? void : Record<S, T>;
+  export type InsertOneResult<S extends AnyObject, T extends TableMetadata> = SelectInput<T> extends S ? void : Record<S, T>;
 
-  export type UpdateOneResult<S extends AnyObject, T extends TableMetadata> =
-    Query.SelectInput<T> extends S ? void : Record<S, T> | undefined;
+  export type UpdateOneResult<S extends AnyObject, T extends TableMetadata> = SelectInput<T> extends S ? void : Record<S, T> | undefined;
 
-  export type FindOneResult<S extends AnyObject, T extends TableMetadata> =
-    Query.SelectInput<T> extends S ? void : Record<S, T> | undefined;
+  export type FindOneResult<S extends AnyObject, T extends TableMetadata> = SelectInput<T> extends S ? void : Record<S, T> | undefined;
 
-  export type UpsertOneResult<S extends AnyObject, T extends TableMetadata> = Query.SelectInput<T> extends S ? void : Record<S, T>;
+  export type UpsertOneResult<S extends AnyObject, T extends TableMetadata> = SelectInput<T> extends S ? void : Record<S, T>;
 
-  export type DeleteOneResult<S extends AnyObject, T extends TableMetadata> =
-    Query.SelectInput<T> extends S ? void : Record<S, T> | undefined;
+  export type DeleteOneResult<S extends AnyObject, T extends TableMetadata> = SelectInput<T> extends S ? void : Record<S, T> | undefined;
 
-  export type UpdateManyResult<S extends AnyObject, T extends TableMetadata> = Query.SelectInput<T> extends S ? void : Record<S, T>[];
+  export type UpdateManyResult<S extends AnyObject, T extends TableMetadata> = SelectInput<T> extends S ? void : Record<S, T>[];
 
   export type InsertManyResult = void;
 
   export type FindManyResult<S extends AnyObject, C extends boolean, T extends TableMetadata> = PaginationUtils.Result<T['engine']> & {
-    records: Query.SelectInput<T> extends S ? void : Record<S, T>[];
+    records: SelectInput<T> extends S ? void : Record<S, T>[];
   } & (false extends C ? {} : { total: number });
 
-  export type DeleteManyResult<S extends AnyObject, T extends TableMetadata> = Query.SelectInput<T> extends S ? void : Record<S, T>[];
+  export type DeleteManyResult<S extends AnyObject, T extends TableMetadata> = SelectInput<T> extends S ? void : Record<S, T>[];
 
-  export type Record<S extends AnyObject, T extends TableMetadata> = PartialObject<SelectFields<T['schema'], T['relations']>, S>;
+  export type Record<S extends AnyObject, T extends TableMetadata> = PartialObject<SelectOutputFields<T['schema'], T['relations']>, S>;
 
-  export type SelectInput<T extends TableMetadata> = PartialProperties<SelectFields<T['schema'], T['relations']>>;
+  export type SelectInput<T extends TableMetadata> = PartialProperties<SelectInputFields<T['schema'], T['relations']>>;
 
   export type StrictSelectInput<S extends AnyObject, T extends TableMetadata> = StrictObject<
     S,
-    FlatObject<SelectFields<T['schema'], T['relations']>>
+    SelectInputFields<T['schema'], T['relations']>
   >;
 
   export type InsertDataInput<T extends TableMetadata> =
@@ -155,8 +152,11 @@ export namespace Query {
     }
   >;
 
-  type SelectFields<T extends Database.Schema, R extends RelationMetadata> =
+  type SelectInputFields<T extends Database.Schema, R extends RelationMetadata> =
     IsObjectEmpty<R['selects']> extends true ? T : T & R['selects'];
+
+  type SelectOutputFields<T extends Database.Schema, R extends RelationMetadata> =
+    IsObjectEmpty<R['records']> extends true ? T : T & R['records'];
 
   type WhereOperations<V, E extends DatabaseEngine> =
     | WhereNegate<V, E>

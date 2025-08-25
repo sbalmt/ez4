@@ -2,11 +2,6 @@ import type { Client, Database, Index } from '@ez4/database';
 import type { Environment, Service } from '@ez4/common';
 import type { TestEngine } from '../common/engines.js';
 
-declare class TestTable implements Database.Schema {
-  id: string;
-  value: number;
-}
-
 export declare class TestDatabase extends Database.Service {
   engine: TestEngine;
 
@@ -15,9 +10,12 @@ export declare class TestDatabase extends Database.Service {
   tables: [
     {
       name: 'table';
-      schema: TestTable;
       indexes: {
         id: Index.Primary;
+      };
+      schema: {
+        id: string;
+        value: number;
       };
     }
   ];

@@ -4,24 +4,6 @@ import type { TestEngine } from '../common/engines.js';
 
 import { Order } from '@ez4/database';
 
-declare class TestTableA implements Database.Schema {
-  id: string;
-  value_a: number;
-}
-
-declare class TestTableB implements Database.Schema {
-  id: string;
-  table_a_id: string;
-  table_c_id?: string;
-  value_b: number;
-}
-
-declare class TestTableC implements Database.Schema {
-  id: string;
-  table_b_id?: string;
-  value_c: number;
-}
-
 export declare class TestDatabase extends Database.Service {
   engine: TestEngine;
 
@@ -30,17 +12,19 @@ export declare class TestDatabase extends Database.Service {
   tables: [
     {
       name: 'tableA';
-      schema: TestTableA;
       relations: {
         'id@all_relations_b': 'tableB:table_a_id';
       };
       indexes: {
         id: Index.Primary;
       };
+      schema: {
+        id: string;
+        value_a: number;
+      };
     },
     {
       name: 'tableB';
-      schema: TestTableB;
       relations: {
         'table_a_id@relation_a': 'tableA:id';
         'table_c_id@relation_c': 'tableC:id';
@@ -49,15 +33,25 @@ export declare class TestDatabase extends Database.Service {
         id: Index.Primary;
         table_a_id: Index.Secondary;
       };
+      schema: {
+        id: string;
+        table_a_id: string;
+        table_c_id?: string;
+        value_b: number;
+      };
     },
     {
       name: 'tableC';
-      schema: TestTableC;
       relations: {
         'table_b_id@relation_b': 'tableB:id';
       };
       indexes: {
         id: Index.Primary;
+      };
+      schema: {
+        id: string;
+        table_b_id?: string;
+        value_c: number;
       };
     }
   ];
@@ -129,12 +123,17 @@ export const testSelect = async ({ selfClient }: Service.Context<TestDatabase>) 
 
   resultC.records[0].relation_b?.value_b;
 
-  // Fetch tableA through tableB connection in tableC.
+  // Fetch tableB and tableA connections through tableC.
   const resultD = await selfClient.tableC.findMany({
     select: {
       relation_b: {
         relation_a: {
-          value_a: true
+          value_a: true,
+          all_relations_b: {
+            relation_c: {
+              value_c: true
+            }
+          }
         },
         relation_c: {
           value_c: true
@@ -147,6 +146,7 @@ export const testSelect = async ({ selfClient }: Service.Context<TestDatabase>) 
   });
 
   resultD.records[0].relation_b?.relation_a.value_a;
+  resultD.records[0].relation_b?.relation_a.all_relations_b[0].relation_c?.value_c;
   resultD.records[0].relation_b?.relation_c?.value_c;
 };
 

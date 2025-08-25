@@ -1,4 +1,4 @@
-import type { AnyObject, ArrayRest, PropertyType, ExclusiveType, IsArrayEmpty, IsUndefined } from '@ez4/utils';
+import type { AnyObject, ArrayRest, PropertyType, ExclusiveType, IsArrayEmpty, IsUndefined, FlatObject, MergeObject } from '@ez4/utils';
 import type { IndexedTables, PrimaryIndexes, UniqueIndexes } from './indexes.js';
 import type { Database, DatabaseTables } from './database.js';
 import type { TableSchemas } from './schemas.js';
@@ -7,9 +7,10 @@ import type { TableSchemas } from './schemas.js';
  * Internal relation type.
  */
 export type RelationMetadata = {
-  filters: Record<string, {}>;
-  selects: Record<string, {}>;
-  changes: Record<string, {}>;
+  filters: Record<string, AnyObject>;
+  selects: Record<string, AnyObject>;
+  changes: Record<string, AnyObject>;
+  records: Record<string, AnyObject | undefined>;
   indexes: string;
 };
 
@@ -74,9 +75,13 @@ type TableRelation<
             filters: FilterableRelationSchemas<S, R>;
             changes: RequiredRelationSchemas<PropertyType<N, S>, S, I, R, true> &
               OptionalRelationSchemas<PropertyType<N, S>, S, I, R, true>;
-            selects: RequiredRelationSchemas<PropertyType<N, S>, S, I, R, false> &
-              OptionalRelationSchemas<PropertyType<N, S>, S, I, R, false> &
-              NestedRelationSchemas<T, S, I, R>;
+            selects: FlatObject<RequiredRelationSchemas<PropertyType<N, S>, S, I, R, false>> &
+              FlatObject<OptionalRelationSchemas<PropertyType<N, S>, S, I, R, false>> &
+              NestedRelationSelects<T, S, I, R>;
+            records: MergeObject<
+              RequiredRelationSchemas<PropertyType<N, S>, S, I, R, false> & OptionalRelationSchemas<PropertyType<N, S>, S, I, R, false>,
+              NestedRelationRecords<T, S, I, R>
+            >;
           };
         }
       : {}
@@ -138,17 +143,33 @@ type OptionalRelationSchemas<
 };
 
 /**
- * Produce an object containing all nested relation schemas.
+ * Produce an object containing all nested relation schemas for select operations.
  */
-type NestedRelationSchemas<
+type NestedRelationSelects<
   T extends Database.Table[],
   S extends Record<string, Database.Schema>,
   I extends Record<string, Database.Indexes>,
   R extends AnyObject
 > = {
   [C in keyof R as RelationTargetAlias<C>]?: RelationSourceTable<R[C]> extends keyof MergeRelations<T, T, S, I>
-    ? MergeRelations<T, T, S, I>[RelationSourceTable<R[C]>] extends { selects: infer S }
-      ? S
+    ? MergeRelations<T, T, S, I>[RelationSourceTable<R[C]>] extends { selects: infer N }
+      ? N
+      : never
+    : never;
+};
+
+/**
+ * Produce an object containing all nested relation schemas for records.
+ */
+type NestedRelationRecords<
+  T extends Database.Table[],
+  S extends Record<string, Database.Schema>,
+  I extends Record<string, Database.Indexes>,
+  R extends AnyObject
+> = {
+  [C in keyof R as RelationTargetAlias<C>]?: RelationSourceTable<R[C]> extends keyof MergeRelations<T, T, S, I>
+    ? MergeRelations<T, T, S, I>[RelationSourceTable<R[C]>] extends { records: infer N }
+      ? N
       : never
     : never;
 };
