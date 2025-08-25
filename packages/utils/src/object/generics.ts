@@ -35,6 +35,11 @@ export type PropertyType<P, T extends AnyObject> = P extends keyof T ? T[P] : ne
 export type InnerTypes<T> = IsObject<T> extends true ? InnerTypes<T[keyof T]> : T;
 
 /**
+ * Given a type `T`, it returns only the object type.
+ */
+export type ExtractObject<T> = T extends AnyObject ? T : never;
+
+/**
  * Given an object type `T`, it returns `true` when `T` is an empty object, otherwise returns `false`.
  */
 export type IsObjectEmpty<T extends AnyObject> =
@@ -141,12 +146,12 @@ export type PartialProperties<T extends AnyObject> = {
  */
 export type PartialObject<T extends AnyObject, O extends AnyObject, V extends boolean = true> = Prettify<{
   [P in keyof T as PartialObjectProperty<O[P], P, V>]: IsArray<T[P]> extends false
-    ? IsObject<O[P]> extends true
-      ? PartialObject<T[P], O[P], V>
+    ? IsObject<ExtractObject<O[P]>> extends true
+      ? PartialObjectType<PartialObject<T[P], ExtractObject<O[P]>, V>, O[P]>
       : PartialObjectType<T[P], O[P]>
-    : IsObject<O[P]> extends true
+    : IsObject<ExtractObject<O[P]>> extends true
       ? ArrayType<T[P]> extends AnyObject
-        ? PartialObject<ArrayType<T[P]>, O[P], V>[]
+        ? PartialObjectType<PartialObject<ArrayType<T[P]>, ExtractObject<O[P]>, V>[], O[P]>
         : PartialObjectType<T[P], O[P]>
       : PartialObjectType<T[P], O[P]>;
 }>;
@@ -155,7 +160,7 @@ export type PartialObject<T extends AnyObject, O extends AnyObject, V extends bo
  * Helper type to determine if the given type `T` can be undefined when `U` is `true`,
  * otherwise `T` can't be undefined.
  */
-type PartialObjectType<T, U> = boolean extends NonNullable<U> ? T | undefined : T;
+type PartialObjectType<T, U> = U extends false ? T | undefined : T;
 
 /**
  * Helper type to determine if a property exists or not in a `PartialObject`.
@@ -167,7 +172,7 @@ type PartialObjectType<T, U> = boolean extends NonNullable<U> ? T | undefined : 
 type PartialObjectProperty<T, K, V> =
   IsUnknown<T> extends true
     ? never
-    : IsObject<T> extends true
+    : IsObject<ExtractObject<T>> extends true
       ? K
       : T extends true
         ? V extends true

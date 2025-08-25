@@ -18,6 +18,10 @@ export declare class TestDatabase extends Database.Service {
         foo: string;
         bar: number;
         baz: string;
+        qux: {
+          quxFoo: number;
+          quxBar: string;
+        };
       };
     }
   ];
@@ -33,7 +37,10 @@ export const testSelectConditional = async ({ selfClient }: Service.Context<Test
     select: {
       foo: flag,
       bar: true,
-      baz: false
+      baz: false,
+      qux: flag && {
+        quxBar: true
+      }
     },
     where: {
       id: 'abc'
