@@ -17,6 +17,11 @@ export type IsNullable<T> = null extends T ? true : false;
 export type IsUndefined<T> = undefined extends T ? true : false;
 
 /**
+ * Given a type `T`, it returns `true` when `T` is `unknown`, otherwise it returns `false`.
+ */
+export type IsUnknown<T> = unknown extends T ? (T extends unknown ? true : false) : false;
+
+/**
  * Given a type `T`, it returns `true` when `T` can be `null` or `undefined`, and `false`
  * otherwise.
  */
@@ -40,13 +45,13 @@ export type MergeType<T, U> =
   IsObject<T> extends true
     ? IsObject<U> extends true
       ? MergeObject<NonNullable<T>, NonNullable<U>>
-      : U extends unknown[]
-        ? MergeArray<T[], U>
+      : NonNullable<U> extends unknown[]
+        ? MergeArray<NonNullable<T>[], NonNullable<U>>
         : T | U
-    : T extends unknown[]
-      ? U extends unknown[]
-        ? MergeArray<T, U>
-        : MergeArray<T, U[]>
-      : U extends unknown[]
-        ? MergeArray<T[], U>
+    : NonNullable<T> extends unknown[]
+      ? NonNullable<U> extends unknown[]
+        ? MergeArray<NonNullable<T>, NonNullable<U>>
+        : MergeArray<NonNullable<T>, U[]>
+      : NonNullable<U> extends unknown[]
+        ? MergeArray<NonNullable<T>[], NonNullable<U>>
         : T | U;

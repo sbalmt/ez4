@@ -1,30 +1,10 @@
+import type { IsAny, IsUndefined, IsUnknown, MergeType } from '../common/generics.js';
 import type { ArrayType, IsArray } from '../array/generics.js';
-import type { IsAny, MergeType } from '../common/generics.js';
 
 /**
  * A type to represent any object.
  */
 export type AnyObject = Record<any, any>;
-
-/**
- * Given an object type `T`, it returns `true` when `T` is an empty object, otherwise returns `false`.
- */
-export type IsObjectEmpty<T extends AnyObject> =
-  IsAny<T> extends true ? true : keyof T extends never ? true : string extends keyof T ? true : false;
-
-/**
- * Given an object type `T`, it returns `true` when `T` is an object, otherwise returns `false`.
- */
-export type IsObject<T> =
-  IsAny<T> extends true
-    ? false
-    : IsArray<T> extends true
-      ? false
-      : NonNullable<T> extends AnyObject
-        ? NonNullable<T> extends Array<any> | Function | RegExp | Date | Error | Map<any, any> | Set<any>
-          ? false
-          : true
-        : false;
 
 /**
  * Given an object type `T`, it produces a new object type allowing its original type, `undefined`
@@ -50,6 +30,31 @@ export type PropertyExists<P, T extends AnyObject> = P extends keyof T ? true : 
 export type PropertyType<P, T extends AnyObject> = P extends keyof T ? T[P] : never;
 
 /**
+ * Given a type `T`, is produces a union containing all inner types.
+ */
+export type InnerTypes<T> = IsObject<T> extends true ? InnerTypes<T[keyof T]> : T;
+
+/**
+ * Given an object type `T`, it returns `true` when `T` is an empty object, otherwise returns `false`.
+ */
+export type IsObjectEmpty<T extends AnyObject> =
+  IsAny<T> extends true ? true : keyof T extends never ? true : string extends keyof T ? true : false;
+
+/**
+ * Given an object type `T`, it returns `true` when `T` is an object, otherwise returns `false`.
+ */
+export type IsObject<T> =
+  IsAny<T> extends true
+    ? false
+    : IsArray<T> extends true
+      ? false
+      : NonNullable<T> extends AnyObject
+        ? NonNullable<T> extends Array<any> | Function | RegExp | Date | Error | Map<any, any> | Set<any>
+          ? false
+          : true
+        : false;
+
+/**
  * Given a type `T`, it produces a new `T` type that doesn't contain array types.
  */
 export type FlatObject<T extends AnyObject> = {
@@ -66,7 +71,15 @@ export type FlatObject<T extends AnyObject> = {
  * Given the object types `T` and `U`, it produces a new object type merging both types.
  */
 export type MergeObject<T extends AnyObject, U extends AnyObject> = {
-  [P in keyof T | keyof U]: P extends keyof T ? (P extends keyof U ? MergeType<T[P], U[P]> : T[P]) : P extends keyof U ? U[P] : never;
+  [P in keyof T | keyof U]: P extends keyof T
+    ? P extends keyof U
+      ? P extends RequiredProperties<T> | RequiredProperties<U>
+        ? MergeType<T[P], U[P]>
+        : MergeType<T[P], U[P]> | undefined
+      : T[P]
+    : P extends keyof U
+      ? U[P]
+      : never;
 };
 
 /**
@@ -86,6 +99,20 @@ export type StrictObject<T, U extends AnyObject> =
     : IsObject<T> extends true
       ? { [P in keyof T]: P extends keyof U ? StrictObject<T[P], NonNullable<U[P]>> : never }
       : T;
+
+/**
+ * Given an object type `T`, it produces all the required properties from the object.
+ */
+export type RequiredProperties<T extends AnyObject> = keyof {
+  [P in keyof T as IsUndefined<T[P]> extends true ? never : P]: true;
+};
+
+/**
+ * Given an object type `T`, it produces all the optional properties from the object.
+ */
+export type OptionalProperties<T extends AnyObject> = keyof {
+  [P in keyof T as IsUndefined<T[P]> extends true ? P : never]: true;
+};
 
 /**
  * Given a type `T`, it produces a new type allowing only `boolean` as its property values.
@@ -116,13 +143,19 @@ export type PartialObject<T extends AnyObject, O extends AnyObject, V extends bo
   [P in keyof T as PartialObjectProperty<O[P], P, V>]: IsArray<T[P]> extends false
     ? IsObject<O[P]> extends true
       ? PartialObject<T[P], O[P], V>
-      : T[P]
+      : PartialObjectType<T[P], O[P]>
     : IsObject<O[P]> extends true
       ? ArrayType<T[P]> extends AnyObject
         ? PartialObject<ArrayType<T[P]>, O[P], V>[]
-        : T[P]
-      : T[P];
+        : PartialObjectType<T[P], O[P]>
+      : PartialObjectType<T[P], O[P]>;
 }>;
+
+/**
+ * Helper type to determine if the given type `T` can be undefined when `U` is `true`,
+ * otherwise `T` can't be undefined.
+ */
+type PartialObjectType<T, U> = boolean extends NonNullable<U> ? T | undefined : T;
 
 /**
  * Helper type to determine if a property exists or not in a `PartialObject`.
@@ -131,9 +164,15 @@ export type PartialObject<T extends AnyObject, O extends AnyObject, V extends bo
  * - When the given `T` is `false` or not an object, it returns `K` if `V` is also false.
  * - In any other case, it returns `never`.
  */
-type PartialObjectProperty<T, K, V> = T extends AnyObject ? K : T extends true ? (V extends true ? K : never) : V extends true ? never : K;
-
-/**
- * Given a type `T`, is produces a union containing all inner types.
- */
-export type InnerTypes<T> = IsObject<T> extends true ? InnerTypes<T[keyof T]> : T;
+type PartialObjectProperty<T, K, V> =
+  IsUnknown<T> extends true
+    ? never
+    : IsObject<T> extends true
+      ? K
+      : T extends true
+        ? V extends true
+          ? K
+          : never
+        : V extends true
+          ? never
+          : K;
