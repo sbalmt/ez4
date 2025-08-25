@@ -1,5 +1,7 @@
 import type { OptionalProperties, RequiredProperties } from '@ez4/utils';
 
+import { assertType } from '@ez4/utils';
+
 type BaseModel = {
   foo: number;
   bar?: boolean;
@@ -11,13 +13,20 @@ type BaseModel = {
   };
 };
 
-type RequiredModelProperties = RequiredProperties<BaseModel>;
-type OptionalModelProperties = OptionalProperties<BaseModel>;
-
 // Expect required properties.
-export const testA: RequiredModelProperties = 'foo';
-export const testB: RequiredModelProperties = 'qux';
+export const testA = () => {
+  type RequiredModelProperties = RequiredProperties<BaseModel>;
+
+  type ExpectedType = 'foo' | 'qux';
+
+  assertType<ExpectedType, RequiredModelProperties>(true);
+};
 
 // Expect optional properties.
-export const testC: OptionalModelProperties = 'bar';
-export const testD: OptionalModelProperties = 'baz';
+export const testB = () => {
+  type OptionalModelProperties = OptionalProperties<BaseModel>;
+
+  type ExpectedType = 'bar' | 'baz';
+
+  assertType<ExpectedType, OptionalModelProperties>(true);
+};

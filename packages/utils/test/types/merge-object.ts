@@ -1,5 +1,7 @@
 import type { MergeObject } from '@ez4/utils';
 
+import { assertType } from '@ez4/utils';
+
 type BaseModelA = {
   foo: number;
   baz: {
@@ -26,32 +28,57 @@ type BaseModelB = {
 
 type FullModel = MergeObject<BaseModelA, BaseModelB>;
 
-// Expect full model with arrays combined.
-export const testA: FullModel = {
-  foo: 123,
-  bar: ['abc'],
+type ExpectedType = {
+  foo: number;
   baz: {
-    barFoo: [true],
-    barBar: 456,
-    barBaz: [
-      {
-        barBazFoo: ['def', 789]
+    barFoo: boolean[];
+    barBar: string | number | undefined;
+    barBaz:
+      | {
+          barBazFoo: (string | number)[];
+        }[]
+      | undefined;
+  };
+  bar: string[] | undefined;
+  qux:
+    | {
+        quxFoo: boolean;
       }
-    ]
-  },
-  qux: {
-    quxFoo: false
-  }
+    | undefined;
+};
+
+assertType<ExpectedType, FullModel>(true);
+
+// Expect full model with arrays combined.
+export const testA = () => {
+  const test: FullModel = {
+    foo: 123,
+    bar: ['abc'],
+    baz: {
+      barFoo: [true],
+      barBar: 456,
+      barBaz: [
+        {
+          barBazFoo: ['def', 789]
+        }
+      ]
+    },
+    qux: {
+      quxFoo: false
+    }
+  };
 };
 
 // Expect full model with undefined values.
-export const testB: FullModel = {
-  foo: 123,
-  bar: undefined,
-  baz: {
-    barFoo: [false],
-    barBar: undefined,
-    barBaz: undefined
-  },
-  qux: undefined
+export const testB = () => {
+  const test: FullModel = {
+    foo: 123,
+    bar: undefined,
+    baz: {
+      barFoo: [false],
+      barBar: undefined,
+      barBaz: undefined
+    },
+    qux: undefined
+  };
 };
