@@ -60,41 +60,6 @@ export type IsObject<T> =
         : false;
 
 /**
- * Given a type `T`, it produces a new `T` type that doesn't contain array types.
- */
-export type FlatObject<T extends AnyObject> = {
-  [P in keyof T]: IsArray<T[P]> extends false
-    ? IsObject<T[P]> extends true
-      ? FlatObject<T[P]>
-      : T[P]
-    : IsObject<ArrayType<T[P]>> extends true
-      ? FlatObject<ArrayType<T[P]>>
-      : ArrayType<T[P]>;
-};
-
-/**
- * Given the object types `T` and `U`, it produces a new object type merging both types.
- */
-export type MergeObject<T extends AnyObject, U extends AnyObject> = {
-  [P in keyof T | keyof U]: P extends keyof T
-    ? P extends keyof U
-      ? P extends RequiredProperties<T> | RequiredProperties<U>
-        ? MergeType<T[P], U[P]>
-        : MergeType<T[P], U[P]> | undefined
-      : T[P]
-    : P extends keyof U
-      ? U[P]
-      : never;
-};
-
-/**
- * Given a type `T`, it produces a new `T` type having all properties set to optional.
- */
-export type OptionalObject<T extends AnyObject> = {
-  [P in keyof T]?: IsArray<T[P]> extends false ? (IsObject<T[P]> extends true ? OptionalObject<T[P]> : T[P]) : T[P];
-};
-
-/**
  * Given the types `T` and `U`, it produces a new object type ensuring only properties in
  * common with `U` type.
  */
@@ -104,6 +69,34 @@ export type StrictObject<T, U extends AnyObject> =
     : IsObject<T> extends true
       ? { [P in keyof T]: P extends keyof U ? StrictObject<T[P], NonNullable<U[P]>> : never }
       : T;
+
+/**
+ * Given a type `T`, it produces a new `T` type that doesn't contain array types.
+ */
+export type FlatObject<T extends AnyObject> = Prettify<{
+  [P in keyof T]: IsArray<T[P]> extends false
+    ? IsObject<T[P]> extends true
+      ? FlatObject<T[P]>
+      : T[P]
+    : IsObject<ArrayType<T[P]>> extends true
+      ? FlatObject<ArrayType<T[P]>>
+      : ArrayType<T[P]>;
+}>;
+
+/**
+ * Given the object types `T` and `U`, it produces a new object type merging both types.
+ */
+export type MergeObject<T extends AnyObject, U extends AnyObject> = Prettify<{
+  [P in keyof T | keyof U]: P extends keyof T
+    ? P extends keyof U
+      ? P extends RequiredProperties<T> | RequiredProperties<U>
+        ? MergeType<T[P], U[P]>
+        : MergeType<T[P], U[P]> | undefined
+      : T[P]
+    : P extends keyof U
+      ? U[P]
+      : never;
+}>;
 
 /**
  * Given an object type `T`, it produces all the required properties from the object.
@@ -128,11 +121,11 @@ export type OptionalProperties<T extends AnyObject> = keyof {
  */
 export type PartialProperties<T extends AnyObject> = {
   [P in keyof T]?: IsArray<T[P]> extends false
-    ? IsObject<T[P]> extends true
-      ? PartialProperties<NonNullable<T[P]>> | boolean
+    ? IsObject<ExtractObject<T[P]>> extends true
+      ? PartialProperties<ExtractObject<T[P]>> | boolean
       : boolean
-    : ArrayType<T[P]> extends AnyObject
-      ? PartialProperties<ArrayType<T[P]>> | boolean
+    : IsObject<ExtractObject<ArrayType<T[P]>>> extends true
+      ? PartialProperties<ExtractObject<ArrayType<T[P]>>> | boolean
       : boolean;
 };
 
@@ -155,6 +148,13 @@ export type PartialObject<T extends AnyObject, O extends AnyObject, V extends bo
         : PartialObjectType<T[P], O[P]>
       : PartialObjectType<T[P], O[P]>;
 }>;
+
+/**
+ * Given a type `T`, it produces a new `T` type having all properties set to optional.
+ */
+export type OptionalObject<T extends AnyObject> = {
+  [P in keyof T]?: IsArray<T[P]> extends false ? (IsObject<T[P]> extends true ? OptionalObject<T[P]> : T[P]) : T[P];
+};
 
 /**
  * Helper type to determine if the given type `T` can be undefined when `U` is `true`,
