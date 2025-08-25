@@ -765,7 +765,7 @@ describe('sql where tests', () => {
 
     assert.deepEqual(variables, [123, 456]);
 
-    assert.equal(statement, `SELECT * FROM "test" WHERE ("foo"['bar'] >= :0 AND "foo"['bar'] < :1)`);
+    assert.equal(statement, `SELECT * FROM "test" WHERE ("foo"['bar']::int >= :0 AND "foo"['bar']::int < :1)`);
   });
 
   it('assert :: where not', ({ assert }) => {
@@ -878,7 +878,7 @@ describe('sql where tests', () => {
     assert.equal(statement, `SELECT * FROM "test" AS "alias" WHERE "alias"."foo"['bar']['baz'] = :0`);
   });
 
-  it('assert :: where with multiple fields', ({ assert }) => {
+  it('assert :: where with multiple json fields', ({ assert }) => {
     const schema: ObjectSchema = {
       type: SchemaType.Object,
       properties: {
@@ -912,7 +912,7 @@ describe('sql where tests', () => {
 
     assert.deepEqual(variables, [123, 456]);
 
-    assert.equal(statement, `SELECT * FROM "test" AS "alias" WHERE ("alias"."foo"['bar'] = :0 AND "alias"."foo"['baz'] = :1)`);
+    assert.equal(statement, `SELECT * FROM "test" AS "alias" WHERE ("alias"."foo"['bar']::int = :0 AND "alias"."foo"['baz']::int = :1)`);
   });
 
   it('assert :: where with raw value', ({ assert }) => {

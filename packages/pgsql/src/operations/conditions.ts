@@ -1,11 +1,11 @@
-import type { AnySchema, ObjectSchema } from '@ez4/schema';
+import type { AnySchema } from '@ez4/schema';
 import type { SqlBuilderOptions, SqlBuilderReferences } from '../builder.js';
 import type { SqlOperationContext } from './types.js';
 import type { SqlFilters } from '../common/types.js';
 import type { SqlSource } from '../common/source.js';
 
+import { getSchemaProperty, isObjectSchema } from '@ez4/schema';
 import { isAnyObject, isEmptyObject } from '@ez4/utils';
-import { isObjectSchema } from '@ez4/schema';
 
 import { mergeSqlAlias, mergeSqlPath } from '../utils/merge.js';
 import { SqlSelectStatement } from '../statements/select.js';
@@ -78,7 +78,7 @@ export class SqlConditions {
   }
 }
 
-const getFilterOperations = (filters: SqlFilters, schema: ObjectSchema | undefined, context: SqlOperationContext) => {
+const getFilterOperations = (filters: SqlFilters, schema: AnySchema | undefined, context: SqlOperationContext) => {
   const allOperations = [];
 
   for (const field in filters) {
@@ -101,7 +101,7 @@ const getFilterOperations = (filters: SqlFilters, schema: ObjectSchema | undefin
 const getFieldOperation = (
   field: string,
   value: unknown,
-  schema: ObjectSchema | undefined,
+  schema: AnySchema | undefined,
   context: SqlOperationContext
 ): string | undefined => {
   const { source, parent } = context;
@@ -126,7 +126,7 @@ const getFieldOperation = (
         return getExistsOperation(columnPath, value, context);
       }
 
-      const columnSchema = schema?.properties[field];
+      const columnSchema = schema ? getSchemaProperty(schema, field) : undefined;
 
       if (value instanceof SqlRawValue || value instanceof SqlColumnReference || !isAnyObject(value)) {
         return getEqualOperation(columnPath, columnSchema, value, context);
@@ -167,9 +167,7 @@ const getSingleOperation = (column: string, schema: AnySchema | undefined, opera
   const finalOperation = getFinalOperation(column, schema, operation, context);
 
   if (!finalOperation) {
-    const nestedSchema = schema && isObjectSchema(schema) ? schema : undefined;
-
-    const allOperation = getFilterOperations({ [operation[0]]: operation[1] }, nestedSchema, {
+    const allOperation = getFilterOperations({ [operation[0]]: operation[1] }, schema, {
       ...context,
       parent: column
     });
@@ -247,7 +245,7 @@ const getFinalOperation = (column: string, schema: AnySchema | undefined, operat
   return undefined;
 };
 
-const getNegateOperations = (value: unknown, schema: ObjectSchema | undefined, context: SqlOperationContext) => {
+const getNegateOperations = (value: unknown, schema: AnySchema | undefined, context: SqlOperationContext) => {
   if (!isAnyObject(value)) {
     throw new InvalidOperandError();
   }
@@ -261,7 +259,7 @@ const getNegateOperations = (value: unknown, schema: ObjectSchema | undefined, c
   return undefined;
 };
 
-const getLogicalOperations = (field: string, value: unknown, schema: ObjectSchema | undefined, context: SqlOperationContext) => {
+const getLogicalOperations = (field: string, value: unknown, schema: AnySchema | undefined, context: SqlOperationContext) => {
   if (!Array.isArray(value)) {
     throw new InvalidOperandError();
   }

@@ -1,4 +1,4 @@
-import type { ObjectSchema } from '../types/type-object.js';
+import type { ObjectSchema, ObjectSchemaProperty } from '../types/type-object.js';
 import type { UnionSchema } from '../types/type-union.js';
 import type { ArraySchema } from '../types/type-array.js';
 import type { TupleSchema } from '../types/type-tuple.js';
@@ -6,7 +6,7 @@ import type { AnySchema } from '../types/type-any.js';
 
 import { deepMerge } from '@ez4/utils';
 
-import { isObjectSchema } from '../types/type-object.js';
+import { getObjectSchemaProperty, isObjectSchema } from '../types/type-object.js';
 import { isUnionSchema } from '../types/type-union.js';
 
 export type SchemaProperties = {
@@ -23,6 +23,24 @@ export const hasSchemaProperty = (schema: AnySchema, property: string): boolean 
   }
 
   return false;
+};
+
+export const getSchemaProperty = (schema: AnySchema, propertyName: string): ObjectSchemaProperty | undefined => {
+  if (isObjectSchema(schema)) {
+    return getObjectSchemaProperty(schema, propertyName);
+  }
+
+  if (isUnionSchema(schema)) {
+    for (const element of schema.elements) {
+      const property = getSchemaProperty(element, propertyName);
+
+      if (property) {
+        return property;
+      }
+    }
+  }
+
+  return undefined;
 };
 
 export const getObjectSchemaProperties = (schema: ObjectSchema) => {
