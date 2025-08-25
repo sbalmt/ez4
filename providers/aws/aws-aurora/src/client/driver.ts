@@ -18,10 +18,13 @@ import { parseRecords } from '@ez4/pgclient';
 
 import { setTimeout } from 'node:timers/promises';
 
-import { logQueryError, logQuerySuccess } from './logger.js';
 import { detectFieldData, prepareFieldData } from './fields.js';
+import { logQueryError, logQuerySuccess } from './logger.js';
 
-const client = new RDSDataClient();
+const client = new RDSDataClient({
+  retryMode: 'adaptive',
+  maxAttempts: 10
+});
 
 export type DataClientConnection = {
   resourceArn: Arn;
