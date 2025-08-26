@@ -141,8 +141,10 @@ const getTimeFieldData = (name: string, value: string): FieldParameter => {
 };
 
 const getDateTimeFieldData = (name: string, value: string): FieldParameter => {
-  const date = value.substring(0, 10);
-  const time = value.substring(11, 23);
+  const isoDate = new Date(value).toISOString();
+
+  const date = isoDate.substring(0, 10);
+  const time = isoDate.substring(11, 19);
 
   return {
     ...getTextFieldData(name, `${date} ${time}`),
