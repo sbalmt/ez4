@@ -7,9 +7,9 @@ import type { TableSchemas } from './schemas.js';
  * Internal relation type.
  */
 export type RelationMetadata = {
-  filters: Record<string, AnyObject>;
-  selects: Record<string, AnyObject>;
-  changes: Record<string, AnyObject>;
+  filters: Record<string, AnyObject | undefined>;
+  selects: Record<string, AnyObject | undefined>;
+  changes: Record<string, AnyObject | undefined>;
   records: Record<string, AnyObject | undefined>;
   indexes: string;
 };

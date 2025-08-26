@@ -133,7 +133,7 @@ export namespace Query {
       ? never
       : {
           [P in keyof T['relations']['filters']]?: P extends keyof S
-            ? StrictIncludeRelation<T['relations']['filters'][P], T['engine']>
+            ? StrictIncludeRelation<NonNullable<T['relations']['filters'][P]>, T['engine']>
             : never;
         };
 
