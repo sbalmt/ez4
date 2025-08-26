@@ -1,7 +1,7 @@
 import type { Table as DbTable, Query } from '@ez4/database';
 import type { AnyObject, IsArray } from '@ez4/utils';
 import type { ObjectSchema } from '@ez4/schema';
-import type { RepositoryRelationsWithSchema } from '../types/repository.js';
+import type { PgRelationRepositoryWithSchema } from '../types/repository.js';
 import type { PgClientDriver, PgExecuteStatement } from '../types/driver.js';
 import type { InternalTableMetadata } from '../types/table.js';
 
@@ -29,7 +29,7 @@ export class Table<T extends InternalTableMetadata> implements DbTable<T> {
   constructor(
     private name: string,
     private schema: ObjectSchema,
-    private relations: RepositoryRelationsWithSchema,
+    private relations: PgRelationRepositoryWithSchema,
     private context: TableContext
   ) {}
 

@@ -1,4 +1,4 @@
-import type { PostgresEngine, RepositoryRelationsWithSchema } from '@ez4/pgclient/library';
+import type { PostgresEngine, PgRelationRepositoryWithSchema } from '@ez4/pgclient/library';
 import type { Query, RelationMetadata } from '@ez4/database';
 
 import { describe, it } from 'node:test';
@@ -40,7 +40,7 @@ describe('insert primary relations', () => {
 
   const prepareRelationInsert = <S extends Query.SelectInput<TestTableMetadata>>(
     schema: ObjectSchema,
-    relations: RepositoryRelationsWithSchema,
+    relations: PgRelationRepositoryWithSchema,
     query: Query.InsertOneInput<S, TestTableMetadata>
   ) => {
     const builder = new SqlBuilder();
@@ -94,7 +94,7 @@ describe('insert primary relations', () => {
     };
   };
 
-  const getSingleTestRelation = (): RepositoryRelationsWithSchema => {
+  const getSingleTestRelation = (): PgRelationRepositoryWithSchema => {
     return {
       [`${testTableName}.primary_to_secondary`]: {
         targetAlias: 'primary_to_secondary',
@@ -109,7 +109,7 @@ describe('insert primary relations', () => {
     };
   };
 
-  const getMultipleTestRelation = (): RepositoryRelationsWithSchema => {
+  const getMultipleTestRelation = (): PgRelationRepositoryWithSchema => {
     const baseRelation = {
       targetIndex: Index.Secondary,
       targetTable: testTableName,

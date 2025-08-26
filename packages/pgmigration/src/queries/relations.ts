@@ -1,6 +1,6 @@
-import type { PgRelationRepository } from '@ez4/pgclient/library';
+import type { PgRelationMetadata, PgRelationRepository } from '@ez4/pgclient/library';
 import type { ObjectSchema } from '@ez4/schema';
-import type { AnyObject, ObjectComparison } from '@ez4/utils';
+import type { ObjectComparison } from '@ez4/utils';
 import type { SqlBuilder } from '@ez4/pgsql';
 
 import { getTableName } from '@ez4/pgclient/library';
@@ -121,12 +121,12 @@ export namespace RelationQuery {
     return builder.table(table).alter().existing().constraint(name).drop().existing();
   };
 
-  const getCreateQuery = (builder: SqlBuilder, table: string, name: string, relation: AnyObject, optional: boolean) => {
-    const { sourceAlias, sourceColumn, targetColumn } = relation;
+  const getCreateQuery = (builder: SqlBuilder, table: string, name: string, relation: PgRelationMetadata, optional: boolean) => {
+    const { sourceTable, sourceColumn, targetColumn } = relation;
 
-    const sourceTable = getTableName(sourceAlias);
+    const sourceTableName = getTableName(sourceTable);
 
-    const query = builder.table(table).alter().existing().constraint(name).foreign(targetColumn, sourceTable, [sourceColumn]);
+    const query = builder.table(table).alter().existing().constraint(name).foreign(targetColumn, sourceTableName, [sourceColumn]);
 
     if (!optional) {
       query.delete().cascade();

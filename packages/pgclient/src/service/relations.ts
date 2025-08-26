@@ -1,9 +1,9 @@
-import type { PgTableRepository, PgRelationRepository, RepositoryRelationsWithSchema } from '../types/repository.js';
+import type { PgTableRepository, PgRelationRepository, PgRelationRepositoryWithSchema } from '../types/repository.js';
 
 import { MissingRepositoryTableError } from '@ez4/pgclient';
 
 export const getRelationsWithSchema = (tableName: string, repository: PgTableRepository) => {
-  const relationsWithSchema: RepositoryRelationsWithSchema = {};
+  const relationsWithSchema: PgRelationRepositoryWithSchema = {};
   const tableAliasCache = new Set<string>();
 
   const buildRelationsWithSchema = (tableName: string, relations: PgRelationRepository) => {

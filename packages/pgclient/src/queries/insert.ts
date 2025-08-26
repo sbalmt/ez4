@@ -3,7 +3,7 @@ import type { SqlParameter } from '@aws-sdk/client-rds-data';
 import type { ObjectSchema } from '@ez4/schema';
 import type { AnyObject } from '@ez4/utils';
 import type { Query } from '@ez4/database';
-import type { RelationWithSchema, RepositoryRelationsWithSchema } from '../types/repository.js';
+import type { PgRelationWithSchema, PgRelationRepositoryWithSchema } from '../types/repository.js';
 import type { InternalTableMetadata } from '../types/table.js';
 
 import { InvalidRelationFieldError, MissingFieldSchemaError } from '@ez4/pgclient';
@@ -26,14 +26,14 @@ import { getDefaultSelectFields, getFieldColumn, getSelectFields } from './selec
 
 type InsertRelationsCache = Record<string, InsertRelationEntry>;
 
-type InsertRelationEntry = RelationWithSchema & {
+type InsertRelationEntry = PgRelationWithSchema & {
   relationQueries: SqlInsertStatement[];
 };
 
 export const prepareInsertQuery = async <T extends InternalTableMetadata, S extends Query.SelectInput<T>>(
   table: string,
   schema: ObjectSchema,
-  relations: RepositoryRelationsWithSchema,
+  relations: PgRelationRepositoryWithSchema,
   query: Query.InsertOneInput<S, T>,
   builder: SqlBuilder
 ): Promise<[string, SqlParameter[]]> => {
@@ -77,7 +77,7 @@ export const prepareInsertQuery = async <T extends InternalTableMetadata, S exte
 const getInsertRecord = async (
   data: SqlRecord,
   schema: ObjectSchema,
-  relations: RepositoryRelationsWithSchema,
+  relations: PgRelationRepositoryWithSchema,
   relationsCache: InsertRelationsCache,
   path: string
 ) => {
@@ -192,7 +192,7 @@ const getInsertRecord = async (
 const preparePreInsertRelations = (
   builder: SqlBuilder,
   data: Query.InsertDataInput<InternalTableMetadata>,
-  relations: RepositoryRelationsWithSchema,
+  relations: PgRelationRepositoryWithSchema,
   table: string
 ) => {
   const allQueries: InsertRelationsCache = {};
@@ -255,7 +255,7 @@ const preparePreInsertRelations = (
 const preparePostInsertRelations = (
   builder: SqlBuilder,
   data: Query.InsertDataInput<InternalTableMetadata>,
-  relations: RepositoryRelationsWithSchema,
+  relations: PgRelationRepositoryWithSchema,
   source: SqlSourceWithResults,
   table: string
 ) => {

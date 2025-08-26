@@ -1,6 +1,6 @@
 import type { ObjectSchema } from '@ez4/schema';
 import type { Query } from '@ez4/database';
-import type { RepositoryRelationsWithSchema } from '../types/repository.js';
+import type { PgRelationRepositoryWithSchema } from '../types/repository.js';
 import type { PgClientDriver, PgExecuteStatement } from '../types/driver.js';
 import type { InternalTableMetadata } from '../types/table.js';
 
@@ -15,7 +15,7 @@ import { prepareCountQuery } from './count.js';
 export const prepareInsertOne = async <T extends InternalTableMetadata, S extends Query.SelectInput<T>>(
   table: string,
   schema: ObjectSchema,
-  relations: RepositoryRelationsWithSchema,
+  relations: PgRelationRepositoryWithSchema,
   driver: PgClientDriver,
   query: Query.InsertOneInput<S, T>
 ): Promise<PgExecuteStatement> => {
@@ -37,7 +37,7 @@ export const prepareInsertOne = async <T extends InternalTableMetadata, S extend
 export const prepareFindOne = <T extends InternalTableMetadata, S extends Query.SelectInput<T>>(
   table: string,
   schema: ObjectSchema,
-  relations: RepositoryRelationsWithSchema,
+  relations: PgRelationRepositoryWithSchema,
   driver: PgClientDriver,
   query: Query.FindOneInput<S, T>
 ) => {
@@ -59,7 +59,7 @@ export const prepareFindOne = <T extends InternalTableMetadata, S extends Query.
 export const prepareUpdateOne = async <T extends InternalTableMetadata, S extends Query.SelectInput<T>>(
   table: string,
   schema: ObjectSchema,
-  relations: RepositoryRelationsWithSchema,
+  relations: PgRelationRepositoryWithSchema,
   driver: PgClientDriver,
   query: Query.UpdateOneInput<S, T>
 ) => {
@@ -81,7 +81,7 @@ export const prepareUpdateOne = async <T extends InternalTableMetadata, S extend
 export const prepareDeleteOne = <T extends InternalTableMetadata, S extends Query.SelectInput<T>>(
   table: string,
   schema: ObjectSchema,
-  relations: RepositoryRelationsWithSchema,
+  relations: PgRelationRepositoryWithSchema,
   driver: PgClientDriver,
   query: Query.DeleteOneInput<S, T>
 ) => {
@@ -103,7 +103,7 @@ export const prepareDeleteOne = <T extends InternalTableMetadata, S extends Quer
 export const prepareInsertMany = async <T extends InternalTableMetadata>(
   table: string,
   schema: ObjectSchema,
-  relations: RepositoryRelationsWithSchema,
+  relations: PgRelationRepositoryWithSchema,
   driver: PgClientDriver,
   query: Query.InsertManyInput<T>
 ) => {
@@ -129,7 +129,7 @@ export const prepareInsertMany = async <T extends InternalTableMetadata>(
 export const prepareFindMany = <T extends InternalTableMetadata, S extends Query.SelectInput<T>, C extends boolean>(
   table: string,
   schema: ObjectSchema,
-  relations: RepositoryRelationsWithSchema,
+  relations: PgRelationRepositoryWithSchema,
   driver: PgClientDriver,
   query: Query.FindManyInput<S, C, T>
 ) => {
@@ -151,7 +151,7 @@ export const prepareFindMany = <T extends InternalTableMetadata, S extends Query
 export const prepareUpdateMany = async <T extends InternalTableMetadata, S extends Query.SelectInput<T>>(
   table: string,
   schema: ObjectSchema,
-  relations: RepositoryRelationsWithSchema,
+  relations: PgRelationRepositoryWithSchema,
   driver: PgClientDriver,
   query: Query.UpdateManyInput<S, T>
 ) => {
@@ -173,7 +173,7 @@ export const prepareUpdateMany = async <T extends InternalTableMetadata, S exten
 export const prepareDeleteMany = <T extends InternalTableMetadata, S extends Query.SelectInput<T>>(
   table: string,
   schema: ObjectSchema,
-  relations: RepositoryRelationsWithSchema,
+  relations: PgRelationRepositoryWithSchema,
   driver: PgClientDriver,
   query: Query.DeleteManyInput<S, T>
 ) => {
@@ -195,7 +195,7 @@ export const prepareDeleteMany = <T extends InternalTableMetadata, S extends Que
 export const prepareCount = <T extends InternalTableMetadata>(
   table: string,
   schema: ObjectSchema,
-  relations: RepositoryRelationsWithSchema,
+  relations: PgRelationRepositoryWithSchema,
   driver: PgClientDriver,
   query: Query.CountInput<T>
 ) => {

@@ -1,5 +1,5 @@
 import type { ObjectSchema } from '@ez4/schema';
-import type { RelationWithSchema } from '../types/repository.js';
+import type { PgRelationWithSchema } from '../types/repository.js';
 
 import { deepClone, isAnyObject } from '@ez4/utils';
 import { SchemaType } from '@ez4/schema';
@@ -16,7 +16,7 @@ export const isRelationalData = (value: unknown): boolean => {
   return isSingleRelationData(value) || isMultipleRelationData(value);
 };
 
-export const getSourceCreationSchema = (schema: ObjectSchema, relation: RelationWithSchema) => {
+export const getSourceCreationSchema = (schema: ObjectSchema, relation: PgRelationWithSchema) => {
   const relationSchema = deepClone(schema, { depth: 2 });
 
   delete relationSchema.properties[relation.sourceColumn];
@@ -24,7 +24,7 @@ export const getSourceCreationSchema = (schema: ObjectSchema, relation: Relation
   return relationSchema;
 };
 
-export const getSourceConnectionSchema = (schema: ObjectSchema, relation: RelationWithSchema): ObjectSchema => {
+export const getSourceConnectionSchema = (schema: ObjectSchema, relation: PgRelationWithSchema): ObjectSchema => {
   const { sourceColumn } = relation;
 
   return {
@@ -35,7 +35,7 @@ export const getSourceConnectionSchema = (schema: ObjectSchema, relation: Relati
   };
 };
 
-export const getTargetCreationSchema = (schema: ObjectSchema, relation: RelationWithSchema) => {
+export const getTargetCreationSchema = (schema: ObjectSchema, relation: PgRelationWithSchema) => {
   const relationSchema = deepClone(schema, { depth: 2 });
 
   delete relationSchema.properties[relation.targetColumn];
@@ -43,7 +43,7 @@ export const getTargetCreationSchema = (schema: ObjectSchema, relation: Relation
   return relationSchema;
 };
 
-export const getTargetConnectionSchema = (schema: ObjectSchema, relation: RelationWithSchema): ObjectSchema => {
+export const getTargetConnectionSchema = (schema: ObjectSchema, relation: PgRelationWithSchema): ObjectSchema => {
   const { targetColumn } = relation;
 
   return {

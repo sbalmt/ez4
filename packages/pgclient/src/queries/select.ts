@@ -3,7 +3,7 @@ import type { SqlParameter } from '@aws-sdk/client-rds-data';
 import type { AnySchema, ObjectSchema } from '@ez4/schema';
 import type { AnyObject } from '@ez4/utils';
 import type { Query } from '@ez4/database';
-import type { RepositoryRelationsWithSchema } from '../types/repository.js';
+import type { PgRelationRepositoryWithSchema } from '../types/repository.js';
 import type { InternalTableMetadata } from '../types/table.js';
 
 import { InvalidRelationFieldError, MissingFieldSchemaError } from '@ez4/pgclient';
@@ -21,7 +21,7 @@ const FORMATS: Record<string, string> = {
 export const prepareSelectQuery = <T extends InternalTableMetadata, S extends Query.SelectInput<T>, C extends boolean>(
   table: string,
   schema: ObjectSchema,
-  relations: RepositoryRelationsWithSchema,
+  relations: PgRelationRepositoryWithSchema,
   query: Query.FindOneInput<S, T> | Query.FindManyInput<S, C, T>,
   builder: SqlBuilder
 ): [string, SqlParameter[]] => {
@@ -59,7 +59,7 @@ export const getSelectFields = <T extends InternalTableMetadata, S extends AnyOb
   fields: Query.StrictSelectInput<S, T>,
   include: Query.StrictIncludeInput<S, T> | undefined | null,
   schema: ObjectSchema,
-  relations: RepositoryRelationsWithSchema,
+  relations: PgRelationRepositoryWithSchema,
   source: SqlSource,
   path: string,
   json?: boolean
@@ -174,7 +174,7 @@ export const getSelectFields = <T extends InternalTableMetadata, S extends AnyOb
 export const getSelectFilters = (
   builder: SqlBuilder,
   filters: SqlFilters,
-  relations: RepositoryRelationsWithSchema,
+  relations: PgRelationRepositoryWithSchema,
   source: SqlSource,
   path: string
 ) => {

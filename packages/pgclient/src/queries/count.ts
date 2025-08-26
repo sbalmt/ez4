@@ -2,7 +2,7 @@ import type { SqlParameter } from '@aws-sdk/client-rds-data';
 import type { ObjectSchema } from '@ez4/schema';
 import type { SqlBuilder } from '@ez4/pgsql';
 import type { Query } from '@ez4/database';
-import type { RepositoryRelationsWithSchema } from '../types/repository.js';
+import type { PgRelationRepositoryWithSchema } from '../types/repository.js';
 import type { InternalTableMetadata } from '../types/table.js';
 
 import { getSelectFilters } from './select.js';
@@ -10,7 +10,7 @@ import { getSelectFilters } from './select.js';
 export const prepareCountQuery = <T extends InternalTableMetadata>(
   table: string,
   schema: ObjectSchema,
-  relations: RepositoryRelationsWithSchema,
+  relations: PgRelationRepositoryWithSchema,
   query: Query.CountInput<T>,
   builder: SqlBuilder
 ): [string, SqlParameter[]] => {

@@ -2,7 +2,7 @@ import type { PgTableRepository } from '@ez4/pgclient/library';
 import type { AnySchema, ObjectSchema } from '@ez4/schema';
 
 import { deepEqual, deepCompareObject, isAnyObject } from '@ez4/utils';
-import { isRepositoryTable } from '@ez4/pgclient/library';
+import { isTableMetadata } from '@ez4/pgclient/library';
 import { isAnySchema } from '@ez4/schema';
 
 export const getTableRepositoryChanges = (target: PgTableRepository, source: PgTableRepository) => {
@@ -12,7 +12,7 @@ export const getTableRepositoryChanges = (target: PgTableRepository, source: PgT
         return false;
       }
 
-      if (isRepositoryTable(target) && isRepositoryTable(source)) {
+      if (isTableMetadata(target) && isTableMetadata(source)) {
         return canRenameTable(target.schema, source.schema);
       }
 

@@ -3,7 +3,7 @@ import type { NumberSchema, ObjectSchema } from '@ez4/schema';
 import type { SqlParameter } from '@aws-sdk/client-rds-data';
 import type { AnyObject } from '@ez4/utils';
 import type { Query } from '@ez4/database';
-import type { RelationWithSchema, RepositoryRelationsWithSchema } from '../types/repository.js';
+import type { PgRelationWithSchema, PgRelationRepositoryWithSchema } from '../types/repository.js';
 import type { InternalTableMetadata } from '../types/table.js';
 
 import { getObjectSchemaProperty, isNumberSchema, isObjectSchema } from '@ez4/schema';
@@ -18,7 +18,7 @@ import { getSelectFields, getSelectFilters } from './select.js';
 export const prepareUpdateQuery = async <T extends InternalTableMetadata, S extends Query.SelectInput<T>>(
   table: string,
   schema: ObjectSchema,
-  relations: RepositoryRelationsWithSchema,
+  relations: PgRelationRepositoryWithSchema,
   query: Query.UpdateOneInput<S, T> | Query.UpdateManyInput<S, T>,
   builder: SqlBuilder
 ): Promise<[string, SqlParameter[]]> => {
@@ -59,7 +59,7 @@ const getUpdateRecord = async (
   builder: SqlBuilder,
   data: SqlRecord,
   schema: ObjectSchema,
-  relations: RepositoryRelationsWithSchema,
+  relations: PgRelationRepositoryWithSchema,
   path: string
 ) => {
   const record: SqlRecord = {};
@@ -161,7 +161,7 @@ const getUpdateRecord = async (
 const preparePostUpdateRelations = async (
   builder: SqlBuilder,
   data: SqlRecord,
-  relations: RepositoryRelationsWithSchema,
+  relations: PgRelationRepositoryWithSchema,
   source: SqlSourceWithResults,
   table: string
 ) => {
@@ -209,10 +209,10 @@ const preparePostUpdateRelations = async (
 
 const getFullRelationTableUpdate = async (
   builder: SqlBuilder,
-  relations: RepositoryRelationsWithSchema,
+  relations: PgRelationRepositoryWithSchema,
   source: SqlSourceWithResults,
   fieldValue: AnyObject,
-  fieldRelation: RelationWithSchema,
+  fieldRelation: PgRelationWithSchema,
   fieldPath: string
 ) => {
   const targetColumn = fieldRelation.targetColumn;
