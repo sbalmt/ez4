@@ -6,22 +6,36 @@ import { createTransformContext } from '../types/context.js';
 import { transformAny } from './any.js';
 
 export const transformUnion = (value: unknown, schema: UnionSchema, context = createTransformContext()) => {
-  if (value === null || value === undefined) {
+  if (value === undefined) {
     return undefined;
   }
 
   let lastValue: unknown;
 
   for (const elementSchema of schema.elements) {
-    const result = transformAny(value, elementSchema, context);
+    const result = transformAny(value, elementSchema, {
+      ...context,
+      return: false
+    });
 
-    if (result !== undefined) {
-      if (isAnyObject(result) && isAnyObject(lastValue)) {
-        lastValue = deepMerge(lastValue, result);
-      } else if (lastValue === undefined) {
-        lastValue = result;
-      }
+    if (result === undefined) {
+      continue;
     }
+
+    if (isAnyObject(result) && isAnyObject(lastValue)) {
+      lastValue = deepMerge(lastValue, result);
+      continue;
+    }
+
+    if (!isAnyObject(result)) {
+      return result;
+    }
+
+    lastValue = result;
+  }
+
+  if (lastValue === undefined && context.return) {
+    return value;
   }
 
   return lastValue;

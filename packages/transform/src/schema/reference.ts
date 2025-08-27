@@ -5,7 +5,7 @@ import { createTransformContext } from '../types/context.js';
 import { transformObject } from './object.js';
 
 export const transformReference = (value: unknown, schema: ReferenceSchema, context = createTransformContext()) => {
-  if (value === null || value === undefined) {
+  if (value === undefined) {
     return undefined;
   }
 

@@ -11,10 +11,14 @@ import { transformAny } from './any.js';
 export const transformObject = (value: unknown, schema: ObjectSchema, context = createTransformContext()) => {
   const definitions = schema.definitions;
 
+  if (value === undefined) {
+    return definitions?.default;
+  }
+
   const objectValue = definitions?.encoded ? tryDecodeBase64Json(value) : value;
 
-  if (objectValue === null || objectValue === undefined || !isAnyObject(objectValue)) {
-    return definitions?.default;
+  if (!isAnyObject(objectValue)) {
+    return context.return ? value : undefined;
   }
 
   const { references, inputStyle, outputStyle } = context;
@@ -22,6 +26,8 @@ export const transformObject = (value: unknown, schema: ObjectSchema, context = 
   if (schema.identity) {
     references[schema.identity] = schema;
   }
+
+  const convert = definitions?.encoded ? false : context.convert;
 
   const allProperties = new Set(Object.keys(objectValue));
   const output: AnyObject = {};
@@ -31,7 +37,11 @@ export const transformObject = (value: unknown, schema: ObjectSchema, context = 
     const propertyName = getPropertyName(propertyKey, inputStyle);
 
     const rawValue = objectValue[propertyName];
-    const newValue = transformAny(rawValue, propertySchema, context);
+
+    const newValue = transformAny(rawValue, propertySchema, {
+      ...context,
+      convert
+    });
 
     const outputPropertyName = propertySchema.alias ?? getPropertyName(propertyKey, outputStyle);
 
@@ -49,7 +59,11 @@ export const transformObject = (value: unknown, schema: ObjectSchema, context = 
 
     for (const propertyName of allProperties) {
       const rawValue = objectValue[propertyName];
-      const newValue = transformAny(rawValue, propertySchema, context);
+
+      const newValue = transformAny(rawValue, propertySchema, {
+        ...context,
+        convert
+      });
 
       if (newValue !== undefined) {
         const outputPropertyName = getPropertyName(propertyName, outputStyle);

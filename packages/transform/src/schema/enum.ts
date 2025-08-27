@@ -1,10 +1,10 @@
 import type { EnumSchema } from '@ez4/schema';
 
-export const transformEnum = (value: unknown, schema: EnumSchema) => {
-  const { definitions } = schema;
+import { createTransformContext } from '../types/context.js';
 
-  if (value === null || value === undefined) {
-    return definitions?.default;
+export const transformEnum = (value: unknown, schema: EnumSchema, context = createTransformContext()) => {
+  if (value === undefined) {
+    return schema.definitions?.default;
   }
 
   for (const { value: enumValue } of schema.options) {
@@ -15,5 +15,9 @@ export const transformEnum = (value: unknown, schema: EnumSchema) => {
     }
   }
 
-  return definitions?.default;
+  if (!context.return) {
+    return undefined;
+  }
+
+  return value;
 };

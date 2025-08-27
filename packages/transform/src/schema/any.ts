@@ -38,6 +38,6 @@ export const transformAny = (value: unknown, schema: AnySchema, context = create
       return transformTuple(value, schema, context);
 
     case SchemaType.Enum:
-      return transformEnum(value, schema);
+      return transformEnum(value, schema, context);
   }
 };

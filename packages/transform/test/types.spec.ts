@@ -6,7 +6,7 @@ import { describe, it } from 'node:test';
 import { SchemaType } from '@ez4/schema';
 import { transform } from '@ez4/transform';
 
-describe('types transform', () => {
+describe('type transformation', () => {
   it('assert :: boolean', () => {
     const schema: AnySchema = {
       type: SchemaType.Boolean,
@@ -15,13 +15,13 @@ describe('types transform', () => {
 
     deepEqual(transform(true, schema), true);
     deepEqual(transform(false, schema), false);
+
     deepEqual(transform('false', schema), false);
     deepEqual(transform('true', schema), true);
 
-    deepEqual(transform('abc', schema), undefined);
-    deepEqual(transform(0, schema), undefined);
+    deepEqual(transform(0, schema), 0);
+    deepEqual(transform('abc', schema), 'abc');
     deepEqual(transform(undefined, schema), undefined);
-
     deepEqual(transform(null, schema), null);
   });
 
@@ -34,11 +34,12 @@ describe('types transform', () => {
     deepEqual(transform('123', schema), 123);
     deepEqual(transform('4.56', schema), 4.56);
 
-    deepEqual(transform('abc', schema), undefined);
-    deepEqual(transform(false, schema), undefined);
-    deepEqual(transform(true, schema), undefined);
-    deepEqual(transform(undefined, schema), undefined);
+    deepEqual(transform(789, schema), 789);
 
+    deepEqual(transform('abc', schema), 'abc');
+    deepEqual(transform(false, schema), false);
+    deepEqual(transform(true, schema), true);
+    deepEqual(transform(undefined, schema), undefined);
     deepEqual(transform(null, schema), null);
   });
 
@@ -53,12 +54,12 @@ describe('types transform', () => {
 
     deepEqual(transform('abc', schema), 'abc');
     deepEqual(transform(' def ', schema), 'def');
+
     deepEqual(transform(true, schema), 'true');
     deepEqual(transform(false, schema), 'false');
     deepEqual(transform(123, schema), '123');
 
     deepEqual(transform(undefined, schema), undefined);
-
     deepEqual(transform(null, schema), null);
   });
 
@@ -90,7 +91,6 @@ describe('types transform', () => {
     deepEqual(transform({ foo: 'true', bar: '123', baz: 'abc' }, schema), output);
 
     deepEqual(transform(undefined, schema), undefined);
-
     deepEqual(transform(null, schema), null);
   });
 
@@ -150,12 +150,14 @@ describe('types transform', () => {
       ]
     };
 
-    deepEqual(transform('false', schema), false);
     deepEqual(transform('abc', schema), 'abc');
+    deepEqual(transform('false', schema), false);
     deepEqual(transform('123', schema), 123);
 
-    deepEqual(transform(undefined, schema), undefined);
+    deepEqual(transform(true, schema), true);
+    deepEqual(transform(456, schema), 456);
 
+    deepEqual(transform(undefined, schema), undefined);
     deepEqual(transform(null, schema), null);
   });
 
@@ -169,11 +171,12 @@ describe('types transform', () => {
     };
 
     deepEqual(transform(['123', '4.56'], schema), [123, 4.56]);
+    deepEqual(transform([789], schema), [789]);
 
-    deepEqual(transform(['7.89', 'abc'], schema), [7.89, undefined]);
-    deepEqual(transform(123, schema), undefined);
+    deepEqual(transform(['7.89', 'abc'], schema), [7.89, 'abc']);
+
+    deepEqual(transform(123, schema), 123);
     deepEqual(transform(undefined, schema), undefined);
-
     deepEqual(transform(null, schema), null);
   });
 
@@ -192,11 +195,12 @@ describe('types transform', () => {
     };
 
     deepEqual(transform(['123', 'abc'], schema), [123, 'abc']);
+    deepEqual(transform([456, 'def'], schema), [456, 'def']);
 
-    deepEqual(transform(['true', '4.56'], schema), [undefined, '4.56']);
-    deepEqual(transform(123, schema), undefined);
+    deepEqual(transform(['true', '4.56'], schema), ['true', '4.56']);
+
+    deepEqual(transform(123, schema), 123);
     deepEqual(transform(undefined, schema), undefined);
-
     deepEqual(transform(null, schema), null);
   });
 
@@ -215,10 +219,12 @@ describe('types transform', () => {
     };
 
     deepEqual(transform('123', schema), 123);
+
     deepEqual(transform('abc', schema), 'abc');
+    deepEqual(transform(123, schema), 123);
 
+    deepEqual(transform(true, schema), true);
     deepEqual(transform(undefined, schema), undefined);
-
     deepEqual(transform(null, schema), null);
   });
 });

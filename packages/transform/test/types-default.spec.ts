@@ -6,7 +6,28 @@ import { describe, it } from 'node:test';
 import { SchemaType } from '@ez4/schema';
 import { createTransformContext, transform } from '@ez4/transform';
 
-describe('default types transform', () => {
+describe('default type transformation', () => {
+  it('assert :: boolean', () => {
+    const schema: AnySchema = {
+      type: SchemaType.Boolean,
+      definitions: {
+        default: true
+      }
+    };
+
+    // transform
+    deepEqual(transform('false', schema), false);
+    deepEqual(transform('true', schema), true);
+
+    // incompatible
+    deepEqual(transform(0, schema), 0);
+    deepEqual(transform('abc', schema), 'abc');
+    deepEqual(transform(null, schema), null);
+
+    // default
+    deepEqual(transform(undefined, schema), true);
+  });
+
   it('assert :: number', () => {
     const schema: AnySchema = {
       type: SchemaType.Number,
@@ -15,14 +36,18 @@ describe('default types transform', () => {
       }
     };
 
+    // transform
     deepEqual(transform('123', schema), 123);
     deepEqual(transform('4.56', schema), 4.56);
 
-    deepEqual(transform('abc', schema), 789);
-    deepEqual(transform(false, schema), 789);
-    deepEqual(transform(true, schema), 789);
+    // incompatible
+    deepEqual(transform('abc', schema), 'abc');
+    deepEqual(transform(false, schema), false);
+    deepEqual(transform(true, schema), true);
+    deepEqual(transform(null, schema), null);
+
+    // default
     deepEqual(transform(undefined, schema), 789);
-    deepEqual(transform(null, schema), 789);
   });
 
   it('assert :: string', () => {
@@ -35,23 +60,29 @@ describe('default types transform', () => {
 
     deepEqual(transform('abc', schema), 'abc');
 
-    // convert enabled
+    // transform
     deepEqual(transform(true, schema), 'true');
     deepEqual(transform(false, schema), 'false');
     deepEqual(transform(123, schema), '123');
-    deepEqual(transform(undefined, schema), 'foo');
-    deepEqual(transform(null, schema), 'foo');
 
-    // convert disabled
+    // incompatible
+    deepEqual(transform(null, schema), null);
+
+    // default
+    deepEqual(transform(undefined, schema), 'foo');
+
     const context = createTransformContext({
       convert: false
     });
 
-    deepEqual(transform(true, schema, context), 'foo');
-    deepEqual(transform(false, schema, context), 'foo');
-    deepEqual(transform(123, schema, context), 'foo');
+    // incompatible
+    deepEqual(transform(true, schema, context), true);
+    deepEqual(transform(false, schema, context), false);
+    deepEqual(transform(123, schema, context), 123);
+    deepEqual(transform(null, schema, context), null);
+
+    // default
     deepEqual(transform(undefined, schema, context), 'foo');
-    deepEqual(transform(null, schema, context), 'foo');
   });
 
   it('assert :: object', () => {
@@ -76,10 +107,14 @@ describe('default types transform', () => {
       }
     };
 
+    // transform
     deepEqual(transform({ foo: 'true', bar: '123', baz: 'abc' }, schema), output);
 
+    // incompatible
+    deepEqual(transform(null, schema), null);
+
+    // default
     deepEqual(transform(undefined, schema), output);
-    deepEqual(transform(null, schema), output);
   });
 
   it('assert :: array', () => {
@@ -93,13 +128,16 @@ describe('default types transform', () => {
       }
     };
 
+    // transform
     deepEqual(transform(['123', '4.56'], schema), [123, 4.56]);
 
-    deepEqual(transform(['7.89', 'abc'], schema), [7.89, undefined]);
+    // incompatible
+    deepEqual(transform(['7.89', 'abc'], schema), [7.89, 'abc']);
+    deepEqual(transform(123, schema), 123);
+    deepEqual(transform(null, schema), null);
 
-    deepEqual(transform(123, schema), [789, 10.1]);
+    // default
     deepEqual(transform(undefined, schema), [789, 10.1]);
-    deepEqual(transform(null, schema), [789, 10.1]);
   });
 
   it('assert :: tuple', () => {
@@ -118,13 +156,16 @@ describe('default types transform', () => {
       ]
     };
 
+    // transform
     deepEqual(transform(['123', 'abc'], schema), [123, 'abc']);
 
-    deepEqual(transform(['true', '4.56'], schema), [undefined, '4.56']);
+    // incompatible
+    deepEqual(transform(['true', '4.56'], schema), ['true', '4.56']);
+    deepEqual(transform(123, schema), 123);
+    deepEqual(transform(null, schema), null);
 
-    deepEqual(transform(123, schema), [456, 'def']);
+    // default
     deepEqual(transform(undefined, schema), [456, 'def']);
-    deepEqual(transform(null, schema), [456, 'def']);
   });
 
   it('assert :: enum', () => {
@@ -143,10 +184,14 @@ describe('default types transform', () => {
       ]
     };
 
+    // transform
     deepEqual(transform('123', schema), 123);
     deepEqual(transform('abc', schema), 'abc');
 
+    // incompatible
+    deepEqual(transform(null, schema), null);
+
+    // default
     deepEqual(transform(undefined, schema), 123);
-    deepEqual(transform(null, schema), 123);
   });
 });

@@ -3,6 +3,10 @@ import type { BooleanSchema } from '@ez4/schema';
 import { createTransformContext } from '../types/context.js';
 
 export const transformBoolean = (value: unknown, schema: BooleanSchema, context = createTransformContext()) => {
+  if (value === undefined) {
+    return schema.definitions?.default;
+  }
+
   if (typeof value === 'boolean') {
     return value;
   }
@@ -17,5 +21,9 @@ export const transformBoolean = (value: unknown, schema: BooleanSchema, context 
     }
   }
 
-  return schema.definitions?.default;
+  if (!context.return) {
+    return undefined;
+  }
+
+  return value;
 };

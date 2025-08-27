@@ -4,13 +4,21 @@ import { createTransformContext } from '../types/context.js';
 import { stringToArray } from '../utils/array.js';
 import { transformAny } from './any.js';
 
-export const transformTuple = (value: unknown, schema: TupleSchema, context = createTransformContext()): unknown[] | undefined => {
+export const transformTuple = (
+  value: unknown,
+  schema: TupleSchema,
+  context = createTransformContext()
+): unknown[] | unknown | undefined => {
+  if (value === undefined) {
+    return schema.definitions?.default;
+  }
+
   if (context.convert && typeof value === 'string') {
     return transformTuple(stringToArray(value), schema, context);
   }
 
   if (!Array.isArray(value)) {
-    return schema.definitions?.default;
+    return context.return ? value : undefined;
   }
 
   const output = [];

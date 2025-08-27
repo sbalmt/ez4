@@ -6,7 +6,7 @@ import { describe, it } from 'node:test';
 import { SchemaType } from '@ez4/schema';
 import { transform } from '@ez4/transform';
 
-describe('special types transform', () => {
+describe('special type transformation', () => {
   it('assert :: object (extensible properties)', () => {
     const schema: AnySchema = {
       type: SchemaType.Object,
@@ -49,7 +49,8 @@ describe('special types transform', () => {
 
     const output = {
       foo: 'abc',
-      bar: 123
+      bar: 123,
+      baz: 'def'
     };
 
     deepEqual(transform({ foo: 'abc', bar: '123', baz: 'def' }, schema), output);

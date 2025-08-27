@@ -3,6 +3,10 @@ import type { NumberSchema } from '@ez4/schema';
 import { createTransformContext } from '../types/context.js';
 
 export const transformNumber = (value: unknown, schema: NumberSchema, context = createTransformContext()) => {
+  if (value === undefined) {
+    return schema.definitions?.default;
+  }
+
   if (typeof value === 'number') {
     return value;
   }
@@ -15,5 +19,9 @@ export const transformNumber = (value: unknown, schema: NumberSchema, context = 
     }
   }
 
-  return schema.definitions?.default;
+  if (!context.return) {
+    return undefined;
+  }
+
+  return value;
 };
