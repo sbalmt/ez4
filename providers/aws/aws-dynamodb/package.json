@@ -61,6 +61,7 @@
     "@ez4/aws-function": "^0.26.0",
     "@ez4/aws-identity": "^0.26.0",
     "@ez4/aws-logs": "^0.26.0",
+    "@ez4/common": "^0.26.0",
     "@ez4/database": "^0.26.0",
     "@ez4/project": "^0.26.0",
     "@ez4/schema": "^0.26.0",

@@ -1,6 +1,8 @@
-export class MalformedMessageError extends Error {
-  constructor(public details: string[]) {
-    super('Malformed queue message payload.');
+import { ServiceError } from '@ez4/common';
+
+export class MalformedMessageError extends ServiceError {
+  constructor(details: string[]) {
+    super('Malformed queue message payload.', details);
   }
 }
 

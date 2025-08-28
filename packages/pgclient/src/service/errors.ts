@@ -1,9 +1,11 @@
-export class MalformedRequestError extends Error {
+import { ServiceError } from '@ez4/common';
+
+export class MalformedRequestError extends ServiceError {
   constructor(
     public field: string,
-    public details: string[]
+    details: string[]
   ) {
-    super(`Malformed table schema for field '${field}'.`);
+    super(`Malformed table schema for field '${field}'.`, details);
   }
 }
 

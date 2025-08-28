@@ -1,13 +1,15 @@
+import { ServiceError } from '@ez4/common';
+
 /**
  * Default HTTP error.
  */
-export class HttpError extends Error {
+export class HttpError extends ServiceError {
   constructor(
     public status: number,
-    public message: string,
-    public details?: string[]
+    message: string,
+    details?: string[]
   ) {
-    super(message);
+    super(message, details);
   }
 }
 
