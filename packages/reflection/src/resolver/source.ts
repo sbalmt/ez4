@@ -17,23 +17,26 @@ export const trySource = (node: SourceFile, context: Context) => {
   const resolveStatement = (node: Node) => {
     const state = getNewState();
 
-    const result =
+    const resultType =
       tryTypeEnum(node, context) ||
       tryTypeInterface(node, context, state) ||
       tryTypeClass(node, context, state) ||
       tryTypeFunction(node, context, state);
 
-    if (result) {
+    if (resultType) {
       const identity = getNodeIdentity(node);
       const current = reflection[identity];
 
       if (!current) {
-        reflection[identity] = result;
-      } else if (!isTypeInterface(current) || !isTypeInterface(result)) {
-        throw new Error(`Source identity '${result.name}' has a naming collision.`);
-      } else {
-        reflection[identity] = mergeTypeInterface(result, current);
+        reflection[identity] = resultType;
+        return;
       }
+
+      if (!isTypeInterface(current) || !isTypeInterface(resultType)) {
+        throw new Error(`Source identity '${resultType.name}' has a naming collision.`);
+      }
+
+      reflection[identity] = mergeTypeInterface(resultType, current);
     }
   };
 
