@@ -32,20 +32,25 @@ export const parseRateExpression = (input: string): ExpressionResult | undefined
 };
 
 export const parseCronExpression = (input: string): ExpressionResult | undefined => {
-  const match = input.match(/^cron\((.*?)\)$/i);
+  const match = input.match(/^cron\(((\S+\s+){4}\S+)\)$/i);
 
-  if (match?.length !== 2) {
+  const value = match?.[1];
+
+  if (!value) {
     return undefined;
   }
 
-  const value = match[1];
-  const date = CronExpressionParser.parse(value).next();
+  try {
+    const date = CronExpressionParser.parse(value).next();
 
-  return {
-    type: ExpressionType.Cron,
-    interval: date.getTime() - Date.now(),
-    value
-  };
+    return {
+      type: ExpressionType.Cron,
+      interval: date.getTime() - Date.now(),
+      value
+    };
+  } catch {
+    return undefined;
+  }
 };
 
 export const parseAtExpression = (input: string): ExpressionResult | undefined => {

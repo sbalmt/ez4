@@ -48,7 +48,7 @@ export declare class CronEvent extends Cron.Service {
   /**
    * Execute every 15 minutes.
    */
-  expression: 'cron(*/15 * * * *)';
+  expression: 'cron(0/15 * * ? *)';
 
   /**
    * Execute using the specified timezone.
