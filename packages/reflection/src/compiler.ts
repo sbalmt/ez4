@@ -5,7 +5,8 @@ import type {
   SemanticDiagnosticsBuilderProgram,
   WatchCompilerHost,
   CompilerHost,
-  SourceFile
+  SourceFile,
+  FileWatcher
 } from 'typescript';
 
 import {
@@ -92,34 +93,47 @@ export const createWatchCompilerHost = (
 ): WatchCompilerHost<SemanticDiagnosticsBuilderProgram> => {
   const onResolveFileName = events?.onResolveFileName;
 
+  const nullWatcher: FileWatcher = {
+    close: () => {}
+  };
+
   return {
     fileExists: sys.fileExists,
     readFile: sys.readFile,
-    watchFile: sys.watchFile!,
     readDirectory: sys.readDirectory,
-    watchDirectory: sys.watchDirectory!,
     getNewLine: () => sys.newLine,
     getCurrentDirectory: sys.getCurrentDirectory,
     getDefaultLibFileName: () => getDefaultLibFilePath(options),
     useCaseSensitiveFileNames: () => sys.useCaseSensitiveFileNames,
     clearTimeout: sys.clearTimeout,
     setTimeout: sys.setTimeout,
-    createProgram: (rootNames, options, host) => {
-      return createSemanticDiagnosticsBuilderProgram(rootNames, options, {
+    watchFile: (path, callback, pollingInterval, options) => {
+      if (!path.includes('node_modules')) {
+        return sys.watchFile!(path, callback, pollingInterval, options);
+      }
+
+      return nullWatcher;
+    },
+    watchDirectory: (path, callback, recursive, options) => {
+      if (!path.includes('node_modules')) {
+        return sys.watchDirectory!(path, callback, recursive, options);
+      }
+
+      return nullWatcher;
+    },
+    createProgram: (rootNames, options, host) =>
+      createSemanticDiagnosticsBuilderProgram(rootNames, options, {
         ...host!,
         getSourceFile: (fileName, languageVersion, onError) => {
           try {
             const resolvedFileName = onResolveFileName?.(fileName) ?? fileName;
-
             return host!.getSourceFile(resolvedFileName, languageVersion, onError, false);
             //
           } catch (error) {
             onError?.(`${error}`);
-            //
             return undefined;
           }
         }
-      });
-    }
+      })
   };
 };
