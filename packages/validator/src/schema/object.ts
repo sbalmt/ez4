@@ -15,7 +15,7 @@ export const validateObject = async (value: unknown, schema: ObjectSchema, conte
     return [];
   }
 
-  const { property, references, depth } = context;
+  const { property: parentProperty, references, depth } = context;
   const { definitions } = schema;
 
   if (schema.identity) {
@@ -25,26 +25,25 @@ export const validateObject = async (value: unknown, schema: ObjectSchema, conte
   const objectValue = definitions?.encoded ? tryDecodeBase64Json(value) : value;
 
   if (!isAnyObject(objectValue)) {
-    return [new ExpectedObjectTypeError(property)];
+    return [new ExpectedObjectTypeError(parentProperty)];
   }
 
   const allProperties = new Set(Object.keys(objectValue));
-  const parentProperty = property;
   const allErrors: Error[] = [];
 
-  const { inputStyle } = context;
+  const { inputStyle, pathStyle = inputStyle } = context;
 
   for (const propertyKey in schema.properties) {
     const propertyName = getPropertyName(propertyKey, inputStyle);
 
     if (depth > 0) {
-      const propertyPath = getPropertyPath(propertyName, parentProperty);
+      const propertyPath = getPropertyName(propertyKey, pathStyle);
 
       const propertySchema = schema.properties[propertyKey];
       const propertyValue = objectValue[propertyName];
 
       const errorList = await validateAny(propertyValue, propertySchema, {
-        property: propertyPath,
+        property: getPropertyPath(propertyPath, parentProperty),
         depth: depth - 1,
         inputStyle,
         references
@@ -67,11 +66,11 @@ export const validateObject = async (value: unknown, schema: ObjectSchema, conte
       }
 
       if (depth > 0) {
-        const propertyPath = getPropertyPath(propertyName, parentProperty);
+        const propertyPath = getPropertyName(propertyName, pathStyle);
         const propertyValue = objectValue[propertyName];
 
         const valueErrors = await validateAny(propertyValue, propertyValueSchema, {
-          property: propertyPath,
+          property: getPropertyPath(propertyPath, parentProperty),
           depth: depth - 1,
           inputStyle,
           references
@@ -85,8 +84,8 @@ export const validateObject = async (value: unknown, schema: ObjectSchema, conte
   const allowExtraProperties = definitions?.extensible;
 
   if (!allowExtraProperties && allProperties.size > 0) {
-    const extraProperties = [...allProperties.values()].map((property) => {
-      return getPropertyPath(property, parentProperty);
+    const extraProperties = [...allProperties.values()].map((propertyName) => {
+      return getPropertyPath(propertyName, parentProperty);
     });
 
     allErrors.push(new UnexpectedPropertiesError(extraProperties));

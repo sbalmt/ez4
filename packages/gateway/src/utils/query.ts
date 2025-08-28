@@ -20,7 +20,8 @@ export const getQueryStrings = async <T extends Http.QueryStrings>(
   const payload = transform(input, schema, transformContext);
 
   const validationContext = createValidatorContext({
-    property: '$query'
+    property: '$query',
+    pathStyle: inputStyle
   });
 
   const validationErrors = await validate(payload, schema, validationContext);

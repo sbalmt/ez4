@@ -6,7 +6,7 @@ import { describe, it } from 'node:test';
 import { createTransformContext, transform } from '@ez4/transform';
 import { NamingStyle, SchemaType } from '@ez4/schema';
 
-describe('naming transform', () => {
+describe('naming transformation', () => {
   const schema: AnySchema = {
     type: SchemaType.Object,
     identity: 1,
