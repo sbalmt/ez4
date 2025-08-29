@@ -42,7 +42,7 @@ export const serveCommand = async (project: ProjectOptions) => {
 
   let emulators: EmulatorServices = {};
 
-  const watcher = await watchMetadata(project.sourceFiles, async ({ metadata }) => {
+  const watcher = await watchMetadata(project.sourceFiles, async (metadata) => {
     if (options.version > 0) {
       await shutdownServices(emulators);
       Logger.space();

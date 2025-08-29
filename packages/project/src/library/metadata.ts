@@ -8,7 +8,7 @@ import { assertNoErrors } from '../utils/errors.js';
 import { DuplicateMetadataError } from '../errors/metadata.js';
 import { getReflection, watchReflection } from './reflection.js';
 
-export type MetadataReadyListener = (metadata: MetadataResult) => Promise<void> | void;
+export type MetadataReadyListener = (metadata: MetadataReflection) => Promise<void> | void;
 
 export type MetadataResult = {
   dependencies: MetadataDependencies;
@@ -40,8 +40,6 @@ export const getMetadata = (sourceFiles: string[]): MetadataResult => {
 
 export const watchMetadata = (sourceFiles: string[], onMetadataReady: MetadataReadyListener) => {
   return watchReflection(sourceFiles, async (reflectionTypes) => {
-    const reflectionFiles = getMetadataFiles(reflectionTypes);
-
     const metadata: MetadataReflection = {};
 
     triggerAllSync('metadata:getServices', (handler) => {
@@ -60,10 +58,7 @@ export const watchMetadata = (sourceFiles: string[], onMetadataReady: MetadataRe
       return null;
     });
 
-    await onMetadataReady({
-      dependencies: getReflectionFiles(reflectionFiles),
-      metadata
-    });
+    await onMetadataReady(metadata);
   });
 };
 
