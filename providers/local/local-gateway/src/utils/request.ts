@@ -3,7 +3,7 @@ import type { Http } from '@ez4/gateway';
 import type { MatchingRoute } from './route.js';
 
 import { getHeaders, getIdentity, getPathParameters, getQueryStrings, getRequestBody } from '@ez4/gateway/utils';
-import { isScalarSchema } from '@ez4/schema';
+import { isObjectSchema, isScalarSchema } from '@ez4/schema';
 
 export const getIncomingRequestIdentity = async <T extends Http.Identity>(metadata: HttpRequest, identity: T | undefined) => {
   if (!metadata.identity) {
@@ -50,10 +50,20 @@ export const getIncomingRequestBody = async (metadata: HttpRequest, route: Match
     return undefined;
   }
 
-  const content = route.body?.toString();
-  const request = isScalarSchema(metadata.body) ? content : content && JSON.parse(content);
+  const { body } = metadata;
 
-  const payload = await getRequestBody(request, metadata.body, route.preferences);
+  const data = route.body?.toString();
+
+  if (isScalarSchema(body) || (isObjectSchema(body) && body.definitions?.encoded)) {
+    const payload = await getRequestBody(data, body, route.preferences);
+
+    return {
+      body: payload
+    };
+  }
+
+  const content = data && JSON.parse(data);
+  const payload = await getRequestBody(content, body, route.preferences);
 
   return {
     body: payload

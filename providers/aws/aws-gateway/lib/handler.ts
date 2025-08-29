@@ -5,9 +5,9 @@ import type { Http } from '@ez4/gateway';
 
 import * as GatewayUtils from '@ez4/gateway/utils';
 
+import { isObjectSchema, isScalarSchema } from '@ez4/schema';
 import { HttpError, HttpInternalServerError } from '@ez4/gateway';
 import { ServiceEventType } from '@ez4/common';
-import { isScalarSchema } from '@ez4/schema';
 
 type RequestEvent = APIGatewayProxyEventV2WithLambdaAuthorizer<any>;
 type ResponseEvent = APIGatewayProxyResultV2;
@@ -119,7 +119,7 @@ const getIncomingRequestBody = (event: RequestEvent) => {
 
   const { body } = event;
 
-  if (isScalarSchema(__EZ4_BODY_SCHEMA)) {
+  if (isScalarSchema(__EZ4_BODY_SCHEMA) || (isObjectSchema(__EZ4_BODY_SCHEMA) && __EZ4_BODY_SCHEMA.definitions?.encoded)) {
     return GatewayUtils.getRequestBody(body, __EZ4_BODY_SCHEMA);
   }
 
