@@ -238,6 +238,27 @@
           "type": "string"
         }
       }
+    },
+    "combined": {
+      "type": "object",
+      "description": "Combined base64-encoded, extended and default object.",
+      "identity": 20,
+      "definitions": {
+        "encoded": true,
+        "extensible": true,
+        "default": {
+          "foo": "foo",
+          "bar": 123
+        }
+      },
+      "properties": {
+        "foo": {
+          "type": "string"
+        },
+        "bar": {
+          "type": "number"
+        }
+      }
     }
   }
 }

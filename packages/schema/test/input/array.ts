@@ -53,4 +53,9 @@ export interface ArrayTestSchema {
    * Base64-encoded array.
    */
   encoded: Array.Base64<{ foo: number; bar: string }>;
+
+  /**
+   * Combined base64-encoded and default array.
+   */
+  combined: Array.Base64<Array.Default<{ foo: number; bar: boolean }, [{ foo: 123; bar: false }]>>;
 }

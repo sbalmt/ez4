@@ -19,6 +19,8 @@ import {
 import { isAnyBoolean, isAnyNumber, isAnyString } from '@ez4/utils';
 
 import { InvalidRichTypeProperty } from '../errors/richtype.js';
+import { isRichTypeObject } from '../metadata/object.js';
+import { isRichTypeArray } from '../metadata/array.js';
 
 export type RichTypes = {
   format?: string;
@@ -154,26 +156,52 @@ export const createRichType = (richTypes: RichTypes) => {
     case 'object': {
       const { encoded, extensible, value, type } = richTypes;
 
+      const definitions = {
+        ...(value && { default: value }),
+        ...(extensible && { extensible }),
+        ...(encoded && { encoded })
+      };
+
+      if (type && isRichTypeObject(type)) {
+        return {
+          ...type,
+          definitions: {
+            ...type.definitions,
+            ...definitions
+          }
+        };
+      }
+
       return {
         ...(type ?? createObject('@ez4/schema')),
-        definitions: {
-          ...(value && { default: value }),
-          ...(extensible && { extensible }),
-          ...(encoded && { encoded })
-        }
+        definitions
       };
     }
 
     case 'array': {
       const { encoded, minLength, maxLength, type, value } = richTypes;
 
+      const definitions = {
+        ...(value && { default: value }),
+        ...(minLength && { minLength }),
+        ...(maxLength && { maxLength }),
+        ...(encoded && { encoded })
+      };
+
+      if (isRichTypeArray(type!)) {
+        return {
+          ...type,
+          definitions: {
+            ...type.definitions,
+            ...definitions
+          }
+        };
+      }
+
       return {
         ...createArray(type!, { spread: false }),
         definitions: {
-          ...(value && { default: value }),
-          ...(minLength && { minLength }),
-          ...(maxLength && { maxLength }),
-          ...(encoded && { encoded })
+          ...definitions
         }
       };
     }

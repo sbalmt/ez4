@@ -96,4 +96,9 @@ export interface ObjectTestSchema {
    * Base64-encoded object.
    */
   encoded: Object.Base64<{ foo: number; bar: string }>;
+
+  /**
+   * Combined base64-encoded, extended and default object.
+   */
+  combined: Object.Base64<Object.Extends<Object.Default<{ foo: string; bar: number }, { foo: 'foo'; bar: 123 }>>>;
 }

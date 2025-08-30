@@ -121,6 +121,31 @@
           }
         }
       }
+    },
+    "combined": {
+      "type": "array",
+      "description": "Combined base64-encoded and default array.",
+      "definitions": {
+        "encoded": true,
+        "default": [
+          {
+            "foo": 123,
+            "bar": false
+          }
+        ]
+      },
+      "element": {
+        "type": "object",
+        "identity": 3,
+        "properties": {
+          "foo": {
+            "type": "number"
+          },
+          "bar": {
+            "type": "boolean"
+          }
+        }
+      }
     }
   }
 }
