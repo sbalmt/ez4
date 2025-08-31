@@ -1,6 +1,6 @@
 {
-  "name": "@ez4/notification",
-  "description": "EZ4: Components to build notification services",
+  "name": "@ez4/distribution",
+  "description": "EZ4: Components to build CDN services",
   "version": "0.26.0",
   "author": "Silas B.",
   "license": "MIT",
@@ -11,7 +11,7 @@
   "repository": {
     "type": "git",
     "url": "git+https://github.com/sbalmt/ez4.git",
-    "directory": "packages/notification"
+    "directory": "contracts/distribution"
   },
   "engines": {
     "node": ">=22.7"
@@ -26,15 +26,11 @@
       "types": "./dist/library.d.ts",
       "require": "./dist/library.cjs",
       "import": "./dist/library.mjs"
-    },
-    "./utils": {
-      "types": "./dist/utils.d.ts",
-      "require": "./dist/utils.cjs",
-      "import": "./dist/utils.mjs"
     }
   },
   "workspaces": [
-    "packages/*"
+    "packages/*",
+    "contracts/*"
   ],
   "scripts": {
     "lint": "eslint --cache",
@@ -44,17 +40,14 @@
     "test:only": "npm run test:types && node --test-only --test --import ../../tools/tsnode.mjs test/*.spec.ts",
     "test:types": "npm run build && tsc -p tsconfig.test.json",
     "local:publish": "npm run build && npm run clean:registry && npm publish --registry http://localhost:4873",
-    "clean:registry": "rm -rf ../../.registry/@ez4/notification",
+    "clean:registry": "rm -rf ../../.registry/@ez4/distribution",
     "live:publish": "npm run build && npm publish --access public"
   },
   "dependencies": {
     "@ez4/common": "^0.26.0",
     "@ez4/project": "^0.26.0",
-    "@ez4/queue": "^0.26.0",
     "@ez4/reflection": "^0.26.0",
-    "@ez4/schema": "^0.26.0",
-    "@ez4/transform": "^0.26.0",
-    "@ez4/utils": "^0.26.0",
-    "@ez4/validator": "^0.26.0"
+    "@ez4/storage": "^0.26.0",
+    "@ez4/utils": "^0.26.0"
   }
 }
