@@ -3,7 +3,7 @@
  */
 export default {
   prefix: 'ez4',
-  debugMode: false,
+  debugMode: true,
   projectName: 'hello-topic',
   sourceFiles: ['./src/service.ts'],
   stateFile: {
