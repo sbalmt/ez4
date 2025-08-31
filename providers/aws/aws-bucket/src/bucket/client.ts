@@ -197,7 +197,7 @@ export const deleteLifecycle = async (bucketName: string) => {
 };
 
 export const updateEventNotifications = async (bucketName: string, request: UpdateNotificationRequest) => {
-  Logger.logUpdate(BucketServiceName, `${bucketName} event notifications`);
+  Logger.logUpdate(BucketServiceName, `${bucketName} events`);
 
   const { functionArn, eventsPath, eventsType } = request;
 

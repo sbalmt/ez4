@@ -1,0 +1,51 @@
+{
+  "TestTopic1": {
+    "type": "@ez4/topic",
+    "name": "TestTopic1",
+    "description": "First test topic description.",
+    "extras": {},
+    "fifoMode": {
+      "groupId": "user",
+      "uniqueId": "id"
+    },
+    "schema": {
+      "type": "object",
+      "identity": 1,
+      "properties": {
+        "id": {
+          "type": "string"
+        },
+        "user": {
+          "type": "string"
+        }
+      }
+    },
+    "subscriptions": [],
+    "services": {
+      "testTopic": "TestTopic2"
+    }
+  },
+  "TestTopic2": {
+    "type": "@ez4/topic",
+    "name": "TestTopic2",
+    "extras": {},
+    "description": "Description of the second test topic.",
+    "schema": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string"
+        },
+        "user": {
+          "type": "string"
+        }
+      },
+      "identity": 1
+    },
+    "subscriptions": [],
+    "variables": {
+      "TEST_VAR1": "test-literal-value",
+      "TEST_VAR2": "test-env-var-value"
+    }
+  }
+}

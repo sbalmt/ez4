@@ -1,0 +1,65 @@
+{
+  "TestTopic": {
+    "type": "@ez4/topic",
+    "name": "TestTopic",
+    "extras": {},
+    "description": "Topic to test subscriptions.",
+    "schema": {
+      "type": "object",
+      "properties": {
+        "foo": {
+          "type": "string"
+        }
+      },
+      "identity": 1
+    },
+    "subscriptions": [
+      {
+        "type": "lambda",
+        "logRetention": 14,
+        "timeout": 15,
+        "handler": {
+          "name": "testHandler",
+          "file": "test/input/output-subscriptions.ts"
+        }
+      },
+      {
+        "type": "queue",
+        "service": "TestQueue"
+      },
+      {
+        "type": "lambda",
+        "memory": 128,
+        "handler": {
+          "name": "testHandler",
+          "file": "test/input/output-subscriptions.ts"
+        },
+        "variables": {
+          "TEST_VAR": "test-literal-value"
+        }
+      },
+      {
+        "type": "queue",
+        "service": "TestQueue"
+      }
+    ],
+    "services": {
+      "selfClient": "TestTopic"
+    }
+  },
+  "TestQueue": {
+    "type": "@ez4/queue",
+    "name": "TestQueue",
+    "extras": {},
+    "subscriptions": [],
+    "schema": {
+      "identity": 1,
+      "properties": {
+        "foo": {
+          "type": "string"
+        }
+      },
+      "type": "object"
+    }
+  }
+}
