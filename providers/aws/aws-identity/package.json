@@ -24,7 +24,9 @@
     }
   },
   "workspaces": [
-    "packages/*"
+    "packages/*",
+    "contracts/*",
+    "providers/aws/*"
   ],
   "scripts": {
     "lint": "eslint --cache",
