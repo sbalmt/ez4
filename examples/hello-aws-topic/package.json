@@ -14,10 +14,7 @@
     "examples/*"
   ],
   "exports": {
-    ".": {
-      "types": "./src/export.ts",
-      "default": "./src/export.js"
-    }
+    ".": "./src/export.ts"
   },
   "scripts": {
     "deploy": "tsc -p tsconfig.json && ez4 deploy -e local.env -p ez4.project.js",
