@@ -10,7 +10,6 @@
     "node": ">=22.7"
   },
   "workspaces": [
-    "packages/*",
     "examples/*"
   ],
   "scripts": {

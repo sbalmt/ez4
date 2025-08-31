@@ -34,7 +34,7 @@
     }
   },
   "workspaces": [
-    "packages/*",
+    "foundation/*",
     "contracts/*"
   ],
   "scripts": {

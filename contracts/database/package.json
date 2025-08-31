@@ -29,8 +29,8 @@
     }
   },
   "workspaces": [
-    "contracts/*",
-    "packages/*"
+    "foundation/*",
+    "contracts/*"
   ],
   "scripts": {
     "lint": "eslint --cache",

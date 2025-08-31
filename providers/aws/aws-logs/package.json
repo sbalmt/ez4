@@ -24,7 +24,7 @@
     }
   },
   "workspaces": [
-    "packages/*",
+    "foundation/*",
     "contracts/*",
     "providers/aws/*"
   ],

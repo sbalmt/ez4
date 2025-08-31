@@ -11,7 +11,7 @@
   "repository": {
     "type": "git",
     "url": "git+https://github.com/sbalmt/ez4.git",
-    "directory": "packages/validator"
+    "directory": "foundation/validator"
   },
   "engines": {
     "node": ">=22.7"
@@ -22,7 +22,7 @@
     "import": "./dist/main.mjs"
   },
   "workspaces": [
-    "packages/*"
+    "foundation/*"
   ],
   "scripts": {
     "lint": "eslint --cache",

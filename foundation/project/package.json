@@ -1,6 +1,6 @@
 {
-  "name": "@ez4/transform",
-  "description": "EZ4: Transform data according to a given schema",
+  "name": "@ez4/project",
+  "description": "EZ4: Combine all framework pieces",
   "version": "0.26.0",
   "author": "Silas B.",
   "license": "MIT",
@@ -11,32 +11,43 @@
   "repository": {
     "type": "git",
     "url": "git+https://github.com/sbalmt/ez4.git",
-    "directory": "packages/transform"
+    "directory": "foundation/project"
+  },
+  "bin": {
+    "ez4": "./bin/cli.mjs"
   },
   "engines": {
     "node": ">=22.7"
   },
   "exports": {
-    "types": "./dist/main.d.ts",
-    "require": "./dist/main.cjs",
-    "import": "./dist/main.mjs"
+    ".": {
+      "types": "./dist/main.d.ts",
+      "require": "./dist/main.cjs",
+      "import": "./dist/main.mjs"
+    },
+    "./library": {
+      "types": "./dist/library.d.ts",
+      "require": "./dist/library.cjs",
+      "import": "./dist/library.mjs"
+    }
   },
   "workspaces": [
-    "packages/*"
+    "foundation/*"
   ],
   "scripts": {
     "lint": "eslint --cache",
-    "clean": "rm -f *.tsbuildinfo && rm -rf dist/*",
+    "clean": "rm -f *.tsbuildinfo && rm -rf bin/* && rm -rf dist/*",
     "build": "tsc -p tsconfig.json && node tools/bundler.mjs",
     "test": "npm run test:types && node --test --import ../../tools/tsnode.mjs test/*.spec.ts",
     "test:only": "npm run test:types && node --test-only --test --import ../../tools/tsnode.mjs test/*.spec.ts",
     "test:types": "npm run build && tsc -p tsconfig.test.json",
     "local:publish": "npm run build && npm run clean:registry && npm publish --registry http://localhost:4873",
-    "clean:registry": "rm -rf ../../.registry/@ez4/transform",
+    "clean:registry": "rm -rf ../../.registry/@ez4/project",
     "live:publish": "npm run build && npm publish --access public"
   },
   "dependencies": {
-    "@ez4/schema": "^0.26.0",
+    "@ez4/reflection": "^0.26.0",
+    "@ez4/stateful": "^0.26.0",
     "@ez4/utils": "^0.26.0"
   }
 }
