@@ -40,9 +40,11 @@ export const getRelationsWithSchema = (tableName: string, repository: PgTableRep
     }
   };
 
-  const { relations: tableRelations } = repository[tableName];
+  if (tableName in repository) {
+    const { relations: tableRelations } = repository[tableName];
 
-  buildRelationsWithSchema(tableName, tableRelations);
+    buildRelationsWithSchema(tableName, tableRelations);
+  }
 
   return relationsWithSchema;
 };

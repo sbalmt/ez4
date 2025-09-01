@@ -78,7 +78,7 @@ describe('aurora data prepare', () => {
   });
 
   it('assert :: prepare timestamp data', () => {
-    const data = prepareFieldData('field', '2024-11-15T00:00:00Z', {
+    const data = prepareFieldData('field', '1991-04-23T23:59:30.000Z', {
       type: SchemaType.String,
       format: 'date-time'
     });
@@ -87,7 +87,7 @@ describe('aurora data prepare', () => {
       name: 'field',
       typeHint: 'TIMESTAMP',
       value: {
-        stringValue: '2024-11-15 00:00:00Z'
+        stringValue: '1991-04-23T23:59:30.000Z'
       }
     });
   });

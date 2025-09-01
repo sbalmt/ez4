@@ -4,7 +4,7 @@ import type { PostgresEngine } from '@ez4/aws-aurora/client';
 import type { EntryStates } from '@ez4/stateful';
 
 import { ok, equal, deepEqual } from 'node:assert/strict';
-import { describe, it } from 'node:test';
+import { before, describe, it } from 'node:test';
 
 import { Client } from '@ez4/aws-aurora/client';
 import { Index, Order } from '@ez4/database';
@@ -39,8 +39,6 @@ declare class Test extends Database.Service {
 }
 
 describe('aurora client', () => {
-  let lastState: EntryStates | undefined;
-  let clusterId: string | undefined;
   let dbClient: DbClient<Test>;
 
   const repository: PgTableRepository = {
@@ -90,13 +88,17 @@ describe('aurora client', () => {
 
   registerTriggers();
 
-  it('assert :: deploy', async () => {
+  before(async () => {
     const localState: EntryStates = {};
 
     const clusterState = createCluster(localState, {
       clusterName: 'ez4-test-cluster-client',
-      allowDeletion: true,
-      enableHttp: true
+      allowDeletion: false,
+      enableHttp: true,
+      scalability: {
+        maxCapacity: 1,
+        minCapacity: 0
+      }
     });
 
     const instanceState = createInstance(localState, clusterState, {
@@ -108,11 +110,9 @@ describe('aurora client', () => {
       repository
     });
 
-    clusterId = clusterState.entryId;
-
     const { result } = await deploy(localState, undefined);
 
-    const resultResource = result[clusterId];
+    const resultResource = result[clusterState.entryId];
 
     ok(resultResource && isClusterState(resultResource));
     ok(resultResource.result);
@@ -125,8 +125,6 @@ describe('aurora client', () => {
         secretArn: resultResource.result.secretArn!
       }
     });
-
-    lastState = result;
 
     ok(dbClient);
   });
@@ -566,14 +564,5 @@ describe('aurora client', () => {
     deepEqual(result, {
       foo: 'updated'
     });
-  });
-
-  it('assert :: destroy', async () => {
-    ok(clusterId && lastState);
-    ok(lastState[clusterId]);
-
-    const { result } = await deploy(undefined, lastState);
-
-    equal(result[clusterId], undefined);
   });
 });

@@ -247,7 +247,7 @@ describe('client schema', async () => {
 
   it('assert :: insert and select date-time', async () => {
     const id = randomUUID();
-    const datetime = '1991-04-23T00:00:00.000Z';
+    const datetime = '1991-04-23T23:59:30.000Z';
 
     await client.ez4_test_table.insertOne({
       data: {
