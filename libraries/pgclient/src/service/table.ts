@@ -1,9 +1,12 @@
+import type { TableIndex } from '@ez4/database/library';
 import type { Table as DbTable, Query } from '@ez4/database';
 import type { AnyObject, IsArray } from '@ez4/utils';
 import type { ObjectSchema } from '@ez4/schema';
 import type { PgRelationRepositoryWithSchema } from '../types/repository';
 import type { PgClientDriver, PgExecuteStatement } from '../types/driver';
 import type { InternalTableMetadata } from '../types/table';
+
+import { tryExtractConflictIndex } from '../utils/indexes';
 
 import {
   prepareInsertOne,
@@ -30,6 +33,7 @@ export class Table<T extends InternalTableMetadata> implements DbTable<T> {
     private name: string,
     private schema: ObjectSchema,
     private relations: PgRelationRepositoryWithSchema,
+    private indexes: TableIndex[],
     private context: TableContext
   ) {}
 
@@ -108,19 +112,23 @@ export class Table<T extends InternalTableMetadata> implements DbTable<T> {
       where: query.where
     } as Query.FindOneInput<S, T>);
 
-    if (!previous) {
-      return this.insertOne({
-        select: query.select,
-        data: query.insert
-      }) as Promise<Query.UpsertOneResult<S, T>>;
+    if (previous) {
+      await this.updateOne({ where: query.where, data: query.update });
+
+      return previous as Query.UpsertOneResult<S, T>;
     }
 
-    await this.updateOne({
-      where: query.where,
-      data: query.update
+    const conflictIndex = tryExtractConflictIndex(this.indexes, query.where);
+
+    const statement = await prepareInsertOne(this.name, this.schema, this.relations, this.context.driver, {
+      check: conflictIndex?.columns,
+      select: query.select,
+      data: query.insert
     });
 
-    return previous as Query.UpsertOneResult<S, T>;
+    const results = await this.sendStatement(statement);
+
+    return results?.[0] as Query.InsertOneResult<S, T>;
   }
 
   async insertMany(query: Query.InsertManyInput<T>) {

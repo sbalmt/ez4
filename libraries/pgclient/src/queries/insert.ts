@@ -30,11 +30,15 @@ type InsertRelationEntry = PgRelationWithSchema & {
   relationQueries: SqlInsertStatement[];
 };
 
+export type PrepareInsertInput<T extends InternalTableMetadata, S extends Query.SelectInput<T>> = Query.InsertOneInput<S, T> & {
+  check?: string[];
+};
+
 export const prepareInsertQuery = async <T extends InternalTableMetadata, S extends Query.SelectInput<T>>(
   table: string,
   schema: ObjectSchema,
   relations: PgRelationRepositoryWithSchema,
-  query: Query.InsertOneInput<S, T>,
+  query: PrepareInsertInput<T, S>,
   builder: SqlBuilder
 ): Promise<[string, SqlParameter[]]> => {
   const preQueriesMap = preparePreInsertRelations(builder, query.data, relations, table);
@@ -67,6 +71,10 @@ export const prepareInsertQuery = async <T extends InternalTableMetadata, S exte
 
     selectQuery.record(selectRecord);
     allQueries.push(selectQuery);
+  }
+
+  if (query.check?.length) {
+    insertQuery.conflict(query.check);
   }
 
   const [statement, variables] = builder.with(allQueries).build();

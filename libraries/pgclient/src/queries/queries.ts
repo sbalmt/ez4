@@ -3,6 +3,7 @@ import type { Query } from '@ez4/database';
 import type { PgRelationRepositoryWithSchema } from '../types/repository';
 import type { PgClientDriver, PgExecuteStatement } from '../types/driver';
 import type { InternalTableMetadata } from '../types/table';
+import type { PrepareInsertInput } from './insert';
 
 import { createQueryBuilder } from '../utils/builder';
 
@@ -17,7 +18,7 @@ export const prepareInsertOne = async <T extends InternalTableMetadata, S extend
   schema: ObjectSchema,
   relations: PgRelationRepositoryWithSchema,
   driver: PgClientDriver,
-  query: Query.InsertOneInput<S, T>
+  query: PrepareInsertInput<T, S>
 ): Promise<PgExecuteStatement> => {
   const builder = createQueryBuilder(driver);
 

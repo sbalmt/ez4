@@ -58,19 +58,18 @@ export namespace PgClient {
           return undefined;
         }
 
-        if (tableCache[tableAlias]) {
-          return tableCache[tableAlias];
+        if (!tableCache[tableAlias]) {
+          const { name, schema, indexes } = repository[tableAlias];
+
+          const relationsWithSchema = getRelationsWithSchema(name, repository);
+          const indexList = Object.values(indexes);
+
+          const table = new Table(name, schema, relationsWithSchema, indexList, context);
+
+          tableCache[tableAlias] = table;
         }
 
-        const { name, schema } = repository[tableAlias];
-
-        const relationsWithSchema = getRelationsWithSchema(name, repository);
-
-        const table = new Table(name, schema, relationsWithSchema, context);
-
-        tableCache[tableAlias] = table;
-
-        return table;
+        return tableCache[tableAlias];
       }
     });
   };
