@@ -1,5 +1,5 @@
 import type { Http } from '@ez4/gateway';
-import type { GeneralResponse, Identity } from '../types.js';
+import type { GeneralResponse, Identity } from '../types';
 
 /**
  * Private request example.

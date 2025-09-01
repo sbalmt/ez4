@@ -2,8 +2,8 @@ import type { UnionSchema } from '@ez4/schema';
 
 import { deepMerge, isAnyObject } from '@ez4/utils';
 
-import { createTransformContext } from '../types/context.js';
-import { transformAny } from './any.js';
+import { createTransformContext } from '../types/context';
+import { transformAny } from './any';
 
 export const transformUnion = (value: unknown, schema: UnionSchema, context = createTransformContext()) => {
   if (value === undefined) {

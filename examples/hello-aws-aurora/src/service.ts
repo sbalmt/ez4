@@ -1,6 +1,6 @@
 import type { PostgresEngine } from '@ez4/aws-aurora/client';
 import type { Database, Index } from '@ez4/database';
-import type { TableSchema } from './types.js';
+import type { TableSchema } from './types';
 
 /**
  * Example of AWS Aurora deployed with EZ4.

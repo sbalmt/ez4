@@ -1,12 +1,12 @@
 import type { SourceMap, AllType } from '@ez4/reflection';
 
-import { createSchemaContext } from '../types/context.js';
-import { getScalarSchema } from './scalar.js';
-import { getObjectSchema } from './object.js';
-import { getUnionSchema } from './union.js';
-import { getArraySchema } from './array.js';
-import { getTupleSchema } from './tuple.js';
-import { getEnumSchema } from './enum.js';
+import { createSchemaContext } from '../types/context';
+import { getScalarSchema } from './scalar';
+import { getObjectSchema } from './object';
+import { getUnionSchema } from './union';
+import { getArraySchema } from './array';
+import { getTupleSchema } from './tuple';
+import { getEnumSchema } from './enum';
 
 export const getAnySchema = (type: AllType, reflection: SourceMap, context = createSchemaContext(), description?: string) => {
   return (

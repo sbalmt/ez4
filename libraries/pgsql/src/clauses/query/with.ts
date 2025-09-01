@@ -1,9 +1,9 @@
-import type { SqlBuilderReferences } from '../../builder.js';
-import type { SqlSource } from '../../common/source.js';
+import type { SqlBuilderReferences } from '../../builder';
+import type { SqlSource } from '../../common/source';
 
-import { escapeSqlName } from '../../utils/escape.js';
-import { getUniqueAlias } from '../../helpers/alias.js';
-import { NoStatementsError } from '../errors.js';
+import { escapeSqlName } from '../../utils/escape';
+import { getUniqueAlias } from '../../helpers/alias';
+import { NoStatementsError } from '../errors';
 
 type SqlWithContext = {
   variables: unknown[];

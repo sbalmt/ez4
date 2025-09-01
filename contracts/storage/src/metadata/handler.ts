@@ -1,9 +1,9 @@
 import type { Incomplete } from '@ez4/utils';
 import type { AllType, SourceMap } from '@ez4/reflection';
-import type { EventHandler } from '../types/common.js';
+import type { EventHandler } from '../types/common';
 
-import { IncompleteHandlerError } from '../errors/handler.js';
-import { isEventHandler } from './utils.js';
+import { IncompleteHandlerError } from '../errors/handler';
+import { isEventHandler } from './utils';
 
 export const getEventHandler = (type: AllType, _reflection: SourceMap, errorList: Error[]) => {
   if (!isEventHandler(type)) {

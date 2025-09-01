@@ -1,4 +1,4 @@
-import type { EntryState } from './entry.js';
+import type { EntryState } from './entry';
 
 /**
  * Entry state containing its `dependents` entries.

@@ -1,9 +1,9 @@
-import type { ProjectOptions } from '../types/project.js';
-import type { DeployOptions } from '../library.js';
+import type { ProjectOptions } from '../types/project';
+import type { DeployOptions } from '../library';
 
 import { toKebabCase } from '@ez4/utils';
 
-import { loadProject } from './project.js';
+import { loadProject } from './project';
 
 export const loadImports = async (projectOptions: ProjectOptions) => {
   const { importProjects } = projectOptions;

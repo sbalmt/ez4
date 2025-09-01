@@ -1,11 +1,11 @@
-import type { TableIndex, TableMetadata, TableRelation } from './table.js';
-import type { RelationTables } from './relations.js';
-import type { IndexedTables } from './indexes.js';
-import type { EngineUtils } from './engine.js';
-import type { TableSchemas } from './schemas.js';
-import type { Database } from './database.js';
-import type { Client } from './client.js';
-import type { Query } from './query.js';
+import type { TableIndex, TableMetadata, TableRelation } from './table';
+import type { RelationTables } from './relations';
+import type { IndexedTables } from './indexes';
+import type { EngineUtils } from './engine';
+import type { TableSchemas } from './schemas';
+import type { Database } from './database';
+import type { Client } from './client';
+import type { Query } from './query';
 
 /**
  * Transaction mode.

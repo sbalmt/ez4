@@ -1,6 +1,6 @@
 import type { SourceMap } from '@ez4/reflection';
 import type { Incomplete } from '@ez4/utils';
-import type { BucketService } from '../types/service.js';
+import type { BucketService } from '../types/service';
 
 import {
   DuplicateServiceError,
@@ -15,11 +15,11 @@ import {
 
 import { isModelProperty } from '@ez4/reflection';
 
-import { ServiceType } from '../types/service.js';
-import { IncompleteServiceError } from '../errors/service.js';
-import { isBucketService } from './utils.js';
-import { getBucketEvent } from './event.js';
-import { getBucketCors } from './cors.js';
+import { ServiceType } from '../types/service';
+import { IncompleteServiceError } from '../errors/service';
+import { isBucketService } from './utils';
+import { getBucketEvent } from './event';
+import { getBucketCors } from './cors';
 
 export const getBucketServices = (reflection: SourceMap) => {
   const allServices: Record<string, BucketService> = {};

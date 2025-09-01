@@ -2,7 +2,7 @@ import { Logger } from '@ez4/aws-common';
 
 import { CloudFrontClient, CreateInvalidationCommand, waitUntilInvalidationCompleted } from '@aws-sdk/client-cloudfront';
 
-import { InvalidationServiceName } from './types.js';
+import { InvalidationServiceName } from './types';
 
 const client = new CloudFrontClient({});
 

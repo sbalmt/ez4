@@ -4,7 +4,7 @@ import type { Cron } from '@ez4/scheduler';
 import { validate, createValidatorContext, getUniqueErrorMessages } from '@ez4/validator';
 import { transform, createTransformContext } from '@ez4/transform';
 
-import { MalformedEventError } from './errors.js';
+import { MalformedEventError } from './errors';
 
 export type EventSchema = ObjectSchema | UnionSchema;
 

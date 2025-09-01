@@ -1,5 +1,5 @@
-import type { ServiceMetadata } from './service.js';
-import type { ServeOptions } from './options.js';
+import type { ServiceMetadata } from './service';
+import type { ServeOptions } from './options';
 
 export type EmulatorClientHandler = () => unknown;
 

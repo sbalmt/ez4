@@ -1,14 +1,14 @@
 import type { AnyObject } from '@ez4/utils';
 
-import type { ScalarSchema } from './type-scalar.js';
-import type { ObjectSchema } from './type-object.js';
-import type { ReferenceSchema } from './type-reference.js';
-import type { UnionSchema } from './type-union.js';
-import type { ArraySchema } from './type-array.js';
-import type { TupleSchema } from './type-tuple.js';
-import type { EnumSchema } from './type-enum.js';
+import type { ScalarSchema } from './type-scalar';
+import type { ObjectSchema } from './type-object';
+import type { ReferenceSchema } from './type-reference';
+import type { UnionSchema } from './type-union';
+import type { ArraySchema } from './type-array';
+import type { TupleSchema } from './type-tuple';
+import type { EnumSchema } from './type-enum';
 
-import { SchemaType } from './common.js';
+import { SchemaType } from './common';
 
 export type AnySchema = ScalarSchema | ObjectSchema | ReferenceSchema | UnionSchema | ArraySchema | TupleSchema | EnumSchema;
 

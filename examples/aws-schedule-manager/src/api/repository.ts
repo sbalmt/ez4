@@ -1,5 +1,5 @@
-import type { EventStatus } from '../schemas/event.js';
-import type { EventDb } from '../dynamo.js';
+import type { EventStatus } from '../schemas/event';
+import type { EventDb } from '../dynamo';
 
 import { randomUUID } from 'node:crypto';
 

@@ -1,5 +1,5 @@
-import { deepEqualObject } from '../object/equal.js';
-import { isAnyObject } from '../object/check.js';
+import { deepEqualObject } from '../object/equal';
+import { isAnyObject } from '../object/check';
 
 /**
  * Check whether `target` and `source` arrays are equal.

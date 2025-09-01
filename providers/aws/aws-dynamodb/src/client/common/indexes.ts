@@ -2,7 +2,7 @@ import type { AnyObject } from '@ez4/utils';
 
 import { isEmptyObject } from '@ez4/utils';
 
-import { getIndexName } from '../../types/indexes.js';
+import { getIndexName } from '../../types/indexes';
 
 export const findBestSecondaryIndex = (secondaryIndexes: string[][], fields: AnyObject) => {
   if (isEmptyObject(fields)) {

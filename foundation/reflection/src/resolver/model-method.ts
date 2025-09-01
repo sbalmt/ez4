@@ -1,13 +1,13 @@
 import type { MethodDeclaration, MethodSignature, Node } from 'typescript';
-import type { ModelMethod, TypeParameter, EveryType, MethodModifiers } from '../types.js';
-import type { Context, State } from './common.js';
+import type { ModelMethod, TypeParameter, EveryType, MethodModifiers } from '../types';
+import type { Context, State } from './common';
 
 import { isMethodDeclaration, isMethodSignature } from 'typescript';
-import { TypeName } from '../types.js';
-import { getNodeModifiers } from '../helpers/modifier.js';
-import { getNodeDocumentation } from '../helpers/documentation.js';
-import { tryCallableParameters } from './callable-parameters.js';
-import { tryCallableReturns } from './callable-returns.js';
+import { TypeName } from '../types';
+import { getNodeModifiers } from '../helpers/modifier';
+import { getNodeDocumentation } from '../helpers/documentation';
+import { tryCallableParameters } from './callable-parameters';
+import { tryCallableReturns } from './callable-returns';
 
 export type MethodNodes = MethodDeclaration | MethodSignature;
 

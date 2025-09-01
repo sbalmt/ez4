@@ -1,8 +1,8 @@
 import type { AnySchema } from '@ez4/schema';
-import type { SqlOperationContext } from './types.js';
+import type { SqlOperationContext } from './types';
 
-import { getOperandColumn, getOperandValue } from './utils.js';
-import { InvalidOperandError } from './errors.js';
+import { getOperandColumn, getOperandValue } from './utils';
+import { InvalidOperandError } from './errors';
 
 export const getIsBetweenOperation = (column: string, schema: AnySchema | undefined, operand: unknown, context: SqlOperationContext) => {
   if (!Array.isArray(operand)) {

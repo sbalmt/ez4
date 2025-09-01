@@ -1,5 +1,5 @@
 import type { ObjectSchema } from '@ez4/schema';
-import type { PgClientDriver } from '../types/driver.js';
+import type { PgClientDriver } from '../types/driver';
 
 import { SchemaType } from '@ez4/schema';
 import { SqlBuilder } from '@ez4/pgsql';

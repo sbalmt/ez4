@@ -1,5 +1,5 @@
-export * from './utils/environment.js';
-export * from './emulators/module.js';
+export * from './utils/environment';
+export * from './emulators/module';
 
-export * from './utils/dispatch.js';
-export * from './utils/response.js';
+export * from './utils/dispatch';
+export * from './utils/response';

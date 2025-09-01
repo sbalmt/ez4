@@ -1,10 +1,10 @@
 import type { TypeIntersection } from '@ez4/reflection';
-import type { MemberType } from './types.js';
+import type { MemberType } from './types';
 
 import { isTypeModel, isTypeObject } from '@ez4/reflection';
 
-import { getObjectMembers } from './object.js';
-import { getModelMembers } from './model.js';
+import { getObjectMembers } from './object';
+import { getModelMembers } from './model';
 
 export const getIntersectionMembers = (type: TypeIntersection) => {
   const memberList: MemberType[] = [];

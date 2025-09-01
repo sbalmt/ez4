@@ -1,7 +1,7 @@
 import { equal } from 'node:assert/strict';
 import { describe, it } from 'node:test';
 
-import { findBestSecondaryIndex } from '../src/client/common/indexes.js';
+import { findBestSecondaryIndex } from '../src/client/common/indexes';
 
 describe('dynamodb internal functions', () => {
   it('assert :: find best secondary index', () => {

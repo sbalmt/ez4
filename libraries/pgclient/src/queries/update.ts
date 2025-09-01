@@ -3,17 +3,17 @@ import type { NumberSchema, ObjectSchema } from '@ez4/schema';
 import type { SqlParameter } from '@aws-sdk/client-rds-data';
 import type { AnyObject } from '@ez4/utils';
 import type { Query } from '@ez4/database';
-import type { PgRelationWithSchema, PgRelationRepositoryWithSchema } from '../types/repository.js';
-import type { InternalTableMetadata } from '../types/table.js';
+import type { PgRelationWithSchema, PgRelationRepositoryWithSchema } from '../types/repository';
+import type { InternalTableMetadata } from '../types/table';
 
 import { getObjectSchemaProperty, isNumberSchema, isObjectSchema } from '@ez4/schema';
 import { InvalidAtomicOperation, InvalidFieldSchemaError, InvalidRelationFieldError } from '@ez4/pgclient';
 import { isAnyObject, isEmptyObject } from '@ez4/utils';
 import { Index } from '@ez4/database';
 
-import { getWithSchemaValidation, isDynamicFieldSchema, validateFirstSchemaLevel } from '../utils/schema.js';
-import { getSourceConnectionSchema, getTargetConnectionSchema, getUpdatingSchema, isSingleRelationData } from '../utils/relation.js';
-import { getSelectFields, getSelectFilters } from './select.js';
+import { getWithSchemaValidation, isDynamicFieldSchema, validateFirstSchemaLevel } from '../utils/schema';
+import { getSourceConnectionSchema, getTargetConnectionSchema, getUpdatingSchema, isSingleRelationData } from '../utils/relation';
+import { getSelectFields, getSelectFilters } from './select';
 
 export const prepareUpdateQuery = async <T extends InternalTableMetadata, S extends Query.SelectInput<T>>(
   table: string,

@@ -1,7 +1,7 @@
-import type { TypeParameter } from './type-parameter.js';
-import type { EveryMemberType } from './model-members.js';
-import type { EverySourceType } from './source.js';
-import type { EveryType } from './types.js';
+import type { TypeParameter } from './type-parameter';
+import type { EveryMemberType } from './model-members';
+import type { EverySourceType } from './source';
+import type { EveryType } from './types';
 
 export type AllType = EverySourceType | EveryMemberType | EveryType | TypeParameter;
 

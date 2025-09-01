@@ -1,4 +1,4 @@
-import type { LiteralTupleType } from '../shared/types.js';
+import type { LiteralTupleType } from '../shared/types';
 
 type Type<T> = T;
 

@@ -1,7 +1,7 @@
 import type { Service as CommonService } from '@ez4/common';
 import type { LinkedVariables } from '@ez4/project/library';
-import type { CronEvent, CronHandler, CronIncoming, CronListener, CronRequest } from './common.js';
-import type { Client } from './client.js';
+import type { CronEvent, CronHandler, CronIncoming, CronListener, CronRequest } from './common';
+import type { Client } from './client';
 
 /**
  * Provide all contracts for a self-managed Cron service.

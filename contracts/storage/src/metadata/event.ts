@@ -1,7 +1,7 @@
 import type { AllType, SourceMap, TypeModel, TypeObject } from '@ez4/reflection';
 import type { MemberType } from '@ez4/common/library';
 import type { Incomplete } from '@ez4/utils';
-import type { BucketEvent } from '../types/common.js';
+import type { BucketEvent } from '../types/common';
 
 import {
   InvalidServicePropertyError,
@@ -17,9 +17,9 @@ import {
 
 import { isModelProperty, isTypeObject, isTypeReference } from '@ez4/reflection';
 
-import { IncompleteEventError, IncorrectEventTypeError, InvalidEventTypeError } from '../errors/event.js';
-import { getEventHandler } from './handler.js';
-import { isBucketEvent } from './utils.js';
+import { IncompleteEventError, IncorrectEventTypeError, InvalidEventTypeError } from '../errors/event';
+import { getEventHandler } from './handler';
+import { isBucketEvent } from './utils';
 
 export const getBucketEvent = (type: AllType, parent: TypeModel, reflection: SourceMap, errorList: Error[]) => {
   if (!isTypeReference(type)) {

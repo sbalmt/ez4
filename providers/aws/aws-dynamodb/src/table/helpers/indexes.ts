@@ -1,11 +1,11 @@
 import type { DynamoDBClient, GlobalSecondaryIndex } from '@aws-sdk/client-dynamodb';
-import type { AttributeSchema, AttributeSchemaGroup } from '../../types/schema.js';
+import type { AttributeSchema, AttributeSchemaGroup } from '../../types/schema';
 
 import { DescribeTableCommand, IndexStatus, ProjectionType } from '@aws-sdk/client-dynamodb';
 import { waitFor } from '@ez4/utils';
 
-import { getIndexName } from '../../types/indexes.js';
-import { getAttributeKeyTypes } from './schema.js';
+import { getIndexName } from '../../types/indexes';
+import { getAttributeKeyTypes } from './schema';
 
 export const getSecondaryIndexes = (...groups: AttributeSchemaGroup[]) => {
   const indexList: GlobalSecondaryIndex[] = [];

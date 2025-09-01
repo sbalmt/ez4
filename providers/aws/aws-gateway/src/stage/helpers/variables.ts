@@ -1,4 +1,4 @@
-import type { Variables } from '../../types/variables.js';
+import type { Variables } from '../../types/variables';
 
 import { InvalidParameterError } from '@ez4/aws-common';
 

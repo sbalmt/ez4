@@ -1,11 +1,11 @@
 import type { String } from '@ez4/schema';
 import type { Service } from '@ez4/common';
 import type { Http } from '@ez4/gateway';
-import type { Api } from '../../api.js';
+import type { Api } from '../../api';
 
 import { HttpNotFoundError } from '@ez4/gateway';
 
-import { updateItem } from '../repository.js';
+import { updateItem } from '../repository';
 
 declare class UpdateItemRequest implements Http.Request {
   parameters: {

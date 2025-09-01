@@ -1,13 +1,13 @@
-import type { SqlFilters } from '../../common/types.js';
-import type { SqlAlterTableClause } from '../table/alter.js';
+import type { SqlFilters } from '../../common/types';
+import type { SqlAlterTableClause } from '../table/alter';
 
-import { MissingClauseError } from '../errors.js';
-import { SqlPrimaryKeyConstraintClause } from './primary.js';
-import { SqlForeignKeyConstraintClause } from './foreign.js';
-import { SqlUniqueConstraintClause } from './unique.js';
-import { SqlRenameConstraintClause } from './rename.js';
-import { SqlDropConstraintClause } from './drop.js';
-import { SqlCheckConstraintClause } from './check.js';
+import { MissingClauseError } from '../errors';
+import { SqlPrimaryKeyConstraintClause } from './primary';
+import { SqlForeignKeyConstraintClause } from './foreign';
+import { SqlUniqueConstraintClause } from './unique';
+import { SqlRenameConstraintClause } from './rename';
+import { SqlDropConstraintClause } from './drop';
+import { SqlCheckConstraintClause } from './check';
 
 export class SqlConstraintClause {
   #state: {

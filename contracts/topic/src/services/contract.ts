@@ -1,9 +1,9 @@
 import type { Service as CommonService } from '@ez4/common';
 import type { LinkedVariables } from '@ez4/project/library';
 import type { Queue } from '@ez4/queue';
-import type { Client } from './client.js';
+import type { Client } from './client';
 
-import type { TopicMessage, TopicRequest, TopicIncoming, TopicFifoMode, SubscriptionHandler, SubscriptionListener } from './common.js';
+import type { TopicMessage, TopicRequest, TopicIncoming, TopicFifoMode, SubscriptionHandler, SubscriptionListener } from './common';
 
 /**
  * Provide all contracts for a self-managed topic service.

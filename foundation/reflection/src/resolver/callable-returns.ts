@@ -1,10 +1,10 @@
-import type { Context, State } from './common.js';
-import type { MethodNodes } from './model-method.js';
-import type { CallbackNodes } from './type-callback.js';
-import type { FunctionNodes } from './type-function.js';
+import type { Context, State } from './common';
+import type { MethodNodes } from './model-method';
+import type { CallbackNodes } from './type-callback';
+import type { FunctionNodes } from './type-function';
 
-import { getNewState } from './common.js';
-import { tryTypes } from './types.js';
+import { getNewState } from './common';
+import { tryTypes } from './types';
 
 export type NodeWithReturns = MethodNodes | CallbackNodes | FunctionNodes;
 

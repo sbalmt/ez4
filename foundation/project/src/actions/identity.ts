@@ -1,11 +1,11 @@
 import type { MetadataReflection } from '@ez4/project/library';
 import type { EntryState, EntryStates } from '@ez4/stateful';
-import type { IdentityAccount, IdentityGrant } from '../types/identity.js';
-import type { DeployOptions } from '../types/options.js';
+import type { IdentityAccount, IdentityGrant } from '../types/identity';
+import type { DeployOptions } from '../types/options';
 
 import { triggerAllAsync } from '@ez4/project/library';
 
-import { MissingActionProviderError } from '../errors/provider.js';
+import { MissingActionProviderError } from '../errors/provider';
 
 export const prepareExecutionRole = async (state: EntryStates, metadata: MetadataReflection, options: DeployOptions) => {
   const serviceTypes = getAllServiceTypes(metadata);

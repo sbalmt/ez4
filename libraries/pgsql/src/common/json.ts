@@ -1,16 +1,16 @@
-import type { SqlBuilderReferences } from '../builder.js';
-import type { SqlSource } from './source.js';
-import type { SqlOrder } from './types.js';
+import type { SqlBuilderReferences } from '../builder';
+import type { SqlSource } from './source';
+import type { SqlOrder } from './types';
 
 import { isAnyObject } from '@ez4/utils';
 
-import { SqlSelectStatement } from '../statements/select.js';
-import { mergeSqlAlias, mergeSqlPath } from '../utils/merge.js';
-import { escapeSqlName, escapeSqlText } from '../utils/escape.js';
-import { SqlOrderClause } from '../clauses/query/order.js';
-import { getUniqueAlias } from '../helpers/alias.js';
-import { SqlColumnReference } from './reference.js';
-import { SqlRawValue } from './raw.js';
+import { SqlSelectStatement } from '../statements/select';
+import { mergeSqlAlias, mergeSqlPath } from '../utils/merge';
+import { escapeSqlName, escapeSqlText } from '../utils/escape';
+import { SqlOrderClause } from '../clauses/query/order';
+import { getUniqueAlias } from '../helpers/alias';
+import { SqlColumnReference } from './reference';
+import { SqlRawValue } from './raw';
 
 type SqlJsonColumnContext = {
   variables: unknown[];

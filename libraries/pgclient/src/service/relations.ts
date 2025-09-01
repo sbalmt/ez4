@@ -1,4 +1,4 @@
-import type { PgTableRepository, PgRelationRepository, PgRelationRepositoryWithSchema } from '../types/repository.js';
+import type { PgTableRepository, PgRelationRepository, PgRelationRepositoryWithSchema } from '../types/repository';
 
 import { MissingRepositoryTableError } from '@ez4/pgclient';
 

@@ -1,7 +1,7 @@
-import { helpCommand } from './commands/help.js';
-import { runActionCommand } from './commands.js';
-import { getInputOptions } from './options.js';
-import { Logger } from '../utils/logger.js';
+import { helpCommand } from './commands/help';
+import { runActionCommand } from './commands';
+import { getInputOptions } from './options';
+import { Logger } from '../utils/logger';
 
 const options = getInputOptions();
 

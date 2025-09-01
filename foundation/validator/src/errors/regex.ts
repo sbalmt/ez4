@@ -1,4 +1,4 @@
-import { UnexpectedFormatError } from './common.js';
+import { UnexpectedFormatError } from './common';
 
 export class ExpectedRegexTypeError extends UnexpectedFormatError {
   constructor(formatName?: string, propertyName?: string) {

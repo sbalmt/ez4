@@ -2,7 +2,7 @@ import { registerTriggers as registerCommonTriggers } from '@ez4/common/library'
 import { registerTriggers as registerStorageTriggers } from '@ez4/storage/library';
 import { createTrigger } from '@ez4/project/library';
 
-import { getCdnServices } from '../metadata/service.js';
+import { getCdnServices } from '../metadata/service';
 
 let isRegistered = false;
 

@@ -3,9 +3,9 @@ import type { AllType, SourceMap, TypeIntersection, TypeModel, TypeObject } from
 import { isTypeIntersection, isTypeObject, isTypeReference } from '@ez4/reflection';
 import { getReferenceType, isModelDeclaration } from '@ez4/common/library';
 
-import { IncorrectHeadersTypeError, InvalidHeadersTypeError } from '../errors/headers.js';
-import { getSchemaFromType } from './schema.js';
-import { isHttpHeaders } from './utils.js';
+import { IncorrectHeadersTypeError, InvalidHeadersTypeError } from '../errors/headers';
+import { getSchemaFromType } from './schema';
+import { isHttpHeaders } from './utils';
 
 type TypeParent = TypeObject | TypeModel | TypeIntersection;
 

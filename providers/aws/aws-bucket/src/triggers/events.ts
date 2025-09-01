@@ -7,10 +7,10 @@ import { linkServiceExtras } from '@ez4/project/library';
 import { isRoleState } from '@ez4/aws-identity';
 import { createLogGroup } from '@ez4/aws-logs';
 
-import { createBucketEventFunction } from '../bucket/function/service.js';
-import { getFunctionName, getInternalName } from './utils.js';
-import { RoleMissingError } from './errors.js';
-import { Defaults } from './defaults.js';
+import { createBucketEventFunction } from '../bucket/function/service';
+import { getFunctionName, getInternalName } from './utils';
+import { RoleMissingError } from './errors';
+import { Defaults } from './defaults';
 
 export const prepareEvents = (state: EntryStates, service: BucketService, options: DeployOptions, context: EventContext) => {
   if (!service.events) {

@@ -1,4 +1,4 @@
-import type { CdnCache } from './cache.js';
+import type { CdnCache } from './cache';
 
 export type CdnOrigin = CdnBucketOrigin | CdnRegularOrigin;
 

@@ -1,6 +1,6 @@
 import type { ResourceTags } from '@ez4/aws-common';
 import type { EntryState } from '@ez4/stateful';
-import type { CreateRequest } from './client.js';
+import type { CreateRequest } from './client';
 
 export const ObjectServiceName = 'AWS:S3/Object';
 

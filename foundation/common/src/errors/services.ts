@@ -1,4 +1,4 @@
-import { InvalidTypeError, TypeError } from './common.js';
+import { InvalidTypeError, TypeError } from './common';
 
 export class MissingServiceProviderError extends TypeError {
   constructor(

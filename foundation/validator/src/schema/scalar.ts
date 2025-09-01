@@ -1,11 +1,11 @@
 import type { ScalarSchema } from '@ez4/schema';
-import type { ValidationContext } from '../types/context.js';
+import type { ValidationContext } from '../types/context';
 
 import { SchemaType } from '@ez4/schema';
 
-import { validateBoolean } from './boolean.js';
-import { validateNumber } from './number.js';
-import { validateString } from './string.js';
+import { validateBoolean } from './boolean';
+import { validateNumber } from './number';
+import { validateString } from './string';
 
 export const validateScalar = (value: unknown, schema: ScalarSchema, context?: ValidationContext) => {
   switch (schema.type) {

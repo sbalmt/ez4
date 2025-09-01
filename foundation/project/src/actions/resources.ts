@@ -1,11 +1,11 @@
 import type { EventContext } from '@ez4/project/library';
 import type { EntryStates } from '@ez4/stateful';
-import type { MetadataReflection } from '../types/metadata.js';
-import type { DeployOptions } from '../types/options.js';
+import type { MetadataReflection } from '../types/metadata';
+import type { DeployOptions } from '../types/options';
 
 import { triggerAllAsync } from '@ez4/project/library';
 
-import { MissingResourceProvider } from '../errors/provider.js';
+import { MissingResourceProvider } from '../errors/provider';
 
 export const prepareDeployResources = async (
   state: EntryStates,

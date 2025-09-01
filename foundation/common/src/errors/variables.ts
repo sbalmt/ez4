@@ -1,4 +1,4 @@
-import { TypeError } from './common.js';
+import { TypeError } from './common';
 
 export class MissingVariableError extends TypeError {
   constructor(

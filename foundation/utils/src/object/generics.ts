@@ -1,5 +1,5 @@
-import type { IsAny, IsUndefined, IsUnknown, MergeType } from '../common/generics.js';
-import type { ArrayType, IsArray } from '../array/generics.js';
+import type { IsAny, IsUndefined, IsUnknown, MergeType } from '../common/generics';
+import type { ArrayType, IsArray } from '../array/generics';
 
 /**
  * A type to represent any object.

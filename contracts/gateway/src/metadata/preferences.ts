@@ -1,6 +1,6 @@
 import type { AllType, SourceMap, TypeModel } from '@ez4/reflection';
 import type { MemberType } from '@ez4/common/library';
-import type { HttpPreferences } from '../types/common.js';
+import type { HttpPreferences } from '../types/common';
 
 import {
   InvalidServicePropertyError,
@@ -13,8 +13,8 @@ import {
 
 import { isModelProperty, isTypeObject, isTypeReference } from '@ez4/reflection';
 
-import { IncorrectPreferencesTypeError, InvalidPreferencesTypeError } from '../library.js';
-import { isHttpPreferences } from './utils.js';
+import { IncorrectPreferencesTypeError, InvalidPreferencesTypeError } from '../library';
+import { isHttpPreferences } from './utils';
 import { NamingStyle } from '@ez4/schema';
 
 export const getHttpPreferences = (type: AllType, parent: TypeModel, reflection: SourceMap, errorList: Error[]) => {

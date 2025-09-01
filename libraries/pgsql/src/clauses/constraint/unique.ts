@@ -1,6 +1,6 @@
-import type { SqlConstraintClause } from './clause.js';
+import type { SqlConstraintClause } from './clause';
 
-import { escapeSqlName, escapeSqlNames } from '../../utils/escape.js';
+import { escapeSqlName, escapeSqlNames } from '../../utils/escape';
 
 export class SqlUniqueConstraintClause {
   #state: {

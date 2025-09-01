@@ -14,7 +14,7 @@ import {
   NoSuchCachePolicy
 } from '@aws-sdk/client-cloudfront';
 
-import { CacheServiceName } from './types.js';
+import { CacheServiceName } from './types';
 
 const client = new CloudFrontClient({});
 

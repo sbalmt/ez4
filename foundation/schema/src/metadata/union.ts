@@ -1,19 +1,19 @@
 import type { AllType, EveryType, SourceMap, TypeUnion } from '@ez4/reflection';
-import type { SchemaContext } from '../types/context.js';
-import type { SchemaDefinitions } from '../types/common.js';
-import type { EnumSchema, EnumSchemaOption } from '../types/type-enum.js';
-import type { UnionSchema } from '../types/type-union.js';
-import type { AnySchema } from '../types/type-any.js';
+import type { SchemaContext } from '../types/context';
+import type { SchemaDefinitions } from '../types/common';
+import type { EnumSchema, EnumSchemaOption } from '../types/type-enum';
+import type { UnionSchema } from '../types/type-union';
+import type { AnySchema } from '../types/type-any';
 
 import { isTypeNull, isTypeUndefined, isTypeUnion } from '@ez4/reflection';
 
-import { isNumberSchema } from '../types/type-number.js';
-import { isReferenceSchema } from '../types/type-reference.js';
-import { isStringSchema } from '../types/type-string.js';
-import { isEnumSchema } from '../types/type-enum.js';
-import { SchemaType } from '../types/common.js';
-import { createEnumSchema } from './enum.js';
-import { getAnySchema } from './any.js';
+import { isNumberSchema } from '../types/type-number';
+import { isReferenceSchema } from '../types/type-reference';
+import { isStringSchema } from '../types/type-string';
+import { isEnumSchema } from '../types/type-enum';
+import { SchemaType } from '../types/common';
+import { createEnumSchema } from './enum';
+import { getAnySchema } from './any';
 
 export type RichTypeUnion = TypeUnion & {
   definitions?: SchemaDefinitions;

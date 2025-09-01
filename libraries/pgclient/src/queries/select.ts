@@ -3,8 +3,8 @@ import type { SqlParameter } from '@aws-sdk/client-rds-data';
 import type { AnySchema, ObjectSchema } from '@ez4/schema';
 import type { AnyObject } from '@ez4/utils';
 import type { Query } from '@ez4/database';
-import type { PgRelationRepositoryWithSchema } from '../types/repository.js';
-import type { InternalTableMetadata } from '../types/table.js';
+import type { PgRelationRepositoryWithSchema } from '../types/repository';
+import type { InternalTableMetadata } from '../types/table';
 
 import { InvalidRelationFieldError, MissingFieldSchemaError } from '@ez4/pgclient';
 import { isAnyNumber, isAnyObject, isEmptyObject } from '@ez4/utils';

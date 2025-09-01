@@ -1,11 +1,11 @@
-import type { CustomError } from './errors.js';
+import type { CustomError } from './errors';
 
-import type { postHandler } from './endpoints/post.js';
-import type { patchHandler } from './endpoints/patch.js';
-import type { putHandler } from './endpoints/put.js';
-import type { getHandler } from './endpoints/get.js';
-import type { deleteHandler } from './endpoints/delete.js';
-import type { rawHandler } from './endpoints/raw.js';
+import type { postHandler } from './endpoints/post';
+import type { patchHandler } from './endpoints/patch';
+import type { putHandler } from './endpoints/put';
+import type { getHandler } from './endpoints/get';
+import type { deleteHandler } from './endpoints/delete';
+import type { rawHandler } from './endpoints/raw';
 
 /**
  * Map HTTP status codes to known errors.

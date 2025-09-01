@@ -2,7 +2,7 @@ import type { ModelProperty } from '@ez4/reflection';
 
 import { isTypeString } from '@ez4/reflection';
 
-import { getPropertyTuple } from './property.js';
+import { getPropertyTuple } from './property';
 
 export const getArrayStrings = (member: ModelProperty) => {
   const items = getPropertyTuple(member) ?? [];

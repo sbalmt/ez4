@@ -1,7 +1,7 @@
-import type { ParametersUtils } from './parameters.js';
-import type { TransactionUtils } from './transaction.js';
-import type { TableClients } from './table.js';
-import type { Database } from './database.js';
+import type { ParametersUtils } from './parameters';
+import type { TransactionUtils } from './transaction';
+import type { TableClients } from './table';
+import type { Database } from './database';
 
 /**
  * Database client.

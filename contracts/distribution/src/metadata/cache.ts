@@ -1,7 +1,7 @@
 import type { AllType, SourceMap, TypeModel, TypeObject } from '@ez4/reflection';
 import type { MemberType } from '@ez4/common/library';
 import type { Incomplete } from '@ez4/utils';
-import type { CdnCache } from '../types/cache.js';
+import type { CdnCache } from '../types/cache';
 
 import {
   InvalidServicePropertyError,
@@ -17,8 +17,8 @@ import {
 import { isModelProperty, isTypeObject, isTypeReference } from '@ez4/reflection';
 import { isAnyNumber } from '@ez4/utils';
 
-import { IncompleteCacheError, IncorrectCacheTypeError, InvalidCacheTypeError } from '../errors/cache.js';
-import { isCdnCache } from './utils.js';
+import { IncompleteCacheError, IncorrectCacheTypeError, InvalidCacheTypeError } from '../errors/cache';
+import { isCdnCache } from './utils';
 
 export const getCdnCache = (type: AllType, parent: TypeModel, reflection: SourceMap, errorList: Error[]) => {
   if (!isTypeReference(type)) {

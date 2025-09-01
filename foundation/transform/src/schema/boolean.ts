@@ -1,6 +1,6 @@
 import type { BooleanSchema } from '@ez4/schema';
 
-import { createTransformContext } from '../types/context.js';
+import { createTransformContext } from '../types/context';
 
 export const transformBoolean = (value: unknown, schema: BooleanSchema, context = createTransformContext()) => {
   if (value === undefined) {

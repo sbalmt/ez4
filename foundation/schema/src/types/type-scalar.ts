@@ -1,9 +1,9 @@
-import type { BooleanSchema } from './type-boolean.js';
-import type { NumberSchema } from './type-number.js';
-import type { StringSchema } from './type-string.js';
-import type { AnySchema } from './type-any.js';
+import type { BooleanSchema } from './type-boolean';
+import type { NumberSchema } from './type-number';
+import type { StringSchema } from './type-string';
+import type { AnySchema } from './type-any';
 
-import { SchemaType } from './common.js';
+import { SchemaType } from './common';
 
 export type ScalarTypeName = SchemaType.Boolean | SchemaType.Number | SchemaType.String;
 

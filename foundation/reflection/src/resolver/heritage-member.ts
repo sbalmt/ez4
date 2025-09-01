@@ -1,18 +1,18 @@
 import type { ExpressionWithTypeArguments, Node } from 'typescript';
-import type { EveryMemberType, ModelHeritage } from '../types.js';
-import type { Context, State } from './common.js';
+import type { EveryMemberType, ModelHeritage } from '../types';
+import type { Context, State } from './common';
 
 import { isExpressionWithTypeArguments } from 'typescript';
-import { getNodeIdentity, isInternalType } from '../helpers/node.js';
-import { getNodeTypeDeclaration } from '../helpers/declaration.js';
-import { getAccessNamespace } from '../helpers/identifier.js';
-import { hasModifierExport } from '../helpers/modifier.js';
-import { tryModelMembers } from './model-members.js';
-import { getTypeArguments } from './type-parameter.js';
-import { isTypeInterface } from './type-interface.js';
-import { isTypeAlias } from './type-alias.js';
-import { isTypeClass } from './type-class.js';
-import { getNewState } from './common.js';
+import { getNodeIdentity, isInternalType } from '../helpers/node';
+import { getNodeTypeDeclaration } from '../helpers/declaration';
+import { getAccessNamespace } from '../helpers/identifier';
+import { hasModifierExport } from '../helpers/modifier';
+import { tryModelMembers } from './model-members';
+import { getTypeArguments } from './type-parameter';
+import { isTypeInterface } from './type-interface';
+import { isTypeAlias } from './type-alias';
+import { isTypeClass } from './type-class';
+import { getNewState } from './common';
 
 export const createModelHeritage = (path: string, namespace?: string | null, members?: EveryMemberType[]): ModelHeritage => {
   return {

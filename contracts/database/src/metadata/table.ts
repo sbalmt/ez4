@@ -2,19 +2,19 @@ import type { AllType, SourceMap, TypeModel, TypeObject } from '@ez4/reflection'
 import type { MemberType } from '@ez4/common/library';
 import type { ObjectSchema } from '@ez4/schema';
 import type { Incomplete } from '@ez4/utils';
-import type { DatabaseTable } from '../types/table.js';
-import type { TableIndex } from '../types/indexes.js';
+import type { DatabaseTable } from '../types/table';
+import type { TableIndex } from '../types/indexes';
 
 import { InvalidServicePropertyError, getModelMembers, getObjectMembers, getPropertyString, getReferenceType } from '@ez4/common/library';
 import { isModelProperty, isTypeObject, isTypeReference } from '@ez4/reflection';
 
-import { IncompleteTableError } from '../errors/table.js';
-import { InvalidIndexReferenceError } from '../errors/indexes.js';
-import { getTableRelations } from './relations.js';
-import { getTableIndexes } from './indexes.js';
-import { isDatabaseTable } from './utils.js';
-import { getTableSchema } from './schema.js';
-import { getTableStream } from './stream.js';
+import { IncompleteTableError } from '../errors/table';
+import { InvalidIndexReferenceError } from '../errors/indexes';
+import { getTableRelations } from './relations';
+import { getTableIndexes } from './indexes';
+import { isDatabaseTable } from './utils';
+import { getTableSchema } from './schema';
+import { getTableStream } from './stream';
 
 export const getDatabaseTable = (type: AllType, parent: TypeModel, reflection: SourceMap, errorList: Error[]) => {
   if (!isTypeReference(type)) {

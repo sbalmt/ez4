@@ -1,8 +1,8 @@
 import type { Environment } from '@ez4/common';
 import type { Cron } from '@ez4/scheduler';
-import type { scheduleEventHandler } from './api/events/schedule-event.js';
-import type { EventRequest } from './api/types.js';
-import type { EventDb } from './dynamo.js';
+import type { scheduleEventHandler } from './api/events/schedule-event';
+import type { EventRequest } from './api/types';
+import type { EventDb } from './dynamo';
 
 /**
  * Example of AWS EventBridge Scheduler deployed with EZ4.

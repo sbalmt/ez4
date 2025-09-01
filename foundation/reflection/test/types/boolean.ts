@@ -1,4 +1,4 @@
-import type { LiteralBooleanType } from '../shared/types.js';
+import type { LiteralBooleanType } from '../shared/types';
 
 type Type<T> = T;
 

@@ -1,12 +1,12 @@
 import type { DeployOptions, EventContext } from '@ez4/project/library';
 import type { EntryState, StepContext } from '@ez4/stateful';
-import type { TableState } from './types.js';
+import type { TableState } from './types';
 
 import { IncompleteResourceError } from '@ez4/aws-common';
 import { hashData, toKebabCase } from '@ez4/utils';
 
-import { TableNotFoundError } from './errors.js';
-import { TableServiceType } from './types.js';
+import { TableNotFoundError } from './errors';
+import { TableServiceType } from './types';
 
 export const createTableStateId = (gatewayId: string) => {
   return hashData(TableServiceType, toKebabCase(gatewayId));

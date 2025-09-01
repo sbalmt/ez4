@@ -1,8 +1,8 @@
 import type { EntryState, EntryStates, StepContext } from '@ez4/stateful';
 import type { FunctionState } from '@ez4/aws-function';
 import type { QueueState } from '@ez4/aws-queue';
-import type { TopicState } from '../topic/types.js';
-import type { SubscriptionParameters, SubscriptionState } from './types.js';
+import type { TopicState } from '../topic/types';
+import type { SubscriptionParameters, SubscriptionState } from './types';
 
 import { createPermission, getFunctionArn, getPermission, isFunctionState } from '@ez4/aws-function';
 import { attachQueuePolicy, getQueueArn, isQueueState } from '@ez4/aws-queue';
@@ -10,10 +10,10 @@ import { getAccountId, getRegion } from '@ez4/aws-identity';
 import { attachEntry } from '@ez4/stateful';
 import { hashData } from '@ez4/utils';
 
-import { getTopicArn } from '../topic/utils.js';
-import { TopicServiceName } from '../topic/types.js';
-import { buildTopicArn } from '../utils/policy.js';
-import { SubscriptionServiceName, SubscriptionServiceType } from './types.js';
+import { getTopicArn } from '../topic/utils';
+import { TopicServiceName } from '../topic/types';
+import { buildTopicArn } from '../utils/policy';
+import { SubscriptionServiceName, SubscriptionServiceType } from './types';
 
 export const createSubscription = <E extends EntryState>(
   state: EntryStates<E>,

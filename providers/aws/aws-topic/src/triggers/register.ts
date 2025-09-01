@@ -8,11 +8,11 @@ import { registerTriggers as registerTopicTriggers } from '@ez4/topic/library';
 
 import { createTrigger } from '@ez4/project/library';
 
-import { registerTopicProvider } from '../topic/provider.js';
-import { registerSubscriptionProvider } from '../subscription/provider.js';
-import { connectServices, prepareLinkedServices, prepareServices } from './service.js';
-import { connectImports, prepareImports, prepareLinkedImports } from './import.js';
-import { prepareExecutionPolicy } from './policy.js';
+import { registerTopicProvider } from '../topic/provider';
+import { registerSubscriptionProvider } from '../subscription/provider';
+import { connectServices, prepareLinkedServices, prepareServices } from './service';
+import { connectImports, prepareImports, prepareLinkedImports } from './import';
+import { prepareExecutionPolicy } from './policy';
 
 let isRegistered = false;
 

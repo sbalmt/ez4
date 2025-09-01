@@ -1,7 +1,7 @@
-import type { EntryState, EntryStates } from '../types/entry.js';
-import type { HydratedEntryState } from '../types/hydrate.js';
+import type { EntryState, EntryStates } from '../types/entry';
+import type { HydratedEntryState } from '../types/hydrate';
 
-import { DependencyNotFoundError, EntryNotFoundError } from './errors.js';
+import { DependencyNotFoundError, EntryNotFoundError } from './errors';
 
 /**
  * Validate and fill in all the `dependents` for each entry in the given state.

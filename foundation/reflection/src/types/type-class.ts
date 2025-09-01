@@ -1,8 +1,8 @@
-import type { ModelHeritage } from './model-heritage.js';
-import type { EveryMemberType } from './model-members.js';
-import type { AllType } from './common.js';
+import type { ModelHeritage } from './model-heritage';
+import type { EveryMemberType } from './model-members';
+import type { AllType } from './common';
 
-import { TypeName } from './common.js';
+import { TypeName } from './common';
 
 export type ClassModifiers = {
   export?: boolean;

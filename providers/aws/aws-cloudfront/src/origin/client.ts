@@ -14,7 +14,7 @@ import {
   NoSuchOriginRequestPolicy
 } from '@aws-sdk/client-cloudfront';
 
-import { OriginServiceName } from './types.js';
+import { OriginServiceName } from './types';
 
 const client = new CloudFrontClient({});
 

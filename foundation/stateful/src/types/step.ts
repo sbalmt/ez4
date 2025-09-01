@@ -1,7 +1,7 @@
 import type { ObjectComparison } from '@ez4/utils';
-import type { StepAction } from '../state/step.js';
+import type { StepAction } from '../state/step';
 
-import type { EntryState } from './entry.js';
+import type { EntryState } from './entry';
 
 /**
  * A step state that contains an action to perform.

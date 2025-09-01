@@ -1,12 +1,12 @@
 import type { AllType, SourceMap, TypeArray } from '@ez4/reflection';
-import type { SchemaDefinitions } from '../types/common.js';
-import type { ArraySchema } from '../types/type-array.js';
+import type { SchemaDefinitions } from '../types/common';
+import type { ArraySchema } from '../types/type-array';
 
 import { isTypeArray } from '@ez4/reflection';
 
-import { createSchemaContext } from '../types/context.js';
-import { SchemaType } from '../types/common.js';
-import { getAnySchema } from './any.js';
+import { createSchemaContext } from '../types/context';
+import { SchemaType } from '../types/common';
+import { getAnySchema } from './any';
 
 export type RichTypeArray = TypeArray & {
   definitions?: SchemaDefinitions;

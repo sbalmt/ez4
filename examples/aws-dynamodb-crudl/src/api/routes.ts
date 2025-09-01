@@ -1,8 +1,8 @@
-import type { createItemHandler } from './endpoints/create-item.js';
-import type { readItemHandler } from './endpoints/read-item.js';
-import type { updateItemHandler } from './endpoints/update-item.js';
-import type { deleteItemHandler } from './endpoints/delete-item.js';
-import type { listItemsHandler } from './endpoints/list-items.js';
+import type { createItemHandler } from './endpoints/create-item';
+import type { readItemHandler } from './endpoints/read-item';
+import type { updateItemHandler } from './endpoints/update-item';
+import type { deleteItemHandler } from './endpoints/delete-item';
+import type { listItemsHandler } from './endpoints/list-items';
 
 export type AllRoutes = [
   {

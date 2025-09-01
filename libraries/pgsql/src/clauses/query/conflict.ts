@@ -1,10 +1,10 @@
 import type { ObjectSchema } from '@ez4/schema';
-import type { SqlSource } from '../../common/source.js';
-import type { SqlRecord } from '../../common/types.js';
-import type { SqlBuilderOptions, SqlBuilderReferences } from '../../builder.js';
+import type { SqlSource } from '../../common/source';
+import type { SqlRecord } from '../../common/types';
+import type { SqlBuilderOptions, SqlBuilderReferences } from '../../builder';
 
-import { getUpdateColumns } from '../../helpers/update.js';
-import { escapeSqlNames } from '../../utils/escape.js';
+import { getUpdateColumns } from '../../helpers/update';
+import { escapeSqlNames } from '../../utils/escape';
 
 export class SqlConflictClause {
   #state: {

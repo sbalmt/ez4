@@ -2,10 +2,10 @@ import type { ScalarSchema } from '@ez4/schema';
 
 import { SchemaType } from '@ez4/schema';
 
-import { createTransformContext } from '../types/context.js';
-import { transformBoolean } from './boolean.js';
-import { transformNumber } from './number.js';
-import { transformString } from './string.js';
+import { createTransformContext } from '../types/context';
+import { transformBoolean } from './boolean';
+import { transformNumber } from './number';
+import { transformString } from './string';
 
 export const transformScalar = (value: unknown, schema: ScalarSchema, context = createTransformContext()) => {
   switch (schema.type) {

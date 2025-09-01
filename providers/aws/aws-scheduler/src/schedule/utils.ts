@@ -1,11 +1,11 @@
 import type { DeployOptions, EventContext } from '@ez4/project/library';
 import type { EntryState } from '@ez4/stateful';
-import type { ScheduleState } from './types.js';
+import type { ScheduleState } from './types';
 
 import { hashData, toKebabCase } from '@ez4/utils';
 
-import { ScheduleNotFoundError } from './errors.js';
-import { ScheduleServiceType } from './types.js';
+import { ScheduleNotFoundError } from './errors';
+import { ScheduleServiceType } from './types';
 
 export const createScheduleStateId = (scheduleName: string) => {
   return hashData(ScheduleServiceType, toKebabCase(scheduleName));

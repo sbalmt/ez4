@@ -1,13 +1,13 @@
-export * from './triggers/register.js';
+export * from './triggers/register';
 
-export * from './metadata/service.js';
-export * from './metadata/event.js';
-export * from './metadata/handler.js';
-export * from './metadata/cors.js';
+export * from './metadata/service';
+export * from './metadata/event';
+export * from './metadata/handler';
+export * from './metadata/cors';
 
-export * from './errors/service.js';
-export * from './errors/event.js';
-export * from './errors/cors.js';
+export * from './errors/service';
+export * from './errors/event';
+export * from './errors/cors';
 
-export * from './types/service.js';
-export * from './types/common.js';
+export * from './types/service';
+export * from './types/common';

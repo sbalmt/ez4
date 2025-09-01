@@ -1,15 +1,15 @@
 import type { Node, SourceFile } from 'typescript';
-import type { SourceMap } from '../types.js';
-import type { Context } from './common.js';
+import type { SourceMap } from '../types';
+import type { Context } from './common';
 
-import { getNodeIdentity } from '../helpers/node.js';
-import { hasModifierExport } from '../helpers/modifier.js';
-import { isTypeInterface, mergeTypeInterface } from '../types.js';
-import { tryTypeFunction } from './type-function.js';
-import { tryTypeInterface } from './type-interface.js';
-import { tryTypeClass } from './type-class.js';
-import { tryTypeEnum } from './type-enum.js';
-import { getNewState } from './common.js';
+import { getNodeIdentity } from '../helpers/node';
+import { hasModifierExport } from '../helpers/modifier';
+import { isTypeInterface, mergeTypeInterface } from '../types';
+import { tryTypeFunction } from './type-function';
+import { tryTypeInterface } from './type-interface';
+import { tryTypeClass } from './type-class';
+import { tryTypeEnum } from './type-enum';
+import { getNewState } from './common';
 
 export const trySource = (node: SourceFile, context: Context) => {
   const reflection: SourceMap = {};

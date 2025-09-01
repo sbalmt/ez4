@@ -1,6 +1,6 @@
-import type { EmulatorServices } from '../library/emulator.js';
+import type { EmulatorServices } from '../library/emulator';
 
-import { getServiceName } from './service.js';
+import { getServiceName } from './service';
 
 type TesterContext = {
   emulators?: EmulatorServices;

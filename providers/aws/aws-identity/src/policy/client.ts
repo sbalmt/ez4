@@ -1,5 +1,5 @@
 import type { Arn, ResourceTags } from '@ez4/aws-common';
-import type { PolicyDocument } from '../types/policy.js';
+import type { PolicyDocument } from '../types/policy';
 
 import {
   IAMClient,
@@ -15,8 +15,8 @@ import {
 
 import { Logger, getTagList, tryParseArn } from '@ez4/aws-common';
 
-import { getPolicyArn } from '../utils/policy.js';
-import { PolicyServiceName } from './types.js';
+import { getPolicyArn } from '../utils/policy';
+import { PolicyServiceName } from './types';
 
 const client = new IAMClient({});
 

@@ -1,4 +1,4 @@
-import type { DatabaseEngine, EngineUtils } from './engine.js';
+import type { DatabaseEngine, EngineUtils } from './engine';
 
 /**
  * Insensitive mode.

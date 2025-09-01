@@ -1,4 +1,4 @@
-import type { Index } from '../services/indexes.js';
+import type { Index } from '../services/indexes';
 
 export type TableRelation = {
   sourceTable: string;

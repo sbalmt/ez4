@@ -1,6 +1,6 @@
 import type { AllType, SourceMap, TypeModel } from '@ez4/reflection';
 import type { MemberType } from '@ez4/common/library';
-import type { HttpDefaults } from '../types/common.js';
+import type { HttpDefaults } from '../types/common';
 
 import {
   InvalidServicePropertyError,
@@ -14,10 +14,10 @@ import {
 
 import { isModelProperty, isTypeObject, isTypeReference } from '@ez4/reflection';
 
-import { IncorrectDefaultsTypeError, InvalidDefaultsTypeError } from '../library.js';
-import { getHttpPreferences } from './preferences.js';
-import { isHttpDefaults } from './utils.js';
-import { getHttpErrors } from './errors.js';
+import { IncorrectDefaultsTypeError, InvalidDefaultsTypeError } from '../library';
+import { getHttpPreferences } from './preferences';
+import { isHttpDefaults } from './utils';
+import { getHttpErrors } from './errors';
 
 export const getHttpDefaults = (type: AllType, parent: TypeModel, reflection: SourceMap, errorList: Error[]) => {
   if (!isTypeReference(type)) {

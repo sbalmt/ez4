@@ -8,9 +8,9 @@ import { getServiceName } from '@ez4/project/library';
 import { isQueueImport } from '@ez4/queue/library';
 import { getRandomInteger } from '@ez4/utils';
 
-import { processLambdaMessage } from '../handlers/lambda.js';
-import { createServiceClient } from '../client/service.js';
-import { createImportedClient } from '../client/import.js';
+import { processLambdaMessage } from '../handlers/lambda';
+import { createServiceClient } from '../client/service';
+import { createImportedClient } from '../client/import';
 
 export const registerQueueServices = (service: QueueService | QueueImport, options: ServeOptions, context: EmulateServiceContext) => {
   const { name: serviceName, schema: messageSchema } = service;

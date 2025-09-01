@@ -1,14 +1,14 @@
 import type { Node, TypeLiteralNode } from 'typescript';
-import type { EveryMemberType, TypeObject } from '../types.js';
-import { getNewState, type Context, type State } from './common.js';
+import type { EveryMemberType, TypeObject } from '../types';
+import { getNewState, type Context, type State } from './common';
 
 import { isIndexSignatureDeclaration, isTypeLiteralNode, SyntaxKind } from 'typescript';
 
-import { getPathModule } from '../utils/module.js';
-import { getNodeFilePath } from '../helpers/node.js';
-import { TypeName } from '../types.js';
-import { tryModelMembers } from './model-members.js';
-import { tryTypes } from './types.js';
+import { getPathModule } from '../utils/module';
+import { getNodeFilePath } from '../helpers/node';
+import { TypeName } from '../types';
+import { tryModelMembers } from './model-members';
+import { tryTypes } from './types';
 
 export const createObject = (file: string | null, members?: EveryMemberType[]): TypeObject => {
   return {

@@ -1,16 +1,16 @@
 import type { ObjectSchema } from '@ez4/schema';
 import type { Query } from '@ez4/database';
-import type { PgRelationRepositoryWithSchema } from '../types/repository.js';
-import type { PgClientDriver, PgExecuteStatement } from '../types/driver.js';
-import type { InternalTableMetadata } from '../types/table.js';
+import type { PgRelationRepositoryWithSchema } from '../types/repository';
+import type { PgClientDriver, PgExecuteStatement } from '../types/driver';
+import type { InternalTableMetadata } from '../types/table';
 
-import { createQueryBuilder } from '../utils/builder.js';
+import { createQueryBuilder } from '../utils/builder';
 
-import { prepareInsertQuery } from './insert.js';
-import { prepareUpdateQuery } from './update.js';
-import { prepareSelectQuery } from './select.js';
-import { prepareDeleteQuery } from './delete.js';
-import { prepareCountQuery } from './count.js';
+import { prepareInsertQuery } from './insert';
+import { prepareUpdateQuery } from './update';
+import { prepareSelectQuery } from './select';
+import { prepareDeleteQuery } from './delete';
+import { prepareCountQuery } from './count';
 
 export const prepareInsertOne = async <T extends InternalTableMetadata, S extends Query.SelectInput<T>>(
   table: string,

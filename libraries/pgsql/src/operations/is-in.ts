@@ -1,10 +1,10 @@
 import type { AnySchema } from '@ez4/schema';
-import type { SqlOperationContext } from './types.js';
+import type { SqlOperationContext } from './types';
 
 import { SchemaType } from '@ez4/schema';
 
-import { getOperandColumn, getOperandValue } from './utils.js';
-import { InvalidOperandError } from './errors.js';
+import { getOperandColumn, getOperandValue } from './utils';
+import { InvalidOperandError } from './errors';
 
 export const getIsInOperation = (column: string, schema: AnySchema | undefined, operand: unknown, context: SqlOperationContext) => {
   switch (schema?.type) {

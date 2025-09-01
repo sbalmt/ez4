@@ -1,4 +1,4 @@
-import type { FieldParameter } from './fields.js';
+import type { FieldParameter } from './fields';
 
 export const prepareStatement = (query: string, variables?: FieldParameter[]): [string, unknown[] | undefined] => {
   if (!variables?.length) {

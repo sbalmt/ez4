@@ -1,7 +1,7 @@
 import type { EventContext } from '@ez4/project/library';
-import type { ServiceMetadata } from '../types/service.js';
-import type { MetadataReflection } from '../types/metadata.js';
-import type { DeployOptions } from '../types/options.js';
+import type { ServiceMetadata } from '../types/service';
+import type { MetadataReflection } from '../types/metadata';
+import type { DeployOptions } from '../types/options';
 
 import { triggerAllAsync } from '@ez4/project/library';
 

@@ -5,10 +5,10 @@ import { StepAction } from '@ez4/stateful';
 import { triggerAllAsync } from '@ez4/project/library';
 import { deepCompare } from '@ez4/utils';
 
-import { MissingEntryResourceError } from '../errors/resource.js';
-import { MissingActionProviderError } from '../errors/provider.js';
-import { toBold, toGray } from '../console/format.js';
-import { formatReportChanges } from './format.js';
+import { MissingEntryResourceError } from '../errors/resource';
+import { MissingActionProviderError } from '../errors/provider';
+import { toBold, toGray } from '../console/format';
+import { formatReportChanges } from './format';
 
 export const reportResourceChanges = async (newState: EntryStates, oldState: EntryStates, force?: boolean) => {
   const steps = await triggerAllAsync('deploy:plan', (handler) => handler({ newState, oldState, force }));

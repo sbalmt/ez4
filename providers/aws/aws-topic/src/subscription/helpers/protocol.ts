@@ -1,5 +1,5 @@
 import { InvalidParameterError, isArn, parseArn } from '@ez4/aws-common';
-import { SubscriptionProtocol } from '../client.js';
+import { SubscriptionProtocol } from '../client';
 
 export const getSubscriptionProtocol = (serviceName: string, endpoint: string) => {
   if (!isArn(endpoint)) {

@@ -1,6 +1,6 @@
 import type { SourceMap, TypeModel } from '@ez4/reflection';
 import type { Incomplete } from '@ez4/utils';
-import type { QueueService } from '../types/service.js';
+import type { QueueService } from '../types/service';
 
 import {
   DuplicateServiceError,
@@ -15,14 +15,14 @@ import {
 import { isModelProperty } from '@ez4/reflection';
 import { hasSchemaProperty } from '@ez4/schema';
 
-import { ServiceType } from '../types/service.js';
-import { IncompleteServiceError } from '../errors/service.js';
-import { IncorrectFifoModePropertyError } from '../errors/fifo.js';
-import { getAllSubscription } from './subscription.js';
-import { getQueueMessage } from './message.js';
-import { getQueueFifoMode } from './fifo.js';
-import { isQueueService } from './utils.js';
-import { getQueueDeadLetter } from './deadletter.js';
+import { ServiceType } from '../types/service';
+import { IncompleteServiceError } from '../errors/service';
+import { IncorrectFifoModePropertyError } from '../errors/fifo';
+import { getAllSubscription } from './subscription';
+import { getQueueMessage } from './message';
+import { getQueueFifoMode } from './fifo';
+import { isQueueService } from './utils';
+import { getQueueDeadLetter } from './deadletter';
 
 export const getQueueServices = (reflection: SourceMap) => {
   const allServices: Record<string, QueueService> = {};

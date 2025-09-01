@@ -1,6 +1,6 @@
 import type { NamingStyle } from '@ez4/schema';
 import type { Http } from '@ez4/gateway';
-import type { SuccessResponse } from './common.js';
+import type { SuccessResponse } from './common';
 
 declare class TestRawRequest implements Http.Request {
   body: Http.RawBody;

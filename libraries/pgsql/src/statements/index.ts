@@ -1,8 +1,8 @@
-import { TooManyClausesError } from '../clauses/errors.js';
-import { SqlCreateIndexClause } from '../clauses/index/create.js';
-import { SqlRenameIndexClause } from '../clauses/index/rename.js';
-import { SqlDropIndexClause } from '../clauses/index/drop.js';
-import { ChangeType } from '../clauses/types.js';
+import { TooManyClausesError } from '../clauses/errors';
+import { SqlCreateIndexClause } from '../clauses/index/create';
+import { SqlRenameIndexClause } from '../clauses/index/rename';
+import { SqlDropIndexClause } from '../clauses/index/drop';
+import { ChangeType } from '../clauses/types';
 
 export class SqlIndexStatement {
   #state: {

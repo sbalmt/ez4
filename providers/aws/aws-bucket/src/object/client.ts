@@ -7,8 +7,8 @@ import { getTagList, Logger } from '@ez4/aws-common';
 
 import mime from 'mime';
 
-import { getBucketObjectPath } from './utils.js';
-import { ObjectServiceName } from './types.js';
+import { getBucketObjectPath } from './utils';
+import { ObjectServiceName } from './types';
 
 const client = new S3Client({});
 

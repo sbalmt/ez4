@@ -1,7 +1,7 @@
 import type { Database, Index, Client } from '@ez4/database';
 import type { PostgresEngine } from '@ez4/aws-aurora/client';
-import type { CategorySchema } from './schemas/category.js';
-import type { ItemSchema } from './schemas/item.js';
+import type { CategorySchema } from './schemas/category';
+import type { ItemSchema } from './schemas/item';
 
 /**
  * Example of AWS Aurora RDS deployed with EZ4.

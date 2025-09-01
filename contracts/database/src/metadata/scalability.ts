@@ -1,14 +1,14 @@
 import type { AllType, SourceMap, TypeModel, TypeObject } from '@ez4/reflection';
 import type { MemberType } from '@ez4/common/library';
 import type { Incomplete } from '@ez4/utils';
-import type { DatabaseScalability } from '../types/scalability.js';
+import type { DatabaseScalability } from '../types/scalability';
 
 import { InvalidServicePropertyError, getModelMembers, getPropertyNumber, getObjectMembers, getReferenceType } from '@ez4/common/library';
 import { isModelProperty, isTypeObject, isTypeReference } from '@ez4/reflection';
 import { isAnyNumber } from '@ez4/utils';
 
-import { IncompleteScalabilityError } from '../errors/scalability.js';
-import { isDatabaseEngine } from './utils.js';
+import { IncompleteScalabilityError } from '../errors/scalability';
+import { isDatabaseEngine } from './utils';
 
 export const getDatabaseScalability = (type: AllType, parent: TypeModel, reflection: SourceMap, errorList: Error[]) => {
   if (!isTypeReference(type)) {

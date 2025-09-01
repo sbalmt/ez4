@@ -1,28 +1,28 @@
 import type { Node } from 'typescript';
-import type { EveryType } from '../types.js';
-import type { Context, State } from './common.js';
+import type { EveryType } from '../types';
+import type { Context, State } from './common';
 
 import { isParenthesizedTypeNode, isRestTypeNode } from 'typescript';
 
-import { tryTypeAny } from './type-any.js';
-import { tryTypeVoid } from './type-void.js';
-import { tryTypeNever } from './type-never.js';
-import { tryTypeUnknown } from './type-unknown.js';
-import { tryTypeUndefined } from './type-undefined.js';
-import { tryTypeNull } from './type-null.js';
-import { tryTypeBoolean } from './type-boolean.js';
-import { tryTypeNumber } from './type-number.js';
-import { tryTypeString } from './type-string.js';
-import { tryTypeObject } from './type-object.js';
-import { tryTypeUnion } from './type-union.js';
-import { tryTypeIntersection } from './type-intersection.js';
-import { tryTypeArray } from './type-array.js';
-import { tryTypeTuple } from './type-tuple.js';
-import { tryTypeReference } from './type-reference.js';
-import { tryTypeParameter } from './type-parameter.js';
-import { tryTypeCallback } from './type-callback.js';
-import { tryTypeOf } from './type-of.js';
-import { tryEnumReference } from './enum-reference.js';
+import { tryTypeAny } from './type-any';
+import { tryTypeVoid } from './type-void';
+import { tryTypeNever } from './type-never';
+import { tryTypeUnknown } from './type-unknown';
+import { tryTypeUndefined } from './type-undefined';
+import { tryTypeNull } from './type-null';
+import { tryTypeBoolean } from './type-boolean';
+import { tryTypeNumber } from './type-number';
+import { tryTypeString } from './type-string';
+import { tryTypeObject } from './type-object';
+import { tryTypeUnion } from './type-union';
+import { tryTypeIntersection } from './type-intersection';
+import { tryTypeArray } from './type-array';
+import { tryTypeTuple } from './type-tuple';
+import { tryTypeReference } from './type-reference';
+import { tryTypeParameter } from './type-parameter';
+import { tryTypeCallback } from './type-callback';
+import { tryTypeOf } from './type-of';
+import { tryEnumReference } from './enum-reference';
 
 export const tryTypes = (node: Node, context: Context, state: State): EveryType | null => {
   if (isParenthesizedTypeNode(node)) {

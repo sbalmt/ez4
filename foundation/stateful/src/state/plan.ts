@@ -1,10 +1,10 @@
-import type { EntryState, EntryStates } from '../types/entry.js';
-import type { StepState, StepHandlers, StepOptions } from '../types/step.js';
-import type { HydratedEntryState } from '../types/hydrate.js';
+import type { EntryState, EntryStates } from '../types/entry';
+import type { StepState, StepHandlers, StepOptions } from '../types/step';
+import type { HydratedEntryState } from '../types/hydrate';
 
-import { CorruptedStateReferences, HandlerNotFoundError, EntriesNotFoundError } from './errors.js';
-import { hydrateState } from './hydrate.js';
-import { StepAction } from './step.js';
+import { CorruptedStateReferences, HandlerNotFoundError, EntriesNotFoundError } from './errors';
+import { hydrateState } from './hydrate';
+import { StepAction } from './step';
 
 export type PlanOptions<E extends EntryState> = {
   handlers: StepHandlers<E>;

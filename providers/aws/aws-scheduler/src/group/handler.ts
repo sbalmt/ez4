@@ -1,12 +1,12 @@
 import type { Arn } from '@ez4/aws-common';
 import type { StepHandler } from '@ez4/stateful';
-import type { GroupState, GroupResult, GroupParameters } from './types.js';
+import type { GroupState, GroupResult, GroupParameters } from './types';
 
 import { applyTagUpdates, ReplaceResourceError } from '@ez4/aws-common';
 import { deepCompare } from '@ez4/utils';
 
-import { createGroup, deleteGroup, importGroup, tagGroup, untagGroup } from './client.js';
-import { GroupServiceName } from './types.js';
+import { createGroup, deleteGroup, importGroup, tagGroup, untagGroup } from './client';
+import { GroupServiceName } from './types';
 
 export const getGroupHandler = (): StepHandler<GroupState> => ({
   equals: equalsResource,

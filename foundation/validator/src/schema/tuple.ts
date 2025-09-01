@@ -1,9 +1,9 @@
 import type { TupleSchema } from '@ez4/schema';
 
-import { isNullish } from '../utils/nullish.js';
-import { createValidatorContext } from '../types/context.js';
-import { ExpectedTupleTypeError } from '../errors/tuple.js';
-import { validateAny } from './any.js';
+import { isNullish } from '../utils/nullish';
+import { createValidatorContext } from '../types/context';
+import { ExpectedTupleTypeError } from '../errors/tuple';
+import { validateAny } from './any';
 
 export const validateTuple = async (value: unknown, schema: TupleSchema, context = createValidatorContext()) => {
   if (isNullish(value, schema)) {

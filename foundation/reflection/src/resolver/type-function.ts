@@ -1,16 +1,16 @@
 import type { FunctionDeclaration, Node } from 'typescript';
-import type { TypeFunction, TypeParameter, EveryType, FunctionModifiers } from '../types.js';
-import type { Context, State } from './common.js';
+import type { TypeFunction, TypeParameter, EveryType, FunctionModifiers } from '../types';
+import type { Context, State } from './common';
 
 import { isFunctionDeclaration } from 'typescript';
 
-import { getNodeFilePath } from '../helpers/node.js';
-import { getNodeDocumentation } from '../helpers/documentation.js';
-import { getNodeModifiers } from '../helpers/modifier.js';
-import { getPathModule } from '../utils/module.js';
-import { TypeName } from '../types.js';
-import { tryCallableParameters } from './callable-parameters.js';
-import { tryCallableReturns } from './callable-returns.js';
+import { getNodeFilePath } from '../helpers/node';
+import { getNodeDocumentation } from '../helpers/documentation';
+import { getNodeModifiers } from '../helpers/modifier';
+import { getPathModule } from '../utils/module';
+import { TypeName } from '../types';
+import { tryCallableParameters } from './callable-parameters';
+import { tryCallableReturns } from './callable-returns';
 
 export type FunctionNodes = FunctionDeclaration;
 

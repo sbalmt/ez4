@@ -1,11 +1,11 @@
 import type { EntryState, EntryStates } from '@ez4/stateful';
 import type { LogGroupState } from '@ez4/aws-logs';
 import type { RoleState } from '@ez4/aws-identity';
-import type { QueueFunctionParameters } from './types.js';
+import type { QueueFunctionParameters } from './types';
 
 import { createFunction } from '@ez4/aws-function';
 
-import { bundleQueueFunction } from './bundler.js';
+import { bundleQueueFunction } from './bundler';
 
 export const createQueueFunction = <E extends EntryState>(
   state: EntryStates<E>,

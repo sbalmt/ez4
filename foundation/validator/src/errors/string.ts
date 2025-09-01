@@ -1,4 +1,4 @@
-import { UnexpectedTypeError, UnexpectedValueError } from './common.js';
+import { UnexpectedTypeError, UnexpectedValueError } from './common';
 
 export class ExpectedStringTypeError extends UnexpectedTypeError {
   constructor(propertyName?: string) {

@@ -1,8 +1,8 @@
 import type { Service as CommonService } from '@ez4/common';
 import type { LinkedVariables } from '@ez4/project/library';
-import type { StreamChange } from './streams.js';
-import type { DatabaseEngine } from './engine.js';
-import type { Client } from './client.js';
+import type { StreamChange } from './streams';
+import type { DatabaseEngine } from './engine';
+import type { Client } from './client';
 
 /**
  * Given a database service `T`, it returns all its table.

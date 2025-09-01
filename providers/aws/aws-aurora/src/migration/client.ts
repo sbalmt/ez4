@@ -6,8 +6,8 @@ import { DatabaseQueries } from '@ez4/pgmigration/library';
 import { getCreateQueries, getDeleteQueries, getUpdateQueries } from '@ez4/pgmigration';
 import { Logger } from '@ez4/aws-common';
 
-import { DataClientDriver } from '../client/driver.js';
-import { MigrationServiceName } from './types.js';
+import { DataClientDriver } from '../client/driver';
+import { MigrationServiceName } from './types';
 
 export type ConnectionRequest = {
   database: string;

@@ -1,10 +1,10 @@
 import type { DeployOptions, ExtraSource, EventContext } from '@ez4/project/library';
 import type { QueueImport, QueueService } from '@ez4/queue/library';
-import type { QueueState } from '../queue/types.js';
+import type { QueueState } from '../queue/types';
 
 import { getDefinitionName } from '@ez4/project/library';
 
-import { getQueueState } from '../queue/utils.js';
+import { getQueueState } from '../queue/utils';
 
 export const prepareLinkedClient = (context: EventContext, service: QueueService | QueueImport, options: DeployOptions): ExtraSource => {
   const queueState = getQueueState(context, service.name, options);

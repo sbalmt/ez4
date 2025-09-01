@@ -1,8 +1,8 @@
-import type { AllType } from './types/common.js';
+import type { AllType } from './types/common';
 
-import { isTypeUnion } from './types/type-union.js';
-import { isTypeArray } from './types/type-array.js';
-import { TypeName } from './types/common.js';
+import { isTypeUnion } from './types/type-union';
+import { isTypeArray } from './types/type-array';
+import { TypeName } from './types/common';
 
 /**
  * Determines whether or not the given type is optional by having an `undefined` type.

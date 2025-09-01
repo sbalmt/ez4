@@ -1,19 +1,19 @@
 import type { Node, TypeChecker } from 'typescript';
-import type { EnumNodes } from '../resolver/type-enum.js';
-import type { ClassNodes } from '../resolver/type-class.js';
-import type { InterfaceNodes } from '../resolver/type-interface.js';
-import type { PropertyNodes } from '../resolver/model-property.js';
-import type { MethodNodes } from '../resolver/model-method.js';
-import type { FunctionNodes } from '../resolver/type-function.js';
+import type { EnumNodes } from '../resolver/type-enum';
+import type { ClassNodes } from '../resolver/type-class';
+import type { InterfaceNodes } from '../resolver/type-interface';
+import type { PropertyNodes } from '../resolver/model-property';
+import type { MethodNodes } from '../resolver/model-method';
+import type { FunctionNodes } from '../resolver/type-function';
 
 import { isImportSpecifier } from 'typescript';
 
-import { isTypeEnum } from '../resolver/type-enum.js';
-import { isTypeClass } from '../resolver/type-class.js';
-import { isTypeInterface } from '../resolver/type-interface.js';
-import { isModelProperty } from '../resolver/model-property.js';
-import { isModelMethod } from '../resolver/model-method.js';
-import { isTypeFunction } from '../resolver/type-function.js';
+import { isTypeEnum } from '../resolver/type-enum';
+import { isTypeClass } from '../resolver/type-class';
+import { isTypeInterface } from '../resolver/type-interface';
+import { isModelProperty } from '../resolver/model-property';
+import { isModelMethod } from '../resolver/model-method';
+import { isTypeFunction } from '../resolver/type-function';
 
 export type DeclarationNodes = EnumNodes | ClassNodes | InterfaceNodes | PropertyNodes | MethodNodes | FunctionNodes;
 

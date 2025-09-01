@@ -1,4 +1,4 @@
-import { NamingStyle } from '../types/naming.js';
+import { NamingStyle } from '../types/naming';
 
 import { toCamelCase, toKebabCase, toPascalCase, toSnakeCase } from '@ez4/utils';
 

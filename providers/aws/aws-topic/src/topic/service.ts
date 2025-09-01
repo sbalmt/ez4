@@ -1,11 +1,11 @@
 import type { EntryState, EntryStates } from '@ez4/stateful';
-import type { TopicParameters, TopicState } from './types.js';
+import type { TopicParameters, TopicState } from './types';
 
 import { attachEntry } from '@ez4/stateful';
 import { toKebabCase } from '@ez4/utils';
 
-import { createTopicStateId, isTopicState } from './utils.js';
-import { TopicServiceType } from './types.js';
+import { createTopicStateId, isTopicState } from './utils';
+import { TopicServiceType } from './types';
 
 export const createTopic = <E extends EntryState>(state: EntryStates<E>, parameters: TopicParameters) => {
   const localName = toKebabCase(parameters.topicName);

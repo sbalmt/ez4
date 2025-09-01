@@ -1,5 +1,5 @@
 import type { EntryStates } from '@ez4/stateful';
-import type { TestEntryState } from './common/entry.js';
+import type { TestEntryState } from './common/entry';
 
 import {
   CorruptedEntryMapError,
@@ -15,7 +15,7 @@ import {
 import { describe, it } from 'node:test';
 import { throws } from 'node:assert/strict';
 
-import { TestEntryType } from './common/entry.js';
+import { TestEntryType } from './common/entry';
 import { ok } from 'node:assert';
 
 describe('entry errors tests', () => {

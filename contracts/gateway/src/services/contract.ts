@@ -1,7 +1,7 @@
 import type { Service as CommonService } from '@ez4/common';
 import type { LinkedVariables } from '@ez4/project/library';
-import type { HttpPath } from '../types/common.js';
-import type { HttpSuccessStatuses, HttpEmptySuccessResponse, HttpSuccessResponse } from './utils.js';
+import type { HttpPath } from '../types/common';
+import type { HttpSuccessStatuses, HttpEmptySuccessResponse, HttpSuccessResponse } from './utils';
 
 import type {
   HttpHeaders,
@@ -23,7 +23,7 @@ import type {
   HttpHandler,
   HttpCache,
   HttpCors
-} from './common.js';
+} from './common';
 
 /**
  * Provide all contracts for a self-managed HTTP service.

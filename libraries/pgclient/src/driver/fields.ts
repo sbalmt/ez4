@@ -3,8 +3,8 @@ import type { AnySchema } from '@ez4/schema';
 import { isDate, isDateTime, isTime, isUUID } from '@ez4/utils';
 import { SchemaType } from '@ez4/schema';
 
-import { UnsupportedFieldType } from './errors.js';
-import { isJsonFieldSchema } from './schema.js';
+import { UnsupportedFieldType } from './errors';
+import { isJsonFieldSchema } from './schema';
 
 export type FieldParameter = {
   name: string;

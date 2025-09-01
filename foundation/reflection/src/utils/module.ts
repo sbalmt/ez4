@@ -6,7 +6,7 @@ import {
   resolveModuleName
 } from 'typescript';
 
-import { getCanonicalFileName } from './compiler.js';
+import { getCanonicalFileName } from './compiler';
 
 const DEFAULT_OPTIONS = {
   ...getDefaultCompilerOptions(),

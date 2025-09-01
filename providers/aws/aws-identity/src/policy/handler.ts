@@ -1,13 +1,13 @@
 import type { StepHandler } from '@ez4/stateful';
 import type { Arn } from '@ez4/aws-common';
-import type { PolicyDocument } from '../types/policy.js';
-import type { PolicyState, PolicyResult, PolicyParameters } from './types.js';
+import type { PolicyDocument } from '../types/policy';
+import type { PolicyState, PolicyResult, PolicyParameters } from './types';
 
 import { applyTagUpdates, ReplaceResourceError } from '@ez4/aws-common';
 import { deepCompare, deepEqual } from '@ez4/utils';
 
-import { createPolicyVersion, createPolicy, deletePolicy, deletePolicyVersion, tagPolicy, untagPolicy, importPolicy } from './client.js';
-import { PolicyServiceName } from './types.js';
+import { createPolicyVersion, createPolicy, deletePolicy, deletePolicyVersion, tagPolicy, untagPolicy, importPolicy } from './client';
+import { PolicyServiceName } from './types';
 
 export const getPolicyHandler = (): StepHandler<PolicyState> => ({
   equals: equalsResource,

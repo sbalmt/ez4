@@ -1,16 +1,16 @@
 import type { Node, NodeArray, TypeAliasDeclaration, TypeNode } from 'typescript';
-import type { EveryMemberType, EveryType } from '../types.js';
-import type { Context, State } from './common.js';
+import type { EveryMemberType, EveryType } from '../types';
+import type { Context, State } from './common';
 
 import { isTypeAliasDeclaration } from 'typescript';
 
-import { isInternalType } from '../helpers/node.js';
-import { isModelProperty, isTypeObject, isTypeUnion, TypeName } from '../types.js';
-import { appendTypeUnionElements, removeTypeUnionElements } from '../types/type-union.js';
-import { getTypeArguments } from './type-parameter.js';
-import { createUndefined } from './type-undefined.js';
-import { getNewState } from './common.js';
-import { tryTypes } from './types.js';
+import { isInternalType } from '../helpers/node';
+import { isModelProperty, isTypeObject, isTypeUnion, TypeName } from '../types';
+import { appendTypeUnionElements, removeTypeUnionElements } from '../types/type-union';
+import { getTypeArguments } from './type-parameter';
+import { createUndefined } from './type-undefined';
+import { getNewState } from './common';
+import { tryTypes } from './types';
 
 export type TypeArguments = NodeArray<TypeNode>;
 

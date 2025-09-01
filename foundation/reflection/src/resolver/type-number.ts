@@ -1,9 +1,9 @@
 import type { Node, NumericLiteral, PrefixUnaryExpression } from 'typescript';
-import type { TypeNumber } from '../types.js';
-import type { Context } from './common.js';
+import type { TypeNumber } from '../types';
+import type { Context } from './common';
 
 import { SyntaxKind, isLiteralTypeNode, isPrefixUnaryExpression } from 'typescript';
-import { TypeName } from '../types.js';
+import { TypeName } from '../types';
 
 export type NumberValueType = Extract<keyof TypeNumber, 'literal' | 'default'>;
 

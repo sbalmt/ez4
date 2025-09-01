@@ -1,5 +1,5 @@
 import type { Cron } from '@ez4/scheduler';
-import type { DynamicEvent } from './types.js';
+import type { DynamicEvent } from './types';
 
 import { ServiceEventType } from '@ez4/common';
 

@@ -1,12 +1,12 @@
 import type { StepHandler } from '@ez4/stateful';
 import type { Arn } from '@ez4/aws-common';
-import type { LogGroupState, LogGroupResult, LogGroupParameters } from './types.js';
+import type { LogGroupState, LogGroupResult, LogGroupParameters } from './types';
 
 import { applyTagUpdates, ReplaceResourceError } from '@ez4/aws-common';
 import { deepCompare } from '@ez4/utils';
 
-import { createGroup, deleteGroup, createRetention, deleteRetention, tagGroup, untagGroup } from './client.js';
-import { LogGroupServiceName } from './types.js';
+import { createGroup, deleteGroup, createRetention, deleteRetention, tagGroup, untagGroup } from './client';
+import { LogGroupServiceName } from './types';
 
 export const getLogGroupHandler = (): StepHandler<LogGroupState> => ({
   equals: equalsResource,

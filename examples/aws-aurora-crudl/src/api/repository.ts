@@ -1,4 +1,4 @@
-import type { Db } from '../aurora.js';
+import type { Db } from '../aurora';
 
 import { randomUUID } from 'node:crypto';
 

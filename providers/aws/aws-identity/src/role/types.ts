@@ -1,6 +1,6 @@
 import type { EntryState } from '@ez4/stateful';
 import type { Arn } from '@ez4/aws-common';
-import type { CreateRequest, ImportOrCreateResponse } from './client.js';
+import type { CreateRequest, ImportOrCreateResponse } from './client';
 
 export const RoleServiceName = 'AWS:IAM/Role';
 

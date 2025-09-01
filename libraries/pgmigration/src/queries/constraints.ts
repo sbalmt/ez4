@@ -4,8 +4,8 @@ import type { SqlBuilder } from '@ez4/pgsql';
 
 import { isEnumSchema } from '@ez4/schema';
 
-import { getCheckConstraintQuery } from '../utils/checks.js';
-import { getConstraintName } from '../utils/naming.js';
+import { getCheckConstraintQuery } from '../utils/checks';
+import { getConstraintName } from '../utils/naming';
 
 export namespace ConstraintQuery {
   export const prepareCreate = (builder: SqlBuilder, table: string, columns: Record<string, AnySchema>) => {

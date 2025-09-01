@@ -7,8 +7,8 @@ import { getTableName } from '@ez4/pgclient/library';
 import { IsNullishSchema } from '@ez4/schema';
 import { Index } from '@ez4/database';
 
-import { getCheckConstraintQuery } from '../utils/checks.js';
-import { getRelationName } from '../utils/naming.js';
+import { getCheckConstraintQuery } from '../utils/checks';
+import { getRelationName } from '../utils/naming';
 
 export namespace RelationQuery {
   export const prepareCreate = (builder: SqlBuilder, table: string, schema: ObjectSchema, relations: PgRelationRepository) => {

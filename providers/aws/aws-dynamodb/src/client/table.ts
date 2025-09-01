@@ -1,12 +1,12 @@
 import type { DynamoDBDocumentClient } from '@aws-sdk/lib-dynamodb';
 import type { Table as DbTable, Query } from '@ez4/database';
 import type { ObjectSchema } from '@ez4/schema';
-import type { InternalTableMetadata } from './types.js';
+import type { InternalTableMetadata } from './types';
 
 import { ConditionalCheckFailedException } from '@aws-sdk/client-dynamodb';
 import { deepClone } from '@ez4/utils';
 
-import { executeStatement, executeTransaction } from './common/client.js';
+import { executeStatement, executeTransaction } from './common/client';
 
 import {
   prepareInsertOne,
@@ -18,7 +18,7 @@ import {
   prepareDeleteMany,
   prepareDeleteOne,
   prepareCount
-} from './common/queries.js';
+} from './common/queries';
 
 export type TableSettings = {
   client: DynamoDBDocumentClient;

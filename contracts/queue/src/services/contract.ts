@@ -1,6 +1,6 @@
 import type { Service as CommonService } from '@ez4/common';
 import type { LinkedVariables } from '@ez4/project/library';
-import type { Client } from './client.js';
+import type { Client } from './client';
 
 import type {
   QueueMessage,
@@ -10,7 +10,7 @@ import type {
   SubscriptionListener,
   QueueFifoMode,
   QueueDeadLetter
-} from './common.js';
+} from './common';
 
 /**
  * Provide all contracts for a self-managed queue service.

@@ -3,7 +3,7 @@ import type { EmulateServiceEvent } from '@ez4/project/library';
 import { isTopicImport, isTopicService, registerTriggers as registerTopicTriggers } from '@ez4/topic/library';
 import { createTrigger } from '@ez4/project/library';
 
-import { registerTopicServices } from './emulator.js';
+import { registerTopicServices } from './emulator';
 
 let isRegistered = false;
 

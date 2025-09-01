@@ -5,10 +5,10 @@ import { registerTriggers as registerDatabaseTriggers } from '@ez4/database/libr
 
 import { createTrigger } from '@ez4/project/library';
 
-import { registerTableProvider } from '../table/provider.js';
-import { connectDatabaseServices, prepareDatabaseServices, prepareLinkedServices } from './service.js';
-import { prepareExecutionPolicy } from './policy.js';
-import { prepareEmulatorClient } from './client.js';
+import { registerTableProvider } from '../table/provider';
+import { connectDatabaseServices, prepareDatabaseServices, prepareLinkedServices } from './service';
+import { prepareExecutionPolicy } from './policy';
+import { prepareEmulatorClient } from './client';
 
 let isRegistered = false;
 

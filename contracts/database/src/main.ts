@@ -1,14 +1,14 @@
-export * from './services/streams.js';
+export * from './services/streams';
 
-export { Client } from './services/client.js';
-export { RelationMetadata } from './services/relations.js';
-export { TableMetadata, Table } from './services/table.js';
-export { ParametersMode, ParametersUtils } from './services/parameters.js';
-export { TransactionMode, TransactionUtils } from './services/transaction.js';
-export { InsensitiveMode, InsensitiveUtils } from './services/insensitive.js';
-export { PaginationMode, PaginationUtils } from './services/pagination.js';
-export { Order, OrderMode, OrderUtils } from './services/order.js';
-export { EngineUtils } from './services/engine.js';
-export { Database } from './services/database.js';
-export { Index } from './services/indexes.js';
-export { Query } from './services/query.js';
+export { Client } from './services/client';
+export { RelationMetadata } from './services/relations';
+export { TableMetadata, Table } from './services/table';
+export { ParametersMode, ParametersUtils } from './services/parameters';
+export { TransactionMode, TransactionUtils } from './services/transaction';
+export { InsensitiveMode, InsensitiveUtils } from './services/insensitive';
+export { PaginationMode, PaginationUtils } from './services/pagination';
+export { Order, OrderMode, OrderUtils } from './services/order';
+export { EngineUtils } from './services/engine';
+export { Database } from './services/database';
+export { Index } from './services/indexes';
+export { Query } from './services/query';

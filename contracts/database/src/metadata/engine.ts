@@ -1,7 +1,7 @@
 import type { AllType, SourceMap, TypeModel, TypeObject } from '@ez4/reflection';
 import type { MemberType } from '@ez4/common/library';
 import type { Incomplete } from '@ez4/utils';
-import type { DatabaseEngine } from '../types/engine.js';
+import type { DatabaseEngine } from '../types/engine';
 
 import { isModelProperty, isTypeObject, isTypeReference } from '@ez4/reflection';
 
@@ -14,13 +14,13 @@ import {
   getReferenceType
 } from '@ez4/common/library';
 
-import { ParametersMode } from '../services/parameters.js';
-import { PaginationMode } from '../services/pagination.js';
-import { TransactionMode } from '../services/transaction.js';
-import { InsensitiveMode } from '../services/insensitive.js';
-import { IncompleteEngineError } from '../errors/engine.js';
-import { OrderMode } from '../services/order.js';
-import { isDatabaseEngine } from './utils.js';
+import { ParametersMode } from '../services/parameters';
+import { PaginationMode } from '../services/pagination';
+import { TransactionMode } from '../services/transaction';
+import { InsensitiveMode } from '../services/insensitive';
+import { IncompleteEngineError } from '../errors/engine';
+import { OrderMode } from '../services/order';
+import { isDatabaseEngine } from './utils';
 
 export const getDatabaseEngine = (type: AllType, parent: TypeModel, reflection: SourceMap, errorList: Error[]) => {
   if (!isTypeReference(type)) {

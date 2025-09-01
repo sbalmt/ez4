@@ -1,5 +1,5 @@
 import type { Service } from '@ez4/common';
-import type { Bucket } from './contract.js';
+import type { Bucket } from './contract';
 
 /**
  * Bucket event type.

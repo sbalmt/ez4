@@ -1,4 +1,4 @@
-import { UnexpectedFormatError } from './common.js';
+import { UnexpectedFormatError } from './common';
 
 export class ExpectedBase64TypeError extends UnexpectedFormatError {
   constructor(propertyName?: string) {

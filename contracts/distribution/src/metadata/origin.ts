@@ -1,7 +1,7 @@
 import type { AllType, SourceMap, TypeModel, TypeObject } from '@ez4/reflection';
 import type { MemberType } from '@ez4/common/library';
 import type { Incomplete } from '@ez4/utils';
-import type { CdnRegularOrigin, CdnBucketOrigin, CdnOrigin } from '../types/origin.js';
+import type { CdnRegularOrigin, CdnBucketOrigin, CdnOrigin } from '../types/origin';
 
 import {
   InvalidServicePropertyError,
@@ -17,10 +17,10 @@ import {
 
 import { isModelProperty, isTypeObject, isTypeReference } from '@ez4/reflection';
 
-import { IncompleteOriginError, IncorrectOriginTypeError, InvalidOriginTypeError } from '../errors/origin.js';
-import { CdnOriginType } from '../types/origin.js';
-import { getCdnCache } from './cache.js';
-import { isCdnOrigin } from './utils.js';
+import { IncompleteOriginError, IncorrectOriginTypeError, InvalidOriginTypeError } from '../errors/origin';
+import { CdnOriginType } from '../types/origin';
+import { getCdnCache } from './cache';
+import { isCdnOrigin } from './utils';
 
 export const getAllCdnOrigins = (type: AllType, parent: TypeModel, reflection: SourceMap, errorList: Error[]) => {
   const originItems = getLiteralTuple(type) ?? [];

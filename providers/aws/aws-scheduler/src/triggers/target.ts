@@ -7,10 +7,10 @@ import { linkServiceExtras } from '@ez4/project/library';
 import { isRoleState } from '@ez4/aws-identity';
 import { createLogGroup } from '@ez4/aws-logs';
 
-import { createTargetFunction } from '../schedule/function/service.js';
-import { getInternalName, getTargetName } from './utils.js';
-import { RoleMissingError } from './errors.js';
-import { Defaults } from './defaults.js';
+import { createTargetFunction } from '../schedule/function/service';
+import { getInternalName, getTargetName } from './utils';
+import { RoleMissingError } from './errors';
+import { Defaults } from './defaults';
 
 export const prepareTarget = (state: EntryStates, service: CronService, options: DeployOptions, context: EventContext) => {
   if (!context.role || !isRoleState(context.role)) {

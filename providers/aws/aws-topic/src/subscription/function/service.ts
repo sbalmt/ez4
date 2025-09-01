@@ -1,11 +1,11 @@
 import type { EntryState, EntryStates } from '@ez4/stateful';
 import type { LogGroupState } from '@ez4/aws-logs';
 import type { RoleState } from '@ez4/aws-identity';
-import type { SubscriptionFunctionParameters } from './types.js';
+import type { SubscriptionFunctionParameters } from './types';
 
 import { createFunction } from '@ez4/aws-function';
 
-import { bundleSubscriptionFunction } from './bundler.js';
+import { bundleSubscriptionFunction } from './bundler';
 
 export const createSubscriptionFunction = <E extends EntryState>(
   state: EntryStates<E>,

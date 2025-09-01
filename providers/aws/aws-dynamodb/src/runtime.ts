@@ -1,2 +1,2 @@
-export * from './runtime/schema.js';
-export * from './runtime/errors.js';
+export * from './runtime/schema';
+export * from './runtime/errors';

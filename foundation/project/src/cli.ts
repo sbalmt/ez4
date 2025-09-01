@@ -2,7 +2,7 @@
 import { spawn } from 'node:child_process';
 import { join } from 'node:path';
 
-import { checkMinNodeVersion } from './terminal/version.js';
+import { checkMinNodeVersion } from './terminal/version';
 
 checkMinNodeVersion();
 

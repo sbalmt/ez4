@@ -1,13 +1,13 @@
 import type { Node } from 'typescript';
-import type { TypeReference } from '../types.js';
-import type { Context } from './common.js';
+import type { TypeReference } from '../types';
+import type { Context } from './common';
 
-import { TypeName } from '../types.js';
-import { getNodeIdentity, isInternalType } from '../helpers/node.js';
-import { getAccessNamespace } from '../helpers/identifier.js';
-import { isTypeInterface } from './type-interface.js';
-import { isTypeClass } from './type-class.js';
-import { isTypeEnum } from './type-enum.js';
+import { TypeName } from '../types';
+import { getNodeIdentity, isInternalType } from '../helpers/node';
+import { getAccessNamespace } from '../helpers/identifier';
+import { isTypeInterface } from './type-interface';
+import { isTypeClass } from './type-class';
+import { isTypeEnum } from './type-enum';
 
 export const createReference = (path: string, internal: boolean, namespace?: string | null): TypeReference => {
   return {

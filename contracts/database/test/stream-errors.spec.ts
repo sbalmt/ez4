@@ -4,7 +4,7 @@ import { describe, it } from 'node:test';
 import { IncompleteHandlerError, IncompleteStreamError, IncorrectStreamTypeError, InvalidStreamTypeError } from '@ez4/database/library';
 
 import { registerTriggers } from '@ez4/database/library';
-import { parseFile } from './common/parser.js';
+import { parseFile } from './common/parser';
 
 describe('database stream errors', () => {
   registerTriggers();

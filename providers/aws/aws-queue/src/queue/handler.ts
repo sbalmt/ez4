@@ -1,13 +1,13 @@
 import type { StepContext, StepHandler } from '@ez4/stateful';
-import type { QueueState, QueueResult, QueueParameters } from './types.js';
-import type { CreateRequest, DeadLetter, UpdateRequest } from './client.js';
+import type { QueueState, QueueResult, QueueParameters } from './types';
+import type { CreateRequest, DeadLetter, UpdateRequest } from './client';
 
 import { applyTagUpdates, ReplaceResourceError } from '@ez4/aws-common';
 import { deepCompare, deepEqual } from '@ez4/utils';
 
-import { fetchQueue, createQueue, deleteQueue, tagQueue, untagQueue, updateQueue } from './client.js';
-import { QueueServiceName } from './types.js';
-import { getQueueArn } from './utils.js';
+import { fetchQueue, createQueue, deleteQueue, tagQueue, untagQueue, updateQueue } from './client';
+import { QueueServiceName } from './types';
+import { getQueueArn } from './utils';
 
 type GeneralUpdateParameters = CreateRequest & UpdateRequest;
 

@@ -1,6 +1,6 @@
-import type { EntryState, EntryStates } from '../types/entry.js';
+import type { EntryState, EntryStates } from '../types/entry';
 
-import { DuplicateEntryError, DependencyNotFoundError, EntryNotFoundError, CorruptedEntryMapError } from './errors.js';
+import { DuplicateEntryError, DependencyNotFoundError, EntryNotFoundError, CorruptedEntryMapError } from './errors';
 
 export const getEntry = <E extends EntryState>(entryMap: EntryStates<E>, entryId: string): E => {
   const entry = entryMap[entryId];

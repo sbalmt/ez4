@@ -1,9 +1,9 @@
-import type { ParametersMode } from './parameters.js';
-import type { TransactionMode } from './transaction.js';
-import type { InsensitiveMode } from './insensitive.js';
-import type { PaginationMode } from './pagination.js';
-import type { OrderMode } from './order.js';
-import type { Database } from './database.js';
+import type { ParametersMode } from './parameters';
+import type { TransactionMode } from './transaction';
+import type { InsensitiveMode } from './insensitive';
+import type { PaginationMode } from './pagination';
+import type { OrderMode } from './order';
+import type { Database } from './database';
 
 /**
  * Database engine.

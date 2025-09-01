@@ -1,4 +1,4 @@
-import type { LiteralNumberType } from '../shared/types.js';
+import type { LiteralNumberType } from '../shared/types';
 
 type Type<T> = T;
 

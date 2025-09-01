@@ -1,8 +1,8 @@
 import type { IdentityGrant } from '@ez4/project/library';
 import type { Arn } from '@ez4/aws-common';
-import type { PolicyDocument, PolicyStatement } from '../types/policy.js';
+import type { PolicyDocument, PolicyStatement } from '../types/policy';
 
-import { getAccountId } from './account.js';
+import { getAccountId } from './account';
 
 export const createPolicyDocument = (grants: IdentityGrant[]): PolicyDocument => {
   return {

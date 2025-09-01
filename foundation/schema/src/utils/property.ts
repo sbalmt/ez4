@@ -1,13 +1,13 @@
-import type { ObjectSchema, ObjectSchemaProperty } from '../types/type-object.js';
-import type { UnionSchema } from '../types/type-union.js';
-import type { ArraySchema } from '../types/type-array.js';
-import type { TupleSchema } from '../types/type-tuple.js';
-import type { AnySchema } from '../types/type-any.js';
+import type { ObjectSchema, ObjectSchemaProperty } from '../types/type-object';
+import type { UnionSchema } from '../types/type-union';
+import type { ArraySchema } from '../types/type-array';
+import type { TupleSchema } from '../types/type-tuple';
+import type { AnySchema } from '../types/type-any';
 
 import { deepMerge } from '@ez4/utils';
 
-import { getObjectSchemaProperty, isObjectSchema } from '../types/type-object.js';
-import { isUnionSchema } from '../types/type-union.js';
+import { getObjectSchemaProperty, isObjectSchema } from '../types/type-object';
+import { isUnionSchema } from '../types/type-union';
 
 export type SchemaProperties = {
   [property: string]: SchemaProperties | boolean;

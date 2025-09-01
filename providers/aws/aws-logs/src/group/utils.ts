@@ -1,9 +1,9 @@
 import type { EntryState, StepContext } from '@ez4/stateful';
-import type { LogGroupState } from './types.js';
+import type { LogGroupState } from './types';
 
 import { IncompleteResourceError } from '@ez4/aws-common';
 
-import { LogGroupServiceType } from './types.js';
+import { LogGroupServiceType } from './types';
 
 export const isLogGroupState = (resource: EntryState): resource is LogGroupState => {
   return resource.type === LogGroupServiceType;

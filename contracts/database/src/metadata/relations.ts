@@ -1,12 +1,12 @@
 import type { AllType, SourceMap, TypeModel, TypeObject } from '@ez4/reflection';
 import type { MemberType } from '@ez4/common/library';
-import type { TableRelation } from '../types/relations.js';
+import type { TableRelation } from '../types/relations';
 
 import { isModelDeclaration, getModelMembers, getObjectMembers, getPropertyString, getReferenceType } from '@ez4/common/library';
 import { isModelProperty, isTypeObject, isTypeReference } from '@ez4/reflection';
 
-import { IncorrectRelationsTypeError, InvalidRelationsTypeError, InvalidRelationTargetError } from '../errors/relations.js';
-import { isTableRelations } from './utils.js';
+import { IncorrectRelationsTypeError, InvalidRelationsTypeError, InvalidRelationTargetError } from '../errors/relations';
+import { isTableRelations } from './utils';
 
 type TypeParent = TypeModel | TypeObject;
 

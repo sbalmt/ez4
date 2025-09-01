@@ -1,9 +1,9 @@
-import type { ObjectSchema, ObjectSchemaProperties } from '../types/type-object.js';
+import type { ObjectSchema, ObjectSchemaProperties } from '../types/type-object';
 import type { AnyObject } from '@ez4/utils';
 
 import { isAnyObject } from '@ez4/utils';
 
-import { SchemaType } from '../types/common.js';
+import { SchemaType } from '../types/common';
 
 export type PartialSchemaProperties = {
   [property: string]: PartialSchemaProperties | boolean;

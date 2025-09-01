@@ -1,9 +1,9 @@
-import type { TypeInterface } from './type-interface.js';
-import type { TypeClass } from './type-class.js';
-import type { AllType } from './common.js';
+import type { TypeInterface } from './type-interface';
+import type { TypeClass } from './type-class';
+import type { AllType } from './common';
 
-import { isTypeInterface } from './type-interface.js';
-import { isTypeClass } from './type-class.js';
+import { isTypeInterface } from './type-interface';
+import { isTypeClass } from './type-class';
 
 export type TypeModel = TypeClass | TypeInterface;
 

@@ -1,9 +1,9 @@
-import type { SqlArrayColumn, SqlObjectColumn, SqlResultColumn, SqlResultRecord } from '../../common/results.js';
-import type { SqlJsonColumnOptions, SqlJsonColumnSchema } from '../../common/json.js';
-import type { SqlBuilderReferences } from '../../builder.js';
-import type { SqlSource } from '../../common/source.js';
+import type { SqlArrayColumn, SqlObjectColumn, SqlResultColumn, SqlResultRecord } from '../../common/results';
+import type { SqlJsonColumnOptions, SqlJsonColumnSchema } from '../../common/json';
+import type { SqlBuilderReferences } from '../../builder';
+import type { SqlSource } from '../../common/source';
 
-import { SqlResults } from '../../common/results.js';
+import { SqlResults } from '../../common/results';
 
 export class SqlReturningClause {
   #state: {

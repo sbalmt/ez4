@@ -1,4 +1,4 @@
-import type { Cron } from './contract.js';
+import type { Cron } from './contract';
 
 /**
  * Scheduler client.

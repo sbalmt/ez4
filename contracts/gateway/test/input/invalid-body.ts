@@ -1,5 +1,5 @@
 import type { Http } from '@ez4/gateway';
-import type { SuccessResponse } from './common.js';
+import type { SuccessResponse } from './common';
 
 // Concrete class is not allowed.
 class TestBody implements Http.JsonBody {}

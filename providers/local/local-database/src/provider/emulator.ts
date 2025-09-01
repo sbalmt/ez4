@@ -5,8 +5,8 @@ import { getTableRepository } from '@ez4/pgclient/library';
 import { getServiceName, triggerAllAsync } from '@ez4/project/library';
 import { Client } from '@ez4/pgclient';
 
-import { ensureDatabase, ensureMigration } from '../service/migration.js';
-import { getConnectionOptions } from '../utils/options.js';
+import { ensureDatabase, ensureMigration } from '../service/migration';
+import { getConnectionOptions } from '../utils/options';
 
 export const registerDatabaseEmulator = async (service: DatabaseService, options: ServeOptions) => {
   const client = await getDatabaseClient(service, options);

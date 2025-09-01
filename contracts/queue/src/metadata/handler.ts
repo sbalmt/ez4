@@ -1,10 +1,10 @@
 import type { Incomplete } from '@ez4/utils';
 import type { AllType, SourceMap } from '@ez4/reflection';
-import type { SubscriptionHandler } from '../types/common.js';
+import type { SubscriptionHandler } from '../types/common';
 
-import { IncompleteHandlerError } from '../errors/handler.js';
-import { isSubscriptionHandler } from './utils.js';
-import { getQueueMessage } from './message.js';
+import { IncompleteHandlerError } from '../errors/handler';
+import { isSubscriptionHandler } from './utils';
+import { getQueueMessage } from './message';
 
 export const getSubscriptionHandler = (type: AllType, reflection: SourceMap, errorList: Error[]) => {
   if (!isSubscriptionHandler(type)) {

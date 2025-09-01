@@ -1,6 +1,6 @@
 import type { SourceMap } from '@ez4/reflection';
 import type { Incomplete } from '@ez4/utils';
-import type { QueueImport } from '../types/import.js';
+import type { QueueImport } from '../types/import';
 
 import {
   DuplicateServiceError,
@@ -17,12 +17,12 @@ import {
 
 import { isModelProperty, isTypeReference, isTypeUnion } from '@ez4/reflection';
 
-import { ImportType } from '../types/import.js';
-import { IncompleteServiceError } from '../errors/service.js';
-import { getAllSubscription } from './subscription.js';
-import { getQueueMessage } from './message.js';
-import { getQueueFifoMode } from './fifo.js';
-import { isQueueImport } from './utils.js';
+import { ImportType } from '../types/import';
+import { IncompleteServiceError } from '../errors/service';
+import { getAllSubscription } from './subscription';
+import { getQueueMessage } from './message';
+import { getQueueFifoMode } from './fifo';
+import { isQueueImport } from './utils';
 
 export const getQueueImports = (reflection: SourceMap) => {
   const queueImports: Record<string, QueueImport> = {};

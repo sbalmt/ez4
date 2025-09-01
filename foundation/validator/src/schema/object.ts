@@ -3,12 +3,12 @@ import type { ObjectSchema } from '@ez4/schema';
 import { getPropertyName } from '@ez4/schema';
 import { isAnyObject } from '@ez4/utils';
 
-import { isNullish } from '../utils/nullish.js';
-import { ExpectedObjectTypeError } from '../errors/object.js';
-import { UnexpectedPropertiesError } from '../errors/common.js';
-import { createValidatorContext } from '../types/context.js';
-import { tryDecodeBase64Json } from '../utils/base64.js';
-import { validateAny } from './any.js';
+import { isNullish } from '../utils/nullish';
+import { ExpectedObjectTypeError } from '../errors/object';
+import { UnexpectedPropertiesError } from '../errors/common';
+import { createValidatorContext } from '../types/context';
+import { tryDecodeBase64Json } from '../utils/base64';
+import { validateAny } from './any';
 
 export const validateObject = async (value: unknown, schema: ObjectSchema, context = createValidatorContext()) => {
   if (isNullish(value, schema)) {

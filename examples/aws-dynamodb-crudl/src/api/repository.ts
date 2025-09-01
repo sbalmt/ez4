@@ -1,5 +1,5 @@
-import type { ItemType } from '../schemas/item.js';
-import type { Db } from '../dynamo.js';
+import type { ItemType } from '../schemas/item';
+import type { Db } from '../dynamo';
 
 import { randomUUID } from 'node:crypto';
 

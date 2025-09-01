@@ -1,6 +1,6 @@
 import type { TableMetadata } from '@ez4/database';
 import type { AnyObject } from '@ez4/utils';
-import type { PostgresEngine } from './engine.js';
+import type { PostgresEngine } from './engine';
 
 /**
  * Internal table metadata.

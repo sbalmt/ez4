@@ -1,10 +1,10 @@
-export type * from './types/entry.js';
-export type * from './types/hydrate.js';
-export type * from './types/step.js';
+export type * from './types/entry';
+export type * from './types/hydrate';
+export type * from './types/step';
 
-export * from './state/errors.js';
-export * from './state/entry.js';
-export * from './state/hydrate.js';
-export * from './state/step.js';
-export * from './state/plan.js';
-export * from './state/apply.js';
+export * from './state/errors';
+export * from './state/entry';
+export * from './state/hydrate';
+export * from './state/step';
+export * from './state/plan';
+export * from './state/apply';

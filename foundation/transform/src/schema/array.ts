@@ -1,9 +1,9 @@
 import type { ArraySchema } from '@ez4/schema';
 
-import { tryDecodeBase64Json } from '../utils/base64.js';
-import { createTransformContext } from '../types/context.js';
-import { stringToArray } from '../utils/array.js';
-import { transformAny } from './any.js';
+import { tryDecodeBase64Json } from '../utils/base64';
+import { createTransformContext } from '../types/context';
+import { stringToArray } from '../utils/array';
+import { transformAny } from './any';
 
 export const transformArray = (
   value: unknown,

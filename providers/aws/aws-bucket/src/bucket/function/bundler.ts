@@ -1,5 +1,5 @@
 import type { EntryState } from '@ez4/stateful';
-import type { BucketEventFunctionParameters } from './types.js';
+import type { BucketEventFunctionParameters } from './types';
 
 import { join } from 'node:path';
 

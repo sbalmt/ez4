@@ -1,4 +1,4 @@
-import type { Variables } from '../types/variables.js';
+import type { Variables } from '../types/variables';
 
 import {
   ApiGatewayV2Client,
@@ -11,8 +11,8 @@ import {
 
 import { Logger } from '@ez4/aws-common';
 
-import { assertVariables } from './helpers/variables.js';
-import { StageServiceName } from './types.js';
+import { assertVariables } from './helpers/variables';
+import { StageServiceName } from './types';
 
 const client = new ApiGatewayV2Client({});
 

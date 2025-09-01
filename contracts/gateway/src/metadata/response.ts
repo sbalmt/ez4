@@ -1,7 +1,7 @@
 import type { AllType, SourceMap, TypeModel, TypeObject } from '@ez4/reflection';
 import type { MemberType } from '@ez4/common/library';
 import type { Incomplete } from '@ez4/utils';
-import type { HttpAuthResponse, HttpResponse } from '../types/common.js';
+import type { HttpAuthResponse, HttpResponse } from '../types/common';
 
 import {
   InvalidServicePropertyError,
@@ -16,10 +16,10 @@ import {
 import { isModelProperty, isTypeObject, isTypeReference } from '@ez4/reflection';
 import { isAnyNumber } from '@ez4/utils';
 
-import { IncorrectResponseTypeError, InvalidResponseTypeError } from '../errors/response.js';
-import { getHttpIdentity } from './identity.js';
-import { getHttpHeaders } from './headers.js';
-import { getHttpBody } from './body.js';
+import { IncorrectResponseTypeError, InvalidResponseTypeError } from '../errors/response';
+import { getHttpIdentity } from './identity';
+import { getHttpHeaders } from './headers';
+import { getHttpBody } from './body';
 
 export const getHttpAuthResponse = (type: AllType, parent: TypeModel, reflection: SourceMap, errorList: Error[]) => {
   const response = getHttpResponse(type, parent, reflection, errorList, 'Http.AuthResponse');

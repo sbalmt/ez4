@@ -14,9 +14,9 @@ import {
   isTypeUnion
 } from '@ez4/reflection';
 
-import { IncorrectBodyTypeError, InvalidBodyTypeError } from '../errors/body.js';
-import { getSchemaFromType } from './schema.js';
-import { isJsonBody } from './utils.js';
+import { IncorrectBodyTypeError, InvalidBodyTypeError } from '../errors/body';
+import { getSchemaFromType } from './schema';
+import { isJsonBody } from './utils';
 
 type TypeParent = TypeObject | TypeModel | TypeIntersection;
 

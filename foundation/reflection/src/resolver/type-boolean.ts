@@ -1,9 +1,9 @@
 import type { FalseLiteral, Node, TrueLiteral } from 'typescript';
-import type { TypeBoolean } from '../types.js';
-import type { Context } from './common.js';
+import type { TypeBoolean } from '../types';
+import type { Context } from './common';
 
 import { SyntaxKind, isLiteralTypeNode } from 'typescript';
-import { TypeName } from '../types.js';
+import { TypeName } from '../types';
 
 export type BooleanValueType = Extract<keyof TypeBoolean, 'literal' | 'default'>;
 

@@ -1,9 +1,9 @@
-import type { ModelHeritage } from '../types.js';
-import type { InterfaceNodes } from './type-interface.js';
-import type { ClassNodes } from './type-class.js';
-import type { Context, State } from './common.js';
+import type { ModelHeritage } from '../types';
+import type { InterfaceNodes } from './type-interface';
+import type { ClassNodes } from './type-class';
+import type { Context, State } from './common';
 
-import { tryHeritageMember } from './heritage-member.js';
+import { tryHeritageMember } from './heritage-member';
 
 export type NodeWithHeritage = ClassNodes | InterfaceNodes;
 

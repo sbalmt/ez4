@@ -1,5 +1,5 @@
 import type { AnyObject } from '@ez4/utils';
-import type { LinkedVariables } from './service.js';
+import type { LinkedVariables } from './service';
 
 export type ProjectOptions = {
   /**

@@ -1,7 +1,7 @@
 import type { TopicService, TopicImport } from '@ez4/topic/library';
 import type { DeployOptions, EventContext } from '@ez4/project/library';
 import type { EntryStates } from '@ez4/stateful';
-import type { TopicState } from '../topic/types.js';
+import type { TopicState } from '../topic/types';
 
 import { linkServiceExtras } from '@ez4/project/library';
 import { TopicSubscriptionType } from '@ez4/topic/library';
@@ -11,12 +11,12 @@ import { isRoleState } from '@ez4/aws-identity';
 import { createLogGroup } from '@ez4/aws-logs';
 import { getQueueState } from '@ez4/aws-queue';
 
-import { SubscriptionServiceName } from '../subscription/types.js';
-import { createSubscriptionFunction } from '../subscription/function/service.js';
-import { createSubscription } from '../subscription/service.js';
-import { getFunctionName, getInternalName } from './utils.js';
-import { RoleMissingError } from './errors.js';
-import { Defaults } from './defaults.js';
+import { SubscriptionServiceName } from '../subscription/types';
+import { createSubscriptionFunction } from '../subscription/function/service';
+import { createSubscription } from '../subscription/service';
+import { getFunctionName, getInternalName } from './utils';
+import { RoleMissingError } from './errors';
+import { Defaults } from './defaults';
 
 export const prepareSubscriptions = async (
   state: EntryStates,

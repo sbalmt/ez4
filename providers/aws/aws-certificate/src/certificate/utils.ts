@@ -1,10 +1,10 @@
 import type { EntryState, StepContext } from '@ez4/stateful';
-import type { CertificateState } from './types.js';
+import type { CertificateState } from './types';
 
 import { IncompleteResourceError } from '@ez4/aws-common';
 import { hashData, toKebabCase } from '@ez4/utils';
 
-import { CertificateServiceType } from './types.js';
+import { CertificateServiceType } from './types';
 
 export const createCertificateStateId = (bucketName: string) => {
   return hashData(CertificateServiceType, toKebabCase(bucketName));

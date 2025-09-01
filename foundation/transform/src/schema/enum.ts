@@ -1,6 +1,6 @@
 import type { EnumSchema } from '@ez4/schema';
 
-import { createTransformContext } from '../types/context.js';
+import { createTransformContext } from '../types/context';
 
 export const transformEnum = (value: unknown, schema: EnumSchema, context = createTransformContext()) => {
   if (value === undefined) {

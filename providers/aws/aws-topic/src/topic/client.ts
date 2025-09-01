@@ -11,7 +11,7 @@ import {
 
 import { getTagList, Logger, tryParseArn } from '@ez4/aws-common';
 
-import { TopicServiceName } from './types.js';
+import { TopicServiceName } from './types';
 
 const client = new SNSClient({});
 

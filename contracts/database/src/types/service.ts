@@ -1,7 +1,7 @@
 import type { ServiceMetadata } from '@ez4/project/library';
-import type { DatabaseScalability } from './scalability.js';
-import type { DatabaseEngine } from './engine.js';
-import type { DatabaseTable } from './table.js';
+import type { DatabaseScalability } from './scalability';
+import type { DatabaseEngine } from './engine';
+import type { DatabaseTable } from './table';
 
 export const ServiceType = '@ez4/database';
 

@@ -1,8 +1,8 @@
 import type { Service as CommonService } from '@ez4/common';
 import type { LinkedVariables } from '@ez4/project/library';
-import type { Client } from './client.js';
+import type { Client } from './client';
 
-import type { BucketCors, BucketEvent, BucketHandler, BucketIncoming, BucketListener, BucketRequest } from './common.js';
+import type { BucketCors, BucketEvent, BucketHandler, BucketIncoming, BucketListener, BucketRequest } from './common';
 
 /**
  * Provide all contracts for a self-managed Bucket service.

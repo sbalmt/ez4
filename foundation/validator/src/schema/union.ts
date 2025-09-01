@@ -1,8 +1,8 @@
 import type { UnionSchema } from '@ez4/schema';
 
-import { isNullish } from '../utils/nullish.js';
-import { createValidatorContext } from '../types/context.js';
-import { validateAny } from './any.js';
+import { isNullish } from '../utils/nullish';
+import { createValidatorContext } from '../types/context';
+import { validateAny } from './any';
 
 export const validateUnion = async (value: unknown, schema: UnionSchema, context = createValidatorContext()) => {
   if (isNullish(value, schema)) {

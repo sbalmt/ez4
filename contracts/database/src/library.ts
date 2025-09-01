@@ -1,24 +1,24 @@
-export * from './triggers/register.js';
+export * from './triggers/register';
 
-export * from './metadata/service.js';
-export * from './metadata/table.js';
-export * from './metadata/schema.js';
+export * from './metadata/service';
+export * from './metadata/table';
+export * from './metadata/schema';
 
-export * from './errors/service.js';
-export * from './errors/scalability.js';
-export * from './errors/engine.js';
-export * from './errors/table.js';
-export * from './errors/schema.js';
-export * from './errors/relations.js';
-export * from './errors/indexes.js';
-export * from './errors/stream.js';
-export * from './errors/handler.js';
+export * from './errors/service';
+export * from './errors/scalability';
+export * from './errors/engine';
+export * from './errors/table';
+export * from './errors/schema';
+export * from './errors/relations';
+export * from './errors/indexes';
+export * from './errors/stream';
+export * from './errors/handler';
 
-export * from './services/indexes.js';
-export * from './services/relations.js';
+export * from './services/indexes';
+export * from './services/relations';
 
-export * from './types/service.js';
-export * from './types/relations.js';
-export * from './types/indexes.js';
-export * from './types/schema.js';
-export * from './types/table.js';
+export * from './types/service';
+export * from './types/relations';
+export * from './types/indexes';
+export * from './types/schema';
+export * from './types/table';

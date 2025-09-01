@@ -1,13 +1,13 @@
 import type { Database, Client as DbClient, ParametersUtils, TransactionUtils } from '@ez4/database';
-import type { InternalTableMetadata, Repository } from './types.js';
+import type { InternalTableMetadata, Repository } from './types';
 
 import { DynamoDBDocumentClient } from '@aws-sdk/lib-dynamodb';
 import { DynamoDBClient } from '@aws-sdk/client-dynamodb';
 
-import { executeStatement, executeTransaction } from './common/client.js';
-import { prepareDeleteOne, prepareInsertOne, prepareUpdateOne } from './common/queries.js';
-import { MissingRepositoryTableError, UnsupportedNamedParametersError, UnsupportedTransactionError } from './errors.js';
-import { Table } from './table.js';
+import { executeStatement, executeTransaction } from './common/client';
+import { prepareDeleteOne, prepareInsertOne, prepareUpdateOne } from './common/queries';
+import { MissingRepositoryTableError, UnsupportedNamedParametersError, UnsupportedTransactionError } from './errors';
+import { Table } from './table';
 
 type TableType = Table<InternalTableMetadata>;
 

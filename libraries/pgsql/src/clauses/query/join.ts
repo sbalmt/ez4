@@ -1,12 +1,12 @@
 import type { ObjectSchema } from '@ez4/schema';
-import type { SqlBuilderOptions, SqlBuilderReferences } from '../../builder.js';
-import type { SqlResults } from '../../common/results.js';
-import type { SqlFilters } from '../../common/types.js';
+import type { SqlBuilderOptions, SqlBuilderReferences } from '../../builder';
+import type { SqlResults } from '../../common/results';
+import type { SqlFilters } from '../../common/types';
 
-import { SqlSource } from '../../common/source.js';
-import { SqlConditions } from '../../operations/conditions.js';
-import { escapeSqlName } from '../../utils/escape.js';
-import { MissingJoinConditionError } from '../errors.js';
+import { SqlSource } from '../../common/source';
+import { SqlConditions } from '../../operations/conditions';
+import { escapeSqlName } from '../../utils/escape';
+import { MissingJoinConditionError } from '../errors';
 
 export class SqlJoin extends SqlSource {
   #state: {

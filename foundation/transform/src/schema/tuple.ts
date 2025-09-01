@@ -1,8 +1,8 @@
 import type { TupleSchema } from '@ez4/schema';
 
-import { createTransformContext } from '../types/context.js';
-import { stringToArray } from '../utils/array.js';
-import { transformAny } from './any.js';
+import { createTransformContext } from '../types/context';
+import { stringToArray } from '../utils/array';
+import { transformAny } from './any';
 
 export const transformTuple = (
   value: unknown,

@@ -3,10 +3,10 @@ import type { ConnectResourceEvent, PrepareResourceEvent, ServiceEvent } from '@
 import { isTopicImport } from '@ez4/topic/library';
 import { getServiceName } from '@ez4/project/library';
 
-import { createTopic } from '../topic/service.js';
-import { connectSubscriptions, prepareSubscriptions } from './subscription.js';
-import { ProjectMissingError } from './errors.js';
-import { prepareLinkedClient } from './client.js';
+import { createTopic } from '../topic/service';
+import { connectSubscriptions, prepareSubscriptions } from './subscription';
+import { ProjectMissingError } from './errors';
+import { prepareLinkedClient } from './client';
 
 export const prepareLinkedImports = (event: ServiceEvent) => {
   const { service, options, context } = event;

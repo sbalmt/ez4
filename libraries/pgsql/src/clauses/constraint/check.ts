@@ -1,9 +1,9 @@
-import type { SqlFilters } from '../../common/types.js';
-import type { SqlConstraintClause } from './clause.js';
+import type { SqlFilters } from '../../common/types';
+import type { SqlConstraintClause } from './clause';
 
-import { escapeSqlName } from '../../utils/escape.js';
-import { SqlConditions } from '../../operations/conditions.js';
-import { MissingClauseError } from '../errors.js';
+import { escapeSqlName } from '../../utils/escape';
+import { SqlConditions } from '../../operations/conditions';
+import { MissingClauseError } from '../errors';
 
 export class SqlCheckConstraintClause {
   #state: {

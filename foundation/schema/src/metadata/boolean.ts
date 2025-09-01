@@ -1,10 +1,10 @@
 import type { AllType, TypeBoolean } from '@ez4/reflection';
-import type { BooleanSchema } from '../types/type-boolean.js';
-import type { SchemaDefinitions } from '../types/common.js';
+import type { BooleanSchema } from '../types/type-boolean';
+import type { SchemaDefinitions } from '../types/common';
 
 import { isTypeBoolean } from '@ez4/reflection';
 
-import { SchemaType } from '../types/common.js';
+import { SchemaType } from '../types/common';
 
 export type RichTypeBoolean = TypeBoolean & {
   definitions?: SchemaDefinitions;

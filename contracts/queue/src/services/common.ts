@@ -1,5 +1,5 @@
 import type { Service } from '@ez4/common';
-import type { Queue } from './contract.js';
+import type { Queue } from './contract';
 
 /**
  * Queue message.

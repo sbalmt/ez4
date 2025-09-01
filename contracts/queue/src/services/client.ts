@@ -1,4 +1,4 @@
-import type { Queue } from './contract.js';
+import type { Queue } from './contract';
 
 /**
  * Queue client.

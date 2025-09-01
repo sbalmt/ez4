@@ -1,6 +1,6 @@
 import type { EnumSchemaOption } from '@ez4/schema';
 
-import { UnexpectedValueError } from './common.js';
+import { UnexpectedValueError } from './common';
 
 export class UnexpectedEnumValueError extends UnexpectedValueError {
   constructor(enumOptions: EnumSchemaOption[], propertyName?: string) {

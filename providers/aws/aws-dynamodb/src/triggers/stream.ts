@@ -1,17 +1,17 @@
 import type { DatabaseService, DatabaseTable } from '@ez4/database/library';
 import type { DeployOptions, EventContext } from '@ez4/project/library';
 import type { EntryStates } from '@ez4/stateful';
-import type { TableState } from '../table/types.js';
+import type { TableState } from '../table/types';
 
 import { tryGetFunctionState } from '@ez4/aws-function';
 import { isRoleState } from '@ez4/aws-identity';
 import { createLogGroup } from '@ez4/aws-logs';
 
-import { createMapping } from '../mapping/service.js';
-import { createStreamFunction } from '../mapping/function/service.js';
-import { getInternalName, getStreamName } from './utils.js';
-import { RoleMissingError } from './errors.js';
-import { Defaults } from './defaults.js';
+import { createMapping } from '../mapping/service';
+import { createStreamFunction } from '../mapping/function/service';
+import { getInternalName, getStreamName } from './utils';
+import { RoleMissingError } from './errors';
+import { Defaults } from './defaults';
 
 export const prepareTableStream = (
   state: EntryStates,

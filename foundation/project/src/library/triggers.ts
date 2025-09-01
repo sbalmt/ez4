@@ -6,9 +6,9 @@ import type {
   SyncEventTrigger,
   SyncTriggerResult,
   Trigger
-} from '../types/trigger.js';
+} from '../types/trigger';
 
-import { DuplicateTriggerError } from '../errors/triggers.js';
+import { DuplicateTriggerError } from '../errors/triggers';
 
 const allTriggers: Record<string, Partial<Trigger>> = {};
 

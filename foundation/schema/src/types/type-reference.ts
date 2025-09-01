@@ -1,6 +1,6 @@
-import type { AnySchema } from './type-any.js';
+import type { AnySchema } from './type-any';
 
-import { SchemaType } from './common.js';
+import { SchemaType } from './common';
 
 export type ReferenceSchema = {
   type: SchemaType.Reference;

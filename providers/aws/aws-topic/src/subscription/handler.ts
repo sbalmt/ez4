@@ -1,12 +1,12 @@
 import type { StepContext, StepHandler } from '@ez4/stateful';
-import type { SubscriptionState, SubscriptionResult } from './types.js';
+import type { SubscriptionState, SubscriptionResult } from './types';
 
 import { ReplaceResourceError } from '@ez4/aws-common';
 import { deepCompare } from '@ez4/utils';
 
-import { getSubscriptionProtocol } from './helpers/protocol.js';
-import { createSubscription, deleteSubscription } from './client.js';
-import { SubscriptionServiceName } from './types.js';
+import { getSubscriptionProtocol } from './helpers/protocol';
+import { createSubscription, deleteSubscription } from './client';
+import { SubscriptionServiceName } from './types';
 
 export const getSubscriptionHandler = (): StepHandler<SubscriptionState> => ({
   equals: equalsResource,

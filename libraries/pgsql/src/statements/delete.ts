@@ -1,14 +1,14 @@
-import type { SqlBuilderOptions, SqlBuilderReferences } from '../builder.js';
-import type { SqlResultColumn, SqlResultRecord } from '../common/results.js';
-import type { SqlSourceWithResults } from '../common/source.js';
-import type { SqlFilters } from '../common/types.js';
+import type { SqlBuilderOptions, SqlBuilderReferences } from '../builder';
+import type { SqlResultColumn, SqlResultRecord } from '../common/results';
+import type { SqlSourceWithResults } from '../common/source';
+import type { SqlFilters } from '../common/types';
 import type { ObjectSchema } from '@ez4/schema';
 
-import { SqlSource } from '../common/source.js';
-import { SqlReturningClause } from '../clauses/query/returning.js';
-import { SqlWhereClause } from '../clauses/query/where.js';
-import { escapeSqlName } from '../utils/escape.js';
-import { MissingTableNameError } from './errors.js';
+import { SqlSource } from '../common/source';
+import { SqlReturningClause } from '../clauses/query/returning';
+import { SqlWhereClause } from '../clauses/query/where';
+import { escapeSqlName } from '../utils/escape';
+import { MissingTableNameError } from './errors';
 
 export class SqlDeleteStatement extends SqlSource {
   #state: {

@@ -1,5 +1,5 @@
 import type { Arn, ResourceTags } from '@ez4/aws-common';
-import type { AttributeSchemaGroup } from '../types/schema.js';
+import type { AttributeSchemaGroup } from '../types/schema';
 
 import { getTagList, Logger, tryParseArn, waitDeletion } from '@ez4/aws-common';
 
@@ -19,10 +19,10 @@ import {
   BillingMode
 } from '@aws-sdk/client-dynamodb';
 
-import { getAttributeDefinitions, getAttributeKeyTypes } from './helpers/schema.js';
-import { getSecondaryIndexes, getSecondaryIndexName, waitForSecondaryIndex } from './helpers/indexes.js';
-import { waitForTimeToLive } from './helpers/ttl.js';
-import { TableServiceName } from './types.js';
+import { getAttributeDefinitions, getAttributeKeyTypes } from './helpers/schema';
+import { getSecondaryIndexes, getSecondaryIndexName, waitForSecondaryIndex } from './helpers/indexes';
+import { waitForTimeToLive } from './helpers/ttl';
+import { TableServiceName } from './types';
 
 const client = new DynamoDBClient({});
 

@@ -1,8 +1,8 @@
 import type { ReferenceSchema } from '@ez4/schema';
 
-import { ReferenceNotFoundError } from '../errors/reference.js';
-import { createTransformContext } from '../types/context.js';
-import { transformObject } from './object.js';
+import { ReferenceNotFoundError } from '../errors/reference';
+import { createTransformContext } from '../types/context';
+import { transformObject } from './object';
 
 export const transformReference = (value: unknown, schema: ReferenceSchema, context = createTransformContext()) => {
   if (value === undefined) {

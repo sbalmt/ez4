@@ -2,10 +2,10 @@ import type { SqlParameter } from '@aws-sdk/client-rds-data';
 import type { ObjectSchema } from '@ez4/schema';
 import type { SqlBuilder } from '@ez4/pgsql';
 import type { Query } from '@ez4/database';
-import type { PgRelationRepositoryWithSchema } from '../types/repository.js';
-import type { InternalTableMetadata } from '../types/table.js';
+import type { PgRelationRepositoryWithSchema } from '../types/repository';
+import type { InternalTableMetadata } from '../types/table';
 
-import { getSelectFilters, getSelectFields } from './select.js';
+import { getSelectFilters, getSelectFields } from './select';
 
 export const prepareDeleteQuery = <T extends InternalTableMetadata, S extends Query.SelectInput<T>>(
   table: string,

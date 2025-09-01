@@ -1,7 +1,7 @@
 import type { StepHandler, StepHandlers } from '@ez4/stateful';
-import type { TestEntryState } from './entry.js';
+import type { TestEntryState } from './entry';
 
-import { TestEntryType } from './entry.js';
+import { TestEntryType } from './entry';
 
 export const commonStepHandler: StepHandler<TestEntryState> = {
   equals: (_candidate, _current) => true,

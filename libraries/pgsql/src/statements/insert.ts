@@ -1,20 +1,20 @@
-import type { SqlBuilderOptions, SqlBuilderReferences } from '../builder.js';
-import type { SqlResultColumn, SqlResultRecord } from '../common/results.js';
-import type { SqlSourceWithResults } from '../common/source.js';
-import type { SqlTableReference } from '../common/reference.js';
-import type { SqlRecord } from '../common/types.js';
+import type { SqlBuilderOptions, SqlBuilderReferences } from '../builder';
+import type { SqlResultColumn, SqlResultRecord } from '../common/results';
+import type { SqlSourceWithResults } from '../common/source';
+import type { SqlTableReference } from '../common/reference';
+import type { SqlRecord } from '../common/types';
 import type { ObjectSchema } from '@ez4/schema';
 
-import { getFields, getValues } from '../utils/column.js';
-import { escapeSqlName, escapeSqlNames } from '../utils/escape.js';
-import { SqlReturningClause } from '../clauses/query/returning.js';
-import { SqlConflictClause } from '../clauses/query/conflict.js';
-import { getSelectExpressions } from '../helpers/select.js';
-import { SqlColumnReference } from '../common/reference.js';
-import { SqlSource } from '../common/source.js';
-import { SqlRawValue } from '../common/raw.js';
-import { MissingTableNameError } from './errors.js';
-import { SqlSelectStatement } from './select.js';
+import { getFields, getValues } from '../utils/column';
+import { escapeSqlName, escapeSqlNames } from '../utils/escape';
+import { SqlReturningClause } from '../clauses/query/returning';
+import { SqlConflictClause } from '../clauses/query/conflict';
+import { getSelectExpressions } from '../helpers/select';
+import { SqlColumnReference } from '../common/reference';
+import { SqlSource } from '../common/source';
+import { SqlRawValue } from '../common/raw';
+import { MissingTableNameError } from './errors';
+import { SqlSelectStatement } from './select';
 
 type SqlInsertContext = {
   options: SqlBuilderOptions;

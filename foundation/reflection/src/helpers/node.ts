@@ -5,8 +5,8 @@ import { isIdentifier, isPropertyAccessExpression } from 'typescript';
 import { relative } from 'node:path';
 import { hash } from 'node:crypto';
 
-import { getAccessName } from './identifier.js';
-import { isTypeDeclaration } from './declaration.js';
+import { getAccessName } from './identifier';
+import { isTypeDeclaration } from './declaration';
 
 export const isInternalType = (node: Node) => {
   return !!getNodeFilePath(node)?.includes('/typescript/lib/');

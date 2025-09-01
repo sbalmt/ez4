@@ -1,5 +1,5 @@
 import type { Http } from '@ez4/gateway';
-import type { SuccessResponse } from './common.js';
+import type { SuccessResponse } from './common';
 
 export declare class TestService1 extends Http.Service {
   // @ts-ignore Missing required route path.

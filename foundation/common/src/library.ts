@@ -1,22 +1,22 @@
-export * from './triggers/register.js';
+export * from './triggers/register';
 
-export * from './metadata/services.js';
-export * from './metadata/variables.js';
-export * from './metadata/listener.js';
+export * from './metadata/services';
+export * from './metadata/variables';
+export * from './metadata/listener';
 
-export * from './reflection/declaration.js';
-export * from './reflection/intersection.js';
-export * from './reflection/reference.js';
-export * from './reflection/property.js';
-export * from './reflection/object.js';
-export * from './reflection/array.js';
-export * from './reflection/model.js';
-export * from './reflection/types.js';
-export * from './reflection/value.js';
+export * from './reflection/declaration';
+export * from './reflection/intersection';
+export * from './reflection/reference';
+export * from './reflection/property';
+export * from './reflection/object';
+export * from './reflection/array';
+export * from './reflection/model';
+export * from './reflection/types';
+export * from './reflection/value';
 
-export * from './errors/common.js';
-export * from './errors/services.js';
-export * from './errors/variables.js';
-export * from './errors/listener.js';
+export * from './errors/common';
+export * from './errors/services';
+export * from './errors/variables';
+export * from './errors/listener';
 
-export * from './types/common.js';
+export * from './types/common';

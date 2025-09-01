@@ -1,7 +1,7 @@
 import type { AllType, ModelProperty, SourceMap, TypeModel, TypeObject } from '@ez4/reflection';
 import type { MemberType } from '@ez4/common/library';
 import type { Incomplete } from '@ez4/utils';
-import type { CdnFallback } from '../types/fallback.js';
+import type { CdnFallback } from '../types/fallback';
 
 import {
   InvalidServicePropertyError,
@@ -17,8 +17,8 @@ import {
 import { isModelProperty, isTypeObject, isTypeReference } from '@ez4/reflection';
 import { isAnyNumber } from '@ez4/utils';
 
-import { IncompleteFallbackError, IncorrectFallbackTypeError, InvalidFallbackTypeError } from '../errors/fallback.js';
-import { isCdnFallback } from './utils.js';
+import { IncompleteFallbackError, IncorrectFallbackTypeError, InvalidFallbackTypeError } from '../errors/fallback';
+import { isCdnFallback } from './utils';
 
 export const getAllFallbacks = (member: ModelProperty, parent: TypeModel, reflection: SourceMap, errorList: Error[]) => {
   const fallbackItems = getPropertyTuple(member) ?? [];

@@ -1,4 +1,4 @@
-import type { IsAny, MergeType } from '../common/generics.js';
+import type { IsAny, MergeType } from '../common/generics';
 
 /**
  * Given a type `T`, it returns `true` when `T` is an array, otherwise returns `false`.

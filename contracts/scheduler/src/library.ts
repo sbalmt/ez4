@@ -1,15 +1,15 @@
-export * from './triggers/register.js';
+export * from './triggers/register';
 
-export * from './metadata/service.js';
-export * from './metadata/target.js';
-export * from './metadata/handler.js';
-export * from './metadata/event.js';
-export * from './triggers/service.js';
+export * from './metadata/service';
+export * from './metadata/target';
+export * from './metadata/handler';
+export * from './metadata/event';
+export * from './triggers/service';
 
-export * from './errors/service.js';
-export * from './errors/target.js';
-export * from './errors/handler.js';
-export * from './errors/event.js';
+export * from './errors/service';
+export * from './errors/target';
+export * from './errors/handler';
+export * from './errors/event';
 
-export * from './types/common.js';
-export * from './types/service.js';
+export * from './types/common';
+export * from './types/service';

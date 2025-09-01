@@ -1,4 +1,4 @@
-export { BucketEventType } from './services/common.js';
+export { BucketEventType } from './services/common';
 
-export * from './services/contract.js';
-export * from './services/client.js';
+export * from './services/contract';
+export * from './services/client';

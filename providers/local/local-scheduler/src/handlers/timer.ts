@@ -3,8 +3,8 @@ import type { CronService } from '@ez4/scheduler/library';
 
 import { Logger } from '@ez4/project/library';
 
-import { ExpressionType, parseExpression } from '../utils/expression.js';
-import { InMemoryScheduler } from '../service/scheduler.js';
+import { ExpressionType, parseExpression } from '../utils/expression';
+import { InMemoryScheduler } from '../service/scheduler';
 
 export const processTimerEvent = (service: CronService, options: ServeOptions, context: EmulateServiceContext) => {
   const { name: serviceName, expression } = service;

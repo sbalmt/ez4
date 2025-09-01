@@ -1,10 +1,10 @@
 import type { Integer, String } from '@ez4/schema';
 import type { Service } from '@ez4/common';
 import type { Http } from '@ez4/gateway';
-import type { EventStatus } from '../../schemas/event.js';
-import type { Api } from '../../api.js';
+import type { EventStatus } from '../../schemas/event';
+import type { Api } from '../../api';
 
-import { listEvents } from '../repository.js';
+import { listEvents } from '../repository';
 
 /**
  * List schedules request.

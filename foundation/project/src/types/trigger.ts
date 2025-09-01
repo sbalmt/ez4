@@ -1,10 +1,10 @@
 import type { ApplyResult, EntryState, EntryStates, StepState } from '@ez4/stateful';
 import type { EveryType, SourceMap, TypeClass, TypeObject } from '@ez4/reflection';
-import type { EmulatorService, EmulateServiceEvent, EmulateClientEvent } from './emulator.js';
-import type { IdentityAccount, IdentityGrant } from './identity.js';
-import type { DeployOptions, DestroyOptions } from './options.js';
-import type { ServiceMetadata, ExtraSource } from './service.js';
-import type { MetadataServiceResult } from './metadata.js';
+import type { EmulatorService, EmulateServiceEvent, EmulateClientEvent } from './emulator';
+import type { IdentityAccount, IdentityGrant } from './identity';
+import type { DeployOptions, DestroyOptions } from './options';
+import type { ServiceMetadata, ExtraSource } from './service';
+import type { MetadataServiceResult } from './metadata';
 
 export type Trigger = SyncEvent | AsyncEvent;
 

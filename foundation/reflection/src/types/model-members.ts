@@ -1,8 +1,8 @@
-import type { ModelProperty } from './model-property.js';
-import type { ModelMethod } from './model-method.js';
-import type { AllType } from './common.js';
+import type { ModelProperty } from './model-property';
+import type { ModelMethod } from './model-method';
+import type { AllType } from './common';
 
-import { TypeName } from './common.js';
+import { TypeName } from './common';
 
 export type EveryMemberType = ModelProperty | ModelMethod;
 

@@ -14,8 +14,8 @@ import {
 
 import { Logger, tryParseArn, waitCreation } from '@ez4/aws-common';
 
-import { getLogGroupArn } from '../utils/group.js';
-import { LogGroupServiceName } from './types.js';
+import { getLogGroupArn } from '../utils/group';
+import { LogGroupServiceName } from './types';
 
 const client = new CloudWatchLogsClient({});
 

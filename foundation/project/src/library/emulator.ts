@@ -1,10 +1,10 @@
-import type { EmulatorLinkedServices, EmulatorService, EmulatorServiceClients } from '../types/emulator.js';
-import type { MetadataReflection } from '../types/metadata.js';
-import type { ServeOptions } from '../types/options.js';
+import type { EmulatorLinkedServices, EmulatorService, EmulatorServiceClients } from '../types/emulator';
+import type { MetadataReflection } from '../types/metadata';
+import type { ServeOptions } from '../types/options';
 
 import { getServiceName, triggerAllAsync } from '@ez4/project/library';
 
-import { MissingEmulatorProvider } from '../errors/provider.js';
+import { MissingEmulatorProvider } from '../errors/provider';
 
 export type EmulatorServices = Record<string, EmulatorService>;
 

@@ -1,10 +1,10 @@
 import type { InterfaceDeclaration, Node, NodeArray, TypeNode } from 'typescript';
-import type { Context, State } from './common.js';
+import type { Context, State } from './common';
 
-import { isInternalType } from '../helpers/node.js';
-import { isTypeInterface } from './type-interface.js';
-import { createArray } from './type-array.js';
-import { tryTypes } from './types.js';
+import { isInternalType } from '../helpers/node';
+import { isTypeInterface } from './type-interface';
+import { createArray } from './type-array';
+import { tryTypes } from './types';
 
 export type TypeArguments = NodeArray<TypeNode>;
 

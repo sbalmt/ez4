@@ -1,6 +1,6 @@
 import type { AnyObject, ObjectComparison } from '@ez4/utils';
 
-import { toGray, toGreen, toRed, toYellow } from '../console/format.js';
+import { toGray, toGreen, toRed, toYellow } from '../console/format';
 
 export const formatReportChanges = (changes: ObjectComparison, values: AnyObject, path?: string) => {
   const length = getMaxPropertyLength({

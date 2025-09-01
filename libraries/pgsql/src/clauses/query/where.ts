@@ -1,4 +1,4 @@
-import { SqlConditions } from '../../operations/conditions.js';
+import { SqlConditions } from '../../operations/conditions';
 
 export class SqlWhereClause extends SqlConditions {
   build(): [string, unknown[]] | undefined {

@@ -2,14 +2,14 @@ import type { AnySchema } from '@ez4/schema';
 
 import { SchemaType } from '@ez4/schema';
 
-import { createValidatorContext } from '../types/context.js';
-import { validateScalar } from './scalar.js';
-import { validateObject } from './object.js';
-import { validateReference } from './reference.js';
-import { validateUnion } from './union.js';
-import { validateArray } from './array.js';
-import { validateTuple } from './tuple.js';
-import { validateEnum } from './enum.js';
+import { createValidatorContext } from '../types/context';
+import { validateScalar } from './scalar';
+import { validateObject } from './object';
+import { validateReference } from './reference';
+import { validateUnion } from './union';
+import { validateArray } from './array';
+import { validateTuple } from './tuple';
+import { validateEnum } from './enum';
 
 export const validateAny = (value: unknown, schema: AnySchema, context = createValidatorContext()) => {
   switch (schema.type) {

@@ -1,6 +1,6 @@
-import type { SqlAlterTableClause } from '../table/alter.js';
+import type { SqlAlterTableClause } from '../table/alter';
 
-import { escapeSqlName } from '../../utils/escape.js';
+import { escapeSqlName } from '../../utils/escape';
 
 export class SqlDropColumnClause {
   #state: {

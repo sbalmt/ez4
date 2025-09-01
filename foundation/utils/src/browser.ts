@@ -1,29 +1,29 @@
-export * from './types/assert.js';
+export * from './types/assert';
 
-export * from './common/generics.js';
-export * from './common/object.js';
+export * from './common/generics';
+export * from './common/object';
 
-export * from './array/compare.js';
-export * from './array/generics.js';
-export * from './array/equal.js';
+export * from './array/compare';
+export * from './array/generics';
+export * from './array/equal';
 
-export * from './object/check.js';
-export * from './object/generics.js';
-export * from './object/compare.js';
-export * from './object/equal.js';
-export * from './object/clone.js';
-export * from './object/merge.js';
+export * from './object/check';
+export * from './object/generics';
+export * from './object/compare';
+export * from './object/equal';
+export * from './object/clone';
+export * from './object/merge';
 
-export * from './boolean/check.js';
+export * from './boolean/check';
 
-export * from './number/check.js';
-export * from './number/random.js';
+export * from './number/check';
+export * from './number/random';
 
-export * from './string/check.js';
-export * from './string/case.js';
-export * from './string/capital.js';
-export * from './string/join.js';
-export * from './string/uuid.js';
-export * from './string/email.js';
-export * from './string/base64.js';
-export * from './string/date.js';
+export * from './string/check';
+export * from './string/case';
+export * from './string/capital';
+export * from './string/join';
+export * from './string/uuid';
+export * from './string/email';
+export * from './string/base64';
+export * from './string/date';

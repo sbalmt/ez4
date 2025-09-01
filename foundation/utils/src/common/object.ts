@@ -1,14 +1,14 @@
-import type { ObjectCompareOptions, ObjectComparison } from '../object/compare.js';
-import type { ObjectEqualityOptions } from '../object/equal.js';
-import type { ArrayComparison } from '../array/compare.js';
-import type { AnyObject } from '../object/generics.js';
-import type { IsArray } from '../array/generics.js';
+import type { ObjectCompareOptions, ObjectComparison } from '../object/compare';
+import type { ObjectEqualityOptions } from '../object/equal';
+import type { ArrayComparison } from '../array/compare';
+import type { AnyObject } from '../object/generics';
+import type { IsArray } from '../array/generics';
 
-import { deepEqualArray } from '../array/equal.js';
-import { deepCompareArray } from '../array/compare.js';
-import { isAnyObject, isPlainObject } from '../object/check.js';
-import { deepCompareObject } from '../object/compare.js';
-import { deepEqualObject } from '../object/equal.js';
+import { deepEqualArray } from '../array/equal';
+import { deepCompareArray } from '../array/compare';
+import { isAnyObject, isPlainObject } from '../object/check';
+import { deepCompareObject } from '../object/compare';
+import { deepEqualObject } from '../object/equal';
 
 export type CompareOptions<T extends AnyObject | unknown[], S extends AnyObject | unknown[]> =
   IsArray<T> extends true ? never : ObjectCompareOptions<T, S>;

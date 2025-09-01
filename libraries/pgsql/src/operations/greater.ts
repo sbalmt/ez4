@@ -1,7 +1,7 @@
 import type { AnySchema } from '@ez4/schema';
-import type { SqlOperationContext } from './types.js';
+import type { SqlOperationContext } from './types';
 
-import { getOperandColumn, getOperandValue } from './utils.js';
+import { getOperandColumn, getOperandValue } from './utils';
 
 export const getGreaterThanOperation = (column: string, schema: AnySchema | undefined, operand: unknown, context: SqlOperationContext) => {
   const rhsOperand = getOperandValue(schema, operand, context);

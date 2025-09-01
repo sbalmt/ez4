@@ -1,8 +1,8 @@
-import type { AllType } from './common.js';
-import type { TypeParameter } from './type-parameter.js';
-import type { EveryType } from './types.js';
+import type { AllType } from './common';
+import type { TypeParameter } from './type-parameter';
+import type { EveryType } from './types';
 
-import { TypeName } from './common.js';
+import { TypeName } from './common';
 
 export type TypeCallback = {
   type: TypeName.Callback;

@@ -1,12 +1,12 @@
 import type { Http } from '@ez4/gateway';
 import type { Environment } from '@ez4/common';
-import type { createScheduleHandler } from './api/endpoints/create-schedule.js';
-import type { readScheduleHandler } from './api/endpoints/read-schedule.js';
-import type { updateScheduleHandler } from './api/endpoints/update-schedule.js';
-import type { deleteScheduleHandler } from './api/endpoints/delete-schedule.js';
-import type { listSchedulesHandler } from './api/endpoints/list-schedules.js';
-import type { EventScheduler } from './scheduler.js';
-import type { EventDb } from './dynamo.js';
+import type { createScheduleHandler } from './api/endpoints/create-schedule';
+import type { readScheduleHandler } from './api/endpoints/read-schedule';
+import type { updateScheduleHandler } from './api/endpoints/update-schedule';
+import type { deleteScheduleHandler } from './api/endpoints/delete-schedule';
+import type { listSchedulesHandler } from './api/endpoints/list-schedules';
+import type { EventScheduler } from './scheduler';
+import type { EventDb } from './dynamo';
 
 /**
  * Example of AWS API deployed with EZ4.

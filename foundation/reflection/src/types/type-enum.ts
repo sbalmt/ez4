@@ -1,7 +1,7 @@
-import type { EnumMember } from './enum-member.js';
-import type { AllType } from './common.js';
+import type { EnumMember } from './enum-member';
+import type { AllType } from './common';
 
-import { TypeName } from './common.js';
+import { TypeName } from './common';
 
 export type TypeEnum = {
   type: TypeName.Enum;

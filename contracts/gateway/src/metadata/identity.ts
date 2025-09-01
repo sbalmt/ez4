@@ -5,9 +5,9 @@ import { isTypeIntersection, isTypeObject, isTypeReference, isTypeUndefined, isT
 import { getReferenceType, isModelDeclaration } from '@ez4/common/library';
 import { createUnionSchema } from '@ez4/schema/library';
 
-import { IncorrectIdentityTypeError, InvalidIdentityTypeError } from '../errors/identity.js';
-import { getSchemaFromType } from './schema.js';
-import { isHttpIdentity } from './utils.js';
+import { IncorrectIdentityTypeError, InvalidIdentityTypeError } from '../errors/identity';
+import { getSchemaFromType } from './schema';
+import { isHttpIdentity } from './utils';
 
 type TypeParent = TypeObject | TypeModel | TypeIntersection;
 

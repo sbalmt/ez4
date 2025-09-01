@@ -1,6 +1,6 @@
-import type { SqlTableStatement } from '../../statements/table.js';
+import type { SqlTableStatement } from '../../statements/table';
 
-import { escapeSqlName } from '../../utils/escape.js';
+import { escapeSqlName } from '../../utils/escape';
 
 type ColumnData = {
   name: string;

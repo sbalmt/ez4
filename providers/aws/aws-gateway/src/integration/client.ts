@@ -10,7 +10,7 @@ import {
 
 import { Logger, tryParseArn } from '@ez4/aws-common';
 
-import { IntegrationServiceName } from './types.js';
+import { IntegrationServiceName } from './types';
 
 const client = new ApiGatewayV2Client({});
 

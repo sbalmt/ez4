@@ -1,4 +1,4 @@
-import { escapeSqlName, escapeSqlText } from './escape.js';
+import { escapeSqlName, escapeSqlText } from './escape';
 
 export const mergeSqlPath = (column: string, path: string | undefined) => {
   return path ? `${path}[${escapeSqlText(column)}]` : escapeSqlName(column);

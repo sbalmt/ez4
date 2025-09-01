@@ -1,11 +1,11 @@
 import type { EntryState, EntryStates } from '@ez4/stateful';
-import type { ExtraSource, ServiceAliases, ServiceMetadata } from '../types/service.js';
-import type { CommonOptions } from '../types/options.js';
+import type { ExtraSource, ServiceAliases, ServiceMetadata } from '../types/service';
+import type { CommonOptions } from '../types/options';
 
 import { tryLinkDependency } from '@ez4/stateful';
 import { toKebabCase } from '@ez4/utils';
 
-import { isServiceMetadata } from '../types/service.js';
+import { isServiceMetadata } from '../types/service';
 
 export const getServiceName = (service: ServiceMetadata | string, options: CommonOptions) => {
   const resourcePrefix = toKebabCase(options.resourcePrefix);

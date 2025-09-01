@@ -1,9 +1,9 @@
 import type { Topic } from '@ez4/topic';
 import type { Environment } from '@ez4/common';
-import type { Sqs, FifoSqs } from './queue/service.js';
-import type { messageHandlerA, messageHandlerB } from './lambda/handlers.js';
-import type { topicListener } from './common.js';
-import type { MessageRequest } from './types.js';
+import type { Sqs, FifoSqs } from './queue/service';
+import type { messageHandlerA, messageHandlerB } from './lambda/handlers';
+import type { topicListener } from './common';
+import type { MessageRequest } from './types';
 
 /**
  * Example of AWS SNS topic deployed with EZ4.

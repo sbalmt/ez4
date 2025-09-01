@@ -1,8 +1,8 @@
 import type { ModelProperty, SourceMap, TypeModel, TypeObject } from '@ez4/reflection';
 import type { Incomplete } from '@ez4/utils';
-import type { DatabaseService } from '../types/service.js';
-import type { DatabaseTable } from '../types/table.js';
-import type { TableIndex } from '../types/indexes.js';
+import type { DatabaseService } from '../types/service';
+import type { DatabaseTable } from '../types/table';
+import type { TableIndex } from '../types/indexes';
 
 import {
   DuplicateServiceError,
@@ -16,13 +16,13 @@ import {
 
 import { isModelProperty } from '@ez4/reflection';
 
-import { ServiceType } from '../types/service.js';
-import { IncompleteServiceError } from '../errors/service.js';
-import { InvalidRelationAliasError, InvalidRelationColumnError, InvalidRelationTableError } from '../errors/relations.js';
-import { getDatabaseScalability } from './scalability.js';
-import { getDatabaseEngine } from './engine.js';
-import { isDatabaseService } from './utils.js';
-import { getDatabaseTable } from './table.js';
+import { ServiceType } from '../types/service';
+import { IncompleteServiceError } from '../errors/service';
+import { InvalidRelationAliasError, InvalidRelationColumnError, InvalidRelationTableError } from '../errors/relations';
+import { getDatabaseScalability } from './scalability';
+import { getDatabaseEngine } from './engine';
+import { isDatabaseService } from './utils';
+import { getDatabaseTable } from './table';
 
 export const getDatabaseServices = (reflection: SourceMap) => {
   const allServices: Record<string, DatabaseService> = {};

@@ -1,6 +1,6 @@
-import type { DecomposeIndexName } from './indexes.js';
-import type { TableMetadata } from './table.js';
-import type { Database } from './database.js';
+import type { DecomposeIndexName } from './indexes';
+import type { TableMetadata } from './table';
+import type { Database } from './database';
 
 /**
  * Query order types.

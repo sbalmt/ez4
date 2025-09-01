@@ -1,13 +1,13 @@
-export * from './types/repository.js';
-export * from './types/engine.js';
+export * from './types/repository';
+export * from './types/engine';
 
-export * from './utils/repository.js';
-export * from './utils/resources.js';
-export * from './utils/schema.js';
+export * from './utils/repository';
+export * from './utils/resources';
+export * from './utils/schema';
 
-export * from './queries/insert.js';
-export * from './queries/update.js';
-export * from './queries/select.js';
-export * from './queries/delete.js';
+export * from './queries/insert';
+export * from './queries/update';
+export * from './queries/select';
+export * from './queries/delete';
 
-export * from './service/relations.js';
+export * from './service/relations';

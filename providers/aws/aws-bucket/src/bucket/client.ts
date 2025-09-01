@@ -19,7 +19,7 @@ import {
   NoSuchBucket
 } from '@aws-sdk/client-s3';
 
-import { BucketServiceName } from './types.js';
+import { BucketServiceName } from './types';
 
 const client = new S3Client({});
 

@@ -2,14 +2,14 @@ import type { AnySchema } from '@ez4/schema';
 
 import { SchemaType } from '@ez4/schema';
 
-import { createTransformContext } from '../types/context.js';
-import { transformScalar } from './scalar.js';
-import { transformObject } from './object.js';
-import { transformReference } from './reference.js';
-import { transformUnion } from './union.js';
-import { transformArray } from './array.js';
-import { transformTuple } from './tuple.js';
-import { transformEnum } from './enum.js';
+import { createTransformContext } from '../types/context';
+import { transformScalar } from './scalar';
+import { transformObject } from './object';
+import { transformReference } from './reference';
+import { transformUnion } from './union';
+import { transformArray } from './array';
+import { transformTuple } from './tuple';
+import { transformEnum } from './enum';
 
 export const transformAny = (value: unknown, schema: AnySchema, context = createTransformContext()): unknown => {
   if (value === null && schema.nullable) {

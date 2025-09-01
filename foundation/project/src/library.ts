@@ -1,17 +1,17 @@
-export * from './library/triggers.js';
-export * from './library/reflection.js';
-export * from './library/metadata.js';
+export * from './library/triggers';
+export * from './library/reflection';
+export * from './library/metadata';
 
-export * from './types/trigger.js';
-export * from './types/service.js';
-export * from './types/metadata.js';
-export * from './types/emulator.js';
-export * from './types/identity.js';
-export * from './types/options.js';
+export * from './types/trigger';
+export * from './types/service';
+export * from './types/metadata';
+export * from './types/emulator';
+export * from './types/identity';
+export * from './types/options';
 
-export * from './services/storage.js';
+export * from './services/storage';
 
-export * from './utils/definitions.js';
-export * from './utils/service.js';
-export * from './utils/logger.js';
-export * from './utils/tester.js';
+export * from './utils/definitions';
+export * from './utils/service';
+export * from './utils/logger';
+export * from './utils/tester';

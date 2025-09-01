@@ -1,13 +1,13 @@
 import type { StepContext, StepHandler, StepOptions } from '@ez4/stateful';
-import type { MigrationState, MigrationResult } from './types.js';
+import type { MigrationState, MigrationResult } from './types';
 
 import { getTableRepositoryChanges } from '@ez4/pgmigration/library';
 import { ReplaceResourceError } from '@ez4/aws-common';
 import { deepCompare } from '@ez4/utils';
 
-import { getClusterResult } from '../cluster/utils.js';
-import { createDatabase, deleteDatabase, createTables, updateTables } from './client.js';
-import { MigrationServiceName } from './types.js';
+import { getClusterResult } from '../cluster/utils';
+import { createDatabase, deleteDatabase, createTables, updateTables } from './client';
+import { MigrationServiceName } from './types';
 
 export const getMigrationHandler = (): StepHandler<MigrationState> => ({
   equals: equalsResource,

@@ -1,12 +1,12 @@
 import type { EntryStates } from '@ez4/stateful';
-import type { TestEntryState } from './common/entry.js';
+import type { TestEntryState } from './common/entry';
 
 import { planSteps, StepAction } from '@ez4/stateful';
 import { describe, it } from 'node:test';
 import { equal } from 'node:assert/strict';
 
-import { commonStepHandlers } from './common/handler.js';
-import { TestEntryType } from './common/entry.js';
+import { commonStepHandlers } from './common/handler';
+import { TestEntryType } from './common/entry';
 import { ok } from 'node:assert';
 
 const baseState: EntryStates<TestEntryState> = {

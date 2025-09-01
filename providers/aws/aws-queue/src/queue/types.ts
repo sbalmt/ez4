@@ -1,6 +1,6 @@
 import type { EntryState } from '@ez4/stateful';
 import type { Arn } from '@ez4/aws-common';
-import type { CreateRequest, CreateResponse, DeadLetter } from './client.js';
+import type { CreateRequest, CreateResponse, DeadLetter } from './client';
 
 export const QueueServiceName = 'AWS:SQS/Queue';
 

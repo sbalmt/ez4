@@ -18,9 +18,9 @@ import {
 
 import { isAnyBoolean, isAnyNumber, isAnyString } from '@ez4/utils';
 
-import { InvalidRichTypeProperty } from '../errors/richtype.js';
-import { isRichTypeObject } from '../metadata/object.js';
-import { isRichTypeArray } from '../metadata/array.js';
+import { InvalidRichTypeProperty } from '../errors/richtype';
+import { isRichTypeObject } from '../metadata/object';
+import { isRichTypeArray } from '../metadata/array';
 
 export type RichTypes = {
   format?: string;

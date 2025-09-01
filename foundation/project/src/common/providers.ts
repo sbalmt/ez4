@@ -1,4 +1,4 @@
-import type { ProjectOptions } from '../types/project.js';
+import type { ProjectOptions } from '../types/project';
 
 import { pathToFileURL } from 'node:url';
 import { join } from 'node:path';

@@ -1,5 +1,5 @@
 import type { AllType } from '@ez4/reflection';
-import type { NamingStyle } from './naming.js';
+import type { NamingStyle } from './naming';
 
 export type SchemaContext = {
   references: WeakMap<AllType, number>;

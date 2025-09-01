@@ -1,9 +1,9 @@
 import type { Sns, FifoSns } from 'hello-aws-topic';
 import type { Topic } from '@ez4/topic';
 import type { Environment } from '@ez4/common';
-import type { FifoSqs, Sqs } from './queue/service.js';
-import type { messageHandlerA } from './lambda/handlers.js';
-import type { serviceListener } from './common.js';
+import type { FifoSqs, Sqs } from './queue/service';
+import type { messageHandlerA } from './lambda/handlers';
+import type { serviceListener } from './common';
 
 /**
  * Example of AWS SNS imported and deployed with EZ4.

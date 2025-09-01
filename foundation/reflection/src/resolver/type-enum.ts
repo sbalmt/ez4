@@ -1,14 +1,14 @@
 import type { EnumDeclaration, Node } from 'typescript';
-import type { TypeEnum, EnumMember } from '../types.js';
-import type { Context } from './common.js';
+import type { TypeEnum, EnumMember } from '../types';
+import type { Context } from './common';
 
 import { isEnumDeclaration } from 'typescript';
 
-import { getNodeFilePath } from '../helpers/node.js';
-import { getNodeDocumentation } from '../helpers/documentation.js';
-import { getPathModule } from '../utils/module.js';
-import { TypeName } from '../types.js';
-import { tryEnumMembers } from './enum-member.js';
+import { getNodeFilePath } from '../helpers/node';
+import { getNodeDocumentation } from '../helpers/documentation';
+import { getPathModule } from '../utils/module';
+import { TypeName } from '../types';
+import { tryEnumMembers } from './enum-member';
 
 export type EnumNodes = EnumDeclaration;
 

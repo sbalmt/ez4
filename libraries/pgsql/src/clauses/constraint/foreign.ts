@@ -1,7 +1,7 @@
-import type { SqlConstraintClause } from './clause.js';
+import type { SqlConstraintClause } from './clause';
 
-import { escapeSqlName, escapeSqlNames } from '../../utils/escape.js';
-import { ConstraintAction } from '../types.js';
+import { escapeSqlName, escapeSqlNames } from '../../utils/escape';
+import { ConstraintAction } from '../types';
 
 export class SqlForeignKeyConstraintClause {
   #state: {

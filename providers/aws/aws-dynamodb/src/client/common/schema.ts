@@ -4,7 +4,7 @@ import type { AnyObject } from '@ez4/utils';
 import { getPartialSchema } from '@ez4/schema';
 import { isAnyObject } from '@ez4/utils';
 
-import { isSkippableData } from './data.js';
+import { isSkippableData } from './data';
 
 export const preparePartialSchema = (schema: ObjectSchema, data: AnyObject) => {
   return getPartialSchema(schema, {

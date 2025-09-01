@@ -1,4 +1,4 @@
-import type { EveryMemberType } from './model-members.js';
+import type { EveryMemberType } from './model-members';
 
 export type ModelHeritage = {
   path: string;

@@ -2,11 +2,11 @@ import type { ArraySchema } from '@ez4/schema';
 
 import { isAnyNumber } from '@ez4/utils';
 
-import { tryDecodeBase64Json } from '../utils/base64.js';
-import { ExpectedArrayTypeError, UnexpectedMaxItemsError, UnexpectedMinItemsError } from '../errors/array.js';
-import { createValidatorContext } from '../types/context.js';
-import { isNullish } from '../utils/nullish.js';
-import { validateAny } from './any.js';
+import { tryDecodeBase64Json } from '../utils/base64';
+import { ExpectedArrayTypeError, UnexpectedMaxItemsError, UnexpectedMinItemsError } from '../errors/array';
+import { createValidatorContext } from '../types/context';
+import { isNullish } from '../utils/nullish';
+import { validateAny } from './any';
 
 export const validateArray = async (value: unknown, schema: ArraySchema, context = createValidatorContext()) => {
   if (isNullish(value, schema)) {

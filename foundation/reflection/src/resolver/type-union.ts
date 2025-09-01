@@ -1,11 +1,11 @@
 import type { Node, UnionTypeNode } from 'typescript';
-import type { EveryType, TypeUnion } from '../types.js';
-import type { Context, State } from './common.js';
+import type { EveryType, TypeUnion } from '../types';
+import type { Context, State } from './common';
 
 import { isUnionTypeNode } from 'typescript';
-import { TypeName } from '../types.js';
-import { getNewState } from './common.js';
-import { tryTypes } from './types.js';
+import { TypeName } from '../types';
+import { getNewState } from './common';
+import { tryTypes } from './types';
 
 export const createUnion = (elements: EveryType[]): TypeUnion => {
   return {

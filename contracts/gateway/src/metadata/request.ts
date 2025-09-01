@@ -1,6 +1,6 @@
 import type { AllType, SourceMap, TypeIntersection, TypeModel, TypeObject } from '@ez4/reflection';
 import type { MemberType } from '@ez4/common/library';
-import type { HttpAuthRequest, HttpRequest } from '../types/common.js';
+import type { HttpAuthRequest, HttpRequest } from '../types/common';
 
 import { isModelProperty, isTypeIntersection, isTypeObject, isTypeReference } from '@ez4/reflection';
 
@@ -13,12 +13,12 @@ import {
   getReferenceType
 } from '@ez4/common/library';
 
-import { IncorrectRequestTypeError, InvalidRequestTypeError } from '../errors/request.js';
-import { getHttpIdentity } from './identity.js';
-import { getHttpHeaders } from './headers.js';
-import { getHttpParameters } from './parameters.js';
-import { getHttpQuery } from './query.js';
-import { getHttpBody } from './body.js';
+import { IncorrectRequestTypeError, InvalidRequestTypeError } from '../errors/request';
+import { getHttpIdentity } from './identity';
+import { getHttpHeaders } from './headers';
+import { getHttpParameters } from './parameters';
+import { getHttpQuery } from './query';
+import { getHttpBody } from './body';
 
 export const getHttpAuthRequest = (type: AllType, parent: TypeModel, reflection: SourceMap, errorList: Error[]) => {
   return getHttpRequest(type, parent, reflection, errorList, 'Http.AuthRequest');

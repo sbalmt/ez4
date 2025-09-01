@@ -1,11 +1,11 @@
 import type { StepContext, StepHandler } from '@ez4/stateful';
-import type { QueuePolicyResult, QueuePolicyState } from './types.js';
+import type { QueuePolicyResult, QueuePolicyState } from './types';
 
 import { ReplaceResourceError } from '@ez4/aws-common';
 
-import { getQueueUrl } from '../queue/utils.js';
-import { attachPolicies, detachPolicy } from './client.js';
-import { QueuePolicyServiceName } from './types.js';
+import { getQueueUrl } from '../queue/utils';
+import { attachPolicies, detachPolicy } from './client';
+import { QueuePolicyServiceName } from './types';
 
 export const getQueuePolicyHandler = (): StepHandler<QueuePolicyState> => ({
   equals: equalsResource,

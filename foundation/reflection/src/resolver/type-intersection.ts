@@ -1,14 +1,14 @@
 import type { IntersectionTypeNode, Node } from 'typescript';
-import type { EveryType, TypeIntersection } from '../types.js';
-import type { Context, State } from './common.js';
+import type { EveryType, TypeIntersection } from '../types';
+import type { Context, State } from './common';
 
 import { isIntersectionTypeNode } from 'typescript';
 
-import { getPathModule } from '../utils/module.js';
-import { getNodeFilePath } from '../helpers/node.js';
-import { TypeName } from '../types.js';
-import { getNewState } from './common.js';
-import { tryTypes } from './types.js';
+import { getPathModule } from '../utils/module';
+import { getNodeFilePath } from '../helpers/node';
+import { TypeName } from '../types';
+import { getNewState } from './common';
+import { tryTypes } from './types';
 
 export const createIntersection = (file: string | null, elements: EveryType[]): TypeIntersection => {
   return {

@@ -1,5 +1,5 @@
 import type { Queue } from '@ez4/queue';
-import type { MessageRequest } from './types.js';
+import type { MessageRequest } from './types';
 
 export function messageHandlerA(request: Queue.Incoming<MessageRequest>): void {
   const { message } = request;

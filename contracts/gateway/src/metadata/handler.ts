@@ -1,11 +1,11 @@
 import type { AllType, SourceMap, TypeModel } from '@ez4/reflection';
 import type { Incomplete } from '@ez4/utils';
-import type { HttpHandler } from '../types/common.js';
+import type { HttpHandler } from '../types/common';
 
-import { IncompleteHandlerError } from '../errors/handler.js';
-import { getHttpHandlerResponse } from './response.js';
-import { getHttpHandlerRequest } from './request.js';
-import { isHttpHandler } from './utils.js';
+import { IncompleteHandlerError } from '../errors/handler';
+import { getHttpHandlerResponse } from './response';
+import { getHttpHandlerRequest } from './request';
+import { isHttpHandler } from './utils';
 
 export const getHttpHandler = (type: AllType, parent: TypeModel, reflection: SourceMap, errorList: Error[]) => {
   if (!isHttpHandler(type)) {

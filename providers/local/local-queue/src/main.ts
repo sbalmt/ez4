@@ -1,1 +1,1 @@
-export * from './provider/register.js';
+export * from './provider/register';

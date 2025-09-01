@@ -1,11 +1,11 @@
 import type { Node, TypeQueryNode } from 'typescript';
-import type { Context, State } from './common.js';
+import type { Context, State } from './common';
 
 import { isTypeQueryNode } from 'typescript';
 
-import { getNodeTypeDeclaration } from '../helpers/declaration.js';
-import { tryModelReference } from './model-reference.js';
-import { tryTypeCallback } from './type-callback.js';
+import { getNodeTypeDeclaration } from '../helpers/declaration';
+import { tryModelReference } from './model-reference';
+import { tryTypeCallback } from './type-callback';
 
 export const isTypeOf = (node: Node): node is TypeQueryNode => {
   return isTypeQueryNode(node);

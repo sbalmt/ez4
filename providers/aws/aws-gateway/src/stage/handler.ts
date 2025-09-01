@@ -1,13 +1,13 @@
 import type { StepContext, StepHandler } from '@ez4/stateful';
-import type { StageState, StageResult, StageParameters } from './types.js';
+import type { StageState, StageResult, StageParameters } from './types';
 
 import { ReplaceResourceError } from '@ez4/aws-common';
 import { deepCompare, deepEqual } from '@ez4/utils';
 
-import { getGatewayId } from '../gateway/utils.js';
-import { createStage, deleteStage, importStage, updateStage } from './client.js';
-import { getStageName } from './helpers/stage.js';
-import { StageServiceName } from './types.js';
+import { getGatewayId } from '../gateway/utils';
+import { createStage, deleteStage, importStage, updateStage } from './client';
+import { getStageName } from './helpers/stage';
+import { StageServiceName } from './types';
 
 export const getStageHandler = (): StepHandler<StageState> => ({
   equals: equalsResource,

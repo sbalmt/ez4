@@ -1,16 +1,16 @@
-export { transformAny as transform } from './schema/any.js';
+export { transformAny as transform } from './schema/any';
 
-export * from './errors/reference.js';
-export * from './types/context.js';
+export * from './errors/reference';
+export * from './types/context';
 
-export * from './schema/any.js';
-export * from './schema/boolean.js';
-export * from './schema/number.js';
-export * from './schema/string.js';
-export * from './schema/scalar.js';
-export * from './schema/object.js';
-export * from './schema/reference.js';
-export * from './schema/union.js';
-export * from './schema/array.js';
-export * from './schema/tuple.js';
-export * from './schema/enum.js';
+export * from './schema/any';
+export * from './schema/boolean';
+export * from './schema/number';
+export * from './schema/string';
+export * from './schema/scalar';
+export * from './schema/object';
+export * from './schema/reference';
+export * from './schema/union';
+export * from './schema/array';
+export * from './schema/tuple';
+export * from './schema/enum';

@@ -1,9 +1,9 @@
-import { TooManyClausesError } from '../clauses/errors.js';
-import { SqlAlterTableClause } from '../clauses/table/alter.js';
-import { SqlCreateTableClause } from '../clauses/table/create.js';
-import { SqlRenameTableClause } from '../clauses/table/rename.js';
-import { SqlDropTableClause } from '../clauses/table/drop.js';
-import { ChangeType } from '../clauses/types.js';
+import { TooManyClausesError } from '../clauses/errors';
+import { SqlAlterTableClause } from '../clauses/table/alter';
+import { SqlCreateTableClause } from '../clauses/table/create';
+import { SqlRenameTableClause } from '../clauses/table/rename';
+import { SqlDropTableClause } from '../clauses/table/drop';
+import { ChangeType } from '../clauses/types';
 
 export class SqlTableStatement {
   #state: {

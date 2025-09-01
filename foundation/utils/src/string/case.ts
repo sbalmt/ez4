@@ -1,4 +1,4 @@
-import { capitalizeString } from './capital.js';
+import { capitalizeString } from './capital';
 
 /**
  * Convert the given `text` into `kebab-case`.

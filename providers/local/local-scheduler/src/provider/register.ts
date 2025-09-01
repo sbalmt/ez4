@@ -3,7 +3,7 @@ import type { EmulateServiceEvent } from '@ez4/project/library';
 import { isCronService, registerTriggers as registerSchedulerTriggers } from '@ez4/scheduler/library';
 import { createTrigger } from '@ez4/project/library';
 
-import { registerCronEmulator } from './emulator.js';
+import { registerCronEmulator } from './emulator';
 
 let isRegistered = false;
 

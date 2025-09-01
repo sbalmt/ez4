@@ -1,9 +1,9 @@
 import type { Node } from 'typescript';
-import type { Context } from './common.js';
+import type { Context } from './common';
 
 import { isEnumMember } from 'typescript';
-import { createNumber } from './type-number.js';
-import { createString } from './type-string.js';
+import { createNumber } from './type-number';
+import { createString } from './type-string';
 
 export const tryEnumReference = (node: Node, context: Context) => {
   if (!isEnumMember(node)) {

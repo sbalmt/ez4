@@ -1,12 +1,12 @@
 import type { Node } from 'typescript';
-import type { ClassModifiers } from '../types/type-class.js';
-import type { InterfaceModifiers } from '../types/type-interface.js';
-import type { FunctionModifiers } from '../types/type-function.js';
-import type { PropertyModifiers } from '../types/model-property.js';
-import type { MethodModifiers } from '../types/model-method.js';
+import type { ClassModifiers } from '../types/type-class';
+import type { InterfaceModifiers } from '../types/type-interface';
+import type { FunctionModifiers } from '../types/type-function';
+import type { PropertyModifiers } from '../types/model-property';
+import type { MethodModifiers } from '../types/model-method';
 
 import { SyntaxKind } from 'typescript';
-import { isTypeDeclaration } from './declaration.js';
+import { isTypeDeclaration } from './declaration';
 
 export type StatementModifiers = ClassModifiers & InterfaceModifiers & FunctionModifiers & PropertyModifiers & MethodModifiers;
 

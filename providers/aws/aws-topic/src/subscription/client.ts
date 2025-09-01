@@ -3,7 +3,7 @@ import type { Arn } from '@ez4/aws-common';
 import { NotFoundException, SNSClient, SubscribeCommand, UnsubscribeCommand } from '@aws-sdk/client-sns';
 import { Logger, tryParseArn } from '@ez4/aws-common';
 
-import { SubscriptionServiceName } from './types.js';
+import { SubscriptionServiceName } from './types';
 
 const client = new SNSClient({});
 

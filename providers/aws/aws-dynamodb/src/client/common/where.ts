@@ -1,10 +1,10 @@
 import type { AnyObject } from '@ez4/utils';
 import type { Query } from '@ez4/database';
-import type { InternalTableMetadata } from '../types.js';
+import type { InternalTableMetadata } from '../types';
 
 import { isAnyObject } from '@ez4/utils';
 
-import { isSkippableData } from './data.js';
+import { isSkippableData } from './data';
 
 type PrepareResult = [string, unknown[]];
 

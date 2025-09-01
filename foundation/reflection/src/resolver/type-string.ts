@@ -1,9 +1,9 @@
 import type { Node, StringLiteral } from 'typescript';
-import type { TypeString } from '../types.js';
-import type { Context } from './common.js';
+import type { TypeString } from '../types';
+import type { Context } from './common';
 
 import { SyntaxKind, isLiteralTypeNode, isNoSubstitutionTemplateLiteral } from 'typescript';
-import { TypeName } from '../types.js';
+import { TypeName } from '../types';
 
 export type StringValueType = Extract<keyof TypeString, 'literal' | 'default'>;
 

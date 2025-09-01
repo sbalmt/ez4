@@ -1,10 +1,10 @@
 import type { Incomplete } from '@ez4/utils';
 import type { AllType, SourceMap } from '@ez4/reflection';
-import type { TargetHandler } from '../types/common.js';
+import type { TargetHandler } from '../types/common';
 
-import { IncompleteHandlerError } from '../errors/handler.js';
-import { isTargetHandler } from './utils.js';
-import { getCronEvent } from './event.js';
+import { IncompleteHandlerError } from '../errors/handler';
+import { isTargetHandler } from './utils';
+import { getCronEvent } from './event';
 
 export const getTargetHandler = (type: AllType, reflection: SourceMap, errorList: Error[]) => {
   if (!isTargetHandler(type)) {

@@ -1,16 +1,16 @@
 import type { Node, NodeArray, TypeNode } from 'typescript';
-import type { TypeObject } from '../types.js';
-import type { InterfaceNodes } from './type-interface.js';
-import type { Context, State } from './common.js';
-import type { ClassNodes } from './type-class.js';
+import type { TypeObject } from '../types';
+import type { InterfaceNodes } from './type-interface';
+import type { Context, State } from './common';
+import type { ClassNodes } from './type-class';
 
-import { getNodeFilePath, isInternalType } from '../helpers/node.js';
-import { tryModelMembers } from './model-members.js';
-import { isTypeInterface } from './type-interface.js';
-import { getTypeArguments } from './type-parameter.js';
-import { createObject } from './type-object.js';
-import { isTypeClass } from './type-class.js';
-import { getNewState } from './common.js';
+import { getNodeFilePath, isInternalType } from '../helpers/node';
+import { tryModelMembers } from './model-members';
+import { isTypeInterface } from './type-interface';
+import { getTypeArguments } from './type-parameter';
+import { createObject } from './type-object';
+import { isTypeClass } from './type-class';
+import { getNewState } from './common';
 
 export type TypeArguments = NodeArray<TypeNode>;
 

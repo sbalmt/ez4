@@ -1,6 +1,6 @@
 import { SqlBuilder } from '@ez4/pgsql';
 
-import { getCheckDatabaseQuery } from '../utils/checks.js';
+import { getCheckDatabaseQuery } from '../utils/checks';
 
 export namespace DatabaseQueries {
   export const prepareCreate = (database: string) => {

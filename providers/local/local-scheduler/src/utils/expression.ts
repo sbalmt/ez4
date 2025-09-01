@@ -1,6 +1,6 @@
 import { CronExpressionParser } from 'cron-parser';
 
-import { TimeUnits } from './time.js';
+import { TimeUnits } from './time';
 
 export const enum ExpressionType {
   Cron = 'cron',

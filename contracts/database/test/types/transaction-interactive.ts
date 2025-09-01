@@ -1,6 +1,6 @@
 import type { Client, Database, Index, TransactionMode } from '@ez4/database';
 import type { Environment, Service } from '@ez4/common';
-import type { TestEngineTransaction } from '../common/engines.js';
+import type { TestEngineTransaction } from '../common/engines';
 
 declare class TestTable implements Database.Schema {
   id: string;

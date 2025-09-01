@@ -1,6 +1,6 @@
 import type { NumberSchema } from '@ez4/schema';
 
-import { createTransformContext } from '../types/context.js';
+import { createTransformContext } from '../types/context';
 
 export const transformNumber = (value: unknown, schema: NumberSchema, context = createTransformContext()) => {
   if (value === undefined) {

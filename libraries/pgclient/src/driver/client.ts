@@ -4,10 +4,10 @@ import type { Pool, PoolClient } from 'pg';
 
 import { randomUUID } from 'crypto';
 
-import { logQueryError, logQuerySuccess } from './logger.js';
-import { detectFieldData, prepareFieldData } from './fields.js';
-import { prepareStatement } from './prepare.js';
-import { parseRecords } from './records.js';
+import { logQueryError, logQuerySuccess } from './logger';
+import { detectFieldData, prepareFieldData } from './fields';
+import { prepareStatement } from './prepare';
+import { parseRecords } from './records';
 
 const ActiveClients: Record<string, PoolClient> = {};
 

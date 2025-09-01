@@ -1,5 +1,5 @@
 import type { ServiceMetadata } from '@ez4/project/library';
-import type { TopicFifoMode, TopicMessageSchema, TopicSubscription } from './common.js';
+import type { TopicFifoMode, TopicMessageSchema, TopicSubscription } from './common';
 
 export const ImportType = '@ez4/import:topic';
 

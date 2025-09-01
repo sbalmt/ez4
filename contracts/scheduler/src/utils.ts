@@ -1,2 +1,2 @@
-export * from './utils/errors.js';
-export * from './utils/event.js';
+export * from './utils/errors';
+export * from './utils/event';

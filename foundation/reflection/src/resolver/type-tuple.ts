@@ -1,11 +1,11 @@
 import type { Node, TupleTypeNode } from 'typescript';
-import type { TypeTuple, EveryType } from '../types.js';
-import type { ArrayState, Context, State } from './common.js';
+import type { TypeTuple, EveryType } from '../types';
+import type { ArrayState, Context, State } from './common';
 
 import { isTupleTypeNode } from 'typescript';
-import { TypeName } from '../types.js';
-import { getNewState } from './common.js';
-import { tryTypes } from './types.js';
+import { TypeName } from '../types';
+import { getNewState } from './common';
+import { tryTypes } from './types';
 
 export const createTuple = (elements: EveryType[], state: ArrayState): TypeTuple => {
   const { spread } = state;

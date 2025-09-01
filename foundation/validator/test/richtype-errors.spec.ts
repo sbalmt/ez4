@@ -24,7 +24,7 @@ import {
 
 import { SchemaType } from '@ez4/schema';
 
-import { assertError } from './common.js';
+import { assertError } from './common';
 
 describe('rich type validation errors', () => {
   it('assert :: decimal errors', async () => {

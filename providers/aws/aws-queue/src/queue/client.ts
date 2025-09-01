@@ -15,8 +15,8 @@ import {
 import { Logger, waitCreation } from '@ez4/aws-common';
 import { isEmptyObject } from '@ez4/utils';
 
-import { parseQueueUrl } from './helpers/url.js';
-import { QueueServiceName } from './types.js';
+import { parseQueueUrl } from './helpers/url';
+import { QueueServiceName } from './types';
 
 const client = new SQSClient({});
 

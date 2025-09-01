@@ -1,4 +1,4 @@
-import type { LiteralStringType } from '../shared/types.js';
+import type { LiteralStringType } from '../shared/types';
 
 type Type<T> = T;
 

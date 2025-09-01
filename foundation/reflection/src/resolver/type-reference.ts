@@ -1,17 +1,17 @@
 import type { Node, TypeReferenceNode } from 'typescript';
-import type { EveryType } from '../types.js';
-import type { Context, State } from './common.js';
+import type { EveryType } from '../types';
+import type { Context, State } from './common';
 
 import { isTypeReferenceNode } from 'typescript';
 
-import { getNodeTypeDeclaration } from '../helpers/declaration.js';
-import { isIndexReference, tryIndexReference } from './index-reference.js';
-import { tryInternalTypeAlias, tryTypeAlias } from './type-alias.js';
-import { tryTypeParameter } from './type-parameter.js';
-import { tryInternalReference } from './internal-reference.js';
-import { tryGenericReference } from './generic-reference.js';
-import { tryModelReference } from './model-reference.js';
-import { tryTypes } from './types.js';
+import { getNodeTypeDeclaration } from '../helpers/declaration';
+import { isIndexReference, tryIndexReference } from './index-reference';
+import { tryInternalTypeAlias, tryTypeAlias } from './type-alias';
+import { tryTypeParameter } from './type-parameter';
+import { tryInternalReference } from './internal-reference';
+import { tryGenericReference } from './generic-reference';
+import { tryModelReference } from './model-reference';
+import { tryTypes } from './types';
 
 export const isTypeReference = (node: Node): node is TypeReferenceNode => {
   return isTypeReferenceNode(node);

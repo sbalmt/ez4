@@ -1,11 +1,11 @@
 import type { AnySchema } from '@ez4/schema';
-import type { SqlOperationContext } from './types.js';
+import type { SqlOperationContext } from './types';
 
 import { SchemaType } from '@ez4/schema';
 
-import { SqlColumnReference } from '../common/reference.js';
-import { SqlRawValue } from '../common/raw.js';
-import { escapeSqlData } from '../main.js';
+import { SqlColumnReference } from '../common/reference';
+import { SqlRawValue } from '../common/raw';
+import { escapeSqlData } from '../main';
 
 export const getOperandValue = (schema: AnySchema | undefined, operand: unknown, context: SqlOperationContext, encode?: boolean) => {
   const { source, variables, references, options, parent } = context;

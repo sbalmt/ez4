@@ -1,4 +1,4 @@
-import { UnexpectedFormatError } from '../errors/common.js';
+import { UnexpectedFormatError } from '../errors/common';
 
 export class ExpectedDateTimeTypeError extends UnexpectedFormatError {
   constructor(propertyName?: string) {

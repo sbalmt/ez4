@@ -1,9 +1,9 @@
 import type { EntryState, StepContext } from '@ez4/stateful';
-import type { AccessState } from './types.js';
+import type { AccessState } from './types';
 
 import { IncompleteResourceError } from '@ez4/aws-common';
 
-import { AccessServiceType } from './types.js';
+import { AccessServiceType } from './types';
 
 export const isOriginAccessState = (resource: EntryState): resource is AccessState => {
   return resource.type === AccessServiceType;

@@ -1,5 +1,5 @@
 import type { Topic } from '@ez4/topic';
-import type { MessageRequest } from '../types.js';
+import type { MessageRequest } from '../types';
 
 export function messageHandlerA(request: Topic.Incoming<MessageRequest>): void {
   const { message } = request;

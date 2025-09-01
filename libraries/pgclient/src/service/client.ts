@@ -1,13 +1,13 @@
 import type { Database, Client as DbClient, ParametersUtils, TransactionUtils } from '@ez4/database';
-import type { PgTableRepository } from '../types/repository.js';
-import type { InternalTableMetadata } from '../types/table.js';
-import type { PgClientDriver } from '../types/driver.js';
+import type { PgTableRepository } from '../types/repository';
+import type { InternalTableMetadata } from '../types/table';
+import type { PgClientDriver } from '../types/driver';
 
 import { MissingRepositoryTableError } from '@ez4/pgclient';
 
-import { prepareDeleteOne, prepareInsertOne, prepareUpdateOne } from '../queries/queries.js';
-import { getRelationsWithSchema } from './relations.js';
-import { Table } from './table.js';
+import { prepareDeleteOne, prepareInsertOne, prepareUpdateOne } from '../queries/queries';
+import { getRelationsWithSchema } from './relations';
+import { Table } from './table';
 
 type TableType = Table<InternalTableMetadata>;
 

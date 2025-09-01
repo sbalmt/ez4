@@ -1,9 +1,9 @@
-import type { EntryState, EntryStates } from '../types/entry.js';
-import type { StepHandlers, StepState } from '../types/step.js';
+import type { EntryState, EntryStates } from '../types/entry';
+import type { StepHandlers, StepState } from '../types/step';
 
-import { HandlerNotFoundError, EntriesNotFoundError } from './errors.js';
-import { getDependencies, getEntry } from './entry.js';
-import { StepAction } from './step.js';
+import { HandlerNotFoundError, EntriesNotFoundError } from './errors';
+import { getDependencies, getEntry } from './entry';
+import { StepAction } from './step';
 
 export type ApplyResult<E extends EntryState = EntryState> = {
   result: EntryStates<E>;

@@ -2,8 +2,8 @@ import { registerTriggers as registerCommonTriggers } from '@ez4/common/library'
 import { registerTriggers as registerSchemaTriggers } from '@ez4/schema/library';
 import { createTrigger } from '@ez4/project/library';
 
-import { getDatabaseServices } from '../metadata/service.js';
-import { getLinkedService } from './service.js';
+import { getDatabaseServices } from '../metadata/service';
+import { getLinkedService } from './service';
 
 let isRegistered = false;
 

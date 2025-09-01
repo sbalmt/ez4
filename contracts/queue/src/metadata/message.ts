@@ -1,12 +1,12 @@
 import type { AllType, SourceMap, TypeCallback, TypeFunction, TypeIntersection, TypeModel, TypeObject } from '@ez4/reflection';
-import type { QueueMessageSchema } from '../types/common.js';
+import type { QueueMessageSchema } from '../types/common';
 
 import { createUnionSchema, getObjectSchema, isObjectSchema } from '@ez4/schema/library';
 import { isTypeIntersection, isTypeObject, isTypeReference, isTypeUnion } from '@ez4/reflection';
 import { getReferenceType, isModelDeclaration } from '@ez4/common/library';
 
-import { IncorrectMessageTypeError, InvalidMessageTypeError } from '../errors/message.js';
-import { isQueueMessage } from './utils.js';
+import { IncorrectMessageTypeError, InvalidMessageTypeError } from '../errors/message';
+import { isQueueMessage } from './utils';
 
 type TypeParent = TypeModel | TypeCallback | TypeFunction;
 

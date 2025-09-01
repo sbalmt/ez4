@@ -1,6 +1,6 @@
 import type { HttpRequest } from '@ez4/gateway/library';
 import type { Http } from '@ez4/gateway';
-import type { MatchingRoute } from './route.js';
+import type { MatchingRoute } from './route';
 
 import { getHeaders, getIdentity, getPathParameters, getQueryStrings, getRequestBody } from '@ez4/gateway/utils';
 import { isObjectSchema, isScalarSchema } from '@ez4/schema';

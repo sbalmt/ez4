@@ -1,4 +1,4 @@
-import type { LiteralAnyType } from '../shared/types.js';
+import type { LiteralAnyType } from '../shared/types';
 
 type Type<T> = T;
 

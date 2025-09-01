@@ -1,5 +1,5 @@
 import type { Service } from '@ez4/common';
-import type { Topic } from './contract.js';
+import type { Topic } from './contract';
 
 /**
  * Topic message.

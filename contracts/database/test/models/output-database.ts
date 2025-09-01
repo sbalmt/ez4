@@ -1,6 +1,6 @@
 import type { Environment } from '@ez4/common';
 import type { Database, OrderMode, PaginationMode, TransactionMode } from '@ez4/database';
-import type { TestEngineOrder, TestEnginePagination, TestEngineTransaction } from '../common/engines.js';
+import type { TestEngineOrder, TestEnginePagination, TestEngineTransaction } from '../common/engines';
 
 /**
  * Test database 1.

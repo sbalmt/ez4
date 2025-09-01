@@ -1,19 +1,19 @@
-import type { SqlJsonColumnOptions, SqlJsonColumnSchema } from './json.js';
-import type { SqlBuilderReferences } from '../builder.js';
-import type { SqlRawGenerator } from './raw.js';
-import type { SqlSource } from './source.js';
-import type { SqlColumn } from './types.js';
+import type { SqlJsonColumnOptions, SqlJsonColumnSchema } from './json';
+import type { SqlBuilderReferences } from '../builder';
+import type { SqlRawGenerator } from './raw';
+import type { SqlSource } from './source';
+import type { SqlColumn } from './types';
 
 import { isAnyObject } from '@ez4/utils';
 
-import { escapeSqlName } from '../utils/escape.js';
-import { SqlSelectStatement } from '../statements/select.js';
-import { getUniqueAlias } from '../helpers/alias.js';
-import { mergeSqlAlias } from '../utils/merge.js';
-import { MissingColumnAliasError } from './errors.js';
-import { SqlColumnReference } from './reference.js';
-import { SqlJsonColumn } from './json.js';
-import { SqlRawValue } from './raw.js';
+import { escapeSqlName } from '../utils/escape';
+import { SqlSelectStatement } from '../statements/select';
+import { getUniqueAlias } from '../helpers/alias';
+import { mergeSqlAlias } from '../utils/merge';
+import { MissingColumnAliasError } from './errors';
+import { SqlColumnReference } from './reference';
+import { SqlJsonColumn } from './json';
+import { SqlRawValue } from './raw';
 
 export type SqlObjectColumn = Omit<SqlJsonColumnOptions, 'aggregate' | 'order'>;
 

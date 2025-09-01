@@ -1,5 +1,5 @@
-import type { IsObject, MergeObject } from '../object/generics.js';
-import type { MergeArray } from '../array/generics.js';
+import type { IsObject, MergeObject } from '../object/generics';
+import type { MergeArray } from '../array/generics';
 
 /**
  * Given a type `T`, it returns `true` when `T` is `any`, otherwise it returns `false`;

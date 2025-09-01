@@ -1,5 +1,5 @@
 import { performance } from 'node:perf_hooks';
-import { toRed } from '../console/format.js';
+import { toRed } from '../console/format';
 
 export const enum LogLevel {
   Error = 0,

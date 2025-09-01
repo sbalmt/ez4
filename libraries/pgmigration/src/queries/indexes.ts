@@ -1,13 +1,13 @@
 import type { PgIndexRepository } from '@ez4/pgclient/library';
 import type { ObjectSchema } from '@ez4/schema';
 import type { SqlBuilder } from '@ez4/pgsql';
-import type { PgMigrationQueries } from '../types/query.js';
+import type { PgMigrationQueries } from '../types/query';
 
 import { SchemaType } from '@ez4/schema';
 import { Index } from '@ez4/database';
 
-import { getPrimaryKeyName, getSecondaryKeyName, getUniqueKeyName } from '../utils/naming.js';
-import { getCheckConstraintQuery } from '../utils/checks.js';
+import { getPrimaryKeyName, getSecondaryKeyName, getUniqueKeyName } from '../utils/naming';
+import { getCheckConstraintQuery } from '../utils/checks';
 
 type IndexMigrationQueries = Pick<PgMigrationQueries, 'constraints' | 'indexes'>;
 

@@ -1,4 +1,4 @@
-import type { SourceMap } from './types.js';
+import type { SourceMap } from './types';
 
 import type {
   CompilerOptions as BaseCompilerOptions,
@@ -19,7 +19,7 @@ import {
   ModuleKind
 } from 'typescript';
 
-import { getCanonicalFileName } from './utils/compiler.js';
+import { getCanonicalFileName } from './utils/compiler';
 
 const SOURCE_CACHE = new Map<string, SourceFile>();
 

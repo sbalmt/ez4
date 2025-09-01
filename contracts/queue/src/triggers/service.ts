@@ -1,6 +1,6 @@
 import type { TypeClass } from '@ez4/reflection';
 
-import { isQueueService, isQueueImport } from '../metadata/utils.js';
+import { isQueueService, isQueueImport } from '../metadata/utils';
 
 export const getLinkedService = (declaration: TypeClass): string | null => {
   return isQueueService(declaration) ? declaration.name : null;

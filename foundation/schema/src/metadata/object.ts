@@ -1,20 +1,20 @@
 import type { AllType, ModelProperty, SourceMap, TypeIntersection, TypeModel, TypeObject } from '@ez4/reflection';
-import type { ObjectSchema, ObjectSchemaProperties } from '../types/type-object.js';
-import type { ReferenceSchema } from '../types/type-reference.js';
-import type { SchemaDefinitions } from '../types/common.js';
-import type { SchemaContext } from '../types/context.js';
+import type { ObjectSchema, ObjectSchemaProperties } from '../types/type-object';
+import type { ReferenceSchema } from '../types/type-reference';
+import type { SchemaDefinitions } from '../types/common';
+import type { SchemaContext } from '../types/context';
 
 import { isTypeIntersection, isTypeModel, isTypeObject, isTypeReference } from '@ez4/reflection';
 
-import { getPropertyName } from '../utils/naming.js';
-import { getModelProperties } from '../reflection/model.js';
-import { getObjectProperties } from '../reflection/object.js';
-import { SchemaReferenceNotFound } from '../errors/reference.js';
-import { createSchemaContext } from '../types/context.js';
-import { isObjectSchema } from '../types/type-object.js';
-import { createReferenceSchema } from './reference.js';
-import { SchemaType } from '../types/common.js';
-import { getAnySchema } from './any.js';
+import { getPropertyName } from '../utils/naming';
+import { getModelProperties } from '../reflection/model';
+import { getObjectProperties } from '../reflection/object';
+import { SchemaReferenceNotFound } from '../errors/reference';
+import { createSchemaContext } from '../types/context';
+import { isObjectSchema } from '../types/type-object';
+import { createReferenceSchema } from './reference';
+import { SchemaType } from '../types/common';
+import { getAnySchema } from './any';
 
 type RichTypeBase = {
   definitions?: SchemaDefinitions;

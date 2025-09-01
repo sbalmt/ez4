@@ -1,5 +1,5 @@
 import type { ServiceMetadata } from '@ez4/project/library';
-import type { CronEventSchema, CronTarget } from './common.js';
+import type { CronEventSchema, CronTarget } from './common';
 
 export const ServiceType = '@ez4/cron';
 

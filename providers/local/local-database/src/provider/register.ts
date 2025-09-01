@@ -3,7 +3,7 @@ import type { EmulateServiceEvent } from '@ez4/project/library';
 import { isDatabaseService, registerTriggers as registerDatabaseTriggers } from '@ez4/database/library';
 import { createTrigger } from '@ez4/project/library';
 
-import { registerDatabaseEmulator } from './emulator.js';
+import { registerDatabaseEmulator } from './emulator';
 
 let isRegistered = false;
 

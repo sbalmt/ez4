@@ -1,12 +1,12 @@
 import type { DeployOptions, EventContext } from '@ez4/project/library';
 import type { EntryState, StepContext } from '@ez4/stateful';
-import type { TopicState } from './types.js';
+import type { TopicState } from './types';
 
 import { IncompleteResourceError } from '@ez4/aws-common';
 import { hashData, toKebabCase } from '@ez4/utils';
 
-import { TopicNotFoundError } from './errors.js';
-import { TopicServiceType } from './types.js';
+import { TopicNotFoundError } from './errors';
+import { TopicServiceType } from './types';
 
 export const createTopicStateId = (topicName: string, normalize = true) => {
   return hashData(TopicServiceType, normalize ? toKebabCase(topicName) : topicName);

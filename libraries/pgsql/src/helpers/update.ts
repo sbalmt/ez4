@@ -1,16 +1,16 @@
 import type { AnySchema, ObjectSchema } from '@ez4/schema';
-import type { SqlBuilderOptions, SqlBuilderReferences } from '../builder.js';
-import type { SqlSource } from '../common/source.js';
-import type { SqlRecord } from '../common/types.js';
+import type { SqlBuilderOptions, SqlBuilderReferences } from '../builder';
+import type { SqlSource } from '../common/source';
+import type { SqlRecord } from '../common/types';
 
 import { isDynamicObjectSchema, IsNullishSchema, isObjectSchema, SchemaType } from '@ez4/schema';
 import { isPlainObject } from '@ez4/utils';
 
-import { SqlRaw, SqlRawOperation } from '../common/raw.js';
-import { SqlSelectStatement } from '../statements/select.js';
-import { mergeSqlJsonPath, mergeSqlPath } from '../utils/merge.js';
-import { InvalidAtomicOperation } from '../operations/errors.js';
-import { SqlColumnReference } from '../common/reference.js';
+import { SqlRaw, SqlRawOperation } from '../common/raw';
+import { SqlSelectStatement } from '../statements/select';
+import { mergeSqlJsonPath, mergeSqlPath } from '../utils/merge';
+import { InvalidAtomicOperation } from '../operations/errors';
+import { SqlColumnReference } from '../common/reference';
 
 export type SqlUpdateContext = {
   options: SqlBuilderOptions;

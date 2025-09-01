@@ -1,4 +1,4 @@
-import type { Topic } from './contract.js';
+import type { Topic } from './contract';
 
 /**
  * Topic client.

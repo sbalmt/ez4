@@ -1,6 +1,6 @@
 import type { SourceMap, TypeModel } from '@ez4/reflection';
 import type { Incomplete } from '@ez4/utils';
-import type { TopicService } from '../types/service.js';
+import type { TopicService } from '../types/service';
 
 import {
   DuplicateServiceError,
@@ -14,13 +14,13 @@ import {
 import { isModelProperty } from '@ez4/reflection';
 import { hasSchemaProperty } from '@ez4/schema';
 
-import { ServiceType } from '../types/service.js';
-import { IncompleteServiceError } from '../errors/service.js';
-import { IncorrectFifoModePropertyError } from '../errors/fifo.js';
-import { getAllSubscription } from './subscription.js';
-import { getTopicMessage } from './message.js';
-import { getTopicFifoMode } from './fifo.js';
-import { isTopicService } from './utils.js';
+import { ServiceType } from '../types/service';
+import { IncompleteServiceError } from '../errors/service';
+import { IncorrectFifoModePropertyError } from '../errors/fifo';
+import { getAllSubscription } from './subscription';
+import { getTopicMessage } from './message';
+import { getTopicFifoMode } from './fifo';
+import { isTopicService } from './utils';
 
 export const getTopicServices = (reflection: SourceMap) => {
   const allServices: Record<string, TopicService> = {};

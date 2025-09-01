@@ -1,8 +1,8 @@
 import type { AllType, TypeClass, TypeInterface, TypeModel } from '@ez4/reflection';
-import type { MemberType } from './types.js';
+import type { MemberType } from './types';
 
 import { isTypeClass, isTypeInterface } from '@ez4/reflection';
-import { getReferenceName } from './reference.js';
+import { getReferenceName } from './reference';
 
 export const isClassDeclaration = (type: AllType): type is TypeClass => {
   return isTypeClass(type) && !!type.modifiers?.declare;

@@ -1,6 +1,6 @@
 import type { SourceMap } from '@ez4/reflection';
 import type { Incomplete } from '@ez4/utils';
-import type { TopicImport } from '../types/import.js';
+import type { TopicImport } from '../types/import';
 
 import {
   DuplicateServiceError,
@@ -16,12 +16,12 @@ import {
 
 import { isModelProperty, isTypeReference, isTypeUnion } from '@ez4/reflection';
 
-import { ImportType } from '../types/import.js';
-import { IncompleteServiceError } from '../errors/service.js';
-import { getAllSubscription } from './subscription.js';
-import { getTopicMessage } from './message.js';
-import { getTopicFifoMode } from './fifo.js';
-import { isTopicImport } from './utils.js';
+import { ImportType } from '../types/import';
+import { IncompleteServiceError } from '../errors/service';
+import { getAllSubscription } from './subscription';
+import { getTopicMessage } from './message';
+import { getTopicFifoMode } from './fifo';
+import { isTopicImport } from './utils';
 
 export const getTopicImports = (reflection: SourceMap) => {
   const allImports: Record<string, TopicImport> = {};

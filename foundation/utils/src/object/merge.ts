@@ -1,6 +1,6 @@
-import type { AnyObject, IsObject, PartialObject, PartialProperties, Prettify } from './generics.js';
+import type { AnyObject, IsObject, PartialObject, PartialProperties, Prettify } from './generics';
 
-import { isAnyObject, isPlainObject } from './check.js';
+import { isAnyObject, isPlainObject } from './check';
 
 /**
  * Deep merge options.

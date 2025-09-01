@@ -1,5 +1,5 @@
 import type { IdentityAccount, IdentityGrant } from '@ez4/project/library';
-import type { RoleDocument, RoleStatement } from '../types/role.js';
+import type { RoleDocument, RoleStatement } from '../types/role';
 
 import { isArn } from '@ez4/aws-common';
 

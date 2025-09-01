@@ -12,7 +12,7 @@ import {
 
 import { Logger, waitCreation, waitDeletion } from '@ez4/aws-common';
 
-import { RouteServiceName } from './types.js';
+import { RouteServiceName } from './types';
 
 const client = new ApiGatewayV2Client({});
 

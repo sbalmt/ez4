@@ -1,7 +1,7 @@
 import type { AllType, EveryType, ModelProperty, SourceMap, TypeModel, TypeObject } from '@ez4/reflection';
 import type { MemberType } from '@ez4/common/library';
 import type { Incomplete } from '@ez4/utils';
-import type { HttpRoute } from '../types/common.js';
+import type { HttpRoute } from '../types/common';
 
 import { isModelProperty, isTypeObject, isTypeReference, isTypeTuple } from '@ez4/reflection';
 
@@ -18,12 +18,12 @@ import {
   getPropertyTuple
 } from '@ez4/common/library';
 
-import { IncompleteRouteError } from '../errors/route.js';
-import { isHttpPath, isHttpRoute } from './utils.js';
-import { getHttpPreferences } from './preferences.js';
-import { getHttpAuthorizer } from './authorizer.js';
-import { getHttpHandler } from './handler.js';
-import { getHttpErrors } from './errors.js';
+import { IncompleteRouteError } from '../errors/route';
+import { isHttpPath, isHttpRoute } from './utils';
+import { getHttpPreferences } from './preferences';
+import { getHttpAuthorizer } from './authorizer';
+import { getHttpHandler } from './handler';
+import { getHttpErrors } from './errors';
 
 export const getHttpRoutes = (parent: TypeModel, member: ModelProperty, reflection: SourceMap, errorList: Error[]) => {
   const routeItems = getPropertyTuple(member) ?? [];

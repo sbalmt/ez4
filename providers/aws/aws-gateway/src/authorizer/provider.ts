@@ -1,7 +1,7 @@
 import { registerProvider } from '@ez4/aws-common';
 
-import { AuthorizerServiceType } from './types.js';
-import { getAuthorizerHandler } from './handler.js';
+import { AuthorizerServiceType } from './types';
+import { getAuthorizerHandler } from './handler';
 
 export const registerAuthorizerProvider = () => {
   registerProvider(AuthorizerServiceType, getAuthorizerHandler());

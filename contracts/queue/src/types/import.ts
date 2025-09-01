@@ -1,5 +1,5 @@
 import type { ServiceMetadata } from '@ez4/project/library';
-import type { QueueFifoMode, QueueMessageSchema, QueueSubscription } from './common.js';
+import type { QueueFifoMode, QueueMessageSchema, QueueSubscription } from './common';
 
 export const ImportType = '@ez4/import:queue';
 

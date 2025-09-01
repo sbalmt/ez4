@@ -1,5 +1,5 @@
 import type { EntryState } from '@ez4/stateful';
-import type { TargetFunctionParameters } from './types.js';
+import type { TargetFunctionParameters } from './types';
 
 import { join } from 'node:path';
 

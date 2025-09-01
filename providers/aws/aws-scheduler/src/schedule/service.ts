@@ -1,13 +1,13 @@
 import type { RoleState } from '@ez4/aws-identity';
 import type { FunctionState } from '@ez4/aws-function';
 import type { EntryState, EntryStates } from '@ez4/stateful';
-import type { GroupState } from '../group/types.js';
-import type { ScheduleParameters, ScheduleState } from './types.js';
+import type { GroupState } from '../group/types';
+import type { ScheduleParameters, ScheduleState } from './types';
 
 import { toKebabCase, hashData } from '@ez4/utils';
 import { attachEntry } from '@ez4/stateful';
 
-import { ScheduleServiceType } from './types.js';
+import { ScheduleServiceType } from './types';
 
 export const createSchedule = <E extends EntryState>(
   state: EntryStates<E>,

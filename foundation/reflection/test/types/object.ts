@@ -1,4 +1,4 @@
-import type { DynamicObject } from '../shared/types.js';
+import type { DynamicObject } from '../shared/types';
 
 type Type<T> = T;
 

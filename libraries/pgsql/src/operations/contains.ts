@@ -1,9 +1,9 @@
 import type { AnySchema } from '@ez4/schema';
-import type { SqlOperationContext } from './types.js';
+import type { SqlOperationContext } from './types';
 
 import { SchemaType } from '@ez4/schema';
 
-import { getOperandColumn, getOperandValue } from './utils.js';
+import { getOperandColumn, getOperandValue } from './utils';
 
 export const getContainsOperation = (column: string, schema: AnySchema | undefined, operand: unknown, context: SqlOperationContext) => {
   switch (schema?.type) {

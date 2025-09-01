@@ -4,7 +4,7 @@ import type { EventSchema } from '@ez4/scheduler/utils';
 import { getJsonEvent } from '@ez4/scheduler/utils';
 import { Logger } from '@ez4/project/library';
 
-import { InMemoryScheduler } from '../service/scheduler.js';
+import { InMemoryScheduler } from '../service/scheduler';
 
 export const createServiceClient = (serviceName: string, eventSchema: EventSchema): Client<any> => {
   return new (class {

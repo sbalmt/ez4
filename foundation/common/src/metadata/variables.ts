@@ -3,9 +3,9 @@ import type { LinkedVariables } from '@ez4/project/library';
 
 import { isModelProperty, isTypeObject } from '@ez4/reflection';
 
-import { MissingVariableError } from '../errors/variables.js';
-import { getPropertyObject, getPropertyString } from '../reflection/property.js';
-import { getObjectMembers } from '../reflection/object.js';
+import { MissingVariableError } from '../errors/variables';
+import { getPropertyObject, getPropertyString } from '../reflection/property';
+import { getObjectMembers } from '../reflection/object';
 
 export const getLinkedVariableList = (member: ModelProperty, errorList: Error[]) => {
   const object = getPropertyObject(member);

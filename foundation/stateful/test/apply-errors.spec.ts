@@ -1,13 +1,13 @@
 import type { EntryStates } from '@ez4/stateful';
-import type { TestEntryState } from './common/entry.js';
+import type { TestEntryState } from './common/entry';
 
 import { HandlerNotFoundError, EntriesNotFoundError, applySteps, planSteps } from '@ez4/stateful';
 
 import { describe, it } from 'node:test';
 import { rejects } from 'node:assert/strict';
 
-import { commonStepHandlers } from './common/handler.js';
-import { TestEntryType } from './common/entry.js';
+import { commonStepHandlers } from './common/handler';
+import { TestEntryType } from './common/entry';
 
 describe('apply errors tests', () => {
   it('throws :: entries not found', async () => {

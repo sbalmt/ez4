@@ -5,7 +5,7 @@ import { existsSync } from 'node:fs';
 import { getReflectionFromFiles, watchReflectionFromFiles } from '@ez4/reflection';
 import { triggerAllSync } from '@ez4/project/library';
 
-import { ReflectionSourceFileNotFound } from '../errors/reflection.js';
+import { ReflectionSourceFileNotFound } from '../errors/reflection';
 
 export const getReflection = (sourceFiles: string[]): SourceMap => {
   assertSourceFiles(sourceFiles);

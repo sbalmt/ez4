@@ -1,10 +1,10 @@
 import type { ArrayTypeNode, Node } from 'typescript';
-import type { TypeArray, EveryType } from '../types.js';
-import type { ArrayState, Context, State } from './common.js';
+import type { TypeArray, EveryType } from '../types';
+import type { ArrayState, Context, State } from './common';
 
 import { isArrayTypeNode } from 'typescript';
-import { TypeName } from '../types.js';
-import { tryTypes } from './types.js';
+import { TypeName } from '../types';
+import { tryTypes } from './types';
 
 export const createArray = (element: EveryType, state: ArrayState): TypeArray => {
   const { spread } = state;

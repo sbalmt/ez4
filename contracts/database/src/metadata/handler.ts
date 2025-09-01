@@ -1,9 +1,9 @@
 import type { Incomplete } from '@ez4/utils';
 import type { AllType, SourceMap } from '@ez4/reflection';
-import type { StreamHandler } from '../types/handler.js';
+import type { StreamHandler } from '../types/handler';
 
-import { IncompleteHandlerError } from '../errors/handler.js';
-import { isStreamHandler } from './utils.js';
+import { IncompleteHandlerError } from '../errors/handler';
+import { isStreamHandler } from './utils';
 
 export const getStreamHandler = (type: AllType, _reflection: SourceMap, errorList: Error[]) => {
   if (!isStreamHandler(type)) {

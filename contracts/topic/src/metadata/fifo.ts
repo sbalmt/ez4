@@ -1,7 +1,7 @@
 import type { Incomplete } from '@ez4/utils';
 import type { MemberType } from '@ez4/common/library';
 import type { AllType, SourceMap, TypeModel, TypeObject } from '@ez4/reflection';
-import type { TopicFifoMode } from '../types/common.js';
+import type { TopicFifoMode } from '../types/common';
 
 import {
   InvalidServicePropertyError,
@@ -14,8 +14,8 @@ import {
 
 import { isModelProperty, isTypeObject, isTypeReference } from '@ez4/reflection';
 
-import { IncompleteFifoModeError, IncorrectFifoModeTypeError, InvalidFifoModeTypeError } from '../errors/fifo.js';
-import { isTopicFifoMode } from './utils.js';
+import { IncompleteFifoModeError, IncorrectFifoModeTypeError, InvalidFifoModeTypeError } from '../errors/fifo';
+import { isTopicFifoMode } from './utils';
 
 export const getTopicFifoMode = (type: AllType, parent: TypeModel, reflection: SourceMap, errorList: Error[]) => {
   if (!isTypeReference(type)) {

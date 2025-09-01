@@ -1,6 +1,6 @@
 import type { Service as CommonService } from '@ez4/common';
 
-import type { CdnBucketOrigin, CdnRegularOrigin, CdnCertificate, CdnFallback, CdnCache } from './common.js';
+import type { CdnBucketOrigin, CdnRegularOrigin, CdnCertificate, CdnFallback, CdnCache } from './common';
 
 /**
  * Provide all contracts for a self-managed CDN service.

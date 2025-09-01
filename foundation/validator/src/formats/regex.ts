@@ -1,7 +1,7 @@
 import type { StringSchema } from '@ez4/schema';
 
-import { ExpectedRegexTypeError } from '../errors/regex.js';
-import { registerStringFormat } from '../schema/string.js';
+import { ExpectedRegexTypeError } from '../errors/regex';
+import { registerStringFormat } from '../schema/string';
 
 registerStringFormat('regex', (value: string, schema: StringSchema, property?: string) => {
   const { definitions } = schema;

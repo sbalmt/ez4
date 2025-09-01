@@ -1,5 +1,5 @@
 import type { StreamChange, Database, Client } from '@ez4/database';
-import type { TestEngine } from '../common/engines.js';
+import type { TestEngine } from '../common/engines';
 
 declare class TestSchema implements Database.Schema {
   foo: string;

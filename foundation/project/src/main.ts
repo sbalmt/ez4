@@ -1,1 +1,1 @@
-export * from './types/project.js';
+export * from './types/project';

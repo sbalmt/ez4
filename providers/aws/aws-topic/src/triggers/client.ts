@@ -1,10 +1,10 @@
 import type { TopicImport, TopicService } from '@ez4/topic/library';
 import type { DeployOptions, EventContext, ExtraSource } from '@ez4/project/library';
-import type { TopicState } from '../topic/types.js';
+import type { TopicState } from '../topic/types';
 
 import { getDefinitionName } from '@ez4/project/library';
 
-import { getTopicState } from '../topic/utils.js';
+import { getTopicState } from '../topic/utils';
 
 export const prepareLinkedClient = (context: EventContext, service: TopicService | TopicImport, options: DeployOptions): ExtraSource => {
   const topicState = getTopicState(context, service.name, options);

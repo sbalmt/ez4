@@ -1,14 +1,14 @@
 import type { StepContext, StepHandler } from '@ez4/stateful';
-import type { RouteState, RouteResult, RouteParameters } from './types.js';
+import type { RouteState, RouteResult, RouteParameters } from './types';
 
 import { ReplaceResourceError } from '@ez4/aws-common';
 import { deepCompare, deepEqual } from '@ez4/utils';
 
-import { getGatewayId } from '../gateway/utils.js';
-import { getIntegrationId } from '../integration/utils.js';
-import { tryGetAuthorizerId } from '../authorizer/utils.js';
-import { importRoute, createRoute, deleteRoute, updateRoute } from './client.js';
-import { RouteServiceName } from './types.js';
+import { getGatewayId } from '../gateway/utils';
+import { getIntegrationId } from '../integration/utils';
+import { tryGetAuthorizerId } from '../authorizer/utils';
+import { importRoute, createRoute, deleteRoute, updateRoute } from './client';
+import { RouteServiceName } from './types';
 
 export const getRouteHandler = (): StepHandler<RouteState> => ({
   equals: equalsResource,

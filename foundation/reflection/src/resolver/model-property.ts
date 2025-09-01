@@ -1,18 +1,18 @@
 import type { Node, PropertyDeclaration, PropertySignature } from 'typescript';
-import type { ModelProperty, EveryType, PropertyModifiers } from '../types.js';
-import type { Context, State } from './common.js';
+import type { ModelProperty, EveryType, PropertyModifiers } from '../types';
+import type { Context, State } from './common';
 
 import { isPropertyDeclaration, isPropertySignature } from 'typescript';
 
-import { isTypeUnion, TypeName } from '../types.js';
-import { isOptional } from '../utils.js';
-import { getNodeModifiers } from '../helpers/modifier.js';
-import { getPropertyName } from '../helpers/identifier.js';
-import { getNodeDocumentation } from '../helpers/documentation.js';
-import { createUnion } from './type-union.js';
-import { createUndefined } from './type-undefined.js';
-import { getNewState } from './common.js';
-import { tryTypes } from './types.js';
+import { isTypeUnion, TypeName } from '../types';
+import { isOptional } from '../utils';
+import { getNodeModifiers } from '../helpers/modifier';
+import { getPropertyName } from '../helpers/identifier';
+import { getNodeDocumentation } from '../helpers/documentation';
+import { createUnion } from './type-union';
+import { createUndefined } from './type-undefined';
+import { getNewState } from './common';
+import { tryTypes } from './types';
 
 export type PropertyNodes = PropertySignature | PropertyDeclaration;
 

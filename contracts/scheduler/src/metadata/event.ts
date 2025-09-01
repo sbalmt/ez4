@@ -1,4 +1,4 @@
-import type { CronEventSchema } from '../types/common.js';
+import type { CronEventSchema } from '../types/common';
 
 import type { AllType, SourceMap, TypeCallback, TypeFunction, TypeIntersection, TypeModel, TypeObject } from '@ez4/reflection';
 
@@ -6,8 +6,8 @@ import { createUnionSchema, getObjectSchema, isObjectSchema } from '@ez4/schema/
 import { isTypeIntersection, isTypeObject, isTypeReference, isTypeUnion } from '@ez4/reflection';
 import { getReferenceType, isModelDeclaration } from '@ez4/common/library';
 
-import { IncorrectEventTypeError, InvalidEventTypeError } from '../errors/event.js';
-import { isCronEvent } from './utils.js';
+import { IncorrectEventTypeError, InvalidEventTypeError } from '../errors/event';
+import { isCronEvent } from './utils';
 
 type TypeParent = TypeModel | TypeCallback | TypeFunction;
 

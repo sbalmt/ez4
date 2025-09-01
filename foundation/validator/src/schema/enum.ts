@@ -1,8 +1,8 @@
 import type { EnumSchema } from '@ez4/schema';
-import type { ValidationContext } from '../types/context.js';
+import type { ValidationContext } from '../types/context';
 
-import { UnexpectedEnumValueError } from '../errors/enum.js';
-import { isNullish } from '../utils/nullish.js';
+import { UnexpectedEnumValueError } from '../errors/enum';
+import { isNullish } from '../utils/nullish';
 
 export const validateEnum = (value: unknown, schema: EnumSchema, context?: ValidationContext) => {
   if (isNullish(value, schema)) {

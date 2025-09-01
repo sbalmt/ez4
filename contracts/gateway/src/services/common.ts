@@ -1,6 +1,6 @@
 import type { Service } from '@ez4/common';
 import type { NamingStyle } from '@ez4/schema';
-import type { Http } from './contract.js';
+import type { Http } from './contract';
 
 /**
  * Contract for HTTP preferences.

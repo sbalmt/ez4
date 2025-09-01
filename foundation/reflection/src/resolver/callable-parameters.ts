@@ -1,18 +1,18 @@
 import type { Node, ParameterDeclaration } from 'typescript';
-import type { TypeParameter, EveryType } from '../types.js';
-import type { CallbackNodes } from './type-callback.js';
-import type { FunctionNodes } from './type-function.js';
-import type { MethodNodes } from './model-method.js';
-import type { Context, State } from './common.js';
+import type { TypeParameter, EveryType } from '../types';
+import type { CallbackNodes } from './type-callback';
+import type { FunctionNodes } from './type-function';
+import type { MethodNodes } from './model-method';
+import type { Context, State } from './common';
 
 import { isParameter } from 'typescript';
-import { getNodeDocumentation } from '../helpers/documentation.js';
-import { isOptional } from '../utils.js';
-import { isTypeUnion, TypeName } from '../types.js';
-import { createUnion } from './type-union.js';
-import { createUndefined } from './type-undefined.js';
-import { getNewState } from './common.js';
-import { tryTypes } from './types.js';
+import { getNodeDocumentation } from '../helpers/documentation';
+import { isOptional } from '../utils';
+import { isTypeUnion, TypeName } from '../types';
+import { createUnion } from './type-union';
+import { createUndefined } from './type-undefined';
+import { getNewState } from './common';
+import { tryTypes } from './types';
 
 export type NodeWithParameters = MethodNodes | CallbackNodes | FunctionNodes;
 

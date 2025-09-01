@@ -2,7 +2,7 @@ import { registerTriggers as registerCommonTriggers } from '@ez4/common/library'
 import { registerTriggers as registerSchemaTriggers } from '@ez4/schema/library';
 import { createTrigger } from '@ez4/project/library';
 
-import { getHttpServices } from '../metadata/service.js';
+import { getHttpServices } from '../metadata/service';
 
 let isRegistered = false;
 

@@ -1,11 +1,11 @@
 import type { EntryState, EntryStates, StepContext } from '@ez4/stateful';
 import type { FunctionState } from '@ez4/aws-function';
-import type { QueueState } from '../queue/types.js';
-import type { MappingParameters } from './types.js';
+import type { QueueState } from '../queue/types';
+import type { MappingParameters } from './types';
 
 import { createMapping as baseCreateMapping, MappingServiceName } from '@ez4/aws-function';
 
-import { getQueueArn } from '../queue/utils.js';
+import { getQueueArn } from '../queue/utils';
 
 export const createMapping = <E extends EntryState>(
   state: EntryStates<E>,

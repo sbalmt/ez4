@@ -1,9 +1,9 @@
 import type { Table as DbTable, Query } from '@ez4/database';
 import type { AnyObject, IsArray } from '@ez4/utils';
 import type { ObjectSchema } from '@ez4/schema';
-import type { PgRelationRepositoryWithSchema } from '../types/repository.js';
-import type { PgClientDriver, PgExecuteStatement } from '../types/driver.js';
-import type { InternalTableMetadata } from '../types/table.js';
+import type { PgRelationRepositoryWithSchema } from '../types/repository';
+import type { PgClientDriver, PgExecuteStatement } from '../types/driver';
+import type { InternalTableMetadata } from '../types/table';
 
 import {
   prepareInsertOne,
@@ -15,7 +15,7 @@ import {
   prepareDeleteMany,
   prepareDeleteOne,
   prepareCount
-} from '../queries/queries.js';
+} from '../queries/queries';
 
 export type TableContext = {
   transactionId?: string;

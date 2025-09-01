@@ -1,5 +1,5 @@
-import { deepCompareObject } from '../object/compare.js';
-import { isAnyObject } from '../object/check.js';
+import { deepCompareObject } from '../object/compare';
+import { isAnyObject } from '../object/check';
 
 export type ArrayComparisonResult = Record<number, any>;
 

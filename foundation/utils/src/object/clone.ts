@@ -1,6 +1,6 @@
-import type { AnyObject, PartialProperties, PartialObject, IsObject, Prettify } from './generics.js';
+import type { AnyObject, PartialProperties, PartialObject, IsObject, Prettify } from './generics';
 
-import { isAnyObject, isPlainObject } from './check.js';
+import { isAnyObject, isPlainObject } from './check';
 
 export type CloneOptions<T extends AnyObject, U extends PartialProperties<T>> = {
   /**

@@ -1,16 +1,16 @@
 import type { InterfaceDeclaration, Node } from 'typescript';
-import type { Context, State } from './common.js';
+import type { Context, State } from './common';
 
-import type { EveryMemberType, InterfaceModifiers, ModelHeritage, TypeInterface } from '../types.js';
+import type { EveryMemberType, InterfaceModifiers, ModelHeritage, TypeInterface } from '../types';
 
 import { isInterfaceDeclaration } from 'typescript';
-import { getNodeFilePath } from '../helpers/node.js';
-import { getNodeDocumentation } from '../helpers/documentation.js';
-import { getNodeModifiers } from '../helpers/modifier.js';
-import { getPathModule } from '../utils/module.js';
-import { TypeName } from '../types.js';
-import { tryModelHeritage } from './model-heritage.js';
-import { tryModelMembers } from './model-members.js';
+import { getNodeFilePath } from '../helpers/node';
+import { getNodeDocumentation } from '../helpers/documentation';
+import { getNodeModifiers } from '../helpers/modifier';
+import { getPathModule } from '../utils/module';
+import { TypeName } from '../types';
+import { tryModelHeritage } from './model-heritage';
+import { tryModelMembers } from './model-members';
 
 export type InterfaceNodes = InterfaceDeclaration;
 

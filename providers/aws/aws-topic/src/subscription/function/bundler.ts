@@ -1,5 +1,5 @@
 import type { EntryState } from '@ez4/stateful';
-import type { SubscriptionFunctionParameters } from './types.js';
+import type { SubscriptionFunctionParameters } from './types';
 
 import { join } from 'node:path';
 

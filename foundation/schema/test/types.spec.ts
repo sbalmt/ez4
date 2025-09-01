@@ -2,7 +2,7 @@ import { describe, it } from 'node:test';
 
 import { registerTriggers } from '@ez4/schema/library';
 
-import { testFile } from './common.js';
+import { testFile } from './common';
 
 describe('schema types', () => {
   registerTriggers();

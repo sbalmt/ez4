@@ -1,5 +1,5 @@
-import type { EngineUtils } from './engine.js';
-import type { Database } from './database.js';
+import type { EngineUtils } from './engine';
+import type { Database } from './database';
 
 /**
  * Parameters mode.

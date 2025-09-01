@@ -1,9 +1,9 @@
-import type { Variables } from '../../types/variables.js';
+import type { Variables } from '../../types/variables';
 
 import { InvalidParameterError } from '@ez4/aws-common';
 import { hashData } from '@ez4/utils';
 
-import { FunctionServiceName } from '../types.js';
+import { FunctionServiceName } from '../types';
 
 const namePattern = /[a-z][\w]+/i;
 

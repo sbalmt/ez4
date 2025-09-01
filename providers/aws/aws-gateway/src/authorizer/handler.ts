@@ -1,13 +1,13 @@
 import type { StepContext, StepHandler } from '@ez4/stateful';
-import type { AuthorizerState, AuthorizerResult, AuthorizerParameters } from './types.js';
+import type { AuthorizerState, AuthorizerResult, AuthorizerParameters } from './types';
 
 import { getFunctionArn } from '@ez4/aws-function';
 import { ReplaceResourceError } from '@ez4/aws-common';
 import { deepCompare, deepEqual } from '@ez4/utils';
 
-import { getGatewayId } from '../gateway/utils.js';
-import { createAuthorizer, deleteAuthorizer, updateAuthorizer } from './client.js';
-import { AuthorizerServiceName } from './types.js';
+import { getGatewayId } from '../gateway/utils';
+import { createAuthorizer, deleteAuthorizer, updateAuthorizer } from './client';
+import { AuthorizerServiceName } from './types';
 
 export const getAuthorizerHandler = (): StepHandler<AuthorizerState> => ({
   equals: equalsResource,

@@ -3,7 +3,7 @@ import type { Arn } from '@ez4/aws-common';
 import { LambdaClient, AddPermissionCommand, RemovePermissionCommand, ResourceNotFoundException } from '@aws-sdk/client-lambda';
 import { Logger } from '@ez4/aws-common';
 
-import { PermissionServiceName } from './types.js';
+import { PermissionServiceName } from './types';
 
 const client = new LambdaClient({});
 

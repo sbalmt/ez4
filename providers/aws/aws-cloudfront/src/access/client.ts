@@ -14,7 +14,7 @@ import {
   NoSuchOriginAccessControl
 } from '@aws-sdk/client-cloudfront';
 
-import { AccessServiceName } from './types.js';
+import { AccessServiceName } from './types';
 
 const client = new CloudFrontClient({});
 

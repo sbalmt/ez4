@@ -1,13 +1,13 @@
-import type { ProjectOptions } from '../../types/project.js';
-import type { EmulatorServices } from '../../library/emulator.js';
-import type { ServeOptions } from '../../types/options.js';
+import type { ProjectOptions } from '../../types/project';
+import type { EmulatorServices } from '../../library/emulator';
+import type { ServeOptions } from '../../types/options';
 
 import { Tester, Logger, LogLevel } from '@ez4/project/library';
 import { toKebabCase } from '@ez4/utils';
 
-import { loadProviders } from '../../common/providers.js';
-import { getMetadata } from '../../library/metadata.js';
-import { getEmulators } from '../../library/emulator.js';
+import { loadProviders } from '../../common/providers';
+import { getMetadata } from '../../library/metadata';
+import { getEmulators } from '../../library/emulator';
 
 import { readdir } from 'node:fs/promises';
 import { join } from 'node:path';

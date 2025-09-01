@@ -14,7 +14,7 @@ import {
   waitUntilCertificateValidated
 } from '@aws-sdk/client-acm';
 
-import { CertificateServiceName } from './types.js';
+import { CertificateServiceName } from './types';
 
 const client = new ACMClient({});
 

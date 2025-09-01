@@ -1,6 +1,6 @@
 import type { AnySchema, ObjectSchema } from '@ez4/schema';
 import type { AnyObject } from '@ez4/utils';
-import type { PgRelationRepositoryWithSchema } from './repository.js';
+import type { PgRelationRepositoryWithSchema } from './repository';
 
 export type PgExecuteOptions = {
   transactionId?: string;

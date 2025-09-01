@@ -12,7 +12,7 @@ import {
 } from '@aws-sdk/client-scheduler';
 
 import { Logger } from '@ez4/aws-common';
-import { ScheduleServiceName } from './types.js';
+import { ScheduleServiceName } from './types';
 import { isAnyNumber } from '@ez4/utils';
 
 const client = new SchedulerClient({});

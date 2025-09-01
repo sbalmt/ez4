@@ -1,18 +1,18 @@
 import type { ObjectSchema } from '@ez4/schema';
-import type { SqlFilters, SqlRecord } from '../common/types.js';
-import type { SqlSourceWithResults } from '../common/source.js';
-import type { SqlTableReference } from '../common/reference.js';
-import type { SqlResultColumn, SqlResultRecord } from '../common/results.js';
-import type { SqlBuilderOptions, SqlBuilderReferences } from '../builder.js';
+import type { SqlFilters, SqlRecord } from '../common/types';
+import type { SqlSourceWithResults } from '../common/source';
+import type { SqlTableReference } from '../common/reference';
+import type { SqlResultColumn, SqlResultRecord } from '../common/results';
+import type { SqlBuilderOptions, SqlBuilderReferences } from '../builder';
 
-import { getUpdateColumns } from '../helpers/update.js';
-import { getSelectExpressions } from '../helpers/select.js';
-import { SqlReturningClause } from '../clauses/query/returning.js';
-import { SqlWhereClause } from '../clauses/query/where.js';
-import { getFields, getValues } from '../utils/column.js';
-import { escapeSqlName } from '../utils/escape.js';
-import { SqlSource } from '../common/source.js';
-import { MissingTableNameError, MissingRecordError, EmptyRecordError } from './errors.js';
+import { getUpdateColumns } from '../helpers/update';
+import { getSelectExpressions } from '../helpers/select';
+import { SqlReturningClause } from '../clauses/query/returning';
+import { SqlWhereClause } from '../clauses/query/where';
+import { getFields, getValues } from '../utils/column';
+import { escapeSqlName } from '../utils/escape';
+import { SqlSource } from '../common/source';
+import { MissingTableNameError, MissingRecordError, EmptyRecordError } from './errors';
 
 export class SqlUpdateStatement extends SqlSource {
   #state: {

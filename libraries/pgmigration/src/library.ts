@@ -1,8 +1,8 @@
-export * from './utils/repository.js';
-export * from './types/query.js';
+export * from './utils/repository';
+export * from './types/query';
 
-export * from './queries/database.js';
-export * from './queries/tables.js';
-export * from './queries/indexes.js';
-export * from './queries/relations.js';
-export * from './queries/columns.js';
+export * from './queries/database';
+export * from './queries/tables';
+export * from './queries/indexes';
+export * from './queries/relations';
+export * from './queries/columns';

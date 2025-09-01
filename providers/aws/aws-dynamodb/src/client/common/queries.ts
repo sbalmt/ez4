@@ -1,17 +1,17 @@
 import type { DynamoDBDocumentClient, ExecuteStatementCommandInput } from '@aws-sdk/lib-dynamodb';
 import type { ObjectSchema } from '@ez4/schema';
 import type { Query } from '@ez4/database';
-import type { InternalTableMetadata } from '../types.js';
+import type { InternalTableMetadata } from '../types';
 
 import { validateSchema } from '@ez4/aws-dynamodb/runtime';
 
-import { preparePartialSchema } from './schema.js';
-import { findBestSecondaryIndex } from './indexes.js';
-import { executeStatement } from './client.js';
-import { prepareInsert } from './insert.js';
-import { prepareUpdate } from './update.js';
-import { prepareSelect } from './select.js';
-import { prepareDelete } from './delete.js';
+import { preparePartialSchema } from './schema';
+import { findBestSecondaryIndex } from './indexes';
+import { executeStatement } from './client';
+import { prepareInsert } from './insert';
+import { prepareUpdate } from './update';
+import { prepareSelect } from './select';
+import { prepareDelete } from './delete';
 
 export const prepareInsertOne = async <T extends InternalTableMetadata, S extends Query.SelectInput<T>>(
   table: string,

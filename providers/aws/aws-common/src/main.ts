@@ -1,18 +1,18 @@
-export * from './triggers/register.js';
+export * from './triggers/register';
 
-export * from './utils/waiter.js';
-export * from './utils/resource.js';
-export * from './utils/names.js';
+export * from './utils/waiter';
+export * from './utils/resource';
+export * from './utils/names';
 
-export * from './errors/bundler.js';
-export * from './errors/parameters.js';
-export * from './errors/providers.js';
-export * from './errors/resource.js';
+export * from './errors/bundler';
+export * from './errors/parameters';
+export * from './errors/providers';
+export * from './errors/resource';
 
-export * from './common/bundler.js';
-export * from './common/provider.js';
-export * from './common/logger.js';
-export * from './common/state.js';
+export * from './common/bundler';
+export * from './common/provider';
+export * from './common/logger';
+export * from './common/state';
 
-export * from './types/tags.js';
-export * from './types/arn.js';
+export * from './types/tags';
+export * from './types/arn';

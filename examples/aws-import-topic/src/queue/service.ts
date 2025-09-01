@@ -1,6 +1,6 @@
 import type { Queue } from '@ez4/queue';
 import type { MessageRequest } from 'hello-aws-topic';
-import type { messageHandlerB } from './handlers.js';
+import type { messageHandlerB } from './handlers';
 
 /**
  * Example of AWS SQS deployed with EZ4.

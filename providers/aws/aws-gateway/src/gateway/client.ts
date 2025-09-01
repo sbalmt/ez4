@@ -14,7 +14,7 @@ import {
 
 import { Logger, tryParseArn } from '@ez4/aws-common';
 
-import { GatewayServiceName } from './types.js';
+import { GatewayServiceName } from './types';
 
 const client = new ApiGatewayV2Client({});
 

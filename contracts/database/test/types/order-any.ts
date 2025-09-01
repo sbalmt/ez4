@@ -1,6 +1,6 @@
 import type { Client, Database, Index, OrderMode } from '@ez4/database';
 import type { Environment, Service } from '@ez4/common';
-import type { TestEngineOrder } from '../common/engines.js';
+import type { TestEngineOrder } from '../common/engines';
 
 import { Order } from '@ez4/database';
 

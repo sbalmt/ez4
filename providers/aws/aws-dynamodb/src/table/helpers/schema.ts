@@ -1,5 +1,5 @@
 import type { AttributeDefinition } from '@aws-sdk/client-dynamodb';
-import type { AttributeSchema } from '../../types/schema.js';
+import type { AttributeSchema } from '../../types/schema';
 
 export const getAttributeDefinitions = (schema: AttributeSchema[]): AttributeDefinition[] => {
   const attributeCache = new Set();

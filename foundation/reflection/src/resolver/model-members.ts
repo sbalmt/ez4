@@ -1,11 +1,11 @@
 import type { TypeLiteralNode } from 'typescript';
-import type { EveryMemberType } from '../types.js';
-import type { InterfaceNodes } from './type-interface.js';
-import type { ClassNodes } from './type-class.js';
-import type { Context, State } from './common.js';
+import type { EveryMemberType } from '../types';
+import type { InterfaceNodes } from './type-interface';
+import type { ClassNodes } from './type-class';
+import type { Context, State } from './common';
 
-import { tryModelProperty } from './model-property.js';
-import { tryModelMethod } from './model-method.js';
+import { tryModelProperty } from './model-property';
+import { tryModelMethod } from './model-method';
 
 export type NodeWithMembers = ClassNodes | InterfaceNodes | TypeLiteralNode;
 

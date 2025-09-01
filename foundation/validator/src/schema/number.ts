@@ -1,5 +1,5 @@
 import type { NumberSchema } from '@ez4/schema';
-import type { ValidationContext } from '../types/context.js';
+import type { ValidationContext } from '../types/context';
 
 import { isAnyNumber } from '@ez4/utils';
 
@@ -9,9 +9,9 @@ import {
   UnexpectedMaxRangeError,
   UnexpectedMinRangeError,
   UnexpectedNumberError
-} from '../errors/number.js';
+} from '../errors/number';
 
-import { isNullish } from '../utils/nullish.js';
+import { isNullish } from '../utils/nullish';
 
 export const validateNumber = (value: unknown, schema: NumberSchema, context?: ValidationContext) => {
   if (isNullish(value, schema)) {

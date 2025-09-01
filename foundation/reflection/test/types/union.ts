@@ -1,4 +1,4 @@
-import type { LiteralUnionType } from '../shared/types.js';
+import type { LiteralUnionType } from '../shared/types';
 
 type Type1<T> = T;
 type Type2<T> = T | null;

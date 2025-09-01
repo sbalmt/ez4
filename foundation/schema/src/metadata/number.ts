@@ -1,10 +1,10 @@
 import type { AllType, TypeNumber } from '@ez4/reflection';
-import type { NumberSchema } from '../types/type-number.js';
-import type { SchemaDefinitions } from '../types/common.js';
+import type { NumberSchema } from '../types/type-number';
+import type { SchemaDefinitions } from '../types/common';
 
 import { isTypeNumber } from '@ez4/reflection';
 
-import { SchemaType } from '../types/common.js';
+import { SchemaType } from '../types/common';
 
 export type RichTypeNumber = TypeNumber & {
   format?: string;

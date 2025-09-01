@@ -1,7 +1,7 @@
 import type { AnyObject, ArrayRest, PropertyType, ExclusiveType, IsArrayEmpty, IsUndefined, FlatObject, MergeObject } from '@ez4/utils';
-import type { IndexedTables, PrimaryIndexes, UniqueIndexes } from './indexes.js';
-import type { Database, DatabaseTables } from './database.js';
-import type { TableSchemas } from './schemas.js';
+import type { IndexedTables, PrimaryIndexes, UniqueIndexes } from './indexes';
+import type { Database, DatabaseTables } from './database';
+import type { TableSchemas } from './schemas';
 
 /**
  * Internal relation type.

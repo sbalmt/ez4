@@ -1,22 +1,22 @@
 import type { ObjectSchema } from '@ez4/schema';
-import type { SqlArrayColumn, SqlObjectColumn, SqlResultColumn, SqlResultRecord } from '../common/results.js';
-import type { SqlJsonColumnOptions, SqlJsonColumnSchema } from '../common/json.js';
-import type { SqlBuilderOptions, SqlBuilderReferences } from '../builder.js';
-import type { SqlTableReference } from '../common/reference.js';
-import type { SqlSourceWithResults } from '../common/source.js';
-import type { SqlFilters, SqlOrder } from '../common/types.js';
-import type { SqlRawGenerator } from '../common/raw.js';
+import type { SqlArrayColumn, SqlObjectColumn, SqlResultColumn, SqlResultRecord } from '../common/results';
+import type { SqlJsonColumnOptions, SqlJsonColumnSchema } from '../common/json';
+import type { SqlBuilderOptions, SqlBuilderReferences } from '../builder';
+import type { SqlTableReference } from '../common/reference';
+import type { SqlSourceWithResults } from '../common/source';
+import type { SqlFilters, SqlOrder } from '../common/types';
+import type { SqlRawGenerator } from '../common/raw';
 
 import { isAnyNumber } from '@ez4/utils';
 
-import { SqlSource } from '../common/source.js';
-import { SqlResults } from '../common/results.js';
-import { escapeSqlName } from '../utils/escape.js';
-import { getSelectExpressions } from '../helpers/select.js';
-import { SqlWhereClause } from '../clauses/query/where.js';
-import { SqlOrderClause } from '../clauses/query/order.js';
-import { SqlJoin } from '../clauses/query/join.js';
-import { MissingTableNameError, NoColumnsError } from './errors.js';
+import { SqlSource } from '../common/source';
+import { SqlResults } from '../common/results';
+import { escapeSqlName } from '../utils/escape';
+import { getSelectExpressions } from '../helpers/select';
+import { SqlWhereClause } from '../clauses/query/where';
+import { SqlOrderClause } from '../clauses/query/order';
+import { SqlJoin } from '../clauses/query/join';
+import { MissingTableNameError, NoColumnsError } from './errors';
 
 export class SqlSelectStatement extends SqlSource implements SqlSourceWithResults {
   #state: {

@@ -4,7 +4,7 @@ import type { SqlBuilder } from '@ez4/pgsql';
 
 import { Index } from '@ez4/database';
 
-import { getColumnDefault, getColumnType, isOptionalColumn } from '../utils/columns.js';
+import { getColumnDefault, getColumnType, isOptionalColumn } from '../utils/columns';
 
 export namespace TableQuery {
   export const prepareCreate = (builder: SqlBuilder, table: string, schema: ObjectSchema, indexes: PgIndexRepository) => {

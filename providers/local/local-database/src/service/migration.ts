@@ -7,7 +7,7 @@ import { getUpdateQueries } from '@ez4/pgmigration';
 import { DatabaseQueries } from '@ez4/pgmigration/library';
 import { Client } from '@ez4/pgclient';
 
-import { loadRepositoryState, saveRepositoryState } from '../utils/state.js';
+import { loadRepositoryState, saveRepositoryState } from '../utils/state';
 
 type MigrationClient = DbClient<Database.Service>;
 

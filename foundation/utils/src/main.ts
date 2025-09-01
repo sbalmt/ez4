@@ -1,6 +1,6 @@
-export * from './browser.js';
+export * from './browser';
 
-export * from './crypto/uuid.js';
-export * from './crypto/hash.js';
+export * from './crypto/uuid';
+export * from './crypto/hash';
 
-export * from './system/wait.js';
+export * from './system/wait';

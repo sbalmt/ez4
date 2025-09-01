@@ -1,14 +1,14 @@
 import type { EmulateServiceContext, EmulatorServiceRequest, ServeOptions } from '@ez4/project/library';
 import type { HttpService } from '@ez4/gateway/library';
-import type { RouteData } from '../utils/route.js';
+import type { RouteData } from '../utils/route';
 
 import { HttpForbiddenError, HttpNotFoundError } from '@ez4/gateway';
 import { getServiceName } from '@ez4/project/library';
 
-import { processHttpRequest } from '../handlers/request.js';
-import { processHttpAuthorization } from '../handlers/authorizer.js';
-import { getOutgoingErrorResponse } from '../utils/response.js';
-import { getMatchingRoute } from '../utils/route.js';
+import { processHttpRequest } from '../handlers/request';
+import { processHttpAuthorization } from '../handlers/authorizer';
+import { getOutgoingErrorResponse } from '../utils/response';
+import { getMatchingRoute } from '../utils/route';
 
 export const registerHttpServices = (service: HttpService, options: ServeOptions, context: EmulateServiceContext) => {
   const httpRoutes = buildHttpRoutes(service);

@@ -1,6 +1,6 @@
 import type { EntryState, StepContext } from '@ez4/stateful';
 import type { Arn } from '@ez4/aws-common';
-import type { AdditionalOrigin, CreateRequest, CreateResponse, DefaultOrigin } from './client.js';
+import type { AdditionalOrigin, CreateRequest, CreateResponse, DefaultOrigin } from './client';
 
 export const DistributionServiceName = 'AWS:CloudFront/Distribution';
 

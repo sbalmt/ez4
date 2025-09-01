@@ -1,12 +1,12 @@
 import type { StepContext, StepHandler } from '@ez4/stateful';
 import type { Arn } from '@ez4/aws-common';
-import type { ClusterState, ClusterResult, ClusterParameters } from './types.js';
+import type { ClusterState, ClusterResult, ClusterParameters } from './types';
 
 import { applyTagUpdates, ReplaceResourceError } from '@ez4/aws-common';
 import { deepCompare, deepEqual } from '@ez4/utils';
 
-import { importCluster, createCluster, updateCluster, deleteCluster, tagCluster, untagCluster, updateDeletion } from './client.js';
-import { ClusterServiceName } from './types.js';
+import { importCluster, createCluster, updateCluster, deleteCluster, tagCluster, untagCluster, updateDeletion } from './client';
+import { ClusterServiceName } from './types';
 
 export const getClusterHandler = (): StepHandler<ClusterState> => ({
   equals: equalsResource,

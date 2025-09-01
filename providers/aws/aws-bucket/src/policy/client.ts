@@ -3,7 +3,7 @@ import type { RoleDocument } from '@ez4/aws-identity';
 import { S3Client, PutBucketPolicyCommand, DeleteBucketPolicyCommand, NoSuchBucket } from '@aws-sdk/client-s3';
 import { Logger } from '@ez4/aws-common';
 
-import { PolicyServiceName } from './types.js';
+import { PolicyServiceName } from './types';
 
 const client = new S3Client({});
 

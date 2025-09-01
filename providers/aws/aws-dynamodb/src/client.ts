@@ -1,10 +1,10 @@
-export { DynamoDbEngine } from './client/types.js';
+export { DynamoDbEngine } from './client/types';
 
-export * from './client/service.js';
-export * from './client/table.js';
+export * from './client/service';
+export * from './client/table';
 
-export * from './client/common/insert.js';
-export * from './client/common/update.js';
-export * from './client/common/select.js';
-export * from './client/common/delete.js';
-export * from './client/common/schema.js';
+export * from './client/common/insert';
+export * from './client/common/update';
+export * from './client/common/select';
+export * from './client/common/delete';
+export * from './client/common/schema';

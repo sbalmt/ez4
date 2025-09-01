@@ -1,5 +1,5 @@
 import type { Http } from '@ez4/gateway';
-import type { AuthorizerResponse } from '../types.js';
+import type { AuthorizerResponse } from '../types';
 
 const SUPER_SECRET_API_KEY = 'query-api-key';
 

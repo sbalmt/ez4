@@ -1,2 +1,2 @@
-export type { MessageRequest } from './types.js';
-export type { Sns, FifoSns } from './service.js';
+export type { MessageRequest } from './types';
+export type { Sns, FifoSns } from './service';

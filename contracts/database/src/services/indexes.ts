@@ -1,5 +1,5 @@
 import type { ArrayRest, IsArrayEmpty } from '@ez4/utils';
-import type { Database, DatabaseTables } from './database.js';
+import type { Database, DatabaseTables } from './database';
 
 /**
  * All supported index types.

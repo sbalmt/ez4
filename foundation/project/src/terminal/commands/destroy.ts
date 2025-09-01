@@ -1,16 +1,16 @@
 import type { EntryStates } from '@ez4/stateful';
-import type { ProjectOptions } from '../../types/project.js';
-import type { DestroyOptions } from '../../types/options.js';
+import type { ProjectOptions } from '../../types/project';
+import type { DestroyOptions } from '../../types/options';
 
 import { Logger } from '@ez4/project/library';
 import { toKebabCase } from '@ez4/utils';
 
-import { applyDeploy } from '../../actions/deploy.js';
-import { loadLocalState, loadRemoteState, saveLocalState, saveRemoteState } from '../../actions/state.js';
-import { reportResourceChanges } from '../../report/report.js';
-import { loadProviders } from '../../common/providers.js';
-import { waitConfirmation } from '../../utils/prompt.js';
-import { assertNoErrors } from '../../utils/errors.js';
+import { applyDeploy } from '../../actions/deploy';
+import { loadLocalState, loadRemoteState, saveLocalState, saveRemoteState } from '../../actions/state';
+import { reportResourceChanges } from '../../report/report';
+import { loadProviders } from '../../common/providers';
+import { waitConfirmation } from '../../utils/prompt';
+import { assertNoErrors } from '../../utils/errors';
 
 export const destroyCommand = async (project: ProjectOptions) => {
   const options: DestroyOptions = {

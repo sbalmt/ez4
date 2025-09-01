@@ -1,4 +1,4 @@
-import type { SqlSource } from './source.js';
+import type { SqlSource } from './source';
 
 export type SqlRawGenerator = (statement?: SqlSource) => string;
 

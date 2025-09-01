@@ -1,4 +1,4 @@
-import { UnexpectedTypeError } from './common.js';
+import { UnexpectedTypeError } from './common';
 
 export class ExpectedTupleTypeError extends UnexpectedTypeError {
   constructor(propertyName?: string) {

@@ -1,14 +1,14 @@
-import type { InputOptions } from './options.js';
+import type { InputOptions } from './options';
 
 import { loadEnvFile } from 'node:process';
 
-import { loadProject } from '../common/project.js';
-import { deployCommand } from './commands/deploy.js';
-import { destroyCommand } from './commands/destroy.js';
-import { serveCommand } from './commands/serve.js';
-import { testCommand } from './commands/test.js';
-import { helpCommand } from './commands/help.js';
-import { CommandType } from './options.js';
+import { loadProject } from '../common/project';
+import { deployCommand } from './commands/deploy';
+import { destroyCommand } from './commands/destroy';
+import { serveCommand } from './commands/serve';
+import { testCommand } from './commands/test';
+import { helpCommand } from './commands/help';
+import { CommandType } from './options';
 
 export const runActionCommand = async (options: InputOptions) => {
   if (options.environmentFile) {

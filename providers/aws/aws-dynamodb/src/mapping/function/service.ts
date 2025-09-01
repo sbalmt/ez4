@@ -1,11 +1,11 @@
 import type { EntryState, EntryStates } from '@ez4/stateful';
 import type { LogGroupState } from '@ez4/aws-logs';
 import type { RoleState } from '@ez4/aws-identity';
-import type { StreamFunctionParameters } from './types.js';
+import type { StreamFunctionParameters } from './types';
 
 import { createFunction } from '@ez4/aws-function';
 
-import { bundleStreamFunction } from './bundler.js';
+import { bundleStreamFunction } from './bundler';
 
 export const createStreamFunction = <E extends EntryState>(
   state: EntryStates<E>,

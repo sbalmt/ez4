@@ -4,9 +4,9 @@ import type { AnyObject } from '@ez4/utils';
 import { getPropertyName } from '@ez4/schema';
 import { isAnyObject } from '@ez4/utils';
 
-import { tryDecodeBase64Json } from '../utils/base64.js';
-import { createTransformContext } from '../types/context.js';
-import { transformAny } from './any.js';
+import { tryDecodeBase64Json } from '../utils/base64';
+import { createTransformContext } from '../types/context';
+import { transformAny } from './any';
 
 export const transformObject = (value: unknown, schema: ObjectSchema, context = createTransformContext()) => {
   const definitions = schema.definitions;

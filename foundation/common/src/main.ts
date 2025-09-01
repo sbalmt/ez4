@@ -1,6 +1,6 @@
-export { ServiceEventType } from './services/common.js';
+export { ServiceEventType } from './services/common';
 
-export * from './richtypes/environment.js';
+export * from './richtypes/environment';
 
-export * from './services/contract.js';
-export * from './services/error.js';
+export * from './services/contract';
+export * from './services/error';

@@ -1,13 +1,13 @@
 import type { AllType, SourceMap, TypeModel, TypeObject } from '@ez4/reflection';
 import type { MemberType } from '@ez4/common/library';
-import type { TableIndex } from '../types/indexes.js';
+import type { TableIndex } from '../types/indexes';
 
 import { isModelDeclaration, getModelMembers, getObjectMembers, getPropertyString, getReferenceType } from '@ez4/common/library';
 import { isModelProperty, isTypeObject, isTypeReference } from '@ez4/reflection';
 
-import { IncorrectIndexesTypeError, InvalidIndexesTypeError, InvalidIndexTypeError } from '../errors/indexes.js';
-import { Index } from '../services/indexes.js';
-import { isTableIndexes } from './utils.js';
+import { IncorrectIndexesTypeError, InvalidIndexesTypeError, InvalidIndexTypeError } from '../errors/indexes';
+import { Index } from '../services/indexes';
+import { isTableIndexes } from './utils';
 
 type TypeParent = TypeModel | TypeObject;
 

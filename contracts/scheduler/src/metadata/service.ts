@@ -1,6 +1,6 @@
 import type { SourceMap, TypeModel } from '@ez4/reflection';
 import type { Incomplete } from '@ez4/utils';
-import type { CronService } from '../types/service.js';
+import type { CronService } from '../types/service';
 
 import {
   DuplicateServiceError,
@@ -16,11 +16,11 @@ import {
 
 import { isModelProperty } from '@ez4/reflection';
 
-import { ServiceType, DynamicExpression, isDynamicCronService } from '../types/service.js';
-import { IncompleteServiceError, IncorrectServiceError } from '../errors/service.js';
-import { getCronTarget } from './target.js';
-import { isCronService } from './utils.js';
-import { getCronEvent } from './event.js';
+import { ServiceType, DynamicExpression, isDynamicCronService } from '../types/service';
+import { IncompleteServiceError, IncorrectServiceError } from '../errors/service';
+import { getCronTarget } from './target';
+import { isCronService } from './utils';
+import { getCronEvent } from './event';
 
 export const getCronServices = (reflection: SourceMap) => {
   const allServices: Record<string, CronService> = {};

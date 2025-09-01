@@ -1,14 +1,14 @@
 import type { PgTableRepository } from '@ez4/pgclient/library';
-import type { PgMigrationQueries } from '../types/query.js';
+import type { PgMigrationQueries } from '../types/query';
 
 import { SqlBuilder } from '@ez4/pgsql';
 
-import { TableQuery } from '../queries/tables.js';
-import { ColumnQuery } from '../queries/columns.js';
-import { ConstraintQuery } from '../queries/constraints.js';
-import { RelationQuery } from '../queries/relations.js';
-import { IndexQueries } from '../queries/indexes.js';
-import { getTableRepositoryChanges } from '../utils/repository.js';
+import { TableQuery } from '../queries/tables';
+import { ColumnQuery } from '../queries/columns';
+import { ConstraintQuery } from '../queries/constraints';
+import { RelationQuery } from '../queries/relations';
+import { IndexQueries } from '../queries/indexes';
+import { getTableRepositoryChanges } from '../utils/repository';
 
 export const getCreateQueries = (target: PgTableRepository) => {
   const builder = new SqlBuilder();

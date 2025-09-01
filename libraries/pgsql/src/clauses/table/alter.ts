@@ -1,13 +1,13 @@
-import type { SqlTableStatement } from '../../statements/table.js';
+import type { SqlTableStatement } from '../../statements/table';
 
-import { escapeSqlName } from '../../utils/escape.js';
-import { MissingClauseError, TooManyClausesError } from '../errors.js';
-import { SqlConstraintClause } from '../constraint/clause.js';
-import { SqlAddColumnClause } from '../column/add.js';
-import { SqlAlterColumnClause } from '../column/alter.js';
-import { SqlRenameColumnClause } from '../column/rename.js';
-import { SqlDropColumnClause } from '../column/drop.js';
-import { ChangeType } from '../types.js';
+import { escapeSqlName } from '../../utils/escape';
+import { MissingClauseError, TooManyClausesError } from '../errors';
+import { SqlConstraintClause } from '../constraint/clause';
+import { SqlAddColumnClause } from '../column/add';
+import { SqlAlterColumnClause } from '../column/alter';
+import { SqlRenameColumnClause } from '../column/rename';
+import { SqlDropColumnClause } from '../column/drop';
+import { ChangeType } from '../types';
 
 export class SqlAlterTableClause {
   #state: {

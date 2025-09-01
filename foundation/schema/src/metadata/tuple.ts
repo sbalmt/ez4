@@ -1,14 +1,14 @@
 import type { AllType, SourceMap, TypeTuple } from '@ez4/reflection';
-import type { SchemaDefinitions } from '../types/common.js';
-import type { SchemaContext } from '../types/context.js';
-import type { TupleSchema } from '../types/type-tuple.js';
-import type { AnySchema } from '../types/type-any.js';
+import type { SchemaDefinitions } from '../types/common';
+import type { SchemaContext } from '../types/context';
+import type { TupleSchema } from '../types/type-tuple';
+import type { AnySchema } from '../types/type-any';
 
 import { isTypeTuple } from '@ez4/reflection';
 
-import { createSchemaContext } from '../types/context.js';
-import { SchemaType } from '../types/common.js';
-import { getAnySchema } from './any.js';
+import { createSchemaContext } from '../types/context';
+import { SchemaType } from '../types/common';
+import { getAnySchema } from './any';
 
 export type RichTypeTuple = TypeTuple & {
   definitions?: SchemaDefinitions;

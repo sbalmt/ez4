@@ -1,22 +1,22 @@
 import type { EntryStates } from '@ez4/stateful';
-import type { ProjectOptions } from '../../types/project.js';
-import type { DeployOptions } from '../../types/options.js';
+import type { ProjectOptions } from '../../types/project';
+import type { DeployOptions } from '../../types/options';
 
 import { Logger } from '@ez4/project/library';
 import { toKebabCase } from '@ez4/utils';
 
-import { applyDeploy } from '../../actions/deploy.js';
-import { getEventContext } from '../../actions/common.js';
-import { prepareExecutionRole } from '../../actions/identity.js';
-import { prepareLinkedServices } from '../../actions/services.js';
-import { combineStates, loadRemoteState, loadLocalState, saveRemoteState, saveLocalState } from '../../actions/state.js';
-import { connectDeployResources, prepareDeployResources } from '../../actions/resources.js';
-import { reportResourceChanges } from '../../report/report.js';
-import { waitConfirmation } from '../../utils/prompt.js';
-import { getMetadata } from '../../library/metadata.js';
-import { assertNoErrors } from '../../utils/errors.js';
-import { loadProviders } from '../../common/providers.js';
-import { loadImports } from '../../common/imports.js';
+import { applyDeploy } from '../../actions/deploy';
+import { getEventContext } from '../../actions/common';
+import { prepareExecutionRole } from '../../actions/identity';
+import { prepareLinkedServices } from '../../actions/services';
+import { combineStates, loadRemoteState, loadLocalState, saveRemoteState, saveLocalState } from '../../actions/state';
+import { connectDeployResources, prepareDeployResources } from '../../actions/resources';
+import { reportResourceChanges } from '../../report/report';
+import { waitConfirmation } from '../../utils/prompt';
+import { getMetadata } from '../../library/metadata';
+import { assertNoErrors } from '../../utils/errors';
+import { loadProviders } from '../../common/providers';
+import { loadImports } from '../../common/imports';
 
 export const deployCommand = async (project: ProjectOptions) => {
   const options: DeployOptions = {

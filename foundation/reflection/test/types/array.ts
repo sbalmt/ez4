@@ -1,4 +1,4 @@
-import type { LiteralArrayType } from '../shared/types.js';
+import type { LiteralArrayType } from '../shared/types';
 
 type Type<T> = T;
 

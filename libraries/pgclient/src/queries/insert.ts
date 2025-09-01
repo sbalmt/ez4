@@ -3,8 +3,8 @@ import type { SqlParameter } from '@aws-sdk/client-rds-data';
 import type { ObjectSchema } from '@ez4/schema';
 import type { AnyObject } from '@ez4/utils';
 import type { Query } from '@ez4/database';
-import type { PgRelationWithSchema, PgRelationRepositoryWithSchema } from '../types/repository.js';
-import type { InternalTableMetadata } from '../types/table.js';
+import type { PgRelationWithSchema, PgRelationRepositoryWithSchema } from '../types/repository';
+import type { InternalTableMetadata } from '../types/table';
 
 import { InvalidRelationFieldError, MissingFieldSchemaError } from '@ez4/pgclient';
 import { isObjectSchema } from '@ez4/schema';
@@ -19,10 +19,10 @@ import {
   getTargetConnectionSchema,
   getSourceCreationSchema,
   getSourceConnectionSchema
-} from '../utils/relation.js';
+} from '../utils/relation';
 
-import { getWithSchemaValidation, validateAllSchemaLevels, validateFirstSchemaLevel } from '../utils/schema.js';
-import { getDefaultSelectFields, getFieldColumn, getSelectFields } from './select.js';
+import { getWithSchemaValidation, validateAllSchemaLevels, validateFirstSchemaLevel } from '../utils/schema';
+import { getDefaultSelectFields, getFieldColumn, getSelectFields } from './select';
 
 type InsertRelationsCache = Record<string, InsertRelationEntry>;
 

@@ -7,11 +7,11 @@ import { registerTriggers as registerQueueTriggers } from '@ez4/queue/library';
 
 import { createTrigger } from '@ez4/project/library';
 
-import { registerQueueProvider } from '../queue/provider.js';
-import { registerPolicyProvider } from '../policy/provider.js';
-import { prepareLinkedServices, prepareServices, connectServices } from './service.js';
-import { prepareLinkedImports, prepareImports, connectImports } from './import.js';
-import { prepareExecutionPolicy } from './policy.js';
+import { registerQueueProvider } from '../queue/provider';
+import { registerPolicyProvider } from '../policy/provider';
+import { prepareLinkedServices, prepareServices, connectServices } from './service';
+import { prepareLinkedImports, prepareImports, connectImports } from './import';
+import { prepareExecutionPolicy } from './policy';
 
 let isRegistered = false;
 

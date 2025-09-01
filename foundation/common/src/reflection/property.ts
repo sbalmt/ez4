@@ -3,7 +3,7 @@ import type { ModelProperty } from '@ez4/reflection';
 import { isTypeObject } from '@ez4/reflection';
 import { isAnyString } from '@ez4/utils';
 
-import { getLiteralBoolean, getLiteralNumber, getLiteralString, getLiteralTuple } from './value.js';
+import { getLiteralBoolean, getLiteralNumber, getLiteralString, getLiteralTuple } from './value';
 
 export const getPropertyBoolean = (member: ModelProperty) => {
   return getLiteralBoolean(member.value);

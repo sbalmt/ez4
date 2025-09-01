@@ -1,16 +1,16 @@
 import type { AnySchema, ObjectSchema } from '@ez4/schema';
-import type { SqlRawGenerator } from './common/raw.js';
+import type { SqlRawGenerator } from './common/raw';
 
-import { SqlRawValue, SqlRawOperation } from './common/raw.js';
-import { SqlTableStatement } from './statements/table.js';
-import { SqlIndexStatement } from './statements/index.js';
-import { SqlSelectStatement } from './statements/select.js';
-import { SqlInsertStatement } from './statements/insert.js';
-import { SqlUpdateStatement } from './statements/update.js';
-import { SqlDeleteStatement } from './statements/delete.js';
-import { SqlWithClause } from './clauses/query/with.js';
-import { escapeSqlText } from './utils/escape.js';
-import { getUniqueAlias } from './helpers/alias.js';
+import { SqlRawValue, SqlRawOperation } from './common/raw';
+import { SqlTableStatement } from './statements/table';
+import { SqlIndexStatement } from './statements/index';
+import { SqlSelectStatement } from './statements/select';
+import { SqlInsertStatement } from './statements/insert';
+import { SqlUpdateStatement } from './statements/update';
+import { SqlDeleteStatement } from './statements/delete';
+import { SqlWithClause } from './clauses/query/with';
+import { escapeSqlText } from './utils/escape';
+import { getUniqueAlias } from './helpers/alias';
 
 export type SqlBuilderReferences = {
   aliases: Record<string, number>;

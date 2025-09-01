@@ -1,9 +1,9 @@
 import type { Node } from 'typescript';
-import type { TypeNever } from '../types.js';
-import type { Context } from './common.js';
+import type { TypeNever } from '../types';
+import type { Context } from './common';
 
 import { SyntaxKind } from 'typescript';
-import { TypeName } from '../types.js';
+import { TypeName } from '../types';
 
 export const createNever = (): TypeNever => {
   return {

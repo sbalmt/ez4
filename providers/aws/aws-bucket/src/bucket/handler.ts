@@ -1,6 +1,6 @@
 import type { StepContext, StepHandler } from '@ez4/stateful';
 import type { Arn, ResourceTags } from '@ez4/aws-common';
-import type { BucketState, BucketResult, BucketParameters } from './types.js';
+import type { BucketState, BucketResult, BucketParameters } from './types';
 
 import { ReplaceResourceError } from '@ez4/aws-common';
 import { tryGetFunctionArn } from '@ez4/aws-function';
@@ -16,9 +16,9 @@ import {
   createLifecycle,
   deleteLifecycle,
   tagBucket
-} from './client.js';
+} from './client';
 
-import { BucketServiceName } from './types.js';
+import { BucketServiceName } from './types';
 
 type NotificationParameters = {
   functionArn?: Arn;

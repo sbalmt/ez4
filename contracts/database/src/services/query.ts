@@ -1,11 +1,11 @@
-import type { DecomposeIndexName, PrimaryIndexes, UniqueIndexes } from './indexes.js';
-import type { DatabaseEngine } from './engine.js';
-import type { RelationMetadata } from './relations.js';
-import type { InsensitiveUtils } from './insensitive.js';
-import type { PaginationUtils } from './pagination.js';
-import type { TableMetadata } from './table.js';
-import type { OrderUtils } from './order.js';
-import type { Database } from './database.js';
+import type { DecomposeIndexName, PrimaryIndexes, UniqueIndexes } from './indexes';
+import type { DatabaseEngine } from './engine';
+import type { RelationMetadata } from './relations';
+import type { InsensitiveUtils } from './insensitive';
+import type { PaginationUtils } from './pagination';
+import type { TableMetadata } from './table';
+import type { OrderUtils } from './order';
+import type { Database } from './database';
 
 import type {
   AnyObject,

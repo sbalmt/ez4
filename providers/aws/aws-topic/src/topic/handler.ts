@@ -1,13 +1,13 @@
 import type { StepHandler } from '@ez4/stateful';
-import type { TopicState, TopicResult, TopicParameters } from './types.js';
+import type { TopicState, TopicResult, TopicParameters } from './types';
 
 import { applyTagUpdates, ReplaceResourceError } from '@ez4/aws-common';
 import { getAccountId, getRegion } from '@ez4/aws-identity';
 import { deepCompare } from '@ez4/utils';
 
-import { buildTopicArn } from '../utils/policy.js';
-import { createTopic, deleteTopic, tagTopic, untagTopic } from './client.js';
-import { TopicServiceName } from './types.js';
+import { buildTopicArn } from '../utils/policy';
+import { createTopic, deleteTopic, tagTopic, untagTopic } from './client';
+import { TopicServiceName } from './types';
 
 export const getTopicHandler = (): StepHandler<TopicState> => ({
   equals: equalsResource,

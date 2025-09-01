@@ -1,7 +1,7 @@
-import type { SqlAlterTableClause } from '../table/alter.js';
+import type { SqlAlterTableClause } from '../table/alter';
 
-import { escapeSqlName } from '../../utils/escape.js';
-import { MissingClauseError } from '../errors.js';
+import { escapeSqlName } from '../../utils/escape';
+import { MissingClauseError } from '../errors';
 
 export class SqlAlterColumnClause {
   #state: {

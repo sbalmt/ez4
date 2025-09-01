@@ -1,2 +1,2 @@
-export * from './services/contract.js';
-export * from './services/errors.js';
+export * from './services/contract';
+export * from './services/errors';

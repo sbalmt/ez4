@@ -1,11 +1,11 @@
 import type { ObjectSchema, ObjectSchemaProperties } from '@ez4/schema';
 import type { TableIndex } from '@ez4/database/library';
-import type { AttributeSchema, AttributeSchemaGroup } from '../types/schema.js';
+import type { AttributeSchema, AttributeSchemaGroup } from '../types/schema';
 
 import { isNumberSchema, SchemaType } from '@ez4/schema';
 import { Index } from '@ez4/database';
 
-import { AttributeType, AttributeKeyType } from '../types/schema.js';
+import { AttributeType, AttributeKeyType } from '../types/schema';
 
 export const getAttributeSchema = (indexes: TableIndex[], schema: ObjectSchema) => {
   const secondarySchema: AttributeSchemaGroup[] = [];

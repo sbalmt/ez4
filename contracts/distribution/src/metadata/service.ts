@@ -1,6 +1,6 @@
 import type { ModelProperty, SourceMap } from '@ez4/reflection';
 import type { Incomplete } from '@ez4/utils';
-import type { CdnService } from '../types/service.js';
+import type { CdnService } from '../types/service';
 
 import {
   DuplicateServiceError,
@@ -14,12 +14,12 @@ import {
 
 import { isModelProperty, isTypeString } from '@ez4/reflection';
 
-import { ServiceType } from '../types/service.js';
-import { IncompleteServiceError } from '../errors/service.js';
-import { getAllCdnOrigins, getCdnOrigin } from './origin.js';
-import { getCdnCertificate } from './certificate.js';
-import { getAllFallbacks } from './fallback.js';
-import { isCdnService } from './utils.js';
+import { ServiceType } from '../types/service';
+import { IncompleteServiceError } from '../errors/service';
+import { getAllCdnOrigins, getCdnOrigin } from './origin';
+import { getCdnCertificate } from './certificate';
+import { getAllFallbacks } from './fallback';
+import { isCdnService } from './utils';
 
 export const getCdnServices = (reflection: SourceMap) => {
   const allServices: Record<string, CdnService> = {};

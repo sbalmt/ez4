@@ -1,6 +1,6 @@
 import type { SourceMap } from '@ez4/reflection';
 import type { Incomplete } from '@ez4/utils';
-import type { HttpService } from '../types/service.js';
+import type { HttpService } from '../types/service';
 
 import {
   DuplicateServiceError,
@@ -14,13 +14,13 @@ import {
 
 import { isModelProperty } from '@ez4/reflection';
 
-import { ServiceType } from '../types/service.js';
-import { IncompleteServiceError } from '../errors/service.js';
-import { getHttpDefaults } from './defaults.js';
-import { getHttpRoutes } from './route.js';
-import { getHttpCors } from './cors.js';
-import { getHttpCache } from './cache.js';
-import { isHttpService } from './utils.js';
+import { ServiceType } from '../types/service';
+import { IncompleteServiceError } from '../errors/service';
+import { getHttpDefaults } from './defaults';
+import { getHttpRoutes } from './route';
+import { getHttpCors } from './cors';
+import { getHttpCache } from './cache';
+import { isHttpService } from './utils';
 
 export const getHttpServices = (reflection: SourceMap) => {
   const allServices: Record<string, HttpService> = {};

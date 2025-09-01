@@ -1,6 +1,6 @@
-import type { SqlIndexStatement } from '../../statements/index.js';
+import type { SqlIndexStatement } from '../../statements/index';
 
-import { escapeSqlName, escapeSqlNames } from '../../utils/escape.js';
+import { escapeSqlName, escapeSqlNames } from '../../utils/escape';
 
 export class SqlCreateIndexClause {
   #state: {

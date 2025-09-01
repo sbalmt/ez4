@@ -1,11 +1,11 @@
 import type { StepHandler } from '@ez4/stateful';
-import type { AccessState, AccessResult, AccessParameters } from './types.js';
+import type { AccessState, AccessResult, AccessParameters } from './types';
 
 import { ReplaceResourceError } from '@ez4/aws-common';
 import { deepCompare, deepEqual } from '@ez4/utils';
 
-import { createOriginAccess, updateAccess, deleteAccess } from './client.js';
-import { AccessServiceName } from './types.js';
+import { createOriginAccess, updateAccess, deleteAccess } from './client';
+import { AccessServiceName } from './types';
 
 export const getAccessHandler = (): StepHandler<AccessState> => ({
   equals: equalsResource,

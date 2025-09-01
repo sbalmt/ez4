@@ -1,7 +1,7 @@
 import type { ServiceMetadata } from '@ez4/project/library';
-import type { CdnCertificate } from './certificate.js';
-import type { CdnFallback } from './fallback.js';
-import type { CdnOrigin } from './origin.js';
+import type { CdnCertificate } from './certificate';
+import type { CdnFallback } from './fallback';
+import type { CdnOrigin } from './origin';
 
 export const ServiceType = '@ez4/cdn';
 

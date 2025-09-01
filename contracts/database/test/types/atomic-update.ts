@@ -1,6 +1,6 @@
 import type { Client, Database, Index } from '@ez4/database';
 import type { Environment, Service } from '@ez4/common';
-import type { TestEngine } from '../common/engines.js';
+import type { TestEngine } from '../common/engines';
 
 declare class TestTableA implements Database.Schema {
   id: string;

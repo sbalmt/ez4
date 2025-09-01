@@ -1,12 +1,12 @@
 import type { AllType, SourceMap } from '@ez4/reflection';
-import type { MetadataDependencies, MetadataReflection } from '../types/metadata.js';
+import type { MetadataDependencies, MetadataReflection } from '../types/metadata';
 
 import { getReflectionFiles, TypeName } from '@ez4/reflection';
 import { Logger, triggerAllSync } from '@ez4/project/library';
 
-import { assertNoErrors } from '../utils/errors.js';
-import { DuplicateMetadataError } from '../errors/metadata.js';
-import { getReflection, watchReflection } from './reflection.js';
+import { assertNoErrors } from '../utils/errors';
+import { DuplicateMetadataError } from '../errors/metadata';
+import { getReflection, watchReflection } from './reflection';
 
 export type MetadataReadyListener = (metadata: MetadataReflection) => Promise<void> | void;
 

@@ -1,4 +1,4 @@
-import { UnexpectedFormatError } from '../errors/common.js';
+import { UnexpectedFormatError } from '../errors/common';
 
 export class ExpectedUUIDTypeError extends UnexpectedFormatError {
   constructor(propertyName?: string) {

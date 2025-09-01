@@ -1,12 +1,12 @@
-export * from './triggers/register.js';
+export * from './triggers/register';
 
-export * from './topic/service.js';
-export * from './topic/types.js';
-export * from './topic/utils.js';
+export * from './topic/service';
+export * from './topic/types';
+export * from './topic/utils';
 
-export * from './subscription/function/service.js';
-export * from './subscription/function/types.js';
+export * from './subscription/function/service';
+export * from './subscription/function/types';
 
-export * from './subscription/service.js';
-export * from './subscription/types.js';
-export * from './subscription/utils.js';
+export * from './subscription/service';
+export * from './subscription/types';
+export * from './subscription/utils';

@@ -1,6 +1,6 @@
 import type { Node, NodeArray, TypeChecker } from 'typescript';
-import type { ResolverEvents, ResolverOptions } from '../resolver.js';
-import type { AllType, EveryType } from '../types.js';
+import type { ResolverEvents, ResolverOptions } from '../resolver';
+import type { AllType, EveryType } from '../types';
 
 export type Context = {
   events: ResolverEvents;

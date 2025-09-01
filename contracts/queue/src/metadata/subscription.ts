@@ -1,7 +1,7 @@
 import type { AllType, ModelProperty, SourceMap, TypeModel, TypeObject } from '@ez4/reflection';
 import type { MemberType } from '@ez4/common/library';
 import type { Incomplete } from '@ez4/utils';
-import type { QueueSubscription } from '../types/common.js';
+import type { QueueSubscription } from '../types/common';
 
 import {
   InvalidServicePropertyError,
@@ -17,9 +17,9 @@ import {
 
 import { isModelProperty, isTypeObject, isTypeReference } from '@ez4/reflection';
 
-import { IncompleteSubscriptionError, IncorrectSubscriptionTypeError, InvalidSubscriptionTypeError } from '../errors/subscription.js';
-import { getSubscriptionHandler } from './handler.js';
-import { isQueueSubscription } from './utils.js';
+import { IncompleteSubscriptionError, IncorrectSubscriptionTypeError, InvalidSubscriptionTypeError } from '../errors/subscription';
+import { getSubscriptionHandler } from './handler';
+import { isQueueSubscription } from './utils';
 
 export const getAllSubscription = (member: ModelProperty, parent: TypeModel, reflection: SourceMap, errorList: Error[]) => {
   const subscriptionItems = getPropertyTuple(member) ?? [];

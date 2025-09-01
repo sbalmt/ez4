@@ -1,10 +1,10 @@
 import type { AllType, TypeString } from '@ez4/reflection';
-import type { StringSchema } from '../types/type-string.js';
-import type { SchemaDefinitions } from '../types/common.js';
+import type { StringSchema } from '../types/type-string';
+import type { SchemaDefinitions } from '../types/common';
 
 import { isTypeString } from '@ez4/reflection';
 
-import { SchemaType } from '../types/common.js';
+import { SchemaType } from '../types/common';
 
 export type RichTypeString = TypeString & {
   format?: string;

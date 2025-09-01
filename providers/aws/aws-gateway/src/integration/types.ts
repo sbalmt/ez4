@@ -1,6 +1,6 @@
 import type { Arn } from '@ez4/aws-common';
 import type { EntryState } from '@ez4/stateful';
-import type { CreateRequest, CreateResponse } from './client.js';
+import type { CreateRequest, CreateResponse } from './client';
 
 export const IntegrationServiceName = 'AWS:API/Integration';
 

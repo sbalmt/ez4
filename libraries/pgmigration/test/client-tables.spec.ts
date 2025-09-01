@@ -8,8 +8,8 @@ import { Client } from '@ez4/pgclient';
 import { SchemaType } from '@ez4/schema';
 import { Index } from '@ez4/database';
 
-import { constraintExists, tableExists } from './common/queries.js';
-import { runMigration } from './common/migration.js';
+import { constraintExists, tableExists } from './common/queries';
+import { runMigration } from './common/migration';
 
 describe('migration :: client tables tests', async () => {
   const client = await Client.make({

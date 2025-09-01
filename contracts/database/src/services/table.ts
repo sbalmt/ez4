@@ -1,10 +1,10 @@
 import type { AnyObject, PropertyExists } from '@ez4/utils';
-import type { RelationMetadata, RelationTables } from './relations.js';
-import type { IndexedTables } from './indexes.js';
-import type { TableSchemas } from './schemas.js';
-import type { Database } from './database.js';
-import type { DatabaseEngine } from './engine.js';
-import type { Query } from './query.js';
+import type { RelationMetadata, RelationTables } from './relations';
+import type { IndexedTables } from './indexes';
+import type { TableSchemas } from './schemas';
+import type { Database } from './database';
+import type { DatabaseEngine } from './engine';
+import type { Query } from './query';
 
 /**
  * Given an indexed table `T` and a property `P`, it returns all the indexes corresponding

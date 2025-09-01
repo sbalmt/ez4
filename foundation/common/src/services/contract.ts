@@ -1,11 +1,4 @@
-import type {
-  ServiceAnyEvent,
-  ServiceBeginEvent,
-  ServiceEndEvent,
-  ServiceErrorEvent,
-  ServiceReadyEvent,
-  ServiceRequest
-} from './common.js';
+import type { ServiceAnyEvent, ServiceBeginEvent, ServiceEndEvent, ServiceErrorEvent, ServiceReadyEvent, ServiceRequest } from './common';
 
 export namespace Service {
   export type AnyEvent<T extends ServiceRequest> = ServiceAnyEvent<T>;

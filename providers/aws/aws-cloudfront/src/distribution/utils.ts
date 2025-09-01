@@ -1,11 +1,11 @@
 import type { EntryState, EntryStates, StepContext } from '@ez4/stateful';
-import type { DistributionState } from './types.js';
+import type { DistributionState } from './types';
 
 import { getEntry, EntryNotFoundError } from '@ez4/stateful';
 import { IncompleteResourceError } from '@ez4/aws-common';
 import { hashData, toKebabCase } from '@ez4/utils';
 
-import { DistributionServiceType } from './types.js';
+import { DistributionServiceType } from './types';
 
 export const createDistributionStateId = (distributionName: string) => {
   return hashData(DistributionServiceType, toKebabCase(distributionName));

@@ -15,7 +15,7 @@ import {
 
 import { SchemaType } from '@ez4/schema';
 
-import { assertError } from './common.js';
+import { assertError } from './common';
 
 describe('type validation errors', () => {
   it('assert :: boolean errors', async () => {

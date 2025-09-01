@@ -1,15 +1,15 @@
-import type { CompilerOptions, CompilerEvents } from './compiler.js';
-import type { ResolverOptions, ResolverEvents } from './resolver.js';
+import type { CompilerOptions, CompilerEvents } from './compiler';
+import type { ResolverOptions, ResolverEvents } from './resolver';
 
 import { createProgram, createWatchProgram } from 'typescript';
 
-import { createCompilerHost, createCompilerOptions, createWatchCompilerHost } from './compiler.js';
-import { resolveReflectionMetadata, resolveReflectionFiles } from './resolver.js';
+import { createCompilerHost, createCompilerOptions, createWatchCompilerHost } from './compiler';
+import { resolveReflectionMetadata, resolveReflectionFiles } from './resolver';
 
-export * from './types.js';
-export * from './compiler.js';
-export * from './resolver.js';
-export * from './utils.js';
+export * from './types';
+export * from './compiler';
+export * from './resolver';
+export * from './utils';
 
 export type ReflectionOptions = {
   /**

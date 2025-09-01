@@ -1,6 +1,6 @@
 import type { StringSchema } from '@ez4/schema';
 
-import { createTransformContext } from '../types/context.js';
+import { createTransformContext } from '../types/context';
 
 export const transformString = (value: unknown, schema: StringSchema, context = createTransformContext()) => {
   const { definitions } = schema;

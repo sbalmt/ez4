@@ -1,9 +1,9 @@
-import type { PgStatementMetadata } from '../types/driver.js';
+import type { PgStatementMetadata } from '../types/driver';
 
 import { isAnyString, isEmptyObject } from '@ez4/utils';
 import { isNumberSchema } from '@ez4/schema';
 
-import { isJsonFieldSchema } from './schema.js';
+import { isJsonFieldSchema } from './schema';
 
 export const parseRecords = <T extends Record<string, unknown>>(records: T[], metadata: PgStatementMetadata) => {
   return records.map((record) => {

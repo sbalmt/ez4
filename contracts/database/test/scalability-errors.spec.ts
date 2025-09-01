@@ -4,7 +4,7 @@ import { describe, it } from 'node:test';
 import { IncompleteScalabilityError } from '@ez4/database/library';
 import { registerTriggers } from '@ez4/database/library';
 
-import { parseFile } from './common/parser.js';
+import { parseFile } from './common/parser';
 
 describe('database scalability errors', () => {
   registerTriggers();

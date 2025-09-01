@@ -1,10 +1,10 @@
-import type { AllType } from './common.js';
+import type { AllType } from './common';
 
-import type { TypeBoolean } from './type-boolean.js';
-import type { TypeNumber } from './type-number.js';
-import type { TypeString } from './type-string.js';
+import type { TypeBoolean } from './type-boolean';
+import type { TypeNumber } from './type-number';
+import type { TypeString } from './type-string';
 
-import { TypeName } from './common.js';
+import { TypeName } from './common';
 
 export type ScalarTypeName = TypeName.Boolean | TypeName.Number | TypeName.String;
 

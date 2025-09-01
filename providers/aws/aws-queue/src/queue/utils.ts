@@ -1,14 +1,14 @@
 import type { DeployOptions, EventContext } from '@ez4/project/library';
 import type { EntryState, StepContext } from '@ez4/stateful';
-import type { QueueState } from './types.js';
+import type { QueueState } from './types';
 
 import { IncompleteResourceError } from '@ez4/aws-common';
 import { hashData, toKebabCase } from '@ez4/utils';
 
-import { buildQueueArn } from '../utils/policy.js';
-import { parseQueueUrl } from './helpers/url.js';
-import { QueueNotFoundError } from './errors.js';
-import { QueueServiceType } from './types.js';
+import { buildQueueArn } from '../utils/policy';
+import { parseQueueUrl } from './helpers/url';
+import { QueueNotFoundError } from './errors';
+import { QueueServiceType } from './types';
 
 export const createQueueStateId = (queueName: string, normalize = true) => {
   return hashData(QueueServiceType, normalize ? toKebabCase(queueName) : queueName);

@@ -1,9 +1,9 @@
 import type { Node } from 'typescript';
-import type { TypeNull } from '../types.js';
-import type { Context } from './common.js';
+import type { TypeNull } from '../types';
+import type { Context } from './common';
 
 import { SyntaxKind, isLiteralTypeNode } from 'typescript';
-import { TypeName } from '../types.js';
+import { TypeName } from '../types';
 
 export type NullValueType = Extract<keyof TypeNull, 'literal' | 'default'>;
 

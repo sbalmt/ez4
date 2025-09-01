@@ -1,10 +1,10 @@
 import type { AllType, TypeCallback, TypeFunction } from '@ez4/reflection';
 import type { Incomplete } from '@ez4/utils';
-import type { ServiceListener } from '../types/common.js';
+import type { ServiceListener } from '../types/common';
 
 import { isTypeCallback, isTypeFunction } from '@ez4/reflection';
 
-import { IncompleteListenerError } from '../errors/listener.js';
+import { IncompleteListenerError } from '../errors/listener';
 
 export const isServiceListener = (type: AllType): type is TypeCallback | TypeFunction => {
   return isTypeCallback(type) || isTypeFunction(type);

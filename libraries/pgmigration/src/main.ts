@@ -1,1 +1,1 @@
-export * from './service/queries.js';
+export * from './service/queries';

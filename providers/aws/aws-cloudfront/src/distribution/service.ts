@@ -1,15 +1,15 @@
 import type { EntryState, EntryStates } from '@ez4/stateful';
 import type { CertificateState } from '@ez4/aws-certificate';
-import type { AccessState } from '../access/types.js';
-import type { OriginState } from '../origin/types.js';
-import type { CacheState } from '../cache/types.js';
-import type { DistributionParameters, DistributionState } from './types.js';
+import type { AccessState } from '../access/types';
+import type { OriginState } from '../origin/types';
+import type { CacheState } from '../cache/types';
+import type { DistributionParameters, DistributionState } from './types';
 
 import { attachEntry } from '@ez4/stateful';
 import { toKebabCase } from '@ez4/utils';
 
-import { createDistributionStateId } from './utils.js';
-import { DistributionServiceType } from './types.js';
+import { createDistributionStateId } from './utils';
+import { DistributionServiceType } from './types';
 
 export const createDistribution = <E extends EntryState>(
   state: EntryStates<E>,

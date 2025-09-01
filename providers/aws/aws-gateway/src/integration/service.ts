@@ -1,16 +1,16 @@
 import type { EntryState, EntryStates, StepContext } from '@ez4/stateful';
 import type { FunctionState } from '@ez4/aws-function';
-import type { GatewayState } from '../gateway/types.js';
-import type { IntegrationParameters, IntegrationState } from './types.js';
+import type { GatewayState } from '../gateway/types';
+import type { IntegrationParameters, IntegrationState } from './types';
 
 import { getRegion, getAccountId } from '@ez4/aws-identity';
 import { getPermission, createPermission } from '@ez4/aws-function';
 import { attachEntry } from '@ez4/stateful';
 import { hashData } from '@ez4/utils';
 
-import { getGatewayId } from '../gateway/utils.js';
-import { IntegrationServiceName, IntegrationServiceType } from './types.js';
-import { isIntegrationState } from './utils.js';
+import { getGatewayId } from '../gateway/utils';
+import { IntegrationServiceName, IntegrationServiceType } from './types';
+import { isIntegrationState } from './utils';
 
 export const createIntegration = <E extends EntryState>(
   state: EntryStates<E>,

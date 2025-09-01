@@ -2,8 +2,8 @@ import type { ApplyResult, EntryState, EntryStates, StepHandler, StepHandlers } 
 
 import { applySteps, planSteps } from '@ez4/stateful';
 
-import { DuplicateProviderError } from '../errors/providers.js';
-import { Logger } from './logger.js';
+import { DuplicateProviderError } from '../errors/providers';
+import { Logger } from './logger';
 
 const allProviderHandlers: StepHandlers<any> = {};
 

@@ -1,7 +1,7 @@
 import type { AllType, SourceMap, TypeModel, TypeObject } from '@ez4/reflection';
 import type { MemberType } from '@ez4/common/library';
 import type { Incomplete } from '@ez4/utils';
-import type { TableStream } from '../types/stream.js';
+import type { TableStream } from '../types/stream';
 
 import {
   InvalidServicePropertyError,
@@ -16,9 +16,9 @@ import {
 
 import { isModelProperty, isTypeObject, isTypeReference } from '@ez4/reflection';
 
-import { IncompleteStreamError, IncorrectStreamTypeError, InvalidStreamTypeError } from '../errors/stream.js';
-import { getStreamHandler } from './handler.js';
-import { isTableStream } from './utils.js';
+import { IncompleteStreamError, IncorrectStreamTypeError, InvalidStreamTypeError } from '../errors/stream';
+import { getStreamHandler } from './handler';
+import { isTableStream } from './utils';
 
 export const getTableStream = (type: AllType, parent: TypeModel, reflection: SourceMap, errorList: Error[]) => {
   if (!isTypeReference(type)) {

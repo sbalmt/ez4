@@ -1,12 +1,12 @@
 import type { AllType, SourceMap, TypeModel, TypeObject } from '@ez4/reflection';
-import type { TableSchema } from '../types/schema.js';
+import type { TableSchema } from '../types/schema';
 
 import { createSchemaContext, getObjectSchema, isObjectSchema } from '@ez4/schema/library';
 import { getReferenceType, isModelDeclaration } from '@ez4/common/library';
 import { isTypeObject, isTypeReference } from '@ez4/reflection';
 
-import { IncorrectSchemaTypeError, InvalidSchemaTypeError } from '../errors/schema.js';
-import { isTableSchema } from './utils.js';
+import { IncorrectSchemaTypeError, InvalidSchemaTypeError } from '../errors/schema';
+import { isTableSchema } from './utils';
 
 type TypeParent = TypeModel | TypeObject;
 

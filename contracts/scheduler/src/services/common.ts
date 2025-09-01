@@ -1,5 +1,5 @@
 import type { Service } from '@ez4/common';
-import type { Cron } from './contract.js';
+import type { Cron } from './contract';
 
 /**
  * Cron event.

@@ -1,4 +1,4 @@
-import { IncompleteTypeError } from './common.js';
+import { IncompleteTypeError } from './common';
 
 export class IncompleteListenerError extends IncompleteTypeError {
   constructor(properties: string[], fileName?: string) {

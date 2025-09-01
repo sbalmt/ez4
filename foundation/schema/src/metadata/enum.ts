@@ -1,12 +1,12 @@
 import type { AllType, EnumMember, SourceMap, TypeEnum } from '@ez4/reflection';
-import type { EnumSchema, EnumSchemaOption } from '../types/type-enum.js';
-import type { SchemaDefinitions } from '../types/common.js';
+import type { EnumSchema, EnumSchemaOption } from '../types/type-enum';
+import type { SchemaDefinitions } from '../types/common';
 
 import { isTypeEnum, isTypeReference } from '@ez4/reflection';
 
-import { SchemaType } from '../types/common.js';
-import { SchemaReferenceNotFound } from '../errors/reference.js';
-import { isRichTypeReference } from './reference.js';
+import { SchemaType } from '../types/common';
+import { SchemaReferenceNotFound } from '../errors/reference';
+import { isRichTypeReference } from './reference';
 
 export type RichTypeEnum = TypeEnum & {
   definitions?: SchemaDefinitions;

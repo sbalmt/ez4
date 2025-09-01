@@ -13,13 +13,13 @@ import {
   UnsupportedParametersModeError,
   UnsupportedOrderModeError,
   UnsupportedRelationError
-} from './errors.js';
+} from './errors';
 
-import { createTable } from '../table/service.js';
-import { getInternalName, getTableName, isDynamoDbService } from './utils.js';
-import { prepareLinkedClient } from './client.js';
-import { getAttributeSchema } from './schema.js';
-import { prepareTableStream } from './stream.js';
+import { createTable } from '../table/service';
+import { getInternalName, getTableName, isDynamoDbService } from './utils';
+import { prepareLinkedClient } from './client';
+import { getAttributeSchema } from './schema';
+import { prepareTableStream } from './stream';
 
 export const prepareLinkedServices = (event: ServiceEvent) => {
   const { service, options, context } = event;

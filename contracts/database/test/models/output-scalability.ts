@@ -1,5 +1,5 @@
 import type { Database, Client } from '@ez4/database';
-import type { TestEngine } from '../common/engines.js';
+import type { TestEngine } from '../common/engines';
 
 export declare class TestDatabase extends Database.Service {
   client: Client<typeof this>;

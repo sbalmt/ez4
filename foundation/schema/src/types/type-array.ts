@@ -1,7 +1,7 @@
-import type { SchemaDefinitions } from './common.js';
-import type { AnySchema } from './type-any.js';
+import type { SchemaDefinitions } from './common';
+import type { AnySchema } from './type-any';
 
-import { SchemaType } from './common.js';
+import { SchemaType } from './common';
 
 export type ArraySchemaDefinitions = SchemaDefinitions & {
   minLength?: number;

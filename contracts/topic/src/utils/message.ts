@@ -4,7 +4,7 @@ import type { Topic } from '@ez4/topic';
 import { validate, createValidatorContext, getUniqueErrorMessages } from '@ez4/validator';
 import { transform, createTransformContext } from '@ez4/transform';
 
-import { MalformedMessageError } from './errors.js';
+import { MalformedMessageError } from './errors';
 
 export type MessageSchema = ObjectSchema | UnionSchema;
 

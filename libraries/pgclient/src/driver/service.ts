@@ -4,7 +4,7 @@ import type { PgTableRepository } from '@ez4/pgclient/library';
 import { PgClient } from '@ez4/pgclient';
 import { Pool } from 'pg';
 
-import { ClientDriver } from './client.js';
+import { ClientDriver } from './client';
 
 export type ClientConnection = {
   password: string;

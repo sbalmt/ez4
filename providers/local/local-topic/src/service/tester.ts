@@ -5,7 +5,7 @@ import { Tester } from '@ez4/project/library';
 
 import { mock } from 'node:test';
 
-import { createMockedClient } from '../client/mock.js';
+import { createMockedClient } from '../client/mock';
 
 export namespace TopicTester {
   export type ClientMock = Client<any> & {

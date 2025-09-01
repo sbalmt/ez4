@@ -7,10 +7,10 @@ import { getResponseError, getResponseSuccess } from '@ez4/local-common';
 import { getServiceName } from '@ez4/project/library';
 import type { AnyObject } from '@ez4/utils';
 
-import { processLambdaMessage } from '../handlers/lambda.js';
-import { processQueueMessage } from '../handlers/queue.js';
-import { createServiceClient } from '../client/service.js';
-import { createImportedClient } from '../client/import.js';
+import { processLambdaMessage } from '../handlers/lambda';
+import { processQueueMessage } from '../handlers/queue';
+import { createServiceClient } from '../client/service';
+import { createImportedClient } from '../client/import';
 
 export const registerTopicServices = (service: TopicService | TopicImport, options: ServeOptions, context: EmulateServiceContext) => {
   const { name: serviceName, schema: messageSchema } = service;

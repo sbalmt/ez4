@@ -1,9 +1,9 @@
-import type { SqlBuilderReferences } from '../builder.js';
+import type { SqlBuilderReferences } from '../builder';
 
-import { escapeSqlName } from '../utils/escape.js';
-import { SqlTableReference } from '../common/reference.js';
-import { SqlSource } from '../common/source.js';
-import { getUniqueAlias } from './alias.js';
+import { escapeSqlName } from '../utils/escape';
+import { SqlTableReference } from '../common/reference';
+import { SqlSource } from '../common/source';
+import { getUniqueAlias } from './alias';
 
 export const getSelectExpressions = (tables: (string | SqlTableReference | SqlSource)[], references: SqlBuilderReferences) => {
   const tableExpressions = [];

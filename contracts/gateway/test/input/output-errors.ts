@@ -1,5 +1,5 @@
 import type { Http } from '@ez4/gateway';
-import type { SuccessResponse } from './common.js';
+import type { SuccessResponse } from './common';
 
 class TestErrorA extends Error {}
 class TestErrorB extends Error {}

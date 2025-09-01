@@ -1,17 +1,17 @@
 import type { IncomingMessage, ServerResponse } from 'node:http';
-import type { EmulatorHandlerResponse } from '../../types/emulator.js';
-import type { EmulatorServices } from '../../library/emulator.js';
-import type { ProjectOptions } from '../../types/project.js';
-import type { ServeOptions } from '../../types/options.js';
+import type { EmulatorHandlerResponse } from '../../types/emulator';
+import type { EmulatorServices } from '../../library/emulator';
+import type { ProjectOptions } from '../../types/project';
+import type { ServeOptions } from '../../types/options';
 
 import { Logger, LogLevel } from '@ez4/project/library';
 import { toKebabCase } from '@ez4/utils';
 
 import { createServer } from 'node:http';
 
-import { loadProviders } from '../../common/providers.js';
-import { watchMetadata } from '../../library/metadata.js';
-import { getEmulators } from '../../library/emulator.js';
+import { loadProviders } from '../../common/providers';
+import { watchMetadata } from '../../library/metadata';
+import { getEmulators } from '../../library/emulator';
 
 export const serveCommand = async (project: ProjectOptions) => {
   const serveOptions = project.serveOptions;

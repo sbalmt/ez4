@@ -1,7 +1,7 @@
-import type { AnyObject, PartialProperties } from './generics.js';
+import type { AnyObject, PartialProperties } from './generics';
 
-import { deepEqualArray } from '../array/equal.js';
-import { isAnyObject } from './check.js';
+import { deepEqualArray } from '../array/equal';
+import { isAnyObject } from './check';
 
 /**
  * Deep equal options.

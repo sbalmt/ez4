@@ -1,5 +1,5 @@
 import type { ObjectSchema } from '@ez4/schema';
-import type { PgRelationWithSchema } from '../types/repository.js';
+import type { PgRelationWithSchema } from '../types/repository';
 
 import { deepClone, isAnyObject } from '@ez4/utils';
 import { SchemaType } from '@ez4/schema';
