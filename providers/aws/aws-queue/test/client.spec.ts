@@ -1,3 +1,4 @@
+import type { Queue, Client as QueueClient } from '@ez4/queue';
 import type { EntryStates } from '@ez4/stateful';
 
 import { describe, it } from 'node:test';
@@ -7,7 +8,6 @@ import { createQueue, isQueueState, registerTriggers } from '@ez4/aws-queue';
 import { Client } from '@ez4/aws-queue/client';
 import { SchemaType } from '@ez4/schema';
 import { deploy } from '@ez4/aws-common';
-import { Queue, Client as QueueClient } from '@ez4/queue';
 
 declare class Test extends Queue.Service<{ test: string }> {
   subscriptions: [];
