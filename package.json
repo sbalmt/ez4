@@ -71,7 +71,6 @@
     "eslint-plugin-import": "^2.32.0",
     "husky": "^9.1.7",
     "prettier": "^3.3.2",
-    "ts-node": "^10.9.2",
     "typescript": "^5.8.3",
     "verdaccio": "^6.0.5"
   }

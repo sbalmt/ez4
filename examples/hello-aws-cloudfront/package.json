@@ -13,8 +13,8 @@
     "examples/*"
   ],
   "scripts": {
-    "deploy": "tsc -p tsconfig.json && ez4 deploy -e local.env -p ez4.project.js",
-    "destroy": "ez4 destroy -e local.env -p ez4.project.js"
+    "deploy": "tsc && ez4 deploy -e local.env",
+    "destroy": "ez4 destroy -e local.env"
   },
   "dependencies": {
     "@ez4/aws-bucket": "^0.26.0",
