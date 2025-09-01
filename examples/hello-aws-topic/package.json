@@ -22,14 +22,14 @@
     "test": "ez4 test -e local.env"
   },
   "dependencies": {
-    "@ez4/aws-common": "^0.26.0",
-    "@ez4/aws-topic": "^0.26.0",
-    "@ez4/aws-queue": "^0.26.0",
-    "@ez4/common": "^0.26.0",
-    "@ez4/local-topic": "^0.26.0",
-    "@ez4/local-queue": "^0.26.0",
-    "@ez4/topic": "^0.26.0",
-    "@ez4/queue": "^0.26.0",
-    "@ez4/project": "^0.26.0"
+    "@ez4/aws-common": "^0.27.0",
+    "@ez4/aws-topic": "^0.27.0",
+    "@ez4/aws-queue": "^0.27.0",
+    "@ez4/common": "^0.27.0",
+    "@ez4/local-topic": "^0.27.0",
+    "@ez4/local-queue": "^0.27.0",
+    "@ez4/topic": "^0.27.0",
+    "@ez4/queue": "^0.27.0",
+    "@ez4/project": "^0.27.0"
   }
 }

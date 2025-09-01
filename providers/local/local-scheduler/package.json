@@ -1,7 +1,7 @@
 {
   "name": "@ez4/local-scheduler",
   "description": "EZ4: Local scheduler emulator",
-  "version": "0.26.0",
+  "version": "0.27.0",
   "author": "Silas B.",
   "license": "MIT",
   "type": "module",
@@ -43,11 +43,11 @@
     "live:publish": "npm run build && npm publish --access public"
   },
   "dependencies": {
-    "@ez4/common": "^0.26.0",
-    "@ez4/local-common": "^0.26.0",
-    "@ez4/project": "^0.26.0",
-    "@ez4/scheduler": "^0.26.0",
-    "@ez4/utils": "^0.26.0",
+    "@ez4/common": "^0.27.0",
+    "@ez4/local-common": "^0.27.0",
+    "@ez4/project": "^0.27.0",
+    "@ez4/scheduler": "^0.27.0",
+    "@ez4/utils": "^0.27.0",
     "cron-parser": "^5.3.0"
   }
 }
