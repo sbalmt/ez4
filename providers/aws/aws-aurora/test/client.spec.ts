@@ -126,7 +126,7 @@ describe('aurora client', () => {
       }
     });
 
-    ok(dbClient);
+    dbClient.testTable.deleteMany({});
   });
 
   it('assert :: insert many', async () => {

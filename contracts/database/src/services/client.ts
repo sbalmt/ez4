@@ -1,5 +1,5 @@
-import type { ParametersUtils } from './parameters';
-import type { TransactionUtils } from './transaction';
+import type { ParametersModeUtils } from './parameters';
+import type { TransactionModeUtils } from './transaction';
 import type { TableClients } from './table';
 import type { Database } from './database';
 
@@ -14,7 +14,7 @@ export type Client<T extends Database.Service> = TableClients<T> & {
    * @param parameters Parameters in use by the given query.
    * @returns Returns the results for the given query.
    */
-  rawQuery(query: string, parameters?: ParametersUtils.Type<T>): Promise<Record<string, unknown>[]>;
+  rawQuery(query: string, parameters?: ParametersModeUtils.Type<T>): Promise<Record<string, unknown>[]>;
 
   /**
    * Prepare and execute the given transaction.
@@ -22,5 +22,5 @@ export type Client<T extends Database.Service> = TableClients<T> & {
    * @param operation Transaction operation.
    * @returns Returns the transaction result if the given transaction is interactive.
    */
-  transaction<O extends TransactionUtils.Type<T, R>, R>(operation: O): Promise<TransactionUtils.Result<O>>;
+  transaction<O extends TransactionModeUtils.Type<T, R>, R>(operation: O): Promise<TransactionModeUtils.Result<O>>;
 };

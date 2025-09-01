@@ -1,10 +1,11 @@
 import type { DecomposeIndexName, PrimaryIndexes, UniqueIndexes } from './indexes';
 import type { DatabaseEngine } from './engine';
 import type { RelationMetadata } from './relations';
-import type { InsensitiveUtils } from './insensitive';
-import type { PaginationUtils } from './pagination';
+import type { InsensitiveModeUtils } from './insensitive';
+import type { PaginationModeUtils } from './pagination';
+import type { OrderModeUtils } from './order';
+import type { LockModeUtils } from './lock';
 import type { TableMetadata } from './table';
-import type { OrderUtils } from './order';
 import type { Database } from './database';
 
 import type {
@@ -38,6 +39,7 @@ export namespace Query {
   };
 
   export type FindOneInput<S extends AnyObject, T extends TableMetadata> = {
+    lock?: LockModeUtils.Input<T>;
     select: StrictSelectInput<S, T>;
     include?: StrictIncludeInput<S, T>;
     where: WhereInput<T, true>;
@@ -61,14 +63,15 @@ export namespace Query {
     data: Prettify<T['schema']>[];
   };
 
-  export type UpdateManyInput<S extends AnyObject, T extends TableMetadata> = PaginationUtils.End<T['engine']> & {
+  export type UpdateManyInput<S extends AnyObject, T extends TableMetadata> = PaginationModeUtils.End<T['engine']> & {
     select?: StrictSelectInput<S, T>;
     include?: StrictIncludeInput<S, T>;
     data: Prettify<OptionalObject<UpdateDataInput<T>>>;
     where?: WhereInput<T>;
   };
 
-  export type FindManyInput<S extends AnyObject, C extends boolean, T extends TableMetadata> = PaginationUtils.Range<T['engine']> & {
+  export type FindManyInput<S extends AnyObject, C extends boolean, T extends TableMetadata> = PaginationModeUtils.Range<T['engine']> & {
+    lock?: LockModeUtils.Input<T>;
     select: StrictSelectInput<S, T>;
     include?: StrictIncludeInput<S, T>;
     where?: WhereInput<T>;
@@ -76,7 +79,7 @@ export namespace Query {
     count?: C;
   };
 
-  export type DeleteManyInput<S extends AnyObject, T extends TableMetadata> = PaginationUtils.End<T['engine']> & {
+  export type DeleteManyInput<S extends AnyObject, T extends TableMetadata> = PaginationModeUtils.End<T['engine']> & {
     select?: StrictSelectInput<S, T>;
     include?: StrictIncludeInput<S, T>;
     where?: WhereInput<T>;
@@ -100,7 +103,7 @@ export namespace Query {
 
   export type InsertManyResult = void;
 
-  export type FindManyResult<S extends AnyObject, C extends boolean, T extends TableMetadata> = PaginationUtils.Result<T['engine']> & {
+  export type FindManyResult<S extends AnyObject, C extends boolean, T extends TableMetadata> = PaginationModeUtils.Result<T['engine']> & {
     records: SelectInput<T> extends S ? void : Record<S, T>[];
   } & (false extends C ? {} : { total: number });
 
@@ -126,7 +129,7 @@ export namespace Query {
       : T['schema']
   >;
 
-  export type OrderInput<T extends TableMetadata> = OrderUtils.Input<T>;
+  export type OrderInput<T extends TableMetadata> = OrderModeUtils.Input<T>;
 
   export type StrictIncludeInput<S extends AnyObject, T extends TableMetadata> =
     IsObjectEmpty<T['relations']['filters']> extends true
@@ -137,9 +140,9 @@ export namespace Query {
             : never;
         };
 
-  export type StrictIncludeOrder<V extends AnyObject> = OrderUtils.AnyInput<V>;
+  export type StrictIncludeOrder<V extends AnyObject> = OrderModeUtils.AnyInput<V>;
 
-  export type StrictIncludeRelation<V extends AnyObject, E extends DatabaseEngine> = PaginationUtils.Range<E> & {
+  export type StrictIncludeRelation<V extends AnyObject, E extends DatabaseEngine> = PaginationModeUtils.Range<E> & {
     where?: WhereRelationField<V, E>;
     order?: StrictIncludeOrder<V>;
   };
@@ -226,11 +229,11 @@ export namespace Query {
     WhereStartsWith<never> &
     WhereContains<any, never>);
 
-  type WhereNegate<V, E extends DatabaseEngine> = (V extends string ? InsensitiveUtils.Input<E> : {}) & {
+  type WhereNegate<V, E extends DatabaseEngine> = (V extends string ? InsensitiveModeUtils.Input<E> : {}) & {
     not: V;
   };
 
-  type WhereEqual<V, E extends DatabaseEngine> = (V extends string ? InsensitiveUtils.Input<E> : {}) & {
+  type WhereEqual<V, E extends DatabaseEngine> = (V extends string ? InsensitiveModeUtils.Input<E> : {}) & {
     equal: V;
   };
 
@@ -266,11 +269,11 @@ export namespace Query {
     isNull: boolean;
   };
 
-  type WhereStartsWith<E extends DatabaseEngine> = InsensitiveUtils.Input<E> & {
+  type WhereStartsWith<E extends DatabaseEngine> = InsensitiveModeUtils.Input<E> & {
     startsWith: string;
   };
 
-  type WhereContains<V, E extends DatabaseEngine> = (V extends string ? InsensitiveUtils.Input<E> : {}) & {
+  type WhereContains<V, E extends DatabaseEngine> = (V extends string ? InsensitiveModeUtils.Input<E> : {}) & {
     contains: IsObject<V> extends true ? Partial<V> : V;
   };
 

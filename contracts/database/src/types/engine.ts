@@ -3,6 +3,7 @@ import type { TransactionMode } from '../services/transaction';
 import type { InsensitiveMode } from '../services/insensitive';
 import type { PaginationMode } from '../services/pagination';
 import type { OrderMode } from '../services/order';
+import type { LockMode } from '../services/lock';
 
 export type DatabaseEngine = {
   parametersMode: ParametersMode;
@@ -10,5 +11,6 @@ export type DatabaseEngine = {
   insensitiveMode: InsensitiveMode;
   paginationMode: PaginationMode;
   orderMode: OrderMode;
+  lockMode: LockMode;
   name: string;
 };

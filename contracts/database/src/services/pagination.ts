@@ -9,9 +9,9 @@ export const enum PaginationMode {
 }
 
 /**
- * Pagination utils.
+ * Pagination mode utils.
  */
-export namespace PaginationUtils {
+export namespace PaginationModeUtils {
   /**
    * Get the pagination range based on the given database engine.
    */

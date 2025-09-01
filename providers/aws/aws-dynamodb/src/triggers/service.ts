@@ -1,6 +1,6 @@
 import type { ConnectResourceEvent, PrepareResourceEvent, ServiceEvent } from '@ez4/project/library';
 
-import { InsensitiveMode, OrderMode, PaginationMode, ParametersMode, TransactionMode } from '@ez4/database';
+import { InsensitiveMode, LockMode, OrderMode, PaginationMode, ParametersMode, TransactionMode } from '@ez4/database';
 import { linkServiceExtras } from '@ez4/project/library';
 import { getFunctionState } from '@ez4/aws-function';
 import { isRoleState } from '@ez4/aws-identity';
@@ -12,7 +12,8 @@ import {
   UnsupportedInsensitiveModeError,
   UnsupportedParametersModeError,
   UnsupportedOrderModeError,
-  UnsupportedRelationError
+  UnsupportedRelationError,
+  UnsupportedLockModeError
 } from './errors';
 
 import { createTable } from '../table/service';
@@ -56,8 +57,12 @@ export const prepareDatabaseServices = async (event: PrepareResourceEvent) => {
     throw new UnsupportedPaginationModeError(engine.paginationMode);
   }
 
-  if (engine.orderMode === OrderMode.AnyColumns) {
+  if (engine.orderMode !== OrderMode.IndexColumns) {
     throw new UnsupportedOrderModeError(engine.orderMode);
+  }
+
+  if (engine.lockMode !== LockMode.Unsupported) {
+    throw new UnsupportedLockModeError();
   }
 
   for (const table of service.tables) {

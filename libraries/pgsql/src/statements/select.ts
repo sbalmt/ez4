@@ -31,6 +31,7 @@ export class SqlSelectStatement extends SqlSource implements SqlSourceWithResult
     alias?: string;
     skip?: number;
     take?: number;
+    lock: boolean;
   };
 
   constructor(schema: ObjectSchema | undefined, references: SqlBuilderReferences, options: SqlBuilderOptions) {
@@ -38,6 +39,7 @@ export class SqlSelectStatement extends SqlSource implements SqlSourceWithResult
 
     this.#state = {
       results: new SqlResults(this, references),
+      lock: false,
       joins: [],
       schema,
       references,
@@ -47,6 +49,10 @@ export class SqlSelectStatement extends SqlSource implements SqlSourceWithResult
 
   get fields() {
     return this.#state.results.fields;
+  }
+
+  get concurrent() {
+    return this.#state.lock;
   }
 
   get filters() {
@@ -146,18 +152,21 @@ export class SqlSelectStatement extends SqlSource implements SqlSourceWithResult
 
   skip(amount: number | undefined) {
     this.#state.skip = amount;
-
     return this;
   }
 
   take(amount: number | undefined) {
     this.#state.take = amount;
+    return this;
+  }
 
+  lock(lock = true) {
+    this.#state.lock = lock;
     return this;
   }
 
   build(): [string, unknown[]] {
-    const { tables, references, alias, results, joins, where, order, skip, take } = this.#state;
+    const { tables, references, alias, results, joins, where, order, skip, take, lock } = this.#state;
 
     if (!tables?.length) {
       throw new MissingTableNameError();
@@ -207,6 +216,10 @@ export class SqlSelectStatement extends SqlSource implements SqlSourceWithResult
 
     if (isAnyNumber(take)) {
       statement.push(`LIMIT ${take}`);
+    }
+
+    if (lock) {
+      statement.push('FOR UPDATE');
     }
 
     return [statement.join(' '), variables];

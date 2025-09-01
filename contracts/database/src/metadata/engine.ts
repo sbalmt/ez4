@@ -20,6 +20,7 @@ import { TransactionMode } from '../services/transaction';
 import { InsensitiveMode } from '../services/insensitive';
 import { IncompleteEngineError } from '../errors/engine';
 import { OrderMode } from '../services/order';
+import { LockMode } from '../services/lock';
 import { isDatabaseEngine } from './utils';
 
 export const getDatabaseEngine = (type: AllType, parent: TypeModel, reflection: SourceMap, errorList: Error[]) => {
@@ -101,6 +102,12 @@ const getTypeFromMembers = (type: TypeObject | TypeModel, parent: TypeModel, mem
 
       case 'orderMode':
         if ((engine.orderMode = getPropertyStringIn(member, [OrderMode.AnyColumns, OrderMode.IndexColumns]))) {
+          properties.delete(member.name);
+        }
+        break;
+
+      case 'lockMode':
+        if ((engine.lockMode = getPropertyStringIn(member, [LockMode.Unsupported, LockMode.Supported]))) {
           properties.delete(member.name);
         }
         break;

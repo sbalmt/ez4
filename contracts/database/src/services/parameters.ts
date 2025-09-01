@@ -10,9 +10,9 @@ export const enum ParametersMode {
 }
 
 /**
- * Parameters utils.
+ * Parameters mode utils.
  */
-export namespace ParametersUtils {
+export namespace ParametersModeUtils {
   /**
    * Get the parameters type based on the given database service.
    */

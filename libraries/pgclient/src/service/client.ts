@@ -1,4 +1,4 @@
-import type { Database, Client as DbClient, ParametersUtils, TransactionUtils } from '@ez4/database';
+import type { Database, Client as DbClient, ParametersModeUtils, TransactionModeUtils } from '@ez4/database';
 import type { PgTableRepository } from '../types/repository';
 import type { InternalTableMetadata } from '../types/table';
 import type { PgClientDriver } from '../types/driver';
@@ -25,7 +25,7 @@ export namespace PgClient {
     const tableCache: Record<string, TableType> = {};
 
     const clientInstance = new (class {
-      rawQuery(query: string, parameters: ParametersUtils.Type<T> = []) {
+      rawQuery(query: string, parameters: ParametersModeUtils.Type<T> = []) {
         const statement = {
           variables: getStatementParameters(driver, parameters),
           query
@@ -37,7 +37,7 @@ export namespace PgClient {
         });
       }
 
-      async transaction<O extends TransactionUtils.Type<T, R>, R>(operation: O) {
+      async transaction<O extends TransactionModeUtils.Type<T, R>, R>(operation: O) {
         if (!isStaticTransaction<T>(operation)) {
           return executeInteractiveTransaction(context, operation);
         }
@@ -76,7 +76,7 @@ export namespace PgClient {
   };
 }
 
-const getStatementParameters = <T extends Database.Service>(driver: PgClientDriver, parameters: ParametersUtils.Type<T>) => {
+const getStatementParameters = <T extends Database.Service>(driver: PgClientDriver, parameters: ParametersModeUtils.Type<T>) => {
   if (Array.isArray(parameters)) {
     return getParametersFromList(driver, parameters);
   }
@@ -108,7 +108,7 @@ const getParametersFromMap = (driver: PgClientDriver, parameters: Record<string,
   return parameterList;
 };
 
-const isStaticTransaction = <T extends Database.Service>(operation: unknown): operation is TransactionUtils.StaticOperationType<T> => {
+const isStaticTransaction = <T extends Database.Service>(operation: unknown): operation is TransactionModeUtils.StaticOperationType<T> => {
   return !(operation instanceof Function);
 };
 
@@ -141,7 +141,7 @@ const executeInteractiveTransaction = async (context: PgClientContext, operation
 
 const executeStaticTransaction = async <T extends Database.Service>(
   context: PgClientContext,
-  operations: TransactionUtils.StaticOperationType<T>
+  operations: TransactionModeUtils.StaticOperationType<T>
 ) => {
   const { driver, repository, transactionId, debug } = context;
 
@@ -157,7 +157,7 @@ const executeStaticTransaction = async <T extends Database.Service>(
 const prepareStaticTransaction = async <T extends Database.Service>(
   driver: PgClientDriver,
   repository: PgTableRepository,
-  operations: TransactionUtils.StaticOperationType<T>
+  operations: TransactionModeUtils.StaticOperationType<T>
 ) => {
   const statements = [];
 

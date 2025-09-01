@@ -1,4 +1,4 @@
-import type { ParametersMode, TransactionMode, PaginationMode, OrderMode, InsensitiveMode } from '@ez4/database';
+import type { ParametersMode, TransactionMode, PaginationMode, OrderMode, InsensitiveMode, LockMode } from '@ez4/database';
 
 /**
  * Default Postgres engine settings.
@@ -9,5 +9,6 @@ export type PostgresEngine = {
   insensitiveMode: InsensitiveMode.Enabled;
   paginationMode: PaginationMode.Offset;
   orderMode: OrderMode.AnyColumns;
+  lockMode: LockMode.Supported;
   name: 'pg-client';
 };

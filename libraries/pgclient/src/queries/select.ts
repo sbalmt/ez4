@@ -49,6 +49,10 @@ export const prepareSelectQuery = <T extends InternalTableMetadata, S extends Qu
     selectQuery.take(query.take);
   }
 
+  if ('lock' in query && query.lock) {
+    selectQuery.lock();
+  }
+
   const [statement, variables] = selectQuery.build();
 
   return [statement, variables as SqlParameter[]];

@@ -1,4 +1,4 @@
-import type { InsensitiveMode, OrderMode, PaginationMode, ParametersMode, TransactionMode } from '@ez4/database';
+import type { InsensitiveMode, LockMode, OrderMode, PaginationMode, ParametersMode, TransactionMode } from '@ez4/database';
 
 export type TestEngine = {
   parametersMode: ParametersMode.OnlyIndex;
@@ -6,6 +6,7 @@ export type TestEngine = {
   insensitiveMode: InsensitiveMode.Unsupported;
   paginationMode: PaginationMode.Offset;
   orderMode: OrderMode.AnyColumns;
+  lockMode: LockMode.Unsupported;
   name: 'test';
 };
 
@@ -15,6 +16,7 @@ export type TestEngineParameters<P extends ParametersMode> = {
   insensitiveMode: InsensitiveMode.Unsupported;
   paginationMode: PaginationMode.Offset;
   orderMode: OrderMode.AnyColumns;
+  lockMode: LockMode.Unsupported;
   name: 'test';
 };
 
@@ -24,6 +26,7 @@ export type TestEngineTransaction<T extends TransactionMode> = {
   insensitiveMode: InsensitiveMode.Unsupported;
   paginationMode: PaginationMode.Offset;
   orderMode: OrderMode.AnyColumns;
+  lockMode: LockMode.Unsupported;
   name: 'test';
 };
 
@@ -33,6 +36,7 @@ export type TestEngineInsensitive<I extends InsensitiveMode> = {
   insensitiveMode: I;
   paginationMode: PaginationMode.Offset;
   orderMode: OrderMode.AnyColumns;
+  lockMode: LockMode.Unsupported;
   name: 'test';
 };
 
@@ -42,6 +46,7 @@ export type TestEnginePagination<P extends PaginationMode> = {
   insensitiveMode: InsensitiveMode.Unsupported;
   paginationMode: P;
   orderMode: OrderMode.AnyColumns;
+  lockMode: LockMode.Unsupported;
   name: 'test';
 };
 
@@ -51,5 +56,16 @@ export type TestEngineOrder<O extends OrderMode> = {
   insensitiveMode: InsensitiveMode.Unsupported;
   paginationMode: PaginationMode.Offset;
   orderMode: O;
+  lockMode: LockMode.Unsupported;
+  name: 'test';
+};
+
+export type TestEngineLock<L extends LockMode> = {
+  parametersMode: ParametersMode.OnlyIndex;
+  transactionMode: TransactionMode.Static;
+  insensitiveMode: InsensitiveMode.Unsupported;
+  paginationMode: PaginationMode.Offset;
+  orderMode: OrderMode.AnyColumns;
+  lockMode: L;
   name: 'test';
 };

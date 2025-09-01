@@ -9,9 +9,9 @@ export const enum InsensitiveMode {
 }
 
 /**
- * Insensitive utils.
+ * Insensitive mode utils.
  */
-export namespace InsensitiveUtils {
+export namespace InsensitiveModeUtils {
   /**
    * Get the insensitive input based on the given database engine.
    */

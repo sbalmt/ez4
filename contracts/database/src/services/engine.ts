@@ -2,8 +2,9 @@ import type { ParametersMode } from './parameters';
 import type { TransactionMode } from './transaction';
 import type { InsensitiveMode } from './insensitive';
 import type { PaginationMode } from './pagination';
-import type { OrderMode } from './order';
 import type { Database } from './database';
+import type { OrderMode } from './order';
+import type { LockMode } from './lock';
 
 /**
  * Database engine.
@@ -14,6 +15,7 @@ export type DatabaseEngine = {
   insensitiveMode: InsensitiveMode;
   paginationMode: PaginationMode;
   orderMode: OrderMode;
+  lockMode: LockMode;
   name: string;
 };
 
@@ -45,4 +47,9 @@ export namespace EngineUtils {
    * Get the order mode from the given database service.
    */
   export type GetOrderMode<T extends Database.Service> = T['engine'] extends { orderMode: infer M } ? M : never;
+
+  /**
+   * Get the lock mode from the given database service.
+   */
+  export type GetLockMode<T extends Database.Service> = T['engine'] extends { lockMode: infer M } ? M : never;
 }

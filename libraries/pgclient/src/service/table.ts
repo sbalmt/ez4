@@ -103,10 +103,10 @@ export class Table<T extends InternalTableMetadata> implements DbTable<T> {
 
   async upsertOne<S extends Query.SelectInput<T>>(query: Query.UpsertOneInput<S, T>) {
     const previous = await this.findOne({
-      select: query.select ?? ({} as Query.StrictSelectInput<S, T>),
+      select: query.select ?? {},
       include: query.include,
       where: query.where
-    });
+    } as Query.FindOneInput<S, T>);
 
     if (!previous) {
       return this.insertOne({

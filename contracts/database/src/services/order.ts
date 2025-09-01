@@ -19,9 +19,9 @@ export const enum OrderMode {
 }
 
 /**
- * Order utils.
+ * Order mode utils.
  */
-export namespace OrderUtils {
+export namespace OrderModeUtils {
   /**
    * Order input for index columns.
    */

@@ -237,6 +237,16 @@ describe('sql select tests', () => {
     equal(statement, 'SELECT * FROM "table" WHERE "foo" = :0');
   });
 
+  it('assert :: select with lock', async () => {
+    const query = sql.select().from('table').lock();
+
+    const [statement, variables] = query.build();
+
+    deepEqual(variables, []);
+
+    equal(statement, 'SELECT * FROM "table" FOR UPDATE');
+  });
+
   it('assert :: select with inner query', async () => {
     const inner = sql.select().columns('foo', 'bar').from('inner').as('alias').where({ baz: 'abc' }).take(1).order({
       qux: Order.Desc

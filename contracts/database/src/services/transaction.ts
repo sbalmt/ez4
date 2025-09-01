@@ -16,9 +16,9 @@ export const enum TransactionMode {
 }
 
 /**
- * Transaction utils.
+ * Transaction mode utils.
  */
-export namespace TransactionUtils {
+export namespace TransactionModeUtils {
   /**
    * Extract the operation result from an interactive transaction.
    */

@@ -9,6 +9,7 @@
       "insensitiveMode": "unsupported",
       "paginationMode": "offset",
       "orderMode": "any",
+      "lockMode": "unsupported",
       "name": "test"
     },
     "tables": [],
@@ -26,6 +27,7 @@
       "insensitiveMode": "unsupported",
       "paginationMode": "cursor",
       "orderMode": "any",
+      "lockMode": "unsupported",
       "name": "test"
     },
     "tables": [],
@@ -44,6 +46,7 @@
       "insensitiveMode": "unsupported",
       "paginationMode": "offset",
       "orderMode": "index",
+      "lockMode": "unsupported",
       "name": "test"
     },
     "tables": []

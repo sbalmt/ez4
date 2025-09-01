@@ -9,6 +9,7 @@
       "insensitiveMode": "unsupported",
       "paginationMode": "offset",
       "orderMode": "any",
+      "lockMode": "unsupported",
       "name": "test"
     },
     "tables": [
