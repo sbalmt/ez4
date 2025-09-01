@@ -1,11 +1,12 @@
 import type { PostgresEngine, PgRelationRepositoryWithSchema } from '@ez4/pgclient/library';
 import type { Query, RelationMetadata } from '@ez4/database';
+import type { ObjectSchema } from '@ez4/schema';
 
 import { describe, it } from 'node:test';
 
 import { MalformedRequestError } from '@ez4/pgclient';
 import { prepareUpdateQuery } from '@ez4/pgclient/library';
-import { ObjectSchema, SchemaType } from '@ez4/schema';
+import { SchemaType } from '@ez4/schema';
 import { SqlBuilder } from '@ez4/pgsql';
 import { Index } from '@ez4/database';
 
