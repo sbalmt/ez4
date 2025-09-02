@@ -38,11 +38,15 @@ export const prepareUpsertQuery = async <T extends InternalTableMetadata, S exte
   if (!query.select) {
     allQueries.push(insertQuery);
   } else {
-    const selectQuery = builder.select(schema).from(table);
-    const selectFilters = getSelectFilters(builder, query.where, relations, selectQuery, table);
-    const selectRecord = getSelectFields(builder, query.select, query.include, schema, relations, selectQuery, table);
+    const selectQuery = builder
+      .select(schema)
+      .lock(query.lock ?? false)
+      .from(table);
 
-    selectQuery.record(selectRecord).rawColumn('0 AS "__EZ4_ORDER"').where(selectFilters);
+    const selectRecord = getSelectFields(builder, query.select, query.include, schema, relations, selectQuery, table);
+    const selectFilter = getSelectFilters(builder, query.where, relations, selectQuery, table);
+
+    selectQuery.record(selectRecord).rawColumn('0 AS "__EZ4_ORDER"').where(selectFilter);
     insertQuery.returning(selectRecord).results.rawColumn('1 AS "__EZ4_ORDER"');
 
     const resultQuery = builder.select().from(insertQuery.reference()).take(1).order({

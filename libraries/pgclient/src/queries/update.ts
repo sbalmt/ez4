@@ -42,8 +42,12 @@ export const prepareUpdateQuery = async <T extends InternalTableMetadata, S exte
 
       updateQuery.results.record(selectRecord);
     } else {
-      const selectQuery = builder.select(schema).from(table);
       const selectFields = getSelectFields(builder, query.select, query.include, schema, relations, updateQuery, table);
+
+      const selectQuery = builder
+        .select(schema)
+        .lock(query.lock ?? false)
+        .from(table);
 
       selectQuery.record(selectFields);
       allQueries.push(selectQuery);

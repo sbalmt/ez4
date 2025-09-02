@@ -32,6 +32,7 @@ export namespace Query {
   };
 
   export type UpdateOneInput<S extends AnyObject, T extends TableMetadata> = {
+    lock?: LockModeUtils.Input<T>;
     select?: StrictSelectInput<S, T>;
     include?: StrictIncludeInput<S, T>;
     data: Prettify<OptionalObject<UpdateDataInput<T>>>;
@@ -46,6 +47,7 @@ export namespace Query {
   };
 
   export type UpsertOneInput<S extends AnyObject, T extends TableMetadata> = {
+    lock?: LockModeUtils.Input<T>;
     select?: StrictSelectInput<S, T>;
     include?: StrictIncludeInput<S, T>;
     update: Prettify<OptionalObject<UpdateDataInput<T>>>;
@@ -64,6 +66,7 @@ export namespace Query {
   };
 
   export type UpdateManyInput<S extends AnyObject, T extends TableMetadata> = PaginationModeUtils.End<T['engine']> & {
+    lock?: LockModeUtils.Input<T>;
     select?: StrictSelectInput<S, T>;
     include?: StrictIncludeInput<S, T>;
     data: Prettify<OptionalObject<UpdateDataInput<T>>>;

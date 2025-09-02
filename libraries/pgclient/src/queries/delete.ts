@@ -17,9 +17,9 @@ export const prepareDeleteQuery = <T extends InternalTableMetadata, S extends Qu
   const deleteQuery = builder.reset().delete(schema).from(table);
 
   if (query.where) {
-    const selectFilters = getSelectFilters(builder, query.where, relations, deleteQuery, table);
+    const selectFilter = getSelectFilters(builder, query.where, relations, deleteQuery, table);
 
-    deleteQuery.where(selectFilters);
+    deleteQuery.where(selectFilter);
   }
 
   if (query.select) {
