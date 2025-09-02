@@ -61,7 +61,7 @@ describe('where', () => {
   const getWhereOperation = (where: Query.WhereInput<TestTableMetadata>) => {
     const builder = new SqlBuilder();
 
-    const [statement, variables] = prepareSelectQuery(
+    const query = prepareSelectQuery(
       'ez4-test-where-operation',
       testSchema,
       {},
@@ -73,6 +73,8 @@ describe('where', () => {
       },
       builder
     );
+
+    const [statement, variables] = query.build();
 
     const whereClause = statement.substring(statement.indexOf('WHERE'));
 

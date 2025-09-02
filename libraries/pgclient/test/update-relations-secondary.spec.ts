@@ -39,14 +39,16 @@ describe('update secondary relations', () => {
     }
   };
 
-  const prepareRelationUpdate = <S extends Query.SelectInput<TestTableMetadata>>(
+  const prepareRelationUpdate = async <S extends Query.SelectInput<TestTableMetadata>>(
     schema: ObjectSchema,
     relations: PgRelationRepositoryWithSchema,
     query: Query.UpdateManyInput<S, TestTableMetadata>
   ) => {
     const builder = new SqlBuilder();
 
-    return prepareUpdateQuery(testTableName, schema, relations, query, builder);
+    const allQueries = await prepareUpdateQuery(testTableName, schema, relations, query, builder);
+
+    return builder.with(allQueries).build();
   };
 
   const getTestRelationSchema = ({ nullish, multiple }: TestSchemaOptions): ObjectSchema => {

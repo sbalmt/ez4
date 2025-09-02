@@ -1,6 +1,5 @@
 import type { SqlSourceWithResults, SqlRecord, SqlBuilder, SqlUpdateStatement } from '@ez4/pgsql';
 import type { NumberSchema, ObjectSchema } from '@ez4/schema';
-import type { SqlParameter } from '@aws-sdk/client-rds-data';
 import type { AnyObject } from '@ez4/utils';
 import type { Query } from '@ez4/database';
 import type { PgRelationWithSchema, PgRelationRepositoryWithSchema } from '../types/repository';
@@ -22,7 +21,7 @@ export const prepareUpdateQuery = async <T extends InternalTableMetadata, S exte
   relations: PgRelationRepositoryWithSchema,
   query: Query.UpdateOneInput<S, T> | Query.UpdateManyInput<S, T>,
   builder: SqlBuilder
-): Promise<[string, SqlParameter[]]> => {
+) => {
   const updateRecord = await getUpdateRecord(builder, query.data, schema, relations, table);
 
   const updateQuery = !isEmptyObject(updateRecord)
@@ -55,9 +54,7 @@ export const prepareUpdateQuery = async <T extends InternalTableMetadata, S exte
     updateQuery.lock();
   }
 
-  const [statement, variables] = builder.with(allQueries).build();
-
-  return [statement, variables as SqlParameter[]];
+  return allQueries;
 };
 
 export const getUpdateRecord = async (

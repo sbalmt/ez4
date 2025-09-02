@@ -23,7 +23,9 @@ export const prepareInsertOne = async <T extends InternalTableMetadata, S extend
 ): Promise<PgExecuteStatement> => {
   const builder = createQueryBuilder(driver);
 
-  const [statement, variables] = await prepareInsertQuery(table, schema, relations, query, builder);
+  const allQueries = await prepareInsertQuery(table, schema, relations, query, builder);
+
+  const [statement, variables] = builder.with(allQueries).build();
 
   return {
     query: statement,
@@ -45,7 +47,9 @@ export const prepareFindOne = <T extends InternalTableMetadata, S extends Query.
 ) => {
   const builder = createQueryBuilder(driver);
 
-  const [statement, variables] = prepareSelectQuery(table, schema, relations, query, builder);
+  const selectQuery = prepareSelectQuery(table, schema, relations, query, builder);
+
+  const [statement, variables] = selectQuery.build();
 
   return {
     query: statement,
@@ -67,7 +71,9 @@ export const prepareUpdateOne = async <T extends InternalTableMetadata, S extend
 ) => {
   const builder = createQueryBuilder(driver);
 
-  const [statement, variables] = await prepareUpdateQuery(table, schema, relations, query, builder);
+  const allQueries = await prepareUpdateQuery(table, schema, relations, query, builder);
+
+  const [statement, variables] = builder.with(allQueries).build();
 
   return {
     query: statement,
@@ -90,7 +96,9 @@ export const prepareUpsertOne = async <T extends InternalTableMetadata, S extend
 ) => {
   const builder = createQueryBuilder(driver);
 
-  const [statement, variables] = await prepareUpsertQuery(table, schema, relations, indexes, query, builder);
+  const allQueries = await prepareUpsertQuery(table, schema, relations, indexes, query, builder);
+
+  const [statement, variables] = builder.with(allQueries).build();
 
   return {
     query: statement,
@@ -112,7 +120,9 @@ export const prepareDeleteOne = <T extends InternalTableMetadata, S extends Quer
 ) => {
   const builder = createQueryBuilder(driver);
 
-  const [statement, variables] = prepareDeleteQuery(table, schema, relations, query, builder);
+  const deleteQuery = prepareDeleteQuery(table, schema, relations, query, builder);
+
+  const [statement, variables] = deleteQuery.build();
 
   return {
     query: statement,
@@ -136,7 +146,9 @@ export const prepareInsertMany = async <T extends InternalTableMetadata>(
 
   return Promise.all(
     query.data.map(async (data) => {
-      const [statement, variables] = await prepareInsertQuery(table, schema, relations, { data }, builder);
+      const allQueries = await prepareInsertQuery(table, schema, relations, { data }, builder);
+
+      const [statement, variables] = builder.with(allQueries).build();
 
       return {
         query: statement,
@@ -160,7 +172,9 @@ export const prepareFindMany = <T extends InternalTableMetadata, S extends Query
 ) => {
   const builder = createQueryBuilder(driver);
 
-  const [statement, variables] = prepareSelectQuery(table, schema, relations, query, builder);
+  const selectQuery = prepareSelectQuery(table, schema, relations, query, builder);
+
+  const [statement, variables] = selectQuery.build();
 
   return {
     query: statement,
@@ -182,7 +196,9 @@ export const prepareUpdateMany = async <T extends InternalTableMetadata, S exten
 ) => {
   const builder = createQueryBuilder(driver);
 
-  const [statement, variables] = await prepareUpdateQuery(table, schema, relations, query, builder);
+  const allQueries = await prepareUpdateQuery(table, schema, relations, query, builder);
+
+  const [statement, variables] = builder.with(allQueries).build();
 
   return {
     query: statement,
@@ -204,7 +220,9 @@ export const prepareDeleteMany = <T extends InternalTableMetadata, S extends Que
 ) => {
   const builder = createQueryBuilder(driver);
 
-  const [statement, variables] = prepareDeleteQuery(table, schema, relations, query, builder);
+  const deleteQuery = prepareDeleteQuery(table, schema, relations, query, builder);
+
+  const [statement, variables] = deleteQuery.build();
 
   return {
     query: statement,
@@ -226,7 +244,9 @@ export const prepareCount = <T extends InternalTableMetadata>(
 ) => {
   const builder = createQueryBuilder(driver);
 
-  const [statement, variables] = prepareCountQuery(table, schema, relations, query, builder);
+  const countQuery = prepareCountQuery(table, schema, relations, query, builder);
+
+  const [statement, variables] = countQuery.build();
 
   return {
     query: statement,

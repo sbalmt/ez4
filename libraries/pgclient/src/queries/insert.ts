@@ -1,5 +1,4 @@
 import type { SqlInsertStatement, SqlSelectStatement, SqlSourceWithResults, SqlJsonColumnRecord, SqlBuilder, SqlRecord } from '@ez4/pgsql';
-import type { SqlParameter } from '@aws-sdk/client-rds-data';
 import type { ObjectSchema } from '@ez4/schema';
 import type { AnyObject } from '@ez4/utils';
 import type { Query } from '@ez4/database';
@@ -36,7 +35,7 @@ export const prepareInsertQuery = async <T extends InternalTableMetadata, S exte
   relations: PgRelationRepositoryWithSchema,
   query: Query.InsertOneInput<S, T>,
   builder: SqlBuilder
-): Promise<[string, SqlParameter[]]> => {
+) => {
   const preQueriesMap = preparePreInsertRelations(builder, query.data, relations, table);
 
   const preQueries = Object.values(preQueriesMap)
@@ -68,9 +67,7 @@ export const prepareInsertQuery = async <T extends InternalTableMetadata, S exte
     allQueries.push(selectQuery);
   }
 
-  const [statement, variables] = builder.with(allQueries).build();
-
-  return [statement, variables as SqlParameter[]];
+  return allQueries;
 };
 
 export const getInsertRecord = async (

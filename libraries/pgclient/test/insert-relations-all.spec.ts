@@ -75,13 +75,15 @@ describe('insert relations', () => {
     }
   ]);
 
-  const prepareInsert = <S extends Query.SelectInput<TestTableMetadata>>(query: Query.InsertOneInput<S, TestTableMetadata>) => {
+  const prepareInsert = async <S extends Query.SelectInput<TestTableMetadata>>(query: Query.InsertOneInput<S, TestTableMetadata>) => {
     const builder = new SqlBuilder();
 
     const relations = getRelationsWithSchema(testTableName, repository);
     const table = repository[testTableName];
 
-    return prepareInsertQuery(testTableName, table.schema, relations, query, builder);
+    const allQueries = await prepareInsertQuery(testTableName, table.schema, relations, query, builder);
+
+    return builder.with(allQueries).build();
   };
 
   it('assert :: prepare insert relations (create primary, unique and secondary)', async ({ assert }) => {

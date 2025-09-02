@@ -17,13 +17,15 @@ type TestTableMetadata = {
 };
 
 describe('insert schema', () => {
-  const prepareInsert = <S extends Query.SelectInput<TestTableMetadata>>(
+  const prepareInsert = async <S extends Query.SelectInput<TestTableMetadata>>(
     schema: ObjectSchema,
     query: Query.InsertOneInput<S, TestTableMetadata>
   ) => {
     const builder = new SqlBuilder();
 
-    return prepareInsertQuery('ez4-test-insert-schema', schema, {}, query, builder);
+    const allQueries = await prepareInsertQuery('ez4-test-insert-schema', schema, {}, query, builder);
+
+    return builder.with(allQueries).build();
   };
 
   it('assert :: prepare insert schema (scalar boolean)', async ({ assert }) => {

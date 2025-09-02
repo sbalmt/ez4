@@ -1,5 +1,4 @@
 import type { TableIndex } from '@ez4/database/library';
-import type { SqlParameter } from '@aws-sdk/client-rds-data';
 import type { ObjectSchema } from '@ez4/schema';
 import type { SqlBuilder } from '@ez4/pgsql';
 import type { Query } from '@ez4/database';
@@ -21,7 +20,7 @@ export const prepareUpsertQuery = async <T extends InternalTableMetadata, S exte
   indexes: TableIndex[],
   query: Query.UpsertOneInput<S, T>,
   builder: SqlBuilder
-): Promise<[string, SqlParameter[]]> => {
+) => {
   const updateRecord = await getUpdateRecord(builder, query.update, schema, relations, table);
   const insertRecord = await getInsertRecord(query.insert, schema, relations, {}, table);
 
@@ -55,7 +54,5 @@ export const prepareUpsertQuery = async <T extends InternalTableMetadata, S exte
     allQueries.push(selectQuery, insertQuery, resultQuery);
   }
 
-  const [statement, variables] = builder.with(allQueries).build();
-
-  return [statement, variables as SqlParameter[]];
+  return allQueries;
 };

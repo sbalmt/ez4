@@ -29,13 +29,15 @@ describe('upsert scenarios', () => {
     }
   ];
 
-  const prepareUpsert = <S extends Query.SelectInput<TestTableMetadata>>(
+  const prepareUpsert = async <S extends Query.SelectInput<TestTableMetadata>>(
     schema: ObjectSchema,
     query: Query.UpsertOneInput<S, TestTableMetadata>
   ) => {
     const builder = new SqlBuilder();
 
-    return prepareUpsertQuery('ez4-test-upsert-schema', schema, {}, indexes, query, builder);
+    const allQueries = await prepareUpsertQuery('ez4-test-upsert-schema', schema, {}, indexes, query, builder);
+
+    return builder.with(allQueries).build();
   };
 
   it('assert :: prepare upsert (only insert)', async ({ assert }) => {

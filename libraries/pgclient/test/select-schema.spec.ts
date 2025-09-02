@@ -33,7 +33,9 @@ describe('select schema', () => {
   ) => {
     const builder = new SqlBuilder();
 
-    return prepareSelectQuery('ez4-test-select-schema', schema, {}, query, builder);
+    const selectQuery = prepareSelectQuery('ez4-test-select-schema', schema, {}, query, builder);
+
+    return selectQuery.build();
   };
 
   it('assert :: prepare select schema (all fields)', ({ assert }) => {

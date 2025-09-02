@@ -1,5 +1,4 @@
 import type { SqlBuilder, SqlFilters, SqlJsonColumnRecord, SqlSource } from '@ez4/pgsql';
-import type { SqlParameter } from '@aws-sdk/client-rds-data';
 import type { AnySchema, ObjectSchema } from '@ez4/schema';
 import type { AnyObject } from '@ez4/utils';
 import type { Query } from '@ez4/database';
@@ -24,7 +23,7 @@ export const prepareSelectQuery = <T extends InternalTableMetadata, S extends Qu
   relations: PgRelationRepositoryWithSchema,
   query: Query.FindOneInput<S, T> | Query.FindManyInput<S, C, T>,
   builder: SqlBuilder
-): [string, SqlParameter[]] => {
+) => {
   const selectQuery = builder.select(schema).from(table);
   const selectRecord = getSelectFields(builder, query.select, query.include, schema, relations, selectQuery, table);
 
@@ -52,9 +51,7 @@ export const prepareSelectQuery = <T extends InternalTableMetadata, S extends Qu
     selectQuery.take(query.take);
   }
 
-  const [statement, variables] = selectQuery.build();
-
-  return [statement, variables as SqlParameter[]];
+  return selectQuery;
 };
 
 export const getSelectFields = <T extends InternalTableMetadata, S extends AnyObject>(

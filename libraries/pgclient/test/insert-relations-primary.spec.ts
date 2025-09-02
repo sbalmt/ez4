@@ -39,14 +39,16 @@ describe('insert primary relations', () => {
     }
   };
 
-  const prepareRelationInsert = <S extends Query.SelectInput<TestTableMetadata>>(
+  const prepareRelationInsert = async <S extends Query.SelectInput<TestTableMetadata>>(
     schema: ObjectSchema,
     relations: PgRelationRepositoryWithSchema,
     query: Query.InsertOneInput<S, TestTableMetadata>
   ) => {
     const builder = new SqlBuilder();
 
-    return prepareInsertQuery(testTableName, schema, relations, query, builder);
+    const allQueries = await prepareInsertQuery(testTableName, schema, relations, query, builder);
+
+    return builder.with(allQueries).build();
   };
 
   const getTestRelationSchema = ({ nullish, multiple }: TestSchemaOptions): ObjectSchema => {

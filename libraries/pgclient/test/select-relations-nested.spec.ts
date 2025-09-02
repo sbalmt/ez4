@@ -170,7 +170,9 @@ describe('select nested relations', () => {
 
     const relations = getRelationsWithSchema(name, repository);
 
-    return prepareSelectQuery(name, table.schema, relations, query, builder);
+    const selectQuery = prepareSelectQuery(name, table.schema, relations, query, builder);
+
+    return selectQuery.build();
   };
 
   const prepareCSelect = <S extends Query.SelectInput<TestTableCMetadata>>(query: Query.FindOneInput<S, TestTableCMetadata>) => {
@@ -181,7 +183,9 @@ describe('select nested relations', () => {
 
     const relations = getRelationsWithSchema(name, repository);
 
-    return prepareSelectQuery(name, table.schema, relations, query, builder);
+    const selectQuery = prepareSelectQuery(name, table.schema, relations, query, builder);
+
+    return selectQuery.build();
   };
 
   it('assert :: prepare select nested relations', ({ assert }) => {

@@ -44,10 +44,14 @@ describe('update operations', () => {
     }
   };
 
-  const prepareUpdate = <S extends Query.SelectInput<TestTableMetadata>>(data: Query.UpdateManyInput<S, TestTableMetadata>['data']) => {
+  const prepareUpdate = async <S extends Query.SelectInput<TestTableMetadata>>(
+    data: Query.UpdateManyInput<S, TestTableMetadata>['data']
+  ) => {
     const builder = new SqlBuilder();
 
-    return prepareUpdateQuery('ez4-test-update-operation', testSchema, {}, { data }, builder);
+    const allQueries = await prepareUpdateQuery('ez4-test-update-operation', testSchema, {}, { data }, builder);
+
+    return builder.with(allQueries).build();
   };
 
   it('assert :: prepare update operations (scalar increment)', async ({ assert }) => {

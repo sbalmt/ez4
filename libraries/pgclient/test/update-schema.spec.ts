@@ -17,13 +17,15 @@ type TestTableMetadata = {
 };
 
 describe('update schema', () => {
-  const prepareUpdate = <S extends Query.SelectInput<TestTableMetadata>>(
+  const prepareUpdate = async <S extends Query.SelectInput<TestTableMetadata>>(
     schema: ObjectSchema,
     query: Query.UpdateManyInput<S, TestTableMetadata>
   ) => {
     const builder = new SqlBuilder();
 
-    return prepareUpdateQuery('ez4-test-update-schema', schema, {}, query, builder);
+    const allQueries = await prepareUpdateQuery('ez4-test-update-schema', schema, {}, query, builder);
+
+    return builder.with(allQueries).build();
   };
 
   it('assert :: prepare update schema (scalar boolean)', async ({ assert }) => {

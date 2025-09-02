@@ -81,7 +81,7 @@ describe('update relations', () => {
     }
   ]);
 
-  const prepareUpdate = <S extends Query.SelectInput<TestTableMetadata>>(
+  const prepareUpdate = async <S extends Query.SelectInput<TestTableMetadata>>(
     query: Query.UpdateManyInput<S, TestTableMetadata> | Query.UpdateOneInput<S, TestTableMetadata>
   ) => {
     const builder = new SqlBuilder();
@@ -89,7 +89,9 @@ describe('update relations', () => {
     const relations = getRelationsWithSchema(testTableName, repository);
     const table = repository[testTableName];
 
-    return prepareUpdateQuery(testTableName, table.schema, relations, query, builder);
+    const allQueries = await prepareUpdateQuery(testTableName, table.schema, relations, query, builder);
+
+    return builder.with(allQueries).build();
   };
 
   it('assert :: prepare update relations (active connections)', async ({ assert }) => {
