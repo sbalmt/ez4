@@ -135,7 +135,7 @@ describe('upsert scenarios', () => {
       statement,
       `WITH ` +
         // Current record
-        `"Q0" AS (SELECT "id", 0 AS "__EZ4_ORDER" FROM "ez4-test-upsert-schema" WHERE "id" = :0), ` +
+        `"Q0" AS (SELECT "id", 0 AS "__EZ4_ORDER" FROM "ez4-test-upsert-schema" WHERE "id" = :0 FOR UPDATE), ` +
         // Insert operation
         `"Q1" AS (INSERT INTO "ez4-test-upsert-schema" ("id", "foo") VALUES (:1, :2) ` +
         `ON CONFLICT ("id") DO NOTHING ` +
@@ -190,7 +190,7 @@ describe('upsert scenarios', () => {
       statement,
       `WITH ` +
         // Current record
-        `"Q0" AS (SELECT "id", "foo", 0 AS "__EZ4_ORDER" FROM "ez4-test-upsert-schema" WHERE "id" = :0), ` +
+        `"Q0" AS (SELECT "id", "foo", 0 AS "__EZ4_ORDER" FROM "ez4-test-upsert-schema" WHERE "id" = :0 FOR UPDATE), ` +
         // Insert operation
         `"Q1" AS (INSERT INTO "ez4-test-upsert-schema" ("id", "foo") VALUES (:1, :2) ` +
         `ON CONFLICT ("id") DO UPDATE SET "foo" = :3, "bar" = :4 ` +

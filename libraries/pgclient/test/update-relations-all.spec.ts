@@ -111,7 +111,7 @@ describe('update relations', () => {
       statement,
       `WITH ` +
         // Main record
-        `"Q0" AS (SELECT "secondary_id", "id" FROM "ez4_test_table"), ` +
+        `"Q0" AS (SELECT "secondary_id", "id" FROM "ez4_test_table" FOR UPDATE), ` +
         // First relation
         `"Q1" AS (UPDATE ONLY "ez4_test_table" AS "T" SET "foo" = :0 FROM "Q0" WHERE "T"."id" = "Q0"."secondary_id"), ` +
         // Second relation
@@ -154,7 +154,7 @@ describe('update relations', () => {
       statement,
       `WITH ` +
         // Main record
-        `"Q0" AS (SELECT "R0"."secondary_id", "R0"."id" FROM "ez4_test_table" AS "R0"), ` +
+        `"Q0" AS (SELECT "R0"."secondary_id", "R0"."id" FROM "ez4_test_table" AS "R0" FOR UPDATE), ` +
         // First relation
         `"Q1" AS (UPDATE ONLY "ez4_test_table" AS "T" SET "foo" = :0 FROM "Q0" WHERE "T"."id" = "Q0"."secondary_id"), ` +
         // Second relation
@@ -224,7 +224,7 @@ describe('update relations', () => {
       statement,
       `WITH ` +
         // Main record
-        `"Q0" AS (SELECT "R0"."secondary_id", "R0"."id" FROM "ez4_test_table" AS "R0" WHERE "R0"."id" = :0), ` +
+        `"Q0" AS (SELECT "R0"."secondary_id", "R0"."id" FROM "ez4_test_table" AS "R0" WHERE "R0"."id" = :0 FOR UPDATE), ` +
         // First relation
         `"Q1" AS (UPDATE ONLY "ez4_test_table" AS "T" SET "foo" = :1 FROM "Q0" WHERE "T"."id" = "Q0"."secondary_id"), ` +
         // Second relation

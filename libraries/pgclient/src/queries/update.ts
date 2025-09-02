@@ -1,4 +1,4 @@
-import type { SqlSourceWithResults, SqlRecord, SqlBuilder, SqlSelectStatement, SqlUpdateStatement } from '@ez4/pgsql';
+import type { SqlSourceWithResults, SqlRecord, SqlBuilder, SqlUpdateStatement } from '@ez4/pgsql';
 import type { NumberSchema, ObjectSchema } from '@ez4/schema';
 import type { SqlParameter } from '@aws-sdk/client-rds-data';
 import type { AnyObject } from '@ez4/utils';
@@ -9,6 +9,7 @@ import type { InternalTableMetadata } from '../types/table';
 import { getObjectSchemaProperty, isNumberSchema, isObjectSchema } from '@ez4/schema';
 import { InvalidAtomicOperation, InvalidFieldSchemaError, InvalidRelationFieldError } from '@ez4/pgclient';
 import { isAnyObject, isEmptyObject } from '@ez4/utils';
+import { SqlSelectStatement } from '@ez4/pgsql';
 import { Index } from '@ez4/database';
 
 import { getWithSchemaValidation, isDynamicFieldSchema, validateFirstSchemaLevel } from '../utils/schema';
@@ -43,15 +44,15 @@ export const prepareUpdateQuery = async <T extends InternalTableMetadata, S exte
       updateQuery.results.record(selectRecord);
     } else {
       const selectFields = getSelectFields(builder, query.select, query.include, schema, relations, updateQuery, table);
-
-      const selectQuery = builder
-        .select(schema)
-        .lock(query.lock ?? false)
-        .from(table);
+      const selectQuery = builder.select(schema).from(table);
 
       selectQuery.record(selectFields);
       allQueries.push(selectQuery);
     }
+  }
+
+  if (postUpdateQueries.length && updateQuery instanceof SqlSelectStatement && query.lock !== false) {
+    updateQuery.lock();
   }
 
   const [statement, variables] = builder.with(allQueries).build();

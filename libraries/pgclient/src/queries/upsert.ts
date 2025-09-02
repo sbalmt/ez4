@@ -38,10 +38,7 @@ export const prepareUpsertQuery = async <T extends InternalTableMetadata, S exte
   if (!query.select) {
     allQueries.push(insertQuery);
   } else {
-    const selectQuery = builder
-      .select(schema)
-      .lock(query.lock ?? false)
-      .from(table);
+    const selectQuery = builder.select(schema).lock(query.lock).from(table);
 
     const selectRecord = getSelectFields(builder, query.select, query.include, schema, relations, selectQuery, table);
     const selectFilter = getSelectFilters(builder, query.where, relations, selectQuery, table);

@@ -25,11 +25,7 @@ export const prepareSelectQuery = <T extends InternalTableMetadata, S extends Qu
   query: Query.FindOneInput<S, T> | Query.FindManyInput<S, C, T>,
   builder: SqlBuilder
 ): [string, SqlParameter[]] => {
-  const selectQuery = builder
-    .select(schema)
-    .lock(query.lock ?? false)
-    .from(table);
-
+  const selectQuery = builder.select(schema).from(table);
   const selectRecord = getSelectFields(builder, query.select, query.include, schema, relations, selectQuery, table);
 
   selectQuery.record(selectRecord);
@@ -38,6 +34,10 @@ export const prepareSelectQuery = <T extends InternalTableMetadata, S extends Qu
     const selectFilter = getSelectFilters(builder, query.where, relations, selectQuery, table);
 
     selectQuery.where(selectFilter);
+  }
+
+  if (query.lock) {
+    selectQuery.lock();
   }
 
   if ('order' in query) {
