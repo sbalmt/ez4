@@ -139,12 +139,9 @@ const getTimeFieldData = (name: string, value: string): SqlParameter => {
 };
 
 const getDateTimeFieldData = (name: string, value: string): SqlParameter => {
-  const date = value.substring(0, 10);
-  const time = value.substring(11, 23);
-
   return {
     typeHint: TypeHint.TIMESTAMP,
-    ...getTextFieldData(name, `${date} ${time}`)
+    ...getTextFieldData(name, new Date(value).toISOString())
   };
 };
 

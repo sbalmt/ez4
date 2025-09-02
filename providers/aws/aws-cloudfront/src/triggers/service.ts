@@ -4,15 +4,15 @@ import { isCdnBucketOrigin, isCdnService } from '@ez4/distribution/library';
 import { getServiceName } from '@ez4/project/library';
 import { getBucketState } from '@ez4/aws-bucket';
 
-import { createOriginPolicy } from '../origin/service.js';
-import { createOriginAccess } from '../access/service.js';
-import { createCertificate } from '../certificate/service.js';
-import { createDistribution } from '../distribution/service.js';
-import { getDistributionState } from '../distribution/utils.js';
-import { createInvalidation } from '../invalidation/service.js';
-import { getAdditionalOriginCache, getDefaultOriginCache } from './cache.js';
-import { getOriginAccessName, getContentVersion, getOriginPolicyName } from './utils.js';
-import { connectOriginBucket } from './bucket.js';
+import { createOriginPolicy } from '../origin/service';
+import { createOriginAccess } from '../access/service';
+import { createCertificate } from '../certificate/service';
+import { createDistribution } from '../distribution/service';
+import { getDistributionState } from '../distribution/utils';
+import { createInvalidation } from '../invalidation/service';
+import { getAdditionalOriginCache, getDefaultOriginCache } from './cache';
+import { getOriginAccessName, getContentVersion, getOriginPolicyName } from './utils';
+import { connectOriginBucket } from './bucket';
 
 export const prepareCdnServices = async (event: PrepareResourceEvent) => {
   const { state, service, options, context } = event;

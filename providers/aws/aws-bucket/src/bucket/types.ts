@@ -1,7 +1,7 @@
 import type { Arn, ResourceTags } from '@ez4/aws-common';
 import type { EntryState } from '@ez4/stateful';
 import type { Bucket } from '@ez4/storage';
-import type { CreateRequest, CreateResponse } from './client.js';
+import type { CreateRequest, CreateResponse } from './client';
 
 export const BucketServiceName = 'AWS:S3/Bucket';
 

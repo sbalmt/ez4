@@ -1,0 +1,51 @@
+{
+  "name": "@ez4/distribution",
+  "description": "EZ4: Components to build CDN services",
+  "version": "0.27.0",
+  "author": "Silas B.",
+  "license": "MIT",
+  "type": "module",
+  "keywords": [
+    "ez4"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/sbalmt/ez4.git",
+    "directory": "contracts/distribution"
+  },
+  "engines": {
+    "node": ">=22.7"
+  },
+  "exports": {
+    ".": {
+      "types": "./dist/main.d.ts",
+      "require": "./dist/main.cjs",
+      "import": "./dist/main.mjs"
+    },
+    "./library": {
+      "types": "./dist/library.d.ts",
+      "require": "./dist/library.cjs",
+      "import": "./dist/library.mjs"
+    }
+  },
+  "workspaces": [
+    "foundation/*",
+    "contracts/*"
+  ],
+  "scripts": {
+    "lint": "eslint --cache",
+    "clean": "rm -f *.tsbuildinfo && rm -rf dist/*",
+    "build": "tsc && node tools/bundler.mjs",
+    "test": "npm run build && ez4 test",
+    "local:publish": "npm run build && npm run clean:registry && npm publish --registry http://localhost:4873",
+    "clean:registry": "rm -rf ../../.registry/@ez4/distribution",
+    "live:publish": "npm run build && npm publish --access public"
+  },
+  "dependencies": {
+    "@ez4/common": "^0.27.0",
+    "@ez4/project": "^0.27.0",
+    "@ez4/reflection": "^0.27.0",
+    "@ez4/storage": "^0.27.0",
+    "@ez4/utils": "^0.27.0"
+  }
+}

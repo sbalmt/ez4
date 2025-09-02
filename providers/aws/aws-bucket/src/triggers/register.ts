@@ -5,11 +5,11 @@ import { registerTriggers as registerStorageTriggers } from '@ez4/storage/librar
 
 import { createTrigger } from '@ez4/project/library';
 
-import { registerBucketProvider } from '../bucket/provider.js';
-import { registerPolicyProvider } from '../policy/provider.js';
-import { registerObjectProvider } from '../object/provider.js';
-import { connectBucketServices, prepareBucketServices, prepareLinkedServices } from './service.js';
-import { prepareExecutionPolicy } from './policy.js';
+import { registerBucketProvider } from '../bucket/provider';
+import { registerPolicyProvider } from '../policy/provider';
+import { registerObjectProvider } from '../object/provider';
+import { connectBucketServices, prepareBucketServices, prepareLinkedServices } from './service';
+import { prepareExecutionPolicy } from './policy';
 
 let isRegistered = false;
 

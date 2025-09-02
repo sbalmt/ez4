@@ -5,7 +5,7 @@ import { Logger } from '@ez4/project/library';
 import { pathToFileURL } from 'node:url';
 import { join } from 'node:path';
 
-import { runWithVariables } from '../utils/environment.js';
+import { runWithVariables } from '../utils/environment';
 
 export type VirtualFunction = <T>(...inputs: unknown[]) => Promise<T>;
 

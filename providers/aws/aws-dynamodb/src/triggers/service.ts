@@ -1,6 +1,6 @@
 import type { ConnectResourceEvent, PrepareResourceEvent, ServiceEvent } from '@ez4/project/library';
 
-import { InsensitiveMode, OrderMode, PaginationMode, ParametersMode, TransactionMode } from '@ez4/database';
+import { InsensitiveMode, LockMode, OrderMode, PaginationMode, ParametersMode, TransactionMode } from '@ez4/database';
 import { linkServiceExtras } from '@ez4/project/library';
 import { getFunctionState } from '@ez4/aws-function';
 import { isRoleState } from '@ez4/aws-identity';
@@ -12,14 +12,15 @@ import {
   UnsupportedInsensitiveModeError,
   UnsupportedParametersModeError,
   UnsupportedOrderModeError,
-  UnsupportedRelationError
-} from './errors.js';
+  UnsupportedRelationError,
+  UnsupportedLockModeError
+} from './errors';
 
-import { createTable } from '../table/service.js';
-import { getInternalName, getTableName, isDynamoDbService } from './utils.js';
-import { prepareLinkedClient } from './client.js';
-import { getAttributeSchema } from './schema.js';
-import { prepareTableStream } from './stream.js';
+import { createTable } from '../table/service';
+import { getInternalName, getTableName, isDynamoDbService } from './utils';
+import { prepareLinkedClient } from './client';
+import { getAttributeSchema } from './schema';
+import { prepareTableStream } from './stream';
 
 export const prepareLinkedServices = (event: ServiceEvent) => {
   const { service, options, context } = event;
@@ -56,8 +57,12 @@ export const prepareDatabaseServices = async (event: PrepareResourceEvent) => {
     throw new UnsupportedPaginationModeError(engine.paginationMode);
   }
 
-  if (engine.orderMode === OrderMode.AnyColumns) {
+  if (engine.orderMode !== OrderMode.IndexColumns) {
     throw new UnsupportedOrderModeError(engine.orderMode);
+  }
+
+  if (engine.lockMode !== LockMode.Unsupported) {
+    throw new UnsupportedLockModeError();
   }
 
   for (const table of service.tables) {

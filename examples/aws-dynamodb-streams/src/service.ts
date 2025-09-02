@@ -1,9 +1,9 @@
 import type { DynamoDbEngine } from '@ez4/aws-dynamodb/client';
 import type { Client, Database, Index } from '@ez4/database';
 import type { Environment } from '@ez4/common';
-import type { streamHandler } from './stream.js';
-import type { streamListener } from './common.js';
-import type { ExampleSchema } from './schema.js';
+import type { streamHandler } from './stream';
+import type { streamListener } from './common';
+import type { ExampleSchema } from './schema';
 
 /**
  * Example of AWS DynamoDB with Stream deployed with EZ4.

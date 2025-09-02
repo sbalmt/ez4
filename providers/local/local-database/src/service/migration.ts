@@ -4,10 +4,10 @@ import type { PgTableRepository } from '@ez4/pgclient/library';
 import type { ClientConnection } from '@ez4/pgclient';
 
 import { getUpdateQueries } from '@ez4/pgmigration';
-import { prepareCreateDatabase } from '@ez4/pgmigration/library';
+import { DatabaseQueries } from '@ez4/pgmigration/library';
 import { Client } from '@ez4/pgclient';
 
-import { loadRepositoryState, saveRepositoryState } from '../utils/state.js';
+import { loadRepositoryState, saveRepositoryState } from '../utils/state';
 
 type MigrationClient = DbClient<Database.Service>;
 
@@ -21,7 +21,7 @@ export const ensureDatabase = async (connection: ClientConnection) => {
     }
   });
 
-  const query = prepareCreateDatabase(connection.database);
+  const query = DatabaseQueries.prepareCreate(connection.database);
 
   await runMigrationStatement(client, query);
 };

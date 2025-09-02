@@ -1,5 +1,5 @@
 import type { EntryState } from '@ez4/stateful';
-import type { QueueFunctionParameters } from './types.js';
+import type { QueueFunctionParameters } from './types';
 
 import { join } from 'node:path';
 

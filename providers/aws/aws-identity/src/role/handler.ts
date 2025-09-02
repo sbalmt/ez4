@@ -1,25 +1,14 @@
 import type { StepContext, StepHandler } from '@ez4/stateful';
 import type { Arn } from '@ez4/aws-common';
-import type { PolicyState } from '../policy/types.js';
-import type { RoleState, RoleResult, RoleParameters } from './types.js';
+import type { PolicyState } from '../policy/types';
+import type { RoleState, RoleResult, RoleParameters } from './types';
 
 import { applyTagUpdates, IncompleteResourceError, ReplaceResourceError } from '@ez4/aws-common';
 import { deepCompare, deepEqual } from '@ez4/utils';
 
-import { PolicyServiceType } from '../policy/types.js';
-import { RoleServiceName } from './types.js';
-
-import {
-  attachPolicy,
-  createRole,
-  deleteRole,
-  detachPolicy,
-  importRole,
-  tagRole,
-  untagRole,
-  updateAssumeRole,
-  updateRole
-} from './client.js';
+import { attachPolicy, createRole, deleteRole, detachPolicy, importRole, tagRole, untagRole, updateAssumeRole, updateRole } from './client';
+import { PolicyServiceType } from '../policy/types';
+import { RoleServiceName } from './types';
 
 export const getRoleHandler = (): StepHandler<RoleState> => ({
   equals: equalsResource,

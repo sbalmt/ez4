@@ -1,6 +1,6 @@
 import type { StepContext, StepHandler } from '@ez4/stateful';
 import type { Arn } from '@ez4/aws-common';
-import type { CreateRequest, UpdateRequest } from './client.js';
+import type { CreateRequest, UpdateRequest } from './client';
 
 import type {
   DistributionState,
@@ -9,16 +9,16 @@ import type {
   DistributionOrigin,
   DistributionDefaultOrigin,
   DistributionAdditionalOrigin
-} from './types.js';
+} from './types';
 
 import { applyTagUpdates, ReplaceResourceError } from '@ez4/aws-common';
 import { deepCompare, deepEqual } from '@ez4/utils';
 
-import { getOriginAccessId } from '../access/utils.js';
-import { tryGetCertificateArn } from '../certificate/utils.js';
-import { createDistribution, updateDistribution, deleteDistribution, tagDistribution, untagDistribution } from './client.js';
-import { protectHeaders } from './helpers/headers.js';
-import { DistributionServiceName } from './types.js';
+import { getOriginAccessId } from '../access/utils';
+import { tryGetCertificateArn } from '../certificate/utils';
+import { createDistribution, updateDistribution, deleteDistribution, tagDistribution, untagDistribution } from './client';
+import { protectHeaders } from './helpers/headers';
+import { DistributionServiceName } from './types';
 
 type GeneralUpdateParameters = CreateRequest & UpdateRequest;
 

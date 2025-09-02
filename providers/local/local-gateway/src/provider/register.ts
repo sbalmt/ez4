@@ -3,7 +3,7 @@ import type { EmulateServiceEvent } from '@ez4/project/library';
 import { isHttpService, registerTriggers as registerGatewayTriggers } from '@ez4/gateway/library';
 import { createTrigger } from '@ez4/project/library';
 
-import { registerHttpServices } from './emulator.js';
+import { registerHttpServices } from './emulator';
 
 let isRegistered = false;
 

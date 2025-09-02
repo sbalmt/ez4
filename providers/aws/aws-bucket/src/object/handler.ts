@@ -1,15 +1,15 @@
 import type { StepContext, StepHandler } from '@ez4/stateful';
 import type { ResourceTags } from '@ez4/aws-common';
-import type { ObjectState, ObjectResult, ObjectParameters } from './types.js';
+import type { ObjectState, ObjectResult, ObjectParameters } from './types';
 
 import { stat } from 'node:fs/promises';
 
 import { ReplaceResourceError } from '@ez4/aws-common';
 import { deepCompare, deepEqual } from '@ez4/utils';
 
-import { getBucketName } from '../bucket/utils.js';
-import { putObject, deleteObject, tagObject } from './client.js';
-import { ObjectServiceName } from './types.js';
+import { getBucketName } from '../bucket/utils';
+import { putObject, deleteObject, tagObject } from './client';
+import { ObjectServiceName } from './types';
 
 export const getObjectHandler = (): StepHandler<ObjectState> => ({
   equals: equalsResource,

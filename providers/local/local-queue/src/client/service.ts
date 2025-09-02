@@ -18,7 +18,7 @@ export const createServiceClient = <T extends Queue.Service<any>>(
 ): Client<T> => {
   return new (class {
     async sendMessage(message: T['schema'], options?: SendOptions<T>) {
-      Logger.debug(`✉️  Sending message to Queue [${serviceName}]`);
+      Logger.debug(`✉️  Sending message to queue [${serviceName}]`);
 
       const payload = await getJsonMessage(message, messageSchema);
       const delay = options?.delay ?? clientOptions.delay;

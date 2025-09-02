@@ -1,11 +1,11 @@
 import type { StepContext, StepHandler } from '@ez4/stateful';
-import type { PermissionResult, PermissionState } from './types.js';
+import type { PermissionResult, PermissionState } from './types';
 
 import { ReplaceResourceError } from '@ez4/aws-common';
 
-import { getFunctionName } from '../function/utils.js';
-import { createPermission, deletePermission } from './client.js';
-import { PermissionServiceName } from './types.js';
+import { getFunctionName } from '../function/utils';
+import { createPermission, deletePermission } from './client';
+import { PermissionServiceName } from './types';
 
 export const getPermissionHandler = (): StepHandler<PermissionState> => ({
   equals: equalsResource,

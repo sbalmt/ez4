@@ -1,4 +1,4 @@
-import type { StageParameters } from '../types.js';
+import type { StageParameters } from '../types';
 
 import { toKebabCase } from '@ez4/utils';
 

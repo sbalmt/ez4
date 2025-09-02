@@ -1,6 +1,6 @@
 import { registerTriggers as registerAwsTriggers } from '@ez4/aws-common';
 
-import { registerLogGroupProvider } from '../group/provider.js';
+import { registerLogGroupProvider } from '../group/provider';
 
 let isRegistered = false;
 

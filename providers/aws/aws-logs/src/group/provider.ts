@@ -1,7 +1,7 @@
 import { registerProvider } from '@ez4/aws-common';
 
-import { getLogGroupHandler } from './handler.js';
-import { LogGroupServiceType } from './types.js';
+import { getLogGroupHandler } from './handler';
+import { LogGroupServiceType } from './types';
 
 export const registerLogGroupProvider = () => {
   registerProvider(LogGroupServiceType, getLogGroupHandler());

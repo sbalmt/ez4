@@ -10,7 +10,7 @@ declare function dispatch(event: Bucket.ServiceEvent, context: object): Promise<
 declare function handle(event: Bucket.Event, context: object): Promise<any>;
 
 /**
- * Entrypoint to handle S3 notifications.
+ * Entrypoint to handle S3 events.
  */
 export async function s3EntryPoint(event: S3Event, context: Context): Promise<void> {
   let currentRequest: Bucket.Incoming | undefined;

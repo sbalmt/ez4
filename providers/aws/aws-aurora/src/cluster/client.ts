@@ -15,8 +15,8 @@ import {
   DBClusterNotFoundFault
 } from '@aws-sdk/client-rds';
 
-import { getRandomPassword } from '../utils/credentials.js';
-import { ClusterServiceName } from './types.js';
+import { getRandomPassword } from '../utils/credentials';
+import { ClusterServiceName } from './types';
 
 const client = new RDSClient({});
 

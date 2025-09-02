@@ -1,13 +1,13 @@
 import type { EntryState, EntryStates } from '@ez4/stateful';
-import type { IntegrationState } from '../integration/types.js';
-import type { AuthorizerState } from '../authorizer/types.js';
-import type { GatewayState } from '../gateway/types.js';
-import type { RouteParameters, RouteState } from './types.js';
+import type { IntegrationState } from '../integration/types';
+import type { AuthorizerState } from '../authorizer/types';
+import type { GatewayState } from '../gateway/types';
+import type { RouteParameters, RouteState } from './types';
 
 import { attachEntry } from '@ez4/stateful';
 import { hashData } from '@ez4/utils';
 
-import { RouteServiceType } from './types.js';
+import { RouteServiceType } from './types';
 
 export const createRoute = <E extends EntryState>(
   state: EntryStates<E>,

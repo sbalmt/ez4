@@ -1,7 +1,7 @@
 import type { Sqs, FifoSqs } from 'hello-aws-queue';
 import type { Queue } from '@ez4/queue';
-import type { messageHandler } from './handlers.js';
-import type { queueListener } from './common.js';
+import type { messageHandler } from './handlers';
+import type { queueListener } from './common';
 
 /**
  * Example of AWS SQS imported and deployed with EZ4.

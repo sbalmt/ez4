@@ -1,7 +1,7 @@
 import type { Cron } from '@ez4/scheduler';
-import type { schedulerListener } from './common.js';
-import type { dynamicTargetHandler, staticTargetHandler } from './handlers.js';
-import type { DynamicEvent } from './types.js';
+import type { schedulerListener } from './common';
+import type { dynamicTargetHandler, staticTargetHandler } from './handlers';
+import type { DynamicEvent } from './types';
 
 /**
  * Example of AWS EventBridge Scheduler for rate expressions.
@@ -48,7 +48,7 @@ export declare class CronEvent extends Cron.Service {
   /**
    * Execute every 15 minutes.
    */
-  expression: 'cron(*/15 * * * *)';
+  expression: 'cron(0 0/15 * * ? *)';
 
   /**
    * Execute using the specified timezone.

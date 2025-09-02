@@ -1,0 +1,97 @@
+import type { AllType, ModelHeritage, SourceMap, TypeReference } from '@ez4/reflection';
+
+import { isTypeObject, isTypeModel, isModelProperty, isTypeReference } from '@ez4/reflection';
+import { getModelMembers } from './model';
+import { getObjectMembers } from './object';
+import { getLiteralBoolean, getLiteralNumber, getLiteralString, getLiteralTuple } from './value';
+
+export const getReferenceName = (type: TypeReference | ModelHeritage) => {
+  const [, typeName] = type.path.split(':');
+
+  return typeName;
+};
+
+export const getReferenceType = (type: TypeReference, reflection: SourceMap): AllType => {
+  const reference = reflection[type.path];
+  const index = type.index;
+
+  if (!index) {
+    return reference;
+  }
+
+  const member = getIndexedReferenceMember(reference, index);
+
+  if (!member) {
+    throw new Error(`Model ${reference.name} doesn't have the expected ${index} property.`);
+  }
+
+  if (!isModelProperty(member)) {
+    throw new Error(`Member ${index} on model ${reference.name} isn't a property.`);
+  }
+
+  if (isTypeReference(member.value)) {
+    return getReferenceType(member.value, reflection);
+  }
+
+  return member.value;
+};
+
+export const getReferenceBoolean = (type: AllType, reflection: SourceMap) => {
+  if (!isTypeReference(type) || !type.index) {
+    return null;
+  }
+
+  const reference = getReferenceType(type, reflection);
+
+  return getLiteralBoolean(reference);
+};
+
+export const getReferenceNumber = (type: AllType, reflection: SourceMap) => {
+  if (!isTypeReference(type) || !type.index) {
+    return null;
+  }
+
+  const reference = getReferenceType(type, reflection);
+
+  return getLiteralNumber(reference);
+};
+
+export const getReferenceString = (type: AllType, reflection: SourceMap) => {
+  if (!isTypeReference(type) || !type.index) {
+    return null;
+  }
+
+  const reference = getReferenceType(type, reflection);
+
+  return getLiteralString(reference);
+};
+
+export const getReferenceTuple = (type: AllType, reflection: SourceMap) => {
+  if (!isTypeReference(type) || !type.index) {
+    return null;
+  }
+
+  const reference = getReferenceType(type, reflection);
+
+  return getLiteralTuple(reference);
+};
+
+export const getReferenceModel = (type: AllType, reflection: SourceMap) => {
+  if (!isTypeReference(type) || !type.index) {
+    return null;
+  }
+
+  return getReferenceType(type, reflection);
+};
+
+const getIndexedReferenceMember = (type: AllType, index: string) => {
+  if (isTypeModel(type)) {
+    return getModelMembers(type, true).find(({ name }) => name === index);
+  }
+
+  if (isTypeObject(type)) {
+    return getObjectMembers(type).find(({ name }) => name === index);
+  }
+
+  throw new Error(`Model or object type is expected for index reference.`);
+};

@@ -1,12 +1,12 @@
 import type { EntryState } from '@ez4/stateful';
-import type { IntegrationFunctionParameters } from './types.js';
+import type { IntegrationFunctionParameters } from './types';
 
 import { join } from 'node:path';
 
 import { getDefinitionsObject } from '@ez4/project/library';
 import { getFunctionBundle } from '@ez4/aws-common';
 
-import { IntegrationServiceName } from '../types.js';
+import { IntegrationServiceName } from '../types';
 
 // __MODULE_PATH is defined by the package bundler.
 declare const __MODULE_PATH: string;

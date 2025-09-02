@@ -1,7 +1,7 @@
 import type { String } from '@ez4/schema';
 import type { Http } from '@ez4/gateway';
 
-import { CustomError } from '../errors.js';
+import { CustomError } from '../errors';
 
 /**
  * Patch request example.

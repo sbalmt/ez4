@@ -2,8 +2,8 @@ import type { DeployEvent, StateEvent } from '@ez4/project/library';
 
 import { createTrigger } from '@ez4/project/library';
 
-import { loadStateFile, saveStateFile } from '../common/state.js';
-import { deploy, report } from '../common/provider.js';
+import { loadStateFile, saveStateFile } from '../common/state';
+import { deploy, report } from '../common/provider';
 
 let isRegistered = false;
 

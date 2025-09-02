@@ -2,11 +2,11 @@ import type { ConnectResourceEvent, PrepareResourceEvent, ServiceEvent } from '@
 
 import { isQueueImport } from '@ez4/queue/library';
 
-import { createQueue } from '../queue/service.js';
-import { connectSubscriptions, prepareSubscriptions } from './subscription.js';
-import { ProjectMissingError } from './errors.js';
-import { prepareLinkedClient } from './client.js';
-import { getQueueName } from './utils.js';
+import { createQueue } from '../queue/service';
+import { connectSubscriptions, prepareSubscriptions } from './subscription';
+import { ProjectMissingError } from './errors';
+import { prepareLinkedClient } from './client';
+import { getQueueName } from './utils';
 
 export const prepareLinkedImports = (event: ServiceEvent) => {
   const { service, options, context } = event;

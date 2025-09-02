@@ -1,5 +1,5 @@
 import type { Http } from '@ez4/gateway';
-import type { AllRoutes } from './routes.js';
+import type { AllRoutes } from './routes';
 
 /**
  * Example of AWS API deployed with EZ4.

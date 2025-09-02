@@ -5,7 +5,7 @@ import { Logger } from '@ez4/project/library';
 export const createMockedClient = <T extends Queue.Service<any>>(serviceName: string): Client<T> => {
   return new (class {
     async sendMessage(_message: T['schema'], _options?: SendOptions<T>) {
-      Logger.debug(`✉️  Sending message to Queue [${serviceName}]`);
+      Logger.debug(`✉️  Sending message to queue [${serviceName}]`);
     }
 
     async receiveMessage(): Promise<T['schema'][]> {

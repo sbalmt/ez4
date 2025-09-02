@@ -3,7 +3,7 @@ import type { FunctionParameters, Variables } from '@ez4/aws-function';
 import type { HttpRoute, HttpService } from '@ez4/gateway/library';
 import type { EntryStates } from '@ez4/stateful';
 import type { ObjectSchema } from '@ez4/schema';
-import type { GatewayState } from '../gateway/types.js';
+import type { GatewayState } from '../gateway/types';
 
 import { getServiceName, linkServiceExtras } from '@ez4/project/library';
 import { getFunctionState, tryGetFunctionState } from '@ez4/aws-function';
@@ -11,17 +11,17 @@ import { isHttpService } from '@ez4/gateway/library';
 import { isRoleState } from '@ez4/aws-identity';
 import { createLogGroup } from '@ez4/aws-logs';
 
-import { createRoute } from '../route/service.js';
-import { createGateway } from '../gateway/service.js';
-import { createStage } from '../stage/service.js';
-import { getAuthorizer, createAuthorizer } from '../authorizer/service.js';
-import { createAuthorizerFunction } from '../authorizer/function/service.js';
-import { createIntegrationFunction } from '../integration/function/service.js';
-import { getIntegration, createIntegration } from '../integration/service.js';
-import { getFunctionName, getInternalName } from './utils.js';
-import { getCorsConfiguration } from './cors.js';
-import { RoleMissingError } from './errors.js';
-import { Defaults } from './defaults.js';
+import { createRoute } from '../route/service';
+import { createGateway } from '../gateway/service';
+import { createStage } from '../stage/service';
+import { getAuthorizer, createAuthorizer } from '../authorizer/service';
+import { createAuthorizerFunction } from '../authorizer/function/service';
+import { createIntegrationFunction } from '../integration/function/service';
+import { getIntegration, createIntegration } from '../integration/service';
+import { getFunctionName, getInternalName } from './utils';
+import { getCorsConfiguration } from './cors';
+import { RoleMissingError } from './errors';
+import { Defaults } from './defaults';
 
 export const prepareHttpServices = (event: PrepareResourceEvent) => {
   const { state, service, options, context } = event;

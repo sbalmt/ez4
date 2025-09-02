@@ -11,8 +11,8 @@ import { createLogGroup } from '@ez4/aws-logs';
 import { deploy } from '@ez4/aws-common';
 import { deepClone } from '@ez4/utils';
 
-import { getPolicyDocument } from './common/policy.js';
-import { getRoleDocument } from './common/role.js';
+import { getPolicyDocument } from './common/policy';
+import { getRoleDocument } from './common/role';
 
 const assertDeploy = async <E extends EntryState>(resourceId: string, newState: EntryStates<E>, oldState: EntryStates<E> | undefined) => {
   const { result: state } = await deploy(newState, oldState);

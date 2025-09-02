@@ -1,18 +1,18 @@
 import type { DeployOptions, EventContext } from '@ez4/project/library';
 import type { CdnService, CdnOrigin } from '@ez4/distribution/library';
 import type { EntryStates } from '@ez4/stateful';
-import type { DistributionAdditionalOrigin, DistributionDefaultOrigin } from '../distribution/types.js';
+import type { DistributionAdditionalOrigin, DistributionDefaultOrigin } from '../distribution/types';
 
 import { isCdnBucketOrigin } from '@ez4/distribution/library';
 import { getBucketDomain, getBucketState } from '@ez4/aws-bucket';
 import { getServiceName } from '@ez4/project/library';
 import { OriginProtocol } from '@ez4/distribution';
 
-import { DistributionServiceName } from '../distribution/types.js';
-import { createCachePolicy } from '../cache/service.js';
-import { getOriginPolicyId } from '../origin/utils.js';
-import { getCachePolicyId } from '../cache/utils.js';
-import { getCachePolicyName } from './utils.js';
+import { DistributionServiceName } from '../distribution/types';
+import { createCachePolicy } from '../cache/service';
+import { getOriginPolicyId } from '../origin/utils';
+import { getCachePolicyId } from '../cache/utils';
+import { getCachePolicyName } from './utils';
 
 export const getDefaultOriginCache = (state: EntryStates, service: CdnService, options: DeployOptions, context: EventContext) => {
   return getOriginCache<DistributionDefaultOrigin>(state, service, 'default', service.defaultOrigin, options, context);

@@ -1,6 +1,6 @@
 import type { RoleDocument } from '@ez4/aws-identity';
 import type { EntryState, StepContext } from '@ez4/stateful';
-import type { CreateResponse } from './client.js';
+import type { CreateResponse } from './client';
 
 export const PolicyServiceName = 'AWS:S3/Policy';
 

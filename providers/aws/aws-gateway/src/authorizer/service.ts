@@ -1,16 +1,16 @@
 import type { EntryState, EntryStates, StepContext } from '@ez4/stateful';
 import type { FunctionState } from '@ez4/aws-function';
-import type { GatewayState } from '../gateway/types.js';
-import type { AuthorizerParameters, AuthorizerState } from './types.js';
+import type { GatewayState } from '../gateway/types';
+import type { AuthorizerParameters, AuthorizerState } from './types';
 
 import { getRegion, getAccountId } from '@ez4/aws-identity';
 import { getPermission, createPermission } from '@ez4/aws-function';
 import { hashData, toKebabCase } from '@ez4/utils';
 import { attachEntry } from '@ez4/stateful';
 
-import { getGatewayId } from '../gateway/utils.js';
-import { AuthorizerServiceName, AuthorizerServiceType } from './types.js';
-import { isAuthorizerState } from './utils.js';
+import { getGatewayId } from '../gateway/utils';
+import { AuthorizerServiceName, AuthorizerServiceType } from './types';
+import { isAuthorizerState } from './utils';
 
 export const createAuthorizer = <E extends EntryState>(
   state: EntryStates<E>,

@@ -2,11 +2,11 @@ import type { ServiceEvent, ConnectResourceEvent, PrepareResourceEvent } from '@
 
 import { isBucketService } from '@ez4/storage/library';
 
-import { createBucket } from '../bucket/service.js';
-import { connectEvents, prepareEvents } from './events.js';
-import { prepareLocalContent } from './content.js';
-import { prepareLinkedClient } from './client.js';
-import { getBucketName } from './utils.js';
+import { createBucket } from '../bucket/service';
+import { connectEvents, prepareEvents } from './events';
+import { prepareLocalContent } from './content';
+import { prepareLinkedClient } from './client';
+import { getBucketName } from './utils';
 
 export const prepareLinkedServices = (event: ServiceEvent) => {
   const { service, options, context } = event;

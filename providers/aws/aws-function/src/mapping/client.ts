@@ -16,7 +16,7 @@ import {
 import { Logger, parseArn } from '@ez4/aws-common';
 import { waitFor } from '@ez4/utils';
 
-import { MappingService, MappingServiceName } from './types.js';
+import { MappingService, MappingServiceName } from './types';
 
 const client = new LambdaClient({});
 

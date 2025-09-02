@@ -1,11 +1,11 @@
 import type { EntryState, EntryStates } from '@ez4/stateful';
 import type { RoleState } from '@ez4/aws-identity';
 import type { LogGroupState } from '@ez4/aws-logs';
-import type { IntegrationFunctionParameters } from './types.js';
+import type { IntegrationFunctionParameters } from './types';
 
 import { createFunction } from '@ez4/aws-function';
 
-import { bundleApiFunction } from './bundler.js';
+import { bundleApiFunction } from './bundler';
 
 export const createIntegrationFunction = <E extends EntryState>(
   state: EntryStates<E>,

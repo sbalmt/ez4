@@ -3,9 +3,9 @@ import type { DatabaseService, TableIndex } from '@ez4/database/library';
 
 import { Index } from '@ez4/database';
 
-import { getTableState } from '../table/utils.js';
-import { Client } from '../client.js';
-import { getInternalName, getTableName, isDynamoDbService } from './utils.js';
+import { getTableState } from '../table/utils';
+import { Client } from '../client';
+import { getInternalName, getTableName, isDynamoDbService } from './utils';
 
 export const prepareLinkedClient = (context: EventContext, service: DatabaseService, options: DeployOptions): ExtraSource => {
   const tableIds = service.tables.map((table) => {
@@ -56,7 +56,9 @@ const getTableIndexes = (tableIndexes: TableIndex[]): string[][] => {
   const indexes = [];
 
   for (const { columns, type } of tableIndexes) {
-    if (type === Index.Primary || type === Index.Secondary) {
+    if (type === Index.Primary) {
+      indexes.unshift(columns);
+    } else if (type === Index.Secondary) {
       indexes.push(columns);
     }
   }

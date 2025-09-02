@@ -1,0 +1,132 @@
+{
+  "TestDatabase": {
+    "type": "@ez4/database",
+    "name": "TestDatabase",
+    "extras": {},
+    "engine": {
+      "parametersMode": "index",
+      "transactionMode": "static",
+      "insensitiveMode": "unsupported",
+      "paginationMode": "offset",
+      "orderMode": "any",
+      "lockMode": "unsupported",
+      "name": "test"
+    },
+    "tables": [
+      {
+        "name": "inlineTestTable",
+        "schema": {
+          "type": "object",
+          "identity": 1,
+          "properties": {
+            "foo": {
+              "type": "string"
+            },
+            "bar": {
+              "type": "number"
+            },
+            "ttl": {
+              "type": "number"
+            }
+          }
+        },
+        "indexes": [
+          {
+            "type": "primary",
+            "name": "foo",
+            "columns": [
+              "foo"
+            ]
+          },
+          {
+            "type": "secondary",
+            "name": "bar",
+            "columns": [
+              "bar"
+            ]
+          },
+          {
+            "type": "ttl",
+            "name": "ttl",
+            "columns": [
+              "ttl"
+            ]
+          },
+          {
+            "type": "primary",
+            "name": "foo:ttl",
+            "columns": [
+              "foo",
+              "ttl"
+            ]
+          },
+          {
+            "type": "secondary",
+            "name": "bar:foo",
+            "columns": [
+              "bar",
+              "foo"
+            ]
+          }
+        ]
+      },
+      {
+        "name": "testTable",
+        "schema": {
+          "type": "object",
+          "identity": 1,
+          "properties": {
+            "baz": {
+              "type": "string"
+            },
+            "qux": {
+              "type": "number"
+            },
+            "ttl": {
+              "type": "number"
+            }
+          }
+        },
+        "indexes": [
+          {
+            "type": "primary",
+            "name": "baz",
+            "columns": [
+              "baz"
+            ]
+          },
+          {
+            "type": "secondary",
+            "name": "qux",
+            "columns": [
+              "qux"
+            ]
+          },
+          {
+            "type": "ttl",
+            "name": "ttl",
+            "columns": [
+              "ttl"
+            ]
+          },
+          {
+            "type": "primary",
+            "name": "baz:ttl",
+            "columns": [
+              "baz",
+              "ttl"
+            ]
+          },
+          {
+            "type": "secondary",
+            "name": "qux:baz",
+            "columns": [
+              "qux",
+              "baz"
+            ]
+          }
+        ]
+      }
+    ]
+  }
+}

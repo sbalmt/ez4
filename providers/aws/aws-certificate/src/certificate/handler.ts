@@ -1,12 +1,12 @@
 import type { StepContext, StepHandler } from '@ez4/stateful';
 import type { Arn } from '@ez4/aws-common';
-import type { CertificateState, CertificateResult, CertificateParameters } from './types.js';
+import type { CertificateState, CertificateResult, CertificateParameters } from './types';
 
 import { applyTagUpdates, ReplaceResourceError } from '@ez4/aws-common';
 import { deepCompare } from '@ez4/utils';
 
-import { isCertificateInUse, createCertificate, deleteCertificate, tagCertificate, untagCertificate } from './client.js';
-import { CertificateServiceName } from './types.js';
+import { isCertificateInUse, createCertificate, deleteCertificate, tagCertificate, untagCertificate } from './client';
+import { CertificateServiceName } from './types';
 
 export const getCertificateHandler = (): StepHandler<CertificateState> => ({
   equals: equalsResource,

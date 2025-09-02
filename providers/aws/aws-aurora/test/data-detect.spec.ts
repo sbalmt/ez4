@@ -63,13 +63,13 @@ describe('aurora data detect', () => {
   });
 
   it('assert :: detect timestamp data', () => {
-    const data = detectFieldData('field', '2024-11-15T00:00:00Z');
+    const data = detectFieldData('field', '1991-04-23T23:59:30.000Z');
 
     deepEqual(data, {
       name: 'field',
       typeHint: 'TIMESTAMP',
       value: {
-        stringValue: '2024-11-15 00:00:00Z'
+        stringValue: '1991-04-23T23:59:30.000Z'
       }
     });
   });

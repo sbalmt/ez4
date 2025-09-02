@@ -4,12 +4,12 @@ import { registerTriggers as registerDatabaseTriggers } from '@ez4/database/libr
 
 import { createTrigger } from '@ez4/project/library';
 
-import { registerClusterProvider } from '../cluster/provider.js';
-import { registerInstanceProvider } from '../instance/provider.js';
-import { registerMigrationProvider } from '../migration/provider.js';
-import { prepareDatabaseServices, prepareLinkedServices } from './service.js';
-import { prepareExecutionPolicy } from './policy.js';
-import { prepareEmulatorClient } from './client.js';
+import { registerClusterProvider } from '../cluster/provider';
+import { registerInstanceProvider } from '../instance/provider';
+import { registerMigrationProvider } from '../migration/provider';
+import { prepareDatabaseServices, prepareLinkedServices } from './service';
+import { prepareExecutionPolicy } from './policy';
+import { prepareEmulatorClient } from './client';
 
 let isRegistered = false;
 

@@ -1,0 +1,10 @@
+import { TypeError } from './common';
+
+export class MissingVariableError extends TypeError {
+  constructor(
+    public variableName: string,
+    public fileName?: string
+  ) {
+    super(`Variable ${variableName} is not defined or is empty.`, fileName);
+  }
+}

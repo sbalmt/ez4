@@ -1,14 +1,14 @@
 import type { StepContext, StepHandler } from '@ez4/stateful';
-import type { ScheduleState, ScheduleResult, ScheduleParameters } from './types.js';
+import type { ScheduleState, ScheduleResult, ScheduleParameters } from './types';
 
 import { getFunctionArn } from '@ez4/aws-function';
 import { ReplaceResourceError } from '@ez4/aws-common';
 import { deepCompare, deepEqual } from '@ez4/utils';
 import { getRoleArn } from '@ez4/aws-identity';
 
-import { tryGetGroupName } from '../group/utils.js';
-import { createSchedule, deleteSchedule, updateSchedule } from './client.js';
-import { ScheduleServiceName } from './types.js';
+import { tryGetGroupName } from '../group/utils';
+import { createSchedule, deleteSchedule, updateSchedule } from './client';
+import { ScheduleServiceName } from './types';
 
 export const getScheduleHandler = (): StepHandler<ScheduleState> => ({
   equals: equalsResource,

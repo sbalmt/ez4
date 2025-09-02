@@ -1,12 +1,12 @@
 import type { EntryState } from '@ez4/stateful';
-import type { AuthorizerFunctionParameters } from './types.js';
+import type { AuthorizerFunctionParameters } from './types';
 
 import { join } from 'node:path';
 
 import { getDefinitionsObject } from '@ez4/project/library';
 import { getFunctionBundle } from '@ez4/aws-common';
 
-import { AuthorizerServiceName } from '../types.js';
+import { AuthorizerServiceName } from '../types';
 
 // __MODULE_PATH is defined by the package bundler.
 declare const __MODULE_PATH: string;

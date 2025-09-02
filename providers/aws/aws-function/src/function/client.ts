@@ -1,5 +1,5 @@
 import type { Arn, ResourceTags } from '@ez4/aws-common';
-import type { Variables } from '../types/variables.js';
+import type { Variables } from '../types/variables';
 
 import {
   LambdaClient,
@@ -22,9 +22,9 @@ import {
 
 import { Logger, tryParseArn, waitCreation, waitDeletion } from '@ez4/aws-common';
 
-import { assertVariables } from './helpers/variables.js';
-import { getZipBuffer } from './helpers/zip.js';
-import { FunctionServiceName } from './types.js';
+import { assertVariables } from './helpers/variables';
+import { getZipBuffer } from './helpers/zip';
+import { FunctionServiceName } from './types';
 
 const client = new LambdaClient({});
 

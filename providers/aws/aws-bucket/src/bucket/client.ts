@@ -19,7 +19,7 @@ import {
   NoSuchBucket
 } from '@aws-sdk/client-s3';
 
-import { BucketServiceName } from './types.js';
+import { BucketServiceName } from './types';
 
 const client = new S3Client({});
 
@@ -197,7 +197,7 @@ export const deleteLifecycle = async (bucketName: string) => {
 };
 
 export const updateEventNotifications = async (bucketName: string, request: UpdateNotificationRequest) => {
-  Logger.logUpdate(BucketServiceName, `${bucketName} event notifications`);
+  Logger.logUpdate(BucketServiceName, `${bucketName} events`);
 
   const { functionArn, eventsPath, eventsType } = request;
 

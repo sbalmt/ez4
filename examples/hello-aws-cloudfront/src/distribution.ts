@@ -1,7 +1,7 @@
 import type { Environment } from '@ez4/common';
 import type { Cdn } from '@ez4/distribution';
 
-import type { SiteBucket } from './storage.js';
+import type { SiteBucket } from './storage';
 
 /**
  * Example of AWS CloudFront deploy with EZ4.

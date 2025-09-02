@@ -1,12 +1,12 @@
 import type { StepHandler } from '@ez4/stateful';
 import type { Arn } from '@ez4/aws-common';
-import type { GatewayState, GatewayResult, GatewayParameters } from './types.js';
+import type { GatewayState, GatewayResult, GatewayParameters } from './types';
 
 import { applyTagUpdates, ReplaceResourceError } from '@ez4/aws-common';
 import { deepCompare, deepEqual } from '@ez4/utils';
 
-import { createGateway, deleteCorsConfiguration, deleteGateway, tagGateway, untagGateway, updateGateway } from './client.js';
-import { GatewayServiceName } from './types.js';
+import { createGateway, deleteCorsConfiguration, deleteGateway, tagGateway, untagGateway, updateGateway } from './client';
+import { GatewayServiceName } from './types';
 
 export const getGatewayHandler = (): StepHandler<GatewayState> => ({
   equals: equalsResource,

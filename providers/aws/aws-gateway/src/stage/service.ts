@@ -1,12 +1,12 @@
 import type { EntryState, EntryStates } from '@ez4/stateful';
-import type { GatewayState } from '../gateway/types.js';
-import type { StageParameters, StageState } from './types.js';
+import type { GatewayState } from '../gateway/types';
+import type { StageParameters, StageState } from './types';
 
 import { attachEntry } from '@ez4/stateful';
 import { hashData } from '@ez4/utils';
 
-import { getStageName } from './helpers/stage.js';
-import { StageServiceType } from './types.js';
+import { getStageName } from './helpers/stage';
+import { StageServiceType } from './types';
 
 export const createStage = <E extends EntryState>(state: EntryStates<E>, gatewayState: GatewayState, parameters: StageParameters) => {
   const stageName = getStageName(parameters);

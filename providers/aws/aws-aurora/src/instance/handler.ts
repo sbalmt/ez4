@@ -1,14 +1,14 @@
 import type { StepContext, StepHandler } from '@ez4/stateful';
 import type { Arn } from '@ez4/aws-common';
-import type { InstanceState, InstanceResult, InstanceParameters } from './types.js';
+import type { InstanceState, InstanceResult, InstanceParameters } from './types';
 
 import { applyTagUpdates, ReplaceResourceError } from '@ez4/aws-common';
 import { deepCompare } from '@ez4/utils';
 
-import { createInstance, deleteInstance, importInstance, tagInstance, untagInstance } from './client.js';
+import { createInstance, deleteInstance, importInstance, tagInstance, untagInstance } from './client';
 
-import { getClusterName } from '../cluster/utils.js';
-import { InstanceServiceName } from './types.js';
+import { getClusterName } from '../cluster/utils';
+import { InstanceServiceName } from './types';
 
 export const getInstanceHandler = (): StepHandler<InstanceState> => ({
   equals: equalsResource,

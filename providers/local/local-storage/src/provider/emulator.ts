@@ -4,7 +4,7 @@ import type { BucketService } from '@ez4/storage/library';
 
 import { getServiceName } from '@ez4/project/library';
 
-import { createServiceClient } from '../client/service.js';
+import { createServiceClient } from '../client/service';
 
 export const registerBucketEmulator = (service: BucketService, options: ServeOptions) => {
   const client = createServiceClient(service.name, options);

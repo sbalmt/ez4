@@ -1,4 +1,4 @@
-import type { Headers } from '../../types/headers.js';
+import type { Headers } from '../../types/headers';
 
 import { hashData } from '@ez4/utils';
 

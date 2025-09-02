@@ -4,11 +4,11 @@ import type { EntryStates } from '@ez4/stateful';
 
 import { isQueueService } from '@ez4/queue/library';
 
-import { createQueue } from '../queue/service.js';
-import { connectSubscriptions, prepareSubscriptions } from './subscription.js';
-import { getDeadLetterQueueName, getQueueName } from './utils.js';
-import { prepareLinkedClient } from './client.js';
-import { Defaults } from './defaults.js';
+import { createQueue } from '../queue/service';
+import { connectSubscriptions, prepareSubscriptions } from './subscription';
+import { getDeadLetterQueueName, getQueueName } from './utils';
+import { prepareLinkedClient } from './client';
+import { Defaults } from './defaults';
 
 export const prepareLinkedServices = (event: ServiceEvent) => {
   const { service, options, context } = event;

@@ -1,12 +1,12 @@
 import type { EmulateServiceContext, ServeOptions } from '@ez4/project/library';
 import type { HttpService } from '@ez4/gateway/library';
 import type { Http } from '@ez4/gateway';
-import type { MatchingRoute } from '../utils/route.js';
+import type { MatchingRoute } from '../utils/route';
 
 import { createModule, onBegin, onEnd, onError, onReady } from '@ez4/local-common';
 import { getRandomUUID } from '@ez4/utils';
 
-import { getOutgoingErrorResponse, getOutgoingSuccessResponse } from '../utils/response.js';
+import { getOutgoingErrorResponse, getOutgoingSuccessResponse } from '../utils/response';
 
 import {
   getIncomingRequestIdentity,
@@ -14,7 +14,7 @@ import {
   getIncomingRequestHeaders,
   getIncomingRequestQuery,
   getIncomingRequestBody
-} from '../utils/request.js';
+} from '../utils/request';
 
 export const processHttpRequest = async (
   service: HttpService,

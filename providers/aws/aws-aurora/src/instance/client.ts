@@ -14,7 +14,7 @@ import {
   DescribeDBInstancesCommand
 } from '@aws-sdk/client-rds';
 
-import { InstanceServiceName } from './types.js';
+import { InstanceServiceName } from './types';
 
 const client = new RDSClient({});
 

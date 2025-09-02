@@ -1,10 +1,10 @@
 import type { String } from '@ez4/schema';
 import type { Service } from '@ez4/common';
 import type { Http } from '@ez4/gateway';
-import type { Api } from '../../api.js';
+import type { Api } from '../../api';
 
-import { EventStatus } from '../../schemas/event.js';
-import { createEvent } from '../repository.js';
+import { EventStatus } from '../../schemas/event';
+import { createEvent } from '../repository';
 
 /**
  * Create schedule request.

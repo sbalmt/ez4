@@ -1,7 +1,7 @@
 import type { EntryState, StepContext } from '@ez4/stateful';
-import type { ObjectState } from './types.js';
+import type { ObjectState } from './types';
 
-import { ObjectServiceType } from './types.js';
+import { ObjectServiceType } from './types';
 
 export const isBucketObjectState = (resource: EntryState): resource is ObjectState => {
   return resource.type === ObjectServiceType;

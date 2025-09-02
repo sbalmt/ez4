@@ -1,7 +1,7 @@
 import type { Query } from '@ez4/database';
-import type { InternalTableMetadata } from '../types.js';
+import type { InternalTableMetadata } from '../types';
 
-import { prepareWhereFields } from './where.js';
+import { prepareWhereFields } from './where';
 
 type PrepareResult = [string, unknown[]];
 

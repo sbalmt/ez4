@@ -1,10 +1,10 @@
 import type { EntryState, StepContext } from '@ez4/stateful';
-import type { GatewayState } from './types.js';
+import type { GatewayState } from './types';
 
 import { IncompleteResourceError } from '@ez4/aws-common';
 import { hashData, toKebabCase } from '@ez4/utils';
 
-import { GatewayServiceType } from './types.js';
+import { GatewayServiceType } from './types';
 
 export const createGatewayStateId = (gatewayId: string) => {
   return hashData(GatewayServiceType, toKebabCase(gatewayId));

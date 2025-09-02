@@ -1,29 +1,29 @@
-export * from './triggers/register.js';
+export * from './triggers/register';
 
-export * from './types/variables.js';
+export * from './types/variables';
 
-export * from './gateway/service.js';
-export * from './gateway/types.js';
-export * from './gateway/utils.js';
+export * from './gateway/service';
+export * from './gateway/types';
+export * from './gateway/utils';
 
-export * from './stage/service.js';
-export * from './stage/types.js';
-export * from './stage/utils.js';
+export * from './stage/service';
+export * from './stage/types';
+export * from './stage/utils';
 
-export * from './route/service.js';
-export * from './route/types.js';
-export * from './route/utils.js';
+export * from './route/service';
+export * from './route/types';
+export * from './route/utils';
 
-export * from './integration/function/service.js';
-export * from './integration/function/types.js';
+export * from './integration/function/service';
+export * from './integration/function/types';
 
-export * from './integration/service.js';
-export * from './integration/types.js';
-export * from './integration/utils.js';
+export * from './integration/service';
+export * from './integration/types';
+export * from './integration/utils';
 
-export * from './authorizer/function/service.js';
-export * from './authorizer/function/types.js';
+export * from './authorizer/function/service';
+export * from './authorizer/function/types';
 
-export * from './authorizer/service.js';
-export * from './authorizer/types.js';
-export * from './authorizer/utils.js';
+export * from './authorizer/service';
+export * from './authorizer/types';
+export * from './authorizer/utils';

@@ -1,10 +1,10 @@
 import type { Database, Client as DbClient } from '@ez4/database';
 import type { PgTableRepository } from '@ez4/pgclient/library';
-import type { DataClientConnection } from './driver.js';
+import type { DataClientConnection } from './driver';
 
 import { PgClient } from '@ez4/pgclient';
 
-import { DataClientDriver } from './driver.js';
+import { DataClientDriver } from './driver';
 
 export type ClientContext = {
   connection: DataClientConnection;

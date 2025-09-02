@@ -1,11 +1,11 @@
 import type { DeployOptions, EventContext } from '@ez4/project/library';
 import type { EntryState, StepContext } from '@ez4/stateful';
-import type { FunctionState } from './types.js';
+import type { FunctionState } from './types';
 
 import { IncompleteResourceError } from '@ez4/aws-common';
 
-import { FunctionNotFoundError } from './errors.js';
-import { FunctionServiceType } from './types.js';
+import { FunctionNotFoundError } from './errors';
+import { FunctionServiceType } from './types';
 
 export const isFunctionState = (resource: EntryState): resource is FunctionState => {
   return resource.type === FunctionServiceType;

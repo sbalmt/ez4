@@ -1,7 +1,7 @@
-import type { headerAuthorizer } from './authorizers/header.js';
-import type { queryAuthorizer } from './authorizers/query.js';
-import type { publicHandler } from './endpoints/public.js';
-import type { privateHandler } from './endpoints/private.js';
+import type { headerAuthorizer } from './authorizers/header';
+import type { queryAuthorizer } from './authorizers/query';
+import type { publicHandler } from './endpoints/public';
+import type { privateHandler } from './endpoints/private';
 
 export type AllRoutes = [
   {

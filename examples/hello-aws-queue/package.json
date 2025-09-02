@@ -10,26 +10,22 @@
     "node": ">=22.7"
   },
   "workspaces": [
-    "packages/*",
     "examples/*"
   ],
   "exports": {
-    ".": {
-      "types": "./src/export.ts",
-      "default": "./src/export.js"
-    }
+    ".": "./src/export.ts"
   },
   "scripts": {
-    "deploy": "tsc -p tsconfig.json && ez4 deploy -e local.env -p ez4.project.js",
-    "destroy": "ez4 destroy -e local.env -p ez4.project.js",
-    "serve": "ez4 serve -e local.env -p ez4.project.js --debug",
-    "test": "ez4 test -e local.env -p ez4.project.js"
+    "deploy": "tsc && ez4 deploy -e local.env",
+    "destroy": "ez4 destroy -e local.env",
+    "serve": "ez4 serve -e local.env --debug",
+    "test": "ez4 test -e local.env"
   },
   "dependencies": {
-    "@ez4/aws-queue": "^0.26.0",
-    "@ez4/common": "^0.26.0",
-    "@ez4/local-queue": "^0.26.0",
-    "@ez4/queue": "^0.26.0",
-    "@ez4/project": "^0.26.0"
+    "@ez4/aws-queue": "^0.27.0",
+    "@ez4/common": "^0.27.0",
+    "@ez4/local-queue": "^0.27.0",
+    "@ez4/queue": "^0.27.0",
+    "@ez4/project": "^0.27.0"
   }
 }

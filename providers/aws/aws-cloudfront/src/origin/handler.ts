@@ -1,11 +1,11 @@
 import type { StepHandler } from '@ez4/stateful';
-import type { OriginState, OriginResult, OriginParameters } from './types.js';
+import type { OriginState, OriginResult, OriginParameters } from './types';
 
 import { ReplaceResourceError } from '@ez4/aws-common';
 import { deepCompare, deepEqual } from '@ez4/utils';
 
-import { createOriginPolicy, updateOriginPolicy, deleteOriginPolicy } from './client.js';
-import { OriginServiceName } from './types.js';
+import { createOriginPolicy, updateOriginPolicy, deleteOriginPolicy } from './client';
+import { OriginServiceName } from './types';
 
 export const getPolicyHandler = (): StepHandler<OriginState> => ({
   equals: equalsResource,

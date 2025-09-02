@@ -5,11 +5,11 @@ import { registerTriggers as registerSchedulerTriggers } from '@ez4/scheduler/li
 
 import { createTrigger } from '@ez4/project/library';
 
-import { registerGroupProvider } from '../group/provider.js';
-import { registerScheduleProvider } from '../schedule/provider.js';
-import { prepareLinkedServices, prepareCronServices, connectCronResources } from './service.js';
-import { prepareIdentityAccount } from './identity.js';
-import { prepareExecutionPolicy } from './policy.js';
+import { registerGroupProvider } from '../group/provider';
+import { registerScheduleProvider } from '../schedule/provider';
+import { prepareLinkedServices, prepareCronServices, connectCronResources } from './service';
+import { prepareIdentityAccount } from './identity';
+import { prepareExecutionPolicy } from './policy';
 
 let isRegistered = false;
 

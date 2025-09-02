@@ -1,9 +1,9 @@
 import type { EntryState, StepContext } from '@ez4/stateful';
-import type { CacheState } from './types.js';
+import type { CacheState } from './types';
 
 import { IncompleteResourceError } from '@ez4/aws-common';
 
-import { CacheServiceType } from './types.js';
+import { CacheServiceType } from './types';
 
 export const isCachePolicyState = (resource: EntryState): resource is CacheState => {
   return resource.type === CacheServiceType;

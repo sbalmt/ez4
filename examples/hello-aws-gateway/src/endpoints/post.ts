@@ -2,7 +2,7 @@ import type { Http } from '@ez4/gateway';
 
 import { randomUUID } from 'node:crypto';
 
-import { CustomError } from '../errors.js';
+import { CustomError } from '../errors';
 
 /**
  * Post request example.

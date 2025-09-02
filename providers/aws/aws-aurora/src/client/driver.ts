@@ -18,10 +18,13 @@ import { parseRecords } from '@ez4/pgclient';
 
 import { setTimeout } from 'node:timers/promises';
 
-import { logQueryError, logQuerySuccess } from './logger.js';
-import { detectFieldData, prepareFieldData } from './fields.js';
+import { detectFieldData, prepareFieldData } from './fields';
+import { logQueryError, logQuerySuccess } from './logger';
 
-const client = new RDSDataClient();
+const client = new RDSDataClient({
+  retryMode: 'adaptive',
+  maxAttempts: 10
+});
 
 export type DataClientConnection = {
   resourceArn: Arn;
@@ -63,7 +66,7 @@ export class DataClientDriver implements PgClientDriver {
         const metadata = statement.metadata;
 
         if (metadata) {
-          return parseRecords(records, metadata.schema, metadata.relations);
+          return parseRecords(records, metadata);
         }
 
         return records;

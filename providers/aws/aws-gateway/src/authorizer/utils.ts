@@ -1,10 +1,10 @@
 import type { Arn } from '@ez4/aws-common';
 import type { EntryState, StepContext } from '@ez4/stateful';
-import type { AuthorizerState } from './types.js';
+import type { AuthorizerState } from './types';
 
 import { getRegion } from '@ez4/aws-identity';
 
-import { AuthorizerServiceType } from './types.js';
+import { AuthorizerServiceType } from './types';
 
 export const isAuthorizerState = (resource: EntryState): resource is AuthorizerState => {
   return resource.type === AuthorizerServiceType;

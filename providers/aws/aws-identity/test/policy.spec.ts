@@ -7,7 +7,7 @@ import { createPolicy, isPolicyState, registerTriggers } from '@ez4/aws-identity
 import { deploy } from '@ez4/aws-common';
 import { deepClone } from '@ez4/utils';
 
-import { getPolicyDocument } from './common/policy.js';
+import { getPolicyDocument } from './common/policy';
 
 const assertDeploy = async <E extends EntryState>(resourceId: string, newState: EntryStates<E>, oldState: EntryStates<E> | undefined) => {
   const { result: state } = await deploy(newState, oldState);

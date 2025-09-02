@@ -1,6 +1,6 @@
 import type { Arn } from '@ez4/aws-common';
 import type { EntryState, StepContext } from '@ez4/stateful';
-import type { CreateRequest, ImportOrCreateResponse } from './client.js';
+import type { CreateRequest, ImportOrCreateResponse } from './client';
 
 export const MappingServiceName = 'AWS:Lambda/Mapping';
 

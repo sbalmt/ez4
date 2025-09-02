@@ -1,10 +1,10 @@
 import type { EntryState, EntryStates } from '@ez4/stateful';
-import type { TableParameters, TableState } from './types.js';
+import type { TableParameters, TableState } from './types';
 
 import { toKebabCase, hashData } from '@ez4/utils';
 import { attachEntry } from '@ez4/stateful';
 
-import { TableServiceType } from './types.js';
+import { TableServiceType } from './types';
 
 export const createTable = <E extends EntryState>(state: EntryStates<E>, parameters: TableParameters) => {
   const tableName = toKebabCase(parameters.tableName);

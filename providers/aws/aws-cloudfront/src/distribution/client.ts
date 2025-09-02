@@ -1,5 +1,5 @@
 import type { Arn, ResourceTags } from '@ez4/aws-common';
-import type { Headers } from '../types/headers.js';
+import type { Headers } from '../types/headers';
 
 import type {
   CacheBehavior,
@@ -35,7 +35,7 @@ import {
   NoSuchDistribution
 } from '@aws-sdk/client-cloudfront';
 
-import { DistributionServiceName } from './types.js';
+import { DistributionServiceName } from './types';
 
 const client = new CloudFrontClient({});
 

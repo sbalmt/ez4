@@ -7,9 +7,9 @@ import { createBucketPolicy, getBucketName } from '@ez4/aws-bucket';
 import { getServiceName } from '@ez4/project/library';
 import { linkDependency } from '@ez4/stateful';
 
-import { getDistributionArn, getDistributionState } from '../distribution/utils.js';
-import { DistributionServiceType } from '../distribution/types.js';
-import { getRoleDocument } from './role.js';
+import { getDistributionArn, getDistributionState } from '../distribution/utils';
+import { DistributionServiceType } from '../distribution/types';
+import { getRoleDocument } from './role';
 
 export const connectOriginBucket = (state: EntryStates, service: CdnService, bucketState: BucketState, options: DeployOptions) => {
   const distributionName = getServiceName(service, options);

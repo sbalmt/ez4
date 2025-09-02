@@ -1,7 +1,7 @@
 import type { String } from '@ez4/schema';
 import type { Service } from '@ez4/common';
 import type { Http } from '@ez4/gateway';
-import type { Api } from '../../api.js';
+import type { Api } from '../../api';
 
 import { HttpBadRequestError } from '@ez4/gateway';
 

@@ -1,10 +1,10 @@
 import type { String } from '@ez4/schema';
 import type { Service } from '@ez4/common';
 import type { Http } from '@ez4/gateway';
-import type { ItemType } from '../../schemas/item.js';
-import type { Api } from '../../api.js';
+import type { ItemType } from '../../schemas/item';
+import type { Api } from '../../api';
 
-import { createItem } from '../repository.js';
+import { createItem } from '../repository';
 
 declare class CreateItemRequest implements Http.Request {
   body: {

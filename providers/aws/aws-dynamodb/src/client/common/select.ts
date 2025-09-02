@@ -1,11 +1,11 @@
 import type { AnyObject } from '@ez4/utils';
 import type { Query } from '@ez4/database';
-import type { InternalTableMetadata } from '../types.js';
+import type { InternalTableMetadata } from '../types';
 
 import { isAnyObject } from '@ez4/utils';
 
-import { prepareWhereFields } from './where.js';
-import { prepareOrderFields } from './order.js';
+import { prepareWhereFields } from './where';
+import { prepareOrderFields } from './order';
 
 type PrepareResult = [string, unknown[]];
 

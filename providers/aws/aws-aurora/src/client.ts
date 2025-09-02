@@ -1,3 +1,3 @@
-export * from './client/service.js';
-export * from './client/types.js';
-export * from './client/fields.js';
+export * from './client/service';
+export * from './client/types';
+export * from './client/fields';

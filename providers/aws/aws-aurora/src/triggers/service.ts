@@ -3,12 +3,12 @@ import type { PrepareResourceEvent, ServiceEvent } from '@ez4/project/library';
 import { getDatabaseName, getTableRepository } from '@ez4/pgclient/library';
 import { PaginationMode } from '@ez4/database';
 
-import { createCluster } from '../cluster/service.js';
-import { createInstance } from '../instance/service.js';
-import { createMigration } from '../migration/service.js';
-import { getClusterName, getInstanceName, isAuroraService } from './utils.js';
-import { UnsupportedPaginationModeError } from './errors.js';
-import { prepareLinkedClient } from './client.js';
+import { createCluster } from '../cluster/service';
+import { createInstance } from '../instance/service';
+import { createMigration } from '../migration/service';
+import { getClusterName, getInstanceName, isAuroraService } from './utils';
+import { UnsupportedPaginationModeError } from './errors';
+import { prepareLinkedClient } from './client';
 
 export const prepareLinkedServices = (event: ServiceEvent) => {
   const { service, options, context } = event;

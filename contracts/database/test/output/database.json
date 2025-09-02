@@ -1,0 +1,54 @@
+{
+  "TestDatabase1": {
+    "type": "@ez4/database",
+    "name": "TestDatabase1",
+    "extras": {},
+    "engine": {
+      "parametersMode": "index",
+      "transactionMode": "interactive",
+      "insensitiveMode": "unsupported",
+      "paginationMode": "offset",
+      "orderMode": "any",
+      "lockMode": "unsupported",
+      "name": "test"
+    },
+    "tables": [],
+    "services": {
+      "testQueue": "TestDatabase2"
+    }
+  },
+  "TestDatabase2": {
+    "type": "@ez4/database",
+    "name": "TestDatabase2",
+    "extras": {},
+    "engine": {
+      "parametersMode": "index",
+      "transactionMode": "static",
+      "insensitiveMode": "unsupported",
+      "paginationMode": "cursor",
+      "orderMode": "any",
+      "lockMode": "unsupported",
+      "name": "test"
+    },
+    "tables": [],
+    "variables": {
+      "TEST_VAR1": "test-literal-value",
+      "TEST_VAR2": "test-env-var-value"
+    }
+  },
+  "TestDatabase3": {
+    "type": "@ez4/database",
+    "name": "TestDatabase3",
+    "extras": {},
+    "engine": {
+      "parametersMode": "index",
+      "transactionMode": "static",
+      "insensitiveMode": "unsupported",
+      "paginationMode": "offset",
+      "orderMode": "index",
+      "lockMode": "unsupported",
+      "name": "test"
+    },
+    "tables": []
+  }
+}

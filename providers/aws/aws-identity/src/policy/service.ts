@@ -1,10 +1,10 @@
 import type { EntryState, EntryStates } from '@ez4/stateful';
-import type { PolicyParameters, PolicyState } from './types.js';
+import type { PolicyParameters, PolicyState } from './types';
 
 import { toKebabCase, hashData } from '@ez4/utils';
 import { attachEntry } from '@ez4/stateful';
 
-import { PolicyServiceType } from './types.js';
+import { PolicyServiceType } from './types';
 
 export const createPolicy = <E extends EntryState>(state: EntryStates<E>, parameters: PolicyParameters) => {
   const policyName = toKebabCase(parameters.policyName);

@@ -1,11 +1,11 @@
 import type { StepHandler } from '@ez4/stateful';
-import type { CacheState, CacheResult, CacheParameters } from './types.js';
+import type { CacheState, CacheResult, CacheParameters } from './types';
 
 import { ReplaceResourceError } from '@ez4/aws-common';
 import { deepCompare, deepEqual } from '@ez4/utils';
 
-import { createCachePolicy, updateCachePolicy, deleteCachePolicy } from './client.js';
-import { CacheServiceName } from './types.js';
+import { createCachePolicy, updateCachePolicy, deleteCachePolicy } from './client';
+import { CacheServiceName } from './types';
 
 export const getPolicyHandler = (): StepHandler<CacheState> => ({
   equals: equalsResource,

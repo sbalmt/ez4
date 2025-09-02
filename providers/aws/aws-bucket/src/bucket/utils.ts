@@ -1,12 +1,12 @@
 import type { DeployOptions, EventContext } from '@ez4/project/library';
 import type { EntryState, StepContext } from '@ez4/stateful';
-import type { BucketState } from './types.js';
+import type { BucketState } from './types';
 
 import { IncompleteResourceError } from '@ez4/aws-common';
 import { hashData, toKebabCase } from '@ez4/utils';
 
-import { BucketNotFoundError } from './errors.js';
-import { BucketServiceType } from './types.js';
+import { BucketNotFoundError } from './errors';
+import { BucketServiceType } from './types';
 
 export const createBucketStateId = (bucketName: string) => {
   return hashData(BucketServiceType, toKebabCase(bucketName));

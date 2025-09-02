@@ -1,14 +1,14 @@
 import type { StepContext, StepHandler } from '@ez4/stateful';
-import type { IntegrationState, IntegrationResult, IntegrationParameters } from './types.js';
-import type { UpdateRequest } from './client.js';
+import type { IntegrationState, IntegrationResult, IntegrationParameters } from './types';
+import type { UpdateRequest } from './client';
 
 import { getFunctionArn } from '@ez4/aws-function';
 import { ReplaceResourceError } from '@ez4/aws-common';
 import { deepCompare, deepEqual } from '@ez4/utils';
 
-import { getGatewayId } from '../gateway/utils.js';
-import { createIntegration, deleteIntegration, updateIntegration } from './client.js';
-import { IntegrationServiceName } from './types.js';
+import { getGatewayId } from '../gateway/utils';
+import { createIntegration, deleteIntegration, updateIntegration } from './client';
+import { IntegrationServiceName } from './types';
 
 type IntegrationUpdateParameters = IntegrationParameters & UpdateRequest;
 

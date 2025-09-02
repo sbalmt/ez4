@@ -1,6 +1,6 @@
 import type { Http } from '@ez4/gateway';
-import type { apiListener } from './listener.js';
-import type { AllRoutes } from './routes.js';
+import type { apiListener } from './listener';
+import type { AllRoutes } from './routes';
 
 /**
  * Example of AWS API deployed with EZ4.

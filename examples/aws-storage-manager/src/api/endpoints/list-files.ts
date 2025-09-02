@@ -1,10 +1,10 @@
 import type { Integer } from '@ez4/schema';
 import type { Service } from '@ez4/common';
 import type { Http } from '@ez4/gateway';
-import type { FileStatus } from '../../schemas/file.js';
-import type { Api } from '../../api.js';
+import type { FileStatus } from '../../schemas/file';
+import type { Api } from '../../api';
 
-import { listFiles } from '../repository.js';
+import { listFiles } from '../repository';
 
 /**
  * List files request.

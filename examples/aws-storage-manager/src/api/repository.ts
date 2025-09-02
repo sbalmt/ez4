@@ -1,5 +1,5 @@
-import type { FileStatus } from '../schemas/file.js';
-import type { FileDb } from '../dynamo.js';
+import type { FileStatus } from '../schemas/file';
+import type { FileDb } from '../dynamo';
 
 import { randomUUID } from 'node:crypto';
 

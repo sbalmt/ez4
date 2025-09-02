@@ -1,9 +1,9 @@
 import type { EntryState, StepContext } from '@ez4/stateful';
-import type { OriginState } from './types.js';
+import type { OriginState } from './types';
 
 import { IncompleteResourceError } from '@ez4/aws-common';
 
-import { OriginServiceType } from './types.js';
+import { OriginServiceType } from './types';
 
 export const isOriginPolicyState = (resource: EntryState): resource is OriginState => {
   return resource.type === OriginServiceType;

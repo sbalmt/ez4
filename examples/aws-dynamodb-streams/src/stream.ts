@@ -1,7 +1,7 @@
 import type { Service } from '@ez4/common';
 import type { Database } from '@ez4/database';
-import type { ExampleSchema } from './schema.js';
-import type { Db } from './service.js';
+import type { ExampleSchema } from './schema';
+import type { Db } from './service';
 
 import { StreamType } from '@ez4/database';
 

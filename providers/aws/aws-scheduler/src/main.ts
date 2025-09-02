@@ -1,12 +1,12 @@
-export * from './triggers/register.js';
+export * from './triggers/register';
 
-export * from './group/service.js';
-export * from './group/types.js';
-export * from './group/utils.js';
+export * from './group/service';
+export * from './group/types';
+export * from './group/utils';
 
-export * from './schedule/service.js';
-export * from './schedule/types.js';
-export * from './schedule/utils.js';
+export * from './schedule/service';
+export * from './schedule/types';
+export * from './schedule/utils';
 
-export * from './schedule/function/service.js';
-export * from './schedule/function/types.js';
+export * from './schedule/function/service';
+export * from './schedule/function/types';

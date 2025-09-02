@@ -1,12 +1,12 @@
 import type { EntryState, EntryStates } from '@ez4/stateful';
 import type { RoleState } from '@ez4/aws-identity';
 import type { LogGroupState } from '@ez4/aws-logs';
-import type { FunctionParameters, FunctionState } from './types.js';
+import type { FunctionParameters, FunctionState } from './types';
 
 import { toKebabCase, hashData } from '@ez4/utils';
 import { attachEntry } from '@ez4/stateful';
 
-import { FunctionServiceType } from './types.js';
+import { FunctionServiceType } from './types';
 
 export const createFunction = <E extends EntryState>(
   state: EntryStates<E>,

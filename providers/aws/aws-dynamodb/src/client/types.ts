@@ -1,4 +1,4 @@
-import type { ParametersMode, TransactionMode, PaginationMode, OrderMode, InsensitiveMode, TableMetadata } from '@ez4/database';
+import type { ParametersMode, TransactionMode, PaginationMode, OrderMode, InsensitiveMode, TableMetadata, LockMode } from '@ez4/database';
 import type { ObjectSchema } from '@ez4/schema';
 import type { AnyObject } from '@ez4/utils';
 
@@ -19,6 +19,7 @@ export type DynamoDbEngine = {
   insensitiveMode: InsensitiveMode.Unsupported;
   paginationMode: PaginationMode.Cursor;
   orderMode: OrderMode.IndexColumns;
+  lockMode: LockMode.Unsupported;
   name: 'dynamodb';
 };
 

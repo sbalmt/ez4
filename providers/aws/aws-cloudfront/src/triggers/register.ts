@@ -6,12 +6,12 @@ import { registerTriggers as registerDistributionTriggers } from '@ez4/distribut
 
 import { createTrigger } from '@ez4/project/library';
 
-import { registerCachePolicyProvider } from '../cache/provider.js';
-import { registerOriginPolicyProvider } from '../origin/provider.js';
-import { registerOriginAccessProvider } from '../access/provider.js';
-import { registerDistributionProvider } from '../distribution/provider.js';
-import { registerInvalidationProvider } from '../invalidation/provider.js';
-import { prepareCdnServices, connectCdnServices } from './service.js';
+import { registerCachePolicyProvider } from '../cache/provider';
+import { registerOriginPolicyProvider } from '../origin/provider';
+import { registerOriginAccessProvider } from '../access/provider';
+import { registerDistributionProvider } from '../distribution/provider';
+import { registerInvalidationProvider } from '../invalidation/provider';
+import { prepareCdnServices, connectCdnServices } from './service';
 
 let isRegistered = false;
 

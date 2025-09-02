@@ -11,8 +11,8 @@ import {
 
 import { Logger } from '@ez4/aws-common';
 
-import { AuthorizerServiceName } from './types.js';
-import { getAuthorizerUri } from './utils.js';
+import { AuthorizerServiceName } from './types';
+import { getAuthorizerUri } from './utils';
 
 const client = new ApiGatewayV2Client({});
 

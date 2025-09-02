@@ -3,7 +3,7 @@ import type { EmulateServiceEvent } from '@ez4/project/library';
 import { isBucketService, registerTriggers as registerStorageTriggers } from '@ez4/storage/library';
 import { createTrigger } from '@ez4/project/library';
 
-import { registerBucketEmulator } from './emulator.js';
+import { registerBucketEmulator } from './emulator';
 
 let isRegistered = false;
 

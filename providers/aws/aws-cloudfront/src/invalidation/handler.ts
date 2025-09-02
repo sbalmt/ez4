@@ -1,12 +1,12 @@
 import type { StepContext, StepHandler } from '@ez4/stateful';
-import type { InvalidationState, InvalidationResult } from './types.js';
+import type { InvalidationState, InvalidationResult } from './types';
 
 import { ReplaceResourceError } from '@ez4/aws-common';
 import { deepCompare } from '@ez4/utils';
 
-import { getDistributionId } from '../distribution/utils.js';
-import { InvalidationServiceName } from './types.js';
-import { createInvalidation } from './client.js';
+import { getDistributionId } from '../distribution/utils';
+import { InvalidationServiceName } from './types';
+import { createInvalidation } from './client';
 
 export const getInvalidationHandler = (): StepHandler<InvalidationState> => ({
   equals: equalsResource,

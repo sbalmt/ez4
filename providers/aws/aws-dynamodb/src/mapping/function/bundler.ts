@@ -1,5 +1,5 @@
 import type { EntryState } from '@ez4/stateful';
-import type { StreamFunctionParameters } from './types.js';
+import type { StreamFunctionParameters } from './types';
 
 import { join } from 'node:path';
 

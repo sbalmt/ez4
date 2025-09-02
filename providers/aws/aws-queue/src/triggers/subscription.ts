@@ -1,18 +1,18 @@
 import type { DeployOptions, EventContext } from '@ez4/project/library';
 import type { QueueService, QueueImport } from '@ez4/queue/library';
 import type { EntryStates } from '@ez4/stateful';
-import type { QueueState } from '../queue/types.js';
+import type { QueueState } from '../queue/types';
 
 import { linkServiceExtras } from '@ez4/project/library';
 import { getFunctionState, tryGetFunctionState } from '@ez4/aws-function';
 import { isRoleState } from '@ez4/aws-identity';
 import { createLogGroup } from '@ez4/aws-logs';
 
-import { createMapping } from '../mapping/service.js';
-import { createQueueFunction } from '../mapping/function/service.js';
-import { getFunctionName, getInternalName, getMaxWaitForBatchSize } from './utils.js';
-import { RoleMissingError } from './errors.js';
-import { Defaults } from './defaults.js';
+import { createMapping } from '../mapping/service';
+import { createQueueFunction } from '../mapping/function/service';
+import { getFunctionName, getInternalName, getMaxWaitForBatchSize } from './utils';
+import { RoleMissingError } from './errors';
+import { Defaults } from './defaults';
 
 export const prepareSubscriptions = async (
   state: EntryStates,

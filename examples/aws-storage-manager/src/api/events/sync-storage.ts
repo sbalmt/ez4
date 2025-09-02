@@ -1,11 +1,11 @@
 import type { Service } from '@ez4/common';
 import type { Bucket } from '@ez4/storage';
-import type { FileStorage } from '../../storage.js';
+import type { FileStorage } from '../../storage';
 
 import { BucketEventType } from '@ez4/storage';
 
-import { FileStatus } from '../../schemas/file.js';
-import { deleteFile, updateFile } from '../repository.js';
+import { FileStatus } from '../../schemas/file';
+import { deleteFile, updateFile } from '../repository';
 
 /**
  * Handle storage changes.

@@ -1,6 +1,6 @@
 import type { DynamoDbEngine } from '@ez4/aws-dynamodb/client';
 import type { Database, Index } from '@ez4/database';
-import type { TableSchema } from './types.js';
+import type { TableSchema } from './types';
 
 /**
  * Example of AWS DynamoDB deployed with EZ4.

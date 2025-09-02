@@ -1,13 +1,13 @@
 import type { StepContext, StepHandler } from '@ez4/stateful';
-import type { MappingParameters, MappingResult, MappingState } from './types.js';
-import type { UpdateRequest } from './client.js';
+import type { MappingParameters, MappingResult, MappingState } from './types';
+import type { UpdateRequest } from './client';
 
 import { ReplaceResourceError } from '@ez4/aws-common';
 import { deepCompare, deepEqual } from '@ez4/utils';
 
-import { getFunctionName } from '../function/utils.js';
-import { importMapping, createMapping, deleteMapping, updateMapping } from './client.js';
-import { MappingServiceName } from './types.js';
+import { getFunctionName } from '../function/utils';
+import { importMapping, createMapping, deleteMapping, updateMapping } from './client';
+import { MappingServiceName } from './types';
 
 type MappingUpdateParameters = MappingParameters & UpdateRequest;
 

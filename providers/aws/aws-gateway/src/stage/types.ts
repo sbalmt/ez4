@@ -1,5 +1,5 @@
 import type { EntryState } from '@ez4/stateful';
-import type { CreateRequest, ImportOrCreateResponse } from './client.js';
+import type { CreateRequest, ImportOrCreateResponse } from './client';
 
 export const StageServiceName = 'AWS:API/Stage';
 

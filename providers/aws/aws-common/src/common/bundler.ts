@@ -6,8 +6,8 @@ import { readFile, stat } from 'node:fs/promises';
 import { createHash } from 'node:crypto';
 import { existsSync } from 'node:fs';
 
-import { SourceFileError } from '../errors/bundler.js';
-import { Logger } from './logger.js';
+import { SourceFileError } from '../errors/bundler';
+import { Logger } from './logger';
 
 const fileCache = new Map<string, string>();
 const hashCache = new Map<string, string>();

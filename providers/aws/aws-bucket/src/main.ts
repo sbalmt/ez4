@@ -1,19 +1,19 @@
-export * from './triggers/register.js';
+export * from './triggers/register';
 
-export * from './utils/domain.js';
-export * from './utils/policy.js';
+export * from './utils/domain';
+export * from './utils/policy';
 
-export * from './bucket/service.js';
-export * from './bucket/types.js';
-export * from './bucket/utils.js';
+export * from './bucket/service';
+export * from './bucket/types';
+export * from './bucket/utils';
 
-export * from './bucket/function/service.js';
-export * from './bucket/function/types.js';
+export * from './bucket/function/service';
+export * from './bucket/function/types';
 
-export * from './policy/service.js';
-export * from './policy/types.js';
-export * from './policy/utils.js';
+export * from './policy/service';
+export * from './policy/types';
+export * from './policy/utils';
 
-export * from './object/service.js';
-export * from './object/types.js';
-export * from './object/utils.js';
+export * from './object/service';
+export * from './object/types';
+export * from './object/utils';

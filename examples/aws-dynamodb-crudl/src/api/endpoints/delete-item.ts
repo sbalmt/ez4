@@ -1,12 +1,12 @@
 import type { String } from '@ez4/schema';
 import type { Service } from '@ez4/common';
 import type { Http } from '@ez4/gateway';
-import type { ItemType } from '../../schemas/item.js';
-import type { Api } from '../../api.js';
+import type { ItemType } from '../../schemas/item';
+import type { Api } from '../../api';
 
 import { HttpNotFoundError } from '@ez4/gateway';
 
-import { deleteItem } from '../repository.js';
+import { deleteItem } from '../repository';
 
 declare class DeleteItemRequest implements Http.Request {
   parameters: {

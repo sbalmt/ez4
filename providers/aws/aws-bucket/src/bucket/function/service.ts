@@ -1,11 +1,11 @@
 import type { EntryState, EntryStates } from '@ez4/stateful';
 import type { LogGroupState } from '@ez4/aws-logs';
 import type { RoleState } from '@ez4/aws-identity';
-import type { BucketEventFunctionParameters } from './types.js';
+import type { BucketEventFunctionParameters } from './types';
 
 import { createFunction } from '@ez4/aws-function';
 
-import { bundleBucketEventFunction } from './bundler.js';
+import { bundleBucketEventFunction } from './bundler';
 
 export const createBucketEventFunction = <E extends EntryState>(
   state: EntryStates<E>,

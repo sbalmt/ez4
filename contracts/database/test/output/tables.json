@@ -1,0 +1,50 @@
+{
+  "TestDatabase": {
+    "type": "@ez4/database",
+    "name": "TestDatabase",
+    "extras": {},
+    "engine": {
+      "parametersMode": "index",
+      "transactionMode": "static",
+      "insensitiveMode": "unsupported",
+      "paginationMode": "offset",
+      "orderMode": "any",
+      "lockMode": "unsupported",
+      "name": "test"
+    },
+    "tables": [
+      {
+        "name": "inlineTestTable",
+        "schema": {
+          "type": "object",
+          "identity": 1,
+          "properties": {
+            "id": {
+              "type": "string"
+            },
+            "foo": {
+              "type": "string"
+            }
+          }
+        },
+        "indexes": []
+      },
+      {
+        "name": "testTable",
+        "schema": {
+          "type": "object",
+          "identity": 1,
+          "properties": {
+            "id": {
+              "type": "string"
+            },
+            "bar": {
+              "type": "string"
+            }
+          }
+        },
+        "indexes": []
+      }
+    ]
+  }
+}

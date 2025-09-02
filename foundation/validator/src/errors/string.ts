@@ -1,0 +1,25 @@
+import { UnexpectedTypeError, UnexpectedValueError } from './common';
+
+export class ExpectedStringTypeError extends UnexpectedTypeError {
+  constructor(propertyName?: string) {
+    super('string', propertyName);
+  }
+}
+
+export class UnexpectedMinLengthError extends UnexpectedValueError {
+  constructor(minValue: number, propertyName?: string) {
+    super([`with min length ${minValue}`], propertyName);
+  }
+}
+
+export class UnexpectedMaxLengthError extends UnexpectedValueError {
+  constructor(maxValue: number, propertyName?: string) {
+    super([`with max length ${maxValue}`], propertyName);
+  }
+}
+
+export class UnexpectedStringError extends UnexpectedValueError {
+  constructor(value: string, propertyName?: string) {
+    super([`'${value}'`], propertyName);
+  }
+}

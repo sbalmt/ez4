@@ -1,10 +1,10 @@
 import type { Service } from '@ez4/common';
 import type { Http } from '@ez4/gateway';
-import type { Api } from '../../api.js';
-import type { ContentTypes } from '../types.js';
+import type { Api } from '../../api';
+import type { ContentTypes } from '../types';
 
-import { FileStatus } from '../../schemas/file.js';
-import { createFile } from '../repository.js';
+import { FileStatus } from '../../schemas/file';
+import { createFile } from '../repository';
 
 /**
  * Start upload request.

@@ -19,7 +19,7 @@ export const createImportedClient = <T extends Queue.Service<any>>(
 
   return new (class {
     async sendMessage(message: T['schema'], options?: SendOptions<T>) {
-      Logger.debug(`✉️  Sending message to Queue [${serviceName}] at ${queueHost}`);
+      Logger.debug(`✉️  Sending message to queue [${serviceName}] at ${queueHost}`);
 
       const payload = await getJsonStringMessage(message, messageSchema);
       const delay = options?.delay ?? clientOptions.delay;

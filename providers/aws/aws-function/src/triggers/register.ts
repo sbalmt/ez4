@@ -3,11 +3,11 @@ import { registerTriggers as registerAwsIdentityTriggers } from '@ez4/aws-identi
 import { registerTriggers as registerAwsLogsTriggers } from '@ez4/aws-logs';
 import { createTrigger } from '@ez4/project/library';
 
-import { registerFunctionProvider } from '../function/provider.js';
-import { registerPermissionProvider } from '../permission/provider.js';
-import { registerMappingProvider } from '../mapping/provider.js';
-import { prepareIdentityAccount } from './identity.js';
-import { prepareExecutionPolicy } from './policy.js';
+import { registerFunctionProvider } from '../function/provider';
+import { registerPermissionProvider } from '../permission/provider';
+import { registerMappingProvider } from '../mapping/provider';
+import { prepareIdentityAccount } from './identity';
+import { prepareExecutionPolicy } from './policy';
 
 let isRegistered = false;
 

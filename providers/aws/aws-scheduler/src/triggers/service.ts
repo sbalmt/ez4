@@ -6,11 +6,11 @@ import { isCronService, isDynamicCronService } from '@ez4/scheduler/library';
 import { getServiceName } from '@ez4/project/library';
 import { isRoleState } from '@ez4/aws-identity';
 
-import { createGroup } from '../group/service.js';
-import { createSchedule } from '../schedule/service.js';
-import { connectTarget, prepareTarget } from './target.js';
-import { prepareLinkedClient } from './client.js';
-import { RoleMissingError } from './errors.js';
+import { createGroup } from '../group/service';
+import { createSchedule } from '../schedule/service';
+import { connectTarget, prepareTarget } from './target';
+import { prepareLinkedClient } from './client';
+import { RoleMissingError } from './errors';
 
 export const prepareLinkedServices = (event: ServiceEvent) => {
   const { service, options, context } = event;

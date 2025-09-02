@@ -3,7 +3,7 @@ import type { EmulateServiceEvent } from '@ez4/project/library';
 import { isQueueImport, isQueueService, registerTriggers as registerQueueTriggers } from '@ez4/queue/library';
 import { createTrigger } from '@ez4/project/library';
 
-import { registerQueueServices } from './emulator.js';
+import { registerQueueServices } from './emulator';
 
 let isRegistered = false;
 

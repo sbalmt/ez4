@@ -1,7 +1,7 @@
 import { registerProvider } from '@ez4/aws-common';
 
-import { getInstanceHandler } from './handler.js';
-import { InstanceServiceType } from './types.js';
+import { getInstanceHandler } from './handler';
+import { InstanceServiceType } from './types';
 
 export const registerInstanceProvider = () => {
   registerProvider(InstanceServiceType, getInstanceHandler());

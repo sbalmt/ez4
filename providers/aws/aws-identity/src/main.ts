@@ -1,16 +1,16 @@
-export * from './triggers/register.js';
+export * from './triggers/register';
 
-export * from './types/role.js';
-export * from './types/policy.js';
+export * from './types/role';
+export * from './types/policy';
 
-export * from './role/service.js';
-export * from './role/types.js';
-export * from './role/utils.js';
+export * from './role/service';
+export * from './role/types';
+export * from './role/utils';
 
-export * from './policy/service.js';
-export * from './policy/types.js';
-export * from './policy/utils.js';
+export * from './policy/service';
+export * from './policy/types';
+export * from './policy/utils';
 
-export * from './utils/account.js';
-export * from './utils/policy.js';
-export * from './utils/role.js';
+export * from './utils/account';
+export * from './utils/policy';
+export * from './utils/role';

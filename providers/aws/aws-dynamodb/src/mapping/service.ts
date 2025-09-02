@@ -1,11 +1,11 @@
 import type { EntryState, EntryStates, StepContext } from '@ez4/stateful';
 import type { FunctionState } from '@ez4/aws-function';
-import type { MappingParameters } from './types.js';
-import type { TableState } from '../table/types.js';
+import type { MappingParameters } from './types';
+import type { TableState } from '../table/types';
 
 import { createMapping as baseCreateMapping, MappingServiceName } from '@ez4/aws-function';
 
-import { getTableStreamArn } from '../table/utils.js';
+import { getTableStreamArn } from '../table/utils';
 
 export const createMapping = <E extends EntryState>(
   state: EntryStates<E>,

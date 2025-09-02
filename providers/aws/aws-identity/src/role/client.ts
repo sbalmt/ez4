@@ -1,5 +1,5 @@
 import type { Arn, ResourceTags } from '@ez4/aws-common';
-import type { RoleDocument } from '../types/role.js';
+import type { RoleDocument } from '../types/role';
 
 import {
   IAMClient,
@@ -16,7 +16,7 @@ import {
 } from '@aws-sdk/client-iam';
 
 import { Logger, getTagList, tryParseArn } from '@ez4/aws-common';
-import { RoleServiceName } from './types.js';
+import { RoleServiceName } from './types';
 
 const client = new IAMClient({});
 

@@ -11,7 +11,7 @@ import {
 } from '@aws-sdk/client-scheduler';
 
 import { getTagList, Logger, tryParseArn } from '@ez4/aws-common';
-import { GroupServiceName } from './types.js';
+import { GroupServiceName } from './types';
 
 const client = new SchedulerClient({});
 

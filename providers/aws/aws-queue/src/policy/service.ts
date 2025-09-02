@@ -1,12 +1,12 @@
 import type { EntryState, EntryStates } from '@ez4/stateful';
-import type { QueueState } from '../queue/types.js';
-import type { QueuePolicyParameters, QueuePolicyState } from './types.js';
+import type { QueueState } from '../queue/types';
+import type { QueuePolicyParameters, QueuePolicyState } from './types';
 
 import { attachEntry } from '@ez4/stateful';
 import { hashData } from '@ez4/utils';
 
-import { QueuePolicyServiceType } from './types.js';
-import { isQueuePolicyState } from './utils.js';
+import { QueuePolicyServiceType } from './types';
+import { isQueuePolicyState } from './utils';
 
 export const createQueuePolicy = <E extends EntryState>(
   state: EntryStates<E>,

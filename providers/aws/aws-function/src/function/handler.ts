@@ -1,6 +1,6 @@
 import type { StepContext, StepHandler } from '@ez4/stateful';
 import type { Arn } from '@ez4/aws-common';
-import type { FunctionState, FunctionResult, FunctionParameters } from './types.js';
+import type { FunctionState, FunctionResult, FunctionParameters } from './types';
 
 import { applyTagUpdates, getBundleHash, ReplaceResourceError } from '@ez4/aws-common';
 import { deepCompare, deepEqual } from '@ez4/utils';
@@ -15,10 +15,10 @@ import {
   updateSourceCode,
   tagFunction,
   untagFunction
-} from './client.js';
+} from './client';
 
-import { protectVariables } from './helpers/variables.js';
-import { FunctionServiceName } from './types.js';
+import { protectVariables } from './helpers/variables';
+import { FunctionServiceName } from './types';
 
 export const getFunctionHandler = (): StepHandler<FunctionState> => ({
   equals: equalsResource,

@@ -1,5 +1,5 @@
-export * from './triggers/register.js';
+export * from './triggers/register';
 
-export * from './certificate/service.js';
-export * from './certificate/types.js';
-export * from './certificate/utils.js';
+export * from './certificate/service';
+export * from './certificate/types';
+export * from './certificate/utils';

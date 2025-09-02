@@ -5,13 +5,13 @@ import { registerTriggers as registerGatewayTriggers } from '@ez4/gateway/librar
 
 import { createTrigger } from '@ez4/project/library';
 
-import { registerGatewayProvider } from '../gateway/provider.js';
-import { registerAuthorizerProvider } from '../authorizer/provider.js';
-import { registerIntegrationProvider } from '../integration/provider.js';
-import { registerRouteProvider } from '../route/provider.js';
-import { registerStageProvider } from '../stage/provider.js';
+import { registerGatewayProvider } from '../gateway/provider';
+import { registerAuthorizerProvider } from '../authorizer/provider';
+import { registerIntegrationProvider } from '../integration/provider';
+import { registerRouteProvider } from '../route/provider';
+import { registerStageProvider } from '../stage/provider';
 
-import { connectHttpServices, prepareHttpServices } from './service.js';
+import { connectHttpServices, prepareHttpServices } from './service';
 
 let isRegistered = false;
 

@@ -1,7 +1,7 @@
 import type { StepContext, StepHandler } from '@ez4/stateful';
 import type { Arn } from '@ez4/aws-common';
-import type { AttributeSchema, AttributeSchemaGroup } from '../types/schema.js';
-import type { TableState, TableResult, TableParameters } from './types.js';
+import type { AttributeSchema, AttributeSchemaGroup } from '../types/schema';
+import type { TableState, TableResult, TableParameters } from './types';
 
 import { applyTagUpdates, ReplaceResourceError } from '@ez4/aws-common';
 import { deepEqual, deepCompare } from '@ez4/utils';
@@ -18,10 +18,10 @@ import {
   deleteIndex,
   tagTable,
   untagTable
-} from './client.js';
+} from './client';
 
-import { getSecondaryIndexName } from './helpers/indexes.js';
-import { TableServiceName } from './types.js';
+import { getSecondaryIndexName } from './helpers/indexes';
+import { TableServiceName } from './types';
 
 export const getTableHandler = (): StepHandler<TableState> => ({
   equals: equalsResource,

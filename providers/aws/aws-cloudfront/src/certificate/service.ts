@@ -1,5 +1,5 @@
 import type { EntryState, EntryStates } from '@ez4/stateful';
-import type { CertificateParameters } from './types.js';
+import type { CertificateParameters } from './types';
 
 import { createCertificate as baseCreateCertificate } from '@ez4/aws-certificate';
 

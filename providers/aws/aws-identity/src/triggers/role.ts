@@ -1,15 +1,15 @@
 import type { RoleResourceEvent } from '@ez4/project/library';
 import type { EntryState } from '@ez4/stateful';
-import type { PolicyState } from '../policy/types.js';
+import type { PolicyState } from '../policy/types';
 
 import { getServiceName } from '@ez4/project/library';
 
-import { createRole } from '../role/service.js';
-import { createPolicy } from '../policy/service.js';
-import { isPolicyState } from '../policy/utils.js';
-import { createPolicyDocument } from '../utils/policy.js';
-import { createRoleDocument, createRoleStatement } from '../utils/role.js';
-import { getAccountId } from '../utils/account.js';
+import { createRole } from '../role/service';
+import { createPolicy } from '../policy/service';
+import { isPolicyState } from '../policy/utils';
+import { createPolicyDocument } from '../utils/policy';
+import { createRoleDocument, createRoleStatement } from '../utils/role';
+import { getAccountId } from '../utils/account';
 
 export const prepareExecutionRole = async (event: RoleResourceEvent) => {
   const { state, grants, accounts, policies, options } = event;

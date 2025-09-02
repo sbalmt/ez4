@@ -4,10 +4,10 @@ import type { CronService } from '@ez4/scheduler/library';
 import { isDynamicCronService } from '@ez4/scheduler/library';
 import { getServiceName, Logger } from '@ez4/project/library';
 
-import { processTimerEvent } from '../handlers/timer.js';
-import { processSchedulerEvent } from '../handlers/scheduler.js';
-import { InMemoryScheduler } from '../service/scheduler.js';
-import { createServiceClient } from '../client/service.js';
+import { processTimerEvent } from '../handlers/timer';
+import { processSchedulerEvent } from '../handlers/scheduler';
+import { InMemoryScheduler } from '../service/scheduler';
+import { createServiceClient } from '../client/service';
 
 export const registerCronEmulator = (service: CronService, options: ServeOptions, context: EmulateServiceContext) => {
   const serviceName = service.name;

@@ -1,14 +1,14 @@
-export * from './triggers/register.js';
+export * from './triggers/register';
 
-export * from './types/variables.js';
+export * from './types/variables';
 
-export * from './function/service.js';
-export * from './function/types.js';
-export * from './function/utils.js';
+export * from './function/service';
+export * from './function/types';
+export * from './function/utils';
 
-export * from './permission/service.js';
-export * from './permission/types.js';
+export * from './permission/service';
+export * from './permission/types';
 
-export * from './mapping/service.js';
-export * from './mapping/types.js';
-export * from './mapping/utils.js';
+export * from './mapping/service';
+export * from './mapping/types';
+export * from './mapping/utils';

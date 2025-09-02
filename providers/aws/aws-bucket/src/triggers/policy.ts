@@ -4,7 +4,7 @@ import { ServiceType } from '@ez4/storage/library';
 import { createPolicy, tryGetPolicy } from '@ez4/aws-identity';
 import { getServiceName } from '@ez4/project/library';
 
-import { getPolicyDocument } from '../utils/policy.js';
+import { getPolicyDocument } from '../utils/policy';
 
 export const prepareExecutionPolicy = (event: PolicyResourceEvent) => {
   const { state, serviceType, options } = event;
