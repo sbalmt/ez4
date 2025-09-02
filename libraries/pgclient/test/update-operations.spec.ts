@@ -49,7 +49,7 @@ describe('update operations', () => {
   ) => {
     const builder = new SqlBuilder();
 
-    const allQueries = await prepareUpdateQuery('ez4-test-update-operation', testSchema, {}, { data }, builder);
+    const allQueries = await prepareUpdateQuery(builder, 'ez4-test-update-operation', testSchema, {}, { data });
 
     return builder.with(allQueries).build();
   };

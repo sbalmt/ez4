@@ -62,6 +62,7 @@ describe('where', () => {
     const builder = new SqlBuilder();
 
     const query = prepareSelectQuery(
+      builder,
       'ez4-test-where-operation',
       testSchema,
       {},
@@ -70,8 +71,7 @@ describe('where', () => {
           id: true
         },
         where
-      },
-      builder
+      }
     );
 
     const [statement, variables] = query.build();

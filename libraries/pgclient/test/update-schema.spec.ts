@@ -23,7 +23,7 @@ describe('update schema', () => {
   ) => {
     const builder = new SqlBuilder();
 
-    const allQueries = await prepareUpdateQuery('ez4-test-update-schema', schema, {}, query, builder);
+    const allQueries = await prepareUpdateQuery(builder, 'ez4-test-update-schema', schema, {}, query);
 
     return builder.with(allQueries).build();
   };

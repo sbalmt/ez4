@@ -46,7 +46,7 @@ describe('insert primary relations', () => {
   ) => {
     const builder = new SqlBuilder();
 
-    const allQueries = await prepareInsertQuery(testTableName, schema, relations, query, builder);
+    const allQueries = await prepareInsertQuery(builder, testTableName, schema, relations, query);
 
     return builder.with(allQueries).build();
   };

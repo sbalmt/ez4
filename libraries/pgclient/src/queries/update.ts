@@ -7,8 +7,8 @@ import type { InternalTableMetadata } from '../types/table';
 
 import { getObjectSchemaProperty, isNumberSchema, isObjectSchema } from '@ez4/schema';
 import { InvalidAtomicOperation, InvalidFieldSchemaError, InvalidRelationFieldError } from '@ez4/pgclient';
+import { mergeSqlAlias, SqlSelectStatement } from '@ez4/pgsql';
 import { isAnyObject, isEmptyObject } from '@ez4/utils';
-import { SqlSelectStatement } from '@ez4/pgsql';
 import { Index } from '@ez4/database';
 
 import { getWithSchemaValidation, isDynamicFieldSchema, validateFirstSchemaLevel } from '../utils/schema';
@@ -16,11 +16,11 @@ import { getSourceConnectionSchema, getTargetConnectionSchema, getUpdatingSchema
 import { getSelectFields, getSelectFilters } from './select';
 
 export const prepareUpdateQuery = async <T extends InternalTableMetadata, S extends Query.SelectInput<T>>(
+  builder: SqlBuilder,
   table: string,
   schema: ObjectSchema,
   relations: PgRelationRepositoryWithSchema,
-  query: Query.UpdateOneInput<S, T> | Query.UpdateManyInput<S, T>,
-  builder: SqlBuilder
+  query: Query.UpdateOneInput<S, T> | Query.UpdateManyInput<S, T>
 ) => {
   const updateRecord = await getUpdateRecord(builder, query.data, schema, relations, table);
 
@@ -28,30 +28,43 @@ export const prepareUpdateQuery = async <T extends InternalTableMetadata, S exte
     ? builder.update(schema).only(table).record(updateRecord).returning()
     : builder.select(schema).from(table);
 
+  const allQueries: (SqlSelectStatement | SqlUpdateStatement)[] = [];
+
+  if (query.select) {
+    if (updateQuery instanceof SqlSelectStatement) {
+      const selectFields = getSelectFields(builder, query.select, query.include, schema, relations, updateQuery, table);
+
+      updateQuery.record(selectFields).lock(query.lock);
+    } else {
+      const selectQuery = builder.select(schema).from(table).lock(query.lock);
+      const selectFields = getSelectFields(builder, query.select, query.include, schema, relations, selectQuery, table);
+
+      if (query.where) {
+        const selectFilter = getSelectFilters(builder, query.where, relations, selectQuery, table);
+
+        selectQuery.where(selectFilter);
+      }
+
+      updateQuery.from(selectQuery.reference());
+      selectQuery.record(selectFields);
+
+      allQueries.push(selectQuery);
+    }
+  }
+
   const postUpdateQueries = await preparePostUpdateRelations(builder, query.data, relations, updateQuery, table);
 
-  const allQueries: (SqlSelectStatement | SqlUpdateStatement)[] = [updateQuery, ...postUpdateQueries];
+  allQueries.push(updateQuery, ...postUpdateQueries);
 
   if (query.where) {
     updateQuery.where(getSelectFilters(builder, query.where, relations, updateQuery, table));
   }
 
   if (query.select) {
-    if (!postUpdateQueries.length) {
-      const selectRecord = getSelectFields(builder, query.select, query.include, schema, relations, updateQuery, table);
+    const lastQuery = allQueries[allQueries.length - 1];
+    const firstQuery = allQueries[0];
 
-      updateQuery.results.record(selectRecord);
-    } else {
-      const selectFields = getSelectFields(builder, query.select, query.include, schema, relations, updateQuery, table);
-      const selectQuery = builder.select(schema).from(table);
-
-      selectQuery.record(selectFields);
-      allQueries.push(selectQuery);
-    }
-  }
-
-  if (postUpdateQueries.length && updateQuery instanceof SqlSelectStatement && query.lock !== false) {
-    updateQuery.lock();
+    lastQuery.results?.rawColumn(() => mergeSqlAlias('*', firstQuery?.alias));
   }
 
   return allQueries;

@@ -74,6 +74,10 @@ export class SqlInsertStatement extends SqlSource {
     return this.#state.schema;
   }
 
+  get selecting() {
+    return !!this.#state.sources;
+  }
+
   get building() {
     return this.#state.building;
   }

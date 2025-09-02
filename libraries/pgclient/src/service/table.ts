@@ -6,6 +6,9 @@ import type { PgRelationRepositoryWithSchema } from '../types/repository';
 import type { PgClientDriver, PgExecuteStatement } from '../types/driver';
 import type { InternalTableMetadata } from '../types/table';
 
+import { MissingUniqueIndexError } from '../queries/errors';
+import { tryExtractConflictIndex } from '../utils/indexes';
+
 import {
   prepareInsertOne,
   prepareInsertMany,
@@ -13,7 +16,6 @@ import {
   prepareFindMany,
   prepareUpdateOne,
   prepareUpdateMany,
-  prepareUpsertOne,
   prepareDeleteMany,
   prepareDeleteOne,
   prepareCount
@@ -105,11 +107,37 @@ export class Table<T extends InternalTableMetadata> implements DbTable<T> {
   }
 
   async upsertOne<S extends Query.SelectInput<T>>(query: Query.UpsertOneInput<S, T>) {
-    const statement = await prepareUpsertOne(this.name, this.schema, this.relations, this.indexes, this.context.driver, query);
+    const conflictIndex = tryExtractConflictIndex(this.indexes, query.where);
 
-    const results = await this.sendStatement(statement);
+    if (!conflictIndex?.columns) {
+      throw new MissingUniqueIndexError();
+    }
 
-    return results?.[0] as Query.UpsertOneResult<S, T>;
+    const insertStatement = await prepareInsertOne(this.name, this.schema, this.relations, this.context.driver, {
+      conflict: conflictIndex.columns,
+      select: query.select,
+      data: query.insert
+    });
+
+    const insertResults = await this.sendStatement(insertStatement);
+
+    if (insertResults?.[0]?.__EZ4_NEW) {
+      delete insertResults[0].__EZ4_NEW;
+
+      return insertResults[0] as Query.UpsertOneResult<S, T>;
+    }
+
+    const updateStatement = await prepareUpdateOne(this.name, this.schema, this.relations, this.context.driver, {
+      select: query.select,
+      include: query.include,
+      data: query.update,
+      where: query.where,
+      lock: query.lock
+    });
+
+    const updateResults = await this.sendStatement(updateStatement);
+
+    return updateResults?.[0] as Query.UpsertOneResult<S, T>;
   }
 
   async insertMany(query: Query.InsertManyInput<T>) {

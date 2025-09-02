@@ -18,11 +18,11 @@ const FORMATS: Record<string, string> = {
 };
 
 export const prepareSelectQuery = <T extends InternalTableMetadata, S extends Query.SelectInput<T>, C extends boolean>(
+  builder: SqlBuilder,
   table: string,
   schema: ObjectSchema,
   relations: PgRelationRepositoryWithSchema,
-  query: Query.FindOneInput<S, T> | Query.FindManyInput<S, C, T>,
-  builder: SqlBuilder
+  query: Query.FindOneInput<S, T> | Query.FindManyInput<S, C, T>
 ) => {
   const selectQuery = builder.select(schema).from(table);
   const selectRecord = getSelectFields(builder, query.select, query.include, schema, relations, selectQuery, table);

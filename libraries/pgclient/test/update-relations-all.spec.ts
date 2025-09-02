@@ -89,7 +89,7 @@ describe('update relations', () => {
     const relations = getRelationsWithSchema(testTableName, repository);
     const table = repository[testTableName];
 
-    const allQueries = await prepareUpdateQuery(testTableName, table.schema, relations, query, builder);
+    const allQueries = await prepareUpdateQuery(builder, testTableName, table.schema, relations, query);
 
     return builder.with(allQueries).build();
   };

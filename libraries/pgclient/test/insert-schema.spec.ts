@@ -23,7 +23,7 @@ describe('insert schema', () => {
   ) => {
     const builder = new SqlBuilder();
 
-    const allQueries = await prepareInsertQuery('ez4-test-insert-schema', schema, {}, query, builder);
+    const allQueries = await prepareInsertQuery(builder, 'ez4-test-insert-schema', schema, {}, query);
 
     return builder.with(allQueries).build();
   };

@@ -81,7 +81,7 @@ describe('insert relations', () => {
     const relations = getRelationsWithSchema(testTableName, repository);
     const table = repository[testTableName];
 
-    const allQueries = await prepareInsertQuery(testTableName, table.schema, relations, query, builder);
+    const allQueries = await prepareInsertQuery(builder, testTableName, table.schema, relations, query);
 
     return builder.with(allQueries).build();
   };

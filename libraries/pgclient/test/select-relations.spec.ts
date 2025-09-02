@@ -107,7 +107,7 @@ describe('select relations', () => {
     const relations = getRelationsWithSchema(testTableName, repository);
     const table = repository[testTableName];
 
-    const selectQuery = prepareSelectQuery(testTableName, table.schema, relations, query, builder);
+    const selectQuery = prepareSelectQuery(builder, testTableName, table.schema, relations, query);
 
     return selectQuery.build();
   };

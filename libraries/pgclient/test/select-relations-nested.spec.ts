@@ -170,7 +170,7 @@ describe('select nested relations', () => {
 
     const relations = getRelationsWithSchema(name, repository);
 
-    const selectQuery = prepareSelectQuery(name, table.schema, relations, query, builder);
+    const selectQuery = prepareSelectQuery(builder, name, table.schema, relations, query);
 
     return selectQuery.build();
   };
@@ -183,7 +183,7 @@ describe('select nested relations', () => {
 
     const relations = getRelationsWithSchema(name, repository);
 
-    const selectQuery = prepareSelectQuery(name, table.schema, relations, query, builder);
+    const selectQuery = prepareSelectQuery(builder, name, table.schema, relations, query);
 
     return selectQuery.build();
   };

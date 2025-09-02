@@ -7,11 +7,11 @@ import type { InternalTableMetadata } from '../types/table';
 import { getSelectFilters } from './select';
 
 export const prepareCountQuery = <T extends InternalTableMetadata>(
+  builder: SqlBuilder,
   table: string,
   schema: ObjectSchema,
   relations: PgRelationRepositoryWithSchema,
-  query: Query.CountInput<T>,
-  builder: SqlBuilder
+  query: Query.CountInput<T>
 ) => {
   const countQuery = builder.select(schema).from(table);
 

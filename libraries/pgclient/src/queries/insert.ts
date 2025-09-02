@@ -29,12 +29,16 @@ type InsertRelationEntry = PgRelationWithSchema & {
   relationQueries: SqlInsertStatement[];
 };
 
+export type InsertQueryInput<S extends Query.SelectInput<T>, T extends InternalTableMetadata> = Query.InsertOneInput<S, T> & {
+  conflict?: string[];
+};
+
 export const prepareInsertQuery = async <T extends InternalTableMetadata, S extends Query.SelectInput<T>>(
+  builder: SqlBuilder,
   table: string,
   schema: ObjectSchema,
   relations: PgRelationRepositoryWithSchema,
-  query: Query.InsertOneInput<S, T>,
-  builder: SqlBuilder
+  query: InsertQueryInput<S, T>
 ) => {
   const preQueriesMap = preparePreInsertRelations(builder, query.data, relations, table);
 
@@ -44,6 +48,10 @@ export const prepareInsertQuery = async <T extends InternalTableMetadata, S exte
 
   const insertRecord = await getInsertRecord(query.data, schema, relations, preQueriesMap, table);
   const insertQuery = builder.insert(schema).record(insertRecord).into(table).returning();
+
+  if (query.conflict) {
+    insertQuery.conflict(query.conflict).returning().results.rawColumn('(xmax = 0) AS "__EZ4_NEW"');
+  }
 
   if (preQueries.length) {
     insertQuery.select(...preQueries.map((query) => query.reference()));
@@ -65,6 +73,10 @@ export const prepareInsertQuery = async <T extends InternalTableMetadata, S exte
 
     selectQuery.record(selectRecord);
     allQueries.push(selectQuery);
+
+    if (query.conflict) {
+      selectQuery.column('__EZ4_NEW');
+    }
   }
 
   return allQueries;

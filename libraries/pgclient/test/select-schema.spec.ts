@@ -33,7 +33,7 @@ describe('select schema', () => {
   ) => {
     const builder = new SqlBuilder();
 
-    const selectQuery = prepareSelectQuery('ez4-test-select-schema', schema, {}, query, builder);
+    const selectQuery = prepareSelectQuery(builder, 'ez4-test-select-schema', schema, {}, query);
 
     return selectQuery.build();
   };

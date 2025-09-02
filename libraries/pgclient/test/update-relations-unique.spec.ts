@@ -46,7 +46,7 @@ describe('update unique relations', () => {
   ) => {
     const builder = new SqlBuilder();
 
-    const allQueries = await prepareUpdateQuery(testTableName, schema, relations, query, builder);
+    const allQueries = await prepareUpdateQuery(builder, testTableName, schema, relations, query);
 
     return builder.with(allQueries).build();
   };

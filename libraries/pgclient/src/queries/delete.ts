@@ -7,11 +7,11 @@ import type { InternalTableMetadata } from '../types/table';
 import { getSelectFilters, getSelectFields } from './select';
 
 export const prepareDeleteQuery = <T extends InternalTableMetadata, S extends Query.SelectInput<T>>(
+  builder: SqlBuilder,
   table: string,
   schema: ObjectSchema,
   relations: PgRelationRepositoryWithSchema,
-  query: Query.DeleteOneInput<S, T> | Query.DeleteManyInput<S, T>,
-  builder: SqlBuilder
+  query: Query.DeleteOneInput<S, T> | Query.DeleteManyInput<S, T>
 ) => {
   const deleteQuery = builder.reset().delete(schema).from(table);
 
