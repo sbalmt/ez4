@@ -20,9 +20,10 @@ export class SqlUpdateStatement extends SqlSource {
     references: SqlBuilderReferences;
     returning?: SqlReturningClause;
     source?: SqlTableReference | SqlSource;
+    where?: SqlWhereClause;
     schema?: ObjectSchema;
     record?: SqlRecord;
-    where?: SqlWhereClause;
+    building: boolean;
     table?: string;
     alias?: string;
   };
@@ -31,8 +32,9 @@ export class SqlUpdateStatement extends SqlSource {
     super();
 
     this.#state = {
-      options,
+      building: false,
       references,
+      options,
       schema
     };
   }
@@ -59,6 +61,10 @@ export class SqlUpdateStatement extends SqlSource {
 
   get schema() {
     return this.#state.schema;
+  }
+
+  get building() {
+    return this.#state.building;
   }
 
   only(table: string) {
@@ -112,54 +118,60 @@ export class SqlUpdateStatement extends SqlSource {
       throw new MissingTableNameError();
     }
 
-    const statement = [`UPDATE ONLY ${escapeSqlName(table)}`];
-    const variables: unknown[] = [];
+    try {
+      this.#state.building = true;
 
-    if (alias) {
-      statement.push(`AS ${escapeSqlName(alias)}`);
-    }
+      const statement = ['UPDATE', 'ONLY', escapeSqlName(table)];
+      const variables: unknown[] = [];
 
-    if (!record) {
-      throw new MissingRecordError();
-    }
-
-    const columns = getUpdateColumns(this, record, schema, {
-      variables,
-      references,
-      options
-    });
-
-    if (!columns.length) {
-      throw new EmptyRecordError();
-    }
-
-    statement.push(`SET ${columns.join(', ')}`);
-
-    if (source) {
-      const [tableExpressions, tableVariables] = getSelectExpressions([source], references);
-
-      statement.push(`FROM ${tableExpressions[0]}`);
-      variables.push(...tableVariables);
-    }
-
-    if (where && !where.empty) {
-      const whereResult = where.build();
-
-      if (whereResult) {
-        const [whereClause, whereVariables] = whereResult;
-
-        statement.push(whereClause);
-        variables.push(...whereVariables);
+      if (alias) {
+        statement.push('AS', escapeSqlName(alias));
       }
+
+      if (!record) {
+        throw new MissingRecordError();
+      }
+
+      const columns = getUpdateColumns(this, record, schema, {
+        variables,
+        references,
+        options
+      });
+
+      if (!columns.length) {
+        throw new EmptyRecordError();
+      }
+
+      statement.push('SET', columns.join(', '));
+
+      if (source) {
+        const [tableExpressions, tableVariables] = getSelectExpressions([source], references);
+
+        statement.push('FROM', `${tableExpressions[0]}`);
+        variables.push(...tableVariables);
+      }
+
+      if (where && !where.empty) {
+        const whereResult = where.build();
+
+        if (whereResult) {
+          const [whereClause, whereVariables] = whereResult;
+
+          statement.push(whereClause);
+          variables.push(...whereVariables);
+        }
+      }
+
+      if (returning && !returning.empty) {
+        const [returningClause, returningVariables] = returning.build();
+
+        variables.push(...returningVariables);
+        statement.push(returningClause);
+      }
+
+      return [statement.join(' '), variables];
+    } finally {
+      this.#state.building = false;
     }
-
-    if (returning && !returning.empty) {
-      const [returningClause, returningVariables] = returning.build();
-
-      variables.push(...returningVariables);
-      statement.push(returningClause);
-    }
-
-    return [statement.join(' '), variables];
   }
 }

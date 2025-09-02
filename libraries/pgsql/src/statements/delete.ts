@@ -15,8 +15,9 @@ export class SqlDeleteStatement extends SqlSource {
     options: SqlBuilderOptions;
     references: SqlBuilderReferences;
     returning?: SqlReturningClause;
-    schema?: ObjectSchema;
     where?: SqlWhereClause;
+    schema?: ObjectSchema;
+    building: boolean;
     table?: string;
     alias?: string;
   };
@@ -25,8 +26,9 @@ export class SqlDeleteStatement extends SqlSource {
     super();
 
     this.#state = {
-      options,
+      building: false,
       references,
+      options,
       schema
     };
   }
@@ -45,6 +47,10 @@ export class SqlDeleteStatement extends SqlSource {
 
   get schema() {
     return this.#state.schema;
+  }
+
+  get building() {
+    return this.#state.building;
   }
 
   from(table: string) {
@@ -88,31 +94,37 @@ export class SqlDeleteStatement extends SqlSource {
       throw new MissingTableNameError();
     }
 
-    const statement = [`DELETE FROM ${escapeSqlName(table)}`];
-    const variables = [];
+    try {
+      this.#state.building = true;
 
-    if (alias) {
-      statement.push(`AS ${escapeSqlName(alias)}`);
-    }
+      const statement = [`DELETE FROM ${escapeSqlName(table)}`];
+      const variables = [];
 
-    if (where && !where.empty) {
-      const whereResult = where.build();
-
-      if (whereResult) {
-        const [whereClause, whereVariables] = whereResult;
-
-        variables.push(...whereVariables);
-        statement.push(whereClause);
+      if (alias) {
+        statement.push(`AS ${escapeSqlName(alias)}`);
       }
+
+      if (where && !where.empty) {
+        const whereResult = where.build();
+
+        if (whereResult) {
+          const [whereClause, whereVariables] = whereResult;
+
+          variables.push(...whereVariables);
+          statement.push(whereClause);
+        }
+      }
+
+      if (returning && !returning.empty) {
+        const [returningClause, returningVariables] = returning.build();
+
+        variables.push(...returningVariables);
+        statement.push(returningClause);
+      }
+
+      return [statement.join(' '), variables];
+    } finally {
+      this.#state.building = false;
     }
-
-    if (returning && !returning.empty) {
-      const [returningClause, returningVariables] = returning.build();
-
-      variables.push(...returningVariables);
-      statement.push(returningClause);
-    }
-
-    return [statement.join(' '), variables];
   }
 }

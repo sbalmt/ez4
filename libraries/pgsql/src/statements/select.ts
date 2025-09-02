@@ -22,12 +22,13 @@ export class SqlSelectStatement extends SqlSource implements SqlSourceWithResult
   #state: {
     options: SqlBuilderOptions;
     references: SqlBuilderReferences;
-    schema?: ObjectSchema;
-    results: SqlResults;
-    joins: SqlJoin[];
+    tables?: (string | SqlTableReference | SqlSource)[];
     where?: SqlWhereClause;
     order?: SqlOrderClause;
-    tables?: (string | SqlTableReference | SqlSource)[];
+    schema?: ObjectSchema;
+    results: SqlResults;
+    building: boolean;
+    joins: SqlJoin[];
     alias?: string;
     skip?: number;
     take?: number;
@@ -39,6 +40,7 @@ export class SqlSelectStatement extends SqlSource implements SqlSourceWithResult
 
     this.#state = {
       results: new SqlResults(this, references),
+      building: false,
       lock: false,
       joins: [],
       schema,
@@ -69,6 +71,10 @@ export class SqlSelectStatement extends SqlSource implements SqlSourceWithResult
 
   get schema() {
     return this.#state.schema;
+  }
+
+  get building() {
+    return this.#state.building;
   }
 
   columns(...columns: SqlResultColumn[]) {
@@ -174,53 +180,59 @@ export class SqlSelectStatement extends SqlSource implements SqlSourceWithResult
       throw new NoColumnsError();
     }
 
-    const statement = ['SELECT', columns];
+    try {
+      this.#state.building = true;
 
-    if (tables?.length) {
-      const [tableExpressions, tableVariables] = getSelectExpressions(tables, references);
+      const statement = ['SELECT', columns];
 
-      statement.push('FROM', tableExpressions.join(', '));
-      variables.push(...tableVariables);
-    }
+      if (tables?.length) {
+        const [tableExpressions, tableVariables] = getSelectExpressions(tables, references);
 
-    if (alias) {
-      statement.push(`AS ${escapeSqlName(alias)}`);
-    }
-
-    for (const join of joins) {
-      const [joinClause, joinVariables] = join.build();
-
-      variables.push(...joinVariables);
-      statement.push(joinClause);
-    }
-
-    if (where && !where.empty) {
-      const whereResult = where.build();
-
-      if (whereResult) {
-        const [whereClause, whereVariables] = whereResult;
-
-        variables.push(...whereVariables);
-        statement.push(whereClause);
+        statement.push('FROM', tableExpressions.join(', '));
+        variables.push(...tableVariables);
       }
-    }
 
-    if (order && !order.empty) {
-      statement.push(order.build());
-    }
+      if (alias) {
+        statement.push(`AS ${escapeSqlName(alias)}`);
+      }
 
-    if (isAnyNumber(skip)) {
-      statement.push(`OFFSET ${skip}`);
-    }
+      for (const join of joins) {
+        const [joinClause, joinVariables] = join.build();
 
-    if (isAnyNumber(take)) {
-      statement.push(`LIMIT ${take}`);
-    }
+        variables.push(...joinVariables);
+        statement.push(joinClause);
+      }
 
-    if (lock) {
-      statement.push('FOR UPDATE');
-    }
+      if (where && !where.empty) {
+        const whereResult = where.build();
 
-    return [statement.join(' '), variables];
+        if (whereResult) {
+          const [whereClause, whereVariables] = whereResult;
+
+          variables.push(...whereVariables);
+          statement.push(whereClause);
+        }
+      }
+
+      if (order && !order.empty) {
+        statement.push(order.build());
+      }
+
+      if (isAnyNumber(skip)) {
+        statement.push(`OFFSET ${skip}`);
+      }
+
+      if (isAnyNumber(take)) {
+        statement.push(`LIMIT ${take}`);
+      }
+
+      if (lock) {
+        statement.push('FOR UPDATE');
+      }
+
+      return [statement.join(' '), variables];
+    } finally {
+      this.#state.building = false;
+    }
   }
 }
