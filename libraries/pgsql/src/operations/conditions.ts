@@ -4,8 +4,8 @@ import type { SqlOperationContext } from './types';
 import type { SqlFilters } from '../common/types';
 import type { SqlSource } from '../common/source';
 
+import { deepMerge, isAnyObject, isEmptyObject } from '@ez4/utils';
 import { getSchemaProperty, isObjectSchema } from '@ez4/schema';
-import { isAnyObject, isEmptyObject } from '@ez4/utils';
 
 import { mergeSqlAlias, mergeSqlPath } from '../utils/merge';
 import { SqlSelectStatement } from '../statements/select';
@@ -55,6 +55,11 @@ export class SqlConditions {
 
   apply(filters: SqlFilters) {
     this.#state.filters = filters;
+    return this;
+  }
+
+  merge(filters: SqlFilters) {
+    this.#state.filters = deepMerge(this.#state.filters, filters);
     return this;
   }
 

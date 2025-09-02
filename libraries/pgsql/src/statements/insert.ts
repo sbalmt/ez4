@@ -206,6 +206,7 @@ export class SqlInsertStatement extends SqlSource {
         variables.push(...returningVariables);
         statement.push(returningClause);
       }
+
       return [statement.join(' '), variables];
     } finally {
       this.#state.building = false;
