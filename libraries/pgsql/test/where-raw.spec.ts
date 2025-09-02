@@ -499,7 +499,7 @@ describe('sql where raw tests', () => {
       foo_condition: sql
         .select()
         .rawColumn(1)
-        .from('inner')
+        .from('another_table')
         .where({
           foo: query.reference('bar')
         })
@@ -511,8 +511,24 @@ describe('sql where raw tests', () => {
 
     assert.equal(
       statement,
-      `SELECT * FROM "test" AS "alias_test" ` + `WHERE EXISTS (SELECT 1 FROM "inner" WHERE "foo" = "alias_test"."bar")`
+      `SELECT * FROM "test" AS "alias_test" ` + `WHERE EXISTS (SELECT 1 FROM "another_table" WHERE "foo" = "alias_test"."bar")`
     );
+  });
+
+  it('assert :: where with not exists', ({ assert }) => {
+    const query = sql.select().from('test').as('alias_test');
+
+    query.where({
+      NOT: {
+        foo_condition: sql.select().rawColumn(1).from('another_table')
+      }
+    });
+
+    const [statement, variables] = query.build();
+
+    assert.deepEqual(variables, []);
+
+    assert.equal(statement, `SELECT * FROM "test" AS "alias_test" WHERE NOT EXISTS (SELECT 1 FROM "another_table")`);
   });
 
   it('assert :: where empty', ({ assert }) => {

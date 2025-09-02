@@ -20,8 +20,8 @@ type SqlJsonColumnContext = {
   alias?: string;
 };
 
-export type SqlJsonColumnSchema = {
-  [field: string]: undefined | boolean | SqlRawValue | SqlColumnReference | SqlSelectStatement | SqlJsonColumnSchema;
+export type SqlJsonColumnRecord = {
+  [field: string]: undefined | boolean | SqlRawValue | SqlColumnReference | SqlSelectStatement | SqlJsonColumnRecord;
 };
 
 export type SqlJsonColumnOptions = {
@@ -35,7 +35,7 @@ export type SqlJsonColumnOptions = {
 export class SqlJsonColumn {
   #state: {
     source: SqlSource;
-    schema: SqlJsonColumnSchema;
+    record: SqlJsonColumnRecord;
     references: SqlBuilderReferences;
     order?: SqlOrderClause;
     aggregate: boolean;
@@ -44,14 +44,14 @@ export class SqlJsonColumn {
     alias?: string;
   };
 
-  constructor(schema: SqlJsonColumnSchema, source: SqlSource, references: SqlBuilderReferences, options: SqlJsonColumnOptions) {
+  constructor(record: SqlJsonColumnRecord, source: SqlSource, references: SqlBuilderReferences, options: SqlJsonColumnOptions) {
     const { order, aggregate, column, binary, alias } = options;
 
     this.#state = {
       order: order ? new SqlOrderClause(source, order) : undefined,
       references,
       source,
-      schema,
+      record,
       aggregate,
       column,
       binary,
@@ -60,11 +60,11 @@ export class SqlJsonColumn {
   }
 
   build() {
-    const { schema, source, references, aggregate, order, column, binary, alias } = this.#state;
+    const { record, source, references, aggregate, order, column, binary, alias } = this.#state;
 
     const variables: unknown[] = [];
 
-    const result = getJsonObject(schema, {
+    const result = getJsonObject(record, {
       ...(column && { parent: escapeSqlName(column) }),
       alias: source.alias,
       references,
@@ -83,13 +83,13 @@ export class SqlJsonColumn {
   }
 }
 
-const getJsonObject = (schema: SqlJsonColumnSchema, context: SqlJsonColumnContext): string => {
+const getJsonObject = (record: SqlJsonColumnRecord, context: SqlJsonColumnContext): string => {
   const { variables, references, parent, binary, alias } = context;
 
   const fields = [];
 
-  for (const field in schema) {
-    const value = schema[field];
+  for (const field in record) {
+    const value = record[field];
 
     if (!value) {
       continue;

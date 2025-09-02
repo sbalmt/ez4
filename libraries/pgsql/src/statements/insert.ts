@@ -1,16 +1,18 @@
+import type { ObjectSchema } from '@ez4/schema';
 import type { SqlBuilderOptions, SqlBuilderReferences } from '../builder';
 import type { SqlResultColumn, SqlResultRecord } from '../common/results';
 import type { SqlSourceWithResults } from '../common/source';
 import type { SqlTableReference } from '../common/reference';
-import type { SqlRecord } from '../common/types';
-import type { ObjectSchema } from '@ez4/schema';
+import type { SqlFilters, SqlRecord } from '../common/types';
 
 import { getFields, getValues } from '../utils/column';
 import { escapeSqlName, escapeSqlNames } from '../utils/escape';
 import { SqlReturningClause } from '../clauses/query/returning';
 import { SqlConflictClause } from '../clauses/query/conflict';
-import { getSelectExpressions } from '../helpers/select';
+import { SqlWhereClause } from '../clauses/query/where';
+import { InvalidWhereClauseError } from '../clauses/errors';
 import { SqlColumnReference } from '../common/reference';
+import { getSelectExpressions } from '../helpers/select';
 import { SqlSource } from '../common/source';
 import { SqlRawValue } from '../common/raw';
 import { MissingTableNameError } from './errors';
@@ -31,6 +33,7 @@ export class SqlInsertStatement extends SqlSource {
     sources?: (SqlTableReference | SqlSource)[];
     schema?: ObjectSchema;
     record?: SqlRecord;
+    where?: SqlWhereClause;
     table?: string;
     alias?: string;
   };
@@ -51,6 +54,10 @@ export class SqlInsertStatement extends SqlSource {
 
   get values() {
     return this.#state.record ? getValues(this.#state.record) : [];
+  }
+
+  get filters() {
+    return this.#state.where;
   }
 
   get alias() {
@@ -85,13 +92,13 @@ export class SqlInsertStatement extends SqlSource {
     return this;
   }
 
-  conflict(columns: string[], record?: SqlRecord) {
-    const { conflict, schema, references, options } = this.#state;
+  where(filters?: SqlFilters) {
+    const { where, references, options } = this.#state;
 
-    if (!conflict) {
-      this.#state.conflict = new SqlConflictClause(this, schema, references, options, columns, record);
-    } else if (record) {
-      conflict.apply(record);
+    if (!where) {
+      this.#state.where = new SqlWhereClause(this, references, options, filters);
+    } else if (filters) {
+      where.apply(filters);
     }
 
     return this;
@@ -109,8 +116,20 @@ export class SqlInsertStatement extends SqlSource {
     return this as SqlInsertStatement & SqlSourceWithResults;
   }
 
+  conflict(columns: string[], record?: SqlRecord) {
+    const { conflict, schema, references, options } = this.#state;
+
+    if (!conflict) {
+      this.#state.conflict = new SqlConflictClause(this, schema, references, options, columns, record);
+    } else if (record) {
+      conflict.apply(record);
+    }
+
+    return this;
+  }
+
   build(): [string, unknown[]] {
-    const { table, alias, references, options, record, schema, sources, returning, conflict } = this.#state;
+    const { table, alias, references, options, record, schema, sources, where, returning, conflict } = this.#state;
 
     if (!table) {
       throw new MissingTableNameError();
@@ -133,16 +152,35 @@ export class SqlInsertStatement extends SqlSource {
       options
     });
 
-    if (sources?.length) {
+    if (sources) {
       const [tableExpressions, tableVariables] = getSelectExpressions(sources, references);
 
-      statement.push(`SELECT ${values} FROM ${tableExpressions.join(', ')}`);
+      statement.push('SELECT', values);
       variables.push(...tableVariables);
+
+      if (tableExpressions.length) {
+        statement.push('FROM', tableExpressions.join(', '));
+      }
+
+      if (where && !where.empty) {
+        const whereResult = where.build();
+
+        if (whereResult) {
+          const [whereClause, whereVariables] = whereResult;
+
+          statement.push(whereClause);
+          variables.push(...whereVariables);
+        }
+      }
     } else {
       statement.push('VALUES');
 
       if (values.length) {
         statement.push(`(${values})`);
+      }
+
+      if (where) {
+        throw new InvalidWhereClauseError();
       }
     }
 

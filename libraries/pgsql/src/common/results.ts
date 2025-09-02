@@ -1,4 +1,4 @@
-import type { SqlJsonColumnOptions, SqlJsonColumnSchema } from './json';
+import type { SqlJsonColumnOptions, SqlJsonColumnRecord } from './json';
 import type { SqlBuilderReferences } from '../builder';
 import type { SqlRawGenerator } from './raw';
 import type { SqlSource } from './source';
@@ -22,7 +22,7 @@ export type SqlArrayColumn = Omit<SqlJsonColumnOptions, 'aggregate'>;
 export type SqlResultColumn = SqlColumn | SqlRawValue | SqlColumnReference | SqlSelectStatement;
 
 export type SqlResultRecord = {
-  [column: string]: undefined | string | boolean | SqlRawValue | SqlColumnReference | SqlSelectStatement | SqlJsonColumnSchema;
+  [column: string]: undefined | string | boolean | SqlRawValue | SqlColumnReference | SqlSelectStatement | SqlJsonColumnRecord;
 };
 
 type SqlResultsContext = {
@@ -85,20 +85,20 @@ export class SqlResults {
     return this;
   }
 
-  jsonColumn(schema: SqlJsonColumnSchema, options: SqlJsonColumnOptions) {
-    this.#state.columns.push(new SqlJsonColumn(schema, this.#state.source, this.#state.references, options));
+  jsonColumn(record: SqlJsonColumnRecord, options: SqlJsonColumnOptions) {
+    this.#state.columns.push(new SqlJsonColumn(record, this.#state.source, this.#state.references, options));
     return this;
   }
 
-  objectColumn(schema: SqlJsonColumnSchema, options?: SqlObjectColumn) {
-    return this.jsonColumn(schema, {
+  objectColumn(record: SqlJsonColumnRecord, options?: SqlObjectColumn) {
+    return this.jsonColumn(record, {
       ...options,
       aggregate: false
     });
   }
 
-  arrayColumn(schema: SqlJsonColumnSchema, options?: SqlArrayColumn) {
-    return this.jsonColumn(schema, {
+  arrayColumn(record: SqlJsonColumnRecord, options?: SqlArrayColumn) {
+    return this.jsonColumn(record, {
       ...options,
       aggregate: true
     });

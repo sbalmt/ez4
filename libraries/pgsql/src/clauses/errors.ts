@@ -16,9 +16,9 @@ export class InvalidColumnOrderError extends Error {
   }
 }
 
-export class MissingJoinConditionError extends Error {
+export class InvalidWhereClauseError extends Error {
   constructor() {
-    super(`Join condition for the given table is missing.`);
+    super(`Invalid where clause for the statement.`);
   }
 }
 

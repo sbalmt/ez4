@@ -4,7 +4,7 @@ import type { String } from '@ez4/schema';
 
 import { before, after, describe, it } from 'node:test';
 import { deepEqual } from 'node:assert/strict';
-import { randomUUID } from 'crypto';
+import { randomUUID } from 'node:crypto';
 
 import { Index } from '@ez4/database';
 import { SchemaType } from '@ez4/schema';

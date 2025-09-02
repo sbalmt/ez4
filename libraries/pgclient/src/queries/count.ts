@@ -16,7 +16,7 @@ export const prepareCountQuery = <T extends InternalTableMetadata>(
 ): [string, SqlParameter[]] => {
   const selectQuery = builder.select(schema).from(table);
 
-  selectQuery.rawColumn('COUNT(1) AS "count"');
+  selectQuery.rawColumn('COUNT(1) AS "__EZ4_COUNT"');
 
   if (query.where) {
     const selectFilters = getSelectFilters(builder, query.where, relations, selectQuery, table);

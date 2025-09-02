@@ -1,14 +1,15 @@
+import type { TableIndex } from '@ez4/database/library';
 import type { ObjectSchema } from '@ez4/schema';
 import type { Query } from '@ez4/database';
 import type { PgRelationRepositoryWithSchema } from '../types/repository';
 import type { PgClientDriver, PgExecuteStatement } from '../types/driver';
 import type { InternalTableMetadata } from '../types/table';
-import type { PrepareInsertInput } from './insert';
 
 import { createQueryBuilder } from '../utils/builder';
 
 import { prepareInsertQuery } from './insert';
 import { prepareUpdateQuery } from './update';
+import { prepareUpsertQuery } from './upsert';
 import { prepareSelectQuery } from './select';
 import { prepareDeleteQuery } from './delete';
 import { prepareCountQuery } from './count';
@@ -18,7 +19,7 @@ export const prepareInsertOne = async <T extends InternalTableMetadata, S extend
   schema: ObjectSchema,
   relations: PgRelationRepositoryWithSchema,
   driver: PgClientDriver,
-  query: PrepareInsertInput<T, S>
+  query: Query.InsertOneInput<S, T>
 ): Promise<PgExecuteStatement> => {
   const builder = createQueryBuilder(driver);
 
@@ -67,6 +68,29 @@ export const prepareUpdateOne = async <T extends InternalTableMetadata, S extend
   const builder = createQueryBuilder(driver);
 
   const [statement, variables] = await prepareUpdateQuery(table, schema, relations, query, builder);
+
+  return {
+    query: statement,
+    variables,
+    metadata: {
+      table,
+      relations,
+      schema
+    }
+  };
+};
+
+export const prepareUpsertOne = async <T extends InternalTableMetadata, S extends Query.SelectInput<T>>(
+  table: string,
+  schema: ObjectSchema,
+  relations: PgRelationRepositoryWithSchema,
+  indexes: TableIndex[],
+  driver: PgClientDriver,
+  query: Query.UpsertOneInput<S, T>
+) => {
+  const builder = createQueryBuilder(driver);
+
+  const [statement, variables] = await prepareUpsertQuery(table, schema, relations, indexes, query, builder);
 
   return {
     query: statement,

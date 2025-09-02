@@ -1,6 +1,6 @@
 import type { ObjectSchema } from '@ez4/schema';
 import type { SqlArrayColumn, SqlObjectColumn, SqlResultColumn, SqlResultRecord } from '../common/results';
-import type { SqlJsonColumnOptions, SqlJsonColumnSchema } from '../common/json';
+import type { SqlJsonColumnOptions, SqlJsonColumnRecord } from '../common/json';
 import type { SqlBuilderOptions, SqlBuilderReferences } from '../builder';
 import type { SqlTableReference } from '../common/reference';
 import type { SqlSourceWithResults } from '../common/source';
@@ -16,7 +16,7 @@ import { getSelectExpressions } from '../helpers/select';
 import { SqlWhereClause } from '../clauses/query/where';
 import { SqlOrderClause } from '../clauses/query/order';
 import { SqlJoin } from '../clauses/query/join';
-import { MissingTableNameError, NoColumnsError } from './errors';
+import { NoColumnsError } from './errors';
 
 export class SqlSelectStatement extends SqlSource implements SqlSourceWithResults {
   #state: {
@@ -91,18 +91,18 @@ export class SqlSelectStatement extends SqlSource implements SqlSourceWithResult
     return this;
   }
 
-  jsonColumn(schema: SqlJsonColumnSchema, options: SqlJsonColumnOptions) {
-    this.#state.results.jsonColumn(schema, options);
+  jsonColumn(record: SqlJsonColumnRecord, options: SqlJsonColumnOptions) {
+    this.#state.results.jsonColumn(record, options);
     return this;
   }
 
-  objectColumn(schema: SqlJsonColumnSchema, options?: SqlObjectColumn) {
-    this.#state.results.objectColumn(schema, options);
+  objectColumn(record: SqlJsonColumnRecord, options?: SqlObjectColumn) {
+    this.#state.results.objectColumn(record, options);
     return this;
   }
 
-  arrayColumn(schema: SqlJsonColumnSchema, options?: SqlArrayColumn) {
-    this.#state.results.arrayColumn(schema, options);
+  arrayColumn(record: SqlJsonColumnRecord, options?: SqlArrayColumn) {
+    this.#state.results.arrayColumn(record, options);
     return this;
   }
 
@@ -116,7 +116,7 @@ export class SqlSelectStatement extends SqlSource implements SqlSourceWithResult
     return this;
   }
 
-  join(table: string, schema?: ObjectSchema) {
+  join(table: string | SqlTableReference, schema?: ObjectSchema) {
     const { references, options, joins } = this.#state;
 
     const join = new SqlJoin(table, schema, references, options);
@@ -168,21 +168,20 @@ export class SqlSelectStatement extends SqlSource implements SqlSourceWithResult
   build(): [string, unknown[]] {
     const { tables, references, alias, results, joins, where, order, skip, take, lock } = this.#state;
 
-    if (!tables?.length) {
-      throw new MissingTableNameError();
-    }
-
     const [columns, variables] = results.build();
 
     if (!columns.length) {
       throw new NoColumnsError();
     }
 
-    const [tableExpressions, tableVariables] = getSelectExpressions(tables, references);
+    const statement = ['SELECT', columns];
 
-    const statement = [`SELECT ${columns} FROM ${tableExpressions.join(', ')}`];
+    if (tables?.length) {
+      const [tableExpressions, tableVariables] = getSelectExpressions(tables, references);
 
-    variables.push(...tableVariables);
+      statement.push('FROM', tableExpressions.join(', '));
+      variables.push(...tableVariables);
+    }
 
     if (alias) {
       statement.push(`AS ${escapeSqlName(alias)}`);

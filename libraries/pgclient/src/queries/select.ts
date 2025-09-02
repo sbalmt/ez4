@@ -1,4 +1,4 @@
-import type { SqlBuilder, SqlFilters, SqlJsonColumnSchema, SqlSource } from '@ez4/pgsql';
+import type { SqlBuilder, SqlFilters, SqlJsonColumnRecord, SqlSource } from '@ez4/pgsql';
 import type { SqlParameter } from '@aws-sdk/client-rds-data';
 import type { AnySchema, ObjectSchema } from '@ez4/schema';
 import type { AnyObject } from '@ez4/utils';
@@ -70,7 +70,7 @@ export const getSelectFields = <T extends InternalTableMetadata, S extends AnyOb
 ) => {
   const allFields = isEmptyObject(fields) ? getDefaultSelectFields(schema) : fields;
 
-  const output: SqlJsonColumnSchema = {};
+  const output: SqlJsonColumnRecord = {};
 
   for (const fieldKey in allFields) {
     const fieldValue = allFields[fieldKey];

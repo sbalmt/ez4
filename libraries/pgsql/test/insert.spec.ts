@@ -170,7 +170,41 @@ describe('sql insert tests', () => {
     equal(statement, `INSERT INTO "table" AS "alias" ("foo", "bar") VALUES (:0, :1) ON CONFLICT ("foo", "bar") DO UPDATE SET "bar" = :2`);
   });
 
-  it('assert :: insert with inner query', async () => {
+  it('assert :: insert with select', async () => {
+    const query = sql.insert().into('table').select().record({
+      foo: 123,
+      bar: 'abc',
+      baz: true
+    });
+
+    const [statement, variables] = query.build();
+
+    deepEqual(variables, [123, 'abc', true]);
+
+    equal(statement, `INSERT INTO "table" ("foo", "bar", "baz") SELECT :0, :1, :2`);
+  });
+
+  it('assert :: insert with select where', async () => {
+    const query = sql
+      .insert()
+      .into('table')
+      .select()
+      .record({
+        foo: 'abc',
+        bar: false
+      })
+      .where({
+        baz: 123
+      });
+
+    const [statement, variables] = query.build();
+
+    deepEqual(variables, ['abc', false, 123]);
+
+    equal(statement, `INSERT INTO "table" ("foo", "bar") SELECT :0, :1 WHERE "baz" = :2`);
+  });
+
+  it('assert :: insert with select from', async () => {
     const inner = sql.select().columns('foo').from('inner').as('alias').where({ bar: 'abc' }).take(1).order({
       baz: Order.Desc
     });

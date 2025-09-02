@@ -6,8 +6,6 @@ import type { PgRelationRepositoryWithSchema } from '../types/repository';
 import type { PgClientDriver, PgExecuteStatement } from '../types/driver';
 import type { InternalTableMetadata } from '../types/table';
 
-import { tryExtractConflictIndex } from '../utils/indexes';
-
 import {
   prepareInsertOne,
   prepareInsertMany,
@@ -15,6 +13,7 @@ import {
   prepareFindMany,
   prepareUpdateOne,
   prepareUpdateMany,
+  prepareUpsertOne,
   prepareDeleteMany,
   prepareDeleteOne,
   prepareCount
@@ -106,29 +105,11 @@ export class Table<T extends InternalTableMetadata> implements DbTable<T> {
   }
 
   async upsertOne<S extends Query.SelectInput<T>>(query: Query.UpsertOneInput<S, T>) {
-    const previous = await this.findOne({
-      select: query.select ?? {},
-      include: query.include,
-      where: query.where
-    } as Query.FindOneInput<S, T>);
-
-    if (previous) {
-      await this.updateOne({ where: query.where, data: query.update });
-
-      return previous as Query.UpsertOneResult<S, T>;
-    }
-
-    const conflictIndex = tryExtractConflictIndex(this.indexes, query.where);
-
-    const statement = await prepareInsertOne(this.name, this.schema, this.relations, this.context.driver, {
-      check: conflictIndex?.columns,
-      select: query.select,
-      data: query.insert
-    });
+    const statement = await prepareUpsertOne(this.name, this.schema, this.relations, this.indexes, this.context.driver, query);
 
     const results = await this.sendStatement(statement);
 
-    return results?.[0] as Query.InsertOneResult<S, T>;
+    return results?.[0] as Query.UpsertOneResult<S, T>;
   }
 
   async insertMany(query: Query.InsertManyInput<T>) {
@@ -193,8 +174,8 @@ export class Table<T extends InternalTableMetadata> implements DbTable<T> {
   async count(query: Query.CountInput<T>) {
     const statement = prepareCount(this.name, this.schema, this.relations, this.context.driver, query);
 
-    const [{ count }] = await this.sendStatement(statement);
+    const [{ __EZ4_COUNT }] = await this.sendStatement(statement);
 
-    return count;
+    return __EZ4_COUNT;
   }
 }

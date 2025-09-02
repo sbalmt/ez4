@@ -1,8 +1,8 @@
 import type { ObjectSchema } from '@ez4/schema';
+import type { SqlResultColumn, SqlResultRecord } from '../common/results';
 import type { SqlFilters, SqlRecord } from '../common/types';
 import type { SqlSourceWithResults } from '../common/source';
 import type { SqlTableReference } from '../common/reference';
-import type { SqlResultColumn, SqlResultRecord } from '../common/results';
 import type { SqlBuilderOptions, SqlBuilderReferences } from '../builder';
 
 import { getUpdateColumns } from '../helpers/update';

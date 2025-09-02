@@ -1,4 +1,4 @@
-import type { SqlInsertStatement, SqlSelectStatement, SqlSourceWithResults, SqlJsonColumnSchema, SqlBuilder, SqlRecord } from '@ez4/pgsql';
+import type { SqlInsertStatement, SqlSelectStatement, SqlSourceWithResults, SqlJsonColumnRecord, SqlBuilder, SqlRecord } from '@ez4/pgsql';
 import type { SqlParameter } from '@aws-sdk/client-rds-data';
 import type { ObjectSchema } from '@ez4/schema';
 import type { AnyObject } from '@ez4/utils';
@@ -30,30 +30,25 @@ type InsertRelationEntry = PgRelationWithSchema & {
   relationQueries: SqlInsertStatement[];
 };
 
-export type PrepareInsertInput<T extends InternalTableMetadata, S extends Query.SelectInput<T>> = Query.InsertOneInput<S, T> & {
-  check?: string[];
-};
-
 export const prepareInsertQuery = async <T extends InternalTableMetadata, S extends Query.SelectInput<T>>(
   table: string,
   schema: ObjectSchema,
   relations: PgRelationRepositoryWithSchema,
-  query: PrepareInsertInput<T, S>,
+  query: Query.InsertOneInput<S, T>,
   builder: SqlBuilder
 ): Promise<[string, SqlParameter[]]> => {
   const preQueriesMap = preparePreInsertRelations(builder, query.data, relations, table);
+
   const preQueries = Object.values(preQueriesMap)
     .map(({ relationQueries }) => relationQueries)
     .flat();
 
   const insertRecord = await getInsertRecord(query.data, schema, relations, preQueriesMap, table);
+  const insertQuery = builder.insert(schema).record(insertRecord).into(table).returning();
 
-  const insertQuery = builder
-    .insert(schema)
-    .select(...preQueries.map((query) => query.reference()))
-    .record(insertRecord)
-    .into(table)
-    .returning();
+  if (preQueries.length) {
+    insertQuery.select(...preQueries.map((query) => query.reference()));
+  }
 
   const postQueriesMap = preparePostInsertRelations(builder, query.data, relations, insertQuery, table);
 
@@ -73,16 +68,12 @@ export const prepareInsertQuery = async <T extends InternalTableMetadata, S exte
     allQueries.push(selectQuery);
   }
 
-  if (query.check?.length) {
-    insertQuery.conflict(query.check);
-  }
-
   const [statement, variables] = builder.with(allQueries).build();
 
   return [statement, variables as SqlParameter[]];
 };
 
-const getInsertRecord = async (
+export const getInsertRecord = async (
   data: SqlRecord,
   schema: ObjectSchema,
   relations: PgRelationRepositoryWithSchema,
@@ -351,7 +342,7 @@ const getInsertSelectFields = (
 ) => {
   const allFields = isEmptyObject(fields) ? getDefaultSelectFields(schema) : fields;
 
-  const output: SqlJsonColumnSchema = {};
+  const output: SqlJsonColumnRecord = {};
 
   for (const fieldKey in allFields) {
     const fieldValue = allFields[fieldKey];

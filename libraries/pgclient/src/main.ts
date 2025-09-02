@@ -3,6 +3,8 @@ export * from './driver/errors';
 export * from './driver/records';
 export * from './driver/schema';
 
+export * from './queries/errors';
+
 export * from './types/driver';
 export * from './types/engine';
 

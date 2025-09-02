@@ -55,7 +55,7 @@ export const prepareUpdateQuery = async <T extends InternalTableMetadata, S exte
   return [statement, variables as SqlParameter[]];
 };
 
-const getUpdateRecord = async (
+export const getUpdateRecord = async (
   builder: SqlBuilder,
   data: SqlRecord,
   schema: ObjectSchema,
