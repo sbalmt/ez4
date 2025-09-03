@@ -205,11 +205,12 @@ describe('update primary relations', () => {
 
     assert.equal(
       statement,
-      // Main record
-      `UPDATE ONLY "ez4_test_table" AS "R0" SET "id" = :0, "secondary_id" = :1 ` +
+      `WITH ` +
         // Select
-        `RETURNING (SELECT jsonb_build_object('id', "S0"."id", 'foo', "S0"."foo") FROM "ez4_test_table" AS "S0" ` +
-        `WHERE "S0"."id" = "R0"."secondary_id") AS "primary_to_secondary"`
+        `"Q0" AS (SELECT (SELECT jsonb_build_object('id', "S0"."id", 'foo', "S0"."foo") FROM "ez4_test_table" AS "S0" ` +
+        `WHERE "S0"."id" = "R0"."secondary_id") AS "primary_to_secondary" FROM "ez4_test_table" AS "R0" FOR UPDATE) ` +
+        // Update and return
+        `UPDATE ONLY "ez4_test_table" SET "id" = :0, "secondary_id" = :1 FROM "Q0" RETURNING "Q0".*`
     );
 
     assert.deepEqual(variables, ['00000000-0000-1000-9000-000000000000', '00000000-0000-1000-9000-000000000001']);
@@ -287,13 +288,15 @@ describe('update primary relations', () => {
     assert.equal(
       statement,
       `WITH ` +
-        // Main record
-        `"Q0" AS (UPDATE ONLY "ez4_test_table" AS "R0" SET "id" = :0 RETURNING "R0"."secondary_id"), ` +
-        // Relation
-        `"Q1" AS (UPDATE ONLY "ez4_test_table" AS "T" SET "foo" = :1 FROM "Q0" WHERE "T"."id" = "Q0"."secondary_id") ` +
         // Select
-        `SELECT (SELECT jsonb_build_object('id', "S0"."id", 'foo', "S0"."foo") FROM "ez4_test_table" AS "S0" ` +
-        `WHERE "S0"."id" = "Q0"."secondary_id") AS "primary_to_secondary" FROM "ez4_test_table"`
+        `"Q0" AS (SELECT (SELECT jsonb_build_object('id', "S0"."id", 'foo', "S0"."foo") FROM "ez4_test_table" AS "S0" ` +
+        `WHERE "S0"."id" = "R0"."secondary_id") AS "primary_to_secondary" FROM "ez4_test_table" AS "R0" FOR UPDATE), ` +
+        // Update main
+        `"Q1" AS (UPDATE ONLY "ez4_test_table" SET "id" = :0 FROM "Q0" RETURNING "secondary_id"), ` +
+        // Update relation
+        `"Q2" AS (UPDATE ONLY "ez4_test_table" AS "T" SET "foo" = :1 FROM "Q1" WHERE "T"."id" = "Q1"."secondary_id") ` +
+        // Return
+        `SELECT * FROM "Q0"`
     );
 
     assert.deepEqual(variables, ['00000000-0000-1000-9000-000000000000', 'foo']);
@@ -332,16 +335,17 @@ describe('update primary relations', () => {
     assert.equal(
       statement,
       `WITH ` +
-        // Main record
-        `"Q0" AS (UPDATE ONLY "ez4_test_table" AS "R0" SET "id" = :0, "secondary_2_id" = :1 ` +
-        `RETURNING "R0"."secondary_1_id", "R0"."secondary_3_id"), ` +
-        // First relation
-        `"Q1" AS (UPDATE ONLY "ez4_test_table" AS "T" SET "id" = :2, "foo" = :3 FROM "Q0" WHERE "T"."id" = "Q0"."secondary_1_id"), ` +
-        // Third relation
-        `"Q2" AS (UPDATE ONLY "ez4_test_table" AS "T" SET "id" = :4 FROM "Q0" WHERE "T"."id" = "Q0"."secondary_3_id") ` +
         // Select
-        `SELECT "id", (SELECT jsonb_build_object('id', "S0"."id", 'foo', "S0"."foo") FROM "ez4_test_table" AS "S0" ` +
-        `WHERE "S0"."id" = "Q0"."secondary_1_id") AS "primary_to_secondary_1" FROM "ez4_test_table"`
+        `"Q0" AS (SELECT "R0"."id", (SELECT jsonb_build_object('id', "S0"."id", 'foo', "S0"."foo") FROM "ez4_test_table" AS "S0" ` +
+        `WHERE "S0"."id" = "R0"."secondary_1_id") AS "primary_to_secondary_1" FROM "ez4_test_table" AS "R0" FOR UPDATE), ` +
+        // Main record
+        `"Q1" AS (UPDATE ONLY "ez4_test_table" SET "id" = :0, "secondary_2_id" = :1 FROM "Q0" RETURNING "secondary_1_id", "secondary_3_id"), ` +
+        // First relation
+        `"Q2" AS (UPDATE ONLY "ez4_test_table" AS "T" SET "id" = :2, "foo" = :3 FROM "Q1" WHERE "T"."id" = "Q1"."secondary_1_id"), ` +
+        // Third relation
+        `"Q3" AS (UPDATE ONLY "ez4_test_table" AS "T" SET "id" = :4 FROM "Q1" WHERE "T"."id" = "Q1"."secondary_3_id") ` +
+        // Return
+        `SELECT * FROM "Q0"`
     );
 
     assert.deepEqual(variables, [

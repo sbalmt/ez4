@@ -7,7 +7,7 @@ import type { PgClientDriver, PgExecuteStatement } from '../types/driver';
 import type { InternalTableMetadata } from '../types/table';
 
 import { MissingUniqueIndexError } from '../queries/errors';
-import { tryExtractConflictIndex } from '../utils/indexes';
+import { tryExtractUniqueIndex } from '../utils/indexes';
 
 import {
   prepareInsertOne,
@@ -29,6 +29,10 @@ export type TableContext = {
 
 type SendStatementResult<T> = IsArray<T> extends true ? AnyObject[][] : AnyObject[];
 
+type SendStatementOptions = {
+  silent?: boolean;
+};
+
 export class Table<T extends InternalTableMetadata> implements DbTable<T> {
   constructor(
     private name: string,
@@ -38,20 +42,25 @@ export class Table<T extends InternalTableMetadata> implements DbTable<T> {
     private context: TableContext
   ) {}
 
-  private async sendStatement<T extends PgExecuteStatement | PgExecuteStatement[]>(input: T): Promise<SendStatementResult<T>> {
+  private async sendStatement<T extends PgExecuteStatement | PgExecuteStatement[]>(
+    input: T,
+    options?: SendStatementOptions
+  ): Promise<SendStatementResult<T>> {
     const { transactionId, driver, debug } = this.context;
 
     if (!Array.isArray(input)) {
-      return driver.executeStatement(input, { transactionId, debug }) as Promise<SendStatementResult<T>>;
+      return driver.executeStatement(input, { ...options, transactionId, debug }) as Promise<SendStatementResult<T>>;
     }
 
     if (!transactionId) {
       return driver.executeTransaction(input, {
+        ...options,
         debug
       });
     }
 
     return driver.executeStatements(input, {
+      ...options,
       transactionId,
       debug
     });
@@ -107,37 +116,40 @@ export class Table<T extends InternalTableMetadata> implements DbTable<T> {
   }
 
   async upsertOne<S extends Query.SelectInput<T>>(query: Query.UpsertOneInput<S, T>) {
-    const conflictIndex = tryExtractConflictIndex(this.indexes, query.where);
+    const uniqueIndex = tryExtractUniqueIndex(this.indexes, query.where);
 
-    if (!conflictIndex?.columns) {
+    if (!uniqueIndex) {
       throw new MissingUniqueIndexError();
     }
 
-    const insertStatement = await prepareInsertOne(this.name, this.schema, this.relations, this.context.driver, {
-      conflict: conflictIndex.columns,
-      select: query.select,
-      data: query.insert
-    });
+    try {
+      const insertStatement = await prepareInsertOne(this.name, this.schema, this.relations, this.context.driver, {
+        select: query.select,
+        data: query.insert
+      });
 
-    const insertResults = await this.sendStatement(insertStatement);
-
-    if (insertResults?.[0]?.__EZ4_NEW) {
-      delete insertResults[0].__EZ4_NEW;
+      const insertResults = await this.sendStatement(insertStatement, {
+        silent: true
+      });
 
       return insertResults[0] as Query.UpsertOneResult<S, T>;
+    } catch (error) {
+      if (!(error instanceof Error) || !error.message.includes('duplicate')) {
+        throw error;
+      }
+
+      const updateStatement = await prepareUpdateOne(this.name, this.schema, this.relations, this.context.driver, {
+        select: query.select,
+        include: query.include,
+        data: query.update,
+        where: query.where,
+        lock: query.lock
+      });
+
+      const updateResults = await this.sendStatement(updateStatement);
+
+      return updateResults?.[0] as Query.UpsertOneResult<S, T>;
     }
-
-    const updateStatement = await prepareUpdateOne(this.name, this.schema, this.relations, this.context.driver, {
-      select: query.select,
-      include: query.include,
-      data: query.update,
-      where: query.where,
-      lock: query.lock
-    });
-
-    const updateResults = await this.sendStatement(updateStatement);
-
-    return updateResults?.[0] as Query.UpsertOneResult<S, T>;
   }
 
   async insertMany(query: Query.InsertManyInput<T>) {

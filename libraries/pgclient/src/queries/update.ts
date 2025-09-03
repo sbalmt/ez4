@@ -61,10 +61,11 @@ export const prepareUpdateQuery = async <T extends InternalTableMetadata, S exte
   }
 
   if (query.select) {
-    const lastQuery = allQueries[allQueries.length - 1];
-    const firstQuery = allQueries[0];
-
-    lastQuery.results?.rawColumn(() => mergeSqlAlias('*', firstQuery?.alias));
+    if (!postUpdateQueries.length) {
+      updateQuery.results?.rawColumn(() => mergeSqlAlias('*', allQueries[0]?.alias));
+    } else {
+      allQueries.push(builder.select().from(allQueries[0].reference()));
+    }
   }
 
   return allQueries;
