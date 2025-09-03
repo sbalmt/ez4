@@ -3,6 +3,7 @@ import type { Query } from '@ez4/database';
 import type { PgRelationRepositoryWithSchema } from '../types/repository';
 import type { PgClientDriver, PgExecuteStatement } from '../types/driver';
 import type { InternalTableMetadata } from '../types/table';
+import type { UpdateQueryOptions } from './update';
 
 import { createQueryBuilder } from '../utils/builder';
 
@@ -65,11 +66,12 @@ export const prepareUpdateOne = async <T extends InternalTableMetadata, S extend
   schema: ObjectSchema,
   relations: PgRelationRepositoryWithSchema,
   driver: PgClientDriver,
-  query: Query.UpdateOneInput<S, T>
+  query: Query.UpdateOneInput<S, T>,
+  options?: UpdateQueryOptions
 ) => {
   const builder = createQueryBuilder(driver);
 
-  const allQueries = await prepareUpdateQuery(builder, table, schema, relations, query);
+  const allQueries = await prepareUpdateQuery(builder, table, schema, relations, query, options);
 
   const [statement, variables] = builder.with(allQueries).build();
 

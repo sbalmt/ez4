@@ -7,7 +7,7 @@ import type { InternalTableMetadata } from '../types/table';
 
 import { getObjectSchemaProperty, isNumberSchema, isObjectSchema } from '@ez4/schema';
 import { InvalidAtomicOperation, InvalidFieldSchemaError, InvalidRelationFieldError } from '@ez4/pgclient';
-import { mergeSqlAlias, SqlSelectStatement } from '@ez4/pgsql';
+import { escapeSqlName, mergeSqlAlias, SqlSelectStatement } from '@ez4/pgsql';
 import { isAnyObject, isEmptyObject } from '@ez4/utils';
 import { Index } from '@ez4/database';
 
@@ -15,12 +15,17 @@ import { getWithSchemaValidation, isDynamicFieldSchema, validateFirstSchemaLevel
 import { getSourceConnectionSchema, getTargetConnectionSchema, getUpdatingSchema, isSingleRelationData } from '../utils/relation';
 import { getSelectFields, getSelectFilters } from './select';
 
+export type UpdateQueryOptions = {
+  flag?: string;
+};
+
 export const prepareUpdateQuery = async <T extends InternalTableMetadata, S extends Query.SelectInput<T>>(
   builder: SqlBuilder,
   table: string,
   schema: ObjectSchema,
   relations: PgRelationRepositoryWithSchema,
-  query: Query.UpdateOneInput<S, T> | Query.UpdateManyInput<S, T>
+  query: Query.UpdateOneInput<S, T> | Query.UpdateManyInput<S, T>,
+  options?: UpdateQueryOptions
 ) => {
   const updateRecord = await getUpdateRecord(builder, query.data, schema, relations, table);
 
@@ -45,7 +50,7 @@ export const prepareUpdateQuery = async <T extends InternalTableMetadata, S exte
         selectQuery.where(selectFilter);
       }
 
-      updateQuery.from(selectQuery.reference());
+      updateQuery.from(selectQuery.reference()).as('U');
       selectQuery.record(selectFields);
 
       allQueries.push(selectQuery);
@@ -66,6 +71,13 @@ export const prepareUpdateQuery = async <T extends InternalTableMetadata, S exte
     } else {
       allQueries.push(builder.select().from(allQueries[0].reference()));
     }
+  }
+
+  if (options?.flag) {
+    const resultQuery = allQueries[allQueries.length - 1];
+    const flagColumn = `'1 AS ${escapeSqlName(options.flag)}'`;
+
+    resultQuery.results?.rawColumn(flagColumn);
   }
 
   return allQueries;

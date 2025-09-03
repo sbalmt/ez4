@@ -29,10 +29,6 @@ export type TableContext = {
 
 type SendStatementResult<T> = IsArray<T> extends true ? PgExecutionResult[] : PgExecutionResult;
 
-type SendStatementOptions = {
-  silent?: boolean;
-};
-
 export class Table<T extends InternalTableMetadata> implements DbTable<T> {
   constructor(
     private name: string,
@@ -42,15 +38,11 @@ export class Table<T extends InternalTableMetadata> implements DbTable<T> {
     private context: TableContext
   ) {}
 
-  private async sendStatement<T extends PgExecuteStatement | PgExecuteStatement[]>(
-    input: T,
-    options?: SendStatementOptions
-  ): Promise<SendStatementResult<T>> {
+  private async sendStatement<T extends PgExecuteStatement | PgExecuteStatement[]>(input: T): Promise<SendStatementResult<T>> {
     const { transactionId, driver, debug } = this.context;
 
     if (!Array.isArray(input)) {
       return driver.executeStatement(input, {
-        ...options,
         transactionId,
         debug
       }) as Promise<SendStatementResult<T>>;
@@ -58,13 +50,11 @@ export class Table<T extends InternalTableMetadata> implements DbTable<T> {
 
     if (!transactionId) {
       return driver.executeTransaction(input, {
-        ...options,
         debug
       }) as Promise<SendStatementResult<T>>;
     }
 
     return driver.executeStatements(input, {
-      ...options,
       transactionId,
       debug
     }) as Promise<SendStatementResult<T>>;
@@ -111,18 +101,24 @@ export class Table<T extends InternalTableMetadata> implements DbTable<T> {
 
     const { driver } = this.context;
 
-    const updateStatement = await prepareUpdateOne(this.name, this.schema, this.relations, this.context.driver, {
+    const updateQuery = {
       select: query.select,
       include: query.include,
       data: query.update,
       where: query.where,
       lock: query.lock
+    };
+
+    const updateStatement = await prepareUpdateOne(this.name, this.schema, this.relations, driver, updateQuery, {
+      flag: '__EZ4_OK'
     });
 
-    const updateResults = await this.sendStatement(updateStatement);
+    const { records: updateRecords } = await this.sendStatement(updateStatement);
 
-    if (updateResults.rows && updateResults.rows > 0) {
-      return updateResults.records[0] as Query.UpsertOneResult<S, T>;
+    if (updateRecords[0]?.__EZ4_OK) {
+      delete updateRecords[0]?.__EZ4_OK;
+
+      return updateRecords[0] as Query.UpsertOneResult<S, T>;
     }
 
     const insertStatement = await prepareInsertOne(this.name, this.schema, this.relations, driver, {
@@ -130,11 +126,9 @@ export class Table<T extends InternalTableMetadata> implements DbTable<T> {
       data: query.insert
     });
 
-    const insertResults = await this.sendStatement(insertStatement, {
-      silent: true
-    });
+    const { records: insertRecords } = await this.sendStatement(insertStatement);
 
-    return insertResults.records[0] as Query.UpsertOneResult<S, T>;
+    return insertRecords[0] as Query.UpsertOneResult<S, T>;
   }
 
   async insertMany(query: Query.InsertManyInput<T>) {
@@ -178,12 +172,12 @@ export class Table<T extends InternalTableMetadata> implements DbTable<T> {
       allStatements.push(countStatement);
     }
 
-    const [{ records }, { records: total }] = await this.sendStatement(allStatements);
+    const [{ records }, total] = await this.sendStatement(allStatements);
 
     return {
       records,
       ...(query.count && {
-        total: total[0]?.count
+        total: total.records[0]?.count
       })
     } as Query.FindManyResult<S, C, T>;
   }
