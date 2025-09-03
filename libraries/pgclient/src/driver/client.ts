@@ -30,7 +30,7 @@ export class ClientDriver implements PgClientDriver {
     try {
       const [query, variables] = prepareStatement(statement.query, statement.variables);
 
-      const { rows: records } = await client.query(query, variables);
+      const { rows: records, rowCount: rows } = await client.query(query, variables);
 
       if (options?.debug) {
         logQuerySuccess(statement, transactionId);
@@ -39,11 +39,16 @@ export class ClientDriver implements PgClientDriver {
       const metadata = statement.metadata;
 
       if (metadata) {
-        return parseRecords(records, metadata);
+        return {
+          records: parseRecords(records, metadata),
+          rows
+        };
       }
 
-      return records;
-      //
+      return {
+        records,
+        rows
+      };
     } catch (error) {
       if (!options?.silent) {
         logQueryError(statement, transactionId);

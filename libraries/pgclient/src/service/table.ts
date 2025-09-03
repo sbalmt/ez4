@@ -1,9 +1,9 @@
 import type { TableIndex } from '@ez4/database/library';
 import type { Table as DbTable, Query } from '@ez4/database';
-import type { AnyObject, IsArray } from '@ez4/utils';
 import type { ObjectSchema } from '@ez4/schema';
+import type { IsArray } from '@ez4/utils';
 import type { PgRelationRepositoryWithSchema } from '../types/repository';
-import type { PgClientDriver, PgExecuteStatement } from '../types/driver';
+import type { PgClientDriver, PgExecuteStatement, PgExecutionResult } from '../types/driver';
 import type { InternalTableMetadata } from '../types/table';
 
 import { MissingUniqueIndexError } from '../queries/errors';
@@ -27,7 +27,7 @@ export type TableContext = {
   debug?: boolean;
 };
 
-type SendStatementResult<T> = IsArray<T> extends true ? AnyObject[][] : AnyObject[];
+type SendStatementResult<T> = IsArray<T> extends true ? PgExecutionResult[] : PgExecutionResult;
 
 type SendStatementOptions = {
   silent?: boolean;
@@ -49,70 +49,57 @@ export class Table<T extends InternalTableMetadata> implements DbTable<T> {
     const { transactionId, driver, debug } = this.context;
 
     if (!Array.isArray(input)) {
-      return driver.executeStatement(input, { ...options, transactionId, debug }) as Promise<SendStatementResult<T>>;
+      return driver.executeStatement(input, {
+        ...options,
+        transactionId,
+        debug
+      }) as Promise<SendStatementResult<T>>;
     }
 
     if (!transactionId) {
       return driver.executeTransaction(input, {
         ...options,
         debug
-      });
+      }) as Promise<SendStatementResult<T>>;
     }
 
     return driver.executeStatements(input, {
       ...options,
       transactionId,
       debug
-    });
+    }) as Promise<SendStatementResult<T>>;
   }
 
   async insertOne<S extends Query.SelectInput<T>>(query: Query.InsertOneInput<S, T>) {
     const statement = await prepareInsertOne(this.name, this.schema, this.relations, this.context.driver, query);
 
-    const results = await this.sendStatement(statement);
+    const { records } = await this.sendStatement(statement);
 
-    return results?.[0] as Query.InsertOneResult<S, T>;
+    return records[0] as Query.InsertOneResult<S, T>;
   }
 
   async updateOne<S extends Query.SelectInput<T>>(query: Query.UpdateOneInput<S, T>) {
-    const updateQuery = {
-      data: query.data,
-      where: query.where
-    };
+    const statement = await prepareUpdateOne(this.name, this.schema, this.relations, this.context.driver, query);
 
-    const updateStatement = await prepareUpdateOne(this.name, this.schema, this.relations, this.context.driver, updateQuery);
+    const { records } = await this.sendStatement(statement);
 
-    if (!query.select) {
-      await this.sendStatement(updateStatement);
-
-      return undefined as Query.UpdateOneResult<S, T>;
-    }
-
-    const selectStatement = prepareFindOne(this.name, this.schema, this.relations, this.context.driver, {
-      select: query.select,
-      include: query.include,
-      where: query.where
-    });
-
-    const [records] = await this.sendStatement([selectStatement, updateStatement]);
-
-    return records?.[0] as Query.UpdateOneResult<S, T>;
+    return records[0] as Query.UpdateOneResult<S, T>;
   }
 
   async findOne<S extends Query.SelectInput<T>>(query: Query.FindOneInput<S, T>) {
     const statement = prepareFindOne(this.name, this.schema, this.relations, this.context.driver, query);
 
-    const records = await this.sendStatement(statement);
+    const { records } = await this.sendStatement(statement);
 
-    return records?.[0] as Query.FindOneResult<S, T>;
+    return records[0] as Query.FindOneResult<S, T>;
   }
 
   async deleteOne<S extends Query.SelectInput<T>>(query: Query.DeleteOneInput<S, T>) {
     const statement = prepareDeleteOne(this.name, this.schema, this.relations, this.context.driver, query);
 
-    const records = await this.sendStatement(statement);
+    const { records } = await this.sendStatement(statement);
 
-    return records?.[0] as Query.DeleteOneResult<S, T>;
+    return records[0] as Query.DeleteOneResult<S, T>;
   }
 
   async upsertOne<S extends Query.SelectInput<T>>(query: Query.UpsertOneInput<S, T>) {
@@ -122,34 +109,32 @@ export class Table<T extends InternalTableMetadata> implements DbTable<T> {
       throw new MissingUniqueIndexError();
     }
 
-    try {
-      const insertStatement = await prepareInsertOne(this.name, this.schema, this.relations, this.context.driver, {
-        select: query.select,
-        data: query.insert
-      });
+    const { driver } = this.context;
 
-      const insertResults = await this.sendStatement(insertStatement, {
-        silent: true
-      });
+    const updateStatement = await prepareUpdateOne(this.name, this.schema, this.relations, this.context.driver, {
+      select: query.select,
+      include: query.include,
+      data: query.update,
+      where: query.where,
+      lock: query.lock
+    });
 
-      return insertResults[0] as Query.UpsertOneResult<S, T>;
-    } catch (error) {
-      if (!(error instanceof Error) || !error.message.includes('duplicate')) {
-        throw error;
-      }
+    const updateResults = await this.sendStatement(updateStatement);
 
-      const updateStatement = await prepareUpdateOne(this.name, this.schema, this.relations, this.context.driver, {
-        select: query.select,
-        include: query.include,
-        data: query.update,
-        where: query.where,
-        lock: query.lock
-      });
-
-      const updateResults = await this.sendStatement(updateStatement);
-
-      return updateResults?.[0] as Query.UpsertOneResult<S, T>;
+    if (updateResults.rows && updateResults.rows > 0) {
+      return updateResults.records[0] as Query.UpsertOneResult<S, T>;
     }
+
+    const insertStatement = await prepareInsertOne(this.name, this.schema, this.relations, driver, {
+      select: query.select,
+      data: query.insert
+    });
+
+    const insertResults = await this.sendStatement(insertStatement, {
+      silent: true
+    });
+
+    return insertResults.records[0] as Query.UpsertOneResult<S, T>;
   }
 
   async insertMany(query: Query.InsertManyInput<T>) {
@@ -176,7 +161,7 @@ export class Table<T extends InternalTableMetadata> implements DbTable<T> {
       })
     });
 
-    const [records] = await this.sendStatement([selectStatement, updateStatement]);
+    const [{ records }] = await this.sendStatement([selectStatement, updateStatement]);
 
     return records as Query.UpdateManyResult<S, T>;
   }
@@ -193,7 +178,7 @@ export class Table<T extends InternalTableMetadata> implements DbTable<T> {
       allStatements.push(countStatement);
     }
 
-    const [records, total] = await this.sendStatement(allStatements);
+    const [{ records }, { records: total }] = await this.sendStatement(allStatements);
 
     return {
       records,
@@ -206,7 +191,7 @@ export class Table<T extends InternalTableMetadata> implements DbTable<T> {
   async deleteMany<S extends Query.SelectInput<T>>(query: Query.DeleteManyInput<S, T>) {
     const statement = prepareDeleteMany(this.name, this.schema, this.relations, this.context.driver, query);
 
-    const records = await this.sendStatement(statement);
+    const { records } = await this.sendStatement(statement);
 
     return records as Query.DeleteManyResult<S, T>;
   }
@@ -214,8 +199,8 @@ export class Table<T extends InternalTableMetadata> implements DbTable<T> {
   async count(query: Query.CountInput<T>) {
     const statement = prepareCount(this.name, this.schema, this.relations, this.context.driver, query);
 
-    const [{ __EZ4_COUNT }] = await this.sendStatement(statement);
+    const { records } = await this.sendStatement(statement);
 
-    return __EZ4_COUNT;
+    return records[0].__EZ4_COUNT;
   }
 }
