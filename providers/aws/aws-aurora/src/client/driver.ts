@@ -72,7 +72,9 @@ export class DataClientDriver implements PgClientDriver {
         return records;
       });
     } catch (error) {
-      logQueryError(statement, transactionId);
+      if (!options?.silent) {
+        logQueryError(statement, transactionId);
+      }
 
       throw error;
     }

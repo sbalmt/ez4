@@ -29,7 +29,7 @@ declare class Test extends Database.Service {
 
   tables: [
     {
-      name: 'testTable';
+      name: 'ez4_test_operations';
       schema: TestSchema;
       indexes: {
         id: Index.Primary;
@@ -38,12 +38,12 @@ declare class Test extends Database.Service {
   ];
 }
 
-describe('aurora client', () => {
+describe('aurora client operations', () => {
   let dbClient: DbClient<Test>;
 
   const repository: PgTableRepository = {
-    testTable: {
-      name: 'test_table',
+    ez4_test_operations: {
+      name: 'ez4_test_operations',
       relations: {},
       indexes: {
         id: {
@@ -126,7 +126,7 @@ describe('aurora client', () => {
       }
     });
 
-    dbClient.testTable.deleteMany({});
+    dbClient.ez4_test_operations.deleteMany({});
   });
 
   it('assert :: insert many', async () => {
@@ -142,7 +142,7 @@ describe('aurora client', () => {
       });
     }
 
-    await dbClient.testTable.insertMany({
+    await dbClient.ez4_test_operations.insertMany({
       data
     });
   });
@@ -150,7 +150,7 @@ describe('aurora client', () => {
   it('assert :: count (filtered)', async () => {
     ok(dbClient);
 
-    const result = await dbClient.testTable.count({
+    const result = await dbClient.ez4_test_operations.count({
       where: {
         bar: {
           gt: 1024
@@ -164,7 +164,7 @@ describe('aurora client', () => {
   it('assert :: update many', async () => {
     ok(dbClient);
 
-    const result = await dbClient.testTable.updateMany({
+    const result = await dbClient.ez4_test_operations.updateMany({
       data: {
         foo: 'updated',
         bar: 0
@@ -180,7 +180,7 @@ describe('aurora client', () => {
   it('assert :: find many', async () => {
     ok(dbClient);
 
-    const result = await dbClient.testTable.findMany({
+    const result = await dbClient.ez4_test_operations.findMany({
       select: {
         id: true,
         foo: true
@@ -212,7 +212,7 @@ describe('aurora client', () => {
   it('assert :: delete many', async () => {
     ok(dbClient);
 
-    const result = await dbClient.testTable.deleteMany({
+    const result = await dbClient.ez4_test_operations.deleteMany({
       select: {
         foo: true
       }
@@ -224,7 +224,7 @@ describe('aurora client', () => {
   it('assert :: insert one', async () => {
     ok(dbClient);
 
-    await dbClient.testTable.insertOne({
+    await dbClient.ez4_test_operations.insertOne({
       data: {
         id: 'single',
         foo: 'initial',
@@ -236,7 +236,7 @@ describe('aurora client', () => {
   it('assert :: update one', async () => {
     ok(dbClient);
 
-    const result = await dbClient.testTable.updateOne({
+    const result = await dbClient.ez4_test_operations.updateOne({
       data: {
         foo: 'updated',
         bar: undefined
@@ -259,7 +259,7 @@ describe('aurora client', () => {
   it('assert :: find one', async () => {
     ok(dbClient);
 
-    const result = await dbClient.testTable.findOne({
+    const result = await dbClient.ez4_test_operations.findOne({
       select: {
         foo: true,
         bar: true,
@@ -296,21 +296,21 @@ describe('aurora client', () => {
     };
 
     // Return the current value
-    const insertResult = await dbClient.testTable.upsertOne(query);
+    const insertResult = await dbClient.ez4_test_operations.upsertOne(query);
 
     deepEqual(insertResult, {
       foo: 'initial'
     });
 
     // Return the last value
-    const update1Result = await dbClient.testTable.upsertOne(query);
+    const update1Result = await dbClient.ez4_test_operations.upsertOne(query);
 
     deepEqual(update1Result, {
       foo: 'initial'
     });
 
     // Return the last value
-    const update2Result = await dbClient.testTable.upsertOne(query);
+    const update2Result = await dbClient.ez4_test_operations.upsertOne(query);
 
     deepEqual(update2Result, {
       foo: 'updated'
@@ -320,7 +320,7 @@ describe('aurora client', () => {
   it('assert :: delete one', async () => {
     ok(dbClient);
 
-    const result = await dbClient.testTable.deleteOne({
+    const result = await dbClient.ez4_test_operations.deleteOne({
       select: {
         foo: true
       },
@@ -337,7 +337,7 @@ describe('aurora client', () => {
   it('assert :: insert json', async () => {
     ok(dbClient);
 
-    await dbClient.testTable.insertOne({
+    await dbClient.ez4_test_operations.insertOne({
       data: {
         id: 'json',
         baz: {
@@ -352,7 +352,7 @@ describe('aurora client', () => {
   it('assert :: update json', async () => {
     ok(dbClient);
 
-    const result = await dbClient.testTable.updateOne({
+    const result = await dbClient.ez4_test_operations.updateOne({
       data: {
         foo: 'updated',
         baz: {
@@ -383,7 +383,7 @@ describe('aurora client', () => {
   it('assert :: find json', async () => {
     ok(dbClient);
 
-    const result = await dbClient.testTable.findOne({
+    const result = await dbClient.ez4_test_operations.findOne({
       select: {
         baz: {
           bazFoo: true
@@ -405,7 +405,7 @@ describe('aurora client', () => {
     ok(dbClient);
 
     await dbClient.transaction({
-      testTable: [
+      ez4_test_operations: [
         {
           insert: {
             data: {
@@ -425,7 +425,7 @@ describe('aurora client', () => {
       ]
     });
 
-    const result = await dbClient.testTable.findMany({
+    const result = await dbClient.ez4_test_operations.findMany({
       select: {
         foo: true
       },
@@ -450,7 +450,7 @@ describe('aurora client', () => {
     ok(dbClient);
 
     await dbClient.transaction({
-      testTable: [
+      ez4_test_operations: [
         {
           update: {
             data: {
@@ -474,7 +474,7 @@ describe('aurora client', () => {
       ]
     });
 
-    const result = await dbClient.testTable.findMany({
+    const result = await dbClient.ez4_test_operations.findMany({
       select: {
         foo: true
       },
@@ -499,7 +499,7 @@ describe('aurora client', () => {
     ok(dbClient);
 
     await dbClient.transaction({
-      testTable: [
+      ez4_test_operations: [
         {
           delete: {
             where: {
@@ -517,7 +517,7 @@ describe('aurora client', () => {
       ]
     });
 
-    const result = await dbClient.testTable.findMany({
+    const result = await dbClient.ez4_test_operations.findMany({
       select: {
         foo: true
       },
@@ -535,14 +535,14 @@ describe('aurora client', () => {
     ok(dbClient);
 
     const result = await dbClient.transaction(async (client) => {
-      await client.testTable.insertOne({
+      await client.ez4_test_operations.insertOne({
         data: {
           id: 'transaction-2',
           foo: 'initial'
         }
       });
 
-      await client.testTable.updateOne({
+      await client.ez4_test_operations.updateOne({
         data: {
           foo: 'updated'
         },
@@ -551,7 +551,7 @@ describe('aurora client', () => {
         }
       });
 
-      return client.testTable.findOne({
+      return client.ez4_test_operations.findOne({
         select: {
           foo: true
         },
