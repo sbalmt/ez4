@@ -177,7 +177,7 @@ export class Table<T extends InternalTableMetadata> implements DbTable<T> {
     return {
       records,
       ...(query.count && {
-        total: total.records[0]?.count
+        total: total.records[0]?.__EZ4_COUNT
       })
     } as Query.FindManyResult<S, C, T>;
   }

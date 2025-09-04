@@ -30,9 +30,7 @@ export const prepareSelectQuery = <T extends InternalTableMetadata, S extends Qu
   selectQuery.record(selectRecord);
 
   if (query.where) {
-    const selectFilter = getSelectFilters(builder, query.where, relations, selectQuery, table);
-
-    selectQuery.where(selectFilter);
+    selectQuery.where(getSelectFilters(builder, query.where, relations, selectQuery, table));
   }
 
   if (query.lock) {

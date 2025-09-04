@@ -36,35 +36,40 @@ export const prepareInsertQuery = async <T extends InternalTableMetadata, S exte
   relations: PgRelationRepositoryWithSchema,
   query: Query.InsertOneInput<S, T>
 ) => {
-  const preQueriesMap = preparePreInsertRelations(builder, query.data, relations, table);
+  const preInsertQueriesMap = preparePreInsertRelations(builder, query.data, relations, table);
 
-  const preQueries = Object.values(preQueriesMap)
+  const preInsertQueries = Object.values(preInsertQueriesMap)
     .map(({ relationQueries }) => relationQueries)
     .flat();
 
-  const insertRecord = await getInsertRecord(query.data, schema, relations, preQueriesMap, table);
+  const insertRecord = await getInsertRecord(query.data, schema, relations, preInsertQueriesMap, table);
   const insertQuery = builder.insert(schema).record(insertRecord).into(table).returning();
 
-  if (preQueries.length) {
-    insertQuery.select(...preQueries.map((query) => query.reference()));
+  if (preInsertQueries.length) {
+    insertQuery.select(...preInsertQueries.map((query) => query.reference()));
   }
 
-  const postQueriesMap = preparePostInsertRelations(builder, query.data, relations, insertQuery, table);
+  const postInsertQueriesMap = preparePostInsertRelations(builder, query.data, relations, insertQuery, table);
 
-  const postQueries = Object.values(postQueriesMap)
+  const postInsertQueries = Object.values(postInsertQueriesMap)
     .map(({ relationQueries }) => relationQueries)
     .flat();
 
-  const allQueries: (SqlSelectStatement | SqlInsertStatement)[] = [...preQueries, insertQuery, ...postQueries];
+  const allQueries: (SqlSelectStatement | SqlInsertStatement)[] = [...preInsertQueries, insertQuery, ...postInsertQueries];
 
   if (query.select) {
-    const allRelations = { ...preQueriesMap, ...postQueriesMap };
-    const selectQuery = builder.select(schema).from(insertQuery.reference());
+    const allRelations = { ...preInsertQueriesMap, ...postInsertQueriesMap };
 
-    const selectRecord = getInsertSelectFields(builder, query.select, schema, allRelations, insertQuery, selectQuery, table);
+    if (!postInsertQueries.length) {
+      getInsertSelectFields(builder, query.select, schema, allRelations, insertQuery, insertQuery, table);
+    } else {
+      const selectQuery = builder.select(schema).from(insertQuery.reference());
 
-    selectQuery.record(selectRecord);
-    allQueries.push(selectQuery);
+      const selectRecord = getInsertSelectFields(builder, query.select, schema, allRelations, insertQuery, selectQuery, table);
+
+      selectQuery.record(selectRecord);
+      allQueries.push(selectQuery);
+    }
   }
 
   return allQueries;
@@ -333,7 +338,7 @@ const getInsertSelectFields = (
   schema: ObjectSchema,
   relations: InsertRelationsCache,
   main: SqlInsertStatement | undefined,
-  source: SqlSelectStatement,
+  source: SqlInsertStatement | SqlSelectStatement,
   path: string,
   json?: boolean
 ) => {

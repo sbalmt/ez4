@@ -45,9 +45,7 @@ export const prepareUpdateQuery = async <T extends InternalTableMetadata, S exte
       const selectFields = getSelectFields(builder, query.select, query.include, schema, relations, selectQuery, table);
 
       if (query.where) {
-        const selectFilter = getSelectFilters(builder, query.where, relations, selectQuery, table);
-
-        selectQuery.where(selectFilter);
+        selectQuery.where(getSelectFilters(builder, query.where, relations, selectQuery, table));
       }
 
       updateQuery.from(selectQuery.reference()).as('U');
@@ -75,7 +73,7 @@ export const prepareUpdateQuery = async <T extends InternalTableMetadata, S exte
 
   if (options?.flag) {
     const resultQuery = allQueries[allQueries.length - 1];
-    const flagColumn = `'1 AS ${escapeSqlName(options.flag)}'`;
+    const flagColumn = `1 AS ${escapeSqlName(options.flag)}`;
 
     resultQuery.results?.rawColumn(flagColumn);
   }

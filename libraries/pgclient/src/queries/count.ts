@@ -18,9 +18,7 @@ export const prepareCountQuery = <T extends InternalTableMetadata>(
   countQuery.rawColumn('COUNT(1) AS "__EZ4_COUNT"');
 
   if (query.where) {
-    const selectFilters = getSelectFilters(builder, query.where, relations, countQuery, table);
-
-    countQuery.where(selectFilters);
+    countQuery.where(getSelectFilters(builder, query.where, relations, countQuery, table));
   }
 
   return countQuery;
