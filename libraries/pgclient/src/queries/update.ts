@@ -64,10 +64,13 @@ export const prepareUpdateQuery = async <T extends InternalTableMetadata, S exte
   }
 
   if (query.select) {
-    if (!postUpdateQueries.length) {
-      updateQuery.results?.rawColumn(() => mergeSqlAlias('*', allQueries[0]?.alias));
+    const firstQuery = allQueries[0];
+    const firstResult = () => mergeSqlAlias('*', firstQuery.alias);
+
+    if (postUpdateQueries.length) {
+      allQueries.push(builder.select().from(firstQuery.reference()).rawColumn(firstResult));
     } else {
-      allQueries.push(builder.select().from(allQueries[0].reference()));
+      updateQuery.results?.rawColumn(firstResult);
     }
   }
 
