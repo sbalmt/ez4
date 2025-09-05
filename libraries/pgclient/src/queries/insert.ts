@@ -5,8 +5,8 @@ import type { Query } from '@ez4/database';
 import type { PgRelationWithSchema, PgRelationRepositoryWithSchema } from '../types/repository';
 import type { InternalTableMetadata } from '../types/table';
 
-import { InvalidRelationFieldError, MissingFieldSchemaError } from '@ez4/pgclient';
 import { isObjectSchema } from '@ez4/schema';
+import { InvalidRelationFieldError, MissingFieldSchemaError } from '@ez4/pgclient';
 import { isEmptyObject } from '@ez4/utils';
 import { Index } from '@ez4/database';
 
@@ -20,8 +20,9 @@ import {
   getSourceConnectionSchema
 } from '../utils/relation';
 
+import { getFormattedColumn } from '../utils/formats';
 import { getWithSchemaValidation, validateAllSchemaLevels, validateFirstSchemaLevel } from '../utils/schema';
-import { getDefaultSelectFields, getFieldColumn, getSelectFields } from './select';
+import { getDefaultSelectFields, getSelectFields } from './select';
 
 type InsertRelationsCache = Record<string, InsertRelationEntry>;
 
@@ -59,17 +60,12 @@ export const prepareInsertQuery = async <T extends InternalTableMetadata, S exte
 
   if (query.select) {
     const allRelations = { ...preInsertQueriesMap, ...postInsertQueriesMap };
+    const selectQuery = builder.select().from(insertQuery.reference());
 
-    if (!postInsertQueries.length) {
-      getInsertSelectFields(builder, query.select, schema, allRelations, insertQuery, insertQuery, table);
-    } else {
-      const selectQuery = builder.select(schema).from(insertQuery.reference());
+    const selectRecord = getInsertSelectFields(builder, query.select, schema, allRelations, insertQuery, selectQuery, table);
 
-      const selectRecord = getInsertSelectFields(builder, query.select, schema, allRelations, insertQuery, selectQuery, table);
-
-      selectQuery.record(selectRecord);
-      allQueries.push(selectQuery);
-    }
+    selectQuery.record(selectRecord);
+    allQueries.push(selectQuery);
   }
 
   return allQueries;
@@ -338,7 +334,7 @@ const getInsertSelectFields = (
   schema: ObjectSchema,
   relations: InsertRelationsCache,
   main: SqlInsertStatement | undefined,
-  source: SqlInsertStatement | SqlSelectStatement,
+  source: SqlSelectStatement,
   path: string,
   json?: boolean
 ) => {
@@ -426,7 +422,7 @@ const getInsertSelectFields = (
       continue;
     }
 
-    const fieldColumn = getFieldColumn(fieldKey, fieldSchema, !json);
+    const fieldColumn = getFormattedColumn(fieldKey, fieldSchema, !json);
 
     if (fieldColumn instanceof Function) {
       output[fieldKey] = source.reference(fieldColumn);

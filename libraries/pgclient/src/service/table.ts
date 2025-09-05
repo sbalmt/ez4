@@ -177,7 +177,7 @@ export class Table<T extends InternalTableMetadata> implements DbTable<T> {
     return {
       records,
       ...(query.count && {
-        total: total.records[0]?.__EZ4_COUNT
+        total: Number(total.records[0]?.__EZ4_COUNT)
       })
     } as Query.FindManyResult<S, C, T>;
   }
@@ -195,6 +195,6 @@ export class Table<T extends InternalTableMetadata> implements DbTable<T> {
 
     const { records } = await this.sendStatement(statement);
 
-    return records[0].__EZ4_COUNT;
+    return Number(records[0].__EZ4_COUNT);
   }
 }

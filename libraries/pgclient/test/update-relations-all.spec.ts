@@ -170,7 +170,7 @@ describe('update relations', () => {
         // Third relation
         `"Q3" AS (UPDATE ONLY "ez4_test_table" AS "T" SET "foo" = :2 FROM "Q0" WHERE "T"."primary_id" = "Q0"."id") ` +
         // Return
-        `SELECT * FROM "Q0"`
+        `SELECT "Q0".* FROM "Q0"`
     );
 
     assert.deepEqual(variables, ['foo1', 'foo2', 'foo3']);
@@ -242,7 +242,7 @@ describe('update relations', () => {
         // Third relation
         `"Q3" AS (UPDATE ONLY "ez4_test_table" AS "T" SET "foo" = :6 FROM "Q0" WHERE "T"."primary_id" = "Q0"."id") ` +
         // Return
-        `SELECT * FROM "Q0"`
+        `SELECT "Q0".* FROM "Q0"`
     );
 
     assert.deepEqual(variables, [123, 456, 789, '00000000-0000-1000-9000-000000000000', 'foo1', 'foo2', 'foo3']);
