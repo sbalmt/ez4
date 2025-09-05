@@ -32,6 +32,47 @@ describe('client update one', async () => {
     });
   });
 
+  it('assert :: update one (without select)', async () => {
+    const result = await client.ez4_test_table.updateOne({
+      data: {
+        boolean: true,
+        integer: 123,
+        json: {
+          foo: 'new'
+        }
+      },
+      where: {
+        id
+      }
+    });
+
+    deepEqual(result, undefined);
+
+    const changes = await client.ez4_test_table.findOne({
+      select: {},
+      where: {
+        id
+      }
+    });
+
+    deepEqual(changes, {
+      boolean: true,
+      integer: 123,
+      decimal: 10.5678,
+      string: 'abc',
+      datetime: '1991-04-23T23:59:30.000Z',
+      date: '1991-04-23',
+      time: '23:59:30.000Z',
+      json: {
+        foo: 'new',
+        bar: true,
+        baz: null,
+        qux: '2024-07-01T08:00:00.000Z'
+      },
+      id
+    });
+  });
+
   it('assert :: update one and select boolean', async () => {
     const result = await client.ez4_test_table.updateOne({
       select: {

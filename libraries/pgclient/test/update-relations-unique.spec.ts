@@ -208,9 +208,11 @@ describe('update unique relations', () => {
       `WITH ` +
         // Select
         `"Q0" AS (SELECT (SELECT jsonb_build_object('id', "S0"."id", 'foo', "S0"."foo") FROM "ez4_test_table" AS "S0" ` +
-        `WHERE "S0"."unique_id" = "R0"."id") AS "unique_to_primary" FROM "ez4_test_table" AS "R0" FOR UPDATE) ` +
-        // Update and return
-        `UPDATE ONLY "ez4_test_table" AS "U" SET "id" = :0, "unique_id" = :1 FROM "Q0" RETURNING "Q0".*`
+        `WHERE "S0"."unique_id" = "R0"."id") AS "unique_to_primary" FROM "ez4_test_table" AS "R0" FOR UPDATE), ` +
+        // Update
+        `"Q1" AS (UPDATE ONLY "ez4_test_table" AS "U" SET "id" = :0, "unique_id" = :1 FROM "Q0") ` +
+        // Return
+        `SELECT "Q0".* FROM "Q0"`
     );
 
     assert.deepEqual(variables, ['00000000-0000-1000-9000-000000000000', '00000000-0000-1000-9000-000000000001']);

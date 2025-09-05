@@ -32,6 +32,16 @@ describe('client delete one', async () => {
     });
   });
 
+  it('assert :: delete one (without select)', async () => {
+    const result = await client.ez4_test_table.deleteOne({
+      where: {
+        id
+      }
+    });
+
+    deepEqual(result, undefined);
+  });
+
   it('assert :: delete one and select boolean', async () => {
     const result = await client.ez4_test_table.deleteOne({
       select: {

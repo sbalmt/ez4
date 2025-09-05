@@ -14,12 +14,14 @@ describe('client insert many', async () => {
   it('assert :: insert many booleans', async () => {
     const inputs = [{ boolean: true }, { boolean: false }, { boolean: true }];
 
-    await client.ez4_test_table.insertMany({
+    const result = await client.ez4_test_table.insertMany({
       data: inputs.map((input) => ({
         id: randomUUID(),
         ...input
       }))
     });
+
+    deepEqual(result, undefined);
 
     const { records, total } = await client.ez4_test_table.findMany({
       count: true,
@@ -36,12 +38,14 @@ describe('client insert many', async () => {
   it('assert :: insert many integers', async () => {
     const inputs = [{ integer: 1 }, { integer: 22 }, { integer: 333 }];
 
-    await client.ez4_test_table.insertMany({
+    const result = await client.ez4_test_table.insertMany({
       data: inputs.map((input) => ({
         id: randomUUID(),
         ...input
       }))
     });
+
+    deepEqual(result, undefined);
 
     const { records, total } = await client.ez4_test_table.findMany({
       count: true,
@@ -58,12 +62,14 @@ describe('client insert many', async () => {
   it('assert :: insert many decimals', async () => {
     const inputs = [{ decimal: 0.1 }, { decimal: 1.22 }, { decimal: 2.333 }];
 
-    await client.ez4_test_table.insertMany({
+    const result = await client.ez4_test_table.insertMany({
       data: inputs.map((input) => ({
         id: randomUUID(),
         ...input
       }))
     });
+
+    deepEqual(result, undefined);
 
     const { records, total } = await client.ez4_test_table.findMany({
       count: true,
@@ -80,12 +86,14 @@ describe('client insert many', async () => {
   it('assert :: insert many strings', async () => {
     const inputs = [{ string: 'foo' }, { string: 'bar' }, { string: 'baz' }];
 
-    await client.ez4_test_table.insertMany({
+    const result = await client.ez4_test_table.insertMany({
       data: inputs.map((input) => ({
         id: randomUUID(),
         ...input
       }))
     });
+
+    deepEqual(result, undefined);
 
     const { records, total } = await client.ez4_test_table.findMany({
       count: true,
@@ -106,12 +114,14 @@ describe('client insert many', async () => {
       { datetime: '2011-11-02T13:30:00.000Z' }
     ];
 
-    await client.ez4_test_table.insertMany({
+    const result = await client.ez4_test_table.insertMany({
       data: inputs.map((input) => ({
         id: randomUUID(),
         ...input
       }))
     });
+
+    deepEqual(result, undefined);
 
     const { records, total } = await client.ez4_test_table.findMany({
       count: true,
@@ -128,12 +138,14 @@ describe('client insert many', async () => {
   it('assert :: insert many dates', async () => {
     const inputs = [{ date: '1991-04-23' }, { date: '2024-07-01' }, { date: '2011-11-02' }];
 
-    await client.ez4_test_table.insertMany({
+    const result = await client.ez4_test_table.insertMany({
       data: inputs.map((input) => ({
         id: randomUUID(),
         ...input
       }))
     });
+
+    deepEqual(result, undefined);
 
     const { records, total } = await client.ez4_test_table.findMany({
       count: true,
@@ -150,12 +162,14 @@ describe('client insert many', async () => {
   it('assert :: insert many times', async () => {
     const inputs = [{ time: '23:59:30.000Z' }, { time: '08:00:00.000Z' }, { time: '13:30:00.000Z' }];
 
-    await client.ez4_test_table.insertMany({
+    const result = await client.ez4_test_table.insertMany({
       data: inputs.map((input) => ({
         id: randomUUID(),
         ...input
       }))
     });
+
+    deepEqual(result, undefined);
 
     const { records, total } = await client.ez4_test_table.findMany({
       count: true,
@@ -182,12 +196,14 @@ describe('client insert many', async () => {
       }
     ];
 
-    await client.ez4_test_table.insertMany({
+    const result = await client.ez4_test_table.insertMany({
       data: inputs.map((input) => ({
         id: randomUUID(),
         ...input
       }))
     });
+
+    deepEqual(result, undefined);
 
     const { records, total } = await client.ez4_test_table.findMany({
       count: true,

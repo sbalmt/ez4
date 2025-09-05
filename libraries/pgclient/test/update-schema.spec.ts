@@ -574,10 +574,12 @@ describe('update schema', () => {
       `WITH ` +
         // Select
         `"Q0" AS (SELECT "scalar", json_build_object('scalar', "json"['scalar']) AS "json" ` +
-        `FROM "ez4-test-update-schema" FOR UPDATE) ` +
-        // Update and return
-        `UPDATE ONLY "ez4-test-update-schema" AS "U" SET "scalar" = :0, "json"['scalar'] = :1 ` +
-        `FROM "Q0" RETURNING "Q0".*`
+        `FROM "ez4-test-update-schema" FOR UPDATE), ` +
+        // Update
+        `"Q1" AS (UPDATE ONLY "ez4-test-update-schema" AS "U" SET "scalar" = :0, "json"['scalar'] = :1 ` +
+        `FROM "Q0") ` +
+        // Return
+        `SELECT "Q0".* FROM "Q0"`
     );
 
     assert.deepEqual(variables, ['foo', 123]);

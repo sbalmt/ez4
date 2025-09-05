@@ -63,15 +63,11 @@ export const prepareUpdateQuery = async <T extends InternalTableMetadata, S exte
     updateQuery.where(getSelectFilters(builder, query.where, relations, updateQuery, table));
   }
 
-  if (query.select) {
-    const firstQuery = allQueries[0];
+  if (query.select && (postUpdateQueries.length > 0 || !(updateQuery instanceof SqlSelectStatement))) {
+    const [firstQuery] = allQueries;
     const firstResult = () => mergeSqlAlias('*', firstQuery.alias);
 
-    if (postUpdateQueries.length) {
-      allQueries.push(builder.select().from(firstQuery.reference()).rawColumn(firstResult));
-    } else {
-      updateQuery.results?.rawColumn(firstResult);
-    }
+    allQueries.push(builder.select().from(firstQuery.reference()).rawColumn(firstResult));
   }
 
   if (options?.flag) {

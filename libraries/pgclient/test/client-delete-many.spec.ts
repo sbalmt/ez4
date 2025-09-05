@@ -1,7 +1,7 @@
 import { makeClient, prepareTable } from './common/database';
 
 import { beforeEach, describe, it } from 'node:test';
-import { deepEqual } from 'node:assert/strict';
+import { deepEqual, equal } from 'node:assert/strict';
 import { randomUUID } from 'node:crypto';
 
 describe('client delete many', async () => {
@@ -60,6 +60,16 @@ describe('client delete many', async () => {
     });
   });
 
+  it('assert :: delete many (without select)', async () => {
+    const records = await client.ez4_test_table.deleteMany({});
+
+    deepEqual(records, undefined);
+
+    const total = await client.ez4_test_table.count({});
+
+    equal(total, 0);
+  });
+
   it('assert :: delete many and select boolean', async () => {
     const output = [{ boolean: true }, { boolean: false }, { boolean: true }];
 
@@ -70,6 +80,10 @@ describe('client delete many', async () => {
     });
 
     deepEqual(records, output);
+
+    const total = await client.ez4_test_table.count({});
+
+    equal(total, 0);
   });
 
   it('assert :: delete many and select integer', async () => {
@@ -82,6 +96,10 @@ describe('client delete many', async () => {
     });
 
     deepEqual(records, output);
+
+    const total = await client.ez4_test_table.count({});
+
+    equal(total, 0);
   });
 
   it('assert :: delete many and select decimal', async () => {
@@ -94,6 +112,10 @@ describe('client delete many', async () => {
     });
 
     deepEqual(records, output);
+
+    const total = await client.ez4_test_table.count({});
+
+    equal(total, 0);
   });
 
   it('assert :: delete many and select string', async () => {
@@ -106,6 +128,10 @@ describe('client delete many', async () => {
     });
 
     deepEqual(records, output);
+
+    const total = await client.ez4_test_table.count({});
+
+    equal(total, 0);
   });
 
   it('assert :: delete many and select date-time', async () => {
@@ -122,6 +148,10 @@ describe('client delete many', async () => {
     });
 
     deepEqual(records, output);
+
+    const total = await client.ez4_test_table.count({});
+
+    equal(total, 0);
   });
 
   it('assert :: delete many and select date', async () => {
@@ -134,6 +164,10 @@ describe('client delete many', async () => {
     });
 
     deepEqual(records, output);
+
+    const total = await client.ez4_test_table.count({});
+
+    equal(total, 0);
   });
 
   it('assert :: delete many and select time', async () => {
@@ -146,6 +180,10 @@ describe('client delete many', async () => {
     });
 
     deepEqual(records, output);
+
+    const total = await client.ez4_test_table.count({});
+
+    equal(total, 0);
   });
 
   it('assert :: delete many and select json', async () => {
@@ -177,5 +215,9 @@ describe('client delete many', async () => {
         }
       }
     ]);
+
+    const total = await client.ez4_test_table.count({});
+
+    equal(total, 0);
   });
 });

@@ -138,26 +138,15 @@ export class Table<T extends InternalTableMetadata> implements DbTable<T> {
   }
 
   async updateMany<S extends Query.SelectInput<T>>(query: Query.UpdateManyInput<S, T>) {
-    const updateStatement = await prepareUpdateMany(this.name, this.schema, this.relations, this.context.driver, query);
+    const statement = await prepareUpdateMany(this.name, this.schema, this.relations, this.context.driver, query);
 
-    if (!query.select) {
-      await this.sendStatement(updateStatement);
+    const { records } = await this.sendStatement(statement);
 
-      return undefined as Query.UpdateManyResult<S, T>;
+    if (query.select) {
+      return records as Query.UpdateManyResult<S, T>;
     }
 
-    const selectStatement = prepareFindMany(this.name, this.schema, this.relations, this.context.driver, {
-      select: query.select,
-      include: query.include,
-      where: query.where,
-      ...('take' in query && {
-        take: query.take
-      })
-    });
-
-    const [{ records }] = await this.sendStatement([selectStatement, updateStatement]);
-
-    return records as Query.UpdateManyResult<S, T>;
+    return undefined as Query.UpdateManyResult<S, T>;
   }
 
   async findMany<S extends Query.SelectInput<T>, C extends boolean = false>(query: Query.FindManyInput<S, C, T>) {
@@ -187,7 +176,11 @@ export class Table<T extends InternalTableMetadata> implements DbTable<T> {
 
     const { records } = await this.sendStatement(statement);
 
-    return records as Query.DeleteManyResult<S, T>;
+    if (query.select) {
+      return records as Query.DeleteManyResult<S, T>;
+    }
+
+    return undefined as Query.DeleteManyResult<S, T>;
   }
 
   async count(query: Query.CountInput<T>) {

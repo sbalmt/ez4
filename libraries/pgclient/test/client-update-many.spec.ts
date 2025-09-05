@@ -60,14 +60,40 @@ describe('client update many', async () => {
     });
   });
 
+  it('assert :: update many (without select)', async () => {
+    const data = {
+      boolean: true
+    };
+
+    const previous = await client.ez4_test_table.updateMany({
+      data
+    });
+
+    deepEqual(previous, undefined);
+
+    const { records } = await client.ez4_test_table.findMany({
+      count: true,
+      select: {
+        boolean: true
+      }
+    });
+
+    deepEqual(records, [data, data, data]);
+  });
+
   it('assert :: update many and select boolean', async () => {
     const data = {
       boolean: true
     };
 
-    await client.ez4_test_table.updateMany({
-      data
+    const previous = await client.ez4_test_table.updateMany({
+      data,
+      select: {
+        boolean: true
+      }
     });
+
+    deepEqual(previous, [{ boolean: true }, { boolean: false }, { boolean: true }]);
 
     const { records, total } = await client.ez4_test_table.findMany({
       count: true,
@@ -86,9 +112,14 @@ describe('client update many', async () => {
       integer: 123
     };
 
-    await client.ez4_test_table.updateMany({
-      data
+    const previous = await client.ez4_test_table.updateMany({
+      data,
+      select: {
+        integer: true
+      }
     });
+
+    deepEqual(previous, [{ integer: 1 }, { integer: 22 }, { integer: 333 }]);
 
     const { records, total } = await client.ez4_test_table.findMany({
       count: true,
@@ -107,9 +138,14 @@ describe('client update many', async () => {
       decimal: 1.23
     };
 
-    await client.ez4_test_table.updateMany({
-      data
+    const previous = await client.ez4_test_table.updateMany({
+      data,
+      select: {
+        decimal: true
+      }
     });
+
+    deepEqual(previous, [{ decimal: 0.1 }, { decimal: 1.22 }, { decimal: 2.333 }]);
 
     const { records, total } = await client.ez4_test_table.findMany({
       count: true,
@@ -128,9 +164,14 @@ describe('client update many', async () => {
       string: 'foo'
     };
 
-    await client.ez4_test_table.updateMany({
-      data
+    const previous = await client.ez4_test_table.updateMany({
+      data,
+      select: {
+        string: true
+      }
     });
+
+    deepEqual(previous, [{ string: 'abc' }, { string: 'def' }, { string: 'ghi' }]);
 
     const { records, total } = await client.ez4_test_table.findMany({
       count: true,
@@ -149,9 +190,18 @@ describe('client update many', async () => {
       datetime: '2025-01-01T23:59:30.000Z'
     };
 
-    await client.ez4_test_table.updateMany({
-      data
+    const previous = await client.ez4_test_table.updateMany({
+      data,
+      select: {
+        datetime: true
+      }
     });
+
+    deepEqual(previous, [
+      { datetime: '1991-04-23T23:59:30.000Z' },
+      { datetime: '2011-11-02T13:30:00.000Z' },
+      { datetime: '2024-07-01T08:00:00.000Z' }
+    ]);
 
     const { records, total } = await client.ez4_test_table.findMany({
       count: true,
@@ -170,9 +220,14 @@ describe('client update many', async () => {
       date: '2025-01-01'
     };
 
-    await client.ez4_test_table.updateMany({
-      data
+    const previous = await client.ez4_test_table.updateMany({
+      data,
+      select: {
+        date: true
+      }
     });
+
+    deepEqual(previous, [{ date: '1991-04-23' }, { date: '2011-11-02' }, { date: '2024-07-01' }]);
 
     const { records, total } = await client.ez4_test_table.findMany({
       count: true,
@@ -191,9 +246,14 @@ describe('client update many', async () => {
       time: '23:59:30.000Z'
     };
 
-    await client.ez4_test_table.updateMany({
-      data
+    const previous = await client.ez4_test_table.updateMany({
+      data,
+      select: {
+        time: true
+      }
     });
+
+    deepEqual(previous, [{ time: '23:59:30.000Z' }, { time: '13:30:00.000Z' }, { time: '08:00:00.000Z' }]);
 
     const { records, total } = await client.ez4_test_table.findMany({
       count: true,
@@ -215,9 +275,36 @@ describe('client update many', async () => {
       }
     };
 
-    await client.ez4_test_table.updateMany({
-      data: input
+    const previous = await client.ez4_test_table.updateMany({
+      data: input,
+      select: {
+        json: {
+          foo: true,
+          bar: true
+        }
+      }
     });
+
+    deepEqual(previous, [
+      {
+        json: {
+          foo: 'abc',
+          bar: true
+        }
+      },
+      {
+        json: {
+          foo: 'def',
+          bar: false
+        }
+      },
+      {
+        json: {
+          foo: 'ghi',
+          bar: true
+        }
+      }
+    ]);
 
     const { records, total } = await client.ez4_test_table.findMany({
       count: true,
