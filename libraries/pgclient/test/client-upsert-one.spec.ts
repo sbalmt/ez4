@@ -32,15 +32,15 @@ describe('client upsert one', async () => {
       });
     };
 
-    const resultA = await upsert();
+    const current = await upsert();
 
-    deepEqual(resultA, {
+    deepEqual(current, {
       boolean: true
     });
 
-    const resultB = await upsert();
+    const previous = await upsert();
 
-    deepEqual(resultB, {
+    deepEqual(previous, {
       boolean: true
     });
 
@@ -77,15 +77,15 @@ describe('client upsert one', async () => {
       });
     };
 
-    const resultA = await upsert();
+    const current = await upsert();
 
-    deepEqual(resultA, {
+    deepEqual(current, {
       integer: 122333
     });
 
-    const resultB = await upsert();
+    const previous = await upsert();
 
-    deepEqual(resultB, {
+    deepEqual(previous, {
       integer: 122333
     });
 
@@ -122,15 +122,15 @@ describe('client upsert one', async () => {
       });
     };
 
-    const resultA = await upsert();
+    const current = await upsert();
 
-    deepEqual(resultA, {
+    deepEqual(current, {
       decimal: 9.01234
     });
 
-    const resultB = await upsert();
+    const previous = await upsert();
 
-    deepEqual(resultB, {
+    deepEqual(previous, {
       decimal: 9.01234
     });
 
@@ -167,15 +167,15 @@ describe('client upsert one', async () => {
       });
     };
 
-    const resultA = await upsert();
+    const current = await upsert();
 
-    deepEqual(resultA, {
+    deepEqual(current, {
       string: 'abc'
     });
 
-    const resultB = await upsert();
+    const previous = await upsert();
 
-    deepEqual(resultB, {
+    deepEqual(previous, {
       string: 'abc'
     });
 
@@ -212,15 +212,15 @@ describe('client upsert one', async () => {
       });
     };
 
-    const resultA = await upsert();
+    const current = await upsert();
 
-    deepEqual(resultA, {
+    deepEqual(current, {
       datetime: '1991-04-23T23:59:30.000Z'
     });
 
-    const resultB = await upsert();
+    const previous = await upsert();
 
-    deepEqual(resultB, {
+    deepEqual(previous, {
       datetime: '1991-04-23T23:59:30.000Z'
     });
 
@@ -257,15 +257,15 @@ describe('client upsert one', async () => {
       });
     };
 
-    const resultA = await upsert();
+    const current = await upsert();
 
-    deepEqual(resultA, {
+    deepEqual(current, {
       date: '1991-04-23'
     });
 
-    const resultB = await upsert();
+    const previous = await upsert();
 
-    deepEqual(resultB, {
+    deepEqual(previous, {
       date: '1991-04-23'
     });
 
@@ -301,15 +301,15 @@ describe('client upsert one', async () => {
         }
       });
 
-    const resultA = await upsert();
+    const current = await upsert();
 
-    deepEqual(resultA, {
+    deepEqual(current, {
       time: '23:59:30.000Z'
     });
 
-    const resultB = await upsert();
+    const previous = await upsert();
 
-    deepEqual(resultB, {
+    deepEqual(previous, {
       time: '23:59:30.000Z'
     });
 
@@ -356,9 +356,9 @@ describe('client upsert one', async () => {
       });
     };
 
-    const resultA = await upsert();
+    const current = await upsert();
 
-    deepEqual(resultA, {
+    deepEqual(current, {
       json: {
         foo: 'abc',
         bar: true,
@@ -367,9 +367,9 @@ describe('client upsert one', async () => {
       }
     });
 
-    const resultB = await upsert();
+    const previous = await upsert();
 
-    deepEqual(resultB, {
+    deepEqual(previous, {
       json: {
         foo: 'abc',
         bar: true,
@@ -425,17 +425,17 @@ describe('client upsert one', async () => {
       });
     };
 
-    const resultA = await upsert();
+    const current = await upsert();
 
-    deepEqual(resultA, {
+    deepEqual(current, {
       json: {
         baz: 123
       }
     });
 
-    const resultB = await upsert();
+    const previous = await upsert();
 
-    deepEqual(resultB, {
+    deepEqual(previous, {
       json: {
         baz: 123
       }
@@ -492,18 +492,18 @@ describe('client upsert one', async () => {
       });
     };
 
-    const resultA = await upsert();
+    const current = await upsert();
 
-    deepEqual(resultA, {
+    deepEqual(current, {
       json: {
         foo: 'abc',
         baz: 123
       }
     });
 
-    const resultB = await upsert();
+    const previous = await upsert();
 
-    deepEqual(resultB, {
+    deepEqual(previous, {
       json: {
         foo: 'abc',
         baz: 123
@@ -532,7 +532,7 @@ describe('client upsert one', async () => {
   });
 
   it('assert :: upsert one and select json (null fields)', async () => {
-    const resultA = await client.ez4_test_table.upsertOne({
+    const current = await client.ez4_test_table.upsertOne({
       select: {
         json: true
       },
@@ -547,11 +547,11 @@ describe('client upsert one', async () => {
       }
     });
 
-    deepEqual(resultA, {
+    deepEqual(current, {
       json: null
     });
 
-    const resultB = await client.ez4_test_table.upsertOne({
+    const previous = await client.ez4_test_table.upsertOne({
       select: {
         json: true
       },
@@ -571,7 +571,7 @@ describe('client upsert one', async () => {
       }
     });
 
-    deepEqual(resultB, {
+    deepEqual(previous, {
       json: null
     });
 

@@ -33,7 +33,7 @@ describe('client update one', async () => {
   });
 
   it('assert :: update one (without select)', async () => {
-    const result = await client.ez4_test_table.updateOne({
+    const previous = await client.ez4_test_table.updateOne({
       data: {
         boolean: true,
         integer: 123,
@@ -46,7 +46,7 @@ describe('client update one', async () => {
       }
     });
 
-    deepEqual(result, undefined);
+    deepEqual(previous, undefined);
 
     const changes = await client.ez4_test_table.findOne({
       select: {},
@@ -74,7 +74,7 @@ describe('client update one', async () => {
   });
 
   it('assert :: update one and select boolean', async () => {
-    const result = await client.ez4_test_table.updateOne({
+    const previous = await client.ez4_test_table.updateOne({
       select: {
         boolean: true
       },
@@ -86,7 +86,7 @@ describe('client update one', async () => {
       }
     });
 
-    deepEqual(result, {
+    deepEqual(previous, {
       boolean: false
     });
 
@@ -105,7 +105,7 @@ describe('client update one', async () => {
   });
 
   it('assert :: update one and select integer', async () => {
-    const result = await client.ez4_test_table.updateOne({
+    const previous = await client.ez4_test_table.updateOne({
       select: {
         integer: true
       },
@@ -117,7 +117,7 @@ describe('client update one', async () => {
       }
     });
 
-    deepEqual(result, {
+    deepEqual(previous, {
       integer: 122333
     });
 
@@ -136,7 +136,7 @@ describe('client update one', async () => {
   });
 
   it('assert :: update one and select decimal', async () => {
-    const result = await client.ez4_test_table.updateOne({
+    const previous = await client.ez4_test_table.updateOne({
       select: {
         decimal: true
       },
@@ -148,7 +148,7 @@ describe('client update one', async () => {
       }
     });
 
-    deepEqual(result, {
+    deepEqual(previous, {
       decimal: 10.5678
     });
 
@@ -167,7 +167,7 @@ describe('client update one', async () => {
   });
 
   it('assert :: update one and select string', async () => {
-    const result = await client.ez4_test_table.updateOne({
+    const previous = await client.ez4_test_table.updateOne({
       select: {
         string: true
       },
@@ -179,7 +179,7 @@ describe('client update one', async () => {
       }
     });
 
-    deepEqual(result, {
+    deepEqual(previous, {
       string: 'abc'
     });
 
@@ -198,7 +198,7 @@ describe('client update one', async () => {
   });
 
   it('assert :: update one and select date-time', async () => {
-    const result = await client.ez4_test_table.updateOne({
+    const previous = await client.ez4_test_table.updateOne({
       select: {
         datetime: true
       },
@@ -210,7 +210,7 @@ describe('client update one', async () => {
       }
     });
 
-    deepEqual(result, {
+    deepEqual(previous, {
       datetime: '1991-04-23T23:59:30.000Z'
     });
 
@@ -229,7 +229,7 @@ describe('client update one', async () => {
   });
 
   it('assert :: update one and select date', async () => {
-    const result = await client.ez4_test_table.updateOne({
+    const previous = await client.ez4_test_table.updateOne({
       select: {
         date: true
       },
@@ -241,7 +241,7 @@ describe('client update one', async () => {
       }
     });
 
-    deepEqual(result, {
+    deepEqual(previous, {
       date: '1991-04-23'
     });
 
@@ -260,7 +260,7 @@ describe('client update one', async () => {
   });
 
   it('assert :: update one and select time', async () => {
-    const result = await client.ez4_test_table.updateOne({
+    const previous = await client.ez4_test_table.updateOne({
       select: {
         time: true
       },
@@ -272,7 +272,7 @@ describe('client update one', async () => {
       }
     });
 
-    deepEqual(result, {
+    deepEqual(previous, {
       time: '23:59:30.000Z'
     });
 
@@ -291,7 +291,7 @@ describe('client update one', async () => {
   });
 
   it('assert :: update one and select json (all fields)', async () => {
-    const result = await client.ez4_test_table.updateOne({
+    const previous = await client.ez4_test_table.updateOne({
       select: {
         json: true
       },
@@ -308,7 +308,7 @@ describe('client update one', async () => {
       }
     });
 
-    deepEqual(result, {
+    deepEqual(previous, {
       json: {
         foo: 'abc',
         bar: true,
@@ -337,7 +337,7 @@ describe('client update one', async () => {
   });
 
   it('assert :: update one and select json (single field)', async () => {
-    const result = await client.ez4_test_table.updateOne({
+    const previous = await client.ez4_test_table.updateOne({
       select: {
         json: {
           baz: true
@@ -353,7 +353,7 @@ describe('client update one', async () => {
       }
     });
 
-    deepEqual(result, {
+    deepEqual(previous, {
       json: {
         baz: null
       }
@@ -379,7 +379,7 @@ describe('client update one', async () => {
   });
 
   it('assert :: update one and select json (multiple field)', async () => {
-    const result = await client.ez4_test_table.updateOne({
+    const previous = await client.ez4_test_table.updateOne({
       select: {
         json: {
           foo: true,
@@ -397,7 +397,7 @@ describe('client update one', async () => {
       }
     });
 
-    deepEqual(result, {
+    deepEqual(previous, {
       json: {
         foo: 'abc',
         baz: null
@@ -424,7 +424,7 @@ describe('client update one', async () => {
   });
 
   it('assert :: update one and select json (null fields)', async () => {
-    const resultA = await client.ez4_test_table.updateOne({
+    const previousA = await client.ez4_test_table.updateOne({
       select: {
         json: true
       },
@@ -436,7 +436,7 @@ describe('client update one', async () => {
       }
     });
 
-    deepEqual(resultA, {
+    deepEqual(previousA, {
       json: {
         foo: 'abc',
         bar: true,
@@ -445,7 +445,7 @@ describe('client update one', async () => {
       }
     });
 
-    const resultB = await client.ez4_test_table.updateOne({
+    const previousB = await client.ez4_test_table.updateOne({
       select: {
         json: true
       },
@@ -459,7 +459,7 @@ describe('client update one', async () => {
       }
     });
 
-    deepEqual(resultB, {
+    deepEqual(previousB, {
       json: null
     });
 
