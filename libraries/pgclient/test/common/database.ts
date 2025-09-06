@@ -7,7 +7,7 @@ import { Index } from '@ez4/database';
 
 import { TestSchema } from './schema';
 
-export declare class TestDb extends Database.Service {
+export declare class TestSchemaDb extends Database.Service {
   engine: PostgresEngine;
 
   tables: [
@@ -21,8 +21,8 @@ export declare class TestDb extends Database.Service {
   ];
 }
 
-export const makeClient = async () => {
-  return Client.make<TestDb>({
+export const makeSchemaClient = async () => {
+  return Client.make<TestSchemaDb>({
     debug: false,
     repository: {
       ez4_test_table: {
@@ -47,7 +47,7 @@ export const makeClient = async () => {
   });
 };
 
-export const prepareTable = async (client: DbClient<TestDb>) => {
+export const prepareSchemaTable = async (client: DbClient<TestSchemaDb>) => {
   await client.transaction(async (transaction) => {
     await transaction.rawQuery(`DROP TABLE IF EXISTS "ez4_test_table"`);
 

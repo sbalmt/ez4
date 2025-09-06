@@ -1,14 +1,14 @@
-import { makeClient, prepareTable } from './common/database';
+import { makeSchemaClient, prepareSchemaTable } from './common/database';
 
 import { before, describe, it } from 'node:test';
 import { deepEqual } from 'node:assert/strict';
 import { randomUUID } from 'node:crypto';
 
 describe('client insert one', async () => {
-  const client = await makeClient();
+  const client = await makeSchemaClient();
 
   before(async () => {
-    await prepareTable(client);
+    await prepareSchemaTable(client);
   });
 
   it('assert :: insert one and select boolean', async () => {

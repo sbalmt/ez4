@@ -1,16 +1,16 @@
-import { makeClient, prepareTable } from './common/database';
+import { makeSchemaClient, prepareSchemaTable } from './common/database';
 
 import { before, describe, it } from 'node:test';
 import { deepEqual } from 'node:assert/strict';
 import { randomUUID } from 'node:crypto';
 
 describe('client find one', async () => {
-  const client = await makeClient();
+  const client = await makeSchemaClient();
 
   const id = randomUUID();
 
   before(async () => {
-    await prepareTable(client);
+    await prepareSchemaTable(client);
 
     await client.ez4_test_table.insertOne({
       data: {

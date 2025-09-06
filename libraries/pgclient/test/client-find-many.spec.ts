@@ -1,14 +1,14 @@
-import { makeClient, prepareTable } from './common/database';
+import { makeSchemaClient, prepareSchemaTable } from './common/database';
 
 import { beforeEach, describe, it } from 'node:test';
 import { deepEqual, equal } from 'node:assert/strict';
 import { randomUUID } from 'node:crypto';
 
 describe('client find many', async () => {
-  const client = await makeClient();
+  const client = await makeSchemaClient();
 
   beforeEach(async () => {
-    await prepareTable(client);
+    await prepareSchemaTable(client);
 
     await client.ez4_test_table.insertMany({
       data: Array.from({ length: 20 }).map((_, index) => ({

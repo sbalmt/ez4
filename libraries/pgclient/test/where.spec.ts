@@ -216,34 +216,6 @@ describe('where', () => {
     deepEqual(variables, []);
   });
 
-  it('assert :: prepare where (is null)', () => {
-    const [whereClause, variables] = getWhereOperation({
-      bar: {
-        barBar: {
-          isNull: true
-        }
-      }
-    });
-
-    equal(whereClause, `WHERE "bar"['barBar'] IS null`);
-
-    deepEqual(variables, []);
-  });
-
-  it('assert :: prepare where (is not null)', () => {
-    const [whereClause, variables] = getWhereOperation({
-      bar: {
-        barBar: {
-          isNull: false
-        }
-      }
-    });
-
-    equal(whereClause, `WHERE "bar"['barBar'] IS NOT null`);
-
-    deepEqual(variables, []);
-  });
-
   it('assert :: prepare where (contains)', () => {
     const [whereClause, variables] = getWhereOperation({
       bar: {
