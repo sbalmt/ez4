@@ -2,6 +2,8 @@ import type { Client, Database, Index, TransactionMode } from '@ez4/database';
 import type { Environment, Service } from '@ez4/common';
 import type { TestEngineTransaction } from '../common/engines';
 
+import { assertType } from '@ez4/utils';
+
 declare class TestTable implements Database.Schema {
   id: string;
   value: number;
@@ -37,5 +39,5 @@ export async function testHandler({ selfClient }: Service.Context<TestDatabase>)
     });
   });
 
-  return result;
+  assertType<number, typeof result>(true);
 }

@@ -2,6 +2,7 @@ import type { Client, Database, Index } from '@ez4/database';
 import type { Environment, Service } from '@ez4/common';
 import type { TestEngine } from '../common/engines';
 
+import { assertType } from '@ez4/utils';
 import { Order } from '@ez4/database';
 
 export declare class TestDatabase extends Database.Service {
@@ -90,7 +91,7 @@ export const testSelect = async ({ selfClient }: Service.Context<TestDatabase>) 
     }
   });
 
-  resultA.records[0].relation_b?.value_b;
+  assertType<{ records: { value_a: number; relation_b: { value_b: number } | undefined }[] }, typeof resultA>(true);
 
   // Fetch tableB and its tableA connection
   const resultB = await selfClient.tableB.findMany({
@@ -107,13 +108,15 @@ export const testSelect = async ({ selfClient }: Service.Context<TestDatabase>) 
     }
   });
 
-  resultB.records[0].relation_a.value_a;
+  assertType<{ records: { value_b: number; relation_a: { value_a: number } }[] }, typeof resultB>(true);
 
   // Fetch tableC and its optional tableB connection
   const resultC = await selfClient.tableC.findMany({
     select: {
       value_c: true,
-      relation_b: true
+      relation_b: {
+        value_b: true
+      }
     },
     where: {
       relation_b: {
@@ -122,7 +125,7 @@ export const testSelect = async ({ selfClient }: Service.Context<TestDatabase>) 
     }
   });
 
-  resultC.records[0].relation_b?.value_b;
+  assertType<{ records: { value_c: number; relation_b: { value_b: number } | undefined }[] }, typeof resultC>(true);
 
   // Fetch tableB connections through tableC.
   const resultD = await selfClient.tableC.findMany({

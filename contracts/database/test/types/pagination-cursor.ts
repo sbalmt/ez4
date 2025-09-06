@@ -2,6 +2,8 @@ import type { Client, Database, PaginationMode, Index } from '@ez4/database';
 import type { Environment, Service } from '@ez4/common';
 import type { TestEnginePagination } from '../common/engines';
 
+import { assertType } from '@ez4/utils';
+
 declare class TestTable implements Database.Schema {
   id: string;
   next_id: string;
@@ -42,7 +44,7 @@ export async function testHandler({ selfClient }: Service.Context<TestDatabase>)
     limit: 5
   });
 
-  resultA.cursor;
+  assertType<string | undefined, typeof resultA.cursor>(true);
 
   // Paginate using cursor in the sub-query.
   const resultB = await selfClient.table.findMany({
@@ -59,5 +61,5 @@ export async function testHandler({ selfClient }: Service.Context<TestDatabase>)
     }
   });
 
-  resultB.cursor;
+  assertType<string | undefined, typeof resultB.cursor>(true);
 }

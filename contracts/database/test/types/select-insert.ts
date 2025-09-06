@@ -2,6 +2,8 @@ import type { Client, Database, Index } from '@ez4/database';
 import type { Environment, Service } from '@ez4/common';
 import type { TestEngine } from '../common/engines';
 
+import { assertType } from '@ez4/utils';
+
 declare class TestTable implements Database.Schema {
   id: string;
   value: number;
@@ -36,7 +38,7 @@ export const testInsertOne = async ({ selfClient }: Service.Context<TestDatabase
     }
   });
 
-  ((_result: void) => {})(resultA);
+  assertType<void, typeof resultA>(true);
 
   // Insert with select
   const resultB = await selfClient.table.insertOne({
@@ -49,7 +51,7 @@ export const testInsertOne = async ({ selfClient }: Service.Context<TestDatabase
     }
   });
 
-  ((_result: { id: string }) => {})(resultB);
+  assertType<{ id: string }, typeof resultB>(true);
 };
 
 export const testInsertMany = async ({ selfClient }: Service.Context<TestDatabase>) => {
@@ -63,5 +65,5 @@ export const testInsertMany = async ({ selfClient }: Service.Context<TestDatabas
     ]
   });
 
-  ((_result: void) => {})(resultA);
+  assertType<void, typeof resultA>(true);
 };

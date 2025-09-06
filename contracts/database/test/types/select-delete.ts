@@ -2,6 +2,8 @@ import type { Client, Database, Index } from '@ez4/database';
 import type { Environment, Service } from '@ez4/common';
 import type { TestEngine } from '../common/engines';
 
+import { assertType } from '@ez4/utils';
+
 declare class TestTable implements Database.Schema {
   id: string;
   value: number;
@@ -35,7 +37,7 @@ export async function testDeleteOne({ selfClient }: Service.Context<TestDatabase
     }
   });
 
-  ((_result: void) => {})(resultA);
+  assertType<void, typeof resultA>(true);
 
   // Delete with select
   const resultB = await selfClient.table.deleteOne({
@@ -47,7 +49,7 @@ export async function testDeleteOne({ selfClient }: Service.Context<TestDatabase
     }
   });
 
-  ((_result: { id: string } | undefined) => {})(resultB);
+  assertType<{ id: string } | undefined, typeof resultB>(true);
 }
 
 export async function testDeleteMany({ selfClient }: Service.Context<TestDatabase>) {
@@ -58,7 +60,7 @@ export async function testDeleteMany({ selfClient }: Service.Context<TestDatabas
     }
   });
 
-  ((_result: void) => {})(resultA);
+  assertType<void, typeof resultA>(true);
 
   // Delete with select
   const resultB = await selfClient.table.deleteMany({
@@ -70,5 +72,5 @@ export async function testDeleteMany({ selfClient }: Service.Context<TestDatabas
     }
   });
 
-  ((_result: { id: string }[]) => {})(resultB);
+  assertType<{ id: string }[], typeof resultB>(true);
 }
