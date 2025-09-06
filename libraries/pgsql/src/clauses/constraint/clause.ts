@@ -12,7 +12,7 @@ import { SqlCheckConstraintClause } from './check';
 export class SqlConstraintClause {
   #state: {
     table: SqlAlterTableClause;
-    building?: boolean;
+    building: boolean;
     name: string;
     clause?:
       | SqlPrimaryKeyConstraintClause
@@ -25,6 +25,7 @@ export class SqlConstraintClause {
 
   constructor(table: SqlAlterTableClause, name: string) {
     this.#state = {
+      building: false,
       table,
       name
     };
@@ -118,8 +119,6 @@ export class SqlConstraintClause {
     try {
       this.#state.building = true;
       return clause.build();
-    } catch (error) {
-      throw error;
     } finally {
       this.#state.building = false;
     }

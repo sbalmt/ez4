@@ -3,7 +3,7 @@ import { describe, it } from 'node:test';
 
 import { Index } from '@ez4/database';
 
-import { tryExtractConflictIndex } from '../src/utils/indexes';
+import { tryExtractUniqueIndex } from '../src/utils/indexes';
 
 describe('index functions', () => {
   const indexes = [
@@ -35,7 +35,7 @@ describe('index functions', () => {
   ];
 
   it('assert :: extract primary index', () => {
-    const index = tryExtractConflictIndex(indexes, {
+    const index = tryExtractUniqueIndex(indexes, {
       primary: 'foo',
       another: 'bar',
       secondary: true
@@ -45,7 +45,7 @@ describe('index functions', () => {
   });
 
   it('assert :: extract unique index', () => {
-    const index = tryExtractConflictIndex(indexes, {
+    const index = tryExtractUniqueIndex(indexes, {
       another: 'foo',
       secondary: false,
       unique: 'bar'
@@ -55,7 +55,7 @@ describe('index functions', () => {
   });
 
   it('assert :: extract primary compound index', () => {
-    const index = tryExtractConflictIndex(indexes, {
+    const index = tryExtractUniqueIndex(indexes, {
       another: 'foo',
       primary_2: 'bar',
       secondary: true,
@@ -66,7 +66,7 @@ describe('index functions', () => {
   });
 
   it('assert :: extract unique compound index', () => {
-    const index = tryExtractConflictIndex(indexes, {
+    const index = tryExtractUniqueIndex(indexes, {
       another: 'foo',
       secondary: false,
       unique_2: 123,
@@ -77,7 +77,7 @@ describe('index functions', () => {
   });
 
   it('assert :: extract incomplete primary index (undefined expected)', () => {
-    const index = tryExtractConflictIndex(indexes, {
+    const index = tryExtractUniqueIndex(indexes, {
       another: 'foo',
       primary_2: true
     });
@@ -86,7 +86,7 @@ describe('index functions', () => {
   });
 
   it('assert :: extract incomplete unique index (undefined expected)', () => {
-    const index = tryExtractConflictIndex(indexes, {
+    const index = tryExtractUniqueIndex(indexes, {
       another: 'foo',
       unique_1: false
     });
@@ -95,7 +95,7 @@ describe('index functions', () => {
   });
 
   it('assert :: extract secondary index (undefined expected)', () => {
-    const index = tryExtractConflictIndex(indexes, {
+    const index = tryExtractUniqueIndex(indexes, {
       another: 'foo',
       secondary: true
     });

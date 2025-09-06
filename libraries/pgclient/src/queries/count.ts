@@ -1,4 +1,3 @@
-import type { SqlParameter } from '@aws-sdk/client-rds-data';
 import type { ObjectSchema } from '@ez4/schema';
 import type { SqlBuilder } from '@ez4/pgsql';
 import type { Query } from '@ez4/database';
@@ -8,23 +7,19 @@ import type { InternalTableMetadata } from '../types/table';
 import { getSelectFilters } from './select';
 
 export const prepareCountQuery = <T extends InternalTableMetadata>(
+  builder: SqlBuilder,
   table: string,
   schema: ObjectSchema,
   relations: PgRelationRepositoryWithSchema,
-  query: Query.CountInput<T>,
-  builder: SqlBuilder
-): [string, SqlParameter[]] => {
-  const selectQuery = builder.select(schema).from(table);
+  query: Query.CountInput<T>
+) => {
+  const countQuery = builder.select(schema).from(table);
 
-  selectQuery.rawColumn('COUNT(1) AS "__EZ4_COUNT"');
+  countQuery.rawColumn('COUNT(1) AS "__EZ4_COUNT"');
 
   if (query.where) {
-    const selectFilters = getSelectFilters(builder, query.where, relations, selectQuery, table);
-
-    selectQuery.where(selectFilters);
+    countQuery.where(getSelectFilters(builder, query.where, relations, countQuery, table));
   }
 
-  const [statement, variables] = selectQuery.build();
-
-  return [statement, variables as SqlParameter[]];
+  return countQuery;
 };

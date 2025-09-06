@@ -32,7 +32,7 @@ export const runActionCommand = async (options: InputOptions) => {
       return serveCommand(project);
 
     case CommandType.Test:
-      return testCommand(project);
+      return testCommand(options, project);
 
     case CommandType.Help:
       return helpCommand();

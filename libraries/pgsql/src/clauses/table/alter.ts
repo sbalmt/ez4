@@ -12,18 +12,19 @@ import { ChangeType } from '../types';
 export class SqlAlterTableClause {
   #state: {
     table: SqlTableStatement;
-    check: boolean;
     change?: ChangeType;
     rename?: SqlRenameColumnClause;
     create: SqlAddColumnClause[];
     modify: (SqlAlterColumnClause | SqlConstraintClause)[];
     remove: SqlDropColumnClause[];
-    building?: boolean;
+    building: boolean;
+    check: boolean;
   };
 
   constructor(table: SqlTableStatement) {
     this.#state = {
       check: false,
+      building: false,
       create: [],
       modify: [],
       remove: [],
@@ -191,8 +192,6 @@ export class SqlAlterTableClause {
       } else if (clause) {
         statement.push(clause.build());
       }
-    } catch (error) {
-      throw error;
     } finally {
       this.#state.building = false;
     }

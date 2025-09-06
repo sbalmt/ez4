@@ -1,6 +1,5 @@
 import type { SqlSourceWithResults, SqlRecord, SqlBuilder, SqlUpdateStatement } from '@ez4/pgsql';
 import type { NumberSchema, ObjectSchema } from '@ez4/schema';
-import type { SqlParameter } from '@aws-sdk/client-rds-data';
 import type { AnyObject } from '@ez4/utils';
 import type { Query } from '@ez4/database';
 import type { PgRelationWithSchema, PgRelationRepositoryWithSchema } from '../types/repository';
@@ -8,56 +7,77 @@ import type { InternalTableMetadata } from '../types/table';
 
 import { getObjectSchemaProperty, isNumberSchema, isObjectSchema } from '@ez4/schema';
 import { InvalidAtomicOperation, InvalidFieldSchemaError, InvalidRelationFieldError } from '@ez4/pgclient';
+import { escapeSqlName, mergeSqlAlias, SqlSelectStatement } from '@ez4/pgsql';
 import { isAnyObject, isEmptyObject } from '@ez4/utils';
-import { SqlSelectStatement } from '@ez4/pgsql';
 import { Index } from '@ez4/database';
 
 import { getWithSchemaValidation, isDynamicFieldSchema, validateFirstSchemaLevel } from '../utils/schema';
 import { getSourceConnectionSchema, getTargetConnectionSchema, getUpdatingSchema, isSingleRelationData } from '../utils/relation';
 import { getSelectFields, getSelectFilters } from './select';
 
+export type UpdateQueryOptions = {
+  flag?: string;
+};
+
 export const prepareUpdateQuery = async <T extends InternalTableMetadata, S extends Query.SelectInput<T>>(
+  builder: SqlBuilder,
   table: string,
   schema: ObjectSchema,
   relations: PgRelationRepositoryWithSchema,
   query: Query.UpdateOneInput<S, T> | Query.UpdateManyInput<S, T>,
-  builder: SqlBuilder
-): Promise<[string, SqlParameter[]]> => {
+  options?: UpdateQueryOptions
+) => {
   const updateRecord = await getUpdateRecord(builder, query.data, schema, relations, table);
 
   const updateQuery = !isEmptyObject(updateRecord)
     ? builder.update(schema).only(table).record(updateRecord).returning()
     : builder.select(schema).from(table);
 
+  const allQueries: (SqlSelectStatement | SqlUpdateStatement)[] = [];
+
+  if (query.select) {
+    if (updateQuery instanceof SqlSelectStatement) {
+      const selectFields = getSelectFields(builder, query.select, query.include, schema, relations, updateQuery, table);
+
+      updateQuery.record(selectFields).lock(query.lock);
+    } else {
+      const selectQuery = builder.select(schema).from(table).lock(query.lock);
+      const selectFields = getSelectFields(builder, query.select, query.include, schema, relations, selectQuery, table);
+
+      if (query.where) {
+        selectQuery.where(getSelectFilters(builder, query.where, relations, selectQuery, table));
+      }
+
+      updateQuery.from(selectQuery.reference()).as('U');
+      selectQuery.record(selectFields);
+
+      allQueries.push(selectQuery);
+    }
+  }
+
   const postUpdateQueries = await preparePostUpdateRelations(builder, query.data, relations, updateQuery, table);
 
-  const allQueries: (SqlSelectStatement | SqlUpdateStatement)[] = [updateQuery, ...postUpdateQueries];
+  allQueries.push(updateQuery, ...postUpdateQueries);
 
   if (query.where) {
     updateQuery.where(getSelectFilters(builder, query.where, relations, updateQuery, table));
   }
 
-  if (query.select) {
-    if (!postUpdateQueries.length) {
-      const selectRecord = getSelectFields(builder, query.select, query.include, schema, relations, updateQuery, table);
+  if (query.select && (postUpdateQueries.length > 0 || !(updateQuery instanceof SqlSelectStatement))) {
+    const [firstQuery] = allQueries;
+    const firstResult = () => mergeSqlAlias('*', firstQuery.alias);
 
-      updateQuery.results.record(selectRecord);
-    } else {
-      const selectFields = getSelectFields(builder, query.select, query.include, schema, relations, updateQuery, table);
-      const selectQuery = builder.select(schema).from(table);
-
-      selectQuery.record(selectFields);
-      allQueries.push(selectQuery);
-    }
+    allQueries.push(builder.select().from(firstQuery.reference()).rawColumn(firstResult));
   }
 
-  if (postUpdateQueries.length && updateQuery instanceof SqlSelectStatement && query.lock !== false) {
-    updateQuery.lock();
+  if (options?.flag) {
+    const resultQuery = allQueries[allQueries.length - 1];
+    const flagColumn = `1 AS ${escapeSqlName(options.flag)}`;
+
+    resultQuery.results?.rawColumn(flagColumn);
   }
 
-  const [statement, variables] = builder.with(allQueries).build();
-
-  return [statement, variables as SqlParameter[]];
+  return allQueries;
 };
 
 export const getUpdateRecord = async (

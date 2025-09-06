@@ -32,9 +32,9 @@ export const parseRateExpression = (input: string): ExpressionResult | undefined
 };
 
 export const parseCronExpression = (input: string): ExpressionResult | undefined => {
-  const match = input.match(/^cron\(0\s((\S+\s+){4}\S+)\)$/i);
+  const match = input.match(/^cron\(((\S+\s+){5})\S+\)$/i);
 
-  const value = match?.[1];
+  const value = match?.[1].trim();
 
   if (!value) {
     return undefined;

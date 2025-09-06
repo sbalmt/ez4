@@ -1,13 +1,12 @@
 import type { SqlInsertStatement, SqlSelectStatement, SqlSourceWithResults, SqlJsonColumnRecord, SqlBuilder, SqlRecord } from '@ez4/pgsql';
-import type { SqlParameter } from '@aws-sdk/client-rds-data';
 import type { ObjectSchema } from '@ez4/schema';
 import type { AnyObject } from '@ez4/utils';
 import type { Query } from '@ez4/database';
 import type { PgRelationWithSchema, PgRelationRepositoryWithSchema } from '../types/repository';
 import type { InternalTableMetadata } from '../types/table';
 
-import { InvalidRelationFieldError, MissingFieldSchemaError } from '@ez4/pgclient';
 import { isObjectSchema } from '@ez4/schema';
+import { InvalidRelationFieldError, MissingFieldSchemaError } from '@ez4/pgclient';
 import { isEmptyObject } from '@ez4/utils';
 import { Index } from '@ez4/database';
 
@@ -21,8 +20,9 @@ import {
   getSourceConnectionSchema
 } from '../utils/relation';
 
+import { getFormattedColumn } from '../utils/formats';
 import { getWithSchemaValidation, validateAllSchemaLevels, validateFirstSchemaLevel } from '../utils/schema';
-import { getDefaultSelectFields, getFieldColumn, getSelectFields } from './select';
+import { getDefaultSelectFields, getSelectFields } from './select';
 
 type InsertRelationsCache = Record<string, InsertRelationEntry>;
 
@@ -31,36 +31,36 @@ type InsertRelationEntry = PgRelationWithSchema & {
 };
 
 export const prepareInsertQuery = async <T extends InternalTableMetadata, S extends Query.SelectInput<T>>(
+  builder: SqlBuilder,
   table: string,
   schema: ObjectSchema,
   relations: PgRelationRepositoryWithSchema,
-  query: Query.InsertOneInput<S, T>,
-  builder: SqlBuilder
-): Promise<[string, SqlParameter[]]> => {
-  const preQueriesMap = preparePreInsertRelations(builder, query.data, relations, table);
+  query: Query.InsertOneInput<S, T>
+) => {
+  const preInsertQueriesMap = preparePreInsertRelations(builder, query.data, relations, table);
 
-  const preQueries = Object.values(preQueriesMap)
+  const preInsertQueries = Object.values(preInsertQueriesMap)
     .map(({ relationQueries }) => relationQueries)
     .flat();
 
-  const insertRecord = await getInsertRecord(query.data, schema, relations, preQueriesMap, table);
+  const insertRecord = await getInsertRecord(query.data, schema, relations, preInsertQueriesMap, table);
   const insertQuery = builder.insert(schema).record(insertRecord).into(table).returning();
 
-  if (preQueries.length) {
-    insertQuery.select(...preQueries.map((query) => query.reference()));
+  if (preInsertQueries.length) {
+    insertQuery.select(...preInsertQueries.map((query) => query.reference()));
   }
 
-  const postQueriesMap = preparePostInsertRelations(builder, query.data, relations, insertQuery, table);
+  const postInsertQueriesMap = preparePostInsertRelations(builder, query.data, relations, insertQuery, table);
 
-  const postQueries = Object.values(postQueriesMap)
+  const postInsertQueries = Object.values(postInsertQueriesMap)
     .map(({ relationQueries }) => relationQueries)
     .flat();
 
-  const allQueries: (SqlSelectStatement | SqlInsertStatement)[] = [...preQueries, insertQuery, ...postQueries];
+  const allQueries: (SqlSelectStatement | SqlInsertStatement)[] = [...preInsertQueries, insertQuery, ...postInsertQueries];
 
   if (query.select) {
-    const allRelations = { ...preQueriesMap, ...postQueriesMap };
-    const selectQuery = builder.select(schema).from(insertQuery.reference());
+    const allRelations = { ...preInsertQueriesMap, ...postInsertQueriesMap };
+    const selectQuery = builder.select().from(insertQuery.reference());
 
     const selectRecord = getInsertSelectFields(builder, query.select, schema, allRelations, insertQuery, selectQuery, table);
 
@@ -68,9 +68,7 @@ export const prepareInsertQuery = async <T extends InternalTableMetadata, S exte
     allQueries.push(selectQuery);
   }
 
-  const [statement, variables] = builder.with(allQueries).build();
-
-  return [statement, variables as SqlParameter[]];
+  return allQueries;
 };
 
 export const getInsertRecord = async (
@@ -424,7 +422,7 @@ const getInsertSelectFields = (
       continue;
     }
 
-    const fieldColumn = getFieldColumn(fieldKey, fieldSchema, !json);
+    const fieldColumn = getFormattedColumn(fieldKey, fieldSchema, !json);
 
     if (fieldColumn instanceof Function) {
       output[fieldKey] = source.reference(fieldColumn);

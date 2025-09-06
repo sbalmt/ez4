@@ -1,6 +1,5 @@
 import type { SqlBuilder, SqlFilters, SqlJsonColumnRecord, SqlSource } from '@ez4/pgsql';
-import type { SqlParameter } from '@aws-sdk/client-rds-data';
-import type { AnySchema, ObjectSchema } from '@ez4/schema';
+import type { ObjectSchema } from '@ez4/schema';
 import type { AnyObject } from '@ez4/utils';
 import type { Query } from '@ez4/database';
 import type { PgRelationRepositoryWithSchema } from '../types/repository';
@@ -8,32 +7,25 @@ import type { InternalTableMetadata } from '../types/table';
 
 import { InvalidRelationFieldError, MissingFieldSchemaError } from '@ez4/pgclient';
 import { isAnyNumber, isAnyObject, isEmptyObject } from '@ez4/utils';
-import { isObjectSchema, isStringSchema } from '@ez4/schema';
-import { escapeSqlName, mergeSqlAlias } from '@ez4/pgsql';
+import { isObjectSchema } from '@ez4/schema';
 import { Index } from '@ez4/database';
 
-const FORMATS: Record<string, string> = {
-  ['date-time']: `'YYYY-MM-DD"T"HH24:MI:SS.MS"Z"'`,
-  ['time']: `'HH24:MI:SS.MS"Z"'`,
-  ['date']: `'YYYY-MM-DD'`
-};
+import { getFormattedColumn } from '../utils/formats';
 
 export const prepareSelectQuery = <T extends InternalTableMetadata, S extends Query.SelectInput<T>, C extends boolean>(
+  builder: SqlBuilder,
   table: string,
   schema: ObjectSchema,
   relations: PgRelationRepositoryWithSchema,
-  query: Query.FindOneInput<S, T> | Query.FindManyInput<S, C, T>,
-  builder: SqlBuilder
-): [string, SqlParameter[]] => {
+  query: Query.FindOneInput<S, T> | Query.FindManyInput<S, C, T>
+) => {
   const selectQuery = builder.select(schema).from(table);
   const selectRecord = getSelectFields(builder, query.select, query.include, schema, relations, selectQuery, table);
 
   selectQuery.record(selectRecord);
 
   if (query.where) {
-    const selectFilter = getSelectFilters(builder, query.where, relations, selectQuery, table);
-
-    selectQuery.where(selectFilter);
+    selectQuery.where(getSelectFilters(builder, query.where, relations, selectQuery, table));
   }
 
   if (query.lock) {
@@ -52,9 +44,7 @@ export const prepareSelectQuery = <T extends InternalTableMetadata, S extends Qu
     selectQuery.take(query.take);
   }
 
-  const [statement, variables] = selectQuery.build();
-
-  return [statement, variables as SqlParameter[]];
+  return selectQuery;
 };
 
 export const getSelectFields = <T extends InternalTableMetadata, S extends AnyObject>(
@@ -162,7 +152,7 @@ export const getSelectFields = <T extends InternalTableMetadata, S extends AnyOb
       continue;
     }
 
-    const fieldColumn = getFieldColumn(fieldKey, fieldSchema, !json);
+    const fieldColumn = getFormattedColumn(fieldKey, fieldSchema, !json);
 
     if (fieldColumn instanceof Function) {
       output[fieldKey] = source.reference(fieldColumn);
@@ -249,29 +239,4 @@ export const getDefaultSelectFields = (schema: ObjectSchema) => {
   }
 
   return fields;
-};
-
-export const getFieldColumn = (column: string, schema: AnySchema, alias?: boolean) => {
-  if (!isStringSchema(schema)) {
-    return column;
-  }
-
-  const columnMask = schema.format ? FORMATS[schema.format] : undefined;
-
-  if (!columnMask) {
-    return column;
-  }
-
-  const columnName = escapeSqlName(column);
-
-  return (source: SqlSource) => {
-    const columnPath = mergeSqlAlias(columnName, source.alias);
-    const columnResult = `to_char(${columnPath}, ${columnMask})`;
-
-    if (alias) {
-      return `${columnResult} AS ${columnName}`;
-    }
-
-    return columnResult;
-  };
 };

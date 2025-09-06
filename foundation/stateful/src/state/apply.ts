@@ -1,6 +1,8 @@
 import type { EntryState, EntryStates } from '../types/entry';
 import type { StepHandlers, StepState } from '../types/step';
 
+import { Tasks } from '@ez4/utils';
+
 import { HandlerNotFoundError, EntriesNotFoundError } from './errors';
 import { getDependencies, getEntry } from './entry';
 import { StepAction } from './step';
@@ -41,19 +43,13 @@ export const applySteps = async <E extends EntryState>(
       break;
     }
 
-    const resultEntries = [];
+    const stepTasks = nextSteps.map((entry) => () => {
+      return applyPendingStep(entry, tmpNewEntries, tmpOldEntries, tmpEntries, handlers, errorList, force);
+    });
 
-    for (let offset = 0; offset < nextSteps.length; offset += batchSize) {
-      const stepsBatch = nextSteps.slice(offset, offset + batchSize);
+    const taskResults = await Tasks.run(stepTasks, batchSize);
 
-      const stepPromises = stepsBatch.map((entry) => {
-        return applyPendingStep(entry, tmpNewEntries, tmpOldEntries, tmpEntries, handlers, errorList, force);
-      });
-
-      resultEntries.push(...(await Promise.all(stepPromises)));
-    }
-
-    for (const entry of resultEntries) {
+    for (const entry of taskResults) {
       // Don't include deleted entries.
       if (entry) {
         tmpEntries[entry.entryId] = entry;

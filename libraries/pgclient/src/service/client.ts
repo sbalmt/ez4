@@ -25,16 +25,18 @@ export namespace PgClient {
     const tableCache: Record<string, TableType> = {};
 
     const clientInstance = new (class {
-      rawQuery(query: string, parameters: ParametersModeUtils.Type<T> = []) {
+      async rawQuery(query: string, parameters: ParametersModeUtils.Type<T> = []) {
         const statement = {
           variables: getStatementParameters(driver, parameters),
           query
         };
 
-        return driver.executeStatement(statement, {
+        const { records } = await driver.executeStatement(statement, {
           transactionId,
           debug
         });
+
+        return records;
       }
 
       async transaction<O extends TransactionModeUtils.Type<T, R>, R>(operation: O) {
@@ -147,10 +149,19 @@ const executeStaticTransaction = async <T extends Database.Service>(
   const statements = await prepareStaticTransaction<T>(driver, repository, operations);
 
   if (transactionId) {
-    return driver.executeStatements(statements, { transactionId, debug });
+    const results = await driver.executeStatements(statements, {
+      transactionId,
+      debug
+    });
+
+    return results.map(({ records }) => records);
   }
 
-  return driver.executeTransaction(statements, { debug });
+  const results = await driver.executeTransaction(statements, {
+    debug
+  });
+
+  return results.map(({ records }) => records);
 };
 
 const prepareStaticTransaction = async <T extends Database.Service>(

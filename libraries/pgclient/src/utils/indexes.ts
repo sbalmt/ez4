@@ -3,7 +3,7 @@ import type { AnyObject } from '@ez4/utils';
 
 import { Index } from '@ez4/database';
 
-export const tryExtractConflictIndex = (indexes: TableIndex[], fields: AnyObject) => {
+export const tryExtractUniqueIndex = (indexes: TableIndex[], fields: AnyObject) => {
   const allFields = Object.keys(fields);
 
   for (const index of indexes) {

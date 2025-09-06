@@ -1,6 +1,7 @@
 import type { ProjectOptions } from '../../types/project';
 import type { EmulatorServices } from '../../library/emulator';
 import type { ServeOptions } from '../../types/options';
+import type { InputOptions } from '../options';
 
 import { Tester, Logger, LogLevel } from '@ez4/project/library';
 import { toKebabCase } from '@ez4/utils';
@@ -14,7 +15,7 @@ import { join } from 'node:path';
 
 const TestFilePattern = /\.(spec|test)\.(js|ts)$/;
 
-export const testCommand = async (project: ProjectOptions) => {
+export const testCommand = async (input: InputOptions, project: ProjectOptions) => {
   const serveOptions = project.serveOptions;
 
   const serviceHost = serveOptions?.localHost ?? 'localhost';
@@ -59,7 +60,7 @@ export const testCommand = async (project: ProjectOptions) => {
   });
 
   for (const file of allFiles) {
-    if (!TestFilePattern.test(file)) {
+    if (!TestFilePattern.test(file) || (input.arguments && !file.includes(input.arguments))) {
       continue;
     }
 

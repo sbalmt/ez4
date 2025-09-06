@@ -5,7 +5,7 @@ import { describe, it } from 'node:test';
 
 import { Client } from '@ez4/pgclient';
 
-describe('client driver', async () => {
+describe('client raw driver', async () => {
   const client = await Client.make({
     debug: false,
     repository: {},

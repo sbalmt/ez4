@@ -125,23 +125,32 @@ const getUuidFieldData = (name: string, value: string): SqlParameter => {
 };
 
 const getDateFieldData = (name: string, value: string): SqlParameter => {
+  const date = value.substring(0, 10);
+
   return {
     typeHint: TypeHint.DATE,
-    ...getTextFieldData(name, value)
+    ...getTextFieldData(name, date)
   };
 };
 
 const getTimeFieldData = (name: string, value: string): SqlParameter => {
+  const time = value.substring(0, 8);
+
   return {
     typeHint: TypeHint.TIME,
-    ...getTextFieldData(name, value)
+    ...getTextFieldData(name, time)
   };
 };
 
 const getDateTimeFieldData = (name: string, value: string): SqlParameter => {
+  const timestamp = new Date(value).toISOString().substring(0, 19);
+
+  const isoDate = timestamp.substring(0, 10);
+  const isoTime = timestamp.substring(11, 19);
+
   return {
     typeHint: TypeHint.TIMESTAMP,
-    ...getTextFieldData(name, new Date(value).toISOString())
+    ...getTextFieldData(name, `${isoDate} ${isoTime}`)
   };
 };
 

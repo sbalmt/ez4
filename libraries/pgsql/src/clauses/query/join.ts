@@ -20,9 +20,10 @@ export class SqlJoin extends SqlSource {
   #state: {
     options: SqlBuilderOptions;
     references: SqlBuilderReferences;
-    schema?: ObjectSchema;
     table: string | SqlTableReference;
+    schema?: ObjectSchema;
     results?: SqlResults;
+    building: boolean;
     on?: SqlConditions;
     alias?: string;
     natural?: boolean;
@@ -39,6 +40,7 @@ export class SqlJoin extends SqlSource {
 
     this.#state = {
       type: JoinType.Inner,
+      building: false,
       references,
       options,
       schema,
@@ -60,6 +62,10 @@ export class SqlJoin extends SqlSource {
 
   get schema() {
     return this.#state.schema;
+  }
+
+  get building() {
+    return this.#state.building;
   }
 
   as(alias: string | undefined) {

@@ -17,13 +17,15 @@ type TestTableMetadata = {
 };
 
 describe('update schema', () => {
-  const prepareUpdate = <S extends Query.SelectInput<TestTableMetadata>>(
+  const prepareUpdate = async <S extends Query.SelectInput<TestTableMetadata>>(
     schema: ObjectSchema,
     query: Query.UpdateManyInput<S, TestTableMetadata>
   ) => {
     const builder = new SqlBuilder();
 
-    return prepareUpdateQuery('ez4-test-update-schema', schema, {}, query, builder);
+    const allQueries = await prepareUpdateQuery(builder, 'ez4-test-update-schema', schema, {}, query);
+
+    return builder.with(allQueries).build();
   };
 
   it('assert :: prepare update schema (scalar boolean)', async ({ assert }) => {
@@ -569,8 +571,15 @@ describe('update schema', () => {
 
     assert.equal(
       statement,
-      `UPDATE ONLY "ez4-test-update-schema" SET "scalar" = :0, "json"['scalar'] = :1 ` +
-        `RETURNING "scalar", json_build_object('scalar', "json"['scalar']) AS "json"`
+      `WITH ` +
+        // Select
+        `"Q0" AS (SELECT "scalar", json_build_object('scalar', "json"['scalar']) AS "json" ` +
+        `FROM "ez4-test-update-schema" FOR UPDATE), ` +
+        // Update
+        `"Q1" AS (UPDATE ONLY "ez4-test-update-schema" AS "U" SET "scalar" = :0, "json"['scalar'] = :1 ` +
+        `FROM "Q0") ` +
+        // Return
+        `SELECT "Q0".* FROM "Q0"`
     );
 
     assert.deepEqual(variables, ['foo', 123]);

@@ -61,7 +61,8 @@ describe('where', () => {
   const getWhereOperation = (where: Query.WhereInput<TestTableMetadata>) => {
     const builder = new SqlBuilder();
 
-    const [statement, variables] = prepareSelectQuery(
+    const query = prepareSelectQuery(
+      builder,
       'ez4-test-where-operation',
       testSchema,
       {},
@@ -70,9 +71,10 @@ describe('where', () => {
           id: true
         },
         where
-      },
-      builder
+      }
     );
+
+    const [statement, variables] = query.build();
 
     const whereClause = statement.substring(statement.indexOf('WHERE'));
 
@@ -205,34 +207,6 @@ describe('where', () => {
       bar: {
         barBar: {
           isMissing: false
-        }
-      }
-    });
-
-    equal(whereClause, `WHERE "bar"['barBar'] IS NOT null`);
-
-    deepEqual(variables, []);
-  });
-
-  it('assert :: prepare where (is null)', () => {
-    const [whereClause, variables] = getWhereOperation({
-      bar: {
-        barBar: {
-          isNull: true
-        }
-      }
-    });
-
-    equal(whereClause, `WHERE "bar"['barBar'] IS null`);
-
-    deepEqual(variables, []);
-  });
-
-  it('assert :: prepare where (is not null)', () => {
-    const [whereClause, variables] = getWhereOperation({
-      bar: {
-        barBar: {
-          isNull: false
         }
       }
     });
