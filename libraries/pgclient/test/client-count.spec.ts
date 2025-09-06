@@ -87,7 +87,7 @@ describe('client count', async () => {
     const total = await client.ez4_test_table.count({
       where: {
         datetime: {
-          startsWith: '1991-04-2'
+          gt: '1991-04-19'
         }
       }
     });

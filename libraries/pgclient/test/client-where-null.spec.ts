@@ -14,6 +14,10 @@ describe('client where null', async () => {
       data: [
         {
           id: randomUUID(),
+          string: 'foo'
+        },
+        {
+          id: randomUUID(),
           integer: 1
         },
         {
@@ -52,18 +56,33 @@ describe('client where null', async () => {
     deepEqual(records, [{ integer: 1 }, { integer: 2 }]);
   });
 
+  it('assert :: where not null (implicit)', async () => {
+    const { records } = await client.ez4_test_table.findMany({
+      select: {
+        string: true
+      },
+      where: {
+        string: {
+          not: null
+        }
+      }
+    });
+
+    deepEqual(records, [{ string: 'foo' }]);
+  });
+
   it('assert :: where not null (explicit)', async () => {
     const { records } = await client.ez4_test_table.findMany({
       select: {
-        integer: true
+        string: true
       },
       where: {
-        integer: {
+        string: {
           isNull: false
         }
       }
     });
 
-    deepEqual(records, [{ integer: 1 }, { integer: 2 }]);
+    deepEqual(records, [{ string: 'foo' }]);
   });
 });

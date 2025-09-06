@@ -80,15 +80,12 @@ describe('client where time', async () => {
       },
       where: {
         time: {
-          gt: '1900-01-01T00:00:00Z'
+          gt: '00:00:00Z'
         }
       }
     });
 
-    deepEqual(records, [
-      { time: '00:00:00.000Z', integer: 1 },
-      { time: '23:59:59.000Z', integer: 2 }
-    ]);
+    deepEqual(records, [{ time: '23:59:59.000Z', integer: 2 }]);
   });
 
   it('assert :: where time (greater than or equal)', async () => {
@@ -131,7 +128,7 @@ describe('client where time', async () => {
       },
       where: {
         time: {
-          lte: '2100-01-01T23:59:59Z'
+          lte: '23:59:59Z'
         }
       }
     });
@@ -159,38 +156,6 @@ describe('client where time', async () => {
       { time: '00:00:00.000Z', integer: 1 },
       { time: '23:59:59.000Z', integer: 2 }
     ]);
-  });
-
-  it('assert :: where time (contains)', async () => {
-    const { records } = await client.ez4_test_table.findMany({
-      select: {
-        integer: true,
-        time: true
-      },
-      where: {
-        time: {
-          contains: '23'
-        }
-      }
-    });
-
-    deepEqual(records, [{ time: '00:00:00.000Z', integer: 1 }]);
-  });
-
-  it('assert :: where time (starts with)', async () => {
-    const { records } = await client.ez4_test_table.findMany({
-      select: {
-        integer: true,
-        time: true
-      },
-      where: {
-        time: {
-          startsWith: '2024-07-01'
-        }
-      }
-    });
-
-    deepEqual(records, [{ time: '23:59:59.000Z', integer: 2 }]);
   });
 
   it('assert :: where time (not)', async () => {

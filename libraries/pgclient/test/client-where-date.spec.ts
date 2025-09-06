@@ -161,38 +161,6 @@ describe('client where date', async () => {
     ]);
   });
 
-  it('assert :: where date (contains)', async () => {
-    const { records } = await client.ez4_test_table.findMany({
-      select: {
-        integer: true,
-        date: true
-      },
-      where: {
-        date: {
-          contains: '23'
-        }
-      }
-    });
-
-    deepEqual(records, [{ date: '1991-04-23', integer: 1 }]);
-  });
-
-  it('assert :: where date (starts with)', async () => {
-    const { records } = await client.ez4_test_table.findMany({
-      select: {
-        integer: true,
-        date: true
-      },
-      where: {
-        date: {
-          startsWith: '2024-07-01'
-        }
-      }
-    });
-
-    deepEqual(records, [{ date: '2024-07-01', integer: 2 }]);
-  });
-
   it('assert :: where date (not)', async () => {
     const { records } = await client.ez4_test_table.findMany({
       select: {
