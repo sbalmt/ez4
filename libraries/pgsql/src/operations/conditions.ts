@@ -124,7 +124,7 @@ const getFieldOperation = (
       const columnPath = parent ? columnName : mergeSqlAlias(columnName, source?.alias);
 
       if (value === null) {
-        return getIsNullOperation(columnPath, true);
+        return getIsNullOperation(columnPath, true, context);
       }
 
       if (value instanceof SqlSelectStatement) {
@@ -214,7 +214,7 @@ const getFinalOperation = (column: string, schema: AnySchema | undefined, operat
   switch (operator) {
     case SqlOperator.IsNull:
     case SqlOperator.IsMissing:
-      return getIsNullOperation(column, operand);
+      return getIsNullOperation(column, operand, context);
 
     case SqlOperator.Equal:
       return getEqualOperation(column, schema, operand, context);

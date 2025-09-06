@@ -4,7 +4,7 @@ import { before, describe, it } from 'node:test';
 import { deepEqual } from 'node:assert/strict';
 import { randomUUID } from 'node:crypto';
 
-describe('client where null', async () => {
+describe('client where json null', async () => {
   const client = await makeClient();
 
   before(async () => {
@@ -14,41 +14,42 @@ describe('client where null', async () => {
       data: [
         {
           id: randomUUID(),
-          string: 'foo'
+          integer: 1,
+          json: {
+            foo: 'foo-1',
+            bar: true
+          }
         },
         {
           id: randomUUID(),
-          integer: 1
+          integer: 2,
+          json: {
+            foo: 'foo-2',
+            bar: true,
+            baz: null
+          }
         },
         {
           id: randomUUID(),
-          integer: 2
+          integer: 3,
+          json: {
+            foo: 'foo-3',
+            bar: true,
+            baz: 3
+          }
         }
       ]
     });
   });
 
-  it('assert :: where null (implicit)', async () => {
+  it('assert :: where json null (implicit)', async () => {
     const { records } = await client.ez4_test_table.findMany({
       select: {
         integer: true
       },
       where: {
-        string: null
-      }
-    });
-
-    deepEqual(records, [{ integer: 1 }, { integer: 2 }]);
-  });
-
-  it('assert :: where null (explicit)', async () => {
-    const { records } = await client.ez4_test_table.findMany({
-      select: {
-        integer: true
-      },
-      where: {
-        string: {
-          equal: null
+        json: {
+          baz: null
         }
       }
     });
@@ -56,14 +57,16 @@ describe('client where null', async () => {
     deepEqual(records, [{ integer: 1 }, { integer: 2 }]);
   });
 
-  it('assert :: where null (operator)', async () => {
+  it('assert :: where json null (explicit)', async () => {
     const { records } = await client.ez4_test_table.findMany({
       select: {
         integer: true
       },
       where: {
-        string: {
-          isNull: true
+        json: {
+          baz: {
+            equal: null
+          }
         }
       }
     });
@@ -71,33 +74,54 @@ describe('client where null', async () => {
     deepEqual(records, [{ integer: 1 }, { integer: 2 }]);
   });
 
-  it('assert :: where not null (implicit)', async () => {
+  it('assert :: where json null (operator)', async () => {
     const { records } = await client.ez4_test_table.findMany({
       select: {
-        string: true
+        integer: true
       },
       where: {
-        string: {
-          not: null
+        json: {
+          baz: {
+            isNull: true
+          }
         }
       }
     });
 
-    deepEqual(records, [{ string: 'foo' }]);
+    deepEqual(records, [{ integer: 1 }, { integer: 2 }]);
   });
 
-  it('assert :: where not null (explicit)', async () => {
+  it('assert :: where json not null (explicit)', async () => {
     const { records } = await client.ez4_test_table.findMany({
       select: {
-        string: true
+        integer: true
       },
       where: {
-        string: {
-          isNull: false
+        json: {
+          baz: {
+            not: null
+          }
         }
       }
     });
 
-    deepEqual(records, [{ string: 'foo' }]);
+    deepEqual(records, [{ integer: 3 }]);
+  });
+
+  it('assert :: where json not null (operator)', async () => {
+    const { records } = await client.ez4_test_table.findMany({
+      select: {
+        integer: true
+      },
+      where: {
+        json: {
+          baz: {
+            isNull: false
+          }
+        }
+      }
+    });
+
+    deepEqual(records, [{ integer: 3 }]);
   });
 });
