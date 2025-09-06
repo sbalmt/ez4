@@ -20,7 +20,7 @@ export declare class TestDb extends Database.Service {
         integer?: number;
         decimal?: number;
         boolean?: boolean;
-        string?: string;
+        string?: string | null;
         datetime?: String.DateTime;
         date?: String.Date;
         time?: String.Time;
