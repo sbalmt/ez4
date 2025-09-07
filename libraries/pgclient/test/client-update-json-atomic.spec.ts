@@ -4,7 +4,7 @@ import { beforeEach, describe, it } from 'node:test';
 import { deepEqual } from 'node:assert/strict';
 import { randomUUID } from 'node:crypto';
 
-describe('client update atomic', async () => {
+describe('client update json atomic', async () => {
   const client = await makeSchemaClient();
 
   const id = randomUUID();
@@ -16,19 +16,21 @@ describe('client update atomic', async () => {
       data: {
         integer: 2,
         decimal: 2,
+        json: {
+          number: 5
+        },
         id
       }
     });
   });
 
-  it('assert :: increment number', async () => {
+  it('assert :: increment json number', async () => {
     const result = await client.ez4_test_table.updateOne({
       data: {
-        integer: {
-          increment: 15
-        },
-        decimal: {
-          increment: 5
+        json: {
+          number: {
+            increment: 15
+          }
         }
       },
       where: {
@@ -40,8 +42,7 @@ describe('client update atomic', async () => {
 
     const changes = await client.ez4_test_table.findOne({
       select: {
-        integer: true,
-        decimal: true
+        json: true
       },
       where: {
         id
@@ -49,19 +50,19 @@ describe('client update atomic', async () => {
     });
 
     deepEqual(changes, {
-      integer: 17,
-      decimal: 7
+      json: {
+        number: 20
+      }
     });
   });
 
-  it('assert :: decrement number', async () => {
+  it('assert :: decrement json number', async () => {
     const result = await client.ez4_test_table.updateOne({
       data: {
-        integer: {
-          decrement: 1
-        },
-        decimal: {
-          decrement: 5.5
+        json: {
+          number: {
+            decrement: 10
+          }
         }
       },
       where: {
@@ -73,8 +74,7 @@ describe('client update atomic', async () => {
 
     const changes = await client.ez4_test_table.findOne({
       select: {
-        integer: true,
-        decimal: true
+        json: true
       },
       where: {
         id
@@ -82,19 +82,19 @@ describe('client update atomic', async () => {
     });
 
     deepEqual(changes, {
-      integer: 1,
-      decimal: -3.5
+      json: {
+        number: -5
+      }
     });
   });
 
-  it('assert :: multiply number', async () => {
+  it('assert :: multiply json number', async () => {
     const result = await client.ez4_test_table.updateOne({
       data: {
-        integer: {
-          multiply: 3
-        },
-        decimal: {
-          multiply: 5
+        json: {
+          number: {
+            multiply: 3
+          }
         }
       },
       where: {
@@ -106,8 +106,7 @@ describe('client update atomic', async () => {
 
     const changes = await client.ez4_test_table.findOne({
       select: {
-        integer: true,
-        decimal: true
+        json: true
       },
       where: {
         id
@@ -115,19 +114,19 @@ describe('client update atomic', async () => {
     });
 
     deepEqual(changes, {
-      integer: 6,
-      decimal: 10
+      json: {
+        number: 15
+      }
     });
   });
 
-  it('assert :: divide number', async () => {
+  it('assert :: divide json number', async () => {
     const result = await client.ez4_test_table.updateOne({
       data: {
-        integer: {
-          divide: 15
-        },
-        decimal: {
-          divide: 10
+        json: {
+          number: {
+            divide: 2
+          }
         }
       },
       where: {
@@ -139,8 +138,7 @@ describe('client update atomic', async () => {
 
     const changes = await client.ez4_test_table.findOne({
       select: {
-        integer: true,
-        decimal: true
+        json: true
       },
       where: {
         id
@@ -148,8 +146,9 @@ describe('client update atomic', async () => {
     });
 
     deepEqual(changes, {
-      integer: 0,
-      decimal: 0.2
+      json: {
+        number: 2.5
+      }
     });
   });
 });
