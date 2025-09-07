@@ -114,7 +114,7 @@ export const getUpdateRecord = async (
 
       const { sourceSchema, sourceIndex, sourceColumn, targetColumn } = fieldRelation;
 
-      if (sourceIndex === Index.Primary) {
+      if (sourceIndex === Index.Primary || sourceIndex === Index.Unique) {
         const relationValue = fieldValue[targetColumn];
 
         // Will connect another relation.
@@ -145,7 +145,6 @@ export const getUpdateRecord = async (
 
         await validateFirstSchemaLevel(fieldValue, relationSchema, fieldPath);
 
-        record[sourceColumn] = relationValue;
         continue;
       }
 
@@ -220,9 +219,9 @@ const preparePostUpdateRelations = async (
       throw new InvalidRelationFieldError(fieldPath);
     }
 
-    const { sourceColumn, sourceIndex, targetColumn } = fieldRelation;
+    const { sourceColumn, sourceSchema, sourceIndex, targetColumn } = fieldRelation;
 
-    if (sourceIndex !== Index.Primary && fieldValue[sourceColumn] !== undefined) {
+    if (sourceIndex === Index.Unique && fieldValue[sourceColumn] !== undefined) {
       continue;
     }
 
@@ -230,7 +229,10 @@ const preparePostUpdateRelations = async (
       continue;
     }
 
-    const relationUpdate = await getFullRelationTableUpdate(builder, relations, source, fieldValue, fieldRelation, fieldPath);
+    const isConnection = fieldValue[sourceColumn] !== undefined;
+
+    const fieldRecord = isConnection ? fieldValue : await getUpdateRecord(builder, fieldValue, sourceSchema, relations, fieldPath);
+    const relationUpdate = await getFullRelationTableUpdate(builder, source, fieldRelation, fieldRecord);
 
     if (relationUpdate) {
       allRelationQueries.push(relationUpdate);
@@ -242,28 +244,24 @@ const preparePostUpdateRelations = async (
 
 const getFullRelationTableUpdate = async (
   builder: SqlBuilder,
-  relations: PgRelationRepositoryWithSchema,
   source: SqlSourceWithResults,
-  fieldValue: AnyObject,
   fieldRelation: PgRelationWithSchema,
-  fieldPath: string
+  fieldRecord: AnyObject
 ) => {
   const targetColumn = fieldRelation.targetColumn;
-  const targetValue = fieldValue[targetColumn];
+  const targetValue = fieldRecord[targetColumn];
 
-  if (targetValue !== undefined || isEmptyObject(fieldValue)) {
+  if (targetValue !== undefined || isEmptyObject(fieldRecord)) {
     return undefined;
   }
 
   const { sourceTable, sourceColumn, sourceSchema } = fieldRelation;
 
-  const record = await getUpdateRecord(builder, fieldValue, sourceSchema, relations, fieldPath);
-
   const relationQuery = builder
     .update(sourceSchema)
     .from(source.reference())
+    .record(fieldRecord)
     .only(sourceTable)
-    .record(record)
     .where({ [sourceColumn]: source.reference(targetColumn) })
     .as('T');
 

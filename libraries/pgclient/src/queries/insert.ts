@@ -1,23 +1,32 @@
-import type { SqlInsertStatement, SqlSelectStatement, SqlSourceWithResults, SqlJsonColumnRecord, SqlBuilder, SqlRecord } from '@ez4/pgsql';
 import type { ObjectSchema } from '@ez4/schema';
 import type { AnyObject } from '@ez4/utils';
 import type { Query } from '@ez4/database';
 import type { PgRelationWithSchema, PgRelationRepositoryWithSchema } from '../types/repository';
 import type { InternalTableMetadata } from '../types/table';
 
+import type {
+  SqlInsertStatement,
+  SqlUpdateStatement,
+  SqlSelectStatement,
+  SqlSourceWithResults,
+  SqlJsonColumnRecord,
+  SqlBuilder,
+  SqlRecord
+} from '@ez4/pgsql';
+
 import { isObjectSchema } from '@ez4/schema';
 import { InvalidRelationFieldError, MissingFieldSchemaError } from '@ez4/pgclient';
-import { isEmptyObject } from '@ez4/utils';
+import { deepMerge, isEmptyObject } from '@ez4/utils';
 import { Index } from '@ez4/database';
 
 import {
-  isMultipleRelationData,
-  isSingleRelationData,
-  isRelationalData,
   getTargetCreationSchema,
   getTargetConnectionSchema,
   getSourceCreationSchema,
-  getSourceConnectionSchema
+  getSourceConnectionSchema,
+  isMultipleRelationData,
+  isSingleRelationData,
+  isRelationalData
 } from '../utils/relation';
 
 import { getFormattedColumn } from '../utils/formats';
@@ -27,7 +36,7 @@ import { getDefaultSelectFields, getSelectFields } from './select';
 type InsertRelationsCache = Record<string, InsertRelationEntry>;
 
 type InsertRelationEntry = PgRelationWithSchema & {
-  relationQueries: SqlInsertStatement[];
+  relationQueries: (SqlInsertStatement | SqlUpdateStatement)[];
 };
 
 export const prepareInsertQuery = async <T extends InternalTableMetadata, S extends Query.SelectInput<T>>(
@@ -56,10 +65,14 @@ export const prepareInsertQuery = async <T extends InternalTableMetadata, S exte
     .map(({ relationQueries }) => relationQueries)
     .flat();
 
-  const allQueries: (SqlSelectStatement | SqlInsertStatement)[] = [...preInsertQueries, insertQuery, ...postInsertQueries];
+  const allQueries: (SqlSelectStatement | SqlInsertStatement | SqlUpdateStatement)[] = [
+    ...preInsertQueries,
+    insertQuery,
+    ...postInsertQueries
+  ];
 
   if (query.select) {
-    const allRelations = { ...preInsertQueriesMap, ...postInsertQueriesMap };
+    const allRelations = deepMerge(preInsertQueriesMap, postInsertQueriesMap, { depth: 1 });
     const selectQuery = builder.select().from(insertQuery.reference());
 
     const selectRecord = getInsertSelectFields(builder, query.select, schema, allRelations, insertQuery, selectQuery, table);
@@ -111,14 +124,23 @@ export const getInsertRecord = async (
         throw new InvalidRelationFieldError(fieldPath);
       }
 
-      const relationSchema = getSourceCreationSchema(sourceSchema, fieldRelation);
+      const relationConnectionSchema = getSourceConnectionSchema(sourceSchema, fieldRelation);
+      const relationCreationSchema = getSourceCreationSchema(sourceSchema, fieldRelation);
 
-      const allValidations = fieldValue.map((relationValue) => {
-        if (!isEmptyObject(relationValue)) {
-          return validateAllSchemaLevels(relationValue, relationSchema, fieldPath);
+      const allValidations = fieldValue.map((relationEntry) => {
+        if (isEmptyObject(relationEntry)) {
+          return Promise.resolve();
         }
 
-        return Promise.resolve();
+        const relationValue = relationEntry[sourceColumn];
+
+        // Will connect an existing relationship.
+        if (relationValue !== undefined) {
+          return validateFirstSchemaLevel(relationEntry, relationConnectionSchema, fieldPath);
+        }
+
+        // Will create a new relationship.
+        return validateAllSchemaLevels(relationEntry, relationCreationSchema, fieldPath);
       });
 
       await Promise.all(allValidations);
@@ -131,7 +153,7 @@ export const getInsertRecord = async (
       throw new InvalidRelationFieldError(fieldPath);
     }
 
-    if (sourceIndex === Index.Primary) {
+    if (sourceIndex === Index.Primary || sourceIndex === Index.Unique) {
       const relationValue = fieldValue[targetColumn];
 
       allFields.delete(targetColumn);
@@ -157,29 +179,6 @@ export const getInsertRecord = async (
       }
 
       continue;
-    }
-
-    if (sourceIndex === Index.Unique) {
-      const relationValue = fieldValue[sourceColumn];
-
-      allFields.delete(sourceColumn);
-
-      // Will connect an existing relationship.
-      if (relationValue !== undefined) {
-        const relationSchema = getSourceConnectionSchema(sourceSchema, fieldRelation);
-
-        await validateFirstSchemaLevel(fieldValue, relationSchema, fieldPath);
-
-        record[sourceColumn] = relationValue;
-        continue;
-      }
-
-      // Will create a new relationship.
-      if (!isEmptyObject(fieldValue)) {
-        const relationSchema = getSourceCreationSchema(sourceSchema, fieldRelation);
-
-        await validateAllSchemaLevels(fieldValue, relationSchema, fieldPath);
-      }
     }
   }
 
@@ -223,7 +222,7 @@ const preparePreInsertRelations = (
 
     const sourceIndex = fieldRelation.sourceIndex;
 
-    if (!isSingleRelationData(fieldValue) || isEmptyObject(fieldValue) || sourceIndex !== Index.Primary) {
+    if (!isSingleRelationData(fieldValue) || isEmptyObject(fieldValue) || !sourceIndex || sourceIndex === Index.Secondary) {
       continue;
     }
 
@@ -282,7 +281,7 @@ const preparePostInsertRelations = (
 
     const { sourceIndex, sourceTable, sourceColumn, sourceSchema, targetColumn } = fieldRelation;
 
-    if (fieldRelation.sourceIndex === Index.Primary) {
+    if (sourceIndex === Index.Primary) {
       continue;
     }
 
@@ -298,11 +297,47 @@ const preparePostInsertRelations = (
       if (sourceIndex === Index.Unique) {
         const relationValue = currentFieldValue[sourceColumn];
 
-        if (relationValue !== undefined) {
-          continue;
+        // Connect unique connections
+        if (relationValue === undefined) {
+          const relationQuery = builder
+            .update(sourceSchema)
+            .record({ [sourceColumn]: source.reference(targetColumn) })
+            .where({ [targetColumn]: relationValue })
+            .from(source.reference())
+            .only(sourceTable)
+            .as('T');
+
+          if (!results.has(targetColumn)) {
+            results.column(targetColumn);
+          }
+
+          relationQueries.push(relationQuery);
         }
+
+        continue;
       }
 
+      const relationValue = currentFieldValue[sourceColumn];
+
+      // Connect secondary connections
+      if (relationValue !== undefined) {
+        const relationQuery = builder
+          .update(sourceSchema)
+          .record({ [sourceColumn]: source.reference(targetColumn) })
+          .where({ [targetColumn]: relationValue })
+          .from(source.reference())
+          .only(sourceTable)
+          .as('T');
+
+        if (!results.has(targetColumn)) {
+          results.column(targetColumn);
+        }
+
+        relationQueries.push(relationQuery);
+        continue;
+      }
+
+      // Create secondary connections
       const relationQuery = builder
         .insert(sourceSchema)
         .select(source.reference())
@@ -353,24 +388,19 @@ const getInsertSelectFields = (
     const fieldPath = `${path}.${fieldKey}`;
 
     if (fieldRelation) {
-      const { relationQueries, sourceTable, sourceIndex, targetColumn, sourceColumn, sourceSchema } = fieldRelation;
+      const { relationQueries, sourceTable, sourceColumn, sourceIndex, targetColumn, sourceSchema } = fieldRelation;
 
       const relationFields = fieldValue === true ? getDefaultSelectFields(sourceSchema) : fieldValue;
       const relationQuery = builder.select(sourceSchema);
 
       // Connected relations
       if (!relationQueries.length) {
-        const isUniqueIndex = sourceIndex === Index.Unique;
-
-        const filterTarget = isUniqueIndex ? targetColumn : sourceColumn;
-        const filterSource = isUniqueIndex ? sourceColumn : targetColumn;
-
         relationQuery.from(sourceTable).where({
-          [filterTarget]: main?.reference(filterSource)
+          [sourceColumn]: source.reference(targetColumn)
         });
 
-        if (main?.results && !main.results.has(filterSource)) {
-          main.results.column(filterSource);
+        if (main?.results && !main.results.has(targetColumn)) {
+          main.results.column(targetColumn);
         }
 
         const relationRecord = getSelectFields(builder, relationFields, null, sourceSchema, relations, relationQuery, fieldPath, true);

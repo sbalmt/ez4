@@ -96,41 +96,41 @@ describe('update unique relations', () => {
     return {
       [`${testTableName}.unique_to_primary`]: {
         targetAlias: 'unique_to_primary',
-        targetColumn: 'id',
-        targetIndex: Index.Primary,
+        targetColumn: 'unique_id',
+        targetIndex: Index.Unique,
         targetTable: testTableName,
-        sourceIndex: Index.Unique,
+        sourceIndex: Index.Primary,
         sourceSchema: relationSchema,
         sourceTable: testTableName,
-        sourceColumn: 'unique_id'
+        sourceColumn: 'id'
       }
     };
   };
 
   const getMultipleTestRelation = (): PgRelationRepositoryWithSchema => {
     const baseRelation = {
-      targetColumn: 'id',
-      targetIndex: Index.Primary,
+      targetIndex: Index.Unique,
       targetTable: testTableName,
-      sourceIndex: Index.Unique,
+      sourceIndex: Index.Primary,
       sourceSchema: relationSchema,
-      sourceTable: testTableName
+      sourceTable: testTableName,
+      sourceColumn: 'id'
     };
 
     return {
       [`${testTableName}.unique_to_primary_1`]: {
         targetAlias: 'unique_to_primary_1',
-        sourceColumn: 'unique_1_id',
+        targetColumn: 'unique_1_id',
         ...baseRelation
       },
       [`${testTableName}.unique_to_primary_2`]: {
         targetAlias: 'unique_to_primary_2',
-        sourceColumn: 'unique_2_id',
+        targetColumn: 'unique_2_id',
         ...baseRelation
       },
       [`${testTableName}.unique_to_primary_3`]: {
         targetAlias: 'unique_to_primary_3',
-        sourceColumn: 'unique_3_id',
+        targetColumn: 'unique_3_id',
         ...baseRelation
       }
     };
@@ -208,7 +208,7 @@ describe('update unique relations', () => {
       `WITH ` +
         // Select
         `"Q0" AS (SELECT (SELECT jsonb_build_object('id', "S0"."id", 'foo', "S0"."foo") FROM "ez4_test_table" AS "S0" ` +
-        `WHERE "S0"."unique_id" = "R0"."id") AS "unique_to_primary" FROM "ez4_test_table" AS "R0" FOR UPDATE), ` +
+        `WHERE "S0"."id" = "R0"."unique_id") AS "unique_to_primary" FROM "ez4_test_table" AS "R0" FOR UPDATE), ` +
         // Update
         `"Q1" AS (UPDATE ONLY "ez4_test_table" AS "U" SET "id" = :0, "unique_id" = :1 FROM "Q0") ` +
         // Return
@@ -259,9 +259,9 @@ describe('update unique relations', () => {
       statement,
       `WITH ` +
         // Main record
-        `"Q0" AS (UPDATE ONLY "ez4_test_table" SET "id" = :0 RETURNING "id") ` +
+        `"Q0" AS (UPDATE ONLY "ez4_test_table" SET "id" = :0 RETURNING "unique_id") ` +
         // Relation
-        `UPDATE ONLY "ez4_test_table" AS "T" SET "foo" = :1 FROM "Q0" WHERE "T"."unique_id" = "Q0"."id"`
+        `UPDATE ONLY "ez4_test_table" AS "T" SET "foo" = :1 FROM "Q0" WHERE "T"."id" = "Q0"."unique_id"`
     );
 
     assert.deepEqual(variables, ['00000000-0000-1000-9000-000000000000', 'foo']);
@@ -292,11 +292,11 @@ describe('update unique relations', () => {
       `WITH ` +
         // Select
         `"Q0" AS (SELECT (SELECT jsonb_build_object('id', "S0"."id", 'foo', "S0"."foo") FROM "ez4_test_table" AS "S0" ` +
-        `WHERE "S0"."unique_id" = "R0"."id") AS "unique_to_primary" FROM "ez4_test_table" AS "R0" FOR UPDATE), ` +
+        `WHERE "S0"."id" = "R0"."unique_id") AS "unique_to_primary" FROM "ez4_test_table" AS "R0" FOR UPDATE), ` +
         // Main record
-        `"Q1" AS (UPDATE ONLY "ez4_test_table" AS "U" SET "id" = :0 FROM "Q0" RETURNING "U"."id"), ` +
+        `"Q1" AS (UPDATE ONLY "ez4_test_table" AS "U" SET "id" = :0 FROM "Q0" RETURNING "U"."unique_id"), ` +
         // Relation
-        `"Q2" AS (UPDATE ONLY "ez4_test_table" AS "T" SET "foo" = :1 FROM "Q1" WHERE "T"."unique_id" = "Q1"."id") ` +
+        `"Q2" AS (UPDATE ONLY "ez4_test_table" AS "T" SET "foo" = :1 FROM "Q1" WHERE "T"."id" = "Q1"."unique_id") ` +
         // Return
         `SELECT "unique_to_primary" FROM "Q0"`
     );
@@ -338,13 +338,13 @@ describe('update unique relations', () => {
       `WITH ` +
         // Select
         `"Q0" AS (SELECT "R0"."id", (SELECT jsonb_build_object('id', "S0"."id", 'foo', "S0"."foo") FROM "ez4_test_table" AS "S0" ` +
-        `WHERE "S0"."unique_1_id" = "R0"."id") AS "unique_to_primary_1" FROM "ez4_test_table" AS "R0" FOR UPDATE), ` +
+        `WHERE "S0"."id" = "R0"."unique_1_id") AS "unique_to_primary_1" FROM "ez4_test_table" AS "R0" FOR UPDATE), ` +
         // Main record
-        `"Q1" AS (UPDATE ONLY "ez4_test_table" AS "U" SET "id" = :0, "unique_2_id" = :1 FROM "Q0" RETURNING "U"."id"), ` +
+        `"Q1" AS (UPDATE ONLY "ez4_test_table" AS "U" SET "id" = :0, "unique_2_id" = :1 FROM "Q0" RETURNING "U"."unique_1_id", "U"."unique_3_id"), ` +
         // First relation
-        `"Q2" AS (UPDATE ONLY "ez4_test_table" AS "T" SET "foo" = :2 FROM "Q1" WHERE "T"."unique_1_id" = "Q1"."id"), ` +
+        `"Q2" AS (UPDATE ONLY "ez4_test_table" AS "T" SET "foo" = :2 FROM "Q1" WHERE "T"."id" = "Q1"."unique_1_id"), ` +
         // Third relation
-        `"Q3" AS (UPDATE ONLY "ez4_test_table" AS "T" SET "foo" = :3 FROM "Q1" WHERE "T"."unique_3_id" = "Q1"."id") ` +
+        `"Q3" AS (UPDATE ONLY "ez4_test_table" AS "T" SET "foo" = :3 FROM "Q1" WHERE "T"."id" = "Q1"."unique_3_id") ` +
         // Return
         `SELECT "id", "unique_to_primary_1" FROM "Q0"`
     );

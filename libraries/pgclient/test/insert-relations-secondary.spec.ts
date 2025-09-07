@@ -130,6 +130,87 @@ describe('insert secondary relations', () => {
     };
   };
 
+  it('assert :: prepare insert secondary relation (optional connection)', async ({ assert }) => {
+    const testSchema = getTestRelationSchema({
+      nullish: true
+    });
+
+    const [statement, variables] = await prepareRelationInsert(testSchema, getSingleTestRelation(), {
+      data: {
+        id: '00000000-0000-1000-9000-000000000000',
+        secondary_to_primary: [
+          {
+            primary_id: null
+          }
+        ]
+      }
+    });
+
+    assert.equal(
+      statement,
+      `WITH ` +
+        // Main record
+        `"Q0" AS (INSERT INTO "ez4_test_table" ("id") VALUES (:0) RETURNING "id") ` +
+        // Connection
+        `UPDATE ONLY "ez4_test_table" AS "T" SET "primary_id" = "Q0"."id" FROM "Q0" WHERE "T"."id" IS null`
+    );
+
+    assert.deepEqual(variables, ['00000000-0000-1000-9000-000000000000']);
+  });
+
+  it('assert :: prepare insert secondary relation (required connection)', async ({ assert }) => {
+    const testSchema = getTestRelationSchema({
+      nullish: false
+    });
+
+    const [statement, variables] = await prepareRelationInsert(testSchema, getSingleTestRelation(), {
+      data: {
+        id: '00000000-0000-1000-9000-000000000001',
+        secondary_to_primary: [
+          {
+            primary_id: '00000000-0000-1000-9000-000000000000'
+          }
+        ]
+      }
+    });
+
+    assert.equal(
+      statement,
+      `WITH ` +
+        // Main record
+        `"Q0" AS (INSERT INTO "ez4_test_table" ("id") VALUES (:0) RETURNING "id") ` +
+        // Connection
+        `UPDATE ONLY "ez4_test_table" AS "T" SET "primary_id" = "Q0"."id" FROM "Q0" WHERE "T"."id" = :1`
+    );
+
+    assert.deepEqual(variables, ['00000000-0000-1000-9000-000000000001', '00000000-0000-1000-9000-000000000000']);
+  });
+
+  it('assert :: prepare insert secondary relation (empty connection)', async ({ assert }) => {
+    const testSchema = getTestRelationSchema({
+      nullish: true
+    });
+
+    const [statement, variables] = await prepareRelationInsert(testSchema, getSingleTestRelation(), {
+      data: {
+        id: '00000000-0000-1000-9000-000000000000',
+        secondary_to_primary: [
+          {
+            primary_id: undefined
+          }
+        ]
+      }
+    });
+
+    assert.equal(
+      statement,
+      // Main record
+      `INSERT INTO "ez4_test_table" ("id") VALUES (:0)`
+    );
+
+    assert.deepEqual(variables, ['00000000-0000-1000-9000-000000000000']);
+  });
+
   it('assert :: prepare insert secondary relation (optional creation)', async ({ assert }) => {
     const testSchema = getTestRelationSchema({
       nullish: true

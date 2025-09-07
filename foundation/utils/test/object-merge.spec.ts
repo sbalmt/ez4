@@ -31,7 +31,7 @@ describe('object merging utils', () => {
       level: 1,
       first: {
         level: 2,
-        array: [4, 5, 6],
+        array: [4, 5, 6, 1, 2, 3],
         second: {
           level: 3,
           third: true
@@ -69,7 +69,7 @@ describe('object merging utils', () => {
       level: 1,
       first: {
         level: 2,
-        array: [4, 5, 6]
+        array: [4, 5, 6, 1, 2, 3]
       }
     });
   });

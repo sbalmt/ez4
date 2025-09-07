@@ -150,7 +150,7 @@ describe('insert primary relations', () => {
       data: {
         id: '00000000-0000-1000-9000-000000000000',
         primary_to_secondary: {
-          secondary_id: '00000000-0000-1000-9000-000000000001'
+          secondary_id: null
         }
       }
     });
@@ -158,10 +158,10 @@ describe('insert primary relations', () => {
     assert.equal(
       statement,
       // Main record
-      `INSERT INTO "ez4_test_table" ("id", "secondary_id") VALUES (:0, :1)`
+      `INSERT INTO "ez4_test_table" ("id", "secondary_id") VALUES (:0, null)`
     );
 
-    assert.deepEqual(variables, ['00000000-0000-1000-9000-000000000000', '00000000-0000-1000-9000-000000000001']);
+    assert.deepEqual(variables, ['00000000-0000-1000-9000-000000000000']);
   });
 
   it('assert :: prepare insert primary relation (required connection)', async ({ assert }) => {
@@ -238,7 +238,7 @@ describe('insert primary relations', () => {
         // Select
         `SELECT ` +
         `(SELECT jsonb_build_object('id', "S0"."id", 'foo', "S0"."foo") FROM "ez4_test_table" AS "S0" ` +
-        `WHERE "S0"."id" = "Q0"."secondary_id") AS "primary_to_secondary" ` +
+        `WHERE "S0"."id" = "secondary_id") AS "primary_to_secondary" ` +
         `FROM "Q0"`
     );
 

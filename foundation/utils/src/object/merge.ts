@@ -73,6 +73,11 @@ export const deepMerge = <T extends AnyObject, S extends AnyObject, O extends Me
     const targetValue = target[key];
     const sourceValue = source[key];
 
+    if (Array.isArray(sourceValue) && Array.isArray(targetValue)) {
+      object[key] = [...sourceValue, ...targetValue];
+      continue;
+    }
+
     if (isPlainObject(targetValue) && isPlainObject(sourceValue)) {
       if (depth > 0) {
         object[key] = deepMerge(targetValue, sourceValue, {

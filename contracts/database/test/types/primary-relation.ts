@@ -165,6 +165,9 @@ export const testInsert = async ({ selfClient }: Service.Context<TestDatabase>) 
           value_b: 2
         },
         {
+          table_a_id: 'foo'
+        },
+        {
           id: 'baz',
           value_b: 3
         }
@@ -275,6 +278,9 @@ export const testUpsert = (client: TestDatabase['client']) => {
         {
           id: 'bar',
           value_b: 2
+        },
+        {
+          table_a_id: 'foo'
         },
         {
           id: 'baz',

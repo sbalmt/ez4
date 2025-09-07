@@ -33,11 +33,11 @@ describe('insert relations', () => {
         },
         {
           targetAlias: 'unique_to_primary',
-          targetColumn: 'id',
-          targetIndex: Index.Primary,
-          sourceIndex: Index.Unique,
+          targetColumn: 'unique_id',
+          targetIndex: Index.Unique,
+          sourceIndex: Index.Primary,
           sourceTable: 'ez4_test_table',
-          sourceColumn: 'unique_id'
+          sourceColumn: 'id'
         },
         {
           targetAlias: 'secondary_to_primary',
@@ -109,18 +109,19 @@ describe('insert relations', () => {
       `WITH ` +
         // First relation (primary)
         `"Q0" AS (INSERT INTO "ez4_test_table" ("id") VALUES (:0) RETURNING "id"), ` +
-        // Main record
-        `"Q1" AS (INSERT INTO "ez4_test_table" ("id", "secondary_id") SELECT :1, "Q0"."id" FROM "Q0" RETURNING "id"), ` +
         // Second relation (unique)
-        `"Q2" AS (INSERT INTO "ez4_test_table" ("id", "unique_id") SELECT :2, "Q1"."id" FROM "Q1") ` +
+        `"Q1" AS (INSERT INTO "ez4_test_table" ("id") VALUES (:1) RETURNING "id"), ` +
+        // Main record
+        `"Q2" AS (INSERT INTO "ez4_test_table" ("id", "secondary_id", "unique_id") ` +
+        `SELECT :2, "Q0"."id", "Q1"."id" FROM "Q0", "Q1" RETURNING "id") ` +
         // Third relation (inverse)
-        `INSERT INTO "ez4_test_table" ("id", "primary_id") SELECT :3, "Q1"."id" FROM "Q1"`
+        `INSERT INTO "ez4_test_table" ("id", "primary_id") SELECT :3, "Q2"."id" FROM "Q2"`
     );
 
     assert.deepEqual(variables, [
       '00000000-0000-1000-9000-000000000001',
-      '00000000-0000-1000-9000-000000000000',
       '00000000-0000-1000-9000-000000000002',
+      '00000000-0000-1000-9000-000000000000',
       '00000000-0000-1000-9000-000000000003'
     ]);
   });
@@ -160,24 +161,25 @@ describe('insert relations', () => {
       `WITH ` +
         // First relation (primary)
         `"Q0" AS (INSERT INTO "ez4_test_table" ("id") VALUES (:0) RETURNING "id"), ` +
-        // Main record
-        `"Q1" AS (INSERT INTO "ez4_test_table" ("id", "secondary_id") SELECT :1, "Q0"."id" FROM "Q0" RETURNING "id"), ` +
         // Second relation (unique)
-        `"Q2" AS (INSERT INTO "ez4_test_table" ("id", "unique_id") SELECT :2, "Q1"."id" FROM "Q1" RETURNING "id"), ` +
+        `"Q1" AS (INSERT INTO "ez4_test_table" ("id") VALUES (:1) RETURNING "id"), ` +
+        // Main record
+        `"Q2" AS (INSERT INTO "ez4_test_table" ("id", "secondary_id", "unique_id") ` +
+        `SELECT :2, "Q0"."id", "Q1"."id" FROM "Q0", "Q1" RETURNING "id"), ` +
         // Third relation (inverse)
-        `"Q3" AS (INSERT INTO "ez4_test_table" ("id", "primary_id") SELECT :3, "Q1"."id" FROM "Q1" RETURNING "id") ` +
+        `"Q3" AS (INSERT INTO "ez4_test_table" ("id", "primary_id") SELECT :3, "Q2"."id" FROM "Q2" RETURNING "id") ` +
         // Select
         `SELECT "id", ` +
         `(SELECT jsonb_build_object('id', "id") FROM "Q0") AS "primary_to_secondary", ` +
-        `(SELECT jsonb_build_object('id', "id") FROM "Q2") AS "unique_to_primary", ` +
+        `(SELECT jsonb_build_object('id', "id") FROM "Q1") AS "unique_to_primary", ` +
         `(SELECT COALESCE(json_agg(jsonb_build_object('id', "id")), '[]'::json) FROM "Q3") AS "secondary_to_primary" ` +
-        `FROM "Q1"`
+        `FROM "Q2"`
     );
 
     assert.deepEqual(variables, [
       '00000000-0000-1000-9000-000000000001',
-      '00000000-0000-1000-9000-000000000000',
       '00000000-0000-1000-9000-000000000002',
+      '00000000-0000-1000-9000-000000000000',
       '00000000-0000-1000-9000-000000000003'
     ]);
   });

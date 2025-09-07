@@ -44,15 +44,13 @@ export declare class TestDatabase extends Database.Service {
     {
       name: 'tableC';
       relations: {
-        'table_b_id@relation_b': 'tableB:id';
+        'id@all_relations_b': 'tableB:table_c_id';
       };
       indexes: {
         id: Index.Primary;
-        table_b_id: Index.Unique;
       };
       schema: {
         id: string;
-        table_b_id?: string;
         value_c: number;
       };
     }
@@ -114,23 +112,23 @@ export const testSelect = async ({ selfClient }: Service.Context<TestDatabase>) 
   const resultC = await selfClient.tableC.findMany({
     select: {
       value_c: true,
-      relation_b: {
+      all_relations_b: {
         value_b: true
       }
     },
     where: {
-      relation_b: {
+      all_relations_b: {
         value_b: 1
       }
     }
   });
 
-  assertType<{ records: { value_c: number; relation_b: { value_b: number } | undefined }[] }, typeof resultC>(true);
+  assertType<{ records: { value_c: number; all_relations_b: { value_b: number }[] }[] }, typeof resultC>(true);
 
   // Fetch tableB connections through tableC.
   const resultD = await selfClient.tableC.findMany({
     select: {
-      relation_b: {
+      all_relations_b: {
         relation_a: {
           value_a: true
         },
@@ -144,8 +142,8 @@ export const testSelect = async ({ selfClient }: Service.Context<TestDatabase>) 
     }
   });
 
-  resultD.records[0].relation_b?.relation_a.value_a;
-  resultD.records[0].relation_b?.relation_c?.value_c;
+  resultD.records[0].all_relations_b?.[0].relation_a.value_a;
+  resultD.records[0].all_relations_b?.[0].relation_c?.value_c;
 };
 
 export const testInsert = async ({ selfClient }: Service.Context<TestDatabase>) => {
@@ -173,6 +171,17 @@ export const testInsert = async ({ selfClient }: Service.Context<TestDatabase>) 
     }
   });
 
+  // Create tableA and connect existing tableB
+  await selfClient.tableA.insertOne({
+    data: {
+      id: 'foo',
+      value_a: 1,
+      relation_b: {
+        table_a_id: 'bar'
+      }
+    }
+  });
+
   // Create tableB and connect existing tableA
   await selfClient.tableB.insertOne({
     data: {
@@ -189,11 +198,16 @@ export const testInsert = async ({ selfClient }: Service.Context<TestDatabase>) 
     data: {
       id: 'foo',
       value_c: 1,
-      relation_b: {
-        id: 'bar',
-        table_a_id: 'baz',
-        value_b: 2
-      }
+      all_relations_b: [
+        {
+          id: 'bar',
+          table_a_id: 'baz',
+          value_b: 2
+        },
+        {
+          table_c_id: 'foo'
+        }
+      ]
     }
   });
 };
@@ -247,12 +261,12 @@ export const testUpdate = async ({ selfClient }: Service.Context<TestDatabase>) 
   // Update tableB from tableC.
   await selfClient.tableC.updateMany({
     data: {
-      relation_b: {
+      all_relations_b: {
         value_b: 2
       }
     },
     where: {
-      relation_b: {
+      all_relations_b: {
         value_b: 1
       }
     }

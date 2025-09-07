@@ -219,5 +219,13 @@ type RelationSchema<
     : IsUniqueIndex<C, I> extends true
       ? E extends false
         ? ExtractSourceIndexType<C, S>
-        : Omit<ExtractSourceIndexType<C, S>, RelationSourceColumn<C>>
-      : Omit<ExtractSourceIndexType<C, S>, RelationSourceColumn<C>>[];
+        : ExclusiveType<
+            Omit<ExtractSourceIndexType<C, S>, RelationSourceColumn<C>>,
+            { [P in RelationSourceColumn<C>]: PropertyType<P, ExtractSourceIndexType<C, S>> }
+          >
+      : E extends false
+        ? ExtractSourceIndexType<C, S>[]
+        : ExclusiveType<
+            Omit<ExtractSourceIndexType<C, S>, RelationSourceColumn<C>>,
+            { [P in RelationSourceColumn<C>]: PropertyType<P, ExtractSourceIndexType<C, S>> }
+          >[];
