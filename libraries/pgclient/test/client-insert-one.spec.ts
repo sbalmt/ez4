@@ -155,10 +155,10 @@ describe('client insert one', async () => {
     const id = randomUUID();
 
     const input = {
-      foo: 'abc',
-      bar: true,
-      baz: null,
-      qux: '2024-07-01T08:00:00.000Z'
+      boolean: true,
+      string: 'abc',
+      number: null,
+      datetime: '2024-07-01T08:00:00.000Z'
     };
 
     const result = await client.ez4_test_table.insertOne({

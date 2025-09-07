@@ -16,17 +16,17 @@ describe('client where json missing', async () => {
           id: randomUUID(),
           integer: 1,
           json: {
-            foo: 'foo-1',
-            bar: true
+            boolean: true,
+            string: 'foo-1'
           }
         },
         {
           id: randomUUID(),
           integer: 2,
           json: {
-            foo: 'foo-2',
-            bar: true,
-            baz: null
+            boolean: true,
+            string: 'foo-2',
+            number: null
           }
         }
       ]
@@ -40,7 +40,7 @@ describe('client where json missing', async () => {
       },
       where: {
         json: {
-          baz: {
+          number: {
             isMissing: true
           }
         }
@@ -57,7 +57,7 @@ describe('client where json missing', async () => {
       },
       where: {
         json: {
-          baz: {
+          number: {
             isMissing: false
           }
         }

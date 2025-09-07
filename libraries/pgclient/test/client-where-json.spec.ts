@@ -16,18 +16,18 @@ describe('client where json', async () => {
           id: randomUUID(),
           integer: 1,
           json: {
-            foo: 'foo-1',
-            bar: false,
-            baz: 1
+            boolean: false,
+            string: 'foo-1',
+            number: 1
           }
         },
         {
           id: randomUUID(),
           integer: 2,
           json: {
-            foo: 'foo-2',
-            bar: true,
-            baz: 2
+            boolean: true,
+            string: 'foo-2',
+            number: 2
           }
         }
       ]
@@ -42,12 +42,12 @@ describe('client where json', async () => {
       },
       where: {
         json: {
-          foo: 'foo-1'
+          string: 'foo-1'
         }
       }
     });
 
-    deepEqual(records, [{ integer: 1, json: { bar: false, foo: 'foo-1', baz: 1 } }]);
+    deepEqual(records, [{ integer: 1, json: { boolean: false, string: 'foo-1', number: 1 } }]);
   });
 
   it('assert :: where json (equal)', async () => {
@@ -58,14 +58,14 @@ describe('client where json', async () => {
       },
       where: {
         json: {
-          bar: {
+          boolean: {
             equal: true
           }
         }
       }
     });
 
-    deepEqual(records, [{ integer: 2, json: { bar: true, foo: 'foo-2', baz: 2 } }]);
+    deepEqual(records, [{ integer: 2, json: { boolean: true, string: 'foo-2', number: 2 } }]);
   });
 
   it('assert :: where json (compound equal)', async () => {
@@ -76,15 +76,15 @@ describe('client where json', async () => {
       },
       where: {
         json: {
-          foo: 'foo-2',
-          bar: {
+          string: 'foo-2',
+          boolean: {
             equal: true
           }
         }
       }
     });
 
-    deepEqual(records, [{ integer: 2, json: { bar: true, foo: 'foo-2', baz: 2 } }]);
+    deepEqual(records, [{ integer: 2, json: { boolean: true, string: 'foo-2', number: 2 } }]);
   });
 
   it('assert :: where json (not equal)', async () => {
@@ -95,14 +95,14 @@ describe('client where json', async () => {
       },
       where: {
         json: {
-          foo: {
+          string: {
             not: 'foo-1'
           }
         }
       }
     });
 
-    deepEqual(records, [{ integer: 2, json: { bar: true, foo: 'foo-2', baz: 2 } }]);
+    deepEqual(records, [{ integer: 2, json: { boolean: true, string: 'foo-2', number: 2 } }]);
   });
 
   it('assert :: where json (compound not equal)', async () => {
@@ -113,17 +113,17 @@ describe('client where json', async () => {
       },
       where: {
         json: {
-          foo: {
+          string: {
             not: 'foo-2'
           },
-          bar: {
+          boolean: {
             not: true
           }
         }
       }
     });
 
-    deepEqual(records, [{ integer: 1, json: { bar: false, foo: 'foo-1', baz: 1 } }]);
+    deepEqual(records, [{ integer: 1, json: { boolean: false, string: 'foo-1', number: 1 } }]);
   });
 
   it('assert :: where json (greater than)', async () => {
@@ -134,7 +134,7 @@ describe('client where json', async () => {
       },
       where: {
         json: {
-          baz: {
+          number: {
             gt: -1
           }
         }
@@ -142,8 +142,8 @@ describe('client where json', async () => {
     });
 
     deepEqual(records, [
-      { integer: 1, json: { bar: false, foo: 'foo-1', baz: 1 } },
-      { integer: 2, json: { bar: true, foo: 'foo-2', baz: 2 } }
+      { integer: 1, json: { boolean: false, string: 'foo-1', number: 1 } },
+      { integer: 2, json: { boolean: true, string: 'foo-2', number: 2 } }
     ]);
   });
 
@@ -155,14 +155,14 @@ describe('client where json', async () => {
       },
       where: {
         json: {
-          baz: {
+          number: {
             gte: 2
           }
         }
       }
     });
 
-    deepEqual(records, [{ integer: 2, json: { bar: true, foo: 'foo-2', baz: 2 } }]);
+    deepEqual(records, [{ integer: 2, json: { boolean: true, string: 'foo-2', number: 2 } }]);
   });
 
   it('assert :: where json (less than)', async () => {
@@ -173,14 +173,14 @@ describe('client where json', async () => {
       },
       where: {
         json: {
-          baz: {
+          number: {
             lt: 2
           }
         }
       }
     });
 
-    deepEqual(records, [{ integer: 1, json: { bar: false, foo: 'foo-1', baz: 1 } }]);
+    deepEqual(records, [{ integer: 1, json: { boolean: false, string: 'foo-1', number: 1 } }]);
   });
 
   it('assert :: where json (less than or equal)', async () => {
@@ -191,7 +191,7 @@ describe('client where json', async () => {
       },
       where: {
         json: {
-          baz: {
+          number: {
             lte: 3
           }
         }
@@ -199,8 +199,8 @@ describe('client where json', async () => {
     });
 
     deepEqual(records, [
-      { integer: 1, json: { bar: false, foo: 'foo-1', baz: 1 } },
-      { integer: 2, json: { bar: true, foo: 'foo-2', baz: 2 } }
+      { integer: 1, json: { boolean: false, string: 'foo-1', number: 1 } },
+      { integer: 2, json: { boolean: true, string: 'foo-2', number: 2 } }
     ]);
   });
 
@@ -212,7 +212,7 @@ describe('client where json', async () => {
       },
       where: {
         json: {
-          baz: {
+          number: {
             isIn: [1, 2]
           }
         }
@@ -220,8 +220,8 @@ describe('client where json', async () => {
     });
 
     deepEqual(records, [
-      { integer: 1, json: { bar: false, foo: 'foo-1', baz: 1 } },
-      { integer: 2, json: { bar: true, foo: 'foo-2', baz: 2 } }
+      { integer: 1, json: { boolean: false, string: 'foo-1', number: 1 } },
+      { integer: 2, json: { boolean: true, string: 'foo-2', number: 2 } }
     ]);
   });
 
@@ -233,7 +233,7 @@ describe('client where json', async () => {
       },
       where: {
         json: {
-          baz: {
+          number: {
             isBetween: [1, 2]
           }
         }
@@ -241,8 +241,8 @@ describe('client where json', async () => {
     });
 
     deepEqual(records, [
-      { integer: 1, json: { bar: false, foo: 'foo-1', baz: 1 } },
-      { integer: 2, json: { bar: true, foo: 'foo-2', baz: 2 } }
+      { integer: 1, json: { boolean: false, string: 'foo-1', number: 1 } },
+      { integer: 2, json: { boolean: true, string: 'foo-2', number: 2 } }
     ]);
   });
 
@@ -254,14 +254,14 @@ describe('client where json', async () => {
       },
       where: {
         json: {
-          foo: {
+          string: {
             contains: '-1'
           }
         }
       }
     });
 
-    deepEqual(records, [{ integer: 1, json: { bar: false, foo: 'foo-1', baz: 1 } }]);
+    deepEqual(records, [{ integer: 1, json: { boolean: false, string: 'foo-1', number: 1 } }]);
   });
 
   it('assert :: where json (insensitive contains)', async () => {
@@ -272,7 +272,7 @@ describe('client where json', async () => {
       },
       where: {
         json: {
-          foo: {
+          string: {
             contains: 'O-2',
             insensitive: true
           }
@@ -280,7 +280,7 @@ describe('client where json', async () => {
       }
     });
 
-    deepEqual(records, [{ integer: 2, json: { bar: true, foo: 'foo-2', baz: 2 } }]);
+    deepEqual(records, [{ integer: 2, json: { boolean: true, string: 'foo-2', number: 2 } }]);
   });
 
   it('assert :: where json (starts with)', async () => {
@@ -291,7 +291,7 @@ describe('client where json', async () => {
       },
       where: {
         json: {
-          foo: {
+          string: {
             startsWith: 'fo'
           }
         }
@@ -299,8 +299,8 @@ describe('client where json', async () => {
     });
 
     deepEqual(records, [
-      { integer: 1, json: { bar: false, foo: 'foo-1', baz: 1 } },
-      { integer: 2, json: { bar: true, foo: 'foo-2', baz: 2 } }
+      { integer: 1, json: { boolean: false, string: 'foo-1', number: 1 } },
+      { integer: 2, json: { boolean: true, string: 'foo-2', number: 2 } }
     ]);
   });
 
@@ -312,7 +312,7 @@ describe('client where json', async () => {
       },
       where: {
         json: {
-          foo: {
+          string: {
             startsWith: 'FO',
             insensitive: true
           }
@@ -321,8 +321,8 @@ describe('client where json', async () => {
     });
 
     deepEqual(records, [
-      { integer: 1, json: { bar: false, foo: 'foo-1', baz: 1 } },
-      { integer: 2, json: { bar: true, foo: 'foo-2', baz: 2 } }
+      { integer: 1, json: { boolean: false, string: 'foo-1', number: 1 } },
+      { integer: 2, json: { boolean: true, string: 'foo-2', number: 2 } }
     ]);
   });
 
@@ -335,13 +335,13 @@ describe('client where json', async () => {
       where: {
         NOT: {
           json: {
-            foo: 'foo-2'
+            string: 'foo-2'
           }
         }
       }
     });
 
-    deepEqual(records, [{ integer: 1, json: { bar: false, foo: 'foo-1', baz: 1 } }]);
+    deepEqual(records, [{ integer: 1, json: { boolean: false, string: 'foo-1', number: 1 } }]);
   });
 
   it('assert :: where json (and)', async () => {
@@ -354,14 +354,14 @@ describe('client where json', async () => {
         AND: [
           {
             json: {
-              bar: false
+              boolean: false
             }
           }
         ]
       }
     });
 
-    deepEqual(records, [{ integer: 1, json: { bar: false, foo: 'foo-1', baz: 1 } }]);
+    deepEqual(records, [{ integer: 1, json: { boolean: false, string: 'foo-1', number: 1 } }]);
   });
 
   it('assert :: where json (or)', async () => {
@@ -374,12 +374,12 @@ describe('client where json', async () => {
         OR: [
           {
             json: {
-              bar: false
+              boolean: false
             }
           },
           {
             json: {
-              baz: 2
+              number: 2
             }
           }
         ]
@@ -387,8 +387,8 @@ describe('client where json', async () => {
     });
 
     deepEqual(records, [
-      { integer: 1, json: { bar: false, foo: 'foo-1', baz: 1 } },
-      { integer: 2, json: { bar: true, foo: 'foo-2', baz: 2 } }
+      { integer: 1, json: { boolean: false, string: 'foo-1', number: 1 } },
+      { integer: 2, json: { boolean: true, string: 'foo-2', number: 2 } }
     ]);
   });
 });

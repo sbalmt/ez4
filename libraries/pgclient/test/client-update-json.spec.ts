@@ -26,7 +26,7 @@ describe('client update optional json', async () => {
       },
       data: {
         json: {
-          foo: 'foo'
+          string: 'foo'
         }
       },
       where: {
@@ -47,7 +47,7 @@ describe('client update optional json', async () => {
 
     deepEqual(changes, {
       json: {
-        foo: 'foo'
+        string: 'foo'
       }
     });
   });

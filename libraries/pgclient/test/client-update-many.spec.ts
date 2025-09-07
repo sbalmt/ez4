@@ -22,8 +22,8 @@ describe('client update many', async () => {
           date: '1991-04-23',
           time: '23:59:30.000Z',
           json: {
-            foo: 'abc',
-            bar: true
+            boolean: true,
+            string: 'abc'
           }
         },
         {
@@ -36,9 +36,9 @@ describe('client update many', async () => {
           date: '2011-11-02',
           time: '13:30:00.000Z',
           json: {
-            foo: 'def',
-            bar: false,
-            baz: 123
+            boolean: false,
+            string: 'def',
+            number: 123
           }
         },
         {
@@ -51,9 +51,9 @@ describe('client update many', async () => {
           date: '2024-07-01',
           time: '08:00:00.000Z',
           json: {
-            foo: 'ghi',
-            bar: true,
-            qux: '2013-02-16T20:00:00.000Z'
+            boolean: true,
+            string: 'ghi',
+            datetime: '2013-02-16T20:00:00.000Z'
           }
         }
       ]
@@ -270,8 +270,8 @@ describe('client update many', async () => {
   it('assert :: update many and select json', async () => {
     const input = {
       json: {
-        foo: 'foo',
-        bar: true
+        boolean: true,
+        string: 'foo'
       }
     };
 
@@ -279,8 +279,8 @@ describe('client update many', async () => {
       data: input,
       select: {
         json: {
-          foo: true,
-          bar: true
+          boolean: true,
+          string: true
         }
       }
     });
@@ -288,20 +288,20 @@ describe('client update many', async () => {
     deepEqual(previous, [
       {
         json: {
-          foo: 'abc',
-          bar: true
+          boolean: true,
+          string: 'abc'
         }
       },
       {
         json: {
-          foo: 'def',
-          bar: false
+          boolean: false,
+          string: 'def'
         }
       },
       {
         json: {
-          foo: 'ghi',
-          bar: true
+          boolean: true,
+          string: 'ghi'
         }
       }
     ]);
@@ -322,13 +322,13 @@ describe('client update many', async () => {
       {
         json: {
           ...input.json,
-          baz: 123
+          number: 123
         }
       },
       {
         json: {
           ...input.json,
-          qux: '2013-02-16T20:00:00.000Z'
+          datetime: '2013-02-16T20:00:00.000Z'
         }
       }
     ]);

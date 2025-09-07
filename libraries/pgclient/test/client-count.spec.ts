@@ -21,9 +21,7 @@ describe('client count', async () => {
         date: `1991-04-${index + 10}`,
         time: `23:${index + 39}:30.000Z`,
         json: {
-          foo: `foo-${index}`,
-          bar: !(index & 0b1),
-          baz: index + 15
+          number: index + 15
         }
       }))
     });
@@ -87,7 +85,7 @@ describe('client count', async () => {
     const total = await client.ez4_test_table.count({
       where: {
         datetime: {
-          gt: '1991-04-19'
+          gt: '1991-04-19T00:00:00Z'
         }
       }
     });
@@ -123,7 +121,7 @@ describe('client count', async () => {
     const total = await client.ez4_test_table.count({
       where: {
         json: {
-          baz: {
+          number: {
             gt: 20,
             lt: 30
           }

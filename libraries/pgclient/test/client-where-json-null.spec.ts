@@ -16,26 +16,26 @@ describe('client where json null', async () => {
           id: randomUUID(),
           integer: 1,
           json: {
-            foo: 'foo-1',
-            bar: true
+            boolean: true,
+            string: 'foo-1'
           }
         },
         {
           id: randomUUID(),
           integer: 2,
           json: {
-            foo: 'foo-2',
-            bar: true,
-            baz: null
+            boolean: true,
+            string: 'foo-2',
+            number: null
           }
         },
         {
           id: randomUUID(),
           integer: 3,
           json: {
-            foo: 'foo-3',
-            bar: true,
-            baz: 3
+            boolean: true,
+            string: 'foo-3',
+            number: 3
           }
         }
       ]
@@ -49,7 +49,7 @@ describe('client where json null', async () => {
       },
       where: {
         json: {
-          baz: null
+          number: null
         }
       }
     });
@@ -64,7 +64,7 @@ describe('client where json null', async () => {
       },
       where: {
         json: {
-          baz: {
+          number: {
             equal: null
           }
         }
@@ -81,7 +81,7 @@ describe('client where json null', async () => {
       },
       where: {
         json: {
-          baz: {
+          number: {
             isNull: true
           }
         }
@@ -98,7 +98,7 @@ describe('client where json null', async () => {
       },
       where: {
         json: {
-          baz: {
+          number: {
             not: null
           }
         }
@@ -115,7 +115,7 @@ describe('client where json null', async () => {
       },
       where: {
         json: {
-          baz: {
+          number: {
             isNull: false
           }
         }

@@ -335,19 +335,19 @@ describe('client upsert one', async () => {
         },
         insert: {
           json: {
-            foo: 'abc',
-            bar: true,
-            baz: null,
-            qux: '2024-07-01T08:00:00.000Z'
+            boolean: true,
+            string: 'abc',
+            number: null,
+            datetime: '2024-07-01T08:00:00.000Z'
           },
           id
         },
         update: {
           json: {
-            foo: 'def',
-            bar: false,
-            baz: 123,
-            qux: '1991-04-23T00:00:00.000Z'
+            boolean: false,
+            string: 'def',
+            number: 123,
+            datetime: '1991-04-23T00:00:00.000Z'
           }
         },
         where: {
@@ -360,10 +360,10 @@ describe('client upsert one', async () => {
 
     deepEqual(current, {
       json: {
-        foo: 'abc',
-        bar: true,
-        baz: null,
-        qux: '2024-07-01T08:00:00.000Z'
+        boolean: true,
+        string: 'abc',
+        number: null,
+        datetime: '2024-07-01T08:00:00.000Z'
       }
     });
 
@@ -371,10 +371,10 @@ describe('client upsert one', async () => {
 
     deepEqual(previous, {
       json: {
-        foo: 'abc',
-        bar: true,
-        baz: null,
-        qux: '2024-07-01T08:00:00.000Z'
+        boolean: true,
+        string: 'abc',
+        number: null,
+        datetime: '2024-07-01T08:00:00.000Z'
       }
     });
 
@@ -389,10 +389,10 @@ describe('client upsert one', async () => {
 
     deepEqual(changes, {
       json: {
-        foo: 'def',
-        bar: false,
-        baz: 123,
-        qux: '1991-04-23T00:00:00.000Z'
+        boolean: false,
+        string: 'def',
+        number: 123,
+        datetime: '1991-04-23T00:00:00.000Z'
       }
     });
   });
@@ -402,21 +402,21 @@ describe('client upsert one', async () => {
       return client.ez4_test_table.upsertOne({
         select: {
           json: {
-            baz: true
+            number: true
           }
         },
         insert: {
           json: {
-            foo: 'abc',
-            bar: false,
-            baz: 123,
-            qux: '1991-04-23T00:00:00.000Z'
+            boolean: false,
+            string: 'abc',
+            number: 123,
+            datetime: '1991-04-23T00:00:00.000Z'
           },
           id
         },
         update: {
           json: {
-            foo: 'def'
+            string: 'def'
           }
         },
         where: {
@@ -429,7 +429,7 @@ describe('client upsert one', async () => {
 
     deepEqual(current, {
       json: {
-        baz: 123
+        number: 123
       }
     });
 
@@ -437,7 +437,7 @@ describe('client upsert one', async () => {
 
     deepEqual(previous, {
       json: {
-        baz: 123
+        number: 123
       }
     });
 
@@ -452,12 +452,12 @@ describe('client upsert one', async () => {
 
     deepEqual(changes, {
       json: {
-        bar: false,
-        baz: 123,
-        qux: '1991-04-23T00:00:00.000Z',
+        boolean: false,
+        number: 123,
+        datetime: '1991-04-23T00:00:00.000Z',
 
         // Updates
-        foo: 'def'
+        string: 'def'
       }
     });
   });
@@ -467,23 +467,23 @@ describe('client upsert one', async () => {
       return client.ez4_test_table.upsertOne({
         select: {
           json: {
-            foo: true,
-            baz: true
+            string: true,
+            number: true
           }
         },
         insert: {
           json: {
-            foo: 'abc',
-            bar: false,
-            baz: 123,
-            qux: '1991-04-23T00:00:00.000Z'
+            boolean: false,
+            string: 'abc',
+            number: 123,
+            datetime: '1991-04-23T00:00:00.000Z'
           },
           id
         },
         update: {
           json: {
-            foo: 'def',
-            baz: 321
+            string: 'def',
+            number: 321
           }
         },
         where: {
@@ -496,8 +496,8 @@ describe('client upsert one', async () => {
 
     deepEqual(current, {
       json: {
-        foo: 'abc',
-        baz: 123
+        string: 'abc',
+        number: 123
       }
     });
 
@@ -505,8 +505,8 @@ describe('client upsert one', async () => {
 
     deepEqual(previous, {
       json: {
-        foo: 'abc',
-        baz: 123
+        string: 'abc',
+        number: 123
       }
     });
 
@@ -521,12 +521,12 @@ describe('client upsert one', async () => {
 
     deepEqual(changes, {
       json: {
-        bar: false,
-        qux: '1991-04-23T00:00:00.000Z',
+        boolean: false,
+        datetime: '1991-04-23T00:00:00.000Z',
 
         // Updates
-        foo: 'def',
-        baz: 321
+        string: 'def',
+        number: 321
       }
     });
   });
@@ -560,10 +560,10 @@ describe('client upsert one', async () => {
       },
       update: {
         json: {
-          foo: 'abc',
-          bar: false,
-          baz: 123,
-          qux: '1991-04-23T00:00:00.000Z'
+          boolean: false,
+          string: 'abc',
+          number: 123,
+          datetime: '1991-04-23T00:00:00.000Z'
         }
       },
       where: {
@@ -586,10 +586,10 @@ describe('client upsert one', async () => {
 
     deepEqual(changes, {
       json: {
-        foo: 'abc',
-        bar: false,
-        baz: 123,
-        qux: '1991-04-23T00:00:00.000Z'
+        boolean: false,
+        string: 'abc',
+        number: 123,
+        datetime: '1991-04-23T00:00:00.000Z'
       }
     });
   });

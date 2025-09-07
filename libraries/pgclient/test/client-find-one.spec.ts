@@ -22,10 +22,10 @@ describe('client find one', async () => {
         date: '1991-04-23',
         time: '23:59:30.000Z',
         json: {
-          foo: 'abc',
-          bar: true,
-          baz: null,
-          qux: '2024-07-01T08:00:00.000Z'
+          boolean: true,
+          string: 'abc',
+          number: null,
+          datetime: '2024-07-01T08:00:00.000Z'
         },
         id
       }
@@ -149,10 +149,10 @@ describe('client find one', async () => {
 
     deepEqual(result, {
       json: {
-        foo: 'abc',
-        bar: true,
-        baz: null,
-        qux: '2024-07-01T08:00:00.000Z'
+        boolean: true,
+        string: 'abc',
+        number: null,
+        datetime: '2024-07-01T08:00:00.000Z'
       }
     });
   });
@@ -161,7 +161,7 @@ describe('client find one', async () => {
     const result = await client.ez4_test_table.findOne({
       select: {
         json: {
-          baz: true
+          number: true
         }
       },
       where: {
@@ -171,7 +171,7 @@ describe('client find one', async () => {
 
     deepEqual(result, {
       json: {
-        baz: null
+        number: null
       }
     });
   });
@@ -180,8 +180,8 @@ describe('client find one', async () => {
     const result = await client.ez4_test_table.findOne({
       select: {
         json: {
-          foo: true,
-          baz: true
+          string: true,
+          number: true
         }
       },
       where: {
@@ -191,8 +191,8 @@ describe('client find one', async () => {
 
     deepEqual(result, {
       json: {
-        foo: 'abc',
-        baz: null
+        string: 'abc',
+        number: null
       }
     });
   });

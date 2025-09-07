@@ -186,13 +186,13 @@ describe('client insert many', async () => {
   it('assert :: insert many jsons', async () => {
     const inputs = [
       {
-        json: { foo: 'abc', bar: true }
+        json: { boolean: true, string: 'abc' }
       },
       {
-        json: { foo: 'def', bar: false, baz: 123 }
+        json: { boolean: false, string: 'def', number: 123 }
       },
       {
-        json: { foo: 'abc', bar: true, qux: '2024-07-01T08:00:00.000Z' }
+        json: { boolean: true, string: 'abc', datetime: '2024-07-01T08:00:00.000Z' }
       }
     ];
 

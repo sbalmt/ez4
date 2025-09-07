@@ -12,10 +12,11 @@ export type TestSchemaType = {
   date?: String.Date;
   time?: String.Time;
   json?: {
-    foo: string;
-    bar: boolean;
-    baz?: number | null;
-    qux?: String.DateTime;
+    string?: string;
+    boolean?: boolean;
+    number?: number | null;
+    datetime?: String.DateTime;
+    array?: number[];
   };
 };
 
@@ -71,22 +72,34 @@ export const TestSchema: ObjectSchema = {
       optional: true,
       nullable: true,
       properties: {
-        foo: {
-          type: SchemaType.String
+        string: {
+          type: SchemaType.String,
+          optional: true,
+          nullable: true
         },
-        bar: {
-          type: SchemaType.Boolean
+        boolean: {
+          type: SchemaType.Boolean,
+          optional: true,
+          nullable: true
         },
-        baz: {
+        number: {
           type: SchemaType.Number,
           optional: true,
           nullable: true
         },
-        qux: {
+        datetime: {
           type: SchemaType.String,
           format: 'date-time',
           optional: true,
           nullable: true
+        },
+        array: {
+          type: SchemaType.Array,
+          optional: true,
+          nullable: true,
+          element: {
+            type: SchemaType.Number
+          }
         }
       }
     }

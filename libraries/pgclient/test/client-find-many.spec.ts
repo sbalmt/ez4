@@ -21,8 +21,8 @@ describe('client find many', async () => {
         date: `1991-04-${index + 10}`,
         time: `23:${index + 39}:30.000Z`,
         json: {
-          foo: `foo-${index}`,
-          bar: !(index & 0b1)
+          boolean: !(index & 0b1),
+          string: `foo-${index}`
         }
       }))
     });
@@ -154,13 +154,13 @@ describe('client find many', async () => {
   it('assert :: find many jsons', async () => {
     const inputs = [
       {
-        json: { foo: 'foo-17', bar: false }
+        json: { string: 'foo-17', boolean: false }
       },
       {
-        json: { foo: 'foo-18', bar: true }
+        json: { string: 'foo-18', boolean: true }
       },
       {
-        json: { foo: 'foo-19', bar: false }
+        json: { string: 'foo-19', boolean: false }
       }
     ];
 

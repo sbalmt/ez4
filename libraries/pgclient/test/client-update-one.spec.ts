@@ -22,10 +22,10 @@ describe('client update one', async () => {
         date: '1991-04-23',
         time: '23:59:30.000Z',
         json: {
-          foo: 'abc',
-          bar: true,
-          baz: null,
-          qux: '2024-07-01T08:00:00.000Z'
+          boolean: true,
+          string: 'abc',
+          number: null,
+          datetime: '2024-07-01T08:00:00.000Z'
         },
         id
       }
@@ -38,7 +38,7 @@ describe('client update one', async () => {
         boolean: true,
         integer: 123,
         json: {
-          foo: 'new'
+          string: 'new'
         }
       },
       where: {
@@ -64,10 +64,10 @@ describe('client update one', async () => {
       date: '1991-04-23',
       time: '23:59:30.000Z',
       json: {
-        foo: 'new',
-        bar: true,
-        baz: null,
-        qux: '2024-07-01T08:00:00.000Z'
+        boolean: true,
+        string: 'new',
+        number: null,
+        datetime: '2024-07-01T08:00:00.000Z'
       },
       id
     });
@@ -297,10 +297,10 @@ describe('client update one', async () => {
       },
       data: {
         json: {
-          foo: 'def',
-          bar: false,
-          baz: 123,
-          qux: '1991-04-23T00:00:00.000Z'
+          boolean: false,
+          string: 'def',
+          number: 123,
+          datetime: '1991-04-23T00:00:00.000Z'
         }
       },
       where: {
@@ -310,10 +310,10 @@ describe('client update one', async () => {
 
     deepEqual(previous, {
       json: {
-        foo: 'abc',
-        bar: true,
-        baz: null,
-        qux: '2024-07-01T08:00:00.000Z'
+        boolean: true,
+        string: 'abc',
+        number: null,
+        datetime: '2024-07-01T08:00:00.000Z'
       }
     });
 
@@ -328,10 +328,10 @@ describe('client update one', async () => {
 
     deepEqual(changes, {
       json: {
-        foo: 'def',
-        bar: false,
-        baz: 123,
-        qux: '1991-04-23T00:00:00.000Z'
+        boolean: false,
+        string: 'def',
+        number: 123,
+        datetime: '1991-04-23T00:00:00.000Z'
       }
     });
   });
@@ -340,12 +340,12 @@ describe('client update one', async () => {
     const previous = await client.ez4_test_table.updateOne({
       select: {
         json: {
-          baz: true
+          number: true
         }
       },
       data: {
         json: {
-          baz: 321
+          number: 321
         }
       },
       where: {
@@ -355,7 +355,7 @@ describe('client update one', async () => {
 
     deepEqual(previous, {
       json: {
-        baz: null
+        number: null
       }
     });
 
@@ -370,10 +370,10 @@ describe('client update one', async () => {
 
     deepEqual(changes, {
       json: {
-        foo: 'abc',
-        bar: true,
-        baz: 321,
-        qux: '2024-07-01T08:00:00.000Z'
+        boolean: true,
+        string: 'abc',
+        number: 321,
+        datetime: '2024-07-01T08:00:00.000Z'
       }
     });
   });
@@ -382,14 +382,14 @@ describe('client update one', async () => {
     const previous = await client.ez4_test_table.updateOne({
       select: {
         json: {
-          foo: true,
-          baz: true
+          string: true,
+          number: true
         }
       },
       data: {
         json: {
-          foo: 'def',
-          baz: 321
+          string: 'def',
+          number: 321
         }
       },
       where: {
@@ -399,8 +399,8 @@ describe('client update one', async () => {
 
     deepEqual(previous, {
       json: {
-        foo: 'abc',
-        baz: null
+        string: 'abc',
+        number: null
       }
     });
 
@@ -415,10 +415,10 @@ describe('client update one', async () => {
 
     deepEqual(changes, {
       json: {
-        foo: 'def',
-        bar: true,
-        baz: 321,
-        qux: '2024-07-01T08:00:00.000Z'
+        boolean: true,
+        string: 'def',
+        number: 321,
+        datetime: '2024-07-01T08:00:00.000Z'
       }
     });
   });
@@ -438,10 +438,10 @@ describe('client update one', async () => {
 
     deepEqual(previousA, {
       json: {
-        foo: 'abc',
-        bar: true,
-        baz: null,
-        qux: '2024-07-01T08:00:00.000Z'
+        boolean: true,
+        string: 'abc',
+        number: null,
+        datetime: '2024-07-01T08:00:00.000Z'
       }
     });
 
@@ -451,7 +451,7 @@ describe('client update one', async () => {
       },
       data: {
         json: {
-          foo: 'abc'
+          string: 'abc'
         }
       },
       where: {
@@ -474,7 +474,7 @@ describe('client update one', async () => {
 
     deepEqual(changes, {
       json: {
-        foo: 'abc'
+        string: 'abc'
       }
     });
   });
