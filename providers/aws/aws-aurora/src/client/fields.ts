@@ -171,11 +171,11 @@ const getNullFieldData = (name: string): SqlParameter => {
 };
 
 const getNumberFieldData = (name: string, value: number, format?: string): SqlParameter => {
-  if (format === 'decimal') {
-    return getDecimalFieldData(name, value);
+  if (format === 'integer') {
+    return getIntegerFieldData(name, value);
   }
 
-  return getIntegerFieldData(name, value);
+  return getDecimalFieldData(name, value);
 };
 
 const getStringFieldData = (name: string, value: string, format?: string): SqlParameter => {

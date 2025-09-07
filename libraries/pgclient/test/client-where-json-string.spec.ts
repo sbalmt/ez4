@@ -4,7 +4,7 @@ import { before, describe, it } from 'node:test';
 import { deepEqual } from 'node:assert/strict';
 import { randomUUID } from 'node:crypto';
 
-describe('client where json', async () => {
+describe('client where json string', async () => {
   const client = await makeSchemaClient();
 
   before(async () => {
@@ -16,8 +16,7 @@ describe('client where json', async () => {
           id: randomUUID(),
           integer: 1,
           json: {
-            boolean: false,
-            string: 'foo-1',
+            string: 'foo',
             number: 1
           }
         },
@@ -25,8 +24,7 @@ describe('client where json', async () => {
           id: randomUUID(),
           integer: 2,
           json: {
-            boolean: true,
-            string: 'foo-2',
+            string: 'bar',
             number: 2
           }
         }
@@ -34,7 +32,7 @@ describe('client where json', async () => {
     });
   });
 
-  it('assert :: where json (default)', async () => {
+  it('assert :: where json string (default)', async () => {
     const { records } = await client.ez4_test_table.findMany({
       select: {
         integer: true,
@@ -42,52 +40,15 @@ describe('client where json', async () => {
       },
       where: {
         json: {
-          string: 'foo-1'
+          string: 'bar'
         }
       }
     });
 
-    deepEqual(records, [{ integer: 1, json: { boolean: false, string: 'foo-1', number: 1 } }]);
+    deepEqual(records, [{ integer: 2, json: { string: 'bar', number: 2 } }]);
   });
 
-  it('assert :: where json (equal)', async () => {
-    const { records } = await client.ez4_test_table.findMany({
-      select: {
-        integer: true,
-        json: true
-      },
-      where: {
-        json: {
-          boolean: {
-            equal: true
-          }
-        }
-      }
-    });
-
-    deepEqual(records, [{ integer: 2, json: { boolean: true, string: 'foo-2', number: 2 } }]);
-  });
-
-  it('assert :: where json (compound equal)', async () => {
-    const { records } = await client.ez4_test_table.findMany({
-      select: {
-        integer: true,
-        json: true
-      },
-      where: {
-        json: {
-          string: 'foo-2',
-          boolean: {
-            equal: true
-          }
-        }
-      }
-    });
-
-    deepEqual(records, [{ integer: 2, json: { boolean: true, string: 'foo-2', number: 2 } }]);
-  });
-
-  it('assert :: where json (not equal)', async () => {
+  it('assert :: where json string (equal)', async () => {
     const { records } = await client.ez4_test_table.findMany({
       select: {
         integer: true,
@@ -96,16 +57,16 @@ describe('client where json', async () => {
       where: {
         json: {
           string: {
-            not: 'foo-1'
+            equal: 'foo'
           }
         }
       }
     });
 
-    deepEqual(records, [{ integer: 2, json: { boolean: true, string: 'foo-2', number: 2 } }]);
+    deepEqual(records, [{ integer: 1, json: { string: 'foo', number: 1 } }]);
   });
 
-  it('assert :: where json (compound not equal)', async () => {
+  it('assert :: where json string (insensitive equal)', async () => {
     const { records } = await client.ez4_test_table.findMany({
       select: {
         integer: true,
@@ -114,176 +75,17 @@ describe('client where json', async () => {
       where: {
         json: {
           string: {
-            not: 'foo-2'
-          },
-          boolean: {
-            not: true
-          }
-        }
-      }
-    });
-
-    deepEqual(records, [{ integer: 1, json: { boolean: false, string: 'foo-1', number: 1 } }]);
-  });
-
-  it('assert :: where json (greater than)', async () => {
-    const { records } = await client.ez4_test_table.findMany({
-      select: {
-        integer: true,
-        json: true
-      },
-      where: {
-        json: {
-          number: {
-            gt: -1
-          }
-        }
-      }
-    });
-
-    deepEqual(records, [
-      { integer: 1, json: { boolean: false, string: 'foo-1', number: 1 } },
-      { integer: 2, json: { boolean: true, string: 'foo-2', number: 2 } }
-    ]);
-  });
-
-  it('assert :: where json (greater than or equal)', async () => {
-    const { records } = await client.ez4_test_table.findMany({
-      select: {
-        integer: true,
-        json: true
-      },
-      where: {
-        json: {
-          number: {
-            gte: 2
-          }
-        }
-      }
-    });
-
-    deepEqual(records, [{ integer: 2, json: { boolean: true, string: 'foo-2', number: 2 } }]);
-  });
-
-  it('assert :: where json (less than)', async () => {
-    const { records } = await client.ez4_test_table.findMany({
-      select: {
-        integer: true,
-        json: true
-      },
-      where: {
-        json: {
-          number: {
-            lt: 2
-          }
-        }
-      }
-    });
-
-    deepEqual(records, [{ integer: 1, json: { boolean: false, string: 'foo-1', number: 1 } }]);
-  });
-
-  it('assert :: where json (less than or equal)', async () => {
-    const { records } = await client.ez4_test_table.findMany({
-      select: {
-        integer: true,
-        json: true
-      },
-      where: {
-        json: {
-          number: {
-            lte: 3
-          }
-        }
-      }
-    });
-
-    deepEqual(records, [
-      { integer: 1, json: { boolean: false, string: 'foo-1', number: 1 } },
-      { integer: 2, json: { boolean: true, string: 'foo-2', number: 2 } }
-    ]);
-  });
-
-  it('assert :: where json (is in)', async () => {
-    const { records } = await client.ez4_test_table.findMany({
-      select: {
-        integer: true,
-        json: true
-      },
-      where: {
-        json: {
-          number: {
-            isIn: [1, 2]
-          }
-        }
-      }
-    });
-
-    deepEqual(records, [
-      { integer: 1, json: { boolean: false, string: 'foo-1', number: 1 } },
-      { integer: 2, json: { boolean: true, string: 'foo-2', number: 2 } }
-    ]);
-  });
-
-  it('assert :: where json (is between)', async () => {
-    const { records } = await client.ez4_test_table.findMany({
-      select: {
-        integer: true,
-        json: true
-      },
-      where: {
-        json: {
-          number: {
-            isBetween: [1, 2]
-          }
-        }
-      }
-    });
-
-    deepEqual(records, [
-      { integer: 1, json: { boolean: false, string: 'foo-1', number: 1 } },
-      { integer: 2, json: { boolean: true, string: 'foo-2', number: 2 } }
-    ]);
-  });
-
-  it('assert :: where json (contains)', async () => {
-    const { records } = await client.ez4_test_table.findMany({
-      select: {
-        integer: true,
-        json: true
-      },
-      where: {
-        json: {
-          string: {
-            contains: '-1'
-          }
-        }
-      }
-    });
-
-    deepEqual(records, [{ integer: 1, json: { boolean: false, string: 'foo-1', number: 1 } }]);
-  });
-
-  it('assert :: where json (insensitive contains)', async () => {
-    const { records } = await client.ez4_test_table.findMany({
-      select: {
-        integer: true,
-        json: true
-      },
-      where: {
-        json: {
-          string: {
-            contains: 'O-2',
+            equal: 'BaR',
             insensitive: true
           }
         }
       }
     });
 
-    deepEqual(records, [{ integer: 2, json: { boolean: true, string: 'foo-2', number: 2 } }]);
+    deepEqual(records, [{ integer: 2, json: { string: 'bar', number: 2 } }]);
   });
 
-  it('assert :: where json (starts with)', async () => {
+  it('assert :: where json string (not equal)', async () => {
     const { records } = await client.ez4_test_table.findMany({
       select: {
         integer: true,
@@ -292,19 +94,210 @@ describe('client where json', async () => {
       where: {
         json: {
           string: {
-            startsWith: 'fo'
+            not: 'foo'
+          }
+        }
+      }
+    });
+
+    deepEqual(records, [{ integer: 2, json: { string: 'bar', number: 2 } }]);
+  });
+
+  it('assert :: where json string (insensitive not equal)', async () => {
+    const { records } = await client.ez4_test_table.findMany({
+      select: {
+        integer: true,
+        json: true
+      },
+      where: {
+        json: {
+          string: {
+            not: 'BAr',
+            insensitive: true
+          }
+        }
+      }
+    });
+
+    deepEqual(records, [{ integer: 1, json: { string: 'foo', number: 1 } }]);
+  });
+
+  it('assert :: where json string (greater than)', async () => {
+    const { records } = await client.ez4_test_table.findMany({
+      select: {
+        integer: true,
+        json: true
+      },
+      where: {
+        json: {
+          string: {
+            gt: 'baq'
           }
         }
       }
     });
 
     deepEqual(records, [
-      { integer: 1, json: { boolean: false, string: 'foo-1', number: 1 } },
-      { integer: 2, json: { boolean: true, string: 'foo-2', number: 2 } }
+      { integer: 1, json: { string: 'foo', number: 1 } },
+      { integer: 2, json: { string: 'bar', number: 2 } }
     ]);
   });
 
-  it('assert :: where json (insensitive starts with)', async () => {
+  it('assert :: where json string (greater than or equal)', async () => {
+    const { records } = await client.ez4_test_table.findMany({
+      select: {
+        integer: true,
+        json: true
+      },
+      where: {
+        json: {
+          string: {
+            gte: 'fon'
+          }
+        }
+      }
+    });
+
+    deepEqual(records, [{ integer: 1, json: { string: 'foo', number: 1 } }]);
+  });
+
+  it('assert :: where json string (less than)', async () => {
+    const { records } = await client.ez4_test_table.findMany({
+      select: {
+        integer: true,
+        json: true
+      },
+      where: {
+        json: {
+          string: {
+            lt: 'foo'
+          }
+        }
+      }
+    });
+
+    deepEqual(records, [{ integer: 2, json: { string: 'bar', number: 2 } }]);
+  });
+
+  it('assert :: where json string (less than or equal)', async () => {
+    const { records } = await client.ez4_test_table.findMany({
+      select: {
+        integer: true,
+        json: true
+      },
+      where: {
+        json: {
+          string: {
+            lte: 'foo'
+          }
+        }
+      }
+    });
+
+    deepEqual(records, [
+      { integer: 1, json: { string: 'foo', number: 1 } },
+      { integer: 2, json: { string: 'bar', number: 2 } }
+    ]);
+  });
+
+  it('assert :: where json string (is in)', async () => {
+    const { records } = await client.ez4_test_table.findMany({
+      select: {
+        integer: true,
+        json: true
+      },
+      where: {
+        json: {
+          string: {
+            isIn: ['foo', 'bar']
+          }
+        }
+      }
+    });
+
+    deepEqual(records, [
+      { integer: 1, json: { string: 'foo', number: 1 } },
+      { integer: 2, json: { string: 'bar', number: 2 } }
+    ]);
+  });
+
+  it('assert :: where json string (is between)', async () => {
+    const { records } = await client.ez4_test_table.findMany({
+      select: {
+        integer: true,
+        json: true
+      },
+      where: {
+        json: {
+          string: {
+            isBetween: ['baq', 'fop']
+          }
+        }
+      }
+    });
+
+    deepEqual(records, [
+      { integer: 1, json: { string: 'foo', number: 1 } },
+      { integer: 2, json: { string: 'bar', number: 2 } }
+    ]);
+  });
+
+  it('assert :: where json string (contains)', async () => {
+    const { records } = await client.ez4_test_table.findMany({
+      select: {
+        integer: true,
+        json: true
+      },
+      where: {
+        json: {
+          string: {
+            contains: 'o'
+          }
+        }
+      }
+    });
+
+    deepEqual(records, [{ integer: 1, json: { string: 'foo', number: 1 } }]);
+  });
+
+  it('assert :: where json string (insensitive contains)', async () => {
+    const { records } = await client.ez4_test_table.findMany({
+      select: {
+        integer: true,
+        json: true
+      },
+      where: {
+        json: {
+          string: {
+            contains: 'A',
+            insensitive: true
+          }
+        }
+      }
+    });
+
+    deepEqual(records, [{ integer: 2, json: { string: 'bar', number: 2 } }]);
+  });
+
+  it('assert :: where json string (starts with)', async () => {
+    const { records } = await client.ez4_test_table.findMany({
+      select: {
+        integer: true,
+        json: true
+      },
+      where: {
+        json: {
+          string: {
+            startsWith: 'ba'
+          }
+        }
+      }
+    });
+
+    deepEqual(records, [{ integer: 2, json: { string: 'bar', number: 2 } }]);
+  });
+
+  it('assert :: where json string (insensitive starts with)', async () => {
     const { records } = await client.ez4_test_table.findMany({
       select: {
         integer: true,
@@ -320,13 +313,10 @@ describe('client where json', async () => {
       }
     });
 
-    deepEqual(records, [
-      { integer: 1, json: { boolean: false, string: 'foo-1', number: 1 } },
-      { integer: 2, json: { boolean: true, string: 'foo-2', number: 2 } }
-    ]);
+    deepEqual(records, [{ integer: 1, json: { string: 'foo', number: 1 } }]);
   });
 
-  it('assert :: where json (not)', async () => {
+  it('assert :: where json string (not)', async () => {
     const { records } = await client.ez4_test_table.findMany({
       select: {
         integer: true,
@@ -335,16 +325,16 @@ describe('client where json', async () => {
       where: {
         NOT: {
           json: {
-            string: 'foo-2'
+            string: 'bar'
           }
         }
       }
     });
 
-    deepEqual(records, [{ integer: 1, json: { boolean: false, string: 'foo-1', number: 1 } }]);
+    deepEqual(records, [{ integer: 1, json: { string: 'foo', number: 1 } }]);
   });
 
-  it('assert :: where json (and)', async () => {
+  it('assert :: where json string (and)', async () => {
     const { records } = await client.ez4_test_table.findMany({
       select: {
         integer: true,
@@ -354,17 +344,17 @@ describe('client where json', async () => {
         AND: [
           {
             json: {
-              boolean: false
+              string: 'bar'
             }
           }
         ]
       }
     });
 
-    deepEqual(records, [{ integer: 1, json: { boolean: false, string: 'foo-1', number: 1 } }]);
+    deepEqual(records, [{ integer: 2, json: { string: 'bar', number: 2 } }]);
   });
 
-  it('assert :: where json (or)', async () => {
+  it('assert :: where json string (or)', async () => {
     const { records } = await client.ez4_test_table.findMany({
       select: {
         integer: true,
@@ -374,12 +364,12 @@ describe('client where json', async () => {
         OR: [
           {
             json: {
-              boolean: false
+              string: 'foo'
             }
           },
           {
             json: {
-              number: 2
+              string: 'bar'
             }
           }
         ]
@@ -387,8 +377,8 @@ describe('client where json', async () => {
     });
 
     deepEqual(records, [
-      { integer: 1, json: { boolean: false, string: 'foo-1', number: 1 } },
-      { integer: 2, json: { boolean: true, string: 'foo-2', number: 2 } }
+      { integer: 1, json: { string: 'foo', number: 1 } },
+      { integer: 2, json: { string: 'bar', number: 2 } }
     ]);
   });
 });

@@ -7,10 +7,10 @@ import { isDynamicObjectSchema, IsNullishSchema, isObjectSchema, SchemaType } fr
 import { isPlainObject } from '@ez4/utils';
 
 import { SqlRaw, SqlRawOperation } from '../common/raw';
-import { SqlColumnReference } from '../common/reference';
-import { mergeSqlAlias, mergeSqlJsonPath, mergeSqlPath } from '../utils/merge';
 import { InvalidAtomicOperation } from '../operations/errors';
+import { mergeSqlAlias, mergeSqlJsonPath, mergeSqlPath } from '../utils/merge';
 import { SqlSelectStatement } from '../statements/select';
+import { SqlColumnReference } from '../common/reference';
 
 export type SqlUpdateContext = {
   options: SqlBuilderOptions;
@@ -140,11 +140,11 @@ const getOperandColumn = (schema: AnySchema | undefined, fieldName: string, fiel
     throw new InvalidAtomicOperation(fieldName);
   }
 
-  if (schema.format === 'decimal') {
-    return `(${fieldExpression})::dec`;
+  if (schema.format === 'integer') {
+    return `(${fieldExpression})::int`;
   }
 
-  return `(${fieldExpression})::int`;
+  return `(${fieldExpression})::dec`;
 };
 
 const getOperandCoalesce = (schema: AnySchema | undefined, columnName: string) => {

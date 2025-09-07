@@ -6,7 +6,7 @@ import { getIsNullOperation } from './is-null';
 
 export const getEqualOperation = (column: string, schema: AnySchema | undefined, operand: unknown, context: SqlOperationContext) => {
   if (operand === null) {
-    return getIsNullOperation(column, true, context);
+    return getIsNullOperation(column, true);
   }
 
   const lhsOperand = getOperandColumn(schema, column, context);

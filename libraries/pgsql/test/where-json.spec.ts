@@ -44,7 +44,7 @@ describe('sql where json tests', () => {
 
     assert.deepEqual(variables, ['abc']);
 
-    assert.equal(statement, `SELECT * FROM "test" WHERE trim('"' from "foo"['bar']::text) = :0`);
+    assert.equal(statement, `SELECT * FROM "test" WHERE "foo"->>'bar' = :0`);
   });
 
   it('assert :: where equal (explicit with json value)', ({ assert }) => {
@@ -67,7 +67,7 @@ describe('sql where json tests', () => {
 
     assert.deepEqual(variables, [true]);
 
-    assert.equal(statement, `SELECT * FROM "test" WHERE "foo"['bar']::bool = :0`);
+    assert.equal(statement, `SELECT * FROM "test" WHERE ("foo"->>'bar')::bool = :0`);
   });
 
   it('assert :: where not equal (with json value)', ({ assert }) => {
@@ -90,7 +90,7 @@ describe('sql where json tests', () => {
 
     assert.deepEqual(variables, ['abc']);
 
-    assert.equal(statement, `SELECT * FROM "test" WHERE trim('"' from "foo"['bar']::text) != :0`);
+    assert.equal(statement, `SELECT * FROM "test" WHERE "foo"->>'bar' != :0`);
   });
 
   it('assert :: where greater than (with json value)', ({ assert }) => {
@@ -113,7 +113,7 @@ describe('sql where json tests', () => {
 
     assert.deepEqual(variables, [5]);
 
-    assert.equal(statement, `SELECT * FROM "test" WHERE "foo"['bar']::int > :0`);
+    assert.equal(statement, `SELECT * FROM "test" WHERE ("foo"->>'bar')::dec > :0`);
   });
 
   it('assert :: where greater than or equal (with json value)', ({ assert }) => {
@@ -136,7 +136,7 @@ describe('sql where json tests', () => {
 
     assert.deepEqual(variables, [5]);
 
-    assert.equal(statement, `SELECT * FROM "test" WHERE "foo"['bar']::int >= :0`);
+    assert.equal(statement, `SELECT * FROM "test" WHERE ("foo"->>'bar')::dec >= :0`);
   });
 
   it('assert :: where less than (with json value)', ({ assert }) => {
@@ -159,7 +159,7 @@ describe('sql where json tests', () => {
 
     assert.deepEqual(variables, [5]);
 
-    assert.equal(statement, `SELECT * FROM "test" WHERE "foo"['bar']::int < :0`);
+    assert.equal(statement, `SELECT * FROM "test" WHERE ("foo"->>'bar')::dec < :0`);
   });
 
   it('assert :: where less than or equal (with json value)', ({ assert }) => {
@@ -182,7 +182,7 @@ describe('sql where json tests', () => {
 
     assert.deepEqual(variables, [5]);
 
-    assert.equal(statement, `SELECT * FROM "test" WHERE "foo"['bar']::int <= :0`);
+    assert.equal(statement, `SELECT * FROM "test" WHERE ("foo"->>'bar')::dec <= :0`);
   });
 
   it('assert :: where is in (with json value)', ({ assert }) => {
@@ -206,7 +206,7 @@ describe('sql where json tests', () => {
 
     assert.deepEqual(variables, [1.5, 2.1, 3.8]);
 
-    assert.equal(statement, `SELECT * FROM "test" WHERE "foo"['bar']::dec IN (:0, :1, :2)`);
+    assert.equal(statement, `SELECT * FROM "test" WHERE ("foo"->>'bar')::dec IN (:0, :1, :2)`);
   });
 
   it('assert :: where is in (with json array)', ({ assert }) => {
@@ -275,7 +275,7 @@ describe('sql where json tests', () => {
 
     assert.deepEqual(variables, [1, 2]);
 
-    assert.equal(statement, `SELECT * FROM "test" WHERE "foo"['bar']::int BETWEEN :0 AND :1`);
+    assert.equal(statement, `SELECT * FROM "test" WHERE ("foo"->>'bar')::dec BETWEEN :0 AND :1`);
   });
 
   it('assert :: where starts with (with json value)', ({ assert }) => {
@@ -298,7 +298,7 @@ describe('sql where json tests', () => {
 
     assert.deepEqual(variables, ['abc']);
 
-    assert.equal(statement, `SELECT * FROM "test" WHERE trim('"' from "foo"['bar']::text) LIKE :0 || '%'`);
+    assert.equal(statement, `SELECT * FROM "test" WHERE "foo"->>'bar' LIKE :0 || '%'`);
   });
 
   it('assert :: where contains (with json value)', ({ assert }) => {
@@ -321,7 +321,7 @@ describe('sql where json tests', () => {
 
     assert.deepEqual(variables, ['abc']);
 
-    assert.equal(statement, `SELECT * FROM "test" WHERE trim('"' from "foo"['bar']::text) LIKE '%' || :0 || '%'`);
+    assert.equal(statement, `SELECT * FROM "test" WHERE "foo"->>'bar' LIKE '%' || :0 || '%'`);
   });
 
   it('assert :: where contains (with json object)', ({ assert }) => {
@@ -405,7 +405,7 @@ describe('sql where json tests', () => {
 
     assert.deepEqual(variables, [123, 456]);
 
-    assert.equal(statement, `SELECT * FROM "test" WHERE ("foo"['bar']::int >= :0 AND "foo"['bar']::int < :1)`);
+    assert.equal(statement, `SELECT * FROM "test" WHERE (("foo"->>'bar')::dec >= :0 AND ("foo"->>'bar')::dec < :1)`);
   });
 
   it('assert :: where nested fields (without json object schema)', ({ assert }) => {
@@ -454,7 +454,7 @@ describe('sql where json tests', () => {
 
     assert.deepEqual(variables, [true]);
 
-    assert.equal(statement, `SELECT * FROM "test" AS "alias" WHERE "alias"."foo"['bar']['baz']::bool = :0`);
+    assert.equal(statement, `SELECT * FROM "test" AS "alias" WHERE ("alias"."foo"['bar']->>'baz')::bool = :0`);
   });
 
   it('assert :: where nested fields (with json object union)', ({ assert }) => {
@@ -496,7 +496,7 @@ describe('sql where json tests', () => {
 
     assert.deepEqual(variables1, [true]);
 
-    assert.equal(statement1, `SELECT * FROM "test" AS "alias" WHERE "alias"."foo"['bar']['baz']::bool = :0`);
+    assert.equal(statement1, `SELECT * FROM "test" AS "alias" WHERE ("alias"."foo"['bar']->>'baz')::bool = :0`);
 
     sql.reset();
 
@@ -516,7 +516,7 @@ describe('sql where json tests', () => {
 
     assert.deepEqual(variables2, [123]);
 
-    assert.equal(statement2, `SELECT * FROM "test" AS "alias" WHERE "alias"."foo"['bar']['qux']::int = :0`);
+    assert.equal(statement2, `SELECT * FROM "test" AS "alias" WHERE ("alias"."foo"['bar']->>'qux')::dec = :0`);
   });
 
   it('assert :: where multiple fields (with json object)', ({ assert }) => {
@@ -552,7 +552,10 @@ describe('sql where json tests', () => {
 
     assert.deepEqual(variables, [123, false]);
 
-    assert.equal(statement, `SELECT * FROM "test" AS "alias" WHERE ("alias"."foo"['bar']::int = :0 AND "alias"."foo"['baz']::bool = :1)`);
+    assert.equal(
+      statement,
+      `SELECT * FROM "test" AS "alias" WHERE (("alias"."foo"->>'bar')::dec = :0 AND ("alias"."foo"->>'baz')::bool = :1)`
+    );
   });
 
   it('assert :: where multiple fields (with dynamic json object)', ({ assert }) => {
@@ -589,6 +592,9 @@ describe('sql where json tests', () => {
 
     assert.deepEqual(variables, [123, 456]);
 
-    assert.equal(statement, `SELECT * FROM "test" AS "alias" WHERE ("alias"."foo"['bar']::int = :0 AND "alias"."foo"['baz']::int = :1)`);
+    assert.equal(
+      statement,
+      `SELECT * FROM "test" AS "alias" WHERE (("alias"."foo"->>'bar')::dec = :0 AND ("alias"."foo"->>'baz')::dec = :1)`
+    );
   });
 });

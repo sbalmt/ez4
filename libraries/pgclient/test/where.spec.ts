@@ -188,34 +188,6 @@ describe('where', () => {
     deepEqual(variables, [0, 100]);
   });
 
-  it('assert :: prepare where (is missing)', () => {
-    const [whereClause, variables] = getWhereOperation({
-      bar: {
-        barBar: {
-          isMissing: true
-        }
-      }
-    });
-
-    equal(whereClause, `WHERE "bar"['barBar'] IS null`);
-
-    deepEqual(variables, []);
-  });
-
-  it('assert :: prepare where (is not missing)', () => {
-    const [whereClause, variables] = getWhereOperation({
-      bar: {
-        barBar: {
-          isMissing: false
-        }
-      }
-    });
-
-    equal(whereClause, `WHERE "bar"['barBar'] IS NOT null`);
-
-    deepEqual(variables, []);
-  });
-
   it('assert :: prepare where (contains)', () => {
     const [whereClause, variables] = getWhereOperation({
       bar: {
@@ -228,7 +200,7 @@ describe('where', () => {
       }
     });
 
-    equal(whereClause, `WHERE trim('"' from "bar"['barFoo']::text) LIKE '%' || :0 || '%' AND "baz" LIKE '%' || :1 || '%'`);
+    equal(whereClause, `WHERE "bar"->>'barFoo' LIKE '%' || :0 || '%' AND "baz" LIKE '%' || :1 || '%'`);
 
     deepEqual(variables, ['abc', 'def']);
   });
@@ -239,7 +211,7 @@ describe('where', () => {
       baz: { startsWith: 'def' }
     });
 
-    equal(whereClause, `WHERE trim('"' from "bar"['barFoo']::text) LIKE :0 || '%' AND "baz" LIKE :1 || '%'`);
+    equal(whereClause, `WHERE "bar"->>'barFoo' LIKE :0 || '%' AND "baz" LIKE :1 || '%'`);
 
     deepEqual(variables, ['abc', 'def']);
   });

@@ -19,7 +19,7 @@ type TestTableMetadata = {
   };
 };
 
-describe('where json null', () => {
+describe('where missing', () => {
   const getWhereOperation = (where: Query.WhereInput<TestTableMetadata>) => {
     const builder = new SqlBuilder();
 
@@ -43,70 +43,26 @@ describe('where json null', () => {
     return [whereClause, variables];
   };
 
-  it('assert :: prepare where json null (implicit)', () => {
+  it('assert :: prepare where missing (operator)', () => {
     const [whereClause, variables] = getWhereOperation({
-      json: {
-        number: null
+      string: {
+        isMissing: true
       }
     });
 
-    equal(whereClause, `WHERE "json"->>'number' IS null`);
+    equal(whereClause, `WHERE "string" IS null`);
 
     deepEqual(variables, []);
   });
 
-  it('assert :: prepare where json null (explicit)', () => {
+  it('assert :: prepare where not missing (operator)', () => {
     const [whereClause, variables] = getWhereOperation({
-      json: {
-        number: {
-          equal: null
-        }
+      string: {
+        isMissing: false
       }
     });
 
-    equal(whereClause, `WHERE "json"->>'number' IS null`);
-
-    deepEqual(variables, []);
-  });
-
-  it('assert :: prepare where json null (operator)', () => {
-    const [whereClause, variables] = getWhereOperation({
-      json: {
-        number: {
-          isNull: true
-        }
-      }
-    });
-
-    equal(whereClause, `WHERE "json"->>'number' IS null`);
-
-    deepEqual(variables, []);
-  });
-
-  it('assert :: prepare where json not null (explicit)', () => {
-    const [whereClause, variables] = getWhereOperation({
-      json: {
-        number: {
-          not: null
-        }
-      }
-    });
-
-    equal(whereClause, `WHERE "json"->>'number' IS NOT null`);
-
-    deepEqual(variables, []);
-  });
-
-  it('assert :: prepare where json not null (operator)', () => {
-    const [whereClause, variables] = getWhereOperation({
-      json: {
-        number: {
-          isNull: false
-        }
-      }
-    });
-
-    equal(whereClause, `WHERE "json"->>'number' IS NOT null`);
+    equal(whereClause, `WHERE "string" IS NOT null`);
 
     deepEqual(variables, []);
   });

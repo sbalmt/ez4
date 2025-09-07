@@ -42,7 +42,7 @@ describe('sql where json null tests', () => {
 
     assert.deepEqual(variables, []);
 
-    assert.equal(statement, `SELECT * FROM "test" WHERE ("json"['foo'] IS null OR "json"['foo'] = 'null'::jsonb)`);
+    assert.equal(statement, `SELECT * FROM "test" WHERE "json"->>'foo' IS null`);
   });
 
   it('assert :: where json is null (explicit)', ({ assert }) => {
@@ -61,7 +61,7 @@ describe('sql where json null tests', () => {
 
     assert.deepEqual(variables, []);
 
-    assert.equal(statement, `SELECT * FROM "test" WHERE ("json"['foo'] IS null OR "json"['foo'] = 'null'::jsonb)`);
+    assert.equal(statement, `SELECT * FROM "test" WHERE "json"->>'foo' IS null`);
   });
 
   it('assert :: where json is null (operator)', ({ assert }) => {
@@ -80,7 +80,7 @@ describe('sql where json null tests', () => {
 
     assert.deepEqual(variables, []);
 
-    assert.equal(statement, `SELECT * FROM "test" WHERE ("json"['foo'] IS null OR "json"['foo'] = 'null'::jsonb)`);
+    assert.equal(statement, `SELECT * FROM "test" WHERE "json"->>'foo' IS null`);
   });
 
   it('assert :: where json is not null (explicit)', ({ assert }) => {
@@ -99,7 +99,7 @@ describe('sql where json null tests', () => {
 
     assert.deepEqual(variables, []);
 
-    assert.equal(statement, `SELECT * FROM "test" WHERE ("json"['foo'] IS NOT null AND "json"['foo'] != 'null'::jsonb)`);
+    assert.equal(statement, `SELECT * FROM "test" WHERE "json"->>'foo' IS NOT null`);
   });
 
   it('assert :: where json is not null (operator)', ({ assert }) => {
@@ -118,6 +118,6 @@ describe('sql where json null tests', () => {
 
     assert.deepEqual(variables, []);
 
-    assert.equal(statement, `SELECT * FROM "test" WHERE ("json"['foo'] IS NOT null AND "json"['foo'] != 'null'::jsonb)`);
+    assert.equal(statement, `SELECT * FROM "test" WHERE "json"->>'foo' IS NOT null`);
   });
 });

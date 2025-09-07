@@ -16,7 +16,9 @@ export type TestSchemaType = {
     boolean?: boolean;
     number?: number | null;
     datetime?: String.DateTime;
-    array?: number[];
+    date?: String.Date;
+    time?: String.Time;
+    array?: (number | string)[];
   };
 };
 
@@ -93,12 +95,32 @@ export const TestSchema: ObjectSchema = {
           optional: true,
           nullable: true
         },
+        date: {
+          type: SchemaType.String,
+          format: 'date',
+          optional: true,
+          nullable: true
+        },
+        time: {
+          type: SchemaType.String,
+          format: 'time',
+          optional: true,
+          nullable: true
+        },
         array: {
           type: SchemaType.Array,
           optional: true,
           nullable: true,
           element: {
-            type: SchemaType.Number
+            type: SchemaType.Union,
+            elements: [
+              {
+                type: SchemaType.Number
+              },
+              {
+                type: SchemaType.String
+              }
+            ]
           }
         }
       }
