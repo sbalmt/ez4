@@ -579,7 +579,7 @@ describe('update schema', () => {
         `"Q1" AS (UPDATE ONLY "ez4-test-update-schema" AS "U" SET "scalar" = :0, "json"['scalar'] = :1 ` +
         `FROM "Q0") ` +
         // Return
-        `SELECT "Q0".* FROM "Q0"`
+        `SELECT "scalar", "json" FROM "Q0"`
     );
 
     assert.deepEqual(variables, ['foo', 123]);

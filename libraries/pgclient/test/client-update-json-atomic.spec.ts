@@ -1,4 +1,4 @@
-import { makeSchemaClient, prepareSchemaTable } from './common/database';
+import { makeSchemaClient, prepareSchemaTable } from './common/schema';
 
 import { beforeEach, describe, it } from 'node:test';
 import { deepEqual } from 'node:assert/strict';

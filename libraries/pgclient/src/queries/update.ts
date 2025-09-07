@@ -7,7 +7,7 @@ import type { InternalTableMetadata } from '../types/table';
 
 import { getObjectSchemaProperty, isNumberSchema, isObjectSchema } from '@ez4/schema';
 import { InvalidAtomicOperation, InvalidFieldSchemaError, InvalidRelationFieldError } from '@ez4/pgclient';
-import { escapeSqlName, mergeSqlAlias, SqlSelectStatement } from '@ez4/pgsql';
+import { escapeSqlName, SqlSelectStatement } from '@ez4/pgsql';
 import { isAnyObject, isEmptyObject } from '@ez4/utils';
 import { Index } from '@ez4/database';
 
@@ -39,7 +39,11 @@ export const prepareUpdateQuery = async <T extends InternalTableMetadata, S exte
     if (updateQuery instanceof SqlSelectStatement) {
       const selectFields = getSelectFields(builder, query.select, query.include, schema, relations, updateQuery, table);
 
-      updateQuery.record(selectFields).lock(query.lock);
+      updateQuery.record(selectFields);
+
+      if (query.lock) {
+        updateQuery.lock();
+      }
     } else {
       const selectQuery = builder.select(schema).from(table).lock(query.lock);
       const selectFields = getSelectFields(builder, query.select, query.include, schema, relations, selectQuery, table);
@@ -65,9 +69,13 @@ export const prepareUpdateQuery = async <T extends InternalTableMetadata, S exte
 
   if (query.select && (postUpdateQueries.length > 0 || !(updateQuery instanceof SqlSelectStatement))) {
     const [firstQuery] = allQueries;
-    const firstResult = () => mergeSqlAlias('*', firstQuery.alias);
 
-    allQueries.push(builder.select().from(firstQuery.reference()).rawColumn(firstResult));
+    allQueries.push(
+      builder
+        .select()
+        .columns(...Object.keys(query.select))
+        .from(firstQuery.reference())
+    );
   }
 
   if (options?.flag) {

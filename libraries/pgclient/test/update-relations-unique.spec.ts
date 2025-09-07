@@ -212,7 +212,7 @@ describe('update unique relations', () => {
         // Update
         `"Q1" AS (UPDATE ONLY "ez4_test_table" AS "U" SET "id" = :0, "unique_id" = :1 FROM "Q0") ` +
         // Return
-        `SELECT "Q0".* FROM "Q0"`
+        `SELECT "unique_to_primary" FROM "Q0"`
     );
 
     assert.deepEqual(variables, ['00000000-0000-1000-9000-000000000000', '00000000-0000-1000-9000-000000000001']);
@@ -298,7 +298,7 @@ describe('update unique relations', () => {
         // Relation
         `"Q2" AS (UPDATE ONLY "ez4_test_table" AS "T" SET "foo" = :1 FROM "Q1" WHERE "T"."unique_id" = "Q1"."id") ` +
         // Return
-        `SELECT "Q0".* FROM "Q0"`
+        `SELECT "unique_to_primary" FROM "Q0"`
     );
 
     assert.deepEqual(variables, ['00000000-0000-1000-9000-000000000000', 'foo']);
@@ -346,7 +346,7 @@ describe('update unique relations', () => {
         // Third relation
         `"Q3" AS (UPDATE ONLY "ez4_test_table" AS "T" SET "foo" = :3 FROM "Q1" WHERE "T"."unique_3_id" = "Q1"."id") ` +
         // Return
-        `SELECT "Q0".* FROM "Q0"`
+        `SELECT "id", "unique_to_primary_1" FROM "Q0"`
     );
 
     assert.deepEqual(variables, ['00000000-0000-1000-9000-000000000000', '00000000-0000-1000-9000-000000000001', 'foo', 'foo']);
