@@ -12,31 +12,33 @@ export declare class TestSchemaDb extends Database.Service {
   tables: [
     {
       name: 'ez4_test_table';
-      schema: {
-        id: String.UUID;
-        integer?: number;
-        decimal?: number;
-        boolean?: boolean;
-        string?: string | null;
-        datetime?: String.DateTime;
-        date?: String.Date;
-        time?: String.Time;
-        json?: {
-          string?: string;
-          boolean?: boolean;
-          number?: number | null;
-          datetime?: String.DateTime;
-          date?: String.Date;
-          time?: String.Time;
-          array?: (number | string)[];
-        };
-      };
+      schema: TestSchemaType;
       indexes: {
         id: Index.Primary;
       };
     }
   ];
 }
+
+export type TestSchemaType = {
+  id: String.UUID;
+  integer?: number;
+  decimal?: number;
+  boolean?: boolean;
+  string?: string | null;
+  datetime?: String.DateTime;
+  date?: String.Date;
+  time?: String.Time;
+  json?: {
+    string?: string;
+    boolean?: boolean;
+    number?: number | null;
+    datetime?: String.DateTime;
+    date?: String.Date;
+    time?: String.Time;
+    array?: (number | string)[];
+  };
+};
 
 export const makeSchemaClient = async () => {
   return Client.make<TestSchemaDb>({
