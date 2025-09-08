@@ -534,6 +534,63 @@ describe('update schema', () => {
     assert.deepEqual(variables, [123]);
   });
 
+  it('assert :: prepare update schema (json union field)', async ({ assert }) => {
+    const schema: ObjectSchema = {
+      type: SchemaType.Object,
+      properties: {
+        json: {
+          type: SchemaType.Union,
+          elements: [
+            {
+              type: SchemaType.Object,
+              properties: {
+                foo: {
+                  type: SchemaType.Number
+                },
+                bar: {
+                  type: SchemaType.String
+                }
+              }
+            },
+            {
+              type: SchemaType.Object,
+              properties: {
+                baz: {
+                  type: SchemaType.String
+                },
+                qux: {
+                  type: SchemaType.Number
+                }
+              }
+            }
+          ]
+        }
+      }
+    };
+
+    const [statementA, variablesA] = await prepareUpdate(schema, {
+      data: {
+        json: {
+          foo: 123
+        }
+      }
+    });
+
+    const [statementB, variablesB] = await prepareUpdate(schema, {
+      data: {
+        json: {
+          baz: 'abc'
+        }
+      }
+    });
+
+    assert.equal(statementA, `UPDATE ONLY "ez4-test-update-schema" SET "json"['foo'] = :0`);
+    assert.equal(statementB, `UPDATE ONLY "ez4-test-update-schema" SET "json"['baz'] = :0`);
+
+    assert.deepEqual(variablesA, [123]);
+    assert.deepEqual(variablesB, ['abc']);
+  });
+
   it('assert :: prepare update schema (with select)', async ({ assert }) => {
     const [statement, variables] = await prepareUpdate(
       {

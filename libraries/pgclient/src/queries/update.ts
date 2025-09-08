@@ -5,14 +5,14 @@ import type { Query } from '@ez4/database';
 import type { PgRelationWithSchema, PgRelationRepositoryWithSchema } from '../types/repository';
 import type { InternalTableMetadata } from '../types/table';
 
-import { getObjectSchemaProperty, isNumberSchema, isObjectSchema } from '@ez4/schema';
+import { getObjectSchemaProperty, getOptionalSchema, isNumberSchema, isObjectSchema } from '@ez4/schema';
 import { InvalidAtomicOperation, InvalidFieldSchemaError, InvalidRelationFieldError } from '@ez4/pgclient';
 import { escapeSqlName, SqlSelectStatement } from '@ez4/pgsql';
 import { isAnyObject, isEmptyObject } from '@ez4/utils';
 import { Index } from '@ez4/database';
 
 import { getWithSchemaValidation, isDynamicFieldSchema, validateFirstSchemaLevel } from '../utils/schema';
-import { getSourceConnectionSchema, getTargetConnectionSchema, getUpdatingSchema, isSingleRelationData } from '../utils/relation';
+import { getSourceConnectionSchema, getTargetConnectionSchema, isSingleRelationData } from '../utils/relation';
 import { getSelectFields, getSelectFilters } from './select';
 
 export type UpdateQueryOptions = {
@@ -129,7 +129,7 @@ export const getUpdateRecord = async (
 
         // Will update the active relation.
         if (!isEmptyObject(fieldValue)) {
-          const relationSchema = getUpdatingSchema(sourceSchema);
+          const relationSchema = getOptionalSchema(sourceSchema);
 
           await validateFirstSchemaLevel(fieldValue, relationSchema, fieldPath);
         }
@@ -150,7 +150,7 @@ export const getUpdateRecord = async (
 
       // Will update the active relation.
       if (!isEmptyObject(fieldValue)) {
-        const relationSchema = getUpdatingSchema(sourceSchema);
+        const relationSchema = getOptionalSchema(sourceSchema);
 
         await validateFirstSchemaLevel(fieldValue, relationSchema, fieldPath);
       }
@@ -175,7 +175,7 @@ export const getUpdateRecord = async (
     }
 
     if (isDynamicFieldSchema(fieldSchema)) {
-      record[fieldKey] = await getWithSchemaValidation(fieldValue, fieldSchema, fieldPath);
+      record[fieldKey] = await getWithSchemaValidation(fieldValue, getOptionalSchema(fieldSchema), fieldPath);
       continue;
     }
 
