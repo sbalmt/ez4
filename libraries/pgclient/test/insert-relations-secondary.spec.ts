@@ -89,6 +89,7 @@ describe('insert secondary relations', () => {
   const getSingleTestRelation = (): PgRelationRepositoryWithSchema => {
     return {
       [`${testTableName}.secondary_to_primary`]: {
+        primaryColumn: 'id',
         targetAlias: 'secondary_to_primary',
         targetColumn: 'id',
         targetIndex: Index.Primary,
@@ -103,6 +104,7 @@ describe('insert secondary relations', () => {
 
   const getMultipleTestRelation = (): PgRelationRepositoryWithSchema => {
     const baseRelation = {
+      primaryColumn: 'id',
       targetColumn: 'id',
       targetIndex: Index.Primary,
       targetTable: testTableName,
@@ -140,7 +142,7 @@ describe('insert secondary relations', () => {
         id: '00000000-0000-1000-9000-000000000000',
         secondary_to_primary: [
           {
-            primary_id: null
+            id: null
           }
         ]
       }
@@ -168,7 +170,7 @@ describe('insert secondary relations', () => {
         id: '00000000-0000-1000-9000-000000000001',
         secondary_to_primary: [
           {
-            primary_id: '00000000-0000-1000-9000-000000000000'
+            id: '00000000-0000-1000-9000-000000000000'
           }
         ]
       }
@@ -196,7 +198,7 @@ describe('insert secondary relations', () => {
         id: '00000000-0000-1000-9000-000000000000',
         secondary_to_primary: [
           {
-            primary_id: undefined
+            id: undefined
           }
         ]
       }
@@ -221,7 +223,8 @@ describe('insert secondary relations', () => {
         id: '00000000-0000-1000-9000-000000000000',
         secondary_to_primary: [
           {
-            id: '00000000-0000-1000-9000-000000000001'
+            id: '00000000-0000-1000-9000-000000000001',
+            foo: 'foo'
           }
         ]
       }
@@ -233,10 +236,10 @@ describe('insert secondary relations', () => {
         // Main record
         `"Q0" AS (INSERT INTO "ez4_test_table" ("id") VALUES (:0) RETURNING "id") ` +
         // Relation
-        `INSERT INTO "ez4_test_table" ("id", "primary_id") SELECT :1, "Q0"."id" FROM "Q0"`
+        `INSERT INTO "ez4_test_table" ("id", "foo", "primary_id") SELECT :1, :2, "Q0"."id" FROM "Q0"`
     );
 
-    assert.deepEqual(variables, ['00000000-0000-1000-9000-000000000000', '00000000-0000-1000-9000-000000000001']);
+    assert.deepEqual(variables, ['00000000-0000-1000-9000-000000000000', '00000000-0000-1000-9000-000000000001', 'foo']);
   });
 
   it('assert :: prepare insert secondary relation (required creation)', async ({ assert }) => {
@@ -343,7 +346,7 @@ describe('insert secondary relations', () => {
         secondary_to_primary_1: [
           {
             id: '00000000-0000-1000-9000-000000000001',
-            foo: 'foo'
+            foo: 'foo-1'
           },
           {
             id: '00000000-0000-1000-9000-000000000002'
@@ -351,7 +354,8 @@ describe('insert secondary relations', () => {
         ],
         secondary_to_primary_2: [
           {
-            id: '00000000-0000-1000-9000-000000000003'
+            id: '00000000-0000-1000-9000-000000000003',
+            foo: 'foo-2'
           }
         ]
       }
@@ -365,9 +369,9 @@ describe('insert secondary relations', () => {
         // First relation
         `"Q1" AS (INSERT INTO "ez4_test_table" ("id", "foo", "primary_1_id") SELECT :1, :2, "Q0"."id" FROM "Q0" RETURNING "id", "foo"), ` +
         // Second relation
-        `"Q2" AS (INSERT INTO "ez4_test_table" ("id", "primary_1_id") SELECT :3, "Q0"."id" FROM "Q0" RETURNING "id", "foo"), ` +
+        `"Q2" AS (UPDATE ONLY "ez4_test_table" AS "T" SET "primary_1_id" = "Q0"."id" FROM "Q0" WHERE "T"."id" = :3 RETURNING "T"."id", "T"."foo"), ` +
         // Third relation
-        `"Q3" AS (INSERT INTO "ez4_test_table" ("id", "primary_2_id") SELECT :4, "Q0"."id" FROM "Q0") ` +
+        `"Q3" AS (INSERT INTO "ez4_test_table" ("id", "foo", "primary_2_id") SELECT :4, :5, "Q0"."id" FROM "Q0") ` +
         // Select
         `SELECT "id", ` +
         `(SELECT COALESCE(json_agg(jsonb_build_object('id', "id", 'foo', "foo")), '[]'::json) FROM "Q1", "Q2") AS "secondary_to_primary_1" ` +
@@ -377,9 +381,10 @@ describe('insert secondary relations', () => {
     assert.deepEqual(variables, [
       '00000000-0000-1000-9000-000000000000',
       '00000000-0000-1000-9000-000000000001',
-      'foo',
+      'foo-1',
       '00000000-0000-1000-9000-000000000002',
-      '00000000-0000-1000-9000-000000000003'
+      '00000000-0000-1000-9000-000000000003',
+      'foo-2'
     ]);
   });
 

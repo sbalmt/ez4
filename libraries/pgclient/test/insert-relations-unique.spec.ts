@@ -100,6 +100,7 @@ describe('insert unique relations', () => {
   const getSingleTestRelation = (): PgRelationRepositoryWithSchema => {
     return {
       [`${testTableName}.unique_to_primary`]: {
+        primaryColumn: 'id',
         targetAlias: 'unique_to_primary',
         targetColumn: 'unique_id',
         targetIndex: Index.Unique,
@@ -114,6 +115,7 @@ describe('insert unique relations', () => {
 
   const getMultipleTestRelation = (): PgRelationRepositoryWithSchema => {
     const baseRelation = {
+      primaryColumn: 'id',
       targetIndex: Index.Unique,
       targetTable: testTableName,
       sourceIndex: Index.Primary,
@@ -150,7 +152,7 @@ describe('insert unique relations', () => {
       data: {
         id: '00000000-0000-1000-9000-000000000000',
         unique_to_primary: {
-          unique_id: null
+          id: null
         }
       }
     });
@@ -173,7 +175,7 @@ describe('insert unique relations', () => {
       data: {
         id: '00000000-0000-1000-9000-000000000000',
         unique_to_primary: {
-          unique_id: '00000000-0000-1000-9000-000000000001'
+          id: '00000000-0000-1000-9000-000000000001'
         }
       }
     });
@@ -196,7 +198,7 @@ describe('insert unique relations', () => {
       data: {
         id: '00000000-0000-1000-9000-000000000000',
         unique_to_primary: {
-          unique_id: undefined
+          id: undefined
         }
       }
     });
@@ -225,7 +227,7 @@ describe('insert unique relations', () => {
       data: {
         id: '00000000-0000-1000-9000-000000000000',
         unique_to_primary: {
-          unique_id: '00000000-0000-1000-9000-000000000001'
+          id: '00000000-0000-1000-9000-000000000001'
         }
       }
     });
@@ -348,13 +350,14 @@ describe('insert unique relations', () => {
         id: '00000000-0000-1000-9000-000000000000',
         unique_to_primary_1: {
           id: '00000000-0000-1000-9000-000000000001',
-          foo: 'foo'
+          foo: 'foo-1'
         },
         unique_to_primary_2: {
-          unique_2_id: '00000000-0000-1000-9000-000000000002'
+          id: '00000000-0000-1000-9000-000000000002'
         },
         unique_to_primary_3: {
-          id: '00000000-0000-1000-9000-000000000003'
+          id: '00000000-0000-1000-9000-000000000003',
+          foo: 'foo-2'
         }
       }
     });
@@ -365,18 +368,19 @@ describe('insert unique relations', () => {
         // First relation
         `"Q0" AS (INSERT INTO "ez4_test_table" ("id", "foo") VALUES (:0, :1) RETURNING "id", "foo"), ` +
         // Second relation
-        `"Q1" AS (INSERT INTO "ez4_test_table" ("id") VALUES (:2) RETURNING "id"), ` +
+        `"Q1" AS (INSERT INTO "ez4_test_table" ("id", "foo") VALUES (:2, :3) RETURNING "id"), ` +
         // Main record
         `"Q2" AS (INSERT INTO "ez4_test_table" ("id", "unique_1_id", "unique_2_id", "unique_3_id") ` +
-        `SELECT :3, "Q0"."id", :4, "Q1"."id" FROM "Q0", "Q1" RETURNING "id") ` +
+        `SELECT :4, "Q0"."id", :5, "Q1"."id" FROM "Q0", "Q1" RETURNING "id") ` +
         // Select
         `SELECT "id", (SELECT jsonb_build_object('id', "id", 'foo', "foo") FROM "Q0") AS "unique_to_primary_1" FROM "Q2"`
     );
 
     assert.deepEqual(variables, [
       '00000000-0000-1000-9000-000000000001',
-      'foo',
+      'foo-1',
       '00000000-0000-1000-9000-000000000003',
+      'foo-2',
       '00000000-0000-1000-9000-000000000000',
       '00000000-0000-1000-9000-000000000002'
     ]);
@@ -392,7 +396,7 @@ describe('insert unique relations', () => {
         prepareRelationInsert(testSchema, getSingleTestRelation(), {
           data: {
             unique_to_primary: {
-              unique_id: '00000000-0000-1000-9000-000000000001',
+              id: '00000000-0000-1000-9000-000000000001',
 
               // Extra fields aren't expected when connecting relations.
               foo: 'foo'

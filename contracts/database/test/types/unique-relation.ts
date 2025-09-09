@@ -154,6 +154,7 @@ export const testInsert = async ({ selfClient }: Service.Context<TestDatabase>) 
       value_a: 1,
       relation_b: {
         id: 'bar',
+        table_a_id: 'baz',
         value_b: 2
       }
     }
@@ -177,7 +178,7 @@ export const testInsert = async ({ selfClient }: Service.Context<TestDatabase>) 
       id: 'foo',
       value_a: 1,
       relation_b: {
-        table_a_id: 'bar'
+        id: 'bar'
       }
     }
   });
@@ -188,7 +189,7 @@ export const testInsert = async ({ selfClient }: Service.Context<TestDatabase>) 
       id: 'foo',
       value_b: 1,
       relation_a: {
-        table_a_id: 'bar'
+        id: 'bar'
       }
     }
   });
@@ -203,9 +204,6 @@ export const testInsert = async ({ selfClient }: Service.Context<TestDatabase>) 
           id: 'bar',
           table_a_id: 'baz',
           value_b: 2
-        },
-        {
-          table_c_id: 'foo'
         }
       ]
     }
@@ -248,7 +246,7 @@ export const testUpdate = async ({ selfClient }: Service.Context<TestDatabase>) 
     data: {
       value_b: 2,
       relation_a: {
-        table_a_id: 'foo'
+        id: 'foo'
       }
     },
     where: {
@@ -281,6 +279,7 @@ export const testUpsert = async ({ selfClient }: Service.Context<TestDatabase>) 
       value_a: 1,
       relation_b: {
         id: 'bar',
+        table_a_id: 'baz',
         value_b: 2
       }
     },

@@ -7,15 +7,160 @@ import { randomUUID } from 'node:crypto';
 describe('client insert relations', async () => {
   const client = await makeRelationClient();
 
+  const singleResult = {
+    value: 'bar',
+    relation: {
+      value: 'foo'
+    }
+  };
+
+  const manyResults = {
+    value: 'bar',
+    relations: [
+      {
+        value: 'foo'
+      }
+    ]
+  };
+
+  const assertTableARelations = async (...relationIds: string[]) => {
+    const { records } = await client.table_a.findMany({
+      select: {
+        value: true,
+        relation_1: {
+          value: true
+        }
+      },
+      where: {
+        id_a: {
+          isIn: relationIds
+        }
+      }
+    });
+
+    deepEqual(records, [
+      {
+        value: 'bar',
+        relation_1: {
+          value: 'foo'
+        }
+      }
+      /*
+      {
+        value: 'baz',
+        relation_1: {
+          value: 'foo'
+        }
+      }
+      */
+    ]);
+  };
+
+  const assertTableBRelations = async (primaryId: string) => {
+    const result = await client.table_b.findOne({
+      select: {
+        value: true,
+        relations: {
+          value: true
+        }
+      },
+      where: {
+        id_b: primaryId
+      }
+    });
+
+    deepEqual(result, manyResults);
+  };
+
+  const assertTableCRelations = async (relationId: string) => {
+    const result = await client.table_c.findOne({
+      select: {
+        value: true,
+        relations: {
+          value: true
+        }
+      },
+      where: {
+        unique_2_id: relationId
+      }
+    });
+
+    deepEqual(result, manyResults);
+  };
+
+  const assertTableARelation = async (...relationIds: string[]) => {
+    const { records } = await client.table_a.findMany({
+      select: {
+        value: true,
+        relation_2: {
+          value: true
+        }
+      },
+      where: {
+        id_a: {
+          isIn: relationIds
+        }
+      }
+    });
+
+    deepEqual(records, [
+      {
+        value: 'bar',
+        relation_2: {
+          value: 'foo'
+        }
+      }
+      /*
+      {
+        value: 'baz',
+        relation_2: {
+          value: 'foo'
+        }
+      }
+      */
+    ]);
+  };
+
+  const assertTableBRelation = async (relationId: string) => {
+    const result = await client.table_b.findOne({
+      select: {
+        value: true,
+        relation: {
+          value: true
+        }
+      },
+      where: {
+        id_b: relationId
+      }
+    });
+
+    deepEqual(result, singleResult);
+  };
+
+  const assertTableCRelation = async (relationId: string) => {
+    const { records } = await client.table_c.findMany({
+      select: {
+        value: true,
+        relation: {
+          value: true
+        }
+      },
+      where: {
+        OR: [{ id_c: relationId }, { unique_1_id: relationId }]
+      }
+    });
+
+    deepEqual(records, [singleResult]);
+  };
+
   beforeEach(async () => {
     await prepareRelationTables(client);
   });
 
-  it('assert :: insert and select primary relation', async () => {
+  it('assert :: insert, create and select relation (secondary to primary)', async () => {
     const primaryId = randomUUID();
-    const secondaryId = randomUUID();
 
-    const primary = await client.ez4_test_table.insertOne({
+    const result = await client.table_a.insertOne({
       select: {
         value: true,
         relation_1: {
@@ -23,50 +168,29 @@ describe('client insert relations', async () => {
         }
       },
       data: {
-        id: primaryId,
+        id_a: randomUUID(),
         value: 'foo',
         relation_1: {
-          id: secondaryId,
+          id_b: primaryId,
           value: 'bar'
         }
       }
     });
 
-    deepEqual(primary, {
+    deepEqual(result, {
       value: 'foo',
       relation_1: {
         value: 'bar'
       }
     });
 
-    const secondary = await client.ez4_test_relation_1.findOne({
-      select: {
-        value: true,
-        relations: {
-          value: true
-        }
-      },
-      where: {
-        id: secondaryId
-      }
-    });
-
-    deepEqual(secondary, {
-      value: 'bar',
-      relations: [
-        {
-          value: 'foo'
-        }
-      ]
-    });
+    await assertTableBRelations(primaryId);
   });
 
-  it('assert :: insert and select unique relation', async () => {
-    const primaryId = randomUUID();
-    const secondaryId = randomUUID();
+  it('assert :: insert, create and select relation (secondary to unique)', async () => {
     const uniqueId = randomUUID();
 
-    const primary = await client.ez4_test_table.insertOne({
+    const result = await client.table_a.insertOne({
       select: {
         value: true,
         relation_2: {
@@ -74,50 +198,31 @@ describe('client insert relations', async () => {
         }
       },
       data: {
-        id: primaryId,
+        id_a: randomUUID(),
         value: 'foo',
         relation_2: {
-          id: secondaryId,
-          unique_id: uniqueId,
+          id_c: randomUUID(),
+          unique_2_id: uniqueId,
           value: 'bar'
         }
       }
     });
 
-    deepEqual(primary, {
+    deepEqual(result, {
       value: 'foo',
       relation_2: {
         value: 'bar'
       }
     });
 
-    const unique = await client.ez4_test_relation_2.findOne({
-      select: {
-        value: true,
-        relations: {
-          value: true
-        }
-      },
-      where: {
-        unique_id: uniqueId
-      }
-    });
-
-    deepEqual(unique, {
-      value: 'bar',
-      relations: [
-        {
-          value: 'foo'
-        }
-      ]
-    });
+    await assertTableCRelations(uniqueId);
   });
 
-  it('assert :: insert and select secondary relation', async () => {
-    const primaryId = randomUUID();
-    const secondaryId = randomUUID();
+  it('assert :: insert, create and select relation (primary to secondary)', async () => {
+    const secondaryAId = randomUUID();
+    const secondaryBId = randomUUID();
 
-    const secondary = await client.ez4_test_relation_1.insertOne({
+    const result = await client.table_b.insertOne({
       select: {
         value: true,
         relations: {
@@ -125,116 +230,199 @@ describe('client insert relations', async () => {
         }
       },
       data: {
-        id: secondaryId,
+        id_b: randomUUID(),
         value: 'foo',
         relations: [
           {
-            id: primaryId,
+            id_a: secondaryAId,
             value: 'bar'
           }
+          /*
+          {
+            id: secondaryBId,
+            value: 'baz'
+          }
+          */
         ]
       }
     });
 
-    deepEqual(secondary, {
+    deepEqual(result, {
       value: 'foo',
       relations: [
         {
           value: 'bar'
         }
+        /*
+        {
+          value: 'baz'
+        }
+        */
       ]
     });
 
-    const primary = await client.ez4_test_table.findOne({
-      select: {
-        value: true,
-        relation_1: {
-          value: true
-        }
-      },
-      where: {
-        id: primaryId
-      }
-    });
-
-    deepEqual(primary, {
-      value: 'bar',
-      relation_1: {
-        value: 'foo'
-      }
-    });
+    await assertTableARelations(secondaryAId, secondaryBId);
   });
 
-  it('assert :: insert, connect and select primary relation', async () => {
-    const primaryId = randomUUID();
+  it('assert :: insert, create and select relation (primary to unique)', async () => {
     const secondaryId = randomUUID();
 
-    await client.ez4_test_relation_1.insertOne({
-      data: {
-        id: secondaryId,
-        value: 'bar'
-      }
-    });
-
-    const primary = await client.ez4_test_table.insertOne({
+    const result = await client.table_b.insertOne({
       select: {
         value: true,
-        relation_1: {
+        relation: {
           value: true
         }
       },
       data: {
-        id: primaryId,
+        id_b: randomUUID(),
         value: 'foo',
-        relation_1: {
-          relation_1_id: secondaryId
+        relation: {
+          id_c: secondaryId,
+          value: 'bar'
         }
       }
     });
 
-    deepEqual(primary, {
+    deepEqual(result, {
       value: 'foo',
-      relation_1: {
+      relation: {
         value: 'bar'
       }
     });
 
-    const secondary = await client.ez4_test_relation_1.findOne({
+    await assertTableCRelation(secondaryId);
+  });
+
+  it('assert :: insert, create and select relation (unique to primary) ', async () => {
+    const primaryId = randomUUID();
+
+    const result = await client.table_c.insertOne({
+      select: {
+        value: true,
+        relation: {
+          value: true
+        }
+      },
+      data: {
+        id_c: randomUUID(),
+        value: 'foo',
+        relation: {
+          id_b: primaryId,
+          value: 'bar'
+        }
+      }
+    });
+
+    deepEqual(result, {
+      value: 'foo',
+      relation: {
+        value: 'bar'
+      }
+    });
+
+    await assertTableBRelation(primaryId);
+  });
+
+  it('assert :: insert, create and select relation (unique to secondary) ', async () => {
+    const secondaryAId = randomUUID();
+    const secondaryBId = randomUUID();
+
+    const result = await client.table_c.insertOne({
       select: {
         value: true,
         relations: {
           value: true
         }
       },
-      where: {
-        id: secondaryId
+      data: {
+        id_c: randomUUID(),
+        // TODO: Database contract must allow this
+        unique_2_id: randomUUID(),
+        value: 'foo',
+        relations: [
+          {
+            id_a: secondaryAId,
+            value: 'bar'
+          }
+          /*
+          {
+            id_a: secondaryBId,
+            value: 'baz'
+          }
+          */
+        ]
       }
     });
 
-    deepEqual(secondary, {
-      value: 'bar',
+    deepEqual(result, {
+      value: 'foo',
       relations: [
         {
-          value: 'foo'
+          value: 'bar'
         }
+        /*
+        {
+          value: 'baz'
+        }
+        */
       ]
     });
+
+    await assertTableARelation(secondaryAId, secondaryBId);
   });
 
-  it('assert :: insert, connect and select unique relation', async () => {
+  it('assert :: insert, connect and select relation (secondary to primary)', async () => {
     const primaryId = randomUUID();
-    const secondaryId = randomUUID();
-    const uniqueId = randomUUID();
 
-    await client.ez4_test_relation_2.insertOne({
+    await client.table_b.insertOne({
       data: {
-        id: secondaryId,
-        unique_id: uniqueId,
+        id_b: primaryId,
         value: 'bar'
       }
     });
 
-    const primary = await client.ez4_test_table.insertOne({
+    // Connect
+    const result = await client.table_a.insertOne({
+      select: {
+        value: true,
+        relation_1: {
+          value: true
+        }
+      },
+      data: {
+        id_a: randomUUID(),
+        value: 'foo',
+        relation_1: {
+          id_b: primaryId
+        }
+      }
+    });
+
+    deepEqual(result, {
+      value: 'foo',
+      relation_1: {
+        value: 'bar'
+      }
+    });
+
+    await assertTableBRelations(primaryId);
+  });
+
+  it('assert :: insert, connect and select relation (secondary to unique)', async () => {
+    const uniqueId = randomUUID();
+
+    await client.table_c.insertOne({
+      data: {
+        id_c: randomUUID(),
+        // TODO: Database contract must allow this
+        unique_2_id: uniqueId,
+        value: 'bar'
+      }
+    });
+
+    // Connect
+    const result = await client.table_a.insertOne({
       select: {
         value: true,
         relation_2: {
@@ -242,55 +430,44 @@ describe('client insert relations', async () => {
         }
       },
       data: {
-        id: primaryId,
+        id_a: randomUUID(),
         value: 'foo',
         relation_2: {
-          relation_2_id: uniqueId
+          id_c: uniqueId
         }
       }
     });
 
-    deepEqual(primary, {
+    deepEqual(result, {
       value: 'foo',
       relation_2: {
         value: 'bar'
       }
     });
 
-    const unique = await client.ez4_test_relation_2.findOne({
-      select: {
-        value: true,
-        relations: {
-          value: true
-        }
-      },
-      where: {
-        unique_id: uniqueId
-      }
-    });
-
-    deepEqual(unique, {
-      value: 'bar',
-      relations: [
-        {
-          value: 'foo'
-        }
-      ]
-    });
+    await assertTableCRelations(uniqueId);
   });
 
-  it('assert :: insert, connect and select secondary relation', async () => {
-    const primaryId = randomUUID();
-    const secondaryId = randomUUID();
+  it('assert :: insert, connect and select relation (primary to secondary)', async () => {
+    const secondaryAId = randomUUID();
+    const secondaryBId = randomUUID();
 
-    await client.ez4_test_table.insertOne({
-      data: {
-        id: primaryId,
-        value: 'bar'
-      }
+    await client.table_a.insertMany({
+      data: [
+        {
+          id_a: secondaryAId,
+          value: 'bar'
+        }
+        /*
+        {
+          id: secondaryBId,
+          value: 'baz'
+        }
+        */
+      ]
     });
 
-    const secondary = await client.ez4_test_relation_1.insertOne({
+    const result = await client.table_b.insertOne({
       select: {
         value: true,
         relations: {
@@ -298,42 +475,162 @@ describe('client insert relations', async () => {
         }
       },
       data: {
-        id: secondaryId,
+        id_b: randomUUID(),
         value: 'foo',
         relations: [
           {
-            relation_1_id: primaryId
+            id_a: secondaryAId
           }
+          /*
+          {
+            id_a: secondaryBId
+          }
+          */
         ]
       }
     });
 
-    deepEqual(secondary, {
+    deepEqual(result, {
       value: 'foo',
       relations: [
         {
           value: 'bar'
         }
+        /*
+        {
+          value: 'baz'
+        }
+        */
       ]
     });
 
-    const primary = await client.ez4_test_table.findOne({
-      select: {
-        value: true,
-        relation_1: {
-          value: true
-        }
-      },
-      where: {
-        id: primaryId
+    await assertTableARelations(secondaryAId, secondaryBId);
+  });
+
+  it('assert :: insert, connect and select relation (primary to unique)', async () => {
+    const uniqueId = randomUUID();
+
+    await client.table_c.insertOne({
+      data: {
+        id_c: uniqueId,
+        value: 'bar'
       }
     });
 
-    deepEqual(primary, {
-      value: 'bar',
-      relation_1: {
-        value: 'foo'
+    const result = await client.table_b.insertOne({
+      select: {
+        value: true,
+        relation: {
+          value: true
+        }
+      },
+      data: {
+        id_b: randomUUID(),
+        value: 'foo',
+        relation: {
+          id_c: uniqueId
+        }
       }
     });
+
+    deepEqual(result, {
+      value: 'foo',
+      relation: {
+        value: 'bar'
+      }
+    });
+
+    await assertTableCRelation(uniqueId);
+  });
+
+  it('assert :: insert, connect and select relation (unique to primary) ', async () => {
+    const primaryId = randomUUID();
+
+    const result = await client.table_c.insertOne({
+      select: {
+        value: true,
+        relation: {
+          value: true
+        }
+      },
+      data: {
+        id_c: randomUUID(),
+        value: 'foo',
+        relation: {
+          id_b: primaryId,
+          value: 'bar'
+        }
+      }
+    });
+
+    deepEqual(result, {
+      value: 'foo',
+      relation: {
+        value: 'bar'
+      }
+    });
+
+    await assertTableBRelation(primaryId);
+  });
+
+  it('assert :: insert, connect and select relation (unique to secondary) ', async () => {
+    const secondaryAId = randomUUID();
+    const secondaryBId = randomUUID();
+
+    await client.table_a.insertMany({
+      data: [
+        {
+          id_a: secondaryAId,
+          value: 'bar'
+        }
+        /*
+        {
+          id_a: secondaryBId,
+          value: 'baz'
+        }
+        */
+      ]
+    });
+
+    const result = await client.table_c.insertOne({
+      select: {
+        value: true,
+        relations: {
+          value: true
+        }
+      },
+      data: {
+        id_c: randomUUID(),
+        // TODO: Database contract must allow this
+        unique_2_id: randomUUID(),
+        value: 'foo',
+        relations: [
+          {
+            id_a: secondaryAId
+          }
+          /*
+          {
+            id_a: secondaryBId
+          }
+          */
+        ]
+      }
+    });
+
+    deepEqual(result, {
+      value: 'foo',
+      relations: [
+        {
+          value: 'bar'
+        }
+        /*
+        {
+          value: 'baz'
+        }
+        */
+      ]
+    });
+
+    await assertTableARelation(secondaryAId, secondaryBId);
   });
 });

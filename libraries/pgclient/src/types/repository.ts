@@ -18,6 +18,7 @@ export type PgRelationMetadata = Omit<TableRelation, 'targetAlias'>;
 export type PgRelationRepositoryWithSchema = Record<string, PgRelationWithSchema>;
 
 export type PgRelationWithSchema = TableRelation & {
+  primaryColumn: string;
   sourceSchema: ObjectSchema;
   targetTable: string;
 };

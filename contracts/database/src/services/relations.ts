@@ -1,4 +1,14 @@
-import type { AnyObject, ArrayRest, PropertyType, ExclusiveType, IsArrayEmpty, IsUndefined, FlatObject, MergeObject } from '@ez4/utils';
+import type {
+  AnyObject,
+  ArrayRest,
+  PropertyType,
+  ExclusiveType,
+  IsArrayEmpty,
+  IsUndefined,
+  FlatObject,
+  MergeObject,
+  Prettify
+} from '@ez4/utils';
 import type { IndexedTables, PrimaryIndexes, UniqueIndexes } from './indexes';
 import type { Database, DatabaseTables } from './database';
 import type { TableSchemas } from './schemas';
@@ -206,8 +216,8 @@ type ExtractSourceIndexType<C, S extends Record<string, Database.Schema>> = Prop
  */
 type RelationSchema<
   C,
-  V,
-  T extends Database.Schema,
+  _V,
+  _T extends Database.Schema,
   S extends Record<string, Database.Schema>,
   I extends Record<string, Database.Indexes>,
   E extends boolean
@@ -215,17 +225,15 @@ type RelationSchema<
   IsPrimaryIndex<C, I> extends true
     ? E extends false
       ? ExtractSourceIndexType<C, S>
-      : ExclusiveType<ExtractSourceIndexType<C, S>, { [P in RelationTargetColumn<V>]: PropertyType<RelationTargetColumn<V>, T> }>
+      : ExclusiveType<ExtractSourceIndexType<C, S>, ConnectRelation<C, S, I>>
     : IsUniqueIndex<C, I> extends true
       ? E extends false
         ? ExtractSourceIndexType<C, S>
-        : ExclusiveType<
-            Omit<ExtractSourceIndexType<C, S>, RelationSourceColumn<C>>,
-            { [P in RelationSourceColumn<C>]: PropertyType<P, ExtractSourceIndexType<C, S>> }
-          >
+        : ExclusiveType<Omit<ExtractSourceIndexType<C, S>, RelationSourceColumn<C>>, ConnectRelation<C, S, I>>
       : E extends false
         ? ExtractSourceIndexType<C, S>[]
-        : ExclusiveType<
-            Omit<ExtractSourceIndexType<C, S>, RelationSourceColumn<C>>,
-            { [P in RelationSourceColumn<C>]: PropertyType<P, ExtractSourceIndexType<C, S>> }
-          >[];
+        : ExclusiveType<Omit<ExtractSourceIndexType<C, S>, RelationSourceColumn<C>>, ConnectRelation<C, S, I>>[];
+
+type ConnectRelation<C, S extends Record<string, Database.Schema>, I extends Record<string, Database.Indexes>> = Prettify<{
+  [P in keyof PrimaryIndexes<PropertyType<RelationSourceTable<C>, I>>]: PropertyType<P, PropertyType<RelationSourceTable<C>, S>>;
+}>;

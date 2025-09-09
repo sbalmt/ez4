@@ -6,29 +6,62 @@ export declare class TestDatabase extends Database.Service {
 
   tables: [
     {
-      name: 'parentTestTable';
+      name: 'tableA';
       schema: {
-        id: string;
+        id_a: string;
+        relation_1_id?: string | null;
+        relation_2_id?: string | null;
+        value: string;
       };
       relations: {
-        'id@children': 'childTestTable:parent_id';
+        // Secondary to primary
+        'relation_1_id@relation_1': 'tableB:id_b';
+
+        // Secondary to unique
+        'relation_2_id@relation_2': 'tableC:unique_2_id';
       };
       indexes: {
-        id: Index.Primary;
+        id_a: Index.Primary;
+        relation_1_id: Index.Secondary;
+        relation_2_id: Index.Secondary;
       };
     },
     {
-      name: 'childTestTable';
+      name: 'tableB';
       schema: {
-        id: string;
-        parent_id: string;
+        id_b: string;
+        value: string;
       };
       relations: {
-        'parent_id@parent': 'parentTestTable:id';
+        // Primary to secondary
+        'id_b@relations': 'tableA:relation_1_id';
+
+        // Primary to unique
+        'id_b@relation': 'tableC:unique_1_id';
       };
       indexes: {
-        id: Index.Primary;
-        parent_id: Index.Secondary;
+        id_b: Index.Primary;
+      };
+    },
+    {
+      name: 'tableC';
+      schema: {
+        id_c: string;
+        unique_1_id?: string | null;
+        unique_2_id?: string | null;
+        value: string;
+      };
+      relations: {
+        // Unique to primary
+        'unique_1_id@relation': 'tableB:id_b';
+
+        // Unique to secondary
+        'unique_2_id@relations': 'tableA:relation_2_id';
+      };
+      indexes: {
+        id_c: Index.Primary;
+        unique_1_id: Index.Unique;
+        unique_2_id: Index.Unique;
       };
     }
   ];

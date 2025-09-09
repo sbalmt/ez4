@@ -14,7 +14,7 @@ describe('client update relations', async () => {
   beforeEach(async () => {
     await prepareRelationTables(client);
 
-    await client.ez4_test_table.insertOne({
+    await client.table_a.insertOne({
       data: {
         id: primaryId,
         value: 'foo',
@@ -32,7 +32,7 @@ describe('client update relations', async () => {
   });
 
   it('assert :: update and select primary relation', async () => {
-    const primary = await client.ez4_test_table.updateOne({
+    const primary = await client.table_a.updateOne({
       select: {
         value: true,
         relation_1: {
@@ -56,7 +56,8 @@ describe('client update relations', async () => {
       }
     });
 
-    const secondary = await client.ez4_test_relation_1.findOne({
+    // Inverse check
+    const secondary = await client.table_b.findOne({
       select: {
         value: true,
         relations: {
@@ -79,7 +80,7 @@ describe('client update relations', async () => {
   });
 
   it('assert :: update and select unique relation', async () => {
-    const primary = await client.ez4_test_table.updateOne({
+    const primary = await client.table_a.updateOne({
       select: {
         value: true,
         relation_2: {
@@ -103,7 +104,8 @@ describe('client update relations', async () => {
       }
     });
 
-    const secondary = await client.ez4_test_relation_2.findOne({
+    // Inverse check
+    const secondary = await client.table_c.findOne({
       select: {
         value: true,
         relations: {
@@ -125,8 +127,8 @@ describe('client update relations', async () => {
     });
   });
 
-  it('assert :: update and select secondary relation', async () => {
-    const secondary = await client.ez4_test_relation_1.updateOne({
+  it('assert :: update and select secondary (from primary) relation', async () => {
+    const secondary = await client.table_b.updateOne({
       select: {
         value: true,
         relations: {
@@ -152,7 +154,8 @@ describe('client update relations', async () => {
       ]
     });
 
-    const primary = await client.ez4_test_table.findOne({
+    // Inverse check
+    const primary = await client.table_a.findOne({
       select: {
         value: true,
         relation_1: {
@@ -172,8 +175,56 @@ describe('client update relations', async () => {
     });
   });
 
+  it('assert :: update and select secondary (from unique) relation', async () => {
+    const secondary = await client.table_c.updateOne({
+      select: {
+        value: true,
+        relations: {
+          value: true
+        }
+      },
+      data: {
+        relations: {
+          value: 'foo-updated'
+        }
+      },
+      where: {
+        id: secondaryId
+      }
+    });
+
+    deepEqual(secondary, {
+      value: 'bar',
+      relations: [
+        {
+          value: 'foo'
+        }
+      ]
+    });
+
+    // Inverse check
+    const primary = await client.table_a.findOne({
+      select: {
+        value: true,
+        relation_2: {
+          value: true
+        }
+      },
+      where: {
+        id: primaryId
+      }
+    });
+
+    deepEqual(primary, {
+      value: 'foo-updated',
+      relation_2: {
+        value: 'bar'
+      }
+    });
+  });
+
   it('assert :: update, disconnect and select primary relation', async () => {
-    const primary = await client.ez4_test_table.updateOne({
+    const primary = await client.table_a.updateOne({
       select: {
         value: true,
         relation_1: {
@@ -197,7 +248,8 @@ describe('client update relations', async () => {
       }
     });
 
-    const secondary = await client.ez4_test_relation_1.findOne({
+    // Inverse check
+    const secondary = await client.table_b.findOne({
       select: {
         value: true,
         relations: {
@@ -216,7 +268,7 @@ describe('client update relations', async () => {
   });
 
   it('assert :: update, disconnect and select unique relation', async () => {
-    const primary = await client.ez4_test_table.updateOne({
+    const primary = await client.table_a.updateOne({
       select: {
         value: true,
         relation_2: {
@@ -240,7 +292,8 @@ describe('client update relations', async () => {
       }
     });
 
-    const unique = await client.ez4_test_relation_2.findOne({
+    // Inverse check
+    const unique = await client.table_c.findOne({
       select: {
         value: true,
         relations: {
@@ -258,8 +311,8 @@ describe('client update relations', async () => {
     });
   });
 
-  it('assert :: update, disconnect and select secondary relation', async () => {
-    const secondary = await client.ez4_test_relation_1.updateOne({
+  it('assert :: update, disconnect and select secondary (from primary) relation', async () => {
+    const secondary = await client.table_b.updateOne({
       select: {
         value: true,
         relations: {
@@ -285,7 +338,8 @@ describe('client update relations', async () => {
       ]
     });
 
-    const primary = await client.ez4_test_table.findOne({
+    // Inverse check
+    const primary = await client.table_a.findOne({
       select: {
         value: true,
         relation_1: {
@@ -300,6 +354,268 @@ describe('client update relations', async () => {
     deepEqual(primary, {
       value: 'foo',
       relation_1: null
+    });
+  });
+
+  it('assert :: update, disconnect and select secondary (from unique) relation', async () => {
+    const secondary = await client.table_c.updateOne({
+      select: {
+        value: true,
+        relations: {
+          value: true
+        }
+      },
+      data: {
+        relations: {
+          relation_2_id: null
+        }
+      },
+      where: {
+        id: secondaryId
+      }
+    });
+
+    deepEqual(secondary, {
+      value: 'bar',
+      relations: [
+        {
+          value: 'foo'
+        }
+      ]
+    });
+
+    // Inverse check
+    const primary = await client.table_a.findOne({
+      select: {
+        value: true,
+        relation_2: {
+          value: true
+        }
+      },
+      where: {
+        id: primaryId
+      }
+    });
+
+    deepEqual(primary, {
+      value: 'foo',
+      relation_2: null
+    });
+  });
+
+  it('assert :: update, connect and select primary relation', async () => {
+    await client.table_a.updateMany({
+      data: {
+        relation_1: {
+          relation_1_id: null
+        }
+      }
+    });
+
+    // Reconnect
+    const primary = await client.table_a.updateOne({
+      select: {
+        value: true,
+        relation_1: {
+          value: true
+        }
+      },
+      data: {
+        relation_1: {
+          relation_1_id: secondaryId
+        }
+      },
+      where: {
+        id: primaryId
+      }
+    });
+
+    deepEqual(primary, {
+      value: 'foo',
+      relation_1: null
+    });
+
+    // Inverse check
+    const secondary = await client.table_b.findOne({
+      select: {
+        value: true,
+        relations: {
+          value: true
+        }
+      },
+      where: {
+        id: secondaryId
+      }
+    });
+
+    deepEqual(secondary, {
+      value: 'bar',
+      relations: [
+        {
+          value: 'foo'
+        }
+      ]
+    });
+  });
+
+  it('assert :: update, connect and select unique relation', async () => {
+    await client.table_a.updateMany({
+      data: {
+        relation_2: {
+          relation_2_id: null
+        }
+      }
+    });
+
+    // Reconnect
+    const primary = await client.table_a.updateOne({
+      select: {
+        value: true,
+        relation_2: {
+          value: true
+        }
+      },
+      data: {
+        relation_2: {
+          relation_2_id: uniqueId
+        }
+      },
+      where: {
+        id: primaryId
+      }
+    });
+
+    deepEqual(primary, {
+      value: 'foo',
+      relation_2: null
+    });
+
+    // Inverse check
+    const unique = await client.table_c.findOne({
+      select: {
+        value: true,
+        relations: {
+          value: true
+        }
+      },
+      where: {
+        unique_id: uniqueId
+      }
+    });
+
+    deepEqual(unique, {
+      value: 'bar',
+      relations: [
+        {
+          value: 'foo'
+        }
+      ]
+    });
+  });
+
+  it('assert :: update, connect and select secondary (from primary) relation', async () => {
+    await client.table_a.updateMany({
+      data: {
+        relation_1: {
+          relation_1_id: null
+        }
+      }
+    });
+
+    // Reconnect
+    const secondary = await client.table_b.updateOne({
+      select: {
+        value: true,
+        relations: {
+          value: true
+        }
+      },
+      data: {
+        relations: {
+          relation_1_id: null
+        }
+      },
+      where: {
+        id: secondaryId
+      }
+    });
+
+    deepEqual(secondary, {
+      value: 'bar',
+      relations: []
+    });
+
+    // Inverse check
+    const primary = await client.table_a.findOne({
+      select: {
+        value: true,
+        relation_1: {
+          value: true
+        }
+      },
+      where: {
+        id: primaryId
+      }
+    });
+
+    deepEqual(primary, {
+      value: 'foo',
+      relation_1: {
+        value: 'bar'
+      }
+    });
+  });
+
+  it('assert :: update, connect and select secondary (from unique) relation', async () => {
+    await client.table_a.updateMany({
+      data: {
+        relation_2: {
+          relation_2_id: null
+        }
+      }
+    });
+
+    // Reconnect
+    const secondary = await client.table_c.updateOne({
+      select: {
+        value: true,
+        relations: {
+          value: true
+        }
+      },
+      data: {
+        relations: {
+          relation_2_id: null
+        }
+      },
+      where: {
+        id: secondaryId
+      }
+    });
+
+    deepEqual(secondary, {
+      value: 'bar',
+      relations: []
+    });
+
+    // Inverse check
+    const primary = await client.table_a.findOne({
+      select: {
+        value: true,
+        relation_2: {
+          value: true
+        }
+      },
+      where: {
+        id: primaryId
+      }
+    });
+
+    deepEqual(primary, {
+      value: 'foo',
+      relation_2: {
+        value: 'bar'
+      }
     });
   });
 });

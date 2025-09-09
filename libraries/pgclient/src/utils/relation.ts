@@ -24,6 +24,15 @@ export const getSourceCreationSchema = (schema: ObjectSchema, relation: PgRelati
   return relationSchema;
 };
 
+export const getConnectionSchema = (schema: ObjectSchema, columnName: string): ObjectSchema => {
+  return {
+    type: SchemaType.Object,
+    properties: {
+      [columnName]: schema.properties[columnName]
+    }
+  };
+};
+
 export const getSourceConnectionSchema = (schema: ObjectSchema, relation: PgRelationWithSchema): ObjectSchema => {
   const { sourceColumn } = relation;
 

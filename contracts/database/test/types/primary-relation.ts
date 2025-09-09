@@ -165,9 +165,6 @@ export const testInsert = async ({ selfClient }: Service.Context<TestDatabase>) 
           value_b: 2
         },
         {
-          table_a_id: 'foo'
-        },
-        {
           id: 'baz',
           value_b: 3
         }
@@ -193,7 +190,7 @@ export const testInsert = async ({ selfClient }: Service.Context<TestDatabase>) 
       id: 'bar',
       value_b: 2,
       relation_a: {
-        table_a_id: 'foo'
+        id: 'foo'
       }
     }
   });
@@ -248,7 +245,7 @@ export const testUpdate = async (client: TestDatabase['client']) => {
     data: {
       value_b: 2,
       relation_a: {
-        table_a_id: 'foo'
+        id: 'foo'
       }
     }
   });
@@ -278,9 +275,6 @@ export const testUpsert = (client: TestDatabase['client']) => {
         {
           id: 'bar',
           value_b: 2
-        },
-        {
-          table_a_id: 'foo'
         },
         {
           id: 'baz',

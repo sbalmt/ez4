@@ -1,8 +1,8 @@
 {
   "TestDatabase": {
     "type": "@ez4/database",
-    "name": "TestDatabase",
     "extras": {},
+    "name": "TestDatabase",
     "engine": {
       "parametersMode": "index",
       "transactionMode": "static",
@@ -14,74 +14,176 @@
     },
     "tables": [
       {
-        "name": "parentTestTable",
+        "name": "tableA",
         "schema": {
           "type": "object",
-          "identity": 1,
           "properties": {
-            "id": {
+            "id_a": {
+              "type": "string"
+            },
+            "relation_1_id": {
+              "type": "string",
+              "nullable": true,
+              "optional": true
+            },
+            "relation_2_id": {
+              "type": "string",
+              "nullable": true,
+              "optional": true
+            },
+            "value": {
               "type": "string"
             }
-          }
+          },
+          "identity": 1
         },
         "relations": [
           {
-            "sourceTable": "childTestTable",
-            "sourceColumn": "parent_id",
-            "sourceIndex": "secondary",
-            "targetColumn": "id",
-            "targetAlias": "children",
-            "targetIndex": "primary"
+            "sourceColumn": "id_b",
+            "sourceIndex": "primary",
+            "sourceTable": "tableB",
+            "targetColumn": "relation_1_id",
+            "targetIndex": "secondary",
+            "targetAlias": "relation_1"
+          },
+          {
+            "sourceColumn": "unique_2_id",
+            "sourceIndex": "unique",
+            "sourceTable": "tableC",
+            "targetColumn": "relation_2_id",
+            "targetIndex": "secondary",
+            "targetAlias": "relation_2"
           }
         ],
         "indexes": [
           {
-            "type": "primary",
-            "name": "id",
+            "name": "id_a",
             "columns": [
-              "id"
-            ]
+              "id_a"
+            ],
+            "type": "primary"
+          },
+          {
+            "name": "relation_1_id",
+            "columns": [
+              "relation_1_id"
+            ],
+            "type": "secondary"
+          },
+          {
+            "name": "relation_2_id",
+            "columns": [
+              "relation_2_id"
+            ],
+            "type": "secondary"
           }
         ]
       },
       {
-        "name": "childTestTable",
+        "name": "tableB",
         "schema": {
           "type": "object",
-          "identity": 1,
           "properties": {
-            "id": {
+            "id_b": {
               "type": "string"
             },
-            "parent_id": {
+            "value": {
               "type": "string"
             }
-          }
+          },
+          "identity": 1
         },
         "relations": [
           {
-            "sourceTable": "parentTestTable",
-            "sourceColumn": "id",
-            "sourceIndex": "primary",
-            "targetColumn": "parent_id",
-            "targetAlias": "parent",
-            "targetIndex": "secondary"
+            "sourceColumn": "relation_1_id",
+            "sourceIndex": "secondary",
+            "sourceTable": "tableA",
+            "targetColumn": "id_b",
+            "targetIndex": "primary",
+            "targetAlias": "relations"
+          },
+          {
+            "sourceColumn": "unique_1_id",
+            "sourceIndex": "unique",
+            "sourceTable": "tableC",
+            "targetColumn": "id_b",
+            "targetIndex": "primary",
+            "targetAlias": "relation"
           }
         ],
         "indexes": [
           {
-            "type": "primary",
-            "name": "id",
+            "name": "id_b",
             "columns": [
-              "id"
-            ]
+              "id_b"
+            ],
+            "type": "primary"
+          }
+        ]
+      },
+      {
+        "name": "tableC",
+        "schema": {
+          "type": "object",
+          "properties": {
+            "id_c": {
+              "type": "string"
+            },
+            "unique_1_id": {
+              "type": "string",
+              "nullable": true,
+              "optional": true
+            },
+            "unique_2_id": {
+              "type": "string",
+              "nullable": true,
+              "optional": true
+            },
+            "value": {
+              "type": "string"
+            }
+          },
+          "identity": 1
+        },
+        "relations": [
+          {
+            "sourceColumn": "id_b",
+            "sourceIndex": "primary",
+            "sourceTable": "tableB",
+            "targetColumn": "unique_1_id",
+            "targetIndex": "unique",
+            "targetAlias": "relation"
           },
           {
-            "type": "secondary",
-            "name": "parent_id",
+            "sourceColumn": "relation_2_id",
+            "sourceIndex": "secondary",
+            "sourceTable": "tableA",
+            "targetColumn": "unique_2_id",
+            "targetIndex": "unique",
+            "targetAlias": "relations"
+          }
+        ],
+        "indexes": [
+          {
+            "name": "id_c",
             "columns": [
-              "parent_id"
-            ]
+              "id_c"
+            ],
+            "type": "primary"
+          },
+          {
+            "name": "unique_1_id",
+            "columns": [
+              "unique_1_id"
+            ],
+            "type": "unique"
+          },
+          {
+            "name": "unique_2_id",
+            "columns": [
+              "unique_2_id"
+            ],
+            "type": "unique"
           }
         ]
       }
