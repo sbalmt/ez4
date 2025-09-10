@@ -122,14 +122,7 @@ type RequiredRelationSchemas<
   R extends AnyObject,
   E extends boolean
 > = {
-  [C in keyof R as IsOptionalRelation<R[C], C, T, I, E> extends false ? RelationTargetAlias<C> : never]: RelationSchema<
-    R[C],
-    C,
-    T,
-    S,
-    I,
-    E
-  >;
+  [C in keyof R as IsOptionalRelation<R[C], C, T, I, E> extends false ? RelationTargetAlias<C> : never]: RelationSchema<R[C], S, I, E>;
 };
 
 /**
@@ -142,14 +135,7 @@ type OptionalRelationSchemas<
   R extends AnyObject,
   E extends boolean
 > = {
-  [C in keyof R as IsOptionalRelation<R[C], C, T, I, E> extends true ? RelationTargetAlias<C> : never]?: RelationSchema<
-    R[C],
-    C,
-    T,
-    S,
-    I,
-    E
-  >;
+  [C in keyof R as IsOptionalRelation<R[C], C, T, I, E> extends true ? RelationTargetAlias<C> : never]?: RelationSchema<R[C], S, I, E>;
 };
 
 /**
@@ -214,26 +200,25 @@ type ExtractSourceIndexType<C, S extends Record<string, Database.Schema>> = Prop
 /**
  * Produce a relation schema according to its indexation.
  */
-type RelationSchema<
-  C,
-  _V,
-  _T extends Database.Schema,
-  S extends Record<string, Database.Schema>,
-  I extends Record<string, Database.Indexes>,
-  E extends boolean
-> =
+type RelationSchema<C, S extends Record<string, Database.Schema>, I extends Record<string, Database.Indexes>, E extends boolean> =
   IsPrimaryIndex<C, I> extends true
     ? E extends false
       ? ExtractSourceIndexType<C, S>
-      : ExclusiveType<ExtractSourceIndexType<C, S>, ConnectRelation<C, S, I>>
+      : ExclusiveType<ExtractSourceIndexType<C, S>, RelationConnectionSchema<C, S, I>>
     : IsUniqueIndex<C, I> extends true
       ? E extends false
         ? ExtractSourceIndexType<C, S>
-        : ExclusiveType<Omit<ExtractSourceIndexType<C, S>, RelationSourceColumn<C>>, ConnectRelation<C, S, I>>
+        : ExclusiveType<Omit<ExtractSourceIndexType<C, S>, RelationSourceColumn<C>>, RelationConnectionSchema<C, S, I>>
       : E extends false
         ? ExtractSourceIndexType<C, S>[]
-        : ExclusiveType<Omit<ExtractSourceIndexType<C, S>, RelationSourceColumn<C>>, ConnectRelation<C, S, I>>[];
+        : ExclusiveType<Omit<ExtractSourceIndexType<C, S>, RelationSourceColumn<C>>, RelationConnectionSchema<C, S, I>>[];
 
-type ConnectRelation<C, S extends Record<string, Database.Schema>, I extends Record<string, Database.Indexes>> = Prettify<{
-  [P in keyof PrimaryIndexes<PropertyType<RelationSourceTable<C>, I>>]: PropertyType<P, PropertyType<RelationSourceTable<C>, S>>;
+/**
+ * Produce a relation schema for connection.
+ */
+type RelationConnectionSchema<C, S extends Record<string, Database.Schema>, I extends Record<string, Database.Indexes>> = Prettify<{
+  [P in keyof PrimaryIndexes<PropertyType<RelationSourceTable<C>, I>>]:
+    | PropertyType<P, PropertyType<RelationSourceTable<C>, S>>
+    | undefined
+    | null;
 }>;

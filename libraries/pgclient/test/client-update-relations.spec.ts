@@ -1,3 +1,5 @@
+import type { AnyObject } from '@ez4/utils';
+
 import { makeRelationClient, prepareRelationTables } from './common/relation';
 
 import { beforeEach, describe, it } from 'node:test';
@@ -11,28 +13,167 @@ describe('client update relations', async () => {
   const secondaryId = randomUUID();
   const uniqueId = randomUUID();
 
-  beforeEach(async () => {
-    await prepareRelationTables(client);
+  const assertTableBRelations = async (relationId: string, expected: AnyObject) => {
+    const result = await client.table_b.findOne({
+      select: {
+        value: true,
+        relations: {
+          value: true
+        }
+      },
+      where: {
+        id_b: relationId
+      }
+    });
 
+    deepEqual(result, expected);
+  };
+
+  const assertTableCRelations = async (relationId: string, expected: AnyObject) => {
+    const { records } = await client.table_c.findMany({
+      select: {
+        value: true,
+        relations: {
+          value: true
+        }
+      },
+      where: {
+        OR: [{ id_c: relationId }, { unique_2_id: relationId }]
+      }
+    });
+
+    deepEqual(records, [expected]);
+  };
+
+  const assertTableARelation1 = async (relationId: string, expected: AnyObject) => {
+    const result = await client.table_a.findOne({
+      select: {
+        value: true,
+        relation_1: {
+          value: true
+        }
+      },
+      where: {
+        id_a: relationId
+      }
+    });
+
+    deepEqual(result, expected);
+  };
+
+  const assertTableARelation2 = async (relationId: string, expected: AnyObject) => {
+    const result = await client.table_a.findOne({
+      select: {
+        value: true,
+        relation_2: {
+          value: true
+        }
+      },
+      where: {
+        id_a: relationId
+      }
+    });
+
+    deepEqual(result, expected);
+  };
+
+  const assertTableBRelation = async (relationId: string, expected: AnyObject) => {
+    const result = await client.table_b.findOne({
+      select: {
+        value: true,
+        relation: {
+          value: true
+        }
+      },
+      where: {
+        id_b: relationId
+      }
+    });
+
+    deepEqual(result, expected);
+  };
+
+  const assertTableCRelation = async (relationId: string, expected: AnyObject) => {
+    const { records } = await client.table_c.findMany({
+      select: {
+        value: true,
+        relation: {
+          value: true
+        }
+      },
+      where: {
+        OR: [{ id_c: relationId }, { unique_1_id: relationId }]
+      }
+    });
+
+    deepEqual(records, [expected]);
+  };
+
+  const populateTableA = async () => {
     await client.table_a.insertOne({
       data: {
-        id: primaryId,
+        id_a: primaryId,
         value: 'foo',
         relation_1: {
-          id: secondaryId,
+          id_b: secondaryId,
           value: 'bar'
         },
         relation_2: {
-          id: secondaryId,
-          unique_id: uniqueId,
+          id_c: secondaryId,
+          unique_2_id: uniqueId,
           value: 'bar'
         }
       }
     });
+  };
+
+  const populateTableB = async () => {
+    await client.table_b.insertOne({
+      data: {
+        id_b: primaryId,
+        value: 'foo',
+        relations: [
+          {
+            id_a: secondaryId,
+            value: 'bar'
+          }
+        ],
+        relation: {
+          id_c: secondaryId,
+          value: 'bar'
+        }
+      }
+    });
+  };
+
+  const populateTableC = async () => {
+    await client.table_c.insertOne({
+      data: {
+        id_c: primaryId,
+        unique_2_id: randomUUID(),
+        value: 'foo',
+        relation: {
+          id_b: secondaryId,
+          value: 'bar'
+        },
+        relations: [
+          {
+            id_a: secondaryId,
+            value: 'bar'
+          }
+        ]
+      }
+    });
+  };
+
+  beforeEach(async () => {
+    await prepareRelationTables(client);
   });
 
-  it('assert :: update and select primary relation', async () => {
-    const primary = await client.table_a.updateOne({
+  it('assert :: update and select relation (secondary to primary)', async () => {
+    await populateTableA();
+
+    const result = await client.table_a.updateOne({
       select: {
         value: true,
         relation_1: {
@@ -45,31 +186,18 @@ describe('client update relations', async () => {
         }
       },
       where: {
-        id: primaryId
+        id_a: primaryId
       }
     });
 
-    deepEqual(primary, {
+    deepEqual(result, {
       value: 'foo',
       relation_1: {
         value: 'bar'
       }
     });
 
-    // Inverse check
-    const secondary = await client.table_b.findOne({
-      select: {
-        value: true,
-        relations: {
-          value: true
-        }
-      },
-      where: {
-        id: secondaryId
-      }
-    });
-
-    deepEqual(secondary, {
+    assertTableBRelations(secondaryId, {
       value: 'bar-updated',
       relations: [
         {
@@ -79,8 +207,10 @@ describe('client update relations', async () => {
     });
   });
 
-  it('assert :: update and select unique relation', async () => {
-    const primary = await client.table_a.updateOne({
+  it('assert :: update and select relation (secondary to unique)', async () => {
+    await populateTableA();
+
+    const result = await client.table_a.updateOne({
       select: {
         value: true,
         relation_2: {
@@ -93,31 +223,18 @@ describe('client update relations', async () => {
         }
       },
       where: {
-        id: primaryId
+        id_a: primaryId
       }
     });
 
-    deepEqual(primary, {
+    deepEqual(result, {
       value: 'foo',
       relation_2: {
         value: 'bar'
       }
     });
 
-    // Inverse check
-    const secondary = await client.table_c.findOne({
-      select: {
-        value: true,
-        relations: {
-          value: true
-        }
-      },
-      where: {
-        unique_id: uniqueId
-      }
-    });
-
-    deepEqual(secondary, {
+    await assertTableCRelations(uniqueId, {
       value: 'bar-updated',
       relations: [
         {
@@ -127,8 +244,10 @@ describe('client update relations', async () => {
     });
   });
 
-  it('assert :: update and select secondary (from primary) relation', async () => {
-    const secondary = await client.table_b.updateOne({
+  it('assert :: update and select relation (primary to secondary)', async () => {
+    await populateTableB();
+
+    const result = await client.table_b.updateOne({
       select: {
         value: true,
         relations: {
@@ -137,46 +256,105 @@ describe('client update relations', async () => {
       },
       data: {
         relations: {
-          value: 'foo-updated'
+          value: 'bar-updated'
         }
       },
       where: {
-        id: secondaryId
+        id_b: primaryId
       }
     });
 
-    deepEqual(secondary, {
-      value: 'bar',
+    deepEqual(result, {
+      value: 'foo',
       relations: [
         {
-          value: 'foo'
+          value: 'bar'
         }
       ]
     });
 
-    // Inverse check
-    const primary = await client.table_a.findOne({
-      select: {
-        value: true,
-        relation_1: {
-          value: true
-        }
-      },
-      where: {
-        id: primaryId
-      }
-    });
-
-    deepEqual(primary, {
-      value: 'foo-updated',
+    await assertTableARelation1(secondaryId, {
+      value: 'bar-updated',
       relation_1: {
-        value: 'bar'
+        value: 'foo'
       }
     });
   });
 
-  it('assert :: update and select secondary (from unique) relation', async () => {
-    const secondary = await client.table_c.updateOne({
+  it('assert :: update and select relation (primary to unique)', async () => {
+    await populateTableB();
+
+    const result = await client.table_b.updateOne({
+      select: {
+        value: true,
+        relation: {
+          value: true
+        }
+      },
+      data: {
+        relation: {
+          value: 'bar-updated'
+        }
+      },
+      where: {
+        id_b: primaryId
+      }
+    });
+
+    deepEqual(result, {
+      value: 'foo',
+      relation: {
+        value: 'bar'
+      }
+    });
+
+    await assertTableCRelation(secondaryId, {
+      value: 'bar-updated',
+      relation: {
+        value: 'foo'
+      }
+    });
+  });
+
+  it('assert :: update and select relation (unique to primary)', async () => {
+    await populateTableC();
+
+    const result = await client.table_c.updateOne({
+      select: {
+        value: true,
+        relation: {
+          value: true
+        }
+      },
+      data: {
+        relation: {
+          value: 'bar-updated'
+        }
+      },
+      where: {
+        id_c: primaryId
+      }
+    });
+
+    deepEqual(result, {
+      value: 'foo',
+      relation: {
+        value: 'bar'
+      }
+    });
+
+    await assertTableBRelation(secondaryId, {
+      value: 'bar-updated',
+      relation: {
+        value: 'foo'
+      }
+    });
+  });
+
+  it('assert :: update and select relation (unique to secondary)', async () => {
+    await populateTableC();
+
+    const result = await client.table_c.updateOne({
       select: {
         value: true,
         relations: {
@@ -185,46 +363,45 @@ describe('client update relations', async () => {
       },
       data: {
         relations: {
-          value: 'foo-updated'
+          value: 'bar-connected'
         }
       },
       where: {
-        id: secondaryId
+        id_c: primaryId
       }
     });
 
-    deepEqual(secondary, {
-      value: 'bar',
+    deepEqual(result, {
+      value: 'foo',
       relations: [
         {
-          value: 'foo'
+          value: 'bar'
         }
       ]
     });
 
-    // Inverse check
-    const primary = await client.table_a.findOne({
-      select: {
-        value: true,
-        relation_2: {
-          value: true
-        }
-      },
-      where: {
-        id: primaryId
-      }
-    });
-
-    deepEqual(primary, {
-      value: 'foo-updated',
+    await assertTableARelation2(secondaryId, {
+      value: 'bar-connected',
       relation_2: {
-        value: 'bar'
+        value: 'foo'
       }
     });
   });
 
-  it('assert :: update, disconnect and select primary relation', async () => {
-    const primary = await client.table_a.updateOne({
+  it('assert :: update, connect and select relation (secondary to primary)', async () => {
+    await populateTableA();
+
+    const connectionId = randomUUID();
+
+    await client.table_b.insertOne({
+      data: {
+        id_b: connectionId,
+        value: 'bar-connected'
+      }
+    });
+
+    // Connect
+    const result = await client.table_a.updateOne({
       select: {
         value: true,
         relation_1: {
@@ -233,42 +410,306 @@ describe('client update relations', async () => {
       },
       data: {
         relation_1: {
-          relation_1_id: null
+          id_b: connectionId
         }
       },
       where: {
-        id: primaryId
+        id_a: primaryId
       }
     });
 
-    deepEqual(primary, {
+    deepEqual(result, {
       value: 'foo',
       relation_1: {
         value: 'bar'
       }
     });
 
-    // Inverse check
-    const secondary = await client.table_b.findOne({
+    await assertTableBRelations(connectionId, {
+      value: 'bar-connected',
+      relations: [
+        {
+          value: 'foo'
+        }
+      ]
+    });
+  });
+
+  it('assert :: update, connect and select relation (secondary to unique)', async () => {
+    await populateTableA();
+
+    const connectionId = randomUUID();
+
+    await client.table_c.insertOne({
+      data: {
+        id_c: randomUUID(),
+        unique_2_id: connectionId,
+        value: 'bar-connected'
+      }
+    });
+
+    // Connect
+    const result = await client.table_a.updateOne({
+      select: {
+        value: true,
+        relation_2: {
+          value: true
+        }
+      },
+      data: {
+        relation_2: {
+          id_c: connectionId
+        }
+      },
+      where: {
+        id_a: primaryId
+      }
+    });
+
+    deepEqual(result, {
+      value: 'foo',
+      relation_2: {
+        value: 'bar'
+      }
+    });
+
+    await assertTableCRelations(connectionId, {
+      value: 'bar-connected',
+      relations: [
+        {
+          value: 'foo'
+        }
+      ]
+    });
+  });
+
+  it('assert :: update, connect and select relation (primary to secondary)', async () => {
+    await populateTableB();
+
+    const connectionId = randomUUID();
+
+    await client.table_a.insertOne({
+      data: {
+        id_a: connectionId,
+        value: 'bar-updated'
+      }
+    });
+
+    // Connect
+    const result = await client.table_b.updateOne({
       select: {
         value: true,
         relations: {
           value: true
         }
       },
+      data: {
+        relations: {
+          id_a: connectionId
+        }
+      },
       where: {
-        id: secondaryId
+        id_b: primaryId
       }
     });
 
-    deepEqual(secondary, {
+    deepEqual(result, {
+      value: 'foo',
+      relations: [
+        {
+          value: 'bar'
+        }
+      ]
+    });
+
+    await assertTableARelation1(connectionId, {
+      value: 'bar-updated',
+      relation_1: {
+        value: 'foo'
+      }
+    });
+  });
+
+  it('assert :: update, connect and select relation (primary to unique)', async () => {
+    await populateTableB();
+
+    const connectionId = randomUUID();
+
+    await client.table_c.insertOne({
+      data: {
+        id_c: connectionId,
+        value: 'bar-connected'
+      }
+    });
+
+    // Connect
+    const result = await client.table_b.updateOne({
+      select: {
+        value: true,
+        relation: {
+          value: true
+        }
+      },
+      data: {
+        relation: {
+          id_c: connectionId
+        }
+      },
+      where: {
+        id_b: primaryId
+      }
+    });
+
+    deepEqual(result, {
+      value: 'foo',
+      relation: {
+        value: 'bar'
+      }
+    });
+
+    await assertTableCRelation(connectionId, {
+      value: 'bar-connected',
+      relation: {
+        value: 'foo'
+      }
+    });
+  });
+
+  it('assert :: update, connect and select relation (unique to primary)', async () => {
+    await populateTableC();
+
+    const connectionId = randomUUID();
+
+    await client.table_b.insertOne({
+      data: {
+        id_b: connectionId,
+        value: 'bar-connected'
+      }
+    });
+
+    // Connect
+    const result = await client.table_c.updateOne({
+      select: {
+        value: true,
+        relation: {
+          value: true
+        }
+      },
+      data: {
+        relation: {
+          id_b: connectionId
+        }
+      },
+      where: {
+        id_c: primaryId
+      }
+    });
+
+    deepEqual(result, {
+      value: 'foo',
+      relation: {
+        value: 'bar'
+      }
+    });
+
+    await assertTableBRelation(connectionId, {
+      value: 'bar-connected',
+      relation: {
+        value: 'foo'
+      }
+    });
+  });
+
+  it('assert :: update, connect and select relation (unique to secondary)', async () => {
+    await populateTableC();
+
+    const connectionId = randomUUID();
+
+    await client.table_a.insertOne({
+      data: {
+        id_a: connectionId,
+        value: 'bar-connected'
+      }
+    });
+
+    // Connect
+    const result = await client.table_c.updateOne({
+      select: {
+        value: true,
+        relations: {
+          value: true
+        }
+      },
+      data: {
+        relations: {
+          id_a: connectionId
+        }
+      },
+      where: {
+        id_c: primaryId
+      }
+    });
+
+    deepEqual(result, {
+      value: 'foo',
+      relations: [
+        {
+          value: 'bar'
+        }
+      ]
+    });
+
+    await assertTableARelation2(connectionId, {
+      value: 'bar-connected',
+      relation_2: {
+        value: 'foo'
+      }
+    });
+  });
+
+  it('assert :: update, disconnect and select relation (secondary to primary)', async () => {
+    await populateTableA();
+
+    const result = await client.table_a.updateOne({
+      select: {
+        value: true,
+        relation_1: {
+          value: true
+        }
+      },
+      data: {
+        value: 'foo-updated',
+        relation_1: {
+          id_b: null
+        }
+      },
+      where: {
+        id_a: primaryId
+      }
+    });
+
+    deepEqual(result, {
+      value: 'foo',
+      relation_1: {
+        value: 'bar'
+      }
+    });
+
+    await assertTableARelation1(primaryId, {
+      value: 'foo-updated',
+      relation_1: null
+    });
+
+    await assertTableBRelations(secondaryId, {
       value: 'bar',
       relations: []
     });
   });
 
-  it('assert :: update, disconnect and select unique relation', async () => {
-    const primary = await client.table_a.updateOne({
+  it('assert :: update, disconnect and select relation (secondary to unique)', async () => {
+    await populateTableA();
+
+    const result = await client.table_a.updateOne({
       select: {
         value: true,
         relation_2: {
@@ -276,43 +717,38 @@ describe('client update relations', async () => {
         }
       },
       data: {
+        value: 'foo-updated',
         relation_2: {
-          relation_2_id: null
+          id_c: null
         }
       },
       where: {
-        id: primaryId
+        id_a: primaryId
       }
     });
 
-    deepEqual(primary, {
+    deepEqual(result, {
       value: 'foo',
       relation_2: {
         value: 'bar'
       }
     });
 
-    // Inverse check
-    const unique = await client.table_c.findOne({
-      select: {
-        value: true,
-        relations: {
-          value: true
-        }
-      },
-      where: {
-        unique_id: uniqueId
-      }
+    assertTableARelation2(primaryId, {
+      value: 'foo-updated',
+      relation_2: null
     });
 
-    deepEqual(unique, {
+    await assertTableCRelations(uniqueId, {
       value: 'bar',
       relations: []
     });
   });
 
-  it('assert :: update, disconnect and select secondary (from primary) relation', async () => {
-    const secondary = await client.table_b.updateOne({
+  it('assert :: update, disconnect and select relation (primary to secondary)', async () => {
+    await populateTableB();
+
+    const result = await client.table_b.updateOne({
       select: {
         value: true,
         relations: {
@@ -320,263 +756,118 @@ describe('client update relations', async () => {
         }
       },
       data: {
+        value: 'foo-updated',
         relations: {
-          relation_1_id: null
+          id_a: null
         }
       },
       where: {
-        id: secondaryId
+        id_b: primaryId
       }
     });
 
-    deepEqual(secondary, {
-      value: 'bar',
+    deepEqual(result, {
+      value: 'foo',
       relations: [
         {
-          value: 'foo'
+          value: 'bar'
         }
       ]
     });
 
-    // Inverse check
-    const primary = await client.table_a.findOne({
-      select: {
-        value: true,
-        relation_1: {
-          value: true
-        }
-      },
-      where: {
-        id: primaryId
-      }
+    await assertTableBRelations(primaryId, {
+      value: 'foo-updated',
+      relations: []
     });
 
-    deepEqual(primary, {
-      value: 'foo',
+    await assertTableARelation1(secondaryId, {
+      value: 'bar',
       relation_1: null
     });
   });
 
-  it('assert :: update, disconnect and select secondary (from unique) relation', async () => {
-    const secondary = await client.table_c.updateOne({
+  it('assert :: update, disconnect and select relation (primary to unique)', async () => {
+    await populateTableB();
+
+    const result = await client.table_b.updateOne({
       select: {
         value: true,
-        relations: {
+        relation: {
           value: true
         }
       },
       data: {
-        relations: {
-          relation_2_id: null
+        value: 'foo-updated',
+        relation: {
+          id_c: null
         }
       },
       where: {
-        id: secondaryId
+        id_b: primaryId
       }
     });
 
-    deepEqual(secondary, {
-      value: 'bar',
-      relations: [
-        {
-          value: 'foo'
-        }
-      ]
-    });
-
-    // Inverse check
-    const primary = await client.table_a.findOne({
-      select: {
-        value: true,
-        relation_2: {
-          value: true
-        }
-      },
-      where: {
-        id: primaryId
-      }
-    });
-
-    deepEqual(primary, {
+    deepEqual(result, {
       value: 'foo',
-      relation_2: null
-    });
-  });
-
-  it('assert :: update, connect and select primary relation', async () => {
-    await client.table_a.updateMany({
-      data: {
-        relation_1: {
-          relation_1_id: null
-        }
-      }
-    });
-
-    // Reconnect
-    const primary = await client.table_a.updateOne({
-      select: {
-        value: true,
-        relation_1: {
-          value: true
-        }
-      },
-      data: {
-        relation_1: {
-          relation_1_id: secondaryId
-        }
-      },
-      where: {
-        id: primaryId
-      }
-    });
-
-    deepEqual(primary, {
-      value: 'foo',
-      relation_1: null
-    });
-
-    // Inverse check
-    const secondary = await client.table_b.findOne({
-      select: {
-        value: true,
-        relations: {
-          value: true
-        }
-      },
-      where: {
-        id: secondaryId
-      }
-    });
-
-    deepEqual(secondary, {
-      value: 'bar',
-      relations: [
-        {
-          value: 'foo'
-        }
-      ]
-    });
-  });
-
-  it('assert :: update, connect and select unique relation', async () => {
-    await client.table_a.updateMany({
-      data: {
-        relation_2: {
-          relation_2_id: null
-        }
-      }
-    });
-
-    // Reconnect
-    const primary = await client.table_a.updateOne({
-      select: {
-        value: true,
-        relation_2: {
-          value: true
-        }
-      },
-      data: {
-        relation_2: {
-          relation_2_id: uniqueId
-        }
-      },
-      where: {
-        id: primaryId
-      }
-    });
-
-    deepEqual(primary, {
-      value: 'foo',
-      relation_2: null
-    });
-
-    // Inverse check
-    const unique = await client.table_c.findOne({
-      select: {
-        value: true,
-        relations: {
-          value: true
-        }
-      },
-      where: {
-        unique_id: uniqueId
-      }
-    });
-
-    deepEqual(unique, {
-      value: 'bar',
-      relations: [
-        {
-          value: 'foo'
-        }
-      ]
-    });
-  });
-
-  it('assert :: update, connect and select secondary (from primary) relation', async () => {
-    await client.table_a.updateMany({
-      data: {
-        relation_1: {
-          relation_1_id: null
-        }
-      }
-    });
-
-    // Reconnect
-    const secondary = await client.table_b.updateOne({
-      select: {
-        value: true,
-        relations: {
-          value: true
-        }
-      },
-      data: {
-        relations: {
-          relation_1_id: null
-        }
-      },
-      where: {
-        id: secondaryId
-      }
-    });
-
-    deepEqual(secondary, {
-      value: 'bar',
-      relations: []
-    });
-
-    // Inverse check
-    const primary = await client.table_a.findOne({
-      select: {
-        value: true,
-        relation_1: {
-          value: true
-        }
-      },
-      where: {
-        id: primaryId
-      }
-    });
-
-    deepEqual(primary, {
-      value: 'foo',
-      relation_1: {
+      relation: {
         value: 'bar'
       }
     });
+
+    await assertTableBRelation(primaryId, {
+      value: 'foo-updated',
+      relation: null
+    });
+
+    await assertTableCRelation(secondaryId, {
+      value: 'bar',
+      relation: null
+    });
   });
 
-  it('assert :: update, connect and select secondary (from unique) relation', async () => {
-    await client.table_a.updateMany({
-      data: {
-        relation_2: {
-          relation_2_id: null
+  it('assert :: update, disconnect and select relation (unique to primary)', async () => {
+    await populateTableC();
+
+    const result = await client.table_c.updateOne({
+      select: {
+        value: true,
+        relation: {
+          value: true
         }
+      },
+      data: {
+        value: 'foo-updated',
+        relation: {
+          id_b: null
+        }
+      },
+      where: {
+        id_c: primaryId
       }
     });
 
-    // Reconnect
-    const secondary = await client.table_c.updateOne({
+    deepEqual(result, {
+      value: 'foo',
+      relation: {
+        value: 'bar'
+      }
+    });
+
+    await assertTableCRelation(primaryId, {
+      value: 'foo-updated',
+      relation: null
+    });
+
+    await assertTableBRelation(secondaryId, {
+      value: 'bar',
+      relation: null
+    });
+  });
+
+  it('assert :: update, disconnect and select relation (unique to secondary)', async () => {
+    await populateTableC();
+
+    const result = await client.table_c.updateOne({
       select: {
         value: true,
         relations: {
@@ -584,38 +875,33 @@ describe('client update relations', async () => {
         }
       },
       data: {
+        value: 'foo-updated',
         relations: {
-          relation_2_id: null
+          id_a: null
         }
       },
       where: {
-        id: secondaryId
+        id_c: primaryId
       }
     });
 
-    deepEqual(secondary, {
-      value: 'bar',
+    deepEqual(result, {
+      value: 'foo',
+      relations: [
+        {
+          value: 'bar'
+        }
+      ]
+    });
+
+    await assertTableCRelations(primaryId, {
+      value: 'foo-updated',
       relations: []
     });
 
-    // Inverse check
-    const primary = await client.table_a.findOne({
-      select: {
-        value: true,
-        relation_2: {
-          value: true
-        }
-      },
-      where: {
-        id: primaryId
-      }
-    });
-
-    deepEqual(primary, {
-      value: 'foo',
-      relation_2: {
-        value: 'bar'
-      }
+    await assertTableARelation2(secondaryId, {
+      value: 'bar',
+      relation_2: null
     });
   });
 });

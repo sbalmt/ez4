@@ -95,6 +95,7 @@ describe('update primary relations', () => {
   const getSingleTestRelation = (): PgRelationRepositoryWithSchema => {
     return {
       [`${testTableName}.primary_to_secondary`]: {
+        primaryColumn: 'id',
         targetAlias: 'primary_to_secondary',
         targetColumn: 'secondary_id',
         targetIndex: Index.Secondary,
@@ -109,6 +110,7 @@ describe('update primary relations', () => {
 
   const getMultipleTestRelation = (): PgRelationRepositoryWithSchema => {
     const baseRelation = {
+      primaryColumn: 'id',
       targetIndex: Index.Secondary,
       targetTable: testTableName,
       sourceIndex: Index.Primary,
@@ -145,7 +147,7 @@ describe('update primary relations', () => {
       data: {
         id: '00000000-0000-1000-9000-000000000000',
         primary_to_secondary: {
-          secondary_id: '00000000-0000-1000-9000-000000000001'
+          id: '00000000-0000-1000-9000-000000000001'
         }
       }
     });
@@ -168,7 +170,6 @@ describe('update primary relations', () => {
       data: {
         id: '00000000-0000-1000-9000-000000000000',
         primary_to_secondary: {
-          secondary_id: undefined,
           id: undefined
         }
       }
@@ -198,7 +199,7 @@ describe('update primary relations', () => {
       data: {
         id: '00000000-0000-1000-9000-000000000000',
         primary_to_secondary: {
-          secondary_id: '00000000-0000-1000-9000-000000000001'
+          id: '00000000-0000-1000-9000-000000000001'
         }
       }
     });
@@ -209,7 +210,7 @@ describe('update primary relations', () => {
         // Select
         `"Q0" AS (SELECT (SELECT jsonb_build_object('id', "S0"."id", 'foo', "S0"."foo") FROM "ez4_test_table" AS "S0" ` +
         `WHERE "S0"."id" = "R0"."secondary_id") AS "primary_to_secondary" FROM "ez4_test_table" AS "R0" FOR UPDATE), ` +
-        // Update
+        // Main record
         `"Q1" AS (UPDATE ONLY "ez4_test_table" AS "U" SET "id" = :0, "secondary_id" = :1 FROM "Q0") ` +
         // Return
         `SELECT "primary_to_secondary" FROM "Q0"`
@@ -227,7 +228,7 @@ describe('update primary relations', () => {
       data: {
         id: '00000000-0000-1000-9000-000000000000',
         primary_to_secondary: {
-          secondary_id: null
+          id: null
         }
       }
     });
@@ -293,9 +294,9 @@ describe('update primary relations', () => {
         // Select
         `"Q0" AS (SELECT (SELECT jsonb_build_object('id', "S0"."id", 'foo', "S0"."foo") FROM "ez4_test_table" AS "S0" ` +
         `WHERE "S0"."id" = "R0"."secondary_id") AS "primary_to_secondary" FROM "ez4_test_table" AS "R0" FOR UPDATE), ` +
-        // Update main
+        // Main record
         `"Q1" AS (UPDATE ONLY "ez4_test_table" AS "U" SET "id" = :0 FROM "Q0" RETURNING "U"."secondary_id"), ` +
-        // Update relation
+        // First relation
         `"Q2" AS (UPDATE ONLY "ez4_test_table" AS "T" SET "foo" = :1 FROM "Q1" WHERE "T"."id" = "Q1"."secondary_id") ` +
         // Return
         `SELECT "primary_to_secondary" FROM "Q0"`
@@ -322,14 +323,15 @@ describe('update primary relations', () => {
         id: '00000000-0000-1000-9000-000000000000',
         primary_to_secondary_1: {
           id: '00000000-0000-1000-9000-000000000001',
-          foo: 'foo'
+          foo: 'foo-1'
         },
         // Reconnect
         primary_to_secondary_2: {
-          secondary_2_id: '00000000-0000-1000-9000-000000000002'
+          id: '00000000-0000-1000-9000-000000000002'
         },
         primary_to_secondary_3: {
-          id: '00000000-0000-1000-9000-000000000003'
+          id: '00000000-0000-1000-9000-000000000003',
+          foo: 'foo-2'
         }
       }
     });
@@ -341,14 +343,12 @@ describe('update primary relations', () => {
         `"Q0" AS (SELECT "R0"."id", (SELECT jsonb_build_object('id', "S0"."id", 'foo', "S0"."foo") FROM "ez4_test_table" AS "S0" ` +
         `WHERE "S0"."id" = "R0"."secondary_1_id") AS "primary_to_secondary_1" FROM "ez4_test_table" AS "R0" FOR UPDATE), ` +
         // Main record
-        `"Q1" AS (UPDATE ONLY "ez4_test_table" AS "U" SET "id" = :0, "secondary_2_id" = :1 ` +
-        `FROM "Q0" RETURNING "U"."secondary_1_id", "U"."secondary_3_id"), ` +
+        `"Q1" AS (UPDATE ONLY "ez4_test_table" AS "U" SET "id" = :0, "secondary_2_id" = :1 FROM "Q0" ` +
+        `RETURNING "U"."secondary_1_id", "U"."secondary_3_id"), ` +
         // First relation
-        `"Q2" AS (UPDATE ONLY "ez4_test_table" AS "T" SET "id" = :2, "foo" = :3 ` +
-        `FROM "Q1" WHERE "T"."id" = "Q1"."secondary_1_id"), ` +
+        `"Q2" AS (UPDATE ONLY "ez4_test_table" AS "T" SET "id" = :2, "foo" = :3 FROM "Q1" WHERE "T"."id" = "Q1"."secondary_1_id"), ` +
         // Third relation
-        `"Q3" AS (UPDATE ONLY "ez4_test_table" AS "T" SET "id" = :4 ` +
-        `FROM "Q1" WHERE "T"."id" = "Q1"."secondary_3_id") ` +
+        `"Q3" AS (UPDATE ONLY "ez4_test_table" AS "T" SET "id" = :4, "foo" = :5 FROM "Q1" WHERE "T"."id" = "Q1"."secondary_3_id") ` +
         // Return
         `SELECT "id", "primary_to_secondary_1" FROM "Q0"`
     );
@@ -357,8 +357,9 @@ describe('update primary relations', () => {
       '00000000-0000-1000-9000-000000000000',
       '00000000-0000-1000-9000-000000000002',
       '00000000-0000-1000-9000-000000000001',
-      'foo',
-      '00000000-0000-1000-9000-000000000003'
+      'foo-1',
+      '00000000-0000-1000-9000-000000000003',
+      'foo-2'
     ]);
   });
 
@@ -372,10 +373,10 @@ describe('update primary relations', () => {
         prepareRelationUpdate(testSchema, getSingleTestRelation(), {
           data: {
             primary_to_secondary: {
-              secondary_id: '00000000-0000-1000-9000-000000000001',
+              id: '00000000-0000-1000-9000-000000000001',
 
               // Extra fields aren't expected when connecting relations.
-              foo: 'foo'
+              extra: 'foo'
             }
           }
         }),
@@ -396,7 +397,7 @@ describe('update primary relations', () => {
               foo: 'foo',
 
               // Extra fields aren't expected on active relations.
-              bar: 'bar'
+              extra: 'bar'
             }
           }
         }),

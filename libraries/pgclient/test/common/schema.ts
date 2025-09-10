@@ -2,9 +2,12 @@ import type { Database, Client as DbClient } from '@ez4/database';
 import type { PostgresEngine } from '@ez4/pgclient/library';
 import type { ObjectSchema, String } from '@ez4/schema';
 
-import { Client } from '@ez4/pgclient';
+import { getCreateQueries } from '@ez4/pgmigration';
 import { SchemaType } from '@ez4/schema';
+import { Client } from '@ez4/pgclient';
 import { Index } from '@ez4/database';
+
+import { runMigration } from './migration';
 
 export declare class TestSchemaDb extends Database.Service {
   engine: PostgresEngine;
@@ -43,20 +46,7 @@ export type TestSchemaType = {
 export const makeSchemaClient = async () => {
   return Client.make<TestSchemaDb>({
     debug: false,
-    repository: {
-      ez4_test_table: {
-        name: 'ez4_test_table',
-        relations: {},
-        schema: TestSchema,
-        indexes: {
-          id: {
-            name: 'id',
-            columns: ['id'],
-            type: Index.Primary
-          }
-        }
-      }
-    },
+    repository: TestSchemaRepository,
     connection: {
       database: 'postgres',
       password: 'postgres',
@@ -67,22 +57,12 @@ export const makeSchemaClient = async () => {
 };
 
 export const prepareSchemaTable = async (client: DbClient<TestSchemaDb>) => {
+  const queries = getCreateQueries(TestSchemaRepository);
+
   await client.transaction(async (transaction) => {
     await transaction.rawQuery(`DROP TABLE IF EXISTS "ez4_test_table"`);
 
-    await transaction.rawQuery(
-      `CREATE TABLE IF NOT EXISTS "ez4_test_table" (` +
-        `id UUID NOT null PRIMARY KEY, ` +
-        `"integer" bigint, ` +
-        `"decimal" decimal, ` +
-        `"boolean" boolean, ` +
-        `"string" text,` +
-        `"datetime" timestamptz,` +
-        `"date" date,` +
-        `"time" time,` +
-        `"json" jsonb` +
-        `)`
-    );
+    await runMigration(transaction, queries);
   });
 };
 
@@ -187,6 +167,21 @@ export const TestSchema: ObjectSchema = {
             ]
           }
         }
+      }
+    }
+  }
+};
+
+export const TestSchemaRepository = {
+  ez4_test_table: {
+    name: 'ez4_test_table',
+    schema: TestSchema,
+    relations: {},
+    indexes: {
+      id: {
+        name: 'id',
+        columns: ['id'],
+        type: Index.Primary
       }
     }
   }

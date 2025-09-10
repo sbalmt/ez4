@@ -89,6 +89,7 @@ describe('update secondary relations', () => {
   const getSingleTestRelation = (): PgRelationRepositoryWithSchema => {
     return {
       [`${testTableName}.secondary_to_primary`]: {
+        primaryColumn: 'id',
         targetAlias: 'secondary_to_primary',
         targetColumn: 'id',
         targetIndex: Index.Primary,
@@ -103,6 +104,7 @@ describe('update secondary relations', () => {
 
   const getMultipleTestRelation = (): PgRelationRepositoryWithSchema => {
     const baseRelation = {
+      primaryColumn: 'id',
       targetColumn: 'id',
       targetIndex: Index.Primary,
       targetTable: testTableName,
@@ -139,7 +141,7 @@ describe('update secondary relations', () => {
       data: {
         id: '00000000-0000-1000-9000-000000000000',
         secondary_to_primary: {
-          primary_id: '00000000-0000-1000-9000-000000000001'
+          id: '00000000-0000-1000-9000-000000000001'
         }
       }
     });
@@ -150,7 +152,7 @@ describe('update secondary relations', () => {
         // Main record
         `"Q0" AS (UPDATE ONLY "ez4_test_table" SET "id" = :0 RETURNING "id") ` +
         // Relation
-        `UPDATE ONLY "ez4_test_table" AS "T" SET "primary_id" = :1 FROM "Q0" WHERE "T"."primary_id" = "Q0"."id"`
+        `UPDATE ONLY "ez4_test_table" AS "T" SET "primary_id" = "Q0"."id" FROM "Q0" WHERE "T"."id" = :1`
     );
 
     assert.deepEqual(variables, ['00000000-0000-1000-9000-000000000000', '00000000-0000-1000-9000-000000000001']);
@@ -165,7 +167,6 @@ describe('update secondary relations', () => {
       data: {
         id: '00000000-0000-1000-9000-000000000000',
         secondary_to_primary: {
-          primary_id: undefined,
           id: undefined
         }
       }
@@ -195,7 +196,7 @@ describe('update secondary relations', () => {
       data: {
         id: '00000000-0000-1000-9000-000000000000',
         secondary_to_primary: {
-          primary_id: '00000000-0000-1000-9000-000000000001'
+          id: '00000000-0000-1000-9000-000000000001'
         }
       }
     });
@@ -210,7 +211,7 @@ describe('update secondary relations', () => {
         // Main record
         `"Q1" AS (UPDATE ONLY "ez4_test_table" AS "U" SET "id" = :0 FROM "Q0" RETURNING "U"."id"), ` +
         // First relation
-        `"Q2" AS (UPDATE ONLY "ez4_test_table" AS "T" SET "primary_id" = :1 FROM "Q1" WHERE "T"."primary_id" = "Q1"."id") ` +
+        `"Q2" AS (UPDATE ONLY "ez4_test_table" AS "T" SET "primary_id" = "Q1"."id" FROM "Q1" WHERE "T"."id" = :1) ` +
         // Return
         `SELECT "secondary_to_primary" FROM "Q0"`
     );
@@ -227,7 +228,7 @@ describe('update secondary relations', () => {
       data: {
         id: '00000000-0000-1000-9000-000000000000',
         secondary_to_primary: {
-          primary_id: null
+          id: null
         }
       }
     });
@@ -287,14 +288,14 @@ describe('update secondary relations', () => {
       data: {
         id: '00000000-0000-1000-9000-000000000000',
         secondary_to_primary_1: {
-          foo: 'foo'
+          foo: 'foo-1'
         },
         // Reconnect
         secondary_to_primary_2: {
-          primary_2_id: '00000000-0000-1000-9000-000000000001'
+          id: '00000000-0000-1000-9000-000000000001'
         },
         secondary_to_primary_3: {
-          foo: 'foo'
+          foo: 'foo-2'
         }
       }
     });
@@ -310,14 +311,14 @@ describe('update secondary relations', () => {
         // First relation
         `"Q2" AS (UPDATE ONLY "ez4_test_table" AS "T" SET "foo" = :1 FROM "Q1" WHERE "T"."primary_1_id" = "Q1"."id"), ` +
         // Second relation
-        `"Q3" AS (UPDATE ONLY "ez4_test_table" AS "T" SET "primary_2_id" = :2 FROM "Q1" WHERE "T"."primary_2_id" = "Q1"."id"), ` +
+        `"Q3" AS (UPDATE ONLY "ez4_test_table" AS "T" SET "primary_2_id" = "Q1"."id" FROM "Q1" WHERE "T"."id" = :2), ` +
         // Third relation
         `"Q4" AS (UPDATE ONLY "ez4_test_table" AS "T" SET "foo" = :3 FROM "Q1" WHERE "T"."primary_3_id" = "Q1"."id") ` +
         // Return
         `SELECT "id", "secondary_to_primary_1" FROM "Q0"`
     );
 
-    assert.deepEqual(variables, ['00000000-0000-1000-9000-000000000000', 'foo', '00000000-0000-1000-9000-000000000001', 'foo']);
+    assert.deepEqual(variables, ['00000000-0000-1000-9000-000000000000', 'foo-1', '00000000-0000-1000-9000-000000000001', 'foo-2']);
   });
 
   it('assert :: prepare update secondary relation (invalid new connection field)', async ({ assert }) => {
@@ -330,10 +331,10 @@ describe('update secondary relations', () => {
         prepareRelationUpdate(testSchema, getSingleTestRelation(), {
           data: {
             secondary_to_primary: {
-              primary_id: '00000000-0000-1000-9000-000000000001',
+              id: '00000000-0000-1000-9000-000000000001',
 
               // Extra fields aren't expected when connecting relations.
-              foo: 'foo'
+              extra: 'foo'
             }
           }
         }),
@@ -354,7 +355,7 @@ describe('update secondary relations', () => {
               foo: 'foo',
 
               // Extra fields aren't expected on active relations.
-              bar: 'bar'
+              extra: 'bar'
             }
           }
         }),

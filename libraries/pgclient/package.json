@@ -42,6 +42,7 @@
     "live:publish": "npm run build && npm publish --access public"
   },
   "devDependencies": {
+    "@ez4/pgmigration": "^0.27.0",
     "@types/pg": "^8.15.5"
   },
   "dependencies": {

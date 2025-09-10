@@ -1,7 +1,8 @@
 import type { ObjectSchema } from '@ez4/schema';
+import type { AnyObject } from '@ez4/utils';
 import type { PgRelationWithSchema } from '../types/repository';
 
-import { deepClone, isAnyObject } from '@ez4/utils';
+import { deepClone, isAnyObject, isEmptyObject } from '@ez4/utils';
 import { SchemaType } from '@ez4/schema';
 
 export const isSingleRelationData = (value: unknown) => {
@@ -28,7 +29,11 @@ export const getConnectionSchema = (schema: ObjectSchema, columnName: string): O
   return {
     type: SchemaType.Object,
     properties: {
-      [columnName]: schema.properties[columnName]
+      [columnName]: {
+        ...schema.properties[columnName],
+        nullable: true,
+        optional: true
+      }
     }
   };
 };
@@ -61,4 +66,10 @@ export const getTargetConnectionSchema = (schema: ObjectSchema, relation: PgRela
       [targetColumn]: schema.properties[targetColumn]
     }
   };
+};
+
+export const isPrimaryConnection = (primaryColumn: string, record: AnyObject) => {
+  const { [primaryColumn]: relationValue, ...otherFields } = record;
+
+  return relationValue !== undefined && isEmptyObject(otherFields);
 };

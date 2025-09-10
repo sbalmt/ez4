@@ -1,3 +1,5 @@
+import type { AnyObject } from '@ez4/utils';
+
 import { makeRelationClient, prepareRelationTables } from './common/relation';
 
 import { beforeEach, describe, it } from 'node:test';
@@ -7,56 +9,7 @@ import { randomUUID } from 'node:crypto';
 describe('client insert relations', async () => {
   const client = await makeRelationClient();
 
-  const singleResult = {
-    value: 'bar',
-    relation: {
-      value: 'foo'
-    }
-  };
-
-  const manyResults = {
-    value: 'bar',
-    relations: [
-      {
-        value: 'foo'
-      }
-    ]
-  };
-
-  const assertTableARelations = async (...relationIds: string[]) => {
-    const { records } = await client.table_a.findMany({
-      select: {
-        value: true,
-        relation_1: {
-          value: true
-        }
-      },
-      where: {
-        id_a: {
-          isIn: relationIds
-        }
-      }
-    });
-
-    deepEqual(records, [
-      {
-        value: 'bar',
-        relation_1: {
-          value: 'foo'
-        }
-      }
-      /*
-      {
-        value: 'baz',
-        relation_1: {
-          value: 'foo'
-        }
-      }
-      */
-    ]);
-  };
-
-  const assertTableBRelations = async (primaryId: string) => {
+  const assertTableBRelations = async (primaryId: string, expected: AnyObject) => {
     const result = await client.table_b.findOne({
       select: {
         value: true,
@@ -69,10 +22,10 @@ describe('client insert relations', async () => {
       }
     });
 
-    deepEqual(result, manyResults);
+    deepEqual(result, expected);
   };
 
-  const assertTableCRelations = async (relationId: string) => {
+  const assertTableCRelations = async (relationId: string, expected: AnyObject) => {
     const result = await client.table_c.findOne({
       select: {
         value: true,
@@ -85,10 +38,28 @@ describe('client insert relations', async () => {
       }
     });
 
-    deepEqual(result, manyResults);
+    deepEqual(result, expected);
   };
 
-  const assertTableARelation = async (...relationIds: string[]) => {
+  const assertTableARelation1 = async (relationIds: string[], expected: AnyObject[]) => {
+    const { records } = await client.table_a.findMany({
+      select: {
+        value: true,
+        relation_1: {
+          value: true
+        }
+      },
+      where: {
+        id_a: {
+          isIn: relationIds
+        }
+      }
+    });
+
+    deepEqual(records, expected);
+  };
+
+  const assertTableARelation2 = async (relationIds: string[], expected: AnyObject[]) => {
     const { records } = await client.table_a.findMany({
       select: {
         value: true,
@@ -103,25 +74,10 @@ describe('client insert relations', async () => {
       }
     });
 
-    deepEqual(records, [
-      {
-        value: 'bar',
-        relation_2: {
-          value: 'foo'
-        }
-      }
-      /*
-      {
-        value: 'baz',
-        relation_2: {
-          value: 'foo'
-        }
-      }
-      */
-    ]);
+    deepEqual(records, expected);
   };
 
-  const assertTableBRelation = async (relationId: string) => {
+  const assertTableBRelation = async (relationId: string, expected: AnyObject) => {
     const result = await client.table_b.findOne({
       select: {
         value: true,
@@ -134,10 +90,10 @@ describe('client insert relations', async () => {
       }
     });
 
-    deepEqual(result, singleResult);
+    deepEqual(result, expected);
   };
 
-  const assertTableCRelation = async (relationId: string) => {
+  const assertTableCRelation = async (relationId: string, expected: AnyObject) => {
     const { records } = await client.table_c.findMany({
       select: {
         value: true,
@@ -150,7 +106,7 @@ describe('client insert relations', async () => {
       }
     });
 
-    deepEqual(records, [singleResult]);
+    deepEqual(records, [expected]);
   };
 
   beforeEach(async () => {
@@ -184,7 +140,14 @@ describe('client insert relations', async () => {
       }
     });
 
-    await assertTableBRelations(primaryId);
+    await assertTableBRelations(primaryId, {
+      value: 'bar',
+      relations: [
+        {
+          value: 'foo'
+        }
+      ]
+    });
   });
 
   it('assert :: insert, create and select relation (secondary to unique)', async () => {
@@ -215,7 +178,14 @@ describe('client insert relations', async () => {
       }
     });
 
-    await assertTableCRelations(uniqueId);
+    await assertTableCRelations(uniqueId, {
+      value: 'bar',
+      relations: [
+        {
+          value: 'foo'
+        }
+      ]
+    });
   });
 
   it('assert :: insert, create and select relation (primary to secondary)', async () => {
@@ -261,7 +231,25 @@ describe('client insert relations', async () => {
       ]
     });
 
-    await assertTableARelations(secondaryAId, secondaryBId);
+    await assertTableARelation1(
+      [secondaryAId, secondaryBId],
+      [
+        {
+          value: 'bar',
+          relation_1: {
+            value: 'foo'
+          }
+        }
+        /*
+      {
+        value: 'baz',
+        relation_1: {
+          value: 'foo'
+        }
+      }
+      */
+      ]
+    );
   });
 
   it('assert :: insert, create and select relation (primary to unique)', async () => {
@@ -291,7 +279,12 @@ describe('client insert relations', async () => {
       }
     });
 
-    await assertTableCRelation(secondaryId);
+    await assertTableCRelation(secondaryId, {
+      value: 'bar',
+      relation: {
+        value: 'foo'
+      }
+    });
   });
 
   it('assert :: insert, create and select relation (unique to primary) ', async () => {
@@ -321,7 +314,12 @@ describe('client insert relations', async () => {
       }
     });
 
-    await assertTableBRelation(primaryId);
+    await assertTableBRelation(primaryId, {
+      value: 'bar',
+      relation: {
+        value: 'foo'
+      }
+    });
   });
 
   it('assert :: insert, create and select relation (unique to secondary) ', async () => {
@@ -369,15 +367,33 @@ describe('client insert relations', async () => {
       ]
     });
 
-    await assertTableARelation(secondaryAId, secondaryBId);
+    await assertTableARelation2(
+      [secondaryAId, secondaryBId],
+      [
+        {
+          value: 'bar',
+          relation_2: {
+            value: 'foo'
+          }
+        }
+        /*
+      {
+        value: 'baz',
+        relation_2: {
+          value: 'foo'
+        }
+      }
+      */
+      ]
+    );
   });
 
   it('assert :: insert, connect and select relation (secondary to primary)', async () => {
-    const primaryId = randomUUID();
+    const connectionId = randomUUID();
 
     await client.table_b.insertOne({
       data: {
-        id_b: primaryId,
+        id_b: connectionId,
         value: 'bar'
       }
     });
@@ -394,7 +410,7 @@ describe('client insert relations', async () => {
         id_a: randomUUID(),
         value: 'foo',
         relation_1: {
-          id_b: primaryId
+          id_b: connectionId
         }
       }
     });
@@ -406,17 +422,24 @@ describe('client insert relations', async () => {
       }
     });
 
-    await assertTableBRelations(primaryId);
+    await assertTableBRelations(connectionId, {
+      value: 'bar',
+      relations: [
+        {
+          value: 'foo'
+        }
+      ]
+    });
   });
 
   it('assert :: insert, connect and select relation (secondary to unique)', async () => {
-    const uniqueId = randomUUID();
+    const connectionId = randomUUID();
 
     await client.table_c.insertOne({
       data: {
         id_c: randomUUID(),
         // TODO: Database contract must allow this
-        unique_2_id: uniqueId,
+        unique_2_id: connectionId,
         value: 'bar'
       }
     });
@@ -433,7 +456,7 @@ describe('client insert relations', async () => {
         id_a: randomUUID(),
         value: 'foo',
         relation_2: {
-          id_c: uniqueId
+          id_c: connectionId
         }
       }
     });
@@ -445,22 +468,29 @@ describe('client insert relations', async () => {
       }
     });
 
-    await assertTableCRelations(uniqueId);
+    await assertTableCRelations(connectionId, {
+      value: 'bar',
+      relations: [
+        {
+          value: 'foo'
+        }
+      ]
+    });
   });
 
   it('assert :: insert, connect and select relation (primary to secondary)', async () => {
-    const secondaryAId = randomUUID();
-    const secondaryBId = randomUUID();
+    const connectionAId = randomUUID();
+    const connectionBId = randomUUID();
 
     await client.table_a.insertMany({
       data: [
         {
-          id_a: secondaryAId,
+          id_a: connectionAId,
           value: 'bar'
         }
         /*
         {
-          id: secondaryBId,
+          id: connectionBId,
           value: 'baz'
         }
         */
@@ -479,11 +509,11 @@ describe('client insert relations', async () => {
         value: 'foo',
         relations: [
           {
-            id_a: secondaryAId
+            id_a: connectionAId
           }
           /*
           {
-            id_a: secondaryBId
+            id_a: connectionBId
           }
           */
         ]
@@ -504,15 +534,33 @@ describe('client insert relations', async () => {
       ]
     });
 
-    await assertTableARelations(secondaryAId, secondaryBId);
+    await assertTableARelation1(
+      [connectionAId, connectionBId],
+      [
+        {
+          value: 'bar',
+          relation_1: {
+            value: 'foo'
+          }
+        }
+        /*
+      {
+        value: 'baz',
+        relation_1: {
+          value: 'foo'
+        }
+      }
+      */
+      ]
+    );
   });
 
   it('assert :: insert, connect and select relation (primary to unique)', async () => {
-    const uniqueId = randomUUID();
+    const connectionId = randomUUID();
 
     await client.table_c.insertOne({
       data: {
-        id_c: uniqueId,
+        id_c: connectionId,
         value: 'bar'
       }
     });
@@ -528,7 +576,7 @@ describe('client insert relations', async () => {
         id_b: randomUUID(),
         value: 'foo',
         relation: {
-          id_c: uniqueId
+          id_c: connectionId
         }
       }
     });
@@ -540,11 +588,16 @@ describe('client insert relations', async () => {
       }
     });
 
-    await assertTableCRelation(uniqueId);
+    await assertTableCRelation(connectionId, {
+      value: 'bar',
+      relation: {
+        value: 'foo'
+      }
+    });
   });
 
   it('assert :: insert, connect and select relation (unique to primary) ', async () => {
-    const primaryId = randomUUID();
+    const connectionId = randomUUID();
 
     const result = await client.table_c.insertOne({
       select: {
@@ -557,7 +610,7 @@ describe('client insert relations', async () => {
         id_c: randomUUID(),
         value: 'foo',
         relation: {
-          id_b: primaryId,
+          id_b: connectionId,
           value: 'bar'
         }
       }
@@ -570,22 +623,27 @@ describe('client insert relations', async () => {
       }
     });
 
-    await assertTableBRelation(primaryId);
+    await assertTableBRelation(connectionId, {
+      value: 'bar',
+      relation: {
+        value: 'foo'
+      }
+    });
   });
 
   it('assert :: insert, connect and select relation (unique to secondary) ', async () => {
-    const secondaryAId = randomUUID();
-    const secondaryBId = randomUUID();
+    const connectionAId = randomUUID();
+    const connectionBId = randomUUID();
 
     await client.table_a.insertMany({
       data: [
         {
-          id_a: secondaryAId,
+          id_a: connectionAId,
           value: 'bar'
         }
         /*
         {
-          id_a: secondaryBId,
+          id_a: connectionBId,
           value: 'baz'
         }
         */
@@ -606,11 +664,11 @@ describe('client insert relations', async () => {
         value: 'foo',
         relations: [
           {
-            id_a: secondaryAId
+            id_a: connectionAId
           }
           /*
           {
-            id_a: secondaryBId
+            id_a: connectionBId
           }
           */
         ]
@@ -631,6 +689,24 @@ describe('client insert relations', async () => {
       ]
     });
 
-    await assertTableARelation(secondaryAId, secondaryBId);
+    await assertTableARelation2(
+      [connectionAId, connectionBId],
+      [
+        {
+          value: 'bar',
+          relation_2: {
+            value: 'foo'
+          }
+        }
+        /*
+      {
+        value: 'baz',
+        relation_2: {
+          value: 'foo'
+        }
+      }
+      */
+      ]
+    );
   });
 });

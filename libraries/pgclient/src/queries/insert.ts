@@ -25,11 +25,12 @@ import {
   getSourceCreationSchema,
   isMultipleRelationData,
   isSingleRelationData,
+  isPrimaryConnection,
   isRelationalData
 } from '../utils/relation';
 
 import { getFormattedColumn } from '../utils/formats';
-import { getWithSchemaValidation, validateAllSchemaLevels, validateFirstSchemaLevel } from '../utils/schema';
+import { getWithSchemaValidation, validateRecordSchema } from '../utils/schema';
 import { getDefaultSelectFields, getSelectFields } from './select';
 
 type InsertRelationsCache = Record<string, PgRelationWithSchema & { relationQueries: (SqlInsertStatement | SqlUpdateStatement)[] }>;
@@ -133,13 +134,13 @@ export const getInsertRecord = async (
         if (relationValue !== undefined && isEmptyObject(otherFields)) {
           const relationSchema = getConnectionSchema(sourceSchema, primaryColumn);
 
-          return validateFirstSchemaLevel(relationEntry, relationSchema, fieldPath);
+          return validateRecordSchema(relationEntry, relationSchema, fieldPath);
         }
 
         // Will create a new relations
         const relationSchema = getSourceCreationSchema(sourceSchema, fieldRelation);
 
-        return validateAllSchemaLevels(relationEntry, relationSchema, fieldPath);
+        return validateRecordSchema(relationEntry, relationSchema, fieldPath);
       });
 
       await Promise.all(allValidations);
@@ -164,7 +165,7 @@ export const getInsertRecord = async (
     if (relationValue !== undefined && isEmptyObject(otherFields)) {
       const relationSchema = getConnectionSchema(sourceSchema, primaryColumn);
 
-      await validateFirstSchemaLevel(fieldValue, relationSchema, fieldPath);
+      await validateRecordSchema(fieldValue, relationSchema, fieldPath);
 
       record[targetColumn] = relationValue;
       continue;
@@ -174,7 +175,7 @@ export const getInsertRecord = async (
     if (targetIndex === Index.Primary) {
       const relationSchema = getSourceCreationSchema(sourceSchema, fieldRelation);
 
-      await validateAllSchemaLevels(fieldValue, relationSchema, fieldPath);
+      await validateRecordSchema(fieldValue, relationSchema, fieldPath);
       continue;
     }
 
@@ -184,7 +185,7 @@ export const getInsertRecord = async (
 
     record[targetColumn] = relationQuery.reference(sourceColumn);
 
-    await validateAllSchemaLevels(fieldValue, relationSchema, fieldPath);
+    await validateRecordSchema(fieldValue, relationSchema, fieldPath);
     continue;
   }
 
@@ -292,6 +293,10 @@ const preparePostInsertRelations = (
 
       const { [primaryColumn]: relationValue, ...otherFields } = currentFieldValue;
 
+      if (!results.has(targetColumn)) {
+        results.column(targetColumn);
+      }
+
       // Connect an existing relation
       if (relationValue !== undefined && isEmptyObject(otherFields)) {
         const relationQuery = builder
@@ -301,10 +306,6 @@ const preparePostInsertRelations = (
           .from(source.reference())
           .only(sourceTable)
           .as('T');
-
-        if (!results.has(targetColumn)) {
-          results.column(targetColumn);
-        }
 
         relationQueries.push(relationQuery);
         continue;
@@ -319,10 +320,6 @@ const preparePostInsertRelations = (
           ...currentFieldValue,
           [sourceColumn]: source.reference(targetColumn)
         });
-
-      if (!results.has(targetColumn)) {
-        results.column(targetColumn);
-      }
 
       relationQueries.push(relationQuery);
     }
@@ -438,19 +435,9 @@ const getInsertSelectFields = (
 };
 
 const isValidPreInsertion = (sourceIndex: Index | undefined, targetIndex: Index | undefined) => {
-  if (sourceIndex === Index.Primary && targetIndex === Index.Unique) {
-    return true;
-  }
-
   if (sourceIndex === Index.Primary || sourceIndex === Index.Unique) {
-    return !targetIndex || targetIndex === Index.Secondary;
+    return !targetIndex || targetIndex === Index.Secondary || targetIndex === Index.Unique;
   }
 
   return false;
-};
-
-const isPrimaryConnection = (primaryColumn: string, record: AnyObject) => {
-  const { [primaryColumn]: relationValue, ...otherFields } = record;
-
-  return relationValue !== undefined && isEmptyObject(otherFields);
 };

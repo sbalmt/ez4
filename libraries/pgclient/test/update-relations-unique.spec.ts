@@ -95,6 +95,7 @@ describe('update unique relations', () => {
   const getSingleTestRelation = (): PgRelationRepositoryWithSchema => {
     return {
       [`${testTableName}.unique_to_primary`]: {
+        primaryColumn: 'id',
         targetAlias: 'unique_to_primary',
         targetColumn: 'unique_id',
         targetIndex: Index.Unique,
@@ -109,6 +110,7 @@ describe('update unique relations', () => {
 
   const getMultipleTestRelation = (): PgRelationRepositoryWithSchema => {
     const baseRelation = {
+      primaryColumn: 'id',
       targetIndex: Index.Unique,
       targetTable: testTableName,
       sourceIndex: Index.Primary,
@@ -145,7 +147,7 @@ describe('update unique relations', () => {
       data: {
         id: '00000000-0000-1000-9000-000000000000',
         unique_to_primary: {
-          unique_id: '00000000-0000-1000-9000-000000000001'
+          id: '00000000-0000-1000-9000-000000000001'
         }
       }
     });
@@ -168,7 +170,6 @@ describe('update unique relations', () => {
       data: {
         id: '00000000-0000-1000-9000-000000000000',
         unique_to_primary: {
-          unique_id: undefined,
           id: undefined
         }
       }
@@ -198,7 +199,7 @@ describe('update unique relations', () => {
       data: {
         id: '00000000-0000-1000-9000-000000000000',
         unique_to_primary: {
-          unique_id: '00000000-0000-1000-9000-000000000001'
+          id: '00000000-0000-1000-9000-000000000001'
         }
       }
     });
@@ -209,7 +210,7 @@ describe('update unique relations', () => {
         // Select
         `"Q0" AS (SELECT (SELECT jsonb_build_object('id', "S0"."id", 'foo', "S0"."foo") FROM "ez4_test_table" AS "S0" ` +
         `WHERE "S0"."id" = "R0"."unique_id") AS "unique_to_primary" FROM "ez4_test_table" AS "R0" FOR UPDATE), ` +
-        // Update
+        // Main record
         `"Q1" AS (UPDATE ONLY "ez4_test_table" AS "U" SET "id" = :0, "unique_id" = :1 FROM "Q0") ` +
         // Return
         `SELECT "unique_to_primary" FROM "Q0"`
@@ -227,7 +228,7 @@ describe('update unique relations', () => {
       data: {
         id: '00000000-0000-1000-9000-000000000000',
         unique_to_primary: {
-          unique_id: null
+          id: null
         }
       }
     });
@@ -321,14 +322,14 @@ describe('update unique relations', () => {
       data: {
         id: '00000000-0000-1000-9000-000000000000',
         unique_to_primary_1: {
-          foo: 'foo'
+          foo: 'foo-1'
         },
         // Reconnect
         unique_to_primary_2: {
-          unique_2_id: '00000000-0000-1000-9000-000000000001'
+          id: '00000000-0000-1000-9000-000000000001'
         },
         unique_to_primary_3: {
-          foo: 'foo'
+          foo: 'foo-2'
         }
       }
     });
@@ -349,7 +350,7 @@ describe('update unique relations', () => {
         `SELECT "id", "unique_to_primary_1" FROM "Q0"`
     );
 
-    assert.deepEqual(variables, ['00000000-0000-1000-9000-000000000000', '00000000-0000-1000-9000-000000000001', 'foo', 'foo']);
+    assert.deepEqual(variables, ['00000000-0000-1000-9000-000000000000', '00000000-0000-1000-9000-000000000001', 'foo-1', 'foo-2']);
   });
 
   it('assert :: prepare update unique relation (invalid new connection field)', async ({ assert }) => {
@@ -362,10 +363,10 @@ describe('update unique relations', () => {
         prepareRelationUpdate(testSchema, getSingleTestRelation(), {
           data: {
             unique_to_primary: {
-              unique_id: '00000000-0000-1000-9000-000000000001',
+              id: '00000000-0000-1000-9000-000000000001',
 
               // Extra fields aren't expected when connecting relations.
-              foo: 'foo'
+              extra: 'foo'
             }
           }
         }),
@@ -386,7 +387,7 @@ describe('update unique relations', () => {
               foo: 'foo',
 
               // Extra fields aren't expected on active relations.
-              bar: 'bar'
+              extra: 'bar'
             }
           }
         }),
