@@ -16,7 +16,7 @@ import type {
 
 import { isObjectSchema } from '@ez4/schema';
 import { InvalidRelationFieldError, MissingFieldSchemaError } from '@ez4/pgclient';
-import { deepMerge, isEmptyObject } from '@ez4/utils';
+import { isEmptyObject } from '@ez4/utils';
 import { Index } from '@ez4/database';
 
 import {
@@ -70,7 +70,7 @@ export const prepareInsertQuery = async <T extends InternalTableMetadata, S exte
   ];
 
   if (query.select) {
-    const allRelations = deepMerge(deepMerge(preInsertQueriesMap, postInsertQueriesMap, { depth: 1 }), relations, { depth: 1 });
+    const allRelations = { ...relations, ...preInsertQueriesMap, ...postInsertQueriesMap };
     const selectQuery = builder.select().from(insertQuery.reference());
 
     const selectRecord = getInsertSelectFields(builder, query.select, schema, allRelations, insertQuery, selectQuery, table);
