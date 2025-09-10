@@ -33,9 +33,9 @@ import { getFormattedColumn } from '../utils/formats';
 import { getWithSchemaValidation, validateRecordSchema } from '../utils/schema';
 import { getDefaultSelectFields, getSelectFields } from './select';
 
-type InsertRelationsCache = Record<string, PgRelationWithSchema & { relationQueries: (SqlInsertStatement | SqlUpdateStatement)[] }>;
+type InsertRelationRepository = Record<string, PgRelationWithSchema & { relationQueries: (SqlInsertStatement | SqlUpdateStatement)[] }>;
 
-type CombinedRelationsCache = Record<string, PgRelationWithSchema & { relationQueries?: (SqlInsertStatement | SqlUpdateStatement)[] }>;
+type RelationRepository = Record<string, PgRelationWithSchema & { relationQueries?: (SqlInsertStatement | SqlUpdateStatement)[] }>;
 
 export const prepareInsertQuery = async <T extends InternalTableMetadata, S extends Query.SelectInput<T>>(
   builder: SqlBuilder,
@@ -86,7 +86,7 @@ export const getInsertRecord = async (
   data: SqlRecord,
   schema: ObjectSchema,
   relations: PgRelationRepositoryWithSchema,
-  relationsCache: InsertRelationsCache,
+  repository: InsertRelationRepository,
   path: string
 ) => {
   const allFields = new Set([...Object.keys(data), ...Object.keys(schema.properties)]);
@@ -111,12 +111,11 @@ export const getInsertRecord = async (
       continue;
     }
 
-    if (!isRelationalData(fieldValue) || !relationsCache[fieldPath]) {
+    if (!isRelationalData(fieldValue) || !repository[fieldPath]) {
       throw new InvalidRelationFieldError(fieldPath);
     }
 
-    const { primaryColumn, relationQueries, sourceSchema, sourceIndex, sourceColumn, targetIndex, targetColumn } =
-      relationsCache[fieldPath];
+    const { primaryColumn, relationQueries, sourceSchema, sourceIndex, sourceColumn, targetIndex, targetColumn } = repository[fieldPath];
 
     if (!sourceIndex || sourceIndex === Index.Secondary) {
       if (!isMultipleRelationData(fieldValue)) {
@@ -198,7 +197,7 @@ const preparePreInsertRelations = (
   relations: PgRelationRepositoryWithSchema,
   table: string
 ) => {
-  const allQueries: InsertRelationsCache = {};
+  const allQueries: InsertRelationRepository = {};
 
   for (const relationPath in relations) {
     const fieldRelation = relations[relationPath];
@@ -252,7 +251,7 @@ const preparePostInsertRelations = (
   source: SqlSourceWithResults,
   table: string
 ) => {
-  const allQueries: InsertRelationsCache = {};
+  const allQueries: InsertRelationRepository = {};
 
   const { results } = source;
 
@@ -337,7 +336,7 @@ const getInsertSelectFields = (
   builder: SqlBuilder,
   fields: Query.StrictSelectInput<AnyObject, InternalTableMetadata>,
   schema: ObjectSchema,
-  relations: CombinedRelationsCache,
+  relations: RelationRepository,
   main: SqlInsertStatement | undefined,
   source: SqlSelectStatement,
   path: string,
