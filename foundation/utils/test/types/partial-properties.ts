@@ -35,6 +35,8 @@ export const testA = () => {
   const test: ModelProperties = {
     foo: true
   };
+
+  return [test];
 };
 
 // Expect only 'barFoo' inside 'bar'
@@ -45,4 +47,6 @@ export const testB = () => {
       barBaz: false
     }
   };
+
+  return [test];
 };

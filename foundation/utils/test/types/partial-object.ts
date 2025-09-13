@@ -35,6 +35,8 @@ export const testB = () => {
   const test: CustomModel = {
     foo: 123
   };
+
+  return [test];
 };
 
 // Expect only 'baz' (which can be undefined)
@@ -54,6 +56,8 @@ export const testC = () => {
   const test2: CustomModel = {
     baz: 'abc'
   };
+
+  return [test1, test2];
 };
 
 // Expect only 'foo' and 'bar' (which can be undefined)
@@ -76,6 +80,8 @@ export const testD = () => {
     foo: 123,
     bar: undefined
   };
+
+  return [test1, test2];
 };
 
 // Expect only 'qux'
@@ -99,6 +105,8 @@ export const testE = () => {
       quxBaz: 'abc'
     }
   };
+
+  return [test];
 };
 
 // Expect only 'quxBar' inside 'qux'
@@ -118,6 +126,8 @@ export const testF = () => {
       quxBar: 123
     }
   };
+
+  return [test];
 };
 
 // Expect only 'quxFoo' inside 'qux' (which can be undefined)
@@ -143,4 +153,6 @@ export const testG = () => {
   const test2: CustomModel = {
     qux: undefined
   };
+
+  return [test1, test2];
 };
