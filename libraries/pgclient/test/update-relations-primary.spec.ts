@@ -1,14 +1,13 @@
-import type { PostgresEngine, PgRelationRepositoryWithSchema } from '@ez4/pgclient/library';
 import type { Query, RelationMetadata } from '@ez4/database';
-import type { ObjectSchema } from '@ez4/schema';
+import type { PostgresEngine } from '@ez4/pgclient/library';
 
 import { describe, it } from 'node:test';
 
 import { MalformedRequestError } from '@ez4/pgclient';
-import { prepareUpdateQuery } from '@ez4/pgclient/library';
-import { SchemaType } from '@ez4/schema';
+import { getRelationsWithSchema, prepareUpdateQuery } from '@ez4/pgclient/library';
 import { SqlBuilder } from '@ez4/pgsql';
-import { Index } from '@ez4/database';
+
+import { TestRelationRepository } from './common/relation';
 
 type TestTableMetadata = {
   engine: PostgresEngine;
@@ -17,365 +16,219 @@ type TestTableMetadata = {
   schema: {};
 };
 
-type TestSchemaOptions = {
-  multiple?: boolean;
-  nullish: boolean;
-};
-
 describe('update primary relations', () => {
-  const testTableName = 'ez4_test_table';
+  const tableName = 'table_b';
 
-  const relationSchema: ObjectSchema = {
-    type: SchemaType.Object,
-    properties: {
-      id: {
-        type: SchemaType.String,
-        format: 'uuid'
-      },
-      foo: {
-        type: SchemaType.String,
-        optional: true
-      }
-    }
-  };
+  const sourceId = '00000000-0000-1000-9000-000000000000';
+  const targetId = '00000000-0000-1000-9000-000000000001';
 
   const prepareRelationUpdate = async <S extends Query.SelectInput<TestTableMetadata>>(
-    schema: ObjectSchema,
-    relations: PgRelationRepositoryWithSchema,
     query: Query.UpdateManyInput<S, TestTableMetadata>
   ) => {
+    const repository = TestRelationRepository[tableName];
+    const relations = getRelationsWithSchema(tableName, TestRelationRepository);
     const builder = new SqlBuilder();
 
-    const allQueries = await prepareUpdateQuery(builder, testTableName, schema, relations, query);
+    const allQueries = await prepareUpdateQuery(builder, tableName, repository.schema, relations, query);
 
     return builder.with(allQueries).build();
   };
 
-  const getTestRelationSchema = ({ nullish, multiple }: TestSchemaOptions): ObjectSchema => {
-    return {
-      type: SchemaType.Object,
-      properties: {
-        id: {
-          type: SchemaType.String,
-          format: 'uuid'
-        },
-        ...(multiple
-          ? {
-              secondary_1_id: {
-                type: SchemaType.String,
-                optional: nullish,
-                nullable: nullish,
-                format: 'uuid'
-              },
-              secondary_2_id: {
-                type: SchemaType.String,
-                optional: nullish,
-                nullable: nullish,
-                format: 'uuid'
-              },
-              secondary_3_id: {
-                type: SchemaType.String,
-                optional: nullish,
-                nullable: nullish,
-                format: 'uuid'
-              }
-            }
-          : {
-              secondary_id: {
-                type: SchemaType.String,
-                optional: nullish,
-                nullable: nullish,
-                format: 'uuid'
-              }
-            })
-      }
-    };
-  };
-
-  const getSingleTestRelation = (): PgRelationRepositoryWithSchema => {
-    return {
-      [`${testTableName}.primary_to_secondary`]: {
-        primaryColumn: 'id',
-        targetAlias: 'primary_to_secondary',
-        targetColumn: 'secondary_id',
-        targetIndex: Index.Secondary,
-        targetTable: testTableName,
-        sourceIndex: Index.Primary,
-        sourceSchema: relationSchema,
-        sourceTable: testTableName,
-        sourceColumn: 'id'
-      }
-    };
-  };
-
-  const getMultipleTestRelation = (): PgRelationRepositoryWithSchema => {
-    const baseRelation = {
-      primaryColumn: 'id',
-      targetIndex: Index.Secondary,
-      targetTable: testTableName,
-      sourceIndex: Index.Primary,
-      sourceSchema: relationSchema,
-      sourceTable: testTableName,
-      sourceColumn: 'id'
-    };
-
-    return {
-      [`${testTableName}.primary_to_secondary_1`]: {
-        targetAlias: 'primary_to_secondary_1',
-        targetColumn: 'secondary_1_id',
-        ...baseRelation
-      },
-      [`${testTableName}.primary_to_secondary_2`]: {
-        targetAlias: 'primary_to_secondary_2',
-        targetColumn: 'secondary_2_id',
-        ...baseRelation
-      },
-      [`${testTableName}.primary_to_secondary_3`]: {
-        targetAlias: 'primary_to_secondary_3',
-        targetColumn: 'secondary_3_id',
-        ...baseRelation
-      }
-    };
-  };
-
-  it('assert :: prepare update primary relation (new connection)', async ({ assert }) => {
-    const testSchema = getTestRelationSchema({
-      nullish: false
-    });
-
-    const [statement, variables] = await prepareRelationUpdate(testSchema, getSingleTestRelation(), {
-      data: {
-        id: '00000000-0000-1000-9000-000000000000',
-        primary_to_secondary: {
-          id: '00000000-0000-1000-9000-000000000001'
-        }
-      }
-    });
-
-    assert.equal(
-      statement,
-      // Main record
-      `UPDATE ONLY "ez4_test_table" SET "id" = :0, "secondary_id" = :1`
-    );
-
-    assert.deepEqual(variables, ['00000000-0000-1000-9000-000000000000', '00000000-0000-1000-9000-000000000001']);
-  });
-
-  it('assert :: prepare update primary relation (empty connection)', async ({ assert }) => {
-    const testSchema = getTestRelationSchema({
-      nullish: true
-    });
-
-    const [statement, variables] = await prepareRelationUpdate(testSchema, getSingleTestRelation(), {
-      data: {
-        id: '00000000-0000-1000-9000-000000000000',
-        primary_to_secondary: {
-          id: undefined
-        }
-      }
-    });
-
-    assert.equal(
-      statement,
-      // Main record
-      `UPDATE ONLY "ez4_test_table" SET "id" = :0`
-    );
-
-    assert.deepEqual(variables, ['00000000-0000-1000-9000-000000000000']);
-  });
-
-  it('assert :: prepare update primary relation (select new connection)', async ({ assert }) => {
-    const testSchema = getTestRelationSchema({
-      nullish: false
-    });
-
-    const [statement, variables] = await prepareRelationUpdate(testSchema, getSingleTestRelation(), {
+  it('assert :: prepare empty relation (primary to unique)', async ({ assert }) => {
+    const [statement, variables] = await prepareRelationUpdate({
       select: {
-        primary_to_secondary: {
-          id: true,
-          foo: true
+        value: true,
+        relation: {
+          value: true
         }
       },
       data: {
-        id: '00000000-0000-1000-9000-000000000000',
-        primary_to_secondary: {
-          id: '00000000-0000-1000-9000-000000000001'
-        }
-      }
+        value: 'foo',
+        relation: {}
+      },
+      where: {
+        id_b: sourceId
+      } as any
     });
 
     assert.equal(
       statement,
       `WITH ` +
         // Select
-        `"Q0" AS (SELECT (SELECT jsonb_build_object('id', "S0"."id", 'foo', "S0"."foo") FROM "ez4_test_table" AS "S0" ` +
-        `WHERE "S0"."id" = "R0"."secondary_id") AS "primary_to_secondary" FROM "ez4_test_table" AS "R0" FOR UPDATE), ` +
+        `"Q0" AS (SELECT "R0"."value", (SELECT jsonb_build_object('value', "S0"."value") ` +
+        `FROM "table_c" AS "S0" WHERE "S0"."unique_1_id" = "R0"."id_b") AS "relation" ` +
+        `FROM "table_b" AS "R0" WHERE "R0"."id_b" = :0 FOR UPDATE), ` +
         // Main record
-        `"Q1" AS (UPDATE ONLY "ez4_test_table" AS "U" SET "id" = :0, "secondary_id" = :1 FROM "Q0") ` +
+        `"Q1" AS (UPDATE ONLY "table_b" AS "U" SET "value" = :1 FROM "Q0" WHERE "U"."id_b" = :2) ` +
         // Return
-        `SELECT "primary_to_secondary" FROM "Q0"`
+        `SELECT "value", "relation" FROM "Q0"`
     );
 
-    assert.deepEqual(variables, ['00000000-0000-1000-9000-000000000000', '00000000-0000-1000-9000-000000000001']);
+    assert.deepEqual(variables, [sourceId, 'foo', sourceId]);
   });
 
-  it('assert :: prepare update primary relation (disconnection)', async ({ assert }) => {
-    const testSchema = getTestRelationSchema({
-      nullish: true
-    });
-
-    const [statement, variables] = await prepareRelationUpdate(testSchema, getSingleTestRelation(), {
-      data: {
-        id: '00000000-0000-1000-9000-000000000000',
-        primary_to_secondary: {
-          id: null
-        }
-      }
-    });
-
-    assert.equal(
-      statement,
-      // Main record
-      `UPDATE ONLY "ez4_test_table" SET "id" = :0, "secondary_id" = null`
-    );
-
-    assert.deepEqual(variables, ['00000000-0000-1000-9000-000000000000']);
-  });
-
-  it('assert :: prepare update primary relation (activate connection)', async ({ assert }) => {
-    const testSchema = getTestRelationSchema({
-      nullish: false
-    });
-
-    const [statement, variables] = await prepareRelationUpdate(testSchema, getSingleTestRelation(), {
-      data: {
-        id: '00000000-0000-1000-9000-000000000000',
-        primary_to_secondary: {
-          foo: 'foo'
-        }
-      }
-    });
-
-    assert.equal(
-      statement,
-      `WITH ` +
-        // Main record
-        `"Q0" AS (UPDATE ONLY "ez4_test_table" SET "id" = :0 RETURNING "secondary_id") ` +
-        // Relation
-        `UPDATE ONLY "ez4_test_table" AS "T" SET "foo" = :1 FROM "Q0" WHERE "T"."id" = "Q0"."secondary_id"`
-    );
-
-    assert.deepEqual(variables, ['00000000-0000-1000-9000-000000000000', 'foo']);
-  });
-
-  it('assert :: prepare update primary relation (select active connection)', async ({ assert }) => {
-    const testSchema = getTestRelationSchema({
-      nullish: false
-    });
-
-    const [statement, variables] = await prepareRelationUpdate(testSchema, getSingleTestRelation(), {
+  it('assert :: prepare undefined relation (primary to unique)', async ({ assert }) => {
+    const [statement, variables] = await prepareRelationUpdate({
       select: {
-        primary_to_secondary: {
-          id: true,
-          foo: true
+        value: true,
+        relation: {
+          value: true
         }
       },
       data: {
-        id: '00000000-0000-1000-9000-000000000000',
-        primary_to_secondary: {
-          foo: 'foo'
+        value: 'foo',
+        relation: {
+          unique_1_id: undefined
         }
-      }
+      },
+      where: {
+        id_b: sourceId
+      } as any
     });
 
     assert.equal(
       statement,
       `WITH ` +
         // Select
-        `"Q0" AS (SELECT (SELECT jsonb_build_object('id', "S0"."id", 'foo', "S0"."foo") FROM "ez4_test_table" AS "S0" ` +
-        `WHERE "S0"."id" = "R0"."secondary_id") AS "primary_to_secondary" FROM "ez4_test_table" AS "R0" FOR UPDATE), ` +
+        `"Q0" AS (SELECT "R0"."value", (SELECT jsonb_build_object('value', "S0"."value") ` +
+        `FROM "table_c" AS "S0" WHERE "S0"."unique_1_id" = "R0"."id_b") AS "relation" ` +
+        `FROM "table_b" AS "R0" WHERE "R0"."id_b" = :0 FOR UPDATE), ` +
         // Main record
-        `"Q1" AS (UPDATE ONLY "ez4_test_table" AS "U" SET "id" = :0 FROM "Q0" RETURNING "U"."secondary_id"), ` +
-        // First relation
-        `"Q2" AS (UPDATE ONLY "ez4_test_table" AS "T" SET "foo" = :1 FROM "Q1" WHERE "T"."id" = "Q1"."secondary_id") ` +
+        `"Q1" AS (UPDATE ONLY "table_b" AS "U" SET "value" = :1 FROM "Q0" WHERE "U"."id_b" = :2) ` +
         // Return
-        `SELECT "primary_to_secondary" FROM "Q0"`
+        `SELECT "value", "relation" FROM "Q0"`
     );
 
-    assert.deepEqual(variables, ['00000000-0000-1000-9000-000000000000', 'foo']);
+    assert.deepEqual(variables, [sourceId, 'foo', sourceId]);
   });
 
-  it('assert :: prepare update primary relation (multiple connections and select)', async ({ assert }) => {
-    const testSchema = getTestRelationSchema({
-      multiple: true,
-      nullish: true
-    });
-
-    const [statement, variables] = await prepareRelationUpdate(testSchema, getMultipleTestRelation(), {
+  it('assert :: prepare update and select relation (primary to unique)', async ({ assert }) => {
+    const [statement, variables] = await prepareRelationUpdate({
       select: {
-        id: true,
-        primary_to_secondary_1: {
-          id: true,
-          foo: true
+        value: true,
+        relation: {
+          value: true
         }
       },
       data: {
-        id: '00000000-0000-1000-9000-000000000000',
-        primary_to_secondary_1: {
-          id: '00000000-0000-1000-9000-000000000001',
-          foo: 'foo-1'
-        },
-        // Reconnect
-        primary_to_secondary_2: {
-          id: '00000000-0000-1000-9000-000000000002'
-        },
-        primary_to_secondary_3: {
-          id: '00000000-0000-1000-9000-000000000003',
-          foo: 'foo-2'
+        value: 'foo',
+        relation: {
+          value: 'bar'
         }
-      }
+      },
+      where: {
+        id_b: sourceId
+      } as any
     });
 
     assert.equal(
       statement,
       `WITH ` +
         // Select
-        `"Q0" AS (SELECT "R0"."id", (SELECT jsonb_build_object('id', "S0"."id", 'foo', "S0"."foo") FROM "ez4_test_table" AS "S0" ` +
-        `WHERE "S0"."id" = "R0"."secondary_1_id") AS "primary_to_secondary_1" FROM "ez4_test_table" AS "R0" FOR UPDATE), ` +
+        `"Q0" AS (SELECT "R0"."value", (SELECT jsonb_build_object('value', "S0"."value") ` +
+        `FROM "table_c" AS "S0" WHERE "S0"."unique_1_id" = "R0"."id_b") AS "relation" ` +
+        `FROM "table_b" AS "R0" WHERE "R0"."id_b" = :0 FOR UPDATE), ` +
+        // Relation record
+        `"Q1" AS (UPDATE ONLY "table_b" AS "U" SET "value" = :1 FROM "Q0" WHERE "U"."id_b" = :2 ` +
+        `RETURNING "U"."id_b"), ` +
         // Main record
-        `"Q1" AS (UPDATE ONLY "ez4_test_table" AS "U" SET "id" = :0, "secondary_2_id" = :1 FROM "Q0" ` +
-        `RETURNING "U"."secondary_1_id", "U"."secondary_3_id"), ` +
-        // First relation
-        `"Q2" AS (UPDATE ONLY "ez4_test_table" AS "T" SET "id" = :2, "foo" = :3 FROM "Q1" WHERE "T"."id" = "Q1"."secondary_1_id"), ` +
-        // Third relation
-        `"Q3" AS (UPDATE ONLY "ez4_test_table" AS "T" SET "id" = :4, "foo" = :5 FROM "Q1" WHERE "T"."id" = "Q1"."secondary_3_id") ` +
+        `"Q2" AS (UPDATE ONLY "table_c" AS "T" SET "value" = :3 FROM "Q1" WHERE "T"."unique_1_id" = "Q1"."id_b") ` +
         // Return
-        `SELECT "id", "primary_to_secondary_1" FROM "Q0"`
+        `SELECT "value", "relation" FROM "Q0"`
     );
 
-    assert.deepEqual(variables, [
-      '00000000-0000-1000-9000-000000000000',
-      '00000000-0000-1000-9000-000000000002',
-      '00000000-0000-1000-9000-000000000001',
-      'foo-1',
-      '00000000-0000-1000-9000-000000000003',
-      'foo-2'
-    ]);
+    assert.deepEqual(variables, [sourceId, 'foo', sourceId, 'bar']);
   });
 
-  it('assert :: prepare update primary relation (invalid new connection field)', async ({ assert }) => {
-    const testSchema = getTestRelationSchema({
-      nullish: false
+  it('assert :: prepare update, connect and select relation (primary to unique)', async ({ assert }) => {
+    const [statement, variables] = await prepareRelationUpdate({
+      select: {
+        value: true,
+        relation: {
+          value: true
+        }
+      },
+      data: {
+        value: 'foo',
+        relation: {
+          unique_1_id: targetId
+        }
+      },
+      where: {
+        id_b: sourceId
+      } as any
     });
 
+    assert.equal(
+      statement,
+      `WITH ` +
+        // Select
+        `"Q0" AS (SELECT "R0"."value", (SELECT jsonb_build_object('value', "S0"."value") ` +
+        `FROM "table_c" AS "S0" WHERE "S0"."unique_1_id" = "R0"."id_b") AS "relation" ` +
+        `FROM "table_b" AS "R0" WHERE "R0"."id_b" = :0 FOR UPDATE), ` +
+        // Main record
+        `"Q1" AS (UPDATE ONLY "table_b" AS "U" SET "value" = :1 FROM "Q0" WHERE "U"."id_b" = :2 ` +
+        `RETURNING "U"."id_b"), ` +
+        // Relation record (current)
+        `"Q2" AS (UPDATE ONLY "table_c" AS "T" SET "unique_1_id" = null FROM "Q1" WHERE "T"."unique_1_id" = "Q1"."id_b" ` +
+        `RETURNING "Q1"."id_b"), ` +
+        // Relation record (new)
+        `"Q3" AS (UPDATE ONLY "table_c" AS "T" SET "unique_1_id" = "Q2"."id_b" FROM "Q2" WHERE "T"."unique_1_id" = :3) ` +
+        // Return
+        `SELECT "value", "relation" FROM "Q0"`
+    );
+
+    assert.deepEqual(variables, [sourceId, 'foo', sourceId, targetId]);
+  });
+
+  it('assert :: prepare update, disconnect and select relation (primary to unique)', async ({ assert }) => {
+    const [statement, variables] = await prepareRelationUpdate({
+      select: {
+        value: true,
+        relation: {
+          value: true
+        }
+      },
+      data: {
+        value: 'foo',
+        relation: {
+          unique_1_id: null
+        }
+      },
+      where: {
+        id_b: sourceId
+      } as any
+    });
+
+    assert.equal(
+      statement,
+      `WITH ` +
+        // Select
+        `"Q0" AS (SELECT "R0"."value", (SELECT jsonb_build_object('value', "S0"."value") ` +
+        `FROM "table_c" AS "S0" WHERE "S0"."unique_1_id" = "R0"."id_b") AS "relation" ` +
+        `FROM "table_b" AS "R0" WHERE "R0"."id_b" = :0 FOR UPDATE), ` +
+        // Main record
+        `"Q1" AS (UPDATE ONLY "table_b" AS "U" SET "value" = :1 FROM "Q0" WHERE "U"."id_b" = :2 ` +
+        `RETURNING "U"."id_b"), ` +
+        // Relation record
+        `"Q2" AS (UPDATE ONLY "table_c" AS "T" SET "unique_1_id" = null FROM "Q1" WHERE "T"."unique_1_id" = "Q1"."id_b") ` +
+        // Return
+        `SELECT "value", "relation" FROM "Q0"`
+    );
+
+    assert.deepEqual(variables, [sourceId, 'foo', sourceId]);
+  });
+
+  it('assert :: prepare update invalid connection (primary to unique)', async ({ assert }) => {
     await assert.rejects(
       () =>
-        prepareRelationUpdate(testSchema, getSingleTestRelation(), {
+        prepareRelationUpdate({
           data: {
-            primary_to_secondary: {
-              id: '00000000-0000-1000-9000-000000000001',
+            value: 'foo',
+            relation: {
+              unique_1_id: targetId,
 
-              // Extra fields aren't expected when connecting relations.
+              // Extra fields aren't expected.
               extra: 'foo'
             }
           }
@@ -384,20 +237,204 @@ describe('update primary relations', () => {
     );
   });
 
-  it('assert :: prepare update primary relation (invalid active connection field)', async ({ assert }) => {
-    const testSchema = getTestRelationSchema({
-      nullish: false
+  it('assert :: prepare empty relation (primary to secondary)', async ({ assert }) => {
+    const [statement, variables] = await prepareRelationUpdate({
+      select: {
+        value: true,
+        relations: {
+          value: true
+        }
+      },
+      data: {
+        value: 'foo',
+        relations: {}
+      },
+      where: {
+        id_b: sourceId
+      } as any
     });
 
+    assert.equal(
+      statement,
+      `WITH ` +
+        // Select
+        `"Q0" AS (SELECT "R0"."value", ` +
+        `(SELECT COALESCE(json_agg(jsonb_build_object('value', "S0"."value")), '[]'::json) ` +
+        `FROM "table_a" AS "S0" WHERE "S0"."relation_1_id" = "R0"."id_b") AS "relations" ` +
+        `FROM "table_b" AS "R0" WHERE "R0"."id_b" = :0 FOR UPDATE), ` +
+        // Main record
+        `"Q1" AS (UPDATE ONLY "table_b" AS "U" SET "value" = :1 FROM "Q0" WHERE "U"."id_b" = :2) ` +
+        // Return
+        `SELECT "value", "relations" FROM "Q0"`
+    );
+
+    assert.deepEqual(variables, [sourceId, 'foo', sourceId]);
+  });
+
+  it('assert :: prepare undefined relation (primary to secondary)', async ({ assert }) => {
+    const [statement, variables] = await prepareRelationUpdate({
+      select: {
+        value: true,
+        relations: {
+          value: true
+        }
+      },
+      data: {
+        value: 'foo',
+        relations: {
+          id_a: undefined
+        }
+      },
+      where: {
+        id_b: sourceId
+      } as any
+    });
+
+    assert.equal(
+      statement,
+      `WITH ` +
+        // Select
+        `"Q0" AS (SELECT "R0"."value", ` +
+        `(SELECT COALESCE(json_agg(jsonb_build_object('value', "S0"."value")), '[]'::json) ` +
+        `FROM "table_a" AS "S0" WHERE "S0"."relation_1_id" = "R0"."id_b") AS "relations" ` +
+        `FROM "table_b" AS "R0" WHERE "R0"."id_b" = :0 FOR UPDATE), ` +
+        // Main record
+        `"Q1" AS (UPDATE ONLY "table_b" AS "U" SET "value" = :1 FROM "Q0" WHERE "U"."id_b" = :2) ` +
+        // Return
+        `SELECT "value", "relations" FROM "Q0"`
+    );
+
+    assert.deepEqual(variables, [sourceId, 'foo', sourceId]);
+  });
+
+  it('assert :: prepare update, create and select relation (primary to secondary)', async ({ assert }) => {
+    const [statement, variables] = await prepareRelationUpdate({
+      select: {
+        value: true,
+        relations: {
+          value: true
+        }
+      },
+      data: {
+        value: 'foo',
+        relations: {
+          value: 'bar'
+        }
+      },
+      where: {
+        id_b: sourceId
+      } as any
+    });
+
+    assert.equal(
+      statement,
+      `WITH ` +
+        // Select
+        `"Q0" AS (SELECT "R0"."value", ` +
+        `(SELECT COALESCE(json_agg(jsonb_build_object('value', "S0"."value")), '[]'::json) ` +
+        `FROM "table_a" AS "S0" WHERE "S0"."relation_1_id" = "R0"."id_b") AS "relations" ` +
+        `FROM "table_b" AS "R0" WHERE "R0"."id_b" = :0 FOR UPDATE), ` +
+        // Main record
+        `"Q1" AS (UPDATE ONLY "table_b" AS "U" SET "value" = :1 FROM "Q0" WHERE "U"."id_b" = :2 ` +
+        `RETURNING "U"."id_b"), ` +
+        // Relation record
+        `"Q2" AS (UPDATE ONLY "table_a" AS "T" SET "value" = :3 FROM "Q1" WHERE "T"."relation_1_id" = "Q1"."id_b") ` +
+        // Return
+        `SELECT "value", "relations" FROM "Q0"`
+    );
+
+    assert.deepEqual(variables, [sourceId, 'foo', sourceId, 'bar']);
+  });
+
+  it('assert :: prepare update, connect and select relation (primary to secondary)', async ({ assert }) => {
+    const [statement, variables] = await prepareRelationUpdate({
+      select: {
+        value: true,
+        relations: {
+          value: true
+        }
+      },
+      data: {
+        value: 'foo',
+        relations: {
+          id_a: targetId
+        }
+      },
+      where: {
+        id_b: sourceId
+      } as any
+    });
+
+    assert.equal(
+      statement,
+      `WITH ` +
+        // Select
+        `"Q0" AS (SELECT "R0"."value", ` +
+        `(SELECT COALESCE(json_agg(jsonb_build_object('value', "S0"."value")), '[]'::json) ` +
+        `FROM "table_a" AS "S0" WHERE "S0"."relation_1_id" = "R0"."id_b") AS "relations" ` +
+        `FROM "table_b" AS "R0" WHERE "R0"."id_b" = :0 FOR UPDATE), ` +
+        // Main record
+        `"Q1" AS (UPDATE ONLY "table_b" AS "U" SET "value" = :1 FROM "Q0" WHERE "U"."id_b" = :2 ` +
+        `RETURNING "U"."id_b"), ` +
+        // Relation record
+        `"Q2" AS (UPDATE ONLY "table_a" AS "T" SET "relation_1_id" = "Q1"."id_b" FROM "Q1" WHERE "T"."id_a" = :3) ` +
+        // Return
+        `SELECT "value", "relations" FROM "Q0"`
+    );
+
+    assert.deepEqual(variables, [sourceId, 'foo', sourceId, targetId]);
+  });
+
+  it('assert :: prepare update, disconnect and select relation (primary to secondary)', async ({ assert }) => {
+    const [statement, variables] = await prepareRelationUpdate({
+      select: {
+        value: true,
+        relations: {
+          value: true
+        }
+      },
+      data: {
+        value: 'foo',
+        relations: {
+          id_a: null
+        }
+      },
+      where: {
+        id_b: sourceId
+      } as any
+    });
+
+    assert.equal(
+      statement,
+      `WITH ` +
+        // Select
+        `"Q0" AS (SELECT "R0"."value", ` +
+        `(SELECT COALESCE(json_agg(jsonb_build_object('value', "S0"."value")), '[]'::json) ` +
+        `FROM "table_a" AS "S0" WHERE "S0"."relation_1_id" = "R0"."id_b") AS "relations" ` +
+        `FROM "table_b" AS "R0" WHERE "R0"."id_b" = :0 FOR UPDATE), ` +
+        // Main record
+        `"Q1" AS (UPDATE ONLY "table_b" AS "U" SET "value" = :1 FROM "Q0" WHERE "U"."id_b" = :2 ` +
+        `RETURNING "U"."id_b"), ` +
+        // Relation record
+        `"Q2" AS (UPDATE ONLY "table_a" AS "T" SET "relation_1_id" = null FROM "Q1" WHERE "T"."relation_1_id" = "Q1"."id_b") ` +
+        // Return
+        `SELECT "value", "relations" FROM "Q0"`
+    );
+
+    assert.deepEqual(variables, [sourceId, 'foo', sourceId]);
+  });
+
+  it('assert :: prepare update invalid connection (primary to secondary)', async ({ assert }) => {
     await assert.rejects(
       () =>
-        prepareRelationUpdate(testSchema, getSingleTestRelation(), {
+        prepareRelationUpdate({
           data: {
-            primary_to_secondary: {
-              foo: 'foo',
+            value: 'foo',
+            relations: {
+              id_a: targetId,
 
-              // Extra fields aren't expected on active relations.
-              extra: 'bar'
+              // Extra fields aren't expected.
+              extra: 'foo'
             }
           }
         }),

@@ -56,7 +56,8 @@ describe('insert secondary relations', () => {
       statement,
       `WITH ` +
         // Main record
-        `"Q0" AS (INSERT INTO "table_a" ("id_a", "value") VALUES (:0, :1) RETURNING "id_a", "value", "relation_1_id") ` +
+        `"Q0" AS (INSERT INTO "table_a" ("id_a", "value") VALUES (:0, :1) ` +
+        `RETURNING "id_a", "value", "relation_1_id") ` +
         // Return
         `SELECT "id_a", "value", ` +
         `(SELECT jsonb_build_object('id_b', "S0"."id_b", 'value', "S0"."value") ` +
@@ -90,7 +91,8 @@ describe('insert secondary relations', () => {
       statement,
       `WITH ` +
         // Main record
-        `"Q0" AS (INSERT INTO "table_a" ("id_a", "value") VALUES (:0, :1) RETURNING "id_a", "value", "relation_1_id") ` +
+        `"Q0" AS (INSERT INTO "table_a" ("id_a", "value") VALUES (:0, :1) ` +
+        `RETURNING "id_a", "value", "relation_1_id") ` +
         // Return
         `SELECT "id_a", "value", ` +
         `(SELECT jsonb_build_object('id_b', "S0"."id_b", 'value', "S0"."value") ` +
@@ -124,7 +126,8 @@ describe('insert secondary relations', () => {
       statement,
       `WITH ` +
         // Main record
-        `"Q0" AS (INSERT INTO "table_a" ("id_a", "value") VALUES (:0, :1) RETURNING "id_a", "value", "relation_1_id") ` +
+        `"Q0" AS (INSERT INTO "table_a" ("id_a", "value") VALUES (:0, :1) ` +
+        `RETURNING "id_a", "value", "relation_1_id") ` +
         // Return
         `SELECT "id_a", "value", ` +
         `(SELECT jsonb_build_object('id_b', "S0"."id_b", 'value', "S0"."value") ` +
@@ -159,7 +162,8 @@ describe('insert secondary relations', () => {
       statement,
       `WITH ` +
         // Relation record
-        `"Q0" AS (INSERT INTO "table_b" ("id_b", "value") VALUES (:0, :1) RETURNING "id_b", "value"), ` +
+        `"Q0" AS (INSERT INTO "table_b" ("id_b", "value") VALUES (:0, :1) ` +
+        `RETURNING "id_b", "value"), ` +
         // Main record
         `"Q1" AS (INSERT INTO "table_a" ("id_a", "value", "relation_1_id") SELECT :2, :3, "Q0"."id_b" FROM "Q0" ` +
         `RETURNING "id_a", "value") ` +
@@ -248,7 +252,8 @@ describe('insert secondary relations', () => {
       statement,
       `WITH ` +
         // Main record
-        `"Q0" AS (INSERT INTO "table_a" ("id_a", "value") VALUES (:0, :1) RETURNING "id_a", "value", "relation_2_id") ` +
+        `"Q0" AS (INSERT INTO "table_a" ("id_a", "value") VALUES (:0, :1) ` +
+        `RETURNING "id_a", "value", "relation_2_id") ` +
         // Return
         `SELECT "id_a", "value", ` +
         `(SELECT jsonb_build_object('id_c', "S0"."id_c", 'value', "S0"."value") ` +
@@ -282,7 +287,8 @@ describe('insert secondary relations', () => {
       statement,
       `WITH ` +
         // Main record
-        `"Q0" AS (INSERT INTO "table_a" ("id_a", "value") VALUES (:0, :1) RETURNING "id_a", "value", "relation_2_id") ` +
+        `"Q0" AS (INSERT INTO "table_a" ("id_a", "value") VALUES (:0, :1) ` +
+        `RETURNING "id_a", "value", "relation_2_id") ` +
         // Return
         `SELECT "id_a", "value", ` +
         `(SELECT jsonb_build_object('id_c', "S0"."id_c", 'value', "S0"."value") ` +
@@ -316,7 +322,8 @@ describe('insert secondary relations', () => {
       statement,
       `WITH ` +
         // Main record
-        `"Q0" AS (INSERT INTO "table_a" ("id_a", "value") VALUES (:0, :1) RETURNING "id_a", "value", "relation_2_id") ` +
+        `"Q0" AS (INSERT INTO "table_a" ("id_a", "value") VALUES (:0, :1) ` +
+        `RETURNING "id_a", "value", "relation_2_id") ` +
         // Return
         `SELECT "id_a", "value", ` +
         `(SELECT jsonb_build_object('id_c', "S0"."id_c", 'value', "S0"."value") ` +

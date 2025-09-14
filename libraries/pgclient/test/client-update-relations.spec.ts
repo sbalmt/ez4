@@ -35,6 +35,9 @@ describe('client update relations', async () => {
         value: true,
         relations: {
           value: true
+        },
+        relation_unique: {
+          value: true
         }
       },
       where: {
@@ -99,6 +102,9 @@ describe('client update relations', async () => {
         value: true,
         relation: {
           value: true
+        },
+        relation_unique: {
+          value: true
         }
       },
       where: {
@@ -120,6 +126,7 @@ describe('client update relations', async () => {
         },
         relation_2: {
           id_c: secondaryId,
+          unique_2_id: uniqueId,
           value: 'bar'
         }
       }
@@ -149,10 +156,15 @@ describe('client update relations', async () => {
     await client.table_c.insertOne({
       data: {
         id_c: primaryId,
-        unique_2_id: randomUUID(),
+        unique_2_id: uniqueId,
         value: 'foo',
         relation: {
           id_b: secondaryId,
+          value: 'bar'
+        },
+        relation_unique: {
+          id_b: randomUUID(),
+          unique_b: uniqueId,
           value: 'bar'
         },
         relations: [
@@ -196,7 +208,7 @@ describe('client update relations', async () => {
       }
     });
 
-    assertTableBRelations(secondaryId, {
+    await assertTableBRelations(secondaryId, {
       value: 'bar-updated',
       relations: [
         {
@@ -235,6 +247,7 @@ describe('client update relations', async () => {
 
     await assertTableCRelations(uniqueId, {
       value: 'bar-updated',
+      relation_unique: null,
       relations: [
         {
           value: 'foo'
@@ -309,6 +322,42 @@ describe('client update relations', async () => {
 
     await assertTableCRelation(secondaryId, {
       value: 'bar-updated',
+      relation_unique: null,
+      relation: {
+        value: 'foo'
+      }
+    });
+  });
+
+  it('assert :: update and select relation (unique to unique)', async () => {
+    await populateTableC();
+
+    const result = await client.table_c.updateOne({
+      select: {
+        value: true,
+        relation_unique: {
+          value: true
+        }
+      },
+      data: {
+        relation_unique: {
+          value: 'bar-updated'
+        }
+      },
+      where: {
+        id_c: primaryId
+      }
+    });
+
+    deepEqual(result, {
+      value: 'foo',
+      relation_unique: {
+        value: 'bar'
+      }
+    });
+
+    await assertTableBRelation(secondaryId, {
+      value: 'bar',
       relation: {
         value: 'foo'
       }
@@ -457,7 +506,7 @@ describe('client update relations', async () => {
       },
       data: {
         relation_2: {
-          id_c: connectionId
+          unique_2_id: connectionId
         }
       },
       where: {
@@ -474,6 +523,7 @@ describe('client update relations', async () => {
 
     await assertTableCRelations(connectionId, {
       value: 'bar-connected',
+      relation_unique: null,
       relations: [
         {
           value: 'foo'
@@ -537,7 +587,11 @@ describe('client update relations', async () => {
     await client.table_c.insertOne({
       data: {
         id_c: connectionId,
-        value: 'bar-connected'
+        value: 'bar-connected',
+        relation: {
+          id_b: uniqueId,
+          value: 'baz'
+        }
       }
     });
 
@@ -551,7 +605,7 @@ describe('client update relations', async () => {
       },
       data: {
         relation: {
-          id_c: connectionId
+          unique_1_id: uniqueId
         }
       },
       where: {
@@ -568,9 +622,55 @@ describe('client update relations', async () => {
 
     await assertTableCRelation(connectionId, {
       value: 'bar-connected',
+      relation_unique: null,
       relation: {
         value: 'foo'
       }
+    });
+  });
+
+  it('assert :: update, connect and select relation (unique to unique)', async () => {
+    await populateTableC();
+
+    const targetId = randomUUID();
+    const connectionId = randomUUID();
+
+    await client.table_b.insertOne({
+      data: {
+        id_b: targetId,
+        unique_b: connectionId,
+        value: 'bar-connected'
+      }
+    });
+
+    // Connect
+    const result = await client.table_c.updateOne({
+      select: {
+        value: true,
+        relation_unique: {
+          value: true
+        }
+      },
+      data: {
+        relation_unique: {
+          unique_b: connectionId
+        }
+      },
+      where: {
+        id_c: primaryId
+      }
+    });
+
+    deepEqual(result, {
+      value: 'foo',
+      relation_unique: {
+        value: 'bar'
+      }
+    });
+
+    await assertTableBRelation(targetId, {
+      value: 'bar-connected',
+      relation: null
     });
   });
 
@@ -718,7 +818,7 @@ describe('client update relations', async () => {
       data: {
         value: 'foo-updated',
         relation_2: {
-          id_c: null
+          unique_2_id: null
         }
       },
       where: {
@@ -740,6 +840,7 @@ describe('client update relations', async () => {
 
     await assertTableCRelations(uniqueId, {
       value: 'bar',
+      relation_unique: null,
       relations: []
     });
   });
@@ -798,7 +899,7 @@ describe('client update relations', async () => {
       data: {
         value: 'foo-updated',
         relation: {
-          id_c: null
+          unique_1_id: null
         }
       },
       where: {
@@ -820,7 +921,64 @@ describe('client update relations', async () => {
 
     await assertTableCRelation(secondaryId, {
       value: 'bar',
+      relation_unique: null,
       relation: null
+    });
+  });
+
+  it('assert :: update, disconnect and select relation (unique to unique)', async () => {
+    await populateTableC();
+
+    const targetId = randomUUID();
+    const connectionId = randomUUID();
+
+    await client.table_b.insertOne({
+      data: {
+        id_b: targetId,
+        unique_b: connectionId,
+        value: 'bar-connected'
+      }
+    });
+
+    // Connect
+    const result = await client.table_c.updateOne({
+      select: {
+        value: true,
+        relation_unique: {
+          value: true
+        }
+      },
+      data: {
+        value: 'foo-updated',
+        relation_unique: {
+          unique_b: null
+        }
+      },
+      where: {
+        id_c: primaryId
+      }
+    });
+
+    deepEqual(result, {
+      value: 'foo',
+      relation_unique: {
+        value: 'bar'
+      }
+    });
+
+    await assertTableCRelation(primaryId, {
+      value: 'foo-updated',
+      relation_unique: null,
+      relation: {
+        value: 'bar'
+      }
+    });
+
+    await assertTableBRelation(secondaryId, {
+      value: 'bar',
+      relation: {
+        value: 'foo-updated'
+      }
     });
   });
 
@@ -854,7 +1012,10 @@ describe('client update relations', async () => {
 
     await assertTableCRelation(primaryId, {
       value: 'foo-updated',
-      relation: null
+      relation: null,
+      relation_unique: {
+        value: 'bar'
+      }
     });
 
     await assertTableBRelation(secondaryId, {
@@ -895,7 +1056,10 @@ describe('client update relations', async () => {
 
     await assertTableCRelations(primaryId, {
       value: 'foo-updated',
-      relations: []
+      relations: [],
+      relation_unique: {
+        value: 'bar'
+      }
     });
 
     await assertTableARelation2(secondaryId, {

@@ -58,7 +58,8 @@ describe('insert primary relations', () => {
       statement,
       `WITH ` +
         // Main record
-        `"Q0" AS (INSERT INTO "table_b" ("id_b", "value") VALUES (:0, :1) RETURNING "id_b", "value") ` +
+        `"Q0" AS (INSERT INTO "table_b" ("id_b", "value") VALUES (:0, :1) ` +
+        `RETURNING "id_b", "value") ` +
         // Return
         `SELECT "id_b", "value", ` +
         `(SELECT jsonb_build_object('id_c', "S0"."id_c", 'value', "S0"."value") ` +
@@ -92,7 +93,8 @@ describe('insert primary relations', () => {
       statement,
       `WITH ` +
         // Main record
-        `"Q0" AS (INSERT INTO "table_b" ("id_b", "value") VALUES (:0, :1) RETURNING "id_b", "value") ` +
+        `"Q0" AS (INSERT INTO "table_b" ("id_b", "value") VALUES (:0, :1) ` +
+        `RETURNING "id_b", "value") ` +
         // Return
         `SELECT "id_b", "value", ` +
         `(SELECT jsonb_build_object('id_c', "S0"."id_c", 'value', "S0"."value") ` +
@@ -126,7 +128,8 @@ describe('insert primary relations', () => {
       statement,
       `WITH ` +
         // Main record
-        `"Q0" AS (INSERT INTO "table_b" ("id_b", "value") VALUES (:0, :1) RETURNING "id_b", "value") ` +
+        `"Q0" AS (INSERT INTO "table_b" ("id_b", "value") VALUES (:0, :1) ` +
+        `RETURNING "id_b", "value") ` +
         // Return
         `SELECT "id_b", "value", ` +
         `(SELECT jsonb_build_object('id_c', "S0"."id_c", 'value', "S0"."value") ` +
@@ -161,7 +164,8 @@ describe('insert primary relations', () => {
       statement,
       `WITH ` +
         // Main record
-        `"Q0" AS (INSERT INTO "table_b" ("id_b", "value") VALUES (:0, :1) RETURNING "id_b", "value"), ` +
+        `"Q0" AS (INSERT INTO "table_b" ("id_b", "value") VALUES (:0, :1) ` +
+        `RETURNING "id_b", "value"), ` +
         // Relation record
         `"Q1" AS (INSERT INTO "table_c" ("id_c", "value", "unique_1_id") SELECT :2, :3, "Q0"."id_b" FROM "Q0" ` +
         `RETURNING "id_c", "value") ` +
@@ -198,7 +202,8 @@ describe('insert primary relations', () => {
       statement,
       `WITH ` +
         // Main record
-        `"Q0" AS (INSERT INTO "table_b" ("id_b", "value") VALUES (:0, :1) RETURNING "id_b", "value"), ` +
+        `"Q0" AS (INSERT INTO "table_b" ("id_b", "value") VALUES (:0, :1) ` +
+        `RETURNING "id_b", "value"), ` +
         // Relation record
         `"Q1" AS (UPDATE ONLY "table_c" AS "T" SET "unique_1_id" = "Q0"."id_b" FROM "Q0" WHERE "T"."unique_1_id" = :2 ` +
         `RETURNING "T"."id_c", "T"."value") ` +
@@ -260,7 +265,8 @@ describe('insert primary relations', () => {
       statement,
       `WITH ` +
         // Main record
-        `"Q0" AS (INSERT INTO "table_b" ("id_b", "value") VALUES (:0, :1) RETURNING "id_b", "value") ` +
+        `"Q0" AS (INSERT INTO "table_b" ("id_b", "value") VALUES (:0, :1) ` +
+        `RETURNING "id_b", "value") ` +
         // Return
         `SELECT "id_b", "value", ` +
         `(SELECT jsonb_build_object('id_c', "S0"."id_c", 'value', "S0"."value") ` +
@@ -301,7 +307,8 @@ describe('insert primary relations', () => {
       statement,
       `WITH ` +
         // Main record
-        `"Q0" AS (INSERT INTO "table_b" ("id_b", "value") VALUES (:0, :1) RETURNING "id_b", "value"), ` +
+        `"Q0" AS (INSERT INTO "table_b" ("id_b", "value") VALUES (:0, :1) ` +
+        `RETURNING "id_b", "value"), ` +
         // First relation
         `"Q1" AS (INSERT INTO "table_a" ("id_a", "value", "relation_1_id") SELECT :2, :3, "Q0"."id_b" FROM "Q0" ` +
         `RETURNING "id_a", "value"), ` +
@@ -346,7 +353,8 @@ describe('insert primary relations', () => {
       statement,
       `WITH ` +
         // Main record
-        `"Q0" AS (INSERT INTO "table_b" ("id_b", "value") VALUES (:0, :1) RETURNING "id_b", "value"), ` +
+        `"Q0" AS (INSERT INTO "table_b" ("id_b", "value") VALUES (:0, :1) ` +
+        `RETURNING "id_b", "value"), ` +
         // First relation
         `"Q1" AS (UPDATE ONLY "table_a" AS "T" SET "relation_1_id" = "Q0"."id_b" FROM "Q0" WHERE "T"."id_a" = :2 ` +
         `RETURNING "T"."id_a", "T"."value"), ` +

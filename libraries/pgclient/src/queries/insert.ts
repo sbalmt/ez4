@@ -170,16 +170,17 @@ export const getInsertRecord = async (
     }
 
     //  Will post-create relations
-    if (targetIndex === Index.Primary) {
+    if (relationSchema) {
+      if (targetIndex === Index.Primary) {
+        await validateRecordSchema(fieldValue, relationSchema, fieldPath);
+        continue;
+      }
+
+      // Will pre-create relations
+      record[targetColumn] = relationQueries[0].reference(sourceColumn);
+
       await validateRecordSchema(fieldValue, relationSchema, fieldPath);
-      continue;
     }
-
-    // Will pre-create relations
-    record[targetColumn] = relationQueries[0].reference(sourceColumn);
-
-    await validateRecordSchema(fieldValue, relationSchema, fieldPath);
-    continue;
   }
 
   return record;
@@ -278,10 +279,10 @@ const preparePostInsertRelations = (
     const relationQueries = [];
 
     for (const currentFieldValue of allFieldValues) {
-      const [relationUpdate, relationColumn, relationCreate] = getPostRelationValue(currentFieldValue, fieldRelation);
+      const [relationValue, relationColumn, relationCreate] = getPostRelationValue(currentFieldValue, fieldRelation);
 
-      if (relationUpdate !== undefined) {
-        if (relationUpdate !== null) {
+      if (relationValue !== undefined) {
+        if (relationValue !== null) {
           if (!results.has(targetColumn)) {
             results.column(targetColumn);
           }
@@ -291,7 +292,7 @@ const preparePostInsertRelations = (
             .update(sourceSchema)
             .from(source.reference())
             .record({ [sourceColumn]: source.reference(targetColumn) })
-            .where({ [relationColumn]: relationUpdate })
+            .where({ [relationColumn]: relationValue })
             .only(sourceTable)
             .as('T');
 

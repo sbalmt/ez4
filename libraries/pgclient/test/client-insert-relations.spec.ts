@@ -417,9 +417,11 @@ describe('client insert relations', async () => {
   });
 
   it('assert :: insert, create and select relation (unique to secondary)', async () => {
+    const sourceId = randomUUID();
+    const uniqueId = randomUUID();
+
     const targetAId = randomUUID();
     const targetBId = randomUUID();
-    const sourceId = randomUUID();
 
     const result = await client.table_c.insertOne({
       select: {
@@ -432,7 +434,7 @@ describe('client insert relations', async () => {
       },
       data: {
         id_c: sourceId,
-        unique_2_id: randomUUID(),
+        unique_2_id: uniqueId,
         value: 'foo',
         relations: [
           {

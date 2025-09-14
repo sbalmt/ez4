@@ -1,4 +1,4 @@
-import type { AnySchema, ObjectSchema } from '@ez4/schema';
+import type { ObjectSchema } from '@ez4/schema';
 
 import { beforeEach, describe, it } from 'node:test';
 

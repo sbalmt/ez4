@@ -2,7 +2,7 @@ import type { SqlSourceWithResults, SqlRecord, SqlBuilder, SqlUpdateStatement } 
 import type { NumberSchema, ObjectSchema } from '@ez4/schema';
 import type { AnyObject } from '@ez4/utils';
 import type { Query } from '@ez4/database';
-import type { PgRelationRepositoryWithSchema } from '../types/repository';
+import type { PgRelationRepositoryWithSchema, PgRelationWithSchema } from '../types/repository';
 import type { InternalTableMetadata } from '../types/table';
 
 import { getObjectSchemaProperty, getOptionalSchema, isNumberSchema, isObjectSchema } from '@ez4/schema';
@@ -11,8 +11,8 @@ import { escapeSqlName, SqlSelectStatement } from '@ez4/pgsql';
 import { isAnyObject, isEmptyObject } from '@ez4/utils';
 import { Index } from '@ez4/database';
 
-import { getWithSchemaValidation, isDynamicFieldSchema, validateRecordSchema } from '../utils/schema';
 import { getConnectionSchema, isSingleRelationData } from '../utils/relation';
+import { getWithSchemaValidation, isDynamicFieldSchema, validateRecordSchema } from '../utils/schema';
 import { getSelectFields, getSelectFilters } from './select';
 
 export type UpdateQueryOptions = {
@@ -112,17 +112,15 @@ export const getUpdateRecord = async (
         throw new InvalidRelationFieldError(fieldPath);
       }
 
-      const { primaryColumn, sourceSchema, sourceIndex, targetColumn, targetIndex } = fieldRelation;
-
-      const { [primaryColumn]: relationValue, ...otherFields } = fieldValue;
+      const [relationValue, relationSchema] = getRelationValue(fieldValue, fieldRelation);
 
       // Will connect an existing relation
-      if (relationValue !== undefined && isEmptyObject(otherFields)) {
-        const relationSchema = getConnectionSchema(sourceSchema, primaryColumn);
+      if (relationValue !== undefined) {
+        const { sourceIndex, targetColumn, targetIndex } = fieldRelation;
 
         await validateRecordSchema(fieldValue, relationSchema, fieldPath);
 
-        if (isValidSingleUpdate(sourceIndex, targetIndex)) {
+        if (isRelationHolder(sourceIndex, targetIndex)) {
           record[targetColumn] = relationValue;
         }
 
@@ -130,9 +128,7 @@ export const getUpdateRecord = async (
       }
 
       // Will update an existing relation
-      if (!isEmptyObject(fieldValue)) {
-        const relationSchema = getOptionalSchema(sourceSchema);
-
+      if (relationSchema) {
         await validateRecordSchema(fieldValue, relationSchema, fieldPath);
       }
     }
@@ -200,78 +196,78 @@ const preparePostUpdateRelations = async (
       throw new InvalidRelationFieldError(fieldPath);
     }
 
-    if (isEmptyObject(fieldValue)) {
-      continue;
-    }
+    const { sourceTable, sourceIndex, sourceColumn, sourceSchema, targetColumn } = fieldRelation;
 
-    const { primaryColumn, sourceIndex, sourceTable, sourceColumn, sourceSchema, targetIndex, targetColumn } = fieldRelation;
+    const [relationValue, relationColumn, relationUpdate] = getPostRelationValue(fieldValue, fieldRelation);
 
-    const { [primaryColumn]: relationValue, ...otherFields } = fieldValue;
+    // Connect an existing relation
+    if (relationValue !== undefined) {
+      const relationQuery = builder.update(sourceSchema).from(source.reference()).only(sourceTable).as('T');
 
-    const relationQuery = builder.update(sourceSchema).only(sourceTable).as('T');
+      // Disconnect relation
+      if (relationValue === null) {
+        if (!results.has(targetColumn)) {
+          results.column(targetColumn);
+        }
 
-    // Update existing relation
-    if (relationValue === undefined || !isEmptyObject(otherFields)) {
-      const fieldRecord = await getUpdateRecord(builder, fieldValue, sourceSchema, relations, fieldPath);
+        relationQuery.where({ [sourceColumn]: source.reference(targetColumn) });
+        relationQuery.record({ [sourceColumn]: relationValue });
 
+        allQueries.push(relationQuery);
+        continue;
+      }
+
+      relationQuery.where({ [relationColumn]: relationValue });
+
+      // Disconnect and Reconnect relation
+      if (sourceIndex === Index.Unique) {
+        if (!results.has(targetColumn)) {
+          results.column(targetColumn);
+        }
+
+        const detachQuery = builder
+          .update(sourceSchema)
+          .record({ [sourceColumn]: null })
+          .where({ [sourceColumn]: source.reference(targetColumn) })
+          .returning([source.reference(targetColumn)])
+          .from(source.reference())
+          .only(sourceTable)
+          .as('T');
+
+        relationQuery.record({ [sourceColumn]: detachQuery.reference(targetColumn) });
+        relationQuery.from(detachQuery.reference());
+
+        allQueries.push(detachQuery, relationQuery);
+        continue;
+      }
+
+      // Connect relation
       if (!results.has(targetColumn)) {
         results.column(targetColumn);
       }
 
-      relationQuery
-        .where({ [sourceColumn]: source.reference(targetColumn) })
-        .from(source.reference())
-        .record(fieldRecord);
+      relationQuery.record({ [sourceColumn]: source.reference(targetColumn) });
 
       allQueries.push(relationQuery);
       continue;
     }
 
-    if (isValidSingleUpdate(sourceIndex, targetIndex)) {
-      continue;
-    }
+    // Update an existing relation
+    if (relationUpdate !== undefined) {
+      if (!results.has(targetColumn)) {
+        results.column(targetColumn);
+      }
 
-    if (!results.has(targetColumn)) {
-      results.column(targetColumn);
-    }
-
-    // Disconnect current relation
-    if (relationValue === null) {
-      relationQuery
-        .from(source.reference())
-        .where({ [sourceColumn]: source.reference(targetColumn) })
-        .record({ [sourceColumn]: null });
-
-      allQueries.push(relationQuery);
-      continue;
-    }
-
-    // Remove prior association to avoid unique constraint errors
-    if (sourceIndex == Index.Unique && targetIndex === Index.Primary) {
-      const detachQuery = builder
+      const relationQuery = builder
         .update(sourceSchema)
-        .record({ [sourceColumn]: null })
-        .where({ [sourceColumn]: source.reference(targetColumn) })
-        .returning([source.reference(targetColumn)])
         .from(source.reference())
+        .where({ [sourceColumn]: source.reference(targetColumn) })
+        .record(relationUpdate)
         .only(sourceTable)
         .as('T');
 
-      relationQuery
-        .from(detachQuery.reference())
-        .record({ [sourceColumn]: detachQuery.reference(targetColumn) })
-        .where({ [primaryColumn]: relationValue });
-
-      allQueries.push(detachQuery, relationQuery);
-      continue;
+      allQueries.push(relationQuery);
     }
-
-    relationQuery
-      .from(source.reference())
-      .record({ [sourceColumn]: source.reference(targetColumn) })
-      .where({ [primaryColumn]: relationValue });
-
-    allQueries.push(relationQuery);
   }
 
   return allQueries;
@@ -314,9 +310,50 @@ const getAtomicOperationUpdate = async (
   return undefined;
 };
 
-const isValidSingleUpdate = (sourceIndex: Index | undefined, targetIndex: Index | undefined) => {
-  return (
-    ((sourceIndex === Index.Primary || sourceIndex === Index.Unique) && (!targetIndex || targetIndex === Index.Secondary)) ||
-    (sourceIndex === Index.Primary && targetIndex === Index.Unique)
-  );
+const isRelationHolder = (sourceIndex: Index | undefined, targetIndex: Index | undefined) => {
+  return sourceIndex === Index.Primary || (sourceIndex === Index.Unique && (!targetIndex || targetIndex === Index.Secondary));
+};
+
+const getRelationValue = (fieldValue: AnyObject, fieldRelation: PgRelationWithSchema) => {
+  const { primaryColumn, sourceColumn, sourceIndex, sourceSchema } = fieldRelation;
+
+  const relationColumn = sourceIndex === Index.Primary || sourceIndex === Index.Unique ? sourceColumn : primaryColumn;
+
+  const { [relationColumn]: relationValue, ...otherFields } = fieldValue;
+
+  // Will connect an existing relation
+  if (isEmptyObject(otherFields)) {
+    if (relationValue !== undefined) {
+      const relationSchema = getConnectionSchema(sourceSchema, relationColumn);
+
+      return [relationValue, relationSchema];
+    }
+
+    return [];
+  }
+
+  // Will update an existing relation
+  const relationSchema = getOptionalSchema(sourceSchema);
+
+  return [, relationSchema];
+};
+
+const getPostRelationValue = (fieldValue: AnyObject, fieldRelation: PgRelationWithSchema) => {
+  const { primaryColumn, sourceColumn, sourceIndex, targetIndex } = fieldRelation;
+
+  const relationColumn = sourceIndex === Index.Primary || sourceIndex === Index.Unique ? sourceColumn : primaryColumn;
+
+  const { [relationColumn]: relationValue, ...otherFields } = fieldValue;
+
+  // Will connect an existing relation
+  if (isEmptyObject(otherFields)) {
+    if (!isRelationHolder(sourceIndex, targetIndex)) {
+      return [relationValue, relationColumn];
+    }
+
+    return [];
+  }
+
+  // Will post-update relations
+  return [, , fieldValue];
 };

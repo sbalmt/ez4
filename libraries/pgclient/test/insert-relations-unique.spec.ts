@@ -16,7 +16,7 @@ type TestTableMetadata = {
   schema: {};
 };
 
-describe('insert primary relations', () => {
+describe('insert unique relations', () => {
   const tableName = 'table_c';
 
   const sourceId = '00000000-0000-1000-9000-000000000000';
@@ -59,7 +59,8 @@ describe('insert primary relations', () => {
       statement,
       `WITH ` +
         // Main record
-        `"Q0" AS (INSERT INTO "table_c" ("id_c", "value") VALUES (:0, :1) RETURNING "id_c", "value", "unique_1_id") ` +
+        `"Q0" AS (INSERT INTO "table_c" ("id_c", "value") VALUES (:0, :1) ` +
+        `RETURNING "id_c", "value", "unique_1_id") ` +
         // Return
         `SELECT "id_c", "value", ` +
         `(SELECT jsonb_build_object('id_b', "S0"."id_b", 'value', "S0"."value") ` +
@@ -93,7 +94,8 @@ describe('insert primary relations', () => {
       statement,
       `WITH ` +
         // Main record
-        `"Q0" AS (INSERT INTO "table_c" ("id_c", "value") VALUES (:0, :1) RETURNING "id_c", "value", "unique_1_id") ` +
+        `"Q0" AS (INSERT INTO "table_c" ("id_c", "value") VALUES (:0, :1) ` +
+        `RETURNING "id_c", "value", "unique_1_id") ` +
         // Return
         `SELECT "id_c", "value", ` +
         `(SELECT jsonb_build_object('id_b', "S0"."id_b", 'value', "S0"."value") ` +
@@ -127,7 +129,8 @@ describe('insert primary relations', () => {
       statement,
       `WITH ` +
         // Main record
-        `"Q0" AS (INSERT INTO "table_c" ("id_c", "value") VALUES (:0, :1) RETURNING "id_c", "value", "unique_1_id") ` +
+        `"Q0" AS (INSERT INTO "table_c" ("id_c", "value") VALUES (:0, :1) ` +
+        `RETURNING "id_c", "value", "unique_1_id") ` +
         // Return
         `SELECT "id_c", "value", ` +
         `(SELECT jsonb_build_object('id_b', "S0"."id_b", 'value', "S0"."value") ` +
