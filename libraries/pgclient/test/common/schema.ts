@@ -43,10 +43,10 @@ export type TestSchemaType = {
   };
 };
 
-export const makeSchemaClient = async () => {
+export const makeSchemaClient = async (debug?: boolean) => {
   return Client.make<TestSchemaDb>({
-    debug: false,
     repository: TestSchemaRepository,
+    debug,
     connection: {
       database: 'postgres',
       password: 'postgres',

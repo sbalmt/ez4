@@ -14,7 +14,8 @@ export declare class TestDatabase extends Database.Service {
     {
       name: 'tableA';
       relations: {
-        'id@all_relations_b': 'tableB:table_a_id';
+        // Primary to secondary
+        'id@all_relations_b': 'tableB:unique_b_id';
       };
       indexes: {
         id: Index.Primary;
@@ -27,31 +28,35 @@ export declare class TestDatabase extends Database.Service {
     {
       name: 'tableB';
       relations: {
-        'table_a_id@relation_a': 'tableA:id';
-        'table_c_id@relation_c': 'tableC:id';
+        // Unique to primary
+        'unique_b_id@relation_a': 'tableA:id';
+
+        // Secondary to primary
+        'secondary_b_id@relation_c': 'tableC:id';
       };
       indexes: {
         id: Index.Primary;
-        table_a_id: Index.Secondary;
+        unique_b_id: Index.Secondary;
       };
       schema: {
         id: string;
-        table_a_id: string;
-        table_c_id?: string;
+        unique_b_id: string;
+        secondary_b_id?: string;
         value_b: number;
       };
     },
     {
       name: 'tableC';
       relations: {
-        'table_b_id@relation_b': 'tableB:id';
+        // Secondary to primary
+        'secondary_c_id@relation_b': 'tableB:id';
       };
       indexes: {
         id: Index.Primary;
       };
       schema: {
         id: string;
-        table_b_id?: string;
+        secondary_c_id?: string;
         value_c: number;
       };
     }
@@ -202,7 +207,7 @@ export const testInsert = async ({ selfClient }: Service.Context<TestDatabase>) 
       value_c: 1,
       relation_b: {
         id: 'bar',
-        table_a_id: 'baz',
+        unique_b_id: 'baz',
         value_b: 2
       }
     }

@@ -14,7 +14,8 @@ export declare class TestDatabase extends Database.Service {
     {
       name: 'tableA';
       relations: {
-        'id@relation_b': 'tableB:table_a_id';
+        // Primary to unique
+        'id@relation_b': 'tableB:unique_b_id';
       };
       indexes: {
         id: Index.Primary;
@@ -27,30 +28,39 @@ export declare class TestDatabase extends Database.Service {
     {
       name: 'tableB';
       relations: {
-        'table_a_id@relation_a': 'tableA:id';
-        'table_c_id@relation_c': 'tableC:id';
+        // Unique to primary
+        'unique_b_id@relation_a': 'tableA:id';
+
+        // Secondary to primary
+        'secondary_b_id@relation_c': 'tableC:id';
       };
       indexes: {
         id: Index.Primary;
-        table_a_id: Index.Unique;
+        unique_b_id: Index.Unique;
       };
       schema: {
         id: string;
-        table_a_id: string;
-        table_c_id?: string;
+        unique_b_id: string;
+        secondary_b_id?: string;
         value_b: number;
       };
     },
     {
       name: 'tableC';
       relations: {
-        'id@all_relations_b': 'tableB:table_c_id';
+        // Primary to secondary
+        'id@all_relations_b': 'tableB:secondary_b_id';
+
+        // Unique to unique
+        'unique_c_id@relation_b': 'tableB:unique_b_id';
       };
       indexes: {
         id: Index.Primary;
+        unique_c_id?: Index.Unique;
       };
       schema: {
         id: string;
+        unique_c_id: string;
         value_c: number;
       };
     }
@@ -154,7 +164,6 @@ export const testInsert = async ({ selfClient }: Service.Context<TestDatabase>) 
       value_a: 1,
       relation_b: {
         id: 'bar',
-        table_a_id: 'baz',
         value_b: 2
       }
     }
@@ -166,7 +175,7 @@ export const testInsert = async ({ selfClient }: Service.Context<TestDatabase>) 
       id: 'foo',
       value_b: 1,
       relation_a: {
-        id: 'bar',
+        id: 'baz',
         value_a: 2
       }
     }
@@ -178,7 +187,7 @@ export const testInsert = async ({ selfClient }: Service.Context<TestDatabase>) 
       id: 'foo',
       value_a: 1,
       relation_b: {
-        id: 'bar'
+        unique_b_id: 'bar'
       }
     }
   });
@@ -189,12 +198,12 @@ export const testInsert = async ({ selfClient }: Service.Context<TestDatabase>) 
       id: 'foo',
       value_b: 1,
       relation_a: {
-        id: 'bar'
+        id: 'baz'
       }
     }
   });
 
-  // Create tableC, optionally tableB and connect
+  // Create tableC, tableB and connect
   await selfClient.tableC.insertOne({
     data: {
       id: 'foo',
@@ -202,10 +211,13 @@ export const testInsert = async ({ selfClient }: Service.Context<TestDatabase>) 
       all_relations_b: [
         {
           id: 'bar',
-          table_a_id: 'baz',
+          unique_b_id: 'baz',
           value_b: 2
         }
-      ]
+      ],
+      relation_b: {
+        unique_b_id: 'qux'
+      }
     }
   });
 };
@@ -279,7 +291,6 @@ export const testUpsert = async ({ selfClient }: Service.Context<TestDatabase>) 
       value_a: 1,
       relation_b: {
         id: 'bar',
-        table_a_id: 'baz',
         value_b: 2
       }
     },

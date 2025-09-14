@@ -120,7 +120,6 @@ describe('client update relations', async () => {
         },
         relation_2: {
           id_c: secondaryId,
-          unique_2_id: uniqueId,
           value: 'bar'
         }
       }

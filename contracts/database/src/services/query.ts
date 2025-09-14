@@ -123,13 +123,13 @@ export namespace Query {
   >;
 
   export type InsertDataInput<T extends TableMetadata> =
-    IsObjectEmpty<T['relations']['changes']> extends false
-      ? Omit<T['schema'] & T['relations']['changes'], T['relations']['indexes']>
+    IsObjectEmpty<T['relations']['inserts']> extends false
+      ? Omit<T['schema'], T['relations']['indexes']> & T['relations']['inserts']
       : T['schema'];
 
   export type UpdateDataInput<T extends TableMetadata> =
-    IsObjectEmpty<T['relations']['changes']> extends false
-      ? AtomicDataInput<Omit<T['schema'] & FlatObject<T['relations']['changes']>, T['relations']['indexes']>>
+    IsObjectEmpty<T['relations']['updates']> extends false
+      ? AtomicDataInput<Omit<T['schema'], T['relations']['indexes']> & FlatObject<T['relations']['updates']>>
       : AtomicDataInput<T['schema']>;
 
   export type OrderInput<T extends TableMetadata> = OrderModeUtils.Input<T>;

@@ -1,14 +1,13 @@
-import type { PostgresEngine, PgRelationRepositoryWithSchema } from '@ez4/pgclient/library';
 import type { Query, RelationMetadata } from '@ez4/database';
-import type { ObjectSchema } from '@ez4/schema';
+import type { PostgresEngine } from '@ez4/pgclient/library';
 
 import { describe, it } from 'node:test';
 
 import { MalformedRequestError } from '@ez4/pgclient';
-import { prepareInsertQuery } from '@ez4/pgclient/library';
-import { SchemaType } from '@ez4/schema';
+import { getRelationsWithSchema, prepareInsertQuery } from '@ez4/pgclient/library';
 import { SqlBuilder } from '@ez4/pgsql';
-import { Index } from '@ez4/database';
+
+import { TestRelationRepository } from './common/relation';
 
 type TestTableMetadata = {
   engine: PostgresEngine;
@@ -17,297 +16,39 @@ type TestTableMetadata = {
   schema: {};
 };
 
-type TestSchemaOptions = {
-  multiple?: boolean;
-  nullish: boolean;
-};
-
 describe('insert secondary relations', () => {
-  const testTableName = 'ez4_test_table';
+  const tableName = 'table_a';
 
-  const relationSchema: ObjectSchema = {
-    type: SchemaType.Object,
-    properties: {
-      id: {
-        type: SchemaType.String,
-        format: 'uuid'
-      },
-      foo: {
-        type: SchemaType.String,
-        optional: true
-      }
-    }
-  };
+  const sourceId = '00000000-0000-1000-9000-000000000000';
+  const targetId = '00000000-0000-1000-9000-000000000001';
+  const uniqueId = '00000000-0000-1000-9000-000000000002';
 
   const prepareRelationInsert = async <S extends Query.SelectInput<TestTableMetadata>>(
-    schema: ObjectSchema,
-    relations: PgRelationRepositoryWithSchema,
     query: Query.InsertOneInput<S, TestTableMetadata>
   ) => {
+    const repository = TestRelationRepository[tableName];
+    const relations = getRelationsWithSchema(tableName, TestRelationRepository);
     const builder = new SqlBuilder();
 
-    const allQueries = await prepareInsertQuery(builder, testTableName, schema, relations, query);
+    const allQueries = await prepareInsertQuery(builder, tableName, repository.schema, relations, query);
 
     return builder.with(allQueries).build();
   };
 
-  const getTestRelationSchema = ({ nullish, multiple }: TestSchemaOptions): ObjectSchema => {
-    return {
-      type: SchemaType.Object,
-      properties: {
-        id: {
-          type: SchemaType.String,
-          format: 'uuid'
-        },
-        ...(multiple
-          ? {
-              primary_1_id: {
-                type: SchemaType.String,
-                optional: nullish,
-                nullable: nullish,
-                format: 'uuid'
-              },
-              primary_2_id: {
-                type: SchemaType.String,
-                optional: nullish,
-                nullable: nullish,
-                format: 'uuid'
-              }
-            }
-          : {
-              primary_id: {
-                type: SchemaType.String,
-                optional: nullish,
-                nullable: nullish,
-                format: 'uuid'
-              }
-            })
-      }
-    };
-  };
-
-  const getSingleTestRelation = (): PgRelationRepositoryWithSchema => {
-    return {
-      [`${testTableName}.secondary_to_primary`]: {
-        primaryColumn: 'id',
-        targetAlias: 'secondary_to_primary',
-        targetColumn: 'id',
-        targetIndex: Index.Primary,
-        targetTable: testTableName,
-        sourceIndex: Index.Secondary,
-        sourceSchema: relationSchema,
-        sourceTable: testTableName,
-        sourceColumn: 'primary_id'
-      }
-    };
-  };
-
-  const getMultipleTestRelation = (): PgRelationRepositoryWithSchema => {
-    const baseRelation = {
-      primaryColumn: 'id',
-      targetColumn: 'id',
-      targetIndex: Index.Primary,
-      targetTable: testTableName,
-      sourceIndex: Index.Secondary,
-      sourceSchema: relationSchema,
-      sourceTable: testTableName
-    };
-
-    return {
-      [`${testTableName}.secondary_to_primary_1`]: {
-        targetAlias: 'secondary_to_primary_1',
-        sourceColumn: 'primary_1_id',
-        ...baseRelation
-      },
-      [`${testTableName}.secondary_to_primary_2`]: {
-        targetAlias: 'secondary_to_primary_2',
-        sourceColumn: 'primary_2_id',
-        ...baseRelation
-      },
-      [`${testTableName}.secondary_to_primary_3`]: {
-        targetAlias: 'secondary_to_primary_3',
-        sourceColumn: 'primary_3_id',
-        ...baseRelation
-      }
-    };
-  };
-
-  it('assert :: prepare insert secondary relation (optional connection)', async ({ assert }) => {
-    const testSchema = getTestRelationSchema({
-      nullish: true
-    });
-
-    const [statement, variables] = await prepareRelationInsert(testSchema, getSingleTestRelation(), {
-      data: {
-        id: '00000000-0000-1000-9000-000000000000',
-        secondary_to_primary: [
-          {
-            id: null
-          }
-        ]
-      }
-    });
-
-    assert.equal(
-      statement,
-      `WITH ` +
-        // Main record
-        `"Q0" AS (INSERT INTO "ez4_test_table" ("id") VALUES (:0) RETURNING "id") ` +
-        // Connection
-        `UPDATE ONLY "ez4_test_table" AS "T" SET "primary_id" = "Q0"."id" FROM "Q0" WHERE "T"."id" IS null`
-    );
-
-    assert.deepEqual(variables, ['00000000-0000-1000-9000-000000000000']);
-  });
-
-  it('assert :: prepare insert secondary relation (required connection)', async ({ assert }) => {
-    const testSchema = getTestRelationSchema({
-      nullish: false
-    });
-
-    const [statement, variables] = await prepareRelationInsert(testSchema, getSingleTestRelation(), {
-      data: {
-        id: '00000000-0000-1000-9000-000000000001',
-        secondary_to_primary: [
-          {
-            id: '00000000-0000-1000-9000-000000000000'
-          }
-        ]
-      }
-    });
-
-    assert.equal(
-      statement,
-      `WITH ` +
-        // Main record
-        `"Q0" AS (INSERT INTO "ez4_test_table" ("id") VALUES (:0) RETURNING "id") ` +
-        // Connection
-        `UPDATE ONLY "ez4_test_table" AS "T" SET "primary_id" = "Q0"."id" FROM "Q0" WHERE "T"."id" = :1`
-    );
-
-    assert.deepEqual(variables, ['00000000-0000-1000-9000-000000000001', '00000000-0000-1000-9000-000000000000']);
-  });
-
-  it('assert :: prepare insert secondary relation (empty connection)', async ({ assert }) => {
-    const testSchema = getTestRelationSchema({
-      nullish: true
-    });
-
-    const [statement, variables] = await prepareRelationInsert(testSchema, getSingleTestRelation(), {
-      data: {
-        id: '00000000-0000-1000-9000-000000000000',
-        secondary_to_primary: [
-          {
-            id: undefined
-          }
-        ]
-      }
-    });
-
-    assert.equal(
-      statement,
-      // Main record
-      `INSERT INTO "ez4_test_table" ("id") VALUES (:0)`
-    );
-
-    assert.deepEqual(variables, ['00000000-0000-1000-9000-000000000000']);
-  });
-
-  it('assert :: prepare insert secondary relation (optional creation)', async ({ assert }) => {
-    const testSchema = getTestRelationSchema({
-      nullish: true
-    });
-
-    const [statement, variables] = await prepareRelationInsert(testSchema, getSingleTestRelation(), {
-      data: {
-        id: '00000000-0000-1000-9000-000000000000',
-        secondary_to_primary: [
-          {
-            id: '00000000-0000-1000-9000-000000000001',
-            foo: 'foo'
-          }
-        ]
-      }
-    });
-
-    assert.equal(
-      statement,
-      `WITH ` +
-        // Main record
-        `"Q0" AS (INSERT INTO "ez4_test_table" ("id") VALUES (:0) RETURNING "id") ` +
-        // Relation
-        `INSERT INTO "ez4_test_table" ("id", "foo", "primary_id") SELECT :1, :2, "Q0"."id" FROM "Q0"`
-    );
-
-    assert.deepEqual(variables, ['00000000-0000-1000-9000-000000000000', '00000000-0000-1000-9000-000000000001', 'foo']);
-  });
-
-  it('assert :: prepare insert secondary relation (required creation)', async ({ assert }) => {
-    const testSchema = getTestRelationSchema({
-      nullish: false
-    });
-
-    const [statement, variables] = await prepareRelationInsert(testSchema, getSingleTestRelation(), {
-      data: {
-        id: '00000000-0000-1000-9000-000000000000',
-        secondary_to_primary: [
-          {
-            id: '00000000-0000-1000-9000-000000000001',
-            foo: 'foo'
-          }
-        ]
-      }
-    });
-
-    assert.equal(
-      statement,
-      `WITH ` +
-        // Main record
-        `"Q0" AS (INSERT INTO "ez4_test_table" ("id") VALUES (:0) RETURNING "id") ` +
-        // Relation
-        `INSERT INTO "ez4_test_table" ("id", "foo", "primary_id") SELECT :1, :2, "Q0"."id" FROM "Q0"`
-    );
-
-    assert.deepEqual(variables, ['00000000-0000-1000-9000-000000000000', '00000000-0000-1000-9000-000000000001', 'foo']);
-  });
-
-  it('assert :: prepare insert secondary relation (empty creation)', async ({ assert }) => {
-    const testSchema = getTestRelationSchema({
-      nullish: false
-    });
-
-    const [statement, variables] = await prepareRelationInsert(testSchema, getSingleTestRelation(), {
-      data: {
-        id: '00000000-0000-1000-9000-000000000000',
-        secondary_to_primary: [{}, {}]
-      }
-    });
-
-    assert.equal(statement, `INSERT INTO "ez4_test_table" ("id") VALUES (:0)`);
-
-    assert.deepEqual(variables, ['00000000-0000-1000-9000-000000000000']);
-  });
-
-  it('assert :: prepare insert secondary relation (select creation)', async ({ assert }) => {
-    const testSchema = getTestRelationSchema({
-      nullish: false
-    });
-
-    const [statement, variables] = await prepareRelationInsert(testSchema, getSingleTestRelation(), {
+  it('assert :: prepare empty relation (secondary to primary)', async ({ assert }) => {
+    const [statement, variables] = await prepareRelationInsert({
       select: {
-        secondary_to_primary: {
-          id: true,
-          foo: true
+        id_a: true,
+        value: true,
+        relation_1: {
+          id_b: true,
+          value: true
         }
       },
       data: {
-        id: '00000000-0000-1000-9000-000000000000',
-        secondary_to_primary: [
-          {
-            id: '00000000-0000-1000-9000-000000000001',
-            foo: 'foo'
-          }
-        ]
+        id_a: sourceId,
+        value: 'foo',
+        relation_1: {}
       }
     });
 
@@ -315,49 +56,33 @@ describe('insert secondary relations', () => {
       statement,
       `WITH ` +
         // Main record
-        `"Q0" AS (INSERT INTO "ez4_test_table" ("id") VALUES (:0) RETURNING "id"), ` +
-        // Relation
-        `"Q1" AS (INSERT INTO "ez4_test_table" ("id", "foo", "primary_id") SELECT :1, :2, "Q0"."id" FROM "Q0" RETURNING "id", "foo") ` +
-        // Select
-        `SELECT ` +
-        `(SELECT COALESCE(json_agg(jsonb_build_object('id', "id", 'foo', "foo")), '[]'::json) FROM "Q1") AS "secondary_to_primary" ` +
+        `"Q0" AS (INSERT INTO "table_a" ("id_a", "value") VALUES (:0, :1) RETURNING "id_a", "value", "relation_1_id") ` +
+        // Return
+        `SELECT "id_a", "value", ` +
+        `(SELECT jsonb_build_object('id_b', "S0"."id_b", 'value', "S0"."value") ` +
+        `FROM "table_b" AS "S0" WHERE "S0"."id_b" = "relation_1_id") AS "relation_1" ` +
         `FROM "Q0"`
     );
 
-    assert.deepEqual(variables, ['00000000-0000-1000-9000-000000000000', '00000000-0000-1000-9000-000000000001', 'foo']);
+    assert.deepEqual(variables, [sourceId, 'foo']);
   });
 
-  it('assert :: prepare insert secondary relation (multiple creation and select)', async ({ assert }) => {
-    const testSchema = getTestRelationSchema({
-      multiple: true,
-      nullish: true
-    });
-
-    const [statement, variables] = await prepareRelationInsert(testSchema, getMultipleTestRelation(), {
+  it('assert :: prepare undefined relation (secondary to primary)', async ({ assert }) => {
+    const [statement, variables] = await prepareRelationInsert({
       select: {
-        id: true,
-        secondary_to_primary_1: {
-          id: true,
-          foo: true
+        id_a: true,
+        value: true,
+        relation_1: {
+          id_b: true,
+          value: true
         }
       },
       data: {
-        id: '00000000-0000-1000-9000-000000000000',
-        secondary_to_primary_1: [
-          {
-            id: '00000000-0000-1000-9000-000000000001',
-            foo: 'foo-1'
-          },
-          {
-            id: '00000000-0000-1000-9000-000000000002'
-          }
-        ],
-        secondary_to_primary_2: [
-          {
-            id: '00000000-0000-1000-9000-000000000003',
-            foo: 'foo-2'
-          }
-        ]
+        id_a: sourceId,
+        value: 'foo',
+        relation_1: {
+          id_b: undefined
+        }
       }
     });
 
@@ -365,46 +90,331 @@ describe('insert secondary relations', () => {
       statement,
       `WITH ` +
         // Main record
-        `"Q0" AS (INSERT INTO "ez4_test_table" ("id") VALUES (:0) RETURNING "id"), ` +
-        // First relation
-        `"Q1" AS (INSERT INTO "ez4_test_table" ("id", "foo", "primary_1_id") SELECT :1, :2, "Q0"."id" FROM "Q0" RETURNING "id", "foo"), ` +
-        // Second relation
-        `"Q2" AS (UPDATE ONLY "ez4_test_table" AS "T" SET "primary_1_id" = "Q0"."id" FROM "Q0" WHERE "T"."id" = :3 RETURNING "T"."id", "T"."foo"), ` +
-        // Third relation
-        `"Q3" AS (INSERT INTO "ez4_test_table" ("id", "foo", "primary_2_id") SELECT :4, :5, "Q0"."id" FROM "Q0") ` +
-        // Select
-        `SELECT "id", ` +
-        `(SELECT COALESCE(json_agg(jsonb_build_object('id', "id", 'foo', "foo")), '[]'::json) FROM "Q1", "Q2") AS "secondary_to_primary_1" ` +
+        `"Q0" AS (INSERT INTO "table_a" ("id_a", "value") VALUES (:0, :1) RETURNING "id_a", "value", "relation_1_id") ` +
+        // Return
+        `SELECT "id_a", "value", ` +
+        `(SELECT jsonb_build_object('id_b', "S0"."id_b", 'value', "S0"."value") ` +
+        `FROM "table_b" AS "S0" WHERE "S0"."id_b" = "relation_1_id") AS "relation_1" ` +
         `FROM "Q0"`
     );
 
-    assert.deepEqual(variables, [
-      '00000000-0000-1000-9000-000000000000',
-      '00000000-0000-1000-9000-000000000001',
-      'foo-1',
-      '00000000-0000-1000-9000-000000000002',
-      '00000000-0000-1000-9000-000000000003',
-      'foo-2'
-    ]);
+    assert.deepEqual(variables, [sourceId, 'foo']);
   });
 
-  it('assert :: prepare insert secondary relation (invalid creation field)', async ({ assert }) => {
-    const testSchema = getTestRelationSchema({
-      nullish: false
+  it('assert :: prepare null relation (secondary to primary)', async ({ assert }) => {
+    const [statement, variables] = await prepareRelationInsert({
+      select: {
+        id_a: true,
+        value: true,
+        relation_1: {
+          id_b: true,
+          value: true
+        }
+      },
+      data: {
+        id_a: sourceId,
+        value: 'foo',
+        relation_1: {
+          id_b: null
+        }
+      }
     });
 
+    assert.equal(
+      statement,
+      `WITH ` +
+        // Main record
+        `"Q0" AS (INSERT INTO "table_a" ("id_a", "value") VALUES (:0, :1) RETURNING "id_a", "value", "relation_1_id") ` +
+        // Return
+        `SELECT "id_a", "value", ` +
+        `(SELECT jsonb_build_object('id_b', "S0"."id_b", 'value', "S0"."value") ` +
+        `FROM "table_b" AS "S0" WHERE "S0"."id_b" = "relation_1_id") AS "relation_1" ` +
+        `FROM "Q0"`
+    );
+
+    assert.deepEqual(variables, [sourceId, 'foo']);
+  });
+
+  it('assert :: prepare insert, create and select relation (secondary to primary)', async ({ assert }) => {
+    const [statement, variables] = await prepareRelationInsert({
+      select: {
+        id_a: true,
+        value: true,
+        relation_1: {
+          id_b: true,
+          value: true
+        }
+      },
+      data: {
+        id_a: sourceId,
+        value: 'foo',
+        relation_1: {
+          id_b: targetId,
+          value: 'bar'
+        }
+      }
+    });
+
+    assert.equal(
+      statement,
+      `WITH ` +
+        // Relation record
+        `"Q0" AS (INSERT INTO "table_b" ("id_b", "value") VALUES (:0, :1) RETURNING "id_b", "value"), ` +
+        // Main record
+        `"Q1" AS (INSERT INTO "table_a" ("id_a", "value", "relation_1_id") SELECT :2, :3, "Q0"."id_b" FROM "Q0" ` +
+        `RETURNING "id_a", "value") ` +
+        // Return
+        `SELECT "id_a", "value", ` +
+        `(SELECT jsonb_build_object('id_b', "id_b", 'value', "value") ` +
+        `FROM "Q0") AS "relation_1" ` +
+        `FROM "Q1"`
+    );
+
+    assert.deepEqual(variables, [targetId, 'bar', sourceId, 'foo']);
+  });
+
+  it('assert :: prepare insert, connect and select relation (secondary to primary)', async ({ assert }) => {
+    const [statement, variables] = await prepareRelationInsert({
+      select: {
+        id_a: true,
+        value: true,
+        relation_1: {
+          id_b: true,
+          value: true
+        }
+      },
+      data: {
+        id_a: sourceId,
+        value: 'foo',
+        relation_1: {
+          id_b: targetId
+        }
+      }
+    });
+
+    assert.equal(
+      statement,
+      `WITH ` +
+        // Main record
+        `"Q0" AS (INSERT INTO "table_a" ("id_a", "value", "relation_1_id") VALUES (:0, :1, :2) ` +
+        `RETURNING "id_a", "value", "relation_1_id") ` +
+        // Return
+        `SELECT "id_a", "value", ` +
+        `(SELECT jsonb_build_object('id_b', "S0"."id_b", 'value', "S0"."value") ` +
+        `FROM "table_b" AS "S0" WHERE "S0"."id_b" = "relation_1_id") AS "relation_1" ` +
+        `FROM "Q0"`
+    );
+
+    assert.deepEqual(variables, [sourceId, 'foo', targetId]);
+  });
+
+  it('assert :: prepare insert invalid create/connect (secondary to primary)', async ({ assert }) => {
     await assert.rejects(
       () =>
-        prepareRelationInsert(testSchema, getSingleTestRelation(), {
+        prepareRelationInsert({
           data: {
-            secondary_to_primary: [
-              {
-                foo: 'foo',
+            id_a: sourceId,
+            value: 'foo',
+            relation_1: {
+              id_b: targetId,
 
-                // Extra fields aren't expected when creating relations.
-                bar: 'bar'
-              }
-            ]
+              // Extra fields aren't expected.
+              extra: 'foo'
+            }
+          }
+        }),
+      MalformedRequestError
+    );
+  });
+
+  it('assert :: prepare empty relation (secondary to unique)', async ({ assert }) => {
+    const [statement, variables] = await prepareRelationInsert({
+      select: {
+        id_a: true,
+        value: true,
+        relation_2: {
+          id_c: true,
+          value: true
+        }
+      },
+      data: {
+        id_a: sourceId,
+        value: 'foo',
+        relation_2: {}
+      }
+    });
+
+    assert.equal(
+      statement,
+      `WITH ` +
+        // Main record
+        `"Q0" AS (INSERT INTO "table_a" ("id_a", "value") VALUES (:0, :1) RETURNING "id_a", "value", "relation_2_id") ` +
+        // Return
+        `SELECT "id_a", "value", ` +
+        `(SELECT jsonb_build_object('id_c', "S0"."id_c", 'value', "S0"."value") ` +
+        `FROM "table_c" AS "S0" WHERE "S0"."unique_2_id" = "relation_2_id") AS "relation_2" ` +
+        `FROM "Q0"`
+    );
+
+    assert.deepEqual(variables, [sourceId, 'foo']);
+  });
+
+  it('assert :: prepare undefined relation (secondary to unique)', async ({ assert }) => {
+    const [statement, variables] = await prepareRelationInsert({
+      select: {
+        id_a: true,
+        value: true,
+        relation_2: {
+          id_c: true,
+          value: true
+        }
+      },
+      data: {
+        id_a: sourceId,
+        value: 'foo',
+        relation_2: {
+          unique_2_id: undefined
+        }
+      }
+    });
+
+    assert.equal(
+      statement,
+      `WITH ` +
+        // Main record
+        `"Q0" AS (INSERT INTO "table_a" ("id_a", "value") VALUES (:0, :1) RETURNING "id_a", "value", "relation_2_id") ` +
+        // Return
+        `SELECT "id_a", "value", ` +
+        `(SELECT jsonb_build_object('id_c', "S0"."id_c", 'value', "S0"."value") ` +
+        `FROM "table_c" AS "S0" WHERE "S0"."unique_2_id" = "relation_2_id") AS "relation_2" ` +
+        `FROM "Q0"`
+    );
+
+    assert.deepEqual(variables, [sourceId, 'foo']);
+  });
+
+  it('assert :: prepare null relation (secondary to unique)', async ({ assert }) => {
+    const [statement, variables] = await prepareRelationInsert({
+      select: {
+        id_a: true,
+        value: true,
+        relation_2: {
+          id_c: true,
+          value: true
+        }
+      },
+      data: {
+        id_a: sourceId,
+        value: 'foo',
+        relation_2: {
+          unique_2_id: null
+        }
+      }
+    });
+
+    assert.equal(
+      statement,
+      `WITH ` +
+        // Main record
+        `"Q0" AS (INSERT INTO "table_a" ("id_a", "value") VALUES (:0, :1) RETURNING "id_a", "value", "relation_2_id") ` +
+        // Return
+        `SELECT "id_a", "value", ` +
+        `(SELECT jsonb_build_object('id_c', "S0"."id_c", 'value', "S0"."value") ` +
+        `FROM "table_c" AS "S0" WHERE "S0"."unique_2_id" = "relation_2_id") AS "relation_2" ` +
+        `FROM "Q0"`
+    );
+
+    assert.deepEqual(variables, [sourceId, 'foo']);
+  });
+
+  it('assert :: prepare insert, create and select relation (secondary to unique)', async ({ assert }) => {
+    const [statement, variables] = await prepareRelationInsert({
+      select: {
+        id_a: true,
+        value: true,
+        relation_2: {
+          id_c: true,
+          value: true
+        }
+      },
+      data: {
+        id_a: sourceId,
+        value: 'foo',
+        relation_2: {
+          id_c: targetId,
+          unique_2_id: uniqueId,
+          value: 'bar'
+        }
+      }
+    });
+
+    assert.equal(
+      statement,
+      `WITH ` +
+        // Relation record
+        `"Q0" AS (INSERT INTO "table_c" ("id_c", "unique_2_id", "value") VALUES (:0, :1, :2) ` +
+        `RETURNING "unique_2_id", "id_c", "value"), ` +
+        // Main record
+        `"Q1" AS (INSERT INTO "table_a" ("id_a", "value", "relation_2_id") SELECT :3, :4, "Q0"."unique_2_id" FROM "Q0" ` +
+        `RETURNING "id_a", "value") ` +
+        // Return
+        `SELECT "id_a", "value", ` +
+        `(SELECT jsonb_build_object('id_c', "id_c", 'value', "value") ` +
+        `FROM "Q0") AS "relation_2" ` +
+        `FROM "Q1"`
+    );
+
+    assert.deepEqual(variables, [targetId, uniqueId, 'bar', sourceId, 'foo']);
+  });
+
+  it('assert :: prepare insert, connect and select relation (secondary to unique)', async ({ assert }) => {
+    const [statement, variables] = await prepareRelationInsert({
+      select: {
+        id_a: true,
+        value: true,
+        relation_2: {
+          id_c: true,
+          value: true
+        }
+      },
+      data: {
+        id_a: sourceId,
+        value: 'foo',
+        relation_2: {
+          unique_2_id: targetId
+        }
+      }
+    });
+
+    assert.equal(
+      statement,
+      `WITH ` +
+        // Main record
+        `"Q0" AS (INSERT INTO "table_a" ("id_a", "value", "relation_2_id") VALUES (:0, :1, :2) ` +
+        `RETURNING "id_a", "value", "relation_2_id") ` +
+        // Return
+        `SELECT "id_a", "value", ` +
+        `(SELECT jsonb_build_object('id_c', "S0"."id_c", 'value', "S0"."value") ` +
+        `FROM "table_c" AS "S0" WHERE "S0"."unique_2_id" = "relation_2_id") AS "relation_2" ` +
+        `FROM "Q0"`
+    );
+
+    assert.deepEqual(variables, [sourceId, 'foo', targetId]);
+  });
+
+  it('assert :: prepare insert invalid create/connect (secondary to unique)', async ({ assert }) => {
+    await assert.rejects(
+      () =>
+        prepareRelationInsert({
+          data: {
+            id_a: sourceId,
+            value: 'foo',
+            relation_2: {
+              unique_2_id: targetId,
+
+              // Extra fields aren't expected.
+              extra: 'foo'
+            }
           }
         }),
       MalformedRequestError

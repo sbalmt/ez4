@@ -1,8 +1,6 @@
 import type { ObjectSchema } from '@ez4/schema';
-import type { AnyObject } from '@ez4/utils';
-import type { PgRelationWithSchema } from '../types/repository';
 
-import { deepClone, isAnyObject, isEmptyObject } from '@ez4/utils';
+import { isAnyObject } from '@ez4/utils';
 import { SchemaType } from '@ez4/schema';
 
 export const isSingleRelationData = (value: unknown) => {
@@ -17,12 +15,37 @@ export const isRelationalData = (value: unknown): boolean => {
   return isSingleRelationData(value) || isMultipleRelationData(value);
 };
 
-export const getSourceCreationSchema = (schema: ObjectSchema, relation: PgRelationWithSchema) => {
-  const relationSchema = deepClone(schema, { depth: 2 });
+export const getTargetCreationSchema = (schema: ObjectSchema, sourceColumn: string) => {
+  const sourceProperties = {
+    ...schema.properties
+  };
 
-  delete relationSchema.properties[relation.sourceColumn];
+  delete sourceProperties[sourceColumn];
 
-  return relationSchema;
+  return {
+    type: SchemaType.Object,
+    properties: sourceProperties
+  };
+};
+
+export const getSourceCreationSchema = (schema: ObjectSchema, sourceColumn: string) => {
+  const sourceSchema = schema.properties[sourceColumn];
+
+  if (!sourceSchema.nullable && !sourceSchema.optional) {
+    return schema;
+  }
+
+  return {
+    type: SchemaType.Object,
+    properties: {
+      ...schema.properties,
+      [sourceColumn]: {
+        ...sourceSchema,
+        nullable: false,
+        optional: false
+      }
+    }
+  };
 };
 
 export const getConnectionSchema = (schema: ObjectSchema, columnName: string): ObjectSchema => {
@@ -36,40 +59,4 @@ export const getConnectionSchema = (schema: ObjectSchema, columnName: string): O
       }
     }
   };
-};
-
-export const getSourceConnectionSchema = (schema: ObjectSchema, relation: PgRelationWithSchema): ObjectSchema => {
-  const { sourceColumn } = relation;
-
-  return {
-    type: SchemaType.Object,
-    properties: {
-      [sourceColumn]: schema.properties[sourceColumn]
-    }
-  };
-};
-
-export const getTargetCreationSchema = (schema: ObjectSchema, relation: PgRelationWithSchema) => {
-  const relationSchema = deepClone(schema, { depth: 2 });
-
-  delete relationSchema.properties[relation.targetColumn];
-
-  return relationSchema;
-};
-
-export const getTargetConnectionSchema = (schema: ObjectSchema, relation: PgRelationWithSchema): ObjectSchema => {
-  const { targetColumn } = relation;
-
-  return {
-    type: SchemaType.Object,
-    properties: {
-      [targetColumn]: schema.properties[targetColumn]
-    }
-  };
-};
-
-export const isPrimaryConnection = (primaryColumn: string, record: AnyObject) => {
-  const { [primaryColumn]: relationValue, ...otherFields } = record;
-
-  return relationValue !== undefined && isEmptyObject(otherFields);
 };

@@ -38,6 +38,7 @@ export declare class TestRelationDb extends Database.Service {
       name: 'table_b';
       schema: {
         id_b: String.UUID;
+        unique_b?: String.UUID | null;
         value: string;
       };
       relations: {
@@ -49,6 +50,7 @@ export declare class TestRelationDb extends Database.Service {
       };
       indexes: {
         id_b: Index.Primary;
+        unique_b: Index.Unique;
       };
     },
     {
@@ -57,6 +59,7 @@ export declare class TestRelationDb extends Database.Service {
         id_c: String.UUID;
         unique_1_id?: String.UUID | null;
         unique_2_id?: String.UUID | null;
+        unique_3_id?: String.UUID | null;
         value: string;
       };
       relations: {
@@ -65,20 +68,24 @@ export declare class TestRelationDb extends Database.Service {
 
         // Unique to secondary
         'unique_2_id@relations': 'table_a:relation_2_id';
+
+        // Unique to unique
+        'unique_3_id@relation_unique': 'table_b:unique_b';
       };
       indexes: {
         id_c: Index.Primary;
         unique_1_id: Index.Unique;
         unique_2_id: Index.Unique;
+        unique_3_id: Index.Unique;
       };
     }
   ];
 }
 
-export const makeRelationClient = async () => {
+export const makeRelationClient = async (debug?: boolean) => {
   return Client.make<TestRelationDb>({
-    debug: false,
     repository: TestRelationRepository,
+    debug,
     connection: {
       database: 'postgres',
       password: 'postgres',
@@ -173,6 +180,12 @@ export const TestRelationRepository: PgTableRepository = {
           type: SchemaType.String,
           format: 'uuid'
         },
+        unique_b: {
+          type: SchemaType.String,
+          format: 'uuid',
+          nullable: true,
+          optional: true
+        },
         value: {
           type: SchemaType.String
         }
@@ -183,6 +196,11 @@ export const TestRelationRepository: PgTableRepository = {
         name: 'id_b',
         columns: ['id_b'],
         type: Index.Primary
+      },
+      unique_b: {
+        name: 'unique_b',
+        columns: ['unique_b'],
+        type: Index.Unique
       }
     }
   },
@@ -201,6 +219,13 @@ export const TestRelationRepository: PgTableRepository = {
         sourceTable: 'table_a',
         targetColumn: 'unique_2_id',
         targetIndex: Index.Unique
+      },
+      relation_unique: {
+        sourceColumn: 'unique_b',
+        sourceIndex: Index.Unique,
+        sourceTable: 'table_b',
+        targetColumn: 'unique_3_id',
+        targetIndex: Index.Unique
       }
     },
     schema: {
@@ -217,6 +242,12 @@ export const TestRelationRepository: PgTableRepository = {
           nullable: true
         },
         unique_2_id: {
+          type: SchemaType.String,
+          format: 'uuid',
+          optional: true,
+          nullable: true
+        },
+        unique_3_id: {
           type: SchemaType.String,
           format: 'uuid',
           optional: true,
@@ -241,6 +272,11 @@ export const TestRelationRepository: PgTableRepository = {
       unique_2_id: {
         name: 'unique_2_id',
         columns: ['unique_2_id'],
+        type: Index.Unique
+      },
+      unique_3_id: {
+        name: 'unique_3_id',
+        columns: ['unique_3_id'],
         type: Index.Unique
       }
     }

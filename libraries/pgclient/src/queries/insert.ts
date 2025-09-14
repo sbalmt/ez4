@@ -20,12 +20,11 @@ import { isEmptyObject } from '@ez4/utils';
 import { Index } from '@ez4/database';
 
 import {
-  getConnectionSchema,
   getTargetCreationSchema,
   getSourceCreationSchema,
+  getConnectionSchema,
   isMultipleRelationData,
   isSingleRelationData,
-  isPrimaryConnection,
   isRelationalData
 } from '../utils/relation';
 
@@ -115,7 +114,7 @@ export const getInsertRecord = async (
       throw new InvalidRelationFieldError(fieldPath);
     }
 
-    const { primaryColumn, relationQueries, sourceSchema, sourceIndex, sourceColumn, targetIndex, targetColumn } = repository[fieldPath];
+    const { relationQueries, sourceIndex, sourceColumn, targetIndex, targetColumn } = repository[fieldPath];
 
     if (!sourceIndex || sourceIndex === Index.Secondary) {
       if (!isMultipleRelationData(fieldValue)) {
@@ -127,17 +126,15 @@ export const getInsertRecord = async (
           return Promise.resolve();
         }
 
-        const { [primaryColumn]: relationValue, ...otherFields } = relationEntry;
+        const [relationValue, relationSchema] = getRelationValue(relationEntry, fieldRelation);
 
-        // Will connect an existing relation
-        if (relationValue !== undefined && isEmptyObject(otherFields)) {
-          const relationSchema = getConnectionSchema(sourceSchema, primaryColumn);
+        if (relationValue !== undefined) {
+          if (relationValue !== null) {
+            return validateRecordSchema(relationEntry, relationSchema, fieldPath);
+          }
 
-          return validateRecordSchema(relationEntry, relationSchema, fieldPath);
+          return Promise.resolve();
         }
-
-        // Will create a new relations
-        const relationSchema = getSourceCreationSchema(sourceSchema, fieldRelation);
 
         return validateRecordSchema(relationEntry, relationSchema, fieldPath);
       });
@@ -156,33 +153,30 @@ export const getInsertRecord = async (
       continue;
     }
 
-    const { [primaryColumn]: relationValue, ...otherFields } = fieldValue;
+    const [relationValue, relationSchema] = getRelationValue(fieldValue, fieldRelation);
 
     allFields.delete(targetColumn);
 
-    // Will connect an existing relation
-    if (relationValue !== undefined && isEmptyObject(otherFields)) {
-      const relationSchema = getConnectionSchema(sourceSchema, primaryColumn);
+    if (relationValue !== undefined) {
+      if (relationValue !== null) {
+        await validateRecordSchema(fieldValue, relationSchema, fieldPath);
 
-      await validateRecordSchema(fieldValue, relationSchema, fieldPath);
+        if (targetIndex !== Index.Primary) {
+          record[targetColumn] = relationValue;
+        }
+      }
 
-      record[targetColumn] = relationValue;
       continue;
     }
 
-    //  Will post-create a relation
+    //  Will post-create relations
     if (targetIndex === Index.Primary) {
-      const relationSchema = getSourceCreationSchema(sourceSchema, fieldRelation);
-
       await validateRecordSchema(fieldValue, relationSchema, fieldPath);
       continue;
     }
 
-    // Has a pre-created relations
-    const relationSchema = getTargetCreationSchema(sourceSchema, fieldRelation);
-    const relationQuery = relationQueries[0];
-
-    record[targetColumn] = relationQuery.reference(sourceColumn);
+    // Will pre-create relations
+    record[targetColumn] = relationQueries[0].reference(sourceColumn);
 
     await validateRecordSchema(fieldValue, relationSchema, fieldPath);
     continue;
@@ -219,20 +213,22 @@ const preparePreInsertRelations = (
       throw new InvalidRelationFieldError(fieldPath);
     }
 
-    const relationQueries: SqlInsertStatement[] = [];
+    const relationQueries: (SqlInsertStatement | SqlUpdateStatement)[] = [];
 
     allQueries[relationPath] = {
       ...fieldRelation,
       relationQueries
     };
 
-    const { primaryColumn, sourceTable, sourceColumn, sourceIndex, sourceSchema, targetIndex } = fieldRelation;
+    const { sourceTable, sourceColumn, sourceSchema } = fieldRelation;
 
-    if (!isEmptyObject(fieldValue) && isValidPreInsertion(sourceIndex, targetIndex) && !isPrimaryConnection(primaryColumn, fieldValue)) {
+    const relationCreate = getPreRelationValue(fieldValue, fieldRelation);
+
+    if (relationCreate) {
       const relationQuery = builder
         .insert(sourceSchema)
         .into(sourceTable)
-        .record(fieldValue)
+        .record(relationCreate)
         .returning({
           [sourceColumn]: true
         });
@@ -275,58 +271,61 @@ const preparePostInsertRelations = (
       throw new InvalidRelationFieldError(fieldPath);
     }
 
-    const { primaryColumn, sourceIndex, sourceTable, sourceColumn, sourceSchema, targetIndex, targetColumn } = fieldRelation;
-
-    if (isValidPreInsertion(sourceIndex, targetIndex)) {
-      continue;
-    }
+    const { sourceTable, sourceColumn, sourceSchema, targetColumn } = fieldRelation;
 
     const allFieldValues = isMultipleRelationData(fieldValue) ? fieldValue : [fieldValue];
 
     const relationQueries = [];
 
     for (const currentFieldValue of allFieldValues) {
-      if (isEmptyObject(currentFieldValue)) {
+      const [relationUpdate, relationColumn, relationCreate] = getPostRelationValue(currentFieldValue, fieldRelation);
+
+      if (relationUpdate !== undefined) {
+        if (relationUpdate !== null) {
+          if (!results.has(targetColumn)) {
+            results.column(targetColumn);
+          }
+
+          // Connect an existing relation
+          const relationQuery = builder
+            .update(sourceSchema)
+            .from(source.reference())
+            .record({ [sourceColumn]: source.reference(targetColumn) })
+            .where({ [relationColumn]: relationUpdate })
+            .only(sourceTable)
+            .as('T');
+
+          relationQueries.push(relationQuery);
+        }
+
         continue;
       }
 
-      const { [primaryColumn]: relationValue, ...otherFields } = currentFieldValue;
+      if (relationCreate !== undefined) {
+        if (!results.has(targetColumn)) {
+          results.column(targetColumn);
+        }
 
-      if (!results.has(targetColumn)) {
-        results.column(targetColumn);
-      }
-
-      // Connect an existing relation
-      if (relationValue !== undefined && isEmptyObject(otherFields)) {
+        // Create a new relation
         const relationQuery = builder
-          .update(sourceSchema)
-          .record({ [sourceColumn]: source.reference(targetColumn) })
-          .where({ [primaryColumn]: relationValue })
-          .from(source.reference())
-          .only(sourceTable)
-          .as('T');
+          .insert(sourceSchema)
+          .select(source.reference())
+          .into(sourceTable)
+          .record({
+            ...relationCreate,
+            [sourceColumn]: source.reference(targetColumn)
+          });
 
         relationQueries.push(relationQuery);
-        continue;
       }
-
-      // Create a new relation
-      const relationQuery = builder
-        .insert(sourceSchema)
-        .select(source.reference())
-        .into(sourceTable)
-        .record({
-          ...currentFieldValue,
-          [sourceColumn]: source.reference(targetColumn)
-        });
-
-      relationQueries.push(relationQuery);
     }
 
-    allQueries[relationPath] = {
-      ...fieldRelation,
-      relationQueries
-    };
+    if (relationQueries.length > 0) {
+      allQueries[relationPath] = {
+        ...fieldRelation,
+        relationQueries
+      };
+    }
   }
 
   return allQueries;
@@ -433,10 +432,79 @@ const getInsertSelectFields = (
   return output;
 };
 
-const isValidPreInsertion = (sourceIndex: Index | undefined, targetIndex: Index | undefined) => {
-  if (sourceIndex === Index.Primary || sourceIndex === Index.Unique) {
-    return !targetIndex || targetIndex === Index.Secondary || targetIndex === Index.Unique;
+const getRelationValue = (fieldValue: AnyObject, fieldRelation: PgRelationWithSchema) => {
+  const { primaryColumn, sourceColumn, sourceIndex, sourceSchema, targetIndex } = fieldRelation;
+
+  const relationColumn = sourceIndex === Index.Primary || sourceIndex === Index.Unique ? sourceColumn : primaryColumn;
+
+  const { [relationColumn]: relationValue, ...otherFields } = fieldValue;
+
+  // Will connect an existing relation
+  if (isEmptyObject(otherFields)) {
+    if (relationValue !== undefined) {
+      const relationSchema = getConnectionSchema(sourceSchema, relationColumn);
+
+      return [relationValue, relationSchema];
+    }
+
+    return [];
   }
 
-  return false;
+  // Will post-create relations
+  if (targetIndex === Index.Primary || (targetIndex === Index.Unique && (!sourceIndex || sourceIndex === Index.Secondary))) {
+    const relationSchema = getTargetCreationSchema(sourceSchema, sourceColumn);
+
+    return [, relationSchema];
+  }
+
+  // Will pre-create relations
+  const relationSchema = getSourceCreationSchema(sourceSchema, sourceColumn);
+
+  return [, relationSchema];
+};
+
+const getPreRelationValue = (fieldValue: AnyObject, fieldRelation: PgRelationWithSchema) => {
+  const { primaryColumn, sourceColumn, sourceIndex, targetIndex } = fieldRelation;
+
+  const relationColumn = sourceIndex === Index.Primary || sourceIndex === Index.Unique ? sourceColumn : primaryColumn;
+
+  const { [relationColumn]: _relationValue, ...otherFields } = fieldValue;
+
+  // Will connect an existing relation
+  if (isEmptyObject(otherFields)) {
+    return undefined;
+  }
+
+  // Will post-create relations
+  if (targetIndex === Index.Primary || (targetIndex === Index.Unique && (!sourceIndex || sourceIndex === Index.Secondary))) {
+    return undefined;
+  }
+
+  // Will pre-create relations
+  return fieldValue;
+};
+
+const getPostRelationValue = (fieldValue: AnyObject, fieldRelation: PgRelationWithSchema) => {
+  const { primaryColumn, sourceColumn, sourceIndex, targetIndex } = fieldRelation;
+
+  const relationColumn = sourceIndex === Index.Primary || sourceIndex === Index.Unique ? sourceColumn : primaryColumn;
+
+  const { [relationColumn]: relationValue, ...otherFields } = fieldValue;
+
+  // Will connect an existing relation
+  if (isEmptyObject(otherFields)) {
+    if (targetIndex === Index.Primary || !sourceIndex || sourceIndex === Index.Secondary) {
+      return [relationValue, relationColumn];
+    }
+
+    return [];
+  }
+
+  // Will post-create relations
+  if (targetIndex === Index.Primary || (targetIndex === Index.Unique && (!sourceIndex || sourceIndex === Index.Secondary))) {
+    return [, , fieldValue];
+  }
+
+  // Will pre-create relations
+  return [];
 };
