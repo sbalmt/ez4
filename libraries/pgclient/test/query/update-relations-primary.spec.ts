@@ -102,6 +102,31 @@ describe('update primary relations', () => {
     assert.deepEqual(variables, [sourceId, 'foo', sourceId]);
   });
 
+  it('assert :: prepare update relation (primary to unique)', async ({ assert }) => {
+    const [statement, variables] = await prepareRelationUpdate({
+      data: {
+        value: 'foo',
+        relation: {
+          value: 'bar'
+        }
+      },
+      where: {
+        id_b: sourceId
+      } as any
+    });
+
+    assert.equal(
+      statement,
+      `WITH ` +
+        // Relation record
+        `"Q0" AS (UPDATE ONLY "table_b" SET "value" = :0 WHERE "id_b" = :1 RETURNING "id_b") ` +
+        // Main record
+        `UPDATE ONLY "table_c" AS "T" SET "value" = :2 FROM "Q0" WHERE "T"."unique_1_id" = "Q0"."id_b"`
+    );
+
+    assert.deepEqual(variables, ['foo', sourceId, 'bar']);
+  });
+
   it('assert :: prepare update and select relation (primary to unique)', async ({ assert }) => {
     const [statement, variables] = await prepareRelationUpdate({
       select: {
@@ -307,7 +332,33 @@ describe('update primary relations', () => {
     assert.deepEqual(variables, [sourceId, 'foo', sourceId]);
   });
 
-  it('assert :: prepare update, create and select relation (primary to secondary)', async ({ assert }) => {
+  it('assert :: prepare update and select relation (primary to secondary)', async ({ assert }) => {
+    const [statement, variables] = await prepareRelationUpdate({
+      data: {
+        value: 'foo',
+        relations: {
+          value: 'bar'
+        }
+      },
+      where: {
+        id_b: sourceId
+      } as any
+    });
+
+    assert.equal(
+      statement,
+      `WITH ` +
+        // Main record
+        `"Q0" AS (UPDATE ONLY "table_b" SET "value" = :0 WHERE "id_b" = :1 ` +
+        `RETURNING "id_b") ` +
+        // Relation record
+        `UPDATE ONLY "table_a" AS "T" SET "value" = :2 FROM "Q0" WHERE "T"."relation_1_id" = "Q0"."id_b"`
+    );
+
+    assert.deepEqual(variables, ['foo', sourceId, 'bar']);
+  });
+
+  it('assert :: prepare update and select relation (primary to secondary)', async ({ assert }) => {
     const [statement, variables] = await prepareRelationUpdate({
       select: {
         value: true,

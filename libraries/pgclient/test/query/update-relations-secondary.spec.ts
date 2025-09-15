@@ -102,6 +102,32 @@ describe('update secondary relations', () => {
     assert.deepEqual(variables, [sourceId, 'foo', sourceId]);
   });
 
+  it('assert :: prepare update relation (secondary to primary)', async ({ assert }) => {
+    const [statement, variables] = await prepareRelationUpdate({
+      data: {
+        value: 'foo',
+        relation_1: {
+          value: 'bar'
+        }
+      },
+      where: {
+        id_a: sourceId
+      } as any
+    });
+
+    assert.equal(
+      statement,
+      `WITH ` +
+        // Main record
+        `"Q0" AS (UPDATE ONLY "table_a" SET "value" = :0 WHERE "id_a" = :1 ` +
+        `RETURNING "relation_1_id") ` +
+        // Relation record
+        `UPDATE ONLY "table_b" AS "T" SET "value" = :2 FROM "Q0" WHERE "T"."id_b" = "Q0"."relation_1_id"`
+    );
+
+    assert.deepEqual(variables, ['foo', sourceId, 'bar']);
+  });
+
   it('assert :: prepare update and select relation (secondary to primary)', async ({ assert }) => {
     const [statement, variables] = await prepareRelationUpdate({
       select: {
@@ -294,6 +320,32 @@ describe('update secondary relations', () => {
     );
 
     assert.deepEqual(variables, [sourceId, 'foo', sourceId]);
+  });
+
+  it('assert :: prepare update relation (secondary to unique)', async ({ assert }) => {
+    const [statement, variables] = await prepareRelationUpdate({
+      data: {
+        value: 'foo',
+        relation_2: {
+          value: 'bar'
+        }
+      },
+      where: {
+        id_a: sourceId
+      } as any
+    });
+
+    assert.equal(
+      statement,
+      `WITH ` +
+        // Main record
+        `"Q0" AS (UPDATE ONLY "table_a" SET "value" = :0 WHERE "id_a" = :1 ` +
+        `RETURNING "relation_2_id") ` +
+        // Relation record
+        `UPDATE ONLY "table_c" AS "T" SET "value" = :2 FROM "Q0" WHERE "T"."unique_2_id" = "Q0"."relation_2_id"`
+    );
+
+    assert.deepEqual(variables, ['foo', sourceId, 'bar']);
   });
 
   it('assert :: prepare update and select relation (secondary to unique)', async ({ assert }) => {

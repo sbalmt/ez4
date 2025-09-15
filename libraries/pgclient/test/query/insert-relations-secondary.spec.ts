@@ -138,6 +138,31 @@ describe('insert secondary relations', () => {
     assert.deepEqual(variables, [sourceId, 'foo']);
   });
 
+  it('assert :: prepare insert and create relation (secondary to primary)', async ({ assert }) => {
+    const [statement, variables] = await prepareRelationInsert({
+      data: {
+        id_a: sourceId,
+        value: 'foo',
+        relation_1: {
+          id_b: targetId,
+          value: 'bar'
+        }
+      }
+    });
+
+    assert.equal(
+      statement,
+      `WITH ` +
+        // Relation record
+        `"Q0" AS (INSERT INTO "table_b" ("id_b", "value") VALUES (:0, :1) ` +
+        `RETURNING "id_b") ` +
+        // Main record
+        `INSERT INTO "table_a" ("id_a", "value", "relation_1_id") SELECT :2, :3, "Q0"."id_b" FROM "Q0"`
+    );
+
+    assert.deepEqual(variables, [targetId, 'bar', sourceId, 'foo']);
+  });
+
   it('assert :: prepare insert, create and select relation (secondary to primary)', async ({ assert }) => {
     const [statement, variables] = await prepareRelationInsert({
       select: {
@@ -332,6 +357,32 @@ describe('insert secondary relations', () => {
     );
 
     assert.deepEqual(variables, [sourceId, 'foo']);
+  });
+
+  it('assert :: prepare insert and create relation (secondary to unique)', async ({ assert }) => {
+    const [statement, variables] = await prepareRelationInsert({
+      data: {
+        id_a: sourceId,
+        value: 'foo',
+        relation_2: {
+          id_c: targetId,
+          unique_2_id: uniqueId,
+          value: 'bar'
+        }
+      }
+    });
+
+    assert.equal(
+      statement,
+      `WITH ` +
+        // Relation record
+        `"Q0" AS (INSERT INTO "table_c" ("id_c", "unique_2_id", "value") VALUES (:0, :1, :2) ` +
+        `RETURNING "unique_2_id") ` +
+        // Main record
+        `INSERT INTO "table_a" ("id_a", "value", "relation_2_id") SELECT :3, :4, "Q0"."unique_2_id" FROM "Q0"`
+    );
+
+    assert.deepEqual(variables, [targetId, uniqueId, 'bar', sourceId, 'foo']);
   });
 
   it('assert :: prepare insert, create and select relation (secondary to unique)', async ({ assert }) => {

@@ -140,6 +140,31 @@ describe('insert primary relations', () => {
     assert.deepEqual(variables, [sourceId, 'foo']);
   });
 
+  it('assert :: prepare insert and create relation (primary to unique)', async ({ assert }) => {
+    const [statement, variables] = await prepareRelationInsert({
+      data: {
+        id_b: sourceId,
+        value: 'foo',
+        relation: {
+          id_c: targetId,
+          value: 'bar'
+        }
+      }
+    });
+
+    assert.equal(
+      statement,
+      `WITH ` +
+        // Main record
+        `"Q0" AS (INSERT INTO "table_b" ("id_b", "value") VALUES (:0, :1) ` +
+        `RETURNING "id_b") ` +
+        // Relation record
+        `INSERT INTO "table_c" ("id_c", "value", "unique_1_id") SELECT :2, :3, "Q0"."id_b" FROM "Q0"`
+    );
+
+    assert.deepEqual(variables, [sourceId, 'foo', targetId, 'bar']);
+  });
+
   it('assert :: prepare insert, create and select relation (primary to unique)', async ({ assert }) => {
     const [statement, variables] = await prepareRelationInsert({
       select: {
@@ -275,6 +300,39 @@ describe('insert primary relations', () => {
     );
 
     assert.deepEqual(variables, [sourceId, 'foo']);
+  });
+
+  it('assert :: prepare insert and create relation (primary to secondary)', async ({ assert }) => {
+    const [statement, variables] = await prepareRelationInsert({
+      data: {
+        id_b: sourceId,
+        value: 'foo',
+        relations: [
+          {
+            id_a: targetAId,
+            value: 'bar'
+          },
+          {
+            id_a: targetBId,
+            value: 'baz'
+          }
+        ]
+      }
+    });
+
+    assert.equal(
+      statement,
+      `WITH ` +
+        // Main record
+        `"Q0" AS (INSERT INTO "table_b" ("id_b", "value") VALUES (:0, :1) ` +
+        `RETURNING "id_b"), ` +
+        // First relation
+        `"Q1" AS (INSERT INTO "table_a" ("id_a", "value", "relation_1_id") SELECT :2, :3, "Q0"."id_b" FROM "Q0") ` +
+        // Second relation
+        `INSERT INTO "table_a" ("id_a", "value", "relation_1_id") SELECT :4, :5, "Q0"."id_b" FROM "Q0"`
+    );
+
+    assert.deepEqual(variables, [sourceId, 'foo', targetAId, 'bar', targetBId, 'baz']);
   });
 
   it('assert :: prepare insert, create and select relation (primary to secondary)', async ({ assert }) => {

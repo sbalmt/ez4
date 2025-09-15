@@ -102,6 +102,32 @@ describe('update unique relations', () => {
     assert.deepEqual(variables, [sourceId, 'foo', sourceId]);
   });
 
+  it('assert :: prepare update relation (unique to primary)', async ({ assert }) => {
+    const [statement, variables] = await prepareRelationUpdate({
+      data: {
+        value: 'foo',
+        relation: {
+          value: 'bar'
+        }
+      },
+      where: {
+        id_c: sourceId
+      } as any
+    });
+
+    assert.equal(
+      statement,
+      `WITH ` +
+        // Main record
+        `"Q0" AS (UPDATE ONLY "table_c" SET "value" = :0 WHERE "id_c" = :1 ` +
+        `RETURNING "unique_1_id") ` +
+        // Relation record
+        `UPDATE ONLY "table_b" AS "T" SET "value" = :2 FROM "Q0" WHERE "T"."id_b" = "Q0"."unique_1_id"`
+    );
+
+    assert.deepEqual(variables, ['foo', sourceId, 'bar']);
+  });
+
   it('assert :: prepare update and select relation (unique to primary)', async ({ assert }) => {
     const [statement, variables] = await prepareRelationUpdate({
       select: {
@@ -303,6 +329,32 @@ describe('update unique relations', () => {
     );
 
     assert.deepEqual(variables, [sourceId, 'foo', sourceId]);
+  });
+
+  it('assert :: prepare update relation (unique to unique)', async ({ assert }) => {
+    const [statement, variables] = await prepareRelationUpdate({
+      data: {
+        value: 'foo',
+        relation_unique: {
+          value: 'bar'
+        }
+      },
+      where: {
+        id_c: sourceId
+      } as any
+    });
+
+    assert.equal(
+      statement,
+      `WITH ` +
+        // Main record
+        `"Q0" AS (UPDATE ONLY "table_c" SET "value" = :0 WHERE "id_c" = :1 ` +
+        `RETURNING "unique_3_id") ` +
+        // Relation record
+        `UPDATE ONLY "table_b" AS "T" SET "value" = :2 FROM "Q0" WHERE "T"."unique_b" = "Q0"."unique_3_id"`
+    );
+
+    assert.deepEqual(variables, ['foo', sourceId, 'bar']);
   });
 
   it('assert :: prepare update and select relation (unique to unique)', async ({ assert }) => {
@@ -510,7 +562,33 @@ describe('update unique relations', () => {
     assert.deepEqual(variables, [sourceId, 'foo', sourceId]);
   });
 
-  it('assert :: prepare update, create and select relation (unique to secondary)', async ({ assert }) => {
+  it('assert :: prepare update relation (unique to secondary)', async ({ assert }) => {
+    const [statement, variables] = await prepareRelationUpdate({
+      data: {
+        value: 'foo',
+        relations: {
+          value: 'bar'
+        }
+      },
+      where: {
+        id_b: sourceId
+      } as any
+    });
+
+    assert.equal(
+      statement,
+      `WITH ` +
+        // Main record
+        `"Q0" AS (UPDATE ONLY "table_c" SET "value" = :0 WHERE "id_b" = :1 ` +
+        `RETURNING "unique_2_id") ` +
+        // Relation record
+        `UPDATE ONLY "table_a" AS "T" SET "value" = :2 FROM "Q0" WHERE "T"."relation_2_id" = "Q0"."unique_2_id"`
+    );
+
+    assert.deepEqual(variables, ['foo', sourceId, 'bar']);
+  });
+
+  it('assert :: prepare update and select relation (unique to secondary)', async ({ assert }) => {
     const [statement, variables] = await prepareRelationUpdate({
       select: {
         value: true,
