@@ -222,13 +222,11 @@ describe('client insert relations', async () => {
           {
             id_a: targetAId,
             value: 'bar'
-          }
-          /*
+          },
           {
             id_a: targetBId,
             value: 'baz'
           }
-          */
         ]
       }
     });
@@ -240,13 +238,11 @@ describe('client insert relations', async () => {
         {
           id_a: targetAId,
           value: 'bar'
-        }
-        /*
+        },
         {
           id_a: targetBId,
           value: 'baz'
         }
-        */
       ]
     });
 
@@ -260,8 +256,7 @@ describe('client insert relations', async () => {
             id_c: sourceId,
             value: 'foo'
           }
-        }
-        /*
+        },
         {
           id_a: targetBId,
           value: 'baz',
@@ -270,7 +265,6 @@ describe('client insert relations', async () => {
             value: 'foo'
           }
         }
-        */
       ]
     );
   });
@@ -382,13 +376,11 @@ describe('client insert relations', async () => {
         {
           id_a: connectionAId,
           value: 'bar'
-        }
-        /*
+        },
         {
           id_a: connectionBId,
           value: 'baz'
         }
-        */
       ]
     });
 
@@ -408,12 +400,10 @@ describe('client insert relations', async () => {
         relations: [
           {
             id_a: connectionAId
-          }
-          /*
+          },
           {
             id_a: connectionBId
           }
-          */
         ]
       }
     });
@@ -425,13 +415,11 @@ describe('client insert relations', async () => {
         {
           id_a: connectionAId,
           value: 'bar'
-        }
-        /*
+        },
         {
           id_a: connectionBId,
           value: 'baz'
         }
-        */
       ]
     });
 
@@ -445,8 +433,7 @@ describe('client insert relations', async () => {
             id_c: sourceId,
             value: 'foo'
           }
-        }
-        /*
+        },
         {
           id_a: connectionBId,
           value: 'baz',
@@ -455,7 +442,6 @@ describe('client insert relations', async () => {
             value: 'foo'
           }
         }
-        */
       ]
     );
   });

@@ -72,13 +72,11 @@ describe('client insert primary relations', async () => {
           {
             id_a: targetAId,
             value: 'bar'
-          }
-          /*
+          },
           {
-            id: targetBId,
+            id_a: targetBId,
             value: 'baz'
           }
-          */
         ]
       }
     });
@@ -90,13 +88,11 @@ describe('client insert primary relations', async () => {
         {
           id_a: targetAId,
           value: 'bar'
-        }
-        /*
+        },
         {
           id_a: targetBId,
           value: 'baz'
         }
-        */
       ]
     });
 
@@ -110,8 +106,7 @@ describe('client insert primary relations', async () => {
             id_b: sourceId,
             value: 'foo'
           }
-        }
-        /*
+        },
         {
           id_a: targetBId,
           value: 'baz',
@@ -120,7 +115,6 @@ describe('client insert primary relations', async () => {
             value: 'foo'
           }
         }
-        */
       ]
     );
   });
@@ -177,13 +171,11 @@ describe('client insert primary relations', async () => {
         {
           id_a: connectionAId,
           value: 'bar'
-        }
-        /*
+        },
         {
-          id: connectionBId,
+          id_a: connectionBId,
           value: 'baz'
         }
-        */
       ]
     });
 
@@ -202,12 +194,10 @@ describe('client insert primary relations', async () => {
         relations: [
           {
             id_a: connectionAId
-          }
-          /*
+          },
           {
             id_a: connectionBId
           }
-          */
         ]
       }
     });
@@ -219,13 +209,11 @@ describe('client insert primary relations', async () => {
         {
           id_a: connectionAId,
           value: 'bar'
-        }
-        /*
+        },
         {
           id_a: connectionBId,
           value: 'baz'
         }
-        */
       ]
     });
 
@@ -239,17 +227,15 @@ describe('client insert primary relations', async () => {
             id_b: sourceId,
             value: 'foo'
           }
-        }
-        /*
+        },
         {
-          id_a: connectionAId,
+          id_a: connectionBId,
           value: 'baz',
           relation_1: {
             id_b: sourceId,
             value: 'foo'
           }
         }
-        */
       ]
     );
   });

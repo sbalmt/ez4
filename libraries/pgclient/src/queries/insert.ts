@@ -379,27 +379,34 @@ const getInsertSelectFields = (
         } else {
           relationQuery.arrayColumn(relationRecord, { binary: true });
         }
+
+        output[fieldKey] = relationQuery;
+        continue;
+      }
+
+      // Inserted relations
+      if (relationQueries.length > 1) {
+        relationQuery.from(builder.union(relationQueries.map((query) => builder.select().from(query.reference()))));
       } else {
-        // Inserted relations
         relationQuery.from(...relationQueries.map((query) => query.reference()));
+      }
 
-        for (const relationFieldKey in relationFields) {
-          for (const relationQuery of relationQueries) {
-            const { results } = relationQuery.returning();
+      for (const relationFieldKey in relationFields) {
+        for (const relationQuery of relationQueries) {
+          const { results } = relationQuery.returning();
 
-            if (!results.has(relationFieldKey)) {
-              results.column(relationFieldKey);
-            }
+          if (!results.has(relationFieldKey)) {
+            results.column(relationFieldKey);
           }
         }
+      }
 
-        const record = getInsertSelectFields(builder, relationFields, sourceSchema, relations, undefined, relationQuery, fieldPath, true);
+      const record = getInsertSelectFields(builder, relationFields, sourceSchema, relations, undefined, relationQuery, fieldPath, true);
 
-        if (sourceIndex === Index.Primary || sourceIndex === Index.Unique) {
-          relationQuery.objectColumn(record, { binary: true });
-        } else {
-          relationQuery.arrayColumn(record, { binary: true });
-        }
+      if (sourceIndex === Index.Primary || sourceIndex === Index.Unique) {
+        relationQuery.objectColumn(record, { binary: true });
+      } else {
+        relationQuery.arrayColumn(record, { binary: true });
       }
 
       output[fieldKey] = relationQuery;

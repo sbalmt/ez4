@@ -1,11 +1,12 @@
 import type { ObjectSchema } from '@ez4/schema';
-import type { SqlArrayColumn, SqlObjectColumn, SqlResultColumn, SqlResultRecord } from '../common/results';
-import type { SqlJsonColumnOptions, SqlJsonColumnRecord } from '../common/json';
-import type { SqlBuilderOptions, SqlBuilderReferences } from '../builder';
 import type { SqlTableReference } from '../common/reference';
+import type { SqlJsonColumnOptions, SqlJsonColumnRecord } from '../common/json';
+import type { SqlArrayColumn, SqlObjectColumn, SqlResultColumn, SqlResultRecord } from '../common/results';
 import type { SqlSourceWithResults } from '../common/source';
 import type { SqlFilters, SqlOrder } from '../common/types';
 import type { SqlRawGenerator } from '../common/raw';
+import type { SqlUnionClause } from '../clauses/query/union';
+import type { SqlBuilderOptions, SqlBuilderReferences } from '../builder';
 
 import { isAnyNumber } from '@ez4/utils';
 
@@ -22,7 +23,7 @@ export class SqlSelectStatement extends SqlSource implements SqlSourceWithResult
   #state: {
     options: SqlBuilderOptions;
     references: SqlBuilderReferences;
-    tables?: (string | SqlTableReference | SqlSource)[];
+    tables?: (string | SqlTableReference | SqlUnionClause | SqlSource)[];
     where?: SqlWhereClause;
     order?: SqlOrderClause;
     schema?: ObjectSchema;
@@ -112,7 +113,7 @@ export class SqlSelectStatement extends SqlSource implements SqlSourceWithResult
     return this;
   }
 
-  from(...tables: (string | SqlTableReference | SqlSource)[]) {
+  from(...tables: (string | SqlTableReference | SqlUnionClause | SqlSource)[]) {
     this.#state.tables = tables;
     return this;
   }

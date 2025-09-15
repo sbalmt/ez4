@@ -33,22 +33,16 @@ describe('sql with tests', () => {
   });
 
   it('assert :: with single insert', async () => {
-    const query1 = sql.select().columns('foo').from('table1');
+    const query = sql.insert().into('table').record({
+      foo: 'abc',
+      bar: 123
+    });
 
-    const query2 = sql
-      .insert()
-      .into('table2')
-      .select(query1.reference())
-      .record({
-        foo: query1.reference('foo'),
-        bar: 123
-      });
+    const [statement, variables] = sql.with([query]).build();
 
-    const [statement, variables] = sql.with([query1, query2]).build();
+    deepEqual(variables, ['abc', 123]);
 
-    deepEqual(variables, [123]);
-
-    equal(statement, `WITH "Q0" AS (SELECT "foo" FROM "table1") ` + `INSERT INTO "table2" ("foo", "bar") SELECT "Q0"."foo", :0 FROM "Q0"`);
+    equal(statement, `INSERT INTO "table" ("foo", "bar") VALUES (:0, :1)`);
   });
 
   it('assert :: with multiple inserts', async () => {

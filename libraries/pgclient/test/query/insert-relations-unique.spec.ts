@@ -520,7 +520,7 @@ describe('insert unique relations', () => {
         // Return
         `SELECT "id_c", "value", ` +
         `(SELECT COALESCE(json_agg(jsonb_build_object('id_a', "id_a", 'value', "value")), '[]'::json) ` +
-        `FROM "Q1", "Q2") AS "relations" ` +
+        `FROM (SELECT * FROM "Q1" UNION ALL SELECT * FROM "Q2")) AS "relations" ` +
         `FROM "Q0"`
     );
 
@@ -567,7 +567,7 @@ describe('insert unique relations', () => {
         // Return
         `SELECT "id_c", "value", ` +
         `(SELECT COALESCE(json_agg(jsonb_build_object('id_a', "id_a", 'value', "value")), '[]'::json) ` +
-        `FROM "Q1", "Q2") AS "relations" ` +
+        `FROM (SELECT * FROM "Q1" UNION ALL SELECT * FROM "Q2")) AS "relations" ` +
         `FROM "Q0"`
     );
 

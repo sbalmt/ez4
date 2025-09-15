@@ -8,9 +8,10 @@ import { SqlSelectStatement } from './statements/select';
 import { SqlInsertStatement } from './statements/insert';
 import { SqlUpdateStatement } from './statements/update';
 import { SqlDeleteStatement } from './statements/delete';
+import { SqlUnionClause } from './clauses/query/union';
 import { SqlWithClause } from './clauses/query/with';
-import { escapeSqlText } from './utils/escape';
 import { getUniqueAlias } from './helpers/alias';
+import { escapeSqlText } from './utils/escape';
 
 export type SqlBuilderReferences = {
   aliases: Record<string, number>;
@@ -79,6 +80,10 @@ export class SqlBuilder {
 
   alias(name: string) {
     return getUniqueAlias(name, this.#references);
+  }
+
+  union(statements: (SqlSelectStatement | SqlInsertStatement | SqlUpdateStatement | SqlDeleteStatement)[]) {
+    return new SqlUnionClause(statements);
   }
 
   with(statements: (SqlSelectStatement | SqlInsertStatement | SqlUpdateStatement | SqlDeleteStatement)[], alias?: string) {
