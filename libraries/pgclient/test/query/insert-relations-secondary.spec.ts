@@ -7,7 +7,7 @@ import { MalformedRequestError } from '@ez4/pgclient';
 import { getRelationsWithSchema, prepareInsertQuery } from '@ez4/pgclient/library';
 import { SqlBuilder } from '@ez4/pgsql';
 
-import { TestRelationRepository } from './common/relation';
+import { TestRelationRepository } from '../client/common/relation';
 
 type TestTableMetadata = {
   engine: PostgresEngine;

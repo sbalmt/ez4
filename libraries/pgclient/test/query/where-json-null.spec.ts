@@ -1,6 +1,6 @@
 import type { Index, Query, RelationMetadata } from '@ez4/database';
 import type { PostgresEngine } from '@ez4/pgclient/library';
-import type { TestSchemaType } from './common/schema';
+import type { TestSchemaType } from '../client/common/schema';
 
 import { equal, deepEqual } from 'node:assert/strict';
 import { describe, it } from 'node:test';
@@ -8,7 +8,7 @@ import { describe, it } from 'node:test';
 import { prepareSelectQuery } from '@ez4/pgclient/library';
 import { SqlBuilder } from '@ez4/pgsql';
 
-import { TestSchema } from './common/schema';
+import { TestSchema } from '../client/common/schema';
 
 type TestTableMetadata = {
   engine: PostgresEngine;
@@ -19,7 +19,7 @@ type TestTableMetadata = {
   };
 };
 
-describe('where null', () => {
+describe('where json null', () => {
   const getWhereOperation = (where: Query.WhereInput<TestTableMetadata>) => {
     const builder = new SqlBuilder();
 
@@ -43,60 +43,70 @@ describe('where null', () => {
     return [whereClause, variables];
   };
 
-  it('assert :: prepare where null (implicit)', () => {
+  it('assert :: prepare where json null (implicit)', () => {
     const [whereClause, variables] = getWhereOperation({
-      string: null
+      json: {
+        number: null
+      }
     });
 
-    equal(whereClause, `WHERE "string" IS null`);
+    equal(whereClause, `WHERE "json"->>'number' IS null`);
 
     deepEqual(variables, []);
   });
 
   it('assert :: prepare where json null (explicit)', () => {
     const [whereClause, variables] = getWhereOperation({
-      string: {
-        equal: null
+      json: {
+        number: {
+          equal: null
+        }
       }
     });
 
-    equal(whereClause, `WHERE "string" IS null`);
+    equal(whereClause, `WHERE "json"->>'number' IS null`);
 
     deepEqual(variables, []);
   });
 
   it('assert :: prepare where json null (operator)', () => {
     const [whereClause, variables] = getWhereOperation({
-      string: {
-        isNull: true
+      json: {
+        number: {
+          isNull: true
+        }
       }
     });
 
-    equal(whereClause, `WHERE "string" IS null`);
+    equal(whereClause, `WHERE "json"->>'number' IS null`);
 
     deepEqual(variables, []);
   });
 
   it('assert :: prepare where json not null (explicit)', () => {
     const [whereClause, variables] = getWhereOperation({
-      string: {
-        not: null
+      json: {
+        number: {
+          not: null
+        }
       }
     });
 
-    equal(whereClause, `WHERE "string" IS NOT null`);
+    equal(whereClause, `WHERE "json"->>'number' IS NOT null`);
 
     deepEqual(variables, []);
   });
 
   it('assert :: prepare where json not null (operator)', () => {
     const [whereClause, variables] = getWhereOperation({
-      string: {
-        isNull: false
+      json: {
+        number: {
+          isNull: false
+        }
       }
     });
 
-    equal(whereClause, `WHERE "string" IS NOT null`);
+    equal(whereClause, `WHERE "json"->>'number' IS NOT null`);
 
     deepEqual(variables, []);
   });

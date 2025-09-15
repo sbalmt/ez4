@@ -3,7 +3,7 @@ import { describe, it } from 'node:test';
 
 import { Index } from '@ez4/database';
 
-import { tryExtractUniqueIndex } from '../src/utils/indexes';
+import { tryExtractUniqueIndex } from '../../src/utils/indexes';
 
 describe('index functions', () => {
   const indexes = [

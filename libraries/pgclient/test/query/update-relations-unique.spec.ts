@@ -7,7 +7,7 @@ import { MalformedRequestError } from '@ez4/pgclient';
 import { getRelationsWithSchema, prepareUpdateQuery } from '@ez4/pgclient/library';
 import { SqlBuilder } from '@ez4/pgsql';
 
-import { TestRelationRepository } from './common/relation';
+import { TestRelationRepository } from '../client/common/relation';
 
 type TestTableMetadata = {
   engine: PostgresEngine;
@@ -16,7 +16,7 @@ type TestTableMetadata = {
   schema: {};
 };
 
-describe('update primary relations', () => {
+describe('update unique relations', () => {
   const tableName = 'table_c';
 
   const sourceId = '00000000-0000-1000-9000-000000000000';
