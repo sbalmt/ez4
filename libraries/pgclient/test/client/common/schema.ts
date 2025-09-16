@@ -60,10 +60,13 @@ export const prepareSchemaTable = async (client: DbClient<TestSchemaDb>) => {
   const queries = getCreateQueries(TestSchemaRepository);
 
   await client.transaction(async (transaction) => {
-    await transaction.rawQuery(`DROP TABLE IF EXISTS "ez4_test_table"`);
-
+    await deleteSchemaTables(transaction);
     await runMigration(transaction, queries);
   });
+};
+
+export const deleteSchemaTables = async (client: DbClient<TestSchemaDb>) => {
+  await client.rawQuery(`DROP TABLE IF EXISTS "ez4_test_table"`);
 };
 
 export const TestSchema: ObjectSchema = {

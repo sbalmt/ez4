@@ -1,8 +1,8 @@
 import type { AnyObject } from '@ez4/utils';
 
-import { makeRelationClient, prepareRelationTables } from './common/relation';
+import { deleteRelationTables, makeRelationClient, prepareRelationTables } from './common/relation';
 
-import { beforeEach, describe, it } from 'node:test';
+import { after, beforeEach, describe, it } from 'node:test';
 import { deepEqual } from 'node:assert/strict';
 import { randomUUID } from 'node:crypto';
 
@@ -110,6 +110,10 @@ describe('client update unique relations', async () => {
 
   beforeEach(async () => {
     await prepareRelationTables(client);
+  });
+
+  after(async () => {
+    await deleteRelationTables(client);
   });
 
   it('assert :: update and select relation (unique to unique)', async () => {

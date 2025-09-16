@@ -1,6 +1,6 @@
-import { makeRelationClient, prepareRelationTables } from './common/relation';
+import { deleteRelationTables, makeRelationClient, prepareRelationTables } from './common/relation';
 
-import { before, describe, it } from 'node:test';
+import { after, before, describe, it } from 'node:test';
 import { deepEqual } from 'node:assert/strict';
 import { randomUUID } from 'node:crypto';
 
@@ -57,6 +57,10 @@ describe('client select relations', async () => {
         }
       }
     });
+  });
+
+  after(async () => {
+    await deleteRelationTables(client);
   });
 
   it('assert :: select relation (multiple levels)', async () => {

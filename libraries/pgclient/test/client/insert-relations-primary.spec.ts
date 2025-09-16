@@ -1,8 +1,8 @@
 import type { AnyObject } from '@ez4/utils';
 
-import { makeRelationClient, prepareRelationTables } from './common/relation';
+import { deleteRelationTables, makeRelationClient, prepareRelationTables } from './common/relation';
 
-import { beforeEach, describe, it } from 'node:test';
+import { after, beforeEach, describe, it } from 'node:test';
 import { deepEqual } from 'node:assert/strict';
 import { randomUUID } from 'node:crypto';
 
@@ -49,6 +49,10 @@ describe('client insert primary relations', async () => {
 
   beforeEach(async () => {
     await prepareRelationTables(client);
+  });
+
+  after(async () => {
+    await deleteRelationTables(client);
   });
 
   it('assert :: insert, create and select relation (primary to secondary)', async () => {

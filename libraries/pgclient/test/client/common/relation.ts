@@ -99,12 +99,15 @@ export const prepareRelationTables = async (client: DbClient<TestRelationDb>) =>
   const queries = getCreateQueries(TestRelationRepository);
 
   await client.transaction(async (transaction) => {
-    await transaction.rawQuery(`DROP TABLE IF EXISTS "table_a" CASCADE`);
-    await transaction.rawQuery(`DROP TABLE IF EXISTS "table_b" CASCADE`);
-    await transaction.rawQuery(`DROP TABLE IF EXISTS "table_c" CASCADE`);
-
+    await deleteRelationTables(transaction);
     await runMigration(transaction, queries);
   });
+};
+
+export const deleteRelationTables = async (client: DbClient<TestRelationDb>) => {
+  await client.rawQuery(`DROP TABLE IF EXISTS "table_a" CASCADE`);
+  await client.rawQuery(`DROP TABLE IF EXISTS "table_b" CASCADE`);
+  await client.rawQuery(`DROP TABLE IF EXISTS "table_c" CASCADE`);
 };
 
 export const TestRelationRepository: PgTableRepository = {
