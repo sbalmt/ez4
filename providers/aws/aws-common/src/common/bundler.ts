@@ -1,10 +1,13 @@
 import type { ExtraSource } from '@ez4/project/library';
 
 import { build, formatMessages } from 'esbuild';
-import { dirname, join, parse } from 'node:path';
 import { readFile, stat } from 'node:fs/promises';
 import { createHash } from 'node:crypto';
+import { join, parse } from 'node:path';
 import { existsSync } from 'node:fs';
+
+import { getTemporaryPath } from '@ez4/project/library';
+import { toKebabCase } from '@ez4/utils';
 
 import { SourceFileError } from '../errors/bundler';
 import { Logger } from './logger';
@@ -84,14 +87,12 @@ export const getFunctionBundle = async (serviceName: string, options: BundlerOpt
     return cacheFile;
   }
 
-  const sourceName = parse(sourceFile).name;
+  const { filePrefix, debug } = options;
 
-  const targetPath = dirname(sourceFile);
-  const targetFile = `${options.filePrefix}.${sourceName}.${functionName}.mjs`;
+  const { dir: targetPath, name: targetName } = parse(sourceFile);
 
-  const outputFile = join('.ez4', targetPath, targetFile);
-
-  const { debug } = options;
+  const targetFile = join(targetPath, `${filePrefix}.${targetName}.${toKebabCase(functionName)}.mjs`);
+  const outputFile = getTemporaryPath(targetFile);
 
   const result = await build({
     outfile: outputFile,
