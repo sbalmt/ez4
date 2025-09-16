@@ -129,11 +129,11 @@ const executeMigrationStatement = async (driver: DataClientDriver, statement: Pg
   const { check, query } = statement;
 
   if (check) {
-    const [done] = await driver.executeStatement({
+    const { records } = await driver.executeStatement({
       query: check
     });
 
-    if (done) {
+    if (records[0]) {
       return false;
     }
   }

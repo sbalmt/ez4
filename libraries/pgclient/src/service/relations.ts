@@ -2,6 +2,8 @@ import type { PgTableRepository, PgRelationRepository, PgRelationRepositoryWithS
 
 import { MissingRepositoryTableError } from '@ez4/pgclient';
 
+import { getPrimaryIndex } from '../utils/indexes';
+
 export const getRelationsWithSchema = (tableName: string, repository: PgTableRepository) => {
   const relationsWithSchema: PgRelationRepositoryWithSchema = {};
   const tableAliasCache = new Set<string>();
@@ -29,6 +31,7 @@ export const getRelationsWithSchema = (tableName: string, repository: PgTableRep
 
       relationsWithSchema[relationPath] = {
         ...tableRelation,
+        primaryColumn: getPrimaryIndex(sourceRepository.indexes)?.[0]!,
         sourceSchema: sourceRepository.schema,
         targetAlias: relationAlias,
         targetTable: tableName

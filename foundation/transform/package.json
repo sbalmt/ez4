@@ -1,7 +1,7 @@
 {
   "name": "@ez4/transform",
   "description": "EZ4: Transform data according to a given schema",
-  "version": "0.27.0",
+  "version": "0.28.0",
   "author": "Silas B.",
   "license": "MIT",
   "type": "module",
@@ -28,13 +28,13 @@
     "lint": "eslint --cache",
     "clean": "rm -f *.tsbuildinfo && rm -rf dist/*",
     "build": "tsc && node tools/bundler.mjs",
-    "test": "npm run build && ez4 test",
+    "test": "npm run build && tsc -p tsconfig.test.json && ez4 test",
     "local:publish": "npm run build && npm run clean:registry && npm publish --registry http://localhost:4873",
     "clean:registry": "rm -rf ../../.registry/@ez4/transform",
     "live:publish": "npm run build && npm publish --access public"
   },
   "dependencies": {
-    "@ez4/schema": "^0.27.0",
-    "@ez4/utils": "^0.27.0"
+    "@ez4/schema": "^0.28.0",
+    "@ez4/utils": "^0.28.0"
   }
 }

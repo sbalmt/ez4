@@ -7,9 +7,9 @@ import { isDynamicObjectSchema, IsNullishSchema, isObjectSchema, SchemaType } fr
 import { isPlainObject } from '@ez4/utils';
 
 import { SqlRaw, SqlRawOperation } from '../common/raw';
-import { SqlSelectStatement } from '../statements/select';
-import { mergeSqlJsonPath, mergeSqlPath } from '../utils/merge';
 import { InvalidAtomicOperation } from '../operations/errors';
+import { mergeSqlAlias, mergeSqlJsonPath, mergeSqlPath } from '../utils/merge';
+import { SqlSelectStatement } from '../statements/select';
 import { SqlColumnReference } from '../common/reference';
 
 export type SqlUpdateContext = {
@@ -95,7 +95,9 @@ export const getUpdateColumns = (
       });
 
       if (canCombine) {
-        columns.push(`${columnName} = COALESCE(${columnName}, '{}'::jsonb) || jsonb_build_object(${jsonValue.join(',')})`);
+        const columnPath = mergeSqlAlias(columnName, source.alias);
+
+        columns.push(`${columnName} = COALESCE(${columnPath}, '{}'::jsonb) || jsonb_build_object(${jsonValue.join(',')})`);
       } else {
         columns.push(...jsonValue);
       }
@@ -110,11 +112,12 @@ export const getUpdateColumns = (
       pushUpdate(fieldName, `:${fieldIndex}`);
     } else {
       const columnName = mergeSqlJsonPath(fieldName, parent);
+      const columnPath = mergeSqlAlias(columnName, source.alias);
 
       if (!json) {
-        pushUpdate(fieldName, `(${columnName} ${value.operator} :${fieldIndex})`);
+        pushUpdate(fieldName, `(${columnPath} ${value.operator} :${fieldIndex})`);
       } else {
-        const lhsOperand = getOperandColumn(fieldSchema, fieldName, coalesce ? getOperandCoalesce(fieldSchema, columnName) : columnName);
+        const lhsOperand = getOperandColumn(fieldSchema, fieldName, coalesce ? getOperandCoalesce(fieldSchema, columnPath) : columnPath);
         const rhsOperand = getOperandColumn(fieldSchema, fieldName, `:${fieldIndex}`);
 
         pushUpdate(fieldName, `(${lhsOperand} ${value.operator} ${rhsOperand})::text::jsonb`);
@@ -137,11 +140,11 @@ const getOperandColumn = (schema: AnySchema | undefined, fieldName: string, fiel
     throw new InvalidAtomicOperation(fieldName);
   }
 
-  if (schema.format === 'decimal') {
-    return `(${fieldExpression})::dec`;
+  if (schema.format === 'integer') {
+    return `(${fieldExpression})::int`;
   }
 
-  return `(${fieldExpression})::int`;
+  return `(${fieldExpression})::dec`;
 };
 
 const getOperandCoalesce = (schema: AnySchema | undefined, columnName: string) => {

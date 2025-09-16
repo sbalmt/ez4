@@ -203,40 +203,6 @@ describe('sql where raw tests', () => {
     assert.equal(statement, 'SELECT * FROM "test" WHERE "foo" BETWEEN :0 AND :1');
   });
 
-  it('assert :: where is missing', ({ assert }) => {
-    const query = sql
-      .select()
-      .from('test')
-      .where({
-        foo: {
-          isMissing: true
-        }
-      });
-
-    const [statement, variables] = query.build();
-
-    assert.deepEqual(variables, []);
-
-    assert.equal(statement, 'SELECT * FROM "test" WHERE "foo" IS null');
-  });
-
-  it('assert :: where is not missing', ({ assert }) => {
-    const query = sql
-      .select()
-      .from('test')
-      .where({
-        foo: {
-          isMissing: false
-        }
-      });
-
-    const [statement, variables] = query.build();
-
-    assert.deepEqual(variables, []);
-
-    assert.equal(statement, 'SELECT * FROM "test" WHERE "foo" IS NOT null');
-  });
-
   it('assert :: where is null (implicit)', ({ assert }) => {
     const query = sql.select().from('test').where({ foo: null });
 
@@ -245,40 +211,6 @@ describe('sql where raw tests', () => {
     assert.deepEqual(variables, []);
 
     assert.equal(statement, 'SELECT * FROM "test" WHERE "foo" IS null');
-  });
-
-  it('assert :: where is null (explicit)', ({ assert }) => {
-    const query = sql
-      .select()
-      .from('test')
-      .where({
-        foo: {
-          isNull: true
-        }
-      });
-
-    const [statement, variables] = query.build();
-
-    assert.deepEqual(variables, []);
-
-    assert.equal(statement, 'SELECT * FROM "test" WHERE "foo" IS null');
-  });
-
-  it('assert :: where is not null', ({ assert }) => {
-    const query = sql
-      .select()
-      .from('test')
-      .where({
-        foo: {
-          isNull: false
-        }
-      });
-
-    const [statement, variables] = query.build();
-
-    assert.deepEqual(variables, []);
-
-    assert.equal(statement, 'SELECT * FROM "test" WHERE "foo" IS NOT null');
   });
 
   it('assert :: where starts with', ({ assert }) => {

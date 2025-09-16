@@ -17,7 +17,7 @@ export namespace RelationQuery {
     for (const targetAlias in relations) {
       const relation = relations[targetAlias];
 
-      if (relation.targetIndex === Index.Primary) {
+      if (isNotRealRelation(relation)) {
         continue;
       }
 
@@ -47,7 +47,7 @@ export namespace RelationQuery {
     for (const targetAlias in relations) {
       const relation = relations[targetAlias];
 
-      if (relation.targetIndex === Index.Primary) {
+      if (isNotRealRelation(relation)) {
         continue;
       }
 
@@ -79,7 +79,7 @@ export namespace RelationQuery {
     for (const targetAlias in relations) {
       const relation = relations[targetAlias];
 
-      if (relation.targetIndex === Index.Primary) {
+      if (isNotRealRelation(relation)) {
         continue;
       }
 
@@ -103,7 +103,7 @@ export namespace RelationQuery {
     for (const targetAlias in relations) {
       const relation = relations[targetAlias];
 
-      if (relation.targetIndex === Index.Primary) {
+      if (isNotRealRelation(relation)) {
         continue;
       }
 
@@ -115,6 +115,12 @@ export namespace RelationQuery {
     }
 
     return statements;
+  };
+
+  const isNotRealRelation = (relation: PgRelationMetadata) => {
+    const { sourceIndex, targetIndex } = relation;
+
+    return !sourceIndex || sourceIndex === Index.Secondary || targetIndex === Index.Primary;
   };
 
   const getDeleteQuery = (builder: SqlBuilder, table: string, name: string) => {

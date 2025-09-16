@@ -7,5 +7,6 @@ export type SqlOperationContext = {
   insensitive?: boolean;
   source?: SqlSource;
   variables: unknown[];
-  parent?: string;
+  field?: string;
+  path?: string;
 };

@@ -31,9 +31,10 @@ export class SqlInsertStatement extends SqlSource {
     returning?: SqlReturningClause;
     conflict?: SqlConflictClause;
     sources?: (SqlTableReference | SqlSource)[];
+    where?: SqlWhereClause;
     schema?: ObjectSchema;
     record?: SqlRecord;
-    where?: SqlWhereClause;
+    building: boolean;
     table?: string;
     alias?: string;
   };
@@ -42,8 +43,9 @@ export class SqlInsertStatement extends SqlSource {
     super();
 
     this.#state = {
-      options,
+      building: false,
       references,
+      options,
       schema
     };
   }
@@ -70,6 +72,14 @@ export class SqlInsertStatement extends SqlSource {
 
   get schema() {
     return this.#state.schema;
+  }
+
+  get selecting() {
+    return !!this.#state.sources;
+  }
+
+  get building() {
+    return this.#state.building;
   }
 
   into(table: string) {
@@ -135,70 +145,76 @@ export class SqlInsertStatement extends SqlSource {
       throw new MissingTableNameError();
     }
 
-    const statement = [`INSERT INTO ${escapeSqlName(table)}`];
-    const variables: unknown[] = [];
+    try {
+      this.#state.building = true;
 
-    if (alias) {
-      statement.push(`AS ${escapeSqlName(alias)}`);
-    }
+      const statement = ['INSERT', 'INTO', escapeSqlName(table)];
+      const variables: unknown[] = [];
 
-    const columns = escapeSqlNames(this.fields);
-
-    statement.push(columns.length ? `(${columns})` : 'DEFAULT');
-
-    const values = getValueReferences(this, record ?? {}, schema, {
-      variables,
-      references,
-      options
-    });
-
-    if (sources) {
-      const [tableExpressions, tableVariables] = getSelectExpressions(sources, references);
-
-      statement.push('SELECT', values);
-      variables.push(...tableVariables);
-
-      if (tableExpressions.length) {
-        statement.push('FROM', tableExpressions.join(', '));
+      if (alias) {
+        statement.push('AS', escapeSqlName(alias));
       }
 
-      if (where && !where.empty) {
-        const whereResult = where.build();
+      const columns = escapeSqlNames(this.fields);
 
-        if (whereResult) {
-          const [whereClause, whereVariables] = whereResult;
+      statement.push(columns.length ? `(${columns})` : 'DEFAULT');
 
-          statement.push(whereClause);
-          variables.push(...whereVariables);
+      const values = getValueReferences(this, record ?? {}, schema, {
+        variables,
+        references,
+        options
+      });
+
+      if (sources) {
+        const [tableExpressions, tableVariables] = getSelectExpressions(sources, references);
+
+        statement.push('SELECT', values);
+        variables.push(...tableVariables);
+
+        if (tableExpressions.length) {
+          statement.push('FROM', tableExpressions.join(', '));
+        }
+
+        if (where && !where.empty) {
+          const whereResult = where.build();
+
+          if (whereResult) {
+            const [whereClause, whereVariables] = whereResult;
+
+            statement.push(whereClause);
+            variables.push(...whereVariables);
+          }
+        }
+      } else {
+        statement.push('VALUES');
+
+        if (values.length) {
+          statement.push(`(${values})`);
+        }
+
+        if (where) {
+          throw new InvalidWhereClauseError();
         }
       }
-    } else {
-      statement.push('VALUES');
 
-      if (values.length) {
-        statement.push(`(${values})`);
+      if (conflict && !conflict.empty) {
+        const [conflictClause, conflictVariables] = conflict.build();
+
+        variables.push(...conflictVariables);
+        statement.push(conflictClause);
       }
 
-      if (where) {
-        throw new InvalidWhereClauseError();
+      if (returning && !returning.empty) {
+        const [returningClause, returningVariables] = returning.build();
+
+        variables.push(...returningVariables);
+        statement.push(returningClause);
       }
+
+      return [statement.join(' '), variables];
+    } finally {
+      this.#state.building = false;
     }
-
-    if (conflict && !conflict.empty) {
-      const [conflictClause, conflictVariables] = conflict.build();
-
-      variables.push(...conflictVariables);
-      statement.push(conflictClause);
-    }
-
-    if (returning && !returning.empty) {
-      const [returningClause, returningVariables] = returning.build();
-
-      variables.push(...returningVariables);
-      statement.push(returningClause);
-    }
-
-    return [statement.join(' '), variables];
   }
 }
 

@@ -17,6 +17,8 @@ export abstract class SqlSource {
 
   abstract readonly schema: ObjectSchema | undefined;
 
+  abstract readonly building: boolean;
+
   abstract as(alias: string | undefined): SqlSource;
 
   abstract build(): [string, unknown[]];

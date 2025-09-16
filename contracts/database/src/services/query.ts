@@ -16,6 +16,7 @@ import type {
   OptionalObject,
   StrictObject,
   IsNullable,
+  IsUndefined,
   IsObjectEmpty,
   IsObject,
   IsArray,
@@ -122,15 +123,14 @@ export namespace Query {
   >;
 
   export type InsertDataInput<T extends TableMetadata> =
-    IsObjectEmpty<T['relations']['changes']> extends false
-      ? Omit<T['schema'] & T['relations']['changes'], T['relations']['indexes']>
+    IsObjectEmpty<T['relations']['inserts']> extends false
+      ? Omit<T['schema'], T['relations']['indexes']> & T['relations']['inserts']
       : T['schema'];
 
-  export type UpdateDataInput<T extends TableMetadata> = AtomicDataInput<
-    IsObjectEmpty<T['relations']['changes']> extends false
-      ? Omit<T['schema'] & FlatObject<T['relations']['changes']>, T['relations']['indexes']>
-      : T['schema']
-  >;
+  export type UpdateDataInput<T extends TableMetadata> =
+    IsObjectEmpty<T['relations']['updates']> extends false
+      ? AtomicDataInput<Omit<T['schema'], T['relations']['indexes']> & FlatObject<T['relations']['updates']>>
+      : AtomicDataInput<T['schema']>;
 
   export type OrderInput<T extends TableMetadata> = OrderModeUtils.Input<T>;
 
@@ -293,11 +293,11 @@ export namespace Query {
         : T;
 
   type AtomicRequiredFields<T extends AnyObject> = {
-    [P in keyof T as T[P] extends undefined ? never : P]: AtomicDataField<T[P]>;
+    [P in keyof T as IsUndefined<T[P]> extends true ? never : P]: AtomicDataField<T[P]>;
   };
 
   type AtomicOptionalFields<T extends AnyObject> = {
-    [P in keyof T as T[P] extends undefined ? P : never]?: AtomicDataField<T[P]>;
+    [P in keyof T as IsUndefined<T[P]> extends true ? P : never]?: AtomicDataField<T[P]>;
   };
 
   type AtomicOperation = AtomicIncrement | AtomicDecrement | AtomicMultiply | AtomicDivide;

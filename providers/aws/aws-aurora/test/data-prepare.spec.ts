@@ -87,7 +87,7 @@ describe('aurora data prepare', () => {
       name: 'field',
       typeHint: 'TIMESTAMP',
       value: {
-        stringValue: '1991-04-23T23:59:30.000Z'
+        stringValue: '1991-04-23 23:59:30'
       }
     });
   });

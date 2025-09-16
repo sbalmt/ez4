@@ -1,0 +1,452 @@
+import type { AnyObject } from '@ez4/utils';
+
+import { deleteRelationTables, makeRelationClient, prepareRelationTables } from './common/relation';
+
+import { after, beforeEach, describe, it } from 'node:test';
+import { deepEqual } from 'node:assert/strict';
+import { randomUUID } from 'node:crypto';
+
+describe('client insert relations', async () => {
+  const client = await makeRelationClient();
+
+  const assertTableBRelations = async (primaryId: string, expected: AnyObject) => {
+    const result = await client.table_b.findOne({
+      select: {
+        id_b: true,
+        value: true,
+        relations: {
+          id_a: true,
+          value: true
+        }
+      },
+      where: {
+        id_b: primaryId
+      }
+    });
+
+    deepEqual(result, expected);
+  };
+
+  const assertTableARelation2 = async (relationIds: string[], expected: AnyObject[]) => {
+    const { records } = await client.table_a.findMany({
+      select: {
+        id_a: true,
+        value: true,
+        relation_2: {
+          id_c: true,
+          value: true
+        }
+      },
+      where: {
+        id_a: {
+          isIn: relationIds
+        }
+      }
+    });
+
+    deepEqual(records, expected);
+  };
+
+  const assertTableBRelation = async (relationId: string, expected: AnyObject) => {
+    const result = await client.table_b.findOne({
+      select: {
+        id_b: true,
+        value: true,
+        relation: {
+          id_c: true,
+          value: true
+        }
+      },
+      where: {
+        id_b: relationId
+      }
+    });
+
+    deepEqual(result, expected);
+  };
+
+  beforeEach(async () => {
+    await prepareRelationTables(client);
+  });
+
+  after(async () => {
+    await deleteRelationTables(client);
+  });
+
+  it('assert :: insert, create and select relation (secondary to primary)', async () => {
+    const sourceId = randomUUID();
+    const targetId = randomUUID();
+
+    const result = await client.table_a.insertOne({
+      select: {
+        id_a: true,
+        value: true,
+        relation_1: {
+          id_b: true,
+          value: true
+        }
+      },
+      data: {
+        id_a: sourceId,
+        value: 'foo',
+        relation_1: {
+          id_b: targetId,
+          value: 'bar'
+        }
+      }
+    });
+
+    deepEqual(result, {
+      id_a: sourceId,
+      value: 'foo',
+      relation_1: {
+        id_b: targetId,
+        value: 'bar'
+      }
+    });
+
+    await assertTableBRelations(targetId, {
+      id_b: targetId,
+      value: 'bar',
+      relations: [
+        {
+          id_a: sourceId,
+          value: 'foo'
+        }
+      ]
+    });
+  });
+
+  it('assert :: insert, create and select relation (unique to primary)', async () => {
+    const sourceId = randomUUID();
+    const targetId = randomUUID();
+
+    const result = await client.table_c.insertOne({
+      select: {
+        id_c: true,
+        value: true,
+        relation: {
+          id_b: true,
+          value: true
+        }
+      },
+      data: {
+        id_c: sourceId,
+        value: 'foo',
+        relation: {
+          id_b: targetId,
+          value: 'bar'
+        }
+      }
+    });
+
+    deepEqual(result, {
+      value: 'foo',
+      id_c: sourceId,
+      relation: {
+        value: 'bar',
+        id_b: targetId
+      }
+    });
+
+    await assertTableBRelation(targetId, {
+      id_b: targetId,
+      value: 'bar',
+      relation: {
+        id_c: sourceId,
+        value: 'foo'
+      }
+    });
+  });
+
+  it('assert :: insert, create and select relation (unique to unique)', async () => {
+    const uniqueId = randomUUID();
+    const sourceId = randomUUID();
+    const targetId = randomUUID();
+
+    const result = await client.table_c.insertOne({
+      select: {
+        id_c: true,
+        value: true,
+        unique_3_id: true,
+        relation_unique: {
+          id_b: true,
+          value: true
+        }
+      },
+      data: {
+        id_c: sourceId,
+        value: 'foo',
+        relation_unique: {
+          id_b: targetId,
+          unique_b: uniqueId,
+          value: 'bar'
+        }
+      }
+    });
+
+    deepEqual(result, {
+      id_c: sourceId,
+      unique_3_id: uniqueId,
+      value: 'foo',
+      relation_unique: {
+        value: 'bar',
+        id_b: targetId
+      }
+    });
+
+    await assertTableBRelation(targetId, {
+      id_b: targetId,
+      value: 'bar',
+      relation: null
+    });
+  });
+
+  it('assert :: insert, create and select relation (unique to secondary)', async () => {
+    const sourceId = randomUUID();
+    const uniqueId = randomUUID();
+
+    const targetAId = randomUUID();
+    const targetBId = randomUUID();
+
+    const result = await client.table_c.insertOne({
+      select: {
+        id_c: true,
+        value: true,
+        relations: {
+          id_a: true,
+          value: true
+        }
+      },
+      data: {
+        id_c: sourceId,
+        unique_2_id: uniqueId,
+        value: 'foo',
+        relations: [
+          {
+            id_a: targetAId,
+            value: 'bar'
+          },
+          {
+            id_a: targetBId,
+            value: 'baz'
+          }
+        ]
+      }
+    });
+
+    deepEqual(result, {
+      id_c: sourceId,
+      value: 'foo',
+      relations: [
+        {
+          id_a: targetAId,
+          value: 'bar'
+        },
+        {
+          id_a: targetBId,
+          value: 'baz'
+        }
+      ]
+    });
+
+    await assertTableARelation2(
+      [targetAId, targetBId],
+      [
+        {
+          id_a: targetAId,
+          value: 'bar',
+          relation_2: {
+            id_c: sourceId,
+            value: 'foo'
+          }
+        },
+        {
+          id_a: targetBId,
+          value: 'baz',
+          relation_2: {
+            id_c: sourceId,
+            value: 'foo'
+          }
+        }
+      ]
+    );
+  });
+
+  it('assert :: insert, connect and select relation (unique to unique)', async () => {
+    const connectionId = randomUUID();
+    const targetId = randomUUID();
+    const sourceId = randomUUID();
+
+    await client.table_b.insertOne({
+      data: {
+        id_b: targetId,
+        unique_b: connectionId,
+        value: 'bar'
+      }
+    });
+
+    const result = await client.table_c.insertOne({
+      select: {
+        id_c: true,
+        value: true,
+        unique_3_id: true,
+        relation_unique: {
+          id_b: true,
+          value: true
+        }
+      },
+      data: {
+        id_c: sourceId,
+        value: 'foo',
+        relation_unique: {
+          unique_b: connectionId
+        }
+      }
+    });
+
+    deepEqual(result, {
+      id_c: sourceId,
+      unique_3_id: connectionId,
+      value: 'foo',
+      relation_unique: {
+        id_b: targetId,
+        value: 'bar'
+      }
+    });
+
+    await assertTableBRelation(targetId, {
+      id_b: targetId,
+      value: 'bar',
+      relation: null
+    });
+  });
+
+  it('assert :: insert, connect and select relation (unique to primary)', async () => {
+    const connectionId = randomUUID();
+    const sourceId = randomUUID();
+
+    await client.table_b.insertOne({
+      data: {
+        id_b: connectionId,
+        value: 'bar'
+      }
+    });
+
+    const result = await client.table_c.insertOne({
+      select: {
+        id_c: true,
+        value: true,
+        relation: {
+          id_b: true,
+          value: true
+        }
+      },
+      data: {
+        id_c: sourceId,
+        value: 'foo',
+        relation: {
+          id_b: connectionId
+        }
+      }
+    });
+
+    deepEqual(result, {
+      id_c: sourceId,
+      value: 'foo',
+      relation: {
+        id_b: connectionId,
+        value: 'bar'
+      }
+    });
+
+    await assertTableBRelation(connectionId, {
+      id_b: connectionId,
+      value: 'bar',
+      relation: {
+        id_c: sourceId,
+        value: 'foo'
+      }
+    });
+  });
+
+  it('assert :: insert, connect and select relation (unique to secondary)', async () => {
+    const connectionAId = randomUUID();
+    const connectionBId = randomUUID();
+    const sourceId = randomUUID();
+
+    await client.table_a.insertMany({
+      data: [
+        {
+          id_a: connectionAId,
+          value: 'bar'
+        },
+        {
+          id_a: connectionBId,
+          value: 'baz'
+        }
+      ]
+    });
+
+    const result = await client.table_c.insertOne({
+      select: {
+        id_c: true,
+        value: true,
+        relations: {
+          id_a: true,
+          value: true
+        }
+      },
+      data: {
+        id_c: sourceId,
+        unique_2_id: randomUUID(),
+        value: 'foo',
+        relations: [
+          {
+            id_a: connectionAId
+          },
+          {
+            id_a: connectionBId
+          }
+        ]
+      }
+    });
+
+    deepEqual(result, {
+      id_c: sourceId,
+      value: 'foo',
+      relations: [
+        {
+          id_a: connectionAId,
+          value: 'bar'
+        },
+        {
+          id_a: connectionBId,
+          value: 'baz'
+        }
+      ]
+    });
+
+    await assertTableARelation2(
+      [connectionAId, connectionBId],
+      [
+        {
+          id_a: connectionAId,
+          value: 'bar',
+          relation_2: {
+            id_c: sourceId,
+            value: 'foo'
+          }
+        },
+        {
+          id_a: connectionBId,
+          value: 'baz',
+          relation_2: {
+            id_c: sourceId,
+            value: 'foo'
+          }
+        }
+      ]
+    );
+  });
+});

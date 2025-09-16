@@ -3,6 +3,8 @@ export * from './types/assert';
 export * from './common/generics';
 export * from './common/object';
 
+export * from './system/tasks';
+
 export * from './array/compare';
 export * from './array/generics';
 export * from './array/equal';

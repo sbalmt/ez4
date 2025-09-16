@@ -4,10 +4,13 @@ import type { SqlOperationContext } from './types';
 import type { SqlFilters } from '../common/types';
 import type { SqlSource } from '../common/source';
 
-import { getSchemaProperty, isObjectSchema } from '@ez4/schema';
-import { isAnyObject, isEmptyObject } from '@ez4/utils';
+import { getSchemaProperty, isArraySchema, isObjectSchema, isTupleSchema, isUnionSchema } from '@ez4/schema';
+import { deepMerge, isAnyObject, isEmptyObject } from '@ez4/utils';
 
-import { mergeSqlAlias, mergeSqlPath } from '../utils/merge';
+import { SqlRawValue } from '../common/raw';
+import { SqlOperator } from '../common/types';
+import { SqlColumnReference } from '../common/reference';
+import { mergeSqlAlias, mergeSqlJsonPath, mergeSqlPath } from '../utils/merge';
 import { SqlSelectStatement } from '../statements/select';
 import { getIsNullOperation } from './is-null';
 import { getExistsOperation } from './exists';
@@ -21,9 +24,7 @@ import { getIsInOperation } from './is-in';
 import { getIsBetweenOperation } from './is-between';
 import { getStartsWithOperation } from './starts-with';
 import { getContainsOperation } from './contains';
-import { SqlColumnReference } from '../common/reference';
-import { SqlOperator } from '../common/types';
-import { SqlRawValue } from '../common/raw';
+import { getIsMissingOperation } from './is-missing';
 
 import { InvalidOperandError, MissingOperatorError } from './errors';
 
@@ -58,6 +59,11 @@ export class SqlConditions {
     return this;
   }
 
+  merge(filters: SqlFilters) {
+    this.#state.filters = deepMerge(this.#state.filters, filters);
+    return this;
+  }
+
   build(): [string, unknown[]] | undefined {
     const { source, references, options, filters } = this.#state;
 
@@ -88,7 +94,10 @@ const getFilterOperations = (filters: SqlFilters, schema: AnySchema | undefined,
       continue;
     }
 
-    const operation = getFieldOperation(field, value, schema, context);
+    const operation = getFieldOperation(field, value, schema, {
+      ...context,
+      field
+    });
 
     if (operation) {
       allOperations.push(operation);
@@ -104,7 +113,7 @@ const getFieldOperation = (
   schema: AnySchema | undefined,
   context: SqlOperationContext
 ): string | undefined => {
-  const { source, parent } = context;
+  const { source, path } = context;
 
   switch (field) {
     case 'AND':
@@ -115,8 +124,11 @@ const getFieldOperation = (
       return getNegateOperations(value, schema, context);
 
     default: {
-      const columnName = mergeSqlPath(field, parent);
-      const columnPath = parent ? columnName : mergeSqlAlias(columnName, source?.alias);
+      const columnSchema = schema && getSchemaProperty(schema, field);
+      const hasSubColumn = columnSchema && isNestedSchema(columnSchema);
+
+      const columnName = columnSchema && !hasSubColumn ? mergeSqlJsonPath(field, path) : mergeSqlPath(field, path);
+      const columnPath = path ? columnName : mergeSqlAlias(columnName, source?.alias);
 
       if (value === null) {
         return getIsNullOperation(columnPath, true);
@@ -125,8 +137,6 @@ const getFieldOperation = (
       if (value instanceof SqlSelectStatement) {
         return getExistsOperation(columnPath, value, context);
       }
-
-      const columnSchema = schema ? getSchemaProperty(schema, field) : undefined;
 
       if (value instanceof SqlRawValue || value instanceof SqlColumnReference || !isAnyObject(value)) {
         return getEqualOperation(columnPath, columnSchema, value, context);
@@ -147,12 +157,11 @@ const getFieldOperation = (
         });
       }
 
-      const isNestedEntry = columnSchema && isObjectSchema(columnSchema);
-      const nestedContext = { ...context, parent: columnPath };
+      const subContext = { ...context, path: columnPath };
 
-      const allOperations = !isNestedEntry
-        ? getMultipleOperations(columnPath, columnSchema, operationEntries, nestedContext)
-        : getFilterOperations(valueOperation, columnSchema, nestedContext);
+      const allOperations = !hasSubColumn
+        ? getMultipleOperations(columnPath, columnSchema, operationEntries, subContext)
+        : getFilterOperations(valueOperation, columnSchema, subContext);
 
       if (allOperations.length) {
         return combineOperations(allOperations);
@@ -169,7 +178,7 @@ const getSingleOperation = (column: string, schema: AnySchema | undefined, opera
   if (!finalOperation) {
     const allOperation = getFilterOperations({ [operation[0]]: operation[1] }, schema, {
       ...context,
-      parent: column
+      path: column
     });
 
     if (allOperation.length) {
@@ -208,8 +217,10 @@ const getFinalOperation = (column: string, schema: AnySchema | undefined, operat
 
   switch (operator) {
     case SqlOperator.IsNull:
-    case SqlOperator.IsMissing:
       return getIsNullOperation(column, operand);
+
+    case SqlOperator.IsMissing:
+      return getIsMissingOperation(column, operand, context);
 
     case SqlOperator.Equal:
       return getEqualOperation(column, schema, operand, context);
@@ -292,4 +303,16 @@ const combineOperations = (operations: string[]) => {
   }
 
   return operations[0];
+};
+
+const isNestedSchema = (schema: AnySchema): boolean => {
+  if (isObjectSchema(schema) || isArraySchema(schema) || isTupleSchema(schema)) {
+    return true;
+  }
+
+  if (isUnionSchema(schema)) {
+    return schema.elements.some((element) => isNestedSchema(element));
+  }
+
+  return false;
 };

@@ -2,6 +2,8 @@ import type { Client, Database, Index } from '@ez4/database';
 import type { Environment, Service } from '@ez4/common';
 import type { TestEngine } from '../common/engines';
 
+import { assertType } from '@ez4/utils';
+
 export declare class TestDatabase extends Database.Service {
   engine: TestEngine;
 
@@ -50,7 +52,7 @@ export const testSelectArray = async ({ selfClient }: Service.Context<TestDataba
     }
   });
 
-  ((_result: { foo: number }[]) => {})(resultA!.value);
+  assertType<{ value: { foo: number }[] } | undefined, typeof resultA>(true);
 
   // Select optional array
   const resultB = await selfClient.table_b.findOne({
@@ -62,5 +64,5 @@ export const testSelectArray = async ({ selfClient }: Service.Context<TestDataba
     }
   });
 
-  ((_result: { foo: string }[] | undefined) => {})(resultB!.value);
+  assertType<{ value?: { foo: string }[] } | undefined, typeof resultB>(true);
 };

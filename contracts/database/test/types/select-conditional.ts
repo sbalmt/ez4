@@ -2,6 +2,8 @@ import type { Client, Database, Index } from '@ez4/database';
 import type { Environment, Service } from '@ez4/common';
 import type { TestEngine } from '../common/engines';
 
+import { assertType } from '@ez4/utils';
+
 export declare class TestDatabase extends Database.Service {
   engine: TestEngine;
 
@@ -47,5 +49,5 @@ export const testSelectConditional = async ({ selfClient }: Service.Context<Test
     }
   });
 
-  ((_result: { foo: string | undefined; bar: number }) => {})(resultA!);
+  assertType<{ foo: string | undefined; bar: number; qux: { quxBar: string } | undefined } | undefined, typeof resultA>(true);
 };

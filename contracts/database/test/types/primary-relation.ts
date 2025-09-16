@@ -2,6 +2,7 @@ import type { Client, Database, Index } from '@ez4/database';
 import type { Environment, Service } from '@ez4/common';
 import type { TestEngine } from '../common/engines';
 
+import { assertType } from '@ez4/utils';
 import { Order } from '@ez4/database';
 
 export declare class TestDatabase extends Database.Service {
@@ -13,7 +14,8 @@ export declare class TestDatabase extends Database.Service {
     {
       name: 'tableA';
       relations: {
-        'id@all_relations_b': 'tableB:table_a_id';
+        // Primary to secondary
+        'id@all_relations_b': 'tableB:unique_b_id';
       };
       indexes: {
         id: Index.Primary;
@@ -26,31 +28,35 @@ export declare class TestDatabase extends Database.Service {
     {
       name: 'tableB';
       relations: {
-        'table_a_id@relation_a': 'tableA:id';
-        'table_c_id@relation_c': 'tableC:id';
+        // Unique to primary
+        'unique_b_id@relation_a': 'tableA:id';
+
+        // Secondary to primary
+        'secondary_b_id@relation_c': 'tableC:id';
       };
       indexes: {
         id: Index.Primary;
-        table_a_id: Index.Secondary;
+        unique_b_id: Index.Secondary;
       };
       schema: {
         id: string;
-        table_a_id: string;
-        table_c_id?: string;
+        unique_b_id: string;
+        secondary_b_id?: string;
         value_b: number;
       };
     },
     {
       name: 'tableC';
       relations: {
-        'table_b_id@relation_b': 'tableB:id';
+        // Secondary to primary
+        'secondary_c_id@relation_b': 'tableB:id';
       };
       indexes: {
         id: Index.Primary;
       };
       schema: {
         id: string;
-        table_b_id?: string;
+        secondary_c_id?: string;
         value_c: number;
       };
     }
@@ -89,7 +95,7 @@ export const testSelect = async ({ selfClient }: Service.Context<TestDatabase>) 
     }
   });
 
-  resultA.records[0].all_relations_b[0].value_b;
+  assertType<{ records: { value_a: number; all_relations_b: { value_b: number }[] }[] }, typeof resultA>(true);
 
   // Fetch tableB and its tableA connection
   const resultB = await selfClient.tableB.findMany({
@@ -106,13 +112,15 @@ export const testSelect = async ({ selfClient }: Service.Context<TestDatabase>) 
     }
   });
 
-  resultB.records[0].relation_a.value_a;
+  assertType<{ records: { value_b: number; relation_a: { value_a: number } }[] }, typeof resultB>(true);
 
   // Fetch tableC and its optional tableB connection
   const resultC = await selfClient.tableC.findMany({
     select: {
       value_c: true,
-      relation_b: true
+      relation_b: {
+        value_b: true
+      }
     },
     where: {
       relation_b: {
@@ -121,7 +129,7 @@ export const testSelect = async ({ selfClient }: Service.Context<TestDatabase>) 
     }
   });
 
-  resultC.records[0].relation_b?.value_b;
+  assertType<{ records: { value_c: number; relation_b: { value_b: number } | undefined }[] }, typeof resultC>(true);
 
   // Fetch tableB and tableA connections through tableC.
   const resultD = await selfClient.tableC.findMany({
@@ -187,7 +195,7 @@ export const testInsert = async ({ selfClient }: Service.Context<TestDatabase>) 
       id: 'bar',
       value_b: 2,
       relation_a: {
-        table_a_id: 'foo'
+        id: 'foo'
       }
     }
   });
@@ -199,7 +207,7 @@ export const testInsert = async ({ selfClient }: Service.Context<TestDatabase>) 
       value_c: 1,
       relation_b: {
         id: 'bar',
-        table_a_id: 'baz',
+        unique_b_id: 'baz',
         value_b: 2
       }
     }
@@ -242,7 +250,7 @@ export const testUpdate = async (client: TestDatabase['client']) => {
     data: {
       value_b: 2,
       relation_a: {
-        table_a_id: 'foo'
+        id: 'foo'
       }
     }
   });

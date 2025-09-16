@@ -1,13 +1,15 @@
-import { toKebabCase } from '@ez4/utils';
-
 import { writeFile, readFile, mkdir } from 'node:fs/promises';
+import { normalize, join, sep, parse } from 'node:path';
 import { existsSync } from 'node:fs';
-import { join } from 'node:path';
 
 const TemporaryFolder = '.ez4';
 
 export const getTemporaryPath = (file: string) => {
-  return join(TemporaryFolder, toKebabCase(file));
+  const { dir, base } = parse(file);
+
+  const path = normalize(dir).replaceAll(`..${sep}`, '');
+
+  return join(TemporaryFolder, path, base);
 };
 
 export const saveTemporaryFile = async (file: string, content: string | Buffer) => {

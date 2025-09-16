@@ -12,6 +12,11 @@ export type MergeOptions<T extends AnyObject> = {
   depth?: number;
 
   /**
+   * Determines whether or not to combine arrays.
+   */
+  array?: boolean;
+
+  /**
    * Determines which property must be excluded, all other properties are included.
    */
   exclude?: PartialProperties<T>;
@@ -58,6 +63,7 @@ export const deepMerge = <T extends AnyObject, S extends AnyObject, O extends Me
   const allStates = includeStates ?? excludeStates ?? ({} as PartialProperties<T & S>);
 
   const depth = options?.depth ?? +Infinity;
+  const array = options?.array ?? false;
 
   const allKeys = [...new Set([...Object.keys(target), ...Object.keys(source)])];
 
@@ -73,11 +79,17 @@ export const deepMerge = <T extends AnyObject, S extends AnyObject, O extends Me
     const targetValue = target[key];
     const sourceValue = source[key];
 
+    if (array && Array.isArray(sourceValue) && Array.isArray(targetValue)) {
+      object[key] = [...sourceValue, ...targetValue];
+      continue;
+    }
+
     if (isPlainObject(targetValue) && isPlainObject(sourceValue)) {
       if (depth > 0) {
         object[key] = deepMerge(targetValue, sourceValue, {
           ...(isAnyObject(keyState) && (isInclude ? { include: keyState } : { exclude: keyState })),
-          depth: depth - 1
+          depth: depth - 1,
+          array
         });
 
         continue;

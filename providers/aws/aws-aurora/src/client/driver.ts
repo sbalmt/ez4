@@ -40,7 +40,7 @@ export class DataClientDriver implements PgClientDriver {
 
     try {
       return await withRetryOnResume(async () => {
-        const { formattedRecords } = await client.send(
+        const { formattedRecords, numberOfRecordsUpdated } = await client.send(
           new ExecuteStatementCommand({
             ...this.connection,
             formatRecordsAs: RecordsFormatType.JSON,
@@ -59,17 +59,26 @@ export class DataClientDriver implements PgClientDriver {
         }
 
         if (!formattedRecords) {
-          return [];
+          return {
+            rows: numberOfRecordsUpdated,
+            records: []
+          };
         }
 
         const records = JSON.parse(formattedRecords);
         const metadata = statement.metadata;
 
         if (metadata) {
-          return parseRecords(records, metadata);
+          return {
+            records: parseRecords(records, metadata),
+            rows: numberOfRecordsUpdated
+          };
         }
 
-        return records;
+        return {
+          rows: numberOfRecordsUpdated,
+          records
+        };
       });
     } catch (error) {
       logQueryError(statement, transactionId);

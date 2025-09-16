@@ -1,7 +1,7 @@
 {
   "name": "@ez4/aws-topic",
   "description": "EZ4: Self-managed AWS SNS topics provider",
-  "version": "0.27.0",
+  "version": "0.28.0",
   "author": "Silas B.",
   "license": "MIT",
   "type": "module",
@@ -37,7 +37,7 @@
     "lint": "eslint --cache",
     "clean": "rm -f *.tsbuildinfo && rm -rf dist/*",
     "build": "tsc && node tools/bundler.mjs",
-    "test": "npm run build && ez4 test -e ../../../local.env",
+    "test": "npm run build && tsc -p tsconfig.test.json && ez4 test -e ../../../local.env",
     "local:publish": "npm run build && npm run clean:registry && npm publish --registry http://localhost:4873",
     "clean:registry": "rm -rf ../../../.registry/@ez4/aws-topic",
     "live:publish": "npm run build && npm publish --access public"
@@ -47,18 +47,18 @@
   },
   "dependencies": {
     "@aws-sdk/client-sns": "^3.758.0",
-    "@ez4/aws-common": "^0.27.0",
-    "@ez4/aws-identity": "^0.27.0",
-    "@ez4/aws-function": "^0.27.0",
-    "@ez4/aws-logs": "^0.27.0",
-    "@ez4/aws-queue": "^0.27.0",
-    "@ez4/topic": "^0.27.0",
-    "@ez4/project": "^0.27.0",
-    "@ez4/queue": "^0.27.0",
-    "@ez4/schema": "^0.27.0",
-    "@ez4/stateful": "^0.27.0",
-    "@ez4/transform": "^0.27.0",
-    "@ez4/validator": "^0.27.0",
-    "@ez4/utils": "^0.27.0"
+    "@ez4/aws-common": "^0.28.0",
+    "@ez4/aws-identity": "^0.28.0",
+    "@ez4/aws-function": "^0.28.0",
+    "@ez4/aws-logs": "^0.28.0",
+    "@ez4/aws-queue": "^0.28.0",
+    "@ez4/topic": "^0.28.0",
+    "@ez4/project": "^0.28.0",
+    "@ez4/queue": "^0.28.0",
+    "@ez4/schema": "^0.28.0",
+    "@ez4/stateful": "^0.28.0",
+    "@ez4/transform": "^0.28.0",
+    "@ez4/validator": "^0.28.0",
+    "@ez4/utils": "^0.28.0"
   }
 }

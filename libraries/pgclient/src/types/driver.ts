@@ -19,6 +19,11 @@ export type PgExecuteStatement = {
   query: string;
 };
 
+export type PgExecutionResult = {
+  records: AnyObject[];
+  rows?: number | null;
+};
+
 /**
  * Common interface to access a Postgres database.
  */
@@ -29,7 +34,7 @@ export interface PgClientDriver {
    * @param statement SQL statement.
    * @param options Execution options.
    */
-  executeStatement(statement: PgExecuteStatement, options?: PgExecuteOptions): Promise<AnyObject[]>;
+  executeStatement(statement: PgExecuteStatement, options?: PgExecuteOptions): Promise<PgExecutionResult>;
 
   /**
    * Execute multiple statements.
@@ -37,7 +42,7 @@ export interface PgClientDriver {
    * @param statements SQL statements.
    * @param options Execution options.
    */
-  executeStatements(statements: PgExecuteStatement[], options?: PgExecuteOptions): Promise<AnyObject[][]>;
+  executeStatements(statements: PgExecuteStatement[], options?: PgExecuteOptions): Promise<PgExecutionResult[]>;
 
   /**
    * Open a transaction and execute multiple statements.
@@ -45,7 +50,7 @@ export interface PgClientDriver {
    * @param statements SQL statements.
    * @param options Execution options.
    */
-  executeTransaction(statements: PgExecuteStatement[], options?: PgExecuteOptions): Promise<AnyObject[][]>;
+  executeTransaction(statements: PgExecuteStatement[], options?: PgExecuteOptions): Promise<PgExecutionResult[]>;
 
   /**
    * Begin a new transaction and return its identifier.

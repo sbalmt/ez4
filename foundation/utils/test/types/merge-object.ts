@@ -67,6 +67,8 @@ export const testA = () => {
       quxFoo: false
     }
   };
+
+  return [test];
 };
 
 // Expect full model with undefined values.
@@ -81,4 +83,6 @@ export const testB = () => {
     },
     qux: undefined
   };
+
+  return [test];
 };

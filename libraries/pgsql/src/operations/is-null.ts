@@ -1,3 +1,7 @@
-export const getIsNullOperation = (column: string, value: unknown) => {
-  return `${column} IS ${value ? 'null' : 'NOT null'}`;
+export const getIsNullOperation = (column: string, operand: unknown) => {
+  if (!operand) {
+    return `${column} IS NOT null`;
+  }
+
+  return `${column} IS null`;
 };

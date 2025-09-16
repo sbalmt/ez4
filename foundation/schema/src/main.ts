@@ -1,4 +1,5 @@
 export * from './utils/property';
+export * from './utils/optional';
 export * from './utils/partial';
 export * from './utils/naming';
 

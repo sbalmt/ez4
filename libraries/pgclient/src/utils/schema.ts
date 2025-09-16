@@ -10,14 +10,7 @@ export const isDynamicFieldSchema = (schema: AnySchema) => {
   return (isObjectSchema(schema) && isDynamicObjectSchema(schema)) || isUnionSchema(schema);
 };
 
-export const validateFirstSchemaLevel = (data: unknown, schema: AnySchema, path: string) => {
-  return validateSchemaWithContext(data, schema, {
-    property: path,
-    depth: 0
-  });
-};
-
-export const validateAllSchemaLevels = (data: unknown, schema: AnySchema, path: string) => {
+export const validateRecordSchema = (data: unknown, schema: AnySchema, path: string) => {
   return validateSchemaWithContext(data, schema, {
     property: path
   });
@@ -26,7 +19,7 @@ export const validateAllSchemaLevels = (data: unknown, schema: AnySchema, path: 
 export const getWithSchemaValidation = async (data: unknown, schema: AnySchema, path: string) => {
   const record = transform(data, schema, createTransformContext({ convert: false }));
 
-  await validateAllSchemaLevels(record, schema, path);
+  await validateRecordSchema(record, schema, path);
 
   return record;
 };

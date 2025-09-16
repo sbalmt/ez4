@@ -43,6 +43,8 @@ export const testA = () => {
       }
     }
   };
+
+  return [test];
 };
 
 // Expect flat model with undefined values.
@@ -56,4 +58,6 @@ export const testB = () => {
       barBaz: undefined
     }
   };
+
+  return [test];
 };

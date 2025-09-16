@@ -1,4 +1,4 @@
-import type { AnyObject, ArrayRest, PropertyType, ExclusiveType, IsArrayEmpty, IsUndefined, FlatObject, MergeObject } from '@ez4/utils';
+import type { AnyObject, ArrayRest, PropertyType, ExclusiveType, IsArrayEmpty, IsUndefined, MergeObject, Prettify } from '@ez4/utils';
 import type { IndexedTables, PrimaryIndexes, UniqueIndexes } from './indexes';
 import type { Database, DatabaseTables } from './database';
 import type { TableSchemas } from './schemas';
@@ -8,8 +8,9 @@ import type { TableSchemas } from './schemas';
  */
 export type RelationMetadata = {
   filters: Record<string, AnyObject | undefined>;
+  updates: Record<string, AnyObject | undefined>;
+  inserts: Record<string, AnyObject | undefined>;
   selects: Record<string, AnyObject | undefined>;
-  changes: Record<string, AnyObject | undefined>;
   records: Record<string, AnyObject | undefined>;
   indexes: string;
 };
@@ -71,17 +72,12 @@ type TableRelation<
     ? R extends AnyObject
       ? {
           [P in N]: {
-            indexes: RelationIndexes<PropertyType<N, I>, R>;
+            indexes: RelationIndexes<N, I, R>;
             filters: FilterableRelationSchemas<S, R>;
-            changes: RequiredRelationSchemas<PropertyType<N, S>, S, I, R, true> &
-              OptionalRelationSchemas<PropertyType<N, S>, S, I, R, true>;
-            selects: FlatObject<RequiredRelationSchemas<PropertyType<N, S>, S, I, R, false>> &
-              FlatObject<OptionalRelationSchemas<PropertyType<N, S>, S, I, R, false>> &
-              NestedRelationSelects<T, S, I, R>;
-            records: MergeObject<
-              RequiredRelationSchemas<PropertyType<N, S>, S, I, R, false> & OptionalRelationSchemas<PropertyType<N, S>, S, I, R, false>,
-              NestedRelationRecords<T, S, I, R>
-            >;
+            updates: UpdateRelationSchemas<N, S, I, R>;
+            inserts: InsertRelationSchemas<N, PropertyType<N, S>, S, I, R>;
+            selects: SelectRelationSchemas<S, I, R> & NestedSelectRelationSchemas<T, S, I, R>;
+            records: MergeObject<RecordsRelationSchemas<PropertyType<N, S>, S, I, R>, NestedRecordsRelationSchemas<T, S, I, R>>;
           };
         }
       : {}
@@ -89,70 +85,148 @@ type TableRelation<
   : {};
 
 /**
+ * Check whether the given column is a primary index.
+ */
+type IsPrimarySourceIndex<C, I extends Record<string, Database.Indexes>> =
+  RelationSourceColumn<C> extends keyof PrimaryIndexes<PropertyType<RelationSourceTable<C>, I>> ? true : false;
+
+/**
+ * Check whether the given column is a unique index.
+ */
+type IsUniqueSourceIndex<C, I extends Record<string, Database.Indexes>> =
+  RelationSourceColumn<C> extends keyof UniqueIndexes<PropertyType<RelationSourceTable<C>, I>> ? true : false;
+
+/**
+ * Check whether the given column is a primary target index.
+ */
+type IsPrimaryTargetIndex<V, I extends Database.Indexes> = RelationTargetColumn<V> extends keyof PrimaryIndexes<I> ? true : false;
+
+/**
+ * Check whether the given column is a unique target index.
+ */
+export type IsUniqueTargetIndex<V, I extends Database.Indexes> = RelationTargetColumn<V> extends keyof UniqueIndexes<I> ? true : false;
+
+/**
+ * Check whether the given column is a secondary target index.
+ */
+type IsSecondaryTargetIndex<V, I extends Database.Indexes> =
+  RelationTargetColumn<V> extends keyof (PrimaryIndexes<I> & UniqueIndexes<I>) ? false : true;
+
+/**
+ * Check whether a relation is optional or not.
+ */
+type IsOptionalRelation<C, V, T extends Database.Schema, I extends Record<string, Database.Indexes>, E extends boolean> =
+  IsPrimarySourceIndex<C, I> extends true
+    ? IsUndefined<PropertyType<RelationTargetColumn<V>, T>>
+    : IsUniqueSourceIndex<C, I> extends true
+      ? true
+      : E;
+
+/**
  * Produce an object containing all relation indexes.
  */
-type RelationIndexes<I extends Database.Indexes, R extends AnyObject> = keyof {
-  [C in keyof R as RelationTargetColumn<C> extends keyof PrimaryIndexes<I> ? never : RelationTargetColumn<C>]: never;
+type RelationIndexes<N, I extends Record<string, Database.Indexes>, R extends AnyObject> = keyof {
+  [P in keyof R as IsRelationIndex<N, R[P], P, I> extends true ? RelationTargetColumn<P> : never]: never;
 };
 
 /**
- * Produce an object containing all filterable relation schemas.
+ * Check whether the given source and target columns are used to index the relation.
+ */
+type IsRelationIndex<N, C, V, I extends Record<string, Database.Indexes>> =
+  IsPrimarySourceIndex<C, I> extends false
+    ? IsSecondaryTargetIndex<V, PropertyType<N, I>> extends false
+      ? IsUniqueTargetIndex<V, PropertyType<N, I>> extends true
+        ? IsUniqueSourceIndex<C, I>
+        : false
+      : true
+    : true;
+
+/**
+ * Produce an object containing relation schemas for filters.
  */
 type FilterableRelationSchemas<S extends Record<string, Database.Schema>, R extends AnyObject> = {
-  [C in keyof R as RelationTargetAlias<C>]: Omit<PropertyType<RelationSourceTable<R[C]>, S>, RelationSourceColumn<R[C]>>;
+  [P in keyof R as RelationTargetAlias<P>]: Omit<PropertyType<RelationSourceTable<R[P]>, S>, RelationSourceColumn<R[P]>>;
 };
 
 /**
- * Produce an object containing only required relation schemas.
+ * Produce an object containing relation schemas for updates.
  */
-type RequiredRelationSchemas<
+type UpdateRelationSchemas<
+  N,
+  S extends Record<string, Database.Schema>,
+  I extends Record<string, Database.Indexes>,
+  R extends AnyObject
+> = {
+  [P in keyof R as RelationTargetAlias<P>]?: ChangeRelationSchema<N, R[P], P, S, I>;
+};
+
+/**
+ * Produce an object containing relation schemas for inserts.
+ */
+type InsertRelationSchemas<
+  N,
   T extends Database.Schema,
   S extends Record<string, Database.Schema>,
   I extends Record<string, Database.Indexes>,
-  R extends AnyObject,
-  E extends boolean
+  R extends AnyObject
 > = {
-  [C in keyof R as IsOptionalRelation<R[C], C, T, I, E> extends false ? RelationTargetAlias<C> : never]: RelationSchema<
-    R[C],
-    C,
-    T,
+  [P in keyof R as IsOptionalRelation<R[P], P, T, I, true> extends true ? RelationTargetAlias<P> : never]?: ChangeRelationSchema<
+    N,
+    R[P],
+    P,
     S,
-    I,
-    E
+    I
+  >;
+} & {
+  [P in keyof R as IsOptionalRelation<R[P], P, T, I, true> extends false ? RelationTargetAlias<P> : never]: ChangeRelationSchema<
+    N,
+    R[P],
+    P,
+    S,
+    I
   >;
 };
 
 /**
- * Produce an object containing only optional relation schemas.
+ * Produce an object containing relation schemas for selects.
  */
-type OptionalRelationSchemas<
+type SelectRelationSchemas<S extends Record<string, Database.Schema>, I extends Record<string, Database.Indexes>, R extends AnyObject> = {
+  [P in keyof R as RelationTargetAlias<P>]?: SelectRelationSchema<R[P], S, I>;
+};
+
+/**
+ * Produce an object containing relation schemas for records.
+ */
+type RecordsRelationSchemas<
   T extends Database.Schema,
   S extends Record<string, Database.Schema>,
   I extends Record<string, Database.Indexes>,
-  R extends AnyObject,
-  E extends boolean
+  R extends AnyObject
 > = {
-  [C in keyof R as IsOptionalRelation<R[C], C, T, I, E> extends true ? RelationTargetAlias<C> : never]?: RelationSchema<
-    R[C],
-    C,
-    T,
+  [P in keyof R as IsOptionalRelation<R[P], P, T, I, false> extends true ? RelationTargetAlias<P> : never]?: RecordRelationSchema<
+    R[P],
     S,
-    I,
-    E
+    I
+  >;
+} & {
+  [P in keyof R as IsOptionalRelation<R[P], P, T, I, false> extends false ? RelationTargetAlias<P> : never]: RecordRelationSchema<
+    R[P],
+    S,
+    I
   >;
 };
 
 /**
  * Produce an object containing all nested relation schemas for select operations.
  */
-type NestedRelationSelects<
+type NestedSelectRelationSchemas<
   T extends Database.Table[],
   S extends Record<string, Database.Schema>,
   I extends Record<string, Database.Indexes>,
   R extends AnyObject
 > = {
-  [C in keyof R as RelationTargetAlias<C>]?: RelationSourceTable<R[C]> extends keyof MergeRelations<T, T, S, I>
-    ? MergeRelations<T, T, S, I>[RelationSourceTable<R[C]>] extends { selects: infer N }
+  [P in keyof R as RelationTargetAlias<P>]?: RelationSourceTable<R[P]> extends keyof MergeRelations<T, T, S, I>
+    ? MergeRelations<T, T, S, I>[RelationSourceTable<R[P]>] extends { selects: infer N }
       ? N
       : never
     : never;
@@ -161,63 +235,72 @@ type NestedRelationSelects<
 /**
  * Produce an object containing all nested relation schemas for records.
  */
-type NestedRelationRecords<
+type NestedRecordsRelationSchemas<
   T extends Database.Table[],
   S extends Record<string, Database.Schema>,
   I extends Record<string, Database.Indexes>,
   R extends AnyObject
 > = {
-  [C in keyof R as RelationTargetAlias<C>]?: RelationSourceTable<R[C]> extends keyof MergeRelations<T, T, S, I>
-    ? MergeRelations<T, T, S, I>[RelationSourceTable<R[C]>] extends { records: infer N }
+  [P in keyof R as RelationTargetAlias<P>]?: RelationSourceTable<R[P]> extends keyof MergeRelations<T, T, S, I>
+    ? MergeRelations<T, T, S, I>[RelationSourceTable<R[P]>] extends { records: infer N }
       ? N
       : never
     : never;
 };
 
 /**
- * Check whether a relation is optional or not.
+ * Produce a type corresponding to the source column schema.
  */
-type IsOptionalRelation<C, V, T extends Database.Schema, I extends Record<string, Database.Indexes>, E extends boolean> =
-  RelationSourceColumn<C> extends keyof PrimaryIndexes<PropertyType<RelationSourceTable<C>, I>>
-    ? IsUndefined<PropertyType<RelationTargetColumn<V>, T>>
-    : RelationSourceColumn<C> extends keyof UniqueIndexes<PropertyType<RelationSourceTable<C>, I>>
-      ? true
-      : E;
+type SourceColumnSchema<C, S extends Record<string, Database.Schema>> = PropertyType<RelationSourceTable<C>, S>;
 
 /**
- * Check whether a column is primary.
+ * Produce a change relation schema according to its indexation.
  */
-type IsPrimaryIndex<C, I extends Record<string, Database.Indexes>> =
-  RelationSourceColumn<C> extends keyof PrimaryIndexes<PropertyType<RelationSourceTable<C>, I>> ? true : false;
+type ChangeRelationSchema<N, C, V, S extends Record<string, Database.Schema>, I extends Record<string, Database.Indexes>> =
+  IsPrimarySourceIndex<C, I> extends true
+    ? ExclusiveType<SourceColumnSchema<C, S>, PrimaryKeyConnectionSchema<C, S, I>>
+    : IsUniqueSourceIndex<C, I> extends true
+      ? IsPrimaryTargetIndex<V, PropertyType<N, I>> extends true
+        ? ExclusiveType<Omit<SourceColumnSchema<C, S>, RelationSourceColumn<C>>, UniqueKeyConnectionSchema<C, S, I>>
+        : ExclusiveType<SourceColumnSchema<C, S>, UniqueKeyConnectionSchema<C, S, I>>
+      : ExclusiveType<Omit<SourceColumnSchema<C, S>, RelationSourceColumn<C>>, PrimaryKeyConnectionSchema<C, S, I>>[];
 
 /**
- * Check whether a column is unique.
+ * Produce a select relation schema according to its indexation.
  */
-type IsUniqueIndex<C, I extends Record<string, Database.Indexes>> =
-  RelationSourceColumn<C> extends keyof UniqueIndexes<PropertyType<RelationSourceTable<C>, I>> ? true : false;
+type SelectRelationSchema<C, S extends Record<string, Database.Schema>, I extends Record<string, Database.Indexes>> =
+  IsPrimarySourceIndex<C, I> extends true
+    ? SourceColumnSchema<C, S>
+    : IsUniqueSourceIndex<C, I> extends true
+      ? SourceColumnSchema<C, S>
+      : SourceColumnSchema<C, S>;
 
 /**
- * Produce a type corresponding to the source index column type.
+ * Produce a record relation schema according to its indexation.
  */
-type ExtractSourceIndexType<C, S extends Record<string, Database.Schema>> = PropertyType<RelationSourceTable<C>, S>;
+type RecordRelationSchema<C, S extends Record<string, Database.Schema>, I extends Record<string, Database.Indexes>> =
+  IsPrimarySourceIndex<C, I> extends true
+    ? SourceColumnSchema<C, S>
+    : IsUniqueSourceIndex<C, I> extends true
+      ? SourceColumnSchema<C, S>
+      : SourceColumnSchema<C, S>[];
 
 /**
- * Produce a relation schema according to its indexation.
+ * Produce a relation schema for connections using primary keys.
  */
-type RelationSchema<
-  C,
-  V,
-  T extends Database.Schema,
-  S extends Record<string, Database.Schema>,
-  I extends Record<string, Database.Indexes>,
-  E extends boolean
-> =
-  IsPrimaryIndex<C, I> extends true
-    ? E extends false
-      ? ExtractSourceIndexType<C, S>
-      : ExclusiveType<ExtractSourceIndexType<C, S>, { [P in RelationTargetColumn<V>]: PropertyType<RelationTargetColumn<V>, T> }>
-    : IsUniqueIndex<C, I> extends true
-      ? E extends false
-        ? ExtractSourceIndexType<C, S>
-        : Omit<ExtractSourceIndexType<C, S>, RelationSourceColumn<C>>
-      : Omit<ExtractSourceIndexType<C, S>, RelationSourceColumn<C>>[];
+type PrimaryKeyConnectionSchema<C, S extends Record<string, Database.Schema>, I extends Record<string, Database.Indexes>> = Prettify<{
+  [P in keyof PrimaryIndexes<PropertyType<RelationSourceTable<C>, I>>]:
+    | PropertyType<P, PropertyType<RelationSourceTable<C>, S>>
+    | undefined
+    | null;
+}>;
+
+/**
+ * Produce a relation schema for connections using unique keys.
+ */
+type UniqueKeyConnectionSchema<C, S extends Record<string, Database.Schema>, I extends Record<string, Database.Indexes>> = Prettify<{
+  [P in keyof UniqueIndexes<PropertyType<RelationSourceTable<C>, I>> as P extends RelationSourceColumn<C> ? P : never]:
+    | PropertyType<P, PropertyType<RelationSourceTable<C>, S>>
+    | undefined
+    | null;
+}>;

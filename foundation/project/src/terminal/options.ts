@@ -13,6 +13,7 @@ export type InputOptions = {
   forceMode?: boolean;
   debugMode?: boolean;
   localMode?: boolean;
+  arguments?: string;
 };
 
 export const isInputOptions = (options: Partial<InputOptions>): options is InputOptions => {
@@ -55,6 +56,10 @@ export const getInputOptions = () => {
 
       case '--local':
         options.localMode = true;
+        break;
+
+      case '--':
+        options.arguments = input[++index];
         break;
     }
   }

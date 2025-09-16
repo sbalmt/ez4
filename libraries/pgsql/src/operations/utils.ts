@@ -8,7 +8,7 @@ import { SqlRawValue } from '../common/raw';
 import { escapeSqlData } from '../main';
 
 export const getOperandValue = (schema: AnySchema | undefined, operand: unknown, context: SqlOperationContext, encode?: boolean) => {
-  const { source, variables, references, options, parent } = context;
+  const { source, variables, references, options, path } = context;
 
   if (operand instanceof SqlColumnReference) {
     return operand.build();
@@ -30,7 +30,7 @@ export const getOperandValue = (schema: AnySchema | undefined, operand: unknown,
   }
 
   const preparedValue = options.onPrepareVariable(operand, {
-    json: encode && !!parent,
+    json: encode && !!path,
     schema,
     index
   });
@@ -41,26 +41,39 @@ export const getOperandValue = (schema: AnySchema | undefined, operand: unknown,
 };
 
 export const getOperandColumn = (schema: AnySchema | undefined, column: string, context: SqlOperationContext) => {
-  const json = !!context.parent;
+  const isJsonColumn = !!context.path;
 
-  if (!json) {
+  if (!isJsonColumn) {
     return column;
   }
 
   switch (schema?.type) {
-    case SchemaType.Boolean:
-      return `${column}::bool`;
-
-    case SchemaType.Enum:
-    case SchemaType.String:
-      return `trim('"' from ${column}::text)`;
+    case SchemaType.Boolean: {
+      return `(${column})::bool`;
+    }
 
     case SchemaType.Number: {
-      if (schema.format === 'decimal') {
-        return `${column}::dec`;
+      if (schema.format === 'integer') {
+        return `(${column})::int`;
       }
 
-      return `${column}::int`;
+      return `(${column})::dec`;
+    }
+
+    case SchemaType.String: {
+      if (schema.format === 'date-time') {
+        return `(${column})::timestamptz`;
+      }
+
+      if (schema.format === 'date') {
+        return `(${column})::date`;
+      }
+
+      if (schema.format === 'time') {
+        return `(${column})::time`;
+      }
+
+      break;
     }
   }
 
