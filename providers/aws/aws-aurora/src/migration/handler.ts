@@ -89,7 +89,7 @@ const updateResource = async (candidate: MigrationState, current: MigrationState
     return;
   }
 
-  updateTables({
+  await updateTables({
     database: parameters.database,
     clusterArn: result.clusterArn,
     secretArn: result.secretArn,
