@@ -1,9 +1,9 @@
-import type { AnySchema, ObjectSchema } from '@ez4/schema';
+import type { AnySchema, ObjectSchema, UnionSchema } from '@ez4/schema';
 import type { SqlBuilderOptions, SqlBuilderReferences } from '../builder';
 import type { SqlSource } from '../common/source';
 import type { SqlRecord } from '../common/types';
 
-import { isDynamicObjectSchema, IsNullishSchema, isObjectSchema, SchemaType } from '@ez4/schema';
+import { getSchemaProperty, isDynamicObjectSchema, IsNullishSchema, isObjectSchema, isUnionSchema, SchemaType } from '@ez4/schema';
 import { isPlainObject } from '@ez4/utils';
 
 import { SqlRaw, SqlRawOperation } from '../common/raw';
@@ -23,7 +23,7 @@ export type SqlUpdateContext = {
 export const getUpdateColumns = (
   source: SqlSource,
   record: SqlRecord,
-  schema: ObjectSchema | undefined,
+  schema: ObjectSchema | UnionSchema | undefined,
   context: SqlUpdateContext
 ): string[] => {
   const { variables, references, options, coalesce, parent } = context;
@@ -66,11 +66,11 @@ export const getUpdateColumns = (
       continue;
     }
 
-    const fieldSchema = schema?.properties[fieldName];
+    const fieldSchema = schema && getSchemaProperty(schema, fieldName);
 
     if (isPlainObject(value)) {
-      const nextSchema = fieldSchema && isObjectSchema(fieldSchema) ? fieldSchema : undefined;
-      const canReplace = nextSchema && isDynamicObjectSchema(nextSchema);
+      const nextSchema = fieldSchema && (isObjectSchema(fieldSchema) || isUnionSchema(fieldSchema)) ? fieldSchema : undefined;
+      const canReplace = fieldSchema && isObjectSchema(fieldSchema) && isDynamicObjectSchema(fieldSchema);
 
       if (canReplace) {
         const fieldIndex = references.counter++;

@@ -1,12 +1,12 @@
 import type { SqlSourceWithResults, SqlRecord, SqlBuilder, SqlUpdateStatement } from '@ez4/pgsql';
-import type { NumberSchema, ObjectSchema } from '@ez4/schema';
+import type { NumberSchema, ObjectSchema, UnionSchema } from '@ez4/schema';
 import type { AnyObject } from '@ez4/utils';
 import type { Query } from '@ez4/database';
 import type { PgRelationRepositoryWithSchema, PgRelationWithSchema } from '../types/repository';
 import type { InternalTableMetadata } from '../types/table';
 
-import { getObjectSchemaProperty, getOptionalSchema, isNumberSchema, isObjectSchema } from '@ez4/schema';
 import { InvalidAtomicOperation, InvalidFieldSchemaError, InvalidRelationFieldError } from '@ez4/pgclient';
+import { getOptionalSchema, getSchemaProperty, isNumberSchema, isObjectSchema, isUnionSchema } from '@ez4/schema';
 import { escapeSqlName, SqlSelectStatement } from '@ez4/pgsql';
 import { isAnyObject, isEmptyObject } from '@ez4/utils';
 import { Index } from '@ez4/database';
@@ -91,7 +91,7 @@ export const prepareUpdateQuery = async <T extends InternalTableMetadata, S exte
 export const getUpdateRecord = async (
   builder: SqlBuilder,
   data: SqlRecord,
-  schema: ObjectSchema,
+  schema: ObjectSchema | UnionSchema,
   relations: PgRelationRepositoryWithSchema,
   path: string
 ) => {
@@ -133,7 +133,7 @@ export const getUpdateRecord = async (
       }
     }
 
-    const fieldSchema = getObjectSchemaProperty(schema, fieldKey);
+    const fieldSchema = getSchemaProperty(schema, fieldKey);
 
     if (!fieldSchema) {
       continue;
@@ -154,8 +154,8 @@ export const getUpdateRecord = async (
       continue;
     }
 
-    if (isObjectSchema(fieldSchema)) {
-      record[fieldKey] = await getUpdateRecord(builder, fieldValue, fieldSchema, relations, fieldPath);
+    if (isObjectSchema(fieldSchema) || isUnionSchema(fieldSchema)) {
+      record[fieldKey] = await getUpdateRecord(builder, fieldValue, getOptionalSchema(fieldSchema), relations, fieldPath);
       continue;
     }
 
