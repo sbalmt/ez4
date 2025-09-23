@@ -14,7 +14,7 @@ export const waitFor = async <T>(attempter: Attempter<T>, attempts: number = 30)
   let result: T | undefined;
 
   for (let count = 0; count <= attempts; count++) {
-    if ((result = await attempter(count, attempts))) {
+    if ((result = await attempter(count, attempts)) !== undefined) {
       return result;
     }
 
