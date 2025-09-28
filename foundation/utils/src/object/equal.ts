@@ -42,9 +42,9 @@ export const deepEqualObject = <T extends AnyObject, S extends AnyObject>(target
   const isInclude = !!includeStates;
   const allStates = includeStates ?? excludeStates ?? ({} as PartialProperties<T & S>);
 
-  const depth = options?.depth ?? +Infinity;
+  const allKeys = new Set([...Object.keys(target), ...Object.keys(source)]);
 
-  const allKeys = [...new Set([...Object.keys(target), ...Object.keys(source)])];
+  const depth = options?.depth ?? +Infinity;
 
   for (const key of allKeys) {
     const keyState = allStates[key] as PartialProperties<T & S> | boolean;

@@ -1,9 +1,9 @@
 /**
- * Given an input array, it returns a new array containing only unique elements.
+ * Given the input arrays, it combine and returns a new array containing only unique elements.
  *
- * @param array Input array.
+ * @param arrays Input array.
  * @returns Returns a new array containing only unique elements.
  */
-export const uniqueArray = <T>(array: T[]) => {
-  return [...new Set(array)];
+export const uniqueArray = <T>(...arrays: T[][]) => {
+  return [...new Set(arrays.flat())];
 };
