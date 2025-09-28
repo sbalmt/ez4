@@ -251,14 +251,10 @@ export const deleteFunction = async (functionName: string) => {
           FunctionName: functionName
         })
       );
-
-      return true;
     } catch (error) {
       if (!(error instanceof ResourceNotFoundException)) {
         throw error;
       }
-
-      return false;
     }
   });
 };

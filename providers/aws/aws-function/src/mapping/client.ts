@@ -14,7 +14,7 @@ import {
 } from '@aws-sdk/client-lambda';
 
 import { Logger, parseArn } from '@ez4/aws-common';
-import { waitFor } from '@ez4/utils';
+import { Wait } from '@ez4/utils';
 
 import { MappingService, MappingServiceName } from './types';
 
@@ -133,10 +133,14 @@ const getMappingState = async (eventId: string) => {
 const waitForReadyState = async (eventId: string) => {
   const readyState = new Set(['Enabled', 'Disabled']);
 
-  await waitFor(async () => {
+  await Wait.until(async () => {
     const state = await getMappingState(eventId);
 
-    return readyState.has(state);
+    if (!readyState.has(state)) {
+      return Wait.RetryAttempt;
+    }
+
+    return true;
   });
 };
 

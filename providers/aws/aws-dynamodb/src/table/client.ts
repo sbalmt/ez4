@@ -303,29 +303,23 @@ export const deleteTable = async (tableName: string) => {
 
   // If the table is still in use due to a prior change that's not
   // done yet, keep retrying until max attempts.
-  const isDeletionScheduled = await waitDeletion(async () => {
+  await waitDeletion(async () => {
     try {
       await client.send(
         new DeleteTableCommand({
           TableName: tableName
         })
       );
-
-      return true;
     } catch (error) {
       if (!(error instanceof ResourceNotFoundException)) {
         throw error;
       }
-
-      return false;
     }
   });
 
-  if (isDeletionScheduled) {
-    Logger.logWait(TableServiceName, tableName);
+  Logger.logWait(TableServiceName, tableName);
 
-    await waitUntilTableNotExists(waiter, {
-      TableName: tableName
-    });
-  }
+  await waitUntilTableNotExists(waiter, {
+    TableName: tableName
+  });
 };

@@ -121,14 +121,10 @@ export const deleteRoute = async (apiId: string, routeId: string) => {
           RouteId: routeId
         })
       );
-
-      return true;
     } catch (error) {
       if (!(error instanceof NotFoundException)) {
         throw error;
       }
-
-      return false;
     }
   });
 };
