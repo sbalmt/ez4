@@ -5,6 +5,7 @@ export * from './common/object';
 
 export * from './system/tasks';
 
+export * from './array/unique';
 export * from './array/compare';
 export * from './array/generics';
 export * from './array/equal';

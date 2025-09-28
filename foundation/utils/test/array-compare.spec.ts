@@ -1,18 +1,9 @@
-import { ok, deepEqual } from 'node:assert/strict';
+import { deepEqual } from 'node:assert/strict';
 import { describe, it } from 'node:test';
 
-import { deepCompare, deepEqual as deepEquals } from '@ez4/utils';
+import { deepCompare } from '@ez4/utils';
 
-describe('array utils', () => {
-  it('assert :: deep equals', () => {
-    const target = [[123], 'abc', { field: true }];
-    const source = [[123], 'abc', { field: true }];
-
-    const result = deepEquals(target, source);
-
-    ok(result);
-  });
-
+describe('array comparison utils', () => {
   it('assert :: deep compare', () => {
     const target = [123, ['foo', false], {}];
 
