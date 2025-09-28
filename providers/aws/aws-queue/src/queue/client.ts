@@ -61,6 +61,8 @@ export const createQueue = async (request: CreateRequest): Promise<CreateRespons
 
   Logger.logCreate(QueueServiceName, queueName);
 
+  // If the queue was deleted less than 1 minute ago, the creation will fail.
+  // The `waitCreation` will keep retrying until max attempts.
   const response = await waitCreation(async () => {
     return client.send(
       new CreateQueueCommand({

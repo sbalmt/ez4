@@ -110,8 +110,8 @@ export const createFunction = async (request: CreateRequest): Promise<ImportOrCr
   const handlerName = getSourceHandlerName(request.handlerName);
   const sourceFile = await getSourceZipFile(request.sourceFile);
 
-  // If the given roleArn is new and still propagating on AWS, the creation
-  // will fail, `waitFor` will keep retrying until max attempts.
+  // If the given roleArn is new and still propagating on AWS, the creation will fail.
+  // The `waitCreation` will keep retrying until max attempts.
   const response = await waitCreation(() => {
     return client.send(
       new CreateFunctionCommand({
