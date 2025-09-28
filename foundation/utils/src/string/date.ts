@@ -19,9 +19,13 @@ export const isDate = (value: string) => {
   const date = onlyDateRegEx.exec(value);
 
   if (date) {
-    const [, year, month, day] = date;
+    const [, rawYear, rawMonth, rawDay] = date;
 
-    return ensureValidDate(parseInt(year), parseInt(month), parseInt(day));
+    const year = parseInt(rawYear);
+    const month = parseInt(rawMonth);
+    const day = parseInt(rawDay);
+
+    return ensureValidDate(year, month, day);
   }
 
   return false;
@@ -49,9 +53,13 @@ export const isDateTime = (value: string) => {
   const date = dateTimeRegEx.exec(value);
 
   if (date) {
-    const [, year, month, day] = date;
+    const [, rawYear, rawMonth, rawDay] = date;
 
-    return ensureValidDate(parseInt(year), parseInt(month), parseInt(day));
+    const year = parseInt(rawYear);
+    const month = parseInt(rawMonth);
+    const day = parseInt(rawDay);
+
+    return ensureValidDate(year, month, day);
   }
 
   return false;
