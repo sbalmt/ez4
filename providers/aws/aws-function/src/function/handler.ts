@@ -106,13 +106,14 @@ const createResource = async (candidate: FunctionState, context: StepContext): P
 
     return {
       functionArn: importedFunction.functionArn,
+      functionVersion: importedFunction.functionVersion,
       sourceHash,
       logGroup,
       roleArn
     };
   }
 
-  const response = await createFunction({
+  const createdFunction = await createFunction({
     ...parameters,
     publish: true,
     sourceFile,
@@ -123,7 +124,8 @@ const createResource = async (candidate: FunctionState, context: StepContext): P
   lockSensitiveData(candidate);
 
   return {
-    functionArn: response.functionArn,
+    functionArn: createdFunction.functionArn,
+    functionVersion: createdFunction.functionVersion,
     sourceHash,
     logGroup,
     roleArn
