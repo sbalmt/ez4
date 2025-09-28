@@ -3,7 +3,7 @@ import { ok } from 'node:assert/strict';
 
 import { isUUID } from '@ez4/utils';
 
-describe('uuid format', () => {
+describe('uuid utils', () => {
   it('assert :: valid uuid', () => {
     ok(isUUID('6ba73a78-4b8f-11ef-9454-0242ac120002'));
     ok(isUUID('000003e8-4b8f-21ef-8d00-325096b39f47'));

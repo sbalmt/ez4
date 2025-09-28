@@ -3,7 +3,7 @@ import { ok } from 'node:assert/strict';
 
 import { isDate, isDateTime, isTime } from '@ez4/utils';
 
-describe('date and time formats', () => {
+describe('date and time utils', () => {
   it('assert :: date', () => {
     ok(isDate('1991-04-23'));
     ok(isDate('2024-02-29'));
