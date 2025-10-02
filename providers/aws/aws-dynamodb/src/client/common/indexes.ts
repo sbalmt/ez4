@@ -4,15 +4,21 @@ import { isEmptyObject } from '@ez4/utils';
 
 import { getIndexName } from '../../types/indexes';
 
-export const findBestSecondaryIndex = (secondaryIndexes: string[][], fields: AnyObject) => {
+export const findBestSecondaryIndex = (indexes: string[][], fields: AnyObject) => {
   if (isEmptyObject(fields)) {
     return undefined;
   }
+
+  const [[partitionKey], ...secondaryIndexes] = indexes;
 
   let currentIndexes = secondaryIndexes;
   let bestIndexes;
 
   for (const fieldKey in fields) {
+    if (partitionKey === fieldKey) {
+      return undefined;
+    }
+
     currentIndexes = currentIndexes.filter((index) => index.includes(fieldKey));
 
     if (currentIndexes.length) {

@@ -35,9 +35,7 @@ export const prepareFindOne = <T extends InternalTableMetadata, S extends Query.
   indexes: string[][],
   query: Query.FindOneInput<S, T>
 ): ExecuteStatementCommandInput => {
-  const [, ...secondaryIndexes] = indexes;
-
-  const secondaryIndex = findBestSecondaryIndex(secondaryIndexes, query.where);
+  const secondaryIndex = findBestSecondaryIndex(indexes, query.where);
 
   const [statement, variables] = prepareSelect(table, secondaryIndex, query);
 
@@ -127,9 +125,7 @@ export const prepareFindMany = <T extends InternalTableMetadata, S extends Query
   indexes: string[][],
   query: Query.FindManyInput<S, C, T>
 ): ExecuteStatementCommandInput => {
-  const [, ...secondaryIndexes] = indexes;
-
-  const secondaryIndex = findBestSecondaryIndex(secondaryIndexes, query.order ?? query.where ?? {});
+  const secondaryIndex = findBestSecondaryIndex(indexes, query.order ?? query.where ?? {});
 
   const [statement, variables] = prepareSelect(table, secondaryIndex, query);
 
@@ -253,9 +249,9 @@ export const prepareCount = <T extends InternalTableMetadata, S extends Query.Se
   indexes: string[][],
   query: Query.CountInput<T>
 ): ExecuteStatementCommandInput => {
-  const [[partitionKey], ...secondaryIndexes] = indexes;
+  const secondaryIndex = findBestSecondaryIndex(indexes, query.where ?? {});
 
-  const secondaryIndex = findBestSecondaryIndex(secondaryIndexes, query.where ?? {});
+  const [[partitionKey]] = indexes;
 
   const [statement, variables] = prepareSelect(table, secondaryIndex, {
     where: query.where,
