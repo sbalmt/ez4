@@ -29,8 +29,8 @@ export const getCheckConstraintQuery = (builder: SqlBuilder, name: string) => {
 export const getCheckColumnQuery = (builder: SqlBuilder, table: string, column: string) => {
   const [query] = builder
     .select()
+    .from(builder.rawValue('information_schema.columns'))
     .rawColumn('1')
-    .from('information_schema.columns')
     .where({
       column_name: builder.rawString(column),
       table_name: builder.rawString(table)

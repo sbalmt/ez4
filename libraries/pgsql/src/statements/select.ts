@@ -2,9 +2,9 @@ import type { ObjectSchema } from '@ez4/schema';
 import type { SqlTableReference } from '../common/reference';
 import type { SqlJsonColumnOptions, SqlJsonColumnRecord } from '../common/json';
 import type { SqlArrayColumn, SqlObjectColumn, SqlResultColumn, SqlResultRecord } from '../common/results';
+import type { SqlRawGenerator, SqlRawValue } from '../common/raw';
 import type { SqlSourceWithResults } from '../common/source';
 import type { SqlFilters, SqlOrder } from '../common/types';
-import type { SqlRawGenerator } from '../common/raw';
 import type { SqlUnionClause } from '../clauses/query/union';
 import type { SqlBuilderOptions, SqlBuilderReferences } from '../builder';
 
@@ -23,7 +23,7 @@ export class SqlSelectStatement extends SqlSource implements SqlSourceWithResult
   #state: {
     options: SqlBuilderOptions;
     references: SqlBuilderReferences;
-    tables?: (string | SqlTableReference | SqlUnionClause | SqlSource)[];
+    tables?: (string | SqlRawValue | SqlTableReference | SqlUnionClause | SqlSource)[];
     where?: SqlWhereClause;
     order?: SqlOrderClause;
     schema?: ObjectSchema;
@@ -113,7 +113,7 @@ export class SqlSelectStatement extends SqlSource implements SqlSourceWithResult
     return this;
   }
 
-  from(...tables: (string | SqlTableReference | SqlUnionClause | SqlSource)[]) {
+  from(...tables: (string | SqlRawValue | SqlTableReference | SqlUnionClause | SqlSource)[]) {
     this.#state.tables = tables;
     return this;
   }
