@@ -29,11 +29,18 @@ export const getCheckConstraintQuery = (builder: SqlBuilder, name: string) => {
 export const getCheckColumnQuery = (builder: SqlBuilder, table: string, column: string) => {
   const [query] = builder
     .select()
-    .from(builder.rawValue('information_schema.columns'))
     .rawColumn('1')
     .where({
-      column_name: builder.rawString(column),
-      table_name: builder.rawString(table)
+      NOT: {
+        exists: builder
+          .select()
+          .from(builder.rawValue('information_schema.columns'))
+          .rawColumn('1')
+          .where({
+            column_name: builder.rawString(column),
+            table_name: builder.rawString(table)
+          })
+      }
     })
     .build();
 

@@ -133,7 +133,9 @@ const executeMigrationStatement = async (driver: DataClientDriver, statement: Pg
       query: check
     });
 
-    if (records[0]) {
+    const [shouldSkip] = records;
+
+    if (shouldSkip) {
       return false;
     }
   }

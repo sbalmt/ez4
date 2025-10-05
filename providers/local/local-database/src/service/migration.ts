@@ -54,12 +54,13 @@ const runMigrationStatement = async (client: MigrationClient, statement: PgMigra
   const { check, query } = statement;
 
   if (check) {
-    const [done] = await client.rawQuery(check);
+    const [shouldSkip] = await client.rawQuery(check);
 
-    if (done) {
-      return;
+    if (shouldSkip) {
+      return false;
     }
   }
 
   await client.rawQuery(query);
+  return true;
 };

@@ -57,7 +57,7 @@ describe('migration :: update relation tests', () => {
     deepEqual(queries, {
       tables: [
         {
-          check: `SELECT 1 FROM information_schema.columns WHERE "column_name" = 'column_a' AND "table_name" = 'table_a'`,
+          check: `SELECT 1 WHERE NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE "column_name" = 'column_a' AND "table_name" = 'table_a')`,
           query: `ALTER TABLE IF EXISTS "table_a" ALTER COLUMN "column_a" SET NOT null`
         }
       ],
@@ -87,7 +87,7 @@ describe('migration :: update relation tests', () => {
     deepEqual(queries, {
       tables: [
         {
-          check: `SELECT 1 FROM information_schema.columns WHERE "column_name" = 'column_a' AND "table_name" = 'table_a'`,
+          check: `SELECT 1 WHERE NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE "column_name" = 'column_a' AND "table_name" = 'table_a')`,
           query: `ALTER TABLE IF EXISTS "table_a" ALTER COLUMN "column_a" DROP NOT null`
         }
       ],
