@@ -8,6 +8,7 @@ import { deepMerge } from '@ez4/utils';
 
 import { getObjectSchemaProperty, isObjectSchema } from '../types/type-object';
 import { isUnionSchema } from '../types/type-union';
+import { SchemaType } from '../types/common';
 
 export type SchemaProperties = {
   [property: string]: SchemaProperties | boolean;
@@ -25,19 +26,30 @@ export const hasSchemaProperty = (schema: AnySchema, property: string): boolean 
   return false;
 };
 
-export const getSchemaProperty = (schema: AnySchema, propertyName: string): ObjectSchemaProperty | undefined => {
+export const getSchemaProperty = (schema: AnySchema, propertyName: string): ObjectSchemaProperty | UnionSchema | undefined => {
   if (isObjectSchema(schema)) {
     return getObjectSchemaProperty(schema, propertyName);
   }
 
   if (isUnionSchema(schema)) {
+    const elements = [];
+
     for (const element of schema.elements) {
       const property = getSchemaProperty(element, propertyName);
 
       if (property) {
-        return property;
+        elements.push(property);
       }
     }
+
+    if (elements.length > 1) {
+      return {
+        type: SchemaType.Union,
+        elements
+      };
+    }
+
+    return elements[0];
   }
 
   return undefined;

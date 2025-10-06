@@ -35,7 +35,16 @@ describe('schema property utils', () => {
       },
       {
         type: SchemaType.Object,
-        identity: 2,
+        identity: 3,
+        properties: {
+          bar: {
+            type: SchemaType.Number
+          }
+        }
+      },
+      {
+        type: SchemaType.Object,
+        identity: 4,
         properties: {
           abc: {
             type: SchemaType.Boolean
@@ -45,7 +54,7 @@ describe('schema property utils', () => {
     ]
   };
 
-  it("assert :: get 'foo' schema property", () => {
+  it("assert :: get 'foo' schema property (first single object)", () => {
     const schemaProperty = getSchemaProperty(fullSchema, 'foo');
 
     deepEqual(schemaProperty, {
@@ -53,7 +62,7 @@ describe('schema property utils', () => {
     });
   });
 
-  it("assert :: get 'baz' schema property", () => {
+  it("assert :: get 'baz' schema property (second single object)", () => {
     const schemaProperty = getSchemaProperty(fullSchema, 'baz');
 
     deepEqual(schemaProperty, {
@@ -61,11 +70,27 @@ describe('schema property utils', () => {
     });
   });
 
-  it("assert :: get 'abc' schema property", () => {
+  it("assert :: get 'abc' schema property (fourth single object)", () => {
     const schemaProperty = getSchemaProperty(fullSchema, 'abc');
 
     deepEqual(schemaProperty, {
       type: SchemaType.Boolean
+    });
+  });
+
+  it("assert :: get 'bar' schema property (multiple objects)", () => {
+    const schemaProperty = getSchemaProperty(fullSchema, 'bar');
+
+    deepEqual(schemaProperty, {
+      type: SchemaType.Union,
+      elements: [
+        {
+          type: SchemaType.String
+        },
+        {
+          type: SchemaType.Number
+        }
+      ]
     });
   });
 
