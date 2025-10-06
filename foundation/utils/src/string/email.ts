@@ -1,4 +1,4 @@
-const emailRegEx = /^[\w\-\.]+@([\w-]+\.)+[\w-]{2,}$/;
+const emailRegEx = /^[\w\+\-\.]+@([\w-]+\.)+[\w-]{2,}$/;
 
 /**
  * Determines whether or not the given value is a valid email format.

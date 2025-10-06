@@ -9,6 +9,7 @@ describe('email utils', () => {
     ok(isEmail('a-b@c.de'));
     ok(isEmail('a_b@c.de'));
     ok(isEmail('a.b@c.de'));
+    ok(isEmail('a+b@c.de'));
   });
 
   it('assert :: invalid email', () => {
