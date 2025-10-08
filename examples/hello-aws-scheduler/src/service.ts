@@ -1,3 +1,4 @@
+import type { Environment } from '@ez4/common';
 import type { Cron } from '@ez4/scheduler';
 import type { schedulerListener } from './common';
 import type { dynamicTargetHandler, staticTargetHandler } from './handlers';
@@ -10,7 +11,7 @@ export declare class RateEvent extends Cron.Service {
   /**
    * Group for the scheduler.
    */
-  group: 'ez4-group';
+  group: 'ez4-rate-group';
 
   /**
    * Execute every 5 minutes.
@@ -43,7 +44,7 @@ export declare class CronEvent extends Cron.Service {
   /**
    * Group for the scheduler.
    */
-  group: 'ez4-group';
+  group: 'ez4-cron-group';
 
   /**
    * Execute every 15 minutes.
@@ -76,7 +77,7 @@ export declare class DynamicCron extends Cron.Service<DynamicEvent> {
   /**
    * Group for the scheduler.
    */
-  group: 'ez4-group';
+  group: 'ez4-dynamic-group';
 
   /**
    * Execute dynamically on-demand.
@@ -94,5 +95,12 @@ export declare class DynamicCron extends Cron.Service<DynamicEvent> {
   target: {
     listener: typeof schedulerListener;
     handler: typeof dynamicTargetHandler;
+  };
+
+  /**
+   * Expose its client to all handlers.
+   */
+  services: {
+    selfClient: Environment.Service<DynamicCron>;
   };
 }

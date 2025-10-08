@@ -20,6 +20,7 @@
   },
   "dependencies": {
     "@ez4/aws-scheduler": "^0.28.0",
+    "@ez4/common": "^0.28.0",
     "@ez4/local-scheduler": "^0.28.0",
     "@ez4/scheduler": "^0.28.0",
     "@ez4/project": "^0.28.0"
