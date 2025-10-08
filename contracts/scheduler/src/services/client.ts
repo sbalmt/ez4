@@ -31,8 +31,9 @@ export interface Client<T extends Cron.Event> {
    * Delete a previously scheduled event.
    *
    * @param identifier Event identifier.
+   * @returns Returns `true` whether the event was deleted, `false` otherwise.
    */
-  deleteEvent(identifier: string): Promise<void>;
+  deleteEvent(identifier: string): Promise<boolean>;
 }
 
 /**

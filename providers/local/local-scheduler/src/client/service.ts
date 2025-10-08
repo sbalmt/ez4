@@ -37,9 +37,13 @@ export const createServiceClient = (serviceName: string, eventSchema: EventSchem
     }
 
     async deleteEvent(identifier: string) {
-      InMemoryScheduler.deleteEvent(serviceName, identifier);
+      if (InMemoryScheduler.deleteEvent(serviceName, identifier)) {
+        Logger.debug(`ℹ️  Event ${identifier} deleted.`);
+        return true;
+      }
 
-      Logger.debug(`ℹ️  Event ${identifier} deleted.`);
+      Logger.warn(`Event ${identifier} not found.`);
+      return false;
     }
   })();
 };

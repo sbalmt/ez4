@@ -148,12 +148,22 @@ export namespace Client {
       }
 
       async deleteEvent(identifier: string) {
-        await client.send(
-          new DeleteScheduleCommand({
-            Name: `${parameters.prefix}-${identifier}`,
-            GroupName: groupName
-          })
-        );
+        try {
+          await client.send(
+            new DeleteScheduleCommand({
+              Name: `${parameters.prefix}-${identifier}`,
+              GroupName: groupName
+            })
+          );
+
+          return true;
+        } catch (error) {
+          if (!(error instanceof ResourceNotFoundException)) {
+            throw error;
+          }
+
+          return false;
+        }
       }
     })();
   };
