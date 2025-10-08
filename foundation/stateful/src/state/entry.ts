@@ -1,6 +1,12 @@
 import type { EntryState, EntryStates } from '../types/entry';
 
-import { DuplicateEntryError, DependencyNotFoundError, EntryNotFoundError, CorruptedEntryMapError } from './errors';
+import {
+  EntryNotFoundError,
+  DependencyNotFoundError,
+  CircularDependencyError,
+  CorruptedEntryMapError,
+  DuplicateEntryError
+} from './errors';
 
 export const getEntry = <E extends EntryState>(entryMap: EntryStates<E>, entryId: string): E => {
   const entry = entryMap[entryId];
@@ -45,15 +51,22 @@ export const validateEntries = <E extends EntryState>(entryMap: EntryStates<E>) 
 };
 
 export const linkDependency = <E extends EntryState>(entryMap: EntryStates<E>, entryId: string, dependencyId: string) => {
-  if (!entryMap[entryId]) {
+  const dependencyEntry = entryMap[dependencyId];
+  const targetEntry = entryMap[entryId];
+
+  if (!targetEntry) {
     throw new EntryNotFoundError(entryId);
   }
 
-  if (!entryMap[dependencyId]) {
+  if (!dependencyEntry) {
     throw new EntryNotFoundError(dependencyId);
   }
 
-  const dependencies = entryMap[entryId].dependencies;
+  if (dependencyEntry.dependencies.includes(entryId)) {
+    throw new CircularDependencyError(entryId, dependencyId);
+  }
+
+  const dependencies = targetEntry.dependencies;
 
   if (dependencies.includes(dependencyId)) {
     throw new DuplicateEntryError(dependencyId);
@@ -65,20 +78,12 @@ export const linkDependency = <E extends EntryState>(entryMap: EntryStates<E>, e
 };
 
 export const tryLinkDependency = <E extends EntryState>(entryMap: EntryStates<E>, entryId: string, dependencyId: string) => {
-  if (!entryMap[entryId]) {
-    throw new EntryNotFoundError(entryId);
-  }
-
-  if (!entryMap[dependencyId]) {
-    throw new EntryNotFoundError(dependencyId);
-  }
-
-  const dependencies = entryMap[entryId].dependencies;
-
-  if (!dependencies.includes(dependencyId)) {
-    dependencies.push(dependencyId);
-
-    dependencies.sort((a, b) => a.localeCompare(b));
+  try {
+    linkDependency(entryMap, entryId, dependencyId);
+  } catch (error) {
+    if (!(error instanceof DuplicateEntryError || error instanceof CircularDependencyError)) {
+      throw error;
+    }
   }
 };
 

@@ -28,6 +28,15 @@ export class DependencyNotFoundError extends Error {
   }
 }
 
+export class CircularDependencyError extends Error {
+  constructor(
+    public entryId: string,
+    public dependencyId: string
+  ) {
+    super(`Circular dependency between ${dependencyId} and ${entryId} entries.`);
+  }
+}
+
 export class DuplicateEntryError extends Error {
   constructor(public entryId: string) {
     super(`Entry ${entryId} already exists.`);
