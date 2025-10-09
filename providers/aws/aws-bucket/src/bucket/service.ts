@@ -2,8 +2,8 @@ import type { EntryState, EntryStates } from '@ez4/stateful';
 import type { FunctionState } from '@ez4/aws-function';
 import type { BucketParameters, BucketState } from './types';
 
+import { attachEntry, linkEntryDependency } from '@ez4/stateful';
 import { createPermission } from '@ez4/aws-function';
-import { attachEntry, linkDependency } from '@ez4/stateful';
 
 import { buildBucketArn } from '../utils/policy';
 import { createBucketStateId } from './utils';
@@ -35,7 +35,7 @@ export const createBucket = <E extends EntryState>(
       }
     });
 
-    linkDependency(state, bucketState.entryId, functionState.entryId);
+    linkEntryDependency(state, bucketState.entryId, functionState.entryId);
   }
 
   return bucketState;
