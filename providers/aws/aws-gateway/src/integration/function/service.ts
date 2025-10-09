@@ -26,8 +26,8 @@ export const createIntegrationFunction = <E extends EntryState>(
     debug: parameters.debug,
     tags: parameters.tags,
     getFunctionBundle: (context) => {
-      const dependencies = context.getDependencies();
-      return bundleApiFunction(dependencies, parameters);
+      const connections = context.getConnections();
+      return bundleApiFunction(connections, parameters);
     },
     getFunctionFiles: () => {
       return [handler.sourceFile, handler.dependencies];

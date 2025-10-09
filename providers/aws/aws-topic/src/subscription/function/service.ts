@@ -26,8 +26,8 @@ export const createSubscriptionFunction = <E extends EntryState>(
     debug: parameters.debug,
     tags: parameters.tags,
     getFunctionBundle: (context) => {
-      const dependencies = context.getDependencies();
-      return bundleSubscriptionFunction(dependencies, parameters);
+      const connections = context.getConnections();
+      return bundleSubscriptionFunction(connections, parameters);
     },
     getFunctionFiles: () => {
       return [handler.sourceFile, handler.dependencies];

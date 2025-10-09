@@ -1,7 +1,6 @@
 import type { EntryState } from '@ez4/stateful';
-import type { AnyObject } from '@ez4/utils';
 
-import { toSnakeCase } from '@ez4/utils';
+import { isAnyObject, toSnakeCase } from '@ez4/utils';
 
 export type EntryResults<T extends EntryState> = keyof NonNullable<T['result']>;
 
@@ -13,15 +12,14 @@ export const getDefinitionsObject = (entries: EntryState[]) => {
   const definitions: Record<string, string> = {};
 
   for (const { entryId, result } of entries) {
-    if (!result) {
+    if (!isAnyObject(result)) {
       continue;
     }
 
     for (const key in result) {
-      const value = (result as AnyObject)[key];
       const name = getDefinitionName(entryId, key as EntryResults<EntryState>);
 
-      definitions[name] = `"${value}"`;
+      definitions[name] = `"${result[key]}"`;
     }
   }
 

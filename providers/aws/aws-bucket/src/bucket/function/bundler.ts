@@ -10,10 +10,10 @@ import { getFunctionBundle } from '@ez4/aws-common';
 // __MODULE_PATH is defined by the package bundler.
 declare const __MODULE_PATH: string;
 
-export const bundleBucketEventFunction = async (dependencies: EntryState[], parameters: BucketEventFunctionParameters) => {
+export const bundleBucketEventFunction = async (connections: EntryState[], parameters: BucketEventFunctionParameters) => {
   const { extras, debug, handler, listener } = parameters;
 
-  const definitions = getDefinitionsObject(dependencies);
+  const definitions = getDefinitionsObject(connections);
 
   return getFunctionBundle(MappingServiceName, {
     templateFile: join(__MODULE_PATH, '../lib/event.ts'),

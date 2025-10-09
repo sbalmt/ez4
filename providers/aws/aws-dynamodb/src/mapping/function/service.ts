@@ -26,8 +26,8 @@ export const createStreamFunction = <E extends EntryState>(
     debug: parameters.debug,
     tags: parameters.tags,
     getFunctionBundle: (context) => {
-      const dependencies = context.getDependencies();
-      return bundleStreamFunction(dependencies, parameters);
+      const connections = context.getConnections();
+      return bundleStreamFunction(connections, parameters);
     },
     getFunctionFiles: () => {
       return [handler.sourceFile, handler.dependencies];

@@ -12,10 +12,10 @@ declare const __MODULE_PATH: string;
 
 export type BundleQueueFunctionParameters = QueueFunctionParameters;
 
-export const bundleQueueFunction = async (dependencies: EntryState[], parameters: BundleQueueFunctionParameters) => {
+export const bundleQueueFunction = async (connections: EntryState[], parameters: BundleQueueFunctionParameters) => {
   const { handler, listener, messageSchema, extras, debug } = parameters;
 
-  const definitions = getDefinitionsObject(dependencies);
+  const definitions = getDefinitionsObject(connections);
 
   return getFunctionBundle(MappingServiceName, {
     templateFile: join(__MODULE_PATH, '../lib/message.ts'),

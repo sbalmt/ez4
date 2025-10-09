@@ -11,7 +11,7 @@ import { IntegrationServiceName } from '../types';
 // __MODULE_PATH is defined by the package bundler.
 declare const __MODULE_PATH: string;
 
-export const bundleApiFunction = async (dependencies: EntryState[], parameters: IntegrationFunctionParameters) => {
+export const bundleApiFunction = async (connections: EntryState[], parameters: IntegrationFunctionParameters) => {
   const {
     extras,
     debug,
@@ -27,7 +27,7 @@ export const bundleApiFunction = async (dependencies: EntryState[], parameters: 
     errorsMap
   } = parameters;
 
-  const definitions = getDefinitionsObject(dependencies);
+  const definitions = getDefinitionsObject(connections);
 
   return getFunctionBundle(IntegrationServiceName, {
     templateFile: join(__MODULE_PATH, '../lib/handler.ts'),
