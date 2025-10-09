@@ -1,12 +1,12 @@
 import type { EntryState } from '@ez4/stateful';
 import type { AnyObject } from '@ez4/utils';
 
-import { toCamelCase } from '@ez4/utils';
+import { toSnakeCase } from '@ez4/utils';
 
 export type EntryResults<T extends EntryState> = keyof NonNullable<T['result']>;
 
 export const getDefinitionName = <T extends EntryState>(entryId: string, name: EntryResults<T>) => {
-  return `__EZ4_${toCamelCase(`${entryId}_${name.toString()}`).toUpperCase()}`;
+  return `__EZ4_${toSnakeCase(`${entryId}_${name.toString()}`).toUpperCase()}`;
 };
 
 export const getDefinitionsObject = (entries: EntryState[]) => {
