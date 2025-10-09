@@ -13,3 +13,5 @@ export * from './mapping/function/types';
 
 export * from './mapping/service';
 export * from './mapping/types';
+
+export * from './utils/arn';
