@@ -2,10 +2,10 @@ import type { EntryState } from '@ez4/stateful';
 
 import { isAnyObject, toSnakeCase } from '@ez4/utils';
 
-export type EntryResults<T extends EntryState> = keyof NonNullable<T['result']>;
+export type EntryProperties<T extends EntryState> = keyof NonNullable<T['result']>;
 
-export const getDefinitionName = <T extends EntryState>(entryId: string, name: EntryResults<T>) => {
-  return `__EZ4_${toSnakeCase(`${entryId}_${name.toString()}`).toUpperCase()}`;
+export const getDefinitionName = <T extends EntryState>(entryId: string, property: EntryProperties<T>) => {
+  return `__EZ4_${toSnakeCase(`${entryId}_${property.toString()}`).toUpperCase()}`;
 };
 
 export const getDefinitionsObject = (entries: EntryState[]) => {
@@ -16,10 +16,10 @@ export const getDefinitionsObject = (entries: EntryState[]) => {
       continue;
     }
 
-    for (const key in result) {
-      const name = getDefinitionName(entryId, key as EntryResults<EntryState>);
+    for (const property in result) {
+      const name = getDefinitionName(entryId, property as EntryProperties<EntryState>);
 
-      definitions[name] = `"${result[key]}"`;
+      definitions[name] = `"${result[property]}"`;
     }
   }
 

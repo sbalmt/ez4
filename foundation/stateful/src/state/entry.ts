@@ -1,4 +1,4 @@
-import type { EntryState, EntryStates } from '../types/entry';
+import type { EntryState, EntryStates, EntryTypes } from '../types/entry';
 
 import {
   EntryNotFoundError,
@@ -88,7 +88,7 @@ export const tryLinkEntryDependency = <E extends EntryState>(entryMap: EntryStat
   }
 };
 
-export const getEntryDependencies = <E extends EntryState>(entryMap: EntryStates, entry: EntryState, type?: E['type']): E[] => {
+export const getEntryDependencies = <E extends EntryState>(entryMap: EntryStates, entry: EntryState, type?: EntryTypes<E>): E[] => {
   const dependencyList: E[] = [];
 
   entry.dependencies.forEach((dependencyId) => {
@@ -131,7 +131,7 @@ export const linkEntryConnection = <E extends EntryState>(entryMap: EntryStates<
   }
 };
 
-export const getEntryConnections = <E extends EntryState>(entryMap: EntryStates, entry: EntryState, type?: E['type']): E[] => {
+export const getEntryConnections = <E extends EntryState>(entryMap: EntryStates, entry: EntryState, type?: EntryTypes<E>): E[] => {
   const connectionList: E[] = [];
 
   entry.connections?.forEach((connectionId) => {
@@ -149,6 +149,6 @@ export const getEntryConnections = <E extends EntryState>(entryMap: EntryStates,
   return connectionList;
 };
 
-const isEntryType = <E extends EntryState>(entry: EntryState, type?: E['type']): entry is E => {
+const isEntryType = <E extends EntryState>(entry: EntryState, type?: EntryTypes<E>): entry is E => {
   return !type || entry.type === type;
 };
