@@ -8,7 +8,7 @@ import { isRoleState } from '@ez4/aws-identity';
 
 import { createGroup } from '../group/service';
 import { createSchedule } from '../schedule/service';
-import { connectTarget, prepareTarget } from './target';
+import { connectTarget, prepareScheduleTarget } from './target';
 import { prepareLinkedClient } from './client';
 import { RoleMissingError } from './errors';
 
@@ -33,13 +33,10 @@ export const prepareCronServices = async (event: PrepareResourceEvent) => {
     throw new RoleMissingError();
   }
 
-  const { description, expression, timezone, startDate, endDate } = service;
+  const { description, expression, timezone, startDate, endDate, maxAge, maxRetries = 0 } = service;
 
-  const { maxRetries = 0, maxAge } = service;
-
-  const groupState = getScheduleGroup(state, service, options);
-
-  const functionState = prepareTarget(state, service, options, context);
+  const functionState = prepareScheduleTarget(state, service, options, context);
+  const groupState = prepareScheduleGroup(state, service, options);
 
   const scheduleState = createSchedule(state, context.role, functionState, groupState, {
     scheduleName: getServiceName(service, options),
@@ -67,7 +64,7 @@ export const connectCronResources = (event: ConnectResourceEvent) => {
   }
 };
 
-const getScheduleGroup = (state: EntryStates, service: CronService, options: DeployOptions) => {
+const prepareScheduleGroup = (state: EntryStates, service: CronService, options: DeployOptions) => {
   if (!service.group) {
     return undefined;
   }

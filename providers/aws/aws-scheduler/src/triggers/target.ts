@@ -12,7 +12,7 @@ import { getInternalName, getTargetName } from './utils';
 import { RoleMissingError } from './errors';
 import { Defaults } from './defaults';
 
-export const prepareTarget = (state: EntryStates, service: CronService, options: DeployOptions, context: EventContext) => {
+export const prepareScheduleTarget = (state: EntryStates, service: CronService, options: DeployOptions, context: EventContext) => {
   if (!context.role || !isRoleState(context.role)) {
     throw new RoleMissingError();
   }
