@@ -37,6 +37,7 @@ export const prepareTableStream = (
 
   if (!handlerState) {
     const streamName = getStreamName(service, table, handler.name, options);
+    const dependencies = context.getDependencyFiles(handler.file);
 
     const logGroupState = createLogGroup(state, {
       retention: logRetention ?? Defaults.LogRetention,
@@ -59,10 +60,10 @@ export const prepareTableStream = (
         ...variables
       },
       handler: {
-        dependencies: context.getDependencies(handler.file),
-        functionName: handler.name,
         sourceFile: handler.file,
-        module: handler.module
+        functionName: handler.name,
+        module: handler.module,
+        dependencies
       },
       ...(listener && {
         listener: {
