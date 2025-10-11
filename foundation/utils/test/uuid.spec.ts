@@ -1,7 +1,7 @@
 import { describe, it } from 'node:test';
 import { ok } from 'node:assert/strict';
 
-import { isUUID } from '@ez4/utils';
+import { getRandomUUID, isUUID } from '@ez4/utils';
 
 describe('uuid utils', () => {
   it('assert :: valid uuid', () => {
@@ -16,5 +16,9 @@ describe('uuid utils', () => {
 
   it('assert :: invalid uuid', () => {
     ok(!isUUID('414cc694-5d00-0801-b045-48719521a8f2'));
+  });
+
+  it('assert :: random uuid', () => {
+    ok(isUUID(getRandomUUID()));
   });
 });
