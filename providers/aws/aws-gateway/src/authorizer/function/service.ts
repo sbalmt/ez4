@@ -4,6 +4,7 @@ import type { RoleState } from '@ez4/aws-identity';
 import type { AuthorizerFunctionParameters } from './types';
 
 import { createFunction } from '@ez4/aws-function';
+import { hashObject } from '@ez4/utils';
 
 import { bundleApiFunction } from './bundler';
 
@@ -13,7 +14,8 @@ export const createAuthorizerFunction = <E extends EntryState>(
   logGroupState: LogGroupState,
   parameters: AuthorizerFunctionParameters
 ) => {
-  const { authorizer } = parameters;
+  const { headersSchema, parametersSchema, querySchema } = parameters;
+  const { authorizer, preferences } = parameters;
 
   return createFunction(state, roleState, logGroupState, {
     handlerName: 'apiEntryPoint',
@@ -25,12 +27,19 @@ export const createAuthorizerFunction = <E extends EntryState>(
     memory: parameters.memory,
     debug: parameters.debug,
     tags: parameters.tags,
-    getFunctionBundle: (context) => {
-      const connections = context.getConnections();
-      return bundleApiFunction(connections, parameters);
-    },
     getFunctionFiles: () => {
       return [authorizer.sourceFile, authorizer.dependencies];
+    },
+    getFunctionBundle: (context) => {
+      return bundleApiFunction(parameters, context.getConnections());
+    },
+    getFunctionHash: () => {
+      return hashObject({
+        headersSchema,
+        parametersSchema,
+        querySchema,
+        preferences
+      });
     }
   });
 };

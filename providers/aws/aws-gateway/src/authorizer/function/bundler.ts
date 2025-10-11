@@ -11,7 +11,7 @@ import { AuthorizerServiceName } from '../types';
 // __MODULE_PATH is defined by the package bundler.
 declare const __MODULE_PATH: string;
 
-export const bundleApiFunction = async (connections: EntryState[], parameters: AuthorizerFunctionParameters) => {
+export const bundleApiFunction = async (parameters: AuthorizerFunctionParameters, connections: EntryState[]) => {
   const { extras, debug, authorizer, listener, headersSchema, parametersSchema, querySchema, preferences } = parameters;
 
   const definitions = getDefinitionsObject(connections);

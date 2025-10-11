@@ -14,7 +14,7 @@ export type SubscriptionEntryPoint = SubscriptionFunction & {
 
 export type SubscriptionFunctionParameters = Omit<
   FunctionParameters,
-  'getFunctionBundle' | 'getFunctionFiles' | 'sourceFile' | 'handlerName'
+  'getFunctionFiles' | 'getFunctionBundle' | 'getFunctionHash' | 'sourceFile' | 'handlerName'
 > & {
   handler: SubscriptionEntryPoint;
   listener?: SubscriptionFunction;

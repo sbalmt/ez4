@@ -4,6 +4,7 @@ import type { RoleState } from '@ez4/aws-identity';
 import type { SubscriptionFunctionParameters } from './types';
 
 import { createFunction } from '@ez4/aws-function';
+import { hashObject } from '@ez4/utils';
 
 import { bundleSubscriptionFunction } from './bundler';
 
@@ -13,7 +14,7 @@ export const createSubscriptionFunction = <E extends EntryState>(
   logGroupState: LogGroupState,
   parameters: SubscriptionFunctionParameters
 ) => {
-  const { handler } = parameters;
+  const { handler, messageSchema } = parameters;
 
   return createFunction(state, roleState, logGroupState, {
     handlerName: 'snsEntryPoint',
@@ -25,12 +26,14 @@ export const createSubscriptionFunction = <E extends EntryState>(
     memory: parameters.memory,
     debug: parameters.debug,
     tags: parameters.tags,
-    getFunctionBundle: (context) => {
-      const connections = context.getConnections();
-      return bundleSubscriptionFunction(connections, parameters);
-    },
     getFunctionFiles: () => {
       return [handler.sourceFile, handler.dependencies];
+    },
+    getFunctionBundle: (context) => {
+      return bundleSubscriptionFunction(parameters, context.getConnections());
+    },
+    getFunctionHash: () => {
+      return hashObject({ messageSchema });
     }
   });
 };

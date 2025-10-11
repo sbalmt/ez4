@@ -12,7 +12,10 @@ export type TargetEntryPoint = TargetFunction & {
   dependencies: string[];
 };
 
-export type TargetFunctionParameters = Omit<FunctionParameters, 'getFunctionBundle' | 'getFunctionFiles' | 'sourceFile' | 'handlerName'> & {
+export type TargetFunctionParameters = Omit<
+  FunctionParameters,
+  'getFunctionFiles' | 'getFunctionBundle' | 'getFunctionHash' | 'sourceFile' | 'handlerName'
+> & {
   handler: TargetEntryPoint;
   listener?: TargetFunction;
   eventSchema?: CronEventSchema | null;

@@ -43,8 +43,8 @@ const replaceResource = async (candidate: IntegrationState, current: Integration
 };
 
 const createResource = async (candidate: IntegrationState, context: StepContext): Promise<IntegrationResult> => {
-  const apiId = getGatewayId(IntegrationServiceName, 'integration', context);
   const functionArn = getFunctionArn(IntegrationServiceName, 'integration', context);
+  const apiId = getGatewayId(IntegrationServiceName, 'integration', context);
 
   const response = await createIntegration(apiId, {
     ...candidate.parameters,

@@ -15,7 +15,7 @@ export type IntegrationEntryPoint = IntegrationFunction & {
 
 export type IntegrationFunctionParameters = Omit<
   FunctionParameters,
-  'getFunctionBundle' | 'getFunctionFiles' | 'sourceFile' | 'handlerName'
+  'getFunctionFiles' | 'getFunctionBundle' | 'getFunctionHash' | 'sourceFile' | 'handlerName'
 > & {
   handler: IntegrationEntryPoint;
   listener?: IntegrationFunction;

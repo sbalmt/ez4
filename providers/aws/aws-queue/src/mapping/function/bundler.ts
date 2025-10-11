@@ -12,7 +12,7 @@ declare const __MODULE_PATH: string;
 
 export type BundleQueueFunctionParameters = QueueFunctionParameters;
 
-export const bundleQueueFunction = async (connections: EntryState[], parameters: BundleQueueFunctionParameters) => {
+export const bundleQueueFunction = async (parameters: BundleQueueFunctionParameters, connections: EntryState[]) => {
   const { handler, listener, messageSchema, extras, debug } = parameters;
 
   const definitions = getDefinitionsObject(connections);

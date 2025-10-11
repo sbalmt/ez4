@@ -4,6 +4,7 @@ import type { RoleState } from '@ez4/aws-identity';
 import type { TargetFunctionParameters } from './types';
 
 import { createFunction } from '@ez4/aws-function';
+import { hashObject } from '@ez4/utils';
 
 import { bundleTargetFunction } from './bundler';
 
@@ -13,7 +14,7 @@ export const createTargetFunction = <E extends EntryState>(
   logGroupState: LogGroupState,
   parameters: TargetFunctionParameters
 ) => {
-  const { handler } = parameters;
+  const { handler, eventSchema } = parameters;
 
   return createFunction(state, roleState, logGroupState, {
     handlerName: 'eventEntryPoint',
@@ -25,12 +26,14 @@ export const createTargetFunction = <E extends EntryState>(
     memory: parameters.memory,
     debug: parameters.debug,
     tags: parameters.tags,
-    getFunctionBundle: (context) => {
-      const connections = context.getConnections();
-      return bundleTargetFunction(connections, parameters);
-    },
     getFunctionFiles: () => {
       return [handler.sourceFile, handler.dependencies];
+    },
+    getFunctionBundle: (context) => {
+      return bundleTargetFunction(parameters, context.getConnections());
+    },
+    getFunctionHash: () => {
+      return hashObject({ eventSchema });
     }
   });
 };

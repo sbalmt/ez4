@@ -13,8 +13,8 @@ import {
   deleteFunction,
   updateConfiguration,
   updateSourceCode,
-  tagFunction,
-  untagFunction
+  untagFunction,
+  tagFunction
 } from './client';
 
 import { protectVariables } from './helpers/variables';
@@ -40,16 +40,18 @@ const previewResource = async (candidate: FunctionState, current: FunctionState)
   const changes = deepCompare(
     {
       ...target,
+      connections: candidate.connections,
       dependencies: candidate.dependencies,
+      variables: target.variables && protectVariables(target.variables),
       sourceHash: await getBundleHash(...target.getFunctionFiles()),
-      ...(target.variables && {
-        variables: protectVariables(target.variables)
-      })
+      valuesHash: target.getFunctionHash()
     },
     {
       ...source,
+      connections: current.connections,
       dependencies: current.dependencies,
-      sourceHash: current.result?.sourceHash
+      sourceHash: current.result?.sourceHash,
+      valuesHash: current.result?.valuesHash
     }
   );
 
@@ -76,12 +78,13 @@ const createResource = async (candidate: FunctionState, context: StepContext): P
 
   const functionName = parameters.functionName;
 
-  const roleArn = getRoleArn(FunctionServiceName, functionName, context);
   const logGroup = getLogGroupName(FunctionServiceName, functionName, context);
+  const roleArn = getRoleArn(FunctionServiceName, functionName, context);
 
-  const [sourceHash, sourceFile] = await Promise.all([
+  const [sourceHash, sourceFile, valuesHash] = await Promise.all([
     getBundleHash(...parameters.getFunctionFiles()),
-    parameters.getFunctionBundle(context)
+    parameters.getFunctionBundle(context),
+    parameters.getFunctionHash()
   ]);
 
   const importedFunction = await importFunction(functionName);
@@ -108,6 +111,7 @@ const createResource = async (candidate: FunctionState, context: StepContext): P
       functionArn: importedFunction.functionArn,
       functionVersion: importedFunction.functionVersion,
       sourceHash,
+      valuesHash,
       logGroup,
       roleArn
     };
@@ -127,6 +131,7 @@ const createResource = async (candidate: FunctionState, context: StepContext): P
     functionArn: createdFunction.functionArn,
     functionVersion: createdFunction.functionVersion,
     sourceHash,
+    valuesHash,
     logGroup,
     roleArn
   };
@@ -219,10 +224,12 @@ const checkSourceCodeUpdates = async (
   current: FunctionResult | undefined,
   context: StepContext
 ) => {
-  const newSourceHash = await getBundleHash(...candidate.getFunctionFiles());
-  const oldSourceHash = current?.sourceHash;
+  const [newSourceHash, newValuesHash] = await Promise.all([getBundleHash(...candidate.getFunctionFiles()), candidate.getFunctionHash()]);
 
-  if (newSourceHash === oldSourceHash && !context.force) {
+  const oldSourceHash = current?.sourceHash;
+  const oldValuesHash = current?.valuesHash;
+
+  if (newSourceHash === oldSourceHash && newValuesHash === oldValuesHash && !context.force) {
     return current;
   }
 
@@ -235,6 +242,7 @@ const checkSourceCodeUpdates = async (
 
   return {
     sourceHash: newSourceHash,
+    valuesHash: newValuesHash,
     ...(functionVersion && {
       functionVersion
     })
