@@ -186,13 +186,13 @@ const getExtraContext = (extras: Record<string, ExtraSource>) => {
   const packages: string[] = [];
   const services: string[] = [];
 
-  for (const contextName in extras) {
-    const { constructor, module, from } = extras[contextName];
+  for (const serviceName of Object.keys(extras).sort()) {
+    const { constructor, module, from } = extras[serviceName];
 
-    const service = `${contextName}${module}`;
+    const service = `${serviceName}${module}`;
 
     packages.push(`import { ${module} as ${service} } from '${from}';`);
-    services.push(`${contextName}: ${service}.${constructor}`);
+    services.push(`${serviceName}: ${service}.${constructor}`);
   }
 
   return {

@@ -74,9 +74,7 @@ const replaceResource = async (candidate: FunctionState, current: FunctionState,
 };
 
 const createResource = async (candidate: FunctionState, context: StepContext): Promise<FunctionResult> => {
-  const parameters = candidate.parameters;
-
-  const functionName = parameters.functionName;
+  const { functionName, ...parameters } = candidate.parameters;
 
   const logGroup = getLogGroupName(FunctionServiceName, functionName, context);
   const roleArn = getRoleArn(FunctionServiceName, functionName, context);
@@ -87,9 +85,8 @@ const createResource = async (candidate: FunctionState, context: StepContext): P
     parameters.getFunctionHash()
   ]);
 
-  const bundleHash = await hashFile(sourceFile);
-
   const importedFunction = await importFunction(functionName);
+  const bundleHash = await hashFile(sourceFile);
 
   if (importedFunction) {
     await updateConfiguration(functionName, {
@@ -123,6 +120,7 @@ const createResource = async (candidate: FunctionState, context: StepContext): P
   const createdFunction = await createFunction({
     ...parameters,
     publish: true,
+    functionName,
     sourceFile,
     logGroup,
     roleArn
@@ -233,29 +231,35 @@ const checkSourceCodeUpdates = async (
   const oldSourceHash = current?.sourceHash;
   const oldValuesHash = current?.valuesHash;
 
-  if (newSourceHash === oldSourceHash && newValuesHash === oldValuesHash && !context.force) {
-    return current;
+  if (newSourceHash !== oldSourceHash || newValuesHash !== oldValuesHash || context.force) {
+    const newSourceFile = await candidate.getFunctionBundle(context);
+
+    const newBundleHash = await hashFile(newSourceFile);
+    const oldBundleHash = current?.bundleHash;
+
+    if (newBundleHash === oldBundleHash) {
+      Logger.logSkip(FunctionServiceName, `${functionName} source code`);
+
+      return {
+        valuesHash: newValuesHash,
+        sourceHash: newSourceHash
+      };
+    }
+
+    const { functionVersion } = await updateSourceCode(functionName, {
+      publish: !current?.functionVersion,
+      sourceFile: newSourceFile
+    });
+
+    return {
+      valuesHash: newValuesHash,
+      sourceHash: newSourceHash,
+      bundleHash: newBundleHash,
+      ...(functionVersion && {
+        functionVersion
+      })
+    };
   }
 
-  const sourceFile = await candidate.getFunctionBundle(context);
-
-  const newBundleHash = await hashFile(sourceFile);
-  const oldBundleHash = current?.bundleHash;
-
-  if (newBundleHash === oldBundleHash) {
-    Logger.logSkip(FunctionServiceName, `${functionName} source code`);
-    return current;
-  }
-
-  const { functionVersion } = await updateSourceCode(functionName, {
-    publish: !current?.functionVersion,
-    sourceFile
-  });
-
-  return {
-    valuesHash: newValuesHash,
-    sourceHash: newSourceHash,
-    bundleHash: newBundleHash,
-    functionVersion
-  };
+  return undefined;
 };
