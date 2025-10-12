@@ -31,17 +31,14 @@ export const prepareHttpServices = (event: PrepareResourceEvent) => {
   }
 
   const { name, displayName, description, routes, cors } = service;
-
-  const gatewayId = getServiceName(service, options);
+  const { tags } = options;
 
   const gatewayState = createGateway(state, {
+    cors: cors && getCorsConfiguration(routes, cors),
+    gatewayId: getServiceName(service, options),
     gatewayName: displayName ?? name,
-    tags: options.tags,
-    gatewayId,
     description,
-    ...(cors && {
-      cors: getCorsConfiguration(routes, cors)
-    })
+    tags
   });
 
   createStage(state, gatewayState, {

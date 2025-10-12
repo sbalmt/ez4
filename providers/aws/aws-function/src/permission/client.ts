@@ -22,7 +22,7 @@ export type CreateResponse = {
 export const createPermission = async (request: CreateRequest): Promise<CreateResponse> => {
   Logger.logCreate(PermissionServiceName, request.functionName);
 
-  const statementId = request.statementId ?? `SID${Date.now()}`;
+  const statementId = request.statementId ?? `ID${Date.now()}`;
 
   await client.send(
     new AddPermissionCommand({

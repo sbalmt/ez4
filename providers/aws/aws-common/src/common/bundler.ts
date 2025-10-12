@@ -55,7 +55,7 @@ export const createBundleHash = async (allSourceFiles: string[]) => {
     })
   );
 
-  // Ensure same position to not trigger updates without real changes.
+  // Ensure the same position to not trigger updates without real changes.
   pathSignatures.sort((a, b) => a.filePath.localeCompare(b.filePath));
 
   for (const { pathSignature } of pathSignatures) {
@@ -87,9 +87,8 @@ export const getFunctionBundle = async (serviceName: string, options: BundlerOpt
     return cacheFile;
   }
 
-  const { filePrefix, debug } = options;
-
   const { dir: targetPath, name: targetName } = parse(sourceFile);
+  const { filePrefix, debug } = options;
 
   const targetFile = join(targetPath, `${filePrefix}.${targetName}.${toKebabCase(functionName)}.mjs`);
   const outputFile = getTemporaryPath(targetFile);
