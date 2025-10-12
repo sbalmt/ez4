@@ -2,8 +2,8 @@ import type { StepContext, StepHandler } from '@ez4/stateful';
 import type { Arn } from '@ez4/aws-common';
 import type { FunctionState, FunctionResult, FunctionParameters } from './types';
 
-import { applyTagUpdates, getBundleHash, ReplaceResourceError } from '@ez4/aws-common';
-import { deepCompare, deepEqual } from '@ez4/utils';
+import { applyTagUpdates, getBundleHash, Logger, ReplaceResourceError } from '@ez4/aws-common';
+import { deepCompare, deepEqual, hashFile } from '@ez4/utils';
 import { getLogGroupName } from '@ez4/aws-logs';
 import { getRoleArn } from '@ez4/aws-identity';
 
@@ -87,6 +87,8 @@ const createResource = async (candidate: FunctionState, context: StepContext): P
     parameters.getFunctionHash()
   ]);
 
+  const bundleHash = await hashFile(sourceFile);
+
   const importedFunction = await importFunction(functionName);
 
   if (importedFunction) {
@@ -110,8 +112,9 @@ const createResource = async (candidate: FunctionState, context: StepContext): P
     return {
       functionArn: importedFunction.functionArn,
       functionVersion: importedFunction.functionVersion,
-      sourceHash,
       valuesHash,
+      sourceHash,
+      bundleHash,
       logGroup,
       roleArn
     };
@@ -130,8 +133,9 @@ const createResource = async (candidate: FunctionState, context: StepContext): P
   return {
     functionArn: createdFunction.functionArn,
     functionVersion: createdFunction.functionVersion,
-    sourceHash,
     valuesHash,
+    sourceHash,
+    bundleHash,
     logGroup,
     roleArn
   };
@@ -235,16 +239,23 @@ const checkSourceCodeUpdates = async (
 
   const sourceFile = await candidate.getFunctionBundle(context);
 
+  const newBundleHash = await hashFile(sourceFile);
+  const oldBundleHash = current?.bundleHash;
+
+  if (newBundleHash === oldBundleHash) {
+    Logger.logSkip(FunctionServiceName, `${functionName} source code`);
+    return current;
+  }
+
   const { functionVersion } = await updateSourceCode(functionName, {
     publish: !current?.functionVersion,
     sourceFile
   });
 
   return {
-    sourceHash: newSourceHash,
     valuesHash: newValuesHash,
-    ...(functionVersion && {
-      functionVersion
-    })
+    sourceHash: newSourceHash,
+    bundleHash: newBundleHash,
+    functionVersion
   };
 };

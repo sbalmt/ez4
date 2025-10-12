@@ -97,7 +97,8 @@ export const getFunctionBundle = async (serviceName: string, options: BundlerOpt
   const result = await build({
     outfile: outputFile,
     treeShaking: !debug,
-    minify: !debug,
+    minifyWhitespace: true,
+    minifySyntax: true,
     packages: 'bundle',
     platform: 'node',
     target: 'node22',

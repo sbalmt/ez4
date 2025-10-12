@@ -17,9 +17,10 @@ export type FunctionParameters = Omit<CreateRequest, 'roleArn' | 'publish'> & {
 };
 
 export type FunctionResult = ImportOrCreateResponse & {
-  logGroup?: string;
   valuesHash?: string;
   sourceHash: string;
+  bundleHash: string;
+  logGroup?: string;
   roleArn: Arn;
 };
 
