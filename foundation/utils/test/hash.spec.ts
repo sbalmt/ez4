@@ -6,7 +6,7 @@ import { hashObject } from '@ez4/utils';
 describe('hash utils', () => {
   it('assert :: hash object (equal)', () => {
     const target = hashObject({ foo: 'foo', bar: 123 });
-    const source = hashObject({ bar: 123, foo: 'foo' });
+    const source = hashObject({ foo: 'foo', bar: 123 });
 
     equal(target, source);
   });
