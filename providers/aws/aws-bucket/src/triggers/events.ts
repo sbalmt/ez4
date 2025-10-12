@@ -48,24 +48,22 @@ export const prepareEvents = (state: EntryStates, service: BucketService, option
     extras: service.extras,
     debug: options.debug,
     tags: options.tags,
-    variables: {
-      ...options.variables,
-      ...service.variables,
-      ...variables
-    },
     handler: {
       sourceFile: handler.file,
       functionName: handler.name,
       module: handler.module,
       dependencies
     },
-    ...(listener && {
-      listener: {
-        functionName: listener.name,
-        sourceFile: listener.file,
-        module: listener.module
-      }
-    })
+    listener: listener && {
+      functionName: listener.name,
+      sourceFile: listener.file,
+      module: listener.module
+    },
+    variables: {
+      ...options.variables,
+      ...service.variables,
+      ...variables
+    }
   });
 
   context.setServiceState(handlerState, internalName, options);

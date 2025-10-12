@@ -18,7 +18,7 @@ export type IntegrationFunctionParameters = Omit<
   'getFunctionFiles' | 'getFunctionBundle' | 'getFunctionHash' | 'sourceFile' | 'handlerName'
 > & {
   handler: IntegrationEntryPoint;
-  listener?: IntegrationFunction;
+  listener?: IntegrationFunction | null;
   preferences?: HttpPreferences;
   headersSchema?: ObjectSchema | null;
   identitySchema?: ObjectSchema | UnionSchema | null;

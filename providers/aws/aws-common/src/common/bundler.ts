@@ -26,7 +26,7 @@ export type BundlerOptions = {
   filePrefix: string;
   templateFile: string;
   handler: BundlerEntrypoint;
-  listener?: BundlerEntrypoint;
+  listener?: BundlerEntrypoint | null;
   extras?: Record<string, ExtraSource>;
   define?: Record<string, string>;
   debug?: boolean;

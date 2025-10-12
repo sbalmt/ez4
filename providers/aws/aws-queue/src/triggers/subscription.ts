@@ -51,24 +51,22 @@ export const prepareSubscriptions = async (
         extras: service.extras,
         debug: options.debug,
         tags: options.tags,
-        variables: {
-          ...options.variables,
-          ...service.variables,
-          ...subscription.variables
-        },
         handler: {
           sourceFile: handler.file,
           functionName: handler.name,
           module: handler.module,
           dependencies
         },
-        ...(listener && {
-          listener: {
-            functionName: listener.name,
-            sourceFile: listener.file,
-            module: listener.module
-          }
-        })
+        listener: listener && {
+          functionName: listener.name,
+          sourceFile: listener.file,
+          module: listener.module
+        },
+        variables: {
+          ...options.variables,
+          ...service.variables,
+          ...subscription.variables
+        }
       });
 
       context.setServiceState(handlerState, internalName, options);

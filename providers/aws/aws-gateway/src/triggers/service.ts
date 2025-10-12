@@ -152,27 +152,25 @@ const getIntegrationFunction = (
         ...defaults.preferences,
         ...route.preferences
       },
-      errorsMap: {
-        ...defaults.httpErrors,
-        ...route.httpErrors
-      },
-      variables: {
-        ...options.variables,
-        ...service.variables
-      },
       handler: {
         sourceFile: handler.file,
         functionName: handler.name,
         module: handler.module,
         dependencies
       },
-      ...(listener && {
-        listener: {
-          functionName: listener.name,
-          sourceFile: listener.file,
-          module: listener.module
-        }
-      })
+      listener: listener && {
+        functionName: listener.name,
+        sourceFile: listener.file,
+        module: listener.module
+      },
+      variables: {
+        ...options.variables,
+        ...service.variables
+      },
+      errorsMap: {
+        ...defaults.httpErrors,
+        ...route.httpErrors
+      }
     });
 
     context.setServiceState(handlerState, internalName, options);
@@ -249,23 +247,21 @@ const getAuthorizerFunction = (
         ...defaults.preferences,
         ...route.preferences
       },
-      variables: {
-        ...options.variables,
-        ...service.variables
-      },
       authorizer: {
         sourceFile: authorizer.file,
         functionName: authorizer.name,
         module: authorizer.module,
         dependencies
       },
-      ...(listener && {
-        listener: {
-          functionName: listener.name,
-          sourceFile: listener.file,
-          module: listener.module
-        }
-      })
+      listener: listener && {
+        functionName: listener.name,
+        sourceFile: listener.file,
+        module: listener.module
+      },
+      variables: {
+        ...options.variables,
+        ...service.variables
+      }
     });
 
     context.setServiceState(authorizerState, internalName, options);
