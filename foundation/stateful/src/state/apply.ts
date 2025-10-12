@@ -1,10 +1,10 @@
-import type { EntryState, EntryStates } from '../types/entry';
+import type { EntryState, EntryStates, EntryTypes } from '../types/entry';
 import type { StepHandlers, StepState } from '../types/step';
 
 import { Tasks } from '@ez4/utils';
 
 import { HandlerNotFoundError, EntriesNotFoundError } from './errors';
-import { getDependencies, getEntry } from './entry';
+import { getEntry, getEntryDependencies, getEntryConnections } from './entry';
 import { StepAction } from './step';
 
 export type ApplyResult<E extends EntryState = EntryState> = {
@@ -28,13 +28,14 @@ export const applySteps = async <E extends EntryState>(
     throw new EntriesNotFoundError();
   }
 
-  const tmpEntries: EntryStates<E> = {};
-  const errorList: Error[] = [];
-
   const { handlers, batchSize = 10, force = false } = options;
 
-  const tmpNewEntries = newEntries ?? {};
-  const tmpOldEntries = oldEntries ?? {};
+  const allNewEntries = { ...newEntries };
+  const allOldEntries = { ...oldEntries };
+
+  const allEntries: EntryStates<E> = {};
+
+  const errorList: Error[] = [];
 
   for (let order = 0; ; order++) {
     const nextSteps = findPendingByOrder(stepList, order);
@@ -44,7 +45,7 @@ export const applySteps = async <E extends EntryState>(
     }
 
     const stepTasks = nextSteps.map((entry) => () => {
-      return applyPendingStep(entry, tmpNewEntries, tmpOldEntries, tmpEntries, handlers, errorList, force);
+      return applyPendingStep(entry, allNewEntries, allOldEntries, allEntries, handlers, errorList, force);
     });
 
     const taskResults = await Tasks.run(stepTasks, batchSize);
@@ -52,13 +53,14 @@ export const applySteps = async <E extends EntryState>(
     for (const entry of taskResults) {
       // Don't include deleted entries.
       if (entry) {
-        tmpEntries[entry.entryId] = entry;
+        allNewEntries[entry.entryId] = entry;
+        allEntries[entry.entryId] = entry;
       }
     }
   }
 
   return {
-    result: tmpEntries,
+    result: allEntries,
     errors: errorList
   };
 };
@@ -71,7 +73,7 @@ const applyPendingStep = async <E extends EntryState<T>, T extends string>(
   step: StepState,
   newEntries: EntryStates<E>,
   oldEntries: EntryStates<E>,
-  tmpEntries: EntryStates<E>,
+  allEntries: EntryStates<E>,
   handlers: StepHandlers<E>,
   errorList: Error[],
   force: boolean
@@ -82,11 +84,14 @@ const applyPendingStep = async <E extends EntryState<T>, T extends string>(
   const candidate = getEntry(entries, entryId);
   const handler = getEntryHandler(handlers, candidate);
 
-  const buildContext = (entryMap: EntryStates<E>, entry: E) => {
+  const buildContext = (dependencyEntryMap: EntryStates<E>, connectionEntryMap: EntryStates<E>, entry: E) => {
     return {
       force,
-      getDependencies: <T extends EntryState>(type?: T['type']) => {
-        return getDependencies<T>(entryMap, entry, type);
+      getDependencies: <T extends EntryState>(type?: EntryTypes<T>) => {
+        return getEntryDependencies<T>(dependencyEntryMap, entry, type);
+      },
+      getConnections: <T extends EntryState>(type?: EntryTypes<T>) => {
+        return getEntryConnections<T>(connectionEntryMap, entry, type);
       }
     };
   };
@@ -94,14 +99,14 @@ const applyPendingStep = async <E extends EntryState<T>, T extends string>(
   try {
     switch (action) {
       case StepAction.Create: {
-        const context = buildContext(tmpEntries, candidate);
+        const context = buildContext(allEntries, newEntries, candidate);
         const result = await handler.create(candidate, context);
 
         return { ...candidate, result };
       }
 
       case StepAction.Replace: {
-        const context = buildContext(tmpEntries, candidate);
+        const context = buildContext(allEntries, newEntries, candidate);
         const result = await handler.replace(candidate, getEntry(oldEntries, entryId), context);
 
         return !result ? candidate : { ...candidate, result };
@@ -112,17 +117,16 @@ const applyPendingStep = async <E extends EntryState<T>, T extends string>(
           return getEntry(oldEntries, entryId);
         }
 
-        const context = buildContext(tmpEntries, candidate);
+        const context = buildContext(allEntries, newEntries, candidate);
         const result = await handler.update(candidate, getEntry(oldEntries, entryId), context);
 
         return !result ? candidate : { ...candidate, result };
       }
 
       case StepAction.Delete: {
-        const context = buildContext(oldEntries, candidate);
-        await handler.delete(candidate, context);
+        const context = buildContext(oldEntries, oldEntries, candidate);
 
-        break;
+        await handler.delete(candidate, context);
       }
     }
   } catch (error) {

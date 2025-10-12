@@ -4,6 +4,7 @@ import type { LogGroupState } from '@ez4/aws-logs';
 import type { IntegrationFunctionParameters } from './types';
 
 import { createFunction } from '@ez4/aws-function';
+import { hashObject } from '@ez4/utils';
 
 import { bundleApiFunction } from './bundler';
 
@@ -13,7 +14,8 @@ export const createIntegrationFunction = <E extends EntryState>(
   logGroupState: LogGroupState,
   parameters: IntegrationFunctionParameters
 ) => {
-  const { handler } = parameters;
+  const { headersSchema, parametersSchema, querySchema, bodySchema, identitySchema, responseSchema } = parameters;
+  const { handler, preferences, errorsMap } = parameters;
 
   return createFunction(state, roleState, logGroupState, {
     handlerName: 'apiEntryPoint',
@@ -25,12 +27,23 @@ export const createIntegrationFunction = <E extends EntryState>(
     memory: parameters.memory,
     debug: parameters.debug,
     tags: parameters.tags,
-    getFunctionBundle: (context) => {
-      const dependencies = context.getDependencies();
-      return bundleApiFunction(dependencies, parameters);
-    },
     getFunctionFiles: () => {
       return [handler.sourceFile, handler.dependencies];
+    },
+    getFunctionBundle: (context) => {
+      return bundleApiFunction(parameters, context.getConnections());
+    },
+    getFunctionHash: () => {
+      return hashObject({
+        headersSchema,
+        parametersSchema,
+        querySchema,
+        bodySchema,
+        identitySchema,
+        responseSchema,
+        preferences,
+        errorsMap
+      });
     }
   });
 };

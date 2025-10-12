@@ -6,19 +6,19 @@ import type { AnySchema } from '../types/type-any';
 
 import { SchemaType } from '../types/common';
 
-export const getOptionalSchema = (schema: AnySchema) => {
+export const getOptionalSchema = <T extends AnySchema>(schema: T): T => {
   switch (schema.type) {
     case SchemaType.Object:
-      return getOptionalObjectSchema(schema);
+      return getOptionalObjectSchema(schema) as T;
 
     case SchemaType.Union:
-      return getOptionalUnionSchema(schema);
+      return getOptionalUnionSchema(schema) as T;
 
     case SchemaType.Array:
-      return getOptionalArraySchema(schema);
+      return getOptionalArraySchema(schema) as T;
 
     case SchemaType.Tuple:
-      return getOptionalTupleSchema(schema);
+      return getOptionalTupleSchema(schema) as T;
 
     default:
       return schema;

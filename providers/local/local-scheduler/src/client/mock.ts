@@ -32,12 +32,14 @@ export const createMockedClient = (_serviceName: string): Client<any> => {
 
     async deleteEvent(identifier: string) {
       if (!schedulerMemory[identifier]) {
-        throw new Error(`Event ${identifier} not found.`);
+        Logger.warn(`Event ${identifier} not found.`);
+        return false;
       }
 
       delete schedulerMemory[identifier];
 
       Logger.debug(`ℹ️  Event ${identifier} deleted.`);
+      return true;
     }
   })();
 };

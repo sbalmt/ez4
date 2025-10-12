@@ -28,6 +28,24 @@ export class DependencyNotFoundError extends Error {
   }
 }
 
+export class ConnectionNotFoundError extends Error {
+  constructor(
+    public entryId: string,
+    public connectionId: string
+  ) {
+    super(`Connection ${connectionId} linked to entry ${entryId} does not exists.`);
+  }
+}
+
+export class CircularDependencyError extends Error {
+  constructor(
+    public entryId: string,
+    public dependencyId: string
+  ) {
+    super(`Circular dependency between ${dependencyId} and ${entryId} entries.`);
+  }
+}
+
 export class DuplicateEntryError extends Error {
   constructor(public entryId: string) {
     super(`Entry ${entryId} already exists.`);

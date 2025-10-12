@@ -15,10 +15,10 @@ export type AuthorizerEntryPoint = AuthorizerFunction & {
 
 export type AuthorizerFunctionParameters = Omit<
   FunctionParameters,
-  'getFunctionBundle' | 'getFunctionFiles' | 'sourceFile' | 'handlerName'
+  'getFunctionFiles' | 'getFunctionBundle' | 'getFunctionHash' | 'sourceFile' | 'handlerName'
 > & {
   authorizer: AuthorizerEntryPoint;
-  listener?: AuthorizerFunction;
+  listener?: AuthorizerFunction | null;
   preferences?: HttpPreferences;
   headersSchema?: ObjectSchema | null;
   parametersSchema?: ObjectSchema | null;

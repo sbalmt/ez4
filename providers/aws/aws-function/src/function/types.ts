@@ -6,18 +6,21 @@ export const FunctionServiceName = 'AWS:Lambda/Function';
 
 export const FunctionServiceType = 'aws:lambda.function';
 
-export type GetFunctionBundle = (context: StepContext) => Promise<string> | string;
-
 export type GetFunctionFiles = () => [string, string[]];
+export type GetFunctionBundle = (context: StepContext) => Promise<string> | string;
+export type GetFunctionHash = () => Promise<string | undefined> | string | undefined;
 
 export type FunctionParameters = Omit<CreateRequest, 'roleArn' | 'publish'> & {
-  getFunctionBundle: GetFunctionBundle;
   getFunctionFiles: GetFunctionFiles;
+  getFunctionBundle: GetFunctionBundle;
+  getFunctionHash: GetFunctionHash;
 };
 
 export type FunctionResult = ImportOrCreateResponse & {
-  logGroup?: string;
+  valuesHash?: string;
   sourceHash: string;
+  bundleHash: string;
+  logGroup?: string;
   roleArn: Arn;
 };
 

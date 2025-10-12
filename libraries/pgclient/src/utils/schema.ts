@@ -1,13 +1,13 @@
+import type { AnySchema, ObjectSchema } from '@ez4/schema';
 import type { ValidationContextOptions } from '@ez4/validator';
-import type { AnySchema } from '@ez4/schema';
 
-import { isDynamicObjectSchema, isObjectSchema, isUnionSchema } from '@ez4/schema';
+import { isDynamicObjectSchema, isObjectSchema } from '@ez4/schema';
 import { validate, getUniqueErrorMessages, createValidatorContext } from '@ez4/validator';
 import { createTransformContext, transform } from '@ez4/transform';
 import { MalformedRequestError } from '@ez4/pgclient';
 
-export const isDynamicFieldSchema = (schema: AnySchema) => {
-  return (isObjectSchema(schema) && isDynamicObjectSchema(schema)) || isUnionSchema(schema);
+export const isDynamicFieldSchema = (schema: AnySchema): schema is ObjectSchema => {
+  return isObjectSchema(schema) && isDynamicObjectSchema(schema);
 };
 
 export const validateRecordSchema = (data: unknown, schema: AnySchema, path: string) => {

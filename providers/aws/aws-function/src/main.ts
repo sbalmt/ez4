@@ -12,3 +12,5 @@ export * from './permission/types';
 export * from './mapping/service';
 export * from './mapping/types';
 export * from './mapping/utils';
+
+export * from './utils/arn';

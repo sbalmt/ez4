@@ -4,7 +4,7 @@ import { describe, it } from 'node:test';
 
 import { Tasks, TaskStatus } from '@ez4/utils';
 
-describe('task tests', () => {
+describe('system task utils', () => {
   const tasks = [
     () => setTimeout(1000, 'A'),
     () => setTimeout(1500, 'B'),

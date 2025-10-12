@@ -35,6 +35,10 @@ export class Logger {
     Logger.logInfo(serviceName, `Deleting ${resource}`);
   }
 
+  static logSkip(serviceName: string, resource: string) {
+    Logger.logInfo(serviceName, `Skipping ${resource}`);
+  }
+
   static logAttach(serviceName: string, resource: string, attachment: string) {
     Logger.logInfo(serviceName, `Attaching ${attachment} to ${resource}`);
   }

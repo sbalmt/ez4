@@ -26,7 +26,7 @@ export type BundlerOptions = {
   filePrefix: string;
   templateFile: string;
   handler: BundlerEntrypoint;
-  listener?: BundlerEntrypoint;
+  listener?: BundlerEntrypoint | null;
   extras?: Record<string, ExtraSource>;
   define?: Record<string, string>;
   debug?: boolean;
@@ -55,7 +55,7 @@ export const createBundleHash = async (allSourceFiles: string[]) => {
     })
   );
 
-  // Ensure same position to not trigger updates without real changes.
+  // Ensure the same position to not trigger updates without real changes.
   pathSignatures.sort((a, b) => a.filePath.localeCompare(b.filePath));
 
   for (const { pathSignature } of pathSignatures) {
@@ -87,9 +87,8 @@ export const getFunctionBundle = async (serviceName: string, options: BundlerOpt
     return cacheFile;
   }
 
-  const { filePrefix, debug } = options;
-
   const { dir: targetPath, name: targetName } = parse(sourceFile);
+  const { filePrefix, debug } = options;
 
   const targetFile = join(targetPath, `${filePrefix}.${targetName}.${toKebabCase(functionName)}.mjs`);
   const outputFile = getTemporaryPath(targetFile);
@@ -97,7 +96,8 @@ export const getFunctionBundle = async (serviceName: string, options: BundlerOpt
   const result = await build({
     outfile: outputFile,
     treeShaking: !debug,
-    minify: !debug,
+    minifyWhitespace: true,
+    minifySyntax: true,
     packages: 'bundle',
     platform: 'node',
     target: 'node22',
@@ -185,13 +185,13 @@ const getExtraContext = (extras: Record<string, ExtraSource>) => {
   const packages: string[] = [];
   const services: string[] = [];
 
-  for (const contextName in extras) {
-    const { constructor, module, from } = extras[contextName];
+  for (const serviceName of Object.keys(extras).sort()) {
+    const { constructor, module, from } = extras[serviceName];
 
-    const service = `${contextName}${module}`;
+    const service = `${serviceName}${module}`;
 
     packages.push(`import { ${module} as ${service} } from '${from}';`);
-    services.push(`${contextName}: ${service}.${constructor}`);
+    services.push(`${serviceName}: ${service}.${constructor}`);
   }
 
   return {

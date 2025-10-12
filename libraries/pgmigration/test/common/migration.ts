@@ -7,9 +7,9 @@ export const runMigration = (client: DbClient<Database.Service>, queries: PgMigr
   return client.transaction(async (transaction: DbClient<Database.Service>) => {
     for (const { query, check } of statements) {
       if (check) {
-        const [done] = await transaction.rawQuery(check);
+        const [shouldSkip] = await transaction.rawQuery(check);
 
-        if (done) {
+        if (shouldSkip) {
           continue;
         }
       }

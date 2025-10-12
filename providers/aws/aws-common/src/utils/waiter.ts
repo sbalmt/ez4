@@ -1,4 +1,4 @@
-import { waitFor } from '@ez4/utils';
+import { Wait } from '@ez4/utils';
 
 export type ActionAttempter<T> = () => Promise<T>;
 
@@ -38,11 +38,9 @@ export const waitDeletion = async <T>(deleteResource: ActionAttempter<T>, retryE
  *
  * @returns Returns the action function result.
  */
-export const waitAction = async <T>(actionFunction: ActionAttempter<T>, retryErrors: string[]) => {
-  let lastError;
-
-  const result = await waitFor(async (count, attempts) => {
-    const isLastAttempt = count === attempts;
+export const waitAction = <T>(actionFunction: ActionAttempter<T>, retryErrors: string[]) => {
+  return Wait.until(async (currentAttempt, maxAttempts) => {
+    const isLastAttempt = currentAttempt === maxAttempts;
 
     try {
       return await actionFunction();
@@ -51,15 +49,7 @@ export const waitAction = async <T>(actionFunction: ActionAttempter<T>, retryErr
         throw error;
       }
 
-      lastError = error;
-
-      return null;
+      return Wait.RetryAttempt;
     }
   });
-
-  if (result === null) {
-    throw lastError;
-  }
-
-  return result;
 };

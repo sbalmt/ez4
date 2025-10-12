@@ -2,8 +2,8 @@ import type { StepContext, StepHandler } from '@ez4/stateful';
 import type { Arn } from '@ez4/aws-common';
 import type { FunctionState, FunctionResult, FunctionParameters } from './types';
 
-import { applyTagUpdates, getBundleHash, ReplaceResourceError } from '@ez4/aws-common';
-import { deepCompare, deepEqual } from '@ez4/utils';
+import { applyTagUpdates, getBundleHash, Logger, ReplaceResourceError } from '@ez4/aws-common';
+import { deepCompare, deepEqual, hashFile } from '@ez4/utils';
 import { getLogGroupName } from '@ez4/aws-logs';
 import { getRoleArn } from '@ez4/aws-identity';
 
@@ -13,8 +13,8 @@ import {
   deleteFunction,
   updateConfiguration,
   updateSourceCode,
-  tagFunction,
-  untagFunction
+  untagFunction,
+  tagFunction
 } from './client';
 
 import { protectVariables } from './helpers/variables';
@@ -40,16 +40,18 @@ const previewResource = async (candidate: FunctionState, current: FunctionState)
   const changes = deepCompare(
     {
       ...target,
+      connections: candidate.connections,
       dependencies: candidate.dependencies,
+      variables: target.variables && protectVariables(target.variables),
       sourceHash: await getBundleHash(...target.getFunctionFiles()),
-      ...(target.variables && {
-        variables: protectVariables(target.variables)
-      })
+      valuesHash: target.getFunctionHash()
     },
     {
       ...source,
+      connections: current.connections,
       dependencies: current.dependencies,
-      sourceHash: current.result?.sourceHash
+      sourceHash: current.result?.sourceHash,
+      valuesHash: current.result?.valuesHash
     }
   );
 
@@ -72,19 +74,19 @@ const replaceResource = async (candidate: FunctionState, current: FunctionState,
 };
 
 const createResource = async (candidate: FunctionState, context: StepContext): Promise<FunctionResult> => {
-  const parameters = candidate.parameters;
+  const { functionName, ...parameters } = candidate.parameters;
 
-  const functionName = parameters.functionName;
-
-  const roleArn = getRoleArn(FunctionServiceName, functionName, context);
   const logGroup = getLogGroupName(FunctionServiceName, functionName, context);
+  const roleArn = getRoleArn(FunctionServiceName, functionName, context);
 
-  const [sourceHash, sourceFile] = await Promise.all([
+  const [sourceHash, sourceFile, valuesHash] = await Promise.all([
     getBundleHash(...parameters.getFunctionFiles()),
-    parameters.getFunctionBundle(context)
+    parameters.getFunctionBundle(context),
+    parameters.getFunctionHash()
   ]);
 
   const importedFunction = await importFunction(functionName);
+  const bundleHash = await hashFile(sourceFile);
 
   if (importedFunction) {
     await updateConfiguration(functionName, {
@@ -106,15 +108,19 @@ const createResource = async (candidate: FunctionState, context: StepContext): P
 
     return {
       functionArn: importedFunction.functionArn,
+      functionVersion: importedFunction.functionVersion,
+      valuesHash,
       sourceHash,
+      bundleHash,
       logGroup,
       roleArn
     };
   }
 
-  const response = await createFunction({
+  const createdFunction = await createFunction({
     ...parameters,
     publish: true,
+    functionName,
     sourceFile,
     logGroup,
     roleArn
@@ -123,8 +129,11 @@ const createResource = async (candidate: FunctionState, context: StepContext): P
   lockSensitiveData(candidate);
 
   return {
-    functionArn: response.functionArn,
+    functionArn: createdFunction.functionArn,
+    functionVersion: createdFunction.functionVersion,
+    valuesHash,
     sourceHash,
+    bundleHash,
     logGroup,
     roleArn
   };
@@ -217,24 +226,40 @@ const checkSourceCodeUpdates = async (
   current: FunctionResult | undefined,
   context: StepContext
 ) => {
-  const newSourceHash = await getBundleHash(...candidate.getFunctionFiles());
-  const oldSourceHash = current?.sourceHash;
+  const [newSourceHash, newValuesHash] = await Promise.all([getBundleHash(...candidate.getFunctionFiles()), candidate.getFunctionHash()]);
 
-  if (newSourceHash === oldSourceHash && !context.force) {
-    return current;
+  const oldSourceHash = current?.sourceHash;
+  const oldValuesHash = current?.valuesHash;
+
+  if (newSourceHash !== oldSourceHash || newValuesHash !== oldValuesHash || context.force) {
+    const newSourceFile = await candidate.getFunctionBundle(context);
+
+    const newBundleHash = await hashFile(newSourceFile);
+    const oldBundleHash = current?.bundleHash;
+
+    if (newBundleHash === oldBundleHash) {
+      Logger.logSkip(FunctionServiceName, `${functionName} source code`);
+
+      return {
+        valuesHash: newValuesHash,
+        sourceHash: newSourceHash
+      };
+    }
+
+    const { functionVersion } = await updateSourceCode(functionName, {
+      publish: !current?.functionVersion,
+      sourceFile: newSourceFile
+    });
+
+    return {
+      valuesHash: newValuesHash,
+      sourceHash: newSourceHash,
+      bundleHash: newBundleHash,
+      ...(functionVersion && {
+        functionVersion
+      })
+    };
   }
 
-  const sourceFile = await candidate.getFunctionBundle(context);
-
-  const { functionVersion } = await updateSourceCode(functionName, {
-    publish: !current?.functionVersion,
-    sourceFile
-  });
-
-  return {
-    sourceHash: newSourceHash,
-    ...(functionVersion && {
-      functionVersion
-    })
-  };
+  return undefined;
 };

@@ -62,10 +62,10 @@ export const deepMerge = <T extends AnyObject, S extends AnyObject, O extends Me
   const isInclude = !!includeStates;
   const allStates = includeStates ?? excludeStates ?? ({} as PartialProperties<T & S>);
 
+  const allKeys = new Set([...Object.keys(target), ...Object.keys(source)]);
+
   const depth = options?.depth ?? +Infinity;
   const array = options?.array ?? false;
-
-  const allKeys = [...new Set([...Object.keys(target), ...Object.keys(source)])];
 
   const object: AnyObject = {};
 

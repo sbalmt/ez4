@@ -198,7 +198,7 @@ describe('sql update tests', () => {
       .only('table')
       .record({
         foo: {
-          bar: sql.rawOperation('+', 123)
+          bar: sql.rawOperation('-', 123)
         }
       });
 
@@ -206,7 +206,7 @@ describe('sql update tests', () => {
 
     deepEqual(variables, [123]);
 
-    equal(statement, `UPDATE ONLY "table" SET "foo"['bar'] = (("foo"->>'bar')::int + (:0)::int)::text::jsonb`);
+    equal(statement, `UPDATE ONLY "table" SET "foo"['bar'] = (("foo"->>'bar')::int - (:0)::int)::text::jsonb`);
   });
 
   it('assert :: update with raw json record operation (optional in schema)', async () => {
@@ -247,6 +247,64 @@ describe('sql update tests', () => {
       `UPDATE ONLY "table" ` +
         `SET "foo" = COALESCE("foo", '{}'::jsonb) || jsonb_build_object('bar', ((COALESCE("foo"->>'bar', '999'))::dec * (:0)::dec)::text::jsonb)`
     );
+  });
+
+  it('assert :: update with raw json record operation (union schema)', async () => {
+    const schema: ObjectSchema = {
+      type: SchemaType.Object,
+      properties: {
+        foo: {
+          type: SchemaType.Union,
+          elements: [
+            {
+              type: SchemaType.Object,
+              properties: {
+                bar: {
+                  type: SchemaType.Number,
+                  format: 'decimal'
+                }
+              }
+            },
+            {
+              type: SchemaType.Object,
+              properties: {
+                baz: {
+                  type: SchemaType.Number,
+                  format: 'integer'
+                }
+              }
+            }
+          ]
+        }
+      }
+    };
+
+    const [statement1, variables1] = sql
+      .update(schema)
+      .only('table')
+      .record({
+        foo: {
+          baz: sql.rawOperation('/', 123)
+        }
+      })
+      .build();
+
+    const [statement2, variables2] = sql
+      .reset()
+      .update(schema)
+      .only('table')
+      .record({
+        foo: {
+          bar: sql.rawOperation('/', 456)
+        }
+      })
+      .build();
+
+    deepEqual(variables1, [123]);
+    deepEqual(variables2, [456]);
+
+    equal(statement1, `UPDATE ONLY "table" SET "foo"['baz'] = (("foo"->>'baz')::int / (:0)::int)::text::jsonb`);
+    equal(statement2, `UPDATE ONLY "table" SET "foo"['bar'] = (("foo"->>'bar')::dec / (:0)::dec)::text::jsonb`);
   });
 
   it('assert :: update with alias', async () => {

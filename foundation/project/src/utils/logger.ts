@@ -3,7 +3,8 @@ import { toRed } from '../console/format';
 
 export const enum LogLevel {
   Error = 0,
-  Debug = 1
+  Warning = 1,
+  Debug = 2
 }
 
 type LoggerContext = {
@@ -82,8 +83,22 @@ export namespace Logger {
   };
 
   export const debug = (message: string) => {
-    if (Context.logLevel >= LogLevel.Debug) {
+    if (Context.logLevel <= LogLevel.Debug) {
       log(message);
+    }
+  };
+
+  export const warn = (message: string) => {
+    if (Context.logLevel < LogLevel.Warning) {
+      return;
+    }
+
+    const warnMessage = toRed(`[EZ4]: ⚠️ ${message}`);
+
+    if (Context.capture === 0) {
+      process.stderr.write(`${warnMessage}\n`);
+    } else {
+      Context.buffer.push(warnMessage);
     }
   };
 

@@ -5,7 +5,7 @@ import type { QueueState } from './types';
 import { IncompleteResourceError } from '@ez4/aws-common';
 import { hashData, toKebabCase } from '@ez4/utils';
 
-import { buildQueueArn } from '../utils/policy';
+import { buildQueueArn } from '../utils/arn';
 import { parseQueueUrl } from './helpers/url';
 import { QueueNotFoundError } from './errors';
 import { QueueServiceType } from './types';

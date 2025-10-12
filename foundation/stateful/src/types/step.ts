@@ -8,9 +8,9 @@ import type { EntryState } from './entry';
  */
 export type StepState = {
   action: StepAction;
+  preview?: ObjectComparison;
   entryId: string;
   order: number;
-  preview?: ObjectComparison;
 };
 
 /**
@@ -34,12 +34,21 @@ export type StepContext = {
 
   /**
    * Get all dependencies from the current step entry, if a `type` is given
-   * the resulting list is filtered by type.
+   * the resulting list is filtered by entry type.
    *
    * @param type Optional filter type.
-   * @returns Returns a list containing all the current step entry dependencies.
+   * @returns Returns a list containing all matching entry dependencies.
    */
   getDependencies: <E extends EntryState>(type?: E['type']) => E[];
+
+  /**
+   * Get all connections from the current step entry, if a `type` is given
+   * the resulting list is filtered by entry type.
+   *
+   * @param type Optional filter type.
+   * @returns Returns a list containing all matching entry connections.
+   */
+  getConnections: <E extends EntryState>(type?: E['type']) => E[];
 };
 
 /**

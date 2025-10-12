@@ -1,15 +1,19 @@
 import type { DynamoDBClient } from '@aws-sdk/client-dynamodb';
 
 import { DescribeTimeToLiveCommand, TimeToLiveStatus } from '@aws-sdk/client-dynamodb';
-import { waitFor } from '@ez4/utils';
+import { Wait } from '@ez4/utils';
 
 export const waitForTimeToLive = async (client: DynamoDBClient, tableName: string) => {
   const readyState = new Set<string>([TimeToLiveStatus.ENABLED, TimeToLiveStatus.DISABLED]);
 
-  await waitFor(async () => {
+  await Wait.until(async () => {
     const status = await getTimeToLiveStatus(client, tableName);
 
-    return !status || readyState.has(status);
+    if (status && !readyState.has(status)) {
+      return Wait.RetryAttempt;
+    }
+
+    return true;
   });
 };
 

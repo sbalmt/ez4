@@ -3,17 +3,18 @@ import type { Arn } from '@ez4/aws-common';
 
 import {
   SchedulerClient,
-  ScheduleState,
   CreateScheduleCommand,
   UpdateScheduleCommand,
   DeleteScheduleCommand,
+  ResourceNotFoundException,
   FlexibleTimeWindowMode,
-  ResourceNotFoundException
+  ScheduleState
 } from '@aws-sdk/client-scheduler';
 
+import { isAnyBoolean, isAnyNumber } from '@ez4/utils';
 import { Logger } from '@ez4/aws-common';
+
 import { ScheduleServiceName } from './types';
-import { isAnyNumber } from '@ez4/utils';
 
 const client = new SchedulerClient({});
 
@@ -89,6 +90,7 @@ export const deleteSchedule = async (scheduleName: string) => {
 const upsertScheduleRequest = (request: CreateRequest | UpdateRequest): Omit<CreateScheduleInput | UpdateScheduleInput, 'Name'> => {
   const { startDate, endDate, maxRetries, maxAge, enabled } = request;
 
+  const hasEnabled = isAnyBoolean(enabled);
   const hasMaxRetryAttempts = isAnyNumber(maxRetries);
   const hasMaxEventAge = isAnyNumber(maxAge);
 
@@ -99,11 +101,9 @@ const upsertScheduleRequest = (request: CreateRequest | UpdateRequest): Omit<Cre
     Description: request.description,
     ScheduleExpression: request.expression,
     ScheduleExpressionTimezone: request.timezone,
+    ...(hasEnabled && { State: enabled ? ScheduleState.ENABLED : ScheduleState.DISABLED }),
     ...(startDate && { StartDate: new Date(startDate) }),
     ...(endDate && { EndDate: new Date(endDate) }),
-    ...(enabled !== undefined && {
-      State: enabled ? ScheduleState.ENABLED : ScheduleState.DISABLED
-    }),
     FlexibleTimeWindow: {
       Mode: FlexibleTimeWindowMode.OFF
     },

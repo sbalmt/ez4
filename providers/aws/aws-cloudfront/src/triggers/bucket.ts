@@ -5,7 +5,7 @@ import type { EntryStates } from '@ez4/stateful';
 
 import { createBucketPolicy, getBucketName } from '@ez4/aws-bucket';
 import { getServiceName } from '@ez4/project/library';
-import { linkDependency } from '@ez4/stateful';
+import { linkEntryDependency } from '@ez4/stateful';
 
 import { getDistributionArn, getDistributionState } from '../distribution/utils';
 import { DistributionServiceType } from '../distribution/types';
@@ -15,7 +15,7 @@ export const connectOriginBucket = (state: EntryStates, service: CdnService, buc
   const distributionName = getServiceName(service, options);
   const distributionState = getDistributionState(state, distributionName);
 
-  linkDependency(state, distributionState.entryId, bucketState.entryId);
+  linkEntryDependency(state, distributionState.entryId, bucketState.entryId);
 
   createBucketPolicy(state, distributionState, bucketState, {
     fromService: distributionName,

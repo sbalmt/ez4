@@ -32,8 +32,8 @@ export const createAuthorizer = <E extends EntryState>(
         ]);
 
         return {
-          principal: 'apigateway.amazonaws.com',
-          sourceArn: `arn:aws:execute-api:${region}:${account}:${apiId}/*`
+          sourceArn: `arn:aws:execute-api:${region}:${account}:${apiId}/*`,
+          principal: 'apigateway.amazonaws.com'
         };
       }
     });

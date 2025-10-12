@@ -4,11 +4,20 @@ import { describe, it } from 'node:test';
 import { findBestSecondaryIndex } from '../src/client/common/indexes';
 
 describe('dynamodb internal functions', () => {
-  it('assert :: find best secondary index', () => {
-    const indexes = [['foo', 'bar'], ['foo'], ['bar']];
+  const indexes = [['primary', 'range'], ['secondary1', 'range1'], ['secondary2'], ['secondary3']];
 
-    equal(findBestSecondaryIndex(indexes, { foo: 'foo' }), 'foo-index');
-    equal(findBestSecondaryIndex(indexes, { foo: 'foo', bar: 'bar' }), 'foo-bar-index');
-    equal(findBestSecondaryIndex(indexes, { bar: 'bar' }), 'bar-index');
+  it('assert :: keep using primary index', () => {
+    equal(findBestSecondaryIndex(indexes, { primary1: 'foo', range1: 'bar' }), undefined);
+    equal(findBestSecondaryIndex(indexes, { primary1: 'foo' }), undefined);
+  });
+
+  it('assert :: find best secondary index (compound)', () => {
+    equal(findBestSecondaryIndex(indexes, { secondary1: 'foo', range1: 'bar' }), 'secondary1-range1-index');
+    equal(findBestSecondaryIndex(indexes, { secondary1: 'foo' }), 'secondary1-range1-index');
+  });
+
+  it('assert :: find best secondary index', () => {
+    equal(findBestSecondaryIndex(indexes, { secondary2: 'foo' }), 'secondary2-index');
+    equal(findBestSecondaryIndex(indexes, { secondary3: 'foo' }), 'secondary3-index');
   });
 });

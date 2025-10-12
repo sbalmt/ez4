@@ -11,6 +11,7 @@ export * from './policy/service';
 export * from './policy/types';
 export * from './policy/utils';
 
+export * from './utils/arn';
 export * from './utils/account';
 export * from './utils/policy';
 export * from './utils/role';

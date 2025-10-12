@@ -67,11 +67,14 @@ describe('function', () => {
         test1: 'ez4-tag1',
         test2: 'ez4-tag2'
       },
+      getFunctionFiles: () => {
+        return [sourceFile, [sourceFile]];
+      },
       getFunctionBundle: () => {
         return sourceFile;
       },
-      getFunctionFiles: () => {
-        return [sourceFile, [sourceFile]];
+      getFunctionHash: () => {
+        return undefined;
       }
     });
 

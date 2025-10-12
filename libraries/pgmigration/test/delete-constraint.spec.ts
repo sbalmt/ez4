@@ -83,7 +83,7 @@ describe('migration :: delete constraint tests', () => {
     deepEqual(queries, {
       tables: [
         {
-          check: `SELECT 1 FROM "information_schema.columns" WHERE "column_name" = 'column' AND "table_name" = 'table'`,
+          check: `SELECT 1 WHERE NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE "column_name" = 'column' AND "table_name" = 'table')`,
           query: `ALTER TABLE IF EXISTS "table" ALTER COLUMN "column" TYPE text USING "column"::text`
         }
       ],

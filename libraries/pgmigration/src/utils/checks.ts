@@ -30,10 +30,17 @@ export const getCheckColumnQuery = (builder: SqlBuilder, table: string, column: 
   const [query] = builder
     .select()
     .rawColumn('1')
-    .from('information_schema.columns')
     .where({
-      column_name: builder.rawString(column),
-      table_name: builder.rawString(table)
+      NOT: {
+        exists: builder
+          .select()
+          .from(builder.rawValue('information_schema.columns'))
+          .rawColumn('1')
+          .where({
+            column_name: builder.rawString(column),
+            table_name: builder.rawString(table)
+          })
+      }
     })
     .build();
 

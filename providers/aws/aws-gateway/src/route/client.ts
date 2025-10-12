@@ -60,8 +60,8 @@ export const createRoute = async (apiId: string, request: CreateRequest): Promis
 
   const { integrationId, authorizerId, operationName, routePath } = request;
 
-  // If the multiple routes being created triggers the conflict error,
-  // keep retrying until max attempts.
+  // If multiple routes are created at the same time, a conflict error occurs.
+  // The `waitCreation` will keep retrying until max attempts.
   const response = await waitCreation(() => {
     return client.send(
       new CreateRouteCommand({
@@ -121,14 +121,10 @@ export const deleteRoute = async (apiId: string, routeId: string) => {
           RouteId: routeId
         })
       );
-
-      return true;
     } catch (error) {
       if (!(error instanceof NotFoundException)) {
         throw error;
       }
-
-      return false;
     }
   });
 };

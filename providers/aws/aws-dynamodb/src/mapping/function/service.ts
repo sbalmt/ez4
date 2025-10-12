@@ -4,6 +4,7 @@ import type { RoleState } from '@ez4/aws-identity';
 import type { StreamFunctionParameters } from './types';
 
 import { createFunction } from '@ez4/aws-function';
+import { hashObject } from '@ez4/utils';
 
 import { bundleStreamFunction } from './bundler';
 
@@ -13,7 +14,7 @@ export const createStreamFunction = <E extends EntryState>(
   logGroupState: LogGroupState,
   parameters: StreamFunctionParameters
 ) => {
-  const { handler } = parameters;
+  const { handler, tableSchema } = parameters;
 
   return createFunction(state, roleState, logGroupState, {
     handlerName: 'dbStreamEntryPoint',
@@ -25,12 +26,14 @@ export const createStreamFunction = <E extends EntryState>(
     memory: parameters.memory,
     debug: parameters.debug,
     tags: parameters.tags,
-    getFunctionBundle: (context) => {
-      const dependencies = context.getDependencies();
-      return bundleStreamFunction(dependencies, parameters);
-    },
     getFunctionFiles: () => {
       return [handler.sourceFile, handler.dependencies];
+    },
+    getFunctionBundle: (context) => {
+      return bundleStreamFunction(parameters, context.getConnections());
+    },
+    getFunctionHash: () => {
+      return hashObject({ tableSchema });
     }
   });
 };

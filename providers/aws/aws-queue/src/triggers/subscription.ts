@@ -34,6 +34,7 @@ export const prepareSubscriptions = async (
 
     if (!handlerState) {
       const subscriptionName = getFunctionName(service, handler.name, options);
+      const dependencies = context.getDependencyFiles(handler.file);
 
       const logGroupState = createLogGroup(state, {
         retention: subscription.logRetention ?? Defaults.LogRetention,
@@ -50,24 +51,22 @@ export const prepareSubscriptions = async (
         extras: service.extras,
         debug: options.debug,
         tags: options.tags,
+        handler: {
+          sourceFile: handler.file,
+          functionName: handler.name,
+          module: handler.module,
+          dependencies
+        },
+        listener: listener && {
+          functionName: listener.name,
+          sourceFile: listener.file,
+          module: listener.module
+        },
         variables: {
           ...options.variables,
           ...service.variables,
           ...subscription.variables
-        },
-        handler: {
-          dependencies: context.getDependencies(handler.file),
-          functionName: handler.name,
-          sourceFile: handler.file,
-          module: handler.module
-        },
-        ...(listener && {
-          listener: {
-            functionName: listener.name,
-            sourceFile: listener.file,
-            module: listener.module
-          }
-        })
+        }
       });
 
       context.setServiceState(handlerState, internalName, options);

@@ -12,6 +12,7 @@ const baseState: EntryStates<TestEntryState> = {
   entryA: {
     type: TestEntryType.A,
     entryId: 'entryA',
+    connections: ['entryA', 'entryB', 'entryC'],
     dependencies: ['entryC', 'entryB'],
     parameters: {}
   },
@@ -29,21 +30,31 @@ const baseState: EntryStates<TestEntryState> = {
   }
 };
 
-const checkDependencies = (context: StepContext, expectedForceOption: boolean) => {
+const checkDependencies = (context: StepContext) => {
   // Filter
   equal(context.getDependencies(TestEntryType.B).length, 1);
   equal(context.getDependencies(TestEntryType.C).length, 1);
 
   // Everything
   equal(context.getDependencies().length, 2);
+};
 
-  equal(context.force, expectedForceOption);
+const checkConnections = (context: StepContext) => {
+  // Filter
+  equal(context.getConnections(TestEntryType.A).length, 1);
+  equal(context.getConnections(TestEntryType.B).length, 1);
+  equal(context.getConnections(TestEntryType.C).length, 1);
+
+  // Everything
+  equal(context.getConnections().length, 3);
 };
 
 describe('context tests', () => {
   it('assert :: creation context', async () => {
     const createHandler = mock.fn((_ca: TestEntryState, context: StepContext) => {
-      checkDependencies(context, true);
+      equal(context.force, true);
+      checkDependencies(context);
+      checkConnections(context);
     });
 
     const handlers: StepHandlers<TestEntryState> = {
@@ -68,7 +79,9 @@ describe('context tests', () => {
 
   it('assert :: deleting context', async () => {
     const deleteHandler = mock.fn((_ca: TestEntryState, context: StepContext) => {
-      checkDependencies(context, false);
+      equal(context.force, false);
+      checkDependencies(context);
+      checkConnections(context);
     });
 
     const handlers: StepHandlers<TestEntryState> = {
@@ -92,7 +105,9 @@ describe('context tests', () => {
 
   it('assert :: updating context', async () => {
     const updateHandler = mock.fn((_ca: TestEntryState, _cu: TestEntryState, context: StepContext) => {
-      checkDependencies(context, true);
+      equal(context.force, true);
+      checkDependencies(context);
+      checkConnections(context);
     });
 
     const handlers: StepHandlers<TestEntryState> = {

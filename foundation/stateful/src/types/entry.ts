@@ -5,6 +5,7 @@ export type EntryState<T extends string = string> = {
   type: T;
   entryId: string;
   dependencies: string[];
+  connections?: string[];
   parameters: unknown;
   result?: unknown;
 };
@@ -15,3 +16,8 @@ export type EntryState<T extends string = string> = {
 export type EntryStates<E extends EntryState = EntryState> = {
   [entityId: string]: E | undefined;
 };
+
+/**
+ * Extract all the entry types.
+ */
+export type EntryTypes<T extends EntryState> = T['type'];

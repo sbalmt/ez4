@@ -13,7 +13,7 @@ export type BucketEventEntryPoint = BucketEventFunction & {
 
 export type BucketEventFunctionParameters = Omit<
   FunctionParameters,
-  'getFunctionBundle' | 'getFunctionFiles' | 'sourceFile' | 'handlerName'
+  'getFunctionFiles' | 'getFunctionBundle' | 'getFunctionHash' | 'sourceFile' | 'handlerName'
 > & {
   handler: BucketEventEntryPoint;
   listener?: BucketEventFunction;

@@ -30,8 +30,8 @@ export const createIntegration = <E extends EntryState>(
         const apiId = getGatewayId(IntegrationServiceName, 'apiId', context);
 
         return {
-          principal: 'apigateway.amazonaws.com',
-          sourceArn: `arn:aws:execute-api:${region}:${account}:${apiId}/*`
+          sourceArn: `arn:aws:execute-api:${region}:${account}:${apiId}/*`,
+          principal: 'apigateway.amazonaws.com'
         };
       }
     });

@@ -74,16 +74,47 @@ describe('migration :: update column tests', () => {
     deepEqual(queries, {
       tables: [
         {
-          check: `SELECT 1 FROM "information_schema.columns" WHERE "column_name" = 'column' AND "table_name" = 'table'`,
+          check: `SELECT 1 WHERE NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE "column_name" = 'column' AND "table_name" = 'table')`,
           query: `ALTER TABLE IF EXISTS "table" ALTER COLUMN "column" TYPE text USING "column"::text`
         },
         {
-          check: `SELECT 1 FROM "information_schema.columns" WHERE "column_name" = 'default' AND "table_name" = 'table'`,
+          check: `SELECT 1 WHERE NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE "column_name" = 'default' AND "table_name" = 'table')`,
           query: `ALTER TABLE IF EXISTS "table" ALTER COLUMN "default" TYPE text USING "default"::text, ALTER COLUMN "default" SET DEFAULT 'foo'`
         },
         {
-          check: `SELECT 1 FROM "information_schema.columns" WHERE "column_name" = 'nullable' AND "table_name" = 'table'`,
+          check: `SELECT 1 WHERE NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE "column_name" = 'nullable' AND "table_name" = 'table')`,
           query: `ALTER TABLE IF EXISTS "table" ALTER COLUMN "nullable" TYPE text USING "nullable"::text`
+        }
+      ],
+      constraints: [],
+      relations: [],
+      indexes: []
+    });
+  });
+
+  it('assert :: alter table (make default column)', async () => {
+    const sourceTable = getDatabaseTables({
+      default: {
+        type: SchemaType.Boolean
+      }
+    });
+
+    const targetTable = getDatabaseTables({
+      default: {
+        type: SchemaType.Boolean,
+        definitions: {
+          default: false
+        }
+      }
+    });
+
+    const queries = getUpdateQueries(targetTable, sourceTable);
+
+    deepEqual(queries, {
+      tables: [
+        {
+          check: `SELECT 1 WHERE NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE "column_name" = 'default' AND "table_name" = 'table')`,
+          query: `ALTER TABLE IF EXISTS "table" ALTER COLUMN "default" SET DEFAULT false`
         }
       ],
       constraints: [],
@@ -116,7 +147,7 @@ describe('migration :: update column tests', () => {
     deepEqual(queries, {
       tables: [
         {
-          check: `SELECT 1 FROM "information_schema.columns" WHERE "column_name" = 'default' AND "table_name" = 'table'`,
+          check: `SELECT 1 WHERE NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE "column_name" = 'default' AND "table_name" = 'table')`,
           query: `ALTER TABLE IF EXISTS "table" ALTER COLUMN "default" SET DEFAULT true`
         }
       ],
@@ -126,7 +157,38 @@ describe('migration :: update column tests', () => {
     });
   });
 
-  it('assert :: alter table (alter required column)', async () => {
+  it('assert :: alter table (drop default column)', async () => {
+    const sourceTable = getDatabaseTables({
+      default: {
+        type: SchemaType.Boolean,
+        definitions: {
+          default: true
+        }
+      }
+    });
+
+    const targetTable = getDatabaseTables({
+      default: {
+        type: SchemaType.Boolean
+      }
+    });
+
+    const queries = getUpdateQueries(targetTable, sourceTable);
+
+    deepEqual(queries, {
+      tables: [
+        {
+          check: `SELECT 1 WHERE NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE "column_name" = 'default' AND "table_name" = 'table')`,
+          query: `ALTER TABLE IF EXISTS "table" ALTER COLUMN "default" DROP DEFAULT`
+        }
+      ],
+      constraints: [],
+      relations: [],
+      indexes: []
+    });
+  });
+
+  it('assert :: alter table (make required column)', async () => {
     const sourceTable = getDatabaseTables({
       nullable: {
         type: SchemaType.Boolean,
@@ -148,8 +210,38 @@ describe('migration :: update column tests', () => {
     deepEqual(queries, {
       tables: [
         {
-          check: `SELECT 1 FROM "information_schema.columns" WHERE "column_name" = 'nullable' AND "table_name" = 'table'`,
+          check: `SELECT 1 WHERE NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE "column_name" = 'nullable' AND "table_name" = 'table')`,
           query: `ALTER TABLE IF EXISTS "table" ALTER COLUMN "nullable" SET NOT null`
+        }
+      ],
+      constraints: [],
+      relations: [],
+      indexes: []
+    });
+  });
+
+  it('assert :: alter table (make optional column)', async () => {
+    const sourceTable = getDatabaseTables({
+      nullable: {
+        type: SchemaType.Boolean
+      }
+    });
+
+    const targetTable = getDatabaseTables({
+      nullable: {
+        type: SchemaType.Boolean,
+        optional: true,
+        nullable: true
+      }
+    });
+
+    const queries = getUpdateQueries(targetTable, sourceTable);
+
+    deepEqual(queries, {
+      tables: [
+        {
+          check: `SELECT 1 WHERE NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE "column_name" = 'nullable' AND "table_name" = 'table')`,
+          query: `ALTER TABLE IF EXISTS "table" ALTER COLUMN "nullable" DROP NOT null`
         }
       ],
       constraints: [],
@@ -193,11 +285,11 @@ describe('migration :: update column tests', () => {
     deepEqual(queries, {
       tables: [
         {
-          check: `SELECT 1 FROM "information_schema.columns" WHERE "column_name" = 'column' AND "table_name" = 'table'`,
+          check: `SELECT 1 WHERE NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE "column_name" = 'column' AND "table_name" = 'table')`,
           query: `ALTER TABLE IF EXISTS "table" RENAME COLUMN "column" TO "renamed_column"`
         },
         {
-          check: `SELECT 1 FROM "information_schema.columns" WHERE "column_name" = 'enumerable' AND "table_name" = 'table'`,
+          check: `SELECT 1 WHERE NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE "column_name" = 'enumerable' AND "table_name" = 'table')`,
           query: `ALTER TABLE IF EXISTS "table" RENAME COLUMN "enumerable" TO "enumerable_renamed"`
         }
       ],

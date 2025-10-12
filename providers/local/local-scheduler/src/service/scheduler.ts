@@ -75,7 +75,7 @@ export namespace InMemoryScheduler {
     const timer = instance.timers[identifier];
 
     if (!event || !timer) {
-      throw new Error(`Event ${identifier} not found on scheduler ${schedulerName}.`);
+      return undefined;
     }
 
     clearTimeout(timer);
@@ -87,6 +87,11 @@ export namespace InMemoryScheduler {
 
   export const updateEvent = <T extends Cron.Event>(schedulerName: string, identifier: string, input: Partial<ScheduleEvent<T>>) => {
     const previousEvent = deleteEvent(schedulerName, identifier);
+
+    if (!previousEvent) {
+      throw new Error(`Event ${identifier} not found on scheduler ${schedulerName}.`);
+    }
+
     const currentEvent = deepMerge(previousEvent, input);
 
     createEvent(schedulerName, identifier, currentEvent);

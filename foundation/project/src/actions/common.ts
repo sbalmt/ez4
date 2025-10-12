@@ -9,13 +9,13 @@ export const getEventContext = (dependencies: MetadataDependencies, role: EntryS
 
   return {
     role,
-    getServiceState: (service: ServiceMetadata | string, options: DeployOptions) => {
-      return getServiceState(aliases, service, options);
-    },
     setServiceState: (state: EntryState, service: ServiceMetadata | string, options: DeployOptions) => {
       setServiceState(aliases, state, service, options);
     },
-    getDependencies: (fileName: string) => {
+    getServiceState: (service: ServiceMetadata | string, options: DeployOptions) => {
+      return getServiceState(aliases, service, options);
+    },
+    getDependencyFiles: (fileName: string) => {
       return dependencies[fileName] ?? [];
     }
   };

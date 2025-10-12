@@ -1,5 +1,5 @@
-import type { Arn } from '@ez4/aws-common';
 import type { EntryState } from '@ez4/stateful';
+import type { Arn } from '@ez4/aws-common';
 import type { CreateRequest, CreateResponse } from './client';
 
 export const ScheduleServiceName = 'AWS:EventBridge/Schedule';

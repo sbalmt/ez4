@@ -34,8 +34,8 @@ export const createSubscription = <E extends EntryState>(
           const [region, account] = await Promise.all([getRegion(), getAccountId()]);
 
           return {
-            principal: 'sns.amazonaws.com',
-            sourceArn: buildTopicArn(topicName, region, account)
+            sourceArn: buildTopicArn(topicName, region, account),
+            principal: 'sns.amazonaws.com'
           };
         }
       });

@@ -40,39 +40,65 @@ export namespace ColumnQuery {
     const statements = [];
 
     for (const columnName in changes) {
-      const { update, nested } = changes[columnName];
+      const { create, update, nested, remove } = changes[columnName];
 
       const columnSchema = schema.properties[columnName];
 
       const columnIndexType = indexes[columnName]?.type;
       const columnIsPrimary = columnIndexType === Index.Primary;
 
-      const columnDefault = nested?.definitions?.update?.default;
-      const columnOptional = update?.optional ?? update?.nullable;
-      const columnType = update?.type;
-
       const query = builder.table(table).alter().existing().column(columnName);
 
-      if (columnType !== undefined) {
-        query.type(getColumnType(columnSchema, columnIsPrimary));
+      if (create) {
+        const columnDefault = create.definitions?.default;
+        const columnOptional = create?.nullable;
+
+        if (columnDefault !== undefined) {
+          query.default(getColumnDefault(columnSchema, columnIsPrimary));
+        }
+
+        if (columnOptional !== undefined) {
+          query.optional(columnOptional);
+        }
       }
 
-      if (columnOptional !== undefined) {
-        query.optional(columnOptional);
+      if (update || nested) {
+        const columnDefault = nested?.definitions?.update?.default;
+        const columnOptional = update?.nullable;
+        const columnType = update?.type;
+
+        if (columnType !== undefined) {
+          query.type(getColumnType(columnSchema, columnIsPrimary));
+        }
+
+        if (columnDefault !== undefined) {
+          query.default(getColumnDefault(columnSchema, columnIsPrimary));
+        }
+
+        if (columnOptional !== undefined) {
+          query.optional(columnOptional);
+        }
       }
 
-      if (columnDefault !== undefined) {
-        query.default(getColumnDefault(columnSchema, columnIsPrimary));
+      if (remove) {
+        const columnDefault = remove.definitions?.default;
+        const columnOptional = remove?.nullable;
+
+        if (columnDefault !== undefined) {
+          query.default(null);
+        }
+
+        if (columnOptional !== undefined) {
+          query.optional(columnOptional);
+        }
       }
 
-      if (query.empty) {
-        continue;
+      if (!query.empty) {
+        statements.push({
+          check: getCheckColumnQuery(builder, table, columnName),
+          query: query.build()
+        });
       }
-
-      statements.push({
-        check: getCheckColumnQuery(builder, table, columnName),
-        query: query.build()
-      });
     }
 
     return statements;

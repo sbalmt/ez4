@@ -40,10 +40,10 @@ const createResource = async (candidate: PermissionState, context: StepContext):
   const permission = await parameters.getPermission(context);
 
   const response = await createPermission({
-    functionName,
-    principal: permission.principal,
+    action: 'lambda:InvokeFunction',
     sourceArn: permission.sourceArn,
-    action: 'lambda:InvokeFunction'
+    principal: permission.principal,
+    functionName
   });
 
   return {

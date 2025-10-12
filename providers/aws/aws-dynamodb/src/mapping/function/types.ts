@@ -12,7 +12,10 @@ export type StreamEntryPoint = StreamFunction & {
   dependencies: string[];
 };
 
-export type StreamFunctionParameters = Omit<FunctionParameters, 'getFunctionBundle' | 'getFunctionFiles' | 'sourceFile' | 'handlerName'> & {
+export type StreamFunctionParameters = Omit<
+  FunctionParameters,
+  'getFunctionFiles' | 'getFunctionBundle' | 'getFunctionHash' | 'sourceFile' | 'handlerName'
+> & {
   handler: StreamEntryPoint;
   listener?: StreamFunction;
   tableSchema?: ObjectSchema | null;

@@ -6,7 +6,7 @@ import { createRoleDocument, createRoleStatement } from '@ez4/aws-identity';
 import { Logger, tryParseArn } from '@ez4/aws-common';
 
 import { parseQueueUrl } from '../queue/helpers/url';
-import { buildQueueArn } from '../utils/policy';
+import { buildQueueArn } from '../utils/arn';
 import { QueuePolicyServiceName } from './types';
 
 const client = new SQSClient({});

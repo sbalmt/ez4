@@ -10,6 +10,8 @@ const getSourceType = (source: string) => {
 export const createRoleStatement = (grant: IdentityGrant, services: IdentityAccount[], source: string): RoleStatement => {
   const sourceType = getSourceType(source);
 
+  const principalServices = services.map(({ account }) => account);
+
   const { permissions, resourceIds } = grant;
 
   return {
@@ -20,7 +22,7 @@ export const createRoleStatement = (grant: IdentityGrant, services: IdentityAcco
       Resource: resourceIds
     }),
     Principal: {
-      Service: services.map(({ account }) => account)
+      Service: principalServices.sort()
     },
     Condition: {
       StringEquals: {

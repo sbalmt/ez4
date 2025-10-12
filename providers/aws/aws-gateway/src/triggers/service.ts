@@ -31,17 +31,14 @@ export const prepareHttpServices = (event: PrepareResourceEvent) => {
   }
 
   const { name, displayName, description, routes, cors } = service;
-
-  const gatewayId = getServiceName(service, options);
+  const { tags } = options;
 
   const gatewayState = createGateway(state, {
+    cors: cors && getCorsConfiguration(routes, cors),
+    gatewayId: getServiceName(service, options),
     gatewayName: displayName ?? name,
-    tags: options.tags,
-    gatewayId,
     description,
-    ...(cors && {
-      cors: getCorsConfiguration(routes, cors)
-    })
+    tags
   });
 
   createStage(state, gatewayState, {
@@ -126,6 +123,7 @@ const getIntegrationFunction = (
 
   if (!handlerState) {
     const integrationName = getFunctionName(service, handler, options);
+    const dependencies = context.getDependencyFiles(handler.file);
 
     const logGroupState = createLogGroup(state, {
       retention: logRetention ?? Defaults.LogRetention,
@@ -151,27 +149,25 @@ const getIntegrationFunction = (
         ...defaults.preferences,
         ...route.preferences
       },
-      errorsMap: {
-        ...defaults.httpErrors,
-        ...route.httpErrors
+      handler: {
+        sourceFile: handler.file,
+        functionName: handler.name,
+        module: handler.module,
+        dependencies
+      },
+      listener: listener && {
+        functionName: listener.name,
+        sourceFile: listener.file,
+        module: listener.module
       },
       variables: {
         ...options.variables,
         ...service.variables
       },
-      handler: {
-        dependencies: context.getDependencies(handler.file),
-        functionName: handler.name,
-        sourceFile: handler.file,
-        module: handler.module
-      },
-      ...(listener && {
-        listener: {
-          functionName: listener.name,
-          sourceFile: listener.file,
-          module: listener.module
-        }
-      })
+      errorsMap: {
+        ...defaults.httpErrors,
+        ...route.httpErrors
+      }
     });
 
     context.setServiceState(handlerState, internalName, options);
@@ -225,6 +221,7 @@ const getAuthorizerFunction = (
 
   if (!authorizerState) {
     const authorizerName = getFunctionName(service, authorizer, options);
+    const dependencies = context.getDependencyFiles(authorizer.file);
 
     const logGroupState = createLogGroup(state, {
       retention: logRetention ?? Defaults.LogRetention,
@@ -247,23 +244,21 @@ const getAuthorizerFunction = (
         ...defaults.preferences,
         ...route.preferences
       },
+      authorizer: {
+        sourceFile: authorizer.file,
+        functionName: authorizer.name,
+        module: authorizer.module,
+        dependencies
+      },
+      listener: listener && {
+        functionName: listener.name,
+        sourceFile: listener.file,
+        module: listener.module
+      },
       variables: {
         ...options.variables,
         ...service.variables
-      },
-      authorizer: {
-        dependencies: context.getDependencies(authorizer.file),
-        functionName: authorizer.name,
-        sourceFile: authorizer.file,
-        module: authorizer.module
-      },
-      ...(listener && {
-        listener: {
-          functionName: listener.name,
-          sourceFile: listener.file,
-          module: listener.module
-        }
-      })
+      }
     });
 
     context.setServiceState(authorizerState, internalName, options);
