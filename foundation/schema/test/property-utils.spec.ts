@@ -105,4 +105,100 @@ describe('schema property utils', () => {
 
     ok(schemaProperty);
   });
+
+  it('assert :: get schema properties as a combined enum', () => {
+    const unionSchema: UnionSchema = {
+      type: SchemaType.Union,
+      elements: [
+        {
+          type: SchemaType.Object,
+          identity: 1,
+          properties: {
+            foo: {
+              type: SchemaType.String,
+              definitions: {
+                value: 'a'
+              }
+            },
+            bar: {
+              type: SchemaType.Number,
+              definitions: {
+                value: 3
+              }
+            }
+          }
+        },
+        {
+          type: SchemaType.Object,
+          identity: 2,
+          properties: {
+            foo: {
+              type: SchemaType.String,
+              definitions: {
+                value: 'b'
+              }
+            },
+            bar: {
+              type: SchemaType.Number,
+              definitions: {
+                value: 2
+              }
+            }
+          }
+        },
+        {
+          type: SchemaType.Object,
+          identity: 3,
+          properties: {
+            foo: {
+              type: SchemaType.String,
+              definitions: {
+                value: 'c'
+              }
+            },
+            bar: {
+              type: SchemaType.Number,
+              definitions: {
+                value: 1
+              }
+            }
+          }
+        }
+      ]
+    };
+
+    const schemaProperty1 = getSchemaProperty(unionSchema, 'foo');
+
+    deepEqual(schemaProperty1, {
+      type: SchemaType.Enum,
+      options: [
+        {
+          value: 'a'
+        },
+        {
+          value: 'b'
+        },
+        {
+          value: 'c'
+        }
+      ]
+    });
+
+    const schemaProperty2 = getSchemaProperty(unionSchema, 'bar');
+
+    deepEqual(schemaProperty2, {
+      type: SchemaType.Enum,
+      options: [
+        {
+          value: 3
+        },
+        {
+          value: 2
+        },
+        {
+          value: 1
+        }
+      ]
+    });
+  });
 });
