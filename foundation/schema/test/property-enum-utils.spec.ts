@@ -5,7 +5,7 @@ import { describe, it } from 'node:test';
 
 import { getSchemaProperty, SchemaType } from '@ez4/schema';
 
-describe('schema property enum utils', () => {
+describe('enum schema property enum utils', () => {
   const fullSchema: UnionSchema = {
     type: SchemaType.Union,
     elements: [

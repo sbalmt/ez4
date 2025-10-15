@@ -5,7 +5,7 @@ import type { TupleSchema } from '../types/type-tuple';
 import type { EnumSchema } from '../types/type-enum';
 import type { AnySchema } from '../types/type-any';
 
-import { deepMerge, isAnyNumber, isAnyString } from '@ez4/utils';
+import { deepEqual, deepMerge, isAnyNumber, isAnyString } from '@ez4/utils';
 
 import { getObjectSchemaProperty, isObjectSchema } from '../types/type-object';
 import { isNumberSchema } from '../types/type-number';
@@ -35,7 +35,7 @@ export const getSchemaProperty = (schema: AnySchema, propertyName: string): Obje
   }
 
   if (isUnionSchema(schema)) {
-    const compounds = [];
+    const compounds: AnySchema[] = [];
     const scalars = [];
 
     for (const element of schema.elements) {
@@ -52,7 +52,9 @@ export const getSchemaProperty = (schema: AnySchema, propertyName: string): Obje
           continue;
         }
 
-        compounds.push(property);
+        if (!compounds.some((current) => deepEqual(current, property))) {
+          compounds.push(property);
+        }
       }
     }
 
