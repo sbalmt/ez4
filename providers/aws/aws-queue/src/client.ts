@@ -45,7 +45,7 @@ export namespace Client {
           return getJsonMessage(JSON.parse(Body!), messageSchema);
         });
 
-        return await Promise.all(safeMessages);
+        return Promise.all(safeMessages);
       }
     })();
   };

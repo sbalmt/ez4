@@ -156,7 +156,7 @@ const attachPolicies = async (roleName: string, policyArns: Arn[]) => {
     return policyArn;
   });
 
-  return await Promise.all(operations);
+  return Promise.all(operations);
 };
 
 const detachPolicies = async (roleName: string, policyArns: Arn[]) => {
@@ -166,5 +166,5 @@ const detachPolicies = async (roleName: string, policyArns: Arn[]) => {
     return policyArn;
   });
 
-  return await Promise.all(operations);
+  return Promise.all(operations);
 };

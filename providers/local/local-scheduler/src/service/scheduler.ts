@@ -61,7 +61,7 @@ export namespace InMemoryScheduler {
       throw new Error(`Event for scheduler ${schedulerName} is too old.`);
     }
 
-    instance.timers[identifier] = setTimeout(async () => await instance.handler(input.event), interval);
+    instance.timers[identifier] = setTimeout(() => instance.handler(input.event), interval);
 
     instance.events[identifier] = {
       ...input
