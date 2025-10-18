@@ -22,7 +22,7 @@ const equalsResource = (candidate: AuthorizerState, current: AuthorizerState) =>
   return !!candidate.result && candidate.result.authorizerId === current.result?.authorizerId;
 };
 
-const previewResource = async (candidate: AuthorizerState, current: AuthorizerState) => {
+const previewResource = (candidate: AuthorizerState, current: AuthorizerState) => {
   const target = { ...candidate.parameters, dependencies: candidate.dependencies };
   const source = { ...current.parameters, dependencies: current.dependencies };
 

@@ -35,7 +35,7 @@ const equalsResource = (candidate: DistributionState, current: DistributionState
   return !!candidate.result && candidate.result.distributionId === current.result?.distributionId;
 };
 
-const previewResource = async (candidate: DistributionState, current: DistributionState) => {
+const previewResource = (candidate: DistributionState, current: DistributionState) => {
   const target = candidate.parameters;
   const source = current.parameters;
 

@@ -20,7 +20,7 @@ const equalsResource = (candidate: QueuePolicyState, current: QueuePolicyState) 
   return !!candidate.result && candidate.result.queueUrl === current.result?.queueUrl;
 };
 
-const previewResource = async (_candidate: QueuePolicyState, _current: QueuePolicyState) => {
+const previewResource = (_candidate: QueuePolicyState, _current: QueuePolicyState) => {
   // Policy is generated dynamically, no changes to compare.
   return undefined;
 };

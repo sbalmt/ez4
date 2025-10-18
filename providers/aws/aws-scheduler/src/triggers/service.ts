@@ -22,7 +22,7 @@ export const prepareLinkedServices = (event: ServiceEvent) => {
   return null;
 };
 
-export const prepareCronServices = async (event: PrepareResourceEvent) => {
+export const prepareCronServices = (event: PrepareResourceEvent) => {
   const { state, service, options, context } = event;
 
   if (!isCronService(service)) {

@@ -25,7 +25,7 @@ const equalsResource = (candidate: IntegrationState, current: IntegrationState) 
   return !!candidate.result && candidate.result.integrationId === current.result?.integrationId;
 };
 
-const previewResource = async (candidate: IntegrationState, current: IntegrationState) => {
+const previewResource = (candidate: IntegrationState, current: IntegrationState) => {
   const target = { ...candidate.parameters, dependencies: candidate.dependencies };
   const source = { ...current.parameters, dependencies: current.dependencies };
 

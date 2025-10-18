@@ -23,7 +23,7 @@ const equalsResource = (candidate: RouteState, current: RouteState) => {
   return !!candidate.result && candidate.result.routeId === current.result?.routeId;
 };
 
-const previewResource = async (candidate: RouteState, current: RouteState) => {
+const previewResource = (candidate: RouteState, current: RouteState) => {
   const target = { ...candidate.parameters, dependencies: candidate.dependencies };
   const source = { ...current.parameters, dependencies: current.dependencies };
 

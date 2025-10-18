@@ -36,7 +36,7 @@ const equalsResource = (candidate: TableState, current: TableState) => {
   return !!candidate.result && candidate.result.tableArn === current.result?.tableArn;
 };
 
-const previewResource = async (candidate: TableState, current: TableState) => {
+const previewResource = (candidate: TableState, current: TableState) => {
   const target = { ...candidate.parameters, dependencies: candidate.dependencies };
   const source = { ...current.parameters, dependencies: current.dependencies };
 

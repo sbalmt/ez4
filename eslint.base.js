@@ -27,9 +27,10 @@ export const eslintProject = {
     }
   },
   rules: {
+    '@typescript-eslint/consistent-type-imports': 'error',
     '@typescript-eslint/no-unused-vars': ['error', { argsIgnorePattern: '^_', varsIgnorePattern: '^_' }],
     '@typescript-eslint/return-await': ['error', 'in-try-catch'],
-    '@typescript-eslint/consistent-type-imports': 'error',
+    '@typescript-eslint/require-await': 'error',
     'import/no-extraneous-dependencies': 'error',
     'import/no-unresolved': 'error'
   }

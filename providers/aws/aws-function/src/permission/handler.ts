@@ -20,7 +20,7 @@ const equalsResource = (candidate: PermissionState, current: PermissionState) =>
   return !!candidate.result && candidate.result.functionName === current.result?.functionName;
 };
 
-const previewResource = async (_candidate: PermissionState, _current: PermissionState) => {
+const previewResource = (_candidate: PermissionState, _current: PermissionState) => {
   // Permission is generated dynamically, no changes to compare.
   return undefined;
 };

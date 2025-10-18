@@ -22,7 +22,7 @@ const equalsResource = (candidate: MigrationState, current: MigrationState) => {
   return !!candidate.result && candidate.result.clusterArn === current.result?.clusterArn;
 };
 
-const previewResource = async (candidate: MigrationState, current: MigrationState, options: StepOptions) => {
+const previewResource = (candidate: MigrationState, current: MigrationState, options: StepOptions) => {
   const target = { ...candidate.parameters, dependencies: candidate.dependencies };
   const source = { ...current.parameters, dependencies: current.dependencies };
 

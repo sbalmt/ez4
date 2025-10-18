@@ -24,7 +24,7 @@ const equalsResource = (candidate: MappingState, current: MappingState) => {
   return !!candidate.result && candidate.result.eventId === current.result?.eventId;
 };
 
-const previewResource = async (candidate: MappingState, current: MappingState) => {
+const previewResource = (candidate: MappingState, current: MappingState) => {
   const target = { ...candidate.parameters, dependencies: candidate.dependencies };
   const source = { ...current.parameters, dependencies: current.dependencies };
 

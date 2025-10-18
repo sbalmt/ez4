@@ -19,7 +19,7 @@ export const connectOriginBucket = (state: EntryStates, service: CdnService, buc
 
   createBucketPolicy(state, distributionState, bucketState, {
     fromService: distributionName,
-    getRole: async (context) => {
+    getRole: (context) => {
       const distributionArn = getDistributionArn(DistributionServiceType, distributionName, context);
       const bucketName = getBucketName(DistributionServiceType, distributionName, context);
 

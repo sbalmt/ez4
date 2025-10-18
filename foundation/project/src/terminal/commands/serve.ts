@@ -119,7 +119,7 @@ export const serveCommand = async (project: ProjectOptions) => {
     watcher.stop();
   });
 
-  server.listen(servicePort, bindAddress, async () => {
+  server.listen(servicePort, bindAddress, () => {
     Logger.log(`🚀 Project [${project.projectName}] up and running`);
   });
 };

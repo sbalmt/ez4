@@ -24,7 +24,7 @@ const equalsResource = (candidate: QueueState, current: QueueState) => {
   return !!candidate.result && candidate.result.queueUrl === current.result?.queueUrl;
 };
 
-const previewResource = async (candidate: QueueState, current: QueueState) => {
+const previewResource = (candidate: QueueState, current: QueueState) => {
   const target = { ...candidate.parameters, dependencies: candidate.dependencies };
   const source = { ...current.parameters, dependencies: current.dependencies };
 

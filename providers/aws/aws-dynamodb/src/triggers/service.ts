@@ -32,7 +32,7 @@ export const prepareLinkedServices = (event: ServiceEvent) => {
   return null;
 };
 
-export const prepareDatabaseServices = async (event: PrepareResourceEvent) => {
+export const prepareDatabaseServices = (event: PrepareResourceEvent) => {
   const { state, service, options, context } = event;
 
   if (!isDynamoDbService(service)) {

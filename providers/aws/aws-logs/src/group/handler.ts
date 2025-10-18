@@ -21,7 +21,7 @@ const equalsResource = (candidate: LogGroupState, current: LogGroupState) => {
   return !!candidate.result && candidate.result.groupArn === current.result?.groupArn;
 };
 
-const previewResource = async (candidate: LogGroupState, current: LogGroupState) => {
+const previewResource = (candidate: LogGroupState, current: LogGroupState) => {
   const target = { ...candidate.parameters, dependencies: candidate.dependencies };
   const source = { ...current.parameters, dependencies: current.dependencies };
 

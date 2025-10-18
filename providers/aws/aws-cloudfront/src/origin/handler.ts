@@ -20,7 +20,7 @@ const equalsResource = (candidate: OriginState, current: OriginState) => {
   return !!candidate.result && candidate.result.policyId === current.result?.policyId;
 };
 
-const previewResource = async (candidate: OriginState, current: OriginState) => {
+const previewResource = (candidate: OriginState, current: OriginState) => {
   const target = { ...candidate.parameters, dependencies: candidate.dependencies };
   const source = { ...current.parameters, dependencies: current.dependencies };
 

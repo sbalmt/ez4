@@ -23,7 +23,7 @@ const equalsResource = (candidate: ScheduleState, current: ScheduleState) => {
   return !!candidate.result && candidate.result.scheduleArn === current.result?.scheduleArn;
 };
 
-const previewResource = async (candidate: ScheduleState, current: ScheduleState) => {
+const previewResource = (candidate: ScheduleState, current: ScheduleState) => {
   const target = { ...candidate.parameters, dependencies: candidate.dependencies };
   const source = { ...current.parameters, dependencies: current.dependencies };
 

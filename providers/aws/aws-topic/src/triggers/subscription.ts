@@ -18,7 +18,7 @@ import { getFunctionName, getInternalName } from './utils';
 import { RoleMissingError } from './errors';
 import { Defaults } from './defaults';
 
-export const prepareSubscriptions = async (
+export const prepareSubscriptions = (
   state: EntryStates,
   service: TopicService | TopicImport,
   topicState: TopicState,

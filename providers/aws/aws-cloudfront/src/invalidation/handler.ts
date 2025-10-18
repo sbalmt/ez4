@@ -21,7 +21,7 @@ const equalsResource = (candidate: InvalidationState, current: InvalidationState
   return !!candidate.result && candidate.result.distributionId === current.result?.distributionId;
 };
 
-const previewResource = async (candidate: InvalidationState, current: InvalidationState) => {
+const previewResource = (candidate: InvalidationState, current: InvalidationState) => {
   const changes = deepCompare(candidate.parameters, current.parameters);
 
   if (!changes.counts) {
@@ -31,7 +31,7 @@ const previewResource = async (candidate: InvalidationState, current: Invalidati
   return changes;
 };
 
-const replaceResource = async (candidate: InvalidationState, current: InvalidationState, context: StepContext) => {
+const replaceResource = (candidate: InvalidationState, current: InvalidationState, context: StepContext) => {
   if (current.result) {
     throw new ReplaceResourceError(InvalidationServiceName, candidate.entryId, current.entryId);
   }
@@ -39,7 +39,7 @@ const replaceResource = async (candidate: InvalidationState, current: Invalidati
   return createResource(candidate, context);
 };
 
-const createResource = async (_candidate: InvalidationState, context: StepContext): Promise<InvalidationResult> => {
+const createResource = (_candidate: InvalidationState, context: StepContext): InvalidationResult => {
   const distributionId = getDistributionId(InvalidationServiceName, 'invalidation', context);
 
   return {

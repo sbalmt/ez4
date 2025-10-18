@@ -38,7 +38,7 @@ const equalsResource = (candidate: BucketState, current: BucketState) => {
   return !!candidate.result && candidate.result.bucketName === current.result?.bucketName;
 };
 
-const previewResource = async (candidate: BucketState, current: BucketState) => {
+const previewResource = (candidate: BucketState, current: BucketState) => {
   const target = { ...candidate.parameters, dependencies: candidate.dependencies };
   const source = { ...current.parameters, dependencies: current.dependencies };
 

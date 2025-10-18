@@ -14,7 +14,7 @@ import { getAdditionalOriginCache, getDefaultOriginCache } from './cache';
 import { getOriginAccessName, getContentVersion, getOriginPolicyName } from './utils';
 import { connectOriginBucket } from './bucket';
 
-export const prepareCdnServices = async (event: PrepareResourceEvent) => {
+export const prepareCdnServices = (event: PrepareResourceEvent) => {
   const { state, service, options, context } = event;
 
   if (!isCdnService(service)) {
