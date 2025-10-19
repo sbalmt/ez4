@@ -137,7 +137,7 @@ const onReady = async (request: Queue.Incoming<Queue.Message>) => {
   );
 };
 
-const onError = async (error: Error, request: Queue.Request | Queue.Incoming<Queue.Message>) => {
+const onError = async (error: unknown, request: Queue.Request | Queue.Incoming<Queue.Message>) => {
   console.error(error);
 
   return dispatch(

@@ -7,8 +7,8 @@ import * as GatewayUtils from '@ez4/gateway/utils';
 
 import { ServiceEventType } from '@ez4/common';
 
-type RequestEvent = APIGatewayRequestAuthorizerEventV2;
 type ResponseEvent = APIGatewaySimpleAuthorizerWithContextResult<any>;
+type RequestEvent = APIGatewayRequestAuthorizerEventV2;
 
 declare const __EZ4_HEADERS_SCHEMA: ObjectSchema | null;
 declare const __EZ4_PARAMETERS_SCHEMA: ObjectSchema | null;
@@ -111,7 +111,7 @@ const onReady = async (request: Http.Incoming<Http.AuthRequest>) => {
   );
 };
 
-const onError = async (error: Error, request: Http.Incoming<Http.AuthRequest>) => {
+const onError = async (error: unknown, request: Http.Incoming<Http.AuthRequest>) => {
   console.error(error);
 
   return dispatch(

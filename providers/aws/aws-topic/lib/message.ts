@@ -69,7 +69,7 @@ const onReady = async (request: Topic.Incoming<Topic.Message>) => {
   );
 };
 
-const onError = async (error: Error, request: Topic.Request | Topic.Incoming<Topic.Message>) => {
+const onError = async (error: unknown, request: Topic.Request | Topic.Incoming<Topic.Message>) => {
   console.error(error);
 
   return dispatch(

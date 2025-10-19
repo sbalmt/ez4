@@ -78,7 +78,7 @@ const onReady = async (request: Bucket.Incoming) => {
   );
 };
 
-const onError = async (error: Error, request: Bucket.Request | Bucket.Incoming) => {
+const onError = async (error: unknown, request: Bucket.Request | Bucket.Incoming) => {
   console.error(error);
 
   return dispatch(

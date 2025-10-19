@@ -57,7 +57,7 @@ const onReady = async (request: Cron.Incoming<Cron.Event | null>) => {
   );
 };
 
-const onError = async (error: Error, request: Cron.Incoming<Cron.Event | null>) => {
+const onError = async (error: unknown, request: Cron.Incoming<Cron.Event | null>) => {
   console.error(error);
 
   return dispatch(

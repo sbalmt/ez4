@@ -1,6 +1,7 @@
 import type { APIGatewayProxyEventV2WithLambdaAuthorizer, APIGatewayProxyResultV2, Context } from 'aws-lambda';
 import type { ArraySchema, ObjectSchema, ScalarSchema, UnionSchema } from '@ez4/schema';
 import type { HttpPreferences } from '@ez4/gateway/library';
+import type { AnyObject } from '@ez4/utils';
 import type { Http } from '@ez4/gateway';
 
 import * as GatewayUtils from '@ez4/gateway/utils';
@@ -154,7 +155,7 @@ const getSuccessResponse = (status: number, body?: Http.JsonBody | Http.RawBody,
   };
 };
 
-const getSuccessResponseBody = (body: Http.JsonBody | Http.RawBody, headers?: Http.Headers) => {
+const getSuccessResponseBody = (body: Http.JsonBody | Http.RawBody, headers?: AnyObject) => {
   if (!__EZ4_RESPONSE_SCHEMA) {
     return undefined;
   }
@@ -230,7 +231,7 @@ const onReady = async (request: Http.Incoming<Http.Request>) => {
   );
 };
 
-const onError = async (error: Error, request: Http.Incoming<Http.Request>) => {
+const onError = async (error: unknown, request: Http.Incoming<Http.Request>) => {
   console.error(error);
 
   return dispatch(

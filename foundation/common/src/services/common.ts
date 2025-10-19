@@ -69,7 +69,7 @@ export type ServiceErrorEvent<T extends ServiceRequest> = {
   /**
    * Event error.
    */
-  error: Error;
+  error: unknown;
 };
 
 /**
