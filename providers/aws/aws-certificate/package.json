@@ -38,7 +38,7 @@
     "live:publish": "npm run build && npm publish --access public"
   },
   "dependencies": {
-    "@aws-sdk/client-acm": "^3.758.0",
+    "@aws-sdk/client-acm": "^3.913.0",
     "@ez4/aws-common": "^0.29.0",
     "@ez4/stateful": "^0.29.0",
     "@ez4/utils": "^0.29.0",

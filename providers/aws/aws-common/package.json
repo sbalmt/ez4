@@ -36,8 +36,8 @@
     "live:publish": "npm run build && npm publish --access public"
   },
   "dependencies": {
-    "@aws-sdk/client-s3": "^3.758.0",
-    "@aws-sdk/client-sts": "^3.758.0",
+    "@aws-sdk/client-s3": "^3.913.0",
+    "@aws-sdk/client-sts": "^3.913.0",
     "@ez4/project": "^0.29.0",
     "@ez4/reflection": "^0.29.0",
     "@ez4/stateful": "^0.29.0",

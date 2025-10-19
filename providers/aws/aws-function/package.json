@@ -38,7 +38,7 @@
     "live:publish": "npm run build && npm publish --access public"
   },
   "dependencies": {
-    "@aws-sdk/client-lambda": "^3.758.0",
+    "@aws-sdk/client-lambda": "^3.913.0",
     "@ez4/aws-common": "^0.29.0",
     "@ez4/aws-identity": "^0.29.0",
     "@ez4/aws-logs": "^0.29.0",
