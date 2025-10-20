@@ -28,6 +28,7 @@
       "import": "./dist/library.mjs"
     }
   },
+  "sideEffects": false,
   "workspaces": [
     "contracts/*",
     "libraries/*"

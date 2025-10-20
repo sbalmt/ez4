@@ -21,6 +21,7 @@
     "require": "./dist/main.cjs",
     "import": "./dist/main.mjs"
   },
+  "sideEffects": false,
   "workspaces": [
     "contracts/*",
     "libraries/*"

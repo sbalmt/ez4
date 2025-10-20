@@ -24,6 +24,7 @@
       "import": "./dist/main.mjs"
     }
   },
+  "sideEffects": false,
   "workspaces": [
     "foundation/*"
   ],

@@ -33,6 +33,10 @@
       "import": "./dist/utils.mjs"
     }
   },
+  "sideEffects": [
+    "./dist/library.cjs",
+    "./dist/library.mjs"
+  ],
   "workspaces": [
     "foundation/*",
     "contracts/*"

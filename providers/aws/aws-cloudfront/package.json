@@ -28,6 +28,10 @@
       "import": "./dist/client.mjs"
     }
   },
+  "sideEffects": [
+    "./dist/main.cjs",
+    "./dist/main.mjs"
+  ],
   "workspaces": [
     "foundation/*",
     "contracts/*",
