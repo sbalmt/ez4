@@ -18,8 +18,9 @@ import { ServiceType } from '../types/service';
 import { IncompleteServiceError } from '../errors/service';
 import { getHttpDefaults } from './defaults';
 import { getHttpRoutes } from './route';
-import { getHttpCors } from './cors';
 import { getHttpCache } from './cache';
+import { getHttpAccess } from './access';
+import { getHttpCors } from './cors';
 import { isHttpService } from './utils';
 
 export const getHttpServices = (reflection: SourceMap) => {
@@ -70,6 +71,10 @@ export const getHttpServices = (reflection: SourceMap) => {
 
         case 'cache':
           service.cache = getHttpCache(member.value, declaration, reflection, errorList);
+          break;
+
+        case 'access':
+          service.access = getHttpAccess(member.value, declaration, reflection, errorList);
           break;
 
         case 'cors':

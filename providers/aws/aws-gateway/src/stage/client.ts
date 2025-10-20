@@ -62,6 +62,9 @@ export const createStage = async (apiId: string, request: CreateRequest): Promis
       StageName: request.stageName,
       StageVariables: request.stageVariables,
       AutoDeploy: request.autoDeploy
+      AccessLogSettings: {
+        DestinationArn
+      }
     })
   );
 

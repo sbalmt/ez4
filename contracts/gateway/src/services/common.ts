@@ -48,13 +48,33 @@ export interface HttpCors {
 }
 
 /**
- * HTTP cache.
+ * HTTP cache configuration.
  */
 export interface HttpCache {
   /**
    * Default TTL (in seconds) for cached authorizations.
    */
   authorizerTTL: number;
+}
+
+/**
+ * HTTP access configuration.
+ */
+export interface HttpAccess {
+  /**
+   * Log retention (in days) for the access log.
+   */
+  logRetention: number;
+
+  /**
+   * Maximum number of request before throttling.
+   */
+  burstLimit?: number;
+
+  /**
+   * Maximum number of request per second.
+   */
+  rateLimit?: number;
 }
 
 /**

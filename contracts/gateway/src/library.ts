@@ -27,8 +27,9 @@ export * from './errors/headers';
 export * from './errors/parameters';
 export * from './errors/query';
 export * from './errors/body';
-export * from './errors/cors';
 export * from './errors/cache';
+export * from './errors/access';
+export * from './errors/cors';
 
 export * from './types/common';
 export * from './types/service';

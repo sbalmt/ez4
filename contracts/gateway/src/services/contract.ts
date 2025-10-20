@@ -22,6 +22,7 @@ import type {
   HttpAuthorizer,
   HttpHandler,
   HttpCache,
+  HttpAccess,
   HttpCors
 } from './common';
 
@@ -49,6 +50,7 @@ export namespace Http {
   export type Provider = HttpProvider;
 
   export type Cache = HttpCache;
+  export type Access = HttpAccess;
   export type Cors = HttpCors;
 
   export type Incoming<T extends Request | AuthRequest> = HttpIncoming<T>;
@@ -180,6 +182,11 @@ export namespace Http {
      * Cache configuration.
      */
     cache?: Cache;
+
+    /**
+     * Access configuration.
+     */
+    access?: Access;
 
     /**
      * Variables associated to all routes.

@@ -43,5 +43,6 @@ describe('http metadata', () => {
   it('assert :: route body', () => testFile('body'));
   it('assert :: route errors', () => testFile('errors'));
   it('assert :: route cache', () => testFile('cache'));
+  it('assert :: route access', () => testFile('access'));
   it('assert :: route cors', () => testFile('cors'));
 });
