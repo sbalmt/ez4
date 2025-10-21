@@ -64,7 +64,8 @@ const updateResource = async (candidate: GatewayState, current: GatewayState) =>
 
   const { apiId, apiArn } = result;
 
-  await Promise.all([checkGeneralUpdates(apiId, parameters, current.parameters), checkTagUpdates(apiArn, parameters, current.parameters)]);
+  await checkGeneralUpdates(apiId, parameters, current.parameters);
+  await checkTagUpdates(apiArn, parameters, current.parameters);
 };
 
 const deleteResource = async (candidate: GatewayState) => {

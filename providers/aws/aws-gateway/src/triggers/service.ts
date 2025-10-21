@@ -7,13 +7,13 @@ import type { GatewayState } from '../gateway/types';
 
 import { getServiceName, linkServiceExtras } from '@ez4/project/library';
 import { getFunctionState, tryGetFunctionState } from '@ez4/aws-function';
+import { createLogGroup, createLogPolicy } from '@ez4/aws-logs';
 import { isHttpService } from '@ez4/gateway/library';
 import { isRoleState } from '@ez4/aws-identity';
-import { createLogGroup } from '@ez4/aws-logs';
 
+import { createStage } from '../stage/service';
 import { createRoute } from '../route/service';
 import { createGateway } from '../gateway/service';
-import { createStage } from '../stage/service';
 import { getAuthorizer, createAuthorizer } from '../authorizer/service';
 import { createAuthorizerFunction } from '../authorizer/function/service';
 import { createIntegrationFunction } from '../integration/function/service';
@@ -41,11 +41,11 @@ export const prepareHttpServices = (event: PrepareResourceEvent) => {
     tags
   });
 
-  createStage(state, gatewayState, {
-    autoDeploy: true
-  });
+  const logGroupState = createAccessLog(state, service, gatewayState, options);
 
-  createHttpRoutes(state, service, gatewayState, options, context);
+  createStage(state, gatewayState, logGroupState, { autoDeploy: true });
+
+  createRoutes(state, service, gatewayState, options, context);
 
   return true;
 };
@@ -76,7 +76,33 @@ export const connectHttpServices = (event: ConnectResourceEvent) => {
   }
 };
 
-const createHttpRoutes = (
+const createAccessLog = (state: EntryStates, service: HttpService, gatewayState: GatewayState, options: DeployOptions) => {
+  const { access } = service;
+  const { tags } = options;
+
+  if (!access?.logRetention) {
+    return undefined;
+  }
+
+  const logGroupState = createLogGroup(state, {
+    groupName: getServiceName(service, options),
+    retention: access.logRetention,
+    tags
+  });
+
+  createLogPolicy(state, logGroupState, gatewayState, {
+    fromService: getServiceName(service, options),
+    policyGetter: () => {
+      return {
+        service: 'apigateway.amazonaws.com'
+      };
+    }
+  });
+
+  return logGroupState;
+};
+
+const createRoutes = (
   state: EntryStates,
   service: HttpService,
   gatewayState: GatewayState,

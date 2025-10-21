@@ -26,6 +26,8 @@ Ensure the user performing deployments has the permissions below:
         "logs:DeleteLogGroup",
         "logs:PutRetentionPolicy",
         "logs:DeleteRetentionPolicy",
+        "logs:PutResourcePolicy",
+        "logs:DeleteResourcePolicy",
         "logs:TagResource",
         "logs:UntagResource"
       ],

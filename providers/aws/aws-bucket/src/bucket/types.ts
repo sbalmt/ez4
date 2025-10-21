@@ -16,7 +16,7 @@ export type BucketParameters = CreateRequest & {
 };
 
 export type BucketResult = CreateResponse & {
-  functionArn: Arn | undefined;
+  functionArn?: Arn;
 };
 
 export type BucketState = EntryState & {
