@@ -40,7 +40,7 @@ describe('gateway stage', () => {
       gatewayName: 'EZ4: Test gateway for stages'
     });
 
-    const resource = createStage(localState, gatewayResource, {
+    const resource = createStage(localState, gatewayResource, undefined, {
       autoDeploy: true,
       stageVariables: {
         test1: 'ez4-variable'
