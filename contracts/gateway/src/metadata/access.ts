@@ -68,9 +68,7 @@ const getTypeFromMembers = (type: TypeObject | TypeModel, parent: TypeModel, mem
         errorList.push(new InvalidServicePropertyError(parent.name, member.name, type.file));
         break;
 
-      case 'logRetention':
-      case 'burstLimit':
-      case 'rateLimit': {
+      case 'logRetention': {
         const value = getPropertyNumber(member);
 
         if (isAnyNumber(value)) {

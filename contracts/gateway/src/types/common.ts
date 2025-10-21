@@ -85,8 +85,6 @@ export type HttpCache = {
 
 export type HttpAccess = {
   logRetention: number;
-  burstLimit?: number | null;
-  rateLimit?: number | null;
 };
 
 export type HttpCors = {

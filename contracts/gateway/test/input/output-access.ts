@@ -6,7 +6,5 @@ export declare class TestService extends Http.Service {
   // Access configuration.
   access: {
     logRetention: 2;
-    burstLimit: 1000;
-    rateLimit: 500;
   };
 }
