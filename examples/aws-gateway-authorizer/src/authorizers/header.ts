@@ -1,6 +1,8 @@
 import type { Http } from '@ez4/gateway';
 import type { AuthorizerResponse } from '../types';
 
+import { HttpForbiddenError } from '@ez4/gateway';
+
 const SUPER_SECRET_API_KEY = 'header-api-key';
 
 /**
@@ -19,9 +21,7 @@ export function headerAuthorizer(request: HeaderAuthorizer): AuthorizerResponse 
   const { headers } = request;
 
   if (headers.authorization !== `Bearer ${SUPER_SECRET_API_KEY}`) {
-    return {
-      identity: undefined
-    };
+    throw new HttpForbiddenError();
   }
 
   return {

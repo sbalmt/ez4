@@ -7,7 +7,7 @@ import { getServiceName } from '@ez4/project/library';
 
 import { processHttpRequest } from '../handlers/request';
 import { processHttpAuthorization } from '../handlers/authorizer';
-import { getOutgoingErrorResponse } from '../utils/response';
+import { getErrorResponse } from '../utils/response';
 import { getMatchingRoute } from '../utils/route';
 
 export const registerHttpServices = (service: HttpService, options: ServeOptions, context: EmulateServiceContext) => {
@@ -22,20 +22,28 @@ export const registerHttpServices = (service: HttpService, options: ServeOptions
       const currentRoute = getMatchingRoute(methodRoutes, request);
 
       if (!currentRoute) {
-        return getOutgoingErrorResponse(new HttpNotFoundError());
+        return getErrorResponse(new HttpNotFoundError());
       }
 
-      if (!currentRoute.authorizer) {
-        return processHttpRequest(service, options, context, currentRoute);
+      try {
+        if (!currentRoute.authorizer) {
+          return await processHttpRequest(service, options, context, currentRoute);
+        }
+
+        const identity = await processHttpAuthorization(service, options, context, currentRoute);
+
+        if (identity) {
+          return await processHttpRequest(service, options, context, currentRoute, identity);
+        }
+
+        return getErrorResponse(new HttpForbiddenError());
+      } catch (error) {
+        if (error instanceof Error) {
+          return getErrorResponse(error);
+        }
+
+        throw error;
       }
-
-      const identity = await processHttpAuthorization(service, options, context, currentRoute);
-
-      if (identity) {
-        return processHttpRequest(service, options, context, currentRoute, identity);
-      }
-
-      return getOutgoingErrorResponse(new HttpForbiddenError());
     }
   };
 };

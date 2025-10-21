@@ -56,7 +56,7 @@ export const processHttpAuthorization = async (
   } catch (error) {
     await onError(lambdaModule, lambdaContext, lambdaRequest, error);
 
-    return undefined;
+    throw error;
     //
   } finally {
     await onEnd(lambdaModule, lambdaContext, lambdaRequest);

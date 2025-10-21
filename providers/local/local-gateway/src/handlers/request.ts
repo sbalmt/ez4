@@ -6,7 +6,7 @@ import type { MatchingRoute } from '../utils/route';
 import { createModule, onBegin, onEnd, onError, onReady } from '@ez4/local-common';
 import { getRandomUUID } from '@ez4/utils';
 
-import { getOutgoingErrorResponse, getOutgoingSuccessResponse } from '../utils/response';
+import { getErrorResponse, getSuccessResponse } from '../utils/response';
 
 import {
   getIncomingRequestIdentity,
@@ -60,16 +60,16 @@ export const processHttpRequest = async (
     const response = await lambdaModule.handler<Http.Response>(lambdaRequest, lambdaContext);
     const preferences = route.preferences;
 
-    return getOutgoingSuccessResponse(route.handler.response, response, preferences);
+    return getSuccessResponse(route.handler.response, response, preferences);
     //
   } catch (error) {
     await onError(lambdaModule, lambdaContext, lambdaRequest, error);
 
     if (!(error instanceof Error)) {
-      return getOutgoingErrorResponse();
+      return getErrorResponse();
     }
 
-    return getOutgoingErrorResponse(error, {
+    return getErrorResponse(error, {
       ...service.defaults?.httpErrors,
       ...route.httpErrors
     });

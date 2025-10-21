@@ -7,7 +7,7 @@ import { getResponseError, getResponseSuccess } from '@ez4/local-common';
 import { isScalarSchema } from '@ez4/schema';
 import { HttpError } from '@ez4/gateway';
 
-export const getOutgoingSuccessResponse = (metadata: HttpResponse, response: Http.Response, preferences?: HttpPreferences) => {
+export const getSuccessResponse = (metadata: HttpResponse, response: Http.Response, preferences?: HttpPreferences) => {
   const { status, body, headers } = response;
 
   if (!metadata.body || !body) {
@@ -25,7 +25,7 @@ export const getOutgoingSuccessResponse = (metadata: HttpResponse, response: Htt
   return getResponseSuccess(status, headers, 'application/json', payload);
 };
 
-export const getOutgoingErrorResponse = (error?: Error, errorsMap?: HttpErrors | null) => {
+export const getErrorResponse = (error?: Error, errorsMap?: HttpErrors | null) => {
   if (error instanceof HttpError) {
     const { status, body } = getJsonError(error);
 

@@ -5,6 +5,7 @@ import type { Http } from '@ez4/gateway';
 
 import * as GatewayUtils from '@ez4/gateway/utils';
 
+import { HttpForbiddenError, HttpUnauthorizedError } from '@ez4/gateway';
 import { ServiceEventType } from '@ez4/common';
 
 type ResponseEvent = APIGatewaySimpleAuthorizerWithContextResult<any>;
@@ -50,10 +51,16 @@ export async function apiEntryPoint(event: RequestEvent, context: Context): Prom
   } catch (error) {
     await onError(error, request);
 
-    return {
-      isAuthorized: false,
-      context: undefined
-    };
+    if (error instanceof HttpForbiddenError) {
+      return { isAuthorized: false, context: undefined };
+    }
+
+    if (error instanceof HttpUnauthorizedError) {
+      throw 'Unauthorized';
+    }
+
+    throw error;
+    //
   } finally {
     await onEnd(request);
   }
