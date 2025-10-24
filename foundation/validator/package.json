@@ -21,7 +21,7 @@
     "require": "./dist/main.cjs",
     "import": "./dist/main.mjs"
   },
-  "sideEffects": false,
+  "sideEffects": true,
   "workspaces": [
     "foundation/*"
   ],
