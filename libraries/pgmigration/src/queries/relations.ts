@@ -4,7 +4,7 @@ import type { ObjectComparison } from '@ez4/utils';
 import type { SqlBuilder } from '@ez4/pgsql';
 
 import { getTableName } from '@ez4/pgclient/library';
-import { IsNullishSchema } from '@ez4/schema';
+import { isNullishSchema } from '@ez4/schema';
 import { Index } from '@ez4/database';
 
 import { getCheckConstraintQuery } from '../utils/checks';
@@ -25,7 +25,7 @@ export namespace RelationQuery {
 
       const relationName = getRelationName(table, targetAlias);
 
-      const targetRequired = !!IsNullishSchema(targetSchema);
+      const targetRequired = !!isNullishSchema(targetSchema);
 
       statements.push({
         check: getCheckConstraintQuery(builder, relationName),

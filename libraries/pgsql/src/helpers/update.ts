@@ -3,7 +3,7 @@ import type { SqlBuilderOptions, SqlBuilderReferences } from '../builder';
 import type { SqlSource } from '../common/source';
 import type { SqlRecord } from '../common/types';
 
-import { getSchemaProperty, isDynamicObjectSchema, IsNullishSchema, isObjectSchema, isUnionSchema, SchemaType } from '@ez4/schema';
+import { getSchemaProperty, isDynamicObjectSchema, isNullishSchema, isObjectSchema, isUnionSchema, SchemaType } from '@ez4/schema';
 import { isPlainObject } from '@ez4/utils';
 
 import { SqlRaw, SqlRawOperation } from '../common/raw';
@@ -85,7 +85,7 @@ export const getUpdateColumns = (
         continue;
       }
 
-      const canCombine = nextSchema && IsNullishSchema(nextSchema);
+      const canCombine = nextSchema && isNullishSchema(nextSchema);
       const columnName = mergeSqlPath(fieldName, parent);
 
       const jsonValue = getUpdateColumns(source, value, nextSchema, {

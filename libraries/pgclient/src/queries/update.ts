@@ -136,7 +136,6 @@ export const getUpdateRecord = async (
     const fieldSchema = getSchemaProperty(schema, fieldKey);
 
     if (!fieldSchema) {
-      // TODO: Should it throw an error here?
       continue;
     }
 

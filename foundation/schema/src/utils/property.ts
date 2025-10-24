@@ -34,50 +34,50 @@ export const getSchemaProperty = (schema: AnySchema, propertyName: string): Obje
     return getObjectSchemaProperty(schema, propertyName);
   }
 
-  if (isUnionSchema(schema)) {
-    const compounds: AnySchema[] = [];
-    const scalars = [];
-
-    for (const element of schema.elements) {
-      const property = getSchemaProperty(element, propertyName);
-
-      if (property) {
-        if (isStringSchema(property) && isAnyString(property.definitions?.value)) {
-          scalars.push(property);
-          continue;
-        }
-
-        if (isNumberSchema(property) && isAnyNumber(property.definitions?.value)) {
-          scalars.push(property);
-          continue;
-        }
-
-        if (!compounds.some((current) => deepEqual(current, property))) {
-          compounds.push(property);
-        }
-      }
-    }
-
-    if (compounds.length > 1) {
-      return {
-        type: SchemaType.Union,
-        elements: [...scalars, ...compounds]
-      };
-    }
-
-    if (scalars.length > 1) {
-      return {
-        type: SchemaType.Enum,
-        options: scalars.map(({ definitions }) => ({
-          value: definitions?.value!
-        }))
-      };
-    }
-
-    return compounds[0] ?? scalars[0];
+  if (!isUnionSchema(schema)) {
+    return undefined;
   }
 
-  return undefined;
+  const compounds: AnySchema[] = [];
+  const scalars = [];
+
+  for (const element of schema.elements) {
+    const property = getSchemaProperty(element, propertyName);
+
+    if (property) {
+      if (isStringSchema(property) && isAnyString(property.definitions?.value)) {
+        scalars.push(property);
+        continue;
+      }
+
+      if (isNumberSchema(property) && isAnyNumber(property.definitions?.value)) {
+        scalars.push(property);
+        continue;
+      }
+
+      if (!compounds.some((current) => deepEqual(current, property))) {
+        compounds.push(property);
+      }
+    }
+  }
+
+  if (compounds.length > 1) {
+    return {
+      type: SchemaType.Union,
+      elements: [...scalars, ...compounds]
+    };
+  }
+
+  if (scalars.length > 1) {
+    return {
+      type: SchemaType.Enum,
+      options: scalars.map(({ definitions }) => ({
+        value: definitions?.value!
+      }))
+    };
+  }
+
+  return compounds[0] ?? scalars[0];
 };
 
 export const getObjectSchemaProperties = (schema: ObjectSchema) => {
