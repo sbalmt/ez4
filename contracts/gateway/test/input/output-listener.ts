@@ -13,9 +13,9 @@ export declare class TestService extends Http.Service {
   ];
 }
 
-export function testListener(): void {}
+function testListener(): void {}
 
-export function testHandler(): Http.SuccessEmptyResponse {
+function testHandler(): Http.SuccessEmptyResponse {
   return {
     status: 204
   };

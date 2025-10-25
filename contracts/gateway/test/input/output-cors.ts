@@ -27,7 +27,7 @@ export declare class TestService extends Http.Service {
   };
 }
 
-export function testRoute(): Http.SuccessEmptyResponse {
+function testRoute(): Http.SuccessEmptyResponse {
   return {
     status: 204
   };

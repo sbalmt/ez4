@@ -1,7 +1,5 @@
 import type { Http } from '@ez4/gateway';
 
-class CustomError extends Error {}
-
 export declare class TestService extends Http.Service {
   routes: [];
 
@@ -16,4 +14,6 @@ export declare class TestService extends Http.Service {
   };
 }
 
-export function testListener() {}
+class CustomError extends Error {}
+
+function testListener() {}

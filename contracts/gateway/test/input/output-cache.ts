@@ -23,13 +23,13 @@ export declare class TestService extends Http.Service {
   };
 }
 
-export function testAuthorizer(): SuccessAuthResponse {
+function testAuthorizer(): SuccessAuthResponse {
   return {
     identity: {}
   };
 }
 
-export function testRoute(): Http.SuccessEmptyResponse {
+function testRoute(): Http.SuccessEmptyResponse {
   return {
     status: 204
   };

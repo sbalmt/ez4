@@ -1,6 +1,34 @@
 import type { NamingStyle } from '@ez4/schema';
 import type { Http } from '@ez4/gateway';
 
+export declare class TestService extends Http.Service {
+  routes: [
+    {
+      path: 'ANY /test-route-a';
+      handler: typeof testRouteA;
+    },
+    {
+      path: 'ANY /test-route-b';
+      handler: typeof testRouteB;
+    },
+    {
+      path: 'ANY /test-route-c';
+      handler: typeof testRouteC;
+    },
+    {
+      path: 'ANY /test-route-d';
+      handler: typeof testRouteD;
+      preferences: {
+        namingStyle: NamingStyle.SnakeCase;
+      };
+    },
+    {
+      path: 'ANY /test-route-e';
+      handler: typeof testRouteE;
+    }
+  ];
+}
+
 interface ObjectResponse extends Http.Response {
   status: 204;
   body: {
@@ -30,35 +58,7 @@ declare class MultiStatusResponse implements Http.Response {
   status: 200 | 204;
 }
 
-export declare class TestService extends Http.Service {
-  routes: [
-    {
-      path: 'ANY /test-route-a';
-      handler: typeof testRouteA;
-    },
-    {
-      path: 'ANY /test-route-b';
-      handler: typeof testRouteB;
-    },
-    {
-      path: 'ANY /test-route-c';
-      handler: typeof testRouteC;
-    },
-    {
-      path: 'ANY /test-route-d';
-      handler: typeof testRouteD;
-      preferences: {
-        namingStyle: NamingStyle.SnakeCase;
-      };
-    },
-    {
-      path: 'ANY /test-route-e';
-      handler: typeof testRouteE;
-    }
-  ];
-}
-
-export function testRouteA(): ObjectResponse {
+function testRouteA(): ObjectResponse {
   return {
     status: 204,
     body: {
@@ -67,21 +67,21 @@ export function testRouteA(): ObjectResponse {
   };
 }
 
-export function testRouteB(): UnionResponse {
+function testRouteB(): UnionResponse {
   return {
     status: 204,
     body: 'abc'
   };
 }
 
-export function testRouteC(): ScalarResponse {
+function testRouteC(): ScalarResponse {
   return {
     status: 204,
     body: 123
   };
 }
 
-export function testRouteD(): NamingStyleResponse {
+function testRouteD(): NamingStyleResponse {
   return {
     status: 204,
     body: {
@@ -91,7 +91,7 @@ export function testRouteD(): NamingStyleResponse {
   };
 }
 
-export function testRouteE(): MultiStatusResponse {
+function testRouteE(): MultiStatusResponse {
   return {
     status: 200
   };

@@ -1,14 +1,5 @@
 import type { Http } from '@ez4/gateway';
 
-// Concrete class is not allowed.
-class TestAuthRequest implements Http.AuthRequest {
-  query = {};
-}
-
-declare class TestAuthResponse implements Http.AuthResponse {
-  identity?: {};
-}
-
 export declare class TestService extends Http.Service {
   routes: [
     {
@@ -19,13 +10,22 @@ export declare class TestService extends Http.Service {
   ];
 }
 
-export function testAuthorizer(_request: TestAuthRequest): TestAuthResponse {
+// Concrete class is not allowed.
+class TestAuthRequest implements Http.AuthRequest {
+  query = {};
+}
+
+declare class TestAuthResponse implements Http.AuthResponse {
+  identity?: {};
+}
+
+function testAuthorizer(_request: TestAuthRequest): TestAuthResponse {
   return {
     identity: {}
   };
 }
 
-export function testHandler(): Http.SuccessEmptyResponse {
+function testHandler(): Http.SuccessEmptyResponse {
   return {
     status: 204
   };
