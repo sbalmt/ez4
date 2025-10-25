@@ -5,7 +5,7 @@ export type HttpSuccessStatuses = 200 | 201 | 202 | 203 | 204 | 205 | 206 | 207 
 /**
  * Common HTTP success response without a response body.
  */
-export declare class HttpEmptySuccessResponse<S extends HttpSuccessStatuses> implements HttpResponse {
+export declare class HttpSuccessEmptyResponse<S extends HttpSuccessStatuses> implements HttpResponse {
   /**
    * HTTP status code.
    */

@@ -1,5 +1,4 @@
 import type { Http } from '@ez4/gateway';
-import type { SuccessResponse } from './common';
 
 export declare class TestService1 extends Http.Service {
   // @ts-ignore Missing required route path.
@@ -19,7 +18,7 @@ export declare class TestService2 extends Http.Service {
   ];
 }
 
-export function testRoute(): SuccessResponse {
+export function testRoute(): Http.SuccessEmptyResponse {
   return {
     status: 204
   };

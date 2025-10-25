@@ -1,5 +1,4 @@
 import type { Http } from '@ez4/gateway';
-import type { SuccessResponse } from './common';
 
 // Concrete class is not allowed.
 class TestAuthRequest implements Http.AuthRequest {
@@ -26,7 +25,7 @@ export function testAuthorizer(_request: TestAuthRequest): TestAuthResponse {
   };
 }
 
-export function testHandler(): SuccessResponse {
+export function testHandler(): Http.SuccessEmptyResponse {
   return {
     status: 204
   };

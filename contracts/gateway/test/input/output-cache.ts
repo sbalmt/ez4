@@ -1,5 +1,5 @@
 import type { Http } from '@ez4/gateway';
-import type { SuccessResponse, SuccessAuthResponse } from './common';
+import type { SuccessAuthResponse } from './common';
 
 export declare class TestService extends Http.Service {
   routes: [
@@ -25,11 +25,11 @@ export declare class TestService extends Http.Service {
 
 export function testAuthorizer(): SuccessAuthResponse {
   return {
-    status: 200
+    identity: {}
   };
 }
 
-export function testRoute(): SuccessResponse {
+export function testRoute(): Http.SuccessEmptyResponse {
   return {
     status: 204
   };

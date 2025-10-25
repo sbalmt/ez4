@@ -1,7 +1,7 @@
 import type { Service as CommonService } from '@ez4/common';
 import type { LinkedVariables } from '@ez4/project/library';
 import type { HttpPath } from '../types/common';
-import type { HttpSuccessStatuses, HttpEmptySuccessResponse, HttpSuccessResponse } from './utils';
+import type { HttpSuccessStatuses, HttpSuccessEmptyResponse, HttpSuccessResponse } from './utils';
 
 import type {
   HttpHeaders,
@@ -61,7 +61,7 @@ export namespace Http {
 
   export type ServiceEvent<T extends Request | AuthRequest = Request> = CommonService.AnyEvent<Incoming<T>>;
 
-  export type EmptySuccessResponse<S extends HttpSuccessStatuses = 204> = HttpEmptySuccessResponse<S>;
+  export type SuccessEmptyResponse<S extends HttpSuccessStatuses = 204> = HttpSuccessEmptyResponse<S>;
   export type SuccessResponse<S extends HttpSuccessStatuses, T extends HttpRawBody | HttpJsonBody> = HttpSuccessResponse<S, T>;
 
   /**

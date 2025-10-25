@@ -1,5 +1,4 @@
 import type { Http } from '@ez4/gateway';
-import type { SuccessResponse } from './common';
 
 /**
  * Service for testing route listener.
@@ -16,7 +15,7 @@ export declare class TestService extends Http.Service {
 
 export function testListener(): void {}
 
-export function testHandler(): SuccessResponse {
+export function testHandler(): Http.SuccessEmptyResponse {
   return {
     status: 204
   };

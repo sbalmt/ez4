@@ -1,6 +1,5 @@
 import type { NamingStyle } from '@ez4/schema';
 import type { Http } from '@ez4/gateway';
-import type { SuccessResponse } from './common';
 
 /**
  * Service for testing route authorizers.
@@ -65,7 +64,7 @@ export function testHeaderAuthorizer(request: TestHeaderAuthRequest): TestAuthRe
   };
 }
 
-export function testHandler(): SuccessResponse {
+export function testHandler(): Http.SuccessEmptyResponse {
   return {
     status: 204
   };

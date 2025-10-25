@@ -19,7 +19,14 @@
         "authorizer": {
           "name": "testAuthorizer",
           "file": "test/input/output-cache.ts",
-          "response": null
+          "response": {
+            "identity": {
+              "identity": 1,
+              "type": "object",
+              "description": "Authorization identity.",
+              "properties": {}
+            }
+          }
         },
         "handler": {
           "name": "testRoute",
