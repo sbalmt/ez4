@@ -26,6 +26,10 @@ declare class NamingStyleResponse implements Http.Response {
   };
 }
 
+declare class MultiStatusResponse implements Http.Response {
+  status: 200 | 204;
+}
+
 export declare class TestService extends Http.Service {
   routes: [
     {
@@ -46,6 +50,10 @@ export declare class TestService extends Http.Service {
       preferences: {
         namingStyle: NamingStyle.SnakeCase;
       };
+    },
+    {
+      path: 'ANY /test-route-e';
+      handler: typeof testRouteE;
     }
   ];
 }
@@ -80,5 +88,11 @@ export function testRouteD(): NamingStyleResponse {
       fooBar: 'foo',
       barBaz: 123
     }
+  };
+}
+
+export function testRouteE(): MultiStatusResponse {
+  return {
+    status: 200
   };
 }

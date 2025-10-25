@@ -84,6 +84,19 @@
             }
           }
         }
+      },
+      {
+        "path": "ANY /test-route-e",
+        "handler": {
+          "name": "testRouteE",
+          "file": "test/input/output-response.ts",
+          "response": {
+            "status": [
+              200,
+              204
+            ]
+          }
+        }
       }
     ]
   }

@@ -29,7 +29,7 @@ export type HttpRequest = {
 };
 
 export type HttpResponse = {
-  status: number;
+  status: number | number[];
   headers?: ObjectSchema | null;
   body?: ObjectSchema | UnionSchema | ArraySchema | ScalarSchema | null;
 };

@@ -1,5 +1,6 @@
 export * from './types/assert';
 
+export * from './common/check';
 export * from './common/generics';
 export * from './common/object';
 

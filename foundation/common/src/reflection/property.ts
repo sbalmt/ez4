@@ -1,7 +1,7 @@
-import type { ModelProperty } from '@ez4/reflection';
+import type { EveryType, ModelProperty } from '@ez4/reflection';
 
-import { isTypeObject } from '@ez4/reflection';
-import { isAnyString } from '@ez4/utils';
+import { isTypeObject, isTypeUnion } from '@ez4/reflection';
+import { isAnyString, isNullish } from '@ez4/utils';
 
 import { getLiteralBoolean, getLiteralNumber, getLiteralString, getLiteralTuple } from './value';
 
@@ -25,6 +25,18 @@ export const getPropertyObject = (type: ModelProperty) => {
   return isTypeObject(type.value) ? type.value : null;
 };
 
+export const getPropertyUnion = (type: ModelProperty) => {
+  return isTypeUnion(type.value) ? type.value.elements : null;
+};
+
+export const getPropertyNumberList = (member: ModelProperty) => {
+  return getPropertyList(member, (element) => getLiteralNumber(element));
+};
+
+export const getPropertyStringList = (member: ModelProperty) => {
+  return getPropertyList(member, (element) => getLiteralString(element));
+};
+
 export const getPropertyStringIn = <T extends string>(type: ModelProperty, values: T[]): T | undefined => {
   const value = getLiteralString(type.value) as T | null | undefined;
 
@@ -35,22 +47,22 @@ export const getPropertyStringIn = <T extends string>(type: ModelProperty, value
   return undefined;
 };
 
-export const getPropertyStringList = (member: ModelProperty) => {
-  const elements = getPropertyTuple(member);
+const getPropertyList = <T>(member: ModelProperty, getLiteral: (element: EveryType) => NonNullable<T> | null | undefined) => {
+  const elements = getPropertyTuple(member) ?? getPropertyUnion(member);
 
   if (!elements?.length) {
     return null;
   }
 
-  const stringList = [];
+  const valuesList = [];
 
   for (const element of elements) {
-    const value = getLiteralString(element);
+    const value = getLiteral(element);
 
-    if (value) {
-      stringList.push(value);
+    if (!isNullish(value)) {
+      valuesList.push(value);
     }
   }
 
-  return stringList;
+  return valuesList;
 };
