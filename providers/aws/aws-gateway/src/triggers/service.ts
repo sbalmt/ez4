@@ -168,13 +168,10 @@ const getIntegrationFunction = (
       responseSchema: response.body,
       timeout: Math.max(5, (timeout ?? Defaults.Timeout) - 1),
       memory: memory ?? Defaults.Memory,
+      services: handler.provider?.services,
       extras: service.extras,
       debug: options.debug,
       tags: options.tags,
-      preferences: {
-        ...defaults.preferences,
-        ...route.preferences
-      },
       handler: {
         sourceFile: handler.file,
         functionName: handler.name,
@@ -189,6 +186,10 @@ const getIntegrationFunction = (
       variables: {
         ...options.variables,
         ...service.variables
+      },
+      preferences: {
+        ...defaults.preferences,
+        ...route.preferences
       },
       errorsMap: {
         ...defaults.httpErrors,

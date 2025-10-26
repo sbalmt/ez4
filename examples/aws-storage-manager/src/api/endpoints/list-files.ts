@@ -2,7 +2,7 @@ import type { Integer } from '@ez4/schema';
 import type { Service } from '@ez4/common';
 import type { Http } from '@ez4/gateway';
 import type { FileStatus } from '../../schemas/file';
-import type { Api } from '../../api';
+import type { ApiProvider } from '../../provider';
 
 import { listFiles } from '../repository';
 
@@ -65,7 +65,7 @@ declare class ListFilesResponse implements Http.Response {
 /**
  * Handle list files requests.
  */
-export async function listFilesHandler(request: ListFilesRequest, context: Service.Context<Api>): Promise<ListFilesResponse> {
+export async function listFilesHandler(request: ListFilesRequest, context: Service.Context<ApiProvider>): Promise<ListFilesResponse> {
   const { cursor, limit } = request.parameters;
   const { fileDb } = context;
 

@@ -15,7 +15,7 @@ import {
 import { isModelProperty } from '@ez4/reflection';
 
 import { ServiceType } from '../types/service';
-import { IncompleteServiceError } from '../errors/service';
+import { IncompleteServiceError, ServiceCollisionError } from '../errors/service';
 import { getHttpDefaults } from './defaults';
 import { getHttpRoutes } from './route';
 import { getHttpCache } from './cache';
@@ -101,6 +101,8 @@ export const getHttpServices = (reflection: SourceMap) => {
       continue;
     }
 
+    assignProviderServices(service, errorList, fileName);
+
     allServices[declaration.name] = service;
   }
 
@@ -112,4 +114,32 @@ export const getHttpServices = (reflection: SourceMap) => {
 
 const isValidService = (type: Incomplete<HttpService>): type is HttpService => {
   return !!type.name && !!type.routes && !!type.extras;
+};
+
+const assignProviderServices = (service: HttpService, errorList: Error[], fileName?: string) => {
+  for (const route of service.routes) {
+    const provider = route.handler.provider;
+
+    if (!provider?.services) {
+      continue;
+    }
+
+    if (!service.services) {
+      service.services = {};
+    }
+
+    for (const serviceName in provider.services) {
+      const currentServiceType = service.services[serviceName];
+      const handlerServiceType = provider.services[serviceName];
+
+      if (!currentServiceType) {
+        service.services[serviceName] = handlerServiceType;
+        continue;
+      }
+
+      if (currentServiceType !== handlerServiceType) {
+        errorList.push(new ServiceCollisionError(serviceName, fileName));
+      }
+    }
+  }
 };

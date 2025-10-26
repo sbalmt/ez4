@@ -1,7 +1,7 @@
 import type { ArraySchema, ObjectSchema, ScalarSchema, UnionSchema } from '@ez4/schema';
 import type { HttpPreferences } from '@ez4/gateway/library';
 import type { FunctionParameters } from '@ez4/aws-function';
-import type { ExtraSource } from '@ez4/project/library';
+import type { ExtraSource, LinkedServices } from '@ez4/project/library';
 
 export type IntegrationFunction = {
   functionName: string;
@@ -27,6 +27,7 @@ export type IntegrationFunctionParameters = Omit<
   bodySchema?: ObjectSchema | UnionSchema | ArraySchema | ScalarSchema | null;
   responseSchema?: ObjectSchema | UnionSchema | ArraySchema | ScalarSchema | null;
   errorsMap?: Record<string, number> | null;
+  services?: LinkedServices;
   extras?: Record<string, ExtraSource>;
   debug?: boolean;
 };

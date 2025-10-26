@@ -37,7 +37,6 @@ export const getHttpHandler = (type: AllType, parent: TypeModel, reflection: Sou
 
     if (requestContext) {
       handler.provider = getHttpProvider(requestContext.value, parent, reflection, errorList);
-      handler.extras = {};
     }
   }
 

@@ -1,5 +1,4 @@
 import type { Http } from '@ez4/gateway';
-import type { SuccessAuthResponse } from './common';
 
 export declare class TestService extends Http.Service {
   routes: [
@@ -21,6 +20,10 @@ export declare class TestService extends Http.Service {
   cache: {
     authorizerTTL: 5;
   };
+}
+
+interface SuccessAuthResponse extends Http.AuthResponse {
+  identity: {};
 }
 
 function testAuthorizer(): SuccessAuthResponse {

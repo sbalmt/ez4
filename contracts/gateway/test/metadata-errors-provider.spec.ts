@@ -1,8 +1,8 @@
 import { ok, equal, deepEqual } from 'assert/strict';
 import { describe, it } from 'node:test';
 
-import { registerTriggers, getHttpServices } from '@ez4/gateway/library';
 import { IncompleteProviderError, InvalidProviderTypeError } from '@ez4/gateway/library';
+import { registerTriggers, getHttpServices, ServiceCollisionError } from '@ez4/gateway/library';
 import { getReflection } from '@ez4/project/library';
 
 const parseFile = (fileName: string, errorCount: number) => {
@@ -34,5 +34,12 @@ describe('http provider metadata errors', () => {
 
     ok(error1 instanceof InvalidProviderTypeError);
     equal(error1.baseType, 'Http.Provider');
+  });
+
+  it('assert :: collided provider service', () => {
+    const [error1] = parseFile('collided-service', 1);
+
+    ok(error1 instanceof ServiceCollisionError);
+    equal(error1.property, 'selfClient');
   });
 });

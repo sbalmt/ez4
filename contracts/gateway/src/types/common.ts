@@ -1,5 +1,5 @@
 import type { ArraySchema, NamingStyle, ObjectSchema, ScalarSchema, UnionSchema } from '@ez4/schema';
-import type { ExtraSource, LinkedServices, LinkedVariables } from '@ez4/project/library';
+import type { LinkedServices, LinkedVariables } from '@ez4/project/library';
 import type { ServiceListener } from '@ez4/common/library';
 
 export type HttpVerb = 'ANY' | 'GET' | 'POST' | 'PUT' | 'PATCH' | 'DELETE' | 'OPTIONS';
@@ -42,7 +42,6 @@ export type HttpHandler = {
   response: HttpResponse;
   request?: HttpRequest;
   provider?: HttpProvider;
-  extras?: Record<string, ExtraSource>;
 };
 
 export type HttpAuthorizer = {

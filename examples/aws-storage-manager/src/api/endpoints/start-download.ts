@@ -1,7 +1,7 @@
 import type { String } from '@ez4/schema';
 import type { Service } from '@ez4/common';
 import type { Http } from '@ez4/gateway';
-import type { Api } from '../../api';
+import type { ApiProvider } from '../../provider';
 
 import { HttpBadRequestError } from '@ez4/gateway';
 
@@ -31,7 +31,10 @@ declare class StartDownloadResponse implements Http.Response {
 /**
  * Handle start download requests.
  */
-export async function startDownloadHandler(request: StartDownloadRequest, context: Service.Context<Api>): Promise<StartDownloadResponse> {
+export async function startDownloadHandler(
+  request: StartDownloadRequest,
+  context: Service.Context<ApiProvider>
+): Promise<StartDownloadResponse> {
   const { fileId } = request.parameters;
   const { fileStorage } = context;
 

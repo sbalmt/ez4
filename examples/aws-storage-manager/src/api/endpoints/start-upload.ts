@@ -1,6 +1,6 @@
 import type { Service } from '@ez4/common';
 import type { Http } from '@ez4/gateway';
-import type { Api } from '../../api';
+import type { ApiProvider } from '../../provider';
 import type { ContentTypes } from '../types';
 
 import { FileStatus } from '../../schemas/file';
@@ -40,7 +40,7 @@ declare class StartUploadResponse implements Http.Response {
 /**
  * Handle start upload requests.
  */
-export async function startUploadHandler(request: StartUploadRequest, context: Service.Context<Api>): Promise<StartUploadResponse> {
+export async function startUploadHandler(request: StartUploadRequest, context: Service.Context<ApiProvider>): Promise<StartUploadResponse> {
   const { fileDb, fileStorage } = context;
   const { contentType } = request.body;
 

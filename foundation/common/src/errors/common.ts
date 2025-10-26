@@ -7,6 +7,16 @@ export class TypeError extends Error {
   }
 }
 
+export class TypeCollisionError extends TypeError {
+  constructor(
+    message: string,
+    public property: string,
+    public fileName?: string
+  ) {
+    super(`${message}, property '${property}' is colliding.`, fileName);
+  }
+}
+
 export class IncompleteTypeError extends TypeError {
   constructor(
     message: string,
@@ -16,7 +26,7 @@ export class IncompleteTypeError extends TypeError {
     if (properties.length > 1) {
       super(`${message}, properties [${properties.join(', ')}] are invalid or missing.`, fileName);
     } else {
-      super(`${message}, property ${properties[0]} is invalid or missing.`, fileName);
+      super(`${message}, property '${properties[0]}' is invalid or missing.`, fileName);
     }
   }
 }
@@ -58,7 +68,7 @@ export class IncorrectPropertyError extends TypeError {
     if (properties.length > 1) {
       super(`${message}, properties [${properties.join(', ')}] aren't expected.`, fileName);
     } else {
-      super(`${message}, property ${properties[0]} isn't expected.`, fileName);
+      super(`${message}, property '${properties[0]}' isn't expected.`, fileName);
     }
   }
 }

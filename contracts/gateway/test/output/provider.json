@@ -9,7 +9,6 @@
         "handler": {
           "name": "testRouteA",
           "file": "test/input/output-provider.ts",
-          "extras": {},
           "request": {},
           "response": {
             "status": 204
@@ -26,7 +25,6 @@
         "handler": {
           "name": "testRouteB",
           "file": "test/input/output-provider.ts",
-          "extras": {},
           "request": {},
           "response": {
             "status": 204
