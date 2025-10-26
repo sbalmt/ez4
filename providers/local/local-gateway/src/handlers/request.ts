@@ -23,7 +23,7 @@ export const processHttpRequest = async (
   route: MatchingRoute,
   identity?: Http.Identity
 ) => {
-  const lambdaModule = await createModule({
+  const module = await createModule({
     listener: route.listener ?? service.defaults?.listener,
     handler: route.handler,
     version: options.version,
@@ -34,7 +34,8 @@ export const processHttpRequest = async (
     }
   });
 
-  const lambdaContext = service.services && context.makeClients(service.services);
+  const services = route.handler.provider?.services;
+  const clients = services && context.makeClients(services);
 
   const lambdaRequest: Http.Incoming<Http.Request> = {
     requestId: getRandomUUID(),
@@ -45,7 +46,7 @@ export const processHttpRequest = async (
   };
 
   try {
-    await onBegin(lambdaModule, lambdaContext, lambdaRequest);
+    await onBegin(module, clients, lambdaRequest);
 
     if (route.handler.request) {
       Object.assign(lambdaRequest, await getIncomingRequestIdentity(route.handler.request, identity));
@@ -55,15 +56,15 @@ export const processHttpRequest = async (
       Object.assign(lambdaRequest, await getIncomingRequestBody(route.handler.request, route));
     }
 
-    await onReady(lambdaModule, lambdaContext, lambdaRequest);
+    await onReady(module, clients, lambdaRequest);
 
-    const response = await lambdaModule.handler<Http.Response>(lambdaRequest, lambdaContext);
+    const response = await module.handler<Http.Response>(lambdaRequest, clients);
     const preferences = route.preferences;
 
     return getSuccessResponse(route.handler.response, response, preferences);
     //
   } catch (error) {
-    await onError(lambdaModule, lambdaContext, lambdaRequest, error);
+    await onError(module, clients, lambdaRequest, error);
 
     if (!(error instanceof Error)) {
       return getErrorResponse();
@@ -75,6 +76,6 @@ export const processHttpRequest = async (
     });
     //
   } finally {
-    await onEnd(lambdaModule, lambdaContext, lambdaRequest);
+    await onEnd(module, clients, lambdaRequest);
   }
 };

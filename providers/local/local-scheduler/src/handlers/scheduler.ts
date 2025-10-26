@@ -13,7 +13,7 @@ export const processSchedulerEvent = async (
 ) => {
   const { services: linkedServices, target } = service;
 
-  const lambdaModule = await createModule({
+  const module = await createModule({
     listener: target.listener,
     handler: target.handler,
     version: options.version,
@@ -24,26 +24,26 @@ export const processSchedulerEvent = async (
     }
   });
 
-  const lambdaContext = linkedServices && context.makeClients(linkedServices);
+  const clients = linkedServices && context.makeClients(linkedServices);
 
-  const lambdaRequest: Cron.Incoming<Cron.Event | null> = {
+  const request: Cron.Incoming<Cron.Event | null> = {
     requestId: getRandomUUID(),
     event: null
   };
 
   try {
-    await onBegin(lambdaModule, lambdaContext, lambdaRequest);
+    await onBegin(module, clients, request);
 
-    if ((lambdaRequest.event = event) !== null) {
-      await onReady(lambdaModule, lambdaContext, lambdaRequest);
+    if ((request.event = event) !== null) {
+      await onReady(module, clients, request);
     }
 
-    await lambdaModule.handler(lambdaRequest, lambdaContext);
+    await module.handler(request, clients);
     //
   } catch (error) {
-    await onError(lambdaModule, lambdaContext, lambdaRequest, error);
+    await onError(module, clients, request, error);
     //
   } finally {
-    await onEnd(lambdaModule, lambdaContext, lambdaRequest);
+    await onEnd(module, clients, request);
   }
 };

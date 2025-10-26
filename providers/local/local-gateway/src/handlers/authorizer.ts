@@ -18,7 +18,7 @@ export const processHttpAuthorization = async (
     return undefined;
   }
 
-  const lambdaModule = await createModule({
+  const module = await createModule({
     listener: route.listener ?? service.defaults?.listener,
     handler: route.authorizer,
     version: options.version,
@@ -29,9 +29,10 @@ export const processHttpAuthorization = async (
     }
   });
 
-  const lambdaContext = service.services && context.makeClients(service.services);
+  const services = route.handler.provider?.services;
+  const clients = services && context.makeClients(services);
 
-  const lambdaRequest: Http.Incoming<Http.AuthRequest> = {
+  const request: Http.Incoming<Http.AuthRequest> = {
     requestId: getRandomUUID(),
     timestamp: new Date(),
     method: route.method,
@@ -39,26 +40,26 @@ export const processHttpAuthorization = async (
   };
 
   try {
-    await onBegin(lambdaModule, lambdaContext, lambdaRequest);
+    await onBegin(module, clients, request);
 
     if (route.authorizer?.request) {
-      Object.assign(lambdaRequest, await getIncomingRequestHeaders(route.authorizer.request, route));
-      Object.assign(lambdaRequest, await getIncomingRequestParameters(route.authorizer.request, route));
-      Object.assign(lambdaRequest, await getIncomingRequestQuery(route.authorizer.request, route));
+      Object.assign(request, await getIncomingRequestHeaders(route.authorizer.request, route));
+      Object.assign(request, await getIncomingRequestParameters(route.authorizer.request, route));
+      Object.assign(request, await getIncomingRequestQuery(route.authorizer.request, route));
     }
 
-    await onReady(lambdaModule, lambdaContext, lambdaRequest);
+    await onReady(module, clients, request);
 
-    const { identity } = await lambdaModule.handler<Http.AuthResponse>(lambdaRequest, lambdaContext);
+    const { identity } = await module.handler<Http.AuthResponse>(request, clients);
 
     return identity;
     //
   } catch (error) {
-    await onError(lambdaModule, lambdaContext, lambdaRequest, error);
+    await onError(module, clients, request, error);
 
     throw error;
     //
   } finally {
-    await onEnd(lambdaModule, lambdaContext, lambdaRequest);
+    await onEnd(module, clients, request);
   }
 };
