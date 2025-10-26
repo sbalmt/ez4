@@ -5,7 +5,7 @@ import type { HttpHandler } from '../types/common';
 import { IncompleteHandlerError } from '../errors/handler';
 import { getHttpHandlerResponse } from './response';
 import { getHttpHandlerRequest } from './request';
-import { getHttpContext } from './context';
+import { getHttpProvider } from './provider';
 import { isHttpHandler } from './utils';
 
 export const getHttpHandler = (type: AllType, parent: TypeModel, reflection: SourceMap, errorList: Error[]) => {
@@ -36,7 +36,8 @@ export const getHttpHandler = (type: AllType, parent: TypeModel, reflection: Sou
     handler.request = getHttpHandlerRequest(requestType, parent, reflection, errorList);
 
     if (requestContext) {
-      handler.context = getHttpContext(requestContext.value, parent, reflection, errorList);
+      handler.provider = getHttpProvider(requestContext.value, parent, reflection, errorList);
+      handler.extras = {};
     }
   }
 

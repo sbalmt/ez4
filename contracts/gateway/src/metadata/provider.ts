@@ -1,35 +1,34 @@
 import type { AllType, SourceMap, TypeIntersection, TypeModel, TypeObject } from '@ez4/reflection';
 import type { MemberType } from '@ez4/common/library';
 import type { Incomplete } from '@ez4/utils';
-import type { HttpContext } from '../types/common';
+import type { HttpProvider } from '../types/common';
 
 import { isModelDeclaration, getModelMembers, getReferenceType, getLinkedServiceList } from '@ez4/common/library';
 import { isModelProperty, isTypeReference } from '@ez4/reflection';
 
-import { IncompleteContextError, InvalidContextTypeError } from '../errors/context';
+import { IncompleteProviderError, InvalidProviderTypeError } from '../errors/provider';
 
-export const getHttpContext = (type: AllType, parent: TypeModel, reflection: SourceMap, errorList: Error[]) => {
+export const getHttpProvider = (type: AllType, parent: TypeModel, reflection: SourceMap, errorList: Error[]) => {
   if (!isTypeReference(type)) {
-    return getContextType(type, parent, reflection, errorList, 'Http.Provider');
+    return getProviderType(type, parent, reflection, errorList, 'Http.Provider');
   }
 
   const declaration = getReferenceType(type, reflection);
 
   if (declaration) {
-    return getContextType(declaration, parent, reflection, errorList, 'Http.Provider');
+    return getProviderType(declaration, parent, reflection, errorList, 'Http.Provider');
   }
 
   return null;
 };
 
-const isValidContext = (type: Incomplete<HttpContext>): type is HttpContext => {
+const isValidProvider = (type: Incomplete<HttpProvider>): type is HttpProvider => {
   return !!type.services;
 };
 
-const getContextType = (type: AllType, parent: TypeModel, reflection: SourceMap, errorList: Error[], baseType: string) => {
+const getProviderType = (type: AllType, parent: TypeModel, reflection: SourceMap, errorList: Error[], baseType: string) => {
   if (!isModelDeclaration(type)) {
-    console.dir(type, { depth: null });
-    errorList.push(new InvalidContextTypeError(baseType, parent.file));
+    errorList.push(new InvalidProviderTypeError(baseType, parent.file));
     return null;
   }
 
@@ -42,7 +41,7 @@ const getTypeFromMembers = (
   reflection: SourceMap,
   errorList: Error[]
 ) => {
-  const context: HttpContext = {};
+  const context: HttpProvider = {};
   const properties = new Set(['services']);
 
   for (const member of members) {
@@ -63,11 +62,11 @@ const getTypeFromMembers = (
     }
   }
 
-  if (isValidContext(context)) {
+  if (isValidProvider(context)) {
     return context;
   }
 
-  errorList.push(new IncompleteContextError([...properties], type.file));
+  errorList.push(new IncompleteProviderError([...properties], type.file));
 
   return null;
 };

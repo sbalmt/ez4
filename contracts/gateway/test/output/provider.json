@@ -8,12 +8,13 @@
         "path": "ANY /test-route-a",
         "handler": {
           "name": "testRouteA",
-          "file": "test/input/output-context.ts",
+          "file": "test/input/output-provider.ts",
+          "extras": {},
           "request": {},
           "response": {
             "status": 204
           },
-          "context": {
+          "provider": {
             "services": {
               "selfClient": "TestService"
             }
@@ -24,12 +25,13 @@
         "path": "ANY /test-route-b",
         "handler": {
           "name": "testRouteB",
-          "file": "test/input/output-context.ts",
+          "file": "test/input/output-provider.ts",
+          "extras": {},
           "request": {},
           "response": {
             "status": 204
           },
-          "context": {
+          "provider": {
             "services": {
               "selfClient": "TestService"
             }

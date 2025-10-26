@@ -19,7 +19,7 @@ export * from './errors/defaults';
 export * from './errors/preferences';
 export * from './errors/route';
 export * from './errors/handler';
-export * from './errors/context';
+export * from './errors/provider';
 export * from './errors/identity';
 export * from './errors/authorizer';
 export * from './errors/request';
