@@ -1,4 +1,5 @@
 import type { ServiceAnyEvent, ServiceBeginEvent, ServiceEndEvent, ServiceErrorEvent, ServiceReadyEvent, ServiceRequest } from './common';
+import type { ServiceContext } from '../richtypes/service';
 
 export namespace Service {
   export type AnyEvent<T extends ServiceRequest> = ServiceAnyEvent<T>;
@@ -11,6 +12,11 @@ export namespace Service {
    * Service events listener.
    */
   export type Listener<T extends ServiceRequest> = (event: AnyEvent<T>, context: Context<any>) => Promise<void> | void;
+
+  /**
+   * Produces a context for the given service provider `T`.
+   */
+  export type Context<T> = ServiceContext<T>;
 
   /**
    * Common interface for service providers.
@@ -26,16 +32,4 @@ export namespace Service {
      */
     client: unknown;
   }
-
-  /**
-   * Produces a context for the given service provider `T`.
-   */
-  export type Context<T> = {
-    [P in keyof ServiceList<T>]: ServiceList<T>[P] extends { client: infer U } ? U : never;
-  };
-
-  /**
-   * Given a service provider `T`, it returns all its provided service clients.
-   */
-  type ServiceList<T> = T extends { services: infer U } ? U : never;
 }

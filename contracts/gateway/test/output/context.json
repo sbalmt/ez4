@@ -1,0 +1,44 @@
+{
+  "TestService": {
+    "type": "@ez4/http",
+    "extras": {},
+    "name": "TestService",
+    "routes": [
+      {
+        "path": "ANY /test-route-a",
+        "handler": {
+          "name": "testRouteA",
+          "file": "test/input/output-context.ts",
+          "request": {},
+          "response": {
+            "status": 204
+          },
+          "context": {
+            "services": {
+              "selfClient": "TestService"
+            }
+          }
+        }
+      },
+      {
+        "path": "ANY /test-route-b",
+        "handler": {
+          "name": "testRouteB",
+          "file": "test/input/output-context.ts",
+          "request": {},
+          "response": {
+            "status": 204
+          },
+          "context": {
+            "services": {
+              "selfClient": "TestService"
+            }
+          }
+        }
+      }
+    ],
+    "services": {
+      "selfClient": "TestService"
+    }
+  }
+}

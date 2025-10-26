@@ -1,5 +1,5 @@
 import type { ArraySchema, NamingStyle, ObjectSchema, ScalarSchema, UnionSchema } from '@ez4/schema';
-import type { LinkedVariables } from '@ez4/project/library';
+import type { LinkedServices, LinkedVariables } from '@ez4/project/library';
 import type { ServiceListener } from '@ez4/common/library';
 
 export type HttpVerb = 'ANY' | 'GET' | 'POST' | 'PUT' | 'PATCH' | 'DELETE' | 'OPTIONS';
@@ -39,6 +39,7 @@ export type HttpHandler = {
   description?: string;
   response: HttpResponse;
   request?: HttpRequest;
+  context?: HttpContext;
   file: string;
   module?: string;
 };
@@ -94,4 +95,8 @@ export type HttpCors = {
   exposeHeaders?: string[];
   allowHeaders?: string[];
   maxAge?: number;
+};
+
+export type HttpContext = {
+  services?: LinkedServices;
 };

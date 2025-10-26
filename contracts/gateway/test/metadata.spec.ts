@@ -35,6 +35,7 @@ describe('http metadata', () => {
   it('assert :: service routes', () => testFile('route'));
   it('assert :: route authorizers', () => testFile('authorizer'));
   it('assert :: route listener', () => testFile('listener'));
+  it('assert :: route context', () => testFile('context'));
   it('assert :: route response', () => testFile('response'));
   it('assert :: route headers', () => testFile('headers'));
   it('assert :: route identity', () => testFile('identity'));
