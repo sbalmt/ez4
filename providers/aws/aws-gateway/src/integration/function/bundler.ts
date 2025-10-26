@@ -1,10 +1,9 @@
-import type { ExtraSource, LinkedServices } from '@ez4/project/library';
 import type { EntryState } from '@ez4/stateful';
 import type { IntegrationFunctionParameters } from './types';
 
 import { join } from 'node:path';
 
-import { getDefinitionsObject } from '@ez4/project/library';
+import { buildServiceContext, getDefinitionsObject } from '@ez4/project/library';
 import { getFunctionBundle } from '@ez4/aws-common';
 
 import { IntegrationServiceName } from '../types';
@@ -32,7 +31,7 @@ export const bundleApiFunction = async (parameters: IntegrationFunctionParameter
   const definitions = getDefinitionsObject(connections);
 
   return getFunctionBundle(IntegrationServiceName, {
-    extras: services && extras ? buildContext(extras, services) : extras,
+    extras: services && extras ? buildServiceContext(extras, services) : extras,
     templateFile: join(__MODULE_PATH, '../lib/handler.ts'),
     filePrefix: 'api',
     define: {
@@ -50,14 +49,4 @@ export const bundleApiFunction = async (parameters: IntegrationFunctionParameter
     listener,
     debug
   });
-};
-
-const buildContext = (extras: Record<string, ExtraSource>, services: LinkedServices) => {
-  const context: Record<string, ExtraSource> = {};
-
-  for (const serviceName in services) {
-    context[serviceName] = extras[serviceName];
-  }
-
-  return context;
 };

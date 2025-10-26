@@ -1,6 +1,6 @@
 import type { FunctionParameters } from '@ez4/aws-function';
 import type { HttpPreferences } from '@ez4/gateway/library';
-import type { ExtraSource } from '@ez4/project/library';
+import type { ExtraSource, LinkedServices } from '@ez4/project/library';
 import type { ObjectSchema } from '@ez4/schema';
 
 export type AuthorizerFunction = {
@@ -24,5 +24,6 @@ export type AuthorizerFunctionParameters = Omit<
   parametersSchema?: ObjectSchema | null;
   querySchema?: ObjectSchema | null;
   extras?: Record<string, ExtraSource>;
+  services?: LinkedServices | null;
   debug?: boolean;
 };

@@ -27,7 +27,7 @@ export type IntegrationFunctionParameters = Omit<
   bodySchema?: ObjectSchema | UnionSchema | ArraySchema | ScalarSchema | null;
   responseSchema?: ObjectSchema | UnionSchema | ArraySchema | ScalarSchema | null;
   errorsMap?: Record<string, number> | null;
-  services?: LinkedServices;
   extras?: Record<string, ExtraSource>;
+  services?: LinkedServices | null;
   debug?: boolean;
 };

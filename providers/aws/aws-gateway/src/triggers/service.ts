@@ -264,6 +264,7 @@ const getAuthorizerFunction = (
       querySchema: request?.query,
       timeout: Math.max(5, (timeout ?? Defaults.Timeout) - 1),
       memory: memory ?? Defaults.Memory,
+      services: service.services,
       extras: service.extras,
       debug: options.debug,
       tags: options.tags,
