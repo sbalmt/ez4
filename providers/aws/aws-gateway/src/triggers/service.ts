@@ -53,7 +53,7 @@ export const prepareHttpServices = (event: PrepareResourceEvent) => {
 export const connectHttpServices = (event: ConnectResourceEvent) => {
   const { state, service, options, context } = event;
 
-  if (!isHttpService(service) || !service.extras) {
+  if (!isHttpService(service)) {
     return;
   }
 

@@ -69,10 +69,6 @@ export const prepareScheduleTarget = (state: EntryStates, service: CronService, 
 };
 
 export const connectTarget = (state: EntryStates, service: CronService, options: DeployOptions, context: EventContext) => {
-  if (!service.extras) {
-    return;
-  }
-
   if (!context.role || !isRoleState(context.role)) {
     throw new RoleMissingError();
   }

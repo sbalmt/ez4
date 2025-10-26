@@ -92,10 +92,6 @@ export const connectSubscriptions = (
   options: DeployOptions,
   context: EventContext
 ) => {
-  if (!service.extras) {
-    return;
-  }
-
   if (!context.role || !isRoleState(context.role)) {
     throw new RoleMissingError();
   }
