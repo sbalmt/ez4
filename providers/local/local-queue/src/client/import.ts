@@ -27,7 +27,7 @@ export const createImportedClient = <T extends Queue.Service<any>>(
       setTimeout(() => postMessage(serviceName, queueHost, payload), delay * 1000);
     }
 
-    async receiveMessage(): Promise<T['schema'][]> {
+    receiveMessage(): Promise<T['schema'][]> {
       throw new Error(`Receive message isn't supported yet.`);
     }
   })();

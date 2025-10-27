@@ -19,6 +19,7 @@ export * from './errors/defaults';
 export * from './errors/preferences';
 export * from './errors/route';
 export * from './errors/handler';
+export * from './errors/provider';
 export * from './errors/identity';
 export * from './errors/authorizer';
 export * from './errors/request';
@@ -27,8 +28,9 @@ export * from './errors/headers';
 export * from './errors/parameters';
 export * from './errors/query';
 export * from './errors/body';
-export * from './errors/cors';
 export * from './errors/cache';
+export * from './errors/access';
+export * from './errors/cors';
 
 export * from './types/common';
 export * from './types/service';

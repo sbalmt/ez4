@@ -1,5 +1,5 @@
 import type { EntryState, EntryStates } from '@ez4/stateful';
-import type { ExtraSource, ServiceAliases, ServiceMetadata } from '../types/service';
+import type { ExtraSource, LinkedServices, ServiceAliases, ServiceMetadata } from '../types/service';
 import type { CommonOptions } from '../types/options';
 
 import { linkEntryConnection } from '@ez4/stateful';
@@ -54,4 +54,14 @@ export const linkServiceExtras = (state: EntryStates, entryId: string, extras: R
       linkEntryConnection(state, entryId, connectionId);
     });
   }
+};
+
+export const buildServiceContext = (extras: Record<string, ExtraSource>, services: LinkedServices) => {
+  const context: Record<string, ExtraSource> = {};
+
+  for (const serviceName in services) {
+    context[serviceName] = extras[serviceName];
+  }
+
+  return context;
 };

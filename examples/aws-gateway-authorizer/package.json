@@ -18,9 +18,9 @@
     "serve": "ez4 serve -e local.env"
   },
   "dependencies": {
-    "@ez4/aws-gateway": "^0.29.0",
-    "@ez4/gateway": "^0.29.0",
-    "@ez4/local-gateway": "^0.29.0",
-    "@ez4/project": "^0.29.0"
+    "@ez4/aws-gateway": "^0.30.0",
+    "@ez4/gateway": "^0.30.0",
+    "@ez4/local-gateway": "^0.30.0",
+    "@ez4/project": "^0.30.0"
   }
 }

@@ -16,6 +16,10 @@ export const isHttpService = (type: AllType): type is TypeClass => {
   return isClassDeclaration(type) && hasHeritageType(type, 'Http.Service');
 };
 
+export const isHttpProvider = (type: AllType): type is TypeModel => {
+  return isModelDeclaration(type) && hasHeritageType(type, 'Http.Provider');
+};
+
 export const isHttpRoute = (type: AllType): type is TypeModel => {
   return isModelDeclaration(type) && hasHeritageType(type, 'Http.Route');
 };
@@ -64,12 +68,16 @@ export const isJsonBody = (type: TypeModel) => {
   return hasHeritageType(type, 'Http.JsonBody');
 };
 
-export const isHttpCors = (type: TypeModel) => {
-  return hasHeritageType(type, 'Http.Cors');
-};
-
 export const isHttpCache = (type: TypeModel) => {
   return hasHeritageType(type, 'Http.Cache');
+};
+
+export const isHttpAccess = (type: TypeModel) => {
+  return hasHeritageType(type, 'Http.Access');
+};
+
+export const isHttpCors = (type: TypeModel) => {
+  return hasHeritageType(type, 'Http.Cors');
 };
 
 export const isHttpAuthorizer = (type: AllType): type is TypeCallback | TypeFunction => {

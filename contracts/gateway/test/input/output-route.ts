@@ -1,5 +1,4 @@
 import type { Http } from '@ez4/gateway';
-import type { SuccessResponse } from './common';
 
 export declare class TestService extends Http.Service {
   routes: [
@@ -15,7 +14,7 @@ export declare class TestService extends Http.Service {
   ];
 }
 
-export declare class TestRoute implements Http.Route {
+declare class TestRoute implements Http.Route {
   path: 'GET /test-route-2';
 
   handler: typeof testRoute2;
@@ -29,13 +28,13 @@ export declare class TestRoute implements Http.Route {
   };
 }
 
-export async function testRoute1(): Promise<SuccessResponse> {
+async function testRoute1(): Promise<Http.SuccessEmptyResponse> {
   return {
     status: 204
   };
 }
 
-export function testRoute2(): SuccessResponse {
+function testRoute2(): Http.SuccessEmptyResponse {
   return {
     status: 204
   };

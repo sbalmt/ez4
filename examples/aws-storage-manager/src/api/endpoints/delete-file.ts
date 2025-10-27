@@ -1,7 +1,7 @@
 import type { String } from '@ez4/schema';
 import type { Service } from '@ez4/common';
 import type { Http } from '@ez4/gateway';
-import type { Api } from '../../api';
+import type { ApiProvider } from '../../provider';
 
 import { HttpBadRequestError } from '@ez4/gateway';
 import { deleteFile } from '../repository';
@@ -28,7 +28,7 @@ declare class DeleteFileResponse implements Http.Response {
 /**
  * Handle delete file requests.
  */
-export async function deleteFileHandler(request: DeleteFileRequest, context: Service.Context<Api>): Promise<DeleteFileResponse> {
+export async function deleteFileHandler(request: DeleteFileRequest, context: Service.Context<ApiProvider>): Promise<DeleteFileResponse> {
   const { fileDb, fileStorage } = context;
   const { fileId } = request.parameters;
 

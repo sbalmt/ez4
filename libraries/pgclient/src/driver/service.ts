@@ -24,7 +24,7 @@ export type ClientContext = {
 const DatabasePools: Record<string, Pool> = {};
 
 export namespace Client {
-  export const make = async <T extends Database.Service>(context: ClientContext): Promise<DbClient<T>> => {
+  export const make = <T extends Database.Service>(context: ClientContext): DbClient<T> => {
     const { connection, repository, debug } = context;
     const { database } = connection;
 

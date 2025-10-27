@@ -18,3 +18,19 @@ export const getLogGroupName = (serviceName: string, resourceId: string, context
 
   return resource.groupName;
 };
+
+export const tryGetLogGroupArn = (context: StepContext) => {
+  const resources = context.getDependencies<LogGroupState>(LogGroupServiceType);
+
+  return resources.at(0)?.result?.groupArn;
+};
+
+export const getLogGroupArn = (serviceName: string, resourceId: string, context: StepContext) => {
+  const groupArn = tryGetLogGroupArn(context);
+
+  if (!groupArn) {
+    throw new IncompleteResourceError(serviceName, resourceId, 'groupArn');
+  }
+
+  return groupArn;
+};

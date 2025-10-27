@@ -10,8 +10,9 @@ export type ServiceClientOptions = ServeOptions & {
 
 export const createMockedClient = <T extends Topic.Message = any>(serviceName: string): Client<T> => {
   return new (class {
-    async sendMessage(_message: T) {
+    sendMessage(_message: T) {
       Logger.debug(`✉️  Sending message to topic [${serviceName}]`);
+      return Promise.resolve();
     }
   })();
 };

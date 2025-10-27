@@ -5,10 +5,11 @@ import type { Http } from '@ez4/gateway';
 
 import * as GatewayUtils from '@ez4/gateway/utils';
 
+import { HttpForbiddenError, HttpUnauthorizedError } from '@ez4/gateway';
 import { ServiceEventType } from '@ez4/common';
 
-type RequestEvent = APIGatewayRequestAuthorizerEventV2;
 type ResponseEvent = APIGatewaySimpleAuthorizerWithContextResult<any>;
+type RequestEvent = APIGatewayRequestAuthorizerEventV2;
 
 declare const __EZ4_HEADERS_SCHEMA: ObjectSchema | null;
 declare const __EZ4_PARAMETERS_SCHEMA: ObjectSchema | null;
@@ -50,10 +51,16 @@ export async function apiEntryPoint(event: RequestEvent, context: Context): Prom
   } catch (error) {
     await onError(error, request);
 
-    return {
-      isAuthorized: false,
-      context: undefined
-    };
+    if (error instanceof HttpForbiddenError) {
+      return { isAuthorized: false, context: undefined };
+    }
+
+    if (error instanceof HttpUnauthorizedError) {
+      throw 'Unauthorized';
+    }
+
+    throw error;
+    //
   } finally {
     await onEnd(request);
   }
@@ -111,7 +118,7 @@ const onReady = async (request: Http.Incoming<Http.AuthRequest>) => {
   );
 };
 
-const onError = async (error: Error, request: Http.Incoming<Http.AuthRequest>) => {
+const onError = async (error: unknown, request: Http.Incoming<Http.AuthRequest>) => {
   console.error(error);
 
   return dispatch(

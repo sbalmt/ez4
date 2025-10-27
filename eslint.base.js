@@ -7,11 +7,14 @@ export const eslintIgnore = {
 };
 
 export const eslintProject = {
-  languageOptions: {
-    parser: typescriptParser,
-    sourceType: 'module'
-  },
   files: ['src/**/*.ts'],
+  languageOptions: {
+    sourceType: 'module',
+    parser: typescriptParser,
+    parserOptions: {
+      projectService: true
+    }
+  },
   plugins: {
     '@typescript-eslint': typescriptPlugin,
     import: eslintImport
@@ -24,8 +27,10 @@ export const eslintProject = {
     }
   },
   rules: {
-    '@typescript-eslint/no-unused-vars': ['error', { argsIgnorePattern: '^_', varsIgnorePattern: '^_' }],
     '@typescript-eslint/consistent-type-imports': 'error',
+    '@typescript-eslint/no-unused-vars': ['error', { argsIgnorePattern: '^_', varsIgnorePattern: '^_' }],
+    '@typescript-eslint/return-await': ['error', 'in-try-catch'],
+    '@typescript-eslint/require-await': 'error',
     'import/no-extraneous-dependencies': 'error',
     'import/no-unresolved': 'error'
   }

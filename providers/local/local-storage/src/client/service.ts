@@ -16,7 +16,7 @@ export const createServiceClient = (serviceName: string, serveOptions: ServeOpti
     async exists(key: string) {
       const filePath = join(storageDirectory, key);
 
-      return existsSync(filePath);
+      return Promise.resolve(existsSync(filePath));
     }
 
     async write(key: string, contents: Content) {
@@ -46,11 +46,11 @@ export const createServiceClient = (serviceName: string, serveOptions: ServeOpti
     }
 
     async getWriteUrl(key: string): Promise<string> {
-      return `http://${serveOptions.serviceHost}/${storageIdentifier}/${key}`;
+      return Promise.resolve(`http://${serveOptions.serviceHost}/${storageIdentifier}/${key}`);
     }
 
     async getReadUrl(key: string): Promise<string> {
-      return `http://${serveOptions.serviceHost}/${storageIdentifier}/${key}`;
+      return Promise.resolve(`http://${serveOptions.serviceHost}/${storageIdentifier}/${key}`);
     }
 
     async getStats(key: string) {

@@ -14,7 +14,7 @@ import { getFunctionName, getInternalName, getMaxWaitForBatchSize } from './util
 import { RoleMissingError } from './errors';
 import { Defaults } from './defaults';
 
-export const prepareSubscriptions = async (
+export const prepareSubscriptions = (
   state: EntryStates,
   service: QueueService | QueueImport,
   queueState: QueueState,
@@ -92,10 +92,6 @@ export const connectSubscriptions = (
   options: DeployOptions,
   context: EventContext
 ) => {
-  if (!service.extras) {
-    return;
-  }
-
   if (!context.role || !isRoleState(context.role)) {
     throw new RoleMissingError();
   }

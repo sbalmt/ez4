@@ -1,6 +1,5 @@
 import type { NamingStyle } from '@ez4/schema';
 import type { Http } from '@ez4/gateway';
-import type { SuccessResponse } from './common';
 
 /**
  * Service for testing route authorizers.
@@ -41,7 +40,7 @@ declare class TestAuthResponse implements Http.AuthResponse {
   };
 }
 
-export function testQueryAuthorizer(request: TestQueryAuthRequest): TestAuthResponse {
+function testQueryAuthorizer(request: TestQueryAuthRequest): TestAuthResponse {
   if (request.query.apiKey !== 'test-token') {
     return { identity: undefined };
   }
@@ -53,7 +52,7 @@ export function testQueryAuthorizer(request: TestQueryAuthRequest): TestAuthResp
   };
 }
 
-export function testHeaderAuthorizer(request: TestHeaderAuthRequest): TestAuthResponse {
+function testHeaderAuthorizer(request: TestHeaderAuthRequest): TestAuthResponse {
   if (request.headers['x-api-key'] !== 'test-token') {
     return { identity: undefined };
   }
@@ -65,7 +64,7 @@ export function testHeaderAuthorizer(request: TestHeaderAuthRequest): TestAuthRe
   };
 }
 
-export function testHandler(): SuccessResponse {
+function testHandler(): Http.SuccessEmptyResponse {
   return {
     status: 204
   };

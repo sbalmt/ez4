@@ -19,6 +19,13 @@ export declare class Api extends Http.Service {
   };
 
   /**
+   * Access configuration.
+   */
+  access: {
+    logRetention: 14;
+  };
+
+  /**
    * All API routes.
    */
   routes: [...AllRoutes];

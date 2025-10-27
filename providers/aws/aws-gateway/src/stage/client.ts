@@ -1,3 +1,4 @@
+import type { Arn } from '@ez4/aws-common';
 import type { Variables } from '../types/variables';
 
 import {
@@ -6,6 +7,7 @@ import {
   CreateStageCommand,
   UpdateStageCommand,
   DeleteStageCommand,
+  DeleteAccessLogSettingsCommand,
   NotFoundException
 } from '@aws-sdk/client-apigatewayv2';
 
@@ -56,12 +58,14 @@ export const createStage = async (apiId: string, request: CreateRequest): Promis
     assertVariables(StageServiceName, request.stageVariables);
   }
 
+  const { stageName, stageVariables, autoDeploy } = request;
+
   const response = await client.send(
     new CreateStageCommand({
       ApiId: apiId,
-      StageName: request.stageName,
-      StageVariables: request.stageVariables,
-      AutoDeploy: request.autoDeploy
+      StageName: stageName,
+      StageVariables: stageVariables,
+      AutoDeploy: autoDeploy
     })
   );
 
@@ -85,6 +89,47 @@ export const updateStage = async (apiId: string, stageName: string, request: Par
       StageName: stageName,
       StageVariables: stageVariables,
       AutoDeploy: autoDeploy
+    })
+  );
+};
+
+export const enableAccessLogs = async (apiId: string, stageName: string, logGroupArn: Arn) => {
+  Logger.logAttach(StageServiceName, stageName, 'access logs');
+
+  await client.send(
+    new UpdateStageCommand({
+      ApiId: apiId,
+      StageName: stageName,
+      AccessLogSettings: {
+        DestinationArn: logGroupArn,
+        Format: JSON.stringify({
+          requestId: '$context.requestId',
+          timestamp: '$context.requestTimeEpoch',
+          protocol: '$context.protocol',
+          route: '$context.routeKey',
+          status: '$context.status',
+          errorMessage: '$context.error.message',
+          responseLength: '$context.responseLength',
+          authorizationError: '$context.authorizer.error',
+          integrationRequestId: '$context.integration.requestId',
+          integrationStatus: '$context.integration.status',
+          integrationError: '$context.integration.error',
+          integrationLatency: '$context.integration.latency',
+          userAgent: '$context.identity.userAgent',
+          ip: '$context.identity.sourceIp'
+        })
+      }
+    })
+  );
+};
+
+export const disableAccessLogs = async (apiId: string, stageName: string) => {
+  Logger.logDetach(StageServiceName, stageName, 'access logs');
+
+  await client.send(
+    new DeleteAccessLogSettingsCommand({
+      ApiId: apiId,
+      StageName: stageName
     })
   );
 };

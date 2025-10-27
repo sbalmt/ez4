@@ -13,7 +13,7 @@ export const processLambdaMessage = async (
   subscription: TopicLambdaSubscription,
   message: AnyObject
 ) => {
-  const lambdaModule = await createModule({
+  const module = await createModule({
     listener: subscription.listener,
     handler: subscription.handler,
     version: options.version,
@@ -24,29 +24,29 @@ export const processLambdaMessage = async (
     }
   });
 
-  const lambdaContext = service.services && context.makeClients(service.services);
+  const clients = service.services && context.makeClients(service.services);
 
   let currentRequest: Topic.Incoming<Topic.Message> | undefined;
 
-  const lambdaRequest = {
+  const request = {
     requestId: getRandomUUID()
   };
 
   try {
-    await onBegin(lambdaModule, lambdaContext, lambdaRequest);
+    await onBegin(module, clients, request);
 
     currentRequest = {
-      ...lambdaRequest,
+      ...request,
       message
     };
 
-    await onReady(lambdaModule, lambdaContext, currentRequest);
-    await lambdaModule.handler(currentRequest, lambdaContext);
+    await onReady(module, clients, currentRequest);
+    await module.handler(currentRequest, clients);
     //
   } catch (error) {
-    await onError(lambdaModule, lambdaContext, currentRequest ?? lambdaRequest, error);
+    await onError(module, clients, currentRequest ?? request, error);
     //
   } finally {
-    await onEnd(lambdaModule, lambdaContext, lambdaRequest);
+    await onEnd(module, clients, request);
   }
 };

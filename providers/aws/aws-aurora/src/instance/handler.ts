@@ -23,7 +23,7 @@ const equalsResource = (candidate: InstanceState, current: InstanceState) => {
   return !!candidate.result && candidate.result.instanceArn === current.result?.instanceArn;
 };
 
-const previewResource = async (candidate: InstanceState, current: InstanceState) => {
+const previewResource = (candidate: InstanceState, current: InstanceState) => {
   const target = { ...candidate.parameters, dependencies: candidate.dependencies };
   const source = { ...current.parameters, dependencies: current.dependencies };
 

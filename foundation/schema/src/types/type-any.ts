@@ -28,6 +28,6 @@ export const isAnySchema = (schema: AnyObject): schema is AnySchema => {
   return 'type' in schema && SchemaTypes.includes(schema.type);
 };
 
-export const IsNullishSchema = (schema: AnySchema) => {
+export const isNullishSchema = (schema: AnySchema) => {
   return schema.nullable || schema.optional;
 };

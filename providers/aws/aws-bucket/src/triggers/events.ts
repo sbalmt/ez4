@@ -72,7 +72,7 @@ export const prepareEvents = (state: EntryStates, service: BucketService, option
 };
 
 export const connectEvents = (state: EntryStates, service: BucketService, options: DeployOptions, context: EventContext) => {
-  if (!service.extras || !service.events) {
+  if (!service.events) {
     return;
   }
 

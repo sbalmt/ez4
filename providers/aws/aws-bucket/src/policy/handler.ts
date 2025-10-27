@@ -21,7 +21,7 @@ const equalsResource = (candidate: PolicyState, current: PolicyState) => {
   return !!candidate.result && candidate.result.bucketName === current.result?.bucketName;
 };
 
-const previewResource = async (candidate: PolicyState, current: PolicyState) => {
+const previewResource = (candidate: PolicyState, current: PolicyState) => {
   const target = { ...candidate.parameters, dependencies: candidate.dependencies };
   const source = { ...current.parameters, dependencies: current.dependencies };
 

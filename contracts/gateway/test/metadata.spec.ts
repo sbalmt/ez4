@@ -35,6 +35,7 @@ describe('http metadata', () => {
   it('assert :: service routes', () => testFile('route'));
   it('assert :: route authorizers', () => testFile('authorizer'));
   it('assert :: route listener', () => testFile('listener'));
+  it('assert :: route provider', () => testFile('provider'));
   it('assert :: route response', () => testFile('response'));
   it('assert :: route headers', () => testFile('headers'));
   it('assert :: route identity', () => testFile('identity'));
@@ -43,5 +44,6 @@ describe('http metadata', () => {
   it('assert :: route body', () => testFile('body'));
   it('assert :: route errors', () => testFile('errors'));
   it('assert :: route cache', () => testFile('cache'));
+  it('assert :: route access', () => testFile('access'));
   it('assert :: route cors', () => testFile('cors'));
 });

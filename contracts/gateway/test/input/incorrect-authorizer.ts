@@ -1,5 +1,4 @@
 import type { Http } from '@ez4/gateway';
-import type { SuccessResponse } from './common';
 
 // Missing Http.AuthRequest inheritance.
 interface TestAuthRequest {}
@@ -24,7 +23,7 @@ export function testAuthorizer(_request: TestAuthRequest): TestAuthResponse {
   };
 }
 
-export function testHandler(): SuccessResponse {
+export function testHandler(): Http.SuccessEmptyResponse {
   return {
     status: 204
   };

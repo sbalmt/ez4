@@ -2,11 +2,14 @@ import type { ObjectSchema, ObjectSchemaProperty } from '../types/type-object';
 import type { UnionSchema } from '../types/type-union';
 import type { ArraySchema } from '../types/type-array';
 import type { TupleSchema } from '../types/type-tuple';
+import type { EnumSchema } from '../types/type-enum';
 import type { AnySchema } from '../types/type-any';
 
-import { deepMerge } from '@ez4/utils';
+import { deepEqual, deepMerge, isAnyNumber, isAnyString } from '@ez4/utils';
 
 import { getObjectSchemaProperty, isObjectSchema } from '../types/type-object';
+import { isNumberSchema } from '../types/type-number';
+import { isStringSchema } from '../types/type-string';
 import { isUnionSchema } from '../types/type-union';
 import { SchemaType } from '../types/common';
 
@@ -26,33 +29,55 @@ export const hasSchemaProperty = (schema: AnySchema, property: string): boolean 
   return false;
 };
 
-export const getSchemaProperty = (schema: AnySchema, propertyName: string): ObjectSchemaProperty | UnionSchema | undefined => {
+export const getSchemaProperty = (schema: AnySchema, propertyName: string): ObjectSchemaProperty | UnionSchema | EnumSchema | undefined => {
   if (isObjectSchema(schema)) {
     return getObjectSchemaProperty(schema, propertyName);
   }
 
-  if (isUnionSchema(schema)) {
-    const elements = [];
-
-    for (const element of schema.elements) {
-      const property = getSchemaProperty(element, propertyName);
-
-      if (property) {
-        elements.push(property);
-      }
-    }
-
-    if (elements.length > 1) {
-      return {
-        type: SchemaType.Union,
-        elements
-      };
-    }
-
-    return elements[0];
+  if (!isUnionSchema(schema)) {
+    return undefined;
   }
 
-  return undefined;
+  const compounds: AnySchema[] = [];
+  const scalars = [];
+
+  for (const element of schema.elements) {
+    const property = getSchemaProperty(element, propertyName);
+
+    if (property) {
+      if (isStringSchema(property) && isAnyString(property.definitions?.value)) {
+        scalars.push(property);
+        continue;
+      }
+
+      if (isNumberSchema(property) && isAnyNumber(property.definitions?.value)) {
+        scalars.push(property);
+        continue;
+      }
+
+      if (!compounds.some((current) => deepEqual(current, property))) {
+        compounds.push(property);
+      }
+    }
+  }
+
+  if (compounds.length > 1) {
+    return {
+      type: SchemaType.Union,
+      elements: [...scalars, ...compounds]
+    };
+  }
+
+  if (scalars.length > 1) {
+    return {
+      type: SchemaType.Enum,
+      options: scalars.map(({ definitions }) => ({
+        value: definitions?.value!
+      }))
+    };
+  }
+
+  return compounds[0] ?? scalars[0];
 };
 
 export const getObjectSchemaProperties = (schema: ObjectSchema) => {

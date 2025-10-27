@@ -21,7 +21,7 @@ const equalsResource = (candidate: SubscriptionState, current: SubscriptionState
   return !!candidate.result && candidate.result.subscriptionArn === current.result?.subscriptionArn;
 };
 
-const previewResource = async (candidate: SubscriptionState, current: SubscriptionState) => {
+const previewResource = (candidate: SubscriptionState, current: SubscriptionState) => {
   const target = { ...candidate.parameters, dependencies: candidate.dependencies };
   const source = { ...current.parameters, dependencies: current.dependencies };
 

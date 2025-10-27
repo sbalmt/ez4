@@ -7,10 +7,9 @@ const getSourceType = (source: string) => {
   return isArn(source) ? 'AWS:SourceArn' : 'AWS:SourceAccount';
 };
 
-export const createRoleStatement = (grant: IdentityGrant, services: IdentityAccount[], source: string): RoleStatement => {
-  const sourceType = getSourceType(source);
-
+export const createRoleStatement = (grant: IdentityGrant, services: IdentityAccount[], source?: string): RoleStatement => {
   const principalServices = services.map(({ account }) => account);
+  const sourceType = source && getSourceType(source);
 
   const { permissions, resourceIds } = grant;
 
@@ -24,11 +23,13 @@ export const createRoleStatement = (grant: IdentityGrant, services: IdentityAcco
     Principal: {
       Service: principalServices.sort()
     },
-    Condition: {
-      StringEquals: {
-        [sourceType]: source
+    ...(sourceType && {
+      Condition: {
+        StringEquals: {
+          [sourceType]: source
+        }
       }
-    }
+    })
   };
 };
 

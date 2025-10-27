@@ -10,6 +10,7 @@ import {
   getModelMembers,
   getObjectMembers,
   getPropertyNumber,
+  getPropertyNumberList,
   getReferenceType
 } from '@ez4/common/library';
 
@@ -60,7 +61,7 @@ const isValidAuthResponse = (type: Incomplete<HttpAuthResponse>): type is HttpAu
 };
 
 const isValidHandlerResponse = (type: Incomplete<HttpResponse>): type is HttpResponse => {
-  return isAnyNumber(type.status);
+  return isAnyNumber(type.status) || Array.isArray(type.status);
 };
 
 const getTypeResponse = (type: AllType, parent: TypeModel, reflection: SourceMap, errorList: Error[], baseType: string) => {
@@ -101,7 +102,7 @@ const getTypeFromMembers = (
         break;
 
       case 'status':
-        response.status = getPropertyNumber(member);
+        response.status = getPropertyNumber(member) ?? getPropertyNumberList(member);
         break;
 
       case 'headers': {

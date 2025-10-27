@@ -21,7 +21,7 @@ const equalsResource = (candidate: GatewayState, current: GatewayState) => {
   return !!candidate.result && candidate.result.apiId === current.result?.apiId;
 };
 
-const previewResource = async (candidate: GatewayState, current: GatewayState) => {
+const previewResource = (candidate: GatewayState, current: GatewayState) => {
   const target = { ...candidate.parameters, dependencies: candidate.dependencies };
   const source = { ...current.parameters, dependencies: current.dependencies };
 
@@ -64,7 +64,8 @@ const updateResource = async (candidate: GatewayState, current: GatewayState) =>
 
   const { apiId, apiArn } = result;
 
-  await Promise.all([checkGeneralUpdates(apiId, parameters, current.parameters), checkTagUpdates(apiArn, parameters, current.parameters)]);
+  await checkGeneralUpdates(apiId, parameters, current.parameters);
+  await checkTagUpdates(apiArn, parameters, current.parameters);
 };
 
 const deleteResource = async (candidate: GatewayState) => {

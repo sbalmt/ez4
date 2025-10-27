@@ -9,7 +9,9 @@ import { InMemoryScheduler } from '../service/scheduler';
 export const createServiceClient = (serviceName: string, eventSchema: EventSchema): Client<any> => {
   return new (class {
     async getEvent(identifier: string) {
-      return InMemoryScheduler.getEvent(serviceName, identifier);
+      const event = InMemoryScheduler.getEvent(serviceName, identifier);
+
+      return Promise.resolve(event);
     }
 
     async createEvent(identifier: string, input: ScheduleEvent<any>) {
@@ -39,11 +41,11 @@ export const createServiceClient = (serviceName: string, eventSchema: EventSchem
     async deleteEvent(identifier: string) {
       if (InMemoryScheduler.deleteEvent(serviceName, identifier)) {
         Logger.debug(`ℹ️  Event ${identifier} deleted.`);
-        return true;
+        return Promise.resolve(true);
       }
 
       Logger.warn(`Event ${identifier} not found.`);
-      return false;
+      return Promise.resolve(false);
     }
   })();
 };

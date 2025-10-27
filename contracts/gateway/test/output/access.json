@@ -1,0 +1,11 @@
+{
+  "TestService": {
+    "type": "@ez4/http",
+    "extras": {},
+    "name": "TestService",
+    "routes": [],
+    "access": {
+      "logRetention": 2
+    }
+  }
+}

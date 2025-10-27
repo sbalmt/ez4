@@ -1,14 +1,4 @@
 import type { Http } from '@ez4/gateway';
-import type { SuccessResponse } from './common';
-
-class TestErrorA extends Error {}
-class TestErrorB extends Error {}
-class TestErrorC extends Error {}
-
-type TestErrorMap = {
-  404: [TestErrorA, TestErrorB];
-  422: [TestErrorC];
-};
 
 export declare class TestService extends Http.Service {
   routes: [
@@ -20,7 +10,16 @@ export declare class TestService extends Http.Service {
   ];
 }
 
-export function testRoute(): SuccessResponse {
+class TestErrorA extends Error {}
+class TestErrorB extends Error {}
+class TestErrorC extends Error {}
+
+type TestErrorMap = {
+  404: [TestErrorA, TestErrorB];
+  422: [TestErrorC];
+};
+
+function testRoute(): Http.SuccessEmptyResponse {
   return {
     status: 204
   };

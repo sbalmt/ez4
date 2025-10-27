@@ -148,7 +148,7 @@ const onReady = async (request: Database.Incoming<Database.Schema>) => {
   );
 };
 
-const onError = async (error: Error, request: Database.Request | Database.Incoming<Database.Schema>) => {
+const onError = async (error: unknown, request: Database.Request | Database.Incoming<Database.Schema>) => {
   console.error(error);
 
   return dispatch(

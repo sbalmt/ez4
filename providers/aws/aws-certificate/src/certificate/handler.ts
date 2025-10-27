@@ -21,7 +21,7 @@ const equalsResource = (candidate: CertificateState, current: CertificateState) 
   return !!candidate.result && candidate.result.certificateArn === current.result?.certificateArn;
 };
 
-const previewResource = async (candidate: CertificateState, current: CertificateState) => {
+const previewResource = (candidate: CertificateState, current: CertificateState) => {
   const target = { ...candidate.parameters, dependencies: candidate.dependencies };
   const source = { ...current.parameters, dependencies: current.dependencies };
 

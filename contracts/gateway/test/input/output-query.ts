@@ -1,12 +1,4 @@
 import type { Http } from '@ez4/gateway';
-import type { SuccessResponse } from './common';
-
-declare class TestRequest implements Http.Request {
-  query: {
-    foo: string;
-    bar: number;
-  };
-}
 
 export declare class TestService extends Http.Service {
   routes: [
@@ -21,13 +13,20 @@ export declare class TestService extends Http.Service {
   ];
 }
 
-export function testRouteA(_request: TestRequest): SuccessResponse {
+declare class TestRequest implements Http.Request {
+  query: {
+    foo: string;
+    bar: number;
+  };
+}
+
+function testRouteA(_request: TestRequest): Http.SuccessEmptyResponse {
   return {
     status: 204
   };
 }
 
-export function testRouteB(_request: Http.Incoming<TestRequest>): SuccessResponse {
+function testRouteB(_request: Http.Incoming<TestRequest>): Http.SuccessEmptyResponse {
   return {
     status: 204
   };

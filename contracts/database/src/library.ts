@@ -14,8 +14,8 @@ export * from './errors/indexes';
 export * from './errors/stream';
 export * from './errors/handler';
 
-export * from './services/indexes';
 export * from './services/relations';
+export * from './services/indexes';
 
 export * from './types/service';
 export * from './types/relations';

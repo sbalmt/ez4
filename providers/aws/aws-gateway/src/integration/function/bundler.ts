@@ -3,7 +3,7 @@ import type { IntegrationFunctionParameters } from './types';
 
 import { join } from 'node:path';
 
-import { getDefinitionsObject } from '@ez4/project/library';
+import { buildServiceContext, getDefinitionsObject } from '@ez4/project/library';
 import { getFunctionBundle } from '@ez4/aws-common';
 
 import { IntegrationServiceName } from '../types';
@@ -13,6 +13,7 @@ declare const __MODULE_PATH: string;
 
 export const bundleApiFunction = async (parameters: IntegrationFunctionParameters, connections: EntryState[]) => {
   const {
+    services,
     extras,
     debug,
     handler,
@@ -30,6 +31,7 @@ export const bundleApiFunction = async (parameters: IntegrationFunctionParameter
   const definitions = getDefinitionsObject(connections);
 
   return getFunctionBundle(IntegrationServiceName, {
+    extras: services && extras ? buildServiceContext(extras, services) : extras,
     templateFile: join(__MODULE_PATH, '../lib/handler.ts'),
     filePrefix: 'api',
     define: {
@@ -45,7 +47,6 @@ export const bundleApiFunction = async (parameters: IntegrationFunctionParameter
     },
     handler,
     listener,
-    extras,
     debug
   });
 };

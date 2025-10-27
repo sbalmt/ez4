@@ -1,6 +1,8 @@
 import type { Http } from '@ez4/gateway';
 import type { AuthorizerResponse } from '../types';
 
+import { HttpUnauthorizedError } from '@ez4/gateway';
+
 const SUPER_SECRET_API_KEY = 'query-api-key';
 
 /**
@@ -19,9 +21,7 @@ export function queryAuthorizer(request: QueryAuthorizer): AuthorizerResponse {
   const { query } = request;
 
   if (query.apiKey !== SUPER_SECRET_API_KEY) {
-    return {
-      identity: undefined
-    };
+    throw new HttpUnauthorizedError();
   }
 
   return {

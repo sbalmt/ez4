@@ -1,5 +1,5 @@
 import type { ArraySchema, NamingStyle, ObjectSchema, ScalarSchema, UnionSchema } from '@ez4/schema';
-import type { LinkedVariables } from '@ez4/project/library';
+import type { LinkedServices, LinkedVariables } from '@ez4/project/library';
 import type { ServiceListener } from '@ez4/common/library';
 
 export type HttpVerb = 'ANY' | 'GET' | 'POST' | 'PUT' | 'PATCH' | 'DELETE' | 'OPTIONS';
@@ -29,18 +29,19 @@ export type HttpRequest = {
 };
 
 export type HttpResponse = {
-  status: number;
+  status: number | number[];
   headers?: ObjectSchema | null;
   body?: ObjectSchema | UnionSchema | ArraySchema | ScalarSchema | null;
 };
 
 export type HttpHandler = {
   name: string;
+  file: string;
+  module?: string;
   description?: string;
   response: HttpResponse;
   request?: HttpRequest;
-  file: string;
-  module?: string;
+  provider?: HttpProvider;
 };
 
 export type HttpAuthorizer = {
@@ -83,6 +84,10 @@ export type HttpCache = {
   authorizerTTL?: number;
 };
 
+export type HttpAccess = {
+  logRetention: number;
+};
+
 export type HttpCors = {
   allowOrigins: string[];
   allowMethods?: string[];
@@ -90,4 +95,8 @@ export type HttpCors = {
   exposeHeaders?: string[];
   allowHeaders?: string[];
   maxAge?: number;
+};
+
+export type HttpProvider = {
+  services?: LinkedServices;
 };

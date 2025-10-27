@@ -59,7 +59,7 @@ export const prepareUpdateQuery = async <T extends InternalTableMetadata, S exte
     }
   }
 
-  const postUpdateQueries = await preparePostUpdateRelations(builder, query.data, relations, updateQuery, table);
+  const postUpdateQueries = preparePostUpdateRelations(builder, query.data, relations, updateQuery, table);
 
   allQueries.push(updateQuery, ...postUpdateQueries);
 
@@ -165,7 +165,7 @@ export const getUpdateRecord = async (
   return record;
 };
 
-const preparePostUpdateRelations = async (
+const preparePostUpdateRelations = (
   builder: SqlBuilder,
   data: SqlRecord,
   relations: PgRelationRepositoryWithSchema,
