@@ -19,17 +19,17 @@
     "test": "ez4 test -e local.env"
   },
   "dependencies": {
-    "@ez4/aws-bucket": "^0.29.0",
-    "@ez4/aws-dynamodb": "^0.29.0",
-    "@ez4/aws-gateway": "^0.29.0",
-    "@ez4/common": "^0.29.0",
-    "@ez4/database": "^0.29.0",
-    "@ez4/gateway": "^0.29.0",
-    "@ez4/local-database": "^0.29.0",
-    "@ez4/local-gateway": "^0.29.0",
-    "@ez4/local-storage": "^0.29.0",
-    "@ez4/project": "^0.29.0",
-    "@ez4/schema": "^0.29.0",
-    "@ez4/storage": "^0.29.0"
+    "@ez4/aws-bucket": "^0.30.0",
+    "@ez4/aws-dynamodb": "^0.30.0",
+    "@ez4/aws-gateway": "^0.30.0",
+    "@ez4/common": "^0.30.0",
+    "@ez4/database": "^0.30.0",
+    "@ez4/gateway": "^0.30.0",
+    "@ez4/local-database": "^0.30.0",
+    "@ez4/local-gateway": "^0.30.0",
+    "@ez4/local-storage": "^0.30.0",
+    "@ez4/project": "^0.30.0",
+    "@ez4/schema": "^0.30.0",
+    "@ez4/storage": "^0.30.0"
   }
 }

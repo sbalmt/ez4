@@ -1,7 +1,7 @@
 {
   "name": "@ez4/aws-dynamodb",
   "description": "EZ4: Self-managed AWS DynamoDB provider",
-  "version": "0.29.0",
+  "version": "0.30.0",
   "author": "Silas B.",
   "license": "MIT",
   "type": "module",
@@ -58,17 +58,17 @@
     "@aws-sdk/client-dynamodb": "^3.913.0",
     "@aws-sdk/lib-dynamodb": "^3.913.0",
     "@aws-sdk/util-dynamodb": "^3.913.0",
-    "@ez4/aws-common": "^0.29.0",
-    "@ez4/aws-function": "^0.29.0",
-    "@ez4/aws-identity": "^0.29.0",
-    "@ez4/aws-logs": "^0.29.0",
-    "@ez4/common": "^0.29.0",
-    "@ez4/database": "^0.29.0",
-    "@ez4/project": "^0.29.0",
-    "@ez4/schema": "^0.29.0",
-    "@ez4/stateful": "^0.29.0",
-    "@ez4/transform": "^0.29.0",
-    "@ez4/utils": "^0.29.0",
-    "@ez4/validator": "^0.29.0"
+    "@ez4/aws-common": "^0.30.0",
+    "@ez4/aws-function": "^0.30.0",
+    "@ez4/aws-identity": "^0.30.0",
+    "@ez4/aws-logs": "^0.30.0",
+    "@ez4/common": "^0.30.0",
+    "@ez4/database": "^0.30.0",
+    "@ez4/project": "^0.30.0",
+    "@ez4/schema": "^0.30.0",
+    "@ez4/stateful": "^0.30.0",
+    "@ez4/transform": "^0.30.0",
+    "@ez4/utils": "^0.30.0",
+    "@ez4/validator": "^0.30.0"
   }
 }

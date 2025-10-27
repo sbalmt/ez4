@@ -1,7 +1,7 @@
 {
   "name": "@ez4/topic",
   "description": "EZ4: Components to build topic services",
-  "version": "0.29.0",
+  "version": "0.30.0",
   "author": "Silas B.",
   "license": "MIT",
   "type": "module",
@@ -51,13 +51,13 @@
     "live:publish": "npm run build && npm publish --access public"
   },
   "dependencies": {
-    "@ez4/common": "^0.29.0",
-    "@ez4/project": "^0.29.0",
-    "@ez4/queue": "^0.29.0",
-    "@ez4/reflection": "^0.29.0",
-    "@ez4/schema": "^0.29.0",
-    "@ez4/transform": "^0.29.0",
-    "@ez4/utils": "^0.29.0",
-    "@ez4/validator": "^0.29.0"
+    "@ez4/common": "^0.30.0",
+    "@ez4/project": "^0.30.0",
+    "@ez4/queue": "^0.30.0",
+    "@ez4/reflection": "^0.30.0",
+    "@ez4/schema": "^0.30.0",
+    "@ez4/transform": "^0.30.0",
+    "@ez4/utils": "^0.30.0",
+    "@ez4/validator": "^0.30.0"
   }
 }
