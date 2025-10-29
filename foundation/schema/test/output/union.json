@@ -18,6 +18,21 @@
         }
       ]
     },
+    "group": {
+      "type": "union",
+      "description": "Union property group.",
+      "elements": [
+        {
+          "type": "number"
+        },
+        {
+          "type": "string"
+        },
+        {
+          "type": "boolean"
+        }
+      ]
+    },
     "nullable": {
       "type": "union",
       "description": "Nullable property.",
