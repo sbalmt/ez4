@@ -3,7 +3,7 @@ import type { HttpService } from '@ez4/gateway/library';
 import type { Http } from '@ez4/gateway';
 import type { MatchingRoute } from '../utils/route';
 
-import { createModule, onBegin, onEnd, onError, onReady } from '@ez4/local-common';
+import { createModule, onBegin, onReady, onDone, onError, onEnd } from '@ez4/local-common';
 import { getRandomUUID } from '@ez4/utils';
 
 import { getIncomingRequestHeaders, getIncomingRequestParameters, getIncomingRequestQuery } from '../utils/request';
@@ -51,6 +51,8 @@ export const processHttpAuthorization = async (
     await onReady(module, clients, request);
 
     const { identity } = await module.handler<Http.AuthResponse>(request, clients);
+
+    await onDone(module, clients, request);
 
     return identity;
     //

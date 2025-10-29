@@ -15,6 +15,10 @@ export function apiListener(event: Http.ServiceEvent) {
       console.log('Request ready', event.request);
       break;
 
+    case ServiceEventType.Done:
+      console.log('Event done', event.request);
+      break;
+
     case ServiceEventType.Error:
       console.log('Request error', event.request);
       break;

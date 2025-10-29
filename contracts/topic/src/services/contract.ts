@@ -23,6 +23,7 @@ export namespace Topic {
   export type ServiceEvent<T extends Message = Message> =
     | CommonService.BeginEvent<Request>
     | CommonService.ReadyEvent<Incoming<T>>
+    | CommonService.DoneEvent<Incoming<T>>
     | CommonService.ErrorEvent<Request | Incoming<T>>
     | CommonService.EndEvent<Request>;
 

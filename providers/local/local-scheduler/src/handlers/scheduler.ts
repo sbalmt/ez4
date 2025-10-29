@@ -2,7 +2,7 @@ import type { EmulateServiceContext, ServeOptions } from '@ez4/project/library';
 import type { CronService } from '@ez4/scheduler/library';
 import type { Cron } from '@ez4/scheduler';
 
-import { createModule, onBegin, onEnd, onError, onReady } from '@ez4/local-common';
+import { createModule, onBegin, onReady, onDone, onError, onEnd } from '@ez4/local-common';
 import { getRandomUUID } from '@ez4/utils';
 
 export const processSchedulerEvent = async (
@@ -34,11 +34,13 @@ export const processSchedulerEvent = async (
   try {
     await onBegin(module, clients, request);
 
-    if ((request.event = event) !== null) {
-      await onReady(module, clients, request);
+    if (service.schema) {
+      request.event = event;
     }
 
+    await onReady(module, clients, request);
     await module.handler(request, clients);
+    await onDone(module, clients, request);
     //
   } catch (error) {
     await onError(module, clients, request, error);

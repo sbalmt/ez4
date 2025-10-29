@@ -24,6 +24,16 @@ export const onReady = (module: VirtualModule, context: EmulatorServiceClients |
   );
 };
 
+export const onDone = (module: VirtualModule, context: EmulatorServiceClients | null | undefined, request: unknown) => {
+  return module.listener?.(
+    {
+      type: ServiceEventType.Done,
+      request
+    },
+    context
+  );
+};
+
 export const onError = (module: VirtualModule, context: EmulatorServiceClients | null | undefined, request: unknown, error: unknown) => {
   Logger.error(`${error}`);
 

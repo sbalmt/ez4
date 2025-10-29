@@ -3,7 +3,7 @@ import type { HttpService } from '@ez4/gateway/library';
 import type { Http } from '@ez4/gateway';
 import type { MatchingRoute } from '../utils/route';
 
-import { createModule, onBegin, onEnd, onError, onReady } from '@ez4/local-common';
+import { createModule, onBegin, onReady, onDone, onError, onEnd } from '@ez4/local-common';
 import { getRandomUUID } from '@ez4/utils';
 
 import { getErrorResponse, getSuccessResponse } from '../utils/response';
@@ -60,6 +60,8 @@ export const processHttpRequest = async (
 
     const response = await module.handler<Http.Response>(request, clients);
     const preferences = route.preferences;
+
+    await onDone(module, clients, request);
 
     return getSuccessResponse(route.handler.response, response, preferences);
     //
