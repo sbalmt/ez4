@@ -37,7 +37,7 @@ export const processHttpRequest = async (
   const services = route.handler.provider?.services;
   const clients = services && context.makeClients(services);
 
-  const lambdaRequest: Http.Incoming<Http.Request> = {
+  const request: Http.Incoming<Http.Request> = {
     requestId: getRandomUUID(),
     timestamp: new Date(),
     method: route.method,
@@ -46,25 +46,25 @@ export const processHttpRequest = async (
   };
 
   try {
-    await onBegin(module, clients, lambdaRequest);
+    await onBegin(module, clients, request);
 
     if (route.handler.request) {
-      Object.assign(lambdaRequest, await getIncomingRequestIdentity(route.handler.request, identity));
-      Object.assign(lambdaRequest, await getIncomingRequestHeaders(route.handler.request, route));
-      Object.assign(lambdaRequest, await getIncomingRequestParameters(route.handler.request, route));
-      Object.assign(lambdaRequest, await getIncomingRequestQuery(route.handler.request, route));
-      Object.assign(lambdaRequest, await getIncomingRequestBody(route.handler.request, route));
+      Object.assign(request, await getIncomingRequestIdentity(route.handler.request, identity));
+      Object.assign(request, await getIncomingRequestHeaders(route.handler.request, route));
+      Object.assign(request, await getIncomingRequestParameters(route.handler.request, route));
+      Object.assign(request, await getIncomingRequestQuery(route.handler.request, route));
+      Object.assign(request, await getIncomingRequestBody(route.handler.request, route));
     }
 
-    await onReady(module, clients, lambdaRequest);
+    await onReady(module, clients, request);
 
-    const response = await module.handler<Http.Response>(lambdaRequest, clients);
+    const response = await module.handler<Http.Response>(request, clients);
     const preferences = route.preferences;
 
     return getSuccessResponse(route.handler.response, response, preferences);
     //
   } catch (error) {
-    await onError(module, clients, lambdaRequest, error);
+    await onError(module, clients, request, error);
 
     if (!(error instanceof Error)) {
       return getErrorResponse();
@@ -76,6 +76,6 @@ export const processHttpRequest = async (
     });
     //
   } finally {
-    await onEnd(module, clients, lambdaRequest);
+    await onEnd(module, clients, request);
   }
 };
