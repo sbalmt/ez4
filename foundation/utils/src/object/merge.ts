@@ -8,13 +8,21 @@ import { isAnyObject, isPlainObject } from './check';
 export type MergeOptions<T extends AnyObject> = {
   /**
    * After the given depth level, all objects and arrays are not deeply merged.
+   * Default is: `+Infinite`
    */
   depth?: number;
 
   /**
    * Determines whether or not to combine arrays.
+   * Default is: `false`
    */
   array?: boolean;
+
+  /**
+   * Determines whether replace existing properties in target.
+   * Default is: `true`
+   */
+  replace?: boolean;
 
   /**
    * Determines which property must be excluded, all other properties are included.
@@ -65,6 +73,7 @@ export const deepMerge = <T extends AnyObject, S extends AnyObject, O extends Me
   const allKeys = new Set([...Object.keys(target), ...Object.keys(source)]);
 
   const depth = options?.depth ?? +Infinity;
+  const replace = options?.replace ?? true;
   const array = options?.array ?? false;
 
   const object: AnyObject = {};
@@ -79,16 +88,12 @@ export const deepMerge = <T extends AnyObject, S extends AnyObject, O extends Me
     const targetValue = target[key];
     const sourceValue = source[key];
 
-    if (array && Array.isArray(sourceValue) && Array.isArray(targetValue)) {
-      object[key] = [...sourceValue, ...targetValue];
-      continue;
-    }
-
     if (isPlainObject(targetValue) && isPlainObject(sourceValue)) {
       if (depth > 0) {
         object[key] = deepMerge(targetValue, sourceValue, {
           ...(isAnyObject(keyState) && (isInclude ? { include: keyState } : { exclude: keyState })),
           depth: depth - 1,
+          replace,
           array
         });
 
@@ -100,6 +105,16 @@ export const deepMerge = <T extends AnyObject, S extends AnyObject, O extends Me
         ...targetValue
       };
 
+      continue;
+    }
+
+    if (targetValue !== undefined && !replace) {
+      object[key] = targetValue;
+      continue;
+    }
+
+    if (array && Array.isArray(sourceValue) && Array.isArray(targetValue)) {
+      object[key] = [...sourceValue, ...targetValue];
       continue;
     }
 
