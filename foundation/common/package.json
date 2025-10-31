@@ -22,6 +22,11 @@
       "require": "./dist/main.cjs",
       "import": "./dist/main.mjs"
     },
+    "./client": {
+      "types": "./dist/client.d.ts",
+      "require": "./dist/client.cjs",
+      "import": "./dist/client.mjs"
+    },
     "./library": {
       "types": "./dist/library.d.ts",
       "require": "./dist/library.cjs",

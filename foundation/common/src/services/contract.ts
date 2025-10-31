@@ -1,4 +1,4 @@
-import type { ServiceContext } from '../richtypes/service';
+import type { Service as RichService } from '../richtypes/service';
 
 import type {
   ServiceAnyEvent,
@@ -26,7 +26,7 @@ export namespace Service {
   /**
    * Produces a context for the given service provider `T`.
    */
-  export type Context<T> = ServiceContext<T>;
+  export type Context<T> = RichService.Context<T>;
 
   /**
    * Common interface for service providers.
