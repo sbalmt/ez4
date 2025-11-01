@@ -1,11 +1,11 @@
 import type { ConnectResourceEvent, PrepareResourceEvent, ServiceEvent } from '@ez4/project/library';
 
-import { isTopicImport } from '@ez4/topic/library';
+import { MissingImportedProjectError } from '@ez4/project/library';
 import { getServiceName } from '@ez4/project/library';
+import { isTopicImport } from '@ez4/topic/library';
 
 import { createTopic } from '../topic/service';
 import { connectSubscriptions, prepareSubscriptions } from './subscription';
-import { ProjectMissingError } from './errors';
 import { prepareLinkedClient } from './client';
 
 export const prepareLinkedImports = (event: ServiceEvent) => {
@@ -19,7 +19,7 @@ export const prepareLinkedImports = (event: ServiceEvent) => {
   const { imports } = options;
 
   if (!imports || !imports[project]) {
-    throw new ProjectMissingError(project);
+    throw new MissingImportedProjectError(project);
   }
 
   return prepareLinkedClient(context, service, imports[project]);
@@ -36,7 +36,7 @@ export const prepareImports = (event: PrepareResourceEvent) => {
   const { imports } = options;
 
   if (!imports || !imports[project]) {
-    throw new ProjectMissingError(project);
+    throw new MissingImportedProjectError(project);
   }
 
   const topicState = createTopic(state, {

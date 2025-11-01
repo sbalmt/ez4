@@ -1,10 +1,10 @@
 import type { ConnectResourceEvent, PrepareResourceEvent, ServiceEvent } from '@ez4/project/library';
 
+import { MissingImportedProjectError } from '@ez4/project/library';
 import { isQueueImport } from '@ez4/queue/library';
 
 import { createQueue } from '../queue/service';
 import { connectSubscriptions, prepareSubscriptions } from './subscription';
-import { ProjectMissingError } from './errors';
 import { prepareLinkedClient } from './client';
 import { getQueueName } from './utils';
 
@@ -19,7 +19,7 @@ export const prepareLinkedImports = (event: ServiceEvent) => {
   const { imports } = options;
 
   if (!imports || !imports[project]) {
-    throw new ProjectMissingError(project);
+    throw new MissingImportedProjectError(project);
   }
 
   return prepareLinkedClient(context, service, imports[project]);
@@ -36,7 +36,7 @@ export const prepareImports = (event: PrepareResourceEvent) => {
   const { imports } = options;
 
   if (!imports || !imports[project]) {
-    throw new ProjectMissingError(project);
+    throw new MissingImportedProjectError(project);
   }
 
   const queueState = createQueue(state, undefined, {
