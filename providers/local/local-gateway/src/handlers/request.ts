@@ -23,6 +23,9 @@ export const processHttpRequest = async (
   route: MatchingRoute,
   identity?: Http.Identity
 ) => {
+  const provider = route.handler.provider;
+  const clients = provider?.services && context.makeClients(provider.services);
+
   const module = await createModule({
     listener: route.listener ?? service.defaults?.listener,
     handler: route.handler,
@@ -30,12 +33,10 @@ export const processHttpRequest = async (
     variables: {
       ...options.variables,
       ...service.variables,
-      ...route.variables
+      ...route.variables,
+      ...provider?.variables
     }
   });
-
-  const services = route.handler.provider?.services;
-  const clients = services && context.makeClients(services);
 
   const request: Http.Incoming<Http.Request> = {
     requestId: getRandomUUID(),

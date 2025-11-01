@@ -13,6 +13,10 @@
           "provider": {
             "services": {
               "selfSettings": "@variables"
+            },
+            "variables": {
+              "TEST_VAR1": "test-literal-value",
+              "TEST_VAR2": "test-env-var-value"
             }
           },
           "response": {

@@ -18,6 +18,9 @@ export const processHttpAuthorization = async (
     return undefined;
   }
 
+  const provider = route.handler.provider;
+  const clients = provider?.services && context.makeClients(provider.services);
+
   const module = await createModule({
     listener: route.listener ?? service.defaults?.listener,
     handler: route.authorizer,
@@ -25,12 +28,10 @@ export const processHttpAuthorization = async (
     variables: {
       ...options.variables,
       ...service.variables,
-      ...route.variables
+      ...route.variables,
+      ...provider?.variables
     }
   });
-
-  const services = route.handler.provider?.services;
-  const clients = services && context.makeClients(services);
 
   const request: Http.Incoming<Http.AuthRequest> = {
     requestId: getRandomUUID(),

@@ -141,7 +141,7 @@ const getIntegrationFunction = (
     memory = defaults.memory
   } = route;
 
-  const { request, response } = handler;
+  const { provider, request, response } = handler;
 
   const internalName = getInternalName(service, handler.name);
 
@@ -168,7 +168,7 @@ const getIntegrationFunction = (
       responseSchema: response.body,
       timeout: Math.max(5, (timeout ?? Defaults.Timeout) - 1),
       memory: memory ?? Defaults.Memory,
-      services: handler.provider?.services,
+      services: provider?.services,
       extras: service.extras,
       debug: options.debug,
       tags: options.tags,
@@ -202,6 +202,10 @@ const getIntegrationFunction = (
 
   if (route.variables) {
     assignVariables(handlerState.parameters, route.variables);
+  }
+
+  if (provider?.variables) {
+    assignVariables(handlerState.parameters, provider.variables);
   }
 
   return (
