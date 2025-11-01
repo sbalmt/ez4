@@ -1,7 +1,7 @@
 import type { TopicImport, TopicLambdaSubscription, TopicService } from '@ez4/topic/library';
 import type { EmulateServiceContext, ServeOptions } from '@ez4/project/library';
-import type { Topic } from '@ez4/topic';
 import type { AnyObject } from '@ez4/utils';
+import type { Topic } from '@ez4/topic';
 
 import { createModule, onBegin, onReady, onDone, onError, onEnd } from '@ez4/local-common';
 import { getRandomUUID } from '@ez4/utils';

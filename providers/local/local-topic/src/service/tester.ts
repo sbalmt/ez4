@@ -5,7 +5,7 @@ import { Tester } from '@ez4/project/library';
 
 import { mock } from 'node:test';
 
-import { createMockedClient } from '../client/mock';
+import { createMockClient } from '../client/mock';
 
 export namespace TopicTester {
   export type ClientMock = Client<any> & {
@@ -17,7 +17,7 @@ export namespace TopicTester {
   };
 
   export const getClientMock = (resourceName?: string) => {
-    const client = createMockedClient(resourceName ?? 'TopicMock');
+    const client = createMockClient(resourceName ?? 'TopicMock');
 
     mock.method(client, 'sendMessage');
 

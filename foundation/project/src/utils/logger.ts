@@ -93,7 +93,7 @@ export namespace Logger {
       return;
     }
 
-    const warnMessage = toRed(`[EZ4]: ⚠️ ${message}`);
+    const warnMessage = toRed(`[EZ4]: ⚠️  ${message}`);
 
     if (Context.capture === 0) {
       process.stderr.write(`${warnMessage}\n`);
