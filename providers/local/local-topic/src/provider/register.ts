@@ -3,7 +3,7 @@ import type { EmulateServiceEvent } from '@ez4/project/library';
 import { isTopicImport, isTopicService, registerTriggers as registerTopicTriggers } from '@ez4/topic/library';
 import { createTrigger } from '@ez4/project/library';
 
-import { registerRemoteService } from './remote';
+import { registerRemoteServices } from './remote';
 import { registerLocalServices } from './local';
 
 let isRegistered = false;
@@ -22,7 +22,7 @@ export const registerTriggers = () => {
       }
 
       if (isTopicImport(service)) {
-        return registerRemoteService(service, options, context);
+        return registerRemoteServices(service, options, context);
       }
 
       return null;

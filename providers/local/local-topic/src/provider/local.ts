@@ -32,12 +32,12 @@ export const registerLocalServices = (service: TopicService, options: ServeOptio
       return createLocalClient(serviceName, messageSchema, clientOptions);
     },
     requestHandler: (request: EmulatorServiceRequest) => {
-      return processTopicRequest(service, options, context, request);
+      return handleTopicRequest(service, options, context, request);
     }
   };
 };
 
-const processTopicRequest = async (
+const handleTopicRequest = async (
   service: TopicService,
   options: ServeOptions,
   context: EmulateServiceContext,
@@ -51,20 +51,20 @@ const processTopicRequest = async (
 
   switch (path) {
     case '/':
-      return processMessageRequest(service, options, context, body.toString());
+      return handleMessageRequest(service, options, context, body.toString());
 
     case '/unsubscribe':
-      return processUnsubscribeRequest(service, body.toString());
+      return handleUnsubscribeRequest(service, body.toString());
 
     case '/subscribe':
-      return processSubscribeRequest(service, body.toString());
+      return handleSubscribeRequest(service, body.toString());
 
     default:
       throw new Error('Unsupported topic operation.');
   }
 };
 
-const processMessageRequest = async (service: TopicService, options: ServeOptions, context: EmulateServiceContext, body: string) => {
+const handleMessageRequest = async (service: TopicService, options: ServeOptions, context: EmulateServiceContext, body: string) => {
   try {
     const jsonMessage = JSON.parse(body.toString());
     const safeMessage = await getJsonMessage(jsonMessage, service.schema);
@@ -85,7 +85,7 @@ const processMessageRequest = async (service: TopicService, options: ServeOption
   }
 };
 
-const processSubscribeRequest = (service: TopicService, body: string) => {
+const handleSubscribeRequest = (service: TopicService, body: string) => {
   const { serviceName, serviceHost } = JSON.parse(body);
 
   InMemoryTopic.createSubscription(service.name, serviceName, {
@@ -96,7 +96,7 @@ const processSubscribeRequest = (service: TopicService, body: string) => {
   return getResponseSuccess(204);
 };
 
-const processUnsubscribeRequest = (service: TopicService, body: string) => {
+const handleUnsubscribeRequest = (service: TopicService, body: string) => {
   const { serviceName } = JSON.parse(body);
 
   InMemoryTopic.deleteSubscription(service.name, serviceName);

@@ -5,14 +5,14 @@ import type { MessageSchema } from '@ez4/queue/utils';
 import { getServiceName, Logger } from '@ez4/project/library';
 import { getJsonStringMessage } from '@ez4/queue/utils';
 
-export type ImportedClientOptions = CommonOptions & {
+export type RemoteClientOptions = CommonOptions & {
   serviceHost: string;
 };
 
-export const createImportedClient = <T extends Queue.Service<any>>(
+export const createRemoteClient = <T extends Queue.Service<any>>(
   serviceName: string,
   messageSchema: MessageSchema,
-  clientOptions: ImportedClientOptions
+  clientOptions: RemoteClientOptions
 ): Client<T> => {
   const queueIdentifier = getServiceName(serviceName, clientOptions);
   const queueHost = `http://${clientOptions.serviceHost}/${queueIdentifier}`;
