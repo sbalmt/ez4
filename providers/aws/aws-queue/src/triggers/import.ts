@@ -25,7 +25,7 @@ export const prepareLinkedImports = (event: ServiceEvent) => {
   return prepareLinkedClient(context, service, imports[project]);
 };
 
-export const prepareImports = async (event: PrepareResourceEvent) => {
+export const prepareImports = (event: PrepareResourceEvent) => {
   const { state, service, options, context } = event;
 
   if (!isQueueImport(service)) {
@@ -47,7 +47,7 @@ export const prepareImports = async (event: PrepareResourceEvent) => {
 
   context.setServiceState(queueState, service, imports[project]);
 
-  await prepareSubscriptions(state, service, queueState, options, context);
+  prepareSubscriptions(state, service, queueState, options, context);
 
   return true;
 };
