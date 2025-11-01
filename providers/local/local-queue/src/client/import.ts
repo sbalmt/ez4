@@ -1,12 +1,12 @@
 import type { Client, Queue, SendOptions } from '@ez4/queue';
-import type { ServeOptions } from '@ez4/project/library';
+import type { CommonOptions } from '@ez4/project/library';
 import type { MessageSchema } from '@ez4/queue/utils';
 
 import { getServiceName, Logger } from '@ez4/project/library';
 import { getJsonStringMessage } from '@ez4/queue/utils';
 
-export type ImportedClientOptions = ServeOptions & {
-  delay: number;
+export type ImportedClientOptions = CommonOptions & {
+  serviceHost: string;
 };
 
 export const createImportedClient = <T extends Queue.Service<any>>(
@@ -18,13 +18,12 @@ export const createImportedClient = <T extends Queue.Service<any>>(
   const queueHost = `http://${clientOptions.serviceHost}/${queueIdentifier}`;
 
   return new (class {
-    async sendMessage(message: T['schema'], options?: SendOptions<T>) {
+    async sendMessage(message: T['schema'], _options?: SendOptions<T>) {
       Logger.debug(`✉️  Sending message to queue [${serviceName}] at ${queueHost}`);
 
       const payload = await getJsonStringMessage(message, messageSchema);
-      const delay = options?.delay ?? clientOptions.delay;
 
-      setTimeout(() => postMessage(serviceName, queueHost, payload), delay * 1000);
+      setImmediate(() => forwardQueueMessage(serviceName, queueHost, payload));
     }
 
     receiveMessage(): Promise<T['schema'][]> {
@@ -33,9 +32,9 @@ export const createImportedClient = <T extends Queue.Service<any>>(
   })();
 };
 
-const postMessage = async (serviceName: string, queueHost: string, payload: string) => {
+const forwardQueueMessage = async (serviceName: string, serviceHost: string, payload: string) => {
   try {
-    const response = await fetch(queueHost, {
+    const response = await fetch(serviceHost, {
       method: 'POST',
       body: payload,
       headers: {
@@ -44,9 +43,12 @@ const postMessage = async (serviceName: string, queueHost: string, payload: stri
     });
 
     if (!response.ok) {
-      Logger.error(`Queue [${serviceName}] isn't available.`);
+      const { message } = await response.json();
+
+      throw new Error(message);
     }
   } catch (error) {
-    Logger.error(`${error}`);
+    Logger.error(`Imported queue [${serviceName}] at ${serviceHost} isn't available.`);
+    Logger.error(`    ${error}`);
   }
 };

@@ -1,25 +1,23 @@
 import type { EmulateServiceContext, EmulatorServiceRequest, ServeOptions } from '@ez4/project/library';
 import type { QueueImport, QueueService } from '@ez4/queue/library';
 import type { AnyObject } from '@ez4/utils';
+import type { ImportedClientOptions } from '../client/import';
 
-import { getJsonMessage, MalformedMessageError } from '@ez4/queue/utils';
 import { getResponseError, getResponseSuccess } from '@ez4/local-common';
-import { getServiceName } from '@ez4/project/library';
-import { isQueueImport } from '@ez4/queue/library';
+import { getServiceName, MissingImportedProjectError } from '@ez4/project/library';
+import { getJsonMessage, MalformedMessageError } from '@ez4/queue/utils';
 import { getRandomInteger } from '@ez4/utils';
 
 import { processLambdaMessage } from '../handlers/lambda';
 import { createServiceClient } from '../client/service';
 import { createImportedClient } from '../client/import';
 
-export const registerQueueServices = (service: QueueService | QueueImport, options: ServeOptions, context: EmulateServiceContext) => {
+export const registerLocalQueueServices = (service: QueueService, options: ServeOptions, context: EmulateServiceContext) => {
   const { name: serviceName, schema: messageSchema } = service;
-
-  const isImportService = isQueueImport(service);
 
   const clientOptions = {
     ...options,
-    delay: isImportService ? 0 : (service.delay ?? 0),
+    delay: service.delay ?? 0,
     handler: (message: AnyObject) => {
       return handleQueueMessage(service, options, context, message);
     }
@@ -30,9 +28,7 @@ export const registerQueueServices = (service: QueueService | QueueImport, optio
     name: serviceName,
     identifier: getServiceName(serviceName, options),
     clientHandler: () => {
-      return isImportService
-        ? createImportedClient(serviceName, messageSchema, clientOptions)
-        : createServiceClient(serviceName, messageSchema, clientOptions);
+      return createServiceClient(serviceName, messageSchema, clientOptions);
     },
     requestHandler: (request: EmulatorServiceRequest) => {
       return handleQueueRequest(service, options, context, request);
@@ -40,8 +36,41 @@ export const registerQueueServices = (service: QueueService | QueueImport, optio
   };
 };
 
+export const registerImportedQueueServices = (service: QueueImport, options: ServeOptions) => {
+  const { name: serviceName, reference: referenceName, schema: messageSchema, project } = service;
+  const { imports } = options;
+
+  if (!imports || !imports[project]) {
+    throw new MissingImportedProjectError(project);
+  }
+
+  const clientOptions = {
+    ...imports[project]
+  };
+
+  return {
+    type: 'Queue',
+    name: serviceName,
+    identifier: getServiceName(serviceName, options),
+    clientHandler: () => {
+      return createImportedClient(referenceName, messageSchema, clientOptions);
+    },
+    requestHandler: (request: EmulatorServiceRequest) => {
+      return handleQueueForward(service, clientOptions, request);
+    }
+  };
+};
+
+const handleQueueForward = async (service: QueueImport, options: ImportedClientOptions, request: EmulatorServiceRequest) => {
+  const { reference: referenceName, schema: messageSchema } = service;
+
+  const client = createImportedClient(referenceName, messageSchema, options);
+
+  return client.sendMessage(JSON.parse(request.body!.toString()));
+};
+
 const handleQueueRequest = async (
-  service: QueueService | QueueImport,
+  service: QueueService,
   options: ServeOptions,
   context: EmulateServiceContext,
   request: EmulatorServiceRequest
