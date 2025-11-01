@@ -52,7 +52,9 @@ export const serveCommand = async (project: ProjectOptions) => {
       return getEmulators(metadata, options);
     });
 
-    await bootstrapServices(emulators, options);
+    displayServices(emulators, options);
+
+    await bootstrapServices(emulators);
 
     if (options.version > 0) {
       Logger.log(`🚀 Project [${project.projectName}] reloaded`);
@@ -218,7 +220,7 @@ const setCorsResponseHeaders = (stream: ServerResponse<IncomingMessage>, request
   }
 };
 
-const bootstrapServices = async (emulators: EmulatorServices, options: ServeOptions) => {
+const bootstrapServices = async (emulators: EmulatorServices) => {
   process.env.EZ4_IS_LOCAL = 'true';
 
   for (const identifier in emulators) {
@@ -227,6 +229,12 @@ const bootstrapServices = async (emulators: EmulatorServices, options: ServeOpti
     if (emulator.bootstrapHandler) {
       await emulator.bootstrapHandler();
     }
+  }
+};
+
+const displayServices = (emulators: EmulatorServices, options: ServeOptions) => {
+  for (const identifier in emulators) {
+    const emulator = emulators[identifier];
 
     if (emulator.requestHandler) {
       Logger.log(`🌐 Serving ${emulator.type} [${emulator.name}] at http://${options.serviceHost}/${identifier}`);
