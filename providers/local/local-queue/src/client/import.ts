@@ -47,8 +47,7 @@ const forwardQueueMessage = async (serviceName: string, serviceHost: string, pay
 
       throw new Error(message);
     }
-  } catch (error) {
-    Logger.error(`Imported queue [${serviceName}] at ${serviceHost} isn't available.`);
-    Logger.error(`    ${error}`);
+  } catch {
+    Logger.warn(`Remote queue [${serviceName}] at ${serviceHost} isn't available.`);
   }
 };
