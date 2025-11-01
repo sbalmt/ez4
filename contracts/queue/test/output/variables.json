@@ -6,29 +6,31 @@
   },
   "TestQueue": {
     "type": "@ez4/queue",
-    "name": "TestQueue",
     "extras": {},
-    "description": "Queue to test subscription listener.",
+    "name": "TestQueue",
     "schema": {
       "type": "object",
-      "identity": 1,
       "properties": {
         "foo": {
           "type": "string"
         }
-      }
+      },
+      "identity": 1
     },
     "subscriptions": [
       {
-        "listener": {
-          "name": "testListener",
-          "file": "test/input/output-listener.ts"
-        },
         "handler": {
           "name": "testHandler",
-          "file": "test/input/output-listener.ts"
+          "file": "test/input/output-variables.ts"
         }
       }
-    ]
+    ],
+    "variables": {
+      "TEST_VAR1": "test-literal-value",
+      "TEST_VAR2": "test-env-var-value"
+    },
+    "services": {
+      "selfSettings": "@variables"
+    }
   }
 }

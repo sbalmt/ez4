@@ -33,9 +33,11 @@ export interface CdnOrigin {
  */
 export interface CdnBucketOrigin extends CdnOrigin {
   /**
-   * Bucket service used as the origin.
+   * Bucket service reference used as the origin.
    */
-  bucket: Bucket.Service;
+  bucket: {
+    reference: Bucket.Service;
+  };
 }
 
 /**

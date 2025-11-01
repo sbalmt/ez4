@@ -18,11 +18,11 @@ import { hasSchemaProperty } from '@ez4/schema';
 import { ServiceType } from '../types/service';
 import { IncompleteServiceError } from '../errors/service';
 import { IncorrectFifoModePropertyError } from '../errors/fifo';
+import { getQueueDeadLetter } from './deadletter';
 import { getAllSubscription } from './subscription';
 import { getQueueMessage } from './message';
 import { getQueueFifoMode } from './fifo';
 import { isQueueService } from './utils';
-import { getQueueDeadLetter } from './deadletter';
 
 export const getQueueServices = (reflection: SourceMap) => {
   const allServices: Record<string, QueueService> = {};

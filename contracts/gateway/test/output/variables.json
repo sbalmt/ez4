@@ -1,0 +1,32 @@
+{
+  "TestService": {
+    "type": "@ez4/http",
+    "extras": {},
+    "name": "TestService",
+    "routes": [
+      {
+        "path": "ANY /test-route",
+        "handler": {
+          "name": "testRoute",
+          "file": "test/input/output-variables.ts",
+          "request": {},
+          "provider": {
+            "services": {
+              "selfSettings": "@variables"
+            }
+          },
+          "response": {
+            "status": 204
+          }
+        }
+      }
+    ],
+    "variables": {
+      "TEST_VAR1": "test-literal-value",
+      "TEST_VAR2": "test-env-var-value"
+    },
+    "services": {
+      "selfSettings": "@variables"
+    }
+  }
+}

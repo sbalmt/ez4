@@ -34,7 +34,9 @@ export namespace Topic {
     /**
      * Reference to the queue service.
      */
-    service: Queue.Service<T>;
+    service: {
+      reference: Queue.Service<T>;
+    };
   }
 
   /**

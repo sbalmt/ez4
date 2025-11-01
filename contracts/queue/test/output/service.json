@@ -1,4 +1,9 @@
 {
+  "@variables": {
+    "name": "@variables",
+    "type": "@ez4/common",
+    "extras": {}
+  },
   "TestQueue1": {
     "type": "@ez4/queue",
     "name": "TestQueue1",

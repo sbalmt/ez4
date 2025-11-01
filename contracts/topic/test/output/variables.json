@@ -6,30 +6,32 @@
   },
   "TestTopic": {
     "type": "@ez4/topic",
-    "name": "TestTopic",
     "extras": {},
-    "description": "Topic to test subscription listener.",
+    "name": "TestTopic",
     "schema": {
       "type": "object",
-      "identity": 1,
       "properties": {
         "foo": {
           "type": "string"
         }
-      }
+      },
+      "identity": 1
     },
     "subscriptions": [
       {
         "type": "lambda",
-        "listener": {
-          "name": "testListener",
-          "file": "test/input/output-listener.ts"
-        },
         "handler": {
           "name": "testHandler",
-          "file": "test/input/output-listener.ts"
+          "file": "test/input/output-variables.ts"
         }
       }
-    ]
+    ],
+    "variables": {
+      "TEST_VAR1": "test-literal-value",
+      "TEST_VAR2": "test-env-var-value"
+    },
+    "services": {
+      "selfSettings": "@variables"
+    }
   }
 }
