@@ -17,7 +17,7 @@ export const prepareLinkedServices = (event: ServiceEvent) => {
   return null;
 };
 
-export const prepareServices = async (event: PrepareResourceEvent) => {
+export const prepareServices = (event: PrepareResourceEvent) => {
   const { state, service, options, context } = event;
 
   if (!isTopicService(service)) {
@@ -34,7 +34,7 @@ export const prepareServices = async (event: PrepareResourceEvent) => {
 
   context.setServiceState(topicState, service, options);
 
-  await prepareSubscriptions(state, service, topicState, options, context);
+  prepareSubscriptions(state, service, topicState, options, context);
 
   return true;
 };

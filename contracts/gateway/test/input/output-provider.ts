@@ -21,6 +21,11 @@ export declare class TestService extends Http.Service {
 declare class TestRequest implements Http.Request {}
 
 declare class TestProvider implements Http.Provider {
+  variables: {
+    TEST_VAR1: 'test-literal-value';
+    TEST_VAR2: Environment.Variable<'TEST_ENV_VAR'>;
+  };
+
   services: {
     selfClient: Environment.Service<TestService>;
   };

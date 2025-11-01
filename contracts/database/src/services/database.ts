@@ -62,6 +62,7 @@ export namespace Database {
   export type ServiceEvent<T extends Schema = Schema> =
     | CommonService.BeginEvent<Request>
     | CommonService.ReadyEvent<Incoming<T>>
+    | CommonService.DoneEvent<Incoming<T>>
     | CommonService.ErrorEvent<Request | Incoming<T>>
     | CommonService.EndEvent<Request>;
 

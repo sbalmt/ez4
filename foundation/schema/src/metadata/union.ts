@@ -6,7 +6,9 @@ import type { UnionSchema } from '../types/type-union';
 import type { AnySchema } from '../types/type-any';
 
 import { isTypeNull, isTypeUndefined, isTypeUnion } from '@ez4/reflection';
+import { deepEqual } from '@ez4/utils';
 
+import { isUnionSchema } from '../types/type-union';
 import { isNumberSchema } from '../types/type-number';
 import { isReferenceSchema } from '../types/type-reference';
 import { isStringSchema } from '../types/type-string';
@@ -90,11 +92,23 @@ const hasNullableType = (types: EveryType[]) => {
 const getAnySchemaFromTypeList = (reflection: SourceMap, context: SchemaContext, types: AllType[]) => {
   const typeList: AnySchema[] = [];
 
+  const pushElements = (...elements: AnySchema[]) => {
+    for (const element of elements) {
+      if (!typeList.some((current) => deepEqual(current, element))) {
+        typeList.push(element);
+      }
+    }
+  };
+
   for (const type of types) {
     const schema = getAnySchema(type, reflection, context);
 
     if (schema) {
-      typeList.push(schema);
+      if (isUnionSchema(schema)) {
+        pushElements(...schema.elements);
+      } else {
+        pushElements(schema);
+      }
     }
   }
 

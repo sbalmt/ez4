@@ -1,0 +1,44 @@
+{
+  "TestDatabase": {
+    "type": "@ez4/database",
+    "extras": {},
+    "name": "TestDatabase",
+    "engine": {
+      "parametersMode": "index",
+      "transactionMode": "static",
+      "insensitiveMode": "unsupported",
+      "paginationMode": "offset",
+      "orderMode": "any",
+      "lockMode": "unsupported",
+      "name": "test"
+    },
+    "tables": [
+      {
+        "name": "testTable",
+        "schema": {
+          "type": "object",
+          "properties": {
+            "foo": {
+              "type": "string"
+            }
+          },
+          "identity": 1
+        },
+        "indexes": [],
+        "stream": {
+          "handler": {
+            "name": "streamHandler",
+            "file": "test/models/output-variables.ts"
+          }
+        }
+      }
+    ],
+    "variables": {
+      "TEST_VAR1": "test-literal-value",
+      "TEST_VAR2": "test-env-var-value"
+    },
+    "services": {
+      "selfSettings": "@variables"
+    }
+  }
+}

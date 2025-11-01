@@ -6,14 +6,14 @@ import type { AnyObject } from '@ez4/utils';
 import { getJsonMessage } from '@ez4/topic/utils';
 import { Logger } from '@ez4/project/library';
 
-export type ServiceClientOptions = ServeOptions & {
+export type LocalClientOptions = ServeOptions & {
   handler: (message: AnyObject) => Promise<void>;
 };
 
-export const createServiceClient = <T extends Topic.Message = any>(
+export const createLocalClient = <T extends Topic.Message = any>(
   serviceName: string,
   messageSchema: MessageSchema,
-  clientOptions: ServiceClientOptions
+  clientOptions: LocalClientOptions
 ): Client<T> => {
   return new (class {
     async sendMessage(message: T) {

@@ -1,5 +1,6 @@
-import type { Service } from '@ez4/common';
+import type { LinkedVariables } from '@ez4/project/library';
 import type { NamingStyle } from '@ez4/schema';
+import type { Service } from '@ez4/common';
 import type { Http } from './contract';
 
 /**
@@ -193,6 +194,11 @@ export interface HttpResponse {
 }
 
 export interface HttpProvider {
+  /**
+   * Variables associated to the provider.
+   */
+  variables?: LinkedVariables;
+
   /**
    * All services associated to the provider.
    */

@@ -25,11 +25,11 @@ export async function eventEntryPoint(event: ScheduledEvent, context: Context): 
 
     if (__EZ4_SCHEMA) {
       request.event = await getJsonEvent(event, __EZ4_SCHEMA);
-
-      await onReady(request);
     }
 
+    await onReady(request);
     await handle(request, __EZ4_CONTEXT);
+    await onDone(request);
   } catch (error) {
     await onError(error, request);
   } finally {
@@ -51,6 +51,16 @@ const onReady = async (request: Cron.Incoming<Cron.Event | null>) => {
   return dispatch(
     {
       type: ServiceEventType.Ready,
+      request
+    },
+    __EZ4_CONTEXT
+  );
+};
+
+const onDone = async (request: Cron.Incoming<Cron.Event | null>) => {
+  return dispatch(
+    {
+      type: ServiceEventType.Done,
       request
     },
     __EZ4_CONTEXT

@@ -1,11 +1,7 @@
-import type { TypeObject } from '@ez4/reflection';
-
 import { createTrigger } from '@ez4/project/library';
 
-import { createRichType, getRichTypes } from '../richtypes/utils';
-
-const libraryFiles = ['environment', 'service'];
-const libraryPath = new RegExp(`dist/richtypes/(${libraryFiles.join('|')}).d.ts`);
+import { getCommonEmulators, getCommonServices, prepareCommonServices, prepareLinkedServices } from './service';
+import { applyRichTypeObject, applyRichTypePath } from './reflection';
 
 let isRegistered = false;
 
@@ -16,26 +12,12 @@ export const registerTriggers = () => {
 
   createTrigger('@ez4/common', {
     'reflection:loadFile': applyRichTypePath,
-    'reflection:typeObject': applyRichTypeObject
+    'reflection:typeObject': applyRichTypeObject,
+    'deploy:prepareResources': prepareCommonServices,
+    'deploy:prepareLinkedService': prepareLinkedServices,
+    'emulator:getServices': getCommonEmulators,
+    'metadata:getServices': getCommonServices
   });
 
   isRegistered = true;
-};
-
-const applyRichTypePath = (file: string) => {
-  if (libraryPath.test(file)) {
-    return file.replace(libraryPath, (_, module) => `lib/${module}.ts`);
-  }
-
-  return null;
-};
-
-const applyRichTypeObject = (type: TypeObject) => {
-  const richTypes = getRichTypes(type);
-
-  if (richTypes) {
-    return createRichType(richTypes);
-  }
-
-  return null;
 };

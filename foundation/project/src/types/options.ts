@@ -8,8 +8,12 @@ export type CommonOptions = {
   debug?: boolean;
 };
 
+export type ImportOptions = CommonOptions & {
+  serviceHost: string;
+};
+
 export type DeployOptions = CommonOptions & {
-  imports?: Record<string, DeployOptions>;
+  imports?: Record<string, ImportOptions>;
   variables?: LinkedVariables;
   tags?: Record<string, string>;
 };
@@ -19,6 +23,7 @@ export type DestroyOptions = CommonOptions & {
 };
 
 export type ServeOptions = CommonOptions & {
+  imports?: Record<string, ImportOptions>;
   localOptions: Record<string, AnyObject>;
   variables?: LinkedVariables;
   serviceHost: string;

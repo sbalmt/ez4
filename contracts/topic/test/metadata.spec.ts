@@ -25,6 +25,7 @@ describe('topic metadata', () => {
 
   it('assert :: empty topic', () => testFile('service'));
   it('assert :: topic subscriptions', () => testFile('subscriptions'));
-  it('assert :: topic import', () => testFile('import'));
   it('assert :: subscription listener', () => testFile('listener'));
+  it('assert :: service variables', () => testFile('variables'));
+  it('assert :: import topic', () => testFile('import'));
 });

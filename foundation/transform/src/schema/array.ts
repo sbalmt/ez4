@@ -27,17 +27,16 @@ export const transformArray = (
   }
 
   const convert = definitions?.encoded ? false : context.convert;
-
+  const localContext = { ...context, convert };
   const output = [];
 
   for (const elementValue of arrayValues) {
-    const result = transformAny(elementValue, schema.element, {
-      ...context,
-      convert
-    });
+    const result = transformAny(elementValue, schema.element, localContext);
 
     output.push(result);
   }
+
+  context.partial = localContext.partial;
 
   return output;
 };

@@ -3,7 +3,7 @@ import type { MemberType } from '@ez4/common/library';
 import type { Incomplete } from '@ez4/utils';
 import type { HttpProvider } from '../types/common';
 
-import { isModelDeclaration, getModelMembers, getReferenceType, getLinkedServiceList } from '@ez4/common/library';
+import { isModelDeclaration, getModelMembers, getReferenceType, getLinkedServiceList, getLinkedVariableList } from '@ez4/common/library';
 import { isModelProperty, isTypeReference } from '@ez4/reflection';
 
 import { IncompleteProviderError, InvalidProviderTypeError } from '../errors/provider';
@@ -50,15 +50,17 @@ const getTypeFromMembers = (
     }
 
     switch (member.name) {
-      case 'services':
-        const services = getLinkedServiceList(member, reflection, errorList);
+      case 'variables':
+        context.variables = getLinkedVariableList(member, errorList);
+        break;
 
-        if (services) {
-          context.services = services;
+      case 'services': {
+        if ((context.services = getLinkedServiceList(member, reflection, errorList))) {
+          properties.delete(member.name);
         }
 
-        properties.delete(member.name);
         break;
+      }
     }
   }
 

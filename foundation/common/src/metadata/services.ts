@@ -29,6 +29,10 @@ export const getLinkedServiceList = (member: ModelProperty, reflection: SourceMa
 export const getLinkedServiceName = (member: ModelProperty, parent: TypeObject | TypeModel, reflection: SourceMap, errorList: Error[]) => {
   const referencePath = getPropertyString(member);
 
+  if (referencePath?.startsWith('@')) {
+    return referencePath;
+  }
+
   const declaration = referencePath && reflection[referencePath];
 
   if (!declaration) {
@@ -46,13 +50,13 @@ export const getLinkedServiceName = (member: ModelProperty, parent: TypeObject |
     return null;
   }
 
-  const service = triggerAllSync('metadata:getLinkedService', (handler) => handler(declaration));
+  const serviceName = triggerAllSync('metadata:getLinkedService', (handler) => handler(declaration));
 
-  if (!service) {
+  if (!serviceName) {
     errorList.push(new MissingServiceProviderError(declaration.name, declaration.file));
   }
 
-  return service;
+  return serviceName;
 };
 
 const getObjectServices = (type: AllType, reflection: SourceMap, errorList: Error[]) => {

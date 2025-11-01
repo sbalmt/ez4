@@ -42,6 +42,8 @@ export async function apiEntryPoint(event: RequestEvent, context: Context): Prom
 
     const { identity } = await handle(request, __EZ4_CONTEXT);
 
+    await onDone(request);
+
     return {
       isAuthorized: !!identity,
       context: {
@@ -112,6 +114,16 @@ const onReady = async (request: Http.Incoming<Http.AuthRequest>) => {
   return dispatch(
     {
       type: ServiceEventType.Ready,
+      request
+    },
+    __EZ4_CONTEXT
+  );
+};
+
+const onDone = async (request: Http.Incoming<Http.AuthRequest>) => {
+  return dispatch(
+    {
+      type: ServiceEventType.Done,
       request
     },
     __EZ4_CONTEXT

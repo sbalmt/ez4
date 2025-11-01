@@ -45,8 +45,8 @@ export async function dbStreamEntryPoint(event: DynamoDBStreamEvent, context: Co
       };
 
       await onReady(currentRequest);
-
       await handle(currentRequest, __EZ4_CONTEXT);
+      await onDone(currentRequest);
     }
   } catch (error) {
     await onError(error, currentRequest ?? request);
@@ -142,6 +142,16 @@ const onReady = async (request: Database.Incoming<Database.Schema>) => {
   return dispatch(
     {
       type: ServiceEventType.Ready,
+      request
+    },
+    __EZ4_CONTEXT
+  );
+};
+
+const onDone = async (request: Database.Incoming<Database.Schema>) => {
+  return dispatch(
+    {
+      type: ServiceEventType.Done,
       request
     },
     __EZ4_CONTEXT

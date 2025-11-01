@@ -1,4 +1,9 @@
 {
+  "@variables": {
+    "type": "@ez4/common",
+    "name": "@variables",
+    "extras": {}
+  },
   "TestTopic1": {
     "type": "@ez4/topic",
     "name": "TestTopic1",

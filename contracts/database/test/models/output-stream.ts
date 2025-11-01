@@ -48,7 +48,7 @@ declare class TestStream implements Database.Stream<TestSchema> {
 /**
  * Test table stream.
  */
-export async function streamHandler(_change: StreamChange<TestSchema>, context: Service.Context<TestDatabase>) {
+async function streamHandler(_change: StreamChange<TestSchema>, context: Service.Context<TestDatabase>) {
   context.selfClient.rawQuery;
   context.selfClient.testTable.findMany;
 }

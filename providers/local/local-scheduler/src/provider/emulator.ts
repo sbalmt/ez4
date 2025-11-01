@@ -1,6 +1,8 @@
-import type { EmulateServiceContext, ServeOptions } from '@ez4/project/library';
+import type { EmulateServiceContext, EmulatorServiceRequest, ServeOptions } from '@ez4/project/library';
 import type { CronService } from '@ez4/scheduler/library';
 
+import { getJsonEvent, MalformedEventError } from '@ez4/scheduler/utils';
+import { getResponseError, getResponseSuccess } from '@ez4/local-common';
 import { isDynamicCronService } from '@ez4/scheduler/library';
 import { getServiceName, Logger } from '@ez4/project/library';
 
@@ -32,6 +34,9 @@ export const registerCronEmulator = (service: CronService, options: ServeOptions
         processTimerEvent(service, options, context);
       }
     },
+    requestHandler: (request: EmulatorServiceRequest) => {
+      return handleSchedulerRequest(service, options, context, request);
+    },
     shutdownHandler: () => {
       InMemoryScheduler.deleteScheduler(serviceName);
 
@@ -40,4 +45,52 @@ export const registerCronEmulator = (service: CronService, options: ServeOptions
       }
     }
   };
+};
+
+const handleSchedulerRequest = async (
+  service: CronService,
+  options: ServeOptions,
+  context: EmulateServiceContext,
+  request: EmulatorServiceRequest
+) => {
+  const { method, path, body } = request;
+
+  if (method !== 'POST' || path !== '/') {
+    throw new Error('Unsupported scheduler/cron request.');
+  }
+
+  try {
+    if (service.schema && !body) {
+      throw new MalformedEventError(['Event body is required.']);
+    }
+
+    if (!service.schema && body) {
+      throw new MalformedEventError(['Event body is not required.']);
+    }
+
+    await handleSchedulerEvent(service, options, context, body);
+
+    return getResponseSuccess(201);
+    //
+  } catch (error) {
+    if (!(error instanceof MalformedEventError)) {
+      throw error;
+    }
+
+    return getResponseError(400, {
+      message: error.message,
+      details: error.details
+    });
+  }
+};
+
+const handleSchedulerEvent = async (service: CronService, options: ServeOptions, context: EmulateServiceContext, body?: Buffer) => {
+  if (service.schema && body) {
+    const jsonEvent = JSON.parse(body.toString());
+    const safeEvent = await getJsonEvent(jsonEvent, service.schema);
+
+    return processSchedulerEvent(service, options, context, safeEvent);
+  }
+
+  await processSchedulerEvent(service, options, context, null);
 };

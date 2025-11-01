@@ -36,8 +36,8 @@ export async function s3EntryPoint(event: S3Event, context: Context): Promise<vo
       };
 
       await onReady(currentRequest);
-
       await handle(currentRequest, __EZ4_CONTEXT);
+      await onDone(currentRequest);
     }
   } catch (error) {
     await onError(error, currentRequest ?? request);
@@ -72,6 +72,16 @@ const onReady = async (request: Bucket.Incoming) => {
   return dispatch(
     {
       type: ServiceEventType.Ready,
+      request
+    },
+    __EZ4_CONTEXT
+  );
+};
+
+const onDone = async (request: Bucket.Incoming) => {
+  return dispatch(
+    {
+      type: ServiceEventType.Done,
       request
     },
     __EZ4_CONTEXT

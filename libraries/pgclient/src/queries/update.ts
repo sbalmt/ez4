@@ -45,11 +45,15 @@ export const prepareUpdateQuery = async <T extends InternalTableMetadata, S exte
         updateQuery.lock();
       }
     } else {
-      const selectQuery = builder.select(schema).from(table).lock(query.lock);
+      const selectQuery = builder.select(schema).from(table);
       const selectFields = getSelectFields(builder, query.select, query.include, schema, relations, selectQuery, table);
 
       if (query.where) {
         selectQuery.where(getSelectFilters(builder, query.where, relations, selectQuery, table));
+      }
+
+      if (query.lock) {
+        selectQuery.lock();
       }
 
       updateQuery.from(selectQuery.reference()).as('U');

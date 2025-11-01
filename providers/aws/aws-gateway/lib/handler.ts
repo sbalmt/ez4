@@ -49,6 +49,8 @@ export async function apiEntryPoint(event: RequestEvent, context: Context): Prom
 
     const { status, body, headers } = await handle(request, __EZ4_CONTEXT);
 
+    await onDone(request);
+
     return getSuccessResponse(status, body, headers);
     //
   } catch (error) {
@@ -225,6 +227,16 @@ const onReady = async (request: Http.Incoming<Http.Request>) => {
   return dispatch(
     {
       type: ServiceEventType.Ready,
+      request
+    },
+    __EZ4_CONTEXT
+  );
+};
+
+const onDone = async (request: Http.Incoming<Http.Request>) => {
+  return dispatch(
+    {
+      type: ServiceEventType.Done,
       request
     },
     __EZ4_CONTEXT

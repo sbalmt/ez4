@@ -113,4 +113,22 @@ describe('object merging utils', () => {
       }
     });
   });
+
+  it('assert :: deep merge (with replace off)', () => {
+    const result = deepMerge(target, source, {
+      replace: false
+    });
+
+    deepEqual(result, {
+      level: 1,
+      first: {
+        level: 2,
+        array: [1, 2, 3],
+        second: {
+          level: 3,
+          third: true
+        }
+      }
+    });
+  });
 });

@@ -1,4 +1,6 @@
+import type { Service } from '@ez4/common';
 import type { Http } from '@ez4/gateway';
+import type { ApiProvider } from '../provider';
 
 import { randomUUID } from 'node:crypto';
 
@@ -35,8 +37,11 @@ declare class PostResponse implements Http.Response {
  * @param request Incoming request.
  * @returns Outgoing response.
  */
-export function postHandler(request: PostRequest): PostResponse {
+export function postHandler(request: PostRequest, context: Service.Context<ApiProvider>): PostResponse {
   const { foo } = request.body;
+  const { selfVariables } = context;
+
+  console.log(selfVariables.TEST_VAR1, foo);
 
   // Check custom error catcher.
   if (foo === 'error') {

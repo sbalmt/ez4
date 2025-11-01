@@ -57,7 +57,7 @@ describe('update unique relations', () => {
         // Select
         `"Q0" AS (SELECT "R0"."value", (SELECT jsonb_build_object('value', "S0"."value") ` +
         `FROM "table_b" AS "S0" WHERE "S0"."id_b" = "R0"."unique_1_id") AS "relation" ` +
-        `FROM "table_c" AS "R0" WHERE "R0"."id_c" = :0 FOR UPDATE), ` +
+        `FROM "table_c" AS "R0" WHERE "R0"."id_c" = :0), ` +
         // Main record
         `"Q1" AS (UPDATE ONLY "table_c" AS "U" SET "value" = :1 FROM "Q0" WHERE "U"."id_c" = :2) ` +
         // Return
@@ -92,7 +92,7 @@ describe('update unique relations', () => {
         // Select
         `"Q0" AS (SELECT "R0"."value", (SELECT jsonb_build_object('value', "S0"."value") ` +
         `FROM "table_b" AS "S0" WHERE "S0"."id_b" = "R0"."unique_1_id") AS "relation" ` +
-        `FROM "table_c" AS "R0" WHERE "R0"."id_c" = :0 FOR UPDATE), ` +
+        `FROM "table_c" AS "R0" WHERE "R0"."id_c" = :0), ` +
         // Main record
         `"Q1" AS (UPDATE ONLY "table_c" AS "U" SET "value" = :1 FROM "Q0" WHERE "U"."id_c" = :2) ` +
         // Return
@@ -153,7 +153,7 @@ describe('update unique relations', () => {
         // Select
         `"Q0" AS (SELECT "R0"."value", (SELECT jsonb_build_object('value', "S0"."value") ` +
         `FROM "table_b" AS "S0" WHERE "S0"."id_b" = "R0"."unique_1_id") AS "relation" ` +
-        `FROM "table_c" AS "R0" WHERE "R0"."id_c" = :0 FOR UPDATE), ` +
+        `FROM "table_c" AS "R0" WHERE "R0"."id_c" = :0), ` +
         // Main record
         `"Q1" AS (UPDATE ONLY "table_c" AS "U" SET "value" = :1 FROM "Q0" WHERE "U"."id_c" = :2 ` +
         `RETURNING "U"."unique_1_id"), ` +
@@ -191,7 +191,7 @@ describe('update unique relations', () => {
         // Select
         `"Q0" AS (SELECT "R0"."value", (SELECT jsonb_build_object('value', "S0"."value") ` +
         `FROM "table_b" AS "S0" WHERE "S0"."id_b" = "R0"."unique_1_id") AS "relation" ` +
-        `FROM "table_c" AS "R0" WHERE "R0"."id_c" = :0 FOR UPDATE), ` +
+        `FROM "table_c" AS "R0" WHERE "R0"."id_c" = :0), ` +
         // Main record
         `"Q1" AS (UPDATE ONLY "table_c" AS "U" SET "value" = :1, "unique_1_id" = :2 FROM "Q0" WHERE "U"."id_c" = :3) ` +
         // Return
@@ -223,7 +223,7 @@ describe('update unique relations', () => {
     `WITH ` +
       `"Q0" AS (SELECT "R0"."value", (SELECT jsonb_build_object('value', "S0"."value") ` +
       `FROM "table_b" AS "S0" WHERE "S0"."id_b" = "R0"."unique_1_id") AS "relation" ` +
-      `FROM "table_c" AS "R0" WHERE "R0"."id_c" = :0 FOR UPDATE), ` +
+      `FROM "table_c" AS "R0" WHERE "R0"."id_c" = :0), ` +
       `"Q1" AS (UPDATE ONLY "table_c" AS "U" SET "value" = :1, "unique_1_id" = null FROM "Q0" WHERE "U"."id_c" = :2 ` +
       `RETURNING "U"."unique_1_id"), ` +
       `"Q2" AS (UPDATE ONLY "table_b" AS "T" SET "id_b" = null FROM "Q1" WHERE "T"."id_b" = "Q1"."unique_1_id") ` +
@@ -235,7 +235,7 @@ describe('update unique relations', () => {
         // Select
         `"Q0" AS (SELECT "R0"."value", (SELECT jsonb_build_object('value', "S0"."value") ` +
         `FROM "table_b" AS "S0" WHERE "S0"."id_b" = "R0"."unique_1_id") AS "relation" ` +
-        `FROM "table_c" AS "R0" WHERE "R0"."id_c" = :0 FOR UPDATE), ` +
+        `FROM "table_c" AS "R0" WHERE "R0"."id_c" = :0), ` +
         // Main record
         `"Q1" AS (UPDATE ONLY "table_c" AS "U" SET "value" = :1, "unique_1_id" = null FROM "Q0" WHERE "U"."id_c" = :2) ` +
         // Return
@@ -286,7 +286,7 @@ describe('update unique relations', () => {
         // Select
         `"Q0" AS (SELECT "R0"."value", (SELECT jsonb_build_object('value', "S0"."value") ` +
         `FROM "table_b" AS "S0" WHERE "S0"."unique_b" = "R0"."unique_3_id") AS "relation_unique" ` +
-        `FROM "table_c" AS "R0" WHERE "R0"."id_c" = :0 FOR UPDATE), ` +
+        `FROM "table_c" AS "R0" WHERE "R0"."id_c" = :0), ` +
         // Main record
         `"Q1" AS (UPDATE ONLY "table_c" AS "U" SET "value" = :1 FROM "Q0" WHERE "U"."id_c" = :2) ` +
         // Return
@@ -321,7 +321,7 @@ describe('update unique relations', () => {
         // Select
         `"Q0" AS (SELECT "R0"."value", (SELECT jsonb_build_object('value', "S0"."value") ` +
         `FROM "table_b" AS "S0" WHERE "S0"."unique_b" = "R0"."unique_3_id") AS "relation_unique" ` +
-        `FROM "table_c" AS "R0" WHERE "R0"."id_c" = :0 FOR UPDATE), ` +
+        `FROM "table_c" AS "R0" WHERE "R0"."id_c" = :0), ` +
         // Main record
         `"Q1" AS (UPDATE ONLY "table_c" AS "U" SET "value" = :1 FROM "Q0" WHERE "U"."id_c" = :2) ` +
         // Return
@@ -382,7 +382,7 @@ describe('update unique relations', () => {
         // Select
         `"Q0" AS (SELECT "R0"."value", (SELECT jsonb_build_object('value', "S0"."value") ` +
         `FROM "table_b" AS "S0" WHERE "S0"."unique_b" = "R0"."unique_3_id") AS "relation_unique" ` +
-        `FROM "table_c" AS "R0" WHERE "R0"."id_c" = :0 FOR UPDATE), ` +
+        `FROM "table_c" AS "R0" WHERE "R0"."id_c" = :0), ` +
         // Main record
         `"Q1" AS (UPDATE ONLY "table_c" AS "U" SET "value" = :1 FROM "Q0" WHERE "U"."id_c" = :2 ` +
         `RETURNING "U"."unique_3_id"), ` +
@@ -420,7 +420,7 @@ describe('update unique relations', () => {
         // Select
         `"Q0" AS (SELECT "R0"."value", (SELECT jsonb_build_object('value', "S0"."value") ` +
         `FROM "table_b" AS "S0" WHERE "S0"."unique_b" = "R0"."unique_3_id") AS "relation_unique" ` +
-        `FROM "table_c" AS "R0" WHERE "R0"."id_c" = :0 FOR UPDATE), ` +
+        `FROM "table_c" AS "R0" WHERE "R0"."id_c" = :0), ` +
         // Main record
         `"Q1" AS (UPDATE ONLY "table_c" AS "U" SET "value" = :1 FROM "Q0" WHERE "U"."id_c" = :2 ` +
         `RETURNING "U"."unique_3_id"), ` +
@@ -461,7 +461,7 @@ describe('update unique relations', () => {
         // Select
         `"Q0" AS (SELECT "R0"."value", (SELECT jsonb_build_object('value', "S0"."value") ` +
         `FROM "table_b" AS "S0" WHERE "S0"."unique_b" = "R0"."unique_3_id") AS "relation_unique" ` +
-        `FROM "table_c" AS "R0" WHERE "R0"."id_c" = :0 FOR UPDATE), ` +
+        `FROM "table_c" AS "R0" WHERE "R0"."id_c" = :0), ` +
         // Main record
         `"Q1" AS (UPDATE ONLY "table_c" AS "U" SET "value" = :1 FROM "Q0" WHERE "U"."id_c" = :2 ` +
         `RETURNING "U"."unique_3_id"), ` +
@@ -516,7 +516,7 @@ describe('update unique relations', () => {
         `"Q0" AS (SELECT "R0"."value", ` +
         `(SELECT COALESCE(json_agg(jsonb_build_object('value', "S0"."value")), '[]'::json) ` +
         `FROM "table_a" AS "S0" WHERE "S0"."relation_2_id" = "R0"."unique_2_id") AS "relations" ` +
-        `FROM "table_c" AS "R0" WHERE "R0"."id_c" = :0 FOR UPDATE), ` +
+        `FROM "table_c" AS "R0" WHERE "R0"."id_c" = :0), ` +
         // Main record
         `"Q1" AS (UPDATE ONLY "table_c" AS "U" SET "value" = :1 FROM "Q0" WHERE "U"."id_c" = :2) ` +
         // Return
@@ -552,7 +552,7 @@ describe('update unique relations', () => {
         `"Q0" AS (SELECT "R0"."value", ` +
         `(SELECT COALESCE(json_agg(jsonb_build_object('value', "S0"."value")), '[]'::json) ` +
         `FROM "table_a" AS "S0" WHERE "S0"."relation_2_id" = "R0"."unique_2_id") AS "relations" ` +
-        `FROM "table_c" AS "R0" WHERE "R0"."id_c" = :0 FOR UPDATE), ` +
+        `FROM "table_c" AS "R0" WHERE "R0"."id_c" = :0), ` +
         // Main record
         `"Q1" AS (UPDATE ONLY "table_c" AS "U" SET "value" = :1 FROM "Q0" WHERE "U"."id_c" = :2) ` +
         // Return
@@ -614,7 +614,7 @@ describe('update unique relations', () => {
         `"Q0" AS (SELECT "R0"."value", ` +
         `(SELECT COALESCE(json_agg(jsonb_build_object('value', "S0"."value")), '[]'::json) ` +
         `FROM "table_a" AS "S0" WHERE "S0"."relation_2_id" = "R0"."unique_2_id") AS "relations" ` +
-        `FROM "table_c" AS "R0" WHERE "R0"."id_b" = :0 FOR UPDATE), ` +
+        `FROM "table_c" AS "R0" WHERE "R0"."id_b" = :0), ` +
         // Main record
         `"Q1" AS (UPDATE ONLY "table_c" AS "U" SET "value" = :1 FROM "Q0" WHERE "U"."id_b" = :2 ` +
         `RETURNING "U"."unique_2_id"), ` +
@@ -653,7 +653,7 @@ describe('update unique relations', () => {
         `"Q0" AS (SELECT "R0"."value", ` +
         `(SELECT COALESCE(json_agg(jsonb_build_object('value', "S0"."value")), '[]'::json) ` +
         `FROM "table_a" AS "S0" WHERE "S0"."relation_2_id" = "R0"."unique_2_id") AS "relations" ` +
-        `FROM "table_c" AS "R0" WHERE "R0"."id_c" = :0 FOR UPDATE), ` +
+        `FROM "table_c" AS "R0" WHERE "R0"."id_c" = :0), ` +
         // Main record
         `"Q1" AS (UPDATE ONLY "table_c" AS "U" SET "value" = :1 FROM "Q0" WHERE "U"."id_c" = :2 ` +
         `RETURNING "U"."unique_2_id"), ` +
@@ -692,7 +692,7 @@ describe('update unique relations', () => {
         `"Q0" AS (SELECT "R0"."value", ` +
         `(SELECT COALESCE(json_agg(jsonb_build_object('value', "S0"."value")), '[]'::json) ` +
         `FROM "table_a" AS "S0" WHERE "S0"."relation_2_id" = "R0"."unique_2_id") AS "relations" ` +
-        `FROM "table_c" AS "R0" WHERE "R0"."id_c" = :0 FOR UPDATE), ` +
+        `FROM "table_c" AS "R0" WHERE "R0"."id_c" = :0), ` +
         // Main record
         `"Q1" AS (UPDATE ONLY "table_c" AS "U" SET "value" = :1 FROM "Q0" WHERE "U"."id_c" = :2 ` +
         `RETURNING "U"."unique_2_id"), ` +

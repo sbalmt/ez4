@@ -4,6 +4,6 @@
  * @param arrays Input array.
  * @returns Returns a new array containing only unique elements.
  */
-export const uniqueArray = <T>(...arrays: T[][]) => {
+export const arrayUnique = <T>(...arrays: T[][]) => {
   return [...new Set(arrays.flat())];
 };

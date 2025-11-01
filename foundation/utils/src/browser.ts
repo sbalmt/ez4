@@ -17,6 +17,7 @@ export * from './object/compare';
 export * from './object/equal';
 export * from './object/clone';
 export * from './object/merge';
+export * from './object/size';
 
 export * from './boolean/check';
 

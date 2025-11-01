@@ -28,6 +28,7 @@ export const transformObject = (value: unknown, schema: ObjectSchema, context = 
   }
 
   const convert = definitions?.encoded ? false : context.convert;
+  const localContext = { ...context, convert };
 
   const allProperties = new Set(Object.keys(objectValue));
   const output: AnyObject = {};
@@ -37,11 +38,7 @@ export const transformObject = (value: unknown, schema: ObjectSchema, context = 
     const propertyName = getPropertyName(propertyKey, inputStyle);
 
     const rawValue = objectValue[propertyName];
-
-    const newValue = transformAny(rawValue, propertySchema, {
-      ...context,
-      convert
-    });
+    const newValue = transformAny(rawValue, propertySchema, localContext);
 
     const outputPropertyName = propertySchema.alias ?? getPropertyName(propertyKey, outputStyle);
 
@@ -49,6 +46,8 @@ export const transformObject = (value: unknown, schema: ObjectSchema, context = 
       output[outputPropertyName] = newValue;
     } else if (rawValue !== undefined) {
       output[outputPropertyName] = rawValue;
+    } else {
+      context.partial = true;
     }
 
     allProperties.delete(propertyName);
@@ -59,11 +58,7 @@ export const transformObject = (value: unknown, schema: ObjectSchema, context = 
 
     for (const propertyName of allProperties) {
       const rawValue = objectValue[propertyName];
-
-      const newValue = transformAny(rawValue, propertySchema, {
-        ...context,
-        convert
-      });
+      const newValue = transformAny(rawValue, propertySchema, localContext);
 
       if (newValue !== undefined) {
         const outputPropertyName = getPropertyName(propertyName, outputStyle);
@@ -80,9 +75,12 @@ export const transformObject = (value: unknown, schema: ObjectSchema, context = 
   if (allowExtraProperties) {
     for (const propertyName of allProperties) {
       const outputPropertyName = getPropertyName(propertyName, outputStyle);
-
       output[outputPropertyName] = objectValue[propertyName];
     }
+  }
+
+  if (!context.partial) {
+    context.partial = localContext.partial;
   }
 
   return output;

@@ -1,5 +1,7 @@
+import type { Service } from '@ez4/common';
 import type { String } from '@ez4/schema';
 import type { Http } from '@ez4/gateway';
+import type { ApiProvider } from '../provider';
 
 import { CustomError } from '../errors';
 
@@ -41,8 +43,11 @@ declare class PatchResponse implements Http.Response {
  * @param request Incoming request.
  * @returns Outgoing response.
  */
-export function patchHandler(request: PatchRequest): PatchResponse {
+export function patchHandler(request: PatchRequest, context: Service.Context<ApiProvider>): PatchResponse {
+  const { selfVariables } = context;
   const { foo } = request.body;
+
+  console.log(selfVariables.TEST_VAR1, foo);
 
   // Check custom error catcher.
   if (foo === 'error') {

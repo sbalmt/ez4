@@ -1,8 +1,9 @@
 import type { ProjectOptions } from '../types/project';
-import type { DeployOptions } from '../library';
+import type { ImportOptions } from '../library';
 
 import { toKebabCase } from '@ez4/utils';
 
+import { getServiceHost } from '../utils/project';
 import { loadProject } from './project';
 
 export const loadImports = async (projectOptions: ProjectOptions) => {
@@ -12,7 +13,7 @@ export const loadImports = async (projectOptions: ProjectOptions) => {
     return undefined;
   }
 
-  const allImports: Record<string, DeployOptions> = {};
+  const allImports: Record<string, ImportOptions> = {};
 
   for (const alias in importProjects) {
     const { projectFile } = importProjects[alias];
@@ -21,6 +22,7 @@ export const loadImports = async (projectOptions: ProjectOptions) => {
 
     allImports[alias] = {
       resourcePrefix: project.prefix ?? 'ez4',
+      serviceHost: getServiceHost(project.serveOptions),
       projectName: toKebabCase(project.projectName)
     };
   }

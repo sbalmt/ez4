@@ -3,9 +3,3 @@ export class RoleMissingError extends Error {
     super(`Execution role for SQS is missing.`);
   }
 }
-
-export class ProjectMissingError extends Error {
-  constructor(public projectName: string) {
-    super(`Imported project ${projectName} wasn't found.`);
-  }
-}

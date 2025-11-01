@@ -1,3 +1,5 @@
+type UnionGroup = string | number;
+
 /**
  * Union test object.
  */
@@ -6,6 +8,11 @@ export interface UnionTestSchema {
    * Foo property.
    */
   foo: boolean | number | string;
+
+  /**
+   * Union property group.
+   */
+  group: number | UnionGroup | boolean;
 
   /**
    * Nullable property.

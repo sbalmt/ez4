@@ -1,8 +1,8 @@
 import type { EmulatorServiceClients } from '@ez4/project/library';
 import type { VirtualModule } from '../emulators/module';
 
-import { ServiceError, ServiceEventType } from '@ez4/common';
-import { Logger } from '@ez4/project/library';
+import { ServiceEventType } from '@ez4/common';
+import { logErrorDetails } from './logger';
 
 export const onBegin = (module: VirtualModule, context: EmulatorServiceClients | null | undefined, request: unknown) => {
   return module.listener?.(
@@ -24,12 +24,18 @@ export const onReady = (module: VirtualModule, context: EmulatorServiceClients |
   );
 };
 
-export const onError = (module: VirtualModule, context: EmulatorServiceClients | null | undefined, request: unknown, error: unknown) => {
-  Logger.error(`${error}`);
+export const onDone = (module: VirtualModule, context: EmulatorServiceClients | null | undefined, request: unknown) => {
+  return module.listener?.(
+    {
+      type: ServiceEventType.Done,
+      request
+    },
+    context
+  );
+};
 
-  if (error instanceof ServiceError) {
-    error.details?.forEach((detail) => Logger.error(`Details: ${detail}`));
-  }
+export const onError = (module: VirtualModule, context: EmulatorServiceClients | null | undefined, request: unknown, error: unknown) => {
+  logErrorDetails(error);
 
   return module.listener?.(
     {

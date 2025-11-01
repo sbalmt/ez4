@@ -33,6 +33,7 @@ describe('http metadata', () => {
   it('assert :: empty services', () => testFile('service'));
   it('assert :: service defaults', () => testFile('defaults'));
   it('assert :: service routes', () => testFile('route'));
+  it('assert :: service variables', () => testFile('variables'));
   it('assert :: route authorizers', () => testFile('authorizer'));
   it('assert :: route listener', () => testFile('listener'));
   it('assert :: route provider', () => testFile('provider'));

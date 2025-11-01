@@ -20,7 +20,7 @@ export const prepareLinkedServices = (event: ServiceEvent) => {
   return null;
 };
 
-export const prepareServices = async (event: PrepareResourceEvent) => {
+export const prepareServices = (event: PrepareResourceEvent) => {
   const { state, service, options, context } = event;
 
   if (!isQueueService(service)) {
@@ -44,7 +44,7 @@ export const prepareServices = async (event: PrepareResourceEvent) => {
 
   context.setServiceState(queueState, service, options);
 
-  await prepareSubscriptions(state, service, queueState, options, context);
+  prepareSubscriptions(state, service, queueState, options, context);
 
   return true;
 };
@@ -68,9 +68,9 @@ const getDeadLetterQueue = (state: EntryStates, service: QueueService, options: 
 
   const queueState = createQueue(state, undefined, {
     queueName: getDeadLetterQueueName(service, options),
+    timeout: Defaults.Timeout,
     fifoMode: !!fifoMode,
     tags: options.tags,
-    timeout: Defaults.Timeout,
     retention
   });
 

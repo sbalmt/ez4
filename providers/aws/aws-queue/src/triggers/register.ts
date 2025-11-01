@@ -42,8 +42,8 @@ const prepareLinkedService = (event: ServiceEvent) => {
   return prepareLinkedServices(event) ?? prepareLinkedImports(event) ?? null;
 };
 
-const prepareQueueResources = async (event: PrepareResourceEvent) => {
-  return (await prepareServices(event)) || (await prepareImports(event));
+const prepareQueueResources = (event: PrepareResourceEvent) => {
+  return prepareServices(event) || prepareImports(event);
 };
 
 const connectQueueResources = async (event: ConnectResourceEvent) => {

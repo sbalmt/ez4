@@ -37,5 +37,6 @@ describe('database service metadata', () => {
   it('assert :: table indexes', () => testFile('indexes'));
   it('assert :: table relations', () => testFile('relations'));
   it('assert :: table stream', () => testFile('stream'));
+  it('assert :: service variables', () => testFile('variables'));
   it('assert :: stream listener', () => testFile('listener'));
 });
