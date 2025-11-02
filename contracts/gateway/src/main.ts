@@ -1,4 +1,4 @@
 export * from './services/contract';
 export * from './services/errors';
 
-export { Client } from './services/client';
+export { Client, ClientRequest, ClientResponse } from './services/client';

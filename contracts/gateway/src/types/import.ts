@@ -7,6 +7,7 @@ export type HttpImport = ServiceMetadata & {
   type: typeof ImportType;
   reference: string;
   project: string;
+  displayName?: string;
   description?: string;
   defaults?: HttpDefaults;
   routes: HttpRoute[];

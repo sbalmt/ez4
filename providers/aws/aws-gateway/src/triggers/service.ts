@@ -1,4 +1,4 @@
-import type { ConnectResourceEvent, DeployOptions, EventContext, PrepareResourceEvent } from '@ez4/project/library';
+import type { ConnectResourceEvent, DeployOptions, EventContext, PrepareResourceEvent, ServiceEvent } from '@ez4/project/library';
 import type { FunctionParameters, Variables } from '@ez4/aws-function';
 import type { HttpRoute, HttpService } from '@ez4/gateway/library';
 import type { EntryStates } from '@ez4/stateful';
@@ -19,11 +19,22 @@ import { createAuthorizerFunction } from '../authorizer/function/service';
 import { createIntegrationFunction } from '../integration/function/service';
 import { getIntegration, createIntegration } from '../integration/service';
 import { getFunctionName, getInternalName } from './utils';
+import { prepareLinkedClient } from './client';
 import { getCorsConfiguration } from './cors';
 import { RoleMissingError } from './errors';
 import { Defaults } from './defaults';
 
-export const prepareHttpServices = (event: PrepareResourceEvent) => {
+export const prepareLinkedServices = (event: ServiceEvent) => {
+  const { service, options, context } = event;
+
+  if (isHttpService(service)) {
+    return prepareLinkedClient(context, service, options);
+  }
+
+  return null;
+};
+
+export const prepareServices = (event: PrepareResourceEvent) => {
   const { state, service, options, context } = event;
 
   if (!isHttpService(service)) {
@@ -50,7 +61,7 @@ export const prepareHttpServices = (event: PrepareResourceEvent) => {
   return true;
 };
 
-export const connectHttpServices = (event: ConnectResourceEvent) => {
+export const connectServices = (event: ConnectResourceEvent) => {
   const { state, service, options, context } = event;
 
   if (!isHttpService(service)) {

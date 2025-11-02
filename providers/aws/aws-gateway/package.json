@@ -21,6 +21,11 @@
       "types": "./dist/main.d.ts",
       "require": "./dist/main.cjs",
       "import": "./dist/main.mjs"
+    },
+    "./client": {
+      "types": "./dist/client.d.ts",
+      "require": "./dist/client.cjs",
+      "import": "./dist/client.mjs"
     }
   },
   "sideEffects": [

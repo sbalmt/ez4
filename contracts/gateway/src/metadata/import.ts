@@ -72,6 +72,12 @@ export const getHttpImports = (reflection: SourceMap) => {
           }
           break;
 
+        case 'name':
+          if (member.inherited) {
+            service.displayName = getPropertyString(member, reflection);
+          }
+          break;
+
         case 'default':
           if (member.inherited) {
             service.defaults = getHttpDefaults(member.value, declaration, reflection, errorList);

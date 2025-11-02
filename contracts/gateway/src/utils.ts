@@ -1,3 +1,4 @@
+export * from './utils/request';
 export * from './utils/parameters';
 export * from './utils/query';
 export * from './utils/headers';

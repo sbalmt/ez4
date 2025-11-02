@@ -1,9 +1,11 @@
+import type { DeployOptions, EventContext } from '@ez4/project/library';
 import type { EntryState, StepContext } from '@ez4/stateful';
 import type { GatewayState } from './types';
 
 import { IncompleteResourceError } from '@ez4/aws-common';
 import { hashData, toKebabCase } from '@ez4/utils';
 
+import { GatewayNotFoundError } from './errors';
 import { GatewayServiceType } from './types';
 
 export const createGatewayStateId = (gatewayId: string) => {
@@ -12,6 +14,16 @@ export const createGatewayStateId = (gatewayId: string) => {
 
 export const isGatewayState = (resource: EntryState): resource is GatewayState => {
   return resource.type === GatewayServiceType;
+};
+
+export const getGatewayState = (context: EventContext, gatewayName: string, options: DeployOptions) => {
+  const gatewayState = context.getServiceState(gatewayName, options);
+
+  if (!isGatewayState(gatewayState)) {
+    throw new GatewayNotFoundError(gatewayName);
+  }
+
+  return gatewayState;
 };
 
 export const getGatewayId = (serviceName: string, resourceId: string, context: StepContext) => {

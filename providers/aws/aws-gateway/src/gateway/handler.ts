@@ -5,7 +5,7 @@ import type { GatewayState, GatewayResult, GatewayParameters } from './types';
 import { applyTagUpdates, ReplaceResourceError } from '@ez4/aws-common';
 import { deepCompare, deepEqual } from '@ez4/utils';
 
-import { createGateway, deleteCorsConfiguration, deleteGateway, tagGateway, untagGateway, updateGateway } from './client';
+import { createGateway, deleteCorsConfiguration, deleteGateway, fetchGateway, tagGateway, untagGateway, updateGateway } from './client';
 import { GatewayServiceName } from './types';
 
 export const getGatewayHandler = (): StepHandler<GatewayState> => ({
@@ -46,6 +46,18 @@ const replaceResource = async (candidate: GatewayState, current: GatewayState) =
 };
 
 const createResource = async (candidate: GatewayState): Promise<GatewayResult> => {
+  const { parameters } = candidate;
+
+  if (parameters.import) {
+    const { apiId, apiArn, endpoint } = await fetchGateway(parameters.gatewayName);
+
+    return {
+      apiId,
+      apiArn,
+      endpoint
+    };
+  }
+
   const { apiId, apiArn, endpoint } = await createGateway(candidate.parameters);
 
   return {
@@ -58,7 +70,7 @@ const createResource = async (candidate: GatewayState): Promise<GatewayResult> =
 const updateResource = async (candidate: GatewayState, current: GatewayState) => {
   const { result, parameters } = candidate;
 
-  if (!result) {
+  if (!result || parameters.import) {
     return;
   }
 
@@ -69,9 +81,9 @@ const updateResource = async (candidate: GatewayState, current: GatewayState) =>
 };
 
 const deleteResource = async (candidate: GatewayState) => {
-  const result = candidate.result;
+  const { result, parameters } = candidate;
 
-  if (result) {
+  if (result && !parameters.import) {
     await deleteGateway(result.apiId);
   }
 };

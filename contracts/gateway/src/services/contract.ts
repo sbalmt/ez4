@@ -225,9 +225,14 @@ export namespace Http {
     routes: T['routes'];
 
     /**
+     * Display name for the service imported service (do not replace).
+     */
+    name: T['name'];
+
+    /**
      * All default configurations attached to the imported service (do not replace).
      */
-    defaults?: T['defaults'];
+    defaults: T['defaults'];
 
     /**
      * Imported service client (do not replace).

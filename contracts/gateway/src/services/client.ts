@@ -2,7 +2,7 @@ import type { AnyObject, Prettify } from '@ez4/utils';
 import type { Http } from './contract';
 
 /**
- * Gateway client.
+ * HTTP client.
  */
 export type Client<T extends Http.Service> = {
   [P in ClientRoutes<T> as P extends { name: infer N } ? (N extends string ? N : never) : never]: P extends {
@@ -13,6 +13,24 @@ export type Client<T extends Http.Service> = {
     : P extends { handler: infer H }
       ? ClientOperation<H>
       : never;
+};
+
+/**
+ * Default HTTP client request.
+ */
+export type ClientRequest = {
+  headers?: Record<string, string>;
+  parameters?: Record<string, string>;
+  query?: Record<string, string>;
+  body?: string | AnyObject;
+};
+
+/**
+ * Default HTTP response.
+ */
+export type ClientResponse = {
+  status: number;
+  body: string | AnyObject;
 };
 
 /**
