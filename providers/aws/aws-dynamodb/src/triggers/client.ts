@@ -16,7 +16,8 @@ export const prepareLinkedClient = (context: EventContext, service: DatabaseServ
   });
 
   return {
-    entryIds: tableIds,
+    connectionIds: tableIds,
+    dependencyIds: tableIds,
     from: '@ez4/aws-dynamodb/client',
     module: 'Client',
     constructor: `make(${JSON.stringify({

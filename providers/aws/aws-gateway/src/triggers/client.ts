@@ -15,7 +15,8 @@ export const prepareLinkedClient = (context: EventContext, service: HttpService 
   const operations = JSON.stringify(getClientOperations(service));
 
   return {
-    entryIds: [gatewayId],
+    connectionIds: [gatewayId],
+    dependencyIds: [gatewayId],
     constructor: `make(${gatewayUrl}, ${operations})`,
     from: '@ez4/aws-gateway/client',
     module: 'Client'

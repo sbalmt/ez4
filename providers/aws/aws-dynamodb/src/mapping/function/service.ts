@@ -30,7 +30,7 @@ export const createStreamFunction = <E extends EntryState>(
       return [handler.sourceFile, handler.dependencies];
     },
     getFunctionBundle: (context) => {
-      return bundleStreamFunction(parameters, context.getConnections());
+      return bundleStreamFunction(parameters, [...context.getDependencies(), ...context.getConnections()]);
     },
     getFunctionHash: () => {
       return hashObject({ tableSchema });

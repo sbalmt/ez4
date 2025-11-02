@@ -2,7 +2,7 @@ import type { EntryState, EntryStates } from '@ez4/stateful';
 import type { ContextSource, LinkedServices, ServiceAliases, ServiceMetadata } from '../types/service';
 import type { CommonOptions } from '../types/options';
 
-import { linkEntryConnection } from '@ez4/stateful';
+import { linkEntryConnection, linkEntryDependency } from '@ez4/stateful';
 import { toKebabCase } from '@ez4/utils';
 
 import { isServiceMetadata } from '../types/service';
@@ -48,9 +48,13 @@ export const setServiceState = (aliases: ServiceAliases, state: EntryState, serv
 
 export const linkServiceContext = (state: EntryStates, entryId: string, context: Record<string, ContextSource>) => {
   for (const serviceName in context) {
-    const { entryIds: connectionIds } = context[serviceName];
+    const { dependencyIds, connectionIds } = context[serviceName];
 
-    connectionIds.forEach((connectionId) => {
+    dependencyIds?.forEach((dependencyId) => {
+      linkEntryDependency(state, entryId, dependencyId);
+    });
+
+    connectionIds?.forEach((connectionId) => {
       linkEntryConnection(state, entryId, connectionId);
     });
   }

@@ -17,7 +17,8 @@ export type ServiceMetadata = {
 };
 
 export type ContextSource = {
-  entryIds: string[];
+  dependencyIds?: string[];
+  connectionIds?: string[];
   constructor: string;
   module: string;
   from: string;

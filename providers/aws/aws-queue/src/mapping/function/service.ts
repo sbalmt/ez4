@@ -30,7 +30,7 @@ export const createQueueFunction = <E extends EntryState>(
       return [handler.sourceFile, handler.dependencies];
     },
     getFunctionBundle: (context) => {
-      return bundleQueueFunction(parameters, context.getConnections());
+      return bundleQueueFunction(parameters, [...context.getDependencies(), ...context.getConnections()]);
     },
     getFunctionHash: () => {
       return hashObject({ messageSchema });

@@ -38,7 +38,7 @@ export const prepareLinkedClient = async (context: EventContext, service: CronSe
   });
 
   return {
-    entryIds: scheduleState.dependencies,
+    connectionIds: [scheduleState.entryId],
     constructor: `make(${roleArn}, ${functionArn}, ${groupName}, ${clientParameters})`,
     from: '@ez4/aws-scheduler/client',
     module: 'Client'

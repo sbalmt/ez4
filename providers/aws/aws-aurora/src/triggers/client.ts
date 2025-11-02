@@ -19,7 +19,8 @@ export const prepareLinkedClient = (context: EventContext, service: DatabaseServ
   const database = getDatabaseName(service, options);
 
   return {
-    entryIds: [clusterId],
+    connectionIds: [clusterId],
+    dependencyIds: [clusterId],
     from: '@ez4/aws-aurora/client',
     module: 'Client',
     constructor:
