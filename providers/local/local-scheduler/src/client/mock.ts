@@ -1,7 +1,7 @@
 import { Logger } from '@ez4/project/library';
 import type { Client, ScheduleEvent } from '@ez4/scheduler';
 
-export const createMockedClient = (_serviceName: string): Client<any> => {
+export const createMockClient = (_serviceName: string): Client<any> => {
   const schedulerMemory: Record<string, ScheduleEvent<any>> = {};
 
   return new (class {

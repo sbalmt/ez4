@@ -5,7 +5,7 @@ import { toKebabCase } from '@ez4/utils';
 
 const contentMock = Buffer.from('This is a mock content.');
 
-export const createMockedClient = (serviceName: string): Client => {
+export const createMockClient = (serviceName: string): Client => {
   const storageIdentifier = toKebabCase(serviceName);
   const storageMemory: Record<string, boolean> = {};
 
