@@ -3,12 +3,12 @@ import type { HttpService } from '@ez4/gateway/library';
 import type { RouteData } from '../utils/route';
 
 import { HttpForbiddenError, HttpNotFoundError } from '@ez4/gateway';
+import { getClientOperations } from '@ez4/gateway/library';
 import { getServiceName } from '@ez4/project/library';
 
 import { processHttpRequest } from '../handlers/request';
 import { processHttpAuthorization } from '../handlers/authorizer';
 import { createServiceClient } from '../client/service';
-import { buildClientOperations } from '../utils/client';
 import { getErrorResponse } from '../utils/response';
 import { getMatchingRoute } from '../utils/route';
 
@@ -18,7 +18,7 @@ export const registerLocalServices = (service: HttpService, options: ServeOption
   const httpRoutes = buildHttpRoutes(service);
 
   const clientOptions = {
-    operations: buildClientOperations(service),
+    operations: getClientOperations(service),
     ...options
   };
 

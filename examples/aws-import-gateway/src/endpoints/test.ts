@@ -23,8 +23,26 @@ export async function testHandler(request: TestRequest, context: Service.Context
   const { id } = request.query;
   const { importedApi } = context;
 
-  // Invoke an operation from the imported API.
-  const response = await importedApi.patchRoute({
+  // Invoke GET route from imported API.
+  const getResponse = await importedApi.getRoute({
+    parameters: {
+      id
+    }
+  });
+
+  console.log('get', getResponse);
+
+  // Invoke POST route from imported API.
+  const postResponse = await importedApi.postRoute({
+    body: {
+      foo: 'foo'
+    }
+  });
+
+  console.log('post', postResponse);
+
+  // Invoke PATCH route from imported API.
+  const patchResponse = await importedApi.patchRoute({
     parameters: {
       id
     },
@@ -33,7 +51,28 @@ export async function testHandler(request: TestRequest, context: Service.Context
     }
   });
 
-  console.log(response.status, response.body);
+  console.log('patch', patchResponse);
+
+  // Invoke PUT route from imported API.
+  const putResponse = await importedApi.putRoute({
+    parameters: {
+      id
+    },
+    body: {
+      foo: 'baz'
+    }
+  });
+
+  console.log('put', putResponse);
+
+  // Invoke DELETE route from imported API.
+  const deleteResponse = await importedApi.deleteRoute({
+    parameters: {
+      id
+    }
+  });
+
+  console.log('delete', deleteResponse);
 
   return {
     status: 204

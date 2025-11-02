@@ -18,7 +18,7 @@ export type Client<T extends Http.Service> = {
 /**
  * Default HTTP client request.
  */
-export type ClientRequest = {
+export type ClientRequest = RequestOptions & {
   headers?: Record<string, string>;
   parameters?: Record<string, string>;
   query?: Record<string, string>;
@@ -30,7 +30,7 @@ export type ClientRequest = {
  */
 export type ClientResponse = {
   status: number;
-  body: string | AnyObject;
+  body?: unknown;
 };
 
 /**

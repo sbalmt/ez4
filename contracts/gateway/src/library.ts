@@ -1,5 +1,7 @@
 export * from './triggers/register';
 
+export * from './client/operations';
+
 export * from './metadata/service';
 export * from './metadata/route';
 export * from './metadata/handler';

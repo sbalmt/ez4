@@ -25,7 +25,7 @@ declare class GetResponse implements Http.Response {
     /**
      * Example of `string` in the response.
      */
-    foo: string;
+    fooBar: string;
   };
 }
 
@@ -43,7 +43,7 @@ export function getHandler(request: GetRequest, context: Service.Context<ApiProv
   return {
     status: 200,
     body: {
-      foo: 'Hello AWS API'
+      fooBar: 'Hello AWS API'
     }
   };
 }

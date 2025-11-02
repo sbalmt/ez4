@@ -49,8 +49,14 @@ export const getResponseBody = (body: unknown, schema: AnySchema, preferences?: 
 
 export const prepareBodyRequest = (body: unknown) => {
   if (!isAnyString(body)) {
-    return JSON.stringify(body);
+    return {
+      body: JSON.stringify(body),
+      json: true
+    };
   }
 
-  return body;
+  return {
+    json: false,
+    body
+  };
 };

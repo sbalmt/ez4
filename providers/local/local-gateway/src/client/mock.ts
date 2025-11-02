@@ -7,7 +7,7 @@ export const createMockClient = <T extends Http.Service>(serviceName: string, mo
     {},
     {
       get: () => {
-        return (_request: ClientRequest): Promise<ClientResponse> => {
+        return (_request: ClientRequest) => {
           Logger.debug(`🌐 Sending request to gateway [${serviceName}]`);
 
           const response = mockResponse ?? { status: 200, body: {} };

@@ -2,9 +2,9 @@ import type { DeployOptions, ContextSource, EventContext } from '@ez4/project/li
 import type { HttpImport, HttpService } from '@ez4/gateway/library';
 import type { GatewayState } from '../gateway/types';
 
+import { getClientOperations } from '@ez4/gateway/library';
 import { getDefinitionName } from '@ez4/project/library';
 
-import { getClientOperations } from '../client/utils';
 import { getGatewayState } from '../gateway/utils';
 
 export const prepareLinkedClient = (context: EventContext, service: HttpService | HttpImport, options: DeployOptions): ContextSource => {
