@@ -2,7 +2,7 @@
   "TestScheduler": {
     "type": "@ez4/cron",
     "name": "TestScheduler",
-    "extras": {},
+    "context": {},
     "group": "test-group",
     "expression": "dynamic",
     "maxRetries": 5,

@@ -23,7 +23,7 @@ export const getCommonServices = (_reflection: SourceMap) => {
       [ServiceName]: {
         type: ServiceType,
         name: ServiceName,
-        extras: {}
+        context: {}
       }
     }
   };

@@ -2,7 +2,7 @@
   "TestScheduler": {
     "type": "@ez4/cron",
     "name": "TestScheduler",
-    "extras": {},
+    "context": {},
     "description": "Scheduler for testing cron listener.",
     "expression": "rate(1 minute)",
     "target": {

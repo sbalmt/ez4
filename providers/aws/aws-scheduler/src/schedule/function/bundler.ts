@@ -11,7 +11,7 @@ import { getFunctionBundle } from '@ez4/aws-common';
 declare const __MODULE_PATH: string;
 
 export const bundleTargetFunction = async (parameters: TargetFunctionParameters, connections: EntryState[]) => {
-  const { extras, debug, handler, listener, eventSchema } = parameters;
+  const { handler, listener, eventSchema, context, debug } = parameters;
 
   const definitions = getDefinitionsObject(connections);
 
@@ -24,7 +24,7 @@ export const bundleTargetFunction = async (parameters: TargetFunctionParameters,
     },
     handler,
     listener,
-    extras,
+    context,
     debug
   });
 };

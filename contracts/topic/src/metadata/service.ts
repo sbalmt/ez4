@@ -33,7 +33,7 @@ export const getTopicServices = (reflection: SourceMap) => {
       continue;
     }
 
-    const service: Incomplete<TopicService> = { type: ServiceType, extras: {} };
+    const service: Incomplete<TopicService> = { type: ServiceType, context: {} };
     const properties = new Set(['subscriptions', 'schema']);
 
     const fileName = declaration.file;
@@ -118,7 +118,7 @@ export const getTopicServices = (reflection: SourceMap) => {
 };
 
 const isValidService = (type: Incomplete<TopicService>): type is TopicService => {
-  return !!type.name && !!type.schema && !!type.subscriptions && !!type.extras;
+  return !!type.name && !!type.schema && !!type.subscriptions && !!type.context;
 };
 
 const validateFifoModeProperties = (parent: TypeModel, service: TopicService) => {

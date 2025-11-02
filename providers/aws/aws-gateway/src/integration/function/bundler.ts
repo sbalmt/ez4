@@ -14,8 +14,6 @@ declare const __MODULE_PATH: string;
 export const bundleApiFunction = async (parameters: IntegrationFunctionParameters, connections: EntryState[]) => {
   const {
     services,
-    extras,
-    debug,
     handler,
     listener,
     preferences,
@@ -25,13 +23,15 @@ export const bundleApiFunction = async (parameters: IntegrationFunctionParameter
     bodySchema,
     identitySchema,
     responseSchema,
-    errorsMap
+    errorsMap,
+    context,
+    debug
   } = parameters;
 
   const definitions = getDefinitionsObject(connections);
 
   return getFunctionBundle(IntegrationServiceName, {
-    extras: services && extras ? buildServiceContext(extras, services) : extras,
+    context: context && services ? buildServiceContext(context, services) : context,
     templateFile: join(__MODULE_PATH, '../lib/handler.ts'),
     filePrefix: 'api',
     define: {

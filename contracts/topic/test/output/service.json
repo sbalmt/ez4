@@ -2,13 +2,13 @@
   "@variables": {
     "type": "@ez4/common",
     "name": "@variables",
-    "extras": {}
+    "context": {}
   },
   "TestTopic1": {
     "type": "@ez4/topic",
     "name": "TestTopic1",
     "description": "First test topic description.",
-    "extras": {},
+    "context": {},
     "fifoMode": {
       "groupId": "user",
       "uniqueId": "id"
@@ -33,7 +33,7 @@
   "TestTopic2": {
     "type": "@ez4/topic",
     "name": "TestTopic2",
-    "extras": {},
+    "context": {},
     "description": "Description of the second test topic.",
     "schema": {
       "type": "object",

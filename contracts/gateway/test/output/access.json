@@ -1,7 +1,7 @@
 {
   "TestService": {
     "type": "@ez4/http",
-    "extras": {},
+    "context": {},
     "name": "TestService",
     "routes": [],
     "access": {

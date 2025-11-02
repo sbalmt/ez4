@@ -2,7 +2,7 @@
   "TestDatabase": {
     "type": "@ez4/database",
     "name": "TestDatabase",
-    "extras": {},
+    "context": {},
     "engine": {
       "parametersMode": "index",
       "transactionMode": "static",

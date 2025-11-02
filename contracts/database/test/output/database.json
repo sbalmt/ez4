@@ -2,7 +2,7 @@
   "TestDatabase1": {
     "type": "@ez4/database",
     "name": "TestDatabase1",
-    "extras": {},
+    "context": {},
     "engine": {
       "parametersMode": "index",
       "transactionMode": "interactive",
@@ -20,7 +20,7 @@
   "TestDatabase2": {
     "type": "@ez4/database",
     "name": "TestDatabase2",
-    "extras": {},
+    "context": {},
     "engine": {
       "parametersMode": "index",
       "transactionMode": "static",
@@ -39,7 +39,7 @@
   "TestDatabase3": {
     "type": "@ez4/database",
     "name": "TestDatabase3",
-    "extras": {},
+    "context": {},
     "engine": {
       "parametersMode": "index",
       "transactionMode": "static",

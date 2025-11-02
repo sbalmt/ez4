@@ -32,7 +32,7 @@ export const getCdnServices = (reflection: SourceMap) => {
       continue;
     }
 
-    const service: Incomplete<CdnService> = { type: ServiceType, extras: {} };
+    const service: Incomplete<CdnService> = { type: ServiceType, context: {} };
     const properties = new Set(['defaultOrigin']);
 
     const fileName = declaration.file;
@@ -105,7 +105,7 @@ export const getCdnServices = (reflection: SourceMap) => {
 };
 
 const isValidService = (type: Incomplete<CdnService>): type is CdnService => {
-  return !!type.name && !!type.defaultOrigin && !!type.extras;
+  return !!type.name && !!type.defaultOrigin && !!type.context;
 };
 
 const getAllAliases = (member: ModelProperty) => {

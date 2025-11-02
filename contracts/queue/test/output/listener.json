@@ -2,12 +2,12 @@
   "@variables": {
     "name": "@variables",
     "type": "@ez4/common",
-    "extras": {}
+    "context": {}
   },
   "TestQueue": {
     "type": "@ez4/queue",
     "name": "TestQueue",
-    "extras": {},
+    "context": {},
     "description": "Queue to test subscription listener.",
     "schema": {
       "type": "object",

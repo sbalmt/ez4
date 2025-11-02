@@ -51,7 +51,7 @@ export const prepareTableStream = (
       tableSchema: table.schema,
       timeout: timeout ?? Defaults.Timeout,
       memory: memory ?? Defaults.Memory,
-      extras: service.extras,
+      context: service.context,
       debug: options.debug,
       tags: options.tags,
       handler: {

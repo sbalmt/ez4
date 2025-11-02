@@ -48,7 +48,7 @@ const prepareTargetLinkedService = async (
   options: DeployOptions,
   context: EventContext
 ) => {
-  const extraSource = await triggerAllAsync('deploy:prepareLinkedService', (handler) =>
+  const linkedService = await triggerAllAsync('deploy:prepareLinkedService', (handler) =>
     handler({
       service: sourceService,
       options,
@@ -56,7 +56,7 @@ const prepareTargetLinkedService = async (
     })
   );
 
-  if (extraSource) {
-    targetService.extras[contextName] = extraSource;
+  if (linkedService) {
+    targetService.context[contextName] = linkedService;
   }
 };

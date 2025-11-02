@@ -1,7 +1,7 @@
 {
   "TestDatabase": {
     "type": "@ez4/database",
-    "extras": {},
+    "context": {},
     "name": "TestDatabase",
     "engine": {
       "parametersMode": "index",

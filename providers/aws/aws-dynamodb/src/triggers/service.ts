@@ -1,7 +1,7 @@
 import type { ConnectResourceEvent, PrepareResourceEvent, ServiceEvent } from '@ez4/project/library';
 
 import { InsensitiveMode, LockMode, OrderMode, PaginationMode, ParametersMode, TransactionMode } from '@ez4/database';
-import { linkServiceExtras } from '@ez4/project/library';
+import { linkServiceContext } from '@ez4/project/library';
 import { getFunctionState } from '@ez4/aws-function';
 import { isRoleState } from '@ez4/aws-identity';
 
@@ -117,6 +117,6 @@ export const connectDatabaseServices = (event: ConnectResourceEvent) => {
     const internalName = getInternalName(service, table, handler.name);
     const handlerState = getFunctionState(context, internalName, options);
 
-    linkServiceExtras(state, handlerState.entryId, service.extras);
+    linkServiceContext(state, handlerState.entryId, service.context);
   }
 };

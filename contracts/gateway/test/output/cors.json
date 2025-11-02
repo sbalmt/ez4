@@ -2,7 +2,7 @@
   "TestService": {
     "type": "@ez4/http",
     "name": "TestService",
-    "extras": {},
+    "context": {},
     "routes": [
       {
         "path": "POST /test-route-1",

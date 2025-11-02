@@ -1,4 +1,4 @@
-import type { DeployOptions, EventContext, ExtraSource } from '@ez4/project/library';
+import type { DeployOptions, EventContext, ContextSource } from '@ez4/project/library';
 import type { CronService } from '@ez4/scheduler/library';
 import type { RoleState } from '@ez4/aws-identity';
 
@@ -10,7 +10,7 @@ import { getScheduleState, getScheduleTargetState } from '../schedule/utils';
 import { RoleMissingError } from './errors';
 import { getInternalName } from './utils';
 
-export const prepareLinkedClient = async (context: EventContext, service: CronService, options: DeployOptions): Promise<ExtraSource> => {
+export const prepareLinkedClient = async (context: EventContext, service: CronService, options: DeployOptions): Promise<ContextSource> => {
   if (!context.role || !isRoleState(context.role)) {
     throw new RoleMissingError();
   }

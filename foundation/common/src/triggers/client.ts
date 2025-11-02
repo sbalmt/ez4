@@ -1,6 +1,6 @@
-import type { ExtraSource } from '@ez4/project/library';
+import type { ContextSource } from '@ez4/project/library';
 
-export const prepareLinkedClient = (): ExtraSource => {
+export const prepareLinkedClient = (): ContextSource => {
   return {
     entryIds: [],
     constructor: `make()`,

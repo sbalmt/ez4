@@ -3,7 +3,7 @@ import type { BucketService } from '@ez4/storage/library';
 import type { EntryStates } from '@ez4/stateful';
 
 import { getFunctionState, tryGetFunctionState } from '@ez4/aws-function';
-import { linkServiceExtras } from '@ez4/project/library';
+import { linkServiceContext } from '@ez4/project/library';
 import { isRoleState } from '@ez4/aws-identity';
 import { createLogGroup } from '@ez4/aws-logs';
 
@@ -45,7 +45,7 @@ export const prepareEvents = (state: EntryStates, service: BucketService, option
     description: handler.description,
     timeout: timeout ?? Defaults.Timeout,
     memory: memory ?? Defaults.Memory,
-    extras: service.extras,
+    context: service.context,
     debug: options.debug,
     tags: options.tags,
     handler: {
@@ -85,5 +85,5 @@ export const connectEvents = (state: EntryStates, service: BucketService, option
   const internalName = getInternalName(service, handler.name);
   const handlerState = getFunctionState(context, internalName, options);
 
-  linkServiceExtras(state, handlerState.entryId, service.extras);
+  linkServiceContext(state, handlerState.entryId, service.context);
 };

@@ -1,5 +1,5 @@
 import type { FunctionParameters } from '@ez4/aws-function';
-import type { ExtraSource } from '@ez4/project/library';
+import type { ContextSource } from '@ez4/project/library';
 
 export type BucketEventFunction = {
   functionName: string;
@@ -17,6 +17,6 @@ export type BucketEventFunctionParameters = Omit<
 > & {
   handler: BucketEventEntryPoint;
   listener?: BucketEventFunction;
-  extras?: Record<string, ExtraSource>;
+  context?: Record<string, ContextSource>;
   debug?: boolean;
 };

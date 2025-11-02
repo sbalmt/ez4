@@ -35,7 +35,7 @@ export const getQueueServices = (reflection: SourceMap) => {
       continue;
     }
 
-    const service: Incomplete<QueueService> = { type: ServiceType, extras: {} };
+    const service: Incomplete<QueueService> = { type: ServiceType, context: {} };
     const properties = new Set(['subscriptions', 'schema']);
 
     service.name = declaration.name;
@@ -137,7 +137,7 @@ export const getQueueServices = (reflection: SourceMap) => {
 };
 
 const isValidService = (type: Incomplete<QueueService>): type is QueueService => {
-  return !!type.name && !!type.schema && !!type.subscriptions && !!type.extras;
+  return !!type.name && !!type.schema && !!type.subscriptions && !!type.context;
 };
 
 const validateFifoModeProperties = (parent: TypeModel, service: QueueService) => {

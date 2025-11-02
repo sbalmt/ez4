@@ -1,6 +1,6 @@
 import type { TopicMessageSchema } from '@ez4/topic/library';
 import type { FunctionParameters } from '@ez4/aws-function';
-import type { ExtraSource } from '@ez4/project/library';
+import type { ContextSource } from '@ez4/project/library';
 
 export type SubscriptionFunction = {
   functionName: string;
@@ -18,7 +18,7 @@ export type SubscriptionFunctionParameters = Omit<
 > & {
   handler: SubscriptionEntryPoint;
   listener?: SubscriptionFunction;
-  messageSchema?: TopicMessageSchema | null;
-  extras?: Record<string, ExtraSource>;
+  messageSchema?: TopicMessageSchema;
+  context?: Record<string, ContextSource>;
   debug?: boolean;
 };

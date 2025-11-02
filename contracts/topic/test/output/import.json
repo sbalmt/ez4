@@ -2,12 +2,12 @@
   "@variables": {
     "type": "@ez4/common",
     "name": "@variables",
-    "extras": {}
+    "context": {}
   },
   "TestTopic": {
     "type": "@ez4/topic",
     "name": "TestTopic",
-    "extras": {},
+    "context": {},
     "schema": {
       "type": "object",
       "properties": {

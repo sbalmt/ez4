@@ -5,7 +5,7 @@ import type { EntryStates } from '@ez4/stateful';
 import type { ObjectSchema } from '@ez4/schema';
 import type { GatewayState } from '../gateway/types';
 
-import { getServiceName, linkServiceExtras } from '@ez4/project/library';
+import { getServiceName, linkServiceContext } from '@ez4/project/library';
 import { getFunctionState, tryGetFunctionState } from '@ez4/aws-function';
 import { createLogGroup, createLogPolicy } from '@ez4/aws-logs';
 import { isHttpService } from '@ez4/gateway/library';
@@ -76,13 +76,13 @@ export const connectServices = (event: ConnectResourceEvent) => {
     const handlerName = getInternalName(service, handler.name);
     const handlerState = getFunctionState(context, handlerName, options);
 
-    linkServiceExtras(state, handlerState.entryId, service.extras);
+    linkServiceContext(state, handlerState.entryId, service.context);
 
     if (authorizer) {
       const authorizerName = getInternalName(service, authorizer.name);
       const authorizerState = getFunctionState(context, authorizerName, options);
 
-      linkServiceExtras(state, authorizerState.entryId, service.extras);
+      linkServiceContext(state, authorizerState.entryId, service.context);
     }
   }
 };
@@ -180,7 +180,7 @@ const getIntegrationFunction = (
       timeout: Math.max(5, (timeout ?? Defaults.Timeout) - 1),
       memory: memory ?? Defaults.Memory,
       services: provider?.services,
-      extras: service.extras,
+      context: service.context,
       debug: options.debug,
       tags: options.tags,
       handler: {
@@ -280,7 +280,7 @@ const getAuthorizerFunction = (
       timeout: Math.max(5, (timeout ?? Defaults.Timeout) - 1),
       memory: memory ?? Defaults.Memory,
       services: service.services,
-      extras: service.extras,
+      context: service.context,
       debug: options.debug,
       tags: options.tags,
       preferences: {

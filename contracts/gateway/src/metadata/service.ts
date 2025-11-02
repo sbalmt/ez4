@@ -34,7 +34,7 @@ export const getHttpServices = (reflection: SourceMap) => {
       continue;
     }
 
-    const service: Incomplete<HttpService> = { type: ServiceType, extras: {} };
+    const service: Incomplete<HttpService> = { type: ServiceType, context: {} };
     const properties = new Set(['routes']);
 
     const fileName = declaration.file;
@@ -113,7 +113,7 @@ export const getHttpServices = (reflection: SourceMap) => {
 };
 
 const isValidService = (type: Incomplete<HttpService>): type is HttpService => {
-  return !!type.name && !!type.routes && !!type.extras;
+  return !!type.name && !!type.routes && !!type.context;
 };
 
 const assignProviderServices = (service: HttpService, errorList: Error[], fileName?: string) => {

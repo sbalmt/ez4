@@ -2,12 +2,12 @@
   "@variables": {
     "type": "@ez4/common",
     "name": "@variables",
-    "extras": {}
+    "context": {}
   },
   "TestTopic": {
     "type": "@ez4/topic",
     "name": "TestTopic",
-    "extras": {},
+    "context": {},
     "description": "Topic to test subscriptions.",
     "schema": {
       "type": "object",
@@ -55,7 +55,7 @@
   "TestQueue": {
     "type": "@ez4/queue",
     "name": "TestQueue",
-    "extras": {},
+    "context": {},
     "subscriptions": [],
     "schema": {
       "identity": 1,

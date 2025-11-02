@@ -1,7 +1,7 @@
 {
   "TestStorage": {
     "type": "@ez4/bucket",
-    "extras": {},
+    "context": {},
     "name": "TestStorage",
     "events": {
       "path": "uploads/*",
