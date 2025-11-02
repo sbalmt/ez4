@@ -19,7 +19,7 @@ export const getHttpErrors = (type: AllType, parent: TypeModel, reflection: Sour
     return getTypeErrors(declaration, parent, reflection, errorList);
   }
 
-  return null;
+  return undefined;
 };
 
 const getTypeErrors = (type: AllType, parent: TypeModel, reflection: SourceMap, errorList: Error[]) => {
@@ -27,7 +27,7 @@ const getTypeErrors = (type: AllType, parent: TypeModel, reflection: SourceMap, 
     return getTypeFromMembers(type, parent, getObjectMembers(type), reflection, errorList);
   }
 
-  return null;
+  return undefined;
 };
 
 const getTypeFromMembers = (
@@ -61,7 +61,7 @@ const getTypeFromMembers = (
     return httpErrors;
   }
 
-  return null;
+  return undefined;
 };
 
 export const getErrorClasses = (member: ModelProperty, errorCode: number, parent: TypeModel, reflection: SourceMap, errorList: Error[]) => {

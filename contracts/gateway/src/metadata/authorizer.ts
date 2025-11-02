@@ -9,7 +9,7 @@ import { isHttpAuthorizer } from './utils';
 
 export const getHttpAuthorizer = (type: AllType, parent: TypeModel, reflection: SourceMap, errorList: Error[]) => {
   if (!isHttpAuthorizer(type)) {
-    return null;
+    return undefined;
   }
 
   const { description, module } = type;
@@ -45,7 +45,7 @@ export const getHttpAuthorizer = (type: AllType, parent: TypeModel, reflection: 
 
   errorList.push(new IncompleteAuthorizerError([...properties], type.file));
 
-  return null;
+  return undefined;
 };
 
 const isValidAuthorizer = (type: Incomplete<HttpAuthorizer>): type is HttpAuthorizer => {

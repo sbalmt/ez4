@@ -31,7 +31,7 @@ export const getCdnCache = (type: AllType, parent: TypeModel, reflection: Source
     return getTypeCache(declaration, parent, errorList);
   }
 
-  return null;
+  return undefined;
 };
 
 const isValidCache = (type: Incomplete<CdnCache>): type is CdnCache => {
@@ -45,12 +45,12 @@ const getTypeCache = (type: AllType, parent: TypeModel, errorList: Error[]) => {
 
   if (!isModelDeclaration(type)) {
     errorList.push(new InvalidCacheTypeError(parent.file));
-    return null;
+    return undefined;
   }
 
   if (!isCdnCache(type)) {
     errorList.push(new IncorrectCacheTypeError(type.name, type.file));
-    return null;
+    return undefined;
   }
 
   return getTypeFromMembers(type, parent, getModelMembers(type), errorList);
@@ -101,5 +101,5 @@ const getTypeFromMembers = (type: TypeObject | TypeModel, parent: TypeModel, mem
 
   errorList.push(new IncompleteCacheError([...properties], type.file));
 
-  return null;
+  return undefined;
 };

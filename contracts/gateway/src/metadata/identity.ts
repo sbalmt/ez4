@@ -13,7 +13,7 @@ type TypeParent = TypeObject | TypeModel | TypeIntersection;
 
 export const getHttpIdentity = (type: AllType, parent: TypeParent, reflection: SourceMap, errorList: Error[]) => {
   if (isTypeUndefined(type)) {
-    return null;
+    return undefined;
   }
 
   if (!isTypeReference(type)) {
@@ -26,7 +26,7 @@ export const getHttpIdentity = (type: AllType, parent: TypeParent, reflection: S
     return getTypeIdentity(declaration, parent, reflection, errorList);
   }
 
-  return null;
+  return undefined;
 };
 
 const getTypeIdentity = (
@@ -34,7 +34,7 @@ const getTypeIdentity = (
   parent: TypeParent,
   reflection: SourceMap,
   errorList: Error[]
-): ObjectSchema | UnionSchema | null => {
+): ObjectSchema | UnionSchema | undefined => {
   if (isTypeUnion(type)) {
     return getIdentityFromUnion(type.elements, parent, reflection, errorList);
   }
@@ -45,12 +45,12 @@ const getTypeIdentity = (
 
   if (!isModelDeclaration(type)) {
     errorList.push(new InvalidIdentityTypeError(parent.file));
-    return null;
+    return undefined;
   }
 
   if (!isHttpIdentity(type)) {
     errorList.push(new IncorrectIdentityTypeError(type.name, parent.file));
-    return null;
+    return undefined;
   }
 
   const schema = getSchemaFromType(type, reflection);

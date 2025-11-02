@@ -49,7 +49,7 @@ const getTopicSubscription = (type: AllType, parent: TypeModel, reflection: Sour
     return getTypeSubscription(declaration, parent, reflection, errorList);
   }
 
-  return null;
+  return undefined;
 };
 
 const isValidSubscription = (type: Incomplete<TopicSubscription>): type is TopicSubscription => {
@@ -71,12 +71,12 @@ const getTypeSubscription = (type: AllType, parent: TypeModel, reflection: Sourc
 
   if (!isModelDeclaration(type)) {
     errorList.push(new InvalidSubscriptionTypeError(parent.file));
-    return null;
+    return undefined;
   }
 
   if (!isTopicSubscription(type)) {
     errorList.push(new IncorrectSubscriptionTypeError(type.name, type.file));
-    return null;
+    return undefined;
   }
 
   return getTypeFromMembers(type, parent, getModelMembers(type), reflection, errorList);
@@ -106,7 +106,7 @@ const getTypeFromMembers = (
 
   errorList.push(...allLambdaErrors, ...allQueueErrors);
 
-  return null;
+  return undefined;
 };
 
 const getLambdaSubscription = (
@@ -160,7 +160,7 @@ const getLambdaSubscription = (
 
   errorList.push(new IncompleteSubscriptionError([...properties], type.file));
 
-  return null;
+  return undefined;
 };
 
 const getQueueSubscription = (
@@ -200,5 +200,5 @@ const getQueueSubscription = (
 
   errorList.push(new IncompleteSubscriptionError([...properties], type.file));
 
-  return null;
+  return undefined;
 };

@@ -10,7 +10,7 @@ import { isHttpHandler } from './utils';
 
 export const getHttpHandler = (type: AllType, parent: TypeModel, reflection: SourceMap, errorList: Error[]) => {
   if (!isHttpHandler(type)) {
-    return null;
+    return undefined;
   }
 
   const { description, module } = type;
@@ -55,7 +55,7 @@ export const getHttpHandler = (type: AllType, parent: TypeModel, reflection: Sou
 
   errorList.push(new IncompleteHandlerError([...properties], type.file));
 
-  return null;
+  return undefined;
 };
 
 const isValidHandler = (type: Incomplete<HttpHandler>): type is HttpHandler => {

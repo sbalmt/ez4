@@ -9,5 +9,5 @@ export const getSchemaFromType = (type: TypeObject | TypeModel | TypeIntersectio
     return schema;
   }
 
-  return null;
+  return undefined;
 };

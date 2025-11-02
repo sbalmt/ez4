@@ -14,12 +14,12 @@ export const getLinkedVariableList = (member: ModelProperty, errorList: Error[])
     return getObjectVariables(object, errorList);
   }
 
-  return null;
+  return undefined;
 };
 
 const getObjectVariables = (type: AllType, errorList: Error[]) => {
   if (!isTypeObject(type)) {
-    return null;
+    return undefined;
   }
 
   const members = getObjectMembers(type);

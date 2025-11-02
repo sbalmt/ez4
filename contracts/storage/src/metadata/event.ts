@@ -32,7 +32,7 @@ export const getBucketEvent = (type: AllType, parent: TypeModel, reflection: Sou
     return getTypeEvent(declaration, parent, reflection, errorList);
   }
 
-  return null;
+  return undefined;
 };
 
 const isValidEvent = (type: Incomplete<BucketEvent>): type is BucketEvent => {
@@ -46,12 +46,12 @@ const getTypeEvent = (type: AllType, parent: TypeModel, reflection: SourceMap, e
 
   if (!isModelDeclaration(type)) {
     errorList.push(new InvalidEventTypeError(parent.file));
-    return null;
+    return undefined;
   }
 
   if (!isBucketEvent(type)) {
     errorList.push(new IncorrectEventTypeError(type.name, type.file));
-    return null;
+    return undefined;
   }
 
   return getTypeFromMembers(type, parent, getModelMembers(type), reflection, errorList);
@@ -107,5 +107,5 @@ const getTypeFromMembers = (
 
   errorList.push(new IncompleteEventError([...properties], type.file));
 
-  return null;
+  return undefined;
 };

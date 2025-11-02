@@ -43,7 +43,7 @@ const getHttpRequest = (type: AllType, parent: TypeModel, reflection: SourceMap,
     return getTypeRequest(declaration, parent, reflection, errorList, baseType);
   }
 
-  return null;
+  return undefined;
 };
 
 const getTypeRequest = (type: AllType, parent: TypeModel, reflection: SourceMap, errorList: Error[], baseType: string) => {
@@ -53,12 +53,12 @@ const getTypeRequest = (type: AllType, parent: TypeModel, reflection: SourceMap,
 
   if (!isModelDeclaration(type)) {
     errorList.push(new InvalidRequestTypeError(baseType, parent.file));
-    return null;
+    return undefined;
   }
 
   if (!hasHeritageType(type, baseType)) {
     errorList.push(new IncorrectRequestTypeError(type.name, baseType, type.file));
-    return null;
+    return undefined;
   }
 
   return getTypeFromMembers(type, parent, getModelMembers(type), reflection, errorList);

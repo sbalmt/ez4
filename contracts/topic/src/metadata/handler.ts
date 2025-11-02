@@ -8,7 +8,7 @@ import { getTopicMessage } from './message';
 
 export const getSubscriptionHandler = (type: AllType, reflection: SourceMap, errorList: Error[]) => {
   if (!isSubscriptionHandler(type)) {
-    return null;
+    return undefined;
   }
 
   const { description, module } = type;
@@ -40,7 +40,7 @@ export const getSubscriptionHandler = (type: AllType, reflection: SourceMap, err
 
   errorList.push(new IncompleteHandlerError([...properties], type.file));
 
-  return null;
+  return undefined;
 };
 
 const isValidHandler = (type: Incomplete<SubscriptionHandler>): type is SubscriptionHandler => {

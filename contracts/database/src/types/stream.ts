@@ -5,7 +5,7 @@ import type { StreamHandler } from './handler';
 export type TableStream = {
   listener?: ServiceListener;
   handler: StreamHandler;
-  variables?: LinkedVariables | null;
+  variables?: LinkedVariables;
   logRetention?: number;
   timeout?: number;
   memory?: number;

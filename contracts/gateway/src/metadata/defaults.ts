@@ -30,7 +30,7 @@ export const getHttpDefaults = (type: AllType, parent: TypeModel, reflection: So
     return getTypeDefaults(declaration, parent, reflection, errorList);
   }
 
-  return null;
+  return undefined;
 };
 
 const getTypeDefaults = (type: AllType, parent: TypeModel, reflection: SourceMap, errorList: Error[]) => {
@@ -40,12 +40,12 @@ const getTypeDefaults = (type: AllType, parent: TypeModel, reflection: SourceMap
 
   if (!isModelDeclaration(type)) {
     errorList.push(new InvalidDefaultsTypeError(parent.file));
-    return null;
+    return undefined;
   }
 
   if (!isHttpDefaults(type)) {
     errorList.push(new IncorrectDefaultsTypeError(type.name, parent.file));
-    return null;
+    return undefined;
   }
 
   return getTypeFromMembers(parent, getModelMembers(type), reflection, errorList);

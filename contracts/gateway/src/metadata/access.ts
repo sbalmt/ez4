@@ -29,7 +29,7 @@ export const getHttpAccess = (type: AllType, parent: TypeModel, reflection: Sour
     return getTypeAccess(declaration, parent, errorList);
   }
 
-  return null;
+  return undefined;
 };
 
 const isValidAccess = (type: Incomplete<HttpAccess>): type is HttpAccess => {
@@ -43,12 +43,12 @@ const getTypeAccess = (type: AllType, parent: TypeModel, errorList: Error[]) => 
 
   if (!isModelDeclaration(type)) {
     errorList.push(new InvalidAccessTypeError(parent.file));
-    return null;
+    return undefined;
   }
 
   if (!isHttpAccess(type)) {
     errorList.push(new IncorrectAccessTypeError(type.name, type.file));
-    return null;
+    return undefined;
   }
 
   return getTypeFromMembers(type, parent, getModelMembers(type), errorList);
@@ -87,5 +87,5 @@ const getTypeFromMembers = (type: TypeObject | TypeModel, parent: TypeModel, mem
 
   errorList.push(new IncompleteAccessError([...properties], type.file));
 
-  return null;
+  return undefined;
 };

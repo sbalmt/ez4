@@ -31,7 +31,7 @@ export const getCronTarget = (type: AllType, parent: TypeModel, reflection: Sour
     return getTypeTarget(declaration, parent, reflection, errorList);
   }
 
-  return null;
+  return undefined;
 };
 
 const isValidTarget = (type: Incomplete<CronTarget>): type is CronTarget => {
@@ -45,12 +45,12 @@ const getTypeTarget = (type: AllType, parent: TypeModel, reflection: SourceMap, 
 
   if (!isModelDeclaration(type)) {
     errorList.push(new InvalidTargetTypeError(parent.file));
-    return null;
+    return undefined;
   }
 
   if (!isCronTarget(type)) {
     errorList.push(new IncorrectTargetTypeError(type.name, type.file));
-    return null;
+    return undefined;
   }
 
   return getTypeFromMembers(type, parent, getModelMembers(type), reflection, errorList);
@@ -104,5 +104,5 @@ const getTypeFromMembers = (
 
   errorList.push(new IncompleteTargetError([...properties], type.file));
 
-  return null;
+  return undefined;
 };

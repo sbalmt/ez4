@@ -21,7 +21,7 @@ export const getDatabaseScalability = (type: AllType, parent: TypeModel, reflect
     return getTypeScalability(declaration, parent, errorList);
   }
 
-  return null;
+  return undefined;
 };
 
 const isValidScalability = (type: Incomplete<DatabaseScalability>): type is DatabaseScalability => {
@@ -37,7 +37,7 @@ const getTypeScalability = (type: AllType, parent: TypeModel, errorList: Error[]
     return getTypeFromMembers(type, parent, getObjectMembers(type), errorList);
   }
 
-  return null;
+  return undefined;
 };
 
 const getTypeFromMembers = (type: TypeObject | TypeModel, parent: TypeModel, members: MemberType[], errorList: Error[]) => {
@@ -70,7 +70,7 @@ const getTypeFromMembers = (type: TypeObject | TypeModel, parent: TypeModel, mem
 
   if (!isValidScalability(scalability)) {
     errorList.push(new IncompleteScalabilityError([...properties], type.file));
-    return null;
+    return undefined;
   }
 
   return scalability;

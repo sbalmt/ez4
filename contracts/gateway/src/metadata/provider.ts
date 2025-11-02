@@ -19,7 +19,7 @@ export const getHttpProvider = (type: AllType, parent: TypeModel, reflection: So
     return getProviderType(declaration, parent, reflection, errorList, 'Http.Provider');
   }
 
-  return null;
+  return undefined;
 };
 
 const isValidProvider = (type: Incomplete<HttpProvider>): type is HttpProvider => {
@@ -29,7 +29,7 @@ const isValidProvider = (type: Incomplete<HttpProvider>): type is HttpProvider =
 const getProviderType = (type: AllType, parent: TypeModel, reflection: SourceMap, errorList: Error[], baseType: string) => {
   if (!isModelDeclaration(type)) {
     errorList.push(new InvalidProviderTypeError(baseType, parent.file));
-    return null;
+    return undefined;
   }
 
   return getTypeFromMembers(type, getModelMembers(type), reflection, errorList);
@@ -70,5 +70,5 @@ const getTypeFromMembers = (
 
   errorList.push(new IncompleteProviderError([...properties], type.file));
 
-  return null;
+  return undefined;
 };

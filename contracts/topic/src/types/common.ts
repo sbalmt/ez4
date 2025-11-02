@@ -25,7 +25,7 @@ export type TopicLambdaSubscription = {
   type: TopicSubscriptionType.Lambda;
   listener?: ServiceListener;
   handler: SubscriptionHandler;
-  variables?: LinkedVariables | null;
+  variables?: LinkedVariables;
   logRetention?: number;
   timeout?: number;
   memory?: number;

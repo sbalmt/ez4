@@ -20,7 +20,7 @@ export const getHttpHeaders = (type: AllType, parent: TypeParent, reflection: So
     return getTypeHeaders(declaration, parent, reflection, errorList);
   }
 
-  return null;
+  return undefined;
 };
 
 const getTypeHeaders = (type: AllType, parent: TypeParent, reflection: SourceMap, errorList: Error[]) => {
@@ -30,12 +30,12 @@ const getTypeHeaders = (type: AllType, parent: TypeParent, reflection: SourceMap
 
   if (!isModelDeclaration(type)) {
     errorList.push(new InvalidHeadersTypeError(parent.file));
-    return null;
+    return undefined;
   }
 
   if (!isHttpHeaders(type)) {
     errorList.push(new IncorrectHeadersTypeError(type.name, parent.file));
-    return null;
+    return undefined;
   }
 
   return getSchemaFromType(type, reflection);

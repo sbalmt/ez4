@@ -28,7 +28,7 @@ export const getCdnCertificate = (type: AllType, parent: TypeModel, reflection: 
     return getTypeCertificate(declaration, parent, errorList);
   }
 
-  return null;
+  return undefined;
 };
 
 const isValidCertificate = (type: Incomplete<CdnCertificate>): type is CdnCertificate => {
@@ -42,12 +42,12 @@ const getTypeCertificate = (type: AllType, parent: TypeModel, errorList: Error[]
 
   if (!isModelDeclaration(type)) {
     errorList.push(new InvalidCertificateTypeError(parent.file));
-    return null;
+    return undefined;
   }
 
   if (!isCdnCertificate(type)) {
     errorList.push(new IncorrectCertificateTypeError(type.name, type.file));
-    return null;
+    return undefined;
   }
 
   return getTypeFromMembers(type, parent, getModelMembers(type), errorList);
@@ -81,5 +81,5 @@ const getTypeFromMembers = (type: TypeObject | TypeModel, parent: TypeModel, mem
 
   errorList.push(new IncompleteCertificateError([...properties], type.file));
 
-  return null;
+  return undefined;
 };

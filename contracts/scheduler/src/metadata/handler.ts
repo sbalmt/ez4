@@ -8,7 +8,7 @@ import { getCronEvent } from './event';
 
 export const getTargetHandler = (type: AllType, reflection: SourceMap, errorList: Error[]) => {
   if (!isTargetHandler(type)) {
-    return null;
+    return undefined;
   }
 
   const { description, module } = type;
@@ -40,7 +40,7 @@ export const getTargetHandler = (type: AllType, reflection: SourceMap, errorList
 
   errorList.push(new IncompleteHandlerError([...properties], type.file));
 
-  return null;
+  return undefined;
 };
 
 const isValidHandler = (type: Incomplete<TargetHandler>): type is TargetHandler => {

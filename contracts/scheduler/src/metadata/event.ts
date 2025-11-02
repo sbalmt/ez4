@@ -22,10 +22,10 @@ export const getCronEvent = (type: AllType, parent: TypeParent, reflection: Sour
     return getTypeEvent(declaration, parent, reflection, errorList);
   }
 
-  return null;
+  return undefined;
 };
 
-const getTypeEvent = (type: AllType, parent: TypeParent, reflection: SourceMap, errorList: Error[]): CronEventSchema | null => {
+const getTypeEvent = (type: AllType, parent: TypeParent, reflection: SourceMap, errorList: Error[]): CronEventSchema | undefined => {
   if (isTypeUnion(type)) {
     return getEventFromUnion(type.elements, parent, reflection, errorList);
   }
@@ -36,12 +36,12 @@ const getTypeEvent = (type: AllType, parent: TypeParent, reflection: SourceMap, 
 
   if (!isModelDeclaration(type)) {
     errorList.push(new InvalidEventTypeError(parent.file));
-    return null;
+    return undefined;
   }
 
   if (!isCronEvent(type)) {
     errorList.push(new IncorrectEventTypeError(type.name, type.file));
-    return null;
+    return undefined;
   }
 
   return getEventSchema(type, reflection);
@@ -70,5 +70,5 @@ const getEventSchema = (type: TypeObject | TypeModel | TypeIntersection, reflect
     return schema;
   }
 
-  return null;
+  return undefined;
 };

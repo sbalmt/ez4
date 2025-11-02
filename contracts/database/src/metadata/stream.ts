@@ -31,7 +31,7 @@ export const getTableStream = (type: AllType, parent: TypeModel, reflection: Sou
     return getTypeStream(declaration, parent, reflection, errorList);
   }
 
-  return null;
+  return undefined;
 };
 
 const isValidStream = (type: Incomplete<TableStream>): type is TableStream => {
@@ -45,12 +45,12 @@ const getTypeStream = (type: AllType, parent: TypeModel, reflection: SourceMap, 
 
   if (!isModelDeclaration(type)) {
     errorList.push(new InvalidStreamTypeError(parent.file));
-    return null;
+    return undefined;
   }
 
   if (!isTableStream(type)) {
     errorList.push(new IncorrectStreamTypeError(type.name, type.file));
-    return null;
+    return undefined;
   }
 
   return getTypeFromMembers(type, parent, getModelMembers(type), reflection, errorList);
@@ -102,5 +102,5 @@ const getTypeFromMembers = (
 
   errorList.push(new IncompleteStreamError([...properties], type.file));
 
-  return null;
+  return undefined;
 };

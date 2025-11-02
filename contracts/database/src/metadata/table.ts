@@ -27,7 +27,7 @@ export const getDatabaseTable = (type: AllType, parent: TypeModel, reflection: S
     return getTypeTable(declaration, parent, reflection, errorList);
   }
 
-  return null;
+  return undefined;
 };
 
 const isValidTable = (type: Incomplete<DatabaseTable>): type is DatabaseTable => {
@@ -43,7 +43,7 @@ const getTypeTable = (type: AllType, parent: TypeModel, reflection: SourceMap, e
     return getTypeFromMembers(type, parent, getObjectMembers(type), reflection, errorList);
   }
 
-  return null;
+  return undefined;
 };
 
 const getTypeFromMembers = (
@@ -96,14 +96,14 @@ const getTypeFromMembers = (
 
   if (!isValidTable(table)) {
     errorList.push(new IncompleteTableError([...properties], type.file));
-    return null;
+    return undefined;
   }
 
   const indexErrors = validateIndexes(type, table.indexes, table.schema);
 
   if (indexErrors.length) {
     errorList.push(...indexErrors);
-    return null;
+    return undefined;
   }
 
   return table;

@@ -29,7 +29,7 @@ export const getHttpCache = (type: AllType, parent: TypeModel, reflection: Sourc
     return getTypeCache(declaration, parent, errorList);
   }
 
-  return null;
+  return undefined;
 };
 
 const isValidCache = (type: Incomplete<HttpCache>): type is HttpCache => {
@@ -43,12 +43,12 @@ const getTypeCache = (type: AllType, parent: TypeModel, errorList: Error[]) => {
 
   if (!isModelDeclaration(type)) {
     errorList.push(new InvalidCacheTypeError(parent.file));
-    return null;
+    return undefined;
   }
 
   if (!isHttpCache(type)) {
     errorList.push(new IncorrectCacheTypeError(type.name, type.file));
-    return null;
+    return undefined;
   }
 
   return getTypeFromMembers(type, parent, getModelMembers(type), errorList);
@@ -87,5 +87,5 @@ const getTypeFromMembers = (type: TypeObject | TypeModel, parent: TypeModel, mem
 
   errorList.push(new IncompleteCacheError([...properties], type.file));
 
-  return null;
+  return undefined;
 };
