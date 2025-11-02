@@ -7,12 +7,12 @@ import { getHttpException, prepareBodyRequest, prepareRequestUrl } from '@ez4/ga
 import { isAnyString } from '@ez4/utils';
 import { HttpError } from '@ez4/gateway';
 
-export type ClientOptions = CommonOptions & {
+export type ServiceClientOptions = CommonOptions & {
   operations: Record<string, ClientOperation>;
   serviceHost: string;
 };
 
-export const createClient = <T extends Http.Service>(serviceName: string, clientOptions: ClientOptions): Client<T> => {
+export const createServiceClient = <T extends Http.Service>(serviceName: string, clientOptions: ServiceClientOptions): Client<T> => {
   const { serviceHost, operations } = clientOptions;
 
   const gatewayIdentifier = getServiceName(serviceName, clientOptions);

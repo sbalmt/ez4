@@ -7,10 +7,10 @@ import { getServiceName } from '@ez4/project/library';
 
 import { processHttpRequest } from '../handlers/request';
 import { processHttpAuthorization } from '../handlers/authorizer';
-import { getErrorResponse } from '../utils/response';
+import { createServiceClient } from '../client/service';
 import { buildClientOperations } from '../utils/client';
+import { getErrorResponse } from '../utils/response';
 import { getMatchingRoute } from '../utils/route';
-import { createClient } from '../client/service';
 
 export const registerLocalServices = (service: HttpService, options: ServeOptions, context: EmulateServiceContext) => {
   const { name: serviceName } = service;
@@ -27,7 +27,7 @@ export const registerLocalServices = (service: HttpService, options: ServeOption
     name: serviceName,
     identifier: getServiceName(serviceName, options),
     clientHandler: () => {
-      return createClient(serviceName, clientOptions);
+      return createServiceClient(serviceName, clientOptions);
     },
     requestHandler: async (request: EmulatorServiceRequest) => {
       const methodRoutes = { ...httpRoutes.ANY, ...httpRoutes[request.method] };
