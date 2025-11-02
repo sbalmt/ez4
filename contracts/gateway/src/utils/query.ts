@@ -4,6 +4,7 @@ import type { Http } from '@ez4/gateway';
 import { createTransformContext, transform } from '@ez4/transform';
 import { validate, createValidatorContext, getUniqueErrorMessages } from '@ez4/validator';
 import { HttpBadRequestError } from '@ez4/gateway';
+import { isNullish } from '@ez4/utils';
 
 export const getQueryStrings = async <T extends Http.QueryStrings>(
   input: T,
@@ -33,4 +34,32 @@ export const getQueryStrings = async <T extends Http.QueryStrings>(
   }
 
   return payload as T;
+};
+
+export const prepareQueryStrings = <T extends Http.QueryStrings>(query: T) => {
+  const queryStrings = [];
+
+  for (const name in query) {
+    const value = query[name];
+
+    if (!isNullish(value)) {
+      if (value instanceof Date) {
+        queryStrings.push(`${name}=${encodeURIComponent(value.toISOString())}`);
+        continue;
+      }
+
+      if (value instanceof Array) {
+        queryStrings.push(`${name}=${encodeURIComponent(value.join(','))}`);
+        continue;
+      }
+
+      queryStrings.push(`${name}=${encodeURIComponent(`${value}`)}`);
+    }
+  }
+
+  if (queryStrings.length) {
+    return queryStrings.join('&');
+  }
+
+  return undefined;
 };

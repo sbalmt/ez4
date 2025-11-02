@@ -16,6 +16,10 @@ export const isHttpService = (type: AllType): type is TypeClass => {
   return isClassDeclaration(type) && hasHeritageType(type, 'Http.Service');
 };
 
+export const isHttpImport = (type: AllType): type is TypeClass => {
+  return isClassDeclaration(type) && hasHeritageType(type, 'Http.Import');
+};
+
 export const isHttpProvider = (type: AllType): type is TypeModel => {
   return isModelDeclaration(type) && hasHeritageType(type, 'Http.Provider');
 };

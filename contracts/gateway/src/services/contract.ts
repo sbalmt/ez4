@@ -2,6 +2,7 @@ import type { Service as CommonService } from '@ez4/common';
 import type { LinkedVariables } from '@ez4/project/library';
 import type { HttpPath } from '../types/common';
 import type { HttpSuccessStatuses, HttpSuccessEmptyResponse, HttpSuccessResponse } from './utils';
+import type { Client } from './client';
 
 import type {
   HttpHeaders,
@@ -68,6 +69,11 @@ export namespace Http {
    * HTTP route.
    */
   export interface Route<T extends Request = Request, U extends AuthRequest = AuthRequest> {
+    /**
+     * Route name.
+     */
+    name?: string;
+
     /**
      * Route path.
      */
@@ -196,6 +202,46 @@ export namespace Http {
     /**
      * Service client.
      */
-    client: never;
+    client: Client<Service>;
+  }
+
+  /**
+   * Imported HTTP service.
+   */
+  export declare abstract class Import<T extends Service> implements CommonService.Provider {
+    /**
+     * Name of the imported project defined in the project options file.
+     */
+    abstract project: string;
+
+    /**
+     * Imported service reference.
+     */
+    reference: T;
+
+    /**
+     * All routes attached to the imported service (do not replace).
+     */
+    routes: T['routes'];
+
+    /**
+     * All default configurations attached to the imported service (do not replace).
+     */
+    defaults?: T['defaults'];
+
+    /**
+     * Imported service client (do not replace).
+     */
+    client: Client<T>;
+
+    /**
+     * Variables are not allowed.
+     */
+    variables: never;
+
+    /**
+     * Services are not allowed.
+     */
+    service: never;
   }
 }

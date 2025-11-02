@@ -26,9 +26,17 @@ import { getHttpHandler } from './handler';
 import { getHttpErrors } from './errors';
 
 export const getHttpRoutes = (parent: TypeModel, member: ModelProperty, reflection: SourceMap, errorList: Error[]) => {
-  const routeItems = getPropertyTuple(member) ?? [];
+  if (!isTypeReference(member.value)) {
+    return getRouteFromTuple(getPropertyTuple(member) ?? [], parent, reflection, errorList);
+  }
 
-  return getRouteFromTuple(routeItems, parent, reflection, errorList);
+  const declaration = getReferenceType(member.value, reflection);
+
+  if (declaration && isTypeTuple(declaration)) {
+    return getRouteFromTuple(declaration.elements, parent, reflection, errorList);
+  }
+
+  return undefined;
 };
 
 const getRouteFromTuple = (routeItems: EveryType[], parent: TypeModel, reflection: SourceMap, errorList: Error[]) => {
@@ -58,7 +66,7 @@ const getTypeFromRoute = (type: AllType, parent: TypeModel, reflection: SourceMa
     return getRouteType(declaration, parent, reflection, errorList);
   }
 
-  return null;
+  return undefined;
 };
 
 const isValidRoute = (type: Incomplete<HttpRoute>): type is HttpRoute => {
@@ -78,7 +86,7 @@ const getRouteType = (type: AllType, parent: TypeModel, reflection: SourceMap, e
     return getRouteFromTuple(type.elements, parent, reflection, errorList);
   }
 
-  return null;
+  return undefined;
 };
 
 const getTypeFromMembers = (
@@ -99,6 +107,10 @@ const getTypeFromMembers = (
     switch (member.name) {
       default:
         errorList.push(new InvalidServicePropertyError(parent.name, member.name, type.file));
+        break;
+
+      case 'name':
+        route.name = getPropertyString(member);
         break;
 
       case 'path': {
@@ -156,5 +168,5 @@ const getTypeFromMembers = (
 
   errorList.push(new IncompleteRouteError([...properties], type.file));
 
-  return null;
+  return undefined;
 };
