@@ -48,6 +48,7 @@ const prepareQueueResources = (event: PrepareResourceEvent) => {
   return prepareServices(event) || prepareImports(event);
 };
 
-const connectQueueResources = async (event: ConnectResourceEvent) => {
-  await Promise.all([connectServices(event), connectImports(event)]);
+const connectQueueResources = (event: ConnectResourceEvent) => {
+  connectServices(event);
+  connectImports(event);
 };

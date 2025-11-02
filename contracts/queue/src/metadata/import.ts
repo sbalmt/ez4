@@ -11,8 +11,8 @@ import {
   getModelMembers,
   getPropertyString,
   getReferenceName,
-  getReferenceNumber,
-  getReferenceModel
+  getReferenceModel,
+  getPropertyNumber
 } from '@ez4/common/library';
 
 import { isModelProperty, isTypeReference, isTypeUnion } from '@ez4/reflection';
@@ -97,7 +97,7 @@ export const getQueueImports = (reflection: SourceMap) => {
 
         case 'timeout':
           if (member.inherited) {
-            service.timeout = getReferenceNumber(member.value, reflection);
+            service.timeout = getPropertyNumber(member, reflection);
           }
           break;
 

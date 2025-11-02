@@ -38,7 +38,7 @@ export const getReferenceType = (type: TypeReference, reflection: SourceMap): Al
 
 export const getReferenceBoolean = (type: AllType, reflection: SourceMap) => {
   if (!isTypeReference(type) || !type.index) {
-    return null;
+    return undefined;
   }
 
   const reference = getReferenceType(type, reflection);
@@ -48,7 +48,7 @@ export const getReferenceBoolean = (type: AllType, reflection: SourceMap) => {
 
 export const getReferenceNumber = (type: AllType, reflection: SourceMap) => {
   if (!isTypeReference(type) || !type.index) {
-    return null;
+    return undefined;
   }
 
   const reference = getReferenceType(type, reflection);
@@ -58,7 +58,7 @@ export const getReferenceNumber = (type: AllType, reflection: SourceMap) => {
 
 export const getReferenceString = (type: AllType, reflection: SourceMap) => {
   if (!isTypeReference(type) || !type.index) {
-    return null;
+    return undefined;
   }
 
   const reference = getReferenceType(type, reflection);
@@ -68,7 +68,7 @@ export const getReferenceString = (type: AllType, reflection: SourceMap) => {
 
 export const getReferenceTuple = (type: AllType, reflection: SourceMap) => {
   if (!isTypeReference(type) || !type.index) {
-    return null;
+    return undefined;
   }
 
   const reference = getReferenceType(type, reflection);
@@ -78,7 +78,7 @@ export const getReferenceTuple = (type: AllType, reflection: SourceMap) => {
 
 export const getReferenceModel = (type: AllType, reflection: SourceMap) => {
   if (!isTypeReference(type) || !type.index) {
-    return null;
+    return undefined;
   }
 
   return getReferenceType(type, reflection);

@@ -1,32 +1,33 @@
-import type { EveryType, ModelProperty } from '@ez4/reflection';
+import type { EveryType, ModelProperty, SourceMap } from '@ez4/reflection';
 
 import { isTypeObject, isTypeUnion } from '@ez4/reflection';
 import { isAnyString, isNullish } from '@ez4/utils';
 
+import { getReferenceBoolean, getReferenceNumber, getReferenceString, getReferenceTuple } from './reference';
 import { getLiteralBoolean, getLiteralNumber, getLiteralString, getLiteralTuple } from './value';
 
-export const getPropertyBoolean = (member: ModelProperty) => {
-  return getLiteralBoolean(member.value);
+export const getPropertyBoolean = (member: ModelProperty, reflection?: SourceMap) => {
+  return getLiteralBoolean(member.value) ?? (reflection && getReferenceBoolean(member.value, reflection));
 };
 
-export const getPropertyNumber = (type: ModelProperty) => {
-  return getLiteralNumber(type.value);
+export const getPropertyNumber = (member: ModelProperty, reflection?: SourceMap) => {
+  return getLiteralNumber(member.value) ?? (reflection && getReferenceNumber(member.value, reflection));
 };
 
-export const getPropertyString = (type: ModelProperty) => {
-  return getLiteralString(type.value);
+export const getPropertyString = (member: ModelProperty, reflection?: SourceMap) => {
+  return getLiteralString(member.value) ?? (reflection && getReferenceString(member.value, reflection));
 };
 
-export const getPropertyTuple = (type: ModelProperty) => {
-  return getLiteralTuple(type.value);
+export const getPropertyTuple = (member: ModelProperty, reflection?: SourceMap) => {
+  return getLiteralTuple(member.value) ?? (reflection && getReferenceTuple(member.value, reflection));
 };
 
-export const getPropertyObject = (type: ModelProperty) => {
-  return isTypeObject(type.value) ? type.value : null;
+export const getPropertyObject = (member: ModelProperty) => {
+  return isTypeObject(member.value) ? member.value : undefined;
 };
 
-export const getPropertyUnion = (type: ModelProperty) => {
-  return isTypeUnion(type.value) ? type.value.elements : null;
+export const getPropertyUnion = (member: ModelProperty) => {
+  return isTypeUnion(member.value) ? member.value.elements : undefined;
 };
 
 export const getPropertyNumberList = (member: ModelProperty) => {
@@ -37,8 +38,8 @@ export const getPropertyStringList = (member: ModelProperty) => {
   return getPropertyList(member, (element) => getLiteralString(element));
 };
 
-export const getPropertyStringIn = <T extends string>(type: ModelProperty, values: T[]): T | undefined => {
-  const value = getLiteralString(type.value) as T | null | undefined;
+export const getPropertyStringIn = <T extends string>(member: ModelProperty, values: T[]): T | undefined => {
+  const value = getLiteralString(member.value) as T | undefined;
 
   if (isAnyString(value) && values.includes(value)) {
     return value;
@@ -47,11 +48,11 @@ export const getPropertyStringIn = <T extends string>(type: ModelProperty, value
   return undefined;
 };
 
-const getPropertyList = <T>(member: ModelProperty, getLiteral: (element: EveryType) => NonNullable<T> | null | undefined) => {
+const getPropertyList = <T>(member: ModelProperty, getLiteral: (element: EveryType) => NonNullable<T> | undefined) => {
   const elements = getPropertyTuple(member) ?? getPropertyUnion(member);
 
   if (!elements?.length) {
-    return null;
+    return undefined;
   }
 
   const valuesList = [];
