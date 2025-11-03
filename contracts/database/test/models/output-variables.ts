@@ -22,7 +22,7 @@ export declare class TestDatabase extends Database.Service {
   };
 
   services: {
-    selfSettings: Environment.Variables;
+    selfSettings: Environment.ServiceVariables;
   };
 }
 

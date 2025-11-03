@@ -16,6 +16,6 @@ export interface ApiProvider extends Http.Provider {
    * All services in the context provider.
    */
   services: {
-    selfVariables: Environment.Variables;
+    selfVariables: Environment.ServiceVariables;
   };
 }

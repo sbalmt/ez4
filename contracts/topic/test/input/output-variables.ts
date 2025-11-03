@@ -19,7 +19,7 @@ export declare class TestTopic extends Topic.Service<TestMessage> {
   };
 
   services: {
-    selfSettings: Environment.Variables;
+    selfSettings: Environment.ServiceVariables;
   };
 }
 

@@ -15,7 +15,7 @@ export declare class TestService extends Http.Service {
   };
 
   services: {
-    selfSettings: Environment.Variables;
+    selfSettings: Environment.ServiceVariables;
   };
 }
 

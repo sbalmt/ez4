@@ -14,7 +14,7 @@ export declare class TestScheduler extends Cron.Service {
   };
 
   services: {
-    selfSettings: Environment.Variables;
+    selfSettings: Environment.ServiceVariables;
   };
 }
 

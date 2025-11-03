@@ -13,7 +13,7 @@ export declare class TestStorage extends Bucket.Service {
   };
 
   services: {
-    selfSettings: Environment.Variables;
+    selfSettings: Environment.ServiceVariables;
   };
 }
 

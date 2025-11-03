@@ -18,7 +18,7 @@ export declare class TestQueue extends Queue.Service<TestMessage> {
   };
 
   services: {
-    selfSettings: Environment.Variables;
+    selfSettings: Environment.ServiceVariables;
   };
 }
 

@@ -12,7 +12,7 @@ export namespace Environment {
   /**
    * Bind all the service variables from the environment as a service.
    */
-  export type Variables = {
+  export type ServiceVariables = {
     variables: true;
   };
 

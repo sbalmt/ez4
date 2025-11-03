@@ -10,7 +10,7 @@ export namespace Environment {
     default: Default;
   };
 
-  export type Variables = {
+  export type ServiceVariables = {
     '@ez4/project': 'variables';
   };
 

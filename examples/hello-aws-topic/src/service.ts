@@ -36,7 +36,7 @@ export declare class Sns extends Topic.Service<MessageRequest> {
    * Expose its client to all handlers.
    */
   services: {
-    selfVariables: Environment.Variables;
+    selfVariables: Environment.ServiceVariables;
   };
 }
 
