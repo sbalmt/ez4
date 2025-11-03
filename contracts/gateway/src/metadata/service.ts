@@ -17,7 +17,7 @@ import { isModelProperty } from '@ez4/reflection';
 import { ServiceType } from '../types/service';
 import { IncompleteServiceError, ServiceCollisionError } from '../errors/service';
 import { getHttpDefaults } from './defaults';
-import { getHttpRoutes } from './route';
+import { getHttpLocalRoutes } from './route';
 import { getHttpCache } from './cache';
 import { getHttpAccess } from './access';
 import { getHttpCors } from './cors';
@@ -56,7 +56,7 @@ export const getHttpServices = (reflection: SourceMap) => {
           break;
 
         case 'routes':
-          if ((service.routes = getHttpRoutes(declaration, member, reflection, errorList))) {
+          if ((service.routes = getHttpLocalRoutes(declaration, member, reflection, errorList))) {
             properties.delete(member.name);
           }
           break;

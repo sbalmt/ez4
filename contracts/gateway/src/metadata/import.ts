@@ -15,9 +15,9 @@ import { isModelProperty, isTypeReference } from '@ez4/reflection';
 
 import { ImportType } from '../types/import';
 import { IncompleteServiceError } from '../errors/service';
-import { isHttpImport } from './utils';
+import { getHttpRemoteRoutes } from './route';
 import { getHttpDefaults } from './defaults';
-import { getHttpRoutes } from './route';
+import { isHttpImport } from './utils';
 
 export const getHttpImports = (reflection: SourceMap) => {
   const allImports: Record<string, HttpImport> = {};
@@ -67,7 +67,7 @@ export const getHttpImports = (reflection: SourceMap) => {
           break;
 
         case 'routes':
-          if (member.inherited && (service.routes = getHttpRoutes(declaration, member, reflection, errorList))) {
+          if (member.inherited && (service.routes = getHttpRemoteRoutes(declaration, member, reflection, errorList))) {
             properties.delete(member.name);
           }
           break;
