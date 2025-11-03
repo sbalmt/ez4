@@ -5,7 +5,7 @@ import { Tester } from '@ez4/project/library';
 
 import { mock } from 'node:test';
 
-import { createMockedClient } from '../client/mock';
+import { createMockClient } from '../client/mock';
 
 export namespace CronTester {
   type ClientMock = Client<any> & {
@@ -20,7 +20,7 @@ export namespace CronTester {
   };
 
   export const getClientMock = (resourceName?: string) => {
-    const client = createMockedClient(resourceName ?? 'CronMock');
+    const client = createMockClient(resourceName ?? 'CronMock');
 
     mock.method(client, 'getEvent');
     mock.method(client, 'createEvent');

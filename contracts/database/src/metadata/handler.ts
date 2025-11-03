@@ -7,7 +7,7 @@ import { isStreamHandler } from './utils';
 
 export const getStreamHandler = (type: AllType, _reflection: SourceMap, errorList: Error[]) => {
   if (!isStreamHandler(type)) {
-    return null;
+    return undefined;
   }
 
   const { description, module } = type;
@@ -37,7 +37,7 @@ export const getStreamHandler = (type: AllType, _reflection: SourceMap, errorLis
 
   errorList.push(new IncompleteHandlerError([...properties], type.file));
 
-  return null;
+  return undefined;
 };
 
 const isValidHandler = (type: Incomplete<StreamHandler>): type is StreamHandler => {

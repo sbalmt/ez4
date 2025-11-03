@@ -21,22 +21,22 @@ export const getTableSchema = (type: AllType, parent: TypeParent, reflection: So
     return getTypeSchema(declaration, parent, reflection, errorList);
   }
 
-  return null;
+  return undefined;
 };
 
-const getTypeSchema = (type: AllType, parent: TypeParent, reflection: SourceMap, errorList: Error[]): TableSchema | null => {
+const getTypeSchema = (type: AllType, parent: TypeParent, reflection: SourceMap, errorList: Error[]): TableSchema | undefined => {
   if (isTypeObject(type)) {
     return getSchema(type, reflection);
   }
 
   if (!isModelDeclaration(type)) {
     errorList.push(new InvalidSchemaTypeError(parent.file));
-    return null;
+    return undefined;
   }
 
   if (!isTableSchema(type)) {
     errorList.push(new IncorrectSchemaTypeError(type.name, type.file));
-    return null;
+    return undefined;
   }
 
   return getSchema(type, reflection);
@@ -49,5 +49,5 @@ const getSchema = (type: TypeObject | TypeModel, reflection: SourceMap) => {
     return schema;
   }
 
-  return null;
+  return undefined;
 };

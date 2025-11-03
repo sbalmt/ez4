@@ -25,17 +25,33 @@ import { getHttpAuthorizer } from './authorizer';
 import { getHttpHandler } from './handler';
 import { getHttpErrors } from './errors';
 
-export const getHttpRoutes = (parent: TypeModel, member: ModelProperty, reflection: SourceMap, errorList: Error[]) => {
-  const routeItems = getPropertyTuple(member) ?? [];
-
-  return getRouteFromTuple(routeItems, parent, reflection, errorList);
+export const getHttpLocalRoutes = (parent: TypeModel, member: ModelProperty, reflection: SourceMap, errorList: Error[]) => {
+  return getHttpRoutes(parent, member, reflection, errorList, false);
 };
 
-const getRouteFromTuple = (routeItems: EveryType[], parent: TypeModel, reflection: SourceMap, errorList: Error[]) => {
+export const getHttpRemoteRoutes = (parent: TypeModel, member: ModelProperty, reflection: SourceMap, errorList: Error[]) => {
+  return getHttpRoutes(parent, member, reflection, errorList, true);
+};
+
+const getHttpRoutes = (parent: TypeModel, member: ModelProperty, reflection: SourceMap, errorList: Error[], external: boolean) => {
+  if (!isTypeReference(member.value)) {
+    return getRouteFromTuple(getPropertyTuple(member) ?? [], parent, reflection, errorList, external);
+  }
+
+  const declaration = getReferenceType(member.value, reflection);
+
+  if (declaration && isTypeTuple(declaration)) {
+    return getRouteFromTuple(declaration.elements, parent, reflection, errorList, external);
+  }
+
+  return undefined;
+};
+
+const getRouteFromTuple = (routeItems: EveryType[], parent: TypeModel, reflection: SourceMap, errorList: Error[], external: boolean) => {
   const routeList: HttpRoute[] = [];
 
   for (const route of routeItems) {
-    const result = getTypeFromRoute(route, parent, reflection, errorList);
+    const result = getTypeFromRoute(route, parent, reflection, errorList, external);
 
     if (Array.isArray(result)) {
       routeList.push(...result);
@@ -47,38 +63,38 @@ const getRouteFromTuple = (routeItems: EveryType[], parent: TypeModel, reflectio
   return routeList;
 };
 
-const getTypeFromRoute = (type: AllType, parent: TypeModel, reflection: SourceMap, errorList: Error[]) => {
+const getTypeFromRoute = (type: AllType, parent: TypeModel, reflection: SourceMap, errorList: Error[], external: boolean) => {
   if (!isTypeReference(type)) {
-    return getRouteType(type, parent, reflection, errorList);
+    return getRouteType(type, parent, reflection, errorList, external);
   }
 
   const declaration = getReferenceType(type, reflection);
 
   if (declaration) {
-    return getRouteType(declaration, parent, reflection, errorList);
+    return getRouteType(declaration, parent, reflection, errorList, external);
   }
 
-  return null;
+  return undefined;
 };
 
 const isValidRoute = (type: Incomplete<HttpRoute>): type is HttpRoute => {
   return !!type.path && !!type.handler;
 };
 
-const getRouteType = (type: AllType, parent: TypeModel, reflection: SourceMap, errorList: Error[]) => {
+const getRouteType = (type: AllType, parent: TypeModel, reflection: SourceMap, errorList: Error[], external: boolean) => {
   if (isHttpRoute(type)) {
-    return getTypeFromMembers(type, parent, getModelMembers(type), reflection, errorList);
+    return getTypeFromMembers(type, parent, getModelMembers(type), reflection, errorList, external);
   }
 
   if (isTypeObject(type)) {
-    return getTypeFromMembers(type, parent, getObjectMembers(type), reflection, errorList);
+    return getTypeFromMembers(type, parent, getObjectMembers(type), reflection, errorList, external);
   }
 
   if (isTypeTuple(type) && type.spread) {
-    return getRouteFromTuple(type.elements, parent, reflection, errorList);
+    return getRouteFromTuple(type.elements, parent, reflection, errorList, external);
   }
 
-  return null;
+  return undefined;
 };
 
 const getTypeFromMembers = (
@@ -86,7 +102,8 @@ const getTypeFromMembers = (
   parent: TypeModel,
   members: MemberType[],
   reflection: SourceMap,
-  errorList: Error[]
+  errorList: Error[],
+  external: boolean
 ) => {
   const route: Incomplete<HttpRoute> = {};
   const properties = new Set(['path', 'handler']);
@@ -101,6 +118,10 @@ const getTypeFromMembers = (
         errorList.push(new InvalidServicePropertyError(parent.name, member.name, type.file));
         break;
 
+      case 'name':
+        route.name = getPropertyString(member);
+        break;
+
       case 'path': {
         const path = getPropertyString(member);
 
@@ -113,7 +134,7 @@ const getTypeFromMembers = (
       }
 
       case 'handler':
-        if ((route.handler = getHttpHandler(member.value, parent, reflection, errorList))) {
+        if ((route.handler = getHttpHandler(member.value, parent, reflection, errorList, external))) {
           properties.delete(member.name);
         }
         break;
@@ -156,5 +177,5 @@ const getTypeFromMembers = (
 
   errorList.push(new IncompleteRouteError([...properties], type.file));
 
-  return null;
+  return undefined;
 };

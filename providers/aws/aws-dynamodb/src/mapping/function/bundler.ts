@@ -11,7 +11,7 @@ import { getFunctionBundle } from '@ez4/aws-common';
 declare const __MODULE_PATH: string;
 
 export const bundleStreamFunction = async (parameters: StreamFunctionParameters, connections: EntryState[]) => {
-  const { extras, debug, handler, listener, tableSchema } = parameters;
+  const { handler, listener, tableSchema, context, debug } = parameters;
 
   const definitions = getDefinitionsObject(connections);
 
@@ -24,7 +24,7 @@ export const bundleStreamFunction = async (parameters: StreamFunctionParameters,
     },
     handler,
     listener,
-    extras,
+    context,
     debug
   });
 };

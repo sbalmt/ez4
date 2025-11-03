@@ -9,7 +9,8 @@ import {
   DeleteCorsConfigurationCommand,
   TagResourceCommand,
   UntagResourceCommand,
-  NotFoundException
+  NotFoundException,
+  GetApisCommand
 } from '@aws-sdk/client-apigatewayv2';
 
 import { Logger, tryParseArn } from '@ez4/aws-common';
@@ -35,6 +36,24 @@ export type UpdateRequest = {
   gatewayName?: string;
   description?: string;
   cors?: Http.Cors;
+};
+
+export const fetchGateway = async (gatewayName: string) => {
+  Logger.logFetch(GatewayServiceName, gatewayName);
+
+  const [region, { Items }] = await Promise.all([client.config.region(), client.send(new GetApisCommand({}))]);
+
+  const response = Items?.find(({ Name }) => Name === gatewayName);
+
+  if (!response) {
+    throw new Error(`API resource '${gatewayName}' wasn't found.`);
+  }
+
+  return {
+    apiId: response.ApiId!,
+    apiArn: `arn:aws:apigateway:${region}::/apis/${response.ApiId!}` as Arn,
+    endpoint: response.ApiEndpoint!
+  };
 };
 
 export const createGateway = async (request: CreateRequest): Promise<CreateResponse> => {

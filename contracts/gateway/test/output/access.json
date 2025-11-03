@@ -1,7 +1,12 @@
 {
+  "@variables": {
+    "name": "@variables",
+    "type": "@ez4/common",
+    "context": {}
+  },
   "TestService": {
     "type": "@ez4/http",
-    "extras": {},
+    "context": {},
     "name": "TestService",
     "routes": [],
     "access": {

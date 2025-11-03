@@ -30,7 +30,7 @@ export const createTargetFunction = <E extends EntryState>(
       return [handler.sourceFile, handler.dependencies];
     },
     getFunctionBundle: (context) => {
-      return bundleTargetFunction(parameters, context.getConnections());
+      return bundleTargetFunction(parameters, [...context.getDependencies(), ...context.getConnections()]);
     },
     getFunctionHash: () => {
       return hashObject({ eventSchema });

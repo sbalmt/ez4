@@ -1,9 +1,9 @@
 import type { TopicImport, TopicLambdaSubscription, TopicService } from '@ez4/topic/library';
 import type { EmulateServiceContext, ServeOptions } from '@ez4/project/library';
-import type { Topic } from '@ez4/topic';
 import type { AnyObject } from '@ez4/utils';
+import type { Topic } from '@ez4/topic';
 
-import { createModule, onBegin, onEnd, onError, onReady } from '@ez4/local-common';
+import { createModule, onBegin, onReady, onDone, onError, onEnd } from '@ez4/local-common';
 import { getRandomUUID } from '@ez4/utils';
 
 export const processLambdaMessage = async (
@@ -42,6 +42,7 @@ export const processLambdaMessage = async (
 
     await onReady(module, clients, currentRequest);
     await module.handler(currentRequest, clients);
+    await onDone(module, clients, currentRequest);
     //
   } catch (error) {
     await onError(module, clients, currentRequest ?? request, error);

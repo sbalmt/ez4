@@ -23,41 +23,45 @@ export const getLinkedServiceList = (member: ModelProperty, reflection: SourceMa
     return getObjectServices(object, reflection, errorList);
   }
 
-  return null;
+  return undefined;
 };
 
 export const getLinkedServiceName = (member: ModelProperty, parent: TypeObject | TypeModel, reflection: SourceMap, errorList: Error[]) => {
   const referencePath = getPropertyString(member);
 
+  if (referencePath?.startsWith('@')) {
+    return referencePath;
+  }
+
   const declaration = referencePath && reflection[referencePath];
 
   if (!declaration) {
     errorList.push(new MissingServiceError(member.name, parent.file));
-    return null;
+    return undefined;
   }
 
   if (!isClassDeclaration(declaration)) {
     errorList.push(new InvalidServiceError(declaration.name, declaration.file));
-    return null;
+    return undefined;
   }
 
   if (isExternalDeclaration(declaration)) {
     errorList.push(new ExternalReferenceError(declaration.name, declaration.file));
-    return null;
+    return undefined;
   }
 
-  const service = triggerAllSync('metadata:getLinkedService', (handler) => handler(declaration));
+  const serviceName = triggerAllSync('metadata:getLinkedService', (handler) => handler(declaration));
 
-  if (!service) {
+  if (!serviceName) {
     errorList.push(new MissingServiceProviderError(declaration.name, declaration.file));
   }
 
-  return service;
+  return serviceName;
 };
 
 const getObjectServices = (type: AllType, reflection: SourceMap, errorList: Error[]) => {
   if (!isTypeObject(type)) {
-    return null;
+    return undefined;
   }
 
   const members = getObjectMembers(type);

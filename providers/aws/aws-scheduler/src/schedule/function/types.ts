@@ -1,6 +1,6 @@
-import type { FunctionParameters } from '@ez4/aws-function';
 import type { CronEventSchema } from '@ez4/scheduler/library';
-import type { ExtraSource } from '@ez4/project/library';
+import type { FunctionParameters } from '@ez4/aws-function';
+import type { ContextSource } from '@ez4/project/library';
 
 export type TargetFunction = {
   functionName: string;
@@ -18,7 +18,7 @@ export type TargetFunctionParameters = Omit<
 > & {
   handler: TargetEntryPoint;
   listener?: TargetFunction;
-  eventSchema?: CronEventSchema | null;
-  extras?: Record<string, ExtraSource>;
+  eventSchema?: CronEventSchema;
+  context?: Record<string, ContextSource>;
   debug?: boolean;
 };

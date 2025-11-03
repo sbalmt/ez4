@@ -3,20 +3,32 @@ import type { HttpService } from '@ez4/gateway/library';
 import type { RouteData } from '../utils/route';
 
 import { HttpForbiddenError, HttpNotFoundError } from '@ez4/gateway';
+import { getClientOperations } from '@ez4/gateway/library';
 import { getServiceName } from '@ez4/project/library';
 
 import { processHttpRequest } from '../handlers/request';
 import { processHttpAuthorization } from '../handlers/authorizer';
+import { createServiceClient } from '../client/service';
 import { getErrorResponse } from '../utils/response';
 import { getMatchingRoute } from '../utils/route';
 
-export const registerHttpServices = (service: HttpService, options: ServeOptions, context: EmulateServiceContext) => {
+export const registerLocalServices = (service: HttpService, options: ServeOptions, context: EmulateServiceContext) => {
+  const { name: serviceName } = service;
+
   const httpRoutes = buildHttpRoutes(service);
+
+  const clientOptions = {
+    operations: getClientOperations(service),
+    ...options
+  };
 
   return {
     type: 'Gateway',
-    name: service.name,
-    identifier: getServiceName(service.name, options),
+    name: serviceName,
+    identifier: getServiceName(serviceName, options),
+    clientHandler: () => {
+      return createServiceClient(serviceName, clientOptions);
+    },
     requestHandler: async (request: EmulatorServiceRequest) => {
       const methodRoutes = { ...httpRoutes.ANY, ...httpRoutes[request.method] };
       const currentRoute = getMatchingRoute(methodRoutes, request);

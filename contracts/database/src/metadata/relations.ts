@@ -21,7 +21,7 @@ export const getTableRelations = (type: AllType, parent: TypeParent, reflection:
     return getTypeRelations(declaration, parent, errorList);
   }
 
-  return null;
+  return undefined;
 };
 
 const getTypeRelations = (type: AllType, parent: TypeParent, errorList: Error[]) => {
@@ -31,12 +31,12 @@ const getTypeRelations = (type: AllType, parent: TypeParent, errorList: Error[])
 
   if (!isModelDeclaration(type)) {
     errorList.push(new InvalidRelationsTypeError(parent.file));
-    return null;
+    return undefined;
   }
 
   if (!isTableRelations(type)) {
     errorList.push(new IncorrectRelationsTypeError(type.name, type.file));
-    return null;
+    return undefined;
   }
 
   return getTypeFromMembers(type, getModelMembers(type), errorList);
@@ -55,7 +55,7 @@ const getTypeFromMembers = (type: TypeObject | TypeModel, members: MemberType[],
 
     if (!relationSource) {
       errorList.push(new InvalidRelationTargetError(relationTarget, type.file));
-      return null;
+      return undefined;
     }
 
     const [targetColumn, targetAlias] = relationTarget.split('@', 2);

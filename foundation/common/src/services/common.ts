@@ -4,6 +4,7 @@
 export type ServiceAnyEvent<T extends ServiceRequest> =
   | ServiceBeginEvent<T>
   | ServiceReadyEvent<T>
+  | ServiceDoneEvent<T>
   | ServiceErrorEvent<T>
   | ServiceEndEvent<T>;
 
@@ -18,6 +19,7 @@ export type ServiceRequest = {};
 export const enum ServiceEventType {
   Begin = 'begin',
   Ready = 'ready',
+  Done = 'done',
   Error = 'error',
   End = 'end'
 }
@@ -41,6 +43,21 @@ export type ServiceBeginEvent<T extends ServiceRequest> = {
  * Service event for an execution ready to start.
  */
 export type ServiceReadyEvent<T extends ServiceRequest> = {
+  /**
+   * Event type.
+   */
+  type: ServiceEventType.Ready;
+
+  /**
+   * Event request.
+   */
+  request: Partial<T>;
+};
+
+/**
+ * Service event for an execution ready to start.
+ */
+export type ServiceDoneEvent<T extends ServiceRequest> = {
   /**
    * Event type.
    */

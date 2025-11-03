@@ -22,7 +22,7 @@ export const getTableIndexes = (type: AllType, parent: TypeParent, reflection: S
     return getTypeIndexes(declaration, parent, errorList);
   }
 
-  return null;
+  return undefined;
 };
 
 const getTypeIndexes = (type: AllType, parent: TypeParent, errorList: Error[]) => {
@@ -32,12 +32,12 @@ const getTypeIndexes = (type: AllType, parent: TypeParent, errorList: Error[]) =
 
   if (!isModelDeclaration(type)) {
     errorList.push(new InvalidIndexesTypeError(parent.file));
-    return null;
+    return undefined;
   }
 
   if (!isTableIndexes(type)) {
     errorList.push(new IncorrectIndexesTypeError(type.name, type.file));
-    return null;
+    return undefined;
   }
 
   return getTypeFromMembers(type, getModelMembers(type), errorList);
@@ -68,7 +68,7 @@ const getTypeFromMembers = (type: TypeObject | TypeModel, members: MemberType[],
 
       default:
         errorList.push(new InvalidIndexTypeError(indexName, type.file));
-        return null;
+        return undefined;
     }
   }
 

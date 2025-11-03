@@ -3,7 +3,7 @@ import type { DeployOptions, EventContext } from '@ez4/project/library';
 import type { EntryStates } from '@ez4/stateful';
 import type { TopicState } from '../topic/types';
 
-import { linkServiceExtras } from '@ez4/project/library';
+import { linkServiceContext } from '@ez4/project/library';
 import { TopicSubscriptionType } from '@ez4/topic/library';
 import { getFunctionState, tryGetFunctionState } from '@ez4/aws-function';
 import { InvalidParameterError } from '@ez4/aws-common';
@@ -61,7 +61,7 @@ export const prepareSubscriptions = (
             messageSchema: service.schema,
             timeout: subscription.timeout ?? Defaults.Timeout,
             memory: subscription.memory ?? Defaults.Memory,
-            extras: service.extras,
+            context: service.context,
             debug: options.debug,
             tags: options.tags,
             handler: {
@@ -124,14 +124,14 @@ export const connectSubscriptions = (
         const internalName = getInternalName(service, subscription.handler.name);
         const handlerState = getFunctionState(context, internalName, options);
 
-        linkServiceExtras(state, handlerState.entryId, service.extras);
+        linkServiceContext(state, handlerState.entryId, service.context);
         break;
       }
 
       case TopicSubscriptionType.Queue: {
         const queueState = getQueueState(context, subscription.service, options);
 
-        linkServiceExtras(state, queueState.entryId, service.extras);
+        linkServiceContext(state, queueState.entryId, service.context);
         break;
       }
     }

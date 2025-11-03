@@ -1,3 +1,4 @@
+import type { NamingStyle } from '@ez4/schema';
 import type { Http } from '@ez4/gateway';
 import type { apiListener } from './listener';
 import type { AllRoutes } from './routes';
@@ -15,7 +16,20 @@ export declare class Api extends Http.Service {
    * Default API settings.
    */
   defaults: {
+    /**
+     * Set the default listener for the request life-cycle events.
+     */
     listener: typeof apiListener;
+
+    /**
+     * Set default preferences for the service.
+     */
+    preferences: {
+      /**
+       * Set the default naming style for request and response.
+       */
+      namingStyle: NamingStyle.SnakeCase;
+    };
   };
 
   /**

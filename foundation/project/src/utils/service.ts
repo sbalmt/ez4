@@ -1,8 +1,8 @@
 import type { EntryState, EntryStates } from '@ez4/stateful';
-import type { ExtraSource, LinkedServices, ServiceAliases, ServiceMetadata } from '../types/service';
+import type { ContextSource, LinkedServices, ServiceAliases, ServiceMetadata } from '../types/service';
 import type { CommonOptions } from '../types/options';
 
-import { linkEntryConnection } from '@ez4/stateful';
+import { linkEntryConnection, tryLinkEntryDependency } from '@ez4/stateful';
 import { toKebabCase } from '@ez4/utils';
 
 import { isServiceMetadata } from '../types/service';
@@ -46,22 +46,26 @@ export const setServiceState = (aliases: ServiceAliases, state: EntryState, serv
   aliases[serviceName] = state;
 };
 
-export const linkServiceExtras = (state: EntryStates, entryId: string, extras: Record<string, ExtraSource>) => {
-  for (const serviceName in extras) {
-    const { entryIds: connectionIds } = extras[serviceName];
+export const linkServiceContext = (state: EntryStates, entryId: string, context: Record<string, ContextSource>) => {
+  for (const serviceName in context) {
+    const { dependencyIds, connectionIds } = context[serviceName];
 
-    connectionIds.forEach((connectionId) => {
+    dependencyIds?.forEach((dependencyId) => {
+      tryLinkEntryDependency(state, entryId, dependencyId);
+    });
+
+    connectionIds?.forEach((connectionId) => {
       linkEntryConnection(state, entryId, connectionId);
     });
   }
 };
 
-export const buildServiceContext = (extras: Record<string, ExtraSource>, services: LinkedServices) => {
-  const context: Record<string, ExtraSource> = {};
+export const buildServiceContext = (context: Record<string, ContextSource>, services: LinkedServices) => {
+  const serviceContext: Record<string, ContextSource> = {};
 
   for (const serviceName in services) {
-    context[serviceName] = extras[serviceName];
+    serviceContext[serviceName] = context[serviceName];
   }
 
-  return context;
+  return serviceContext;
 };

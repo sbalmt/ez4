@@ -1,11 +1,11 @@
-import type { ConnectResourceEvent, DeployOptions, EventContext, PrepareResourceEvent } from '@ez4/project/library';
+import type { ConnectResourceEvent, DeployOptions, EventContext, PrepareResourceEvent, ServiceEvent } from '@ez4/project/library';
 import type { FunctionParameters, Variables } from '@ez4/aws-function';
 import type { HttpRoute, HttpService } from '@ez4/gateway/library';
 import type { EntryStates } from '@ez4/stateful';
 import type { ObjectSchema } from '@ez4/schema';
 import type { GatewayState } from '../gateway/types';
 
-import { getServiceName, linkServiceExtras } from '@ez4/project/library';
+import { getServiceName, linkServiceContext } from '@ez4/project/library';
 import { getFunctionState, tryGetFunctionState } from '@ez4/aws-function';
 import { createLogGroup, createLogPolicy } from '@ez4/aws-logs';
 import { isHttpService } from '@ez4/gateway/library';
@@ -19,11 +19,22 @@ import { createAuthorizerFunction } from '../authorizer/function/service';
 import { createIntegrationFunction } from '../integration/function/service';
 import { getIntegration, createIntegration } from '../integration/service';
 import { getFunctionName, getInternalName } from './utils';
+import { prepareLinkedClient } from './client';
 import { getCorsConfiguration } from './cors';
 import { RoleMissingError } from './errors';
 import { Defaults } from './defaults';
 
-export const prepareHttpServices = (event: PrepareResourceEvent) => {
+export const prepareLinkedServices = (event: ServiceEvent) => {
+  const { service, options, context } = event;
+
+  if (isHttpService(service)) {
+    return prepareLinkedClient(context, service, options);
+  }
+
+  return null;
+};
+
+export const prepareServices = (event: PrepareResourceEvent) => {
   const { state, service, options, context } = event;
 
   if (!isHttpService(service)) {
@@ -50,7 +61,7 @@ export const prepareHttpServices = (event: PrepareResourceEvent) => {
   return true;
 };
 
-export const connectHttpServices = (event: ConnectResourceEvent) => {
+export const connectServices = (event: ConnectResourceEvent) => {
   const { state, service, options, context } = event;
 
   if (!isHttpService(service)) {
@@ -65,13 +76,13 @@ export const connectHttpServices = (event: ConnectResourceEvent) => {
     const handlerName = getInternalName(service, handler.name);
     const handlerState = getFunctionState(context, handlerName, options);
 
-    linkServiceExtras(state, handlerState.entryId, service.extras);
+    linkServiceContext(state, handlerState.entryId, service.context);
 
     if (authorizer) {
       const authorizerName = getInternalName(service, authorizer.name);
       const authorizerState = getFunctionState(context, authorizerName, options);
 
-      linkServiceExtras(state, authorizerState.entryId, service.extras);
+      linkServiceContext(state, authorizerState.entryId, service.context);
     }
   }
 };
@@ -141,7 +152,7 @@ const getIntegrationFunction = (
     memory = defaults.memory
   } = route;
 
-  const { request, response } = handler;
+  const { provider, request, response } = handler;
 
   const internalName = getInternalName(service, handler.name);
 
@@ -168,8 +179,8 @@ const getIntegrationFunction = (
       responseSchema: response.body,
       timeout: Math.max(5, (timeout ?? Defaults.Timeout) - 1),
       memory: memory ?? Defaults.Memory,
-      services: handler.provider?.services,
-      extras: service.extras,
+      services: provider?.services,
+      context: service.context,
       debug: options.debug,
       tags: options.tags,
       handler: {
@@ -202,6 +213,10 @@ const getIntegrationFunction = (
 
   if (route.variables) {
     assignVariables(handlerState.parameters, route.variables);
+  }
+
+  if (provider?.variables) {
+    assignVariables(handlerState.parameters, provider.variables);
   }
 
   return (
@@ -265,7 +280,7 @@ const getAuthorizerFunction = (
       timeout: Math.max(5, (timeout ?? Defaults.Timeout) - 1),
       memory: memory ?? Defaults.Memory,
       services: service.services,
-      extras: service.extras,
+      context: service.context,
       debug: options.debug,
       tags: options.tags,
       preferences: {

@@ -1,1 +1,3 @@
-export type ServiceContext<T> = T;
+export namespace Service {
+  export type Context<T> = T;
+}

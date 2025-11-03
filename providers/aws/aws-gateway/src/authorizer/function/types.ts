@@ -1,6 +1,6 @@
+import type { ContextSource, LinkedServices } from '@ez4/project/library';
 import type { FunctionParameters } from '@ez4/aws-function';
 import type { HttpPreferences } from '@ez4/gateway/library';
-import type { ExtraSource, LinkedServices } from '@ez4/project/library';
 import type { ObjectSchema } from '@ez4/schema';
 
 export type AuthorizerFunction = {
@@ -18,12 +18,12 @@ export type AuthorizerFunctionParameters = Omit<
   'getFunctionFiles' | 'getFunctionBundle' | 'getFunctionHash' | 'sourceFile' | 'handlerName'
 > & {
   authorizer: AuthorizerEntryPoint;
-  listener?: AuthorizerFunction | null;
+  listener?: AuthorizerFunction;
   preferences?: HttpPreferences;
-  headersSchema?: ObjectSchema | null;
-  parametersSchema?: ObjectSchema | null;
-  querySchema?: ObjectSchema | null;
-  extras?: Record<string, ExtraSource>;
-  services?: LinkedServices | null;
+  headersSchema?: ObjectSchema;
+  parametersSchema?: ObjectSchema;
+  querySchema?: ObjectSchema;
+  context?: Record<string, ContextSource>;
+  services?: LinkedServices;
   debug?: boolean;
 };

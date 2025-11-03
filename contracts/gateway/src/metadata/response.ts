@@ -29,7 +29,7 @@ export const getHttpAuthResponse = (type: AllType, parent: TypeModel, reflection
     return response;
   }
 
-  return null;
+  return undefined;
 };
 
 export const getHttpHandlerResponse = (type: AllType, parent: TypeModel, reflection: SourceMap, errorList: Error[]) => {
@@ -39,7 +39,7 @@ export const getHttpHandlerResponse = (type: AllType, parent: TypeModel, reflect
     return response;
   }
 
-  return null;
+  return undefined;
 };
 
 const getHttpResponse = (type: AllType, parent: TypeModel, reflection: SourceMap, errorList: Error[], baseType: string) => {
@@ -53,7 +53,7 @@ const getHttpResponse = (type: AllType, parent: TypeModel, reflection: SourceMap
     return getTypeResponse(declaration, parent, reflection, errorList, baseType);
   }
 
-  return null;
+  return undefined;
 };
 
 const isValidAuthResponse = (type: Incomplete<HttpAuthResponse>): type is HttpAuthResponse => {
@@ -71,12 +71,12 @@ const getTypeResponse = (type: AllType, parent: TypeModel, reflection: SourceMap
 
   if (!isModelDeclaration(type)) {
     errorList.push(new InvalidResponseTypeError(baseType, parent.file));
-    return null;
+    return undefined;
   }
 
   if (!hasHeritageType(type, baseType)) {
     errorList.push(new IncorrectResponseTypeError(type.name, baseType, type.file));
-    return null;
+    return undefined;
   }
 
   return getTypeFromMembers(type, parent, getModelMembers(type), reflection, errorList);

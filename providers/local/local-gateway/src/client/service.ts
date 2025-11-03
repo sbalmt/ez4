@@ -1,0 +1,54 @@
+import type { Client, ClientRequest, Http } from '@ez4/gateway';
+import type { ClientOperation } from '@ez4/gateway/library';
+import type { CommonOptions } from '@ez4/project/library';
+
+import { getServiceName, Logger } from '@ez4/project/library';
+import { getClientRequestUrl, sendClientRequest } from '@ez4/gateway/utils';
+import { isAnyString } from '@ez4/utils';
+import { HttpError } from '@ez4/gateway';
+
+export type ServiceClientOptions = CommonOptions & {
+  operations: Record<string, ClientOperation>;
+  serviceHost: string;
+};
+
+export const createServiceClient = <T extends Http.Service>(serviceName: string, clientOptions: ServiceClientOptions): Client<T> => {
+  const { serviceHost, operations } = clientOptions;
+
+  const gatewayIdentifier = getServiceName(serviceName, clientOptions);
+  const gatewayHost = `http://${serviceHost}/${gatewayIdentifier}`;
+
+  return new Proxy(
+    {},
+    {
+      get: (_target, property) => {
+        return async (request: ClientRequest) => {
+          if (!isAnyString(property) || !(property in operations)) {
+            throw new Error(`Operation '${property.toString()}' wasn't found.`);
+          }
+
+          const { method, path, responseSchema, namingStyle } = operations[property];
+
+          const requestUrl = getClientRequestUrl(gatewayHost, path, request);
+
+          try {
+            Logger.debug(`🌐 Sending request to gateway [${serviceName}] at ${requestUrl}`);
+
+            return await sendClientRequest(requestUrl, method, {
+              ...request,
+              responseSchema,
+              namingStyle
+            });
+            //
+          } catch (error) {
+            if (!(error instanceof HttpError)) {
+              Logger.warn(`Remote gateway [${serviceName}] at ${serviceHost} isn't available.`);
+            }
+
+            throw error;
+          }
+        };
+      }
+    }
+  );
+};

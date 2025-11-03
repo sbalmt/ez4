@@ -31,7 +31,7 @@ export const createIntegrationFunction = <E extends EntryState>(
       return [handler.sourceFile, handler.dependencies];
     },
     getFunctionBundle: (context) => {
-      return bundleApiFunction(parameters, context.getConnections());
+      return bundleApiFunction(parameters, [...context.getDependencies(), ...context.getConnections()]);
     },
     getFunctionHash: () => {
       return hashObject({

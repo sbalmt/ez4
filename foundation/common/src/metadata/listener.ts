@@ -12,7 +12,7 @@ export const isServiceListener = (type: AllType): type is TypeCallback | TypeFun
 
 export const getServiceListener = (type: AllType, errorList: Error[]) => {
   if (!isServiceListener(type)) {
-    return null;
+    return undefined;
   }
 
   const { description, module } = type;
@@ -38,7 +38,7 @@ export const getServiceListener = (type: AllType, errorList: Error[]) => {
 
   errorList.push(new IncompleteListenerError([...properties], type.file));
 
-  return null;
+  return undefined;
 };
 
 const isValidHandler = (type: Incomplete<ServiceListener>): type is ServiceListener => {

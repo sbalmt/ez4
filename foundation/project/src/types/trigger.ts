@@ -2,8 +2,8 @@ import type { ApplyResult, EntryState, EntryStates, StepState } from '@ez4/state
 import type { EveryType, SourceMap, TypeClass, TypeObject } from '@ez4/reflection';
 import type { EmulatorService, EmulateServiceEvent, EmulateClientEvent } from './emulator';
 import type { IdentityAccount, IdentityGrant } from './identity';
+import type { ServiceMetadata, ContextSource } from './service';
 import type { DeployOptions, DestroyOptions } from './options';
-import type { ServiceMetadata, ExtraSource } from './service';
 import type { MetadataServiceResult } from './metadata';
 
 export type Trigger = SyncEvent | AsyncEvent;
@@ -28,7 +28,7 @@ export type SyncEvent = {
 export type AsyncEvent = {
   'emulator:getClient': (event: EmulateClientEvent) => AsyncEventResult<unknown>;
   'emulator:getServices': (event: EmulateServiceEvent) => AsyncEventResult<EmulatorService>;
-  'deploy:prepareLinkedService': (event: ServiceEvent) => AsyncEventResult<ExtraSource>;
+  'deploy:prepareLinkedService': (event: ServiceEvent) => AsyncEventResult<ContextSource>;
   'deploy:prepareIdentityAccount': (event: IdentityEvent) => AsyncEventResult<IdentityAccount[]>;
   'deploy:prepareIdentityGrant': (event: IdentityEvent) => AsyncEventResult<IdentityGrant>;
   'deploy:prepareExecutionPolicy': (event: PolicyResourceEvent) => AsyncEventResult<EntryState>;

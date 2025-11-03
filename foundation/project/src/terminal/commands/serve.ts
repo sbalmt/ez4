@@ -9,21 +9,17 @@ import { toKebabCase } from '@ez4/utils';
 
 import { createServer } from 'node:http';
 
-import { loadProviders } from '../../common/providers';
-import { watchMetadata } from '../../library/metadata';
+import { getServiceAddress, getServiceHost, getServicePort } from '../../utils/project';
 import { getEmulators } from '../../library/emulator';
+import { watchMetadata } from '../../library/metadata';
+import { loadProviders } from '../../common/providers';
+import { loadImports } from '../../common/imports';
 
 export const serveCommand = async (project: ProjectOptions) => {
-  const serveOptions = project.serveOptions;
-
-  const bindAddress = serveOptions?.localHost ?? '0.0.0.0';
-  const serviceHost = serveOptions?.localHost ?? 'localhost';
-  const servicePort = serveOptions?.localPort ?? 3734;
-
   const options: ServeOptions = {
     resourcePrefix: project.prefix ?? 'ez4',
     projectName: toKebabCase(project.projectName),
-    serviceHost: `${serviceHost}:${servicePort}`,
+    serviceHost: getServiceHost(project.serveOptions),
     localOptions: project.localOptions ?? {},
     variables: project.variables,
     force: project.forceMode,
@@ -40,6 +36,10 @@ export const serveCommand = async (project: ProjectOptions) => {
     return loadProviders(project);
   });
 
+  options.imports = await Logger.execute('🔄️ Loading imports', () => {
+    return loadImports(project);
+  });
+
   let emulators: EmulatorServices = {};
 
   const watcher = await watchMetadata(project.sourceFiles, async (metadata) => {
@@ -52,7 +52,9 @@ export const serveCommand = async (project: ProjectOptions) => {
       return getEmulators(metadata, options);
     });
 
-    await bootstrapServices(emulators, options);
+    displayServices(emulators, options);
+
+    await bootstrapServices(emulators);
 
     if (options.version > 0) {
       Logger.log(`🚀 Project [${project.projectName}] reloaded`);
@@ -119,7 +121,10 @@ export const serveCommand = async (project: ProjectOptions) => {
     watcher.stop();
   });
 
-  server.listen(servicePort, bindAddress, () => {
+  const bindHost = getServiceAddress(project.serveOptions);
+  const bindPort = getServicePort(project.serveOptions);
+
+  server.listen(bindPort, bindHost, () => {
     Logger.log(`🚀 Project [${project.projectName}] up and running`);
   });
 };
@@ -215,7 +220,7 @@ const setCorsResponseHeaders = (stream: ServerResponse<IncomingMessage>, request
   }
 };
 
-const bootstrapServices = async (emulators: EmulatorServices, options: ServeOptions) => {
+const bootstrapServices = async (emulators: EmulatorServices) => {
   process.env.EZ4_IS_LOCAL = 'true';
 
   for (const identifier in emulators) {
@@ -224,6 +229,12 @@ const bootstrapServices = async (emulators: EmulatorServices, options: ServeOpti
     if (emulator.bootstrapHandler) {
       await emulator.bootstrapHandler();
     }
+  }
+};
+
+const displayServices = (emulators: EmulatorServices, options: ServeOptions) => {
+  for (const identifier in emulators) {
+    const emulator = emulators[identifier];
 
     if (emulator.requestHandler) {
       Logger.log(`🌐 Serving ${emulator.type} [${emulator.name}] at http://${options.serviceHost}/${identifier}`);

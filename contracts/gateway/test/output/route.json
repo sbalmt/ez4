@@ -1,8 +1,13 @@
 {
+  "@variables": {
+    "name": "@variables",
+    "type": "@ez4/common",
+    "context": {}
+  },
   "TestService": {
     "type": "@ez4/http",
     "name": "TestService",
-    "extras": {},
+    "context": {},
     "routes": [
       {
         "path": "ANY /test-route-1",

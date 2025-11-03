@@ -25,8 +25,13 @@ export const transformTuple = (
 
   for (let index = 0; index < schema.elements.length; index++) {
     const elementSchema = schema.elements[index];
+    const result = transformAny(value[index], elementSchema, context);
 
-    output.push(transformAny(value[index], elementSchema, context));
+    if (result === undefined) {
+      context.partial = true;
+    }
+
+    output.push(result);
   }
 
   return output;

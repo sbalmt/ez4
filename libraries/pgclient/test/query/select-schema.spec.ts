@@ -252,4 +252,34 @@ describe('select schema', () => {
 
     assert.deepEqual(variables, []);
   });
+
+  it('assert :: prepare select schema (with lock)', ({ assert }) => {
+    const [statement, variables] = prepareSelect(
+      {
+        type: SchemaType.Object,
+        properties: {
+          foo: {
+            type: SchemaType.Boolean
+          },
+          bar: {
+            type: SchemaType.Number
+          },
+          baz: {
+            type: SchemaType.String
+          }
+        }
+      },
+      {
+        lock: true,
+        select: {
+          foo: true,
+          baz: true
+        }
+      }
+    );
+
+    assert.equal(statement, `SELECT "foo", "baz" FROM "ez4-test-select-schema" FOR UPDATE`);
+
+    assert.deepEqual(variables, []);
+  });
 });

@@ -28,7 +28,7 @@ export const getQueueDeadLetter = (type: AllType, parent: TypeModel, reflection:
     return getTypeDeadLetter(declaration, parent, errorList);
   }
 
-  return null;
+  return undefined;
 };
 
 const isValidDeadLetter = (type: Incomplete<QueueDeadLetter>): type is QueueDeadLetter => {
@@ -42,12 +42,12 @@ const getTypeDeadLetter = (type: AllType, parent: TypeModel, errorList: Error[])
 
   if (!isModelDeclaration(type)) {
     errorList.push(new InvalidDeadLetterTypeError(parent.file));
-    return null;
+    return undefined;
   }
 
   if (!isQueueDeadLetter(type)) {
     errorList.push(new IncorrectDeadLetterTypeError(type.name, type.file));
-    return null;
+    return undefined;
   }
 
   return getTypeFromMembers(type, parent, getModelMembers(type), errorList);
@@ -85,5 +85,5 @@ const getTypeFromMembers = (type: TypeObject | TypeModel, parent: TypeModel, mem
 
   errorList.push(new IncompleteDeadLetterError([...properties], type.file));
 
-  return null;
+  return undefined;
 };

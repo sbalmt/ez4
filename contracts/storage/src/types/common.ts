@@ -20,7 +20,7 @@ export type BucketEvent = {
   path?: string;
   listener?: ServiceListener;
   handler: EventHandler;
-  variables?: LinkedVariables | null;
+  variables?: LinkedVariables;
   logRetention?: number;
   timeout?: number;
   memory?: number;

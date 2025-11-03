@@ -2,8 +2,8 @@ import { readFileSync, writeFileSync } from 'node:fs';
 import { deepEqual, equal } from 'node:assert/strict';
 import { describe, it } from 'node:test';
 
-import { getReflection } from '@ez4/project/library';
 import { registerTriggers, getBucketServices } from '@ez4/storage/library';
+import { getReflection } from '@ez4/project/library';
 
 const testFile = (fileName: string, overwrite = false) => {
   const sourceFile = `./test/input/output-${fileName}.ts`;
@@ -33,5 +33,6 @@ describe('storage metadata', () => {
   it('assert :: basic storage', () => testFile('service'));
   it('assert :: storage events', () => testFile('events'));
   it('assert :: storage cors', () => testFile('cors'));
+  it('assert :: service variables', () => testFile('variables'));
   it('assert :: events listener', () => testFile('listener'));
 });

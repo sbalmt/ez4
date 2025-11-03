@@ -46,7 +46,7 @@ const getCdnFallback = (type: AllType, parent: TypeModel, reflection: SourceMap,
     return getTypeFallback(declaration, parent, errorList);
   }
 
-  return null;
+  return undefined;
 };
 
 const isValidFallback = (type: Incomplete<CdnFallback>): type is CdnFallback => {
@@ -60,12 +60,12 @@ const getTypeFallback = (type: AllType, parent: TypeModel, errorList: Error[]) =
 
   if (!isModelDeclaration(type)) {
     errorList.push(new InvalidFallbackTypeError(parent.file));
-    return null;
+    return undefined;
   }
 
   if (!isCdnFallback(type)) {
     errorList.push(new IncorrectFallbackTypeError(type.name, type.file));
-    return null;
+    return undefined;
   }
 
   return getTypeFromMembers(type, parent, getModelMembers(type), errorList);
@@ -111,5 +111,5 @@ const getTypeFromMembers = (type: TypeObject | TypeModel, parent: TypeModel, mem
 
   errorList.push(new IncompleteFallbackError([...properties], type.file));
 
-  return null;
+  return undefined;
 };

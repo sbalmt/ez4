@@ -28,7 +28,7 @@ export const getTopicFifoMode = (type: AllType, parent: TypeModel, reflection: S
     return getTypeFifoMode(declaration, parent, errorList);
   }
 
-  return null;
+  return undefined;
 };
 
 const isValidFifoMode = (type: Incomplete<TopicFifoMode>): type is TopicFifoMode => {
@@ -42,12 +42,12 @@ const getTypeFifoMode = (type: AllType, parent: TypeModel, errorList: Error[]) =
 
   if (!isModelDeclaration(type)) {
     errorList.push(new InvalidFifoModeTypeError(parent.file));
-    return null;
+    return undefined;
   }
 
   if (!isTopicFifoMode(type)) {
     errorList.push(new IncorrectFifoModeTypeError(type.name, type.file));
-    return null;
+    return undefined;
   }
 
   return getTypeFromMembers(type, parent, getModelMembers(type), errorList);
@@ -82,5 +82,5 @@ const getTypeFromMembers = (type: TypeObject | TypeModel, parent: TypeModel, mem
 
   errorList.push(new IncompleteFifoModeError([...properties], type.file));
 
-  return null;
+  return undefined;
 };

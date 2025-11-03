@@ -70,9 +70,17 @@ export declare class Sqs extends Queue.Service<MessageRequest> {
   ];
 
   /**
+   * Environment variables for all handlers.
+   */
+  variables: {
+    TEST_VAR1: 'hello-world';
+  };
+
+  /**
    * Expose its client to all handlers.
    */
   services: {
+    selfVariables: Environment.ServiceVariables;
     selfClient: Environment.Service<Sqs>;
   };
 }
@@ -114,9 +122,17 @@ export declare class FifoSqs extends Queue.Service<MessageRequest> {
   ];
 
   /**
+   * Environment variables for all handlers.
+   */
+  variables: {
+    TEST_VAR1: 'hello-world';
+  };
+
+  /**
    * Expose its client to all handlers.
    */
   services: {
+    selfVariables: Environment.ServiceVariables;
     selfClient: Environment.Service<FifoSqs>;
   };
 }

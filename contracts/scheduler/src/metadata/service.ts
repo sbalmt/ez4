@@ -33,7 +33,7 @@ export const getCronServices = (reflection: SourceMap) => {
       continue;
     }
 
-    const service: Incomplete<CronService> = { type: ServiceType, extras: {} };
+    const service: Incomplete<CronService> = { type: ServiceType, context: {} };
     const properties = new Set(['target', 'expression']);
 
     const fileName = declaration.file;
@@ -144,7 +144,7 @@ export const getCronServices = (reflection: SourceMap) => {
 };
 
 const isValidService = (type: Incomplete<CronService>): type is CronService => {
-  if (!type.name || !type.target || !type.extras) {
+  if (!type.name || !type.target || !type.context) {
     return false;
   }
 

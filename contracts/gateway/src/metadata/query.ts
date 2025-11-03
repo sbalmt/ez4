@@ -20,7 +20,7 @@ export const getHttpQuery = (type: AllType, parent: TypeParent, reflection: Sour
     return getTypeQuery(declaration, parent, reflection, errorList);
   }
 
-  return null;
+  return undefined;
 };
 
 const getTypeQuery = (type: AllType, parent: TypeParent, reflection: SourceMap, errorList: Error[]) => {
@@ -30,12 +30,12 @@ const getTypeQuery = (type: AllType, parent: TypeParent, reflection: SourceMap, 
 
   if (!isModelDeclaration(type)) {
     errorList.push(new InvalidQueryTypeError(parent.file));
-    return null;
+    return undefined;
   }
 
   if (!isHttpQuery(type)) {
     errorList.push(new IncorrectQueryTypeError(type.name, parent.file));
-    return null;
+    return undefined;
   }
 
   return getSchemaFromType(type, reflection);

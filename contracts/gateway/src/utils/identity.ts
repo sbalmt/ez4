@@ -1,5 +1,5 @@
 import type { ObjectSchema, UnionSchema } from '@ez4/schema';
-import type { Http } from '@ez4/gateway';
+import type { Http } from '../services/contract';
 
 import { validate, createValidatorContext, getUniqueErrorMessages } from '@ez4/validator';
 import { HttpBadRequestError } from '@ez4/gateway';

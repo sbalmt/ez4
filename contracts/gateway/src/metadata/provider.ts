@@ -3,7 +3,7 @@ import type { MemberType } from '@ez4/common/library';
 import type { Incomplete } from '@ez4/utils';
 import type { HttpProvider } from '../types/common';
 
-import { isModelDeclaration, getModelMembers, getReferenceType, getLinkedServiceList } from '@ez4/common/library';
+import { isModelDeclaration, getModelMembers, getReferenceType, getLinkedServiceList, getLinkedVariableList } from '@ez4/common/library';
 import { isModelProperty, isTypeReference } from '@ez4/reflection';
 
 import { IncompleteProviderError, InvalidProviderTypeError } from '../errors/provider';
@@ -19,7 +19,7 @@ export const getHttpProvider = (type: AllType, parent: TypeModel, reflection: So
     return getProviderType(declaration, parent, reflection, errorList, 'Http.Provider');
   }
 
-  return null;
+  return undefined;
 };
 
 const isValidProvider = (type: Incomplete<HttpProvider>): type is HttpProvider => {
@@ -29,7 +29,7 @@ const isValidProvider = (type: Incomplete<HttpProvider>): type is HttpProvider =
 const getProviderType = (type: AllType, parent: TypeModel, reflection: SourceMap, errorList: Error[], baseType: string) => {
   if (!isModelDeclaration(type)) {
     errorList.push(new InvalidProviderTypeError(baseType, parent.file));
-    return null;
+    return undefined;
   }
 
   return getTypeFromMembers(type, getModelMembers(type), reflection, errorList);
@@ -50,15 +50,17 @@ const getTypeFromMembers = (
     }
 
     switch (member.name) {
-      case 'services':
-        const services = getLinkedServiceList(member, reflection, errorList);
+      case 'variables':
+        context.variables = getLinkedVariableList(member, errorList);
+        break;
 
-        if (services) {
-          context.services = services;
+      case 'services': {
+        if ((context.services = getLinkedServiceList(member, reflection, errorList))) {
+          properties.delete(member.name);
         }
 
-        properties.delete(member.name);
         break;
+      }
     }
   }
 
@@ -68,5 +70,5 @@ const getTypeFromMembers = (
 
   errorList.push(new IncompleteProviderError([...properties], type.file));
 
-  return null;
+  return undefined;
 };

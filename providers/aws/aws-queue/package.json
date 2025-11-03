@@ -1,7 +1,7 @@
 {
   "name": "@ez4/aws-queue",
   "description": "EZ4: Self-managed AWS Simple Queue provider",
-  "version": "0.30.0",
+  "version": "0.31.0",
   "author": "Silas B.",
   "license": "MIT",
   "type": "module",
@@ -51,16 +51,16 @@
   },
   "dependencies": {
     "@aws-sdk/client-sqs": "^3.913.0",
-    "@ez4/aws-common": "^0.30.0",
-    "@ez4/aws-function": "^0.30.0",
-    "@ez4/aws-identity": "^0.30.0",
-    "@ez4/aws-logs": "^0.30.0",
-    "@ez4/project": "^0.30.0",
-    "@ez4/queue": "^0.30.0",
-    "@ez4/schema": "^0.30.0",
-    "@ez4/stateful": "^0.30.0",
-    "@ez4/transform": "^0.30.0",
-    "@ez4/validator": "^0.30.0",
-    "@ez4/utils": "^0.30.0"
+    "@ez4/aws-common": "^0.31.0",
+    "@ez4/aws-function": "^0.31.0",
+    "@ez4/aws-identity": "^0.31.0",
+    "@ez4/aws-logs": "^0.31.0",
+    "@ez4/project": "^0.31.0",
+    "@ez4/queue": "^0.31.0",
+    "@ez4/schema": "^0.31.0",
+    "@ez4/stateful": "^0.31.0",
+    "@ez4/transform": "^0.31.0",
+    "@ez4/validator": "^0.31.0",
+    "@ez4/utils": "^0.31.0"
   }
 }

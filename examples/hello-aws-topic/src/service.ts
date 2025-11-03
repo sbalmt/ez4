@@ -24,6 +24,20 @@ export declare class Sns extends Topic.Service<MessageRequest> {
       service: Environment.Service<Sqs>;
     }
   ];
+
+  /**
+   * Environment variables for all handlers.
+   */
+  variables: {
+    TEST_VAR1: 'hello-world';
+  };
+
+  /**
+   * Expose its client to all handlers.
+   */
+  services: {
+    selfVariables: Environment.ServiceVariables;
+  };
 }
 
 /**

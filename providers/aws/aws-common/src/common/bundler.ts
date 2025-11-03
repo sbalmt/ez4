@@ -1,4 +1,4 @@
-import type { ExtraSource } from '@ez4/project/library';
+import type { ContextSource } from '@ez4/project/library';
 
 import { build, formatMessages } from 'esbuild';
 import { readFile, stat } from 'node:fs/promises';
@@ -26,8 +26,8 @@ export type BundlerOptions = {
   filePrefix: string;
   templateFile: string;
   handler: BundlerEntrypoint;
-  listener?: BundlerEntrypoint | null;
-  extras?: Record<string, ExtraSource>;
+  listener?: BundlerEntrypoint;
+  context?: Record<string, ContextSource>;
   define?: Record<string, string>;
   debug?: boolean;
 };
@@ -162,7 +162,7 @@ const __dirname = __EZ4_DIRNAME(__filename);
 
 const getEntrypointCode = async (options: BundlerOptions) => {
   const template = await readFile(options.templateFile);
-  const context = getExtraContext(options.extras ?? {});
+  const context = buildServiceContext(options.context ?? {});
 
   const { handler, listener } = options;
 
@@ -181,12 +181,12 @@ const getEntrypointImport = (entrypoint: BundlerEntrypoint) => {
   return entrypoint.module ?? `./${entrypoint.sourceFile}`;
 };
 
-const getExtraContext = (extras: Record<string, ExtraSource>) => {
+const buildServiceContext = (context: Record<string, ContextSource>) => {
   const packages: string[] = [];
   const services: string[] = [];
 
-  for (const serviceName of Object.keys(extras).sort()) {
-    const { constructor, module, from } = extras[serviceName];
+  for (const serviceName of Object.keys(context).sort()) {
+    const { constructor, module, from } = context[serviceName];
 
     const service = `${serviceName}${module}`;
 

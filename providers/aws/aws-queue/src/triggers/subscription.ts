@@ -3,7 +3,7 @@ import type { QueueService, QueueImport } from '@ez4/queue/library';
 import type { EntryStates } from '@ez4/stateful';
 import type { QueueState } from '../queue/types';
 
-import { linkServiceExtras } from '@ez4/project/library';
+import { linkServiceContext } from '@ez4/project/library';
 import { getFunctionState, tryGetFunctionState } from '@ez4/aws-function';
 import { isRoleState } from '@ez4/aws-identity';
 import { createLogGroup } from '@ez4/aws-logs';
@@ -48,7 +48,7 @@ export const prepareSubscriptions = (
         messageSchema: service.schema,
         timeout: service.timeout ?? Defaults.Timeout,
         memory: subscription.memory ?? Defaults.Memory,
-        extras: service.extras,
+        context: service.context,
         debug: options.debug,
         tags: options.tags,
         handler: {
@@ -100,6 +100,6 @@ export const connectSubscriptions = (
     const internalName = getInternalName(service, handler.name);
     const handlerState = getFunctionState(context, internalName, options);
 
-    linkServiceExtras(state, handlerState.entryId, service.extras);
+    linkServiceContext(state, handlerState.entryId, service.context);
   }
 };

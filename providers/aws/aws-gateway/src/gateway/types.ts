@@ -7,6 +7,7 @@ export const GatewayServiceType = 'aws:api.gateway';
 
 export type GatewayParameters = CreateRequest & {
   gatewayId: string;
+  import?: boolean;
 };
 
 export type GatewayResult = CreateResponse;

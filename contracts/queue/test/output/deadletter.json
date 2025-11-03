@@ -1,7 +1,12 @@
 {
+  "@variables": {
+    "name": "@variables",
+    "type": "@ez4/common",
+    "context": {}
+  },
   "TestQueue": {
     "type": "@ez4/queue",
-    "extras": {},
+    "context": {},
     "name": "TestQueue",
     "description": "Queue to test subscription listener.",
     "subscriptions": [],

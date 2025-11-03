@@ -1,8 +1,13 @@
 {
+  "@variables": {
+    "name": "@variables",
+    "type": "@ez4/common",
+    "context": {}
+  },
   "TestService1": {
     "type": "@ez4/http",
     "name": "TestService1",
-    "extras": {},
+    "context": {},
     "displayName": "Test Service 1",
     "description": "First test service description.",
     "routes": []
@@ -10,7 +15,7 @@
   "TestService2": {
     "type": "@ez4/http",
     "name": "TestService2",
-    "extras": {},
+    "context": {},
     "description": "Description of the second test service.",
     "routes": [],
     "variables": {

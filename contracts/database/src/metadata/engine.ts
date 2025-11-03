@@ -34,7 +34,7 @@ export const getDatabaseEngine = (type: AllType, parent: TypeModel, reflection: 
     return getTypeEngine(declaration, parent, errorList);
   }
 
-  return null;
+  return undefined;
 };
 
 const isValidEngine = (type: Incomplete<DatabaseEngine>): type is DatabaseEngine => {
@@ -52,7 +52,7 @@ const getTypeEngine = (type: AllType, parent: TypeModel, errorList: Error[]) => 
     return getTypeFromMembers(type, parent, getObjectMembers(type), errorList);
   }
 
-  return null;
+  return undefined;
 };
 
 const getTypeFromMembers = (type: TypeObject | TypeModel, parent: TypeModel, members: MemberType[], errorList: Error[]) => {
@@ -116,7 +116,7 @@ const getTypeFromMembers = (type: TypeObject | TypeModel, parent: TypeModel, mem
 
   if (!isValidEngine(engine)) {
     errorList.push(new IncompleteEngineError([...properties], type.file));
-    return null;
+    return undefined;
   }
 
   return engine;

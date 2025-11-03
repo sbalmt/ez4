@@ -20,7 +20,7 @@ export const getHttpParameters = (type: AllType, parent: TypeParent, reflection:
     return getTypeParameter(declaration, parent, reflection, errorList);
   }
 
-  return null;
+  return undefined;
 };
 
 const getTypeParameter = (type: AllType, parent: TypeParent, reflection: SourceMap, errorList: Error[]) => {
@@ -30,12 +30,12 @@ const getTypeParameter = (type: AllType, parent: TypeParent, reflection: SourceM
 
   if (!isModelDeclaration(type)) {
     errorList.push(new InvalidParameterTypeError(parent.file));
-    return null;
+    return undefined;
   }
 
   if (!isHttpParameters(type)) {
     errorList.push(new IncorrectParameterTypeError(type.name, type.file));
-    return null;
+    return undefined;
   }
 
   return getSchemaFromType(type, reflection);

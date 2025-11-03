@@ -1,0 +1,36 @@
+{
+  "@variables": {
+    "name": "@variables",
+    "type": "@ez4/common",
+    "context": {}
+  },
+  "TestQueue": {
+    "type": "@ez4/queue",
+    "context": {},
+    "name": "TestQueue",
+    "schema": {
+      "type": "object",
+      "properties": {
+        "foo": {
+          "type": "string"
+        }
+      },
+      "identity": 1
+    },
+    "subscriptions": [
+      {
+        "handler": {
+          "name": "testHandler",
+          "file": "test/input/output-variables.ts"
+        }
+      }
+    ],
+    "variables": {
+      "TEST_VAR1": "test-literal-value",
+      "TEST_VAR2": "test-env-var-value"
+    },
+    "services": {
+      "selfSettings": "@variables"
+    }
+  }
+}

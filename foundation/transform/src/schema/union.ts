@@ -1,6 +1,6 @@
 import type { UnionSchema } from '@ez4/schema';
 
-import { deepMerge, isAnyObject } from '@ez4/utils';
+import { isAnyObject, objectSize } from '@ez4/utils';
 
 import { createTransformContext } from '../types/context';
 import { transformAny } from './any';
@@ -10,33 +10,38 @@ export const transformUnion = (value: unknown, schema: UnionSchema, context = cr
     return undefined;
   }
 
+  const localContext = { ...context, return: false };
+
+  let lastSize = -Infinity;
   let lastValue: unknown;
 
   for (const elementSchema of schema.elements) {
-    const result = transformAny(value, elementSchema, {
-      ...context,
-      return: false
-    });
+    localContext.partial = false;
+
+    const result = transformAny(value, elementSchema, localContext);
 
     if (result === undefined) {
       continue;
     }
 
-    if (isAnyObject(result) && isAnyObject(lastValue)) {
-      lastValue = deepMerge(lastValue, result);
+    if (isAnyObject(result)) {
+      const size = objectSize(result);
+
+      if (!localContext.partial && lastSize <= size) {
+        lastValue = result;
+      }
+
       continue;
     }
 
-    if (!isAnyObject(result)) {
-      return result;
-    }
-
-    lastValue = result;
+    return result;
   }
 
   if (lastValue === undefined && context.return) {
     return value;
   }
+
+  context.partial = localContext.partial;
 
   return lastValue;
 };

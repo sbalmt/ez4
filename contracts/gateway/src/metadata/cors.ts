@@ -30,7 +30,7 @@ export const getHttpCors = (type: AllType, parent: TypeModel, reflection: Source
     return getTypeCors(declaration, parent, errorList);
   }
 
-  return null;
+  return undefined;
 };
 
 const isValidCors = (type: Incomplete<HttpCors>): type is HttpCors => {
@@ -44,12 +44,12 @@ const getTypeCors = (type: AllType, parent: TypeModel, errorList: Error[]) => {
 
   if (!isModelDeclaration(type)) {
     errorList.push(new InvalidCorsTypeError(parent.file));
-    return null;
+    return undefined;
   }
 
   if (!isHttpCors(type)) {
     errorList.push(new IncorrectCorsTypeError(type.name, type.file));
-    return null;
+    return undefined;
   }
 
   return getTypeFromMembers(type, parent, getModelMembers(type), errorList);
@@ -92,5 +92,5 @@ const getTypeFromMembers = (type: TypeObject | TypeModel, parent: TypeModel, mem
 
   errorList.push(new IncompleteCorsError([...properties], type.file));
 
-  return null;
+  return undefined;
 };

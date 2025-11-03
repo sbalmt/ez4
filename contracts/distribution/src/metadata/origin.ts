@@ -48,7 +48,7 @@ export const getCdnOrigin = (type: AllType, parent: TypeModel, reflection: Sourc
     return getTypeOrigin(declaration, parent, reflection, errorList);
   }
 
-  return null;
+  return undefined;
 };
 
 const isValidOrigin = (type: Incomplete<CdnRegularOrigin & CdnBucketOrigin>): type is CdnOrigin => {
@@ -62,12 +62,12 @@ const getTypeOrigin = (type: AllType, parent: TypeModel, reflection: SourceMap, 
 
   if (!isModelDeclaration(type)) {
     errorList.push(new InvalidOriginTypeError(parent.file));
-    return null;
+    return undefined;
   }
 
   if (!isCdnOrigin(type)) {
     errorList.push(new IncorrectOriginTypeError(type.name, type.file));
-    return null;
+    return undefined;
   }
 
   return getTypeFromMembers(type, getModelMembers(type), parent, reflection, errorList);
@@ -135,12 +135,12 @@ const getTypeFromMembers = (
 
   errorList.push(new IncompleteOriginError([...properties], type.file));
 
-  return null;
+  return undefined;
 };
 
 const getOriginHeaders = (type: AllType) => {
   if (!isTypeObject(type)) {
-    return null;
+    return undefined;
   }
 
   const headers: Record<string, string> = {};

@@ -2,24 +2,20 @@ import type { EmulateServiceContext, EmulatorServiceRequest, ServeOptions } from
 import type { QueueImport, QueueService } from '@ez4/queue/library';
 import type { AnyObject } from '@ez4/utils';
 
-import { getJsonMessage, MalformedMessageError } from '@ez4/queue/utils';
 import { getResponseError, getResponseSuccess } from '@ez4/local-common';
+import { getJsonMessage, MalformedMessageError } from '@ez4/queue/utils';
 import { getServiceName } from '@ez4/project/library';
-import { isQueueImport } from '@ez4/queue/library';
 import { getRandomInteger } from '@ez4/utils';
 
 import { processLambdaMessage } from '../handlers/lambda';
-import { createServiceClient } from '../client/service';
-import { createImportedClient } from '../client/import';
+import { createLocalClient } from '../client/local';
 
-export const registerQueueServices = (service: QueueService | QueueImport, options: ServeOptions, context: EmulateServiceContext) => {
+export const registerLocalServices = (service: QueueService, options: ServeOptions, context: EmulateServiceContext) => {
   const { name: serviceName, schema: messageSchema } = service;
-
-  const isImportService = isQueueImport(service);
 
   const clientOptions = {
     ...options,
-    delay: isImportService ? 0 : (service.delay ?? 0),
+    delay: service.delay ?? 0,
     handler: (message: AnyObject) => {
       return handleQueueMessage(service, options, context, message);
     }
@@ -30,9 +26,7 @@ export const registerQueueServices = (service: QueueService | QueueImport, optio
     name: serviceName,
     identifier: getServiceName(serviceName, options),
     clientHandler: () => {
-      return isImportService
-        ? createImportedClient(serviceName, messageSchema, clientOptions)
-        : createServiceClient(serviceName, messageSchema, clientOptions);
+      return createLocalClient(serviceName, messageSchema, clientOptions);
     },
     requestHandler: (request: EmulatorServiceRequest) => {
       return handleQueueRequest(service, options, context, request);
@@ -41,7 +35,7 @@ export const registerQueueServices = (service: QueueService | QueueImport, optio
 };
 
 const handleQueueRequest = async (
-  service: QueueService | QueueImport,
+  service: QueueService,
   options: ServeOptions,
   context: EmulateServiceContext,
   request: EmulatorServiceRequest

@@ -1,4 +1,4 @@
-import type { DeployOptions, EmulateClientEvent, EventContext, ExtraSource } from '@ez4/project/library';
+import type { DeployOptions, EmulateClientEvent, EventContext, ContextSource } from '@ez4/project/library';
 import type { DatabaseService, TableIndex } from '@ez4/database/library';
 
 import { Index } from '@ez4/database';
@@ -7,7 +7,7 @@ import { getTableState } from '../table/utils';
 import { Client } from '../client';
 import { getInternalName, getTableName, isDynamoDbService } from './utils';
 
-export const prepareLinkedClient = (context: EventContext, service: DatabaseService, options: DeployOptions): ExtraSource => {
+export const prepareLinkedClient = (context: EventContext, service: DatabaseService, options: DeployOptions): ContextSource => {
   const tableIds = service.tables.map((table) => {
     const internalName = getInternalName(service, table);
     const tableState = getTableState(context, internalName, options);
@@ -16,7 +16,8 @@ export const prepareLinkedClient = (context: EventContext, service: DatabaseServ
   });
 
   return {
-    entryIds: tableIds,
+    connectionIds: tableIds,
+    dependencyIds: tableIds,
     from: '@ez4/aws-dynamodb/client',
     module: 'Client',
     constructor: `make(${JSON.stringify({

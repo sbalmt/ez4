@@ -12,17 +12,20 @@
   "workspaces": [
     "examples/*"
   ],
+  "exports": {
+    ".": "./src/export.ts"
+  },
   "scripts": {
     "deploy": "tsc && ez4 deploy -e local.env",
     "destroy": "ez4 destroy -e local.env",
     "serve": "ez4 serve -e local.env"
   },
   "dependencies": {
-    "@ez4/aws-gateway": "^0.30.0",
-    "@ez4/common": "^0.30.0",
-    "@ez4/local-gateway": "^0.30.0",
-    "@ez4/gateway": "^0.30.0",
-    "@ez4/project": "^0.30.0",
-    "@ez4/schema": "^0.30.0"
+    "@ez4/aws-gateway": "^0.31.0",
+    "@ez4/common": "^0.31.0",
+    "@ez4/local-gateway": "^0.31.0",
+    "@ez4/gateway": "^0.31.0",
+    "@ez4/project": "^0.31.0",
+    "@ez4/schema": "^0.31.0"
   }
 }

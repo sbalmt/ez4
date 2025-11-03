@@ -1,4 +1,4 @@
-import type { DeployOptions, EmulateClientEvent, EventContext, ExtraSource } from '@ez4/project/library';
+import type { DeployOptions, EmulateClientEvent, EventContext, ContextSource } from '@ez4/project/library';
 import type { DatabaseService } from '@ez4/database/library';
 import type { ClusterState } from '../cluster/types';
 
@@ -10,7 +10,7 @@ import { getClusterState } from '../cluster/utils';
 import { Client } from '../client';
 import { getClusterName, isAuroraService } from './utils';
 
-export const prepareLinkedClient = (context: EventContext, service: DatabaseService, options: DeployOptions): ExtraSource => {
+export const prepareLinkedClient = (context: EventContext, service: DatabaseService, options: DeployOptions): ContextSource => {
   const clusterState = getClusterState(context, service.name, options);
   const clusterId = clusterState.entryId;
 
@@ -19,7 +19,8 @@ export const prepareLinkedClient = (context: EventContext, service: DatabaseServ
   const database = getDatabaseName(service, options);
 
   return {
-    entryIds: [clusterId],
+    connectionIds: [clusterId],
+    dependencyIds: [clusterId],
     from: '@ez4/aws-aurora/client',
     module: 'Client',
     constructor:

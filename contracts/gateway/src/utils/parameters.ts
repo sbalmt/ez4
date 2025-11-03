@@ -1,5 +1,5 @@
 import type { ObjectSchema } from '@ez4/schema';
-import type { Http } from '@ez4/gateway';
+import type { Http } from '../services/contract';
 
 import { createTransformContext, transform } from '@ez4/transform';
 import { validate, getUniqueErrorMessages, createValidatorContext } from '@ez4/validator';
@@ -17,4 +17,14 @@ export const getPathParameters = async <T extends Http.PathParameters>(input: T,
   }
 
   return parameters as T;
+};
+
+export const preparePathParameters = (path: string, parameters: Record<string, string>) => {
+  return path.replaceAll(/\{(\w+)\}/g, (_, parameterName) => {
+    if (parameterName in parameters) {
+      return `${parameters[parameterName]}`;
+    }
+
+    return `{${parameterName}}`;
+  });
 };

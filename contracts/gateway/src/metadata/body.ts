@@ -26,22 +26,20 @@ export const getHttpBody = (type: AllType, parent: TypeParent, reflection: Sourc
   });
 };
 
-const getTypeBody = <T>(type: AllType, reflection: SourceMap, resolver: (type: AllType) => T | null) => {
-  if (isTypeUndefined(type)) {
-    return null;
+const getTypeBody = <T>(type: AllType, reflection: SourceMap, resolver: (type: AllType) => T | undefined) => {
+  if (!isTypeUndefined(type)) {
+    if (!isTypeReference(type)) {
+      return resolver(type);
+    }
+
+    const declaration = getReferenceType(type, reflection);
+
+    if (declaration) {
+      return resolver(declaration);
+    }
   }
 
-  if (!isTypeReference(type)) {
-    return resolver(type);
-  }
-
-  const declaration = getReferenceType(type, reflection);
-
-  if (declaration) {
-    return resolver(declaration);
-  }
-
-  return null;
+  return undefined;
 };
 
 const getScalarTypeBody = (type: AllType) => {
@@ -49,7 +47,7 @@ const getScalarTypeBody = (type: AllType) => {
     return getScalarSchema(type);
   }
 
-  return null;
+  return undefined;
 };
 
 const getCompoundTypeBody = (
@@ -57,7 +55,7 @@ const getCompoundTypeBody = (
   parent: TypeParent,
   reflection: SourceMap,
   errorList: Error[]
-): ObjectSchema | UnionSchema | ArraySchema | null => {
+): ObjectSchema | UnionSchema | ArraySchema | undefined => {
   if (isTypeUnion(type)) {
     return getUnionTypeBody(type.elements, reflection, (currentType) => {
       return getScalarTypeBody(currentType) ?? getCompoundTypeBody(currentType, parent, reflection, errorList);
@@ -76,18 +74,18 @@ const getCompoundTypeBody = (
 
   if (!isModelDeclaration(type)) {
     errorList.push(new InvalidBodyTypeError(parent.file));
-    return null;
+    return undefined;
   }
 
   if (!isJsonBody(type)) {
     errorList.push(new IncorrectBodyTypeError(type.name, type.file));
-    return null;
+    return undefined;
   }
 
   return getSchemaFromType(type, reflection);
 };
 
-const getUnionTypeBody = (types: AllType[], reflection: SourceMap, resolver: (type: AllType) => AnySchema | null) => {
+const getUnionTypeBody = (types: AllType[], reflection: SourceMap, resolver: (type: AllType) => AnySchema | undefined) => {
   const schemaData: UnionSchemaData = {
     optional: false,
     elements: []
@@ -107,13 +105,13 @@ const getUnionTypeBody = (types: AllType[], reflection: SourceMap, resolver: (ty
   }
 
   if (!schemaData.elements.length) {
-    return null;
+    return undefined;
   }
 
   return createUnionSchema(schemaData);
 };
 
-const getArrayTypeBody = (type: AllType, reflection: SourceMap, resolver: (type: AllType) => AnySchema | null) => {
+const getArrayTypeBody = (type: AllType, reflection: SourceMap, resolver: (type: AllType) => AnySchema | undefined) => {
   const schema = getTypeBody(type, reflection, resolver);
 
   if (schema) {
@@ -122,5 +120,5 @@ const getArrayTypeBody = (type: AllType, reflection: SourceMap, resolver: (type:
     });
   }
 
-  return null;
+  return undefined;
 };

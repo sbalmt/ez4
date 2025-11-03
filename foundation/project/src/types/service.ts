@@ -11,13 +11,14 @@ export type ServiceAliases = Record<string, EntryState>;
 export type ServiceMetadata = {
   type: string;
   name: string;
-  extras: Record<string, ExtraSource>;
-  variables?: LinkedVariables | null;
-  services?: LinkedServices | null;
+  context: Record<string, ContextSource>;
+  variables?: LinkedVariables;
+  services?: LinkedServices;
 };
 
-export type ExtraSource = {
-  entryIds: string[];
+export type ContextSource = {
+  dependencyIds?: string[];
+  connectionIds?: string[];
   constructor: string;
   module: string;
   from: string;

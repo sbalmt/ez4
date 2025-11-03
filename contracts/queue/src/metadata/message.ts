@@ -21,10 +21,10 @@ export const getQueueMessage = (type: AllType, parent: TypeParent, reflection: S
     return getTypeMessage(declaration, parent, reflection, errorList);
   }
 
-  return null;
+  return undefined;
 };
 
-const getTypeMessage = (type: AllType, parent: TypeParent, reflection: SourceMap, errorList: Error[]): QueueMessageSchema | null => {
+const getTypeMessage = (type: AllType, parent: TypeParent, reflection: SourceMap, errorList: Error[]): QueueMessageSchema | undefined => {
   if (isTypeUnion(type)) {
     return getMessageFromUnion(type.elements, parent, reflection, errorList);
   }
@@ -35,12 +35,12 @@ const getTypeMessage = (type: AllType, parent: TypeParent, reflection: SourceMap
 
   if (!isModelDeclaration(type)) {
     errorList.push(new InvalidMessageTypeError(parent.file));
-    return null;
+    return undefined;
   }
 
   if (!isQueueMessage(type)) {
     errorList.push(new IncorrectMessageTypeError(type.name, type.file));
-    return null;
+    return undefined;
   }
 
   return getMessageSchema(type, reflection);
@@ -69,5 +69,5 @@ const getMessageSchema = (type: TypeObject | TypeModel | TypeIntersection, refle
     return schema;
   }
 
-  return null;
+  return undefined;
 };

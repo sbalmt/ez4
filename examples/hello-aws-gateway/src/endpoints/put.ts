@@ -1,5 +1,7 @@
 import type { String } from '@ez4/schema';
+import type { Service } from '@ez4/common';
 import type { Http } from '@ez4/gateway';
+import type { ApiProvider } from '../provider';
 
 import { CustomError } from '../errors';
 
@@ -41,8 +43,11 @@ declare class PutResponse implements Http.Response {
  * @param request Incoming request.
  * @returns Outgoing response.
  */
-export function putHandler(request: PutRequest): PutResponse {
+export function putHandler(request: PutRequest, context: Service.Context<ApiProvider>): PutResponse {
+  const { selfVariables } = context;
   const { foo } = request.body;
+
+  console.log(selfVariables.TEST_VAR1, foo);
 
   // Check default error catcher.
   if (foo === 'error') {

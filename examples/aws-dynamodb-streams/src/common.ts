@@ -15,6 +15,10 @@ export function streamListener(event: Database.ServiceEvent) {
       console.log('Event ready', event.request);
       break;
 
+    case ServiceEventType.Done:
+      console.log('Event done', event.request);
+      break;
+
     case ServiceEventType.Error:
       console.log('Event error', event.request);
       break;

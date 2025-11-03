@@ -8,9 +8,9 @@ import { getHttpHandlerRequest } from './request';
 import { getHttpProvider } from './provider';
 import { isHttpHandler } from './utils';
 
-export const getHttpHandler = (type: AllType, parent: TypeModel, reflection: SourceMap, errorList: Error[]) => {
+export const getHttpHandler = (type: AllType, parent: TypeModel, reflection: SourceMap, errorList: Error[], external: boolean) => {
   if (!isHttpHandler(type)) {
-    return null;
+    return undefined;
   }
 
   const { description, module } = type;
@@ -31,12 +31,12 @@ export const getHttpHandler = (type: AllType, parent: TypeModel, reflection: Sou
   }
 
   if (type.parameters) {
-    const [{ value: requestType }, requestContext] = type.parameters;
+    const [{ value: requestType }, contextType] = type.parameters;
 
     handler.request = getHttpHandlerRequest(requestType, parent, reflection, errorList);
 
-    if (requestContext) {
-      handler.provider = getHttpProvider(requestContext.value, parent, reflection, errorList);
+    if (contextType && !external) {
+      handler.provider = getHttpProvider(contextType.value, parent, reflection, errorList);
     }
   }
 
@@ -55,7 +55,7 @@ export const getHttpHandler = (type: AllType, parent: TypeModel, reflection: Sou
 
   errorList.push(new IncompleteHandlerError([...properties], type.file));
 
-  return null;
+  return undefined;
 };
 
 const isValidHandler = (type: Incomplete<HttpHandler>): type is HttpHandler => {

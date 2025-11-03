@@ -35,7 +35,7 @@ export const getDatabaseServices = (reflection: SourceMap) => {
       continue;
     }
 
-    const service: Incomplete<DatabaseService> = { type: ServiceType, extras: {} };
+    const service: Incomplete<DatabaseService> = { type: ServiceType, context: {} };
     const properties = new Set(['engine', 'tables']);
 
     const fileName = declaration.file;
@@ -110,7 +110,7 @@ export const getDatabaseServices = (reflection: SourceMap) => {
 };
 
 const isValidService = (type: Incomplete<DatabaseService>): type is DatabaseService => {
-  return !!type.name && !!type.tables && !!type.extras;
+  return !!type.name && !!type.tables && !!type.context;
 };
 
 const getAllTables = (member: ModelProperty, parent: TypeModel, reflection: SourceMap, errorList: Error[]) => {

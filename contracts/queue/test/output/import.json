@@ -1,8 +1,13 @@
 {
+  "@variables": {
+    "name": "@variables",
+    "type": "@ez4/common",
+    "context": {}
+  },
   "TestQueue": {
     "type": "@ez4/queue",
     "name": "TestQueue",
-    "extras": {},
+    "context": {},
     "timeout": 20,
     "polling": 10,
     "schema": {

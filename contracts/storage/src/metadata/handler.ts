@@ -7,7 +7,7 @@ import { isEventHandler } from './utils';
 
 export const getEventHandler = (type: AllType, _reflection: SourceMap, errorList: Error[]) => {
   if (!isEventHandler(type)) {
-    return null;
+    return undefined;
   }
 
   const { description, module } = type;
@@ -33,7 +33,7 @@ export const getEventHandler = (type: AllType, _reflection: SourceMap, errorList
 
   errorList.push(new IncompleteHandlerError([...properties], type.file));
 
-  return null;
+  return undefined;
 };
 
 const isValidHandler = (type: Incomplete<EventHandler>): type is EventHandler => {

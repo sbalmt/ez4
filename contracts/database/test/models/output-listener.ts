@@ -23,6 +23,6 @@ export declare class TestDatabase extends Database.Service {
   client: Client<TestDatabase>;
 }
 
-export async function streamListener() {}
+async function streamListener() {}
 
-export async function streamHandler(_change: StreamChange<TestSchema>) {}
+async function streamHandler(_change: StreamChange<TestSchema>) {}

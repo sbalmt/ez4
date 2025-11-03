@@ -1,12 +1,12 @@
 import { ok, deepEqual } from 'node:assert/strict';
 import { describe, it } from 'node:test';
 
-import { uniqueArray } from '@ez4/utils';
+import { arrayUnique } from '@ez4/utils';
 
 describe('array unique utils', () => {
   it('assert :: unique array', () => {
     const target = ['foo', 'bar', 'bar', 'baz', 'foo'];
-    const result = uniqueArray(target);
+    const result = arrayUnique(target);
 
     deepEqual(result, ['foo', 'bar', 'baz']);
 
@@ -17,7 +17,7 @@ describe('array unique utils', () => {
     const targetA = ['foo', 'bar', 'bar', 'baz', 'foo'];
     const targetB = ['bar', 'qux', 'foo', 'baz'];
 
-    const result = uniqueArray(targetA, targetB);
+    const result = arrayUnique(targetA, targetB);
 
     deepEqual(result, ['foo', 'bar', 'baz', 'qux']);
 

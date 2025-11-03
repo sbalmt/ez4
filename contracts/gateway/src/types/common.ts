@@ -11,27 +11,27 @@ export type HttpPreferences = {
 };
 
 export type HttpAuthRequest = {
-  headers?: ObjectSchema | null;
-  parameters?: ObjectSchema | null;
-  query?: ObjectSchema | null;
+  headers?: ObjectSchema;
+  parameters?: ObjectSchema;
+  query?: ObjectSchema;
 };
 
 export type HttpAuthResponse = {
-  identity?: ObjectSchema | UnionSchema | null;
+  identity?: ObjectSchema | UnionSchema;
 };
 
 export type HttpRequest = {
-  identity?: ObjectSchema | UnionSchema | null;
-  headers?: ObjectSchema | null;
-  parameters?: ObjectSchema | null;
-  query?: ObjectSchema | null;
-  body?: ObjectSchema | UnionSchema | ArraySchema | ScalarSchema | null;
+  identity?: ObjectSchema | UnionSchema;
+  headers?: ObjectSchema;
+  parameters?: ObjectSchema;
+  query?: ObjectSchema;
+  body?: ObjectSchema | UnionSchema | ArraySchema | ScalarSchema;
 };
 
 export type HttpResponse = {
   status: number | number[];
-  headers?: ObjectSchema | null;
-  body?: ObjectSchema | UnionSchema | ArraySchema | ScalarSchema | null;
+  headers?: ObjectSchema;
+  body?: ObjectSchema | UnionSchema | ArraySchema | ScalarSchema;
 };
 
 export type HttpHandler = {
@@ -58,26 +58,27 @@ export type HttpErrors = {
 };
 
 export type HttpRoute = {
+  name?: string;
   path: HttpPath;
   handler: HttpHandler;
-  listener?: ServiceListener | null;
-  authorizer?: HttpAuthorizer | null;
-  variables?: LinkedVariables | null;
-  httpErrors?: HttpErrors | null;
+  listener?: ServiceListener;
+  authorizer?: HttpAuthorizer;
+  variables?: LinkedVariables;
+  httpErrors?: HttpErrors;
   preferences?: HttpPreferences;
-  logRetention?: number | null;
-  timeout?: number | null;
-  memory?: number | null;
-  cors?: boolean | null;
+  logRetention?: number;
+  timeout?: number;
+  memory?: number;
+  cors?: boolean;
 };
 
 export type HttpDefaults = {
-  listener?: ServiceListener | null;
-  httpErrors?: HttpErrors | null;
+  listener?: ServiceListener;
+  httpErrors?: HttpErrors;
   preferences?: HttpPreferences;
-  logRetention?: number | null;
-  timeout?: number | null;
-  memory?: number | null;
+  logRetention?: number;
+  timeout?: number;
+  memory?: number;
 };
 
 export type HttpCache = {
@@ -98,5 +99,6 @@ export type HttpCors = {
 };
 
 export type HttpProvider = {
+  variables?: LinkedVariables;
   services?: LinkedServices;
 };
