@@ -1,0 +1,63 @@
+{
+  "@variables": {
+    "type": "@ez4/common",
+    "name": "@variables",
+    "context": {}
+  },
+  "TestService": {
+    "type": "@ez4/http",
+    "context": {},
+    "name": "TestService",
+    "displayName": "Remote API",
+    "routes": [
+      {
+        "path": "ANY /test-route",
+        "listener": {
+          "name": "testListener",
+          "file": "test/input/output-import.ts"
+        },
+        "handler": {
+          "name": "testHandler",
+          "file": "test/input/output-import.ts",
+          "response": {
+            "status": 204
+          }
+        }
+      }
+    ],
+    "defaults": {
+      "preferences": {
+        "namingStyle": "preserve"
+      }
+    }
+  },
+  "TestImport": {
+    "type": "@ez4/import:http",
+    "name": "TestImport",
+    "description": "Import API gateway.",
+    "reference": "TestService",
+    "routes": [
+      {
+        "path": "ANY /test-route",
+        "listener": {
+          "name": "testListener",
+          "file": "test/input/output-import.ts"
+        },
+        "handler": {
+          "name": "testHandler",
+          "file": "test/input/output-import.ts",
+          "response": {
+            "status": 204
+          }
+        }
+      }
+    ],
+    "displayName": "Remote API",
+    "project": "name from project in ez4.project.js",
+    "defaults": {
+      "preferences": {
+        "namingStyle": "preserve"
+      }
+    }
+  }
+}
