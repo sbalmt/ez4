@@ -6,7 +6,6 @@ export type TransformContext = {
   inputStyle?: NamingStyle;
   convert?: boolean;
   return?: boolean;
-  partial: boolean;
 };
 
 export type TransformContextOptions = {
@@ -22,7 +21,6 @@ export const createTransformContext = (options?: TransformContextOptions): Trans
     outputStyle: options?.outputStyle,
     convert: options?.convert ?? true,
     return: options?.return ?? true,
-    partial: false,
     references: {}
   };
 };

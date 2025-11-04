@@ -1,6 +1,6 @@
 import type { UnionSchema } from '@ez4/schema';
 
-import { isAnyObject, objectSize } from '@ez4/utils';
+import { arraySize, isAnyArray, isAnyObject, objectSize } from '@ez4/utils';
 
 import { createTransformContext } from '../types/context';
 import { transformAny } from './any';
@@ -10,14 +10,15 @@ export const transformUnion = (value: unknown, schema: UnionSchema, context = cr
     return undefined;
   }
 
-  const localContext = { ...context, return: false };
-
-  let lastSize = -Infinity;
   let lastValue: unknown;
+  let lastSize = -Infinity;
+
+  const localContext = {
+    ...context,
+    return: false
+  };
 
   for (const elementSchema of schema.elements) {
-    localContext.partial = false;
-
     const result = transformAny(value, elementSchema, localContext);
 
     if (result === undefined) {
@@ -27,21 +28,34 @@ export const transformUnion = (value: unknown, schema: UnionSchema, context = cr
     if (isAnyObject(result)) {
       const size = objectSize(result);
 
-      if (!localContext.partial && lastSize <= size) {
+      if (size > lastSize) {
         lastValue = result;
+        lastSize = size;
       }
 
       continue;
     }
 
-    return result;
+    if (isAnyArray(result)) {
+      const size = arraySize(result);
+
+      if (size > lastSize) {
+        lastValue = result;
+        lastSize = size;
+      }
+
+      continue;
+    }
+
+    if (lastSize < 1) {
+      lastValue = result;
+      lastSize = 1;
+    }
   }
 
   if (lastValue === undefined && context.return) {
     return value;
   }
-
-  context.partial = localContext.partial;
 
   return lastValue;
 };

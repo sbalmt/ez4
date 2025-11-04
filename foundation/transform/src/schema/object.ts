@@ -46,8 +46,6 @@ export const transformObject = (value: unknown, schema: ObjectSchema, context = 
       output[outputPropertyName] = newValue;
     } else if (rawValue !== undefined) {
       output[outputPropertyName] = rawValue;
-    } else {
-      context.partial = true;
     }
 
     allProperties.delete(propertyName);
@@ -77,10 +75,6 @@ export const transformObject = (value: unknown, schema: ObjectSchema, context = 
       const outputPropertyName = getPropertyName(propertyName, outputStyle);
       output[outputPropertyName] = objectValue[propertyName];
     }
-  }
-
-  if (!context.partial) {
-    context.partial = localContext.partial;
   }
 
   return output;
