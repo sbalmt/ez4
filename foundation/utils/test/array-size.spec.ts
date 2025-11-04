@@ -9,8 +9,10 @@ describe('array size utils', () => {
     2,
     {
       foo: 'foo',
-      bar: 'bar'
+      bar: 'bar',
+      baz: undefined
     },
+    undefined,
     4
   ];
 

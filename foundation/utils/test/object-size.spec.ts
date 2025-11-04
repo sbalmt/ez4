@@ -8,12 +8,13 @@ describe('object size utils', () => {
     level: 1,
     first: {
       level: 2,
-      array: [1, 2, 3],
+      array: [1, 2, 3, undefined],
       second: {
         level: 3,
         third: true
       }
-    }
+    },
+    second: undefined
   };
 
   it('assert :: object size', () => {

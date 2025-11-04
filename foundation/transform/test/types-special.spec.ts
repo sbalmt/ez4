@@ -138,16 +138,33 @@ describe('special type transformation', () => {
           element: {
             type: SchemaType.Number
           }
+        },
+        {
+          type: SchemaType.Tuple,
+          elements: [
+            {
+              type: SchemaType.Number
+            },
+            {
+              type: SchemaType.Number
+            },
+            {
+              type: SchemaType.String
+            }
+          ]
         }
       ]
     };
 
     // Best fit object
     deepEqual(transform({ foo: 'abc', bar: '123' }, schema), { foo: 'abc', bar: 123 });
-    deepEqual(transform({ foo: 'def' }, schema), { foo: 'def' });
+    deepEqual(transform({ foo: 'abc' }, schema), { foo: 'abc' });
 
     // Best fit array
     deepEqual(transform(['123', 456], schema), [123, 456]);
+
+    // Best fit tuple
+    deepEqual(transform(['123', 456, 'abc'], schema), [123, 456, 'abc']);
   });
 
   it('assert :: array (from string)', () => {
