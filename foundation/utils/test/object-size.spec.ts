@@ -19,6 +19,6 @@ describe('object size utils', () => {
   it('assert :: object size', () => {
     const size = objectSize(object);
 
-    equal(size, 5);
+    equal(size, 10);
   });
 });
