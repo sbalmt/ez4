@@ -132,16 +132,22 @@ describe('special type transformation', () => {
               type: SchemaType.Number
             }
           }
+        },
+        {
+          type: SchemaType.Array,
+          element: {
+            type: SchemaType.Number
+          }
         }
       ]
     };
 
-    const output = {
-      foo: 'abc',
-      bar: 123
-    };
+    // Best fit object
+    deepEqual(transform({ foo: 'abc', bar: '123' }, schema), { foo: 'abc', bar: 123 });
+    deepEqual(transform({ foo: 'def' }, schema), { foo: 'def' });
 
-    deepEqual(transform({ foo: 'abc', bar: '123' }, schema), output);
+    // Best fit array
+    deepEqual(transform(['123', 456], schema), [123, 456]);
   });
 
   it('assert :: array (from string)', () => {
