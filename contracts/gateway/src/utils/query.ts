@@ -1,10 +1,11 @@
-import type { ObjectSchema } from '@ez4/schema';
+import type { AnySchema, ObjectSchema } from '@ez4/schema';
 import type { Http } from '../services/contract';
 
+import { HttpBadRequestError } from '@ez4/gateway';
 import { createTransformContext, transform } from '@ez4/transform';
 import { validate, createValidatorContext, getUniqueErrorMessages } from '@ez4/validator';
-import { HttpBadRequestError } from '@ez4/gateway';
-import { isNullish } from '@ez4/utils';
+import { getSchemaProperty, isArraySchema } from '@ez4/schema';
+import { isNotNullish, isNullish } from '@ez4/utils';
 
 export const getQueryStrings = async <T extends Http.QueryStrings>(
   input: T,
@@ -36,24 +37,15 @@ export const getQueryStrings = async <T extends Http.QueryStrings>(
   return payload as T;
 };
 
-export const prepareQueryStrings = <T extends Http.QueryStrings>(query: T) => {
+export const serializeQueryStrings = <T extends Http.QueryStrings>(query: T, schema?: ObjectSchema) => {
   const queryStrings = [];
 
-  for (const name in query) {
-    const value = query[name];
+  for (const fieldName in query) {
+    const fieldSchema = schema && getSchemaProperty(schema, fieldName);
+    const fieldResult = serializeQueryStringValue(query[fieldName], fieldSchema);
 
-    if (!isNullish(value)) {
-      if (value instanceof Date) {
-        queryStrings.push(`${name}=${encodeURIComponent(value.toISOString())}`);
-        continue;
-      }
-
-      if (value instanceof Array) {
-        queryStrings.push(`${name}=${encodeURIComponent(value.join(','))}`);
-        continue;
-      }
-
-      queryStrings.push(`${name}=${encodeURIComponent(`${value}`)}`);
+    if (fieldResult) {
+      queryStrings.push(`${fieldName}=${encodeURIComponent(fieldResult)}`);
     }
   }
 
@@ -62,4 +54,27 @@ export const prepareQueryStrings = <T extends Http.QueryStrings>(query: T) => {
   }
 
   return undefined;
+};
+
+export const serializeQueryStringValue = (value: unknown, schema?: AnySchema): string | undefined => {
+  if (isNullish(value)) {
+    return undefined;
+  }
+
+  if (value instanceof Date) {
+    return value.toISOString();
+  }
+
+  if (value instanceof Array && (!schema || !isArraySchema(schema) || !schema.definitions?.encoded)) {
+    const serialized = value.map((item) => serializeQueryStringValue(item, schema));
+    const filtered = serialized.filter((item) => isNotNullish(item));
+
+    return filtered.join(',');
+  }
+
+  if (value instanceof Object) {
+    return Buffer.from(JSON.stringify(value)).toString('base64');
+  }
+
+  return `${value}`;
 };

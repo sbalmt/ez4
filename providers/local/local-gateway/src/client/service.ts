@@ -27,18 +27,24 @@ export const createServiceClient = <T extends Http.Service>(serviceName: string,
             throw new Error(`Operation '${property.toString()}' wasn't found.`);
           }
 
-          const { method, path, responseSchema, namingStyle } = operations[property];
+          const { method, path, namingStyle, querySchema, bodySchema, responseSchema } = operations[property];
 
-          const requestUrl = getClientRequestUrl(gatewayHost, path, request);
+          const requestUrl = getClientRequestUrl(gatewayHost, path, {
+            ...request,
+            querySchema,
+            namingStyle
+          });
 
           try {
             Logger.debug(`🌐 Sending request to gateway [${serviceName}] at ${requestUrl}`);
 
             return await sendClientRequest(requestUrl, method, {
               ...request,
+              bodySchema,
               responseSchema,
               namingStyle
             });
+
             //
           } catch (error) {
             if (!(error instanceof HttpError)) {

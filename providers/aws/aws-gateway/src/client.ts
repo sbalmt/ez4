@@ -17,12 +17,17 @@ export namespace Client {
               throw new Error(`Operation '${property.toString()}' wasn't found.`);
             }
 
-            const { method, path, responseSchema, namingStyle } = operations[property];
+            const { method, path, namingStyle, querySchema, bodySchema, responseSchema } = operations[property];
 
-            const requestUrl = getClientRequestUrl(gatewayUrl, path, request);
+            const requestUrl = getClientRequestUrl(gatewayUrl, path, {
+              ...request,
+              querySchema,
+              namingStyle
+            });
 
             return sendClientRequest(requestUrl, method, {
               ...request,
+              bodySchema,
               responseSchema,
               namingStyle
             });
