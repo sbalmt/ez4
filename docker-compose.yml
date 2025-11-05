@@ -1,7 +1,7 @@
 name: ez4
 services:
   postgres:
-    image: postgres:16
+    image: postgres:14
     restart: always
     environment:
       POSTGRES_USER: postgres

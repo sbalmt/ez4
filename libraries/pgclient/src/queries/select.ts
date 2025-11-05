@@ -5,8 +5,8 @@ import type { Query } from '@ez4/database';
 import type { PgRelationRepositoryWithSchema } from '../types/repository';
 import type { InternalTableMetadata } from '../types/table';
 
-import { InvalidRelationFieldError, MissingFieldSchemaError } from '@ez4/pgclient';
 import { isAnyNumber, isAnyObject, isEmptyObject } from '@ez4/utils';
+import { InvalidRelationFieldError, MissingFieldSchemaError } from '@ez4/pgclient';
 import { isObjectSchema } from '@ez4/schema';
 import { Index } from '@ez4/database';
 

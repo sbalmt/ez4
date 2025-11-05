@@ -78,6 +78,10 @@ export class SqlSelectStatement extends SqlSource implements SqlSourceWithResult
     return this.#state.building;
   }
 
+  get sources() {
+    return this.#state.tables;
+  }
+
   columns(...columns: SqlResultColumn[]) {
     this.#state.results.reset(columns);
     return this;

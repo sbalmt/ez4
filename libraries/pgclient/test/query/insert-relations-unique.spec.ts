@@ -604,8 +604,8 @@ describe('insert unique relations', () => {
         `RETURNING "id_a", "value") ` +
         // Return
         `SELECT "id_c", "value", ` +
-        `(SELECT COALESCE(json_agg(jsonb_build_object('id_a', "id_a", 'value', "value")), '[]'::json) ` +
-        `FROM (SELECT * FROM "Q1" UNION ALL SELECT * FROM "Q2")) AS "relations" ` +
+        `(SELECT COALESCE(json_agg(jsonb_build_object('id_a', "S0"."id_a", 'value', "S0"."value")), '[]'::json) ` +
+        `FROM (SELECT * FROM "Q1" UNION ALL SELECT * FROM "Q2") AS "S0") AS "relations" ` +
         `FROM "Q0"`
     );
 
@@ -651,8 +651,8 @@ describe('insert unique relations', () => {
         `RETURNING "T"."id_a", "T"."value") ` +
         // Return
         `SELECT "id_c", "value", ` +
-        `(SELECT COALESCE(json_agg(jsonb_build_object('id_a', "id_a", 'value', "value")), '[]'::json) ` +
-        `FROM (SELECT * FROM "Q1" UNION ALL SELECT * FROM "Q2")) AS "relations" ` +
+        `(SELECT COALESCE(json_agg(jsonb_build_object('id_a', "S0"."id_a", 'value', "S0"."value")), '[]'::json) ` +
+        `FROM (SELECT * FROM "Q1" UNION ALL SELECT * FROM "Q2") AS "S0") AS "relations" ` +
         `FROM "Q0"`
     );
 

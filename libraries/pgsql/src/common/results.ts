@@ -8,6 +8,7 @@ import { isAnyObject } from '@ez4/utils';
 
 import { escapeSqlName } from '../utils/escape';
 import { SqlSelectStatement } from '../statements/select';
+import { SqlUnionClause } from '../clauses/query/union';
 import { getUniqueAlias } from '../helpers/alias';
 import { mergeSqlAlias } from '../utils/merge';
 import { MissingColumnAliasError } from './errors';
@@ -166,7 +167,7 @@ const getResultColumns = (columns: (SqlResultColumn | SqlJsonColumn)[], context:
         throw new MissingColumnAliasError();
       }
 
-      const temporaryAlias = column.filters ? getUniqueAlias('S', references) : undefined;
+      const temporaryAlias = shouldUseAlias(column) ? getUniqueAlias('S', references) : undefined;
 
       const [selectStatement, selectVariables] = column.as(temporaryAlias).build();
 
@@ -191,4 +192,12 @@ const getResultColumns = (columns: (SqlResultColumn | SqlJsonColumn)[], context:
   });
 
   return columnsList.join(', ') || '*';
+};
+
+const shouldUseAlias = (select: SqlSelectStatement) => {
+  if (!select.filters || select.filters.empty) {
+    return !!select.sources?.find((source) => source instanceof SqlSelectStatement || source instanceof SqlUnionClause);
+  }
+
+  return true;
 };
