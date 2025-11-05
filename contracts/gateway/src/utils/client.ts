@@ -1,4 +1,4 @@
-import type { AnySchema, ArraySchema, NamingStyle, ObjectSchema, ScalarSchema, UnionSchema } from '@ez4/schema';
+import { AnySchema, ArraySchema, NamingStyle, ObjectSchema, ScalarSchema, UnionSchema } from '@ez4/schema';
 import type { AnyObject } from '@ez4/utils';
 import type { ClientRequest, ClientResponse } from '../services/client';
 import type { Http } from '../services/contract';
@@ -131,6 +131,7 @@ const getResponseBody = (response: string, responseSchema?: AnySchema, namingSty
   const payload = JSON.parse(response);
 
   const context = createTransformContext({
+    outputStyle: NamingStyle.Preserve,
     inputStyle: namingStyle,
     convert: false
   });
