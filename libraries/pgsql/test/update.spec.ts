@@ -350,26 +350,29 @@ describe('sql update tests', () => {
   });
 
   it('assert :: update with inner query', async () => {
-    const inner = sql.select().columns('foo').from('inner').as('alias').where({ bar: 'abc' }).take(1).order({
+    const inner = sql.select().columns('foo').from('inner').as('inner').where({ bar: 'abc' }).take(1).order({
       baz: Order.Desc
     });
 
     const query = sql
       .update()
       .only('table')
+      .as('outer')
       .from(inner)
       .record({
-        qux: inner.reference('foo')
+        qux: inner.reference('foo'),
+        xyz: true
       });
 
     const [statement, variables] = query.build();
 
-    deepEqual(variables, ['abc']);
+    deepEqual(variables, [true, 'abc']);
 
     equal(
       statement,
-      `UPDATE ONLY "table" SET "qux" = "alias"."foo" FROM ` +
-        `(SELECT "S0"."foo" FROM "inner" AS "S0" WHERE "S0"."bar" = :0 ORDER BY "S0"."baz" DESC LIMIT 1) AS "alias"`
+      `UPDATE ONLY "table" AS "outer" ` +
+        `SET "qux" = "inner"."foo", "xyz" = :0 FROM ` +
+        `(SELECT "S0"."foo" FROM "inner" AS "S0" WHERE "S0"."bar" = :1 ORDER BY "S0"."baz" DESC LIMIT 1) AS "inner"`
     );
   });
 });

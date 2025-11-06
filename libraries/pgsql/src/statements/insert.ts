@@ -30,7 +30,7 @@ export class SqlInsertStatement extends SqlSource {
     references: SqlBuilderReferences;
     returning?: SqlReturningClause;
     conflict?: SqlConflictClause;
-    sources?: (SqlTableReference | SqlSource)[];
+    sources?: (SqlTableReference | SqlSelectStatement)[];
     where?: SqlWhereClause;
     schema?: ObjectSchema;
     record?: SqlRecord;
@@ -87,7 +87,7 @@ export class SqlInsertStatement extends SqlSource {
     return this;
   }
 
-  select(...tables: (SqlTableReference | SqlSource)[]) {
+  select(...tables: (SqlTableReference | SqlSelectStatement)[]) {
     this.#state.sources = tables;
     return this;
   }
@@ -166,7 +166,7 @@ export class SqlInsertStatement extends SqlSource {
       });
 
       if (sources) {
-        const [tableExpressions, tableVariables] = getSelectExpressions(sources, references);
+        const [tableExpressions, tableVariables] = getSelectExpressions(this, references, sources);
 
         statement.push('SELECT', values);
         variables.push(...tableVariables);

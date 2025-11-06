@@ -13,10 +13,6 @@ export class SqlUnionClause {
     };
   }
 
-  get sources() {
-    return this.#state.sources;
-  }
-
   build(): [string, unknown[]] {
     const { sources } = this.#state;
 

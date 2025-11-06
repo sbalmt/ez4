@@ -4,6 +4,7 @@ import type { SqlFilters, SqlRecord } from '../common/types';
 import type { SqlSourceWithResults } from '../common/source';
 import type { SqlTableReference } from '../common/reference';
 import type { SqlBuilderOptions, SqlBuilderReferences } from '../builder';
+import type { SqlSelectStatement } from './select';
 
 import { getUpdateColumns } from '../helpers/update';
 import { getSelectExpressions } from '../helpers/select';
@@ -19,7 +20,7 @@ export class SqlUpdateStatement extends SqlSource {
     options: SqlBuilderOptions;
     references: SqlBuilderReferences;
     returning?: SqlReturningClause;
-    source?: SqlTableReference | SqlSource;
+    source?: SqlTableReference | SqlSelectStatement;
     where?: SqlWhereClause;
     schema?: ObjectSchema;
     record?: SqlRecord;
@@ -72,7 +73,7 @@ export class SqlUpdateStatement extends SqlSource {
     return this;
   }
 
-  from(table: SqlTableReference | SqlSource | undefined) {
+  from(table: SqlTableReference | SqlSelectStatement | undefined) {
     this.#state.source = table;
     return this;
   }
@@ -145,7 +146,7 @@ export class SqlUpdateStatement extends SqlSource {
       statement.push('SET', columns.join(', '));
 
       if (source) {
-        const [tableExpressions, tableVariables] = getSelectExpressions([source], references);
+        const [tableExpressions, tableVariables] = getSelectExpressions(this, references, [source]);
 
         statement.push('FROM', `${tableExpressions[0]}`);
         variables.push(...tableVariables);

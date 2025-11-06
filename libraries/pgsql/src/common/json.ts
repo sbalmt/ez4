@@ -4,9 +4,9 @@ import type { SqlOrder } from './types';
 
 import { isAnyObject } from '@ez4/utils';
 
-import { SqlSelectStatement } from '../statements/select';
 import { mergeSqlAlias, mergeSqlPath } from '../utils/merge';
 import { escapeSqlName, escapeSqlText } from '../utils/escape';
+import { SqlSelectStatement } from '../statements/select';
 import { SqlOrderClause } from '../clauses/query/order';
 import { getUniqueAlias } from '../helpers/alias';
 import { SqlColumnReference } from './reference';
@@ -103,7 +103,8 @@ const getJsonObject = (record: SqlJsonColumnRecord, context: SqlJsonColumnContex
     }
 
     if (value instanceof SqlSelectStatement) {
-      const temporaryAlias = value.filters ? getUniqueAlias('S', references) : undefined;
+      const shouldUseAlias = value.filters && !value.filters.empty;
+      const temporaryAlias = shouldUseAlias ? getUniqueAlias('S', references) : undefined;
 
       const [selectStatement, selectVariables] = value.as(temporaryAlias).build();
 

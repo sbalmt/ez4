@@ -212,6 +212,7 @@ describe('sql insert tests', () => {
     const query = sql
       .insert()
       .into('table')
+      .as('outer')
       .select(inner)
       .record({
         qux: inner.reference('foo')
@@ -223,8 +224,37 @@ describe('sql insert tests', () => {
 
     equal(
       statement,
-      `INSERT INTO "table" ("qux") SELECT "alias"."foo" FROM ` +
+      `INSERT INTO "table" AS "outer" ("qux") ` +
+        `SELECT "alias"."foo" FROM ` +
         `(SELECT "S0"."foo" FROM "inner" AS "S0" WHERE "S0"."bar" = :0 ORDER BY "S0"."baz" DESC LIMIT 1) AS "alias"`
+    );
+  });
+
+  it('assert :: insert with inner query', async () => {
+    const inner = sql.select().columns('foo').from('inner').as('inner').where({ bar: 'abc' }).take(1).order({
+      baz: Order.Desc
+    });
+
+    const query = sql
+      .insert()
+      .into('table')
+      .select(inner)
+      .as('outer')
+      .record({
+        qux: inner.reference('foo'),
+        xyz: true
+      });
+
+    const [statement, variables] = query.build();
+
+    deepEqual(variables, [true, 'abc']);
+
+    equal(
+      statement,
+      `INSERT INTO "table" AS "outer" ("qux", "xyz") ` +
+        `SELECT "inner"."foo", :0 FROM (` +
+        `SELECT "S0"."foo" FROM "inner" AS "S0" WHERE "S0"."bar" = :1 ORDER BY "S0"."baz" DESC LIMIT 1` +
+        `) AS "inner"`
     );
   });
 });

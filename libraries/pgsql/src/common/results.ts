@@ -6,11 +6,10 @@ import type { SqlColumn } from './types';
 
 import { isAnyObject } from '@ez4/utils';
 
-import { escapeSqlName } from '../utils/escape';
-import { SqlSelectStatement } from '../statements/select';
-import { SqlUnionClause } from '../clauses/query/union';
-import { getUniqueAlias } from '../helpers/alias';
 import { mergeSqlAlias } from '../utils/merge';
+import { escapeSqlName } from '../utils/escape';
+import { getUniqueAlias } from '../helpers/alias';
+import { SqlSelectStatement } from '../statements/select';
 import { MissingColumnAliasError } from './errors';
 import { SqlColumnReference } from './reference';
 import { SqlJsonColumn } from './json';
@@ -167,7 +166,8 @@ const getResultColumns = (columns: (SqlResultColumn | SqlJsonColumn)[], context:
         throw new MissingColumnAliasError();
       }
 
-      const temporaryAlias = shouldUseAlias(column) ? getUniqueAlias('S', references) : undefined;
+      const shouldUseAlias = column.filters && !column.filters.empty;
+      const temporaryAlias = shouldUseAlias ? getUniqueAlias('S', references) : undefined;
 
       const [selectStatement, selectVariables] = column.as(temporaryAlias).build();
 
@@ -192,12 +192,4 @@ const getResultColumns = (columns: (SqlResultColumn | SqlJsonColumn)[], context:
   });
 
   return columnsList.join(', ') || '*';
-};
-
-const shouldUseAlias = (select: SqlSelectStatement) => {
-  if (!select.filters || select.filters.empty) {
-    return !!select.sources?.find((source) => source instanceof SqlSelectStatement || source instanceof SqlUnionClause);
-  }
-
-  return true;
 };
