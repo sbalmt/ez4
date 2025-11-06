@@ -66,21 +66,31 @@ type TableRelation<
   I extends Record<string, Database.Indexes>
 > = C extends {
   name: infer N;
-  relations: infer R;
 }
   ? N extends string
-    ? R extends AnyObject
-      ? {
+    ? C extends { relations: infer R }
+      ? R extends AnyObject
+        ? {
+            [P in N]: {
+              indexes: RelationIndexes<N, I, R>;
+              filters: FilterableRelationSchemas<S, R>;
+              updates: UpdateRelationSchemas<N, S, I, R>;
+              inserts: InsertRelationSchemas<N, PropertyType<N, S>, S, I, R>;
+              selects: SelectRelationSchemas<S, I, R> & NestedSelectRelationSchemas<T, S, I, R>;
+              records: MergeObject<RecordsRelationSchemas<PropertyType<N, S>, S, I, R>, NestedRecordsRelationSchemas<T, S, I, R>>;
+            };
+          }
+        : {}
+      : {
           [P in N]: {
-            indexes: RelationIndexes<N, I, R>;
-            filters: FilterableRelationSchemas<S, R>;
-            updates: UpdateRelationSchemas<N, S, I, R>;
-            inserts: InsertRelationSchemas<N, PropertyType<N, S>, S, I, R>;
-            selects: SelectRelationSchemas<S, I, R> & NestedSelectRelationSchemas<T, S, I, R>;
-            records: MergeObject<RecordsRelationSchemas<PropertyType<N, S>, S, I, R>, NestedRecordsRelationSchemas<T, S, I, R>>;
+            indexes: never;
+            filters: {};
+            updates: {};
+            inserts: {};
+            selects: {};
+            records: {};
           };
         }
-      : {}
     : {}
   : {};
 
