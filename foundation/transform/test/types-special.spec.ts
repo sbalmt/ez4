@@ -110,7 +110,7 @@ describe('special type transformation', () => {
     deepEqual(transform(rawInput, schema), rawInput);
   });
 
-  it('assert :: union (similar objects)', () => {
+  it('assert :: union (similar types)', () => {
     const schema: AnySchema = {
       type: SchemaType.Union,
       elements: [
@@ -162,9 +162,11 @@ describe('special type transformation', () => {
 
     // Best fit array
     deepEqual(transform(['123', 456], schema), [123, 456]);
+    deepEqual(transform('123', schema), [123]);
 
     // Best fit tuple
     deepEqual(transform(['123', 456, 'abc'], schema), [123, 456, 'abc']);
+    deepEqual(transform('789, 012, def', schema), [789, 12, 'def']);
   });
 
   it('assert :: array (from string)', () => {
