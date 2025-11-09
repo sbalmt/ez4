@@ -4,8 +4,8 @@ import type { Http } from '../services/contract';
 import { HttpBadRequestError } from '@ez4/gateway';
 import { createTransformContext, transform } from '@ez4/transform';
 import { validate, createValidatorContext, getUniqueErrorMessages } from '@ez4/validator';
+import { base64Encode, isNotNullish, isNullish } from '@ez4/utils';
 import { getSchemaProperty, isArraySchema } from '@ez4/schema';
-import { isNotNullish, isNullish } from '@ez4/utils';
 
 export const getQueryStrings = async <T extends Http.QueryStrings>(
   input: T,
@@ -73,7 +73,7 @@ export const serializeQueryStringValue = (value: unknown, schema?: AnySchema): s
   }
 
   if (value instanceof Object) {
-    return Buffer.from(JSON.stringify(value)).toString('base64');
+    return base64Encode(JSON.stringify(value));
   }
 
   return `${value}`;

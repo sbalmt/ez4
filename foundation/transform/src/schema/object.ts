@@ -1,8 +1,8 @@
 import type { ObjectSchema } from '@ez4/schema';
 import type { AnyObject } from '@ez4/utils';
 
+import { base64Encode, isAnyObject } from '@ez4/utils';
 import { getPropertyName } from '@ez4/schema';
-import { isAnyObject } from '@ez4/utils';
 
 import { tryDecodeBase64Json } from '../utils/base64';
 import { createTransformContext } from '../types/context';
@@ -75,6 +75,10 @@ export const transformObject = (value: unknown, schema: ObjectSchema, context = 
       const outputPropertyName = getPropertyName(propertyName, outputStyle);
       output[outputPropertyName] = objectValue[propertyName];
     }
+  }
+
+  if (definitions?.encoded && isAnyObject(value)) {
+    return base64Encode(JSON.stringify(output));
   }
 
   return output;

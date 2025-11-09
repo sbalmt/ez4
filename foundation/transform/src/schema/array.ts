@@ -1,5 +1,7 @@
 import type { ArraySchema } from '@ez4/schema';
 
+import { base64Encode, isAnyArray } from '@ez4/utils';
+
 import { tryDecodeBase64Json } from '../utils/base64';
 import { createTransformContext } from '../types/context';
 import { stringToArray } from '../utils/array';
@@ -22,7 +24,7 @@ export const transformArray = (
     return transformArray(stringToArray(arrayValues), schema, context);
   }
 
-  if (!Array.isArray(arrayValues)) {
+  if (!isAnyArray(arrayValues)) {
     return context.return ? value : undefined;
   }
 
@@ -38,6 +40,10 @@ export const transformArray = (
     const result = transformAny(elementValue, schema.element, localContext);
 
     output.push(result);
+  }
+
+  if (definitions?.encoded && context.convert && isAnyArray(value)) {
+    return base64Encode(JSON.stringify(output));
   }
 
   return output;

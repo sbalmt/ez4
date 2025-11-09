@@ -4,6 +4,7 @@ import { equal } from 'node:assert/strict';
 import { describe, it } from 'node:test';
 
 import { SchemaType } from '@ez4/schema';
+import { base64Encode } from '@ez4/utils';
 import { validate } from '@ez4/validator';
 
 describe('rich types validation', () => {
@@ -226,7 +227,7 @@ describe('rich types validation', () => {
 
     const rawInput = { foo: 123, bar: false };
 
-    const b64Input = Buffer.from(JSON.stringify(rawInput)).toString('base64');
+    const b64Input = base64Encode(JSON.stringify(rawInput));
 
     equal((await validate(rawInput, schema)).length, 0);
     equal((await validate(b64Input, schema)).length, 0);
@@ -260,7 +261,7 @@ describe('rich types validation', () => {
 
     const rawInput = [1, 2, 3];
 
-    const b64Input = Buffer.from(JSON.stringify(rawInput)).toString('base64');
+    const b64Input = base64Encode(JSON.stringify(rawInput));
 
     equal((await validate(rawInput, schema)).length, 0);
     equal((await validate(b64Input, schema)).length, 0);
