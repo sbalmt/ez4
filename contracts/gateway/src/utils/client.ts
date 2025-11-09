@@ -1,10 +1,10 @@
-import { AnySchema, ArraySchema, NamingStyle, ObjectSchema, ScalarSchema, UnionSchema } from '@ez4/schema';
+import type { AnySchema, ArraySchema, ObjectSchema, ScalarSchema, UnionSchema } from '@ez4/schema';
 import type { AnyObject } from '@ez4/utils';
 import type { ClientRequest, ClientResponse } from '../services/client';
 import type { Http } from '../services/contract';
 
 import { createTransformContext, transform } from '@ez4/transform';
-import { isScalarSchema } from '@ez4/schema';
+import { isScalarSchema, NamingStyle } from '@ez4/schema';
 
 import { serializeQueryStrings } from './query';
 import { getHttpException } from './errors';
