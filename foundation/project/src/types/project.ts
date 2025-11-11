@@ -54,6 +54,11 @@ export type ProjectOptions = {
   importProjects?: Record<string, ProjectImportOptions>;
 
   /**
+   * Specify additional watch paths.
+   */
+  additionalWatchPaths?: string[];
+
+  /**
    * Configuration for the project state.
    */
   stateFile: ProjectStateOptions;

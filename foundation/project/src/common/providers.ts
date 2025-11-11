@@ -7,9 +7,9 @@ export const loadProviders = async (options: ProjectOptions) => {
   const packageFile = options.packageFile ?? 'package.json';
   const packagePath = join(process.cwd(), packageFile);
 
-  const projectProviders = await fetchProviderPackages(packagePath);
+  const { directory, providers } = await fetchProviderPackages(packagePath);
 
-  const allPromises = projectProviders.map(async (packageName) => {
+  const allProviders = providers.map(async (packageName) => {
     const registerTriggers = await tryImportProvider([`${packageName}/library`, packageName]);
 
     if (registerTriggers) {
@@ -17,7 +17,9 @@ export const loadProviders = async (options: ProjectOptions) => {
     }
   });
 
-  await Promise.all(allPromises);
+  await Promise.all(allProviders);
+
+  return directory;
 };
 
 const fetchProviderPackages = async (packagePath: string) => {
@@ -34,9 +36,16 @@ const fetchProviderPackages = async (packagePath: string) => {
     ...packageJson.dependencies
   };
 
-  return Object.keys(allDependencies).filter((packageName) => {
+  const providers = Object.keys(allDependencies).filter((packageName) => {
     return packageName.startsWith('@ez4/');
   });
+
+  const directory = packageJson.name?.split('/', 2)[0];
+
+  return {
+    directory,
+    providers
+  };
 };
 
 const tryImportProvider = async (packageNames: string[]) => {

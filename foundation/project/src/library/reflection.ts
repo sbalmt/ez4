@@ -13,10 +13,18 @@ export const getReflection = (sourceFiles: string[]): SourceMap => {
   return getReflectionFromFiles(sourceFiles, getReflectionOptions());
 };
 
-export const watchReflection = (sourceFiles: string[], onReflectionReady: ReflectionReadyListener) => {
+export type WatchReflectionOptions = {
+  onReflectionReady: ReflectionReadyListener;
+  additionalPaths?: string[];
+};
+
+export const watchReflection = (sourceFiles: string[], options: WatchReflectionOptions) => {
   assertSourceFiles(sourceFiles);
 
-  return watchReflectionFromFiles(sourceFiles, getReflectionOptions(onReflectionReady));
+  return watchReflectionFromFiles(sourceFiles, {
+    ...getReflectionOptions(options.onReflectionReady),
+    additionalPaths: options.additionalPaths
+  });
 };
 
 const getReflectionOptions = (onReflectionReady?: ReflectionReadyListener): ReflectionOptions => {
