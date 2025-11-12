@@ -6,9 +6,10 @@ import type { InputOptions } from '../options';
 import { Tester, Logger, LogLevel } from '@ez4/project/library';
 import { toKebabCase } from '@ez4/utils';
 
-import { loadProviders } from '../../common/providers';
 import { getMetadata } from '../../library/metadata';
 import { getEmulators } from '../../library/emulator';
+import { loadProviders } from '../../common/providers';
+import { loadImports } from '../../common/imports';
 
 import { readdir } from 'node:fs/promises';
 import { join } from 'node:path';
@@ -39,6 +40,10 @@ export const testCommand = async (input: InputOptions, project: ProjectOptions) 
 
   await Logger.execute('🔄️ Loading providers', () => {
     return loadProviders(project);
+  });
+
+  options.imports = await Logger.execute('🔄️ Loading imports', () => {
+    return loadImports(project);
   });
 
   const emulators = await Logger.execute('🔄️ Loading emulators', () => {
