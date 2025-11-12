@@ -32,7 +32,7 @@ export const serveCommand = async (project: ProjectOptions) => {
     Logger.setLevel(LogLevel.Debug);
   }
 
-  const baseDirectory = await Logger.execute('🔄️ Loading providers', () => {
+  const namespacePath = await Logger.execute('🔄️ Loading providers', () => {
     return loadProviders(project);
   });
 
@@ -45,7 +45,7 @@ export const serveCommand = async (project: ProjectOptions) => {
   const additionalPaths = project.additionalWatchPaths ?? [];
 
   const watcher = await watchMetadata(project.sourceFiles, {
-    additionalPaths: [baseDirectory, ...additionalPaths],
+    additionalPaths: [namespacePath, ...additionalPaths],
     onMetadataReady: async (metadata) => {
       if (options.version > 0) {
         await shutdownServices(emulators);

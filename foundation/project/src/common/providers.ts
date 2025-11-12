@@ -7,7 +7,7 @@ export const loadProviders = async (options: ProjectOptions) => {
   const packageFile = options.packageFile ?? 'package.json';
   const packagePath = join(process.cwd(), packageFile);
 
-  const { directory, providers } = await fetchProviderPackages(packagePath);
+  const { namespace, providers } = await fetchProviderPackages(packagePath);
 
   const allProviders = providers.map(async (packageName) => {
     const registerTriggers = await tryImportProvider([`${packageName}/library`, packageName]);
@@ -19,7 +19,7 @@ export const loadProviders = async (options: ProjectOptions) => {
 
   await Promise.all(allProviders);
 
-  return directory;
+  return namespace;
 };
 
 const fetchProviderPackages = async (packagePath: string) => {
@@ -40,10 +40,10 @@ const fetchProviderPackages = async (packagePath: string) => {
     return packageName.startsWith('@ez4/');
   });
 
-  const directory = packageJson.name?.split('/', 2)[0];
+  const namespace = packageJson.name?.split('/', 2)[0];
 
   return {
-    directory,
+    namespace,
     providers
   };
 };
