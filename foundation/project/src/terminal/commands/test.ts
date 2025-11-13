@@ -30,6 +30,7 @@ export const testCommand = async (input: InputOptions, project: ProjectOptions) 
     variables: project.variables,
     force: project.debugMode,
     debug: project.debugMode,
+    local: project.localMode,
     test: true,
     version: 0
   };
