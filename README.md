@@ -23,6 +23,7 @@ Check out some examples to get started with.
 - [DynamoDB streams](./examples/aws-dynamodb-streams)
 - [Schedule manager](./examples/aws-schedule-manager)
 - [Storage manager](./examples/aws-storage-manager)
+- [Importing gateway](./examples/aws-import-gateway)
 - [Importing queue](./examples/aws-import-queue)
 - [Importing topic](./examples/aws-import-topic)
 
