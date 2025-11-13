@@ -6,10 +6,12 @@ export * from './common/object';
 
 export * from './system/tasks';
 
+export * from './array/check';
 export * from './array/unique';
 export * from './array/compare';
 export * from './array/generics';
 export * from './array/equal';
+export * from './array/size';
 
 export * from './object/check';
 export * from './object/generics';

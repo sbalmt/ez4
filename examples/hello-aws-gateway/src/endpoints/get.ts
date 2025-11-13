@@ -1,4 +1,4 @@
-import type { String } from '@ez4/schema';
+import type { Object, String } from '@ez4/schema';
 import type { Service } from '@ez4/common';
 import type { Http } from '@ez4/gateway';
 import type { ApiProvider } from '../provider';
@@ -26,6 +26,14 @@ declare class GetResponse implements Http.Response {
      * Example of `string` in the response.
      */
     fooBar: string;
+
+    /**
+     * Example of base64-encoded response.
+     */
+    bazQux: Object.Base64<{
+      baz: number;
+      qux: string;
+    }>;
   };
 }
 
@@ -43,7 +51,11 @@ export function getHandler(request: GetRequest, context: Service.Context<ApiProv
   return {
     status: 200,
     body: {
-      fooBar: 'Hello AWS API'
+      fooBar: 'Hello AWS API',
+      bazQux: {
+        baz: Date.now(),
+        qux: 'EZ4'
+      }
     }
   };
 }

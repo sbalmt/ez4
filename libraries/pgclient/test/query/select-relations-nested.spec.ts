@@ -188,7 +188,7 @@ describe('select nested relations', () => {
     return selectQuery.build();
   };
 
-  it('assert :: prepare select nested relations', ({ assert }) => {
+  it('assert :: prepare select nested relations (one nested level)', ({ assert }) => {
     const [statement, variables] = prepareBSelect({
       select: {
         id: true,
@@ -227,7 +227,7 @@ describe('select nested relations', () => {
     assert.deepEqual(variables, ['00000000-0000-1000-9000-000000000000']);
   });
 
-  it('assert :: prepare select nested relations', ({ assert }) => {
+  it('assert :: prepare select nested relations (two nested levels)', ({ assert }) => {
     const [statement, variables] = prepareCSelect({
       select: {
         id: true,

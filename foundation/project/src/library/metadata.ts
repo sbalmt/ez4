@@ -38,27 +38,37 @@ export const getMetadata = (sourceFiles: string[]): MetadataResult => {
   };
 };
 
-export const watchMetadata = (sourceFiles: string[], onMetadataReady: MetadataReadyListener) => {
-  return watchReflection(sourceFiles, async (reflectionTypes) => {
-    const metadata: MetadataReflection = {};
+export type WatchMetadataOptions = {
+  onMetadataReady: MetadataReadyListener;
+  additionalPaths?: string[];
+};
 
-    triggerAllSync('metadata:getServices', (handler) => {
-      const result = handler(reflectionTypes);
+export const watchMetadata = (sourceFiles: string[], options: WatchMetadataOptions) => {
+  const { additionalPaths, onMetadataReady } = options;
 
-      if (result) {
-        if (!result.errors.length) {
-          assignMetadataServices(metadata, result.services);
+  return watchReflection(sourceFiles, {
+    additionalPaths,
+    onReflectionReady: async (reflectionTypes) => {
+      const metadata: MetadataReflection = {};
+
+      triggerAllSync('metadata:getServices', (handler) => {
+        const result = handler(reflectionTypes);
+
+        if (result) {
+          if (!result.errors.length) {
+            assignMetadataServices(metadata, result.services);
+          }
+
+          for (const error of result.errors) {
+            Logger.error(error.message);
+          }
         }
 
-        for (const error of result.errors) {
-          Logger.error(error.message);
-        }
-      }
+        return null;
+      });
 
-      return null;
-    });
-
-    await onMetadataReady(metadata);
+      await onMetadataReady(metadata);
+    }
   });
 };
 

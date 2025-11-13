@@ -15,6 +15,7 @@ spawn(
     // Enforce options
     '--experimental-strip-types',
     '--experimental-transform-types',
+    '--experimental-test-module-mocks',
     '--enable-source-maps',
     '--no-warnings',
 

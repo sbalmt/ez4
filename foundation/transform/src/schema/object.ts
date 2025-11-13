@@ -1,8 +1,8 @@
 import type { ObjectSchema } from '@ez4/schema';
 import type { AnyObject } from '@ez4/utils';
 
+import { base64Encode, isAnyObject } from '@ez4/utils';
 import { getPropertyName } from '@ez4/schema';
-import { isAnyObject } from '@ez4/utils';
 
 import { tryDecodeBase64Json } from '../utils/base64';
 import { createTransformContext } from '../types/context';
@@ -46,8 +46,6 @@ export const transformObject = (value: unknown, schema: ObjectSchema, context = 
       output[outputPropertyName] = newValue;
     } else if (rawValue !== undefined) {
       output[outputPropertyName] = rawValue;
-    } else {
-      context.partial = true;
     }
 
     allProperties.delete(propertyName);
@@ -79,8 +77,8 @@ export const transformObject = (value: unknown, schema: ObjectSchema, context = 
     }
   }
 
-  if (!context.partial) {
-    context.partial = localContext.partial;
+  if (definitions?.encoded && isAnyObject(value)) {
+    return base64Encode(JSON.stringify(output));
   }
 
   return output;

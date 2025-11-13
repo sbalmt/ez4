@@ -64,6 +64,11 @@ export type ProjectOptions = {
   serveOptions?: ProjectServeOptions;
 
   /**
+   * Options for watching the local development.
+   */
+  watchOptions?: ProjectWatchOptions;
+
+  /**
    * Options for local development.
    */
   localOptions?: Record<string, AnyObject>;
@@ -114,4 +119,11 @@ export type ProjectServeOptions = {
    * Default is: `localhost`
    */
   localHost?: string;
+};
+
+export type ProjectWatchOptions = {
+  /**
+   * Specify additional watch paths.
+   */
+  additionalPaths?: string[];
 };

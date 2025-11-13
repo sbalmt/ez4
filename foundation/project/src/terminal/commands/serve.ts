@@ -32,7 +32,7 @@ export const serveCommand = async (project: ProjectOptions) => {
     Logger.setLevel(LogLevel.Debug);
   }
 
-  await Logger.execute('🔄️ Loading providers', () => {
+  const namespacePath = await Logger.execute('🔄️ Loading providers', () => {
     return loadProviders(project);
   });
 
@@ -42,25 +42,30 @@ export const serveCommand = async (project: ProjectOptions) => {
 
   let emulators: EmulatorServices = {};
 
-  const watcher = await watchMetadata(project.sourceFiles, async (metadata) => {
-    if (options.version > 0) {
-      await shutdownServices(emulators);
-      Logger.space();
+  const additionalPaths = project.watchOptions?.additionalPaths ?? [];
+
+  const watcher = await watchMetadata(project.sourceFiles, {
+    additionalPaths: [namespacePath, ...additionalPaths],
+    onMetadataReady: async (metadata) => {
+      if (options.version > 0) {
+        await shutdownServices(emulators);
+        Logger.space();
+      }
+
+      emulators = await Logger.execute('🔄️ Loading emulators', () => {
+        return getEmulators(metadata, options);
+      });
+
+      displayServices(emulators, options);
+
+      await bootstrapServices(emulators);
+
+      if (options.version > 0) {
+        Logger.log(`🚀 Project [${project.projectName}] reloaded`);
+      }
+
+      options.version++;
     }
-
-    emulators = await Logger.execute('🔄️ Loading emulators', () => {
-      return getEmulators(metadata, options);
-    });
-
-    displayServices(emulators, options);
-
-    await bootstrapServices(emulators);
-
-    if (options.version > 0) {
-      Logger.log(`🚀 Project [${project.projectName}] reloaded`);
-    }
-
-    options.version++;
   });
 
   const server = createServer((request, stream) => {

@@ -21,7 +21,7 @@ export type Client<T extends Http.Service> = {
 export type ClientRequest = RequestOptions & {
   headers?: Record<string, string>;
   parameters?: Record<string, string>;
-  query?: Record<string, string>;
+  query?: Record<string, unknown>;
   body?: string | AnyObject;
 };
 

@@ -49,13 +49,24 @@ export type WatchReflectionHandler = {
   stop: () => void;
 };
 
-export const watchReflectionFromFiles = (fileNames: string[], options?: ReflectionOptions) => {
+export type WatchReflectionOptions = ReflectionOptions & {
+  /**
+   * Specify additional paths to watch.
+   */
+  additionalPaths?: string[];
+};
+
+export const watchReflectionFromFiles = (fileNames: string[], options?: WatchReflectionOptions) => {
   const compilerOptions = createCompilerOptions(options?.compilerOptions);
-  const onReflectionReady = options?.compilerEvents?.onReflectionReady;
+
+  const additionalPaths = options?.additionalPaths;
+  const compilerEvents = options?.compilerEvents;
+
+  const onReflectionReady = compilerEvents?.onReflectionReady;
 
   return new Promise<WatchReflectionHandler>((resolve, reject) => {
     const program = createWatchProgram({
-      ...createWatchCompilerHost(compilerOptions, options?.compilerEvents),
+      ...createWatchCompilerHost(compilerOptions, additionalPaths, compilerEvents),
       options: compilerOptions,
       rootFiles: fileNames,
       afterProgramCreate: async (event) => {

@@ -4,7 +4,6 @@ import type { Http } from '../services/contract';
 import { createTransformContext, transform } from '@ez4/transform';
 import { validate, createValidatorContext, getUniqueErrorMessages } from '@ez4/validator';
 import { HttpBadRequestError } from '@ez4/gateway';
-import { isAnyString } from '@ez4/utils';
 
 export const getRequestBody = async <T extends Http.JsonBody | Http.RawBody>(
   input: T | undefined,
@@ -45,18 +44,4 @@ export const getResponseBody = (body: unknown, schema: AnySchema, preferences?: 
   });
 
   return transform(body, schema, context);
-};
-
-export const prepareBodyRequest = (body: unknown) => {
-  if (!isAnyString(body)) {
-    return {
-      body: JSON.stringify(body),
-      json: true
-    };
-  }
-
-  return {
-    json: false,
-    body
-  };
 };

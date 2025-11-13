@@ -122,4 +122,77 @@ describe('client select relations', async () => {
       }
     });
   });
+
+  it('assert :: select relation (multiple levels with include)', async () => {
+    const result = await client.table_a.findOne({
+      select: {
+        value: true,
+        relation_1: {
+          value: true,
+          relation: {
+            value: true
+          },
+          relations: {
+            value: true,
+            relation_1: {
+              value: true
+            },
+            relation_2: {
+              value: true
+            }
+          }
+        },
+        relation_2: {
+          value: true
+        }
+      },
+      include: {
+        relation_1: {
+          where: {
+            value: 'tableB'
+          },
+          take: 1
+        },
+        relation_2: {
+          where: {
+            value: 'tableC'
+          }
+        }
+      },
+      where: {
+        id_a: idA
+      }
+    });
+
+    deepEqual(result, {
+      value: 'tableA',
+      relation_1: {
+        value: 'tableB',
+        relation: {
+          value: 'tableC'
+        },
+        relations: [
+          {
+            value: 'tableA2',
+            relation_1: {
+              value: 'tableB'
+            },
+            relation_2: null
+          },
+          {
+            value: 'tableA',
+            relation_1: {
+              value: 'tableB'
+            },
+            relation_2: {
+              value: 'tableC'
+            }
+          }
+        ]
+      },
+      relation_2: {
+        value: 'tableC'
+      }
+    });
+  });
 });

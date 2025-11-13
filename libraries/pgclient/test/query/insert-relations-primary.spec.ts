@@ -361,6 +361,10 @@ describe('insert primary relations', () => {
       }
     });
 
+    `(SELECT COALESCE(json_agg(jsonb_build_object('id_a', "id_a", 'value', "value")), '[]'::json) FROM (SELECT * FROM "Q1" UNION ALL SELECT * FROM "Q2") AS "U0") AS "relations" FROM "Q0"`;
+
+    console.log(statement);
+
     assert.equal(
       statement,
       `WITH ` +
@@ -376,7 +380,7 @@ describe('insert primary relations', () => {
         // Return
         `SELECT "id_b", "value", ` +
         `(SELECT COALESCE(json_agg(jsonb_build_object('id_a', "id_a", 'value', "value")), '[]'::json) ` +
-        `FROM (SELECT * FROM "Q1" UNION ALL SELECT * FROM "Q2")) AS "relations" ` +
+        `FROM (SELECT * FROM "Q1" UNION ALL SELECT * FROM "Q2") AS "U0") AS "relations" ` +
         `FROM "Q0"`
     );
 
@@ -422,7 +426,7 @@ describe('insert primary relations', () => {
         // Return
         `SELECT "id_b", "value", ` +
         `(SELECT COALESCE(json_agg(jsonb_build_object('id_a', "id_a", 'value', "value")), '[]'::json) ` +
-        `FROM (SELECT * FROM "Q1" UNION ALL SELECT * FROM "Q2")) AS "relations" ` +
+        `FROM (SELECT * FROM "Q1" UNION ALL SELECT * FROM "Q2") AS "U0") AS "relations" ` +
         `FROM "Q0"`
     );
 

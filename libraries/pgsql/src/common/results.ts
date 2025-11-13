@@ -6,10 +6,10 @@ import type { SqlColumn } from './types';
 
 import { isAnyObject } from '@ez4/utils';
 
-import { escapeSqlName } from '../utils/escape';
-import { SqlSelectStatement } from '../statements/select';
-import { getUniqueAlias } from '../helpers/alias';
 import { mergeSqlAlias } from '../utils/merge';
+import { escapeSqlName } from '../utils/escape';
+import { getUniqueAlias } from '../helpers/alias';
+import { SqlSelectStatement } from '../statements/select';
 import { MissingColumnAliasError } from './errors';
 import { SqlColumnReference } from './reference';
 import { SqlJsonColumn } from './json';
@@ -166,7 +166,8 @@ const getResultColumns = (columns: (SqlResultColumn | SqlJsonColumn)[], context:
         throw new MissingColumnAliasError();
       }
 
-      const temporaryAlias = column.filters ? getUniqueAlias('S', references) : undefined;
+      const shouldUseAlias = column.filters && !column.filters.empty;
+      const temporaryAlias = shouldUseAlias ? getUniqueAlias('S', references) : undefined;
 
       const [selectStatement, selectVariables] = column.as(temporaryAlias).build();
 

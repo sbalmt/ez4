@@ -248,11 +248,11 @@ describe('sql select tests', () => {
   });
 
   it('assert :: select with inner query', async () => {
-    const inner = sql.select().columns('foo', 'bar').from('inner').as('alias').where({ baz: 'abc' }).take(1).order({
+    const inner = sql.select().columns('foo', 'bar').from('table').as('inner').where({ baz: 'abc' }).take(1).order({
       qux: Order.Desc
     });
 
-    const query = sql.select().columns('foo', inner.reference('bar')).from(inner);
+    const query = sql.select().columns('foo', 'bar').as('outer').from(inner);
 
     const [statement, variables] = query.build();
 
@@ -260,8 +260,8 @@ describe('sql select tests', () => {
 
     equal(
       statement,
-      `SELECT "foo", "alias"."bar" FROM ` +
-        `(SELECT "S0"."foo", "S0"."bar" FROM "inner" AS "S0" WHERE "S0"."baz" = :0 ORDER BY "S0"."qux" DESC LIMIT 1) AS "alias"`
+      `SELECT "outer"."foo", "outer"."bar" FROM ` +
+        `(SELECT "S0"."foo", "S0"."bar" FROM "table" AS "S0" WHERE "S0"."baz" = :0 ORDER BY "S0"."qux" DESC LIMIT 1) AS "outer"`
     );
   });
 

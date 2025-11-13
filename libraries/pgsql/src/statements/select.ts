@@ -23,7 +23,7 @@ export class SqlSelectStatement extends SqlSource implements SqlSourceWithResult
   #state: {
     options: SqlBuilderOptions;
     references: SqlBuilderReferences;
-    tables?: (string | SqlRawValue | SqlTableReference | SqlUnionClause | SqlSource)[];
+    tables?: (string | SqlRawValue | SqlTableReference | SqlUnionClause | SqlSelectStatement)[];
     where?: SqlWhereClause;
     order?: SqlOrderClause;
     schema?: ObjectSchema;
@@ -113,7 +113,7 @@ export class SqlSelectStatement extends SqlSource implements SqlSourceWithResult
     return this;
   }
 
-  from(...tables: (string | SqlRawValue | SqlTableReference | SqlUnionClause | SqlSource)[]) {
+  from(...tables: (string | SqlRawValue | SqlTableReference | SqlUnionClause | SqlSelectStatement)[]) {
     this.#state.tables = tables;
     return this;
   }
@@ -187,7 +187,7 @@ export class SqlSelectStatement extends SqlSource implements SqlSourceWithResult
       const statement = ['SELECT', columns];
 
       if (tables?.length) {
-        const [tableExpressions, tableVariables] = getSelectExpressions(tables, references);
+        const [tableExpressions, tableVariables] = getSelectExpressions(this, references, tables);
 
         statement.push('FROM', tableExpressions.join(', '));
         variables.push(...tableVariables);

@@ -3,8 +3,9 @@ import type { AnySchema } from '@ez4/schema';
 import { deepEqual } from 'node:assert/strict';
 import { describe, it } from 'node:test';
 
-import { SchemaType } from '@ez4/schema';
+import { base64Encode } from '@ez4/utils';
 import { transform } from '@ez4/transform';
+import { SchemaType } from '@ez4/schema';
 
 describe('special type transformation', () => {
   it('assert :: object (extensible properties)', () => {
@@ -104,13 +105,13 @@ describe('special type transformation', () => {
 
     const rawInput = { foo: 123, bar: 'abc' };
 
-    const b64Input = Buffer.from(JSON.stringify(rawInput)).toString('base64');
+    const b64Input = base64Encode(JSON.stringify(rawInput));
 
     deepEqual(transform(b64Input, schema), rawInput);
-    deepEqual(transform(rawInput, schema), rawInput);
+    deepEqual(transform(rawInput, schema), b64Input);
   });
 
-  it('assert :: union (similar objects)', () => {
+  it('assert :: union (similar types)', () => {
     const schema: AnySchema = {
       type: SchemaType.Union,
       elements: [
@@ -132,16 +133,41 @@ describe('special type transformation', () => {
               type: SchemaType.Number
             }
           }
+        },
+        {
+          type: SchemaType.Array,
+          element: {
+            type: SchemaType.Number
+          }
+        },
+        {
+          type: SchemaType.Tuple,
+          elements: [
+            {
+              type: SchemaType.Number
+            },
+            {
+              type: SchemaType.Number
+            },
+            {
+              type: SchemaType.String
+            }
+          ]
         }
       ]
     };
 
-    const output = {
-      foo: 'abc',
-      bar: 123
-    };
+    // Best fit object
+    deepEqual(transform({ foo: 'abc', bar: '123' }, schema), { foo: 'abc', bar: 123 });
+    deepEqual(transform({ foo: 'abc' }, schema), { foo: 'abc' });
 
-    deepEqual(transform({ foo: 'abc', bar: '123' }, schema), output);
+    // Best fit array
+    deepEqual(transform(['123', 456], schema), [123, 456]);
+    deepEqual(transform('123', schema), [123]);
+
+    // Best fit tuple
+    deepEqual(transform(['123', 456, 'abc'], schema), [123, 456, 'abc']);
+    deepEqual(transform('789, 012, def', schema), [789, 12, 'def']);
   });
 
   it('assert :: array (from string)', () => {
@@ -168,10 +194,10 @@ describe('special type transformation', () => {
 
     const rawInput = [123, 456];
 
-    const b64Input = Buffer.from(JSON.stringify([123, 456])).toString('base64');
+    const b64Input = base64Encode(JSON.stringify([123, 456]));
 
     deepEqual(transform(b64Input, schema), rawInput);
-    deepEqual(transform(rawInput, schema), rawInput);
+    deepEqual(transform(rawInput, schema), b64Input);
   });
 
   it('assert :: tuple (from string)', () => {
