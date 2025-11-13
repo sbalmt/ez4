@@ -42,7 +42,7 @@ export const serveCommand = async (project: ProjectOptions) => {
 
   let emulators: EmulatorServices = {};
 
-  const additionalPaths = project.additionalWatchPaths ?? [];
+  const additionalPaths = project.watchOptions?.additionalPaths ?? [];
 
   const watcher = await watchMetadata(project.sourceFiles, {
     additionalPaths: [namespacePath, ...additionalPaths],

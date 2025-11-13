@@ -54,11 +54,6 @@ export type ProjectOptions = {
   importProjects?: Record<string, ProjectImportOptions>;
 
   /**
-   * Specify additional watch paths.
-   */
-  additionalWatchPaths?: string[];
-
-  /**
    * Configuration for the project state.
    */
   stateFile: ProjectStateOptions;
@@ -67,6 +62,11 @@ export type ProjectOptions = {
    * Options for serving the local development.
    */
   serveOptions?: ProjectServeOptions;
+
+  /**
+   * Options for watching the local development.
+   */
+  watchOptions?: ProjectWatchOptions;
 
   /**
    * Options for local development.
@@ -119,4 +119,11 @@ export type ProjectServeOptions = {
    * Default is: `localhost`
    */
   localHost?: string;
+};
+
+export type ProjectWatchOptions = {
+  /**
+   * Specify additional watch paths.
+   */
+  additionalPaths?: string[];
 };
