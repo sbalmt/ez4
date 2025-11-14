@@ -170,6 +170,9 @@ describe('type transformation', () => {
       }
     };
 
+    deepEqual(transform('123', schema), [123]);
+    deepEqual(transform('4.56', schema), [4.56]);
+
     deepEqual(transform('123, 4.56', schema), [123, 4.56]);
     deepEqual(transform('789', schema), [789]);
 
