@@ -6,8 +6,8 @@ import { Tester, Logger, LogLevel } from '@ez4/project/library';
 import { toKebabCase } from '@ez4/utils';
 
 import { getMetadata } from '../../library/metadata';
-import { getEmulators } from '../../library/emulator';
-import { bootstrapServices, prepareServices } from '../../emulator/events';
+import { getServiceEmulators } from '../../emulator/services';
+import { bootstrapServices, prepareServices } from '../../emulator/actions';
 import { loadProviders } from '../../common/providers';
 import { loadImports } from '../../common/imports';
 
@@ -51,7 +51,7 @@ export const testCommand = async (input: InputOptions, project: ProjectOptions) 
   const emulators = await Logger.execute('🔄️ Loading emulators', () => {
     const { metadata } = getMetadata(project.sourceFiles);
 
-    return getEmulators(metadata, options);
+    return getServiceEmulators(metadata, options);
   });
 
   const workingDirectory = process.cwd();

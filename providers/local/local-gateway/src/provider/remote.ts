@@ -23,7 +23,7 @@ export const registerRemoteServices = (service: HttpImport, options: ServeOption
     type: 'Gateway',
     name: serviceName,
     identifier: getServiceName(serviceName, options),
-    clientHandler: () => {
+    exportHandler: () => {
       return createServiceClient(referenceName, clientOptions);
     }
   };

@@ -13,7 +13,7 @@ export const registerBucketEmulator = (service: BucketService, options: ServeOpt
     type: 'Storage',
     name: service.name,
     identifier: getServiceName(service.name, options),
-    clientHandler: () => {
+    exportHandler: () => {
       return createServiceClient(service.name, options);
     },
     requestHandler: (request: EmulatorServiceRequest) => {

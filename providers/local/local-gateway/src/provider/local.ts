@@ -26,7 +26,7 @@ export const registerLocalServices = (service: HttpService, options: ServeOption
     type: 'Gateway',
     name: serviceName,
     identifier: getServiceName(serviceName, options),
-    clientHandler: () => {
+    exportHandler: () => {
       return createServiceClient(serviceName, clientOptions);
     },
     requestHandler: async (request: EmulatorServiceRequest) => {

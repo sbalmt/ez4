@@ -23,6 +23,6 @@ export const prepareEmulatorReset = async (event: EmulateServiceEvent) => {
   if (isAuroraService(service) && options.local) {
     const connection = getConnectionOptions(service, options);
 
-    await deleteAllTables(connection, options);
+    await deleteAllTables(connection);
   }
 };

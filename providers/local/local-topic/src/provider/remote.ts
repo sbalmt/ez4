@@ -29,7 +29,7 @@ export const registerRemoteServices = (service: TopicImport, options: ServeOptio
     type: 'Topic',
     name: serviceName,
     identifier: getServiceName(serviceName, options),
-    clientHandler: () => {
+    exportHandler: () => {
       return createRemoteClient(referenceName, messageSchema, clientOptions);
     },
     requestHandler: (request: EmulatorServiceRequest) => {

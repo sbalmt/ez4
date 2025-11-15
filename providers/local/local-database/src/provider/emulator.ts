@@ -20,7 +20,7 @@ export const registerDatabaseEmulator = async (service: DatabaseService, options
     bootstrapHandler: () => {
       return runDatabaseMigration(service, options, context);
     },
-    clientHandler: () => {
+    exportHandler: () => {
       return client;
     }
   };

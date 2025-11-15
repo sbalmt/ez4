@@ -1,6 +1,6 @@
 import type { IncomingMessage, ServerResponse } from 'node:http';
-import type { EmulatorHandlerResponse } from '../../types/emulator';
-import type { EmulatorServices } from '../../library/emulator';
+import type { EmulatorHandlerResponse } from '../../emulator/types';
+import type { ServiceEmulators } from '../../emulator/services';
 import type { ProjectOptions } from '../../types/project';
 import type { ServeOptions } from '../../types/options';
 
@@ -10,8 +10,8 @@ import { toKebabCase } from '@ez4/utils';
 import { createServer } from 'node:http';
 
 import { getServiceAddress, getServiceHost, getServicePort } from '../../utils/project';
-import { bootstrapServices, prepareServices, shutdownServices } from '../../emulator/events';
-import { getEmulators } from '../../library/emulator';
+import { bootstrapServices, prepareServices, shutdownServices } from '../../emulator/actions';
+import { getServiceEmulators } from '../../emulator/services';
 import { watchMetadata } from '../../library/metadata';
 import { loadProviders } from '../../common/providers';
 import { loadImports } from '../../common/imports';
@@ -42,35 +42,38 @@ export const serveCommand = async (project: ProjectOptions) => {
     return loadImports(project);
   });
 
-  let emulators: EmulatorServices = {};
+  let emulators: ServiceEmulators = {};
+  let isRunning = false;
 
   const additionalPaths = project.watchOptions?.additionalPaths ?? [];
 
   const watcher = await watchMetadata(project.sourceFiles, {
     additionalPaths: [namespacePath, ...additionalPaths],
     onMetadataReady: async (metadata) => {
-      if (options.version > 0) {
+      if (isRunning) {
         await shutdownServices(emulators);
         Logger.space();
       }
 
       emulators = await Logger.execute('🔄️ Loading emulators', () => {
-        return getEmulators(metadata, options);
+        return getServiceEmulators(metadata, options);
       });
 
       displayServices(emulators, options);
 
-      if (options.version === 0) {
+      if (!isRunning) {
         await prepareServices(emulators);
       }
 
       await bootstrapServices(emulators);
 
-      if (options.version > 0) {
+      if (isRunning) {
         Logger.log(`🚀 Project [${project.projectName}] reloaded`);
       }
 
       options.version++;
+
+      isRunning = true;
     }
   });
 
@@ -142,7 +145,7 @@ export const serveCommand = async (project: ProjectOptions) => {
   });
 };
 
-const displayServices = (emulators: EmulatorServices, options: ServeOptions) => {
+const displayServices = (emulators: ServiceEmulators, options: ServeOptions) => {
   for (const identifier in emulators) {
     const emulator = emulators[identifier];
 
@@ -152,7 +155,7 @@ const displayServices = (emulators: EmulatorServices, options: ServeOptions) => 
   }
 };
 
-const getRequestService = (emulator: EmulatorServices, request: IncomingMessage, options: ServeOptions) => {
+const getRequestService = (emulator: ServiceEmulators, request: IncomingMessage, options: ServeOptions) => {
   if (!request.url) {
     return undefined;
   }
