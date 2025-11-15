@@ -13,6 +13,18 @@ declare class GetRequest implements Http.Request {
      */
     id: String.UUID;
   };
+
+  query: {
+    /**
+     * Example of query string array.
+     */
+    foo?: string[];
+
+    /**
+     * Example of query string boolean.
+     */
+    bar?: boolean;
+  };
 }
 
 /**
@@ -42,11 +54,12 @@ declare class GetResponse implements Http.Response {
  * @returns Outgoing response.
  */
 export function getHandler(request: GetRequest, context: Service.Context<ApiProvider>): GetResponse {
+  const { foo, bar } = request.query;
   const { id } = request.parameters;
   const { selfVariables } = context;
 
   // Do some stuff...
-  console.log(selfVariables.TEST_VAR1, id);
+  console.log(selfVariables.TEST_VAR1, id, foo, bar);
 
   return {
     status: 200,
