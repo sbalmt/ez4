@@ -10,6 +10,7 @@ import { toKebabCase } from '@ez4/utils';
 import { createServer } from 'node:http';
 
 import { getServiceAddress, getServiceHost, getServicePort } from '../../utils/project';
+import { bootstrapServices, prepareServices, shutdownServices } from '../../emulator/events';
 import { getEmulators } from '../../library/emulator';
 import { watchMetadata } from '../../library/metadata';
 import { loadProviders } from '../../common/providers';
@@ -141,6 +142,16 @@ export const serveCommand = async (project: ProjectOptions) => {
   });
 };
 
+const displayServices = (emulators: EmulatorServices, options: ServeOptions) => {
+  for (const identifier in emulators) {
+    const emulator = emulators[identifier];
+
+    if (emulator.requestHandler) {
+      Logger.log(`🌐 Serving ${emulator.type} [${emulator.name}] at http://${options.serviceHost}/${identifier}`);
+    }
+  }
+};
+
 const getRequestService = (emulator: EmulatorServices, request: IncomingMessage, options: ServeOptions) => {
   if (!request.url) {
     return undefined;
@@ -241,49 +252,5 @@ const setCorsResponseHeaders = (stream: ServerResponse<IncomingMessage>, request
     }
 
     stream.setHeader('Access-Control-Allow-Methods', responseMethod);
-  }
-};
-
-const prepareServices = async (emulators: EmulatorServices) => {
-  process.env.EZ4_IS_LOCAL = 'true';
-
-  for (const identifier in emulators) {
-    const emulator = emulators[identifier];
-
-    if (emulator.prepareHandler) {
-      await emulator.prepareHandler();
-    }
-  }
-};
-
-const bootstrapServices = async (emulators: EmulatorServices) => {
-  process.env.EZ4_IS_LOCAL = 'true';
-
-  for (const identifier in emulators) {
-    const emulator = emulators[identifier];
-
-    if (emulator.bootstrapHandler) {
-      await emulator.bootstrapHandler();
-    }
-  }
-};
-
-const displayServices = (emulators: EmulatorServices, options: ServeOptions) => {
-  for (const identifier in emulators) {
-    const emulator = emulators[identifier];
-
-    if (emulator.requestHandler) {
-      Logger.log(`🌐 Serving ${emulator.type} [${emulator.name}] at http://${options.serviceHost}/${identifier}`);
-    }
-  }
-};
-
-const shutdownServices = async (emulators: EmulatorServices) => {
-  for (const identifier in emulators) {
-    const emulator = emulators[identifier];
-
-    if (emulator.shutdownHandler) {
-      await emulator.shutdownHandler();
-    }
   }
 };

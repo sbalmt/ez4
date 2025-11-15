@@ -1,5 +1,4 @@
 import type { ProjectOptions } from '../../types/project';
-import type { EmulatorServices } from '../../library/emulator';
 import type { ServeOptions } from '../../types/options';
 import type { InputOptions } from '../options';
 
@@ -8,6 +7,7 @@ import { toKebabCase } from '@ez4/utils';
 
 import { getMetadata } from '../../library/metadata';
 import { getEmulators } from '../../library/emulator';
+import { bootstrapServices, prepareServices } from '../../emulator/events';
 import { loadProviders } from '../../common/providers';
 import { loadImports } from '../../common/imports';
 
@@ -54,35 +54,29 @@ export const testCommand = async (input: InputOptions, project: ProjectOptions) 
     return getEmulators(metadata, options);
   });
 
-  await Logger.execute('⚡ Running tests', async () => {
+  const workingDirectory = process.cwd();
+
+  const testFiles = await Logger.execute('⚡ Preparing tests', async () => {
+    Tester.configure(emulators, options);
+
+    await prepareServices(emulators);
+
     await bootstrapServices(emulators);
 
-    Tester.configure(emulators, options);
+    const allFiles = await readdir(workingDirectory, {
+      recursive: true
+    });
+
+    return allFiles.filter((file) => {
+      if (TestFilePattern.test(file)) {
+        return !input.arguments || file.includes(input.arguments);
+      }
+
+      return false;
+    });
   });
 
-  const testPath = process.cwd();
-
-  const allFiles = await readdir(testPath, {
-    recursive: true
-  });
-
-  for (const file of allFiles) {
-    if (!TestFilePattern.test(file) || (input.arguments && !file.includes(input.arguments))) {
-      continue;
-    }
-
-    await import(join(testPath, file));
-  }
-};
-
-const bootstrapServices = async (emulators: EmulatorServices) => {
-  process.env.EZ4_IS_LOCAL = 'true';
-
-  for (const identifier in emulators) {
-    const emulator = emulators[identifier];
-
-    if (emulator.bootstrapHandler) {
-      await emulator.bootstrapHandler();
-    }
+  for (const testFile of testFiles) {
+    await import(join(workingDirectory, testFile));
   }
 };
