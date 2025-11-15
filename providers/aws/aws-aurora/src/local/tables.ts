@@ -10,18 +10,12 @@ import { Client } from '@ez4/pgclient';
 
 import { loadRepositoryState, saveRepositoryState } from './state';
 
-type MigrationClient = DbClient<Database.Service>;
-
 export const createAllTables = async (connection: ClientConnection, repository: PgTableRepository, options: ServeOptions) => {
-  await createDatabase(connection);
-
-  const client: MigrationClient = Client.make({
-    debug: false,
-    repository: {},
-    connection
-  });
+  await ensureDatabase(connection);
 
   const { database } = connection;
+
+  const client = getClient(connection);
 
   const oldRepository = options.force ? {} : await loadRepositoryState(database);
 
@@ -29,7 +23,7 @@ export const createAllTables = async (connection: ClientConnection, repository: 
 
   const allQueries = [...queries.tables, ...queries.constraints, ...queries.relations, ...queries.indexes];
 
-  await client.transaction(async (transaction: MigrationClient) => {
+  await client.transaction(async (transaction: DbClient<Database.Service>) => {
     for (const query of allQueries) {
       await runStatement(transaction, query);
     }
@@ -38,43 +32,29 @@ export const createAllTables = async (connection: ClientConnection, repository: 
   await saveRepositoryState(database, repository);
 };
 
-export const deleteAllTables = async (connection: ClientConnection, options: ServeOptions) => {
-  if (options.reset) {
-    await deleteDatabase(connection);
-  }
-};
-
-const createDatabase = async (connection: ClientConnection) => {
-  const client: MigrationClient = Client.make({
-    debug: false,
-    repository: {},
-    connection: {
-      ...connection,
-      database: 'postgres'
-    }
-  });
-
-  const query = DatabaseQueries.prepareCreate(connection.database);
-
-  await runStatement(client, query);
-};
-
-const deleteDatabase = async (connection: ClientConnection) => {
-  const client: MigrationClient = Client.make({
-    debug: false,
-    repository: {},
-    connection: {
-      ...connection,
-      database: 'postgres'
-    }
-  });
-
+export const deleteAllTables = async (connection: ClientConnection) => {
   const query = DatabaseQueries.prepareDelete(connection.database);
 
+  const client = getClient({
+    ...connection,
+    database: 'postgres'
+  });
+
   await runStatement(client, query);
 };
 
-const runStatement = async (client: MigrationClient, statement: PgMigrationStatement) => {
+const ensureDatabase = async (connection: ClientConnection) => {
+  const query = DatabaseQueries.prepareCreate(connection.database);
+
+  const client = getClient({
+    ...connection,
+    database: 'postgres'
+  });
+
+  await runStatement(client, query);
+};
+
+const runStatement = async (client: DbClient<Database.Service>, statement: PgMigrationStatement) => {
   const { check, query } = statement;
 
   if (check) {
@@ -88,4 +68,12 @@ const runStatement = async (client: MigrationClient, statement: PgMigrationState
   await client.rawQuery(query);
 
   return true;
+};
+
+const getClient = (connection: ClientConnection) => {
+  return Client.make({
+    debug: false,
+    repository: {},
+    connection
+  });
 };
