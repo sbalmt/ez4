@@ -3,6 +3,8 @@ import type { ServeOptions } from './options';
 
 export type EmulatorClientHandler = () => unknown;
 
+export type EmulatorPrepareHandler = () => unknown;
+
 export type EmulatorBootstrapHandler = () => unknown;
 
 export type EmulatorShutdownHandler = () => unknown;
@@ -30,6 +32,7 @@ export type EmulatorService = {
   identifier: string;
   name: string;
   clientHandler?: EmulatorClientHandler;
+  prepareHandler?: EmulatorPrepareHandler;
   bootstrapHandler?: EmulatorBootstrapHandler;
   shutdownHandler?: EmulatorShutdownHandler;
   requestHandler?: EmulatorRequestHandler;

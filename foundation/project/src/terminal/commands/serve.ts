@@ -24,6 +24,7 @@ export const serveCommand = async (project: ProjectOptions) => {
     variables: project.variables,
     force: project.forceMode,
     debug: project.debugMode,
+    reset: project.resetMode,
     local: project.localMode,
     version: 0
   };
@@ -57,6 +58,10 @@ export const serveCommand = async (project: ProjectOptions) => {
       });
 
       displayServices(emulators, options);
+
+      if (options.version === 0) {
+        await prepareServices(emulators);
+      }
 
       await bootstrapServices(emulators);
 
@@ -236,6 +241,18 @@ const setCorsResponseHeaders = (stream: ServerResponse<IncomingMessage>, request
     }
 
     stream.setHeader('Access-Control-Allow-Methods', responseMethod);
+  }
+};
+
+const prepareServices = async (emulators: EmulatorServices) => {
+  process.env.EZ4_IS_LOCAL = 'true';
+
+  for (const identifier in emulators) {
+    const emulator = emulators[identifier];
+
+    if (emulator.prepareHandler) {
+      await emulator.prepareHandler();
+    }
   }
 };
 

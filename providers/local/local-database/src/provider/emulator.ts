@@ -1,7 +1,7 @@
 import type { EmulateServiceContext, ServeOptions } from '@ez4/project/library';
 import type { DatabaseService } from '@ez4/database/library';
 
-import { getServiceName, triggerAllAsync } from '@ez4/project/library';
+import { getServiceName, Logger, triggerAllAsync } from '@ez4/project/library';
 
 export const registerDatabaseEmulator = async (service: DatabaseService, options: ServeOptions, context: EmulateServiceContext) => {
   const client = await getDatabaseClient(service, options);
@@ -14,6 +14,9 @@ export const registerDatabaseEmulator = async (service: DatabaseService, options
     type: 'Database',
     name: service.name,
     identifier: getServiceName(service.name, options),
+    prepareHandler: () => {
+      return runDatabaseReset(service, options, context);
+    },
     bootstrapHandler: () => {
       return runDatabaseMigration(service, options, context);
     },
@@ -23,7 +26,21 @@ export const registerDatabaseEmulator = async (service: DatabaseService, options
   };
 };
 
-const runDatabaseMigration = async (service: DatabaseService, options: ServeOptions, context: EmulateServiceContext) => {
+const runDatabaseReset = async (service: DatabaseService, options: ServeOptions, context: EmulateServiceContext) => {
+  if (options.local && options.reset) {
+    Logger.warn(`Database service ${service.name} was reset.`);
+
+    await triggerAllAsync('emulator:resetService', (handler) =>
+      handler({
+        service,
+        options,
+        context
+      })
+    );
+  }
+};
+
+const runDatabaseMigration = (service: DatabaseService, options: ServeOptions, context: EmulateServiceContext) => {
   return triggerAllAsync('emulator:startService', (handler) =>
     handler({
       service,

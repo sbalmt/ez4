@@ -8,8 +8,8 @@ import { registerClusterProvider } from '../cluster/provider';
 import { registerInstanceProvider } from '../instance/provider';
 import { registerMigrationProvider } from '../migration/provider';
 import { prepareDatabaseServices, prepareLinkedServices } from './service';
+import { prepareEmulatorStart, prepareEmulatorReset } from './migration';
 import { prepareExecutionPolicy } from './policy';
-import { prepareEmulatorStart } from './migration';
 import { prepareEmulatorClient } from './client';
 
 let isRegistered = false;
@@ -27,8 +27,9 @@ export const registerTriggers = () => {
     'deploy:prepareExecutionPolicy': prepareExecutionPolicy,
     'deploy:prepareLinkedService': prepareLinkedServices,
     'deploy:prepareResources': prepareDatabaseServices,
+    'emulator:getClient': prepareEmulatorClient,
     'emulator:startService': prepareEmulatorStart,
-    'emulator:getClient': prepareEmulatorClient
+    'emulator:resetService': prepareEmulatorReset
   });
 
   registerClusterProvider();

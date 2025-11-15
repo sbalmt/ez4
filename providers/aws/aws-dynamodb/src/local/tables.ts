@@ -18,7 +18,7 @@ import { getAttributeDefinitions, getAttributeKeyTypes } from '../table/helpers/
 import { getAttributeSchema } from '../utils/schema';
 import { getTableName } from '../utils/table';
 
-export const applyMigration = async (client: DynamoDBDocumentClient, service: DatabaseService, options: ServeOptions) => {
+export const createAllTables = async (client: DynamoDBDocumentClient, service: DatabaseService, options: ServeOptions) => {
   const tablePrefix = getServiceName(service, options);
 
   for (const table of service.tables) {
@@ -26,9 +26,17 @@ export const applyMigration = async (client: DynamoDBDocumentClient, service: Da
 
     const tableName = getTableName(tablePrefix, table);
 
-    await deleteTable(client, tableName);
-
     await createTable(client, tableName, attributeSchema);
+  }
+};
+
+export const deleteAllTables = async (client: DynamoDBDocumentClient, service: DatabaseService, options: ServeOptions) => {
+  const tablePrefix = getServiceName(service, options);
+
+  for (const table of service.tables) {
+    const tableName = getTableName(tablePrefix, table);
+
+    await deleteTable(client, tableName);
   }
 };
 

@@ -29,6 +29,7 @@ export type AsyncEvent = {
   'emulator:getClient': (event: EmulateClientEvent) => AsyncEventResult<unknown>;
   'emulator:getServices': (event: EmulateServiceEvent) => AsyncEventResult<EmulatorService>;
   'emulator:startService': (event: EmulateServiceEvent) => AsyncEventResult<void>;
+  'emulator:resetService': (event: EmulateServiceEvent) => AsyncEventResult<void>;
   'emulator:stopService': (event: EmulateServiceEvent) => AsyncEventResult<void>;
   'deploy:prepareLinkedService': (event: ServiceEvent) => AsyncEventResult<ContextSource>;
   'deploy:prepareIdentityAccount': (event: IdentityEvent) => AsyncEventResult<IdentityAccount[]>;

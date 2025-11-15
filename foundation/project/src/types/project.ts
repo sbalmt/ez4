@@ -27,10 +27,16 @@ export type ProjectOptions = {
   forceMode?: boolean;
 
   /**
-   * Determines whether the serve command must use the `localOptions`.
+   * Determines whether the serve and test commands must use the `localOptions`.
    * Default is: `false`
    */
   localMode?: boolean;
+
+  /**
+   * Determines whether the serve and test commands must reset local resources.
+   * Default is: `false`
+   */
+  resetMode?: boolean;
 
   /**
    * Project name that's combined with the `prefix`.
