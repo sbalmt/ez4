@@ -1,5 +1,10 @@
 name: ez4
 services:
+  dynamodb:
+    image: amazon/dynamodb-local
+    restart: always
+    ports:
+      - 8000:8000
   postgres:
     image: postgres:14
     restart: always

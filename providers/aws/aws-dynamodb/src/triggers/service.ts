@@ -1,7 +1,7 @@
 import type { ConnectResourceEvent, PrepareResourceEvent, ServiceEvent } from '@ez4/project/library';
 
 import { InsensitiveMode, LockMode, OrderMode, PaginationMode, ParametersMode, TransactionMode } from '@ez4/database';
-import { linkServiceContext } from '@ez4/project/library';
+import { getServiceName, linkServiceContext } from '@ez4/project/library';
 import { getFunctionState } from '@ez4/aws-function';
 import { isRoleState } from '@ez4/aws-identity';
 
@@ -16,10 +16,11 @@ import {
   UnsupportedLockModeError
 } from './errors';
 
+import { getTableName } from '../utils/table';
 import { createTable } from '../table/service';
-import { getInternalName, getTableName, isDynamoDbService } from './utils';
+import { getAttributeSchema } from '../utils/schema';
+import { getInternalName, isDynamoDbService } from './utils';
 import { prepareLinkedClient } from './client';
-import { getAttributeSchema } from './schema';
 import { prepareTableStream } from './stream';
 
 export const prepareLinkedServices = (event: ServiceEvent) => {
@@ -65,6 +66,8 @@ export const prepareDatabaseServices = (event: PrepareResourceEvent) => {
     throw new UnsupportedLockModeError();
   }
 
+  const tablePrefix = getServiceName(service, options);
+
   for (const table of service.tables) {
     if (table.relations) {
       throw new UnsupportedRelationError();
@@ -73,7 +76,7 @@ export const prepareDatabaseServices = (event: PrepareResourceEvent) => {
     const { attributeSchema, ttlAttribute } = getAttributeSchema(table.indexes, table.schema);
 
     const tableState = createTable(state, {
-      tableName: getTableName(service, table, options),
+      tableName: getTableName(tablePrefix, table),
       enableStreams: !!table.stream,
       tags: options.tags,
       attributeSchema,

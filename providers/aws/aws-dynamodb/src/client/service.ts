@@ -1,32 +1,30 @@
 import type { Database, Client as DbClient, ParametersModeUtils, TransactionModeUtils } from '@ez4/database';
+import type { DynamoDBDocumentClient } from '@aws-sdk/lib-dynamodb';
 import type { InternalTableMetadata, Repository } from './types';
 
-import { DynamoDBDocumentClient } from '@aws-sdk/lib-dynamodb';
-import { DynamoDBClient } from '@aws-sdk/client-dynamodb';
-
-import { executeStatement, executeTransaction } from './common/client';
-import { prepareDeleteOne, prepareInsertOne, prepareUpdateOne } from './common/queries';
 import { MissingRepositoryTableError, UnsupportedNamedParametersError, UnsupportedTransactionError } from './errors';
+import { prepareDeleteOne, prepareInsertOne, prepareUpdateOne } from './common/queries';
+import { executeStatement, executeTransaction } from './common/client';
 import { Table } from './table';
+import { getClientInstance } from './utils';
 
 type TableType = Table<InternalTableMetadata>;
 
-const client = DynamoDBDocumentClient.from(new DynamoDBClient(), {
-  marshallOptions: {
-    removeUndefinedValues: true
-  }
-});
+const defaultClient = getClientInstance();
 
 export type ClientContext = {
   repository: Repository;
+  client?: DynamoDBDocumentClient;
   debug?: boolean;
 };
 
 export namespace Client {
   export const make = <T extends Database.Service>(context: ClientContext): DbClient<T> => {
-    const { repository, debug } = context;
+    const { repository, debug, client } = context;
 
     const tableCache: Record<string, TableType> = {};
+
+    const localClient = client ?? defaultClient;
 
     const clientInstance = new (class {
       async rawQuery(query: string, parameters: ParametersModeUtils.Type<T> = []) {
@@ -36,7 +34,7 @@ export namespace Client {
 
         const command = { ConsistentRead: true, Parameters: parameters, Statement: query };
 
-        const { records } = await executeStatement(client, command, debug);
+        const { records } = await executeStatement(localClient, command, debug);
 
         return records;
       }
@@ -48,7 +46,7 @@ export namespace Client {
 
         const commands = await prepareStaticTransaction<T>(repository, operation);
 
-        await executeTransaction(client, commands, debug);
+        await executeTransaction(localClient, commands, debug);
       }
     })();
 
@@ -71,7 +69,7 @@ export namespace Client {
         const { name, schema, indexes } = repository[tableAlias];
 
         const table = new Table(name, schema, indexes, {
-          client,
+          client: localClient,
           debug
         });
 

@@ -1,7 +1,6 @@
 import type { DatabaseService } from '@ez4/database/library';
 import type { ServeOptions } from '@ez4/project/library';
 
-import { getDatabaseName } from '@ez4/pgclient/library';
 import { toSnakeCase } from '@ez4/utils';
 
 export const getConnectionOptions = (service: DatabaseService, options: ServeOptions) => {
@@ -11,13 +10,9 @@ export const getConnectionOptions = (service: DatabaseService, options: ServeOpt
     return undefined;
   }
 
-  const { database, user, password, host, port } = localOptions;
+  const { host = '127.0.0.1', port = '8000' } = localOptions;
 
   return {
-    database: database ?? getDatabaseName(service, options),
-    host: host ?? '127.0.0.1',
-    password,
-    user,
-    port
+    endpoint: `http://${host}:${port}`
   };
 };

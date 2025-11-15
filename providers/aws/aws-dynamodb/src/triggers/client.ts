@@ -1,11 +1,13 @@
 import type { DeployOptions, EmulateClientEvent, EventContext, ContextSource } from '@ez4/project/library';
-import type { DatabaseService, TableIndex } from '@ez4/database/library';
-
-import { Index } from '@ez4/database';
+import type { DatabaseService } from '@ez4/database/library';
 
 import { getTableState } from '../table/utils';
+import { getTableRepository } from '../utils/repository';
+import { LocalOptionsNotFoundError } from '../local/errors';
+import { getConnectionOptions } from '../local/options';
+import { getClientInstance } from '../client/utils';
 import { Client } from '../client';
-import { getInternalName, getTableName, isDynamoDbService } from './utils';
+import { getInternalName, isDynamoDbService } from './utils';
 
 export const prepareLinkedClient = (context: EventContext, service: DatabaseService, options: DeployOptions): ContextSource => {
   const tableIds = service.tables.map((table) => {
@@ -34,35 +36,22 @@ export const prepareEmulatorClient = (event: EmulateClientEvent) => {
     return null;
   }
 
+  if (options.local) {
+    const connection = getConnectionOptions(service, options);
+
+    if (!connection) {
+      throw new LocalOptionsNotFoundError(service.name);
+    }
+
+    return Client.make({
+      repository: getTableRepository(service, options),
+      client: getClientInstance(connection),
+      debug: options.debug
+    });
+  }
+
   return Client.make({
     repository: getTableRepository(service, options),
     debug: options.debug
   });
-};
-
-const getTableRepository = (service: DatabaseService, options: DeployOptions) => {
-  return service.tables.reduce((current, table) => {
-    return {
-      ...current,
-      [table.name]: {
-        name: getTableName(service, table, options),
-        indexes: getTableIndexes(table.indexes),
-        schema: table.schema
-      }
-    };
-  }, {});
-};
-
-const getTableIndexes = (tableIndexes: TableIndex[]): string[][] => {
-  const indexes = [];
-
-  for (const { columns, type } of tableIndexes) {
-    if (type === Index.Primary) {
-      indexes.unshift(columns);
-    } else if (type === Index.Secondary) {
-      indexes.push(columns);
-    }
-  }
-
-  return indexes;
 };
