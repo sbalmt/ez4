@@ -9,6 +9,14 @@ export default {
   stateFile: {
     path: 'ez4-deploy'
   },
+  localOptions: {
+    db: {
+      user: 'postgres',
+      password: 'postgres',
+      host: '127.0.0.1',
+      port: 5432
+    }
+  },
   tags: {
     Owner: 'EZ4 Examples'
   }
