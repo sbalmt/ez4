@@ -5,7 +5,7 @@ import type { ClusterState } from './types';
 import { IncompleteResourceError } from '@ez4/aws-common';
 import { hashData, toKebabCase } from '@ez4/utils';
 
-import { ClusterNotFoundError } from './errors';
+import { ClusterDatabaseNotFoundError } from './errors';
 import { ClusterServiceType } from './types';
 
 export const createClusterStateId = (clusterName: string) => {
@@ -20,7 +20,7 @@ export const getClusterState = (context: EventContext, clusterName: string, opti
   const clusterState = context.getServiceState(clusterName, options);
 
   if (!isClusterState(clusterState)) {
-    throw new ClusterNotFoundError(clusterName);
+    throw new ClusterDatabaseNotFoundError(clusterName);
   }
 
   return clusterState;

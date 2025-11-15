@@ -9,6 +9,7 @@ import { registerInstanceProvider } from '../instance/provider';
 import { registerMigrationProvider } from '../migration/provider';
 import { prepareDatabaseServices, prepareLinkedServices } from './service';
 import { prepareExecutionPolicy } from './policy';
+import { prepareEmulatorStart } from './migration';
 import { prepareEmulatorClient } from './client';
 
 let isRegistered = false;
@@ -26,6 +27,7 @@ export const registerTriggers = () => {
     'deploy:prepareExecutionPolicy': prepareExecutionPolicy,
     'deploy:prepareLinkedService': prepareLinkedServices,
     'deploy:prepareResources': prepareDatabaseServices,
+    'emulator:startService': prepareEmulatorStart,
     'emulator:getClient': prepareEmulatorClient
   });
 

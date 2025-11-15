@@ -15,9 +15,9 @@ export const registerTriggers = () => {
   registerDatabaseTriggers();
 
   createTrigger('@ez4/local-database', {
-    'emulator:getServices': ({ service, options }: EmulateServiceEvent) => {
+    'emulator:getServices': ({ service, options, context }: EmulateServiceEvent) => {
       if (isDatabaseService(service)) {
-        return registerDatabaseEmulator(service, options);
+        return registerDatabaseEmulator(service, options, context);
       }
 
       return null;

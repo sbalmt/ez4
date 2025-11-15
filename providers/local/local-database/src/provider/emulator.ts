@@ -1,22 +1,21 @@
+import type { EmulateServiceContext, ServeOptions } from '@ez4/project/library';
 import type { DatabaseService } from '@ez4/database/library';
-import type { ServeOptions } from '@ez4/project/library';
 
-import { getTableRepository } from '@ez4/pgclient/library';
 import { getServiceName, triggerAllAsync } from '@ez4/project/library';
-import { Client } from '@ez4/pgclient';
 
-import { ensureDatabase, ensureMigration } from '../service/migration';
-import { getConnectionOptions } from '../utils/options';
-
-export const registerDatabaseEmulator = async (service: DatabaseService, options: ServeOptions) => {
+export const registerDatabaseEmulator = async (service: DatabaseService, options: ServeOptions, context: EmulateServiceContext) => {
   const client = await getDatabaseClient(service, options);
+
+  if (!client) {
+    return null;
+  }
 
   return {
     type: 'Database',
     name: service.name,
     identifier: getServiceName(service.name, options),
     bootstrapHandler: () => {
-      return runDatabaseMigration(service, options);
+      return runDatabaseMigration(service, options, context);
     },
     clientHandler: () => {
       return client;
@@ -24,31 +23,17 @@ export const registerDatabaseEmulator = async (service: DatabaseService, options
   };
 };
 
-const runDatabaseMigration = async (service: DatabaseService, options: ServeOptions) => {
-  const connection = options.local ? getConnectionOptions(service, options) : undefined;
-
-  if (connection) {
-    const repository = getTableRepository(service.tables);
-
-    await ensureDatabase(connection);
-
-    await ensureMigration(connection, repository, options.force);
-  }
+const runDatabaseMigration = async (service: DatabaseService, options: ServeOptions, context: EmulateServiceContext) => {
+  return triggerAllAsync('emulator:startService', (handler) =>
+    handler({
+      service,
+      options,
+      context
+    })
+  );
 };
 
-const getDatabaseClient = async (service: DatabaseService, options: ServeOptions) => {
-  const connection = options.local ? getConnectionOptions(service, options) : undefined;
-
-  if (connection) {
-    const repository = getTableRepository(service.tables);
-
-    return Client.make({
-      debug: options.debug,
-      connection,
-      repository
-    });
-  }
-
+const getDatabaseClient = (service: DatabaseService, options: ServeOptions) => {
   return triggerAllAsync('emulator:getClient', (handler) =>
     handler({
       service,

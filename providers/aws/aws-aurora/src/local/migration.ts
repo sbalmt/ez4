@@ -7,12 +7,12 @@ import { getUpdateQueries } from '@ez4/pgmigration';
 import { DatabaseQueries } from '@ez4/pgmigration/library';
 import { Client } from '@ez4/pgclient';
 
-import { loadRepositoryState, saveRepositoryState } from '../utils/state';
+import { loadRepositoryState, saveRepositoryState } from './state';
 
 type MigrationClient = DbClient<Database.Service>;
 
 export const ensureDatabase = async (connection: ClientConnection) => {
-  const client: MigrationClient = await Client.make({
+  const client: MigrationClient = Client.make({
     debug: false,
     repository: {},
     connection: {
@@ -29,7 +29,7 @@ export const ensureDatabase = async (connection: ClientConnection) => {
 export const ensureMigration = async (connection: ClientConnection, repository: PgTableRepository, force?: boolean) => {
   const { database } = connection;
 
-  const client: MigrationClient = await Client.make({
+  const client: MigrationClient = Client.make({
     debug: false,
     repository: {},
     connection
@@ -62,5 +62,6 @@ const runMigrationStatement = async (client: MigrationClient, statement: PgMigra
   }
 
   await client.rawQuery(query);
+
   return true;
 };
