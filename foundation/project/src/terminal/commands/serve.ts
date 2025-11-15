@@ -78,7 +78,9 @@ export const serveCommand = async (project: ProjectOptions) => {
     }
 
     if (request.method === 'OPTIONS') {
-      return sendPlainResponse(stream, request, { status: 204 });
+      return sendPlainResponse(stream, request, {
+        status: 204
+      });
     }
 
     const { requestHandler, ...emulator } = service.emulator;
@@ -148,9 +150,21 @@ const getRequestService = (emulator: EmulatorServices, request: IncomingMessage,
     request: {
       path: `/${path.join('/')}`,
       headers: getDistinctHeaders(request.headersDistinct),
-      query: Object.fromEntries(searchParams.entries())
+      query: getQueryParameters(searchParams)
     }
   };
+};
+
+const getQueryParameters = (allParameters: URLSearchParams) => {
+  const query: Record<string, string> = {};
+
+  for (const name of allParameters.keys()) {
+    const allValues = allParameters.getAll(name);
+
+    query[name] = allValues.join(',');
+  }
+
+  return query;
 };
 
 const getDistinctHeaders = (allHeaders: Record<string, string[] | undefined>) => {
