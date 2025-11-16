@@ -1,8 +1,8 @@
-import { registerProvider } from '@ez4/aws-common';
+import { tryRegisterProvider } from '@ez4/aws-common';
 
 import { getFunctionHandler } from './handler';
 import { FunctionServiceType } from './types';
 
 export const registerFunctionProvider = () => {
-  registerProvider(FunctionServiceType, getFunctionHandler());
+  tryRegisterProvider(FunctionServiceType, getFunctionHandler());
 };

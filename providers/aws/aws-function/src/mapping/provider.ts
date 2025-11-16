@@ -1,8 +1,8 @@
-import { registerProvider } from '@ez4/aws-common';
+import { tryRegisterProvider } from '@ez4/aws-common';
 
 import { getMappingHandler } from './handler';
 import { MappingServiceType } from './types';
 
 export const registerMappingProvider = () => {
-  registerProvider(MappingServiceType, getMappingHandler());
+  tryRegisterProvider(MappingServiceType, getMappingHandler());
 };

@@ -1,8 +1,8 @@
-import { registerProvider } from '@ez4/aws-common';
+import { tryRegisterProvider } from '@ez4/aws-common';
 
 import { getPolicyHandler } from './handler';
 import { CacheServiceType } from './types';
 
 export const registerCachePolicyProvider = () => {
-  registerProvider(CacheServiceType, getPolicyHandler());
+  tryRegisterProvider(CacheServiceType, getPolicyHandler());
 };

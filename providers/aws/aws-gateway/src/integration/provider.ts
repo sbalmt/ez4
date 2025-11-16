@@ -1,8 +1,8 @@
-import { registerProvider } from '@ez4/aws-common';
+import { tryRegisterProvider } from '@ez4/aws-common';
 
 import { getIntegrationHandler } from './handler';
 import { IntegrationServiceType } from './types';
 
 export const registerIntegrationProvider = () => {
-  registerProvider(IntegrationServiceType, getIntegrationHandler());
+  tryRegisterProvider(IntegrationServiceType, getIntegrationHandler());
 };

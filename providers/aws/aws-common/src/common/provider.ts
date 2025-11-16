@@ -15,6 +15,12 @@ export const registerProvider = <E extends EntryState>(providerName: string, han
   allProviderHandlers[providerName] = handler;
 };
 
+export const tryRegisterProvider = <E extends EntryState>(providerName: string, handler: StepHandler<E>) => {
+  if (!(providerName in allProviderHandlers)) {
+    allProviderHandlers[providerName] = handler;
+  }
+};
+
 export const report = <E extends EntryState>(
   newState: EntryStates<E> | undefined,
   oldState: EntryStates<E> | undefined,
