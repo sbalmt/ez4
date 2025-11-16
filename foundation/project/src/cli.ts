@@ -16,20 +16,10 @@ if (options?.projectFile) {
   process.env.EZ4_PROJECT_FILE = options?.projectFile;
 }
 
-const allArguments = [];
+const extraArguments = [];
 
 if (options?.command === CommandType.Serve || options?.command === CommandType.Test) {
-  allArguments.push(
-    // Test and Serve options
-    '--experimental-strip-types',
-    '--experimental-transform-types',
-    '--experimental-test-module-mocks',
-    '--enable-source-maps',
-
-    // Custom loader options
-    '--loader',
-    extensionsPath
-  );
+  extraArguments.push('--experimental-test-module-mocks', '--enable-source-maps');
 }
 
 spawn(
@@ -37,7 +27,15 @@ spawn(
   [
     // Invocation options
     '--no-warnings',
-    ...allArguments,
+    '--experimental-strip-types',
+    '--experimental-transform-types',
+
+    // Extra arguments
+    ...extraArguments,
+
+    // Custom loader options
+    '--loader',
+    extensionsPath,
 
     // Forward invocation
     applicationPath,

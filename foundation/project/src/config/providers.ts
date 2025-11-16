@@ -11,6 +11,10 @@ export const loadProviders = async (options: ProjectOptions) => {
 
   const { namespace, providers } = await fetchProviderPackages(packagePath);
 
+  if (options.customProviders) {
+    providers.push(...options.customProviders.packages);
+  }
+
   const allProviders = providers.map(async (packageName) => {
     const registerTriggers = await tryImportProvider([`${packageName}/library`, packageName]);
 

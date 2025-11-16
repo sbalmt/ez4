@@ -60,14 +60,19 @@ export type ProjectOptions = {
   sourceFiles: string[];
 
   /**
+   * Configuration for the project state.
+   */
+  stateFile: ProjectStateOptions;
+
+  /**
    * Configuration for imported projects.
    */
   importProjects?: Record<string, ProjectImportOptions>;
 
   /**
-   * Configuration for the project state.
+   * Configuration for custom providers.
    */
-  stateFile: ProjectStateOptions;
+  customProviders?: ProjectCustomProviders;
 
   /**
    * Options for serving the local development.
@@ -118,6 +123,13 @@ export type ProjectImportOptions = {
   projectFile: string;
 };
 
+export type ProjectCustomProviders = {
+  /**
+   * Specify all the custom provider packages.
+   */
+  packages: string[];
+};
+
 export type ProjectServeOptions = {
   /**
    * Port to run the local development service.
@@ -136,5 +148,5 @@ export type ProjectWatchOptions = {
   /**
    * Specify additional watch paths.
    */
-  additionalPaths?: string[];
+  additionalPaths: string[];
 };
