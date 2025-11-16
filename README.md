@@ -4,7 +4,7 @@ A collection of high-quality components that make it EZ4 building modern applica
 
 ## Why
 
-Most engineering teams strive to build solid foundations and deliver value while building production-ready cloud applications... EZ4's mission is to provide all the tools for making this possible (develop, test, deploy, scale, and maintain) with as little friction as possible.
+Most engineering teams strive to build solid foundations and deliver value when building production-ready cloud applications. EZ4's mission is to provide all the tools for making this possible with as little friction as possible.
 
 ## Getting started
 
@@ -30,7 +30,7 @@ Check out some examples to get started with.
 
 ## Components
 
-All components provide a common interface (a.k.a contract) to handle cloud-based resources and store their state between deployments.
+All components provide a common interface (a.k.a contract) to manage and consume cloud-based resources and store their state between deployments.
 
 | Contract                                  | Local Provider                                   | AWS Provider                                                                         |
 | ----------------------------------------- | ------------------------------------------------ | ------------------------------------------------------------------------------------ |
