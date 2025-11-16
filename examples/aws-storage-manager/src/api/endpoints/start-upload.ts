@@ -3,8 +3,8 @@ import type { Http } from '@ez4/gateway';
 import type { ApiProvider } from '../../provider';
 import type { ContentTypes } from '../types';
 
-import { FileStatus } from '../../schemas/file';
-import { createFile } from '../repository';
+import { createFile } from '@/api/repository';
+import { FileStatus } from '@/schemas/file';
 
 /**
  * Start upload request.

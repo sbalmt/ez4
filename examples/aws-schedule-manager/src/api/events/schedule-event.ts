@@ -1,10 +1,10 @@
 import type { Cron } from '@ez4/scheduler';
 import type { Service } from '@ez4/common';
-import type { EventScheduler } from '../../scheduler';
-import type { EventRequest } from '../types';
+import type { EventRequest } from '@/api/types';
+import type { EventScheduler } from '@/scheduler';
 
-import { EventStatus } from '../../schemas/event';
-import { updateEvent } from '../repository';
+import { updateEvent } from '@/api/repository';
+import { EventStatus } from '@/schemas/event';
 
 /**
  * Handle all schedule events.

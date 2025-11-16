@@ -3,9 +3,14 @@
   "compilerOptions": {
     "rootDir": ".",
     "declarationDir": "./dist",
-    "noEmit": true
+    "noEmit": true,
+    "paths": {
+      "@/*": [
+        "./src/*"
+      ]
+    }
   },
-    "include": [
+  "include": [
     "./src",
     "./test"
   ]
