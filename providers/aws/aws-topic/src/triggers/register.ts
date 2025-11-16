@@ -5,8 +5,7 @@ import { registerTriggers as registerAwsIdentityTriggers } from '@ez4/aws-identi
 import { registerTriggers as registerAwsFunctionTriggers } from '@ez4/aws-function';
 import { registerTriggers as registerAwsQueueTriggers } from '@ez4/aws-queue';
 import { registerTriggers as registerTopicTriggers } from '@ez4/topic/library';
-
-import { createTrigger } from '@ez4/project/library';
+import { tryCreateTrigger } from '@ez4/project/library';
 
 import { registerTopicProvider } from '../topic/provider';
 import { registerSubscriptionProvider } from '../subscription/provider';
@@ -14,20 +13,14 @@ import { connectServices, prepareLinkedServices, prepareServices } from './servi
 import { connectImports, prepareImports, prepareLinkedImports } from './import';
 import { prepareExecutionPolicy } from './policy';
 
-let isRegistered = false;
-
 export const registerTriggers = () => {
-  if (isRegistered) {
-    return;
-  }
-
   registerAwsTriggers();
   registerAwsIdentityTriggers();
   registerAwsFunctionTriggers();
   registerAwsQueueTriggers();
   registerTopicTriggers();
 
-  createTrigger('@ez4/aws-topic', {
+  tryCreateTrigger('@ez4/aws-topic', {
     'deploy:prepareExecutionPolicy': prepareExecutionPolicy,
     'deploy:prepareLinkedService': prepareLinkedService,
     'deploy:prepareResources': prepareQueueResources,
@@ -36,8 +29,6 @@ export const registerTriggers = () => {
 
   registerTopicProvider();
   registerSubscriptionProvider();
-
-  isRegistered = true;
 };
 
 const prepareLinkedService = (event: ServiceEvent) => {

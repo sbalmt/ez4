@@ -3,7 +3,7 @@ import { registerTriggers as registerAwsFunctionTriggers } from '@ez4/aws-functi
 import { registerTriggers as registerAwsIdentityTriggers } from '@ez4/aws-identity';
 import { registerTriggers as registerDatabaseTriggers } from '@ez4/database/library';
 
-import { createTrigger } from '@ez4/project/library';
+import { tryCreateTrigger } from '@ez4/project/library';
 
 import { registerTableProvider } from '../table/provider';
 import { connectDatabaseServices, prepareDatabaseServices, prepareLinkedServices } from './service';
@@ -11,19 +11,13 @@ import { prepareEmulatorStart, prepareEmulatorReset } from './migration';
 import { prepareExecutionPolicy } from './policy';
 import { prepareEmulatorClient } from './client';
 
-let isRegistered = false;
-
 export const registerTriggers = () => {
-  if (isRegistered) {
-    return;
-  }
-
   registerAwsTriggers();
   registerAwsIdentityTriggers();
   registerAwsFunctionTriggers();
   registerDatabaseTriggers();
 
-  createTrigger('@ez4/aws-dynamodb', {
+  tryCreateTrigger('@ez4/aws-dynamodb', {
     'deploy:prepareExecutionPolicy': prepareExecutionPolicy,
     'deploy:prepareLinkedService': prepareLinkedServices,
     'deploy:prepareResources': prepareDatabaseServices,
@@ -34,6 +28,4 @@ export const registerTriggers = () => {
   });
 
   registerTableProvider();
-
-  isRegistered = true;
 };
