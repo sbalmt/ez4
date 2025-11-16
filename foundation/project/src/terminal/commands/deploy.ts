@@ -12,12 +12,12 @@ import { prepareLinkedServices } from '../../actions/services';
 import { combineStates, loadRemoteState, loadLocalState, saveRemoteState, saveLocalState } from '../../actions/state';
 import { connectDeployResources, prepareDeployResources } from '../../actions/resources';
 import { reportResourceChanges } from '../../report/report';
+import { loadProviders } from '../../config/providers';
 import { loadAliasPaths } from '../../config/tsconfig';
+import { loadImports } from '../../config/imports';
 import { waitConfirmation } from '../../utils/prompt';
 import { buildMetadata } from '../../library/metadata';
 import { assertNoErrors } from '../../utils/errors';
-import { loadProviders } from '../../common/providers';
-import { loadImports } from '../../common/imports';
 
 export const deployCommand = async (project: ProjectOptions) => {
   const options: DeployOptions = {

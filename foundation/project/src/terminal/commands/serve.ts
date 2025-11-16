@@ -1,6 +1,6 @@
 import type { IncomingMessage, ServerResponse } from 'node:http';
 import type { EmulatorHandlerResponse } from '../../emulator/types';
-import type { ServiceEmulators } from '../../emulator/services';
+import type { ServiceEmulators } from '../../emulator/utils';
 import type { ProjectOptions } from '../../types/project';
 import type { ServeOptions } from '../../types/options';
 
@@ -11,11 +11,11 @@ import { createServer } from 'node:http';
 
 import { getServiceAddress, getServiceHost, getServicePort } from '../../utils/project';
 import { bootstrapServices, prepareServices, shutdownServices } from '../../emulator/actions';
-import { getServiceEmulators } from '../../emulator/services';
-import { loadAliasPaths } from '../../config/tsconfig';
+import { getServiceEmulators } from '../../emulator/utils';
 import { watchMetadata } from '../../library/metadata';
-import { loadProviders } from '../../common/providers';
-import { loadImports } from '../../common/imports';
+import { loadAliasPaths } from '../../config/tsconfig';
+import { loadProviders } from '../../config/providers';
+import { loadImports } from '../../config/imports';
 
 export const serveCommand = async (project: ProjectOptions) => {
   const options: ServeOptions = {

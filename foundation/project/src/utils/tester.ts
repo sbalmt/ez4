@@ -1,4 +1,4 @@
-import type { ServiceEmulators } from '../emulator/services';
+import type { ServiceEmulators } from '../emulator/utils';
 
 import { getServiceName } from './service';
 

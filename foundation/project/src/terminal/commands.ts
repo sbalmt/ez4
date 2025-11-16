@@ -2,7 +2,7 @@ import type { InputOptions } from './options';
 
 import { loadEnvFile } from 'node:process';
 
-import { loadProject } from '../common/project';
+import { loadProject } from '../config/project';
 import { deployCommand } from './commands/deploy';
 import { destroyCommand } from './commands/destroy';
 import { serveCommand } from './commands/serve';

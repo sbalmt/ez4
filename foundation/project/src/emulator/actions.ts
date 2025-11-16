@@ -1,4 +1,4 @@
-import type { ServiceEmulators } from './services';
+import type { ServiceEmulators } from './utils';
 import type { ServiceEmulator } from './types';
 
 export const prepareServices = async (emulators: ServiceEmulators) => {

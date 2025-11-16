@@ -5,7 +5,7 @@ import { dirname, extname, join } from 'node:path';
 import { existsSync } from 'node:fs';
 
 import { loadAliasPaths } from '../config/tsconfig';
-import { loadProject } from '../common/project';
+import { loadProject } from '../config/project';
 
 const options = await loadProject(process.env.EZ4_PROJECT_FILE);
 const aliases = await loadAliasPaths(options);

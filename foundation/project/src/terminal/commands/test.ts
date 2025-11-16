@@ -6,11 +6,11 @@ import { Tester, Logger, LogLevel } from '@ez4/project/library';
 import { toKebabCase } from '@ez4/utils';
 
 import { buildMetadata } from '../../library/metadata';
-import { getServiceEmulators } from '../../emulator/services';
+import { getServiceEmulators } from '../../emulator/utils';
 import { bootstrapServices, prepareServices } from '../../emulator/actions';
 import { loadAliasPaths } from '../../config/tsconfig';
-import { loadProviders } from '../../common/providers';
-import { loadImports } from '../../common/imports';
+import { loadProviders } from '../../config/providers';
+import { loadImports } from '../../config/imports';
 
 import { readdir } from 'node:fs/promises';
 import { join } from 'node:path';
