@@ -26,6 +26,7 @@ Check out some examples to get started with.
 - [Importing gateway](./examples/aws-import-gateway)
 - [Importing queue](./examples/aws-import-queue)
 - [Importing topic](./examples/aws-import-topic)
+- [Custom provider](./examples/custom-provider)
 
 ## Components
 

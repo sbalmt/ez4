@@ -1,5 +1,5 @@
 {
-  "name": "hello-custom-provider",
+  "name": "custom-provider",
   "description": "Example of a custom EZ4 provider.",
   "version": "0.0.0",
   "author": "Silas B.",

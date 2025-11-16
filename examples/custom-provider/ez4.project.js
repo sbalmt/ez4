@@ -3,10 +3,10 @@
  */
 export default {
   prefix: 'ez4',
-  projectName: 'hello-custom-provider',
+  projectName: 'use-custom-provider',
   sourceFiles: ['./src/service.ts'],
   customProviders: {
-    packages: ['hello-custom-provider']
+    packages: ['custom-provider']
   },
   stateFile: {
     path: 'ez4-deploy'

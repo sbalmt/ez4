@@ -1,4 +1,4 @@
-# Hello: Custom Provider
+# Custom Provider
 
 This example showcases how to use a custom provider and extends EZ4's capabilities.
 
