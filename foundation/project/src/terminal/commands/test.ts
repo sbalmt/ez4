@@ -5,9 +5,10 @@ import type { InputOptions } from '../options';
 import { Tester, Logger, LogLevel } from '@ez4/project/library';
 import { toKebabCase } from '@ez4/utils';
 
-import { getMetadata } from '../../library/metadata';
+import { buildMetadata } from '../../library/metadata';
 import { getServiceEmulators } from '../../emulator/services';
 import { bootstrapServices, prepareServices } from '../../emulator/actions';
+import { loadAliasPaths } from '../../config/tsconfig';
 import { loadProviders } from '../../common/providers';
 import { loadImports } from '../../common/imports';
 
@@ -44,12 +45,18 @@ export const testCommand = async (input: InputOptions, project: ProjectOptions) 
     return loadProviders(project);
   });
 
+  const aliasPaths = await Logger.execute('🔄️ Loading tsconfig', () => {
+    return loadAliasPaths(project);
+  });
+
   options.imports = await Logger.execute('🔄️ Loading imports', () => {
     return loadImports(project);
   });
 
   const emulators = await Logger.execute('🔄️ Loading emulators', () => {
-    const { metadata } = getMetadata(project.sourceFiles);
+    const { metadata } = buildMetadata(project.sourceFiles, {
+      aliasPaths
+    });
 
     return getServiceEmulators(metadata, options);
   });

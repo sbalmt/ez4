@@ -12,8 +12,9 @@ import { prepareLinkedServices } from '../../actions/services';
 import { combineStates, loadRemoteState, loadLocalState, saveRemoteState, saveLocalState } from '../../actions/state';
 import { connectDeployResources, prepareDeployResources } from '../../actions/resources';
 import { reportResourceChanges } from '../../report/report';
+import { loadAliasPaths } from '../../config/tsconfig';
 import { waitConfirmation } from '../../utils/prompt';
-import { getMetadata } from '../../library/metadata';
+import { buildMetadata } from '../../library/metadata';
 import { assertNoErrors } from '../../utils/errors';
 import { loadProviders } from '../../common/providers';
 import { loadImports } from '../../common/imports';
@@ -36,12 +37,18 @@ export const deployCommand = async (project: ProjectOptions) => {
     return loadProviders(project);
   });
 
-  const { metadata, dependencies } = await Logger.execute('🔄️ Loading metadata', () => {
-    return getMetadata(project.sourceFiles);
+  const aliasPaths = await Logger.execute('🔄️ Loading tsconfig', () => {
+    return loadAliasPaths(project);
   });
 
   options.imports = await Logger.execute('🔄️ Loading imports', () => {
     return loadImports(project);
+  });
+
+  const { metadata, dependencies } = await Logger.execute('🔄️ Loading metadata', () => {
+    return buildMetadata(project.sourceFiles, {
+      aliasPaths
+    });
   });
 
   const stateFile = project.stateFile;

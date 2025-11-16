@@ -12,6 +12,7 @@ import { createServer } from 'node:http';
 import { getServiceAddress, getServiceHost, getServicePort } from '../../utils/project';
 import { bootstrapServices, prepareServices, shutdownServices } from '../../emulator/actions';
 import { getServiceEmulators } from '../../emulator/services';
+import { loadAliasPaths } from '../../config/tsconfig';
 import { watchMetadata } from '../../library/metadata';
 import { loadProviders } from '../../common/providers';
 import { loadImports } from '../../common/imports';
@@ -38,6 +39,10 @@ export const serveCommand = async (project: ProjectOptions) => {
     return loadProviders(project);
   });
 
+  const aliasPaths = await Logger.execute('🔄️ Loading tsconfig', () => {
+    return loadAliasPaths(project);
+  });
+
   options.imports = await Logger.execute('🔄️ Loading imports', () => {
     return loadImports(project);
   });
@@ -49,6 +54,7 @@ export const serveCommand = async (project: ProjectOptions) => {
 
   const watcher = await watchMetadata(project.sourceFiles, {
     additionalPaths: [namespacePath, ...additionalPaths],
+    aliasPaths,
     onMetadataReady: async (metadata) => {
       if (isRunning) {
         await shutdownServices(emulators);

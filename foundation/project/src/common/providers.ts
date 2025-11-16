@@ -1,5 +1,7 @@
 import type { ProjectOptions } from '../types/project';
 
+import { isAnyObject } from '@ez4/utils';
+
 import { pathToFileURL } from 'node:url';
 import { join } from 'node:path';
 
@@ -56,6 +58,10 @@ const tryImportProvider = async (packageNames: string[]) => {
       if (registerTriggers) {
         return registerTriggers;
       }
-    } catch {}
+    } catch (error) {
+      if (!isAnyObject(error) || error.code !== 'ERR_PACKAGE_PATH_NOT_EXPORTED') {
+        throw error;
+      }
+    }
   }
 };

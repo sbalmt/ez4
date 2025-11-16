@@ -6,7 +6,7 @@ import { Logger, triggerAllSync } from '@ez4/project/library';
 
 import { assertNoErrors } from '../utils/errors';
 import { DuplicateMetadataError } from '../errors/metadata';
-import { getReflection, watchReflection } from './reflection';
+import { buildReflection, watchReflection } from './reflection';
 
 export type MetadataReadyListener = (metadata: MetadataReflection) => Promise<void> | void;
 
@@ -15,8 +15,12 @@ export type MetadataResult = {
   metadata: MetadataReflection;
 };
 
-export const getMetadata = (sourceFiles: string[]): MetadataResult => {
-  const reflectionTypes = getReflection(sourceFiles);
+export type BuildMetadataOptions = {
+  aliasPaths?: Record<string, string[]>;
+};
+
+export const buildMetadata = (sourceFiles: string[], options?: BuildMetadataOptions): MetadataResult => {
+  const reflectionTypes = buildReflection(sourceFiles, options);
   const reflectionFiles = getMetadataFiles(reflectionTypes);
 
   const metadata: MetadataReflection = {};
@@ -41,13 +45,15 @@ export const getMetadata = (sourceFiles: string[]): MetadataResult => {
 export type WatchMetadataOptions = {
   onMetadataReady: MetadataReadyListener;
   additionalPaths?: string[];
+  aliasPaths?: Record<string, string[]>;
 };
 
 export const watchMetadata = (sourceFiles: string[], options: WatchMetadataOptions) => {
-  const { additionalPaths, onMetadataReady } = options;
+  const { additionalPaths, aliasPaths, onMetadataReady } = options;
 
   return watchReflection(sourceFiles, {
     additionalPaths,
+    aliasPaths,
     onReflectionReady: async (reflectionTypes) => {
       const metadata: MetadataReflection = {};
 

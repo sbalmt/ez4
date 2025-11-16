@@ -50,6 +50,11 @@ export type ProjectOptions = {
   packageFile?: string;
 
   /**
+   * Set a new `tsconfig.json` location relative to the current working directory.
+   */
+  tsconfigFile?: string;
+
+  /**
    * List of source files containing declarative resources.
    */
   sourceFiles: string[];
