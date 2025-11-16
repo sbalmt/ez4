@@ -4,7 +4,7 @@ import { readFileSync, writeFileSync } from 'node:fs';
 import { deepEqual, ok } from 'node:assert/strict';
 
 import { createSchemaContext, getAnySchema } from '@ez4/schema/library';
-import { getReflection } from '@ez4/project/library';
+import { buildReflection } from '@ez4/project/library';
 
 export type TestFileOptions = SchemaContextOptions & {
   overwrite?: boolean;
@@ -16,7 +16,7 @@ export const testFile = (fileName: string, options?: TestFileOptions) => {
   const outputFile = `./test/output/${options?.fileName ?? fileName}.json`;
   const sourceFile = `./test/input/${fileName}.ts`;
 
-  const reflection = getReflection([sourceFile]);
+  const reflection = buildReflection([sourceFile]);
 
   const entryKey = Object.keys(reflection).find((key) => key.endsWith('TestSchema'));
 

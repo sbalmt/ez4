@@ -1,12 +1,11 @@
-import { getReflection } from '@ez4/project/library';
 import { getDatabaseServices } from '@ez4/database/library';
+import { buildReflection } from '@ez4/project/library';
 
 import { equal } from 'assert/strict';
 
 export const parseFile = (fileName: string, errorCount: number) => {
   const sourceFile = `./test/models/${fileName}.ts`;
-
-  const reflection = getReflection([sourceFile]);
+  const reflection = buildReflection([sourceFile]);
 
   const { errors } = getDatabaseServices(reflection);
 

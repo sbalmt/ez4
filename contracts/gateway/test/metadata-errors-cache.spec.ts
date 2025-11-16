@@ -3,12 +3,12 @@ import { describe, it } from 'node:test';
 
 import { registerTriggers, getHttpServices } from '@ez4/gateway/library';
 import { IncompleteCacheError, IncorrectCacheTypeError, InvalidCacheTypeError } from '@ez4/gateway/library';
-import { getReflection } from '@ez4/project/library';
+import { buildReflection } from '@ez4/project/library';
 
 const parseFile = (fileName: string, errorCount: number) => {
   const sourceFile = `./test/input/${fileName}.ts`;
 
-  const reflection = getReflection([sourceFile]);
+  const reflection = buildReflection([sourceFile]);
   const result = getHttpServices(reflection);
 
   equal(result.errors.length, errorCount);
