@@ -1,32 +1,35 @@
 import type { Client, Cron } from '@ez4/scheduler';
 import type { Mock } from 'node:test';
+import type { ClientMockSchedules } from '../client/mock';
 
 import { Tester } from '@ez4/project/library';
 
 import { mock } from 'node:test';
 
-import { createMockClient } from '../client/mock';
+import { createClientMock } from '../client/mock';
 
 export namespace CronTester {
-  type ClientMock = Client<any> & {
-    getEvent: Mock<Client<any>['getEvent']>;
-    createEvent: Mock<Client<any>['createEvent']>;
-    updateEvent: Mock<Client<any>['updateEvent']>;
-    deleteEvent: Mock<Client<any>['deleteEvent']>;
+  export type MockSchedules<T extends Cron.Event> = ClientMockSchedules<T>;
+
+  export type ClientMock<T extends Cron.Event> = Client<T> & {
+    getEvent: Mock<Client<T>['getEvent']>;
+    createEvent: Mock<Client<T>['createEvent']>;
+    updateEvent: Mock<Client<T>['updateEvent']>;
+    deleteEvent: Mock<Client<T>['deleteEvent']>;
   };
 
   export const getClient = <T extends Cron.Event>(resourceName: string) => {
     return Tester.getServiceClient(resourceName) as Client<T>;
   };
 
-  export const getClientMock = (resourceName?: string) => {
-    const client = createMockClient(resourceName ?? 'CronMock');
+  export const getClientMock = <T extends Cron.Event = any>(resourceName: string, schedules?: MockSchedules<T>) => {
+    const client = createClientMock(resourceName, schedules) as ClientMock<T>;
 
     mock.method(client, 'getEvent');
     mock.method(client, 'createEvent');
     mock.method(client, 'updateEvent');
     mock.method(client, 'deleteEvent');
 
-    return client as ClientMock;
+    return client;
   };
 }
