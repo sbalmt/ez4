@@ -1,7 +1,7 @@
 {
   "name": "@ez4/aws-aurora",
   "description": "EZ4: Self-managed AWS Aurora serverless v2 provider",
-  "version": "0.32.0",
+  "version": "0.33.0",
   "author": "Silas B.",
   "license": "MIT",
   "type": "module",
@@ -49,15 +49,15 @@
   "dependencies": {
     "@aws-sdk/client-rds": "^3.913.0",
     "@aws-sdk/client-rds-data": "^3.913.0",
-    "@ez4/aws-common": "^0.32.0",
-    "@ez4/aws-identity": "^0.32.0",
-    "@ez4/database": "^0.32.0",
-    "@ez4/pgclient": "^0.32.0",
-    "@ez4/pgmigration": "^0.32.0",
-    "@ez4/pgsql": "^0.32.0",
-    "@ez4/project": "^0.32.0",
-    "@ez4/stateful": "^0.32.0",
-    "@ez4/schema": "^0.32.0",
-    "@ez4/utils": "^0.32.0"
+    "@ez4/aws-common": "^0.33.0",
+    "@ez4/aws-identity": "^0.33.0",
+    "@ez4/database": "^0.33.0",
+    "@ez4/pgclient": "^0.33.0",
+    "@ez4/pgmigration": "^0.33.0",
+    "@ez4/pgsql": "^0.33.0",
+    "@ez4/project": "^0.33.0",
+    "@ez4/stateful": "^0.33.0",
+    "@ez4/schema": "^0.33.0",
+    "@ez4/utils": "^0.33.0"
   }
 }
