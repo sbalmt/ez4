@@ -12,13 +12,13 @@ import {
   IncorrectServiceError
 } from '@ez4/scheduler/library';
 
-import { getReflection } from '@ez4/project/library';
 import { registerTriggers, getCronServices } from '@ez4/scheduler/library';
+import { buildReflection } from '@ez4/project/library';
 
 const parseFile = (fileName: string, errorCount: number) => {
   const sourceFile = `./test/input/${fileName}.ts`;
 
-  const reflection = getReflection([sourceFile]);
+  const reflection = buildReflection([sourceFile]);
   const result = getCronServices(reflection);
 
   equal(result.errors.length, errorCount);

@@ -5,22 +5,22 @@ import { Tester } from '@ez4/project/library';
 
 import { mock } from 'node:test';
 
-import { createMockClient } from '../client/mock';
+import { createClientMock } from '../client/mock';
 
 export namespace TopicTester {
-  export type ClientMock = Client<any> & {
-    sendMessage: Mock<Client<any>['sendMessage']>;
+  export type ClientMock<T extends Topic.Message> = Client<T> & {
+    sendMessage: Mock<Client<T>['sendMessage']>;
   };
 
   export const getClient = <T extends Topic.Message>(resourceName: string) => {
     return Tester.getServiceClient(resourceName) as Client<T>;
   };
 
-  export const getClientMock = (resourceName?: string) => {
-    const client = createMockClient(resourceName ?? 'TopicMock');
+  export const getClientMock = <T extends Topic.Message = any>(resourceName: string) => {
+    const client = createClientMock(resourceName) as ClientMock<T>;
 
     mock.method(client, 'sendMessage');
 
-    return client as ClientMock;
+    return client;
   };
 }

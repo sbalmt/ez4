@@ -7,7 +7,7 @@ import { deepCompare } from '@ez4/utils';
 
 import { MissingEntryResourceError } from '../errors/resource';
 import { MissingActionProviderError } from '../errors/provider';
-import { toBold, toGray } from '../console/format';
+import { toBold, toGray } from '../utils/format';
 import { formatReportChanges } from './format';
 
 export const reportResourceChanges = async (newState: EntryStates, oldState: EntryStates, force?: boolean) => {

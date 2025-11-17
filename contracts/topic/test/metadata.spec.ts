@@ -3,13 +3,13 @@ import { deepEqual } from 'node:assert/strict';
 import { describe, it } from 'node:test';
 
 import { registerTriggers } from '@ez4/topic/library';
-import { getMetadata } from '@ez4/project/library';
+import { buildMetadata } from '@ez4/project/library';
 
 const testFile = (fileName: string, overwrite = false) => {
   const sourceFile = `./test/input/output-${fileName}.ts`;
   const outputFile = `./test/output/${fileName}.json`;
 
-  const { metadata } = getMetadata([sourceFile]);
+  const { metadata } = buildMetadata([sourceFile]);
 
   if (overwrite) {
     writeFileSync(outputFile, JSON.stringify(metadata, undefined, 2));

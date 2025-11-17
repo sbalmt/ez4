@@ -4,10 +4,14 @@ import type { ClusterState } from '../cluster/types';
 
 import { getDatabaseName, getTableRepository } from '@ez4/pgclient/library';
 import { getDefinitionName } from '@ez4/project/library';
+import { Client as NativeClient } from '@ez4/pgclient';
 
-import { importCluster } from '../cluster/client';
+import { getConnectionOptions } from '../local/options';
+import { LocalOptionsNotFoundError } from '../local/errors';
+import { ClusterDatabaseNotFoundError } from '../cluster/errors';
 import { getClusterState } from '../cluster/utils';
-import { Client } from '../client';
+import { importCluster } from '../cluster/client';
+import { Client as ProviderClient } from '../client';
 import { getClusterName, isAuroraService } from './utils';
 
 export const prepareLinkedClient = (context: EventContext, service: DatabaseService, options: DeployOptions): ContextSource => {
@@ -39,13 +43,27 @@ export const prepareEmulatorClient = async (event: EmulateClientEvent) => {
     return null;
   }
 
+  if (options.local) {
+    const connection = getConnectionOptions(service, options);
+
+    if (!connection) {
+      throw new LocalOptionsNotFoundError(service.name);
+    }
+
+    return NativeClient.make({
+      debug: options.debug,
+      repository: getTableRepository(service.tables),
+      connection
+    });
+  }
+
   const cluster = await importCluster(getClusterName(service, options), false);
 
   if (!cluster) {
-    return null;
+    throw new ClusterDatabaseNotFoundError(service.name);
   }
 
-  return Client.make({
+  return ProviderClient.make({
     debug: options.debug,
     repository: getTableRepository(service.tables),
     connection: {

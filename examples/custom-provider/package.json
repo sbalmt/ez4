@@ -1,0 +1,30 @@
+{
+  "name": "custom-provider",
+  "description": "Example of a custom EZ4 provider.",
+  "version": "0.0.0",
+  "author": "Silas B.",
+  "license": "MIT",
+  "type": "module",
+  "private": true,
+  "engines": {
+    "node": ">=22.7"
+  },
+  "workspaces": [
+    "examples/*"
+  ],
+  "exports": {
+    ".": "./src/main.ts"
+  },
+  "scripts": {
+    "deploy": "tsc && ez4 deploy -e local.env",
+    "destroy": "ez4 destroy -e local.env",
+    "serve": "ez4 serve -e local.env --debug",
+    "test": "ez4 test -e local.env"
+  },
+  "dependencies": {
+    "@ez4/gateway": "^0.33.0",
+    "@ez4/local-gateway": "^0.33.0",
+    "@ez4/project": "^0.33.0",
+    "@ez4/reflection": "^0.33.0"
+  }
+}

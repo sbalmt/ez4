@@ -1,10 +1,10 @@
 import type { String } from '@ez4/schema';
 import type { Service } from '@ez4/common';
 import type { Http } from '@ez4/gateway';
-import type { ApiProvider } from '../../provider';
+import type { ApiProvider } from '@/provider';
 
 import { HttpBadRequestError } from '@ez4/gateway';
-import { deleteFile } from '../repository';
+import { deleteFile } from '@/api/repository';
 
 /**
  * Delete file request.

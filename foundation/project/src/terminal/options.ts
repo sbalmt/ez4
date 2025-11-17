@@ -12,6 +12,7 @@ export type InputOptions = {
   projectFile?: string;
   forceMode?: boolean;
   debugMode?: boolean;
+  resetMode?: boolean;
   localMode?: boolean;
   arguments?: string;
 };
@@ -52,6 +53,10 @@ export const getInputOptions = () => {
 
       case '--debug':
         options.debugMode = true;
+        break;
+
+      case '--reset':
+        options.resetMode = true;
         break;
 
       case '--local':

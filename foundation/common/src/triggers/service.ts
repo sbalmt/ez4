@@ -42,6 +42,6 @@ export const getCommonEmulators = (event: EmulateServiceEvent) => {
     type: 'Common',
     name: serviceName,
     identifier: getServiceName(serviceName, options),
-    clientHandler: () => Client.make()
+    exportHandler: () => Client.make()
   };
 };

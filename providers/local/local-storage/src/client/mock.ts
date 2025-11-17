@@ -1,40 +1,57 @@
 import type { Client, Content } from '@ez4/storage';
 
+import { Readable } from 'node:stream';
+
 import { Logger } from '@ez4/project/library';
 import { toKebabCase } from '@ez4/utils';
 
-const contentMock = Buffer.from('This is a mock content.');
+export type ClientMockContents = {
+  keys?: Record<string, Buffer>;
+  default?: Buffer;
+};
 
-export const createMockClient = (serviceName: string): Client => {
+export const createClientMock = (serviceName: string, contents?: ClientMockContents): Client => {
   const storageIdentifier = toKebabCase(serviceName);
-  const storageMemory: Record<string, boolean> = {};
+  const storageMemory = contents?.keys ?? {};
 
   return new (class {
     async exists(key: string) {
-      return Promise.resolve(!!storageMemory[key]);
+      const content = storageMemory[key] ?? contents?.default;
+
+      return Promise.resolve(!!content);
     }
 
-    async write(key: string, _contents: Content) {
+    async write(key: string, contents: Content) {
       Logger.debug(`⬆️  File ${key} uploaded.`);
 
-      storageMemory[key] = true;
+      if (contents instanceof Readable) {
+        storageMemory[key] = contents.read();
+      } else {
+        storageMemory[key] = Buffer.from(contents);
+      }
 
       return Promise.resolve();
     }
 
     async read(key: string): Promise<Buffer> {
-      if (!storageMemory[key]) {
+      const content = storageMemory[key] ?? contents?.default;
+
+      if (!content) {
         throw new Error(`Key ${key} not found.`);
       }
 
       Logger.debug(`⬇️  File ${key} downloaded.`);
 
-      return Promise.resolve(Buffer.from(contentMock));
+      return Promise.resolve(Buffer.from(content));
     }
 
     async delete(key: string) {
       if (!storageMemory[key]) {
-        throw new Error(`Key ${key} not found.`);
+        if (!contents?.default) {
+          throw new Error(`Key ${key} not found.`);
+        }
+
+        return Promise.resolve();
       }
 
       Logger.debug(`ℹ️  File ${key} deleted.`);
@@ -53,13 +70,15 @@ export const createMockClient = (serviceName: string): Client => {
     }
 
     async getStats(key: string) {
-      if (!storageMemory[key]) {
+      const content = storageMemory[key] ?? contents?.default;
+
+      if (!content) {
         throw new Error(`Key ${key} not found.`);
       }
 
       return Promise.resolve({
         type: 'application/octet-stream',
-        size: contentMock.byteLength
+        size: content.byteLength
       });
     }
   })();

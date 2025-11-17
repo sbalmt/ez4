@@ -1,13 +1,16 @@
 import type { Client } from '@ez4/storage';
 import type { Mock } from 'node:test';
+import type { ClientMockContents } from '../client/mock';
 
 import { Tester } from '@ez4/project/library';
 
 import { mock } from 'node:test';
 
-import { createMockClient } from '../client/mock';
+import { createClientMock } from '../client/mock';
 
 export namespace BucketTester {
+  export type MockContents = ClientMockContents;
+
   export type ClientMock = Client & {
     exists: Mock<Client['exists']>;
     write: Mock<Client['write']>;
@@ -22,8 +25,8 @@ export namespace BucketTester {
     return Tester.getServiceClient(resourceName) as Client;
   };
 
-  export const getClientMock = (resourceName?: string) => {
-    const client = createMockClient(resourceName ?? 'BucketMock');
+  export const getClientMock = (resourceName: string, contents?: MockContents) => {
+    const client = createClientMock(resourceName, contents);
 
     mock.method(client, 'exists');
     mock.method(client, 'write');

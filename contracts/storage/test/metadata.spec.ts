@@ -3,13 +3,13 @@ import { deepEqual, equal } from 'node:assert/strict';
 import { describe, it } from 'node:test';
 
 import { registerTriggers, getBucketServices } from '@ez4/storage/library';
-import { getReflection } from '@ez4/project/library';
+import { buildReflection } from '@ez4/project/library';
 
 const testFile = (fileName: string, overwrite = false) => {
   const sourceFile = `./test/input/output-${fileName}.ts`;
   const outputFile = `./test/output/${fileName}.json`;
 
-  const reflection = getReflection([sourceFile]);
+  const reflection = buildReflection([sourceFile]);
   const result = getBucketServices(reflection);
 
   result.errors.forEach((error) => {

@@ -22,7 +22,7 @@ export const registerRemoteServices = (service: QueueImport, options: ServeOptio
     type: 'Queue',
     name: serviceName,
     identifier: getServiceName(serviceName, options),
-    clientHandler: () => {
+    exportHandler: () => {
       return createRemoteClient(referenceName, messageSchema, clientOptions);
     },
     requestHandler: (request: EmulatorServiceRequest) => {

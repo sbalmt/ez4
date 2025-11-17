@@ -11,10 +11,10 @@ export default {
   },
   localOptions: {
     db: {
-      host: '127.0.0.0',
-      port: 5432,
       password: 'postgres',
-      user: 'postgres'
+      user: 'postgres',
+      host: '127.0.0.0',
+      port: 5432
     }
   },
   tags: {

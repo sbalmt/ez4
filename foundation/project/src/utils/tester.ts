@@ -1,9 +1,9 @@
-import type { EmulatorServices } from '../library/emulator';
+import type { ServiceEmulators } from '../emulator/utils';
 
 import { getServiceName } from './service';
 
 type TesterContext = {
-  emulators?: EmulatorServices;
+  emulators?: ServiceEmulators;
   options?: TesterOptions;
 };
 
@@ -19,7 +19,7 @@ export namespace Tester {
     return !!context.options && !!context.emulators;
   };
 
-  export const configure = (emulators: EmulatorServices, options: TesterOptions) => {
+  export const configure = (emulators: ServiceEmulators, options: TesterOptions) => {
     if (Context.emulators) {
       throw new Error('Tester is already configured.');
     }
@@ -42,10 +42,10 @@ export namespace Tester {
       throw new Error(`Emulator for resource ${resourceName} not found.`);
     }
 
-    if (!serviceEmulator.clientHandler) {
+    if (!serviceEmulator.exportHandler) {
       throw new Error(`Resource ${resourceName} doesn't provide any service client.`);
     }
 
-    return serviceEmulator.clientHandler();
+    return serviceEmulator.exportHandler();
   };
 }

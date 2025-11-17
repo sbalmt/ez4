@@ -25,7 +25,7 @@ export const registerLocalServices = (service: QueueService, options: ServeOptio
     type: 'Queue',
     name: serviceName,
     identifier: getServiceName(serviceName, options),
-    clientHandler: () => {
+    exportHandler: () => {
       return createLocalClient(serviceName, messageSchema, clientOptions);
     },
     requestHandler: (request: EmulatorServiceRequest) => {

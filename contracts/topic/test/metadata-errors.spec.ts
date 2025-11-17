@@ -15,14 +15,14 @@ import {
   InvalidMessageTypeError
 } from '@ez4/topic/library';
 
-import { getReflection } from '@ez4/project/library';
-import { registerTriggers, getTopicServices } from '@ez4/topic/library';
 import { InvalidServicePropertyError } from '@ez4/common/library';
+import { registerTriggers, getTopicServices } from '@ez4/topic/library';
+import { buildReflection } from '@ez4/project/library';
 
 const parseFile = (fileName: string, errorCount: number) => {
   const sourceFile = `./test/input/${fileName}.ts`;
 
-  const reflection = getReflection([sourceFile]);
+  const reflection = buildReflection([sourceFile]);
   const result = getTopicServices(reflection);
 
   equal(result.errors.length, errorCount);

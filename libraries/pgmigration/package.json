@@ -1,7 +1,7 @@
 {
   "name": "@ez4/pgmigration",
   "description": "EZ4: A PostgreSQL migration library",
-  "version": "0.32.0",
+  "version": "0.33.0",
   "author": "Silas B.",
   "license": "MIT",
   "type": "module",
@@ -43,10 +43,10 @@
     "live:publish": "npm run build && npm publish --access public"
   },
   "dependencies": {
-    "@ez4/database": "^0.32.0",
-    "@ez4/pgsql": "^0.32.0",
-    "@ez4/pgclient": "^0.32.0",
-    "@ez4/schema": "^0.32.0",
-    "@ez4/utils": "^0.32.0"
+    "@ez4/database": "^0.33.0",
+    "@ez4/pgsql": "^0.33.0",
+    "@ez4/pgclient": "^0.33.0",
+    "@ez4/schema": "^0.33.0",
+    "@ez4/utils": "^0.33.0"
   }
 }

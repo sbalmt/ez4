@@ -11,6 +11,7 @@ export * from './array/unique';
 export * from './array/compare';
 export * from './array/generics';
 export * from './array/equal';
+export * from './array/chunk';
 export * from './array/size';
 
 export * from './object/check';

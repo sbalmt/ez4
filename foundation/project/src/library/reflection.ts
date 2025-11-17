@@ -7,23 +7,38 @@ import { triggerAllSync } from '@ez4/project/library';
 
 import { ReflectionSourceFileNotFound } from '../errors/reflection';
 
-export const getReflection = (sourceFiles: string[]): SourceMap => {
+export type BuildReflectionOptions = {
+  aliasPaths?: Record<string, string[]>;
+};
+
+export const buildReflection = (sourceFiles: string[], options?: BuildReflectionOptions): SourceMap => {
   assertSourceFiles(sourceFiles);
 
-  return getReflectionFromFiles(sourceFiles, getReflectionOptions());
+  return getReflectionFromFiles(sourceFiles, {
+    ...getReflectionOptions(),
+    compilerOptions: {
+      paths: options?.aliasPaths
+    }
+  });
 };
 
 export type WatchReflectionOptions = {
   onReflectionReady: ReflectionReadyListener;
+  aliasPaths?: Record<string, string[]>;
   additionalPaths?: string[];
 };
 
 export const watchReflection = (sourceFiles: string[], options: WatchReflectionOptions) => {
   assertSourceFiles(sourceFiles);
 
+  const { additionalPaths, aliasPaths } = options;
+
   return watchReflectionFromFiles(sourceFiles, {
     ...getReflectionOptions(options.onReflectionReady),
-    additionalPaths: options.additionalPaths
+    additionalPaths,
+    compilerOptions: {
+      paths: aliasPaths
+    }
   });
 };
 

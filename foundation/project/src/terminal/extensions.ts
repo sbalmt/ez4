@@ -4,13 +4,19 @@ import { fileURLToPath } from 'node:url';
 import { dirname, extname, join } from 'node:path';
 import { existsSync } from 'node:fs';
 
+import { loadAliasPaths } from '../config/tsconfig';
+import { loadProject } from '../config/project';
+
+const options = await loadProject(process.env.EZ4_PROJECT_FILE);
+const aliases = await loadAliasPaths(options);
+
 export const resolve: ResolveHook = (specifier, context, defaultResolve) => {
   if (isGlobalParentModule(context)) {
     return defaultResolve(specifier, context);
   }
 
-  const parentFile = context.parentURL && fileURLToPath(context.parentURL);
-  const modulePath = resolveModulePath(specifier, parentFile);
+  const parentFile = context.parentURL ? fileURLToPath(context.parentURL) : '.';
+  const modulePath = resolveImportPath(specifier, parentFile, aliases);
 
   if (!modulePath) {
     return defaultResolve(specifier, context);
@@ -35,12 +41,31 @@ const getTemporaryModulePath = (modulePath: string) => {
   return `${modulePath}?v=${Date.now()}`;
 };
 
-const resolveModulePath = (specifier: string, parentFile: string | undefined) => {
+const resolveImportPath = (specifier: string, parentFile: string, aliasPaths: Record<string, string[]>) => {
+  for (const alias in aliasPaths) {
+    const aliasPattern = alias.substring(0, alias.length - 1);
+
+    if (!specifier.startsWith(aliasPattern)) {
+      continue;
+    }
+
+    for (const path of aliasPaths[alias]) {
+      const mergedPath = path.substring(0, path.length - 1) + specifier.substring(alias.length - 1);
+      const modulePath = resolveModulePath(mergedPath, process.cwd());
+
+      if (modulePath) {
+        return modulePath;
+      }
+    }
+  }
+
+  return resolveModulePath(specifier, dirname(parentFile));
+};
+
+const resolveModulePath = (specifier: string, parentPath: string) => {
   if (specifier.startsWith('file://')) {
     return undefined;
   }
-
-  const parentPath = parentFile ? dirname(parentFile) : '.';
 
   if (specifier.startsWith('.') && !extname(specifier)) {
     return resolveSpecifier(specifier, parentPath, 'js') ?? resolveSpecifier(specifier, parentPath, 'ts');
@@ -55,9 +80,10 @@ const resolveModulePath = (specifier: string, parentFile: string | undefined) =>
 
 const resolveSpecifier = (specifier: string, parentPath: string, extension: string) => {
   const filePath = `${specifier}.${extension}`;
+  const fullPath = join(parentPath, filePath);
 
-  if (existsSync(join(parentPath, filePath))) {
-    return filePath;
+  if (existsSync(fullPath)) {
+    return fullPath;
   }
 
   return undefined;

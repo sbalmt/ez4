@@ -1,54 +1,56 @@
+import type { EmulateServiceContext, ServeOptions } from '@ez4/project/library';
 import type { DatabaseService } from '@ez4/database/library';
-import type { ServeOptions } from '@ez4/project/library';
 
-import { getTableRepository } from '@ez4/pgclient/library';
-import { getServiceName, triggerAllAsync } from '@ez4/project/library';
-import { Client } from '@ez4/pgclient';
+import { getServiceName, Logger, triggerAllAsync } from '@ez4/project/library';
 
-import { ensureDatabase, ensureMigration } from '../service/migration';
-import { getConnectionOptions } from '../utils/options';
-
-export const registerDatabaseEmulator = async (service: DatabaseService, options: ServeOptions) => {
+export const registerDatabaseEmulator = async (service: DatabaseService, options: ServeOptions, context: EmulateServiceContext) => {
   const client = await getDatabaseClient(service, options);
+
+  if (!client) {
+    return null;
+  }
 
   return {
     type: 'Database',
     name: service.name,
     identifier: getServiceName(service.name, options),
-    bootstrapHandler: () => {
-      return runDatabaseMigration(service, options);
+    prepareHandler: () => {
+      return runDatabaseReset(service, options, context);
     },
-    clientHandler: () => {
+    bootstrapHandler: () => {
+      return runDatabaseMigration(service, options, context);
+    },
+    exportHandler: () => {
       return client;
     }
   };
 };
 
-const runDatabaseMigration = async (service: DatabaseService, options: ServeOptions) => {
-  const connection = options.local ? getConnectionOptions(service, options) : undefined;
+const runDatabaseReset = async (service: DatabaseService, options: ServeOptions, context: EmulateServiceContext) => {
+  if (options.local && options.reset) {
+    Logger.warn(`Database service ${service.name} was reset.`);
 
-  if (connection) {
-    const repository = getTableRepository(service.tables);
-
-    await ensureDatabase(connection);
-
-    await ensureMigration(connection, repository, options.force);
+    await triggerAllAsync('emulator:resetService', (handler) =>
+      handler({
+        service,
+        options,
+        context
+      })
+    );
   }
 };
 
-const getDatabaseClient = async (service: DatabaseService, options: ServeOptions) => {
-  const connection = options.local ? getConnectionOptions(service, options) : undefined;
+const runDatabaseMigration = (service: DatabaseService, options: ServeOptions, context: EmulateServiceContext) => {
+  return triggerAllAsync('emulator:startService', (handler) =>
+    handler({
+      service,
+      options,
+      context
+    })
+  );
+};
 
-  if (connection) {
-    const repository = getTableRepository(service.tables);
-
-    return Client.make({
-      debug: options.debug,
-      connection,
-      repository
-    });
-  }
-
+const getDatabaseClient = (service: DatabaseService, options: ServeOptions) => {
   return triggerAllAsync('emulator:getClient', (handler) =>
     handler({
       service,

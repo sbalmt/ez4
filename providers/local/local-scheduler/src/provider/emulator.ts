@@ -18,7 +18,7 @@ export const registerCronEmulator = (service: CronService, options: ServeOptions
     type: 'Scheduler',
     name: serviceName,
     identifier: getServiceName(serviceName, options),
-    clientHandler: () => {
+    exportHandler: () => {
       return service.schema ? createServiceClient(serviceName, service.schema) : undefined;
     },
     bootstrapHandler: () => {

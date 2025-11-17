@@ -1,10 +1,21 @@
-# EZ4: Develop & Deploy 🚀
+<h1 style="background: #F7F7F8; color: #000000; padding: 1.5rem;">
+  <div style="display: flex; justify-content: center; align-items: center;">
+    <div style="margin-right: 0.5rem;">
+      <img src="./assets/logo.svg" alt="EZ4 Logo" width="60"/>
+    </div>
+    <div style="height: 3.25rem;">
+      Develop & Deploy 🚀
+    </div>
+  </div>
+</h1>
 
-A collection of high-quality components that make it EZ4 building modern applications on top of AWS with NodeJS and TypeScript.
+<div style="text-align: center;">
+  A collection of high-quality components that make it EZ4 building modern applications on top of AWS with NodeJS and TypeScript.
+</div>
 
 ## Why
 
-Most engineering teams strive to build solid foundations and deliver value while building production-ready cloud applications... EZ4's mission is to provide all the tools for making this possible (develop, test, deploy, scale, and maintain) with as little friction as possible.
+Most engineering teams strive to build solid foundations and deliver value when building production-ready cloud applications. EZ4's mission is to provide all the tools for making this possible with as little friction as possible.
 
 ## Getting started
 
@@ -23,12 +34,14 @@ Check out some examples to get started with.
 - [DynamoDB streams](./examples/aws-dynamodb-streams)
 - [Schedule manager](./examples/aws-schedule-manager)
 - [Storage manager](./examples/aws-storage-manager)
+- [Importing gateway](./examples/aws-import-gateway)
 - [Importing queue](./examples/aws-import-queue)
 - [Importing topic](./examples/aws-import-topic)
+- [Custom provider](./examples/custom-provider)
 
 ## Components
 
-All components provide a common interface (a.k.a contract) to handle cloud-based resources and store their state between deployments.
+All components provide a common interface (a.k.a contract) to manage and consume cloud-based resources and store their state between deployments.
 
 | Contract                                  | Local Provider                                   | AWS Provider                                                                         |
 | ----------------------------------------- | ------------------------------------------------ | ------------------------------------------------------------------------------------ |

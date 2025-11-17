@@ -2,7 +2,7 @@ import type { InputOptions } from './options';
 
 import { loadEnvFile } from 'node:process';
 
-import { loadProject } from '../common/project';
+import { loadProject } from '../config/project';
 import { deployCommand } from './commands/deploy';
 import { destroyCommand } from './commands/destroy';
 import { serveCommand } from './commands/serve';
@@ -19,6 +19,7 @@ export const runActionCommand = async (options: InputOptions) => {
 
   project.debugMode = options.debugMode ?? project.debugMode;
   project.forceMode = options.forceMode ?? project.forceMode;
+  project.resetMode = options.resetMode ?? project.resetMode;
   project.localMode = options.localMode ?? project.localMode;
 
   switch (options.command) {

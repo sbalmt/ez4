@@ -1,4 +1,4 @@
-import type { EmulatorLinkedServices, EmulatorService, EmulatorServiceClients } from '../types/emulator';
+import type { LinkedServiceEmulators, ServiceEmulator, ServiceEmulatorClients } from './types';
 import type { MetadataReflection } from '../types/metadata';
 import type { ServeOptions } from '../types/options';
 
@@ -6,13 +6,13 @@ import { getServiceName, triggerAllAsync } from '@ez4/project/library';
 
 import { MissingEmulatorProvider } from '../errors/provider';
 
-export type EmulatorServices = Record<string, EmulatorService>;
+export type ServiceEmulators = Record<string, ServiceEmulator>;
 
-export const getEmulators = async (metadata: MetadataReflection, options: ServeOptions) => {
-  const emulators: EmulatorServices = {};
+export const getServiceEmulators = async (metadata: MetadataReflection, options: ServeOptions) => {
+  const emulators: ServiceEmulators = {};
 
   const context = {
-    makeClients: (linkedServices: EmulatorLinkedServices) => {
+    makeClients: (linkedServices: LinkedServiceEmulators) => {
       return makeEmulatorClients(linkedServices, emulators, options);
     },
     makeClient: (serviceName: string) => {
@@ -43,8 +43,8 @@ export const getEmulators = async (metadata: MetadataReflection, options: ServeO
   return emulators;
 };
 
-const makeEmulatorClients = (linkedServices: EmulatorLinkedServices, emulators: EmulatorServices, options: ServeOptions) => {
-  const allClients: EmulatorServiceClients = {};
+const makeEmulatorClients = (linkedServices: LinkedServiceEmulators, emulators: ServiceEmulators, options: ServeOptions) => {
+  const allClients: ServiceEmulatorClients = {};
 
   for (const linkedServiceName in linkedServices) {
     const serviceName = linkedServices[linkedServiceName];
@@ -55,7 +55,7 @@ const makeEmulatorClients = (linkedServices: EmulatorLinkedServices, emulators: 
   return allClients;
 };
 
-const makeEmulatorClient = (serviceName: string, emulators: EmulatorServices, options: ServeOptions) => {
+const makeEmulatorClient = (serviceName: string, emulators: ServiceEmulators, options: ServeOptions) => {
   const identifier = getServiceName(serviceName, options);
   const service = emulators[identifier];
 
@@ -63,7 +63,7 @@ const makeEmulatorClient = (serviceName: string, emulators: EmulatorServices, op
     throw new Error(`Service ${serviceName} has no emulators.`);
   }
 
-  const client = service.clientHandler?.();
+  const client = service.exportHandler?.();
 
   if (!client) {
     throw new Error(`Service ${serviceName} has no client emulator.`);

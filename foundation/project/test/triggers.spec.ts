@@ -3,12 +3,12 @@ import type { SyncEvent } from '@ez4/project/library';
 import { describe, it, mock } from 'node:test';
 import { equal } from 'node:assert/strict';
 
-import { createTrigger, triggerAllSync } from '@ez4/project/library';
+import { tryCreateTrigger, triggerAllSync } from '@ez4/project/library';
 
 const assertSyncEvent = (event: keyof SyncEvent) => {
   const handler = mock.fn();
 
-  createTrigger(`Trigger:${event}`, {
+  tryCreateTrigger(`Trigger:${event}`, {
     [event]: handler
   });
 

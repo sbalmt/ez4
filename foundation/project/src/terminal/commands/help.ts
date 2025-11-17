@@ -17,6 +17,7 @@ export const helpCommand = () => {
     '  --project, -p      Specify the project file (Default is ez4.project.js)',
     '  --force            Force deployment or destruction of resources',
     '  --debug            Enable debug mode on all provider resources',
+    '  --reset            Reset local resources when serving',
     '  --local            Use local options when serving',
     ''
   ];

@@ -4,7 +4,7 @@ import type { Http } from '@ez4/gateway';
 import type { FileStatus } from '../../schemas/file';
 import type { ApiProvider } from '../../provider';
 
-import { listFiles } from '../repository';
+import { listFiles } from '@/api/repository';
 
 /**
  * List files request.

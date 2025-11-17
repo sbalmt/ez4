@@ -1,15 +1,16 @@
 import type { ProjectOptions } from '../../types/project';
-import type { EmulatorServices } from '../../library/emulator';
 import type { ServeOptions } from '../../types/options';
 import type { InputOptions } from '../options';
 
 import { Tester, Logger, LogLevel } from '@ez4/project/library';
 import { toKebabCase } from '@ez4/utils';
 
-import { getMetadata } from '../../library/metadata';
-import { getEmulators } from '../../library/emulator';
-import { loadProviders } from '../../common/providers';
-import { loadImports } from '../../common/imports';
+import { buildMetadata } from '../../library/metadata';
+import { getServiceEmulators } from '../../emulator/utils';
+import { bootstrapServices, prepareServices } from '../../emulator/actions';
+import { loadAliasPaths } from '../../config/tsconfig';
+import { loadProviders } from '../../config/providers';
+import { loadImports } from '../../config/imports';
 
 import { readdir } from 'node:fs/promises';
 import { join } from 'node:path';
@@ -30,6 +31,7 @@ export const testCommand = async (input: InputOptions, project: ProjectOptions) 
     variables: project.variables,
     force: project.debugMode,
     debug: project.debugMode,
+    reset: project.resetMode,
     local: project.localMode,
     test: true,
     version: 0
@@ -43,45 +45,45 @@ export const testCommand = async (input: InputOptions, project: ProjectOptions) 
     return loadProviders(project);
   });
 
+  const aliasPaths = await Logger.execute('🔄️ Loading tsconfig', () => {
+    return loadAliasPaths(project);
+  });
+
   options.imports = await Logger.execute('🔄️ Loading imports', () => {
     return loadImports(project);
   });
 
   const emulators = await Logger.execute('🔄️ Loading emulators', () => {
-    const { metadata } = getMetadata(project.sourceFiles);
+    const { metadata } = buildMetadata(project.sourceFiles, {
+      aliasPaths
+    });
 
-    return getEmulators(metadata, options);
+    return getServiceEmulators(metadata, options);
   });
 
-  await Logger.execute('⚡ Running tests', async () => {
+  const workingDirectory = process.cwd();
+
+  const testFiles = await Logger.execute('⚡ Preparing tests', async () => {
+    Tester.configure(emulators, options);
+
+    await prepareServices(emulators);
+
     await bootstrapServices(emulators);
 
-    Tester.configure(emulators, options);
+    const allFiles = await readdir(workingDirectory, {
+      recursive: true
+    });
+
+    return allFiles.filter((file) => {
+      if (TestFilePattern.test(file)) {
+        return !input.arguments || file.includes(input.arguments);
+      }
+
+      return false;
+    });
   });
 
-  const testPath = process.cwd();
-
-  const allFiles = await readdir(testPath, {
-    recursive: true
-  });
-
-  for (const file of allFiles) {
-    if (!TestFilePattern.test(file) || (input.arguments && !file.includes(input.arguments))) {
-      continue;
-    }
-
-    await import(join(testPath, file));
-  }
-};
-
-const bootstrapServices = async (emulators: EmulatorServices) => {
-  process.env.EZ4_IS_LOCAL = 'true';
-
-  for (const identifier in emulators) {
-    const emulator = emulators[identifier];
-
-    if (emulator.bootstrapHandler) {
-      await emulator.bootstrapHandler();
-    }
+  for (const testFile of testFiles) {
+    await import(join(workingDirectory, testFile));
   }
 };

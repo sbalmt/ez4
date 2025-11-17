@@ -1,8 +1,8 @@
 import type { Environment } from '@ez4/common';
 import type { Bucket } from '@ez4/storage';
-import type { syncStorageHandler } from './api/events/sync-storage';
-import type { syncStorageListener } from './common';
-import type { FileDb } from './dynamo';
+import type { syncStorageHandler } from '@/api/events/sync-storage';
+import type { syncStorageListener } from '@/common';
+import type { FileDb } from '@/dynamo';
 
 /**
  * Example of AWS Bucket deployed with EZ4.

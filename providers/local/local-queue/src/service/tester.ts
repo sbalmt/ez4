@@ -5,24 +5,24 @@ import { Tester } from '@ez4/project/library';
 
 import { mock } from 'node:test';
 
-import { createMockClient } from '../client/mock';
+import { createClientMock } from '../client/mock';
 
 export namespace QueueTester {
-  export type ClientMock = Client<Queue.Service<any>> & {
-    sendMessage: Mock<Client<Queue.Service<any>>['sendMessage']>;
-    receiveMessage: Mock<Client<Queue.Service<any>>['receiveMessage']>;
+  export type ClientMock<T extends Queue.Message> = Client<Queue.Service<T>> & {
+    receiveMessage: Mock<Client<Queue.Service<T>>['receiveMessage']>;
+    sendMessage: Mock<Client<Queue.Service<T>>['sendMessage']>;
   };
 
   export const getClient = <T extends Queue.Message>(resourceName: string) => {
     return Tester.getServiceClient(resourceName) as Client<Queue.Service<T>>;
   };
 
-  export const getClientMock = (resourceName?: string) => {
-    const client = createMockClient(resourceName ?? 'QueueMock');
+  export const getClientMock = <T extends Queue.Message = any>(resourceName: string) => {
+    const client = createClientMock(resourceName) as ClientMock<T>;
 
     mock.method(client, 'sendMessage');
     mock.method(client, 'receiveMessage');
 
-    return client as ClientMock;
+    return client;
   };
 }

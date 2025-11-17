@@ -27,10 +27,16 @@ export type ProjectOptions = {
   forceMode?: boolean;
 
   /**
-   * Determines whether the serve command must use the `localOptions`.
+   * Determines whether the serve and test commands must use the `localOptions`.
    * Default is: `false`
    */
   localMode?: boolean;
+
+  /**
+   * Determines whether the serve and test commands must reset local resources.
+   * Default is: `false`
+   */
+  resetMode?: boolean;
 
   /**
    * Project name that's combined with the `prefix`.
@@ -44,9 +50,19 @@ export type ProjectOptions = {
   packageFile?: string;
 
   /**
+   * Set a new `tsconfig.json` location relative to the current working directory.
+   */
+  tsconfigFile?: string;
+
+  /**
    * List of source files containing declarative resources.
    */
   sourceFiles: string[];
+
+  /**
+   * Configuration for the project state.
+   */
+  stateFile: ProjectStateOptions;
 
   /**
    * Configuration for imported projects.
@@ -54,9 +70,9 @@ export type ProjectOptions = {
   importProjects?: Record<string, ProjectImportOptions>;
 
   /**
-   * Configuration for the project state.
+   * Configuration for custom providers.
    */
-  stateFile: ProjectStateOptions;
+  customProviders?: ProjectCustomProviders;
 
   /**
    * Options for serving the local development.
@@ -107,6 +123,13 @@ export type ProjectImportOptions = {
   projectFile: string;
 };
 
+export type ProjectCustomProviders = {
+  /**
+   * Specify all the custom provider packages.
+   */
+  packages: string[];
+};
+
 export type ProjectServeOptions = {
   /**
    * Port to run the local development service.
@@ -125,5 +148,5 @@ export type ProjectWatchOptions = {
   /**
    * Specify additional watch paths.
    */
-  additionalPaths?: string[];
+  additionalPaths: string[];
 };

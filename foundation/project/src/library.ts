@@ -12,11 +12,11 @@ export * from './errors/provider';
 export * from './types/trigger';
 export * from './types/service';
 export * from './types/metadata';
-export * from './types/emulator';
+export * from './emulator/types';
 export * from './types/identity';
 export * from './types/options';
 
-export * from './services/storage';
+export * from './storage/utils';
 
 export * from './utils/definitions';
 export * from './utils/service';

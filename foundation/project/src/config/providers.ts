@@ -1,5 +1,7 @@
 import type { ProjectOptions } from '../types/project';
 
+import { isAnyObject } from '@ez4/utils';
+
 import { pathToFileURL } from 'node:url';
 import { join } from 'node:path';
 
@@ -8,6 +10,10 @@ export const loadProviders = async (options: ProjectOptions) => {
   const packagePath = join(process.cwd(), packageFile);
 
   const { namespace, providers } = await fetchProviderPackages(packagePath);
+
+  if (options.customProviders) {
+    providers.push(...options.customProviders.packages);
+  }
 
   const allProviders = providers.map(async (packageName) => {
     const registerTriggers = await tryImportProvider([`${packageName}/library`, packageName]);
@@ -56,6 +62,10 @@ const tryImportProvider = async (packageNames: string[]) => {
       if (registerTriggers) {
         return registerTriggers;
       }
-    } catch {}
+    } catch (error) {
+      if (!isAnyObject(error) || error.code !== 'ERR_PACKAGE_PATH_NOT_EXPORTED') {
+        throw error;
+      }
+    }
   }
 };

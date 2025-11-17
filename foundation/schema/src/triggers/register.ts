@@ -1,6 +1,6 @@
 import type { TypeObject } from '@ez4/reflection';
 
-import { createTrigger } from '@ez4/project/library';
+import { tryCreateTrigger } from '@ez4/project/library';
 
 import { getRichTypes, createRichType } from '../richtypes/utils';
 
@@ -14,7 +14,7 @@ export const registerTriggers = () => {
     return;
   }
 
-  createTrigger('@ez4/schema', {
+  tryCreateTrigger('@ez4/schema', {
     'reflection:loadFile': applyRichTypePath,
     'reflection:typeObject': applyRichTypeObject
   });

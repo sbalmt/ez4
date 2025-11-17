@@ -1,7 +1,7 @@
 import { equal, deepEqual } from 'assert/strict';
 import { describe, it } from 'node:test';
 
-import { createTrigger } from '@ez4/project/library';
+import { tryCreateTrigger } from '@ez4/project/library';
 
 import {
   registerTriggers,
@@ -60,7 +60,7 @@ describe('common metadata', () => {
     const { members, reflection } = loadTestMember('service');
     const testErrors: Error[] = [];
 
-    createTrigger('@ez4/project:test-service', {
+    tryCreateTrigger('@ez4/project:test-service', {
       'metadata:getLinkedService': (type) => {
         equal(type.name, 'TestService');
 

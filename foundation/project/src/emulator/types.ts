@@ -1,7 +1,9 @@
-import type { ServiceMetadata } from './service';
-import type { ServeOptions } from './options';
+import type { ServiceMetadata } from '../types/service';
+import type { ServeOptions } from '../types/options';
 
-export type EmulatorClientHandler = () => unknown;
+export type EmulatorExportHandler = () => unknown;
+
+export type EmulatorPrepareHandler = () => unknown;
 
 export type EmulatorBootstrapHandler = () => unknown;
 
@@ -25,22 +27,23 @@ export type EmulatorHandlerResponse = {
   body?: Buffer | string;
 };
 
-export type EmulatorService = {
+export type ServiceEmulator = {
   type: string;
   identifier: string;
   name: string;
-  clientHandler?: EmulatorClientHandler;
+  exportHandler?: EmulatorExportHandler;
+  prepareHandler?: EmulatorPrepareHandler;
   bootstrapHandler?: EmulatorBootstrapHandler;
   shutdownHandler?: EmulatorShutdownHandler;
   requestHandler?: EmulatorRequestHandler;
 };
 
-export type EmulatorServiceClients = Record<string, unknown>;
+export type ServiceEmulatorClients = Record<string, unknown>;
 
-export type EmulatorLinkedServices = Record<string, string>;
+export type LinkedServiceEmulators = Record<string, string>;
 
 export type EmulateServiceContext = {
-  makeClients: (linkedServices: EmulatorLinkedServices) => EmulatorServiceClients;
+  makeClients: (linkedServices: LinkedServiceEmulators) => ServiceEmulatorClients;
   makeClient: (serviceName: string) => unknown;
 };
 

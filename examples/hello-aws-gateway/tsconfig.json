@@ -5,7 +5,7 @@
     "declarationDir": "./dist",
     "noEmit": true
   },
-    "include": [
+  "include": [
     "./src",
     "./test"
   ]

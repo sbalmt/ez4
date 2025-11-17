@@ -1,25 +1,17 @@
 import type { DeployEvent, StateEvent } from '@ez4/project/library';
 
-import { createTrigger } from '@ez4/project/library';
+import { tryCreateTrigger } from '@ez4/project/library';
 
 import { loadStateFile, saveStateFile } from '../common/state';
 import { deploy, report } from '../common/provider';
 
-let isRegistered = false;
-
 export const registerTriggers = () => {
-  if (isRegistered) {
-    return;
-  }
-
-  createTrigger('@ez4/aws-common', {
+  tryCreateTrigger('@ez4/aws-common', {
     'deploy:plan': planDeploy,
     'deploy:apply': applyDeploy,
     'state:load': loadState,
     'state:save': saveState
   });
-
-  isRegistered = true;
 };
 
 const planDeploy = async (event: DeployEvent) => {

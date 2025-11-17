@@ -8,7 +8,7 @@ import { toKebabCase } from '@ez4/utils';
 import { applyDeploy } from '../../actions/deploy';
 import { loadLocalState, loadRemoteState, saveLocalState, saveRemoteState } from '../../actions/state';
 import { reportResourceChanges } from '../../report/report';
-import { loadProviders } from '../../common/providers';
+import { loadProviders } from '../../config/providers';
 import { waitConfirmation } from '../../utils/prompt';
 import { assertNoErrors } from '../../utils/errors';
 

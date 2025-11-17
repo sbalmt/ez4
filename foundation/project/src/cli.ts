@@ -2,6 +2,7 @@
 import { spawn } from 'node:child_process';
 import { join } from 'node:path';
 
+import { CommandType, getInputOptions } from './terminal/options';
 import { checkMinNodeVersion } from './terminal/version';
 
 checkMinNodeVersion();
@@ -9,17 +10,30 @@ checkMinNodeVersion();
 const applicationPath = join(import.meta.dirname, './application.mjs');
 const extensionsPath = join(import.meta.dirname, './extensions.mjs');
 
+const options = getInputOptions();
+
+if (options?.projectFile) {
+  process.env.EZ4_PROJECT_FILE = options?.projectFile;
+}
+
+const extraArguments = [];
+
+if (options?.command === CommandType.Serve || options?.command === CommandType.Test) {
+  extraArguments.push('--experimental-test-module-mocks', '--enable-source-maps');
+}
+
 spawn(
   'node',
   [
-    // Enforce options
+    // Invocation options
+    '--no-warnings',
     '--experimental-strip-types',
     '--experimental-transform-types',
-    '--experimental-test-module-mocks',
-    '--enable-source-maps',
-    '--no-warnings',
 
-    // Handle file extensions
+    // Extra arguments
+    ...extraArguments,
+
+    // Custom loader options
     '--loader',
     extensionsPath,
 

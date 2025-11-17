@@ -28,7 +28,7 @@ export const registerLocalServices = (service: TopicService, options: ServeOptio
     type: 'Topic',
     name: serviceName,
     identifier: getServiceName(serviceName, options),
-    clientHandler: () => {
+    exportHandler: () => {
       return createLocalClient(serviceName, messageSchema, clientOptions);
     },
     requestHandler: (request: EmulatorServiceRequest) => {
