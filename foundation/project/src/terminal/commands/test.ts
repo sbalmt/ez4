@@ -63,7 +63,7 @@ export const testCommand = async (input: InputOptions, project: ProjectOptions) 
 
   const workingDirectory = process.cwd();
 
-  const testFiles = await Logger.execute('⚡ Preparing tests', async () => {
+  const testFiles = await Logger.execute('⚡ Running tests', async () => {
     Tester.configure(emulators, options);
 
     await prepareServices(emulators);
