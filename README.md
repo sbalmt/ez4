@@ -1,15 +1,12 @@
-<h1 style="background: #F7F7F8; color: #000000; padding: 1.5rem;">
-  <div style="display: flex; justify-content: center; align-items: center;">
-    <div style="margin-right: 0.5rem;">
-      <img src="./assets/logo.svg" alt="EZ4 Logo" width="60"/>
-    </div>
-    <div style="height: 3.25rem;">
-      Develop & Deploy 🚀
-    </div>
-  </div>
-</h1>
+<p align="center">
+  <img src="./assets/logo.svg" alt="EZ4 Logo" width="128"/>
+</p>
 
-<div style="text-align: center;">
+<div align="center">
+  <h1>Develop & Deploy 🚀</h1>
+</div>
+
+<div align="center">
   A collection of high-quality components that make it EZ4 building modern applications on top of AWS with NodeJS and TypeScript.
 </div>
 
