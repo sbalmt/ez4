@@ -27,6 +27,11 @@
       "types": "./dist/test.d.ts",
       "require": "./dist/test.cjs",
       "import": "./dist/test.mjs"
+    },
+    "./run": {
+      "types": "./dist/run.d.ts",
+      "require": "./dist/run.cjs",
+      "import": "./dist/run.mjs"
     }
   },
   "workspaces": [

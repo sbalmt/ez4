@@ -13,6 +13,7 @@
     "examples/*"
   ],
   "scripts": {
+    "seed": "tsc && ez4 run -e local.env -- ./src/seed.ts",
     "deploy": "tsc && ez4 deploy -e local.env",
     "destroy": "ez4 destroy -e local.env --force",
     "serve": "ez4 serve -e local.env"

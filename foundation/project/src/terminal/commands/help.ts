@@ -10,6 +10,7 @@ export const helpCommand = () => {
     '  destroy  Remove all resources from the last deploy for the given project',
     '  serve    Emulate locally all resources for the given project',
     '  test     Serve and run any test suite for the given project',
+    '  run      Serve and run any script for the given project',
     '  help     Display the command line options',
     '',
     'Options:',

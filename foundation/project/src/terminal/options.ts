@@ -3,6 +3,7 @@ export const enum CommandType {
   Destroy = 'destroy',
   Serve = 'serve',
   Test = 'test',
+  Run = 'run',
   Help = 'help'
 }
 
@@ -33,6 +34,7 @@ export const getInputOptions = () => {
       case CommandType.Destroy:
       case CommandType.Serve:
       case CommandType.Test:
+      case CommandType.Run:
       case CommandType.Help:
         options.command = argument;
         break;
