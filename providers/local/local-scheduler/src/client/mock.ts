@@ -2,17 +2,17 @@ import type { Client, Cron, ScheduleEvent } from '@ez4/scheduler';
 
 import { Logger } from '@ez4/project/library';
 
-export type ClientMockSchedules<T extends Cron.Event> = {
+export type ClientMockOptions<T extends Cron.Event> = {
   events?: Record<string, ScheduleEvent<T>>;
   default?: ScheduleEvent<T>;
 };
 
-export const createClientMock = (_serviceName: string, schedules?: ClientMockSchedules<Cron.Event>): Client<any> => {
-  const schedulerMemory = schedules?.events ?? {};
+export const createClientMock = (_serviceName: string, options?: ClientMockOptions<Cron.Event>): Client<any> => {
+  const schedulerMemory = options?.events ?? {};
 
   return new (class {
     async getEvent(identifier: string) {
-      const event = schedulerMemory[identifier] ?? schedules?.default;
+      const event = schedulerMemory[identifier] ?? options?.default;
 
       return Promise.resolve(event);
     }
@@ -28,7 +28,7 @@ export const createClientMock = (_serviceName: string, schedules?: ClientMockSch
     }
 
     async updateEvent(identifier: string, input: Partial<ScheduleEvent<any>>) {
-      const event = schedulerMemory[identifier] ?? schedules?.default;
+      const event = schedulerMemory[identifier] ?? options?.default;
 
       if (!event) {
         throw new Error(`Event ${identifier} not found.`);
@@ -46,7 +46,7 @@ export const createClientMock = (_serviceName: string, schedules?: ClientMockSch
 
     async deleteEvent(identifier: string) {
       if (!schedulerMemory[identifier]) {
-        if (!schedules?.default) {
+        if (!options?.default) {
           Logger.warn(`Event ${identifier} not found.`);
 
           return Promise.resolve(false);
