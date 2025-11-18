@@ -1,4 +1,5 @@
 import type { EntryStates } from '@ez4/stateful';
+import type { ProjectStateOptions } from '../types/project';
 import type { DeployOptions } from '../types/options';
 
 import { triggerAllAsync } from '@ez4/project/library';
@@ -7,7 +8,7 @@ import { readFile, writeFile } from 'node:fs/promises';
 import { existsSync } from 'node:fs';
 import { basename } from 'node:path';
 
-export const combineStates = (newState: EntryStates, oldState: EntryStates) => {
+export const mergeState = (newState: EntryStates, oldState: EntryStates) => {
   for (const entityId in newState) {
     if (newState[entityId]) {
       newState[entityId].result = oldState[entityId]?.result;
@@ -15,67 +16,68 @@ export const combineStates = (newState: EntryStates, oldState: EntryStates) => {
   }
 };
 
-export const loadLocalState = async (filePath: string): Promise<EntryStates> => {
-  if (existsSync(filePath)) {
-    const buffer = await readFile(filePath);
+export const loadState = async (stateOptions: ProjectStateOptions, deployOptions: DeployOptions) => {
+  if (!stateOptions.remote) {
+    const path = getPath('.', stateOptions.path);
 
-    return unpackState(buffer);
+    if (existsSync(path)) {
+      return unpackState(await readFile(path));
+    }
+
+    return {};
+  }
+
+  const path = getPath(deployOptions.projectName, stateOptions.path);
+
+  const data = await triggerAllAsync('state:load', (handler) =>
+    handler({
+      options: deployOptions,
+      path
+    })
+  );
+
+  if (data) {
+    return unpackState(data);
   }
 
   return {};
 };
 
-export const loadRemoteState = async (filePath: string, options: DeployOptions): Promise<EntryStates> => {
-  const path = getRemotePath(options.projectName, filePath);
+export const saveState = (stateOptions: ProjectStateOptions, deployOptions: DeployOptions, state: EntryStates) => {
+  const data = packState(state);
 
-  const buffer = await triggerAllAsync('state:load', (handler) =>
-    handler({
-      options,
-      path
-    })
-  );
+  if (!stateOptions.remote) {
+    const path = getPath('.', stateOptions.path);
 
-  if (buffer) {
-    return unpackState(buffer);
+    return writeFile(path, data);
   }
 
-  return {};
-};
+  const path = getPath(deployOptions.projectName, stateOptions.path);
 
-export const saveLocalState = async (filePath: string, state: EntryStates) => {
-  const contents = packState(state);
-
-  await writeFile(filePath, contents);
-};
-
-export const saveRemoteState = async (filePath: string, options: DeployOptions, state: EntryStates) => {
-  const path = getRemotePath(options.projectName, filePath);
-  const contents = packState(state);
-
-  await triggerAllAsync('state:save', (handler) =>
+  return triggerAllAsync('state:save', (handler) =>
     handler({
-      options,
-      contents,
+      options: deployOptions,
+      contents: data,
       path
     })
   );
 };
 
-const getRemotePath = (projectName: string, filePath: string) => {
-  return `${projectName}/${basename(filePath)}`;
+const getPath = (baseDirectory: string, filePath: string) => {
+  return `${baseDirectory}/${basename(filePath)}.ezstate`;
 };
 
 const packState = (state: EntryStates) => {
-  const stateData = {
+  const data = {
     lastUpdate: new Date().toISOString(),
     state
   };
 
-  return JSON.stringify(stateData, undefined, 2);
+  return JSON.stringify(data, undefined, 2);
 };
 
 const unpackState = (buffer: Buffer) => {
-  const stateData = JSON.parse(buffer.toString());
+  const data = JSON.parse(buffer.toString());
 
-  return stateData.state ?? {};
+  return data.state ?? {};
 };

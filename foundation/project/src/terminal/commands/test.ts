@@ -41,17 +41,11 @@ export const testCommand = async (input: InputOptions, project: ProjectOptions) 
     Logger.setLevel(LogLevel.Debug);
   }
 
-  await Logger.execute('🔄️ Loading providers', () => {
-    return loadProviders(project);
+  const [aliasPaths, allImports] = await Logger.execute('⚡ Initializing', () => {
+    return Promise.all([loadAliasPaths(project), loadImports(project), loadProviders(project)]);
   });
 
-  const aliasPaths = await Logger.execute('🔄️ Loading tsconfig', () => {
-    return loadAliasPaths(project);
-  });
-
-  options.imports = await Logger.execute('🔄️ Loading imports', () => {
-    return loadImports(project);
-  });
+  options.imports = allImports;
 
   const emulators = await Logger.execute('🔄️ Loading emulators', () => {
     const { metadata } = buildMetadata(project.sourceFiles, {
@@ -63,7 +57,7 @@ export const testCommand = async (input: InputOptions, project: ProjectOptions) 
 
   const workingDirectory = process.cwd();
 
-  const testFiles = await Logger.execute('⚡ Running tests', async () => {
+  const testFiles = await Logger.execute('🧪 Running tests', async () => {
     Tester.configure(emulators, options);
 
     await prepareServices(emulators);

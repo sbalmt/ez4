@@ -6,7 +6,7 @@ import { Logger } from '@ez4/project/library';
 import { toKebabCase } from '@ez4/utils';
 
 import { applyDeploy } from '../../actions/deploy';
-import { loadLocalState, loadRemoteState, saveLocalState, saveRemoteState } from '../../actions/state';
+import { loadState, saveState } from '../../actions/state';
 import { reportResourceChanges } from '../../report/report';
 import { loadProviders } from '../../config/providers';
 import { waitConfirmation } from '../../utils/prompt';
@@ -24,15 +24,12 @@ export const destroyCommand = async (project: ProjectOptions) => {
     Logger.log('‼️  Force option is enabled');
   }
 
-  await Logger.execute('🔄️ Loading providers', () => {
+  await Logger.execute('⚡ Initializing', () => {
     return loadProviders(project);
   });
 
-  const stateFile = project.stateFile;
-  const statePath = `${stateFile.path}.ezstate`;
-
   const oldState = await Logger.execute('🔄️ Loading state', () => {
-    return stateFile.remote ? loadRemoteState(statePath, options) : loadLocalState(statePath);
+    return loadState(project.stateFile, options);
   });
 
   const newState: EntryStates = {};
@@ -54,12 +51,8 @@ export const destroyCommand = async (project: ProjectOptions) => {
 
   const applyState = await applyDeploy(newState, oldState, options.force);
 
-  await Logger.execute('💾 Saving state', () => {
-    if (stateFile.remote) {
-      return saveRemoteState(statePath, options, applyState.result);
-    }
-
-    return saveLocalState(statePath, applyState.result);
+  await Logger.execute('✅ Saving state', () => {
+    return saveState(project.stateFile, options, applyState.result);
   });
 
   assertNoErrors(applyState.errors);

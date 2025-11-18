@@ -35,22 +35,16 @@ export const serveCommand = async (project: ProjectOptions) => {
     Logger.setLevel(LogLevel.Debug);
   }
 
-  const namespacePath = await Logger.execute('🔄️ Loading providers', () => {
-    return loadProviders(project);
-  });
-
-  const aliasPaths = await Logger.execute('🔄️ Loading tsconfig', () => {
-    return loadAliasPaths(project);
-  });
-
-  options.imports = await Logger.execute('🔄️ Loading imports', () => {
-    return loadImports(project);
+  const [aliasPaths, allImports, namespacePath] = await Logger.execute('⚡ Initializing', () => {
+    return Promise.all([loadAliasPaths(project), loadImports(project), loadProviders(project)]);
   });
 
   let emulators: ServiceEmulators = {};
   let isRunning = false;
 
   const additionalPaths = project.watchOptions?.additionalPaths ?? [];
+
+  options.imports = allImports;
 
   const watcher = await watchMetadata(project.sourceFiles, {
     additionalPaths: [namespacePath, ...additionalPaths],

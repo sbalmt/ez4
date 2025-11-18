@@ -9,7 +9,7 @@ import { applyDeploy } from '../../actions/deploy';
 import { getEventContext } from '../../actions/common';
 import { prepareExecutionRole } from '../../actions/identity';
 import { prepareLinkedServices } from '../../actions/services';
-import { combineStates, loadRemoteState, loadLocalState, saveRemoteState, saveLocalState } from '../../actions/state';
+import { mergeState, loadState, saveState } from '../../actions/state';
 import { connectDeployResources, prepareDeployResources } from '../../actions/resources';
 import { reportResourceChanges } from '../../report/report';
 import { loadProviders } from '../../config/providers';
@@ -33,17 +33,11 @@ export const deployCommand = async (project: ProjectOptions) => {
     Logger.log('‼️  Force option is enabled');
   }
 
-  await Logger.execute('🔄️ Loading providers', () => {
-    return loadProviders(project);
+  const [aliasPaths, allImports] = await Logger.execute('⚡ Initializing', () => {
+    return Promise.all([loadAliasPaths(project), loadImports(project), loadProviders(project)]);
   });
 
-  const aliasPaths = await Logger.execute('🔄️ Loading tsconfig', () => {
-    return loadAliasPaths(project);
-  });
-
-  options.imports = await Logger.execute('🔄️ Loading imports', () => {
-    return loadImports(project);
-  });
+  options.imports = allImports;
 
   const { metadata, dependencies } = await Logger.execute('🔄️ Loading metadata', () => {
     return buildMetadata(project.sourceFiles, {
@@ -51,15 +45,8 @@ export const deployCommand = async (project: ProjectOptions) => {
     });
   });
 
-  const stateFile = project.stateFile;
-  const statePath = `${stateFile.path}.ezstate`;
-
   const oldState = await Logger.execute('🔄️ Loading state', () => {
-    if (stateFile.remote) {
-      return loadRemoteState(statePath, options);
-    }
-
-    return loadLocalState(statePath);
+    return loadState(project.stateFile, options);
   });
 
   const newState: EntryStates = {};
@@ -72,7 +59,7 @@ export const deployCommand = async (project: ProjectOptions) => {
 
   await connectDeployResources(newState, metadata, context, options);
 
-  combineStates(newState, oldState);
+  mergeState(newState, oldState);
 
   const hasChanges = await reportResourceChanges(newState, oldState, options.force);
 
@@ -92,12 +79,8 @@ export const deployCommand = async (project: ProjectOptions) => {
 
   const applyState = await applyDeploy(newState, oldState, options.force);
 
-  await Logger.execute('💾 Saving state', () => {
-    if (stateFile.remote) {
-      return saveRemoteState(statePath, options, applyState.result);
-    }
-
-    return saveLocalState(statePath, applyState.result);
+  await Logger.execute('✅ Saving state', () => {
+    return saveState(project.stateFile, options, applyState.result);
   });
 
   assertNoErrors(applyState.errors);
