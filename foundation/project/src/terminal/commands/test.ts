@@ -39,6 +39,7 @@ export const testCommand = async (input: InputOptions, project: ProjectOptions) 
   });
 
   const workingDirectory = process.cwd();
+  const filePatterns = input.arguments;
 
   const testFiles = await Logger.execute('🧪 Running tests', async () => {
     Tester.configure(emulators, options);
@@ -53,7 +54,7 @@ export const testCommand = async (input: InputOptions, project: ProjectOptions) 
 
     return allFiles.filter((file) => {
       if (TestFilePattern.test(file)) {
-        return !input.arguments || file.includes(input.arguments);
+        return !filePatterns || filePatterns.some((filePattern) => file.includes(filePattern));
       }
 
       return false;

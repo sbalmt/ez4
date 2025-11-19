@@ -2,6 +2,7 @@ import type { ApplyResult, EntryState, EntryStates, StepState } from '@ez4/state
 import type { EveryType, SourceMap, TypeClass, TypeObject } from '@ez4/reflection';
 import type { ServiceEmulator, EmulateServiceEvent, EmulateClientEvent } from '../emulator/types';
 import type { ResourceOutput, ResourceOutputEvent } from '../deploy/output';
+import type { GenerateResourceEvent } from '../generator/events';
 import type { IdentityAccount, IdentityGrant } from './identity';
 import type { ServiceMetadata, ContextSource } from './service';
 import type { DeployOptions, DestroyOptions } from './options';
@@ -28,6 +29,7 @@ export type SyncEvent = {
 };
 
 export type AsyncEvent = {
+  'generator:createResource': (event: GenerateResourceEvent) => AsyncEventResult<void>;
   'emulator:getClient': (event: EmulateClientEvent) => AsyncEventResult<unknown>;
   'emulator:getServices': (event: EmulateServiceEvent) => AsyncEventResult<ServiceEmulator>;
   'emulator:startService': (event: EmulateServiceEvent) => AsyncEventResult<void>;

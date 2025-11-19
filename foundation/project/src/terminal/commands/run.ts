@@ -11,6 +11,7 @@ import { loadAliasPaths } from '../../config/tsconfig';
 import { loadProviders } from '../../config/providers';
 import { loadImports } from '../../config/imports';
 
+import { existsSync } from 'node:fs';
 import { join } from 'node:path';
 
 export const runCommand = async (input: InputOptions, project: ProjectOptions) => {
@@ -34,6 +35,7 @@ export const runCommand = async (input: InputOptions, project: ProjectOptions) =
     return getServiceEmulators(metadata, options);
   });
 
+  const allScriptFiles = input.arguments ?? [];
   const workingDirectory = process.cwd();
 
   await Logger.execute('▶️  Running script', async () => {
@@ -43,8 +45,15 @@ export const runCommand = async (input: InputOptions, project: ProjectOptions) =
 
     await bootstrapServices(emulators);
 
-    if (input.arguments) {
-      await import(join(workingDirectory, input.arguments));
+    for (const scriptFile of allScriptFiles) {
+      const scriptPath = join(workingDirectory, scriptFile);
+
+      if (!existsSync(scriptPath)) {
+        Logger.error(`File ${scriptFile} not found.`);
+        continue;
+      }
+
+      await import(scriptPath);
     }
 
     await shutdownServices(emulators);
