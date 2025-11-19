@@ -40,7 +40,7 @@ export const getResourcesOutput = (state: EntryStates) => {
   return outputs;
 };
 
-export const printResourcesOutput = (state: EntryStates) => {
+export const reportResourcesOutput = (state: EntryStates) => {
   const outputs = getResourcesOutput(state);
 
   if (outputs) {

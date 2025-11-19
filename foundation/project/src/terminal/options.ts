@@ -1,7 +1,7 @@
 export const enum CommandType {
   Deploy = 'deploy',
-  Output = 'output',
   Destroy = 'destroy',
+  Output = 'output',
   Run = 'run',
   Serve = 'serve',
   Test = 'test',

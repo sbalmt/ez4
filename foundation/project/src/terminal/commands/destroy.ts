@@ -5,7 +5,7 @@ import { Logger } from '@ez4/project/library';
 
 import { applyDeploy } from '../../deploy/apply';
 import { loadState, saveState } from '../../utils/state';
-import { reportResourceChanges } from '../../report/report';
+import { reportResourceChanges } from '../../deploy/changes';
 import { getDeployOptions } from '../../deploy/options';
 import { loadProviders } from '../../config/providers';
 import { waitConfirmation } from '../../utils/prompt';

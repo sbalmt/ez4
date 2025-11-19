@@ -3,7 +3,7 @@ import type { ProjectOptions } from '../../types/project';
 import { Logger } from '@ez4/project/library';
 
 import { loadProviders } from '../../config/providers';
-import { printResourcesOutput } from '../../deploy/output';
+import { reportResourcesOutput } from '../../deploy/output';
 import { getDeployOptions } from '../../deploy/options';
 import { loadState } from '../../utils/state';
 
@@ -18,5 +18,5 @@ export const outputCommand = async (project: ProjectOptions) => {
     return loadState(project.stateFile, options);
   });
 
-  printResourcesOutput(currentState);
+  reportResourcesOutput(currentState);
 };

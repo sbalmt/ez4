@@ -9,8 +9,8 @@ import { prepareExecutionRole } from '../../deploy/identity';
 import { prepareLinkedServices } from '../../deploy/services';
 import { mergeState, loadState, saveState } from '../../utils/state';
 import { connectDeployResources, prepareDeployResources } from '../../deploy/resources';
-import { reportResourceChanges } from '../../report/report';
-import { printResourcesOutput } from '../../deploy/output';
+import { reportResourceChanges } from '../../deploy/changes';
+import { reportResourcesOutput } from '../../deploy/output';
 import { getDeployOptions } from '../../deploy/options';
 import { loadProviders } from '../../config/providers';
 import { loadAliasPaths } from '../../config/tsconfig';
@@ -59,7 +59,7 @@ export const deployCommand = async (project: ProjectOptions) => {
   if (!hasChanges && !options.force) {
     Logger.log('ℹ️  No changes');
 
-    printResourcesOutput(newState);
+    reportResourcesOutput(newState);
     return;
   }
 
@@ -77,7 +77,7 @@ export const deployCommand = async (project: ProjectOptions) => {
     return saveState(project.stateFile, options, deployState.result);
   });
 
-  printResourcesOutput(deployState.result);
+  reportResourcesOutput(deployState.result);
 
   assertNoErrors(deployState.errors);
 };
