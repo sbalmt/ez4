@@ -1,13 +1,12 @@
 import type { ProjectOptions } from '../../types/project';
-import type { ServeOptions } from '../../types/options';
 import type { InputOptions } from '../options';
 
 import { Runner, Logger, LogLevel } from '@ez4/project/library';
-import { toKebabCase } from '@ez4/utils';
 
 import { buildMetadata } from '../../library/metadata';
 import { getServiceEmulators } from '../../emulator/utils';
 import { bootstrapServices, prepareServices, shutdownServices } from '../../emulator/actions';
+import { getServeOptions } from '../../emulator/options';
 import { loadAliasPaths } from '../../config/tsconfig';
 import { loadProviders } from '../../config/providers';
 import { loadImports } from '../../config/imports';
@@ -15,24 +14,7 @@ import { loadImports } from '../../config/imports';
 import { join } from 'node:path';
 
 export const runCommand = async (input: InputOptions, project: ProjectOptions) => {
-  const serveOptions = project.serveOptions;
-
-  const serviceHost = serveOptions?.localHost ?? 'localhost';
-  const servicePort = serveOptions?.localPort ?? 3734;
-
-  const options: ServeOptions = {
-    resourcePrefix: project.prefix ?? 'ez4',
-    projectName: toKebabCase(project.projectName),
-    serviceHost: `${serviceHost}:${servicePort}`,
-    localOptions: project.localOptions ?? {},
-    variables: project.variables,
-    force: project.debugMode,
-    debug: project.debugMode,
-    reset: project.resetMode,
-    local: project.localMode,
-    test: true,
-    version: 0
-  };
+  const options = getServeOptions(project);
 
   if (options.debug) {
     Logger.setLevel(LogLevel.Debug);
