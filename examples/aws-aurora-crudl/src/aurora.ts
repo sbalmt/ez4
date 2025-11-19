@@ -38,6 +38,7 @@ export declare class Db extends Database.Service {
       };
       indexes: {
         id: Index.Primary;
+        category_id: Index.Secondary;
         created_at: Index.Secondary;
       };
     },

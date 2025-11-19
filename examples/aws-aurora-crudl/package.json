@@ -16,6 +16,7 @@
     "seed": "tsc && ez4 run -e local.env -- ./src/seed.ts",
     "deploy": "tsc && ez4 deploy -e local.env",
     "destroy": "ez4 destroy -e local.env --force",
+    "generate:erd": "ez4 generate -- database:erd docs/",
     "serve": "ez4 serve -e local.env"
   },
   "dependencies": {
@@ -23,6 +24,7 @@
     "@ez4/aws-gateway": "^0.33.0",
     "@ez4/common": "^0.33.0",
     "@ez4/database": "^0.33.0",
+    "@ez4/docs-database": "^0.33.0",
     "@ez4/gateway": "^0.33.0",
     "@ez4/local-gateway": "^0.33.0",
     "@ez4/local-database": "^0.33.0",

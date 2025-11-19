@@ -1,0 +1,15 @@
+erDiagram
+	items {
+		id string PK
+		name string
+		description string
+		category_id string FK
+		created_at string
+		updated_at string
+	}
+	categories {
+		id string PK
+		name string
+		description string
+	}
+	categories |o--o{ items : "categories(id) → items(category_id)"
