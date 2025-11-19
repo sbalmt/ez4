@@ -1,4 +1,4 @@
-import type { GenerateResourceEvent, MetadataReflection } from '@ez4/project/library';
+import { Logger, type GenerateResourceEvent, type MetadataReflection } from '@ez4/project/library';
 import type { DatabaseService, DatabaseTable, TableIndex, TableRelation } from '@ez4/database/library';
 import type { ObjectSchemaProperties } from '@ez4/schema';
 
@@ -19,14 +19,18 @@ export const generateResource = async (event: GenerateResourceEvent) => {
 
       for (const database of databases) {
         const outputFile = join(outputPath, `${toKebabCase(database.name)}-erd.mmd`);
-        const outputContent = generateDatabaseOutput(database);
+        const outputContent = getDatabaseOutput(database);
 
         await writeFile(outputFile, outputContent);
+
+        Logger.success(`ERD saved to ${outputFile}`);
       }
 
-      break;
+      return true;
     }
   }
+
+  return null;
 };
 
 const getDatabaseServices = (metadata: MetadataReflection) => {
@@ -45,7 +49,7 @@ const getDatabaseServices = (metadata: MetadataReflection) => {
   return databaseServices;
 };
 
-const generateDatabaseOutput = (databaseService: DatabaseService) => {
+const getDatabaseOutput = (databaseService: DatabaseService) => {
   const output = ['erDiagram'];
 
   for (const table of databaseService.tables) {

@@ -29,7 +29,7 @@ export type SyncEvent = {
 };
 
 export type AsyncEvent = {
-  'generator:createResource': (event: GenerateResourceEvent) => AsyncEventResult<void>;
+  'generator:createResource': (event: GenerateResourceEvent) => AsyncEventResult<boolean>;
   'emulator:getClient': (event: EmulateClientEvent) => AsyncEventResult<unknown>;
   'emulator:getServices': (event: EmulateServiceEvent) => AsyncEventResult<ServiceEmulator>;
   'emulator:startService': (event: EmulateServiceEvent) => AsyncEventResult<void>;

@@ -4,7 +4,7 @@ import type { ServeOptions } from '../types/options';
 
 import { getServiceName, triggerAllAsync } from '@ez4/project/library';
 
-import { MissingEmulatorProvider } from '../errors/provider';
+import { MissingEmulatorProvider } from './errors';
 
 export type ServiceEmulators = Record<string, ServiceEmulator>;
 

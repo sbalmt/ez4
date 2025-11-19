@@ -14,6 +14,7 @@ export * from './emulator/tester';
 export * from './emulator/runner';
 export * from './emulator/types';
 
+export * from './generator/errors';
 export * from './generator/events';
 
 export * from './deploy/output';
