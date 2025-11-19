@@ -1,7 +1,7 @@
 import type { EntryStates, EntryState } from '@ez4/stateful';
 
 import { triggerAllSync } from '@ez4/project/library';
-import { isNullish } from '@ez4/utils';
+import { isEmptyObject, isNullish } from '@ez4/utils';
 
 import { toBold } from '../utils/format';
 
@@ -15,7 +15,7 @@ export type ResourceOutput = {
 };
 
 export const getResourcesOutput = (state: EntryStates) => {
-  const outputs: ResourceOutput[] = [];
+  const outputs: Record<string, string | number | boolean> = {};
 
   triggerAllSync('deploy:resourceOutput', (handler) => {
     for (const identifier in state) {
@@ -24,8 +24,8 @@ export const getResourcesOutput = (state: EntryStates) => {
       if (serviceState) {
         const output = handler({ serviceState });
 
-        if (output) {
-          outputs.push(output);
+        if (!isNullish(output?.value)) {
+          outputs[output.label] = output.value;
         }
       }
     }
@@ -33,23 +33,23 @@ export const getResourcesOutput = (state: EntryStates) => {
     return null;
   });
 
+  if (isEmptyObject(outputs)) {
+    return undefined;
+  }
+
   return outputs;
 };
 
 export const printResourcesOutput = (state: EntryStates) => {
   const outputs = getResourcesOutput(state);
 
-  if (outputs.length) {
+  if (outputs) {
     console.log(``);
-  }
 
-  for (const output of outputs) {
-    if (!isNullish(output.value)) {
-      console.log(`${toBold(output.label)}: ${output.value}`);
+    for (const label in outputs) {
+      console.log(`${toBold(label)}: ${outputs[label]}`);
     }
-  }
 
-  if (outputs.length) {
     console.log('');
   }
 };
