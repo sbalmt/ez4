@@ -1,33 +1,26 @@
 import type { EntryStates } from '@ez4/stateful';
 import type { ProjectOptions } from '../../types/project';
-import type { DeployOptions } from '../../types/options';
 
 import { Logger } from '@ez4/project/library';
-import { toKebabCase } from '@ez4/utils';
 
-import { applyDeploy } from '../../actions/deploy';
-import { getEventContext } from '../../actions/common';
-import { prepareExecutionRole } from '../../actions/identity';
-import { prepareLinkedServices } from '../../actions/services';
-import { mergeState, loadState, saveState } from '../../actions/state';
-import { connectDeployResources, prepareDeployResources } from '../../actions/resources';
+import { applyDeploy } from '../../deploy/apply';
+import { getEventContext } from '../../deploy/context';
+import { prepareExecutionRole } from '../../deploy/identity';
+import { prepareLinkedServices } from '../../deploy/services';
+import { mergeState, loadState, saveState } from '../../utils/state';
+import { connectDeployResources, prepareDeployResources } from '../../deploy/resources';
 import { reportResourceChanges } from '../../report/report';
+import { printResourcesOutput } from '../../deploy/output';
+import { getDeployOptions } from '../../deploy/options';
 import { loadProviders } from '../../config/providers';
 import { loadAliasPaths } from '../../config/tsconfig';
 import { loadImports } from '../../config/imports';
-import { waitConfirmation } from '../../utils/prompt';
 import { buildMetadata } from '../../library/metadata';
+import { waitConfirmation } from '../../utils/prompt';
 import { assertNoErrors } from '../../utils/errors';
 
 export const deployCommand = async (project: ProjectOptions) => {
-  const options: DeployOptions = {
-    resourcePrefix: toKebabCase(project.prefix ?? 'ez4'),
-    projectName: toKebabCase(project.projectName),
-    variables: project.variables,
-    debug: project.debugMode,
-    force: project.forceMode,
-    tags: project.tags
-  };
+  const options = getDeployOptions(project);
 
   if (options.force) {
     Logger.log('‼️  Force option is enabled');
@@ -65,23 +58,26 @@ export const deployCommand = async (project: ProjectOptions) => {
 
   if (!hasChanges && !options.force) {
     Logger.log('ℹ️  No changes');
+
+    printResourcesOutput(newState);
     return;
   }
 
   if (project.confirmMode !== false) {
-    const proceed = await waitConfirmation('⁉️  Are you sure you want to proceed?');
+    const canProceed = await waitConfirmation('⁉️  Are you sure you want to proceed?');
 
-    if (!proceed) {
-      Logger.log('⛔ Aborted');
-      return;
+    if (!canProceed) {
+      return Logger.log('⛔ Aborted');
     }
   }
 
-  const applyState = await applyDeploy(newState, oldState, options.force);
+  const deployState = await applyDeploy(newState, oldState, options.force);
 
   await Logger.execute('✅ Saving state', () => {
-    return saveState(project.stateFile, options, applyState.result);
+    return saveState(project.stateFile, options, deployState.result);
   });
 
-  assertNoErrors(applyState.errors);
+  printResourcesOutput(deployState.result);
+
+  assertNoErrors(deployState.errors);
 };
