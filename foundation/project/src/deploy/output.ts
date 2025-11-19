@@ -40,16 +40,16 @@ export const printResourcesOutput = (state: EntryStates) => {
   const outputs = getResourcesOutput(state);
 
   if (outputs.length) {
-    console.log(`\n${toBold('Output:')}\n`);
+    console.log(``);
   }
 
   for (const output of outputs) {
-    if (isNullish(output.value)) {
-      continue;
+    if (!isNullish(output.value)) {
+      console.log(`${toBold(output.label)}: ${output.value}`);
     }
+  }
 
-    console.log(`  ${output.label}`);
-    console.log(`    - ${output.value}`);
+  if (outputs.length) {
     console.log('');
   }
 };
