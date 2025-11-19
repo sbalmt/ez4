@@ -15,7 +15,8 @@
   "scripts": {
     "deploy": "tsc && ez4 deploy -e local.env",
     "destroy": "ez4 destroy -e local.env",
-    "serve": "ez4 serve -e local.env"
+    "serve": "ez4 serve -e local.env",
+    "output": "ez4 output -e local.env"
   },
   "dependencies": {
     "hello-aws-gateway": "^0.0.0",
