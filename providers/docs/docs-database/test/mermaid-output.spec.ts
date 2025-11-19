@@ -28,6 +28,6 @@ const testFile = (fileName: string, overwrite = false) => {
 describe('database documentation (mermaid output)', () => {
   it('assert :: empty databases', () => testFile('empty'));
   it('assert :: database tables', () => testFile('tables'));
-  it('assert :: table relations (one-to-one)', () => testFile('one-to-one'));
   it('assert :: table relations (one-to-many)', () => testFile('one-to-many'));
+  it('assert :: table relations (one-to-one)', () => testFile('one-to-one'));
 });

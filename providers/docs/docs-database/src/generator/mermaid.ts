@@ -28,30 +28,30 @@ export const getColumnsOutput = (columns: ObjectSchemaProperties, relations: Tab
   const output = [];
 
   for (const name in columns) {
+    const relation = relations.find((relation) => relation.targetColumn === name);
     const index = indexes.find((index) => index.columns.includes(name));
 
     const schema = columns[name];
     const column = [name, schema.type];
 
-    switch (index?.type) {
-      default: {
-        const relation = relations.find((relation) => relation.targetColumn === name);
-        const indexType = relation?.sourceIndex;
+    const indexType = relation?.sourceIndex;
 
-        if (indexType === Index.Primary || indexType === Index.Unique) {
-          column.push('FK');
-        }
+    const attributes = [];
 
-        break;
-      }
+    if (indexType === Index.Primary || indexType === Index.Unique) {
+      attributes.push('FK');
+    }
 
-      case Index.Primary:
-        column.push('PK');
-        break;
+    if (index?.type === Index.Primary) {
+      attributes.push('PK');
+    }
 
-      case Index.Unique:
-        column.push('UK');
-        break;
+    if (index?.type === Index.Unique) {
+      attributes.push('UK');
+    }
+
+    if (attributes.length > 0) {
+      column.push(attributes.join(','));
     }
 
     output.push(`\t\t${column.join(' ')}`);
