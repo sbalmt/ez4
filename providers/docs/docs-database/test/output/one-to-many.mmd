@@ -1,0 +1,17 @@
+erDiagram
+	table_a {
+		id string PK
+		value number
+		table_b_id string FK
+	}
+	table_b ||--|{ table_a : "table_b(id) → table_a(table_b_id)"
+	table_b {
+		id string PK
+		value string
+	}
+	table_c {
+		id string PK
+		value number
+		table_b_id string FK
+	}
+	table_b ||--o{ table_c : "table_b(id) → table_c(table_b_id)"
