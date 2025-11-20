@@ -11,8 +11,10 @@ import { loadAliasPaths } from '../../config/tsconfig';
 import { loadProviders } from '../../config/providers';
 import { loadImports } from '../../config/imports';
 
+import { once } from 'node:events';
 import { readdir } from 'node:fs/promises';
 import { join } from 'node:path';
+import { run } from 'node:test';
 
 const TestFilePattern = /\.(spec|test)\.(js|ts)$/;
 
@@ -64,6 +66,8 @@ export const testCommand = async (input: InputOptions, project: ProjectOptions) 
   for (const testFile of testFiles) {
     await import(join(workingDirectory, testFile));
   }
+
+  await once(run(), 'end');
 
   await shutdownServices(emulators);
 };

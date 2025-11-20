@@ -1,24 +1,24 @@
 import type { ServiceEmulators } from './utils';
 import type { ServiceEmulator } from './types';
 
-export const prepareServices = async (emulators: ServiceEmulators) => {
-  await forEachEmulator(emulators, async (emulator) => {
+export const prepareServices = (emulators: ServiceEmulators) => {
+  return forEachEmulator(emulators, async (emulator) => {
     if (emulator.prepareHandler) {
       await emulator.prepareHandler();
     }
   });
 };
 
-export const bootstrapServices = async (emulators: ServiceEmulators) => {
-  await forEachEmulator(emulators, async (emulator) => {
+export const bootstrapServices = (emulators: ServiceEmulators) => {
+  return forEachEmulator(emulators, async (emulator) => {
     if (emulator.bootstrapHandler) {
       await emulator.bootstrapHandler();
     }
   });
 };
 
-export const shutdownServices = async (emulators: ServiceEmulators) => {
-  await forEachEmulator(emulators, async (emulator) => {
+export const shutdownServices = (emulators: ServiceEmulators) => {
+  return forEachEmulator(emulators, async (emulator) => {
     if (emulator.shutdownHandler) {
       await emulator.shutdownHandler();
     }
