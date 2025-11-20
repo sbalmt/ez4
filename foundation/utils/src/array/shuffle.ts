@@ -1,4 +1,4 @@
-import { getRandomInteger } from '../browser';
+import { getRandomInteger } from '../number/random';
 
 /**
  * Copy and shuffle the given array.
