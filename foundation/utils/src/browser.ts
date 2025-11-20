@@ -8,6 +8,7 @@ export * from './system/tasks';
 
 export * from './array/check';
 export * from './array/unique';
+export * from './array/shuffle';
 export * from './array/compare';
 export * from './array/generics';
 export * from './array/equal';
