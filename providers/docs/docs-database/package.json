@@ -7,7 +7,9 @@
   "type": "module",
   "keywords": [
     "ez4",
-    "ez4 docs"
+    "generator",
+    "documentation",
+    "database"
   ],
   "repository": {
     "type": "git",
