@@ -42,6 +42,8 @@ describe('local gateway tests', () => {
       }
     });
 
+    equal(client.testApi.mock.callCount(), 1);
+
     equal(status, 201);
 
     deepEqual(body, 'Default body');
@@ -61,6 +63,8 @@ describe('local gateway tests', () => {
         foo: 'foo'
       }
     });
+
+    equal(client.testApi.mock.callCount(), 1);
 
     equal(status, 204);
 
@@ -83,6 +87,8 @@ describe('local gateway tests', () => {
         }),
       HttpInternalServerError
     );
+
+    equal(client.testApi.mock.callCount(), 1);
   });
 
   it('assert :: send request (operation response)', async () => {
@@ -105,6 +111,8 @@ describe('local gateway tests', () => {
         foo: 'foo'
       }
     });
+
+    equal(client.testApi.mock.callCount(), 1);
 
     equal(status, 200);
 
@@ -136,6 +144,8 @@ describe('local gateway tests', () => {
       }
     });
 
+    equal(client.testApi.mock.callCount(), 1);
+
     equal(status, 200);
 
     deepEqual(body, {
@@ -164,5 +174,7 @@ describe('local gateway tests', () => {
         }),
       HttpBadRequestError
     );
+
+    equal(client.testApi.mock.callCount(), 1);
   });
 });

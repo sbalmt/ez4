@@ -1,4 +1,5 @@
 import type { Client, ClientResponse, Http } from '@ez4/gateway';
+import type { Mock } from 'node:test';
 import type { ClientMockOperation } from '../client/mock';
 
 import { Tester } from '@ez4/project/library';
@@ -13,12 +14,16 @@ export namespace HttpTester {
     };
   };
 
+  export type ClientMock<T extends Http.Service> = {
+    [P in keyof Client<T>]: Mock<Client<T>[P]>;
+  };
+
   export const getClient = <T extends Http.Service>(resourceName: string) => {
     return Tester.getServiceClient(resourceName) as Client<T>;
   };
 
   export const getClientMock = <T extends Http.Service>(resourceName: string, options: MockOptions<T>) => {
-    const client = createClientMock(resourceName, options) as Client<T>;
+    const client = createClientMock(resourceName, options) as ClientMock<T>;
 
     return client;
   };
