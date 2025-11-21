@@ -1,0 +1,9 @@
+%%{init: { "layout": "elk" } }%%
+graph LR
+	subgraph Queues
+		TestQueue@{ shape: das, label: "TestQueue" }
+	end
+	subgraph Topics
+		TestTopic@{ shape: das, label: "TestTopic" }
+	end
+	TestTopic --> TestQueue

@@ -1,0 +1,9 @@
+%%{init: { "layout": "elk" } }%%
+graph LR
+	subgraph CDNs
+		TestCdn@{ shape: circle, label: "TestCdn" }
+	end
+	TestCdn --> TestBucket
+	subgraph Storages
+		TestBucket@{ shape: lin-cyl, label: "TestBucket" }
+	end

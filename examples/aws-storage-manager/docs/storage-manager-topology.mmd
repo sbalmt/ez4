@@ -1,0 +1,12 @@
+%%{init: { "layout": "elk" } }%%
+graph LR
+	subgraph Servers
+		Api@{ shape: circle, label: "Api" }
+	end
+	subgraph Storages
+		FileStorage@{ shape: lin-cyl, label: "FileStorage" }
+		FileDb@{ shape: cyl, label: "FileDb" }
+	end
+	FileStorage --> FileDb
+	Api --> FileStorage
+	Api --> FileDb

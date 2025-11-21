@@ -36,6 +36,7 @@
     "providers/local/local-queue",
     "providers/local/local-topic",
     "providers/docs/docs-database",
+    "providers/docs/docs-topology",
     "providers/aws/aws-common",
     "providers/aws/aws-identity",
     "providers/aws/aws-logs",
