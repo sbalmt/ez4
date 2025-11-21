@@ -1,31 +1,32 @@
-import type { DatabaseService, DatabaseTable, TableIndex, TableRelation } from '@ez4/database/library';
-import type { ObjectSchemaProperties } from '@ez4/schema';
+import type { DatabaseService, DatabaseTable } from '@ez4/database/library';
 
 import { Index } from '@ez4/database/library';
+import { toPascalCase } from '@ez4/utils';
 
 export namespace MermaidGenerator {
   export const getDatabaseOutput = (databaseService: DatabaseService) => {
-    const output = ['erDiagram'];
+    const output = ['%%{init: { "layout": "elk" } }%%', 'erDiagram'];
 
     for (const table of databaseService.tables) {
-      const { schema, indexes, relations = [] } = table;
+      const tableName = toPascalCase(table.name);
 
-      const allRelations = getRelationsOutput(table.name, databaseService.tables, schema.properties, relations);
-      const allColumns = getColumnsOutput(schema.properties, relations, indexes);
+      const allRelations = getRelationsOutput(table, databaseService.tables);
+      const allColumns = getColumnsOutput(table);
 
-      output.push(`\t${table.name} {`);
-      output.push(allColumns);
+      output.push(`\t${tableName} {`);
+      output.push(...allColumns);
       output.push('\t}');
 
-      if (allRelations.length > 0) {
-        output.push(allRelations);
-      }
+      output.push(...allRelations);
     }
 
     return output.join('\n');
   };
 
-  export const getColumnsOutput = (columns: ObjectSchemaProperties, relations: TableRelation[], indexes: TableIndex[]) => {
+  export const getColumnsOutput = (table: DatabaseTable) => {
+    const { schema, indexes, relations = [] } = table;
+
+    const columns = schema.properties;
     const output = [];
 
     for (const name in columns) {
@@ -58,15 +59,15 @@ export namespace MermaidGenerator {
       output.push(`\t\t${column.join(' ')}`);
     }
 
-    return output.join('\n');
+    return output;
   };
 
-  export const getRelationsOutput = (
-    targetTable: string,
-    tables: DatabaseTable[],
-    columns: ObjectSchemaProperties,
-    relations: TableRelation[]
-  ) => {
+  export const getRelationsOutput = (table: DatabaseTable, tables: DatabaseTable[]) => {
+    const { schema, relations = [] } = table;
+
+    const targetTable = toPascalCase(table.name);
+
+    const columns = schema.properties;
     const output = [];
 
     const getConnectionLabel = (tableName: string, columnName: string) => {
@@ -79,7 +80,7 @@ export namespace MermaidGenerator {
       const sourceTableData = tables.find((table) => table.name === sourceTable);
 
       const sourceLabel = getConnectionLabel(sourceTable, sourceColumn);
-      const targetLabel = getConnectionLabel(targetTable, targetColumn);
+      const targetLabel = getConnectionLabel(table.name, targetColumn);
 
       const isSourceNullable = sourceTableData?.schema.properties[sourceColumn]?.nullable;
       const isTargetNullable = columns[targetColumn]?.nullable;
@@ -98,14 +99,14 @@ export namespace MermaidGenerator {
           connection.push(`|${targetConnector}--o{`);
         }
 
-        connection.push(sourceTable, ':', `"${targetLabel} → ${sourceLabel}"`);
+        connection.push(toPascalCase(sourceTable), ':', `"${targetLabel} → ${sourceLabel}"`);
       } else {
         const hasOtherSideRelation = sourceTableData?.relations?.some((relation) => {
-          return relation.sourceTable === targetTable && relation.sourceColumn === targetColumn;
+          return relation.sourceTable === table.name && relation.sourceColumn === targetColumn;
         });
 
         if (!hasOtherSideRelation) {
-          connection.push(sourceTable);
+          connection.push(toPascalCase(sourceTable));
 
           if (sourceIndex === Index.Primary || sourceIndex === Index.Unique) {
             connection.push(`|${sourceConnector}--${targetConnector}{`);
@@ -122,6 +123,6 @@ export namespace MermaidGenerator {
       }
     }
 
-    return output.join('\n');
+    return output;
   };
 }
