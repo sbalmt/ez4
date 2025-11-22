@@ -6,7 +6,7 @@ import { toKebabCase } from '@ez4/utils';
 import { writeFile } from 'node:fs/promises';
 import { join } from 'node:path';
 
-import { MermaidGenerator } from '../generator/mermaid';
+import { TopologyGenerator } from '../generator/topology';
 
 export const generateResource = async (event: GenerateResourceEvent) => {
   const { parameters, metadata, options } = event;
@@ -25,7 +25,7 @@ export const generateResource = async (event: GenerateResourceEvent) => {
 
 const generateGraph = async (outputPath: string, metadata: MetadataReflection, options: CommonOptions) => {
   const outputFile = join(outputPath, `${toKebabCase(options.projectName)}-topology.mmd`);
-  const outputContent = MermaidGenerator.getTopologyOutput(metadata);
+  const outputContent = TopologyGenerator.getTopologyOutput(metadata);
 
   await writeFile(outputFile, outputContent);
 
