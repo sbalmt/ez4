@@ -6,7 +6,7 @@ import { toKebabCase } from '@ez4/utils';
 import { writeFile } from 'node:fs/promises';
 import { join } from 'node:path';
 
-import { MermaidGenerator } from '../generator/mermaid';
+import { EntityRelationshipGenerator } from '../generator/erd';
 import { getDatabaseServices } from '../utils/service';
 
 export const generateResource = async (event: GenerateResourceEvent) => {
@@ -16,7 +16,7 @@ export const generateResource = async (event: GenerateResourceEvent) => {
 
   switch (command) {
     case 'database:erd': {
-      await generateErd(outputPath, metadata);
+      await generateEntityRelationshipDiagram(outputPath, metadata);
       return true;
     }
   }
@@ -24,12 +24,12 @@ export const generateResource = async (event: GenerateResourceEvent) => {
   return null;
 };
 
-const generateErd = async (outputPath: string, metadata: MetadataReflection) => {
+const generateEntityRelationshipDiagram = async (outputPath: string, metadata: MetadataReflection) => {
   const databases = getDatabaseServices(metadata);
 
   for (const database of databases) {
     const outputFile = join(outputPath, `${toKebabCase(database.name)}-erd.mmd`);
-    const outputContent = MermaidGenerator.getDatabaseOutput(database);
+    const outputContent = EntityRelationshipGenerator.getDatabaseOutput(database);
 
     await writeFile(outputFile, outputContent);
 

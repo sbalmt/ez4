@@ -3,7 +3,7 @@ import type { DatabaseService, DatabaseTable } from '@ez4/database/library';
 import { Index } from '@ez4/database/library';
 import { toPascalCase } from '@ez4/utils';
 
-export namespace MermaidGenerator {
+export namespace EntityRelationshipGenerator {
   export const getDatabaseOutput = (databaseService: DatabaseService) => {
     const output = ['%%{init: { "layout": "elk" } }%%', 'erDiagram'];
 
@@ -23,7 +23,7 @@ export namespace MermaidGenerator {
     return output.join('\n');
   };
 
-  export const getColumnsOutput = (table: DatabaseTable) => {
+  const getColumnsOutput = (table: DatabaseTable) => {
     const { schema, indexes, relations = [] } = table;
 
     const columns = schema.properties;
@@ -62,7 +62,7 @@ export namespace MermaidGenerator {
     return output;
   };
 
-  export const getRelationsOutput = (table: DatabaseTable, tables: DatabaseTable[]) => {
+  const getRelationsOutput = (table: DatabaseTable, tables: DatabaseTable[]) => {
     const { schema, relations = [] } = table;
 
     const targetTable = toPascalCase(table.name);

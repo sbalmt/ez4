@@ -4,7 +4,7 @@ import { equal, deepEqual } from 'node:assert/strict';
 import { readFileSync, writeFileSync } from 'node:fs';
 import { describe, it } from 'node:test';
 
-import { MermaidGenerator } from '../src/generator/mermaid';
+import { EntityRelationshipGenerator } from '../src/generator/erd';
 import { getDatabaseServices } from '../src/utils/service';
 
 const testFile = (fileName: string, overwrite = false) => {
@@ -16,7 +16,7 @@ const testFile = (fileName: string, overwrite = false) => {
 
   equal(databases.length, 1);
 
-  const outputContent = MermaidGenerator.getDatabaseOutput(databases[0]);
+  const outputContent = EntityRelationshipGenerator.getDatabaseOutput(databases[0]);
 
   if (overwrite) {
     writeFileSync(outputFile, outputContent);
