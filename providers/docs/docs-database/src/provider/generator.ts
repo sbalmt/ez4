@@ -6,8 +6,8 @@ import { toKebabCase } from '@ez4/utils';
 import { writeFile } from 'node:fs/promises';
 import { join } from 'node:path';
 
-import { MermaidGenerator } from '../generator/mermaid';
 import { getDatabaseServices } from '../utils/service';
+import { ErdGenerator } from '../generator/erd';
 
 export const generateResource = async (event: GenerateResourceEvent) => {
   const { parameters, metadata } = event;
@@ -29,7 +29,7 @@ const generateErd = async (outputPath: string, metadata: MetadataReflection) => 
 
   for (const database of databases) {
     const outputFile = join(outputPath, `${toKebabCase(database.name)}-erd.mmd`);
-    const outputContent = MermaidGenerator.getDatabaseOutput(database);
+    const outputContent = ErdGenerator.getDatabaseOutput(database);
 
     await writeFile(outputFile, outputContent);
 
