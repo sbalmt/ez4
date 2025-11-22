@@ -1,10 +1,11 @@
 import type { ProjectOptions } from '../types/project';
 
+import { isAnyObject } from '@ez4/utils';
+
 import { pathToFileURL } from 'node:url';
 import { join } from 'node:path';
 
 import { MissingProjectError, MissingProjectFileError } from '../errors/project';
-import { isAnyObject } from '@ez4/utils';
 
 export const loadProject = async (fileName?: string): Promise<ProjectOptions> => {
   const projectFile = fileName ?? 'ez4.project.js';

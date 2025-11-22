@@ -3,7 +3,7 @@ import { describe, it } from 'node:test';
 
 import { CronTester } from '@ez4/local-scheduler/test';
 
-describe('hello aws scheduler', () => {
+await describe('hello aws scheduler', () => {
   it('create dynamic event with success', async () => {
     const client = CronTester.getClient('DynamicCron');
 

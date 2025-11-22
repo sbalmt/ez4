@@ -17,7 +17,7 @@ export const getConnectionOptions = (service: DatabaseService, options: ServeOpt
 
   return {
     database: database ?? getDatabaseName(service, options),
-    host: host ?? '127.0.0.1',
+    host: host ?? 'localhost',
     password,
     user,
     port

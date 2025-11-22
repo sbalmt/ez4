@@ -14,11 +14,13 @@
   ],
   "scripts": {
     "deploy": "tsc && ez4 deploy -e local.env",
-    "destroy": "ez4 destroy -e local.env --force"
+    "destroy": "ez4 destroy -e local.env --force",
+    "generate:erd": "ez4 generate -- database:erd docs/"
   },
   "dependencies": {
-    "@ez4/aws-aurora": "^0.33.0",
-    "@ez4/database": "^0.33.0",
-    "@ez4/project": "^0.33.0"
+    "@ez4/aws-aurora": "^0.34.0",
+    "@ez4/docs-database": "^0.34.0",
+    "@ez4/database": "^0.34.0",
+    "@ez4/project": "^0.34.0"
   }
 }

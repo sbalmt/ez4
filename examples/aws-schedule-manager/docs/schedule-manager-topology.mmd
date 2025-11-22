@@ -1,0 +1,14 @@
+%%{init: { "layout": "elk" } }%%
+graph LR
+	subgraph Servers
+		Api@{ shape: circle, label: "Api" }
+	end
+	subgraph Schedulers
+		EventScheduler@{ shape: circle, label: "EventScheduler" }
+	end
+	subgraph Storages
+		EventDb@{ shape: cyl, label: "EventDb" }
+	end
+	EventScheduler --> EventDb
+	Api --> EventScheduler
+	Api --> EventDb

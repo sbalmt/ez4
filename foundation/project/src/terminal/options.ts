@@ -1,6 +1,9 @@
 export const enum CommandType {
   Deploy = 'deploy',
   Destroy = 'destroy',
+  Output = 'output',
+  Generate = 'generate',
+  Run = 'run',
   Serve = 'serve',
   Test = 'test',
   Help = 'help'
@@ -14,7 +17,7 @@ export type InputOptions = {
   debugMode?: boolean;
   resetMode?: boolean;
   localMode?: boolean;
-  arguments?: string;
+  arguments?: string[];
 };
 
 export const isInputOptions = (options: Partial<InputOptions>): options is InputOptions => {
@@ -31,6 +34,9 @@ export const getInputOptions = () => {
     switch (argument) {
       case CommandType.Deploy:
       case CommandType.Destroy:
+      case CommandType.Output:
+      case CommandType.Generate:
+      case CommandType.Run:
       case CommandType.Serve:
       case CommandType.Test:
       case CommandType.Help:
@@ -64,7 +70,7 @@ export const getInputOptions = () => {
         break;
 
       case '--':
-        options.arguments = input[++index];
+        options.arguments = input.slice(++index);
         break;
     }
   }

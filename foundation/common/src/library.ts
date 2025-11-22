@@ -19,4 +19,5 @@ export * from './errors/services';
 export * from './errors/variables';
 export * from './errors/listener';
 
+export * from './types/services';
 export * from './types/common';

@@ -5,6 +5,9 @@ import { loadEnvFile } from 'node:process';
 import { loadProject } from '../config/project';
 import { deployCommand } from './commands/deploy';
 import { destroyCommand } from './commands/destroy';
+import { outputCommand } from './commands/output';
+import { generateCommand } from './commands/generate';
+import { runCommand } from './commands/run';
 import { serveCommand } from './commands/serve';
 import { testCommand } from './commands/test';
 import { helpCommand } from './commands/help';
@@ -28,6 +31,15 @@ export const runActionCommand = async (options: InputOptions) => {
 
     case CommandType.Destroy:
       return destroyCommand(project);
+
+    case CommandType.Output:
+      return outputCommand(project);
+
+    case CommandType.Generate:
+      return generateCommand(options, project);
+
+    case CommandType.Run:
+      return runCommand(options, project);
 
     case CommandType.Serve:
       return serveCommand(project);

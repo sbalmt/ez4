@@ -1,0 +1,10 @@
+%%{init: { "layout": "elk" } }%%
+graph LR
+	classDef ez4Scheduler fill:#9b51e050, stroke:#9b51e0a0;
+	classDef ez4SchedulerEdge stroke:#9b51e0
+	classDef ez4SchedulerEdge stroke:#9b51e0;
+	subgraph Schedulers
+		style Schedulers fill: #f5f5f5, stroke-width: 0
+		TestScheduler@{ shape: stadium, label: "TestScheduler" }
+		class TestScheduler ez4Scheduler
+	end

@@ -5,18 +5,18 @@ import { Readable } from 'node:stream';
 import { Logger } from '@ez4/project/library';
 import { toKebabCase } from '@ez4/utils';
 
-export type ClientMockContents = {
+export type ClientMockOptions = {
   keys?: Record<string, Buffer>;
   default?: Buffer;
 };
 
-export const createClientMock = (serviceName: string, contents?: ClientMockContents): Client => {
+export const createClientMock = (serviceName: string, options?: ClientMockOptions): Client => {
   const storageIdentifier = toKebabCase(serviceName);
-  const storageMemory = contents?.keys ?? {};
+  const storageMemory = options?.keys ?? {};
 
   return new (class {
     async exists(key: string) {
-      const content = storageMemory[key] ?? contents?.default;
+      const content = storageMemory[key] ?? options?.default;
 
       return Promise.resolve(!!content);
     }
@@ -34,7 +34,7 @@ export const createClientMock = (serviceName: string, contents?: ClientMockConte
     }
 
     async read(key: string): Promise<Buffer> {
-      const content = storageMemory[key] ?? contents?.default;
+      const content = storageMemory[key] ?? options?.default;
 
       if (!content) {
         throw new Error(`Key ${key} not found.`);
@@ -47,7 +47,7 @@ export const createClientMock = (serviceName: string, contents?: ClientMockConte
 
     async delete(key: string) {
       if (!storageMemory[key]) {
-        if (!contents?.default) {
+        if (!options?.default) {
           throw new Error(`Key ${key} not found.`);
         }
 
@@ -70,7 +70,7 @@ export const createClientMock = (serviceName: string, contents?: ClientMockConte
     }
 
     async getStats(key: string) {
-      const content = storageMemory[key] ?? contents?.default;
+      const content = storageMemory[key] ?? options?.default;
 
       if (!content) {
         throw new Error(`Key ${key} not found.`);

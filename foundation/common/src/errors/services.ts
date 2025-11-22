@@ -5,7 +5,7 @@ export class MissingServiceProviderError extends TypeError {
     public serviceName: string,
     fileName?: string
   ) {
-    super(`No provider for service ${serviceName} was found.`, fileName);
+    super(`No provider for service ${serviceName} was found.\nDid you forget to install its package?`, fileName);
   }
 }
 

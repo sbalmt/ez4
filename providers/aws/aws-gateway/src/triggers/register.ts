@@ -14,6 +14,7 @@ import { registerStageProvider } from '../stage/provider';
 
 import { connectServices, prepareLinkedServices, prepareServices } from './service';
 import { prepareImports, prepareLinkedImports } from './import';
+import { resourceOutput } from './output';
 
 export const registerTriggers = () => {
   registerAwsTriggers();
@@ -24,7 +25,8 @@ export const registerTriggers = () => {
   tryCreateTrigger('@ez4/aws-gateway', {
     'deploy:prepareLinkedService': prepareLinkedService,
     'deploy:prepareResources': prepareHttpServices,
-    'deploy:connectResources': connectHttpServices
+    'deploy:connectResources': connectHttpServices,
+    'deploy:resourceOutput': resourceOutput
   });
 
   registerGatewayProvider();

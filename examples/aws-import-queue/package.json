@@ -19,9 +19,9 @@
   },
   "dependencies": {
     "hello-aws-queue": "^0.0.0",
-    "@ez4/aws-queue": "^0.33.0",
-    "@ez4/local-queue": "^0.33.0",
-    "@ez4/queue": "^0.33.0",
-    "@ez4/project": "^0.33.0"
+    "@ez4/aws-queue": "^0.34.0",
+    "@ez4/local-queue": "^0.34.0",
+    "@ez4/queue": "^0.34.0",
+    "@ez4/project": "^0.34.0"
   }
 }

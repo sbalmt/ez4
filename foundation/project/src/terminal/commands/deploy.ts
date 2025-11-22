@@ -1,49 +1,36 @@
 import type { EntryStates } from '@ez4/stateful';
 import type { ProjectOptions } from '../../types/project';
-import type { DeployOptions } from '../../types/options';
 
 import { Logger } from '@ez4/project/library';
-import { toKebabCase } from '@ez4/utils';
 
-import { applyDeploy } from '../../actions/deploy';
-import { getEventContext } from '../../actions/common';
-import { prepareExecutionRole } from '../../actions/identity';
-import { prepareLinkedServices } from '../../actions/services';
-import { combineStates, loadRemoteState, loadLocalState, saveRemoteState, saveLocalState } from '../../actions/state';
-import { connectDeployResources, prepareDeployResources } from '../../actions/resources';
-import { reportResourceChanges } from '../../report/report';
+import { applyDeploy } from '../../deploy/apply';
+import { getEventContext } from '../../deploy/context';
+import { prepareExecutionRole } from '../../deploy/identity';
+import { prepareLinkedServices } from '../../deploy/services';
+import { mergeState, loadState, saveState } from '../../utils/state';
+import { connectDeployResources, prepareDeployResources } from '../../deploy/resources';
+import { reportResourceChanges } from '../../deploy/changes';
+import { reportResourcesOutput } from '../../deploy/output';
+import { getDeployOptions } from '../../deploy/options';
 import { loadProviders } from '../../config/providers';
 import { loadAliasPaths } from '../../config/tsconfig';
 import { loadImports } from '../../config/imports';
-import { waitConfirmation } from '../../utils/prompt';
 import { buildMetadata } from '../../library/metadata';
+import { waitConfirmation } from '../../utils/prompt';
 import { assertNoErrors } from '../../utils/errors';
 
 export const deployCommand = async (project: ProjectOptions) => {
-  const options: DeployOptions = {
-    resourcePrefix: toKebabCase(project.prefix ?? 'ez4'),
-    projectName: toKebabCase(project.projectName),
-    variables: project.variables,
-    debug: project.debugMode,
-    force: project.forceMode,
-    tags: project.tags
-  };
+  const options = getDeployOptions(project);
 
   if (options.force) {
     Logger.log('‼️  Force option is enabled');
   }
 
-  await Logger.execute('🔄️ Loading providers', () => {
-    return loadProviders(project);
+  const [aliasPaths, allImports] = await Logger.execute('⚡ Initializing', () => {
+    return Promise.all([loadAliasPaths(project), loadImports(project), loadProviders(project)]);
   });
 
-  const aliasPaths = await Logger.execute('🔄️ Loading tsconfig', () => {
-    return loadAliasPaths(project);
-  });
-
-  options.imports = await Logger.execute('🔄️ Loading imports', () => {
-    return loadImports(project);
-  });
+  options.imports = allImports;
 
   const { metadata, dependencies } = await Logger.execute('🔄️ Loading metadata', () => {
     return buildMetadata(project.sourceFiles, {
@@ -51,15 +38,8 @@ export const deployCommand = async (project: ProjectOptions) => {
     });
   });
 
-  const stateFile = project.stateFile;
-  const statePath = `${stateFile.path}.ezstate`;
-
   const oldState = await Logger.execute('🔄️ Loading state', () => {
-    if (stateFile.remote) {
-      return loadRemoteState(statePath, options);
-    }
-
-    return loadLocalState(statePath);
+    return loadState(project.stateFile, options);
   });
 
   const newState: EntryStates = {};
@@ -72,33 +52,32 @@ export const deployCommand = async (project: ProjectOptions) => {
 
   await connectDeployResources(newState, metadata, context, options);
 
-  combineStates(newState, oldState);
+  mergeState(newState, oldState);
 
   const hasChanges = await reportResourceChanges(newState, oldState, options.force);
 
   if (!hasChanges && !options.force) {
     Logger.log('ℹ️  No changes');
+
+    reportResourcesOutput(newState);
     return;
   }
 
   if (project.confirmMode !== false) {
-    const proceed = await waitConfirmation('⁉️  Are you sure you want to proceed?');
+    const canProceed = await waitConfirmation('⁉️  Are you sure you want to proceed?');
 
-    if (!proceed) {
-      Logger.log('⛔ Aborted');
-      return;
+    if (!canProceed) {
+      return Logger.log('⛔ Aborted');
     }
   }
 
-  const applyState = await applyDeploy(newState, oldState, options.force);
+  const deployState = await applyDeploy(newState, oldState, options.force);
 
-  await Logger.execute('💾 Saving state', () => {
-    if (stateFile.remote) {
-      return saveRemoteState(statePath, options, applyState.result);
-    }
-
-    return saveLocalState(statePath, applyState.result);
+  await Logger.execute('✅ Saving state', () => {
+    return saveState(project.stateFile, options, deployState.result);
   });
 
-  assertNoErrors(applyState.errors);
+  reportResourcesOutput(deployState.result);
+
+  assertNoErrors(deployState.errors);
 };

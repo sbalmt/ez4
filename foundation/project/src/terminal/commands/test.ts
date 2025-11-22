@@ -1,13 +1,12 @@
 import type { ProjectOptions } from '../../types/project';
-import type { ServeOptions } from '../../types/options';
 import type { InputOptions } from '../options';
 
 import { Tester, Logger, LogLevel } from '@ez4/project/library';
-import { toKebabCase } from '@ez4/utils';
 
 import { buildMetadata } from '../../library/metadata';
 import { getServiceEmulators } from '../../emulator/utils';
-import { bootstrapServices, prepareServices } from '../../emulator/actions';
+import { bootstrapServices, prepareServices, shutdownServices } from '../../emulator/actions';
+import { getServeOptions } from '../../emulator/options';
 import { loadAliasPaths } from '../../config/tsconfig';
 import { loadProviders } from '../../config/providers';
 import { loadImports } from '../../config/imports';
@@ -18,40 +17,18 @@ import { join } from 'node:path';
 const TestFilePattern = /\.(spec|test)\.(js|ts)$/;
 
 export const testCommand = async (input: InputOptions, project: ProjectOptions) => {
-  const serveOptions = project.serveOptions;
-
-  const serviceHost = serveOptions?.localHost ?? 'localhost';
-  const servicePort = serveOptions?.localPort ?? 3734;
-
-  const options: ServeOptions = {
-    resourcePrefix: project.prefix ?? 'ez4',
-    projectName: toKebabCase(project.projectName),
-    serviceHost: `${serviceHost}:${servicePort}`,
-    localOptions: project.localOptions ?? {},
-    variables: project.variables,
-    force: project.debugMode,
-    debug: project.debugMode,
-    reset: project.resetMode,
-    local: project.localMode,
-    test: true,
-    version: 0
-  };
+  const options = getServeOptions(project);
 
   if (options.debug) {
     Logger.setLevel(LogLevel.Debug);
   }
 
-  await Logger.execute('🔄️ Loading providers', () => {
-    return loadProviders(project);
+  const [aliasPaths, allImports] = await Logger.execute('⚡ Initializing', () => {
+    return Promise.all([loadAliasPaths(project), loadImports(project), loadProviders(project)]);
   });
 
-  const aliasPaths = await Logger.execute('🔄️ Loading tsconfig', () => {
-    return loadAliasPaths(project);
-  });
-
-  options.imports = await Logger.execute('🔄️ Loading imports', () => {
-    return loadImports(project);
-  });
+  options.imports = allImports;
+  options.test = true;
 
   const emulators = await Logger.execute('🔄️ Loading emulators', () => {
     const { metadata } = buildMetadata(project.sourceFiles, {
@@ -62,8 +39,9 @@ export const testCommand = async (input: InputOptions, project: ProjectOptions) 
   });
 
   const workingDirectory = process.cwd();
+  const filePatterns = input.arguments;
 
-  const testFiles = await Logger.execute('⚡ Preparing tests', async () => {
+  const testFiles = await Logger.execute('🧪 Running tests', async () => {
     Tester.configure(emulators, options);
 
     await prepareServices(emulators);
@@ -76,7 +54,7 @@ export const testCommand = async (input: InputOptions, project: ProjectOptions) 
 
     return allFiles.filter((file) => {
       if (TestFilePattern.test(file)) {
-        return !input.arguments || file.includes(input.arguments);
+        return !filePatterns || filePatterns.some((filePattern) => file.includes(filePattern));
       }
 
       return false;
@@ -86,4 +64,6 @@ export const testCommand = async (input: InputOptions, project: ProjectOptions) 
   for (const testFile of testFiles) {
     await import(join(workingDirectory, testFile));
   }
+
+  await shutdownServices(emulators);
 };

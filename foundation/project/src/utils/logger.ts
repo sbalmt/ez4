@@ -73,12 +73,14 @@ export namespace Logger {
   };
 
   export const log = (message: string) => {
-    const logMessage = `[EZ4]: ${message}`;
+    for (const line of message.split('\n')) {
+      const logMessage = `[EZ4]: ${line}`;
 
-    if (Context.capture === 0) {
-      process.stdout.write(`${logMessage}\n`);
-    } else {
-      Context.buffer.push(logMessage);
+      if (Context.capture === 0) {
+        process.stdout.write(`${logMessage}\n`);
+      } else {
+        Context.buffer.push(logMessage);
+      }
     }
   };
 
@@ -93,12 +95,14 @@ export namespace Logger {
       return;
     }
 
-    const warnMessage = toRed(`[EZ4]: ⚠️  ${message}`);
+    for (const line of message.split('\n')) {
+      const warnLine = toRed(`[EZ4]: ⚠️  ${line}`);
 
-    if (Context.capture === 0) {
-      process.stderr.write(`${warnMessage}\n`);
-    } else {
-      Context.buffer.push(warnMessage);
+      if (Context.capture === 0) {
+        process.stderr.write(`${warnLine}\n`);
+      } else {
+        Context.buffer.push(warnLine);
+      }
     }
   };
 
@@ -107,16 +111,30 @@ export namespace Logger {
       return;
     }
 
-    const errorMessage = toRed(`[EZ4]: ❌ ${message}`);
+    for (const line of message.split('\n')) {
+      const errorLine = toRed(`[EZ4]: ❌ ${line}`);
 
-    if (Context.capture === 0) {
-      process.stderr.write(`${errorMessage}\n`);
-    } else {
-      Context.buffer.push(errorMessage);
+      if (Context.capture === 0) {
+        process.stderr.write(`${errorLine}\n`);
+      } else {
+        Context.buffer.push(errorLine);
+      }
     }
   };
 
   export const success = (message: string) => {
-    debug(`✅ ${message}`);
+    if (Context.logLevel < LogLevel.Error) {
+      return;
+    }
+
+    for (const line of message.split('\n')) {
+      const successLine = `[EZ4]: ✅ ${line}`;
+
+      if (Context.capture === 0) {
+        process.stderr.write(`${successLine}\n`);
+      } else {
+        Context.buffer.push(successLine);
+      }
+    }
   };
 }

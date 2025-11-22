@@ -1,6 +1,7 @@
-import type { ServiceEmulators } from '../emulator/utils';
+import type { ServiceEmulators } from './utils';
 
-import { getServiceName } from './service';
+import { getServiceName } from '../utils/service';
+import { EmulatorClientNotFoundError, EmulatorNotFoundError } from './errors';
 
 type TesterContext = {
   emulators?: ServiceEmulators;
@@ -13,37 +14,39 @@ type TesterOptions = {
 };
 
 export namespace Tester {
-  const Context: TesterContext = {};
+  const CONTEXT: TesterContext = {};
 
   const ensureContext = (context: TesterContext): context is Required<TesterContext> => {
     return !!context.options && !!context.emulators;
   };
 
-  export const configure = (emulators: ServiceEmulators, options: TesterOptions) => {
-    if (Context.emulators) {
+  export type Options = TesterOptions;
+
+  export const configure = (emulators: ServiceEmulators, options: Options) => {
+    if (CONTEXT.emulators) {
       throw new Error('Tester is already configured.');
     }
 
-    Object.assign(Context, {
+    Object.assign(CONTEXT, {
       emulators,
       options
     });
   };
 
   export const getServiceClient = (resourceName: string) => {
-    if (!ensureContext(Context)) {
+    if (!ensureContext(CONTEXT)) {
       throw new Error('Tester is not configured yet.');
     }
 
-    const serviceName = getServiceName(resourceName, Context.options);
-    const serviceEmulator = Context.emulators[serviceName];
+    const serviceName = getServiceName(resourceName, CONTEXT.options);
+    const serviceEmulator = CONTEXT.emulators[serviceName];
 
     if (!serviceEmulator) {
-      throw new Error(`Emulator for resource ${resourceName} not found.`);
+      throw new EmulatorNotFoundError(resourceName);
     }
 
     if (!serviceEmulator.exportHandler) {
-      throw new Error(`Resource ${resourceName} doesn't provide any service client.`);
+      throw new EmulatorClientNotFoundError(resourceName);
     }
 
     return serviceEmulator.exportHandler();

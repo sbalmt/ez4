@@ -1,0 +1,16 @@
+%%{init: { "layout": "elk" } }%%
+erDiagram
+	Items {
+		id string PK
+		name string
+		description string
+		category_id string FK
+		created_at string
+		updated_at string
+	}
+	Categories {
+		id string PK
+		name string
+		description string
+	}
+	Categories |o--o{ Items : "categories(id) → items(category_id)"
