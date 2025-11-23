@@ -7,7 +7,7 @@ paths:
   /route:
     put:
       operationId: testHandler
-      summary: Test the PUT route documentation.
+      summary: "Test the PUT route documentation."
       requestBody:
         content:
           application/json:
@@ -15,13 +15,13 @@ paths:
               $ref: '#/components/requestSchemes/testHandler'
       responses:
         204:
-          description: Successful response.
+          description: "Successful response."
 
 components:
   requestSchemes:
     testHandler:
       type: object
-      description: PUT route request.
+      description: "PUT route request."
       additionalProperties: false
       properties:
         foo:

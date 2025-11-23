@@ -7,7 +7,7 @@ paths:
   /route:
     post:
       operationId: testHandler
-      summary: Test the POST route documentation.
+      summary: "Test the POST route documentation."
       requestBody:
         content:
           application/json:
@@ -15,7 +15,7 @@ paths:
               $ref: '#/components/requestSchemes/testHandler'
       responses:
         201:
-          description: Successful response.
+          description: "Successful response."
           content:
             application/json:
               schema:
@@ -25,7 +25,7 @@ components:
   requestSchemes:
     testHandler:
       type: object
-      description: POST route request.
+      description: "POST route request."
       additionalProperties: false
       properties:
         foo:
@@ -39,7 +39,7 @@ components:
   responseSchemes:
     testHandler:
       type: object
-      description: POST route response.
+      description: "POST route response."
       additionalProperties: false
       properties:
         id:

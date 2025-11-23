@@ -11,7 +11,7 @@ paths:
         - testAuthorizer: []
       responses:
         204:
-          description: Successful response.
+          description: "Successful response."
 
 components:
   securitySchemes:

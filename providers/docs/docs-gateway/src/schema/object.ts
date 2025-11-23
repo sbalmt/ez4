@@ -2,8 +2,8 @@ import type { NamingStyle, ObjectSchema } from '@ez4/schema';
 
 import { getPropertyName } from '@ez4/schema';
 
-import { getIndentedOutput } from '../utils/format';
 import { getCommonSchemaOutput } from '../utils/schema';
+import { getIndentedOutput, getNameOutput } from '../utils/format';
 import { getAnySchemaOutput } from '../schema/any';
 
 export const getObjectSchemaOutput = (schema: ObjectSchema, namingStyle?: NamingStyle) => {
@@ -18,7 +18,7 @@ export const getObjectSchemaOutput = (schema: ObjectSchema, namingStyle?: Naming
 
   for (const propertyKey in schema.properties) {
     const propertySchema = schema.properties[propertyKey];
-    const propertyName = getPropertyName(propertyKey, namingStyle);
+    const propertyName = getNameOutput(getPropertyName(propertyKey, namingStyle));
 
     if (!propertySchema.nullable && !propertySchema.optional) {
       requiredProperties.push(`- ${propertyName}`);

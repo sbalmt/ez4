@@ -3,7 +3,7 @@ import { getPropertyName, type NamingStyle, type ObjectSchema } from '@ez4/schem
 
 import { isAnyArray, isEmptyObject } from '@ez4/utils';
 
-import { getIndentedOutput, getMultilineOutput } from '../utils/format';
+import { getIndentedOutput, getMultilineOutput, getNameOutput } from '../utils/format';
 import { getSchemaOutput } from './schema';
 
 export const getServiceRoutesOutput = (service: HttpService) => {
@@ -36,10 +36,10 @@ const getRouteOutput = (route: HttpRoute, namingStyle?: NamingStyle) => {
   const { name, authorizer, handler } = route;
   const { request } = handler;
 
-  output.push(`operationId: ${name ?? handler.name}`);
+  output.push(`operationId: ${getNameOutput(name ?? handler.name)}`);
 
   if (handler.description) {
-    output.push(`summary: ${getMultilineOutput(handler.description)}`);
+    output.push(`summary: "${getMultilineOutput(handler.description)}"`);
   }
 
   if (authorizer?.request) {
@@ -80,7 +80,7 @@ const getParametersOutput = (target: string, schema: ObjectSchema, namingStyle?:
 
   for (const propertyKey in schema.properties) {
     const propertySchema = schema.properties[propertyKey];
-    const propertyName = getPropertyName(propertyKey, namingStyle);
+    const propertyName = getNameOutput(getPropertyName(propertyKey, namingStyle));
 
     const isRequired = !(propertySchema.nullable || propertySchema.optional);
     const schemaOutput = getSchemaOutput(propertySchema, namingStyle);
@@ -108,7 +108,7 @@ const getResponseOutput = (schemaName: string, response: HttpResponse) => {
   const output = [];
 
   for (const status of statuses) {
-    const content = [`description: Successful response.`];
+    const content = [`description: "Successful response."`];
 
     if (body) {
       content.push(...getBodyOutput('responseSchemes', schemaName));

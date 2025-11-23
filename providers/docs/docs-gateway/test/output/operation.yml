@@ -9,4 +9,4 @@ paths:
       operationId: operationName
       responses:
         204:
-          description: Successful response.
+          description: "Successful response."

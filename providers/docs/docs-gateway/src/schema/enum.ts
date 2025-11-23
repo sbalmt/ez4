@@ -9,7 +9,7 @@ export const getEnumSchemaOutput = (schema: EnumSchema) => {
 
   for (const option of schema.options) {
     if (!isAnyNumber(option.value)) {
-      optionsOutput.push(`- "${getMultilineOutput(option.value)}"`);
+      optionsOutput.push(`- '${getMultilineOutput(option.value)}'`);
     } else {
       optionsOutput.push(`- ${option.value}`);
     }

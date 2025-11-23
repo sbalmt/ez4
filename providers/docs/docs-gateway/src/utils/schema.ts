@@ -6,7 +6,7 @@ export const getCommonSchemaOutput = (schema: Exclude<AnySchema, ReferenceSchema
   const output = [];
 
   if (schema.description) {
-    output.push(`description: ${getMultilineOutput(schema.description)}`);
+    output.push(`description: "${getMultilineOutput(schema.description)}"`);
   }
 
   return output;

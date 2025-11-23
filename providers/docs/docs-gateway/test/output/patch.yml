@@ -7,7 +7,7 @@ paths:
   /route:
     patch:
       operationId: testHandler
-      summary: Test the PATCH route documentation.
+      summary: "Test the PATCH route documentation."
       requestBody:
         content:
           application/json:
@@ -15,13 +15,13 @@ paths:
               $ref: '#/components/requestSchemes/testHandler'
       responses:
         204:
-          description: Successful response.
+          description: "Successful response."
 
 components:
   requestSchemes:
     testHandler:
       type: object
-      description: PATCH route request.
+      description: "PATCH route request."
       additionalProperties: false
       properties:
         foo:
