@@ -1,0 +1,156 @@
+openapi: 3.1.0
+info:
+  title: Storage Manager
+  version: 1.0.0
+
+paths:
+  /start-upload:
+    post:
+      operationId: startUploadHandler
+      summary: Handle start upload requests.
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/requestSchemes/startUploadHandler'
+      responses:
+        200:
+          description: Successful response.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/responseSchemes/startUploadHandler'
+  /start-download/{fileId}:
+    get:
+      operationId: startDownloadHandler
+      summary: Handle start download requests.
+      parameters:
+        - name: fileId
+          in: path
+          required: true
+          schema:
+            type: string
+            description: File Id.
+            format: uuid
+      responses:
+        200:
+          description: Successful response.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/responseSchemes/startDownloadHandler'
+  /delete-file/{fileId}:
+    delete:
+      operationId: deleteFileHandler
+      summary: Handle delete file requests.
+      parameters:
+        - name: fileId
+          in: path
+          required: true
+          schema:
+            type: string
+            description: File name.
+            format: uuid
+      responses:
+        204:
+          description: Successful response.
+  /list-files:
+    get:
+      operationId: listFilesHandler
+      summary: Handle list files requests.
+      parameters:
+        - name: cursor
+          in: path
+          required: false
+          schema:
+            type: string
+            description: Page cursor.
+        - name: limit
+          in: path
+          required: false
+          schema:
+            type: integer
+            description: Page limit.
+            minimum: 1
+            maximum: 10
+      responses:
+        200:
+          description: Successful response.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/responseSchemes/listFilesHandler'
+
+components:
+  requestSchemes:
+    startUploadHandler:
+      type: object
+      description: Expected HTTP body payload.
+      additionalProperties: false
+      properties:
+        contentType:
+          enum: 
+            - "image/jpeg"
+            - "image/png"
+      required:
+        - contentType
+
+  responseSchemes:
+    startUploadHandler:
+      type: object
+      description: HTTP body payload.
+      additionalProperties: false
+      properties:
+        id:
+          type: string
+          description: File Id.
+        url:
+          type: string
+          description: Signed upload URL.
+      required:
+        - id
+        - url
+    startDownloadHandler:
+      type: object
+      description: HTTP body payload.
+      additionalProperties: false
+      properties:
+        url:
+          type: string
+      required:
+        - url
+    listFilesHandler:
+      type: object
+      description: HTTP body payload.
+      additionalProperties: false
+      properties:
+        next:
+          type: string
+          description: Next page cursor.
+        files:
+          type: array
+          description: List of files.
+          items:
+            type: object
+            additionalProperties: false
+            properties:
+              id:
+                type: string
+                description: File id.
+              status:
+                enum: 
+                  - "pending"
+                  - "completed"
+              created_at:
+                type: string
+                description: File creation date.
+              updated_at:
+                type: string
+                description: File last update date.
+            required:
+              - id
+              - status
+              - created_at
+              - updated_at
+      required:
+        - files

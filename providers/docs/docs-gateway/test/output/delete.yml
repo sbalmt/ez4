@@ -1,0 +1,13 @@
+openapi: 3.1.0
+info:
+  title: Test API
+  version: 1.0.0
+
+paths:
+  /route:
+    delete:
+      operationId: testHandler
+      summary: Test the DELETE route documentation.
+      responses:
+        204:
+          description: Successful response.

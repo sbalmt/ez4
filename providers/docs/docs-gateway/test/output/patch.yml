@@ -1,0 +1,30 @@
+openapi: 3.1.0
+info:
+  title: Test API
+  version: 1.0.0
+
+paths:
+  /route:
+    patch:
+      operationId: testHandler
+      summary: Test the PATCH route documentation.
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/requestSchemes/testHandler'
+      responses:
+        204:
+          description: Successful response.
+
+components:
+  requestSchemes:
+    testHandler:
+      type: object
+      description: PATCH route request.
+      additionalProperties: false
+      properties:
+        foo:
+          type: string
+        bar:
+          type: number

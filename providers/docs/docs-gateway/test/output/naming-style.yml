@@ -1,0 +1,40 @@
+openapi: 3.1.0
+info:
+  title: Test API
+  version: 1.0.0
+
+paths:
+  /route_a:
+    get:
+      operationId: testHandler
+      parameters:
+        - name: foo_bar
+          in: query
+          required: true
+          schema:
+            type: boolean
+        - name: bar_foo
+          in: query
+          required: true
+          schema:
+            type: boolean
+      responses:
+        204:
+          description: Successful response.
+  /route_b:
+    get:
+      operationId: testHandler
+      parameters:
+        - name: FooBar
+          in: query
+          required: true
+          schema:
+            type: boolean
+        - name: BarFoo
+          in: query
+          required: true
+          schema:
+            type: boolean
+      responses:
+        204:
+          description: Successful response.
