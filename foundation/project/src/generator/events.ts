@@ -6,3 +6,7 @@ export type GenerateResourceEvent = {
   metadata: MetadataReflection;
   options: CommonOptions;
 };
+
+export type GenerateHelpEvent = {
+  options: CommonOptions;
+};

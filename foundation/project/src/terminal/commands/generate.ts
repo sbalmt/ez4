@@ -6,12 +6,12 @@ import { Logger, LogLevel } from '@ez4/project/library';
 import { warnUnsupportedFlags } from '../../utils/flags';
 import { buildMetadata } from '../../library/metadata';
 import { generateResources } from '../../generator/resources';
-import { getGenerateOptions } from '../../generator/options';
+import { getGeneratorOptions } from '../../generator/options';
 import { loadAliasPaths } from '../../config/tsconfig';
 import { loadProviders } from '../../config/providers';
 
 export const generateCommand = async (input: InputOptions, project: ProjectOptions) => {
-  const options = getGenerateOptions(project);
+  const options = getGeneratorOptions(project);
 
   if (options.debug) {
     Logger.setLevel(LogLevel.Debug);
