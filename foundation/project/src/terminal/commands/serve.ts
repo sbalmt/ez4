@@ -3,11 +3,13 @@ import type { EmulatorHandlerResponse } from '../../emulator/types';
 import type { ServiceEmulators } from '../../emulator/utils';
 import type { ProjectOptions } from '../../types/project';
 import type { ServeOptions } from '../../types/options';
+import type { InputOptions } from '../options';
 
 import { Logger, LogLevel } from '@ez4/project/library';
 
 import { createServer } from 'node:http';
 
+import { warnUnsupportedFlags } from '../../utils/flags';
 import { getServiceAddress, getServicePort } from '../../utils/project';
 import { bootstrapServices, prepareServices, shutdownServices } from '../../emulator/actions';
 import { getServiceEmulators } from '../../emulator/utils';
@@ -17,7 +19,7 @@ import { loadAliasPaths } from '../../config/tsconfig';
 import { loadProviders } from '../../config/providers';
 import { loadImports } from '../../config/imports';
 
-export const serveCommand = async (project: ProjectOptions) => {
+export const serveCommand = async (input: InputOptions, project: ProjectOptions) => {
   const options = getServeOptions(project);
 
   if (options.debug) {
@@ -26,6 +28,11 @@ export const serveCommand = async (project: ProjectOptions) => {
 
   const [aliasPaths, allImports, namespacePath] = await Logger.execute('⚡ Initializing', () => {
     return Promise.all([loadAliasPaths(project), loadImports(project), loadProviders(project)]);
+  });
+
+  warnUnsupportedFlags(input, {
+    reset: options.local,
+    local: true
   });
 
   let emulators: ServiceEmulators = {};

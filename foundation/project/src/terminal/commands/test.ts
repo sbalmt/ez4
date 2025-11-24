@@ -4,6 +4,7 @@ import type { InputOptions } from '../options';
 import { Tester, Logger, LogLevel } from '@ez4/project/library';
 
 import { buildMetadata } from '../../library/metadata';
+import { warnUnsupportedFlags } from '../../utils/flags';
 import { getServiceEmulators } from '../../emulator/utils';
 import { bootstrapServices, prepareServices, shutdownServices } from '../../emulator/actions';
 import { getServeOptions } from '../../emulator/options';
@@ -25,6 +26,12 @@ export const testCommand = async (input: InputOptions, project: ProjectOptions) 
 
   const [aliasPaths, allImports] = await Logger.execute('⚡ Initializing', () => {
     return Promise.all([loadAliasPaths(project), loadImports(project), loadProviders(project)]);
+  });
+
+  warnUnsupportedFlags(input, {
+    arguments: true,
+    reset: options.local,
+    local: true
   });
 
   options.imports = allImports;

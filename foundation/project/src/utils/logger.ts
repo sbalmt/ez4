@@ -17,7 +17,7 @@ export namespace Logger {
   export type Callback<T> = () => Promise<T> | T;
 
   const Context: LoggerContext = {
-    logLevel: LogLevel.Error,
+    logLevel: LogLevel.Warning,
     capture: 0,
     buffer: []
   };
@@ -29,7 +29,7 @@ export namespace Logger {
   export const execute = async <T>(message: string, callback: Callback<T>) => {
     const startTime = performance.now();
 
-    process.stdout.write(`[EZ4]: ${message} ...`);
+    process.stdout.write(`${message} ...`);
 
     try {
       Context.capture++;
@@ -46,7 +46,7 @@ export namespace Logger {
 
       const elapsedTime = (performance.now() - startTime).toFixed(2);
 
-      process.stdout.write(`\r[EZ4]: ${message} (${elapsedTime}ms)\n`);
+      process.stdout.write(`\r${message} (${elapsedTime}ms)\n`);
 
       if (Context.capture === 0 && Context.buffer.length) {
         process.stdout.write('\n');
@@ -74,7 +74,7 @@ export namespace Logger {
 
   export const log = (message: string) => {
     for (const line of message.split('\n')) {
-      const logMessage = `[EZ4]: ${line}`;
+      const logMessage = `${line}`;
 
       if (Context.capture === 0) {
         process.stdout.write(`${logMessage}\n`);
@@ -96,7 +96,7 @@ export namespace Logger {
     }
 
     for (const line of message.split('\n')) {
-      const warnLine = toRed(`[EZ4]: ⚠️  ${line}`);
+      const warnLine = `⚠️  ${toRed(line)}`;
 
       if (Context.capture === 0) {
         process.stderr.write(`${warnLine}\n`);
@@ -112,7 +112,7 @@ export namespace Logger {
     }
 
     for (const line of message.split('\n')) {
-      const errorLine = toRed(`[EZ4]: ❌ ${line}`);
+      const errorLine = `❌ ${toRed(line)}`;
 
       if (Context.capture === 0) {
         process.stderr.write(`${errorLine}\n`);
@@ -128,7 +128,7 @@ export namespace Logger {
     }
 
     for (const line of message.split('\n')) {
-      const successLine = `[EZ4]: ✅ ${line}`;
+      const successLine = `✅ ${line}`;
 
       if (Context.capture === 0) {
         process.stderr.write(`${successLine}\n`);

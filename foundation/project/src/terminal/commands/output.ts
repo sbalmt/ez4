@@ -1,18 +1,26 @@
 import type { ProjectOptions } from '../../types/project';
+import type { InputOptions } from '../options';
 
-import { Logger } from '@ez4/project/library';
+import { Logger, LogLevel } from '@ez4/project/library';
 
+import { warnUnsupportedFlags } from '../../utils/flags';
 import { loadProviders } from '../../config/providers';
 import { reportResourcesOutput } from '../../deploy/output';
 import { getDeployOptions } from '../../deploy/options';
 import { loadState } from '../../utils/state';
 
-export const outputCommand = async (project: ProjectOptions) => {
+export const outputCommand = async (input: InputOptions, project: ProjectOptions) => {
   const options = getDeployOptions(project);
+
+  if (options.debug) {
+    Logger.setLevel(LogLevel.Debug);
+  }
 
   await Logger.execute('⚡ Initializing', () => {
     return loadProviders(project);
   });
+
+  warnUnsupportedFlags(input);
 
   const currentState = await Logger.execute('🔄️ Loading state', () => {
     return loadState(project.stateFile, options);

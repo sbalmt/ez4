@@ -1,7 +1,8 @@
 import type { EntryStates } from '@ez4/stateful';
 import type { ProjectOptions } from '../../types/project';
+import type { InputOptions } from '../options';
 
-import { Logger } from '@ez4/project/library';
+import { Logger, LogLevel } from '@ez4/project/library';
 
 import { applyDeploy } from '../../deploy/apply';
 import { getEventContext } from '../../deploy/context';
@@ -16,18 +17,27 @@ import { loadProviders } from '../../config/providers';
 import { loadAliasPaths } from '../../config/tsconfig';
 import { loadImports } from '../../config/imports';
 import { buildMetadata } from '../../library/metadata';
+import { warnUnsupportedFlags } from '../../utils/flags';
 import { waitConfirmation } from '../../utils/prompt';
 import { assertNoErrors } from '../../utils/errors';
 
-export const deployCommand = async (project: ProjectOptions) => {
+export const deployCommand = async (input: InputOptions, project: ProjectOptions) => {
   const options = getDeployOptions(project);
+
+  if (options.debug) {
+    Logger.setLevel(LogLevel.Debug);
+  }
+
+  const [aliasPaths, allImports] = await Logger.execute('⚡ Initializing', () => {
+    return Promise.all([loadAliasPaths(project), loadImports(project), loadProviders(project)]);
+  });
 
   if (options.force) {
     Logger.log('‼️  Force option is enabled');
   }
 
-  const [aliasPaths, allImports] = await Logger.execute('⚡ Initializing', () => {
-    return Promise.all([loadAliasPaths(project), loadImports(project), loadProviders(project)]);
+  warnUnsupportedFlags(input, {
+    force: true
   });
 
   options.imports = allImports;

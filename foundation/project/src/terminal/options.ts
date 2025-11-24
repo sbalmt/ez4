@@ -10,7 +10,7 @@ export const enum CommandType {
 }
 
 export type InputOptions = {
-  command: CommandType;
+  command?: CommandType;
   environmentFile?: string;
   projectFile?: string;
   forceMode?: boolean;
@@ -20,12 +20,8 @@ export type InputOptions = {
   arguments?: string[];
 };
 
-export const isInputOptions = (options: Partial<InputOptions>): options is InputOptions => {
-  return !!options.command;
-};
-
 export const getInputOptions = () => {
-  const options: Partial<InputOptions> = {};
+  const options: InputOptions = {};
   const input = process.argv.slice(2);
 
   for (let index = 0; index < input.length; index++) {
@@ -73,10 +69,6 @@ export const getInputOptions = () => {
         options.arguments = input.slice(++index);
         break;
     }
-  }
-
-  if (!isInputOptions(options)) {
-    return null;
   }
 
   return options;
