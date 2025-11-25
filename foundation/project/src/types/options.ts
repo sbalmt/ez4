@@ -25,6 +25,7 @@ export type DestroyOptions = CommonOptions & {
 export type ServeOptions = CommonOptions & {
   imports?: Record<string, ImportOptions>;
   localOptions: Record<string, AnyObject>;
+  testOptions: Record<string, AnyObject>;
   variables?: LinkedVariables;
   serviceHost: string;
   suppress?: boolean;

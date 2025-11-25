@@ -14,6 +14,7 @@ export const getServeOptions = (project: ProjectOptions): ServeOptions => {
     projectName: toKebabCase(project.projectName),
     serviceHost: `${serviceHost}:${servicePort}`,
     localOptions: project.localOptions ?? {},
+    testOptions: project.testOptions ?? {},
     variables: project.variables,
     force: project.debugMode,
     debug: project.debugMode,

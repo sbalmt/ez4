@@ -2,21 +2,26 @@ import type { DatabaseService } from '@ez4/database/library';
 import type { ServeOptions } from '@ez4/project/library';
 
 import { getDatabaseName } from '@ez4/pgclient/library';
-import { toSnakeCase } from '@ez4/utils';
+import { isEmptyObject, toSnakeCase } from '@ez4/utils';
 
 import { LocalOptionsNotFoundError } from './errors';
 
 export const getConnectionOptions = (service: DatabaseService, options: ServeOptions) => {
-  const localOptions = options.localOptions[toSnakeCase(service.name)];
+  const serviceName = toSnakeCase(service.name);
 
-  if (!localOptions) {
+  const serviceOptions = {
+    ...options.localOptions[serviceName],
+    ...(options.test && options.testOptions[serviceName])
+  };
+
+  if (isEmptyObject(serviceOptions)) {
     throw new LocalOptionsNotFoundError(service.name);
   }
 
-  const { user, password, host, port, database = getDatabaseName(service, options) } = localOptions;
+  const { user, password, host, port, database } = serviceOptions;
 
   return {
-    database: options.test ? `${database}_test` : database,
+    database: database ?? getDatabaseName(service, options),
     host: host ?? 'localhost',
     password,
     user,
