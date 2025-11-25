@@ -16,11 +16,13 @@ export * from './array/chunk';
 export * from './array/size';
 
 export * from './object/check';
+export * from './object/nullish';
 export * from './object/generics';
 export * from './object/compare';
 export * from './object/equal';
 export * from './object/clone';
 export * from './object/merge';
+export * from './object/empty';
 export * from './object/size';
 
 export * from './boolean/check';

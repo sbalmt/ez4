@@ -10,7 +10,13 @@ export type AnyObject = Record<any, any>;
  * Given an object type `T`, it produces a new object type allowing its original type, `undefined`
  * and `null` for all first-level properties.
  */
-export type Incomplete<T extends AnyObject> = { [P in keyof T]?: T[P] | null };
+export type Incomplete<T extends AnyObject> = { [P in keyof T]?: T[P] | undefined | null };
+
+/**
+ * Given an object type `T`, it produces a new object type allowing its original type only for
+ * all first-level properties.
+ */
+export type Complete<T extends AnyObject> = { [P in keyof T]-?: Exclude<T[P], undefined | null> };
 
 /**
  * Given a complex object type `T`, it produces a new object type resolving all its first-level
