@@ -10,8 +10,8 @@ import { isNullish } from '../browser';
  * @param properties Optional properties.
  * @returns Returns `true` when the given object is fulfilled, `false` otherwise.
  */
-export const isObjectWith = <T extends AnyObject, P extends keyof T>(object: T, ...properties: P[]): object is T & Complete<Pick<T, P>> => {
-  if (properties.length) {
+export const isObjectWith = <T extends AnyObject, P extends keyof T>(object: T, properties?: P[]): object is T & Complete<Pick<T, P>> => {
+  if (properties?.length) {
     for (const property of properties) {
       if (isNullish(object[property])) {
         return false;

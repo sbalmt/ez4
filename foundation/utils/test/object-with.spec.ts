@@ -13,7 +13,7 @@ describe('object with utils', () => {
   it('assert :: is with single property', () => {
     const test: TestObject = { foo: 'foo' };
 
-    if (isObjectWith(test, 'foo')) {
+    if (isObjectWith(test, ['foo'])) {
       ok(assertType<typeof test, { foo: string }>(true));
     } else {
       ok(false);
@@ -23,7 +23,7 @@ describe('object with utils', () => {
   it('assert :: is with multiple properties', () => {
     const test: TestObject = { foo: 'foo', bar: 123 };
 
-    if (isObjectWith(test, 'foo', 'bar')) {
+    if (isObjectWith(test, ['foo', 'bar'])) {
       ok(assertType<typeof test, { foo: string; bar: number }>(true));
     } else {
       ok(false);
