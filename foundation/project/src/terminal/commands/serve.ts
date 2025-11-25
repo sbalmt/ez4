@@ -1,6 +1,6 @@
 import type { IncomingMessage, ServerResponse } from 'node:http';
 import type { EmulatorHandlerResponse } from '../../emulator/types';
-import type { ServiceEmulators } from '../../emulator/utils';
+import type { ServiceEmulators } from '../../emulator/service';
 import type { ProjectOptions } from '../../types/project';
 import type { ServeOptions } from '../../types/options';
 import type { InputOptions } from '../options';
@@ -11,8 +11,8 @@ import { createServer } from 'node:http';
 
 import { warnUnsupportedFlags } from '../../utils/flags';
 import { getServiceAddress, getServicePort } from '../../utils/project';
-import { bootstrapServices, prepareServices, shutdownServices } from '../../emulator/actions';
-import { getServiceEmulators } from '../../emulator/utils';
+import { bootstrapServices, prepareServices, shutdownServices } from '../../emulator/utils';
+import { getServiceEmulators } from '../../emulator/service';
 import { getServeOptions } from '../../emulator/options';
 import { watchMetadata } from '../../library/metadata';
 import { loadAliasPaths } from '../../config/tsconfig';

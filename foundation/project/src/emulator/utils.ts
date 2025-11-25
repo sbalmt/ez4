@@ -1,73 +1,34 @@
-import type { LinkedServiceEmulators, ServiceEmulator, ServiceEmulatorClients } from './types';
-import type { MetadataReflection } from '../types/metadata';
-import type { ServeOptions } from '../types/options';
+import type { ServiceEmulators } from './service';
+import type { ServiceEmulator } from './types';
 
-import { getServiceName, triggerAllAsync } from '@ez4/project/library';
-
-import { MissingEmulatorProvider } from './errors';
-
-export type ServiceEmulators = Record<string, ServiceEmulator>;
-
-export const getServiceEmulators = async (metadata: MetadataReflection, options: ServeOptions) => {
-  const emulators: ServiceEmulators = {};
-
-  const context = {
-    makeClients: (linkedServices: LinkedServiceEmulators) => {
-      return makeEmulatorClients(linkedServices, emulators, options);
-    },
-    makeClient: (resourceName: string) => {
-      return makeEmulatorClient(resourceName, emulators, options);
+export const prepareServices = (emulators: ServiceEmulators) => {
+  return forEachEmulator(emulators, async (emulator) => {
+    if (emulator.prepareHandler) {
+      await emulator.prepareHandler();
     }
-  };
-
-  for (const identity in metadata) {
-    const service = metadata[identity];
-
-    const result = await triggerAllAsync('emulator:getServices', (handler) =>
-      handler({
-        service,
-        options,
-        context
-      })
-    );
-
-    if (!result) {
-      throw new MissingEmulatorProvider(service.name);
-    }
-
-    if (result) {
-      emulators[result.identifier] = result;
-    }
-  }
-
-  return emulators;
+  });
 };
 
-const makeEmulatorClients = (linkedServices: LinkedServiceEmulators, emulators: ServiceEmulators, options: ServeOptions) => {
-  const allClients: ServiceEmulatorClients = {};
-
-  for (const linkedServiceName in linkedServices) {
-    const serviceName = linkedServices[linkedServiceName];
-
-    allClients[linkedServiceName] = makeEmulatorClient(serviceName, emulators, options);
-  }
-
-  return allClients;
+export const bootstrapServices = (emulators: ServiceEmulators) => {
+  return forEachEmulator(emulators, async (emulator) => {
+    if (emulator.bootstrapHandler) {
+      await emulator.bootstrapHandler();
+    }
+  });
 };
 
-const makeEmulatorClient = (resourceName: string, emulators: ServiceEmulators, options: ServeOptions) => {
-  const serviceName = getServiceName(resourceName, options);
-  const serviceEmulator = emulators[serviceName];
+export const shutdownServices = (emulators: ServiceEmulators) => {
+  return forEachEmulator(emulators, async (emulator) => {
+    if (emulator.shutdownHandler) {
+      await emulator.shutdownHandler();
+    }
+  });
+};
 
-  if (!serviceEmulator) {
-    throw new Error(`Service ${resourceName} has no emulators.`);
+const forEachEmulator = async (emulators: ServiceEmulators, callback: (emulator: ServiceEmulator) => Promise<void>) => {
+  process.env.EZ4_IS_LOCAL = 'true';
+
+  for (const identifier in emulators) {
+    await callback(emulators[identifier]);
   }
-
-  const client = serviceEmulator.exportHandler?.();
-
-  if (!client) {
-    throw new Error(`Service ${resourceName} has no client emulator.`);
-  }
-
-  return client;
 };
