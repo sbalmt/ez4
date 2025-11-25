@@ -13,10 +13,10 @@ export const getConnectionOptions = (service: DatabaseService, options: ServeOpt
     throw new LocalOptionsNotFoundError(service.name);
   }
 
-  const { database, user, password, host, port } = localOptions;
+  const { user, password, host, port, database = getDatabaseName(service, options) } = localOptions;
 
   return {
-    database: database ?? getDatabaseName(service, options),
+    database: options.test ? `${database}_test` : database,
     host: host ?? 'localhost',
     password,
     user,

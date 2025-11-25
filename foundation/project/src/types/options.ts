@@ -31,4 +31,5 @@ export type ServeOptions = CommonOptions & {
   version: number;
   reset?: boolean;
   local?: boolean;
+  test?: boolean;
 };
