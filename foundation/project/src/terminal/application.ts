@@ -1,19 +1,29 @@
+import { loadEnvFile } from 'node:process';
+
+import { Logger } from '../utils/logger';
+import { tryLoadProject } from '../config/project';
 import { helpCommand } from './commands/help';
 import { runActionCommand } from './commands';
 import { getInputOptions } from './options';
-import { Logger } from '../utils/logger';
 
-const options = getInputOptions();
+const input = getInputOptions();
 
 try {
-  if (options?.command) {
-    await runActionCommand(options);
+  if (input?.environmentFile) {
+    loadEnvFile(input.environmentFile);
+  }
+
+  const project = await tryLoadProject(input?.projectFile);
+
+  if (input?.command) {
+    await runActionCommand(input, project);
   } else {
-    (helpCommand(), process.exit(1));
+    await helpCommand(input, project);
+    process.exit(1);
   }
 } catch (error) {
   if (error instanceof Error) {
-    Logger.error(error.stack && options?.debugMode ? error.stack : error.message);
+    Logger.error(error.stack && input?.debugMode ? error.stack : error.message);
   } else {
     Logger.error(`${error}`);
   }

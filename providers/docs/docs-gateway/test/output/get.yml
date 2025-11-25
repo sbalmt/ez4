@@ -1,0 +1,43 @@
+openapi: 3.1.0
+info:
+  title: Test API
+  version: 1.0.0
+
+paths:
+  /route:
+    get:
+      operationId: testHandler
+      summary: "Test the GET route documentation."
+      parameters:
+        - name: foo
+          in: query
+          required: true
+          schema:
+            type: string
+        - name: bar
+          in: query
+          required: false
+          schema:
+            type: number
+      responses:
+        200:
+          description: "Successful response."
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/responseSchemes/testHandler'
+
+components:
+  responseSchemes:
+    testHandler:
+      type: object
+      description: "GET route response."
+      additionalProperties: false
+      properties:
+        foo:
+          type: string
+        bar:
+          type: number
+      required:
+        - foo
+        - bar

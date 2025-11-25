@@ -1,0 +1,49 @@
+openapi: 3.1.0
+info:
+  title: Test API
+  version: 1.0.0
+
+paths:
+  /route:
+    post:
+      operationId: testHandler
+      summary: "Test the POST route documentation."
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/requestSchemes/testHandler'
+      responses:
+        201:
+          description: "Successful response."
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/responseSchemes/testHandler'
+
+components:
+  requestSchemes:
+    testHandler:
+      type: object
+      description: "POST route request."
+      additionalProperties: false
+      properties:
+        foo:
+          type: string
+        bar:
+          type: number
+      required:
+        - foo
+        - bar
+
+  responseSchemes:
+    testHandler:
+      type: object
+      description: "POST route response."
+      additionalProperties: false
+      properties:
+        id:
+          type: string
+          format: uuid
+      required:
+        - id

@@ -1,0 +1,18 @@
+%%{init: { "layout": "elk" } }%%
+erDiagram
+	TableA {
+		id string PK
+		value number
+		table_b_id string FK,UK
+	}
+	TableA ||--|| TableB : "table_a(table_b_id) → table_b(id)"
+	TableB {
+		id string PK
+		value string
+	}
+	TableC {
+		id string PK
+		value number
+		table_b_id string FK,UK
+	}
+	TableC |o--|| TableB : "table_c(table_b_id) → table_b(id)"

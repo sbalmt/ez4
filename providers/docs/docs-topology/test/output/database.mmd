@@ -1,0 +1,9 @@
+%%{init: { "layout": "elk" } }%%
+graph LR
+	classDef ez4Database fill:#eb575750, stroke:#eb5757a0;
+	classDef ez4DatabaseEdge stroke:#eb5757;
+	subgraph DBs
+		style DBs fill: #f5f5f5, stroke-width: 0
+		TestDatabase@{ shape: cyl, label: "TestDatabase" }
+		class TestDatabase ez4Database
+	end

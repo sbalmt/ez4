@@ -90,6 +90,11 @@ export type ProjectOptions = {
   localOptions?: Record<string, AnyObject>;
 
   /**
+   * Options for local development tests.
+   */
+  testOptions?: Record<string, AnyObject>;
+
+  /**
    * Variables associated to all services.
    */
   variables?: LinkedVariables;

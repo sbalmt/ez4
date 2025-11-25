@@ -1,41 +1,45 @@
+import type { ProjectOptions } from '../types/project';
 import type { InputOptions } from './options';
 
-import { loadEnvFile } from 'node:process';
-
-import { loadProject } from '../config/project';
 import { deployCommand } from './commands/deploy';
 import { destroyCommand } from './commands/destroy';
+import { outputCommand } from './commands/output';
+import { generateCommand } from './commands/generate';
+import { runCommand } from './commands/run';
 import { serveCommand } from './commands/serve';
 import { testCommand } from './commands/test';
 import { helpCommand } from './commands/help';
 import { CommandType } from './options';
 
-export const runActionCommand = async (options: InputOptions) => {
-  if (options.environmentFile) {
-    loadEnvFile(options.environmentFile);
-  }
+export const runActionCommand = async (input: InputOptions, project: ProjectOptions) => {
+  project.debugMode = input.debugMode ?? project.debugMode;
+  project.forceMode = input.forceMode ?? project.forceMode;
+  project.resetMode = input.resetMode ?? project.resetMode;
+  project.localMode = input.localMode ?? project.localMode;
 
-  const project = await loadProject(options.projectFile);
-
-  project.debugMode = options.debugMode ?? project.debugMode;
-  project.forceMode = options.forceMode ?? project.forceMode;
-  project.resetMode = options.resetMode ?? project.resetMode;
-  project.localMode = options.localMode ?? project.localMode;
-
-  switch (options.command) {
+  switch (input.command) {
     case CommandType.Deploy:
-      return deployCommand(project);
+      return deployCommand(input, project);
 
     case CommandType.Destroy:
-      return destroyCommand(project);
+      return destroyCommand(input, project);
+
+    case CommandType.Output:
+      return outputCommand(input, project);
+
+    case CommandType.Generate:
+      return generateCommand(input, project);
+
+    case CommandType.Run:
+      return runCommand(input, project);
 
     case CommandType.Serve:
-      return serveCommand(project);
+      return serveCommand(input, project);
 
     case CommandType.Test:
-      return testCommand(options, project);
+      return testCommand(input, project);
 
     case CommandType.Help:
-      return helpCommand();
+      return helpCommand(input, project);
   }
 };

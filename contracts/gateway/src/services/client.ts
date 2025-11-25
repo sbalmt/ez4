@@ -30,6 +30,7 @@ export type ClientRequest = RequestOptions & {
  */
 export type ClientResponse = {
   status: number;
+  headers?: Record<string, string | undefined>;
   body?: unknown;
 };
 

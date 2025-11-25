@@ -1,0 +1,21 @@
+openapi: 3.1.0
+info:
+  title: Test API
+  version: 1.0.0
+
+paths:
+  /private:
+    get:
+      operationId: testHandler
+      security:
+        - testAuthorizer: []
+      responses:
+        204:
+          description: "Successful response."
+
+components:
+  securitySchemes:
+    testAuthorizer:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT

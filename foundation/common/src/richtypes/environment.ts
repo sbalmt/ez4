@@ -7,7 +7,7 @@ export namespace Environment {
   /**
    * Bind a variable or a default value from the environment.
    */
-  export type Value<_Name extends string, Default> = Default;
+  export type VariableOrValue<_Name extends string, Default> = Default;
 
   /**
    * Bind all the service variables from the environment as a service.

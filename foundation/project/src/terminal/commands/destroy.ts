@@ -1,66 +1,62 @@
 import type { EntryStates } from '@ez4/stateful';
 import type { ProjectOptions } from '../../types/project';
-import type { DestroyOptions } from '../../types/options';
+import type { InputOptions } from '../options';
 
-import { Logger } from '@ez4/project/library';
-import { toKebabCase } from '@ez4/utils';
+import { Logger, LogLevel } from '@ez4/project/library';
 
-import { applyDeploy } from '../../actions/deploy';
-import { loadLocalState, loadRemoteState, saveLocalState, saveRemoteState } from '../../actions/state';
-import { reportResourceChanges } from '../../report/report';
+import { applyDeploy } from '../../deploy/apply';
+import { warnUnsupportedFlags } from '../../utils/flags';
+import { loadState, saveState } from '../../utils/state';
+import { reportResourceChanges } from '../../deploy/changes';
+import { getDeployOptions } from '../../deploy/options';
 import { loadProviders } from '../../config/providers';
 import { waitConfirmation } from '../../utils/prompt';
 import { assertNoErrors } from '../../utils/errors';
 
-export const destroyCommand = async (project: ProjectOptions) => {
-  const options: DestroyOptions = {
-    resourcePrefix: project.prefix ?? 'ez4',
-    projectName: toKebabCase(project.projectName),
-    debug: project.debugMode,
-    force: project.forceMode
-  };
+export const destroyCommand = async (input: InputOptions, project: ProjectOptions) => {
+  const options = getDeployOptions(project);
+
+  if (options.debug) {
+    Logger.setLevel(LogLevel.Debug);
+  }
+
+  await Logger.execute('⚡ Initializing', () => {
+    return loadProviders(project);
+  });
 
   if (options.force) {
     Logger.log('‼️  Force option is enabled');
   }
 
-  await Logger.execute('🔄️ Loading providers', () => {
-    return loadProviders(project);
+  warnUnsupportedFlags(input, {
+    force: true
   });
 
-  const stateFile = project.stateFile;
-  const statePath = `${stateFile.path}.ezstate`;
-
   const oldState = await Logger.execute('🔄️ Loading state', () => {
-    return stateFile.remote ? loadRemoteState(statePath, options) : loadLocalState(statePath);
+    return loadState(project.stateFile, options);
   });
 
   const newState: EntryStates = {};
+
   const hasChanges = await reportResourceChanges(newState, oldState);
 
   if (!hasChanges) {
-    Logger.log('ℹ️  No changes');
-    return;
+    return Logger.log('ℹ️  No changes');
   }
 
   if (project.confirmMode !== false) {
-    const proceed = await waitConfirmation('⁉️  Are you sure you want to proceed?');
+    const canProceed = await waitConfirmation('⁉️  Are you sure you want to proceed?');
 
-    if (!proceed) {
-      Logger.log('⛔ Aborted');
-      return;
+    if (!canProceed) {
+      return Logger.log('⛔ Aborted');
     }
   }
 
-  const applyState = await applyDeploy(newState, oldState, options.force);
+  const deployState = await applyDeploy(newState, oldState, options.force);
 
-  await Logger.execute('💾 Saving state', () => {
-    if (stateFile.remote) {
-      return saveRemoteState(statePath, options, applyState.result);
-    }
-
-    return saveLocalState(statePath, applyState.result);
+  await Logger.execute('✅ Saving state', () => {
+    return saveState(project.stateFile, options, deployState.result);
   });
 
-  assertNoErrors(applyState.errors);
+  assertNoErrors(deployState.errors);
 };

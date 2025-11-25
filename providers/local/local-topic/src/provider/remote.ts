@@ -35,14 +35,18 @@ export const registerRemoteServices = (service: TopicImport, options: ServeOptio
     requestHandler: (request: EmulatorServiceRequest) => {
       return handleTopicRequest(service, options, context, request);
     },
-    bootstrapHandler: () => {
-      const topicIdentifier = getServiceName(serviceName, options);
-      const topicHost = getTopicServiceHost(options.serviceHost, topicIdentifier);
+    bootstrapHandler: async () => {
+      if (!options.suppress) {
+        const topicIdentifier = getServiceName(serviceName, options);
+        const topicHost = getTopicServiceHost(options.serviceHost, topicIdentifier);
 
-      return subscribeRemoteClient(referenceName, topicHost, clientOptions);
+        await subscribeRemoteClient(referenceName, topicHost, clientOptions);
+      }
     },
-    shutdownHandler: () => {
-      return unsubscribeRemoteClient(referenceName, clientOptions);
+    shutdownHandler: async () => {
+      if (!options.suppress) {
+        await unsubscribeRemoteClient(referenceName, clientOptions);
+      }
     }
   };
 };

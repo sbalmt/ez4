@@ -1,56 +1,46 @@
 import type { IncomingMessage, ServerResponse } from 'node:http';
 import type { EmulatorHandlerResponse } from '../../emulator/types';
-import type { ServiceEmulators } from '../../emulator/utils';
+import type { ServiceEmulators } from '../../emulator/service';
 import type { ProjectOptions } from '../../types/project';
 import type { ServeOptions } from '../../types/options';
+import type { InputOptions } from '../options';
 
 import { Logger, LogLevel } from '@ez4/project/library';
-import { toKebabCase } from '@ez4/utils';
 
 import { createServer } from 'node:http';
 
-import { getServiceAddress, getServiceHost, getServicePort } from '../../utils/project';
-import { bootstrapServices, prepareServices, shutdownServices } from '../../emulator/actions';
-import { getServiceEmulators } from '../../emulator/utils';
+import { warnUnsupportedFlags } from '../../utils/flags';
+import { getServiceAddress, getServicePort } from '../../utils/project';
+import { bootstrapServices, prepareServices, shutdownServices } from '../../emulator/utils';
+import { getServiceEmulators } from '../../emulator/service';
+import { getServeOptions } from '../../emulator/options';
 import { watchMetadata } from '../../library/metadata';
 import { loadAliasPaths } from '../../config/tsconfig';
 import { loadProviders } from '../../config/providers';
 import { loadImports } from '../../config/imports';
 
-export const serveCommand = async (project: ProjectOptions) => {
-  const options: ServeOptions = {
-    resourcePrefix: project.prefix ?? 'ez4',
-    projectName: toKebabCase(project.projectName),
-    serviceHost: getServiceHost(project.serveOptions),
-    localOptions: project.localOptions ?? {},
-    variables: project.variables,
-    force: project.forceMode,
-    debug: project.debugMode,
-    reset: project.resetMode,
-    local: project.localMode,
-    version: 0
-  };
+export const serveCommand = async (input: InputOptions, project: ProjectOptions) => {
+  const options = getServeOptions(project);
 
   if (options.debug) {
     Logger.setLevel(LogLevel.Debug);
   }
 
-  const namespacePath = await Logger.execute('🔄️ Loading providers', () => {
-    return loadProviders(project);
+  const [aliasPaths, allImports, namespacePath] = await Logger.execute('⚡ Initializing', () => {
+    return Promise.all([loadAliasPaths(project), loadImports(project), loadProviders(project)]);
   });
 
-  const aliasPaths = await Logger.execute('🔄️ Loading tsconfig', () => {
-    return loadAliasPaths(project);
-  });
-
-  options.imports = await Logger.execute('🔄️ Loading imports', () => {
-    return loadImports(project);
+  warnUnsupportedFlags(input, {
+    reset: options.local,
+    local: true
   });
 
   let emulators: ServiceEmulators = {};
   let isRunning = false;
 
   const additionalPaths = project.watchOptions?.additionalPaths ?? [];
+
+  options.imports = allImports;
 
   const watcher = await watchMetadata(project.sourceFiles, {
     additionalPaths: [namespacePath, ...additionalPaths],

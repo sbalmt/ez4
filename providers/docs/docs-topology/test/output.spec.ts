@@ -1,0 +1,33 @@
+import { buildMetadata } from '@ez4/project/library';
+
+import { deepEqual } from 'node:assert/strict';
+import { readFileSync, writeFileSync } from 'node:fs';
+import { describe, it } from 'node:test';
+
+import { TopologyGenerator } from '../src/generator/topology';
+
+const testFile = (fileName: string, overwrite = false) => {
+  const sourceFile = `./test/input/output-${fileName}.ts`;
+  const outputFile = `./test/output/${fileName}.mmd`;
+
+  const { metadata } = buildMetadata([sourceFile]);
+
+  const outputContent = TopologyGenerator.getTopologyOutput(metadata);
+
+  if (overwrite) {
+    writeFileSync(outputFile, outputContent);
+  } else {
+    deepEqual(outputContent, readFileSync(outputFile).toString());
+  }
+};
+
+describe('topology documentation (mermaid output)', () => {
+  it('assert :: api', () => testFile('api', true));
+  it('assert :: bucket', () => testFile('bucket', true));
+  it('assert :: database', () => testFile('database', true));
+  it('assert :: scheduler', () => testFile('scheduler', true));
+  it('assert :: queue', () => testFile('queue', true));
+  it('assert :: topic', () => testFile('topic', true));
+  it('assert :: topic with queue', () => testFile('topic-queue', true));
+  it('assert :: cdn', () => testFile('cdn', true));
+});

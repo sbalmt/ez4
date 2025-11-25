@@ -4,7 +4,7 @@ export namespace Environment {
     variable: Name;
   };
 
-  export type Value<Name extends string, Default> = {
+  export type VariableOrValue<Name extends string, Default> = {
     '@ez4/project': 'value';
     variable: Name;
     default: Default;

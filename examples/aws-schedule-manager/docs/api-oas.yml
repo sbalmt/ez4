@@ -1,0 +1,208 @@
+openapi: 3.1.0
+info:
+  title: Scheduler Manager
+  version: 1.0.0
+
+paths:
+  /create-schedule:
+    post:
+      operationId: createScheduleHandler
+      summary: Handle create schedule requests.
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/requestSchemes/createScheduleHandler'
+      responses:
+        201:
+          description: Successful response.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/responseSchemes/createScheduleHandler'
+  /read-schedule/{scheduleId}:
+    get:
+      operationId: readScheduleHandler
+      summary: Handle read schedule requests.
+      parameters:
+        - name: scheduleId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        200:
+          description: Successful response.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/responseSchemes/readScheduleHandler'
+  /update-schedule/{scheduleId}:
+    patch:
+      operationId: updateScheduleHandler
+      summary: Handle update schedule requests.
+      parameters:
+        - name: scheduleId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/requestSchemes/updateScheduleHandler'
+      responses:
+        200:
+          description: Successful response.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/responseSchemes/updateScheduleHandler'
+  /delete-schedule/{scheduleId}:
+    delete:
+      operationId: deleteScheduleHandler
+      summary: Handle delete schedule requests.
+      parameters:
+        - name: scheduleId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        204:
+          description: Successful response.
+  /list-schedules:
+    get:
+      operationId: listSchedulesHandler
+      summary: Handle list schedules requests.
+      parameters:
+        - name: cursor
+          in: query
+          required: false
+          schema:
+            type: string
+            description: Page cursor.
+        - name: limit
+          in: query
+          required: false
+          schema:
+            type: integer
+            description: Page limit.
+            minimum: 1
+            maximum: 10
+      responses:
+        200:
+          description: Successful response.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/responseSchemes/listSchedulesHandler'
+
+components:
+  requestSchemes:
+    createScheduleHandler:
+      type: object
+      description: Expected HTTP body payload.
+      additionalProperties: false
+      properties:
+        date:
+          type: string
+          description: Event date.
+          format: date-time
+        message:
+          type: string
+          description: Event message.
+      required:
+        - date
+        - message
+    updateScheduleHandler:
+      type: object
+      description: Expected HTTP body payload.
+      additionalProperties: false
+      properties:
+        date:
+          type: string
+          description: New event date.
+          format: date-time
+        message:
+          type: string
+          description: New event message.
+
+  responseSchemes:
+    createScheduleHandler:
+      type: object
+      description: HTTP body payload.
+      additionalProperties: false
+      properties:
+        id:
+          type: string
+      required:
+        - id
+    readScheduleHandler:
+      type: object
+      description: HTTP body payload.
+      additionalProperties: false
+      properties:
+        date:
+          type: string
+          description: Event date.
+          format: date-time
+        message:
+          type: string
+          description: Event message.
+      required:
+        - date
+        - message
+    updateScheduleHandler:
+      type: object
+      description: HTTP body payload.
+      additionalProperties: false
+      properties:
+        message:
+          type: string
+      required:
+        - message
+    listSchedulesHandler:
+      type: object
+      description: HTTP body payload.
+      additionalProperties: false
+      properties:
+        next:
+          type: string
+          description: Next page cursor.
+        schedules:
+          type: array
+          description: List of schedules.
+          items:
+            type: object
+            additionalProperties: false
+            properties:
+              id:
+                type: string
+                description: Event id.
+              date:
+                type: string
+                description: Event date.
+                format: date-time
+              status:
+                enum: 
+                  - "pending"
+                  - "completed"
+              created_at:
+                type: string
+                description: Event creation date.
+              updated_at:
+                type: string
+                description: Event last update date.
+            required:
+              - id
+              - date
+              - status
+              - created_at
+              - updated_at
+      required:
+        - schedules
