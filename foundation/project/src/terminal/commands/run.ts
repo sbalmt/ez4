@@ -33,6 +33,7 @@ export const runCommand = async (input: InputOptions, project: ProjectOptions) =
   });
 
   options.imports = allImports;
+  options.suppress = true;
 
   const emulators = await Logger.execute('🔄️ Loading emulators', () => {
     const { metadata } = buildMetadata(project.sourceFiles, {

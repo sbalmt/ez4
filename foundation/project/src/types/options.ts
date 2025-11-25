@@ -27,8 +27,8 @@ export type ServeOptions = CommonOptions & {
   localOptions: Record<string, AnyObject>;
   variables?: LinkedVariables;
   serviceHost: string;
+  suppress?: boolean;
   version: number;
   reset?: boolean;
   local?: boolean;
-  test?: boolean;
 };
