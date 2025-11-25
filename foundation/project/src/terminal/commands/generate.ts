@@ -21,7 +21,9 @@ export const generateCommand = async (input: InputOptions, project: ProjectOptio
     return Promise.all([loadAliasPaths(project), loadProviders(project)]);
   });
 
-  warnUnsupportedFlags(input);
+  warnUnsupportedFlags(input, {
+    arguments: true
+  });
 
   const { metadata } = await Logger.execute('🔄️ Loading metadata', () => {
     return buildMetadata(project.sourceFiles, {
