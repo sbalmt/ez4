@@ -16,7 +16,7 @@ export * from './array/chunk';
 export * from './array/size';
 
 export * from './object/check';
-export * from './object/nullish';
+export * from './object/with';
 export * from './object/generics';
 export * from './object/compare';
 export * from './object/equal';
