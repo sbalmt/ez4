@@ -1,7 +1,7 @@
 import { loadEnvFile } from 'node:process';
 
 import { Logger } from '../utils/logger';
-import { loadProject } from '../config/project';
+import { tryLoadProject } from '../config/project';
 import { helpCommand } from './commands/help';
 import { runActionCommand } from './commands';
 import { getInputOptions } from './options';
@@ -13,12 +13,12 @@ try {
     loadEnvFile(input.environmentFile);
   }
 
-  const project = await loadProject(input?.projectFile);
+  const project = await tryLoadProject(input?.projectFile);
 
   if (input?.command) {
     await runActionCommand(input, project);
   } else {
-    helpCommand(input, project);
+    await helpCommand(input, project);
     process.exit(1);
   }
 } catch (error) {

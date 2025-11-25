@@ -3,11 +3,11 @@ import type { EveryType, SourceMap, TypeClass, TypeObject } from '@ez4/reflectio
 import type { ServiceEmulator, EmulateServiceEvent, EmulateClientEvent } from '../emulator/types';
 import type { ResourceOutput, ResourceOutputEvent } from '../deploy/output';
 import type { GenerateHelpEvent, GenerateResourceEvent } from '../generator/events';
+import type { GeneratorUsageHelp } from '../generator/help';
 import type { IdentityAccount, IdentityGrant } from './identity';
 import type { ServiceMetadata, ContextSource } from './service';
 import type { DeployOptions, DestroyOptions } from './options';
 import type { MetadataServiceResult } from './metadata';
-import type { GeneratorHelp } from '../generator/help';
 
 export type Trigger = SyncEvent | AsyncEvent;
 
@@ -26,7 +26,7 @@ export type SyncEvent = {
   'reflection:typeObject': (type: TypeObject) => SyncEventResult<EveryType>;
   'metadata:getServices': (reflection: SourceMap) => SyncEventResult<MetadataServiceResult>;
   'metadata:getLinkedService': (type: TypeClass) => SyncEventResult<string>;
-  'generator:getUsageHelp': (event: GenerateHelpEvent) => SyncEventResult<GeneratorHelp>;
+  'generator:getUsageHelp': (event: GenerateHelpEvent) => SyncEventResult<GeneratorUsageHelp>;
   'deploy:resourceOutput': (event: ResourceOutputEvent) => SyncEventResult<ResourceOutput>;
 };
 

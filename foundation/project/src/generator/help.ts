@@ -2,13 +2,13 @@ import type { CommonOptions } from '../types/options';
 
 import { triggerAllSync } from '@ez4/project/library';
 
-export type GeneratorHelp = {
+export type GeneratorUsageHelp = {
   arguments: string[];
   description: string;
 };
 
-export const getGeneratorsHelp = (options: CommonOptions) => {
-  const generatorsHelp: GeneratorHelp[] = [];
+export const getGeneratorsUsageHelp = (options: CommonOptions) => {
+  const generatorsHelp: GeneratorUsageHelp[] = [];
 
   triggerAllSync('generator:getUsageHelp', (handler) => {
     const help = handler({ options });

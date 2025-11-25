@@ -4,11 +4,11 @@ import type { InputOptions } from '../options';
 import { loadProviders } from '../../config/providers';
 import { warnUnsupportedFlags } from '../../utils/flags';
 import { getGeneratorOptions } from '../../generator/options';
-import { getGeneratorsHelp } from '../../generator/help';
+import { getGeneratorsUsageHelp } from '../../generator/help';
 import { Logger } from '../../utils/logger';
 import { toBold } from '../../utils/format';
 
-const HELP_TEXT = [
+const HELP_LINES = [
   toBold('Usage:'),
   '  ez4 [command] [options] [ -p ez4.project.js ] [ -- arguments ]',
   '',
@@ -34,7 +34,7 @@ const HELP_TEXT = [
 ];
 
 export const helpCommand = async (input: InputOptions, project: ProjectOptions) => {
-  HELP_TEXT.forEach((line) => Logger.log(line));
+  HELP_LINES.forEach((line) => Logger.log(line));
 
   await generatorsHelp(project);
 
@@ -47,17 +47,30 @@ const generatorsHelp = async (project: ProjectOptions) => {
   await loadProviders(project);
 
   const options = getGeneratorOptions(project);
-  const helps = getGeneratorsHelp(options);
+  const helps = getGeneratorsUsageHelp(options);
 
-  if (!helps.length) {
-    return;
+  const helpLines = [];
+
+  for (const { arguments: inputs, description } of helps) {
+    const helpEntries = [];
+
+    for (let index = 0; index < inputs.length; ++index) {
+      const maxLength = Math.max(...helps.map((help) => help.arguments[index]?.length ?? -1));
+      const helpEntry = inputs[index].padEnd(maxLength);
+
+      helpEntries.push(helpEntry);
+    }
+
+    if (helpEntries.length) {
+      helpLines.push(`  ${helpEntries.join(' ')} - ${description}`);
+    }
   }
 
-  Logger.log(toBold('Generators:'));
+  if (helpLines.length) {
+    Logger.log(toBold('Generators:'));
 
-  for (const help of helps) {
-    Logger.log(`  ${help.arguments.join(' ')} - ${help.description}`);
+    helpLines.forEach((line) => Logger.log(line));
+
+    Logger.log('');
   }
-
-  Logger.log('');
 };

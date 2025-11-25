@@ -29,3 +29,17 @@ export const loadProject = async (fileName?: string): Promise<ProjectOptions> =>
     throw error;
   }
 };
+
+export const tryLoadProject = async (fileName?: string): Promise<ProjectOptions> => {
+  try {
+    return await loadProject(fileName);
+  } catch {
+    return {
+      projectName: 'unnamed',
+      sourceFiles: [],
+      stateFile: {
+        path: 'ez4-state'
+      }
+    };
+  }
+};
