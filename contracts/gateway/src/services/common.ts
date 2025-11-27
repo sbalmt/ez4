@@ -1,5 +1,4 @@
 import type { Service } from '@ez4/common';
-import type { HttpPreferences } from './preferences';
 import type { HttpProvider } from './provider';
 import type { Http } from './contract';
 
@@ -38,11 +37,6 @@ export type HttpRawBody = string;
  */
 export interface HttpAuthRequest {
   /**
-   * Auth request preferences.
-   */
-  preferences?: HttpPreferences;
-
-  /**
    * Expected HTTP headers.
    */
   headers?: HttpHeaders;
@@ -73,11 +67,6 @@ export interface HttpAuthResponse {
  */
 export interface HttpRequest {
   /**
-   * Request preferences.
-   */
-  preferences?: HttpPreferences;
-
-  /**
    * Expected identity.
    */
   identity?: HttpIdentity;
@@ -107,11 +96,6 @@ export interface HttpRequest {
  * HTTP response.
  */
 export interface HttpResponse {
-  /**
-   * Response preferences.
-   */
-  preferences?: HttpPreferences;
-
   /**
    * HTTP status code.
    */
