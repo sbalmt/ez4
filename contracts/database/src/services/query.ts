@@ -257,11 +257,11 @@ export namespace Query {
   };
 
   type WhereIn<V> = {
-    isIn: IsArray<V> extends true ? V : IsObject<V> extends true ? V : V[];
+    isIn: IsArray<V> extends true ? V : IsObject<V> extends true ? V : Exclude<V, undefined>[];
   };
 
   type WhereBetween<V> = {
-    isBetween: [V, V];
+    isBetween: [Exclude<V, undefined>, Exclude<V, undefined>];
   };
 
   type WhereIsMissing = {
