@@ -1,4 +1,4 @@
-import type { AnyObject, ArrayRest, PropertyType, ExclusiveType, IsArrayEmpty, IsUndefined, MergeObject, Prettify } from '@ez4/utils';
+import type { AnyObject, ArrayRest, PropertyType, Exclusive, IsArrayEmpty, IsUndefined, MergeObject, Prettify } from '@ez4/utils';
 import type { IndexedTables, PrimaryIndexes, UniqueIndexes } from './indexes';
 import type { Database, DatabaseTables } from './database';
 import type { TableSchemas } from './schemas';
@@ -268,12 +268,12 @@ type SourceColumnSchema<C, S extends Record<string, Database.Schema>> = Property
  */
 type ChangeRelationSchema<N, C, V, S extends Record<string, Database.Schema>, I extends Record<string, Database.Indexes>> =
   IsPrimarySourceIndex<C, I> extends true
-    ? ExclusiveType<SourceColumnSchema<C, S>, PrimaryKeyConnectionSchema<C, S, I>>
+    ? Exclusive<SourceColumnSchema<C, S>, PrimaryKeyConnectionSchema<C, S, I>>
     : IsUniqueSourceIndex<C, I> extends true
       ? IsPrimaryTargetIndex<V, PropertyType<N, I>> extends true
-        ? ExclusiveType<Omit<SourceColumnSchema<C, S>, RelationSourceColumn<C>>, UniqueKeyConnectionSchema<C, S, I>>
-        : ExclusiveType<SourceColumnSchema<C, S>, UniqueKeyConnectionSchema<C, S, I>>
-      : ExclusiveType<Omit<SourceColumnSchema<C, S>, RelationSourceColumn<C>>, PrimaryKeyConnectionSchema<C, S, I>>[];
+        ? Exclusive<Omit<SourceColumnSchema<C, S>, RelationSourceColumn<C>>, UniqueKeyConnectionSchema<C, S, I>>
+        : Exclusive<SourceColumnSchema<C, S>, UniqueKeyConnectionSchema<C, S, I>>
+      : Exclusive<Omit<SourceColumnSchema<C, S>, RelationSourceColumn<C>>, PrimaryKeyConnectionSchema<C, S, I>>[];
 
 /**
  * Produce a select relation schema according to its indexation.

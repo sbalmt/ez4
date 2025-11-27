@@ -17,9 +17,7 @@ type BaseModel = {
 export const testA = () => {
   type CustomModel = PartialObject<BaseModel, { foo: false }>;
 
-  type ExpectedType = {};
-
-  assertType<ExpectedType, CustomModel>(true);
+  assertType<{}, CustomModel>(true);
 };
 
 // Expect only 'foo'

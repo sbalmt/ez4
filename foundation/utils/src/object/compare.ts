@@ -1,4 +1,5 @@
-import type { AnyObject, InnerTypes, PartialProperties } from './generics';
+import type { AnyObject, PartialProperties } from './generics';
+import type { Decompose } from '../common/generics';
 
 import { deepCompareArray } from '../array/compare';
 import { isAnyObject } from './check';
@@ -26,7 +27,7 @@ export type ObjectCompareOptions<T extends AnyObject, S extends AnyObject> = {
    * @param source Source value.
    * @returns Returns `true` when the object property can be renamed, `false` otherwise.
    */
-  onRename?: (target: InnerTypes<T>, source: InnerTypes<S>) => boolean;
+  onRename?: (target: Decompose<T>, source: Decompose<S>) => boolean;
 };
 
 export type ObjectComparison = {

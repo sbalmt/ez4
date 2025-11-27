@@ -12,4 +12,13 @@ describe('array equality utils', () => {
 
     ok(result);
   });
+
+  it('assert :: deep not equals', () => {
+    const target = [[123], 'abc', { field: true }];
+    const source = [[123], 'def', { field: true }];
+
+    const result = deepEquals(target, source);
+
+    ok(!result);
+  });
 });

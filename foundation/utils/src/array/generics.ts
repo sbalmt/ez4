@@ -1,15 +1,17 @@
-import type { IsAny, MergeType } from '../common/generics';
+import type { IsAny, IsNever, MergeType } from '../common/generics';
 
 /**
  * Given a type `T`, it returns `true` when `T` is an array, otherwise returns `false`.
  */
-export type IsArray<T> = IsAny<T> extends true ? false : NonNullable<T> extends [...unknown[]] ? true : false;
+export type IsArray<T> =
+  IsAny<T> extends true ? false : IsNever<T> extends true ? false : NonNullable<T> extends [...unknown[]] ? true : false;
 
 /**
  * Given the array type `T`, it returns `true` when `T` is empty or `any`, otherwise
  * returns `false`.
  */
-export type IsArrayEmpty<T extends unknown[]> = IsAny<T> extends true ? true : T extends [unknown, ...unknown[]] ? false : true;
+export type IsArrayEmpty<T extends unknown[]> =
+  IsAny<T> extends true ? true : IsNever<T> extends true ? true : T extends [unknown, ...unknown[]] ? false : true;
 
 /**
  * Given the array type `T`, it returns another array skipping the first element.
