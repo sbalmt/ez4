@@ -5,18 +5,18 @@ export declare class TestService extends Http.Service {
   name: 'Remote API';
 
   routes: [
-    {
+    Http.UseRoute<{
       path: 'ANY /test-route';
       listener: typeof testListener;
       handler: typeof testHandler;
-    }
+    }>
   ];
 
-  defaults: {
+  defaults: Http.UseDefaults<{
     preferences: {
       namingStyle: NamingStyle.Preserve;
     };
-  };
+  }>;
 }
 
 function testListener(): void {}

@@ -1,7 +1,13 @@
 import type { Service as CommonService } from '@ez4/common';
 import type { LinkedVariables } from '@ez4/project/library';
-import type { HttpPath } from '../types/common';
 import type { HttpSuccessStatuses, HttpSuccessEmptyResponse, HttpSuccessResponse } from './utils';
+import type { HttpPreferences } from './preferences';
+import type { HttpDefaults } from './defaults';
+import type { HttpProvider } from './provider';
+import type { HttpAccess } from './access';
+import type { HttpRoute } from './route';
+import type { HttpCache } from './cache';
+import type { HttpCors } from './cors';
 import type { Client } from './client';
 
 import type {
@@ -11,20 +17,15 @@ import type {
   HttpQueryStrings,
   HttpJsonBody,
   HttpRawBody,
-  HttpPreferences,
   HttpAuthRequest,
   HttpAuthResponse,
   HttpRequest,
   HttpResponse,
   HttpErrors,
-  HttpProvider,
   HttpIncoming,
   HttpListener,
   HttpAuthorizer,
-  HttpHandler,
-  HttpCache,
-  HttpAccess,
-  HttpCors
+  HttpHandler
 } from './common';
 
 /**
@@ -60,105 +61,43 @@ export namespace Http {
   export type Authorizer<T extends AuthRequest> = HttpAuthorizer<T>;
   export type Handler<T extends Request> = HttpHandler<T>;
 
+  export type Route<T extends Request = Request, U extends AuthRequest = AuthRequest> = HttpRoute<T, U>;
+  export type Defaults<T extends HttpRequest | HttpAuthRequest = any> = HttpDefaults<T>;
+
   export type ServiceEvent<T extends Request | AuthRequest = Request> = CommonService.AnyEvent<Incoming<T>>;
 
   export type SuccessEmptyResponse<S extends HttpSuccessStatuses = 204> = HttpSuccessEmptyResponse<S>;
   export type SuccessResponse<S extends HttpSuccessStatuses, T extends HttpRawBody | HttpJsonBody> = HttpSuccessResponse<S, T>;
 
   /**
-   * HTTP route.
+   * HTTP Route definition.
    */
-  export interface Route<T extends Request = Request, U extends AuthRequest = AuthRequest> {
-    /**
-     * Route name.
-     */
-    name?: string;
-
-    /**
-     * Route path.
-     */
-    path: HttpPath;
-
-    /**
-     * Route listener.
-     */
-    listener?: Listener<T | U>;
-
-    /**
-     * Route authorizer.
-     */
-    authorizer?: Authorizer<U>;
-
-    /**
-     * Route handler.
-     */
-    handler: Handler<T>;
-
-    /**
-     * Map status codes and errors for all known exceptions.
-     */
-    httpErrors?: Errors;
-
-    /**
-     * Default log retention (in days) for the handlers.
-     */
-    logRetention?: number;
-
-    /**
-     * Variables associated to the route.
-     */
-    variables?: LinkedVariables;
-
-    /**
-     * Max execution time (in seconds) for the route.
-     */
-    timeout?: number;
-
-    /**
-     * Amount of memory available for the handler.
-     */
-    memory?: number;
-
-    /**
-     * Determines whether or not CORS is enabled for the route.
-     */
-    cors?: boolean;
-  }
+  export type UseRoute<T extends HttpRoute<any, any>> = T;
 
   /**
-   * Default HTTP service parameters.
+   * HTTP Service definition.
    */
-  export type Defaults<T extends Request | AuthRequest = {}> = {
-    /**
-     * Default route listener.
-     */
-    listener?: Listener<T>;
+  export type UseDefaults<T extends HttpDefaults<any>> = T;
 
-    /**
-     * Status codes for all known exceptions.
-     */
-    httpErrors?: Errors;
+  /**
+   * HTTP Preferences definition.
+   */
+  export type UsePreferences<T extends HttpPreferences> = T;
 
-    /**
-     * Default preferences for all handlers and routes.
-     */
-    preferences?: Preferences;
+  /**
+   * HTTP Cache definition.
+   */
+  export type UseCache<T extends HttpCache> = T;
 
-    /**
-     * Default log retention (in days) for the handlers.
-     */
-    logRetention?: number;
+  /**
+   * HTTP Access definition.
+   */
+  export type UseAccess<T extends HttpAccess> = T;
 
-    /**
-     * Default execution time (in seconds) for handlers and routes.
-     */
-    timeout?: number;
-
-    /**
-     * Default amount of memory available for handlers.
-     */
-    memory?: number;
-  };
+  /**
+   * HTTP CORS definition.
+   */
+  export type UseCors<T extends HttpCors> = T;
 
   /**
    * HTTP service.
@@ -167,7 +106,7 @@ export namespace Http {
     /**
      * All expected routes.
      */
-    abstract routes: Route<any, any>[];
+    abstract routes: HttpRoute<any, any>[];
 
     /**
      * Display name for the service.
@@ -177,7 +116,7 @@ export namespace Http {
     /**
      * Default parameters.
      */
-    defaults?: Defaults;
+    defaults?: HttpDefaults<any>;
 
     /**
      * CORS configuration.

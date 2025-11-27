@@ -1,3 +1,5 @@
+import type { Http } from '@ez4/gateway';
+
 import type { CustomError } from './errors';
 
 import type { postHandler } from './endpoints/post';
@@ -18,7 +20,7 @@ export type ApiErrors = {
  * All HTTP routes.
  */
 export type AllRoutes = [
-  {
+  Http.UseRoute<{
     /**
      * How the route is available in the API clients and documentation.
      */
@@ -43,35 +45,35 @@ export type AllRoutes = [
      * Include route configuration in the CORS configuration.
      */
     cors: true;
-  },
-  {
+  }>,
+  Http.UseRoute<{
     name: 'patchRoute';
     path: 'PATCH /patch-route/{id}';
     handler: typeof patchHandler;
     httpErrors: ApiErrors;
     cors: true;
-  },
-  {
+  }>,
+  Http.UseRoute<{
     name: 'putRoute';
     path: 'PUT /put-route/{id}';
     handler: typeof putHandler;
     cors: true;
-  },
-  {
+  }>,
+  Http.UseRoute<{
     name: 'getRoute';
     path: 'GET /get-route/{id}';
     handler: typeof getHandler;
     cors: true;
-  },
-  {
+  }>,
+  Http.UseRoute<{
     name: 'deleteRoute';
     path: 'DELETE /delete-route/{id}';
     handler: typeof deleteHandler;
     cors: true;
-  },
-  {
+  }>,
+  Http.UseRoute<{
     name: 'rawRoute';
     path: 'ANY /raw-route/{proxy+}';
     handler: typeof rawHandler;
-  }
+  }>
 ];

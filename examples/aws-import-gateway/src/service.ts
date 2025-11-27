@@ -14,9 +14,9 @@ export declare class Api extends Http.Service {
    * All API routes.
    */
   routes: [
-    {
+    Http.UseRoute<{
       path: 'GET /test-route';
       handler: typeof testHandler;
-    }
+    }>
   ];
 }

@@ -5,10 +5,10 @@ export declare class TestApi extends Http.Service {
   name: 'Test API';
 
   routes: [
-    {
+    Http.UseRoute<{
       path: 'POST /route';
       handler: typeof testHandler;
-    }
+    }>
   ];
 }
 

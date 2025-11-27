@@ -4,7 +4,7 @@ export declare class TestService extends Http.Service {
   routes: [];
 
   // Access configuration.
-  access: {
+  access: Http.UseAccess<{
     logRetention: 2;
-  };
+  }>;
 }

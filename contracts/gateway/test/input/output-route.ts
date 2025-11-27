@@ -3,11 +3,11 @@ import type { Http } from '@ez4/gateway';
 export declare class TestService extends Http.Service {
   routes: [
     // Inline route.
-    {
+    Http.UseRoute<{
       path: 'ANY /test-route-1';
       handler: typeof testRoute1;
       logRetention: 7;
-    },
+    }>,
 
     // Route reference.
     TestRoute
