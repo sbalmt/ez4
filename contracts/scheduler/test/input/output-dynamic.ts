@@ -10,9 +10,9 @@ export declare class TestScheduler extends Cron.Service<TestEvent> {
 
   maxRetries: 5;
 
-  target: {
+  target: Cron.UseTarget<{
     handler: typeof targetHandler;
-  };
+  }>;
 
   services: {
     testCron: Environment.Service<TestScheduler>;

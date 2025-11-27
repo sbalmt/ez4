@@ -1,6 +1,7 @@
 import type { Service as CommonService } from '@ez4/common';
 import type { LinkedVariables } from '@ez4/project/library';
 import type { CronEvent, CronHandler, CronIncoming, CronListener, CronRequest } from './common';
+import type { CronTarget } from './target';
 import type { Client } from './client';
 
 /**
@@ -15,44 +16,14 @@ export namespace Cron {
   export type Listener<T extends Event | null> = CronListener<T>;
   export type Handler<T extends Event | null> = CronHandler<T>;
 
+  export type Target<T extends Event | null> = CronTarget<T>;
+
   export type ServiceEvent<T extends Event | null = null> = CommonService.AnyEvent<Incoming<T>>;
 
   /**
-   * Cron target.
+   * Cron Target definition.
    */
-  export interface Target<T extends Event | null> {
-    /**
-     * Target listener.
-     */
-    listener?: Listener<T>;
-
-    /**
-     * Target handler.
-     *
-     * @param context Handler context.
-     */
-    handler: Handler<T>;
-
-    /**
-     * Variables associated to the target.
-     */
-    variables?: LinkedVariables;
-
-    /**
-     * Log retention (in days) for the handler.
-     */
-    logRetention?: number;
-
-    /**
-     * Max execution time (in seconds) for the handler.
-     */
-    timeout?: number;
-
-    /**
-     * Amount of memory available for the handler.
-     */
-    memory?: number;
-  }
+  export type UseTarget<T extends Target<any>> = T;
 
   /**
    * Cron service.
