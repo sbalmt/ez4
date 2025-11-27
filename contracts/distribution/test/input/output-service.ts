@@ -13,26 +13,26 @@ export declare class TestBucket extends Bucket.Service {}
 export declare class TestCdn extends Cdn.Service {
   aliases: ['test-1.ez4.dev', 'test-2.ez4.dev'];
 
-  certificate: {
+  certificate: Cdn.UseCertificate<{
     domain: 'ez4.dev';
-  };
+  }>;
 
   defaultIndex: 'index.html';
 
-  defaultOrigin: {
+  defaultOrigin: Cdn.UseDefaultOrigin<{
     bucket: Environment.Service<TestBucket>;
     location: '/site';
-  };
+  }>;
 
   origins: [
     TestRegularOrigin1,
     TestBucketOrigin1,
     TestRegularOrigin2,
     TestBucketOrigin2,
-    {
+    Cdn.UseOrigin<{
       domain: Environment.Variable<'TEST_ENV_VAR'>;
       path: 'inline/*';
-    }
+    }>
   ];
 
   fallbacks: [

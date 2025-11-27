@@ -1,6 +1,9 @@
 import type { Service as CommonService } from '@ez4/common';
-
-import type { CdnBucketOrigin, CdnRegularOrigin, CdnCertificate, CdnFallback, CdnCache } from './common';
+import type { Exclusive } from '@ez4/utils';
+import type { CdnBucketOrigin, CdnRegularOrigin } from './origin';
+import type { CdnCertificate } from './certificate';
+import type { CdnFallback } from './fallback';
+import type { CdnCache } from './cache';
 
 /**
  * Provide all contracts for a self-managed CDN service.
@@ -16,6 +19,31 @@ export namespace Cdn {
   export type Cache = CdnCache;
 
   export type Certificate = CdnCertificate;
+
+  /**
+   * CDN Origin definition.
+   */
+  export type UseDefaultOrigin<T extends Exclusive<DefaultRegularOrigin, DefaultBucketOrigin>> = T;
+
+  /**
+   * CDN Origin definition.
+   */
+  export type UseOrigin<T extends Exclusive<RegularOrigin, BucketOrigin>> = T;
+
+  /**
+   * CDN Certificate definition.
+   */
+  export type UseCertificate<T extends CdnCertificate> = T;
+
+  /**
+   * CDN Fallback definition.
+   */
+  export type UseFallback<T extends CdnFallback> = T;
+
+  /**
+   * CDN Cache definition.
+   */
+  export type UseCache<T extends CdnCache> = T;
 
   /**
    * CDN service.

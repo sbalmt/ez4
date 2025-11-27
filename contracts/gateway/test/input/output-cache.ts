@@ -17,9 +17,9 @@ export declare class TestService extends Http.Service {
   ];
 
   // Cache configuration.
-  cache: {
+  cache: Http.UseCache<{
     authorizerTTL: 5;
-  };
+  }>;
 }
 
 interface SuccessAuthResponse extends Http.AuthResponse {

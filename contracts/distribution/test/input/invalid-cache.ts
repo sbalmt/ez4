@@ -5,11 +5,11 @@ import type { Cdn } from '@ez4/distribution';
 declare class TestBucket extends Bucket.Service {}
 
 export declare class TestCdn extends Cdn.Service {
-  defaultOrigin: {
+  defaultOrigin: Cdn.UseDefaultOrigin<{
     bucket: Environment.Service<TestBucket>;
     location: '/site';
     cache: TestCache;
-  };
+  }>;
 }
 
 // Concrete class is not allowed.
