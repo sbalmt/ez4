@@ -1,16 +1,9 @@
 import type { Service as CommonService } from '@ez4/common';
-import type { LinkedVariables } from '@ez4/project/library';
+import type { QueueMessage, QueueRequest, QueueIncoming, QueueSubscriptionHandler, QueueSubscriptionListener } from './common';
+import type { QueueSubscription } from './subscription';
+import type { QueueDeadLetter } from './deadletter';
+import type { QueueFifoMode } from './mode';
 import type { Client } from './client';
-
-import type {
-  QueueMessage,
-  QueueRequest,
-  QueueIncoming,
-  SubscriptionHandler,
-  SubscriptionListener,
-  QueueFifoMode,
-  QueueDeadLetter
-} from './common';
 
 /**
  * Provide all contracts for a self-managed queue service.
@@ -23,8 +16,10 @@ export namespace Queue {
   export type FifoMode<T extends Message> = QueueFifoMode<T>;
   export type Incoming<T extends Message> = QueueIncoming<T>;
 
-  export type Listener<T extends Message> = SubscriptionListener<T>;
-  export type Handler<T extends Message> = SubscriptionHandler<T>;
+  export type Listener<T extends Message> = QueueSubscriptionListener<T>;
+  export type Handler<T extends Message> = QueueSubscriptionHandler<T>;
+
+  export type Subscription<T extends Message> = QueueSubscription<T>;
 
   export type ServiceEvent<T extends Message = Message> =
     | CommonService.BeginEvent<Request>
@@ -34,44 +29,19 @@ export namespace Queue {
     | CommonService.EndEvent<Request>;
 
   /**
-   * Queue subscription.
+   * Queue Subscription definition.
    */
-  export interface Subscription<T extends Message> {
-    /**
-     * Subscription listener.
-     */
-    listener?: Listener<T>;
+  export type UseSubscription<T extends Subscription<any>> = T;
 
-    /**
-     * Subscription handler.
-     */
-    handler: Handler<T>;
+  /**
+   * Queue Fifo Mode definition.
+   */
+  export type UseFifoMode<T extends FifoMode<any>> = T;
 
-    /**
-     * Maximum number of concurrent lambda handlers.
-     */
-    concurrency?: number;
-
-    /**
-     * Maximum number of messages per handler invocation.
-     */
-    batch?: number;
-
-    /**
-     * Variables associated to the subscription.
-     */
-    variables?: LinkedVariables;
-
-    /**
-     * Log retention (in days) for the handler.
-     */
-    logRetention?: number;
-
-    /**
-     * Amount of memory available for the handler.
-     */
-    memory?: number;
-  }
+  /**
+   * Queue Dead-letter definition.
+   */
+  export type UseDeadLetter<T extends DeadLetter> = T;
 
   /**
    * Queue service.

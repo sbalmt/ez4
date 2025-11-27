@@ -10,9 +10,9 @@ export declare class Sqs extends Queue.Service<MessageRequest> {
    * All handlers for the service.
    */
   subscriptions: [
-    {
+    Queue.UseSubscription<{
       handler: typeof messageHandlerB;
-    }
+    }>
   ];
 }
 
@@ -23,16 +23,16 @@ export declare class FifoSqs extends Queue.Service<MessageRequest> {
   /**
    * Define the message group Id field from MessageRequest for FIFO mode.
    */
-  fifoMode: {
+  fifoMode: Queue.UseFifoMode<{
     groupId: 'foo';
-  };
+  }>;
 
   /**
    * All handlers for the service.
    */
   subscriptions: [
-    {
+    Queue.UseSubscription<{
       handler: typeof messageHandlerB;
-    }
+    }>
   ];
 }

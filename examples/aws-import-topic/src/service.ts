@@ -18,10 +18,10 @@ export declare class ImportedSns extends Topic.Import<Sns> {
    * All handlers for this service.
    */
   subscriptions: [
-    {
+    Topic.UseSubscription<{
       listener: typeof serviceListener;
       handler: typeof messageHandlerA;
-    }
+    }>
   ];
 }
 
@@ -38,11 +38,11 @@ export declare class ImportedFifoSns extends Topic.Import<FifoSns> {
    * All handlers for this service.
    */
   subscriptions: [
-    {
+    Topic.UseSubscription<{
       service: Environment.Service<Sqs>;
-    },
-    {
+    }>,
+    Topic.UseSubscription<{
       service: Environment.Service<FifoSqs>;
-    }
+    }>
   ];
 }

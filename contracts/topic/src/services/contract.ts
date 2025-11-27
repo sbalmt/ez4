@@ -1,9 +1,8 @@
 import type { Service as CommonService } from '@ez4/common';
-import type { LinkedVariables } from '@ez4/project/library';
-import type { Queue } from '@ez4/queue';
+import type { TopicMessage, TopicRequest, TopicIncoming, TopicSubscriptionHandler, TopicSubscriptionListener } from './common';
+import type { TopicLambdaSubscription, TopicQueueSubscription } from './subscription';
+import type { TopicFifoMode } from './mode';
 import type { Client } from './client';
-
-import type { TopicMessage, TopicRequest, TopicIncoming, TopicFifoMode, SubscriptionHandler, SubscriptionListener } from './common';
 
 /**
  * Provide all contracts for a self-managed topic service.
@@ -15,8 +14,11 @@ export namespace Topic {
   export type FifoMode<T extends Message> = TopicFifoMode<T>;
   export type Incoming<T extends Message> = TopicIncoming<T>;
 
-  export type Listener<T extends Message> = SubscriptionListener<T>;
-  export type Handler<T extends Message> = SubscriptionHandler<T>;
+  export type Listener<T extends Message> = TopicSubscriptionListener<T>;
+  export type Handler<T extends Message> = TopicSubscriptionHandler<T>;
+
+  export type LambdaSubscription<T extends Message> = TopicLambdaSubscription<T>;
+  export type QueueSubscription<T extends Message> = TopicQueueSubscription<T>;
 
   export type Subscription<T extends Message> = LambdaSubscription<T> | QueueSubscription<T>;
 
@@ -28,51 +30,14 @@ export namespace Topic {
     | CommonService.EndEvent<Request>;
 
   /**
-   * Queue subscription for the topic.
+   * Topic Subscription definition.
    */
-  export interface QueueSubscription<T extends Message> {
-    /**
-     * Reference to the queue service.
-     */
-    service: {
-      reference: Queue.Service<T>;
-    };
-  }
+  export type UseSubscription<T extends Subscription<any>> = T;
 
   /**
-   * Lambda subscription for the topic.
+   * Queue Fifo Mode definition.
    */
-  export interface LambdaSubscription<T extends Message> {
-    /**
-     * Subscription listener.
-     */
-    listener?: Listener<T>;
-
-    /**
-     * Subscription handler.
-     */
-    handler: Handler<T>;
-
-    /**
-     * Variables associated to the subscription.
-     */
-    variables?: LinkedVariables;
-
-    /**
-     * Log retention (in days) for the handler.
-     */
-    logRetention?: number;
-
-    /**
-     * Maximum execution time (in seconds) for the handler.
-     */
-    timeout?: number;
-
-    /**
-     * Amount of memory available for the handler.
-     */
-    memory?: number;
-  }
+  export type UseFifoMode<T extends FifoMode<any>> = T;
 
   /**
    * Topic service.

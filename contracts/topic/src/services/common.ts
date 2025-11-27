@@ -7,21 +7,6 @@ import type { Topic } from './contract';
 export interface TopicMessage {}
 
 /**
- * Topic FIFO mode options.
- */
-export interface TopicFifoMode<T extends TopicMessage> {
-  /**
-   * Name of the message deduplication field.
-   */
-  uniqueId?: keyof T;
-
-  /**
-   * Name of the message group id field.
-   */
-  groupId: keyof T;
-}
-
-/**
  * Incoming message.
  */
 export type TopicIncoming<T extends TopicMessage> = TopicRequest & {
@@ -44,7 +29,7 @@ export type TopicRequest = {
 /**
  * Message listener.
  */
-export type SubscriptionListener<T extends TopicMessage> = (
+export type TopicSubscriptionListener<T extends TopicMessage> = (
   event: Service.AnyEvent<TopicIncoming<T>>,
   context: Service.Context<Topic.Service<any> | Topic.Import<any>>
 ) => Promise<void> | void;
@@ -52,7 +37,7 @@ export type SubscriptionListener<T extends TopicMessage> = (
 /**
  * Message handler.
  */
-export type SubscriptionHandler<T extends TopicMessage> = (
+export type TopicSubscriptionHandler<T extends TopicMessage> = (
   request: TopicIncoming<T>,
   context: Service.Context<Topic.Service<any> | Topic.Import<any>>
 ) => Promise<void> | void;

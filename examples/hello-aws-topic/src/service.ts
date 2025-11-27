@@ -13,16 +13,16 @@ export declare class Sns extends Topic.Service<MessageRequest> {
    * All handlers for the service.
    */
   subscriptions: [
-    {
+    Topic.UseSubscription<{
       listener: typeof topicListener;
       handler: typeof messageHandlerA;
-    },
-    {
+    }>,
+    Topic.UseSubscription<{
       handler: typeof messageHandlerB;
-    },
-    {
+    }>,
+    Topic.UseSubscription<{
       service: Environment.Service<Sqs>;
-    }
+    }>
   ];
 
   /**
@@ -47,19 +47,19 @@ export declare class FifoSns extends Topic.Service<MessageRequest> {
   /**
    * Define the message group Id field from MessageRequest for FIFO mode.
    */
-  fifoMode: {
+  fifoMode: Topic.UseFifoMode<{
     groupId: 'foo';
-  };
+  }>;
 
   /**
    * All handlers for the service (FIFO topics only accept SQS).
    */
   subscriptions: [
-    {
+    Topic.UseSubscription<{
       service: Environment.Service<Sqs>;
-    },
-    {
+    }>,
+    Topic.UseSubscription<{
       service: Environment.Service<FifoSqs>;
-    }
+    }>
   ];
 }

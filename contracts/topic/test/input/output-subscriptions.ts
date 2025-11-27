@@ -12,16 +12,16 @@ interface TestMessage extends Topic.Message, Queue.Message {
 export declare class TestTopic extends Topic.Service<TestMessage> {
   subscriptions: [
     // Inline lambda subscription.
-    {
+    Topic.UseSubscription<{
       handler: typeof testHandler;
       logRetention: 14;
       timeout: 15;
-    },
+    }>,
 
     // Inline queue subscription.
-    {
+    Topic.UseSubscription<{
       service: Environment.Service<TestQueue>;
-    },
+    }>,
 
     // Lambda subscription reference.
     TestLambdaSubscription,
