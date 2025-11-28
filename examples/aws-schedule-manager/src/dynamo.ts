@@ -20,12 +20,12 @@ export declare class EventDb extends Database.Service {
    * Database tables.
    */
   tables: [
-    {
+    Database.UseTable<{
       name: 'events';
       schema: EventSchema;
       indexes: {
         id: Index.Primary;
       };
-    }
+    }>
   ];
 }

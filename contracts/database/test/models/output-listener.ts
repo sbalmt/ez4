@@ -9,7 +9,7 @@ export declare class TestDatabase extends Database.Service {
   engine: TestEngine;
 
   tables: [
-    {
+    Database.UseTable<{
       name: 'inlineTestTable';
       schema: TestSchema;
       indexes: {};
@@ -17,7 +17,7 @@ export declare class TestDatabase extends Database.Service {
         listener: typeof streamListener;
         handler: typeof streamHandler;
       };
-    }
+    }>
   ];
 
   client: Client<TestDatabase>;

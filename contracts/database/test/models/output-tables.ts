@@ -6,11 +6,11 @@ export declare class TestDatabase extends Database.Service {
 
   tables: [
     // Inline table.
-    {
+    Database.UseTable<{
       name: 'inlineTestTable';
       schema: TestSchema1;
       indexes: {};
-    },
+    }>,
 
     // Table reference.
     TestTable

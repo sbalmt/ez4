@@ -1,16 +1,55 @@
+import type { LinkedVariables } from '@ez4/project/library';
+import type { TableStreamHandler, TableStreamListener } from './common';
+import type { TableSchema } from './schemas';
+
 /**
- * Stream change for `insert`, `update` or `delete` operations.
+ * Database table stream.
  */
-export type StreamChange<T> = StreamInsertChange<T> | StreamUpdateChange<T> | StreamDeleteChange<T>;
+export interface TableStream<T extends TableSchema> {
+  /**
+   * Stream listener.
+   */
+  listener?: TableStreamListener<T>;
+
+  /**
+   * Stream handler.
+   */
+  handler: TableStreamHandler<T>;
+
+  /**
+   * Variables associated to the handler.
+   */
+  variables?: LinkedVariables;
+
+  /**
+   * Log retention (in days) for the handler.
+   */
+  logRetention?: number;
+
+  /**
+   * Max execution time (in seconds) for the handler.
+   */
+  timeout?: number;
+
+  /**
+   * Amount of memory available for the handler.
+   */
+  memory?: number;
+}
 
 /**
  * Stream change types.
  */
-export const enum StreamType {
+export const enum StreamChangeType {
   Insert = 'insert',
   Update = 'update',
   Delete = 'delete'
 }
+
+/**
+ * Stream change for `insert`, `update` or `delete` operations.
+ */
+export type StreamChange<T> = StreamInsertChange<T> | StreamUpdateChange<T> | StreamDeleteChange<T>;
 
 /**
  * Stream change for an `insert` operation.
@@ -19,7 +58,7 @@ export type StreamInsertChange<T> = {
   /**
    * Change type.
    */
-  type: StreamType.Insert;
+  type: StreamChangeType.Insert;
 
   /**
    * Inserted record.
@@ -34,7 +73,7 @@ export type StreamUpdateChange<T> = {
   /**
    * Change type.
    */
-  type: StreamType.Update;
+  type: StreamChangeType.Update;
 
   /**
    * Previous record.
@@ -54,7 +93,7 @@ export type StreamDeleteChange<T> = {
   /**
    * Change type.
    */
-  type: StreamType.Delete;
+  type: StreamChangeType.Delete;
 
   /**
    * Deleted record.

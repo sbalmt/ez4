@@ -3,7 +3,7 @@ import type { RelationTables } from './relations';
 import type { IndexedTables } from './indexes';
 import type { EngineUtils } from './engine';
 import type { TableSchemas } from './schemas';
-import type { Database } from './database';
+import type { Database } from './contract';
 import type { Client } from './client';
 import type { Query } from './query';
 

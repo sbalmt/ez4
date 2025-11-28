@@ -15,14 +15,14 @@ export declare class TestDatabase extends Database.Service {
   client: Client<TestDatabase>;
 
   tables: [
-    {
+    Database.UseTable<{
       name: 'table';
       schema: TestTable;
       indexes: {
         id: Index.Primary;
         value: Index.Unique;
       };
-    }
+    }>
   ];
 
   services: {

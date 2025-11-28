@@ -1,7 +1,13 @@
 import type { AnyObject, ArrayRest, PropertyType, Exclusive, IsArrayEmpty, IsUndefined, MergeObject, Prettify } from '@ez4/utils';
-import type { IndexedTables, PrimaryIndexes, UniqueIndexes } from './indexes';
-import type { Database, DatabaseTables } from './database';
-import type { TableSchemas } from './schemas';
+import type { TableIndexes, IndexedTables, PrimaryIndexes, UniqueIndexes } from './indexes';
+import type { DatabaseTable, DatabaseTables } from './table';
+import type { TableSchema, TableSchemas } from './schemas';
+import type { Database } from './contract';
+
+/**
+ * Database table relations.
+ */
+export interface TableRelations {}
 
 /**
  * Internal relation type.
@@ -50,20 +56,20 @@ export type RelationTables<T extends Database.Service> = MergeRelations<
  * relation tables.
  */
 type MergeRelations<
-  T extends Database.Table[],
-  C extends Database.Table[],
-  S extends Record<string, Database.Schema>,
-  I extends Record<string, Database.Indexes>
-> = IsArrayEmpty<C> extends false ? TableRelation<T, C[0], S, I> & MergeRelations<T, ArrayRest<C>, S, I> : {};
+  T extends DatabaseTable<TableSchema>[],
+  C extends DatabaseTable<TableSchema>[],
+  S extends Record<string, TableSchema>,
+  I extends Record<string, TableIndexes>
+> = IsArrayEmpty<C> extends false ? ExtractRelations<T, C[0], S, I> & MergeRelations<T, ArrayRest<C>, S, I> : {};
 
 /**
  * Given a database table `T`, it produces an object containing all its relations.
  */
-type TableRelation<
-  T extends Database.Table[],
-  C extends Database.Table,
-  S extends Record<string, Database.Schema>,
-  I extends Record<string, Database.Indexes>
+type ExtractRelations<
+  T extends DatabaseTable<TableSchema>[],
+  C extends DatabaseTable<TableSchema>,
+  S extends Record<string, TableSchema>,
+  I extends Record<string, TableIndexes>
 > = C extends {
   name: infer N;
 }
@@ -97,35 +103,35 @@ type TableRelation<
 /**
  * Check whether the given column is a primary index.
  */
-type IsPrimarySourceIndex<C, I extends Record<string, Database.Indexes>> =
+type IsPrimarySourceIndex<C, I extends Record<string, TableIndexes>> =
   RelationSourceColumn<C> extends keyof PrimaryIndexes<PropertyType<RelationSourceTable<C>, I>> ? true : false;
 
 /**
  * Check whether the given column is a unique index.
  */
-type IsUniqueSourceIndex<C, I extends Record<string, Database.Indexes>> =
+type IsUniqueSourceIndex<C, I extends Record<string, TableIndexes>> =
   RelationSourceColumn<C> extends keyof UniqueIndexes<PropertyType<RelationSourceTable<C>, I>> ? true : false;
 
 /**
  * Check whether the given column is a primary target index.
  */
-type IsPrimaryTargetIndex<V, I extends Database.Indexes> = RelationTargetColumn<V> extends keyof PrimaryIndexes<I> ? true : false;
+type IsPrimaryTargetIndex<V, I extends TableIndexes> = RelationTargetColumn<V> extends keyof PrimaryIndexes<I> ? true : false;
 
 /**
  * Check whether the given column is a unique target index.
  */
-export type IsUniqueTargetIndex<V, I extends Database.Indexes> = RelationTargetColumn<V> extends keyof UniqueIndexes<I> ? true : false;
+export type IsUniqueTargetIndex<V, I extends TableIndexes> = RelationTargetColumn<V> extends keyof UniqueIndexes<I> ? true : false;
 
 /**
  * Check whether the given column is a secondary target index.
  */
-type IsSecondaryTargetIndex<V, I extends Database.Indexes> =
+type IsSecondaryTargetIndex<V, I extends TableIndexes> =
   RelationTargetColumn<V> extends keyof (PrimaryIndexes<I> & UniqueIndexes<I>) ? false : true;
 
 /**
  * Check whether a relation is optional or not.
  */
-type IsOptionalRelation<C, V, T extends Database.Schema, I extends Record<string, Database.Indexes>, E extends boolean> =
+type IsOptionalRelation<C, V, T extends TableSchema, I extends Record<string, TableIndexes>, E extends boolean> =
   IsPrimarySourceIndex<C, I> extends true
     ? IsUndefined<PropertyType<RelationTargetColumn<V>, T>>
     : IsUniqueSourceIndex<C, I> extends true
@@ -135,14 +141,14 @@ type IsOptionalRelation<C, V, T extends Database.Schema, I extends Record<string
 /**
  * Produce an object containing all relation indexes.
  */
-type RelationIndexes<N, I extends Record<string, Database.Indexes>, R extends AnyObject> = keyof {
+type RelationIndexes<N, I extends Record<string, TableIndexes>, R extends AnyObject> = keyof {
   [P in keyof R as IsRelationIndex<N, R[P], P, I> extends true ? RelationTargetColumn<P> : never]: never;
 };
 
 /**
  * Check whether the given source and target columns are used to index the relation.
  */
-type IsRelationIndex<N, C, V, I extends Record<string, Database.Indexes>> =
+type IsRelationIndex<N, C, V, I extends Record<string, TableIndexes>> =
   IsPrimarySourceIndex<C, I> extends false
     ? IsSecondaryTargetIndex<V, PropertyType<N, I>> extends false
       ? IsUniqueTargetIndex<V, PropertyType<N, I>> extends true
@@ -154,19 +160,14 @@ type IsRelationIndex<N, C, V, I extends Record<string, Database.Indexes>> =
 /**
  * Produce an object containing relation schemas for filters.
  */
-type FilterableRelationSchemas<S extends Record<string, Database.Schema>, R extends AnyObject> = {
+type FilterableRelationSchemas<S extends Record<string, TableSchema>, R extends AnyObject> = {
   [P in keyof R as RelationTargetAlias<P>]: Omit<PropertyType<RelationSourceTable<R[P]>, S>, RelationSourceColumn<R[P]>>;
 };
 
 /**
  * Produce an object containing relation schemas for updates.
  */
-type UpdateRelationSchemas<
-  N,
-  S extends Record<string, Database.Schema>,
-  I extends Record<string, Database.Indexes>,
-  R extends AnyObject
-> = {
+type UpdateRelationSchemas<N, S extends Record<string, TableSchema>, I extends Record<string, TableIndexes>, R extends AnyObject> = {
   [P in keyof R as RelationTargetAlias<P>]?: ChangeRelationSchema<N, R[P], P, S, I>;
 };
 
@@ -175,9 +176,9 @@ type UpdateRelationSchemas<
  */
 type InsertRelationSchemas<
   N,
-  T extends Database.Schema,
-  S extends Record<string, Database.Schema>,
-  I extends Record<string, Database.Indexes>,
+  T extends TableSchema,
+  S extends Record<string, TableSchema>,
+  I extends Record<string, TableIndexes>,
   R extends AnyObject
 > = {
   [P in keyof R as IsOptionalRelation<R[P], P, T, I, true> extends true ? RelationTargetAlias<P> : never]?: ChangeRelationSchema<
@@ -200,7 +201,7 @@ type InsertRelationSchemas<
 /**
  * Produce an object containing relation schemas for selects.
  */
-type SelectRelationSchemas<S extends Record<string, Database.Schema>, I extends Record<string, Database.Indexes>, R extends AnyObject> = {
+type SelectRelationSchemas<S extends Record<string, TableSchema>, I extends Record<string, TableIndexes>, R extends AnyObject> = {
   [P in keyof R as RelationTargetAlias<P>]?: SelectRelationSchema<R[P], S, I>;
 };
 
@@ -208,9 +209,9 @@ type SelectRelationSchemas<S extends Record<string, Database.Schema>, I extends 
  * Produce an object containing relation schemas for records.
  */
 type RecordsRelationSchemas<
-  T extends Database.Schema,
-  S extends Record<string, Database.Schema>,
-  I extends Record<string, Database.Indexes>,
+  T extends TableSchema,
+  S extends Record<string, TableSchema>,
+  I extends Record<string, TableIndexes>,
   R extends AnyObject
 > = {
   [P in keyof R as IsOptionalRelation<R[P], P, T, I, false> extends true ? RelationTargetAlias<P> : never]?: RecordRelationSchema<
@@ -230,9 +231,9 @@ type RecordsRelationSchemas<
  * Produce an object containing all nested relation schemas for select operations.
  */
 type NestedSelectRelationSchemas<
-  T extends Database.Table[],
-  S extends Record<string, Database.Schema>,
-  I extends Record<string, Database.Indexes>,
+  T extends DatabaseTable<TableSchema>[],
+  S extends Record<string, TableSchema>,
+  I extends Record<string, TableIndexes>,
   R extends AnyObject
 > = {
   [P in keyof R as RelationTargetAlias<P>]?: RelationSourceTable<R[P]> extends keyof MergeRelations<T, T, S, I>
@@ -246,9 +247,9 @@ type NestedSelectRelationSchemas<
  * Produce an object containing all nested relation schemas for records.
  */
 type NestedRecordsRelationSchemas<
-  T extends Database.Table[],
-  S extends Record<string, Database.Schema>,
-  I extends Record<string, Database.Indexes>,
+  T extends DatabaseTable<TableSchema>[],
+  S extends Record<string, TableSchema>,
+  I extends Record<string, TableIndexes>,
   R extends AnyObject
 > = {
   [P in keyof R as RelationTargetAlias<P>]?: RelationSourceTable<R[P]> extends keyof MergeRelations<T, T, S, I>
@@ -261,12 +262,12 @@ type NestedRecordsRelationSchemas<
 /**
  * Produce a type corresponding to the source column schema.
  */
-type SourceColumnSchema<C, S extends Record<string, Database.Schema>> = PropertyType<RelationSourceTable<C>, S>;
+type SourceColumnSchema<C, S extends Record<string, TableSchema>> = PropertyType<RelationSourceTable<C>, S>;
 
 /**
  * Produce a change relation schema according to its indexation.
  */
-type ChangeRelationSchema<N, C, V, S extends Record<string, Database.Schema>, I extends Record<string, Database.Indexes>> =
+type ChangeRelationSchema<N, C, V, S extends Record<string, TableSchema>, I extends Record<string, TableIndexes>> =
   IsPrimarySourceIndex<C, I> extends true
     ? Exclusive<SourceColumnSchema<C, S>, PrimaryKeyConnectionSchema<C, S, I>>
     : IsUniqueSourceIndex<C, I> extends true
@@ -278,7 +279,7 @@ type ChangeRelationSchema<N, C, V, S extends Record<string, Database.Schema>, I 
 /**
  * Produce a select relation schema according to its indexation.
  */
-type SelectRelationSchema<C, S extends Record<string, Database.Schema>, I extends Record<string, Database.Indexes>> =
+type SelectRelationSchema<C, S extends Record<string, TableSchema>, I extends Record<string, TableIndexes>> =
   IsPrimarySourceIndex<C, I> extends true
     ? SourceColumnSchema<C, S>
     : IsUniqueSourceIndex<C, I> extends true
@@ -288,7 +289,7 @@ type SelectRelationSchema<C, S extends Record<string, Database.Schema>, I extend
 /**
  * Produce a record relation schema according to its indexation.
  */
-type RecordRelationSchema<C, S extends Record<string, Database.Schema>, I extends Record<string, Database.Indexes>> =
+type RecordRelationSchema<C, S extends Record<string, TableSchema>, I extends Record<string, TableIndexes>> =
   IsPrimarySourceIndex<C, I> extends true
     ? SourceColumnSchema<C, S>
     : IsUniqueSourceIndex<C, I> extends true
@@ -298,7 +299,7 @@ type RecordRelationSchema<C, S extends Record<string, Database.Schema>, I extend
 /**
  * Produce a relation schema for connections using primary keys.
  */
-type PrimaryKeyConnectionSchema<C, S extends Record<string, Database.Schema>, I extends Record<string, Database.Indexes>> = Prettify<{
+type PrimaryKeyConnectionSchema<C, S extends Record<string, TableSchema>, I extends Record<string, TableIndexes>> = Prettify<{
   [P in keyof PrimaryIndexes<PropertyType<RelationSourceTable<C>, I>>]:
     | PropertyType<P, PropertyType<RelationSourceTable<C>, S>>
     | undefined
@@ -308,7 +309,7 @@ type PrimaryKeyConnectionSchema<C, S extends Record<string, Database.Schema>, I 
 /**
  * Produce a relation schema for connections using unique keys.
  */
-type UniqueKeyConnectionSchema<C, S extends Record<string, Database.Schema>, I extends Record<string, Database.Indexes>> = Prettify<{
+type UniqueKeyConnectionSchema<C, S extends Record<string, TableSchema>, I extends Record<string, TableIndexes>> = Prettify<{
   [P in keyof UniqueIndexes<PropertyType<RelationSourceTable<C>, I>> as P extends RelationSourceColumn<C> ? P : never]:
     | PropertyType<P, PropertyType<RelationSourceTable<C>, S>>
     | undefined

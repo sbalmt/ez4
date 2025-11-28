@@ -1,7 +1,7 @@
 import type { ParametersModeUtils } from './parameters';
 import type { TransactionModeUtils } from './transaction';
 import type { TableClients } from './table';
-import type { Database } from './database';
+import type { Database } from './contract';
 
 /**
  * Database client.

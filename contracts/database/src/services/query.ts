@@ -6,7 +6,7 @@ import type { PaginationModeUtils } from './pagination';
 import type { OrderModeUtils } from './order';
 import type { LockModeUtils } from './lock';
 import type { TableMetadata } from './table';
-import type { Database } from './database';
+import type { Database } from './contract';
 
 import type {
   AnyObject,

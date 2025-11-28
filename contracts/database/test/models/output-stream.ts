@@ -6,7 +6,7 @@ export declare class TestDatabase extends Database.Service {
   engine: TestEngine;
 
   tables: [
-    {
+    Database.UseTable<{
       name: 'inlineTestTable';
       schema: TestSchema;
       indexes: {};
@@ -16,13 +16,13 @@ export declare class TestDatabase extends Database.Service {
         timeout: 10;
         memory: 256;
       };
-    },
-    {
+    }>,
+    Database.UseTable<{
       name: 'testTable';
       schema: TestSchema;
       stream: TestStream;
       indexes: {};
-    }
+    }>
   ];
 
   // Services to all streams.

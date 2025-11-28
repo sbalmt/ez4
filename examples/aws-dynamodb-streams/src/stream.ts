@@ -3,7 +3,7 @@ import type { Database } from '@ez4/database';
 import type { ExampleSchema } from './schema';
 import type { Db } from './service';
 
-import { StreamType } from '@ez4/database';
+import { StreamChangeType } from '@ez4/database';
 
 /**
  * Handler for table changes.
@@ -12,15 +12,15 @@ export async function streamHandler(request: Database.Incoming<ExampleSchema>, c
   const { selfClient } = context;
 
   switch (request.type) {
-    case StreamType.Insert:
+    case StreamChangeType.Insert:
       console.log('Record inserted.');
       break;
 
-    case StreamType.Update:
+    case StreamChangeType.Update:
       console.log('Record updated.');
       break;
 
-    case StreamType.Delete:
+    case StreamChangeType.Delete:
       console.log('Record deleted.');
       break;
   }

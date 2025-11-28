@@ -10,6 +10,6 @@ export { PaginationMode, PaginationModeUtils } from './services/pagination';
 export { Order, OrderMode, OrderModeUtils } from './services/order';
 export { LockMode, LockModeUtils } from './services/lock';
 export { EngineUtils } from './services/engine';
-export { Database } from './services/database';
+export { Database } from './services/contract';
 export { Index } from './services/indexes';
 export { Query } from './services/query';

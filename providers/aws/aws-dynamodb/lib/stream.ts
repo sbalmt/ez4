@@ -6,8 +6,8 @@ import type { ObjectSchema } from '@ez4/schema';
 import { unmarshall } from '@aws-sdk/util-dynamodb';
 import { validateSchema } from '@ez4/aws-dynamodb/runtime';
 import { createTransformContext, transform } from '@ez4/transform';
+import { StreamChangeType } from '@ez4/database';
 import { ServiceEventType } from '@ez4/common';
-import { StreamType } from '@ez4/database';
 
 declare const __EZ4_SCHEMA: ObjectSchema | null;
 declare const __EZ4_CONTEXT: object;
@@ -93,7 +93,7 @@ const getInsertChange = async (newImage: AnyObject, schema: ObjectSchema): Promi
   await validateSchema(record, schema);
 
   return {
-    type: StreamType.Insert,
+    type: StreamChangeType.Insert,
     record
   };
 };
@@ -105,7 +105,7 @@ const getUpdateChange = async (newImage: AnyObject, oldImage: AnyObject, schema:
   await Promise.all([validateSchema(newRecord, schema), validateSchema(oldRecord, schema)]);
 
   return {
-    type: StreamType.Update,
+    type: StreamChangeType.Update,
     newRecord,
     oldRecord
   };
@@ -117,7 +117,7 @@ const getDeleteChange = async (oldImage: AnyObject, schema: ObjectSchema): Promi
   await validateSchema(record, schema);
 
   return {
-    type: StreamType.Delete,
+    type: StreamChangeType.Delete,
     record
   };
 };
