@@ -1,12 +1,12 @@
 import type { Service as CommonService } from '@ez4/common';
+import type { StreamAnyChange } from './streams';
 import type { TableSchema } from './schemas';
-import type { StreamChange } from './streams';
 import type { Database } from './contract';
 
 /**
  * Incoming table stream event.
  */
-export type TableStreamIncoming<T extends TableSchema> = StreamChange<T> & TableStreamRequest;
+export type TableStreamIncoming<T extends TableSchema> = StreamAnyChange<T> & TableStreamRequest;
 
 /**
  * Table stream request.

@@ -49,7 +49,7 @@ export const enum StreamChangeType {
 /**
  * Stream change for `insert`, `update` or `delete` operations.
  */
-export type StreamChange<T> = StreamInsertChange<T> | StreamUpdateChange<T> | StreamDeleteChange<T>;
+export type StreamAnyChange<T> = StreamInsertChange<T> | StreamUpdateChange<T> | StreamDeleteChange<T>;
 
 /**
  * Stream change for an `insert` operation.

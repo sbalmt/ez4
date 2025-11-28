@@ -1,4 +1,4 @@
-export * from './services/streams';
+export { StreamAnyChange, StreamDeleteChange, StreamInsertChange, StreamUpdateChange, StreamChangeType } from './services/streams';
 
 export { Client } from './services/client';
 export { RelationMetadata } from './services/relations';
