@@ -36,6 +36,11 @@
     "name": "TestImport",
     "description": "Import API gateway.",
     "reference": "TestService",
+    "authorization": {
+      "header": "authorization",
+      "type": "bearer",
+      "value": "secret"
+    },
     "routes": [
       {
         "path": "ANY /test-route",

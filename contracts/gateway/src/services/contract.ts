@@ -1,6 +1,7 @@
 import type { Service as CommonService } from '@ez4/common';
 import type { LinkedVariables } from '@ez4/project/library';
 import type { HttpSuccessStatuses, HttpSuccessEmptyResponse, HttpSuccessResponse } from './utils';
+import type { HttpAuthorization } from './authorization';
 import type { HttpPreferences } from './preferences';
 import type { HttpDefaults } from './defaults';
 import type { HttpProvider } from './provider';
@@ -40,6 +41,7 @@ export namespace Http {
   export type JsonBody = HttpJsonBody;
   export type RawBody = HttpRawBody;
 
+  export type Authorization = HttpAuthorization;
   export type Preferences = HttpPreferences;
 
   export type AuthRequest = HttpAuthRequest;
@@ -72,32 +74,37 @@ export namespace Http {
   /**
    * HTTP Route definition.
    */
-  export type UseRoute<T extends HttpRoute<any, any>> = T;
+  export type UseRoute<T extends Route<any, any>> = T;
 
   /**
    * HTTP Service definition.
    */
-  export type UseDefaults<T extends HttpDefaults<any>> = T;
+  export type UseDefaults<T extends Defaults<any>> = T;
 
   /**
    * HTTP Preferences definition.
    */
-  export type UsePreferences<T extends HttpPreferences> = T;
+  export type UsePreferences<T extends Preferences> = T;
+
+  /**
+   * HTTP Authorization definition.
+   */
+  export type UseAuthorization<T extends Authorization> = T;
 
   /**
    * HTTP Cache definition.
    */
-  export type UseCache<T extends HttpCache> = T;
+  export type UseCache<T extends Cache> = T;
 
   /**
    * HTTP Access definition.
    */
-  export type UseAccess<T extends HttpAccess> = T;
+  export type UseAccess<T extends Access> = T;
 
   /**
    * HTTP CORS definition.
    */
-  export type UseCors<T extends HttpCors> = T;
+  export type UseCors<T extends Cors> = T;
 
   /**
    * HTTP service.
@@ -106,7 +113,7 @@ export namespace Http {
     /**
      * All expected routes.
      */
-    abstract readonly routes: HttpRoute<any, any>[];
+    abstract readonly routes: Route<any, any>[];
 
     /**
      * Display name for the service.
@@ -116,7 +123,7 @@ export namespace Http {
     /**
      * Default parameters.
      */
-    readonly defaults?: HttpDefaults<any>;
+    readonly defaults?: Defaults<any>;
 
     /**
      * CORS configuration.
@@ -157,6 +164,11 @@ export namespace Http {
      * Imported service reference.
      */
     readonly reference: T;
+
+    /**
+     * Authorization configuration.
+     */
+    readonly authorization?: Authorization;
 
     /**
      * All routes attached to the imported service (do not replace).

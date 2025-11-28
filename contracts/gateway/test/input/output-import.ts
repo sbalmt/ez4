@@ -32,4 +32,8 @@ function testHandler(): Http.SuccessEmptyResponse {
  */
 export declare class TestImport extends Http.Import<TestService> {
   project: 'name from project in ez4.project.js';
+
+  authorization: Http.UseAuthorization<{
+    value: 'secret';
+  }>;
 }

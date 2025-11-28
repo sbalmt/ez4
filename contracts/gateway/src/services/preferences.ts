@@ -1,7 +1,7 @@
 import type { NamingStyle } from '@ez4/schema';
 
 /**
- * Contract for HTTP preferences.
+ * HTTP preferences configuration.
  */
 export interface HttpPreferences {
   /**

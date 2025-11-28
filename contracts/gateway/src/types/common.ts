@@ -1,6 +1,7 @@
 import type { ArraySchema, NamingStyle, ObjectSchema, ScalarSchema, UnionSchema } from '@ez4/schema';
 import type { LinkedServices, LinkedVariables } from '@ez4/project/library';
 import type { ServiceListener } from '@ez4/common/library';
+import type { AuthorizationType } from '../services/authorization';
 
 export type HttpVerb = 'ANY' | 'GET' | 'POST' | 'PUT' | 'PATCH' | 'DELETE' | 'OPTIONS';
 
@@ -8,6 +9,12 @@ export type HttpPath = `${HttpVerb} /${string}`;
 
 export type HttpPreferences = {
   namingStyle?: NamingStyle;
+};
+
+export type HttpAuthorization = {
+  type: AuthorizationType;
+  header: string;
+  value: string;
 };
 
 export type HttpAuthRequest = {
