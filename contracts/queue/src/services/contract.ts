@@ -11,9 +11,10 @@ import type { Client } from './client';
 export namespace Queue {
   export type Message = QueueMessage;
   export type Request = QueueRequest;
-  export type DeadLetter = QueueDeadLetter;
 
+  export type DeadLetter = QueueDeadLetter;
   export type FifoMode<T extends Message> = QueueFifoMode<T>;
+
   export type Incoming<T extends Message> = QueueIncoming<T>;
 
   export type Listener<T extends Message> = QueueSubscriptionListener<T>;

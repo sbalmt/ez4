@@ -1,4 +1,5 @@
 import type { Service as CommonService } from '@ez4/common';
+import type { Exclusive } from '@ez4/utils';
 import type { TopicMessage, TopicRequest, TopicIncoming, TopicSubscriptionHandler, TopicSubscriptionListener } from './common';
 import type { TopicLambdaSubscription, TopicQueueSubscription } from './subscription';
 import type { TopicFifoMode } from './mode';
@@ -12,6 +13,7 @@ export namespace Topic {
   export type Request = TopicRequest;
 
   export type FifoMode<T extends Message> = TopicFifoMode<T>;
+
   export type Incoming<T extends Message> = TopicIncoming<T>;
 
   export type Listener<T extends Message> = TopicSubscriptionListener<T>;
@@ -32,7 +34,7 @@ export namespace Topic {
   /**
    * Topic Subscription definition.
    */
-  export type UseSubscription<T extends Subscription<any>> = T;
+  export type UseSubscription<T extends Exclusive<LambdaSubscription<any>, QueueSubscription<any>>> = T;
 
   /**
    * Queue Fifo Mode definition.
