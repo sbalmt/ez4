@@ -1,4 +1,9 @@
-import type { AuthorizationType } from '../common/authorization';
+/**
+ * HTTP authorization types.
+ */
+export const enum AuthorizationType {
+  Bearer = 'bearer'
+}
 
 /**
  * HTTP authorization configuration.

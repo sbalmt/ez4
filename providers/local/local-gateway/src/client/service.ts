@@ -28,7 +28,7 @@ export const createServiceClient = <T extends Http.Service>(serviceName: string,
             throw new Error(`Operation '${property.toString()}' wasn't found.`);
           }
 
-          const { method, path, namingStyle, querySchema, bodySchema, responseSchema } = operations[property];
+          const { authorize, method, path, namingStyle, querySchema, bodySchema, responseSchema } = operations[property];
 
           const requestUrl = getClientRequestUrl(gatewayHost, path, {
             ...request,
@@ -41,10 +41,12 @@ export const createServiceClient = <T extends Http.Service>(serviceName: string,
 
             return await sendClientRequest(requestUrl, method, {
               ...request,
-              authorization,
               bodySchema,
               responseSchema,
-              namingStyle
+              namingStyle,
+              ...(authorize && {
+                authorization
+              })
             });
 
             //

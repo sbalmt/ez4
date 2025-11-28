@@ -1,6 +1,6 @@
 import type { HttpImport } from '@ez4/gateway/library';
 
-import { AuthorizationType } from '../common/authorization';
+import { AuthorizationType } from '../services/authorization';
 
 export type ClientAuthorization = {
   header: string;
