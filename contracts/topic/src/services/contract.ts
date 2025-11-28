@@ -48,22 +48,22 @@ export namespace Topic {
     /**
      * All subscriptions associated to the topic.
      */
-    abstract subscriptions: Subscription<T>[];
+    abstract readonly subscriptions: Subscription<T>[];
 
     /**
      * Message schema.
      */
-    schema: T;
+    readonly schema: T;
 
     /**
      * Enable and configure the FIFO mode options.
      */
-    fifoMode?: FifoMode<T>;
+    readonly fifoMode?: FifoMode<T>;
 
     /**
      * Service client.
      */
-    client: Client<T>;
+    readonly client: Client<T>;
   }
 
   /**
@@ -73,31 +73,31 @@ export namespace Topic {
     /**
      * Name of the imported project defined in the project options file.
      */
-    abstract project: string;
+    abstract readonly project: string;
 
     /**
      * All subscriptions attached to the imported topic.
      */
-    subscriptions: Subscription<T['schema']>[];
+    readonly subscriptions: Subscription<T['schema']>[];
 
     /**
      * Imported topic reference.
      */
-    reference: T;
+    readonly reference: T;
 
     /**
      * Imported message schema (do not replace).
      */
-    schema: T['schema'];
+    readonly schema: T['schema'];
 
     /**
      * Imported FIFO mode options (do not replace).
      */
-    fifoMode: T['fifoMode'];
+    readonly fifoMode: T['fifoMode'];
 
     /**
      * Imported service client (do not replace).
      */
-    client: T['client'];
+    readonly client: T['client'];
   }
 }

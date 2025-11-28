@@ -9,55 +9,55 @@ export interface HttpRoute<T extends HttpRequest, U extends HttpAuthRequest> {
   /**
    * Route name.
    */
-  name?: string;
+  readonly name?: string;
 
   /**
    * Route path.
    */
-  path: HttpPath;
+  readonly path: HttpPath;
 
   /**
    * Route listener.
    */
-  listener?: HttpListener<T | U>;
+  readonly listener?: HttpListener<T | U>;
 
   /**
    * Route authorizer.
    */
-  authorizer?: HttpAuthorizer<U>;
+  readonly authorizer?: HttpAuthorizer<U>;
 
   /**
    * Route handler.
    */
-  handler: HttpHandler<T>;
+  readonly handler: HttpHandler<T>;
 
   /**
    * Map status codes and errors for all known exceptions.
    */
-  httpErrors?: HttpErrors;
+  readonly httpErrors?: HttpErrors;
 
   /**
    * Default log retention (in days) for the handlers.
    */
-  logRetention?: number;
+  readonly logRetention?: number;
 
   /**
    * Variables associated to the route.
    */
-  variables?: LinkedVariables;
+  readonly variables?: LinkedVariables;
 
   /**
    * Max execution time (in seconds) for the route.
    */
-  timeout?: number;
+  readonly timeout?: number;
 
   /**
    * Amount of memory available for the handler.
    */
-  memory?: number;
+  readonly memory?: number;
 
   /**
    * Determines whether or not CORS is enabled for the route.
    */
-  cors?: boolean;
+  readonly cors?: boolean;
 }

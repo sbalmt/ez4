@@ -13,7 +13,7 @@ export type CronIncoming<T extends CronEvent | null> = CronRequest & {
   /**
    * Event payload.
    */
-  event: T;
+  readonly event: T;
 };
 
 /**
@@ -23,7 +23,7 @@ export type CronRequest = {
   /**
    * Request tracking Id.
    */
-  requestId: string;
+  readonly requestId: string;
 };
 
 /**

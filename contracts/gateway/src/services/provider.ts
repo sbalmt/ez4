@@ -4,10 +4,10 @@ export interface HttpProvider {
   /**
    * Variables associated to the provider.
    */
-  variables?: LinkedVariables;
+  readonly variables?: LinkedVariables;
 
   /**
    * All services associated to the provider.
    */
-  services: Record<string, unknown>;
+  readonly services: Record<string, unknown>;
 }

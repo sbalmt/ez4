@@ -16,17 +16,17 @@ export interface CdnOrigin {
   /**
    * Path for the origin.
    */
-  path: string;
+  readonly path: string;
 
   /**
    * Location path to append in the incoming request.
    */
-  location?: string;
+  readonly location?: string;
 
   /**
    * Origin cache.
    */
-  cache?: CdnCache;
+  readonly cache?: CdnCache;
 }
 
 /**
@@ -36,8 +36,8 @@ export interface CdnBucketOrigin extends CdnOrigin {
   /**
    * Bucket service reference used as the origin.
    */
-  bucket: {
-    reference: Bucket.Service;
+  readonly bucket: {
+    readonly reference: Bucket.Service;
   };
 }
 
@@ -48,20 +48,20 @@ export interface CdnRegularOrigin extends CdnOrigin {
   /**
    * Domain used as the origin.
    */
-  domain: string;
+  readonly domain: string;
 
   /**
    * Origin headers.
    */
-  headers?: Record<string, string>;
+  readonly headers?: Record<string, string>;
 
   /**
    * Origin protocol.
    */
-  protocol?: OriginProtocol;
+  readonly protocol?: OriginProtocol;
 
   /**
    * Origin port.
    */
-  port?: number;
+  readonly port?: number;
 }

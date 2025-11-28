@@ -32,62 +32,62 @@ export namespace Cron {
     /**
      * Scheduler target.
      */
-    abstract target: Target<T>;
+    abstract readonly target: Target<T>;
 
     /**
      * Scheduler expression or literal 'dynamic' when the created cron service is dynamic.
      */
-    abstract expression: 'dynamic' | string;
+    abstract readonly expression: 'dynamic' | string;
 
     /**
      * Event schema.
      */
-    schema: T;
+    readonly schema: T;
 
     /**
      * Scheduler group name.
      */
-    group?: string;
+    readonly group?: string;
 
     /**
      * Scheduler expression timezone.
      */
-    timezone?: string;
+    readonly timezone?: string;
 
     /**
      * An ISO date to determine when the scheduler should start to work.
      */
-    startDate?: string;
+    readonly startDate?: string;
 
     /**
      * An ISO date to determine when the scheduler should stop to work.
      */
-    endDate?: string;
+    readonly endDate?: string;
 
     /**
      * Maximum retry attempts for the event before it fails.
      * Default is: 0
      */
-    maxRetries?: number;
+    readonly maxRetries?: number;
 
     /**
      * Maximum age (in seconds) for the event to be eligible for retry attempts.
      */
-    maxAge?: number;
+    readonly maxAge?: number;
 
     /**
      * Determines whether or not the scheduler is disabled.
      */
-    disabled?: boolean;
+    readonly disabled?: boolean;
 
     /**
      * Variables associated to the target.
      */
-    variables?: LinkedVariables;
+    readonly variables?: LinkedVariables;
 
     /**
      * Service client.
      */
-    client: T extends null ? never : Client<NonNullable<T>>;
+    readonly client: T extends null ? never : Client<NonNullable<T>>;
   }
 }

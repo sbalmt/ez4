@@ -13,7 +13,7 @@ export type TopicIncoming<T extends TopicMessage> = TopicRequest & {
   /**
    * Message payload.
    */
-  message: T;
+  readonly message: T;
 };
 
 /**
@@ -23,7 +23,7 @@ export type TopicRequest = {
   /**
    * Request tracking Id.
    */
-  requestId: string;
+  readonly requestId: string;
 };
 
 /**

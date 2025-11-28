@@ -5,30 +5,30 @@ export interface HttpCors {
   /**
    * List of allowed origins.
    */
-  allowOrigins: string[];
+  readonly allowOrigins: string[];
 
   /**
    * List of allowed methods.
    */
-  allowMethods?: string[];
+  readonly allowMethods?: string[];
 
   /**
    * Determines whether or not requests can be made with credentials.
    */
-  allowCredentials?: boolean;
+  readonly allowCredentials?: boolean;
 
   /**
    * List of allowed headers.
    */
-  allowHeaders?: string[];
+  readonly allowHeaders?: string[];
 
   /**
    * List of exposed headers.
    */
-  exposeHeaders?: string[];
+  readonly exposeHeaders?: string[];
 
   /**
    * Determines how long the preflight result can be cached.
    */
-  maxAge?: number;
+  readonly maxAge?: number;
 }

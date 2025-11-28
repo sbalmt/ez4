@@ -8,35 +8,35 @@ export interface QueueSubscription<T extends QueueMessage> {
   /**
    * Subscription listener.
    */
-  listener?: QueueSubscriptionListener<T>;
+  readonly listener?: QueueSubscriptionListener<T>;
 
   /**
    * Subscription handler.
    */
-  handler: QueueSubscriptionHandler<T>;
+  readonly handler: QueueSubscriptionHandler<T>;
 
   /**
    * Maximum number of concurrent lambda handlers.
    */
-  concurrency?: number;
+  readonly concurrency?: number;
 
   /**
    * Maximum number of messages per handler invocation.
    */
-  batch?: number;
+  readonly batch?: number;
 
   /**
    * Variables associated to the subscription.
    */
-  variables?: LinkedVariables;
+  readonly variables?: LinkedVariables;
 
   /**
    * Log retention (in days) for the handler.
    */
-  logRetention?: number;
+  readonly logRetention?: number;
 
   /**
    * Amount of memory available for the handler.
    */
-  memory?: number;
+  readonly memory?: number;
 }

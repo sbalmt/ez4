@@ -16,22 +16,22 @@ export type BucketEvent = {
   /**
    * Type of event.
    */
-  eventType: BucketEventType;
+  readonly eventType: BucketEventType;
 
   /**
    * Bucket from the event.
    */
-  bucketName: string;
+  readonly bucketName: string;
 
   /**
    * Object key in the bucket.
    */
-  objectKey: string;
+  readonly objectKey: string;
 
   /**
    * Size of the created object.
    */
-  objectSize?: number;
+  readonly objectSize?: number;
 };
 
 /**
@@ -46,7 +46,7 @@ export type BucketRequest = {
   /**
    * Request tracking Id.
    */
-  requestId: string;
+  readonly requestId: string;
 };
 
 /**

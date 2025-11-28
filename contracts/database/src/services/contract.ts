@@ -59,21 +59,21 @@ export namespace Database {
      * Determines which database engine to use.
      * Check the provider package to know all the possible values.
      */
-    abstract engine: Engine;
+    abstract readonly engine: Engine;
 
     /**
      * Describe all available tables for the service.
      */
-    abstract tables: Table<any>[];
+    abstract readonly tables: Table<any>[];
 
     /**
      * Scalability configuration.
      */
-    scalability: Scalability;
+    readonly scalability: Scalability;
 
     /**
      * Service client.
      */
-    client: Client<Service>;
+    readonly client: Client<Service>;
   }
 }

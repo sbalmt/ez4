@@ -9,32 +9,32 @@ export interface TableStream<T extends TableSchema> {
   /**
    * Stream listener.
    */
-  listener?: TableStreamListener<T>;
+  readonly listener?: TableStreamListener<T>;
 
   /**
    * Stream handler.
    */
-  handler: TableStreamHandler<T>;
+  readonly handler: TableStreamHandler<T>;
 
   /**
    * Variables associated to the handler.
    */
-  variables?: LinkedVariables;
+  readonly variables?: LinkedVariables;
 
   /**
    * Log retention (in days) for the handler.
    */
-  logRetention?: number;
+  readonly logRetention?: number;
 
   /**
    * Max execution time (in seconds) for the handler.
    */
-  timeout?: number;
+  readonly timeout?: number;
 
   /**
    * Amount of memory available for the handler.
    */
-  memory?: number;
+  readonly memory?: number;
 }
 
 /**
@@ -58,12 +58,12 @@ export type StreamInsertChange<T> = {
   /**
    * Change type.
    */
-  type: StreamChangeType.Insert;
+  readonly type: StreamChangeType.Insert;
 
   /**
    * Inserted record.
    */
-  record: T;
+  readonly record: T;
 };
 
 /**
@@ -73,17 +73,17 @@ export type StreamUpdateChange<T> = {
   /**
    * Change type.
    */
-  type: StreamChangeType.Update;
+  readonly type: StreamChangeType.Update;
 
   /**
    * Previous record.
    */
-  oldRecord: T;
+  readonly oldRecord: T;
 
   /**
    * Current record.
    */
-  newRecord: T;
+  readonly newRecord: T;
 };
 
 /**
@@ -93,10 +93,10 @@ export type StreamDeleteChange<T> = {
   /**
    * Change type.
    */
-  type: StreamChangeType.Delete;
+  readonly type: StreamChangeType.Delete;
 
   /**
    * Deleted record.
    */
-  record: T;
+  readonly record: T;
 };

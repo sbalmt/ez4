@@ -5,5 +5,5 @@ export interface HttpCache {
   /**
    * Default TTL (in seconds) for cached authorizations.
    */
-  authorizerTTL: number;
+  readonly authorizerTTL: number;
 }

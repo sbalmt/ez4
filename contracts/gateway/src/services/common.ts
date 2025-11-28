@@ -39,17 +39,17 @@ export interface HttpAuthRequest {
   /**
    * Expected HTTP headers.
    */
-  headers?: HttpHeaders;
+  readonly headers?: HttpHeaders;
 
   /**
    * Expected HTTP path parameters.
    */
-  parameters?: HttpPathParameters;
+  readonly parameters?: HttpPathParameters;
 
   /**
    * Expected HTTP query strings.
    */
-  query?: HttpQueryStrings;
+  readonly query?: HttpQueryStrings;
 }
 
 /**
@@ -59,7 +59,7 @@ export interface HttpAuthResponse {
   /**
    * Authorization identity.
    */
-  identity?: HttpIdentity;
+  readonly identity?: HttpIdentity;
 }
 
 /**
@@ -69,27 +69,27 @@ export interface HttpRequest {
   /**
    * Expected identity.
    */
-  identity?: HttpIdentity;
+  readonly identity?: HttpIdentity;
 
   /**
    * Expected HTTP headers.
    */
-  headers?: HttpHeaders;
+  readonly headers?: HttpHeaders;
 
   /**
    * Expected HTTP path parameters.
    */
-  parameters?: HttpPathParameters;
+  readonly parameters?: HttpPathParameters;
 
   /**
    * Expected HTTP query strings.
    */
-  query?: HttpQueryStrings;
+  readonly query?: HttpQueryStrings;
 
   /**
    * Expected HTTP body payload.
    */
-  body?: HttpJsonBody | HttpRawBody;
+  readonly body?: HttpJsonBody | HttpRawBody;
 }
 
 /**
@@ -99,17 +99,17 @@ export interface HttpResponse {
   /**
    * HTTP status code.
    */
-  status: number;
+  readonly status: number;
 
   /**
    * HTTP headers.
    */
-  headers?: HttpHeaders;
+  readonly headers?: HttpHeaders;
 
   /**
    * HTTP body payload.
    */
-  body?: HttpJsonBody | HttpRawBody;
+  readonly body?: HttpJsonBody | HttpRawBody;
 }
 
 /**
@@ -119,27 +119,27 @@ export type HttpIncoming<T extends HttpRequest | HttpAuthRequest> = T & {
   /**
    * Request tracking Id.
    */
-  requestId: string;
+  readonly requestId: string;
 
   /**
    * Determines whether request is base64 encoded or not.
    */
-  encoded?: boolean;
+  readonly encoded?: boolean;
 
   /**
    * Request timestamp.
    */
-  timestamp: Date;
+  readonly timestamp: Date;
 
   /**
    * Request method.
    */
-  method: string;
+  readonly method: string;
 
   /**
    * Request path.
    */
-  path: string;
+  readonly path: string;
 };
 
 /**
@@ -170,5 +170,5 @@ export type HttpHandler<T extends HttpRequest> = (
  * HTTP errors.
  */
 export type HttpErrors = {
-  [code: number]: Error[];
+  [code: number]: readonly Error[];
 };

@@ -106,42 +106,42 @@ export namespace Http {
     /**
      * All expected routes.
      */
-    abstract routes: HttpRoute<any, any>[];
+    abstract readonly routes: HttpRoute<any, any>[];
 
     /**
      * Display name for the service.
      */
-    name?: string;
+    readonly name?: string;
 
     /**
      * Default parameters.
      */
-    defaults?: HttpDefaults<any>;
+    readonly defaults?: HttpDefaults<any>;
 
     /**
      * CORS configuration.
      */
-    cors?: Cors;
+    readonly cors?: Cors;
 
     /**
      * Cache configuration.
      */
-    cache?: Cache;
+    readonly cache?: Cache;
 
     /**
      * Access configuration.
      */
-    access?: Access;
+    readonly access?: Access;
 
     /**
      * Variables associated to all routes.
      */
-    variables?: LinkedVariables;
+    readonly variables?: LinkedVariables;
 
     /**
      * Service client.
      */
-    client: Client<Service>;
+    readonly client: Client<Service>;
   }
 
   /**
@@ -151,41 +151,41 @@ export namespace Http {
     /**
      * Name of the imported project defined in the project options file.
      */
-    abstract project: string;
+    abstract readonly project: string;
 
     /**
      * Imported service reference.
      */
-    reference: T;
+    readonly reference: T;
 
     /**
      * All routes attached to the imported service (do not replace).
      */
-    routes: T['routes'];
+    readonly routes: T['routes'];
 
     /**
      * Display name for the service imported service (do not replace).
      */
-    name: T['name'];
+    readonly name: T['name'];
 
     /**
      * All default configurations attached to the imported service (do not replace).
      */
-    defaults: T['defaults'];
+    readonly defaults: T['defaults'];
 
     /**
      * Imported service client (do not replace).
      */
-    client: Client<T>;
+    readonly client: Client<T>;
 
     /**
      * Variables are not allowed.
      */
-    variables: never;
+    readonly variables: never;
 
     /**
      * Services are not allowed.
      */
-    service: never;
+    readonly service: never;
   }
 }

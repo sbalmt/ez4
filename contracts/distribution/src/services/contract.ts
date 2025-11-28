@@ -52,41 +52,41 @@ export namespace Cdn {
     /**
      * List of CNAME aliases for the distribution.
      */
-    aliases: string[];
+    readonly aliases: string[];
 
     /**
      * Custom certificate associated to the distribution.
      */
-    certificate?: Certificate;
+    readonly certificate?: Certificate;
 
     /**
      * Default origin for the distribution results.
      */
-    defaultOrigin: DefaultRegularOrigin | DefaultBucketOrigin;
+    readonly defaultOrigin: DefaultRegularOrigin | DefaultBucketOrigin;
 
     /**
      * Default index file name (e.g. `index.html`).
      */
-    defaultIndex?: string;
+    readonly defaultIndex?: string;
 
     /**
      * Distribution origins.
      */
-    origins?: (RegularOrigin | BucketOrigin)[];
+    readonly origins?: (RegularOrigin | BucketOrigin)[];
 
     /**
      * Distribution fallbacks.
      */
-    fallbacks?: Fallback[];
+    readonly fallbacks?: Fallback[];
 
     /**
      * Determines whether or not the distribution is disabled.
      */
-    disabled?: boolean;
+    readonly disabled?: boolean;
 
     /**
      * Service client.
      */
-    client: never;
+    readonly client: never;
   }
 }

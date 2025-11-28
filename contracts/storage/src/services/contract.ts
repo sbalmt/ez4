@@ -45,36 +45,36 @@ export namespace Bucket {
     /**
      * Overwrite the global bucket name.
      */
-    globalName?: string;
+    readonly globalName?: string;
 
     /**
      * Specify a local path to synchronize with the storage.
      */
-    localPath?: string;
+    readonly localPath?: string;
 
     /**
      * Maximum amount of days an object is stored before its auto-deletion.
      */
-    autoExpireDays?: number;
+    readonly autoExpireDays?: number;
 
     /**
      * Bucket events.
      */
-    events?: Events;
+    readonly events?: Events;
 
     /**
      * CORS configuration.
      */
-    cors?: Cors;
+    readonly cors?: Cors;
 
     /**
      * Variables associated to all events.
      */
-    variables?: LinkedVariables;
+    readonly variables?: LinkedVariables;
 
     /**
      * Service client.
      */
-    client: Client;
+    readonly client: Client;
   }
 }

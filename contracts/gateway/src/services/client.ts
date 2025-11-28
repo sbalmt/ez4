@@ -19,19 +19,19 @@ export type Client<T extends Http.Service> = {
  * Default HTTP client request.
  */
 export type ClientRequest = RequestOptions & {
-  headers?: Record<string, string>;
-  parameters?: Record<string, string>;
-  query?: Record<string, unknown>;
-  body?: string | AnyObject;
+  readonly headers?: Record<string, string>;
+  readonly parameters?: Record<string, string>;
+  readonly query?: Record<string, unknown>;
+  readonly body?: string | AnyObject;
 };
 
 /**
  * Default HTTP response.
  */
 export type ClientResponse = {
-  status: number;
-  headers?: Record<string, string | undefined>;
-  body?: unknown;
+  readonly status: number;
+  readonly headers?: Record<string, string | undefined>;
+  readonly body?: unknown;
 };
 
 /**
@@ -84,5 +84,5 @@ type RequestOptions = {
   /**
    * Maximum wait time for a response.
    */
-  timeout?: number;
+  readonly timeout?: number;
 };

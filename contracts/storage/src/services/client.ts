@@ -10,26 +10,26 @@ export type SignOptions = {
   /**
    * Define an expiration time (in seconds) for the signed URL.
    */
-  expiresIn: number;
+  readonly expiresIn: number;
 };
 
 export type WriteOptions = {
   /**
    * Define the expected content type.
    */
-  contentType: string;
+  readonly contentType: string;
 };
 
 export type ObjectStats = {
   /**
    * MIME type associated to the object.
    */
-  type?: string;
+  readonly type?: string;
 
   /**
    * Object size.
    */
-  size: number;
+  readonly size: number;
 };
 
 /**

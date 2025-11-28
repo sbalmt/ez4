@@ -7,10 +7,10 @@ export interface TopicFifoMode<T extends TopicMessage> {
   /**
    * Name of the message deduplication field.
    */
-  uniqueId?: keyof T;
+  readonly uniqueId?: keyof T;
 
   /**
    * Name of the message group id field.
    */
-  groupId: keyof T;
+  readonly groupId: keyof T;
 }

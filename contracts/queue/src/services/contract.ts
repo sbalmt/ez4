@@ -51,47 +51,47 @@ export namespace Queue {
     /**
      * All subscriptions associated to the queue.
      */
-    abstract subscriptions: Subscription<T>[];
+    abstract readonly subscriptions: Subscription<T>[];
 
     /**
      * Message schema.
      */
-    schema: T;
+    readonly schema: T;
 
     /**
      * Enable and configure the FIFO mode options.
      */
-    fifoMode?: FifoMode<T>;
+    readonly fifoMode?: FifoMode<T>;
 
     /**
      * Enable and configure the dead-letter queue options.
      */
-    deadLetter?: DeadLetter;
+    readonly deadLetter?: DeadLetter;
 
     /**
      * Maximum acknowledge time (in seconds) for the handler.
      */
-    timeout?: number;
+    readonly timeout?: number;
 
     /**
      * Maximum retention time (in minutes) for all messages in the queue.
      */
-    retention?: number;
+    readonly retention?: number;
 
     /**
      * Maximum wait time (in seconds) for receiving messages.
      */
-    polling?: number;
+    readonly polling?: number;
 
     /**
      * Maximum delay time (in seconds) for making messages available.
      */
-    delay?: number;
+    readonly delay?: number;
 
     /**
      * Service client.
      */
-    client: Client<Service<T>>;
+    readonly client: Client<Service<T>>;
   }
 
   /**
@@ -101,36 +101,36 @@ export namespace Queue {
     /**
      * Name of the imported project defined in the project options file.
      */
-    abstract project: string;
+    abstract readonly project: string;
 
     /**
      * Imported queue reference.
      */
-    reference: T;
+    readonly reference: T;
 
     /**
      * All subscriptions attached to the imported queue.
      */
-    subscriptions: Subscription<T['schema']>[];
+    readonly subscriptions: Subscription<T['schema']>[];
 
     /**
      * Imported message schema (do not replace).
      */
-    schema: T['schema'];
+    readonly schema: T['schema'];
 
     /**
      * Imported FIFO mode options (do not replace).
      */
-    fifoMode: T['fifoMode'];
+    readonly fifoMode: T['fifoMode'];
 
     /**
      * Imported maximum acknowledge time (do not replace).
      */
-    timeout: T['timeout'];
+    readonly timeout: T['timeout'];
 
     /**
      * Imported service client (do not replace).
      */
-    client: T['client'];
+    readonly client: T['client'];
   }
 }

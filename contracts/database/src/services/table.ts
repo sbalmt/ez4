@@ -14,27 +14,27 @@ export interface DatabaseTable<T extends TableSchema> {
   /**
    * Table name.
    */
-  name: string;
+  readonly name: string;
 
   /**
    * Table schema.
    */
-  schema: T;
+  readonly schema: T;
 
   /**
    * Table relations.
    */
-  relations?: TableRelations;
+  readonly relations?: TableRelations;
 
   /**
    * Table indexes.
    */
-  indexes: TableIndexes;
+  readonly indexes: TableIndexes;
 
   /**
    * Table stream configuration.
    */
-  stream?: TableStream<T>;
+  readonly stream?: TableStream<T>;
 }
 
 /**

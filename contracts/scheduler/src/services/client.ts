@@ -44,20 +44,20 @@ export type ScheduleEvent<T extends Cron.Event> = {
   /**
    * Event date.
    */
-  date: Date;
+  readonly date: Date;
 
   /**
    * Event payload.
    */
-  event: T;
+  readonly event: T;
 
   /**
    * Max retries to perform before the event fails.
    */
-  maxRetries?: number;
+  readonly maxRetries?: number;
 
   /**
    * Max age (in seconds) for the event to perform.
    */
-  maxAge?: number;
+  readonly maxAge?: number;
 };

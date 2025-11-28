@@ -13,7 +13,7 @@ export type QueueIncoming<T extends QueueMessage> = QueueRequest & {
   /**
    * Message payload.
    */
-  message: T;
+  readonly message: T;
 };
 
 /**
@@ -23,7 +23,7 @@ export type QueueRequest = {
   /**
    * Request tracking Id.
    */
-  requestId: string;
+  readonly requestId: string;
 };
 
 /**

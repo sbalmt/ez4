@@ -8,30 +8,30 @@ export interface CronTarget<T extends CronEvent | null> {
   /**
    * Target listener.
    */
-  listener?: CronListener<T>;
+  readonly listener?: CronListener<T>;
 
   /**
    * Target handler.
    */
-  handler: CronHandler<T>;
+  readonly handler: CronHandler<T>;
 
   /**
    * Variables associated to the target.
    */
-  variables?: LinkedVariables;
+  readonly variables?: LinkedVariables;
 
   /**
    * Log retention (in days) for the handler.
    */
-  logRetention?: number;
+  readonly logRetention?: number;
 
   /**
    * Max execution time (in seconds) for the handler.
    */
-  timeout?: number;
+  readonly timeout?: number;
 
   /**
    * Amount of memory available for the handler.
    */
-  memory?: number;
+  readonly memory?: number;
 }

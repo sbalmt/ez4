@@ -7,5 +7,5 @@ export interface HttpPreferences {
   /**
    * Determines the naming style for the query strings and body payloads.
    */
-  namingStyle?: NamingStyle;
+  readonly namingStyle?: NamingStyle;
 }

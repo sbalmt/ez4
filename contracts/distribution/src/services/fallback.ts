@@ -5,15 +5,15 @@ export interface CdnFallback {
   /**
    * HTTP error code (4xx or 3xx) that activates the fallback.
    */
-  code: number;
+  readonly code: number;
 
   /**
    * Fallback location path.
    */
-  location: string;
+  readonly location: string;
 
   /**
    * Optional cache TTL (in seconds) for the fallback.
    */
-  ttl?: number;
+  readonly ttl?: number;
 }

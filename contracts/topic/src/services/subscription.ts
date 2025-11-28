@@ -9,8 +9,8 @@ export interface TopicQueueSubscription<T extends TopicMessage> {
   /**
    * Reference to the queue service.
    */
-  service: {
-    reference: Queue.Service<T>;
+  readonly service: {
+    readonly reference: Queue.Service<T>;
   };
 }
 
@@ -21,30 +21,30 @@ export interface TopicLambdaSubscription<T extends TopicMessage> {
   /**
    * Subscription listener.
    */
-  listener?: TopicSubscriptionListener<T>;
+  readonly listener?: TopicSubscriptionListener<T>;
 
   /**
    * Subscription handler.
    */
-  handler: TopicSubscriptionHandler<T>;
+  readonly handler: TopicSubscriptionHandler<T>;
 
   /**
    * Variables associated to the subscription.
    */
-  variables?: LinkedVariables;
+  readonly variables?: LinkedVariables;
 
   /**
    * Log retention (in days) for the handler.
    */
-  logRetention?: number;
+  readonly logRetention?: number;
 
   /**
    * Maximum execution time (in seconds) for the handler.
    */
-  timeout?: number;
+  readonly timeout?: number;
 
   /**
    * Amount of memory available for the handler.
    */
-  memory?: number;
+  readonly memory?: number;
 }

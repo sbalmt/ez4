@@ -8,30 +8,30 @@ export interface HttpDefaults<T extends HttpRequest | HttpAuthRequest> {
   /**
    * Default route listener.
    */
-  listener?: HttpListener<T>;
+  readonly listener?: HttpListener<T>;
 
   /**
    * Status codes for all known exceptions.
    */
-  httpErrors?: HttpErrors;
+  readonly httpErrors?: HttpErrors;
 
   /**
    * Default preferences for all handlers and routes.
    */
-  preferences?: HttpPreferences;
+  readonly preferences?: HttpPreferences;
 
   /**
    * Default log retention (in days) for the handlers.
    */
-  logRetention?: number;
+  readonly logRetention?: number;
 
   /**
    * Default execution time (in seconds) for handlers and routes.
    */
-  timeout?: number;
+  readonly timeout?: number;
 
   /**
    * Default amount of memory available for handlers.
    */
-  memory?: number;
+  readonly memory?: number;
 }

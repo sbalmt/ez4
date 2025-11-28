@@ -8,35 +8,35 @@ export interface BucketEvents {
   /**
    * Event listener.
    */
-  listener?: BucketListener<BucketEvent>;
+  readonly listener?: BucketListener<BucketEvent>;
 
   /**
    * Event handler.
    */
-  handler: BucketHandler<BucketEvent>;
+  readonly handler: BucketHandler<BucketEvent>;
 
   /**
    * Path associated to the event.
    */
-  path?: string;
+  readonly path?: string;
 
   /**
    * Variables associated to the handler.
    */
-  variables?: LinkedVariables;
+  readonly variables?: LinkedVariables;
 
   /**
    * Log retention (in days) for the handler.
    */
-  logRetention?: number;
+  readonly logRetention?: number;
 
   /**
    * Max execution time (in seconds) for the handler.
    */
-  timeout?: number;
+  readonly timeout?: number;
 
   /**
    * Amount of memory available for the handler.
    */
-  memory?: number;
+  readonly memory?: number;
 }

@@ -15,7 +15,7 @@ export type TableStreamRequest = {
   /**
    * Request tracking Id.
    */
-  requestId: string;
+  readonly requestId: string;
 };
 
 /**
