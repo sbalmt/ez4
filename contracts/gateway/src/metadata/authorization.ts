@@ -1,6 +1,6 @@
 import type { AllType, SourceMap, TypeModel, TypeObject } from '@ez4/reflection';
 import type { MemberType } from '@ez4/common/library';
-import { isAnyString, type Incomplete } from '@ez4/utils';
+import type { Incomplete } from '@ez4/utils';
 import type { HttpAuthorization } from '../types/common';
 
 import {
@@ -14,9 +14,10 @@ import {
 } from '@ez4/common/library';
 
 import { isModelProperty, isTypeObject, isTypeReference } from '@ez4/reflection';
+import { isAnyString } from '@ez4/utils';
 
 import { IncompleteAuthorizationError, IncorrectAuthorizationTypeError, InvalidAuthorizationTypeError } from '../errors/authorization';
-import { AuthorizationType } from '../services/authorization';
+import { AuthorizationType } from '../common/authorization';
 import { isHttpAuthorization } from './utils';
 
 export const getHttpAuthorization = (type: AllType, parent: TypeModel, reflection: SourceMap, errorList: Error[]) => {

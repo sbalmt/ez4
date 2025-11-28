@@ -33,14 +33,20 @@ export const getClientRequestUrl = (host: string, path: string, request: ClientR
   return urlParts.join('');
 };
 
+export type RequestAuthorization = {
+  header: string;
+  value: string;
+};
+
 export type SendClientRequest = ClientRequest & {
+  authorization?: RequestAuthorization;
   bodySchema?: ObjectSchema | UnionSchema | ArraySchema | ScalarSchema;
   responseSchema?: ObjectSchema | UnionSchema | ArraySchema | ScalarSchema;
   namingStyle?: NamingStyle;
 };
 
 export const sendClientRequest = async (url: string, method: string, request: SendClientRequest): Promise<ClientResponse> => {
-  const { headers, body, bodySchema, responseSchema, namingStyle, timeout = 20 } = request;
+  const { authorization, headers, body, bodySchema, responseSchema, namingStyle, timeout = 20 } = request;
 
   const payload = body ? getRequestBody(body, bodySchema, namingStyle) : undefined;
 
@@ -53,6 +59,9 @@ export const sendClientRequest = async (url: string, method: string, request: Se
     method,
     headers: {
       ...headers,
+      ...(authorization && {
+        [authorization.header]: authorization.value
+      }),
       ...(payload?.json && {
         ['content-type']: 'application/json'
       })

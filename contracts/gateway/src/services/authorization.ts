@@ -1,3 +1,5 @@
+import type { AuthorizationType } from '../common/authorization';
+
 /**
  * HTTP authorization configuration.
  */
@@ -18,11 +20,4 @@ export interface HttpAuthorization {
    * Determines the HTTP authorization value.
    */
   readonly value: string;
-}
-
-/**
- * HTTP Authorization types.
- */
-export const enum AuthorizationType {
-  Bearer = 'bearer'
 }

@@ -1,5 +1,5 @@
+import type { ClientAuthorization, ClientOperation } from '@ez4/gateway/library';
 import type { Client, ClientRequest, Http } from '@ez4/gateway';
-import type { ClientOperation } from '@ez4/gateway/library';
 import type { CommonOptions } from '@ez4/project/library';
 
 import { getServiceName, Logger } from '@ez4/project/library';
@@ -8,12 +8,13 @@ import { isAnyString } from '@ez4/utils';
 import { HttpError } from '@ez4/gateway';
 
 export type ServiceClientOptions = CommonOptions & {
+  authorization?: ClientAuthorization;
   operations: Record<string, ClientOperation>;
   serviceHost: string;
 };
 
 export const createServiceClient = <T extends Http.Service>(serviceName: string, clientOptions: ServiceClientOptions): Client<T> => {
-  const { serviceHost, operations } = clientOptions;
+  const { serviceHost, authorization, operations } = clientOptions;
 
   const gatewayIdentifier = getServiceName(serviceName, clientOptions);
   const gatewayHost = `http://${serviceHost}/${gatewayIdentifier}`;
@@ -40,6 +41,7 @@ export const createServiceClient = <T extends Http.Service>(serviceName: string,
 
             return await sendClientRequest(requestUrl, method, {
               ...request,
+              authorization,
               bodySchema,
               responseSchema,
               namingStyle
