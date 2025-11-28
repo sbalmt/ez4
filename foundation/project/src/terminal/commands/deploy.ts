@@ -74,7 +74,7 @@ export const deployCommand = async (input: InputOptions, project: ProjectOptions
   }
 
   if (project.confirmMode !== false) {
-    const canProceed = await waitConfirmation('⁉️  Are you sure you want to proceed?');
+    const canProceed = await waitConfirmation('Are you sure you want to proceed?');
 
     if (!canProceed) {
       return Logger.log('⛔ Aborted');
