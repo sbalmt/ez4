@@ -8,7 +8,8 @@
       "description": "String following an email format.",
       "format": "email",
       "definitions": {
-        "lower": true
+        "lower": true,
+        "trim": true
       }
     },
     "uuid": {
@@ -16,7 +17,8 @@
       "description": "String following a UUID format.",
       "format": "uuid",
       "definitions": {
-        "lower": true
+        "lower": true,
+        "trim": true
       }
     }
   }

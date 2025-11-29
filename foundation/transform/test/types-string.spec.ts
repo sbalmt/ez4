@@ -111,17 +111,17 @@ describe('string type transformation', () => {
     deepEqual(transform(null, schema, context), undefined);
   });
 
-  it('assert :: string (trim)', () => {
+  it('assert :: string (upper)', () => {
     const schema: AnySchema = {
       type: SchemaType.String,
       nullable: true,
       definitions: {
-        trim: true
+        upper: true
       }
     };
 
-    deepEqual(transform('abc', schema), 'abc');
-    deepEqual(transform(' def ', schema), 'def');
+    deepEqual(transform('abc', schema), 'ABC');
+    deepEqual(transform(' def ', schema), ' DEF ');
 
     deepEqual(transform(true, schema), 'true');
     deepEqual(transform(false, schema), 'false');
@@ -142,6 +142,26 @@ describe('string type transformation', () => {
 
     deepEqual(transform('ABC', schema), 'abc');
     deepEqual(transform(' DEF ', schema), ' def ');
+
+    deepEqual(transform(true, schema), 'true');
+    deepEqual(transform(false, schema), 'false');
+    deepEqual(transform(123, schema), '123');
+
+    deepEqual(transform(undefined, schema), undefined);
+    deepEqual(transform(null, schema), null);
+  });
+
+  it('assert :: string (trim)', () => {
+    const schema: AnySchema = {
+      type: SchemaType.String,
+      nullable: true,
+      definitions: {
+        trim: true
+      }
+    };
+
+    deepEqual(transform('abc', schema), 'abc');
+    deepEqual(transform(' def ', schema), 'def');
 
     deepEqual(transform(true, schema), 'true');
     deepEqual(transform(false, schema), 'false');

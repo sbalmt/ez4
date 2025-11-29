@@ -40,6 +40,27 @@
         "default": "foo"
       }
     },
+    "upper": {
+      "type": "string",
+      "description": "String in upper-case.",
+      "definitions": {
+        "upper": true
+      }
+    },
+    "lower": {
+      "type": "string",
+      "description": "String in lower-case.",
+      "definitions": {
+        "lower": true
+      }
+    },
+    "trim": {
+      "type": "string",
+      "description": "String without white-spaces.",
+      "definitions": {
+        "trim": true
+      }
+    },
     "literal": {
       "type": "string",
       "description": "Literal string value.",

@@ -7,19 +7,25 @@
       "type": "string",
       "description": "String following a time format.",
       "format": "time",
-      "definitions": {}
+      "definitions": {
+        "trim": true
+      }
     },
     "date": {
       "type": "string",
       "description": "String following a date format.",
       "format": "date",
-      "definitions": {}
+      "definitions": {
+        "trim": true
+      }
     },
     "dateTime": {
       "type": "string",
       "description": "String following a date & time format.",
       "format": "date-time",
-      "definitions": {}
+      "definitions": {
+        "trim": true
+      }
     }
   }
 }
