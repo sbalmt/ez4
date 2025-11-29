@@ -105,7 +105,7 @@ describe('object type transformation', () => {
     deepEqual(transform(null, schema, context), undefined);
   });
 
-  it('assert :: object (base64 encoded)', () => {
+  it('assert :: object (base64-encoded)', () => {
     const schema: AnySchema = {
       type: SchemaType.Object,
       definitions: {

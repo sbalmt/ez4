@@ -224,6 +224,7 @@ export const createRichType = (richTypes: RichTypes) => {
         ...createString(),
         ...(format && { format }),
         definitions: {
+          ...((format === 'email' || format === 'uuid') && { lower: true }),
           ...(value && { default: value }),
           ...(pattern && { pattern }),
           ...(name && { name })

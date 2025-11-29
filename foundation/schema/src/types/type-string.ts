@@ -7,6 +7,8 @@ export type StringSchemaDefinitions = SchemaDefinitions & {
   minLength?: number;
   maxLength?: number;
   trim?: boolean;
+  lower?: boolean;
+  upper?: boolean;
   pattern?: string;
   default?: string;
   value?: string;

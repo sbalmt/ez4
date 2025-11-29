@@ -21,7 +21,7 @@ export const transformString = (value: unknown, schema: StringSchema, context = 
 
 const getStringValue = (value: unknown, definitions: StringSchemaDefinitions | undefined, context: TransformContext) => {
   if (typeof value === 'string') {
-    return definitions?.trim ? value.trim() : value;
+    return applyTransformations(value, definitions);
   }
 
   if (context.convert && (typeof value === 'number' || typeof value === 'boolean')) {
@@ -30,6 +30,22 @@ const getStringValue = (value: unknown, definitions: StringSchemaDefinitions | u
 
   if (!context.return) {
     return undefined;
+  }
+
+  return value;
+};
+
+const applyTransformations = (value: string, definitions: StringSchemaDefinitions | undefined) => {
+  if (definitions?.trim) {
+    value = value.trim();
+  }
+
+  if (definitions?.lower) {
+    value = value.toLowerCase();
+  }
+
+  if (definitions?.upper) {
+    value = value.toUpperCase();
   }
 
   return value;

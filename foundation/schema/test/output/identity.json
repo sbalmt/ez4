@@ -7,13 +7,17 @@
       "type": "string",
       "description": "String following an email format.",
       "format": "email",
-      "definitions": {}
+      "definitions": {
+        "lower": true
+      }
     },
     "uuid": {
       "type": "string",
       "description": "String following a UUID format.",
       "format": "uuid",
-      "definitions": {}
+      "definitions": {
+        "lower": true
+      }
     }
   }
 }

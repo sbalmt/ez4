@@ -89,7 +89,7 @@ describe('array type transformation', () => {
     deepEqual(transform('123, 4.56', schema), [123, 4.56]);
   });
 
-  it('assert :: array (base64 encoded)', () => {
+  it('assert :: array (base64-encoded)', () => {
     const schema: AnySchema = {
       type: SchemaType.Array,
       definitions: {
