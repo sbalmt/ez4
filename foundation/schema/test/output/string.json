@@ -46,6 +46,17 @@
       "definitions": {
         "value": "foo"
       }
+    },
+    "compound": {
+      "type": "string",
+      "description": "Compound string schemas.",
+      "definitions": {
+        "default": "foo",
+        "value": "bar",
+        "maxLength": 32,
+        "minLength": 1,
+        "trim": true
+      }
     }
   }
 }

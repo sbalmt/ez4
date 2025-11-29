@@ -33,4 +33,9 @@ export interface StringTestSchema {
    * Literal string value.
    */
   literal: 'foo';
+
+  /**
+   * Compound string schemas.
+   */
+  compound: String.Size<1, 32> & String.Default<'foo'> & 'bar';
 }
