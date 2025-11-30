@@ -6,6 +6,7 @@ export declare class TestService extends Http.Service {
 
   routes: [
     Http.UseRoute<{
+      name: 'testRoute';
       path: 'ANY /test-route';
       listener: typeof testListener;
       handler: typeof testHandler;

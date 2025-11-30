@@ -77,6 +77,7 @@ export type HttpRoute = {
   timeout?: number;
   memory?: number;
   cors?: boolean;
+  disabled?: boolean;
 };
 
 export type HttpDefaults = {

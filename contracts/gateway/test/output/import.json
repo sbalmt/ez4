@@ -11,6 +11,7 @@
     "displayName": "Remote API",
     "routes": [
       {
+        "name": "testRoute",
         "path": "ANY /test-route",
         "listener": {
           "name": "testListener",
@@ -43,6 +44,7 @@
     },
     "routes": [
       {
+        "name": "testRoute",
         "path": "ANY /test-route",
         "listener": {
           "name": "testListener",

@@ -121,6 +121,10 @@ const createRoutes = (
   context: EventContext
 ) => {
   for (const route of service.routes) {
+    if (route.disabled) {
+      continue;
+    }
+
     const integrationState = getIntegrationFunction(state, service, gatewayState, route, options, context);
     const authorizerState = getAuthorizerFunction(state, service, gatewayState, route, options, context);
 
