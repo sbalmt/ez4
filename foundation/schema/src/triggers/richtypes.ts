@@ -38,6 +38,10 @@ export type RichTypes = {
 
   minValue?: number;
   maxValue?: number;
+
+  upper?: boolean;
+  lower?: boolean;
+  trim?: boolean;
 };
 
 export const getRichTypes = (type: TypeObject) => {
@@ -70,6 +74,9 @@ export const getRichTypes = (type: TypeObject) => {
         }
         break;
 
+      case 'trim':
+      case 'upper':
+      case 'lower':
       case 'encoded':
       case 'extensible':
         if (isTypeBoolean(type)) {
@@ -77,10 +84,10 @@ export const getRichTypes = (type: TypeObject) => {
         }
         break;
 
-      case 'maxLength':
-      case 'minLength':
       case 'minValue':
       case 'maxValue':
+      case 'maxLength':
+      case 'minLength':
         if (isTypeNumber(type)) {
           richTypes[name] = type.literal;
         }
@@ -140,15 +147,17 @@ export const createRichType = (richTypes: RichTypes) => {
     }
 
     case 'string': {
-      const { minLength, maxLength, value } = richTypes;
+      const { lower, upper, trim, minLength, maxLength, value } = richTypes;
 
       return {
         ...createString(),
         definitions: {
           ...(isAnyString(value) && { default: value }),
-          ...((minLength || maxLength) && { trim: true }),
           ...(minLength && { minLength }),
-          ...(maxLength && { maxLength })
+          ...(maxLength && { maxLength }),
+          ...(upper && { upper }),
+          ...(lower && { lower }),
+          ...(trim && { trim })
         }
       };
     }
@@ -218,7 +227,7 @@ export const createRichType = (richTypes: RichTypes) => {
     }
 
     default: {
-      const { pattern, name, value } = richTypes;
+      const { lower, upper, trim, pattern, name, value } = richTypes;
 
       return {
         ...createString(),
@@ -226,6 +235,9 @@ export const createRichType = (richTypes: RichTypes) => {
         definitions: {
           ...(value && { default: value }),
           ...(pattern && { pattern }),
+          ...(upper && { upper }),
+          ...(lower && { lower }),
+          ...(trim && { trim }),
           ...(name && { name })
         }
       };

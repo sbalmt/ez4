@@ -18,10 +18,10 @@ import { ServiceType } from '../types/service';
 import { IncompleteServiceError, ServiceCollisionError } from '../errors/service';
 import { getHttpDefaults } from './defaults';
 import { getHttpLocalRoutes } from './route';
-import { getHttpCache } from './cache';
 import { getHttpAccess } from './access';
-import { getHttpCors } from './cors';
 import { isHttpService } from './utils';
+import { getHttpCache } from './cache';
+import { getHttpCors } from './cors';
 
 export const getHttpServices = (reflection: SourceMap) => {
   const allServices: Record<string, HttpService> = {};

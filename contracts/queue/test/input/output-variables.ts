@@ -7,9 +7,9 @@ interface TestMessage extends Queue.Message {
 
 export declare class TestQueue extends Queue.Service<TestMessage> {
   subscriptions: [
-    {
+    Queue.UseSubscription<{
       handler: typeof testHandler;
-    }
+    }>
   ];
 
   variables: {

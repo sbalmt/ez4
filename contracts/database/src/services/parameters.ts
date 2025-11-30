@@ -1,5 +1,5 @@
 import type { EngineUtils } from './engine';
-import type { Database } from './database';
+import type { Database } from './contract';
 
 /**
  * Parameters mode.

@@ -9,11 +9,11 @@ declare class TestAuthResponse implements Http.AuthResponse {
 
 export declare class TestService extends Http.Service {
   routes: [
-    {
+    Http.UseRoute<{
       path: 'ANY /test-route';
       authorizer: typeof testAuthorizer;
       handler: typeof testHandler;
-    }
+    }>
   ];
 }
 

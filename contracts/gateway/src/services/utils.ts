@@ -9,7 +9,7 @@ export declare class HttpSuccessEmptyResponse<S extends HttpSuccessStatuses> imp
   /**
    * HTTP status code.
    */
-  status: S;
+  readonly status: S;
 }
 
 /**
@@ -19,10 +19,10 @@ export declare class HttpSuccessResponse<S extends HttpSuccessStatuses, T extend
   /**
    * HTTP status code.
    */
-  status: S;
+  readonly status: S;
 
   /**
    * HTTP response payload.
    */
-  body: T;
+  readonly body: T;
 }

@@ -13,7 +13,7 @@ export declare class TestRelationDb extends Database.Service {
   engine: PostgresEngine;
 
   tables: [
-    {
+    Database.UseTable<{
       name: 'table_a';
       schema: {
         id_a: String.UUID;
@@ -33,8 +33,8 @@ export declare class TestRelationDb extends Database.Service {
         relation_1_id: Index.Secondary;
         relation_2_id: Index.Secondary;
       };
-    },
-    {
+    }>,
+    Database.UseTable<{
       name: 'table_b';
       schema: {
         id_b: String.UUID;
@@ -52,8 +52,8 @@ export declare class TestRelationDb extends Database.Service {
         id_b: Index.Primary;
         unique_b: Index.Unique;
       };
-    },
-    {
+    }>,
+    Database.UseTable<{
       name: 'table_c';
       schema: {
         id_c: String.UUID;
@@ -78,7 +78,7 @@ export declare class TestRelationDb extends Database.Service {
         unique_2_id: Index.Unique;
         unique_3_id: Index.Unique;
       };
-    }
+    }>
   ];
 }
 

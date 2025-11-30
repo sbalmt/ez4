@@ -36,14 +36,25 @@ export const getReferenceType = (type: TypeReference, reflection: SourceMap): Al
   return member.value;
 };
 
+export const tryGetReferenceType = (type: TypeReference, reflection: SourceMap) => {
+  try {
+    return getReferenceType(type, reflection);
+  } catch {
+    return undefined;
+  }
+};
+
 export const getReferenceBoolean = (type: AllType, reflection: SourceMap) => {
   if (!isTypeReference(type) || !type.index) {
     return undefined;
   }
 
-  const reference = getReferenceType(type, reflection);
-
-  return getLiteralBoolean(reference);
+  try {
+    const reference = getReferenceType(type, reflection);
+    return getLiteralBoolean(reference);
+  } catch {
+    return undefined;
+  }
 };
 
 export const getReferenceNumber = (type: AllType, reflection: SourceMap) => {
@@ -51,9 +62,12 @@ export const getReferenceNumber = (type: AllType, reflection: SourceMap) => {
     return undefined;
   }
 
-  const reference = getReferenceType(type, reflection);
-
-  return getLiteralNumber(reference);
+  try {
+    const reference = getReferenceType(type, reflection);
+    return getLiteralNumber(reference);
+  } catch {
+    return undefined;
+  }
 };
 
 export const getReferenceString = (type: AllType, reflection: SourceMap) => {
@@ -61,9 +75,12 @@ export const getReferenceString = (type: AllType, reflection: SourceMap) => {
     return undefined;
   }
 
-  const reference = getReferenceType(type, reflection);
-
-  return getLiteralString(reference);
+  try {
+    const reference = getReferenceType(type, reflection);
+    return getLiteralString(reference);
+  } catch {
+    return undefined;
+  }
 };
 
 export const getReferenceTuple = (type: AllType, reflection: SourceMap) => {
@@ -71,9 +88,12 @@ export const getReferenceTuple = (type: AllType, reflection: SourceMap) => {
     return undefined;
   }
 
-  const reference = getReferenceType(type, reflection);
-
-  return getLiteralTuple(reference);
+  try {
+    const reference = getReferenceType(type, reflection);
+    return getLiteralTuple(reference);
+  } catch {
+    return undefined;
+  }
 };
 
 export const getReferenceModel = (type: AllType, reflection: SourceMap) => {
@@ -81,7 +101,7 @@ export const getReferenceModel = (type: AllType, reflection: SourceMap) => {
     return undefined;
   }
 
-  return getReferenceType(type, reflection);
+  return tryGetReferenceType(type, reflection);
 };
 
 const getIndexedReferenceMember = (type: AllType, index: string) => {

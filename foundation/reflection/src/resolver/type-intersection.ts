@@ -29,6 +29,7 @@ export const tryTypeIntersection = (node: Node, context: Context, state: State) 
   }
 
   const file = context.options.includePath ? getNodeFilePath(node) : null;
+  const event = context.events.onTypeIntersection;
 
   const newState = getNewState({ types: state.types });
   const allTypes: EveryType[] = [];
@@ -41,5 +42,11 @@ export const tryTypeIntersection = (node: Node, context: Context, state: State) 
     }
   });
 
-  return createIntersection(file, allTypes);
+  const type = createIntersection(file, allTypes);
+
+  if (event) {
+    return event(type);
+  }
+
+  return type;
 };

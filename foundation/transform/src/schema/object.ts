@@ -33,6 +33,8 @@ export const transformObject = (value: unknown, schema: ObjectSchema, context = 
   const allProperties = new Set(Object.keys(objectValue));
   const output: AnyObject = {};
 
+  let complete = true;
+
   for (const propertyKey in schema.properties) {
     const propertySchema = schema.properties[propertyKey];
     const propertyName = getPropertyName(propertyKey, inputStyle);
@@ -42,13 +44,20 @@ export const transformObject = (value: unknown, schema: ObjectSchema, context = 
 
     const outputPropertyName = propertySchema.alias ?? getPropertyName(propertyKey, outputStyle);
 
+    allProperties.delete(propertyName);
+
     if (newValue !== undefined) {
       output[outputPropertyName] = newValue;
-    } else if (rawValue !== undefined) {
-      output[outputPropertyName] = rawValue;
+      continue;
     }
 
-    allProperties.delete(propertyName);
+    if (!propertySchema.optional) {
+      complete = false;
+    }
+  }
+
+  if (!complete && !context.return) {
+    return undefined;
   }
 
   if (schema.additional) {
@@ -73,6 +82,7 @@ export const transformObject = (value: unknown, schema: ObjectSchema, context = 
   if (allowExtraProperties) {
     for (const propertyName of allProperties) {
       const outputPropertyName = getPropertyName(propertyName, outputStyle);
+
       output[outputPropertyName] = objectValue[propertyName];
     }
   }

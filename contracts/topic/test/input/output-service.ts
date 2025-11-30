@@ -12,10 +12,10 @@ interface TestMessage extends Topic.Message {
 export declare class TestTopic1 extends Topic.Service<TestMessage> {
   subscriptions: [];
 
-  fifoMode: {
+  fifoMode: Topic.UseFifoMode<{
     uniqueId: 'id';
     groupId: 'user';
-  };
+  }>;
 
   // Services to all subscriptions.
   services: {

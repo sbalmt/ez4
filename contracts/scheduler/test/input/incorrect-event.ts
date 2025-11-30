@@ -8,7 +8,7 @@ function targetHandler(_request: Cron.Incoming<TestEvent>) {}
 export declare class TestScheduler extends Cron.Service<TestEvent> {
   expression: 'dynamic';
 
-  target: {
+  target: Cron.UseTarget<{
     handler: typeof targetHandler;
-  };
+  }>;
 }

@@ -5,7 +5,7 @@ export declare class TestDatabase extends Database.Service {
   engine: TestEngine;
 
   tables: [
-    {
+    Database.UseTable<{
       name: 'inlineTestTable';
       schema: {
         foo: string;
@@ -21,12 +21,12 @@ export declare class TestDatabase extends Database.Service {
         'foo:ttl': Index.Primary;
         'bar:foo': Index.Secondary;
       };
-    },
-    {
+    }>,
+    Database.UseTable<{
       name: 'testTable';
       schema: TestSchema;
       indexes: TestIndexes;
-    }
+    }>
   ];
 }
 

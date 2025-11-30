@@ -1,5 +1,6 @@
 import type { AnyObject, IsObject, PartialObject, PartialProperties, Prettify } from './generics';
 
+import { arrayUnique } from '../array/unique';
 import { isAnyObject, isPlainObject } from './check';
 
 /**
@@ -64,7 +65,7 @@ export const deepMerge = <T extends AnyObject, S extends AnyObject, O extends Me
   const excludeStates = options?.exclude;
 
   if (includeStates && excludeStates) {
-    throw new TypeError(`Can't specify include and exclude for merge options together.`);
+    throw new TypeError(`Can't specify include and exclude at the same time for merge options.`);
   }
 
   const isInclude = !!includeStates;
@@ -114,11 +115,15 @@ export const deepMerge = <T extends AnyObject, S extends AnyObject, O extends Me
     }
 
     if (array && Array.isArray(sourceValue) && Array.isArray(targetValue)) {
-      object[key] = [...sourceValue, ...targetValue];
+      object[key] = arrayUnique(...sourceValue, ...targetValue);
       continue;
     }
 
-    object[key] = sourceValue ?? targetValue;
+    const value = sourceValue ?? targetValue;
+
+    if (value !== undefined) {
+      object[key] = value;
+    }
   }
 
   return object as MergeResult<T & S, O>;

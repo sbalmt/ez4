@@ -11,7 +11,6 @@ import { getModelProperties } from '../reflection/model';
 import { getObjectProperties } from '../reflection/object';
 import { SchemaReferenceNotFound } from '../errors/reference';
 import { createSchemaContext } from '../types/context';
-import { isObjectSchema } from '../types/type-object';
 import { createReferenceSchema } from './reference';
 import { SchemaType } from '../types/common';
 import { getAnySchema } from './any';
@@ -102,50 +101,6 @@ export const getObjectSchema = (
     references.delete(type);
 
     return modelSchema;
-  }
-
-  if (isRichTypeIntersection(type)) {
-    const identity = ++context.counter;
-
-    references.set(type, identity);
-
-    const objectSchema = createObjectSchema({
-      definitions: type.definitions,
-      properties: {},
-      description,
-      identity
-    });
-
-    for (const element of type.elements) {
-      const elementSchema = getObjectSchema(element, reflection, context);
-
-      if (!elementSchema || !isObjectSchema(elementSchema)) {
-        continue;
-      }
-
-      const hasDefinitions = !!objectSchema.definitions || !!elementSchema.definitions;
-      const hasAdditional = !!objectSchema.additional || !!elementSchema.additional;
-
-      Object.assign(objectSchema, {
-        ...(hasAdditional && {
-          additional: elementSchema.additional ?? objectSchema.additional
-        }),
-        ...(hasDefinitions && {
-          definitions: {
-            ...objectSchema.definitions,
-            ...elementSchema.definitions
-          }
-        }),
-        properties: {
-          ...objectSchema.properties,
-          ...elementSchema.properties
-        }
-      });
-    }
-
-    references.delete(type);
-
-    return objectSchema;
   }
 
   if (isTypeReference(type)) {

@@ -1,11 +1,18 @@
 import type { ArraySchema, NamingStyle, ObjectSchema, ScalarSchema, UnionSchema } from '@ez4/schema';
-import type { HttpImport, HttpService } from '@ez4/gateway/library';
+import type { HttpService } from '../types/service';
+import type { HttpImport } from '../types/import';
+import type { HttpRoute } from '../types/common';
+
+import { getObjectSchemaProperty } from '@ez4/schema';
+
+import { isHttpImport } from '../types/import';
 
 export type ClientOperation = {
   namingStyle?: NamingStyle;
   bodySchema?: ObjectSchema | UnionSchema | ArraySchema | ScalarSchema;
   responseSchema?: ObjectSchema | UnionSchema | ArraySchema | ScalarSchema;
   querySchema?: ObjectSchema;
+  authorize?: boolean;
   method: string;
   path: string;
 };
@@ -14,6 +21,7 @@ export const getClientOperations = (service: HttpService | HttpImport) => {
   const allOperations: Record<string, ClientOperation> = {};
 
   const defaultNamingStyle = service.defaults?.preferences?.namingStyle;
+  const authorizationHeader = isHttpImport(service) ? service.authorization?.header : undefined;
 
   for (const route of service.routes) {
     if (!route.name) {
@@ -22,15 +30,34 @@ export const getClientOperations = (service: HttpService | HttpImport) => {
 
     const [method, path] = route.path.split(' ', 2);
 
+    const { handler, preferences } = route;
+
     allOperations[route.name] = {
-      namingStyle: route.preferences?.namingStyle ?? defaultNamingStyle,
-      bodySchema: route.handler.request?.body,
-      responseSchema: route.handler.response.body,
-      querySchema: route.handler.request?.query,
+      authorize: shouldUseAuthorization(route, authorizationHeader),
+      namingStyle: preferences?.namingStyle ?? defaultNamingStyle,
+      bodySchema: handler.request?.body,
+      responseSchema: handler.response.body,
+      querySchema: handler.request?.query,
       method,
       path
     };
   }
 
   return allOperations;
+};
+
+const shouldUseAuthorization = (route: HttpRoute, authorizationHeader: string | undefined) => {
+  const headersSchema = route.authorizer?.request?.headers;
+
+  if (!headersSchema || !authorizationHeader) {
+    return false;
+  }
+
+  const authorizationSchema = getObjectSchemaProperty(headersSchema, authorizationHeader);
+
+  if (!authorizationSchema || authorizationSchema.optional) {
+    return false;
+  }
+
+  return true;
 };

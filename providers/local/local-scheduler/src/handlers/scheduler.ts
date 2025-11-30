@@ -35,7 +35,7 @@ export const processSchedulerEvent = async (
     await onBegin(module, clients, request);
 
     if (service.schema) {
-      request.event = event;
+      Object.assign(request, { event });
     }
 
     await onReady(module, clients, request);

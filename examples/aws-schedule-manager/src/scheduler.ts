@@ -26,9 +26,9 @@ export declare class EventScheduler extends Cron.Service<EventRequest> {
   /**
    * Event target.
    */
-  target: {
+  target: Cron.UseTarget<{
     handler: typeof scheduleEventHandler;
-  };
+  }>;
 
   /**
    * All Scheduler services.

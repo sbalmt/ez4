@@ -2,7 +2,7 @@ import type { TypeObject } from '@ez4/reflection';
 
 import { tryCreateTrigger } from '@ez4/project/library';
 
-import { getRichTypes, createRichType } from '../richtypes/utils';
+import { getRichTypes, createRichType } from './richtypes';
 
 const libraryFiles = ['boolean', 'integer', 'decimal', 'string', 'object', 'array', 'enum'];
 const libraryPath = new RegExp(`dist/richtypes/(${libraryFiles.join('|')}).d.ts`);

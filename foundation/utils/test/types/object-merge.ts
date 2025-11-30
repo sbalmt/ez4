@@ -26,8 +26,6 @@ type BaseModelB = {
   };
 };
 
-type FullModel = MergeObject<BaseModelA, BaseModelB>;
-
 type ExpectedType = {
   foo: number;
   baz: {
@@ -47,11 +45,11 @@ type ExpectedType = {
     | undefined;
 };
 
-assertType<ExpectedType, FullModel>(true);
+assertType<ExpectedType, MergeObject<BaseModelA, BaseModelB>>(true);
 
 // Expect full model with arrays combined.
 export const testA = () => {
-  const test: FullModel = {
+  const test: MergeObject<BaseModelA, BaseModelB> = {
     foo: 123,
     bar: ['abc'],
     baz: {
@@ -73,7 +71,7 @@ export const testA = () => {
 
 // Expect full model with undefined values.
 export const testB = () => {
-  const test: FullModel = {
+  const test: MergeObject<BaseModelA, BaseModelB> = {
     foo: 123,
     bar: undefined,
     baz: {

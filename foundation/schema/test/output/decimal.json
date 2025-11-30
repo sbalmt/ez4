@@ -79,6 +79,17 @@
       "definitions": {
         "value": 0
       }
+    },
+    "compound": {
+      "type": "number",
+      "description": "Compound decimal schemas.",
+      "format": "decimal",
+      "definitions": {
+        "default": 25,
+        "value": 15,
+        "maxValue": 9.5,
+        "minValue": 0.5
+      }
     }
   }
 }

@@ -1,10 +1,10 @@
 import type { Bucket } from '@ez4/storage';
 
 export declare class TestStorage extends Bucket.Service {
-  events: {
+  events: Bucket.UseEvents<{
     listener: typeof eventListener;
     handler: typeof eventHandler;
-  };
+  }>;
 }
 
 export function eventListener(_event: Bucket.ServiceEvent) {}

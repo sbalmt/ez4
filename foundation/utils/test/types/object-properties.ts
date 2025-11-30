@@ -17,16 +17,12 @@ type BaseModel = {
 export const testA = () => {
   type RequiredModelProperties = RequiredProperties<BaseModel>;
 
-  type ExpectedType = 'foo' | 'qux';
-
-  assertType<ExpectedType, RequiredModelProperties>(true);
+  assertType<'foo' | 'qux', RequiredModelProperties>(true);
 };
 
 // Expect optional properties.
 export const testB = () => {
   type OptionalModelProperties = OptionalProperties<BaseModel>;
 
-  type ExpectedType = 'bar' | 'baz';
-
-  assertType<ExpectedType, OptionalModelProperties>(true);
+  assertType<'bar' | 'baz', OptionalModelProperties>(true);
 };

@@ -6,7 +6,7 @@ import type { PaginationModeUtils } from './pagination';
 import type { OrderModeUtils } from './order';
 import type { LockModeUtils } from './lock';
 import type { TableMetadata } from './table';
-import type { Database } from './database';
+import type { Database } from './contract';
 
 import type {
   AnyObject,
@@ -257,11 +257,11 @@ export namespace Query {
   };
 
   type WhereIn<V> = {
-    isIn: IsArray<V> extends true ? V : IsObject<V> extends true ? V : V[];
+    isIn: IsArray<V> extends true ? V : IsObject<V> extends true ? V : Exclude<V, undefined>[];
   };
 
   type WhereBetween<V> = {
-    isBetween: [V, V];
+    isBetween: [Exclude<V, undefined>, Exclude<V, undefined>];
   };
 
   type WhereIsMissing = {

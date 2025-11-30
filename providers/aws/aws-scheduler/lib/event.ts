@@ -24,7 +24,7 @@ export async function eventEntryPoint(event: ScheduledEvent, context: Context): 
     await onBegin(request);
 
     if (__EZ4_SCHEMA) {
-      request.event = await getJsonEvent(event, __EZ4_SCHEMA);
+      Object.assign(request, { event: await getJsonEvent(event, __EZ4_SCHEMA) });
     }
 
     await onReady(request);

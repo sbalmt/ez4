@@ -16,7 +16,7 @@ export declare class TestDatabase extends Database.Service {
   client: Client<TestDatabase>;
 
   tables: [
-    {
+    Database.UseTable<{
       name: 'table';
       schema: TestTable;
       relations: {
@@ -25,7 +25,7 @@ export declare class TestDatabase extends Database.Service {
       indexes: {
         id: Index.Primary;
       };
-    }
+    }>
   ];
 
   services: {

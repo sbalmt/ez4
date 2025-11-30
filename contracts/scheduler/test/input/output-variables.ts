@@ -4,9 +4,9 @@ import type { Cron } from '@ez4/scheduler';
 export declare class TestScheduler extends Cron.Service {
   expression: 'rate(1 minute)';
 
-  target: {
+  target: Cron.UseTarget<{
     handler: typeof targetHandler;
-  };
+  }>;
 
   variables: {
     TEST_VAR1: 'test-literal-value';

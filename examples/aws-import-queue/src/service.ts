@@ -16,10 +16,10 @@ export declare class ImportedSqs extends Queue.Import<Sqs> {
    * All handlers for this queue.
    */
   subscriptions: [
-    {
+    Queue.UseSubscription<{
       listener: typeof queueListener;
       handler: typeof messageHandler;
-    }
+    }>
   ];
 }
 
@@ -36,9 +36,9 @@ export declare class ImportedFifoSqs extends Queue.Import<FifoSqs> {
    * All handlers for this queue.
    */
   subscriptions: [
-    {
+    Queue.UseSubscription<{
       listener: typeof queueListener;
       handler: typeof messageHandler;
-    }
+    }>
   ];
 }

@@ -10,6 +10,7 @@ import type { TypeNumberEvents } from './types/type-number';
 import type { TypeStringEvents } from './types/type-string';
 import type { TypeObjectEvents } from './types/type-object';
 import type { TypeReferenceEvents } from './types/type-reference';
+import type { TypeIntersectionEvents } from './types/type-intersection';
 import type { SourceMap } from './types/source';
 import type { AllType } from './types';
 
@@ -51,7 +52,8 @@ export type ResolverEvents = TypeAnyEvents &
   TypeStringEvents &
   TypeBooleanEvents &
   TypeObjectEvents &
-  TypeReferenceEvents;
+  TypeReferenceEvents &
+  TypeIntersectionEvents;
 
 export type ResolverOptions = {
   /**

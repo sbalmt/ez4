@@ -6,11 +6,11 @@ import { Http, HttpBadRequestError, HttpInternalServerError } from '@ez4/gateway
 
 declare class TestApi extends Http.Service {
   routes: [
-    {
+    Http.UseRoute<{
       name: 'testApi';
       path: 'GET /test/api';
       handler: (request: TestRequest) => TestResponse;
-    }
+    }>
   ];
 }
 

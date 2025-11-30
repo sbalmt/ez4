@@ -8,7 +8,7 @@ export declare class TestDatabase extends Database.Service {
   client: Client<TestDatabase>;
 
   tables: [
-    {
+    Database.UseTable<{
       name: 'tableA';
       relations: {
         // Primary to unique
@@ -21,8 +21,8 @@ export declare class TestDatabase extends Database.Service {
         id: string;
         value: number;
       };
-    },
-    {
+    }>,
+    Database.UseTable<{
       name: 'tableB';
       relations: {
         // Primary to secondary
@@ -35,8 +35,8 @@ export declare class TestDatabase extends Database.Service {
         id: string;
         value: number;
       };
-    },
-    {
+    }>,
+    Database.UseTable<{
       name: 'tableC';
       relations: {
         // Unique to primary
@@ -51,8 +51,8 @@ export declare class TestDatabase extends Database.Service {
         unique: string;
         value: number;
       };
-    },
-    {
+    }>,
+    Database.UseTable<{
       name: 'tableD';
       relations: {
         // Unique to unique
@@ -67,8 +67,8 @@ export declare class TestDatabase extends Database.Service {
         unique: string;
         value: number;
       };
-    },
-    {
+    }>,
+    Database.UseTable<{
       name: 'tableE';
       relations: {
         // Unique to secondary
@@ -83,8 +83,8 @@ export declare class TestDatabase extends Database.Service {
         unique: string;
         value: number;
       };
-    },
-    {
+    }>,
+    Database.UseTable<{
       name: 'tableF';
       relations: {
         // Secondary to primary
@@ -98,8 +98,8 @@ export declare class TestDatabase extends Database.Service {
         secondary: string;
         value: number;
       };
-    },
-    {
+    }>,
+    Database.UseTable<{
       name: 'tableG';
       relations: {
         // Secondary to unique
@@ -113,8 +113,8 @@ export declare class TestDatabase extends Database.Service {
         secondary: string;
         value: number;
       };
-    },
-    {
+    }>,
+    Database.UseTable<{
       name: 'tableP';
       indexes: {
         id_p: Index.Primary;
@@ -123,8 +123,8 @@ export declare class TestDatabase extends Database.Service {
         id_p: string;
         value_p: number;
       };
-    },
-    {
+    }>,
+    Database.UseTable<{
       name: 'tableS';
       indexes: {
         id_s: Index.Primary;
@@ -134,8 +134,8 @@ export declare class TestDatabase extends Database.Service {
         secondary_s: string;
         value_s: number;
       };
-    },
-    {
+    }>,
+    Database.UseTable<{
       name: 'tableU';
       indexes: {
         id_u: Index.Primary;
@@ -146,7 +146,7 @@ export declare class TestDatabase extends Database.Service {
         unique_u: string;
         value_u: number;
       };
-    }
+    }>
   ];
 
   services: {

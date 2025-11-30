@@ -14,18 +14,18 @@ export declare class TestScheduler2 extends Cron.Service {
 
 // @ts-ignore Missing required expression.
 export declare class TestScheduler3 extends Cron.Service {
-  target: {
+  target: Cron.UseTarget<{
     handler: typeof targetHandler;
-  };
+  }>;
 }
 
 // Missing event schema.
 export declare class TestScheduler4 extends Cron.Service {
   expression: 'dynamic';
 
-  target: {
+  target: Cron.UseTarget<{
     handler: typeof targetHandler;
-  };
+  }>;
 }
 
 function targetHandler() {}

@@ -7,10 +7,25 @@ import { validate, createValidatorContext, getUniqueErrorMessages } from '@ez4/v
 import { base64Encode, isNotNullish, isNullish } from '@ez4/utils';
 import { getSchemaProperty, isArraySchema } from '@ez4/schema';
 
+export const prepareQueryStrings = <T extends Http.QueryStrings>(input: T, schema?: ObjectSchema, preferences?: Http.Preferences) => {
+  if (!schema) {
+    return serializeQueryStrings(input);
+  }
+
+  const context = createTransformContext({
+    inputStyle: preferences?.namingStyle,
+    convert: false
+  });
+
+  const payload = transform(input, schema, context) as T;
+
+  return serializeQueryStrings(payload, schema);
+};
+
 export const getQueryStrings = async <T extends Http.QueryStrings>(
   input: T,
   schema: ObjectSchema,
-  preferences?: Http.Preferences | null
+  preferences?: Http.Preferences
 ): Promise<T> => {
   const inputStyle = preferences?.namingStyle;
 
@@ -37,7 +52,7 @@ export const getQueryStrings = async <T extends Http.QueryStrings>(
   return payload as T;
 };
 
-export const serializeQueryStrings = <T extends Http.QueryStrings>(query: T, schema?: ObjectSchema) => {
+const serializeQueryStrings = <T extends Http.QueryStrings>(query: T, schema?: ObjectSchema) => {
   const queryStrings = [];
 
   for (const fieldName in query) {
@@ -56,7 +71,7 @@ export const serializeQueryStrings = <T extends Http.QueryStrings>(query: T, sch
   return undefined;
 };
 
-export const serializeQueryStringValue = (value: unknown, schema?: AnySchema): string | undefined => {
+const serializeQueryStringValue = (value: unknown, schema?: AnySchema): string | undefined => {
   if (isNullish(value)) {
     return undefined;
   }

@@ -8,7 +8,7 @@ export declare class TestDatabase extends Database.Service {
   client: Client<TestDatabase>;
 
   tables: [
-    {
+    Database.UseTable<{
       name: 'table';
       indexes: {
         id: Index.Primary;
@@ -22,7 +22,7 @@ export declare class TestDatabase extends Database.Service {
         unique_idx_p2: string;
         unique_idx: number;
       };
-    }
+    }>
   ];
 
   services: {

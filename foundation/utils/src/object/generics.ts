@@ -1,10 +1,16 @@
-import type { IsAny, IsUndefined, IsUnknown, MergeType } from '../common/generics';
+import type { IsAny, IsNever, IsUndefined, MergeType } from '../common/generics';
 import type { ArrayType, IsArray } from '../array/generics';
 
 /**
  * A type to represent any object.
  */
 export type AnyObject = Record<any, any>;
+
+/**
+ * Given a complex object type `T`, it produces a new object type resolving all its first-level
+ * property names.
+ */
+export type Prettify<T extends AnyObject> = { [P in keyof T]: T[P] } & unknown;
 
 /**
  * Given an object type `T`, it produces a new object type allowing its original type, `undefined`
@@ -19,16 +25,11 @@ export type Incomplete<T extends AnyObject> = { [P in keyof T]?: T[P] | undefine
 export type Complete<T extends AnyObject> = { [P in keyof T]-?: Exclude<T[P], undefined | null> };
 
 /**
- * Given a complex object type `T`, it produces a new object type resolving all its first-level
- * property names.
- */
-export type Prettify<T extends AnyObject> = { [P in keyof T]: T[P] } & unknown;
-
-/**
  * Given a type `T` and a property `P`, it returns `true` when the property exists,
  * otherwise returns `false`.
  */
-export type PropertyExists<P, T extends AnyObject> = P extends keyof T ? true : false;
+export type PropertyExists<P, T extends AnyObject> =
+  IsAny<T> extends true ? false : IsNever<T> extends true ? false : P extends keyof T ? true : false;
 
 /**
  * Given a type `T` and a property `P`, it returns the corresponding property type.
@@ -36,20 +37,10 @@ export type PropertyExists<P, T extends AnyObject> = P extends keyof T ? true : 
 export type PropertyType<P, T extends AnyObject> = P extends keyof T ? T[P] : never;
 
 /**
- * Given a type `T`, is produces a union containing all inner types.
- */
-export type InnerTypes<T> = IsObject<T> extends true ? InnerTypes<T[keyof T]> : T;
-
-/**
- * Given a type `T`, it returns only the object type.
- */
-export type ExtractObject<T> = T extends AnyObject ? T : never;
-
-/**
  * Given an object type `T`, it returns `true` when `T` is an empty object, otherwise returns `false`.
  */
 export type IsObjectEmpty<T extends AnyObject> =
-  IsAny<T> extends true ? true : keyof T extends never ? true : string extends keyof T ? true : false;
+  IsAny<T> extends true ? true : IsNever<keyof T> extends true ? true : string extends keyof T ? true : false;
 
 /**
  * Given an object type `T`, it returns `true` when `T` is an object, otherwise returns `false`.
@@ -66,14 +57,21 @@ export type IsObject<T> =
         : false;
 
 /**
- * Given the types `T` and `U`, it produces a new object type ensuring only properties in
+ * Given a type `T`, it produces a new `T` type having all properties set to optional.
+ */
+export type OptionalObject<T extends AnyObject> = {
+  [P in keyof T]?: IsArray<T[P]> extends false ? (IsObject<T[P]> extends true ? OptionalObject<T[P]> : T[P]) : T[P];
+};
+
+/**
+ * Given the types `T` and `U`, it produces a new type `T` ensuring only properties in
  * common with `U` type.
  */
 export type StrictObject<T, U extends AnyObject> =
   IsObjectEmpty<U> extends true
     ? T
     : IsObject<T> extends true
-      ? { [P in keyof T]: P extends keyof U ? StrictObject<T[P], NonNullable<U[P]>> : never }
+      ? { [P in keyof T as P extends keyof U ? P : never]: StrictObject<T[P], NonNullable<U[P]>> }
       : T;
 
 /**
@@ -102,6 +100,26 @@ export type MergeObject<T extends AnyObject, U extends AnyObject> = Prettify<{
     : P extends keyof U
       ? U[P]
       : never;
+}>;
+
+/**
+ * Given the object types `T` and `O`, it produces a new type containing only properties that
+ * are in `O` if `V` is `true` or omit them if `V` is `false`, the original property type is
+ * preserved. This is used in conjunction with `PartialProperties`.
+ * 
+ @example
+ type Foo = PartialObject<{ bar: string, baz: number }, { bar: true }>; // { bar: string }
+ */
+export type PartialObject<T extends AnyObject, O extends AnyObject, V extends boolean = true> = Prettify<{
+  [P in keyof T as PartialObjectProperty<O[P], P, V>]: IsArray<T[P]> extends false
+    ? IsObject<ExtractObject<O[P]>> extends true
+      ? PartialObjectType<PartialObject<T[P], ExtractObject<O[P]>, V>, O[P]>
+      : PartialObjectType<T[P], O[P]>
+    : IsObject<ExtractObject<O[P]>> extends true
+      ? ArrayType<T[P]> extends AnyObject
+        ? PartialObjectType<PartialObject<ArrayType<T[P]>, ExtractObject<O[P]>, V>[], O[P]>
+        : PartialObjectType<T[P], O[P]>
+      : PartialObjectType<T[P], O[P]>;
 }>;
 
 /**
@@ -136,31 +154,9 @@ export type PartialProperties<T extends AnyObject> = {
 };
 
 /**
- * Given the object types `T` and `O`, it produces a new type containing only properties that
- * are in `O` if `V` is `true` or omit them if `V` is `false`, the original property type is
- * preserved. This is used in conjunction with `PartialProperties`.
- * 
- @example
- type Foo = PartialObject<{ bar: string, baz: number }, { bar: true }>; // { bar: string }
+ * Given a type `T`, it returns only the object type.
  */
-export type PartialObject<T extends AnyObject, O extends AnyObject, V extends boolean = true> = Prettify<{
-  [P in keyof T as PartialObjectProperty<O[P], P, V>]: IsArray<T[P]> extends false
-    ? IsObject<ExtractObject<O[P]>> extends true
-      ? PartialObjectType<PartialObject<T[P], ExtractObject<O[P]>, V>, O[P]>
-      : PartialObjectType<T[P], O[P]>
-    : IsObject<ExtractObject<O[P]>> extends true
-      ? ArrayType<T[P]> extends AnyObject
-        ? PartialObjectType<PartialObject<ArrayType<T[P]>, ExtractObject<O[P]>, V>[], O[P]>
-        : PartialObjectType<T[P], O[P]>
-      : PartialObjectType<T[P], O[P]>;
-}>;
-
-/**
- * Given a type `T`, it produces a new `T` type having all properties set to optional.
- */
-export type OptionalObject<T extends AnyObject> = {
-  [P in keyof T]?: IsArray<T[P]> extends false ? (IsObject<T[P]> extends true ? OptionalObject<T[P]> : T[P]) : T[P];
-};
+type ExtractObject<T> = T extends AnyObject ? T : never;
 
 /**
  * Helper type to determine if the given type `T` can be undefined when `U` is `true`,
@@ -176,14 +172,4 @@ type PartialObjectType<T, U> = U extends false ? T | undefined : T;
  * - In any other case, it returns `never`.
  */
 type PartialObjectProperty<T, K, V> =
-  IsUnknown<T> extends true
-    ? never
-    : IsObject<ExtractObject<T>> extends true
-      ? K
-      : T extends true
-        ? V extends true
-          ? K
-          : never
-        : V extends true
-          ? never
-          : K;
+  IsObject<ExtractObject<T>> extends true ? K : T extends true ? (V extends true ? K : never) : V extends true ? never : K;

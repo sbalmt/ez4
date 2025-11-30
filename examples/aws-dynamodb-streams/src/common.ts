@@ -1,11 +1,12 @@
 import type { Database } from '@ez4/database';
+import type { ExampleSchema } from './schema';
 
 import { ServiceEventType } from '@ez4/common';
 
 /**
  * Watch stream lifecycle events.
  */
-export function streamListener(event: Database.ServiceEvent) {
+export function streamListener(event: Database.ServiceEvent<ExampleSchema>) {
   switch (event.type) {
     case ServiceEventType.Begin:
       console.log('Event begin', event.request);

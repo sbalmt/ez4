@@ -18,6 +18,7 @@ import { IncompleteServiceError } from '../errors/service';
 import { getHttpRemoteRoutes } from './route';
 import { getHttpDefaults } from './defaults';
 import { isHttpImport } from './utils';
+import { getHttpAuthorization } from './authorization';
 
 export const getHttpImports = (reflection: SourceMap) => {
   const allImports: Record<string, HttpImport> = {};
@@ -60,14 +61,14 @@ export const getHttpImports = (reflection: SourceMap) => {
           }
           break;
 
-        case 'project':
-          if (!member.inherited && (service.project = getPropertyString(member))) {
-            properties.delete(member.name);
+        case 'authorization':
+          if (!member.inherited) {
+            service[member.name] = getHttpAuthorization(member.value, declaration, reflection, errorList);
           }
           break;
 
-        case 'routes':
-          if (member.inherited && (service.routes = getHttpRemoteRoutes(declaration, member, reflection, errorList))) {
+        case 'project':
+          if (!member.inherited && (service.project = getPropertyString(member))) {
             properties.delete(member.name);
           }
           break;
@@ -75,6 +76,12 @@ export const getHttpImports = (reflection: SourceMap) => {
         case 'name':
           if (member.inherited) {
             service.displayName = getPropertyString(member, reflection);
+          }
+          break;
+
+        case 'routes':
+          if (member.inherited && (service.routes = getHttpRemoteRoutes(declaration, member, reflection, errorList))) {
+            properties.delete(member.name);
           }
           break;
 

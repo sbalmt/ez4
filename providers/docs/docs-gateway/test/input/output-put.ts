@@ -4,10 +4,10 @@ export declare class TestApi extends Http.Service {
   name: 'Test API';
 
   routes: [
-    {
+    Http.UseRoute<{
       path: 'PUT /route';
       handler: typeof testHandler;
-    }
+    }>
   ];
 }
 

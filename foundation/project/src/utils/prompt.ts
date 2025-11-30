@@ -7,7 +7,7 @@ export const waitConfirmation = async (question: string) => {
     terminal: true
   });
 
-  const answer = await tty.question(`[EZ4]: ${question} (y/N): `);
+  const answer = await tty.question(`⁉️  ${question} (y/N): `);
   const result = answer.trim().toLowerCase() === 'y';
 
   tty.close();

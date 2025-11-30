@@ -40,9 +40,9 @@ export declare class TestImport1Queue extends Queue.Import<TestQueue> {
   project: 'name from project in ez4.project.js';
 
   subscriptions: [
-    {
+    Queue.UseSubscription<{
       handler: typeof testHandler;
-    }
+    }>
   ];
 
   variables: {

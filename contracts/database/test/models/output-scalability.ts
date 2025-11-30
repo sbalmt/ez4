@@ -8,8 +8,8 @@ export declare class TestDatabase extends Database.Service {
 
   tables: [];
 
-  scalability: {
+  scalability: Database.UseScalability<{
     maxCapacity: 100;
     minCapacity: 0;
-  };
+  }>;
 }

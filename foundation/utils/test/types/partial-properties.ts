@@ -13,8 +13,6 @@ type BaseModel = {
   qux: undefined;
 };
 
-type ModelProperties = PartialProperties<BaseModel>;
-
 type ExpectedType = {
   foo?: boolean;
   bar?:
@@ -28,11 +26,11 @@ type ExpectedType = {
   qux?: boolean;
 };
 
-assertType<ExpectedType, ModelProperties>(true);
+assertType<ExpectedType, PartialProperties<BaseModel>>(true);
 
 // Assign only 'foo'
 export const testA = () => {
-  const test: ModelProperties = {
+  const test: PartialProperties<BaseModel> = {
     foo: true
   };
 
@@ -41,7 +39,7 @@ export const testA = () => {
 
 // Expect only 'barFoo' inside 'bar'
 export const testB = () => {
-  const test: ModelProperties = {
+  const test: PartialProperties<BaseModel> = {
     bar: {
       barFoo: true,
       barBaz: false

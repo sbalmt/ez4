@@ -2,7 +2,7 @@ import type { DeployOptions, ContextSource, EventContext } from '@ez4/project/li
 import type { HttpImport, HttpService } from '@ez4/gateway/library';
 import type { GatewayState } from '../gateway/types';
 
-import { getClientOperations } from '@ez4/gateway/library';
+import { getClientAuthorization, getClientOperations, isHttpImport } from '@ez4/gateway/library';
 import { getDefinitionName } from '@ez4/project/library';
 
 import { getGatewayState } from '../gateway/utils';
@@ -12,12 +12,18 @@ export const prepareLinkedClient = (context: EventContext, service: HttpService 
   const gatewayId = gatewayState.entryId;
 
   const gatewayUrl = getDefinitionName<GatewayState>(gatewayId, 'endpoint');
-  const operations = JSON.stringify(getClientOperations(service));
+
+  const clientOptions = JSON.stringify({
+    operations: getClientOperations(service),
+    ...(isHttpImport(service) && {
+      authorization: getClientAuthorization(service)
+    })
+  });
 
   return {
     connectionIds: [gatewayId],
     dependencyIds: [gatewayId],
-    constructor: `make(${gatewayUrl}, ${operations})`,
+    constructor: `make(${gatewayUrl}, ${clientOptions})`,
     from: '@ez4/aws-gateway/client',
     module: 'Client'
   };

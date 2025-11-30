@@ -9,10 +9,10 @@ interface TestMessage extends Queue.Message {
  */
 export declare class TestQueue extends Queue.Service<TestMessage> {
   subscriptions: [
-    {
+    Queue.UseSubscription<{
       listener: typeof testListener;
       handler: typeof testHandler;
-    }
+    }>
   ];
 }
 

@@ -9,7 +9,7 @@ import {
   getObjectMembers,
   getModelMembers,
   getServiceListener,
-  getReferenceType
+  tryGetReferenceType
 } from '@ez4/common/library';
 
 import { isModelProperty, isTypeObject, isTypeReference } from '@ez4/reflection';
@@ -24,7 +24,7 @@ export const getHttpDefaults = (type: AllType, parent: TypeModel, reflection: So
     return getTypeDefaults(type, parent, reflection, errorList);
   }
 
-  const declaration = getReferenceType(type, reflection);
+  const declaration = tryGetReferenceType(type, reflection);
 
   if (declaration) {
     return getTypeDefaults(declaration, parent, reflection, errorList);

@@ -1,10 +1,46 @@
 import type { AnyObject, PropertyExists } from '@ez4/utils';
-import type { RelationMetadata, RelationTables } from './relations';
-import type { IndexedTables } from './indexes';
-import type { TableSchemas } from './schemas';
-import type { Database } from './database';
+import type { TableRelations, RelationMetadata, RelationTables } from './relations';
+import type { TableIndexes, IndexedTables } from './indexes';
+import type { TableSchema, TableSchemas } from './schemas';
 import type { DatabaseEngine } from './engine';
+import type { TableStream } from './streams';
+import type { Database } from './contract';
 import type { Query } from './query';
+
+/**
+ * Database table.
+ */
+export interface DatabaseTable<T extends TableSchema> {
+  /**
+   * Table name.
+   */
+  readonly name: string;
+
+  /**
+   * Table schema.
+   */
+  readonly schema: T;
+
+  /**
+   * Table relations.
+   */
+  readonly relations?: TableRelations;
+
+  /**
+   * Table indexes.
+   */
+  readonly indexes: TableIndexes;
+
+  /**
+   * Table stream configuration.
+   */
+  readonly stream?: TableStream<T>;
+}
+
+/**
+ * Given a database service `T`, it returns all its table.
+ */
+export type DatabaseTables<T> = T extends { tables: infer U } ? U : [];
 
 /**
  * Given an indexed table `T` and a property `P`, it returns all the indexes corresponding

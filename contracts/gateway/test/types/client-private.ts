@@ -7,30 +7,30 @@ export declare class TestService extends Http.Service {
   client: Client<TestService>;
 
   routes: [
-    {
+    Http.UseRoute<{
       name: 'testComplete';
       path: 'ANY /test-complete/{foo}';
       authorizer: typeof testHeaderAuthorizer;
       handler: typeof testCompleteRoute;
-    },
-    {
+    }>,
+    Http.UseRoute<{
       name: 'testHeader';
       path: 'ANY /test-header';
       authorizer: typeof testQueryAuthorizer;
       handler: typeof testHeaderRoute;
-    },
-    {
+    }>,
+    Http.UseRoute<{
       name: 'testQuery';
       path: 'ANY /test-query';
       authorizer: typeof testHeaderAuthorizer;
       handler: typeof testQueryRoute;
-    },
-    {
+    }>,
+    Http.UseRoute<{
       name: 'testBody';
       path: 'ANY /test-body';
       authorizer: typeof testQueryAuthorizer;
       handler: typeof testBodyRoute;
-    }
+    }>
   ];
 
   services: {

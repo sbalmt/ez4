@@ -20,13 +20,13 @@ export declare class Db extends Database.Service {
    * Database tables.
    */
   tables: [
-    {
+    Database.UseTable<{
       name: 'items';
       schema: ItemSchema;
       indexes: {
         id: Index.Primary;
         'type:created_at': Index.Secondary;
       };
-    }
+    }>
   ];
 }

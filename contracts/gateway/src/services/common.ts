@@ -1,72 +1,6 @@
-import type { LinkedVariables } from '@ez4/project/library';
-import type { NamingStyle } from '@ez4/schema';
 import type { Service } from '@ez4/common';
+import type { HttpProvider } from './provider';
 import type { Http } from './contract';
-
-/**
- * Contract for HTTP preferences.
- */
-export interface HttpPreferences {
-  /**
-   * Determines the naming style for the query strings and body payloads.
-   */
-  namingStyle?: NamingStyle;
-}
-
-/**
- * HTTP CORS configuration.
- */
-export interface HttpCors {
-  /**
-   * List of allowed origins.
-   */
-  allowOrigins: string[];
-
-  /**
-   * List of allowed methods.
-   */
-  allowMethods?: string[];
-
-  /**
-   * Determines whether or not requests can be made with credentials.
-   */
-  allowCredentials?: boolean;
-
-  /**
-   * List of allowed headers.
-   */
-  allowHeaders?: string[];
-
-  /**
-   * List of exposed headers.
-   */
-  exposeHeaders?: string[];
-
-  /**
-   * Determines how long the preflight result can be cached.
-   */
-  maxAge?: number;
-}
-
-/**
- * HTTP cache configuration.
- */
-export interface HttpCache {
-  /**
-   * Default TTL (in seconds) for cached authorizations.
-   */
-  authorizerTTL: number;
-}
-
-/**
- * HTTP access configuration.
- */
-export interface HttpAccess {
-  /**
-   * Log retention (in days) for the access log.
-   */
-  logRetention: number;
-}
 
 /**
  * Request headers.
@@ -103,24 +37,19 @@ export type HttpRawBody = string;
  */
 export interface HttpAuthRequest {
   /**
-   * Auth request preferences.
-   */
-  preferences?: HttpPreferences;
-
-  /**
    * Expected HTTP headers.
    */
-  headers?: HttpHeaders;
+  readonly headers?: HttpHeaders;
 
   /**
    * Expected HTTP path parameters.
    */
-  parameters?: HttpPathParameters;
+  readonly parameters?: HttpPathParameters;
 
   /**
    * Expected HTTP query strings.
    */
-  query?: HttpQueryStrings;
+  readonly query?: HttpQueryStrings;
 }
 
 /**
@@ -130,7 +59,7 @@ export interface HttpAuthResponse {
   /**
    * Authorization identity.
    */
-  identity?: HttpIdentity;
+  readonly identity?: HttpIdentity;
 }
 
 /**
@@ -138,34 +67,29 @@ export interface HttpAuthResponse {
  */
 export interface HttpRequest {
   /**
-   * Request preferences.
-   */
-  preferences?: HttpPreferences;
-
-  /**
    * Expected identity.
    */
-  identity?: HttpIdentity;
+  readonly identity?: HttpIdentity;
 
   /**
    * Expected HTTP headers.
    */
-  headers?: HttpHeaders;
+  readonly headers?: HttpHeaders;
 
   /**
    * Expected HTTP path parameters.
    */
-  parameters?: HttpPathParameters;
+  readonly parameters?: HttpPathParameters;
 
   /**
    * Expected HTTP query strings.
    */
-  query?: HttpQueryStrings;
+  readonly query?: HttpQueryStrings;
 
   /**
    * Expected HTTP body payload.
    */
-  body?: HttpJsonBody | HttpRawBody;
+  readonly body?: HttpJsonBody | HttpRawBody;
 }
 
 /**
@@ -173,36 +97,19 @@ export interface HttpRequest {
  */
 export interface HttpResponse {
   /**
-   * Response preferences.
-   */
-  preferences?: HttpPreferences;
-
-  /**
    * HTTP status code.
    */
-  status: number;
+  readonly status: number;
 
   /**
    * HTTP headers.
    */
-  headers?: HttpHeaders;
+  readonly headers?: HttpHeaders;
 
   /**
    * HTTP body payload.
    */
-  body?: HttpJsonBody | HttpRawBody;
-}
-
-export interface HttpProvider {
-  /**
-   * Variables associated to the provider.
-   */
-  variables?: LinkedVariables;
-
-  /**
-   * All services associated to the provider.
-   */
-  services: Record<string, unknown>;
+  readonly body?: HttpJsonBody | HttpRawBody;
 }
 
 /**
@@ -212,27 +119,27 @@ export type HttpIncoming<T extends HttpRequest | HttpAuthRequest> = T & {
   /**
    * Request tracking Id.
    */
-  requestId: string;
+  readonly requestId: string;
 
   /**
    * Determines whether request is base64 encoded or not.
    */
-  encoded?: boolean;
+  readonly encoded?: boolean;
 
   /**
    * Request timestamp.
    */
-  timestamp: Date;
+  readonly timestamp: Date;
 
   /**
    * Request method.
    */
-  method: string;
+  readonly method: string;
 
   /**
    * Request path.
    */
-  path: string;
+  readonly path: string;
 };
 
 /**
@@ -263,5 +170,5 @@ export type HttpHandler<T extends HttpRequest> = (
  * HTTP errors.
  */
 export type HttpErrors = {
-  [code: number]: Error[];
+  [code: number]: readonly Error[];
 };

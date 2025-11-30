@@ -1,13 +1,13 @@
 import type { DynamoDBStreamEvent, Context, DynamoDBRecord } from 'aws-lambda';
-import type { Database, StreamChange } from '@ez4/database';
-import type { AnyObject } from '@ez4/utils';
+import type { Database, StreamDeleteChange, StreamInsertChange, StreamUpdateChange } from '@ez4/database';
 import type { ObjectSchema } from '@ez4/schema';
+import type { AnyObject } from '@ez4/utils';
 
 import { unmarshall } from '@aws-sdk/util-dynamodb';
 import { validateSchema } from '@ez4/aws-dynamodb/runtime';
 import { createTransformContext, transform } from '@ez4/transform';
+import { StreamChangeType } from '@ez4/database';
 import { ServiceEventType } from '@ez4/common';
-import { StreamType } from '@ez4/database';
 
 declare const __EZ4_SCHEMA: ObjectSchema | null;
 declare const __EZ4_CONTEXT: object;
@@ -87,39 +87,39 @@ const getRecordChange = async (record: DynamoDBRecord, schema: ObjectSchema) => 
   return null;
 };
 
-const getInsertChange = async (newImage: AnyObject, schema: ObjectSchema): Promise<StreamChange<Database.Schema>> => {
+const getInsertChange = async (newImage: AnyObject, schema: ObjectSchema) => {
   const record = transformRecord(unmarshall(newImage), schema);
 
   await validateSchema(record, schema);
 
   return {
-    type: StreamType.Insert,
+    type: StreamChangeType.Insert,
     record
-  };
+  } satisfies StreamInsertChange<Database.Schema>;
 };
 
-const getUpdateChange = async (newImage: AnyObject, oldImage: AnyObject, schema: ObjectSchema): Promise<StreamChange<Database.Schema>> => {
+const getUpdateChange = async (newImage: AnyObject, oldImage: AnyObject, schema: ObjectSchema) => {
   const newRecord = transformRecord(unmarshall(newImage), schema);
   const oldRecord = transformRecord(unmarshall(oldImage), schema);
 
   await Promise.all([validateSchema(newRecord, schema), validateSchema(oldRecord, schema)]);
 
   return {
-    type: StreamType.Update,
+    type: StreamChangeType.Update,
     newRecord,
     oldRecord
-  };
+  } satisfies StreamUpdateChange<Database.Schema>;
 };
 
-const getDeleteChange = async (oldImage: AnyObject, schema: ObjectSchema): Promise<StreamChange<Database.Schema>> => {
+const getDeleteChange = async (oldImage: AnyObject, schema: ObjectSchema) => {
   const record = transformRecord(unmarshall(oldImage), schema);
 
   await validateSchema(record, schema);
 
   return {
-    type: StreamType.Delete,
+    type: StreamChangeType.Delete,
     record
-  };
+  } satisfies StreamDeleteChange<Database.Schema>;
 };
 
 const transformRecord = (input: AnyObject, schema: ObjectSchema) => {

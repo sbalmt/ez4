@@ -8,8 +8,8 @@ interface TestMessage extends Queue.Message {}
 export declare class TestQueue extends Queue.Service<TestMessage> {
   subscriptions: [];
 
-  deadLetter: {
+  deadLetter: Queue.UseDeadLetter<{
     retention: 60;
     maxRetries: 5;
-  };
+  }>;
 }

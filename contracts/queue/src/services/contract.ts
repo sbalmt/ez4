@@ -1,16 +1,9 @@
 import type { Service as CommonService } from '@ez4/common';
-import type { LinkedVariables } from '@ez4/project/library';
+import type { QueueMessage, QueueRequest, QueueIncoming, QueueSubscriptionHandler, QueueSubscriptionListener } from './common';
+import type { QueueSubscription } from './subscription';
+import type { QueueDeadLetter } from './deadletter';
+import type { QueueFifoMode } from './mode';
 import type { Client } from './client';
-
-import type {
-  QueueMessage,
-  QueueRequest,
-  QueueIncoming,
-  SubscriptionHandler,
-  SubscriptionListener,
-  QueueFifoMode,
-  QueueDeadLetter
-} from './common';
 
 /**
  * Provide all contracts for a self-managed queue service.
@@ -18,13 +11,16 @@ import type {
 export namespace Queue {
   export type Message = QueueMessage;
   export type Request = QueueRequest;
-  export type DeadLetter = QueueDeadLetter;
 
+  export type DeadLetter = QueueDeadLetter;
   export type FifoMode<T extends Message> = QueueFifoMode<T>;
+
   export type Incoming<T extends Message> = QueueIncoming<T>;
 
-  export type Listener<T extends Message> = SubscriptionListener<T>;
-  export type Handler<T extends Message> = SubscriptionHandler<T>;
+  export type Listener<T extends Message> = QueueSubscriptionListener<T>;
+  export type Handler<T extends Message> = QueueSubscriptionHandler<T>;
+
+  export type Subscription<T extends Message> = QueueSubscription<T>;
 
   export type ServiceEvent<T extends Message = Message> =
     | CommonService.BeginEvent<Request>
@@ -34,44 +30,19 @@ export namespace Queue {
     | CommonService.EndEvent<Request>;
 
   /**
-   * Queue subscription.
+   * Queue Subscription definition.
    */
-  export interface Subscription<T extends Message> {
-    /**
-     * Subscription listener.
-     */
-    listener?: Listener<T>;
+  export type UseSubscription<T extends Subscription<any>> = T;
 
-    /**
-     * Subscription handler.
-     */
-    handler: Handler<T>;
+  /**
+   * Queue Fifo Mode definition.
+   */
+  export type UseFifoMode<T extends FifoMode<any>> = T;
 
-    /**
-     * Maximum number of concurrent lambda handlers.
-     */
-    concurrency?: number;
-
-    /**
-     * Maximum number of messages per handler invocation.
-     */
-    batch?: number;
-
-    /**
-     * Variables associated to the subscription.
-     */
-    variables?: LinkedVariables;
-
-    /**
-     * Log retention (in days) for the handler.
-     */
-    logRetention?: number;
-
-    /**
-     * Amount of memory available for the handler.
-     */
-    memory?: number;
-  }
+  /**
+   * Queue Dead-letter definition.
+   */
+  export type UseDeadLetter<T extends DeadLetter> = T;
 
   /**
    * Queue service.
@@ -80,47 +51,47 @@ export namespace Queue {
     /**
      * All subscriptions associated to the queue.
      */
-    abstract subscriptions: Subscription<T>[];
+    abstract readonly subscriptions: Subscription<T>[];
 
     /**
      * Message schema.
      */
-    schema: T;
+    readonly schema: T;
 
     /**
      * Enable and configure the FIFO mode options.
      */
-    fifoMode?: FifoMode<T>;
+    readonly fifoMode?: FifoMode<T>;
 
     /**
      * Enable and configure the dead-letter queue options.
      */
-    deadLetter?: DeadLetter;
+    readonly deadLetter?: DeadLetter;
 
     /**
      * Maximum acknowledge time (in seconds) for the handler.
      */
-    timeout?: number;
+    readonly timeout?: number;
 
     /**
      * Maximum retention time (in minutes) for all messages in the queue.
      */
-    retention?: number;
+    readonly retention?: number;
 
     /**
      * Maximum wait time (in seconds) for receiving messages.
      */
-    polling?: number;
+    readonly polling?: number;
 
     /**
      * Maximum delay time (in seconds) for making messages available.
      */
-    delay?: number;
+    readonly delay?: number;
 
     /**
      * Service client.
      */
-    client: Client<Service<T>>;
+    readonly client: Client<Service<T>>;
   }
 
   /**
@@ -130,36 +101,36 @@ export namespace Queue {
     /**
      * Name of the imported project defined in the project options file.
      */
-    abstract project: string;
+    abstract readonly project: string;
 
     /**
      * Imported queue reference.
      */
-    reference: T;
+    readonly reference: T;
 
     /**
      * All subscriptions attached to the imported queue.
      */
-    subscriptions: Subscription<T['schema']>[];
+    readonly subscriptions: Subscription<T['schema']>[];
 
     /**
      * Imported message schema (do not replace).
      */
-    schema: T['schema'];
+    readonly schema: T['schema'];
 
     /**
      * Imported FIFO mode options (do not replace).
      */
-    fifoMode: T['fifoMode'];
+    readonly fifoMode: T['fifoMode'];
 
     /**
      * Imported maximum acknowledge time (do not replace).
      */
-    timeout: T['timeout'];
+    readonly timeout: T['timeout'];
 
     /**
      * Imported service client (do not replace).
      */
-    client: T['client'];
+    readonly client: T['client'];
   }
 }

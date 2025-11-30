@@ -2,10 +2,10 @@ import type { Environment, Service } from '@ez4/common';
 import type { Bucket } from '@ez4/storage';
 
 export declare class TestStorage extends Bucket.Service {
-  events: {
+  events: Bucket.UseEvents<{
     path: 'uploads/*';
     handler: typeof eventHandler;
-  };
+  }>;
 
   variables: {
     TEST_VAR1: 'test-literal-value';

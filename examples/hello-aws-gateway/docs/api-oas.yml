@@ -7,7 +7,7 @@ paths:
   /post-route:
     post:
       operationId: postRoute
-      summary: Handler for `post` requests.
+      summary: "Handler for `post` requests."
       requestBody:
         content:
           application/json:
@@ -15,7 +15,7 @@ paths:
               $ref: '#/components/requestSchemes/postHandler'
       responses:
         201:
-          description: Successful response.
+          description: "Successful response."
           content:
             application/json:
               schema:
@@ -23,14 +23,14 @@ paths:
   /patch-route/{id}:
     patch:
       operationId: patchRoute
-      summary: Handler for `patch` requests.
+      summary: "Handler for `patch` requests."
       parameters:
         - name: id
           in: path
           required: true
           schema:
             type: string
-            description: Example of `id` in the path parameters.
+            description: "Example of `id` in the path parameters."
             format: uuid
       requestBody:
         content:
@@ -39,7 +39,7 @@ paths:
               $ref: '#/components/requestSchemes/patchHandler'
       responses:
         200:
-          description: Successful response.
+          description: "Successful response."
           content:
             application/json:
               schema:
@@ -47,14 +47,14 @@ paths:
   /put-route/{id}:
     put:
       operationId: putRoute
-      summary: Handler for `put` requests.
+      summary: "Handler for `put` requests."
       parameters:
         - name: id
           in: path
           required: true
           schema:
             type: string
-            description: Example of `id` in the path parameters.
+            description: "Example of `id` in the path parameters."
             format: uuid
       requestBody:
         content:
@@ -63,7 +63,7 @@ paths:
               $ref: '#/components/requestSchemes/putHandler'
       responses:
         200:
-          description: Successful response.
+          description: "Successful response."
           content:
             application/json:
               schema:
@@ -71,21 +71,21 @@ paths:
   /get-route/{id}:
     get:
       operationId: getRoute
-      summary: Handler for `get` requests.
+      summary: "Handler for `get` requests."
       parameters:
         - name: id
           in: path
           required: true
           schema:
             type: string
-            description: Example of `id` in the path parameters.
+            description: "Example of `id` in the path parameters."
             format: uuid
         - name: foo
           in: query
           required: false
           schema:
             type: array
-            description: Example of query string array.
+            description: "Example of query string array."
             items:
               type: string
         - name: bar
@@ -93,10 +93,10 @@ paths:
           required: false
           schema:
             type: boolean
-            description: Example of query string boolean.
+            description: "Example of query string boolean."
       responses:
         200:
-          description: Successful response.
+          description: "Successful response."
           content:
             application/json:
               schema:
@@ -104,22 +104,22 @@ paths:
   /delete-route/{id}:
     delete:
       operationId: deleteRoute
-      summary: Handler for `delete` requests.
+      summary: "Handler for `delete` requests."
       parameters:
         - name: id
           in: path
           required: true
           schema:
             type: string
-            description: Example of `id` in the delete parameters.
+            description: "Example of `id` in the delete parameters."
             format: uuid
       responses:
         204:
-          description: Successful response.
+          description: "Successful response."
   /raw-route/{proxy+}:
     any:
       operationId: rawRoute
-      summary: Handler for `raw` requests.
+      summary: "Handler for `raw` requests."
       requestBody:
         content:
           application/json:
@@ -127,7 +127,7 @@ paths:
               $ref: '#/components/requestSchemes/rawHandler'
       responses:
         200:
-          description: Successful response.
+          description: "Successful response."
           content:
             application/json:
               schema:
@@ -137,84 +137,84 @@ components:
   requestSchemes:
     postHandler:
       type: object
-      description: Expected HTTP body payload.
+      description: "Expected HTTP body payload."
       additionalProperties: false
       properties:
         foo:
           type: string
-          description: Example of validated `string` coming from the body request.
+          description: "Example of validated `string` coming from the body request."
       required:
         - foo
     patchHandler:
       type: object
-      description: Expected HTTP body payload.
+      description: "Expected HTTP body payload."
       additionalProperties: false
       properties:
         foo:
           type: string
-          description: Example of validated `string` coming from the body request.
+          description: "Example of validated `string` coming from the body request."
       required:
         - foo
     putHandler:
       type: object
-      description: Expected HTTP body payload.
+      description: "Expected HTTP body payload."
       additionalProperties: false
       properties:
         foo:
           type: string
-          description: Example of validated `string` coming from the body request.
+          description: "Example of validated `string` coming from the body request."
       required:
         - foo
     rawHandler:
       type: string
-      description: Expected HTTP body payload.
+      description: "Expected HTTP body payload."
 
   responseSchemes:
     postHandler:
       type: object
-      description: HTTP body payload.
+      description: "HTTP body payload."
       additionalProperties: false
       properties:
         id:
           type: string
-          description: Example of `id` in the response.
+          description: "Example of `id` in the response."
       required:
         - id
     patchHandler:
       type: object
-      description: HTTP body payload.
+      description: "HTTP body payload."
       additionalProperties: false
       properties:
         message:
           type: string
-          description: Example of `message` in the response.
+          description: "Example of `message` in the response."
       required:
         - message
     putHandler:
       type: object
-      description: HTTP body payload.
+      description: "HTTP body payload."
       additionalProperties: false
       properties:
         message:
           type: string
-          description: Example of `message` in the response.
+          description: "Example of `message` in the response."
       required:
         - message
     getHandler:
       type: object
-      description: HTTP body payload.
+      description: "HTTP body payload."
       additionalProperties: false
       properties:
         foo_bar:
           type: string
-          description: Example of `string` in the response.
+          description: "Example of `string` in the response."
         baz_qux:
           type: string
-          description: Example of base64-encoded response.
+          description: "Example of base64-encoded response."
           format: byte
       required:
         - foo_bar
         - baz_qux
     rawHandler:
       type: string
-      description: HTTP body payload.
+      description: "HTTP body payload."

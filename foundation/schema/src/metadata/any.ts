@@ -7,6 +7,7 @@ import { getUnionSchema } from './union';
 import { getArraySchema } from './array';
 import { getTupleSchema } from './tuple';
 import { getEnumSchema } from './enum';
+import { getIntersectionSchema } from './intersection';
 
 export const getAnySchema = (type: AllType, reflection: SourceMap, context = createSchemaContext(), description?: string) => {
   return (
@@ -15,6 +16,7 @@ export const getAnySchema = (type: AllType, reflection: SourceMap, context = cre
     getUnionSchema(type, reflection, context, description) ||
     getArraySchema(type, reflection, context, description) ||
     getTupleSchema(type, reflection, context, description) ||
-    getEnumSchema(type, reflection, description)
+    getEnumSchema(type, reflection, description) ||
+    getIntersectionSchema(type, reflection, context, description)
   );
 };

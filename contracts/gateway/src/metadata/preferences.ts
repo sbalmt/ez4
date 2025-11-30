@@ -12,10 +12,10 @@ import {
 } from '@ez4/common/library';
 
 import { isModelProperty, isTypeObject, isTypeReference } from '@ez4/reflection';
-
-import { IncorrectPreferencesTypeError, InvalidPreferencesTypeError } from '../library';
-import { isHttpPreferences } from './utils';
 import { NamingStyle } from '@ez4/schema';
+
+import { IncorrectPreferencesTypeError, InvalidPreferencesTypeError } from '../errors/preferences';
+import { isHttpPreferences } from './utils';
 
 export const getHttpPreferences = (type: AllType, parent: TypeModel, reflection: SourceMap, errorList: Error[]) => {
   if (!isTypeReference(type)) {

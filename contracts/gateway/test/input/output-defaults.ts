@@ -3,7 +3,7 @@ import type { Http } from '@ez4/gateway';
 export declare class TestService extends Http.Service {
   routes: [];
 
-  defaults: {
+  defaults: Http.UseDefaults<{
     listener: typeof testListener;
     logRetention: 14;
     timeout: 15;
@@ -11,7 +11,7 @@ export declare class TestService extends Http.Service {
     httpErrors: {
       400: [CustomError];
     };
-  };
+  }>;
 }
 
 class CustomError extends Error {}

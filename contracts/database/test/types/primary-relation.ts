@@ -11,7 +11,7 @@ export declare class TestDatabase extends Database.Service {
   client: Client<TestDatabase>;
 
   tables: [
-    {
+    Database.UseTable<{
       name: 'tableA';
       relations: {
         // Primary to secondary
@@ -24,8 +24,8 @@ export declare class TestDatabase extends Database.Service {
         id: string;
         value_a: number;
       };
-    },
-    {
+    }>,
+    Database.UseTable<{
       name: 'tableB';
       relations: {
         // Unique to primary
@@ -44,8 +44,8 @@ export declare class TestDatabase extends Database.Service {
         secondary_b_id?: string;
         value_b: number;
       };
-    },
-    {
+    }>,
+    Database.UseTable<{
       name: 'tableC';
       relations: {
         // Secondary to primary
@@ -59,7 +59,7 @@ export declare class TestDatabase extends Database.Service {
         secondary_c_id?: string;
         value_c: number;
       };
-    }
+    }>
   ];
 
   services: {

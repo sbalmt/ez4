@@ -30,4 +30,5 @@ describe('reflection events', () => {
   it('assert :: string', () => testFile('string', 'onTypeString', 3));
   it('assert :: object', () => testFile('object', 'onTypeObject', 3));
   it('assert :: reference', () => testFile('reference', 'onTypeReference', 3));
+  it('assert :: intersection', () => testFile('intersection', 'onTypeIntersection', 1));
 });

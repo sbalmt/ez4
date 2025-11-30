@@ -158,7 +158,8 @@ const getTypeFromMembers = (
         break;
 
       case 'cors':
-        route.cors = getPropertyBoolean(member);
+      case 'disabled':
+        route[member.name] = getPropertyBoolean(member);
         break;
 
       case 'listener':

@@ -2,7 +2,7 @@ import type { ParametersMode } from './parameters';
 import type { TransactionMode } from './transaction';
 import type { InsensitiveMode } from './insensitive';
 import type { PaginationMode } from './pagination';
-import type { Database } from './database';
+import type { Database } from './contract';
 import type { OrderMode } from './order';
 import type { LockMode } from './lock';
 

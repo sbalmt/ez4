@@ -18,7 +18,7 @@ export declare class Api extends Http.Service {
   /**
    * Cache configuration.
    */
-  cache: {
+  cache: Http.UseCache<{
     authorizerTTL: 5;
-  };
+  }>;
 }

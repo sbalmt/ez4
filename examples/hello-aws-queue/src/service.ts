@@ -31,18 +31,18 @@ export declare class Sqs extends Queue.Service<MessageRequest> {
   /**
    * Optionally enable dead-letter queue.
    */
-  deadLetter: {
+  deadLetter: Queue.UseDeadLetter<{
     /**
      * After 5 retries, the message will be sent to the dead-letter.
      */
     maxRetries: 5;
-  };
+  }>;
 
   /**
    * All handlers for this queue (When more than one subscription is set, they are chosen randomly).
    */
   subscriptions: [
-    {
+    Queue.UseSubscription<{
       /**
        * Invocation life-cycle function.
        */
@@ -57,8 +57,8 @@ export declare class Sqs extends Queue.Service<MessageRequest> {
        * Allow up to 2 lambdas concurrently.
        */
       concurrency: 2;
-    },
-    {
+    }>,
+    Queue.UseSubscription<{
       listener: typeof queueListener;
       handler: typeof messageHandlerB;
 
@@ -66,7 +66,7 @@ export declare class Sqs extends Queue.Service<MessageRequest> {
        * Allow up to 5 messages per handler invocation.
        */
       batch: 5;
-    }
+    }>
   ];
 
   /**
@@ -92,19 +92,19 @@ export declare class FifoSqs extends Queue.Service<MessageRequest> {
   /**
    * Define the message group Id field from MessageRequest for FIFO mode.
    */
-  fifoMode: {
+  fifoMode: Queue.UseFifoMode<{
     groupId: 'foo';
-  };
+  }>;
 
   /**
    * Optionally enable dead-letter queue.
    */
-  deadLetter: {
+  deadLetter: Queue.UseDeadLetter<{
     /**
      * After 10 retries, the message will be sent to the dead-letter.
      */
     maxRetries: 10;
-  };
+  }>;
 
   /**
    * Maximum amount of time for the handler to acknowledge the message.
@@ -115,10 +115,10 @@ export declare class FifoSqs extends Queue.Service<MessageRequest> {
    * All handlers for this queue.
    */
   subscriptions: [
-    {
+    Queue.UseSubscription<{
       listener: typeof queueListener;
       handler: typeof messageHandlerC;
-    }
+    }>
   ];
 
   /**

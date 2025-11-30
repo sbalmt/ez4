@@ -19,7 +19,7 @@ export declare class TestScheduler extends Cron.Service<TestEvent> {
   // Not allowed for dynamic service.
   disabled: true;
 
-  target: {
+  target: Cron.UseTarget<{
     handler: typeof targetHandler;
-  };
+  }>;
 }

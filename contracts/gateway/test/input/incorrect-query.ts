@@ -9,10 +9,10 @@ declare class TestRequest implements Http.Request {
 
 export declare class TestService extends Http.Service {
   routes: [
-    {
+    Http.UseRoute<{
       path: 'ANY /test-route';
       handler: typeof testRoute;
-    }
+    }>
   ];
 }
 

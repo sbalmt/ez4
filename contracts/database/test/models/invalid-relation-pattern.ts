@@ -5,7 +5,7 @@ export declare class TestDatabase extends Database.Service {
   engine: TestEngine;
 
   tables: [
-    {
+    Database.UseTable<{
       name: 'testTable';
       relations: {
         // Only `string` is allowed for relations entries.
@@ -13,6 +13,6 @@ export declare class TestDatabase extends Database.Service {
       };
       indexes: {};
       schema: {};
-    }
+    }>
   ];
 }

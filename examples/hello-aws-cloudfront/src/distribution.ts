@@ -20,43 +20,43 @@ export declare class Site extends Cdn.Service {
   /**
    * Specify the certificate for the given alias domain.
    */
-  certificate: {
+  certificate: Cdn.UseCertificate<{
     domain: '*.custom-domain.tld';
-  };
+  }>;
 
   /**
    * Default origin coming from bucket.
    */
-  defaultOrigin: {
+  defaultOrigin: Cdn.UseDefaultOrigin<{
     bucket: Environment.Service<SiteBucket>;
     cache: {
       ttl: 600;
       minTTL: 0;
       maxTTL: 3600;
     };
-  };
+  }>;
 
   /**
    * Other origins.
    */
   origins: [
-    {
+    Cdn.UseOrigin<{
       path: 'forward/*';
       domain: 'another.domain';
       cache: {
         headers: ['Authorization'];
         ttl: 600;
       };
-    }
+    }>
   ];
 
   /**
    * Fallback 404 to default index (Useful for SPAs)
    */
   fallbacks: [
-    {
+    Cdn.UseFallback<{
       code: 404;
       location: '/index.html';
-    }
+    }>
   ];
 }

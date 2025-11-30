@@ -180,7 +180,7 @@
     "intersection": {
       "type": "object",
       "description": "Intersection object.",
-      "identity": 12,
+      "identity": 13,
       "properties": {
         "foo": {
           "type": "string"
@@ -209,7 +209,7 @@
     "dynamic_intersection": {
       "type": "object",
       "description": "Dynamic object intersection.",
-      "identity": 18,
+      "identity": 16,
       "properties": {},
       "definitions": {
         "extensible": true
@@ -226,7 +226,7 @@
     "encoded": {
       "type": "object",
       "description": "Base64-encoded object.",
-      "identity": 19,
+      "identity": 17,
       "definitions": {
         "encoded": true
       },
@@ -242,7 +242,7 @@
     "combined": {
       "type": "object",
       "description": "Combined base64-encoded, extended and default object.",
-      "identity": 20,
+      "identity": 18,
       "definitions": {
         "encoded": true,
         "extensible": true,

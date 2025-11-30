@@ -12,6 +12,7 @@
       {
         "path": "ANY /test-route-1",
         "logRetention": 7,
+        "disabled": true,
         "handler": {
           "name": "testRoute1",
           "file": "test/input/output-route.ts",

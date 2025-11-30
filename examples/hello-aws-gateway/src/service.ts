@@ -15,7 +15,7 @@ export declare class Api extends Http.Service {
   /**
    * Default API settings.
    */
-  defaults: {
+  defaults: Http.UseDefaults<{
     /**
      * Set the default listener for the request life-cycle events.
      */
@@ -30,14 +30,14 @@ export declare class Api extends Http.Service {
        */
       namingStyle: NamingStyle.SnakeCase;
     };
-  };
+  }>;
 
   /**
    * Access configuration.
    */
-  access: {
+  access: Http.UseAccess<{
     logRetention: 14;
-  };
+  }>;
 
   /**
    * All API routes.
@@ -47,7 +47,7 @@ export declare class Api extends Http.Service {
   /**
    * Cors configuration.
    */
-  cors: {
+  cors: Http.UseCors<{
     allowOrigins: ['http://localhost:3000'];
-  };
+  }>;
 }

@@ -10,7 +10,7 @@ export declare class TestDatabase extends Database.Service {
   client: Client<TestDatabase>;
 
   tables: [
-    {
+    Database.UseTable<{
       name: 'table_a';
       indexes: {
         id: Index.Primary;
@@ -25,7 +25,7 @@ export declare class TestDatabase extends Database.Service {
           quxBar: string;
         };
       };
-    }
+    }>
   ];
 
   services: {

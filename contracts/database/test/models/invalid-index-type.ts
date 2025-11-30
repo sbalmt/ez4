@@ -5,13 +5,13 @@ export declare class TestDatabase extends Database.Service {
   engine: TestEngine;
 
   tables: [
-    {
+    Database.UseTable<{
       name: 'testTable';
       schema: {};
       indexes: {
         // Indexes must follow one Index options.
         id: 'random value';
       };
-    }
+    }>
   ];
 }

@@ -30,7 +30,27 @@ export interface StringTestSchema {
   default: String.Default<'foo'>;
 
   /**
+   * String in upper-case.
+   */
+  upper: String.Upper;
+
+  /**
+   * String in lower-case.
+   */
+  lower: String.Lower;
+
+  /**
+   * String without white-spaces.
+   */
+  trim: String.Trim;
+
+  /**
    * Literal string value.
    */
   literal: 'foo';
+
+  /**
+   * Compound string schemas.
+   */
+  compound: String.Size<1, 32> & String.Default<'foo'> & 'bar';
 }

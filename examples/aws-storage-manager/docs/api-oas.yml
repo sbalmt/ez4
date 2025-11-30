@@ -7,7 +7,7 @@ paths:
   /start-upload:
     post:
       operationId: startUploadHandler
-      summary: Handle start upload requests.
+      summary: "Handle start upload requests."
       requestBody:
         content:
           application/json:
@@ -15,7 +15,7 @@ paths:
               $ref: '#/components/requestSchemes/startUploadHandler'
       responses:
         200:
-          description: Successful response.
+          description: "Successful response."
           content:
             application/json:
               schema:
@@ -23,18 +23,18 @@ paths:
   /start-download/{fileId}:
     get:
       operationId: startDownloadHandler
-      summary: Handle start download requests.
+      summary: "Handle start download requests."
       parameters:
         - name: fileId
           in: path
           required: true
           schema:
             type: string
-            description: File Id.
+            description: "File Id."
             format: uuid
       responses:
         200:
-          description: Successful response.
+          description: "Successful response."
           content:
             application/json:
               schema:
@@ -42,40 +42,40 @@ paths:
   /delete-file/{fileId}:
     delete:
       operationId: deleteFileHandler
-      summary: Handle delete file requests.
+      summary: "Handle delete file requests."
       parameters:
         - name: fileId
           in: path
           required: true
           schema:
             type: string
-            description: File name.
+            description: "File name."
             format: uuid
       responses:
         204:
-          description: Successful response.
+          description: "Successful response."
   /list-files:
     get:
       operationId: listFilesHandler
-      summary: Handle list files requests.
+      summary: "Handle list files requests."
       parameters:
         - name: cursor
           in: path
           required: false
           schema:
             type: string
-            description: Page cursor.
+            description: "Page cursor."
         - name: limit
           in: path
           required: false
           schema:
             type: integer
-            description: Page limit.
+            description: "Page limit."
             minimum: 1
             maximum: 10
       responses:
         200:
-          description: Successful response.
+          description: "Successful response."
           content:
             application/json:
               schema:
@@ -85,34 +85,34 @@ components:
   requestSchemes:
     startUploadHandler:
       type: object
-      description: Expected HTTP body payload.
+      description: "Expected HTTP body payload."
       additionalProperties: false
       properties:
         contentType:
           enum: 
-            - "image/jpeg"
-            - "image/png"
+            - 'image/jpeg'
+            - 'image/png'
       required:
         - contentType
 
   responseSchemes:
     startUploadHandler:
       type: object
-      description: HTTP body payload.
+      description: "HTTP body payload."
       additionalProperties: false
       properties:
         id:
           type: string
-          description: File Id.
+          description: "File Id."
         url:
           type: string
-          description: Signed upload URL.
+          description: "Signed upload URL."
       required:
         - id
         - url
     startDownloadHandler:
       type: object
-      description: HTTP body payload.
+      description: "HTTP body payload."
       additionalProperties: false
       properties:
         url:
@@ -121,32 +121,32 @@ components:
         - url
     listFilesHandler:
       type: object
-      description: HTTP body payload.
+      description: "HTTP body payload."
       additionalProperties: false
       properties:
         next:
           type: string
-          description: Next page cursor.
+          description: "Next page cursor."
         files:
           type: array
-          description: List of files.
+          description: "List of files."
           items:
             type: object
             additionalProperties: false
             properties:
               id:
                 type: string
-                description: File id.
+                description: "File id."
               status:
                 enum: 
-                  - "pending"
-                  - "completed"
+                  - 'pending'
+                  - 'completed'
               created_at:
                 type: string
-                description: File creation date.
+                description: "File creation date."
               updated_at:
                 type: string
-                description: File last update date.
+                description: "File last update date."
             required:
               - id
               - status

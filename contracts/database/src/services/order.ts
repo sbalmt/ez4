@@ -1,6 +1,6 @@
 import type { DecomposeIndexName } from './indexes';
 import type { TableMetadata } from './table';
-import type { Database } from './database';
+import type { Database } from './contract';
 
 /**
  * Query order types.
