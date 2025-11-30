@@ -1,4 +1,4 @@
-import type { HttpImport } from '@ez4/gateway/library';
+import type { HttpImport } from '../types/import';
 
 import { AuthorizationType } from '../services/authorization';
 
