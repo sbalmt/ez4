@@ -1,4 +1,4 @@
-import type { StreamChange, Database } from '@ez4/database';
+import type { StreamAnyChange, Database } from '@ez4/database';
 import type { Environment, Service } from '@ez4/common';
 import type { TestEngine } from '../common/engines';
 
@@ -30,7 +30,7 @@ declare class TestSchema implements Database.Schema {
   foo: string;
 }
 
-function streamHandler(_change: StreamChange<TestSchema>, context: Service.Context<TestDatabase>) {
+function streamHandler(_change: StreamAnyChange<TestSchema>, context: Service.Context<TestDatabase>) {
   const { selfSettings } = context;
 
   // Ensure variables are property referenced.

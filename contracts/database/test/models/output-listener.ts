@@ -1,4 +1,4 @@
-import type { StreamChange, Database, Client } from '@ez4/database';
+import type { StreamAnyChange, Database, Client } from '@ez4/database';
 import type { TestEngine } from '../common/engines';
 
 declare class TestSchema implements Database.Schema {
@@ -25,4 +25,4 @@ export declare class TestDatabase extends Database.Service {
 
 async function streamListener() {}
 
-async function streamHandler(_change: StreamChange<TestSchema>) {}
+async function streamHandler(_change: StreamAnyChange<TestSchema>) {}
