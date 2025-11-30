@@ -15,7 +15,7 @@ import {
 } from '@ez4/reflection';
 
 import { IncorrectBodyTypeError, InvalidBodyTypeError } from '../errors/body';
-import { getSchemaFromType } from './schema';
+import { getSchemaFromIntersection, getSchemaFromObject } from './schema';
 import { isJsonBody } from './utils';
 
 type TypeParent = TypeObject | TypeModel | TypeIntersection;
@@ -56,20 +56,24 @@ const getCompoundTypeBody = (
   reflection: SourceMap,
   errorList: Error[]
 ): ObjectSchema | UnionSchema | ArraySchema | undefined => {
+  if (isTypeObject(type)) {
+    return getSchemaFromObject(type, reflection);
+  }
+
   if (isTypeUnion(type)) {
     return getUnionTypeBody(type.elements, reflection, (currentType) => {
       return getScalarTypeBody(currentType) ?? getCompoundTypeBody(currentType, parent, reflection, errorList);
     });
   }
 
+  if (isTypeIntersection(type)) {
+    return getSchemaFromIntersection(type, reflection);
+  }
+
   if (isTypeArray(type)) {
     return getArrayTypeBody(type.element, reflection, (currentType) => {
       return getScalarTypeBody(currentType) ?? getCompoundTypeBody(currentType, parent, reflection, errorList);
     });
-  }
-
-  if (isTypeObject(type) || isTypeIntersection(type)) {
-    return getSchemaFromType(type, reflection);
   }
 
   if (!isModelDeclaration(type)) {
@@ -82,7 +86,7 @@ const getCompoundTypeBody = (
     return undefined;
   }
 
-  return getSchemaFromType(type, reflection);
+  return getSchemaFromObject(type, reflection);
 };
 
 const getUnionTypeBody = (types: AllType[], reflection: SourceMap, resolver: (type: AllType) => AnySchema | undefined) => {

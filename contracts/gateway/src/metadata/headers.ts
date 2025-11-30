@@ -4,7 +4,7 @@ import { isTypeIntersection, isTypeObject, isTypeReference } from '@ez4/reflecti
 import { getReferenceType, isModelDeclaration } from '@ez4/common/library';
 
 import { IncorrectHeadersTypeError, InvalidHeadersTypeError } from '../errors/headers';
-import { getSchemaFromType } from './schema';
+import { getSchemaFromIntersection, getSchemaFromObject } from './schema';
 import { isHttpHeaders } from './utils';
 
 type TypeParent = TypeObject | TypeModel | TypeIntersection;
@@ -24,8 +24,12 @@ export const getHttpHeaders = (type: AllType, parent: TypeParent, reflection: So
 };
 
 const getTypeHeaders = (type: AllType, parent: TypeParent, reflection: SourceMap, errorList: Error[]) => {
-  if (isTypeObject(type) || isTypeIntersection(type)) {
-    return getSchemaFromType(type, reflection);
+  if (isTypeObject(type)) {
+    return getSchemaFromObject(type, reflection);
+  }
+
+  if (isTypeIntersection(type)) {
+    return getSchemaFromIntersection(type, reflection);
   }
 
   if (!isModelDeclaration(type)) {
@@ -38,5 +42,5 @@ const getTypeHeaders = (type: AllType, parent: TypeParent, reflection: SourceMap
     return undefined;
   }
 
-  return getSchemaFromType(type, reflection);
+  return getSchemaFromObject(type, reflection);
 };

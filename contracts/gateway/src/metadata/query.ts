@@ -4,7 +4,7 @@ import { isTypeIntersection, isTypeObject, isTypeReference } from '@ez4/reflecti
 import { getReferenceType, isModelDeclaration } from '@ez4/common/library';
 
 import { IncorrectQueryTypeError, InvalidQueryTypeError } from '../errors/query';
-import { getSchemaFromType } from './schema';
+import { getSchemaFromIntersection, getSchemaFromObject } from './schema';
 import { isHttpQuery } from './utils';
 
 type TypeParent = TypeObject | TypeModel | TypeIntersection;
@@ -24,8 +24,12 @@ export const getHttpQuery = (type: AllType, parent: TypeParent, reflection: Sour
 };
 
 const getTypeQuery = (type: AllType, parent: TypeParent, reflection: SourceMap, errorList: Error[]) => {
-  if (isTypeObject(type) || isTypeIntersection(type)) {
-    return getSchemaFromType(type, reflection);
+  if (isTypeObject(type)) {
+    return getSchemaFromObject(type, reflection);
+  }
+
+  if (isTypeIntersection(type)) {
+    return getSchemaFromIntersection(type, reflection);
   }
 
   if (!isModelDeclaration(type)) {
@@ -38,5 +42,5 @@ const getTypeQuery = (type: AllType, parent: TypeParent, reflection: SourceMap, 
     return undefined;
   }
 
-  return getSchemaFromType(type, reflection);
+  return getSchemaFromObject(type, reflection);
 };

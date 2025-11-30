@@ -1,12 +1,12 @@
 import type { AllType, SourceMap, TypeIntersection, TypeModel, TypeObject } from '@ez4/reflection';
 import type { ObjectSchema, UnionSchema } from '@ez4/schema/library';
 
-import { isTypeIntersection, isTypeObject, isTypeReference, isTypeUndefined, isTypeUnion } from '@ez4/reflection';
 import { getReferenceType, isModelDeclaration } from '@ez4/common/library';
+import { isTypeIntersection, isTypeObject, isTypeReference, isTypeUndefined, isTypeUnion } from '@ez4/reflection';
 import { createUnionSchema } from '@ez4/schema/library';
 
 import { IncorrectIdentityTypeError, InvalidIdentityTypeError } from '../errors/identity';
-import { getSchemaFromType } from './schema';
+import { getSchemaFromIntersection, getSchemaFromObject } from './schema';
 import { isHttpIdentity } from './utils';
 
 type TypeParent = TypeObject | TypeModel | TypeIntersection;
@@ -35,12 +35,16 @@ const getTypeIdentity = (
   reflection: SourceMap,
   errorList: Error[]
 ): ObjectSchema | UnionSchema | undefined => {
+  if (isTypeObject(type)) {
+    return getSchemaFromObject(type, reflection);
+  }
+
   if (isTypeUnion(type)) {
     return getIdentityFromUnion(type.elements, parent, reflection, errorList);
   }
 
-  if (isTypeObject(type) || isTypeIntersection(type)) {
-    return getSchemaFromType(type, reflection);
+  if (isTypeIntersection(type)) {
+    return getSchemaFromIntersection(type, reflection);
   }
 
   if (!isModelDeclaration(type)) {
@@ -53,7 +57,7 @@ const getTypeIdentity = (
     return undefined;
   }
 
-  const schema = getSchemaFromType(type, reflection);
+  const schema = getSchemaFromObject(type, reflection);
 
   if (schema) {
     schema.definitions = {
