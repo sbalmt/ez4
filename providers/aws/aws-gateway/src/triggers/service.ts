@@ -72,7 +72,11 @@ export const connectServices = (event: ConnectResourceEvent) => {
     throw new RoleMissingError();
   }
 
-  for (const { authorizer, handler } of service.routes) {
+  for (const { disabled, authorizer, handler } of service.routes) {
+    if (disabled) {
+      continue;
+    }
+
     const handlerName = getInternalName(service, handler.name);
     const handlerState = getFunctionState(context, handlerName, options);
 
