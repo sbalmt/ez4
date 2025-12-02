@@ -27,7 +27,8 @@ const HELP_LINES = [
   '  --project, -p      Specify the project configuration file (Default is ez4.project.js)',
   '  --environment, -e  Specify the environment variables file to load',
   '  --force            Force deployment or destruction of resources',
-  '  --debug            Enable debug mode on all provider resources',
+  '  --debug            Enable debug mode for all provider resources',
+  '  --suppress         Suppress local schedulers and topics when serving',
   '  --reset            Reset local resources when serving or testing',
   '  --local            Use local options when serving or testing',
   ''
@@ -36,17 +37,17 @@ const HELP_LINES = [
 export const helpCommand = async (input: InputOptions, project: ProjectOptions) => {
   HELP_LINES.forEach((line) => Logger.log(line));
 
-  await generatorsHelp(project);
+  await generatorsHelp(input, project);
 
   if (warnUnsupportedFlags(input)) {
     Logger.log('');
   }
 };
 
-const generatorsHelp = async (project: ProjectOptions) => {
+const generatorsHelp = async (input: InputOptions, project: ProjectOptions) => {
   await loadProviders(project);
 
-  const options = getGeneratorOptions(project);
+  const options = getGeneratorOptions(input, project);
   const helps = getGeneratorsUsageHelp(options);
 
   const helpLines = [];

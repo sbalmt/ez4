@@ -21,12 +21,6 @@ export type ProjectOptions = {
   debugMode?: boolean;
 
   /**
-   * Determines whether the deploy and destroy commands are forced.
-   * Default is: `false`
-   */
-  forceMode?: boolean;
-
-  /**
    * Determines whether the serve and test commands must use the `localOptions`.
    * Default is: `false`
    */

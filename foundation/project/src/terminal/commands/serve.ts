@@ -20,7 +20,7 @@ import { loadProviders } from '../../config/providers';
 import { loadImports } from '../../config/imports';
 
 export const serveCommand = async (input: InputOptions, project: ProjectOptions) => {
-  const options = getServeOptions(project);
+  const options = getServeOptions(input, project);
 
   if (options.debug) {
     Logger.setLevel(LogLevel.Debug);
@@ -32,6 +32,7 @@ export const serveCommand = async (input: InputOptions, project: ProjectOptions)
 
   warnUnsupportedFlags(input, {
     reset: options.local,
+    suppress: true,
     local: true
   });
 

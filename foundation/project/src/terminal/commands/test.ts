@@ -18,7 +18,7 @@ import { join } from 'node:path';
 const TestFilePattern = /\.(spec|test)\.(js|ts)$/;
 
 export const testCommand = async (input: InputOptions, project: ProjectOptions) => {
-  const options = getServeOptions(project);
+  const options = getServeOptions(input, project);
 
   if (options.debug) {
     Logger.setLevel(LogLevel.Debug);

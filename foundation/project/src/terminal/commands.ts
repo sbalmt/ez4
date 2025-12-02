@@ -12,11 +12,6 @@ import { helpCommand } from './commands/help';
 import { CommandType } from './options';
 
 export const runActionCommand = async (input: InputOptions, project: ProjectOptions) => {
-  project.debugMode = input.debugMode ?? project.debugMode;
-  project.forceMode = input.forceMode ?? project.forceMode;
-  project.resetMode = input.resetMode ?? project.resetMode;
-  project.localMode = input.localMode ?? project.localMode;
-
   switch (input.command) {
     case CommandType.Deploy:
       return deployCommand(input, project);
