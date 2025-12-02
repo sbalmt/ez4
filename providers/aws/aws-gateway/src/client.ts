@@ -1,13 +1,20 @@
 import type { ClientRequest, Http, Client as HttpClient } from '@ez4/gateway';
-import type { ClientOperation } from '@ez4/gateway/library';
+import type { ClientAuthorization, ClientOperation } from '@ez4/gateway/library';
 
 import { getClientRequestUrl, sendClientRequest } from '@ez4/gateway/utils';
 import { isAnyString } from '@ez4/utils';
 
 export type ClientOperations = Record<string, ClientOperation>;
 
+export type ClientOptions = {
+  authorization?: ClientAuthorization;
+  operations: ClientOperations;
+};
+
 export namespace Client {
-  export const make = <T extends Http.Service>(gatewayUrl: string, operations: ClientOperations): HttpClient<T> => {
+  export const make = <T extends Http.Service>(gatewayUrl: string, options: ClientOptions): HttpClient<T> => {
+    const { authorization, operations } = options;
+
     return new Proxy(
       {},
       {
@@ -17,7 +24,7 @@ export namespace Client {
               throw new Error(`Operation '${property.toString()}' wasn't found.`);
             }
 
-            const { method, path, namingStyle, querySchema, bodySchema, responseSchema } = operations[property];
+            const { authorize, method, path, namingStyle, querySchema, bodySchema, responseSchema } = operations[property];
 
             const requestUrl = getClientRequestUrl(gatewayUrl, path, {
               ...request,
@@ -29,7 +36,10 @@ export namespace Client {
               ...request,
               bodySchema,
               responseSchema,
-              namingStyle
+              namingStyle,
+              ...(authorize && {
+                authorization
+              })
             });
           };
         }

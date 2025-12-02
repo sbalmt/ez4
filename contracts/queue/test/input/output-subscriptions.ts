@@ -11,12 +11,12 @@ interface TestMessage extends Queue.Message {
 export declare class TestQueue extends Queue.Service<TestMessage> {
   subscriptions: [
     // Inline subscription.
-    {
+    Queue.UseSubscription<{
       handler: typeof testHandler;
       logRetention: 7;
       concurrency: 2;
       batch: 5;
-    },
+    }>,
 
     // Subscription reference.
     TestSubscription

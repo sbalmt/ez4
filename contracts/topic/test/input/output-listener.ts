@@ -9,10 +9,10 @@ interface TestMessage extends Topic.Message {
  */
 export declare class TestTopic extends Topic.Service<TestMessage> {
   subscriptions: [
-    {
+    Topic.UseSubscription<{
       listener: typeof testListener;
       handler: typeof testHandler;
-    }
+    }>
   ];
 }
 

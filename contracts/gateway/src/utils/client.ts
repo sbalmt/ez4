@@ -1,12 +1,9 @@
-import type { AnySchema, ArraySchema, ObjectSchema, ScalarSchema, UnionSchema } from '@ez4/schema';
-import type { AnyObject } from '@ez4/utils';
+import type { ArraySchema, ObjectSchema, ScalarSchema, UnionSchema, NamingStyle } from '@ez4/schema';
 import type { ClientRequest, ClientResponse } from '../services/client';
-import type { Http } from '../services/contract';
 
-import { createTransformContext, transform } from '@ez4/transform';
-import { isScalarSchema, NamingStyle } from '@ez4/schema';
-
-import { serializeQueryStrings } from './query';
+import { prepareQueryStrings } from './query';
+import { prepareRequestBody, prepareResponseBody } from './body';
+import { preparePathParameters } from './parameters';
 import { getHttpException } from './errors';
 
 export type ClientRequestUrl = ClientRequest & {
@@ -17,8 +14,8 @@ export type ClientRequestUrl = ClientRequest & {
 export const getClientRequestUrl = (host: string, path: string, request: ClientRequestUrl) => {
   const { parameters, query, querySchema, namingStyle } = request;
 
-  const endpoint = parameters ? getPathParameters(path, parameters) : path;
-  const search = query && getQueryStrings(query, querySchema, namingStyle);
+  const endpoint = parameters ? preparePathParameters(path, parameters) : path;
+  const search = query && prepareQueryStrings(query, querySchema, { namingStyle });
 
   const urlParts = [host];
 
@@ -33,16 +30,22 @@ export const getClientRequestUrl = (host: string, path: string, request: ClientR
   return urlParts.join('');
 };
 
-export type SendClientRequest = ClientRequest & {
-  bodySchema?: ObjectSchema | UnionSchema | ArraySchema | ScalarSchema;
+export type RequestAuthorization = {
+  header: string;
+  value: string;
+};
+
+export type ClientRequestInput = ClientRequest & {
+  authorization?: RequestAuthorization;
   responseSchema?: ObjectSchema | UnionSchema | ArraySchema | ScalarSchema;
+  bodySchema?: ObjectSchema | UnionSchema | ArraySchema | ScalarSchema;
   namingStyle?: NamingStyle;
 };
 
-export const sendClientRequest = async (url: string, method: string, request: SendClientRequest): Promise<ClientResponse> => {
-  const { headers, body, bodySchema, responseSchema, namingStyle, timeout = 20 } = request;
+export const sendClientRequest = async (url: string, method: string, request: ClientRequestInput): Promise<ClientResponse> => {
+  const { authorization, headers, body, bodySchema, responseSchema, namingStyle, timeout = 20 } = request;
 
-  const payload = body ? getRequestBody(body, bodySchema, namingStyle) : undefined;
+  const payload = body ? prepareRequestBody(body, bodySchema, { namingStyle }) : undefined;
 
   const controller = new AbortController();
   const timerId = setTimeout(() => controller?.abort('Request timed out'), timeout * 1000);
@@ -53,6 +56,9 @@ export const sendClientRequest = async (url: string, method: string, request: Se
     method,
     headers: {
       ...headers,
+      ...(authorization && {
+        [authorization.header]: authorization.value
+      }),
       ...(payload?.json && {
         ['content-type']: 'application/json'
       })
@@ -72,69 +78,9 @@ export const sendClientRequest = async (url: string, method: string, request: Se
   return {
     status: result.status,
     ...(response && {
-      body: getResponseBody(response, responseSchema, namingStyle)
+      body: prepareResponseBody(response, responseSchema, {
+        namingStyle
+      })
     })
   };
-};
-
-const getPathParameters = (path: string, parameters: Record<string, string>) => {
-  return path.replaceAll(/\{(\w+)\}/g, (_, parameterName) => {
-    if (parameterName in parameters) {
-      return `${parameters[parameterName]}`;
-    }
-
-    return `{${parameterName}}`;
-  });
-};
-
-const getQueryStrings = <T extends Http.QueryStrings>(query: T, querySchema?: ObjectSchema, namingStyle?: NamingStyle) => {
-  if (!querySchema) {
-    return serializeQueryStrings(query);
-  }
-
-  const context = createTransformContext({
-    inputStyle: namingStyle,
-    convert: false
-  });
-
-  const payload = transform(query, querySchema, context) as T;
-
-  return serializeQueryStrings(payload, querySchema);
-};
-
-const getRequestBody = (request: string | AnyObject, requestSchema?: AnySchema, namingStyle?: NamingStyle) => {
-  if (!requestSchema || isScalarSchema(requestSchema)) {
-    return {
-      body: request.toString(),
-      json: false
-    };
-  }
-
-  const context = createTransformContext({
-    outputStyle: namingStyle,
-    convert: false
-  });
-
-  const payload = transform(request, requestSchema, context);
-
-  return {
-    body: JSON.stringify(payload),
-    json: true
-  };
-};
-
-const getResponseBody = (response: string, responseSchema?: AnySchema, namingStyle?: NamingStyle) => {
-  if (!responseSchema || isScalarSchema(responseSchema)) {
-    return response;
-  }
-
-  const payload = JSON.parse(response);
-
-  const context = createTransformContext({
-    outputStyle: NamingStyle.Preserve,
-    inputStyle: namingStyle,
-    convert: false
-  });
-
-  return transform(payload, responseSchema, context);
 };

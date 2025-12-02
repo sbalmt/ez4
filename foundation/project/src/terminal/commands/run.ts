@@ -3,8 +3,8 @@ import type { InputOptions } from '../options';
 
 import { Runner, Logger, LogLevel } from '@ez4/project/library';
 
-import { warnUnsupportedFlags } from '../../utils/flags';
 import { buildMetadata } from '../../library/metadata';
+import { warnUnsupportedFlags } from '../../utils/flags';
 import { getServiceEmulators } from '../../emulator/service';
 import { bootstrapServices, prepareServices, shutdownServices } from '../../emulator/utils';
 import { getServeOptions } from '../../emulator/options';
@@ -16,7 +16,7 @@ import { existsSync } from 'node:fs';
 import { join } from 'node:path';
 
 export const runCommand = async (input: InputOptions, project: ProjectOptions) => {
-  const options = getServeOptions(project);
+  const options = getServeOptions(input, project);
 
   if (options.debug) {
     Logger.setLevel(LogLevel.Debug);

@@ -14,7 +14,7 @@ export declare class Db extends Database.Service {
   engine: DynamoDbEngine;
 
   tables: [
-    {
+    Database.UseTable<{
       name: 'example';
       schema: ExampleSchema;
       indexes: {
@@ -25,7 +25,7 @@ export declare class Db extends Database.Service {
         listener: typeof streamListener;
         handler: typeof streamHandler;
       };
-    }
+    }>
   ];
 
   /**

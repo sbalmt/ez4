@@ -7,7 +7,7 @@ paths:
   /create-item:
     post:
       operationId: createItemHandler
-      summary: Handle item create requests.
+      summary: "Handle item create requests."
       requestBody:
         content:
           application/json:
@@ -15,7 +15,7 @@ paths:
               $ref: '#/components/requestSchemes/createItemHandler'
       responses:
         201:
-          description: Successful response.
+          description: "Successful response."
           content:
             application/json:
               schema:
@@ -23,18 +23,18 @@ paths:
   /read-item/{id}:
     get:
       operationId: readItemHandler
-      summary: Handle item read requests.
+      summary: "Handle item read requests."
       parameters:
         - name: id
           in: path
           required: true
           schema:
             type: string
-            description: Item Id.
+            description: "Item Id."
             format: uuid
       responses:
         200:
-          description: Successful response.
+          description: "Successful response."
           content:
             application/json:
               schema:
@@ -42,14 +42,14 @@ paths:
   /update-item/{id}:
     patch:
       operationId: updateItemHandler
-      summary: Handle item update requests.
+      summary: "Handle item update requests."
       parameters:
         - name: id
           in: path
           required: true
           schema:
             type: string
-            description: Item Id.
+            description: "Item Id."
             format: uuid
       requestBody:
         content:
@@ -58,7 +58,7 @@ paths:
               $ref: '#/components/requestSchemes/updateItemHandler'
       responses:
         200:
-          description: Successful response.
+          description: "Successful response."
           content:
             application/json:
               schema:
@@ -66,18 +66,18 @@ paths:
   /delete-item/{id}:
     delete:
       operationId: deleteItemHandler
-      summary: Handle item delete requests.
+      summary: "Handle item delete requests."
       parameters:
         - name: id
           in: path
           required: true
           schema:
             type: string
-            description: Item Id.
+            description: "Item Id."
             format: uuid
       responses:
         200:
-          description: Successful response.
+          description: "Successful response."
           content:
             application/json:
               schema:
@@ -85,26 +85,26 @@ paths:
   /list-items:
     get:
       operationId: listItemsHandler
-      summary: Handle item list requests.
+      summary: "Handle item list requests."
       parameters:
         - name: page
           in: query
           required: false
           schema:
             type: integer
-            description: Page number.
+            description: "Page number."
             minimum: 1
         - name: limit
           in: query
           required: false
           schema:
             type: integer
-            description: Page limit.
+            description: "Page limit."
             minimum: 1
             maximum: 10
       responses:
         200:
-          description: Successful response.
+          description: "Successful response."
           content:
             application/json:
               schema:
@@ -114,32 +114,32 @@ components:
   requestSchemes:
     createItemHandler:
       type: object
-      description: Expected HTTP body payload.
+      description: "Expected HTTP body payload."
       additionalProperties: false
       properties:
         name:
           type: string
-          description: Item name.
+          description: "Item name."
           minLength: 1
           maxLength: 16
         description:
           type: string
-          description: Item description.
+          description: "Item description."
           minLength: 1
           maxLength: 128
         category:
           type: object
-          description: Item category.
+          description: "Item category."
           additionalProperties: false
           properties:
             name:
               type: string
-              description: Category name.
+              description: "Category name."
               minLength: 1
               maxLength: 32
             description:
               type: string
-              description: Category description.
+              description: "Category description."
               minLength: 1
               maxLength: 128
           required:
@@ -148,32 +148,32 @@ components:
         - name
     updateItemHandler:
       type: object
-      description: Expected HTTP body payload.
+      description: "Expected HTTP body payload."
       additionalProperties: false
       properties:
         name:
           type: string
-          description: New item name.
+          description: "New item name."
           minLength: 1
           maxLength: 16
         description:
           type: string
-          description: New item description.
+          description: "New item description."
           minLength: 1
           maxLength: 128
         category:
           type: object
-          description: Item category.
+          description: "Item category."
           additionalProperties: false
           properties:
             name:
               type: string
-              description: New category name.
+              description: "New category name."
               minLength: 1
               maxLength: 32
             description:
               type: string
-              description: New category description.
+              description: "New category description."
               minLength: 1
               maxLength: 128
           required:
@@ -182,79 +182,79 @@ components:
   responseSchemes:
     createItemHandler:
       type: object
-      description: HTTP body payload.
+      description: "HTTP body payload."
       additionalProperties: false
       properties:
         item_id:
           type: string
-          description: Created item Id.
+          description: "Created item Id."
         category_id:
           type: string
-          description: Created category Id.
+          description: "Created category Id."
       required:
         - item_id
     readItemHandler:
       type: object
-      description: HTTP body payload.
+      description: "HTTP body payload."
       additionalProperties: false
       properties:
         name:
           type: string
-          description: Item name.
+          description: "Item name."
         description:
           type: string
-          description: Item description.
+          description: "Item description."
         category_name:
           type: string
-          description: Item category name.
+          description: "Item category name."
         category_description:
           type: string
-          description: Item category description.
+          description: "Item category description."
       required:
         - name
     updateItemHandler:
       type: object
-      description: HTTP body payload.
+      description: "HTTP body payload."
       additionalProperties: false
       properties:
         name:
           type: string
-          description: Old item name.
+          description: "Old item name."
         description:
           type: string
-          description: Old or current item description.
+          description: "Old or current item description."
         category_name:
           type: string
-          description: Old or current item category name.
+          description: "Old or current item category name."
         category_description:
           type: string
-          description: Old or current item category description.
+          description: "Old or current item category description."
       required:
         - name
     deleteItemHandler:
       type: object
-      description: HTTP body payload.
+      description: "HTTP body payload."
       additionalProperties: false
       properties:
         name:
           type: string
-          description: Old item name.
+          description: "Old item name."
         description:
           type: string
-          description: Old item description.
+          description: "Old item description."
       required:
         - name
     listItemsHandler:
       type: object
-      description: HTTP body payload.
+      description: "HTTP body payload."
       additionalProperties: false
       properties:
         total:
           type: number
-          description: Total amount of items.
+          description: "Total amount of items."
         items:
           type: array
-          description: Items of the current.
+          description: "Items of the current."
           items:
             type: object
             additionalProperties: false

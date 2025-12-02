@@ -5,18 +5,19 @@ export declare class TestService extends Http.Service {
   name: 'Remote API';
 
   routes: [
-    {
+    Http.UseRoute<{
+      name: 'testRoute';
       path: 'ANY /test-route';
       listener: typeof testListener;
       handler: typeof testHandler;
-    }
+    }>
   ];
 
-  defaults: {
+  defaults: Http.UseDefaults<{
     preferences: {
       namingStyle: NamingStyle.Preserve;
     };
-  };
+  }>;
 }
 
 function testListener(): void {}
@@ -32,4 +33,8 @@ function testHandler(): Http.SuccessEmptyResponse {
  */
 export declare class TestImport extends Http.Import<TestService> {
   project: 'name from project in ez4.project.js';
+
+  authorization: Http.UseAuthorization<{
+    value: 'secret';
+  }>;
 }

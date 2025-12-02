@@ -4,7 +4,7 @@
   "properties": {
     "nullish": {
       "type": "string",
-      "description": "Nullish property.",
+      "description": "Treat optional as a nullish property.\nMust have the `nullish` option in the schema context.",
       "nullable": true,
       "optional": true
     }

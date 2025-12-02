@@ -14,8 +14,6 @@ type BaseModel = {
   };
 };
 
-type FlatModel = FlatObject<BaseModel>;
-
 type ExpectedType = {
   foo: number;
   bar?: string;
@@ -28,11 +26,11 @@ type ExpectedType = {
   };
 };
 
-assertType<ExpectedType, FlatModel>(true);
+assertType<ExpectedType, FlatObject<BaseModel>>(true);
 
 // Expect flat model without array values.
 export const testA = () => {
-  const test: FlatModel = {
+  const test: FlatObject<BaseModel> = {
     foo: 123,
     bar: 'abc',
     baz: {
@@ -49,7 +47,7 @@ export const testA = () => {
 
 // Expect flat model with undefined values.
 export const testB = () => {
-  const test: FlatModel = {
+  const test: FlatObject<BaseModel> = {
     foo: 123,
     bar: undefined,
     baz: {

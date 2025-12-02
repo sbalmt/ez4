@@ -1,12 +1,30 @@
-%%{init: { "layout": "elk" } }%%
+%%{init: { "layout": "elk", "theme": "light" } }%%
 graph LR
-	subgraph Servers
+	classDef ez4Api fill:#196ee650, stroke:#196ee6a0;
+	classDef ez4ApiImport fill:#196ee625, stroke:#196ee6a0, stroke-dasharray:5 5;
+	classDef ez4ApiEdge stroke:#196ee6
+	subgraph APIs
+		style APIs fill: #f5f5f5, stroke-width: 0
 		Api@{ shape: circle, label: "Api" }
+		class Api ez4Api
 	end
-	subgraph Storages
-		FileStorage@{ shape: lin-cyl, label: "FileStorage" }
+	classDef ez4Database fill:#eb575750, stroke:#eb5757a0;
+	classDef ez4DatabaseEdge stroke:#eb5757;
+	subgraph DBs
+		style DBs fill: #f5f5f5, stroke-width: 0
 		FileDb@{ shape: cyl, label: "FileDb" }
+		class FileDb ez4Database
 	end
-	FileStorage --> FileDb
-	Api --> FileStorage
-	Api --> FileDb
+	classDef ez4Bucket fill:#2ac4c950, stroke:#2ac4c9a0;
+	classDef ez4BucketEdge stroke:#2ac4c9;
+	subgraph Storages
+		style Storages fill: #f5f5f5, stroke-width: 0
+		FileStorage@{ shape: lin-cyl, label: "FileStorage" }
+		class FileStorage ez4Bucket
+	end
+	FileStorage FileDbFileStorage@--> FileDb
+	Api FileStorageApi@--> FileStorage
+	Api FileDbApi@--> FileDb
+	class FileDbFileStorage ez4BucketEdge
+	class FileStorageApi ez4ApiEdge
+	class FileDbApi ez4ApiEdge

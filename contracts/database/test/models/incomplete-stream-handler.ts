@@ -5,14 +5,14 @@ export declare class TestDatabase extends Database.Service {
   engine: TestEngine;
 
   tables: [
-    {
+    Database.UseTable<{
       name: 'testTable';
       schema: {};
       indexes: {};
       stream: {
         handler: typeof testHandler;
       };
-    }
+    }>
   ];
 }
 

@@ -53,4 +53,9 @@ export interface DecimalTestSchema {
    * Literal zero value.
    */
   literal_zero: 0.0;
+
+  /**
+   * Compound decimal schemas.
+   */
+  compound: Decimal.Range<0.5, 9.5> & Decimal.Default<25> & 15;
 }

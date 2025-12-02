@@ -48,6 +48,10 @@ export const isHttpDefaults = (type: TypeModel) => {
   return hasHeritageType(type, 'Http.Defaults');
 };
 
+export const isHttpAuthorization = (type: TypeModel) => {
+  return hasHeritageType(type, 'Http.Authorization');
+};
+
 export const isHttpPreferences = (type: TypeModel) => {
   return hasHeritageType(type, 'Http.Preferences');
 };

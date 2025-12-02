@@ -1,8 +1,9 @@
 import type { Service as CommonService } from '@ez4/common';
 import type { LinkedVariables } from '@ez4/project/library';
+import type { BucketEvent, BucketHandler, BucketIncoming, BucketListener, BucketRequest } from './common';
+import type { BucketEvents } from './events';
+import type { BucketCors } from './cors';
 import type { Client } from './client';
-
-import type { BucketCors, BucketEvent, BucketHandler, BucketIncoming, BucketListener, BucketRequest } from './common';
 
 /**
  * Provide all contracts for a self-managed Bucket service.
@@ -18,6 +19,8 @@ export namespace Bucket {
   export type Listener = BucketListener<Event>;
   export type Handler = BucketHandler<Event>;
 
+  export type Events = BucketEvents;
+
   export type ServiceEvent =
     | CommonService.BeginEvent<Request>
     | CommonService.ReadyEvent<Incoming>
@@ -26,44 +29,14 @@ export namespace Bucket {
     | CommonService.EndEvent<Request>;
 
   /**
-   * Bucket events.
+   * Bucket Events definition.
    */
-  export interface Events {
-    /**
-     * Event listener.
-     */
-    listener?: Listener;
+  export type UseEvents<T extends Events> = T;
 
-    /**
-     * Event handler.
-     */
-    handler: Handler;
-
-    /**
-     * Path associated to the event.
-     */
-    path?: string;
-
-    /**
-     * Variables associated to the handler.
-     */
-    variables?: LinkedVariables;
-
-    /**
-     * Log retention (in days) for the handler.
-     */
-    logRetention?: number;
-
-    /**
-     * Max execution time (in seconds) for the handler.
-     */
-    timeout?: number;
-
-    /**
-     * Amount of memory available for the handler.
-     */
-    memory?: number;
-  }
+  /**
+   * Bucket CORS definition.
+   */
+  export type UseCors<T extends Cors> = T;
 
   /**
    * Bucket service.
@@ -72,36 +45,36 @@ export namespace Bucket {
     /**
      * Overwrite the global bucket name.
      */
-    globalName?: string;
+    readonly globalName?: string;
 
     /**
      * Specify a local path to synchronize with the storage.
      */
-    localPath?: string;
+    readonly localPath?: string;
 
     /**
      * Maximum amount of days an object is stored before its auto-deletion.
      */
-    autoExpireDays?: number;
+    readonly autoExpireDays?: number;
 
     /**
      * Bucket events.
      */
-    events?: Events;
+    readonly events?: Events;
 
     /**
      * CORS configuration.
      */
-    cors?: Cors;
+    readonly cors?: Cors;
 
     /**
      * Variables associated to all events.
      */
-    variables?: LinkedVariables;
+    readonly variables?: LinkedVariables;
 
     /**
      * Service client.
      */
-    client: Client;
+    readonly client: Client;
   }
 }

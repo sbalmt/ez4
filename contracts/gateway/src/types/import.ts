@@ -1,5 +1,5 @@
 import type { ServiceMetadata } from '@ez4/project/library';
-import type { HttpRoute, HttpDefaults } from './common';
+import type { HttpRoute, HttpDefaults, HttpAuthorization } from './common';
 
 export const ImportType = '@ez4/import:http';
 
@@ -10,6 +10,7 @@ export type HttpImport = ServiceMetadata & {
   displayName?: string;
   description?: string;
   defaults?: HttpDefaults;
+  authorization?: HttpAuthorization;
   routes: HttpRoute[];
 };
 

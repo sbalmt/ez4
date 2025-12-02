@@ -1,7 +1,7 @@
 import type { AllType, SourceMap, TypeCallback, TypeFunction, TypeIntersection, TypeModel, TypeObject } from '@ez4/reflection';
 import type { QueueMessageSchema } from '../types/common';
 
-import { createUnionSchema, getObjectSchema, isObjectSchema } from '@ez4/schema/library';
+import { createUnionSchema, getIntersectionSchema, getObjectSchema, isObjectSchema } from '@ez4/schema/library';
 import { isTypeIntersection, isTypeObject, isTypeReference, isTypeUnion } from '@ez4/reflection';
 import { getReferenceType, isModelDeclaration } from '@ez4/common/library';
 
@@ -29,7 +29,11 @@ const getTypeMessage = (type: AllType, parent: TypeParent, reflection: SourceMap
     return getMessageFromUnion(type.elements, parent, reflection, errorList);
   }
 
-  if (isTypeObject(type) || isTypeIntersection(type)) {
+  if (isTypeIntersection(type)) {
+    return getMessageFromIntersection(type, reflection);
+  }
+
+  if (isTypeObject(type)) {
     return getMessageSchema(type, reflection);
   }
 
@@ -60,6 +64,16 @@ const getMessageFromUnion = (types: AllType[], parent: TypeParent, reflection: S
   return createUnionSchema({
     elements: schemaList
   });
+};
+
+const getMessageFromIntersection = (type: TypeObject | TypeModel | TypeIntersection, reflection: SourceMap) => {
+  const schema = getIntersectionSchema(type, reflection);
+
+  if (schema && isObjectSchema(schema)) {
+    return schema;
+  }
+
+  return undefined;
 };
 
 const getMessageSchema = (type: TypeObject | TypeModel | TypeIntersection, reflection: SourceMap) => {

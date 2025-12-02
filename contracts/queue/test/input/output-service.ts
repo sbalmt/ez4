@@ -12,10 +12,10 @@ interface TestMessage extends Queue.Message {
 export declare class TestQueue1 extends Queue.Service<TestMessage> {
   subscriptions: [];
 
-  fifoMode: {
+  fifoMode: Queue.UseFifoMode<{
     uniqueId: 'id';
     groupId: 'user';
-  };
+  }>;
 
   services: {
     testQueue: Environment.Service<TestQueue2>;

@@ -13,11 +13,12 @@ export type InputOptions = {
   command?: CommandType;
   environmentFile?: string;
   projectFile?: string;
-  forceMode?: boolean;
-  debugMode?: boolean;
-  resetMode?: boolean;
-  localMode?: boolean;
   arguments?: string[];
+  suppress?: boolean;
+  force?: boolean;
+  debug?: boolean;
+  reset?: boolean;
+  local?: boolean;
 };
 
 export const getInputOptions = () => {
@@ -49,20 +50,24 @@ export const getInputOptions = () => {
         options.projectFile = input[++index];
         break;
 
+      case '--suppress':
+        options.suppress = true;
+        break;
+
       case '--force':
-        options.forceMode = true;
+        options.force = true;
         break;
 
       case '--debug':
-        options.debugMode = true;
+        options.debug = true;
         break;
 
       case '--reset':
-        options.resetMode = true;
+        options.reset = true;
         break;
 
       case '--local':
-        options.localMode = true;
+        options.local = true;
         break;
 
       case '--':

@@ -15,7 +15,7 @@ export declare class Db extends Database.Service {
    * Database tables.
    */
   tables: [
-    {
+    Database.UseTable<{
       name: 'table';
       schema: TableSchema;
       indexes: {
@@ -27,6 +27,6 @@ export declare class Db extends Database.Service {
         // Use: 'column' to create omitting the sort key.
         'enum:date': Index.Secondary;
       };
-    }
+    }>
   ];
 }

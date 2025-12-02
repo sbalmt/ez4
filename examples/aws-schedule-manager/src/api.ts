@@ -21,26 +21,26 @@ export declare class Api extends Http.Service {
    * All API routes.
    */
   routes: [
-    {
+    Http.UseRoute<{
       path: 'POST /create-schedule';
       handler: typeof createScheduleHandler;
-    },
-    {
+    }>,
+    Http.UseRoute<{
       path: 'GET /read-schedule/{scheduleId}';
       handler: typeof readScheduleHandler;
-    },
-    {
+    }>,
+    Http.UseRoute<{
       path: 'PATCH /update-schedule/{scheduleId}';
       handler: typeof updateScheduleHandler;
-    },
-    {
+    }>,
+    Http.UseRoute<{
       path: 'DELETE /delete-schedule/{scheduleId}';
       handler: typeof deleteScheduleHandler;
-    },
-    {
+    }>,
+    Http.UseRoute<{
       path: 'GET /list-schedules';
       handler: typeof listSchedulesHandler;
-    }
+    }>
   ];
 
   /**

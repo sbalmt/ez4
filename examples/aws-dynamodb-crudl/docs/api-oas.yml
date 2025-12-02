@@ -7,7 +7,7 @@ paths:
   /create-item:
     post:
       operationId: createItemHandler
-      summary: Handle item create requests.
+      summary: "Handle item create requests."
       requestBody:
         content:
           application/json:
@@ -15,7 +15,7 @@ paths:
               $ref: '#/components/requestSchemes/createItemHandler'
       responses:
         201:
-          description: Successful response.
+          description: "Successful response."
           content:
             application/json:
               schema:
@@ -23,18 +23,18 @@ paths:
   /read-item/{id}:
     get:
       operationId: readItemHandler
-      summary: Handle read item requests.
+      summary: "Handle read item requests."
       parameters:
         - name: id
           in: path
           required: true
           schema:
             type: string
-            description: Item Id.
+            description: "Item Id."
             format: uuid
       responses:
         200:
-          description: Successful response.
+          description: "Successful response."
           content:
             application/json:
               schema:
@@ -42,14 +42,14 @@ paths:
   /update-item/{id}:
     patch:
       operationId: updateItemHandler
-      summary: Handle item update requests.
+      summary: "Handle item update requests."
       parameters:
         - name: id
           in: path
           required: true
           schema:
             type: string
-            description: Item Id.
+            description: "Item Id."
             format: uuid
       requestBody:
         content:
@@ -58,7 +58,7 @@ paths:
               $ref: '#/components/requestSchemes/updateItemHandler'
       responses:
         200:
-          description: Successful response.
+          description: "Successful response."
           content:
             application/json:
               schema:
@@ -66,18 +66,18 @@ paths:
   /delete-item/{id}:
     delete:
       operationId: deleteItemHandler
-      summary: Handle item delete requests.
+      summary: "Handle item delete requests."
       parameters:
         - name: id
           in: path
           required: true
           schema:
             type: string
-            description: Item Id.
+            description: "Item Id."
             format: uuid
       responses:
         200:
-          description: Successful response.
+          description: "Successful response."
           content:
             application/json:
               schema:
@@ -85,20 +85,20 @@ paths:
   /list-items:
     get:
       operationId: listItemsHandler
-      summary: Handle item list requests.
+      summary: "Handle item list requests."
       parameters:
         - name: cursor
           in: query
           required: false
           schema:
             type: string
-            description: Page cursor.
+            description: "Page cursor."
         - name: limit
           in: query
           required: false
           schema:
             type: integer
-            description: Page limit.
+            description: "Page limit."
             minimum: 1
             maximum: 10
         - name: type
@@ -106,11 +106,11 @@ paths:
           required: true
           schema:
             enum: 
-              - "type-a"
-              - "type-b"
+              - 'type-a'
+              - 'type-b'
       responses:
         200:
-          description: Successful response.
+          description: "Successful response."
           content:
             application/json:
               schema:
@@ -120,119 +120,119 @@ components:
   requestSchemes:
     createItemHandler:
       type: object
-      description: Expected HTTP body payload.
+      description: "Expected HTTP body payload."
       additionalProperties: false
       properties:
         name:
           type: string
-          description: Item name.
+          description: "Item name."
           minLength: 1
           maxLength: 16
         description:
           type: string
-          description: Item description.
+          description: "Item description."
           minLength: 1
           maxLength: 128
         type:
           enum: 
-            - "type-a"
-            - "type-b"
+            - 'type-a'
+            - 'type-b'
       required:
         - name
         - type
     updateItemHandler:
       type: object
-      description: Expected HTTP body payload.
+      description: "Expected HTTP body payload."
       additionalProperties: false
       properties:
         name:
           type: string
-          description: New item name.
+          description: "New item name."
           minLength: 1
           maxLength: 16
         description:
           type: string
-          description: New item description.
+          description: "New item description."
           minLength: 1
           maxLength: 128
         type:
           enum: 
-            - "type-a"
-            - "type-b"
+            - 'type-a'
+            - 'type-b'
 
   responseSchemes:
     createItemHandler:
       type: object
-      description: HTTP body payload.
+      description: "HTTP body payload."
       additionalProperties: false
       properties:
         item_id:
           type: string
-          description: Created item Id.
+          description: "Created item Id."
       required:
         - item_id
     readItemHandler:
       type: object
-      description: HTTP body payload.
+      description: "HTTP body payload."
       additionalProperties: false
       properties:
         name:
           type: string
-          description: Item name.
+          description: "Item name."
         description:
           type: string
-          description: Item description.
+          description: "Item description."
         type:
           enum: 
-            - "type-a"
-            - "type-b"
+            - 'type-a'
+            - 'type-b'
       required:
         - name
         - type
     updateItemHandler:
       type: object
-      description: HTTP body payload.
+      description: "HTTP body payload."
       additionalProperties: false
       properties:
         name:
           type: string
-          description: Old item name.
+          description: "Old item name."
         description:
           type: string
-          description: Old item description.
+          description: "Old item description."
         type:
           enum: 
-            - "type-a"
-            - "type-b"
+            - 'type-a'
+            - 'type-b'
       required:
         - name
         - type
     deleteItemHandler:
       type: object
-      description: HTTP body payload.
+      description: "HTTP body payload."
       additionalProperties: false
       properties:
         name:
           type: string
-          description: Old item name.
+          description: "Old item name."
         description:
           type: string
-          description: Old item description.
+          description: "Old item description."
         type:
           enum: 
-            - "type-a"
-            - "type-b"
+            - 'type-a'
+            - 'type-b'
       required:
         - name
         - type
     listItemsHandler:
       type: object
-      description: HTTP body payload.
+      description: "HTTP body payload."
       additionalProperties: false
       properties:
         items:
           type: array
-          description: Page items.
+          description: "Page items."
           items:
             type: object
             additionalProperties: false
@@ -245,18 +245,18 @@ components:
                 type: string
               type:
                 enum: 
-                  - "type-a"
-                  - "type-b"
+                  - 'type-a'
+                  - 'type-b'
             required:
               - id
               - name
               - type
         total:
           type: number
-          description: Total amount of items.
+          description: "Total amount of items."
         next:
           type: string
-          description: Next page.
+          description: "Next page."
       required:
         - items
         - total

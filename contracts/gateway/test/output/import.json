@@ -11,6 +11,7 @@
     "displayName": "Remote API",
     "routes": [
       {
+        "name": "testRoute",
         "path": "ANY /test-route",
         "listener": {
           "name": "testListener",
@@ -36,8 +37,14 @@
     "name": "TestImport",
     "description": "Import API gateway.",
     "reference": "TestService",
+    "authorization": {
+      "header": "authorization",
+      "type": "bearer",
+      "value": "secret"
+    },
     "routes": [
       {
+        "name": "testRoute",
         "path": "ANY /test-route",
         "listener": {
           "name": "testListener",

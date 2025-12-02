@@ -57,7 +57,7 @@ export const getSelectFields = <T extends InternalTableMetadata, S extends AnyOb
   path: string,
   json?: boolean
 ) => {
-  const allFields = isEmptyObject(fields) ? getDefaultSelectFields(schema) : fields;
+  const allFields: Record<string, boolean> = isEmptyObject(fields) ? getDefaultSelectFields(schema) : fields;
 
   const output: SqlJsonColumnRecord = {};
 

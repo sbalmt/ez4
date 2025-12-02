@@ -21,16 +21,16 @@ export declare class Db extends Database.Service {
    * Database scalability.
    * (When `minCapacity` is zero, the auto-pause is activate)
    */
-  scalability: {
+  scalability: Database.UseScalability<{
     minCapacity: 0;
     maxCapacity: 2;
-  };
+  }>;
 
   /**
    * Database tables.
    */
   tables: [
-    {
+    Database.UseTable<{
       name: 'items';
       schema: ItemSchema;
       relations: {
@@ -41,8 +41,8 @@ export declare class Db extends Database.Service {
         category_id: Index.Secondary;
         created_at: Index.Secondary;
       };
-    },
-    {
+    }>,
+    Database.UseTable<{
       name: 'categories';
       schema: CategorySchema;
       relations: {
@@ -51,6 +51,6 @@ export declare class Db extends Database.Service {
       indexes: {
         id: Index.Primary;
       };
-    }
+    }>
   ];
 }

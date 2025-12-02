@@ -31,10 +31,10 @@ export declare class RateEvent extends Cron.Service {
   /**
    * Event target.
    */
-  target: {
+  target: Cron.UseTarget<{
     listener: typeof schedulerListener;
     handler: typeof staticTargetHandler;
-  };
+  }>;
 }
 
 /**
@@ -64,10 +64,10 @@ export declare class CronEvent extends Cron.Service {
   /**
    * Event target.
    */
-  target: {
+  target: Cron.UseTarget<{
     listener: typeof schedulerListener;
     handler: typeof staticTargetHandler;
-  };
+  }>;
 }
 
 /**
@@ -92,10 +92,10 @@ export declare class DynamicCron extends Cron.Service<DynamicEvent> {
   /**
    * Event target.
    */
-  target: {
+  target: Cron.UseTarget<{
     listener: typeof schedulerListener;
     handler: typeof dynamicTargetHandler;
-  };
+  }>;
 
   /**
    * Expose its client to all handlers.

@@ -1,16 +1,55 @@
+import type { LinkedVariables } from '@ez4/project/library';
+import type { TableStreamHandler, TableStreamListener } from './common';
+import type { TableSchema } from './schemas';
+
 /**
- * Stream change for `insert`, `update` or `delete` operations.
+ * Database table stream.
  */
-export type StreamChange<T> = StreamInsertChange<T> | StreamUpdateChange<T> | StreamDeleteChange<T>;
+export interface TableStream<T extends TableSchema> {
+  /**
+   * Stream listener.
+   */
+  readonly listener?: TableStreamListener<T>;
+
+  /**
+   * Stream handler.
+   */
+  readonly handler: TableStreamHandler<T>;
+
+  /**
+   * Variables associated to the handler.
+   */
+  readonly variables?: LinkedVariables;
+
+  /**
+   * Log retention (in days) for the handler.
+   */
+  readonly logRetention?: number;
+
+  /**
+   * Max execution time (in seconds) for the handler.
+   */
+  readonly timeout?: number;
+
+  /**
+   * Amount of memory available for the handler.
+   */
+  readonly memory?: number;
+}
 
 /**
  * Stream change types.
  */
-export const enum StreamType {
+export const enum StreamChangeType {
   Insert = 'insert',
   Update = 'update',
   Delete = 'delete'
 }
+
+/**
+ * Stream change for `insert`, `update` or `delete` operations.
+ */
+export type StreamAnyChange<T> = StreamInsertChange<T> | StreamUpdateChange<T> | StreamDeleteChange<T>;
 
 /**
  * Stream change for an `insert` operation.
@@ -19,12 +58,12 @@ export type StreamInsertChange<T> = {
   /**
    * Change type.
    */
-  type: StreamType.Insert;
+  readonly type: StreamChangeType.Insert;
 
   /**
    * Inserted record.
    */
-  record: T;
+  readonly record: T;
 };
 
 /**
@@ -34,17 +73,17 @@ export type StreamUpdateChange<T> = {
   /**
    * Change type.
    */
-  type: StreamType.Update;
+  readonly type: StreamChangeType.Update;
 
   /**
    * Previous record.
    */
-  oldRecord: T;
+  readonly oldRecord: T;
 
   /**
    * Current record.
    */
-  newRecord: T;
+  readonly newRecord: T;
 };
 
 /**
@@ -54,10 +93,10 @@ export type StreamDeleteChange<T> = {
   /**
    * Change type.
    */
-  type: StreamType.Delete;
+  readonly type: StreamChangeType.Delete;
 
   /**
    * Deleted record.
    */
-  record: T;
+  readonly record: T;
 };

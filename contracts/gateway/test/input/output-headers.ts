@@ -2,14 +2,14 @@ import type { Http } from '@ez4/gateway';
 
 export declare class TestService extends Http.Service {
   routes: [
-    {
+    Http.UseRoute<{
       path: 'GET /test-route-a';
       handler: typeof testRouteA;
-    },
-    {
+    }>,
+    Http.UseRoute<{
       path: 'GET /test-route-b';
       handler: typeof testRouteB;
-    }
+    }>
   ];
 }
 

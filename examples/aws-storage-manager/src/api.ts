@@ -17,21 +17,21 @@ export declare class Api extends Http.Service {
    * All API routes.
    */
   routes: [
-    {
+    Http.UseRoute<{
       path: 'POST /start-upload';
       handler: typeof startUploadHandler;
-    },
-    {
+    }>,
+    Http.UseRoute<{
       path: 'GET /start-download/{fileId}';
       handler: typeof startDownloadHandler;
-    },
-    {
+    }>,
+    Http.UseRoute<{
       path: 'DELETE /delete-file/{fileId}';
       handler: typeof deleteFileHandler;
-    },
-    {
+    }>,
+    Http.UseRoute<{
       path: 'GET /list-files';
       handler: typeof listFilesHandler;
-    }
+    }>
   ];
 }

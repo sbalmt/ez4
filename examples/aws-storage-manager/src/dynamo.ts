@@ -20,12 +20,12 @@ export declare class FileDb extends Database.Service {
    * Database tables.
    */
   tables: [
-    {
+    Database.UseTable<{
       name: 'files';
       schema: FileSchema;
       indexes: {
         id: Index.Primary;
       };
-    }
+    }>
   ];
 }

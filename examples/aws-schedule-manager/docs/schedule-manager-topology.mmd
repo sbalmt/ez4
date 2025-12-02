@@ -1,14 +1,31 @@
-%%{init: { "layout": "elk" } }%%
+%%{init: { "layout": "elk", "theme": "light" } }%%
 graph LR
-	subgraph Servers
+	classDef ez4Api fill:#196ee650, stroke:#196ee6a0;
+	classDef ez4ApiImport fill:#196ee625, stroke:#196ee6a0, stroke-dasharray:5 5;
+	classDef ez4ApiEdge stroke:#196ee6
+	subgraph APIs
+		style APIs fill: #f5f5f5, stroke-width: 0
 		Api@{ shape: circle, label: "Api" }
+		class Api ez4Api
 	end
+	classDef ez4Scheduler fill:#9b51e050, stroke:#9b51e0a0;
+	classDef ez4SchedulerEdge stroke:#9b51e0
+	classDef ez4SchedulerEdge stroke:#9b51e0;
 	subgraph Schedulers
-		EventScheduler@{ shape: circle, label: "EventScheduler" }
+		style Schedulers fill: #f5f5f5, stroke-width: 0
+		EventScheduler@{ shape: stadium, label: "EventScheduler" }
+		class EventScheduler ez4Scheduler
 	end
-	subgraph Storages
+	classDef ez4Database fill:#eb575750, stroke:#eb5757a0;
+	classDef ez4DatabaseEdge stroke:#eb5757;
+	subgraph DBs
+		style DBs fill: #f5f5f5, stroke-width: 0
 		EventDb@{ shape: cyl, label: "EventDb" }
+		class EventDb ez4Database
 	end
-	EventScheduler --> EventDb
-	Api --> EventScheduler
-	Api --> EventDb
+	EventScheduler EventDbEventScheduler@--> EventDb
+	Api EventSchedulerApi@--> EventScheduler
+	Api EventDbApi@--> EventDb
+	class EventDbEventScheduler ez4SchedulerEdge
+	class EventSchedulerApi ez4ApiEdge
+	class EventDbApi ez4ApiEdge

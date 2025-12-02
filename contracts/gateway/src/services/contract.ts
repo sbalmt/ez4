@@ -1,7 +1,14 @@
 import type { Service as CommonService } from '@ez4/common';
 import type { LinkedVariables } from '@ez4/project/library';
-import type { HttpPath } from '../types/common';
 import type { HttpSuccessStatuses, HttpSuccessEmptyResponse, HttpSuccessResponse } from './utils';
+import type { HttpAuthorization } from './authorization';
+import type { HttpPreferences } from './preferences';
+import type { HttpDefaults } from './defaults';
+import type { HttpProvider } from './provider';
+import type { HttpAccess } from './access';
+import type { HttpRoute } from './route';
+import type { HttpCache } from './cache';
+import type { HttpCors } from './cors';
 import type { Client } from './client';
 
 import type {
@@ -11,20 +18,15 @@ import type {
   HttpQueryStrings,
   HttpJsonBody,
   HttpRawBody,
-  HttpPreferences,
   HttpAuthRequest,
   HttpAuthResponse,
   HttpRequest,
   HttpResponse,
   HttpErrors,
-  HttpProvider,
   HttpIncoming,
   HttpListener,
   HttpAuthorizer,
-  HttpHandler,
-  HttpCache,
-  HttpAccess,
-  HttpCors
+  HttpHandler
 } from './common';
 
 /**
@@ -39,6 +41,7 @@ export namespace Http {
   export type JsonBody = HttpJsonBody;
   export type RawBody = HttpRawBody;
 
+  export type Authorization = HttpAuthorization;
   export type Preferences = HttpPreferences;
 
   export type AuthRequest = HttpAuthRequest;
@@ -60,105 +63,48 @@ export namespace Http {
   export type Authorizer<T extends AuthRequest> = HttpAuthorizer<T>;
   export type Handler<T extends Request> = HttpHandler<T>;
 
+  export type Route<T extends Request = Request, U extends AuthRequest = AuthRequest> = HttpRoute<T, U>;
+  export type Defaults<T extends HttpRequest | HttpAuthRequest = any> = HttpDefaults<T>;
+
   export type ServiceEvent<T extends Request | AuthRequest = Request> = CommonService.AnyEvent<Incoming<T>>;
 
   export type SuccessEmptyResponse<S extends HttpSuccessStatuses = 204> = HttpSuccessEmptyResponse<S>;
   export type SuccessResponse<S extends HttpSuccessStatuses, T extends HttpRawBody | HttpJsonBody> = HttpSuccessResponse<S, T>;
 
   /**
-   * HTTP route.
+   * HTTP Route definition.
    */
-  export interface Route<T extends Request = Request, U extends AuthRequest = AuthRequest> {
-    /**
-     * Route name.
-     */
-    name?: string;
-
-    /**
-     * Route path.
-     */
-    path: HttpPath;
-
-    /**
-     * Route listener.
-     */
-    listener?: Listener<T | U>;
-
-    /**
-     * Route authorizer.
-     */
-    authorizer?: Authorizer<U>;
-
-    /**
-     * Route handler.
-     */
-    handler: Handler<T>;
-
-    /**
-     * Map status codes and errors for all known exceptions.
-     */
-    httpErrors?: Errors;
-
-    /**
-     * Default log retention (in days) for the handlers.
-     */
-    logRetention?: number;
-
-    /**
-     * Variables associated to the route.
-     */
-    variables?: LinkedVariables;
-
-    /**
-     * Max execution time (in seconds) for the route.
-     */
-    timeout?: number;
-
-    /**
-     * Amount of memory available for the handler.
-     */
-    memory?: number;
-
-    /**
-     * Determines whether or not CORS is enabled for the route.
-     */
-    cors?: boolean;
-  }
+  export type UseRoute<T extends Route<any, any>> = T;
 
   /**
-   * Default HTTP service parameters.
+   * HTTP Service definition.
    */
-  export type Defaults<T extends Request | AuthRequest = {}> = {
-    /**
-     * Default route listener.
-     */
-    listener?: Listener<T>;
+  export type UseDefaults<T extends Defaults<any>> = T;
 
-    /**
-     * Status codes for all known exceptions.
-     */
-    httpErrors?: Errors;
+  /**
+   * HTTP Preferences definition.
+   */
+  export type UsePreferences<T extends Preferences> = T;
 
-    /**
-     * Default preferences for all handlers and routes.
-     */
-    preferences?: Preferences;
+  /**
+   * HTTP Authorization definition.
+   */
+  export type UseAuthorization<T extends Authorization> = T;
 
-    /**
-     * Default log retention (in days) for the handlers.
-     */
-    logRetention?: number;
+  /**
+   * HTTP Cache definition.
+   */
+  export type UseCache<T extends Cache> = T;
 
-    /**
-     * Default execution time (in seconds) for handlers and routes.
-     */
-    timeout?: number;
+  /**
+   * HTTP Access definition.
+   */
+  export type UseAccess<T extends Access> = T;
 
-    /**
-     * Default amount of memory available for handlers.
-     */
-    memory?: number;
-  };
+  /**
+   * HTTP CORS definition.
+   */
+  export type UseCors<T extends Cors> = T;
 
   /**
    * HTTP service.
@@ -167,42 +113,42 @@ export namespace Http {
     /**
      * All expected routes.
      */
-    abstract routes: Route<any, any>[];
+    abstract readonly routes: Route<any, any>[];
 
     /**
      * Display name for the service.
      */
-    name?: string;
+    readonly name?: string;
 
     /**
      * Default parameters.
      */
-    defaults?: Defaults;
+    readonly defaults?: Defaults<any>;
 
     /**
      * CORS configuration.
      */
-    cors?: Cors;
+    readonly cors?: Cors;
 
     /**
      * Cache configuration.
      */
-    cache?: Cache;
+    readonly cache?: Cache;
 
     /**
      * Access configuration.
      */
-    access?: Access;
+    readonly access?: Access;
 
     /**
      * Variables associated to all routes.
      */
-    variables?: LinkedVariables;
+    readonly variables?: LinkedVariables;
 
     /**
      * Service client.
      */
-    client: Client<Service>;
+    readonly client: Client<Service>;
   }
 
   /**
@@ -212,41 +158,46 @@ export namespace Http {
     /**
      * Name of the imported project defined in the project options file.
      */
-    abstract project: string;
+    abstract readonly project: string;
 
     /**
      * Imported service reference.
      */
-    reference: T;
+    readonly reference: T;
+
+    /**
+     * Authorization configuration.
+     */
+    readonly authorization?: Authorization;
 
     /**
      * All routes attached to the imported service (do not replace).
      */
-    routes: T['routes'];
+    readonly routes: T['routes'];
 
     /**
      * Display name for the service imported service (do not replace).
      */
-    name: T['name'];
+    readonly name: T['name'];
 
     /**
      * All default configurations attached to the imported service (do not replace).
      */
-    defaults: T['defaults'];
+    readonly defaults: T['defaults'];
 
     /**
      * Imported service client (do not replace).
      */
-    client: Client<T>;
+    readonly client: Client<T>;
 
     /**
      * Variables are not allowed.
      */
-    variables: never;
+    readonly variables: never;
 
     /**
      * Services are not allowed.
      */
-    service: never;
+    readonly service: never;
   }
 }

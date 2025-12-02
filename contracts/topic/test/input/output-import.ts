@@ -31,9 +31,9 @@ export declare class TestImport1Topic extends Topic.Import<TestTopic> {
   project: 'name from project in ez4.project.js';
 
   subscriptions: [
-    {
+    Topic.UseSubscription<{
       handler: typeof testHandler;
-    }
+    }>
   ];
 
   variables: {

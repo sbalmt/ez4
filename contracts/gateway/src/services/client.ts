@@ -1,15 +1,15 @@
-import type { AnyObject, Prettify } from '@ez4/utils';
+import type { AnyObject, IsObjectEmpty, OptionalProperties, Prettify } from '@ez4/utils';
 import type { Http } from './contract';
 
 /**
  * HTTP client.
  */
-export type Client<T extends Http.Service> = {
+export type Client<T extends Http.Service | Http.Import<any>> = {
   [P in ClientRoutes<T> as P extends { name: infer N } ? (N extends string ? N : never) : never]: P extends {
     handler: infer H;
     authorizer: infer A;
   }
-    ? AuthorizedClientOperation<H, A>
+    ? AuthorizedClientOperation<H, A, AuthorizationHeaderName<T>>
     : P extends { handler: infer H }
       ? ClientOperation<H>
       : never;
@@ -19,63 +19,108 @@ export type Client<T extends Http.Service> = {
  * Default HTTP client request.
  */
 export type ClientRequest = RequestOptions & {
-  headers?: Record<string, string>;
-  parameters?: Record<string, string>;
-  query?: Record<string, unknown>;
-  body?: string | AnyObject;
+  readonly headers?: Record<string, string>;
+  readonly parameters?: Record<string, string>;
+  readonly query?: Record<string, unknown>;
+  readonly body?: string | AnyObject;
 };
 
 /**
  * Default HTTP response.
  */
 export type ClientResponse = {
-  status: number;
-  headers?: Record<string, string | undefined>;
-  body?: unknown;
+  readonly status: number;
+  readonly headers?: Record<string, string | undefined>;
+  readonly body?: unknown;
 };
 
 /**
- * Given a HTTP service `T`, it produces a union type containing all gateway routes.
+ * Given a HTTP service `H`, it produces a union type containing all gateway routes.
  */
-type ClientRoutes<T extends Http.Service> = T extends { routes: (infer R)[] } ? R : never;
+type ClientRoutes<H extends Http.Service> = H extends { routes: (infer R)[] } ? R : never;
 
 /**
- * Given a handler type `T`, it produces a callback to invoke the operation.
+ * Given a handler type `H`, it produces a callback to invoke the operation.
  */
-type ClientOperation<T> = T extends (...args: any) => any ? (request: OperationRequest<T>) => OperationResponse<T> : never;
+type ClientOperation<H> = H extends (...args: any) => any ? (request: OperationRequest<H>) => OperationResponse<H> : never;
 
 /**
- * Given a handler type `T`, it produces a request type.
+ * Given a handler type `H`, it produces a request type.
  */
-type OperationRequest<T extends (...args: any) => any> = Prettify<RequestSchema<Parameters<T>[0]> & RequestOptions>;
+type OperationRequest<H extends (...args: any) => any> = Prettify<RequestSchema<Parameters<H>[0], never> & RequestOptions>;
 
 /**
- * Given a handler type `T`, it produces a callback to invoke the operation.
+ * Given a service type `T`, it returns the authorization header name.
  */
-type AuthorizedClientOperation<T, U> = T extends (...args: any) => any
-  ? U extends (...args: any) => any
-    ? (request: AuthorizedOperationRequest<T, U>) => OperationResponse<T>
+type AuthorizationHeaderName<T extends Http.Service | Http.Import<any>> = T extends { authorization: infer A }
+  ? A extends { header: infer H }
+    ? H
+    : 'authorization'
+  : never;
+
+/**
+ * Given a handler type `H` and an authorizer type `A`, it produces a callback to invoke the authorized operation.
+ */
+type AuthorizedClientOperation<H, A, N extends string> = H extends (...args: any) => any
+  ? A extends (...args: any) => any
+    ? (request: AuthorizedOperationRequest<H, A, N>) => OperationResponse<H>
     : never
   : never;
 
 /**
- * Given a handler type `T`, it produces a request type.
+ * Given a handler type `H` and an authorized type `A`, it produces a request type for the authorized request.
  */
-type AuthorizedOperationRequest<T extends (...args: any) => any, U extends (...args: any) => any> = Prettify<
-  RequestSchema<Parameters<T>[0]> & RequestSchema<Parameters<U>[0]> & RequestOptions
+type AuthorizedOperationRequest<H extends (...args: any) => any, A extends (...args: any) => any, N extends string> = Prettify<
+  RequestSchema<Parameters<H>[0], never> & RequestSchema<Parameters<A>[0], N> & RequestOptions
 >;
 
 /**
- * Given a handler type `T`, it produces a response type.
+ * Given a handler type `H`, it produces a response type.
  */
-type OperationResponse<T extends (...args: any) => any> = Promise<Awaited<ReturnType<T>>>;
+type OperationResponse<H extends (...args: any) => any> = Promise<Awaited<ReturnType<H>>>;
 
 /**
- * Given a request type `T`, it produces a request schema containing only valid parameters.
+ * Given a request type `R`, it produces a request schema containing only valid parameters.
  */
-type RequestSchema<T> = T extends AnyObject
-  ? { [P in keyof T as P extends 'parameters' | 'headers' | 'query' | 'body' ? P : never]: T[P] }
+type RequestSchema<R, H extends string> = R extends AnyObject
+  ? RequestHeaders<R, H> & RequestParameters<R> & RequestQuery<R> & RequestBody<R>
   : never;
+
+/**
+ * Given a request type `R`, it produces a request headers type.
+ */
+type RequestHeaders<R, H extends string> = R extends { headers: infer T }
+  ? IsObjectEmpty<Omit<T, H>> extends false
+    ? { readonly headers: Prettify<Omit<T, H>> }
+    : {}
+  : {};
+
+/**
+ * Given a request type `R`, it produces a request parameters type.
+ */
+type RequestParameters<R> = R extends { parameters: infer T }
+  ? IsObjectEmpty<Omit<T, OptionalProperties<NonNullable<T>>>> extends true
+    ? { readonly parameters?: T }
+    : { readonly parameters: T }
+  : {};
+
+/**
+ * Given a request type `R`, it produces a request query type.
+ */
+type RequestQuery<R> = R extends { query: infer T }
+  ? IsObjectEmpty<Omit<T, OptionalProperties<NonNullable<T>>>> extends true
+    ? { readonly query?: T }
+    : { readonly query: T }
+  : {};
+
+/**
+ * Given a request type `R`, it produces a request body type.
+ */
+type RequestBody<R> = R extends { body: infer T }
+  ? IsObjectEmpty<Omit<T, OptionalProperties<NonNullable<T>>>> extends true
+    ? { readonly body?: T }
+    : { readonly body: T }
+  : {};
 
 /**
  * All request options.
@@ -84,5 +129,5 @@ type RequestOptions = {
   /**
    * Maximum wait time for a response.
    */
-  timeout?: number;
+  readonly timeout?: number;
 };

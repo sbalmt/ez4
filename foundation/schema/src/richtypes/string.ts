@@ -5,6 +5,21 @@ export namespace String {
   export type Any = string;
 
   /**
+   * String in upper-case.
+   */
+  export type Upper = string;
+
+  /**
+   * String in lower-case.
+   */
+  export type Lower = string;
+
+  /**
+   * String without white-spaces.
+   */
+  export type Trim = string;
+
+  /**
    * String with minimum length constraint.
    */
   export type Min<_Length extends number> = string;

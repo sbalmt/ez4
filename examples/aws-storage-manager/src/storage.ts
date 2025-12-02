@@ -16,19 +16,19 @@ export declare class FileStorage extends Bucket.Service {
   /**
    * Define CORs for frontend upload with signed URLs.
    */
-  cors: {
+  cors: Bucket.UseCors<{
     allowOrigins: [Environment.Variable<'FRONTEND_URL'>];
     allowHeaders: ['content-type'];
     allowMethods: ['PUT'];
-  };
+  }>;
 
   /**
    * Define an event handler for syncing the storage events.
    */
-  events: {
+  events: Bucket.UseEvents<{
     listener: typeof syncStorageListener;
     handler: typeof syncStorageHandler;
-  };
+  }>;
 
   /**
    * All Storage services.

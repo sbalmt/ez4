@@ -13,13 +13,13 @@ export declare class TestSchemaDb extends Database.Service {
   engine: PostgresEngine;
 
   tables: [
-    {
+    Database.UseTable<{
       name: 'ez4_test_table';
       schema: TestSchemaType;
       indexes: {
         id: Index.Primary;
       };
-    }
+    }>
   ];
 }
 

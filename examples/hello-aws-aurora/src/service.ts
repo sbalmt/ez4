@@ -15,12 +15,12 @@ export declare class Db extends Database.Service {
    * Database tables.
    */
   tables: [
-    {
+    Database.UseTable<{
       name: 'table';
       schema: TableSchema;
       indexes: {
         id: Index.Primary;
       };
-    }
+    }>
   ];
 }

@@ -10,6 +10,10 @@ export type TypeIntersection = {
   elements: EveryType[];
 };
 
+export type TypeIntersectionEvents = {
+  onTypeIntersection?: (type: TypeIntersection) => EveryType | null;
+};
+
 /**
  * Determines whether or not the given type is an `intersection` type.
  *

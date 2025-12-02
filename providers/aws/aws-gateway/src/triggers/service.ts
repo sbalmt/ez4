@@ -72,7 +72,11 @@ export const connectServices = (event: ConnectResourceEvent) => {
     throw new RoleMissingError();
   }
 
-  for (const { authorizer, handler } of service.routes) {
+  for (const { disabled, authorizer, handler } of service.routes) {
+    if (disabled) {
+      continue;
+    }
+
     const handlerName = getInternalName(service, handler.name);
     const handlerState = getFunctionState(context, handlerName, options);
 
@@ -121,6 +125,10 @@ const createRoutes = (
   context: EventContext
 ) => {
   for (const route of service.routes) {
+    if (route.disabled) {
+      continue;
+    }
+
     const integrationState = getIntegrationFunction(state, service, gatewayState, route, options, context);
     const authorizerState = getAuthorizerFunction(state, service, gatewayState, route, options, context);
 

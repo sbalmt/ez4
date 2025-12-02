@@ -11,7 +11,7 @@ import { loadAliasPaths } from '../../config/tsconfig';
 import { loadProviders } from '../../config/providers';
 
 export const generateCommand = async (input: InputOptions, project: ProjectOptions) => {
-  const options = getGeneratorOptions(project);
+  const options = getGeneratorOptions(input, project);
 
   if (options.debug) {
     Logger.setLevel(LogLevel.Debug);

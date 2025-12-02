@@ -6,10 +6,10 @@ import type { Cron } from '@ez4/scheduler';
 export declare class TestScheduler extends Cron.Service {
   expression: 'rate(1 minute)';
 
-  target: {
+  target: Cron.UseTarget<{
     listener: typeof targetListener;
     handler: typeof targetHandler;
-  };
+  }>;
 }
 
 function targetListener(): void {}

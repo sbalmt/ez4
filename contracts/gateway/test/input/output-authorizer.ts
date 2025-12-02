@@ -6,19 +6,19 @@ import type { Http } from '@ez4/gateway';
  */
 export declare class TestService extends Http.Service {
   routes: [
-    {
+    Http.UseRoute<{
       path: 'ANY /test-route-a';
       authorizer: typeof testQueryAuthorizer;
       handler: typeof testHandler;
       preferences: {
         namingStyle: NamingStyle.KebabCase;
       };
-    },
-    {
+    }>,
+    Http.UseRoute<{
       path: 'ANY /test-route-b';
       authorizer: typeof testHeaderAuthorizer;
       handler: typeof testHandler;
-    }
+    }>
   ];
 }
 

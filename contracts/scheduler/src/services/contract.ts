@@ -1,6 +1,7 @@
 import type { Service as CommonService } from '@ez4/common';
 import type { LinkedVariables } from '@ez4/project/library';
 import type { CronEvent, CronHandler, CronIncoming, CronListener, CronRequest } from './common';
+import type { CronTarget } from './target';
 import type { Client } from './client';
 
 /**
@@ -15,44 +16,14 @@ export namespace Cron {
   export type Listener<T extends Event | null> = CronListener<T>;
   export type Handler<T extends Event | null> = CronHandler<T>;
 
+  export type Target<T extends Event | null> = CronTarget<T>;
+
   export type ServiceEvent<T extends Event | null = null> = CommonService.AnyEvent<Incoming<T>>;
 
   /**
-   * Cron target.
+   * Cron Target definition.
    */
-  export interface Target<T extends Event | null> {
-    /**
-     * Target listener.
-     */
-    listener?: Listener<T>;
-
-    /**
-     * Target handler.
-     *
-     * @param context Handler context.
-     */
-    handler: Handler<T>;
-
-    /**
-     * Variables associated to the target.
-     */
-    variables?: LinkedVariables;
-
-    /**
-     * Log retention (in days) for the handler.
-     */
-    logRetention?: number;
-
-    /**
-     * Max execution time (in seconds) for the handler.
-     */
-    timeout?: number;
-
-    /**
-     * Amount of memory available for the handler.
-     */
-    memory?: number;
-  }
+  export type UseTarget<T extends Target<any>> = T;
 
   /**
    * Cron service.
@@ -61,62 +32,62 @@ export namespace Cron {
     /**
      * Scheduler target.
      */
-    abstract target: Target<T>;
+    abstract readonly target: Target<T>;
 
     /**
      * Scheduler expression or literal 'dynamic' when the created cron service is dynamic.
      */
-    abstract expression: 'dynamic' | string;
+    abstract readonly expression: 'dynamic' | string;
 
     /**
      * Event schema.
      */
-    schema: T;
+    readonly schema: T;
 
     /**
      * Scheduler group name.
      */
-    group?: string;
+    readonly group?: string;
 
     /**
      * Scheduler expression timezone.
      */
-    timezone?: string;
+    readonly timezone?: string;
 
     /**
      * An ISO date to determine when the scheduler should start to work.
      */
-    startDate?: string;
+    readonly startDate?: string;
 
     /**
      * An ISO date to determine when the scheduler should stop to work.
      */
-    endDate?: string;
+    readonly endDate?: string;
 
     /**
      * Maximum retry attempts for the event before it fails.
      * Default is: 0
      */
-    maxRetries?: number;
+    readonly maxRetries?: number;
 
     /**
      * Maximum age (in seconds) for the event to be eligible for retry attempts.
      */
-    maxAge?: number;
+    readonly maxAge?: number;
 
     /**
      * Determines whether or not the scheduler is disabled.
      */
-    disabled?: boolean;
+    readonly disabled?: boolean;
 
     /**
      * Variables associated to the target.
      */
-    variables?: LinkedVariables;
+    readonly variables?: LinkedVariables;
 
     /**
      * Service client.
      */
-    client: T extends null ? never : Client<NonNullable<T>>;
+    readonly client: T extends null ? never : Client<NonNullable<T>>;
   }
 }

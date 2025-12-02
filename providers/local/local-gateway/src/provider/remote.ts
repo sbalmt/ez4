@@ -2,7 +2,7 @@ import type { EmulateServiceContext, ServeOptions } from '@ez4/project/library';
 import type { HttpImport } from '@ez4/gateway/library';
 
 import { getServiceName, MissingImportedProjectError } from '@ez4/project/library';
-import { getClientOperations } from '@ez4/gateway/library';
+import { getClientAuthorization, getClientOperations } from '@ez4/gateway/library';
 
 import { createServiceClient } from '../client/service';
 
@@ -15,6 +15,7 @@ export const registerRemoteServices = (service: HttpImport, options: ServeOption
   }
 
   const clientOptions = {
+    authorization: getClientAuthorization(service),
     operations: getClientOperations(service),
     ...imports[project]
   };

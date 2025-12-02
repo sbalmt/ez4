@@ -14,7 +14,7 @@ import { waitConfirmation } from '../../utils/prompt';
 import { assertNoErrors } from '../../utils/errors';
 
 export const destroyCommand = async (input: InputOptions, project: ProjectOptions) => {
-  const options = getDeployOptions(project);
+  const options = getDeployOptions(input, project);
 
   if (options.debug) {
     Logger.setLevel(LogLevel.Debug);
@@ -45,7 +45,7 @@ export const destroyCommand = async (input: InputOptions, project: ProjectOption
   }
 
   if (project.confirmMode !== false) {
-    const canProceed = await waitConfirmation('⁉️  Are you sure you want to proceed?');
+    const canProceed = await waitConfirmation('Are you sure you want to proceed?');
 
     if (!canProceed) {
       return Logger.log('⛔ Aborted');

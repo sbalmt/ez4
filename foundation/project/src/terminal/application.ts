@@ -23,7 +23,7 @@ try {
   }
 } catch (error) {
   if (error instanceof Error) {
-    Logger.error(error.stack && input?.debugMode ? error.stack : error.message);
+    Logger.error(error.stack && input?.debug ? error.stack : error.message);
   } else {
     Logger.error(`${error}`);
   }

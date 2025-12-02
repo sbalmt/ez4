@@ -21,7 +21,7 @@ export declare class TestScheduler extends Cron.Service {
 
   disabled: true;
 
-  target: {
+  target: Cron.UseTarget<{
     handler: typeof targetHandler;
     logRetention: 14;
     timeout: 30;
@@ -29,7 +29,7 @@ export declare class TestScheduler extends Cron.Service {
     variables: {
       TEST_VAR1: 'test-literal-value';
     };
-  };
+  }>;
 
   variables: {
     TEST_VAR2: Environment.Variable<'TEST_ENV_VAR'>;

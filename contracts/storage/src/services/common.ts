@@ -16,53 +16,23 @@ export type BucketEvent = {
   /**
    * Type of event.
    */
-  eventType: BucketEventType;
+  readonly eventType: BucketEventType;
 
   /**
    * Bucket from the event.
    */
-  bucketName: string;
+  readonly bucketName: string;
 
   /**
    * Object key in the bucket.
    */
-  objectKey: string;
+  readonly objectKey: string;
 
   /**
    * Size of the created object.
    */
-  objectSize?: number;
+  readonly objectSize?: number;
 };
-
-/**
- * Bucket CORS configuration.
- */
-export interface BucketCors {
-  /**
-   * List of allowed origins.
-   */
-  allowOrigins: string[];
-
-  /**
-   * List of allowed methods.
-   */
-  allowMethods?: string[];
-
-  /**
-   * List of allowed headers.
-   */
-  allowHeaders?: string[];
-
-  /**
-   * List of exposed headers.
-   */
-  exposeHeaders?: string[];
-
-  /**
-   * Determines how long the preflight result can be cached.
-   */
-  maxAge?: number;
-}
 
 /**
  * Incoming event.
@@ -76,11 +46,11 @@ export type BucketRequest = {
   /**
    * Request tracking Id.
    */
-  requestId: string;
+  readonly requestId: string;
 };
 
 /**
- * Message listener.
+ * Bucket event listener.
  */
 export type BucketListener<T extends BucketEvent> = (
   event: Service.AnyEvent<BucketIncoming<T>>,
@@ -88,7 +58,7 @@ export type BucketListener<T extends BucketEvent> = (
 ) => Promise<void> | void;
 
 /**
- * Event handler.
+ * Bucket event handler.
  */
 export type BucketHandler<T extends BucketEvent> = (
   request: BucketIncoming<T> | T,

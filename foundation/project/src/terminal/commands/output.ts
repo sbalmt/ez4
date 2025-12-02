@@ -10,7 +10,7 @@ import { getDeployOptions } from '../../deploy/options';
 import { loadState } from '../../utils/state';
 
 export const outputCommand = async (input: InputOptions, project: ProjectOptions) => {
-  const options = getDeployOptions(project);
+  const options = getDeployOptions(input, project);
 
   if (options.debug) {
     Logger.setLevel(LogLevel.Debug);

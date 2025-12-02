@@ -8,9 +8,9 @@ interface TestMessage extends Topic.Message, Queue.Message {
 
 export declare class TestTopic extends Topic.Service<TestMessage> {
   subscriptions: [
-    {
+    Topic.UseSubscription<{
       handler: typeof testHandler;
-    }
+    }>
   ];
 
   variables: {

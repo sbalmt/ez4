@@ -5,7 +5,7 @@ export declare class TestDatabase extends Database.Service {
   engine: TestEngine;
 
   tables: [
-    {
+    Database.UseTable<{
       name: 'testTable';
       schema: {
         id: string;
@@ -15,6 +15,6 @@ export declare class TestDatabase extends Database.Service {
         'id@alias': 'foo:id';
       };
       indexes: {};
-    }
+    }>
   ];
 }

@@ -53,4 +53,9 @@ export interface IntegerTestSchema {
    * Default zero value.
    */
   value_zero: Integer.Default<0>;
+
+  /**
+   * Compound integer schemas.
+   */
+  compound: Integer.Range<1, 5> & Integer.Default<25> & 1.5;
 }

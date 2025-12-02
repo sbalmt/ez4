@@ -8,8 +8,8 @@ export declare class TestQueue extends Queue.Service<{}> {
 
 export declare class TestTopic extends Topic.Service<{}> {
   subscriptions: [
-    {
+    Topic.UseSubscription<{
       service: Environment.Service<TestQueue>;
-    }
+    }>
   ];
 }

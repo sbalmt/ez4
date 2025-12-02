@@ -1,4 +1,4 @@
-import type { StreamChange, Database, Client } from '@ez4/database';
+import type { StreamAnyChange, Database, Client } from '@ez4/database';
 import type { Environment, Service } from '@ez4/common';
 import type { TestEngine } from '../common/engines';
 
@@ -6,7 +6,7 @@ export declare class TestDatabase extends Database.Service {
   engine: TestEngine;
 
   tables: [
-    {
+    Database.UseTable<{
       name: 'inlineTestTable';
       schema: TestSchema;
       indexes: {};
@@ -16,13 +16,13 @@ export declare class TestDatabase extends Database.Service {
         timeout: 10;
         memory: 256;
       };
-    },
-    {
+    }>,
+    Database.UseTable<{
       name: 'testTable';
       schema: TestSchema;
       stream: TestStream;
       indexes: {};
-    }
+    }>
   ];
 
   // Services to all streams.
@@ -48,7 +48,7 @@ declare class TestStream implements Database.Stream<TestSchema> {
 /**
  * Test table stream.
  */
-async function streamHandler(_change: StreamChange<TestSchema>, context: Service.Context<TestDatabase>) {
+async function streamHandler(_change: StreamAnyChange<TestSchema>, context: Service.Context<TestDatabase>) {
   context.selfClient.rawQuery;
   context.selfClient.testTable.findMany;
 }
