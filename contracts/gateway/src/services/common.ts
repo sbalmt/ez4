@@ -140,6 +140,11 @@ export type HttpIncoming<T extends HttpRequest | HttpAuthRequest> = T & {
    * Request path.
    */
   readonly path: string;
+
+  /**
+   * Raw body data (when provided in the request).
+   */
+  readonly data?: string;
 };
 
 /**
