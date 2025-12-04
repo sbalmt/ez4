@@ -1,6 +1,6 @@
 # EZ4: Queue
 
-It uses the power of [reflection](../../foundation/reflection/) to provide a contract determines how to build and connect queue components.
+It uses the power of [reflection](../../foundation/reflection/) to provide a contract that determines how to build and connect queue components.
 
 ## Getting started
 
@@ -86,7 +86,7 @@ export async function anyHandler(_request: any, context: Service.Context<DummySe
 | Name         | Description                                           |
 | ------------ | ----------------------------------------------------- |
 | listener     | Life-cycle listener function for the subscription.    |
-| handler      | Entry point handler function for the subscription.    |
+| handler      | Entry-point handler function for the subscription.    |
 | concurrency  | Maximum number of concurrent executions handlers.     |
 | batch        | Maximum number of messages per handler invocation.    |
 | variables    | Environment variables associated to the subscription. |
@@ -101,8 +101,8 @@ export async function anyHandler(_request: any, context: Service.Context<DummySe
 
 ## Providers
 
-- [Local Provider](../../providers/local/local-queue)
-- [AWS Provider](../../providers/aws/aws-queue)
+- [Local provider](../../providers/local/local-queue)
+- [AWS provider](../../providers/aws/aws-queue)
 
 ## License
 

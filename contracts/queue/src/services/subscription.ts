@@ -11,7 +11,7 @@ export interface QueueSubscription<T extends QueueMessage> {
   readonly listener?: QueueSubscriptionListener<T>;
 
   /**
-   * Entry point handler function for the subscription.
+   * Entry-point handler function for the subscription.
    */
   readonly handler: QueueSubscriptionHandler<T>;
 

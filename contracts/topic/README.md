@@ -81,7 +81,7 @@ export async function anyHandler(_request: any, context: Service.Context<DummySe
 | Name         | Description                                           |
 | ------------ | ----------------------------------------------------- |
 | listener     | Life-cycle listener function for the subscription.    |
-| handler      | Entry point handler function for the subscription.    |
+| handler      | Entry-point handler function for the subscription.    |
 | variables    | Environment variables associated to the subscription. |
 | logRetention | Log retention (in days) for the handler.              |
 | memory       | Memory available (in megabytes) for the handler.      |
@@ -100,8 +100,8 @@ export async function anyHandler(_request: any, context: Service.Context<DummySe
 
 ## Providers
 
-- [Local Provider](../../providers/local/local-topic)
-- [AWS Provider](../../providers/aws/aws-topic)
+- [Local provider](../../providers/local/local-topic)
+- [AWS provider](../../providers/aws/aws-topic)
 
 ## License
 
