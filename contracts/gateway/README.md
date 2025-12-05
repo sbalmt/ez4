@@ -83,14 +83,16 @@ export function routeHandler(
 
 ## Gateway properties
 
-| Name     | Type               | Description                           |
-| -------- | ------------------ | ------------------------------------- |
-| routes   | Http.UseRoute<>    | All routes associated to the gateway. |
-| defaults | Http.UseDefaults<> | Default gateway parameters.           |
-| cors     | Http.UseCors<>     | CORS configuration for all routes.    |
-| cache    | Http.UseCache<>    | Cache configuration for authorizers.  |
-| access   | Http.UseAccess<>   | Access configuration for logs.        |
-| name     | string             | Display name for the service.         |
+| Name      | Type               | Description                                     |
+| --------- | ------------------ | ----------------------------------------------- |
+| routes    | Http.UseRoute<>    | All routes associated to the gateway.           |
+| defaults  | Http.UseDefaults<> | Default gateway parameters.                     |
+| cors      | Http.UseCors<>     | CORS configuration for all routes.              |
+| cache     | Http.UseCache<>    | Cache configuration for authorizers.            |
+| access    | Http.UseAccess<>   | Access configuration for logs.                  |
+| name      | string             | Display name for the service.                   |
+| variables | object             | Environment variables associated to all routes. |
+| services  | object             | Injected services associated to all routes.     |
 
 > Use type helpers for `routes`, `defaults`, `cors`, `cache` and `access` properties.
 
@@ -104,7 +106,7 @@ export function routeHandler(
 | handler      | function | Entry-point handler function for the route.              |
 | authorizer   | function | Authorizer function for the route.                       |
 | httpErrors   | object   | Map status codes and errors for all known exceptions.    |
-| variables    | object   | Environment variables associated to the subscription.    |
+| variables    | object   | Environment variables associated to the routes.          |
 | logRetention | integer  | Log retention (in days) for the handler.                 |
 | memory       | integer  | Memory available (in megabytes) for the handler.         |
 | timeout      | integer  | Max execution time (in seconds) for the route.           |
