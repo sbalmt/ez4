@@ -7,12 +7,12 @@ import type { TableSchema } from './schemas';
  */
 export interface TableStream<T extends TableSchema> {
   /**
-   * Stream listener.
+   * Life-cycle listener function for the stream.
    */
   readonly listener?: TableStreamListener<T>;
 
   /**
-   * Stream handler.
+   * Entry-point handler function for the stream.
    */
   readonly handler: TableStreamHandler<T>;
 
@@ -32,7 +32,7 @@ export interface TableStream<T extends TableSchema> {
   readonly timeout?: number;
 
   /**
-   * Amount of memory available for the handler.
+   * Amount of memory available (in megabytes) for the handler.
    */
   readonly memory?: number;
 }

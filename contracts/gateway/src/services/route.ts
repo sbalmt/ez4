@@ -52,7 +52,7 @@ export interface HttpRoute<T extends HttpRequest, U extends HttpAuthRequest> {
   readonly timeout?: number;
 
   /**
-   * Amount of memory available for the handler.
+   * Amount of memory available (in megabytes) for the handler.
    */
   readonly memory?: number;
 

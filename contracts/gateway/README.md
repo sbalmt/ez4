@@ -83,6 +83,8 @@ export function routeHandler(
 
 ## Gateway properties
 
+#### Service
+
 | Name      | Type               | Description                                     |
 | --------- | ------------------ | ----------------------------------------------- |
 | routes    | Http.UseRoute<>    | All routes associated to the gateway.           |
@@ -106,7 +108,7 @@ export function routeHandler(
 | handler      | function | Entry-point handler function for the route.              |
 | authorizer   | function | Authorizer function for the route.                       |
 | httpErrors   | object   | Map status codes and errors for all known exceptions.    |
-| variables    | object   | Environment variables associated to the routes.          |
+| variables    | object   | Environment variables associated to the route.           |
 | logRetention | integer  | Log retention (in days) for the handler.                 |
 | memory       | integer  | Memory available (in megabytes) for the handler.         |
 | timeout      | integer  | Max execution time (in seconds) for the route.           |

@@ -79,6 +79,8 @@ export async function anyHandler(_request: any, context: Service.Context<DummySe
 
 ## Queue properties
 
+#### Service
+
 | Name          | Type                    | Description                                                        |
 | ------------- | ----------------------- | ------------------------------------------------------------------ |
 | fifoMode      | Queue.UseFifoMode<>     | Enable and configure the FIFO mode options.                        |

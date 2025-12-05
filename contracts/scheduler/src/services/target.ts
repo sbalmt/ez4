@@ -31,7 +31,7 @@ export interface CronTarget<T extends CronEvent | null> {
   readonly timeout?: number;
 
   /**
-   * Amount of memory available for the handler.
+   * Amount of memory available (in megabytes) for the handler.
    */
   readonly memory?: number;
 }

@@ -10,7 +10,7 @@ It uses the power of [reflection](../../foundation/reflection/) to provide a con
 npm install @ez4/database @ez4/local-database @ez4/aws-aurora -D
 ```
 
-> You can use `@ez4/aws-dynamodb` instead of aws-aurora for NoSQL database.
+> You can use `@ez4/aws-dynamodb` instead of `@ez4/aws-aurora` for NoSQL database.
 
 #### Create database
 
@@ -76,6 +76,8 @@ export async function anyHandler(_request: any, context: Service.Context<DummySe
 
 ## Database properties
 
+#### Service
+
 | Name        | Type                      | Description                                      |
 | ----------- | ------------------------- | ------------------------------------------------ |
 | scalability | Database.UseScalability<> | Scalability configuration.                       |
@@ -85,6 +87,29 @@ export async function anyHandler(_request: any, context: Service.Context<DummySe
 | services    | object                    | Injected services associated to all streams.     |
 
 > Use type helpers for `scalability` and `tables` properties.
+
+#### Tables
+
+| Name      | Type                      | Description                 |
+| --------- | ------------------------- | --------------------------- |
+| stream    | Database.UseTableStream<> | Table stream configuration. |
+| name      | string                    | Table name.                 |
+| schema    | object                    | Table schema.               |
+| relations | object                    | Table relations.            |
+| indexes   | object                    | Table indexes.              |
+
+#### Streams (DynamoDB)
+
+| Name         | Type     | Description                                      |
+| ------------ | -------- | ------------------------------------------------ |
+| listener     | function | Life-cycle listener function for the stream.     |
+| handler      | function | Entry-point handler function for the stream.     |
+| variables    | object   | Environment variables associated to the stream.  |
+| logRetention | integer  | Log retention (in days) for the handler.         |
+| memory       | integer  | Memory available (in megabytes) for the handler. |
+| timeout      | integer  | Max execution time (in seconds) for the route.   |
+
+> Streams is a DynamoDB feature, thus unavailable for Aurora Postgres.
 
 ## Examples
 

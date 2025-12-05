@@ -42,6 +42,8 @@ export declare class MySite extends Cdn.Service {
 
 ## Distribution properties
 
+#### Service
+
 | Name          | Type                   | Description                                             |
 | ------------- | ---------------------- | ------------------------------------------------------- |
 | origins       | Cdn.UseOrigin<>        | Distribution origins.                                   |

@@ -73,6 +73,8 @@ export async function anyHandler(_request: any, context: Service.Context<DummySe
 
 ## Storage properties
 
+#### Service
+
 | Name           | Type               | Description                                                  |
 | -------------- | ------------------ | ------------------------------------------------------------ |
 | events         | Bucket.UseEvents<> | Entry-point handler for bucket events.                       |

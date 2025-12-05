@@ -81,6 +81,8 @@ export async function anyHandler(_request: any, context: Service.Context<DummySe
 
 ## Scheduler properties
 
+#### Service
+
 | Name       | Type             | Description                                                               |
 | ---------- | ---------------- | ------------------------------------------------------------------------- |
 | target     | Cron.UseTarget<> | Entry-point handler for scheduler events.                                 |

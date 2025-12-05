@@ -77,6 +77,8 @@ export async function anyHandler(_request: any, context: Service.Context<DummySe
 
 ## Topic properties
 
+#### Service
+
 | Name          | Type                    | Description                                           |
 | ------------- | ----------------------- | ----------------------------------------------------- |
 | fifoMode      | Topic.UseFifoMode<>     | Enable and configure the FIFO mode options.           |
@@ -86,7 +88,7 @@ export async function anyHandler(_request: any, context: Service.Context<DummySe
 
 > Use type helpers for `fifoMode` and `subscriptions` properties.
 
-#### Function subscriptions
+#### Subscriptions (Function)
 
 | Name         | Type     | Description                                           |
 | ------------ | -------- | ----------------------------------------------------- |
@@ -97,7 +99,7 @@ export async function anyHandler(_request: any, context: Service.Context<DummySe
 | timeout      | integer  | Maximum execution time (in seconds) for the handler.  |
 | memory       | integer  | Memory available (in megabytes) for the handler.      |
 
-#### Queue subscriptions
+#### Subscriptions (Queue)
 
 | Name    | Type                  | Description                     |
 | ------- | --------------------- | ------------------------------- |

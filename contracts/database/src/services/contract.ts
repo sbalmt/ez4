@@ -52,6 +52,11 @@ export namespace Database {
   export type UseScalability<T extends DatabaseScalability> = T;
 
   /**
+   * Database Table stream definition.
+   */
+  export type UseTableStream<T extends Stream<any>> = T;
+
+  /**
    * Database service.
    */
   export declare abstract class Service implements CommonService.Provider {
