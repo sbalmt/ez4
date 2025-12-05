@@ -14,7 +14,7 @@ npm install @ez4/storage @ez4/local-storage @ez4/aws-bucket -D
 
 ```ts
 // file: storage.ts
-import type { Service } from '@ez4/common';
+import type { Environment, Service } from '@ez4/common';
 import type { Bucket } from '@ez4/storage';
 
 // MyStorage declaration
@@ -27,16 +27,16 @@ export declare class MyStorage extends Bucket.Service {
 
   variables: {
     myVariable: Environment.Variable<'MY_VARIABLE'>;
-    variables: Environment.ServiceVariables;
   };
 
   services: {
     otherService: Environment.Service<OtherService>;
+    variables: Environment.ServiceVariables;
   };
 }
 
 // MyStorage event handler
-export function eventHandler(request: Bucket.Event, context: Service.Context<FileStorage>): void {
+export function eventHandler(request: Bucket.Event, context: Service.Context<MyStorage>): void {
   const { otherService, variables } = context;
 
   // Access event contents
@@ -73,15 +73,15 @@ export async function anyHandler(_request: any, context: Service.Context<DummySe
 
 ## Storage properties
 
-| Name           | Type               | Description                                                          |
-| -------------- | ------------------ | -------------------------------------------------------------------- |
-| globalName     | string             | Overwrite the global bucket name.                                    |
-| localPath      | string             | Specify a local path to synchronize with the storage.                |
-| autoExpireDays | integer            | Maximum amount of days an object is stored before its auto-deletion. |
-| events         | Bucket.UseEvents<> | Entry-point handler function for bucket events.                      |
-| cors           | Bucket.UseCors<>   | CORS configuration for the bucket.                                   |
-| variables      | object             | Environment variables associated to all subscription.                |
-| services       | object             | Injected services associated to handler function.                    |
+| Name           | Type               | Description                                                  |
+| -------------- | ------------------ | ------------------------------------------------------------ |
+| events         | Bucket.UseEvents<> | Entry-point handler for bucket events.                       |
+| cors           | Bucket.UseCors<>   | CORS configuration for the bucket.                           |
+| globalName     | string             | Overwrite the global bucket name.                            |
+| localPath      | string             | Specify a local path to synchronize with the storage.        |
+| autoExpireDays | integer            | Amount of days an object is stored before its auto-deletion. |
+| variables      | object             | Environment variables associated to the event handler.       |
+| services       | object             | Injected services associated to handler function.            |
 
 > Use type helpers for `events`, `cors` properties.
 
@@ -94,8 +94,8 @@ export async function anyHandler(_request: any, context: Service.Context<DummySe
 | path         | string   | Path associated to the event.                        |
 | variables    | object   | Environment variables associated to handler.         |
 | logRetention | integer  | Log retention (in days) for the handler.             |
-| memory       | integer  | Memory available (in megabytes) for the handler.     |
 | timeout      | integer  | Maximum execution time (in seconds) for the handler. |
+| memory       | integer  | Memory available (in megabytes) for the handler.     |
 
 ## Examples
 

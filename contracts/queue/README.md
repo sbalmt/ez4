@@ -14,7 +14,7 @@ npm install @ez4/queue @ez4/local-queue @ez4/aws-queue -D
 
 ```ts
 // file: queue.ts
-import type { Service } from '@ez4/common';
+import type { Environment, Service } from '@ez4/common';
 import type { Queue } from '@ez4/queue';
 
 // MyQueue message
@@ -99,11 +99,11 @@ export async function anyHandler(_request: any, context: Service.Context<DummySe
 | ------------ | -------- | ----------------------------------------------------- |
 | listener     | function | Life-cycle listener function for the subscription.    |
 | handler      | function | Entry-point handler function for the subscription.    |
-| concurrency  | integer  | Maximum number of concurrent executions handlers.     |
-| batch        | integer  | Maximum number of messages per handler invocation.    |
 | variables    | object   | Environment variables associated to the subscription. |
 | logRetention | integer  | Log retention (in days) for the handler.              |
 | memory       | integer  | Memory available (in megabytes) for the handler.      |
+| concurrency  | integer  | Maximum number of concurrent executions handlers.     |
+| batch        | integer  | Maximum number of messages per handler invocation.    |
 
 ## Examples
 

@@ -14,7 +14,7 @@ npm install @ez4/topic @ez4/local-topic @ez4/aws-topic -D
 
 ```ts
 // file: topic.ts
-import type { Service } from '@ez4/common';
+import type { Environment, Service } from '@ez4/common';
 import type { Topic } from '@ez4/topic';
 
 // MyTopic message
@@ -33,11 +33,11 @@ export declare class MyTopic extends Topic.Service<MyTopicMessage> {
 
   variables: {
     myVariable: Environment.Variable<'MY_VARIABLE'>;
-    variables: Environment.ServiceVariables;
   };
 
   services: {
     otherService: Environment.Service<OtherService>;
+    variables: Environment.ServiceVariables;
   };
 }
 
@@ -94,8 +94,8 @@ export async function anyHandler(_request: any, context: Service.Context<DummySe
 | handler      | function | Entry-point handler function for the subscription.    |
 | variables    | object   | Environment variables associated to the subscription. |
 | logRetention | integer  | Log retention (in days) for the handler.              |
-| memory       | integer  | Memory available (in megabytes) for the handler.      |
 | timeout      | integer  | Maximum execution time (in seconds) for the handler.  |
+| memory       | integer  | Memory available (in megabytes) for the handler.      |
 
 #### Queue subscriptions
 
