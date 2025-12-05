@@ -111,7 +111,7 @@ export namespace Http {
    */
   export declare abstract class Service implements CommonService.Provider {
     /**
-     * All expected routes.
+     * All routes associated to the gateway.
      */
     abstract readonly routes: Route<any, any>[];
 
@@ -121,22 +121,22 @@ export namespace Http {
     readonly name?: string;
 
     /**
-     * Default parameters.
+     * Default gateway parameters.
      */
     readonly defaults?: Defaults<any>;
 
     /**
-     * CORS configuration.
+     * CORS configuration for all routes.
      */
     readonly cors?: Cors;
 
     /**
-     * Cache configuration.
+     * Cache configuration for authorizers.
      */
     readonly cache?: Cache;
 
     /**
-     * Access configuration.
+     * Access configuration for logs.
      */
     readonly access?: Access;
 

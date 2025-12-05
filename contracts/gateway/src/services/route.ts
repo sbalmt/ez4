@@ -7,27 +7,27 @@ import type { HttpAuthorizer, HttpAuthRequest, HttpErrors, HttpHandler, HttpList
  */
 export interface HttpRoute<T extends HttpRequest, U extends HttpAuthRequest> {
   /**
-   * Route name.
+   * Route operation name.
    */
   readonly name?: string;
 
   /**
-   * Route path.
+   * Route path including the HTTP verb.
    */
   readonly path: HttpPath;
 
   /**
-   * Route listener.
+   * Life-cycle listener function for the route.
    */
   readonly listener?: HttpListener<T | U>;
 
   /**
-   * Route authorizer.
+   * Authorizer function for the route.
    */
   readonly authorizer?: HttpAuthorizer<U>;
 
   /**
-   * Route handler.
+   * Entry-point handler function for the route.
    */
   readonly handler: HttpHandler<T>;
 
