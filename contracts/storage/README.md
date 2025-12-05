@@ -25,6 +25,11 @@ export declare class MyStorage extends Bucket.Service {
     handler: typeof eventHandler;
   }>;
 
+  variables: {
+    myVariable: Environment.Variable<'MY_VARIABLE'>;
+    variables: Environment.ServiceVariables;
+  };
+
   services: {
     otherService: Environment.Service<OtherService>;
   };
@@ -32,15 +37,20 @@ export declare class MyStorage extends Bucket.Service {
 
 // MyStorage event handler
 export function eventHandler(request: Bucket.Event, context: Service.Context<FileStorage>): void {
-  const { otherService } = context;
+  const { otherService, variables } = context;
 
   // Access event contents
-  // request.eventType
+  request.eventType;
 
   // Access injected services
-  // otherService.call()
+  otherService.call();
+
+  // Access injected variables
+  variables.myVariable;
 }
 ```
+
+> Listening to bucket events is optional, so `events`, `services`, and `variables` can be omitted.
 
 #### Use storage
 
@@ -53,33 +63,39 @@ import type { MyStorage } from './storage';
 export async function anyHandler(_request: any, context: Service.Context<DummyService>) {
   const { myStorage } = context;
 
+  // Write a file
   await myStorage.write('dummy.txt', 'Hello storage');
+
+  // Read a file
+  const content = myStorage.read('dummy.txt');
 }
 ```
 
 ## Storage properties
 
-| Name           | Description                                                          |
-| -------------- | -------------------------------------------------------------------- |
-| globalName     | Overwrite the global bucket name.                                    |
-| localPath      | Specify a local path to synchronize with the storage.                |
-| autoExpireDays | Maximum amount of days an object is stored before its auto-deletion. |
-| events         | Entry-point handler function for bucket events.                      |
-| cors           | CORS configuration for the bucket.                                   |
-| variables      | Environment variables associated to all subscription.                |
-| services       | Injected services associated to handler function.                    |
+| Name           | Type               | Description                                                          |
+| -------------- | ------------------ | -------------------------------------------------------------------- |
+| globalName     | string             | Overwrite the global bucket name.                                    |
+| localPath      | string             | Specify a local path to synchronize with the storage.                |
+| autoExpireDays | integer            | Maximum amount of days an object is stored before its auto-deletion. |
+| events         | Bucket.UseEvents<> | Entry-point handler function for bucket events.                      |
+| cors           | Bucket.UseCors<>   | CORS configuration for the bucket.                                   |
+| variables      | object             | Environment variables associated to all subscription.                |
+| services       | object             | Injected services associated to handler function.                    |
+
+> Use type helpers for `events`, `cors` properties.
 
 #### Events
 
-| Name         | Description                                          |
-| ------------ | ---------------------------------------------------- |
-| listener     | Life-cycle listener function for the event.          |
-| handler      | Entry-point handler function for the event.          |
-| path         | Path associated to the event.                        |
-| variables    | Environment variables associated to handler.         |
-| logRetention | Log retention (in days) for the handler.             |
-| memory       | Memory available (in megabytes) for the handler.     |
-| timeout      | Maximum execution time (in seconds) for the handler. |
+| Name         | Type     | Description                                          |
+| ------------ | -------- | ---------------------------------------------------- |
+| listener     | function | Life-cycle listener function for the event.          |
+| handler      | function | Entry-point handler function for the event.          |
+| path         | string   | Path associated to the event.                        |
+| variables    | object   | Environment variables associated to handler.         |
+| logRetention | integer  | Log retention (in days) for the handler.             |
+| memory       | integer  | Memory available (in megabytes) for the handler.     |
+| timeout      | integer  | Maximum execution time (in seconds) for the handler. |
 
 ## Examples
 

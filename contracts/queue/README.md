@@ -25,27 +25,37 @@ type MyQueueMessage = {
 
 // MyQueue declaration
 export declare class MyQueue extends Queue.Service<MyQueueMessage> {
+  retention: 600;
+
   subscriptions: [
     Queue.UseSubscription<{
       handler: typeof eventHandler;
     }>
   ];
 
+  variables: {
+    myVariable: Environment.Variable<'MY_VARIABLE'>;
+  };
+
   services: {
     otherService: Environment.Service<OtherService>;
+    variables: Environment.ServiceVariables;
   };
 }
 
 // MyQueue message handler
 export function eventHandler(request: Queue.Incoming<MyQueueMessage>, context: Service.Context<MyQueue>): void {
-  const { otherService } = context;
+  const { otherService, variables } = context;
   const { message } = request;
 
   // Access message contents
-  // message.foo
+  message.foo;
 
   // Access injected services
-  // otherService.call()
+  otherService.call();
+
+  // Access injected variables
+  variables.myVariable;
 }
 ```
 
@@ -69,30 +79,31 @@ export async function anyHandler(_request: any, context: Service.Context<DummySe
 
 ## Queue properties
 
-| Name          | Description                                                        |
-| ------------- | ------------------------------------------------------------------ |
-| fifoMode      | Enable and configure the FIFO mode options.                        |
-| deadLetter    | Enable and configure the dead-letter queue options.                |
-| subscriptions | All subscriptions associated to the queue.                         |
-| delay         | Maximum delay (in seconds) to make messages available.             |
-| polling       | Maximum wait time (in seconds) for receiving messages.             |
-| retention     | Maximum retention time (in minutes) for all messages in the queue. |
-| timeout       | Maximum acknowledge time (in seconds) for the handler.             |
-| variables     | Environment variables associated to all subscription.              |
-| services      | Injected services associated to all subscription.                  |
+| Name          | Type                    | Description                                                        |
+| ------------- | ----------------------- | ------------------------------------------------------------------ |
+| fifoMode      | Queue.UseFifoMode<>     | Enable and configure the FIFO mode options.                        |
+| deadLetter    | Queue.UseDeadLetter<>   | Enable and configure the dead-letter queue options.                |
+| subscriptions | Queue.UseSubscription<> | All subscriptions associated to the queue.                         |
+| delay         | integer                 | Maximum delay (in seconds) to make messages available.             |
+| polling       | integer                 | Maximum wait time (in seconds) for receiving messages.             |
+| retention     | integer                 | Maximum retention time (in minutes) for all messages in the queue. |
+| timeout       | integer                 | Maximum acknowledge time (in seconds) for the handler.             |
+| variables     | object                  | Environment variables associated to all subscription.              |
+| services      | object                  | Injected services associated to all subscription.                  |
+
+> Use type helpers for `fifoMode`, `deadLetter` and `subscriptions` properties.
 
 #### Subscriptions
 
-| Name         | Description                                           |
-| ------------ | ----------------------------------------------------- |
-| listener     | Life-cycle listener function for the subscription.    |
-| handler      | Entry-point handler function for the subscription.    |
-| concurrency  | Maximum number of concurrent executions handlers.     |
-| batch        | Maximum number of messages per handler invocation.    |
-| variables    | Environment variables associated to the subscription. |
-| logRetention | Log retention (in days) for the handler.              |
-| memory       | Memory available (in megabytes) for the handler.      |
-| timeout      | Maximum execution time (in seconds) for the handler.  |
+| Name         | Type     | Description                                           |
+| ------------ | -------- | ----------------------------------------------------- |
+| listener     | function | Life-cycle listener function for the subscription.    |
+| handler      | function | Entry-point handler function for the subscription.    |
+| concurrency  | integer  | Maximum number of concurrent executions handlers.     |
+| batch        | integer  | Maximum number of messages per handler invocation.    |
+| variables    | object   | Environment variables associated to the subscription. |
+| logRetention | integer  | Log retention (in days) for the handler.              |
+| memory       | integer  | Memory available (in megabytes) for the handler.      |
 
 ## Examples
 

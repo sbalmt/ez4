@@ -31,6 +31,11 @@ export declare class MyTopic extends Topic.Service<MyTopicMessage> {
     }>
   ];
 
+  variables: {
+    myVariable: Environment.Variable<'MY_VARIABLE'>;
+    variables: Environment.ServiceVariables;
+  };
+
   services: {
     otherService: Environment.Service<OtherService>;
   };
@@ -38,14 +43,17 @@ export declare class MyTopic extends Topic.Service<MyTopicMessage> {
 
 // MyTopic message handler
 export function eventHandler(request: Topic.Incoming<MyTopicMessage>, context: Service.Context<MyTopic>): void {
-  const { otherService } = context;
+  const { otherService, variables } = context;
   const { message } = request;
 
   // Access message contents
-  // message.foo
+  message.foo;
 
   // Access injected services
-  // otherService.call()
+  otherService.call();
+
+  // Access injected variables
+  variables.myVariable;
 }
 ```
 
@@ -69,29 +77,31 @@ export async function anyHandler(_request: any, context: Service.Context<DummySe
 
 ## Topic properties
 
-| Name          | Description                                           |
-| ------------- | ----------------------------------------------------- |
-| fifoMode      | Enable and configure the FIFO mode options.           |
-| subscriptions | All subscriptions associated to the topic.            |
-| variables     | Environment variables associated to all subscription. |
-| services      | Injected services associated to all subscription.     |
+| Name          | Type                    | Description                                           |
+| ------------- | ----------------------- | ----------------------------------------------------- |
+| fifoMode      | Topic.UseFifoMode<>     | Enable and configure the FIFO mode options.           |
+| subscriptions | Topic.UseSubscription<> | All subscriptions associated to the topic.            |
+| variables     | object                  | Environment variables associated to all subscription. |
+| services      | object                  | Injected services associated to all subscription.     |
+
+> Use type helpers for `fifoMode` and `subscriptions` properties.
 
 #### Function subscriptions
 
-| Name         | Description                                           |
-| ------------ | ----------------------------------------------------- |
-| listener     | Life-cycle listener function for the subscription.    |
-| handler      | Entry-point handler function for the subscription.    |
-| variables    | Environment variables associated to the subscription. |
-| logRetention | Log retention (in days) for the handler.              |
-| memory       | Memory available (in megabytes) for the handler.      |
-| timeout      | Maximum execution time (in seconds) for the handler.  |
+| Name         | Type     | Description                                           |
+| ------------ | -------- | ----------------------------------------------------- |
+| listener     | function | Life-cycle listener function for the subscription.    |
+| handler      | function | Entry-point handler function for the subscription.    |
+| variables    | object   | Environment variables associated to the subscription. |
+| logRetention | integer  | Log retention (in days) for the handler.              |
+| memory       | integer  | Memory available (in megabytes) for the handler.      |
+| timeout      | integer  | Maximum execution time (in seconds) for the handler.  |
 
 #### Queue subscriptions
 
-| Name    | Description                     |
-| ------- | ------------------------------- |
-| service | Reference to the queue service. |
+| Name    | Type                  | Description                     |
+| ------- | --------------------- | ------------------------------- |
+| service | Environment.Service<> | Reference to the queue service. |
 
 ## Examples
 
