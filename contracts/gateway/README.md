@@ -119,6 +119,7 @@ export function routeHandler(
 
 - [Get started with API gateway](../../examples/hello-aws-gateway)
 - [API Gateway authorizer](../../examples/aws-gateway-authorizer)
+- [API Gateway websocket](../../examples/aws-gateway-websocket)
 - [Importing gateway](../../examples/aws-import-gateway)
 - [Aurora RDS CRUDL](../../examples/aws-aurora-crudl)
 - [DynamoDB CRUDL](../../examples/aws-dynamodb-crudl)
