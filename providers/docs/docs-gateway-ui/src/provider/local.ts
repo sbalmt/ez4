@@ -1,5 +1,3 @@
-const { DOCS_UI_ENABLED = 'false' } = process.env;
-
 import {
   type EmulatorServiceRequest,
   type EmulatorHandlerResponse,
@@ -7,11 +5,10 @@ import {
   type ServeOptions,
   getServiceName
 } from '@ez4/project/library';
-import { isHttpService } from '@ez4/gateway/library';
+import { HttpService, isHttpService } from '@ez4/gateway/library';
 import { scalarTemplate } from './templates';
-import { readFileSync } from 'node:fs';
-import { resolve } from 'node:path';
-import YAML from 'yaml';
+import { OpenApiGenerator } from '@ez4/docs-gateway/library';
+import { parse as parseYaml } from 'yaml';
 
 type Oas = Record<string, unknown> & {
   servers?: Record<string, unknown>[];
@@ -22,10 +19,6 @@ export const handleFallbackRequest = (event: {
   service: ServiceMetadata;
   options: ServeOptions;
 }): EmulatorHandlerResponse | null => {
-  if (DOCS_UI_ENABLED === 'false') {
-    return null;
-  }
-
   const { service } = event;
 
   if (!isHttpService(service)) {
@@ -41,7 +34,7 @@ export const handleFallbackRequest = (event: {
     return null;
   }
 
-  const html = generateHtml(service.name, options);
+  const html = generateHtml(service, options);
 
   if (!html) {
     return null;
@@ -56,26 +49,26 @@ export const handleFallbackRequest = (event: {
   };
 };
 
-const generateHtml = (serviceName: string, options: ServeOptions): string | null => {
-  const spec = getOasContent();
+const generateHtml = (service: HttpService, options: ServeOptions): string | null => {
+  const spec = getOasContent(service);
 
   if (!spec) {
     return null;
   }
 
   const template = scalarTemplate;
-  const prefix = getServiceName(serviceName, options);
+  const prefix = getServiceName(service.name, options);
 
   spec.servers = [{ url: `http://${options.serviceHost}/${prefix}` }];
 
-  const title = `${serviceName} API`;
+  const title = `${service.name} API`;
 
   return template.replace('__TITLE__', title).replace('__SPEC__', JSON.stringify(spec));
 };
 
-const getOasContent = (): Oas | null => {
+const getOasContent = (service: HttpService): Oas | null => {
   try {
-    return YAML.parse(readFileSync(resolve(process.cwd(), 'docs/api-oas.yml'), 'utf-8'));
+    return parseYaml(OpenApiGenerator.getGatewayOutput(service)) as Oas;
   } catch (e) {
     return null;
   }
