@@ -15,11 +15,11 @@
         "path": "ANY /test-route",
         "listener": {
           "name": "testListener",
-          "file": "test/input/output-import.ts"
+          "file": "test/http/input/output-import.ts"
         },
         "handler": {
           "name": "testHandler",
-          "file": "test/input/output-import.ts",
+          "file": "test/http/input/output-import.ts",
           "response": {
             "status": 204
           }
@@ -48,11 +48,11 @@
         "path": "ANY /test-route",
         "listener": {
           "name": "testListener",
-          "file": "test/input/output-import.ts"
+          "file": "test/http/input/output-import.ts"
         },
         "handler": {
           "name": "testHandler",
-          "file": "test/input/output-import.ts",
+          "file": "test/http/input/output-import.ts",
           "response": {
             "status": 204
           }

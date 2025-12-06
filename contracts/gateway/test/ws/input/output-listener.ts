@@ -6,6 +6,8 @@ type TestEvent = {
 };
 
 export declare class TestService extends Ws.Service<TestEvent> {
+  routeKey: 'foo';
+
   connect: Ws.UseConnect<{
     handler: typeof connectHandler;
     listener: typeof testListener;

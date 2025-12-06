@@ -1,20 +1,9 @@
 import { ok, equal, deepEqual } from 'assert/strict';
 import { describe, it } from 'node:test';
 
-import { registerTriggers, getHttpServices } from '@ez4/gateway/library';
-import { IncompleteCacheError, IncorrectCacheTypeError, InvalidCacheTypeError } from '@ez4/gateway/library';
-import { buildReflection } from '@ez4/project/library';
+import { registerTriggers, IncompleteCacheError, IncorrectCacheTypeError, InvalidCacheTypeError } from '@ez4/gateway/library';
 
-const parseFile = (fileName: string, errorCount: number) => {
-  const sourceFile = `./test/input/${fileName}.ts`;
-
-  const reflection = buildReflection([sourceFile]);
-  const result = getHttpServices(reflection);
-
-  equal(result.errors.length, errorCount);
-
-  return result.errors;
-};
+import { parseFile } from './utils/parser';
 
 describe('http cache metadata errors', () => {
   registerTriggers();

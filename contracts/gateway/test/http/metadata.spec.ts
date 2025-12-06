@@ -6,8 +6,8 @@ import { registerTriggers } from '@ez4/gateway/library';
 import { buildMetadata } from '@ez4/project/library';
 
 const testFile = (fileName: string, overwrite = false) => {
-  const sourceFile = `./test/input/output-${fileName}.ts`;
-  const outputFile = `./test/output/${fileName}.json`;
+  const sourceFile = `./test/http/input/output-${fileName}.ts`;
+  const outputFile = `./test/http/output/${fileName}.json`;
 
   const { metadata } = buildMetadata([sourceFile]);
 

@@ -37,7 +37,7 @@ export const getWsServices = (reflection: SourceMap) => {
     }
 
     const service = getPartialWsService();
-    const properties = new Set(['schema', 'connect', 'disconnect', 'data']);
+    const properties = new Set(['routeKey', 'schema', 'connect', 'disconnect', 'data']);
 
     const fileName = declaration.file;
 
@@ -63,6 +63,12 @@ export const getWsServices = (reflection: SourceMap) => {
         case 'name':
           if (!member.inherited) {
             service.displayName = getPropertyString(member);
+          }
+          break;
+
+        case 'routeKey':
+          if ((service[member.name] = getPropertyString(member))) {
+            properties.delete(member.name);
           }
           break;
 

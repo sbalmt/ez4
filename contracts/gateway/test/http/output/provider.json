@@ -13,7 +13,7 @@
         "path": "ANY /test-route-a",
         "handler": {
           "name": "testRouteA",
-          "file": "test/input/output-provider.ts",
+          "file": "test/http/input/output-provider.ts",
           "request": {},
           "response": {
             "status": 204
@@ -29,7 +29,7 @@
         "path": "ANY /test-route-b",
         "handler": {
           "name": "testRouteB",
-          "file": "test/input/output-provider.ts",
+          "file": "test/http/input/output-provider.ts",
           "request": {},
           "response": {
             "status": 204

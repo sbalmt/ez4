@@ -13,7 +13,7 @@
         "path": "GET /test-route-a",
         "handler": {
           "name": "testRouteA",
-          "file": "test/input/output-query.ts",
+          "file": "test/http/input/output-query.ts",
           "request": {
             "query": {
               "type": "object",
@@ -38,7 +38,7 @@
         "path": "GET /test-route-b",
         "handler": {
           "name": "testRouteB",
-          "file": "test/input/output-query.ts",
+          "file": "test/http/input/output-query.ts",
           "request": {
             "query": {
               "type": "object",

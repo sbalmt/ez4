@@ -10,6 +10,11 @@ export type WsIncoming<T extends HttpJsonBody | null> = {
   readonly requestId: string;
 
   /**
+   * Request connection Id.
+   */
+  readonly connectionId: string;
+
+  /**
    * Request timestamp.
    */
   readonly timestamp: Date;

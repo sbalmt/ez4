@@ -13,7 +13,7 @@
         "path": "POST /test-route-1",
         "handler": {
           "name": "testRoute",
-          "file": "test/input/output-cors.ts",
+          "file": "test/http/input/output-cors.ts",
           "response": {
             "status": 204
           }
@@ -24,7 +24,7 @@
         "cors": true,
         "handler": {
           "name": "testRoute",
-          "file": "test/input/output-cors.ts",
+          "file": "test/http/input/output-cors.ts",
           "response": {
             "status": 204
           }

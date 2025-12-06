@@ -12,6 +12,8 @@ export type WsService = ServiceMetadata & {
   type: typeof ServiceType;
   displayName?: string;
   description?: string;
+  defaults?: WsDefaults;
+  routeKey: string;
   schema: WsEventSchema;
   connect: WsConnect;
   disconnect: WsTrigger;
@@ -44,12 +46,19 @@ export type WsHandler = {
   description?: string;
 };
 
+export type WsDefaults = {
+  listener?: ServiceListener;
+  logRetention?: number;
+  timeout?: number;
+  memory?: number;
+};
+
 export const isWsService = (service: ServiceMetadata): service is WsService => {
   return service.type === ServiceType;
 };
 
 export const isCompleteWsService = (type: Incomplete<WsService>): type is WsService => {
-  return !!type.name && !!type.schema && !!type.connect && !!type.disconnect && !!type.data && !!type.context;
+  return !!type.name && !!type.routeKey && !!type.schema && !!type.connect && !!type.disconnect && !!type.data && !!type.context;
 };
 
 export const getPartialWsService = (): Incomplete<WsService> => {

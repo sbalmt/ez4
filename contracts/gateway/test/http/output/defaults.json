@@ -12,7 +12,7 @@
     "defaults": {
       "listener": {
         "name": "testListener",
-        "file": "test/input/output-defaults.ts"
+        "file": "test/http/input/output-defaults.ts"
       },
       "httpErrors": {
         "CustomError": 400

@@ -13,7 +13,7 @@
         "path": "ANY /test-route-a",
         "handler": {
           "name": "testRouteA",
-          "file": "test/input/output-response.ts",
+          "file": "test/http/input/output-response.ts",
           "response": {
             "status": 204,
             "body": {
@@ -33,7 +33,7 @@
         "path": "ANY /test-route-b",
         "handler": {
           "name": "testRouteB",
-          "file": "test/input/output-response.ts",
+          "file": "test/http/input/output-response.ts",
           "response": {
             "status": 204,
             "body": {
@@ -55,7 +55,7 @@
         "path": "ANY /test-route-c",
         "handler": {
           "name": "testRouteC",
-          "file": "test/input/output-response.ts",
+          "file": "test/http/input/output-response.ts",
           "response": {
             "status": 204,
             "body": {
@@ -71,7 +71,7 @@
         },
         "handler": {
           "name": "testRouteD",
-          "file": "test/input/output-response.ts",
+          "file": "test/http/input/output-response.ts",
           "response": {
             "status": 204,
             "body": {
@@ -94,7 +94,7 @@
         "path": "ANY /test-route-e",
         "handler": {
           "name": "testRouteE",
-          "file": "test/input/output-response.ts",
+          "file": "test/http/input/output-response.ts",
           "response": {
             "status": [
               200,
@@ -107,7 +107,7 @@
         "path": "ANY /test-route-f",
         "handler": {
           "name": "testRouteF",
-          "file": "test/input/output-response.ts",
+          "file": "test/http/input/output-response.ts",
           "response": {
             "status": 204
           }

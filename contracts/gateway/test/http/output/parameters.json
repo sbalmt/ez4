@@ -13,7 +13,7 @@
         "path": "GET /test-route-a",
         "handler": {
           "name": "testRouteA",
-          "file": "test/input/output-parameters.ts",
+          "file": "test/http/input/output-parameters.ts",
           "request": {
             "parameters": {
               "type": "object",
@@ -38,7 +38,7 @@
         "path": "GET /test-route-b",
         "handler": {
           "name": "testRouteB",
-          "file": "test/input/output-parameters.ts",
+          "file": "test/http/input/output-parameters.ts",
           "request": {
             "parameters": {
               "type": "object",

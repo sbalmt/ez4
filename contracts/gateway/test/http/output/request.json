@@ -13,7 +13,7 @@
         "path": "ANY /test-route-a",
         "handler": {
           "name": "testRouteA",
-          "file": "test/input/output-request.ts",
+          "file": "test/http/input/output-request.ts",
           "request": {},
           "response": {
             "status": 204

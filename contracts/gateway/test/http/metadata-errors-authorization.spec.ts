@@ -1,20 +1,14 @@
 import { ok, equal, deepEqual } from 'assert/strict';
 import { describe, it } from 'node:test';
 
-import { registerTriggers, getHttpImports } from '@ez4/gateway/library';
-import { IncompleteAuthorizationError, IncorrectAuthorizationTypeError, InvalidAuthorizationTypeError } from '@ez4/gateway/library';
-import { buildReflection } from '@ez4/project/library';
+import {
+  registerTriggers,
+  IncompleteAuthorizationError,
+  IncorrectAuthorizationTypeError,
+  InvalidAuthorizationTypeError
+} from '@ez4/gateway/library';
 
-const parseFile = (fileName: string, errorCount: number) => {
-  const sourceFile = `./test/input/${fileName}.ts`;
-
-  const reflection = buildReflection([sourceFile]);
-  const result = getHttpImports(reflection);
-
-  equal(result.errors.length, errorCount);
-
-  return result.errors;
-};
+import { parseFile } from './utils/parser';
 
 describe('http authorization metadata errors', () => {
   registerTriggers();

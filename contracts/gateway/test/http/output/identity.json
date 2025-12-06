@@ -13,7 +13,7 @@
         "path": "GET /test-route-a",
         "handler": {
           "name": "testRouteA",
-          "file": "test/input/output-identity.ts",
+          "file": "test/http/input/output-identity.ts",
           "request": {
             "identity": {
               "type": "object",
@@ -35,7 +35,7 @@
         "path": "GET /test-route-b",
         "handler": {
           "name": "testRouteB",
-          "file": "test/input/output-identity.ts",
+          "file": "test/http/input/output-identity.ts",
           "request": {
             "identity": {
               "type": "object",

@@ -13,7 +13,7 @@
         "path": "POST /test-route-1",
         "handler": {
           "name": "testRoute",
-          "file": "test/input/output-cache.ts",
+          "file": "test/http/input/output-cache.ts",
           "response": {
             "status": 204
           }
@@ -23,7 +23,7 @@
         "path": "PATCH /test-route-2",
         "authorizer": {
           "name": "testAuthorizer",
-          "file": "test/input/output-cache.ts",
+          "file": "test/http/input/output-cache.ts",
           "response": {
             "identity": {
               "identity": 1,
@@ -35,7 +35,7 @@
         },
         "handler": {
           "name": "testRoute",
-          "file": "test/input/output-cache.ts",
+          "file": "test/http/input/output-cache.ts",
           "response": {
             "status": 204
           }

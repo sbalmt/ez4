@@ -13,7 +13,7 @@
         "path": "GET /test-route-a",
         "handler": {
           "name": "testRouteA",
-          "file": "test/input/output-body.ts",
+          "file": "test/http/input/output-body.ts",
           "request": {
             "body": {
               "type": "string",
@@ -29,7 +29,7 @@
         "path": "GET /test-route-b",
         "handler": {
           "name": "testRouteB",
-          "file": "test/input/output-body.ts",
+          "file": "test/http/input/output-body.ts",
           "request": {
             "body": {
               "type": "object",
@@ -54,7 +54,7 @@
         "path": "GET /test-route-c",
         "handler": {
           "name": "testRouteC",
-          "file": "test/input/output-body.ts",
+          "file": "test/http/input/output-body.ts",
           "request": {
             "body": {
               "type": "union",
@@ -85,7 +85,7 @@
         },
         "handler": {
           "name": "testRouteD",
-          "file": "test/input/output-body.ts",
+          "file": "test/http/input/output-body.ts",
           "request": {
             "body": {
               "type": "object",

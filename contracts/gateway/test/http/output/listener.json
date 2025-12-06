@@ -14,11 +14,11 @@
         "path": "ANY /test-route",
         "listener": {
           "name": "testListener",
-          "file": "test/input/output-listener.ts"
+          "file": "test/http/input/output-listener.ts"
         },
         "handler": {
           "name": "testHandler",
-          "file": "test/input/output-listener.ts",
+          "file": "test/http/input/output-listener.ts",
           "response": {
             "status": 204
           }

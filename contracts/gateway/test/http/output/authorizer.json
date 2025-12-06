@@ -17,7 +17,7 @@
         },
         "authorizer": {
           "name": "testQueryAuthorizer",
-          "file": "test/input/output-authorizer.ts",
+          "file": "test/http/input/output-authorizer.ts",
           "request": {
             "query": {
               "type": "object",
@@ -45,7 +45,7 @@
         },
         "handler": {
           "name": "testHandler",
-          "file": "test/input/output-authorizer.ts",
+          "file": "test/http/input/output-authorizer.ts",
           "request": {
             "identity": {
               "type": "object",
@@ -67,7 +67,7 @@
         "path": "ANY /test-route-b",
         "authorizer": {
           "name": "testHeaderAuthorizer",
-          "file": "test/input/output-authorizer.ts",
+          "file": "test/http/input/output-authorizer.ts",
           "request": {
             "headers": {
               "type": "object",
@@ -95,7 +95,7 @@
         },
         "handler": {
           "name": "testHandler",
-          "file": "test/input/output-authorizer.ts",
+          "file": "test/http/input/output-authorizer.ts",
           "request": {
             "identity": {
               "type": "object",

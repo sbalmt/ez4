@@ -15,7 +15,7 @@
         "disabled": true,
         "handler": {
           "name": "testRoute1",
-          "file": "test/input/output-route.ts",
+          "file": "test/http/input/output-route.ts",
           "response": {
             "status": 204
           }
@@ -25,7 +25,7 @@
         "path": "GET /test-route-2",
         "handler": {
           "name": "testRoute2",
-          "file": "test/input/output-route.ts",
+          "file": "test/http/input/output-route.ts",
           "response": {
             "status": 204
           }

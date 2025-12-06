@@ -6,8 +6,9 @@
   },
   "TestService": {
     "type": "@ez4/ws",
-    "context": {},
     "name": "TestService",
+    "routeKey": "foo",
+    "context": {},
     "schema": {
       "type": "object",
       "properties": {
