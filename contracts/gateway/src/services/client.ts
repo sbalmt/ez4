@@ -1,5 +1,5 @@
 import type { AnyObject, IsObjectEmpty, OptionalProperties, Prettify } from '@ez4/utils';
-import type { Http } from './contract';
+import type { Http } from './http';
 
 /**
  * HTTP client.

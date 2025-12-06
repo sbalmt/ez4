@@ -46,6 +46,18 @@
         "handler": {
           "name": "testHandler",
           "file": "test/input/output-authorizer.ts",
+          "request": {
+            "identity": {
+              "type": "object",
+              "description": "Expected identity.",
+              "identity": 1,
+              "properties": {
+                "id": {
+                  "type": "string"
+                }
+              }
+            }
+          },
           "response": {
             "status": 204
           }
@@ -84,6 +96,18 @@
         "handler": {
           "name": "testHandler",
           "file": "test/input/output-authorizer.ts",
+          "request": {
+            "identity": {
+              "type": "object",
+              "description": "Expected identity.",
+              "identity": 1,
+              "properties": {
+                "id": {
+                  "type": "string"
+                }
+              }
+            }
+          },
           "response": {
             "status": 204
           }

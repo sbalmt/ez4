@@ -1,0 +1,85 @@
+{
+  "@variables": {
+    "type": "@ez4/common",
+    "name": "@variables",
+    "context": {}
+  },
+  "TestService": {
+    "type": "@ez4/ws",
+    "context": {},
+    "name": "TestService",
+    "schema": {
+      "type": "object",
+      "properties": {
+        "foo": {
+          "type": "string"
+        },
+        "bar": {
+          "type": "number"
+        }
+      },
+      "identity": 1
+    },
+    "connect": {
+      "handler": {
+        "name": "connectHandler",
+        "file": "test/ws/input/output-authorizer.ts",
+        "request": {
+          "identity": {
+            "type": "object",
+            "properties": {
+              "id": {
+                "type": "string"
+              }
+            },
+            "identity": 1,
+            "description": "Expected identity."
+          }
+        },
+        "response": {
+          "status": 204
+        }
+      },
+      "authorizer": {
+        "name": "authorizerHandler",
+        "file": "test/ws/input/output-authorizer.ts",
+        "request": {
+          "query": {
+            "type": "object",
+            "properties": {
+              "apiKey": {
+                "type": "string"
+              }
+            },
+            "identity": 1,
+            "description": "Expected HTTP query strings."
+          }
+        },
+        "response": {
+          "identity": {
+            "type": "object",
+            "properties": {
+              "id": {
+                "type": "string"
+              }
+            },
+            "identity": 1,
+            "description": "Authorization identity."
+          }
+        }
+      }
+    },
+    "disconnect": {
+      "handler": {
+        "name": "disconnectHandler",
+        "file": "test/ws/input/output-authorizer.ts"
+      }
+    },
+    "data": {
+      "handler": {
+        "name": "dataHandler",
+        "file": "test/ws/input/output-authorizer.ts"
+      }
+    }
+  }
+}

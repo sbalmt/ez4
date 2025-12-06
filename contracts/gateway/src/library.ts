@@ -3,6 +3,9 @@ export * from './triggers/register';
 export * from './client/authorization';
 export * from './client/operations';
 
+export * from './metadata/ws/service';
+export * from './metadata/ws/types';
+
 export * from './metadata/service';
 export * from './metadata/import';
 

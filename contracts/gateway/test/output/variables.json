@@ -11,6 +11,9 @@
     "routes": [
       {
         "path": "ANY /test-route",
+        "variables": {
+          "TEST_VAR3": "test-literal-route-value"
+        },
         "handler": {
           "name": "testRoute",
           "file": "test/input/output-variables.ts",

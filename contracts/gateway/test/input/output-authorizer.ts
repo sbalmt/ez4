@@ -64,7 +64,18 @@ function testHeaderAuthorizer(request: TestHeaderAuthRequest): TestAuthResponse 
   };
 }
 
-function testHandler(): Http.SuccessEmptyResponse {
+declare class TestRequest implements Http.Request {
+  identity: {
+    id: string;
+  };
+}
+
+function testHandler(request: TestRequest): Http.SuccessEmptyResponse {
+  const { identity } = request;
+
+  // Endure identity Id.
+  identity.id;
+
   return {
     status: 204
   };

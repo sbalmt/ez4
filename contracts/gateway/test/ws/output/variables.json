@@ -1,0 +1,65 @@
+{
+  "@variables": {
+    "type": "@ez4/common",
+    "name": "@variables",
+    "context": {}
+  },
+  "TestService": {
+    "type": "@ez4/ws",
+    "context": {},
+    "name": "TestService",
+    "schema": {
+      "type": "object",
+      "properties": {
+        "foo": {
+          "type": "string"
+        },
+        "bar": {
+          "type": "number"
+        }
+      },
+      "identity": 1
+    },
+    "connect": {
+      "handler": {
+        "name": "connectHandler",
+        "file": "test/ws/input/output-variables.ts",
+        "request": {},
+        "provider": {
+          "variables": {
+            "TEST_VAR1": "test-literal-value",
+            "TEST_VAR2": "test-env-var-value"
+          },
+          "services": {
+            "selfSettings": "@variables"
+          }
+        },
+        "response": {
+          "status": 204
+        }
+      }
+    },
+    "disconnect": {
+      "handler": {
+        "name": "disconnectHandler",
+        "file": "test/ws/input/output-variables.ts"
+      }
+    },
+    "data": {
+      "handler": {
+        "name": "dataHandler",
+        "file": "test/ws/input/output-variables.ts"
+      },
+      "variables": {
+        "TEST_VAR3": "test-literal-data-value"
+      }
+    },
+    "variables": {
+      "TEST_VAR1": "test-literal-value",
+      "TEST_VAR2": "test-env-var-value"
+    },
+    "services": {
+      "selfSettings": "@variables"
+    }
+  }
+}

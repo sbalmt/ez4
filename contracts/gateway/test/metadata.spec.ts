@@ -1,4 +1,4 @@
-import { readFileSync, writeFileSync } from 'node:fs';
+import { existsSync, readFileSync, writeFileSync } from 'node:fs';
 import { deepEqual } from 'node:assert/strict';
 import { describe, it } from 'node:test';
 
@@ -11,7 +11,7 @@ const testFile = (fileName: string, overwrite = false) => {
 
   const { metadata } = buildMetadata([sourceFile]);
 
-  if (overwrite) {
+  if (!existsSync(outputFile) || overwrite) {
     writeFileSync(outputFile, JSON.stringify(metadata, undefined, 2));
   } else {
     deepEqual(metadata, JSON.parse(readFileSync(outputFile).toString()));

@@ -1,6 +1,6 @@
 import type { Service } from '@ez4/common';
 import type { HttpProvider } from './provider';
-import type { Http } from './contract';
+import type { Http } from './http';
 
 /**
  * Request headers.

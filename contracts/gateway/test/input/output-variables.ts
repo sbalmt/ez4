@@ -6,6 +6,9 @@ export declare class TestService extends Http.Service {
     Http.UseRoute<{
       path: 'ANY /test-route';
       handler: typeof testRoute;
+      variables: {
+        TEST_VAR3: 'test-literal-route-value';
+      };
     }>
   ];
 
@@ -27,6 +30,9 @@ function testRoute(_request: Http.Incoming<TestRequest>, context: Service.Contex
   // Ensure variables are property referenced.
   selfSettings.TEST_VAR1;
   selfSettings.TEST_VAR2;
+
+  // Variables in route scope
+  process.env.TEST_VAR3;
 
   return {
     status: 204

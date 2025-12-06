@@ -1,4 +1,4 @@
-import type { Http } from './contract';
+import type { Http } from './http';
 
 export type HttpSuccessStatuses = 200 | 201 | 202 | 203 | 204 | 205 | 206 | 207 | 208;
 

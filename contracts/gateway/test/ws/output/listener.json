@@ -1,0 +1,58 @@
+{
+  "@variables": {
+    "type": "@ez4/common",
+    "name": "@variables",
+    "context": {}
+  },
+  "TestService": {
+    "type": "@ez4/ws",
+    "context": {},
+    "name": "TestService",
+    "schema": {
+      "type": "object",
+      "properties": {
+        "foo": {
+          "type": "string"
+        },
+        "bar": {
+          "type": "number"
+        }
+      },
+      "identity": 1
+    },
+    "connect": {
+      "handler": {
+        "name": "connectHandler",
+        "file": "test/ws/input/output-listener.ts",
+        "request": {},
+        "response": {
+          "status": 204
+        }
+      },
+      "listener": {
+        "name": "testListener",
+        "file": "test/ws/input/output-listener.ts"
+      }
+    },
+    "disconnect": {
+      "handler": {
+        "name": "disconnectHandler",
+        "file": "test/ws/input/output-listener.ts"
+      },
+      "listener": {
+        "name": "testListener",
+        "file": "test/ws/input/output-listener.ts"
+      }
+    },
+    "data": {
+      "handler": {
+        "name": "dataHandler",
+        "file": "test/ws/input/output-listener.ts"
+      },
+      "listener": {
+        "name": "testListener",
+        "file": "test/ws/input/output-listener.ts"
+      }
+    }
+  }
+}

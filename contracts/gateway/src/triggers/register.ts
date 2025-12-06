@@ -4,16 +4,15 @@ import { tryCreateTrigger } from '@ez4/project/library';
 
 import { ImportType } from '../types/import';
 import { ServiceType } from '../types/service';
-import { getHttpServices } from '../metadata/service';
 import { getHttpImports } from '../metadata/import';
-import { getLinkedImport, getLinkedService } from './service';
+import { getLinkedImport, getLinkedService, getServices } from './service';
 
 export const registerTriggers = () => {
   registerCommonTriggers();
   registerSchemaTriggers();
 
   tryCreateTrigger(ServiceType, {
-    'metadata:getServices': getHttpServices,
+    'metadata:getServices': getServices,
     'metadata:getLinkedService': getLinkedService
   });
 
