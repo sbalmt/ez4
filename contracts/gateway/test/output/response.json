@@ -102,6 +102,16 @@
             ]
           }
         }
+      },
+      {
+        "path": "ANY /test-route-f",
+        "handler": {
+          "name": "testRouteF",
+          "file": "test/input/output-response.ts",
+          "response": {
+            "status": 204
+          }
+        }
       }
     ]
   }

@@ -1,6 +1,6 @@
 import type { Service as CommonService } from '@ez4/common';
 import type { LinkedVariables } from '@ez4/project/library';
-import type { HttpSuccessStatuses, HttpSuccessEmptyResponse, HttpSuccessResponse } from './utils';
+import type { HttpSuccessStatuses, HttpSuccessEmptyResponse, HttpSuccessResponse, HttpEmptyRequest } from './utils';
 import type { HttpAuthorization } from './authorization';
 import type { HttpPreferences } from './preferences';
 import type { HttpDefaults } from './defaults';
@@ -70,6 +70,7 @@ export namespace Http {
 
   export type SuccessEmptyResponse<S extends HttpSuccessStatuses = 204> = HttpSuccessEmptyResponse<S>;
   export type SuccessResponse<S extends HttpSuccessStatuses, T extends HttpRawBody | HttpJsonBody> = HttpSuccessResponse<S, T>;
+  export type EmptyRequest = HttpEmptyRequest;
 
   /**
    * HTTP Route definition.

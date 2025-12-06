@@ -30,6 +30,7 @@ describe('http metadata', () => {
   it('assert :: route authorizers', () => testFile('authorizer'));
   it('assert :: route listener', () => testFile('listener'));
   it('assert :: route provider', () => testFile('provider'));
+  it('assert :: route request', () => testFile('request'));
   it('assert :: route response', () => testFile('response'));
   it('assert :: route headers', () => testFile('headers'));
   it('assert :: route identity', () => testFile('identity'));
