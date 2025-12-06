@@ -37,6 +37,7 @@
     "providers/local/local-topic",
     "providers/docs/docs-database",
     "providers/docs/docs-gateway",
+    "providers/docs/docs-gateway-ui",
     "providers/docs/docs-topology",
     "providers/aws/aws-common",
     "providers/aws/aws-identity",
