@@ -1,4 +1,4 @@
-# EZ4: Local Queue Provider
+# EZ4: Local Queue
 
 A local queue emulator.
 

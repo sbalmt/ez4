@@ -1,7 +1,7 @@
 import type { ArraySchema, NamingStyle, ObjectSchema, ScalarSchema, UnionSchema } from '@ez4/schema';
 import type { LinkedServices, LinkedVariables } from '@ez4/project/library';
 import type { ServiceListener } from '@ez4/common/library';
-import type { AuthorizationType } from '../services/authorization';
+import type { AuthorizationType } from '../services/http/authorization';
 
 export type HttpVerb = 'ANY' | 'GET' | 'POST' | 'PUT' | 'PATCH' | 'DELETE' | 'OPTIONS';
 

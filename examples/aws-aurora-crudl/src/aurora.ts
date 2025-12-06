@@ -10,7 +10,7 @@ export declare class Db extends Database.Service {
   /**
    * Database client.
    */
-  client: Client<typeof this>;
+  client: Client<Db>;
 
   /**
    * Database engine.

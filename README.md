@@ -26,6 +26,7 @@ Check out some examples to get started with.
 - [Get started with Queue](./examples/hello-aws-queue)
 - [Get started with Topic](./examples/hello-aws-topic)
 - [API Gateway authorizer](./examples/aws-gateway-authorizer)
+- [API Gateway websocket](./examples/aws-gateway-websocket)
 - [Aurora RDS CRUDL](./examples/aws-aurora-crudl)
 - [DynamoDB CRUDL](./examples/aws-dynamodb-crudl)
 - [DynamoDB streams](./examples/aws-dynamodb-streams)

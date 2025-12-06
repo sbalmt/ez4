@@ -1,6 +1,6 @@
 import type { HttpImport } from '../types/import';
 
-import { AuthorizationType } from '../services/authorization';
+import { AuthorizationType } from '../services/http/authorization';
 
 export type ClientAuthorization = {
   header: string;

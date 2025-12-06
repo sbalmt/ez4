@@ -1,5 +1,5 @@
 import type { AnySchema, ObjectSchema } from '@ez4/schema';
-import type { Http } from '../services/contract';
+import type { Http } from '../services/http/contract';
 
 import { HttpBadRequestError } from '@ez4/gateway';
 import { createTransformContext, transform } from '@ez4/transform';

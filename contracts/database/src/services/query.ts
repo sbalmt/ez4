@@ -152,8 +152,19 @@ export namespace Query {
 
   export type WhereInput<T extends TableMetadata, I extends boolean = false> = Prettify<
     WhereInputFilters<T, I extends true ? T['indexes'] : {}> & {
+      /**
+       * Check whether the expression is not true.
+       */
       NOT?: WhereInput<T>;
+
+      /**
+       * Check whether all the expressions are true.
+       */
       AND?: WhereInput<T>[];
+
+      /**
+       * Check whether any of all the expressions are true.
+       */
       OR?: WhereInput<T>[];
     }
   >;
@@ -190,8 +201,19 @@ export namespace Query {
   };
 
   type WhereRelationField<V extends AnyObject, E extends DatabaseEngine> = WhereObjectField<V, E> & {
+    /**
+     * Check whether the expression is not true.
+     */
     NOT?: WhereRelationField<V, E>;
+
+    /**
+     * Check whether all the expressions are true.
+     */
     AND?: WhereRelationField<V, E>[];
+
+    /**
+     * Check whether any of all the expressions are true.
+     */
     OR?: WhereRelationField<V, E>[];
   };
 
@@ -233,50 +255,86 @@ export namespace Query {
     WhereContains<any, never>);
 
   type WhereNegate<V, E extends DatabaseEngine> = (V extends string ? InsensitiveModeUtils.Input<E> : {}) & {
+    /**
+     * Check whether the entity value is not equal to the given one.
+     */
     not: V;
   };
 
   type WhereEqual<V, E extends DatabaseEngine> = (V extends string ? InsensitiveModeUtils.Input<E> : {}) & {
+    /**
+     * Check whether the entity value is equal to the given one.
+     */
     equal: V;
   };
 
   type WhereGreaterThan<V> = {
+    /**
+     * Check whether the entity value is greater than the given one.
+     */
     gt: V;
   };
 
   type WhereGreaterThanOrEqual<V> = {
+    /**
+     * Check whether the entity value is greater than or equal the given one.
+     */
     gte: V;
   };
 
   type WhereLessThan<V> = {
+    /**
+     * Check whether the entity value is less than the given one.
+     */
     lt: V;
   };
 
   type WhereLessThanOrEqual<V> = {
+    /**
+     * Check whether the entity value is less than or equal the given one.
+     */
     lte: V;
   };
 
   type WhereIn<V> = {
+    /**
+     * Check whether the entity value is in the given ones.
+     */
     isIn: IsArray<V> extends true ? V : IsObject<V> extends true ? V : Exclude<V, undefined>[];
   };
 
   type WhereBetween<V> = {
+    /**
+     * Check whether the entity value is between the given ones.
+     */
     isBetween: [Exclude<V, undefined>, Exclude<V, undefined>];
   };
 
   type WhereIsMissing = {
+    /**
+     * Check whether the entity value is missing.
+     */
     isMissing: boolean;
   };
 
   type WhereIsNull = {
+    /**
+     * Check whether the entity value is null.
+     */
     isNull: boolean;
   };
 
   type WhereStartsWith<E extends DatabaseEngine> = InsensitiveModeUtils.Input<E> & {
+    /**
+     * Check whether the entity value starts with the given one.
+     */
     startsWith: string;
   };
 
   type WhereContains<V, E extends DatabaseEngine> = (V extends string ? InsensitiveModeUtils.Input<E> : {}) & {
+    /**
+     * Check whether the entity value contains all the given ones.
+     */
     contains: IsObject<V> extends true ? Partial<V> : V;
   };
 
@@ -303,18 +361,30 @@ export namespace Query {
   type AtomicOperation = AtomicIncrement | AtomicDecrement | AtomicMultiply | AtomicDivide;
 
   type AtomicIncrement = {
+    /**
+     * Increment the entity value by the given amount.
+     */
     increment: number;
   };
 
   type AtomicDecrement = {
+    /**
+     * Decrement the entity value by the given amount.
+     */
     decrement: number;
   };
 
   type AtomicMultiply = {
+    /**
+     * Multiply the entity value by the given amount.
+     */
     multiply: number;
   };
 
   type AtomicDivide = {
+    /**
+     * Divide the entity value by the given amount.
+     */
     divide: number;
   };
 }

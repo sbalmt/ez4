@@ -19,17 +19,17 @@ export interface TopicQueueSubscription<T extends TopicMessage> {
  */
 export interface TopicLambdaSubscription<T extends TopicMessage> {
   /**
-   * Subscription listener.
+   * Life-cycle listener function for the subscription.
    */
   readonly listener?: TopicSubscriptionListener<T>;
 
   /**
-   * Subscription handler.
+   * Entry-point handler function for the subscription.
    */
   readonly handler: TopicSubscriptionHandler<T>;
 
   /**
-   * Variables associated to the subscription.
+   * Environment variables associated to the subscription.
    */
   readonly variables?: LinkedVariables;
 
@@ -44,7 +44,7 @@ export interface TopicLambdaSubscription<T extends TopicMessage> {
   readonly timeout?: number;
 
   /**
-   * Amount of memory available for the handler.
+   * Amount of memory available (in megabytes) for the handler.
    */
   readonly memory?: number;
 }

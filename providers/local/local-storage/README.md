@@ -1,4 +1,4 @@
-# EZ4: Local Storage Provider
+# EZ4: Local Storage
 
 A local storage emulator.
 

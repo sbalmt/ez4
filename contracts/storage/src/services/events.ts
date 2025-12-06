@@ -6,12 +6,12 @@ import type { BucketEvent, BucketHandler, BucketListener } from './common';
  */
 export interface BucketEvents {
   /**
-   * Event listener.
+   * Life-cycle listener function for the event.
    */
   readonly listener?: BucketListener<BucketEvent>;
 
   /**
-   * Event handler.
+   * Entry-point handler function for the event.
    */
   readonly handler: BucketHandler<BucketEvent>;
 
@@ -36,7 +36,7 @@ export interface BucketEvents {
   readonly timeout?: number;
 
   /**
-   * Amount of memory available for the handler.
+   * Amount of memory available (in megabytes) for the handler.
    */
   readonly memory?: number;
 }

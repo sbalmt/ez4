@@ -84,7 +84,7 @@ export namespace Queue {
     readonly polling?: number;
 
     /**
-     * Maximum delay time (in seconds) for making messages available.
+     * Maximum delay (in seconds) to make messages available.
      */
     readonly delay?: number;
 

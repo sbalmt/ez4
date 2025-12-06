@@ -23,7 +23,9 @@ export const processHttpRequest = async (
   route: MatchingRoute,
   identity?: Http.Identity
 ) => {
-  const provider = route.handler.provider;
+  const handler = route.handler;
+  const provider = handler.provider;
+
   const clients = provider?.services && context.makeClients(provider.services);
 
   const module = await createModule({
@@ -49,12 +51,13 @@ export const processHttpRequest = async (
   try {
     await onBegin(module, clients, request);
 
-    if (route.handler.request) {
-      Object.assign(request, await getIncomingRequestIdentity(route.handler.request, identity));
-      Object.assign(request, await getIncomingRequestHeaders(route.handler.request, route));
-      Object.assign(request, await getIncomingRequestParameters(route.handler.request, route));
-      Object.assign(request, await getIncomingRequestQuery(route.handler.request, route));
-      Object.assign(request, await getIncomingRequestBody(route.handler.request, route));
+    if (handler.request) {
+      Object.assign(request, await getIncomingRequestIdentity(handler.request, identity));
+      Object.assign(request, await getIncomingRequestHeaders(handler.request, route));
+      Object.assign(request, await getIncomingRequestParameters(handler.request, route));
+      Object.assign(request, await getIncomingRequestQuery(handler.request, route));
+      Object.assign(request, await getIncomingRequestBody(handler.request, route));
+      Object.assign(request, { data: route.body?.toString() });
     }
 
     await onReady(module, clients, request);

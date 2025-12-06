@@ -1,4 +1,4 @@
-# EZ4: Local Topic Provider
+# EZ4: Local Topic
 
 A local topic emulator.
 

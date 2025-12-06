@@ -1,4 +1,4 @@
-# EZ4: Local Scheduler Provider
+# EZ4: Local Scheduler
 
 A local scheduler emulator.
 
