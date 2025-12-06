@@ -3,27 +3,27 @@ import type { AllType, SourceMap, TypeIntersection, TypeModel, TypeObject } from
 import { isTypeIntersection, isTypeObject, isTypeReference } from '@ez4/reflection';
 import { getReferenceType, isModelDeclaration } from '@ez4/common/library';
 
-import { IncorrectParameterTypeError, InvalidParameterTypeError } from '../errors/parameters';
+import { IncorrectHeadersTypeError, InvalidHeadersTypeError } from '../../errors/http/headers';
 import { getSchemaFromIntersection, getSchemaFromObject } from './schema';
-import { isHttpParameters } from './utils';
+import { isHttpHeaders } from './utils';
 
 type TypeParent = TypeObject | TypeModel | TypeIntersection;
 
-export const getHttpParameters = (type: AllType, parent: TypeParent, reflection: SourceMap, errorList: Error[]) => {
+export const getHttpHeaders = (type: AllType, parent: TypeParent, reflection: SourceMap, errorList: Error[]) => {
   if (!isTypeReference(type)) {
-    return getTypeParameter(type, parent, reflection, errorList);
+    return getTypeHeaders(type, parent, reflection, errorList);
   }
 
   const declaration = getReferenceType(type, reflection);
 
   if (declaration) {
-    return getTypeParameter(declaration, parent, reflection, errorList);
+    return getTypeHeaders(declaration, parent, reflection, errorList);
   }
 
   return undefined;
 };
 
-const getTypeParameter = (type: AllType, parent: TypeParent, reflection: SourceMap, errorList: Error[]) => {
+const getTypeHeaders = (type: AllType, parent: TypeParent, reflection: SourceMap, errorList: Error[]) => {
   if (isTypeObject(type)) {
     return getSchemaFromObject(type, reflection);
   }
@@ -33,12 +33,12 @@ const getTypeParameter = (type: AllType, parent: TypeParent, reflection: SourceM
   }
 
   if (!isModelDeclaration(type)) {
-    errorList.push(new InvalidParameterTypeError(parent.file));
+    errorList.push(new InvalidHeadersTypeError(parent.file));
     return undefined;
   }
 
-  if (!isHttpParameters(type)) {
-    errorList.push(new IncorrectParameterTypeError(type.name, type.file));
+  if (!isHttpHeaders(type)) {
+    errorList.push(new IncorrectHeadersTypeError(type.name, parent.file));
     return undefined;
   }
 

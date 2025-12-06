@@ -3,7 +3,7 @@ import type { AllType, SourceMap, TypeIntersection, TypeModel, TypeObject } from
 import { isTypeIntersection, isTypeObject, isTypeReference } from '@ez4/reflection';
 import { getReferenceType, isModelDeclaration } from '@ez4/common/library';
 
-import { IncorrectQueryTypeError, InvalidQueryTypeError } from '../errors/query';
+import { IncorrectQueryTypeError, InvalidQueryTypeError } from '../../errors/http/query';
 import { getSchemaFromIntersection, getSchemaFromObject } from './schema';
 import { isHttpQuery } from './utils';
 

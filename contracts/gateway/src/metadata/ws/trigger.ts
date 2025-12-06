@@ -17,7 +17,7 @@ import {
   hasHeritageType
 } from '@ez4/common/library';
 
-import { IncompleteRouteError } from '../../errors/route';
+import { IncompleteRouteError } from '../../errors/http/route';
 import { getWsHandler } from './handler';
 
 export const isWsTriggerDeclaration = (type: AllType): type is TypeClass => {

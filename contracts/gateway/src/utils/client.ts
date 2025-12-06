@@ -1,5 +1,5 @@
 import type { ArraySchema, ObjectSchema, ScalarSchema, UnionSchema, NamingStyle } from '@ez4/schema';
-import type { ClientRequest, ClientResponse } from '../services/client';
+import type { ClientRequest, ClientResponse } from '../services/http/client';
 
 import { prepareQueryStrings } from './query';
 import { prepareRequestBody, prepareResponseBody } from './body';

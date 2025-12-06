@@ -1,6 +1,6 @@
 import type { Service } from '@ez4/common';
-import type { HttpJsonBody } from '../common';
-import type { Ws } from '../ws';
+import type { HttpJsonBody } from '../http/common';
+import type { Ws } from './contract';
 import type { WsIncoming } from './incoming';
 
 /**

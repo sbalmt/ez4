@@ -14,7 +14,7 @@ import {
   isTypeUnion
 } from '@ez4/reflection';
 
-import { IncorrectBodyTypeError, InvalidBodyTypeError } from '../errors/body';
+import { IncorrectBodyTypeError, InvalidBodyTypeError } from '../../errors/http/body';
 import { getSchemaFromIntersection, getSchemaFromObject } from './schema';
 import { isJsonBody } from './utils';
 

@@ -1,7 +1,7 @@
 import type { AllType, SourceMap, TypeModel, TypeObject } from '@ez4/reflection';
 import type { MemberType } from '@ez4/common/library';
 import type { Incomplete } from '@ez4/utils';
-import type { HttpCors } from '../types/common';
+import type { HttpCors } from '../../types/common';
 
 import {
   InvalidServicePropertyError,
@@ -16,7 +16,7 @@ import {
 
 import { isModelProperty, isTypeObject, isTypeReference } from '@ez4/reflection';
 
-import { IncompleteCorsError, IncorrectCorsTypeError, InvalidCorsTypeError } from '../errors/cors';
+import { IncompleteCorsError, IncorrectCorsTypeError, InvalidCorsTypeError } from '../../errors/http/cors';
 import { isHttpCors } from './utils';
 
 export const getHttpCors = (type: AllType, parent: TypeModel, reflection: SourceMap, errorList: Error[]) => {

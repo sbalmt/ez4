@@ -1,5 +1,5 @@
 import type { LinkedVariables } from '@ez4/project/library';
-import type { HttpAuthorizer, HttpAuthRequest, HttpHandler, HttpListener, HttpRequest } from '../common';
+import type { HttpAuthorizer, HttpAuthRequest, HttpHandler, HttpListener, HttpRequest } from '../http/common';
 
 /**
  * WS connect event.

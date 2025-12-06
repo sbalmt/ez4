@@ -1,14 +1,14 @@
 import type { Service as CommonService } from '@ez4/common';
 import type { LinkedVariables } from '@ez4/project/library';
-import type { WsDisconnect } from './ws/disconnect';
-import type { WsIncoming } from './ws/incoming';
-import type { WsConnect } from './ws/connect';
-import type { WsHandler } from './ws/handler';
-import type { WsData } from './ws/data';
-import type { WsEvent } from './ws/event';
-import type { Http } from './http';
+import type { WsDisconnect } from './disconnect';
+import type { WsIncoming } from './incoming';
+import type { WsConnect } from './connect';
+import type { WsHandler } from './handler';
+import type { WsData } from './data';
+import type { WsEvent } from './event';
+import type { Http } from '../http/contract';
 
-import type { HttpListener } from './common';
+import type { HttpListener } from '../http/common';
 
 /**
  * Provide all contracts for a self-managed WS service.

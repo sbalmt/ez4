@@ -1,6 +1,6 @@
 import type { AllType, SourceMap, TypeIntersection, TypeModel, TypeObject } from '@ez4/reflection';
 import type { MemberType } from '@ez4/common/library';
-import type { HttpAuthRequest, HttpRequest } from '../types/common';
+import type { HttpAuthRequest, HttpRequest } from '../../types/common';
 
 import { isModelProperty, isTypeIntersection, isTypeObject, isTypeReference } from '@ez4/reflection';
 
@@ -13,7 +13,7 @@ import {
   getReferenceType
 } from '@ez4/common/library';
 
-import { IncorrectRequestTypeError, InvalidRequestTypeError } from '../errors/request';
+import { IncorrectRequestTypeError, InvalidRequestTypeError } from '../../errors/http/request';
 import { getHttpIdentity } from './identity';
 import { getHttpHeaders } from './headers';
 import { getHttpParameters } from './parameters';

@@ -4,7 +4,7 @@ import { tryCreateTrigger } from '@ez4/project/library';
 
 import { ImportType } from '../types/import';
 import { ServiceType } from '../types/service';
-import { getHttpImports } from '../metadata/import';
+import { getHttpImports } from '../metadata/http/import';
 import { getLinkedImport, getLinkedService, getServices } from './service';
 
 export const registerTriggers = () => {

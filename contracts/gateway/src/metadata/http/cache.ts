@@ -1,7 +1,7 @@
 import type { AllType, SourceMap, TypeModel, TypeObject } from '@ez4/reflection';
 import type { MemberType } from '@ez4/common/library';
 import type { Incomplete } from '@ez4/utils';
-import type { HttpAccess } from '../types/common';
+import type { HttpCache } from '../../types/common';
 
 import {
   InvalidServicePropertyError,
@@ -15,39 +15,39 @@ import {
 import { isModelProperty, isTypeObject, isTypeReference } from '@ez4/reflection';
 import { isAnyNumber } from '@ez4/utils';
 
-import { IncompleteAccessError, IncorrectAccessTypeError, InvalidAccessTypeError } from '../errors/access';
-import { isHttpAccess } from './utils';
+import { IncompleteCacheError, IncorrectCacheTypeError, InvalidCacheTypeError } from '../../errors/http/cache';
+import { isHttpCache } from './utils';
 
-export const getHttpAccess = (type: AllType, parent: TypeModel, reflection: SourceMap, errorList: Error[]) => {
+export const getHttpCache = (type: AllType, parent: TypeModel, reflection: SourceMap, errorList: Error[]) => {
   if (!isTypeReference(type)) {
-    return getTypeAccess(type, parent, errorList);
+    return getTypeCache(type, parent, errorList);
   }
 
   const declaration = getReferenceType(type, reflection);
 
   if (declaration) {
-    return getTypeAccess(declaration, parent, errorList);
+    return getTypeCache(declaration, parent, errorList);
   }
 
   return undefined;
 };
 
-const isValidAccess = (type: Incomplete<HttpAccess>): type is HttpAccess => {
-  return isAnyNumber(type.logRetention);
+const isValidCache = (type: Incomplete<HttpCache>): type is HttpCache => {
+  return isAnyNumber(type.authorizerTTL);
 };
 
-const getTypeAccess = (type: AllType, parent: TypeModel, errorList: Error[]) => {
+const getTypeCache = (type: AllType, parent: TypeModel, errorList: Error[]) => {
   if (isTypeObject(type)) {
     return getTypeFromMembers(type, parent, getObjectMembers(type), errorList);
   }
 
   if (!isModelDeclaration(type)) {
-    errorList.push(new InvalidAccessTypeError(parent.file));
+    errorList.push(new InvalidCacheTypeError(parent.file));
     return undefined;
   }
 
-  if (!isHttpAccess(type)) {
-    errorList.push(new IncorrectAccessTypeError(type.name, type.file));
+  if (!isHttpCache(type)) {
+    errorList.push(new IncorrectCacheTypeError(type.name, type.file));
     return undefined;
   }
 
@@ -55,8 +55,8 @@ const getTypeAccess = (type: AllType, parent: TypeModel, errorList: Error[]) => 
 };
 
 const getTypeFromMembers = (type: TypeObject | TypeModel, parent: TypeModel, members: MemberType[], errorList: Error[]) => {
-  const access: Incomplete<HttpAccess> = {};
-  const properties = new Set(['logRetention']);
+  const cache: Incomplete<HttpCache> = {};
+  const properties = new Set(['authorizerTTL']);
 
   for (const member of members) {
     if (!isModelProperty(member) || member.inherited) {
@@ -68,11 +68,11 @@ const getTypeFromMembers = (type: TypeObject | TypeModel, parent: TypeModel, mem
         errorList.push(new InvalidServicePropertyError(parent.name, member.name, type.file));
         break;
 
-      case 'logRetention': {
+      case 'authorizerTTL': {
         const value = getPropertyNumber(member);
 
         if (isAnyNumber(value)) {
-          access[member.name] = value;
+          cache[member.name] = value;
           properties.delete(member.name);
         }
 
@@ -81,11 +81,11 @@ const getTypeFromMembers = (type: TypeObject | TypeModel, parent: TypeModel, mem
     }
   }
 
-  if (isValidAccess(access)) {
-    return access;
+  if (isValidCache(cache)) {
+    return cache;
   }
 
-  errorList.push(new IncompleteAccessError([...properties], type.file));
+  errorList.push(new IncompleteCacheError([...properties], type.file));
 
   return undefined;
 };

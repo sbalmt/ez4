@@ -1,4 +1,4 @@
-import type { HttpJsonBody } from '../common';
+import type { HttpJsonBody } from '../http/common';
 
 /**
  * Incoming WS event.

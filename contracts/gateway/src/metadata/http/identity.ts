@@ -5,7 +5,7 @@ import { getReferenceType, isModelDeclaration } from '@ez4/common/library';
 import { isTypeIntersection, isTypeObject, isTypeReference, isTypeUndefined, isTypeUnion } from '@ez4/reflection';
 import { createUnionSchema } from '@ez4/schema/library';
 
-import { IncorrectIdentityTypeError, InvalidIdentityTypeError } from '../errors/identity';
+import { IncorrectIdentityTypeError, InvalidIdentityTypeError } from '../../errors/http/identity';
 import { getSchemaFromIntersection, getSchemaFromObject } from './schema';
 import { isHttpIdentity } from './utils';
 

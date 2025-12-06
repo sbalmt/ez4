@@ -3,7 +3,7 @@ import type { Incomplete } from '@ez4/utils';
 import type { WsHandler } from './types';
 
 import { isTypeCallback, isTypeFunction } from '@ez4/reflection';
-import { IncompleteHandlerError } from '../../errors/handler';
+import { IncompleteHandlerError } from '../../errors/http/handler';
 
 export const isWsHandlerDeclaration = (type: AllType): type is TypeCallback | TypeFunction => {
   return isTypeCallback(type) || isTypeFunction(type);

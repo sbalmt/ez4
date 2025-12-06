@@ -1,7 +1,7 @@
 import type { AllType, SourceMap, TypeModel, TypeObject } from '@ez4/reflection';
 import type { MemberType } from '@ez4/common/library';
 import type { Incomplete } from '@ez4/utils';
-import type { HttpAuthResponse, HttpResponse } from '../types/common';
+import type { HttpAuthResponse, HttpResponse } from '../../types/common';
 
 import {
   InvalidServicePropertyError,
@@ -17,7 +17,7 @@ import {
 import { isModelProperty, isTypeObject, isTypeReference } from '@ez4/reflection';
 import { isAnyNumber } from '@ez4/utils';
 
-import { IncorrectResponseTypeError, InvalidResponseTypeError } from '../errors/response';
+import { IncorrectResponseTypeError, InvalidResponseTypeError } from '../../errors/http/response';
 import { getHttpIdentity } from './identity';
 import { getHttpHeaders } from './headers';
 import { getHttpBody } from './body';

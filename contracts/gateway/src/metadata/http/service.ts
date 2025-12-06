@@ -1,6 +1,6 @@
 import type { SourceMap } from '@ez4/reflection';
 import type { Incomplete } from '@ez4/utils';
-import type { HttpService } from '../types/service';
+import type { HttpService } from '../../types/service';
 
 import {
   DuplicateServiceError,
@@ -14,8 +14,8 @@ import {
 
 import { isModelProperty } from '@ez4/reflection';
 
-import { ServiceType } from '../types/service';
-import { IncompleteServiceError, ServiceCollisionError } from '../errors/service';
+import { ServiceType } from '../../types/service';
+import { IncompleteServiceError, ServiceCollisionError } from '../../errors/http/service';
 import { getHttpDefaults } from './defaults';
 import { getHttpLocalRoutes } from './route';
 import { getHttpAccess } from './access';

@@ -1,7 +1,7 @@
 import type { Service } from '@ez4/common';
 import type { WsIncoming } from './incoming';
 import type { WsEvent } from './event';
-import type { Ws } from '../ws';
+import type { Ws } from './contract';
 
 /**
  * WS request listener.

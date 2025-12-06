@@ -1,5 +1,5 @@
 import type { AllType, TypeCallback, TypeClass, TypeFunction, TypeModel } from '@ez4/reflection';
-import type { HttpPath } from '../types/common';
+import type { HttpPath } from '../../types/common';
 
 import { hasHeritageType, isClassDeclaration, isModelDeclaration } from '@ez4/common/library';
 import { isTypeCallback, isTypeFunction } from '@ez4/reflection';

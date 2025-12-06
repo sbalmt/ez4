@@ -15,7 +15,7 @@ import {
 
 import { isModelProperty } from '@ez4/reflection';
 
-import { IncompleteServiceError } from '../../errors/service';
+import { IncompleteServiceError } from '../../errors/http/service';
 import { getPartialWsService, isCompleteWsService } from './types';
 import { getWsConnect } from './connect';
 import { getWsTrigger } from './trigger';

@@ -1,8 +1,8 @@
 import type { SourceMap, TypeClass } from '@ez4/reflection';
 
-import { isHttpImport, isHttpService } from '../metadata/utils';
+import { isHttpImport, isHttpService } from '../metadata/http/utils';
 import { getWsServices, isWsServiceDeclaration } from '../metadata/ws/service';
-import { getHttpServices } from '../metadata/service';
+import { getHttpServices } from '../metadata/http/service';
 
 export const getServices = (reflection: SourceMap) => {
   const httpServices = getHttpServices(reflection);

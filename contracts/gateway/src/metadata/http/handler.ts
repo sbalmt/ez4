@@ -1,8 +1,8 @@
 import type { AllType, SourceMap, TypeModel } from '@ez4/reflection';
 import type { Incomplete } from '@ez4/utils';
-import type { HttpHandler } from '../types/common';
+import type { HttpHandler } from '../../types/common';
 
-import { IncompleteHandlerError } from '../errors/handler';
+import { IncompleteHandlerError } from '../../errors/http/handler';
 import { getHttpHandlerResponse } from './response';
 import { getHttpHandlerRequest } from './request';
 import { getHttpProvider } from './provider';

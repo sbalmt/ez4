@@ -1,12 +1,12 @@
 import type { AllType, ModelProperty, SourceMap, TypeModel, TypeObject } from '@ez4/reflection';
 import type { MemberType } from '@ez4/common/library';
-import type { HttpErrors } from '../types/common';
+import type { HttpErrors } from '../../types/common';
 
 import { InvalidServicePropertyError, getObjectMembers, getPropertyTuple, getReferenceType } from '@ez4/common/library';
 import { isAnyNumber, isEmptyObject } from '@ez4/utils';
 
 import { isModelProperty, isTypeClass, isTypeObject, isTypeReference } from '@ez4/reflection';
-import { InvalidRouteErrorTypeError } from '../library';
+import { InvalidRouteErrorTypeError } from '../../library';
 
 export const getHttpErrors = (type: AllType, parent: TypeModel, reflection: SourceMap, errorList: Error[]) => {
   if (!isTypeReference(type)) {

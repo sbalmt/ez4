@@ -17,9 +17,9 @@ import {
   hasHeritageType
 } from '@ez4/common/library';
 
-import { IncompleteRouteError } from '../../errors/route';
-import { getHttpAuthorizer } from '../authorizer';
-import { getHttpHandler } from '../handler';
+import { IncompleteRouteError } from '../../errors/http/route';
+import { getHttpAuthorizer } from '../http/authorizer';
+import { getHttpHandler } from '../http/handler';
 
 export const isWsConnectDeclaration = (type: AllType): type is TypeClass => {
   return isModelDeclaration(type) && hasHeritageType(type, 'Ws.Connect');

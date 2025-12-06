@@ -1,6 +1,6 @@
 import type { SourceMap } from '@ez4/reflection';
 import type { Incomplete } from '@ez4/utils';
-import type { HttpImport } from '../types/import';
+import type { HttpImport } from '../../types/import';
 
 import {
   DuplicateServiceError,
@@ -13,8 +13,8 @@ import {
 
 import { isModelProperty, isTypeReference } from '@ez4/reflection';
 
-import { ImportType } from '../types/import';
-import { IncompleteServiceError } from '../errors/service';
+import { ImportType } from '../../types/import';
+import { IncompleteServiceError } from '../../errors/http/service';
 import { getHttpRemoteRoutes } from './route';
 import { getHttpDefaults } from './defaults';
 import { isHttpImport } from './utils';

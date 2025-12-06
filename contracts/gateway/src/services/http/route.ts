@@ -1,5 +1,5 @@
 import type { LinkedVariables } from '@ez4/project/library';
-import type { HttpPath } from '../types/common';
+import type { HttpPath } from '../../types/common';
 import type { HttpAuthorizer, HttpAuthRequest, HttpErrors, HttpHandler, HttpListener, HttpRequest } from './common';
 
 /**

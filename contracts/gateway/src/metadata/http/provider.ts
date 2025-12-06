@@ -1,12 +1,12 @@
 import type { AllType, SourceMap, TypeIntersection, TypeModel, TypeObject } from '@ez4/reflection';
 import type { MemberType } from '@ez4/common/library';
 import type { Incomplete } from '@ez4/utils';
-import type { HttpProvider } from '../types/common';
+import type { HttpProvider } from '../../types/common';
 
 import { isModelDeclaration, getModelMembers, getReferenceType, getLinkedServiceList, getLinkedVariableList } from '@ez4/common/library';
 import { isModelProperty, isTypeReference } from '@ez4/reflection';
 
-import { IncompleteProviderError, InvalidProviderTypeError } from '../errors/provider';
+import { IncompleteProviderError, InvalidProviderTypeError } from '../../errors/http/provider';
 
 export const getHttpProvider = (type: AllType, parent: TypeModel, reflection: SourceMap, errorList: Error[]) => {
   if (!isTypeReference(type)) {

@@ -1,5 +1,5 @@
 import type { ObjectSchema } from '@ez4/schema';
-import type { Http } from '../services/http';
+import type { Http } from '../services/http/contract';
 
 import { createTransformContext, transform } from '@ez4/transform';
 import { validate, getUniqueErrorMessages, createValidatorContext } from '@ez4/validator';
