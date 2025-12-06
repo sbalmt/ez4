@@ -4,7 +4,7 @@ import type { RouteData } from '../utils/route';
 
 import { getClientOperations } from '@ez4/gateway/library';
 import { HttpForbiddenError, HttpNotFoundError } from '@ez4/gateway';
-import { getServiceName } from '@ez4/project/library';
+import { getServiceName, triggerAllAsync } from '@ez4/project/library';
 
 import { processHttpRequest } from '../handlers/request';
 import { processHttpAuthorization } from '../handlers/authorizer';
@@ -12,7 +12,7 @@ import { createServiceClient } from '../client/service';
 import { getErrorResponse } from '../utils/response';
 import { getMatchingRoute } from '../utils/route';
 
-export const registerLocalServices = (service: HttpService, options: ServeOptions, context: EmulateServiceContext) => {
+export const registerLocalServices = async (service: HttpService, options: ServeOptions, context: EmulateServiceContext) => {
   const { name: serviceName } = service;
 
   const httpRoutes = buildHttpRoutes(service);
@@ -34,6 +34,19 @@ export const registerLocalServices = (service: HttpService, options: ServeOption
       const currentRoute = getMatchingRoute(methodRoutes, request);
 
       if (!currentRoute) {
+        const fallback = await triggerAllAsync('emulator:fallbackRequest', (handler) =>
+          handler({
+            request,
+            service
+          })
+        );
+
+        console.log(fallback);
+
+        if (fallback) {
+          return fallback;
+        }
+
         return getErrorResponse(new HttpNotFoundError());
       }
 
