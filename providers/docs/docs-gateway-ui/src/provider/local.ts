@@ -22,17 +22,22 @@ export const handleFallbackRequest = (event: {
   service: ServiceMetadata;
   options: ServeOptions;
 }): EmulatorHandlerResponse | null => {
-  const { request, service, options } = event;
-
   if (DOCS_UI_ENABLED === 'false') {
     return null;
   }
+
+  const { service } = event;
 
   if (!isHttpService(service)) {
     return null;
   }
 
-  if (request.path !== '/docs' || request.method !== 'GET') {
+  const {
+    request: { path, method },
+    options
+  } = event;
+
+  if (path !== '/docs' || method !== 'GET') {
     return null;
   }
 
@@ -52,17 +57,18 @@ export const handleFallbackRequest = (event: {
 };
 
 const generateHtml = (serviceName: string, options: ServeOptions): string | null => {
-  const template = scalarTemplate;
-  const title = `${serviceName} API`;
   const spec = getOasContent();
 
   if (!spec) {
     return null;
   }
 
+  const template = scalarTemplate;
   const prefix = getServiceName(serviceName, options);
 
   spec.servers = [{ url: `http://${options.serviceHost}/${prefix}` }];
+
+  const title = `${serviceName} API`;
 
   return template.replace('__TITLE__', title).replace('__SPEC__', JSON.stringify(spec));
 };

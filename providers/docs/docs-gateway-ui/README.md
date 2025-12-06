@@ -1,13 +1,13 @@
-# EZ4: Topology Documentation Generator
+# EZ4: Gateway Documentation UI
 
-A topology documentation generator.
+A gateway documentation UI.
 
 ## Getting started
 
 #### Install
 
 ```sh
-npm install @ez4/docs-topology -D
+npm install @ez4/docs-gateway-ui -D
 ```
 
 ## License
