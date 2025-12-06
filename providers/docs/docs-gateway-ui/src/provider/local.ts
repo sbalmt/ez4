@@ -1,41 +1,46 @@
-import type { EmulatorServiceRequest, EmulatorHandlerResponse, ServiceMetadata } from '@ez4/project/library';
-import type { HttpService } from '@ez4/gateway/library';
-import type { DocsConfig } from '../types/config';
+const { DOCS_UI_ENABLED = 'false' } = process.env;
 
+import {
+  type EmulatorServiceRequest,
+  type EmulatorHandlerResponse,
+  type ServiceMetadata,
+  type ServeOptions,
+  getServiceName
+} from '@ez4/project/library';
 import { isHttpService } from '@ez4/gateway/library';
-import { getDocsConfig } from './utils';
-import { scalarTemplate, swaggerTemplate } from './templates';
-import { readFile } from 'node:fs/promises';
+import { scalarTemplate } from './templates';
+import { readFileSync } from 'node:fs';
 import { resolve } from 'node:path';
+import YAML from 'yaml';
 
-export const handleFallbackRequest = async (event: {
+type Oas = Record<string, unknown> & {
+  servers?: Record<string, unknown>[];
+};
+
+export const handleFallbackRequest = (event: {
   request: EmulatorServiceRequest;
   service: ServiceMetadata;
-}): Promise<EmulatorHandlerResponse | null> => {
-  const { request, service } = event;
+  options: ServeOptions;
+}): EmulatorHandlerResponse | null => {
+  const { request, service, options } = event;
 
-  console.log(service);
+  if (DOCS_UI_ENABLED === 'false') {
+    return null;
+  }
 
   if (!isHttpService(service)) {
     return null;
   }
 
-  const config = getDocsConfig(service as HttpService);
-
-  console.log(config);
-
-  if (!config) {
+  if (request.path !== '/docs' || request.method !== 'GET') {
     return null;
   }
 
-  const docsPath = config.path || '/docs';
+  const html = generateHtml(service.name, options);
 
-  if (request.path !== docsPath || request.method !== 'GET') {
+  if (!html) {
     return null;
   }
-
-  const oasContent = await getOasContent(service as HttpService, config);
-  const html = generateHtml(service.name, oasContent, config);
 
   return {
     status: 200,
@@ -46,39 +51,26 @@ export const handleFallbackRequest = async (event: {
   };
 };
 
-const generateHtml = (serviceName: string, oasContent: string, config: DocsConfig) => {
-  const ui = config.ui || 'scalar';
-  const template = ui === 'swagger' ? swaggerTemplate : scalarTemplate;
+const generateHtml = (serviceName: string, options: ServeOptions): string | null => {
+  const template = scalarTemplate;
+  const title = `${serviceName} API`;
+  const spec = getOasContent();
 
-  const title = config.title || `${serviceName} API`;
+  if (!spec) {
+    return null;
+  }
 
-  return (
-    template
-      .replace('__TITLE__', title)
-      // Escape OAS content for embedding in JS string/JSON
-      .replace('__SPEC__', JSON.stringify(oasContent))
-  );
+  const prefix = getServiceName(serviceName, options);
+
+  spec.servers = [{ url: `http://${options.serviceHost}/${prefix}` }];
+
+  return template.replace('__TITLE__', title).replace('__SPEC__', JSON.stringify(spec));
 };
 
-const getOasContent = async (service: HttpService, config: DocsConfig) => {
-  if (config.oas) {
-    const content = await readFile(config.oas, 'utf-8').catch(() => null);
-
-    if (content) {
-      return content;
-    }
-  }
-
+const getOasContent = (): Oas | null => {
   try {
-    const content = await readFile(resolve(process.cwd(), 'docs/api-oas.yml'), 'utf-8');
-    return content;
+    return YAML.parse(readFileSync(resolve(process.cwd(), 'docs/api-oas.yml'), 'utf-8'));
   } catch (e) {
-    // ignore
+    return null;
   }
-
-  return `openapi: 3.0.0
-info:
-  title: ${service.name}
-  version: 0.0.0
-paths: {}`;
 };

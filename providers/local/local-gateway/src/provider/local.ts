@@ -37,11 +37,10 @@ export const registerLocalServices = async (service: HttpService, options: Serve
         const fallback = await triggerAllAsync('emulator:fallbackRequest', (handler) =>
           handler({
             request,
-            service
+            service,
+            options
           })
         );
-
-        console.log(fallback);
 
         if (fallback) {
           return fallback;

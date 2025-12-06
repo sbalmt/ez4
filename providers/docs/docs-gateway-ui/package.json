@@ -32,12 +32,13 @@
         "live:publish": "npm run build && npm publish --access public"
     },
     "dependencies": {
-        "@ez4/project": "^0.35.0",
+        "@ez4/aws-function": "^0.35.0",
+        "@ez4/aws-gateway": "^0.35.0",
         "@ez4/gateway": "^0.35.0",
+        "@ez4/project": "^0.35.0",
         "@ez4/schema": "^0.35.0",
         "@ez4/utils": "^0.35.0",
-        "@ez4/aws-function": "^0.35.0",
-        "@ez4/aws-gateway": "^0.35.0"
+        "yaml": "^2.8.2"
     },
     "devDependencies": {
         "@types/node": "^22.9.0"
