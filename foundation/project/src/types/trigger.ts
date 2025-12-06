@@ -12,7 +12,7 @@ import type { GenerateHelpEvent, GenerateResourceEvent } from '../generator/even
 import type { GeneratorUsageHelp } from '../generator/help';
 import type { IdentityAccount, IdentityGrant } from './identity';
 import type { ServiceMetadata, ContextSource } from './service';
-import type { DeployOptions, DestroyOptions } from './options';
+import type { DeployOptions, DestroyOptions, ServeOptions } from './options';
 import type { MetadataServiceResult } from './metadata';
 
 export type Trigger = SyncEvent | AsyncEvent;
@@ -106,6 +106,7 @@ export type ConnectResourceEvent = {
 export type EmulatorFallbackRequestEvent = {
   request: EmulatorServiceRequest;
   service: ServiceMetadata;
+  options: ServeOptions;
 };
 
 export type DeployEvent = {
