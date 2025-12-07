@@ -1,10 +1,10 @@
-import type { Http } from '@ez4/gateway';
+import type { Ws } from '@ez4/gateway';
 import type { Identity } from '../types';
 
 /**
  * Connect request example.
  */
-declare class ConnectRequest implements Http.Request {
+declare class ConnectRequest implements Ws.Request {
   identity: Identity;
 }
 
@@ -13,12 +13,9 @@ declare class ConnectRequest implements Http.Request {
  * @param request Incoming request.
  * @returns Outgoing response.
  */
-export function connectHandler(request: ConnectRequest): Http.SuccessEmptyResponse {
+export function connectHandler(request: Ws.Incoming<ConnectRequest>) {
   const { identity } = request;
 
   console.log(identity);
-
-  return {
-    status: 204
-  };
+  console.log(request);
 }

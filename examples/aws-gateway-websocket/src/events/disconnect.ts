@@ -2,7 +2,9 @@ import type { Ws } from '@ez4/gateway';
 
 /**
  * Handler for `disconnection` requests.
- * @param _request Incoming request.
+ * @param request Incoming request.
  * @returns Outgoing response.
  */
-export function disconnectHandler(_request: Ws.Incoming<null>) {}
+export function disconnectHandler(request: Ws.Incoming<Ws.EmptyRequest>) {
+  console.log(request);
+}
