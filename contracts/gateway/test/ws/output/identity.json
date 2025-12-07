@@ -10,6 +10,7 @@
     "name": "TestService",
     "schema": {
       "type": "object",
+      "identity": 1,
       "properties": {
         "foo": {
           "type": "string"
@@ -17,8 +18,7 @@
         "bar": {
           "type": "number"
         }
-      },
-      "identity": 1
+      }
     },
     "routeKey": "foo",
     "connect": {

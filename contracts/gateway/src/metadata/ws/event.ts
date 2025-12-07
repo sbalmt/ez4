@@ -13,7 +13,7 @@ import {
   getReferenceType
 } from '@ez4/common/library';
 
-import { IncorrectRequestTypeError, InvalidRequestTypeError } from '../../errors/http/request';
+import { IncorrectEventTypeError, InvalidEventTypeError } from '../../errors/ws/event';
 import { getHttpIdentity } from '../identity';
 import { getHttpBody } from '../body';
 
@@ -41,12 +41,12 @@ const getEventType = (type: AllType, parent: TypeModel, reflection: SourceMap, e
   }
 
   if (!isModelDeclaration(type)) {
-    errorList.push(new InvalidRequestTypeError('Ws.Event', parent.file));
+    errorList.push(new InvalidEventTypeError(parent.file));
     return undefined;
   }
 
   if (!hasHeritageType(type, 'Ws.Event')) {
-    errorList.push(new IncorrectRequestTypeError(type.name, 'Ws.Event', type.file));
+    errorList.push(new IncorrectEventTypeError(type.name, type.file));
     return undefined;
   }
 

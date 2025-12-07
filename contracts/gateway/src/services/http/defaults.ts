@@ -1,12 +1,12 @@
 import type { HttpAuthRequest, HttpErrors, HttpListener, HttpRequest } from './common';
-import type { HttpPreferences } from './preferences';
+import type { WebDefaults } from '../defaults';
 
 /**
  * Default HTTP service parameters.
  */
-export interface HttpDefaults<T extends HttpRequest | HttpAuthRequest> {
+export interface HttpDefaults<T extends HttpRequest | HttpAuthRequest> extends WebDefaults {
   /**
-   * Default route listener.
+   * Default listener.
    */
   readonly listener?: HttpListener<T>;
 
@@ -14,24 +14,4 @@ export interface HttpDefaults<T extends HttpRequest | HttpAuthRequest> {
    * Status codes for all known exceptions.
    */
   readonly httpErrors?: HttpErrors;
-
-  /**
-   * Default preferences for all handlers and routes.
-   */
-  readonly preferences?: HttpPreferences;
-
-  /**
-   * Default log retention (in days) for the handlers.
-   */
-  readonly logRetention?: number;
-
-  /**
-   * Default execution time (in seconds) for handlers and routes.
-   */
-  readonly timeout?: number;
-
-  /**
-   * Default amount of memory available for handlers.
-   */
-  readonly memory?: number;
 }

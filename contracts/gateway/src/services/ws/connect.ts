@@ -1,5 +1,6 @@
 import type { LinkedVariables } from '@ez4/project/library';
 import type { HttpAuthorizer, HttpAuthRequest } from '../http/common';
+import type { WebPreferences } from '../preferences';
 import type { WsListener } from './listener';
 import type { WsRequest } from './request';
 import type { WsHandler } from './handler';
@@ -22,6 +23,11 @@ export interface WsConnect<T extends WsRequest, U extends HttpAuthRequest> {
    * Entry-point handler function for the event.
    */
   readonly handler: WsHandler<T>;
+
+  /**
+   * Target preference options.
+   */
+  readonly preferences?: WebPreferences;
 
   /**
    * Default log retention (in days) for the handlers.
@@ -57,6 +63,11 @@ export interface WsDisconnect<T extends WsRequest> {
    * Entry-point handler function for the event.
    */
   readonly handler: WsHandler<T>;
+
+  /**
+   * Target preference options.
+   */
+  readonly preferences?: WebPreferences;
 
   /**
    * Default log retention (in days) for the handlers.

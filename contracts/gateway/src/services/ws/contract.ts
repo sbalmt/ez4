@@ -1,8 +1,10 @@
 import type { Service as CommonService } from '@ez4/common';
 import type { LinkedVariables } from '@ez4/project/library';
 import type { Http } from '../http/contract';
+import type { WebPreferences } from '../preferences';
 import type { WsConnect, WsDisconnect } from './connect';
 import type { WsEmptyRequest } from './utils';
+import type { WsDefaults } from './defaults';
 import type { WsIncoming } from './incoming';
 import type { WsListener } from './listener';
 import type { WsResponse } from './response';
@@ -22,6 +24,8 @@ export namespace Ws {
   export type Response = WsResponse;
   export type Event = WsEvent;
 
+  export type Preferences = WebPreferences;
+
   export type Incoming<T extends Request | Event> = WsIncoming<T>;
 
   export type Listener<T extends Request | Event> = WsListener<T>;
@@ -31,9 +35,20 @@ export namespace Ws {
   export type Disconnect<T extends Request = Request> = WsDisconnect<T>;
   export type Message<T extends Event = Event> = WsMessage<T>;
 
+  export type Defaults<T extends Request | Event = any> = WsDefaults<T>;
   export type ServiceEvent<T extends Request | Event = Event> = CommonService.AnyEvent<Incoming<T>>;
 
   export type EmptyRequest = WsEmptyRequest;
+
+  /**
+   * WS Defaults definition.
+   */
+  export type UseDefaults<T extends Defaults<any>> = T;
+
+  /**
+   * WS Preferences definition.
+   */
+  export type UsePreferences<T extends Preferences> = T;
 
   /**
    * WS Connect event definition.
@@ -73,6 +88,11 @@ export namespace Ws {
      * Schema route key.
      */
     abstract readonly routeKey: keyof T;
+
+    /**
+     * Default gateway parameters.
+     */
+    readonly defaults?: Defaults<any>;
 
     /**
      * Event schema.

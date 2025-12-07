@@ -24,10 +24,11 @@ describe('ws metadata', () => {
   process.env.TEST_ENV_VAR = 'test-env-var-value';
 
   it('assert :: basic service', () => testFile('service'));
+  it('assert :: service defaults', () => testFile('defaults'));
   it('assert :: service variables', () => testFile('variables'));
   it('assert :: connection authorizers', () => testFile('authorizer'));
-  it('assert :: connection headers', () => testFile('headers'));
   it('assert :: connection query', () => testFile('query'));
-  it('assert :: connection identity', () => testFile('identity'));
-  it('assert :: service listener', () => testFile('listener'));
+  it('assert :: target headers', () => testFile('headers'));
+  it('assert :: target identity', () => testFile('identity'));
+  it('assert :: target listener', () => testFile('listener'));
 });

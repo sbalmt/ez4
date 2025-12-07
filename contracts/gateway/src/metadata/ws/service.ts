@@ -16,10 +16,11 @@ import {
 import { isModelProperty } from '@ez4/reflection';
 
 import { IncompleteServiceError } from '../../errors/http/service';
+import { getHttpBody } from '../body';
 import { getPartialWsService, isCompleteWsService } from './types';
+import { getWsDefaults } from './defaults';
 import { getWsConnection } from './connection';
 import { getWsMessage } from './message';
-import { getHttpBody } from '../body';
 
 export const isWsServiceDeclaration = (type: AllType): type is TypeClass => {
   return isClassDeclaration(type) && hasHeritageType(type, 'Ws.Service');
@@ -66,8 +67,14 @@ export const getWsServices = (reflection: SourceMap) => {
           }
           break;
 
+        case 'defaults':
+          if (!member.inherited) {
+            service.defaults = getWsDefaults(member.value, declaration, reflection, errorList);
+          }
+          break;
+
         case 'routeKey':
-          if ((service[member.name] = getPropertyString(member))) {
+          if (!member.inherited && (service[member.name] = getPropertyString(member))) {
             properties.delete(member.name);
           }
           break;

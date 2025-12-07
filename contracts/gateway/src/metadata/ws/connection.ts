@@ -19,6 +19,7 @@ import {
 } from '@ez4/common/library';
 
 import { IncompleteRouteError } from '../../errors/http/route';
+import { getHttpPreferences } from '../preferences';
 import { getHttpAuthorizer } from '../authorizer';
 import { getWsConnectionHandler } from './handlers';
 
@@ -63,7 +64,7 @@ const getTypeFromMembers = (
   reflection: SourceMap,
   errorList: Error[]
 ) => {
-  const route: Incomplete<WsConnection> = {};
+  const target: Incomplete<WsConnection> = {};
   const properties = new Set(['handler']);
 
   for (const member of members) {
@@ -77,33 +78,37 @@ const getTypeFromMembers = (
         break;
 
       case 'handler':
-        if ((route.handler = getWsConnectionHandler(member.value, parent, reflection, errorList))) {
+        if ((target.handler = getWsConnectionHandler(member.value, parent, reflection, errorList))) {
           properties.delete(member.name);
         }
         break;
 
       case 'authorizer':
-        route.authorizer = getHttpAuthorizer(member.value, parent, reflection, errorList);
+        target.authorizer = getHttpAuthorizer(member.value, parent, reflection, errorList);
+        break;
+
+      case 'preferences':
+        target.preferences = getHttpPreferences(member.value, parent, reflection, errorList);
         break;
 
       case 'memory':
       case 'logRetention':
       case 'timeout':
-        route[member.name] = getPropertyNumber(member);
+        target[member.name] = getPropertyNumber(member);
         break;
 
       case 'listener':
-        route.listener = getServiceListener(member.value, errorList);
+        target.listener = getServiceListener(member.value, errorList);
         break;
 
       case 'variables':
-        route.variables = getLinkedVariableList(member, errorList);
+        target.variables = getLinkedVariableList(member, errorList);
         break;
     }
   }
 
-  if (isCompleteWsConnection(route)) {
-    return route;
+  if (isCompleteWsConnection(target)) {
+    return target;
   }
 
   errorList.push(new IncompleteRouteError([...properties], type.file));

@@ -1,4 +1,5 @@
 import type { LinkedVariables } from '@ez4/project/library';
+import type { WebPreferences } from '../preferences';
 import type { WsListener } from './listener';
 import type { WsHandler } from './handler';
 import type { WsEvent } from './event';
@@ -16,6 +17,11 @@ export interface WsMessage<T extends WsEvent> {
    * Entry-point handler function for the event.
    */
   readonly handler: WsHandler<T>;
+
+  /**
+   * Target preference options.
+   */
+  readonly preferences?: WebPreferences;
 
   /**
    * Default log retention (in days) for the handlers.

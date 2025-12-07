@@ -13,30 +13,30 @@ import {
 } from '@ez4/common/library';
 
 import { isModelProperty, isTypeObject, isTypeReference } from '@ez4/reflection';
-import { isAnyNumber } from '@ez4/utils';
+import { isAnyNumber, isObjectWith } from '@ez4/utils';
 
 import { IncompleteCacheError, IncorrectCacheTypeError, InvalidCacheTypeError } from '../../errors/http/cache';
 import { isHttpCache } from './utils';
 
-export const getHttpCache = (type: AllType, parent: TypeModel, reflection: SourceMap, errorList: Error[]) => {
+export const getCacheMetadata = (type: AllType, parent: TypeModel, reflection: SourceMap, errorList: Error[]) => {
   if (!isTypeReference(type)) {
-    return getTypeCache(type, parent, errorList);
+    return getCacheType(type, parent, errorList);
   }
 
   const declaration = getReferenceType(type, reflection);
 
   if (declaration) {
-    return getTypeCache(declaration, parent, errorList);
+    return getCacheType(declaration, parent, errorList);
   }
 
   return undefined;
 };
 
-const isValidCache = (type: Incomplete<HttpCache>): type is HttpCache => {
-  return isAnyNumber(type.authorizerTTL);
+const isCompleteCache = (type: Incomplete<HttpCache>): type is HttpCache => {
+  return isObjectWith(type, ['authorizerTTL']);
 };
 
-const getTypeCache = (type: AllType, parent: TypeModel, errorList: Error[]) => {
+const getCacheType = (type: AllType, parent: TypeModel, errorList: Error[]) => {
   if (isTypeObject(type)) {
     return getTypeFromMembers(type, parent, getObjectMembers(type), errorList);
   }
@@ -81,7 +81,7 @@ const getTypeFromMembers = (type: TypeObject | TypeModel, parent: TypeModel, mem
     }
   }
 
-  if (isValidCache(cache)) {
+  if (isCompleteCache(cache)) {
     return cache;
   }
 

@@ -1,9 +1,9 @@
 import type { NamingStyle } from '@ez4/schema';
 
 /**
- * HTTP preferences configuration.
+ * Preferences configuration.
  */
-export interface HttpPreferences {
+export interface WebPreferences {
   /**
    * Determines the naming style for the query strings and body payloads.
    */

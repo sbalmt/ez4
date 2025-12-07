@@ -1,6 +1,6 @@
 import type { AllType, SourceMap, TypeModel } from '@ez4/reflection';
 import type { MemberType } from '@ez4/common/library';
-import type { HttpDefaults } from '../../types/common';
+import type { WsDefaults } from './types';
 
 import {
   InvalidServicePropertyError,
@@ -9,17 +9,20 @@ import {
   getObjectMembers,
   getModelMembers,
   getServiceListener,
-  tryGetReferenceType
+  tryGetReferenceType,
+  hasHeritageType
 } from '@ez4/common/library';
 
 import { isModelProperty, isTypeObject, isTypeReference } from '@ez4/reflection';
 
 import { IncorrectDefaultsTypeError, InvalidDefaultsTypeError } from '../../library';
 import { getHttpPreferences } from '../preferences';
-import { isHttpDefaults } from './utils';
-import { getHttpErrors } from './errors';
 
-export const getHttpDefaults = (type: AllType, parent: TypeModel, reflection: SourceMap, errorList: Error[]) => {
+export const isWsDefaultsDeclaration = (type: TypeModel) => {
+  return hasHeritageType(type, 'Ws.Defaults');
+};
+
+export const getWsDefaults = (type: AllType, parent: TypeModel, reflection: SourceMap, errorList: Error[]) => {
   if (!isTypeReference(type)) {
     return getDefaultsType(type, parent, reflection, errorList);
   }
@@ -43,7 +46,7 @@ const getDefaultsType = (type: AllType, parent: TypeModel, reflection: SourceMap
     return undefined;
   }
 
-  if (!isHttpDefaults(type)) {
+  if (!isWsDefaultsDeclaration(type)) {
     errorList.push(new IncorrectDefaultsTypeError(type.name, parent.file));
     return undefined;
   }
@@ -52,7 +55,7 @@ const getDefaultsType = (type: AllType, parent: TypeModel, reflection: SourceMap
 };
 
 const getTypeFromMembers = (parent: TypeModel, members: MemberType[], reflection: SourceMap, errorList: Error[]) => {
-  const defaults: HttpDefaults = {};
+  const defaults: WsDefaults = {};
 
   for (const member of members) {
     if (!isModelProperty(member) || member.inherited) {
@@ -62,10 +65,6 @@ const getTypeFromMembers = (parent: TypeModel, members: MemberType[], reflection
     switch (member.name) {
       default:
         errorList.push(new InvalidServicePropertyError(parent.name, member.name, parent.file));
-        break;
-
-      case 'httpErrors':
-        defaults.httpErrors = getHttpErrors(member.value, parent, reflection, errorList);
         break;
 
       case 'preferences':

@@ -18,9 +18,9 @@ import { ServiceType } from '../../types/service';
 import { IncompleteServiceError, ServiceCollisionError } from '../../errors/http/service';
 import { getHttpDefaults } from './defaults';
 import { getHttpLocalRoutes } from './routes';
+import { getCacheMetadata } from './cache';
 import { getHttpAccess } from './access';
 import { isHttpService } from './utils';
-import { getHttpCache } from './cache';
 import { getHttpCors } from './cors';
 
 export const getHttpServices = (reflection: SourceMap) => {
@@ -70,7 +70,7 @@ export const getHttpServices = (reflection: SourceMap) => {
           break;
 
         case 'cache':
-          service.cache = getHttpCache(member.value, declaration, reflection, errorList);
+          service.cache = getCacheMetadata(member.value, declaration, reflection, errorList);
           break;
 
         case 'access':

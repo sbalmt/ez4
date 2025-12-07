@@ -1,6 +1,6 @@
 import type { AllType, SourceMap, TypeModel } from '@ez4/reflection';
 import type { MemberType } from '@ez4/common/library';
-import type { HttpPreferences } from '../../types/common';
+import type { HttpPreferences } from '../types/common';
 
 import {
   InvalidServicePropertyError,
@@ -8,30 +8,34 @@ import {
   getObjectMembers,
   getModelMembers,
   getReferenceType,
-  getPropertyStringIn
+  getPropertyStringIn,
+  hasHeritageType
 } from '@ez4/common/library';
 
 import { isModelProperty, isTypeObject, isTypeReference } from '@ez4/reflection';
 import { NamingStyle } from '@ez4/schema';
 
-import { IncorrectPreferencesTypeError, InvalidPreferencesTypeError } from '../../errors/http/preferences';
-import { isHttpPreferences } from './utils';
+import { IncorrectPreferencesTypeError, InvalidPreferencesTypeError } from '../errors/http/preferences';
+
+export const isWebPreferencesDeclaration = (type: TypeModel) => {
+  return hasHeritageType(type, 'Http.Preferences') || hasHeritageType(type, 'Ws.Preferences');
+};
 
 export const getHttpPreferences = (type: AllType, parent: TypeModel, reflection: SourceMap, errorList: Error[]) => {
   if (!isTypeReference(type)) {
-    return getTypePreferences(type, parent, errorList);
+    return getPreferencesType(type, parent, errorList);
   }
 
   const declaration = getReferenceType(type, reflection);
 
   if (declaration) {
-    return getTypePreferences(declaration, parent, errorList);
+    return getPreferencesType(declaration, parent, errorList);
   }
 
   return undefined;
 };
 
-const getTypePreferences = (type: AllType, parent: TypeModel, errorList: Error[]) => {
+const getPreferencesType = (type: AllType, parent: TypeModel, errorList: Error[]) => {
   if (isTypeObject(type)) {
     return getTypeFromMembers(parent, getObjectMembers(type), errorList);
   }
@@ -41,7 +45,7 @@ const getTypePreferences = (type: AllType, parent: TypeModel, errorList: Error[]
     return undefined;
   }
 
-  if (!isHttpPreferences(type)) {
+  if (!isWebPreferencesDeclaration(type)) {
     errorList.push(new IncorrectPreferencesTypeError(type.name, parent.file));
     return undefined;
   }

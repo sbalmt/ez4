@@ -1,13 +1,13 @@
 import type { Service as CommonService } from '@ez4/common';
 import type { LinkedVariables } from '@ez4/project/library';
+import type { WebPreferences } from '../preferences';
 import type { HttpSuccessStatuses, HttpSuccessEmptyResponse, HttpSuccessResponse, HttpEmptyRequest } from './utils';
 import type { HttpAuthorization } from './authorization';
-import type { HttpPreferences } from './preferences';
 import type { HttpDefaults } from './defaults';
 import type { HttpProvider } from './provider';
 import type { HttpAccess } from './access';
-import type { HttpRoute } from './route';
 import type { HttpCache } from './cache';
+import type { HttpRoute } from './route';
 import type { HttpCors } from './cors';
 import type { Client } from './client';
 
@@ -42,7 +42,9 @@ export namespace Http {
   export type RawBody = HttpRawBody;
 
   export type Authorization = HttpAuthorization;
-  export type Preferences = HttpPreferences;
+  export type Preferences = WebPreferences;
+  export type Access = HttpAccess;
+  export type Cache = HttpCache;
 
   export type AuthRequest = HttpAuthRequest;
   export type Request = HttpRequest;
@@ -52,9 +54,6 @@ export namespace Http {
 
   export type Errors = HttpErrors;
   export type Provider = HttpProvider;
-
-  export type Cache = HttpCache;
-  export type Access = HttpAccess;
   export type Cors = HttpCors;
 
   export type Incoming<T extends Request | AuthRequest> = HttpIncoming<T>;
@@ -78,7 +77,7 @@ export namespace Http {
   export type UseRoute<T extends Route<any, any>> = T;
 
   /**
-   * HTTP Service definition.
+   * HTTP Defaults definition.
    */
   export type UseDefaults<T extends Defaults<any>> = T;
 

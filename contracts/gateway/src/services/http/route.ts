@@ -1,5 +1,6 @@
 import type { LinkedVariables } from '@ez4/project/library';
 import type { HttpPath } from '../../types/common';
+import type { WebPreferences } from '../preferences';
 import type { HttpAuthorizer, HttpAuthRequest, HttpErrors, HttpHandler, HttpListener, HttpRequest } from './common';
 
 /**
@@ -35,6 +36,11 @@ export interface HttpRoute<T extends HttpRequest, U extends HttpAuthRequest> {
    * Map status codes and errors for all known exceptions.
    */
   readonly httpErrors?: HttpErrors;
+
+  /**
+   * Route preference options.
+   */
+  readonly preferences?: WebPreferences;
 
   /**
    * Default log retention (in days) for the handlers.

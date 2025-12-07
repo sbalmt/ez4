@@ -1,5 +1,5 @@
+import type { ArraySchema, NamingStyle, ObjectSchema, ScalarSchema, UnionSchema } from '@ez4/schema';
 import type { LinkedVariables, ServiceMetadata } from '@ez4/project/library';
-import type { ArraySchema, ObjectSchema, ScalarSchema, UnionSchema } from '@ez4/schema';
 import type { ServiceListener } from '@ez4/common/library';
 import type { Incomplete } from '@ez4/utils';
 import type { HttpAuthorizer } from '../../types/common';
@@ -27,6 +27,7 @@ export type WsConnection = {
   listener?: ServiceListener;
   authorizer?: HttpAuthorizer;
   variables?: LinkedVariables;
+  preferences?: WsPreferences;
   logRetention?: number;
   timeout?: number;
   memory?: number;
@@ -36,6 +37,7 @@ export type WsMessage = {
   handler: WsHandler;
   listener?: ServiceListener;
   variables?: LinkedVariables;
+  preferences?: WsPreferences;
   logRetention?: number;
   timeout?: number;
   memory?: number;
@@ -67,11 +69,20 @@ export type WsResponse = {
   body?: WsDataSchema;
 };
 
+export type WsPreferences = {
+  namingStyle?: NamingStyle;
+};
+
 export type WsDefaults = {
   listener?: ServiceListener;
+  preferences?: WsPreferences;
   logRetention?: number;
   timeout?: number;
   memory?: number;
+};
+
+export type WsCache = {
+  authorizerTTL?: number;
 };
 
 export const isWsService = (service: ServiceMetadata): service is WsService => {

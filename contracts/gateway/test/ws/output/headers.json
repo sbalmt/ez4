@@ -42,7 +42,19 @@
     "disconnect": {
       "handler": {
         "name": "disconnectHandler",
-        "file": "test/ws/input/output-headers.ts"
+        "file": "test/ws/input/output-headers.ts",
+        "request": {
+          "headers": {
+            "type": "object",
+            "description": "Expected HTTP headers.",
+            "identity": 1,
+            "properties": {
+              "x-secret": {
+                "type": "string"
+              }
+            }
+          }
+        }
       }
     },
     "message": {
