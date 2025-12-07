@@ -26,11 +26,7 @@
     "connect": {
       "handler": {
         "name": "connectHandler",
-        "file": "test/ws/input/output-service.ts",
-        "request": {},
-        "response": {
-          "status": 204
-        }
+        "file": "test/ws/input/output-service.ts"
       }
     },
     "disconnect": {
@@ -39,9 +35,9 @@
         "file": "test/ws/input/output-service.ts"
       }
     },
-    "data": {
+    "message": {
       "handler": {
-        "name": "dataHandler",
+        "name": "messageHandler",
         "file": "test/ws/input/output-service.ts"
       }
     }
@@ -67,11 +63,7 @@
     "connect": {
       "handler": {
         "name": "connectHandler",
-        "file": "test/ws/input/output-service.ts",
-        "request": {},
-        "response": {
-          "status": 204
-        }
+        "file": "test/ws/input/output-service.ts"
       }
     },
     "disconnect": {
@@ -80,9 +72,9 @@
         "file": "test/ws/input/output-service.ts"
       }
     },
-    "data": {
+    "message": {
       "handler": {
-        "name": "dataHandler",
+        "name": "messageHandler",
         "file": "test/ws/input/output-service.ts"
       }
     }

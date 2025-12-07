@@ -1,9 +1,10 @@
-import type { HttpJsonBody } from '../http/common';
+import type { WsRequest } from './request';
+import type { WsEvent } from './event';
 
 /**
  * Incoming WS event.
  */
-export type WsIncoming<T extends HttpJsonBody | null> = {
+export type WsIncoming<T extends WsRequest | WsEvent> = T & {
   /**
    * Request tracking Id.
    */
@@ -18,9 +19,4 @@ export type WsIncoming<T extends HttpJsonBody | null> = {
    * Request timestamp.
    */
   readonly timestamp: Date;
-
-  /**
-   * Event payload.
-   */
-  readonly event: T;
 };

@@ -1,8 +1,10 @@
 import type { LinkedVariables, ServiceMetadata } from '@ez4/project/library';
-import type { ObjectSchema, UnionSchema } from '@ez4/schema';
+import type { ArraySchema, ObjectSchema, ScalarSchema, UnionSchema } from '@ez4/schema';
 import type { ServiceListener } from '@ez4/common/library';
 import type { Incomplete } from '@ez4/utils';
-import type { HttpAuthorizer, HttpHandler } from '../../types/common';
+import type { HttpAuthorizer } from '../../types/common';
+
+import { isObjectWith } from '@ez4/utils';
 
 const ServiceType = '@ez4/ws';
 
@@ -15,13 +17,13 @@ export type WsService = ServiceMetadata & {
   defaults?: WsDefaults;
   routeKey: string;
   schema: WsEventSchema;
-  connect: WsConnect;
-  disconnect: WsTrigger;
-  data: WsTrigger;
+  connect: WsConnection;
+  disconnect: WsConnection;
+  message: WsMessage;
 };
 
-export type WsConnect = {
-  handler: HttpHandler;
+export type WsConnection = {
+  handler: WsHandler;
   listener?: ServiceListener;
   authorizer?: HttpAuthorizer;
   variables?: LinkedVariables;
@@ -30,7 +32,7 @@ export type WsConnect = {
   memory?: number;
 };
 
-export type WsTrigger = {
+export type WsMessage = {
   handler: WsHandler;
   listener?: ServiceListener;
   variables?: LinkedVariables;
@@ -44,6 +46,20 @@ export type WsHandler = {
   file: string;
   module?: string;
   description?: string;
+  response?: WsResponse;
+  request?: WsRequest;
+};
+
+export type WsRequest = {
+  identity?: ObjectSchema | UnionSchema;
+  headers?: ObjectSchema;
+  parameters?: ObjectSchema;
+  query?: ObjectSchema;
+  body?: ObjectSchema | UnionSchema | ArraySchema | ScalarSchema;
+};
+
+export type WsResponse = {
+  body?: ObjectSchema | UnionSchema | ArraySchema | ScalarSchema;
 };
 
 export type WsDefaults = {
@@ -58,7 +74,7 @@ export const isWsService = (service: ServiceMetadata): service is WsService => {
 };
 
 export const isCompleteWsService = (type: Incomplete<WsService>): type is WsService => {
-  return !!type.name && !!type.routeKey && !!type.schema && !!type.connect && !!type.disconnect && !!type.data && !!type.context;
+  return isObjectWith(type, ['name', 'routeKey', 'schema', 'connect', 'disconnect', 'message', 'context']);
 };
 
 export const getPartialWsService = (): Incomplete<WsService> => {

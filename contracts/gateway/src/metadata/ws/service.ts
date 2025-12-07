@@ -17,8 +17,8 @@ import { isModelProperty } from '@ez4/reflection';
 
 import { IncompleteServiceError } from '../../errors/http/service';
 import { getPartialWsService, isCompleteWsService } from './types';
-import { getWsConnect } from './connect';
-import { getWsTrigger } from './trigger';
+import { getWsConnection } from './connection';
+import { getWsMessage } from './message';
 import { getWsEvent } from './event';
 
 export const isWsServiceDeclaration = (type: AllType): type is TypeClass => {
@@ -37,7 +37,7 @@ export const getWsServices = (reflection: SourceMap) => {
     }
 
     const service = getPartialWsService();
-    const properties = new Set(['routeKey', 'schema', 'connect', 'disconnect', 'data']);
+    const properties = new Set(['routeKey', 'schema', 'connect', 'disconnect', 'message']);
 
     const fileName = declaration.file;
 
@@ -79,14 +79,14 @@ export const getWsServices = (reflection: SourceMap) => {
           break;
 
         case 'connect':
-          if (!member.inherited && (service.connect = getWsConnect(member.value, declaration, reflection, errorList))) {
+        case 'disconnect':
+          if (!member.inherited && (service[member.name] = getWsConnection(member.value, declaration, reflection, errorList))) {
             properties.delete(member.name);
           }
           break;
 
-        case 'data':
-        case 'disconnect':
-          if (!member.inherited && (service[member.name] = getWsTrigger(member.value, declaration, reflection, errorList))) {
+        case 'message':
+          if (!member.inherited && (service[member.name] = getWsMessage(member.value, declaration, reflection, errorList))) {
             properties.delete(member.name);
           }
           break;

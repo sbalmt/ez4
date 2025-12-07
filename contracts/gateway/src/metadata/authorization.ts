@@ -1,7 +1,7 @@
 import type { AllType, SourceMap, TypeModel, TypeObject } from '@ez4/reflection';
 import type { MemberType } from '@ez4/common/library';
 import type { Incomplete } from '@ez4/utils';
-import type { HttpAuthorization } from '../../types/common';
+import type { HttpAuthorization } from '../types/common';
 
 import {
   InvalidServicePropertyError,
@@ -16,14 +16,9 @@ import {
 import { isModelProperty, isTypeObject, isTypeReference } from '@ez4/reflection';
 import { isAnyString } from '@ez4/utils';
 
-import {
-  IncompleteAuthorizationError,
-  IncorrectAuthorizationTypeError,
-  InvalidAuthorizationTypeError
-} from '../../errors/http/authorization';
-
-import { AuthorizationType } from '../../services/http/authorization';
-import { isHttpAuthorization } from './utils';
+import { IncompleteAuthorizationError, IncorrectAuthorizationTypeError, InvalidAuthorizationTypeError } from '../errors/http/authorization';
+import { AuthorizationType } from '../services/http/authorization';
+import { isHttpAuthorization } from './http/utils';
 
 export const getHttpAuthorization = (type: AllType, parent: TypeModel, reflection: SourceMap, errorList: Error[]) => {
   if (!isTypeReference(type)) {

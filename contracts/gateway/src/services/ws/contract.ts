@@ -1,30 +1,36 @@
 import type { Service as CommonService } from '@ez4/common';
 import type { LinkedVariables } from '@ez4/project/library';
 import type { Http } from '../http/contract';
-import type { WsDisconnect } from './disconnect';
+import type { WsConnect, WsDisconnect } from './connect';
+import type { WsEmptyRequest } from './utils';
 import type { WsIncoming } from './incoming';
 import type { WsListener } from './listener';
-import type { WsConnect } from './connect';
+import type { WsResponse } from './response';
+import type { WsRequest } from './request';
 import type { WsHandler } from './handler';
+import type { WsMessage } from './message';
 import type { WsEvent } from './event';
-import type { WsData } from './data';
 
 /**
  * Provide all contracts for a self-managed WS service.
  */
 export namespace Ws {
+  export type Request = WsRequest;
+  export type Response = WsResponse;
   export type Event = WsEvent;
 
-  export type Incoming<T extends Event | null> = WsIncoming<T>;
+  export type Incoming<T extends Request | Event> = WsIncoming<T>;
 
-  export type Listener<T extends Event | null> = WsListener<T>;
-  export type Handler<T extends Event | null> = WsHandler<T>;
+  export type Listener<T extends Request | Event> = WsListener<T>;
+  export type Handler<T extends Request | Event> = WsHandler<T>;
 
-  export type Connect<T extends Http.Request = Http.Request, U extends Http.AuthRequest = Http.AuthRequest> = WsConnect<T, U>;
-  export type Data<T extends Http.JsonBody = Http.JsonBody> = WsData<T>;
-  export type Disconnect = WsDisconnect;
+  export type Connect<T extends Request = Request, U extends Http.AuthRequest = Http.AuthRequest> = WsConnect<T, U>;
+  export type Disconnect<T extends Request = Request> = WsDisconnect<T>;
+  export type Message<T extends Event = Event> = WsMessage<T>;
 
-  export type ServiceEvent<T extends Event | null = null> = CommonService.AnyEvent<Incoming<T>>;
+  export type ServiceEvent<T extends Request | Event = Event> = CommonService.AnyEvent<Incoming<T>>;
+
+  export type EmptyRequest = WsEmptyRequest;
 
   /**
    * WS Connect event definition.
@@ -34,12 +40,12 @@ export namespace Ws {
   /**
    * WS Disconnect event definition.
    */
-  export type UseDisconnect<T extends Disconnect> = T;
+  export type UseDisconnect<T extends Disconnect<any>> = T;
 
   /**
-   * WS Data event definition.
+   * WS Message event definition.
    */
-  export type UseData<T extends Data<any>> = T;
+  export type UseMessage<T extends Message<any>> = T;
 
   /**
    * WS service.
@@ -53,12 +59,12 @@ export namespace Ws {
     /**
      * All disconnection events.
      */
-    abstract readonly disconnect: Disconnect;
+    abstract readonly disconnect: Disconnect<any>;
 
     /**
      * All message events.
      */
-    abstract readonly data: Data<any>;
+    abstract readonly message: Message<any>;
 
     /**
      * Schema route key.
@@ -66,7 +72,7 @@ export namespace Ws {
     abstract readonly routeKey: keyof T;
 
     /**
-     * Action schema.
+     * Event schema.
      */
     readonly schema: T;
 

@@ -1,12 +1,14 @@
 import type { Service } from '@ez4/common';
-import type { HttpJsonBody } from '../http/common';
-import type { Ws } from './contract';
 import type { WsIncoming } from './incoming';
+import type { WsResponse } from './response';
+import type { WsRequest } from './request';
+import type { WsEvent } from './event';
+import type { Ws } from './contract';
 
 /**
  * WS request handler.
  */
-export type WsHandler<T extends HttpJsonBody | null> = (
-  request: WsIncoming<T>,
+export type WsHandler<T extends WsRequest | WsEvent> = (
+  request: WsIncoming<T> | T,
   context: Service.Context<Ws.Service<any>>
-) => Promise<void> | void;
+) => Promise<WsResponse | void> | WsResponse | void;

@@ -1,4 +1,4 @@
-import type { Http, Ws } from '@ez4/gateway';
+import type { Ws } from '@ez4/gateway';
 
 type TestEvent = {
   foo: string;
@@ -21,8 +21,8 @@ export declare class TestService1 extends Ws.Service<TestEvent> {
     handler: typeof disconnectHandler;
   }>;
 
-  data: Ws.UseData<{
-    handler: typeof dataHandler;
+  message: Ws.UseMessage<{
+    handler: typeof messageHandler;
   }>;
 }
 
@@ -40,17 +40,13 @@ export declare class TestService2 extends Ws.Service<TestEvent> {
     handler: typeof disconnectHandler;
   }>;
 
-  data: Ws.UseData<{
-    handler: typeof dataHandler;
+  message: Ws.UseMessage<{
+    handler: typeof messageHandler;
   }>;
 }
 
-function connectHandler(_request: Http.EmptyRequest): Http.SuccessEmptyResponse {
-  return {
-    status: 204
-  };
-}
+function connectHandler() {}
 
-function disconnectHandler(_request: Ws.Incoming<null>) {}
+function disconnectHandler() {}
 
-function dataHandler(_request: Ws.Incoming<TestEvent>) {}
+function messageHandler(_request: Ws.Incoming<TestEvent>) {}

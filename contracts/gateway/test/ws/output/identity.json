@@ -6,12 +6,10 @@
   },
   "TestService": {
     "type": "@ez4/ws",
-    "name": "TestService",
-    "routeKey": "foo",
     "context": {},
+    "name": "TestService",
     "schema": {
       "type": "object",
-      "identity": 1,
       "properties": {
         "foo": {
           "type": "string"
@@ -19,36 +17,39 @@
         "bar": {
           "type": "number"
         }
-      }
+      },
+      "identity": 1
     },
+    "routeKey": "foo",
     "connect": {
       "handler": {
         "name": "connectHandler",
-        "file": "test/ws/input/output-listener.ts"
-      },
-      "listener": {
-        "name": "testListener",
-        "file": "test/ws/input/output-listener.ts"
+        "file": "test/ws/input/output-identity.ts",
+        "request": {
+          "identity": {
+            "type": "object",
+            "properties": {
+              "id": {
+                "type": "string"
+              }
+            },
+            "identity": 1,
+            "description": "Expected identity."
+          }
+        }
       }
     },
     "disconnect": {
       "handler": {
         "name": "disconnectHandler",
-        "file": "test/ws/input/output-listener.ts"
-      },
-      "listener": {
-        "name": "testListener",
-        "file": "test/ws/input/output-listener.ts"
+        "file": "test/ws/input/output-identity.ts",
+        "request": {}
       }
     },
     "message": {
       "handler": {
         "name": "messageHandler",
-        "file": "test/ws/input/output-listener.ts"
-      },
-      "listener": {
-        "name": "testListener",
-        "file": "test/ws/input/output-listener.ts"
+        "file": "test/ws/input/output-identity.ts"
       }
     }
   }

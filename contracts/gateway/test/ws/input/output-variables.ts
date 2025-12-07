@@ -1,5 +1,5 @@
 import type { Environment, Service } from '@ez4/common';
-import type { Http, Ws } from '@ez4/gateway';
+import type { Ws } from '@ez4/gateway';
 
 type TestEvent = {
   foo: string;
@@ -17,8 +17,8 @@ export declare class TestService extends Ws.Service<TestEvent> {
     handler: typeof disconnectHandler;
   }>;
 
-  data: Ws.UseData<{
-    handler: typeof dataHandler;
+  message: Ws.UseMessage<{
+    handler: typeof messageHandler;
     variables: {
       TEST_VAR3: 'test-literal-data-value';
     };
@@ -34,19 +34,7 @@ export declare class TestService extends Ws.Service<TestEvent> {
   };
 }
 
-function connectHandler(_request: Http.EmptyRequest, context: Service.Context<TestService>): Http.SuccessEmptyResponse {
-  const { selfSettings } = context;
-
-  // Ensure variables are property referenced.
-  selfSettings.TEST_VAR1;
-  selfSettings.TEST_VAR2;
-
-  return {
-    status: 204
-  };
-}
-
-function disconnectHandler(_request: Ws.Incoming<null>, context: Service.Context<TestService>) {
+function connectHandler(_request: Ws.EmptyRequest, context: Service.Context<TestService>) {
   const { selfSettings } = context;
 
   // Ensure variables are property referenced.
@@ -54,7 +42,15 @@ function disconnectHandler(_request: Ws.Incoming<null>, context: Service.Context
   selfSettings.TEST_VAR2;
 }
 
-function dataHandler(_request: Ws.Incoming<TestEvent>, context: Service.Context<TestService>) {
+function disconnectHandler(_request: Ws.EmptyRequest, context: Service.Context<TestService>) {
+  const { selfSettings } = context;
+
+  // Ensure variables are property referenced.
+  selfSettings.TEST_VAR1;
+  selfSettings.TEST_VAR2;
+}
+
+function messageHandler(_request: Ws.Incoming<TestEvent>, context: Service.Context<TestService>) {
   const { selfSettings } = context;
 
   // Ensure variables are property referenced.

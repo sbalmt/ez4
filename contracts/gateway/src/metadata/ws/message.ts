@@ -1,7 +1,7 @@
 import type { AllType, SourceMap, TypeClass, TypeModel, TypeObject } from '@ez4/reflection';
 import type { MemberType } from '@ez4/common/library';
 import type { Incomplete } from '@ez4/utils';
-import type { WsTrigger } from './types';
+import type { WsMessage } from './types';
 
 import { isModelProperty, isTypeObject, isTypeReference } from '@ez4/reflection';
 
@@ -18,32 +18,32 @@ import {
 } from '@ez4/common/library';
 
 import { IncompleteRouteError } from '../../errors/http/route';
-import { getWsHandler } from './handler';
+import { getWsMessageHandler } from './handlers';
 
-export const isWsTriggerDeclaration = (type: AllType): type is TypeClass => {
-  return isModelDeclaration(type) && (hasHeritageType(type, 'Ws.Disconnect') || hasHeritageType(type, 'Ws.Data'));
+export const isWsMessageDeclaration = (type: AllType): type is TypeClass => {
+  return isModelDeclaration(type) && hasHeritageType(type, 'Ws.Message');
 };
 
-export const getWsTrigger = (type: AllType, parent: TypeModel, reflection: SourceMap, errorList: Error[]) => {
+export const getWsMessage = (type: AllType, parent: TypeModel, reflection: SourceMap, errorList: Error[]) => {
   if (!isTypeReference(type)) {
-    return getTriggerType(type, parent, errorList);
+    return getMessageType(type, parent, errorList);
   }
 
   const declaration = getReferenceType(type, reflection);
 
   if (declaration) {
-    return getTriggerType(declaration, parent, errorList);
+    return getMessageType(declaration, parent, errorList);
   }
 
   return undefined;
 };
 
-const isCompleteWsTrigger = (type: Incomplete<WsTrigger>): type is WsTrigger => {
+const isCompleteWsMessage = (type: Incomplete<WsMessage>): type is WsMessage => {
   return !!type.handler;
 };
 
-const getTriggerType = (type: AllType, parent: TypeModel, errorList: Error[]) => {
-  if (isWsTriggerDeclaration(type)) {
+const getMessageType = (type: AllType, parent: TypeModel, errorList: Error[]) => {
+  if (isWsMessageDeclaration(type)) {
     return getTypeFromMembers(type, parent, getModelMembers(type), errorList);
   }
 
@@ -55,7 +55,7 @@ const getTriggerType = (type: AllType, parent: TypeModel, errorList: Error[]) =>
 };
 
 const getTypeFromMembers = (type: TypeObject | TypeModel, parent: TypeModel, members: MemberType[], errorList: Error[]) => {
-  const route: Incomplete<WsTrigger> = {};
+  const route: Incomplete<WsMessage> = {};
   const properties = new Set(['handler']);
 
   for (const member of members) {
@@ -69,7 +69,7 @@ const getTypeFromMembers = (type: TypeObject | TypeModel, parent: TypeModel, mem
         break;
 
       case 'handler':
-        if ((route.handler = getWsHandler(member.value, errorList))) {
+        if ((route.handler = getWsMessageHandler(member.value, errorList))) {
           properties.delete(member.name);
         }
         break;
@@ -90,7 +90,7 @@ const getTypeFromMembers = (type: TypeObject | TypeModel, parent: TypeModel, mem
     }
   }
 
-  if (isCompleteWsTrigger(route)) {
+  if (isCompleteWsMessage(route)) {
     return route;
   }
 

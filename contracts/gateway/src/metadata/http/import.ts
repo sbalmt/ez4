@@ -18,7 +18,7 @@ import { IncompleteServiceError } from '../../errors/http/service';
 import { getHttpRemoteRoutes } from './route';
 import { getHttpDefaults } from './defaults';
 import { isHttpImport } from './utils';
-import { getHttpAuthorization } from './authorization';
+import { getHttpAuthorization } from '../authorization';
 
 export const getHttpImports = (reflection: SourceMap) => {
   const allImports: Record<string, HttpImport> = {};

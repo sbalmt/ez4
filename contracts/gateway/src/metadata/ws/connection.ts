@@ -1,9 +1,10 @@
 import type { AllType, SourceMap, TypeClass, TypeModel, TypeObject } from '@ez4/reflection';
 import type { MemberType } from '@ez4/common/library';
 import type { Incomplete } from '@ez4/utils';
-import type { WsConnect } from './types';
+import type { WsConnection } from './types';
 
 import { isModelProperty, isTypeObject, isTypeReference } from '@ez4/reflection';
+import { isObjectWith } from '@ez4/utils';
 
 import {
   InvalidServicePropertyError,
@@ -18,33 +19,33 @@ import {
 } from '@ez4/common/library';
 
 import { IncompleteRouteError } from '../../errors/http/route';
-import { getHttpAuthorizer } from '../http/authorizer';
-import { getHttpHandler } from '../http/handler';
+import { getHttpAuthorizer } from '../authorizer';
+import { getWsConnectHandler } from './handlers';
 
-export const isWsConnectDeclaration = (type: AllType): type is TypeClass => {
-  return isModelDeclaration(type) && hasHeritageType(type, 'Ws.Connect');
+export const isWsConnectionDeclaration = (type: AllType): type is TypeClass => {
+  return isModelDeclaration(type) && (hasHeritageType(type, 'Ws.Connect') || hasHeritageType(type, 'Ws.Disconnect'));
 };
 
-export const getWsConnect = (type: AllType, parent: TypeModel, reflection: SourceMap, errorList: Error[]) => {
+export const getWsConnection = (type: AllType, parent: TypeModel, reflection: SourceMap, errorList: Error[]) => {
   if (!isTypeReference(type)) {
-    return getConnectType(type, parent, reflection, errorList);
+    return getConnectionType(type, parent, reflection, errorList);
   }
 
   const declaration = getReferenceType(type, reflection);
 
   if (declaration) {
-    return getConnectType(declaration, parent, reflection, errorList);
+    return getConnectionType(declaration, parent, reflection, errorList);
   }
 
   return undefined;
 };
 
-const isCompleteWsConnect = (type: Incomplete<WsConnect>): type is WsConnect => {
-  return !!type.handler;
+const isCompleteWsConnection = (type: Incomplete<WsConnection>): type is WsConnection => {
+  return isObjectWith(type, ['handler']);
 };
 
-const getConnectType = (type: AllType, parent: TypeModel, reflection: SourceMap, errorList: Error[]) => {
-  if (isWsConnectDeclaration(type)) {
+const getConnectionType = (type: AllType, parent: TypeModel, reflection: SourceMap, errorList: Error[]) => {
+  if (isWsConnectionDeclaration(type)) {
     return getTypeFromMembers(type, parent, getModelMembers(type), reflection, errorList);
   }
 
@@ -62,7 +63,7 @@ const getTypeFromMembers = (
   reflection: SourceMap,
   errorList: Error[]
 ) => {
-  const route: Incomplete<WsConnect> = {};
+  const route: Incomplete<WsConnection> = {};
   const properties = new Set(['handler']);
 
   for (const member of members) {
@@ -76,7 +77,7 @@ const getTypeFromMembers = (
         break;
 
       case 'handler':
-        if ((route.handler = getHttpHandler(member.value, parent, reflection, errorList, false))) {
+        if ((route.handler = getWsConnectHandler(member.value, parent, reflection, errorList))) {
           properties.delete(member.name);
         }
         break;
@@ -101,7 +102,7 @@ const getTypeFromMembers = (
     }
   }
 
-  if (isCompleteWsConnect(route)) {
+  if (isCompleteWsConnection(route)) {
     return route;
   }
 

@@ -4,7 +4,7 @@ import { isTypeIntersection, isTypeObject, isTypeReference } from '@ez4/reflecti
 import { getReferenceType, isModelDeclaration } from '@ez4/common/library';
 
 import { IncorrectParameterTypeError, InvalidParameterTypeError } from '../../errors/http/parameters';
-import { getSchemaFromIntersection, getSchemaFromObject } from './schema';
+import { getSchemaFromIntersection, getSchemaFromObject } from '../schema';
 import { isHttpParameters } from './utils';
 
 type TypeParent = TypeObject | TypeModel | TypeIntersection;

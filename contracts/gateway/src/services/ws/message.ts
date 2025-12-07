@@ -1,20 +1,21 @@
 import type { LinkedVariables } from '@ez4/project/library';
 import type { WsListener } from './listener';
 import type { WsHandler } from './handler';
+import type { WsEvent } from './event';
 
 /**
- * WS disconnect event.
+ * WS message event.
  */
-export interface WsDisconnect {
+export interface WsMessage<T extends WsEvent> {
   /**
    * Life-cycle listener function for the event.
    */
-  readonly listener?: WsListener<null>;
+  readonly listener?: WsListener<T>;
 
   /**
    * Entry-point handler function for the event.
    */
-  readonly handler: WsHandler<null>;
+  readonly handler: WsHandler<T>;
 
   /**
    * Default log retention (in days) for the handlers.

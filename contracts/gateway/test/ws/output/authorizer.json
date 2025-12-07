@@ -11,6 +11,7 @@
     "context": {},
     "schema": {
       "type": "object",
+      "identity": 1,
       "properties": {
         "foo": {
           "type": "string"
@@ -18,8 +19,7 @@
         "bar": {
           "type": "number"
         }
-      },
-      "identity": 1
+      }
     },
     "connect": {
       "handler": {
@@ -28,17 +28,14 @@
         "request": {
           "identity": {
             "type": "object",
+            "description": "Expected identity.",
+            "identity": 1,
             "properties": {
               "id": {
                 "type": "string"
               }
-            },
-            "identity": 1,
-            "description": "Expected identity."
+            }
           }
-        },
-        "response": {
-          "status": 204
         }
       },
       "authorizer": {
@@ -47,25 +44,25 @@
         "request": {
           "query": {
             "type": "object",
+            "description": "Expected HTTP query strings.",
+            "identity": 1,
             "properties": {
               "apiKey": {
                 "type": "string"
               }
-            },
-            "identity": 1,
-            "description": "Expected HTTP query strings."
+            }
           }
         },
         "response": {
           "identity": {
             "type": "object",
+            "description": "Authorization identity.",
+            "identity": 1,
             "properties": {
               "id": {
                 "type": "string"
               }
-            },
-            "identity": 1,
-            "description": "Authorization identity."
+            }
           }
         }
       }
@@ -73,12 +70,13 @@
     "disconnect": {
       "handler": {
         "name": "disconnectHandler",
-        "file": "test/ws/input/output-authorizer.ts"
+        "file": "test/ws/input/output-authorizer.ts",
+        "request": {}
       }
     },
-    "data": {
+    "message": {
       "handler": {
-        "name": "dataHandler",
+        "name": "messageHandler",
         "file": "test/ws/input/output-authorizer.ts"
       }
     }

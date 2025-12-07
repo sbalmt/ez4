@@ -18,9 +18,9 @@ import { isModelProperty, isTypeObject, isTypeReference } from '@ez4/reflection'
 import { isAnyNumber } from '@ez4/utils';
 
 import { IncorrectResponseTypeError, InvalidResponseTypeError } from '../../errors/http/response';
-import { getHttpIdentity } from './identity';
-import { getHttpHeaders } from './headers';
-import { getHttpBody } from './body';
+import { getHttpIdentity } from '../identity';
+import { getHttpHeaders } from '../headers';
+import { getHttpBody } from '../body';
 
 export const getHttpAuthResponse = (type: AllType, parent: TypeModel, reflection: SourceMap, errorList: Error[]) => {
   const response = getHttpResponse(type, parent, reflection, errorList, 'Http.AuthResponse');
@@ -44,13 +44,13 @@ export const getHttpHandlerResponse = (type: AllType, parent: TypeModel, reflect
 
 const getHttpResponse = (type: AllType, parent: TypeModel, reflection: SourceMap, errorList: Error[], baseType: string) => {
   if (!isTypeReference(type)) {
-    return getTypeResponse(type, parent, reflection, errorList, baseType);
+    return getResponseType(type, parent, reflection, errorList, baseType);
   }
 
   const declaration = getReferenceType(type, reflection);
 
   if (declaration) {
-    return getTypeResponse(declaration, parent, reflection, errorList, baseType);
+    return getResponseType(declaration, parent, reflection, errorList, baseType);
   }
 
   return undefined;
@@ -64,7 +64,7 @@ const isValidHandlerResponse = (type: Incomplete<HttpResponse>): type is HttpRes
   return isAnyNumber(type.status) || Array.isArray(type.status);
 };
 
-const getTypeResponse = (type: AllType, parent: TypeModel, reflection: SourceMap, errorList: Error[], baseType: string) => {
+const getResponseType = (type: AllType, parent: TypeModel, reflection: SourceMap, errorList: Error[], baseType: string) => {
   if (isTypeObject(type)) {
     return getTypeFromMembers(type, parent, getObjectMembers(type), reflection, errorList);
   }

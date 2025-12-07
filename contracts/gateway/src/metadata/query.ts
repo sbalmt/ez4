@@ -3,9 +3,9 @@ import type { AllType, SourceMap, TypeIntersection, TypeModel, TypeObject } from
 import { isTypeIntersection, isTypeObject, isTypeReference } from '@ez4/reflection';
 import { getReferenceType, isModelDeclaration } from '@ez4/common/library';
 
-import { IncorrectQueryTypeError, InvalidQueryTypeError } from '../../errors/http/query';
+import { IncorrectQueryTypeError, InvalidQueryTypeError } from '../errors/http/query';
+import { isHttpQuery } from './http/utils';
 import { getSchemaFromIntersection, getSchemaFromObject } from './schema';
-import { isHttpQuery } from './utils';
 
 type TypeParent = TypeObject | TypeModel | TypeIntersection;
 

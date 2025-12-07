@@ -7,7 +7,6 @@
   "TestService": {
     "type": "@ez4/ws",
     "name": "TestService",
-    "routeKey": "foo",
     "context": {},
     "schema": {
       "type": "object",
@@ -21,34 +20,36 @@
         }
       }
     },
+    "routeKey": "foo",
     "connect": {
       "handler": {
         "name": "connectHandler",
-        "file": "test/ws/input/output-listener.ts"
-      },
-      "listener": {
-        "name": "testListener",
-        "file": "test/ws/input/output-listener.ts"
+        "file": "test/ws/input/output-headers.ts",
+        "request": {
+          "headers": {
+            "type": "object",
+            "description": "Expected HTTP headers.",
+            "identity": 1,
+            "properties": {
+              "x-secret": {
+                "type": "string"
+              }
+            }
+          }
+        }
       }
     },
     "disconnect": {
       "handler": {
         "name": "disconnectHandler",
-        "file": "test/ws/input/output-listener.ts"
-      },
-      "listener": {
-        "name": "testListener",
-        "file": "test/ws/input/output-listener.ts"
+        "file": "test/ws/input/output-headers.ts",
+        "request": {}
       }
     },
     "message": {
       "handler": {
         "name": "messageHandler",
-        "file": "test/ws/input/output-listener.ts"
-      },
-      "listener": {
-        "name": "testListener",
-        "file": "test/ws/input/output-listener.ts"
+        "file": "test/ws/input/output-headers.ts"
       }
     }
   }

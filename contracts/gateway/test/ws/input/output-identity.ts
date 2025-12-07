@@ -10,24 +10,25 @@ export declare class TestService extends Ws.Service<TestEvent> {
 
   connect: Ws.UseConnect<{
     handler: typeof connectHandler;
-    listener: typeof testListener;
   }>;
 
   disconnect: Ws.UseDisconnect<{
     handler: typeof disconnectHandler;
-    listener: typeof testListener;
   }>;
 
   message: Ws.UseMessage<{
     handler: typeof messageHandler;
-    listener: typeof testListener;
   }>;
 }
 
-function connectHandler() {}
+declare class ConnectRequest implements Ws.Request {
+  identity: {
+    id: string;
+  };
+}
 
-function disconnectHandler() {}
+function connectHandler(_request: Ws.Incoming<ConnectRequest>) {}
+
+function disconnectHandler(_request: Ws.EmptyRequest) {}
 
 function messageHandler(_request: Ws.Incoming<TestEvent>) {}
-
-function testListener(): void {}

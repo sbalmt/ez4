@@ -1,6 +1,6 @@
 import type { AllType, SourceMap, TypeIntersection, TypeModel, TypeObject } from '@ez4/reflection';
 import type { MemberType } from '@ez4/common/library';
-import type { HttpAuthRequest, HttpRequest } from '../../types/common';
+import type { WsRequest } from './types';
 
 import { isModelProperty, isTypeIntersection, isTypeObject, isTypeReference } from '@ez4/reflection';
 
@@ -16,48 +16,38 @@ import {
 import { IncorrectRequestTypeError, InvalidRequestTypeError } from '../../errors/http/request';
 import { getHttpIdentity } from '../identity';
 import { getHttpHeaders } from '../headers';
-import { getHttpParameters } from './parameters';
 import { getHttpQuery } from '../query';
-import { getHttpBody } from '../body';
 
-export const getHttpAuthRequest = (type: AllType, parent: TypeModel, reflection: SourceMap, errorList: Error[]) => {
-  return getHttpRequest(type, parent, reflection, errorList, 'Http.AuthRequest');
-};
-
-export const getHttpHandlerRequest = (type: AllType, parent: TypeModel, reflection: SourceMap, errorList: Error[]) => {
-  return getHttpRequest(type, parent, reflection, errorList, 'Http.Request');
-};
-
-const getHttpRequest = (type: AllType, parent: TypeModel, reflection: SourceMap, errorList: Error[], baseType: string) => {
+export const getWsRequest = (type: AllType, parent: TypeModel, reflection: SourceMap, errorList: Error[]): WsRequest | undefined => {
   if (isTypeIntersection(type) && type.elements.length > 0) {
-    return getHttpRequest(type.elements[0], parent, reflection, errorList, baseType);
+    return getWsRequest(type.elements[0], parent, reflection, errorList);
   }
 
   if (!isTypeReference(type)) {
-    return getRequestType(type, parent, reflection, errorList, baseType);
+    return getRequestType(type, parent, reflection, errorList);
   }
 
   const declaration = getReferenceType(type, reflection);
 
   if (declaration) {
-    return getRequestType(declaration, parent, reflection, errorList, baseType);
+    return getRequestType(declaration, parent, reflection, errorList);
   }
 
   return undefined;
 };
 
-const getRequestType = (type: AllType, parent: TypeModel, reflection: SourceMap, errorList: Error[], baseType: string) => {
+const getRequestType = (type: AllType, parent: TypeModel, reflection: SourceMap, errorList: Error[]) => {
   if (isTypeObject(type)) {
     return getTypeFromMembers(type, parent, getObjectMembers(type), reflection, errorList);
   }
 
   if (!isModelDeclaration(type)) {
-    errorList.push(new InvalidRequestTypeError(baseType, parent.file));
+    errorList.push(new InvalidRequestTypeError('Ws.Request', parent.file));
     return undefined;
   }
 
-  if (!hasHeritageType(type, baseType)) {
-    errorList.push(new IncorrectRequestTypeError(type.name, baseType, type.file));
+  if (!hasHeritageType(type, 'Ws.Request')) {
+    errorList.push(new IncorrectRequestTypeError(type.name, 'Ws.Request', type.file));
     return undefined;
   }
 
@@ -71,7 +61,7 @@ const getTypeFromMembers = (
   reflection: SourceMap,
   errorList: Error[]
 ) => {
-  const request: HttpAuthRequest & HttpRequest = {};
+  const request: WsRequest = {};
 
   for (const member of members) {
     if (!isModelProperty(member) || member.inherited) {
@@ -108,26 +98,6 @@ const getTypeFromMembers = (
 
         if (request.query && member.description) {
           request.query.description = member.description;
-        }
-
-        break;
-      }
-
-      case 'parameters': {
-        request.parameters = getHttpParameters(member.value, type, reflection, errorList);
-
-        if (request.parameters && member.description) {
-          request.parameters.description = member.description;
-        }
-
-        break;
-      }
-
-      case 'body': {
-        request.body = getHttpBody(member.value, type, reflection, errorList);
-
-        if (request.body && member.description) {
-          request.body.description = member.description;
         }
 
         break;

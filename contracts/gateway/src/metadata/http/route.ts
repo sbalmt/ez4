@@ -21,7 +21,7 @@ import {
 import { IncompleteRouteError } from '../../errors/http/route';
 import { isHttpPath, isHttpRoute } from './utils';
 import { getHttpPreferences } from './preferences';
-import { getHttpAuthorizer } from './authorizer';
+import { getHttpAuthorizer } from '../authorizer';
 import { getHttpHandler } from './handler';
 import { getHttpErrors } from './errors';
 
