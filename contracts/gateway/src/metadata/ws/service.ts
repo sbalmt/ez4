@@ -19,7 +19,7 @@ import { IncompleteServiceError } from '../../errors/http/service';
 import { getPartialWsService, isCompleteWsService } from './types';
 import { getWsConnection } from './connection';
 import { getWsMessage } from './message';
-import { getWsEvent } from './event';
+import { getHttpBody } from '../body';
 
 export const isWsServiceDeclaration = (type: AllType): type is TypeClass => {
   return isClassDeclaration(type) && hasHeritageType(type, 'Ws.Service');
@@ -73,7 +73,7 @@ export const getWsServices = (reflection: SourceMap) => {
           break;
 
         case 'schema':
-          if ((service.schema = getWsEvent(member.value, declaration, reflection, errorList))) {
+          if ((service.schema = getHttpBody(member.value, declaration, reflection, errorList))) {
             properties.delete(member.name);
           }
           break;

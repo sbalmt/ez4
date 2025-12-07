@@ -26,13 +26,13 @@ export const isWsMessageDeclaration = (type: AllType): type is TypeClass => {
 
 export const getWsMessage = (type: AllType, parent: TypeModel, reflection: SourceMap, errorList: Error[]) => {
   if (!isTypeReference(type)) {
-    return getMessageType(type, parent, errorList);
+    return getMessageType(type, parent, reflection, errorList);
   }
 
   const declaration = getReferenceType(type, reflection);
 
   if (declaration) {
-    return getMessageType(declaration, parent, errorList);
+    return getMessageType(declaration, parent, reflection, errorList);
   }
 
   return undefined;
@@ -42,19 +42,25 @@ const isCompleteWsMessage = (type: Incomplete<WsMessage>): type is WsMessage => 
   return !!type.handler;
 };
 
-const getMessageType = (type: AllType, parent: TypeModel, errorList: Error[]) => {
+const getMessageType = (type: AllType, parent: TypeModel, reflection: SourceMap, errorList: Error[]) => {
   if (isWsMessageDeclaration(type)) {
-    return getTypeFromMembers(type, parent, getModelMembers(type), errorList);
+    return getTypeFromMembers(type, parent, getModelMembers(type), reflection, errorList);
   }
 
   if (isTypeObject(type)) {
-    return getTypeFromMembers(type, parent, getObjectMembers(type), errorList);
+    return getTypeFromMembers(type, parent, getObjectMembers(type), reflection, errorList);
   }
 
   return undefined;
 };
 
-const getTypeFromMembers = (type: TypeObject | TypeModel, parent: TypeModel, members: MemberType[], errorList: Error[]) => {
+const getTypeFromMembers = (
+  type: TypeObject | TypeModel,
+  parent: TypeModel,
+  members: MemberType[],
+  reflection: SourceMap,
+  errorList: Error[]
+) => {
   const route: Incomplete<WsMessage> = {};
   const properties = new Set(['handler']);
 
@@ -69,7 +75,7 @@ const getTypeFromMembers = (type: TypeObject | TypeModel, parent: TypeModel, mem
         break;
 
       case 'handler':
-        if ((route.handler = getWsMessageHandler(member.value, errorList))) {
+        if ((route.handler = getWsMessageHandler(member.value, parent, reflection, errorList))) {
           properties.delete(member.name);
         }
         break;

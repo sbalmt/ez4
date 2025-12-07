@@ -15,7 +15,7 @@ import { isModelProperty, isTypeReference } from '@ez4/reflection';
 
 import { ImportType } from '../../types/import';
 import { IncompleteServiceError } from '../../errors/http/service';
-import { getHttpRemoteRoutes } from './route';
+import { getHttpRemoteRoutes } from './routes';
 import { getHttpDefaults } from './defaults';
 import { isHttpImport } from './utils';
 import { getHttpAuthorization } from '../authorization';

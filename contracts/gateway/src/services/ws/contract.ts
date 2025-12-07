@@ -10,11 +10,14 @@ import type { WsRequest } from './request';
 import type { WsHandler } from './handler';
 import type { WsMessage } from './message';
 import type { WsEvent } from './event';
+import type { WsData } from './data';
 
 /**
  * Provide all contracts for a self-managed WS service.
  */
 export namespace Ws {
+  export type Data = WsData;
+
   export type Request = WsRequest;
   export type Response = WsResponse;
   export type Event = WsEvent;
@@ -50,7 +53,7 @@ export namespace Ws {
   /**
    * WS service.
    */
-  export declare abstract class Service<T extends Event> implements CommonService.Provider {
+  export declare abstract class Service<T extends Data> implements CommonService.Provider {
     /**
      * All connection events.
      */

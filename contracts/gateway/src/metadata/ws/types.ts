@@ -8,7 +8,7 @@ import { isObjectWith } from '@ez4/utils';
 
 const ServiceType = '@ez4/ws';
 
-export type WsEventSchema = ObjectSchema | UnionSchema;
+export type WsDataSchema = ObjectSchema | UnionSchema | ArraySchema | ScalarSchema;
 
 export type WsService = ServiceMetadata & {
   type: typeof ServiceType;
@@ -16,7 +16,7 @@ export type WsService = ServiceMetadata & {
   description?: string;
   defaults?: WsDefaults;
   routeKey: string;
-  schema: WsEventSchema;
+  schema: WsDataSchema;
   connect: WsConnection;
   disconnect: WsConnection;
   message: WsMessage;
@@ -46,8 +46,8 @@ export type WsHandler = {
   file: string;
   module?: string;
   description?: string;
+  request?: WsRequest | WsEvent;
   response?: WsResponse;
-  request?: WsRequest;
 };
 
 export type WsRequest = {
@@ -55,11 +55,16 @@ export type WsRequest = {
   headers?: ObjectSchema;
   parameters?: ObjectSchema;
   query?: ObjectSchema;
-  body?: ObjectSchema | UnionSchema | ArraySchema | ScalarSchema;
+  body?: WsDataSchema;
+};
+
+export type WsEvent = {
+  identity?: ObjectSchema | UnionSchema;
+  body?: WsDataSchema;
 };
 
 export type WsResponse = {
-  body?: ObjectSchema | UnionSchema | ArraySchema | ScalarSchema;
+  body?: WsDataSchema;
 };
 
 export type WsDefaults = {
@@ -78,5 +83,8 @@ export const isCompleteWsService = (type: Incomplete<WsService>): type is WsServ
 };
 
 export const getPartialWsService = (): Incomplete<WsService> => {
-  return { type: ServiceType, context: {} };
+  return {
+    type: ServiceType,
+    context: {}
+  };
 };

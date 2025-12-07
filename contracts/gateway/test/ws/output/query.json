@@ -42,8 +42,7 @@
     "disconnect": {
       "handler": {
         "name": "disconnectHandler",
-        "file": "test/ws/input/output-query.ts",
-        "request": {}
+        "file": "test/ws/input/output-query.ts"
       }
     },
     "message": {

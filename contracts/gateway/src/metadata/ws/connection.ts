@@ -20,7 +20,7 @@ import {
 
 import { IncompleteRouteError } from '../../errors/http/route';
 import { getHttpAuthorizer } from '../authorizer';
-import { getWsConnectHandler } from './handlers';
+import { getWsConnectionHandler } from './handlers';
 
 export const isWsConnectionDeclaration = (type: AllType): type is TypeClass => {
   return isModelDeclaration(type) && (hasHeritageType(type, 'Ws.Connect') || hasHeritageType(type, 'Ws.Disconnect'));
@@ -77,7 +77,7 @@ const getTypeFromMembers = (
         break;
 
       case 'handler':
-        if ((route.handler = getWsConnectHandler(member.value, parent, reflection, errorList))) {
+        if ((route.handler = getWsConnectionHandler(member.value, parent, reflection, errorList))) {
           properties.delete(member.name);
         }
         break;

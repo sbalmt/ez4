@@ -17,7 +17,7 @@ import { isModelProperty } from '@ez4/reflection';
 import { ServiceType } from '../../types/service';
 import { IncompleteServiceError, ServiceCollisionError } from '../../errors/http/service';
 import { getHttpDefaults } from './defaults';
-import { getHttpLocalRoutes } from './route';
+import { getHttpLocalRoutes } from './routes';
 import { getHttpAccess } from './access';
 import { isHttpService } from './utils';
 import { getHttpCache } from './cache';

@@ -1,19 +1,27 @@
-import type { AllType, SourceMap, TypeCallback, TypeFunction, TypeIntersection, TypeModel, TypeObject } from '@ez4/reflection';
-import type { UnionSchema } from '@ez4/schema/library';
+import type { AllType, SourceMap, TypeIntersection, TypeModel, TypeObject } from '@ez4/reflection';
+import type { MemberType } from '@ez4/common/library';
+import type { WsEvent } from './types';
 
-import { createUnionSchema, getIntersectionSchema, getObjectSchema, isObjectSchema } from '@ez4/schema/library';
-import { isTypeIntersection, isTypeObject, isTypeReference, isTypeUnion } from '@ez4/reflection';
-import { getReferenceType, hasHeritageType, isModelDeclaration } from '@ez4/common/library';
+import { isModelProperty, isTypeIntersection, isTypeObject, isTypeReference } from '@ez4/reflection';
 
-import { IncorrectEventTypeError, InvalidEventTypeError } from '../../errors/ws/event';
+import {
+  InvalidServicePropertyError,
+  isModelDeclaration,
+  hasHeritageType,
+  getObjectMembers,
+  getModelMembers,
+  getReferenceType
+} from '@ez4/common/library';
 
-type TypeParent = TypeModel | TypeCallback | TypeFunction;
+import { IncorrectRequestTypeError, InvalidRequestTypeError } from '../../errors/http/request';
+import { getHttpIdentity } from '../identity';
+import { getHttpBody } from '../body';
 
-export const isWsEventDeclaration = (type: TypeModel) => {
-  return hasHeritageType(type, 'Ws.Event');
-};
+export const getWsEvent = (type: AllType, parent: TypeModel, reflection: SourceMap, errorList: Error[]): WsEvent | undefined => {
+  if (isTypeIntersection(type) && type.elements.length > 0) {
+    return getWsEvent(type.elements[0], parent, reflection, errorList);
+  }
 
-export const getWsEvent = (type: AllType, parent: TypeParent, reflection: SourceMap, errorList: Error[]) => {
   if (!isTypeReference(type)) {
     return getEventType(type, parent, reflection, errorList);
   }
@@ -27,64 +35,64 @@ export const getWsEvent = (type: AllType, parent: TypeParent, reflection: Source
   return undefined;
 };
 
-const getEventType = (type: AllType, parent: TypeParent, reflection: SourceMap, errorList: Error[]) => {
-  if (isTypeUnion(type)) {
-    return getEventFromUnion(type.elements, parent, reflection, errorList);
-  }
-
-  if (isTypeIntersection(type)) {
-    return getEventFromIntersection(type, reflection);
-  }
-
+const getEventType = (type: AllType, parent: TypeModel, reflection: SourceMap, errorList: Error[]) => {
   if (isTypeObject(type)) {
-    return getEventSchema(type, reflection);
+    return getTypeFromMembers(type, parent, getObjectMembers(type), reflection, errorList);
   }
 
   if (!isModelDeclaration(type)) {
-    errorList.push(new InvalidEventTypeError(parent.file));
+    errorList.push(new InvalidRequestTypeError('Ws.Event', parent.file));
     return undefined;
   }
 
-  if (!isWsEventDeclaration(type)) {
-    errorList.push(new IncorrectEventTypeError(type.name, type.file));
+  if (!hasHeritageType(type, 'Ws.Event')) {
+    errorList.push(new IncorrectRequestTypeError(type.name, 'Ws.Event', type.file));
     return undefined;
   }
 
-  return getEventSchema(type, reflection);
+  return getTypeFromMembers(type, parent, getModelMembers(type), reflection, errorList);
 };
 
-const getEventFromUnion = (types: AllType[], parent: TypeParent, reflection: SourceMap, errorList: Error[]): UnionSchema => {
-  const schemaList = [];
+const getTypeFromMembers = (
+  type: TypeObject | TypeModel | TypeIntersection,
+  parent: TypeModel,
+  members: MemberType[],
+  reflection: SourceMap,
+  errorList: Error[]
+) => {
+  const request: WsEvent = {};
 
-  for (const type of types) {
-    const schema = getWsEvent(type, parent, reflection, errorList);
+  for (const member of members) {
+    if (!isModelProperty(member) || member.inherited) {
+      continue;
+    }
 
-    if (schema) {
-      schemaList.push(schema);
+    switch (member.name) {
+      default:
+        errorList.push(new InvalidServicePropertyError(parent.name, member.name, type.file));
+        break;
+
+      case 'identity': {
+        request.identity = getHttpIdentity(member.value, type, reflection, errorList);
+
+        if (request.identity && member.description) {
+          request.identity.description = member.description;
+        }
+
+        break;
+      }
+
+      case 'body': {
+        request.body = getHttpBody(member.value, type, reflection, errorList);
+
+        if (request.body && member.description) {
+          request.body.description = member.description;
+        }
+
+        break;
+      }
     }
   }
 
-  return createUnionSchema({
-    elements: schemaList
-  });
-};
-
-const getEventFromIntersection = (type: TypeObject | TypeModel | TypeIntersection, reflection: SourceMap) => {
-  const schema = getIntersectionSchema(type, reflection);
-
-  if (schema && isObjectSchema(schema)) {
-    return schema;
-  }
-
-  return undefined;
-};
-
-const getEventSchema = (type: TypeObject | TypeModel | TypeIntersection, reflection: SourceMap) => {
-  const schema = getObjectSchema(type, reflection);
-
-  if (schema && isObjectSchema(schema)) {
-    return schema;
-  }
-
-  return undefined;
+  return request;
 };
