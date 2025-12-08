@@ -1,6 +1,7 @@
 import type { Service as CommonService } from '@ez4/common';
 import type { LinkedVariables } from '@ez4/project/library';
 import type { WebPreferences } from '../preferences';
+import type { WebHeaders, WebIdentity, WebJsonBody, WebPathParameters, WebQueryStrings, WebRawBody } from '../common';
 import type { HttpSuccessStatuses, HttpSuccessEmptyResponse, HttpSuccessResponse, HttpEmptyRequest } from './utils';
 import type { HttpAuthorization } from './authorization';
 import type { HttpDefaults } from './defaults';
@@ -12,12 +13,6 @@ import type { HttpCors } from './cors';
 import type { Client } from './client';
 
 import type {
-  HttpHeaders,
-  HttpIdentity,
-  HttpPathParameters,
-  HttpQueryStrings,
-  HttpJsonBody,
-  HttpRawBody,
   HttpAuthRequest,
   HttpAuthResponse,
   HttpRequest,
@@ -33,13 +28,13 @@ import type {
  * Provide all contracts for a self-managed HTTP service.
  */
 export namespace Http {
-  export type Headers = HttpHeaders;
-  export type Identity = HttpIdentity;
+  export type Headers = WebHeaders;
+  export type Identity = WebIdentity;
 
-  export type PathParameters = HttpPathParameters;
-  export type QueryStrings = HttpQueryStrings;
-  export type JsonBody = HttpJsonBody;
-  export type RawBody = HttpRawBody;
+  export type PathParameters = WebPathParameters;
+  export type QueryStrings = WebQueryStrings;
+  export type JsonBody = WebJsonBody;
+  export type RawBody = WebRawBody;
 
   export type Authorization = HttpAuthorization;
   export type Preferences = WebPreferences;
@@ -68,7 +63,7 @@ export namespace Http {
   export type ServiceEvent<T extends Request | AuthRequest = Request> = CommonService.AnyEvent<Incoming<T>>;
 
   export type SuccessEmptyResponse<S extends HttpSuccessStatuses = 204> = HttpSuccessEmptyResponse<S>;
-  export type SuccessResponse<S extends HttpSuccessStatuses, T extends HttpRawBody | HttpJsonBody> = HttpSuccessResponse<S, T>;
+  export type SuccessResponse<S extends HttpSuccessStatuses, T extends JsonBody | RawBody> = HttpSuccessResponse<S, T>;
   export type EmptyRequest = HttpEmptyRequest;
 
   /**

@@ -2,13 +2,13 @@ import type { LinkedVariables } from '@ez4/project/library';
 import type { HttpAuthorizer, HttpAuthRequest } from '../http/common';
 import type { WebPreferences } from '../preferences';
 import type { WsListener } from './listener';
-import type { WsRequest } from './request';
 import type { WsHandler } from './handler';
+import type { WsEvent } from './event';
 
 /**
  * WS connect event.
  */
-export interface WsConnect<T extends WsRequest, U extends HttpAuthRequest> {
+export interface WsConnect<T extends WsEvent, U extends HttpAuthRequest> {
   /**
    * Life-cycle listener function for the event.
    */
@@ -53,7 +53,7 @@ export interface WsConnect<T extends WsRequest, U extends HttpAuthRequest> {
 /**
  * WS disconnect event.
  */
-export interface WsDisconnect<T extends WsRequest> {
+export interface WsDisconnect<T extends WsEvent> {
   /**
    * Life-cycle listener function for the event.
    */

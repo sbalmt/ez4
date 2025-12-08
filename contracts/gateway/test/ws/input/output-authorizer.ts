@@ -5,6 +5,10 @@ type TestData = {
   bar: number;
 };
 
+type TestIdentity = {
+  id: string;
+};
+
 export declare class TestService extends Ws.Service<TestData> {
   routeKey: 'foo';
 
@@ -29,9 +33,7 @@ declare class AuthorizerRequest implements Http.AuthRequest {
 }
 
 declare class AuthorizerResponse implements Http.AuthResponse {
-  identity?: {
-    id: string;
-  };
+  identity?: TestIdentity;
 }
 
 function authorizerHandler(request: AuthorizerRequest): AuthorizerResponse {
@@ -48,14 +50,20 @@ function authorizerHandler(request: AuthorizerRequest): AuthorizerResponse {
   };
 }
 
-declare class ConnectRequest implements Ws.Request {
-  identity: {
-    id: string;
-  };
+declare class ConnectEvent implements Ws.Event {
+  identity: TestIdentity;
 }
 
-function connectHandler(_request: Ws.Incoming<ConnectRequest>) {}
+function connectHandler(_event: Ws.Incoming<ConnectEvent>) {}
 
-function disconnectHandler() {}
+declare class DisconnectEvent implements Ws.Event {
+  identity: TestIdentity;
+}
 
-function messageHandler() {}
+function disconnectHandler(_event: Ws.Incoming<DisconnectEvent>) {}
+
+declare class MessageRequest implements Ws.Request {
+  body: TestData;
+}
+
+function messageHandler(_request: Ws.Incoming<MessageRequest>) {}

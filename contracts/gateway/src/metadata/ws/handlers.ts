@@ -7,8 +7,8 @@ import { isObjectWith } from '@ez4/utils';
 
 import { IncompleteHandlerError } from '../../errors/http/handler';
 import { getWsResponse } from './response';
-import { getWsRequest } from './request';
 import { getWsEvent } from './event';
+import { getWsRequest } from './request';
 
 export const isWsHandlerDeclaration = (type: AllType): type is TypeCallback | TypeFunction => {
   return isTypeCallback(type) || isTypeFunction(type);
@@ -16,13 +16,13 @@ export const isWsHandlerDeclaration = (type: AllType): type is TypeCallback | Ty
 
 export const getWsConnectionHandler = (type: AllType, parent: TypeModel, reflection: SourceMap, errorList: Error[]) => {
   return getWsHandler(type, parent, reflection, errorList, (inputType) => {
-    return getWsRequest(inputType, parent, reflection, errorList);
+    return getWsEvent(inputType, parent, reflection, errorList);
   });
 };
 
 export const getWsMessageHandler = (type: AllType, parent: TypeModel, reflection: SourceMap, errorList: Error[]) => {
   return getWsHandler(type, parent, reflection, errorList, (inputType) => {
-    return getWsEvent(inputType, parent, reflection, errorList);
+    return getWsRequest(inputType, parent, reflection, errorList);
   });
 };
 

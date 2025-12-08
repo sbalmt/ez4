@@ -1,36 +1,7 @@
 import type { Service } from '@ez4/common';
+import type { WebHeaders, WebIdentity, WebJsonBody, WebPathParameters, WebQueryStrings, WebRawBody } from '../common';
 import type { HttpProvider } from './provider';
 import type { Http } from './contract';
-
-/**
- * Request headers.
- */
-export interface HttpHeaders {}
-
-/**
- * Request Identity payload.
- */
-export interface HttpIdentity {}
-
-/**
- * Request path parameters.
- */
-export interface HttpPathParameters {}
-
-/**
- * Request query strings.
- */
-export interface HttpQueryStrings {}
-
-/**
- * Json body payload.
- */
-export interface HttpJsonBody {}
-
-/**
- * Raw body payload.
- */
-export type HttpRawBody = string;
 
 /**
  * Authorizer request.
@@ -39,17 +10,17 @@ export interface HttpAuthRequest {
   /**
    * Expected HTTP headers.
    */
-  readonly headers?: HttpHeaders;
+  readonly headers?: WebHeaders;
 
   /**
    * Expected HTTP path parameters.
    */
-  readonly parameters?: HttpPathParameters;
+  readonly parameters?: WebPathParameters;
 
   /**
    * Expected HTTP query strings.
    */
-  readonly query?: HttpQueryStrings;
+  readonly query?: WebQueryStrings;
 }
 
 /**
@@ -59,7 +30,7 @@ export interface HttpAuthResponse {
   /**
    * Authorization identity.
    */
-  readonly identity?: HttpIdentity;
+  readonly identity?: WebIdentity;
 }
 
 /**
@@ -69,27 +40,27 @@ export interface HttpRequest {
   /**
    * Expected identity.
    */
-  readonly identity?: HttpIdentity;
+  readonly identity?: WebIdentity;
 
   /**
    * Expected HTTP headers.
    */
-  readonly headers?: HttpHeaders;
+  readonly headers?: WebHeaders;
 
   /**
    * Expected HTTP path parameters.
    */
-  readonly parameters?: HttpPathParameters;
+  readonly parameters?: WebPathParameters;
 
   /**
    * Expected HTTP query strings.
    */
-  readonly query?: HttpQueryStrings;
+  readonly query?: WebQueryStrings;
 
   /**
    * Expected HTTP body payload.
    */
-  readonly body?: HttpJsonBody | HttpRawBody;
+  readonly body?: WebJsonBody | WebRawBody;
 }
 
 /**
@@ -104,12 +75,12 @@ export interface HttpResponse {
   /**
    * HTTP headers.
    */
-  readonly headers?: HttpHeaders;
+  readonly headers?: WebHeaders;
 
   /**
    * HTTP body payload.
    */
-  readonly body?: HttpJsonBody | HttpRawBody;
+  readonly body?: WebJsonBody | WebRawBody;
 }
 
 /**

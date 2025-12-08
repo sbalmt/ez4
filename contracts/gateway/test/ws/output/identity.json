@@ -42,7 +42,19 @@
     "disconnect": {
       "handler": {
         "name": "disconnectHandler",
-        "file": "test/ws/input/output-identity.ts"
+        "file": "test/ws/input/output-identity.ts",
+        "request": {
+          "identity": {
+            "type": "object",
+            "description": "Expected identity.",
+            "identity": 1,
+            "properties": {
+              "id": {
+                "type": "string"
+              }
+            }
+          }
+        }
       }
     },
     "message": {

@@ -39,21 +39,7 @@
       "handler": {
         "name": "messageHandler",
         "file": "test/ws/input/output-variables.ts",
-        "request": {
-          "body": {
-            "type": "object",
-            "description": "Expected event body.",
-            "identity": 1,
-            "properties": {
-              "foo": {
-                "type": "string"
-              },
-              "bar": {
-                "type": "number"
-              }
-            }
-          }
-        }
+        "request": {}
       },
       "variables": {
         "TEST_VAR3": "test-literal-data-value"

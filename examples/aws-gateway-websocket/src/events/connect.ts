@@ -2,17 +2,16 @@ import type { Ws } from '@ez4/gateway';
 import type { Identity } from '../types';
 
 /**
- * Connect request example.
+ * Connection event example.
  */
-declare class ConnectRequest implements Ws.Request {
+declare class ConnectEvent implements Ws.Event {
   identity: Identity;
 }
 
 /**
- * Handler for `connection` requests.
- * @param request Incoming request.
- * @returns Outgoing response.
+ * Handler for `connection` events.
+ * @param event Incoming event.
  */
-export function connectHandler(request: Ws.Incoming<ConnectRequest>) {
-  console.log(request);
+export function connectHandler(event: Ws.Incoming<ConnectEvent>) {
+  console.log(event);
 }

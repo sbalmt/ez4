@@ -21,13 +21,13 @@ export declare class TestService extends Ws.Service<TestData> {
   }>;
 }
 
-declare class ConnectRequest implements Ws.Request {
+declare class ConnectEvent implements Ws.Event {
   query: {
     secret: string;
   };
 }
 
-function connectHandler(_request: Ws.Incoming<ConnectRequest>) {}
+function connectHandler(_event: Ws.Incoming<ConnectEvent>) {}
 
 function disconnectHandler() {}
 

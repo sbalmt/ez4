@@ -2,17 +2,16 @@ import type { Ws } from '@ez4/gateway';
 import type { Identity } from '../types';
 
 /**
- * Disconnect request example.
+ * Disconnect event example.
  */
-declare class DisconnectRequest implements Ws.Request {
+declare class DisconnectEvent implements Ws.Event {
   identity: Identity;
 }
 
 /**
- * Handler for `disconnection` requests.
- * @param request Incoming request.
- * @returns Outgoing response.
+ * Handler for `disconnection` events.
+ * @param event Incoming event.
  */
-export function disconnectHandler(request: Ws.Incoming<DisconnectRequest>) {
-  console.log(request);
+export function disconnectHandler(event: Ws.Incoming<DisconnectEvent>) {
+  console.log(event);
 }

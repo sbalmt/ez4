@@ -34,7 +34,7 @@ export declare class TestService extends Ws.Service<TestData> {
   };
 }
 
-function connectHandler(_request: Ws.EmptyRequest, context: Service.Context<TestService>) {
+function connectHandler(_event: Ws.Incoming<Ws.EmptyEvent>, context: Service.Context<TestService>) {
   const { selfSettings } = context;
 
   // Ensure variables are property referenced.
@@ -42,7 +42,7 @@ function connectHandler(_request: Ws.EmptyRequest, context: Service.Context<Test
   selfSettings.TEST_VAR2;
 }
 
-function disconnectHandler(_request: Ws.EmptyRequest, context: Service.Context<TestService>) {
+function disconnectHandler(_event: Ws.Incoming<Ws.EmptyEvent>, context: Service.Context<TestService>) {
   const { selfSettings } = context;
 
   // Ensure variables are property referenced.
@@ -50,11 +50,7 @@ function disconnectHandler(_request: Ws.EmptyRequest, context: Service.Context<T
   selfSettings.TEST_VAR2;
 }
 
-declare class TestEvent implements Ws.Event {
-  body: TestData;
-}
-
-function messageHandler(_request: Ws.Incoming<TestEvent>, context: Service.Context<TestService>) {
+function messageHandler(_request: Ws.Incoming<Ws.EmptyRequest>, context: Service.Context<TestService>) {
   const { selfSettings } = context;
 
   // Ensure variables are property referenced.

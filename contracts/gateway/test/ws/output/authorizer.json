@@ -70,13 +70,40 @@
     "disconnect": {
       "handler": {
         "name": "disconnectHandler",
-        "file": "test/ws/input/output-authorizer.ts"
+        "file": "test/ws/input/output-authorizer.ts",
+        "request": {
+          "identity": {
+            "type": "object",
+            "description": "Expected identity.",
+            "identity": 1,
+            "properties": {
+              "id": {
+                "type": "string"
+              }
+            }
+          }
+        }
       }
     },
     "message": {
       "handler": {
         "name": "messageHandler",
-        "file": "test/ws/input/output-authorizer.ts"
+        "file": "test/ws/input/output-authorizer.ts",
+        "request": {
+          "body": {
+            "type": "object",
+            "description": "Expected event body.",
+            "identity": 1,
+            "properties": {
+              "foo": {
+                "type": "string"
+              },
+              "bar": {
+                "type": "number"
+              }
+            }
+          }
+        }
       }
     }
   }

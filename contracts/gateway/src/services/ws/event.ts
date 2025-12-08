@@ -1,17 +1,21 @@
-import type { HttpIdentity } from '../http/common';
-import type { WsData } from './data';
+import type { WebHeaders, WebIdentity, WebQueryStrings } from '../common';
 
 /**
  * WS event.
  */
 export interface WsEvent {
   /**
-   * Expected identity.
+   * Expected HTTP headers.
    */
-  readonly identity?: HttpIdentity;
+  readonly headers?: WebHeaders;
 
   /**
-   * Expected event body.
+   * Expected HTTP query strings.
    */
-  readonly body?: WsData;
+  readonly query?: WebQueryStrings;
+
+  /**
+   * Expected identity.
+   */
+  readonly identity?: WebIdentity;
 }

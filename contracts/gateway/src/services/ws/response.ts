@@ -1,4 +1,4 @@
-import type { WsData } from './data';
+import type { WebJsonBody, WebRawBody } from '../common';
 
 /**
  * WS response.
@@ -7,5 +7,5 @@ export interface WsResponse {
   /**
    * WS body payload.
    */
-  readonly body?: WsData;
+  readonly body?: WebJsonBody | WebRawBody;
 }

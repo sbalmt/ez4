@@ -1,21 +1,16 @@
-import type { HttpHeaders, HttpIdentity, HttpQueryStrings } from '../http/common';
+import type { WebIdentity, WebJsonBody, WebRawBody } from '../common';
 
 /**
  * WS request.
  */
 export interface WsRequest {
   /**
-   * Expected HTTP headers.
-   */
-  readonly headers?: HttpHeaders;
-
-  /**
-   * Expected HTTP query strings.
-   */
-  readonly query?: HttpQueryStrings;
-
-  /**
    * Expected identity.
    */
-  readonly identity?: HttpIdentity;
+  readonly identity?: WebIdentity;
+
+  /**
+   * Expected event body.
+   */
+  readonly body?: WebJsonBody | WebRawBody;
 }

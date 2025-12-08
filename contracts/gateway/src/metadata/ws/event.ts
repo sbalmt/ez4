@@ -1,6 +1,6 @@
 import type { AllType, SourceMap, TypeIntersection, TypeModel, TypeObject } from '@ez4/reflection';
 import type { MemberType } from '@ez4/common/library';
-import type { WsEvent } from './types';
+import type { WsRequest } from './types';
 
 import { isModelProperty, isTypeIntersection, isTypeObject, isTypeReference } from '@ez4/reflection';
 
@@ -15,9 +15,10 @@ import {
 
 import { IncorrectEventTypeError, InvalidEventTypeError } from '../../errors/ws/event';
 import { getHttpIdentity } from '../identity';
-import { getHttpBody } from '../body';
+import { getHttpHeaders } from '../headers';
+import { getHttpQuery } from '../query';
 
-export const getWsEvent = (type: AllType, parent: TypeModel, reflection: SourceMap, errorList: Error[]): WsEvent | undefined => {
+export const getWsEvent = (type: AllType, parent: TypeModel, reflection: SourceMap, errorList: Error[]): WsRequest | undefined => {
   if (isTypeIntersection(type) && type.elements.length > 0) {
     return getWsEvent(type.elements[0], parent, reflection, errorList);
   }
@@ -60,7 +61,7 @@ const getTypeFromMembers = (
   reflection: SourceMap,
   errorList: Error[]
 ) => {
-  const request: WsEvent = {};
+  const request: WsRequest = {};
 
   for (const member of members) {
     if (!isModelProperty(member) || member.inherited) {
@@ -72,6 +73,16 @@ const getTypeFromMembers = (
         errorList.push(new InvalidServicePropertyError(parent.name, member.name, type.file));
         break;
 
+      case 'headers': {
+        request.headers = getHttpHeaders(member.value, type, reflection, errorList);
+
+        if (request.headers && member.description) {
+          request.headers.description = member.description;
+        }
+
+        break;
+      }
+
       case 'identity': {
         request.identity = getHttpIdentity(member.value, type, reflection, errorList);
 
@@ -82,11 +93,11 @@ const getTypeFromMembers = (
         break;
       }
 
-      case 'body': {
-        request.body = getHttpBody(member.value, type, reflection, errorList);
+      case 'query': {
+        request.query = getHttpQuery(member.value, type, reflection, errorList);
 
-        if (request.body && member.description) {
-          request.body.description = member.description;
+        if (request.query && member.description) {
+          request.query.description = member.description;
         }
 
         break;

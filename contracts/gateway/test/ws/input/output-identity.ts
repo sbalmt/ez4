@@ -25,19 +25,21 @@ export declare class TestService extends Ws.Service<TestData> {
   }>;
 }
 
-declare class ConnectRequest implements Ws.Request {
-  identity: {
-    id: string;
-  };
+declare class ConnectEvent implements Ws.Event {
+  identity: TestIdentity;
 }
 
-function connectHandler(_request: Ws.Incoming<ConnectRequest>) {}
+function connectHandler(_event: Ws.Incoming<ConnectEvent>) {}
 
-function disconnectHandler() {}
+declare class DisconnectEvent implements Ws.Event {
+  identity: TestIdentity;
+}
 
-declare class TestEvent implements Ws.Event {
+function disconnectHandler(_event: Ws.Incoming<DisconnectEvent>) {}
+
+declare class TestRequest implements Ws.Request {
   identity: TestIdentity;
   body: TestData;
 }
 
-function messageHandler(_request: Ws.Incoming<TestEvent>) {}
+function messageHandler(_request: Ws.Incoming<TestRequest>) {}
