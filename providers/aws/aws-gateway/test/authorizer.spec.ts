@@ -4,7 +4,14 @@ import { describe, it } from 'node:test';
 import { ok, equal } from 'node:assert/strict';
 import { join } from 'node:path';
 
-import { createGateway, createAuthorizer, createAuthorizerFunction, isAuthorizerState, registerTriggers } from '@ez4/aws-gateway';
+import {
+  createGateway,
+  createAuthorizer,
+  createAuthorizerFunction,
+  isAuthorizerState,
+  registerTriggers,
+  GatewayProtocol
+} from '@ez4/aws-gateway';
 
 import { deploy } from '@ez4/aws-common';
 import { createLogGroup } from '@ez4/aws-logs';
@@ -46,7 +53,8 @@ describe('gateway authorizer', () => {
 
     const gatewayResource = createGateway(localState, {
       gatewayId: 'ez4-test-gateway-authorizer',
-      gatewayName: 'EZ4: Test gateway for authorizers'
+      gatewayName: 'EZ4: Test gateway for authorizers',
+      protocol: GatewayProtocol.Http
     });
 
     const roleResource = createRole(localState, [], {
@@ -70,7 +78,8 @@ describe('gateway authorizer', () => {
 
     const resource = createAuthorizer(localState, gatewayResource, lambdaResource, {
       name: 'ez4-test-authorizer',
-      cacheTTL: 300
+      cacheTTL: 300,
+      http: true
     });
 
     authorizerId = resource.entryId;

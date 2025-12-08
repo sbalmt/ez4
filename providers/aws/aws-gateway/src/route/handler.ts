@@ -3,8 +3,8 @@ import type { RouteState, RouteResult, RouteParameters } from './types';
 
 import { ReplaceResourceError } from '@ez4/aws-common';
 import { deepCompare, deepEqual } from '@ez4/utils';
-import { getGatewayId } from '../gateway/utils';
 
+import { getGatewayId } from '../gateway/utils';
 import { getIntegrationId } from '../integration/utils';
 import { tryGetAuthorizerId } from '../authorizer/utils';
 import { importRoute, createRoute, deleteRoute, updateRoute } from './client';

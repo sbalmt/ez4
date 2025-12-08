@@ -52,13 +52,13 @@ export const importStage = async (apiId: string, stageName: string): Promise<Imp
 };
 
 export const createStage = async (apiId: string, request: CreateRequest): Promise<ImportOrCreateResponse> => {
-  Logger.logCreate(StageServiceName, request.stageName);
-
-  if (request.stageVariables) {
-    assertVariables(StageServiceName, request.stageVariables);
-  }
-
   const { stageName, stageVariables, autoDeploy } = request;
+
+  Logger.logCreate(StageServiceName, stageName);
+
+  if (stageVariables) {
+    assertVariables(StageServiceName, stageVariables);
+  }
 
   const response = await client.send(
     new CreateStageCommand({

@@ -3,7 +3,7 @@ import type { EntryState, EntryStates } from '@ez4/stateful';
 import { describe, it } from 'node:test';
 import { ok, equal } from 'node:assert/strict';
 
-import { createGateway, createStage, isStageState, registerTriggers } from '@ez4/aws-gateway';
+import { createGateway, createStage, GatewayProtocol, isStageState, registerTriggers } from '@ez4/aws-gateway';
 import { deploy } from '@ez4/aws-common';
 import { deepClone } from '@ez4/utils';
 
@@ -37,7 +37,8 @@ describe('gateway stage', () => {
 
     const gatewayResource = createGateway(localState, {
       gatewayId: 'ez4-test-gateway',
-      gatewayName: 'EZ4: Test gateway for stages'
+      gatewayName: 'EZ4: Test gateway for stages',
+      protocol: GatewayProtocol.Http
     });
 
     const resource = createStage(localState, gatewayResource, undefined, {

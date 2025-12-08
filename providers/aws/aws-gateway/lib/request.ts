@@ -14,9 +14,9 @@ type RequestEvent = APIGatewayProxyEventV2WithLambdaAuthorizer<any>;
 type ResponseEvent = APIGatewayProxyResultV2;
 
 declare const __EZ4_HEADERS_SCHEMA: ObjectSchema | null;
-declare const __EZ4_IDENTITY_SCHEMA: ObjectSchema | UnionSchema | null;
 declare const __EZ4_PARAMETERS_SCHEMA: ObjectSchema | null;
 declare const __EZ4_QUERY_SCHEMA: ObjectSchema | null;
+declare const __EZ4_IDENTITY_SCHEMA: ObjectSchema | UnionSchema | null;
 declare const __EZ4_BODY_SCHEMA: ObjectSchema | UnionSchema | ArraySchema | ScalarSchema | null;
 declare const __EZ4_RESPONSE_SCHEMA: ObjectSchema | UnionSchema | ArraySchema | ScalarSchema | null;
 declare const __EZ4_ERRORS_MAP: Record<string, number> | null;
@@ -33,11 +33,11 @@ export async function apiEntryPoint(event: RequestEvent, context: Context): Prom
   const { requestContext } = event;
 
   const request = {
-    requestId: context.awsRequestId,
     timestamp: new Date(requestContext.timeEpoch),
-    encoded: event.isBase64Encoded,
+    requestId: context.awsRequestId,
     method: requestContext.http.method,
-    path: requestContext.http.path
+    path: requestContext.http.path,
+    encoded: event.isBase64Encoded
   };
 
   try {
@@ -140,25 +140,7 @@ const getIncomingRequestBody = (event: RequestEvent) => {
   }
 };
 
-const getSuccessResponse = (status: number, body?: Http.JsonBody | Http.RawBody, headers?: Http.Headers) => {
-  const response = body ? getSuccessResponseBody(body, headers) : undefined;
-
-  return {
-    statusCode: status,
-    isBase64Encoded: response?.encoded,
-    headers: {
-      ...headers,
-      ...(response && {
-        ['content-type']: response.type
-      })
-    },
-    ...(response && {
-      body: response.content
-    })
-  };
-};
-
-const getSuccessResponseBody = (body: Http.JsonBody | Http.RawBody, headers?: AnyObject) => {
+const getOutgoingResponseBody = (body: Http.JsonBody | Http.RawBody, headers?: AnyObject) => {
   if (!__EZ4_RESPONSE_SCHEMA) {
     return undefined;
   }
@@ -177,6 +159,24 @@ const getSuccessResponseBody = (body: Http.JsonBody | Http.RawBody, headers?: An
     type: 'application/json',
     content: JSON.stringify(payload),
     encoded: false
+  };
+};
+
+const getSuccessResponse = (status: number, body?: Http.JsonBody | Http.RawBody, headers?: Http.Headers) => {
+  const response = body ? getOutgoingResponseBody(body, headers) : undefined;
+
+  return {
+    statusCode: status,
+    isBase64Encoded: response?.encoded,
+    headers: {
+      ...headers,
+      ...(response && {
+        ['content-type']: response.type
+      })
+    },
+    ...(response && {
+      body: response.content
+    })
   };
 };
 

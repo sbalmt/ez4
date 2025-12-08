@@ -15,6 +15,7 @@ import { IntegrationServiceName } from './types';
 const client = new ApiGatewayV2Client({});
 
 export type CreateRequest = {
+  http: boolean;
   functionArn: Arn;
   description?: string;
   timeout?: number;
@@ -28,21 +29,23 @@ export type CreateResponse = {
 export type UpdateRequest = Partial<CreateRequest>;
 
 export const createIntegration = async (apiId: string, request: CreateRequest): Promise<CreateResponse> => {
-  const functionName = tryParseArn(request.functionArn)?.resourceName ?? request.functionArn;
+  const { http, functionArn, vpcId, timeout, description } = request;
+
+  const functionName = tryParseArn(functionArn)?.resourceName ?? functionArn;
 
   Logger.logCreate(IntegrationServiceName, functionName);
 
   const response = await client.send(
     new CreateIntegrationCommand({
       ApiId: apiId,
-      Description: request.description,
+      Description: description,
+      IntegrationUri: functionArn,
       IntegrationType: 'AWS_PROXY',
       IntegrationMethod: 'POST',
-      IntegrationUri: request.functionArn,
-      TimeoutInMillis: (request.timeout ?? 30) * 1000,
-      ConnectionType: request.vpcId ? 'VPC_LINK' : 'INTERNET',
-      ConnectionId: request.vpcId,
-      PayloadFormatVersion: '2.0'
+      ConnectionType: vpcId ? 'VPC_LINK' : 'INTERNET',
+      PayloadFormatVersion: http ? '2.0' : undefined,
+      TimeoutInMillis: (timeout ?? 30) * 1000,
+      ConnectionId: vpcId
     })
   );
 

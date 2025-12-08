@@ -9,11 +9,13 @@ import { tryCreateTrigger } from '@ez4/project/library';
 import { registerGatewayProvider } from '../gateway/provider';
 import { registerAuthorizerProvider } from '../authorizer/provider';
 import { registerIntegrationProvider } from '../integration/provider';
+import { registerResponseProvider } from '../response/provider';
 import { registerRouteProvider } from '../route/provider';
 import { registerStageProvider } from '../stage/provider';
 
-import { connectServices, prepareLinkedServices, prepareServices } from './service';
-import { prepareImports, prepareLinkedImports } from './import';
+import { connectHttpServices, prepareHttpLinkedService, prepareHttpServices } from './http/service';
+import { prepareHttpImports, prepareHttpLinkedImport } from './http/import';
+import { connectWsServices, prepareWsServices } from './ws/service';
 import { resourceOutput } from './output';
 
 export const registerTriggers = () => {
@@ -24,26 +26,28 @@ export const registerTriggers = () => {
 
   tryCreateTrigger('@ez4/aws-gateway', {
     'deploy:prepareLinkedService': prepareLinkedService,
-    'deploy:prepareResources': prepareHttpServices,
-    'deploy:connectResources': connectHttpServices,
+    'deploy:prepareResources': prepareServices,
+    'deploy:connectResources': connectServices,
     'deploy:resourceOutput': resourceOutput
   });
 
   registerGatewayProvider();
   registerAuthorizerProvider();
   registerIntegrationProvider();
+  registerResponseProvider();
   registerStageProvider();
   registerRouteProvider();
 };
 
 const prepareLinkedService = (event: ServiceEvent) => {
-  return prepareLinkedServices(event) ?? prepareLinkedImports(event) ?? null;
+  return prepareHttpLinkedService(event) ?? prepareHttpLinkedImport(event);
 };
 
-const prepareHttpServices = (event: PrepareResourceEvent) => {
-  return prepareServices(event) || prepareImports(event);
+const prepareServices = (event: PrepareResourceEvent) => {
+  return prepareHttpServices(event) || prepareWsServices(event) || prepareHttpImports(event);
 };
 
-const connectHttpServices = (event: ConnectResourceEvent) => {
-  connectServices(event);
+const connectServices = (event: ConnectResourceEvent) => {
+  connectHttpServices(event);
+  connectWsServices(event);
 };

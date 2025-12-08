@@ -1,4 +1,4 @@
-import type { APIGatewayRequestAuthorizerEventV2, APIGatewaySimpleAuthorizerWithContextResult, Context } from 'aws-lambda';
+import type { APIGatewayAuthorizerWithContextResult, APIGatewayRequestAuthorizerEventV2, PolicyDocument, Context } from 'aws-lambda';
 import type { HttpPreferences } from '@ez4/gateway/library';
 import type { ObjectSchema } from '@ez4/schema';
 import type { Http } from '@ez4/gateway';
@@ -7,8 +7,9 @@ import * as GatewayUtils from '@ez4/gateway/utils';
 
 import { HttpForbiddenError, HttpUnauthorizedError } from '@ez4/gateway';
 import { ServiceEventType } from '@ez4/common';
+import { AnyObject } from '@ez4/utils';
 
-type ResponseEvent = APIGatewaySimpleAuthorizerWithContextResult<any>;
+type ResponseEvent = APIGatewayAuthorizerWithContextResult<any>;
 type RequestEvent = APIGatewayRequestAuthorizerEventV2;
 
 declare const __EZ4_HEADERS_SCHEMA: ObjectSchema | null;
@@ -27,10 +28,10 @@ export async function apiEntryPoint(event: RequestEvent, context: Context): Prom
   const { requestContext } = event;
 
   const request: Http.Incoming<Http.AuthRequest> = {
-    requestId: context.awsRequestId,
     timestamp: new Date(requestContext.timeEpoch),
-    method: requestContext.http.method,
-    path: requestContext.http.path
+    requestId: context.awsRequestId,
+    method: requestContext.http?.method,
+    path: requestContext.http?.path
   };
 
   try {
@@ -44,17 +45,16 @@ export async function apiEntryPoint(event: RequestEvent, context: Context): Prom
 
     await onDone(request);
 
-    return {
-      isAuthorized: !!identity,
-      context: {
-        identity: JSON.stringify(identity ?? {})
-      }
-    };
+    return getAuthorizationResponse(!!identity, {
+      identity: JSON.stringify(identity ?? {})
+    });
+
+    //
   } catch (error) {
     await onError(error, request);
 
     if (error instanceof HttpForbiddenError) {
-      return { isAuthorized: false, context: undefined };
+      return getAuthorizationResponse(false);
     }
 
     if (error instanceof HttpUnauthorizedError) {
@@ -67,6 +67,23 @@ export async function apiEntryPoint(event: RequestEvent, context: Context): Prom
     await onEnd(request);
   }
 }
+
+const getAuthorizationResponse = (authorized: boolean, context?: AnyObject): ResponseEvent => {
+  return {
+    context,
+    principalId: 'me',
+    policyDocument: {
+      Version: '2012-10-17',
+      Statement: [
+        {
+          Action: 'execute-api:Invoke',
+          Effect: authorized ? 'Allow' : 'Deny',
+          Resource: '*'
+        }
+      ]
+    }
+  };
+};
 
 const getIncomingRequest = async (event: RequestEvent) => {
   return {
