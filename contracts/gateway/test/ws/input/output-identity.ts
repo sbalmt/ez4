@@ -1,17 +1,10 @@
 import type { Ws } from '@ez4/gateway';
 
-type TestData = {
-  foo: string;
-  bar: number;
-};
-
 type TestIdentity = {
   id: string;
 };
 
-export declare class TestService extends Ws.Service<TestData> {
-  routeKey: 'foo';
-
+export declare class TestService extends Ws.Service<{}> {
   connect: Ws.UseConnect<{
     handler: typeof connectHandler;
   }>;
@@ -39,7 +32,6 @@ function disconnectHandler(_event: Ws.Incoming<DisconnectEvent>) {}
 
 declare class TestRequest implements Ws.Request {
   identity: TestIdentity;
-  body: TestData;
 }
 
 function messageHandler(_request: Ws.Incoming<TestRequest>) {}

@@ -1,14 +1,7 @@
 import type { Environment, Service } from '@ez4/common';
 import type { Ws } from '@ez4/gateway';
 
-type TestData = {
-  foo: string;
-  bar: number;
-};
-
-export declare class TestService extends Ws.Service<TestData> {
-  routeKey: 'foo';
-
+export declare class TestService extends Ws.Service<{}> {
   connect: Ws.UseConnect<{
     handler: typeof connectHandler;
   }>;

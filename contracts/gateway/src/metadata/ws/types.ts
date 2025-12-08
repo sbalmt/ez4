@@ -18,7 +18,6 @@ export type WsService = ServiceMetadata & {
   displayName?: string;
   description?: string;
   defaults?: WsDefaults;
-  routeKey: string;
   schema: WsDataSchema;
   connect: WsConnection;
   disconnect: WsConnection;

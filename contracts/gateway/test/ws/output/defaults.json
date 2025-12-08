@@ -8,7 +8,6 @@
     "type": "@ez4/ws",
     "name": "TestService",
     "displayName": "Test Service",
-    "routeKey": "foo",
     "context": {},
     "defaults": {
       "listener": {
@@ -25,14 +24,7 @@
     "schema": {
       "type": "object",
       "identity": 1,
-      "properties": {
-        "foo": {
-          "type": "string"
-        },
-        "bar": {
-          "type": "number"
-        }
-      }
+      "properties": {}
     },
     "connect": {
       "handler": {

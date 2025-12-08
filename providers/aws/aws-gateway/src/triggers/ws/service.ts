@@ -29,7 +29,7 @@ export const prepareWsServices = (event: PrepareResourceEvent) => {
       protocol: GatewayProtocol.WebSocket,
       gatewayId: getServiceName(service, options),
       gatewayName: displayName ?? name,
-      routeKey: service.routeKey,
+      routeKey: 'ez4/unknown',
       description,
       tags
     });

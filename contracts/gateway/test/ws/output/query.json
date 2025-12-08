@@ -11,16 +11,8 @@
     "schema": {
       "type": "object",
       "identity": 1,
-      "properties": {
-        "foo": {
-          "type": "string"
-        },
-        "bar": {
-          "type": "number"
-        }
-      }
+      "properties": {}
     },
-    "routeKey": "foo",
     "connect": {
       "handler": {
         "name": "connectHandler",

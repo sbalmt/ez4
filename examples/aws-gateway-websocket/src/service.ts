@@ -15,11 +15,6 @@ export declare class Api extends Ws.Service<AllEvents> {
   name: 'AWS WebSocket';
 
   /**
-   * Define the routing key from the event schema.
-   */
-  routeKey: 'type';
-
-  /**
    * Define the connection handler.
    */
   connect: Ws.UseConnect<{

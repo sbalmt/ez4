@@ -100,11 +100,6 @@ export namespace Ws {
     abstract readonly message: Message<any>;
 
     /**
-     * Schema route key.
-     */
-    abstract readonly routeKey: keyof T;
-
-    /**
      * Default gateway parameters.
      */
     readonly defaults?: Defaults<any>;

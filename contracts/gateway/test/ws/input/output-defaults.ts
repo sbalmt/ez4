@@ -1,15 +1,8 @@
 import type { NamingStyle } from '@ez4/schema';
 import type { Ws } from '@ez4/gateway';
 
-type TestData = {
-  foo: string;
-  bar: number;
-};
-
-export declare class TestService extends Ws.Service<TestData> {
+export declare class TestService extends Ws.Service<{}> {
   name: 'Test Service';
-
-  routeKey: 'foo';
 
   defaults: Ws.UseDefaults<{
     listener: typeof testListener;

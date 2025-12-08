@@ -11,8 +11,6 @@ type TestData = {
 export declare class TestService1 extends Ws.Service<TestData> {
   name: 'Test Service 1';
 
-  routeKey: 'foo';
-
   connect: Ws.UseConnect<{
     handler: typeof connectHandler;
   }>;
@@ -30,8 +28,6 @@ export declare class TestService1 extends Ws.Service<TestData> {
  * Description of the second test service.
  */
 export declare class TestService2 extends Ws.Service<TestData> {
-  routeKey: 'foo';
-
   connect: Ws.UseConnect<{
     handler: typeof connectHandler;
   }>;

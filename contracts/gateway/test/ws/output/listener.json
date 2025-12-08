@@ -7,19 +7,11 @@
   "TestService": {
     "type": "@ez4/ws",
     "name": "TestService",
-    "routeKey": "foo",
     "context": {},
     "schema": {
       "type": "object",
       "identity": 1,
-      "properties": {
-        "foo": {
-          "type": "string"
-        },
-        "bar": {
-          "type": "number"
-        }
-      }
+      "properties": {}
     },
     "connect": {
       "handler": {

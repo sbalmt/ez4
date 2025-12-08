@@ -41,7 +41,7 @@ export const getWsServicesMetadata = (reflection: SourceMap) => {
     }
 
     const service: Incomplete<WsService> = { type: WsServiceType, context: {} };
-    const properties = new Set(['routeKey', 'schema', 'connect', 'disconnect', 'message']);
+    const properties = new Set(['schema', 'connect', 'disconnect', 'message']);
 
     const fileName = declaration.file;
 
@@ -73,12 +73,6 @@ export const getWsServicesMetadata = (reflection: SourceMap) => {
         case 'defaults':
           if (!member.inherited) {
             service.defaults = getWsDefaultsMetadata(member.value, declaration, reflection, errorList);
-          }
-          break;
-
-        case 'routeKey':
-          if (!member.inherited && (service[member.name] = getPropertyString(member))) {
-            properties.delete(member.name);
           }
           break;
 
@@ -135,5 +129,5 @@ export const getWsServicesMetadata = (reflection: SourceMap) => {
 };
 
 const isCompleteService = (type: Incomplete<WsService>): type is WsService => {
-  return isObjectWith(type, ['name', 'routeKey', 'schema', 'connect', 'disconnect', 'message', 'context']);
+  return isObjectWith(type, ['name', 'schema', 'connect', 'disconnect', 'message', 'context']);
 };

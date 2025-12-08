@@ -9,7 +9,6 @@
     "name": "TestService1",
     "displayName": "Test Service 1",
     "description": "First test service description.",
-    "routeKey": "foo",
     "context": {},
     "schema": {
       "type": "object",
@@ -46,7 +45,6 @@
     "type": "@ez4/ws",
     "name": "TestService2",
     "description": "Description of the second test service.",
-    "routeKey": "foo",
     "context": {},
     "schema": {
       "type": "object",

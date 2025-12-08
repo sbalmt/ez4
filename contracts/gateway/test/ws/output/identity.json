@@ -11,16 +11,8 @@
     "schema": {
       "type": "object",
       "identity": 1,
-      "properties": {
-        "foo": {
-          "type": "string"
-        },
-        "bar": {
-          "type": "number"
-        }
-      }
+      "properties": {}
     },
-    "routeKey": "foo",
     "connect": {
       "handler": {
         "name": "connectHandler",
@@ -62,19 +54,6 @@
         "name": "messageHandler",
         "file": "test/ws/input/output-identity.ts",
         "request": {
-          "body": {
-            "type": "object",
-            "description": "Expected event body.",
-            "identity": 1,
-            "properties": {
-              "foo": {
-                "type": "string"
-              },
-              "bar": {
-                "type": "number"
-              }
-            }
-          },
           "identity": {
             "type": "object",
             "description": "Expected identity.",
