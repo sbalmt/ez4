@@ -14,14 +14,18 @@ export type RouteData = {
 export type MatchingRoute = RouteData & EmulatorServiceRequest & { parameters?: Record<string, string> };
 
 export const getMatchingRoute = (routes: Record<string, RouteData>, request: EmulatorServiceRequest): MatchingRoute | undefined => {
-  for (const pattern in routes) {
-    const route = matchRoutePath(pattern, request.path);
+  const sortedRoutes = Object.entries(routes).sort(([a], [b]) => {
+    return b.length - a.length;
+  });
 
-    if (route) {
+  for (const [pattern, route] of sortedRoutes) {
+    const matchedRoute = matchRoutePath(pattern, request.path);
+
+    if (matchedRoute) {
       return {
-        ...routes[pattern],
+        ...route,
         ...request,
-        ...route
+        ...matchedRoute
       };
     }
   }
