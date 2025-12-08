@@ -1,4 +1,4 @@
-import type { ClientRequest, Http, Client as HttpClient } from '@ez4/gateway';
+import type { HttpClient, HttpClientRequest, Http } from '@ez4/gateway';
 import type { ClientAuthorization, ClientOperation } from '@ez4/gateway/library';
 
 import { getClientRequestUrl, sendClientRequest } from '@ez4/gateway/utils';
@@ -19,7 +19,7 @@ export namespace Client {
       {},
       {
         get: (_target, property) => {
-          return (request: ClientRequest) => {
+          return (request: HttpClientRequest) => {
             if (!isAnyString(property) || !(property in operations)) {
               throw new Error(`Operation '${property.toString()}' wasn't found.`);
             }

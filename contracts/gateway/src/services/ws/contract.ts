@@ -1,10 +1,13 @@
 import type { Service as CommonService } from '@ez4/common';
 import type { LinkedVariables } from '@ez4/project/library';
-import type { Http } from '../http/contract';
-import type { WebPreferences } from '../preferences';
-import type { WebHeaders, WebIdentity, WebJsonBody, WebQueryStrings, WebRawBody } from '../common';
+import type { WebHeaders, WebJsonBody, WebQueryStrings, WebRawBody } from '../web/common';
+import type { AuthResponse as HttpAuthResponse } from '../auth/response';
+import type { AuthRequest as HttpAuthRequest } from '../auth/request';
+import type { WebPreferences } from '../web/preferences';
+import type { AuthIdentity } from '../auth/identity';
 import type { WsEmptyEvent, WsEmptyRequest } from './utils';
-import type { WsConnect, WsDisconnect } from './connect';
+import type { WsConnect } from './connect';
+import type { WsDisconnect } from './disconnect';
 import type { WsDefaults } from './defaults';
 import type { WsIncoming } from './incoming';
 import type { WsListener } from './listener';
@@ -19,28 +22,32 @@ import type { WsEvent } from './event';
  */
 export namespace Ws {
   export type Headers = WebHeaders;
-  export type Identity = WebIdentity;
+  export type Identity = AuthIdentity;
 
   export type QueryStrings = WebQueryStrings;
   export type JsonBody = WebJsonBody;
   export type RawBody = WebRawBody;
 
+  export type Preferences = WebPreferences;
+
   export type Request = WsRequest;
   export type Response = WsResponse;
   export type Event = WsEvent;
 
-  export type Preferences = WebPreferences;
+  export type AuthRequest = HttpAuthRequest;
+  export type AuthResponse = HttpAuthResponse;
 
   export type Incoming<T extends Request | Event> = WsIncoming<T>;
 
   export type Listener<T extends Request | Event> = WsListener<T>;
   export type Handler<T extends Request | Event> = WsHandler<T>;
 
-  export type Connect<T extends Event = Event, U extends Http.AuthRequest = Http.AuthRequest> = WsConnect<T, U>;
+  export type Connect<T extends Event = Event, U extends AuthRequest = AuthRequest> = WsConnect<T, U>;
   export type Disconnect<T extends Event = Event> = WsDisconnect<T>;
   export type Message<T extends Request = Request> = WsMessage<T>;
 
   export type Defaults<T extends Request | Event = any> = WsDefaults<T>;
+
   export type ServiceEvent<T extends Request | Event = Event> = CommonService.AnyEvent<Incoming<T>>;
 
   export type EmptyRequest = WsEmptyRequest;

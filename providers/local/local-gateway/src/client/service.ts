@@ -1,5 +1,5 @@
 import type { ClientAuthorization, ClientOperation } from '@ez4/gateway/library';
-import type { Client, ClientRequest, Http } from '@ez4/gateway';
+import type { HttpClient, HttpClientRequest, Http } from '@ez4/gateway';
 import type { CommonOptions } from '@ez4/project/library';
 
 import { getServiceName, Logger } from '@ez4/project/library';
@@ -13,7 +13,7 @@ export type ServiceClientOptions = CommonOptions & {
   serviceHost: string;
 };
 
-export const createServiceClient = <T extends Http.Service>(serviceName: string, clientOptions: ServiceClientOptions): Client<T> => {
+export const createServiceClient = <T extends Http.Service>(serviceName: string, clientOptions: ServiceClientOptions): HttpClient<T> => {
   const { serviceHost, authorization, operations } = clientOptions;
 
   const gatewayIdentifier = getServiceName(serviceName, clientOptions);
@@ -23,7 +23,7 @@ export const createServiceClient = <T extends Http.Service>(serviceName: string,
     {},
     {
       get: (_target, property) => {
-        return async (request: ClientRequest) => {
+        return async (request: HttpClientRequest) => {
           if (!isAnyString(property) || !(property in operations)) {
             throw new Error(`Operation '${property.toString()}' wasn't found.`);
           }

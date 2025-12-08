@@ -1,10 +1,12 @@
-import type { HttpAuthRequest, HttpErrors, HttpListener, HttpRequest } from './common';
-import type { WebDefaults } from '../defaults';
+import type { WebDefaults } from '../web/defaults';
+import type { HttpListener } from './listener';
+import type { HttpRequest } from './request';
+import type { HttpErrors } from './errors';
 
 /**
  * Default HTTP service parameters.
  */
-export interface HttpDefaults<T extends HttpRequest | HttpAuthRequest> extends WebDefaults {
+export interface HttpDefaults<T extends HttpRequest> extends WebDefaults {
   /**
    * Default listener.
    */

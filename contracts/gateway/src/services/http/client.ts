@@ -4,7 +4,7 @@ import type { Http } from './contract';
 /**
  * HTTP client.
  */
-export type Client<T extends Http.Service | Http.Import<any>> = {
+export type HttpClient<T extends Http.Service | Http.Import<any>> = {
   [P in ClientRoutes<T> as P extends { name: infer N } ? (N extends string ? N : never) : never]: P extends {
     handler: infer H;
     authorizer: infer A;
@@ -18,7 +18,7 @@ export type Client<T extends Http.Service | Http.Import<any>> = {
 /**
  * Default HTTP client request.
  */
-export type ClientRequest = RequestOptions & {
+export type HttpClientRequest = RequestOptions & {
   readonly headers?: Record<string, string>;
   readonly parameters?: Record<string, string>;
   readonly query?: Record<string, unknown>;
@@ -28,7 +28,7 @@ export type ClientRequest = RequestOptions & {
 /**
  * Default HTTP response.
  */
-export type ClientResponse = {
+export type HttpClientResponse = {
   readonly status: number;
   readonly headers?: Record<string, string | undefined>;
   readonly body?: unknown;

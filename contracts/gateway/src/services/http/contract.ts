@@ -1,35 +1,32 @@
 import type { Service as CommonService } from '@ez4/common';
 import type { LinkedVariables } from '@ez4/project/library';
-import type { WebPreferences } from '../preferences';
-import type { WebHeaders, WebIdentity, WebJsonBody, WebPathParameters, WebQueryStrings, WebRawBody } from '../common';
+import type { WebHeaders, WebJsonBody, WebPathParameters, WebQueryStrings, WebRawBody } from '../web/common';
+import type { AuthResponse as HttpAuthResponse } from '../auth/response';
+import type { AuthRequest as HttpAuthRequest } from '../auth/request';
+import type { WebPreferences } from '../web/preferences';
+import type { AuthIdentity } from '../auth/identity';
+import type { AuthCache } from '../auth/cache';
 import type { HttpSuccessStatuses, HttpSuccessEmptyResponse, HttpSuccessResponse, HttpEmptyRequest } from './utils';
 import type { HttpAuthorization } from './authorization';
 import type { HttpDefaults } from './defaults';
 import type { HttpProvider } from './provider';
+import type { HttpListener } from './listener';
+import type { HttpIncoming } from './incoming';
+import type { HttpResponse } from './response';
+import type { HttpRequest } from './request';
+import type { HttpHandler } from './handler';
+import type { HttpClient } from './client';
 import type { HttpAccess } from './access';
-import type { HttpCache } from './cache';
+import type { HttpErrors } from './errors';
 import type { HttpRoute } from './route';
 import type { HttpCors } from './cors';
-import type { Client } from './client';
-
-import type {
-  HttpAuthRequest,
-  HttpAuthResponse,
-  HttpRequest,
-  HttpResponse,
-  HttpErrors,
-  HttpIncoming,
-  HttpListener,
-  HttpAuthorizer,
-  HttpHandler
-} from './common';
 
 /**
  * Provide all contracts for a self-managed HTTP service.
  */
 export namespace Http {
   export type Headers = WebHeaders;
-  export type Identity = WebIdentity;
+  export type Identity = AuthIdentity;
 
   export type PathParameters = WebPathParameters;
   export type QueryStrings = WebQueryStrings;
@@ -37,30 +34,31 @@ export namespace Http {
   export type RawBody = WebRawBody;
 
   export type Authorization = HttpAuthorization;
-  export type Preferences = WebPreferences;
   export type Access = HttpAccess;
-  export type Cache = HttpCache;
+
+  export type Preferences = WebPreferences;
+  export type Cache = AuthCache;
+
+  export type Request = HttpRequest;
+  export type Response = HttpResponse;
 
   export type AuthRequest = HttpAuthRequest;
-  export type Request = HttpRequest;
-
   export type AuthResponse = HttpAuthResponse;
-  export type Response = HttpResponse;
 
   export type Errors = HttpErrors;
   export type Provider = HttpProvider;
   export type Cors = HttpCors;
 
-  export type Incoming<T extends Request | AuthRequest> = HttpIncoming<T>;
+  export type Incoming<T extends Request> = HttpIncoming<T>;
 
-  export type Listener<T extends Request | AuthRequest> = HttpListener<T>;
-  export type Authorizer<T extends AuthRequest> = HttpAuthorizer<T>;
+  export type Listener<T extends Request> = HttpListener<T>;
   export type Handler<T extends Request> = HttpHandler<T>;
 
   export type Route<T extends Request = Request, U extends AuthRequest = AuthRequest> = HttpRoute<T, U>;
-  export type Defaults<T extends HttpRequest | HttpAuthRequest = any> = HttpDefaults<T>;
 
-  export type ServiceEvent<T extends Request | AuthRequest = Request> = CommonService.AnyEvent<Incoming<T>>;
+  export type Defaults<T extends Request = Request> = HttpDefaults<T>;
+
+  export type ServiceEvent<T extends Request = Request> = CommonService.AnyEvent<Incoming<T>>;
 
   export type SuccessEmptyResponse<S extends HttpSuccessStatuses = 204> = HttpSuccessEmptyResponse<S>;
   export type SuccessResponse<S extends HttpSuccessStatuses, T extends JsonBody | RawBody> = HttpSuccessResponse<S, T>;
@@ -143,7 +141,7 @@ export namespace Http {
     /**
      * Service client.
      */
-    readonly client: Client<Service>;
+    readonly client: HttpClient<Service>;
   }
 
   /**
@@ -183,7 +181,7 @@ export namespace Http {
     /**
      * Imported service client (do not replace).
      */
-    readonly client: Client<T>;
+    readonly client: HttpClient<T>;
 
     /**
      * Variables are not allowed.

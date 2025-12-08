@@ -4,11 +4,6 @@
 export interface WebHeaders {}
 
 /**
- * Request identity payload.
- */
-export interface WebIdentity {}
-
-/**
  * Request path parameters.
  */
 export interface WebPathParameters {}

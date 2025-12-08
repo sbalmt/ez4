@@ -1,12 +1,12 @@
 import type { ArraySchema, ObjectSchema, ScalarSchema, UnionSchema, NamingStyle } from '@ez4/schema';
-import type { ClientRequest, ClientResponse } from '../services/http/client';
+import type { HttpClientRequest, HttpClientResponse } from '../services/http/client';
 
 import { prepareQueryStrings } from './query';
 import { prepareRequestBody, prepareResponseBody } from './body';
 import { preparePathParameters } from './parameters';
 import { getHttpException } from './errors';
 
-export type ClientRequestUrl = ClientRequest & {
+export type ClientRequestUrl = HttpClientRequest & {
   querySchema?: ObjectSchema;
   namingStyle?: NamingStyle;
 };
@@ -35,14 +35,14 @@ export type RequestAuthorization = {
   value: string;
 };
 
-export type ClientRequestInput = ClientRequest & {
+export type ClientRequestInput = HttpClientRequest & {
   authorization?: RequestAuthorization;
   responseSchema?: ObjectSchema | UnionSchema | ArraySchema | ScalarSchema;
   bodySchema?: ObjectSchema | UnionSchema | ArraySchema | ScalarSchema;
   namingStyle?: NamingStyle;
 };
 
-export const sendClientRequest = async (url: string, method: string, request: ClientRequestInput): Promise<ClientResponse> => {
+export const sendClientRequest = async (url: string, method: string, request: ClientRequestInput): Promise<HttpClientResponse> => {
   const { authorization, headers, body, bodySchema, responseSchema, namingStyle, timeout = 20 } = request;
 
   const payload = body ? prepareRequestBody(body, bodySchema, { namingStyle }) : undefined;

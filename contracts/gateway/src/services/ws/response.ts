@@ -1,4 +1,4 @@
-import type { WebJsonBody, WebRawBody } from '../common';
+import type { WebJsonBody, WebRawBody } from '../web/common';
 
 /**
  * WS response.

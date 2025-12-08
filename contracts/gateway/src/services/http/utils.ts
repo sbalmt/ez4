@@ -1,5 +1,8 @@
 import type { Http } from './contract';
 
+/**
+ * HTTP success status codes.
+ */
 export type HttpSuccessStatuses = 200 | 201 | 202 | 203 | 204 | 205 | 206 | 207 | 208;
 
 /**

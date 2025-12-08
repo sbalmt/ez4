@@ -1,4 +1,4 @@
-import type { Client, ClientRequest, ClientResponse, Http } from '@ez4/gateway';
+import type { HttpClient, HttpClientRequest, HttpClientResponse, Http } from '@ez4/gateway';
 
 import { mock } from 'node:test';
 
@@ -7,15 +7,15 @@ import { HttpError, HttpInternalServerError } from '@ez4/gateway';
 import { Logger } from '@ez4/project/library';
 import { isAnyString } from '@ez4/utils';
 
-export type ClientMockOperation = (request: ClientRequest) => Promise<ClientResponse>;
+export type ClientMockOperation = (request: HttpClientRequest) => Promise<HttpClientResponse>;
 
 export type ClientMockResponses = {
   operations?: Record<string, ClientMockOperation | unknown>;
-  default: ClientMockOperation | ClientResponse;
+  default: ClientMockOperation | HttpClientResponse;
 };
 
-export const createClientMock = <T extends Http.Service>(serviceName: string, responses: ClientMockResponses): Client<T> => {
-  const operationsCache: Record<string, ClientMockOperation | ClientResponse> = {};
+export const createClientMock = <T extends Http.Service>(serviceName: string, responses: ClientMockResponses): HttpClient<T> => {
+  const operationsCache: Record<string, ClientMockOperation | HttpClientResponse> = {};
 
   return new Proxy(
     {},
@@ -28,7 +28,7 @@ export const createClientMock = <T extends Http.Service>(serviceName: string, re
         if (!operationsCache[property]) {
           const operation = responses.operations?.[property] ?? responses.default;
 
-          operationsCache[property] = mock.fn(async (request: ClientRequest) => {
+          operationsCache[property] = mock.fn(async (request: HttpClientRequest) => {
             Logger.debug(`🌐 Sending request to gateway [${serviceName}]`);
 
             try {

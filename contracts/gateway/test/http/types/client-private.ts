@@ -1,10 +1,10 @@
 import type { Environment, Service } from '@ez4/common';
-import type { Client, Http } from '@ez4/gateway';
+import type { HttpClient, Http } from '@ez4/gateway';
 
 import { assertType } from '@ez4/utils';
 
 export declare class TestService extends Http.Service {
-  client: Client<TestService>;
+  client: HttpClient<TestService>;
 
   routes: [
     Http.UseRoute<{

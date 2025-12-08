@@ -1,4 +1,5 @@
-import type { WebIdentity, WebJsonBody, WebRawBody } from '../common';
+import type { WebJsonBody, WebRawBody } from '../web/common';
+import type { AuthIdentity } from '../auth/identity';
 
 /**
  * WS request.
@@ -7,7 +8,7 @@ export interface WsRequest {
   /**
    * Expected identity.
    */
-  readonly identity?: WebIdentity;
+  readonly identity?: AuthIdentity;
 
   /**
    * Expected event body.

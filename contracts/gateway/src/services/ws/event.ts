@@ -1,4 +1,5 @@
-import type { WebHeaders, WebIdentity, WebQueryStrings } from '../common';
+import type { WebHeaders, WebQueryStrings } from '../web/common';
+import type { AuthIdentity } from '../auth/identity';
 
 /**
  * WS event.
@@ -17,5 +18,5 @@ export interface WsEvent {
   /**
    * Expected identity.
    */
-  readonly identity?: WebIdentity;
+  readonly identity?: AuthIdentity;
 }

@@ -1,4 +1,4 @@
-import type { Client, Http } from '@ez4/gateway';
+import type { HttpClient, Http } from '@ez4/gateway';
 
 export declare class TestService extends Http.Service {
   routes: [
@@ -12,13 +12,13 @@ export declare class TestService extends Http.Service {
 }
 
 export declare class TestImport extends Http.Import<TestService> {
+  client: HttpClient<TestImport>;
+
   project: 'test project';
 
   authorization: {
     value: 'secret';
   };
-
-  client: Client<typeof this>;
 }
 
 declare class TestAuthRequest implements Http.AuthRequest {
