@@ -1,16 +1,16 @@
-import type { Http } from '@ez4/gateway';
+import type { Ws } from '@ez4/gateway';
 
 /**
  * Authorization identity.
  */
-export declare class Identity implements Http.Identity {
+export declare class Identity implements Ws.Identity {
   userId: string;
 }
 
 /**
  * Authorization response.
  */
-export declare class AuthorizerResponse implements Http.AuthResponse {
+export declare class AuthorizerResponse implements Ws.AuthResponse {
   identity: Identity;
 }
 

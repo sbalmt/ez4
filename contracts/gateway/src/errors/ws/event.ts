@@ -1,16 +1,20 @@
 import { IncorrectTypeError, InvalidTypeError } from '@ez4/common/library';
 
 export class InvalidEventTypeError extends InvalidTypeError {
-  constructor(fileName?: string) {
-    super('Invalid event type', undefined, 'Ws.Event', fileName);
+  constructor(
+    public baseType: string,
+    fileName?: string
+  ) {
+    super('Invalid event', undefined, baseType, fileName);
   }
 }
 
 export class IncorrectEventTypeError extends IncorrectTypeError {
   constructor(
     public eventType: string,
+    public baseType: string,
     fileName?: string
   ) {
-    super('Incorrect event type', eventType, 'Ws.Event', fileName);
+    super('Incorrect event', eventType, baseType, fileName);
   }
 }

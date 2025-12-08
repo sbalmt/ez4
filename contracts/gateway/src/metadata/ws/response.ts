@@ -13,10 +13,18 @@ import {
 
 import { isModelProperty, isTypeObject, isTypeReference } from '@ez4/reflection';
 
-import { IncorrectResponseTypeError, InvalidResponseTypeError } from '../../errors/http/response';
-import { getHttpBody } from '../body';
+import { IncorrectResponseTypeError, InvalidResponseTypeError } from '../../errors/response';
+import { getFullTypeName } from '../utils/type';
+import { getWebBodyMetadata } from '../body';
+import { WsNamespaceType } from './types';
 
-export const getWsResponse = (type: AllType, parent: TypeModel, reflection: SourceMap, errorList: Error[]) => {
+const FULL_BASE_TYPE = getFullTypeName(WsNamespaceType, 'Response');
+
+export const isWsResponseDeclaration = (type: TypeModel) => {
+  return hasHeritageType(type, FULL_BASE_TYPE);
+};
+
+export const getWsResponseMetadata = (type: AllType, parent: TypeModel, reflection: SourceMap, errorList: Error[]) => {
   if (!isTypeReference(type)) {
     return getResponseType(type, parent, reflection, errorList);
   }
@@ -36,12 +44,12 @@ const getResponseType = (type: AllType, parent: TypeModel, reflection: SourceMap
   }
 
   if (!isModelDeclaration(type)) {
-    errorList.push(new InvalidResponseTypeError('Ws.Response', parent.file));
+    errorList.push(new InvalidResponseTypeError(FULL_BASE_TYPE, parent.file));
     return undefined;
   }
 
-  if (!hasHeritageType(type, 'Ws.Response')) {
-    errorList.push(new IncorrectResponseTypeError(type.name, 'Ws.Response', type.file));
+  if (!isWsResponseDeclaration(type)) {
+    errorList.push(new IncorrectResponseTypeError(type.name, FULL_BASE_TYPE, type.file));
     return undefined;
   }
 
@@ -68,7 +76,7 @@ const getTypeFromMembers = (
         break;
 
       case 'body': {
-        response.body = getHttpBody(member.value, type, reflection, errorList);
+        response.body = getWebBodyMetadata(member.value, type, reflection, errorList, WsNamespaceType);
 
         if (response.body && member.description) {
           response.body.description = member.description;

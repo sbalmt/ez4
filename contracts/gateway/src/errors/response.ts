@@ -5,7 +5,7 @@ export class InvalidResponseTypeError extends InvalidTypeError {
     public baseType: string,
     fileName?: string
   ) {
-    super('Invalid route response', undefined, baseType, fileName);
+    super('Invalid response', undefined, baseType, fileName);
   }
 }
 
@@ -15,6 +15,6 @@ export class IncorrectResponseTypeError extends IncorrectTypeError {
     public baseType: string,
     fileName?: string
   ) {
-    super('Incorrect route response', responseType, baseType, fileName);
+    super('Incorrect response', responseType, baseType, fileName);
   }
 }

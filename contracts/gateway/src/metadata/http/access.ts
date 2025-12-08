@@ -1,7 +1,7 @@
 import type { AllType, SourceMap, TypeModel, TypeObject } from '@ez4/reflection';
 import type { MemberType } from '@ez4/common/library';
 import type { Incomplete } from '@ez4/utils';
-import type { HttpAccess } from '../../types/common';
+import type { HttpAccess } from './types';
 
 import {
   InvalidServicePropertyError,
@@ -9,34 +9,40 @@ import {
   getModelMembers,
   getObjectMembers,
   getPropertyNumber,
-  getReferenceType
+  getReferenceType,
+  hasHeritageType
 } from '@ez4/common/library';
 
 import { isModelProperty, isTypeObject, isTypeReference } from '@ez4/reflection';
-import { isAnyNumber } from '@ez4/utils';
+import { isAnyNumber, isObjectWith } from '@ez4/utils';
 
 import { IncompleteAccessError, IncorrectAccessTypeError, InvalidAccessTypeError } from '../../errors/http/access';
-import { isHttpAccess } from './utils';
+import { getFullTypeName } from '../utils/type';
+import { HttpNamespaceType } from './types';
 
-export const getHttpAccess = (type: AllType, parent: TypeModel, reflection: SourceMap, errorList: Error[]) => {
+export const isHttpAccessDeclaration = (type: TypeModel) => {
+  return hasHeritageType(type, getFullTypeName(HttpNamespaceType, 'Access'));
+};
+
+export const getHttpAccessMetadata = (type: AllType, parent: TypeModel, reflection: SourceMap, errorList: Error[]) => {
   if (!isTypeReference(type)) {
-    return getTypeAccess(type, parent, errorList);
+    return getAccessType(type, parent, errorList);
   }
 
   const declaration = getReferenceType(type, reflection);
 
   if (declaration) {
-    return getTypeAccess(declaration, parent, errorList);
+    return getAccessType(declaration, parent, errorList);
   }
 
   return undefined;
 };
 
-const isValidAccess = (type: Incomplete<HttpAccess>): type is HttpAccess => {
-  return isAnyNumber(type.logRetention);
+const isCompleteAccess = (type: Incomplete<HttpAccess>): type is HttpAccess => {
+  return isObjectWith(type, ['logRetention']);
 };
 
-const getTypeAccess = (type: AllType, parent: TypeModel, errorList: Error[]) => {
+const getAccessType = (type: AllType, parent: TypeModel, errorList: Error[]) => {
   if (isTypeObject(type)) {
     return getTypeFromMembers(type, parent, getObjectMembers(type), errorList);
   }
@@ -46,7 +52,7 @@ const getTypeAccess = (type: AllType, parent: TypeModel, errorList: Error[]) => 
     return undefined;
   }
 
-  if (!isHttpAccess(type)) {
+  if (!isHttpAccessDeclaration(type)) {
     errorList.push(new IncorrectAccessTypeError(type.name, type.file));
     return undefined;
   }
@@ -81,7 +87,7 @@ const getTypeFromMembers = (type: TypeObject | TypeModel, parent: TypeModel, mem
     }
   }
 
-  if (isValidAccess(access)) {
+  if (isCompleteAccess(access)) {
     return access;
   }
 

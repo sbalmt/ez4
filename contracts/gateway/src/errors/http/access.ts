@@ -2,13 +2,13 @@ import { IncompleteTypeError, IncorrectTypeError, InvalidTypeError } from '@ez4/
 
 export class IncompleteAccessError extends IncompleteTypeError {
   constructor(properties: string[], fileName?: string) {
-    super('Incomplete gateway access', properties, fileName);
+    super('Incomplete access', properties, fileName);
   }
 }
 
 export class InvalidAccessTypeError extends InvalidTypeError {
   constructor(fileName?: string) {
-    super('Invalid gateway access type', undefined, 'Http.Access', fileName);
+    super('Invalid access', undefined, 'Http.Access', fileName);
   }
 }
 
@@ -17,6 +17,6 @@ export class IncorrectAccessTypeError extends IncorrectTypeError {
     public cacheType: string,
     fileName?: string
   ) {
-    super('Incorrect gateway access type', cacheType, 'Http.Access', fileName);
+    super('Incorrect access', cacheType, 'Http.Access', fileName);
   }
 }

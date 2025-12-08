@@ -1,7 +1,7 @@
 import type { AllType, SourceMap, TypeModel, TypeObject } from '@ez4/reflection';
 import type { MemberType } from '@ez4/common/library';
 import type { Incomplete } from '@ez4/utils';
-import type { HttpCache } from '../../types/common';
+import type { HttpCache } from './types';
 
 import {
   InvalidServicePropertyError,
@@ -9,16 +9,24 @@ import {
   getModelMembers,
   getObjectMembers,
   getPropertyNumber,
-  getReferenceType
+  getReferenceType,
+  hasHeritageType
 } from '@ez4/common/library';
 
 import { isModelProperty, isTypeObject, isTypeReference } from '@ez4/reflection';
 import { isAnyNumber, isObjectWith } from '@ez4/utils';
 
 import { IncompleteCacheError, IncorrectCacheTypeError, InvalidCacheTypeError } from '../../errors/http/cache';
-import { isHttpCache } from './utils';
+import { getFullTypeName } from '../utils/type';
+import { HttpNamespaceType } from './types';
 
-export const getCacheMetadata = (type: AllType, parent: TypeModel, reflection: SourceMap, errorList: Error[]) => {
+const FULL_BASE_TYPE = getFullTypeName(HttpNamespaceType, 'Cache');
+
+export const isHttpCacheDeclaration = (type: TypeModel) => {
+  return hasHeritageType(type, FULL_BASE_TYPE);
+};
+
+export const getHttpCacheMetadata = (type: AllType, parent: TypeModel, reflection: SourceMap, errorList: Error[]) => {
   if (!isTypeReference(type)) {
     return getCacheType(type, parent, errorList);
   }
@@ -42,12 +50,12 @@ const getCacheType = (type: AllType, parent: TypeModel, errorList: Error[]) => {
   }
 
   if (!isModelDeclaration(type)) {
-    errorList.push(new InvalidCacheTypeError(parent.file));
+    errorList.push(new InvalidCacheTypeError(FULL_BASE_TYPE, parent.file));
     return undefined;
   }
 
-  if (!isHttpCache(type)) {
-    errorList.push(new IncorrectCacheTypeError(type.name, type.file));
+  if (!isHttpCacheDeclaration(type)) {
+    errorList.push(new IncorrectCacheTypeError(type.name, FULL_BASE_TYPE, type.file));
     return undefined;
   }
 

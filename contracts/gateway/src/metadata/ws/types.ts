@@ -1,17 +1,20 @@
 import type { ArraySchema, NamingStyle, ObjectSchema, ScalarSchema, UnionSchema } from '@ez4/schema';
 import type { LinkedVariables, ServiceMetadata } from '@ez4/project/library';
 import type { ServiceListener } from '@ez4/common/library';
-import type { Incomplete } from '@ez4/utils';
-import type { HttpAuthorizer } from '../../types/common';
+import type { AuthHandler } from '../auth/types';
 
-import { isObjectWith } from '@ez4/utils';
+export const WsServiceType = '@ez4/ws';
 
-const ServiceType = '@ez4/ws';
+export const WsNamespaceType = 'Ws';
+
+export const isWsService = (service: ServiceMetadata): service is WsService => {
+  return service.type === WsServiceType;
+};
 
 export type WsDataSchema = ObjectSchema | UnionSchema | ArraySchema | ScalarSchema;
 
 export type WsService = ServiceMetadata & {
-  type: typeof ServiceType;
+  type: typeof WsServiceType;
   displayName?: string;
   description?: string;
   defaults?: WsDefaults;
@@ -25,7 +28,7 @@ export type WsService = ServiceMetadata & {
 export type WsConnection = {
   handler: WsHandler;
   listener?: ServiceListener;
-  authorizer?: HttpAuthorizer;
+  authorizer?: AuthHandler;
   variables?: LinkedVariables;
   preferences?: WsPreferences;
   logRetention?: number;
@@ -83,19 +86,4 @@ export type WsDefaults = {
 
 export type WsCache = {
   authorizerTTL?: number;
-};
-
-export const isWsService = (service: ServiceMetadata): service is WsService => {
-  return service.type === ServiceType;
-};
-
-export const isCompleteWsService = (type: Incomplete<WsService>): type is WsService => {
-  return isObjectWith(type, ['name', 'routeKey', 'schema', 'connect', 'disconnect', 'message', 'context']);
-};
-
-export const getPartialWsService = (): Incomplete<WsService> => {
-  return {
-    type: ServiceType,
-    context: {}
-  };
 };

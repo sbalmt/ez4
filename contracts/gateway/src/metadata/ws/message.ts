@@ -4,6 +4,7 @@ import type { Incomplete } from '@ez4/utils';
 import type { WsMessage } from './types';
 
 import { isModelProperty, isTypeObject, isTypeReference } from '@ez4/reflection';
+import { isObjectWith } from '@ez4/utils';
 
 import {
   InvalidServicePropertyError,
@@ -17,15 +18,17 @@ import {
   hasHeritageType
 } from '@ez4/common/library';
 
-import { IncompleteRouteError } from '../../errors/http/route';
-import { getHttpPreferences } from '../preferences';
+import { IncompleteTargetError } from '../../errors/ws/target';
+import { getFullTypeName } from '../utils/type';
+import { getWebPreferencesMetadata } from '../preferences';
 import { getWsMessageHandler } from './handlers';
+import { WsNamespaceType } from './types';
 
 export const isWsMessageDeclaration = (type: AllType): type is TypeClass => {
-  return isModelDeclaration(type) && hasHeritageType(type, 'Ws.Message');
+  return isModelDeclaration(type) && hasHeritageType(type, getFullTypeName(WsNamespaceType, 'Message'));
 };
 
-export const getWsMessage = (type: AllType, parent: TypeModel, reflection: SourceMap, errorList: Error[]) => {
+export const getWsMessageMetadata = (type: AllType, parent: TypeModel, reflection: SourceMap, errorList: Error[]) => {
   if (!isTypeReference(type)) {
     return getMessageType(type, parent, reflection, errorList);
   }
@@ -40,7 +43,7 @@ export const getWsMessage = (type: AllType, parent: TypeModel, reflection: Sourc
 };
 
 const isCompleteWsMessage = (type: Incomplete<WsMessage>): type is WsMessage => {
-  return !!type.handler;
+  return isObjectWith(type, ['handler']);
 };
 
 const getMessageType = (type: AllType, parent: TypeModel, reflection: SourceMap, errorList: Error[]) => {
@@ -82,7 +85,7 @@ const getTypeFromMembers = (
         break;
 
       case 'preferences':
-        target.preferences = getHttpPreferences(member.value, parent, reflection, errorList);
+        target.preferences = getWebPreferencesMetadata(member.value, parent, reflection, errorList, WsNamespaceType);
         break;
 
       case 'memory':
@@ -105,7 +108,7 @@ const getTypeFromMembers = (
     return target;
   }
 
-  errorList.push(new IncompleteRouteError([...properties], type.file));
+  errorList.push(new IncompleteTargetError([...properties], type.file));
 
   return undefined;
 };

@@ -1,32 +1,35 @@
 import type { AllType, SourceMap, TypeClass } from '@ez4/reflection';
+import type { Incomplete } from '@ez4/utils';
 import type { WsService } from './types';
 
 import {
   DuplicateServiceError,
+  InvalidServicePropertyError,
   isExternalDeclaration,
+  isClassDeclaration,
   getLinkedServiceList,
   getLinkedVariableList,
   getModelMembers,
   getPropertyString,
-  InvalidServicePropertyError,
-  isClassDeclaration,
   hasHeritageType
 } from '@ez4/common/library';
 
 import { isModelProperty } from '@ez4/reflection';
+import { isObjectWith } from '@ez4/utils';
 
-import { IncompleteServiceError } from '../../errors/http/service';
-import { getHttpBody } from '../body';
-import { getPartialWsService, isCompleteWsService } from './types';
-import { getWsDefaults } from './defaults';
-import { getWsConnection } from './connection';
-import { getWsMessage } from './message';
+import { IncompleteServiceError } from '../../errors/service';
+import { getWebBodyMetadata } from '../body';
+import { WsNamespaceType, WsServiceType } from './types';
+import { getWsConnectionMetadata } from './connection';
+import { getWsDefaultsMetadata } from './defaults';
+import { getWsMessageMetadata } from './message';
+import { getFullTypeName } from '../utils/type';
 
 export const isWsServiceDeclaration = (type: AllType): type is TypeClass => {
-  return isClassDeclaration(type) && hasHeritageType(type, 'Ws.Service');
+  return isClassDeclaration(type) && hasHeritageType(type, getFullTypeName(WsNamespaceType, 'Service'));
 };
 
-export const getWsServices = (reflection: SourceMap) => {
+export const getWsServicesMetadata = (reflection: SourceMap) => {
   const allServices: Record<string, WsService> = {};
   const errorList: Error[] = [];
 
@@ -37,7 +40,7 @@ export const getWsServices = (reflection: SourceMap) => {
       continue;
     }
 
-    const service = getPartialWsService();
+    const service: Incomplete<WsService> = { type: WsServiceType, context: {} };
     const properties = new Set(['routeKey', 'schema', 'connect', 'disconnect', 'message']);
 
     const fileName = declaration.file;
@@ -69,7 +72,7 @@ export const getWsServices = (reflection: SourceMap) => {
 
         case 'defaults':
           if (!member.inherited) {
-            service.defaults = getWsDefaults(member.value, declaration, reflection, errorList);
+            service.defaults = getWsDefaultsMetadata(member.value, declaration, reflection, errorList);
           }
           break;
 
@@ -80,20 +83,20 @@ export const getWsServices = (reflection: SourceMap) => {
           break;
 
         case 'schema':
-          if ((service.schema = getHttpBody(member.value, declaration, reflection, errorList))) {
+          if ((service.schema = getWebBodyMetadata(member.value, declaration, reflection, errorList, WsNamespaceType))) {
             properties.delete(member.name);
           }
           break;
 
         case 'connect':
         case 'disconnect':
-          if (!member.inherited && (service[member.name] = getWsConnection(member.value, declaration, reflection, errorList))) {
+          if (!member.inherited && (service[member.name] = getWsConnectionMetadata(member.value, declaration, reflection, errorList))) {
             properties.delete(member.name);
           }
           break;
 
         case 'message':
-          if (!member.inherited && (service[member.name] = getWsMessage(member.value, declaration, reflection, errorList))) {
+          if (!member.inherited && (service[member.name] = getWsMessageMetadata(member.value, declaration, reflection, errorList))) {
             properties.delete(member.name);
           }
           break;
@@ -112,7 +115,7 @@ export const getWsServices = (reflection: SourceMap) => {
       }
     }
 
-    if (!isCompleteWsService(service)) {
+    if (!isCompleteService(service)) {
       errorList.push(new IncompleteServiceError([...properties], fileName));
       continue;
     }
@@ -129,4 +132,8 @@ export const getWsServices = (reflection: SourceMap) => {
     services: allServices,
     errors: errorList
   };
+};
+
+const isCompleteService = (type: Incomplete<WsService>): type is WsService => {
+  return isObjectWith(type, ['name', 'routeKey', 'schema', 'connect', 'disconnect', 'message', 'context']);
 };

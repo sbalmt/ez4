@@ -1,4 +1,4 @@
-import type { HttpImport } from '../types/import';
+import type { HttpImport } from '../metadata/http/types';
 
 import { AuthorizationType } from '../services/http/authorization';
 

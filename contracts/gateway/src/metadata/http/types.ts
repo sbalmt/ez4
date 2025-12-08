@@ -1,11 +1,48 @@
 import type { ArraySchema, NamingStyle, ObjectSchema, ScalarSchema, UnionSchema } from '@ez4/schema';
 import type { LinkedServices, LinkedVariables } from '@ez4/project/library';
+import type { ServiceMetadata } from '@ez4/project/library';
 import type { ServiceListener } from '@ez4/common/library';
-import type { AuthorizationType } from '../services/http/authorization';
+import type { AuthorizationType } from '../../services/http/authorization';
+import type { AuthHandler } from '../auth/types';
+import type { HttpPath } from '../../services/http/path';
 
-export type HttpVerb = 'ANY' | 'GET' | 'POST' | 'PUT' | 'PATCH' | 'DELETE' | 'OPTIONS';
+export const HttpServiceType = '@ez4/http';
 
-export type HttpPath = `${HttpVerb} /${string}`;
+export const HttpImportType = '@ez4/import:http';
+
+export const HttpNamespaceType = 'Http';
+
+export const isHttpService = (service: ServiceMetadata): service is HttpService => {
+  return service.type === HttpServiceType;
+};
+
+export const isHttpImport = (service: ServiceMetadata): service is HttpImport => {
+  return service.type === HttpImportType;
+};
+
+export type HttpDataSchema = ObjectSchema | UnionSchema | ArraySchema | ScalarSchema;
+
+export type HttpService = ServiceMetadata & {
+  type: typeof HttpServiceType;
+  displayName?: string;
+  description?: string;
+  defaults?: HttpDefaults;
+  routes: HttpRoute[];
+  cache?: HttpCache;
+  access?: HttpAccess;
+  cors?: HttpCors;
+};
+
+export type HttpImport = ServiceMetadata & {
+  type: typeof HttpImportType;
+  reference: string;
+  project: string;
+  displayName?: string;
+  description?: string;
+  defaults?: HttpDefaults;
+  authorization?: HttpAuthorization;
+  routes: HttpRoute[];
+};
 
 export type HttpPreferences = {
   namingStyle?: NamingStyle;
@@ -17,28 +54,18 @@ export type HttpAuthorization = {
   value: string;
 };
 
-export type HttpAuthRequest = {
-  headers?: ObjectSchema;
-  parameters?: ObjectSchema;
-  query?: ObjectSchema;
-};
-
-export type HttpAuthResponse = {
-  identity?: ObjectSchema | UnionSchema;
-};
-
 export type HttpRequest = {
   identity?: ObjectSchema | UnionSchema;
   headers?: ObjectSchema;
   parameters?: ObjectSchema;
   query?: ObjectSchema;
-  body?: ObjectSchema | UnionSchema | ArraySchema | ScalarSchema;
+  body?: HttpDataSchema;
 };
 
 export type HttpResponse = {
   status: number | number[];
   headers?: ObjectSchema;
-  body?: ObjectSchema | UnionSchema | ArraySchema | ScalarSchema;
+  body?: HttpDataSchema;
 };
 
 export type HttpHandler = {
@@ -51,15 +78,6 @@ export type HttpHandler = {
   provider?: HttpProvider;
 };
 
-export type HttpAuthorizer = {
-  name: string;
-  module?: string;
-  file: string;
-  description?: string;
-  response?: HttpAuthResponse;
-  request?: HttpAuthRequest;
-};
-
 export type HttpErrors = {
   [name: string]: number;
 };
@@ -69,7 +87,7 @@ export type HttpRoute = {
   path: HttpPath;
   handler: HttpHandler;
   listener?: ServiceListener;
-  authorizer?: HttpAuthorizer;
+  authorizer?: AuthHandler;
   variables?: LinkedVariables;
   httpErrors?: HttpErrors;
   preferences?: HttpPreferences;

@@ -1,15 +1,21 @@
-import type { AllType, SourceMap, TypeModel } from '@ez4/reflection';
+import type { AllType, SourceMap, TypeCallback, TypeFunction, TypeModel } from '@ez4/reflection';
 import type { Incomplete } from '@ez4/utils';
-import type { HttpHandler } from '../../types/common';
+import type { HttpHandler } from './types';
 
-import { IncompleteHandlerError } from '../../errors/http/handler';
-import { getHttpHandlerResponse } from './response';
-import { getHttpHandlerRequest } from './request';
-import { getHttpProvider } from './provider';
-import { isHttpHandler } from './utils';
+import { isTypeCallback, isTypeFunction } from '@ez4/reflection';
+import { isObjectWith } from '@ez4/utils';
 
-export const getHttpHandler = (type: AllType, parent: TypeModel, reflection: SourceMap, errorList: Error[], external: boolean) => {
-  if (!isHttpHandler(type)) {
+import { IncompleteHandlerError } from '../../errors/handler';
+import { getHttpProviderMetadata } from './provider';
+import { getHttpResponseMetadata } from './response';
+import { getHttpRequestMetadata } from './request';
+
+export const isHttpHandlerDeclaration = (type: AllType): type is TypeCallback | TypeFunction => {
+  return isTypeCallback(type) || isTypeFunction(type);
+};
+
+export const getHttpHandlerMetadata = (type: AllType, parent: TypeModel, reflection: SourceMap, errorList: Error[], external: boolean) => {
+  if (!isHttpHandlerDeclaration(type)) {
     return undefined;
   }
 
@@ -33,23 +39,18 @@ export const getHttpHandler = (type: AllType, parent: TypeModel, reflection: Sou
   if (type.parameters) {
     const [{ value: requestType }, contextType] = type.parameters;
 
-    handler.request = getHttpHandlerRequest(requestType, parent, reflection, errorList);
+    handler.request = getHttpRequestMetadata(requestType, parent, reflection, errorList);
 
     if (contextType && !external) {
-      handler.provider = getHttpProvider(contextType.value, parent, reflection, errorList);
+      handler.provider = getHttpProviderMetadata(contextType.value, parent, reflection, errorList);
     }
   }
 
-  if (type.return) {
-    const response = getHttpHandlerResponse(type.return, parent, reflection, errorList);
-
-    if (response) {
-      handler.response = response;
-      properties.delete('response');
-    }
+  if (type.return && (handler.response = getHttpResponseMetadata(type.return, parent, reflection, errorList))) {
+    properties.delete('response');
   }
 
-  if (isValidHandler(handler)) {
+  if (isCompleteHandler(handler)) {
     return handler;
   }
 
@@ -58,6 +59,6 @@ export const getHttpHandler = (type: AllType, parent: TypeModel, reflection: Sou
   return undefined;
 };
 
-const isValidHandler = (type: Incomplete<HttpHandler>): type is HttpHandler => {
-  return !!type.name && !!type.file && !!type.response;
+const isCompleteHandler = (type: Incomplete<HttpHandler>): type is HttpHandler => {
+  return isObjectWith(type, ['name', 'file', 'response']);
 };

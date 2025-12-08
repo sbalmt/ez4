@@ -1,29 +1,35 @@
 import type { AllType, SourceMap, TypeIntersection, TypeModel, TypeObject } from '@ez4/reflection';
 
+import { getReferenceType, hasHeritageType, isModelDeclaration } from '@ez4/common/library';
 import { isTypeIntersection, isTypeObject, isTypeReference } from '@ez4/reflection';
-import { getReferenceType, isModelDeclaration } from '@ez4/common/library';
 
-import { IncorrectQueryTypeError, InvalidQueryTypeError } from '../errors/http/query';
-import { isHttpQuery } from './http/utils';
-import { getSchemaFromIntersection, getSchemaFromObject } from './schema';
+import { IncorrectQueryTypeError, InvalidQueryTypeError } from '../errors/query';
+import { getSchemaFromIntersection, getSchemaFromObject } from './utils/schema';
+import { getFullTypeName } from './utils/type';
 
 type TypeParent = TypeObject | TypeModel | TypeIntersection;
 
-export const getHttpQuery = (type: AllType, parent: TypeParent, reflection: SourceMap, errorList: Error[]) => {
+const BASE_TYPE = 'QueryStrings';
+
+export const isWebQueryDeclaration = (type: TypeModel, namespace: string) => {
+  return hasHeritageType(type, getFullTypeName(namespace, BASE_TYPE));
+};
+
+export const getWebQueryMetadata = (type: AllType, parent: TypeParent, reflection: SourceMap, errorList: Error[], namespace: string) => {
   if (!isTypeReference(type)) {
-    return getTypeQuery(type, parent, reflection, errorList);
+    return getQueryType(type, parent, reflection, errorList, namespace);
   }
 
   const declaration = getReferenceType(type, reflection);
 
   if (declaration) {
-    return getTypeQuery(declaration, parent, reflection, errorList);
+    return getQueryType(declaration, parent, reflection, errorList, namespace);
   }
 
   return undefined;
 };
 
-const getTypeQuery = (type: AllType, parent: TypeParent, reflection: SourceMap, errorList: Error[]) => {
+const getQueryType = (type: AllType, parent: TypeParent, reflection: SourceMap, errorList: Error[], namespace: string) => {
   if (isTypeObject(type)) {
     return getSchemaFromObject(type, reflection);
   }
@@ -33,12 +39,12 @@ const getTypeQuery = (type: AllType, parent: TypeParent, reflection: SourceMap, 
   }
 
   if (!isModelDeclaration(type)) {
-    errorList.push(new InvalidQueryTypeError(parent.file));
+    errorList.push(new InvalidQueryTypeError(getFullTypeName(namespace, BASE_TYPE), parent.file));
     return undefined;
   }
 
-  if (!isHttpQuery(type)) {
-    errorList.push(new IncorrectQueryTypeError(type.name, parent.file));
+  if (!isWebQueryDeclaration(type, namespace)) {
+    errorList.push(new IncorrectQueryTypeError(type.name, getFullTypeName(namespace, BASE_TYPE), parent.file));
     return undefined;
   }
 

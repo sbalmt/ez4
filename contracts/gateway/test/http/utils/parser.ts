@@ -1,6 +1,6 @@
 import { equal } from 'assert/strict';
 
-import { getHttpImports, getHttpServices } from '@ez4/gateway/library';
+import { getHttpImportsMetadata, getHttpServicesMetadata } from '@ez4/gateway/library';
 import { buildReflection } from '@ez4/project/library';
 
 export const parseFile = (fileName: string, errorCount: number) => {
@@ -8,8 +8,8 @@ export const parseFile = (fileName: string, errorCount: number) => {
 
   const reflection = buildReflection([sourceFile]);
 
-  const httpServices = getHttpServices(reflection);
-  const httpImports = getHttpImports(reflection);
+  const httpServices = getHttpServicesMetadata(reflection);
+  const httpImports = getHttpImportsMetadata(reflection);
 
   const errors = [...httpServices.errors, ...httpImports.errors];
 

@@ -7,20 +7,28 @@ import { isModelProperty, isTypeIntersection, isTypeObject, isTypeReference } fr
 import {
   InvalidServicePropertyError,
   isModelDeclaration,
-  hasHeritageType,
   getObjectMembers,
   getModelMembers,
-  getReferenceType
+  getReferenceType,
+  hasHeritageType
 } from '@ez4/common/library';
 
 import { IncorrectEventTypeError, InvalidEventTypeError } from '../../errors/ws/event';
-import { getHttpIdentity } from '../identity';
-import { getHttpHeaders } from '../headers';
-import { getHttpQuery } from '../query';
+import { getAuthIdentityMetadata } from '../auth/identity';
+import { getFullTypeName } from '../utils/type';
+import { getWebHeadersMetadata } from '../headers';
+import { getWebQueryMetadata } from '../query';
+import { WsNamespaceType } from './types';
 
-export const getWsEvent = (type: AllType, parent: TypeModel, reflection: SourceMap, errorList: Error[]): WsRequest | undefined => {
+const FULL_BASE_TYPE = getFullTypeName(WsNamespaceType, 'Event');
+
+export const isWsEventDeclaration = (type: TypeModel) => {
+  return hasHeritageType(type, FULL_BASE_TYPE);
+};
+
+export const getWsEventMetadata = (type: AllType, parent: TypeModel, reflection: SourceMap, errorList: Error[]): WsRequest | undefined => {
   if (isTypeIntersection(type) && type.elements.length > 0) {
-    return getWsEvent(type.elements[0], parent, reflection, errorList);
+    return getWsEventMetadata(type.elements[0], parent, reflection, errorList);
   }
 
   if (!isTypeReference(type)) {
@@ -42,12 +50,12 @@ const getEventType = (type: AllType, parent: TypeModel, reflection: SourceMap, e
   }
 
   if (!isModelDeclaration(type)) {
-    errorList.push(new InvalidEventTypeError(parent.file));
+    errorList.push(new InvalidEventTypeError(FULL_BASE_TYPE, parent.file));
     return undefined;
   }
 
-  if (!hasHeritageType(type, 'Ws.Event')) {
-    errorList.push(new IncorrectEventTypeError(type.name, type.file));
+  if (!isWsEventDeclaration(type)) {
+    errorList.push(new IncorrectEventTypeError(type.name, FULL_BASE_TYPE, type.file));
     return undefined;
   }
 
@@ -74,7 +82,7 @@ const getTypeFromMembers = (
         break;
 
       case 'headers': {
-        request.headers = getHttpHeaders(member.value, type, reflection, errorList);
+        request.headers = getWebHeadersMetadata(member.value, type, reflection, errorList, WsNamespaceType);
 
         if (request.headers && member.description) {
           request.headers.description = member.description;
@@ -84,7 +92,7 @@ const getTypeFromMembers = (
       }
 
       case 'identity': {
-        request.identity = getHttpIdentity(member.value, type, reflection, errorList);
+        request.identity = getAuthIdentityMetadata(member.value, type, reflection, errorList, WsNamespaceType);
 
         if (request.identity && member.description) {
           request.identity.description = member.description;
@@ -94,7 +102,7 @@ const getTypeFromMembers = (
       }
 
       case 'query': {
-        request.query = getHttpQuery(member.value, type, reflection, errorList);
+        request.query = getWebQueryMetadata(member.value, type, reflection, errorList, WsNamespaceType);
 
         if (request.query && member.description) {
           request.query.description = member.description;

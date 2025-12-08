@@ -5,7 +5,7 @@ export class InvalidRequestTypeError extends InvalidTypeError {
     public baseType: string,
     fileName?: string
   ) {
-    super('Invalid route request', undefined, baseType, fileName);
+    super('Invalid request', undefined, baseType, fileName);
   }
 }
 
@@ -15,6 +15,6 @@ export class IncorrectRequestTypeError extends IncorrectTypeError {
     public baseType: string,
     fileName?: string
   ) {
-    super('Incorrect route request', requestType, baseType, fileName);
+    super('Incorrect request', requestType, baseType, fileName);
   }
 }

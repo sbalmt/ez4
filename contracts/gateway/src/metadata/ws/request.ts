@@ -13,40 +13,48 @@ import {
   getReferenceType
 } from '@ez4/common/library';
 
-import { IncorrectRequestTypeError, InvalidRequestTypeError } from '../../errors/http/request';
-import { getHttpIdentity } from '../identity';
-import { getHttpBody } from '../body';
+import { IncorrectRequestTypeError, InvalidRequestTypeError } from '../../errors/request';
+import { getAuthIdentityMetadata } from '../auth/identity';
+import { getFullTypeName } from '../utils/type';
+import { getWebBodyMetadata } from '../body';
+import { WsNamespaceType } from './types';
 
-export const getWsRequest = (type: AllType, parent: TypeModel, reflection: SourceMap, errorList: Error[]): WsEvent | undefined => {
+const FULL_BASE_TYPE = getFullTypeName(WsNamespaceType, 'Request');
+
+export const isWsRequestDeclaration = (type: TypeModel) => {
+  return hasHeritageType(type, FULL_BASE_TYPE);
+};
+
+export const getWsRequestMetadata = (type: AllType, parent: TypeModel, reflection: SourceMap, errorList: Error[]): WsEvent | undefined => {
   if (isTypeIntersection(type) && type.elements.length > 0) {
-    return getWsRequest(type.elements[0], parent, reflection, errorList);
+    return getWsRequestMetadata(type.elements[0], parent, reflection, errorList);
   }
 
   if (!isTypeReference(type)) {
-    return getEventType(type, parent, reflection, errorList);
+    return getRequestType(type, parent, reflection, errorList);
   }
 
   const declaration = getReferenceType(type, reflection);
 
   if (declaration) {
-    return getEventType(declaration, parent, reflection, errorList);
+    return getRequestType(declaration, parent, reflection, errorList);
   }
 
   return undefined;
 };
 
-const getEventType = (type: AllType, parent: TypeModel, reflection: SourceMap, errorList: Error[]) => {
+const getRequestType = (type: AllType, parent: TypeModel, reflection: SourceMap, errorList: Error[]) => {
   if (isTypeObject(type)) {
     return getTypeFromMembers(type, parent, getObjectMembers(type), reflection, errorList);
   }
 
   if (!isModelDeclaration(type)) {
-    errorList.push(new InvalidRequestTypeError('Ws.Request', parent.file));
+    errorList.push(new InvalidRequestTypeError(FULL_BASE_TYPE, parent.file));
     return undefined;
   }
 
-  if (!hasHeritageType(type, 'Ws.Request')) {
-    errorList.push(new IncorrectRequestTypeError(type.name, 'Ws.Request', type.file));
+  if (!isWsRequestDeclaration(type)) {
+    errorList.push(new IncorrectRequestTypeError(type.name, FULL_BASE_TYPE, type.file));
     return undefined;
   }
 
@@ -73,7 +81,7 @@ const getTypeFromMembers = (
         break;
 
       case 'identity': {
-        request.identity = getHttpIdentity(member.value, type, reflection, errorList);
+        request.identity = getAuthIdentityMetadata(member.value, type, reflection, errorList, WsNamespaceType);
 
         if (request.identity && member.description) {
           request.identity.description = member.description;
@@ -83,7 +91,7 @@ const getTypeFromMembers = (
       }
 
       case 'body': {
-        request.body = getHttpBody(member.value, type, reflection, errorList);
+        request.body = getWebBodyMetadata(member.value, type, reflection, errorList, WsNamespaceType);
 
         if (request.body && member.description) {
           request.body.description = member.description;

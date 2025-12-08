@@ -2,21 +2,25 @@ import { IncompleteTypeError, IncorrectTypeError, InvalidTypeError } from '@ez4/
 
 export class IncompleteAuthorizationError extends IncompleteTypeError {
   constructor(properties: string[], fileName?: string) {
-    super('Incomplete gateway authorization', properties, fileName);
+    super('Incomplete authorization', properties, fileName);
   }
 }
 
 export class InvalidAuthorizationTypeError extends InvalidTypeError {
-  constructor(fileName?: string) {
-    super('Invalid authorization', undefined, 'Http.Authorization', fileName);
+  constructor(
+    public baseType: string,
+    fileName?: string
+  ) {
+    super('Invalid authorization', undefined, baseType, fileName);
   }
 }
 
 export class IncorrectAuthorizationTypeError extends IncorrectTypeError {
   constructor(
     public authorizationType: string,
+    public baseType: string,
     fileName?: string
   ) {
-    super('Incorrect authorization', authorizationType, 'Http.Authorization', fileName);
+    super('Incorrect authorization', authorizationType, baseType, fileName);
   }
 }

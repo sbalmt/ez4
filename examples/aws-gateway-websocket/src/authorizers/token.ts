@@ -1,4 +1,4 @@
-import type { Http } from '@ez4/gateway';
+import type { Ws } from '@ez4/gateway';
 import type { AuthorizerResponse } from '../types';
 
 import { HttpForbiddenError } from '@ez4/gateway';
@@ -8,7 +8,7 @@ const SUPER_SECRET_API_KEY = 'query-api-key';
 /**
  * Token authorizer example.
  */
-declare class TokenAuthorizer implements Http.AuthRequest {
+declare class TokenAuthorizer implements Ws.AuthRequest {
   query: {
     token: string;
   };

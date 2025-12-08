@@ -5,10 +5,10 @@ import type { WsEvent, WsHandler, WsRequest } from './types';
 import { isTypeCallback, isTypeFunction } from '@ez4/reflection';
 import { isObjectWith } from '@ez4/utils';
 
-import { IncompleteHandlerError } from '../../errors/http/handler';
-import { getWsResponse } from './response';
-import { getWsEvent } from './event';
-import { getWsRequest } from './request';
+import { IncompleteHandlerError } from '../../errors/handler';
+import { getWsResponseMetadata } from './response';
+import { getWsRequestMetadata } from './request';
+import { getWsEventMetadata } from './event';
 
 export const isWsHandlerDeclaration = (type: AllType): type is TypeCallback | TypeFunction => {
   return isTypeCallback(type) || isTypeFunction(type);
@@ -16,13 +16,13 @@ export const isWsHandlerDeclaration = (type: AllType): type is TypeCallback | Ty
 
 export const getWsConnectionHandler = (type: AllType, parent: TypeModel, reflection: SourceMap, errorList: Error[]) => {
   return getWsHandler(type, parent, reflection, errorList, (inputType) => {
-    return getWsEvent(inputType, parent, reflection, errorList);
+    return getWsEventMetadata(inputType, parent, reflection, errorList);
   });
 };
 
 export const getWsMessageHandler = (type: AllType, parent: TypeModel, reflection: SourceMap, errorList: Error[]) => {
   return getWsHandler(type, parent, reflection, errorList, (inputType) => {
-    return getWsRequest(inputType, parent, reflection, errorList);
+    return getWsRequestMetadata(inputType, parent, reflection, errorList);
   });
 };
 
@@ -35,7 +35,7 @@ const getWsHandler = (
   parent: TypeModel,
   reflection: SourceMap,
   errorList: Error[],
-  resolveInput: (inputType: EveryType) => WsRequest | WsEvent | undefined
+  resolver: (inputType: EveryType) => WsRequest | WsEvent | undefined
 ) => {
   if (!isWsHandlerDeclaration(type)) {
     return undefined;
@@ -61,12 +61,12 @@ const getWsHandler = (
   if (type.parameters) {
     const [{ value: requestType }] = type.parameters;
 
-    if (!(handler.request = resolveInput(requestType))) {
+    if (!(handler.request = resolver(requestType))) {
       properties.add('request');
     }
   }
 
-  if (type.return && !(handler.response = getWsResponse(type.return, parent, reflection, errorList))) {
+  if (type.return && !(handler.response = getWsResponseMetadata(type.return, parent, reflection, errorList))) {
     properties.add('response');
   }
 

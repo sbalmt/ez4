@@ -1,4 +1,5 @@
-import type { WebHeaders, WebJsonBody, WebRawBody } from '../web/common';
+import type { WebHeaders } from '../headers';
+import type { WebBody } from '../body';
 
 /**
  * HTTP response.
@@ -17,5 +18,5 @@ export interface HttpResponse {
   /**
    * HTTP body payload.
    */
-  readonly body?: WebJsonBody | WebRawBody;
+  readonly body?: WebBody;
 }

@@ -1,4 +1,4 @@
-import type { HttpAuthRequest, HttpService } from '@ez4/gateway/library';
+import type { AuthRequest, HttpService } from '@ez4/gateway/library';
 
 import { getIndentedOutput, getNameOutput } from '../utils/format';
 import { isEmptyObject } from '@ez4/utils';
@@ -33,7 +33,7 @@ export const getSecurityOutput = (service: HttpService) => {
   ];
 };
 
-const getAuthorizationOutput = (request: HttpAuthRequest) => {
+const getAuthorizationOutput = (request: AuthRequest) => {
   const output = [];
 
   if (request.headers?.properties) {

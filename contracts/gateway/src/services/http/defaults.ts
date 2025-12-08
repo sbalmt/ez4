@@ -1,4 +1,4 @@
-import type { WebDefaults } from '../web/defaults';
+import type { WebDefaults } from '../defaults';
 import type { HttpListener } from './listener';
 import type { HttpRequest } from './request';
 import type { HttpErrors } from './errors';

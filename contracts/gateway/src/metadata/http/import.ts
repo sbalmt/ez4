@@ -1,37 +1,44 @@
-import type { SourceMap } from '@ez4/reflection';
+import type { AllType, SourceMap, TypeClass } from '@ez4/reflection';
 import type { Incomplete } from '@ez4/utils';
-import type { HttpImport } from '../../types/import';
+import type { HttpImport } from './types';
 
 import {
   DuplicateServiceError,
   InvalidServicePropertyError,
   isExternalDeclaration,
+  isClassDeclaration,
   getModelMembers,
   getPropertyString,
-  getReferenceName
+  getReferenceName,
+  hasHeritageType
 } from '@ez4/common/library';
 
 import { isModelProperty, isTypeReference } from '@ez4/reflection';
+import { isObjectWith } from '@ez4/utils';
 
-import { ImportType } from '../../types/import';
-import { IncompleteServiceError } from '../../errors/http/service';
+import { IncompleteServiceError } from '../../errors/service';
+import { getFullTypeName } from '../utils/type';
+import { HttpImportType, HttpNamespaceType } from './types';
+import { getHttpAuthorizationMetadata } from './authorization';
+import { getHttpDefaultsMetadata } from './defaults';
 import { getHttpRemoteRoutes } from './routes';
-import { getHttpDefaults } from './defaults';
-import { isHttpImport } from './utils';
-import { getHttpAuthorization } from '../authorization';
 
-export const getHttpImports = (reflection: SourceMap) => {
+export const isHttpImportDeclaration = (type: AllType): type is TypeClass => {
+  return isClassDeclaration(type) && hasHeritageType(type, getFullTypeName(HttpNamespaceType, 'Import'));
+};
+
+export const getHttpImportsMetadata = (reflection: SourceMap) => {
   const allImports: Record<string, HttpImport> = {};
   const errorList: Error[] = [];
 
   for (const identity in reflection) {
     const declaration = reflection[identity];
 
-    if (!isHttpImport(declaration) || isExternalDeclaration(declaration)) {
+    if (!isHttpImportDeclaration(declaration) || isExternalDeclaration(declaration)) {
       continue;
     }
 
-    const service: Incomplete<HttpImport> = { type: ImportType };
+    const service: Incomplete<HttpImport> = { type: HttpImportType };
     const properties = new Set(['reference', 'project', 'routes']);
 
     const fileName = declaration.file;
@@ -63,7 +70,7 @@ export const getHttpImports = (reflection: SourceMap) => {
 
         case 'authorization':
           if (!member.inherited) {
-            service[member.name] = getHttpAuthorization(member.value, declaration, reflection, errorList);
+            service[member.name] = getHttpAuthorizationMetadata(member.value, declaration, reflection, errorList);
           }
           break;
 
@@ -87,13 +94,13 @@ export const getHttpImports = (reflection: SourceMap) => {
 
         case 'defaults':
           if (member.inherited) {
-            service.defaults = getHttpDefaults(member.value, declaration, reflection, errorList);
+            service.defaults = getHttpDefaultsMetadata(member.value, declaration, reflection, errorList);
           }
           break;
       }
     }
 
-    if (!isValidImport(service)) {
+    if (!isCompleteImport(service)) {
       errorList.push(new IncompleteServiceError([...properties], fileName));
       continue;
     }
@@ -112,6 +119,6 @@ export const getHttpImports = (reflection: SourceMap) => {
   };
 };
 
-const isValidImport = (type: Incomplete<HttpImport>): type is HttpImport => {
-  return !!type.name && !!type.reference && !!type.project && !!type.routes;
+const isCompleteImport = (type: Incomplete<HttpImport>): type is HttpImport => {
+  return isObjectWith(type, ['name', 'reference', 'project', 'routes']);
 };

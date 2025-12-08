@@ -2,7 +2,7 @@ import type { AllType, SourceMap, TypeIntersection, TypeModel, TypeObject } from
 import type { AnySchema, ArraySchema, ObjectSchema, UnionSchema, UnionSchemaData } from '@ez4/schema/library';
 
 import { createUnionSchema, getScalarSchema, createArraySchema } from '@ez4/schema/library';
-import { getReferenceType, isModelDeclaration } from '@ez4/common/library';
+import { getReferenceType, hasHeritageType, isModelDeclaration } from '@ez4/common/library';
 
 import {
   isTypeArray,
@@ -14,19 +14,25 @@ import {
   isTypeUnion
 } from '@ez4/reflection';
 
-import { IncorrectBodyTypeError, InvalidBodyTypeError } from '../errors/http/body';
-import { getSchemaFromIntersection, getSchemaFromObject } from './schema';
-import { isJsonBody } from './http/utils';
+import { IncorrectBodyTypeError, InvalidBodyTypeError } from '../errors/body';
+import { getSchemaFromIntersection, getSchemaFromObject } from './utils/schema';
+import { getFullTypeName } from './utils/type';
 
 type TypeParent = TypeObject | TypeModel | TypeIntersection;
 
-export const getHttpBody = (type: AllType, parent: TypeParent, reflection: SourceMap, errorList: Error[]) => {
-  return getTypeBody(type, reflection, (currentType) => {
-    return getScalarTypeBody(currentType) ?? getCompoundTypeBody(currentType, parent, reflection, errorList);
+const BASE_TYPE = 'JsonBody';
+
+export const isWebBodyDeclaration = (type: TypeModel, namespace: string) => {
+  return hasHeritageType(type, getFullTypeName(namespace, BASE_TYPE));
+};
+
+export const getWebBodyMetadata = (type: AllType, parent: TypeParent, reflection: SourceMap, errorList: Error[], namespace: string) => {
+  return getBodyType(type, reflection, (currentType) => {
+    return getScalarTypeBody(currentType) ?? getCompoundTypeBody(currentType, parent, reflection, errorList, namespace);
   });
 };
 
-const getTypeBody = <T>(type: AllType, reflection: SourceMap, resolver: (type: AllType) => T | undefined) => {
+const getBodyType = <T>(type: AllType, reflection: SourceMap, resolver: (type: AllType) => T | undefined) => {
   if (!isTypeUndefined(type)) {
     if (!isTypeReference(type)) {
       return resolver(type);
@@ -54,7 +60,8 @@ const getCompoundTypeBody = (
   type: AllType,
   parent: TypeParent,
   reflection: SourceMap,
-  errorList: Error[]
+  errorList: Error[],
+  namespace: string
 ): ObjectSchema | UnionSchema | ArraySchema | undefined => {
   if (isTypeObject(type)) {
     return getSchemaFromObject(type, reflection);
@@ -62,7 +69,7 @@ const getCompoundTypeBody = (
 
   if (isTypeUnion(type)) {
     return getUnionTypeBody(type.elements, reflection, (currentType) => {
-      return getScalarTypeBody(currentType) ?? getCompoundTypeBody(currentType, parent, reflection, errorList);
+      return getScalarTypeBody(currentType) ?? getCompoundTypeBody(currentType, parent, reflection, errorList, namespace);
     });
   }
 
@@ -72,17 +79,17 @@ const getCompoundTypeBody = (
 
   if (isTypeArray(type)) {
     return getArrayTypeBody(type.element, reflection, (currentType) => {
-      return getScalarTypeBody(currentType) ?? getCompoundTypeBody(currentType, parent, reflection, errorList);
+      return getScalarTypeBody(currentType) ?? getCompoundTypeBody(currentType, parent, reflection, errorList, namespace);
     });
   }
 
   if (!isModelDeclaration(type)) {
-    errorList.push(new InvalidBodyTypeError(parent.file));
+    errorList.push(new InvalidBodyTypeError(getFullTypeName(namespace, BASE_TYPE), parent.file));
     return undefined;
   }
 
-  if (!isJsonBody(type)) {
-    errorList.push(new IncorrectBodyTypeError(type.name, type.file));
+  if (!isWebBodyDeclaration(type, namespace)) {
+    errorList.push(new IncorrectBodyTypeError(type.name, getFullTypeName(namespace, BASE_TYPE), type.file));
     return undefined;
   }
 
@@ -101,7 +108,7 @@ const getUnionTypeBody = (types: AllType[], reflection: SourceMap, resolver: (ty
       continue;
     }
 
-    const schema = getTypeBody(type, reflection, resolver);
+    const schema = getBodyType(type, reflection, resolver);
 
     if (schema) {
       schemaData.elements.push(schema);
@@ -116,7 +123,7 @@ const getUnionTypeBody = (types: AllType[], reflection: SourceMap, resolver: (ty
 };
 
 const getArrayTypeBody = (type: AllType, reflection: SourceMap, resolver: (type: AllType) => AnySchema | undefined) => {
-  const schema = getTypeBody(type, reflection, resolver);
+  const schema = getBodyType(type, reflection, resolver);
 
   if (schema) {
     return createArraySchema({

@@ -1,25 +1,32 @@
 import type { AllType, SourceMap, TypeModel } from '@ez4/reflection';
 import type { MemberType } from '@ez4/common/library';
-import type { HttpDefaults } from '../../types/common';
+import { HttpNamespaceType, type HttpDefaults } from './types';
 
 import {
   InvalidServicePropertyError,
   isModelDeclaration,
+  tryGetReferenceType,
   getPropertyNumber,
   getObjectMembers,
   getModelMembers,
   getServiceListener,
-  tryGetReferenceType
+  hasHeritageType
 } from '@ez4/common/library';
 
 import { isModelProperty, isTypeObject, isTypeReference } from '@ez4/reflection';
 
-import { IncorrectDefaultsTypeError, InvalidDefaultsTypeError } from '../../library';
-import { getHttpPreferences } from '../preferences';
-import { isHttpDefaults } from './utils';
-import { getHttpErrors } from './errors';
+import { IncorrectDefaultsTypeError, InvalidDefaultsTypeError } from '../../errors/defaults';
+import { getWebPreferencesMetadata } from '../preferences';
+import { getHttpErrorsMetadata } from './errors';
+import { getFullTypeName } from '../utils/type';
 
-export const getHttpDefaults = (type: AllType, parent: TypeModel, reflection: SourceMap, errorList: Error[]) => {
+const FULL_BASE_TYPE = getFullTypeName(HttpNamespaceType, 'Defaults');
+
+export const isHttpDefaultsDeclaration = (type: TypeModel) => {
+  return hasHeritageType(type, FULL_BASE_TYPE);
+};
+
+export const getHttpDefaultsMetadata = (type: AllType, parent: TypeModel, reflection: SourceMap, errorList: Error[]) => {
   if (!isTypeReference(type)) {
     return getDefaultsType(type, parent, reflection, errorList);
   }
@@ -39,12 +46,12 @@ const getDefaultsType = (type: AllType, parent: TypeModel, reflection: SourceMap
   }
 
   if (!isModelDeclaration(type)) {
-    errorList.push(new InvalidDefaultsTypeError(parent.file));
+    errorList.push(new InvalidDefaultsTypeError(FULL_BASE_TYPE, parent.file));
     return undefined;
   }
 
-  if (!isHttpDefaults(type)) {
-    errorList.push(new IncorrectDefaultsTypeError(type.name, parent.file));
+  if (!isHttpDefaultsDeclaration(type)) {
+    errorList.push(new IncorrectDefaultsTypeError(type.name, FULL_BASE_TYPE, parent.file));
     return undefined;
   }
 
@@ -64,12 +71,12 @@ const getTypeFromMembers = (parent: TypeModel, members: MemberType[], reflection
         errorList.push(new InvalidServicePropertyError(parent.name, member.name, parent.file));
         break;
 
-      case 'httpErrors':
-        defaults.httpErrors = getHttpErrors(member.value, parent, reflection, errorList);
+      case 'preferences':
+        defaults.preferences = getWebPreferencesMetadata(member.value, parent, reflection, errorList, HttpNamespaceType);
         break;
 
-      case 'preferences':
-        defaults.preferences = getHttpPreferences(member.value, parent, reflection, errorList);
+      case 'httpErrors':
+        defaults.httpErrors = getHttpErrorsMetadata(member.value, parent, reflection, errorList);
         break;
 
       case 'memory':

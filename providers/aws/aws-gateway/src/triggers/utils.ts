@@ -1,4 +1,4 @@
-import type { HttpAuthorizer, HttpHandler, HttpService, WsHandler, WsService } from '@ez4/gateway/library';
+import type { AuthHandler, HttpHandler, HttpService, WsHandler, WsService } from '@ez4/gateway/library';
 import type { DeployOptions } from '@ez4/project/library';
 
 import { getServiceName } from '@ez4/project/library';
@@ -10,7 +10,7 @@ export const getInternalName = (service: HttpService | WsService, suffixName: st
 
 export const getFunctionName = (
   service: HttpService | WsService,
-  functionType: HttpAuthorizer | HttpHandler | WsHandler,
+  functionType: AuthHandler | HttpHandler | WsHandler,
   options: DeployOptions
 ) => {
   const functionName = toKebabCase(functionType.name);

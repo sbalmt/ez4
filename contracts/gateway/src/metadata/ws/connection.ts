@@ -18,16 +18,22 @@ import {
   hasHeritageType
 } from '@ez4/common/library';
 
-import { IncompleteRouteError } from '../../errors/http/route';
-import { getHttpPreferences } from '../preferences';
-import { getHttpAuthorizer } from '../authorizer';
+import { IncompleteTargetError } from '../../errors/ws/target';
+import { getAuthHandlerMetadata } from '../auth/handler';
+import { getFullTypeName } from '../utils/type';
+import { getWebPreferencesMetadata } from '../preferences';
 import { getWsConnectionHandler } from './handlers';
+import { WsNamespaceType } from './types';
+
+const FULL_BASE_CONNECT_TYPE = getFullTypeName(WsNamespaceType, 'Connect');
+
+const FULL_BASE_DISCONNECT_TYPE = getFullTypeName(WsNamespaceType, 'Disconnect');
 
 export const isWsConnectionDeclaration = (type: AllType): type is TypeClass => {
-  return isModelDeclaration(type) && (hasHeritageType(type, 'Ws.Connect') || hasHeritageType(type, 'Ws.Disconnect'));
+  return isModelDeclaration(type) && (hasHeritageType(type, FULL_BASE_CONNECT_TYPE) || hasHeritageType(type, FULL_BASE_DISCONNECT_TYPE));
 };
 
-export const getWsConnection = (type: AllType, parent: TypeModel, reflection: SourceMap, errorList: Error[]) => {
+export const getWsConnectionMetadata = (type: AllType, parent: TypeModel, reflection: SourceMap, errorList: Error[]) => {
   if (!isTypeReference(type)) {
     return getConnectionType(type, parent, reflection, errorList);
   }
@@ -84,11 +90,11 @@ const getTypeFromMembers = (
         break;
 
       case 'authorizer':
-        target.authorizer = getHttpAuthorizer(member.value, parent, reflection, errorList);
+        target.authorizer = getAuthHandlerMetadata(member.value, parent, reflection, errorList, WsNamespaceType);
         break;
 
       case 'preferences':
-        target.preferences = getHttpPreferences(member.value, parent, reflection, errorList);
+        target.preferences = getWebPreferencesMetadata(member.value, parent, reflection, errorList, WsNamespaceType);
         break;
 
       case 'memory':
@@ -111,7 +117,7 @@ const getTypeFromMembers = (
     return target;
   }
 
-  errorList.push(new IncompleteRouteError([...properties], type.file));
+  errorList.push(new IncompleteTargetError([...properties], type.file));
 
   return undefined;
 };

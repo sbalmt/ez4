@@ -1,4 +1,4 @@
-import type { HttpHandler, HttpAuthorizer, HttpErrors, HttpPreferences } from '@ez4/gateway/library';
+import type { AuthHandler, HttpHandler, HttpErrors, HttpPreferences } from '@ez4/gateway/library';
 import type { EmulatorServiceRequest, LinkedVariables } from '@ez4/project/library';
 import type { ServiceListener } from '@ez4/common/library';
 
@@ -6,7 +6,7 @@ export type RouteData = {
   httpErrors?: HttpErrors | null;
   preferences?: HttpPreferences;
   variables?: LinkedVariables | null;
-  authorizer?: HttpAuthorizer | null;
+  authorizer?: AuthHandler | null;
   listener?: ServiceListener | null;
   handler: HttpHandler;
 };

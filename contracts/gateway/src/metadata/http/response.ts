@@ -1,81 +1,64 @@
 import type { AllType, SourceMap, TypeModel, TypeObject } from '@ez4/reflection';
 import type { MemberType } from '@ez4/common/library';
 import type { Incomplete } from '@ez4/utils';
-import type { HttpAuthResponse, HttpResponse } from '../../types/common';
+import type { HttpResponse } from './types';
 
 import {
   InvalidServicePropertyError,
   isModelDeclaration,
-  hasHeritageType,
   getModelMembers,
   getObjectMembers,
   getPropertyNumber,
   getPropertyNumberList,
-  getReferenceType
+  getReferenceType,
+  hasHeritageType
 } from '@ez4/common/library';
 
 import { isModelProperty, isTypeObject, isTypeReference } from '@ez4/reflection';
-import { isAnyNumber } from '@ez4/utils';
+import { isAnyNumber, isObjectWith } from '@ez4/utils';
 
-import { IncorrectResponseTypeError, InvalidResponseTypeError } from '../../errors/http/response';
-import { getHttpIdentity } from '../identity';
-import { getHttpHeaders } from '../headers';
-import { getHttpBody } from '../body';
+import { IncorrectResponseTypeError, InvalidResponseTypeError } from '../../errors/response';
+import { getFullTypeName } from '../utils/type';
+import { getWebHeadersMetadata } from '../headers';
+import { getWebBodyMetadata } from '../body';
+import { HttpNamespaceType } from './types';
 
-export const getHttpAuthResponse = (type: AllType, parent: TypeModel, reflection: SourceMap, errorList: Error[]) => {
-  const response = getHttpResponse(type, parent, reflection, errorList, 'Http.AuthResponse');
+const FULL_BASE_TYPE = getFullTypeName(HttpNamespaceType, 'Response');
 
-  if (response && isValidAuthResponse(response)) {
-    return response;
-  }
-
-  return undefined;
+export const isHttpResponseDeclaration = (type: TypeModel) => {
+  return hasHeritageType(type, FULL_BASE_TYPE);
 };
 
-export const getHttpHandlerResponse = (type: AllType, parent: TypeModel, reflection: SourceMap, errorList: Error[]) => {
-  const response = getHttpResponse(type, parent, reflection, errorList, 'Http.Response');
-
-  if (response && isValidHandlerResponse(response)) {
-    return response;
-  }
-
-  return undefined;
-};
-
-const getHttpResponse = (type: AllType, parent: TypeModel, reflection: SourceMap, errorList: Error[], baseType: string) => {
+export const getHttpResponseMetadata = (type: AllType, parent: TypeModel, reflection: SourceMap, errorList: Error[]) => {
   if (!isTypeReference(type)) {
-    return getResponseType(type, parent, reflection, errorList, baseType);
+    return getResponseType(type, parent, reflection, errorList);
   }
 
   const declaration = getReferenceType(type, reflection);
 
   if (declaration) {
-    return getResponseType(declaration, parent, reflection, errorList, baseType);
+    return getResponseType(declaration, parent, reflection, errorList);
   }
 
   return undefined;
 };
 
-const isValidAuthResponse = (type: Incomplete<HttpAuthResponse>): type is HttpAuthResponse => {
-  return !!type.identity;
+const isCompleteResponse = (type: Incomplete<HttpResponse>): type is HttpResponse => {
+  return isObjectWith(type, ['status']) && (isAnyNumber(type.status) || !!type.status.length);
 };
 
-const isValidHandlerResponse = (type: Incomplete<HttpResponse>): type is HttpResponse => {
-  return isAnyNumber(type.status) || Array.isArray(type.status);
-};
-
-const getResponseType = (type: AllType, parent: TypeModel, reflection: SourceMap, errorList: Error[], baseType: string) => {
+const getResponseType = (type: AllType, parent: TypeModel, reflection: SourceMap, errorList: Error[]) => {
   if (isTypeObject(type)) {
     return getTypeFromMembers(type, parent, getObjectMembers(type), reflection, errorList);
   }
 
   if (!isModelDeclaration(type)) {
-    errorList.push(new InvalidResponseTypeError(baseType, parent.file));
+    errorList.push(new InvalidResponseTypeError(FULL_BASE_TYPE, parent.file));
     return undefined;
   }
 
-  if (!hasHeritageType(type, baseType)) {
-    errorList.push(new IncorrectResponseTypeError(type.name, baseType, type.file));
+  if (!isHttpResponseDeclaration(type)) {
+    errorList.push(new IncorrectResponseTypeError(type.name, FULL_BASE_TYPE, type.file));
     return undefined;
   }
 
@@ -89,7 +72,7 @@ const getTypeFromMembers = (
   reflection: SourceMap,
   errorList: Error[]
 ) => {
-  const response: Incomplete<HttpAuthResponse & HttpResponse> = {};
+  const response: Incomplete<HttpResponse> = {};
 
   for (const member of members) {
     if (!isModelProperty(member) || member.inherited) {
@@ -106,7 +89,7 @@ const getTypeFromMembers = (
         break;
 
       case 'headers': {
-        response.headers = getHttpHeaders(member.value, type, reflection, errorList);
+        response.headers = getWebHeadersMetadata(member.value, type, reflection, errorList, HttpNamespaceType);
 
         if (response.headers && member.description) {
           response.headers.description = member.description;
@@ -115,18 +98,8 @@ const getTypeFromMembers = (
         break;
       }
 
-      case 'identity': {
-        response.identity = getHttpIdentity(member.value, type, reflection, errorList);
-
-        if (response.identity && member.description) {
-          response.identity.description = member.description;
-        }
-
-        break;
-      }
-
       case 'body': {
-        response.body = getHttpBody(member.value, type, reflection, errorList);
+        response.body = getWebBodyMetadata(member.value, type, reflection, errorList, HttpNamespaceType);
 
         if (response.body && member.description) {
           response.body.description = member.description;
@@ -137,5 +110,9 @@ const getTypeFromMembers = (
     }
   }
 
-  return response;
+  if (isCompleteResponse(response)) {
+    return response;
+  }
+
+  return undefined;
 };

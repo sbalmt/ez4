@@ -1,16 +1,20 @@
 import { IncorrectTypeError, InvalidTypeError } from '@ez4/common/library';
 
 export class InvalidQueryTypeError extends InvalidTypeError {
-  constructor(fileName?: string) {
-    super('Invalid request query strings', undefined, 'Http.QueryStrings', fileName);
+  constructor(
+    public baseType: string,
+    fileName?: string
+  ) {
+    super('Invalid query strings', undefined, baseType, fileName);
   }
 }
 
 export class IncorrectQueryTypeError extends IncorrectTypeError {
   constructor(
     public queryType: string,
+    public baseType: string,
     fileName?: string
   ) {
-    super('Incorrect request query strings', queryType, 'Http.QueryStrings', fileName);
+    super('Incorrect query strings', queryType, baseType, fileName);
   }
 }

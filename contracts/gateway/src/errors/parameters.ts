@@ -1,16 +1,20 @@
 import { IncorrectTypeError, InvalidTypeError } from '@ez4/common/library';
 
 export class InvalidParameterTypeError extends InvalidTypeError {
-  constructor(fileName?: string) {
-    super('Invalid request parameters', undefined, 'Http.PathParameters', fileName);
+  constructor(
+    public baseType: string,
+    fileName?: string
+  ) {
+    super('Invalid path parameters', undefined, baseType, fileName);
   }
 }
 
 export class IncorrectParameterTypeError extends IncorrectTypeError {
   constructor(
     public parametersType: string,
+    public baseType: string,
     fileName?: string
   ) {
-    super('Incorrect request parameters', parametersType, 'Http.PathParameters', fileName);
+    super('Incorrect path parameters', parametersType, baseType, fileName);
   }
 }

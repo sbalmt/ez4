@@ -1,12 +1,24 @@
-import { ok, equal } from 'assert/strict';
+import { ok, deepEqual, equal } from 'assert/strict';
 import { describe, it } from 'node:test';
 
-import { registerTriggers, IncorrectRequestTypeError, InvalidRequestTypeError } from '@ez4/gateway/library';
+import {
+  registerTriggers,
+  IncorrectRequestTypeError,
+  IncompleteAuthorizerHandlerError,
+  InvalidRequestTypeError
+} from '@ez4/gateway/library';
 
 import { parseFile } from './utils/parser';
 
 describe('http authorizer metadata errors', () => {
   registerTriggers();
+
+  it('assert :: incomplete authorizer handler', () => {
+    const [error1] = parseFile('incomplete-authorizer', 1);
+
+    ok(error1 instanceof IncompleteAuthorizerHandlerError);
+    deepEqual(error1.properties, ['response']);
+  });
 
   it('assert :: incorrect authorizer request', () => {
     const [error1] = parseFile('incorrect-authorizer', 1);

@@ -1,7 +1,7 @@
 import type { AllType, SourceMap, TypeModel, TypeObject } from '@ez4/reflection';
 import type { MemberType } from '@ez4/common/library';
 import type { Incomplete } from '@ez4/utils';
-import type { HttpCors } from '../../types/common';
+import type { HttpCors } from './types';
 
 import {
   InvalidServicePropertyError,
@@ -11,44 +11,53 @@ import {
   getPropertyBoolean,
   getPropertyStringList,
   getPropertyNumber,
-  getReferenceType
+  getReferenceType,
+  hasHeritageType
 } from '@ez4/common/library';
 
 import { isModelProperty, isTypeObject, isTypeReference } from '@ez4/reflection';
+import { isObjectWith } from '@ez4/utils';
 
 import { IncompleteCorsError, IncorrectCorsTypeError, InvalidCorsTypeError } from '../../errors/http/cors';
-import { isHttpCors } from './utils';
+import { getFullTypeName } from '../utils/type';
+import { HttpNamespaceType } from './types';
 
-export const getHttpCors = (type: AllType, parent: TypeModel, reflection: SourceMap, errorList: Error[]) => {
+const FULL_BASE_TYPE = getFullTypeName(HttpNamespaceType, 'Cors');
+
+export const isHttpCorsDeclaration = (type: TypeModel) => {
+  return hasHeritageType(type, FULL_BASE_TYPE);
+};
+
+export const getHttpCorsMetadata = (type: AllType, parent: TypeModel, reflection: SourceMap, errorList: Error[]) => {
   if (!isTypeReference(type)) {
-    return getTypeCors(type, parent, errorList);
+    return getCorsType(type, parent, errorList);
   }
 
   const declaration = getReferenceType(type, reflection);
 
   if (declaration) {
-    return getTypeCors(declaration, parent, errorList);
+    return getCorsType(declaration, parent, errorList);
   }
 
   return undefined;
 };
 
-const isValidCors = (type: Incomplete<HttpCors>): type is HttpCors => {
-  return !!type.allowOrigins?.length;
+const isCompleteCors = (type: Incomplete<HttpCors>): type is HttpCors => {
+  return isObjectWith(type, ['allowOrigins']) && !!type.allowOrigins.length;
 };
 
-const getTypeCors = (type: AllType, parent: TypeModel, errorList: Error[]) => {
+const getCorsType = (type: AllType, parent: TypeModel, errorList: Error[]) => {
   if (isTypeObject(type)) {
     return getTypeFromMembers(type, parent, getObjectMembers(type), errorList);
   }
 
   if (!isModelDeclaration(type)) {
-    errorList.push(new InvalidCorsTypeError(parent.file));
+    errorList.push(new InvalidCorsTypeError(FULL_BASE_TYPE, parent.file));
     return undefined;
   }
 
-  if (!isHttpCors(type)) {
-    errorList.push(new IncorrectCorsTypeError(type.name, type.file));
+  if (!isHttpCorsDeclaration(type)) {
+    errorList.push(new IncorrectCorsTypeError(type.name, FULL_BASE_TYPE, type.file));
     return undefined;
   }
 
@@ -86,7 +95,7 @@ const getTypeFromMembers = (type: TypeObject | TypeModel, parent: TypeModel, mem
     }
   }
 
-  if (isValidCors(cors)) {
+  if (isCompleteCors(cors)) {
     return cors;
   }
 

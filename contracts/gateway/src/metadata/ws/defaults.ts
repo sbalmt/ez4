@@ -15,14 +15,18 @@ import {
 
 import { isModelProperty, isTypeObject, isTypeReference } from '@ez4/reflection';
 
-import { IncorrectDefaultsTypeError, InvalidDefaultsTypeError } from '../../library';
-import { getHttpPreferences } from '../preferences';
+import { IncorrectDefaultsTypeError, InvalidDefaultsTypeError } from '../../errors/defaults';
+import { getFullTypeName } from '../utils/type';
+import { getWebPreferencesMetadata } from '../preferences';
+import { WsNamespaceType } from './types';
+
+export const FULL_BASE_TYPE = getFullTypeName(WsNamespaceType, 'Defaults');
 
 export const isWsDefaultsDeclaration = (type: TypeModel) => {
-  return hasHeritageType(type, 'Ws.Defaults');
+  return hasHeritageType(type, FULL_BASE_TYPE);
 };
 
-export const getWsDefaults = (type: AllType, parent: TypeModel, reflection: SourceMap, errorList: Error[]) => {
+export const getWsDefaultsMetadata = (type: AllType, parent: TypeModel, reflection: SourceMap, errorList: Error[]) => {
   if (!isTypeReference(type)) {
     return getDefaultsType(type, parent, reflection, errorList);
   }
@@ -42,12 +46,12 @@ const getDefaultsType = (type: AllType, parent: TypeModel, reflection: SourceMap
   }
 
   if (!isModelDeclaration(type)) {
-    errorList.push(new InvalidDefaultsTypeError(parent.file));
+    errorList.push(new InvalidDefaultsTypeError(FULL_BASE_TYPE, parent.file));
     return undefined;
   }
 
   if (!isWsDefaultsDeclaration(type)) {
-    errorList.push(new IncorrectDefaultsTypeError(type.name, parent.file));
+    errorList.push(new IncorrectDefaultsTypeError(type.name, FULL_BASE_TYPE, parent.file));
     return undefined;
   }
 
@@ -68,7 +72,7 @@ const getTypeFromMembers = (parent: TypeModel, members: MemberType[], reflection
         break;
 
       case 'preferences':
-        defaults.preferences = getHttpPreferences(member.value, parent, reflection, errorList);
+        defaults.preferences = getWebPreferencesMetadata(member.value, parent, reflection, errorList, WsNamespaceType);
         break;
 
       case 'memory':

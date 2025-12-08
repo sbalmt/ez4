@@ -1,29 +1,41 @@
 import type { AllType, SourceMap, TypeIntersection, TypeModel, TypeObject } from '@ez4/reflection';
 import type { ObjectSchema, UnionSchema } from '@ez4/schema/library';
 
-import { getReferenceType, isModelDeclaration } from '@ez4/common/library';
+import { getReferenceType, hasHeritageType, isModelDeclaration } from '@ez4/common/library';
 import { isTypeIntersection, isTypeObject, isTypeReference, isTypeUndefined, isTypeUnion } from '@ez4/reflection';
 import { createUnionSchema } from '@ez4/schema/library';
 
-import { IncorrectIdentityTypeError, InvalidIdentityTypeError } from '../errors/http/identity';
-import { getSchemaFromIntersection, getSchemaFromObject } from './schema';
-import { isHttpIdentity } from './http/utils';
+import { IncorrectIdentityTypeError, InvalidIdentityTypeError } from '../../errors/auth/identity';
+import { getSchemaFromIntersection, getSchemaFromObject } from '../utils/schema';
+import { getFullTypeName } from '../utils/type';
 
 type TypeParent = TypeObject | TypeModel | TypeIntersection;
 
-export const getHttpIdentity = (type: AllType, parent: TypeParent, reflection: SourceMap, errorList: Error[]) => {
+const BASE_TYPE = 'Identity';
+
+export const isAuthIdentityDeclaration = (type: TypeModel, namespace: string) => {
+  return hasHeritageType(type, getFullTypeName(namespace, BASE_TYPE));
+};
+
+export const getAuthIdentityMetadata = (
+  type: AllType,
+  parent: TypeParent,
+  reflection: SourceMap,
+  errorList: Error[],
+  namespace: string
+) => {
   if (isTypeUndefined(type)) {
     return undefined;
   }
 
   if (!isTypeReference(type)) {
-    return getTypeIdentity(type, parent, reflection, errorList);
+    return getTypeIdentity(type, parent, reflection, errorList, namespace);
   }
 
   const declaration = getReferenceType(type, reflection);
 
   if (declaration) {
-    return getTypeIdentity(declaration, parent, reflection, errorList);
+    return getTypeIdentity(declaration, parent, reflection, errorList, namespace);
   }
 
   return undefined;
@@ -33,14 +45,15 @@ const getTypeIdentity = (
   type: AllType,
   parent: TypeParent,
   reflection: SourceMap,
-  errorList: Error[]
+  errorList: Error[],
+  namespace: string
 ): ObjectSchema | UnionSchema | undefined => {
   if (isTypeObject(type)) {
     return getSchemaFromObject(type, reflection);
   }
 
   if (isTypeUnion(type)) {
-    return getIdentityFromUnion(type.elements, parent, reflection, errorList);
+    return getIdentityFromUnion(type.elements, parent, reflection, errorList, namespace);
   }
 
   if (isTypeIntersection(type)) {
@@ -48,12 +61,12 @@ const getTypeIdentity = (
   }
 
   if (!isModelDeclaration(type)) {
-    errorList.push(new InvalidIdentityTypeError(parent.file));
+    errorList.push(new InvalidIdentityTypeError(getFullTypeName(namespace, BASE_TYPE), parent.file));
     return undefined;
   }
 
-  if (!isHttpIdentity(type)) {
-    errorList.push(new IncorrectIdentityTypeError(type.name, parent.file));
+  if (!isAuthIdentityDeclaration(type, namespace)) {
+    errorList.push(new IncorrectIdentityTypeError(type.name, getFullTypeName(namespace, BASE_TYPE), parent.file));
     return undefined;
   }
 
@@ -69,11 +82,11 @@ const getTypeIdentity = (
   return schema;
 };
 
-const getIdentityFromUnion = (types: AllType[], parent: TypeParent, reflection: SourceMap, errorList: Error[]) => {
+const getIdentityFromUnion = (types: AllType[], parent: TypeParent, reflection: SourceMap, errorList: Error[], namespace: string) => {
   const schemaList = [];
 
   for (const type of types) {
-    const schema = getHttpIdentity(type, parent, reflection, errorList);
+    const schema = getAuthIdentityMetadata(type, parent, reflection, errorList, namespace);
 
     if (schema) {
       schemaList.push(schema);

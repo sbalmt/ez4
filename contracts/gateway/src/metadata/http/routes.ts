@@ -1,12 +1,14 @@
 import type { AllType, EveryType, ModelProperty, SourceMap, TypeModel, TypeObject } from '@ez4/reflection';
 import type { MemberType } from '@ez4/common/library';
 import type { Incomplete } from '@ez4/utils';
-import type { HttpRoute } from '../../types/common';
+import type { HttpRoute } from './types';
 
 import { isModelProperty, isTypeObject, isTypeReference, isTypeTuple } from '@ez4/reflection';
+import { isObjectWith } from '@ez4/utils';
 
 import {
   InvalidServicePropertyError,
+  isModelDeclaration,
   getLinkedVariableList,
   getPropertyBoolean,
   getPropertyNumber,
@@ -15,15 +17,22 @@ import {
   getModelMembers,
   getServiceListener,
   getReferenceType,
-  getPropertyTuple
+  getPropertyTuple,
+  hasHeritageType
 } from '@ez4/common/library';
 
 import { IncompleteRouteError } from '../../errors/http/route';
-import { isHttpPath, isHttpRoute } from './utils';
-import { getHttpPreferences } from '../preferences';
-import { getHttpAuthorizer } from '../authorizer';
-import { getHttpHandler } from './handler';
-import { getHttpErrors } from './errors';
+import { getAuthHandlerMetadata } from '../auth/handler';
+import { getFullTypeName } from '../utils/type';
+import { isHttpPath } from '../utils/path';
+import { getWebPreferencesMetadata } from '../preferences';
+import { getHttpHandlerMetadata } from './handler';
+import { getHttpErrorsMetadata } from './errors';
+import { HttpNamespaceType } from './types';
+
+export const isHttpRouteDeclaration = (type: AllType): type is TypeModel => {
+  return isModelDeclaration(type) && hasHeritageType(type, getFullTypeName(HttpNamespaceType, 'Route'));
+};
 
 export const getHttpLocalRoutes = (parent: TypeModel, member: ModelProperty, reflection: SourceMap, errorList: Error[]) => {
   return getHttpRoutes(parent, member, reflection, errorList, false);
@@ -77,12 +86,12 @@ const getTypeFromRoute = (type: AllType, parent: TypeModel, reflection: SourceMa
   return undefined;
 };
 
-const isValidRoute = (type: Incomplete<HttpRoute>): type is HttpRoute => {
-  return !!type.path && !!type.handler;
+const isCompleteRoute = (type: Incomplete<HttpRoute>): type is HttpRoute => {
+  return isObjectWith(type, ['path', 'handler']);
 };
 
 const getRouteType = (type: AllType, parent: TypeModel, reflection: SourceMap, errorList: Error[], external: boolean) => {
-  if (isHttpRoute(type)) {
+  if (isHttpRouteDeclaration(type)) {
     return getTypeFromMembers(type, parent, getModelMembers(type), reflection, errorList, external);
   }
 
@@ -134,21 +143,21 @@ const getTypeFromMembers = (
       }
 
       case 'handler':
-        if ((route.handler = getHttpHandler(member.value, parent, reflection, errorList, external))) {
+        if ((route.handler = getHttpHandlerMetadata(member.value, parent, reflection, errorList, external))) {
           properties.delete(member.name);
         }
         break;
 
       case 'authorizer':
-        route.authorizer = getHttpAuthorizer(member.value, parent, reflection, errorList);
-        break;
-
-      case 'httpErrors':
-        route.httpErrors = getHttpErrors(member.value, parent, reflection, errorList);
+        route.authorizer = getAuthHandlerMetadata(member.value, parent, reflection, errorList, HttpNamespaceType);
         break;
 
       case 'preferences':
-        route.preferences = getHttpPreferences(member.value, parent, reflection, errorList);
+        route.preferences = getWebPreferencesMetadata(member.value, parent, reflection, errorList, HttpNamespaceType);
+        break;
+
+      case 'httpErrors':
+        route.httpErrors = getHttpErrorsMetadata(member.value, parent, reflection, errorList);
         break;
 
       case 'memory':
@@ -172,7 +181,7 @@ const getTypeFromMembers = (
     }
   }
 
-  if (isValidRoute(route)) {
+  if (isCompleteRoute(route)) {
     return route;
   }
 

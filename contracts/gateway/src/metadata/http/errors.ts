@@ -1,28 +1,28 @@
 import type { AllType, ModelProperty, SourceMap, TypeModel, TypeObject } from '@ez4/reflection';
 import type { MemberType } from '@ez4/common/library';
-import type { HttpErrors } from '../../types/common';
+import type { HttpErrors } from './types';
 
 import { InvalidServicePropertyError, getObjectMembers, getPropertyTuple, getReferenceType } from '@ez4/common/library';
+import { isModelProperty, isTypeClass, isTypeObject, isTypeReference } from '@ez4/reflection';
 import { isAnyNumber, isEmptyObject } from '@ez4/utils';
 
-import { isModelProperty, isTypeClass, isTypeObject, isTypeReference } from '@ez4/reflection';
-import { InvalidRouteErrorTypeError } from '../../library';
+import { InvalidRouteErrorTypeError } from '../../errors/http/route';
 
-export const getHttpErrors = (type: AllType, parent: TypeModel, reflection: SourceMap, errorList: Error[]) => {
+export const getHttpErrorsMetadata = (type: AllType, parent: TypeModel, reflection: SourceMap, errorList: Error[]) => {
   if (!isTypeReference(type)) {
-    return getTypeErrors(type, parent, reflection, errorList);
+    return getErrorsType(type, parent, reflection, errorList);
   }
 
   const declaration = getReferenceType(type, reflection);
 
   if (declaration) {
-    return getTypeErrors(declaration, parent, reflection, errorList);
+    return getErrorsType(declaration, parent, reflection, errorList);
   }
 
   return undefined;
 };
 
-const getTypeErrors = (type: AllType, parent: TypeModel, reflection: SourceMap, errorList: Error[]) => {
+const getErrorsType = (type: AllType, parent: TypeModel, reflection: SourceMap, errorList: Error[]) => {
   if (isTypeObject(type)) {
     return getTypeFromMembers(type, parent, getObjectMembers(type), reflection, errorList);
   }

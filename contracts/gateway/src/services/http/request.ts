@@ -1,5 +1,8 @@
-import type { WebHeaders, WebJsonBody, WebPathParameters, WebQueryStrings, WebRawBody } from '../web/common';
 import type { AuthIdentity } from '../auth/identity';
+import type { WebPathParameters } from '../parameters';
+import type { WebQueryStrings } from '../query';
+import type { WebHeaders } from '../headers';
+import type { WebBody } from '../body';
 
 /**
  * HTTP request.
@@ -28,5 +31,5 @@ export interface HttpRequest {
   /**
    * Expected HTTP body payload.
    */
-  readonly body?: WebJsonBody | WebRawBody;
+  readonly body?: WebBody;
 }

@@ -1,40 +1,47 @@
-import type { SourceMap } from '@ez4/reflection';
+import type { AllType, SourceMap, TypeClass } from '@ez4/reflection';
 import type { Incomplete } from '@ez4/utils';
-import type { HttpService } from '../../types/service';
+import type { HttpService } from './types';
 
 import {
   DuplicateServiceError,
+  InvalidServicePropertyError,
   isExternalDeclaration,
+  isClassDeclaration,
   getLinkedServiceList,
   getLinkedVariableList,
-  getModelMembers,
   getPropertyString,
-  InvalidServicePropertyError
+  getModelMembers,
+  hasHeritageType
 } from '@ez4/common/library';
 
 import { isModelProperty } from '@ez4/reflection';
+import { isObjectWith } from '@ez4/utils';
 
-import { ServiceType } from '../../types/service';
-import { IncompleteServiceError, ServiceCollisionError } from '../../errors/http/service';
-import { getHttpDefaults } from './defaults';
+import { IncompleteServiceError, ServiceCollisionError } from '../../errors/service';
+import { getFullTypeName } from '../utils/type';
+import { HttpNamespaceType, HttpServiceType } from './types';
+import { getHttpDefaultsMetadata } from './defaults';
+import { getHttpAccessMetadata } from './access';
+import { getHttpCacheMetadata } from './cache';
 import { getHttpLocalRoutes } from './routes';
-import { getCacheMetadata } from './cache';
-import { getHttpAccess } from './access';
-import { isHttpService } from './utils';
-import { getHttpCors } from './cors';
+import { getHttpCorsMetadata } from './cors';
 
-export const getHttpServices = (reflection: SourceMap) => {
+export const isHttpServiceDeclaration = (type: AllType): type is TypeClass => {
+  return isClassDeclaration(type) && hasHeritageType(type, getFullTypeName(HttpNamespaceType, 'Service'));
+};
+
+export const getHttpServicesMetadata = (reflection: SourceMap) => {
   const allServices: Record<string, HttpService> = {};
   const errorList: Error[] = [];
 
   for (const identity in reflection) {
     const declaration = reflection[identity];
 
-    if (!isHttpService(declaration) || isExternalDeclaration(declaration)) {
+    if (!isHttpServiceDeclaration(declaration) || isExternalDeclaration(declaration)) {
       continue;
     }
 
-    const service: Incomplete<HttpService> = { type: ServiceType, context: {} };
+    const service: Incomplete<HttpService> = { type: HttpServiceType, context: {} };
     const properties = new Set(['routes']);
 
     const fileName = declaration.file;
@@ -66,19 +73,19 @@ export const getHttpServices = (reflection: SourceMap) => {
           break;
 
         case 'defaults':
-          service.defaults = getHttpDefaults(member.value, declaration, reflection, errorList);
+          service.defaults = getHttpDefaultsMetadata(member.value, declaration, reflection, errorList);
           break;
 
         case 'cache':
-          service.cache = getCacheMetadata(member.value, declaration, reflection, errorList);
+          service.cache = getHttpCacheMetadata(member.value, declaration, reflection, errorList);
           break;
 
         case 'access':
-          service.access = getHttpAccess(member.value, declaration, reflection, errorList);
+          service.access = getHttpAccessMetadata(member.value, declaration, reflection, errorList);
           break;
 
         case 'cors':
-          service.cors = getHttpCors(member.value, declaration, reflection, errorList);
+          service.cors = getHttpCorsMetadata(member.value, declaration, reflection, errorList);
           break;
 
         case 'variables':
@@ -91,7 +98,7 @@ export const getHttpServices = (reflection: SourceMap) => {
       }
     }
 
-    if (!isValidService(service)) {
+    if (!isCompleteService(service)) {
       errorList.push(new IncompleteServiceError([...properties], fileName));
       continue;
     }
@@ -112,8 +119,8 @@ export const getHttpServices = (reflection: SourceMap) => {
   };
 };
 
-const isValidService = (type: Incomplete<HttpService>): type is HttpService => {
-  return !!type.name && !!type.routes && !!type.context;
+const isCompleteService = (type: Incomplete<HttpService>): type is HttpService => {
+  return isObjectWith(type, ['name', 'routes', 'context']);
 };
 
 const assignProviderServices = (service: HttpService, errorList: Error[], fileName?: string) => {

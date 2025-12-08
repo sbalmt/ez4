@@ -1,4 +1,4 @@
-import type { Http, Ws } from '@ez4/gateway';
+import type { Ws } from '@ez4/gateway';
 
 type TestData = {
   foo: string;
@@ -26,13 +26,13 @@ export declare class TestService extends Ws.Service<TestData> {
   }>;
 }
 
-declare class AuthorizerRequest implements Http.AuthRequest {
+declare class AuthorizerRequest implements Ws.AuthRequest {
   query: {
     apiKey: string;
   };
 }
 
-declare class AuthorizerResponse implements Http.AuthResponse {
+declare class AuthorizerResponse implements Ws.AuthResponse {
   identity?: TestIdentity;
 }
 

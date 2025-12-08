@@ -2,21 +2,25 @@ import { IncompleteTypeError, IncorrectTypeError, InvalidTypeError } from '@ez4/
 
 export class IncompleteCacheError extends IncompleteTypeError {
   constructor(properties: string[], fileName?: string) {
-    super('Incomplete gateway cache', properties, fileName);
+    super('Incomplete cache', properties, fileName);
   }
 }
 
 export class InvalidCacheTypeError extends InvalidTypeError {
-  constructor(fileName?: string) {
-    super('Invalid gateway cache type', undefined, 'Http.Cache', fileName);
+  constructor(
+    public baseType: string,
+    fileName?: string
+  ) {
+    super('Invalid cache', undefined, baseType, fileName);
   }
 }
 
 export class IncorrectCacheTypeError extends IncorrectTypeError {
   constructor(
     public cacheType: string,
+    public baseType: string,
     fileName?: string
   ) {
-    super('Incorrect gateway cache type', cacheType, 'Http.Cache', fileName);
+    super('Incorrect cache', cacheType, baseType, fileName);
   }
 }

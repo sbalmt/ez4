@@ -1,5 +1,6 @@
-import type { WebHeaders, WebQueryStrings } from '../web/common';
 import type { AuthIdentity } from '../auth/identity';
+import type { WebQueryStrings } from '../query';
+import type { WebHeaders } from '../headers';
 
 /**
  * WS event.

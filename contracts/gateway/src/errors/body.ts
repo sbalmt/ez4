@@ -1,16 +1,20 @@
 import { IncorrectTypeError, InvalidTypeError } from '@ez4/common/library';
 
 export class InvalidBodyTypeError extends InvalidTypeError {
-  constructor(fileName?: string) {
-    super('Invalid body', undefined, 'Http.JsonBody', fileName);
+  constructor(
+    public baseType: string,
+    fileName?: string
+  ) {
+    super('Invalid body', undefined, baseType, fileName);
   }
 }
 
 export class IncorrectBodyTypeError extends IncorrectTypeError {
   constructor(
     public bodyType: string,
+    public baseType: string,
     fileName?: string
   ) {
-    super('Incorrect body', bodyType, 'Http.JsonBody', fileName);
+    super('Incorrect body', bodyType, baseType, fileName);
   }
 }

@@ -1,12 +1,13 @@
 import type { Service as CommonService } from '@ez4/common';
 import type { LinkedVariables } from '@ez4/project/library';
-import type { WebHeaders, WebJsonBody, WebQueryStrings, WebRawBody } from '../web/common';
 import type { AuthResponse as HttpAuthResponse } from '../auth/response';
 import type { AuthRequest as HttpAuthRequest } from '../auth/request';
-import type { WebPreferences } from '../web/preferences';
+import type { WebPreferences } from '../preferences';
 import type { AuthIdentity } from '../auth/identity';
+import type { WebJsonBody, WebRawBody } from '../body';
+import type { WebQueryStrings } from '../query';
+import type { WebHeaders } from '../headers';
 import type { WsEmptyEvent, WsEmptyRequest } from './utils';
-import type { WsConnect } from './connect';
 import type { WsDisconnect } from './disconnect';
 import type { WsDefaults } from './defaults';
 import type { WsIncoming } from './incoming';
@@ -15,6 +16,7 @@ import type { WsResponse } from './response';
 import type { WsRequest } from './request';
 import type { WsHandler } from './handler';
 import type { WsMessage } from './message';
+import type { WsConnect } from './connect';
 import type { WsEvent } from './event';
 
 /**

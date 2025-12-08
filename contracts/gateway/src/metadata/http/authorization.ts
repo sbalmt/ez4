@@ -1,7 +1,7 @@
 import type { AllType, SourceMap, TypeModel, TypeObject } from '@ez4/reflection';
 import type { MemberType } from '@ez4/common/library';
 import type { Incomplete } from '@ez4/utils';
-import type { HttpAuthorization } from '../types/common';
+import type { HttpAuthorization } from './types';
 
 import {
   InvalidServicePropertyError,
@@ -10,17 +10,30 @@ import {
   getModelMembers,
   getReferenceType,
   getPropertyStringIn,
-  getPropertyString
+  getPropertyString,
+  hasHeritageType
 } from '@ez4/common/library';
 
 import { isModelProperty, isTypeObject, isTypeReference } from '@ez4/reflection';
-import { isAnyString } from '@ez4/utils';
+import { isAnyString, isObjectWith } from '@ez4/utils';
 
-import { IncompleteAuthorizationError, IncorrectAuthorizationTypeError, InvalidAuthorizationTypeError } from '../errors/http/authorization';
-import { AuthorizationType } from '../services/http/authorization';
-import { isHttpAuthorization } from './http/utils';
+import {
+  IncompleteAuthorizationError,
+  IncorrectAuthorizationTypeError,
+  InvalidAuthorizationTypeError
+} from '../../errors/http/authorization';
 
-export const getHttpAuthorization = (type: AllType, parent: TypeModel, reflection: SourceMap, errorList: Error[]) => {
+import { AuthorizationType } from '../../services/http/authorization';
+import { getFullTypeName } from '../utils/type';
+import { HttpNamespaceType } from './types';
+
+const FULL_BASE_TYPE = getFullTypeName(HttpNamespaceType, 'Authorization');
+
+export const isHttpAuthorizationDeclaration = (type: TypeModel) => {
+  return hasHeritageType(type, FULL_BASE_TYPE);
+};
+
+export const getHttpAuthorizationMetadata = (type: AllType, parent: TypeModel, reflection: SourceMap, errorList: Error[]) => {
   if (!isTypeReference(type)) {
     return getTypeAuthorization(type, parent, errorList);
   }
@@ -34,8 +47,8 @@ export const getHttpAuthorization = (type: AllType, parent: TypeModel, reflectio
   return undefined;
 };
 
-const isValidAuthorization = (type: Incomplete<HttpAuthorization>): type is HttpAuthorization => {
-  return isAnyString(type.value);
+const isCompleteAuthorization = (type: Incomplete<HttpAuthorization>): type is HttpAuthorization => {
+  return isObjectWith(type, ['value']);
 };
 
 const getTypeAuthorization = (type: AllType, parent: TypeModel, errorList: Error[]) => {
@@ -44,12 +57,12 @@ const getTypeAuthorization = (type: AllType, parent: TypeModel, errorList: Error
   }
 
   if (!isModelDeclaration(type)) {
-    errorList.push(new InvalidAuthorizationTypeError(parent.file));
+    errorList.push(new InvalidAuthorizationTypeError(FULL_BASE_TYPE, parent.file));
     return undefined;
   }
 
-  if (!isHttpAuthorization(type)) {
-    errorList.push(new IncorrectAuthorizationTypeError(type.name, parent.file));
+  if (!isHttpAuthorizationDeclaration(type)) {
+    errorList.push(new IncorrectAuthorizationTypeError(type.name, FULL_BASE_TYPE, parent.file));
     return undefined;
   }
 
@@ -92,7 +105,7 @@ const getTypeFromMembers = (type: TypeObject | TypeModel, parent: TypeModel, mem
     }
   }
 
-  if (isValidAuthorization(authorization)) {
+  if (isCompleteAuthorization(authorization)) {
     return authorization;
   }
 

@@ -5,12 +5,12 @@ export class InvalidProviderTypeError extends InvalidTypeError {
     public baseType: string,
     fileName?: string
   ) {
-    super('Invalid route provider', undefined, baseType, fileName);
+    super('Invalid provider', undefined, baseType, fileName);
   }
 }
 
 export class IncompleteProviderError extends IncompleteTypeError {
   constructor(properties: string[], fileName?: string) {
-    super('Incomplete route provider', properties, fileName);
+    super('Incomplete provider', properties, fileName);
   }
 }

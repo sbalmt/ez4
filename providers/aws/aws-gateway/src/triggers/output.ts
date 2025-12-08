@@ -8,8 +8,14 @@ export const resourceOutput = (event: ResourceOutputEvent) => {
     return null;
   }
 
+  const { result } = serviceState;
+
+  if (!result) {
+    return null;
+  }
+
   return {
     label: serviceState.parameters.gatewayName,
-    value: serviceState.result?.endpoint
+    value: result.endpoint
   };
 };

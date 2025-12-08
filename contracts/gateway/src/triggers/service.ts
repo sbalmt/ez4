@@ -1,26 +1,13 @@
-import type { SourceMap, TypeClass } from '@ez4/reflection';
+import type { TypeClass } from '@ez4/reflection';
 
-import { isHttpImport, isHttpService } from '../metadata/http/utils';
-import { getWsServices, isWsServiceDeclaration } from '../metadata/ws/service';
-import { getHttpServices } from '../metadata/http/service';
-
-export const getServices = (reflection: SourceMap) => {
-  const httpServices = getHttpServices(reflection);
-  const wsServices = getWsServices(reflection);
-
-  return {
-    services: {
-      ...httpServices.services,
-      ...wsServices.services
-    },
-    errors: [...httpServices.errors, ...wsServices.errors]
-  };
-};
+import { isWsServiceDeclaration } from '../metadata/ws/service';
+import { isHttpServiceDeclaration } from '../metadata/http/service';
+import { isHttpImportDeclaration } from '../metadata/http/import';
 
 export const getLinkedService = (declaration: TypeClass): string | null => {
-  return isHttpService(declaration) || isWsServiceDeclaration(declaration) ? declaration.name : null;
+  return isHttpServiceDeclaration(declaration) || isWsServiceDeclaration(declaration) ? declaration.name : null;
 };
 
 export const getLinkedImport = (declaration: TypeClass): string | null => {
-  return isHttpImport(declaration) || isWsServiceDeclaration(declaration) ? declaration.name : null;
+  return isHttpImportDeclaration(declaration) ? declaration.name : null;
 };

@@ -1,29 +1,35 @@
 import type { AllType, SourceMap, TypeIntersection, TypeModel, TypeObject } from '@ez4/reflection';
 
 import { isTypeIntersection, isTypeObject, isTypeReference } from '@ez4/reflection';
-import { getReferenceType, isModelDeclaration } from '@ez4/common/library';
+import { getReferenceType, hasHeritageType, isModelDeclaration } from '@ez4/common/library';
 
-import { IncorrectHeadersTypeError, InvalidHeadersTypeError } from '../errors/http/headers';
-import { isHttpHeaders } from './http/utils';
-import { getSchemaFromIntersection, getSchemaFromObject } from './schema';
+import { IncorrectHeadersTypeError, InvalidHeadersTypeError } from '../errors/headers';
+import { getSchemaFromIntersection, getSchemaFromObject } from './utils/schema';
+import { getFullTypeName } from './utils/type';
 
 type TypeParent = TypeObject | TypeModel | TypeIntersection;
 
-export const getHttpHeaders = (type: AllType, parent: TypeParent, reflection: SourceMap, errorList: Error[]) => {
+const BASE_TYPE = 'Headers';
+
+export const isWebHeadersDeclaration = (type: TypeModel, namespace: string) => {
+  return hasHeritageType(type, getFullTypeName(namespace, BASE_TYPE));
+};
+
+export const getWebHeadersMetadata = (type: AllType, parent: TypeParent, reflection: SourceMap, errorList: Error[], namespace: string) => {
   if (!isTypeReference(type)) {
-    return getTypeHeaders(type, parent, reflection, errorList);
+    return getHeadersType(type, parent, reflection, errorList, namespace);
   }
 
   const declaration = getReferenceType(type, reflection);
 
   if (declaration) {
-    return getTypeHeaders(declaration, parent, reflection, errorList);
+    return getHeadersType(declaration, parent, reflection, errorList, namespace);
   }
 
   return undefined;
 };
 
-const getTypeHeaders = (type: AllType, parent: TypeParent, reflection: SourceMap, errorList: Error[]) => {
+const getHeadersType = (type: AllType, parent: TypeParent, reflection: SourceMap, errorList: Error[], namespace: string) => {
   if (isTypeObject(type)) {
     return getSchemaFromObject(type, reflection);
   }
@@ -33,12 +39,12 @@ const getTypeHeaders = (type: AllType, parent: TypeParent, reflection: SourceMap
   }
 
   if (!isModelDeclaration(type)) {
-    errorList.push(new InvalidHeadersTypeError(parent.file));
+    errorList.push(new InvalidHeadersTypeError(getFullTypeName(namespace, BASE_TYPE), parent.file));
     return undefined;
   }
 
-  if (!isHttpHeaders(type)) {
-    errorList.push(new IncorrectHeadersTypeError(type.name, parent.file));
+  if (!isWebHeadersDeclaration(type, namespace)) {
+    errorList.push(new IncorrectHeadersTypeError(type.name, getFullTypeName(namespace, BASE_TYPE), parent.file));
     return undefined;
   }
 
