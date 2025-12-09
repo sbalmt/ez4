@@ -27,8 +27,8 @@ declare const __EZ4_RESPONSE_SCHEMA: ObjectSchema | UnionSchema | ArraySchema | 
 declare const __EZ4_PREFERENCES: HttpPreferences;
 declare const __EZ4_CONTEXT: object;
 
-declare function dispatch(event: Ws.ServiceEvent<Ws.Event>, context: object): Promise<void>;
-declare function handle(request: Ws.Incoming<Ws.Event>, context: object): Promise<Ws.Response | void>;
+declare function dispatch(event: Ws.ServiceEvent<Ws.Request>, context: object): Promise<void>;
+declare function handle(request: Ws.Incoming<Ws.Request>, context: object): Promise<Ws.Response | void>;
 
 /**
  * Entrypoint to handle API Gateway requests.
@@ -36,7 +36,7 @@ declare function handle(request: Ws.Incoming<Ws.Event>, context: object): Promis
 export async function apiEntryPoint(event: RequestEvent, context: Context): Promise<ResponseEvent> {
   const { requestContext } = event;
 
-  const request: Ws.Incoming<Ws.Event> = {
+  const request: Ws.Incoming<Ws.Request> = {
     timestamp: new Date(requestContext.requestTimeEpoch),
     connectionId: requestContext.connectionId,
     requestId: context.awsRequestId
@@ -150,7 +150,7 @@ const getErrorResponse = (error?: HttpError) => {
   };
 };
 
-const onBegin = async (request: Ws.Incoming<Ws.Event>) => {
+const onBegin = async (request: Ws.Incoming<Ws.Request>) => {
   return dispatch(
     {
       type: ServiceEventType.Begin,
@@ -160,7 +160,7 @@ const onBegin = async (request: Ws.Incoming<Ws.Event>) => {
   );
 };
 
-const onReady = async (request: Ws.Incoming<Ws.Event>) => {
+const onReady = async (request: Ws.Incoming<Ws.Request>) => {
   return dispatch(
     {
       type: ServiceEventType.Ready,
@@ -170,7 +170,7 @@ const onReady = async (request: Ws.Incoming<Ws.Event>) => {
   );
 };
 
-const onDone = async (request: Ws.Incoming<Ws.Event>) => {
+const onDone = async (request: Ws.Incoming<Ws.Request>) => {
   return dispatch(
     {
       type: ServiceEventType.Done,
@@ -180,7 +180,7 @@ const onDone = async (request: Ws.Incoming<Ws.Event>) => {
   );
 };
 
-const onError = async (error: unknown, request: Ws.Incoming<Ws.Event>) => {
+const onError = async (error: unknown, request: Ws.Incoming<Ws.Request>) => {
   console.error(error);
 
   return dispatch(
@@ -193,7 +193,7 @@ const onError = async (error: unknown, request: Ws.Incoming<Ws.Event>) => {
   );
 };
 
-const onEnd = async (request: Ws.Incoming<Ws.Event>) => {
+const onEnd = async (request: Ws.Incoming<Ws.Request>) => {
   return dispatch(
     {
       type: ServiceEventType.End,
