@@ -61,7 +61,7 @@ export type ServiceDoneEvent<T extends ServiceRequest> = {
   /**
    * Event type.
    */
-  type: ServiceEventType.Ready;
+  type: ServiceEventType.Done;
 
   /**
    * Event request.
