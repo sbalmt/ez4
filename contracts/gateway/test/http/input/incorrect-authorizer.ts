@@ -1,12 +1,5 @@
 import type { Http } from '@ez4/gateway';
 
-// Missing Http.AuthRequest inheritance.
-interface TestAuthRequest {}
-
-declare class TestAuthResponse implements Http.AuthResponse {
-  identity?: {};
-}
-
 export declare class TestService extends Http.Service {
   routes: [
     Http.UseRoute<{
@@ -15,6 +8,13 @@ export declare class TestService extends Http.Service {
       handler: typeof testHandler;
     }>
   ];
+}
+
+// Missing Http.AuthRequest inheritance.
+interface TestAuthRequest {}
+
+declare class TestAuthResponse implements Http.AuthResponse {
+  identity?: {};
 }
 
 export function testAuthorizer(_request: TestAuthRequest): TestAuthResponse {
