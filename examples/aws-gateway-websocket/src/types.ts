@@ -1,44 +1,27 @@
-import type { Ws } from '@ez4/gateway';
-
-/**
- * Authorization identity.
- */
-export declare class Identity implements Ws.Identity {
-  userId: string;
-}
-
-/**
- * Authorization response.
- */
-export declare class AuthorizerResponse implements Ws.AuthResponse {
-  identity: Identity;
-}
-
 /**
  * WebSocket events.
  */
-export type AllEvents = FooEvent | BarEvent;
+export type AllEvents = EchoEvent | CloseEvent;
 
 /**
- * Foo event.
+ * Echo event.
  */
-export type FooEvent = {
-  type: EventType.Foo;
+export type EchoEvent = {
+  type: EventType.Echo;
   value: string;
 };
 
 /**
- * Bar event.
+ * Close event.
  */
-export type BarEvent = {
-  type: EventType.Bar;
-  value: number;
+export type CloseEvent = {
+  type: EventType.Close;
 };
 
 /**
  * Event type.
  */
 export const enum EventType {
-  Foo = 'foo',
-  Bar = 'bar'
+  Echo = 'echo',
+  Close = 'close'
 }

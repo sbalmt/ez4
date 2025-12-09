@@ -1,5 +1,5 @@
 import type { Ws } from '@ez4/gateway';
-import type { AuthorizerResponse } from '../types';
+import type { Identity } from './types';
 
 import { HttpForbiddenError } from '@ez4/gateway';
 
@@ -15,6 +15,13 @@ declare class TokenAuthorizer implements Ws.AuthRequest {
 }
 
 /**
+ * Authorization response.
+ */
+export declare class AuthorizerResponse implements Ws.AuthResponse {
+  identity: Identity;
+}
+
+/**
  * Check the `token` query string and authorize or not the request.
  */
 export function tokenAuthorizer(request: TokenAuthorizer): AuthorizerResponse {
@@ -26,7 +33,7 @@ export function tokenAuthorizer(request: TokenAuthorizer): AuthorizerResponse {
 
   return {
     identity: {
-      userId: 'abc123'
+      userId: 'abc-123'
     }
   };
 }

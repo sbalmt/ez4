@@ -1,4 +1,4 @@
-import type { ConnectResourceEvent, DeployOptions, EventContext, PrepareResourceEvent } from '@ez4/project/library';
+import type { ConnectResourceEvent, DeployOptions, EventContext, PrepareResourceEvent, ServiceEvent } from '@ez4/project/library';
 import type { WsService } from '@ez4/gateway/library';
 import type { EntryStates } from '@ez4/stateful';
 import type { GatewayState } from '../../gateway/types';
@@ -17,6 +17,17 @@ import { getIntegrationConnectionFunction, getIntegrationMessageFunction } from 
 import { getAuthorizerFunction } from '../authorizer';
 import { RoleMissingError } from '../errors';
 import { getInternalName } from '../utils';
+import { prepareLinkedClient } from './client';
+
+export const prepareWsLinkedService = (event: ServiceEvent) => {
+  const { service, options, context } = event;
+
+  if (isWsService(service)) {
+    return prepareLinkedClient(context, service, options);
+  }
+
+  return null;
+};
 
 export const prepareWsServices = (event: PrepareResourceEvent) => {
   const { state, service, options, context } = event;
@@ -42,6 +53,8 @@ export const prepareWsServices = (event: PrepareResourceEvent) => {
     createConnectAction(state, service, gatewayState, options, context);
     createDisconnectAction(state, service, gatewayState, options, context);
     createMessageAction(state, service, gatewayState, options, context);
+
+    context.setServiceState(gatewayState, service, options);
 
     return true;
   }

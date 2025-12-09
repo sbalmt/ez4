@@ -29,19 +29,19 @@ export const getAuthIdentityMetadata = (
   }
 
   if (!isTypeReference(type)) {
-    return getTypeIdentity(type, parent, reflection, errorList, namespace);
+    return getIdentityType(type, parent, reflection, errorList, namespace);
   }
 
   const declaration = getReferenceType(type, reflection);
 
   if (declaration) {
-    return getTypeIdentity(declaration, parent, reflection, errorList, namespace);
+    return getIdentityType(declaration, parent, reflection, errorList, namespace);
   }
 
   return undefined;
 };
 
-const getTypeIdentity = (
+const getIdentityType = (
   type: AllType,
   parent: TypeParent,
   reflection: SourceMap,

@@ -50,7 +50,8 @@
     "@types/aws-lambda": "^8.10.159"
   },
   "dependencies": {
-    "@aws-sdk/client-apigatewayv2": "^3.913.0",
+    "@aws-sdk/client-apigatewayv2": "^3.947.0",
+    "@aws-sdk/client-apigatewaymanagementapi": "^3.947.0",
     "@ez4/aws-common": "^0.35.0",
     "@ez4/aws-function": "^0.35.0",
     "@ez4/aws-identity": "^0.35.0",

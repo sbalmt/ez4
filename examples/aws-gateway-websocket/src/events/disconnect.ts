@@ -1,5 +1,5 @@
 import type { Ws } from '@ez4/gateway';
-import type { Identity } from '../types';
+import type { Identity } from '../authorizers/types';
 
 /**
  * Disconnect event example.

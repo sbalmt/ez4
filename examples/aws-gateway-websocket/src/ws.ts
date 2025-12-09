@@ -1,4 +1,6 @@
+import type { Environment } from '@ez4/common';
 import type { Ws } from '@ez4/gateway';
+import type { HelloQueue } from './queues/hello';
 import type { tokenAuthorizer } from './authorizers/token';
 import type { connectHandler } from './events/connect';
 import type { disconnectHandler } from './events/disconnect';
@@ -8,7 +10,7 @@ import type { AllEvents } from './types';
 /**
  * Example of AWS WebSocket API deployed with EZ4.
  */
-export declare class Api extends Ws.Service<AllEvents> {
+export declare class WsApi extends Ws.Service<AllEvents> {
   /**
    * Display name for this API.
    */
@@ -35,4 +37,12 @@ export declare class Api extends Ws.Service<AllEvents> {
   message: Ws.UseMessage<{
     handler: typeof messageHandler;
   }>;
+
+  /**
+   * Services injected to all WS handlers.
+   */
+  services: {
+    helloQueue: Environment.Service<HelloQueue>;
+    selfClient: Environment.Service<WsApi>;
+  };
 }

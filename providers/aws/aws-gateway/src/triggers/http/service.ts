@@ -53,6 +53,8 @@ export const prepareHttpServices = (event: PrepareResourceEvent) => {
 
     createRoutes(state, service, gatewayState, options, context);
 
+    context.setServiceState(gatewayState, service, options);
+
     return true;
   }
 

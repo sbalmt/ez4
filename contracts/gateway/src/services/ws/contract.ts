@@ -17,6 +17,7 @@ import type { WsRequest } from './request';
 import type { WsHandler } from './handler';
 import type { WsMessage } from './message';
 import type { WsConnect } from './connect';
+import type { WsClient } from './client';
 import type { WsEvent } from './event';
 
 /**
@@ -122,6 +123,6 @@ export namespace Ws {
     /**
      * Service client.
      */
-    readonly client: never;
+    readonly client: WsClient;
   }
 }

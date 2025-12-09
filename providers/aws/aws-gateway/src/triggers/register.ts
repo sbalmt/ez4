@@ -1,4 +1,4 @@
-import type { ConnectResourceEvent, PrepareResourceEvent, ServiceEvent } from '@ez4/project/library';
+import type { ConnectResourceEvent, PolicyResourceEvent, PrepareResourceEvent, ServiceEvent } from '@ez4/project/library';
 
 import { registerTriggers as registerAwsTriggers } from '@ez4/aws-common';
 import { registerTriggers as registerAwsFunctionTriggers } from '@ez4/aws-function';
@@ -13,9 +13,10 @@ import { registerResponseProvider } from '../response/provider';
 import { registerRouteProvider } from '../route/provider';
 import { registerStageProvider } from '../stage/provider';
 
-import { connectHttpServices, prepareHttpLinkedService, prepareHttpServices } from './http/service';
 import { prepareHttpImports, prepareHttpLinkedImport } from './http/import';
-import { connectWsServices, prepareWsServices } from './ws/service';
+import { connectHttpServices, prepareHttpLinkedService, prepareHttpServices } from './http/service';
+import { connectWsServices, prepareWsLinkedService, prepareWsServices } from './ws/service';
+import { prepareWsExecutionPolicy } from './ws/policy';
 import { resourceOutput } from './output';
 
 export const registerTriggers = () => {
@@ -25,6 +26,7 @@ export const registerTriggers = () => {
   registerGatewayTriggers();
 
   tryCreateTrigger('@ez4/aws-gateway', {
+    'deploy:prepareExecutionPolicy': prepareExecutionPolicy,
     'deploy:prepareLinkedService': prepareLinkedService,
     'deploy:prepareResources': prepareServices,
     'deploy:connectResources': connectServices,
@@ -39,8 +41,12 @@ export const registerTriggers = () => {
   registerRouteProvider();
 };
 
+const prepareExecutionPolicy = (event: PolicyResourceEvent) => {
+  return prepareWsExecutionPolicy(event);
+};
+
 const prepareLinkedService = (event: ServiceEvent) => {
-  return prepareHttpLinkedService(event) ?? prepareHttpLinkedImport(event);
+  return prepareHttpLinkedService(event) ?? prepareWsLinkedService(event) ?? prepareHttpLinkedImport(event);
 };
 
 const prepareServices = (event: PrepareResourceEvent) => {
