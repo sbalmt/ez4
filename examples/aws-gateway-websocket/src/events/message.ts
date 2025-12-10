@@ -2,9 +2,9 @@ import type { Service } from '@ez4/common';
 import type { Ws } from '@ez4/gateway';
 import type { Identity } from '../authorizers/types';
 import type { AllEvents } from '../types';
+import type { WsApi } from '../ws';
 
 import { EventType } from '../types';
-import { WsApi } from '../ws';
 
 /**
  * Message request example.

@@ -1,6 +1,6 @@
 import type { AllType, SourceMap, TypeIntersection, TypeModel, TypeObject } from '@ez4/reflection';
 import type { MemberType } from '@ez4/common/library';
-import type { WsEvent } from './types';
+import type { WsRequest } from './types';
 
 import { isModelProperty, isTypeIntersection, isTypeObject, isTypeReference } from '@ez4/reflection';
 
@@ -25,7 +25,12 @@ export const isWsRequestDeclaration = (type: TypeModel) => {
   return hasHeritageType(type, FULL_BASE_TYPE);
 };
 
-export const getWsRequestMetadata = (type: AllType, parent: TypeModel, reflection: SourceMap, errorList: Error[]): WsEvent | undefined => {
+export const getWsRequestMetadata = (
+  type: AllType,
+  parent: TypeModel,
+  reflection: SourceMap,
+  errorList: Error[]
+): WsRequest | undefined => {
   if (isTypeIntersection(type) && type.elements.length > 0) {
     return getWsRequestMetadata(type.elements[0], parent, reflection, errorList);
   }
@@ -68,7 +73,7 @@ const getTypeFromMembers = (
   reflection: SourceMap,
   errorList: Error[]
 ) => {
-  const request: WsEvent = {};
+  const request: WsRequest = {};
 
   for (const member of members) {
     if (!isModelProperty(member) || member.inherited) {

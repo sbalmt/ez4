@@ -54,15 +54,14 @@ export type WsHandler = {
   response?: WsResponse;
 };
 
-export type WsRequest = {
+export type WsEvent = {
   identity?: ObjectSchema | UnionSchema;
   headers?: ObjectSchema;
-  parameters?: ObjectSchema;
   query?: ObjectSchema;
   body?: WsDataSchema;
 };
 
-export type WsEvent = {
+export type WsRequest = {
   identity?: ObjectSchema | UnionSchema;
   body?: WsDataSchema;
 };

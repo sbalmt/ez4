@@ -1,7 +1,7 @@
 import type { Service as CommonService } from '@ez4/common';
 import type { LinkedVariables } from '@ez4/project/library';
-import type { AuthResponse as HttpAuthResponse } from '../auth/response';
-import type { AuthRequest as HttpAuthRequest } from '../auth/request';
+import type { AuthResponse as WsAuthResponse } from '../auth/response';
+import type { AuthRequest as WsAuthRequest } from '../auth/request';
 import type { WebPreferences } from '../preferences';
 import type { AuthIdentity } from '../auth/identity';
 import type { WebJsonBody, WebRawBody } from '../body';
@@ -37,8 +37,8 @@ export namespace Ws {
   export type Response = WsResponse;
   export type Event = WsEvent;
 
-  export type AuthRequest = HttpAuthRequest;
-  export type AuthResponse = HttpAuthResponse;
+  export type AuthRequest = WsAuthRequest;
+  export type AuthResponse = WsAuthResponse;
 
   export type Incoming<T extends Request | Event> = WsIncoming<T>;
 
