@@ -18,6 +18,7 @@ import { getAuthorizerFunction } from '../authorizer';
 import { RoleMissingError } from '../errors';
 import { getInternalName } from '../utils';
 import { prepareLinkedClient } from './client';
+import { Defaults } from '../defaults';
 
 export const prepareWsLinkedService = (event: ServiceEvent) => {
   const { service, options, context } = event;
@@ -46,7 +47,7 @@ export const prepareWsServices = (event: PrepareResourceEvent) => {
     });
 
     createStage(state, gatewayState, undefined, {
-      stageName: 'stream',
+      stageName: Defaults.StageName,
       autoDeploy: true
     });
 

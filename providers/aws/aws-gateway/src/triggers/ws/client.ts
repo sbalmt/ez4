@@ -5,6 +5,7 @@ import type { GatewayState } from '../../gateway/types';
 import { getDefinitionName } from '@ez4/project/library';
 
 import { getGatewayState } from '../../gateway/utils';
+import { Defaults } from '../defaults';
 
 export const prepareLinkedClient = (context: EventContext, service: WsService, options: DeployOptions): ContextSource => {
   const gatewayState = getGatewayState(context, service.name, options);
@@ -15,7 +16,7 @@ export const prepareLinkedClient = (context: EventContext, service: WsService, o
   const clientOptions = JSON.stringify({
     preferences: service.message.preferences ?? service.defaults?.preferences,
     messageSchema: service.schema,
-    path: 'stream'
+    path: Defaults.StageName
   });
 
   return {

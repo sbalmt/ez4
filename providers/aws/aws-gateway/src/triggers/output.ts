@@ -1,5 +1,8 @@
 import type { ResourceOutputEvent } from '@ez4/project/library';
-import { isGatewayState } from '../main';
+
+import { isGatewayState } from '../gateway/utils';
+import { GatewayProtocol } from '../gateway/types';
+import { Defaults } from './defaults';
 
 export const resourceOutput = (event: ResourceOutputEvent) => {
   const { serviceState } = event;
@@ -8,14 +11,24 @@ export const resourceOutput = (event: ResourceOutputEvent) => {
     return null;
   }
 
-  const { result } = serviceState;
+  const { parameters, result } = serviceState;
 
   if (!result) {
     return null;
   }
 
+  const { gatewayName, protocol } = parameters;
+  const { endpoint } = result;
+
+  if (protocol === GatewayProtocol.WebSocket) {
+    return {
+      value: `${endpoint}/${Defaults.StageName}`,
+      label: gatewayName
+    };
+  }
+
   return {
-    label: serviceState.parameters.gatewayName,
-    value: result.endpoint
+    label: gatewayName,
+    value: endpoint
   };
 };

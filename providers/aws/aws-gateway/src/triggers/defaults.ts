@@ -1,5 +1,10 @@
 export namespace Defaults {
   /**
+   * Default stage name.
+   */
+  export const StageName = 'stream';
+
+  /**
    * Default log retention in days.
    */
   export const LogRetention = 90;
