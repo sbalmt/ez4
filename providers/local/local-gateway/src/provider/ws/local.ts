@@ -18,13 +18,15 @@ import { processWsMessage } from '../../handlers/ws/message';
 import { getWsErrorResponse } from '../../utils/ws/response';
 
 export const registerWsLocalServices = (service: WsService, options: ServeOptions, context: EmulateServiceContext) => {
-  const { name: serviceName, connect } = service;
+  const { name: serviceName, defaults, connect, message } = service;
 
+  const allConnections: Record<string, EmulatorConnection> = {};
   const identities: Record<string, AnyObject> = {};
-  const connections: Record<string, EmulatorConnection> = {};
 
   const clientOptions = {
-    connections
+    messageSchema: service.schema,
+    preferences: message.preferences ?? defaults?.preferences,
+    allConnections
   };
 
   return {
@@ -44,7 +46,7 @@ export const registerWsLocalServices = (service: WsService, options: ServeOption
       const identity = await processWsAuthorization(service, options, context, event);
 
       if (identity) {
-        connections[connection.id] = connection;
+        allConnections[connection.id] = connection;
         identities[connection.id] = identity;
 
         return processWsConnection(service, options, context, event, identity);
@@ -55,7 +57,7 @@ export const registerWsLocalServices = (service: WsService, options: ServeOption
 
       const identity = identities[connection.id];
 
-      delete connections[connection.id];
+      delete allConnections[connection.id];
 
       return processWsConnection(service, options, context, event, identity);
     },

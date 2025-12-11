@@ -123,6 +123,6 @@ export namespace Ws {
     /**
      * Service client.
      */
-    readonly client: WsClient;
+    readonly client: WsClient<T>;
   }
 }

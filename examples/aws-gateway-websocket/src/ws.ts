@@ -5,12 +5,12 @@ import type { tokenAuthorizer } from './authorizers/token';
 import type { connectHandler } from './events/connect';
 import type { disconnectHandler } from './events/disconnect';
 import type { messageHandler } from './events/message';
-import type { AllEvents } from './types';
+import type { AllMessages } from './types/messages';
 
 /**
  * Example of AWS WebSocket API deployed with EZ4.
  */
-export declare class WsApi extends Ws.Service<AllEvents> {
+export declare class WsApi extends Ws.Service<AllMessages> {
   /**
    * Display name for this API.
    */

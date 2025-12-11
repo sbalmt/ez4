@@ -1,26 +1,25 @@
 import type { Service } from '@ez4/common';
 import type { Ws } from '@ez4/gateway';
 import type { Identity } from '../authorizers/types';
-import type { AllEvents } from '../types';
+import type { AllRequests } from '../types/requests';
+import { MessageType, type EchoMessage } from '../types/messages';
 import type { WsApi } from '../ws';
 
-import { EventType } from '../types';
+import { RequestType } from '../types/requests';
 
 /**
  * Message request example.
  */
 declare class MessageRequest implements Ws.Request {
   identity: Identity;
-  body: AllEvents;
+  body: AllRequests;
 }
 
 /**
  * Message response example.
  */
 declare class MessageResponse implements Ws.Response {
-  body?: {
-    echo: string;
-  };
+  body?: EchoMessage;
 }
 
 /**
@@ -33,7 +32,7 @@ export async function messageHandler(request: Ws.Incoming<MessageRequest>, conte
   const { selfClient } = context;
 
   switch (body.type) {
-    case EventType.Close: {
+    case RequestType.Close: {
       await selfClient.disconnect(connectionId);
 
       return {
@@ -41,10 +40,11 @@ export async function messageHandler(request: Ws.Incoming<MessageRequest>, conte
       };
     }
 
-    case EventType.Echo: {
+    case RequestType.Echo: {
       return {
         body: {
-          echo: body.value
+          type: MessageType.Echo,
+          value: body.value
         }
       };
     }

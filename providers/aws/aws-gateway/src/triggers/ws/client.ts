@@ -12,10 +12,16 @@ export const prepareLinkedClient = (context: EventContext, service: WsService, o
 
   const gatewayUrl = getDefinitionName<GatewayState>(gatewayId, 'endpoint');
 
+  const clientOptions = JSON.stringify({
+    preferences: service.message.preferences ?? service.defaults?.preferences,
+    messageSchema: service.schema,
+    path: 'stream'
+  });
+
   return {
     connectionIds: [gatewayId],
     dependencyIds: [gatewayId],
-    constructor: `make(${gatewayUrl})`,
+    constructor: `make(${gatewayUrl}, ${clientOptions})`,
     from: '@ez4/aws-gateway/client',
     module: 'WsClient'
   };

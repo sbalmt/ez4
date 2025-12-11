@@ -2,6 +2,8 @@ import type { Environment, Service } from '@ez4/common';
 import type { Queue } from '@ez4/queue';
 import type { WsApi } from '../ws';
 
+import { MessageType } from '../types/messages';
+
 type HelloMessage = {
   connectionId: string;
   userId: string;
@@ -54,6 +56,7 @@ export async function messageHandler(request: Queue.Incoming<HelloMessage>, cont
   const { wsApiClient } = context;
 
   await wsApiClient.sendMessage(connectionId, {
-    message: `Hello ${userId}, welcome to the WebSocket example`
+    message: `Hello ${userId}, welcome to the WebSocket example`,
+    type: MessageType.Welcome
   });
 }

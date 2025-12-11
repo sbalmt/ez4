@@ -1,3 +1,4 @@
+import type { WsDataSchema, WsPreferences } from '@ez4/gateway/library';
 import type { WsClient as WsClientType, Ws } from '@ez4/gateway';
 
 import {
@@ -7,17 +8,30 @@ import {
   GoneException
 } from '@aws-sdk/client-apigatewaymanagementapi';
 
+import { getResponseBody } from '@ez4/gateway/utils';
+
 export namespace WsClient {
-  export const make = (gatewayUrl: string): WsClientType => {
+  export type Options = {
+    preferences?: WsPreferences;
+    messageSchema: WsDataSchema;
+    path: string;
+  };
+
+  export const make = <T extends Ws.JsonBody>(gatewayUrl: string, options: Options): WsClientType<T> => {
+    const { preferences, messageSchema, path } = options;
+
     const client = new ApiGatewayManagementApiClient({
-      endpoint: `https://${new URL(gatewayUrl).hostname}/stream`
+      endpoint: `https://${new URL(gatewayUrl).hostname}/${path}`
     });
 
     return new (class {
-      async sendMessage<T extends Ws.JsonBody>(connectionId: string, message: T) {
+      async sendMessage(connectionId: string, message: T) {
+        const content = await getResponseBody(message, messageSchema, preferences);
+        const payload = JSON.stringify(content);
+
         await client.send(
           new PostToConnectionCommand({
-            Data: Buffer.from(JSON.stringify(message)),
+            Data: Buffer.from(payload),
             ConnectionId: connectionId
           })
         );
