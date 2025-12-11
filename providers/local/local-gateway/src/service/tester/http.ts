@@ -1,14 +1,14 @@
 import type { HttpClient, HttpClientResponse, Http } from '@ez4/gateway';
 import type { Mock } from 'node:test';
-import type { ClientMockOperation } from '../client/mock';
+import type { HttpClientMockOperation } from '../../client/http/mock';
 
 import { Tester } from '@ez4/project/library';
 
-import { createClientMock } from '../client/mock';
+import { createHttpClientMock } from '../../client/http/mock';
 
 export namespace HttpTester {
   export type MockOptions<T extends Http.Service> = {
-    default: ClientMockOperation | HttpClientResponse;
+    default: HttpClientMockOperation | HttpClientResponse;
     operations?: {
       [P in keyof HttpClient<T>]?: HttpClient<T>[P] | Awaited<ReturnType<HttpClient<T>[P]>>;
     };
@@ -23,7 +23,7 @@ export namespace HttpTester {
   };
 
   export const getClientMock = <T extends Http.Service>(resourceName: string, options: MockOptions<T>) => {
-    const client = createClientMock(resourceName, options) as ClientMock<T>;
+    const client = createHttpClientMock(resourceName, options) as ClientMock<T>;
 
     return client;
   };

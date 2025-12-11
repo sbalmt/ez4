@@ -1,6 +1,6 @@
 import type { AnyObject } from '@ez4/utils';
 
-export const getResponseSuccess = (status: number, headers?: AnyObject, contentType?: string, contentData?: string) => {
+export const getSuccessResponse = (status: number, headers?: AnyObject, contentType?: string, contentData?: string) => {
   return {
     status,
     headers: {
@@ -15,10 +15,10 @@ export const getResponseSuccess = (status: number, headers?: AnyObject, contentT
   };
 };
 
-export const getResponseError = (status: number, errorData: AnyObject) => {
+export const getErrorResponse = (status: number, errorBody: AnyObject) => {
   return {
     status,
-    body: JSON.stringify(errorData),
+    body: JSON.stringify(errorBody),
     headers: {
       ['content-type']: 'application/json'
     }

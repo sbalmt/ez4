@@ -1,7 +1,7 @@
-import type { EmulateServiceContext, EmulatorServiceRequest, ServeOptions } from '@ez4/project/library';
+import type { EmulateServiceContext, EmulatorRequestEvent, ServeOptions } from '@ez4/project/library';
 import type { TopicImport } from '@ez4/topic/library';
 
-import { getResponseError, getResponseSuccess } from '@ez4/local-common';
+import { getErrorResponse, getSuccessResponse } from '@ez4/local-common';
 import { getServiceName, MissingImportedProjectError } from '@ez4/project/library';
 import { getJsonMessage, MalformedMessageError } from '@ez4/topic/utils';
 import { TopicSubscriptionType } from '@ez4/topic/library';
@@ -32,7 +32,7 @@ export const registerRemoteServices = (service: TopicImport, options: ServeOptio
     exportHandler: () => {
       return createRemoteClient(referenceName, messageSchema, clientOptions);
     },
-    requestHandler: (request: EmulatorServiceRequest) => {
+    requestHandler: (request: EmulatorRequestEvent) => {
       return handleTopicRequest(service, options, context, request);
     },
     bootstrapHandler: async () => {
@@ -55,7 +55,7 @@ const handleTopicRequest = async (
   service: TopicImport,
   options: ServeOptions,
   context: EmulateServiceContext,
-  request: EmulatorServiceRequest
+  request: EmulatorRequestEvent
 ) => {
   const { method, path, body } = request;
 
@@ -79,14 +79,14 @@ const handleTopicRequest = async (
 
     await Promise.all(allSubscriptions);
 
-    return getResponseSuccess(201);
+    return getSuccessResponse(201);
     //
   } catch (error) {
     if (!(error instanceof MalformedMessageError)) {
       throw error;
     }
 
-    return getResponseError(400, {
+    return getErrorResponse(400, {
       message: error.message,
       details: error.details
     });

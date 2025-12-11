@@ -1,5 +1,5 @@
 import type { AuthHandler, HttpHandler, HttpErrors, HttpPreferences } from '@ez4/gateway/library';
-import type { EmulatorServiceRequest, LinkedVariables } from '@ez4/project/library';
+import type { EmulatorRequestEvent, LinkedVariables } from '@ez4/project/library';
 import type { ServiceListener } from '@ez4/common/library';
 
 export type RouteData = {
@@ -11,9 +11,9 @@ export type RouteData = {
   handler: HttpHandler;
 };
 
-export type MatchingRoute = RouteData & EmulatorServiceRequest & { parameters?: Record<string, string> };
+export type MatchingRoute = RouteData & EmulatorRequestEvent & { parameters?: Record<string, string> };
 
-export const getMatchingRoute = (routes: Record<string, RouteData>, request: EmulatorServiceRequest): MatchingRoute | undefined => {
+export const getMatchingRoute = (routes: Record<string, RouteData>, request: EmulatorRequestEvent): MatchingRoute | undefined => {
   for (const pattern in routes) {
     const route = matchRoutePath(pattern, request.path);
 

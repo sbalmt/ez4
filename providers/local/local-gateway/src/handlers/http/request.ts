@@ -1,12 +1,12 @@
 import type { EmulateServiceContext, ServeOptions } from '@ez4/project/library';
 import type { HttpService } from '@ez4/gateway/library';
 import type { Http } from '@ez4/gateway';
-import type { MatchingRoute } from '../utils/route';
+import type { MatchingRoute } from '../../utils/route';
 
 import { createModule, onBegin, onReady, onDone, onError, onEnd } from '@ez4/local-common';
 import { getRandomUUID } from '@ez4/utils';
 
-import { getErrorResponse, getSuccessResponse } from '../utils/response';
+import { getHttpSuccessResponse, getHttpErrorResponse } from '../../utils/http/response';
 
 import {
   getIncomingRequestIdentity,
@@ -14,7 +14,7 @@ import {
   getIncomingRequestHeaders,
   getIncomingRequestQuery,
   getIncomingRequestBody
-} from '../utils/request';
+} from '../../utils/request';
 
 export const processHttpRequest = async (
   service: HttpService,
@@ -30,8 +30,8 @@ export const processHttpRequest = async (
 
   const module = await createModule({
     listener: route.listener ?? service.defaults?.listener,
-    handler: route.handler,
     version: options.version,
+    handler,
     variables: {
       ...options.variables,
       ...service.variables,
@@ -67,16 +67,16 @@ export const processHttpRequest = async (
 
     await onDone(module, clients, request);
 
-    return getSuccessResponse(route.handler.response, response, preferences);
+    return getHttpSuccessResponse(route.handler.response, response, preferences);
     //
   } catch (error) {
     await onError(module, clients, request, error);
 
     if (!(error instanceof Error)) {
-      return getErrorResponse();
+      return getHttpErrorResponse();
     }
 
-    return getErrorResponse(error, {
+    return getHttpErrorResponse(error, {
       ...service.defaults?.httpErrors,
       ...route.httpErrors
     });

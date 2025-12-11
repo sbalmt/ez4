@@ -17,6 +17,7 @@ export const getJsonError = ({ status, message, details }: HttpError) => {
   return {
     status,
     body: {
+      type: 'error',
       message,
       details
     }

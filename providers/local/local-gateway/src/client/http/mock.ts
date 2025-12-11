@@ -7,15 +7,15 @@ import { HttpError, HttpInternalServerError } from '@ez4/gateway';
 import { Logger } from '@ez4/project/library';
 import { isAnyString } from '@ez4/utils';
 
-export type ClientMockOperation = (request: HttpClientRequest) => Promise<HttpClientResponse>;
+export type HttpClientMockOperation = (request: HttpClientRequest) => Promise<HttpClientResponse>;
 
-export type ClientMockResponses = {
-  operations?: Record<string, ClientMockOperation | unknown>;
-  default: ClientMockOperation | HttpClientResponse;
+export type HttpClientMockResponses = {
+  operations?: Record<string, HttpClientMockOperation | unknown>;
+  default: HttpClientMockOperation | HttpClientResponse;
 };
 
-export const createClientMock = <T extends Http.Service>(serviceName: string, responses: ClientMockResponses): HttpClient<T> => {
-  const operationsCache: Record<string, ClientMockOperation | HttpClientResponse> = {};
+export const createHttpClientMock = <T extends Http.Service>(serviceName: string, responses: HttpClientMockResponses): HttpClient<T> => {
+  const operationsCache: Record<string, HttpClientMockOperation | HttpClientResponse> = {};
 
   return new Proxy(
     {},

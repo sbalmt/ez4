@@ -1,18 +1,18 @@
-import type { EmulateServiceContext, EmulatorServiceRequest, ServeOptions } from '@ez4/project/library';
+import type { EmulateServiceContext, EmulatorRequestEvent, ServeOptions } from '@ez4/project/library';
 import type { HttpService } from '@ez4/gateway/library';
-import type { RouteData } from '../utils/route';
+import type { RouteData } from '../../utils/route';
 
 import { getClientOperations } from '@ez4/gateway/library';
 import { HttpForbiddenError, HttpNotFoundError } from '@ez4/gateway';
 import { getServiceName } from '@ez4/project/library';
 
-import { processHttpRequest } from '../handlers/request';
-import { processHttpAuthorization } from '../handlers/authorizer';
-import { createServiceClient } from '../client/service';
-import { getErrorResponse } from '../utils/response';
-import { getMatchingRoute } from '../utils/route';
+import { processHttpRequest } from '../../handlers/http/request';
+import { processHttpAuthorization } from '../../handlers/http/authorizer';
+import { createHttpServiceClient } from '../../client/http/service';
+import { getHttpErrorResponse } from '../../utils/http/response';
+import { getMatchingRoute } from '../../utils/route';
 
-export const registerLocalServices = (service: HttpService, options: ServeOptions, context: EmulateServiceContext) => {
+export const registerHttpLocalServices = (service: HttpService, options: ServeOptions, context: EmulateServiceContext) => {
   const { name: serviceName } = service;
 
   const httpRoutes = buildHttpRoutes(service);
@@ -27,14 +27,14 @@ export const registerLocalServices = (service: HttpService, options: ServeOption
     name: serviceName,
     identifier: getServiceName(serviceName, options),
     exportHandler: () => {
-      return createServiceClient(serviceName, clientOptions);
+      return createHttpServiceClient(serviceName, clientOptions);
     },
-    requestHandler: async (request: EmulatorServiceRequest) => {
+    requestHandler: async (request: EmulatorRequestEvent) => {
       const methodRoutes = { ...httpRoutes.ANY, ...httpRoutes[request.method] };
       const currentRoute = getMatchingRoute(methodRoutes, request);
 
       if (!currentRoute) {
-        return getErrorResponse(new HttpNotFoundError());
+        return getHttpErrorResponse(new HttpNotFoundError());
       }
 
       try {
@@ -48,10 +48,10 @@ export const registerLocalServices = (service: HttpService, options: ServeOption
           return await processHttpRequest(service, options, context, currentRoute, identity);
         }
 
-        return getErrorResponse(new HttpForbiddenError());
+        return getHttpErrorResponse(new HttpForbiddenError());
       } catch (error) {
         if (error instanceof Error) {
-          return getErrorResponse(error);
+          return getHttpErrorResponse(error);
         }
 
         throw error;
