@@ -1,7 +1,7 @@
 {
   "name": "@ez4/local-database",
   "description": "EZ4: Local database emulator",
-  "version": "0.35.0",
+  "version": "0.36.0",
   "author": "Silas B.",
   "license": "MIT",
   "type": "module",
@@ -48,9 +48,9 @@
     "live:publish": "npm run build && npm publish --access public"
   },
   "dependencies": {
-    "@ez4/local-common": "^0.35.0",
-    "@ez4/project": "^0.35.0",
-    "@ez4/database": "^0.35.0",
-    "@ez4/utils": "^0.35.0"
+    "@ez4/local-common": "^0.36.0",
+    "@ez4/project": "^0.36.0",
+    "@ez4/database": "^0.36.0",
+    "@ez4/utils": "^0.36.0"
   }
 }
