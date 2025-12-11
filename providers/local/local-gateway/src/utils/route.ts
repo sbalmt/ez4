@@ -33,6 +33,10 @@ const matchRoutePath = (pattern: string, path: string) => {
   const patternParts = pattern.split('/').filter((part) => !!part);
   const pathParts = path.split('/').filter((part) => !!part);
 
+  if (patternParts.length !== pathParts.length) {
+    return undefined;
+  }
+
   const parameters: Record<string, string> = {};
 
   for (let index = 0; index < patternParts.length; index++) {
