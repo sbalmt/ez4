@@ -13,9 +13,9 @@ import {
 
 import { isModelProperty, isTypeObject, isTypeReference } from '@ez4/reflection';
 
-import { IncorrectResponseTypeError, InvalidResponseTypeError } from '../../errors/response';
+import { IncorrectResponseTypeError, InvalidResponseTypeError } from '../../errors/web/response';
+import { getWebBodyMetadata } from '../web/body';
 import { getFullTypeName } from '../utils/type';
-import { getWebBodyMetadata } from '../body';
 import { WsNamespaceType } from './types';
 
 const FULL_BASE_TYPE = getFullTypeName(WsNamespaceType, 'Response');

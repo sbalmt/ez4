@@ -5,7 +5,7 @@ import type { HttpHandler } from './types';
 import { isTypeCallback, isTypeFunction } from '@ez4/reflection';
 import { isObjectWith } from '@ez4/utils';
 
-import { IncompleteHandlerError } from '../../errors/handler';
+import { IncompleteHandlerError } from '../../errors/web/handler';
 import { getHttpProviderMetadata } from './provider';
 import { getHttpResponseMetadata } from './response';
 import { getHttpRequestMetadata } from './request';

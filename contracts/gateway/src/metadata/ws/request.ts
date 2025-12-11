@@ -13,10 +13,10 @@ import {
   getReferenceType
 } from '@ez4/common/library';
 
-import { IncorrectRequestTypeError, InvalidRequestTypeError } from '../../errors/request';
+import { IncorrectRequestTypeError, InvalidRequestTypeError } from '../../errors/web/request';
 import { getAuthIdentityMetadata } from '../auth/identity';
+import { getWebBodyMetadata } from '../web/body';
 import { getFullTypeName } from '../utils/type';
-import { getWebBodyMetadata } from '../body';
 import { WsNamespaceType } from './types';
 
 const FULL_BASE_TYPE = getFullTypeName(WsNamespaceType, 'Request');

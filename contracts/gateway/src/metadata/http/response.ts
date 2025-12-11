@@ -17,10 +17,10 @@ import {
 import { isModelProperty, isTypeObject, isTypeReference } from '@ez4/reflection';
 import { isAnyNumber, isObjectWith } from '@ez4/utils';
 
-import { IncorrectResponseTypeError, InvalidResponseTypeError } from '../../errors/response';
+import { IncorrectResponseTypeError, InvalidResponseTypeError } from '../../errors/web/response';
+import { getWebHeadersMetadata } from '../web/headers';
+import { getWebBodyMetadata } from '../web/body';
 import { getFullTypeName } from '../utils/type';
-import { getWebHeadersMetadata } from '../headers';
-import { getWebBodyMetadata } from '../body';
 import { HttpNamespaceType } from './types';
 
 const FULL_BASE_TYPE = getFullTypeName(HttpNamespaceType, 'Response');

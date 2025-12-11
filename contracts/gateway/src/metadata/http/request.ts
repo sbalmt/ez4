@@ -13,13 +13,13 @@ import {
   hasHeritageType
 } from '@ez4/common/library';
 
-import { IncorrectRequestTypeError, InvalidRequestTypeError } from '../../errors/request';
+import { IncorrectRequestTypeError, InvalidRequestTypeError } from '../../errors/web/request';
+import { getWebParametersMetadata } from '../web/parameters';
 import { getAuthIdentityMetadata } from '../auth/identity';
+import { getWebHeadersMetadata } from '../web/headers';
+import { getWebQueryMetadata } from '../web/query';
+import { getWebBodyMetadata } from '../web/body';
 import { getFullTypeName } from '../utils/type';
-import { getWebParametersMetadata } from '../parameters';
-import { getWebHeadersMetadata } from '../headers';
-import { getWebQueryMetadata } from '../query';
-import { getWebBodyMetadata } from '../body';
 import { HttpNamespaceType } from './types';
 
 const FULL_BASE_TYPE = getFullTypeName(HttpNamespaceType, 'Request');

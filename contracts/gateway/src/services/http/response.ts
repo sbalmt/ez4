@@ -1,5 +1,5 @@
-import type { WebHeaders } from '../headers';
-import type { WebBody } from '../body';
+import type { WebHeaders } from '../web/headers';
+import type { WebBody } from '../web/body';
 
 /**
  * HTTP response.

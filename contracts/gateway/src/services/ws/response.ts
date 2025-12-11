@@ -1,4 +1,4 @@
-import type { WebBody } from '../body';
+import type { WebBody } from '../web/body';
 
 /**
  * WS response.

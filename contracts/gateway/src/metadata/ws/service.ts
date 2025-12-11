@@ -17,13 +17,13 @@ import {
 import { isModelProperty } from '@ez4/reflection';
 import { isObjectWith } from '@ez4/utils';
 
-import { IncompleteServiceError } from '../../errors/service';
-import { getWebBodyMetadata } from '../body';
+import { IncompleteServiceError } from '../../errors/web/service';
+import { getWebBodyMetadata } from '../web/body';
+import { getFullTypeName } from '../utils/type';
 import { WsNamespaceType, WsServiceType } from './types';
 import { getWsConnectionMetadata } from './connection';
 import { getWsDefaultsMetadata } from './defaults';
 import { getWsMessageMetadata } from './message';
-import { getFullTypeName } from '../utils/type';
 
 export const isWsServiceDeclaration = (type: AllType): type is TypeClass => {
   return isClassDeclaration(type) && hasHeritageType(type, getFullTypeName(WsNamespaceType, 'Service'));

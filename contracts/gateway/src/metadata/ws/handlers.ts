@@ -5,7 +5,7 @@ import type { WsEvent, WsHandler, WsRequest } from './types';
 import { isTypeCallback, isTypeFunction } from '@ez4/reflection';
 import { isObjectWith } from '@ez4/utils';
 
-import { IncompleteHandlerError } from '../../errors/handler';
+import { IncompleteHandlerError } from '../../errors/web/handler';
 import { getWsResponseMetadata } from './response';
 import { getWsRequestMetadata } from './request';
 import { getWsEventMetadata } from './event';

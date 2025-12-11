@@ -17,7 +17,7 @@ import {
 import { isModelProperty } from '@ez4/reflection';
 import { isObjectWith } from '@ez4/utils';
 
-import { IncompleteServiceError, ServiceCollisionError } from '../../errors/service';
+import { IncompleteServiceError, ServiceCollisionError } from '../../errors/web/service';
 import { getFullTypeName } from '../utils/type';
 import { HttpNamespaceType, HttpServiceType } from './types';
 import { getHttpDefaultsMetadata } from './defaults';

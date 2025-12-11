@@ -15,10 +15,10 @@ import {
 
 import { isModelProperty, isTypeObject, isTypeReference } from '@ez4/reflection';
 
-import { IncorrectDefaultsTypeError, InvalidDefaultsTypeError } from '../../errors/defaults';
-import { getWebPreferencesMetadata } from '../preferences';
-import { getHttpErrorsMetadata } from './errors';
+import { IncorrectDefaultsTypeError, InvalidDefaultsTypeError } from '../../errors/web/defaults';
+import { getWebPreferencesMetadata } from '../web/preferences';
 import { getFullTypeName } from '../utils/type';
+import { getHttpErrorsMetadata } from './errors';
 
 const FULL_BASE_TYPE = getFullTypeName(HttpNamespaceType, 'Defaults');
 

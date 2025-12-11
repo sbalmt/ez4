@@ -1,4 +1,4 @@
-import type { WebTarget } from '../target';
+import type { WebTarget } from '../web/target';
 import type { WsListener } from './listener';
 import type { WsHandler } from './handler';
 import type { WsEvent } from './event';

@@ -1,8 +1,8 @@
 import type { AuthIdentity } from '../auth/identity';
-import type { WebPathParameters } from '../parameters';
-import type { WebQueryStrings } from '../query';
-import type { WebHeaders } from '../headers';
-import type { WebBody } from '../body';
+import type { WebPathParameters } from '../web/parameters';
+import type { WebQueryStrings } from '../web/query';
+import type { WebHeaders } from '../web/headers';
+import type { WebBody } from '../web/body';
 
 /**
  * HTTP request.

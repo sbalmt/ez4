@@ -15,7 +15,7 @@ import {
 import { isModelProperty, isTypeObject, isTypeReference } from '@ez4/reflection';
 import { isObjectWith } from '@ez4/utils';
 
-import { IncorrectResponseTypeError, InvalidResponseTypeError } from '../../errors/response';
+import { IncorrectResponseTypeError, InvalidResponseTypeError } from '../../errors/web/response';
 import { getFullTypeName } from '../utils/type';
 import { getAuthIdentityMetadata } from './identity';
 
