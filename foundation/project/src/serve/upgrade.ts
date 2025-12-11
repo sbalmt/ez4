@@ -9,7 +9,7 @@ import { createHash } from 'node:crypto';
 
 import { toRed } from '../utils/format';
 import { Logger } from '../utils/logger';
-import { WebSocketUtils, WebSocketOpcode } from '../utils/websocket';
+import { WebSocketFrame, WebSocketOpcode } from '../utils/websocket';
 import { getIncomingService } from './incoming';
 
 const WEBSOCKET_GUID = '258EAFA5-E914-47DA-95CA-C5AB0DC85B11';
@@ -58,7 +58,10 @@ export const upgradeHandler = async (
     }
 
     write(data: Buffer | string) {
-      writeMessage(socket, data);
+      const content = Buffer.isBuffer(data) ? data : Buffer.from(data);
+      const payload = WebSocketFrame.encodeTextFrame(content);
+
+      socket.write(payload);
     }
 
     close() {
@@ -89,34 +92,49 @@ export const upgradeHandler = async (
   socket.on('data', async (chunk) => {
     buffer = Buffer.concat([buffer, chunk]);
 
-    decode: while (buffer.length >= 2) {
-      const opcode = WebSocketUtils.decodeOpcode(buffer);
+    while (buffer.length >= 2) {
+      const frame = WebSocketFrame.decodeFrame(buffer);
 
-      switch (opcode) {
-        case WebSocketOpcode.Close: {
-          socket.write(WebSocketUtils.encodeCloseFrame());
-          socket.end();
+      if (!frame) {
+        break;
+      }
 
-          break decode;
+      buffer = buffer.subarray(frame.length);
+
+      switch (frame.opcode) {
+        default: {
+          socket.destroy();
+          break;
         }
 
-        case WebSocketOpcode.Text: {
-          const frame = WebSocketUtils.decodeDataFrame(buffer, 1);
+        case WebSocketOpcode.Text:
+        case WebSocketOpcode.Binary: {
+          const response = await messageHandler?.({
+            body: frame.payload,
+            connection
+          });
 
-          if (frame) {
-            buffer = buffer.subarray(frame.length);
-
-            const response = await messageHandler?.({
-              body: frame.data,
-              connection
-            });
-
-            if (response) {
-              connection.write(response);
-            }
+          if (response) {
+            connection.write(response);
           }
 
-          break decode;
+          break;
+        }
+
+        case WebSocketOpcode.Close: {
+          socket.write(WebSocketFrame.encodeCloseFrame());
+          socket.end();
+          break;
+        }
+
+        case WebSocketOpcode.Ping: {
+          socket.write(WebSocketFrame.encodePongFrame(frame.payload));
+          break;
+        }
+
+        case WebSocketOpcode.Pong: {
+          // Do nothing.
+          break;
         }
       }
     }
@@ -165,11 +183,4 @@ const sendErrorResponse = (socket: Stream.Duplex, request: IncomingMessage, stat
 
   socket.write(response.join('\r\n'));
   socket.destroy();
-};
-
-const writeMessage = (socket: Stream.Duplex, message: Buffer | string) => {
-  const content = Buffer.isBuffer(message) ? message : Buffer.from(message);
-  const payload = WebSocketUtils.encodeTextFrame(content);
-
-  socket.write(payload);
 };

@@ -22,63 +22,56 @@ export const enum WebSocketOpcode {
   Pong = 0x0a
 }
 
-export namespace WebSocketUtils {
-  export const decodeOpcode = (buffer: Buffer) => {
-    const opcode = buffer[0] & OPCODE_MASK;
-
-    switch (opcode) {
-      case WebSocketOpcode.Continue:
-      case WebSocketOpcode.Text:
-      case WebSocketOpcode.Binary:
-      case WebSocketOpcode.Close:
-      case WebSocketOpcode.Ping:
-      case WebSocketOpcode.Pong:
-        return opcode;
-    }
-
-    return undefined;
-  };
-
-  export const decodeDataFrame = (buffer: Buffer, offset: number) => {
-    const headerFrame = decodeFrameHeader(buffer, offset);
+export namespace WebSocketFrame {
+  export const decodeFrame = (buffer: Buffer) => {
+    const headerFrame = decodeFrameHeader(buffer);
 
     if (!headerFrame) {
       return undefined;
     }
 
-    const { dataOffset, maskOffset, frameLength } = headerFrame;
+    const { dataOffset, maskOffset, frameLength, opcode } = headerFrame;
 
     if (buffer.length < frameLength) {
       return undefined;
     }
 
     const masking = buffer.subarray(dataOffset, maskOffset);
-    const data = buffer.subarray(maskOffset, frameLength);
+    const payload = buffer.subarray(maskOffset, frameLength);
 
-    for (let index = 0; index < data.length; index++) {
-      data[index] ^= masking[index % 4];
+    for (let index = 0; index < payload.length; index++) {
+      payload[index] ^= masking[index % 4];
     }
 
     return {
       length: frameLength,
-      data
+      payload,
+      opcode
     };
   };
 
-  export const encodeTextFrame = (text: Buffer) => {
-    return Buffer.concat([encodeFrameHeader(text.length), text]);
+  export const encodeTextFrame = (data: Buffer) => {
+    return Buffer.concat([encodeFrameHeader(WebSocketOpcode.Text, data.length), data]);
+  };
+
+  export const encodeBinaryFrame = (data: Buffer) => {
+    return Buffer.concat([encodeFrameHeader(WebSocketOpcode.Binary, data.length), data]);
   };
 
   export const encodeCloseFrame = () => {
     return Buffer.from([FIN_CODE | WebSocketOpcode.Close, 0x00]);
   };
 
-  const encodeFrameHeader = (length: number) => {
+  export const encodePongFrame = (data: Buffer) => {
+    return Buffer.concat([encodeFrameHeader(WebSocketOpcode.Pong, data.length), data]);
+  };
+
+  const encodeFrameHeader = (opcode: WebSocketOpcode, length: number) => {
     const header = Buffer.allocUnsafe(HEADER_BYTES);
 
     let offset = 0;
 
-    header.writeUint8(FIN_CODE | WebSocketOpcode.Text, offset++);
+    header.writeUint8(FIN_CODE | opcode, offset++);
 
     if (length <= TINY_SIZE) {
       header.writeUint8(length, offset++);
@@ -99,8 +92,15 @@ export namespace WebSocketUtils {
     return header;
   };
 
-  const decodeFrameHeader = (header: Buffer, offset: number) => {
+  const decodeFrameHeader = (header: Buffer) => {
+    let offset = 0;
+
+    const opcode = header[offset++] & OPCODE_MASK;
     const length = header[offset++] & LENGTH_MASK;
+
+    if (!isHeaderOpcode(opcode)) {
+      return undefined;
+    }
 
     if (length <= TINY_SIZE) {
       const maskOffset = offset + MASK_BYTES;
@@ -108,7 +108,8 @@ export namespace WebSocketUtils {
       return {
         frameLength: maskOffset + length,
         dataOffset: offset,
-        maskOffset
+        maskOffset,
+        opcode
       };
     }
 
@@ -121,7 +122,8 @@ export namespace WebSocketUtils {
         return {
           frameLength: maskOffset + header.readUInt16BE(offset),
           dataOffset: nextOffset,
-          maskOffset
+          maskOffset,
+          opcode
         };
       }
     }
@@ -135,11 +137,26 @@ export namespace WebSocketUtils {
         return {
           frameLength: maskOffset + Number(header.readBigUInt64BE(offset)),
           dataOffset: nextOffset,
-          maskOffset
+          maskOffset,
+          opcode
         };
       }
     }
 
     return undefined;
+  };
+
+  const isHeaderOpcode = (opcode: number): opcode is WebSocketOpcode => {
+    switch (opcode) {
+      case WebSocketOpcode.Continue:
+      case WebSocketOpcode.Text:
+      case WebSocketOpcode.Binary:
+      case WebSocketOpcode.Close:
+      case WebSocketOpcode.Ping:
+      case WebSocketOpcode.Pong:
+        return true;
+    }
+
+    return false;
   };
 }
