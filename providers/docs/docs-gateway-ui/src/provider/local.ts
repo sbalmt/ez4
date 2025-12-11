@@ -1,42 +1,34 @@
-import {
-  type EmulatorServiceRequest,
-  type EmulatorHandlerResponse,
-  type ServiceMetadata,
-  type ServeOptions,
-  getServiceName
-} from '@ez4/project/library';
-import { HttpService, isHttpService } from '@ez4/gateway/library';
-import { scalarTemplate } from './templates';
+import type { ServeOptions, EmulatorFallbackRequestEvent } from '@ez4/project/library';
+import type { HttpService } from '@ez4/gateway/library';
+
 import { OpenApiGenerator } from '@ez4/docs-gateway/library';
+import { getServiceName } from '@ez4/project/library';
+import { isHttpService } from '@ez4/gateway/library';
+
 import { parse as parseYaml } from 'yaml';
+
+import { scalarTemplate } from './templates';
 
 type Oas = Record<string, unknown> & {
   servers?: Record<string, unknown>[];
 };
 
-export const handleFallbackRequest = (event: {
-  request: EmulatorServiceRequest;
-  service: ServiceMetadata;
-  options: ServeOptions;
-}): EmulatorHandlerResponse | null => {
-  const { service } = event;
+export const handleFallbackRequest = (event: EmulatorFallbackRequestEvent) => {
+  const { request, service, options } = event;
 
   if (!isHttpService(service)) {
     return null;
   }
 
-  const {
-    request: { path, method },
-    options
-  } = event;
+  const { method, path } = request;
 
   if (path !== '/docs' || method !== 'GET') {
     return null;
   }
 
-  const html = generateHtml(service, options);
+  const body = generateHtml(service, options);
 
-  if (!html) {
+  if (!body) {
     return null;
   }
 
@@ -45,7 +37,7 @@ export const handleFallbackRequest = (event: {
     headers: {
       'Content-Type': 'text/html'
     },
-    body: html
+    body
   };
 };
 
@@ -69,7 +61,7 @@ const generateHtml = (service: HttpService, options: ServeOptions): string | nul
 const getOasContent = (service: HttpService): Oas | null => {
   try {
     return parseYaml(OpenApiGenerator.getGatewayOutput(service)) as Oas;
-  } catch (e) {
+  } catch {
     return null;
   }
 };
