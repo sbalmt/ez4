@@ -8,7 +8,7 @@ const SUPER_SECRET_API_KEY = 'query-api-key';
 /**
  * Token authorizer example.
  */
-declare class TokenAuthorizer implements Ws.AuthRequest {
+declare class AuthorizerRequest implements Ws.AuthRequest {
   query: {
     token: string;
   };
@@ -24,7 +24,7 @@ export declare class AuthorizerResponse implements Ws.AuthResponse {
 /**
  * Check the `token` query string and authorize or not the request.
  */
-export function tokenAuthorizer(request: TokenAuthorizer): AuthorizerResponse {
+export function tokenAuthorizer(request: AuthorizerRequest): AuthorizerResponse {
   const { token } = request.query;
 
   if (token !== SUPER_SECRET_API_KEY) {

@@ -41,7 +41,7 @@ export declare class HelloQueue extends Queue.Service<HelloMessage> {
   ];
 
   /**
-   * Expose its client to all handlers.
+   * Expose WS client to the handler.
    */
   services: {
     wsApiClient: Environment.Service<WsApi>;
