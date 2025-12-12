@@ -118,6 +118,7 @@ const logQueryError = (input: ExecuteStatementCommandInput, transaction?: boolea
 
   console.error({
     type: 'PartiQL',
+    query: input.Statement,
     ...(parameters && {
       parameters
     }),
