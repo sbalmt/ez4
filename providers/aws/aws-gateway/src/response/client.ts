@@ -4,7 +4,8 @@ import {
   ApiGatewayV2Client,
   CreateRouteResponseCommand,
   UpdateRouteResponseCommand,
-  DeleteRouteResponseCommand
+  DeleteRouteResponseCommand,
+  NotFoundException
 } from '@aws-sdk/client-apigatewayv2';
 
 import { ResponseServiceName } from './types';
@@ -59,11 +60,21 @@ export const updateResponse = async (apiId: string, routeId: string, responseId:
 export const deleteResponse = async (apiId: string, routeId: string, responseId: string) => {
   Logger.logDelete(ResponseServiceName, responseId);
 
-  await client.send(
-    new DeleteRouteResponseCommand({
-      RouteResponseId: responseId,
-      RouteId: routeId,
-      ApiId: apiId
-    })
-  );
+  try {
+    await client.send(
+      new DeleteRouteResponseCommand({
+        RouteResponseId: responseId,
+        RouteId: routeId,
+        ApiId: apiId
+      })
+    );
+
+    return true;
+  } catch (error) {
+    if (!(error instanceof NotFoundException)) {
+      throw error;
+    }
+
+    return false;
+  }
 };
