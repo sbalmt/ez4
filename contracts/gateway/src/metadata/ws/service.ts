@@ -70,6 +70,12 @@ export const getWsServicesMetadata = (reflection: SourceMap) => {
           }
           break;
 
+        case 'stage':
+          if (!member.inherited) {
+            service.stageName = getPropertyString(member);
+          }
+          break;
+
         case 'defaults':
           if (!member.inherited) {
             service.defaults = getWsDefaultsMetadata(member.value, declaration, reflection, errorList);

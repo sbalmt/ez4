@@ -106,14 +106,19 @@ export namespace Ws {
     readonly defaults?: Defaults<any>;
 
     /**
-     * Event schema.
-     */
-    readonly schema: T;
-
-    /**
      * Display name for the service.
      */
     readonly name?: string;
+
+    /**
+     * Service stage name.
+     */
+    readonly stage?: string;
+
+    /**
+     * Service schema.
+     */
+    readonly schema: T;
 
     /**
      * Variables associated to all routes.

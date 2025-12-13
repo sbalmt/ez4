@@ -16,6 +16,7 @@ export type WsDataSchema = ObjectSchema | UnionSchema | ArraySchema | ScalarSche
 export type WsService = ServiceMetadata & {
   type: typeof WsServiceType;
   displayName?: string;
+  stageName?: string;
   description?: string;
   defaults?: WsDefaults;
   schema: WsDataSchema;

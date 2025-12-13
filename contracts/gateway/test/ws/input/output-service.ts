@@ -28,6 +28,8 @@ export declare class TestService1 extends Ws.Service<TestData> {
  * Description of the second test service.
  */
 export declare class TestService2 extends Ws.Service<TestData> {
+  stage: 'websocket';
+
   connect: Ws.UseConnect<{
     handler: typeof connectHandler;
   }>;
