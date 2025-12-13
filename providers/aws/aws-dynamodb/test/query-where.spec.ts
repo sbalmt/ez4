@@ -113,6 +113,16 @@ describe('dynamodb query (where)', () => {
     deepEqual(variables, [1, 2]);
   });
 
+  it('assert :: prepare where (is in empty)', () => {
+    const [whereStatement, variables] = getWhereOperation({
+      qux: { isIn: [] }
+    });
+
+    equal(whereStatement, `WHERE 1 = 0`);
+
+    deepEqual(variables, []);
+  });
+
   it('assert :: prepare where (is between)', () => {
     const [whereStatement, variables] = getWhereOperation({
       foo: { isBetween: [0, 100] }
@@ -148,7 +158,7 @@ describe('dynamodb query (where)', () => {
       bar: { barBar: { isNull: true } }
     });
 
-    equal(whereStatement, `WHERE "bar"."barBar" IS NULL`);
+    equal(whereStatement, `WHERE "bar"."barBar" IS null`);
 
     deepEqual(variables, []);
   });
@@ -158,7 +168,7 @@ describe('dynamodb query (where)', () => {
       bar: { barBar: { isNull: false } }
     });
 
-    equal(whereStatement, `WHERE "bar"."barBar" IS NOT NULL`);
+    equal(whereStatement, `WHERE "bar"."barBar" IS NOT null`);
 
     deepEqual(variables, []);
   });
@@ -181,6 +191,16 @@ describe('dynamodb query (where)', () => {
     equal(whereStatement, `WHERE contains("baz", ?) AND contains("baz", ?)`);
 
     deepEqual(variables, ['abc', 'def']);
+  });
+
+  it('assert :: prepare where (contains empty)', () => {
+    const [whereStatement, variables] = getWhereOperation({
+      baz: { contains: [] }
+    });
+
+    equal(whereStatement, `WHERE 1 = 1`);
+
+    deepEqual(variables, []);
   });
 
   it('assert :: prepare where (starts with)', () => {

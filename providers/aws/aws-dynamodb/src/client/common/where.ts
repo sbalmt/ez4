@@ -3,7 +3,7 @@ import type { AnyObject } from '@ez4/utils';
 import type { Query } from '@ez4/database';
 import type { InternalTableMetadata } from '../types';
 
-import { isAnyArray, isAnyObject } from '@ez4/utils';
+import { isAnyArray, isAnyObject, isEmptyArray } from '@ez4/utils';
 import { getSchemaProperty, SchemaType } from '@ez4/schema';
 
 import { isSkippableData } from './data';
@@ -125,11 +125,16 @@ const prepareOperation = (operation: [string, any], schema: AnySchema | undefine
       return [`${path} <= ?`, value];
 
     case 'isIn': {
-      if (schema?.type === SchemaType.Array || schema?.type === SchemaType.Tuple) {
-        return [value.map(() => `? IN ${path}`).join(' AND '), ...value];
+      if (!isEmptyArray(value)) {
+        if (schema?.type === SchemaType.Array || schema?.type === SchemaType.Tuple) {
+          return [value.map(() => `? IN ${path}`).join(' AND '), ...value];
+        }
+
+        return [`${path} IN [${value.map(() => '?').join(', ')}]`, ...value];
       }
 
-      return [`${path} IN [${value.map(() => '?').join(', ')}]`, ...value];
+      // Force no results for empty arrays
+      return [`1 = 0`];
     }
 
     case 'isBetween':
@@ -139,19 +144,24 @@ const prepareOperation = (operation: [string, any], schema: AnySchema | undefine
       return [`${path} IS ${value ? 'MISSING' : 'NOT MISSING'}`];
 
     case 'isNull':
-      return [`${path} IS ${value ? 'NULL' : 'NOT NULL'}`];
+      return [`${path} IS ${value ? 'null' : 'NOT null'}`];
 
     case 'startsWith':
       return [`begins_with(${path}, ?)`, value];
 
     case 'contains': {
-      if (isAnyArray(value) && (schema?.type === SchemaType.Array || schema?.type === SchemaType.Tuple)) {
-        return [value.map(() => `contains(${path}, ?)`).join(' AND '), ...value];
+      if (isAnyArray(value)) {
+        if (!isEmptyArray(value) && (schema?.type === SchemaType.Array || schema?.type === SchemaType.Tuple)) {
+          return [value.map(() => `contains(${path}, ?)`).join(' AND '), ...value];
+        }
+
+        // Force any results for empty arrays
+        return [`1 = 1`];
       }
 
       return [`contains(${path}, ?)`, value];
     }
   }
 
-  return null;
+  return undefined;
 };
