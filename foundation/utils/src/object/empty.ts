@@ -1,5 +1,6 @@
 import type { AnyObject } from './generics';
 
+import { isAnyArray } from '../array/check';
 import { isPlainObject } from './check';
 
 /**
@@ -10,7 +11,7 @@ import { isPlainObject } from './check';
  * @returns Returns `true` for an empty object, `false` otherwise.
  */
 export const isEmptyObject = (object: AnyObject) => {
-  if (Array.isArray(object)) {
+  if (isAnyArray(object)) {
     return false;
   }
 
