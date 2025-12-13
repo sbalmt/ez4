@@ -17,7 +17,9 @@ export const createAllTables = async (connection: ClientConnection, repository: 
 
   const client = getClient(connection);
 
-  const oldRepository = options.force ? {} : await loadRepositoryState(database);
+  const freshCreation = options.force || options.reset;
+
+  const oldRepository = freshCreation ? {} : await loadRepositoryState(database);
 
   const queries = getUpdateQueries(repository, oldRepository);
 
