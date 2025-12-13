@@ -1,30 +1,15 @@
-import type { DynamoDbEngine } from '@ez4/aws-dynamodb/client';
-import type { Index, RelationMetadata } from '@ez4/database';
+import type { TestTableMetadata } from './common/schema';
 
 import { equal, deepEqual } from 'node:assert/strict';
 import { describe, it } from 'node:test';
 
 import { prepareDelete } from '@ez4/aws-dynamodb/client';
 
-type TestTableMetadata = {
-  engine: DynamoDbEngine;
-  relations: RelationMetadata;
-  indexes: {
-    id: Index.Primary;
-  };
-  schema: {
-    id: string;
-    foo?: number | null;
-    bar: {
-      barFoo: string;
-      barBar: boolean;
-    };
-  };
-};
+import { TestSchema } from './common/schema';
 
 describe('dynamodb query (delete)', () => {
   it('assert :: prepare delete', () => {
-    const [statement, variables] = prepareDelete<TestTableMetadata, {}>('ez4-test-delete', {
+    const [statement, variables] = prepareDelete<TestTableMetadata, {}>('ez4-test-delete', TestSchema, {
       where: {
         id: 'abc'
       }
@@ -36,7 +21,7 @@ describe('dynamodb query (delete)', () => {
   });
 
   it('assert :: prepare delete (with select)', () => {
-    const [statement, variables] = prepareDelete<TestTableMetadata, {}>('ez4-test-delete', {
+    const [statement, variables] = prepareDelete<TestTableMetadata, {}>('ez4-test-delete', TestSchema, {
       select: {
         id: true,
         foo: true,

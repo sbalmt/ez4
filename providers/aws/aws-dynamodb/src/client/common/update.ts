@@ -21,7 +21,7 @@ export const prepareUpdate = <T extends InternalTableMetadata, S extends Query.S
   const statement = [`UPDATE "${table}" ${updateFields}`];
 
   if (query.where) {
-    const [whereFields, whereVariables] = prepareWhereFields(query.where);
+    const [whereFields, whereVariables] = prepareWhereFields(query.where, schema);
 
     if (whereFields) {
       statement.push(`WHERE ${whereFields}`);

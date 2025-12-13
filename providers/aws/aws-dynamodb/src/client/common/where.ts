@@ -1,15 +1,17 @@
+import type { AnySchema, ObjectSchema } from '@ez4/schema';
 import type { AnyObject } from '@ez4/utils';
 import type { Query } from '@ez4/database';
 import type { InternalTableMetadata } from '../types';
 
-import { isAnyObject } from '@ez4/utils';
+import { isAnyArray, isAnyObject } from '@ez4/utils';
+import { getSchemaProperty, SchemaType } from '@ez4/schema';
 
 import { isSkippableData } from './data';
 
 type PrepareResult = [string, unknown[]];
 
-export const prepareWhereFields = (input: Query.WhereInput<InternalTableMetadata>): PrepareResult => {
-  const prepareFields = (data: AnyObject, path?: string): [string[], unknown[]] => {
+export const prepareWhereFields = (input: Query.WhereInput<InternalTableMetadata>, schema: ObjectSchema): PrepareResult => {
+  const prepareFields = (data: AnyObject, schema: AnySchema | undefined, path?: string): [string[], unknown[]] => {
     const operations: string[] = [];
     const variables: unknown[] = [];
 
@@ -22,7 +24,7 @@ export const prepareWhereFields = (input: Query.WhereInput<InternalTableMetadata
 
       switch (fieldName) {
         case 'NOT': {
-          const [nestedOperations, nestedVariables] = prepareFields(value, path);
+          const [nestedOperations, nestedVariables] = prepareFields(value, schema, path);
 
           if (nestedOperations.length > 1) {
             operations.push(`NOT (${nestedOperations.join(' AND ')})`);
@@ -42,7 +44,7 @@ export const prepareWhereFields = (input: Query.WhereInput<InternalTableMetadata
 
           const [nestedOperations, nestedVariables] = value.reduce(
             ([allOperations, allVariables], input) => {
-              const [operations, variables] = prepareFields(input, path);
+              const [operations, variables] = prepareFields(input, schema, path);
 
               if (fieldName === 'OR' && operations.length > 1) {
                 allOperations.push(`(${operations.join(' AND ')})`);
@@ -68,15 +70,16 @@ export const prepareWhereFields = (input: Query.WhereInput<InternalTableMetadata
         }
 
         default: {
-          const nestedPath = path ? `${path}."${fieldName}"` : `"${fieldName}"`;
+          const fieldSchema = schema && getSchemaProperty(schema, fieldName);
+          const fieldPath = path ? `${path}."${fieldName}"` : `"${fieldName}"`;
 
           const nestedValue = isAnyObject(value) ? value : value === null ? { isNull: true } : { equal: value };
 
           for (const operation of Object.entries(nestedValue)) {
-            const nestedResult = prepareOperation(operation, nestedPath);
+            const nestedResult = prepareOperation(operation, fieldSchema, fieldPath);
 
             if (!nestedResult) {
-              const [nestedOperations, nestedVariables] = prepareFields(value, nestedPath);
+              const [nestedOperations, nestedVariables] = prepareFields(value, schema, fieldPath);
 
               operations.push(...nestedOperations);
               variables.push(...nestedVariables);
@@ -94,12 +97,12 @@ export const prepareWhereFields = (input: Query.WhereInput<InternalTableMetadata
     return [operations, variables];
   };
 
-  const [operations, variables] = prepareFields(input);
+  const [operations, variables] = prepareFields(input, schema);
 
   return [operations.join(' AND '), variables];
 };
 
-const prepareOperation = (operation: [string, any], path: string) => {
+const prepareOperation = (operation: [string, any], schema: AnySchema | undefined, path: string) => {
   const [operator, value] = operation;
 
   switch (operator) {
@@ -121,8 +124,13 @@ const prepareOperation = (operation: [string, any], path: string) => {
     case 'lte':
       return [`${path} <= ?`, value];
 
-    case 'isIn':
-      return [`${path} IN [${[...new Set(value)].map(() => '?').join(', ')}]`, ...value];
+    case 'isIn': {
+      if (schema?.type === SchemaType.Array || schema?.type === SchemaType.Tuple) {
+        return [value.map(() => `? IN ${path}`).join(' AND '), ...value];
+      }
+
+      return [`${path} IN [${value.map(() => '?').join(', ')}]`, ...value];
+    }
 
     case 'isBetween':
       return [`${path} BETWEEN ? AND ?`, ...value];
@@ -136,8 +144,13 @@ const prepareOperation = (operation: [string, any], path: string) => {
     case 'startsWith':
       return [`begins_with(${path}, ?)`, value];
 
-    case 'contains':
+    case 'contains': {
+      if (isAnyArray(value) && (schema?.type === SchemaType.Array || schema?.type === SchemaType.Tuple)) {
+        return [value.map(() => `contains(${path}, ?)`).join(' AND '), ...value];
+      }
+
       return [`contains(${path}, ?)`, value];
+    }
   }
 
   return null;

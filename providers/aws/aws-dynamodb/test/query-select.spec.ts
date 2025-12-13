@@ -1,5 +1,4 @@
-import type { DynamoDbEngine } from '@ez4/aws-dynamodb/client';
-import type { Index, RelationMetadata } from '@ez4/database';
+import type { TestTableMetadata } from './common/schema';
 
 import { equal, deepEqual } from 'node:assert/strict';
 import { describe, it } from 'node:test';
@@ -7,25 +6,11 @@ import { describe, it } from 'node:test';
 import { prepareSelect } from '@ez4/aws-dynamodb/client';
 import { Order } from '@ez4/database';
 
-type TestTableMetadata = {
-  engine: DynamoDbEngine;
-  relations: RelationMetadata;
-  indexes: {
-    id: Index.Primary;
-  };
-  schema: {
-    id: string;
-    foo?: number | null;
-    bar: {
-      barFoo: string;
-      barBar: boolean;
-    };
-  };
-};
+import { TestSchema } from './common/schema';
 
 describe('dynamodb query (select)', () => {
   it('assert :: prepare select', () => {
-    const [statement, variables] = prepareSelect<TestTableMetadata, {}, false>('ez4-test-select', undefined, {
+    const [statement, variables] = prepareSelect<TestTableMetadata, {}, false>('ez4-test-select', TestSchema, undefined, {
       select: {
         id: true,
         foo: true,
@@ -45,7 +30,7 @@ describe('dynamodb query (select)', () => {
   });
 
   it('assert :: prepare select (with index)', () => {
-    const [statement, variables] = prepareSelect<TestTableMetadata, {}, false>('ez4-test-select', 'foo-index', {
+    const [statement, variables] = prepareSelect<TestTableMetadata, {}, false>('ez4-test-select', TestSchema, 'foo-index', {
       select: {
         id: true
       },

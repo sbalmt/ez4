@@ -1,57 +1,15 @@
-import type { DynamoDbEngine } from '@ez4/aws-dynamodb/client';
-import type { Index, RelationMetadata } from '@ez4/database';
-import type { ObjectSchema } from '@ez4/schema';
+import type { TestTableMetadata } from './common/schema';
 
 import { equal, deepEqual } from 'node:assert/strict';
 import { describe, it } from 'node:test';
 
 import { prepareUpdate } from '@ez4/aws-dynamodb/client';
-import { SchemaType } from '@ez4/schema';
 
-type TestTableMetadata = {
-  engine: DynamoDbEngine;
-  relations: RelationMetadata;
-  indexes: {
-    id: Index.Primary;
-  };
-  schema: {
-    id: string;
-    foo?: number | null;
-    bar: {
-      barFoo: string;
-      barBar: boolean;
-    };
-  };
-};
+import { TestSchema } from './common/schema';
 
 describe('dynamodb query (update)', () => {
-  const testSchema: ObjectSchema = {
-    type: SchemaType.Object,
-    properties: {
-      id: {
-        type: SchemaType.String
-      },
-      foo: {
-        type: SchemaType.Number,
-        nullable: true,
-        optional: true
-      },
-      bar: {
-        type: SchemaType.Object,
-        properties: {
-          barFoo: {
-            type: SchemaType.String
-          },
-          barBar: {
-            type: SchemaType.Boolean
-          }
-        }
-      }
-    }
-  };
-
   it('assert :: prepare update', () => {
-    const [statement, variables] = prepareUpdate<TestTableMetadata, {}>('ez4-test-update', testSchema, {
+    const [statement, variables] = prepareUpdate<TestTableMetadata, {}>('ez4-test-update', TestSchema, {
       data: {
         foo: 456
       },
@@ -66,7 +24,7 @@ describe('dynamodb query (update)', () => {
   });
 
   it('assert :: prepare update (remove nulls)', () => {
-    const [statement, variables] = prepareUpdate<TestTableMetadata, {}>('ez4-test-update', testSchema, {
+    const [statement, variables] = prepareUpdate<TestTableMetadata, {}>('ez4-test-update', TestSchema, {
       data: {
         foo: null,
         bar: {
@@ -81,7 +39,7 @@ describe('dynamodb query (update)', () => {
   });
 
   it('assert :: prepare update (with select)', () => {
-    const [statement, variables] = prepareUpdate<TestTableMetadata, {}>('ez4-test-update', testSchema, {
+    const [statement, variables] = prepareUpdate<TestTableMetadata, {}>('ez4-test-update', TestSchema, {
       select: {
         foo: true,
         bar: {

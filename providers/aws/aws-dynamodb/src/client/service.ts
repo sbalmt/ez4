@@ -121,7 +121,7 @@ const prepareStaticTransaction = async <T extends Database.Service>(
       }
 
       if ('delete' in query) {
-        commands.push(prepareDeleteOne(name, query.delete));
+        commands.push(prepareDeleteOne(name, schema, query.delete));
       }
     }
   }

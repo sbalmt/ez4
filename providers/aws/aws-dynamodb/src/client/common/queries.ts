@@ -32,12 +32,13 @@ export const prepareInsertOne = async <T extends InternalTableMetadata, S extend
 
 export const prepareFindOne = <T extends InternalTableMetadata, S extends Query.SelectInput<T>>(
   table: string,
+  schema: ObjectSchema,
   indexes: string[][],
   query: Query.FindOneInput<S, T>
 ): ExecuteStatementCommandInput => {
   const secondaryIndex = findBestSecondaryIndex(indexes, query.where);
 
-  const [statement, variables] = prepareSelect(table, secondaryIndex, query);
+  const [statement, variables] = prepareSelect(table, schema, secondaryIndex, query);
 
   return {
     ConsistentRead: !secondaryIndex,
@@ -68,9 +69,10 @@ export const prepareUpdateOne = async <T extends InternalTableMetadata, S extend
 
 export const prepareDeleteOne = <T extends InternalTableMetadata, S extends Query.SelectInput<T>>(
   table: string,
+  schema: ObjectSchema,
   query: Query.DeleteOneInput<S, T>
 ): ExecuteStatementCommandInput => {
-  const [statement, variables] = prepareDelete(table, query);
+  const [statement, variables] = prepareDelete(table, schema, query);
 
   return {
     Statement: statement,
@@ -122,12 +124,13 @@ export const prepareInsertMany = async <T extends InternalTableMetadata>(
 
 export const prepareFindMany = <T extends InternalTableMetadata, S extends Query.SelectInput<T>, C extends boolean>(
   table: string,
+  schema: ObjectSchema,
   indexes: string[][],
   query: Query.FindManyInput<S, C, T>
 ): ExecuteStatementCommandInput => {
   const secondaryIndex = findBestSecondaryIndex(indexes, query.order ?? query.where ?? {});
 
-  const [statement, variables] = prepareSelect(table, secondaryIndex, query);
+  const [statement, variables] = prepareSelect(table, schema, secondaryIndex, query);
 
   return {
     Statement: statement,
@@ -154,7 +157,7 @@ export const prepareUpdateMany = async <T extends InternalTableMetadata, S exten
 ): Promise<[ExecuteStatementCommandInput[], Query.UpdateManyResult<S, T>]> => {
   const [[partitionKey, sortKey]] = indexes;
 
-  const command = prepareFindMany(table, indexes, {
+  const command = prepareFindMany(table, schema, indexes, {
     ...query,
     select: {
       ...query.select,
@@ -199,6 +202,7 @@ export const prepareUpdateMany = async <T extends InternalTableMetadata, S exten
 
 export const prepareDeleteMany = async <T extends InternalTableMetadata, S extends Query.SelectInput<T>>(
   table: string,
+  schema: ObjectSchema,
   indexes: string[][],
   client: DynamoDBDocumentClient,
   query: Query.DeleteManyInput<S, T>,
@@ -206,7 +210,7 @@ export const prepareDeleteMany = async <T extends InternalTableMetadata, S exten
 ): Promise<[ExecuteStatementCommandInput[], Query.DeleteManyResult<S, T>]> => {
   const [[partitionKey, sortKey]] = indexes;
 
-  const command = prepareFindMany(table, indexes, {
+  const command = prepareFindMany(table, schema, indexes, {
     ...query,
     select: {
       ...query.select,
@@ -226,7 +230,7 @@ export const prepareDeleteMany = async <T extends InternalTableMetadata, S exten
   for (const record of records) {
     const { [partitionKey]: partitionId, [sortKey]: sortId } = record;
 
-    const [statement, variables] = prepareDelete(table, {
+    const [statement, variables] = prepareDelete(table, schema, {
       where: {
         ...(sortKey && { [sortKey]: sortId }),
         [partitionKey]: partitionId
@@ -246,6 +250,7 @@ export const prepareDeleteMany = async <T extends InternalTableMetadata, S exten
 
 export const prepareCount = <T extends InternalTableMetadata, S extends Query.SelectInput<T>>(
   table: string,
+  schema: ObjectSchema,
   indexes: string[][],
   query: Query.CountInput<T>
 ): ExecuteStatementCommandInput => {
@@ -253,7 +258,7 @@ export const prepareCount = <T extends InternalTableMetadata, S extends Query.Se
 
   const [[partitionKey]] = indexes;
 
-  const [statement, variables] = prepareSelect(table, secondaryIndex, {
+  const [statement, variables] = prepareSelect(table, schema, secondaryIndex, {
     where: query.where,
     select: {
       [partitionKey]: true
