@@ -27,6 +27,12 @@ const baseState: EntryStates<TestEntryState> = {
     entryId: 'entryC',
     dependencies: [],
     parameters: {}
+  },
+  entryD: {
+    type: TestEntryType.D,
+    entryId: 'entryD',
+    dependencies: ['entryA'],
+    parameters: {}
   }
 };
 
@@ -49,12 +55,21 @@ const checkConnections = (context: StepContext) => {
   equal(context.getConnections().length, 3);
 };
 
+const checkDependents = (context: StepContext) => {
+  // Filter
+  equal(context.getDependents(TestEntryType.D).length, 1);
+
+  // Everything
+  equal(context.getDependents().length, 1);
+};
+
 describe('context tests', () => {
   it('assert :: creation context', async () => {
     const createHandler = mock.fn((_ca: TestEntryState, context: StepContext) => {
       equal(context.force, true);
       checkDependencies(context);
       checkConnections(context);
+      checkDependents(context);
     });
 
     const handlers: StepHandlers<TestEntryState> = {
@@ -69,12 +84,13 @@ describe('context tests', () => {
       handlers
     });
 
-    await applySteps(steps, baseState, undefined, {
+    const { errors } = await applySteps(steps, baseState, undefined, {
       force: true,
       handlers
     });
 
     equal(createHandler.mock.callCount(), 1);
+    equal(errors.length, 0);
   });
 
   it('assert :: deleting context', async () => {
@@ -82,6 +98,7 @@ describe('context tests', () => {
       equal(context.force, false);
       checkDependencies(context);
       checkConnections(context);
+      checkDependents(context);
     });
 
     const handlers: StepHandlers<TestEntryState> = {
@@ -96,11 +113,12 @@ describe('context tests', () => {
       handlers
     });
 
-    await applySteps(steps, undefined, baseState, {
+    const { errors } = await applySteps(steps, undefined, baseState, {
       handlers
     });
 
     equal(deleteHandler.mock.callCount(), 1);
+    equal(errors.length, 0);
   });
 
   it('assert :: updating context', async () => {
@@ -108,6 +126,7 @@ describe('context tests', () => {
       equal(context.force, true);
       checkDependencies(context);
       checkConnections(context);
+      checkDependents(context);
     });
 
     const handlers: StepHandlers<TestEntryState> = {
@@ -124,11 +143,12 @@ describe('context tests', () => {
       handlers
     });
 
-    await applySteps(steps, newState, baseState, {
+    const { errors } = await applySteps(steps, newState, baseState, {
       force: true,
       handlers
     });
 
     equal(updateHandler.mock.callCount(), 1);
+    equal(errors.length, 0);
   });
 });

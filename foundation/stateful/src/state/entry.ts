@@ -51,6 +51,16 @@ export const validateEntries = <E extends EntryState>(entryMap: EntryStates<E>) 
   }
 };
 
+export const tryLinkEntryDependency = <E extends EntryState>(entryMap: EntryStates<E>, targetEntryId: string, sourceEntryId: string) => {
+  try {
+    linkEntryDependency(entryMap, targetEntryId, sourceEntryId);
+  } catch (error) {
+    if (!(error instanceof DuplicateEntryError)) {
+      throw error;
+    }
+  }
+};
+
 export const linkEntryDependency = <E extends EntryState>(entryMap: EntryStates<E>, targetEntryId: string, sourceEntryId: string) => {
   const targetEntry = entryMap[targetEntryId];
   const sourceEntry = entryMap[sourceEntryId];
@@ -78,34 +88,6 @@ export const linkEntryDependency = <E extends EntryState>(entryMap: EntryStates<
   dependencies.sort((a, b) => a.localeCompare(b));
 };
 
-export const tryLinkEntryDependency = <E extends EntryState>(entryMap: EntryStates<E>, targetEntryId: string, sourceEntryId: string) => {
-  try {
-    linkEntryDependency(entryMap, targetEntryId, sourceEntryId);
-  } catch (error) {
-    if (!(error instanceof DuplicateEntryError)) {
-      throw error;
-    }
-  }
-};
-
-export const getEntryDependencies = <E extends EntryState>(entryMap: EntryStates, entry: EntryState, type?: EntryTypes<E>): E[] => {
-  const dependencyList: E[] = [];
-
-  entry.dependencies.forEach((dependencyId) => {
-    const dependency = entryMap[dependencyId];
-
-    if (!dependency) {
-      throw new DependencyNotFoundError(entry.entryId, dependencyId);
-    }
-
-    if (isEntryType(dependency, type)) {
-      dependencyList.push(dependency);
-    }
-  });
-
-  return dependencyList;
-};
-
 export const linkEntryConnection = <E extends EntryState>(entryMap: EntryStates<E>, targetEntryId: string, sourceEntryId: string) => {
   const targetEntry = entryMap[targetEntryId];
   const sourceEntry = entryMap[sourceEntryId];
@@ -131,6 +113,24 @@ export const linkEntryConnection = <E extends EntryState>(entryMap: EntryStates<
   }
 };
 
+export const getEntryDependencies = <E extends EntryState>(entryMap: EntryStates, entry: EntryState, type?: EntryTypes<E>): E[] => {
+  const dependencyList: E[] = [];
+
+  entry.dependencies.forEach((dependencyId) => {
+    const dependency = entryMap[dependencyId];
+
+    if (!dependency) {
+      throw new DependencyNotFoundError(entry.entryId, dependencyId);
+    }
+
+    if (isEntryType(dependency, type)) {
+      dependencyList.push(dependency);
+    }
+  });
+
+  return dependencyList;
+};
+
 export const getEntryConnections = <E extends EntryState>(entryMap: EntryStates, entry: EntryState, type?: EntryTypes<E>): E[] => {
   const connectionList: E[] = [];
 
@@ -147,6 +147,24 @@ export const getEntryConnections = <E extends EntryState>(entryMap: EntryStates,
   });
 
   return connectionList;
+};
+
+export const getEntryDependents = <E extends EntryState>(entryMap: EntryStates, entry: EntryState, type?: EntryTypes<E>): E[] => {
+  const dependentList: E[] = [];
+
+  for (const dependentId in entryMap) {
+    const dependent = entryMap[dependentId];
+
+    if (!dependent) {
+      throw new EntryNotFoundError(dependentId);
+    }
+
+    if (isEntryType(dependent, type) && dependent.dependencies.includes(entry.entryId)) {
+      dependentList.push(dependent);
+    }
+  }
+
+  return dependentList;
 };
 
 const isEntryType = <E extends EntryState>(entry: EntryState, type?: EntryTypes<E>): entry is E => {

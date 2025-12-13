@@ -1,4 +1,4 @@
-import type { EntryStates, EntryState } from '@ez4/stateful';
+import { type EntryStates, type EntryState, getEntryDependencies } from '@ez4/stateful';
 
 import { triggerAllSync } from '@ez4/project/library';
 import { isEmptyObject, isNullish } from '@ez4/utils';
@@ -22,6 +22,8 @@ export const getResourcesOutput = (state: EntryStates) => {
       const serviceState = state[identifier];
 
       if (serviceState) {
+        getEntryDependencies(state, serviceState);
+
         const output = handler({ serviceState });
 
         if (!isNullish(output?.value)) {
