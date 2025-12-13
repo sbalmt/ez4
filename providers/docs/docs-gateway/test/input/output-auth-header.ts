@@ -18,7 +18,11 @@ declare class TestAuthorizerRequest implements Http.AuthRequest {
   };
 }
 
-declare class TestAuthorizerResponse implements Http.AuthResponse {}
+declare class TestAuthorizerResponse implements Http.AuthResponse {
+  identity?: {
+    id: string;
+  };
+}
 
 function testAuthorizer(_request: TestAuthorizerRequest): TestAuthorizerResponse {
   return {
