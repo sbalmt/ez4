@@ -3,7 +3,7 @@ import type { Ws } from '@ez4/gateway';
 import type { Identity } from '../authorizers/types';
 import type { AllRequests } from '../types/requests';
 import { MessageType, type EchoMessage } from '../types/messages';
-import type { WsApi } from '../ws';
+import type { WsApi } from '../service';
 
 import { RequestType } from '../types/requests';
 

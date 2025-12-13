@@ -14,9 +14,9 @@ export const prepareLinkedClient = (context: EventContext, service: WsService, o
   const gatewayUrl = getDefinitionName<GatewayState>(gatewayId, 'endpoint');
 
   const clientOptions = JSON.stringify({
+    path: service.stageName ?? Defaults.StageName,
     preferences: service.message.preferences ?? service.defaults?.preferences,
-    messageSchema: service.schema,
-    path: Defaults.StageName
+    messageSchema: service.schema
   });
 
   return {

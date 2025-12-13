@@ -17,6 +17,11 @@ export declare class WsApi extends Ws.Service<AllMessages> {
   name: 'AWS WebSocket';
 
   /**
+   * Optionally redefine default stage name.
+   */
+  stage: 'ez4-websocket';
+
+  /**
    * Define the connection handler.
    */
   connect: Ws.UseConnect<{

@@ -5,7 +5,7 @@ export default {
   prefix: 'ez4',
   debugMode: true,
   projectName: 'gateway-websocket',
-  sourceFiles: ['./src/ws.ts'],
+  sourceFiles: ['./src/service.ts'],
   stateFile: {
     path: 'ez4-deploy'
   },

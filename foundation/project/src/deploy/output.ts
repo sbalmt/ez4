@@ -1,4 +1,4 @@
-import { type EntryStates, type EntryState, getEntryDependencies } from '@ez4/stateful';
+import type { EntryStates, EntryState } from '@ez4/stateful';
 
 import { triggerAllSync } from '@ez4/project/library';
 import { isEmptyObject, isNullish } from '@ez4/utils';
@@ -6,7 +6,8 @@ import { isEmptyObject, isNullish } from '@ez4/utils';
 import { toBold } from '../utils/format';
 
 export type ResourceOutputEvent = {
-  serviceState: EntryState;
+  service: EntryState;
+  state: EntryStates;
 };
 
 export type ResourceOutput = {
@@ -19,12 +20,10 @@ export const getResourcesOutput = (state: EntryStates) => {
 
   triggerAllSync('deploy:resourceOutput', (handler) => {
     for (const identifier in state) {
-      const serviceState = state[identifier];
+      const service = state[identifier];
 
-      if (serviceState) {
-        getEntryDependencies(state, serviceState);
-
-        const output = handler({ serviceState });
+      if (service) {
+        const output = handler({ state, service });
 
         if (!isNullish(output?.value)) {
           outputs[output.label] = output.value;

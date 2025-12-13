@@ -1,6 +1,6 @@
 import type { Environment, Service } from '@ez4/common';
 import type { Queue } from '@ez4/queue';
-import type { WsApi } from '../ws';
+import type { WsApi } from '../service';
 
 import { MessageType } from '../types/messages';
 

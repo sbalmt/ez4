@@ -1,17 +1,21 @@
 import type { ResourceOutputEvent } from '@ez4/project/library';
+import type { StageState } from '../stage/types';
+
+import { getEntryDependents } from '@ez4/stateful';
 
 import { isGatewayState } from '../gateway/utils';
 import { GatewayProtocol } from '../gateway/types';
+import { StageServiceType } from '../stage/types';
 import { Defaults } from './defaults';
 
 export const resourceOutput = (event: ResourceOutputEvent) => {
-  const { serviceState } = event;
+  const { state, service } = event;
 
-  if (!isGatewayState(serviceState)) {
+  if (!isGatewayState(service)) {
     return null;
   }
 
-  const { parameters, result } = serviceState;
+  const { parameters, result } = service;
 
   if (!result) {
     return null;
@@ -21,10 +25,16 @@ export const resourceOutput = (event: ResourceOutputEvent) => {
   const { endpoint } = result;
 
   if (protocol === GatewayProtocol.WebSocket) {
-    return {
-      value: `${endpoint}/${Defaults.StageName}`,
-      label: gatewayName
-    };
+    const [stageState] = getEntryDependents<StageState>(state, service, StageServiceType);
+
+    if (stageState) {
+      const stageName = stageState.parameters.stageName ?? Defaults.StageName;
+
+      return {
+        value: `${endpoint}/${stageName}`,
+        label: gatewayName
+      };
+    }
   }
 
   return {

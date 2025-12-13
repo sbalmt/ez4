@@ -1,7 +1,7 @@
 import type { Service } from '@ez4/common';
 import type { Ws } from '@ez4/gateway';
 import type { Identity } from '../authorizers/types';
-import type { WsApi } from '../ws';
+import type { WsApi } from '../service';
 
 /**
  * Connection event example.
