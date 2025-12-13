@@ -26,7 +26,7 @@ export type CreateResponse = {
   integrationId: string;
 };
 
-export type UpdateRequest = Partial<CreateRequest>;
+export type UpdateRequest = Omit<CreateRequest, 'functionArn'> & Partial<Pick<CreateRequest, 'functionArn'>>;
 
 export const createIntegration = async (apiId: string, request: CreateRequest): Promise<CreateResponse> => {
   const { http, functionArn, vpcId, timeout, description } = request;
@@ -42,8 +42,8 @@ export const createIntegration = async (apiId: string, request: CreateRequest): 
       IntegrationUri: functionArn,
       IntegrationType: 'AWS_PROXY',
       IntegrationMethod: 'POST',
-      ConnectionType: vpcId ? 'VPC_LINK' : 'INTERNET',
       PayloadFormatVersion: http ? '2.0' : undefined,
+      ConnectionType: vpcId ? 'VPC_LINK' : 'INTERNET',
       TimeoutInMillis: (timeout ?? 30) * 1000,
       ConnectionId: vpcId
     })
@@ -55,16 +55,20 @@ export const createIntegration = async (apiId: string, request: CreateRequest): 
 };
 
 export const updateIntegration = async (apiId: string, integrationId: string, request: UpdateRequest) => {
+  const { http, functionArn, vpcId, timeout, description } = request;
+
   Logger.logUpdate(IntegrationServiceName, integrationId);
 
   await client.send(
     new UpdateIntegrationCommand({
       ApiId: apiId,
       IntegrationId: integrationId,
-      Description: request.description,
-      IntegrationUri: request.functionArn,
-      ConnectionType: request.vpcId ? 'VPC_LINK' : 'INTERNET',
-      ConnectionId: request.vpcId
+      Description: description,
+      IntegrationUri: functionArn,
+      PayloadFormatVersion: http ? '2.0' : undefined,
+      ConnectionType: vpcId !== undefined ? (vpcId ? 'VPC_LINK' : 'INTERNET') : undefined,
+      TimeoutInMillis: timeout !== undefined ? (timeout ?? 30) * 1000 : undefined,
+      ConnectionId: vpcId
     })
   );
 };

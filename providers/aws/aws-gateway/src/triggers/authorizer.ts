@@ -104,14 +104,9 @@ export const getAuthorizerFunction = (
       name: authorizer.name,
       headerNames: getIdentitySources(request?.headers),
       queryNames: getIdentitySources(request?.query),
-      ...(isHttpService(service)
-        ? {
-            cacheTTL: service.cache?.authorizerTTL,
-            http: true
-          }
-        : {
-            http: false
-          })
+      ...(isHttpService(service) && {
+        cacheTTL: service.cache?.authorizerTTL
+      })
     })
   );
 };

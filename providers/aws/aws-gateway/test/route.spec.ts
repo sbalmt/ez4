@@ -85,8 +85,7 @@ describe('gateway route', () => {
 
     const integrationResource = createIntegration(localState, gatewayResource, integrationLambdaResource, {
       fromService: integrationLambdaResource.parameters.functionName,
-      description: 'ez4-test-gateway-route-integration',
-      http: true
+      description: 'ez4-test-gateway-route-integration'
     });
 
     const authorizerLambdaResource = createAuthorizerFunction(localState, roleResource, logGroupResource, {
@@ -99,8 +98,7 @@ describe('gateway route', () => {
     });
 
     const authorizerResource = createAuthorizer(localState, gatewayResource, authorizerLambdaResource, {
-      name: 'ez4-test-gateway-route-authorizer',
-      http: true
+      name: 'ez4-test-gateway-route-authorizer'
     });
 
     const resource = createRoute(localState, gatewayResource, integrationResource, authorizerResource, {

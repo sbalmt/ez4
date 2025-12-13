@@ -6,7 +6,6 @@ import type { GatewayState } from '../gateway/types';
 
 import { isRoleState } from '@ez4/aws-identity';
 import { tryGetFunctionState } from '@ez4/aws-function';
-import { isHttpService } from '@ez4/gateway/library';
 import { createLogGroup } from '@ez4/aws-logs';
 
 import { IntegrationFunctionType } from '../integration/function/types';
@@ -146,8 +145,7 @@ const getIntegrationFunction = (
     createIntegration(state, gatewayState, handlerState, {
       fromService: handlerState.parameters.functionName,
       timeout: handlerState.parameters.timeout,
-      description: handler.description,
-      http: isHttpService(service)
+      description: handler.description
     })
   );
 };

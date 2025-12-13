@@ -80,8 +80,7 @@ describe('gateway integration', () => {
 
     const resource = createIntegration(localState, gatewayResource, lambdaResource, {
       fromService: lambdaResource.parameters.functionName,
-      description: 'EZ4: Test integration',
-      http: true
+      description: 'EZ4: Test integration'
     });
 
     integrationId = resource.entryId;

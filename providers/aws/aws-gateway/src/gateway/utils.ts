@@ -45,3 +45,13 @@ export const getGatewayArn = (serviceName: string, resourceId: string, context: 
 
   return resource.apiArn;
 };
+
+export const getGatewayProtocol = (serviceName: string, resourceId: string, context: StepContext) => {
+  const resource = context.getDependencies<GatewayState>(GatewayServiceType).at(0)?.parameters;
+
+  if (!resource?.protocol) {
+    throw new IncompleteResourceError(serviceName, resourceId, 'protocol');
+  }
+
+  return resource.protocol;
+};

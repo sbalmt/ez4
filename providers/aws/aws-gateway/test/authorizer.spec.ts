@@ -78,8 +78,7 @@ describe('gateway authorizer', () => {
 
     const resource = createAuthorizer(localState, gatewayResource, lambdaResource, {
       name: 'ez4-test-authorizer',
-      cacheTTL: 300,
-      http: true
+      cacheTTL: 300
     });
 
     authorizerId = resource.entryId;

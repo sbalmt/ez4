@@ -5,7 +5,8 @@ import { getFunctionArn } from '@ez4/aws-function';
 import { ReplaceResourceError } from '@ez4/aws-common';
 import { deepCompare, deepEqual } from '@ez4/utils';
 
-import { getGatewayId } from '../gateway/utils';
+import { GatewayProtocol } from '../gateway/types';
+import { getGatewayId, getGatewayProtocol } from '../gateway/utils';
 import { createAuthorizer, deleteAuthorizer, updateAuthorizer } from './client';
 import { AuthorizerServiceName } from './types';
 
@@ -42,10 +43,14 @@ const replaceResource = async (candidate: AuthorizerState, current: AuthorizerSt
 const createResource = async (candidate: AuthorizerState, context: StepContext): Promise<AuthorizerResult> => {
   const apiId = getGatewayId(AuthorizerServiceName, 'authorizer', context);
   const functionArn = getFunctionArn(AuthorizerServiceName, 'authorizer', context);
+  const protocol = getGatewayProtocol(AuthorizerServiceName, 'authorizer', context);
+
+  const http = protocol === GatewayProtocol.Http;
 
   const response = await createAuthorizer(apiId, {
     ...candidate.parameters,
-    functionArn
+    functionArn,
+    http
   });
 
   return {
@@ -70,7 +75,9 @@ const updateResource = async (candidate: AuthorizerState, current: AuthorizerSta
   const newRequest = { ...candidate.parameters, functionArn: newFunctionArn };
   const oldRequest = { ...current.parameters, functionArn: oldFunctionArn };
 
-  await checkGeneralUpdates(result.apiId, authorizerId, newRequest, oldRequest);
+  const protocol = getGatewayProtocol(AuthorizerServiceName, 'authorizer', context);
+
+  await checkGeneralUpdates(result.apiId, authorizerId, protocol, newRequest, oldRequest);
 
   return {
     ...result,
@@ -86,10 +93,21 @@ const deleteResource = async (candidate: AuthorizerState) => {
   }
 };
 
-const checkGeneralUpdates = async <T extends AuthorizerParameters>(apiId: string, authorizerId: string, candidate: T, current: T) => {
+const checkGeneralUpdates = async (
+  apiId: string,
+  authorizerId: string,
+  protocol: GatewayProtocol,
+  candidate: AuthorizerParameters,
+  current: AuthorizerParameters
+) => {
   const hasChanges = !deepEqual(candidate, current);
 
   if (hasChanges) {
-    await updateAuthorizer(apiId, authorizerId, candidate);
+    const http = protocol === GatewayProtocol.Http;
+
+    await updateAuthorizer(apiId, authorizerId, {
+      ...candidate,
+      http
+    });
   }
 };
