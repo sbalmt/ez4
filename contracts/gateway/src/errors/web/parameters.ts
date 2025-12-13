@@ -1,4 +1,4 @@
-import { IncorrectTypeError, InvalidTypeError } from '@ez4/common/library';
+import { IncorrectTypeError, InvalidTypeError, TypeError } from '@ez4/common/library';
 
 export class InvalidParameterTypeError extends InvalidTypeError {
   constructor(
@@ -16,5 +16,18 @@ export class IncorrectParameterTypeError extends IncorrectTypeError {
     fileName?: string
   ) {
     super('Incorrect path parameters', parametersType, baseType, fileName);
+  }
+}
+
+export class MismatchParametersTypeError extends TypeError {
+  constructor(
+    public parameterNames: string[],
+    fileName?: string
+  ) {
+    if (parameterNames.length > 1) {
+      super(`Path parameters ${parameterNames} are a mismatch.`, fileName);
+    } else {
+      super(`Path parameter ${parameterNames} is a mismatch.`, fileName);
+    }
   }
 }

@@ -1,5 +1,6 @@
 import type { AllType, EveryType, ModelProperty, SourceMap, TypeModel, TypeObject } from '@ez4/reflection';
 import type { MemberType } from '@ez4/common/library';
+import type { ObjectSchema } from '@ez4/schema';
 import type { Incomplete } from '@ez4/utils';
 import type { HttpRoute } from './types';
 
@@ -22,6 +23,7 @@ import {
 } from '@ez4/common/library';
 
 import { IncompleteRouteError } from '../../errors/http/route';
+import { MismatchParametersTypeError } from '../../errors/web/parameters';
 import { getWebPreferencesMetadata } from '../web/preferences';
 import { getAuthHandlerMetadata } from '../auth/handler';
 import { getFullTypeName } from '../utils/type';
@@ -181,11 +183,34 @@ const getTypeFromMembers = (
     }
   }
 
-  if (isCompleteRoute(route)) {
-    return route;
+  if (!isCompleteRoute(route)) {
+    errorList.push(new IncompleteRouteError([...properties], type.file));
+    return undefined;
   }
 
-  errorList.push(new IncompleteRouteError([...properties], type.file));
+  const mismatchParameters = getMismatchParameters(route.path, route.handler.request?.parameters);
 
-  return undefined;
+  if (mismatchParameters.length) {
+    errorList.push(new MismatchParametersTypeError(mismatchParameters, parent.file));
+    return undefined;
+  }
+
+  return route;
+};
+
+const PARAMETER_NAME_PATTERN = /\{([\w_-]+)\}/g;
+
+const getMismatchParameters = (path: string, parametersSchema: ObjectSchema | undefined) => {
+  const allParameters = path.matchAll(PARAMETER_NAME_PATTERN);
+  const allMismatches = [];
+
+  for (const pathParameter of allParameters) {
+    const [, parameterName] = pathParameter;
+
+    if (!parametersSchema?.properties[parameterName]) {
+      allMismatches.push(parameterName);
+    }
+  }
+
+  return allMismatches;
 };

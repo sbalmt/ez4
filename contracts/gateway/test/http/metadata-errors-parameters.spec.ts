@@ -1,7 +1,12 @@
-import { ok, equal } from 'assert/strict';
+import { ok, deepEqual, equal } from 'assert/strict';
 import { describe, it } from 'node:test';
 
-import { registerTriggers, IncorrectParameterTypeError, InvalidParameterTypeError } from '@ez4/gateway/library';
+import {
+  registerTriggers,
+  IncorrectParameterTypeError,
+  MismatchParametersTypeError,
+  InvalidParameterTypeError
+} from '@ez4/gateway/library';
 
 import { parseFile } from './utils/parser';
 
@@ -21,5 +26,12 @@ describe('http parameters metadata errors', () => {
 
     ok(error1 instanceof InvalidParameterTypeError);
     equal(error1.baseType, 'Http.PathParameters');
+  });
+
+  it('assert :: mismatch path parameters', () => {
+    const [error1] = parseFile('mismatch-parameter', 1);
+
+    ok(error1 instanceof MismatchParametersTypeError);
+    deepEqual(error1.parameterNames, ['path']);
   });
 });
