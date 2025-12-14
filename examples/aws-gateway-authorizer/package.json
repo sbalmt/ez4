@@ -19,9 +19,9 @@
     "output": "ez4 output -e local.env"
   },
   "dependencies": {
-    "@ez4/aws-gateway": "^0.35.0",
-    "@ez4/gateway": "^0.35.0",
-    "@ez4/local-gateway": "^0.35.0",
-    "@ez4/project": "^0.35.0"
+    "@ez4/aws-gateway": "^0.36.0",
+    "@ez4/gateway": "^0.36.0",
+    "@ez4/local-gateway": "^0.36.0",
+    "@ez4/project": "^0.36.0"
   }
 }

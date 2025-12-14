@@ -17,17 +17,17 @@ export const createAllTables = async (connection: ClientConnection, repository: 
 
   const client = getClient(connection);
 
-  const oldRepository = options.force ? {} : await loadRepositoryState(database);
+  const freshCreation = options.force || options.reset;
+
+  const oldRepository = freshCreation ? {} : await loadRepositoryState(database);
 
   const queries = getUpdateQueries(repository, oldRepository);
 
-  const allQueries = [...queries.tables, ...queries.constraints, ...queries.relations, ...queries.indexes];
-
-  await client.transaction(async (transaction: DbClient<Database.Service>) => {
-    for (const query of allQueries) {
-      await runStatement(transaction, query);
-    }
+  await client.transaction((transaction: DbClient<Database.Service>) => {
+    return runAllStatements(transaction, [...queries.tables, ...queries.constraints, ...queries.relations]);
   });
+
+  await runAllStatements(client, queries.indexes);
 
   await saveRepositoryState(database, repository);
 };
@@ -52,6 +52,12 @@ const ensureDatabase = async (connection: ClientConnection) => {
   });
 
   await runStatement(client, query);
+};
+
+const runAllStatements = async (client: DbClient<Database.Service>, statements: PgMigrationStatement[]) => {
+  for (const query of statements) {
+    await runStatement(client, query);
+  }
 };
 
 const runStatement = async (client: DbClient<Database.Service>, statement: PgMigrationStatement) => {

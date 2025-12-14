@@ -1,0 +1,29 @@
+{
+  "@variables": {
+    "name": "@variables",
+    "type": "@ez4/common",
+    "context": {}
+  },
+  "TestService": {
+    "type": "@ez4/http",
+    "name": "TestService",
+    "context": {},
+    "description": "Service for testing route listener.",
+    "routes": [
+      {
+        "path": "ANY /test-route",
+        "listener": {
+          "name": "testListener",
+          "file": "test/http/input/output-listener.ts"
+        },
+        "handler": {
+          "name": "testHandler",
+          "file": "test/http/input/output-listener.ts",
+          "response": {
+            "status": 204
+          }
+        }
+      }
+    ]
+  }
+}

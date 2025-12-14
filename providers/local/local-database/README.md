@@ -1,4 +1,4 @@
-# EZ4: Local Database Provider
+# EZ4: Local Database
 
 A local database emulator.
 

@@ -1,11 +1,21 @@
-import type { HttpRequest } from '@ez4/gateway/library';
-import type { Http } from '@ez4/gateway';
-import type { MatchingRoute } from './route';
+import type { HttpRequest, WsEvent, WsRequest } from '@ez4/gateway/library';
+import type { Http, Ws } from '@ez4/gateway';
 
 import { getHeaders, getIdentity, getPathParameters, getQueryStrings, getRequestBody } from '@ez4/gateway/utils';
 import { isObjectSchema, isScalarSchema } from '@ez4/schema';
 
-export const getIncomingRequestIdentity = async <T extends Http.Identity>(metadata: HttpRequest, identity: T | undefined) => {
+export type IncomingRequest = {
+  preferences?: Http.Preferences | Ws.Preferences;
+  parameters?: Record<string, string>;
+  headers?: Record<string, string>;
+  query?: Record<string, string>;
+  body?: Buffer;
+};
+
+export const getIncomingRequestIdentity = async <T extends Http.Identity>(
+  metadata: HttpRequest | WsRequest | WsEvent,
+  identity: T | undefined
+) => {
   if (!metadata.identity) {
     return undefined;
   }
@@ -15,7 +25,7 @@ export const getIncomingRequestIdentity = async <T extends Http.Identity>(metada
   };
 };
 
-export const getIncomingRequestHeaders = async (metadata: HttpRequest, route: MatchingRoute) => {
+export const getIncomingRequestHeaders = async (metadata: HttpRequest | WsEvent, route: IncomingRequest) => {
   if (!metadata.headers) {
     return undefined;
   }
@@ -25,7 +35,7 @@ export const getIncomingRequestHeaders = async (metadata: HttpRequest, route: Ma
   };
 };
 
-export const getIncomingRequestParameters = async (metadata: HttpRequest, route: MatchingRoute) => {
+export const getIncomingRequestParameters = async (metadata: HttpRequest, route: IncomingRequest) => {
   if (!metadata.parameters) {
     return undefined;
   }
@@ -35,27 +45,27 @@ export const getIncomingRequestParameters = async (metadata: HttpRequest, route:
   };
 };
 
-export const getIncomingRequestQuery = async (metadata: HttpRequest, route: MatchingRoute) => {
+export const getIncomingRequestQuery = async (metadata: HttpRequest | WsEvent, target: IncomingRequest) => {
   if (!metadata.query) {
     return undefined;
   }
 
   return {
-    query: await getQueryStrings(route.query ?? {}, metadata.query, route.preferences)
+    query: await getQueryStrings(target.query ?? {}, metadata.query, target.preferences)
   };
 };
 
-export const getIncomingRequestBody = async (metadata: HttpRequest, route: MatchingRoute) => {
+export const getIncomingRequestBody = async (metadata: HttpRequest | WsEvent, target: IncomingRequest) => {
   if (!metadata.body) {
     return undefined;
   }
 
   const { body } = metadata;
 
-  const data = route.body?.toString();
+  const data = target.body?.toString();
 
   if (isScalarSchema(body) || (isObjectSchema(body) && body.definitions?.encoded)) {
-    const payload = await getRequestBody(data, body, route.preferences);
+    const payload = await getRequestBody(data, body, target.preferences);
 
     return {
       body: payload
@@ -63,7 +73,7 @@ export const getIncomingRequestBody = async (metadata: HttpRequest, route: Match
   }
 
   const content = data && JSON.parse(data);
-  const payload = await getRequestBody(content, body, route.preferences);
+  const payload = await getRequestBody(content, body, target.preferences);
 
   return {
     body: payload

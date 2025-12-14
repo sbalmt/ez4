@@ -9,19 +9,39 @@ export type EmulatorBootstrapHandler = () => unknown;
 
 export type EmulatorShutdownHandler = () => unknown;
 
-export type EmulatorRequestHandler = (
-  request: EmulatorServiceRequest
-) => Promise<EmulatorHandlerResponse | void> | EmulatorHandlerResponse | void;
+export type EmulatorConnectionHandler = (event: EmulatorConnectionEvent) => Promise<void> | void;
 
-export type EmulatorServiceRequest = {
+export type EmulatorMessageHandler = (event: EmulatorMessageEvent) => Promise<Buffer | string | void> | Buffer | string | void;
+
+export type EmulatorRequestHandler = (event: EmulatorRequestEvent) => Promise<EmulatorResponse | void> | EmulatorResponse | void;
+
+export type EmulatorConnectionEvent = {
+  connection: EmulatorConnection;
+  headers: Record<string, string>;
+  query?: Record<string, string>;
+};
+
+export type EmulatorMessageEvent = {
+  connection: EmulatorConnection;
+  body: Buffer;
+};
+
+export type EmulatorRequestEvent = {
   method: string;
   path: string;
-  query: Record<string, string>;
   headers: Record<string, string>;
+  query: Record<string, string>;
   body?: Buffer;
 };
 
-export type EmulatorHandlerResponse = {
+export type EmulatorConnection = {
+  readonly id: string;
+  readonly live: boolean;
+  write: (data: Buffer | string) => void;
+  close(): void;
+};
+
+export type EmulatorResponse = {
   status: number;
   headers?: Record<string, string>;
   body?: Buffer | string;
@@ -35,15 +55,18 @@ export type ServiceEmulator = {
   prepareHandler?: EmulatorPrepareHandler;
   bootstrapHandler?: EmulatorBootstrapHandler;
   shutdownHandler?: EmulatorShutdownHandler;
+  connectHandler?: EmulatorConnectionHandler;
+  disconnectHandler?: EmulatorConnectionHandler;
+  messageHandler?: EmulatorMessageHandler;
   requestHandler?: EmulatorRequestHandler;
 };
 
-export type ServiceEmulatorClients = Record<string, unknown>;
+export type EmulatorServiceClients = Record<string, unknown>;
 
-export type LinkedServiceEmulators = Record<string, string>;
+export type EmulatorLinkedServices = Record<string, string>;
 
 export type EmulateServiceContext = {
-  makeClients: (linkedServices: LinkedServiceEmulators) => ServiceEmulatorClients;
+  makeClients: (linkedServices: EmulatorLinkedServices) => EmulatorServiceClients;
   makeClient: (serviceName: string) => unknown;
 };
 

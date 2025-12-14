@@ -9,7 +9,7 @@ import {
   NotFoundException
 } from '@aws-sdk/client-apigatewayv2';
 
-import { Logger } from '@ez4/aws-common';
+import { Logger, waitUpdates } from '@ez4/aws-common';
 
 import { AuthorizerServiceName } from './types';
 import { getAuthorizerUri } from './utils';
@@ -22,29 +22,36 @@ export type CreateRequest = {
   headerNames?: string[];
   queryNames?: string[];
   cacheTTL?: number;
+  http: boolean;
 };
 
 export type CreateResponse = {
   authorizerId: string;
 };
 
-export type UpdateRequest = Partial<CreateRequest>;
+export type UpdateRequest = Omit<CreateRequest, 'functionArn'> & Partial<Pick<CreateRequest, 'functionArn'>>;
 
 export const createAuthorizer = async (apiId: string, request: CreateRequest): Promise<CreateResponse> => {
-  Logger.logCreate(AuthorizerServiceName, request.name);
+  const { name, http, functionArn, headerNames, queryNames, cacheTTL } = request;
 
-  const { functionArn, headerNames, queryNames, cacheTTL } = request;
+  Logger.logCreate(AuthorizerServiceName, name);
 
   const response = await client.send(
     new CreateAuthorizerCommand({
       ApiId: apiId,
       Name: request.name,
-      IdentitySource: getIdentitySources({ headerNames, queryNames }),
       AuthorizerUri: await getAuthorizerUri(functionArn),
+      AuthorizerPayloadFormatVersion: http ? '2.0' : undefined,
       AuthorizerType: AuthorizerType.REQUEST,
-      AuthorizerPayloadFormatVersion: '2.0',
       AuthorizerResultTtlInSeconds: cacheTTL,
-      EnableSimpleResponses: true
+      ...(http && {
+        EnableSimpleResponses: false
+      }),
+      IdentitySource: getIdentitySources({
+        headerNames,
+        queryNames,
+        http
+      })
     })
   );
 
@@ -54,22 +61,31 @@ export const createAuthorizer = async (apiId: string, request: CreateRequest): P
 };
 
 export const updateAuthorizer = async (apiId: string, authorizerId: string, request: UpdateRequest) => {
-  Logger.logUpdate(AuthorizerServiceName, request.name ?? authorizerId);
+  const { name, http, functionArn, headerNames, queryNames, cacheTTL } = request;
 
-  const { functionArn, headerNames, queryNames, cacheTTL } = request;
+  Logger.logUpdate(AuthorizerServiceName, name ?? authorizerId);
 
-  await client.send(
-    new UpdateAuthorizerCommand({
-      ApiId: apiId,
-      Name: request.name,
-      AuthorizerId: authorizerId,
-      IdentitySource: getIdentitySources({ headerNames, queryNames }),
-      AuthorizerResultTtlInSeconds: cacheTTL,
-      ...(functionArn && {
-        AuthorizerUri: await getAuthorizerUri(functionArn)
+  await waitUpdates(async () => {
+    return client.send(
+      new UpdateAuthorizerCommand({
+        ApiId: apiId,
+        Name: request.name,
+        AuthorizerId: authorizerId,
+        AuthorizerResultTtlInSeconds: cacheTTL,
+        ...(functionArn && {
+          AuthorizerUri: await getAuthorizerUri(functionArn)
+        }),
+        ...(http && {
+          EnableSimpleResponses: false
+        }),
+        IdentitySource: getIdentitySources({
+          headerNames,
+          queryNames,
+          http
+        })
       })
-    })
-  );
+    );
+  });
 };
 
 export const deleteAuthorizer = async (apiId: string, authorizerId: string) => {
@@ -93,22 +109,30 @@ export const deleteAuthorizer = async (apiId: string, authorizerId: string) => {
   }
 };
 
-const getIdentitySources = (request: Pick<CreateRequest, 'headerNames' | 'queryNames'>) => {
-  const { headerNames, queryNames } = request;
+const getIdentitySources = (request: Pick<CreateRequest, 'headerNames' | 'queryNames' | 'http'>) => {
+  const { headerNames, queryNames, http } = request;
 
   const identitySources = new Set<string>();
 
   if (headerNames) {
-    headerNames.forEach((name) => identitySources.add(`$request.header.${name}`));
+    headerNames.forEach((name) => identitySources.add(getHeaderPath(name, http)));
   }
 
   if (queryNames) {
-    queryNames.forEach((name) => identitySources.add(`$request.querystring.${name}`));
+    queryNames.forEach((name) => identitySources.add(getQueryPath(name, http)));
   }
 
   if (identitySources.size > 0) {
     return [...identitySources.values()];
   }
 
-  return ['$request.header.Authorization'];
+  return [getHeaderPath('Authorization', http)];
+};
+
+const getQueryPath = (name: string, http: boolean) => {
+  return http ? `$request.querystring.${name}` : `route.request.querystring.${name}`;
+};
+
+const getHeaderPath = (name: string, http: boolean) => {
+  return http ? `$request.header.${name}` : `header.${name}`;
 };

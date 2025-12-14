@@ -1,0 +1,25 @@
+{
+  "@variables": {
+    "name": "@variables",
+    "type": "@ez4/common",
+    "context": {}
+  },
+  "TestService": {
+    "type": "@ez4/http",
+    "name": "TestService",
+    "context": {},
+    "routes": [],
+    "defaults": {
+      "listener": {
+        "name": "testListener",
+        "file": "test/http/input/output-defaults.ts"
+      },
+      "httpErrors": {
+        "CustomError": 400
+      },
+      "logRetention": 14,
+      "timeout": 15,
+      "memory": 192
+    }
+  }
+}

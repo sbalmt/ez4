@@ -1,15 +1,25 @@
-import type { APIGatewayRequestAuthorizerEventV2, APIGatewaySimpleAuthorizerWithContextResult, Context } from 'aws-lambda';
 import type { HttpPreferences } from '@ez4/gateway/library';
 import type { ObjectSchema } from '@ez4/schema';
-import type { Http } from '@ez4/gateway';
+import type { Http, Ws } from '@ez4/gateway';
+
+import type {
+  APIGatewayAuthorizerWithContextResult,
+  APIGatewayRequestAuthorizerEventV2,
+  APIGatewayRequestAuthorizerEvent,
+  Context
+} from 'aws-lambda';
 
 import * as GatewayUtils from '@ez4/gateway/utils';
 
 import { HttpForbiddenError, HttpUnauthorizedError } from '@ez4/gateway';
 import { ServiceEventType } from '@ez4/common';
+import { AnyObject } from '@ez4/utils';
 
-type ResponseEvent = APIGatewaySimpleAuthorizerWithContextResult<any>;
-type RequestEvent = APIGatewayRequestAuthorizerEventV2;
+type IncomingRequest = Http.Incoming<Http.AuthRequest> | Ws.Incoming<Ws.AuthRequest>;
+type ServiceEvent = Http.ServiceEvent<Http.AuthRequest> | Ws.ServiceEvent<Ws.AuthRequest>;
+
+type ResponseEvent = APIGatewayAuthorizerWithContextResult<any>;
+type RequestEvent = APIGatewayRequestAuthorizerEvent & APIGatewayRequestAuthorizerEventV2;
 
 declare const __EZ4_HEADERS_SCHEMA: ObjectSchema | null;
 declare const __EZ4_PARAMETERS_SCHEMA: ObjectSchema | null;
@@ -17,8 +27,8 @@ declare const __EZ4_QUERY_SCHEMA: ObjectSchema | null;
 declare const __EZ4_PREFERENCES: HttpPreferences;
 declare const __EZ4_CONTEXT: object;
 
-declare function handle(request: Http.Incoming<Http.AuthRequest>, context: object): Promise<Http.AuthResponse>;
-declare function dispatch(event: Http.ServiceEvent<Http.AuthRequest>, context: object): Promise<void>;
+declare function handle(request: IncomingRequest, context: object): Promise<Http.AuthResponse>;
+declare function dispatch(event: ServiceEvent, context: object): Promise<void>;
 
 /**
  * Entrypoint to handle API Gateway authorizations.
@@ -26,11 +36,13 @@ declare function dispatch(event: Http.ServiceEvent<Http.AuthRequest>, context: o
 export async function apiEntryPoint(event: RequestEvent, context: Context): Promise<ResponseEvent> {
   const { requestContext } = event;
 
+  const resourceArn = event.methodArn ?? event.routeArn;
+
   const request: Http.Incoming<Http.AuthRequest> = {
-    requestId: context.awsRequestId,
     timestamp: new Date(requestContext.timeEpoch),
-    method: requestContext.http.method,
-    path: requestContext.http.path
+    requestId: context.awsRequestId,
+    method: requestContext.http?.method,
+    path: requestContext.http?.path
   };
 
   try {
@@ -44,17 +56,16 @@ export async function apiEntryPoint(event: RequestEvent, context: Context): Prom
 
     await onDone(request);
 
-    return {
-      isAuthorized: !!identity,
-      context: {
-        identity: JSON.stringify(identity ?? {})
-      }
-    };
+    return getAuthorizationResponse(!!identity, resourceArn, {
+      identity: JSON.stringify(identity ?? {})
+    });
+
+    //
   } catch (error) {
     await onError(error, request);
 
     if (error instanceof HttpForbiddenError) {
-      return { isAuthorized: false, context: undefined };
+      return getAuthorizationResponse(false, resourceArn);
     }
 
     if (error instanceof HttpUnauthorizedError) {
@@ -67,6 +78,23 @@ export async function apiEntryPoint(event: RequestEvent, context: Context): Prom
     await onEnd(request);
   }
 }
+
+const getAuthorizationResponse = (authorized: boolean, resourceArn: string, context?: AnyObject): ResponseEvent => {
+  return {
+    context,
+    principalId: 'me',
+    policyDocument: {
+      Version: '2012-10-17',
+      Statement: [
+        {
+          Action: 'execute-api:Invoke',
+          Effect: authorized ? 'Allow' : 'Deny',
+          Resource: resourceArn
+        }
+      ]
+    }
+  };
+};
 
 const getIncomingRequest = async (event: RequestEvent) => {
   return {
@@ -100,7 +128,7 @@ const getIncomingRequestQuery = (event: RequestEvent) => {
   return undefined;
 };
 
-const onBegin = async (request: Http.Incoming<Http.AuthRequest>) => {
+const onBegin = async (request: IncomingRequest) => {
   return dispatch(
     {
       type: ServiceEventType.Begin,
@@ -110,7 +138,7 @@ const onBegin = async (request: Http.Incoming<Http.AuthRequest>) => {
   );
 };
 
-const onReady = async (request: Http.Incoming<Http.AuthRequest>) => {
+const onReady = async (request: IncomingRequest) => {
   return dispatch(
     {
       type: ServiceEventType.Ready,
@@ -120,7 +148,7 @@ const onReady = async (request: Http.Incoming<Http.AuthRequest>) => {
   );
 };
 
-const onDone = async (request: Http.Incoming<Http.AuthRequest>) => {
+const onDone = async (request: IncomingRequest) => {
   return dispatch(
     {
       type: ServiceEventType.Done,
@@ -130,7 +158,7 @@ const onDone = async (request: Http.Incoming<Http.AuthRequest>) => {
   );
 };
 
-const onError = async (error: unknown, request: Http.Incoming<Http.AuthRequest>) => {
+const onError = async (error: unknown, request: IncomingRequest) => {
   console.error(error);
 
   return dispatch(
@@ -143,7 +171,7 @@ const onError = async (error: unknown, request: Http.Incoming<Http.AuthRequest>)
   );
 };
 
-const onEnd = async (request: Http.Incoming<Http.AuthRequest>) => {
+const onEnd = async (request: IncomingRequest) => {
   return dispatch(
     {
       type: ServiceEventType.End,

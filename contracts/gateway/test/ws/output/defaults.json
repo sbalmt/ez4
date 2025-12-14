@@ -1,0 +1,48 @@
+{
+  "@variables": {
+    "type": "@ez4/common",
+    "name": "@variables",
+    "context": {}
+  },
+  "TestService": {
+    "type": "@ez4/ws",
+    "name": "TestService",
+    "displayName": "Test Service",
+    "context": {},
+    "defaults": {
+      "listener": {
+        "name": "testListener",
+        "file": "test/ws/input/output-defaults.ts"
+      },
+      "logRetention": 14,
+      "timeout": 15,
+      "memory": 192,
+      "preferences": {
+        "namingStyle": "camel"
+      }
+    },
+    "schema": {
+      "type": "object",
+      "identity": 1,
+      "properties": {}
+    },
+    "connect": {
+      "handler": {
+        "name": "connectHandler",
+        "file": "test/ws/input/output-defaults.ts"
+      }
+    },
+    "disconnect": {
+      "handler": {
+        "name": "disconnectHandler",
+        "file": "test/ws/input/output-defaults.ts"
+      }
+    },
+    "message": {
+      "handler": {
+        "name": "messageHandler",
+        "file": "test/ws/input/output-defaults.ts"
+      }
+    }
+  }
+}

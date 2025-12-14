@@ -1,4 +1,4 @@
-# EZ4: Local Gateway Provider
+# EZ4: Local Gateway
 
 A local gateway emulator.
 

@@ -1,3 +1,4 @@
+import type { ProtocolType } from '@aws-sdk/client-apigatewayv2';
 import type { Arn, ResourceTags } from '@ez4/aws-common';
 import type { Http } from '@ez4/gateway';
 
@@ -15,27 +16,37 @@ import {
 
 import { Logger, tryParseArn } from '@ez4/aws-common';
 
-import { GatewayServiceName } from './types';
+import { GatewayProtocol, GatewayServiceName } from './types';
 
 const client = new ApiGatewayV2Client({});
 
-export type CreateRequest = {
-  gatewayName: string;
+const PROTOCOL_MAP: Record<GatewayProtocol, ProtocolType> = {
+  [GatewayProtocol.WebSocket]: 'WEBSOCKET',
+  [GatewayProtocol.Http]: 'HTTP'
+};
+
+export type UpdateRequest = Partial<CreateRequest>;
+
+export type CreateRequest = (CreateHttpOptions | CreateWebSocketOptions) & {
   description?: string;
-  cors?: Http.Cors;
+  gatewayName: string;
   tags?: ResourceTags;
+};
+
+export type CreateHttpOptions = {
+  protocol: GatewayProtocol.Http;
+  cors?: Http.Cors;
+};
+
+export type CreateWebSocketOptions = {
+  protocol: GatewayProtocol.WebSocket;
+  routeKey: string;
 };
 
 export type CreateResponse = {
   apiId: string;
   apiArn: Arn;
   endpoint?: string;
-};
-
-export type UpdateRequest = {
-  gatewayName?: string;
-  description?: string;
-  cors?: Http.Cors;
 };
 
 export const fetchGateway = async (gatewayName: string) => {
@@ -59,7 +70,7 @@ export const fetchGateway = async (gatewayName: string) => {
 export const createGateway = async (request: CreateRequest): Promise<CreateResponse> => {
   Logger.logCreate(GatewayServiceName, request.gatewayName);
 
-  const { gatewayName, description, cors, tags } = request;
+  const { gatewayName, description, protocol, tags } = request;
 
   const [region, response] = await Promise.all([
     client.config.region(),
@@ -67,17 +78,21 @@ export const createGateway = async (request: CreateRequest): Promise<CreateRespo
       new CreateApiCommand({
         Name: gatewayName,
         Description: description,
-        ProtocolType: 'HTTP',
-        ...(cors && {
-          CorsConfiguration: {
-            AllowOrigins: cors.allowOrigins,
-            AllowMethods: cors.allowMethods,
-            AllowCredentials: cors.allowCredentials,
-            ExposeHeaders: cors.exposeHeaders,
-            AllowHeaders: cors.allowHeaders,
-            MaxAge: cors.maxAge
-          }
-        }),
+        ProtocolType: PROTOCOL_MAP[protocol],
+        ...(protocol === GatewayProtocol.WebSocket
+          ? {
+              RouteSelectionExpression: `$request.body.${request.routeKey}`
+            }
+          : request.cors && {
+              CorsConfiguration: {
+                AllowOrigins: request.cors.allowOrigins,
+                AllowMethods: request.cors.allowMethods,
+                AllowCredentials: request.cors.allowCredentials,
+                ExposeHeaders: request.cors.exposeHeaders,
+                AllowHeaders: request.cors.allowHeaders,
+                MaxAge: request.cors.maxAge
+              }
+            }),
         Tags: {
           ...tags,
           ManagedBy: 'EZ4'
@@ -96,23 +111,28 @@ export const createGateway = async (request: CreateRequest): Promise<CreateRespo
 export const updateGateway = async (apiId: string, request: UpdateRequest) => {
   Logger.logUpdate(GatewayServiceName, apiId);
 
-  const { gatewayName, description, cors } = request;
+  const { gatewayName, description, protocol } = request;
 
   await client.send(
     new UpdateApiCommand({
       ApiId: apiId,
       Name: gatewayName,
       Description: description,
-      ...(cors && {
-        CorsConfiguration: {
-          AllowOrigins: cors.allowOrigins,
-          AllowMethods: cors.allowMethods,
-          AllowCredentials: cors.allowCredentials,
-          ExposeHeaders: cors.exposeHeaders,
-          AllowHeaders: cors.allowHeaders,
-          MaxAge: cors.maxAge
-        }
-      })
+      ...(protocol === GatewayProtocol.WebSocket &&
+        request.routeKey && {
+          RouteSelectionExpression: `$request.body.${request.routeKey}`
+        }),
+      ...(protocol === GatewayProtocol.Http &&
+        request.cors && {
+          CorsConfiguration: {
+            AllowOrigins: request.cors.allowOrigins,
+            AllowMethods: request.cors.allowMethods,
+            AllowCredentials: request.cors.allowCredentials,
+            ExposeHeaders: request.cors.exposeHeaders,
+            AllowHeaders: request.cors.allowHeaders,
+            MaxAge: request.cors.maxAge
+          }
+        })
     })
   );
 };

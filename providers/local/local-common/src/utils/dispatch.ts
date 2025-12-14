@@ -1,10 +1,10 @@
-import type { ServiceEmulatorClients } from '@ez4/project/library';
+import type { EmulatorServiceClients } from '@ez4/project/library';
 import type { VirtualModule } from '../emulators/module';
 
 import { ServiceEventType } from '@ez4/common';
 import { logErrorDetails } from './logger';
 
-export const onBegin = (module: VirtualModule, context: ServiceEmulatorClients | null | undefined, request: unknown) => {
+export const onBegin = (module: VirtualModule, context: EmulatorServiceClients | null | undefined, request: unknown) => {
   return module.listener?.(
     {
       type: ServiceEventType.Begin,
@@ -14,7 +14,7 @@ export const onBegin = (module: VirtualModule, context: ServiceEmulatorClients |
   );
 };
 
-export const onReady = (module: VirtualModule, context: ServiceEmulatorClients | null | undefined, request: unknown) => {
+export const onReady = (module: VirtualModule, context: EmulatorServiceClients | null | undefined, request: unknown) => {
   return module.listener?.(
     {
       type: ServiceEventType.Ready,
@@ -24,7 +24,7 @@ export const onReady = (module: VirtualModule, context: ServiceEmulatorClients |
   );
 };
 
-export const onDone = (module: VirtualModule, context: ServiceEmulatorClients | null | undefined, request: unknown) => {
+export const onDone = (module: VirtualModule, context: EmulatorServiceClients | null | undefined, request: unknown) => {
   return module.listener?.(
     {
       type: ServiceEventType.Done,
@@ -34,7 +34,7 @@ export const onDone = (module: VirtualModule, context: ServiceEmulatorClients | 
   );
 };
 
-export const onError = (module: VirtualModule, context: ServiceEmulatorClients | null | undefined, request: unknown, error: unknown) => {
+export const onError = (module: VirtualModule, context: EmulatorServiceClients | null | undefined, request: unknown, error: unknown) => {
   logErrorDetails(error);
 
   return module.listener?.(
@@ -47,7 +47,7 @@ export const onError = (module: VirtualModule, context: ServiceEmulatorClients |
   );
 };
 
-export const onEnd = (module: VirtualModule, context: ServiceEmulatorClients | null | undefined, request: unknown) => {
+export const onEnd = (module: VirtualModule, context: EmulatorServiceClients | null | undefined, request: unknown) => {
   return module.listener?.(
     {
       type: ServiceEventType.End,

@@ -1,4 +1,4 @@
-import type { EmulatorServiceRequest, ServeOptions } from '@ez4/project/library';
+import type { EmulatorRequestEvent, ServeOptions } from '@ez4/project/library';
 import type { QueueImport } from '@ez4/queue/library';
 import type { RemoteClientOptions } from '../client/remote';
 
@@ -25,13 +25,13 @@ export const registerRemoteServices = (service: QueueImport, options: ServeOptio
     exportHandler: () => {
       return createRemoteClient(referenceName, messageSchema, clientOptions);
     },
-    requestHandler: (request: EmulatorServiceRequest) => {
+    requestHandler: (request: EmulatorRequestEvent) => {
       return handleQueueForward(service, clientOptions, request);
     }
   };
 };
 
-const handleQueueForward = async (service: QueueImport, options: RemoteClientOptions, request: EmulatorServiceRequest) => {
+const handleQueueForward = async (service: QueueImport, options: RemoteClientOptions, request: EmulatorRequestEvent) => {
   const { reference: referenceName, schema: messageSchema } = service;
 
   const client = createRemoteClient(referenceName, messageSchema, options);

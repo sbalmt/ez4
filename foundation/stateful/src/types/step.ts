@@ -42,6 +42,15 @@ export type StepContext = {
   getDependencies: <E extends EntryState>(type?: E['type']) => E[];
 
   /**
+   * Get all dependents from the current step entry, if a `type` is given
+   * the resulting list is filtered by entry type.
+   *
+   * @param type Optional filter type.
+   * @returns Returns a list containing all matching entry dependents.
+   */
+  getDependents: <E extends EntryState>(type?: E['type']) => E[];
+
+  /**
    * Get all connections from the current step entry, if a `type` is given
    * the resulting list is filtered by entry type.
    *

@@ -1,0 +1,95 @@
+{
+  "@variables": {
+    "type": "@ez4/common",
+    "name": "@variables",
+    "context": {}
+  },
+  "TestService": {
+    "type": "@ez4/ws",
+    "name": "TestService",
+    "context": {},
+    "schema": {
+      "type": "object",
+      "identity": 1,
+      "properties": {}
+    },
+    "connect": {
+      "handler": {
+        "name": "connectHandler",
+        "file": "test/ws/input/output-authorizer.ts",
+        "request": {
+          "identity": {
+            "type": "object",
+            "description": "Expected identity.",
+            "identity": 1,
+            "properties": {
+              "id": {
+                "type": "string"
+              }
+            }
+          }
+        }
+      },
+      "authorizer": {
+        "name": "authorizerHandler",
+        "file": "test/ws/input/output-authorizer.ts",
+        "request": {
+          "query": {
+            "type": "object",
+            "description": "Expected HTTP query strings.",
+            "identity": 1,
+            "properties": {
+              "apiKey": {
+                "type": "string"
+              }
+            }
+          }
+        },
+        "response": {
+          "identity": {
+            "type": "object",
+            "description": "Authorization identity.",
+            "identity": 1,
+            "properties": {
+              "id": {
+                "type": "string"
+              }
+            }
+          }
+        }
+      }
+    },
+    "disconnect": {
+      "handler": {
+        "name": "disconnectHandler",
+        "file": "test/ws/input/output-authorizer.ts",
+        "request": {
+          "identity": {
+            "type": "object",
+            "description": "Expected identity.",
+            "identity": 1,
+            "properties": {
+              "id": {
+                "type": "string"
+              }
+            }
+          }
+        }
+      }
+    },
+    "message": {
+      "handler": {
+        "name": "messageHandler",
+        "file": "test/ws/input/output-authorizer.ts",
+        "request": {
+          "body": {
+            "type": "object",
+            "description": "Expected event body.",
+            "identity": 1,
+            "properties": {}
+          }
+        }
+      }
+    }
+  }
+}

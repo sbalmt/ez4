@@ -1,8 +1,8 @@
-import type { EmulateServiceContext, EmulatorServiceRequest, ServeOptions } from '@ez4/project/library';
+import type { EmulateServiceContext, EmulatorRequestEvent, ServeOptions } from '@ez4/project/library';
 import type { TopicImport, TopicService } from '@ez4/topic/library';
 import type { AnyObject } from '@ez4/utils';
 
-import { getResponseError, getResponseSuccess } from '@ez4/local-common';
+import { getErrorResponse, getSuccessResponse } from '@ez4/local-common';
 import { getJsonMessage, MalformedMessageError } from '@ez4/topic/utils';
 import { TopicSubscriptionType } from '@ez4/topic/library';
 import { getServiceName } from '@ez4/project/library';
@@ -31,7 +31,7 @@ export const registerLocalServices = (service: TopicService, options: ServeOptio
     exportHandler: () => {
       return createLocalClient(serviceName, messageSchema, clientOptions);
     },
-    requestHandler: (request: EmulatorServiceRequest) => {
+    requestHandler: (request: EmulatorRequestEvent) => {
       return handleTopicRequest(service, options, context, request);
     }
   };
@@ -41,7 +41,7 @@ const handleTopicRequest = async (
   service: TopicService,
   options: ServeOptions,
   context: EmulateServiceContext,
-  request: EmulatorServiceRequest
+  request: EmulatorRequestEvent
 ) => {
   const { method, path, body } = request;
 
@@ -71,14 +71,14 @@ const handleMessageRequest = async (service: TopicService, options: ServeOptions
 
     await handleTopicMessage(service, options, context, safeMessage);
 
-    return getResponseSuccess(201);
+    return getSuccessResponse(201);
     //
   } catch (error) {
     if (!(error instanceof MalformedMessageError)) {
       throw error;
     }
 
-    return getResponseError(400, {
+    return getErrorResponse(400, {
       message: error.message,
       details: error.details
     });
@@ -93,7 +93,7 @@ const handleSubscribeRequest = (service: TopicService, body: string) => {
     serviceHost
   });
 
-  return getResponseSuccess(204);
+  return getSuccessResponse(204);
 };
 
 const handleUnsubscribeRequest = (service: TopicService, body: string) => {
@@ -101,7 +101,7 @@ const handleUnsubscribeRequest = (service: TopicService, body: string) => {
 
   InMemoryTopic.deleteSubscription(service.name, serviceName);
 
-  return getResponseSuccess(204);
+  return getSuccessResponse(204);
 };
 
 const handleTopicMessage = async (

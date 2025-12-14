@@ -6,17 +6,17 @@ import type { QueueMessage, QueueSubscriptionListener, QueueSubscriptionHandler 
  */
 export interface QueueSubscription<T extends QueueMessage> {
   /**
-   * Subscription listener.
+   * Life-cycle listener function for the subscription.
    */
   readonly listener?: QueueSubscriptionListener<T>;
 
   /**
-   * Subscription handler.
+   * Entry-point handler function for the subscription.
    */
   readonly handler: QueueSubscriptionHandler<T>;
 
   /**
-   * Maximum number of concurrent lambda handlers.
+   * Maximum number of concurrent executions handlers.
    */
   readonly concurrency?: number;
 
@@ -36,7 +36,7 @@ export interface QueueSubscription<T extends QueueMessage> {
   readonly logRetention?: number;
 
   /**
-   * Amount of memory available for the handler.
+   * Amount of memory available (in megabytes) for the handler.
    */
   readonly memory?: number;
 }

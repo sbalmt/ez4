@@ -1,0 +1,118 @@
+{
+  "@variables": {
+    "name": "@variables",
+    "type": "@ez4/common",
+    "context": {}
+  },
+  "TestService": {
+    "type": "@ez4/http",
+    "name": "TestService",
+    "context": {},
+    "routes": [
+      {
+        "path": "ANY /test-route-a",
+        "handler": {
+          "name": "testRouteA",
+          "file": "test/http/input/output-response.ts",
+          "response": {
+            "status": 204,
+            "body": {
+              "type": "object",
+              "description": "HTTP body payload.",
+              "identity": 1,
+              "properties": {
+                "foo": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        }
+      },
+      {
+        "path": "ANY /test-route-b",
+        "handler": {
+          "name": "testRouteB",
+          "file": "test/http/input/output-response.ts",
+          "response": {
+            "status": 204,
+            "body": {
+              "type": "union",
+              "description": "HTTP body payload.",
+              "elements": [
+                {
+                  "type": "boolean"
+                },
+                {
+                  "type": "string"
+                }
+              ]
+            }
+          }
+        }
+      },
+      {
+        "path": "ANY /test-route-c",
+        "handler": {
+          "name": "testRouteC",
+          "file": "test/http/input/output-response.ts",
+          "response": {
+            "status": 204,
+            "body": {
+              "type": "number"
+            }
+          }
+        }
+      },
+      {
+        "path": "ANY /test-route-d",
+        "preferences": {
+          "namingStyle": "snake"
+        },
+        "handler": {
+          "name": "testRouteD",
+          "file": "test/http/input/output-response.ts",
+          "response": {
+            "status": 204,
+            "body": {
+              "type": "object",
+              "description": "HTTP body payload.",
+              "identity": 1,
+              "properties": {
+                "barBaz": {
+                  "type": "number"
+                },
+                "fooBar": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        }
+      },
+      {
+        "path": "ANY /test-route-e",
+        "handler": {
+          "name": "testRouteE",
+          "file": "test/http/input/output-response.ts",
+          "response": {
+            "status": [
+              200,
+              204
+            ]
+          }
+        }
+      },
+      {
+        "path": "ANY /test-route-f",
+        "handler": {
+          "name": "testRouteF",
+          "file": "test/http/input/output-response.ts",
+          "response": {
+            "status": 204
+          }
+        }
+      }
+    ]
+  }
+}

@@ -4,7 +4,15 @@ import { describe, it } from 'node:test';
 import { ok, equal } from 'node:assert/strict';
 import { join } from 'node:path';
 
-import { createGateway, createIntegration, createIntegrationFunction, isIntegrationState, registerTriggers } from '@ez4/aws-gateway';
+import {
+  createGateway,
+  createIntegration,
+  createIntegrationFunction,
+  isIntegrationState,
+  registerTriggers,
+  IntegrationFunctionType,
+  GatewayProtocol
+} from '@ez4/aws-gateway';
 
 import { deploy } from '@ez4/aws-common';
 import { createLogGroup } from '@ez4/aws-logs';
@@ -46,7 +54,8 @@ describe('gateway integration', () => {
 
     const gatewayResource = createGateway(localState, {
       gatewayId: 'ez4-test-gateway-integration',
-      gatewayName: 'EZ4: Test gateway for integrations'
+      gatewayName: 'EZ4: Test gateway for integrations',
+      protocol: GatewayProtocol.Http
     });
 
     const roleResource = createRole(localState, [], {
@@ -61,6 +70,7 @@ describe('gateway integration', () => {
 
     const lambdaResource = createIntegrationFunction(localState, roleResource, logGroupResource, {
       functionName: 'ez4-test-gateway-integration-lambda',
+      type: IntegrationFunctionType.HttpRequest,
       handler: {
         sourceFile: join(baseDir, 'lambda.js'),
         functionName: 'main',

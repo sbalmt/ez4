@@ -12,7 +12,9 @@ import {
   createAuthorizerFunction,
   createRoute,
   isRouteState,
-  registerTriggers
+  registerTriggers,
+  IntegrationFunctionType,
+  GatewayProtocol
 } from '@ez4/aws-gateway';
 
 import { deploy } from '@ez4/aws-common';
@@ -57,7 +59,8 @@ describe('gateway route', () => {
 
     const gatewayResource = createGateway(localState, {
       gatewayId: 'ez4-test-gateway-route',
-      gatewayName: 'EZ4: Test gateway for routes'
+      gatewayName: 'EZ4: Test gateway for routes',
+      protocol: GatewayProtocol.Http
     });
 
     const roleResource = createRole(localState, [], {
@@ -72,6 +75,7 @@ describe('gateway route', () => {
 
     const integrationLambdaResource = createIntegrationFunction(localState, roleResource, logGroupResource, {
       functionName: 'ez4-test-gateway-route-integration-lambda',
+      type: IntegrationFunctionType.HttpRequest,
       handler: {
         sourceFile: join(baseDir, 'lambda.js'),
         functionName: 'main',

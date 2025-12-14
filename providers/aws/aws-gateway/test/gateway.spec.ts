@@ -3,7 +3,7 @@ import type { EntryState, EntryStates } from '@ez4/stateful';
 import { describe, it } from 'node:test';
 import { ok, equal } from 'node:assert/strict';
 
-import { createGateway, isGatewayState, registerTriggers } from '@ez4/aws-gateway';
+import { createGateway, GatewayProtocol, isGatewayState, registerTriggers } from '@ez4/aws-gateway';
 import { deploy } from '@ez4/aws-common';
 import { deepClone } from '@ez4/utils';
 
@@ -40,6 +40,7 @@ describe('gateway', () => {
       gatewayId: 'ez4-test-gateway',
       gatewayName: 'EZ4: Test gateway',
       description: 'EZ4: Test gateway description',
+      protocol: GatewayProtocol.Http,
       cors: {
         allowOrigins: ['*'],
         allowHeaders: ['x-custom-header']
@@ -84,7 +85,10 @@ describe('gateway', () => {
 
     resource.parameters.gatewayName = 'EZ4: New gateway name';
     resource.parameters.description = 'EZ4: New gateway description';
-    resource.parameters.cors = undefined;
+
+    if (resource.parameters.protocol === GatewayProtocol.Http) {
+      resource.parameters.cors = undefined;
+    }
 
     const { state } = await assertDeploy(gatewayId, localState, lastState);
 

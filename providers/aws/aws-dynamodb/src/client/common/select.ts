@@ -1,4 +1,5 @@
 import type { AnyObject } from '@ez4/utils';
+import type { ObjectSchema } from '@ez4/schema';
 import type { Query } from '@ez4/database';
 import type { InternalTableMetadata } from '../types';
 
@@ -11,6 +12,7 @@ type PrepareResult = [string, unknown[]];
 
 export const prepareSelect = <T extends InternalTableMetadata, S extends Query.SelectInput<T>, C extends boolean>(
   table: string,
+  schema: ObjectSchema,
   index: string | undefined,
   query: Query.FindOneInput<S, T> | Query.FindManyInput<S, C, T>
 ): PrepareResult => {
@@ -20,7 +22,7 @@ export const prepareSelect = <T extends InternalTableMetadata, S extends Query.S
   const variables = [];
 
   if (query.where) {
-    const [whereFields, whereVariables] = prepareWhereFields(query.where);
+    const [whereFields, whereVariables] = prepareWhereFields(query.where, schema);
 
     if (whereFields) {
       statement.push(`WHERE ${whereFields}`);

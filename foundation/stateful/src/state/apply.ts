@@ -4,7 +4,7 @@ import type { StepHandlers, StepState } from '../types/step';
 import { Tasks } from '@ez4/utils';
 
 import { HandlerNotFoundError, EntriesNotFoundError } from './errors';
-import { getEntry, getEntryDependencies, getEntryConnections } from './entry';
+import { getEntry, getEntryDependencies, getEntryConnections, getEntryDependents } from './entry';
 import { StepAction } from './step';
 
 export type ApplyResult<E extends EntryState = EntryState> = {
@@ -84,14 +84,17 @@ const applyPendingStep = async <E extends EntryState<T>, T extends string>(
   const candidate = getEntry(entries, entryId);
   const handler = getEntryHandler(handlers, candidate);
 
-  const buildContext = (dependencyEntryMap: EntryStates<E>, connectionEntryMap: EntryStates<E>, entry: E) => {
+  const buildContext = (processedEntryMap: EntryStates<E>, completeEntryMap: EntryStates<E>, entry: E) => {
     return {
       force,
       getDependencies: <T extends EntryState>(type?: EntryTypes<T>) => {
-        return getEntryDependencies<T>(dependencyEntryMap, entry, type);
+        return getEntryDependencies<T>(processedEntryMap, entry, type);
       },
       getConnections: <T extends EntryState>(type?: EntryTypes<T>) => {
-        return getEntryConnections<T>(connectionEntryMap, entry, type);
+        return getEntryConnections<T>(completeEntryMap, entry, type);
+      },
+      getDependents: <T extends EntryState>(type?: EntryTypes<T>) => {
+        return getEntryDependents<T>(completeEntryMap, entry, type);
       }
     };
   };

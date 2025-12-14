@@ -1,0 +1,47 @@
+{
+  "@variables": {
+    "type": "@ez4/common",
+    "name": "@variables",
+    "context": {}
+  },
+  "TestService": {
+    "type": "@ez4/ws",
+    "name": "TestService",
+    "context": {},
+    "schema": {
+      "type": "object",
+      "identity": 1,
+      "properties": {}
+    },
+    "connect": {
+      "handler": {
+        "name": "connectHandler",
+        "file": "test/ws/input/output-query.ts",
+        "request": {
+          "query": {
+            "type": "object",
+            "description": "Expected HTTP query strings.",
+            "identity": 1,
+            "properties": {
+              "secret": {
+                "type": "string"
+              }
+            }
+          }
+        }
+      }
+    },
+    "disconnect": {
+      "handler": {
+        "name": "disconnectHandler",
+        "file": "test/ws/input/output-query.ts"
+      }
+    },
+    "message": {
+      "handler": {
+        "name": "messageHandler",
+        "file": "test/ws/input/output-query.ts"
+      }
+    }
+  }
+}

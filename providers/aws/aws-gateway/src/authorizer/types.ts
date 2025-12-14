@@ -6,7 +6,7 @@ export const AuthorizerServiceName = 'AWS:API/Authorizer';
 
 export const AuthorizerServiceType = 'aws:api.authorizer';
 
-export type AuthorizerParameters = Omit<CreateRequest, 'functionArn'>;
+export type AuthorizerParameters = Omit<CreateRequest, 'functionArn' | 'http'>;
 
 export type AuthorizerResult = CreateResponse & {
   apiId: string;

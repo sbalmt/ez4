@@ -1,0 +1,25 @@
+{
+  "@variables": {
+    "type": "@ez4/common",
+    "name": "@variables",
+    "context": {}
+  },
+  "TestService": {
+    "type": "@ez4/http",
+    "context": {},
+    "name": "TestService",
+    "routes": [
+      {
+        "path": "ANY /test-route-a",
+        "handler": {
+          "name": "testRouteA",
+          "file": "test/http/input/output-request.ts",
+          "request": {},
+          "response": {
+            "status": 204
+          }
+        }
+      }
+    ]
+  }
+}

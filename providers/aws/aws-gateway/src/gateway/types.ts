@@ -17,3 +17,8 @@ export type GatewayState = EntryState & {
   parameters: GatewayParameters;
   result?: GatewayResult;
 };
+
+export const enum GatewayProtocol {
+  Http = 'http',
+  WebSocket = 'ws'
+}

@@ -1,11 +1,9 @@
 import type { ArraySchema, NamingStyle, ObjectSchema, ScalarSchema, UnionSchema } from '@ez4/schema';
-import type { HttpService } from '../types/service';
-import type { HttpImport } from '../types/import';
-import type { HttpRoute } from '../types/common';
+import type { HttpImport, HttpService, HttpRoute } from '../metadata/http/types';
 
 import { getObjectSchemaProperty } from '@ez4/schema';
 
-import { isHttpImport } from '../types/import';
+import { isHttpImport } from '../metadata/http/types';
 
 export type ClientOperation = {
   namingStyle?: NamingStyle;

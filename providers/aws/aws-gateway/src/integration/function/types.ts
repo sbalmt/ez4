@@ -17,6 +17,7 @@ export type IntegrationFunctionParameters = Omit<
   FunctionParameters,
   'getFunctionFiles' | 'getFunctionBundle' | 'getFunctionHash' | 'sourceFile' | 'handlerName'
 > & {
+  type: IntegrationFunctionType;
   handler: IntegrationEntryPoint;
   listener?: IntegrationFunction;
   preferences?: HttpPreferences;
@@ -31,3 +32,9 @@ export type IntegrationFunctionParameters = Omit<
   services?: LinkedServices;
   debug?: boolean;
 };
+
+export const enum IntegrationFunctionType {
+  HttpRequest = 'http-request',
+  WsConnection = 'ws-connection',
+  WsMessage = 'ws-message'
+}

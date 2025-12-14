@@ -1,4 +1,4 @@
-import type { LinkedServiceEmulators, ServiceEmulator, ServiceEmulatorClients } from './types';
+import type { EmulatorLinkedServices, ServiceEmulator, EmulatorServiceClients } from './types';
 import type { MetadataReflection } from '../types/metadata';
 import type { ServeOptions } from '../types/options';
 
@@ -12,7 +12,7 @@ export const getServiceEmulators = async (metadata: MetadataReflection, options:
   const emulators: ServiceEmulators = {};
 
   const context = {
-    makeClients: (linkedServices: LinkedServiceEmulators) => {
+    makeClients: (linkedServices: EmulatorLinkedServices) => {
       return makeEmulatorClients(linkedServices, emulators, options);
     },
     makeClient: (resourceName: string) => {
@@ -43,8 +43,8 @@ export const getServiceEmulators = async (metadata: MetadataReflection, options:
   return emulators;
 };
 
-const makeEmulatorClients = (linkedServices: LinkedServiceEmulators, emulators: ServiceEmulators, options: ServeOptions) => {
-  const allClients: ServiceEmulatorClients = {};
+const makeEmulatorClients = (linkedServices: EmulatorLinkedServices, emulators: ServiceEmulators, options: ServeOptions) => {
+  const allClients: EmulatorServiceClients = {};
 
   for (const linkedServiceName in linkedServices) {
     const serviceName = linkedServices[linkedServiceName];

@@ -9,8 +9,9 @@ export const getContainsOperation = (column: string, schema: AnySchema | undefin
   switch (schema?.type) {
     case SchemaType.Object:
     case SchemaType.Array:
-    case SchemaType.Tuple:
+    case SchemaType.Tuple: {
       return `${column} @> ${getOperandValue(schema, operand, context, true)}`;
+    }
 
     default: {
       const rhsOperand = getOperandValue(schema, operand, context);

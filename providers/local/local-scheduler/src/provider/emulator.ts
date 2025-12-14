@@ -1,8 +1,8 @@
-import type { EmulateServiceContext, EmulatorServiceRequest, ServeOptions } from '@ez4/project/library';
+import type { EmulateServiceContext, EmulatorRequestEvent, ServeOptions } from '@ez4/project/library';
 import type { CronService } from '@ez4/scheduler/library';
 
 import { getJsonEvent, MalformedEventError } from '@ez4/scheduler/utils';
-import { getResponseError, getResponseSuccess } from '@ez4/local-common';
+import { getErrorResponse, getSuccessResponse } from '@ez4/local-common';
 import { isDynamicCronService } from '@ez4/scheduler/library';
 import { getServiceName, Logger } from '@ez4/project/library';
 
@@ -34,7 +34,7 @@ export const registerCronEmulator = (service: CronService, options: ServeOptions
         processTimerEvent(service, options, context);
       }
     },
-    requestHandler: (request: EmulatorServiceRequest) => {
+    requestHandler: (request: EmulatorRequestEvent) => {
       return handleSchedulerRequest(service, options, context, request);
     },
     shutdownHandler: () => {
@@ -51,7 +51,7 @@ const handleSchedulerRequest = async (
   service: CronService,
   options: ServeOptions,
   context: EmulateServiceContext,
-  request: EmulatorServiceRequest
+  request: EmulatorRequestEvent
 ) => {
   const { method, path, body } = request;
 
@@ -70,14 +70,14 @@ const handleSchedulerRequest = async (
 
     await handleSchedulerEvent(service, options, context, body);
 
-    return getResponseSuccess(201);
+    return getSuccessResponse(201);
     //
   } catch (error) {
     if (!(error instanceof MalformedEventError)) {
       throw error;
     }
 
-    return getResponseError(400, {
+    return getErrorResponse(400, {
       message: error.message,
       details: error.details
     });

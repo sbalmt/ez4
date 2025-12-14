@@ -1,19 +1,19 @@
-import type { HttpHandler, HttpAuthorizer, HttpErrors, HttpPreferences } from '@ez4/gateway/library';
-import type { EmulatorServiceRequest, LinkedVariables } from '@ez4/project/library';
+import type { AuthHandler, HttpHandler, HttpErrors, HttpPreferences } from '@ez4/gateway/library';
+import type { EmulatorRequestEvent, LinkedVariables } from '@ez4/project/library';
 import type { ServiceListener } from '@ez4/common/library';
 
 export type RouteData = {
   httpErrors?: HttpErrors | null;
   preferences?: HttpPreferences;
   variables?: LinkedVariables | null;
-  authorizer?: HttpAuthorizer | null;
+  authorizer?: AuthHandler | null;
   listener?: ServiceListener | null;
   handler: HttpHandler;
 };
 
-export type MatchingRoute = RouteData & EmulatorServiceRequest & { parameters?: Record<string, string> };
+export type MatchingRoute = RouteData & EmulatorRequestEvent & { parameters?: Record<string, string> };
 
-export const getMatchingRoute = (routes: Record<string, RouteData>, request: EmulatorServiceRequest): MatchingRoute | undefined => {
+export const getMatchingRoute = (routes: Record<string, RouteData>, request: EmulatorRequestEvent): MatchingRoute | undefined => {
   for (const pattern in routes) {
     const route = matchRoutePath(pattern, request.path);
 
@@ -32,6 +32,10 @@ export const getMatchingRoute = (routes: Record<string, RouteData>, request: Emu
 const matchRoutePath = (pattern: string, path: string) => {
   const patternParts = pattern.split('/').filter((part) => !!part);
   const pathParts = path.split('/').filter((part) => !!part);
+
+  if (patternParts.length !== pathParts.length) {
+    return undefined;
+  }
 
   const parameters: Record<string, string> = {};
 

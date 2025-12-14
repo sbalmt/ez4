@@ -1,16 +1,14 @@
 import type { StepContext, StepHandler } from '@ez4/stateful';
 import type { IntegrationState, IntegrationResult, IntegrationParameters } from './types';
-import type { UpdateRequest } from './client';
 
 import { getFunctionArn } from '@ez4/aws-function';
 import { ReplaceResourceError } from '@ez4/aws-common';
 import { deepCompare, deepEqual } from '@ez4/utils';
 
-import { getGatewayId } from '../gateway/utils';
+import { GatewayProtocol } from '../gateway/types';
+import { getGatewayId, getGatewayProtocol } from '../gateway/utils';
 import { createIntegration, deleteIntegration, updateIntegration } from './client';
 import { IntegrationServiceName } from './types';
-
-type IntegrationUpdateParameters = IntegrationParameters & UpdateRequest;
 
 export const getIntegrationHandler = (): StepHandler<IntegrationState> => ({
   equals: equalsResource,
@@ -43,12 +41,16 @@ const replaceResource = async (candidate: IntegrationState, current: Integration
 };
 
 const createResource = async (candidate: IntegrationState, context: StepContext): Promise<IntegrationResult> => {
-  const functionArn = getFunctionArn(IntegrationServiceName, 'integration', context);
   const apiId = getGatewayId(IntegrationServiceName, 'integration', context);
+  const functionArn = getFunctionArn(IntegrationServiceName, 'integration', context);
+  const protocol = getGatewayProtocol(IntegrationServiceName, 'integration', context);
+
+  const http = protocol === GatewayProtocol.Http;
 
   const response = await createIntegration(apiId, {
     ...candidate.parameters,
-    functionArn
+    functionArn,
+    http
   });
 
   return {
@@ -73,7 +75,9 @@ const updateResource = async (candidate: IntegrationState, current: IntegrationS
   const newRequest = { ...candidate.parameters, functionArn: newFunctionArn };
   const oldRequest = { ...current.parameters, functionArn: oldFunctionArn };
 
-  await checkGeneralUpdates(result.apiId, integrationId, newRequest, oldRequest);
+  const protocol = getGatewayProtocol(IntegrationServiceName, 'integration', context);
+
+  await checkGeneralUpdates(result.apiId, integrationId, protocol, newRequest, oldRequest, context);
 
   return {
     ...result,
@@ -92,8 +96,10 @@ const deleteResource = async (candidate: IntegrationState) => {
 const checkGeneralUpdates = async (
   apiId: string,
   integrationId: string,
-  candidate: IntegrationUpdateParameters,
-  current: IntegrationUpdateParameters
+  protocol: GatewayProtocol,
+  candidate: IntegrationParameters,
+  current: IntegrationParameters,
+  context: StepContext
 ) => {
   const hasChanges = !deepEqual(candidate, current, {
     exclude: {
@@ -101,7 +107,12 @@ const checkGeneralUpdates = async (
     }
   });
 
-  if (hasChanges) {
-    await updateIntegration(apiId, integrationId, candidate);
+  if (hasChanges || context.force) {
+    const http = protocol === GatewayProtocol.Http;
+
+    await updateIntegration(apiId, integrationId, {
+      ...candidate,
+      http
+    });
   }
 };

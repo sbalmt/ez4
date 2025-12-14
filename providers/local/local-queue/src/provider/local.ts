@@ -1,8 +1,8 @@
-import type { EmulateServiceContext, EmulatorServiceRequest, ServeOptions } from '@ez4/project/library';
+import type { EmulateServiceContext, EmulatorRequestEvent, ServeOptions } from '@ez4/project/library';
 import type { QueueImport, QueueService } from '@ez4/queue/library';
 import type { AnyObject } from '@ez4/utils';
 
-import { getResponseError, getResponseSuccess } from '@ez4/local-common';
+import { getErrorResponse, getSuccessResponse } from '@ez4/local-common';
 import { getJsonMessage, MalformedMessageError } from '@ez4/queue/utils';
 import { getServiceName } from '@ez4/project/library';
 import { getRandomInteger } from '@ez4/utils';
@@ -28,7 +28,7 @@ export const registerLocalServices = (service: QueueService, options: ServeOptio
     exportHandler: () => {
       return createLocalClient(serviceName, messageSchema, clientOptions);
     },
-    requestHandler: (request: EmulatorServiceRequest) => {
+    requestHandler: (request: EmulatorRequestEvent) => {
       return handleQueueRequest(service, options, context, request);
     }
   };
@@ -38,7 +38,7 @@ const handleQueueRequest = async (
   service: QueueService,
   options: ServeOptions,
   context: EmulateServiceContext,
-  request: EmulatorServiceRequest
+  request: EmulatorRequestEvent
 ) => {
   const { method, path, body } = request;
 
@@ -52,14 +52,14 @@ const handleQueueRequest = async (
 
     await handleQueueMessage(service, options, context, safeMessage);
 
-    return getResponseSuccess(201);
+    return getSuccessResponse(201);
     //
   } catch (error) {
     if (!(error instanceof MalformedMessageError)) {
       throw error;
     }
 
-    return getResponseError(400, {
+    return getErrorResponse(400, {
       message: error.message,
       details: error.details
     });

@@ -1,4 +1,4 @@
-import type { EmulatorServiceRequest, ServeOptions } from '@ez4/project/library';
+import type { EmulatorRequestEvent, ServeOptions } from '@ez4/project/library';
 import type { Client as StorageClient } from '@ez4/storage';
 import type { BucketService } from '@ez4/storage/library';
 
@@ -16,13 +16,13 @@ export const registerBucketEmulator = (service: BucketService, options: ServeOpt
     exportHandler: () => {
       return createServiceClient(service.name, options);
     },
-    requestHandler: (request: EmulatorServiceRequest) => {
+    requestHandler: (request: EmulatorRequestEvent) => {
       return handleRequest(client, request);
     }
   };
 };
 
-const handleRequest = async (client: StorageClient, request: EmulatorServiceRequest) => {
+const handleRequest = async (client: StorageClient, request: EmulatorRequestEvent) => {
   const { method, path, body } = request;
 
   if (!path || path === '/') {

@@ -6,7 +6,7 @@ import { applyTagUpdates, ReplaceResourceError } from '@ez4/aws-common';
 import { deepCompare, deepEqual } from '@ez4/utils';
 
 import { createGateway, deleteCorsConfiguration, deleteGateway, fetchGateway, tagGateway, untagGateway, updateGateway } from './client';
-import { GatewayServiceName } from './types';
+import { GatewayProtocol, GatewayServiceName } from './types';
 
 export const getGatewayHandler = (): StepHandler<GatewayState> => ({
   equals: equalsResource,
@@ -99,7 +99,7 @@ const checkGeneralUpdates = async (apiId: string, candidate: GatewayParameters, 
     await updateGateway(apiId, candidate);
   }
 
-  if (!candidate.cors && current.cors) {
+  if (candidate.protocol === GatewayProtocol.Http && current.protocol === GatewayProtocol.Http && !candidate.cors && current.cors) {
     await deleteCorsConfiguration(apiId);
   }
 };

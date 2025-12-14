@@ -76,7 +76,7 @@ export class Table<T extends InternalTableMetadata> implements DbTable<T> {
   async findOne<S extends Query.SelectInput<T>>(query: Query.FindOneInput<S, T>) {
     const { client, debug } = this.settings;
 
-    const statement = prepareFindOne(this.name, this.indexes, query);
+    const statement = prepareFindOne(this.name, this.schema, this.indexes, query);
 
     const { records } = await executeStatement(client, statement, debug);
 
@@ -92,7 +92,7 @@ export class Table<T extends InternalTableMetadata> implements DbTable<T> {
   async deleteOne<S extends Query.SelectInput<T>>(query: Query.DeleteOneInput<S, T>) {
     const { client, debug } = this.settings;
 
-    const statement = prepareDeleteOne(this.name, query);
+    const statement = prepareDeleteOne(this.name, this.schema, query);
 
     const { records } = await executeStatement(client, statement, debug);
 
@@ -155,13 +155,13 @@ export class Table<T extends InternalTableMetadata> implements DbTable<T> {
 
     const { count: shouldCount } = query;
 
-    const findStatement = prepareFindMany(this.name, this.indexes, query);
+    const findStatement = prepareFindMany(this.name, this.schema, this.indexes, query);
     const findOperation = executeStatement(client, findStatement, debug);
 
     const allOperations = [findOperation];
 
     if (shouldCount) {
-      const countStatement = prepareCount(this.name, this.indexes, { where: query.where });
+      const countStatement = prepareCount(this.name, this.schema, this.indexes, { where: query.where });
       const countOperation = executeStatement(client, countStatement, debug);
 
       allOperations.push(countOperation);
@@ -181,7 +181,7 @@ export class Table<T extends InternalTableMetadata> implements DbTable<T> {
   async deleteMany<S extends Query.SelectInput<T>>(query: Query.DeleteManyInput<S, T>) {
     const { client, debug } = this.settings;
 
-    const [transactions, records] = await prepareDeleteMany(this.name, this.indexes, client, query, debug);
+    const [transactions, records] = await prepareDeleteMany(this.name, this.schema, this.indexes, client, query, debug);
 
     await executeTransaction(client, transactions, debug);
 
@@ -191,7 +191,7 @@ export class Table<T extends InternalTableMetadata> implements DbTable<T> {
   async count(query: Query.CountInput<T>) {
     const { client, debug } = this.settings;
 
-    const statement = prepareCount(this.name, this.indexes, query);
+    const statement = prepareCount(this.name, this.schema, this.indexes, query);
 
     const { records } = await executeStatement(client, statement, debug);
 
