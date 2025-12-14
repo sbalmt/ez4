@@ -77,7 +77,7 @@ const updateResource = async (candidate: IntegrationState, current: IntegrationS
 
   const protocol = getGatewayProtocol(IntegrationServiceName, 'integration', context);
 
-  await checkGeneralUpdates(result.apiId, integrationId, protocol, newRequest, oldRequest);
+  await checkGeneralUpdates(result.apiId, integrationId, protocol, newRequest, oldRequest, context);
 
   return {
     ...result,
@@ -98,7 +98,8 @@ const checkGeneralUpdates = async (
   integrationId: string,
   protocol: GatewayProtocol,
   candidate: IntegrationParameters,
-  current: IntegrationParameters
+  current: IntegrationParameters,
+  context: StepContext
 ) => {
   const hasChanges = !deepEqual(candidate, current, {
     exclude: {
@@ -106,7 +107,7 @@ const checkGeneralUpdates = async (
     }
   });
 
-  if (hasChanges) {
+  if (hasChanges || context.force) {
     const http = protocol === GatewayProtocol.Http;
 
     await updateIntegration(apiId, integrationId, {

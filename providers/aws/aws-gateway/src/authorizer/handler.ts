@@ -77,7 +77,7 @@ const updateResource = async (candidate: AuthorizerState, current: AuthorizerSta
 
   const protocol = getGatewayProtocol(AuthorizerServiceName, 'authorizer', context);
 
-  await checkGeneralUpdates(result.apiId, authorizerId, protocol, newRequest, oldRequest);
+  await checkGeneralUpdates(result.apiId, authorizerId, protocol, newRequest, oldRequest, context);
 
   return {
     ...result,
@@ -98,11 +98,12 @@ const checkGeneralUpdates = async (
   authorizerId: string,
   protocol: GatewayProtocol,
   candidate: AuthorizerParameters,
-  current: AuthorizerParameters
+  current: AuthorizerParameters,
+  context: StepContext
 ) => {
   const hasChanges = !deepEqual(candidate, current);
 
-  if (hasChanges) {
+  if (hasChanges || context.force) {
     const http = protocol === GatewayProtocol.Http;
 
     await updateAuthorizer(apiId, authorizerId, {

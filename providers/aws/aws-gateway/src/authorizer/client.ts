@@ -9,7 +9,7 @@ import {
   NotFoundException
 } from '@aws-sdk/client-apigatewayv2';
 
-import { Logger } from '@ez4/aws-common';
+import { Logger, waitUpdates } from '@ez4/aws-common';
 
 import { AuthorizerServiceName } from './types';
 import { getAuthorizerUri } from './utils';
@@ -65,25 +65,27 @@ export const updateAuthorizer = async (apiId: string, authorizerId: string, requ
 
   Logger.logUpdate(AuthorizerServiceName, name ?? authorizerId);
 
-  await client.send(
-    new UpdateAuthorizerCommand({
-      ApiId: apiId,
-      Name: request.name,
-      AuthorizerId: authorizerId,
-      AuthorizerResultTtlInSeconds: cacheTTL,
-      ...(functionArn && {
-        AuthorizerUri: await getAuthorizerUri(functionArn)
-      }),
-      ...(http && {
-        EnableSimpleResponses: false
-      }),
-      IdentitySource: getIdentitySources({
-        headerNames,
-        queryNames,
-        http
+  await waitUpdates(async () => {
+    return client.send(
+      new UpdateAuthorizerCommand({
+        ApiId: apiId,
+        Name: request.name,
+        AuthorizerId: authorizerId,
+        AuthorizerResultTtlInSeconds: cacheTTL,
+        ...(functionArn && {
+          AuthorizerUri: await getAuthorizerUri(functionArn)
+        }),
+        ...(http && {
+          EnableSimpleResponses: false
+        }),
+        IdentitySource: getIdentitySources({
+          headerNames,
+          queryNames,
+          http
+        })
       })
-    })
-  );
+    );
+  });
 };
 
 export const deleteAuthorizer = async (apiId: string, authorizerId: string) => {

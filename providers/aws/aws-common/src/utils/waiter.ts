@@ -17,6 +17,18 @@ export const waitCreation = async <T>(createResource: ActionAttempter<T>, retryE
 };
 
 /**
+ * Try to update a resource using the given function, and if the update fails,
+ * it will keep trying until the maximum attempts.
+ *
+ * @param updateResource Resource update function.
+ * @param retryErrors Extra errors to retry.
+ * @returns Returns the update function result.
+ */
+export const waitUpdates = async <T>(updateResource: ActionAttempter<T>, retryErrors: string[] = []) => {
+  return waitAction(updateResource, [...DefaultRetryErrors, ...retryErrors]);
+};
+
+/**
  * Try to delete a resource using the given function, and if the deletion fails,
  * it will keep trying until the maximum attempts.
  *
