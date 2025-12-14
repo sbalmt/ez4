@@ -79,7 +79,9 @@ export async function apiEntryPoint(event: RequestEvent, context: Context): Prom
   }
 }
 
-const getAuthorizationResponse = (authorized: boolean, resourceArn: string, context?: AnyObject): ResponseEvent => {
+const getAuthorizationResponse = (authorized: boolean, resource: string, context?: AnyObject): ResponseEvent => {
+  const [resourceArn, stageName] = resource.split('/', 2);
+
   return {
     context,
     principalId: 'me',
@@ -88,8 +90,8 @@ const getAuthorizationResponse = (authorized: boolean, resourceArn: string, cont
       Statement: [
         {
           Action: 'execute-api:Invoke',
-          Effect: authorized ? 'Allow' : 'Deny',
-          Resource: resourceArn
+          Resource: `${resourceArn}/${stageName}/*`,
+          Effect: authorized ? 'Allow' : 'Deny'
         }
       ]
     }
