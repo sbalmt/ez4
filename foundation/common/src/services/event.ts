@@ -1,3 +1,5 @@
+import type { ServiceRequest } from './request';
+
 /**
  * All service events.
  */
@@ -7,11 +9,6 @@ export type ServiceAnyEvent<T extends ServiceRequest> =
   | ServiceDoneEvent<T>
   | ServiceErrorEvent<T>
   | ServiceEndEvent<T>;
-
-/**
- * Service request base.
- */
-export type ServiceRequest = {};
 
 /**
  * Service event type.
