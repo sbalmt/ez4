@@ -1,11 +1,12 @@
 import type { Environment, Service } from '@ez4/common';
+import type { Factory } from '@ez4/factory';
 
 class TestServiceA {
   public helloWorld() {}
 }
 
-export declare class TestServiceAFactory extends Service.Factory<TestServiceA> {
-  initializer: typeof testServiceAInitializer;
+export declare class TestServiceAFactory extends Factory.Service<TestServiceA> {
+  handler: typeof testServiceAInitializer;
 
   variables: {
     TEST_VAR: 'test-var';
@@ -25,8 +26,8 @@ export function testServiceAInitializer(context: Service.Context<TestServiceAFac
   return new TestServiceA();
 }
 
-export declare class TestServiceBFactory extends Service.Factory<void> {
-  initializer: typeof testServiceBInitializer;
+export declare class TestServiceBFactory extends Factory.Service<void> {
+  handler: typeof testServiceBInitializer;
 
   services: {
     serviceA: Environment.Service<TestServiceAFactory>;

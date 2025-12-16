@@ -3,5 +3,32 @@
     "type": "@ez4/common",
     "name": "@variables",
     "context": {}
+  },
+  "TestServiceAFactory": {
+    "type": "@ez4/factory",
+    "context": {},
+    "name": "TestServiceAFactory",
+    "handler": {
+      "name": "testServiceAInitializer",
+      "file": "test/input/output-service.ts"
+    },
+    "variables": {
+      "TEST_VAR": "test-var"
+    },
+    "services": {
+      "selfVariables": "@variables"
+    }
+  },
+  "TestServiceBFactory": {
+    "type": "@ez4/factory",
+    "context": {},
+    "name": "TestServiceBFactory",
+    "handler": {
+      "name": "testServiceBInitializer",
+      "file": "test/input/output-service.ts"
+    },
+    "services": {
+      "serviceA": "TestServiceAFactory"
+    }
   }
 }

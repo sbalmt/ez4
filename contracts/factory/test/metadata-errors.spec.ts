@@ -15,7 +15,7 @@ const parseFile = (fileName: string, errorCount: number) => {
   return result.errors;
 };
 
-describe('topic metadata errors', () => {
+describe('factory metadata errors', () => {
   registerTriggers();
 
   it('assert :: incomplete factory', () => {

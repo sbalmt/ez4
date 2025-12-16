@@ -6,12 +6,12 @@ export namespace Factory {
   /**
    * Handler function for the factory.
    */
-  export type Handler<T> = FactoryHandler<T>;
+  export type Handler<T = void> = FactoryHandler<T>;
 
   /**
    * Service factory.
    */
-  export declare abstract class Service<T> implements CommonService.Provider {
+  export declare abstract class Service<T = void> implements CommonService.Provider {
     /**
      * Define factory handler function.
      */

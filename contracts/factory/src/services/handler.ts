@@ -4,4 +4,4 @@ import type { Factory } from './contract';
 /**
  * Factory handler function.
  */
-export type FactoryHandler<T> = (context: Service.Context<Factory.Service<T>>) => Promise<T> | T;
+export type FactoryHandler<T> = (context: Service.Context<Factory.Service<T>>) => T;

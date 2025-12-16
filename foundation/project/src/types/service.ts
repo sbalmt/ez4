@@ -20,6 +20,7 @@ export type ContextSource = {
   dependencyIds?: string[];
   connectionIds?: string[];
   constructor: string;
+  namespace?: boolean;
   module: string;
   from: string;
 };

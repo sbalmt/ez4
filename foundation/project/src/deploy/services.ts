@@ -12,7 +12,7 @@ export const prepareLinkedServices = async (metadata: MetadataReflection, contex
     const target = metadata[identity];
 
     if (target.services) {
-      const prepareEvent = prepareTargetLinkedServiceList(target, metadata, options, context);
+      const prepareEvent = prepareLinkedServiceContext(target, metadata, options, context);
 
       allPrepareEvents.push(prepareEvent);
     }
@@ -21,42 +21,26 @@ export const prepareLinkedServices = async (metadata: MetadataReflection, contex
   await Promise.all(allPrepareEvents);
 };
 
-const prepareTargetLinkedServiceList = async (
+const prepareLinkedServiceContext = async (
   target: ServiceMetadata,
   metadata: MetadataReflection,
   options: DeployOptions,
   context: EventContext
 ) => {
-  const allPrepareEvents = [];
-
-  for (const name in target.services) {
-    const identity = target.services[name];
+  for (const alias in target.services) {
+    const identity = target.services[alias];
     const service = metadata[identity];
 
-    const prepareEvent = prepareTargetLinkedService(name, target, service, options, context);
+    const linkedService = await triggerAllAsync('deploy:prepareLinkedService', (handler) =>
+      handler({
+        service,
+        options,
+        context
+      })
+    );
 
-    allPrepareEvents.push(prepareEvent);
-  }
-
-  await Promise.all(allPrepareEvents);
-};
-
-const prepareTargetLinkedService = async (
-  contextName: string,
-  targetService: ServiceMetadata,
-  sourceService: ServiceMetadata,
-  options: DeployOptions,
-  context: EventContext
-) => {
-  const linkedService = await triggerAllAsync('deploy:prepareLinkedService', (handler) =>
-    handler({
-      service: sourceService,
-      options,
-      context
-    })
-  );
-
-  if (linkedService) {
-    targetService.context[contextName] = linkedService;
+    if (linkedService) {
+      target.context[alias] = linkedService;
+    }
   }
 };

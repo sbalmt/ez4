@@ -7,7 +7,7 @@ import { join, parse } from 'node:path';
 import { existsSync } from 'node:fs';
 
 import { getTemporaryPath } from '@ez4/project/library';
-import { toKebabCase } from '@ez4/utils';
+import { toKebabCase, toPascalCase } from '@ez4/utils';
 
 import { SourceFileError } from '../errors/bundler';
 import { Logger } from './logger';
@@ -186,16 +186,33 @@ const buildServiceContext = (context: Record<string, ContextSource>) => {
   const services: string[] = [];
 
   for (const serviceName of Object.keys(context).sort()) {
-    const { constructor, module, from } = context[serviceName];
+    const { namespace, constructor, module, from } = context[serviceName];
 
-    const service = `${serviceName}${module}`;
+    const service = `${serviceName}${toPascalCase(module)}`;
 
     packages.push(`import { ${module} as ${service} } from '${from}';`);
-    services.push(`${serviceName}: ${service}.${constructor}`);
+
+    if (namespace !== false) {
+      services.push(`${serviceName}: () => ${service}.${constructor}`);
+    } else {
+      services.push(`${serviceName}: () => ${constructor}`);
+    }
   }
 
   return {
     packages: packages.join('\n'),
-    services: `{${services.join(',\n')}}`
+    services: `new Proxy({${services.join(',')}}, {
+        get: (target, property) => {
+          if (typeof property !== 'string' || !(property in target)) {
+            throw new Error(\`Context service '\${property.toString()}' not found.\`);
+          }
+
+          if (target[property] instanceof Function) {
+            target[property] = target[property]();
+          }
+
+          return target[property];
+        }
+      })`
   };
 };
