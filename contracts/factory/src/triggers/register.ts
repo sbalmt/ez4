@@ -3,7 +3,7 @@ import { tryCreateTrigger } from '@ez4/project/library';
 
 import { ServiceType } from '../metadata/types';
 import { getFactoryServicesMetadata } from '../metadata/service';
-import { getLinkedService, prepareFactoryResources, prepareLinkedServices } from './service';
+import { getEmulatorService, getLinkedService, prepareFactoryResources, prepareLinkedServices } from './service';
 
 export const registerTriggers = () => {
   registerCommonTriggers();
@@ -12,6 +12,7 @@ export const registerTriggers = () => {
     'metadata:getServices': getFactoryServicesMetadata,
     'metadata:getLinkedService': getLinkedService,
     'deploy:prepareLinkedService': prepareLinkedServices,
-    'deploy:prepareResources': prepareFactoryResources
+    'deploy:prepareResources': prepareFactoryResources,
+    'emulator:getServices': getEmulatorService
   });
 };

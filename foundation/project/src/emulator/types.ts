@@ -1,8 +1,7 @@
 import type { ServiceMetadata } from '../types/service';
 import type { ServeOptions } from '../types/options';
-import type { AnyObject } from '@ez4/utils';
 
-export type EmulatorExportHandler = <T extends AnyObject>() => Promise<T> | T;
+export type EmulatorExportHandler = () => Promise<unknown> | unknown;
 
 export type EmulatorPrepareHandler = () => Promise<void> | void;
 
