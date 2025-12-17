@@ -41,7 +41,7 @@ export async function createScheduleHandler(
   request: CreateScheduleRequest,
   context: Service.Context<Api>
 ): Promise<CreateScheduleResponse> {
-  const { eventDb, eventScheduler } = context;
+  const { eventDb, eventScheduler, statsService } = context;
   const { date, message } = request.body;
 
   const identifier = await createEvent(eventDb, {
@@ -56,6 +56,8 @@ export async function createScheduleHandler(
       foo: message
     }
   });
+
+  await statsService.countEvents();
 
   return {
     status: 201,

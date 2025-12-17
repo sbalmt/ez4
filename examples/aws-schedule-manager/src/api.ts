@@ -5,6 +5,7 @@ import type { readScheduleHandler } from '@/api/endpoints/read-schedule';
 import type { updateScheduleHandler } from '@/api/endpoints/update-schedule';
 import type { deleteScheduleHandler } from '@/api/endpoints/delete-schedule';
 import type { listSchedulesHandler } from '@/api/endpoints/list-schedules';
+import type { StatsServiceFactory } from '@/api/services/stats';
 import type { EventScheduler } from '@/scheduler';
 import type { EventDb } from '@/dynamo';
 
@@ -47,6 +48,7 @@ export declare class Api extends Http.Service {
    * All API services.
    */
   services: {
+    statsService: Environment.Service<StatsServiceFactory>;
     eventScheduler: Environment.Service<EventScheduler>;
     eventDb: Environment.Service<EventDb>;
   };

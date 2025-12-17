@@ -17,7 +17,7 @@
     "destroy": "ez4 destroy -e local.env --force",
     "generate:topology": "ez4 generate -e local.env -- topology:graph docs/",
     "generate:oas": "ez4 generate -e local.env -- gateway:oas docs/",
-    "serve": "ez4 serve -e local.env",
+    "serve": "ez4 serve -e local.env --local",
     "output": "ez4 output -e local.env"
   },
   "dependencies": {
@@ -28,6 +28,7 @@
     "@ez4/database": "^0.36.0",
     "@ez4/docs-topology": "^0.36.0",
     "@ez4/docs-gateway": "^0.36.0",
+    "@ez4/factory": "^0.36.0",
     "@ez4/gateway": "^0.36.0",
     "@ez4/local-database": "^0.36.0",
     "@ez4/local-gateway": "^0.36.0",
