@@ -6,7 +6,7 @@ import { Runner, Logger, LogLevel } from '@ez4/project/library';
 import { buildMetadata } from '../../library/metadata';
 import { warnUnsupportedFlags } from '../../utils/flags';
 import { getServiceEmulators } from '../../emulator/service';
-import { bootstrapServices, prepareServices, shutdownServices } from '../../emulator/utils';
+import { bootstrapServices, prepareServices, shutdownServices } from '../../emulator/utils/hooks';
 import { getServeOptions } from '../../emulator/options';
 import { loadAliasPaths } from '../../config/tsconfig';
 import { loadProviders } from '../../config/providers';

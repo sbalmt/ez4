@@ -9,7 +9,7 @@ import { createServer } from 'node:http';
 
 import { warnUnsupportedFlags } from '../../utils/flags';
 import { getServiceAddress, getServicePort } from '../../utils/project';
-import { bootstrapServices, prepareServices, shutdownServices } from '../../emulator/utils';
+import { bootstrapServices, prepareServices, shutdownServices } from '../../emulator/utils/hooks';
 import { getServiceEmulators } from '../../emulator/service';
 import { getServeOptions } from '../../emulator/options';
 import { watchMetadata } from '../../library/metadata';
