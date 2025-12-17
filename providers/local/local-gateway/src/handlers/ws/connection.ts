@@ -14,15 +14,16 @@ export const processWsConnection = async (
   event: EmulatorConnectionEvent,
   identity?: Ws.Identity
 ) => {
+  const { services, connect, disconnect, defaults } = service;
   const { connection } = event;
 
-  const target = connection.live ? service.connect : service.disconnect;
+  const target = connection.live ? connect : disconnect;
   const handler = target.handler;
 
-  const clients = service.services && context.makeClients(service.services);
+  const clients = services && (await context.makeClients(services));
 
   const module = await createModule({
-    listener: target.listener ?? service.defaults?.listener,
+    listener: target.listener ?? defaults?.listener,
     version: options.version,
     handler,
     variables: {

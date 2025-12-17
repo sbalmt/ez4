@@ -19,7 +19,9 @@ export const processHttpAuthorization = async (
   }
 
   const provider = route.handler.provider;
-  const clients = provider?.services && context.makeClients(provider.services);
+  const services = provider?.services;
+
+  const clients = services && (await context.makeClients(services));
 
   const module = await createModule({
     listener: route.listener ?? service.defaults?.listener,

@@ -7,7 +7,7 @@ import { Logger } from '@ez4/project/library';
 
 export const processQueueMessage = async (context: EmulateServiceContext, subscription: TopicQueueSubscription, message: AnyObject) => {
   try {
-    const queueClient = context.makeClient(subscription.service) as QueueClient<any>;
+    const queueClient = (await context.makeClient(subscription.service)) as QueueClient<any>;
 
     await queueClient.sendMessage(message);
     //

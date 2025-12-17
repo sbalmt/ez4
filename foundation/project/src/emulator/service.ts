@@ -43,19 +43,19 @@ export const getServiceEmulators = async (metadata: MetadataReflection, options:
   return emulators;
 };
 
-const makeEmulatorClients = (linkedServices: EmulatorLinkedServices, emulators: ServiceEmulators, options: ServeOptions) => {
+const makeEmulatorClients = async (linkedServices: EmulatorLinkedServices, emulators: ServiceEmulators, options: ServeOptions) => {
   const allClients: EmulatorServiceClients = {};
 
   for (const linkedServiceName in linkedServices) {
     const serviceName = linkedServices[linkedServiceName];
 
-    allClients[linkedServiceName] = makeEmulatorClient(serviceName, emulators, options);
+    allClients[linkedServiceName] = await makeEmulatorClient(serviceName, emulators, options);
   }
 
   return allClients;
 };
 
-const makeEmulatorClient = (resourceName: string, emulators: ServiceEmulators, options: ServeOptions) => {
+const makeEmulatorClient = async (resourceName: string, emulators: ServiceEmulators, options: ServeOptions) => {
   const serviceName = getServiceName(resourceName, options);
   const serviceEmulator = emulators[serviceName];
 
@@ -63,7 +63,7 @@ const makeEmulatorClient = (resourceName: string, emulators: ServiceEmulators, o
     throw new Error(`Service ${resourceName} has no emulators.`);
   }
 
-  const client = serviceEmulator.exportHandler?.();
+  const client = await serviceEmulator.exportHandler?.();
 
   if (!client) {
     throw new Error(`Service ${resourceName} has no client emulator.`);

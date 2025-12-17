@@ -19,7 +19,9 @@ export const processWsAuthorization = async (
     return undefined;
   }
 
-  const clients = service?.services && context.makeClients(service.services);
+  const { services } = service;
+
+  const clients = services && (await context.makeClients(services));
 
   const module = await createModule({
     listener: connect.listener ?? service.defaults?.listener,

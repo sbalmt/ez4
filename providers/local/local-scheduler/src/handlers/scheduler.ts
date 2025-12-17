@@ -11,7 +11,7 @@ export const processSchedulerEvent = async (
   context: EmulateServiceContext,
   event: Cron.Event | null
 ) => {
-  const { services: linkedServices, target } = service;
+  const { services, target } = service;
 
   const module = await createModule({
     listener: target.listener,
@@ -24,7 +24,7 @@ export const processSchedulerEvent = async (
     }
   });
 
-  const clients = linkedServices && context.makeClients(linkedServices);
+  const clients = services && (await context.makeClients(services));
 
   const request: Cron.Incoming<Cron.Event | null> = {
     requestId: getRandomUUID(),
