@@ -206,17 +206,18 @@ const buildServiceContext = (linkedContext: Record<string, LinkedContext>) => {
     const services: string[] = [];
 
     for (const property of Object.keys(linkedContext).sort()) {
-      const { namespace, constructor, module, from, context } = linkedContext[property];
+      const { context, constructor, callable, module, from } = linkedContext[property];
 
       const importedService = `${property}${toPascalCase(module)}`;
 
       const constructorWithContext = constructor.replaceAll('@{context}', context ? buildContext(context) : '');
-      const constructorCallback = `${!namespace ? `` : `${importedService}.`}${constructorWithContext}`;
+      const constructorCallback = `${callable ? importedService : `${importedService}.`}${constructorWithContext}`;
       const constructorHash = `S${toSnakeCase(hashData(constructorCallback)).toUpperCase()}`;
 
       if (!(constructorHash in repository)) {
-        repository[constructorHash] = constructorCallback;
         packages.push(`import { ${module} as ${importedService} } from '${from}';`);
+
+        repository[constructorHash] = constructorCallback;
       }
 
       services.push(`${property}: __EZ4_REPOSITORY.${constructorHash}`);

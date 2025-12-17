@@ -1,14 +1,13 @@
-import type { ContextSource } from '@ez4/project/library';
 import type { FactoryService } from '../metadata/types';
 
-export const prepareLinkedClient = (service: FactoryService): ContextSource => {
+export const prepareLinkedClient = (service: FactoryService) => {
   const { handler, variables, services } = service;
 
   return {
-    constructor: `${handler.name}(@{context})`,
+    constructor: `(@{context})`,
     from: `./${handler.file}`,
     module: handler.name,
-    namespace: false,
+    callable: true,
     variables,
     services
   };
