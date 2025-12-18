@@ -1,3 +1,3 @@
-export type Variables = {
+export type FunctionVariables = {
   [name: string]: string;
 };

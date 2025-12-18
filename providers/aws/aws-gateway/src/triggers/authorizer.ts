@@ -1,6 +1,5 @@
 import type { HttpRoute, HttpService, WsConnection, WsService } from '@ez4/gateway/library';
 import type { DeployOptions, EventContext } from '@ez4/project/library';
-import type { FunctionParameters, Variables } from '@ez4/aws-function';
 import type { EntryStates } from '@ez4/stateful';
 import type { ObjectSchema } from '@ez4/schema';
 import type { GatewayState } from '../gateway/types';
@@ -70,6 +69,7 @@ export const getAuthorizerFunction = (
       context: service.context,
       debug: options.debug,
       tags: options.tags,
+      variables: [options.variables, service.variables],
       preferences: {
         ...defaults.preferences,
         ...target.preferences
@@ -84,19 +84,20 @@ export const getAuthorizerFunction = (
         functionName: listener.name,
         sourceFile: listener.file,
         module: listener.module
-      },
-      variables: {
-        ...options.variables,
-        ...service.variables
       }
     });
 
     context.setServiceState(authorizerState, internalName, options);
   }
 
-  if (target.variables) {
-    assignVariables(authorizerState.parameters, target.variables);
-  }
+  const getPriorVariables = authorizerState.parameters.getFunctionVariables;
+
+  authorizerState.parameters.getFunctionVariables = () => {
+    return {
+      ...getPriorVariables(),
+      ...target.variables
+    };
+  };
 
   return (
     getAuthorizer(state, gatewayState, authorizerState) ??
@@ -109,13 +110,6 @@ export const getAuthorizerFunction = (
       })
     })
   );
-};
-
-const assignVariables = (parameters: FunctionParameters, variables: Variables) => {
-  parameters.variables = {
-    ...parameters.variables,
-    ...variables
-  };
 };
 
 const getIdentitySources = (schema: ObjectSchema | undefined | null) => {

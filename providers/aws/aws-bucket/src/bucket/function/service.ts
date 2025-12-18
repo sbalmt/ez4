@@ -1,4 +1,5 @@
 import type { EntryState, EntryStates } from '@ez4/stateful';
+import type { FunctionVariables } from '@ez4/aws-function';
 import type { LogGroupState } from '@ez4/aws-logs';
 import type { RoleState } from '@ez4/aws-identity';
 import type { BucketEventFunctionParameters } from './types';
@@ -13,18 +14,20 @@ export const createBucketEventFunction = <E extends EntryState>(
   logGroupState: LogGroupState,
   parameters: BucketEventFunctionParameters
 ) => {
-  const { handler } = parameters;
+  const { handler, variables } = parameters;
 
   return createFunction(state, roleState, logGroupState, {
     handlerName: 's3EntryPoint',
     sourceFile: handler.sourceFile,
     functionName: parameters.functionName,
     description: parameters.description,
-    variables: parameters.variables,
     timeout: parameters.timeout,
     memory: parameters.memory,
     debug: parameters.debug,
     tags: parameters.tags,
+    getFunctionVariables: () => {
+      return variables.reduce<FunctionVariables>((variables, current) => ({ ...variables, ...current }), {});
+    },
     getFunctionFiles: () => {
       return [handler.sourceFile, handler.dependencies];
     },

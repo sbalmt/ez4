@@ -1,4 +1,4 @@
-import type { Variables } from '../../types/variables';
+import type { FunctionVariables } from '../../types/variables';
 
 import { InvalidParameterError } from '@ez4/aws-common';
 import { hashData } from '@ez4/utils';
@@ -11,7 +11,7 @@ const isValidName = (name: string) => {
   return namePattern.test(name);
 };
 
-export const assertVariables = (variables: Variables) => {
+export const assertVariables = (variables: FunctionVariables) => {
   for (const name in variables) {
     if (!isValidName(name)) {
       throw new InvalidParameterError(FunctionServiceName, `${name} is an invalid variable name .`);
@@ -19,8 +19,8 @@ export const assertVariables = (variables: Variables) => {
   }
 };
 
-export const protectVariables = (variables: Variables) => {
-  const output: Variables = {};
+export const protectVariables = (variables: FunctionVariables) => {
+  const output: FunctionVariables = {};
 
   for (const name in variables) {
     output[name] = hashData(variables[name]);

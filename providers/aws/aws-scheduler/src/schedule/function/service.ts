@@ -1,4 +1,5 @@
 import type { EntryState, EntryStates } from '@ez4/stateful';
+import type { FunctionVariables } from '@ez4/aws-function';
 import type { LogGroupState } from '@ez4/aws-logs';
 import type { RoleState } from '@ez4/aws-identity';
 import type { TargetFunctionParameters } from './types';
@@ -14,18 +15,20 @@ export const createTargetFunction = <E extends EntryState>(
   logGroupState: LogGroupState,
   parameters: TargetFunctionParameters
 ) => {
-  const { handler, eventSchema } = parameters;
+  const { handler, variables, eventSchema } = parameters;
 
   return createFunction(state, roleState, logGroupState, {
     handlerName: 'eventEntryPoint',
     sourceFile: handler.sourceFile,
     functionName: parameters.functionName,
     description: parameters.description,
-    variables: parameters.variables,
     timeout: parameters.timeout,
     memory: parameters.memory,
     debug: parameters.debug,
     tags: parameters.tags,
+    getFunctionVariables: () => {
+      return variables.reduce<FunctionVariables>((variables, current) => ({ ...variables, ...current }), {});
+    },
     getFunctionFiles: () => {
       return [handler.sourceFile, handler.dependencies];
     },
