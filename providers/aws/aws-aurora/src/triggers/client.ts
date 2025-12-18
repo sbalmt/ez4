@@ -6,11 +6,10 @@ import { getDatabaseName, getTableRepository } from '@ez4/pgclient/library';
 import { getDefinitionName } from '@ez4/project/library';
 import { Client as NativeClient } from '@ez4/pgclient';
 
-import { getConnectionOptions } from '../local/options';
-import { LocalOptionsNotFoundError } from '../local/errors';
-import { ClusterDatabaseNotFoundError } from '../cluster/errors';
-import { getClusterState } from '../cluster/utils';
 import { importCluster } from '../cluster/client';
+import { getClusterState } from '../cluster/utils';
+import { ClusterDatabaseNotFoundError } from '../cluster/errors';
+import { getConnectionOptions } from '../local/options';
 import { Client as ProviderClient } from '../client';
 import { getClusterName, isAuroraService } from './utils';
 
@@ -45,10 +44,6 @@ export const prepareEmulatorClient = async (event: EmulateClientEvent) => {
 
   if (options.local) {
     const connection = getConnectionOptions(service, options);
-
-    if (!connection) {
-      throw new LocalOptionsNotFoundError(service.name);
-    }
 
     return NativeClient.make({
       debug: options.debug,

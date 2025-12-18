@@ -3,7 +3,6 @@ import type { DatabaseService } from '@ez4/database/library';
 
 import { getTableState } from '../table/utils';
 import { getTableRepository } from '../utils/repository';
-import { LocalOptionsNotFoundError } from '../local/errors';
 import { getConnectionOptions } from '../local/options';
 import { getClientInstance } from '../client/utils';
 import { Client } from '../client';
@@ -38,10 +37,6 @@ export const prepareEmulatorClient = (event: EmulateClientEvent) => {
 
   if (options.local) {
     const connection = getConnectionOptions(service, options);
-
-    if (!connection) {
-      throw new LocalOptionsNotFoundError(service.name);
-    }
 
     return Client.make({
       repository: getTableRepository(service, options),
