@@ -27,7 +27,7 @@ type TestResponse = {
   };
 };
 
-describe('local gateway tests', () => {
+describe('local http gateway tests', () => {
   it('assert :: send request (default response)', async () => {
     const client = HttpTester.getClientMock<TestApi>('http', {
       default: {
