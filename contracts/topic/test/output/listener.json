@@ -8,6 +8,8 @@
     "type": "@ez4/topic",
     "name": "TestTopic",
     "context": {},
+    "variables": {},
+    "services": {},
     "description": "Topic to test subscription listener.",
     "schema": {
       "type": "object",

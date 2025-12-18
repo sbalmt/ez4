@@ -3,6 +3,8 @@
     "type": "@ez4/bucket",
     "name": "TestStorage",
     "context": {},
+    "variables": {},
+    "services": {},
     "events": {
       "listener": {
         "name": "eventListener",

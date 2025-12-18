@@ -3,6 +3,10 @@
     "type": "@ez4/database",
     "name": "TestDatabase",
     "context": {},
+    "variables": {},
+    "services": {
+      "selfClient": "TestDatabase"
+    },
     "engine": {
       "parametersMode": "index",
       "transactionMode": "static",
@@ -59,9 +63,6 @@
           }
         }
       }
-    ],
-    "services": {
-      "selfClient": "TestDatabase"
-    }
+    ]
   }
 }

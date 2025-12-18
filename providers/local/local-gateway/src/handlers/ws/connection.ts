@@ -20,7 +20,7 @@ export const processWsConnection = async (
   const target = connection.live ? connect : disconnect;
   const handler = target.handler;
 
-  const clients = services && (await context.makeClients(services));
+  const clients = await context.makeClients(services);
 
   const module = await createModule({
     listener: target.listener ?? defaults?.listener,

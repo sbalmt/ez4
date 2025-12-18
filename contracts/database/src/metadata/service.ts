@@ -15,8 +15,9 @@ import {
 } from '@ez4/common/library';
 
 import { isModelProperty } from '@ez4/reflection';
+import { isObjectWith } from '@ez4/utils';
 
-import { ServiceType } from '../types/service';
+import { createDatabaseService } from '../types/service';
 import { IncompleteServiceError } from '../errors/service';
 import { InvalidRelationAliasError, InvalidRelationColumnError, InvalidRelationTableError } from '../errors/relations';
 import { getDatabaseScalability } from './scalability';
@@ -35,12 +36,10 @@ export const getDatabaseServices = (reflection: SourceMap) => {
       continue;
     }
 
-    const service: Incomplete<DatabaseService> = { type: ServiceType, context: {} };
+    const service = createDatabaseService(declaration.name);
     const properties = new Set(['engine', 'tables']);
 
     const fileName = declaration.file;
-
-    service.name = declaration.name;
 
     for (const member of getModelMembers(declaration)) {
       if (!isModelProperty(member) || member.inherited) {
@@ -56,9 +55,7 @@ export const getDatabaseServices = (reflection: SourceMap) => {
           break;
 
         case 'scalability':
-          if ((service.scalability = getDatabaseScalability(member.value, declaration, reflection, errorList))) {
-            properties.delete(member.name);
-          }
+          service.scalability = getDatabaseScalability(member.value, declaration, reflection, errorList);
           break;
 
         case 'engine':
@@ -83,7 +80,7 @@ export const getDatabaseServices = (reflection: SourceMap) => {
       }
     }
 
-    if (!isValidService(service)) {
+    if (!isCompleteService(service)) {
       errorList.push(new IncompleteServiceError([...properties], fileName));
       continue;
     }
@@ -109,8 +106,8 @@ export const getDatabaseServices = (reflection: SourceMap) => {
   };
 };
 
-const isValidService = (type: Incomplete<DatabaseService>): type is DatabaseService => {
-  return !!type.name && !!type.tables && !!type.context;
+const isCompleteService = (type: Incomplete<DatabaseService>): type is DatabaseService => {
+  return isObjectWith(type, ['engine', 'tables', 'variables', 'services']);
 };
 
 const getAllTables = (member: ModelProperty, parent: TypeModel, reflection: SourceMap, errorList: Error[]) => {

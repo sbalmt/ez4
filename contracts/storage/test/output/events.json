@@ -3,6 +3,10 @@
     "type": "@ez4/bucket",
     "name": "TestStorage",
     "context": {},
+    "variables": {},
+    "services": {
+      "selfClient": "TestStorage"
+    },
     "events": {
       "path": "uploads/*",
       "logRetention": 14,
@@ -13,9 +17,6 @@
         "name": "eventHandler",
         "file": "test/input/output-events.ts"
       }
-    },
-    "services": {
-      "selfClient": "TestStorage"
     }
   }
 }

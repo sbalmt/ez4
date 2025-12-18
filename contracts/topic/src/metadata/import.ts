@@ -15,8 +15,9 @@ import {
 } from '@ez4/common/library';
 
 import { isModelProperty, isTypeReference, isTypeUnion } from '@ez4/reflection';
+import { isObjectWith } from '@ez4/utils';
 
-import { ImportType } from '../types/import';
+import { createTopicImport } from '../types/import';
 import { IncompleteServiceError } from '../errors/service';
 import { getAllSubscription } from './subscription';
 import { getTopicMessage } from './message';
@@ -34,12 +35,10 @@ export const getTopicImports = (reflection: SourceMap) => {
       continue;
     }
 
-    const service: Incomplete<TopicImport> = { type: ImportType };
+    const service = createTopicImport(declaration.name);
     const properties = new Set(['project', 'reference', 'schema']);
 
     const fileName = declaration.file;
-
-    service.name = declaration.name;
 
     if (declaration.description) {
       service.description = declaration.description;
@@ -110,7 +109,7 @@ export const getTopicImports = (reflection: SourceMap) => {
       }
     }
 
-    if (!isValidImport(service)) {
+    if (!isCompleteService(service)) {
       errorList.push(new IncompleteServiceError([...properties], fileName));
       continue;
     }
@@ -129,6 +128,6 @@ export const getTopicImports = (reflection: SourceMap) => {
   };
 };
 
-const isValidImport = (type: Incomplete<TopicImport>): type is TopicImport => {
-  return !!type.name && !!type.reference && !!type.project && !!type.schema && !!type.subscriptions;
+const isCompleteService = (type: Incomplete<TopicImport>): type is TopicImport => {
+  return isObjectWith(type, ['project', 'reference', 'schema', 'subscriptions', 'variables', 'services']);
 };

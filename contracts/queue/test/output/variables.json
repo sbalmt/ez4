@@ -7,6 +7,13 @@
   "TestQueue": {
     "type": "@ez4/queue",
     "context": {},
+    "variables": {
+      "TEST_VAR1": "test-literal-value",
+      "TEST_VAR2": "test-env-var-value"
+    },
+    "services": {
+      "selfSettings": "@variables"
+    },
     "name": "TestQueue",
     "schema": {
       "type": "object",
@@ -24,13 +31,6 @@
           "file": "test/input/output-variables.ts"
         }
       }
-    ],
-    "variables": {
-      "TEST_VAR1": "test-literal-value",
-      "TEST_VAR2": "test-env-var-value"
-    },
-    "services": {
-      "selfSettings": "@variables"
-    }
+    ]
   }
 }

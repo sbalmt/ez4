@@ -19,7 +19,7 @@ import { isObjectWith } from '@ez4/utils';
 
 import { IncompleteServiceError, ServiceCollisionError } from '../../errors/web/service';
 import { getFullTypeName } from '../utils/type';
-import { HttpNamespaceType, HttpServiceType } from './types';
+import { createHttpService, HttpNamespaceType } from './types';
 import { getHttpDefaultsMetadata } from './defaults';
 import { getHttpAccessMetadata } from './access';
 import { getHttpCacheMetadata } from './cache';
@@ -41,12 +41,10 @@ export const getHttpServicesMetadata = (reflection: SourceMap) => {
       continue;
     }
 
-    const service: Incomplete<HttpService> = { type: HttpServiceType, context: {} };
+    const service = createHttpService(declaration.name);
     const properties = new Set(['routes']);
 
     const fileName = declaration.file;
-
-    service.name = declaration.name;
 
     if (declaration.description) {
       service.description = declaration.description;
@@ -120,7 +118,7 @@ export const getHttpServicesMetadata = (reflection: SourceMap) => {
 };
 
 const isCompleteService = (type: Incomplete<HttpService>): type is HttpService => {
-  return isObjectWith(type, ['name', 'routes', 'context']);
+  return isObjectWith(type, ['routes', 'variables', 'services']);
 };
 
 const assignProviderServices = (service: HttpService, errorList: Error[], fileName?: string) => {
@@ -129,10 +127,6 @@ const assignProviderServices = (service: HttpService, errorList: Error[], fileNa
 
     if (!provider?.services) {
       continue;
-    }
-
-    if (!service.services) {
-      service.services = {};
     }
 
     for (const serviceName in provider.services) {

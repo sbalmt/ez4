@@ -1,8 +1,8 @@
-import type { AllType, ModelProperty, SourceMap, TypeModel, TypeObject } from '@ez4/reflection';
+import type { ModelProperty, SourceMap, TypeModel, TypeObject } from '@ez4/reflection';
 import type { LinkedServices } from '@ez4/project/library';
 
-import { isModelProperty, isTypeObject } from '@ez4/reflection';
 import { triggerAllSync } from '@ez4/project/library';
+import { isModelProperty } from '@ez4/reflection';
 
 import { ExternalReferenceError, InvalidServiceError, MissingServiceError, MissingServiceProviderError } from '../errors/services';
 import { getPropertyObject, getPropertyString } from '../reflection/property';
@@ -23,7 +23,7 @@ export const getLinkedServiceList = (member: ModelProperty, reflection: SourceMa
     return getObjectServices(object, reflection, errorList);
   }
 
-  return undefined;
+  return {};
 };
 
 export const getLinkedServiceName = (member: ModelProperty, parent: TypeObject | TypeModel, reflection: SourceMap, errorList: Error[]) => {
@@ -59,11 +59,7 @@ export const getLinkedServiceName = (member: ModelProperty, parent: TypeObject |
   return serviceName;
 };
 
-const getObjectServices = (type: AllType, reflection: SourceMap, errorList: Error[]) => {
-  if (!isTypeObject(type)) {
-    return undefined;
-  }
-
+const getObjectServices = (type: TypeObject, reflection: SourceMap, errorList: Error[]) => {
   const members = getObjectMembers(type);
   const linkedServices: LinkedServices = {};
 

@@ -8,6 +8,8 @@
     "type": "@ez4/queue",
     "name": "TestQueue",
     "context": {},
+    "variables": {},
+    "services": {},
     "timeout": 20,
     "polling": 10,
     "schema": {
@@ -27,6 +29,14 @@
     "description": "Import queue assigning handler.",
     "project": "name from project in ez4.project.js",
     "reference": "TestQueue",
+    "context": {},
+    "variables": {
+      "TEST_VAR1": "test-literal-value",
+      "TEST_VAR2": "test-env-var-value"
+    },
+    "services": {
+      "selfClient": "TestImport1Queue"
+    },
     "timeout": 20,
     "schema": {
       "type": "object",
@@ -44,14 +54,7 @@
           "file": "test/input/output-import.ts"
         }
       }
-    ],
-    "variables": {
-      "TEST_VAR1": "test-literal-value",
-      "TEST_VAR2": "test-env-var-value"
-    },
-    "services": {
-      "selfClient": "TestImport1Queue"
-    }
+    ]
   },
   "TestImport2Queue": {
     "type": "@ez4/import:queue",
@@ -60,6 +63,14 @@
     "project": "name from project in ez4.project.js",
     "reference": "TestQueue",
     "timeout": 20,
+    "context": {},
+    "variables": {
+      "TEST_VAR1": "test-literal-value",
+      "TEST_VAR2": "test-env-var-value"
+    },
+    "services": {
+      "selfClient": "TestImport2Queue"
+    },
     "schema": {
       "type": "object",
       "identity": 1,
@@ -69,13 +80,6 @@
         }
       }
     },
-    "subscriptions": [],
-    "variables": {
-      "TEST_VAR1": "test-literal-value",
-      "TEST_VAR2": "test-env-var-value"
-    },
-    "services": {
-      "selfClient": "TestImport2Queue"
-    }
+    "subscriptions": []
   }
 }

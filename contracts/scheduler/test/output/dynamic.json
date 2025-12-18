@@ -3,6 +3,10 @@
     "type": "@ez4/cron",
     "name": "TestScheduler",
     "context": {},
+    "variables": {},
+    "services": {
+      "testCron": "TestScheduler"
+    },
     "group": "test-group",
     "expression": "dynamic",
     "maxRetries": 5,
@@ -16,9 +20,6 @@
       "type": "object",
       "identity": 1,
       "properties": {}
-    },
-    "services": {
-      "testCron": "TestScheduler"
     }
   }
 }

@@ -8,6 +8,8 @@
     "type": "@ez4/http",
     "name": "TestService",
     "context": {},
+    "variables": {},
+    "services": {},
     "description": "Service for testing route authorizers.",
     "routes": [
       {

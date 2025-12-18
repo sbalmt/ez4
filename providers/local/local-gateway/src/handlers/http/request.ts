@@ -24,9 +24,10 @@ export const processHttpRequest = async (
   identity?: Http.Identity
 ) => {
   const handler = route.handler;
-  const provider = handler.provider;
 
+  const provider = handler.provider;
   const services = provider?.services;
+
   const clients = services && (await context.makeClients(services));
 
   const module = await createModule({

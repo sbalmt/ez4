@@ -39,7 +39,7 @@ export const getEmulatorService = (event: EmulateServiceEvent) => {
     name: serviceName,
     identifier: getServiceName(serviceName, options),
     exportHandler: async () => {
-      const clients = services && (await context.makeClients(services));
+      const clients = await context.makeClients(services);
 
       const factoryModule = await createEmulatorModule({
         version: options.version,

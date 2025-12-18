@@ -7,28 +7,29 @@
   "TestServiceAFactory": {
     "type": "@ez4/factory",
     "context": {},
-    "name": "TestServiceAFactory",
-    "handler": {
-      "name": "testServiceAInitializer",
-      "file": "test/input/output-service.ts"
-    },
     "variables": {
       "TEST_VAR": "test-var"
     },
     "services": {
       "selfVariables": "@variables"
+    },
+    "name": "TestServiceAFactory",
+    "handler": {
+      "name": "testServiceAInitializer",
+      "file": "test/input/output-service.ts"
     }
   },
   "TestServiceBFactory": {
     "type": "@ez4/factory",
     "context": {},
+    "variables": {},
+    "services": {
+      "serviceA": "TestServiceAFactory"
+    },
     "name": "TestServiceBFactory",
     "handler": {
       "name": "testServiceBInitializer",
       "file": "test/input/output-service.ts"
-    },
-    "services": {
-      "serviceA": "TestServiceAFactory"
     }
   }
 }

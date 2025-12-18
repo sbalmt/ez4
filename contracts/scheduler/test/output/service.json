@@ -3,6 +3,10 @@
     "type": "@ez4/cron",
     "name": "TestScheduler",
     "context": {},
+    "variables": {
+      "TEST_VAR2": "test-env-var-value"
+    },
+    "services": {},
     "description": "Scheduler cron description.",
     "group": "test-group",
     "expression": "rate(1 minute)",
@@ -23,9 +27,6 @@
       "variables": {
         "TEST_VAR1": "test-literal-value"
       }
-    },
-    "variables": {
-      "TEST_VAR2": "test-env-var-value"
     }
   }
 }

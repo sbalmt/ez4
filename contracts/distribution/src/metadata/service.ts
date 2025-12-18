@@ -13,6 +13,8 @@ import {
 } from '@ez4/common/library';
 
 import { isModelProperty, isTypeString } from '@ez4/reflection';
+import { createServiceMetadata } from '@ez4/project/library';
+import { isObjectWith } from '@ez4/utils';
 
 import { ServiceType } from '../types/service';
 import { IncompleteServiceError } from '../errors/service';
@@ -32,12 +34,10 @@ export const getCdnServices = (reflection: SourceMap) => {
       continue;
     }
 
-    const service: Incomplete<CdnService> = { type: ServiceType, context: {} };
+    const service = createServiceMetadata<CdnService>(ServiceType, declaration.name);
     const properties = new Set(['defaultOrigin']);
 
     const fileName = declaration.file;
-
-    service.name = declaration.name;
 
     if (declaration.description) {
       service.description = declaration.description;
@@ -85,7 +85,7 @@ export const getCdnServices = (reflection: SourceMap) => {
       }
     }
 
-    if (!isValidService(service)) {
+    if (!isCompleteService(service)) {
       errorList.push(new IncompleteServiceError([...properties], fileName));
       continue;
     }
@@ -104,8 +104,8 @@ export const getCdnServices = (reflection: SourceMap) => {
   };
 };
 
-const isValidService = (type: Incomplete<CdnService>): type is CdnService => {
-  return !!type.name && !!type.defaultOrigin && !!type.context;
+const isCompleteService = (type: Incomplete<CdnService>): type is CdnService => {
+  return isObjectWith(type, ['defaultOrigin']);
 };
 
 const getAllAliases = (member: ModelProperty) => {

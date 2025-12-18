@@ -14,10 +14,11 @@ import {
 } from '@ez4/common/library';
 
 import { isModelProperty } from '@ez4/reflection';
+import { isObjectWith } from '@ez4/utils';
 
 import { IncompleteServiceError } from '../errors/service';
 import { getFactoryHandlerMetadata } from './handler';
-import { ServiceType } from './types';
+import { createFactoryService } from './types';
 
 export const isFactoryServiceDeclaration = (type: AllType): type is TypeClass => {
   return isClassDeclaration(type) && hasHeritageType(type, 'Factory.Service');
@@ -34,12 +35,10 @@ export const getFactoryServicesMetadata = (reflection: SourceMap) => {
       continue;
     }
 
-    const service: Incomplete<FactoryService> = { type: ServiceType, context: {} };
+    const service = createFactoryService(declaration.name);
     const properties = new Set(['handler']);
 
     const fileName = declaration.file;
-
-    service.name = declaration.name;
 
     if (declaration.description) {
       service.description = declaration.description;
@@ -92,5 +91,5 @@ export const getFactoryServicesMetadata = (reflection: SourceMap) => {
 };
 
 const isCompleteService = (type: Incomplete<FactoryService>): type is FactoryService => {
-  return !!type.name && !!type.handler && !!type.context;
+  return isObjectWith(type, ['handler', 'variables', 'services']);
 };

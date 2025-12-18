@@ -18,7 +18,7 @@ import { isObjectWith } from '@ez4/utils';
 
 import { IncompleteServiceError } from '../../errors/web/service';
 import { getFullTypeName } from '../utils/type';
-import { HttpImportType, HttpNamespaceType } from './types';
+import { createHttpImport, HttpNamespaceType } from './types';
 import { getHttpAuthorizationMetadata } from './authorization';
 import { getHttpDefaultsMetadata } from './defaults';
 import { getHttpRemoteRoutes } from './routes';
@@ -38,12 +38,10 @@ export const getHttpImportsMetadata = (reflection: SourceMap) => {
       continue;
     }
 
-    const service: Incomplete<HttpImport> = { type: HttpImportType };
-    const properties = new Set(['reference', 'project', 'routes']);
+    const service = createHttpImport(declaration.name);
+    const properties = new Set(['project', 'reference', 'routes']);
 
     const fileName = declaration.file;
-
-    service.name = declaration.name;
 
     if (declaration.description) {
       service.description = declaration.description;
@@ -100,7 +98,7 @@ export const getHttpImportsMetadata = (reflection: SourceMap) => {
       }
     }
 
-    if (!isCompleteImport(service)) {
+    if (!isCompleteService(service)) {
       errorList.push(new IncompleteServiceError([...properties], fileName));
       continue;
     }
@@ -119,6 +117,6 @@ export const getHttpImportsMetadata = (reflection: SourceMap) => {
   };
 };
 
-const isCompleteImport = (type: Incomplete<HttpImport>): type is HttpImport => {
-  return isObjectWith(type, ['name', 'reference', 'project', 'routes']);
+const isCompleteService = (type: Incomplete<HttpImport>): type is HttpImport => {
+  return isObjectWith(type, ['project', 'reference', 'routes']);
 };

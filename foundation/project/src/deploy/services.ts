@@ -1,64 +1,72 @@
 import type { EventContext } from '@ez4/project/library';
-import type { LinkedServices, LinkedVariables, LinkedContext, ServiceMetadata } from '../types/service';
+import type { Complete } from '@ez4/utils';
+import type { LinkedContext, LinkedServices, LinkedVariables, ServiceMetadata } from '../types/service';
 import type { MetadataReflection } from '../types/metadata';
 import type { DeployOptions } from '../types/options';
 
 import { triggerAllAsync } from '@ez4/project/library';
+import { isObjectWith } from '@ez4/utils';
 
-import { DuplicateVariablesError } from '../errors/variables';
+import { DuplicateVariablesError, MissingVariablesSupportError } from '../errors/variables';
 
 export const prepareLinkedServices = async (metadata: MetadataReflection, context: EventContext, options: DeployOptions) => {
+  const allPromises = [];
+
   for (const identity in metadata) {
     const target = metadata[identity];
 
-    if (target.services) {
-      const linkedContext = await prepareLinkedContext(target.services, metadata, options, context);
+    if (isObjectWith(target, ['services'])) {
+      const promise = prepareLinkedContext(target, metadata, options, context);
 
-      Object.assign(target.context, linkedContext);
+      allPromises.push(promise);
     }
   }
+
+  await Promise.all(allPromises);
 };
 
 const prepareLinkedContext = async (
-  services: LinkedServices,
+  target: ServiceMetadata & Complete<Pick<ServiceMetadata, 'services'>>,
   metadata: MetadataReflection,
   options: DeployOptions,
   context: EventContext
 ) => {
-  const linkedContext: Record<string, LinkedContext> = {};
+  const getLinkedContext = async (services: LinkedServices) => {
+    const linkedContext: Record<string, LinkedContext> = {};
 
-  for (const alias in services) {
-    const identity = services[alias];
-    const service = metadata[identity];
+    for (const alias in services) {
+      const identity = services[alias];
+      const service = metadata[identity];
 
-    const linkedService = await triggerAllAsync('deploy:prepareLinkedService', (handler) =>
-      handler({
-        service,
-        options,
-        context
-      })
-    );
+      const linkedService = await triggerAllAsync('deploy:prepareLinkedService', (handler) => {
+        return handler({ service, options, context });
+      });
 
-    if (linkedService) {
-      const { variables, services, ...linkedServiceContext } = linkedService;
+      if (linkedService) {
+        const { variables, services, ...remaining } = linkedService;
 
-      if (variables) {
-        assignServiceVariables(service, variables);
+        if (variables) {
+          assignServiceVariables(target, variables);
+        }
+
+        linkedContext[alias] = {
+          context: services && (await getLinkedContext(services)),
+          ...remaining
+        };
       }
-
-      linkedContext[alias] = {
-        context: services && (await prepareLinkedContext(services, metadata, options, context)),
-        ...linkedServiceContext
-      };
     }
-  }
 
-  return linkedContext;
+    return linkedContext;
+  };
+
+  const targetLinkedContext = await getLinkedContext(target.services);
+
+  Object.assign(target.context, targetLinkedContext);
 };
 
 const assignServiceVariables = (service: ServiceMetadata, variables: LinkedVariables) => {
   if (!service.variables) {
-    service.variables = variables;
+    throw new MissingVariablesSupportError(service.name);
   }
 
   for (const alias in variables) {

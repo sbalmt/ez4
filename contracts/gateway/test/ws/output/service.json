@@ -10,6 +10,8 @@
     "displayName": "Test Service 1",
     "description": "First test service description.",
     "context": {},
+    "variables": {},
+    "services": {},
     "schema": {
       "type": "object",
       "identity": 1,
@@ -47,6 +49,8 @@
     "description": "Description of the second test service.",
     "stageName": "websocket",
     "context": {},
+    "variables": {},
+    "services": {},
     "schema": {
       "type": "object",
       "identity": 1,

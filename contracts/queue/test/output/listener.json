@@ -8,6 +8,8 @@
     "type": "@ez4/queue",
     "name": "TestQueue",
     "context": {},
+    "variables": {},
+    "services": {},
     "description": "Queue to test subscription listener.",
     "schema": {
       "type": "object",

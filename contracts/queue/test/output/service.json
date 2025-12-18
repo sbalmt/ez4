@@ -8,6 +8,10 @@
     "type": "@ez4/queue",
     "name": "TestQueue1",
     "context": {},
+    "variables": {},
+    "services": {
+      "testQueue": "TestQueue2"
+    },
     "description": "First test queue description.",
     "subscriptions": [],
     "fifoMode": {
@@ -25,15 +29,17 @@
           "type": "string"
         }
       }
-    },
-    "services": {
-      "testQueue": "TestQueue2"
     }
   },
   "TestQueue2": {
     "type": "@ez4/queue",
     "name": "TestQueue2",
     "context": {},
+    "variables": {
+      "TEST_VAR1": "test-literal-value",
+      "TEST_VAR2": "test-env-var-value"
+    },
+    "services": {},
     "description": "Description of the second test queue.",
     "subscriptions": [],
     "timeout": 5,
@@ -51,10 +57,6 @@
           "type": "string"
         }
       }
-    },
-    "variables": {
-      "TEST_VAR1": "test-literal-value",
-      "TEST_VAR2": "test-env-var-value"
     }
   }
 }

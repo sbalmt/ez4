@@ -7,6 +7,13 @@
   "TestService": {
     "type": "@ez4/http",
     "context": {},
+    "variables": {
+      "TEST_VAR1": "test-literal-value",
+      "TEST_VAR2": "test-env-var-value"
+    },
+    "services": {
+      "selfSettings": "@variables"
+    },
     "name": "TestService",
     "routes": [
       {
@@ -32,13 +39,6 @@
           }
         }
       }
-    ],
-    "variables": {
-      "TEST_VAR1": "test-literal-value",
-      "TEST_VAR2": "test-env-var-value"
-    },
-    "services": {
-      "selfSettings": "@variables"
-    }
+    ]
   }
 }

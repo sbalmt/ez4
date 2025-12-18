@@ -7,6 +7,8 @@
   "TestQueue": {
     "type": "@ez4/queue",
     "context": {},
+    "variables": {},
+    "services": {},
     "name": "TestQueue",
     "description": "Queue to test subscription listener.",
     "subscriptions": [],

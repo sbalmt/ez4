@@ -24,7 +24,7 @@ export const processSchedulerEvent = async (
     }
   });
 
-  const clients = services && (await context.makeClients(services));
+  const clients = await context.makeClients(services);
 
   const request: Cron.Incoming<Cron.Event | null> = {
     requestId: getRandomUUID(),

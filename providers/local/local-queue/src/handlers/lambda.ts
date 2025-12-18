@@ -26,7 +26,7 @@ export const processLambdaMessage = async (
 
   const { services } = service;
 
-  const clients = services && (await context.makeClients(services));
+  const clients = await context.makeClients(services);
 
   let currentRequest: Queue.Incoming<Queue.Message> | undefined;
 

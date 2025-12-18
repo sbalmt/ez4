@@ -8,6 +8,8 @@
     "type": "@ez4/ws",
     "name": "TestService",
     "context": {},
+    "variables": {},
+    "services": {},
     "schema": {
       "type": "object",
       "identity": 1,

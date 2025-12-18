@@ -3,6 +3,8 @@
     "type": "@ez4/database",
     "name": "TestDatabase",
     "context": {},
+    "variables": {},
+    "services": {},
     "engine": {
       "parametersMode": "index",
       "transactionMode": "static",

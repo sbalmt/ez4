@@ -9,6 +9,8 @@
     "name": "TestService",
     "displayName": "Test Service",
     "context": {},
+    "variables": {},
+    "services": {},
     "defaults": {
       "listener": {
         "name": "testListener",

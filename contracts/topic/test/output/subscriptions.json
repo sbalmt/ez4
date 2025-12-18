@@ -8,6 +8,10 @@
     "type": "@ez4/topic",
     "name": "TestTopic",
     "context": {},
+    "variables": {},
+    "services": {
+      "selfClient": "TestTopic"
+    },
     "description": "Topic to test subscriptions.",
     "schema": {
       "type": "object",
@@ -47,15 +51,14 @@
         "type": "queue",
         "service": "TestQueue"
       }
-    ],
-    "services": {
-      "selfClient": "TestTopic"
-    }
+    ]
   },
   "TestQueue": {
     "type": "@ez4/queue",
     "name": "TestQueue",
     "context": {},
+    "variables": {},
+    "services": {},
     "subscriptions": [],
     "schema": {
       "identity": 1,

@@ -17,7 +17,7 @@ export const processWsMessage = async (
 ) => {
   const { message, services } = service;
 
-  const clients = services && (await context.makeClients(services));
+  const clients = await context.makeClients(services);
   const handler = message.handler;
 
   const module = await createModule({

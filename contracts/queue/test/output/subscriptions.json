@@ -8,6 +8,10 @@
     "type": "@ez4/queue",
     "name": "TestQueue",
     "context": {},
+    "variables": {},
+    "services": {
+      "selfClient": "TestQueue"
+    },
     "description": "Queue to test subscriptions.",
     "schema": {
       "type": "object",
@@ -38,9 +42,6 @@
           "TEST_VAR": "test-literal-value"
         }
       }
-    ],
-    "services": {
-      "selfClient": "TestQueue"
-    }
+    ]
   }
 }

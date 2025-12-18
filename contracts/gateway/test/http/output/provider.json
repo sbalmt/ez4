@@ -7,6 +7,10 @@
   "TestService": {
     "type": "@ez4/http",
     "context": {},
+    "variables": {},
+    "services": {
+      "selfClient": "TestService"
+    },
     "name": "TestService",
     "routes": [
       {
@@ -45,9 +49,6 @@
           }
         }
       }
-    ],
-    "services": {
-      "selfClient": "TestService"
-    }
+    ]
   }
 }

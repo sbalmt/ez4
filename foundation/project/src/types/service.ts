@@ -1,6 +1,7 @@
+import type { AnyObject, Incomplete } from '@ez4/utils';
 import type { EntryState } from '@ez4/stateful';
 
-import { isAnyObject } from '@ez4/utils';
+import { isAnyObject, isObjectWith } from '@ez4/utils';
 
 export type LinkedVariables = Record<string, string>;
 
@@ -38,5 +39,9 @@ export type LinkedContext = {
 };
 
 export const isServiceMetadata = (value: unknown): value is ServiceMetadata => {
-  return isAnyObject(value) && 'type' in value && 'name' in value;
+  return isAnyObject(value) && isObjectWith(value, ['type', 'name']);
+};
+
+export const createServiceMetadata = <T extends AnyObject>(type: string, name: string) => {
+  return { type, name, context: {} } as ServiceMetadata & Incomplete<T>;
 };

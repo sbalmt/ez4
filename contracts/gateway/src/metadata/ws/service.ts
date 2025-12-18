@@ -20,7 +20,7 @@ import { isObjectWith } from '@ez4/utils';
 import { IncompleteServiceError } from '../../errors/web/service';
 import { getWebBodyMetadata } from '../web/body';
 import { getFullTypeName } from '../utils/type';
-import { WsNamespaceType, WsServiceType } from './types';
+import { createWsService, WsNamespaceType } from './types';
 import { getWsConnectionMetadata } from './connection';
 import { getWsDefaultsMetadata } from './defaults';
 import { getWsMessageMetadata } from './message';
@@ -40,12 +40,10 @@ export const getWsServicesMetadata = (reflection: SourceMap) => {
       continue;
     }
 
-    const service: Incomplete<WsService> = { type: WsServiceType, context: {} };
+    const service = createWsService(declaration.name);
     const properties = new Set(['schema', 'connect', 'disconnect', 'message']);
 
     const fileName = declaration.file;
-
-    service.name = declaration.name;
 
     if (declaration.description) {
       service.description = declaration.description;
@@ -104,12 +102,16 @@ export const getWsServicesMetadata = (reflection: SourceMap) => {
         case 'variables':
           if (!member.inherited) {
             service.variables = getLinkedVariableList(member, errorList);
+          } else {
+            service.variables = {};
           }
           break;
 
         case 'services':
           if (!member.inherited) {
             service.services = getLinkedServiceList(member, reflection, errorList);
+          } else {
+            service.services = {};
           }
           break;
       }
@@ -135,5 +137,5 @@ export const getWsServicesMetadata = (reflection: SourceMap) => {
 };
 
 const isCompleteService = (type: Incomplete<WsService>): type is WsService => {
-  return isObjectWith(type, ['name', 'schema', 'connect', 'disconnect', 'message', 'context']);
+  return isObjectWith(type, ['schema', 'connect', 'disconnect', 'message', 'variables', 'services']);
 };

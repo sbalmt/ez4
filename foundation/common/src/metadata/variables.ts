@@ -1,7 +1,7 @@
-import type { AllType, ModelProperty } from '@ez4/reflection';
+import type { ModelProperty, TypeObject } from '@ez4/reflection';
 import type { LinkedVariables } from '@ez4/project/library';
 
-import { isModelProperty, isTypeObject } from '@ez4/reflection';
+import { isModelProperty } from '@ez4/reflection';
 
 import { MissingVariableError } from '../errors/variables';
 import { getPropertyObject, getPropertyString } from '../reflection/property';
@@ -14,14 +14,10 @@ export const getLinkedVariableList = (member: ModelProperty, errorList: Error[])
     return getObjectVariables(object, errorList);
   }
 
-  return undefined;
+  return {};
 };
 
-const getObjectVariables = (type: AllType, errorList: Error[]) => {
-  if (!isTypeObject(type)) {
-    return undefined;
-  }
-
+const getObjectVariables = (type: TypeObject, errorList: Error[]) => {
   const members = getObjectMembers(type);
   const variables: LinkedVariables = {};
 
