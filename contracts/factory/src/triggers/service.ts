@@ -21,7 +21,7 @@ export const prepareLinkedServices = (event: ServiceEvent) => {
   return null;
 };
 
-export const prepareFactoryResources = (event: PrepareResourceEvent) => {
+export const prepareResources = (event: PrepareResourceEvent) => {
   return isFactoryService(event.service);
 };
 

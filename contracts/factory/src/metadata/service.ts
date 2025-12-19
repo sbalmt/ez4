@@ -62,7 +62,6 @@ export const getFactoryServicesMetadata = (reflection: SourceMap) => {
 
         case 'variables':
           service.variables = getLinkedVariableList(member, errorList);
-
           break;
 
         case 'services':

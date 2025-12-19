@@ -23,7 +23,7 @@ export const getFactoryHandlerMetadata = (type: AllType, errorList: Error[]) => 
     ...(module && { module })
   };
 
-  const properties = new Set(['name', 'file', 'request']);
+  const properties = new Set(['name', 'file']);
 
   if ((handler.name = type.name)) {
     properties.delete('name');

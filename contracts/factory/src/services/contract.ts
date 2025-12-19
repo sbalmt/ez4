@@ -9,7 +9,7 @@ export namespace Factory {
   export type Handler<T = void> = FactoryHandler<T>;
 
   /**
-   * Service factory.
+   * Factory service.
    */
   export declare abstract class Service<T = void> implements CommonService.Provider {
     /**

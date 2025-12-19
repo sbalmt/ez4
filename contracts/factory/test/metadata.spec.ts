@@ -18,7 +18,7 @@ const testFile = (fileName: string, overwrite = false) => {
   }
 };
 
-describe('topic metadata', () => {
+describe('factory metadata', () => {
   registerTriggers();
 
   process.env.TEST_ENV_VAR = 'test-env-var-value';
