@@ -18,7 +18,7 @@ export declare class TestValidation extends Validation.Service<Schema> {
   };
 }
 
-export function performValidation(input: Validation.Input, context: Service.Context<TestValidation>) {
+export function performValidation(input: Validation.Input<Schema>, context: Service.Context<TestValidation>) {
   const { selfVariables } = context;
 
   // Ensure test variable
