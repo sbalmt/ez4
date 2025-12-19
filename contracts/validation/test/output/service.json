@@ -1,0 +1,34 @@
+{
+  "@variables": {
+    "type": "@ez4/common",
+    "name": "@variables",
+    "context": {}
+  },
+  "TestValidation": {
+    "type": "@ez4/validation",
+    "name": "TestValidation",
+    "context": {},
+    "variables": {
+      "TEST_VAR": "test-var"
+    },
+    "services": {
+      "selfVariables": "@variables"
+    },
+    "schema": {
+      "type": "object",
+      "properties": {
+        "foo": {
+          "type": "string"
+        },
+        "bar": {
+          "type": "number"
+        }
+      },
+      "identity": 1
+    },
+    "handler": {
+      "name": "performValidation",
+      "file": "test/input/output-service.ts"
+    }
+  }
+}
