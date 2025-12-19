@@ -6,6 +6,8 @@ import type { updateScheduleHandler } from '@/api/endpoints/update-schedule';
 import type { deleteScheduleHandler } from '@/api/endpoints/delete-schedule';
 import type { listSchedulesHandler } from '@/api/endpoints/list-schedules';
 import type { StatsServiceFactory } from '@/api/services/stats';
+import type { DateValidation } from '@/api/validations/date';
+import type { DateInUseError } from '@/api/errors/date';
 import type { EventScheduler } from '@/scheduler';
 import type { EventDb } from '@/dynamo';
 
@@ -45,9 +47,22 @@ export declare class Api extends Http.Service {
   ];
 
   /**
+   * Default configurations for the API.
+   */
+  defaults: Http.UseDefaults<{
+    /**
+     * Mapped HTTP exceptions.
+     */
+    httpErrors: {
+      [409]: [DateInUseError];
+    };
+  }>;
+
+  /**
    * All API services.
    */
   services: {
+    dateValidation: Environment.Service<DateValidation>;
     statsService: Environment.Service<StatsServiceFactory>;
     eventScheduler: Environment.Service<EventScheduler>;
     eventDb: Environment.Service<EventDb>;

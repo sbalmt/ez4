@@ -41,8 +41,10 @@ export async function createScheduleHandler(
   request: CreateScheduleRequest,
   context: Service.Context<Api>
 ): Promise<CreateScheduleResponse> {
-  const { eventDb, eventScheduler, statsService } = context;
+  const { eventDb, eventScheduler, statsService, dateValidation } = context;
   const { date, message } = request.body;
+
+  await dateValidation.validate(date);
 
   const identifier = await createEvent(eventDb, {
     status: EventStatus.Pending,

@@ -29,6 +29,7 @@
     "@ez4/docs-topology": "^0.36.0",
     "@ez4/docs-gateway": "^0.36.0",
     "@ez4/factory": "^0.36.0",
+    "@ez4/validation": "^0.36.0",
     "@ez4/gateway": "^0.36.0",
     "@ez4/local-database": "^0.36.0",
     "@ez4/local-gateway": "^0.36.0",
