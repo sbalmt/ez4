@@ -24,7 +24,7 @@ export const tryTypeAlias = (node: Node, types: TypeArguments | undefined, conte
   }
 
   if (!types) {
-    return tryTypes(node.type, context, state);
+    return tryTypes(node.type, context, getNewState());
   }
 
   const newState = getNewState({ types: state.types });
