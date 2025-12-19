@@ -20,10 +20,10 @@ export const prepareLinkedClient = (context: EventContext, service: WsService, o
   });
 
   return {
-    connectionIds: [gatewayId],
-    dependencyIds: [gatewayId],
-    constructor: `make(${gatewayUrl}, ${clientOptions})`,
+    module: 'WsClient',
     from: '@ez4/aws-gateway/client',
-    module: 'WsClient'
+    constructor: `@{EZ4_MODULE_IMPORT}.make(${gatewayUrl}, ${clientOptions})`,
+    connectionIds: [gatewayId],
+    dependencyIds: [gatewayId]
   };
 };

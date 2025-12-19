@@ -6,7 +6,7 @@ import { createHash } from 'node:crypto';
 import { join, parse } from 'node:path';
 import { existsSync } from 'node:fs';
 
-import { hashData, toKebabCase, toPascalCase, toSnakeCase } from '@ez4/utils';
+import { hashData, isNullish, toKebabCase, toPascalCase, toSnakeCase } from '@ez4/utils';
 import { getTemporaryPath } from '@ez4/project/library';
 
 import { SourceFileError } from '../errors/bundler';
@@ -206,18 +206,21 @@ const buildServiceContext = (linkedContext: Record<string, LinkedContext>) => {
     const services: string[] = [];
 
     for (const property of Object.keys(linkedContext).sort()) {
-      const { context, constructor, callable, module, from } = linkedContext[property];
+      const { constructor, module, from, context } = linkedContext[property];
 
-      const importedService = `${property}${toPascalCase(module)}`;
+      const constructorName = toPascalCase(`${property}${module}`);
 
-      const constructorWithContext = constructor.replaceAll('@{context}', context ? buildContext(context) : '');
-      const constructorCallback = `${callable ? importedService : `${importedService}.`}${constructorWithContext}`;
-      const constructorHash = `S${toSnakeCase(hashData(constructorCallback)).toUpperCase()}`;
+      const constructorCode = applyTemplateVariables(constructor, {
+        EZ4_MODULE_CONTEXT: context && buildContext(context),
+        EZ4_MODULE_IMPORT: constructorName
+      });
+
+      const constructorHash = `__EZ4_${toSnakeCase(hashData(constructorCode)).toUpperCase()}`;
 
       if (!(constructorHash in repository)) {
-        packages.push(`import { ${module} as ${importedService} } from '${from}';`);
+        packages.push(`import { ${module} as ${constructorName} } from '${from}';`);
 
-        repository[constructorHash] = constructorCallback;
+        repository[constructorHash] = constructorCode;
       }
 
       services.push(`${property}: __EZ4_REPOSITORY.${constructorHash}`);
@@ -235,4 +238,14 @@ const buildServiceContext = (linkedContext: Record<string, LinkedContext>) => {
     packages,
     services
   };
+};
+
+const applyTemplateVariables = (constructor: string, variables: Record<string, string | undefined>) => {
+  return constructor.replaceAll(/@\{([\w_]+)\}/g, (_, variableName) => {
+    if (!(variableName in variables) || isNullish(variables[variableName])) {
+      throw new Error(`Template variable ${variableName} isn't expected.`);
+    }
+
+    return variables[variableName];
+  });
 };

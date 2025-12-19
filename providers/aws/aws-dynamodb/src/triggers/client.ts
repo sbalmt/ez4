@@ -16,15 +16,17 @@ export const prepareLinkedClient = (context: EventContext, service: DatabaseServ
     return tableState.entryId;
   });
 
+  const clientOptions = JSON.stringify({
+    repository: getTableRepository(service, options),
+    debug: options.debug
+  });
+
   return {
-    connectionIds: tableIds,
-    dependencyIds: tableIds,
-    from: '@ez4/aws-dynamodb/client',
     module: 'Client',
-    constructor: `make(${JSON.stringify({
-      repository: getTableRepository(service, options),
-      debug: options.debug
-    })})`
+    from: '@ez4/aws-dynamodb/client',
+    constructor: `@{EZ4_MODULE_IMPORT}.make(${clientOptions})`,
+    connectionIds: tableIds,
+    dependencyIds: tableIds
   };
 };
 

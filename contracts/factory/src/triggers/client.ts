@@ -4,10 +4,9 @@ export const prepareLinkedClient = (service: FactoryService) => {
   const { handler, variables, services } = service;
 
   return {
-    constructor: `(@{context})`,
-    from: `./${handler.file}`,
     module: handler.name,
-    callable: true,
+    from: `./${handler.file}`,
+    constructor: `@{EZ4_MODULE_IMPORT}(@{EZ4_MODULE_CONTEXT})`,
     variables,
     services
   };

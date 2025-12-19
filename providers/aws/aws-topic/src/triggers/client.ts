@@ -16,10 +16,10 @@ export const prepareLinkedClient = (context: EventContext, service: TopicService
   const schema = JSON.stringify(service.schema);
 
   return {
-    connectionIds: [topicId],
-    dependencyIds: [topicId],
-    constructor: `make(${topicArn}, ${schema}, ${fifoMode})`,
+    module: 'Client',
     from: '@ez4/aws-topic/client',
-    module: 'Client'
+    constructor: `@{EZ4_MODULE_IMPORT}.make(${topicArn}, ${schema}, ${fifoMode})`,
+    connectionIds: [topicId],
+    dependencyIds: [topicId]
   };
 };
