@@ -23,7 +23,6 @@ export type ContextSource = {
   dependencyIds?: string[];
   connectionIds?: string[];
   constructor: string;
-  callable?: boolean;
   module: string;
   from: string;
 };
@@ -33,7 +32,6 @@ export type LinkedContext = {
   dependencyIds?: string[];
   connectionIds?: string[];
   constructor: string;
-  callable?: boolean;
   module: string;
   from: string;
 };
