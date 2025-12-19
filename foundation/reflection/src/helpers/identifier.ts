@@ -52,10 +52,10 @@ export const getAccessName = (node: Node): string => {
   return node.getText();
 };
 
-export const getAccessNamespace = (node: Node): string | null => {
+export const getAccessNamespace = (node: Node) => {
   if (isPropertyAccessExpression(node)) {
     return getAccessPath(node.expression);
   }
 
-  return null;
+  return undefined;
 };

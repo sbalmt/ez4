@@ -1,10 +1,11 @@
 import type { InterfaceDeclaration, Node } from 'typescript';
 import type { Context, State } from './common';
 
-import type { EveryMemberType, InterfaceModifiers, ModelHeritage, TypeInterface } from '../types';
+import type { EveryMemberType, InterfaceModifiers, ModelHeritage, TypeInterface, TypePosition } from '../types';
 
 import { isInterfaceDeclaration } from 'typescript';
-import { getNodeFilePath } from '../helpers/node';
+
+import { getNodeFilePosition, getNodeFilePath } from '../helpers/node';
 import { getNodeDocumentation } from '../helpers/documentation';
 import { getNodeModifiers } from '../helpers/modifier';
 import { getPathModule } from '../utils/module';
@@ -16,17 +17,21 @@ export type InterfaceNodes = InterfaceDeclaration;
 
 export const createInterface = (
   name: string,
-  file: string | null,
-  description: string | null,
-  modifiers: InterfaceModifiers | null,
+  file: string | undefined,
+  position: TypePosition | undefined,
+  description: string | undefined,
+  modifiers: InterfaceModifiers | undefined,
   heritage?: ModelHeritage[],
   members?: EveryMemberType[]
 ): TypeInterface => {
+  const module = file && getPathModule(file);
+
   return {
     type: TypeName.Interface,
     name,
     ...(file && { file }),
-    ...(file && { module: getPathModule(file) }),
+    ...(position && { position }),
+    ...(module && { module }),
     ...(description && { description }),
     ...(modifiers && { modifiers }),
     ...(heritage?.length && { heritage }),
@@ -40,7 +45,7 @@ export const isTypeInterface = (node: Node): node is InterfaceNodes => {
 
 export const tryTypeInterface = (node: Node, context: Context, state: State) => {
   if (context.options.ignoreInterface || !isTypeInterface(node)) {
-    return null;
+    return undefined;
   }
 
   if (context.cache.has(node)) {
@@ -48,11 +53,12 @@ export const tryTypeInterface = (node: Node, context: Context, state: State) => 
   }
 
   const name = node.name.getText();
-  const file = context.options.includePath ? getNodeFilePath(node) : null;
+  const file = context.options.includePath ? getNodeFilePath(node) : undefined;
+  const position = context.options.includePath ? getNodeFilePosition(node) : undefined;
   const description = getNodeDocumentation(node.name, context.checker);
   const modifiers = getNodeModifiers(node);
 
-  const reflectedType = createInterface(name, file, description, modifiers);
+  const reflectedType = createInterface(name, file, position, description, modifiers);
 
   context.cache.set(node, reflectedType);
 

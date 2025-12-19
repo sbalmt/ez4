@@ -1,7 +1,12 @@
 {
   "2026ad6af87b566974d78e7cc3b12371:Typeof": {
+    "file": "test/types/typeof.ts",
     "type": "interface",
     "name": "Typeof",
+    "position": {
+      "line": 7,
+      "character": 1
+    },
     "modifiers": {
       "export": true
     },
@@ -26,7 +31,12 @@
         "type": "property",
         "name": "regular3",
         "value": {
+          "file": "test/types/typeof.ts",
           "type": "callback",
+          "position": {
+            "line": 5,
+            "character": 1
+          },
           "name": "Function",
           "return": {
             "type": "void"
@@ -53,7 +63,12 @@
         "type": "property",
         "name": "template3",
         "value": {
+          "file": "test/types/typeof.ts",
           "type": "callback",
+          "position": {
+            "line": 5,
+            "character": 1
+          },
           "name": "Function",
           "return": {
             "type": "void"
@@ -63,11 +78,21 @@
     ]
   },
   "2026ad6af87b566974d78e7cc3b12371:Enum": {
+    "file": "test/types/typeof.ts",
     "type": "enum",
-    "name": "Enum"
+    "name": "Enum",
+    "position": {
+      "line": 3,
+      "character": 1
+    }
   },
   "2026ad6af87b566974d78e7cc3b12371:Class": {
+    "file": "test/types/typeof.ts",
     "type": "class",
-    "name": "Class"
+    "name": "Class",
+    "position": {
+      "line": 4,
+      "character": 1
+    }
   }
 }

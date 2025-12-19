@@ -37,14 +37,14 @@ export const isModelProperty = (node: Node): node is PropertyNodes => {
 
 export const tryModelProperty = (node: Node, context: Context, state: State) => {
   if (!isModelProperty(node) || !node.type) {
-    return null;
+    return undefined;
   }
 
   const newState = getNewState({ types: state.types });
   const valueType = tryTypes(node.type, context, newState);
 
   if (!valueType) {
-    return null;
+    return undefined;
   }
 
   const name = getPropertyName(node.name, context.checker);

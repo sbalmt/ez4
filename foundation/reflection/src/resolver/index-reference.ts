@@ -15,7 +15,7 @@ export const isIndexReference = (node: Node): node is IndexedAccessTypeNode => {
 
 export const tryIndexReference = (node: Node, context: Context, state: State) => {
   if (!isIndexReference(node)) {
-    return null;
+    return undefined;
   }
 
   const reflectedType = tryTypeReference(node.objectType, context, state);

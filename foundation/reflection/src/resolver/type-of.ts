@@ -13,13 +13,13 @@ export const isTypeOf = (node: Node): node is TypeQueryNode => {
 
 export const tryTypeOf = (node: Node, context: Context, state: State) => {
   if (!isTypeOf(node)) {
-    return null;
+    return undefined;
   }
 
   const declaration = getNodeTypeDeclaration(node.exprName, context.checker);
 
   if (!declaration) {
-    return null;
+    return undefined;
   }
 
   return tryModelReference(declaration, context) || tryTypeCallback(declaration, context, state);

@@ -1,7 +1,12 @@
 {
   "80336e3df1e60a2406dce18e4882987c:Enum": {
+    "file": "test/types/enum.ts",
     "type": "interface",
     "name": "Enum",
+    "position": {
+      "line": 14,
+      "character": 1
+    },
     "modifiers": {
       "export": true
     },
@@ -73,12 +78,22 @@
     ]
   },
   "80336e3df1e60a2406dce18e4882987c:EmptyEnum": {
+    "file": "test/types/enum.ts",
     "type": "enum",
-    "name": "EmptyEnum"
+    "name": "EmptyEnum",
+    "position": {
+      "line": 3,
+      "character": 1
+    }
   },
   "80336e3df1e60a2406dce18e4882987c:SingleEnum": {
+    "file": "test/types/enum.ts",
     "type": "enum",
     "name": "SingleEnum",
+    "position": {
+      "line": 5,
+      "character": 1
+    },
     "members": [
       {
         "type": "string",
@@ -88,8 +103,13 @@
     ]
   },
   "80336e3df1e60a2406dce18e4882987c:FullEnum": {
+    "file": "test/types/enum.ts",
     "type": "enum",
     "name": "FullEnum",
+    "position": {
+      "line": 9,
+      "character": 1
+    },
     "members": [
       {
         "type": "string",

@@ -7,7 +7,12 @@ import { isEnumMember } from 'typescript';
 import { getNodeDocumentation } from '../helpers/documentation';
 import { TypeName } from '../types';
 
-export const createEnumMember = <T extends EnumMember>(type: T['type'], value: T['value'], name: string, description: string | null) => {
+export const createEnumMember = <T extends EnumMember>(
+  type: T['type'],
+  value: T['value'],
+  name: string,
+  description: string | undefined
+) => {
   return {
     type,
     name,
@@ -18,7 +23,7 @@ export const createEnumMember = <T extends EnumMember>(type: T['type'], value: T
 
 export const tryEnumMember = (node: Node, context: Context) => {
   if (!isEnumMember(node)) {
-    return null;
+    return undefined;
   }
 
   const type = context.checker.getTypeAtLocation(node);
@@ -33,7 +38,7 @@ export const tryEnumMember = (node: Node, context: Context) => {
     return createEnumMember<EnumStringMember>(TypeName.String, type.value, name, description);
   }
 
-  return null;
+  return undefined;
 };
 
 export const tryEnumMembers = (node: EnumNodes, context: Context) => {

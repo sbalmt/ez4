@@ -1,4 +1,4 @@
-import type { AllType } from './common';
+import type { AllType, TypePosition } from './common';
 import type { EveryType } from './types';
 
 import { TypeName } from './common';
@@ -6,6 +6,7 @@ import { TypeName } from './common';
 export type TypeIntersection = {
   type: TypeName.Intersection;
   file?: string;
+  position?: TypePosition;
   module?: string | null;
   elements: EveryType[];
 };

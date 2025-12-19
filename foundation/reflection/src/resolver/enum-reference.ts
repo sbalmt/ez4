@@ -7,7 +7,7 @@ import { createString } from './type-string';
 
 export const tryEnumReference = (node: Node, context: Context) => {
   if (!isEnumMember(node)) {
-    return null;
+    return undefined;
   }
 
   const type = context.checker.getTypeAtLocation(node);
@@ -20,5 +20,5 @@ export const tryEnumReference = (node: Node, context: Context) => {
     return createString('literal', type.value);
   }
 
-  return null;
+  return undefined;
 };

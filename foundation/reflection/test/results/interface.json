@@ -20,8 +20,13 @@
     ]
   },
   "1fde277bbe30d908b1d5721b183bbe7a:Interface": {
+    "file": "test/types/interface.ts",
     "type": "interface",
     "name": "Interface",
+    "position": {
+      "line": 34,
+      "character": 1
+    },
     "modifiers": {
       "export": true
     },
@@ -129,7 +134,12 @@
         "type": "property",
         "name": "template3",
         "value": {
+          "file": "test/types/interface.ts",
           "type": "object",
+          "position": {
+            "line": 14,
+            "character": 1
+          },
           "members": [
             {
               "type": "property",
@@ -181,19 +191,34 @@
     ]
   },
   "1fde277bbe30d908b1d5721b183bbe7a:EmptyInterface": {
+    "file": "test/types/interface.ts",
     "type": "interface",
-    "name": "EmptyInterface"
+    "name": "EmptyInterface",
+    "position": {
+      "line": 3,
+      "character": 1
+    }
   },
   "1fde277bbe30d908b1d5721b183bbe7a:DeclareInterface": {
+    "file": "test/types/interface.ts",
     "type": "interface",
     "name": "DeclareInterface",
+    "position": {
+      "line": 6,
+      "character": 1
+    },
     "modifiers": {
       "declare": true
     }
   },
   "1fde277bbe30d908b1d5721b183bbe7a:HeritageInterface": {
+    "file": "test/types/interface.ts",
     "type": "interface",
     "name": "HeritageInterface",
+    "position": {
+      "line": 8,
+      "character": 1
+    },
     "heritage": [
       {
         "path": "1fde277bbe30d908b1d5721b183bbe7a:EmptyInterface"
@@ -204,8 +229,13 @@
     ]
   },
   "1fde277bbe30d908b1d5721b183bbe7a:ConcreteInterface": {
+    "file": "test/types/interface.ts",
     "type": "interface",
     "name": "ConcreteInterface",
+    "position": {
+      "line": 22,
+      "character": 1
+    },
     "heritage": [
       {
         "path": "1fde277bbe30d908b1d5721b183bbe7a:TemplateInterface",
@@ -248,12 +278,22 @@
     ]
   },
   "1fde277bbe30d908b1d5721b183bbe7a:EmptyInterface2": {
+    "file": "test/types/interface.ts",
     "type": "interface",
-    "name": "EmptyInterface2"
+    "name": "EmptyInterface2",
+    "position": {
+      "line": 4,
+      "character": 1
+    }
   },
   "1fde277bbe30d908b1d5721b183bbe7a:TemplateInterface": {
+    "file": "test/types/interface.ts",
     "type": "interface",
     "name": "TemplateInterface",
+    "position": {
+      "line": 14,
+      "character": 1
+    },
     "heritage": [
       {
         "path": "1fde277bbe30d908b1d5721b183bbe7a:BaseInterface"
@@ -270,8 +310,13 @@
     ]
   },
   "1fde277bbe30d908b1d5721b183bbe7a:BaseInterface": {
+    "file": "test/types/interface.ts",
     "type": "interface",
     "name": "BaseInterface",
+    "position": {
+      "line": 10,
+      "character": 1
+    },
     "members": [
       {
         "type": "property",

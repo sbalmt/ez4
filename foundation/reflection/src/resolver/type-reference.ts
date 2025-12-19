@@ -17,20 +17,20 @@ export const isTypeReference = (node: Node): node is TypeReferenceNode => {
   return isTypeReferenceNode(node);
 };
 
-export const tryTypeReference = (node: Node, context: Context, state: State): EveryType | null => {
+export const tryTypeReference = (node: Node, context: Context, state: State): EveryType | undefined => {
   if (isIndexReference(node)) {
     return tryIndexReference(node, context, state);
   }
 
   if (!isTypeReference(node)) {
-    return null;
+    return undefined;
   }
 
   const declaration = getNodeTypeDeclaration(node.typeName, context.checker);
   const types = node.typeArguments;
 
   if (!declaration) {
-    return null;
+    return undefined;
   }
 
   return (

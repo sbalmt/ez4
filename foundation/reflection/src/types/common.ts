@@ -30,3 +30,8 @@ export const enum TypeName {
   Function = 'function',
   Parameter = 'parameter'
 }
+
+export type TypePosition = {
+  line: number;
+  character: number;
+};

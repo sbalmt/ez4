@@ -84,7 +84,7 @@ export const hasModifierAsync = (node: Node) => {
 
 export const getNodeModifiers = (node: Node) => {
   if (!isTypeDeclaration(node) || !node.modifiers?.length) {
-    return null;
+    return undefined;
   }
 
   const modifiers: StatementModifiers = {};

@@ -28,7 +28,7 @@ export const tryTypeNull = (node: Node, context: Context) => {
       return resolver(current.literal, 'literal');
     }
 
-    return null;
+    return undefined;
   };
 
   const result = resolver(node, 'default');

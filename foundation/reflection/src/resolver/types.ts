@@ -24,7 +24,7 @@ import { tryTypeCallback } from './type-callback';
 import { tryTypeOf } from './type-of';
 import { tryEnumReference } from './enum-reference';
 
-export const tryTypes = (node: Node, context: Context, state: State): EveryType | null => {
+export const tryTypes = (node: Node, context: Context, state: State): EveryType | undefined => {
   if (isParenthesizedTypeNode(node)) {
     return tryTypes(node.type, context, state);
   }

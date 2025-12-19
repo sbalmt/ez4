@@ -14,7 +14,7 @@ export const isInternalReference = (node: Node): node is InterfaceDeclaration =>
 
 export const tryInternalReference = (node: Node, types: TypeArguments | undefined, context: Context, state: State) => {
   if (!types || !isInternalReference(node)) {
-    return null;
+    return undefined;
   }
 
   const name = node.name.getText();
@@ -35,5 +35,5 @@ export const tryInternalReference = (node: Node, types: TypeArguments | undefine
     }
   }
 
-  return null;
+  return undefined;
 };

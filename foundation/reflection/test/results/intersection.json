@@ -1,7 +1,12 @@
 {
   "57845bdaf1fa089b84b78c75d18f6a0c:Intersection": {
+    "file": "test/types/intersection.ts",
     "type": "interface",
     "name": "Intersection",
+    "position": {
+      "line": 6,
+      "character": 1
+    },
     "modifiers": {
       "export": true
     },
@@ -10,10 +15,20 @@
         "type": "property",
         "name": "regular",
         "value": {
+          "file": "test/types/intersection.ts",
           "type": "intersection",
+          "position": {
+            "line": 8,
+            "character": 12
+          },
           "elements": [
             {
+              "file": "test/types/intersection.ts",
               "type": "object",
+              "position": {
+                "line": 3,
+                "character": 16
+              },
               "members": [
                 {
                   "type": "property",
@@ -25,7 +40,12 @@
               ]
             },
             {
+              "file": "test/types/intersection.ts",
               "type": "object",
+              "position": {
+                "line": 4,
+                "character": 16
+              },
               "members": [
                 {
                   "type": "property",
@@ -43,10 +63,20 @@
         "type": "property",
         "name": "template",
         "value": {
+          "file": "test/types/intersection.ts",
           "type": "intersection",
+          "position": {
+            "line": 11,
+            "character": 13
+          },
           "elements": [
             {
+              "file": "test/types/intersection.ts",
               "type": "object",
+              "position": {
+                "line": 11,
+                "character": 18
+              },
               "members": [
                 {
                   "type": "property",
@@ -58,7 +88,12 @@
               ]
             },
             {
+              "file": "test/types/intersection.ts",
               "type": "object",
+              "position": {
+                "line": 11,
+                "character": 42
+              },
               "members": [
                 {
                   "type": "property",
@@ -76,10 +111,20 @@
         "type": "property",
         "name": "inline",
         "value": {
+          "file": "test/types/intersection.ts",
           "type": "intersection",
+          "position": {
+            "line": 14,
+            "character": 11
+          },
           "elements": [
             {
+              "file": "test/types/intersection.ts",
               "type": "object",
+              "position": {
+                "line": 14,
+                "character": 11
+              },
               "members": [
                 {
                   "type": "property",
@@ -91,7 +136,12 @@
               ]
             },
             {
+              "file": "test/types/intersection.ts",
               "type": "object",
+              "position": {
+                "line": 14,
+                "character": 30
+              },
               "members": [
                 {
                   "type": "property",

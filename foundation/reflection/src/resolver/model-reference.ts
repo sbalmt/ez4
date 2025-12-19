@@ -24,7 +24,7 @@ export const isReferenceModel = (node: Node) => {
 
 export const tryModelReference = (node: Node, context: Context) => {
   if (!isReferenceModel(node)) {
-    return null;
+    return undefined;
   }
 
   const internal = isInternalType(node);

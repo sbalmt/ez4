@@ -1,4 +1,4 @@
-import { readFileSync, writeFileSync } from 'node:fs';
+import { existsSync, readFileSync, writeFileSync } from 'node:fs';
 import { deepEqual } from 'node:assert/strict';
 import { describe, it } from 'node:test';
 
@@ -8,9 +8,13 @@ const testFile = (fileName: string, overwrite: boolean = false) => {
   const sourceFile = `./test/types/${fileName}.ts`;
   const outputFile = `./test/results/${fileName}.json`;
 
-  const reflection = getReflectionFromFiles([sourceFile]);
+  const reflection = getReflectionFromFiles([sourceFile], {
+    resolverOptions: {
+      includePath: true
+    }
+  });
 
-  if (overwrite) {
+  if (!existsSync(outputFile) || overwrite) {
     writeFileSync(outputFile, JSON.stringify(reflection, undefined, 2));
   } else {
     deepEqual(reflection, JSON.parse(readFileSync(outputFile).toString()));

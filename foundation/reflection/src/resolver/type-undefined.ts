@@ -17,7 +17,7 @@ export const isTypeUndefined = (node: Node) => {
 
 export const tryTypeUndefined = (node: Node, context: Context) => {
   if (!isTypeUndefined(node)) {
-    return null;
+    return undefined;
   }
 
   const result = createUndefined();

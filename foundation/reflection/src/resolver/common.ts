@@ -11,7 +11,7 @@ export type Context = {
 };
 
 export type TypeMap = {
-  [name: string]: EveryType | null;
+  [name: string]: EveryType | undefined;
 };
 
 export type TypeState = {

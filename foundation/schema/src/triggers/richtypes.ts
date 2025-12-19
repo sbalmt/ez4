@@ -182,7 +182,7 @@ export const createRichType = (richTypes: RichTypes) => {
       }
 
       return {
-        ...(type ?? createObject('@ez4/schema')),
+        ...(type ?? createObject('@ez4/schema', undefined)),
         definitions
       };
     }

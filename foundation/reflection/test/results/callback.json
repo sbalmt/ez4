@@ -1,7 +1,12 @@
 {
   "88eaca00b03b98e66f21ede684ab4095:Callback": {
+    "file": "test/types/callback.ts",
     "type": "interface",
     "name": "Callback",
+    "position": {
+      "line": 3,
+      "character": 1
+    },
     "modifiers": {
       "export": true
     },
@@ -10,7 +15,12 @@
         "type": "property",
         "name": "regular1",
         "value": {
+          "file": "test/types/callback.ts",
           "type": "callback",
+          "position": {
+            "line": 5,
+            "character": 13
+          },
           "return": {
             "type": "any"
           }
@@ -20,7 +30,12 @@
         "type": "property",
         "name": "regular2",
         "value": {
+          "file": "test/types/callback.ts",
           "type": "callback",
+          "position": {
+            "line": 6,
+            "character": 13
+          },
           "parameters": [
             {
               "type": "parameter",
@@ -39,7 +54,12 @@
         "type": "property",
         "name": "regular3",
         "value": {
+          "file": "test/types/callback.ts",
           "type": "callback",
+          "position": {
+            "line": 7,
+            "character": 13
+          },
           "parameters": [
             {
               "type": "parameter",
@@ -69,7 +89,12 @@
         "type": "property",
         "name": "template",
         "value": {
+          "file": "test/types/callback.ts",
           "type": "callback",
+          "position": {
+            "line": 10,
+            "character": 18
+          },
           "parameters": [
             {
               "type": "parameter",

@@ -24,13 +24,13 @@ export const isTypeUnion = (type: AllType): type is TypeUnion => {
  * @param types List of element types.
  * @returns Returns a new union type without the given elements.
  * If the resulting union type has only one element, this element is returned instead.
- * If the resulting union type has no elements, `null` is returned instead.
+ * If the resulting union type has no elements, `undefined` is returned instead.
  */
-export const removeTypeUnionElements = (target: TypeUnion, types: TypeName[]): EveryType | null => {
+export const removeTypeUnionElements = (target: TypeUnion, types: TypeName[]): EveryType | undefined => {
   const elements = target.elements.filter((element) => !types.includes(element.type));
 
   if (elements.length === 0) {
-    return null;
+    return undefined;
   }
 
   if (elements.length === 1) {

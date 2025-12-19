@@ -17,7 +17,7 @@ export const isTypeParameter = (node: Node): node is TypeParameterDeclaration =>
 
 export const tryTypeParameter = (node: Node, context: Context, state: State) => {
   if (!isTypeParameter(node)) {
-    return null;
+    return undefined;
   }
 
   const name = node.name.getText();

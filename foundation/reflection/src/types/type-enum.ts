@@ -1,5 +1,5 @@
+import type { AllType, TypePosition } from './common';
 import type { EnumMember } from './enum-member';
-import type { AllType } from './common';
 
 import { TypeName } from './common';
 
@@ -7,6 +7,7 @@ export type TypeEnum = {
   type: TypeName.Enum;
   name: string;
   file?: string;
+  position?: TypePosition;
   module?: string | null;
   description?: string;
   members?: EnumMember[];

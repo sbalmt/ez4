@@ -17,7 +17,7 @@ export const isTypeNever = (node: Node) => {
 
 export const tryTypeNever = (node: Node, context: Context) => {
   if (!isTypeNever(node)) {
-    return null;
+    return undefined;
   }
 
   const result = createNever();

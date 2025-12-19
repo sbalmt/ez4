@@ -20,7 +20,7 @@ export const isTypeAlias = (node: Node): node is TypeAliasDeclaration => {
 
 export const tryTypeAlias = (node: Node, types: TypeArguments | undefined, context: Context, state: State) => {
   if (!isTypeAlias(node)) {
-    return null;
+    return undefined;
   }
 
   if (!types) {
@@ -35,7 +35,7 @@ export const tryTypeAlias = (node: Node, types: TypeArguments | undefined, conte
 
 export const tryInternalTypeAlias = (node: Node, types: TypeArguments | undefined, context: Context, state: State) => {
   if (!isTypeAlias(node) || !isInternalType(node) || !types?.length) {
-    return null;
+    return undefined;
   }
 
   const name = node.name.getText();
@@ -54,12 +54,12 @@ export const tryInternalTypeAlias = (node: Node, types: TypeArguments | undefine
     }
   }
 
-  return null;
+  return undefined;
 };
 
-const tryPartialObject = (type: EveryType | null) => {
+const tryPartialObject = (type: EveryType | undefined) => {
   if (!type || !isTypeObject(type) || !Array.isArray(type.members)) {
-    return null;
+    return undefined;
   }
 
   return {
@@ -68,9 +68,9 @@ const tryPartialObject = (type: EveryType | null) => {
   };
 };
 
-const tryRequiredObject = (type: EveryType | null) => {
+const tryRequiredObject = (type: EveryType | undefined) => {
   if (!type || !isTypeObject(type) || !Array.isArray(type.members)) {
-    return null;
+    return undefined;
   }
 
   return {
@@ -79,9 +79,9 @@ const tryRequiredObject = (type: EveryType | null) => {
   };
 };
 
-const tryUnionElements = (type: EveryType | null, transformer: (element: EveryType) => EveryType | null) => {
+const tryUnionElements = (type: EveryType | undefined, transformer: (element: EveryType) => EveryType | undefined) => {
   if (!type || !isTypeUnion(type)) {
-    return null;
+    return undefined;
   }
 
   return {

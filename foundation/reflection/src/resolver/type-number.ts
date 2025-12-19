@@ -53,7 +53,7 @@ export const tryTypeNumber = (node: Node, context: Context) => {
       return createNumber(type, value);
     }
 
-    return null;
+    return undefined;
   };
 
   const result = resolver(node, 'default');

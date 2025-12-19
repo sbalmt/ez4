@@ -1,8 +1,13 @@
 {
   "eb634eefe473208716bf977f9b7f71c9:Enum": {
+    "file": "test/types/comments.ts",
     "type": "enum",
     "name": "Enum",
     "description": "Enum doc comments test.",
+    "position": {
+      "line": 4,
+      "character": 1
+    },
     "members": [
       {
         "type": "string",
@@ -13,9 +18,14 @@
     ]
   },
   "eb634eefe473208716bf977f9b7f71c9:Class": {
+    "file": "test/types/comments.ts",
     "type": "class",
     "name": "Class",
     "description": "Class doc comments test.",
+    "position": {
+      "line": 14,
+      "character": 1
+    },
     "modifiers": {
       "export": true
     },
@@ -49,9 +59,14 @@
     ]
   },
   "eb634eefe473208716bf977f9b7f71c9:Interface": {
+    "file": "test/types/comments.ts",
     "type": "interface",
     "name": "Interface",
     "description": "Interface doc comments test.",
+    "position": {
+      "line": 30,
+      "character": 1
+    },
     "modifiers": {
       "export": true
     },
@@ -85,9 +100,14 @@
     ]
   },
   "eb634eefe473208716bf977f9b7f71c9:Function": {
+    "file": "test/types/comments.ts",
     "type": "function",
     "name": "Function",
     "description": "Function doc comments test.",
+    "position": {
+      "line": 48,
+      "character": 1
+    },
     "modifiers": {
       "export": true,
       "declare": true

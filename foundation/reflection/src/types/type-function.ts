@@ -1,4 +1,4 @@
-import type { AllType } from './common';
+import type { AllType, TypePosition } from './common';
 import type { TypeParameter } from './type-parameter';
 import type { EveryType } from './types';
 
@@ -14,6 +14,7 @@ export type TypeFunction = {
   type: TypeName.Function;
   name: string;
   file?: string;
+  position?: TypePosition;
   module?: string | null;
   description?: string;
   modifiers?: FunctionModifiers;

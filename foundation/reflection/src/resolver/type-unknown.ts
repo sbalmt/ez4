@@ -17,7 +17,7 @@ export const isTypeUnknown = (node: Node) => {
 
 export const tryTypeUnknown = (node: Node, context: Context) => {
   if (!isTypeUnknown(node)) {
-    return null;
+    return undefined;
   }
 
   const result = createUnknown();

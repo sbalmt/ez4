@@ -1,6 +1,6 @@
-import type { ModelHeritage } from './model-heritage';
+import type { AllType, TypePosition } from './common';
 import type { EveryMemberType } from './model-members';
-import type { AllType } from './common';
+import type { ModelHeritage } from './model-heritage';
 
 import { TypeName } from './common';
 
@@ -14,6 +14,7 @@ export type TypeClass = {
   type: TypeName.Class;
   name: string;
   file?: string;
+  position?: TypePosition;
   module?: string | null;
   description?: string;
   modifiers?: ClassModifiers;
