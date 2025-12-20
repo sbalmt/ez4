@@ -1,4 +1,6 @@
-export type SchemaDefinitions = {};
+export type SchemaDefinitions = {
+  custom?: boolean;
+};
 
 export const enum SchemaType {
   Boolean = 'boolean',

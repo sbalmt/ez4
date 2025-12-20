@@ -3,11 +3,11 @@ import type { AnySchema, StringSchema } from '@ez4/schema';
 import { equal } from 'node:assert/strict';
 import { describe, it, mock } from 'node:test';
 
-import { validate, registerStringFormat, UnexpectedFormatError } from '@ez4/validator';
+import { validate, registerStringFormat, UnexpectedFormatError, createValidatorContext } from '@ez4/validator';
 import { SchemaType } from '@ez4/schema';
 
 describe('custom types validation', () => {
-  it('assert :: custom format', async () => {
+  it('assert :: custom string format', async () => {
     const schema: AnySchema = {
       type: SchemaType.String,
       format: 'custom'
@@ -19,11 +19,13 @@ describe('custom types validation', () => {
 
     registerStringFormat('custom', handler);
 
-    equal((await validate('abc', schema)).length, 0);
+    const allErrors = await validate('abc', schema);
+
     equal(handler.mock.callCount(), 1);
+    equal(allErrors.length, 0);
   });
 
-  it('assert :: custom format error', async () => {
+  it('assert :: custom string format error', async () => {
     const schema: AnySchema = {
       type: SchemaType.String,
       format: 'custom-with-error'
@@ -35,7 +37,51 @@ describe('custom types validation', () => {
 
     registerStringFormat('custom-with-error', handler);
 
-    equal((await validate('abc', schema)).length, 1);
+    const allErrors = await validate('abc', schema);
+
     equal(handler.mock.callCount(), 1);
+    equal(allErrors.length, 1);
+  });
+
+  it('assert :: custom validation (through context)', async () => {
+    const schema: AnySchema = {
+      type: SchemaType.String,
+      definitions: {
+        custom: true
+      }
+    };
+
+    const handler = mock.fn((_value: unknown, _schema: AnySchema) => {});
+
+    const context = createValidatorContext({
+      onCustomValidation: handler
+    });
+
+    const allErrors = await validate('abc', schema, context);
+
+    equal(handler.mock.callCount(), 1);
+    equal(allErrors.length, 0);
+  });
+
+  it('assert :: custom validation error (through context)', async () => {
+    const schema: AnySchema = {
+      type: SchemaType.String,
+      definitions: {
+        custom: true
+      }
+    };
+
+    const handler = mock.fn((_value: unknown, _schema: AnySchema) => {
+      throw new Error('This is not valid.');
+    });
+
+    const context = createValidatorContext({
+      onCustomValidation: handler
+    });
+
+    const allErrors = await validate('abc', schema, context);
+
+    equal(handler.mock.callCount(), 1);
+    equal(allErrors.length, 1);
   });
 });

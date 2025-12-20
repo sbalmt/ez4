@@ -3,11 +3,12 @@ import type { ObjectSchema } from '@ez4/schema';
 import { getPropertyName } from '@ez4/schema';
 import { isAnyObject } from '@ez4/utils';
 
-import { isNullish } from '../utils/nullish';
 import { ExpectedObjectTypeError } from '../errors/object';
 import { UnexpectedPropertiesError } from '../errors/common';
 import { createValidatorContext } from '../types/context';
 import { tryDecodeBase64Json } from '../utils/base64';
+import { useCustomValidation } from '../utils/custom';
+import { isNullish } from '../utils/nullish';
 import { validateAny } from './any';
 
 export const validateObject = async (value: unknown, schema: ObjectSchema, context = createValidatorContext()) => {
@@ -89,6 +90,10 @@ export const validateObject = async (value: unknown, schema: ObjectSchema, conte
     });
 
     allErrors.push(new UnexpectedPropertiesError(extraProperties));
+  }
+
+  if (!allErrors.length && definitions?.custom && context) {
+    return useCustomValidation(value, schema, context);
   }
 
   return allErrors;

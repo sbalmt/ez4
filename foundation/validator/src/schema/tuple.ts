@@ -1,8 +1,9 @@
 import type { TupleSchema } from '@ez4/schema';
 
-import { isNullish } from '../utils/nullish';
-import { createValidatorContext } from '../types/context';
 import { ExpectedTupleTypeError } from '../errors/tuple';
+import { createValidatorContext } from '../types/context';
+import { useCustomValidation } from '../utils/custom';
+import { isNullish } from '../utils/nullish';
 import { validateAny } from './any';
 
 export const validateTuple = async (value: unknown, schema: TupleSchema, context = createValidatorContext()) => {
@@ -11,6 +12,7 @@ export const validateTuple = async (value: unknown, schema: TupleSchema, context
   }
 
   const { property, references, depth } = context;
+  const { definitions } = schema;
 
   if (!(value instanceof Array)) {
     return [new ExpectedTupleTypeError(property)];
@@ -34,6 +36,10 @@ export const validateTuple = async (value: unknown, schema: TupleSchema, context
 
       allErrors.push(...errorList);
     }
+  }
+
+  if (!allErrors.length && definitions?.custom && context) {
+    return useCustomValidation(value, schema, context);
   }
 
   return allErrors;

@@ -226,6 +226,17 @@ export const createRichType = (richTypes: RichTypes) => {
       };
     }
 
+    case 'custom': {
+      const { type } = richTypes;
+
+      return {
+        ...type!,
+        definitions: {
+          custom: true
+        }
+      };
+    }
+
     default: {
       const { lower, upper, trim, pattern, name, value } = richTypes;
 

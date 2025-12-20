@@ -1,7 +1,8 @@
 import type { UnionSchema } from '@ez4/schema';
 
-import { isNullish } from '../utils/nullish';
 import { createValidatorContext } from '../types/context';
+import { useCustomValidation } from '../utils/custom';
+import { isNullish } from '../utils/nullish';
 import { validateAny } from './any';
 
 export const validateUnion = async (value: unknown, schema: UnionSchema, context = createValidatorContext()) => {
@@ -12,7 +13,9 @@ export const validateUnion = async (value: unknown, schema: UnionSchema, context
   let lastErrorList: Error[] = [];
   let lastErrorSize = +Infinity;
 
-  for (const elementSchema of schema.elements) {
+  const { definitions, elements } = schema;
+
+  for (const elementSchema of elements) {
     const errorList = await validateAny(value, elementSchema, context);
     const errorSize = errorList.length;
 
@@ -29,6 +32,10 @@ export const validateUnion = async (value: unknown, schema: UnionSchema, context
       lastErrorList = errorList;
       lastErrorSize = errorSize;
     }
+  }
+
+  if (!lastErrorList.length && definitions?.custom && context) {
+    return useCustomValidation(value, schema, context);
   }
 
   return lastErrorList;

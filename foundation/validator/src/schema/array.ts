@@ -2,9 +2,10 @@ import type { ArraySchema } from '@ez4/schema';
 
 import { isAnyNumber } from '@ez4/utils';
 
-import { tryDecodeBase64Json } from '../utils/base64';
 import { ExpectedArrayTypeError, UnexpectedMaxItemsError, UnexpectedMinItemsError } from '../errors/array';
 import { createValidatorContext } from '../types/context';
+import { tryDecodeBase64Json } from '../utils/base64';
+import { useCustomValidation } from '../utils/custom';
 import { isNullish } from '../utils/nullish';
 import { validateAny } from './any';
 
@@ -48,6 +49,10 @@ export const validateArray = async (value: unknown, schema: ArraySchema, context
 
       allErrors.push(...errorList);
     }
+  }
+
+  if (!allErrors.length && definitions?.custom && context) {
+    return useCustomValidation(value, schema, context);
   }
 
   return allErrors;

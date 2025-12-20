@@ -11,6 +11,7 @@ import {
   UnexpectedNumberError
 } from '../errors/number';
 
+import { useCustomValidation } from '../utils/custom';
 import { isNullish } from '../utils/nullish';
 
 export const validateNumber = (value: unknown, schema: NumberSchema, context?: ValidationContext) => {
@@ -40,6 +41,10 @@ export const validateNumber = (value: unknown, schema: NumberSchema, context?: V
 
   if (isAnyNumber(definitions?.maxValue) && value > definitions.maxValue) {
     return [new UnexpectedMaxRangeError(definitions.maxValue, property)];
+  }
+
+  if (definitions?.custom && context) {
+    return useCustomValidation(value, schema, context);
   }
 
   return [];
