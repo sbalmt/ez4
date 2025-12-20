@@ -45,9 +45,34 @@ describe('custom types validation', () => {
 
   it('assert :: custom validation (through context)', async () => {
     const schema: AnySchema = {
-      type: SchemaType.String,
-      definitions: {
-        custom: true
+      type: SchemaType.Object,
+      properties: {
+        foo: {
+          type: SchemaType.Array,
+          element: {
+            type: SchemaType.String,
+            definitions: {
+              custom: true
+            }
+          }
+        },
+        bar: {
+          type: SchemaType.Tuple,
+          elements: [
+            {
+              type: SchemaType.Number,
+              definitions: {
+                custom: true
+              }
+            }
+          ]
+        },
+        baz: {
+          type: SchemaType.Boolean,
+          definitions: {
+            custom: true
+          }
+        }
       }
     };
 
@@ -57,9 +82,15 @@ describe('custom types validation', () => {
       onCustomValidation: handler
     });
 
-    const allErrors = await validate('abc', schema, context);
+    const input = {
+      foo: ['abc'],
+      bar: [123],
+      baz: true
+    };
 
-    equal(handler.mock.callCount(), 1);
+    const allErrors = await validate(input, schema, context);
+
+    equal(handler.mock.callCount(), 3);
     equal(allErrors.length, 0);
   });
 

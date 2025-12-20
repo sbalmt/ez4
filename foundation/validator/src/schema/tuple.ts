@@ -11,7 +11,7 @@ export const validateTuple = async (value: unknown, schema: TupleSchema, context
     return [];
   }
 
-  const { property, references, depth } = context;
+  const { property, depth, ...currentContext } = context;
   const { definitions } = schema;
 
   if (!(value instanceof Array)) {
@@ -28,10 +28,10 @@ export const validateTuple = async (value: unknown, schema: TupleSchema, context
       const elementValue = value[index++];
 
       const errorList = await validateAny(elementValue, elementSchema, {
+        ...currentContext,
         inputStyle: context.inputStyle,
         property: elementProperty,
-        depth: depth - 1,
-        references
+        depth: depth - 1
       });
 
       allErrors.push(...errorList);

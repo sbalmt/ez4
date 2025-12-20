@@ -16,7 +16,7 @@ export const validateObject = async (value: unknown, schema: ObjectSchema, conte
     return [];
   }
 
-  const { property: parentProperty, references, depth } = context;
+  const { property: parentProperty, references, depth, inputStyle, pathStyle = inputStyle, ...currentContext } = context;
   const { definitions } = schema;
 
   if (schema.identity) {
@@ -32,8 +32,6 @@ export const validateObject = async (value: unknown, schema: ObjectSchema, conte
   const allProperties = new Set(Object.keys(objectValue));
   const allErrors: Error[] = [];
 
-  const { inputStyle, pathStyle = inputStyle } = context;
-
   for (const propertyKey in schema.properties) {
     const propertyName = getPropertyName(propertyKey, inputStyle);
 
@@ -44,10 +42,12 @@ export const validateObject = async (value: unknown, schema: ObjectSchema, conte
       const propertyValue = objectValue[propertyName];
 
       const errorList = await validateAny(propertyValue, propertySchema, {
+        ...currentContext,
         property: getPropertyPath(propertyPath, parentProperty),
         depth: depth - 1,
+        references,
         inputStyle,
-        references
+        pathStyle
       });
 
       allErrors.push(...errorList);
@@ -71,10 +71,12 @@ export const validateObject = async (value: unknown, schema: ObjectSchema, conte
         const propertyValue = objectValue[propertyName];
 
         const valueErrors = await validateAny(propertyValue, propertyValueSchema, {
+          ...currentContext,
           property: getPropertyPath(propertyPath, parentProperty),
           depth: depth - 1,
+          references,
           inputStyle,
-          references
+          pathStyle
         });
 
         allErrors.push(...valueErrors);

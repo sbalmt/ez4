@@ -14,7 +14,7 @@ export const validateArray = async (value: unknown, schema: ArraySchema, context
     return [];
   }
 
-  const { property, references, depth } = context;
+  const { property, depth, ...currentContext } = context;
   const { definitions } = schema;
 
   const arrayValues = definitions?.encoded ? tryDecodeBase64Json(value) : value;
@@ -41,10 +41,9 @@ export const validateArray = async (value: unknown, schema: ArraySchema, context
       const elementSchema = schema.element;
 
       const errorList = await validateAny(elementValue, elementSchema, {
-        inputStyle: context.inputStyle,
+        ...currentContext,
         property: elementProperty,
-        depth: depth - 1,
-        references
+        depth: depth - 1
       });
 
       allErrors.push(...errorList);
