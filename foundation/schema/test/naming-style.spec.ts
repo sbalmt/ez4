@@ -1,6 +1,7 @@
 import { describe, it } from 'node:test';
 
-import { NamingStyle, registerTriggers } from '@ez4/schema/library';
+import { registerTriggers } from '@ez4/schema/library';
+import { NamingStyle } from '@ez4/schema';
 
 import { testFile } from './common';
 

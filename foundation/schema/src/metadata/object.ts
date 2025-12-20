@@ -4,12 +4,11 @@ import type { ReferenceSchema } from '../types/type-reference';
 import type { SchemaDefinitions } from '../types/common';
 import type { SchemaContext } from '../types/context';
 
-import { isTypeIntersection, isTypeModel, isTypeObject, isTypeReference } from '@ez4/reflection';
+import { isTypeIntersection, isTypeModel, isTypeObject } from '@ez4/reflection';
 
 import { getPropertyName } from '../utils/naming';
 import { getModelProperties } from '../reflection/model';
 import { getObjectProperties } from '../reflection/object';
-import { SchemaReferenceNotFound } from '../errors/reference';
 import { createSchemaContext } from '../types/context';
 import { createReferenceSchema } from './reference';
 import { SchemaType } from '../types/common';
@@ -101,16 +100,6 @@ export const getObjectSchema = (
     references.delete(type);
 
     return modelSchema;
-  }
-
-  if (isTypeReference(type)) {
-    const declaration = reflection[type.path];
-
-    if (!declaration) {
-      throw new SchemaReferenceNotFound(type.path);
-    }
-
-    return getObjectSchema(declaration, reflection, context, description);
   }
 
   return null;
