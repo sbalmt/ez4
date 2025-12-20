@@ -19,7 +19,7 @@ import { isModelProperty, isTypeObject, isTypeReference } from '@ez4/reflection'
 import { isObjectWith } from '@ez4/utils';
 
 import { IncompleteCorsError, IncorrectCorsTypeError, InvalidCorsTypeError } from '../../errors/http/cors';
-import { getFullTypeName } from '../utils/type';
+import { getFullTypeName } from '../utils/name';
 import { HttpNamespaceType } from './types';
 
 const FULL_BASE_TYPE = getFullTypeName(HttpNamespaceType, 'Cors');

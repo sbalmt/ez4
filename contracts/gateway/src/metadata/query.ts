@@ -5,7 +5,7 @@ import { isTypeIntersection, isTypeObject, isTypeReference } from '@ez4/reflecti
 
 import { IncorrectQueryTypeError, InvalidQueryTypeError } from '../errors/query';
 import { getSchemaFromIntersection, getSchemaFromObject } from './utils/schema';
-import { getFullTypeName } from './utils/type';
+import { getFullTypeName } from './utils/name';
 
 type TypeParent = TypeObject | TypeModel | TypeIntersection;
 

@@ -64,9 +64,9 @@ export type HttpResponse = {
 };
 
 export type HttpHandler = FunctionSignature & {
+  provider?: HttpProvider;
   response: HttpResponse;
   request?: HttpRequest;
-  provider?: HttpProvider;
 };
 
 export type HttpErrors = {

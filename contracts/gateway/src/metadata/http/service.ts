@@ -17,9 +17,9 @@ import {
 import { isModelProperty } from '@ez4/reflection';
 import { isObjectWith } from '@ez4/utils';
 
-import { IncompleteServiceError, ServiceCollisionError } from '../../errors/service';
-import { attachSchemaValidationServices } from '../utils/schema';
-import { getFullTypeName } from '../utils/type';
+import { IncompleteServiceError } from '../../errors/service';
+import { attachProviderLinkedServices } from '../utils/provider';
+import { getFullTypeName } from '../utils/name';
 import { createHttpService, HttpNamespaceType } from './types';
 import { getHttpDefaultsMetadata } from './defaults';
 import { getHttpAccessMetadata } from './access';
@@ -124,48 +124,10 @@ const isCompleteService = (type: Incomplete<HttpService>): type is HttpService =
 
 const attachLinkedServices = (service: HttpService, errorList: Error[], fileName?: string) => {
   for (const route of service.routes) {
-    const { provider, request } = route.handler;
+    attachProviderLinkedServices(route.handler, service.services, errorList, fileName);
 
-    if (!provider?.services) {
-      continue;
-    }
-
-    if (request) {
-      const { headers, body, identity, parameters, query } = request;
-
-      if (headers) {
-        attachSchemaValidationServices(provider.services, headers);
-      }
-
-      if (query) {
-        attachSchemaValidationServices(provider.services, query);
-      }
-
-      if (identity) {
-        attachSchemaValidationServices(provider.services, identity);
-      }
-
-      if (parameters) {
-        attachSchemaValidationServices(provider.services, parameters);
-      }
-
-      if (body) {
-        attachSchemaValidationServices(provider.services, body);
-      }
-    }
-
-    for (const serviceName in provider.services) {
-      const currentServiceType = service.services[serviceName];
-      const handlerServiceType = provider.services[serviceName];
-
-      if (!currentServiceType) {
-        service.services[serviceName] = handlerServiceType;
-        continue;
-      }
-
-      if (currentServiceType !== handlerServiceType) {
-        errorList.push(new ServiceCollisionError(serviceName, fileName));
-      }
+    if (route.authorizer) {
+      attachProviderLinkedServices(route.authorizer, service.services, errorList, fileName);
     }
   }
 };

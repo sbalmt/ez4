@@ -16,7 +16,7 @@ import { isModelProperty, isTypeObject, isTypeReference } from '@ez4/reflection'
 import { isObjectWith } from '@ez4/utils';
 
 import { IncorrectResponseTypeError, InvalidResponseTypeError } from '../../errors/response';
-import { getFullTypeName } from '../utils/type';
+import { getFullTypeName } from '../utils/name';
 import { getAuthIdentityMetadata } from './identity';
 
 const BASE_TYPE = 'AuthResponse';

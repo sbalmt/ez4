@@ -9,7 +9,9 @@
     "name": "TestService",
     "context": {},
     "variables": {},
-    "services": {},
+    "services": {
+      "selfClient": "TestService"
+    },
     "schema": {
       "type": "object",
       "identity": 1,
@@ -20,7 +22,7 @@
         "name": "connectHandler",
         "file": "test/ws/input/output-authorizer.ts",
         "position": [
-          50,
+          64,
           1
         ],
         "request": {
@@ -40,9 +42,17 @@
         "name": "authorizerHandler",
         "file": "test/ws/input/output-authorizer.ts",
         "position": [
-          32,
+          43,
           1
         ],
+        "provider": {
+          "services": {
+            "selfClient": "TestService"
+          },
+          "variables": {
+            "TEST_VAR": "test-literal-value"
+          }
+        },
         "request": {
           "query": {
             "type": "object",
@@ -74,7 +84,7 @@
         "name": "disconnectHandler",
         "file": "test/ws/input/output-authorizer.ts",
         "position": [
-          56,
+          70,
           1
         ],
         "request": {
@@ -96,7 +106,7 @@
         "name": "messageHandler",
         "file": "test/ws/input/output-authorizer.ts",
         "position": [
-          62,
+          76,
           1
         ],
         "request": {

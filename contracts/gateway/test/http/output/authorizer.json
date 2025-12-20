@@ -9,7 +9,9 @@
     "name": "TestService",
     "context": {},
     "variables": {},
-    "services": {},
+    "services": {
+      "selfClient": "TestService"
+    },
     "description": "Service for testing route authorizers.",
     "routes": [
       {
@@ -21,7 +23,7 @@
           "name": "testQueryAuthorizer",
           "file": "test/http/input/output-authorizer.ts",
           "position": [
-            43,
+            54,
             1
           ],
           "request": {
@@ -53,7 +55,7 @@
           "name": "testHandler",
           "file": "test/http/input/output-authorizer.ts",
           "position": [
-            73,
+            87,
             1
           ],
           "request": {
@@ -79,9 +81,17 @@
           "name": "testHeaderAuthorizer",
           "file": "test/http/input/output-authorizer.ts",
           "position": [
-            55,
+            66,
             1
           ],
+          "provider": {
+            "services": {
+              "selfClient": "TestService"
+            },
+            "variables": {
+              "TEST_VAR": "test-literal-value"
+            }
+          },
           "request": {
             "headers": {
               "type": "object",
@@ -111,7 +121,7 @@
           "name": "testHandler",
           "file": "test/http/input/output-authorizer.ts",
           "position": [
-            73,
+            87,
             1
           ],
           "request": {

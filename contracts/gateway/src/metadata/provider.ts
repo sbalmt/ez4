@@ -1,7 +1,7 @@
 import type { AllType, SourceMap, TypeIntersection, TypeModel, TypeObject } from '@ez4/reflection';
 import type { MemberType } from '@ez4/common/library';
 import type { Incomplete } from '@ez4/utils';
-import type { HttpProvider } from './types';
+import type { HttpProvider } from './http/types';
 
 import {
   isModelDeclaration,
@@ -13,38 +13,38 @@ import {
 } from '@ez4/common/library';
 
 import { isModelProperty, isTypeReference } from '@ez4/reflection';
+import { isObjectWith } from '@ez4/utils';
 
-import { IncompleteProviderError, InvalidProviderTypeError } from '../../errors/http/provider';
-import { getFullTypeName } from '../utils/type';
-import { HttpNamespaceType } from './types';
+import { IncompleteProviderError, InvalidProviderTypeError } from '../errors/http/provider';
+import { getFullTypeName } from './utils/name';
 
-const FULL_BASE_TYPE = getFullTypeName(HttpNamespaceType, 'Provider');
+const BASE_TYPE = 'Provider';
 
-export const isHttpProviderDeclaration = (type: AllType): type is TypeModel => {
-  return isModelDeclaration(type) && hasHeritageType(type, FULL_BASE_TYPE);
+export const isWebProviderDeclaration = (type: AllType, namespace: string): type is TypeModel => {
+  return isModelDeclaration(type) && hasHeritageType(type, getFullTypeName(namespace, BASE_TYPE));
 };
 
-export const getHttpProviderMetadata = (type: AllType, parent: TypeModel, reflection: SourceMap, errorList: Error[]) => {
+export const getWebProviderMetadata = (type: AllType, parent: TypeModel, reflection: SourceMap, errorList: Error[], namespace: string) => {
   if (!isTypeReference(type)) {
-    return getProviderType(type, parent, reflection, errorList);
+    return getProviderType(type, parent, reflection, errorList, namespace);
   }
 
   const declaration = getReferenceType(type, reflection);
 
   if (declaration) {
-    return getProviderType(declaration, parent, reflection, errorList);
+    return getProviderType(declaration, parent, reflection, errorList, namespace);
   }
 
   return undefined;
 };
 
 const isCompleteProvider = (type: Incomplete<HttpProvider>): type is HttpProvider => {
-  return !!type.services;
+  return isObjectWith(type, ['services']);
 };
 
-const getProviderType = (type: AllType, parent: TypeModel, reflection: SourceMap, errorList: Error[]) => {
+const getProviderType = (type: AllType, parent: TypeModel, reflection: SourceMap, errorList: Error[], namespace: string) => {
   if (!isModelDeclaration(type)) {
-    errorList.push(new InvalidProviderTypeError(FULL_BASE_TYPE, parent.file));
+    errorList.push(new InvalidProviderTypeError(getFullTypeName(namespace, BASE_TYPE), parent.file));
     return undefined;
   }
 

@@ -16,7 +16,7 @@ import {
 import { isModelProperty, isTypeObject, isTypeReference } from '@ez4/reflection';
 
 import { IncorrectDefaultsTypeError, InvalidDefaultsTypeError } from '../../errors/defaults';
-import { getFullTypeName } from '../utils/type';
+import { getFullTypeName } from '../utils/name';
 import { getWebPreferencesMetadata } from '../preferences';
 import { WsNamespaceType } from './types';
 

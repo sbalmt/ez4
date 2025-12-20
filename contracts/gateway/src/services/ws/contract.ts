@@ -1,5 +1,6 @@
 import type { Service as CommonService } from '@ez4/common';
 import type { LinkedVariables } from '@ez4/project/library';
+import type { AuthProvider as WsAuthProvider } from '../auth/provider';
 import type { AuthResponse as WsAuthResponse } from '../auth/response';
 import type { AuthRequest as WsAuthRequest } from '../auth/request';
 import type { AuthIdentity } from '../auth/identity';
@@ -39,6 +40,7 @@ export namespace Ws {
 
   export type AuthRequest = WsAuthRequest;
   export type AuthResponse = WsAuthResponse;
+  export type AuthProvider = WsAuthProvider;
 
   export type Incoming<T extends Request | Event> = WsIncoming<T>;
 

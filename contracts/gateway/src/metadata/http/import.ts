@@ -17,7 +17,7 @@ import { isModelProperty, isTypeReference } from '@ez4/reflection';
 import { isObjectWith } from '@ez4/utils';
 
 import { IncompleteServiceError } from '../../errors/service';
-import { getFullTypeName } from '../utils/type';
+import { getFullTypeName } from '../utils/name';
 import { createHttpImport, HttpNamespaceType } from './types';
 import { getHttpAuthorizationMetadata } from './authorization';
 import { getHttpDefaultsMetadata } from './defaults';

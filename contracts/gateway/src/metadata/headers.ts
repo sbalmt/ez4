@@ -5,7 +5,7 @@ import { getReferenceType, hasHeritageType, isModelDeclaration } from '@ez4/comm
 
 import { IncorrectHeadersTypeError, InvalidHeadersTypeError } from '../errors/headers';
 import { getSchemaFromIntersection, getSchemaFromObject } from './utils/schema';
-import { getFullTypeName } from './utils/type';
+import { getFullTypeName } from './utils/name';
 
 type TypeParent = TypeObject | TypeModel | TypeIntersection;
 

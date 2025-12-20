@@ -24,7 +24,7 @@ import {
 } from '../../errors/http/authorization';
 
 import { AuthorizationType } from '../../services/http/authorization';
-import { getFullTypeName } from '../utils/type';
+import { getFullTypeName } from '../utils/name';
 import { HttpNamespaceType } from './types';
 
 const FULL_BASE_TYPE = getFullTypeName(HttpNamespaceType, 'Authorization');

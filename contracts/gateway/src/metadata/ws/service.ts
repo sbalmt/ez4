@@ -18,13 +18,14 @@ import { isModelProperty } from '@ez4/reflection';
 import { isObjectWith } from '@ez4/utils';
 
 import { IncompleteServiceError } from '../../errors/service';
-import { attachSchemaValidationServices } from '../utils/schema';
-import { getFullTypeName } from '../utils/type';
+import { attachValidatorLinkedServices } from '../utils/validator';
+import { getFullTypeName } from '../utils/name';
 import { getWebBodyMetadata } from '../body';
 import { createWsService, WsNamespaceType } from './types';
 import { getWsConnectionMetadata } from './connection';
 import { getWsDefaultsMetadata } from './defaults';
 import { getWsMessageMetadata } from './message';
+import { attachProviderLinkedServices } from '../utils/provider';
 
 export const isWsServiceDeclaration = (type: AllType): type is TypeClass => {
   return isClassDeclaration(type) && hasHeritageType(type, getFullTypeName(WsNamespaceType, 'Service'));
@@ -128,7 +129,7 @@ export const getWsServicesMetadata = (reflection: SourceMap) => {
       continue;
     }
 
-    attachLinkedServices(service);
+    attachLinkedServices(service, errorList, fileName);
 
     allServices[declaration.name] = service;
   }
@@ -143,30 +144,14 @@ const isCompleteService = (type: Incomplete<WsService>): type is WsService => {
   return isObjectWith(type, ['schema', 'connect', 'disconnect', 'message', 'variables', 'services']);
 };
 
-const attachLinkedServices = (service: WsService) => {
-  for (const route of [service.connect, service.disconnect, service.message]) {
-    const { request } = route.handler;
+const attachLinkedServices = (service: WsService, errorList: Error[], fileName?: string) => {
+  const { connect, disconnect, message } = service;
 
-    if (!request) {
-      continue;
-    }
+  attachValidatorLinkedServices(connect.handler, service.services);
+  attachValidatorLinkedServices(disconnect.handler, service.services);
+  attachValidatorLinkedServices(message.handler, service.services);
 
-    const { identity, body } = request;
-
-    if ('headers' in request && request.headers) {
-      attachSchemaValidationServices(service.services, request.headers);
-    }
-
-    if ('query' in request && request.query) {
-      attachSchemaValidationServices(service.services, request.query);
-    }
-
-    if (identity) {
-      attachSchemaValidationServices(service.services, identity);
-    }
-
-    if (body) {
-      attachSchemaValidationServices(service.services, body);
-    }
+  if (connect.authorizer) {
+    attachProviderLinkedServices(connect.authorizer, service.services, errorList, fileName);
   }
 };

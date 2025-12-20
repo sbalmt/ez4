@@ -17,7 +17,7 @@ import { isModelProperty, isTypeObject, isTypeReference } from '@ez4/reflection'
 import { isAnyNumber, isObjectWith } from '@ez4/utils';
 
 import { IncompleteAccessError, IncorrectAccessTypeError, InvalidAccessTypeError } from '../../errors/http/access';
-import { getFullTypeName } from '../utils/type';
+import { getFullTypeName } from '../utils/name';
 import { HttpNamespaceType } from './types';
 
 export const isHttpAccessDeclaration = (type: TypeModel) => {

@@ -20,7 +20,7 @@ import {
 
 import { IncompleteTargetError } from '../../errors/ws/target';
 import { getAuthHandlerMetadata } from '../auth/handler';
-import { getFullTypeName } from '../utils/type';
+import { getFullTypeName } from '../utils/name';
 import { getWebPreferencesMetadata } from '../preferences';
 import { getWsConnectionHandler } from './handlers';
 import { WsNamespaceType } from './types';

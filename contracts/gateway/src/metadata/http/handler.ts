@@ -7,9 +7,10 @@ import { getFunctionSignature, isFunctionSignature } from '@ez4/common/library';
 import { isObjectWith } from '@ez4/utils';
 
 import { IncompleteHandlerError } from '../../errors/handler';
-import { getHttpProviderMetadata } from './provider';
+import { getWebProviderMetadata } from '../provider';
 import { getHttpResponseMetadata } from './response';
 import { getHttpRequestMetadata } from './request';
+import { HttpNamespaceType } from './types';
 
 export const isHttpHandlerDeclaration = (type: AllType): type is TypeCallback | TypeFunction => {
   return isTypeCallback(type) || isTypeFunction(type);
@@ -32,7 +33,7 @@ export const getHttpHandlerMetadata = (type: AllType, parent: TypeModel, reflect
     handler.request = getHttpRequestMetadata(requestType, parent, reflection, errorList);
 
     if (contextType && !external) {
-      handler.provider = getHttpProviderMetadata(contextType.value, parent, reflection, errorList);
+      handler.provider = getWebProviderMetadata(contextType.value, parent, reflection, errorList, HttpNamespaceType);
     }
   }
 

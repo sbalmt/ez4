@@ -45,7 +45,7 @@ export const getAuthorizerFunction = (
 
   let authorizerState = tryGetFunctionState(context, internalName, options);
 
-  const request = authorizer.request;
+  const { provider, request } = authorizer;
 
   if (!authorizerState) {
     const authorizerName = getFunctionName(service, authorizer, options);
@@ -65,7 +65,7 @@ export const getAuthorizerFunction = (
       querySchema: request?.query,
       timeout: Math.max(5, (timeout ?? Defaults.Timeout) - 1),
       memory: memory ?? Defaults.Memory,
-      services: service.services,
+      services: provider?.services,
       context: service.context,
       debug: options.debug,
       tags: options.tags,
@@ -95,7 +95,8 @@ export const getAuthorizerFunction = (
   authorizerState.parameters.getFunctionVariables = () => {
     return {
       ...getPriorVariables(),
-      ...target.variables
+      ...target.variables,
+      ...provider?.variables
     };
   };
 

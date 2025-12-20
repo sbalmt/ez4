@@ -14,7 +14,7 @@ import {
 import { isModelProperty, isTypeObject, isTypeReference } from '@ez4/reflection';
 
 import { IncorrectResponseTypeError, InvalidResponseTypeError } from '../../errors/response';
-import { getFullTypeName } from '../utils/type';
+import { getFullTypeName } from '../utils/name';
 import { getWebBodyMetadata } from '../body';
 import { WsNamespaceType } from './types';
 

@@ -15,7 +15,7 @@ import {
 
 import { IncorrectEventTypeError, InvalidEventTypeError } from '../../errors/ws/event';
 import { getAuthIdentityMetadata } from '../auth/identity';
-import { getFullTypeName } from '../utils/type';
+import { getFullTypeName } from '../utils/name';
 import { getWebHeadersMetadata } from '../headers';
 import { getWebQueryMetadata } from '../query';
 import { WsNamespaceType } from './types';

@@ -19,7 +19,7 @@ import {
 } from '@ez4/common/library';
 
 import { IncompleteTargetError } from '../../errors/ws/target';
-import { getFullTypeName } from '../utils/type';
+import { getFullTypeName } from '../utils/name';
 import { getWebPreferencesMetadata } from '../preferences';
 import { getWsMessageHandler } from './handlers';
 import { WsNamespaceType } from './types';

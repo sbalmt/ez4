@@ -71,7 +71,9 @@ const getIntegrationFunction = (
     memory = defaults.memory
   } = target;
 
-  const { provider, request, response } = handler as any;
+  const provider = 'provider' in handler ? handler.provider : undefined;
+
+  const { request, response } = handler;
 
   const internalName = getInternalName(service, handler.name);
 
@@ -90,11 +92,13 @@ const getIntegrationFunction = (
     handlerState = createIntegrationFunction(state, context.role, logGroupState, {
       functionName: integrationName,
       description: handler.description,
-      identitySchema: request?.identity,
-      headersSchema: request?.headers,
-      parametersSchema: request?.parameters,
-      querySchema: request?.query,
-      bodySchema: request?.body,
+      ...(request && {
+        ...('headers' in request && { headersSchema: request.headers }),
+        ...('query' in request && { querySchema: request.query }),
+        ...('identity' in request && { identitySchema: request.identity }),
+        ...('parameters' in request && { parametersSchema: request.parameters }),
+        bodySchema: request.body
+      }),
       responseSchema: response?.body,
       timeout: Math.max(5, (timeout ?? Defaults.Timeout) - 1),
       memory: memory ?? Defaults.Memory,

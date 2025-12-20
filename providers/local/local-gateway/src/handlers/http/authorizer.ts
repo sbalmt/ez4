@@ -20,7 +20,7 @@ export const processHttpAuthorization = async (
     return undefined;
   }
 
-  const provider = route.handler.provider;
+  const provider = route.authorizer.provider;
   const services = provider?.services ?? {};
 
   const clients = await context.makeClients(services);

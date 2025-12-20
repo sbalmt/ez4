@@ -21,7 +21,8 @@ export const processWsAuthorization = async (
     return undefined;
   }
 
-  const { services } = service;
+  const provider = connect.authorizer.provider;
+  const services = provider?.services ?? {};
 
   const clients = await context.makeClients(services);
 

@@ -17,7 +17,7 @@ import { isModelProperty, isTypeObject, isTypeReference } from '@ez4/reflection'
 import { isAnyNumber, isObjectWith } from '@ez4/utils';
 
 import { IncompleteCacheError, IncorrectCacheTypeError, InvalidCacheTypeError } from '../../errors/http/cache';
-import { getFullTypeName } from '../utils/type';
+import { getFullTypeName } from '../utils/name';
 import { HttpNamespaceType } from './types';
 
 const FULL_BASE_TYPE = getFullTypeName(HttpNamespaceType, 'Cache');

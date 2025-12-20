@@ -7,6 +7,7 @@ import { getFunctionSignature, isFunctionSignature } from '@ez4/common/library';
 import { isObjectWith } from '@ez4/utils';
 
 import { IncompleteAuthorizerHandlerError } from '../../errors/auth/authorizer';
+import { getWebProviderMetadata } from '../provider';
 import { getAuthResponseMetadata } from './response';
 import { getAuthRequestMetadata } from './request';
 
@@ -26,9 +27,13 @@ export const getAuthHandlerMetadata = (type: AllType, parent: TypeModel, reflect
   const properties = new Set(['response']);
 
   if (type.parameters) {
-    const [{ value: requestType }] = type.parameters;
+    const [{ value: requestType }, contextType] = type.parameters;
 
     handler.request = getAuthRequestMetadata(requestType, parent, reflection, errorList, namespace);
+
+    if (contextType) {
+      handler.provider = getWebProviderMetadata(contextType.value, parent, reflection, errorList, namespace);
+    }
   }
 
   if (type.return && (handler.response = getAuthResponseMetadata(type.return, parent, reflection, errorList, namespace))) {

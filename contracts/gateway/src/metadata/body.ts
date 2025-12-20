@@ -17,7 +17,7 @@ import {
 
 import { IncorrectBodyTypeError, InvalidBodyTypeError } from '../errors/body';
 import { getSchemaFromIntersection, getSchemaFromObject } from './utils/schema';
-import { getFullTypeName } from './utils/type';
+import { getFullTypeName } from './utils/name';
 
 type TypeParent = TypeObject | TypeModel | TypeIntersection;
 

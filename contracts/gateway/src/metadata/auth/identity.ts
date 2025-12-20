@@ -7,7 +7,7 @@ import { createUnionSchema } from '@ez4/schema/library';
 
 import { IncorrectIdentityTypeError, InvalidIdentityTypeError } from '../../errors/auth/identity';
 import { getSchemaFromIntersection, getSchemaFromObject } from '../utils/schema';
-import { getFullTypeName } from '../utils/type';
+import { getFullTypeName } from '../utils/name';
 
 type TypeParent = TypeObject | TypeModel | TypeIntersection;
 

@@ -15,7 +15,7 @@ import {
 
 import { IncorrectRequestTypeError, InvalidRequestTypeError } from '../../errors/request';
 import { getAuthIdentityMetadata } from '../auth/identity';
-import { getFullTypeName } from '../utils/type';
+import { getFullTypeName } from '../utils/name';
 import { getWebParametersMetadata } from '../parameters';
 import { getWebHeadersMetadata } from '../headers';
 import { getWebQueryMetadata } from '../query';
