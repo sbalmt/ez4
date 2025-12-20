@@ -8,7 +8,10 @@ import { getResponseOutput } from './response';
 
 export namespace OpenApiGenerator {
   export const getGatewayOutput = (service: HttpService) => {
-    const output = ['openapi: 3.1.0'];
+    const output = [
+      '# Auto-generated Open API specification, any manual modifications will be lost during regeneration.',
+      'openapi: 3.1.0'
+    ];
 
     output.push(...getInformationOutput(service));
     output.push(...getServiceRoutesOutput(service));

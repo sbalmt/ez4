@@ -14,7 +14,11 @@ import { getStorageEdges, getStorageNodes } from './storage';
 
 export namespace TopologyGenerator {
   export const getTopologyOutput = (metadata: MetadataReflection) => {
-    const output = ['%%{init: { "layout": "elk", "theme": "light" } }%%', 'graph LR'];
+    const output = [
+      '%% Auto-generated topology diagram, any manual modifications will be lost during regeneration.',
+      '%%{init: { "layout": "elk", "theme": "light" } }%%',
+      'graph LR'
+    ];
 
     output.push(
       ...getGatewayNodes(metadata),

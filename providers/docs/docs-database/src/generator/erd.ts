@@ -5,7 +5,11 @@ import { toPascalCase } from '@ez4/utils';
 
 export namespace EntityRelationshipGenerator {
   export const getDatabaseOutput = (databaseService: DatabaseService) => {
-    const output = ['%%{init: { "layout": "elk", "theme": "light" } }%%', 'erDiagram'];
+    const output = [
+      '%% Auto-generated ERD diagram, any manual modifications will be lost during regeneration.',
+      '%%{init: { "layout": "elk", "theme": "light" } }%%',
+      'erDiagram'
+    ];
 
     for (const table of databaseService.tables) {
       const tableName = toPascalCase(table.name);
