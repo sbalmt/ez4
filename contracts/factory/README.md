@@ -1,6 +1,6 @@
 # EZ4: Factory
 
-It uses the power of [reflection](../../foundation/reflection/) to provide a contract that determines how to build and combine services.
+It uses the power of [reflection](../../foundation/reflection/) to provide a contract that determines how to build and combine services. The factory contract isn't an infrastructure resource, but instead, it helps other contracts by creating an organizational layer.
 
 ## Getting started
 
@@ -65,6 +65,10 @@ export async function anyHandler(_request: any, context: Service.Context<DummySe
   myFactory.helloWorld();
 }
 ```
+
+## Examples
+
+- [Schedule manager](../../examples/aws-schedule-manager)
 
 ## License
 

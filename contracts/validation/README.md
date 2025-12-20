@@ -1,6 +1,6 @@
 # EZ4: Validation
 
-It uses the power of [reflection](../../foundation/reflection/) to provide a contract that determines how to build and combine validation services.
+The validation contract uses the project's reflection utilities [(see foundation/reflection)](../../foundation/reflection/) to build composable validation services. It provides a lightweight layer that other contracts can inject to validate inputs and enforce schemas.
 
 ## Getting started
 
@@ -64,6 +64,10 @@ export async function anyHandler(_request: any, context: Service.Context<DummySe
   });
 }
 ```
+
+## Examples
+
+- [Schedule manager](../../examples/aws-schedule-manager)
 
 ## License
 
