@@ -7,6 +7,7 @@ export * from './metadata/listener';
 export * from './reflection/declaration';
 export * from './reflection/intersection';
 export * from './reflection/reference';
+export * from './reflection/function';
 export * from './reflection/property';
 export * from './reflection/object';
 export * from './reflection/array';

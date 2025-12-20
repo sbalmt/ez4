@@ -1,7 +1,7 @@
 import type { ArraySchema, NamingStyle, ObjectSchema, ScalarSchema, UnionSchema } from '@ez4/schema';
+import type { FunctionSignature, ServiceListener } from '@ez4/common/library';
 import type { LinkedServices, LinkedVariables } from '@ez4/project/library';
 import type { ServiceMetadata } from '@ez4/project/library';
-import type { ServiceListener } from '@ez4/common/library';
 import type { AuthorizationType } from '../../services/http/authorization';
 import type { HttpPath } from '../../services/http/path';
 import type { AuthHandler } from '../auth/types';
@@ -63,11 +63,7 @@ export type HttpResponse = {
   body?: HttpDataSchema;
 };
 
-export type HttpHandler = {
-  name: string;
-  file: string;
-  module?: string;
-  description?: string;
+export type HttpHandler = FunctionSignature & {
   response: HttpResponse;
   request?: HttpRequest;
   provider?: HttpProvider;

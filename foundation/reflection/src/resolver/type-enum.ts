@@ -46,8 +46,8 @@ export const tryTypeEnum = (node: Node, context: Context) => {
   }
 
   const name = node.name.getText();
-  const file = context.options.includePath ? getNodeFilePath(node) : undefined;
-  const position = context.options.includePath ? getNodeFilePosition(node) : undefined;
+  const file = context.options.includeLocation ? getNodeFilePath(node) : undefined;
+  const position = context.options.includeLocation ? getNodeFilePosition(node) : undefined;
   const description = getNodeDocumentation(node.name, context.checker);
 
   const reflectedType = createEnum(name, file, position, description);

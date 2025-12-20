@@ -1,7 +1,7 @@
 import { IncompleteTypeError } from '@ez4/common/library';
 
 export class IncompleteHandlerError extends IncompleteTypeError {
-  constructor(properties: string[], fileName?: string) {
-    super('Incomplete factory handler', properties, fileName);
+  constructor(fileName?: string) {
+    super('Incomplete factory handler', [], fileName);
   }
 }

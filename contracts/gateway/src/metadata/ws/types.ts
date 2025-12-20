@@ -1,6 +1,6 @@
 import type { ArraySchema, NamingStyle, ObjectSchema, ScalarSchema, UnionSchema } from '@ez4/schema';
 import type { LinkedVariables, ServiceMetadata } from '@ez4/project/library';
-import type { ServiceListener } from '@ez4/common/library';
+import type { FunctionSignature, ServiceListener } from '@ez4/common/library';
 import type { AuthHandler } from '../auth/types';
 
 import { createServiceMetadata } from '@ez4/project/library';
@@ -45,11 +45,7 @@ export type WsMessage = {
   memory?: number;
 };
 
-export type WsHandler = {
-  name: string;
-  file: string;
-  module?: string;
-  description?: string;
+export type WsHandler = FunctionSignature & {
   request?: WsRequest | WsEvent;
   response?: WsResponse;
 };

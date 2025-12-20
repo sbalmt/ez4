@@ -45,8 +45,8 @@ export const tryTypeObject = (node: Node, context: Context, state: State) => {
     return cache;
   }
 
-  const file = context.options.includePath ? getNodeFilePath(node) : undefined;
-  const position = context.options.includePath ? getNodeFilePosition(node) : undefined;
+  const file = context.options.includeLocation ? getNodeFilePath(node) : undefined;
+  const position = context.options.includeLocation ? getNodeFilePosition(node) : undefined;
 
   const type = createObject(file, position);
 

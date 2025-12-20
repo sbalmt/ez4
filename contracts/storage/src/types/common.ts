@@ -1,5 +1,5 @@
+import type { FunctionSignature, ServiceListener } from '@ez4/common/library';
 import type { LinkedVariables } from '@ez4/project/library';
-import type { ServiceListener } from '@ez4/common/library';
 
 export type BucketCors = {
   allowOrigins: string[];
@@ -9,12 +9,7 @@ export type BucketCors = {
   maxAge?: number;
 };
 
-export type EventHandler = {
-  file: string;
-  module?: string;
-  name: string;
-  description?: string;
-};
+export type EventHandler = FunctionSignature;
 
 export type BucketEvent = {
   path?: string;

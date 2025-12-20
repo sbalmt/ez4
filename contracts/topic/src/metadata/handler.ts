@@ -1,6 +1,6 @@
-import type { Incomplete } from '@ez4/utils';
 import type { AllType, SourceMap } from '@ez4/reflection';
-import type { SubscriptionHandler } from '../types/common';
+
+import { getFunctionSignature } from '@ez4/common/library';
 
 import { IncompleteHandlerError } from '../errors/handler';
 import { isSubscriptionHandler } from './utils';
@@ -11,22 +11,9 @@ export const getSubscriptionHandler = (type: AllType, reflection: SourceMap, err
     return undefined;
   }
 
-  const { description, module } = type;
+  const handler = getFunctionSignature(type);
 
-  const handler: Incomplete<SubscriptionHandler> = {
-    ...(description && { description }),
-    ...(module && { module })
-  };
-
-  const properties = new Set(['name', 'file', 'request']);
-
-  if ((handler.name = type.name)) {
-    properties.delete('name');
-  }
-
-  if ((handler.file = type.file)) {
-    properties.delete('file');
-  }
+  const properties = new Set(['request']);
 
   const message = type.parameters?.[0].value;
 
@@ -34,15 +21,11 @@ export const getSubscriptionHandler = (type: AllType, reflection: SourceMap, err
     properties.delete('request');
   }
 
-  if (properties.size === 0 && isValidHandler(handler)) {
-    return handler;
+  if (!handler || properties.size) {
+    errorList.push(new IncompleteHandlerError([...properties], type.file));
+
+    return undefined;
   }
 
-  errorList.push(new IncompleteHandlerError([...properties], type.file));
-
-  return undefined;
-};
-
-const isValidHandler = (type: Incomplete<SubscriptionHandler>): type is SubscriptionHandler => {
-  return !!type.name && !!type.file;
+  return handler;
 };

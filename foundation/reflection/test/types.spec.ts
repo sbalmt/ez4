@@ -10,7 +10,7 @@ const testFile = (fileName: string, overwrite: boolean = false) => {
 
   const reflection = getReflectionFromFiles([sourceFile], {
     resolverOptions: {
-      includePath: true
+      includeLocation: true
     }
   });
 

@@ -57,7 +57,7 @@ const getReflectionOptions = (onReflectionReady?: ReflectionReadyListener): Refl
     },
     resolverOptions: {
       ignoreMethod: true,
-      includePath: true
+      includeLocation: true
     }
   };
 };

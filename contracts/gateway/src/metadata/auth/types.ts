@@ -1,10 +1,7 @@
+import type { FunctionSignature } from '@ez4/common/library';
 import type { ObjectSchema, UnionSchema } from '@ez4/schema';
 
-export type AuthHandler = {
-  name: string;
-  module?: string;
-  file: string;
-  description?: string;
+export type AuthHandler = FunctionSignature & {
   response?: AuthResponse;
   request?: AuthRequest;
 };

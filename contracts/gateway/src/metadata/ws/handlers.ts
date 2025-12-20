@@ -3,7 +3,7 @@ import type { Incomplete } from '@ez4/utils';
 import type { WsEvent, WsHandler, WsRequest } from './types';
 
 import { isTypeCallback, isTypeFunction } from '@ez4/reflection';
-import { isObjectWith } from '@ez4/utils';
+import { getFunctionSignature, isFunctionSignature } from '@ez4/common/library';
 
 import { IncompleteHandlerError } from '../../errors/web/handler';
 import { getWsResponseMetadata } from './response';
@@ -26,10 +26,6 @@ export const getWsMessageHandler = (type: AllType, parent: TypeModel, reflection
   });
 };
 
-const isCompleteWsHandler = (type: Incomplete<WsHandler>): type is WsHandler => {
-  return isObjectWith(type, ['name', 'file']);
-};
-
 const getWsHandler = (
   type: AllType,
   parent: TypeModel,
@@ -41,22 +37,11 @@ const getWsHandler = (
     return undefined;
   }
 
-  const { description, module } = type;
-
   const handler: Incomplete<WsHandler> = {
-    ...(description && { description }),
-    ...(module && { module })
+    ...getFunctionSignature(type)
   };
 
-  const properties = new Set(['name', 'file']);
-
-  if ((handler.name = type.name)) {
-    properties.delete('name');
-  }
-
-  if ((handler.file = type.file)) {
-    properties.delete('file');
-  }
+  const properties = new Set<string>();
 
   if (type.parameters) {
     const [{ value: requestType }] = type.parameters;
@@ -70,11 +55,11 @@ const getWsHandler = (
     properties.add('response');
   }
 
-  if (properties.size === 0 && isCompleteWsHandler(handler)) {
-    return handler;
+  if (!isFunctionSignature(handler)) {
+    errorList.push(new IncompleteHandlerError([...properties], type.file));
+
+    return undefined;
   }
 
-  errorList.push(new IncompleteHandlerError([...properties], type.file));
-
-  return undefined;
+  return handler;
 };

@@ -1,3 +1,4 @@
+import type { FunctionSignature } from '@ez4/common/library';
 import type { ServiceMetadata } from '@ez4/project/library';
 
 import { createServiceMetadata } from '@ez4/project/library';
@@ -12,12 +13,7 @@ export type FactoryService = Omit<ServiceMetadata, 'variables' | 'services'> &
     handler: FactoryHandler;
   };
 
-export type FactoryHandler = {
-  name: string;
-  module?: string;
-  file: string;
-  description?: string;
-};
+export type FactoryHandler = FunctionSignature;
 
 export const isFactoryService = (service: ServiceMetadata): service is FactoryService => {
   return service.type === ServiceType;

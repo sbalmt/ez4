@@ -3,6 +3,7 @@ import type { Incomplete } from '@ez4/utils';
 import type { AuthHandler } from './types';
 
 import { isTypeCallback, isTypeFunction } from '@ez4/reflection';
+import { getFunctionSignature, isFunctionSignature } from '@ez4/common/library';
 import { isObjectWith } from '@ez4/utils';
 
 import { IncompleteAuthorizerHandlerError } from '../../errors/auth/authorizer';
@@ -18,22 +19,11 @@ export const getAuthHandlerMetadata = (type: AllType, parent: TypeModel, reflect
     return undefined;
   }
 
-  const { description, module } = type;
-
   const handler: Incomplete<AuthHandler> = {
-    ...(description && { description }),
-    ...(module && { module })
+    ...getFunctionSignature(type)
   };
 
-  const properties = new Set(['name', 'file', 'response']);
-
-  if ((handler.name = type.name)) {
-    properties.delete('name');
-  }
-
-  if ((handler.file = type.file)) {
-    properties.delete('file');
-  }
+  const properties = new Set(['response']);
 
   if (type.parameters) {
     const [{ value: requestType }] = type.parameters;
@@ -45,15 +35,15 @@ export const getAuthHandlerMetadata = (type: AllType, parent: TypeModel, reflect
     properties.delete('response');
   }
 
-  if (isCompleteHandler(handler)) {
-    return handler;
+  if (!isCompleteHandler(handler)) {
+    errorList.push(new IncompleteAuthorizerHandlerError([...properties], type.file));
+
+    return undefined;
   }
 
-  errorList.push(new IncompleteAuthorizerHandlerError([...properties], type.file));
-
-  return undefined;
+  return handler;
 };
 
 const isCompleteHandler = (type: Incomplete<AuthHandler>): type is AuthHandler => {
-  return isObjectWith(type, ['name', 'file', 'response']);
+  return isObjectWith(type, ['response']) && isFunctionSignature(type);
 };

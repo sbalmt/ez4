@@ -1,6 +1,6 @@
-import type { Incomplete } from '@ez4/utils';
 import type { AllType, SourceMap } from '@ez4/reflection';
-import type { StreamHandler } from '../types/handler';
+
+import { getFunctionSignature } from '@ez4/common/library';
 
 import { IncompleteHandlerError } from '../errors/handler';
 import { isStreamHandler } from './utils';
@@ -10,36 +10,19 @@ export const getStreamHandler = (type: AllType, _reflection: SourceMap, errorLis
     return undefined;
   }
 
-  const { description, module } = type;
+  const handler = getFunctionSignature(type);
 
-  const handler: Incomplete<StreamHandler> = {
-    ...(description && { description }),
-    ...(module && { module })
-  };
-
-  const properties = new Set(['name', 'file', 'change']);
-
-  if ((handler.name = type.name)) {
-    properties.delete('name');
-  }
-
-  if ((handler.file = type.file)) {
-    properties.delete('file');
-  }
+  const properties = new Set(['change']);
 
   if (type.parameters) {
     properties.delete('change');
   }
 
-  if (properties.size === 0 && isValidHandler(handler)) {
-    return handler;
+  if (!handler || properties.size) {
+    errorList.push(new IncompleteHandlerError([...properties], type.file));
+
+    return undefined;
   }
 
-  errorList.push(new IncompleteHandlerError([...properties], type.file));
-
-  return undefined;
-};
-
-const isValidHandler = (type: Incomplete<StreamHandler>): type is StreamHandler => {
-  return !!type.name && !!type.file;
+  return handler;
 };

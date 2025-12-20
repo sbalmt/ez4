@@ -3,6 +3,7 @@ import type { Incomplete } from '@ez4/utils';
 import type { HttpHandler } from './types';
 
 import { isTypeCallback, isTypeFunction } from '@ez4/reflection';
+import { getFunctionSignature, isFunctionSignature } from '@ez4/common/library';
 import { isObjectWith } from '@ez4/utils';
 
 import { IncompleteHandlerError } from '../../errors/web/handler';
@@ -19,22 +20,11 @@ export const getHttpHandlerMetadata = (type: AllType, parent: TypeModel, reflect
     return undefined;
   }
 
-  const { description, module } = type;
-
   const handler: Incomplete<HttpHandler> = {
-    ...(description && { description }),
-    ...(module && { module })
+    ...getFunctionSignature(type)
   };
 
-  const properties = new Set(['name', 'file', 'response']);
-
-  if ((handler.name = type.name)) {
-    properties.delete('name');
-  }
-
-  if ((handler.file = type.file)) {
-    properties.delete('file');
-  }
+  const properties = new Set(['response']);
 
   if (type.parameters) {
     const [{ value: requestType }, contextType] = type.parameters;
@@ -50,15 +40,15 @@ export const getHttpHandlerMetadata = (type: AllType, parent: TypeModel, reflect
     properties.delete('response');
   }
 
-  if (isCompleteHandler(handler)) {
-    return handler;
+  if (!isCompleteHandler(handler)) {
+    errorList.push(new IncompleteHandlerError([...properties], type.file));
+
+    return undefined;
   }
 
-  errorList.push(new IncompleteHandlerError([...properties], type.file));
-
-  return undefined;
+  return handler;
 };
 
 const isCompleteHandler = (type: Incomplete<HttpHandler>): type is HttpHandler => {
-  return isObjectWith(type, ['name', 'file', 'response']);
+  return isObjectWith(type, ['response']) && isFunctionSignature(type);
 };

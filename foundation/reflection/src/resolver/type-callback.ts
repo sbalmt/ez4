@@ -49,8 +49,8 @@ export const tryTypeCallback = (node: Node, context: Context, state: State) => {
   }
 
   const name = node.name?.getText();
-  const file = context.options.includePath ? getNodeFilePath(node) : undefined;
-  const position = context.options.includePath ? getNodeFilePosition(node) : undefined;
+  const file = context.options.includeLocation ? getNodeFilePath(node) : undefined;
+  const position = context.options.includeLocation ? getNodeFilePosition(node) : undefined;
   const description = node.name && getNodeDocumentation(node.name, context.checker);
 
   const reflectedType = createCallback(name, file, position, description);

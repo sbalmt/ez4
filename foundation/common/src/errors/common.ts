@@ -25,8 +25,10 @@ export class IncompleteTypeError extends TypeError {
   ) {
     if (properties.length > 1) {
       super(`${message}, properties [${properties.join(', ')}] are invalid or missing.`, fileName);
-    } else {
+    } else if (properties.length > 0) {
       super(`${message}, property '${properties[0]}' is invalid or missing.`, fileName);
+    } else {
+      super(`${message}, properties are invalid or missing.`, fileName);
     }
   }
 }

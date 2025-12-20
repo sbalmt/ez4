@@ -27,8 +27,8 @@ export const tryGenericReference = (node: Node, types: TypeArguments | undefined
     return context.cache.get(types) as TypeObject;
   }
 
-  const file = context.options.includePath ? getNodeFilePath(node) : undefined;
-  const position = context.options.includePath ? getNodeFilePosition(node) : undefined;
+  const file = context.options.includeLocation ? getNodeFilePath(node) : undefined;
+  const position = context.options.includeLocation ? getNodeFilePosition(node) : undefined;
 
   const reflectedType = createObject(file, position);
 

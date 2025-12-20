@@ -57,9 +57,9 @@ export type ResolverEvents = TypeAnyEvents &
 
 export type ResolverOptions = {
   /**
-   * Determines whether or not model and function types will output its source file path.
+   * Determines whether or not model and function types will output its source location (file path, module name and position).
    */
-  includePath?: boolean;
+  includeLocation?: boolean;
 
   /**
    * Determines whether or not `enum` types are ignored from reflection.

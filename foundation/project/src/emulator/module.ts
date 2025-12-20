@@ -15,6 +15,7 @@ export type EntrypointModule = {
 
 export type EntrypointSource = {
   file: string;
+  position: [number, number];
   module?: string;
   name: string;
 };
@@ -44,7 +45,7 @@ export const createEmulatorModule = async (module: EmulatorModuleDefinition): Pr
 };
 
 const prepareFunction = (entrypoint: EntrypointSource, variables: LinkedVariables, callback: (...inputs: unknown[]) => any) => {
-  const headline = `${entrypoint.file} [${entrypoint.name}]`;
+  const headline = `${entrypoint.file}:${entrypoint.position.join(':')} [${entrypoint.name}]`;
 
   return async <T>(...inputs: unknown[]): Promise<T> => {
     let failed = false;
