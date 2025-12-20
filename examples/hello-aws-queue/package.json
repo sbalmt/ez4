@@ -22,10 +22,10 @@
     "test": "ez4 test -e local.env"
   },
   "dependencies": {
-    "@ez4/aws-queue": "^0.36.0",
-    "@ez4/common": "^0.36.0",
-    "@ez4/local-queue": "^0.36.0",
-    "@ez4/queue": "^0.36.0",
-    "@ez4/project": "^0.36.0"
+    "@ez4/aws-queue": "^0.37.0",
+    "@ez4/common": "^0.37.0",
+    "@ez4/local-queue": "^0.37.0",
+    "@ez4/queue": "^0.37.0",
+    "@ez4/project": "^0.37.0"
   }
 }
