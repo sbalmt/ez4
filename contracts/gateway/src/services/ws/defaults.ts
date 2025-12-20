@@ -1,4 +1,4 @@
-import type { WebDefaults } from '../web/defaults';
+import type { WebDefaults } from '../defaults';
 import type { WsRequest } from './request';
 import type { WsListener } from './listener';
 import type { WsEvent } from './event';

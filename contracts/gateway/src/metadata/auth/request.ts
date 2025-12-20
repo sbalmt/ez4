@@ -13,11 +13,11 @@ import {
   getReferenceType
 } from '@ez4/common/library';
 
-import { IncorrectRequestTypeError, InvalidRequestTypeError } from '../../errors/web/request';
-import { getWebParametersMetadata } from '../web/parameters';
-import { getWebHeadersMetadata } from '../web/headers';
-import { getWebQueryMetadata } from '../web/query';
+import { IncorrectRequestTypeError, InvalidRequestTypeError } from '../../errors/request';
 import { getFullTypeName } from '../utils/type';
+import { getWebParametersMetadata } from '../parameters';
+import { getWebHeadersMetadata } from '../headers';
+import { getWebQueryMetadata } from '../query';
 
 const BASE_TYPE = 'AuthRequest';
 

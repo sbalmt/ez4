@@ -6,7 +6,7 @@ import { isTypeCallback, isTypeFunction } from '@ez4/reflection';
 import { getFunctionSignature, isFunctionSignature } from '@ez4/common/library';
 import { isObjectWith } from '@ez4/utils';
 
-import { IncompleteHandlerError } from '../../errors/web/handler';
+import { IncompleteHandlerError } from '../../errors/handler';
 import { getHttpProviderMetadata } from './provider';
 import { getHttpResponseMetadata } from './response';
 import { getHttpRequestMetadata } from './request';

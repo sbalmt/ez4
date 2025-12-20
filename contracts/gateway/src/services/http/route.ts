@@ -1,6 +1,6 @@
 import type { AuthHandler } from '../auth/handler';
 import type { AuthRequest } from '../auth/request';
-import type { WebTarget } from '../web/target';
+import type { WebTarget } from '../target';
 import type { HttpListener } from './listener';
 import type { HttpRequest } from './request';
 import type { HttpHandler } from './handler';

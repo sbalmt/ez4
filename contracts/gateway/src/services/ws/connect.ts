@@ -1,6 +1,6 @@
 import type { AuthHandler } from '../auth/handler';
 import type { AuthRequest } from '../auth/request';
-import type { WebTarget } from '../web/target';
+import type { WebTarget } from '../target';
 import type { WsListener } from './listener';
 import type { WsHandler } from './handler';
 import type { WsEvent } from './event';

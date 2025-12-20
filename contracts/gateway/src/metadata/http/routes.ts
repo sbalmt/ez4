@@ -23,11 +23,11 @@ import {
 } from '@ez4/common/library';
 
 import { IncompleteRouteError } from '../../errors/http/route';
-import { MismatchParametersTypeError } from '../../errors/web/parameters';
-import { getWebPreferencesMetadata } from '../web/preferences';
+import { MismatchParametersTypeError } from '../../errors/parameters';
 import { getAuthHandlerMetadata } from '../auth/handler';
 import { getFullTypeName } from '../utils/type';
 import { isHttpPath } from '../utils/path';
+import { getWebPreferencesMetadata } from '../preferences';
 import { getHttpHandlerMetadata } from './handler';
 import { getHttpErrorsMetadata } from './errors';
 import { HttpNamespaceType } from './types';

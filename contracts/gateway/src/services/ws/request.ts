@@ -1,5 +1,5 @@
 import type { AuthIdentity } from '../auth/identity';
-import type { WebBody } from '../web/body';
+import type { WebBody } from '../body';
 
 /**
  * WS request.

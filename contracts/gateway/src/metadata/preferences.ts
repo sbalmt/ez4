@@ -15,8 +15,8 @@ import {
 import { isModelProperty, isTypeObject, isTypeReference } from '@ez4/reflection';
 import { NamingStyle } from '@ez4/schema';
 
-import { IncorrectPreferencesTypeError, InvalidPreferencesTypeError } from '../../errors/web/preferences';
-import { getFullTypeName } from '../utils/type';
+import { IncorrectPreferencesTypeError, InvalidPreferencesTypeError } from '../errors/preferences';
+import { getFullTypeName } from './utils/type';
 
 const BASE_TYPE = 'Preferences';
 

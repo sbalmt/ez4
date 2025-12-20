@@ -15,9 +15,9 @@ import {
   isTypeUnion
 } from '@ez4/reflection';
 
-import { IncorrectBodyTypeError, InvalidBodyTypeError } from '../../errors/web/body';
-import { getSchemaFromIntersection, getSchemaFromObject } from '../utils/schema';
-import { getFullTypeName } from '../utils/type';
+import { IncorrectBodyTypeError, InvalidBodyTypeError } from '../errors/body';
+import { getSchemaFromIntersection, getSchemaFromObject } from './utils/schema';
+import { getFullTypeName } from './utils/type';
 
 type TypeParent = TypeObject | TypeModel | TypeIntersection;
 

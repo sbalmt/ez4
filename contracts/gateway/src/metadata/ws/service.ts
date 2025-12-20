@@ -17,10 +17,10 @@ import {
 import { isModelProperty } from '@ez4/reflection';
 import { isObjectWith } from '@ez4/utils';
 
-import { IncompleteServiceError } from '../../errors/web/service';
+import { IncompleteServiceError } from '../../errors/service';
 import { attachSchemaValidationServices } from '../utils/schema';
-import { getWebBodyMetadata } from '../web/body';
 import { getFullTypeName } from '../utils/type';
+import { getWebBodyMetadata } from '../body';
 import { createWsService, WsNamespaceType } from './types';
 import { getWsConnectionMetadata } from './connection';
 import { getWsDefaultsMetadata } from './defaults';
