@@ -34,8 +34,8 @@ export const validateUnion = async (value: unknown, schema: UnionSchema, context
     }
   }
 
-  if (!lastErrorList.length && definitions?.custom && context) {
-    return useCustomValidation(value, schema, context);
+  if (!lastErrorList.length && definitions?.type && context) {
+    return useCustomValidation(value, schema, definitions.type, context);
   }
 
   return lastErrorList;

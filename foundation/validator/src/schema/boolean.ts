@@ -24,8 +24,8 @@ export const validateBoolean = (value: unknown, schema: BooleanSchema, context?:
     return [new UnexpectedBooleanError(definitions.value, property)];
   }
 
-  if (context && definitions?.custom) {
-    return useCustomValidation(value, schema, context);
+  if (definitions?.type && context) {
+    return useCustomValidation(value, schema, definitions.type, context);
   }
 
   return [];

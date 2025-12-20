@@ -1,6 +1,12 @@
 import type { AnySchema, NamingStyle, ObjectSchema } from '@ez4/schema';
 
-export type ValidationCustomHandler = (value: unknown, schema: AnySchema, property: string | undefined) => Promise<void> | void;
+export type ValidationCustomHandler = (value: unknown, context: ValidationCustomContext) => Promise<void> | void;
+
+export type ValidationCustomContext = {
+  schema: AnySchema;
+  property?: string;
+  type: string;
+};
 
 export type ValidationContext = {
   references: Record<number, ObjectSchema>;

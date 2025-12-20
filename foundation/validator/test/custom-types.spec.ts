@@ -1,3 +1,4 @@
+import type { ValidationCustomContext } from '@ez4/validator';
 import type { AnySchema, StringSchema } from '@ez4/schema';
 
 import { equal } from 'node:assert/strict';
@@ -52,7 +53,8 @@ describe('custom types validation', () => {
           element: {
             type: SchemaType.String,
             definitions: {
-              custom: true
+              custom: true,
+              type: 'A'
             }
           }
         },
@@ -62,7 +64,8 @@ describe('custom types validation', () => {
             {
               type: SchemaType.Number,
               definitions: {
-                custom: true
+                custom: true,
+                type: 'B'
               }
             }
           ]
@@ -70,13 +73,14 @@ describe('custom types validation', () => {
         baz: {
           type: SchemaType.Boolean,
           definitions: {
-            custom: true
+            custom: true,
+            type: 'C'
           }
         }
       }
     };
 
-    const handler = mock.fn((_value: unknown, _schema: AnySchema) => {});
+    const handler = mock.fn((_value: unknown, _context: ValidationCustomContext) => {});
 
     const context = createValidatorContext({
       onCustomValidation: handler
@@ -98,11 +102,12 @@ describe('custom types validation', () => {
     const schema: AnySchema = {
       type: SchemaType.String,
       definitions: {
-        custom: true
+        custom: true,
+        type: 'A'
       }
     };
 
-    const handler = mock.fn((_value: unknown, _schema: AnySchema) => {
+    const handler = mock.fn((_value: unknown, _context: ValidationCustomContext) => {
       throw new Error('This is not valid.');
     });
 

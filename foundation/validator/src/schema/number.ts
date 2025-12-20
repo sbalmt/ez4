@@ -43,8 +43,8 @@ export const validateNumber = (value: unknown, schema: NumberSchema, context?: V
     return [new UnexpectedMaxRangeError(definitions.maxValue, property)];
   }
 
-  if (definitions?.custom && context) {
-    return useCustomValidation(value, schema, context);
+  if (definitions?.type && context) {
+    return useCustomValidation(value, schema, definitions.type, context);
   }
 
   return [];

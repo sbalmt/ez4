@@ -54,7 +54,10 @@ export const getReferenceSchema = (
   if (schema && type.definitions) {
     schema.definitions = {
       ...schema.definitions,
-      ...type.definitions
+      ...type.definitions,
+      ...(type.definitions.custom && {
+        type: declaration.name
+      })
     };
   }
 

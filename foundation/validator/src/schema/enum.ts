@@ -14,8 +14,8 @@ export const validateEnum = (value: unknown, schema: EnumSchema, context?: Valid
 
   for (const enumOption of schema.options) {
     if (value === enumOption.value) {
-      if (definitions?.custom && context) {
-        return useCustomValidation(value, schema, context);
+      if (definitions?.type && context) {
+        return useCustomValidation(value, schema, definitions.type, context);
       }
 
       return [];

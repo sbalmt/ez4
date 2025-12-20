@@ -40,8 +40,8 @@ export const validateString = async (value: unknown, schema: StringSchema, conte
 
   const allErrors = await validateStringFormat(input, schema, property);
 
-  if (!allErrors.length && definitions?.custom && context) {
-    return useCustomValidation(value, schema, context);
+  if (!allErrors.length && definitions?.type && context) {
+    return useCustomValidation(value, schema, definitions.type, context);
   }
 
   return allErrors;
