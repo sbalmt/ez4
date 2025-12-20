@@ -1,7 +1,8 @@
 import type { HttpRequest, WsEvent, WsRequest } from '@ez4/gateway/library';
+import type { ValidationCustomHandler } from '@ez4/validator';
 import type { Http, Ws } from '@ez4/gateway';
 
-import { getHeaders, getIdentity, getPathParameters, getQueryStrings, getRequestBody } from '@ez4/gateway/utils';
+import { resolveHeaders, resolveIdentity, resolvePathParameters, resolveQueryStrings, resolveRequestBody } from '@ez4/gateway/utils';
 import { isObjectSchema, isScalarSchema } from '@ez4/schema';
 
 export type IncomingRequest = {
@@ -14,48 +15,65 @@ export type IncomingRequest = {
 
 export const getIncomingRequestIdentity = async <T extends Http.Identity>(
   metadata: HttpRequest | WsRequest | WsEvent,
-  identity: T | undefined
+  identity: T | undefined,
+  onCustomValidation?: ValidationCustomHandler
 ) => {
   if (!metadata.identity) {
     return undefined;
   }
 
   return {
-    identity: await getIdentity(identity ?? {}, metadata.identity)
+    identity: await resolveIdentity(identity ?? {}, metadata.identity, onCustomValidation)
   };
 };
 
-export const getIncomingRequestHeaders = async (metadata: HttpRequest | WsEvent, route: IncomingRequest) => {
+export const getIncomingRequestHeaders = async (
+  metadata: HttpRequest | WsEvent,
+  route: IncomingRequest,
+  onCustomValidation?: ValidationCustomHandler
+) => {
   if (!metadata.headers) {
     return undefined;
   }
 
   return {
-    headers: await getHeaders(route.headers ?? {}, metadata.headers)
+    headers: await resolveHeaders(route.headers ?? {}, metadata.headers, onCustomValidation)
   };
 };
 
-export const getIncomingRequestParameters = async (metadata: HttpRequest, route: IncomingRequest) => {
+export const getIncomingRequestParameters = async (
+  metadata: HttpRequest,
+  route: IncomingRequest,
+  onCustomValidation?: ValidationCustomHandler
+) => {
   if (!metadata.parameters) {
     return undefined;
   }
 
   return {
-    parameters: await getPathParameters(route.parameters ?? {}, metadata.parameters)
+    parameters: await resolvePathParameters(route.parameters ?? {}, metadata.parameters, onCustomValidation)
   };
 };
 
-export const getIncomingRequestQuery = async (metadata: HttpRequest | WsEvent, target: IncomingRequest) => {
+export const getIncomingRequestQuery = async (
+  metadata: HttpRequest | WsEvent,
+  target: IncomingRequest,
+  onCustomValidation?: ValidationCustomHandler
+) => {
   if (!metadata.query) {
     return undefined;
   }
 
   return {
-    query: await getQueryStrings(target.query ?? {}, metadata.query, target.preferences)
+    query: await resolveQueryStrings(target.query ?? {}, metadata.query, target.preferences, onCustomValidation)
   };
 };
 
-export const getIncomingRequestBody = async (metadata: HttpRequest | WsEvent, target: IncomingRequest) => {
+export const getIncomingRequestBody = async (
+  metadata: HttpRequest | WsEvent,
+  target: IncomingRequest,
+  onCustomValidation?: ValidationCustomHandler
+) => {
   if (!metadata.body) {
     return undefined;
   }
@@ -65,7 +83,7 @@ export const getIncomingRequestBody = async (metadata: HttpRequest | WsEvent, ta
   const data = target.body?.toString();
 
   if (isScalarSchema(body) || (isObjectSchema(body) && body.definitions?.encoded)) {
-    const payload = await getRequestBody(data, body, target.preferences);
+    const payload = await resolveRequestBody(data, body, target.preferences, onCustomValidation);
 
     return {
       body: payload
@@ -73,7 +91,7 @@ export const getIncomingRequestBody = async (metadata: HttpRequest | WsEvent, ta
   }
 
   const content = data && JSON.parse(data);
-  const payload = await getRequestBody(content, body, target.preferences);
+  const payload = await resolveRequestBody(content, body, target.preferences, onCustomValidation);
 
   return {
     body: payload

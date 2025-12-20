@@ -18,6 +18,7 @@ import { isModelProperty } from '@ez4/reflection';
 import { isObjectWith } from '@ez4/utils';
 
 import { IncompleteServiceError, ServiceCollisionError } from '../../errors/web/service';
+import { attachSchemaValidationServices } from '../utils/schema';
 import { getFullTypeName } from '../utils/type';
 import { createHttpService, HttpNamespaceType } from './types';
 import { getHttpDefaultsMetadata } from './defaults';
@@ -106,7 +107,7 @@ export const getHttpServicesMetadata = (reflection: SourceMap) => {
       continue;
     }
 
-    assignProviderServices(service, errorList, fileName);
+    attachLinkedServices(service, errorList, fileName);
 
     allServices[declaration.name] = service;
   }
@@ -121,12 +122,36 @@ const isCompleteService = (type: Incomplete<HttpService>): type is HttpService =
   return isObjectWith(type, ['routes', 'variables', 'services']);
 };
 
-const assignProviderServices = (service: HttpService, errorList: Error[], fileName?: string) => {
+const attachLinkedServices = (service: HttpService, errorList: Error[], fileName?: string) => {
   for (const route of service.routes) {
-    const provider = route.handler.provider;
+    const { provider, request } = route.handler;
 
     if (!provider?.services) {
       continue;
+    }
+
+    if (request) {
+      const { headers, body, identity, parameters, query } = request;
+
+      if (headers) {
+        attachSchemaValidationServices(provider.services, headers);
+      }
+
+      if (query) {
+        attachSchemaValidationServices(provider.services, query);
+      }
+
+      if (identity) {
+        attachSchemaValidationServices(provider.services, identity);
+      }
+
+      if (parameters) {
+        attachSchemaValidationServices(provider.services, parameters);
+      }
+
+      if (body) {
+        attachSchemaValidationServices(provider.services, body);
+      }
     }
 
     for (const serviceName in provider.services) {

@@ -34,40 +34,28 @@ export const registerHttpLocalServices = (service: HttpService, options: ServeOp
       const currentRoute = getMatchingRoute(methodRoutes, request);
 
       if (!currentRoute) {
-        const fallback = await triggerAllAsync('emulator:fallbackRequest', (handler) =>
-          handler({
-            request,
-            service,
-            options
-          })
-        );
+        const fallback = await triggerAllAsync('emulator:fallbackRequest', (handler) => {
+          return handler({ request, service, options });
+        });
 
-        if (fallback) {
-          return fallback;
+        if (!fallback) {
+          return getHttpErrorResponse(new HttpNotFoundError());
         }
 
-        return getHttpErrorResponse(new HttpNotFoundError());
+        return fallback;
       }
 
-      try {
-        if (!currentRoute.authorizer) {
-          return await processHttpRequest(service, options, context, currentRoute);
-        }
-
-        const identity = await processHttpAuthorization(service, options, context, currentRoute);
-
-        if (identity) {
-          return await processHttpRequest(service, options, context, currentRoute, identity);
-        }
-
-        return getHttpErrorResponse(new HttpForbiddenError());
-      } catch (error) {
-        if (error instanceof Error) {
-          return getHttpErrorResponse(error);
-        }
-
-        throw error;
+      if (!currentRoute.authorizer) {
+        return processHttpRequest(service, options, context, currentRoute);
       }
+
+      const identity = await processHttpAuthorization(service, options, context, currentRoute);
+
+      if (identity) {
+        return processHttpRequest(service, options, context, currentRoute, identity);
+      }
+
+      return getHttpErrorResponse(new HttpForbiddenError());
     }
   };
 };

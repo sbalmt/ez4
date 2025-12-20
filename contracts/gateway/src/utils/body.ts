@@ -1,3 +1,4 @@
+import type { ValidationCustomHandler } from '@ez4/validator';
 import type { AnySchema } from '@ez4/schema';
 import type { Http } from '../services/http/contract';
 
@@ -31,15 +32,17 @@ export const prepareRequestBody = <T extends Http.JsonBody | Http.RawBody>(
   };
 };
 
-export const getRequestBody = async <T extends Http.JsonBody | Http.RawBody>(
+export const resolveRequestBody = async <T extends Http.JsonBody | Http.RawBody>(
   input: T | undefined,
   schema: AnySchema,
-  preferences?: Http.Preferences
+  preferences?: Http.Preferences,
+  onCustomValidation?: ValidationCustomHandler
 ): Promise<T> => {
   const inputStyle = preferences?.namingStyle;
 
   const validationContext = createValidatorContext({
     property: '$body',
+    onCustomValidation,
     inputStyle
   });
 
@@ -77,7 +80,7 @@ export const prepareResponseBody = (body: string, schema?: AnySchema, preference
   return transform(payload, schema, context);
 };
 
-export const getResponseBody = (body: unknown, schema: AnySchema, preferences?: Http.Preferences) => {
+export const resolveResponseBody = (body: unknown, schema: AnySchema, preferences?: Http.Preferences) => {
   const outputStyle = preferences?.namingStyle;
 
   const context = createTransformContext({

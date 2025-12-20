@@ -1,8 +1,10 @@
 import type { EmulateServiceContext, EmulatorMessageEvent, ServeOptions } from '@ez4/project/library';
+import type { ValidationCustomContext } from '@ez4/validator';
 import type { WsService } from '@ez4/gateway/library';
 import type { Ws } from '@ez4/gateway';
 
 import { createModule, onBegin, onReady, onDone, onError, onEnd } from '@ez4/local-common';
+import { resolveValidation } from '@ez4/gateway/utils';
 import { getRandomUUID } from '@ez4/utils';
 
 import { getIncomingRequestIdentity, getIncomingRequestBody } from '../../utils/request';
@@ -37,12 +39,16 @@ export const processWsMessage = async (
     timestamp: new Date()
   };
 
+  const onCustomValidation = (value: unknown, context: ValidationCustomContext) => {
+    return resolveValidation(value, clients, context.type);
+  };
+
   try {
     await onBegin(module, clients, request);
 
     if (handler.request) {
-      Object.assign(request, await getIncomingRequestIdentity(handler.request, identity));
-      Object.assign(request, await getIncomingRequestBody(handler.request, event));
+      Object.assign(request, await getIncomingRequestIdentity(handler.request, identity, onCustomValidation));
+      Object.assign(request, await getIncomingRequestBody(handler.request, event, onCustomValidation));
     }
 
     await onReady(module, clients, request);

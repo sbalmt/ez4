@@ -1,3 +1,4 @@
+import type { ValidationCustomHandler } from '@ez4/validator';
 import type { ObjectSchema } from '@ez4/schema';
 import type { Http } from '../services/http/contract';
 
@@ -15,13 +16,22 @@ export const preparePathParameters = (path: string, parameters: Record<string, s
   });
 };
 
-export const getPathParameters = async <T extends Http.PathParameters>(input: T, schema: ObjectSchema): Promise<T> => {
+export const resolvePathParameters = async <T extends Http.PathParameters>(
+  input: T,
+  schema: ObjectSchema,
+  onCustomValidation?: ValidationCustomHandler
+): Promise<T> => {
   const parameters = transform(input, schema, createTransformContext({ convert: false }));
 
-  const errors = await validate(parameters, schema, createValidatorContext({ property: '$path' }));
+  const validationContext = createValidatorContext({
+    property: '$path',
+    onCustomValidation
+  });
 
-  if (errors.length) {
-    const messages = getUniqueErrorMessages(errors);
+  const validationErrors = await validate(parameters, schema, validationContext);
+
+  if (validationErrors.length) {
+    const messages = getUniqueErrorMessages(validationErrors);
 
     throw new HttpBadRequestError('Malformed path parameters.', messages);
   }

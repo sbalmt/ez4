@@ -1,9 +1,11 @@
 import type { EmulateServiceContext, ServeOptions } from '@ez4/project/library';
+import type { ValidationCustomContext } from '@ez4/validator';
 import type { HttpService } from '@ez4/gateway/library';
 import type { Http } from '@ez4/gateway';
 import type { MatchingRoute } from '../../utils/route';
 
 import { createModule, onBegin, onReady, onDone, onError, onEnd } from '@ez4/local-common';
+import { resolveValidation } from '@ez4/gateway/utils';
 import { getRandomUUID } from '@ez4/utils';
 
 import { getHttpSuccessResponse, getHttpErrorResponse } from '../../utils/http/response';
@@ -26,9 +28,9 @@ export const processHttpRequest = async (
   const handler = route.handler;
 
   const provider = handler.provider;
-  const services = provider?.services;
+  const services = provider?.services ?? {};
 
-  const clients = services && (await context.makeClients(services));
+  const clients = await context.makeClients(services);
 
   const module = await createModule({
     listener: route.listener ?? service.defaults?.listener,
@@ -50,15 +52,19 @@ export const processHttpRequest = async (
     encoded: false
   };
 
+  const onCustomValidation = (value: unknown, context: ValidationCustomContext) => {
+    return resolveValidation(value, clients, context.type);
+  };
+
   try {
     await onBegin(module, clients, request);
 
     if (handler.request) {
-      Object.assign(request, await getIncomingRequestIdentity(handler.request, identity));
-      Object.assign(request, await getIncomingRequestHeaders(handler.request, route));
-      Object.assign(request, await getIncomingRequestParameters(handler.request, route));
-      Object.assign(request, await getIncomingRequestQuery(handler.request, route));
-      Object.assign(request, await getIncomingRequestBody(handler.request, route));
+      Object.assign(request, await getIncomingRequestIdentity(handler.request, identity, onCustomValidation));
+      Object.assign(request, await getIncomingRequestHeaders(handler.request, route, onCustomValidation));
+      Object.assign(request, await getIncomingRequestParameters(handler.request, route, onCustomValidation));
+      Object.assign(request, await getIncomingRequestQuery(handler.request, route, onCustomValidation));
+      Object.assign(request, await getIncomingRequestBody(handler.request, route, onCustomValidation));
       Object.assign(request, { data: route.body?.toString() });
     }
 

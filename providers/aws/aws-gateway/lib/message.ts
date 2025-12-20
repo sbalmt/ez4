@@ -1,4 +1,5 @@
 import type { ArraySchema, ObjectSchema, ScalarSchema, UnionSchema } from '@ez4/schema';
+import type { ValidationCustomContext } from '@ez4/validator';
 import type { HttpPreferences } from '@ez4/gateway/library';
 import type { Ws } from '@ez4/gateway';
 
@@ -10,8 +11,7 @@ import type {
   Context
 } from 'aws-lambda';
 
-import * as GatewayUtils from '@ez4/gateway/utils';
-
+import { resolveIdentity, getJsonError, resolveRequestBody, resolveResponseBody, resolveValidation } from '@ez4/gateway/utils';
 import { HttpError, HttpInternalServerError } from '@ez4/gateway';
 import { isObjectSchema, isScalarSchema } from '@ez4/schema';
 import { ServiceEventType } from '@ez4/common';
@@ -87,7 +87,7 @@ const getIncomingRequestIdentity = (event: RequestEvent) => {
 
   const identity = event.requestContext?.authorizer?.identity;
 
-  return GatewayUtils.getIdentity(JSON.parse(identity ?? '{}'), __EZ4_IDENTITY_SCHEMA);
+  return resolveIdentity(JSON.parse(identity ?? '{}'), __EZ4_IDENTITY_SCHEMA, onCustomValidation);
 };
 
 const getIncomingRequestBody = (event: RequestEvent) => {
@@ -98,12 +98,12 @@ const getIncomingRequestBody = (event: RequestEvent) => {
   const { body } = event;
 
   if (isScalarSchema(__EZ4_BODY_SCHEMA) || (isObjectSchema(__EZ4_BODY_SCHEMA) && __EZ4_BODY_SCHEMA.definitions?.encoded)) {
-    return GatewayUtils.getRequestBody(body, __EZ4_BODY_SCHEMA);
+    return resolveRequestBody(body, __EZ4_BODY_SCHEMA, undefined, onCustomValidation);
   }
 
   try {
     const payload = body && JSON.parse(body);
-    return GatewayUtils.getRequestBody(payload, __EZ4_BODY_SCHEMA, __EZ4_PREFERENCES);
+    return resolveRequestBody(payload, __EZ4_BODY_SCHEMA, __EZ4_PREFERENCES, onCustomValidation);
     //
   } catch (error) {
     if (error instanceof SyntaxError) {
@@ -126,7 +126,7 @@ const getOutgoingResponseBody = (body: Ws.JsonBody | Ws.RawBody) => {
     };
   }
 
-  const payload = GatewayUtils.getResponseBody(body, __EZ4_RESPONSE_SCHEMA, __EZ4_PREFERENCES);
+  const payload = resolveResponseBody(body, __EZ4_RESPONSE_SCHEMA, __EZ4_PREFERENCES);
 
   return {
     body: JSON.stringify(payload),
@@ -142,12 +142,16 @@ const getSuccessResponse = (body?: Ws.JsonBody | Ws.RawBody) => {
 };
 
 const getErrorResponse = (error?: HttpError) => {
-  const { status, body } = GatewayUtils.getJsonError(error ?? new HttpInternalServerError());
+  const { status, body } = getJsonError(error ?? new HttpInternalServerError());
 
   return {
     statusCode: status,
     body: JSON.stringify(body)
   };
+};
+
+const onCustomValidation = (value: unknown, context: ValidationCustomContext) => {
+  return resolveValidation(value, __EZ4_CONTEXT, context.type);
 };
 
 const onBegin = async (request: Ws.Incoming<Ws.Request>) => {

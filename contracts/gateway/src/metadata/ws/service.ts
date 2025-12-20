@@ -18,6 +18,7 @@ import { isModelProperty } from '@ez4/reflection';
 import { isObjectWith } from '@ez4/utils';
 
 import { IncompleteServiceError } from '../../errors/web/service';
+import { attachSchemaValidationServices } from '../utils/schema';
 import { getWebBodyMetadata } from '../web/body';
 import { getFullTypeName } from '../utils/type';
 import { createWsService, WsNamespaceType } from './types';
@@ -127,6 +128,8 @@ export const getWsServicesMetadata = (reflection: SourceMap) => {
       continue;
     }
 
+    attachLinkedServices(service);
+
     allServices[declaration.name] = service;
   }
 
@@ -138,4 +141,32 @@ export const getWsServicesMetadata = (reflection: SourceMap) => {
 
 const isCompleteService = (type: Incomplete<WsService>): type is WsService => {
   return isObjectWith(type, ['schema', 'connect', 'disconnect', 'message', 'variables', 'services']);
+};
+
+const attachLinkedServices = (service: WsService) => {
+  for (const route of [service.connect, service.disconnect, service.message]) {
+    const { request } = route.handler;
+
+    if (!request) {
+      continue;
+    }
+
+    const { identity, body } = request;
+
+    if ('headers' in request && request.headers) {
+      attachSchemaValidationServices(service.services, request.headers);
+    }
+
+    if ('query' in request && request.query) {
+      attachSchemaValidationServices(service.services, request.query);
+    }
+
+    if (identity) {
+      attachSchemaValidationServices(service.services, identity);
+    }
+
+    if (body) {
+      attachSchemaValidationServices(service.services, body);
+    }
+  }
 };

@@ -1,7 +1,7 @@
 import type { WsResponse } from '@ez4/gateway/library';
 import { HttpError, type Ws } from '@ez4/gateway';
 
-import { getJsonError, getResponseBody } from '@ez4/gateway/utils';
+import { getJsonError, resolveResponseBody } from '@ez4/gateway/utils';
 import { isScalarSchema } from '@ez4/schema';
 
 export const getWsSuccessResponse = (metadata: WsResponse, response: Ws.Response, preferences?: Ws.Preferences) => {
@@ -12,7 +12,7 @@ export const getWsSuccessResponse = (metadata: WsResponse, response: Ws.Response
   }
 
   if (!isScalarSchema(metadata.body)) {
-    return JSON.stringify(getResponseBody(body, metadata.body, preferences));
+    return JSON.stringify(resolveResponseBody(body, metadata.body, preferences));
   }
 
   return body.toString();

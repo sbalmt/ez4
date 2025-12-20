@@ -15,7 +15,6 @@ import { createWsServiceClient } from '../../client/ws/service';
 import { processWsAuthorization } from '../../handlers/ws/authorizer';
 import { processWsConnection } from '../../handlers/ws/connection';
 import { processWsMessage } from '../../handlers/ws/message';
-import { getWsErrorResponse } from '../../utils/ws/response';
 
 export const registerWsLocalServices = (service: WsService, options: ServeOptions, context: EmulateServiceContext) => {
   const { name: serviceName, defaults, connect, message } = service;
@@ -62,20 +61,11 @@ export const registerWsLocalServices = (service: WsService, options: ServeOption
       return processWsConnection(service, options, context, event, identity);
     },
     messageHandler: async (message: EmulatorMessageEvent) => {
-      try {
-        const { connection } = message;
+      const { connection } = message;
 
-        const identity = identities[connection.id];
+      const identity = identities[connection.id];
 
-        return await processWsMessage(service, options, context, message, identity);
-        //
-      } catch (error) {
-        if (error instanceof Error) {
-          return getWsErrorResponse(error);
-        }
-
-        throw error;
-      }
+      return processWsMessage(service, options, context, message, identity);
     }
   };
 };

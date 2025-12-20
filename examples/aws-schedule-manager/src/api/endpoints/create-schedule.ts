@@ -1,6 +1,8 @@
-import type { String } from '@ez4/schema';
+import type { Validator } from '@ez4/validator';
 import type { Service } from '@ez4/common';
+import type { String } from '@ez4/schema';
 import type { Http } from '@ez4/gateway';
+import type { DateValidation } from '@/api/validations/date';
 import type { Api } from '@/api';
 
 import { createEvent } from '@/api/repository';
@@ -14,7 +16,9 @@ declare class CreateScheduleRequest implements Http.Request {
     /**
      * Event date.
      */
-    date: String.DateTime;
+    date: String.DateTime &
+      // Use custom type validation rather than validation service.
+      Validator.Use<DateValidation>;
 
     /**
      * Event message.
@@ -41,10 +45,8 @@ export async function createScheduleHandler(
   request: CreateScheduleRequest,
   context: Service.Context<Api>
 ): Promise<CreateScheduleResponse> {
-  const { eventDb, eventScheduler, statsService, dateValidation } = context;
+  const { eventDb, eventScheduler, statsService } = context;
   const { date, message } = request.body;
-
-  await dateValidation.validate(date);
 
   const identifier = await createEvent(eventDb, {
     status: EventStatus.Pending,

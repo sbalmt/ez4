@@ -3,7 +3,7 @@ import type { WsPreferences } from '@ez4/gateway/library';
 import type { Ws, WsClient } from '@ez4/gateway';
 import type { AnySchema } from '@ez4/schema';
 
-import { getResponseBody } from '@ez4/gateway/utils';
+import { resolveResponseBody } from '@ez4/gateway/utils';
 import { Logger } from '@ez4/project/library';
 
 export type WsServiceClientOptions = {
@@ -25,7 +25,7 @@ export const createWsServiceClient = <T extends Ws.JsonBody = any>(serviceName: 
 
       Logger.debug(`✉️  Sending message to connection [${serviceName}]`);
 
-      const content = await getResponseBody(message, messageSchema, preferences);
+      const content = await resolveResponseBody(message, messageSchema, preferences);
       const payload = JSON.stringify(content);
 
       connection.write(payload);

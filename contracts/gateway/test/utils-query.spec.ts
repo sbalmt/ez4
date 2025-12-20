@@ -3,9 +3,9 @@ import type { ObjectSchema } from '@ez4/schema';
 import { deepEqual, rejects } from 'node:assert/strict';
 import { describe, it } from 'node:test';
 
-import { HttpBadRequestError } from '@ez4/gateway';
 import { NamingStyle, SchemaType } from '@ez4/schema';
-import { getQueryStrings } from '@ez4/gateway/utils';
+import { resolveQueryStrings } from '@ez4/gateway/utils';
+import { HttpBadRequestError } from '@ez4/gateway';
 
 describe('http query utils', () => {
   it('assert :: get query strings', async () => {
@@ -33,7 +33,7 @@ describe('http query utils', () => {
       qux: 'ignored'
     };
 
-    const queryOutput = await getQueryStrings(queryInput, querySchema, {
+    const queryOutput = await resolveQueryStrings(queryInput, querySchema, {
       namingStyle: NamingStyle.KebabCase
     });
 
@@ -66,6 +66,6 @@ describe('http query utils', () => {
       bazKey: 'abc'
     };
 
-    await rejects(() => getQueryStrings(queryInput, querySchema), HttpBadRequestError);
+    await rejects(() => resolveQueryStrings(queryInput, querySchema), HttpBadRequestError);
   });
 });

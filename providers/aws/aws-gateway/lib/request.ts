@@ -1,14 +1,24 @@
 import type { APIGatewayProxyEventV2WithLambdaAuthorizer, APIGatewayProxyResultV2, Context } from 'aws-lambda';
 import type { ArraySchema, ObjectSchema, ScalarSchema, UnionSchema } from '@ez4/schema';
+import type { ValidationCustomContext } from '@ez4/validator';
 import type { HttpPreferences } from '@ez4/gateway/library';
 import type { AnyObject } from '@ez4/utils';
 import type { Http } from '@ez4/gateway';
 
-import * as GatewayUtils from '@ez4/gateway/utils';
-
-import { isObjectSchema, isScalarSchema } from '@ez4/schema';
 import { HttpError, HttpInternalServerError } from '@ez4/gateway';
+import { isObjectSchema, isScalarSchema } from '@ez4/schema';
 import { ServiceEventType } from '@ez4/common';
+
+import {
+  resolveHeaders,
+  resolvePathParameters,
+  resolveQueryStrings,
+  resolveIdentity,
+  resolveRequestBody,
+  resolveValidation,
+  resolveResponseBody,
+  getJsonError
+} from '@ez4/gateway/utils';
 
 type RequestEvent = APIGatewayProxyEventV2WithLambdaAuthorizer<any>;
 type ResponseEvent = APIGatewayProxyResultV2;
@@ -84,7 +94,7 @@ const getIncomingRequest = async (event: RequestEvent) => {
 
 const getIncomingRequestHeaders = (event: RequestEvent) => {
   if (__EZ4_HEADERS_SCHEMA) {
-    return GatewayUtils.getHeaders(event.headers ?? {}, __EZ4_HEADERS_SCHEMA);
+    return resolveHeaders(event.headers ?? {}, __EZ4_HEADERS_SCHEMA, onCustomValidation);
   }
 
   return undefined;
@@ -92,7 +102,7 @@ const getIncomingRequestHeaders = (event: RequestEvent) => {
 
 const getIncomingRequestParameters = (event: RequestEvent) => {
   if (__EZ4_PARAMETERS_SCHEMA) {
-    return GatewayUtils.getPathParameters(event.pathParameters ?? {}, __EZ4_PARAMETERS_SCHEMA);
+    return resolvePathParameters(event.pathParameters ?? {}, __EZ4_PARAMETERS_SCHEMA, onCustomValidation);
   }
 
   return undefined;
@@ -100,7 +110,7 @@ const getIncomingRequestParameters = (event: RequestEvent) => {
 
 const getIncomingRequestQueryStrings = (event: RequestEvent) => {
   if (__EZ4_QUERY_SCHEMA) {
-    return GatewayUtils.getQueryStrings(event.queryStringParameters ?? {}, __EZ4_QUERY_SCHEMA, __EZ4_PREFERENCES);
+    return resolveQueryStrings(event.queryStringParameters ?? {}, __EZ4_QUERY_SCHEMA, __EZ4_PREFERENCES, onCustomValidation);
   }
 
   return undefined;
@@ -113,7 +123,7 @@ const getIncomingRequestIdentity = (event: RequestEvent) => {
 
   const identity = event.requestContext?.authorizer?.lambda?.identity;
 
-  return GatewayUtils.getIdentity(JSON.parse(identity ?? '{}'), __EZ4_IDENTITY_SCHEMA);
+  return resolveIdentity(JSON.parse(identity ?? '{}'), __EZ4_IDENTITY_SCHEMA, onCustomValidation);
 };
 
 const getIncomingRequestBody = (event: RequestEvent) => {
@@ -124,12 +134,12 @@ const getIncomingRequestBody = (event: RequestEvent) => {
   const { body } = event;
 
   if (isScalarSchema(__EZ4_BODY_SCHEMA) || (isObjectSchema(__EZ4_BODY_SCHEMA) && __EZ4_BODY_SCHEMA.definitions?.encoded)) {
-    return GatewayUtils.getRequestBody(body, __EZ4_BODY_SCHEMA);
+    return resolveRequestBody(body, __EZ4_BODY_SCHEMA, undefined, onCustomValidation);
   }
 
   try {
     const payload = body && JSON.parse(body);
-    return GatewayUtils.getRequestBody(payload, __EZ4_BODY_SCHEMA, __EZ4_PREFERENCES);
+    return resolveRequestBody(payload, __EZ4_BODY_SCHEMA, __EZ4_PREFERENCES, onCustomValidation);
     //
   } catch (error) {
     if (error instanceof SyntaxError) {
@@ -153,7 +163,7 @@ const getOutgoingResponseBody = (body: Http.JsonBody | Http.RawBody, headers?: A
     };
   }
 
-  const payload = GatewayUtils.getResponseBody(body, __EZ4_RESPONSE_SCHEMA, __EZ4_PREFERENCES);
+  const payload = resolveResponseBody(body, __EZ4_RESPONSE_SCHEMA, __EZ4_PREFERENCES);
 
   return {
     type: 'application/json',
@@ -181,7 +191,7 @@ const getSuccessResponse = (status: number, body?: Http.JsonBody | Http.RawBody,
 };
 
 const getDefaultErrorResponse = (error?: HttpError) => {
-  const { status, body } = GatewayUtils.getJsonError(error ?? new HttpInternalServerError());
+  const { status, body } = getJsonError(error ?? new HttpInternalServerError());
 
   return {
     statusCode: status,
@@ -212,6 +222,10 @@ const getMappedErrorResponse = (error: Error) => {
     message: error.message,
     name: errorName
   });
+};
+
+const onCustomValidation = (value: unknown, context: ValidationCustomContext) => {
+  return resolveValidation(value, __EZ4_CONTEXT, context.type);
 };
 
 const onBegin = async (request: Http.Incoming<Http.Request>) => {

@@ -1,6 +1,7 @@
 export * from './utils/property';
 export * from './utils/optional';
 export * from './utils/partial';
+export * from './utils/custom';
 export * from './utils/naming';
 
 export * from './richtypes/boolean';

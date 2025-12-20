@@ -49,6 +49,9 @@ export async function updateScheduleHandler(
   const { scheduleId } = request.parameters;
   const { date, message } = request.body;
 
+  // Use validation service rather than type validation.
+  // await dateValidation.validate(date);
+
   const exists = await eventScheduler.getEvent(scheduleId);
 
   if (!exists) {

@@ -17,19 +17,19 @@ export const isWebHeadersDeclaration = (type: TypeModel, namespace: string) => {
 
 export const getWebHeadersMetadata = (type: AllType, parent: TypeParent, reflection: SourceMap, errorList: Error[], namespace: string) => {
   if (!isTypeReference(type)) {
-    return getHeadersType(type, parent, reflection, errorList, namespace);
+    return resolveHeadersType(type, parent, reflection, errorList, namespace);
   }
 
   const declaration = getReferenceType(type, reflection);
 
   if (declaration) {
-    return getHeadersType(declaration, parent, reflection, errorList, namespace);
+    return resolveHeadersType(declaration, parent, reflection, errorList, namespace);
   }
 
   return undefined;
 };
 
-const getHeadersType = (type: AllType, parent: TypeParent, reflection: SourceMap, errorList: Error[], namespace: string) => {
+const resolveHeadersType = (type: AllType, parent: TypeParent, reflection: SourceMap, errorList: Error[], namespace: string) => {
   if (isTypeObject(type)) {
     return getSchemaFromObject(type, reflection);
   }

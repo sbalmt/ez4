@@ -2,7 +2,7 @@ import type { HttpErrors, HttpResponse } from '@ez4/gateway/library';
 import type { AnyObject } from '@ez4/utils';
 import type { Http } from '@ez4/gateway';
 
-import { getJsonError, getResponseBody } from '@ez4/gateway/utils';
+import { getJsonError, resolveResponseBody } from '@ez4/gateway/utils';
 import { getErrorResponse, getSuccessResponse } from '@ez4/local-common';
 import { isScalarSchema } from '@ez4/schema';
 import { HttpError } from '@ez4/gateway';
@@ -20,7 +20,7 @@ export const getHttpSuccessResponse = (metadata: HttpResponse, response: Http.Re
     return getSuccessResponse(status, headers, contentType, body.toString());
   }
 
-  const payload = JSON.stringify(getResponseBody(body, metadata.body, preferences));
+  const payload = JSON.stringify(resolveResponseBody(body, metadata.body, preferences));
 
   return getSuccessResponse(status, headers, 'application/json', payload);
 };

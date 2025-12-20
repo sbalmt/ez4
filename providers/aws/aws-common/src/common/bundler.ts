@@ -223,7 +223,7 @@ const buildServiceContext = (linkedContext: Record<string, LinkedContext>) => {
         repository[constructorHash] = constructorCode;
       }
 
-      services.push(`${property}: __EZ4_REPOSITORY.${constructorHash}`);
+      services.push(`['${property}']: __EZ4_REPOSITORY.${constructorHash}`);
     }
 
     return `__EZ4_MAKE_LAZY_CONTEXT_FACTORY({${services.join(',')}})`;
@@ -231,7 +231,7 @@ const buildServiceContext = (linkedContext: Record<string, LinkedContext>) => {
 
   const services = buildContext(linkedContext);
 
-  const factory = Object.entries(repository).map(([property, service]) => `${property}: () => ${service}`);
+  const factory = Object.entries(repository).map(([property, service]) => `['${property}']: () => ${service}`);
 
   return {
     repository: `{${factory.join(',')}}`,
