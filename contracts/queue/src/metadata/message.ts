@@ -1,9 +1,10 @@
 import type { AllType, SourceMap, TypeCallback, TypeFunction, TypeIntersection, TypeModel, TypeObject } from '@ez4/reflection';
 import type { QueueMessageSchema } from '../types/common';
 
-import { createUnionSchema, getIntersectionSchema, getObjectSchema, isObjectSchema } from '@ez4/schema/library';
-import { isTypeIntersection, isTypeObject, isTypeReference, isTypeUnion } from '@ez4/reflection';
 import { getReferenceType, isModelDeclaration } from '@ez4/common/library';
+import { isTypeIntersection, isTypeObject, isTypeReference, isTypeUnion } from '@ez4/reflection';
+import { createUnionSchema, getIntersectionSchema, getObjectSchema } from '@ez4/schema/library';
+import { isObjectSchema } from '@ez4/schema';
 
 import { IncorrectMessageTypeError, InvalidMessageTypeError } from '../errors/message';
 import { isQueueMessage } from './utils';

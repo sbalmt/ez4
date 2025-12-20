@@ -1,5 +1,6 @@
 import type { AllType, SourceMap, TypeIntersection, TypeModel, TypeObject } from '@ez4/reflection';
-import type { AnySchema, ArraySchema, ObjectSchema, UnionSchema, UnionSchemaData } from '@ez4/schema/library';
+import type { AnySchema, ArraySchema, ObjectSchema, UnionSchema } from '@ez4/schema';
+import type { UnionSchemaData } from '@ez4/schema/library';
 
 import { createUnionSchema, getScalarSchema, createArraySchema } from '@ez4/schema/library';
 import { getReferenceType, hasHeritageType, isModelDeclaration } from '@ez4/common/library';

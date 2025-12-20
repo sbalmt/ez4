@@ -1,6 +1,7 @@
 import type { SourceMap, TypeIntersection, TypeModel, TypeObject } from '@ez4/reflection';
 
-import { getIntersectionSchema, getObjectSchema, isObjectSchema } from '@ez4/schema/library';
+import { getIntersectionSchema, getObjectSchema } from '@ez4/schema/library';
+import { isObjectSchema } from '@ez4/schema';
 
 export const getSchemaFromIntersection = (type: TypeObject | TypeModel | TypeIntersection, reflection: SourceMap) => {
   const schema = getIntersectionSchema(type, reflection);

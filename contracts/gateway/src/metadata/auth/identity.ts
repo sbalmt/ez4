@@ -1,5 +1,5 @@
 import type { AllType, SourceMap, TypeIntersection, TypeModel, TypeObject } from '@ez4/reflection';
-import type { ObjectSchema, UnionSchema } from '@ez4/schema/library';
+import type { ObjectSchema, UnionSchema } from '@ez4/schema';
 
 import { getReferenceType, hasHeritageType, isModelDeclaration } from '@ez4/common/library';
 import { isTypeIntersection, isTypeObject, isTypeReference, isTypeUndefined, isTypeUnion } from '@ez4/reflection';

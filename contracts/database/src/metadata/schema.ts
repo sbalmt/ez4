@@ -1,9 +1,10 @@
 import type { AllType, SourceMap, TypeModel, TypeObject } from '@ez4/reflection';
 import type { TableSchema } from '../types/schema';
 
-import { createSchemaContext, getObjectSchema, isObjectSchema } from '@ez4/schema/library';
-import { getReferenceType, isModelDeclaration } from '@ez4/common/library';
 import { isTypeObject, isTypeReference } from '@ez4/reflection';
+import { getReferenceType, isModelDeclaration } from '@ez4/common/library';
+import { createSchemaContext, isObjectSchema } from '@ez4/schema';
+import { getObjectSchema } from '@ez4/schema/library';
 
 import { IncorrectSchemaTypeError, InvalidSchemaTypeError } from '../errors/schema';
 import { isTableSchema } from './utils';
