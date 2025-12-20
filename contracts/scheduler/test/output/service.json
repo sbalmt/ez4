@@ -19,7 +19,11 @@
     "target": {
       "handler": {
         "name": "targetHandler",
-        "file": "test/input/output-service.ts"
+        "file": "test/input/output-service.ts",
+        "position": [
+          39,
+          1
+        ]
       },
       "logRetention": 14,
       "timeout": 30,

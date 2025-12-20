@@ -14,7 +14,11 @@
     "defaults": {
       "listener": {
         "name": "testListener",
-        "file": "test/http/input/output-defaults.ts"
+        "file": "test/http/input/output-defaults.ts",
+        "position": [
+          19,
+          1
+        ]
       },
       "httpErrors": {
         "CustomError": 400

@@ -16,6 +16,10 @@
         "handler": {
           "name": "testRoute",
           "file": "test/http/input/output-cache.ts",
+          "position": [
+            35,
+            1
+          ],
           "response": {
             "status": 204
           }
@@ -26,6 +30,10 @@
         "authorizer": {
           "name": "testAuthorizer",
           "file": "test/http/input/output-cache.ts",
+          "position": [
+            29,
+            1
+          ],
           "response": {
             "identity": {
               "identity": 1,
@@ -38,6 +46,10 @@
         "handler": {
           "name": "testRoute",
           "file": "test/http/input/output-cache.ts",
+          "position": [
+            35,
+            1
+          ],
           "response": {
             "status": 204
           }

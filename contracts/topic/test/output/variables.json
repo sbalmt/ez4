@@ -29,7 +29,11 @@
         "type": "lambda",
         "handler": {
           "name": "testHandler",
-          "file": "test/input/output-variables.ts"
+          "file": "test/input/output-variables.ts",
+          "position": [
+            26,
+            1
+          ]
         }
       }
     ]

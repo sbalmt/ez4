@@ -16,6 +16,10 @@
         "handler": {
           "name": "testRouteA",
           "file": "test/http/input/output-parameters.ts",
+          "position": [
+            23,
+            1
+          ],
           "request": {
             "parameters": {
               "type": "object",
@@ -41,6 +45,10 @@
         "handler": {
           "name": "testRouteB",
           "file": "test/http/input/output-parameters.ts",
+          "position": [
+            29,
+            1
+          ],
           "request": {
             "parameters": {
               "type": "object",

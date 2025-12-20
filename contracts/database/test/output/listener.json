@@ -30,11 +30,19 @@
         "stream": {
           "listener": {
             "name": "streamListener",
-            "file": "test/models/output-listener.ts"
+            "file": "test/models/output-listener.ts",
+            "position": [
+              26,
+              1
+            ]
           },
           "handler": {
             "name": "streamHandler",
-            "file": "test/models/output-listener.ts"
+            "file": "test/models/output-listener.ts",
+            "position": [
+              28,
+              1
+            ]
           }
         }
       }

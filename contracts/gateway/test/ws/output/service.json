@@ -27,19 +27,31 @@
     "connect": {
       "handler": {
         "name": "connectHandler",
-        "file": "test/ws/input/output-service.ts"
+        "file": "test/ws/input/output-service.ts",
+        "position": [
+          46,
+          1
+        ]
       }
     },
     "disconnect": {
       "handler": {
         "name": "disconnectHandler",
-        "file": "test/ws/input/output-service.ts"
+        "file": "test/ws/input/output-service.ts",
+        "position": [
+          48,
+          1
+        ]
       }
     },
     "message": {
       "handler": {
         "name": "messageHandler",
-        "file": "test/ws/input/output-service.ts"
+        "file": "test/ws/input/output-service.ts",
+        "position": [
+          50,
+          1
+        ]
       }
     }
   },
@@ -66,19 +78,31 @@
     "connect": {
       "handler": {
         "name": "connectHandler",
-        "file": "test/ws/input/output-service.ts"
+        "file": "test/ws/input/output-service.ts",
+        "position": [
+          46,
+          1
+        ]
       }
     },
     "disconnect": {
       "handler": {
         "name": "disconnectHandler",
-        "file": "test/ws/input/output-service.ts"
+        "file": "test/ws/input/output-service.ts",
+        "position": [
+          48,
+          1
+        ]
       }
     },
     "message": {
       "handler": {
         "name": "messageHandler",
-        "file": "test/ws/input/output-service.ts"
+        "file": "test/ws/input/output-service.ts",
+        "position": [
+          50,
+          1
+        ]
       }
     }
   }

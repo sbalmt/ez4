@@ -16,6 +16,10 @@
         "handler": {
           "name": "testRoute",
           "file": "test/http/input/output-cors.ts",
+          "position": [
+            30,
+            1
+          ],
           "response": {
             "status": 204
           }
@@ -27,6 +31,10 @@
         "handler": {
           "name": "testRoute",
           "file": "test/http/input/output-cors.ts",
+          "position": [
+            30,
+            1
+          ],
           "response": {
             "status": 204
           }

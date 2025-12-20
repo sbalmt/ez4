@@ -29,13 +29,21 @@
         "batch": 5,
         "handler": {
           "name": "testHandler",
-          "file": "test/input/output-subscriptions.ts"
+          "file": "test/input/output-subscriptions.ts",
+          "position": [
+            42,
+            1
+          ]
         }
       },
       {
         "handler": {
           "name": "testHandler",
-          "file": "test/input/output-subscriptions.ts"
+          "file": "test/input/output-subscriptions.ts",
+          "position": [
+            42,
+            1
+          ]
         },
         "memory": 128,
         "variables": {

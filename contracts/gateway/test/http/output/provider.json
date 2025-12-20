@@ -18,6 +18,10 @@
         "handler": {
           "name": "testRouteA",
           "file": "test/http/input/output-provider.ts",
+          "position": [
+            34,
+            1
+          ],
           "request": {},
           "response": {
             "status": 204
@@ -34,6 +38,10 @@
         "handler": {
           "name": "testRouteB",
           "file": "test/http/input/output-provider.ts",
+          "position": [
+            40,
+            1
+          ],
           "request": {},
           "response": {
             "status": 204

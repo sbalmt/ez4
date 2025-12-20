@@ -24,6 +24,10 @@
         "handler": {
           "name": "testRoute",
           "file": "test/http/input/output-variables.ts",
+          "position": [
+            27,
+            1
+          ],
           "request": {},
           "provider": {
             "services": {

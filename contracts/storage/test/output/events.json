@@ -15,7 +15,11 @@
       "handler": {
         "description": "Test storage event.",
         "name": "eventHandler",
-        "file": "test/input/output-events.ts"
+        "file": "test/input/output-events.ts",
+        "position": [
+          22,
+          1
+        ]
       }
     }
   }

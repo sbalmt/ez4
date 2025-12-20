@@ -25,11 +25,19 @@
         "type": "lambda",
         "listener": {
           "name": "testListener",
-          "file": "test/input/output-listener.ts"
+          "file": "test/input/output-listener.ts",
+          "position": [
+            19,
+            1
+          ]
         },
         "handler": {
           "name": "testHandler",
-          "file": "test/input/output-listener.ts"
+          "file": "test/input/output-listener.ts",
+          "position": [
+            21,
+            1
+          ]
         }
       }
     ]

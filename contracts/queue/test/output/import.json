@@ -51,7 +51,11 @@
       {
         "handler": {
           "name": "testHandler",
-          "file": "test/input/output-import.ts"
+          "file": "test/input/output-import.ts",
+          "position": [
+            16,
+            1
+          ]
         }
       }
     ]

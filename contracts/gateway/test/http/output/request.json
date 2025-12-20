@@ -16,6 +16,10 @@
         "handler": {
           "name": "testRouteA",
           "file": "test/http/input/output-request.ts",
+          "position": [
+            12,
+            1
+          ],
           "request": {},
           "response": {
             "status": 204

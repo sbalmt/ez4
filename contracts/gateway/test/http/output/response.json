@@ -16,6 +16,10 @@
         "handler": {
           "name": "testRouteA",
           "file": "test/http/input/output-response.ts",
+          "position": [
+            43,
+            1
+          ],
           "response": {
             "status": 204,
             "body": {
@@ -36,6 +40,10 @@
         "handler": {
           "name": "testRouteB",
           "file": "test/http/input/output-response.ts",
+          "position": [
+            57,
+            1
+          ],
           "response": {
             "status": 204,
             "body": {
@@ -58,6 +66,10 @@
         "handler": {
           "name": "testRouteC",
           "file": "test/http/input/output-response.ts",
+          "position": [
+            69,
+            1
+          ],
           "response": {
             "status": 204,
             "body": {
@@ -74,6 +86,10 @@
         "handler": {
           "name": "testRouteD",
           "file": "test/http/input/output-response.ts",
+          "position": [
+            84,
+            1
+          ],
           "response": {
             "status": 204,
             "body": {
@@ -97,6 +113,10 @@
         "handler": {
           "name": "testRouteE",
           "file": "test/http/input/output-response.ts",
+          "position": [
+            98,
+            1
+          ],
           "response": {
             "status": [
               200,
@@ -110,6 +130,10 @@
         "handler": {
           "name": "testRouteF",
           "file": "test/http/input/output-response.ts",
+          "position": [
+            104,
+            1
+          ],
           "response": {
             "status": 204
           }

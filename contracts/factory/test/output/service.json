@@ -16,7 +16,11 @@
     "name": "TestServiceAFactory",
     "handler": {
       "name": "testServiceAInitializer",
-      "file": "test/input/output-service.ts"
+      "file": "test/input/output-service.ts",
+      "position": [
+        20,
+        1
+      ]
     }
   },
   "TestServiceBFactory": {
@@ -29,7 +33,11 @@
     "name": "TestServiceBFactory",
     "handler": {
       "name": "testServiceBInitializer",
-      "file": "test/input/output-service.ts"
+      "file": "test/input/output-service.ts",
+      "position": [
+        37,
+        1
+      ]
     }
   }
 }

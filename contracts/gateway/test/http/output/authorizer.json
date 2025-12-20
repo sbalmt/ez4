@@ -20,6 +20,10 @@
         "authorizer": {
           "name": "testQueryAuthorizer",
           "file": "test/http/input/output-authorizer.ts",
+          "position": [
+            43,
+            1
+          ],
           "request": {
             "query": {
               "type": "object",
@@ -48,6 +52,10 @@
         "handler": {
           "name": "testHandler",
           "file": "test/http/input/output-authorizer.ts",
+          "position": [
+            73,
+            1
+          ],
           "request": {
             "identity": {
               "type": "object",
@@ -70,6 +78,10 @@
         "authorizer": {
           "name": "testHeaderAuthorizer",
           "file": "test/http/input/output-authorizer.ts",
+          "position": [
+            55,
+            1
+          ],
           "request": {
             "headers": {
               "type": "object",
@@ -98,6 +110,10 @@
         "handler": {
           "name": "testHandler",
           "file": "test/http/input/output-authorizer.ts",
+          "position": [
+            73,
+            1
+          ],
           "request": {
             "identity": {
               "type": "object",

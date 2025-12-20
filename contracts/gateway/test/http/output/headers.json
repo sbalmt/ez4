@@ -16,6 +16,10 @@
         "handler": {
           "name": "testRouteA",
           "file": "test/http/input/output-headers.ts",
+          "position": [
+            22,
+            1
+          ],
           "request": {
             "headers": {
               "type": "object",
@@ -38,6 +42,10 @@
         "handler": {
           "name": "testRouteB",
           "file": "test/http/input/output-headers.ts",
+          "position": [
+            28,
+            1
+          ],
           "request": {
             "headers": {
               "type": "object",

@@ -16,6 +16,10 @@
         "handler": {
           "name": "testRouteA",
           "file": "test/http/input/output-query.ts",
+          "position": [
+            23,
+            1
+          ],
           "request": {
             "query": {
               "type": "object",
@@ -41,6 +45,10 @@
         "handler": {
           "name": "testRouteB",
           "file": "test/http/input/output-query.ts",
+          "position": [
+            29,
+            1
+          ],
           "request": {
             "query": {
               "type": "object",

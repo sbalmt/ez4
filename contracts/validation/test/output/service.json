@@ -28,7 +28,11 @@
     },
     "handler": {
       "name": "performValidation",
-      "file": "test/input/output-service.ts"
+      "file": "test/input/output-service.ts",
+      "position": [
+        21,
+        1
+      ]
     }
   }
 }
