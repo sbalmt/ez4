@@ -1,3 +1,4 @@
+import { registerTriggers as registerValidatorTriggers } from '@ez4/validator/library';
 import { registerTriggers as registerCommonTriggers } from '@ez4/common/library';
 import { tryCreateTrigger } from '@ez4/project/library';
 
@@ -8,6 +9,7 @@ import { getEmulatorService } from './emulator';
 
 export const registerTriggers = () => {
   registerCommonTriggers();
+  registerValidatorTriggers();
 
   tryCreateTrigger(ServiceType, {
     'metadata:getServices': getValidationServicesMetadata,

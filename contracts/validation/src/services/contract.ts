@@ -1,5 +1,6 @@
 import type { LinkedVariables } from '@ez4/project/library';
 import type { Service as CommonService } from '@ez4/common';
+import type { Validator } from '@ez4/validator';
 import type { ValidationHandler } from './handler';
 import type { ValidationInput } from './input';
 import type { Client } from './client';
@@ -14,6 +15,11 @@ export namespace Validation {
    * Validation input.
    */
   export type Input<T> = ValidationInput<T>;
+
+  /**
+   * Use a validation as a type guard.
+   */
+  export type Use<T> = Validator.Use<T>;
 
   /**
    * Validation service.
