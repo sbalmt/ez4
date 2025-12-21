@@ -1,4 +1,4 @@
-import type { Validator } from '@ez4/validator';
+import type { Validation } from '@ez4/validation';
 import type { Service } from '@ez4/common';
 import type { String } from '@ez4/schema';
 import type { Http } from '@ez4/gateway';
@@ -15,10 +15,9 @@ declare class CreateScheduleRequest implements Http.Request {
   body: {
     /**
      * Event date.
+     * (Use custom type validation rather than validation service.)
      */
-    date: String.DateTime &
-      // Use custom type validation rather than validation service.
-      Validator.Use<DateValidation>;
+    date: String.DateTime & Validation.Use<DateValidation>;
 
     /**
      * Event message.

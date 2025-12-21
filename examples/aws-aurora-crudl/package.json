@@ -31,6 +31,7 @@
     "@ez4/local-gateway": "^0.37.0",
     "@ez4/local-database": "^0.37.0",
     "@ez4/project": "^0.37.0",
-    "@ez4/schema": "^0.37.0"
+    "@ez4/schema": "^0.37.0",
+    "@ez4/validation": "^0.37.0"
   }
 }
