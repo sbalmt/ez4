@@ -8,12 +8,12 @@ export const prepareLinkedClient = (service: ValidationService) => {
     from: `./${handler.file}`,
     constructor: `
       new (class {
-        async validate(input: unknown) {
-          await @{EZ4_MODULE_IMPORT}(input, @{EZ4_MODULE_CONTEXT});
+        async validate(value: unknown) {
+          await @{EZ4_MODULE_IMPORT}({ value, schema: this.schema }, @{EZ4_MODULE_CONTEXT});
         }
-        async tryValidate(input: unknown) {
+        async tryValidate(value: unknown) {
           try {
-            return (await this.validate(input)), true;
+            return (await this.validate(value)), true;
           } catch {
             return false;
           }

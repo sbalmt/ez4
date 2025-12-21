@@ -34,13 +34,13 @@ export const getEmulatorService = (event: EmulateServiceEvent) => {
           return schema;
         }
 
-        async validate(input: unknown) {
-          await validationModule.invoke(input, clients);
+        async validate(value: unknown) {
+          await validationModule.invoke({ value, schema }, clients);
         }
 
-        async tryValidate(input: unknown) {
+        async tryValidate(value: unknown) {
           try {
-            return (await this.validate(input), true);
+            return (await this.validate(value), true);
           } catch {
             return false;
           }
