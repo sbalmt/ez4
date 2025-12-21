@@ -50,6 +50,8 @@ All components provide a common interface (a.k.a contract) to manage and consume
 | [Topic](./contracts/topic/)               | [Topic](./providers/local/local-topic/)          | [Topic](./providers/aws/aws-topic/)                                                  |
 | [Queue](./contracts/queue/)               | [Queue](./providers/local/local-queue/)          | [Queue](./providers/aws/aws-queue/)                                                  |
 | [Distribution](./contracts/distribution/) | N/A                                              | [CloudFront](./providers/aws/aws-cloudfront/)                                        |
+| [Validation](./contracts/validation/)     | N/A                                              | N/A                                                                                  |
+| [Factory](./contracts/factory/)           | N/A                                              | N/A                                                                                  |
 
 ## Requirements
 

@@ -41,8 +41,11 @@ export function validateInput(input: Validation.Input, context: Service.Context<
   // Access injected variables
   variables.myVariable;
 
-  // Perform validation
-  input.data;
+  // Access validation value
+  input.value;
+
+  // Access validation schema
+  input.schema;
 }
 ```
 
@@ -68,6 +71,7 @@ export async function anyHandler(_request: any, context: Service.Context<DummySe
 ## Examples
 
 - [Schedule manager](../../examples/aws-schedule-manager)
+- [Aurora RDS CRUDL](../../examples/aws-aurora-crudl)
 
 ## License
 
