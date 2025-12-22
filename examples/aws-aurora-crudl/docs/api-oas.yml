@@ -1,3 +1,4 @@
+# Auto-generated Open API specification, any manual modifications will be lost during regeneration.
 openapi: 3.1.0
 info:
   title: Aurora CRUDL API
@@ -128,22 +129,31 @@ components:
           minLength: 1
           maxLength: 128
         category:
-          type: object
-          description: "Item category."
-          additionalProperties: false
-          properties:
-            name:
-              type: string
-              description: "Category name."
-              minLength: 1
-              maxLength: 32
-            description:
-              type: string
-              description: "Category description."
-              minLength: 1
-              maxLength: 128
-          required:
-            - name
+          anyOf:
+          - type: object
+            additionalProperties: false
+            properties:
+              name:
+                type: string
+                description: "Category name."
+                minLength: 1
+                maxLength: 32
+              description:
+                type: string
+                description: "Category description."
+                minLength: 1
+                maxLength: 128
+            required:
+              - name
+          - type: object
+            additionalProperties: false
+            properties:
+              category_id:
+                type: string
+                description: "Id of an existing category."
+                format: uuid
+            required:
+              - category_id
       required:
         - name
     updateItemHandler:

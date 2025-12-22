@@ -1,3 +1,4 @@
+# Auto-generated Open API specification, any manual modifications will be lost during regeneration.
 openapi: 3.1.0
 info:
   title: Scheduler Manager
@@ -111,7 +112,7 @@ components:
       properties:
         date:
           type: string
-          description: "Event date."
+          description: "Event date.11(Use custom type validation rather than validation service.)"
           format: date-time
         message:
           type: string
