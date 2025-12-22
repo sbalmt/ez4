@@ -33,29 +33,41 @@ export const registerHttpLocalServices = (service: HttpService, options: ServeOp
       const methodRoutes = { ...httpRoutes.ANY, ...httpRoutes[request.method] };
       const currentRoute = getMatchingRoute(methodRoutes, request);
 
-      if (!currentRoute) {
-        const fallback = await triggerAllAsync('emulator:fallbackRequest', (handler) => {
-          return handler({ request, service, options });
-        });
+      try {
+        if (!currentRoute) {
+          const fallback = await triggerAllAsync('emulator:fallbackRequest', (handler) => {
+            return handler({ request, service, options });
+          });
 
-        if (!fallback) {
-          return getHttpErrorResponse(new HttpNotFoundError());
+          if (!fallback) {
+            throw new HttpNotFoundError();
+          }
+
+          return fallback;
         }
 
-        return fallback;
+        if (!currentRoute.authorizer) {
+          return await processHttpRequest(service, options, context, currentRoute);
+        }
+
+        const identity = await processHttpAuthorization(service, options, context, currentRoute);
+
+        if (identity) {
+          return await processHttpRequest(service, options, context, currentRoute, identity);
+        }
+
+        return getHttpErrorResponse(new HttpForbiddenError());
+        //
+      } catch (error) {
+        if (!(error instanceof Error)) {
+          return getHttpErrorResponse();
+        }
+
+        return getHttpErrorResponse(error, {
+          ...service.defaults?.httpErrors,
+          ...currentRoute?.httpErrors
+        });
       }
-
-      if (!currentRoute.authorizer) {
-        return processHttpRequest(service, options, context, currentRoute);
-      }
-
-      const identity = await processHttpAuthorization(service, options, context, currentRoute);
-
-      if (identity) {
-        return processHttpRequest(service, options, context, currentRoute, identity);
-      }
-
-      return getHttpErrorResponse(new HttpForbiddenError());
     }
   };
 };

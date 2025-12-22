@@ -8,7 +8,7 @@ import { createModule, onBegin, onReady, onDone, onError, onEnd } from '@ez4/loc
 import { resolveValidation } from '@ez4/gateway/utils';
 import { getRandomUUID } from '@ez4/utils';
 
-import { getHttpSuccessResponse, getHttpErrorResponse } from '../../utils/http/response';
+import { getHttpSuccessResponse } from '../../utils/http/response';
 
 import {
   getIncomingRequestIdentity,
@@ -80,14 +80,7 @@ export const processHttpRequest = async (
   } catch (error) {
     await onError(module, clients, request, error);
 
-    if (!(error instanceof Error)) {
-      return getHttpErrorResponse();
-    }
-
-    return getHttpErrorResponse(error, {
-      ...service.defaults?.httpErrors,
-      ...route.httpErrors
-    });
+    throw error;
     //
   } finally {
     await onEnd(module, clients, request);
