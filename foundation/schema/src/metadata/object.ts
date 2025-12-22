@@ -1,4 +1,4 @@
-import type { AllType, ModelProperty, SourceMap, TypeIntersection, TypeModel, TypeObject } from '@ez4/reflection';
+import type { AllType, ModelProperty, ReflectionTypes, TypeIntersection, TypeModel, TypeObject } from '@ez4/reflection';
 import type { ObjectSchema, ObjectSchemaProperties } from '../types/type-object';
 import type { ReferenceSchema } from '../types/type-reference';
 import type { SchemaDefinitions } from '../types/common';
@@ -55,7 +55,7 @@ export const isRichTypeModel = (type: AllType): type is RichTypeModel => {
 
 export const getObjectSchema = (
   type: AllType,
-  reflection: SourceMap,
+  reflection: ReflectionTypes,
   context = createSchemaContext(),
   description?: string
 ): ObjectSchema | ReferenceSchema | null => {
@@ -105,7 +105,7 @@ export const getObjectSchema = (
   return null;
 };
 
-const getAnySchemaFromMembers = (reflection: SourceMap, context: SchemaContext, members: ModelProperty[]) => {
+const getAnySchemaFromMembers = (reflection: ReflectionTypes, context: SchemaContext, members: ModelProperty[]) => {
   const properties: ObjectSchemaProperties = {};
 
   const { namingStyle } = context;
@@ -129,7 +129,7 @@ const getAnySchemaFromMembers = (reflection: SourceMap, context: SchemaContext, 
   return properties;
 };
 
-const getAnySchemaFromDynamicMembers = (reflection: SourceMap, context: SchemaContext, type: TypeObject) => {
+const getAnySchemaFromDynamicMembers = (reflection: ReflectionTypes, context: SchemaContext, type: TypeObject) => {
   if (!type.members || Array.isArray(type.members)) {
     return;
   }

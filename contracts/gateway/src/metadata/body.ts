@@ -1,4 +1,4 @@
-import type { AllType, SourceMap, TypeIntersection, TypeModel, TypeObject } from '@ez4/reflection';
+import type { AllType, ReflectionTypes, TypeIntersection, TypeModel, TypeObject } from '@ez4/reflection';
 import type { AnySchema, ArraySchema, ObjectSchema, UnionSchema } from '@ez4/schema';
 import type { UnionSchemaData } from '@ez4/schema/library';
 
@@ -27,13 +27,19 @@ export const isWebBodyDeclaration = (type: TypeModel, namespace: string) => {
   return hasHeritageType(type, getFullTypeName(namespace, BASE_TYPE));
 };
 
-export const getWebBodyMetadata = (type: AllType, parent: TypeParent, reflection: SourceMap, errorList: Error[], namespace: string) => {
+export const getWebBodyMetadata = (
+  type: AllType,
+  parent: TypeParent,
+  reflection: ReflectionTypes,
+  errorList: Error[],
+  namespace: string
+) => {
   return getBodyType(type, reflection, (currentType) => {
     return getScalarTypeBody(currentType) ?? getCompoundTypeBody(currentType, parent, reflection, errorList, namespace);
   });
 };
 
-const getBodyType = <T>(type: AllType, reflection: SourceMap, resolver: (type: AllType) => T | undefined) => {
+const getBodyType = <T>(type: AllType, reflection: ReflectionTypes, resolver: (type: AllType) => T | undefined) => {
   if (!isTypeUndefined(type)) {
     if (!isTypeReference(type)) {
       return resolver(type);
@@ -60,7 +66,7 @@ const getScalarTypeBody = (type: AllType) => {
 const getCompoundTypeBody = (
   type: AllType,
   parent: TypeParent,
-  reflection: SourceMap,
+  reflection: ReflectionTypes,
   errorList: Error[],
   namespace: string
 ): ObjectSchema | UnionSchema | ArraySchema | undefined => {
@@ -97,7 +103,7 @@ const getCompoundTypeBody = (
   return getSchemaFromObject(type, reflection);
 };
 
-const getUnionTypeBody = (types: AllType[], reflection: SourceMap, resolver: (type: AllType) => AnySchema | undefined) => {
+const getUnionTypeBody = (types: AllType[], reflection: ReflectionTypes, resolver: (type: AllType) => AnySchema | undefined) => {
   const schemaData: UnionSchemaData = {
     optional: false,
     elements: []
@@ -123,7 +129,7 @@ const getUnionTypeBody = (types: AllType[], reflection: SourceMap, resolver: (ty
   return createUnionSchema(schemaData);
 };
 
-const getArrayTypeBody = (type: AllType, reflection: SourceMap, resolver: (type: AllType) => AnySchema | undefined) => {
+const getArrayTypeBody = (type: AllType, reflection: ReflectionTypes, resolver: (type: AllType) => AnySchema | undefined) => {
   const schema = getBodyType(type, reflection, resolver);
 
   if (schema) {

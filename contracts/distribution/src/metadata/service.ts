@@ -1,4 +1,4 @@
-import type { ModelProperty, SourceMap } from '@ez4/reflection';
+import type { ModelProperty, ReflectionTypes } from '@ez4/reflection';
 import type { Incomplete } from '@ez4/utils';
 import type { CdnService } from '../types/service';
 
@@ -23,7 +23,7 @@ import { getCdnCertificate } from './certificate';
 import { getAllFallbacks } from './fallback';
 import { isCdnService } from './utils';
 
-export const getCdnServices = (reflection: SourceMap) => {
+export const getCdnServices = (reflection: ReflectionTypes) => {
   const allServices: Record<string, CdnService> = {};
   const errorList: Error[] = [];
 

@@ -1,4 +1,4 @@
-import type { AllType, ModelProperty, SourceMap, TypeModel, TypeObject } from '@ez4/reflection';
+import type { AllType, ModelProperty, ReflectionTypes, TypeModel, TypeObject } from '@ez4/reflection';
 import type { MemberType } from '@ez4/common/library';
 import type { Incomplete } from '@ez4/utils';
 import type { TopicSubscription } from '../types/common';
@@ -23,7 +23,7 @@ import { TopicSubscriptionType } from '../types/common';
 import { isTopicSubscription } from './utils';
 import { getSubscriptionHandler } from './handler';
 
-export const getAllSubscription = (member: ModelProperty, parent: TypeModel, reflection: SourceMap, errorList: Error[]) => {
+export const getAllSubscription = (member: ModelProperty, parent: TypeModel, reflection: ReflectionTypes, errorList: Error[]) => {
   const subscriptionItems = getPropertyTuple(member) ?? [];
   const resultList: TopicSubscription[] = [];
 
@@ -38,7 +38,7 @@ export const getAllSubscription = (member: ModelProperty, parent: TypeModel, ref
   return resultList;
 };
 
-const getTopicSubscription = (type: AllType, parent: TypeModel, reflection: SourceMap, errorList: Error[]) => {
+const getTopicSubscription = (type: AllType, parent: TypeModel, reflection: ReflectionTypes, errorList: Error[]) => {
   if (!isTypeReference(type)) {
     return getTypeSubscription(type, parent, reflection, errorList);
   }
@@ -64,7 +64,7 @@ const isValidSubscription = (type: Incomplete<TopicSubscription>): type is Topic
   return false;
 };
 
-const getTypeSubscription = (type: AllType, parent: TypeModel, reflection: SourceMap, errorList: Error[]) => {
+const getTypeSubscription = (type: AllType, parent: TypeModel, reflection: ReflectionTypes, errorList: Error[]) => {
   if (isTypeObject(type)) {
     return getTypeFromMembers(type, parent, getObjectMembers(type), reflection, errorList);
   }
@@ -86,7 +86,7 @@ const getTypeFromMembers = (
   type: TypeObject | TypeModel,
   parent: TypeModel,
   members: MemberType[],
-  reflection: SourceMap,
+  reflection: ReflectionTypes,
   errorList: Error[]
 ) => {
   const allLambdaErrors: Error[] = [];
@@ -113,7 +113,7 @@ const getLambdaSubscription = (
   type: TypeObject | TypeModel,
   parent: TypeModel,
   members: MemberType[],
-  reflection: SourceMap,
+  reflection: ReflectionTypes,
   errorList: Error[]
 ) => {
   const subscription: Incomplete<TopicSubscription> = {
@@ -167,7 +167,7 @@ const getQueueSubscription = (
   type: TypeObject | TypeModel,
   parent: TypeModel,
   members: MemberType[],
-  reflection: SourceMap,
+  reflection: ReflectionTypes,
   errorList: Error[]
 ) => {
   const subscription: Incomplete<TopicSubscription> = {

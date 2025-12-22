@@ -1,4 +1,4 @@
-import type { AllType, SourceMap, TypeCallback, TypeFunction, TypeModel } from '@ez4/reflection';
+import type { AllType, ReflectionTypes, TypeCallback, TypeFunction, TypeModel } from '@ez4/reflection';
 import type { Incomplete } from '@ez4/utils';
 import type { AuthHandler } from './types';
 
@@ -15,7 +15,13 @@ export const isAuthHandlerDeclaration = (type: AllType): type is TypeCallback | 
   return isTypeCallback(type) || isTypeFunction(type);
 };
 
-export const getAuthHandlerMetadata = (type: AllType, parent: TypeModel, reflection: SourceMap, errorList: Error[], namespace: string) => {
+export const getAuthHandlerMetadata = (
+  type: AllType,
+  parent: TypeModel,
+  reflection: ReflectionTypes,
+  errorList: Error[],
+  namespace: string
+) => {
   if (!isAuthHandlerDeclaration(type)) {
     return undefined;
   }

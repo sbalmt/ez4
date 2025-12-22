@@ -1,4 +1,4 @@
-import type { AllType, SourceMap, TypeTuple } from '@ez4/reflection';
+import type { AllType, ReflectionTypes, TypeTuple } from '@ez4/reflection';
 import type { SchemaDefinitions } from '../types/common';
 import type { SchemaContext } from '../types/context';
 import type { TupleSchema } from '../types/type-tuple';
@@ -33,7 +33,7 @@ export const isRichTypeTuple = (type: AllType): type is RichTypeTuple => {
 
 export const getTupleSchema = (
   type: AllType,
-  reflection: SourceMap,
+  reflection: ReflectionTypes,
   context = createSchemaContext(),
   description?: string
 ): TupleSchema | null => {
@@ -50,7 +50,7 @@ export const getTupleSchema = (
   return null;
 };
 
-const getAnySchemaFromTypeList = (reflection: SourceMap, context: SchemaContext, types: AllType[]) => {
+const getAnySchemaFromTypeList = (reflection: ReflectionTypes, context: SchemaContext, types: AllType[]) => {
   const typeList: AnySchema[] = [];
 
   for (const type of types) {

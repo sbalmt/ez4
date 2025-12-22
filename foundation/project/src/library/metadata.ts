@@ -1,4 +1,4 @@
-import type { AllType, SourceMap } from '@ez4/reflection';
+import type { AllType, ReflectionTypes } from '@ez4/reflection';
 import type { MetadataDependencies, MetadataReflection } from '../types/metadata';
 
 import { getReflectionFiles, TypeName } from '@ez4/reflection';
@@ -88,7 +88,7 @@ const assignMetadataServices = (metadata: MetadataReflection, services: Metadata
   }
 };
 
-const getMetadataFiles = (reflection: SourceMap) => {
+const getMetadataFiles = (reflection: ReflectionTypes) => {
   const metadataFiles = new Set<string>();
 
   for (const identity in reflection) {

@@ -1,4 +1,4 @@
-import type { AllType, SourceMap, TypeClass } from '@ez4/reflection';
+import type { AllType, ReflectionTypes, TypeClass } from '@ez4/reflection';
 import type { Incomplete } from '@ez4/utils';
 import type { ValidationService } from './types';
 
@@ -25,7 +25,7 @@ export const isValidationServiceDeclaration = (type: AllType): type is TypeClass
   return isClassDeclaration(type) && hasHeritageType(type, 'Validation.Service');
 };
 
-export const getValidationServicesMetadata = (reflection: SourceMap) => {
+export const getValidationServicesMetadata = (reflection: ReflectionTypes) => {
   const allServices: Record<string, ValidationService> = {};
   const errorList: Error[] = [];
 

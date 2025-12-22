@@ -1,4 +1,4 @@
-import type { AllType, SourceMap, TypeIntersection, TypeModel, TypeObject } from '@ez4/reflection';
+import type { AllType, ReflectionTypes, TypeIntersection, TypeModel, TypeObject } from '@ez4/reflection';
 
 import { isTypeIntersection, isTypeObject, isTypeReference } from '@ez4/reflection';
 import { getReferenceType, hasHeritageType, isModelDeclaration } from '@ez4/common/library';
@@ -18,7 +18,7 @@ export const isWebParametersDeclaration = (type: TypeModel, namespace: string) =
 export const getWebParametersMetadata = (
   type: AllType,
   parent: TypeParent,
-  reflection: SourceMap,
+  reflection: ReflectionTypes,
   errorList: Error[],
   namespace: string
 ) => {
@@ -35,7 +35,7 @@ export const getWebParametersMetadata = (
   return undefined;
 };
 
-const getParametersType = (type: AllType, parent: TypeParent, reflection: SourceMap, errorList: Error[], namespace: string) => {
+const getParametersType = (type: AllType, parent: TypeParent, reflection: ReflectionTypes, errorList: Error[], namespace: string) => {
   if (isTypeObject(type)) {
     return getSchemaFromObject(type, reflection);
   }

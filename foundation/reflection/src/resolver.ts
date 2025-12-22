@@ -11,7 +11,7 @@ import type { TypeStringEvents } from './types/type-string';
 import type { TypeObjectEvents } from './types/type-object';
 import type { TypeReferenceEvents } from './types/type-reference';
 import type { TypeIntersectionEvents } from './types/type-intersection';
-import type { SourceMap } from './types/source';
+import type { ReflectionTypes } from './types/source';
 import type { AllType } from './types';
 
 import { isExportDeclaration, isImportDeclaration } from 'typescript';
@@ -166,7 +166,7 @@ export const resolveReflectionFiles = (program: Program) => {
 };
 
 export const resolveReflectionMetadata = (program: Program, options?: ReflectionOptions) => {
-  const reflection: SourceMap = {};
+  const reflection: ReflectionTypes = {};
 
   const sourceContext = {
     events: options?.resolverEvents ?? {},

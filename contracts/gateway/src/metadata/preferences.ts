@@ -1,4 +1,4 @@
-import type { AllType, SourceMap, TypeModel } from '@ez4/reflection';
+import type { AllType, ReflectionTypes, TypeModel } from '@ez4/reflection';
 import type { MemberType } from '@ez4/common/library';
 import type { WebPreferences } from './types';
 
@@ -27,7 +27,7 @@ export const isWebPreferencesDeclaration = (type: TypeModel, namespace: string) 
 export const getWebPreferencesMetadata = (
   type: AllType,
   parent: TypeModel,
-  reflection: SourceMap,
+  reflection: ReflectionTypes,
   errorList: Error[],
   namespace: string
 ) => {

@@ -1,5 +1,5 @@
 import type { EmulateServiceEvent, PrepareResourceEvent, ServiceEvent } from '@ez4/project/library';
-import type { SourceMap } from '@ez4/reflection';
+import type { ReflectionTypes } from '@ez4/reflection';
 
 import { createServiceMetadata, getServiceName } from '@ez4/project/library';
 
@@ -16,7 +16,7 @@ export const prepareCommonServices = (event: PrepareResourceEvent) => {
   return isCommonService(event.service);
 };
 
-export const getCommonServices = (_reflection: SourceMap) => {
+export const getCommonServices = (_reflection: ReflectionTypes) => {
   return {
     errors: [],
     services: {

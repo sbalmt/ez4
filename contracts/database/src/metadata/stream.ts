@@ -1,4 +1,4 @@
-import type { AllType, SourceMap, TypeModel, TypeObject } from '@ez4/reflection';
+import type { AllType, ReflectionTypes, TypeModel, TypeObject } from '@ez4/reflection';
 import type { MemberType } from '@ez4/common/library';
 import type { Incomplete } from '@ez4/utils';
 import type { TableStream } from '../types/stream';
@@ -20,7 +20,7 @@ import { IncompleteStreamError, IncorrectStreamTypeError, InvalidStreamTypeError
 import { getStreamHandler } from './handler';
 import { isTableStream } from './utils';
 
-export const getTableStream = (type: AllType, parent: TypeModel, reflection: SourceMap, errorList: Error[]) => {
+export const getTableStream = (type: AllType, parent: TypeModel, reflection: ReflectionTypes, errorList: Error[]) => {
   if (!isTypeReference(type)) {
     return getTypeStream(type, parent, reflection, errorList);
   }
@@ -38,7 +38,7 @@ const isValidStream = (type: Incomplete<TableStream>): type is TableStream => {
   return !!type.handler;
 };
 
-const getTypeStream = (type: AllType, parent: TypeModel, reflection: SourceMap, errorList: Error[]) => {
+const getTypeStream = (type: AllType, parent: TypeModel, reflection: ReflectionTypes, errorList: Error[]) => {
   if (isTypeObject(type)) {
     return getTypeFromMembers(type, parent, getObjectMembers(type), reflection, errorList);
   }
@@ -60,7 +60,7 @@ const getTypeFromMembers = (
   type: TypeObject | TypeModel,
   parent: TypeModel,
   members: MemberType[],
-  reflection: SourceMap,
+  reflection: ReflectionTypes,
   errorList: Error[]
 ) => {
   const stream: Incomplete<TableStream> = {};

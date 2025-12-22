@@ -1,4 +1,4 @@
-import type { ModelProperty, SourceMap, TypeModel, TypeObject } from '@ez4/reflection';
+import type { ModelProperty, ReflectionTypes, TypeModel, TypeObject } from '@ez4/reflection';
 import type { LinkedServices } from '@ez4/project/library';
 
 import { triggerAllSync } from '@ez4/project/library';
@@ -10,13 +10,13 @@ import { isExternalDeclaration } from '../reflection/declaration';
 import { isClassDeclaration } from '../reflection/model';
 import { getObjectMembers } from '../reflection/object';
 
-export const isLinkedService = (member: ModelProperty, reflection: SourceMap) => {
+export const isLinkedService = (member: ModelProperty, reflection: ReflectionTypes) => {
   const referencePath = getPropertyString(member);
 
   return !!(referencePath && reflection[referencePath]);
 };
 
-export const getLinkedServiceList = (member: ModelProperty, reflection: SourceMap, errorList: Error[]) => {
+export const getLinkedServiceList = (member: ModelProperty, reflection: ReflectionTypes, errorList: Error[]) => {
   const object = getPropertyObject(member);
 
   if (object) {
@@ -26,7 +26,12 @@ export const getLinkedServiceList = (member: ModelProperty, reflection: SourceMa
   return {};
 };
 
-export const getLinkedServiceName = (member: ModelProperty, parent: TypeObject | TypeModel, reflection: SourceMap, errorList: Error[]) => {
+export const getLinkedServiceName = (
+  member: ModelProperty,
+  parent: TypeObject | TypeModel,
+  reflection: ReflectionTypes,
+  errorList: Error[]
+) => {
   const referencePath = getPropertyString(member);
 
   if (referencePath?.startsWith('@')) {
@@ -59,7 +64,7 @@ export const getLinkedServiceName = (member: ModelProperty, parent: TypeObject |
   return serviceName;
 };
 
-const getObjectServices = (type: TypeObject, reflection: SourceMap, errorList: Error[]) => {
+const getObjectServices = (type: TypeObject, reflection: ReflectionTypes, errorList: Error[]) => {
   const members = getObjectMembers(type);
   const linkedServices: LinkedServices = {};
 

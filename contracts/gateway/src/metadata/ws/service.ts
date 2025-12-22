@@ -1,4 +1,4 @@
-import type { AllType, SourceMap, TypeClass } from '@ez4/reflection';
+import type { AllType, ReflectionTypes, TypeClass } from '@ez4/reflection';
 import type { Incomplete } from '@ez4/utils';
 import type { WsService } from './types';
 
@@ -31,7 +31,7 @@ export const isWsServiceDeclaration = (type: AllType): type is TypeClass => {
   return isClassDeclaration(type) && hasHeritageType(type, getFullTypeName(WsNamespaceType, 'Service'));
 };
 
-export const getWsServicesMetadata = (reflection: SourceMap) => {
+export const getWsServicesMetadata = (reflection: ReflectionTypes) => {
   const allServices: Record<string, WsService> = {};
   const errorList: Error[] = [];
 

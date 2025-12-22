@@ -1,4 +1,4 @@
-import type { AllType, SourceMap, TypeCallback, TypeFunction, TypeModel } from '@ez4/reflection';
+import type { AllType, ReflectionTypes, TypeCallback, TypeFunction, TypeModel } from '@ez4/reflection';
 import type { Incomplete } from '@ez4/utils';
 import type { HttpHandler } from './types';
 
@@ -16,7 +16,13 @@ export const isHttpHandlerDeclaration = (type: AllType): type is TypeCallback | 
   return isTypeCallback(type) || isTypeFunction(type);
 };
 
-export const getHttpHandlerMetadata = (type: AllType, parent: TypeModel, reflection: SourceMap, errorList: Error[], external: boolean) => {
+export const getHttpHandlerMetadata = (
+  type: AllType,
+  parent: TypeModel,
+  reflection: ReflectionTypes,
+  errorList: Error[],
+  external: boolean
+) => {
   if (!isHttpHandlerDeclaration(type)) {
     return undefined;
   }

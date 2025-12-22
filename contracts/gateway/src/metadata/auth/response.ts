@@ -1,4 +1,4 @@
-import type { AllType, SourceMap, TypeModel, TypeObject } from '@ez4/reflection';
+import type { AllType, ReflectionTypes, TypeModel, TypeObject } from '@ez4/reflection';
 import type { MemberType } from '@ez4/common/library';
 import type { Incomplete } from '@ez4/utils';
 import type { AuthResponse } from '../auth/types';
@@ -25,7 +25,13 @@ export const isAuthResponseDeclaration = (type: TypeModel, namespace: string) =>
   return hasHeritageType(type, getFullTypeName(namespace, BASE_TYPE));
 };
 
-export const getAuthResponseMetadata = (type: AllType, parent: TypeModel, reflection: SourceMap, errorList: Error[], namespace: string) => {
+export const getAuthResponseMetadata = (
+  type: AllType,
+  parent: TypeModel,
+  reflection: ReflectionTypes,
+  errorList: Error[],
+  namespace: string
+) => {
   if (!isTypeReference(type)) {
     return getResponseType(type, parent, reflection, errorList, namespace);
   }
@@ -43,7 +49,7 @@ const isCompleteResponse = (type: Incomplete<AuthResponse>): type is AuthRespons
   return isObjectWith(type, ['identity']);
 };
 
-const getResponseType = (type: AllType, parent: TypeModel, reflection: SourceMap, errorList: Error[], namespace: string) => {
+const getResponseType = (type: AllType, parent: TypeModel, reflection: ReflectionTypes, errorList: Error[], namespace: string) => {
   if (isTypeObject(type)) {
     return getTypeFromMembers(type, parent, getObjectMembers(type), reflection, errorList, namespace);
   }
@@ -65,7 +71,7 @@ const getTypeFromMembers = (
   type: TypeObject | TypeModel,
   parent: TypeModel,
   members: MemberType[],
-  reflection: SourceMap,
+  reflection: ReflectionTypes,
   errorList: Error[],
   namespace: string
 ) => {

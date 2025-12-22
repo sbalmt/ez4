@@ -1,4 +1,4 @@
-import type { AllType, SourceMap, TypeIntersection, TypeModel, TypeObject } from '@ez4/reflection';
+import type { AllType, ReflectionTypes, TypeIntersection, TypeModel, TypeObject } from '@ez4/reflection';
 
 import { isTypeIntersection, isTypeObject, isTypeReference } from '@ez4/reflection';
 import { getReferenceType, hasHeritageType, isModelDeclaration } from '@ez4/common/library';
@@ -15,7 +15,13 @@ export const isWebHeadersDeclaration = (type: TypeModel, namespace: string) => {
   return hasHeritageType(type, getFullTypeName(namespace, BASE_TYPE));
 };
 
-export const getWebHeadersMetadata = (type: AllType, parent: TypeParent, reflection: SourceMap, errorList: Error[], namespace: string) => {
+export const getWebHeadersMetadata = (
+  type: AllType,
+  parent: TypeParent,
+  reflection: ReflectionTypes,
+  errorList: Error[],
+  namespace: string
+) => {
   if (!isTypeReference(type)) {
     return resolveHeadersType(type, parent, reflection, errorList, namespace);
   }
@@ -29,7 +35,7 @@ export const getWebHeadersMetadata = (type: AllType, parent: TypeParent, reflect
   return undefined;
 };
 
-const resolveHeadersType = (type: AllType, parent: TypeParent, reflection: SourceMap, errorList: Error[], namespace: string) => {
+const resolveHeadersType = (type: AllType, parent: TypeParent, reflection: ReflectionTypes, errorList: Error[], namespace: string) => {
   if (isTypeObject(type)) {
     return getSchemaFromObject(type, reflection);
   }

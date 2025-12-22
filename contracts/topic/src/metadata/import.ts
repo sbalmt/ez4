@@ -1,4 +1,4 @@
-import type { SourceMap } from '@ez4/reflection';
+import type { ReflectionTypes } from '@ez4/reflection';
 import type { Incomplete } from '@ez4/utils';
 import type { TopicImport } from '../types/import';
 
@@ -24,7 +24,7 @@ import { getTopicMessage } from './message';
 import { getTopicFifoMode } from './fifo';
 import { isTopicImport } from './utils';
 
-export const getTopicImports = (reflection: SourceMap) => {
+export const getTopicImports = (reflection: ReflectionTypes) => {
   const allImports: Record<string, TopicImport> = {};
   const errorList: Error[] = [];
 

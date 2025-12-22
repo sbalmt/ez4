@@ -1,4 +1,4 @@
-import type { SourceMap } from './types';
+import type { ReflectionTypes } from './types';
 
 import type {
   CompilerOptions as BaseCompilerOptions,
@@ -30,7 +30,7 @@ const EMPTY_WATCHER: FileWatcher = {
 export type CompilerOptions = Omit<BaseCompilerOptions, 'module' | 'target' | 'strict'>;
 
 export type ResolveFileNameListener = (fileName: string) => string;
-export type ReflectionReadyListener = (reflection: SourceMap) => Promise<void> | void;
+export type ReflectionReadyListener = (reflection: ReflectionTypes) => Promise<void> | void;
 
 export type CompilerEvents = {
   onResolveFileName?: ResolveFileNameListener;

@@ -1,4 +1,4 @@
-import type { AllType, SourceMap, TypeClass } from '@ez4/reflection';
+import type { AllType, ReflectionTypes, TypeClass } from '@ez4/reflection';
 import type { Incomplete } from '@ez4/utils';
 import type { FactoryService } from './types';
 
@@ -24,7 +24,7 @@ export const isFactoryServiceDeclaration = (type: AllType): type is TypeClass =>
   return isClassDeclaration(type) && hasHeritageType(type, 'Factory.Service');
 };
 
-export const getFactoryServicesMetadata = (reflection: SourceMap) => {
+export const getFactoryServicesMetadata = (reflection: ReflectionTypes) => {
   const allServices: Record<string, FactoryService> = {};
   const errorList: Error[] = [];
 

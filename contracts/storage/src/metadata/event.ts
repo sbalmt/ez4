@@ -1,4 +1,4 @@
-import type { AllType, SourceMap, TypeModel, TypeObject } from '@ez4/reflection';
+import type { AllType, ReflectionTypes, TypeModel, TypeObject } from '@ez4/reflection';
 import type { MemberType } from '@ez4/common/library';
 import type { Incomplete } from '@ez4/utils';
 import type { BucketEvent } from '../types/common';
@@ -21,7 +21,7 @@ import { IncompleteEventError, IncorrectEventTypeError, InvalidEventTypeError } 
 import { getEventHandler } from './handler';
 import { isBucketEvent } from './utils';
 
-export const getBucketEvent = (type: AllType, parent: TypeModel, reflection: SourceMap, errorList: Error[]) => {
+export const getBucketEvent = (type: AllType, parent: TypeModel, reflection: ReflectionTypes, errorList: Error[]) => {
   if (!isTypeReference(type)) {
     return getTypeEvent(type, parent, errorList);
   }

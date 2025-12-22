@@ -1,4 +1,4 @@
-import type { AllType, SourceMap, TypeModel } from '@ez4/reflection';
+import type { AllType, ReflectionTypes, TypeModel } from '@ez4/reflection';
 import type { MemberType } from '@ez4/common/library';
 import type { WsDefaults } from './types';
 
@@ -26,7 +26,7 @@ export const isWsDefaultsDeclaration = (type: TypeModel) => {
   return hasHeritageType(type, FULL_BASE_TYPE);
 };
 
-export const getWsDefaultsMetadata = (type: AllType, parent: TypeModel, reflection: SourceMap, errorList: Error[]) => {
+export const getWsDefaultsMetadata = (type: AllType, parent: TypeModel, reflection: ReflectionTypes, errorList: Error[]) => {
   if (!isTypeReference(type)) {
     return getDefaultsType(type, parent, reflection, errorList);
   }
@@ -40,7 +40,7 @@ export const getWsDefaultsMetadata = (type: AllType, parent: TypeModel, reflecti
   return undefined;
 };
 
-const getDefaultsType = (type: AllType, parent: TypeModel, reflection: SourceMap, errorList: Error[]) => {
+const getDefaultsType = (type: AllType, parent: TypeModel, reflection: ReflectionTypes, errorList: Error[]) => {
   if (isTypeObject(type)) {
     return getTypeFromMembers(parent, getObjectMembers(type), reflection, errorList);
   }
@@ -58,7 +58,7 @@ const getDefaultsType = (type: AllType, parent: TypeModel, reflection: SourceMap
   return getTypeFromMembers(parent, getModelMembers(type), reflection, errorList);
 };
 
-const getTypeFromMembers = (parent: TypeModel, members: MemberType[], reflection: SourceMap, errorList: Error[]) => {
+const getTypeFromMembers = (parent: TypeModel, members: MemberType[], reflection: ReflectionTypes, errorList: Error[]) => {
   const defaults: WsDefaults = {};
 
   for (const member of members) {

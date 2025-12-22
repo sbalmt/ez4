@@ -1,4 +1,4 @@
-import type { AllType, SourceMap } from '@ez4/reflection';
+import type { AllType, ReflectionTypes } from '@ez4/reflection';
 
 import { getFunctionSignature } from '@ez4/common/library';
 
@@ -6,7 +6,7 @@ import { IncompleteHandlerError } from '../errors/handler';
 import { isSubscriptionHandler } from './utils';
 import { getQueueMessage } from './message';
 
-export const getSubscriptionHandler = (type: AllType, reflection: SourceMap, errorList: Error[]) => {
+export const getSubscriptionHandler = (type: AllType, reflection: ReflectionTypes, errorList: Error[]) => {
   if (!isSubscriptionHandler(type)) {
     return undefined;
   }

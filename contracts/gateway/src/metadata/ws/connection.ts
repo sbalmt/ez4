@@ -1,4 +1,4 @@
-import type { AllType, SourceMap, TypeClass, TypeModel, TypeObject } from '@ez4/reflection';
+import type { AllType, ReflectionTypes, TypeClass, TypeModel, TypeObject } from '@ez4/reflection';
 import type { MemberType } from '@ez4/common/library';
 import type { Incomplete } from '@ez4/utils';
 import type { WsConnection } from './types';
@@ -33,7 +33,7 @@ export const isWsConnectionDeclaration = (type: AllType): type is TypeClass => {
   return isModelDeclaration(type) && (hasHeritageType(type, FULL_BASE_CONNECT_TYPE) || hasHeritageType(type, FULL_BASE_DISCONNECT_TYPE));
 };
 
-export const getWsConnectionMetadata = (type: AllType, parent: TypeModel, reflection: SourceMap, errorList: Error[]) => {
+export const getWsConnectionMetadata = (type: AllType, parent: TypeModel, reflection: ReflectionTypes, errorList: Error[]) => {
   if (!isTypeReference(type)) {
     return getConnectionType(type, parent, reflection, errorList);
   }
@@ -51,7 +51,7 @@ const isCompleteWsConnection = (type: Incomplete<WsConnection>): type is WsConne
   return isObjectWith(type, ['handler']);
 };
 
-const getConnectionType = (type: AllType, parent: TypeModel, reflection: SourceMap, errorList: Error[]) => {
+const getConnectionType = (type: AllType, parent: TypeModel, reflection: ReflectionTypes, errorList: Error[]) => {
   if (isWsConnectionDeclaration(type)) {
     return getTypeFromMembers(type, parent, getModelMembers(type), reflection, errorList);
   }
@@ -67,7 +67,7 @@ const getTypeFromMembers = (
   type: TypeObject | TypeModel,
   parent: TypeModel,
   members: MemberType[],
-  reflection: SourceMap,
+  reflection: ReflectionTypes,
   errorList: Error[]
 ) => {
   const target: Incomplete<WsConnection> = {};

@@ -1,4 +1,4 @@
-import type { AllType, SourceMap, TypeIntersection, TypeModel, TypeObject } from '@ez4/reflection';
+import type { AllType, ReflectionTypes, TypeIntersection, TypeModel, TypeObject } from '@ez4/reflection';
 import type { MemberType } from '@ez4/common/library';
 import type { WsRequest } from './types';
 
@@ -28,7 +28,7 @@ export const isWsRequestDeclaration = (type: TypeModel) => {
 export const getWsRequestMetadata = (
   type: AllType,
   parent: TypeModel,
-  reflection: SourceMap,
+  reflection: ReflectionTypes,
   errorList: Error[]
 ): WsRequest | undefined => {
   if (isTypeIntersection(type) && type.elements.length > 0) {
@@ -48,7 +48,7 @@ export const getWsRequestMetadata = (
   return undefined;
 };
 
-const getRequestType = (type: AllType, parent: TypeModel, reflection: SourceMap, errorList: Error[]) => {
+const getRequestType = (type: AllType, parent: TypeModel, reflection: ReflectionTypes, errorList: Error[]) => {
   if (isTypeObject(type)) {
     return getTypeFromMembers(type, parent, getObjectMembers(type), reflection, errorList);
   }
@@ -70,7 +70,7 @@ const getTypeFromMembers = (
   type: TypeObject | TypeModel | TypeIntersection,
   parent: TypeModel,
   members: MemberType[],
-  reflection: SourceMap,
+  reflection: ReflectionTypes,
   errorList: Error[]
 ) => {
   const request: WsRequest = {};

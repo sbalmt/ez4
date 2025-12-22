@@ -1,5 +1,5 @@
 import type { Node, SourceFile } from 'typescript';
-import type { SourceMap } from '../types';
+import type { ReflectionTypes } from '../types';
 import type { Context } from './common';
 
 import { getNodeIdentity } from '../helpers/node';
@@ -12,7 +12,7 @@ import { tryTypeEnum } from './type-enum';
 import { getNewState } from './common';
 
 export const trySource = (node: SourceFile, context: Context) => {
-  const reflection: SourceMap = {};
+  const reflection: ReflectionTypes = {};
 
   const resolveStatement = (node: Node) => {
     const state = getNewState();

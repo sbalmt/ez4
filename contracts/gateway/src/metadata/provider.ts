@@ -1,4 +1,4 @@
-import type { AllType, SourceMap, TypeIntersection, TypeModel, TypeObject } from '@ez4/reflection';
+import type { AllType, ReflectionTypes, TypeIntersection, TypeModel, TypeObject } from '@ez4/reflection';
 import type { MemberType } from '@ez4/common/library';
 import type { Incomplete } from '@ez4/utils';
 import type { HttpProvider } from './http/types';
@@ -24,7 +24,13 @@ export const isWebProviderDeclaration = (type: AllType, namespace: string): type
   return isModelDeclaration(type) && hasHeritageType(type, getFullTypeName(namespace, BASE_TYPE));
 };
 
-export const getWebProviderMetadata = (type: AllType, parent: TypeModel, reflection: SourceMap, errorList: Error[], namespace: string) => {
+export const getWebProviderMetadata = (
+  type: AllType,
+  parent: TypeModel,
+  reflection: ReflectionTypes,
+  errorList: Error[],
+  namespace: string
+) => {
   if (!isTypeReference(type)) {
     return getProviderType(type, parent, reflection, errorList, namespace);
   }
@@ -42,7 +48,7 @@ const isCompleteProvider = (type: Incomplete<HttpProvider>): type is HttpProvide
   return isObjectWith(type, ['services']);
 };
 
-const getProviderType = (type: AllType, parent: TypeModel, reflection: SourceMap, errorList: Error[], namespace: string) => {
+const getProviderType = (type: AllType, parent: TypeModel, reflection: ReflectionTypes, errorList: Error[], namespace: string) => {
   if (!isModelDeclaration(type)) {
     errorList.push(new InvalidProviderTypeError(getFullTypeName(namespace, BASE_TYPE), parent.file));
     return undefined;
@@ -54,7 +60,7 @@ const getProviderType = (type: AllType, parent: TypeModel, reflection: SourceMap
 const getTypeFromMembers = (
   type: TypeObject | TypeModel | TypeIntersection,
   members: MemberType[],
-  reflection: SourceMap,
+  reflection: ReflectionTypes,
   errorList: Error[]
 ) => {
   const context: HttpProvider = {};

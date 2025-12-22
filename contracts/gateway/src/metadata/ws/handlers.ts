@@ -1,4 +1,4 @@
-import type { AllType, TypeCallback, TypeFunction, TypeModel, SourceMap, EveryType } from '@ez4/reflection';
+import type { AllType, TypeCallback, TypeFunction, TypeModel, ReflectionTypes, EveryType } from '@ez4/reflection';
 import type { Incomplete } from '@ez4/utils';
 import type { WsEvent, WsHandler, WsRequest } from './types';
 
@@ -14,13 +14,13 @@ export const isWsHandlerDeclaration = (type: AllType): type is TypeCallback | Ty
   return isTypeCallback(type) || isTypeFunction(type);
 };
 
-export const getWsConnectionHandler = (type: AllType, parent: TypeModel, reflection: SourceMap, errorList: Error[]) => {
+export const getWsConnectionHandler = (type: AllType, parent: TypeModel, reflection: ReflectionTypes, errorList: Error[]) => {
   return getWsHandler(type, parent, reflection, errorList, (inputType) => {
     return getWsEventMetadata(inputType, parent, reflection, errorList);
   });
 };
 
-export const getWsMessageHandler = (type: AllType, parent: TypeModel, reflection: SourceMap, errorList: Error[]) => {
+export const getWsMessageHandler = (type: AllType, parent: TypeModel, reflection: ReflectionTypes, errorList: Error[]) => {
   return getWsHandler(type, parent, reflection, errorList, (inputType) => {
     return getWsRequestMetadata(inputType, parent, reflection, errorList);
   });
@@ -29,7 +29,7 @@ export const getWsMessageHandler = (type: AllType, parent: TypeModel, reflection
 const getWsHandler = (
   type: AllType,
   parent: TypeModel,
-  reflection: SourceMap,
+  reflection: ReflectionTypes,
   errorList: Error[],
   resolver: (inputType: EveryType) => WsRequest | WsEvent | undefined
 ) => {

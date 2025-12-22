@@ -1,4 +1,4 @@
-import type { ModelProperty, SourceMap, TypeModel, TypeObject } from '@ez4/reflection';
+import type { ModelProperty, ReflectionTypes, TypeModel, TypeObject } from '@ez4/reflection';
 import type { Incomplete } from '@ez4/utils';
 import type { DatabaseService } from '../types/service';
 import type { DatabaseTable } from '../types/table';
@@ -25,7 +25,7 @@ import { getDatabaseEngine } from './engine';
 import { isDatabaseService } from './utils';
 import { getDatabaseTable } from './table';
 
-export const getDatabaseServices = (reflection: SourceMap) => {
+export const getDatabaseServices = (reflection: ReflectionTypes) => {
   const allServices: Record<string, DatabaseService> = {};
   const errorList: Error[] = [];
 
@@ -110,7 +110,7 @@ const isCompleteService = (type: Incomplete<DatabaseService>): type is DatabaseS
   return isObjectWith(type, ['engine', 'tables', 'variables', 'services']);
 };
 
-const getAllTables = (member: ModelProperty, parent: TypeModel, reflection: SourceMap, errorList: Error[]) => {
+const getAllTables = (member: ModelProperty, parent: TypeModel, reflection: ReflectionTypes, errorList: Error[]) => {
   const tableItems = getPropertyTuple(member) ?? [];
   const tableList: DatabaseTable[] = [];
 

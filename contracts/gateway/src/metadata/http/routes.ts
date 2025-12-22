@@ -1,4 +1,4 @@
-import type { AllType, EveryType, ModelProperty, SourceMap, TypeModel, TypeObject } from '@ez4/reflection';
+import type { AllType, EveryType, ModelProperty, ReflectionTypes, TypeModel, TypeObject } from '@ez4/reflection';
 import type { MemberType } from '@ez4/common/library';
 import type { ObjectSchema } from '@ez4/schema';
 import type { Incomplete } from '@ez4/utils';
@@ -36,15 +36,15 @@ export const isHttpRouteDeclaration = (type: AllType): type is TypeModel => {
   return isModelDeclaration(type) && hasHeritageType(type, getFullTypeName(HttpNamespaceType, 'Route'));
 };
 
-export const getHttpLocalRoutes = (parent: TypeModel, member: ModelProperty, reflection: SourceMap, errorList: Error[]) => {
+export const getHttpLocalRoutes = (parent: TypeModel, member: ModelProperty, reflection: ReflectionTypes, errorList: Error[]) => {
   return getHttpRoutes(parent, member, reflection, errorList, false);
 };
 
-export const getHttpRemoteRoutes = (parent: TypeModel, member: ModelProperty, reflection: SourceMap, errorList: Error[]) => {
+export const getHttpRemoteRoutes = (parent: TypeModel, member: ModelProperty, reflection: ReflectionTypes, errorList: Error[]) => {
   return getHttpRoutes(parent, member, reflection, errorList, true);
 };
 
-const getHttpRoutes = (parent: TypeModel, member: ModelProperty, reflection: SourceMap, errorList: Error[], external: boolean) => {
+const getHttpRoutes = (parent: TypeModel, member: ModelProperty, reflection: ReflectionTypes, errorList: Error[], external: boolean) => {
   if (!isTypeReference(member.value)) {
     return getRouteFromTuple(getPropertyTuple(member) ?? [], parent, reflection, errorList, external);
   }
@@ -58,7 +58,13 @@ const getHttpRoutes = (parent: TypeModel, member: ModelProperty, reflection: Sou
   return undefined;
 };
 
-const getRouteFromTuple = (routeItems: EveryType[], parent: TypeModel, reflection: SourceMap, errorList: Error[], external: boolean) => {
+const getRouteFromTuple = (
+  routeItems: EveryType[],
+  parent: TypeModel,
+  reflection: ReflectionTypes,
+  errorList: Error[],
+  external: boolean
+) => {
   const routeList: HttpRoute[] = [];
 
   for (const route of routeItems) {
@@ -74,7 +80,7 @@ const getRouteFromTuple = (routeItems: EveryType[], parent: TypeModel, reflectio
   return routeList;
 };
 
-const getTypeFromRoute = (type: AllType, parent: TypeModel, reflection: SourceMap, errorList: Error[], external: boolean) => {
+const getTypeFromRoute = (type: AllType, parent: TypeModel, reflection: ReflectionTypes, errorList: Error[], external: boolean) => {
   if (!isTypeReference(type)) {
     return getRouteType(type, parent, reflection, errorList, external);
   }
@@ -92,7 +98,7 @@ const isCompleteRoute = (type: Incomplete<HttpRoute>): type is HttpRoute => {
   return isObjectWith(type, ['path', 'handler']);
 };
 
-const getRouteType = (type: AllType, parent: TypeModel, reflection: SourceMap, errorList: Error[], external: boolean) => {
+const getRouteType = (type: AllType, parent: TypeModel, reflection: ReflectionTypes, errorList: Error[], external: boolean) => {
   if (isHttpRouteDeclaration(type)) {
     return getTypeFromMembers(type, parent, getModelMembers(type), reflection, errorList, external);
   }
@@ -112,7 +118,7 @@ const getTypeFromMembers = (
   type: TypeObject | TypeModel,
   parent: TypeModel,
   members: MemberType[],
-  reflection: SourceMap,
+  reflection: ReflectionTypes,
   errorList: Error[],
   external: boolean
 ) => {

@@ -1,11 +1,11 @@
-import type { AllType, SourceMap } from '@ez4/reflection';
+import type { AllType, ReflectionTypes } from '@ez4/reflection';
 
 import { getFunctionSignature } from '@ez4/common/library';
 
 import { IncompleteHandlerError } from '../errors/handler';
 import { isStreamHandler } from './utils';
 
-export const getStreamHandler = (type: AllType, _reflection: SourceMap, errorList: Error[]) => {
+export const getStreamHandler = (type: AllType, _reflection: ReflectionTypes, errorList: Error[]) => {
   if (!isStreamHandler(type)) {
     return undefined;
   }

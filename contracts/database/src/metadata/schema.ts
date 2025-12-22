@@ -1,4 +1,4 @@
-import type { AllType, SourceMap, TypeModel, TypeObject } from '@ez4/reflection';
+import type { AllType, ReflectionTypes, TypeModel, TypeObject } from '@ez4/reflection';
 import type { TableSchema } from '../types/schema';
 
 import { isTypeObject, isTypeReference } from '@ez4/reflection';
@@ -11,7 +11,7 @@ import { isTableSchema } from './utils';
 
 type TypeParent = TypeModel | TypeObject;
 
-export const getTableSchema = (type: AllType, parent: TypeParent, reflection: SourceMap, errorList: Error[]) => {
+export const getTableSchema = (type: AllType, parent: TypeParent, reflection: ReflectionTypes, errorList: Error[]) => {
   if (!isTypeReference(type)) {
     return getTypeSchema(type, parent, reflection, errorList);
   }
@@ -25,7 +25,7 @@ export const getTableSchema = (type: AllType, parent: TypeParent, reflection: So
   return undefined;
 };
 
-const getTypeSchema = (type: AllType, parent: TypeParent, reflection: SourceMap, errorList: Error[]): TableSchema | undefined => {
+const getTypeSchema = (type: AllType, parent: TypeParent, reflection: ReflectionTypes, errorList: Error[]): TableSchema | undefined => {
   if (isTypeObject(type)) {
     return getSchema(type, reflection);
   }
@@ -43,7 +43,7 @@ const getTypeSchema = (type: AllType, parent: TypeParent, reflection: SourceMap,
   return getSchema(type, reflection);
 };
 
-const getSchema = (type: TypeObject | TypeModel, reflection: SourceMap) => {
+const getSchema = (type: TypeObject | TypeModel, reflection: ReflectionTypes) => {
   const schema = getObjectSchema(type, reflection, createSchemaContext({ nullish: true }));
 
   if (schema && isObjectSchema(schema)) {

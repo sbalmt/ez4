@@ -1,4 +1,4 @@
-import type { AllType, SourceMap, TypeIntersection, TypeModel, TypeObject } from '@ez4/reflection';
+import type { AllType, ReflectionTypes, TypeIntersection, TypeModel, TypeObject } from '@ez4/reflection';
 import type { MemberType } from '@ez4/common/library';
 import type { WsEvent } from './types';
 
@@ -26,7 +26,12 @@ export const isWsEventDeclaration = (type: TypeModel) => {
   return hasHeritageType(type, FULL_BASE_TYPE);
 };
 
-export const getWsEventMetadata = (type: AllType, parent: TypeModel, reflection: SourceMap, errorList: Error[]): WsEvent | undefined => {
+export const getWsEventMetadata = (
+  type: AllType,
+  parent: TypeModel,
+  reflection: ReflectionTypes,
+  errorList: Error[]
+): WsEvent | undefined => {
   if (isTypeIntersection(type) && type.elements.length > 0) {
     return getWsEventMetadata(type.elements[0], parent, reflection, errorList);
   }
@@ -44,7 +49,7 @@ export const getWsEventMetadata = (type: AllType, parent: TypeModel, reflection:
   return undefined;
 };
 
-const getEventType = (type: AllType, parent: TypeModel, reflection: SourceMap, errorList: Error[]) => {
+const getEventType = (type: AllType, parent: TypeModel, reflection: ReflectionTypes, errorList: Error[]) => {
   if (isTypeObject(type)) {
     return getTypeFromMembers(type, parent, getObjectMembers(type), reflection, errorList);
   }
@@ -66,7 +71,7 @@ const getTypeFromMembers = (
   type: TypeObject | TypeModel | TypeIntersection,
   parent: TypeModel,
   members: MemberType[],
-  reflection: SourceMap,
+  reflection: ReflectionTypes,
   errorList: Error[]
 ) => {
   const request: WsEvent = {};

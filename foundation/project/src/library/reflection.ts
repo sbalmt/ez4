@@ -1,4 +1,4 @@
-import type { ReflectionOptions, ReflectionReadyListener, SourceMap } from '@ez4/reflection';
+import type { ReflectionOptions, ReflectionReadyListener, ReflectionTypes } from '@ez4/reflection';
 
 import { existsSync } from 'node:fs';
 
@@ -11,7 +11,7 @@ export type BuildReflectionOptions = {
   aliasPaths?: Record<string, string[]>;
 };
 
-export const buildReflection = (sourceFiles: string[], options?: BuildReflectionOptions): SourceMap => {
+export const buildReflection = (sourceFiles: string[], options?: BuildReflectionOptions): ReflectionTypes => {
   assertSourceFiles(sourceFiles);
 
   return getReflectionFromFiles(sourceFiles, {

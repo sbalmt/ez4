@@ -1,4 +1,4 @@
-import type { AllType, SourceMap, TypeModel, TypeObject } from '@ez4/reflection';
+import type { AllType, ReflectionTypes, TypeModel, TypeObject } from '@ez4/reflection';
 import type { MemberType } from '@ez4/common/library';
 import type { Incomplete } from '@ez4/utils';
 import type { CdnRegularOrigin, CdnBucketOrigin, CdnOrigin } from '../types/origin';
@@ -22,7 +22,7 @@ import { CdnOriginType } from '../types/origin';
 import { getCdnCache } from './cache';
 import { isCdnOrigin } from './utils';
 
-export const getAllCdnOrigins = (type: AllType, parent: TypeModel, reflection: SourceMap, errorList: Error[]) => {
+export const getAllCdnOrigins = (type: AllType, parent: TypeModel, reflection: ReflectionTypes, errorList: Error[]) => {
   const originItems = getLiteralTuple(type) ?? [];
   const resultList: CdnOrigin[] = [];
 
@@ -37,7 +37,7 @@ export const getAllCdnOrigins = (type: AllType, parent: TypeModel, reflection: S
   return resultList;
 };
 
-export const getCdnOrigin = (type: AllType, parent: TypeModel, reflection: SourceMap, errorList: Error[]) => {
+export const getCdnOrigin = (type: AllType, parent: TypeModel, reflection: ReflectionTypes, errorList: Error[]) => {
   if (!isTypeReference(type)) {
     return getTypeOrigin(type, parent, reflection, errorList);
   }
@@ -55,7 +55,7 @@ const isValidOrigin = (type: Incomplete<CdnRegularOrigin & CdnBucketOrigin>): ty
   return !!type.type && (!!type.domain || !!type.bucket);
 };
 
-const getTypeOrigin = (type: AllType, parent: TypeModel, reflection: SourceMap, errorList: Error[]) => {
+const getTypeOrigin = (type: AllType, parent: TypeModel, reflection: ReflectionTypes, errorList: Error[]) => {
   if (isTypeObject(type)) {
     return getTypeFromMembers(type, getObjectMembers(type), parent, reflection, errorList);
   }
@@ -77,7 +77,7 @@ const getTypeFromMembers = (
   type: TypeObject | TypeModel,
   members: MemberType[],
   parent: TypeModel,
-  reflection: SourceMap,
+  reflection: ReflectionTypes,
   errorList: Error[]
 ) => {
   const origin: Incomplete<CdnRegularOrigin & CdnBucketOrigin> = {};

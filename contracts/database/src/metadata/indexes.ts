@@ -1,4 +1,4 @@
-import type { AllType, SourceMap, TypeModel, TypeObject } from '@ez4/reflection';
+import type { AllType, ReflectionTypes, TypeModel, TypeObject } from '@ez4/reflection';
 import type { MemberType } from '@ez4/common/library';
 import type { TableIndex } from '../types/indexes';
 
@@ -11,7 +11,7 @@ import { isTableIndexes } from './utils';
 
 type TypeParent = TypeModel | TypeObject;
 
-export const getTableIndexes = (type: AllType, parent: TypeParent, reflection: SourceMap, errorList: Error[]) => {
+export const getTableIndexes = (type: AllType, parent: TypeParent, reflection: ReflectionTypes, errorList: Error[]) => {
   if (!isTypeReference(type)) {
     return getTypeIndexes(type, parent, errorList);
   }

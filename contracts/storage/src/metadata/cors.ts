@@ -1,4 +1,4 @@
-import type { AllType, ModelProperty, SourceMap, TypeModel, TypeObject } from '@ez4/reflection';
+import type { AllType, ModelProperty, ReflectionTypes, TypeModel, TypeObject } from '@ez4/reflection';
 import type { MemberType } from '@ez4/common/library';
 import type { Incomplete } from '@ez4/utils';
 import type { BucketCors } from '../types/common';
@@ -19,7 +19,7 @@ import { isModelProperty, isTypeObject, isTypeReference } from '@ez4/reflection'
 import { IncompleteCorsError, IncorrectCorsTypeError, InvalidCorsTypeError } from '../errors/cors';
 import { isBucketCors } from './utils';
 
-export const getBucketCors = (type: AllType, parent: TypeModel, reflection: SourceMap, errorList: Error[]) => {
+export const getBucketCors = (type: AllType, parent: TypeModel, reflection: ReflectionTypes, errorList: Error[]) => {
   if (!isTypeReference(type)) {
     return getTypeCors(type, parent, errorList);
   }

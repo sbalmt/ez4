@@ -1,4 +1,4 @@
-import type { SourceMap } from '@ez4/reflection';
+import type { ReflectionTypes } from '@ez4/reflection';
 import type { Incomplete } from '@ez4/utils';
 import type { BucketService } from '../types/service';
 
@@ -22,7 +22,7 @@ import { isBucketService } from './utils';
 import { getBucketEvent } from './event';
 import { getBucketCors } from './cors';
 
-export const getBucketServices = (reflection: SourceMap) => {
+export const getBucketServices = (reflection: ReflectionTypes) => {
   const allServices: Record<string, BucketService> = {};
   const errorList: Error[] = [];
 

@@ -1,6 +1,6 @@
 import type { CronEventSchema } from '../types/common';
 
-import type { AllType, SourceMap, TypeCallback, TypeFunction, TypeIntersection, TypeModel, TypeObject } from '@ez4/reflection';
+import type { AllType, ReflectionTypes, TypeCallback, TypeFunction, TypeIntersection, TypeModel, TypeObject } from '@ez4/reflection';
 
 import { getReferenceType, isModelDeclaration } from '@ez4/common/library';
 import { isTypeIntersection, isTypeObject, isTypeReference, isTypeUnion } from '@ez4/reflection';
@@ -12,7 +12,7 @@ import { isCronEvent } from './utils';
 
 type TypeParent = TypeModel | TypeCallback | TypeFunction;
 
-export const getCronEvent = (type: AllType, parent: TypeParent, reflection: SourceMap, errorList: Error[]) => {
+export const getCronEvent = (type: AllType, parent: TypeParent, reflection: ReflectionTypes, errorList: Error[]) => {
   if (!isTypeReference(type)) {
     return getTypeEvent(type, parent, reflection, errorList);
   }
@@ -26,7 +26,7 @@ export const getCronEvent = (type: AllType, parent: TypeParent, reflection: Sour
   return undefined;
 };
 
-const getTypeEvent = (type: AllType, parent: TypeParent, reflection: SourceMap, errorList: Error[]): CronEventSchema | undefined => {
+const getTypeEvent = (type: AllType, parent: TypeParent, reflection: ReflectionTypes, errorList: Error[]): CronEventSchema | undefined => {
   if (isTypeUnion(type)) {
     return getEventFromUnion(type.elements, parent, reflection, errorList);
   }
@@ -52,7 +52,7 @@ const getTypeEvent = (type: AllType, parent: TypeParent, reflection: SourceMap, 
   return getEventSchema(type, reflection);
 };
 
-const getEventFromUnion = (types: AllType[], parent: TypeParent, reflection: SourceMap, errorList: Error[]) => {
+const getEventFromUnion = (types: AllType[], parent: TypeParent, reflection: ReflectionTypes, errorList: Error[]) => {
   const schemaList = [];
 
   for (const type of types) {
@@ -68,7 +68,7 @@ const getEventFromUnion = (types: AllType[], parent: TypeParent, reflection: Sou
   });
 };
 
-const getEventFromIntersection = (type: TypeObject | TypeModel | TypeIntersection, reflection: SourceMap) => {
+const getEventFromIntersection = (type: TypeObject | TypeModel | TypeIntersection, reflection: ReflectionTypes) => {
   const schema = getIntersectionSchema(type, reflection);
 
   if (schema && isObjectSchema(schema)) {
@@ -78,7 +78,7 @@ const getEventFromIntersection = (type: TypeObject | TypeModel | TypeIntersectio
   return undefined;
 };
 
-const getEventSchema = (type: TypeObject | TypeModel | TypeIntersection, reflection: SourceMap) => {
+const getEventSchema = (type: TypeObject | TypeModel | TypeIntersection, reflection: ReflectionTypes) => {
   const schema = getObjectSchema(type, reflection);
 
   if (schema && isObjectSchema(schema)) {

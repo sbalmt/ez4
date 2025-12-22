@@ -1,4 +1,4 @@
-import type { SourceMap, TypeModel } from '@ez4/reflection';
+import type { ReflectionTypes, TypeModel } from '@ez4/reflection';
 import type { Incomplete } from '@ez4/utils';
 import type { CronService } from '../types/service';
 
@@ -22,7 +22,7 @@ import { getCronTarget } from './target';
 import { isCronService } from './utils';
 import { getCronEvent } from './event';
 
-export const getCronServices = (reflection: SourceMap) => {
+export const getCronServices = (reflection: ReflectionTypes) => {
   const allServices: Record<string, CronService> = {};
   const errorList: Error[] = [];
 

@@ -1,4 +1,4 @@
-import type { AllType, SourceMap } from '@ez4/reflection';
+import type { AllType, ReflectionTypes } from '@ez4/reflection';
 
 import { getFunctionSignature } from '@ez4/common/library';
 
@@ -6,7 +6,7 @@ import { IncompleteHandlerError } from '../errors/handler';
 import { isTargetHandler } from './utils';
 import { getCronEvent } from './event';
 
-export const getTargetHandler = (type: AllType, reflection: SourceMap, errorList: Error[]) => {
+export const getTargetHandler = (type: AllType, reflection: ReflectionTypes, errorList: Error[]) => {
   if (!isTargetHandler(type)) {
     return undefined;
   }

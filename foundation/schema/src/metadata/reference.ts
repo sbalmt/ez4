@@ -1,4 +1,4 @@
-import type { AllType, SourceMap, TypeReference } from '@ez4/reflection';
+import type { AllType, ReflectionTypes, TypeReference } from '@ez4/reflection';
 import type { ReferenceSchema } from '../types/type-reference';
 import type { SchemaDefinitions } from '../types/common';
 import type { SchemaContext } from '../types/context';
@@ -35,7 +35,7 @@ export const isRichTypeReference = (type: AllType): type is RichTypeReference =>
 
 export const getReferenceSchema = (
   type: AllType,
-  reflection: SourceMap,
+  reflection: ReflectionTypes,
   context = createSchemaContext(),
   description?: string
 ): AnySchema | null => {
@@ -67,7 +67,7 @@ export const getReferenceSchema = (
 const getReferenceTypeSchema = (
   type: TypeReference,
   declaration: AllType,
-  reflection: SourceMap,
+  reflection: ReflectionTypes,
   context: SchemaContext,
   description?: string
 ) => {

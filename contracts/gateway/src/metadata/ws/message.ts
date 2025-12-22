@@ -1,4 +1,4 @@
-import type { AllType, SourceMap, TypeClass, TypeModel, TypeObject } from '@ez4/reflection';
+import type { AllType, ReflectionTypes, TypeClass, TypeModel, TypeObject } from '@ez4/reflection';
 import type { MemberType } from '@ez4/common/library';
 import type { Incomplete } from '@ez4/utils';
 import type { WsMessage } from './types';
@@ -28,7 +28,7 @@ export const isWsMessageDeclaration = (type: AllType): type is TypeClass => {
   return isModelDeclaration(type) && hasHeritageType(type, getFullTypeName(WsNamespaceType, 'Message'));
 };
 
-export const getWsMessageMetadata = (type: AllType, parent: TypeModel, reflection: SourceMap, errorList: Error[]) => {
+export const getWsMessageMetadata = (type: AllType, parent: TypeModel, reflection: ReflectionTypes, errorList: Error[]) => {
   if (!isTypeReference(type)) {
     return getMessageType(type, parent, reflection, errorList);
   }
@@ -46,7 +46,7 @@ const isCompleteWsMessage = (type: Incomplete<WsMessage>): type is WsMessage => 
   return isObjectWith(type, ['handler']);
 };
 
-const getMessageType = (type: AllType, parent: TypeModel, reflection: SourceMap, errorList: Error[]) => {
+const getMessageType = (type: AllType, parent: TypeModel, reflection: ReflectionTypes, errorList: Error[]) => {
   if (isWsMessageDeclaration(type)) {
     return getTypeFromMembers(type, parent, getModelMembers(type), reflection, errorList);
   }
@@ -62,7 +62,7 @@ const getTypeFromMembers = (
   type: TypeObject | TypeModel,
   parent: TypeModel,
   members: MemberType[],
-  reflection: SourceMap,
+  reflection: ReflectionTypes,
   errorList: Error[]
 ) => {
   const target: Incomplete<WsMessage> = {};

@@ -1,4 +1,4 @@
-import type { SourceMap, TypeModel } from '@ez4/reflection';
+import type { ReflectionTypes, TypeModel } from '@ez4/reflection';
 import type { Incomplete } from '@ez4/utils';
 import type { QueueService } from '../types/service';
 
@@ -25,7 +25,7 @@ import { getQueueMessage } from './message';
 import { getQueueFifoMode } from './fifo';
 import { isQueueService } from './utils';
 
-export const getQueueServices = (reflection: SourceMap) => {
+export const getQueueServices = (reflection: ReflectionTypes) => {
   const allServices: Record<string, QueueService> = {};
   const errorList: Error[] = [];
 

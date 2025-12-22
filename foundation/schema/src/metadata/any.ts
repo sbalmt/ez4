@@ -1,4 +1,4 @@
-import type { SourceMap, AllType } from '@ez4/reflection';
+import type { ReflectionTypes, AllType } from '@ez4/reflection';
 
 import { createSchemaContext } from '../types/context';
 import { getScalarSchema } from './scalar';
@@ -10,7 +10,7 @@ import { getArraySchema } from './array';
 import { getTupleSchema } from './tuple';
 import { getEnumSchema } from './enum';
 
-export const getAnySchema = (type: AllType, reflection: SourceMap, context = createSchemaContext(), description?: string) => {
+export const getAnySchema = (type: AllType, reflection: ReflectionTypes, context = createSchemaContext(), description?: string) => {
   return (
     getScalarSchema(type, description) ||
     getReferenceSchema(type, reflection, context, description) ||

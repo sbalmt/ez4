@@ -1,4 +1,4 @@
-import type { SourceMap } from '@ez4/reflection';
+import type { ReflectionTypes } from '@ez4/reflection';
 import type { Incomplete } from '@ez4/utils';
 import type { QueueImport } from '../types/import';
 
@@ -25,7 +25,7 @@ import { getQueueMessage } from './message';
 import { getQueueFifoMode } from './fifo';
 import { isQueueImport } from './utils';
 
-export const getQueueImports = (reflection: SourceMap) => {
+export const getQueueImports = (reflection: ReflectionTypes) => {
   const queueImports: Record<string, QueueImport> = {};
   const errorList: Error[] = [];
 
