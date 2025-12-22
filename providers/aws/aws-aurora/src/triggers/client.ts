@@ -27,7 +27,7 @@ export const prepareLinkedClient = (context: EventContext, service: DatabaseServ
     from: '@ez4/aws-aurora/client',
     module: 'Client',
     constructor:
-      `make({` +
+      `@{EZ4_MODULE_IMPORT}.make({` +
       `connection: { database: "${database}", resourceArn: ${resourceArn}, secretArn: ${secretArn} }, ` +
       `repository: ${JSON.stringify(getTableRepository(service.tables))}, ` +
       `debug: ${options.debug ?? false}` +
