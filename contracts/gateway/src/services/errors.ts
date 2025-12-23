@@ -50,6 +50,15 @@ export class HttpNotFoundError extends HttpError {
 }
 
 /**
+ * HTTP Conflict error.
+ */
+export class HttpConflictError extends HttpError {
+  constructor(message?: string, details?: string[]) {
+    super(409, message || 'Conflict', details);
+  }
+}
+
+/**
  * HTTP Unsupported Media Type error.
  */
 export class HttpUnsupportedMediaTypeError extends HttpError {
