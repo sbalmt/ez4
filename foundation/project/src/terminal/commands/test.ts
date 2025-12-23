@@ -31,6 +31,7 @@ export const testCommand = async (input: InputOptions, project: ProjectOptions) 
   warnUnsupportedFlags(input, {
     arguments: true,
     inspect: true,
+    coverage: true,
     reset: options.local,
     local: true
   });

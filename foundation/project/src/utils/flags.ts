@@ -2,14 +2,17 @@ import type { InputOptions } from '../terminal/options';
 
 import { Logger } from './logger';
 
-export type SupportedFlags = {
-  arguments?: boolean;
-  force?: boolean;
-  inspect?: boolean;
-  suppress?: boolean;
-  reset?: boolean;
-  local?: boolean;
+const OPTION_FLAGS = ['force', 'inspect', 'coverage', 'suppress', 'reset', 'local'] as const;
+
+type OptionFlags = {
+  [F in (typeof OPTION_FLAGS)[number]]?: boolean;
 };
+
+type ArgumentFlags = {
+  arguments?: boolean;
+};
+
+export type SupportedFlags = ArgumentFlags & OptionFlags;
 
 export const warnUnsupportedFlags = (input: InputOptions, flags?: SupportedFlags) => {
   const warnMessages = [];
@@ -18,24 +21,10 @@ export const warnUnsupportedFlags = (input: InputOptions, flags?: SupportedFlags
     warnMessages.push('Arguments take no effect');
   }
 
-  if (input.force && !flags?.force) {
-    warnMessages.push('Option --force take no effect');
-  }
-
-  if (input.inspect && !flags?.inspect) {
-    warnMessages.push('Option --inspect take no effect');
-  }
-
-  if (input.suppress && !flags?.suppress) {
-    warnMessages.push('Option --suppress take no effect');
-  }
-
-  if (input.reset && !flags?.reset) {
-    warnMessages.push('Option --reset take no effect');
-  }
-
-  if (input.local && !flags?.local) {
-    warnMessages.push('Option --local take no effect');
+  for (const flag of OPTION_FLAGS) {
+    if (input[flag] && !flags?.[flag]) {
+      warnMessages.push(`Option --${flag} take no effect`);
+    }
   }
 
   if (warnMessages.length) {
