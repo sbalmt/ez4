@@ -32,6 +32,7 @@ export const serveCommand = async (input: InputOptions, project: ProjectOptions)
 
   warnUnsupportedFlags(input, {
     reset: options.local,
+    inspect: true,
     suppress: true,
     local: true
   });

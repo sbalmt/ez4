@@ -5,6 +5,7 @@ import { Logger } from './logger';
 export type SupportedFlags = {
   arguments?: boolean;
   force?: boolean;
+  inspect?: boolean;
   suppress?: boolean;
   reset?: boolean;
   local?: boolean;
@@ -19,6 +20,10 @@ export const warnUnsupportedFlags = (input: InputOptions, flags?: SupportedFlags
 
   if (input.force && !flags?.force) {
     warnMessages.push('Option --force take no effect');
+  }
+
+  if (input.inspect && !flags?.inspect) {
+    warnMessages.push('Option --inspect take no effect');
   }
 
   if (input.suppress && !flags?.suppress) {

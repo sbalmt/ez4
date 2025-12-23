@@ -28,6 +28,7 @@ export const runCommand = async (input: InputOptions, project: ProjectOptions) =
 
   warnUnsupportedFlags(input, {
     arguments: true,
+    inspect: true,
     reset: options.local,
     local: true
   });

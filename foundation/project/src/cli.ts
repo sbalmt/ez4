@@ -18,8 +18,12 @@ if (options?.projectFile) {
 
 const extraArguments = [];
 
-if (options?.command === CommandType.Serve || options?.command === CommandType.Test) {
+if (options?.command === CommandType.Serve || options?.command === CommandType.Test || options?.command === CommandType.Run) {
   extraArguments.push('--experimental-test-module-mocks', '--enable-source-maps');
+
+  if (options?.inspect) {
+    extraArguments.push('--inspect');
+  }
 }
 
 spawn(

@@ -1,0 +1,19 @@
+{
+	"version": "0.2.0",
+	"configurations": [
+		{
+			"port": 9229,
+			"address": "0.0.0.0",
+			"name": "Attach debugger",
+			"localRoot": "${workspaceFolder}",
+			"remoteRoot": "${workspaceFolder}",
+			"sourceMaps": true,
+			"request": "attach",
+			"type": "node",
+			"skipFiles": [
+				"<node_internals>/**",
+				"**/node_modules/**"
+			],
+		}
+	]
+}

@@ -16,6 +16,7 @@ export type InputOptions = {
   arguments?: string[];
   suppress?: boolean;
   force?: boolean;
+  inspect?: boolean;
   debug?: boolean;
   reset?: boolean;
   local?: boolean;
@@ -56,6 +57,10 @@ export const getInputOptions = () => {
 
       case '--force':
         options.force = true;
+        break;
+
+      case '--inspect':
+        options.inspect = true;
         break;
 
       case '--debug':
