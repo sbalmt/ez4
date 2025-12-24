@@ -33,7 +33,7 @@ export namespace Runner {
     });
   };
 
-  export const getServiceClient = (resourceName: string) => {
+  export const getServiceClient = (resourceName: string): Promise<unknown> | unknown => {
     if (!ensureContext(CONTEXT)) {
       throw new Error('Runner is not configured yet.');
     }
