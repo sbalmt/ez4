@@ -28,6 +28,11 @@
       "types": "./dist/library.d.ts",
       "require": "./dist/library.cjs",
       "import": "./dist/library.mjs"
+    },
+    "./test": {
+      "types": "./dist/test.d.ts",
+      "require": "./dist/test.cjs",
+      "import": "./dist/test.mjs"
     }
   },
   "sideEffects": [

@@ -7,3 +7,7 @@ bundlePackage('src/main.ts', 'dist/main.cjs', 'cjs');
 // Library package.
 bundlePackage('src/library.ts', 'dist/library.mjs', 'esm');
 bundlePackage('src/library.ts', 'dist/library.cjs', 'cjs');
+
+// Tester package.
+bundlePackage('src/test.ts', 'dist/test.mjs', 'esm');
+bundlePackage('src/test.ts', 'dist/test.cjs', 'cjs');
