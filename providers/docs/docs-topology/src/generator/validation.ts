@@ -16,7 +16,7 @@ export const getValidationNodes = (metadata: MetadataReflection) => {
     generator: ({ name, resource }) => {
       if (isValidationService(resource)) {
         return {
-          shape: `${name}@{ shape: hex, label: "${resource.name}" }`,
+          shape: `${name}@{ shape: rect, label: "${resource.name}" }`,
           style: `class ${name} ez4Validation`
         };
       }
