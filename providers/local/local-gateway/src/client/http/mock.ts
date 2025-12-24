@@ -25,6 +25,10 @@ export const createHttpClientMock = <T extends Http.Service>(serviceName: string
           throw new Error(`Operation '${property.toString()}' wasn't found.`);
         }
 
+        if (property === 'then') {
+          return undefined;
+        }
+
         if (!operationsCache[property]) {
           const operation = responses.operations?.[property] ?? responses.default;
 
